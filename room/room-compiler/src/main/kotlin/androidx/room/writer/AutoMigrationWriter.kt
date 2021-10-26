@@ -242,9 +242,10 @@ class AutoMigrationWriter(
             migrateBuilder,
             buildString {
                 append(
-                    "INSERT INTO `${newTable.tableName}` (${newColumnSequence.joinToString(",")})" +
-                        " SELECT ${oldColumnSequence.joinToString(",")} FROM " +
-                        "`$selectFromTable`",
+                    "INSERT INTO `${newTable.tableName}` " +
+                        "(${newColumnSequence.joinToString(",") { "`$it`" }})" +
+                        " SELECT ${oldColumnSequence.joinToString(",") { "`$it`" }} " +
+                        "FROM `$selectFromTable`",
                 )
             }
         )
@@ -312,8 +313,8 @@ class AutoMigrationWriter(
             buildString {
                 append(
                     "INSERT INTO `$tableNameWithNewPrefix` " +
-                        "(${newColumnSequence.joinToString(",")})" +
-                        " SELECT ${oldColumnSequence.joinToString(",")} FROM " +
+                        "(${newColumnSequence.joinToString(",") { "`$it`" }})" +
+                        " SELECT ${oldColumnSequence.joinToString(",") { "`$it`" }} FROM " +
                         "`$oldTableName`",
                 )
             }
