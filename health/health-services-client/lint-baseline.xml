@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.2.0-dev" type="baseline" client="gradle" dependencies="false" name="AGP (7.2.0-dev)" variant="all" version="7.2.0-dev">
+<issues format="6" by="lint 7.1.0-alpha08" type="baseline" client="gradle" dependencies="false" name="AGP (7.1.0-alpha08)" variant="all" version="7.1.0-alpha08">
 
     <issue
         id="BanKeepAnnotation"
@@ -92,23 +92,34 @@
     <issue
         id="BanSynchronizedMethods"
         message="Use of synchronized methods is not recommended"
+        errorLine1="        @Synchronized"
+        errorLine2="        ^">
+        <location
+            file="src/main/java/androidx/health/services/client/impl/PassiveMonitoringCallbackStub.kt"
+            line="61"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="BanSynchronizedMethods"
+        message="Use of synchronized methods is not recommended"
+        errorLine1="        @Synchronized"
+        errorLine2="        ^">
+        <location
+            file="src/main/java/androidx/health/services/client/impl/PassiveMonitoringCallbackStub.kt"
+            line="71"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="BanSynchronizedMethods"
+        message="Use of synchronized methods is not recommended"
         errorLine1="    private synchronized void handleRetriableDisconnection(Throwable throwable) {"
         errorLine2="    ^">
         <location
             file="src/main/java/androidx/health/services/client/impl/ipc/internal/ServiceConnection.java"
             line="155"
             column="5"/>
-    </issue>
-
-    <issue
-        id="VisibleForTests"
-        message="This method should only be accessed from tests or within private scope"
-        errorLine1="        get() = ServiceBackedMeasureClient.getClient(applicationContext)"
-        errorLine2="                                           ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/health/services/client/impl/ServiceBackedHealthServicesClient.kt"
-            line="51"
-            column="44"/>
     </issue>
 
     <issue
@@ -135,57 +146,46 @@
 
     <issue
         id="SyntheticAccessor"
-        message="Access to `private` field `mCurrentVersion` of class `Client` requires synthetic accessor"
-        errorLine1="                            mCurrentVersion ="
-        errorLine2="                            ~~~~~~~~~~~~~~~">
+        message="Access to `private` field `mConnectionManager` of class `Client` requires synthetic accessor"
+        errorLine1="                            mConnectionManager.scheduleForExecution("
+        errorLine2="                            ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/health/services/client/impl/ipc/Client.java"
-            line="139"
+            line="143"
             column="29"/>
     </issue>
 
     <issue
         id="SyntheticAccessor"
-        message="Access to `private` field `mCurrentVersion` of class `Client` requires synthetic accessor"
-        errorLine1="                            if (mCurrentVersion &lt; minApiVersion) {"
-        errorLine2="                                ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/health/services/client/impl/ipc/Client.java"
-            line="141"
-            column="33"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mCurrentVersion` of class `Client` requires synthetic accessor"
-        errorLine1="                                            mCurrentVersion, minApiVersion));"
-        errorLine2="                                            ~~~~~~~~~~~~~~~">
+        message="Access to `private` field `mConnectionConfiguration` of class `Client` requires synthetic accessor"
+        errorLine1="                                    new BaseQueueOperation(mConnectionConfiguration));"
+        errorLine2="                                                           ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/health/services/client/impl/ipc/Client.java"
             line="144"
-            column="45"/>
+            column="60"/>
     </issue>
 
     <issue
         id="SyntheticAccessor"
         message="Access to `private` field `mConnectionManager` of class `Client` requires synthetic accessor"
-        errorLine1="                                mConnectionManager.scheduleForExecution("
-        errorLine2="                                ~~~~~~~~~~~~~~~~~~">
+        errorLine1="                            mConnectionManager.scheduleForExecution("
+        errorLine2="                            ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/health/services/client/impl/ipc/Client.java"
-            line="146"
-            column="33"/>
+            line="150"
+            column="29"/>
     </issue>
 
     <issue
         id="SyntheticAccessor"
         message="Access to `private` method `createQueueOperation` of class `Client` requires synthetic accessor"
-        errorLine1="                                        createQueueOperation(operation, settableFuture));"
-        errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="                                    createQueueOperation(operation, settableFuture));"
+        errorLine2="                                    ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/health/services/client/impl/ipc/Client.java"
-            line="147"
-            column="41"/>
+            line="151"
+            column="37"/>
     </issue>
 
     <issue
@@ -195,7 +195,7 @@
         errorLine2="                                  ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/health/services/client/impl/ipc/Client.java"
-            line="266"
+            line="278"
             column="35"/>
     </issue>
 
@@ -230,6 +230,17 @@
             file="src/main/java/androidx/health/services/client/impl/MeasureCallbackStub.kt"
             line="92"
             column="39"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` constructor of class `PassiveMonitoringCallbackStub` requires synthetic accessor"
+        errorLine1="                PassiveMonitoringCallbackStub(packageName, callback)"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/health/services/client/impl/PassiveMonitoringCallbackStub.kt"
+            line="67"
+            column="17"/>
     </issue>
 
     <issue
@@ -422,144 +433,144 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    protected &lt;R> ListenableFuture&lt;R> registerListener("
-        errorLine2="                  ~~~~~~~~~~~~~~~~~~~">
+        errorLine1="    protected ListenableFuture&lt;Integer> getCurrentRemoteVersion(boolean forceRefresh) {"
+        errorLine2="              ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/health/services/client/impl/ipc/Client.java"
-            line="184"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="            ListenerKey listenerKey, RemoteOperation&lt;S, R> registerListenerOperation) {"
-        errorLine2="            ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/health/services/client/impl/ipc/Client.java"
-            line="185"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="            ListenerKey listenerKey, RemoteOperation&lt;S, R> registerListenerOperation) {"
-        errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/health/services/client/impl/ipc/Client.java"
-            line="185"
-            column="38"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    protected &lt;R> ListenableFuture&lt;R> registerListener("
-        errorLine2="                  ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/health/services/client/impl/ipc/Client.java"
-            line="205"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="            ListenerKey listenerKey, RemoteFutureOperation&lt;S, R> registerListenerOperation) {"
-        errorLine2="            ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/health/services/client/impl/ipc/Client.java"
-            line="206"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="            ListenerKey listenerKey, RemoteFutureOperation&lt;S, R> registerListenerOperation) {"
-        errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/health/services/client/impl/ipc/Client.java"
-            line="206"
-            column="38"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    protected &lt;R> ListenableFuture&lt;R> unregisterListener("
-        errorLine2="                  ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/health/services/client/impl/ipc/Client.java"
-            line="223"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="            ListenerKey listenerKey, RemoteOperation&lt;S, R> unregisterListenerOperation) {"
-        errorLine2="            ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/health/services/client/impl/ipc/Client.java"
-            line="224"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="            ListenerKey listenerKey, RemoteOperation&lt;S, R> unregisterListenerOperation) {"
-        errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/health/services/client/impl/ipc/Client.java"
-            line="224"
-            column="38"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    protected &lt;R> ListenableFuture&lt;R> unregisterListener("
-        errorLine2="                  ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/health/services/client/impl/ipc/Client.java"
-            line="241"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="            ListenerKey listenerKey, RemoteFutureOperation&lt;S, R> unregisterListenerOperation) {"
-        errorLine2="            ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/health/services/client/impl/ipc/Client.java"
-            line="242"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="            ListenerKey listenerKey, RemoteFutureOperation&lt;S, R> unregisterListenerOperation) {"
-        errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/health/services/client/impl/ipc/Client.java"
-            line="242"
-            column="38"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    protected Exception getApiVersionCheckFailureException(int currentVersion, int minApiVersion) {"
-        errorLine2="              ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/health/services/client/impl/ipc/Client.java"
-            line="249"
+            line="169"
             column="15"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected &lt;R> ListenableFuture&lt;R> registerListener("
+        errorLine2="                  ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/health/services/client/impl/ipc/Client.java"
+            line="196"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            ListenerKey listenerKey, RemoteOperation&lt;S, R> registerListenerOperation) {"
+        errorLine2="            ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/health/services/client/impl/ipc/Client.java"
+            line="197"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            ListenerKey listenerKey, RemoteOperation&lt;S, R> registerListenerOperation) {"
+        errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/health/services/client/impl/ipc/Client.java"
+            line="197"
+            column="38"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected &lt;R> ListenableFuture&lt;R> registerListener("
+        errorLine2="                  ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/health/services/client/impl/ipc/Client.java"
+            line="217"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            ListenerKey listenerKey, RemoteFutureOperation&lt;S, R> registerListenerOperation) {"
+        errorLine2="            ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/health/services/client/impl/ipc/Client.java"
+            line="218"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            ListenerKey listenerKey, RemoteFutureOperation&lt;S, R> registerListenerOperation) {"
+        errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/health/services/client/impl/ipc/Client.java"
+            line="218"
+            column="38"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected &lt;R> ListenableFuture&lt;R> unregisterListener("
+        errorLine2="                  ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/health/services/client/impl/ipc/Client.java"
+            line="235"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            ListenerKey listenerKey, RemoteOperation&lt;S, R> unregisterListenerOperation) {"
+        errorLine2="            ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/health/services/client/impl/ipc/Client.java"
+            line="236"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            ListenerKey listenerKey, RemoteOperation&lt;S, R> unregisterListenerOperation) {"
+        errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/health/services/client/impl/ipc/Client.java"
+            line="236"
+            column="38"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected &lt;R> ListenableFuture&lt;R> unregisterListener("
+        errorLine2="                  ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/health/services/client/impl/ipc/Client.java"
+            line="253"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            ListenerKey listenerKey, RemoteFutureOperation&lt;S, R> unregisterListenerOperation) {"
+        errorLine2="            ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/health/services/client/impl/ipc/Client.java"
+            line="254"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            ListenerKey listenerKey, RemoteFutureOperation&lt;S, R> unregisterListenerOperation) {"
+        errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/health/services/client/impl/ipc/Client.java"
+            line="254"
+            column="38"/>
     </issue>
 
     <issue
@@ -635,7 +646,7 @@
         errorLine2="            ~~~~~~">
         <location
             file="src/main/java/androidx/health/services/client/impl/ipc/internal/ConnectionConfiguration.java"
-            line="38"
+            line="37"
             column="13"/>
     </issue>
 
@@ -646,7 +657,7 @@
         errorLine2="            ~~~~~~">
         <location
             file="src/main/java/androidx/health/services/client/impl/ipc/internal/ConnectionConfiguration.java"
-            line="39"
+            line="38"
             column="13"/>
     </issue>
 
@@ -657,7 +668,7 @@
         errorLine2="            ~~~~~~">
         <location
             file="src/main/java/androidx/health/services/client/impl/ipc/internal/ConnectionConfiguration.java"
-            line="40"
+            line="39"
             column="13"/>
     </issue>
 
@@ -668,7 +679,7 @@
         errorLine2="            ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/health/services/client/impl/ipc/internal/ConnectionConfiguration.java"
-            line="41"
+            line="40"
             column="13"/>
     </issue>
 
@@ -800,7 +811,7 @@
         errorLine2="                                     ~~~~~~~~~">
         <location
             file="src/main/java/androidx/health/services/client/impl/ipc/internal/DefaultExecutionTracker.java"
-            line="45"
+            line="53"
             column="38"/>
     </issue>
 
@@ -905,39 +916,6 @@
 
     <issue
         id="UnknownNullness"
-        message="Should explicitly declare type here since implicit type does not specify nullness"
-        errorLine1="    override val capabilities: ListenableFuture&lt;ExerciseCapabilities>"
-        errorLine2="                 ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/health/services/client/impl/ServiceBackedExerciseClient.kt"
-            line="160"
-            column="18"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Should explicitly declare type here since implicit type does not specify nullness"
-        errorLine1="    override val capabilities: ListenableFuture&lt;MeasureCapabilities>"
-        errorLine2="                 ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/health/services/client/impl/ServiceBackedMeasureClient.kt"
-            line="92"
-            column="18"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Should explicitly declare type here since implicit type does not specify nullness"
-        errorLine1="    override val capabilities: ListenableFuture&lt;PassiveMonitoringCapabilities>"
-        errorLine2="                 ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/health/services/client/impl/ServiceBackedPassiveMonitoringClient.kt"
-            line="95"
-            column="18"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="        void onConnected(ServiceConnection connection);"
         errorLine2="                         ~~~~~~~~~~~~~~~~~">
@@ -965,7 +943,7 @@
         errorLine2="                                   ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/health/services/client/impl/ipc/internal/ServiceConnection.java"
-            line="287"
+            line="288"
             column="36"/>
     </issue>
 
@@ -976,7 +954,7 @@
         errorLine2="                                                                ~~~~~~~">
         <location
             file="src/main/java/androidx/health/services/client/impl/ipc/internal/ServiceConnection.java"
-            line="287"
+            line="288"
             column="65"/>
     </issue>
 
@@ -987,7 +965,7 @@
         errorLine2="                                      ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/health/services/client/impl/ipc/internal/ServiceConnection.java"
-            line="320"
+            line="321"
             column="39"/>
     </issue>
 
@@ -998,7 +976,7 @@
         errorLine2="                              ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/health/services/client/impl/ipc/internal/ServiceConnection.java"
-            line="326"
+            line="327"
             column="31"/>
     </issue>
 
@@ -1009,7 +987,7 @@
         errorLine2="                              ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/health/services/client/impl/ipc/internal/ServiceConnection.java"
-            line="332"
+            line="333"
             column="31"/>
     </issue>
 

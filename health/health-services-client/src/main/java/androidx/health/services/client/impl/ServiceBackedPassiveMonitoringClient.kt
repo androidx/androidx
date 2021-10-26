@@ -18,6 +18,7 @@ package androidx.health.services.client.impl
 
 import android.content.ComponentName
 import android.content.Context
+import androidx.annotation.VisibleForTesting
 import androidx.core.content.ContextCompat
 import androidx.health.services.client.PassiveMonitoringCallback
 import androidx.health.services.client.PassiveMonitoringClient
@@ -26,10 +27,12 @@ import androidx.health.services.client.data.PassiveMonitoringCapabilities
 import androidx.health.services.client.data.PassiveMonitoringConfig
 import androidx.health.services.client.impl.IpcConstants.PASSIVE_API_BIND_ACTION
 import androidx.health.services.client.impl.IpcConstants.SERVICE_PACKAGE_NAME
+import androidx.health.services.client.impl.PassiveMonitoringCallbackStub.PassiveMonitoringCallbackCache
 import androidx.health.services.client.impl.internal.HsConnectionManager
 import androidx.health.services.client.impl.internal.StatusCallback
 import androidx.health.services.client.impl.ipc.Client
 import androidx.health.services.client.impl.ipc.ClientConfiguration
+import androidx.health.services.client.impl.ipc.internal.ConnectionManager
 import androidx.health.services.client.impl.request.BackgroundRegistrationRequest
 import androidx.health.services.client.impl.request.CapabilitiesRequest
 import androidx.health.services.client.impl.request.FlushRequest
@@ -42,11 +45,16 @@ import com.google.common.util.concurrent.ListenableFuture
  *
  * @hide
  */
-internal class ServiceBackedPassiveMonitoringClient(private val applicationContext: Context) :
+@VisibleForTesting(otherwise = VisibleForTesting.PACKAGE_PRIVATE)
+public class ServiceBackedPassiveMonitoringClient(
+    private val applicationContext: Context,
+    private val connectionManager: ConnectionManager =
+        HsConnectionManager.getInstance(applicationContext)
+) :
     PassiveMonitoringClient,
     Client<IPassiveMonitoringApiService>(
         CLIENT_CONFIGURATION,
-        HsConnectionManager.getInstance(applicationContext),
+        connectionManager,
         { binder -> IPassiveMonitoringApiService.Stub.asInterface(binder) },
         { service -> service.apiVersion }
     ) {
@@ -55,17 +63,54 @@ internal class ServiceBackedPassiveMonitoringClient(private val applicationConte
 
     override fun registerDataCallback(
         configuration: PassiveMonitoringConfig
-    ): ListenableFuture<Void> = registerDataCallbackInternal(configuration, callback = null)
+    ): ListenableFuture<Void> {
+        val callbackStub = PassiveMonitoringCallbackCache.INSTANCE.remove(packageName)
+        // If the client had a previous callback registered, make sure it's cleared.
+        if (callbackStub != null) {
+            return unregisterListener(callbackStub.listenerKey) { service, resultFuture ->
+                service.registerDataCallback(
+                    BackgroundRegistrationRequest(configuration),
+                    null,
+                    StatusCallback(resultFuture)
+                )
+            }
+        }
+
+        return execute { service, resultFuture ->
+            service.registerDataCallback(
+                BackgroundRegistrationRequest(configuration),
+                null,
+                StatusCallback(resultFuture)
+            )
+        }
+    }
 
     override fun registerDataCallback(
         configuration: PassiveMonitoringConfig,
         callback: PassiveMonitoringCallback
-    ): ListenableFuture<Void> = registerDataCallbackInternal(configuration, callback)
+    ): ListenableFuture<Void> {
+        val callbackStub =
+            PassiveMonitoringCallbackCache.INSTANCE.getOrCreate(packageName, callback)
+        return registerListener(callbackStub.listenerKey) { service, resultFuture ->
+            service.registerDataCallback(
+                BackgroundRegistrationRequest(configuration),
+                callbackStub,
+                StatusCallback(resultFuture)
+            )
+        }
+    }
 
-    override fun unregisterDataCallback(): ListenableFuture<Void> =
-        execute { service, resultFuture ->
+    override fun unregisterDataCallback(): ListenableFuture<Void> {
+        val callbackStub = PassiveMonitoringCallbackCache.INSTANCE.remove(packageName)
+        if (callbackStub != null) {
+            return unregisterListener(callbackStub.listenerKey) { service, resultFuture ->
+                service.unregisterDataCallback(packageName, StatusCallback(resultFuture))
+            }
+        }
+        return execute { service, resultFuture ->
             service.unregisterDataCallback(packageName, StatusCallback(resultFuture))
         }
+    }
 
     // TODO(jlannin): Make this take in the BroadcastReceiver directly.
     override fun registerPassiveGoalCallback(
@@ -100,23 +145,8 @@ internal class ServiceBackedPassiveMonitoringClient(private val applicationConte
                 ContextCompat.getMainExecutor(applicationContext)
             )
 
-    private fun registerDataCallbackInternal(
-        configuration: PassiveMonitoringConfig,
-        callback: PassiveMonitoringCallback?
-    ): ListenableFuture<Void> = execute { service, resultFuture ->
-        // TODO(b/191997620): This should check the package against what was requested and return an
-        // error in the event of a mismatch.
-        // TODO(jlannin): Maybe we should put the BroadcastReceiver directly in the
-        // PassiveMonitoringConfig?
-        service.registerDataCallback(
-            BackgroundRegistrationRequest(configuration),
-            callback?.let { PassiveMonitoringCallbackStub(it) },
-            StatusCallback(resultFuture)
-        )
-    }
-
     private companion object {
-        private const val CLIENT = "HealthServicesPassiveMonitoringClient"
+        const val CLIENT = "HealthServicesPassiveMonitoringClient"
         private val CLIENT_CONFIGURATION =
             ClientConfiguration(CLIENT, SERVICE_PACKAGE_NAME, PASSIVE_API_BIND_ACTION)
     }
