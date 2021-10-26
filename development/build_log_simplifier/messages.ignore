@@ -215,10 +215,8 @@ application@android:debuggable was tagged at .*\.xml:[0-9]+ to replace other dec
 \$SUPPORT/compose/runtime/runtime/compose\-runtime\-benchmark/src/androidTest/AndroidManifest\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
 # > Task :compose:ui:ui:compileKotlinMetadata
 w: Runtime JAR files in the classpath should have the same version\. These files were found in the classpath:
-\$CHECKOUT/prebuilts/androidx/external/org/jetbrains/kotlin/kotlin\-reflect/[0-9]+\.[0-9]+\.[0-9]+/kotlin\-reflect\-[0-9]+\.[0-9]+\.[0-9]+\.jar \(version [0-9]+\.[0-9]+\)
 \$CHECKOUT/prebuilts/androidx/external/org/jetbrains/kotlin/kotlin\-stdlib/[0-9]+\.[0-9]+\.[0-9]+-?[A-Z0-9]*/kotlin\-stdlib\-[0-9]+\.[0-9]+\.[0-9]+-?[A-Z0-9]*\.jar \(version [0-9]+\.[0-9]+-?[A-Z0-9]*\)
 \$CHECKOUT/prebuilts/androidx/external/org/jetbrains/kotlin/kotlin\-stdlib\-common/[0-9]+\.[0-9]+\.[0-9]+-?[A-Z0-9]*/kotlin\-stdlib\-common\-[0-9]+\.[0-9]+\.[0-9]+-?[A-Z0-9]*\.jar \(version [0-9]+\.[0-9]+-?[A-Z0-9]*\)
-w: Consider providing an explicit dependency on kotlin\-reflect [0-9]+\.[0-9]+ to prevent strange errors
 w: Some runtime JAR files in the classpath have an incompatible version\. Consider removing them from the classpath
 w: \$SUPPORT/compose/ui/ui/src/commonMain/kotlin/androidx/compose/ui/node/DepthSortedSet\.kt: \([0-9]+, [0-9]+\): The corresponding parameter in the supertype 'Comparator' is named 'a'\. This may cause problems when calling this function with named arguments\.
 w: \$SUPPORT/compose/ui/ui/src/commonMain/kotlin/androidx/compose/ui/node/DepthSortedSet\.kt: \([0-9]+, [0-9]+\): The corresponding parameter in the supertype 'Comparator' is named 'b'\. This may cause problems when calling this function with named arguments\.
@@ -304,8 +302,6 @@ Note: \$SUPPORT/room/integration\-tests/testapp/src/androidTest/java/androidx/ro
 \$SUPPORT/benchmark/integration\-tests/startup\-benchmark/src/androidTest/AndroidManifest\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
 # > Task :leanback:leanback-paging:generateApi
 w\: Runtime JAR files in the classpath have the version [0-9]+\.[0-9]+\, which is older than the API version [0-9]+\.[0-9]+\. Consider using the runtime of version [0-9]+\.[0-9]+\, or pass \'\-api\-version [0-9]+\.[0-9]+\' explicitly to restrict the available APIs to the runtime of version [0-9]+\.[0-9]+\. You can also pass \'\-language\-version [0-9]+\.[0-9]+\' instead\, which will restrict not only the APIs to the specified version\, but also the language features
-w: \$CHECKOUT/prebuilts/androidx/external/org/jetbrains/kotlin/kotlin\-stdlib\-jdk[0-9]+/[0-9]+\.[0-9]+\.[0-9]+/kotlin\-stdlib\-jdk[0-9]+\-[0-9]+\.[0-9]+\.[0-9]+\.jar: Runtime JAR file has version [0-9]+\.[0-9]+ which is older than required for API version [0-9]+\.[0-9]+
-w: \$CHECKOUT/prebuilts/androidx/external/org/jetbrains/kotlin/kotlin\-reflect/[0-9]+\.[0-9]+\.[0-9]+/kotlin\-reflect\-[0-9]+\.[0-9]+\.[0-9]+\.jar: Runtime JAR file has version [0-9]+\.[0-9]+ which is older than required for API version [0-9]+\.[0-9]+
 w\: \$CHECKOUT\/prebuilts\/androidx\/external\/org\/jetbrains\/kotlin\/kotlin\-stdlib\/[0-9]+\.[0-9]+\.[0-9]+\/kotlin\-stdlib\-[0-9]+\.[0-9]+\.[0-9]+\.jar\: Runtime JAR file has version [0-9]+\.[0-9]+ which is older than required for API version [0-9]+\.[0-9]+
 w\: \$CHECKOUT\/prebuilts\/androidx\/external\/org\/jetbrains\/kotlin\/kotlin\-stdlib\-common\/[0-9]+\.[0-9]+\.[0-9]+\/kotlin\-stdlib\-common\-[0-9]+\.[0-9]+\.[0-9]+\.jar\: Runtime JAR file has version [0-9]+\.[0-9]+ which is older than required for API version [0-9]+\.[0-9]+
 # > Task :compose:material:material:icons:generator:zipHtmlResultsOfTest

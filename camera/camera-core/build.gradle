@@ -66,6 +66,17 @@ dependencies {
     androidTestImplementation(project(":internal-testutils-truth"))
 }
 
+// Needed for the above compileOnly(project(':external:libyuv')) dep to work around b/194735614
+afterEvaluate {
+    tasks.named("configureCMakeDebug").configure {
+        dependsOn(":external:libyuv:prefabDebugPackage")
+    }
+
+    tasks.named("configureCMakeRelWithDebInfo").configure {
+        dependsOn(":external:libyuv:prefabReleasePackage")
+    }
+}
+
 android {
     defaultConfig {
         multiDexEnabled = true
