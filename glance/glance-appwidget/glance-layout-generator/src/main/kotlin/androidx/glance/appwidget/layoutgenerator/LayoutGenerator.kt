@@ -68,29 +68,108 @@ internal class LayoutGenerator {
         }
     }
 
-    fun extractMainViewId(document: Document) =
-        document.documentElement.androidId?.textContent?.replace("@id/", "") ?: "glanceView"
-
     /**
      * Generate files and return a mapping from File object to a structure defining useful
      * information extracted from the input.
      */
-    fun generateAllFiles(files: List<File>, outputResourcesDir: File): GeneratedFiles {
+    fun generateAllFiles(
+        files: List<File>,
+        outputResourcesDir: File
+    ): GeneratedFiles {
         val outputLayoutDir = outputResourcesDir.resolve("layout")
+        val outputLayoutDirS = outputResourcesDir.resolve("layout-v31")
+        val outputValueDir = outputResourcesDir.resolve("values")
         outputLayoutDir.mkdirs()
+        outputLayoutDirS.mkdirs()
+        outputValueDir.mkdirs()
         val generatedFiles = generateSizeLayouts(outputLayoutDir) +
-            generateComplexLayouts(outputLayoutDir)
+            generateComplexLayouts(outputLayoutDir) +
+            generateChildIds(outputValueDir) +
+            generateContainersChildrenForS(outputLayoutDirS) +
+            generateContainersChildrenForR(outputLayoutDir) +
+            generateRootElements(outputLayoutDir)
         return GeneratedFiles(
-            generatedLayouts = files.associateWith { generateForFile(it, outputLayoutDir) },
+            generatedContainers = files.associateWith {
+                generateContainers(it, outputLayoutDir)
+            },
             extraFiles = generatedFiles,
         )
     }
 
+    private fun generateChildIds(outputValuesDir: File): Set<File> {
+        val fileName = outputValuesDir.resolveRes("ids")
+        val containerSizes = listOf(ValidSize.Match, ValidSize.Wrap, ValidSize.Expand)
+        val generated = documentBuilder.newDocument().apply {
+            val root = createElement("resources")
+            appendChild(root)
+            repeat(MaxChildCount) { pos ->
+                forEachInCrossProduct(containerSizes, containerSizes) { width, height ->
+                    val id = createElement("id")
+                    root.appendChild(id)
+                    id.attributes.apply {
+                        setNamedItem(createAttribute("name").apply {
+                            textContent = makeIdName(pos, width, height)
+                        })
+                    }
+                }
+            }
+        }
+        writeGeneratedLayout(generated, fileName)
+        return setOf(fileName)
+    }
+
+    private fun generateContainersChildrenForS(outputLayoutDir: File) =
+        generateContainersChildren(outputLayoutDir, listOf(ValidSize.Wrap))
+
+    private fun generateContainersChildrenForR(outputLayoutDir: File) =
+        generateContainersChildren(outputLayoutDir, StubSizes)
+
+    private fun generateContainersChildren(
+        outputLayoutDir: File,
+        containerSizes: List<ValidSize>,
+    ) = ContainerOrientation.values().flatMap { orientation ->
+        generateContainersChildren(
+            outputLayoutDir,
+            containerSizes,
+            orientation,
+        )
+    }.toSet()
+
+    private fun generateContainersChildren(
+        outputLayoutDir: File,
+        sizes: List<ValidSize>,
+        containerOrientation: ContainerOrientation
+    ): Set<File> {
+        val widths = sizes + containerOrientation.extraWidths
+        val heights = sizes + containerOrientation.extraHeights
+        return (0 until MaxChildCount).map { pos ->
+            generateRes(outputLayoutDir, makeChildrenResourceName(pos, containerOrientation)) {
+                val root = createElement("merge")
+                appendChild(root)
+                forEachInCrossProduct(widths, heights) { width, height ->
+                    val childId = makeIdName(pos, width, height)
+                    root.appendChild(makeStub(childId, width, height))
+                }
+            }
+        }.toSet()
+    }
+
+    private fun Document.makeStub(name: String, width: ValidSize, height: ValidSize) =
+        createElement("ViewStub").apply {
+            attributes.apply {
+                setNamedItemNS(androidId("@id/$name"))
+                setNamedItemNS(androidWidth(width))
+                setNamedItemNS(androidHeight(height))
+                if (width == ValidSize.Expand || height == ValidSize.Expand) {
+                    setNamedItemNS(androidWeight(1))
+                }
+            }
+        }
+
     private fun generateSizeLayouts(outputLayoutDir: File): Set<File> {
         val stubSizes = listOf(ValidSize.Wrap, ValidSize.Match)
         return mapInCrossProduct(stubSizes, stubSizes) { width, height ->
-            val fileName = "size_${width.resourceName}_${height.resourceName}.xml"
-            generateFile(outputLayoutDir, fileName) {
+            generateRes(outputLayoutDir, "size_${width.resourceName}_${height.resourceName}") {
                 val root = createElement("TextView")
                 appendChild(root)
                 root.attributes.apply {
@@ -134,12 +213,12 @@ internal class LayoutGenerator {
      */
     private fun generateComplexLayouts(outputLayoutDir: File): Set<File> =
         mapConfiguration { width, height ->
-            val fileName = makeComplexResourceName(width, height) + ".xml"
-            generateFile(outputLayoutDir, fileName) {
+            generateRes(outputLayoutDir, makeComplexResourceName(width, height)) {
                 val root = createElement("RelativeLayout")
                 appendChild(root)
                 root.attributes.apply {
                     setNamedItemNS(androidId("@id/relativeLayout"))
+                    setNamedItemNS(androidAttr("tag", "glanceComplexLayout"))
                     setNamedItemNS(androidWidth(width))
                     setNamedItemNS(androidHeight(height))
                     if (width == ValidSize.Expand || height == ValidSize.Expand) {
@@ -153,6 +232,7 @@ internal class LayoutGenerator {
                     root.appendChild(sizeView)
                     sizeView.attributes.apply {
                         setNamedItemNS(androidId("@id/sizeView"))
+                        setNamedItemNS(androidAttr("visibility", "invisible"))
                         setNamedItemNS(androidWidth(ValidSize.Wrap))
                         setNamedItemNS(androidHeight(ValidSize.Wrap))
                     }
@@ -195,27 +275,89 @@ internal class LayoutGenerator {
                             setNamedItemNS(androidAttr("layout_alignBottom", "@id/sizeView"))
                         }
                     }
-                    if (width == ValidSize.Fixed) {
-                        setNamedItemNS(androidAttr("layout_alignLeft", "@id/sizeView"))
-                        setNamedItemNS(androidAttr("layout_alignRight", "@id/sizeView"))
-                    }
                 }
             }
         }.toSet()
 
-    private fun generateForFile(file: File, outputLayoutDir: File): LayoutProperties {
-        val document = parseLayoutTemplate(file)
-        val generatedFiles = mapConfiguration { width, height ->
-            outputLayoutDir.resolve(
-                makeSimpleResourceName(file, width, height) + ".xml"
-            ).also {
-                writeGeneratedLayout(generateSimpleLayout(document, width, height), it)
+    private fun generateRootElements(outputLayoutDir: File): Set<File> =
+        mapInCrossProduct(StubSizes, StubSizes) { width, height ->
+            outputLayoutDir.resolveRes(makeRootResourceName(width, height)).also { output ->
+                writeGeneratedLayout(createRootElement(width, height), output)
+            }
+        }.toSet()
+
+    private fun createRootElement(width: ValidSize, height: ValidSize) =
+        documentBuilder.newDocument().apply {
+            val root = createElement("FrameLayout")
+            appendChild(root)
+            root.attributes.apply {
+                setNamedItemNS(androidId("@id/rootView"))
+                setNamedItemNS(androidWidth(width))
+                setNamedItemNS(androidHeight(height))
+            }
+            val stub = createElement("ViewStub")
+            root.appendChild(stub)
+            stub.attributes.apply {
+                setNamedItemNS(androidId("@id/rootStubId"))
+                setNamedItemNS(androidWidth(width))
+                setNamedItemNS(androidHeight(height))
             }
         }
-        return LayoutProperties(
-            mainViewId = extractMainViewId(document),
-            generatedFiles = generatedFiles
-        )
+
+    private fun generateContainers(
+        file: File,
+        outputLayoutDir: File,
+    ): List<ContainerProperties> {
+        val document = parseLayoutTemplate(file)
+        val orientation =
+            when (document.documentElement.androidAttr("orientation")?.nodeValue) {
+                "horizontal" -> ContainerOrientation.Horizontal
+                "vertical" -> ContainerOrientation.Vertical
+                null -> ContainerOrientation.None
+                else -> throw IllegalStateException("Unknown orientation in $file")
+            }
+        return (0..MaxChildCount).map { numChildren ->
+            val generated = generateContainer(
+                document,
+                numChildren,
+                orientation,
+            )
+            val output =
+                outputLayoutDir.resolveRes(makeContainerResourceName(file, numChildren))
+            writeGeneratedLayout(generated, output)
+            ContainerProperties(
+                output,
+                numChildren,
+                orientation
+            )
+        }
+    }
+
+    private fun generateContainer(
+        inputDoc: Document,
+        numberChildren: Int,
+        containerOrientation: ContainerOrientation,
+    ) = documentBuilder.newDocument().apply {
+        val root = importNode(inputDoc.documentElement, true)
+        appendChild(root)
+        root.attributes.apply {
+            setNamedItemNS(androidWidth(ValidSize.Wrap))
+            setNamedItemNS(androidHeight(ValidSize.Wrap))
+        }
+        for (pos in 0 until numberChildren) {
+            root.appendChild(
+                createElement("include").apply {
+                    attributes.apply {
+                        setNamedItem(
+                            createAttribute("layout").apply {
+                                textContent =
+                                    "@layout/${makeChildrenResourceName(pos, containerOrientation)}"
+                            }
+                        )
+                    }
+                }
+            )
+        }
     }
 
     /**
@@ -247,27 +389,37 @@ internal class LayoutGenerator {
         return generated
     }
 
-    private inline fun generateFile(
+    private inline fun generateRes(
         outputLayoutDir: File,
-        filename: String,
+        resName: String,
         builder: Document.() -> Unit
     ): File {
         val document = documentBuilder.newDocument()
-        val file = outputLayoutDir.resolve(filename)
+        val file = outputLayoutDir.resolveRes(resName)
         builder(document)
         writeGeneratedLayout(document, file)
         return file
     }
 }
 
+/** Maximum number of children generated in containers. */
+private const val MaxChildCount = 10
+
 internal data class GeneratedFiles(
-    val generatedLayouts: Map<File, LayoutProperties>,
+    val generatedContainers: Map<File, List<ContainerProperties>>,
     val extraFiles: Set<File>
 )
 
-internal data class LayoutProperties(
-    val mainViewId: String,
-    val generatedFiles: List<File>
+internal data class ChildProperties(
+    val childId: String,
+    val width: ValidSize,
+    val height: ValidSize,
+)
+
+internal data class ContainerProperties(
+    val generatedFile: File,
+    val numberChildren: Int,
+    val containerOrientation: ContainerOrientation,
 )
 
 internal enum class ValidSize(val androidValue: String, val resourceName: String) {
@@ -276,6 +428,19 @@ internal enum class ValidSize(val androidValue: String, val resourceName: String
     Match("match_parent", "match"),
     Expand("0dp", "expand"),
 }
+
+internal enum class ContainerOrientation(
+    val resourceName: String,
+    val extraWidths: List<ValidSize>,
+    val extraHeights: List<ValidSize>
+) {
+    None("box", emptyList(), emptyList()),
+    Horizontal("row", listOf(ValidSize.Expand), emptyList()),
+    Vertical("column", emptyList(), listOf(ValidSize.Expand))
+}
+
+/** Sizes a ViewStub can meaningfully have, if expand is not an option. */
+internal val StubSizes = listOf(ValidSize.Wrap, ValidSize.Match)
 
 internal fun getChildMergeFilenameWithoutExtension(childCount: Int) = "merge_${childCount}child"
 

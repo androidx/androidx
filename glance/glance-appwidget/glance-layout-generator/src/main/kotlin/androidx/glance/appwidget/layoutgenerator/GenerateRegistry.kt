@@ -16,13 +16,20 @@
 
 package androidx.glance.appwidget.layoutgenerator
 
+import com.squareup.kotlinpoet.AnnotationSpec
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.CodeBlock
 import com.squareup.kotlinpoet.FileSpec
+import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.KModifier
+import com.squareup.kotlinpoet.KModifier.PRIVATE
+import com.squareup.kotlinpoet.KModifier.INTERNAL
 import com.squareup.kotlinpoet.MemberName
+import com.squareup.kotlinpoet.MemberName.Companion.member
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import com.squareup.kotlinpoet.PropertySpec
+import com.squareup.kotlinpoet.TypeName
+import com.squareup.kotlinpoet.TypeSpec
 import com.squareup.kotlinpoet.asTypeName
 import com.squareup.kotlinpoet.buildCodeBlock
 import com.squareup.kotlinpoet.joinToCode
@@ -36,46 +43,98 @@ import java.io.File
  */
 internal fun generateRegistry(
     packageName: String,
-    layouts: Map<File, LayoutProperties>,
+    layouts: Map<File, List<ContainerProperties>>,
     outputSourceDir: File,
 ) {
     outputSourceDir.mkdirs()
     val file = FileSpec.builder(packageName, "GeneratedLayouts")
-    val generatedLayouts = PropertySpec.builder(
-        "generatedLayouts",
-        LayoutsMap,
-        KModifier.INTERNAL,
-    ).apply {
-        initializer(buildInitializer(layouts))
-    }.build()
-    file.addProperty(generatedLayouts)
 
-    val generatedComplexLayouts = PropertySpec.builder(
-        "generatedComplexLayouts",
-        ComplexLayoutsMap,
-        KModifier.INTERNAL,
-    ).apply {
-        initializer(buildComplexInitializer())
+    val generatedContainerApi21 = funSpec("registerContainers") {
+        returns(ContainerMap)
+        addModifiers(PRIVATE)
+        addStatement("val result =")
+        addCode(buildInitializer(layouts, StubSizes))
+        addStatement("return result")
+    }
+
+    val requireApi31 = AnnotationSpec.builder(RequiresApi).apply {
+        addMember("%M", VersionCodeS)
     }.build()
+    val generatedContainerApi31 = objectSpec("GeneratedContainersForApi31Impl") {
+        addModifiers(PRIVATE)
+        addAnnotation(requireApi31)
+        addFunction(
+            funSpec("registerContainers") {
+                returns(ContainerMap)
+                addAnnotation(DoNotInline)
+                addStatement("val result =")
+                addCode(buildInitializer(layouts, listOf(ValidSize.Wrap)))
+                addStatement("return result")
+            }
+        )
+    }
+
+    val generatedLayouts = propertySpec(
+        "generatedContainers",
+        ContainerMap,
+        INTERNAL,
+    ) {
+        initializer(buildCodeBlock {
+            addStatement(
+                """
+                |if(%M >= %M) {
+                |  GeneratedContainersForApi31Impl.registerContainers()
+                |} else {
+                |  registerContainers()
+                |}""".trimMargin(),
+                SdkInt, VersionCodeS
+            )
+        })
+    }
+    file.addProperty(generatedLayouts)
+    file.addFunction(generatedContainerApi21)
+    file.addType(generatedContainerApi31)
+
+    val generatedComplexLayouts = propertySpec(
+        "generatedComplexLayouts",
+        LayoutsMap,
+        INTERNAL,
+    ) {
+        initializer(buildComplexInitializer())
+    }
     file.addProperty(generatedComplexLayouts)
+
+    val generatedRoots = propertySpec(
+        "generatedRootLayouts",
+        LayoutsMap,
+        INTERNAL,
+    ) {
+        initializer(buildRootInitializer())
+    }
+    file.addProperty(generatedRoots)
 
     file.build().writeTo(outputSourceDir)
 }
 
-private fun buildInitializer(layouts: Map<File, LayoutProperties>): CodeBlock {
+private fun buildInitializer(
+    layouts: Map<File, List<ContainerProperties>>,
+    sizes: List<ValidSize>
+): CodeBlock {
     return buildCodeBlock {
-        addStatement("mapOf(")
         withIndent {
-            add(
-                layouts.map {
-                    it.key to createFileInitializer(it.key, it.value.mainViewId)
-                }
-                    .sortedBy { it.first.nameWithoutExtension }
-                    .map { it.second }
-                    .joinToCode("")
-            )
+            addStatement("mapOf(")
+            withIndent {
+                add(
+                    layouts.map {
+                        it.key to createFileInitializer(it.key, it.value, sizes)
+                    }
+                        .sortedBy { it.first.nameWithoutExtension }
+                        .map { it.second }
+                        .joinToCode("")
+                )
+            }
+            addStatement(")")
         }
-        addStatement(")")
     }
 }
 
@@ -86,7 +145,7 @@ private fun buildComplexInitializer(): CodeBlock {
             forEachConfiguration { width, height ->
                 addStatement(
                     "%T(width = %M, height = %M) to ",
-                    ComplexSelector,
+                    SizeSelector,
                     width.toValue(),
                     height.toValue(),
                 )
@@ -100,56 +159,137 @@ private fun buildComplexInitializer(): CodeBlock {
     }
 }
 
-private fun createFileInitializer(layout: File, mainViewId: String): CodeBlock = buildCodeBlock {
-    val viewType = layout.nameWithoutExtension.toLayoutType()
-    forEachConfiguration { width, height ->
-        addLayout(
-            resourceName = makeSimpleResourceName(layout, width, height),
-            viewType = viewType,
-            width = width,
-            height = height,
-            mainViewId = "R.id.$mainViewId",
-        )
+private fun buildRootInitializer(): CodeBlock {
+    return buildCodeBlock {
+        addStatement("mapOf(")
+        withIndent {
+            forEachInCrossProduct(StubSizes, StubSizes) { width, height ->
+                addStatement(
+                    "%T(width = %M, height = %M) to ",
+                    SizeSelector,
+                    width.toValue(),
+                    height.toValue(),
+                )
+                withIndent {
+                    val resId = makeRootResourceName(width, height)
+                    addStatement("%T(layoutId = R.layout.$resId),", LayoutInfo)
+                }
+            }
+        }
+        addStatement(")")
     }
 }
 
-private fun CodeBlock.Builder.addLayout(
+private fun createFileInitializer(
+    layout: File,
+    generated: List<ContainerProperties>,
+    sizes: List<ValidSize>
+): CodeBlock =
+    buildCodeBlock {
+        val viewType = layout.nameWithoutExtension.toLayoutType()
+        generated.forEach { props ->
+            addContainer(
+                resourceName = makeContainerResourceName(layout, props.numberChildren),
+                viewType = viewType,
+                numChildren = props.numberChildren,
+                children = generateChildren(
+                    props.numberChildren,
+                    props.containerOrientation,
+                    sizes
+                ),
+            )
+        }
+    }
+
+private fun generateChildren(
+    numChildren: Int,
+    containerOrientation: ContainerOrientation,
+    sizes: List<ValidSize>
+) =
+    (0 until numChildren).associateWith { pos ->
+        val widths = sizes + containerOrientation.extraWidths
+        val heights = sizes + containerOrientation.extraHeights
+        mapInCrossProduct(widths, heights) { width, height ->
+            ChildProperties(
+                childId = makeIdName(pos, width, height),
+                width = width,
+                height = height,
+            )
+        }
+    }
+
+private fun CodeBlock.Builder.addContainer(
     resourceName: String,
     viewType: String,
-    width: ValidSize,
-    height: ValidSize,
-    mainViewId: String,
+    numChildren: Int,
+    children: Map<Int, List<ChildProperties>>,
 ) {
     addStatement(
-        "%T(type = %M, width = %M, height = %M) to ",
-        LayoutSelector,
+        "%T(type = %M, numChildren = %L) to ",
+        ContainerSelector,
         makeViewType(viewType),
-        width.toValue(),
-        height.toValue(),
+        numChildren,
     )
     withIndent {
-        addStatement("%T(", LayoutInfo)
+        addStatement("%T(", ContainerInfo)
         withIndent {
             addStatement("layoutId = R.layout.$resourceName,")
-            addStatement("mainViewId = $mainViewId,")
+            addStatement("children = mapOf(")
+            withIndent {
+                children.toList()
+                    .sortedBy { it.first }
+                    .forEach { (pos, children) ->
+                        addStatement("$pos to mapOf(")
+                        withIndent {
+                            children.forEach { child ->
+                                addStatement(
+                                    "%T(width = %M, height = %M)",
+                                    SizeSelector,
+                                    child.width.toValue(),
+                                    child.height.toValue(),
+                                )
+                                withIndent {
+                                    addStatement(
+                                        "to R.id.${
+                                            makeIdName(
+                                                pos,
+                                                child.width,
+                                                child.height
+                                            )
+                                        },"
+                                    )
+                                }
+                            }
+                        }
+                        addStatement("),")
+                    }
+            }
+            addStatement("),")
         }
         addStatement("),")
     }
 }
 
-private val LayoutSelector = ClassName("androidx.glance.appwidget", "LayoutSelector")
-private val ComplexSelector = ClassName("androidx.glance.appwidget", "ComplexSelector")
+private val ContainerSelector = ClassName("androidx.glance.appwidget", "ContainerSelector")
+private val SizeSelector = ClassName("androidx.glance.appwidget", "SizeSelector")
 private val LayoutInfo = ClassName("androidx.glance.appwidget", "LayoutInfo")
-private val LayoutsMap = Map::class.asTypeName().parameterizedBy(LayoutSelector, LayoutInfo)
-private const val LayoutSpecSize = "androidx.glance.appwidget.LayoutSelector.Size"
+private val ContainerInfo = ClassName("androidx.glance.appwidget", "ContainerInfo")
+private val ContainerMap = Map::class.asTypeName().parameterizedBy(ContainerSelector, ContainerInfo)
+private const val LayoutSpecSize = "androidx.glance.appwidget.LayoutSize"
 private val WrapValue = MemberName("$LayoutSpecSize", "Wrap")
 private val FixedValue = MemberName("$LayoutSpecSize", "Fixed")
 private val MatchValue = MemberName("$LayoutSpecSize", "MatchParent")
 private val ExpandValue = MemberName("$LayoutSpecSize", "Expand")
-private val ComplexLayoutsMap = Map::class.asTypeName().parameterizedBy(ComplexSelector, LayoutInfo)
+private val LayoutsMap = Map::class.asTypeName().parameterizedBy(SizeSelector, LayoutInfo)
+private val AndroidBuildVersion = ClassName("android.os", "Build", "VERSION")
+private val AndroidBuildVersionCodes = ClassName("android.os", "Build", "VERSION_CODES")
+private val SdkInt = AndroidBuildVersion.member("SDK_INT")
+private val VersionCodeS = AndroidBuildVersionCodes.member("S")
+private val RequiresApi = ClassName("androidx.annotation", "RequiresApi")
+private val DoNotInline = ClassName("androidx.annotation", "DoNotInline")
 
 private fun makeViewType(name: String) =
-    MemberName("androidx.glance.appwidget.LayoutSelector.Type", name)
+    MemberName("androidx.glance.appwidget.LayoutType", name)
 
 private fun String.toLayoutType(): String =
     snakeRegex.replace(this) {
@@ -179,12 +319,55 @@ internal fun makeComplexResourceName(width: ValidSize, height: ValidSize) =
         height.resourceName,
     ).joinToString(separator = "_")
 
-fun CodeBlock.Builder.withIndent(builderAction: CodeBlock.Builder.() -> Unit): CodeBlock.Builder {
+internal fun makeRootResourceName(width: ValidSize, height: ValidSize) =
+    listOf(
+        "root",
+        width.resourceName,
+        height.resourceName,
+    ).joinToString(separator = "_")
+
+internal fun makeContainerResourceName(file: File, numChildren: Int) =
+    listOf(
+        file.nameWithoutExtension,
+        "${numChildren}children"
+    ).joinToString(separator = "_")
+
+internal fun makeChildrenResourceName(pos: Int, containerOrientation: ContainerOrientation) =
+    listOf(
+        containerOrientation.resourceName,
+        "child",
+        "group",
+        pos
+    ).joinToString(separator = "_")
+
+internal fun makeIdName(pos: Int, width: ValidSize, height: ValidSize) =
+    listOf(
+        "childStub$pos",
+        width.resourceName,
+        height.resourceName
+    ).joinToString(separator = "_")
+
+internal fun CodeBlock.Builder.withIndent(
+    builderAction: CodeBlock.Builder.() -> Unit
+): CodeBlock.Builder {
     indent()
     apply(builderAction)
     unindent()
     return this
 }
+
+internal fun funSpec(name: String, builder: FunSpec.Builder.() -> Unit) =
+    FunSpec.builder(name).apply(builder).build()
+
+internal fun objectSpec(name: String, builder: TypeSpec.Builder.() -> Unit) =
+    TypeSpec.objectBuilder(name).apply(builder).build()
+
+internal fun propertySpec(
+    name: String,
+    type: TypeName,
+    vararg modifiers: KModifier,
+    builder: PropertySpec.Builder.() -> Unit
+) = PropertySpec.builder(name, type, *modifiers).apply(builder).build()
 
 private val listConfigurations =
     ValidSize.values().flatMap { width ->
@@ -212,3 +395,17 @@ internal inline fun <A, B, T> mapInCrossProduct(
             consumer(a, b)
         }
     }
+
+internal inline fun <A, B, T> forEachInCrossProduct(
+    first: Iterable<A>,
+    second: Iterable<B>,
+    consumer: (A, B) -> T
+) {
+    first.forEach { a ->
+        second.forEach { b ->
+            consumer(a, b)
+        }
+    }
+}
+
+internal fun File.resolveRes(resName: String) = resolve("$resName.xml")

@@ -18,62 +18,66 @@ package androidx.glance.appwidget.translators
 
 import android.widget.RemoteViews
 import androidx.core.widget.RemoteViewsCompat
-import androidx.glance.appwidget.GeneratedLayoutCount
-import androidx.glance.appwidget.LayoutSelector
-import androidx.glance.appwidget.RemoteViewsInfo
+import androidx.glance.appwidget.InsertedViewInfo
+import androidx.glance.appwidget.LayoutType
+import androidx.glance.appwidget.TopLevelLayoutsCount
 import androidx.glance.appwidget.TranslationContext
 import androidx.glance.appwidget.applyModifiers
-import androidx.glance.appwidget.createRemoteViews
+import androidx.glance.appwidget.insertView
 import androidx.glance.appwidget.layout.EmittableLazyColumn
 import androidx.glance.appwidget.layout.EmittableLazyList
 import androidx.glance.appwidget.layout.EmittableLazyListItem
 import androidx.glance.appwidget.layout.ReservedItemIdRangeEnd
 import androidx.glance.appwidget.translateChild
+import androidx.glance.appwidget.translateComposition
 import androidx.glance.layout.Alignment
 import androidx.glance.layout.EmittableBox
-import androidx.glance.layout.fillMaxWidth
 
-internal fun translateEmittableLazyColumn(
+internal fun RemoteViews.translateEmittableLazyColumn(
     translationContext: TranslationContext,
     element: EmittableLazyColumn,
-): RemoteViews {
-    val layoutDef =
-        createRemoteViews(translationContext, LayoutSelector.Type.List, element.modifier)
-    return translateEmittableLazyList(
+) {
+    val viewDef = insertView(translationContext, LayoutType.List, element.modifier)
+    translateEmittableLazyList(
         translationContext,
         element,
-        layoutDef,
+        viewDef,
     )
 }
 
-private fun translateEmittableLazyList(
+private fun RemoteViews.translateEmittableLazyList(
     translationContext: TranslationContext,
     element: EmittableLazyList,
-    layoutDef: RemoteViewsInfo,
-): RemoteViews {
-    val rv = layoutDef.remoteViews
+    viewDef: InsertedViewInfo,
+) {
     check(translationContext.areLazyCollectionsAllowed) {
         "Glance does not support nested list views."
     }
     val items = RemoteViewsCompat.RemoteCollectionItems.Builder().apply {
         val childContext = translationContext.copy(areLazyCollectionsAllowed = false)
         element.children.fold(false) { previous, itemEmittable ->
-            val itemId = (itemEmittable as EmittableLazyListItem).itemId
-            addItem(itemId, translateChild(childContext, itemEmittable))
+            itemEmittable as EmittableLazyListItem
+            val itemId = itemEmittable.itemId
+            addItem(
+                itemId,
+                translateComposition(
+                    childContext.resetViewId(LazyListItemStartingViewId),
+                    listOf(itemEmittable)
+                )
+            )
             // If the user specifies any explicit ids, we assume the list to be stable
             previous || (itemId > ReservedItemIdRangeEnd)
         }.let { setHasStableIds(it) }
-        setViewTypeCount(GeneratedLayoutCount)
+        setViewTypeCount(TopLevelLayoutsCount)
     }.build()
     RemoteViewsCompat.setRemoteAdapter(
         translationContext.context,
-        rv,
+        this,
         translationContext.appWidgetId,
-        layoutDef.mainViewId,
+        viewDef.mainViewId,
         items
     )
-    applyModifiers(translationContext, rv, element.modifier, layoutDef)
-    return rv
+    applyModifiers(translationContext, this, element.modifier, viewDef)
 }
 
 /**
@@ -82,18 +86,22 @@ private fun translateEmittableLazyList(
  */
 // TODO(b/202382495): Use complex generated layout instead of wrapping in an emittable box to
 // support interaction animations in immediate children, e.g. checkboxes,  pre-S
-internal fun translateEmittableLazyListItem(
+internal fun RemoteViews.translateEmittableLazyListItem(
     translationContext: TranslationContext,
     element: EmittableLazyListItem
-): RemoteViews {
+) {
     val child = if (element.children.size == 1 && element.alignment == Alignment.CenterStart) {
         element.children.single()
     } else {
         EmittableBox().apply {
-            modifier = modifier.fillMaxWidth()
+            modifier = element.modifier
             contentAlignment = element.alignment
             children.addAll(element.children)
         }
     }
-    return translateChild(translationContext, child)
+    translateChild(translationContext, child)
 }
+
+// All the lazy list items should use the same ids, to ensure the layouts can be re-used.
+// Using a very high number to avoid collision with the main app widget ids.
+private val LazyListItemStartingViewId: Int = 0x00100000

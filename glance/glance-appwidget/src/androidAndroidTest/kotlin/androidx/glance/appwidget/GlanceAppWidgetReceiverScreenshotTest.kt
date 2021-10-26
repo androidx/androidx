@@ -18,31 +18,34 @@ package androidx.glance.appwidget
 
 import android.app.Activity
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.DpSize
+import androidx.compose.ui.unit.dp
 import androidx.glance.GlanceModifier
-import androidx.glance.background
+import androidx.glance.action.actionLaunchActivity
 import androidx.glance.appwidget.layout.CheckBox
 import androidx.glance.appwidget.layout.Switch
 import androidx.glance.appwidget.test.R
+import androidx.glance.background
+import androidx.glance.layout.Alignment
 import androidx.glance.layout.Box
+import androidx.glance.layout.Button
 import androidx.glance.layout.Column
 import androidx.glance.layout.Row
 import androidx.glance.layout.Text
+import androidx.glance.layout.fillMaxHeight
+import androidx.glance.layout.fillMaxSize
 import androidx.glance.layout.fillMaxWidth
 import androidx.glance.layout.height
 import androidx.glance.layout.padding
+import androidx.glance.layout.size
 import androidx.glance.layout.width
+import androidx.glance.layout.wrapContentSize
 import androidx.glance.text.FontStyle
 import androidx.glance.text.FontWeight
 import androidx.glance.text.TextAlign
 import androidx.glance.text.TextDecoration
 import androidx.glance.text.TextStyle
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.unit.DpSize
-import androidx.compose.ui.unit.dp
-import androidx.glance.action.actionLaunchActivity
-import androidx.glance.layout.Button
-import androidx.glance.layout.fillMaxHeight
-import androidx.glance.layout.fillMaxSize
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import org.junit.Rule
@@ -252,6 +255,82 @@ class GlanceAppWidgetReceiverScreenshotTest {
         Thread.sleep(5000)
 
         mScreenshotRule.checkScreenshot(mHostRule.mHostView, "button_text_align")
+    }
+
+    @Test
+    fun checkFixTopLevelSize() {
+        TestGlanceAppWidget.uiDefinition = {
+            Column(
+                modifier = GlanceModifier.size(100.dp)
+                    .background(Color.DarkGray),
+                horizontalAlignment = Alignment.End,
+            ) {
+                Text(
+                    "Upper half",
+                    modifier = GlanceModifier.defaultWeight().fillMaxWidth()
+                        .background(Color.Green)
+                )
+                Text(
+                    "Lower right half",
+                    modifier = GlanceModifier.defaultWeight().width(50.dp)
+                        .background(Color.Cyan)
+                )
+            }
+        }
+
+        mHostRule.startHost()
+
+        mScreenshotRule.checkScreenshot(mHostRule.mHostView, "fixed_top_level_size")
+    }
+
+    @Test
+    fun checkTopLevelFill() {
+        TestGlanceAppWidget.uiDefinition = {
+            Column(
+                modifier = GlanceModifier.fillMaxSize()
+                    .background(Color.DarkGray),
+                horizontalAlignment = Alignment.End,
+            ) {
+                Text(
+                    "Upper half",
+                    modifier = GlanceModifier.defaultWeight().fillMaxWidth()
+                        .background(Color.Green)
+                )
+                Text(
+                    "Lower right half",
+                    modifier = GlanceModifier.defaultWeight().width(50.dp)
+                        .background(Color.Cyan)
+                )
+            }
+        }
+
+        mHostRule.startHost()
+
+        mScreenshotRule.checkScreenshot(mHostRule.mHostView, "fill_top_level_size")
+    }
+
+    @Test
+    fun checkTopLevelWrap() {
+        TestGlanceAppWidget.uiDefinition = {
+            Column(
+                modifier = GlanceModifier.wrapContentSize()
+                    .background(Color.DarkGray),
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
+                Text(
+                    "Above",
+                    modifier = GlanceModifier.background(Color.Green)
+                )
+                Text(
+                    "Larger below",
+                    modifier = GlanceModifier.background(Color.Cyan)
+                )
+            }
+        }
+
+        mHostRule.startHost()
+
+        mScreenshotRule.checkScreenshot(mHostRule.mHostView, "wrap_top_level_size")
     }
 }
 

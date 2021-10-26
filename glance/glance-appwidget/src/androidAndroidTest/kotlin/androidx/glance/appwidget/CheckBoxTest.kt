@@ -19,6 +19,8 @@ package androidx.glance.appwidget
 import android.content.Context
 import android.view.ViewGroup
 import android.widget.ImageView
+import android.widget.LinearLayout
+import android.widget.RelativeLayout
 import android.widget.TextView
 import androidx.compose.runtime.Composable
 import androidx.glance.GlanceModifier
@@ -80,13 +82,12 @@ class CheckBoxTest {
 
         mHostRule.startHost()
 
-        mHostRule.onHostView { hostView ->
-            assertThat(hostView.childCount).isEqualTo(1)
-            val child = assertIs<ViewGroup>(hostView.getChildAt(0))
-            val textView = child.findViewById<TextView>(R.id.checkBoxText)
+        mHostRule.onUnboxedHostView<RelativeLayout> { box ->
+            val row = assertIs<LinearLayout>(box.notGoneChildren.single())
+            val textView = assertIs<TextView>(row.getChildAt(1))
             assertThat(textView.text.toString()).isEqualTo("Hello world")
 
-            val image = child.findViewById<ImageView>(R.id.checkBoxIcon)
+            val image = row.findViewById<ImageView>(R.id.checkBoxIcon)
             assertThat(image.isEnabled).isTrue()
         }
     }
@@ -114,13 +115,12 @@ class CheckBoxTest {
 
         mHostRule.startHost()
 
-        mHostRule.onHostView { hostView ->
-            assertThat(hostView.childCount).isEqualTo(1)
-            val child = assertIs<ViewGroup>(hostView.getChildAt(0))
-            val textView = child.findViewById<TextView>(R.id.checkBoxText)
+        mHostRule.onUnboxedHostView<RelativeLayout> { box ->
+            val row = assertIs<LinearLayout>(box.notGoneChildren.single())
+            val textView = assertIs<TextView>(row.getChildAt(1))
             assertThat(textView.text.toString()).isEqualTo("Hola mundo")
 
-            val image = child.findViewById<ImageView>(R.id.checkBoxIcon)
+            val image = row.findViewById<ImageView>(R.id.checkBoxIcon)
             assertThat(image.isEnabled).isFalse()
         }
     }
@@ -135,10 +135,10 @@ class CheckBoxTest {
 
         mHostRule.startHost()
 
-        mHostRule.onHostView { hostView ->
-            assertThat(hostView.childCount).isEqualTo(1)
+        mHostRule.onUnboxedHostView<RelativeLayout> { hostView ->
+            assertThat(hostView.notGoneChildCount).isEqualTo(1)
 
-            val checkboxRoot = (hostView.getChildAt(0) as ViewGroup).getChildAt(0)
+            val checkboxRoot = hostView.notGoneChildren.single()
             assertThat(checkboxRoot.paddingStart).isEqualTo(5.dp.toPx())
             assertThat(checkboxRoot.paddingTop).isEqualTo(6.dp.toPx())
             assertThat(checkboxRoot.paddingEnd).isEqualTo(7.dp.toPx())

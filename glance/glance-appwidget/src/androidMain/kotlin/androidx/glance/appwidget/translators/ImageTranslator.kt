@@ -21,44 +21,41 @@ import android.os.Build
 import android.widget.RemoteViews
 import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
-import androidx.glance.appwidget.LayoutSelector
+import androidx.glance.appwidget.LayoutType
 import androidx.glance.appwidget.TranslationContext
 import androidx.glance.appwidget.applyModifiers
-import androidx.glance.appwidget.createRemoteViews
+import androidx.glance.appwidget.insertView
 import androidx.glance.appwidget.layout.UriImageProvider
-import androidx.glance.appwidget.remoteViews
 import androidx.glance.layout.AndroidResourceImageProvider
 import androidx.glance.layout.BitmapImageProvider
 import androidx.glance.layout.ContentScale
 import androidx.glance.layout.EmittableImage
 import androidx.glance.layout.IconImageProvider
 
-internal fun translateEmittableImage(
+internal fun RemoteViews.translateEmittableImage(
     translationContext: TranslationContext,
     element: EmittableImage
-): RemoteViews {
+) {
     val selector = when (element.contentScale) {
-        ContentScale.Crop -> LayoutSelector.Type.ImageCrop
-        ContentScale.Fit -> LayoutSelector.Type.ImageFit
-        ContentScale.FillBounds -> LayoutSelector.Type.ImageFillBounds
+        ContentScale.Crop -> LayoutType.ImageCrop
+        ContentScale.Fit -> LayoutType.ImageFit
+        ContentScale.FillBounds -> LayoutType.ImageFillBounds
         else -> throw IllegalArgumentException("An unsupported ContentScale type was used.")
     }
-    val layoutDef = createRemoteViews(translationContext, selector, element.modifier)
-    val rv = layoutDef.remoteViews
-    rv.setContentDescription(layoutDef.mainViewId, element.contentDescription)
+    val viewDef = insertView(translationContext, selector, element.modifier)
+    setContentDescription(viewDef.mainViewId, element.contentDescription)
     when (val provider = element.provider) {
-        is AndroidResourceImageProvider -> rv.setImageViewResource(
-            layoutDef.mainViewId,
+        is AndroidResourceImageProvider -> setImageViewResource(
+            viewDef.mainViewId,
             provider.resId
         )
-        is BitmapImageProvider -> rv.setImageViewBitmap(layoutDef.mainViewId, provider.bitmap)
-        is UriImageProvider -> rv.setImageViewUri(layoutDef.mainViewId, provider.uri)
-        is IconImageProvider -> setImageViewIcon(rv, layoutDef.mainViewId, provider)
+        is BitmapImageProvider -> setImageViewBitmap(viewDef.mainViewId, provider.bitmap)
+        is UriImageProvider -> setImageViewUri(viewDef.mainViewId, provider.uri)
+        is IconImageProvider -> setImageViewIcon(this, viewDef.mainViewId, provider)
         else ->
             throw IllegalArgumentException("An unsupported ImageProvider type was used.")
     }
-    applyModifiers(translationContext, rv, element.modifier, layoutDef)
-    return rv
+    applyModifiers(translationContext, this, element.modifier, viewDef)
 }
 
 private fun setImageViewIcon(rv: RemoteViews, viewId: Int, provider: IconImageProvider) {

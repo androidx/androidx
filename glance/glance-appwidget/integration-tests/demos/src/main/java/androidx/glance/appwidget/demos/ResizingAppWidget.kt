@@ -34,6 +34,7 @@ import androidx.glance.text.TextAlign
 import androidx.glance.text.TextDecoration
 import androidx.glance.text.TextStyle
 import androidx.compose.ui.graphics.Color
+import androidx.glance.layout.width
 
 class ResizingAppWidget : GlanceAppWidget() {
 
@@ -43,7 +44,11 @@ class ResizingAppWidget : GlanceAppWidget() {
     override fun Content() {
         Column(modifier = GlanceModifier.fillMaxSize().padding(16.dp).background(Color.LightGray)) {
             Row(modifier = GlanceModifier.fillMaxWidth()) {
-                Text("first")
+                Text(
+                    "first",
+                    modifier = GlanceModifier.width(50.dp).background(Color(0xFFBBBBBB)),
+                    style = TextStyle(textAlign = TextAlign.Start)
+                )
                 Text(
                     "second",
                     style = TextStyle(
@@ -52,7 +57,11 @@ class ResizingAppWidget : GlanceAppWidget() {
                     ),
                     modifier = GlanceModifier.defaultWeight().height(50.dp)
                 )
-                Text("third")
+                Text(
+                    "third",
+                    modifier = GlanceModifier.width(50.dp).background(Color(0xFFBBBBBB)),
+                    style = TextStyle(textAlign = TextAlign.End)
+                )
             }
             Text(
                 "middle",

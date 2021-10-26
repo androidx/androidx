@@ -19,49 +19,46 @@ package androidx.glance.appwidget.translators
 import android.os.Build
 import android.view.Gravity
 import android.widget.RemoteViews
-import androidx.glance.appwidget.LayoutSelector
+import androidx.glance.appwidget.LayoutType
 import androidx.glance.appwidget.R
 import androidx.glance.appwidget.TranslationContext
 import androidx.glance.appwidget.applyModifiers
-import androidx.glance.appwidget.createRemoteViews
+import androidx.glance.appwidget.insertView
 import androidx.glance.appwidget.layout.EmittableCheckBox
 import androidx.glance.appwidget.setViewEnabled
 
-internal fun translateEmittableCheckBox(
+internal fun RemoteViews.translateEmittableCheckBox(
     translationContext: TranslationContext,
     element: EmittableCheckBox
-): RemoteViews {
+) {
 
     val layoutType = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-        LayoutSelector.Type.CheckBox
+        LayoutType.CheckBox
     } else {
-        LayoutSelector.Type.CheckBoxBackport
+        LayoutType.CheckBoxBackport
     }
 
-    val layoutDef =
-        createRemoteViews(translationContext, layoutType, element.modifier)
-    val rv = layoutDef.remoteViews
+    val viewDef = insertView(translationContext, layoutType, element.modifier)
     val textViewId: Int
 
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-        textViewId = layoutDef.mainViewId
+        textViewId = viewDef.mainViewId
         CompoundButtonApi31Impl.setCompoundButtonChecked(
-            rv,
-            layoutDef.mainViewId,
+            this,
+            viewDef.mainViewId,
             element.checked
         )
     } else {
         textViewId = R.id.checkBoxText
-        rv.setViewEnabled(R.id.checkBoxIcon, element.checked)
+        setViewEnabled(R.id.checkBoxIcon, element.checked)
     }
 
-    rv.setText(
+    setText(
         translationContext,
         textViewId,
         element.text,
         element.style,
         verticalTextGravity = Gravity.CENTER_VERTICAL,
     )
-    applyModifiers(translationContext, rv, element.modifier, layoutDef)
-    return rv
+    applyModifiers(translationContext, this, element.modifier, viewDef)
 }
