@@ -18,7 +18,7 @@ package androidx.benchmark.macro.junit4
 
 import android.Manifest
 import androidx.annotation.RequiresApi
-import androidx.annotation.RestrictTo
+import androidx.benchmark.macro.ExperimentalBaselineProfilesApi
 import androidx.benchmark.macro.MacrobenchmarkScope
 import androidx.benchmark.macro.collectBaselineProfile
 import androidx.test.rule.GrantPermissionRule
@@ -28,13 +28,12 @@ import org.junit.runner.Description
 import org.junit.runners.model.Statement
 
 /**
- * A [TestRule] that helps collect baseline profiles.
+ * A [TestRule] that collects Baseline Profiles to be embedded in your APK.
  *
- * @suppress
+ * These rules are used at install time to partially pre-compile your application code.
  */
 @RequiresApi(28)
-// Ideally we want to restrict this to tests, but this is the next best thing.
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@ExperimentalBaselineProfilesApi
 class BaselineProfileRule : TestRule {
     private lateinit var currentDescription: Description
 
@@ -52,6 +51,14 @@ class BaselineProfileRule : TestRule {
         }
     }
 
+    /**
+     * Collects baseline profiles for a critical user journey.
+     * @param packageName Package name of the app for which profiles are to be generated.
+     * @param setupBlock The block performing app actions prior to the critical user journey.
+     * For example navigating to an Activity where scrolling will be measured.
+     * @param [profileBlock] defines the critical user journey.
+     */
+    @JvmOverloads
     public fun collectBaselineProfile(
         packageName: String,
         setupBlock: MacrobenchmarkScope.() -> Unit = {},
