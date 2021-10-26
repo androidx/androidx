@@ -39,9 +39,11 @@ plugins {
 // from AOSP.  Use this to block out any features or code that we're not
 // ready to build yet in AOSP
 
-def githubBuild = project.properties['androidx.github.build'] ?: false
+def githubBuild = project.properties['androidx.github.build']?.toBoolean() ?: false
 
-def enableMac = project.properties['androidx.kmp.mac.enabled'] ?: githubBuild
+def enableMac = project.properties['androidx.kmp.mac.enabled']?.toBoolean() ?: githubBuild
+
+def enableJs = project.properties['androidx.kmp.js.enabled']?.toBoolean() ?: githubBuild
 
 kotlin {
     jvm {
@@ -58,11 +60,13 @@ kotlin {
         }
     }
 
-    if (githubBuild) {
+    if (enableJs) {
         js {
             nodejs()
         }
+    }
 
+    if (githubBuild) {
         linuxX64()
         mingwX64()
         iosX64()
@@ -89,7 +93,7 @@ kotlin {
             }
         }
 
-        if (githubBuild || enableMac) {
+        if (githubBuild || enableMac || enableJs) {
             nonJvmMain {
                 // Used for JS and all native targets.
                 dependencies {
@@ -126,7 +130,7 @@ kotlin {
             }
         }
 
-        if (githubBuild) {
+        if (enableJs) {
             jsMain {
                 dependsOn nonJvmMain
                 dependencies {
