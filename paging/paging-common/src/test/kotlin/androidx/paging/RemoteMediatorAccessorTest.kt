@@ -20,6 +20,8 @@ import androidx.paging.LoadType.APPEND
 import androidx.paging.LoadType.PREPEND
 import androidx.paging.LoadType.REFRESH
 import androidx.paging.PagingSource.LoadResult.Page.Companion.COUNT_UNDEFINED
+import androidx.paging.RemoteMediator.InitializeAction.LAUNCH_INITIAL_REFRESH
+import androidx.paging.RemoteMediator.InitializeAction.SKIP_INITIAL_REFRESH
 import androidx.paging.RemoteMediatorMock.LoadEvent
 import androidx.paging.TestPagingSource.Companion.LOAD_ERROR
 import com.google.common.truth.Truth.assertThat
@@ -50,6 +52,70 @@ class RemoteMediatorAccessorTest {
             anchorPosition = anchorPosition,
             config = PagingConfig(10),
             leadingPlaceholderCount = COUNT_UNDEFINED
+        )
+    }
+
+    @Test
+    fun requestLoadIfRefreshAllowed_noop() = testScope.runBlockingTest {
+        val remoteMediator = RemoteMediatorMock(loadDelay = 100).apply {
+            initializeResult = SKIP_INITIAL_REFRESH
+        }
+        val remoteMediatorAccessor = createAccessor(remoteMediator)
+        val pagingState = PagingState<Int, Int>(listOf(), null, PagingConfig(1), 0)
+
+        remoteMediatorAccessor.requestRefreshIfAllowed(pagingState)
+        advanceUntilIdle()
+        assertThat(remoteMediator.newLoadEvents).isEmpty()
+    }
+
+    @Test
+    fun requestLoadIfRefreshAllowed_simple() = testScope.runBlockingTest {
+        val remoteMediator = RemoteMediatorMock(loadDelay = 100).apply {
+            initializeResult = LAUNCH_INITIAL_REFRESH
+        }
+        val remoteMediatorAccessor = createAccessor(remoteMediator)
+        val pagingState = PagingState<Int, Int>(listOf(), null, PagingConfig(1), 0)
+
+        remoteMediatorAccessor.allowRefresh()
+        remoteMediatorAccessor.requestRefreshIfAllowed(pagingState)
+        advanceUntilIdle()
+        assertThat(remoteMediator.newLoadEvents).containsExactly(
+            LoadEvent(loadType = REFRESH, state = pagingState)
+        )
+
+        // allowRefresh should only allow one successful request to go through.
+        remoteMediatorAccessor.requestRefreshIfAllowed(pagingState)
+        advanceUntilIdle()
+        assertThat(remoteMediator.newLoadEvents).isEmpty()
+    }
+
+    @Test
+    fun requestLoadIfRefreshAllowed_retry() = testScope.runBlockingTest {
+        val remoteMediator = RemoteMediatorMock(loadDelay = 100).apply {
+            initializeResult = LAUNCH_INITIAL_REFRESH
+        }
+        val remoteMediatorAccessor = createAccessor(remoteMediator)
+        val pagingState = PagingState<Int, Int>(listOf(), null, PagingConfig(1), 0)
+
+        remoteMediator.loadCallback = { _, _ ->
+            RemoteMediator.MediatorResult.Error(Exception())
+        }
+
+        remoteMediatorAccessor.allowRefresh()
+        remoteMediatorAccessor.requestRefreshIfAllowed(pagingState)
+        advanceUntilIdle()
+        assertThat(remoteMediator.newLoadEvents).containsExactly(
+            LoadEvent(loadType = REFRESH, state = pagingState)
+        )
+
+        remoteMediator.loadCallback = { _, _ ->
+            RemoteMediator.MediatorResult.Success(endOfPaginationReached = false)
+        }
+
+        remoteMediatorAccessor.retryFailed(pagingState)
+        advanceUntilIdle()
+        assertThat(remoteMediator.newLoadEvents).containsExactly(
+            LoadEvent(loadType = REFRESH, state = pagingState)
         )
     }
 
@@ -115,7 +181,7 @@ class RemoteMediatorAccessorTest {
     @Test
     fun requestLoad_cancelledBoundaryRetriesAfterRefresh() = testScope.runBlockingTest {
         val remoteMediator = RemoteMediatorMock(loadDelay = 100).apply {
-            initializeResult = RemoteMediator.InitializeAction.SKIP_INITIAL_REFRESH
+            initializeResult = SKIP_INITIAL_REFRESH
         }
         val remoteMediatorAccessor = createAccessor(remoteMediator)
         val firstState = createMockState()
@@ -558,7 +624,7 @@ class RemoteMediatorAccessorTest {
     @Test
     fun allowAppendPrependWhenRefreshIsNotRequired() {
         val remoteMediatorMock = RemoteMediatorMock().apply {
-            initializeResult = RemoteMediator.InitializeAction.SKIP_INITIAL_REFRESH
+            initializeResult = SKIP_INITIAL_REFRESH
         }
         val accessor = testScope.createAccessor(remoteMediatorMock)
 
@@ -649,7 +715,7 @@ class RemoteMediatorAccessorTest {
     @Test
     fun dropAppendPrependIfRefreshIsTriggered() {
         val remoteMediatorMock = RemoteMediatorMock(loadDelay = 100).apply {
-            initializeResult = RemoteMediator.InitializeAction.SKIP_INITIAL_REFRESH
+            initializeResult = SKIP_INITIAL_REFRESH
         }
         val accessor = testScope.createAccessor(remoteMediatorMock)
         testScope.pauseDispatcher()
@@ -681,7 +747,7 @@ class RemoteMediatorAccessorTest {
     @Test
     fun loadEvents() {
         val remoteMediatorMock = RemoteMediatorMock(loadDelay = 100).apply {
-            initializeResult = RemoteMediator.InitializeAction.SKIP_INITIAL_REFRESH
+            initializeResult = SKIP_INITIAL_REFRESH
         }
         val accessor = testScope.createAccessor(remoteMediatorMock)
         testScope.pauseDispatcher()
@@ -837,7 +903,7 @@ class RemoteMediatorAccessorTest {
     @Test
     fun retry_refresh() {
         val remoteMediatorMock = RemoteMediatorMock(loadDelay = 100).apply {
-            initializeResult = RemoteMediator.InitializeAction.SKIP_INITIAL_REFRESH
+            initializeResult = SKIP_INITIAL_REFRESH
         }
         val exception = Exception()
         val accessor = testScope.createAccessor(remoteMediatorMock)
@@ -907,7 +973,7 @@ class RemoteMediatorAccessorTest {
     @Test
     fun failedRefreshShouldAllowAppendPrependIfRefreshIsNotRequired() {
         val remoteMediatorMock = RemoteMediatorMock(loadDelay = 100).apply {
-            initializeResult = RemoteMediator.InitializeAction.SKIP_INITIAL_REFRESH
+            initializeResult = SKIP_INITIAL_REFRESH
         }
         val exception = Exception()
         val accessor = testScope.createAccessor(remoteMediatorMock)
@@ -957,7 +1023,7 @@ class RemoteMediatorAccessorTest {
     @Test
     fun retry_retryBothAppendAndPrepend() {
         val remoteMediatorMock = RemoteMediatorMock(loadDelay = 100).apply {
-            initializeResult = RemoteMediator.InitializeAction.SKIP_INITIAL_REFRESH
+            initializeResult = SKIP_INITIAL_REFRESH
         }
         val exception = Exception()
         val accessor = testScope.createAccessor(remoteMediatorMock)
@@ -1013,7 +1079,7 @@ class RemoteMediatorAccessorTest {
     fun retry_multipleTriggersOnlyRefresh() {
         val remoteMediator = object : RemoteMediatorMock(100) {
             override suspend fun initialize(): InitializeAction {
-                return InitializeAction.SKIP_INITIAL_REFRESH
+                return SKIP_INITIAL_REFRESH
             }
         }
         val exception = Exception()
@@ -1067,7 +1133,7 @@ class RemoteMediatorAccessorTest {
     fun failingRefreshRetriesAppendPrepend_refreshNotRequired() {
         val remoteMediator = object : RemoteMediatorMock(100) {
             override suspend fun initialize(): InitializeAction {
-                return InitializeAction.SKIP_INITIAL_REFRESH
+                return SKIP_INITIAL_REFRESH
             }
         }
         val exception = Exception()
