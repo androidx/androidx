@@ -1,5 +1,3 @@
 // Baseline format: 1.0
-RemovedMethod: androidx.window.rxjava2.layout.WindowInfoRepositoryRx#currentWindowMetricsFlowable(androidx.window.layout.WindowInfoRepository):
-    Removed method androidx.window.rxjava2.layout.WindowInfoRepositoryRx.currentWindowMetricsFlowable(androidx.window.layout.WindowInfoRepository)
-RemovedMethod: androidx.window.rxjava2.layout.WindowInfoRepositoryRx#currentWindowMetricsObservable(androidx.window.layout.WindowInfoRepository):
-    Removed method androidx.window.rxjava2.layout.WindowInfoRepositoryRx.currentWindowMetricsObservable(androidx.window.layout.WindowInfoRepository)
+RemovedClass: androidx.window.rxjava2.layout.WindowInfoRepositoryRx:
+    Removed class androidx.window.rxjava2.layout.WindowInfoRepositoryRx

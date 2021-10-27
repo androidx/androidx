@@ -25,7 +25,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.RecyclerView
-import androidx.window.layout.WindowInfoRepository.Companion.windowInfoRepository
+import androidx.window.layout.WindowInfoTracker
 import androidx.window.layout.WindowLayoutInfo
 import androidx.window.sample.infolog.InfoLogAdapter
 import kotlinx.coroutines.Dispatchers
@@ -47,8 +47,6 @@ class DisplayFeaturesConfigChangeActivity : AppCompatActivity() {
         val recyclerView = findViewById<RecyclerView>(R.id.infoLogRecyclerView)
         recyclerView.adapter = infoLogAdapter
 
-        val windowInfoRepo = windowInfoRepository()
-
         lifecycleScope.launch(Dispatchers.Main) {
             // The block passed to repeatOnLifecycle is executed when the lifecycle
             // is at least STARTED and is cancelled when the lifecycle is STOPPED.
@@ -56,7 +54,8 @@ class DisplayFeaturesConfigChangeActivity : AppCompatActivity() {
             lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 // Safely collect from windowInfoRepo when the lifecycle is STARTED
                 // and stops collection when the lifecycle is STOPPED
-                windowInfoRepo.windowLayoutInfo
+                WindowInfoTracker.getOrCreate(this@DisplayFeaturesConfigChangeActivity)
+                    .windowLayoutInfo(this@DisplayFeaturesConfigChangeActivity)
                     .collect { newLayoutInfo ->
                         // New posture information
                         updateStateLog(newLayoutInfo)

@@ -16,8 +16,9 @@
 
 package androidx.window.java.layout
 
+import android.app.Activity
 import androidx.core.util.Consumer
-import androidx.window.layout.WindowInfoRepository
+import androidx.window.layout.WindowInfoTracker
 import androidx.window.layout.WindowLayoutInfo
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
@@ -30,12 +31,12 @@ import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
 
 /**
- * An adapted interface for [WindowInfoRepository] that allows listening for events via a callback
+ * An adapted interface for [WindowInfoTracker] that allows listening for events via a callback
  * shaped API.
  */
-class WindowInfoRepositoryCallbackAdapter(
-    private val repository: WindowInfoRepository
-) : WindowInfoRepository by repository {
+class WindowInfoTrackerCallbackAdapter(
+    private val tracker: WindowInfoTracker
+) : WindowInfoTracker by tracker {
 
     /**
      * A [ReentrantLock] to protect against concurrent access to [consumerToJobMap].
@@ -46,19 +47,20 @@ class WindowInfoRepositoryCallbackAdapter(
     /**
      * Register a listener to consume [WindowLayoutInfo] values. If the same consumer is
      * registered twice then this method is a no-op.
-     * @see WindowInfoRepository.windowLayoutInfo
+     * @see WindowInfoTracker.windowLayoutInfo
      */
     fun addWindowLayoutInfoListener(
+        activity: Activity,
         executor: Executor,
         consumer: Consumer<WindowLayoutInfo>
     ) {
-        addListener(executor, consumer, repository.windowLayoutInfo)
+        addListener(executor, consumer, tracker.windowLayoutInfo(activity))
     }
 
     /**
      * Remove a listener to stop consuming [WindowLayoutInfo] values. If the listener has already
      * been removed then this is a no-op.
-     * @see WindowInfoRepository.windowLayoutInfo
+     * @see WindowInfoTracker.windowLayoutInfo
      */
     fun removeWindowLayoutInfoListener(consumer: Consumer<WindowLayoutInfo>) {
         removeListener(consumer)
