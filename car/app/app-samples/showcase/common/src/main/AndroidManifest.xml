@@ -17,6 +17,11 @@
 <manifest
     xmlns:android="http://schemas.android.com/apk/res/android"
     package="androidx.car.app.sample.showcase.common">
+
+    <!-- For accessing current location in PlaceListMapTemplate -->
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+
     <application>
         <activity android:name=".templates.SignInWithGoogleActivity" />
     </application>
