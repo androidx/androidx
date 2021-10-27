@@ -55,7 +55,7 @@ public final class MiscTemplateDemosScreen extends Screen {
                 listBuilder.addItem(createRow("List Template Demo",
                         new ListTemplateDemoScreen(getCarContext())));
                 listBuilder.addItem(createRow("Place List Template Demo",
-                        new PlaceListTemplateDemoScreen(getCarContext())));
+                        new PlaceListTemplateBrowseDemoScreen(getCarContext())));
                 listBuilder.addItem(createRow("Search Template Demo",
                         new SearchTemplateDemoScreen(getCarContext())));
                 listBuilder.addItem(createRow("Message Template Demo",
