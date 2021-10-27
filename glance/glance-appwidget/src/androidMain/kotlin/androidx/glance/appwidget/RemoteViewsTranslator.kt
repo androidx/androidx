@@ -47,9 +47,14 @@ import androidx.glance.layout.EmittableRow
 import androidx.glance.layout.EmittableText
 import java.util.concurrent.atomic.AtomicInteger
 
-internal fun translateComposition(context: Context, appWidgetId: Int, element: RemoteViewsRoot) =
+internal fun translateComposition(
+    context: Context,
+    appWidgetId: Int,
+    appWidgetClass: Class<out GlanceAppWidget>,
+    element: RemoteViewsRoot
+) =
     translateComposition(
-        TranslationContext(context, appWidgetId, context.isRtl),
+        TranslationContext(context, appWidgetId, appWidgetClass, context.isRtl),
         element
     )
 
@@ -76,6 +81,7 @@ private fun translateComposition(
 internal data class TranslationContext(
     val context: Context,
     val appWidgetId: Int,
+    val appWidgetClass: Class<out GlanceAppWidget>,
     val isRtl: Boolean,
     val areLazyCollectionsAllowed: Boolean = true,
     val lastViewId: AtomicInteger = AtomicInteger(0),

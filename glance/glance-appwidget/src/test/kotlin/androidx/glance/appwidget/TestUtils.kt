@@ -79,7 +79,7 @@ internal suspend fun Context.runAndTranslate(
     content: @Composable () -> Unit
 ): RemoteViews {
     val root = runTestingComposition(content)
-    return translateComposition(this, appWidgetId, root)
+    return translateComposition(this, appWidgetId, TestWidget::class.java, root)
 }
 
 internal suspend fun Context.runAndTranslateInRtl(
@@ -126,4 +126,9 @@ fun <T : View> View.findView(predicate: (T) -> Boolean, klass: Class<T>): T? {
         return null
     }
     return children.mapNotNull { it.findView(predicate, klass) }.firstOrNull()
+}
+
+internal class TestWidget : GlanceAppWidget() {
+    @Composable
+    override fun Content() {}
 }

@@ -273,7 +273,7 @@ public abstract class GlanceAppWidget {
         recomposer.close()
         recomposer.join()
 
-        translateComposition(context, appWidgetId, root)
+        translateComposition(context, appWidgetId, this@GlanceAppWidget.javaClass, root)
     }
 
     private companion object {
@@ -312,7 +312,7 @@ public abstract class GlanceAppWidget {
     }
 }
 
-private data class AppWidgetId(val appWidgetId: Int) : GlanceId
+internal data class AppWidgetId(val appWidgetId: Int) : GlanceId
 
 // Extract the sizes from the bundle
 private fun Bundle.extractAllSizes(minSize: () -> DpSize): List<DpSize> =

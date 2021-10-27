@@ -39,11 +39,7 @@ internal class ActionRunnableBroadcastReceiver : BroadcastReceiver() {
 
         goAsync {
             val extras = requireNotNull(intent.extras) {
-                "Intent must have action parameters extras."
-            }
-            val className = requireNotNull(extras.getString(ExtraClassName)) {
-                "The custom work intent must contain a work class name string using extra: " +
-                    ExtraClassName
+                "The intent must have action parameters extras."
             }
             val paramsBundle = requireNotNull(extras.getBundle(ExtraParameters)) {
                 "The intent must contain a parameters bundle using extra: $ExtraParameters"
@@ -54,17 +50,23 @@ internal class ActionRunnableBroadcastReceiver : BroadcastReceiver() {
                     set(ActionParameters.Key(key), paramsBundle[key])
                 }
             }
-            UpdateContentAction.run(context, className, parameters)
+
+            runActionWork(context, intent, parameters)
+            updateWidget(context, intent)
         }
     }
 
     companion object {
-        private const val ExtraClassName = "ActionRunnableBroadcastReceiver:className"
+        private const val ExtraRunnableClassName = "ActionRunnableBroadcastReceiver:runnableClass"
+        private const val ExtraWidgetClassName = "ActionRunnableBroadcastReceiver:appWidgetClass"
+        private const val AppWidgetId = "ActionRunnableBroadcastReceiver:appWidgetId"
         private const val ExtraParameters = "ActionRunnableBroadcastReceiver:parameters"
 
         fun createPendingIntent(
             context: Context,
             runnableClass: Class<out ActionRunnable>,
+            appWidgetClass: Class<out GlanceAppWidget>,
+            appWidgetId: Int,
             parameters: ActionParameters
         ): PendingIntent =
             PendingIntent.getBroadcast(
@@ -72,7 +74,9 @@ internal class ActionRunnableBroadcastReceiver : BroadcastReceiver() {
                 0,
                 Intent(context, ActionRunnableBroadcastReceiver::class.java)
                     .setPackage(context.packageName)
-                    .putExtra(ExtraClassName, runnableClass.canonicalName)
+                    .putExtra(ExtraRunnableClassName, runnableClass.canonicalName)
+                    .putExtra(ExtraWidgetClassName, appWidgetClass.canonicalName)
+                    .putExtra(AppWidgetId, appWidgetId)
                     .putParameterExtras(parameters).apply {
                         setData(Uri.parse(toUri(0))
                             .buildUpon()
@@ -89,5 +93,31 @@ internal class ActionRunnableBroadcastReceiver : BroadcastReceiver() {
             putExtra(ExtraParameters, bundleOf(*parametersPairs))
             return this
         }
+    }
+
+    private suspend fun runActionWork(
+        context: Context,
+        intent: Intent,
+        parameters: ActionParameters
+    ) {
+        val className = requireNotNull(intent.getStringExtra(ExtraRunnableClassName)) {
+            "The intent must contain a work class name string using extra: " +
+                "$ExtraRunnableClassName"
+        }
+        UpdateContentAction.run(context, className, parameters)
+    }
+
+    private suspend fun updateWidget(context: Context, intent: Intent) {
+        val widgetClassName = requireNotNull(intent.getStringExtra(ExtraWidgetClassName)) {
+            "The intent must contain a widget class name string using extra: " +
+                "$ExtraWidgetClassName"
+        }
+        require(intent.hasExtra(AppWidgetId)) {
+            "To update the widget, the intent must contain the AppWidgetId integer using extra: " +
+                "$AppWidgetId"
+        }
+
+        (Class.forName(widgetClassName).newInstance() as GlanceAppWidget)
+            .update(context, AppWidgetId(intent.getIntExtra(AppWidgetId, -1)))
     }
 }
