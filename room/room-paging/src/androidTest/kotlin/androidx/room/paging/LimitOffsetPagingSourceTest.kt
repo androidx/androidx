@@ -31,6 +31,7 @@ import androidx.room.refreshRunnable
 import androidx.room.util.CursorUtil
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.FlakyTest
 import androidx.test.filters.SmallTest
 import androidx.testutils.FilteringExecutor
 import androidx.testutils.TestExecutor
@@ -81,6 +82,7 @@ class LimitOffsetPagingSourceTest {
         assertThat(countingTaskExecutorRule.isIdle).isTrue()
     }
 
+    @FlakyTest(bugId = 202322488)
     @Test
     fun load_usesQueryExecutor() {
         val queryExecutor = TestExecutor()
