@@ -49,7 +49,6 @@ import androidx.annotation.Nullable;
 import androidx.camera.core.Camera;
 import androidx.camera.core.CameraInfo;
 import androidx.camera.core.CameraSelector;
-import androidx.camera.core.CameraX;
 import androidx.camera.core.MeteringPoint;
 import androidx.camera.core.MeteringPointFactory;
 import androidx.camera.core.Preview;
@@ -59,6 +58,7 @@ import androidx.camera.core.impl.CameraInfoInternal;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.impl.utils.futures.FutureCallback;
 import androidx.camera.core.impl.utils.futures.Futures;
+import androidx.camera.lifecycle.ProcessCameraProvider;
 import androidx.camera.testing.CameraUtil;
 import androidx.camera.testing.CoreAppTestUtil;
 import androidx.camera.testing.SurfaceFormatUtil;
@@ -115,15 +115,19 @@ public class PreviewViewDeviceTest {
     private final Instrumentation mInstrumentation = InstrumentationRegistry.getInstrumentation();
     private ActivityScenario<FakeActivity> mActivityScenario;
     private final Context mContext = ApplicationProvider.getApplicationContext();
+    private ProcessCameraProvider mCameraProvider = null;
     private final List<SurfaceRequest> mSurfaceRequestList = new ArrayList<>();
     private PreviewView mPreviewView;
     private MeteringPointFactory mMeteringPointFactory;
     private final UiDevice mUiDevice = UiDevice.getInstance(mInstrumentation);
 
     @Before
-    public void setUp() throws CoreAppTestUtil.ForegroundOccupiedError {
+    public void setUp() throws CoreAppTestUtil.ForegroundOccupiedError, ExecutionException,
+            InterruptedException, TimeoutException {
         CoreAppTestUtil.prepareDeviceUI(mInstrumentation);
         mActivityScenario = ActivityScenario.launch(FakeActivity.class);
+        mCameraProvider = ProcessCameraProvider.getInstance(mContext).get(10000,
+                TimeUnit.MILLISECONDS);
     }
 
     @After
@@ -133,7 +137,9 @@ public class PreviewViewDeviceTest {
             // Ensure all successful requests have their returned future finish.
             surfaceRequest.getDeferrableSurface().close();
         }
-        CameraX.shutdown().get(10, TimeUnit.SECONDS);
+        if (mCameraProvider != null) {
+            mCameraProvider.shutdown();
+        }
     }
 
     @Test

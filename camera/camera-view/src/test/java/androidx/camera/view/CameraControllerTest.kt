@@ -22,13 +22,13 @@ import android.util.Size
 import android.view.Surface
 import androidx.camera.core.AspectRatio
 import androidx.camera.core.CameraSelector
-import androidx.camera.core.CameraX
 import androidx.camera.core.CameraXConfig
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.impl.ImageAnalysisConfig
 import androidx.camera.core.impl.ImageCaptureConfig
 import androidx.camera.core.impl.ImageOutputConfig
+import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.testing.fakes.FakeAppConfig
 import androidx.test.annotation.UiThreadTest
 import androidx.test.core.app.ApplicationProvider
@@ -41,6 +41,7 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.internal.DoNotInstrument
 import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit
 
 /**
  * Unit tests for [CameraController].
@@ -51,6 +52,7 @@ import java.util.concurrent.Executors
 public class CameraControllerTest {
 
     private val context = ApplicationProvider.getApplicationContext<Context>()
+    private lateinit var cameraProvider: ProcessCameraProvider
     private lateinit var controller: CameraController
     private val targetSizeWithAspectRatio =
         CameraController.OutputSize(AspectRatio.RATIO_16_9)
@@ -62,13 +64,16 @@ public class CameraControllerTest {
         val cameraXConfig = CameraXConfig.Builder.fromConfig(
             FakeAppConfig.create()
         ).build()
-        CameraX.initialize(context, cameraXConfig).get()
+        ProcessCameraProvider.configureInstance(cameraXConfig)
+        cameraProvider = ProcessCameraProvider.getInstance(context)[10000, TimeUnit.MILLISECONDS]
         controller = LifecycleCameraController(context)
     }
 
     @After
     public fun shutDown() {
-        CameraX.shutdown().get()
+        if (::cameraProvider.isInitialized) {
+            cameraProvider.shutdown()[10000, TimeUnit.MILLISECONDS]
+        }
     }
 
     @UiThreadTest

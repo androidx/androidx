@@ -16,8 +16,9 @@
 
 package androidx.camera.integration.uiwidgets.rotations
 
+import android.content.Context
 import android.content.Intent
-import androidx.camera.core.CameraX
+import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.CoreAppTestUtil
 import androidx.test.core.app.ActivityScenario
@@ -69,7 +70,9 @@ abstract class ImageAnalysisBaseTest<A : CameraActivity> {
     }
 
     protected fun tearDown() {
-        CameraX.shutdown().get(10, TimeUnit.SECONDS)
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val cameraProvider = ProcessCameraProvider.getInstance(context)[10, TimeUnit.SECONDS]
+        cameraProvider.shutdown()[10, TimeUnit.SECONDS]
         mDevice.unfreezeRotation()
     }
 

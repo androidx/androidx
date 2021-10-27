@@ -25,7 +25,6 @@ import android.util.Rational;
 
 import androidx.camera.core.AspectRatio;
 import androidx.camera.core.CameraSelector;
-import androidx.camera.core.CameraX;
 import androidx.camera.core.CameraXConfig;
 import androidx.camera.core.ImageAnalysis;
 import androidx.camera.core.MeteringPoint;
@@ -33,6 +32,7 @@ import androidx.camera.core.MeteringPointFactory;
 import androidx.camera.core.SurfaceOrientedMeteringPointFactory;
 import androidx.camera.core.internal.CameraUseCaseAdapter;
 import androidx.camera.testing.CameraUtil;
+import androidx.camera.testing.CameraXUtil;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.platform.app.InstrumentationRegistry;
@@ -57,13 +57,13 @@ public final class SurfaceOrientedMeteringPointFactoryTest {
         mContext = ApplicationProvider.getApplicationContext();
         CameraXConfig config = Camera2Config.defaultConfig();
 
-        CameraX.initialize(mContext, config);
+        CameraXUtil.initialize(mContext, config);
         mPointFactory = new SurfaceOrientedMeteringPointFactory(WIDTH, HEIGHT);
     }
 
     @After
     public void tearDown() throws ExecutionException, InterruptedException, TimeoutException {
-        CameraX.shutdown().get(10000, TimeUnit.MILLISECONDS);
+        CameraXUtil.shutdown().get(10000, TimeUnit.MILLISECONDS);
     }
 
     @Test

@@ -33,6 +33,7 @@ import androidx.camera.core.impl.TagBundle;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.internal.CameraUseCaseAdapter;
 import androidx.camera.testing.CameraUtil;
+import androidx.camera.testing.CameraXUtil;
 import androidx.camera.testing.fakes.FakeAppConfig;
 import androidx.camera.testing.fakes.FakeCamera;
 import androidx.camera.testing.fakes.FakeCameraFactory;
@@ -112,13 +113,13 @@ public class ImageAnalysisTest {
                 FakeAppConfig.create()).setCameraFactoryProvider(cameraFactoryProvider).build();
 
         Context context = ApplicationProvider.getApplicationContext();
-        CameraX.initialize(context, cameraXConfig).get();
+        CameraXUtil.initialize(context, cameraXConfig).get();
     }
 
     @After
     public void tearDown() throws ExecutionException, InterruptedException, TimeoutException {
         mImageProxiesReceived.clear();
-        CameraX.shutdown().get(10000, TimeUnit.MILLISECONDS);
+        CameraXUtil.shutdown().get(10000, TimeUnit.MILLISECONDS);
         if (mBackgroundThread != null) {
             mBackgroundThread.quitSafely();
         }

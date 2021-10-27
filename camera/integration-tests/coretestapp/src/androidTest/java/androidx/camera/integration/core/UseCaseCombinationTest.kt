@@ -24,7 +24,9 @@ import androidx.camera.core.CameraXConfig
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.Preview
+import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.testing.CameraUtil
+import androidx.camera.testing.fakes.FakeLifecycleOwner
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.LargeTest
 import kotlinx.coroutines.Dispatchers
@@ -62,65 +64,85 @@ class UseCaseCombinationTest(
     }
 
     private val context: Context = ApplicationProvider.getApplicationContext()
+    private lateinit var cameraProvider: ProcessCameraProvider
+    private lateinit var fakeLifecycleOwner: FakeLifecycleOwner
 
     @Before
     fun initializeCameraX(): Unit = runBlocking {
-        CameraX.initialize(context, cameraConfig).get(10, TimeUnit.SECONDS)
+        ProcessCameraProvider.configureInstance(cameraConfig)
+        cameraProvider = ProcessCameraProvider.getInstance(context)[10, TimeUnit.SECONDS]
+
+        withContext(Dispatchers.Main) {
+            fakeLifecycleOwner = FakeLifecycleOwner()
+            fakeLifecycleOwner.startAndResume()
+        }
     }
 
     @After
     fun shutdownCameraX(): Unit = runBlocking {
-        CameraX.shutdown().get(10, TimeUnit.SECONDS)
+        if (::cameraProvider.isInitialized) {
+            withContext(Dispatchers.Main) {
+                cameraProvider.unbindAll()
+                cameraProvider.shutdown()[10, TimeUnit.SECONDS]
+            }
+        }
     }
 
     /** Test Combination: Preview + ImageCapture */
     @Test
-    fun previewCombinesImageCapture() = runBlocking {
+    fun previewCombinesImageCapture(): Unit = runBlocking {
         skipTestOnCameraPipeConfig()
 
         val preview = initPreview()
         val imageCapture = initImageCapture()
 
-        val camera = CameraUtil.createCameraUseCaseAdapter(context, DEFAULT_SELECTOR)
-        camera.detachUseCases()
-
         // TODO(b/160249108) move off of main thread once UseCases can be attached on any thread
         withContext(Dispatchers.Main) {
-            camera.addUseCases(listOf(preview, imageCapture))
+            cameraProvider.bindToLifecycle(
+                fakeLifecycleOwner,
+                DEFAULT_SELECTOR,
+                preview,
+                imageCapture
+            )
         }
     }
 
     /** Test Combination: Preview + ImageAnalysis */
     @Test
-    fun previewCombinesImageAnalysis() = runBlocking {
+    fun previewCombinesImageAnalysis(): Unit = runBlocking {
         val preview = initPreview()
         val imageAnalysis = initImageAnalysis()
 
-        val camera = CameraUtil.createCameraUseCaseAdapter(context, DEFAULT_SELECTOR)
-        camera.detachUseCases()
-
         // TODO(b/160249108) move off of main thread once UseCases can be attached on any thread
         withContext(Dispatchers.Main) {
-            camera.addUseCases(listOf(preview, imageAnalysis))
+            cameraProvider.bindToLifecycle(
+                fakeLifecycleOwner,
+                DEFAULT_SELECTOR,
+                preview,
+                imageAnalysis
+            )
         }
     }
 
     /** Test Combination: Preview + ImageAnalysis + ImageCapture  */
     @Test
-    fun previewCombinesImageAnalysisAndImageCapture() = runBlocking {
+    fun previewCombinesImageAnalysisAndImageCapture(): Unit = runBlocking {
         skipTestOnCameraPipeConfig()
 
         val preview = initPreview()
         val imageAnalysis = initImageAnalysis()
         val imageCapture = initImageCapture()
 
-        val camera = CameraUtil.createCameraUseCaseAdapter(context, DEFAULT_SELECTOR)
-        camera.detachUseCases()
-
         // TODO(b/160249108) move off of main thread once UseCases can be attached on any
         //  thread
         withContext(Dispatchers.Main) {
-            camera.addUseCases(listOf(preview, imageAnalysis, imageCapture))
+            cameraProvider.bindToLifecycle(
+                fakeLifecycleOwner,
+                DEFAULT_SELECTOR,
+                preview,
+                imageAnalysis,
+                imageCapture
+            )
         }
     }
 

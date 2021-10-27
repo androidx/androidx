@@ -28,7 +28,6 @@ import android.provider.MediaStore
 import android.util.Size
 import androidx.annotation.NonNull
 import androidx.camera.core.CameraSelector
-import androidx.camera.core.CameraX
 import androidx.camera.core.Logger
 import androidx.camera.core.Preview
 import androidx.camera.core.UseCase
@@ -37,6 +36,7 @@ import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.core.internal.CameraUseCaseAdapter
 import androidx.camera.testing.AudioUtil
 import androidx.camera.testing.CameraUtil
+import androidx.camera.testing.CameraXUtil
 import androidx.camera.testing.SurfaceTextureProvider.SurfaceTextureCallback
 import androidx.camera.testing.SurfaceTextureProvider.createSurfaceTextureProvider
 import androidx.test.core.app.ApplicationProvider
@@ -114,7 +114,10 @@ public class VideoCaptureTest {
             CameraSelector.DEFAULT_FRONT_CAMERA
         }
 
-        CameraX.initialize(context, Camera2Config.defaultConfig()).get()
+        CameraXUtil.initialize(
+            context,
+            Camera2Config.defaultConfig()
+        ).get()
         cameraUseCaseAdapter = CameraUtil.createCameraUseCaseAdapter(context, cameraSelector)
 
         contentResolver = context.contentResolver
@@ -128,7 +131,7 @@ public class VideoCaptureTest {
             }
         }
 
-        CameraX.shutdown().get(10000, TimeUnit.MILLISECONDS)
+        CameraXUtil.shutdown().get(10000, TimeUnit.MILLISECONDS)
     }
 
     @Test

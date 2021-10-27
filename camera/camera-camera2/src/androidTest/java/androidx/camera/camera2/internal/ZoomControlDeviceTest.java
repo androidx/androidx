@@ -43,13 +43,13 @@ import androidx.camera.camera2.impl.Camera2ImplConfig;
 import androidx.camera.camera2.internal.compat.CameraCharacteristicsCompat;
 import androidx.camera.core.CameraInfoUnavailableException;
 import androidx.camera.core.CameraSelector;
-import androidx.camera.core.CameraX;
 import androidx.camera.core.CameraXConfig;
 import androidx.camera.core.ZoomState;
 import androidx.camera.core.impl.CameraControlInternal.ControlUpdateCallback;
 import androidx.camera.core.impl.SessionConfig;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.testing.CameraUtil;
+import androidx.camera.testing.CameraXUtil;
 import androidx.camera.testing.HandlerUtil;
 import androidx.camera.testing.fakes.FakeLifecycleOwner;
 import androidx.core.os.HandlerCompat;
@@ -94,7 +94,7 @@ public final class ZoomControlDeviceTest {
         // Init CameraX
         Context context = ApplicationProvider.getApplicationContext();
         CameraXConfig config = Camera2Config.defaultConfig();
-        CameraX.initialize(context, config);
+        CameraXUtil.initialize(context, config);
 
         mCameraCharacteristics =
                 CameraUtil.getCameraCharacteristics(CameraSelector.LENS_FACING_BACK);
@@ -122,7 +122,7 @@ public final class ZoomControlDeviceTest {
 
     @After
     public void tearDown() throws ExecutionException, InterruptedException, TimeoutException {
-        CameraX.shutdown().get(10000, TimeUnit.MILLISECONDS);
+        CameraXUtil.shutdown().get(10000, TimeUnit.MILLISECONDS);
         if (mHandlerThread != null) {
             mHandlerThread.quit();
         }

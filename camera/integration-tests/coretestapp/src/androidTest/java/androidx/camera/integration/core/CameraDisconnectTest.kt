@@ -23,6 +23,7 @@ import androidx.camera.camera2.Camera2Config
 import androidx.camera.camera2.pipe.integration.CameraPipeConfig
 import androidx.camera.core.CameraX
 import androidx.camera.core.CameraXConfig
+import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.CoreAppTestUtil
 import androidx.camera.testing.activity.Camera2TestActivity
@@ -36,7 +37,6 @@ import androidx.test.espresso.IdlingResource
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
-import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
@@ -67,15 +67,15 @@ class CameraDisconnectTest(
 
     private val context: Context = ApplicationProvider.getApplicationContext()
     private lateinit var cameraXActivityScenario: ActivityScenario<CameraXTestActivity>
+    private lateinit var cameraProvider: ProcessCameraProvider
 
     @Before
     fun setUp() {
         IdlingPolicies.setIdlingResourceTimeout(10, TimeUnit.SECONDS)
         CoreAppTestUtil.assumeCompatibleDevice()
         CoreAppTestUtil.assumeCanTestCameraDisconnect()
-        runBlocking {
-            CameraX.initialize(context, cameraConfig).get(10, TimeUnit.SECONDS)
-        }
+        ProcessCameraProvider.configureInstance(cameraConfig)
+        cameraProvider = ProcessCameraProvider.getInstance(context)[10, TimeUnit.SECONDS]
 
         // Clear the device UI and check if there is no dialog or lock screen on the top of the
         // window before start the test.
@@ -88,8 +88,8 @@ class CameraDisconnectTest(
             cameraXActivityScenario.close()
         }
 
-        runBlocking {
-            CameraX.shutdown().get(10, TimeUnit.SECONDS)
+        if (::cameraProvider.isInitialized) {
+            cameraProvider.shutdown()[10, TimeUnit.SECONDS]
         }
     }
 

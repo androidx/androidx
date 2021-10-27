@@ -20,11 +20,11 @@ import android.content.Context
 import android.os.Build
 import android.os.Looper
 import androidx.camera.core.CameraSelector
-import androidx.camera.core.CameraX
 import androidx.camera.core.CameraXConfig
 import androidx.camera.core.impl.CameraFactory
 import androidx.camera.core.impl.CameraThreadConfig
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
+import androidx.camera.testing.CameraXUtil
 import androidx.camera.testing.fakes.FakeAppConfig
 import androidx.camera.testing.fakes.FakeCamera
 import androidx.camera.testing.fakes.FakeCameraFactory
@@ -66,12 +66,12 @@ class VideoCaptureLegacyTest {
             .setCameraFactoryProvider(cameraFactoryProvider)
             .build()
         val context = ApplicationProvider.getApplicationContext<Context>()
-        CameraX.initialize(context, cameraXConfig).get()
+        CameraXUtil.initialize(context, cameraXConfig).get()
     }
 
     @After
     fun tearDown() {
-        CameraX.shutdown().get()
+        CameraXUtil.shutdown().get()
     }
 
     @Test

@@ -22,16 +22,16 @@ import android.util.Size
 import androidx.camera.camera2.Camera2Config
 import androidx.camera.camera2.pipe.integration.CameraPipeConfig
 import androidx.camera.core.CameraSelector
-import androidx.camera.core.CameraX
 import androidx.camera.core.CameraXConfig
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCaptureException
 import androidx.camera.core.ImageProxy
 import androidx.camera.core.Preview
-import androidx.camera.core.internal.CameraUseCaseAdapter
+import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.LabTestRule
 import androidx.camera.testing.SurfaceTextureProvider
+import androidx.camera.testing.fakes.FakeLifecycleOwner
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.LargeTest
 import com.google.common.truth.Truth
@@ -74,24 +74,23 @@ class FlashTest(private val implName: String, private val cameraXConfig: CameraX
     }
 
     private val context = ApplicationProvider.getApplicationContext<Context>()
-    private lateinit var camera: CameraUseCaseAdapter
+    private lateinit var cameraProvider: ProcessCameraProvider
 
     @Before
     fun setUp() {
         Assume.assumeTrue(CameraUtil.hasCameraWithLensFacing(BACK_LENS_FACING))
-        CameraX.initialize(context, cameraXConfig).get(10, TimeUnit.SECONDS)
+        ProcessCameraProvider.configureInstance(cameraXConfig)
+        cameraProvider = ProcessCameraProvider.getInstance(context)[10, TimeUnit.SECONDS]
     }
 
     @After
     fun tearDown(): Unit = runBlocking {
-        if (::camera.isInitialized) {
-            // TODO: The removeUseCases() call might be removed after clarifying the
-            // abortCaptures() issue in b/162314023
+        if (::cameraProvider.isInitialized) {
             withContext(Dispatchers.Main) {
-                camera.removeUseCases(camera.useCases)
+                cameraProvider.unbindAll()
+                cameraProvider.shutdown()[10, TimeUnit.SECONDS]
             }
         }
-        CameraX.shutdown().get(10, TimeUnit.SECONDS)
     }
 
     @LabTestRule.LabTestRearCamera
@@ -173,8 +172,10 @@ class FlashTest(private val implName: String, private val cameraXConfig: CameraX
         withContext(Dispatchers.Main) {
             preview.setSurfaceProvider(getSurfaceProvider())
         }
-        camera =
-            CameraUtil.createCameraAndAttachUseCase(context, BACK_SELECTOR, imageCapture, preview)
+
+        var fakeLifecycleOwner = FakeLifecycleOwner()
+        fakeLifecycleOwner.startAndResume()
+        cameraProvider.bindToLifecycle(fakeLifecycleOwner, BACK_SELECTOR, imageCapture, preview)
 
         // Take picture after preview is ready for a while. It can cause issue on some devices when
         // flash is on.

@@ -58,6 +58,7 @@ import androidx.camera.core.impl.SurfaceConfig.ConfigType;
 import androidx.camera.core.impl.UseCaseConfig;
 import androidx.camera.core.impl.UseCaseConfigFactory;
 import androidx.camera.testing.CameraUtil;
+import androidx.camera.testing.CameraXUtil;
 import androidx.camera.testing.Configs;
 import androidx.camera.testing.fakes.FakeCamera;
 import androidx.camera.testing.fakes.FakeCameraFactory;
@@ -152,7 +153,7 @@ public final class Camera2DeviceSurfaceManagerTest {
 
     @After
     public void tearDown() throws ExecutionException, InterruptedException, TimeoutException {
-        CameraX.shutdown().get(10000, TimeUnit.MILLISECONDS);
+        CameraXUtil.shutdown().get(10000, TimeUnit.MILLISECONDS);
     }
 
     private CameraManagerCompat getCameraManagerCompat() {
@@ -586,10 +587,9 @@ public final class Camera2DeviceSurfaceManagerTest {
 
     private void initCameraX() {
         CameraXConfig cameraXConfig = createFakeAppConfig();
-        CameraX.initialize(mContext, cameraXConfig);
         CameraX cameraX;
         try {
-            cameraX = CameraX.getOrCreateInstance(mContext).get();
+            cameraX = CameraXUtil.getOrCreateInstance(mContext, () -> cameraXConfig).get();
         } catch (ExecutionException | InterruptedException e) {
             throw new IllegalStateException("Unable to initialize CameraX for test.");
         }
