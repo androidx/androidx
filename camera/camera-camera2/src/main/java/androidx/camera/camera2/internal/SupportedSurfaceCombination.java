@@ -495,8 +495,7 @@ final class SupportedSurfaceCombination {
     }
 
     private boolean isRotationNeeded(int targetRotation) {
-        Integer sensorOrientation =
-                mCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION);
+        Integer sensorOrientation = mCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION);
         Preconditions.checkNotNull(sensorOrientation, "Camera HAL in bad state, unable to "
                 + "retrieve the SENSOR_ORIENTATION");
         int relativeRotationDegrees =
