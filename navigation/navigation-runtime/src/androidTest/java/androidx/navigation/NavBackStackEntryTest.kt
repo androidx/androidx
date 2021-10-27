@@ -262,7 +262,7 @@ class NavBackStackEntryTest {
     fun testGetSavedStateHandle() {
         val entry = NavBackStackEntry.create(
             ApplicationProvider.getApplicationContext(),
-            NavDestination(TestNavigator()), null, TestLifecycleOwner(), NavControllerViewModel()
+            NavDestination(TestNavigator()), null, Lifecycle.State.STARTED, NavControllerViewModel()
         )
         entry.maxLifecycle = Lifecycle.State.CREATED
 

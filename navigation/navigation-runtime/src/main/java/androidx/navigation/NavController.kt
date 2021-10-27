@@ -165,8 +165,19 @@ public open class NavController(
     private var onBackPressedDispatcher: OnBackPressedDispatcher? = null
     private var viewModel: NavControllerViewModel? = null
     private val onDestinationChangedListeners = CopyOnWriteArrayList<OnDestinationChangedListener>()
+    internal var hostLifecycleState: Lifecycle.State = Lifecycle.State.INITIALIZED
+        get() {
+            // A LifecycleOwner is not required by NavController.
+            // In the cases where one is not provided, always keep the host lifecycle at CREATED
+            return if (lifecycleOwner == null) {
+                Lifecycle.State.CREATED
+            } else {
+                field
+            }
+        }
 
     private val lifecycleObserver: LifecycleObserver = LifecycleEventObserver { _, event ->
+        hostLifecycleState = event.targetState
         if (_graph != null) {
             for (entry in backQueue) {
                 entry.handleLifecycleEvent(event)
@@ -301,7 +312,7 @@ public open class NavController(
             arguments: Bundle?
         ) = NavBackStackEntry.create(
             context, destination, arguments,
-            lifecycleOwner, viewModel
+            hostLifecycleState, viewModel
         )
 
         override fun pop(popUpTo: NavBackStackEntry, saveState: Boolean) {
@@ -1115,7 +1126,7 @@ public open class NavController(
                             "found from the current destination $currentDestination"
                     )
                 }
-                val entry = state.instantiate(context, node, lifecycleOwner, viewModel)
+                val entry = state.instantiate(context, node, hostLifecycleState, viewModel)
                 val navigator = _navigatorProvider.getNavigator<Navigator<*>>(node.navigatorName)
                 val navigatorBackStack = navigatorState.getOrPut(navigator) {
                     NavControllerNavigatorState(navigator)
@@ -1675,7 +1686,7 @@ public open class NavController(
             } else {
                 // Not a single top operation, so we're looking to add the node to the back stack
                 val backStackEntry = NavBackStackEntry.create(
-                    context, node, finalArgs, lifecycleOwner, viewModel
+                    context, node, finalArgs, hostLifecycleState, viewModel
                 )
                 navigator.navigateInternal(listOf(backStackEntry), navOptions, navigatorExtras) {
                     navigated = true
@@ -1765,7 +1776,7 @@ public open class NavController(
                 "Restore State failed: destination $dest cannot be found from the current " +
                     "destination $currentDestination"
             }
-            backStack += state.instantiate(context, node, lifecycleOwner, viewModel)
+            backStack += state.instantiate(context, node, hostLifecycleState, viewModel)
             currentDestination = node
         }
         return backStack
@@ -1802,7 +1813,7 @@ public open class NavController(
                         restoredEntry.destination == parent
                     } ?: NavBackStackEntry.create(
                         context, parent,
-                        finalArgs, lifecycleOwner, viewModel
+                        finalArgs, hostLifecycleState, viewModel
                     )
                     hierarchy.addFirst(entry)
                     // Pop any orphaned copy of that navigation graph off the back stack
@@ -1823,7 +1834,8 @@ public open class NavController(
                 val entry = restoredEntries.lastOrNull { restoredEntry ->
                     restoredEntry.destination == parent
                 } ?: NavBackStackEntry.create(
-                    context, parent, parent.addInDefaultArgs(finalArgs), lifecycleOwner, viewModel
+                    context, parent, parent.addInDefaultArgs(finalArgs), hostLifecycleState,
+                    viewModel
                 )
                 hierarchy.addFirst(entry)
             }
@@ -1849,7 +1861,8 @@ public open class NavController(
             val entry = restoredEntries.lastOrNull { restoredEntry ->
                 restoredEntry.destination == _graph!!
             } ?: NavBackStackEntry.create(
-                context, _graph!!, _graph!!.addInDefaultArgs(finalArgs), lifecycleOwner, viewModel
+                context, _graph!!, _graph!!.addInDefaultArgs(finalArgs), hostLifecycleState,
+                viewModel
             )
             hierarchy.addFirst(entry)
         }
