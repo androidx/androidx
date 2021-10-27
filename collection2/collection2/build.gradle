@@ -166,7 +166,6 @@ androidx {
     inceptionYear = "2020"
     description = "Standalone efficient collections."
     legacyDisableKotlinStrictApiMode = true // TODO: Re-enable this!
-    runApiTasks = new RunApiTasks.No("metalava issues prevent api checks on kmp: b/188171162")
     multiplatform = true
 }
 
