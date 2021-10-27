@@ -21,13 +21,13 @@ import android.graphics.Bitmap
 import androidx.camera.camera2.Camera2Config
 import androidx.camera.camera2.pipe.integration.CameraPipeConfig
 import androidx.camera.core.CameraSelector
-import androidx.camera.core.CameraX
 import androidx.camera.core.CameraXConfig
 import androidx.camera.core.ImageAnalysis
-import androidx.camera.core.internal.CameraUseCaseAdapter
 import androidx.camera.integration.core.util.YuvToRgbConverter
+import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.LabTestRule
+import androidx.camera.testing.fakes.FakeLifecycleOwner
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.LargeTest
 import kotlinx.coroutines.Dispatchers
@@ -60,7 +60,8 @@ class YuvToRgbConverterTest(
     val labTest: LabTestRule = LabTestRule()
 
     private val context = ApplicationProvider.getApplicationContext<Context>()
-    private lateinit var camera: CameraUseCaseAdapter
+    private lateinit var cameraProvider: ProcessCameraProvider
+    private lateinit var fakeLifecycleOwner: FakeLifecycleOwner
 
     companion object {
         @JvmStatic
@@ -72,26 +73,30 @@ class YuvToRgbConverterTest(
     }
 
     @Before
-    fun setUp() {
+    fun setUp(): Unit = runBlocking {
         Assume.assumeTrue(CameraUtil.deviceHasCamera())
-        CameraX.initialize(context, cameraXConfig).get(10, TimeUnit.SECONDS)
+        ProcessCameraProvider.configureInstance(cameraXConfig)
+        cameraProvider = ProcessCameraProvider.getInstance(context)[10, TimeUnit.SECONDS]
+
+        withContext(Dispatchers.Main) {
+            fakeLifecycleOwner = FakeLifecycleOwner()
+            fakeLifecycleOwner.startAndResume()
+        }
     }
 
     @After
     fun tearDown(): Unit = runBlocking {
-        if (::camera.isInitialized) {
-            // TODO: The removeUseCases() call might be removed after clarifying the
-            // abortCaptures() issue in b/162314023
+        if (::cameraProvider.isInitialized) {
             withContext(Dispatchers.Main) {
-                camera.removeUseCases(camera.useCases)
+                cameraProvider.unbindAll()
+                cameraProvider.shutdown()[10, TimeUnit.SECONDS]
             }
         }
-        CameraX.shutdown().get(10, TimeUnit.SECONDS)
     }
 
     @LabTestRule.LabTestOnly
     @Test
-    fun yubToRgbConverterTest() {
+    fun yubToRgbConverterTest(): Unit = runBlocking {
         val yuvToRgbConverter = YuvToRgbConverter(context)
         val countDownLatch = CountDownLatch(30)
         val imageAnalyzer = ImageAnalysis.Builder().build().also {
@@ -115,12 +120,13 @@ class YuvToRgbConverterTest(
                 }
             )
         }
-
-        camera = CameraUtil.createCameraAndAttachUseCase(
-            context,
-            CameraSelector.DEFAULT_BACK_CAMERA,
-            imageAnalyzer
-        )
+        withContext(Dispatchers.Main) {
+            cameraProvider.bindToLifecycle(
+                fakeLifecycleOwner,
+                CameraSelector.DEFAULT_BACK_CAMERA,
+                imageAnalyzer
+            )
+        }
 
         assertTrue(countDownLatch.await(60, TimeUnit.SECONDS))
     }

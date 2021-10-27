@@ -23,13 +23,13 @@ import android.view.Surface
 import androidx.camera.camera2.Camera2Config
 import androidx.camera.core.CameraInfo
 import androidx.camera.core.CameraSelector
-import androidx.camera.core.CameraX
 import androidx.camera.core.SurfaceRequest
 import androidx.camera.core.UseCase
 import androidx.camera.core.impl.MutableStateObservable
 import androidx.camera.core.impl.Observable
 import androidx.camera.core.internal.CameraUseCaseAdapter
 import androidx.camera.testing.CameraUtil
+import androidx.camera.testing.CameraXUtil
 import androidx.camera.testing.GLUtil
 import androidx.camera.video.QualitySelector.QUALITY_LOWEST
 import androidx.camera.video.VideoOutput.StreamState
@@ -72,7 +72,10 @@ class VideoCaptureDeviceTest {
 
     @Before
     fun setUp() {
-        CameraX.initialize(context, Camera2Config.defaultConfig()).get()
+        CameraXUtil.initialize(
+            context,
+            Camera2Config.defaultConfig()
+        ).get()
 
         cameraUseCaseAdapter = CameraUtil.createCameraUseCaseAdapter(context, cameraSelector)
         cameraInfo = cameraUseCaseAdapter.cameraInfo
@@ -87,7 +90,7 @@ class VideoCaptureDeviceTest {
                 }
             }
         }
-        CameraX.shutdown().get(10, TimeUnit.SECONDS)
+        CameraXUtil.shutdown().get(10, TimeUnit.SECONDS)
     }
 
     @Test

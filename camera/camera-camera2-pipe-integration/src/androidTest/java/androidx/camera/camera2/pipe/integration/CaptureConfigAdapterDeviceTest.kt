@@ -23,7 +23,6 @@ import android.view.Surface
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.integration.adapter.CameraControlAdapter
 import androidx.camera.core.CameraSelector
-import androidx.camera.core.CameraX
 import androidx.camera.core.impl.CameraCaptureCallback
 import androidx.camera.core.impl.CameraCaptureFailure
 import androidx.camera.core.impl.CameraCaptureResult
@@ -33,6 +32,7 @@ import androidx.camera.core.impl.SessionConfig
 import androidx.camera.core.impl.utils.futures.Futures
 import androidx.camera.core.internal.CameraUseCaseAdapter
 import androidx.camera.testing.CameraUtil
+import androidx.camera.testing.CameraXUtil
 import androidx.camera.testing.fakes.FakeUseCase
 import androidx.camera.testing.fakes.FakeUseCaseConfig
 import androidx.test.core.app.ApplicationProvider
@@ -86,7 +86,10 @@ class CaptureConfigAdapterDeviceTest {
         Assume.assumeTrue(CameraUtil.hasCameraWithLensFacing(DEFAULT_LENS_FACING_SELECTOR))
 
         val context: Context = ApplicationProvider.getApplicationContext()
-        CameraX.initialize(context, CameraPipeConfig.defaultConfig())
+        CameraXUtil.initialize(
+            context,
+            CameraPipeConfig.defaultConfig()
+        )
         camera = CameraUtil.createCameraUseCaseAdapter(
             context,
             CameraSelector.Builder().requireLensFacing(
@@ -105,7 +108,7 @@ class CaptureConfigAdapterDeviceTest {
     fun tearDown() {
         camera?.detachUseCases()
         testDeferrableSurface.close()
-        CameraX.shutdown()[10000, TimeUnit.MILLISECONDS]
+        CameraXUtil.shutdown()[10000, TimeUnit.MILLISECONDS]
     }
 
     @Test

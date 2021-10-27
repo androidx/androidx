@@ -25,7 +25,6 @@ import android.net.Uri
 import android.os.Build
 import android.view.Surface
 import androidx.camera.core.CameraSelector
-import androidx.camera.core.CameraX
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCaptureException
@@ -33,18 +32,20 @@ import androidx.camera.core.impl.utils.Exif
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.core.impl.utils.futures.FutureCallback
 import androidx.camera.core.impl.utils.futures.Futures
+import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.CoreAppTestUtil
 import androidx.camera.view.CameraController.TAP_TO_FOCUS_FAILED
-import androidx.camera.view.CameraController.TAP_TO_FOCUS_NOT_STARTED
-import androidx.camera.view.CameraController.TAP_TO_FOCUS_STARTED
 import androidx.camera.view.CameraController.TAP_TO_FOCUS_FOCUSED
 import androidx.camera.view.CameraController.TAP_TO_FOCUS_NOT_FOCUSED
+import androidx.camera.view.CameraController.TAP_TO_FOCUS_NOT_STARTED
+import androidx.camera.view.CameraController.TAP_TO_FOCUS_STARTED
 import androidx.camera.view.PreviewView
 import androidx.fragment.app.testing.FragmentScenario
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.Observer
 import androidx.test.annotation.UiThreadTest
+import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.matcher.ViewMatchers.withId
@@ -105,6 +106,7 @@ class CameraControllerFragmentTest {
     )
 
     private val instrumentation = InstrumentationRegistry.getInstrumentation()
+    private lateinit var cameraProvider: ProcessCameraProvider
     private lateinit var fragment: CameraControllerFragment
     private lateinit var fragmentScenario: FragmentScenario<CameraControllerFragment>
     private lateinit var uiDevice: UiDevice
@@ -114,6 +116,9 @@ class CameraControllerFragmentTest {
         // Clear the device UI and check if there is no dialog or lock screen on the top of the
         // window before start the test.
         CoreAppTestUtil.prepareDeviceUI(instrumentation)
+        cameraProvider = ProcessCameraProvider.getInstance(
+            ApplicationProvider.getApplicationContext()
+        )[10000, TimeUnit.MILLISECONDS]
         fragmentScenario = createFragmentScenario()
         fragment = fragmentScenario.getFragment()
         uiDevice = UiDevice.getInstance(instrumentation)
@@ -123,7 +128,10 @@ class CameraControllerFragmentTest {
     fun tearDown() {
         if (::fragmentScenario.isInitialized) {
             fragmentScenario.moveToState(Lifecycle.State.DESTROYED)
-            CameraX.shutdown().get(10, TimeUnit.SECONDS)
+        }
+
+        if (::cameraProvider.isInitialized) {
+            cameraProvider.shutdown()[10000, TimeUnit.MILLISECONDS]
         }
     }
 
