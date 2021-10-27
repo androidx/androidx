@@ -109,7 +109,7 @@ fun EntityProcessor(
     element: XTypeElement,
     referenceStack: LinkedHashSet<String> = LinkedHashSet()
 ): EntityProcessor {
-    return if (element.hasAnyOf(Fts3::class, Fts4::class)) {
+    return if (element.hasAnyAnnotation(Fts3::class, Fts4::class)) {
         FtsTableEntityProcessor(context, element, referenceStack)
     } else {
         TableEntityProcessor(context, element, referenceStack)

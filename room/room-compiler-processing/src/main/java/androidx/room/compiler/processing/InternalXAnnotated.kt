@@ -64,7 +64,7 @@ internal interface InternalXAnnotated : XAnnotated {
      * annotation.
      *
      * @see [toAnnotationBox]
-     * @see [hasAnyOf]
+     * @see [hasAnyAnnotation]
      */
     fun hasAnnotation(
         annotation: KClass<out Annotation>,

@@ -138,7 +138,7 @@ class PojoProcessor private constructor(
                     !it.isStatic() &&
                     (
                         !it.isTransient() ||
-                            it.hasAnyOf(ColumnInfo::class, Embedded::class, Relation::class)
+                            it.hasAnyAnnotation(ColumnInfo::class, Embedded::class, Relation::class)
                         )
             }
             .groupBy { field ->
@@ -947,7 +947,7 @@ class PojoProcessor private constructor(
             // Check that certain Room annotations with @Target(METHOD) are not used in the POJO
             // since it is not annotated with AutoValue.
             element.getAllMethods()
-                .filter { it.hasAnyOf(*TARGET_METHOD_ANNOTATIONS) }
+                .filter { it.hasAnyAnnotation(*TARGET_METHOD_ANNOTATIONS) }
                 .forEach { method ->
                     val annotationName = TARGET_METHOD_ANNOTATIONS
                         .first { method.hasAnnotation(it) }
