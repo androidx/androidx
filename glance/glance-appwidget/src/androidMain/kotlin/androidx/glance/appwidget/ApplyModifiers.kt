@@ -66,13 +66,13 @@ internal fun applyModifiers(
     modifiers.foldIn(Unit) { _, modifier ->
         when (modifier) {
             is ActionModifier ->
-                applyAction(rv, modifier.action, translationContext, layoutDef.mainViewId)
+                applyAction(translationContext, rv, modifier.action, layoutDef.mainViewId)
             is WidthModifier -> widthModifier = modifier
             is HeightModifier -> heightModifier = modifier
             is BackgroundModifier -> applyBackgroundModifier(
+                context,
                 rv,
                 modifier,
-                context,
                 layoutDef
             )
             is PaddingModifier -> {
@@ -82,7 +82,7 @@ internal fun applyModifiers(
             }
         }
     }
-    applySizeModifiers(rv, widthModifier, heightModifier, translationContext, layoutDef)
+    applySizeModifiers(translationContext, rv, widthModifier, heightModifier, layoutDef)
     modifiers.collectPaddingInDp(context.resources)
         ?.toAbsolute(translationContext.isRtl)
         ?.let {
@@ -98,9 +98,9 @@ internal fun applyModifiers(
 }
 
 private fun applyAction(
+    translationContext: TranslationContext,
     rv: RemoteViews,
     action: Action,
-    translationContext: TranslationContext,
     @IdRes viewId: Int
 ) {
     when (action) {
@@ -138,16 +138,16 @@ private fun applyAction(
 }
 
 private fun applySizeModifiers(
+    translationContext: TranslationContext,
     rv: RemoteViews,
     widthModifier: WidthModifier?,
     heightModifier: HeightModifier?,
-    translationContext: TranslationContext,
     layoutDef: RemoteViewsInfo
 ) {
     val context = translationContext.context
     if (layoutDef.isSimple) {
-        widthModifier?.let { applySimpleWidthModifier(rv, it, context, layoutDef) }
-        heightModifier?.let { applySimpleHeightModifier(rv, it, context, layoutDef) }
+        widthModifier?.let { applySimpleWidthModifier(context, rv, it, layoutDef) }
+        heightModifier?.let { applySimpleHeightModifier(context, rv, it, layoutDef) }
         return
     }
 
@@ -185,9 +185,9 @@ private fun applySizeModifiers(
 }
 
 private fun applySimpleWidthModifier(
+    context: Context,
     rv: RemoteViews,
     modifier: WidthModifier,
-    context: Context,
     layoutDef: RemoteViewsInfo,
 ) {
     // These layouts already have the appropriate attribute in the xml, so no action is needed.
@@ -208,9 +208,9 @@ private fun applySimpleWidthModifier(
 }
 
 private fun applySimpleHeightModifier(
+    context: Context,
     rv: RemoteViews,
     modifier: HeightModifier,
-    context: Context,
     layoutDef: RemoteViewsInfo,
 ) {
     // These layouts already have the appropriate attribute in the xml, so no action is needed.
@@ -231,9 +231,9 @@ private fun applySimpleHeightModifier(
 }
 
 private fun applyBackgroundModifier(
+    context: Context,
     rv: RemoteViews,
     modifier: BackgroundModifier,
-    context: Context,
     layoutDef: RemoteViewsInfo
 ) {
     val viewId = layoutDef.mainViewId
