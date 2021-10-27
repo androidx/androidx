@@ -184,7 +184,7 @@ package androidx.navigation {
     method public androidx.navigation.NavDeepLinkBuilder setGraph(androidx.navigation.NavGraph navGraph);
   }
 
-  @kotlin.RequiresOptIn(level=kotlin.RequiresOptIn.Level) @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention) @kotlin.annotation.Target(allowedTargets=kotlin.annotation.AnnotationTarget) public @interface NavDeepLinkSaveStateControl {
+  @kotlin.RequiresOptIn(level=kotlin.RequiresOptIn.Level.WARNING) @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.RUNTIME) @kotlin.annotation.Target(allowedTargets=kotlin.annotation.AnnotationTarget.FUNCTION) public @interface NavDeepLinkSaveStateControl {
   }
 
   public interface NavHost {
