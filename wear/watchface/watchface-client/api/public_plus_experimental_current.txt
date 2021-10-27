@@ -164,7 +164,7 @@ package androidx.wear.watchface.client {
     method public void onWatchFaceReady();
   }
 
-  @kotlin.RequiresOptIn(message="This is an experimental API that may change or be removed without warning.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention) public @interface WatchFaceClientExperimental {
+  @kotlin.RequiresOptIn(message="This is an experimental API that may change or be removed without warning.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface WatchFaceClientExperimental {
   }
 
   public interface WatchFaceControlClient extends java.lang.AutoCloseable {

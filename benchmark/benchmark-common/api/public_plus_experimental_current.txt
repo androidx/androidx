@@ -28,7 +28,7 @@ package androidx.benchmark {
     method @androidx.benchmark.BenchmarkState.Companion.ExperimentalExternalReport public void reportData(String className, String testName, @IntRange(from=0) long totalRunTimeNs, java.util.List<java.lang.Long> dataNs, @IntRange(from=0) int warmupIterations, @IntRange(from=0) long thermalThrottleSleepSeconds, @IntRange(from=1) int repeatIterations);
   }
 
-  @kotlin.Experimental @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention) @kotlin.annotation.Target(allowedTargets=kotlin.annotation.AnnotationTarget) public static @interface BenchmarkState.Companion.ExperimentalExternalReport {
+  @kotlin.Experimental @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets=kotlin.annotation.AnnotationTarget.FUNCTION) public static @interface BenchmarkState.Companion.ExperimentalExternalReport {
   }
 
   public final class ConfigurationErrorKt {
