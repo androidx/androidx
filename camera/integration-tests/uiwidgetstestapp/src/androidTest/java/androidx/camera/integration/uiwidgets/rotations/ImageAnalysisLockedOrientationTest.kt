@@ -18,6 +18,7 @@ package androidx.camera.integration.uiwidgets.rotations
 
 import androidx.camera.core.CameraSelector
 import androidx.test.core.app.ActivityScenario
+import androidx.test.filters.FlakyTest
 import androidx.test.filters.LargeTest
 import org.junit.After
 import org.junit.Before
@@ -57,6 +58,7 @@ class ImageAnalysisLockedOrientationTest(
         tearDown()
     }
 
+    @FlakyTest(bugId = 204320459)
     @Test
     fun verifyRotation() {
         verifyRotation<LockedOrientationActivity>(lensFacing) {

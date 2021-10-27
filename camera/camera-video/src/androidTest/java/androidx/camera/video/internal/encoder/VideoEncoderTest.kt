@@ -45,6 +45,7 @@ import androidx.concurrent.futures.ResolvableFuture
 import androidx.core.content.ContextCompat
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.FlakyTest
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
@@ -76,6 +77,7 @@ private const val BIT_RATE = 10 * 1024 * 1024 // 10M
 private const val FRAME_RATE = 30
 private const val I_FRAME_INTERVAL = 1
 
+@FlakyTest(bugId = 204322933)
 @LargeTest
 @RunWith(AndroidJUnit4::class)
 @Suppress("DEPRECATION")
