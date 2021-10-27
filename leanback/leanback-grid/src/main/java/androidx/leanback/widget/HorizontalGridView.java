@@ -1,15 +1,17 @@
 /*
- * Copyright (C) 2014 The Android Open Source Project
+ * Copyright 2021 The Android Open Source Project
  *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
- * in compliance with the License. You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software distributed under the License
- * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
- * or implied. See the License for the specific language governing permissions and limitations under
- * the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package androidx.leanback.widget;
 
@@ -29,12 +31,14 @@ import android.util.AttributeSet;
 import android.util.TypedValue;
 import android.view.View;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.core.view.ViewCompat;
-import androidx.leanback.R;
 import androidx.recyclerview.widget.RecyclerView;
 
 /**
- * A {@link android.view.ViewGroup} that shows items in a horizontal scrolling list. The items come from
+ * A {@link android.view.ViewGroup} that shows items in a horizontal scrolling list. The items
+ * come from
  * the {@link RecyclerView.Adapter} associated with this view.
  * <p>
  * {@link RecyclerView.Adapter} can optionally implement {@link FacetProviderAdapter} which
@@ -64,24 +68,25 @@ public class HorizontalGridView extends BaseGridView {
     private LinearGradient mHighFadeShader;
     private int mHighFadeShaderLength;
     private int mHighFadeShaderOffset;
-    private Rect mTempRect = new Rect();
+    private final Rect mTempRect = new Rect();
 
-    public HorizontalGridView(Context context) {
+    public HorizontalGridView(@NonNull Context context) {
         this(context, null);
     }
 
-    public HorizontalGridView(Context context, AttributeSet attrs) {
+    public HorizontalGridView(@NonNull Context context, @Nullable AttributeSet attrs) {
         this(context, attrs, 0);
     }
 
-    public HorizontalGridView(Context context, AttributeSet attrs, int defStyle) {
+    public HorizontalGridView(@NonNull Context context, @Nullable AttributeSet attrs,
+            int defStyle) {
         super(context, attrs, defStyle);
         mLayoutManager.setOrientation(RecyclerView.HORIZONTAL);
         initAttributes(context, attrs);
     }
 
     @SuppressLint("CustomViewStyleable")
-    protected void initAttributes(Context context, AttributeSet attrs) {
+    protected void initAttributes(@NonNull Context context, @Nullable AttributeSet attrs) {
         initBaseGridViewAttributes(context, attrs);
         TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.lbHorizontalGridView);
         ViewCompat.saveAttributeDataForStyleable(this,
@@ -140,6 +145,7 @@ public class HorizontalGridView extends BaseGridView {
     /**
      * Returns true if left edge fading is enabled.
      */
+    @SuppressLint("GetterSetterNames")
     public final boolean getFadingLeftEdge() {
         return mFadingLowEdge;
     }
@@ -206,6 +212,7 @@ public class HorizontalGridView extends BaseGridView {
     /**
      * Returns true if fading right edge is enabled.
      */
+    @SuppressLint("GetterSetterNames")
     public final boolean getFadingRightEdge() {
         return mFadingHighEdge;
     }
@@ -312,7 +319,7 @@ public class HorizontalGridView extends BaseGridView {
     }
 
     @Override
-    public void draw(Canvas canvas) {
+    public void draw(@NonNull Canvas canvas) {
         final boolean needsFadingLow = needsFadingLowEdge();
         final boolean needsFadingHigh = needsFadingHighEdge();
         if (!needsFadingLow) {
@@ -326,7 +333,8 @@ public class HorizontalGridView extends BaseGridView {
             return;
         }
 
-        int lowEdge = mFadingLowEdge? getPaddingLeft() - mLowFadeShaderOffset - mLowFadeShaderLength : 0;
+        int lowEdge =
+                mFadingLowEdge ? getPaddingLeft() - mLowFadeShaderOffset - mLowFadeShaderLength : 0;
         int highEdge = mFadingHighEdge ? getWidth() - getPaddingRight()
                 + mHighFadeShaderOffset + mHighFadeShaderLength : getWidth();
 

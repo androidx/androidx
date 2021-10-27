@@ -1,15 +1,17 @@
 /*
- * Copyright (C) 2014 The Android Open Source Project
+ * Copyright 2021 The Android Open Source Project
  *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
- * in compliance with the License. You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software distributed under the License
- * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
- * or implied. See the License for the specific language governing permissions and limitations under
- * the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package androidx.leanback.widget;
 
@@ -19,8 +21,9 @@ import android.content.res.TypedArray;
 import android.util.AttributeSet;
 import android.util.TypedValue;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.core.view.ViewCompat;
-import androidx.leanback.R;
 import androidx.recyclerview.widget.RecyclerView;
 
 /**
@@ -42,22 +45,22 @@ import androidx.recyclerview.widget.RecyclerView;
  */
 public class VerticalGridView extends BaseGridView {
 
-    public VerticalGridView(Context context) {
+    public VerticalGridView(@NonNull Context context) {
         this(context, null);
     }
 
-    public VerticalGridView(Context context, AttributeSet attrs) {
+    public VerticalGridView(@NonNull Context context, @Nullable AttributeSet attrs) {
         this(context, attrs, 0);
     }
 
-    public VerticalGridView(Context context, AttributeSet attrs, int defStyle) {
+    public VerticalGridView(@NonNull Context context, @Nullable AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
         mLayoutManager.setOrientation(RecyclerView.VERTICAL);
         initAttributes(context, attrs);
     }
 
     @SuppressLint("CustomViewStyleable")
-    protected void initAttributes(Context context, AttributeSet attrs) {
+    protected void initAttributes(@NonNull Context context, @Nullable AttributeSet attrs) {
         initBaseGridViewAttributes(context, attrs);
         TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.lbVerticalGridView);
         ViewCompat.saveAttributeDataForStyleable(

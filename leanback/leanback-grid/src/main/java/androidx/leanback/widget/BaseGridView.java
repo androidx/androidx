@@ -1,15 +1,17 @@
 /*
- * Copyright (C) 2014 The Android Open Source Project
+ * Copyright 2021 The Android Open Source Project
  *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
- * in compliance with the License. You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software distributed under the License
- * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
- * or implied. See the License for the specific language governing permissions and limitations under
- * the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package androidx.leanback.widget;
 
@@ -29,7 +31,6 @@ import android.view.animation.Interpolator;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
-import androidx.leanback.R;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.SimpleItemAnimator;
 
@@ -47,25 +48,28 @@ public abstract class BaseGridView extends RecyclerView {
      * WINDOW_ALIGN_XXX and ITEM_ALIGN_XXX to define how focused item is aligned.
      * In this mode, the last focused position will be remembered and restored when focus
      * is back to the view.
+     *
      * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
-    public final static int FOCUS_SCROLL_ALIGNED = 0;
+    public static final int FOCUS_SCROLL_ALIGNED = 0;
 
     /**
      * Scroll to make the focused item inside client area.
+     *
      * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
-    public final static int FOCUS_SCROLL_ITEM = 1;
+    public static final int FOCUS_SCROLL_ITEM = 1;
 
     /**
      * Scroll a page of items when focusing to item outside the client area.
      * The page size matches the client area size of RecyclerView.
+     *
      * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
-    public final static int FOCUS_SCROLL_PAGE = 2;
+    public static final int FOCUS_SCROLL_PAGE = 2;
 
     /**
      * The first item is aligned with the low edge of the viewport. When
@@ -83,7 +87,7 @@ public abstract class BaseGridView extends RecyclerView {
      * {@link #setWindowAlignmentPreferKeyLineOverLowEdge(boolean)} to control whether you prefer
      * to align the items to key line or low edge. Default is preferring low edge.
      */
-    public final static int WINDOW_ALIGN_LOW_EDGE = 1;
+    public static final int WINDOW_ALIGN_LOW_EDGE = 1;
 
     /**
      * The last item is aligned with the high edge of the viewport when
@@ -102,7 +106,7 @@ public abstract class BaseGridView extends RecyclerView {
      * {@link #setWindowAlignmentPreferKeyLineOverHighEdge(boolean)} to control whether you prefer
      * to align the items to key line or high edge. Default is preferring key line.
      */
-    public final static int WINDOW_ALIGN_HIGH_EDGE = 1 << 1;
+    public static final int WINDOW_ALIGN_HIGH_EDGE = 1 << 1;
 
     /**
      * The first item and last item are aligned with the two edges of the
@@ -113,7 +117,7 @@ public abstract class BaseGridView extends RecyclerView {
      * "windowAlignOffsetPercent"; if neither of these two is defined, the
      * default value is 1/2 of the size.
      */
-    public final static int WINDOW_ALIGN_BOTH_EDGE =
+    public static final int WINDOW_ALIGN_BOTH_EDGE =
             WINDOW_ALIGN_LOW_EDGE | WINDOW_ALIGN_HIGH_EDGE;
 
     /**
@@ -123,17 +127,17 @@ public abstract class BaseGridView extends RecyclerView {
      * "windowAlignOffsetPercent"; if neither of these two is defined, the
      * default value is 1/2 of the size.
      */
-    public final static int WINDOW_ALIGN_NO_EDGE = 0;
+    public static final int WINDOW_ALIGN_NO_EDGE = 0;
 
     /**
      * Value indicates that percent is not used.
      */
-    public final static float WINDOW_ALIGN_OFFSET_PERCENT_DISABLED = -1;
+    public static final float WINDOW_ALIGN_OFFSET_PERCENT_DISABLED = -1;
 
     /**
      * Value indicates that percent is not used.
      */
-    public final static float ITEM_ALIGN_OFFSET_PERCENT_DISABLED =
+    public static final float ITEM_ALIGN_OFFSET_PERCENT_DISABLED =
             ItemAlignmentFacet.ITEM_ALIGN_OFFSET_PERCENT_DISABLED;
 
     /**
@@ -158,7 +162,7 @@ public abstract class BaseGridView extends RecyclerView {
      */
     public static final int SAVE_ALL_CHILD = 3;
 
-    private static final int PFLAG_RETAIN_FOCUS_FOR_CHILD = 1 << 0;
+    private static final int PFLAG_RETAIN_FOCUS_FOR_CHILD = 1;
 
     /**
      * Defines behavior of duration and interpolator for smoothScrollBy().
@@ -166,6 +170,7 @@ public abstract class BaseGridView extends RecyclerView {
     public interface SmoothScrollByBehavior {
         /**
          * Defines duration in milliseconds of smoothScrollBy().
+         *
          * @param dx x distance in pixels.
          * @param dy y distance in pixels.
          * @return Duration in milliseconds or UNDEFINED_DURATION for default value.
@@ -174,6 +179,7 @@ public abstract class BaseGridView extends RecyclerView {
 
         /**
          * Defines interpolator of smoothScrollBy().
+         *
          * @param dx x distance in pixels.
          * @param dy y distance in pixels.
          * @return Interpolator to be used or null for default interpolator.
@@ -189,7 +195,7 @@ public abstract class BaseGridView extends RecyclerView {
         /**
          * Returns true if the touch dispatch event should be consumed.
          */
-        public boolean onInterceptTouchEvent(MotionEvent event);
+        boolean onInterceptTouchEvent(@NonNull MotionEvent event);
     }
 
     /**
@@ -199,7 +205,7 @@ public abstract class BaseGridView extends RecyclerView {
         /**
          * Returns true if the touch dispatch event should be consumed.
          */
-        public boolean onInterceptMotionEvent(MotionEvent event);
+        boolean onInterceptMotionEvent(@NonNull MotionEvent event);
     }
 
     /**
@@ -209,14 +215,17 @@ public abstract class BaseGridView extends RecyclerView {
         /**
          * Returns true if the key dispatch event should be consumed.
          */
-        public boolean onInterceptKeyEvent(KeyEvent event);
+        boolean onInterceptKeyEvent(@NonNull KeyEvent event);
     }
 
+    /**
+     * Listener for intercepting unhandled key events.
+     */
     public interface OnUnhandledKeyListener {
         /**
          * Returns true if the key event should be consumed.
          */
-        public boolean onUnhandledKey(KeyEvent event);
+        boolean onUnhandledKey(@NonNull KeyEvent event);
     }
 
     /**
@@ -272,7 +281,7 @@ public abstract class BaseGridView extends RecyclerView {
         // Disable change animation by default on leanback.
         // Change animation will create a new view and cause undesired
         // focus animation between the old view and new view.
-        ((SimpleItemAnimator)getItemAnimator()).setSupportsChangeAnimations(false);
+        ((SimpleItemAnimator) getItemAnimator()).setSupportsChangeAnimations(false);
         super.addRecyclerListener(new RecyclerView.RecyclerListener() {
             @Override
             public void onViewRecycled(@NonNull RecyclerView.ViewHolder holder) {
@@ -309,12 +318,13 @@ public abstract class BaseGridView extends RecyclerView {
      * <li>{@link #FOCUS_SCROLL_ITEM}</li>
      * <li>{@link #FOCUS_SCROLL_PAGE}</li>
      * </ul>
+     *
      * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     public void setFocusScrollStrategy(int scrollStrategy) {
         if (scrollStrategy != FOCUS_SCROLL_ALIGNED && scrollStrategy != FOCUS_SCROLL_ITEM
-            && scrollStrategy != FOCUS_SCROLL_PAGE) {
+                && scrollStrategy != FOCUS_SCROLL_PAGE) {
             throw new IllegalArgumentException("Invalid scrollStrategy");
         }
         mLayoutManager.setFocusScrollStrategy(scrollStrategy);
@@ -328,6 +338,7 @@ public abstract class BaseGridView extends RecyclerView {
      * <li>{@link #FOCUS_SCROLL_ITEM}</li>
      * <li>{@link #FOCUS_SCROLL_PAGE}</li>
      * </ul>
+     *
      * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
@@ -339,8 +350,8 @@ public abstract class BaseGridView extends RecyclerView {
      * Sets the method for focused item alignment in the view.
      *
      * @param windowAlignment {@link #WINDOW_ALIGN_BOTH_EDGE},
-     *        {@link #WINDOW_ALIGN_LOW_EDGE}, {@link #WINDOW_ALIGN_HIGH_EDGE} or
-     *        {@link #WINDOW_ALIGN_NO_EDGE}.
+     *                        {@link #WINDOW_ALIGN_LOW_EDGE}, {@link #WINDOW_ALIGN_HIGH_EDGE} or
+     *                        {@link #WINDOW_ALIGN_NO_EDGE}.
      */
     public void setWindowAlignment(int windowAlignment) {
         mLayoutManager.setWindowAlignment(windowAlignment);
@@ -351,7 +362,7 @@ public abstract class BaseGridView extends RecyclerView {
      * Returns the method for focused item alignment in the view.
      *
      * @return {@link #WINDOW_ALIGN_BOTH_EDGE}, {@link #WINDOW_ALIGN_LOW_EDGE},
-     *         {@link #WINDOW_ALIGN_HIGH_EDGE} or {@link #WINDOW_ALIGN_NO_EDGE}.
+     * {@link #WINDOW_ALIGN_HIGH_EDGE} or {@link #WINDOW_ALIGN_NO_EDGE}.
      */
     public int getWindowAlignment() {
         return mLayoutManager.getWindowAlignment();
@@ -416,10 +427,10 @@ public abstract class BaseGridView extends RecyclerView {
      * Sets the offset in pixels for window alignment key line.
      *
      * @param offset The number of pixels to offset.  If the offset is positive,
-     *        it is distance from low edge (see {@link #WINDOW_ALIGN_LOW_EDGE});
-     *        if the offset is negative, the absolute value is distance from high
-     *        edge (see {@link #WINDOW_ALIGN_HIGH_EDGE}).
-     *        Default value is 0.
+     *               it is distance from low edge (see {@link #WINDOW_ALIGN_LOW_EDGE});
+     *               if the offset is negative, the absolute value is distance from high
+     *               edge (see {@link #WINDOW_ALIGN_HIGH_EDGE}).
+     *               Default value is 0.
      */
     public void setWindowAlignmentOffset(int offset) {
         mLayoutManager.setWindowAlignmentOffset(offset);
@@ -430,10 +441,10 @@ public abstract class BaseGridView extends RecyclerView {
      * Returns the offset in pixels for window alignment key line.
      *
      * @return The number of pixels to offset.  If the offset is positive,
-     *        it is distance from low edge (see {@link #WINDOW_ALIGN_LOW_EDGE});
-     *        if the offset is negative, the absolute value is distance from high
-     *        edge (see {@link #WINDOW_ALIGN_HIGH_EDGE}).
-     *        Default value is 0.
+     * it is distance from low edge (see {@link #WINDOW_ALIGN_LOW_EDGE});
+     * if the offset is negative, the absolute value is distance from high
+     * edge (see {@link #WINDOW_ALIGN_HIGH_EDGE}).
+     * Default value is 0.
      */
     public int getWindowAlignmentOffset() {
         return mLayoutManager.getWindowAlignmentOffset();
@@ -444,9 +455,9 @@ public abstract class BaseGridView extends RecyclerView {
      * #getWindowAlignmentOffset()}.
      *
      * @param offsetPercent Percentage to offset. E.g., 40 means 40% of the
-     *        width from low edge. Use
-     *        {@link #WINDOW_ALIGN_OFFSET_PERCENT_DISABLED} to disable.
-     *         Default value is 50.
+     *                      width from low edge. Use
+     *                      {@link #WINDOW_ALIGN_OFFSET_PERCENT_DISABLED} to disable.
+     *                      Default value is 50.
      */
     public void setWindowAlignmentOffsetPercent(float offsetPercent) {
         mLayoutManager.setWindowAlignmentOffsetPercent(offsetPercent);
@@ -458,8 +469,8 @@ public abstract class BaseGridView extends RecyclerView {
      * {@link #getWindowAlignmentOffset()}.
      *
      * @return Percentage to offset. E.g., 40 means 40% of the width from the
-     *         low edge, or {@link #WINDOW_ALIGN_OFFSET_PERCENT_DISABLED} if
-     *         disabled. Default value is 50.
+     * low edge, or {@link #WINDOW_ALIGN_OFFSET_PERCENT_DISABLED} if
+     * disabled. Default value is 50.
      */
     public float getWindowAlignmentOffsetPercent() {
         return mLayoutManager.getWindowAlignmentOffsetPercent();
@@ -527,8 +538,8 @@ public abstract class BaseGridView extends RecyclerView {
      * is provided by {@link RecyclerView.ViewHolder} or {@link FacetProviderAdapter}.
      *
      * @param offsetPercent Percentage to offset. E.g., 40 means 40% of the
-     *        width from the low edge. Use
-     *        {@link #ITEM_ALIGN_OFFSET_PERCENT_DISABLED} to disable.
+     *                      width from the low edge. Use
+     *                      {@link #ITEM_ALIGN_OFFSET_PERCENT_DISABLED} to disable.
      */
     public void setItemAlignmentOffsetPercent(float offsetPercent) {
         mLayoutManager.setItemAlignmentOffsetPercent(offsetPercent);
@@ -540,8 +551,8 @@ public abstract class BaseGridView extends RecyclerView {
      * #getItemAlignmentOffset()}.
      *
      * @return Percentage to offset. E.g., 40 means 40% of the width from the
-     *         low edge, or {@link #ITEM_ALIGN_OFFSET_PERCENT_DISABLED} if
-     *         disabled. Default value is 50.
+     * low edge, or {@link #ITEM_ALIGN_OFFSET_PERCENT_DISABLED} if
+     * disabled. Default value is 50.
      */
     public float getItemAlignmentOffsetPercent() {
         return mLayoutManager.getItemAlignmentOffsetPercent();
@@ -560,6 +571,7 @@ public abstract class BaseGridView extends RecyclerView {
     /**
      * Returns the id of the view to align with, or {@link android.view.View#NO_ID} for the root
      * {@link RecyclerView.ViewHolder#itemView}.
+     *
      * @return The id of the view to align with, or {@link android.view.View#NO_ID} for the root
      * {@link RecyclerView.ViewHolder#itemView}.
      */
@@ -569,6 +581,7 @@ public abstract class BaseGridView extends RecyclerView {
 
     /**
      * Sets the spacing in pixels between two child items.
+     *
      * @deprecated use {@link #setItemSpacing(int)}
      */
     @Deprecated
@@ -578,6 +591,7 @@ public abstract class BaseGridView extends RecyclerView {
 
     /**
      * Sets the vertical and horizontal spacing in pixels between two child items.
+     *
      * @param spacing Vertical and horizontal spacing in pixels between two child items.
      */
     public void setItemSpacing(int spacing) {
@@ -587,6 +601,7 @@ public abstract class BaseGridView extends RecyclerView {
 
     /**
      * Sets the spacing in pixels between two child items vertically.
+     *
      * @deprecated Use {@link #setVerticalSpacing(int)}
      */
     @Deprecated
@@ -596,6 +611,7 @@ public abstract class BaseGridView extends RecyclerView {
 
     /**
      * Returns the spacing in pixels between two child items vertically.
+     *
      * @deprecated Use {@link #getVerticalSpacing()}
      */
     @Deprecated
@@ -605,6 +621,7 @@ public abstract class BaseGridView extends RecyclerView {
 
     /**
      * Sets the spacing in pixels between two child items horizontally.
+     *
      * @deprecated Use {@link #setHorizontalSpacing(int)}
      */
     @Deprecated
@@ -614,6 +631,7 @@ public abstract class BaseGridView extends RecyclerView {
 
     /**
      * Returns the spacing in pixels between two child items horizontally.
+     *
      * @deprecated Use {@link #getHorizontalSpacing()}
      */
     @Deprecated
@@ -623,6 +641,7 @@ public abstract class BaseGridView extends RecyclerView {
 
     /**
      * Sets the vertical spacing in pixels between two child items.
+     *
      * @param spacing Vertical spacing between two child items.
      */
     public void setVerticalSpacing(int spacing) {
@@ -632,6 +651,7 @@ public abstract class BaseGridView extends RecyclerView {
 
     /**
      * Returns the vertical spacing in pixels between two child items.
+     *
      * @return The vertical spacing in pixels between two child items.
      */
     public int getVerticalSpacing() {
@@ -640,6 +660,7 @@ public abstract class BaseGridView extends RecyclerView {
 
     /**
      * Sets the horizontal spacing in pixels between two child items.
+     *
      * @param spacing Horizontal spacing in pixels between two child items.
      */
     public void setHorizontalSpacing(int spacing) {
@@ -649,6 +670,7 @@ public abstract class BaseGridView extends RecyclerView {
 
     /**
      * Returns the horizontal spacing in pixels between two child items.
+     *
      * @return The Horizontal spacing in pixels between two child items.
      */
     public int getHorizontalSpacing() {
@@ -661,7 +683,7 @@ public abstract class BaseGridView extends RecyclerView {
      *
      * @param listener The listener to be invoked.
      */
-    public void setOnChildLaidOutListener(OnChildLaidOutListener listener) {
+    public void setOnChildLaidOutListener(@Nullable OnChildLaidOutListener listener) {
         mLayoutManager.setOnChildLaidOutListener(listener);
     }
 
@@ -674,7 +696,8 @@ public abstract class BaseGridView extends RecyclerView {
      * @param listener The listener to be invoked.
      */
     @SuppressLint("ReferencesDeprecated")
-    public void setOnChildSelectedListener(OnChildSelectedListener listener) {
+    @SuppressWarnings("deprecation")
+    public void setOnChildSelectedListener(@Nullable OnChildSelectedListener listener) {
         mLayoutManager.setOnChildSelectedListener(listener);
     }
 
@@ -706,7 +729,8 @@ public abstract class BaseGridView extends RecyclerView {
      *
      * @param listener The listener to be invoked.
      */
-    public void setOnChildViewHolderSelectedListener(OnChildViewHolderSelectedListener listener) {
+    public void setOnChildViewHolderSelectedListener(
+            @Nullable OnChildViewHolderSelectedListener listener) {
         mLayoutManager.setOnChildViewHolderSelectedListener(listener);
     }
 
@@ -718,7 +742,8 @@ public abstract class BaseGridView extends RecyclerView {
      *
      * @param listener The listener to be invoked.
      */
-    public void addOnChildViewHolderSelectedListener(OnChildViewHolderSelectedListener listener) {
+    public void addOnChildViewHolderSelectedListener(
+            @NonNull OnChildViewHolderSelectedListener listener) {
         mLayoutManager.addOnChildViewHolderSelectedListener(listener);
     }
 
@@ -727,8 +752,8 @@ public abstract class BaseGridView extends RecyclerView {
      *
      * @param listener The listener to be removed.
      */
-    public void removeOnChildViewHolderSelectedListener(OnChildViewHolderSelectedListener listener)
-            {
+    public void removeOnChildViewHolderSelectedListener(
+            @NonNull OnChildViewHolderSelectedListener listener) {
         mLayoutManager.removeOnChildViewHolderSelectedListener(listener);
     }
 
@@ -741,6 +766,7 @@ public abstract class BaseGridView extends RecyclerView {
 
     /**
      * Changes the selected item and/or subposition immediately without animation.
+     *
      * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
@@ -761,6 +787,7 @@ public abstract class BaseGridView extends RecyclerView {
      * Changes the selected item and/or subposition immediately without animation, scrollExtra is
      * applied in primary scroll direction.  The scrollExtra will be kept until
      * another {@link #setSelectedPosition} or {@link #setSelectedPositionSmooth} call.
+     *
      * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
@@ -771,6 +798,7 @@ public abstract class BaseGridView extends RecyclerView {
     /**
      * Changes the selected item and run an animation to scroll to the target
      * position.
+     *
      * @param position Adapter position of the item to select.
      */
     public void setSelectedPositionSmooth(int position) {
@@ -780,6 +808,7 @@ public abstract class BaseGridView extends RecyclerView {
     /**
      * Changes the selected item and/or subposition, runs an animation to scroll to the target
      * position.
+     *
      * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
@@ -789,16 +818,18 @@ public abstract class BaseGridView extends RecyclerView {
 
     /**
      * Perform a task on ViewHolder at given position after smooth scrolling to it.
+     *
      * @param position Position of item in adapter.
-     * @param task Task to executed on the ViewHolder at a given position.
+     * @param task     Task to executed on the ViewHolder at a given position.
      */
-    public void setSelectedPositionSmooth(final int position, final ViewHolderTask task) {
+    @SuppressWarnings("deprecation")
+    public void setSelectedPositionSmooth(final int position, @Nullable final ViewHolderTask task) {
         if (task != null) {
             RecyclerView.ViewHolder vh = findViewHolderForPosition(position);
             if (vh == null || hasPendingAdapterUpdates()) {
                 addOnChildViewHolderSelectedListener(new OnChildViewHolderSelectedListener() {
                     @Override
-                    public void onChildViewHolderSelected(RecyclerView parent,
+                    public void onChildViewHolderSelected(@NonNull RecyclerView parent,
                             RecyclerView.ViewHolder child, int selectedPosition, int subposition) {
                         if (selectedPosition == position) {
                             removeOnChildViewHolderSelectedListener(this);
@@ -815,16 +846,18 @@ public abstract class BaseGridView extends RecyclerView {
 
     /**
      * Perform a task on ViewHolder at given position after scroll to it.
+     *
      * @param position Position of item in adapter.
-     * @param task Task to executed on the ViewHolder at a given position.
+     * @param task     Task to executed on the ViewHolder at a given position.
      */
-    public void setSelectedPosition(final int position, final ViewHolderTask task) {
+    @SuppressWarnings("deprecation")
+    public void setSelectedPosition(final int position, @Nullable final ViewHolderTask task) {
         if (task != null) {
             RecyclerView.ViewHolder vh = findViewHolderForPosition(position);
             if (vh == null || hasPendingAdapterUpdates()) {
                 addOnChildViewHolderSelectedListener(new OnChildViewHolderSelectedListener() {
                     @Override
-                    public void onChildViewHolderSelectedAndPositioned(RecyclerView parent,
+                    public void onChildViewHolderSelectedAndPositioned(@NonNull RecyclerView parent,
                             RecyclerView.ViewHolder child, int selectedPosition, int subposition) {
                         if (selectedPosition == position) {
                             removeOnChildViewHolderSelectedListener(this);
@@ -841,6 +874,7 @@ public abstract class BaseGridView extends RecyclerView {
 
     /**
      * Returns the adapter position of selected item.
+     *
      * @return The adapter position of selected item.
      */
     public int getSelectedPosition() {
@@ -852,6 +886,7 @@ public abstract class BaseGridView extends RecyclerView {
      * multiple {@link ItemAlignmentFacet}s provided by {@link RecyclerView.ViewHolder}
      * or {@link FacetProviderAdapter}.  Zero is returned when no {@link ItemAlignmentFacet}
      * is defined.
+     *
      * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
@@ -862,6 +897,7 @@ public abstract class BaseGridView extends RecyclerView {
     /**
      * Sets whether ItemAnimator should run when a child changes size or when adding
      * or removing a child.
+     *
      * @param animateChildLayout True to enable ItemAnimator, false to disable.
      */
     public void setAnimateChildLayout(boolean animateChildLayout) {
@@ -879,6 +915,7 @@ public abstract class BaseGridView extends RecyclerView {
     /**
      * Returns true if an animation will run when a child changes size or when
      * adding or removing a child.
+     *
      * @return True if ItemAnimator is enabled, false otherwise.
      */
     public boolean isChildLayoutAnimated() {
@@ -913,7 +950,8 @@ public abstract class BaseGridView extends RecyclerView {
     }
 
     @Override
-    public boolean onRequestFocusInDescendants(int direction, Rect previouslyFocusedRect) {
+    public boolean onRequestFocusInDescendants(int direction,
+            @Nullable Rect previouslyFocusedRect) {
         if ((mPrivateFlag & PFLAG_RETAIN_FOCUS_FOR_CHILD) == PFLAG_RETAIN_FOCUS_FOR_CHILD) {
             // dont focus to child if GridView itself retains focus for child
             return false;
@@ -926,10 +964,10 @@ public abstract class BaseGridView extends RecyclerView {
      * Returns the x/y offsets to final position from current position if the view
      * is selected.
      *
-     * @param view The view to get offsets.
+     * @param view    The view to get offsets.
      * @param offsets offsets[0] holds offset of X, offsets[1] holds offset of Y.
      */
-    public void getViewSelectedOffsets(View view, int[] offsets) {
+    public void getViewSelectedOffsets(@NonNull View view, @NonNull int[] offsets) {
         mLayoutManager.getViewSelectedOffsets(view, offsets);
     }
 
@@ -943,6 +981,7 @@ public abstract class BaseGridView extends RecyclerView {
     }
 
     @Override
+    @Nullable
     public View focusSearch(int direction) {
         if (isFocused()) {
             // focusSearch(int) is called when GridView itself is focused.
@@ -957,24 +996,27 @@ public abstract class BaseGridView extends RecyclerView {
     }
 
     @Override
-    protected void onFocusChanged(boolean gainFocus, int direction, Rect previouslyFocusedRect) {
+    protected void onFocusChanged(boolean gainFocus, int direction,
+            @Nullable Rect previouslyFocusedRect) {
         super.onFocusChanged(gainFocus, direction, previouslyFocusedRect);
         mLayoutManager.onFocusChanged(gainFocus, direction, previouslyFocusedRect);
     }
 
     /**
      * Disables or enables focus search.
+     *
      * @param disabled True to disable focus search, false to enable.
      */
     public final void setFocusSearchDisabled(boolean disabled) {
         // LayoutManager may detachView and attachView in fastRelayout, it causes RowsFragment
         // re-gain focus after a BACK key pressed, so block children focus during transition.
-        setDescendantFocusability(disabled ? FOCUS_BLOCK_DESCENDANTS: FOCUS_AFTER_DESCENDANTS);
+        setDescendantFocusability(disabled ? FOCUS_BLOCK_DESCENDANTS : FOCUS_AFTER_DESCENDANTS);
         mLayoutManager.setFocusSearchDisabled(disabled);
     }
 
     /**
      * Returns true if focus search is disabled.
+     *
      * @return True if focus search is disabled.
      */
     public final boolean isFocusSearchDisabled() {
@@ -984,6 +1026,7 @@ public abstract class BaseGridView extends RecyclerView {
     /**
      * Enables or disables layout.  All children will be removed when layout is
      * disabled.
+     *
      * @param layoutEnabled True to enable layout, false otherwise.
      */
     public void setLayoutEnabled(boolean layoutEnabled) {
@@ -992,6 +1035,7 @@ public abstract class BaseGridView extends RecyclerView {
 
     /**
      * Changes and overrides children's visibility.
+     *
      * @param visibility See {@link View#getVisibility()}.
      */
     public void setChildrenVisibility(int visibility) {
@@ -1000,6 +1044,7 @@ public abstract class BaseGridView extends RecyclerView {
 
     /**
      * Enables or disables pruning of children.  Disable is useful during transition.
+     *
      * @param pruneChild True to prune children out side visible area, false to enable.
      */
     public void setPruneChild(boolean pruneChild) {
@@ -1008,6 +1053,7 @@ public abstract class BaseGridView extends RecyclerView {
 
     /**
      * Enables or disables scrolling.  Disable is useful during transition.
+     *
      * @param scrollEnabled True to enable scroll, false to disable.
      */
     public void setScrollEnabled(boolean scrollEnabled) {
@@ -1016,6 +1062,7 @@ public abstract class BaseGridView extends RecyclerView {
 
     /**
      * Returns true if scrolling is enabled, false otherwise.
+     *
      * @return True if scrolling is enabled, false otherwise.
      */
     public boolean isScrollEnabled() {
@@ -1035,6 +1082,7 @@ public abstract class BaseGridView extends RecyclerView {
 
     /**
      * Enables or disables the default "focus draw at last" order rule. Default is enabled.
+     *
      * @param enabled True to draw the selected child at last, false otherwise.
      */
     public void setFocusDrawingOrderEnabled(boolean enabled) {
@@ -1043,6 +1091,7 @@ public abstract class BaseGridView extends RecyclerView {
 
     /**
      * Returns true if draws selected child at last, false otherwise. Default is enabled.
+     *
      * @return True if draws selected child at last, false otherwise.
      */
     public boolean isFocusDrawingOrderEnabled() {
@@ -1051,46 +1100,52 @@ public abstract class BaseGridView extends RecyclerView {
 
     /**
      * Sets the touch intercept listener.
+     *
      * @param listener The touch intercept listener.
      */
-    public void setOnTouchInterceptListener(OnTouchInterceptListener listener) {
+    public void setOnTouchInterceptListener(@Nullable OnTouchInterceptListener listener) {
         mOnTouchInterceptListener = listener;
     }
 
     /**
      * Sets the generic motion intercept listener.
+     *
      * @param listener The motion intercept listener.
      */
-    public void setOnMotionInterceptListener(OnMotionInterceptListener listener) {
+    public void setOnMotionInterceptListener(@Nullable OnMotionInterceptListener listener) {
         mOnMotionInterceptListener = listener;
     }
 
     /**
      * Sets the key intercept listener.
+     *
      * @param listener The key intercept listener.
      */
-    public void setOnKeyInterceptListener(OnKeyInterceptListener listener) {
+    public void setOnKeyInterceptListener(@Nullable OnKeyInterceptListener listener) {
         mOnKeyInterceptListener = listener;
     }
 
     /**
      * Sets the unhandled key listener.
+     *
      * @param listener The unhandled key intercept listener.
      */
-    public void setOnUnhandledKeyListener(OnUnhandledKeyListener listener) {
+    public void setOnUnhandledKeyListener(@Nullable OnUnhandledKeyListener listener) {
         mOnUnhandledKeyListener = listener;
     }
 
     /**
      * Returns the unhandled key listener.
+     *
      * @return The unhandled key listener.
      */
+    @Nullable
     public OnUnhandledKeyListener getOnUnhandledKeyListener() {
         return mOnUnhandledKeyListener;
     }
 
     @Override
-    public boolean dispatchKeyEvent(KeyEvent event) {
+    public boolean dispatchKeyEvent(@NonNull KeyEvent event) {
         if (mOnKeyInterceptListener != null && mOnKeyInterceptListener.onInterceptKeyEvent(event)) {
             return true;
         }
@@ -1101,7 +1156,7 @@ public abstract class BaseGridView extends RecyclerView {
     }
 
     @Override
-    public boolean dispatchTouchEvent(MotionEvent event) {
+    public boolean dispatchTouchEvent(@NonNull MotionEvent event) {
         if (mOnTouchInterceptListener != null) {
             if (mOnTouchInterceptListener.onInterceptTouchEvent(event)) {
                 return true;
@@ -1111,7 +1166,7 @@ public abstract class BaseGridView extends RecyclerView {
     }
 
     @Override
-    protected boolean dispatchGenericFocusedEvent(MotionEvent event) {
+    protected boolean dispatchGenericFocusedEvent(@NonNull MotionEvent event) {
         if (mOnMotionInterceptListener != null) {
             if (mOnMotionInterceptListener.onInterceptMotionEvent(event)) {
                 return true;
@@ -1132,7 +1187,7 @@ public abstract class BaseGridView extends RecyclerView {
 
     /**
      * Returns the limit used when when {@link #getSaveChildrenPolicy()} is
-     *         {@link #SAVE_LIMITED_CHILD}
+     * {@link #SAVE_LIMITED_CHILD}
      */
     public final int getSaveChildrenLimitNumber() {
         return mLayoutManager.mChildrenStates.getLimitNumber();
@@ -1140,8 +1195,9 @@ public abstract class BaseGridView extends RecyclerView {
 
     /**
      * Sets the policy for saving children.
+     *
      * @param savePolicy One of {@link #SAVE_NO_CHILD} {@link #SAVE_ON_SCREEN_CHILD}
-     * {@link #SAVE_LIMITED_CHILD} {@link #SAVE_ALL_CHILD}.
+     *                   {@link #SAVE_LIMITED_CHILD} {@link #SAVE_ALL_CHILD}.
      */
     public final void setSaveChildrenPolicy(int savePolicy) {
         mLayoutManager.mChildrenStates.setSavePolicy(savePolicy);
@@ -1176,8 +1232,8 @@ public abstract class BaseGridView extends RecyclerView {
     /**
      * Sets pixels of extra space for layout child in invisible area.
      *
-     * @param extraLayoutSpace  Pixels of extra space for layout invisible child.
-     *                          Must be bigger or equals to 0.
+     * @param extraLayoutSpace Pixels of extra space for layout invisible child.
+     *                         Must be bigger or equals to 0.
      * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
@@ -1233,6 +1289,7 @@ public abstract class BaseGridView extends RecyclerView {
 
     /**
      * Set custom behavior for smoothScrollBy().
+     *
      * @param behavior Custom behavior of SmoothScrollBy(). Null for default behavior.
      */
     public final void setSmoothScrollByBehavior(@Nullable SmoothScrollByBehavior behavior) {
@@ -1241,6 +1298,7 @@ public abstract class BaseGridView extends RecyclerView {
 
     /**
      * Returns custom behavior for smoothScrollBy().
+     *
      * @return Custom behavior for SmoothScrollBy(). Null for default behavior.
      */
     @Nullable
@@ -1273,6 +1331,7 @@ public abstract class BaseGridView extends RecyclerView {
     /**
      * Set factor of how slow the smoothScroller should run. For example when set to 2f, the smooth
      * scroller is twice slower. The value is 1f by default.
+     *
      * @param smoothScrollSpeedFactor Factor of how slow the smooth scroll is.
      */
     public final void setSmoothScrollSpeedFactor(float smoothScrollSpeedFactor) {
@@ -1293,6 +1352,7 @@ public abstract class BaseGridView extends RecyclerView {
      * the value is set too low, it may miss many DPAD events. The default value is 10. If app
      * increases {@link #setSmoothScrollSpeedFactor(float)}, it may need decrease the max pending
      * DPAD events to avoid scrolling too long after DPAD release.
+     *
      * @param maxPendingMoves Maximum number of pending DPAD events to be remembered.
      */
     public final void setSmoothScrollMaxPendingMoves(int maxPendingMoves) {
@@ -1306,8 +1366,9 @@ public abstract class BaseGridView extends RecyclerView {
      * the value is set too low, it may miss many DPAD events. The default value is 10. If app
      * increases {@link #setSmoothScrollSpeedFactor(float)}, it may need decrease the max pending
      * DPAD events to avoid scrolling too long after DPAD release.
+     *
      * @return Maximum number of pending DPAD events to be remembered when smooth scroll cannot
-     *         catch up speed of DPAD events being sent.
+     * catch up speed of DPAD events being sent.
      */
     public final int getSmoothScrollMaxPendingMoves() {
         return mLayoutManager.mMaxPendingMoves;
@@ -1337,10 +1398,10 @@ public abstract class BaseGridView extends RecyclerView {
      * the number of Views created and in active use.</p>
      *
      * @param itemCount Number of items to prefetch
-     *
      * @see #getInitialPrefetchItemCount()
      * @see RecyclerView.LayoutManager#isItemPrefetchEnabled()
-     * @see RecyclerView.LayoutManager#collectInitialPrefetchPositions(int, RecyclerView.LayoutManager.LayoutPrefetchRegistry)
+     * @see RecyclerView.LayoutManager#collectInitialPrefetchPositions(int,
+     * RecyclerView.LayoutManager.LayoutPrefetchRegistry)
      */
     public void setInitialPrefetchItemCount(int itemCount) {
         mInitialPrefetchItemCount = itemCount;
@@ -1352,18 +1413,18 @@ public abstract class BaseGridView extends RecyclerView {
      * which defines how many inner items should be prefetched when this GridView is nested inside
      * another RecyclerView.
      *
+     * @return number of items to prefetch.
      * @see RecyclerView.LayoutManager#isItemPrefetchEnabled()
      * @see #setInitialPrefetchItemCount(int)
-     * @see RecyclerView.LayoutManager#collectInitialPrefetchPositions(int, RecyclerView.LayoutManager.LayoutPrefetchRegistry)
-     *
-     * @return number of items to prefetch.
+     * @see RecyclerView.LayoutManager#collectInitialPrefetchPositions(int,
+     * RecyclerView.LayoutManager.LayoutPrefetchRegistry)
      */
     public int getInitialPrefetchItemCount() {
         return mInitialPrefetchItemCount;
     }
 
     @Override
-    public void removeView(View view) {
+    public void removeView(@NonNull View view) {
         boolean retainFocusForChild = view.hasFocus() && isFocusable();
         if (retainFocusForChild) {
             // When animation or scrolling removes a focused child, focus to GridView itself to

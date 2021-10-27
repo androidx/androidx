@@ -1,15 +1,17 @@
 /*
- * Copyright (C) 2014 The Android Open Source Project
+ * Copyright 2021 The Android Open Source Project
  *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
- * in compliance with the License. You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software distributed under the License
- * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
- * or implied. See the License for the specific language governing permissions and limitations under
- * the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package androidx.leanback.widget;
 
@@ -28,12 +30,12 @@ import java.util.Arrays;
  * Grid is the base class for single row, non-staggered grid and staggered grid.
  * <p>
  * To use the Grid, user must implement a Provider to create or remove visible item.
- * Grid maintains a list of visible items.  Visible items are created when
+ * Grid maintains a list of visible items. Visible items are created when
  * user calls appendVisibleItems() or prependVisibleItems() with certain limitation
- * (e.g. a max edge that append up to).  Visible items are deleted when user calls
- * removeInvisibleItemsAtEnd() or removeInvisibleItemsAtFront().  Grid's algorithm
+ * (e.g. a max edge that append up to). Visible items are deleted when user calls
+ * removeInvisibleItemsAtEnd() or removeInvisibleItemsAtFront(). Grid's algorithm
  * uses size of visible item returned from Provider.createItem() to decide which row
- * to add a new visible item and may cache the algorithm results.   User must call
+ * to add a new visible item and may cache the algorithm results. User must call
  * invalidateItemsAfter() when it detects item size changed to ask Grid to remove cached
  * results.
  */
@@ -43,7 +45,7 @@ abstract class Grid {
      * A constant representing a default starting index, indicating that the
      * developer did not provide a start index.
      */
-    public static final int START_DEFAULT = -1;
+    static final int START_DEFAULT = -1;
 
     Object[] mTmpItem = new Object[1];
 
@@ -51,7 +53,7 @@ abstract class Grid {
      * When user uses Grid,  he should provide count of items and
      * the method to create item and remove item.
      */
-    public static interface Provider {
+    interface Provider {
 
         /**
          * Return how many items (are in the adapter).
@@ -71,43 +73,48 @@ abstract class Grid {
         /**
          * Create visible item and where the provider should measure it.
          * The call is always followed by addItem().
-         * @param index     0-based index of the item in provider
-         * @param append  True if new item is after last visible item, false if new item is
-         *                before first visible item.
-         * @param item    item[0] returns created item that will be passed in addItem() call.
+         *
+         * @param index            0-based index of the item in provider
+         * @param append           True if new item is after last visible item, false if new item is
+         *                         before first visible item.
+         * @param item             item[0] returns created item that will be passed in addItem()
+         *                         call.
          * @param disappearingItem The item is a disappearing item added by
          *                         {@link Grid#fillDisappearingItems(int[], int, SparseIntArray)}.
-         *
          * @return length of the item.
          */
         int createItem(int index, boolean append, Object[] item, boolean disappearingItem);
 
         /**
          * add item to given row and given edge.  The call is always after createItem().
-         * @param item      The object returned by createItem()
-         * @param index     0-based index of the item in provider
-         * @param length    The size of the object
-         * @param rowIndex  Row index to put the item
-         * @param edge      min_edge if not reversed or max_edge if reversed.
+         *
+         * @param item     The object returned by createItem()
+         * @param index    0-based index of the item in provider
+         * @param length   The size of the object
+         * @param rowIndex Row index to put the item
+         * @param edge     min_edge if not reversed or max_edge if reversed.
          */
         void addItem(Object item, int index, int length, int rowIndex, int edge);
 
         /**
          * Remove visible item at index.
-         * @param index     0-based index of the item in provider
+         *
+         * @param index 0-based index of the item in provider
          */
         void removeItem(int index);
 
         /**
          * Get edge of an existing visible item. edge will be the min_edge
          * if not reversed or the max_edge if reversed.
-         * @param index     0-based index of the item in provider
+         *
+         * @param index 0-based index of the item in provider
          */
         int getEdge(int index);
 
         /**
          * Get size of an existing visible item.
-         * @param index     0-based index of the item in provider
+         *
+         * @param index 0-based index of the item in provider
          */
         int getSize(int index);
     }
@@ -115,14 +122,14 @@ abstract class Grid {
     /**
      * Cached representation of an item in Grid.  May be subclassed.
      */
-    public static class Location {
+    static class Location {
         /**
          * The index of the row for this Location.
          */
-        public int row;
+        int mRow;
 
-        public Location(int row) {
-            this.row = row;
+        Location(int row) {
+            this.mRow = row;
         }
     }
 
@@ -273,7 +280,7 @@ abstract class Grid {
         if (location == null) {
             return -1;
         }
-        return location.row;
+        return location.mRow;
     }
 
     /**
@@ -292,7 +299,8 @@ abstract class Grid {
 
     /**
      * Finds the largest or smallest row min edge of visible items, starts searching from
-     * indexLimit, the row index is returned in indices[0], the item index is returned in indices[1].
+     * indexLimit, the row index is returned in indices[0], the item index is returned in
+     * indices[1].
      */
     protected abstract int findRowMin(boolean findLarge, int indexLimit, int[] rowIndex);
 
@@ -319,7 +327,7 @@ abstract class Grid {
             return false;
         }
         return mReversedFlow ? findRowMin(true, null) <= toLimit + mSpacing :
-                    findRowMax(false, null) >= toLimit - mSpacing;
+                findRowMax(false, null) >= toLimit - mSpacing;
     }
 
     /**
@@ -330,7 +338,7 @@ abstract class Grid {
             return false;
         }
         return mReversedFlow ? findRowMax(false, null) >= toLimit - mSpacing :
-                    findRowMin(true, null) <= toLimit + mSpacing;
+                findRowMin(true, null) <= toLimit + mSpacing;
     }
 
     /**
@@ -357,6 +365,7 @@ abstract class Grid {
     /**
      * Prepends items and stops after one column is filled.
      * (i.e. filled items from row 0 to row mNumRows - 1)
+     *
      * @return true if at least one item is filled.
      */
     public final boolean prependOneColumnVisibleItems() {
@@ -374,8 +383,9 @@ abstract class Grid {
     /**
      * Prepends items until first item or reaches toLimit (min edge when not reversed or
      * max edge when reversed).
-     * @param oneColumnMode  true when fills one column and stops,  false
-     * when checks if condition matches before filling first column.
+     *
+     * @param oneColumnMode true when fills one column and stops,  false
+     *                      when checks if condition matches before filling first column.
      * @return true if at least one item is filled.
      */
     protected abstract boolean prependVisibleItems(int toLimit, boolean oneColumnMode);
@@ -383,6 +393,7 @@ abstract class Grid {
     /**
      * Appends items and stops after one column is filled.
      * (i.e. filled items from row 0 to row mNumRows - 1)
+     *
      * @return true if at least one item is filled.
      */
     public boolean appendOneColumnVisibleItems() {
@@ -400,19 +411,21 @@ abstract class Grid {
     /**
      * Appends items until last or reaches toLimit (high edge when not
      * reversed or low edge when reversed).
+     *
      * @param oneColumnMode True when fills one column and stops,  false
-     * when checks if condition matches before filling first column.
+     *                      when checks if condition matches before filling first column.
      * @return true if filled at least one item
      */
     protected abstract boolean appendVisibleItems(int toLimit, boolean oneColumnMode);
 
     /**
      * Removes invisible items from end until reaches item at aboveIndex or toLimit.
+     *
      * @param aboveIndex Don't remove items whose index is equals or smaller than aboveIndex
-     * @param toLimit Don't remove items whose left edge is less than toLimit.
+     * @param toLimit    Don't remove items whose left edge is less than toLimit.
      */
     public void removeInvisibleItemsAtEnd(int aboveIndex, int toLimit) {
-        while(mLastVisibleIndex >= mFirstVisibleIndex && mLastVisibleIndex > aboveIndex) {
+        while (mLastVisibleIndex >= mFirstVisibleIndex && mLastVisibleIndex > aboveIndex) {
             boolean offEnd = !mReversedFlow ? mProvider.getEdge(mLastVisibleIndex) >= toLimit
                     : mProvider.getEdge(mLastVisibleIndex) <= toLimit;
             if (offEnd) {
@@ -427,11 +440,12 @@ abstract class Grid {
 
     /**
      * Removes invisible items from front until reaches item at belowIndex or toLimit.
+     *
      * @param belowIndex Don't remove items whose index is equals or larger than belowIndex
-     * @param toLimit Don't remove items whose right edge is equals or greater than toLimit.
+     * @param toLimit    Don't remove items whose right edge is equals or greater than toLimit.
      */
     public void removeInvisibleItemsAtFront(int belowIndex, int toLimit) {
-        while(mLastVisibleIndex >= mFirstVisibleIndex && mFirstVisibleIndex < belowIndex) {
+        while (mLastVisibleIndex >= mFirstVisibleIndex && mFirstVisibleIndex < belowIndex) {
             final int size = mProvider.getSize(mFirstVisibleIndex);
             boolean offFront = !mReversedFlow
                     ? mProvider.getEdge(mFirstVisibleIndex) + size <= toLimit
@@ -457,7 +471,8 @@ abstract class Grid {
      * location so recyclerview will run a slide out animation. The positions that was greater than
      * last visible index will be appended to end, the positions that was smaller than first visible
      * index will be prepend to beginning.
-     * @param positions Sorted list of positions of disappearing items.
+     *
+     * @param positions     Sorted list of positions of disappearing items.
      * @param positionToRow Which row we want to put the disappearing item.
      */
     public void fillDisappearingItems(int[] positions, int positionsLength,
