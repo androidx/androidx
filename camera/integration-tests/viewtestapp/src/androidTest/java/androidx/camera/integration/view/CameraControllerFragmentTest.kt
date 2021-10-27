@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2020 The Android Open Source Project
  *
@@ -17,6 +16,7 @@
 
 package androidx.camera.integration.view
 
+import android.content.ContentResolver
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Matrix
@@ -36,10 +36,10 @@ import androidx.camera.core.impl.utils.futures.Futures
 import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.CoreAppTestUtil
 import androidx.camera.view.CameraController.TAP_TO_FOCUS_FAILED
-import androidx.camera.view.CameraController.TAP_TO_FOCUS_NOT_STARTED
-import androidx.camera.view.CameraController.TAP_TO_FOCUS_STARTED
 import androidx.camera.view.CameraController.TAP_TO_FOCUS_FOCUSED
 import androidx.camera.view.CameraController.TAP_TO_FOCUS_NOT_FOCUSED
+import androidx.camera.view.CameraController.TAP_TO_FOCUS_NOT_STARTED
+import androidx.camera.view.CameraController.TAP_TO_FOCUS_STARTED
 import androidx.camera.view.PreviewView
 import androidx.fragment.app.testing.FragmentScenario
 import androidx.lifecycle.Lifecycle
@@ -520,17 +520,19 @@ class CameraControllerFragmentTest {
                 }
 
                 override fun onError(exception: ImageCaptureException) {
-                    imageCallbackSemaphore.release()
+                    throw exception
                 }
             })
         }
         assertThat(imageCallbackSemaphore.tryAcquire(TIMEOUT_SECONDS, TimeUnit.SECONDS)).isTrue()
+        assertThat(uri).isNotNull()
+        val contentResolver: ContentResolver = this.activity!!.contentResolver
 
         // Read bitmap and exif rotation to return.
-        val bitmap = this.activity!!.contentResolver.openInputStream(uri!!)!!.use {
+        val bitmap = contentResolver.openInputStream(uri!!)!!.use {
             BitmapFactory.decodeStream(it)
         }
-        val rotationAndFlip = this.activity!!.contentResolver.openInputStream(uri!!)!!.use {
+        val rotationAndFlip = contentResolver.openInputStream(uri!!)!!.use {
             val exif = Exif.createFromInputStream(it)
             Triple(exif.rotation, exif.isFlippedHorizontally, exif.isFlippedVertically)
         }
