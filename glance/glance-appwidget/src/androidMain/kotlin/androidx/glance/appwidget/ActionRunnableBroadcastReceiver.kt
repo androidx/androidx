@@ -22,10 +22,11 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import androidx.core.os.bundleOf
-import androidx.glance.action.ActionRunnable
 import androidx.glance.action.ActionParameters
+import androidx.glance.action.ActionRunnable
 import androidx.glance.action.UpdateContentAction
 import androidx.glance.action.mutableActionParametersOf
+import java.util.UUID
 
 /**
  * Responds to broadcasts from [UpdateContentAction] clicks by executing the associated action.
@@ -61,6 +62,7 @@ internal class ActionRunnableBroadcastReceiver : BroadcastReceiver() {
         private const val ExtraWidgetClassName = "ActionRunnableBroadcastReceiver:appWidgetClass"
         private const val AppWidgetId = "ActionRunnableBroadcastReceiver:appWidgetId"
         private const val ExtraParameters = "ActionRunnableBroadcastReceiver:parameters"
+        private const val ExtraParametersUUID = "ActionRunnableBroadcastReceiver:uuid"
 
         fun createPendingIntent(
             context: Context,
@@ -76,12 +78,13 @@ internal class ActionRunnableBroadcastReceiver : BroadcastReceiver() {
                     .setPackage(context.packageName)
                     .putExtra(ExtraRunnableClassName, runnableClass.canonicalName)
                     .putExtra(ExtraWidgetClassName, appWidgetClass.canonicalName)
+                    .putExtra(ExtraParametersUUID, UUID.randomUUID().leastSignificantBits)
                     .putExtra(AppWidgetId, appWidgetId)
                     .putParameterExtras(parameters).apply {
-                        setData(Uri.parse(toUri(0))
+                        data = Uri.parse(toUri(0))
                             .buildUpon()
                             .scheme("remoteAction")
-                            .build())
+                            .build()
                     },
                 PendingIntent.FLAG_MUTABLE
             )
