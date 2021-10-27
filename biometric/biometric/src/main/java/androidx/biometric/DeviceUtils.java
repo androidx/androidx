@@ -118,7 +118,8 @@ class DeviceUtils {
             // This workaround is only needed for API 29.
             return false;
         }
-        return isVendorInList(context, vendor, R.array.keyguard_biometric_and_credential_vendors);
+        return !isVendorInList(
+                context, vendor, R.array.keyguard_biometric_and_credential_exclude_vendors);
     }
 
     /**
