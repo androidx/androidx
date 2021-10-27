@@ -811,7 +811,7 @@ class RemoteViewsTranslatorKtTest {
         content: @Composable () -> Unit
     ): RemoteViews {
         val root = runTestingComposition(content)
-        return translateComposition(context, appWidgetId, root)
+        return translateComposition(context, appWidgetId, TestWidget::class.java, root)
     }
 
     private fun configurationContext(modifier: Configuration.() -> Unit): Context {
