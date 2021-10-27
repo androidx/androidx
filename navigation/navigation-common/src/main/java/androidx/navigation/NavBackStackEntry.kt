@@ -55,7 +55,7 @@ public class NavBackStackEntry private constructor(
      * @return The arguments used when this entry was created
      */
     public val arguments: Bundle? = null,
-    private val navControllerLifecycleOwner: LifecycleOwner? = null,
+    private var hostLifecycleState: Lifecycle.State = Lifecycle.State.CREATED,
     private val viewModelStoreProvider: NavViewModelStoreProvider? = null,
     /**
      * The unique ID that serves as the identity of this entry
@@ -73,7 +73,7 @@ public class NavBackStackEntry private constructor(
         entry.context,
         entry.destination,
         arguments,
-        entry.navControllerLifecycleOwner,
+        entry.hostLifecycleState,
         entry.viewModelStoreProvider,
         entry.id,
         entry.savedState
@@ -95,19 +95,18 @@ public class NavBackStackEntry private constructor(
             context: Context?,
             destination: NavDestination,
             arguments: Bundle? = null,
-            navControllerLifecycleOwner: LifecycleOwner? = null,
+            hostLifecycleState: Lifecycle.State = Lifecycle.State.CREATED,
             viewModelStoreProvider: NavViewModelStoreProvider? = null,
             id: String = UUID.randomUUID().toString(),
             savedState: Bundle? = null
         ): NavBackStackEntry = NavBackStackEntry(
             context, destination, arguments,
-            navControllerLifecycleOwner, viewModelStoreProvider, id, savedState
+            hostLifecycleState, viewModelStoreProvider, id, savedState
         )
     }
 
     private var lifecycle = LifecycleRegistry(this)
     private val savedStateRegistryController = SavedStateRegistryController.create(this)
-    private var hostLifecycleState = Lifecycle.State.CREATED
     private val defaultFactory by lazy {
         SavedStateViewModelFactory((context?.applicationContext as? Application), this, arguments)
     }
@@ -244,10 +243,4 @@ public class NavBackStackEntry private constructor(
     }
 
     private class SavedStateViewModel(val handle: SavedStateHandle) : ViewModel()
-
-    init {
-        if (navControllerLifecycleOwner != null) {
-            hostLifecycleState = navControllerLifecycleOwner.lifecycle.currentState
-        }
-    }
 }
