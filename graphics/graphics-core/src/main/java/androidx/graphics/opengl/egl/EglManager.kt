@@ -19,6 +19,7 @@ package androidx.graphics.opengl.egl
 import android.opengl.EGL14
 import android.opengl.EGLConfig
 import android.opengl.EGLContext
+import android.opengl.EGLSurface
 
 /**
  * Class responsible for configuration of EGL related resources. This includes
@@ -30,7 +31,12 @@ class EglManager(val eglSpec: EglSpec = EglSpec.Egl14) {
     private val TAG = "EglManager"
 
     private var mEglConfig: EGLConfig? = null
-    private var mEglContext: EGLContext? = null
+
+    /**
+     * Offscreen pixel buffer surface
+     */
+    private var mPBufferSurface: EGLSurface = EGL14.EGL_NO_SURFACE
+    private var mEglContext: EGLContext = EGL14.EGL_NO_CONTEXT
     private var mWideColorGamutSupport = false
     private var mEglVersion = EglVersion.Unknown
     private var mEglExtensions: EglExtensions? = null
@@ -41,8 +47,8 @@ class EglManager(val eglSpec: EglSpec = EglSpec.Egl14) {
      */
     fun initialize() {
         mEglContext.let {
-            if (it == null) {
-                mEglVersion = eglSpec.initialize()
+            if (it === EGL14.EGL_NO_CONTEXT) {
+                mEglVersion = eglSpec.eglInitialize()
                 mEglExtensions = EglExtensions.from(eglSpec.eglQueryString(EGL14.EGL_EXTENSIONS))
             }
         }
@@ -60,13 +66,25 @@ class EglManager(val eglSpec: EglSpec = EglSpec.Egl14) {
      * Creates an [EGLContext] from the given [EGLConfig] returning
      * null if the context could not be created
      */
-    fun createContext(config: EGLConfig): EGLContext? {
-        val eglContext = eglSpec.createContext(config)
-        if (eglContext != null) {
+    fun createContext(config: EGLConfig): EGLContext {
+        val eglContext = eglSpec.eglCreateContext(config)
+        if (eglContext !== EGL14.EGL_NO_CONTEXT) {
+            val pbBufferSurface: EGLSurface = if (isExtensionSupported(EglKhrSurfacelessContext)) {
+                EGL14.EGL_NO_SURFACE
+            } else {
+                val configAttrs = EglConfigAttributes {
+                    EGL14.EGL_WIDTH to 1
+                    EGL14.EGL_HEIGHT to 1
+                }
+                eglSpec.eglCreatePBufferSurface(config, configAttrs)
+            }
+            makeCurrent(pbBufferSurface)
+            mPBufferSurface = pbBufferSurface
             mEglContext = eglContext
             mEglConfig = config
         } else {
-            mEglContext = null
+            mPBufferSurface = EGL14.EGL_NO_SURFACE
+            mEglContext = EGL14.EGL_NO_CONTEXT
             mEglConfig = null
         }
         return eglContext
@@ -78,12 +96,25 @@ class EglManager(val eglSpec: EglSpec = EglSpec.Egl14) {
      * The configured EGLVersion as well as EGLExtensions
      */
     fun release() {
-        mEglContext?.let {
-            eglSpec.destroyContext(it)
-            mEglVersion = EglVersion.Unknown
-            mEglContext = null
-            mEglConfig = null
-            mEglExtensions = null
+        mEglContext.let {
+            if (it != EGL14.EGL_NO_CONTEXT) {
+                eglSpec.eglDestroyContext(it)
+                mPBufferSurface.let { pbBufferSurface ->
+                    if (pbBufferSurface != EGL14.EGL_NO_SURFACE) {
+                        eglSpec.eglDestroySurface(pbBufferSurface)
+                    }
+                }
+                mPBufferSurface = EGL14.EGL_NO_SURFACE
+                eglSpec.eglMakeCurrent(
+                    EGL14.EGL_NO_CONTEXT,
+                    EGL14.EGL_NO_SURFACE,
+                    EGL14.EGL_NO_SURFACE
+                )
+                mEglVersion = EglVersion.Unknown
+                mEglContext = EGL14.EGL_NO_CONTEXT
+                mEglConfig = null
+                mEglExtensions = null
+            }
         }
     }
 
@@ -106,4 +137,58 @@ class EglManager(val eglSpec: EglSpec = EglSpec.Egl14) {
      */
     val eglConfig: EGLConfig?
         get() = mEglConfig
+
+    /**
+     * Determines whether the extension with the provided name is supported. The string
+     * provided is expected to be one of the named extensions defined within the OpenGL
+     * extension documentation.
+     *
+     * See [EglExtensions] for additional documentation for given extension name constants
+     * and descriptions.
+     *
+     * The set of supported extensions is configured after [initialize] is invoked.
+     * Attempts to query support for any extension beforehand will return false.
+     */
+    fun isExtensionSupported(extensionName: String): Boolean =
+        mEglExtensions?.isExtensionSupported(extensionName) ?: false
+
+    /**
+     * Binds the current context to the given draw and read surfaces.
+     * The draw surface is used for all operations except for any pixel data read back or
+     * copy operations which are taken from the read surface.
+     *
+     * The same EGLSurface may be specified for both draw and read surfaces.
+     *
+     * If the context is not previously configured, the only valid parameters for the
+     * draw and read surfaces if [EGL14.EGL_NO_SURFACE]. This is useful to make sure there is
+     * always a surface specified and to release the current context without assigning a new one.
+     *
+     * See https://www.khronos.org/registry/EGL/sdk/docs/man/html/eglMakeCurrent.xhtml
+     *
+     * @param drawSurface Surface used for all operations that involve writing pixel information
+     * @param readSurface Surface used for pixel data read back or copy operations. By default this
+     * is the same as [drawSurface]
+     */
+    @JvmOverloads
+    fun makeCurrent(drawSurface: EGLSurface, readSurface: EGLSurface = drawSurface): Boolean =
+        eglSpec.eglMakeCurrent(mEglContext, drawSurface, readSurface)
+
+    /**
+     * Returns the default surface. This can be an offscreen pixel buffer surface or
+     * [EGL14.EGL_NO_SURFACE] if the surfaceless context extension is supported.
+     */
+    val defaultSurface: EGLSurface
+        get() = mPBufferSurface
+
+    /**
+     * Returns the current surface used for drawing pixel content
+     */
+    val currentDrawSurface: EGLSurface
+        get() = eglSpec.eglGetCurrentDrawSurface()
+
+    /**
+     * Returns the current surface used for reading back or copying pixels
+     */
+    val currentReadSurface: EGLSurface
+        get() = eglSpec.eglGetCurrentReadSurface()
 }
