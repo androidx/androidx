@@ -79,7 +79,7 @@ abstract class PreferenceHeaderFragmentCompat :
     ): Boolean {
         if (caller.id == R.id.preferences_header) {
             // Opens the preference header.
-            openPreference(pref)
+            openPreferenceHeader(pref)
             return true
         }
         if (caller.id == R.id.preferences_detail) {
@@ -267,11 +267,11 @@ abstract class PreferenceHeaderFragmentCompat :
      * Swaps out the fragment that associated with preference header. If associated fragment is
      * unspecified, open the preference with the given intent instead.
      *
-     * @param header The preference header that selected
+     * @param header The preference header that was selected
      */
-    fun openPreference(header: Preference) {
+    private fun openPreferenceHeader(header: Preference) {
         if (header.fragment == null) {
-            openPreference(header.intent)
+            openPreferenceHeader(header.intent)
             return
         }
         val fragment = header.fragment?.let {
@@ -306,7 +306,7 @@ abstract class PreferenceHeaderFragmentCompat :
      *
      * @param intent The intent that associated with preference header
      */
-    private fun openPreference(intent: Intent?) {
+    private fun openPreferenceHeader(intent: Intent?) {
         if (intent == null) return
         // TODO: Change to use WindowManager ActivityView API
         startActivity(intent)
