@@ -72,7 +72,7 @@ interface XAnnotated {
      * For repeated annotations declared in Java code, please use the repeated annotation type,
      * not the container. Calling this method with a container annotation will have inconsistent
      * behaviour between Java AP and KSP.
-     * @see [hasAnyOf]
+     * @see [hasAnyAnnotation]
      */
     fun hasAnnotation(
         annotation: KClass<out Annotation>
@@ -82,7 +82,7 @@ interface XAnnotated {
      * Returns `true` if this element is annotated with an [XAnnotation] that has the same
      * qualified name as the given [annotationName].
      *
-     * @see [hasAnyOf]
+     * @see [hasAnyAnnotation]
      */
     fun hasAnnotation(annotationName: ClassName): Boolean {
         return getAnnotations(annotationName).isNotEmpty()
@@ -97,12 +97,13 @@ interface XAnnotated {
     /**
      * Returns `true` if this element has one of the [annotations].
      */
-    fun hasAnyOf(vararg annotations: ClassName) = annotations.any(this::hasAnnotation)
+    fun hasAnyAnnotation(vararg annotations: ClassName) = annotations.any(this::hasAnnotation)
 
     /**
      * Returns `true` if this element has one of the [annotations].
      */
-    fun hasAnyOf(vararg annotations: KClass<out Annotation>) = annotations.any(this::hasAnnotation)
+    fun hasAnyAnnotation(vararg annotations: KClass<out Annotation>) =
+        annotations.any(this::hasAnnotation)
 
     @Deprecated(
         replaceWith = ReplaceWith("getAnnotation(annotation)"),
