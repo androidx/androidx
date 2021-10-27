@@ -16,15 +16,15 @@
 
 package androidx.window.testing.layout
 
-import androidx.window.layout.WindowInfoRepository
-import androidx.window.layout.WindowInfoRepositoryDecorator
+import androidx.window.layout.WindowInfoTracker
+import androidx.window.layout.WindowInfoTrackerDecorator
 import androidx.window.layout.WindowLayoutInfo
 import kotlinx.coroutines.flow.Flow
 
-internal class PublishWindowInfoRepositoryDecorator(
+internal class PublishWindowInfoTrackerDecorator(
     private val flow: Flow<WindowLayoutInfo>
-) : WindowInfoRepositoryDecorator {
-    override fun decorate(repository: WindowInfoRepository): WindowInfoRepository {
-        return PublishLayoutInfoRepository(repository, flow)
+) : WindowInfoTrackerDecorator {
+    override fun decorate(tracker: WindowInfoTracker): WindowInfoTracker {
+        return PublishLayoutInfoTracker(tracker, flow)
     }
 }

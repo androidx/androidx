@@ -16,11 +16,17 @@
 
 package androidx.window.testing.layout
 
-import androidx.window.layout.WindowInfoRepository
+import android.app.Activity
+import androidx.window.layout.WindowInfoTracker
 import androidx.window.layout.WindowLayoutInfo
 import kotlinx.coroutines.flow.Flow
 
-internal class PublishLayoutInfoRepository(
-    private val core: WindowInfoRepository,
-    override val windowLayoutInfo: Flow<WindowLayoutInfo>
-) : WindowInfoRepository by core
+internal class PublishLayoutInfoTracker(
+    private val core: WindowInfoTracker,
+    private val flow: Flow<WindowLayoutInfo>
+) : WindowInfoTracker by core {
+
+    override fun windowLayoutInfo(activity: Activity): Flow<WindowLayoutInfo> {
+        return flow
+    }
+}

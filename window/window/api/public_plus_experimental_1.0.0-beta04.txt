@@ -153,15 +153,14 @@ package androidx.window.layout {
   public static final class FoldingFeature.State.Companion {
   }
 
-  public interface WindowInfoRepository {
-    method public default static androidx.window.layout.WindowInfoRepository getOrCreate(android.app.Activity);
-    method public kotlinx.coroutines.flow.Flow<androidx.window.layout.WindowLayoutInfo> getWindowLayoutInfo();
-    property public abstract kotlinx.coroutines.flow.Flow<androidx.window.layout.WindowLayoutInfo> windowLayoutInfo;
-    field public static final androidx.window.layout.WindowInfoRepository.Companion Companion;
+  public interface WindowInfoTracker {
+    method public default static androidx.window.layout.WindowInfoTracker getOrCreate(android.content.Context context);
+    method public kotlinx.coroutines.flow.Flow<androidx.window.layout.WindowLayoutInfo> windowLayoutInfo(android.app.Activity activity);
+    field public static final androidx.window.layout.WindowInfoTracker.Companion Companion;
   }
 
-  public static final class WindowInfoRepository.Companion {
-    method public androidx.window.layout.WindowInfoRepository getOrCreate(android.app.Activity);
+  public static final class WindowInfoTracker.Companion {
+    method public androidx.window.layout.WindowInfoTracker getOrCreate(android.content.Context context);
   }
 
   public final class WindowLayoutInfo {

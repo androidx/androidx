@@ -13,29 +13,34 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@file:JvmName("WindowInfoRepositoryRx")
+@file:JvmName("WindowInfoTrackerRx")
 
-package androidx.window.rxjava2.layout
+package androidx.window.rxjava3.layout
 
-import androidx.window.layout.WindowInfoRepository
+import android.app.Activity
+import androidx.window.layout.WindowInfoTracker
 import androidx.window.layout.WindowLayoutInfo
-import io.reactivex.Flowable
-import io.reactivex.Observable
-import kotlinx.coroutines.rx2.asFlowable
-import kotlinx.coroutines.rx2.asObservable
+import io.reactivex.rxjava3.core.Flowable
+import io.reactivex.rxjava3.core.Observable
+import kotlinx.coroutines.rx3.asFlowable
+import kotlinx.coroutines.rx3.asObservable
 
 /**
  * Return an [Observable] stream of [WindowLayoutInfo].
- * @see WindowInfoRepository.windowLayoutInfo
+ * @see WindowInfoTracker.windowLayoutInfo
  */
-public fun WindowInfoRepository.windowLayoutInfoObservable(): Observable<WindowLayoutInfo> {
-    return windowLayoutInfo.asObservable()
+public fun WindowInfoTracker.windowLayoutInfoObservable(
+    activity: Activity
+): Observable<WindowLayoutInfo> {
+    return windowLayoutInfo(activity).asObservable()
 }
 
 /**
  * Return a [Flowable] stream of [WindowLayoutInfo].
- * @see WindowInfoRepository.windowLayoutInfo
+ * @see WindowInfoTracker.windowLayoutInfo
  */
-public fun WindowInfoRepository.windowLayoutInfoFlowable(): Flowable<WindowLayoutInfo> {
-    return windowLayoutInfo.asFlowable()
+public fun WindowInfoTracker.windowLayoutInfoFlowable(
+    activity: Activity
+): Flowable<WindowLayoutInfo> {
+    return windowLayoutInfo(activity).asFlowable()
 }
