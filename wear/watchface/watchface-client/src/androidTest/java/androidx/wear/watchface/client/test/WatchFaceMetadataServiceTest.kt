@@ -19,6 +19,7 @@ package androidx.wear.watchface.client.test
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import android.content.res.XmlResourceParser
 import android.graphics.RectF
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -42,7 +43,7 @@ import org.junit.runner.RunWith
 @OptIn(WatchFaceClientExperimental::class)
 public class WatchFaceMetadataServiceTest {
     private val exampleWatchFaceComponentName = ComponentName(
-        "androidx.wear.watchface.samples.test",
+        "androidx.wear.watchface.client.test",
         "androidx.wear.watchface.samples.ExampleCanvasAnalogWatchFaceService"
     )
 
@@ -53,7 +54,13 @@ public class WatchFaceMetadataServiceTest {
             Intent(context, WatchFaceControlTestService::class.java).apply {
                 action = WatchFaceControlService.ACTION_WATCHFACE_CONTROL_SERVICE
             },
-            exampleWatchFaceComponentName
+            exampleWatchFaceComponentName,
+            object : WatchFaceMetadataClient.Companion.ParserProvider() {
+                override fun getParser(
+                    context: Context,
+                    watchFaceName: ComponentName
+                ): XmlResourceParser? = null
+            }
         )
     }
 
@@ -151,5 +158,29 @@ public class WatchFaceMetadataServiceTest {
             ComplicationType.MONOCHROMATIC_IMAGE,
             ComplicationType.SMALL_IMAGE
         )
+    }
+
+    @Test
+    public fun getSchema_static_metadata() {
+        runBlocking {
+            val client = WatchFaceMetadataClient.createWatchFaceMetadataClientImpl(
+                context,
+                Intent(context, WatchFaceControlTestService::class.java).apply {
+                    action = WatchFaceControlService.ACTION_WATCHFACE_CONTROL_SERVICE
+                },
+                exampleWatchFaceComponentName,
+                object : WatchFaceMetadataClient.Companion.ParserProvider() {
+                    override fun getParser(
+                        context: Context,
+                        watchFaceName: ComponentName
+                    ) = context.resources.getXml(R.xml.xml_watchface)
+                }
+            )
+            val schema = client.getUserStyleSchema()
+
+            Truth.assertThat(schema.userStyleSettings.toString()).isEqualTo(
+                "[{TimeStyle : minimal, seconds}]"
+            )
+        }
     }
 }
