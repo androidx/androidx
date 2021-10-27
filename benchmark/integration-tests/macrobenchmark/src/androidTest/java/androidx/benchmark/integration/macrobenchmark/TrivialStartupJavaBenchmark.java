@@ -27,6 +27,8 @@ import org.junit.Test;
 
 import java.util.Collections;
 
+import kotlin.Unit;
+
 public class TrivialStartupJavaBenchmark {
     @Rule
     public MacrobenchmarkRule mBenchmarkRule = new MacrobenchmarkRule();
@@ -43,6 +45,7 @@ public class TrivialStartupJavaBenchmark {
                 scope -> {
                     scope.pressHome();
                     scope.startActivityAndWait();
+                    return Unit.INSTANCE;
                 }
         );
     }

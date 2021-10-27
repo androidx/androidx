@@ -35,7 +35,6 @@ dependencies {
     api(libs.junit)
     api(libs.kotlinStdlib)
     api("androidx.annotation:annotation:1.1.0")
-    api("androidx.core:core:1.6.0")
     api(project(":benchmark:benchmark-macro"))
     implementation(project(":benchmark:benchmark-common"))
     implementation("androidx.test:rules:1.3.0")
