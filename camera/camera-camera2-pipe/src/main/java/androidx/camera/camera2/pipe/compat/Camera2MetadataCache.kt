@@ -23,6 +23,7 @@ import androidx.annotation.GuardedBy
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraMetadata
+import androidx.camera.camera2.pipe.CameraPipe
 import androidx.camera.camera2.pipe.core.Debug
 import androidx.camera.camera2.pipe.core.Log
 import androidx.camera.camera2.pipe.core.Timestamps
@@ -35,17 +36,18 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 /**
- * Provides caching and querying of [CameraMetadata].
+ * Provides caching and querying of [CameraMetadata] via Camera2.
  *
- * This class is designed to be thread safe and provides suspend functions for querying and
- * accessing CameraMetadata.
+ * This class is thread safe and provides suspending functions for querying and accessing
+ * [CameraMetadata].
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 @Singleton
 internal class Camera2MetadataCache @Inject constructor(
     private val context: Context,
     private val threads: Threads,
-    private val permissions: Permissions
+    private val permissions: Permissions,
+    private val cameraMetadataConfig: CameraPipe.CameraMetadataConfig
 ) : CameraMetadataProvider {
     @GuardedBy("cache")
     private val cache = ArrayMap<String, CameraMetadata>()
@@ -89,8 +91,25 @@ internal class Camera2MetadataCache @Inject constructor(
                     context.getSystemService(Context.CAMERA_SERVICE) as CameraManager
                 val characteristics =
                     cameraManager.getCameraCharacteristics(cameraId.value)
+
+                // Merge the camera specific and global cache blocklists together.
+                // this will prevent these values from being cached after first access.
+                val cameraBlocklist = cameraMetadataConfig.cameraCacheBlocklist[cameraId]
+                val cacheBlocklist = if (cameraBlocklist == null) {
+                    cameraMetadataConfig.cacheBlocklist
+                } else {
+                    cameraMetadataConfig.cacheBlocklist + cameraBlocklist
+                }
+
                 val cameraMetadata =
-                    Camera2CameraMetadata(cameraId, redacted, characteristics, this, emptyMap())
+                    Camera2CameraMetadata(
+                        cameraId,
+                        redacted,
+                        characteristics,
+                        this,
+                        emptyMap(),
+                        cacheBlocklist
+                    )
 
                 Log.info {
                     val duration = Timestamps.now() - start
