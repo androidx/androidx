@@ -16,7 +16,6 @@
 
 package androidx.tracing;
 
-import android.annotation.SuppressLint;
 import android.os.Build;
 import android.util.Log;
 
@@ -55,12 +54,10 @@ public final class Trace {
      *
      * @return true if tracing is currently enabled, false otherwise
      */
-    @SuppressLint("NewApi")
     public static boolean isEnabled() {
         if (Build.VERSION.SDK_INT >= 29) {
             return TraceApi29Impl.isEnabled();
         }
-
         return isEnabledFallback();
     }
 
@@ -103,16 +100,12 @@ public final class Trace {
      * @param methodName The method name to appear in the trace.
      * @param cookie     Unique identifier for distinguishing simultaneous events
      */
-    @SuppressLint("NewApi")
     public static void beginAsyncSection(@NonNull String methodName, int cookie) {
-        try {
-            if (sAsyncTraceBeginMethod == null) {
-                TraceApi29Impl.beginAsyncSection(methodName, cookie);
-                return;
-            }
-        } catch (NoSuchMethodError | NoClassDefFoundError ignore) {
+        if (Build.VERSION.SDK_INT >= 29) {
+            TraceApi29Impl.beginAsyncSection(methodName, cookie);
+        } else {
+            beginAsyncSectionFallback(methodName, cookie);
         }
-        beginAsyncSectionFallback(methodName, cookie);
     }
 
     /**
@@ -123,16 +116,12 @@ public final class Trace {
      * @param methodName The method name to appear in the trace.
      * @param cookie     Unique identifier for distinguishing simultaneous events
      */
-    @SuppressLint("NewApi")
     public static void endAsyncSection(@NonNull String methodName, int cookie) {
-        try {
-            if (sAsyncTraceEndMethod == null) {
-                TraceApi29Impl.endAsyncSection(methodName, cookie);
-                return;
-            }
-        } catch (NoSuchMethodError | NoClassDefFoundError ignore) {
+        if (Build.VERSION.SDK_INT >= 29) {
+            TraceApi29Impl.endAsyncSection(methodName, cookie);
+        } else {
+            endAsyncSectionFallback(methodName, cookie);
         }
-        endAsyncSectionFallback(methodName, cookie);
     }
 
     /**
@@ -141,16 +130,12 @@ public final class Trace {
      * @param counterName  The counter name to appear in the trace.
      * @param counterValue The counter value.
      */
-    @SuppressLint("NewApi")
     public static void setCounter(@NonNull String counterName, int counterValue) {
-        try {
-            if (sTraceCounterMethod == null) {
-                TraceApi29Impl.setCounter(counterName, counterValue);
-                return;
-            }
-        } catch (NoSuchMethodError | NoClassDefFoundError ignore) {
+        if (Build.VERSION.SDK_INT >= 29) {
+            TraceApi29Impl.setCounter(counterName, counterValue);
+        } else {
+            setCounterFallback(counterName, counterValue);
         }
-        setCounterFallback(counterName, counterValue);
     }
 
     private static boolean isEnabledFallback() {
