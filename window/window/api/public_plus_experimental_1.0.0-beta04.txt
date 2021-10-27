@@ -1,7 +1,7 @@
 // Signature format: 4.0
 package androidx.window.core {
 
-  @kotlin.RequiresOptIn(level=kotlin.RequiresOptIn.Level) @kotlin.annotation.MustBeDocumented @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention) public @interface ExperimentalWindowApi {
+  @kotlin.RequiresOptIn(level=kotlin.RequiresOptIn.Level.WARNING) @kotlin.annotation.MustBeDocumented @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalWindowApi {
   }
 
 }
