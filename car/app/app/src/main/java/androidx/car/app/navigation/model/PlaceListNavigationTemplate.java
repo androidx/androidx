@@ -31,7 +31,6 @@ import androidx.annotation.Nullable;
 import androidx.car.app.Screen;
 import androidx.car.app.SurfaceCallback;
 import androidx.car.app.annotations.CarProtocol;
-import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.model.Action;
 import androidx.car.app.model.ActionStrip;
@@ -132,7 +131,6 @@ public final class PlaceListNavigationTemplate implements Template {
      *
      * @see Builder#setMapActionStrip(ActionStrip)
      */
-    @ExperimentalCarApi
     @RequiresCarApi(4)
     @Nullable
     public ActionStrip getMapActionStrip() {
@@ -143,7 +141,6 @@ public final class PlaceListNavigationTemplate implements Template {
      * Returns the {@link PanModeDelegate} that should be called when the user interacts with
      * pan mode on this template, or {@code null} if a {@link PanModeListener} was not set.
      */
-    @ExperimentalCarApi
     @RequiresCarApi(4)
     @Nullable
     public PanModeDelegate getPanModeDelegate() {
@@ -392,7 +389,6 @@ public final class PlaceListNavigationTemplate implements Template {
          *                                  requirements
          * @throws NullPointerException     if {@code actionStrip} is {@code null}
          */
-        @ExperimentalCarApi
         @RequiresCarApi(4)
         @NonNull
         public Builder setMapActionStrip(@NonNull ActionStrip actionStrip) {
@@ -414,7 +410,6 @@ public final class PlaceListNavigationTemplate implements Template {
          * @throws NullPointerException if {@code panModeListener} is {@code null}
          */
         @SuppressLint({"MissingGetterMatchingBuilder", "ExecutorRegistration"})
-        @ExperimentalCarApi
         @RequiresCarApi(4)
         @NonNull
         public Builder setPanModeListener(@NonNull PanModeListener panModeListener) {
