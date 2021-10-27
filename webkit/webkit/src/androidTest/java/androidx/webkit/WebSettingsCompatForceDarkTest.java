@@ -37,6 +37,7 @@ import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -197,6 +198,7 @@ public class WebSettingsCompatForceDarkTest {
      * i.e. web contents are darkened by a user agent if there is no dark web theme.
      */
     @Test
+    @Ignore("Disabled due to b/202546063")
     public void testForceDark_preferWebThemeOverUADarkening() {
         WebkitUtils.checkFeature(WebViewFeature.FORCE_DARK);
         WebkitUtils.checkFeature(WebViewFeature.FORCE_DARK_STRATEGY);
