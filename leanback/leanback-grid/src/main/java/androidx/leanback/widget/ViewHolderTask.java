@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017 The Android Open Source Project
+ * Copyright 2021 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,21 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package androidx.leanback.widget;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
 
-import android.view.View;
-
-import androidx.annotation.IntDef;
-import androidx.annotation.RestrictTo;
-
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-
-/** @hide */
-@RestrictTo(LIBRARY_GROUP_PREFIX)
-@IntDef({View.VISIBLE, View.INVISIBLE, View.GONE})
-@Retention(RetentionPolicy.SOURCE)
-public @interface Visibility {}
+/**
+ * Interface for schedule task on a ViewHolder.
+ */
+public interface ViewHolderTask {
+    /**
+     * Runs the task.
+     */
+    void run(@NonNull RecyclerView.ViewHolder viewHolder);
+}

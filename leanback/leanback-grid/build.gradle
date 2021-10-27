@@ -1,3 +1,19 @@
+/*
+ * Copyright 2021 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 import androidx.build.LibraryGroups
 import androidx.build.LibraryVersions
 import androidx.build.Publish
@@ -7,32 +23,21 @@ plugins {
     id("com.android.library")
 }
 
-android {
-    defaultConfig {
-        multiDexEnabled true
-    }
-}
-
 dependencies {
     api("androidx.annotation:annotation:1.1.0")
-    api("androidx.interpolator:interpolator:1.0.0")
     api("androidx.core:core:1.1.0")
-    api(project(":leanback:leanback-grid"))
-    api("androidx.media:media:1.0.0")
-    api("androidx.fragment:fragment:1.0.0")
-    api("androidx.recyclerview:recyclerview:1.2.0-rc01")
-    api("androidx.appcompat:appcompat:1.0.0")
+    api("androidx.recyclerview:recyclerview:1.2.1")
+    implementation("androidx.collection:collection:1.0.0")
 
-    // To avoid manifest merger warnings due to duplicate package names
-    // It can be removed if appcompat library is updated to a newer version
-    implementation("androidx.vectordrawable:vectordrawable-animated:1.1.0")
+    constraints {
+        // TODO: Mention min version for leanback.
+        implementation(project(":leanback:leanback"))
+    }
 
-    androidTestImplementation(libs.kotlinStdlib)
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.testRules)
-    androidTestImplementation(libs.multidex)
     androidTestImplementation(libs.espressoCore, excludes.espresso)
     androidTestImplementation(libs.mockitoCore, excludes.bytebuddy) // DexMaker has it"s own MockMaker
     androidTestImplementation(libs.dexmakerMockito, excludes.bytebuddy) // DexMaker has it"s own MockMaker
@@ -45,22 +50,13 @@ android {
     defaultConfig {
         minSdkVersion 17
     }
-
-    sourceSets {
-        main.java.srcDirs += [
-                "common",
-                "kitkat",
-                "api21",
-        ]
-    }
 }
 
 androidx {
-    name = "Android Support Leanback v17"
+    name = "AndroidX Leanback Grid"
     publish = Publish.SNAPSHOT_AND_RELEASE
     mavenGroup = LibraryGroups.LEANBACK
-    mavenVersion = LibraryVersions.LEANBACK
-    inceptionYear = "2014"
-    description = "Android Support Leanback v17"
-    failOnDeprecationWarnings = false
+    mavenVersion = LibraryVersions.LEANBACK_GRID
+    inceptionYear = "2021"
+    description = "This library adds grid view components to be used in TV"
 }

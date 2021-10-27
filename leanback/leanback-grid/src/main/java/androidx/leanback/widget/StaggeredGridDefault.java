@@ -1,15 +1,17 @@
 /*
- * Copyright (C) 2014 The Android Open Source Project
+ * Copyright 2021 The Android Open Source Project
  *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
- * in compliance with the License. You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software distributed under the License
- * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
- * or implied. See the License for the specific language governing permissions and limitations under
- * the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package androidx.leanback.widget;
 
@@ -31,27 +33,27 @@ final class StaggeredGridDefault extends StaggeredGrid {
         }
         if (mReversedFlow) {
             int edge = mProvider.getEdge(mFirstVisibleIndex);
-            if (getLocation(mFirstVisibleIndex).row == rowIndex) {
+            if (getLocation(mFirstVisibleIndex).mRow == rowIndex) {
                 return edge;
             }
             for (int i = mFirstVisibleIndex + 1; i <= getLastIndex(); i++) {
                 Location loc = getLocation(i);
-                edge += loc.offset;
-                if (loc.row == rowIndex) {
+                edge += loc.mOffset;
+                if (loc.mRow == rowIndex) {
                     return edge;
                 }
             }
         } else {
             int edge = mProvider.getEdge(mLastVisibleIndex);
             Location loc = getLocation(mLastVisibleIndex);
-            if (loc.row == rowIndex) {
-                return edge + loc.size;
+            if (loc.mRow == rowIndex) {
+                return edge + loc.mSize;
             }
             for (int i = mLastVisibleIndex - 1; i >= getFirstIndex(); i--) {
-                edge -= loc.offset;
+                edge -= loc.mOffset;
                 loc = getLocation(i);
-                if (loc.row == rowIndex) {
-                    return edge + loc.size;
+                if (loc.mRow == rowIndex) {
+                    return edge + loc.mSize;
                 }
             }
         }
@@ -69,25 +71,25 @@ final class StaggeredGridDefault extends StaggeredGrid {
         if (mReversedFlow) {
             int edge = mProvider.getEdge(mLastVisibleIndex);
             Location loc = getLocation(mLastVisibleIndex);
-            if (loc.row == rowIndex) {
-                return edge - loc.size;
+            if (loc.mRow == rowIndex) {
+                return edge - loc.mSize;
             }
             for (int i = mLastVisibleIndex - 1; i >= getFirstIndex(); i--) {
-                edge -= loc.offset;
+                edge -= loc.mOffset;
                 loc = getLocation(i);
-                if (loc.row == rowIndex) {
-                    return edge - loc.size;
+                if (loc.mRow == rowIndex) {
+                    return edge - loc.mSize;
                 }
             }
         } else {
             int edge = mProvider.getEdge(mFirstVisibleIndex);
-            if (getLocation(mFirstVisibleIndex).row == rowIndex) {
+            if (getLocation(mFirstVisibleIndex).mRow == rowIndex) {
                 return edge;
             }
-            for (int i = mFirstVisibleIndex + 1; i <= getLastIndex() ; i++) {
+            for (int i = mFirstVisibleIndex + 1; i <= getLastIndex(); i++) {
                 Location loc = getLocation(i);
-                edge += loc.offset;
-                if (loc.row == rowIndex) {
+                edge += loc.mOffset;
+                if (loc.mRow == rowIndex) {
                     return edge;
                 }
             }
@@ -104,7 +106,7 @@ final class StaggeredGridDefault extends StaggeredGrid {
         int value;
         int edge = mProvider.getEdge(indexLimit);
         Location loc = getLocation(indexLimit);
-        int row = loc.row;
+        int row = loc.mRow;
         int index = indexLimit;
         int visitedRows = 1;
         int visitRow = row;
@@ -112,9 +114,9 @@ final class StaggeredGridDefault extends StaggeredGrid {
             value = edge;
             for (int i = indexLimit + 1; visitedRows < mNumRows && i <= mLastVisibleIndex; i++) {
                 loc = getLocation(i);
-                edge += loc.offset;
-                if (loc.row != visitRow) {
-                    visitRow = loc.row;
+                edge += loc.mOffset;
+                if (loc.mRow != visitRow) {
+                    visitRow = loc.mRow;
                     visitedRows++;
                     if (findLarge ? edge > value : edge < value) {
                         row = visitRow;
@@ -126,10 +128,10 @@ final class StaggeredGridDefault extends StaggeredGrid {
         } else {
             value = edge + mProvider.getSize(indexLimit);
             for (int i = indexLimit - 1; visitedRows < mNumRows && i >= mFirstVisibleIndex; i--) {
-                edge -= loc.offset;
+                edge -= loc.mOffset;
                 loc = getLocation(i);
-                if (loc.row != visitRow) {
-                    visitRow = loc.row;
+                if (loc.mRow != visitRow) {
+                    visitRow = loc.mRow;
                     visitedRows++;
                     int newValue = edge + mProvider.getSize(i);
                     if (findLarge ? newValue > value : newValue < value) {
@@ -156,17 +158,17 @@ final class StaggeredGridDefault extends StaggeredGrid {
         int value;
         int edge = mProvider.getEdge(indexLimit);
         Location loc = getLocation(indexLimit);
-        int row = loc.row;
+        int row = loc.mRow;
         int index = indexLimit;
         int visitedRows = 1;
         int visitRow = row;
         if (mReversedFlow) {
             value = edge - mProvider.getSize(indexLimit);
             for (int i = indexLimit - 1; visitedRows < mNumRows && i >= mFirstVisibleIndex; i--) {
-                edge -= loc.offset;
+                edge -= loc.mOffset;
                 loc = getLocation(i);
-                if (loc.row != visitRow) {
-                    visitRow = loc.row;
+                if (loc.mRow != visitRow) {
+                    visitRow = loc.mRow;
                     visitedRows++;
                     int newValue = edge - mProvider.getSize(i);
                     if (findLarge ? newValue > value : newValue < value) {
@@ -180,9 +182,9 @@ final class StaggeredGridDefault extends StaggeredGrid {
             value = edge;
             for (int i = indexLimit + 1; visitedRows < mNumRows && i <= mLastVisibleIndex; i++) {
                 loc = getLocation(i);
-                edge += loc.offset;
-                if (loc.row != visitRow) {
-                    visitRow = loc.row;
+                edge += loc.mOffset;
+                if (loc.mRow != visitRow) {
+                    visitRow = loc.mRow;
                     visitedRows++;
                     if (findLarge ? edge > value : edge < value) {
                         value = edge;
@@ -203,7 +205,7 @@ final class StaggeredGridDefault extends StaggeredGrid {
         boolean wrapped = false;
         if (append) {
             for (int index = mLastVisibleIndex; index >= mFirstVisibleIndex; index--) {
-                int row = getLocation(index).row;
+                int row = getLocation(index).mRow;
                 if (row == 0) {
                     wrapped = true;
                 } else if (wrapped && row == mNumRows - 1) {
@@ -212,7 +214,7 @@ final class StaggeredGridDefault extends StaggeredGrid {
             }
         } else {
             for (int index = mFirstVisibleIndex; index <= mLastVisibleIndex; index++) {
-                int row = getLocation(index).row;
+                int row = getLocation(index).mRow;
                 if (row == mNumRows - 1) {
                     wrapped = true;
                 } else if (wrapped && row == 0) {
@@ -236,7 +238,7 @@ final class StaggeredGridDefault extends StaggeredGrid {
                 return false;
             }
             itemIndex = mLastVisibleIndex + 1;
-            rowIndex = getLocation(mLastVisibleIndex).row;
+            rowIndex = getLocation(mLastVisibleIndex).mRow;
             // find start item index of "previous column"
             int edgeLimitSearchIndex = findRowEdgeLimitSearchIndex(true);
             if (edgeLimitSearchIndex < 0) {
@@ -267,7 +269,7 @@ final class StaggeredGridDefault extends StaggeredGrid {
         } else {
             itemIndex = mStartIndex != START_DEFAULT ? mStartIndex : 0;
             // if there are cached items,  put on next row of last cached item.
-            rowIndex = (mLocations.size() > 0 ? getLocation(getLastIndex()).row + 1 : itemIndex)
+            rowIndex = (mLocations.size() > 0 ? getLocation(getLastIndex()).mRow + 1 : itemIndex)
                     % mNumRows;
             edgeLimit = 0;
             edgeLimitIsValid = false;
@@ -287,12 +289,14 @@ final class StaggeredGridDefault extends StaggeredGrid {
                 if (location == Integer.MAX_VALUE || location == Integer.MIN_VALUE) {
                     // nothing on the row
                     if (rowIndex == 0) {
-                        location = mReversedFlow ? getRowMin(mNumRows - 1) : getRowMax(mNumRows - 1);
+                        location = mReversedFlow ? getRowMin(mNumRows - 1) : getRowMax(
+                                mNumRows - 1);
                         if (location != Integer.MAX_VALUE && location != Integer.MIN_VALUE) {
                             location = location + (mReversedFlow ? -mSpacing : mSpacing);
                         }
                     } else {
-                        location = mReversedFlow ? getRowMax(rowIndex - 1) : getRowMin(rowIndex - 1);
+                        location = mReversedFlow ? getRowMax(rowIndex - 1) : getRowMin(
+                                rowIndex - 1);
                     }
                 } else {
                     location = location + (mReversedFlow ? -mSpacing : mSpacing);
@@ -304,10 +308,11 @@ final class StaggeredGridDefault extends StaggeredGrid {
                 if (edgeLimitIsValid) {
                     while (mReversedFlow ? location - size > edgeLimit :
                             location + size < edgeLimit) {
-                        if (itemIndex == count || (!oneColumnMode && checkAppendOverLimit(toLimit))) {
+                        if (itemIndex == count || (!oneColumnMode && checkAppendOverLimit(
+                                toLimit))) {
                             return filledOne;
                         }
-                        location = location + (mReversedFlow ? - size - mSpacing : size + mSpacing);
+                        location = location + (mReversedFlow ? -size - mSpacing : size + mSpacing);
                         size = appendVisibleItemToRow(itemIndex++, rowIndex, location);
                     }
                 } else {
@@ -336,7 +341,7 @@ final class StaggeredGridDefault extends StaggeredGrid {
                 return false;
             }
             itemIndex = mFirstVisibleIndex - 1;
-            rowIndex = getLocation(mFirstVisibleIndex).row;
+            rowIndex = getLocation(mFirstVisibleIndex).mRow;
             // find start item index of "previous column"
             int edgeLimitSearchIndex = findRowEdgeLimitSearchIndex(false);
             if (edgeLimitSearchIndex < 0) {
@@ -369,7 +374,7 @@ final class StaggeredGridDefault extends StaggeredGrid {
         } else {
             itemIndex = mStartIndex != START_DEFAULT ? mStartIndex : 0;
             // if there are cached items,  put on previous row of first cached item.
-            rowIndex = (mLocations.size() > 0 ? getLocation(getFirstIndex()).row + mNumRows - 1
+            rowIndex = (mLocations.size() > 0 ? getLocation(getFirstIndex()).mRow + mNumRows - 1
                     : itemIndex) % mNumRows;
             edgeLimit = 0;
             edgeLimitIsValid = false;
@@ -393,7 +398,8 @@ final class StaggeredGridDefault extends StaggeredGrid {
                             location = location + (mReversedFlow ? mSpacing : -mSpacing);
                         }
                     } else {
-                        location = mReversedFlow ? getRowMin(rowIndex + 1) : getRowMax(rowIndex + 1);
+                        location = mReversedFlow ? getRowMin(rowIndex + 1) : getRowMax(
+                                rowIndex + 1);
                     }
                 } else {
                     location = location + (mReversedFlow ? mSpacing : -mSpacing);
@@ -425,6 +431,4 @@ final class StaggeredGridDefault extends StaggeredGrid {
             rowIndex = mNumRows - 1;
         }
     }
-
-
 }

@@ -503,6 +503,7 @@ includeProject(":jetifier:jetifier-preprocessor", "jetifier/jetifier/preprocesso
 includeProject(":jetifier:jetifier-processor", "jetifier/jetifier/processor", [BuildType.MAIN])
 includeProject(":jetifier:jetifier-standalone", "jetifier/jetifier/standalone", [BuildType.MAIN])
 includeProject(":leanback:leanback", "leanback/leanback", [BuildType.MAIN])
+includeProject(":leanback:leanback-grid", "leanback/leanback-grid", [BuildType.MAIN])
 includeProject(":leanback:leanback-paging", "leanback/leanback-paging", [BuildType.MAIN])
 includeProject(":leanback:leanback-preference", "leanback/leanback-preference", [BuildType.MAIN])
 includeProject(":leanback:leanback-tab", "leanback/leanback-tab", [BuildType.MAIN])

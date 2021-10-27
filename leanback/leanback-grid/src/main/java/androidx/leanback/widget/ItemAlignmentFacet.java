@@ -1,28 +1,28 @@
 /*
- * Copyright (C) 2015 The Android Open Source Project
+ * Copyright 2021 The Android Open Source Project
  *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
- * in compliance with the License. You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software distributed under the License
- * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
- * or implied. See the License for the specific language governing permissions and limitations under
- * the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package androidx.leanback.widget;
 
 import android.view.View;
 
-import androidx.recyclerview.widget.RecyclerView;
+import androidx.annotation.NonNull;
 
 /**
- * Optional facet provided by {@link RecyclerView.Adapter} or {@link RecyclerView.ViewHolder} for
- * use in {@link HorizontalGridView} and {@link VerticalGridView}. Apps using {@link Presenter} may
- * set facet using {@link Presenter#setFacet(Class, Object)} or
- * {@link Presenter.ViewHolder#setFacet(Class, Object)}. Facet on ViewHolder has a higher priority
- * than Presenter or Adapter.
+ * Optional facet provided by {@link androidx.recyclerview.widget.RecyclerView.Adapter} or
+ * {@link androidx.recyclerview.widget.RecyclerView.ViewHolder} for
+ * use in {@link HorizontalGridView} and {@link VerticalGridView}.
  * <p>
  * ItemAlignmentFacet contains single or multiple {@link ItemAlignmentDef}s. First
  * {@link ItemAlignmentDef} describes the default alignment position for ViewHolder, it also
@@ -39,7 +39,7 @@ public final class ItemAlignmentFacet {
     /**
      * Value indicates that percent is not used. Equivalent to 0.
      */
-    public final static float ITEM_ALIGN_OFFSET_PERCENT_DISABLED = -1;
+    public static final float ITEM_ALIGN_OFFSET_PERCENT_DISABLED = -1;
 
     /**
      * Definition of an alignment position under a view.
@@ -54,6 +54,7 @@ public final class ItemAlignmentFacet {
 
         /**
          * Sets number of pixels to the end of low edge. Supports right to left layout direction.
+         *
          * @param offset In left to right or vertical case, it's the offset added to left/top edge.
          *               In right to left case, it's the offset subtracted from right edge.
          */
@@ -65,6 +66,7 @@ public final class ItemAlignmentFacet {
          * Returns number of pixels to the end of low edge. Supports right to left layout direction.
          * In left to right or vertical case, it's the offset added to left/top edge. In right to
          * left case, it's the offset subtracted from right edge.
+         *
          * @return Number of pixels to the end of low edge.
          */
         public final int getItemAlignmentOffset() {
@@ -153,6 +155,7 @@ public final class ItemAlignmentFacet {
         /**
          * Sets Id of which child view take focus for alignment.  When not set, it will use
          * use same id of {@link #getItemAlignmentViewId()}.
+         *
          * @param viewId The id of child view that will be focused to.
          */
         public final void setItemAlignmentFocusViewId(int viewId) {
@@ -170,6 +173,7 @@ public final class ItemAlignmentFacet {
         /**
          * When true, align to {@link View#getBaseline()} for the view of with id equals
          * {@link #getItemAlignmentViewId()}; false otherwise.
+         *
          * @param alignToBaseline Boolean indicating whether to align to view baseline.
          */
         public final void setAlignedToTextViewBaseline(boolean alignToBaseline) {
@@ -193,7 +197,8 @@ public final class ItemAlignmentFacet {
     /**
      * Sets definitions of alignment positions.
      */
-    public void setAlignmentDefs(ItemAlignmentDef[] defs) {
+    public void setAlignmentDefs(
+            @SuppressWarnings("ArrayReturn") @NonNull ItemAlignmentDef[] defs) {
         if (defs == null || defs.length < 1) {
             throw new IllegalArgumentException();
         }
@@ -203,8 +208,9 @@ public final class ItemAlignmentFacet {
     /**
      * Returns read only definitions of alignment positions.
      */
+    @SuppressWarnings("ArrayReturn")
+    @NonNull
     public ItemAlignmentDef[] getAlignmentDefs() {
         return mAlignmentDefs;
     }
-
 }
