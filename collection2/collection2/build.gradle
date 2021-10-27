@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryGroups
-import me.champeau.gradle.japicmp.JapicmpTask
 
-import static androidx.build.dependencies.DependenciesKt.*
+import androidx.build.LibraryGroups
 import androidx.build.Publish
 import androidx.build.RunApiTasks
+import me.champeau.gradle.japicmp.JapicmpTask
+import org.jetbrains.kotlin.gradle.tasks.KotlinNativeCompile
 
 buildscript {
     dependencies {
@@ -45,6 +45,8 @@ def enableMac = project.properties['androidx.kmp.mac.enabled']?.toBoolean() ?: g
 
 def enableJs = project.properties['androidx.kmp.js.enabled']?.toBoolean() ?: githubBuild
 
+def enableLinux = project.properties['androidx.kmp.linux.enabled']?.toBoolean() ?: githubBuild
+
 kotlin {
     jvm {
         withJava()
@@ -64,6 +66,10 @@ kotlin {
         js {
             nodejs()
         }
+    }
+
+    if (enableLinux) {
+        linuxX64()
     }
 
     if (githubBuild) {
@@ -93,7 +99,7 @@ kotlin {
             }
         }
 
-        if (githubBuild || enableMac || enableJs) {
+        if (githubBuild || enableMac || enableJs || enableLinux) {
             nonJvmMain {
                 // Used for JS and all native targets.
                 dependencies {
@@ -108,13 +114,19 @@ kotlin {
             }
         }
 
-        if (githubBuild) {
-            configure([linuxX64Main, mingwX64Main, iosX64Main, iosArm32Main, iosArm64Main]) {
+        if (enableLinux) {
+            configure([linuxX64Main]) {
                 dependsOn nonJvmMain
             }
         }
 
-        if (githubBuild || enableMac) {
+        if (githubBuild) {
+            configure([mingwX64Main, iosX64Main, iosArm32Main, iosArm64Main]) {
+                dependsOn nonJvmMain
+            }
+        }
+
+        if (githubBuild || enableMac || enableLinux) {
             nativeTest // Used for all native targets.
         }
 
@@ -124,8 +136,14 @@ kotlin {
             }
         }
 
+	if (enableLinux) {
+            configure([linuxX64Test]) {
+                dependsOn nativeTest
+            }
+        }
+
         if (githubBuild) {
-            configure([linuxX64Test, mingwX64Test, iosX64Test, iosArm32Test, iosArm64Test]) {
+            configure([mingwX64Test, iosX64Test, iosArm32Test, iosArm64Test]) {
                 dependsOn nativeTest
             }
         }
