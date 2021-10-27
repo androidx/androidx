@@ -20,6 +20,7 @@ package androidx.work
 
 import androidx.concurrent.futures.ResolvableFuture
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.FlakyTest
 import androidx.test.filters.SmallTest
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
@@ -81,6 +82,7 @@ class ListenableFutureTest {
         }
     }
 
+    @FlakyTest(bugId = 203776153)
     @OptIn(DelicateCoroutinesApi::class)
     @Test
     fun testCoroutineScopeCancellation() {
