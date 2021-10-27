@@ -94,6 +94,7 @@ package androidx.navigation {
     method @MainThread public final boolean clearBackStack(String route);
     method @MainThread public final boolean clearBackStack(@IdRes int destinationId);
     method public androidx.navigation.NavDeepLinkBuilder createDeepLink();
+    method @androidx.navigation.NavDeepLinkSaveStateControl public static final void enableDeepLinkSaveState(boolean saveState);
     method public androidx.navigation.NavBackStackEntry getBackStackEntry(@IdRes int destinationId);
     method public final androidx.navigation.NavBackStackEntry getBackStackEntry(String route);
     method public androidx.navigation.NavBackStackEntry? getCurrentBackStackEntry();
@@ -149,6 +150,7 @@ package androidx.navigation {
   }
 
   public static final class NavController.Companion {
+    method @androidx.navigation.NavDeepLinkSaveStateControl public void enableDeepLinkSaveState(boolean saveState);
   }
 
   public static fun interface NavController.OnDestinationChangedListener {
@@ -180,6 +182,9 @@ package androidx.navigation {
     method public androidx.navigation.NavDeepLinkBuilder setDestination(String destRoute);
     method public androidx.navigation.NavDeepLinkBuilder setGraph(@NavigationRes int navGraphId);
     method public androidx.navigation.NavDeepLinkBuilder setGraph(androidx.navigation.NavGraph navGraph);
+  }
+
+  @kotlin.RequiresOptIn(level=kotlin.RequiresOptIn.Level) @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention) @kotlin.annotation.Target(allowedTargets=kotlin.annotation.AnnotationTarget) public @interface NavDeepLinkSaveStateControl {
   }
 
   public interface NavHost {
