@@ -65,6 +65,8 @@ import androidx.camera.testing.SurfaceFormatUtil;
 import androidx.camera.testing.fakes.FakeActivity;
 import androidx.camera.testing.fakes.FakeCamera;
 import androidx.camera.testing.fakes.FakeCameraInfoInternal;
+import androidx.camera.view.internal.compat.quirk.DeviceQuirks;
+import androidx.camera.view.internal.compat.quirk.SurfaceViewStretchedQuirk;
 import androidx.camera.view.test.R;
 import androidx.core.content.ContextCompat;
 import androidx.test.annotation.UiThreadTest;
@@ -395,6 +397,7 @@ public class PreviewViewDeviceTest {
     @UiThreadTest
     public void usesSurfaceView_whenNonLegacyDevice_andAPILevelNewerThanN() {
         assumeTrue(Build.VERSION.SDK_INT > 24);
+        assumeTrue(DeviceQuirks.get(SurfaceViewStretchedQuirk.class) == null);
         final CameraInfoInternal cameraInfo =
                 createCameraInfo(CameraInfo.IMPLEMENTATION_TYPE_CAMERA2);
 
