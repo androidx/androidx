@@ -72,7 +72,7 @@ final class ImageProcessingUtil {
     public static ImageProxy convertYUVToRGB(
             @NonNull ImageProxy imageProxy,
             @NonNull ImageReaderProxy rgbImageReaderProxy,
-            @NonNull ByteBuffer rgbConvertedBuffer,
+            @Nullable ByteBuffer rgbConvertedBuffer,
             @IntRange(from = 0, to = 359) int rotationDegrees,
             boolean onePixelShiftEnabled) {
         if (!isSupportedYUVFormat(imageProxy)) {
@@ -223,7 +223,7 @@ final class ImageProcessingUtil {
     private static Result convertYUVToRGBInternal(
             @NonNull ImageProxy imageProxy,
             @NonNull Surface surface,
-            @NonNull ByteBuffer rgbConvertedBuffer,
+            @Nullable ByteBuffer rgbConvertedBuffer,
             @ImageOutputConfig.RotationDegreesValue int rotation,
             boolean onePixelShiftEnabled) {
         int imageWidth = imageProxy.getWidth();
@@ -358,7 +358,7 @@ final class ImageProcessingUtil {
             int srcPixelStrideY,
             int srcPixelStrideUV,
             @NonNull Surface surface,
-            @NonNull ByteBuffer convertedByteBufferRGB,
+            @Nullable ByteBuffer convertedByteBufferRGB,
             int width,
             int height,
             int startOffsetY,

@@ -1,3 +1,19 @@
+/*
+ * Copyright 2021 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 #include <jni.h>
 #include <string>
 #include <android/log.h>
@@ -158,8 +174,8 @@ JNIEXPORT jint Java_androidx_camera_core_ImageProcessingUtil_nativeConvertAndroi
     bool has_rotation = rotation != 0;
 
     uint8_t* buffer_ptr = reinterpret_cast<uint8_t*>(buffer.bits);
-    uint8_t* converted_buffer_ptr = static_cast<uint8_t*>(env->GetDirectBufferAddress(
-            converted_buffer));
+    uint8_t* converted_buffer_ptr = (has_rotation && converted_buffer != NULL)
+            ? static_cast<uint8_t*>(env->GetDirectBufferAddress(converted_buffer)) : nullptr;
 
     uint8_t* dst_ptr = has_rotation ? converted_buffer_ptr : buffer_ptr;
     int dst_stride_y = has_rotation ? (width * 4) : (buffer.stride * 4);
