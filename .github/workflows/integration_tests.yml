@@ -7,7 +7,7 @@ on:
 jobs:
   run_integration_tests:
     runs-on: ubuntu-latest
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    if: ${{ !github.event.repository.fork && github.event.workflow_run.conclusion == 'success' }}
     name: Run integration tests on FTL
     steps:
       - name: Set up JDK 11
@@ -33,7 +33,7 @@ jobs:
   teardown:
     runs-on: ubuntu-latest
     needs: [run_integration_tests]
-    if: always()
+    if: ${{ !github.event.repository.fork && always() }} # always() is required so that this job will run irrespective of status of upstream 'run_integration_test' job.
     steps:
       - name: Parse workflow status
         id: workflow-status
