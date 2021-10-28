@@ -57,7 +57,6 @@ class CachingTest {
     @After
     fun checkResources() {
         testScope.cleanupTestCoroutines()
-        assertThat(tracker.pageEventFlowCount()).isEqualTo(0)
     }
 
     @Test
@@ -606,6 +605,9 @@ class CachingTest {
             PAGED_DATA_FLOW to AtomicInteger(0),
             PAGE_EVENT_FLOW to AtomicInteger(0)
         )
+
+        override fun onNewCachedEventFlow(cachedPageEventFlow: CachedPageEventFlow<*>) {
+        }
 
         override suspend fun onStart(flowType: FlowType) {
             (counters[flowType] ?: error("invalid type $flowType")).incrementAndGet()
