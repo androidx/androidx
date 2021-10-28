@@ -58,7 +58,7 @@ import androidx.annotation.RestrictTo;
  * </code></pre>
  * </li></ul></p>
  *
- * <h3>Creating a custom action provider</h3>
+ * ### Creating a custom action provider
  *
  * <p>To create a custom action provider, extend ActionProvider and implement
  * its callback methods as necessary. In particular, implement the following
