@@ -23,9 +23,7 @@ import static java.util.Objects.requireNonNull;
 import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.OptIn;
 import androidx.car.app.annotations.CarProtocol;
-import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.model.Action.ActionType;
 import androidx.car.app.model.constraints.CarTextConstraints;
 import androidx.car.app.utils.CollectionUtils;
@@ -134,7 +132,6 @@ public final class ActionStrip {
          * @throws NullPointerException     if {@code action} is {@code null}
          */
         @NonNull
-        @OptIn(markerClass = ExperimentalCarApi.class)
         public Builder addAction(@NonNull Action action) {
             Action actionObj = requireNonNull(action);
             int actionType = actionObj.getType();

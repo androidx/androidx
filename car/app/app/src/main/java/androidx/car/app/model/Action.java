@@ -32,11 +32,9 @@ import androidx.annotation.IntDef;
 import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.OptIn;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.CarContext;
 import androidx.car.app.annotations.CarProtocol;
-import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.model.constraints.CarIconConstraints;
 import androidx.lifecycle.LifecycleOwner;
@@ -87,9 +85,6 @@ public final class Action {
      *
      * @hide
      */
-    // TODO(b/201548973): Remove this annotation once set/getFlags are ready
-    @ExperimentalCarApi
-    @RequiresCarApi(4)
     @RestrictTo(LIBRARY)
     @IntDef(
             flag = true,
@@ -134,8 +129,6 @@ public final class Action {
      * look and feel. See the documentation on where the {@link Action} is added for more details on
      * any restriction(s) that might apply.
      */
-    // TODO(b/201548973): Remove this annotation once set/getFlags are ready
-    @ExperimentalCarApi
     @RequiresCarApi(4)
     public static final int FLAG_PRIMARY = 1 << 0;
 
@@ -231,8 +224,6 @@ public final class Action {
     }
 
     /** Returns flags affecting how this action should be treated */
-    // TODO(b/201548973): Remove this annotation once set/getFlags are ready
-    @ExperimentalCarApi
     @RequiresCarApi(4)
     @ActionFlag
     public int getFlags() {
@@ -279,7 +270,6 @@ public final class Action {
     }
 
     /** Convenience constructor for standard action singletons. */
-    @OptIn(markerClass = ExperimentalCarApi.class)
     private Action(@ActionType int type) {
         if (type == TYPE_CUSTOM) {
             throw new IllegalArgumentException(
@@ -304,7 +294,6 @@ public final class Action {
     }
 
     /** Constructs an empty instance, used by serialization code. */
-    @OptIn(markerClass = ExperimentalCarApi.class)
     private Action() {
         mTitle = null;
         mIcon = null;
@@ -343,7 +332,6 @@ public final class Action {
     }
 
     /** A builder of {@link Action}. */
-    @OptIn(markerClass = ExperimentalCarApi.class)
     public static final class Builder {
         @Nullable
         CarText mTitle;
@@ -451,8 +439,6 @@ public final class Action {
 
         /** Sets flags affecting how this action should be treated. */
         @NonNull
-        // TODO(b/201548973): Remove this annotation once set/getFlags are ready
-        @ExperimentalCarApi
         @RequiresCarApi(4)
         public Builder setFlags(@ActionFlag int flags) {
             mFlags |= flags;
@@ -510,8 +496,6 @@ public final class Action {
          * @throws NullPointerException if {@code action} is {@code null}
          */
         @RequiresCarApi(2)
-        // TODO(b/201548973): Remove this annotation once set/getFlags are ready
-        @OptIn(markerClass = ExperimentalCarApi.class)
         public Builder(@NonNull Action action) {
             requireNonNull(action);
             mType = action.getType();

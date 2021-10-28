@@ -21,7 +21,6 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import androidx.annotation.IntDef;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.annotations.CarProtocol;
-import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.RequiresCarApi;
 
 import java.lang.annotation.ElementType;
@@ -71,8 +70,6 @@ public final class CarUnit {
      *
      * @hide
      */
-    // TODO(b/202303614): Remove this annotation once FuelVolumeDisplayUnit is ready.
-    @ExperimentalCarApi
     @IntDef({
             MILLILITER,
             LITER,
@@ -86,26 +83,18 @@ public final class CarUnit {
     }
 
     /** Milliliter unit. */
-    // TODO(b/202303614): Remove this annotation once FuelVolumeDisplayUnit is ready.
-    @ExperimentalCarApi
     @CarVolumeUnit
     public static final int MILLILITER = 201;
 
     /** Liter unit. */
-    // TODO(b/202303614): Remove this annotation once FuelVolumeDisplayUnit is ready.
-    @ExperimentalCarApi
     @CarVolumeUnit
     public static final int LITER = 202;
 
     /** US Gallon unit. */
-    // TODO(b/202303614): Remove this annotation once FuelVolumeDisplayUnit is ready.
-    @ExperimentalCarApi
     @CarVolumeUnit
     public static final int US_GALLON = 203;
 
     /** Imperial Gallon unit. */
-    // TODO(b/202303614): Remove this annotation once FuelVolumeDisplayUnit is ready.
-    @ExperimentalCarApi
     @CarVolumeUnit
     public static final int IMPERIAL_GALLON = 204;
 
