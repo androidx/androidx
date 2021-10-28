@@ -224,6 +224,7 @@ package androidx.car.app.hardware {
 package androidx.car.app.hardware.common {
 
   @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.RequiresCarApi(3) public final class CarUnit {
+    method public static String toString(int);
     field public static final int IMPERIAL_GALLON = 204; // 0xcc
     field public static final int KILOMETER = 3; // 0x3
     field public static final int KILOMETERS_PER_HOUR = 102; // 0x66
