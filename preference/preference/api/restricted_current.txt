@@ -445,7 +445,6 @@ package androidx.preference {
     method public androidx.fragment.app.Fragment? onCreateInitialDetailFragment();
     method public abstract androidx.preference.PreferenceFragmentCompat onCreatePreferenceHeader();
     method @CallSuper public boolean onPreferenceStartFragment(androidx.preference.PreferenceFragmentCompat caller, androidx.preference.Preference pref);
-    method public final void openPreference(androidx.preference.Preference header);
     property public final androidx.slidingpanelayout.widget.SlidingPaneLayout slidingPaneLayout;
   }
 
