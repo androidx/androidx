@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.1.0-alpha08" type="baseline" client="gradle" dependencies="false" name="AGP (7.1.0-alpha08)" variant="all" version="7.1.0-alpha08">
+<issues format="6" by="lint 7.2.0-dev" type="baseline" client="gradle" dependencies="false" name="AGP (7.2.0-dev)" variant="all" version="7.2.0-dev">
 
     <issue
         id="BanKeepAnnotation"
@@ -123,6 +123,17 @@
     </issue>
 
     <issue
+        id="VisibleForTests"
+        message="This method should only be accessed from tests or within private scope"
+        errorLine1="        get() = ServiceBackedMeasureClient.getClient(applicationContext)"
+        errorLine2="                                           ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/health/services/client/impl/ServiceBackedHealthServicesClient.kt"
+            line="51"
+            column="44"/>
+    </issue>
+
+    <issue
         id="SyntheticAccessor"
         message="Access to `private` field `mCurrentVersion` of class `Client` requires synthetic accessor"
         errorLine1="                        mCurrentVersion ="
@@ -195,7 +206,7 @@
         errorLine2="                                  ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/health/services/client/impl/ipc/Client.java"
-            line="278"
+            line="279"
             column="35"/>
     </issue>
 
@@ -912,6 +923,39 @@
             file="src/main/java/androidx/health/services/client/impl/ipc/RemoteFutureOperation.java"
             line="44"
             column="29"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Should explicitly declare type here since implicit type does not specify nullness"
+        errorLine1="    override val capabilities: ListenableFuture&lt;ExerciseCapabilities>"
+        errorLine2="                 ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/health/services/client/impl/ServiceBackedExerciseClient.kt"
+            line="160"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Should explicitly declare type here since implicit type does not specify nullness"
+        errorLine1="    override val capabilities: ListenableFuture&lt;MeasureCapabilities>"
+        errorLine2="                 ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/health/services/client/impl/ServiceBackedMeasureClient.kt"
+            line="92"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Should explicitly declare type here since implicit type does not specify nullness"
+        errorLine1="    override val capabilities: ListenableFuture&lt;PassiveMonitoringCapabilities>"
+        errorLine2="                 ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/health/services/client/impl/ServiceBackedPassiveMonitoringClient.kt"
+            line="140"
+            column="18"/>
     </issue>
 
     <issue
