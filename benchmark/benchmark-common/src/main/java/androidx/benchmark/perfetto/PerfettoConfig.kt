@@ -85,7 +85,8 @@ private fun ftraceDataSource(
             }.map {
                 it.tag
             },
-            atrace_apps = atraceApps
+            atrace_apps = atraceApps,
+            compact_sched = FtraceConfig.CompactSchedConfig(enabled = true)
         )
     )
 )
