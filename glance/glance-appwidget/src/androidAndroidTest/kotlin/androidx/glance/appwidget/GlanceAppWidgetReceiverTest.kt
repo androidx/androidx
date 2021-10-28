@@ -18,6 +18,7 @@ package androidx.glance.appwidget
 
 import android.app.Activity
 import android.graphics.Typeface
+import android.graphics.drawable.GradientDrawable
 import android.os.Build
 import android.text.SpannedString
 import android.text.style.StyleSpan
@@ -25,16 +26,23 @@ import android.text.style.TextAppearanceSpan
 import android.text.style.UnderlineSpan
 import android.view.View
 import android.widget.Button
+import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.RelativeLayout
 import android.widget.TextView
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.DpSize
+import androidx.compose.ui.unit.dp
+import androidx.glance.GlanceModifier
 import androidx.glance.LocalContext
 import androidx.glance.LocalSize
-import androidx.glance.GlanceModifier
 import androidx.glance.action.actionLaunchActivity
+import androidx.glance.appwidget.test.R
 import androidx.glance.layout.Box
 import androidx.glance.layout.Button
 import androidx.glance.layout.Column
+import androidx.glance.layout.Image
+import androidx.glance.layout.ImageProvider
 import androidx.glance.layout.Row
 import androidx.glance.layout.Text
 import androidx.glance.layout.fillMaxHeight
@@ -46,9 +54,6 @@ import androidx.glance.text.FontStyle
 import androidx.glance.text.FontWeight
 import androidx.glance.text.TextDecoration
 import androidx.glance.text.TextStyle
-import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.DpSize
-import androidx.compose.ui.unit.dp
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
@@ -396,6 +401,23 @@ class GlanceAppWidgetReceiverTest {
             assertThat(button.text).isEqualTo("Button")
             assertThat(button.isEnabled).isFalse()
             assertThat(button.hasOnClickListeners()).isFalse()
+        }
+    }
+
+    @Test
+    fun createImage() {
+        TestGlanceAppWidget.uiDefinition = {
+            Image(provider = ImageProvider(R.drawable.oval), contentDescription = "oval")
+        }
+
+        mHostRule.startHost()
+
+        mHostRule.onHostView { hostView ->
+            assertThat(hostView.childCount).isEqualTo(1)
+            val image = assertIs<ImageView>(hostView.getChildAt(0))
+            assertThat(image.contentDescription).isEqualTo("oval")
+            val gradientDrawable = assertIs<GradientDrawable>(image.getDrawable())
+            assertThat(gradientDrawable.getShape()).isEqualTo(GradientDrawable.OVAL)
         }
     }
 
