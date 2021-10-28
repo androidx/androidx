@@ -56,14 +56,8 @@ internal fun translateEmittableText(
         translationContext,
         layoutDef.mainViewId,
         element.text,
-        element.style
+        element.style,
     )
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-        element.style?.textAlign?.let { align ->
-            TextTranslatorApi31Impl
-                .setTextViewGravity(rv, layoutDef.mainViewId, align.toGravity())
-        }
-    }
     applyModifiers(translationContext, rv, element.modifier, layoutDef)
     return rv
 }
@@ -72,7 +66,8 @@ internal fun RemoteViews.setText(
     translationContext: TranslationContext,
     resId: Int,
     text: String,
-    style: TextStyle?
+    style: TextStyle?,
+    verticalTextGravity: Int = Gravity.TOP,
 ) {
     if (style == null) {
         setTextViewText(resId, text)
@@ -108,8 +103,14 @@ internal fun RemoteViews.setText(
         }
         spans.add(TextAppearanceSpan(translationContext.context, textAppearance))
     }
-    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
-        style.textAlign?.let { align ->
+    style.textAlign?.let { align ->
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            TextTranslatorApi31Impl.setTextViewGravity(
+                this,
+                resId,
+                align.toGravity() or verticalTextGravity
+            )
+        } else {
             spans.add(AlignmentSpan.Standard(align.toAlignment(translationContext.isRtl)))
         }
     }

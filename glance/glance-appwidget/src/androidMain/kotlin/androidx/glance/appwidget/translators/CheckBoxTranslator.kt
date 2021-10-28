@@ -17,6 +17,7 @@
 package androidx.glance.appwidget.translators
 
 import android.os.Build
+import android.view.Gravity
 import android.widget.RemoteViews
 import androidx.glance.appwidget.LayoutSelector
 import androidx.glance.appwidget.R
@@ -54,7 +55,13 @@ internal fun translateEmittableCheckBox(
         rv.setViewEnabled(R.id.checkBoxIcon, element.checked)
     }
 
-    rv.setText(translationContext, textViewId, element.text, element.textStyle)
+    rv.setText(
+        translationContext,
+        textViewId,
+        element.text,
+        element.style,
+        verticalTextGravity = Gravity.CENTER_VERTICAL,
+    )
     applyModifiers(translationContext, rv, element.modifier, layoutDef)
     return rv
 }

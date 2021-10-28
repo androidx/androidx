@@ -85,7 +85,7 @@ package androidx.glance.appwidget.layout {
   }
 
   public final class CheckBoxKt {
-    method @androidx.compose.runtime.Composable public static void CheckBox(boolean checked, optional androidx.glance.GlanceModifier modifier, optional String text, optional androidx.glance.text.TextStyle? textStyle);
+    method @androidx.compose.runtime.Composable public static void CheckBox(boolean checked, optional androidx.glance.GlanceModifier modifier, optional String text, optional androidx.glance.text.TextStyle? style);
   }
 
   @androidx.glance.appwidget.layout.LazyScopeMarker public interface LazyItemScope {
@@ -114,7 +114,7 @@ package androidx.glance.appwidget.layout {
   }
 
   public final class SwitchKt {
-    method @androidx.compose.runtime.Composable public static void Switch(boolean checked, optional androidx.glance.GlanceModifier modifier, optional String text, optional androidx.glance.text.TextStyle? textStyle);
+    method @androidx.compose.runtime.Composable public static void Switch(boolean checked, optional androidx.glance.GlanceModifier modifier, optional String text, optional androidx.glance.text.TextStyle? style);
   }
 
 }
