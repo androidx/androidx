@@ -43,7 +43,6 @@ import androidx.camera.view.CameraController.TAP_TO_FOCUS_STARTED
 import androidx.camera.view.PreviewView
 import androidx.fragment.app.testing.FragmentScenario
 import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.Observer
 import androidx.test.annotation.UiThreadTest
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.Espresso.onView
@@ -71,8 +70,6 @@ import org.junit.runner.RunWith
 import java.util.concurrent.Semaphore
 import java.util.concurrent.TimeUnit
 
-const val TIMEOUT_SECONDS = 3L
-
 /**
  * Instrument tests for [CameraControllerFragment].
  */
@@ -91,6 +88,8 @@ class CameraControllerFragmentTest {
 
         @JvmField
         val testCameraRule = CameraUtil.PreTestCamera()
+
+        const val TIMEOUT_SECONDS = 10L
     }
 
     @get:Rule
@@ -156,19 +155,18 @@ class CameraControllerFragmentTest {
         var finalState = TAP_TO_FOCUS_NOT_STARTED
         instrumentation.runOnMainSync {
             fragment.cameraController.tapToFocusState.observe(
-                fragment,
-                {
-                    // Make sure the LiveData receives STARTED first and then another update.
-                    if (it == TAP_TO_FOCUS_STARTED) {
-                        started = true
-                        return@observe
-                    }
-                    if (started) {
-                        finalState = it
-                        focused.release()
-                    }
+                fragment
+            ) {
+                // Make sure the LiveData receives STARTED first and then another update.
+                if (it == TAP_TO_FOCUS_STARTED) {
+                    started = true
+                    return@observe
                 }
-            )
+                if (started) {
+                    finalState = it
+                    focused.release()
+                }
+            }
         }
 
         // Act: click PreviewView.
@@ -176,7 +174,7 @@ class CameraControllerFragmentTest {
         uiDevice.findObject(UiSelector().resourceId(previewViewId)).click()
 
         // Assert: got a LiveData update
-        assertThat(focused.tryAcquire(6 /* focus time out is 5s */, TimeUnit.SECONDS)).isTrue()
+        assertThat(focused.tryAcquire(TIMEOUT_SECONDS, TimeUnit.SECONDS)).isTrue()
         assertThat(finalState).isAnyOf(
             TAP_TO_FOCUS_FOCUSED,
             TAP_TO_FOCUS_FAILED,
@@ -577,13 +575,12 @@ class CameraControllerFragmentTest {
         val previewStreaming = Semaphore(0)
         instrumentation.runOnMainSync {
             previewView.previewStreamState.observe(
-                this,
-                Observer {
-                    if (it == state) {
-                        previewStreaming.release()
-                    }
+                this
+            ) {
+                if (it == state) {
+                    previewStreaming.release()
                 }
-            )
+            }
         }
         assertThat(previewStreaming.tryAcquire(TIMEOUT_SECONDS, TimeUnit.SECONDS)).isTrue()
     }

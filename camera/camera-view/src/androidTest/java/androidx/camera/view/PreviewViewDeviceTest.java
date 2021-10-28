@@ -110,6 +110,7 @@ public class PreviewViewDeviceTest {
     private static final Size DEFAULT_SURFACE_SIZE = new Size(640, 480);
     private static final Rect DEFAULT_CROP_RECT = new Rect(0, 0, 640, 480);
     private static final Rect SMALLER_CROP_RECT = new Rect(20, 20, 600, 400);
+    private static final int TIMEOUT_SECONDS = 10;
 
     @Rule
     public TestRule mUseCamera = CameraUtil.grantCameraPermissionAndPreTest();
@@ -174,7 +175,7 @@ public class PreviewViewDeviceTest {
             setContentView(previewView);
         });
         // Wait for layout ready
-        assertThat(countDownLatch.await(1, TimeUnit.SECONDS)).isTrue();
+        assertThat(countDownLatch.await(TIMEOUT_SECONDS, TimeUnit.SECONDS)).isTrue();
 
         // Act: set controller then change the scale type.
         mInstrumentation.runOnMainSync(() -> {
@@ -183,7 +184,7 @@ public class PreviewViewDeviceTest {
         });
 
         // Assert: cameraController receives a fit type ViewPort.
-        assertThat(fitTypeSemaphore.tryAcquire(1, TimeUnit.SECONDS)).isTrue();
+        assertThat(fitTypeSemaphore.tryAcquire(TIMEOUT_SECONDS, TimeUnit.SECONDS)).isTrue();
     }
 
     @Test
@@ -204,7 +205,7 @@ public class PreviewViewDeviceTest {
         updateCropRectAndWaitForIdle(DEFAULT_CROP_RECT);
 
         // Assert: OutputTransform is not null.
-        assertThat(countDownLatch.await(1, TimeUnit.SECONDS)).isTrue();
+        assertThat(countDownLatch.await(TIMEOUT_SECONDS, TimeUnit.SECONDS)).isTrue();
         mInstrumentation.runOnMainSync(
                 () -> assertThat(previewView.get().getOutputTransform()).isNotNull());
     }
@@ -221,7 +222,7 @@ public class PreviewViewDeviceTest {
         });
 
         // Assert: OutputTransform is null.
-        assertThat(countDownLatch.await(1, TimeUnit.SECONDS)).isTrue();
+        assertThat(countDownLatch.await(TIMEOUT_SECONDS, TimeUnit.SECONDS)).isTrue();
         mInstrumentation.runOnMainSync(
                 () -> assertThat(previewView.get().getOutputTransform()).isNull());
     }
@@ -256,13 +257,13 @@ public class PreviewViewDeviceTest {
             setContentView(previewView);
         });
         // Wait for layout ready
-        assertThat(countDownLatch.await(1, TimeUnit.SECONDS)).isTrue();
+        assertThat(countDownLatch.await(TIMEOUT_SECONDS, TimeUnit.SECONDS)).isTrue();
 
         // Act: pinch-in 80% in 100 steps.
         mUiDevice.findObject(new UiSelector().index(0)).pinchIn(80, 100);
 
         // Assert: pinch-to-zoom is called.
-        assertThat(semaphore.tryAcquire(1, TimeUnit.SECONDS)).isTrue();
+        assertThat(semaphore.tryAcquire(TIMEOUT_SECONDS, TimeUnit.SECONDS)).isTrue();
     }
 
     @Test
@@ -290,13 +291,13 @@ public class PreviewViewDeviceTest {
             setContentView(previewView);
         });
         // Wait for layout ready
-        assertThat(countDownLatch.await(1, TimeUnit.SECONDS)).isTrue();
+        assertThat(countDownLatch.await(TIMEOUT_SECONDS, TimeUnit.SECONDS)).isTrue();
 
         // Act: click on PreviewView
         mUiDevice.findObject(new UiSelector().index(0)).click();
 
         // Assert: tap-to-focus is invoked.
-        assertThat(semaphore.tryAcquire(1, TimeUnit.SECONDS)).isTrue();
+        assertThat(semaphore.tryAcquire(TIMEOUT_SECONDS, TimeUnit.SECONDS)).isTrue();
     }
 
     @Test
@@ -312,13 +313,13 @@ public class PreviewViewDeviceTest {
             setContentView(previewView);
         });
         // Wait for layout ready
-        assertThat(countDownLatch.await(1, TimeUnit.SECONDS)).isTrue();
+        assertThat(countDownLatch.await(TIMEOUT_SECONDS, TimeUnit.SECONDS)).isTrue();
 
         // Act: click on PreviewView.
         mUiDevice.findObject(new UiSelector().index(0)).click();
 
         // Assert: view is clicked.
-        assertThat(semaphore.tryAcquire(1, TimeUnit.SECONDS)).isTrue();
+        assertThat(semaphore.tryAcquire(TIMEOUT_SECONDS, TimeUnit.SECONDS)).isTrue();
     }
 
     @Test
@@ -365,7 +366,7 @@ public class PreviewViewDeviceTest {
 
         // Assert
         assertThat(previewView.getController()).isEqualTo(newController);
-        assertThat(previewClearSemaphore.tryAcquire(1, TimeUnit.SECONDS)).isTrue();
+        assertThat(previewClearSemaphore.tryAcquire(TIMEOUT_SECONDS, TimeUnit.SECONDS)).isTrue();
     }
 
 
@@ -461,7 +462,7 @@ public class PreviewViewDeviceTest {
             }
         }, CameraXExecutors.directExecutor());
 
-        assertThat(countDownLatch.await(1, TimeUnit.SECONDS)).isTrue();
+        assertThat(countDownLatch.await(TIMEOUT_SECONDS, TimeUnit.SECONDS)).isTrue();
         assertThat(SurfaceFormatUtil.getSurfaceFormat(surface[0])).isEqualTo(PixelFormat.RGBA_8888);
     }
 
@@ -479,7 +480,7 @@ public class PreviewViewDeviceTest {
             surfaceProvider.onSurfaceRequested(createSurfaceRequest(cameraInfo));
         });
         // Wait for layout ready
-        assertThat(countDownLatch.await(1, TimeUnit.SECONDS)).isTrue();
+        assertThat(countDownLatch.await(TIMEOUT_SECONDS, TimeUnit.SECONDS)).isTrue();
 
         updateCropRectAndWaitForIdle(DEFAULT_CROP_RECT);
 
@@ -542,7 +543,7 @@ public class PreviewViewDeviceTest {
         });
 
         // Wait until the new layout is changed.
-        assertThat(latchToWaitForLayoutChange.await(1, TimeUnit.SECONDS)).isTrue();
+        assertThat(latchToWaitForLayoutChange.await(TIMEOUT_SECONDS, TimeUnit.SECONDS)).isTrue();
     }
 
     @Test
