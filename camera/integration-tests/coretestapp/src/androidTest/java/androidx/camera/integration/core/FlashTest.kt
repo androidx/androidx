@@ -171,11 +171,11 @@ class FlashTest(private val implName: String, private val cameraXConfig: CameraX
 
         withContext(Dispatchers.Main) {
             preview.setSurfaceProvider(getSurfaceProvider())
-        }
 
-        var fakeLifecycleOwner = FakeLifecycleOwner()
-        fakeLifecycleOwner.startAndResume()
-        cameraProvider.bindToLifecycle(fakeLifecycleOwner, BACK_SELECTOR, imageCapture, preview)
+            var fakeLifecycleOwner = FakeLifecycleOwner()
+            fakeLifecycleOwner.startAndResume()
+            cameraProvider.bindToLifecycle(fakeLifecycleOwner, BACK_SELECTOR, imageCapture, preview)
+        }
 
         // Take picture after preview is ready for a while. It can cause issue on some devices when
         // flash is on.
