@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-
-import androidx.build.dependencies.DependenciesKt
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
@@ -52,7 +50,7 @@ dependencies {
 
 protobuf {
     protoc {
-        artifact = DependenciesKt.getDependencyAsString(libs.protobufCompiler)
+        artifact = libs.protobufCompiler.get()
     }
 
     // Generates the java proto-lite code for the protos in this project. See
