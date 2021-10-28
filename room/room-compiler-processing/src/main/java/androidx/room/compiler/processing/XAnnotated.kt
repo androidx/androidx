@@ -105,6 +105,18 @@ interface XAnnotated {
     fun hasAnyAnnotation(vararg annotations: KClass<out Annotation>) =
         annotations.any(this::hasAnnotation)
 
+    /**
+     * Returns `true` if this element has all the [annotations].
+     */
+    fun hasAllAnnotations(vararg annotations: ClassName): Boolean =
+        annotations.all(this::hasAnnotation)
+
+    /**
+     * Returns `true` if this element has all the [annotations].
+     */
+    fun hasAllAnnotations(vararg annotations: KClass<out Annotation>): Boolean =
+        annotations.all(this::hasAnnotation)
+
     @Deprecated(
         replaceWith = ReplaceWith("getAnnotation(annotation)"),
         message = "Use getAnnotation(not repeatable) or getAnnotations (repeatable)"
