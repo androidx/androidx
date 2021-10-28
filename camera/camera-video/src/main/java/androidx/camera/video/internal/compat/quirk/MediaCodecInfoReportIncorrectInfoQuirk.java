@@ -72,7 +72,7 @@ public class MediaCodecInfoReportIncorrectInfoQuirk implements Quirk {
             /** Checks if the given mime type is a problematic mime type. */
             String mimeType = mediaFormat.getString(MediaFormat.KEY_MIME);
             return MediaFormat.MIMETYPE_VIDEO_MPEG4.equals(mimeType);
-        } else if (isHuaweiMate9()) {
+        } else if (isHuaweiMate9() && isVideoFormat(mediaFormat)) {
             /** Checks if this is an unsupported resolution for avc. */
             int width = mediaFormat.getInteger(MediaFormat.KEY_WIDTH);
             int height = mediaFormat.getInteger(MediaFormat.KEY_HEIGHT);
@@ -81,4 +81,8 @@ public class MediaCodecInfoReportIncorrectInfoQuirk implements Quirk {
         return false;
     }
 
+    private boolean isVideoFormat(@NonNull MediaFormat mediaFormat) {
+        String mimeType = mediaFormat.getString(MediaFormat.KEY_MIME);
+        return mimeType.contains("video/");
+    }
 }
