@@ -8,7 +8,7 @@ plugins {
 
 dependencies {
     implementation("androidx.annotation:annotation:1.1.0")
-    implementation(project(":core:core"))
+    implementation("androidx.core:core:1.7.0")
 
     annotationProcessor(libs.nullaway)
 
