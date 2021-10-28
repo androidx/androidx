@@ -21,11 +21,9 @@ import static androidx.car.app.model.Action.BACK;
 import static androidx.car.app.model.Action.FLAG_PRIMARY;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.OptIn;
 import androidx.car.app.CarContext;
 import androidx.car.app.CarToast;
 import androidx.car.app.Screen;
-import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.model.Action;
 import androidx.car.app.model.ActionStrip;
 import androidx.car.app.model.CarColor;
@@ -33,6 +31,7 @@ import androidx.car.app.model.CarIcon;
 import androidx.car.app.model.MessageTemplate;
 import androidx.car.app.model.Template;
 import androidx.car.app.sample.showcase.common.R;
+import androidx.car.app.versioning.CarAppApiLevels;
 import androidx.core.graphics.drawable.IconCompat;
 
 /** A screen that demonstrates the message template. */
@@ -44,9 +43,20 @@ public class MessageTemplateDemoScreen extends Screen {
 
     @NonNull
     @Override
-    // TODO(b/201548973): Remove this annotation once set/getFlags are ready
-    @OptIn(markerClass = ExperimentalCarApi.class)
     public Template onGetTemplate() {
+        Action.Builder primaryActionBuilder = new Action.Builder()
+                .setOnClickListener(() -> {
+                    CarToast.makeText(
+                            getCarContext(),
+                            "Clicked primary button",
+                            LENGTH_LONG
+                    ).show();
+                })
+                .setTitle("OK");
+        if (getCarContext().getCarAppApiLevel() >= CarAppApiLevels.LEVEL_4) {
+            primaryActionBuilder.setFlags(FLAG_PRIMARY);
+        }
+
         return new MessageTemplate.Builder("Message goes here.\nMore text on second line.")
                 .setTitle("Message Template Demo")
                 .setIcon(
@@ -57,18 +67,7 @@ public class MessageTemplateDemoScreen extends Screen {
                                 .setTint(CarColor.GREEN)
                                 .build())
                 .setHeaderAction(BACK)
-                .addAction(
-                        new Action.Builder()
-                                .setOnClickListener(() -> {
-                                    CarToast.makeText(
-                                            getCarContext(),
-                                            "Clicked primary button",
-                                            LENGTH_LONG
-                                    ).show();
-                                })
-                                .setTitle("OK")
-                                .setFlags(FLAG_PRIMARY)
-                                .build())
+                .addAction(primaryActionBuilder.build())
                 .addAction(
                         new Action.Builder()
                                 .setBackgroundColor(CarColor.RED)

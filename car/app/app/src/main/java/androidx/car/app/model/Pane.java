@@ -22,7 +22,6 @@ import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.car.app.annotations.CarProtocol;
-import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.utils.CollectionUtils;
 
@@ -76,7 +75,6 @@ public final class Pane {
      * Returns the optional image to display in this pane.
      */
     @RequiresCarApi(4)
-    @ExperimentalCarApi
     @Nullable
     public CarIcon getImage() {
         return mImage;
@@ -185,7 +183,6 @@ public final class Pane {
          */
         // TODO(b/158099280): document recommended size.
         @RequiresCarApi(4)
-        @ExperimentalCarApi
         @NonNull
         public Builder setImage(@NonNull CarIcon image) {
             mImage = requireNonNull(image);

@@ -18,9 +18,7 @@ package androidx.car.app.versioning;
 
 import static java.util.Objects.requireNonNull;
 
-import androidx.annotation.OptIn;
 import androidx.annotation.RestrictTo;
-import androidx.car.app.annotations.ExperimentalCarApi;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -40,7 +38,6 @@ public final class CarAppApiLevels {
      * API level 4.
      */
     @CarAppApiLevel
-    @ExperimentalCarApi
     public static final int LEVEL_4 = 4;
 
     /**
@@ -96,7 +93,6 @@ public final class CarAppApiLevels {
      * Returns the highest API level implemented by this library.
      */
     @CarAppApiLevel
-    @OptIn(markerClass = ExperimentalCarApi.class) // experimental LEVEL_4
     public static int getLatest() {
         // The latest Car API level is defined as java resource, generated via build.gradle. This
         // has to be read through the class loader because we do not have access to the context

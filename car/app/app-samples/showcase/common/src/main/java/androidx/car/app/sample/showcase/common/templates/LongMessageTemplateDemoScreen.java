@@ -21,11 +21,9 @@ import static androidx.car.app.model.Action.BACK;
 import static androidx.car.app.model.Action.FLAG_PRIMARY;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.OptIn;
 import androidx.car.app.CarContext;
 import androidx.car.app.CarToast;
 import androidx.car.app.Screen;
-import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.model.Action;
 import androidx.car.app.model.ActionStrip;
 import androidx.car.app.model.CarColor;
@@ -86,8 +84,6 @@ public class LongMessageTemplateDemoScreen extends Screen {
 
     @NonNull
     @Override
-    // TODO(b/201548973): Remove this annotation once set/getFlags are ready
-    @OptIn(markerClass = ExperimentalCarApi.class)
     public Template onGetTemplate() {
         if (getCarContext().getCarAppApiLevel() < CarAppApiLevels.LEVEL_2) {
             return new MessageTemplate.Builder("Your host doesn't support Long Message template")
@@ -95,22 +91,26 @@ public class LongMessageTemplateDemoScreen extends Screen {
                     .setHeaderAction(Action.BACK)
                     .build();
         }
+
+        Action.Builder primaryActionBuilder = new Action.Builder()
+                .setOnClickListener(
+                        ParkedOnlyOnClickListener.create(() -> {
+                            getScreenManager().pop();
+                            CarToast.makeText(
+                                    getCarContext(),
+                                    "Clicked primary button",
+                                    LENGTH_LONG
+                            ).show();
+                        }))
+                .setTitle("Accept");
+        if (getCarContext().getCarAppApiLevel() >= CarAppApiLevels.LEVEL_4) {
+            primaryActionBuilder.setFlags(FLAG_PRIMARY);
+        }
+
         return new LongMessageTemplate.Builder(TEXT)
                 .setTitle("Long Message Template Demo")
                 .setHeaderAction(BACK)
-                .addAction(new Action.Builder()
-                        .setOnClickListener(
-                                ParkedOnlyOnClickListener.create(() -> {
-                                    getScreenManager().pop();
-                                    CarToast.makeText(
-                                            getCarContext(),
-                                            "Clicked primary button",
-                                            LENGTH_LONG
-                                    ).show();
-                                }))
-                        .setTitle("Accept")
-                        .setFlags(FLAG_PRIMARY)
-                        .build())
+                .addAction(primaryActionBuilder.build())
                 .addAction(new Action.Builder()
                         .setBackgroundColor(CarColor.RED)
                         .setOnClickListener(
