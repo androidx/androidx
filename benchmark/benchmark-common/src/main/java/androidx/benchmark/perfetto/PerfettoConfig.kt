@@ -36,10 +36,6 @@ private fun ftraceDataSource(
         name = "linux.ftrace",
         target_buffer = 0,
         ftrace_config = FtraceConfig(
-            // These parameters affect only the kernel trace buffer size and how
-            // frequently it gets moved into the userspace buffer defined above.
-            buffer_size_kb = 16384,
-            drain_period_ms = 250,
             ftrace_events = listOf(
                 // We need to do process tracking to ensure kernel ftrace events targeted at short-lived
                 // threads are associated correctly
@@ -145,8 +141,8 @@ fun perfettoConfig(
     atraceApps: List<String>
 ) = TraceConfig(
     buffers = listOf(
-        BufferConfig(size_kb = 16384, FillPolicy.RING_BUFFER),
-        BufferConfig(size_kb = 16384, FillPolicy.RING_BUFFER)
+        BufferConfig(size_kb = 32768, FillPolicy.RING_BUFFER),
+        BufferConfig(size_kb = 4096, FillPolicy.RING_BUFFER)
     ),
     data_sources = listOf(
         ftraceDataSource(atraceApps),
@@ -154,6 +150,13 @@ fun perfettoConfig(
         LINUX_SYS_STATS_DATASOURCE,
         TraceConfig.DataSource(DataSourceConfig("android.surfaceflinger.frametimeline"))
     ),
+    // periodically dump to file, so we don't overrun our ring buffer
+    // buffers are expected to be big enough for 5 seconds, so conservatively set 2.5 dump
+    write_into_file = true,
+    file_write_period_ms = 2500,
+
+    // multiple of file_write_period_ms, enables trace processor to work in batches
+    flush_period_ms = 5000
 )
 
 @RequiresApi(21) // needed for shell access
