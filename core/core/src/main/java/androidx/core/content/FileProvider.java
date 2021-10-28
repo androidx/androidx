@@ -80,7 +80,7 @@ import java.util.Map;
  *     <li><a href="#Permissions">Granting Temporary Permissions to a URI</a></li>
  *     <li><a href="#ServeUri">Serving a Content URI to Another App</a></li>
  * </ol>
- * <h3 id="ProviderDefinition">Defining a FileProvider</h3>
+ * ### Defining a FileProvider
  * <p>
  * Since the default functionality of FileProvider includes content URI generation for files, you
  * don't need to define a subclass in code. Instead, you can include a FileProvider in your app
@@ -114,7 +114,7 @@ import java.util.Map;
  * If you want to override any of the default behavior of FileProvider methods, extend
  * the FileProvider class and use the fully-qualified class name in the <code>android:name</code>
  * attribute of the <code>&lt;provider&gt;</code> element.
- * <h3 id="SpecifyFiles">Specifying Available Files</h3>
+ * ### Specifying Available Files
  * A FileProvider can only generate a content URI for files in directories that you specify
  * beforehand. To specify a directory, specify its storage area and path in XML, using child
  * elements of the <code>&lt;paths&gt;</code> element.
@@ -245,7 +245,7 @@ import java.util.Map;
  *        android:resource="&#64;xml/file_paths" /&gt;
  *&lt;/provider&gt;
  *</pre>
- * <h3 id="GetUri">Generating the Content URI for a File</h3>
+ * ### Generating the Content URI for a File
  * <p>
  * To share a file with another app using a content URI, your app has to generate the content URI.
  * To generate the content URI, create a new {@link File} for the file, then pass the {@link File}
@@ -268,7 +268,7 @@ import java.util.Map;
  * As a result of the previous snippet,
  * {@link #getUriForFile(Context, String, File) getUriForFile()} returns the content URI
  * <code>content://com.mydomain.fileprovider/my_images/default_image.jpg</code>.
- * <h3 id="Permissions">Granting Temporary Permissions to a URI</h3>
+ * ### Granting Temporary Permissions to a URI
  * To grant an access permission to a content URI returned from
  * {@link #getUriForFile(Context, String, File) getUriForFile()}, you can either grant the
  * permission to a specific package or include the permission in an intent, as shown in the
@@ -324,7 +324,7 @@ import java.util.Map;
  * automatically removed. Permissions granted to one {@link android.app.Activity} in a client
  * app are automatically extended to other components of that app.
  * </p>
- * <h3 id="ServeUri">Serving a Content URI to Another App</h3>
+ * ### Serving a Content URI to Another App
  * <p>
  * There are a variety of ways to serve the content URI for a file to a client app. One common way
  * is for the client app to start your app by calling
@@ -351,7 +351,7 @@ import java.util.Map;
  *  {@link Intent}. Set the action to {@link Intent#ACTION_SEND} and put the URI in data by calling
  *  {@link Intent#setData setData()}.
  * </p>
- * <h3 id="">More Information</h3>
+ * ### More Information
  * <p>
  *    To learn more about FileProvider, see the Android training class
  *    <a href="{@docRoot}training/secure-file-sharing/index.html">Sharing Files Securely with URIs</a>.
