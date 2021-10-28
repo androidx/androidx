@@ -19,6 +19,7 @@ package androidx.car.app.hardware.common;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
 import androidx.annotation.IntDef;
+import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.annotations.RequiresCarApi;
@@ -127,4 +128,35 @@ public final class CarUnit {
     public static final int MILES_PER_HOUR = 103;
 
     private CarUnit() {}
+
+    /** Get a user friendly representation of the unit. */
+    @NonNull
+    public static String toString(int unit) {
+        switch (unit) {
+            case MILLIMETER:
+                return "MILLIMETER";
+            case METER:
+                return "METER";
+            case KILOMETER:
+                return "KILOMETER";
+            case MILE:
+                return "MILE";
+            case MILLILITER:
+                return "MILLILITER";
+            case LITER:
+                return "LITER";
+            case US_GALLON :
+                return "US_GALLON ";
+            case IMPERIAL_GALLON:
+                return "IMPERIAL_GALLON";
+            case METERS_PER_SEC:
+                return "METERS_PER_SEC";
+            case KILOMETERS_PER_HOUR:
+                return "KILOMETERS_PER_HOUR";
+            case MILES_PER_HOUR :
+                return "MILES_PER_HOUR ";
+            default:
+                return "UNKNOWN";
+        }
+    }
 }
