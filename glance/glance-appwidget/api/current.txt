@@ -88,6 +88,10 @@ package androidx.glance.appwidget.layout {
     method @androidx.compose.runtime.Composable public static void CheckBox(boolean checked, optional androidx.glance.GlanceModifier modifier, optional String text, optional androidx.glance.text.TextStyle? textStyle);
   }
 
+  public final class ImageProvidersKt {
+    method public static androidx.glance.layout.ImageProvider ImageProvider(android.net.Uri uri);
+  }
+
   @androidx.glance.appwidget.layout.LazyScopeMarker public interface LazyItemScope {
   }
 
@@ -122,6 +126,9 @@ package androidx.glance.appwidget.layout {
 package androidx.glance.appwidget.translators {
 
   public final class CheckBoxTranslatorKt {
+  }
+
+  public final class ImageTranslatorKt {
   }
 
   public final class LazyListTranslatorKt {
