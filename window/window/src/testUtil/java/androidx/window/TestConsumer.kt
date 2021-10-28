@@ -49,6 +49,10 @@ public class TestConsumer<T> : Consumer<T> {
     }
 
     public fun assertValues(vararg expected: T) {
+        assertValues(expected.toList())
+    }
+
+    fun assertValues(expected: List<T>) {
         assertValueCount(expected.size)
         assertEquals(expected.toList(), values.toList())
     }

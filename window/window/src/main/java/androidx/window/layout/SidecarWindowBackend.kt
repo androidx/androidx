@@ -33,7 +33,7 @@ import kotlin.concurrent.withLock
  * Default implementation of [WindowBackend] that uses a combination of platform APIs and
  * device-dependent OEM extensions.
  */
-internal class ExtensionWindowBackend @VisibleForTesting constructor(
+internal class SidecarWindowBackend @VisibleForTesting constructor(
     @field:VisibleForTesting @field:GuardedBy(
         "globalLock"
     ) var windowExtension: ExtensionInterfaceCompat?
@@ -170,19 +170,19 @@ internal class ExtensionWindowBackend @VisibleForTesting constructor(
         const val DEBUG = false
 
         @Volatile
-        private var globalInstance: ExtensionWindowBackend? = null
+        private var globalInstance: SidecarWindowBackend? = null
         private val globalLock = ReentrantLock()
         private const val TAG = "WindowServer"
 
         /**
          * Gets the shared instance of the class.
          */
-        fun getInstance(context: Context): ExtensionWindowBackend {
+        fun getInstance(context: Context): SidecarWindowBackend {
             if (globalInstance == null) {
                 globalLock.withLock {
                     if (globalInstance == null) {
                         val windowExtension = initAndVerifyExtension(context)
-                        globalInstance = ExtensionWindowBackend(windowExtension)
+                        globalInstance = SidecarWindowBackend(windowExtension)
                     }
                 }
             }
@@ -190,13 +190,12 @@ internal class ExtensionWindowBackend @VisibleForTesting constructor(
         }
 
         /**
-         * Loads an instance of [androidx.window.extensions.ExtensionInterface] implemented by OEM
+         * Loads an instance of [androidx.window.sidecar.SidecarInterface] implemented by OEM
          * if available on this device. This also verifies if the loaded implementation conforms
          * to the declared API version.
          */
         fun initAndVerifyExtension(context: Context): ExtensionInterfaceCompat? {
             var impl: ExtensionInterfaceCompat? = null
-            // Falling back to Sidecar
             try {
                 if (isSidecarVersionSupported(SidecarCompat.sidecarVersion)) {
                     impl = SidecarCompat(context)
