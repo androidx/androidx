@@ -45,6 +45,9 @@ import androidx.glance.text.TextStyle
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.glance.layout.Spacer
+import androidx.glance.layout.height
+import androidx.glance.layout.width
 import androidx.glance.wear.layout.AnchorType
 import androidx.glance.wear.layout.CurvedRow
 import androidx.glance.wear.layout.CurvedTextStyle
@@ -143,6 +146,34 @@ class ScreenshotTests {
             Box(modifier = GlanceModifier.size(30.dp).background(Color.Blue)) {}
             Box(modifier = GlanceModifier.size(30.dp).background(Color.Cyan)) {}
             Box(modifier = GlanceModifier.size(30.dp).background(Color.Magenta)) {}
+        }
+    }
+
+    @Test
+    fun spacersInGrid() = runSingleGoldenTest("spacers-in-grid") {
+        Row {
+            Column {
+                Box(modifier = GlanceModifier.size(20.dp).background(Color.Red)) {}
+                Spacer(modifier = GlanceModifier.height(10.dp))
+                Box(modifier = GlanceModifier.size(20.dp).background(Color.Green)) {}
+            }
+            Spacer(modifier = GlanceModifier.width(10.dp))
+            Column {
+                Box(modifier = GlanceModifier.size(20.dp).background(Color.Blue)) {}
+                Spacer(modifier = GlanceModifier.height(10.dp))
+                Box(modifier = GlanceModifier.size(20.dp).background(Color.Cyan)) {}
+            }
+        }
+    }
+
+    @Test
+    fun spacersInCurvedRow() = runSingleGoldenTest("spacers-in-curved-row") {
+        CurvedRow {
+            Box(modifier = GlanceModifier.size(30.dp).background(Color.Red)) {}
+            Spacer(modifier = GlanceModifier.width(10.dp))
+            Box(modifier = GlanceModifier.size(30.dp).background(Color.Green)) {}
+            Spacer(modifier = GlanceModifier.width(10.dp))
+            Box(modifier = GlanceModifier.size(30.dp).background(Color.Blue)) {}
         }
     }
 
