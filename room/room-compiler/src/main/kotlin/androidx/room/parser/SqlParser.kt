@@ -84,7 +84,7 @@ class QueryVisitor(
     }
 
     override fun visitResult_column(ctx: SQLiteParser.Result_columnContext): Void? {
-        if (ctx.parent.isCoreSelect && ctx.text == "*") {
+        if (ctx.parent.isCoreSelect && ctx.text == "*" || ctx.text.endsWith(".*")) {
             foundTopLevelStarProjection = true
         }
         return super.visitResult_column(ctx)
