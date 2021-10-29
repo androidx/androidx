@@ -53,6 +53,9 @@ public class DeviceQuirksLoader {
         if (CameraUseInconsistentTimebaseQuirk.load()) {
             quirks.add(new CameraUseInconsistentTimebaseQuirk());
         }
+        if (VideoQualityNotSupportQuirk.load()) {
+            quirks.add(new VideoQualityNotSupportQuirk());
+        }
 
         return quirks;
     }
