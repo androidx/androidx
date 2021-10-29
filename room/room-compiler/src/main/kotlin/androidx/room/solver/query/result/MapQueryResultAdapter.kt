@@ -20,23 +20,23 @@ import androidx.room.compiler.processing.XType
 import androidx.room.ext.CollectionTypeNames.ARRAY_MAP
 import androidx.room.ext.L
 import androidx.room.ext.T
+import androidx.room.parser.ParsedQuery
+import androidx.room.processor.Context
 import androidx.room.solver.CodeGenScope
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.ParameterizedTypeName
 
 class MapQueryResultAdapter(
+    context: Context,
+    private val parsedQuery: ParsedQuery,
     override val keyTypeArg: XType,
     override val valueTypeArg: XType,
     private val keyRowAdapter: QueryMappedRowAdapter,
     private val valueRowAdapter: QueryMappedRowAdapter,
     private val valueCollectionType: XType?,
     isArrayMap: Boolean = false,
-    private val isSparseArray: ClassName? = null
-) : MultimapQueryResultAdapter(listOf(keyRowAdapter, valueRowAdapter)) {
-    private val declaredToConcreteCollection = mapOf<ClassName, ClassName>(
-        ClassName.get(List::class.java) to ClassName.get(ArrayList::class.java),
-        ClassName.get(Set::class.java) to ClassName.get(HashSet::class.java)
-    )
+    private val isSparseArray: ClassName? = null,
+) : MultimapQueryResultAdapter(context, parsedQuery, listOf(keyRowAdapter, valueRowAdapter)) {
 
     private val declaredValueType = if (valueCollectionType != null) {
         ParameterizedTypeName.get(
@@ -85,8 +85,27 @@ class MapQueryResultAdapter(
 
     override fun convert(outVarName: String, cursorVarName: String, scope: CodeGenScope) {
         scope.builder().apply {
-            rowAdapters.forEach {
-                it.onCursorReady(cursorVarName = cursorVarName, scope = scope)
+            val dupeColumnsIndexAdapter: AmbiguousColumnIndexAdapter?
+            if (duplicateColumns.isNotEmpty()) {
+                // There are duplicate columns in the result objects, generate code that provides
+                // us with the indices resolved and pass it to the adapters so it can retrieve
+                // the index of each column used by it.
+                dupeColumnsIndexAdapter = AmbiguousColumnIndexAdapter(mappings, parsedQuery)
+                dupeColumnsIndexAdapter.onCursorReady(cursorVarName, scope)
+                rowAdapters.forEach {
+                    check(it is QueryMappedRowAdapter)
+                    val indexVarNames = dupeColumnsIndexAdapter.getIndexVarsForMapping(it.mapping)
+                    it.onCursorReady(
+                        indices = indexVarNames,
+                        cursorVarName = cursorVarName,
+                        scope = scope
+                    )
+                }
+            } else {
+                dupeColumnsIndexAdapter = null
+                rowAdapters.forEach {
+                    it.onCursorReady(cursorVarName = cursorVarName, scope = scope)
+                }
             }
 
             addStatement("final $T $L = new $T()", mapType, outVarName, implMapType)
@@ -97,7 +116,9 @@ class MapQueryResultAdapter(
                 addStatement("final $T $L", keyTypeArg.typeName, tmpKeyVarName)
                 keyRowAdapter.convert(tmpKeyVarName, cursorVarName, scope)
 
-                val valueIndexVars = valueRowAdapter.getDefaultIndexAdapter().getIndexVars()
+                val valueIndexVars =
+                    dupeColumnsIndexAdapter?.getIndexVarsForMapping(valueRowAdapter.mapping)
+                        ?: valueRowAdapter.getDefaultIndexAdapter().getIndexVars()
                 val columnNullCheckCodeBlock = getColumnNullCheckCode(
                     cursorVarName = cursorVarName,
                     indexVars = valueIndexVars

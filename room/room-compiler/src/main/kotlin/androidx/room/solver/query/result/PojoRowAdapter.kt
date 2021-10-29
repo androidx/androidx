@@ -28,7 +28,6 @@ import androidx.room.vo.Field
 import androidx.room.vo.FieldWithIndex
 import androidx.room.vo.Pojo
 import androidx.room.vo.RelationCollector
-import androidx.room.vo.findFieldByColumnName
 import androidx.room.writer.FieldReadWriteWriter
 
 /**
@@ -57,10 +56,7 @@ class PojoRowAdapter(
         val matchedFields: List<Field>
         if (info != null) {
             matchedFields = info.columns.mapNotNull { column ->
-                // first check remaining, otherwise check any. maybe developer wants to map the same
-                // column into 2 fields. (if they want to post process etc)
                 val field = remainingFields.firstOrNull { it.columnName == column.name }
-                    ?: pojo.findFieldByColumnName(column.name)
                 if (field == null) {
                     unusedColumns.add(column.name)
                     null

@@ -1745,6 +1745,77 @@ class QueryMethodProcessorTest(private val enableVerification: Boolean) {
     }
 
     @Test
+    fun testAmbiguousColumnInMapInfo() {
+        if (!enableVerification) {
+            // No warning without verification, avoiding false positives
+            return
+        }
+        singleQueryMethod<ReadQueryMethod>(
+            """
+                @SuppressWarnings(RoomWarnings.CURSOR_MISMATCH)
+                @MapInfo(keyColumn = "uid")
+                @Query("SELECT * FROM User u JOIN Book b ON u.uid == b.uid")
+                abstract Map<Integer, Book> getMultimap();
+            """
+        ) { _, invocation ->
+            invocation.assertCompilationResult {
+                hasWarning(
+                    ProcessorErrors.ambiguousColumn(
+                        "uid",
+                        ProcessorErrors.AmbiguousColumnLocation.MAP_INFO,
+                        null
+                    )
+                )
+            }
+        }
+    }
+
+    @Test
+    fun testAmbiguousColumnInMapPojo() {
+        if (!enableVerification) {
+            // No warning without verification, avoiding false positives
+            return
+        }
+        val extraPojo = Source.java(
+            "foo.bar.Id",
+            """
+                package foo.bar;
+                public class Id {
+                    public int uid;
+
+                    @Override
+                    public boolean equals(Object o) {
+                        return true;
+                    }
+
+                    @Override
+                    public int hashCode() {
+                        return 0;
+                    }
+                }
+            """.trimIndent()
+        )
+        singleQueryMethod<ReadQueryMethod>(
+            """
+                @SuppressWarnings(RoomWarnings.CURSOR_MISMATCH)
+                @Query("SELECT * FROM User u JOIN Book b ON u.uid == b.uid")
+                abstract Map<Id, Book> getMultimap();
+            """,
+            additionalSources = listOf(extraPojo)
+        ) { _, invocation ->
+            invocation.assertCompilationResult {
+                hasWarning(
+                    ProcessorErrors.ambiguousColumn(
+                        "uid",
+                        ProcessorErrors.AmbiguousColumnLocation.POJO,
+                        ClassName.get("foo.bar", "Id")
+                    )
+                )
+            }
+        }
+    }
+
+    @Test
     fun suspendReturnsDeferredType() {
         listOf(
             "${RxJava2TypeNames.FLOWABLE}<Int>",

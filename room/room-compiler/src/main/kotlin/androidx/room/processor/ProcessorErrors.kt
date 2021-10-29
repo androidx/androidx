@@ -1031,4 +1031,34 @@ object ProcessorErrors {
     val JVM_NAME_ON_OVERRIDDEN_METHOD = "Using @JvmName annotation on a function or accessor " +
         "that will be overridden by Room is not supported. If this is important for your use " +
         "case, please file a bug at $ISSUE_TRACKER_LINK with details."
+
+    fun ambiguousColumn(
+        columnName: String,
+        location: AmbiguousColumnLocation,
+        typeName: TypeName?
+    ): String {
+        val (locationDesc, recommendation) = when (location) {
+            AmbiguousColumnLocation.MAP_INFO -> {
+                "in the @MapInfo" to "update @MapInfo"
+            }
+            AmbiguousColumnLocation.POJO -> {
+                checkNotNull(typeName)
+                "in the object '$typeName'" to "use @ColumnInfo"
+            }
+            AmbiguousColumnLocation.ENTITY -> {
+                checkNotNull(typeName)
+                "in the entity '$typeName'" to "use a new data class / POJO with @ColumnInfo'"
+            }
+        }
+        return "The column '$columnName' $locationDesc is ambiguous and cannot be properly " +
+            "resolved. Please alias the column and $recommendation. Otherwise there is a risk of " +
+            "the query returning invalid values. You can suppress this warning by annotating " +
+            "the method with @SuppressWarnings(RoomWarnings.AMBIGUOUS_COLUMN_IN_RESULT)."
+    }
+
+    enum class AmbiguousColumnLocation {
+        MAP_INFO,
+        POJO,
+        ENTITY,
+    }
 }

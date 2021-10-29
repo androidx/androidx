@@ -19,17 +19,21 @@ package androidx.room.solver.query.result
 import androidx.room.compiler.processing.XType
 import androidx.room.ext.L
 import androidx.room.ext.T
+import androidx.room.parser.ParsedQuery
+import androidx.room.processor.Context
 import androidx.room.solver.CodeGenScope
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.ParameterizedTypeName
 
 class GuavaImmutableMultimapQueryResultAdapter(
+    context: Context,
+    private val parsedQuery: ParsedQuery,
     override val keyTypeArg: XType,
     override val valueTypeArg: XType,
     private val keyRowAdapter: QueryMappedRowAdapter,
     private val valueRowAdapter: QueryMappedRowAdapter,
-    private val immutableClassName: ClassName
-) : MultimapQueryResultAdapter(listOf(keyRowAdapter, valueRowAdapter)) {
+    private val immutableClassName: ClassName,
+) : MultimapQueryResultAdapter(context, parsedQuery, listOf(keyRowAdapter, valueRowAdapter)) {
     private val mapType = ParameterizedTypeName.get(
         immutableClassName,
         keyTypeArg.typeName,
@@ -40,8 +44,27 @@ class GuavaImmutableMultimapQueryResultAdapter(
         val mapVarName = scope.getTmpVar("_mapBuilder")
 
         scope.builder().apply {
-            rowAdapters.forEach {
-                it.onCursorReady(cursorVarName = cursorVarName, scope = scope)
+            val dupeColumnsIndexAdapter: AmbiguousColumnIndexAdapter?
+            if (duplicateColumns.isNotEmpty()) {
+                // There are duplicate columns in the result objects, generate code that provides
+                // us with the indices resolved and pass it to the adapters so it can retrieve
+                // the index of each column used by it.
+                dupeColumnsIndexAdapter = AmbiguousColumnIndexAdapter(mappings, parsedQuery)
+                dupeColumnsIndexAdapter.onCursorReady(cursorVarName, scope)
+                rowAdapters.forEach {
+                    check(it is QueryMappedRowAdapter)
+                    val indexVarNames = dupeColumnsIndexAdapter.getIndexVarsForMapping(it.mapping)
+                    it.onCursorReady(
+                        indices = indexVarNames,
+                        cursorVarName = cursorVarName,
+                        scope = scope
+                    )
+                }
+            } else {
+                dupeColumnsIndexAdapter = null
+                rowAdapters.forEach {
+                    it.onCursorReady(cursorVarName = cursorVarName, scope = scope)
+                }
             }
             addStatement(
                 "final $T.Builder<$T, $T> $L = $T.builder()",
@@ -59,7 +82,9 @@ class GuavaImmutableMultimapQueryResultAdapter(
 
                 // Iterate over all matched fields to check if all are null. If so, we continue in
                 // the while loop to the next iteration.
-                val valueIndexVars = valueRowAdapter.getDefaultIndexAdapter().getIndexVars()
+                val valueIndexVars =
+                    dupeColumnsIndexAdapter?.getIndexVarsForMapping(valueRowAdapter.mapping)
+                        ?: valueRowAdapter.getDefaultIndexAdapter().getIndexVars()
                 val columnNullCheckCodeBlock = getColumnNullCheckCode(
                     cursorVarName = cursorVarName,
                     indexVars = valueIndexVars

@@ -18,6 +18,7 @@ package androidx.room.ext
 
 import com.squareup.javapoet.ArrayTypeName
 import com.squareup.javapoet.ClassName
+import com.squareup.javapoet.CodeBlock
 import com.squareup.javapoet.MethodSpec
 import com.squareup.javapoet.ParameterizedTypeName
 import com.squareup.javapoet.TypeName
@@ -99,6 +100,8 @@ object RoomTypeNames {
     )
     val UUID_UTIL: ClassName =
         ClassName.get("$ROOM_PACKAGE.util", "UUIDUtil")
+    val AMBIGUOUS_COLUMN_RESOLVER: ClassName =
+        ClassName.get(ROOM_PACKAGE, "AmbiguousColumnResolver")
 }
 
 object PagingTypeNames {
@@ -289,3 +292,43 @@ fun Function1TypeSpecBuilder(
         }.build()
     )
 }
+
+/**
+ * Generates a 2D array literal where the value at `i`,`j` will be produced by `valueProducer.
+ * For example:
+ * ```
+ * DoubleArrayLiteral(TypeName.INT, 2, { _ -> 3 }, { i, j -> i + j })
+ * ```
+ * will produce:
+ * ```
+ * new int[][] {
+ *   { 0, 1, 2 },
+ *   { 1, 2, 3 }
+ * }
+ * ```
+ */
+fun DoubleArrayLiteral(
+    type: TypeName,
+    rowSize: Int,
+    columnSizeProducer: (Int) -> Int,
+    valueProducer: (Int, Int) -> Any
+): CodeBlock = CodeBlock.of(
+    "new $T[][] {$W$L$W}", type,
+    CodeBlock.join(
+        List(rowSize) { i ->
+            CodeBlock.of(
+                "{$W$L$W}",
+                CodeBlock.join(
+                    List(columnSizeProducer(i)) { j ->
+                        CodeBlock.of(
+                            if (type == CommonTypeNames.STRING) S else L,
+                            valueProducer(i, j)
+                        )
+                    },
+                    ",$W"
+                ),
+            )
+        },
+        ",$W"
+    )
+)

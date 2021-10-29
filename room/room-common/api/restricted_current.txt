@@ -357,6 +357,7 @@ package androidx.room {
 
   public class RoomWarnings {
     ctor @Deprecated public RoomWarnings();
+    field public static final String AMBIGUOUS_COLUMN_IN_RESULT = "ROOM_AMBIGUOUS_COLUMN_IN_RESULT";
     field public static final String CANNOT_CREATE_VERIFICATION_DATABASE = "ROOM_CANNOT_CREATE_VERIFICATION_DATABASE";
     field public static final String CURSOR_MISMATCH = "ROOM_CURSOR_MISMATCH";
     field public static final androidx.room.RoomWarnings.Companion Companion;

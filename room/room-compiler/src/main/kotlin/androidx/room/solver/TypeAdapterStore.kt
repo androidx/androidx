@@ -503,6 +503,8 @@ class TypeAdapterStore private constructor(
 
             val resultAdapter = findQueryResultAdapter(mapType, query, extras) ?: return null
             return ImmutableMapQueryResultAdapter(
+                context = context,
+                parsedQuery = query,
                 keyTypeArg = keyTypeArg,
                 valueTypeArg = valueTypeArg,
                 resultAdapter = resultAdapter
@@ -555,6 +557,8 @@ class TypeAdapterStore private constructor(
                 logger = context.logger
             )
             return GuavaImmutableMultimapQueryResultAdapter(
+                context = context,
+                parsedQuery = query,
                 keyTypeArg = keyTypeArg,
                 valueTypeArg = valueTypeArg,
                 keyRowAdapter = checkTypeOrNull(keyRowAdapter) ?: return null,
@@ -629,8 +633,9 @@ class TypeAdapterStore private constructor(
                         mapInfo = mapInfo,
                         logger = context.logger
                     )
-
                     return MapQueryResultAdapter(
+                        context = context,
+                        parsedQuery = query,
                         keyTypeArg = keyTypeArg,
                         valueTypeArg = valueTypeArg,
                         keyRowAdapter = checkTypeOrNull(keyRowAdapter) ?: return null,
@@ -665,6 +670,8 @@ class TypeAdapterStore private constructor(
                     logger = context.logger
                 )
                 return MapQueryResultAdapter(
+                    context = context,
+                    parsedQuery = query,
                     keyTypeArg = keyTypeArg,
                     valueTypeArg = mapValueTypeArg,
                     keyRowAdapter = checkTypeOrNull(keyRowAdapter) ?: return null,
