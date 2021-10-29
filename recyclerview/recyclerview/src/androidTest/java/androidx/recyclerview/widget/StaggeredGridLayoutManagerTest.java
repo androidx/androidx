@@ -1146,6 +1146,7 @@ public class StaggeredGridLayoutManagerTest extends BaseStaggeredGridLayoutManag
                 mLayoutManager.mPrimaryOrientation.getDecoratedStart(view2));
     }
 
+    @FlakyTest(bugId = 187526412)
     @Test
     public void innerGapHandling() throws Throwable {
         innerGapHandlingTest(StaggeredGridLayoutManager.GAP_HANDLING_NONE);
