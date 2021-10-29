@@ -16,13 +16,24 @@
 
 package androidx.wear.compose.material
 
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.ProgressBarRangeInfo
+import androidx.compose.ui.test.assertLeftPositionInRootIsEqualTo
 import androidx.compose.ui.test.assertRangeInfoEquals
+import androidx.compose.ui.test.click
+import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.onRoot
+import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.width
+import com.google.common.truth.Truth
 import org.junit.Rule
 import org.junit.Test
 
@@ -160,4 +171,179 @@ class InlineSliderTest {
         rule.onNodeWithTag(TEST_TAG)
             .assertRangeInfoEquals(ProgressBarRangeInfo(0.6f, range, 4))
     }
+
+    @Test
+    fun decreases_value_by_clicking_left() {
+        val state = mutableStateOf(2f)
+        rule.setContentWithTheme {
+            InlineSlider(
+                modifier = Modifier.testTag(TEST_TAG),
+                value = state.value,
+                onValueChange = { state.value = it },
+                valueRange = 1f..4f,
+                steps = 2
+            )
+        }
+
+        rule.onNodeWithTag(TEST_TAG).performTouchInput { click(Offset(15f, height / 2f)) }
+        rule.runOnIdle {
+            Truth.assertThat(state.value).isWithin(0.001f).of(1f)
+        }
+    }
+
+    @Test
+    fun increases_value_by_clicking_right() {
+        val state = mutableStateOf(2f)
+        rule.setContentWithTheme {
+            InlineSlider(
+                modifier = Modifier.testTag(TEST_TAG),
+                value = state.value,
+                onValueChange = { state.value = it },
+                valueRange = 1f..4f,
+                steps = 2
+            )
+        }
+
+        rule.onNodeWithTag(TEST_TAG).performTouchInput { click(Offset(width - 15f, height / 2f)) }
+        rule.runOnIdle {
+            Truth.assertThat(state.value).isWithin(0.001f).of(3f)
+        }
+    }
+
+    @Test
+    fun ignores_left_click_when_disabled() {
+        val state = mutableStateOf(2f)
+        rule.setContentWithTheme {
+            InlineSlider(
+                modifier = Modifier.testTag(TEST_TAG),
+                value = state.value,
+                enabled = false,
+                onValueChange = { state.value = it },
+                valueRange = 1f..4f,
+                steps = 2
+            )
+        }
+
+        rule.onNodeWithTag(TEST_TAG).performTouchInput { click(Offset(15f, height / 2f)) }
+        rule.runOnIdle {
+            Truth.assertThat(state.value).isWithin(0.001f).of(2f)
+        }
+    }
+
+    @Test
+    fun ignores_right_click_when_disabled() {
+        val state = mutableStateOf(2f)
+        rule.setContentWithTheme {
+            InlineSlider(
+                modifier = Modifier.testTag(TEST_TAG),
+                value = state.value,
+                enabled = false,
+                onValueChange = { state.value = it },
+                valueRange = 1f..4f,
+                steps = 2
+            )
+        }
+
+        rule.onNodeWithTag(TEST_TAG).performTouchInput { click(Offset(width - 15f, height / 2f)) }
+        rule.runOnIdle {
+            Truth.assertThat(state.value).isWithin(0.001f).of(2f)
+        }
+    }
+
+    @Test
+    fun reaches_min_clicking_left() {
+        val state = mutableStateOf(1f)
+        rule.setContentWithTheme {
+            InlineSlider(
+                modifier = Modifier.testTag(TEST_TAG),
+                value = state.value,
+                onValueChange = { state.value = it },
+                valueRange = 1f..4f,
+                steps = 2
+            )
+        }
+
+        rule.onNodeWithTag(TEST_TAG).performTouchInput { click(Offset(15f, height / 2f)) }
+        rule.runOnIdle {
+            Truth.assertThat(state.value).isWithin(0.001f).of(1f)
+        }
+    }
+
+    @Test
+    fun reaches_max_clicking_right() {
+        val state = mutableStateOf(4f)
+        rule.setContentWithTheme {
+            InlineSlider(
+                modifier = Modifier.testTag(TEST_TAG),
+                value = state.value,
+                onValueChange = { state.value = it },
+                valueRange = 1f..4f,
+                steps = 2
+            )
+        }
+
+        rule.onNodeWithTag(TEST_TAG).performTouchInput { click(Offset(width - 15f, height / 2f)) }
+        rule.runOnIdle {
+            Truth.assertThat(state.value).isWithin(0.001f).of(4f)
+        }
+    }
+
+    @Test
+    fun sets_custom_decrease_icon() {
+        val iconTag = "iconTag_test"
+
+        rule.setContentWithTheme {
+            InlineSlider(
+                modifier = Modifier.testTag(TEST_TAG),
+                value = 0f,
+                steps = 5,
+                onValueChange = { },
+                decreaseIcon = {
+                    Icon(
+                        modifier = Modifier.testTag(iconTag),
+                        imageVector = Icons.Default.Star,
+                        contentDescription = ""
+                    )
+                }
+            )
+        }
+
+        rule.waitForIdle()
+        rule.onNodeWithTag(iconTag, true)
+            .assertExists()
+            .assertLeftPositionInRootIsEqualTo(IconsOuterHorizontalMargin)
+    }
+
+    @Test
+    fun sets_custom_increase_icon() {
+        val iconTag = "iconTag_test"
+
+        rule.setContentWithTheme {
+            InlineSlider(
+                modifier = Modifier.testTag(TEST_TAG),
+                value = 0f,
+                steps = 5,
+                onValueChange = { },
+                increaseIcon = {
+                    Icon(
+                        modifier = Modifier.testTag(iconTag),
+                        imageVector = Icons.Default.Star,
+                        contentDescription = ""
+                    )
+                }
+            )
+        }
+        val unclippedBoundsInRoot = rule.onRoot().getUnclippedBoundsInRoot()
+
+        rule.waitForIdle()
+        rule.onNodeWithTag(iconTag, true)
+            .assertExists()
+            .assertLeftPositionInRootIsEqualTo(
+                unclippedBoundsInRoot.width -
+                    IconsOuterHorizontalMargin - DefaultIconWidth
+            )
+    }
+
+    private val IconsOuterHorizontalMargin = 8.dp
+    private val DefaultIconWidth = 24.dp
 }
