@@ -26,17 +26,33 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 /**
- * Writes trace events to the system trace buffer.  These trace events can be
- * collected and visualized using the Systrace tool.
+ * Writes trace events to the system trace buffer.
  *
- * <p>This tracing mechanism is independent of the method tracing mechanism
- * offered by {@link android.os.Debug#startMethodTracing}.  In particular, it enables
- * tracing of events that occur across multiple processes.
- * <p>For information about using the Systrace tool, read <a
- * href="{@docRoot}studio/profile/systrace/">Overview of system tracing</a>.
+ * <p>These trace events can be collected and visualized using the Android Studio System
+ * Trace, Perfetto, and Systrace tools.
+ *
+ * <p>Tracing should generally be performed in a non-debuggable app for more accurate
+ * measurements, representative of real user experience. In a non-debuggable app, tracing is
+ * {@link #isEnabled() enabled} if a trace is currently being captured, as well as one of the
+ * following:
+ * <ul>
+ *   <li>Android 12 (API 31) or greater: On by default, unless
+ *     <pre>&lt;profileable enabled=false/&gt;</pre>
+ *     or <pre>&lt;profileable shell=false/&gt;</pre> is set in the manifest.</li>
+ *   <li>Android 10 or 11 (API 29 or 30): <pre>&lt;profileable shell=true/&gt;</pre> is set in the
+ *     manifest, or {@link #forceEnableAppTracing()} has been called</li>
+ *   <li>JellyBean through Android 11 (API 18 through API 28): {@link #forceEnableAppTracing()} has
+ *     been called</li>
+ * </ul>
+ *
+ * <p>This tracing mechanism is independent of the method tracing mechanism offered by
+ * {@link android.os.Debug#startMethodTracing}.  In particular, it enables tracing of events that
+ * occur across multiple processes.
+ *
+ * <p>For information see
+ * <a href="{@docRoot}studio/profile/systrace/">Overview of system tracing</a>.
  */
 public final class Trace {
-
     static final String TAG = "Trace";
 
     private static long sTraceTagApp;
@@ -44,13 +60,16 @@ public final class Trace {
     private static Method sAsyncTraceBeginMethod;
     private static Method sAsyncTraceEndMethod;
     private static Method sTraceCounterMethod;
+    private static boolean sHasAppTracingEnabled;
 
     /**
-     * Checks whether or not tracing is currently enabled. This is useful to avoid intermediate
-     * string creation for trace sections that require formatting. It is not necessary
-     * to guard all Trace method calls as they internally already check this. However it is
-     * recommended to use this to prevent creating any temporary objects that would then be
-     * passed to those methods to reduce runtime cost when tracing isn't enabled.
+     * Checks whether or not tracing is currently enabled.
+     *
+     * <p>This is useful to avoid intermediate string creation for trace sections that require
+     * formatting. It is not necessary to guard all Trace method calls as they internally already
+     * check this. However it is recommended to use this to prevent creating any temporary
+     * objects that would then be passed to those methods to reduce runtime cost when tracing
+     * isn't enabled.
      *
      * @return true if tracing is currently enabled, false otherwise
      */
@@ -59,6 +78,38 @@ public final class Trace {
             return TraceApi29Impl.isEnabled();
         }
         return isEnabledFallback();
+    }
+
+    /**
+     * Enables the app tracing tag in a non-debuggable process.
+     *
+     * Beginning in Android 12 (API 31), app tracing - custom tracing performed by app code via
+     * this class or android.os.Trace - is always enabled in all apps. Prior to this, app tracing
+     * was only enabled in debuggable apps (as well as profileable apps, on API 29/30).
+     *
+     * Calling this method enables the app to record custom trace content without debuggable=true
+     * on any platform version that supports tracing. Tracing of non-debuggable apps is highly
+     * recommended, to ensure accurate performance measurements.
+     *
+     * As app tracing is always enabled on Android 12 (API 31) and above, this does nothing after
+     * API 31.
+     */
+    public static void forceEnableAppTracing() {
+        if (Build.VERSION.SDK_INT >= 18 && Build.VERSION.SDK_INT < 31) {
+            try {
+                if (!sHasAppTracingEnabled) {
+                    sHasAppTracingEnabled = true; // only attempt once
+                    @SuppressWarnings("JavaReflectionMemberAccess")
+                    Method setAppTracingAllowed = android.os.Trace.class.getMethod(
+                            "setAppTracingAllowed",
+                            boolean.class
+                    );
+                    setAppTracingAllowed.invoke(null, true);
+                }
+            } catch (Exception exception) {
+                handleException("setAppTracingAllowed", exception);
+            }
+        }
     }
 
     /**
@@ -163,6 +214,7 @@ public final class Trace {
         }
     }
 
+    @SuppressWarnings({"JavaReflectionMemberAccess", "ConstantConditions"})
     private static boolean isEnabledFallback() {
         if (Build.VERSION.SDK_INT >= 18) {
             try {
@@ -181,6 +233,7 @@ public final class Trace {
         return false;
     }
 
+    @SuppressWarnings("JavaReflectionMemberAccess")
     private static void beginAsyncSectionFallback(@NonNull String methodName, int cookie) {
         if (Build.VERSION.SDK_INT >= 18) {
             try {
@@ -198,6 +251,7 @@ public final class Trace {
         }
     }
 
+    @SuppressWarnings("JavaReflectionMemberAccess")
     private static void endAsyncSectionFallback(@NonNull String methodName, int cookie) {
         if (Build.VERSION.SDK_INT >= 18) {
             try {
@@ -215,6 +269,7 @@ public final class Trace {
         }
     }
 
+    @SuppressWarnings("JavaReflectionMemberAccess")
     private static void setCounterFallback(@NonNull String counterName, int counterValue) {
         if (Build.VERSION.SDK_INT >= 18) {
             try {
