@@ -111,4 +111,16 @@ public interface Camera {
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     void setExtendedConfig(@Nullable CameraConfig cameraConfig);
+
+    /**
+     * Checks whether the use cases combination is supported by the camera.
+     *
+     * @param useCases to be checked whether can be supported.
+     * @return whether the use cases combination is supported by the camera
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    default boolean isUseCasesCombinationSupported(@NonNull UseCase... useCases) {
+        return true;
+    }
 }

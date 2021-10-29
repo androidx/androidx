@@ -25,11 +25,9 @@ import android.media.MediaMetadataRetriever
 import android.net.Uri
 import android.os.Build
 import android.util.Size
-import androidx.annotation.NonNull
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.Logger
 import androidx.camera.core.Preview
-import androidx.camera.core.UseCase
 import androidx.camera.core.VideoCapture
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.core.internal.CameraUseCaseAdapter
@@ -60,15 +58,15 @@ import java.util.concurrent.TimeUnit
 @LargeTest
 @RunWith(AndroidJUnit4::class)
 @SdkSuppress(minSdkVersion = 21)
-public class VideoCaptureTestWithoutAudioPermissionTest {
-    public companion object {
-        public const val TAG: String = "VideoCaptureTestWithoutAudioPermission"
+class VideoCaptureTestWithoutAudioPermissionTest {
+    companion object {
+        const val TAG: String = "VideoCaptureTestWithoutAudioPermission"
     }
     @get:Rule
-    public val useCamera: TestRule = CameraUtil.grantCameraPermissionAndPreTest()
+    val useCamera: TestRule = CameraUtil.grantCameraPermissionAndPreTest()
 
     @get:Rule
-    public val permissionRule: GrantPermissionRule =
+    val permissionRule: GrantPermissionRule =
         GrantPermissionRule.grant(
             Manifest.permission.WRITE_EXTERNAL_STORAGE
             // Don't grant Manifest.permission.RECORD_AUDIO
@@ -85,14 +83,14 @@ public class VideoCaptureTestWithoutAudioPermissionTest {
     private lateinit var contentResolver: ContentResolver
 
     @Before
-    public fun setUp() {
+    fun setUp() {
         // TODO(b/168175357): Fix VideoCaptureTest problems on CuttleFish API 29
         Assume.assumeFalse(
             "Cuttlefish has MediaCodec dequeueInput/Output buffer fails issue. Unable to test.",
             Build.MODEL.contains("Cuttlefish") && Build.VERSION.SDK_INT == 29
         )
 
-        Assume.assumeTrue(CameraUtil.deviceHasCamera())
+        assumeTrue(CameraUtil.deviceHasCamera())
 
         cameraSelector = if (CameraUtil.hasCameraWithLensFacing(CameraSelector.LENS_FACING_BACK)) {
             CameraSelector.DEFAULT_BACK_CAMERA
@@ -110,7 +108,7 @@ public class VideoCaptureTestWithoutAudioPermissionTest {
     }
 
     @After
-    public fun tearDown() {
+    fun tearDown() {
         instrumentation.runOnMainSync {
             if (this::cameraUseCaseAdapter.isInitialized) {
                 cameraUseCaseAdapter.removeUseCases(cameraUseCaseAdapter.useCases)
@@ -129,7 +127,7 @@ public class VideoCaptureTestWithoutAudioPermissionTest {
      * It's conceivable this test will be skipped because it's not the first case to test.
      */
     @Test
-    public fun videoCapture_saveResultToFileWithoutAudioPermission() {
+    fun videoCapture_saveResultToFileWithoutAudioPermission() {
         val checkPermissionResult =
             ContextCompat.checkSelfPermission(context, Manifest.permission.RECORD_AUDIO)
 
@@ -143,9 +141,9 @@ public class VideoCaptureTestWithoutAudioPermissionTest {
         val preview = Preview.Builder().build()
         val videoCapture = VideoCapture.Builder().build()
 
-        Assume.assumeTrue(
+        assumeTrue(
             "This combination (videoCapture, preview) is not supported.",
-            checkUseCasesCombinationSupported(videoCapture, preview)
+            cameraUseCaseAdapter.isUseCasesCombinationSupported(videoCapture, preview)
         )
         instrumentation.runOnMainSync {
             preview.setSurfaceProvider(
@@ -184,18 +182,6 @@ public class VideoCaptureTestWithoutAudioPermissionTest {
         }
 
         file.delete()
-    }
-
-    private fun checkUseCasesCombinationSupported(@NonNull vararg useCases: UseCase): Boolean {
-        val useCaseList = useCases.asList()
-
-        try {
-            cameraUseCaseAdapter.checkAttachUseCases(useCaseList)
-        } catch (e: CameraUseCaseAdapter.CameraException) {
-            // This use combination is not supported. on this device, abort this test.
-            return false
-        }
-        return true
     }
 
     private fun getSurfaceProvider(): Preview.SurfaceProvider {

@@ -50,6 +50,7 @@ import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.core.util.Preconditions;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -157,25 +158,6 @@ public final class CameraUseCaseAdapter implements Camera {
     public void setViewPort(@Nullable ViewPort viewPort) {
         synchronized (mLock) {
             mViewPort = viewPort;
-        }
-    }
-
-    /**
-     * Check to see if the set of {@link UseCase} can be attached to the camera.
-     *
-     * <p> This does not take into account UseCases which are already attached to the camera.
-     */
-    public void checkAttachUseCases(@NonNull List<UseCase> useCases) throws CameraException {
-        synchronized (mLock) {
-            // If the UseCases exceed the resolutions then it will throw an exception
-            try {
-                Map<UseCase, ConfigPair> configs = getConfigs(useCases,
-                        mCameraConfig.getUseCaseConfigFactory(), mUseCaseConfigFactory);
-                calculateSuggestedResolutions(mCameraInternal.getCameraInfoInternal(),
-                        useCases, Collections.emptyList(), configs);
-            } catch (IllegalArgumentException e) {
-                throw new CameraException(e.getMessage());
-            }
         }
     }
 
@@ -584,6 +566,23 @@ public final class CameraUseCaseAdapter implements Camera {
 
             //Configure the CameraInternal as well so that it can get SessionProcessor.
             mCameraInternal.setExtendedConfig(mCameraConfig);
+        }
+    }
+
+    @Override
+    public boolean isUseCasesCombinationSupported(@NonNull UseCase... useCases) {
+        synchronized (mLock) {
+            // If the UseCases exceed the resolutions then it will throw an exception
+            try {
+                Map<UseCase, ConfigPair> configs = getConfigs(Arrays.asList(useCases),
+                        mCameraConfig.getUseCaseConfigFactory(), mUseCaseConfigFactory);
+                calculateSuggestedResolutions(mCameraInternal.getCameraInfoInternal(),
+                        Arrays.asList(useCases), Collections.emptyList(), configs);
+            } catch (IllegalArgumentException e) {
+                return false;
+            }
+
+            return true;
         }
     }
 
