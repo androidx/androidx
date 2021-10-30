@@ -1,0 +1,19 @@
+// Signature format: 4.0
+package androidx.customview.poolingcontainer {
+
+  public final class PoolingContainer {
+    method public static void addPoolingContainerListener(android.view.View, androidx.customview.poolingcontainer.PoolingContainerListener listener);
+    method public static void callPoolingContainerOnRelease(android.view.View);
+    method public static void callPoolingContainerOnReleaseForChildren(android.view.ViewGroup);
+    method public static boolean isPoolingContainer(android.view.View);
+    method public static boolean isWithinPoolingContainer(android.view.View);
+    method public static void removePoolingContainerListener(android.view.View, androidx.customview.poolingcontainer.PoolingContainerListener listener);
+    method public static void setPoolingContainer(android.view.View, boolean value);
+  }
+
+  public fun interface PoolingContainerListener {
+    method @UiThread public void onRelease();
+  }
+
+}
+

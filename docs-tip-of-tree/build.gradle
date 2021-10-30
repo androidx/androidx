@@ -109,6 +109,7 @@ dependencies {
     docs(project(":core:core-role"))
     docs(project(":cursoradapter:cursoradapter"))
     docs(project(":customview:customview"))
+    docs(project(":customview:customview-poolingcontainer"))
     docs(project(":datastore:datastore"))
     docs(project(":datastore:datastore-core"))
     docs(project(":datastore:datastore-preferences"))

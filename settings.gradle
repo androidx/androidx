@@ -461,6 +461,7 @@ includeProject(":core:core-splashscreen:core-splashscreen-samples", "core/core-s
 includeProject(":core:core-role", "core/core-role", [BuildType.MAIN])
 includeProject(":cursoradapter:cursoradapter", "cursoradapter/cursoradapter", [BuildType.MAIN])
 includeProject(":customview:customview", "customview/customview", [BuildType.MAIN])
+includeProject(":customview:customview-poolingcontainer", "customview/customview-poolingcontainer", [BuildType.MAIN, BuildType.COMPOSE])
 includeProject(":datastore:datastore", "datastore/datastore", [BuildType.MAIN])
 includeProject(":datastore:datastore-core", "datastore/datastore-core", [BuildType.MAIN])
 includeProject(":datastore:datastore-preferences", "datastore/datastore-preferences", [BuildType.MAIN])
