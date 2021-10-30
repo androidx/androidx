@@ -57,7 +57,7 @@ dependencies {
     testImplementation("androidx.wear.tiles:tiles-renderer:1.0.0-alpha12")
     testImplementation("androidx.wear.tiles:tiles-testing:1.0.0-alpha12")
 
-    androidTestImplementation(project(":core:core"))
+    androidTestImplementation("androidx.core:core:1.7.0")
     androidTestImplementation(project(":test:screenshot:screenshot"))
     androidTestImplementation("androidx.wear.tiles:tiles-renderer:1.0.0-alpha12")
     androidTestImplementation(libs.testExtJunit)
