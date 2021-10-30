@@ -66,6 +66,7 @@ import androidx.test.rule.ActivityTestRule;
 
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -370,6 +371,7 @@ public class AppCompatEditTextReceiveContentTest {
         }
     }
 
+    @Ignore("b/204580823")
     @UiThreadTest
     @Test
     public void testImeCommitContent_withReceiver_unsupportedMimeType() throws Exception {
