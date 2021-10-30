@@ -266,3 +266,43 @@ public class StartupTimingLegacyMetric : Metric() {
         return parseStartupResult(json, captureInfo.targetPackageName)
     }
 }
+
+/**
+ * Captures the time taken by a trace section - a named begin / end pair matching the provided name.
+ *
+ * Always selects the first instance of a trace section captured during a measurement.
+ *
+ * Note that this only supports single threaded begin/end trace sections - not async sections.
+ *
+ * @see androidx.tracing.Trace.beginSection
+ * @see androidx.tracing.Trace.endSection
+ * @see androidx.tracing.trace
+ */
+@RequiresApi(29) // Remove once b/182386956 fixed, as app tag may be needed for this to work.
+@ExperimentalMetricApi
+public class TraceSectionMetric(
+    private val sectionName: String
+) : Metric() {
+    internal override fun configure(packageName: String) {
+    }
+
+    internal override fun start() {
+    }
+
+    internal override fun stop() {
+    }
+
+    @SuppressLint("SyntheticAccessor")
+    internal override fun getMetrics(captureInfo: CaptureInfo, tracePath: String): IterationResult {
+        val slice = PerfettoTraceProcessor.querySlices(tracePath, sectionName).firstOrNull()
+        return if (slice == null) {
+            IterationResult.EMPTY
+        } else IterationResult(
+            singleMetrics = mapOf(
+                sectionName + "Ms" to slice.dur / 1_000_000.0
+            ),
+            sampledMetrics = emptyMap(),
+            timelineRangeNs = slice.ts..slice.endTs
+        )
+    }
+}
