@@ -130,6 +130,7 @@ public class MediaRouterTest {
         final int dialogType = MediaRouterParams.DIALOG_TYPE_DYNAMIC_GROUP;
         final boolean isOutputSwitcherEnabled = true;
         final boolean transferToLocalEnabled = true;
+        final boolean transferReceiverDisabled = true;
         final Bundle extras = new Bundle();
         extras.putString(TEST_KEY, TEST_VALUE);
 
@@ -137,6 +138,7 @@ public class MediaRouterTest {
                 .setDialogType(dialogType)
                 .setOutputSwitcherEnabled(isOutputSwitcherEnabled)
                 .setTransferToLocalEnabled(transferToLocalEnabled)
+                .setMediaTransferReceiverDisabled(transferReceiverDisabled)
                 .setExtras(extras)
                 .build();
 
@@ -145,11 +147,13 @@ public class MediaRouterTest {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             assertEquals(isOutputSwitcherEnabled, params.isOutputSwitcherEnabled());
             assertEquals(transferToLocalEnabled, params.isTransferToLocalEnabled());
+            assertEquals(transferReceiverDisabled, params.isMediaTransferReceiverDisabled());
         } else {
             // Earlier than Android R, output switcher cannot be enabled.
             // Same for transfer to local.
             assertFalse(params.isOutputSwitcherEnabled());
             assertFalse(params.isTransferToLocalEnabled());
+            assertFalse(params.isMediaTransferReceiverDisabled());
         }
 
         extras.remove(TEST_KEY);
@@ -160,6 +164,8 @@ public class MediaRouterTest {
         assertEquals(params.getDialogType(), copiedParams.getDialogType());
         assertEquals(params.isOutputSwitcherEnabled(), copiedParams.isOutputSwitcherEnabled());
         assertEquals(params.isTransferToLocalEnabled(), copiedParams.isTransferToLocalEnabled());
+        assertEquals(params.isMediaTransferReceiverDisabled(),
+                copiedParams.isMediaTransferReceiverDisabled());
         assertBundleEquals(params.getExtras(), copiedParams.getExtras());
     }
 
@@ -170,6 +176,7 @@ public class MediaRouterTest {
         final int dialogType = MediaRouterParams.DIALOG_TYPE_DYNAMIC_GROUP;
         final boolean isOutputSwitcherEnabled = true;
         final boolean transferToLocalEnabled = true;
+        final boolean transferReceiverDisabled = true;
         final Bundle paramExtras = new Bundle();
         paramExtras.putString(TEST_KEY, TEST_VALUE);
 
@@ -177,6 +184,7 @@ public class MediaRouterTest {
                 .setDialogType(dialogType)
                 .setOutputSwitcherEnabled(isOutputSwitcherEnabled)
                 .setTransferToLocalEnabled(transferToLocalEnabled)
+                .setMediaTransferReceiverDisabled(transferReceiverDisabled)
                 .setExtras(paramExtras)
                 .build();
 

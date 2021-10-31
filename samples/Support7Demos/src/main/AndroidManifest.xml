@@ -101,6 +101,18 @@
         </activity>
 
         <activity
+            android:name=".media.SampleMediaRouterActivity$LegacyMediaRouterActivity"
+            android:configChanges="orientation|screenSize"
+            android:exported="true"
+            android:label="@string/sample_media_router_activity_legacy"
+            android:theme="@style/Theme.SampleMediaRouter">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="com.example.android.supportv7.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+
+        <activity
             android:name=".media.SampleMediaRouteSettingsActivity"
             android:exported="true"
             android:label="@string/sample_media_route_settings_activity"

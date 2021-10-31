@@ -68,7 +68,7 @@ public final class MediaRouteSelector {
     @NonNull
     public List<String> getControlCategories() {
         ensureControlCategories();
-        return mControlCategories;
+        return new ArrayList<>(mControlCategories);
     }
 
     void ensureControlCategories() {

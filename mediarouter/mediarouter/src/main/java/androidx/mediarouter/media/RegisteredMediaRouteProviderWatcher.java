@@ -77,6 +77,10 @@ final class RegisteredMediaRouteProviderWatcher {
         }
     }
 
+    public void rescan() {
+        mHandler.post(mScanPackagesRunnable);
+    }
+
     public void stop() {
         if (mRunning) {
             mRunning = false;
