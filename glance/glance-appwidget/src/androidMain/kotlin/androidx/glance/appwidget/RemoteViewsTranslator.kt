@@ -235,7 +235,8 @@ private fun translateEmittableButton(
         translationContext,
         layoutDef.mainViewId,
         element.text,
-        element.style
+        element.style,
+        verticalTextGravity = Gravity.CENTER_VERTICAL,
     )
     rv.setBoolean(layoutDef.mainViewId, "setEnabled", element.enabled)
     applyModifiers(translationContext, rv, element.modifier, layoutDef)

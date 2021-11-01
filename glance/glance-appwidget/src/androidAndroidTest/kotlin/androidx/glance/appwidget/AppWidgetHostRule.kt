@@ -140,12 +140,34 @@ class AppWidgetHostRule(
      *
      * If specified, the options bundle for the AppWidget is updated and the code waits for the
      * new RemoteViews from the provider.
+     *
+     * @param portraitSize Size of the view in portrait mode.
+     * @param landscapeSize Size of the view in landscape. If null, the portrait and landscape sizes
+     *   will be set to be such that portrait is narrower than tall and the landscape wider than
+     *   tall.
+     * @param updateRemoteViews If the host is already started and this is true, the provider will
+     *   be called to get a new set of RemoteViews for the new sizes.
      */
-    fun setSizes(portraitSize: DpSize, landscapeSize: DpSize, updateRemoteViews: Boolean = true) {
-        mLandscapeSize = landscapeSize
-        mPortraitSize = portraitSize
+    fun setSizes(
+        portraitSize: DpSize,
+        landscapeSize: DpSize? = null,
+        updateRemoteViews: Boolean = true
+    ) {
+        val (portrait, landscape) = if (landscapeSize != null) {
+            portraitSize to landscapeSize
+        } else {
+            if (portraitSize.width < portraitSize.height) {
+                portraitSize to DpSize(portraitSize.height, portraitSize.width)
+            } else {
+                DpSize(portraitSize.height, portraitSize.width) to portraitSize
+            }
+        }
+        mLandscapeSize = landscape
+        mPortraitSize = portrait
+        if (!mHostStarted) return
+
         mScenario.onActivity {
-            mHostView.setSizes(portraitSize, landscapeSize)
+            mHostView.setSizes(portrait, landscape)
         }
 
         if (updateRemoteViews) {
@@ -153,7 +175,7 @@ class AppWidgetHostRule(
                 mHostView.resetRemoteViewsLatch()
                 AppWidgetManager.getInstance(mContext).updateAppWidgetOptions(
                     mAppWidgetId,
-                    optionsBundleOf(listOf(portraitSize, landscapeSize))
+                    optionsBundleOf(listOf(portrait, landscape))
                 )
                 mHostView.waitForRemoteViews()
             }

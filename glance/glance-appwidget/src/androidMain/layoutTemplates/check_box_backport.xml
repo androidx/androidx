@@ -31,8 +31,9 @@
         style="@style/Glance.AppWidget.CheckBoxIcon"/>
     <TextView
         android:id="@id/checkBoxText"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_weight="1"
         android:textDirection="locale"
         style="@style/Glance.AppWidget.CheckBoxText"/>
 </LinearLayout>

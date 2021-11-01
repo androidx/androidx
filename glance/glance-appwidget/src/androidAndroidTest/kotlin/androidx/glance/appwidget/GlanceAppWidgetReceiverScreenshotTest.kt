@@ -16,6 +16,7 @@
 
 package androidx.glance.appwidget
 
+import android.app.Activity
 import androidx.compose.runtime.Composable
 import androidx.glance.GlanceModifier
 import androidx.glance.background
@@ -36,7 +37,12 @@ import androidx.glance.text.TextAlign
 import androidx.glance.text.TextDecoration
 import androidx.glance.text.TextStyle
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
+import androidx.glance.action.actionLaunchActivity
+import androidx.glance.layout.Button
+import androidx.glance.layout.fillMaxHeight
+import androidx.glance.layout.fillMaxSize
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import org.junit.Rule
@@ -81,7 +87,7 @@ class GlanceAppWidgetReceiverScreenshotTest {
                 CheckBox(
                     checked = true,
                     text = "Hello Checked Checkbox",
-                    textStyle = TextStyle(
+                    style = TextStyle(
                         fontWeight = FontWeight.Bold,
                         fontStyle = FontStyle.Normal,
                     )
@@ -90,7 +96,7 @@ class GlanceAppWidgetReceiverScreenshotTest {
                 CheckBox(
                     checked = false,
                     text = "Hello Unchecked Checkbox",
-                    textStyle = TextStyle(
+                    style = TextStyle(
                         textDecoration = TextDecoration.Underline,
                         fontWeight = FontWeight.Medium,
                         fontStyle = FontStyle.Italic,
@@ -111,7 +117,7 @@ class GlanceAppWidgetReceiverScreenshotTest {
                 Switch(
                     checked = true,
                     text = "Hello Checked Switch",
-                    textStyle = TextStyle(
+                    style = TextStyle(
                         fontWeight = FontWeight.Bold,
                         fontStyle = FontStyle.Normal,
                     )
@@ -120,7 +126,7 @@ class GlanceAppWidgetReceiverScreenshotTest {
                 Switch(
                     checked = false,
                     text = "Hello Unchecked Switch",
-                    textStyle = TextStyle(
+                    style = TextStyle(
                         textDecoration = TextDecoration.Underline,
                         fontWeight = FontWeight.Medium,
                         fontStyle = FontStyle.Italic,
@@ -189,6 +195,63 @@ class GlanceAppWidgetReceiverScreenshotTest {
         mHostRule.startHost()
 
         mScreenshotRule.checkScreenshot(mHostRule.mHostView, "backgroundColor_dark")
+    }
+
+    @Test
+    fun checkButtonTextAlignement() {
+        TestGlanceAppWidget.uiDefinition = {
+            Column(modifier = GlanceModifier.fillMaxSize()) {
+                Row(modifier = GlanceModifier.defaultWeight().fillMaxWidth()) {
+                    Button(
+                        "Start",
+                        onClick = actionLaunchActivity<Activity>(),
+                        modifier = GlanceModifier.defaultWeight().fillMaxHeight(),
+                        style = TextStyle(textAlign = TextAlign.Start)
+                    )
+                    Button(
+                        "End",
+                        onClick = actionLaunchActivity<Activity>(),
+                        modifier = GlanceModifier.defaultWeight().fillMaxHeight(),
+                        style = TextStyle(textAlign = TextAlign.End)
+                    )
+                }
+                Row(modifier = GlanceModifier.defaultWeight().fillMaxWidth()) {
+                    CheckBox(
+                        checked = false,
+                        text = "Start",
+                        modifier = GlanceModifier.defaultWeight().fillMaxHeight(),
+                        style = TextStyle(textAlign = TextAlign.Start)
+                    )
+                    CheckBox(
+                        checked = true,
+                        text = "End",
+                        modifier = GlanceModifier.defaultWeight().fillMaxHeight(),
+                        style = TextStyle(textAlign = TextAlign.End)
+                    )
+                }
+                Row(modifier = GlanceModifier.defaultWeight().fillMaxWidth()) {
+                    Switch(
+                        checked = false,
+                        text = "Start",
+                        modifier = GlanceModifier.defaultWeight().fillMaxHeight(),
+                        style = TextStyle(textAlign = TextAlign.Start)
+                    )
+                    Switch(
+                        checked = true,
+                        text = "End",
+                        modifier = GlanceModifier.defaultWeight().fillMaxHeight(),
+                        style = TextStyle(textAlign = TextAlign.End)
+                    )
+                }
+            }
+        }
+
+        mHostRule.setSizes(DpSize(300.dp, 400.dp))
+        mHostRule.startHost()
+
+        Thread.sleep(5000)
+
+        mScreenshotRule.checkScreenshot(mHostRule.mHostView, "button_text_align")
     }
 }
 
