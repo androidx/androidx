@@ -35,6 +35,7 @@ import androidx.glance.layout.EmittableButton
 import androidx.glance.layout.EmittableColumn
 import androidx.glance.layout.EmittableRow
 import androidx.glance.layout.EmittableText
+import androidx.glance.layout.EmittableSpacer
 import androidx.glance.layout.HeightModifier
 import androidx.glance.layout.PaddingInDp
 import androidx.glance.layout.PaddingModifier
@@ -436,6 +437,22 @@ private fun translateCompositionInArc(
     }
 }
 
+private fun Dimension.toSpacerDimension(): DimensionBuilders.SpacerDimension =
+    when (this) {
+        is Dimension.Dp -> dp(this.dp.value)
+        else -> throw IllegalArgumentException(
+            "The spacer dimension should be with dp value, not $this."
+        )
+    }
+
+private fun translateEmittableSpacer(
+    context: Context,
+    element: EmittableSpacer
+) = LayoutElementBuilders.Spacer.Builder()
+    .setWidth(element.modifier.getWidth(context, Dimension.Dp(0.dp)).toSpacerDimension())
+    .setHeight(element.modifier.getHeight(context, Dimension.Dp(0.dp)).toSpacerDimension())
+    .build()
+
 private fun translateEmittableAndroidLayoutElement(element: EmittableAndroidLayoutElement) =
     element.layoutElement
 
@@ -457,6 +474,7 @@ internal fun translateComposition(
         is EmittableCurvedRow -> translateEmittableCurvedRow(context, element)
         is EmittableAndroidLayoutElement -> translateEmittableAndroidLayoutElement(element)
         is EmittableButton -> translateEmittableText(context, element.toEmittableText())
+        is EmittableSpacer -> translateEmittableSpacer(context, element)
         else -> throw IllegalArgumentException("Unknown element $element")
     }
 }
