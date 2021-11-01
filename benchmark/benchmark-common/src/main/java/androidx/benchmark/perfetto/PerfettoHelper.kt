@@ -344,7 +344,7 @@ public class PerfettoHelper(
 
         // A set of supported ABIs
         private val SUPPORTED_64_ABIS = setOf("arm64-v8a", "x86_64")
-        private val SUPPORTED_32_ABIS = setOf("armeabi")
+        private val SUPPORTED_32_ABIS = setOf("armeabi", "x86")
 
         // potential paths that tracing_on may reside in
         private const val TRACING_ON_PATH = "/sys/kernel/tracing/tracing_on"
@@ -378,6 +378,7 @@ public class PerfettoHelper(
                     // least specific. For e.g. emulators claim to support aarch64, when in reality
                     // they can only support x86 or x86_64.
                     Build.SUPPORTED_64_BIT_ABIS.any { it.startsWith("x86_64") } -> "x86_64"
+                    Build.SUPPORTED_32_BIT_ABIS.any { it.startsWith("x86") } -> "x86"
                     Build.SUPPORTED_64_BIT_ABIS.any { it.startsWith("arm64") } -> "aarch64"
                     Build.SUPPORTED_32_BIT_ABIS.any { it.startsWith("armeabi") } -> "arm"
                     else -> IllegalStateException(
