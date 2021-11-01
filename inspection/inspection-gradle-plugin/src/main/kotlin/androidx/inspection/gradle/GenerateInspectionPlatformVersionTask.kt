@@ -92,17 +92,17 @@ fun Project.registerGenerateInspectionPlatformVersionTask(
     variant: com.android.build.gradle.api.BaseVariant
 ): TaskProvider<GenerateInspectionPlatformVersionTask> {
     val name = variant.taskName("generateInspectionPlatformVersion")
-    return tasks.register(name, GenerateInspectionPlatformVersionTask::class.java) {
-        it.compileClasspath = variant.compileConfiguration.incoming.artifactView {
-            it.attributes {
+    return tasks.register(name, GenerateInspectionPlatformVersionTask::class.java) { task ->
+        task.compileClasspath = variant.compileConfiguration.incoming.artifactView { artifact ->
+            artifact.attributes {
                 it.attribute(Attribute.of("artifactType", String::class.java), "android-classes")
             }
         }.artifacts
-        it.outputDir.set(taskWorkingDir(variant, "inspectionVersion"))
-        it.inspectionProjectVersion.set(
-            project.provider({
+        task.outputDir.set(taskWorkingDir(variant, "inspectionVersion"))
+        task.inspectionProjectVersion.set(
+            project.provider {
                 project.project(":inspection:inspection").version.toString()
-            })
+            }
         )
     }
 }

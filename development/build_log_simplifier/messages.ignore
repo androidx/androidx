@@ -326,7 +326,6 @@ See https://docs\.gradle\.org/[0-9]+\.[0-9]+/userguide/configuration_cache\.html
 \- Task `[^ ]*checkExternalLicenses` of type `[^ ]*CheckExternalDependencyLicensesTask`: invocation of 'Task\.project' at execution time is unsupported\.
 \- Plugin class 'androidx\.build\.AndroidXImplPlugin': read system property 'user\.dir'
 See https://docs\.gradle\.org/[0-9]+\.[0-9]+.*/userguide/configuration_cache\.html\#config_cache:requirements:undeclared_sys_prop_read
-\- Task `[^ ]*generateInspectionPlatformVersionRelease` of type `androidx\.inspection\.gradle\.GenerateInspectionPlatformVersionTask`: invocation of 'Task\.project' at execution time is unsupported\.
 See https://docs\.gradle\.org/[0-9]+\.[0-9]+.*/userguide/configuration_cache\.html\#config_cache:requirements:use_project_during_execution
 \- Task `[^ ]*validateProperties` of type `[^ ]*ValidatePropertiesTask`: invocation of 'Task\.project' at execution time is unsupported\.
 \- Task `[^ ]*verifyDependencyVersions` of type `[^ ]*VerifyDependencyVersionsTask`: invocation of 'Task\.project' at execution time is unsupported\.
