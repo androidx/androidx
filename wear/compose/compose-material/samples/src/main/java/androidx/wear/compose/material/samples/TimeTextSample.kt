@@ -16,6 +16,7 @@
 
 package androidx.wear.compose.material.samples
 
+import android.text.format.DateFormat
 import androidx.annotation.Sampled
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
@@ -23,11 +24,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.wear.compose.foundation.ArcPaddingValues
-import androidx.wear.compose.foundation.BasicCurvedText
+import androidx.wear.compose.material.CurvedText
 import androidx.wear.compose.material.ExperimentalWearMaterialApi
 import androidx.wear.compose.material.Text
 import androidx.wear.compose.material.TimeText
 import androidx.wear.compose.material.TimeTextDefaults
+import java.util.Locale
 
 @OptIn(ExperimentalWearMaterialApi::class)
 @Sampled
@@ -41,7 +43,7 @@ fun TimeTextWithCustomSeparator() {
             )
         },
         leadingCurvedContent = {
-            BasicCurvedText(
+            CurvedText(
                 text = "Leading content",
                 style = TimeTextDefaults.timeCurvedTextStyle(color = Color.Green)
             )
@@ -53,7 +55,7 @@ fun TimeTextWithCustomSeparator() {
             )
         },
         trailingCurvedContent = {
-            BasicCurvedText(
+            CurvedText(
                 text = "Trailing content",
                 style = TimeTextDefaults.timeCurvedTextStyle(color = Color.Yellow)
             )
@@ -66,7 +68,7 @@ fun TimeTextWithCustomSeparator() {
             )
         },
         textCurvedSeparator = {
-            BasicCurvedText(
+            CurvedText(
                 text = "***",
                 style = TimeTextDefaults.timeCurvedTextStyle(color = Color.Magenta),
                 contentArcPadding = ArcPaddingValues(angular = 8.dp)
@@ -79,5 +81,9 @@ fun TimeTextWithCustomSeparator() {
 @Sampled
 @Composable
 fun TimeTextWithFullDateAndTimeFormat() {
-    TimeText(timeSource = TimeTextDefaults.timeSource("yyyy-MM-dd hh:mm"))
+    TimeText(
+        timeSource = TimeTextDefaults.timeSource(
+            DateFormat.getBestDateTimePattern(Locale.getDefault(), "yyyy-MM-dd hh:mm")
+        )
+    )
 }
