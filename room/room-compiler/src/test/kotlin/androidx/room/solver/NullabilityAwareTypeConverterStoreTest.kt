@@ -98,6 +98,56 @@ class NullabilityAwareTypeConverterStoreTest {
     }
 
     @Test
+    fun withOnlyNullableConverters() {
+        val result = collectStringConversionResults(
+            "MyFullyNullableConverters"
+        )
+        assertResult(
+            result.trim(),
+            """
+            JAVAC
+            String? to MyClass?: nullableStringToNullableMyClass
+            MyClass? to String?: nullableMyClassToNullableString
+            String? to MyClass!: nullableStringToNullableMyClass
+            MyClass! to String?: nullableMyClassToNullableString
+            String! to MyClass?: nullableStringToNullableMyClass
+            MyClass? to String!: nullableMyClassToNullableString
+            String! to MyClass!: nullableStringToNullableMyClass
+            MyClass! to String!: nullableMyClassToNullableString
+            KSP
+            String? to MyClass?: nullableStringToNullableMyClass
+            MyClass? to String?: nullableMyClassToNullableString
+            String? to MyClass!: nullableStringToNullableMyClass / checkNotNull(MyClass?)
+            MyClass! to String?: (MyClass! as MyClass?) / nullableMyClassToNullableString
+            String! to MyClass?: (String! as String?) / nullableStringToNullableMyClass
+            MyClass? to String!: nullableMyClassToNullableString / checkNotNull(String?)
+            String! to MyClass!: (String! as String?) / nullableStringToNullableMyClass / checkNotNull(MyClass?)
+            MyClass! to String!: (MyClass! as MyClass?) / nullableMyClassToNullableString / checkNotNull(String?)
+            """.trimIndent())
+    }
+
+    @Test
+    fun withOnlyNullableConverters_cursor() {
+        val result = collectCursorResults(
+            "MyFullyNullableConverters"
+        )
+        assertResult(
+            result.trim(),
+            """
+            JAVAC
+            Cursor to MyClass?: nullableStringToNullableMyClass
+            MyClass? to Cursor: nullableMyClassToNullableString
+            Cursor to MyClass!: nullableStringToNullableMyClass
+            MyClass! to Cursor: nullableMyClassToNullableString
+            KSP
+            Cursor to MyClass?: nullableStringToNullableMyClass
+            MyClass? to Cursor: nullableMyClassToNullableString
+            Cursor to MyClass!: nullableStringToNullableMyClass / checkNotNull(MyClass?)
+            MyClass! to Cursor: (MyClass! as MyClass?) / nullableMyClassToNullableString
+            """.trimIndent())
+    }
+
+    @Test
     fun withNonNullableConverters() {
         val result = collectStringConversionResults("NonNullConverters")
         assertResult(
@@ -115,10 +165,10 @@ class NullabilityAwareTypeConverterStoreTest {
             KSP
             String? to MyClass?: (String? == null ? null : stringToMyClass)
             MyClass? to String?: (MyClass? == null ? null : myClassToString)
-            String? to MyClass!: null
+            String? to MyClass!: (String? == null ? null : stringToMyClass) / checkNotNull(MyClass?)
             MyClass! to String?: myClassToString / (String! as String?)
             String! to MyClass?: stringToMyClass / (MyClass! as MyClass?)
-            MyClass? to String!: null
+            MyClass? to String!: (MyClass? == null ? null : myClassToString) / checkNotNull(String?)
             String! to MyClass!: stringToMyClass
             MyClass! to String!: myClassToString
             """.trimIndent()
