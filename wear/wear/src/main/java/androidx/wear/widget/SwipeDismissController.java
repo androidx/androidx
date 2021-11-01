@@ -319,7 +319,9 @@ class SwipeDismissController extends DismissController {
         if (!mDismissed) {
             if ((deltaX > (mLayout.getWidth() * mDismissMinDragWidthRatio)
                     && ev.getRawX() >= mLastX)
-                    || mVelocityTracker.getXVelocity() >= mMinFlingVelocity) {
+                    || (mVelocityTracker.getXVelocity() >= mMinFlingVelocity
+                    && mVelocityTracker.getXVelocity() > Math.abs(
+                    mVelocityTracker.getYVelocity()))) {
                 mDismissed = true;
             }
         }
