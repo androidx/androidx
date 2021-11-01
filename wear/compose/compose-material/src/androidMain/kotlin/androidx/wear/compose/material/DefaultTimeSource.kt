@@ -33,7 +33,6 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import java.util.Calendar
-import java.util.Locale
 
 @ExperimentalWearMaterialApi
 internal actual class DefaultTimeSource actual constructor(timeFormat: String) : TimeSource {
@@ -115,9 +114,6 @@ private fun formatTime(
     currentTime: Long,
     timeFormat: String
 ): String {
-    val pattern = DateFormat.getBestDateTimePattern(
-        Locale.getDefault(), timeFormat
-    )
     calendar.timeInMillis = currentTime
-    return DateFormat.format(pattern, calendar).toString()
+    return DateFormat.format(timeFormat, calendar).toString()
 }

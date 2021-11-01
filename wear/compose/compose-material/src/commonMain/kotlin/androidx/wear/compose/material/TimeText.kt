@@ -29,7 +29,6 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.wear.compose.foundation.ArcPaddingValues
-import androidx.wear.compose.foundation.BasicCurvedText
 import androidx.wear.compose.foundation.CurvedRow
 import androidx.wear.compose.foundation.CurvedRowScope
 import androidx.wear.compose.foundation.CurvedTextStyle
@@ -51,15 +50,15 @@ import androidx.wear.compose.material.TimeTextDefaults.timeFormat
  * For proper support of Square and Round screens both Linear and Curved methods should
  * be implemented.
  *
+ * For more information, see the
+ * [Curved Text](https://developer.android.com/training/wearables/components/curved-text)
+ * guide.
+ *
  * The [TimeText] with full customization for square and round devices:
  * @sample androidx.wear.compose.material.samples.TimeTextWithCustomSeparator
  *
  * An example of a [TimeText] with a different date and time format:
  * @sample androidx.wear.compose.material.samples.TimeTextWithFullDateAndTimeFormat
- *
- * For more information, see the
- * [Curved Text](https://developer.android.com/training/wearables/components/curved-text)
- * guide.
  *
  * @param modifier Current modifier.
  * @param timeSource [TimeSource] which retrieves the current time and formats it.
@@ -97,7 +96,7 @@ fun TimeText(
                 it.invoke(this)
                 textCurvedSeparator()
             }
-            BasicCurvedText(
+            CurvedText(
                 text = timeText,
                 style = CurvedTextStyle(timeTextStyle)
             )
@@ -141,12 +140,12 @@ public object TimeTextDefaults {
     /**
      * Default format for 24h clock.
      */
-    const val Skeleton24Hr = "Hm"
+    const val TimeFormat24Hours = "HH:mm"
 
     /**
      * Default format for 12h clock.
      */
-    const val Skeleton12Hr = "hm"
+    const val TimeFormat12Hours = "h:mm a"
 
     /**
      * The default content padding used by [TimeText]
@@ -158,7 +157,7 @@ public object TimeTextDefaults {
      * 12h or 24h format
      */
     @Composable
-    public fun timeFormat(): String = if (is24HourFormat()) Skeleton24Hr else Skeleton12Hr
+    public fun timeFormat(): String = if (is24HourFormat()) TimeFormat24Hours else TimeFormat12Hours
 
     /**
      * Creates a [TextStyle] with default parameters used for showing time
@@ -231,7 +230,7 @@ public object TimeTextDefaults {
         curvedTextStyle: CurvedTextStyle = timeCurvedTextStyle(),
         contentArcPadding: ArcPaddingValues = ArcPaddingValues(angular = 4.dp)
     ) {
-        BasicCurvedText(
+        CurvedText(
             modifier = modifier,
             text = "·",
             contentArcPadding = contentArcPadding,
@@ -243,7 +242,19 @@ public object TimeTextDefaults {
      * A default implementation of [TimeSource].
      * Once the system time changes, it triggers an update of the [TimeSource.currentTime]
      * which is formatted before that using [timeFormat] param.
-     * @param timeFormat Param for formatting time
+     *
+     * Android implementation:
+     * [DefaultTimeSource] for Android uses [android.text.format.DateFormat]
+     * [timeFormat] should follow the standard
+     * [Date and Time patterns](https://developer.android.com/reference/java/text/SimpleDateFormat#date-and-time-patterns)
+     * Examples:
+     * "h:mm a" - 12:08 PM
+     * "yyyy.MM.dd HH:mm:ss" - 2021.11.01 14:08:56
+     * More examples can be found [here](https://developer.android.com/reference/java/text/SimpleDateFormat#examples)
+     *
+     * Desktop implementation: TBD
+     *
+     * @param timeFormat Date and time string pattern
      */
     fun timeSource(timeFormat: String): TimeSource = DefaultTimeSource(timeFormat)
 }

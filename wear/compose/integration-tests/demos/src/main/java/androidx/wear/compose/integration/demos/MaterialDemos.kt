@@ -132,6 +132,15 @@ val WearMaterialDemos = DemoCategory(
                         ComposableDemo("Clock with padding") {
                             TimeTextWithPadding()
                         },
+                        ComposableDemo("Clock with yyyy.MM.dd HH:mm:ss format") {
+                            TimeTextWithLongDateTime()
+                        },
+                        ComposableDemo("Clock with custom format and color") {
+                            TimeTextWithCustomFormatAndColor()
+                        },
+                        ComposableDemo("Clock with localised format") {
+                            TimeTextWithLocalisedFormat()
+                        },
                     )
                 ),
             )
