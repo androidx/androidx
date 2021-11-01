@@ -320,7 +320,8 @@ public class WorkerWrapper implements Runnable {
                         Logger.get().info(TAG, workDescription + " was cancelled", exception);
                     } catch (InterruptedException | ExecutionException exception) {
                         Logger.get().error(TAG,
-                                workDescription + " failed because it threw an exception/error");
+                                workDescription + " failed because it threw an exception/error",
+                                exception);
                     } finally {
                         onWorkFinished();
                     }
