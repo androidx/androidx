@@ -53,10 +53,15 @@ class ProjectSetupRule : ExternalResource() {
     private val repositories: String
         get() = buildString {
             appendLine("repositories {")
+            append(defaultRepoLines)
+            appendLine("}")
+        }
+
+    val defaultRepoLines
+        get() = buildString {
             props.repositoryUrls.forEach {
                 appendLine("    maven { url '$it' }")
             }
-            appendLine("}")
         }
 
     val androidProject: String
