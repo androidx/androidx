@@ -17,6 +17,7 @@
 package androidx.room.gradle
 
 import androidx.testutils.gradle.ProjectSetupRule
+import org.gradle.testkit.runner.GradleRunner
 import org.junit.Assert
 import org.junit.Rule
 import org.junit.Test
@@ -39,6 +40,52 @@ class CollectionTest {
                 Assert.assertEquals(c1.replace("collection", "collection2").replace(v1, v2), c2)
             }
         }
+    }
+
+    @Test
+    fun dependOnCollection2FromJavaProject() {
+        projectSetup.buildFile.writeText(
+            """
+            repositories {
+                maven { url "${projectSetup.props.localSupportRepo}" }
+                ${projectSetup.defaultRepoLines}
+            }
+
+            apply plugin: 'java'
+
+            dependencies {
+                testImplementation "junit:junit:4.12"
+                testImplementation "androidx.collection2:collection2:1.3.0-alpha01"
+            }
+            """.trimIndent()
+        )
+
+        val helloDir =
+            File(projectSetup.rootDir, "src/test/java/hello").apply { mkdirs().check { it } }
+
+        File(helloDir, "HelloTest.java").writeText(
+            """
+            package hello;
+
+            import androidx.collection.ArrayMap;
+            import static org.junit.Assert.assertEquals;
+            import org.junit.Test;
+
+            public class HelloTest {
+                @Test
+                public void arrayMapTest() {
+                    ArrayMap<String, Integer> map = new ArrayMap<>();
+                    map.put("a", 1);
+                    map.put("b", 2);
+                    assertEquals(2, map.size());
+                }
+            }
+            """.trimIndent()
+        )
+
+        GradleRunner.create()
+            .withProjectDir(projectSetup.rootDir).withArguments("test")
+            .build().output.check { it.contains("BUILD SUCCESSFUL") }
     }
 
     // Yes, I know https://stackoverflow.com/a/1732454/258688, but it's just a test...
