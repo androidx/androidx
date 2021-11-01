@@ -84,6 +84,13 @@ class ActionParametersTest {
     }
 
     @Test
+    fun testUseDefaultWhenNoKey() {
+        val booleanKey = ActionParameters.Key<Boolean>("key_name")
+        val params = mutableActionParametersOf()
+        assertFalse(params.getOrDefault(booleanKey, false))
+    }
+
+    @Test
     fun testMixedKeys() {
         val string = "test string"
         val booleanKey = ActionParameters.Key<Boolean>("key_name")

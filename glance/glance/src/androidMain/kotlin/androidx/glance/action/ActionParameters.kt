@@ -81,6 +81,17 @@ public abstract class ActionParameters internal constructor() {
     public abstract operator fun <T : Any> get(key: Key<T>): T?
 
     /**
+     * Get a parameter with a key. If the key is not set, returns the provided default value.
+     *
+     * @param T the type of the parameter
+     * @param key the key for the parameter
+     * @param defaultValue the default value to return if key is missing
+     * @throws ClassCastException if there is something stored with the same name as [key] but it
+     * cannot be cast to T
+     */
+    public abstract fun <T : Any> getOrDefault(key: Key<T>, defaultValue: @UnsafeVariance T): T
+
+    /**
      * Retrieves a map of all key value pairs. The map is unmodifiable, and attempts to mutate it
      * will throw runtime exceptions.
      *
@@ -101,6 +112,8 @@ public class MutableActionParameters internal constructor(
 
     @Suppress("UNCHECKED_CAST")
     override operator fun <T : Any> get(key: Key<T>): T? = map[key] as T?
+
+    override fun <T : Any> getOrDefault(key: Key<T>, defaultValue: T): T = get(key) ?: defaultValue
 
     override fun asMap(): Map<Key<out Any>, Any> = Collections.unmodifiableMap(map)
 
