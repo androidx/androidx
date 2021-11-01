@@ -392,9 +392,9 @@ class Camera2RequestProcessorTest {
             previewImageRetrieved.await()
             val camera2CaptureResult =
                 Camera2CameraCaptureResultConverter.getCaptureResult(captureResult)!!
-            assertThat(camera2CaptureResult.get(CaptureResult.CONTROL_CAPTURE_INTENT))
+            assertThat(camera2CaptureResult.request.get(CaptureRequest.CONTROL_CAPTURE_INTENT))
                 .isEqualTo(CaptureResult.CONTROL_CAPTURE_INTENT_PREVIEW)
-            assertThat(camera2CaptureResult.get(CaptureResult.JPEG_ORIENTATION))
+            assertThat(camera2CaptureResult.request.get(CaptureRequest.JPEG_ORIENTATION))
                 .isEqualTo(ORIENTATION_1)
             assertThat(receivedRequest).isSameInstanceAs(request)
 
@@ -502,8 +502,8 @@ class Camera2RequestProcessorTest {
 
         suspend fun awaitCaptureResults():
             List<Pair<CameraCaptureResult, RequestProcessor.Request>> {
-                return deferredCaptureResults.await()
-            }
+            return deferredCaptureResults.await()
+        }
 
         suspend fun awaitCaptureSequenceId(): Int {
             return deferredCaptureSequenceReceived.await()
