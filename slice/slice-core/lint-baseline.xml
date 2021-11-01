@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.2.0-dev" type="baseline" client="gradle" dependencies="false" name="AGP (7.2.0-dev)" variant="all" version="7.2.0-dev">
+<issues format="6" by="lint 7.1.0-alpha08" type="baseline" client="gradle" dependencies="false" name="AGP (7.1.0-alpha08)" variant="all" version="7.1.0-alpha08">
 
     <issue
         id="NewApi"
@@ -241,17 +241,6 @@
             file="src/main/java/androidx/slice/SliceManagerWrapper.java"
             line="93"
             column="26"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 19; however, the containing class androidx.slice.compat.CompatPermissionManager.PermissionState is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                if (!Objects.equals(path[i], prefix[i])) {"
-        errorLine2="                             ~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/compat/CompatPermissionManager.java"
-            line="197"
-            column="30"/>
     </issue>
 
     <issue

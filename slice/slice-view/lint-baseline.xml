@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.1.0-alpha02" type="baseline" client="cli" name="Lint" variant="all" version="7.1.0-alpha02">
+<issues format="6" by="lint 7.1.0-alpha08" type="baseline" client="gradle" dependencies="false" name="AGP (7.1.0-alpha08)" variant="all" version="7.1.0-alpha08">
 
     <issue
         id="NewApi"
@@ -8,7 +8,7 @@
         errorLine2="                                                              ~~~~~">
         <location
             file="src/androidTest/java/androidx/slice/SliceXmlTest.java"
-            line="80"
+            line="81"
             column="63"/>
     </issue>
 
@@ -19,7 +19,7 @@
         errorLine2="                                  ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/androidTest/java/androidx/slice/SliceXmlTest.java"
-            line="80"
+            line="81"
             column="35"/>
     </issue>
 
@@ -52,7 +52,7 @@
         errorLine2="                                        ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/widget/GridRowView.java"
-            line="818"
+            line="819"
             column="41"/>
     </issue>
 
@@ -91,28 +91,6 @@
 
     <issue
         id="ClassVerificationFailure"
-        message="This call references a method added in API level 16; however, the containing class androidx.slice.widget.RemoteInputView.RemoteEditText is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                setBackground(mBackground);"
-        errorLine2="                ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/widget/RemoteInputView.java"
-            line="415"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 16; however, the containing class androidx.slice.widget.RemoteInputView.RemoteEditText is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                setBackground(null);"
-        errorLine2="                ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/widget/RemoteInputView.java"
-            line="417"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
         message="This call references a method added in API level 21; however, the containing class androidx.slice.widget.SliceView is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="        super(context, attrs, defStyleAttr, defStyleRes);"
         errorLine2="        ~~~~~">
@@ -129,14 +107,14 @@
         errorLine2="                                        ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/widget/TemplateView.java"
-            line="125"
+            line="126"
             column="41"/>
     </issue>
 
     <issue
         id="MissingQuantity"
         message="For locale &quot;fr&quot; (French) the following quantities should also be defined: `many`"
-        errorLine1="    &lt;plurals name=&quot;abc_slice_duration_min&quot; formatted=&quot;false&quot; msgid=&quot;6996334305156847955&quot;>"
+        errorLine1="    &lt;plurals name=&quot;abc_slice_duration_min&quot; formatted=&quot;false&quot; msgid=&quot;7664017844210142826&quot;>"
         errorLine2="    ^">
         <location
             file="src/main/res/values-fr-rCA/strings.xml"
@@ -147,7 +125,7 @@
     <issue
         id="MissingQuantity"
         message="For locale &quot;fr&quot; (French) the following quantities should also be defined: `many`"
-        errorLine1="    &lt;plurals name=&quot;abc_slice_duration_min&quot; formatted=&quot;false&quot; msgid=&quot;6996334305156847955&quot;>"
+        errorLine1="    &lt;plurals name=&quot;abc_slice_duration_min&quot; formatted=&quot;false&quot; msgid=&quot;7664017844210142826&quot;>"
         errorLine2="    ^">
         <location
             file="src/main/res/values-fr/strings.xml"
@@ -158,7 +136,7 @@
     <issue
         id="MissingQuantity"
         message="For locale &quot;fr&quot; (French) the following quantities should also be defined: `many`"
-        errorLine1="    &lt;plurals name=&quot;abc_slice_duration_years&quot; formatted=&quot;false&quot; msgid=&quot;6212691832333991589&quot;>"
+        errorLine1="    &lt;plurals name=&quot;abc_slice_duration_years&quot; formatted=&quot;false&quot; msgid=&quot;2628491538787454021&quot;>"
         errorLine2="    ^">
         <location
             file="src/main/res/values-fr-rCA/strings.xml"
@@ -169,7 +147,7 @@
     <issue
         id="MissingQuantity"
         message="For locale &quot;fr&quot; (French) the following quantities should also be defined: `many`"
-        errorLine1="    &lt;plurals name=&quot;abc_slice_duration_years&quot; formatted=&quot;false&quot; msgid=&quot;6212691832333991589&quot;>"
+        errorLine1="    &lt;plurals name=&quot;abc_slice_duration_years&quot; formatted=&quot;false&quot; msgid=&quot;2628491538787454021&quot;>"
         errorLine2="    ^">
         <location
             file="src/main/res/values-fr/strings.xml"
@@ -180,7 +158,7 @@
     <issue
         id="MissingQuantity"
         message="For locale &quot;fr&quot; (French) the following quantities should also be defined: `many`"
-        errorLine1="    &lt;plurals name=&quot;abc_slice_duration_days&quot; formatted=&quot;false&quot; msgid=&quot;6241698511167107334&quot;>"
+        errorLine1="    &lt;plurals name=&quot;abc_slice_duration_days&quot; formatted=&quot;false&quot; msgid=&quot;8356547162075064530&quot;>"
         errorLine2="    ^">
         <location
             file="src/main/res/values-fr-rCA/strings.xml"
@@ -191,7 +169,7 @@
     <issue
         id="MissingQuantity"
         message="For locale &quot;fr&quot; (French) the following quantities should also be defined: `many`"
-        errorLine1="    &lt;plurals name=&quot;abc_slice_duration_days&quot; formatted=&quot;false&quot; msgid=&quot;6241698511167107334&quot;>"
+        errorLine1="    &lt;plurals name=&quot;abc_slice_duration_days&quot; formatted=&quot;false&quot; msgid=&quot;8356547162075064530&quot;>"
         errorLine2="    ^">
         <location
             file="src/main/res/values-fr/strings.xml"
@@ -932,7 +910,7 @@
         errorLine2="                           ~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/widget/SliceAdapter.java"
-            line="106"
+            line="107"
             column="28"/>
     </issue>
 
@@ -943,7 +921,7 @@
         errorLine2="                                             ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/widget/SliceAdapter.java"
-            line="106"
+            line="107"
             column="46"/>
     </issue>
 
@@ -954,7 +932,7 @@
         errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/widget/SliceAdapter.java"
-            line="128"
+            line="129"
             column="34"/>
     </issue>
 
@@ -965,7 +943,7 @@
         errorLine2="                                ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/widget/SliceAdapter.java"
-            line="136"
+            line="137"
             column="33"/>
     </issue>
 
@@ -976,7 +954,7 @@
         errorLine2="                              ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/widget/SliceAdapter.java"
-            line="145"
+            line="146"
             column="31"/>
     </issue>
 
@@ -987,7 +965,7 @@
         errorLine2="                         ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/widget/SliceAdapter.java"
-            line="164"
+            line="165"
             column="26"/>
     </issue>
 
@@ -998,7 +976,7 @@
         errorLine2="                          ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/widget/SliceAdapter.java"
-            line="173"
+            line="174"
             column="27"/>
     </issue>
 
@@ -1009,7 +987,7 @@
         errorLine2="                                  ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/widget/SliceAdapter.java"
-            line="203"
+            line="204"
             column="35"/>
     </issue>
 
@@ -1020,7 +998,7 @@
         errorLine2="           ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/widget/SliceAdapter.java"
-            line="216"
+            line="217"
             column="12"/>
     </issue>
 
@@ -1031,7 +1009,7 @@
         errorLine2="                                     ~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/widget/SliceAdapter.java"
-            line="224"
+            line="225"
             column="38"/>
     </issue>
 
@@ -1042,7 +1020,7 @@
         errorLine2="                               ~~~~">
         <location
             file="src/main/java/androidx/slice/widget/SliceAdapter.java"
-            line="362"
+            line="363"
             column="32"/>
     </issue>
 
@@ -1053,7 +1031,7 @@
         errorLine2="                            ~~~~">
         <location
             file="src/main/java/androidx/slice/widget/SliceAdapter.java"
-            line="402"
+            line="403"
             column="29"/>
     </issue>
 
@@ -1064,7 +1042,7 @@
         errorLine2="                               ~~~~">
         <location
             file="src/main/java/androidx/slice/widget/SliceAdapter.java"
-            line="410"
+            line="411"
             column="32"/>
     </issue>
 
@@ -1075,7 +1053,7 @@
         errorLine2="                                       ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/widget/SliceAdapter.java"
-            line="410"
+            line="411"
             column="40"/>
     </issue>
 
@@ -1988,7 +1966,7 @@
         errorLine2="                                      ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/widget/TemplateView.java"
-            line="115"
+            line="116"
             column="39"/>
     </issue>
 
@@ -1999,7 +1977,7 @@
         errorLine2="                          ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/widget/TemplateView.java"
-            line="142"
+            line="143"
             column="27"/>
     </issue>
 
@@ -2010,7 +1988,7 @@
         errorLine2="                                 ~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/widget/TemplateView.java"
-            line="153"
+            line="154"
             column="34"/>
     </issue>
 
@@ -2021,7 +1999,7 @@
         errorLine2="                                  ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/widget/TemplateView.java"
-            line="162"
+            line="163"
             column="35"/>
     </issue>
 
@@ -2032,7 +2010,7 @@
         errorLine2="           ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/widget/TemplateView.java"
-            line="171"
+            line="172"
             column="12"/>
     </issue>
 
@@ -2043,7 +2021,7 @@
         errorLine2="                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/widget/TemplateView.java"
-            line="189"
+            line="190"
             column="40"/>
     </issue>
 
@@ -2054,7 +2032,7 @@
         errorLine2="                                ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/widget/TemplateView.java"
-            line="201"
+            line="202"
             column="33"/>
     </issue>
 
@@ -2065,7 +2043,7 @@
         errorLine2="                                ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/widget/TemplateView.java"
-            line="210"
+            line="211"
             column="33"/>
     </issue>
 
@@ -2076,7 +2054,7 @@
         errorLine2="                         ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/widget/TemplateView.java"
-            line="221"
+            line="222"
             column="26"/>
     </issue>
 
