@@ -61,14 +61,14 @@ class CompoundButtonAppWidget : GlanceAppWidget() {
             CheckBox(
                 checked = !toggled,
                 text = "Checkbox 2",
-                textStyle = textStyle,
+                style = textStyle,
                 modifier = fillModifier
             )
             Switch(checked = toggled, text = "Switch 1")
             Switch(
                 checked = !toggled,
                 text = "Switch 2",
-                textStyle = textStyle,
+                style = textStyle,
                 modifier = fillModifier
             )
         }

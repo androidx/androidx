@@ -645,7 +645,7 @@ class RemoteViewsTranslatorKtTest {
             CheckBox(
                 checked = false,
                 text = "test",
-                textStyle = TextStyle(textDecoration = TextDecoration.Underline),
+                style = TextStyle(textDecoration = TextDecoration.Underline),
             )
         }
         val view = context.applyRemoteViews(rv)
@@ -668,7 +668,7 @@ class RemoteViewsTranslatorKtTest {
             CheckBox(
                 checked = true,
                 text = "test checked",
-                textStyle = TextStyle(textDecoration = TextDecoration.LineThrough),
+                style = TextStyle(textDecoration = TextDecoration.LineThrough),
             )
         }
         val view = context.applyRemoteViews(rv)

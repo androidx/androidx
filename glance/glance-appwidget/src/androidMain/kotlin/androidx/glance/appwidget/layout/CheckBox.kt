@@ -29,14 +29,14 @@ import androidx.glance.text.TextStyle
  * @param checked whether the check box is checked.
  * @param modifier the modifier to apply to the check box.
  * @param text the text to display to the end of the check box.
- * @param textStyle the style to apply to [text].
+ * @param style the style to apply to [text].
  */
 @Composable
 public fun CheckBox(
     checked: Boolean,
     modifier: GlanceModifier = GlanceModifier,
     text: String = "",
-    textStyle: TextStyle? = null
+    style: TextStyle? = null
 ) {
     ComposeNode<EmittableCheckBox, Applier>(
         factory = ::EmittableCheckBox,
@@ -44,7 +44,7 @@ public fun CheckBox(
             this.set(checked) { this.checked = it }
             this.set(text) { this.text = it }
             this.set(modifier) { this.modifier = it }
-            this.set(textStyle) { this.textStyle = it }
+            this.set(style) { this.style = it }
         }
     )
 }
@@ -53,12 +53,12 @@ internal class EmittableCheckBox : Emittable {
     override var modifier: GlanceModifier = GlanceModifier
     var checked: Boolean = false
     var text: String = ""
-    var textStyle: TextStyle? = null
+    var style: TextStyle? = null
 
     override fun toString(): String = "EmittableCheckBox(" +
         "$text, " +
         "checked=$checked, " +
-        "textStyle=$textStyle, " +
+        "textStyle=$style, " +
         "modifier=$modifier" +
         ")"
 }
