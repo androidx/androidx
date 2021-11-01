@@ -163,7 +163,7 @@ inline class EglExtensions(
      *
      * Returns true if the extension is supported, false otherwise
      */
-    fun supportsExtension(extensionName: String): Boolean =
+    fun isExtensionSupported(extensionName: String): Boolean =
         extensionSet.contains(extensionName)
 
     companion object {

@@ -26,14 +26,14 @@ class EglExtensionsTest {
 
     @Test
     fun testSupportsBufferAge() {
-        assertTrue(EglExtensions(setOf("EGL_EXT_buffer_age")).supportsExtension(EglExtBufferAge))
+        assertTrue(EglExtensions(setOf("EGL_EXT_buffer_age")).isExtensionSupported(EglExtBufferAge))
     }
 
     @Test
     fun testSupportBufferAgeFromPartialUpdate() {
         // Buffer age can be supported from either EGL_EXT_buffer_age or EGL_KHR_partial_update
         assertTrue(
-            EglExtensions(setOf("EGL_KHR_partial_update")).supportsExtension(EglKhrPartialUpdate)
+            EglExtensions(setOf("EGL_KHR_partial_update")).isExtensionSupported(EglKhrPartialUpdate)
         )
     }
 
@@ -41,7 +41,7 @@ class EglExtensionsTest {
     fun testSetDamage() {
         assertTrue(
             EglExtensions(setOf("EGL_KHR_partial_update"))
-                .supportsExtension(EglKhrPartialUpdate)
+                .isExtensionSupported(EglKhrPartialUpdate)
         )
     }
 
@@ -49,7 +49,7 @@ class EglExtensionsTest {
     fun testSwapBuffersWithDamage() {
         assertTrue(
             EglExtensions(setOf("EGL_KHR_swap_buffers_with_damage"))
-                .supportsExtension(EglKhrSwapBuffersWithDamage)
+                .isExtensionSupported(EglKhrSwapBuffersWithDamage)
         )
     }
 
@@ -57,7 +57,7 @@ class EglExtensionsTest {
     fun testColorSpace() {
         assertTrue(
             EglExtensions(setOf("EGL_KHR_gl_colorspace"))
-                .supportsExtension(EglKhrGlColorSpace)
+                .isExtensionSupported(EglKhrGlColorSpace)
         )
     }
 
@@ -65,7 +65,7 @@ class EglExtensionsTest {
     fun testNoConfigContext() {
         assertTrue(
             EglExtensions(setOf("EGL_KHR_no_config_context"))
-                .supportsExtension(EglKhrNoConfigContext)
+                .isExtensionSupported(EglKhrNoConfigContext)
         )
     }
 
@@ -73,7 +73,7 @@ class EglExtensionsTest {
     fun testPixelFormatFloat() {
         assertTrue(
             EglExtensions(setOf("EGL_EXT_pixel_format_float"))
-                .supportsExtension(EglExtPixelFormatFloat)
+                .isExtensionSupported(EglExtPixelFormatFloat)
         )
     }
 
@@ -81,7 +81,7 @@ class EglExtensionsTest {
     fun testScRgb() {
         assertTrue(
             EglExtensions(setOf("EGL_EXT_gl_colorspace_scrgb"))
-                .supportsExtension(EglExtGlColorSpaceScRgb)
+                .isExtensionSupported(EglExtGlColorSpaceScRgb)
         )
     }
 
@@ -89,7 +89,7 @@ class EglExtensionsTest {
     fun testDisplayP3() {
         assertTrue(
             EglExtensions(setOf("EGL_EXT_gl_colorspace_display_p3_passthrough"))
-                .supportsExtension(EglExtColorSpaceDisplayP3Passthrough)
+                .isExtensionSupported(EglExtColorSpaceDisplayP3Passthrough)
         )
     }
 
@@ -97,7 +97,7 @@ class EglExtensionsTest {
     fun testHDR() {
         assertTrue(
             EglExtensions(setOf("EGL_EXT_gl_colorspace_bt2020_pq"))
-                .supportsExtension(EglExtGlColorSpaceBt2020Pq)
+                .isExtensionSupported(EglExtGlColorSpaceBt2020Pq)
         )
     }
 
@@ -105,7 +105,7 @@ class EglExtensionsTest {
     fun testContextPriority() {
         assertTrue(
             EglExtensions(setOf("EGL_IMG_context_priority"))
-                .supportsExtension(EglImgContextPriority)
+                .isExtensionSupported(EglImgContextPriority)
         )
     }
 
@@ -113,27 +113,27 @@ class EglExtensionsTest {
     fun testSurfacelessContext() {
         assertTrue(
             EglExtensions(setOf("EGL_KHR_surfaceless_context"))
-                .supportsExtension(EglKhrSurfacelessContext)
+                .isExtensionSupported(EglKhrSurfacelessContext)
         )
     }
 
     @Test
     fun testFenceSync() {
         assertTrue(
-            EglExtensions(setOf("EGL_KHR_fence_sync")).supportsExtension(EglKhrFenceSync)
+            EglExtensions(setOf("EGL_KHR_fence_sync")).isExtensionSupported(EglKhrFenceSync)
         )
     }
 
     @Test
     fun testWaitSync() {
-        assertTrue(EglExtensions(setOf("EGL_KHR_wait_sync")).supportsExtension(EglKhrWaitSync))
+        assertTrue(EglExtensions(setOf("EGL_KHR_wait_sync")).isExtensionSupported(EglKhrWaitSync))
     }
 
     @Test
     fun testNativeFenceSync() {
         assertTrue(
             EglExtensions(setOf("EGL_ANDROID_native_fence_sync"))
-                .supportsExtension(EglAndroidNativeFenceSync)
+                .isExtensionSupported(EglAndroidNativeFenceSync)
         )
     }
 
@@ -154,20 +154,20 @@ class EglExtensionsTest {
             "EGL_KHR_wait_sync " +
             "EGL_ANDROID_native_fence_sync "
         with(EglExtensions.from(extensionQuery)) {
-            assertTrue(supportsExtension(EglExtBufferAge))
-            assertTrue(supportsExtension(EglKhrPartialUpdate))
-            assertTrue(supportsExtension(EglKhrSwapBuffersWithDamage))
-            assertTrue(supportsExtension(EglKhrGlColorSpace))
-            assertTrue(supportsExtension(EglKhrNoConfigContext))
-            assertTrue(supportsExtension(EglExtPixelFormatFloat))
-            assertTrue(supportsExtension(EglExtGlColorSpaceScRgb))
-            assertTrue(supportsExtension(EglExtColorSpaceDisplayP3Passthrough))
-            assertTrue(supportsExtension(EglExtGlColorSpaceBt2020Pq))
-            assertTrue(supportsExtension(EglImgContextPriority))
-            assertTrue(supportsExtension(EglKhrSurfacelessContext))
-            assertTrue(supportsExtension(EglKhrFenceSync))
-            assertTrue(supportsExtension(EglKhrWaitSync))
-            assertTrue(supportsExtension(EglAndroidNativeFenceSync))
+            assertTrue(isExtensionSupported(EglExtBufferAge))
+            assertTrue(isExtensionSupported(EglKhrPartialUpdate))
+            assertTrue(isExtensionSupported(EglKhrSwapBuffersWithDamage))
+            assertTrue(isExtensionSupported(EglKhrGlColorSpace))
+            assertTrue(isExtensionSupported(EglKhrNoConfigContext))
+            assertTrue(isExtensionSupported(EglExtPixelFormatFloat))
+            assertTrue(isExtensionSupported(EglExtGlColorSpaceScRgb))
+            assertTrue(isExtensionSupported(EglExtColorSpaceDisplayP3Passthrough))
+            assertTrue(isExtensionSupported(EglExtGlColorSpaceBt2020Pq))
+            assertTrue(isExtensionSupported(EglImgContextPriority))
+            assertTrue(isExtensionSupported(EglKhrSurfacelessContext))
+            assertTrue(isExtensionSupported(EglKhrFenceSync))
+            assertTrue(isExtensionSupported(EglKhrWaitSync))
+            assertTrue(isExtensionSupported(EglAndroidNativeFenceSync))
         }
     }
 }

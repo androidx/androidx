@@ -59,14 +59,23 @@ package androidx.graphics.opengl.egl {
 
   public final class EglManager {
     ctor public EglManager(optional androidx.graphics.opengl.egl.EglSpec eglSpec);
-    method public android.opengl.EGLContext? createContext(android.opengl.EGLConfig config);
+    method public android.opengl.EGLContext createContext(android.opengl.EGLConfig config);
+    method public android.opengl.EGLSurface getCurrentDrawSurface();
+    method public android.opengl.EGLSurface getCurrentReadSurface();
+    method public android.opengl.EGLSurface getDefaultSurface();
     method public android.opengl.EGLConfig? getEglConfig();
     method public android.opengl.EGLContext? getEglContext();
     method public androidx.graphics.opengl.egl.EglSpec getEglSpec();
     method public androidx.graphics.opengl.egl.EglVersion getEglVersion();
     method public void initialize();
+    method public boolean isExtensionSupported(String extensionName);
     method public android.opengl.EGLConfig? loadConfig(int[] configAttributes);
+    method public boolean makeCurrent(android.opengl.EGLSurface drawSurface, optional android.opengl.EGLSurface readSurface);
+    method public boolean makeCurrent(android.opengl.EGLSurface drawSurface);
     method public void release();
+    property public final android.opengl.EGLSurface currentDrawSurface;
+    property public final android.opengl.EGLSurface currentReadSurface;
+    property public final android.opengl.EGLSurface defaultSurface;
     property public final android.opengl.EGLConfig? eglConfig;
     property public final android.opengl.EGLContext? eglContext;
     property public final androidx.graphics.opengl.egl.EglSpec eglSpec;
@@ -74,11 +83,16 @@ package androidx.graphics.opengl.egl {
   }
 
   public interface EglSpec {
-    method public android.opengl.EGLContext? createContext(android.opengl.EGLConfig config);
-    method public void destroyContext(android.opengl.EGLContext eglContext);
+    method public android.opengl.EGLContext eglCreateContext(android.opengl.EGLConfig config);
+    method public android.opengl.EGLSurface eglCreatePBufferSurface(android.opengl.EGLConfig config, int[] configAttributes);
+    method public void eglDestroyContext(android.opengl.EGLContext eglContext);
+    method public boolean eglDestroySurface(android.opengl.EGLSurface surface);
+    method public android.opengl.EGLSurface eglGetCurrentDrawSurface();
+    method public android.opengl.EGLSurface eglGetCurrentReadSurface();
+    method public androidx.graphics.opengl.egl.EglVersion eglInitialize();
+    method public boolean eglMakeCurrent(android.opengl.EGLContext context, android.opengl.EGLSurface drawSurface, android.opengl.EGLSurface readSurface);
     method public String eglQueryString(int nameId);
     method public default static String getStatusString(int error);
-    method public androidx.graphics.opengl.egl.EglVersion initialize();
     method public android.opengl.EGLConfig? loadConfig(int[] configAttributes);
     field public static final androidx.graphics.opengl.egl.EglSpec.Companion Companion;
     field public static final androidx.graphics.opengl.egl.EglSpec Egl14;

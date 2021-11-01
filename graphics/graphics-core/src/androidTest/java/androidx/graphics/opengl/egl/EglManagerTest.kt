@@ -16,10 +16,11 @@
 
 package androidx.graphics.opengl.egl
 
+import android.opengl.EGL14
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertNotNull
-import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
 import org.junit.Test
@@ -32,7 +33,7 @@ class EglManagerTest {
     fun testInitializeAndRelease() {
         testEglManager {
             initialize()
-            val config = loadConfig(EglConfigAttributes8888)?.let {
+            val config = loadConfig(EglConfigAttributes8888)?.also {
                 createContext(it)
             }
             if (config == null) {
@@ -53,12 +54,12 @@ class EglManagerTest {
     fun testMultipleInitializeCallsIgnored() {
         testEglManager {
             initialize()
-            loadConfig(EglConfigAttributes8888)?.let {
+            loadConfig(EglConfigAttributes8888)?.also {
                 createContext(it)
             }
             val currentContext = eglContext
             val currentConfig = eglConfig
-            assertNotNull(currentContext)
+            assertNotEquals(EGL14.EGL_NO_CONTEXT, currentContext)
             // Subsequent calls to initialize should be ignored
             // and the current EglContext should be the same as the previous call
             initialize()
@@ -71,16 +72,87 @@ class EglManagerTest {
     fun testMultipleReleaseCallsIgnored() {
         testEglManager {
             initialize()
-            loadConfig(EglConfigAttributes8888)?.let {
+            loadConfig(EglConfigAttributes8888)?.also {
                 createContext(it)
             }
             // Multiple attempts to release should act as no-ops, i.e. we should not crash
             // and the corresponding context should be nulled out
             release()
-            assertNull(eglContext)
+            assertEquals(EGL14.EGL_NO_CONTEXT, eglContext)
 
             release()
-            assertNull(eglContext)
+            assertEquals(EGL14.EGL_NO_CONTEXT, eglContext)
+        }
+    }
+
+    @Test
+    fun testDefaultSurface() {
+        testEglManager {
+            initialize()
+
+            assertEquals(defaultSurface, EGL14.EGL_NO_SURFACE)
+            assertEquals(currentDrawSurface, EGL14.EGL_NO_SURFACE)
+            assertEquals(currentReadSurface, EGL14.EGL_NO_SURFACE)
+
+            val config = loadConfig(EglConfigAttributes8888)
+
+            if (config == null) {
+                fail("Config 8888 should be supported")
+            }
+
+            createContext(config!!)
+
+            if (isExtensionSupported(EglKhrSurfacelessContext)) {
+                assertEquals(defaultSurface, EGL14.EGL_NO_SURFACE)
+            } else {
+                assertNotEquals(defaultSurface, EGL14.EGL_NO_SURFACE)
+            }
+
+            assertEquals(currentDrawSurface, defaultSurface)
+            assertEquals(currentReadSurface, defaultSurface)
+
+            release()
+
+            assertEquals(defaultSurface, EGL14.EGL_NO_SURFACE)
+            assertEquals(currentDrawSurface, EGL14.EGL_NO_SURFACE)
+            assertEquals(currentReadSurface, EGL14.EGL_NO_SURFACE)
+        }
+    }
+
+    @Test
+    fun testCreatePBufferSurface() {
+        testEglManager {
+            initialize()
+
+            assertEquals(defaultSurface, EGL14.EGL_NO_SURFACE)
+            assertEquals(currentDrawSurface, EGL14.EGL_NO_SURFACE)
+            assertEquals(currentReadSurface, EGL14.EGL_NO_SURFACE)
+
+            val config = loadConfig(EglConfigAttributes8888)
+
+            if (config == null) {
+                fail("Config 8888 should be supported")
+            }
+            createContext(config!!)
+
+            val pBuffer = eglSpec.eglCreatePBufferSurface(
+                config,
+                EglConfigAttributes {
+                    EGL14.EGL_WIDTH to 1
+                    EGL14.EGL_HEIGHT to 1
+                })
+
+            makeCurrent(pBuffer)
+
+            assertNotEquals(EGL14.EGL_NO_SURFACE, currentReadSurface)
+            assertNotEquals(EGL14.EGL_NO_SURFACE, currentDrawSurface)
+            assertNotEquals(EGL14.EGL_NO_SURFACE, pBuffer)
+
+            assertEquals(pBuffer, currentReadSurface)
+            assertEquals(pBuffer, currentDrawSurface)
+
+            eglSpec.eglDestroySurface(pBuffer)
+            release()
         }
     }
 
@@ -88,21 +160,14 @@ class EglManagerTest {
      * Helper method to ensure EglManager has the corresponding release calls
      * made to it and verifies that no exceptions were thrown as part of the test.
      */
-    private inline fun testEglManager(block: EglManager.() -> Unit = {}) {
+    private fun testEglManager(block: EglManager.() -> Unit = {}) {
         with(EglManager()) {
-            var success = true
-            try {
-                assertEquals(EglVersion.Unknown, eglVersion)
-                assertEquals(null, eglContext)
-                block()
-            } catch (t: Throwable) {
-                success = false
-            } finally {
-                release()
-                assertEquals(EglVersion.Unknown, eglVersion)
-                assertNull(eglContext)
-                assertTrue(success)
-            }
+            assertEquals(EglVersion.Unknown, eglVersion)
+            assertEquals(EGL14.EGL_NO_CONTEXT, eglContext)
+            block()
+            release()
+            assertEquals(EglVersion.Unknown, eglVersion)
+            assertEquals(EGL14.EGL_NO_CONTEXT, eglContext)
         }
     }
 }

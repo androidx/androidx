@@ -19,10 +19,13 @@ package androidx.graphics.opengl.egl
 import android.opengl.EGL14
 import android.opengl.EGLConfig
 import android.opengl.EGLContext
+import android.opengl.EGLSurface
 
 /**
  * Interface for accessing various EGL facilities independent of EGL versions.
- * That is each EGL version implements this specification
+ * That is each EGL version implements this specification.
+ *
+ * EglSpec is not thread safe and is up to the caller of these methods to guarantee thread safety.
  */
 interface EglSpec {
 
@@ -35,11 +38,67 @@ interface EglSpec {
     fun eglQueryString(nameId: Int): String
 
     /**
+     * Create a Pixel Buffer surface with the corresponding [EglConfigAttributes].
+     * Accepted attributes are defined as part of the OpenGL specification here:
+     * https://www.khronos.org/registry/EGL/sdk/docs/man/html/eglCreatePbufferSurface.xhtml
+     *
+     * If a pixel buffer surface could not be created, [EGL14.EGL_NO_SURFACE] is returned.
+     */
+    fun eglCreatePBufferSurface(
+        config: EGLConfig,
+        configAttributes: EglConfigAttributes
+    ): EGLSurface
+
+    /**
+     * Destroys an EGL surface.
+     *
+     * If the EGL surface is not current to any thread, eglDestroySurface destroys
+     * it immediately. Otherwise, surface is destroyed when it becomes not current to any thread.
+     * Furthermore, resources associated with a pbuffer surface are not released until all color
+     * buffers of that pbuffer bound to a texture object have been released. Deferral of
+     * surface destruction would still return true as deferral does not indicate a failure condition
+     *
+     * @return True if destruction of the EGLSurface was successful, false otherwise
+     */
+    fun eglDestroySurface(surface: EGLSurface): Boolean
+
+    /**
+     * Binds the current context to the given draw and read surfaces.
+     * The draw surface is used for all operations except for any pixel data read back or copy
+     * operations which are taken from the read surface.
+     *
+     * The same EGLSurface may be specified for both draw and read surfaces.
+     *
+     * See https://www.khronos.org/registry/EGL/sdk/docs/man/html/eglMakeCurrent.xhtml for more
+     * information
+     *
+     * @param drawSurface EGLSurface to draw pixels into.
+     * @param readSurface EGLSurface used for read/copy operations.
+     */
+    fun eglMakeCurrent(
+        context: EGLContext,
+        drawSurface: EGLSurface,
+        readSurface: EGLSurface
+    ): Boolean
+
+    /**
+     * Return the current surface used for reading or copying pixels.
+     * If no context is current, [EGL14.EGL_NO_SURFACE] is returned
+     */
+    fun eglGetCurrentReadSurface(): EGLSurface
+
+    /**
+     * Return the current surface used for drawing pixels.
+     * If no context is current, [EGL14.EGL_NO_SURFACE] is returned.
+     */
+    fun eglGetCurrentDrawSurface(): EGLSurface
+
+    /**
      * Initialize the EGL implementation and return the major and minor version of the EGL
      * implementation through [EglVersion]. If initialization fails, this returns
      * [EglVersion.Unknown]
      */
-    fun initialize(): EglVersion
+    fun eglInitialize(): EglVersion
 
     /**
      * Load a corresponding EGLConfig from the provided [EglConfigAttributes]
@@ -57,12 +116,12 @@ interface EglSpec {
      *
      * @param config [EGLConfig] used to create the [EGLContext]
      */
-    fun createContext(config: EGLConfig): EGLContext?
+    fun eglCreateContext(config: EGLConfig): EGLContext
 
     /**
-     * Destroy the given EGLContext generated in [createContext]
+     * Destroy the given EGLContext generated in [eglCreateContext]
      */
-    fun destroyContext(eglContext: EGLContext)
+    fun eglDestroyContext(eglContext: EGLContext)
 
     companion object {
 
@@ -79,7 +138,7 @@ interface EglSpec {
                 EGL14.EGL_NONE
             )
 
-            override fun initialize(): EglVersion {
+            override fun eglInitialize(): EglVersion {
                 // eglInitialize is destructive so create 2 separate arrays to store the major and
                 // minor version
                 val major = intArrayOf(1)
@@ -93,8 +152,40 @@ interface EglSpec {
                 }
             }
 
+            override fun eglGetCurrentReadSurface(): EGLSurface =
+                EGL14.eglGetCurrentSurface(EGL14.EGL_READ)
+
+            override fun eglGetCurrentDrawSurface(): EGLSurface =
+                EGL14.eglGetCurrentSurface(EGL14.EGL_DRAW)
+
             override fun eglQueryString(nameId: Int): String =
                 EGL14.eglQueryString(getDefaultDisplay(), nameId)
+
+            override fun eglCreatePBufferSurface(
+                config: EGLConfig,
+                configAttributes: EglConfigAttributes
+            ): EGLSurface =
+                EGL14.eglCreatePbufferSurface(
+                    getDefaultDisplay(),
+                    config,
+                    configAttributes.attrs,
+                    0
+                )
+
+            override fun eglDestroySurface(surface: EGLSurface) =
+                EGL14.eglDestroySurface(getDefaultDisplay(), surface)
+
+            override fun eglMakeCurrent(
+                context: EGLContext,
+                drawSurface: EGLSurface,
+                readSurface: EGLSurface
+            ): Boolean =
+                EGL14.eglMakeCurrent(
+                    getDefaultDisplay(),
+                    drawSurface,
+                    readSurface,
+                    context
+                )
 
             override fun loadConfig(configAttributes: EglConfigAttributes): EGLConfig? {
                 val configs = arrayOfNulls<EGLConfig?>(1)
@@ -114,7 +205,7 @@ interface EglSpec {
                 }
             }
 
-            override fun createContext(config: EGLConfig): EGLContext {
+            override fun eglCreateContext(config: EGLConfig): EGLContext {
                 return EGL14.eglCreateContext(
                     getDefaultDisplay(),
                     config,
@@ -124,7 +215,7 @@ interface EglSpec {
                 )
             }
 
-            override fun destroyContext(eglContext: EGLContext) {
+            override fun eglDestroyContext(eglContext: EGLContext) {
                 if (!EGL14.eglDestroyContext(getDefaultDisplay(), eglContext)) {
                     throw EglException(EGL14.eglGetError(), "Unable to destroy EGLContext")
                 }
