@@ -317,9 +317,14 @@ public abstract class WorkRequest {
                             || constraints.requiresCharging()
                             || (Build.VERSION.SDK_INT >= 23 && constraints.requiresDeviceIdle());
 
-            if (mWorkSpec.expedited && hasUnsupportedConstraints) {
-                throw new IllegalArgumentException(
-                        "Expedited jobs only support network and storage constraints");
+            if (mWorkSpec.expedited) {
+                if (hasUnsupportedConstraints) {
+                    throw new IllegalArgumentException(
+                            "Expedited jobs only support network and storage constraints");
+                }
+                if (mWorkSpec.initialDelay > 0) {
+                    throw new IllegalArgumentException("Expedited jobs cannot be delayed");
+                }
             }
             // Create a new id and WorkSpec so this WorkRequest.Builder can be used multiple times.
             mId = UUID.randomUUID();
