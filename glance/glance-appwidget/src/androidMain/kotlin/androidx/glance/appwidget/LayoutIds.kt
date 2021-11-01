@@ -82,13 +82,13 @@ internal data class LayoutSelector(
         CheckBox,
         CheckBoxBackport,
         Button,
-
         // Note: Java keywords, such as 'switch', can't be used for layout ids.
         Swtch,
         SwtchBackport,
         ImageCrop,
         ImageFit,
         ImageFillBounds,
+        Spacer
     }
 }
 

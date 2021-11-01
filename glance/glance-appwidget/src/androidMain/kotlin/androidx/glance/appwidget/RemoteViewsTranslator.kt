@@ -47,6 +47,7 @@ import androidx.glance.layout.EmittableColumn
 import androidx.glance.layout.EmittableImage
 import androidx.glance.layout.EmittableRow
 import androidx.glance.layout.EmittableText
+import androidx.glance.layout.EmittableSpacer
 import java.util.concurrent.atomic.AtomicInteger
 
 internal fun translateComposition(
@@ -107,6 +108,7 @@ internal fun translateChild(
             translateEmittableAndroidRemoteViews(translationContext, element)
         }
         is EmittableCheckBox -> translateEmittableCheckBox(translationContext, element)
+        is EmittableSpacer -> translateEmittableSpacer(translationContext, element)
         is EmittableSwitch -> translateEmittableSwitch(translationContext, element)
         is EmittableImage -> translateEmittableImage(translationContext, element)
         else -> throw IllegalArgumentException("Unknown element type ${element::javaClass}")
@@ -239,6 +241,17 @@ private fun translateEmittableButton(
         verticalTextGravity = Gravity.CENTER_VERTICAL,
     )
     rv.setBoolean(layoutDef.mainViewId, "setEnabled", element.enabled)
+    applyModifiers(translationContext, rv, element.modifier, layoutDef)
+    return rv
+}
+
+private fun translateEmittableSpacer(
+    translationContext: TranslationContext,
+    element: EmittableSpacer
+): RemoteViews {
+    val layoutDef =
+        createRemoteViews(translationContext, LayoutSelector.Type.Spacer, element.modifier)
+    val rv = layoutDef.remoteViews
     applyModifiers(translationContext, rv, element.modifier, layoutDef)
     return rv
 }
