@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.1.0-dev" type="baseline" client="gradle" name="AGP (7.1.0-dev)" variant="all" version="7.1.0-dev">
+<issues format="6" by="lint 7.1.0-alpha08" type="baseline" client="gradle" dependencies="false" name="AGP (7.1.0-alpha08)" variant="all" version="7.1.0-alpha08">
 
     <issue
         id="NewApi"
@@ -146,353 +146,12 @@
 
     <issue
         id="NewApi"
-        message="Class requires API level 28 (current min is 14): `android.hardware.biometrics.BiometricPrompt`"
-        errorLine1="                mock(android.hardware.biometrics.BiometricPrompt.class);"
-        errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/test/java/androidx/biometric/BiometricFragmentTest.java"
-            line="169"
-            column="22"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 28 (current min is 14): `android.hardware.biometrics.BiometricPrompt#authenticate`"
-        errorLine1="        doThrow(NullPointerException.class).when(biometricPrompt).authenticate("
-        errorLine2="                                                                  ~~~~~~~~~~~~">
-        <location
-            file="src/test/java/androidx/biometric/BiometricFragmentTest.java"
-            line="170"
-            column="67"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Class requires API level 16 (current min is 14): `android.os.CancellationSignal`"
-        errorLine1="                any(android.os.CancellationSignal.class),"
-        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/test/java/androidx/biometric/BiometricFragmentTest.java"
-            line="171"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Class requires API level 28 (current min is 14): `android.hardware.biometrics.BiometricPrompt.AuthenticationCallback`"
-        errorLine1="                any(android.hardware.biometrics.BiometricPrompt.AuthenticationCallback.class));"
-        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/test/java/androidx/biometric/BiometricFragmentTest.java"
-            line="173"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 28 (current min is 14): `authenticateWithBiometricPrompt`"
-        errorLine1="        mFragment.authenticateWithBiometricPrompt(biometricPrompt, mContext);"
-        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/test/java/androidx/biometric/BiometricFragmentTest.java"
-            line="176"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Class requires API level 29 (current min is 14): `android.hardware.biometrics.BiometricManager`"
-        errorLine1="                mock(android.hardware.biometrics.BiometricManager.class);"
-        errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/test/java/androidx/biometric/BiometricManagerTest.java"
-            line="59"
-            column="22"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 29 (current min is 14): `android.hardware.biometrics.BiometricManager#canAuthenticate`"
-        errorLine1="        when(frameworkBiometricManager.canAuthenticate()).thenReturn(BIOMETRIC_SUCCESS);"
-        errorLine2="                                       ~~~~~~~~~~~~~~~">
-        <location
-            file="src/test/java/androidx/biometric/BiometricManagerTest.java"
-            line="60"
-            column="40"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Class requires API level 29 (current min is 14): `android.hardware.biometrics.BiometricManager`"
-        errorLine1="                mock(android.hardware.biometrics.BiometricManager.class);"
-        errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/test/java/androidx/biometric/BiometricManagerTest.java"
-            line="81"
-            column="22"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 29 (current min is 14): `android.hardware.biometrics.BiometricManager#canAuthenticate`"
-        errorLine1="        when(frameworkBiometricManager.canAuthenticate()).thenReturn(BIOMETRIC_ERROR_NONE_ENROLLED);"
-        errorLine2="                                       ~~~~~~~~~~~~~~~">
-        <location
-            file="src/test/java/androidx/biometric/BiometricManagerTest.java"
-            line="82"
-            column="40"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Class requires API level 29 (current min is 14): `android.hardware.biometrics.BiometricManager`"
-        errorLine1="                mock(android.hardware.biometrics.BiometricManager.class);"
-        errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/test/java/androidx/biometric/BiometricManagerTest.java"
-            line="104"
-            column="22"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 29 (current min is 14): `android.hardware.biometrics.BiometricManager#canAuthenticate`"
-        errorLine1="        when(frameworkBiometricManager.canAuthenticate()).thenReturn(BIOMETRIC_ERROR_NO_HARDWARE);"
-        errorLine2="                                       ~~~~~~~~~~~~~~~">
-        <location
-            file="src/test/java/androidx/biometric/BiometricManagerTest.java"
-            line="105"
-            column="40"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Class requires API level 29 (current min is 14): `android.hardware.biometrics.BiometricManager`"
-        errorLine1="                mock(android.hardware.biometrics.BiometricManager.class);"
-        errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/test/java/androidx/biometric/BiometricManagerTest.java"
-            line="127"
-            column="22"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 29 (current min is 14): `android.hardware.biometrics.BiometricManager#canAuthenticate`"
-        errorLine1="        when(frameworkBiometricManager.canAuthenticate()).thenReturn(BIOMETRIC_SUCCESS);"
-        errorLine2="                                       ~~~~~~~~~~~~~~~">
-        <location
-            file="src/test/java/androidx/biometric/BiometricManagerTest.java"
-            line="128"
-            column="40"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Class requires API level 29 (current min is 14): `android.hardware.biometrics.BiometricManager`"
-        errorLine1="                mock(android.hardware.biometrics.BiometricManager.class);"
-        errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/test/java/androidx/biometric/BiometricManagerTest.java"
-            line="169"
-            column="22"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 29 (current min is 14): `android.hardware.biometrics.BiometricManager#canAuthenticate`"
-        errorLine1="        when(frameworkBiometricManager.canAuthenticate()).thenReturn(BIOMETRIC_SUCCESS);"
-        errorLine2="                                       ~~~~~~~~~~~~~~~">
-        <location
-            file="src/test/java/androidx/biometric/BiometricManagerTest.java"
-            line="170"
-            column="40"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Class requires API level 29 (current min is 14): `android.hardware.biometrics.BiometricManager`"
-        errorLine1="                mock(android.hardware.biometrics.BiometricManager.class);"
-        errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/test/java/androidx/biometric/BiometricManagerTest.java"
-            line="207"
-            column="22"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 29 (current min is 14): `android.hardware.biometrics.BiometricManager#canAuthenticate`"
-        errorLine1="        when(frameworkBiometricManager.canAuthenticate()).thenReturn(BIOMETRIC_SUCCESS);"
-        errorLine2="                                       ~~~~~~~~~~~~~~~">
-        <location
-            file="src/test/java/androidx/biometric/BiometricManagerTest.java"
-            line="208"
-            column="40"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Class requires API level 29 (current min is 14): `android.hardware.biometrics.BiometricManager`"
-        errorLine1="                mock(android.hardware.biometrics.BiometricManager.class);"
-        errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/test/java/androidx/biometric/BiometricManagerTest.java"
-            line="245"
-            column="22"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 29 (current min is 14): `android.hardware.biometrics.BiometricManager#canAuthenticate`"
-        errorLine1="        when(frameworkBiometricManager.canAuthenticate()).thenReturn(BIOMETRIC_ERROR_NO_HARDWARE);"
-        errorLine2="                                       ~~~~~~~~~~~~~~~">
-        <location
-            file="src/test/java/androidx/biometric/BiometricManagerTest.java"
-            line="246"
-            column="40"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Class requires API level 29 (current min is 14): `android.hardware.biometrics.BiometricManager`"
-        errorLine1="                mock(android.hardware.biometrics.BiometricManager.class);"
-        errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/test/java/androidx/biometric/BiometricManagerTest.java"
-            line="284"
-            column="22"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 29 (current min is 14): `android.hardware.biometrics.BiometricManager#canAuthenticate`"
-        errorLine1="        when(frameworkBiometricManager.canAuthenticate()).thenReturn(BIOMETRIC_ERROR_NO_HARDWARE);"
-        errorLine2="                                       ~~~~~~~~~~~~~~~">
-        <location
-            file="src/test/java/androidx/biometric/BiometricManagerTest.java"
-            line="285"
-            column="40"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Class requires API level 29 (current min is 14): `android.hardware.biometrics.BiometricManager`"
-        errorLine1="                mock(android.hardware.biometrics.BiometricManager.class);"
-        errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/test/java/androidx/biometric/BiometricManagerTest.java"
-            line="323"
-            column="22"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 29 (current min is 14): `android.hardware.biometrics.BiometricManager#canAuthenticate`"
-        errorLine1="        when(frameworkBiometricManager.canAuthenticate()).thenReturn(BIOMETRIC_ERROR_NONE_ENROLLED);"
-        errorLine2="                                       ~~~~~~~~~~~~~~~">
-        <location
-            file="src/test/java/androidx/biometric/BiometricManagerTest.java"
-            line="324"
-            column="40"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Class requires API level 29 (current min is 14): `android.hardware.biometrics.BiometricManager`"
-        errorLine1="                mock(android.hardware.biometrics.BiometricManager.class);"
-        errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/test/java/androidx/biometric/BiometricManagerTest.java"
-            line="358"
-            column="22"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 29 (current min is 14): `android.hardware.biometrics.BiometricManager#canAuthenticate`"
-        errorLine1="        when(frameworkBiometricManager.canAuthenticate()).thenReturn(BIOMETRIC_SUCCESS);"
-        errorLine2="                                       ~~~~~~~~~~~~~~~">
-        <location
-            file="src/test/java/androidx/biometric/BiometricManagerTest.java"
-            line="359"
-            column="40"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Class requires API level 29 (current min is 14): `android.hardware.biometrics.BiometricManager`"
-        errorLine1="                mock(android.hardware.biometrics.BiometricManager.class);"
-        errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/test/java/androidx/biometric/BiometricManagerTest.java"
-            line="381"
-            column="22"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 29 (current min is 14): `android.hardware.biometrics.BiometricManager#canAuthenticate`"
-        errorLine1="        when(frameworkBiometricManager.canAuthenticate()).thenReturn(BIOMETRIC_ERROR_NONE_ENROLLED);"
-        errorLine2="                                       ~~~~~~~~~~~~~~~">
-        <location
-            file="src/test/java/androidx/biometric/BiometricManagerTest.java"
-            line="382"
-            column="40"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Class requires API level 29 (current min is 14): `android.hardware.biometrics.BiometricManager`"
-        errorLine1="                mock(android.hardware.biometrics.BiometricManager.class);"
-        errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/test/java/androidx/biometric/BiometricManagerTest.java"
-            line="404"
-            column="22"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 29 (current min is 14): `android.hardware.biometrics.BiometricManager#canAuthenticate`"
-        errorLine1="        when(frameworkBiometricManager.canAuthenticate()).thenReturn(BIOMETRIC_SUCCESS);"
-        errorLine2="                                       ~~~~~~~~~~~~~~~">
-        <location
-            file="src/test/java/androidx/biometric/BiometricManagerTest.java"
-            line="405"
-            column="40"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Class requires API level 29 (current min is 14): `android.hardware.biometrics.BiometricManager`"
-        errorLine1="                mock(android.hardware.biometrics.BiometricManager.class);"
-        errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/test/java/androidx/biometric/BiometricManagerTest.java"
-            line="444"
-            column="22"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 29 (current min is 14): `android.hardware.biometrics.BiometricManager#canAuthenticate`"
-        errorLine1="        when(frameworkBiometricManager.canAuthenticate()).thenReturn(BIOMETRIC_SUCCESS);"
-        errorLine2="                                       ~~~~~~~~~~~~~~~">
-        <location
-            file="src/test/java/androidx/biometric/BiometricManagerTest.java"
-            line="445"
-            column="40"/>
-    </issue>
-
-    <issue
-        id="NewApi"
         message="Class requires API level 16 (current min is 14): `android.os.CancellationSignal`"
         errorLine1="                return mock(android.os.CancellationSignal.class);"
         errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/test/java/androidx/biometric/CancellationSignalProviderTest.java"
-            line="69"
+            line="70"
             column="29"/>
     </issue>
 
@@ -503,7 +162,7 @@
         errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/test/java/androidx/biometric/CancellationSignalProviderTest.java"
-            line="85"
+            line="86"
             column="26"/>
     </issue>
 
@@ -514,7 +173,7 @@
         errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/test/java/androidx/biometric/CancellationSignalProviderTest.java"
-            line="86"
+            line="87"
             column="29"/>
     </issue>
 
@@ -525,7 +184,7 @@
         errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/test/java/androidx/biometric/CancellationSignalProviderTest.java"
-            line="95"
+            line="96"
             column="29"/>
     </issue>
 
@@ -536,7 +195,7 @@
         errorLine2="                                             ~~~~~~">
         <location
             file="src/test/java/androidx/biometric/CancellationSignalProviderTest.java"
-            line="100"
+            line="101"
             column="46"/>
     </issue>
 
@@ -547,7 +206,7 @@
         errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/test/java/androidx/biometric/CancellationSignalProviderTest.java"
-            line="130"
+            line="131"
             column="29"/>
     </issue>
 
@@ -558,7 +217,7 @@
         errorLine2="                                             ~~~~~~">
         <location
             file="src/test/java/androidx/biometric/CancellationSignalProviderTest.java"
-            line="137"
+            line="138"
             column="46"/>
     </issue>
 
@@ -569,7 +228,7 @@
         errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/test/java/androidx/biometric/CancellationSignalProviderTest.java"
-            line="147"
+            line="148"
             column="26"/>
     </issue>
 
@@ -580,7 +239,7 @@
         errorLine2="                                                                  ~~~~~~">
         <location
             file="src/test/java/androidx/biometric/CancellationSignalProviderTest.java"
-            line="151"
+            line="152"
             column="67"/>
     </issue>
 
@@ -591,7 +250,7 @@
         errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/test/java/androidx/biometric/CancellationSignalProviderTest.java"
-            line="156"
+            line="157"
             column="29"/>
     </issue>
 
@@ -1015,7 +674,7 @@
 
     <issue
         id="WrongConstant"
-        message="Must be one of: BiometricPrompt.AUTHENTICATION_RESULT_TYPE_UNKNOWN, BiometricPrompt.AUTHENTICATION_RESULT_TYPE_DEVICE_CREDENTIAL, BiometricPrompt.AUTHENTICATION_RESULT_TYPE_BIOMETRIC"
+        message="Must be one of: BiometricPrompt.AUTHENTICATION_RESULT_TYPE_UNKNOWN, BiometricPrompt.AUTHENTICATION_RESULT_TYPE_DEVICE_CREDENTIAL, BiometricPrompt.AUTHENTICATION_RESULT_TYPE_BIOMETRIC, but could be BiometricPrompt.AUTHENTICATION_RESULT_TYPE_DEVICE_CREDENTIAL, BiometricPrompt.AUTHENTICATION_RESULT_TYPE_BIOMETRIC"
         errorLine1="            return result.getAuthenticationType();"
         errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -1026,23 +685,23 @@
 
     <issue
         id="WrongConstant"
-        message="Must be one of: BiometricManager.BIOMETRIC_SUCCESS, BiometricManager.BIOMETRIC_STATUS_UNKNOWN, BiometricManager.BIOMETRIC_ERROR_UNSUPPORTED, BiometricManager.BIOMETRIC_ERROR_HW_UNAVAILABLE, BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED, BiometricManager.BIOMETRIC_ERROR_NO_HARDWARE, BiometricManager.BIOMETRIC_ERROR_SECURITY_UPDATE_REQUIRED"
+        message="Must be one of: BiometricManager.BIOMETRIC_SUCCESS, BiometricManager.BIOMETRIC_STATUS_UNKNOWN, BiometricManager.BIOMETRIC_ERROR_UNSUPPORTED, BiometricManager.BIOMETRIC_ERROR_HW_UNAVAILABLE, BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED, BiometricManager.BIOMETRIC_ERROR_NO_HARDWARE, BiometricManager.BIOMETRIC_ERROR_SECURITY_UPDATE_REQUIRED, but could be BiometricManager.BIOMETRIC_SUCCESS, BiometricManager.BIOMETRIC_ERROR_HW_UNAVAILABLE, BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED, BiometricManager.BIOMETRIC_ERROR_NO_HARDWARE, BiometricManager.BIOMETRIC_ERROR_SECURITY_UPDATE_REQUIRED"
         errorLine1="            return biometricManager.canAuthenticate(authenticators);"
         errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/biometric/BiometricManager.java"
-            line="532"
+            line="1026"
             column="20"/>
     </issue>
 
     <issue
         id="WrongConstant"
-        message="Must be one of: BiometricManager.BIOMETRIC_SUCCESS, BiometricManager.BIOMETRIC_STATUS_UNKNOWN, BiometricManager.BIOMETRIC_ERROR_UNSUPPORTED, BiometricManager.BIOMETRIC_ERROR_HW_UNAVAILABLE, BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED, BiometricManager.BIOMETRIC_ERROR_NO_HARDWARE, BiometricManager.BIOMETRIC_ERROR_SECURITY_UPDATE_REQUIRED"
+        message="Must be one of: BiometricManager.BIOMETRIC_SUCCESS, BiometricManager.BIOMETRIC_STATUS_UNKNOWN, BiometricManager.BIOMETRIC_ERROR_UNSUPPORTED, BiometricManager.BIOMETRIC_ERROR_HW_UNAVAILABLE, BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED, BiometricManager.BIOMETRIC_ERROR_NO_HARDWARE, BiometricManager.BIOMETRIC_ERROR_SECURITY_UPDATE_REQUIRED, but could be BiometricManager.BIOMETRIC_SUCCESS, BiometricManager.BIOMETRIC_ERROR_HW_UNAVAILABLE, BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED, BiometricManager.BIOMETRIC_ERROR_NO_HARDWARE, BiometricManager.BIOMETRIC_ERROR_SECURITY_UPDATE_REQUIRED"
         errorLine1="            return biometricManager.canAuthenticate();"
         errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/biometric/BiometricManager.java"
-            line="568"
+            line="1062"
             column="20"/>
     </issue>
 

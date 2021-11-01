@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.2.0-dev" type="baseline" client="gradle" dependencies="false" name="AGP (7.2.0-dev)" variant="all" version="7.2.0-dev">
+<issues format="6" by="lint 7.1.0-alpha08" type="baseline" client="gradle" dependencies="false" name="AGP (7.1.0-alpha08)" variant="all" version="7.1.0-alpha08">
 
     <issue
         id="NewApi"
@@ -91,17 +91,6 @@
 
     <issue
         id="WrongConstant"
-        message="Must be one of: View.VISIBLE, View.INVISIBLE, View.GONE"
-        errorLine1="        mChildVisibility = -1;"
-        errorLine2="                           ~~">
-        <location
-            file="src/main/java/androidx/leanback/widget/GridLayoutManager.java"
-            line="728"
-            column="28"/>
-    </issue>
-
-    <issue
-        id="WrongConstant"
         message="Must be one of: PlaybackBannerControlGlue.PLAYBACK_SPEED_INVALID, PlaybackBannerControlGlue.PLAYBACK_SPEED_PAUSED, PlaybackBannerControlGlue.PLAYBACK_SPEED_NORMAL, PlaybackBannerControlGlue.PLAYBACK_SPEED_FAST_L0, PlaybackBannerControlGlue.PLAYBACK_SPEED_FAST_L1, PlaybackBannerControlGlue.PLAYBACK_SPEED_FAST_L2, PlaybackBannerControlGlue.PLAYBACK_SPEED_FAST_L3, PlaybackBannerControlGlue.PLAYBACK_SPEED_FAST_L4"
         errorLine1="                mPlaybackSpeed = -PLAYBACK_SPEED_FAST_L0;"
         errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~~~~">
@@ -131,28 +120,6 @@
             file="src/main/java/androidx/leanback/widget/picker/DatePicker.java"
             line="144"
             column="58"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class null is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            Rect center = t.getEpicenter();"
-        errorLine2="                            ~~~~~~~~~~~~">
-        <location
-            file="api21/androidx/leanback/transition/FadeAndShortSlide.java"
-            line="114"
-            column="29"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class null is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            Rect center = getEpicenter();"
-        errorLine2="                          ~~~~~~~~~~~~">
-        <location
-            file="api21/androidx/leanback/transition/FadeAndShortSlide.java"
-            line="144"
-            column="27"/>
     </issue>
 
     <issue
@@ -421,28 +388,6 @@
 
     <issue
         id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class androidx.leanback.widget.RoundedRectHelperApi21.RoundedRectOutlineProvider is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            outline.setRoundRect(0, 0, view.getWidth(), view.getHeight(), mRadius);"
-        errorLine2="                    ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/widget/RoundedRectHelperApi21.java"
-            line="39"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class androidx.leanback.widget.RoundedRectHelperApi21.RoundedRectOutlineProvider is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            outline.setAlpha(1f);"
-        errorLine2="                    ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/widget/RoundedRectHelperApi21.java"
-            line="40"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
         message="This call references a method added in API level 19; however, the containing class androidx.leanback.system.Settings is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            mOutlineClippingDisabled = activityManager.isLowRamDevice();"
         errorLine2="                                                       ~~~~~~~~~~~~~~">
@@ -450,28 +395,6 @@
             file="src/main/java/androidx/leanback/system/Settings.java"
             line="132"
             column="56"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class null is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            outline.setRect(0, 0, view.getWidth(), view.getHeight());"
-        errorLine2="                    ~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/widget/ShadowHelperApi21.java"
-            line="34"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class null is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            outline.setAlpha(1.0f);"
-        errorLine2="                    ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/widget/ShadowHelperApi21.java"
-            line="35"
-            column="21"/>
     </issue>
 
     <issue
@@ -2264,281 +2187,6 @@
             file="src/main/java/androidx/leanback/app/BaseFragment.java"
             line="332"
             column="18"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public boolean onInterceptTouchEvent(MotionEvent event);"
-        errorLine2="                                             ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/widget/BaseGridView.java"
-            line="192"
-            column="46"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public boolean onInterceptMotionEvent(MotionEvent event);"
-        errorLine2="                                              ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/widget/BaseGridView.java"
-            line="202"
-            column="47"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public boolean onInterceptKeyEvent(KeyEvent event);"
-        errorLine2="                                           ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/widget/BaseGridView.java"
-            line="212"
-            column="44"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public boolean onUnhandledKey(KeyEvent event);"
-        errorLine2="                                      ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/widget/BaseGridView.java"
-            line="219"
-            column="39"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void setOnChildLaidOutListener(OnChildLaidOutListener listener) {"
-        errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/widget/BaseGridView.java"
-            line="664"
-            column="43"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void setOnChildSelectedListener(OnChildSelectedListener listener) {"
-        errorLine2="                                           ~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/widget/BaseGridView.java"
-            line="677"
-            column="44"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void setOnChildViewHolderSelectedListener(OnChildViewHolderSelectedListener listener) {"
-        errorLine2="                                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/widget/BaseGridView.java"
-            line="709"
-            column="54"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void addOnChildViewHolderSelectedListener(OnChildViewHolderSelectedListener listener) {"
-        errorLine2="                                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/widget/BaseGridView.java"
-            line="721"
-            column="54"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void removeOnChildViewHolderSelectedListener(OnChildViewHolderSelectedListener listener)"
-        errorLine2="                                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/widget/BaseGridView.java"
-            line="730"
-            column="57"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void setSelectedPositionSmooth(final int position, final ViewHolderTask task) {"
-        errorLine2="                                                                    ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/widget/BaseGridView.java"
-            line="795"
-            column="69"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void setSelectedPosition(final int position, final ViewHolderTask task) {"
-        errorLine2="                                                              ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/widget/BaseGridView.java"
-            line="821"
-            column="63"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public boolean onRequestFocusInDescendants(int direction, Rect previouslyFocusedRect) {"
-        errorLine2="                                                              ~~~~">
-        <location
-            file="src/main/java/androidx/leanback/widget/BaseGridView.java"
-            line="916"
-            column="63"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void getViewSelectedOffsets(View view, int[] offsets) {"
-        errorLine2="                                       ~~~~">
-        <location
-            file="src/main/java/androidx/leanback/widget/BaseGridView.java"
-            line="932"
-            column="40"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void getViewSelectedOffsets(View view, int[] offsets) {"
-        errorLine2="                                                  ~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/widget/BaseGridView.java"
-            line="932"
-            column="51"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public View focusSearch(int direction) {"
-        errorLine2="           ~~~~">
-        <location
-            file="src/main/java/androidx/leanback/widget/BaseGridView.java"
-            line="946"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    protected void onFocusChanged(boolean gainFocus, int direction, Rect previouslyFocusedRect) {"
-        errorLine2="                                                                    ~~~~">
-        <location
-            file="src/main/java/androidx/leanback/widget/BaseGridView.java"
-            line="960"
-            column="69"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void setOnTouchInterceptListener(OnTouchInterceptListener listener) {"
-        errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/widget/BaseGridView.java"
-            line="1056"
-            column="45"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void setOnMotionInterceptListener(OnMotionInterceptListener listener) {"
-        errorLine2="                                             ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/widget/BaseGridView.java"
-            line="1064"
-            column="46"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void setOnKeyInterceptListener(OnKeyInterceptListener listener) {"
-        errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/widget/BaseGridView.java"
-            line="1072"
-            column="43"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void setOnUnhandledKeyListener(OnUnhandledKeyListener listener) {"
-        errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/widget/BaseGridView.java"
-            line="1080"
-            column="43"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public OnUnhandledKeyListener getOnUnhandledKeyListener() {"
-        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/widget/BaseGridView.java"
-            line="1088"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public boolean dispatchKeyEvent(KeyEvent event) {"
-        errorLine2="                                    ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/widget/BaseGridView.java"
-            line="1093"
-            column="37"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public boolean dispatchTouchEvent(MotionEvent event) {"
-        errorLine2="                                      ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/widget/BaseGridView.java"
-            line="1104"
-            column="39"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    protected boolean dispatchGenericFocusedEvent(MotionEvent event) {"
-        errorLine2="                                                  ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/widget/BaseGridView.java"
-            line="1114"
-            column="51"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void removeView(View view) {"
-        errorLine2="                           ~~~~">
-        <location
-            file="src/main/java/androidx/leanback/widget/BaseGridView.java"
-            line="1366"
-            column="28"/>
     </issue>
 
     <issue
@@ -7098,39 +6746,6 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public Object getFacet(Class&lt;?> facetClass);"
-        errorLine2="           ~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/widget/FacetProvider.java"
-            line="67"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public Object getFacet(Class&lt;?> facetClass);"
-        errorLine2="                           ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/widget/FacetProvider.java"
-            line="67"
-            column="28"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public FacetProvider getFacetProvider(int type);"
-        errorLine2="           ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/widget/FacetProviderAdapter.java"
-            line="43"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="    public FadeAndShortSlide(Context context, AttributeSet attrs) {"
         errorLine2="                             ~~~~~~~">
         <location
@@ -7907,28 +7522,6 @@
             file="src/main/java/androidx/leanback/widget/FullWidthDetailsOverviewSharedElementHelper.java"
             line="120"
             column="28"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        int createItem(int index, boolean append, Object[] item, boolean disappearingItem);"
-        errorLine2="                                                  ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/widget/Grid.java"
-            line="83"
-            column="51"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        void addItem(Object item, int index, int length, int rowIndex, int edge);"
-        errorLine2="                     ~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/widget/Grid.java"
-            line="93"
-            column="22"/>
     </issue>
 
     <issue
@@ -11036,94 +10629,6 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public HorizontalGridView(Context context) {"
-        errorLine2="                              ~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/widget/HorizontalGridView.java"
-            line="69"
-            column="31"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public HorizontalGridView(Context context, AttributeSet attrs) {"
-        errorLine2="                              ~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/widget/HorizontalGridView.java"
-            line="73"
-            column="31"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public HorizontalGridView(Context context, AttributeSet attrs) {"
-        errorLine2="                                               ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/widget/HorizontalGridView.java"
-            line="73"
-            column="48"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public HorizontalGridView(Context context, AttributeSet attrs, int defStyle) {"
-        errorLine2="                              ~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/widget/HorizontalGridView.java"
-            line="77"
-            column="31"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public HorizontalGridView(Context context, AttributeSet attrs, int defStyle) {"
-        errorLine2="                                               ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/widget/HorizontalGridView.java"
-            line="77"
-            column="48"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    protected void initAttributes(Context context, AttributeSet attrs) {"
-        errorLine2="                                  ~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/widget/HorizontalGridView.java"
-            line="84"
-            column="35"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    protected void initAttributes(Context context, AttributeSet attrs) {"
-        errorLine2="                                                   ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/widget/HorizontalGridView.java"
-            line="84"
-            column="52"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void draw(Canvas canvas) {"
-        errorLine2="                     ~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/widget/HorizontalGridView.java"
-            line="315"
-            column="22"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="    protected void insertView(View view) {"
         errorLine2="                              ~~~~">
         <location
@@ -11438,28 +10943,6 @@
             file="src/main/java/androidx/leanback/widget/InvisibleRowPresenter.java"
             line="34"
             column="46"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void setAlignmentDefs(ItemAlignmentDef[] defs) {"
-        errorLine2="                                 ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/widget/ItemAlignmentFacet.java"
-            line="196"
-            column="34"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public ItemAlignmentDef[] getAlignmentDefs() {"
-        errorLine2="           ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/widget/ItemAlignmentFacet.java"
-            line="206"
-            column="12"/>
     </issue>
 
     <issue
@@ -13396,94 +12879,6 @@
             file="src/main/java/androidx/leanback/widget/OnActionClickedListener.java"
             line="24"
             column="26"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    void onChildLaidOut(ViewGroup parent, View view, int position, long id);"
-        errorLine2="                        ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/widget/OnChildLaidOutListener.java"
-            line="33"
-            column="25"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    void onChildLaidOut(ViewGroup parent, View view, int position, long id);"
-        errorLine2="                                          ~~~~">
-        <location
-            file="src/main/java/androidx/leanback/widget/OnChildLaidOutListener.java"
-            line="33"
-            column="43"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    void onChildSelected(ViewGroup parent, View view, int position, long id);"
-        errorLine2="                         ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/widget/OnChildSelectedListener.java"
-            line="38"
-            column="26"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    void onChildSelected(ViewGroup parent, View view, int position, long id);"
-        errorLine2="                                           ~~~~">
-        <location
-            file="src/main/java/androidx/leanback/widget/OnChildSelectedListener.java"
-            line="38"
-            column="44"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void onChildViewHolderSelected(RecyclerView parent, RecyclerView.ViewHolder child,"
-        errorLine2="                                          ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/widget/OnChildViewHolderSelectedListener.java"
-            line="50"
-            column="43"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void onChildViewHolderSelected(RecyclerView parent, RecyclerView.ViewHolder child,"
-        errorLine2="                                                               ~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/widget/OnChildViewHolderSelectedListener.java"
-            line="50"
-            column="64"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void onChildViewHolderSelectedAndPositioned(RecyclerView parent,"
-        errorLine2="                                                       ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/widget/OnChildViewHolderSelectedListener.java"
-            line="66"
-            column="56"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="            RecyclerView.ViewHolder child, int position, int subposition) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/widget/OnChildViewHolderSelectedListener.java"
-            line="67"
-            column="13"/>
     </issue>
 
     <issue
@@ -23356,83 +22751,6 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public VerticalGridView(Context context) {"
-        errorLine2="                            ~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/widget/VerticalGridView.java"
-            line="45"
-            column="29"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public VerticalGridView(Context context, AttributeSet attrs) {"
-        errorLine2="                            ~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/widget/VerticalGridView.java"
-            line="49"
-            column="29"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public VerticalGridView(Context context, AttributeSet attrs) {"
-        errorLine2="                                             ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/widget/VerticalGridView.java"
-            line="49"
-            column="46"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public VerticalGridView(Context context, AttributeSet attrs, int defStyle) {"
-        errorLine2="                            ~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/widget/VerticalGridView.java"
-            line="53"
-            column="29"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public VerticalGridView(Context context, AttributeSet attrs, int defStyle) {"
-        errorLine2="                                             ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/widget/VerticalGridView.java"
-            line="53"
-            column="46"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    protected void initAttributes(Context context, AttributeSet attrs) {"
-        errorLine2="                                  ~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/widget/VerticalGridView.java"
-            line="60"
-            column="35"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    protected void initAttributes(Context context, AttributeSet attrs) {"
-        errorLine2="                                                   ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/widget/VerticalGridView.java"
-            line="60"
-            column="52"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="    public View onCreateView("
         errorLine2="           ~~~~">
         <location
@@ -23659,28 +22977,6 @@
             file="src/main/java/androidx/leanback/widget/VideoSurfaceView.java"
             line="42"
             column="46"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void run(RecyclerView.ViewHolder viewHolder);"
-        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/widget/ViewHolderTask.java"
-            line="22"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public Axis(String name) {"
-        errorLine2="                    ~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/widget/WindowAlignment.java"
-            line="77"
-            column="21"/>
     </issue>
 
 </issues>

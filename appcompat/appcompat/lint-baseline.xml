@@ -1,16 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.2.0-dev" type="baseline" client="gradle" dependencies="false" name="AGP (7.2.0-dev)" variant="all" version="7.2.0-dev">
-
-    <issue
-        id="ResourceType"
-        message="Expected resource of type styleable"
-        errorLine1="                aa = context.obtainStyledAttributes(attrs, ATTRS_ANDROID_SPINNERMODE,"
-        errorLine2="                                                           ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/AppCompatSpinner.java"
-            line="234"
-            column="60"/>
-    </issue>
+<issues format="6" by="lint 7.1.0-alpha08" type="baseline" client="gradle" dependencies="false" name="AGP (7.1.0-alpha08)" variant="all" version="7.1.0-alpha08">
 
     <issue
         id="NewApi"
@@ -41,7 +30,7 @@
         errorLine2="                                             ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/androidTest/java/androidx/appcompat/widget/AppCompatEditTextReceiveContentTest.java"
-            line="537"
+            line="541"
             column="46"/>
     </issue>
 
@@ -52,7 +41,7 @@
         errorLine2="                  ~~~~~~~~~~~~~">
         <location
             file="src/androidTest/java/androidx/appcompat/widget/AppCompatEditTextReceiveContentTest.java"
-            line="545"
+            line="549"
             column="19"/>
     </issue>
 
@@ -1242,6 +1231,17 @@
             file="src/main/java/androidx/appcompat/view/WindowCallbackWrapper.java"
             line="184"
             column="18"/>
+    </issue>
+
+    <issue
+        id="MissingTestSizeAnnotation"
+        message="Missing test size annotation"
+        errorLine1="    fun testTileifyLayerDrawable() {"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/appcompat/widget/AppCompatProgressBarHelperTest.kt"
+            line="35"
+            column="9"/>
     </issue>
 
     <issue
