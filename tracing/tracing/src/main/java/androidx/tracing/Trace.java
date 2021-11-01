@@ -62,8 +62,10 @@ public final class Trace {
     }
 
     /**
-     * Writes a trace message to indicate that a given section of code has begun. This call must
-     * be followed by a corresponding call to {@link #endSection()} on the same thread.
+     * Writes a trace message to indicate that a given section of code has begun.
+     *
+     * <p>This call must be followed by a corresponding call to {@link #endSection()} on the same
+     * thread.
      *
      * <p class="note"> At this time the vertical bar character '|', newline character '\n', and
      * null character '\0' are used internally by the tracing mechanism.  If sectionName contains
@@ -78,11 +80,12 @@ public final class Trace {
     }
 
     /**
-     * Writes a trace message to indicate that a given section of code has ended. This call must
-     * be preceded by a corresponding call to {@link #beginSection(String)}. Calling this method
-     * will mark the end of the most recently begun section of code, so care must be taken to
-     * ensure that beginSection / endSection pairs are properly nested and called from the same
-     * thread.
+     * Writes a trace message to indicate that a given section of code has ended.
+     *
+     * <p>This call must be preceded by a corresponding call to {@link #beginSection(String)}.
+     * Calling this method will mark the end of the most recently begun section of code, so care
+     * must be taken to ensure that beginSection / endSection pairs are properly nested and
+     * called from the same thread.
      */
     public static void endSection() {
         if (Build.VERSION.SDK_INT >= 18) {
@@ -91,14 +94,33 @@ public final class Trace {
     }
 
     /**
-     * Writes a trace message to indicate that a given section of code has
-     * begun. Must be followed by a call to {@link #endAsyncSection(String, int)} with the same
+     * Writes a trace message to indicate that a given section of code has begun.
+     *
+     * <p>Must be followed by a call to {@link #endAsyncSection(String, int)} with the same
      * methodName and cookie. Unlike {@link #beginSection(String)} and {@link #endSection()},
-     * asynchronous events do not need to be nested. The name and cookie used to
-     * begin an event must be used to end it.
+     * asynchronous events do not need to be nested. The name and cookie used to begin an event
+     * must be used to end it.
+     *
+     * The cookie must be unique to any overlapping events. If events don't overlap, you can
+     * simply always pass the same integer (e.g. `0`). If they do overlap, the cookie is used to
+     * disambiguate between overlapping events, like the following scenario:
+     * <pre>
+     * [==========================]
+     *           [=====================================]
+     *                                      [====]
+     * </pre>
+     * Without unique cookies, these start/stop timestamps could be misinterpreted by the trace
+     * display like the following, to show very different ranges:
+     * <pre>
+     * [=========================================]
+     *           [================]
+     *                                      [==========]
+     * </pre>
      *
      * @param methodName The method name to appear in the trace.
-     * @param cookie     Unique identifier for distinguishing simultaneous events
+     * @param cookie     Unique identifier for distinguishing simultaneous events with the same
+     *                   methodName
+     * @see #endAsyncSection
      */
     public static void beginAsyncSection(@NonNull String methodName, int cookie) {
         if (Build.VERSION.SDK_INT >= 29) {
@@ -110,11 +132,14 @@ public final class Trace {
 
     /**
      * Writes a trace message to indicate that the current method has ended.
-     * Must be called exactly once for each call to {@link #beginAsyncSection(String, int)}
+     *
+     * <p>Must be called exactly once for each call to {@link #beginAsyncSection(String, int)}
      * using the same name and cookie.
      *
      * @param methodName The method name to appear in the trace.
-     * @param cookie     Unique identifier for distinguishing simultaneous events
+     * @param cookie     Unique identifier for distinguishing simultaneous events with the same
+     *                   methodName
+     * @see #beginAsyncSection
      */
     public static void endAsyncSection(@NonNull String methodName, int cookie) {
         if (Build.VERSION.SDK_INT >= 29) {
