@@ -362,6 +362,7 @@ internal fun createItemInfo(
 
     return DefaultScalingLazyListItemInfo(
         index = item.index,
+        key = item.key,
         unadjustedOffset = item.offset,
         offset = scaledItemTop,
         size = scaledHeight,
@@ -379,6 +380,7 @@ internal class DefaultScalingLazyListLayoutInfo(
 
 internal class DefaultScalingLazyListItemInfo(
     override val index: Int,
+    override val key: Any,
     override val unadjustedOffset: Int,
     override val offset: Int,
     override val size: Int,

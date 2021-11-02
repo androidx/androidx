@@ -47,17 +47,113 @@ public interface ScalingLazyListScope {
     /**
      * Adds a single item.
      *
+     * @param key a stable and unique key representing the item. Using the same key
+     * for multiple items in the list is not allowed. Type of the key should be saveable
+     * via Bundle on Android. If null is passed the position in the list will represent the key.
+     * When you specify the key the scroll position will be maintained based on the key, which
+     * means if you add/remove items before the current visible item the item with the given key
+     * will be kept as the first visible one.
      * @param content the content of the item
      */
-    fun item(content: @Composable () -> Unit)
+    fun item(key: Any? = null, content: @Composable () -> Unit)
 
     /**
      * Adds a [count] of items.
      *
      * @param count the items count
+     * @param key a factory of stable and unique keys representing the item. Using the same key
+     * for multiple items in the list is not allowed. Type of the key should be saveable
+     * via Bundle on Android. If null is passed the position in the list will represent the key.
+     * When you specify the key the scroll position will be maintained based on the key, which
+     * means if you add/remove items before the current visible item the item with the given key
+     * will be kept as the first visible one.
      * @param itemContent the content displayed by a single item
      */
-    fun items(count: Int, itemContent: @Composable (Int) -> Unit)
+    fun items(
+        count: Int,
+        key: ((index: Int) -> Any)? = null,
+        itemContent: @Composable (index: Int) -> Unit
+    )
+}
+
+/**
+ * Adds a list of items.
+ *
+ * @param items the data list
+ * @param key a factory of stable and unique keys representing the item. Using the same key
+ * for multiple items in the list is not allowed. Type of the key should be saveable
+ * via Bundle on Android. If null is passed the position in the list will represent the key.
+ * When you specify the key the scroll position will be maintained based on the key, which
+ * means if you add/remove items before the current visible item the item with the given key
+ * will be kept as the first visible one.
+ * @param itemContent the content displayed by a single item
+ */
+inline fun <T> ScalingLazyListScope.items(
+    items: List<T>,
+    noinline key: ((item: T) -> Any)? = null,
+    crossinline itemContent: @Composable ScalingLazyListScope.(item: T) -> Unit
+) = items(items.size, if (key != null) { index: Int -> key(items[index]) } else null) {
+    itemContent(items[it])
+}
+
+/**
+ * Adds a list of items where the content of an item is aware of its index.
+ *
+ * @param items the data list
+ * @param key a factory of stable and unique keys representing the item. Using the same key
+ * for multiple items in the list is not allowed. Type of the key should be saveable
+ * via Bundle on Android. If null is passed the position in the list will represent the key.
+ * When you specify the key the scroll position will be maintained based on the key, which
+ * means if you add/remove items before the current visible item the item with the given key
+ * will be kept as the first visible one.
+ * @param itemContent the content displayed by a single item
+ */
+inline fun <T> ScalingLazyListScope.itemsIndexed(
+    items: List<T>,
+    noinline key: ((index: Int, item: T) -> Any)? = null,
+    crossinline itemContent: @Composable ScalingLazyListScope.(index: Int, item: T) -> Unit
+) = items(items.size, if (key != null) { index: Int -> key(index, items[index]) } else null) {
+    itemContent(it, items[it])
+}
+
+/**
+ * Adds an array of items.
+ *
+ * @param items the data array
+ * @param key a factory of stable and unique keys representing the item. Using the same key
+ * for multiple items in the list is not allowed. Type of the key should be saveable
+ * via Bundle on Android. If null is passed the position in the list will represent the key.
+ * When you specify the key the scroll position will be maintained based on the key, which
+ * means if you add/remove items before the current visible item the item with the given key
+ * will be kept as the first visible one.
+ * @param itemContent the content displayed by a single item
+ */
+inline fun <T> ScalingLazyListScope.items(
+    items: Array<T>,
+    noinline key: ((item: T) -> Any)? = null,
+    crossinline itemContent: @Composable ScalingLazyListScope.(item: T) -> Unit
+) = items(items.size, if (key != null) { index: Int -> key(items[index]) } else null) {
+    itemContent(items[it])
+}
+
+/**
+ * Adds an array of items where the content of an item is aware of its index.
+ *
+ * @param items the data array
+ * @param key a factory of stable and unique keys representing the item. Using the same key
+ * for multiple items in the list is not allowed. Type of the key should be saveable
+ * via Bundle on Android. If null is passed the position in the list will represent the key.
+ * When you specify the key the scroll position will be maintained based on the key, which
+ * means if you add/remove items before the current visible item the item with the given key
+ * will be kept as the first visible one.
+ * @param itemContent the content displayed by a single item
+ */
+public inline fun <T> ScalingLazyListScope.itemsIndexed(
+    items: Array<T>,
+    noinline key: ((index: Int, item: T) -> Any)? = null,
+    crossinline itemContent: @Composable ScalingLazyListScope.(index: Int, item: T) -> Unit
+) = items(items.size, if (key != null) { index: Int -> key(index, items[index]) } else null) {
+    itemContent(it, items[it])
 }
 
 /**
@@ -278,9 +374,9 @@ private class ScalingLazyListScopeImpl(
 
     private var currentStartIndex = 0
 
-    override fun item(content: @Composable () -> Unit) {
+    override fun item(key: Any?, content: @Composable () -> Unit) {
         val startIndex = currentStartIndex
-        scope.item {
+        scope.item(key = key) {
             ScalingLazyColumnItemWrapper(
                 startIndex,
                 state,
@@ -290,9 +386,13 @@ private class ScalingLazyListScopeImpl(
         currentStartIndex++
     }
 
-    override fun items(count: Int, itemContent: @Composable (Int) -> Unit) {
+    override fun items(
+        count: Int,
+        key: ((index: Int) -> Any)?,
+        itemContent: @Composable ((Int) -> Unit)
+    ) {
         val startIndex = currentStartIndex
-        scope.items(count) {
+        scope.items(count = count, key = key) {
             ScalingLazyColumnItemWrapper(
                 startIndex + it,
                 state,

@@ -27,6 +27,11 @@ interface ScalingLazyListItemInfo {
     val index: Int
 
     /**
+     * The key of the item which was passed to the item() or items() function.
+     */
+    val key: Any
+
+    /**
      * The main axis offset of the item before adjustment for scaling of the items in the viewport.
      * It is relative to the start of the lazy list container.
      */
