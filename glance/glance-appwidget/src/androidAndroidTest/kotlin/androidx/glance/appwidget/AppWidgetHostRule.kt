@@ -24,9 +24,11 @@ import android.content.Context
 import android.content.pm.ActivityInfo
 import android.os.Build
 import android.view.View
+import android.view.ViewGroup
 import android.view.ViewTreeObserver
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
+import androidx.core.view.children
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.Espresso.onView
@@ -46,6 +48,7 @@ import org.junit.runner.Description
 import org.junit.runners.model.Statement
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
+import kotlin.test.assertIs
 import kotlin.test.fail
 
 @SdkSuppress(minSdkVersion = 29)
@@ -123,6 +126,19 @@ class AppWidgetHostRule(
 
     fun onHostView(block: (AppWidgetHostView) -> Unit) {
         onHostActivity { block(mHostView) }
+    }
+
+    /**
+     * The top-level view is always boxed into a FrameLayout.
+     *
+     * This will retrieve the actual top-level view, skipping the boxing for the root view, and
+     * possibly the one to get the exact size.
+     */
+    inline fun <reified T : View> onUnboxedHostView(crossinline block: (T) -> Unit) {
+        onHostActivity {
+            val boxingView = assertIs<ViewGroup>(mHostView.getChildAt(0))
+            block(boxingView.children.single().getTargetView())
+        }
     }
 
     /** Change the orientation to landscape.*/

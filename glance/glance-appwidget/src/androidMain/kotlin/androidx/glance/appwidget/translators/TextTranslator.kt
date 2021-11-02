@@ -33,11 +33,11 @@ import android.widget.RemoteViews
 import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 import androidx.core.widget.setTextViewGravity
-import androidx.glance.appwidget.LayoutSelector
+import androidx.glance.appwidget.LayoutType
 import androidx.glance.appwidget.R
 import androidx.glance.appwidget.TranslationContext
+import androidx.glance.appwidget.insertView
 import androidx.glance.appwidget.applyModifiers
-import androidx.glance.appwidget.createRemoteViews
 import androidx.glance.layout.EmittableText
 import androidx.glance.text.FontStyle
 import androidx.glance.text.FontWeight
@@ -45,21 +45,18 @@ import androidx.glance.text.TextAlign
 import androidx.glance.text.TextDecoration
 import androidx.glance.text.TextStyle
 
-internal fun translateEmittableText(
+internal fun RemoteViews.translateEmittableText(
     translationContext: TranslationContext,
     element: EmittableText
-): RemoteViews {
-    val layoutDef =
-        createRemoteViews(translationContext, LayoutSelector.Type.Text, element.modifier)
-    val rv = layoutDef.remoteViews
-    rv.setText(
+) {
+    val viewDef = insertView(translationContext, LayoutType.Text, element.modifier)
+    setText(
         translationContext,
-        layoutDef.mainViewId,
+        viewDef.mainViewId,
         element.text,
         element.style,
     )
-    applyModifiers(translationContext, rv, element.modifier, layoutDef)
-    return rv
+    applyModifiers(translationContext, this, element.modifier, viewDef)
 }
 
 internal fun RemoteViews.setText(

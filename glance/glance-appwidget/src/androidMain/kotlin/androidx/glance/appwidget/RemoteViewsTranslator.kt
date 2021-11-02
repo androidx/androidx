@@ -54,11 +54,13 @@ internal fun translateComposition(
     context: Context,
     appWidgetId: Int,
     appWidgetClass: Class<out GlanceAppWidget>,
-    element: RemoteViewsRoot
+    element: RemoteViewsRoot,
+    rootViewIndex: Int,
 ) =
     translateComposition(
-        TranslationContext(context, appWidgetId, appWidgetClass, context.isRtl),
-        element
+        TranslationContext(context, appWidgetId, appWidgetClass, context.isRtl, itemPosition = -1),
+        element.children,
+        rootViewIndex,
     )
 
 @VisibleForTesting
@@ -68,17 +70,23 @@ private val Context.isRtl: Boolean
     get() = forceRtl
         ?: (resources.configuration.layoutDirection == View.LAYOUT_DIRECTION_RTL)
 
-private fun translateComposition(
+internal fun translateComposition(
     translationContext: TranslationContext,
-    element: RemoteViewsRoot
+    children: List<Emittable>,
+    rootViewIndex: Int
 ): RemoteViews {
-    if (element.children.size == 1) {
-        return translateChild(translationContext, element.children[0])
+    if (children.size != 1) {
+        return translateComposition(
+            translationContext,
+            listOf(EmittableBox().also { it.children.addAll(children) }),
+            rootViewIndex,
+        )
     }
-    return translateChild(
-        translationContext,
-        EmittableBox().also { it.children.addAll(element.children) }
-    )
+    val child = children.first()
+    val remoteViewsInfo = createRootView(translationContext, child.modifier, rootViewIndex)
+    val rv = remoteViewsInfo.remoteViews
+    rv.translateChild(translationContext.forRoot(root = remoteViewsInfo), child)
+    return rv
 }
 
 internal data class TranslationContext(
@@ -86,17 +94,27 @@ internal data class TranslationContext(
     val appWidgetId: Int,
     val appWidgetClass: Class<out GlanceAppWidget>,
     val isRtl: Boolean,
+    val itemPosition: Int,
     val areLazyCollectionsAllowed: Boolean = true,
     val lastViewId: AtomicInteger = AtomicInteger(0),
+    val parentContext: InsertedViewInfo = InsertedViewInfo(),
 ) {
     fun nextViewId() = lastViewId.incrementAndGet()
+
+    fun forChild(parent: InsertedViewInfo, pos: Int): TranslationContext =
+        copy(itemPosition = pos, parentContext = parent)
+
+    fun forRoot(root: RemoteViewsInfo): TranslationContext =
+        forChild(pos = 0, parent = root.view)
+
+    fun resetViewId(newViewId: Int = 0) = copy(lastViewId = AtomicInteger(newViewId))
 }
 
-internal fun translateChild(
+internal fun RemoteViews.translateChild(
     translationContext: TranslationContext,
     element: Emittable
-): RemoteViews {
-    return when (element) {
+) {
+    when (element) {
         is EmittableBox -> translateEmittableBox(translationContext, element)
         is EmittableButton -> translateEmittableButton(translationContext, element)
         is EmittableRow -> translateEmittableRow(translationContext, element)
@@ -136,124 +154,132 @@ private fun Alignment.Vertical.toGravity(): Int =
 
 internal fun Alignment.toGravity() = horizontal.toGravity() or vertical.toGravity()
 
-private fun translateEmittableBox(
+private fun RemoteViews.translateEmittableBox(
     translationContext: TranslationContext,
     element: EmittableBox
-): RemoteViews {
-    val layoutDef = createRemoteViews(translationContext, LayoutSelector.Type.Box, element.modifier)
-    val rv = layoutDef.remoteViews
-    rv.setRelativeLayoutGravity(layoutDef.mainViewId, element.contentAlignment.toGravity())
+) {
+    val viewDef = insertContainerView(
+        translationContext,
+        LayoutType.Box,
+        element.children.size,
+        element.modifier
+    )
+    setRelativeLayoutGravity(viewDef.mainViewId, element.contentAlignment.toGravity())
     applyModifiers(
         translationContext,
-        rv,
+        this,
         element.modifier,
-        layoutDef
+        viewDef
     )
-    rv.setChildren(
+    setChildren(
         translationContext,
-        layoutDef.mainViewId,
+        viewDef,
         element.children
     )
-    return rv
 }
 
-private fun translateEmittableRow(
+private fun RemoteViews.translateEmittableRow(
     translationContext: TranslationContext,
     element: EmittableRow
-): RemoteViews {
-    val layoutDef =
-        createRemoteViews(translationContext, LayoutSelector.Type.Row, element.modifier)
-    val rv = layoutDef.remoteViews
-    rv.setLinearLayoutGravity(
-        layoutDef.mainViewId,
+) {
+    val viewDef = insertContainerView(
+        translationContext,
+        LayoutType.Row,
+        element.children.size,
+        element.modifier
+    )
+    setLinearLayoutGravity(
+        viewDef.mainViewId,
         element.horizontalAlignment.toGravity() or element.verticalAlignment.toGravity()
     )
     applyModifiers(
         translationContext,
-        rv,
+        this,
         element.modifier,
-        layoutDef
+        viewDef
     )
-    rv.setChildren(
+    setChildren(
         translationContext,
-        layoutDef.mainViewId,
+        viewDef,
         element.children
     )
-    return rv
 }
 
-private fun translateEmittableColumn(
+private fun RemoteViews.translateEmittableColumn(
     translationContext: TranslationContext,
     element: EmittableColumn
-): RemoteViews {
-    val layoutDef =
-        createRemoteViews(translationContext, LayoutSelector.Type.Column, element.modifier)
-    val rv = layoutDef.remoteViews
-    rv.setLinearLayoutGravity(
-        layoutDef.mainViewId,
+) {
+    val viewDef = insertContainerView(
+        translationContext,
+        LayoutType.Column,
+        element.children.size,
+        element.modifier
+    )
+    setLinearLayoutGravity(
+        viewDef.mainViewId,
         element.horizontalAlignment.toGravity() or element.verticalAlignment.toGravity()
     )
     applyModifiers(
         translationContext,
-        rv,
+        this,
         element.modifier,
-        layoutDef
+        viewDef
     )
-    rv.setChildren(
+    setChildren(
         translationContext,
-        layoutDef.mainViewId,
+        viewDef,
         element.children
     )
-    return rv
 }
 
-private fun translateEmittableAndroidRemoteViews(
+private fun RemoteViews.translateEmittableAndroidRemoteViews(
     translationContext: TranslationContext,
     element: EmittableAndroidRemoteViews
-): RemoteViews {
-    if (element.children.isNotEmpty()) {
+) {
+    val rv = if (element.children.isEmpty()) {
+        element.remoteViews
+    } else {
         check(element.containerViewId != View.NO_ID) {
             "To add children to an `AndroidRemoteViews`, its `containerViewId` must be set."
         }
-        return element.remoteViews.copy().apply {
-            setChildren(
-                translationContext,
-                element.containerViewId,
-                element.children
-            )
+        element.remoteViews.copy().apply {
+            removeAllViews(element.containerViewId)
+            element.children.forEachIndexed { index, child ->
+                val rvInfo = createRootView(translationContext, child.modifier, index)
+                val rv = rvInfo.remoteViews
+                rv.translateChild(translationContext.forRoot(rvInfo), child)
+                addChildView(element.containerViewId, rv, index)
+            }
         }
     }
-    return element.remoteViews
+    val viewDef = insertView(translationContext, LayoutType.Frame, element.modifier)
+    applyModifiers(translationContext, this, element.modifier, viewDef)
+    removeAllViews(viewDef.mainViewId)
+    addChildView(viewDef.mainViewId, rv, stableId = 0)
 }
 
-private fun translateEmittableButton(
+private fun RemoteViews.translateEmittableButton(
     translationContext: TranslationContext,
     element: EmittableButton
-): RemoteViews {
-    val layoutDef =
-        createRemoteViews(translationContext, LayoutSelector.Type.Button, element.modifier)
-    val rv = layoutDef.remoteViews
-    rv.setText(
+) {
+    val viewDef = insertView(translationContext, LayoutType.Button, element.modifier)
+    setText(
         translationContext,
-        layoutDef.mainViewId,
+        viewDef.mainViewId,
         element.text,
         element.style,
         verticalTextGravity = Gravity.CENTER_VERTICAL,
     )
-    rv.setBoolean(layoutDef.mainViewId, "setEnabled", element.enabled)
-    applyModifiers(translationContext, rv, element.modifier, layoutDef)
-    return rv
+    setBoolean(viewDef.mainViewId, "setEnabled", element.enabled)
+    applyModifiers(translationContext, this, element.modifier, viewDef)
 }
 
-private fun translateEmittableSpacer(
+private fun RemoteViews.translateEmittableSpacer(
     translationContext: TranslationContext,
     element: EmittableSpacer
-): RemoteViews {
-    val layoutDef =
-        createRemoteViews(translationContext, LayoutSelector.Type.Spacer, element.modifier)
-    val rv = layoutDef.remoteViews
-    applyModifiers(translationContext, rv, element.modifier, layoutDef)
-    return rv
+) {
+    val viewDef = insertView(translationContext, LayoutType.Frame, element.modifier)
+    applyModifiers(translationContext, this, element.modifier, viewDef)
 }
 
 // Sets the emittables as children to the view. This first remove any previously added view, the
@@ -261,15 +287,13 @@ private fun translateEmittableSpacer(
 // of the child in the iterable.
 internal fun RemoteViews.setChildren(
     translationContext: TranslationContext,
-    viewId: Int,
+    parentDef: InsertedViewInfo,
     children: Iterable<Emittable>
 ) {
-    removeAllViews(viewId)
     children.forEachIndexed { index, child ->
-        addChildView(
-            viewId,
-            translateChild(translationContext, child),
-            index
+        translateChild(
+            translationContext.forChild(parent = parentDef, pos = index),
+            child,
         )
     }
 }

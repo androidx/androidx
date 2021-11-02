@@ -52,12 +52,17 @@ internal fun RemoteViews.setViewEnabled(viewId: Int, enabled: Boolean) {
 internal fun RemoteViews.inflateViewStub(
     translationContext: TranslationContext,
     @IdRes viewStubId: Int,
-    @LayoutRes layoutId: Int,
+    @LayoutRes layoutId: Int = 0,
     @IdRes inflatedId: Int? = null
 ): Int {
+    require(viewStubId != View.NO_ID) { "viewStubId must not be View.NO_ID" }
     val viewId = inflatedId ?: translationContext.nextViewId()
-    setViewStubInflatedId(viewStubId, viewId)
-    setViewStubLayoutResource(viewStubId, layoutId)
+    if (viewId != View.NO_ID) {
+        setViewStubInflatedId(viewStubId, viewId)
+    }
+    if (layoutId != 0) {
+        setViewStubLayoutResource(viewStubId, layoutId)
+    }
     setViewVisibility(viewStubId, View.VISIBLE)
     return viewId
 }

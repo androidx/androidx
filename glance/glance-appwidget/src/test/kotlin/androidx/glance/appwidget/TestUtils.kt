@@ -36,10 +36,12 @@ import androidx.compose.runtime.Recomposer
 import androidx.compose.ui.unit.TextUnit
 import androidx.core.view.children
 import androidx.glance.Applier
+import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.launch
 import java.util.Locale
+import kotlin.test.assertIs
 
 internal suspend fun runTestingComposition(content: @Composable () -> Unit): RemoteViewsRoot =
     coroutineScope {
@@ -68,7 +70,10 @@ internal fun Context.applyRemoteViews(rv: RemoteViews): View {
         val parceled = RemoteViews(p)
         val parent = FrameLayout(this)
         parent.layoutParams = LayoutParams(WRAP_CONTENT, WRAP_CONTENT)
-        parceled.apply(this, parent)
+        val view = parceled.apply(this, parent)
+        assertIs<FrameLayout>(view)
+        assertThat(view.childCount).isEqualTo(1)
+        view.getChildAt(0)
     } finally {
         p.recycle()
     }
@@ -79,7 +84,7 @@ internal suspend fun Context.runAndTranslate(
     content: @Composable () -> Unit
 ): RemoteViews {
     val root = runTestingComposition(content)
-    return translateComposition(this, appWidgetId, TestWidget::class.java, root)
+    return translateComposition(this, appWidgetId, TestWidget::class.java, root, rootViewIndex = 0)
 }
 
 internal suspend fun Context.runAndTranslateInRtl(
@@ -130,5 +135,14 @@ fun <T : View> View.findView(predicate: (T) -> Boolean, klass: Class<T>): T? {
 
 internal class TestWidget : GlanceAppWidget() {
     @Composable
-    override fun Content() {}
+    override fun Content() {
+    }
 }
+
+/** Count the number of children that are not gone. */
+internal val ViewGroup.nonGoneChildCount: Int
+    get() = children.count { it.visibility != View.GONE }
+
+/** Iterate over children that are not gone. */
+internal val ViewGroup.nonGoneChildren: Sequence<View>
+    get() = children.filter { it.visibility != View.GONE }

@@ -14,6 +14,8 @@
   limitations under the License.
   -->
 
-<ListView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:divider="@null"
-    style="@style/Glance.AppWidget.List"/>
+<ImageView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="42dp"
+    android:layout_height="28dp"
+    android:src="@drawable/switch_track_material"
+    style="@style/Glance.AppWidget.SwitchTrack"/>

@@ -22,13 +22,15 @@ import android.os.Build
 import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.view.children
+import android.widget.RelativeLayout
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.max
 import androidx.compose.ui.unit.min
+import androidx.core.view.children
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.platform.app.InstrumentationRegistry
 import java.io.FileInputStream
+import kotlin.test.assertIs
 
 inline fun <reified T : View> View.findChild(noinline pred: (T) -> Boolean) =
     findChild(pred, T::class.java)
@@ -53,7 +55,7 @@ fun <T : View> View.findChild(predicate: (T) -> Boolean, klass: Class<T>): T? {
     return children.mapNotNull { it.findChild(predicate, klass) }.firstOrNull()
 }
 
-internal fun optionsBundleOf(sizes: List<DpSize>): Bundle {
+fun optionsBundleOf(sizes: List<DpSize>): Bundle {
     require(sizes.isNotEmpty()) { "There must be at least one size" }
     val (minSize, maxSize) = sizes.fold(sizes[0] to sizes[0]) { acc, s ->
         DpSize(min(acc.first.width, s.width), min(acc.first.height, s.height)) to
@@ -72,12 +74,35 @@ internal fun optionsBundleOf(sizes: List<DpSize>): Bundle {
 }
 
 /** Run a command and retrieve the output as a string. */
-internal fun runShellCommand(command: String): String {
+fun runShellCommand(command: String): String {
     return InstrumentationRegistry.getInstrumentation()
         .uiAutomation
         .executeShellCommand(command)
         .use { FileInputStream(it.fileDescriptor).reader().readText() }
 }
 
-internal val context: Context
+val context: Context
     get() = ApplicationProvider.getApplicationContext()
+
+/** Count the number of children that are not gone. */
+val ViewGroup.notGoneChildCount: Int
+    get() = children.count { it.visibility != View.GONE }
+
+/** Iterate over children that are not gone. */
+val ViewGroup.notGoneChildren: Sequence<View>
+    get() = children.filter { it.visibility != View.GONE }
+
+// Extract the target view if it is a complex view in Android R-.
+inline fun <reified T : View> View.getTargetView(): T {
+    if ((tag as? String) != "glanceComplexLayout") {
+        return assertIs(this)
+    }
+    val layout = assertIs<RelativeLayout>(this)
+    return assertIs(
+        when (layout.childCount) {
+            1 -> layout.getChildAt(0)
+            2 -> layout.getChildAt(1)
+            else -> throw IllegalStateException("Unknown complex layout with more than 2 elements.")
+        }
+    )
+}

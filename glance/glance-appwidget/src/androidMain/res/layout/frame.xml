@@ -14,18 +14,6 @@
   limitations under the License.
   -->
 
-<resources>
-    <id name="checkBoxIcon" />
-    <id name="checkBoxText" />
-    <id name="glanceView" />
-    <id name="glanceViewStub" />
-    <id name="relativeLayout" />
-    <id name="sizeView" />
-    <id name="sizeViewStub" />
-    <id name="switchText" />
-    <id name="switchTrack" />
-    <id name="switchThumb" />
-    <id name="rootView" />
-    <id name="rootStubId" />
-    <id name="deletedViewId" />
-</resources>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" />

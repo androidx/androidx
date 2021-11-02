@@ -32,6 +32,8 @@ import android.widget.TextView
 import androidx.compose.ui.unit.sp
 import androidx.glance.GlanceModifier
 import androidx.glance.appwidget.applyRemoteViews
+import androidx.glance.appwidget.nonGoneChildCount
+import androidx.glance.appwidget.nonGoneChildren
 import androidx.glance.appwidget.runAndTranslate
 import androidx.glance.appwidget.runAndTranslateInRtl
 import androidx.glance.appwidget.toPixels
@@ -195,12 +197,13 @@ class TextTranslatorTest {
         val view = context.applyRemoteViews(rv)
 
         assertIs<LinearLayout>(view)
-        assertThat(view.childCount).isEqualTo(5)
-        val center = assertIs<TextView>(view.getChildAt(0))
-        val left = assertIs<TextView>(view.getChildAt(1))
-        val right = assertIs<TextView>(view.getChildAt(2))
-        val start = assertIs<TextView>(view.getChildAt(3))
-        val end = assertIs<TextView>(view.getChildAt(4))
+        assertThat(view.nonGoneChildCount).isEqualTo(5)
+        val (center, left, right, start, end) = view.nonGoneChildren.toList()
+        assertIs<TextView>(center)
+        assertIs<TextView>(left)
+        assertIs<TextView>(right)
+        assertIs<TextView>(start)
+        assertIs<TextView>(end)
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             assertThat(center.gravity).isEqualTo(Gravity.CENTER)
@@ -241,12 +244,13 @@ class TextTranslatorTest {
         val view = context.applyRemoteViews(rv)
 
         assertIs<LinearLayout>(view)
-        assertThat(view.childCount).isEqualTo(5)
-        val center = assertIs<TextView>(view.getChildAt(0))
-        val left = assertIs<TextView>(view.getChildAt(1))
-        val right = assertIs<TextView>(view.getChildAt(2))
-        val start = assertIs<TextView>(view.getChildAt(3))
-        val end = assertIs<TextView>(view.getChildAt(4))
+        assertThat(view.nonGoneChildCount).isEqualTo(5)
+        val (center, left, right, start, end) = view.nonGoneChildren.toList()
+        assertIs<TextView>(center)
+        assertIs<TextView>(left)
+        assertIs<TextView>(right)
+        assertIs<TextView>(start)
+        assertIs<TextView>(end)
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             assertThat(center.gravity).isEqualTo(Gravity.CENTER)
