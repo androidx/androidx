@@ -22,6 +22,9 @@
         android:allowBackup="false"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/demos_label">
+
+        <activity android:name=".ActionDemoActivity" />
+
         <receiver
             android:name="androidx.glance.appwidget.demos.ResponsiveAppWidgetReceiver"
             android:label="@string/responsive_widget_name"
@@ -78,8 +81,8 @@
         </receiver>
 
         <receiver
-            android:name="androidx.glance.appwidget.demos.UpdatingAppWidgetReceiver"
-            android:label="@string/updating_widget_name"
+            android:name="androidx.glance.appwidget.demos.ActionAppWidgetReceiver"
+            android:label="@string/action_widget_name"
             android:enabled="@bool/glance_appwidget_available"
             android:exported="false">
             <intent-filter>
@@ -88,7 +91,7 @@
             </intent-filter>
             <meta-data
                 android:name="android.appwidget.provider"
-                android:resource="@xml/updating_app_widget_info" />
+                android:resource="@xml/action_app_widget_info" />
         </receiver>
 
         <receiver
