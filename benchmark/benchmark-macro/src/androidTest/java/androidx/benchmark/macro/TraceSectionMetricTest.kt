@@ -39,18 +39,18 @@ class TraceSectionMetricTest {
     )
 
     @Test
-    fun activityThreadMain() = verifySingleMetric("ActivityThreadMain", 15.398)
+    fun activityThreadMain() = verifySingleMetric("ActivityThreadMain", 12.639)
 
     @Test
-    fun activityStart() = verifySingleMetric("activityStart", 140.025)
+    fun activityStart() = verifySingleMetric("activityStart", 81.979)
 
     @Test
-    fun startActivityAndWait() = verifySingleMetric("startActivityAndWait", 1_677.917)
+    fun startActivityAndWait() = verifySingleMetric("startActivityAndWait", 1_110.689)
 
     @Test
     fun launching() = verifySingleMetric(
         "launching: androidx.benchmark.integration.macrobenchmark.target",
-        358.238
+        269.947
     )
 
     @SuppressLint("NewApi") // we use a fixed trace - ignore for TraceSectionMetric
