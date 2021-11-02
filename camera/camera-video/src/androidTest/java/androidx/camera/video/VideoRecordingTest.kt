@@ -24,7 +24,7 @@ import android.os.Build
 import android.util.Log
 import android.util.Size
 import android.view.Surface
-import androidx.annotation.NonNull
+import androidx.camera.core.Camera
 import androidx.camera.core.CameraInfo
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageAnalysis
@@ -32,10 +32,8 @@ import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCaptureException
 import androidx.camera.core.ImageProxy
 import androidx.camera.core.Preview
-import androidx.camera.core.UseCase
 import androidx.camera.core.impl.utils.CameraOrientationUtil
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
-import androidx.camera.core.internal.CameraUseCaseAdapter
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.SurfaceTextureProvider
@@ -95,7 +93,7 @@ class VideoRecordingTest(
     private lateinit var lifecycleOwner: FakeLifecycleOwner
     private lateinit var preview: Preview
     private lateinit var cameraInfo: CameraInfo
-    private lateinit var cameraUseCaseAdapter: CameraUseCaseAdapter
+    private lateinit var camera: Camera
 
     private lateinit var latchForVideoSaved: CountDownLatch
     private lateinit var latchForVideoRecording: CountDownLatch
@@ -139,14 +137,17 @@ class VideoRecordingTest(
         cameraProvider = ProcessCameraProvider.getInstance(context).get()
         lifecycleOwner = FakeLifecycleOwner()
         lifecycleOwner.startAndResume()
-        cameraUseCaseAdapter = CameraUtil.createCameraUseCaseAdapter(context, cameraSelector)
-        cameraInfo = cameraUseCaseAdapter.cameraInfo
 
         // Add extra Preview to provide an additional surface for b/168187087.
         preview = Preview.Builder().build()
-        // Sets surface provider to preview
+
         instrumentation.runOnMainSync {
+            // Sets surface provider to preview
             preview.setSurfaceProvider(getSurfaceProvider())
+
+            // Retrieves the target testing camera and camera info
+            camera = cameraProvider.bindToLifecycle(lifecycleOwner, cameraSelector)
+            cameraInfo = camera.cameraInfo
         }
     }
 
@@ -208,7 +209,7 @@ class VideoRecordingTest(
 
             val videoCapture = VideoCapture.withOutput(recorder)
 
-            if (!checkUseCasesCombinationSupported(preview, videoCapture)) {
+            if (!camera.isUseCasesCombinationSupported(preview, videoCapture)) {
                 Log.e(TAG, "The UseCase combination is not supported for quality setting: $quality")
                 return@loop
             }
@@ -333,7 +334,7 @@ class VideoRecordingTest(
         // Pre-check and arrange
         val videoCapture = VideoCapture.withOutput(Recorder.Builder().build())
         val analysis = ImageAnalysis.Builder().build()
-        Assume.assumeTrue(checkUseCasesCombinationSupported(preview, videoCapture, analysis))
+        Assume.assumeTrue(camera.isUseCasesCombinationSupported(preview, videoCapture, analysis))
 
         val file = File.createTempFile("CameraX", ".tmp").apply { deleteOnExit() }
         latchForVideoSaved = CountDownLatch(1)
@@ -369,7 +370,13 @@ class VideoRecordingTest(
         // Pre-check and arrange
         val videoCapture = VideoCapture.withOutput(Recorder.Builder().build())
         val imageCapture = ImageCapture.Builder().build()
-        Assume.assumeTrue(checkUseCasesCombinationSupported(preview, videoCapture, imageCapture))
+        Assume.assumeTrue(
+            camera.isUseCasesCombinationSupported(
+                preview,
+                videoCapture,
+                imageCapture
+            )
+        )
 
         val videoFile = File.createTempFile("camerax-video", ".tmp").apply {
             deleteOnExit()
@@ -513,22 +520,6 @@ class VideoRecordingTest(
                 }
             }
         )
-    }
-
-    private fun checkUseCasesCombinationSupported(@NonNull vararg useCases: UseCase): Boolean {
-        val useCaseList: MutableList<UseCase> = ArrayList()
-        for (case in useCases) {
-            useCaseList.add(case)
-        }
-
-        try {
-            cameraUseCaseAdapter.checkAttachUseCases(useCaseList)
-        } catch (e: CameraUseCaseAdapter.CameraException) {
-            // This use case combination is not supported on this device, abort this test.
-            Log.e(TAG, "This combination is not supported: $useCaseList , ${e.message}")
-            return false
-        }
-        return true
     }
 
     private class ImageSavedCallback() :

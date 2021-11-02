@@ -59,7 +59,6 @@ import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
 import org.junit.After
 import org.junit.Assume.assumeFalse
-import org.junit.Assume.assumeNoException
 import org.junit.Assume.assumeTrue
 import org.junit.Before
 import org.junit.Rule
@@ -178,11 +177,13 @@ class RecorderTest {
             )
         }
 
-        try {
-            cameraUseCaseAdapter.checkAttachUseCases(listOf(preview, surfaceTexturePreview))
-        } catch (e: CameraUseCaseAdapter.CameraException) {
-            assumeNoException("The device doesn't support the use cases combination.", e)
-        }
+        assumeTrue(
+            "This combination (preview, surfaceTexturePreview) is not supported.",
+            cameraUseCaseAdapter.isUseCasesCombinationSupported(
+                preview,
+                surfaceTexturePreview
+            )
+        )
 
         cameraUseCaseAdapter = CameraUtil.createCameraAndAttachUseCase(
             context,
