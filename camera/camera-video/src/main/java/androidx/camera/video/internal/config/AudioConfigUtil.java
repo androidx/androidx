@@ -17,6 +17,7 @@
 package androidx.camera.video.internal.config;
 
 import android.util.Range;
+import android.util.Rational;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
@@ -130,5 +131,35 @@ public final class AudioConfigUtil {
         Logger.d(TAG, "No sample rate found in target range or supported by audio source. Falling"
                 + " back to default sample rate of " + AUDIO_SAMPLE_RATE_DEFAULT + "Hz");
         return AUDIO_SAMPLE_RATE_DEFAULT;
+    }
+
+    static int scaleAndClampBitrate(int baseBitrate,
+            int actualChannelCount, int baseChannelCount,
+            int actualSampleRate, int baseSampleRate,
+            Range<Integer> clampedRange) {
+        // Scale bitrate based on source number of channels relative to base channel count.
+        Rational channelCountRatio = new Rational(actualChannelCount, baseChannelCount);
+        // Scale bitrate based on source sample rate relative to profile sample rate.
+        Rational sampleRateRatio = new Rational(actualSampleRate, baseSampleRate);
+
+        int resolvedBitrate = (int) (baseBitrate * channelCountRatio.doubleValue()
+                * sampleRateRatio.doubleValue());
+
+        String debugString = "";
+        if (Logger.isDebugEnabled(TAG)) {
+            debugString = String.format("Base Bitrate(%dbps) * Channel Count Ratio(%d / %d) * "
+                            + "Sample Rate Ratio(%d / %d) = %d", baseBitrate, actualChannelCount,
+                    baseChannelCount, actualSampleRate, baseSampleRate, resolvedBitrate);
+        }
+
+        if (!AudioSpec.BITRATE_RANGE_AUTO.equals(clampedRange)) {
+            resolvedBitrate = clampedRange.clamp(resolvedBitrate);
+            if (Logger.isDebugEnabled(TAG)) {
+                debugString += String.format("\nClamped to range %s -> %dbps", clampedRange,
+                        resolvedBitrate);
+            }
+        }
+        Logger.d(TAG, debugString);
+        return resolvedBitrate;
     }
 }

@@ -522,6 +522,10 @@ public final class AudioSource {
                     .setAudioFormat(-1);
         }
 
+        /** Creates a {@link Builder} initialized with the same settings as this instance. */
+        @NonNull
+        public abstract Builder toBuilder();
+
         /**
          * Gets the device audio source.
          *
@@ -596,7 +600,7 @@ public final class AudioSource {
              * format is supported by {@link AudioSource#isSettingsSupported(int, int, int)} or
              * an {@link UnsupportedOperationException} will be thrown when passing the settings
              * to the
-             * {@linkplain AudioSource#AudioSource(Settings, Executor, BufferProvider) AudioSource
+             * {@linkplain AudioSource#AudioSource(Settings, Executor) AudioSource
              * constructor}.
              *
              * @throws IllegalArgumentException if a setting is missing or invalid.

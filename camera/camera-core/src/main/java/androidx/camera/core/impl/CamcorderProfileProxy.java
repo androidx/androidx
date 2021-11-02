@@ -30,6 +30,7 @@ import static android.media.MediaRecorder.VideoEncoder.MPEG_4_SP;
 import static android.media.MediaRecorder.VideoEncoder.VP8;
 
 import android.media.CamcorderProfile;
+import android.media.MediaCodecInfo;
 import android.media.MediaFormat;
 import android.media.MediaRecorder;
 
@@ -50,6 +51,9 @@ import java.lang.annotation.RetentionPolicy;
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 @AutoValue
 public abstract class CamcorderProfileProxy {
+
+    /** Constant representing no codec profile. */
+    public static int CODEC_PROFILE_NONE = -1;
 
     @Retention(RetentionPolicy.SOURCE)
     @IntDef({H263, H264, HEVC, VP8, MPEG_4_SP, MediaRecorder.VideoEncoder.DEFAULT})
@@ -208,5 +212,30 @@ public abstract class CamcorderProfileProxy {
         }
 
         return null;
+    }
+
+    /**
+     * Returns the required audio profile for the audio encoder given by {@link #getAudioCodec()}.
+     *
+     * <p>For example, this can be used to differentiate between AAC encoders
+     * {@link android.media.MediaRecorder.AudioEncoder#AAC},
+     * {@link android.media.MediaRecorder.AudioEncoder#AAC_ELD},
+     * and {@link android.media.MediaRecorder.AudioEncoder#HE_AAC}.
+     * Should be used with the {@link MediaCodecInfo.CodecProfileLevel#profile} field.
+     *
+     * @return The profile required by the audio codec. If no profile is required, returns
+     * {@link #CODEC_PROFILE_NONE}.
+     */
+    public int getRequiredAudioProfile() {
+        switch (getAudioCodec()) {
+            case AAC:
+                return MediaCodecInfo.CodecProfileLevel.AACObjectLC;
+            case AAC_ELD:
+                return MediaCodecInfo.CodecProfileLevel.AACObjectELD;
+            case HE_AAC:
+                return MediaCodecInfo.CodecProfileLevel.AACObjectHE;
+            default:
+                return CODEC_PROFILE_NONE;
+        }
     }
 }
