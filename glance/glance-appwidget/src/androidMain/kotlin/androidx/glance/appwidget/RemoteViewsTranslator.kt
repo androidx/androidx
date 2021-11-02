@@ -130,7 +130,11 @@ internal fun RemoteViews.translateChild(
         is EmittableSpacer -> translateEmittableSpacer(translationContext, processed)
         is EmittableSwitch -> translateEmittableSwitch(translationContext, processed)
         is EmittableImage -> translateEmittableImage(translationContext, processed)
-        else -> throw IllegalArgumentException("Unknown element type ${processed::javaClass}")
+        else -> {
+            throw IllegalArgumentException(
+                "Unknown element type ${processed.javaClass.canonicalName}"
+            )
+        }
     }
 }
 

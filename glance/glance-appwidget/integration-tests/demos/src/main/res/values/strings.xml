@@ -27,4 +27,5 @@
     <string name="exact_widget_title"><u>Exact layout</u></string>
     <string name="resizing_widget_name">Resizing Widget</string>
     <string name="compound_button_widget_name">CheckBox Widget</string>
+    <string name="error_widget_name">Error UI Widget</string>
 </resources>

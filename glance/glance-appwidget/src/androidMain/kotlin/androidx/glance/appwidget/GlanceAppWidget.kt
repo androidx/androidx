@@ -19,9 +19,11 @@ package androidx.glance.appwidget
 import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProviderInfo
 import android.content.Context
+import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.util.DisplayMetrics
+import android.util.Log
 import android.util.SizeF
 import android.widget.RemoteViews
 import androidx.annotation.DoNotInline
@@ -37,6 +39,7 @@ import androidx.compose.ui.unit.dp
 import androidx.glance.Applier
 import androidx.glance.LocalContext
 import androidx.glance.LocalSize
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
@@ -51,8 +54,13 @@ import kotlin.math.min
  * The UI is defined by the [Content] composable function. Calling [update] will start
  * the composition and translate [Content] into a [RemoteViews] which is then sent to the
  * [AppWidgetManager].
+ *
+ * @param enableErrorUi If true and an error occurs within this GlanceAppWidget, the App Widget is
+ * updated with an error Ui.
  */
-public abstract class GlanceAppWidget {
+public abstract class GlanceAppWidget(
+    private val enableErrorUi: Boolean = true
+) {
     /**
      * Definition of the UI.
      */
@@ -83,11 +91,13 @@ public abstract class GlanceAppWidget {
         appWidgetId: Int,
         options: Bundle? = null,
     ) {
-        val opts = options ?: appWidgetManager.getAppWidgetOptions(appWidgetId)!!
-        appWidgetManager.updateAppWidget(
-            appWidgetId,
-            compose(context, appWidgetManager, appWidgetId, opts)
-        )
+        safeRun(context, appWidgetManager, appWidgetId) {
+            val opts = options ?: appWidgetManager.getAppWidgetOptions(appWidgetId)!!
+            appWidgetManager.updateAppWidget(
+                appWidgetId,
+                compose(context, appWidgetManager, appWidgetId, opts)
+            )
+        }
     }
 
     /**
@@ -242,7 +252,8 @@ public abstract class GlanceAppWidget {
             options.extractOrientationSizes()
                 .map { size ->
                     findBestSize(size, sizes)?.let { orderedSizes.indexOf(it) to it }
-                        ?: 0 to smallestSize }
+                        ?: 0 to smallestSize
+                }
                 .map { (index, size) ->
                     async {
                         composeForSize(
@@ -331,6 +342,26 @@ public abstract class GlanceAppWidget {
             allViews.singleOrNull()?.second ?: RemoteViews(allViews.toMap())
         }
     }
+
+    private suspend fun safeRun(
+        context: Context,
+        appWidgetManager: AppWidgetManager,
+        appWidgetId: Int,
+        block: suspend () -> Unit,
+    ) {
+        try {
+            block()
+        } catch (ex: CancellationException) {
+            // Nothing to do
+        } catch (throwable: Throwable) {
+            if (!enableErrorUi) {
+                throw throwable
+            }
+            logException(throwable)
+            val rv = RemoteViews(context.packageName, R.layout.error_layout)
+            appWidgetManager.updateAppWidget(appWidgetId, rv)
+        }
+    }
 }
 
 internal data class AppWidgetId(val appWidgetId: Int) : GlanceId
@@ -400,3 +431,19 @@ internal fun findBestSize(widgetSize: DpSize, layoutSizes: Collection<DpSize>): 
 
 private fun Collection<DpSize>.sortedBySize() =
     sortedWith(compareBy({ it.width.value * it.height.value }, { it.width.value }))
+
+internal fun logException(throwable: Throwable) {
+    Log.e(GlanceAppWidgetTag, "Error in Glance App Widget", throwable)
+}
+
+private fun Intent.extractAppWidgetIds() =
+    getIntArrayExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS)
+        ?: intArrayOf(
+            getIntExtra(
+                AppWidgetManager.EXTRA_APPWIDGET_ID,
+                AppWidgetManager.INVALID_APPWIDGET_ID
+            ).also {
+                check(it != AppWidgetManager.INVALID_APPWIDGET_ID) {
+                    "Cannot determine the app widget id"
+                }
+            })
