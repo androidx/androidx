@@ -90,7 +90,6 @@ internal object PerfettoTraceProcessor {
                 query = """
                 SELECT slice.name,ts,dur
                 FROM slice
-                JOIN thread_track ON thread_track.id = slice.track_id
                 WHERE $whereClause
             """.trimMargin()
             )

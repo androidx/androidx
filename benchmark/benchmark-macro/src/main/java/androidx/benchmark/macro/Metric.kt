@@ -272,8 +272,6 @@ public class StartupTimingLegacyMetric : Metric() {
  *
  * Always selects the first instance of a trace section captured during a measurement.
  *
- * Note that this only supports single threaded begin/end trace sections - not async sections.
- *
  * @see androidx.tracing.Trace.beginSection
  * @see androidx.tracing.Trace.endSection
  * @see androidx.tracing.trace
