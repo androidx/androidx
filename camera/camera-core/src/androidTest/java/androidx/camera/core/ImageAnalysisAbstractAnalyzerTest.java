@@ -49,6 +49,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 
+import java.nio.ByteBuffer;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 
@@ -211,6 +212,11 @@ public class ImageAnalysisAbstractAnalyzerTest {
                 WIDTH, HEIGHT, HEIGHT, WIDTH, 90));
         assertThat(imageProxyArgumentCaptor.getValue().getImageInfo()
                 .getSensorToBufferTransformMatrix()).isEqualTo(target);
+
+        assertThat(mImageAnalysisAbstractAnalyzer.getRGBConverterBuffer()).isNull();
+        assertThat(mImageAnalysisAbstractAnalyzer.getYRotatedBuffer()).isNotNull();
+        assertThat(mImageAnalysisAbstractAnalyzer.getURotatedBuffer()).isNotNull();
+        assertThat(mImageAnalysisAbstractAnalyzer.getVRotatedBuffer()).isNotNull();
     }
 
     @SdkSuppress(maxSdkVersion = 22, minSdkVersion = 21)
@@ -237,6 +243,11 @@ public class ImageAnalysisAbstractAnalyzerTest {
 
         assertThat(imageProxyArgumentCaptor.getValue().getImageInfo()
                 .getSensorToBufferTransformMatrix()).isEqualTo(original);
+
+        assertThat(mImageAnalysisAbstractAnalyzer.getRGBConverterBuffer()).isNull();
+        assertThat(mImageAnalysisAbstractAnalyzer.getYRotatedBuffer()).isNotNull();
+        assertThat(mImageAnalysisAbstractAnalyzer.getURotatedBuffer()).isNotNull();
+        assertThat(mImageAnalysisAbstractAnalyzer.getVRotatedBuffer()).isNotNull();
     }
 
     @Test
@@ -266,6 +277,11 @@ public class ImageAnalysisAbstractAnalyzerTest {
                 WIDTH, HEIGHT, HEIGHT, WIDTH, 90));
         assertThat(imageProxyArgumentCaptor.getValue().getImageInfo()
                 .getSensorToBufferTransformMatrix()).isEqualTo(target);
+
+        assertThat(mImageAnalysisAbstractAnalyzer.getRGBConverterBuffer()).isNotNull();
+        assertThat(mImageAnalysisAbstractAnalyzer.getYRotatedBuffer()).isNull();
+        assertThat(mImageAnalysisAbstractAnalyzer.getURotatedBuffer()).isNull();
+        assertThat(mImageAnalysisAbstractAnalyzer.getVRotatedBuffer()).isNull();
     }
 
     @SdkSuppress(minSdkVersion = 23)
@@ -343,6 +359,48 @@ public class ImageAnalysisAbstractAnalyzerTest {
                 WIDTH, HEIGHT, WIDTH, HEIGHT, 180));
         assertThat(imageProxyArgumentCaptor.getValue().getImageInfo()
                 .getSensorToBufferTransformMatrix()).isEqualTo(target);
+    }
+
+    @Test
+    public void analysisRunWhenNoRotateRGB() throws ExecutionException,
+            InterruptedException {
+        // Arrange.
+        mImageAnalysisAbstractAnalyzer.setOutputImageFormat(OUTPUT_IMAGE_FORMAT_RGBA_8888);
+        mImageAnalysisAbstractAnalyzer.setProcessedImageReaderProxy(mRotatedRGBImageReaderProxy);
+        mImageAnalysisAbstractAnalyzer.setOutputImageRotationEnabled(false);
+        mImageAnalysisAbstractAnalyzer.setSensorToBufferTransformMatrix(mSensorToBufferMatrix);
+        mImageAnalysisAbstractAnalyzer.setRelativeRotation(/*rotation=*/270);
+
+        // Act.
+        ListenableFuture<Void> result =
+                mImageAnalysisAbstractAnalyzer.analyzeImage(mImageProxy);
+        result.get();
+
+        assertThat(mImageAnalysisAbstractAnalyzer.getRGBConverterBuffer()).isNull();
+        assertThat(mImageAnalysisAbstractAnalyzer.getYRotatedBuffer()).isNull();
+        assertThat(mImageAnalysisAbstractAnalyzer.getURotatedBuffer()).isNull();
+        assertThat(mImageAnalysisAbstractAnalyzer.getVRotatedBuffer()).isNull();
+    }
+
+    @Test
+    public void analysisRunWhenNoRotateYUV() throws ExecutionException,
+            InterruptedException {
+        // Arrange.
+        mImageAnalysisAbstractAnalyzer.setOutputImageFormat(OUTPUT_IMAGE_FORMAT_YUV_420_888);
+        mImageAnalysisAbstractAnalyzer.setProcessedImageReaderProxy(mRotatedRGBImageReaderProxy);
+        mImageAnalysisAbstractAnalyzer.setOutputImageRotationEnabled(false);
+        mImageAnalysisAbstractAnalyzer.setSensorToBufferTransformMatrix(mSensorToBufferMatrix);
+        mImageAnalysisAbstractAnalyzer.setRelativeRotation(/*rotation=*/270);
+
+        // Act.
+        ListenableFuture<Void> result =
+                mImageAnalysisAbstractAnalyzer.analyzeImage(mImageProxy);
+        result.get();
+
+        assertThat(mImageAnalysisAbstractAnalyzer.getRGBConverterBuffer()).isNull();
+        assertThat(mImageAnalysisAbstractAnalyzer.getYRotatedBuffer()).isNull();
+        assertThat(mImageAnalysisAbstractAnalyzer.getURotatedBuffer()).isNull();
+        assertThat(mImageAnalysisAbstractAnalyzer.getVRotatedBuffer()).isNull();
     }
 
     @Test
@@ -480,6 +538,26 @@ public class ImageAnalysisAbstractAnalyzerTest {
         @Override
         void setRelativeRotation(int relativeRotation) {
             mImageAnalysisNonBlockingAnalyzer.setRelativeRotation(relativeRotation);
+        }
+
+        @Nullable
+        ByteBuffer getRGBConverterBuffer() {
+            return mImageAnalysisNonBlockingAnalyzer.mRGBConvertedBuffer;
+        }
+
+        @Nullable
+        ByteBuffer getYRotatedBuffer() {
+            return mImageAnalysisNonBlockingAnalyzer.mYRotatedBuffer;
+        }
+
+        @Nullable
+        ByteBuffer getURotatedBuffer() {
+            return mImageAnalysisNonBlockingAnalyzer.mURotatedBuffer;
+        }
+
+        @Nullable
+        ByteBuffer getVRotatedBuffer() {
+            return mImageAnalysisNonBlockingAnalyzer.mVRotatedBuffer;
         }
     }
 }

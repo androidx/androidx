@@ -75,7 +75,6 @@ abstract class ImageAnalysisAbstractAnalyzer implements ImageReaderProxy.OnImage
     private volatile int mOutputImageFormat = ImageAnalysis.OUTPUT_IMAGE_FORMAT_YUV_420_888;
     private volatile boolean mOutputImageRotationEnabled;
     private volatile boolean mOnePixelShiftEnabled;
-    private volatile boolean mOutputImageDirty;
 
     @GuardedBy("mAnalyzerLock")
     private Executor mUserExecutor;
@@ -102,19 +101,19 @@ abstract class ImageAnalysisAbstractAnalyzer implements ImageReaderProxy.OnImage
 
     @GuardedBy("mAnalyzerLock")
     @Nullable
-    private ByteBuffer mRGBConvertedBuffer;
+    @VisibleForTesting ByteBuffer mRGBConvertedBuffer;
 
     @GuardedBy("mAnalyzerLock")
     @Nullable
-    private ByteBuffer mYRotatedBuffer;
+    @VisibleForTesting ByteBuffer mYRotatedBuffer;
 
     @GuardedBy("mAnalyzerLock")
     @Nullable
-    private ByteBuffer mURotatedBuffer;
+    @VisibleForTesting ByteBuffer mURotatedBuffer;
 
     @GuardedBy("mAnalyzerLock")
     @Nullable
-    private ByteBuffer mVRotatedBuffer;
+    @VisibleForTesting ByteBuffer mVRotatedBuffer;
 
     // Lock that synchronizes the access to mSubscribedAnalyzer/mUserExecutor to prevent mismatch.
     private final Object mAnalyzerLock = new Object();
@@ -177,6 +176,7 @@ abstract class ImageAnalysisAbstractAnalyzer implements ImageReaderProxy.OnImage
         ByteBuffer uRotatedBuffer;
         ByteBuffer vRotatedBuffer;
         int currentBufferRotationDegrees = mOutputImageRotationEnabled ? mRelativeRotation : 0;
+        boolean outputImageDirty;
 
         synchronized (mAnalyzerLock) {
             executor = mUserExecutor;
@@ -184,17 +184,19 @@ abstract class ImageAnalysisAbstractAnalyzer implements ImageReaderProxy.OnImage
 
             // Set dirty flag to indicate the output image transform matrix (for both YUV and RGB)
             // and image reader proxy (for YUV) needs to be recreated.
-            mOutputImageDirty = mOutputImageRotationEnabled
+            outputImageDirty = mOutputImageRotationEnabled
                     && currentBufferRotationDegrees != mPrevBufferRotationDegrees;
 
             // Cache the image reader proxy and image write for reuse and only recreate when
             // relative rotation degree changes.
-            if (mOutputImageDirty) {
+            if (outputImageDirty) {
                 recreateImageReaderProxy(imageProxy, currentBufferRotationDegrees);
             }
 
             // Cache memory buffer for image rotation
-            createHelperBuffer(imageProxy);
+            if (mOutputImageRotationEnabled) {
+                createHelperBuffer(imageProxy);
+            }
 
             processedImageReaderProxy = mProcessedImageReaderProxy;
             processedImageWriter = mProcessedImageWriter;
@@ -223,7 +225,10 @@ abstract class ImageAnalysisAbstractAnalyzer implements ImageReaderProxy.OnImage
                     if (mOnePixelShiftEnabled) {
                         applyPixelShiftForYUV(imageProxy);
                     }
-                    if (processedImageWriter != null) {
+                    if (processedImageWriter != null
+                            && yRotatedBuffer != null
+                            && uRotatedBuffer != null
+                            && vRotatedBuffer != null) {
                         processedImageProxy = rotateYUV(
                                 imageProxy,
                                 processedImageReaderProxy,
@@ -247,7 +252,7 @@ abstract class ImageAnalysisAbstractAnalyzer implements ImageReaderProxy.OnImage
             Rect cropRect = new Rect();
             Matrix transformMatrix = new Matrix();
             synchronized (mAnalyzerLock) {
-                if (mOutputImageDirty && !outputProcessedImageFailed) {
+                if (outputImageDirty && !outputProcessedImageFailed) {
                     recalculateTransformMatrixAndCropRect(
                             imageProxy.getWidth(),
                             imageProxy.getHeight(),
