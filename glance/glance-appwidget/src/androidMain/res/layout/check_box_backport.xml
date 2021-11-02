@@ -15,25 +15,26 @@
   -->
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="horizontal"
+    style="@style/Glance.AppWidget.CheckBoxBackport"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
     android:gravity="center_vertical"
-    style="@style/Glance.AppWidget.CheckBoxBackport">
+    android:orientation="horizontal">
     <!-- Note: A separate ImageView is used for the icon rather than using the drawable of the
      TextView as TextView.setEnabled is only remotable since API 24, whereas View.setEnabled is
      remotable on all APIs. -->
-    <ImageView
+    <ViewStub
         android:id="@id/checkBoxIcon"
         android:layout_width="32dp"
         android:layout_height="32dp"
-        android:src="@drawable/abc_btn_check_material_anim_enabled"
-        android:layout_centerVertical="true"
-        android:tint="?android:attr/colorAccent"
-        style="@style/Glance.AppWidget.CheckBoxIcon"/>
-    <TextView
+        android:layout="@layout/check_box_image" />
+
+    <ViewStub
         android:id="@id/checkBoxText"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
         android:textDirection="locale"
-        style="@style/Glance.AppWidget.CheckBoxText"/>
+        style="@style/Glance.AppWidget.CheckBoxText"
+        android:layout="@layout/check_box_text" />
 </LinearLayout>

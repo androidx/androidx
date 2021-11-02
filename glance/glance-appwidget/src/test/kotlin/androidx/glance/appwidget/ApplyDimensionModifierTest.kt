@@ -74,7 +74,7 @@ class ApplyDimensionModifierTest {
             assertThat(view.layoutParams.width)
                 .isEqualTo(context.resources.getDimensionPixelSize(R.dimen.standard_dimension))
         } else {
-            val textView = view.findView<ViewGroup> { it.id == R.id.sizeView }?.getChildAt(0)
+            val textView = getSizingView(view)
             assertNotNull(textView)
             assertIs<TextView>(textView)
             val targetWidth = context.resources.getDimensionPixelSize(R.dimen.standard_dimension)
@@ -112,7 +112,7 @@ class ApplyDimensionModifierTest {
         }
         val view = context.applyRemoteViews(rv)
         assertIs<LinearLayout>(view)
-        val child = assertIs<TextView>(view.getChildAt(0))
+        val child = assertIs<TextView>(view.nonGoneChildren.single())
         val layoutParam = assertIs<LinearLayout.LayoutParams>(child.layoutParams)
         assertThat(layoutParam.width).isEqualTo(0)
         assertThat(layoutParam.weight).isEqualTo(1f)
@@ -153,7 +153,7 @@ class ApplyDimensionModifierTest {
             assertThat(view.layoutParams.height)
                 .isEqualTo(context.resources.getDimensionPixelSize(R.dimen.standard_dimension))
         } else {
-            val textView = view.findView<ViewGroup> { it.id == R.id.sizeView }?.getChildAt(0)
+            val textView = getSizingView(view)
             assertNotNull(textView)
             assertIs<TextView>(textView)
             val targetHeight = context.resources.getDimensionPixelSize(R.dimen.standard_dimension)
@@ -191,7 +191,7 @@ class ApplyDimensionModifierTest {
         }
         val view = context.applyRemoteViews(rv)
         assertIs<LinearLayout>(view)
-        val child = assertIs<TextView>(view.getChildAt(0))
+        val child = assertIs<TextView>(view.nonGoneChildren.single())
         val layoutParam = assertIs<LinearLayout.LayoutParams>(child.layoutParams)
         assertThat(layoutParam.height).isEqualTo(0)
         assertThat(layoutParam.weight).isEqualTo(1f)
@@ -262,7 +262,8 @@ class ApplyDimensionModifierTest {
     }
 
     private fun getSizingView(view: View): TextView {
-        val sizeView = view.findView<ViewGroup> { it.id == R.id.sizeView }?.getChildAt(0)
+        val sizeView =
+            view.findView<ViewGroup> { it.id == R.id.sizeView }?.nonGoneChildren?.single()
         assertNotNull(sizeView)
         assertIs<TextView>(sizeView)
         return sizeView

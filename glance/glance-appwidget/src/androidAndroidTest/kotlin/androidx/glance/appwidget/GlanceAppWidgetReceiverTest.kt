@@ -94,11 +94,9 @@ class GlanceAppWidgetReceiverTest {
 
         mHostRule.startHost()
 
-        mHostRule.onHostView { hostView ->
-            assertThat(hostView.childCount).isEqualTo(1)
-            val child = assertIs<TextView>(hostView.getChildAt(0))
-            assertThat(child.text.toString()).isEqualTo("text content")
-            val content = child.text as SpannedString
+        mHostRule.onUnboxedHostView<TextView> { textView ->
+            assertThat(textView.text.toString()).isEqualTo("text content")
+            val content = textView.text as SpannedString
             content.checkHasSingleTypedSpan<UnderlineSpan> { }
             content.checkHasSingleTypedSpan<StyleSpan> {
                 assertThat(it.style).isEqualTo(Typeface.ITALIC)
@@ -119,17 +117,13 @@ class GlanceAppWidgetReceiverTest {
 
         mHostRule.startHost()
 
-        mHostRule.onHostView { hostView ->
-            assertThat(hostView.childCount).isEqualTo(1)
-            val child = assertIs<TextView>(hostView.getChildAt(0))
-            assertThat(child.text.toString()).isEqualTo("size = 200.0.dp x 300.0.dp")
+        mHostRule.onUnboxedHostView<TextView> { textView ->
+            assertThat(textView.text.toString()).isEqualTo("size = 200.0.dp x 300.0.dp")
         }
 
         mHostRule.setLandscapeOrientation()
-        mHostRule.onHostView { hostView ->
-            assertThat(hostView.childCount).isEqualTo(1)
-            val child = assertIs<TextView>(hostView.getChildAt(0))
-            assertThat(child.text.toString()).isEqualTo("size = 300.0.dp x 200.0.dp")
+        mHostRule.onUnboxedHostView<TextView> { textView ->
+            assertThat(textView.text.toString()).isEqualTo("size = 300.0.dp x 200.0.dp")
         }
     }
 
@@ -145,17 +139,13 @@ class GlanceAppWidgetReceiverTest {
 
         mHostRule.startHost()
 
-        mHostRule.onHostView { hostView ->
-            assertThat(hostView.childCount).isEqualTo(1)
-            val child = assertIs<TextView>(hostView.getChildAt(0))
-            assertThat(child.text.toString()).isEqualTo("size = 100.0.dp x 150.0.dp")
+        mHostRule.onUnboxedHostView<TextView> { textView ->
+            assertThat(textView.text.toString()).isEqualTo("size = 100.0.dp x 150.0.dp")
         }
 
         mHostRule.setLandscapeOrientation()
-        mHostRule.onHostView { hostView ->
-            assertThat(hostView.childCount).isEqualTo(1)
-            val child = assertIs<TextView>(hostView.getChildAt(0))
-            assertThat(child.text.toString()).isEqualTo("size = 250.0.dp x 150.0.dp")
+        mHostRule.onUnboxedHostView<TextView> { textView ->
+            assertThat(textView.text.toString()).isEqualTo("size = 250.0.dp x 150.0.dp")
         }
 
         mHostRule.setSizes(
@@ -164,17 +154,13 @@ class GlanceAppWidgetReceiverTest {
         )
 
         mHostRule.setPortraitOrientation()
-        mHostRule.onHostView { hostView ->
-            assertThat(hostView.childCount).isEqualTo(1)
-            val child = assertIs<TextView>(hostView.getChildAt(0))
-            assertThat(child.text.toString()).isEqualTo("size = 100.0.dp x 150.0.dp")
+        mHostRule.onUnboxedHostView<TextView> { textView ->
+            assertThat(textView.text.toString()).isEqualTo("size = 100.0.dp x 150.0.dp")
         }
 
         mHostRule.setLandscapeOrientation()
-        mHostRule.onHostView { hostView ->
-            assertThat(hostView.childCount).isEqualTo(1)
-            val child = assertIs<TextView>(hostView.getChildAt(0))
-            assertThat(child.text.toString()).isEqualTo("size = 100.0.dp x 150.0.dp")
+        mHostRule.onUnboxedHostView<TextView> { textView ->
+            assertThat(textView.text.toString()).isEqualTo("size = 100.0.dp x 150.0.dp")
         }
     }
 
@@ -186,10 +172,8 @@ class GlanceAppWidgetReceiverTest {
 
         mHostRule.startHost()
 
-        mHostRule.onHostView { hostView ->
-            assertThat(hostView.childCount).isEqualTo(1)
-            val child = assertIs<TextView>(hostView.getChildAt(0))
-            assertViewSize(child, mHostRule.portraitSize)
+        mHostRule.onUnboxedHostView<TextView> { textView ->
+            assertViewSize(textView, mHostRule.portraitSize)
         }
     }
 
@@ -201,10 +185,8 @@ class GlanceAppWidgetReceiverTest {
 
         mHostRule.startHost()
 
-        mHostRule.onHostView { hostView ->
-            assertThat(hostView.childCount).isEqualTo(1)
-            val child = assertIs<TextView>(hostView.getChildAt(0).getTargetView())
-            assertViewSize(child, DpSize(150.dp, 100.dp))
+        mHostRule.onUnboxedHostView<TextView> { textView ->
+            assertViewSize(textView, DpSize(150.dp, 100.dp))
         }
     }
 
@@ -216,10 +198,8 @@ class GlanceAppWidgetReceiverTest {
 
         mHostRule.startHost()
 
-        mHostRule.onHostView { hostView ->
-            assertThat(hostView.childCount).isEqualTo(1)
-            val child = assertIs<TextView>(hostView.getChildAt(0).getTargetView())
-            assertViewSize(child, DpSize(mHostRule.portraitSize.width, 110.dp))
+        mHostRule.onUnboxedHostView<TextView> { textView ->
+            assertViewSize(textView, DpSize(mHostRule.portraitSize.width, 110.dp))
         }
     }
 
@@ -233,14 +213,10 @@ class GlanceAppWidgetReceiverTest {
 
         mHostRule.startHost()
 
-        mHostRule.onHostView { hostView ->
-            assertThat(hostView.childCount).isEqualTo(1)
-            val child = assertNotNull(
-                hostView.findChild<RelativeLayout> {
-                    it.id != R.id.relativeLayout
-                }
-            )
-            assertViewSize(child, DpSize(150.dp, 180.dp))
+        mHostRule.onUnboxedHostView<RelativeLayout> { box ->
+            val realBox = box.getTargetView<RelativeLayout>()
+            assertThat(realBox.notGoneChildCount).isEqualTo(1)
+            assertViewSize(realBox, DpSize(150.dp, 180.dp))
         }
     }
 
@@ -254,12 +230,10 @@ class GlanceAppWidgetReceiverTest {
 
         mHostRule.startHost()
 
-        mHostRule.onHostView { hostView ->
-            assertThat(hostView.childCount).isEqualTo(1)
-            val child = assertNotNull(hostView.findChildByType<RelativeLayout>())
-            val text = assertNotNull(child.findChildByType<TextView>())
-            assertThat(child.height).isEqualTo(text.height)
-            assertViewDimension(child, child.width, 150.dp)
+        mHostRule.onUnboxedHostView<RelativeLayout> { box ->
+            val text = assertNotNull(box.findChild<TextView> { it.text.toString() == "Inside" })
+            assertThat(box.height).isEqualTo(text.height)
+            assertViewDimension(box, box.width, 150.dp)
         }
     }
 
@@ -320,13 +294,12 @@ class GlanceAppWidgetReceiverTest {
 
         mHostRule.startHost()
 
-        mHostRule.onHostView { hostView ->
-            assertThat(hostView.childCount).isEqualTo(1)
-            val row = assertIs<LinearLayout>(hostView.getChildAt(0))
+        mHostRule.onUnboxedHostView<LinearLayout> { row ->
             assertThat(row.orientation).isEqualTo(LinearLayout.HORIZONTAL)
-            assertThat(row.childCount).isEqualTo(2)
-            val child1 = assertIs<TextView>(row.getChildAt(0).getTargetView())
-            val child2 = assertIs<TextView>(row.getChildAt(1))
+            assertThat(row.notGoneChildCount).isEqualTo(2)
+            val children = row.notGoneChildren.toList()
+            val child1 = children[0].getTargetView<TextView>()
+            val child2 = assertIs<TextView>(children[1])
             assertViewSize(child1, DpSize(mHostRule.portraitSize.width / 2, 100.dp))
             assertViewSize(
                 child2,
@@ -346,13 +319,12 @@ class GlanceAppWidgetReceiverTest {
 
         mHostRule.startHost()
 
-        mHostRule.onHostView { hostView ->
-            assertThat(hostView.childCount).isEqualTo(1)
-            val row = assertIs<LinearLayout>(hostView.getChildAt(0))
-            assertThat(row.orientation).isEqualTo(LinearLayout.VERTICAL)
-            assertThat(row.childCount).isEqualTo(2)
-            val child1 = assertIs<TextView>(row.getChildAt(0))
-            val child2 = assertIs<TextView>(row.getChildAt(1).getTargetView())
+        mHostRule.onUnboxedHostView<LinearLayout> { column ->
+            assertThat(column.orientation).isEqualTo(LinearLayout.VERTICAL)
+            assertThat(column.notGoneChildCount).isEqualTo(2)
+            val children = column.notGoneChildren.toList()
+            val child1 = assertIs<TextView>(children[0])
+            val child2 = children[1].getTargetView<TextView>()
             assertViewSize(
                 child1,
                 DpSize(mHostRule.portraitSize.width, mHostRule.portraitSize.height / 2),
@@ -372,13 +344,12 @@ class GlanceAppWidgetReceiverTest {
 
         mHostRule.startHost()
 
-        mHostRule.onHostView { hostView ->
-            assertThat(hostView.childCount).isEqualTo(1)
-            val row = assertIs<LinearLayout>(hostView.getChildAt(0))
-            assertThat(row.orientation).isEqualTo(LinearLayout.VERTICAL)
-            assertThat(row.childCount).isEqualTo(2)
-            val child1 = assertIs<TextView>(row.getChildAt(0))
-            val child2 = assertIs<TextView>(row.getChildAt(1).getTargetView())
+        mHostRule.onUnboxedHostView<LinearLayout> { column ->
+            assertThat(column.orientation).isEqualTo(LinearLayout.VERTICAL)
+            assertThat(column.notGoneChildCount).isEqualTo(2)
+            val children = column.notGoneChildren.toList()
+            val child1 = assertIs<TextView>(children[0])
+            val child2 = children[1].getTargetView<TextView>()
             assertViewSize(
                 child1,
                 DpSize(mHostRule.portraitSize.width, 0.dp),
@@ -395,9 +366,7 @@ class GlanceAppWidgetReceiverTest {
 
         mHostRule.startHost()
 
-        mHostRule.onHostView { hostView ->
-            assertThat(hostView.childCount).isEqualTo(1)
-            val button = assertIs<Button>(hostView.getChildAt(0))
+        mHostRule.onUnboxedHostView<Button> { button ->
             assertThat(button.text).isEqualTo("Button")
             assertThat(button.isEnabled).isFalse()
             assertThat(button.hasOnClickListeners()).isFalse()
@@ -412,12 +381,10 @@ class GlanceAppWidgetReceiverTest {
 
         mHostRule.startHost()
 
-        mHostRule.onHostView { hostView ->
-            assertThat(hostView.childCount).isEqualTo(1)
-            val image = assertIs<ImageView>(hostView.getChildAt(0))
+        mHostRule.onUnboxedHostView<ImageView> { image ->
             assertThat(image.contentDescription).isEqualTo("oval")
-            val gradientDrawable = assertIs<GradientDrawable>(image.getDrawable())
-            assertThat(gradientDrawable.getShape()).isEqualTo(GradientDrawable.OVAL)
+            val gradientDrawable = assertIs<GradientDrawable>(image.drawable)
+            assertThat(gradientDrawable.shape).isEqualTo(GradientDrawable.OVAL)
         }
     }
 
@@ -438,14 +405,4 @@ class GlanceAppWidgetReceiverTest {
         val density = view.context.resources.displayMetrics.density
         assertThat(sizePx / density).isWithin(1.1f / density).of(expectedSize.value)
     }
-}
-
-// Extract the target view if it is a complex view in Android R-.
-private fun View.getTargetView(): View {
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-        return this
-    }
-    val layout = assertIs<RelativeLayout>(this)
-    assertThat(layout.childCount).isEqualTo(2)
-    return layout.getChildAt(1)
 }

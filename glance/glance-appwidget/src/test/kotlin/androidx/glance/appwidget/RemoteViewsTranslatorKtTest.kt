@@ -26,7 +26,7 @@ import android.text.style.StrikethroughSpan
 import android.text.style.UnderlineSpan
 import android.view.Gravity
 import android.view.View
-import android.view.ViewGroup
+import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.ListView
@@ -34,6 +34,9 @@ import android.widget.RelativeLayout
 import android.widget.RemoteViews
 import android.widget.TextView
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import androidx.core.view.children
 import androidx.glance.GlanceModifier
 import androidx.glance.action.actionLaunchActivity
@@ -54,9 +57,6 @@ import androidx.glance.layout.absolutePadding
 import androidx.glance.layout.padding
 import androidx.glance.text.TextDecoration
 import androidx.glance.text.TextStyle
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.dp
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -67,8 +67,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
-import java.lang.IllegalArgumentException
-import java.lang.IllegalStateException
 import kotlin.test.assertFailsWith
 import kotlin.test.assertIs
 
@@ -85,6 +83,11 @@ class RemoteViewsTranslatorKtTest {
     @Before
     fun setUp() {
         fakeCoroutineScope = TestCoroutineScope()
+    }
+
+    @Test
+    fun checkRootAliasCorrectness() {
+        assertThat(LastRootAlias - FirstRootAlias + 1).isEqualTo(RootAliasCount)
     }
 
     @Test
@@ -118,9 +121,8 @@ class RemoteViewsTranslatorKtTest {
         val view = context.applyRemoteViews(rv)
 
         assertIs<RelativeLayout>(view)
-        assertThat(view.childCount).isEqualTo(2)
-        val child1 = view.getChildAt(0)
-        val child2 = view.getChildAt(1)
+        assertThat(view.nonGoneChildCount).isEqualTo(2)
+        val (child1, child2) = view.nonGoneChildren.toList()
         assertIs<RelativeLayout>(child1)
         assertIs<RelativeLayout>(child2)
         assertThat(child1.gravity).isEqualTo(Gravity.CENTER)
@@ -137,18 +139,16 @@ class RemoteViewsTranslatorKtTest {
         }
         val view = context.applyRemoteViews(rv)
         assertIs<RelativeLayout>(view)
-        assertThat(view.childCount).isEqualTo(2)
-        val child1 = view.getChildAt(0)
-        val child2 = view.getChildAt(1)
+        assertThat(view.nonGoneChildCount).isEqualTo(2)
+        val (child1, child2) = view.nonGoneChildren.toList()
         assertIs<RelativeLayout>(child1)
         assertIs<RelativeLayout>(child2)
 
         rv.reapply(context, view)
 
         assertIs<RelativeLayout>(view)
-        assertThat(view.childCount).isEqualTo(2)
-        val newChild1 = view.getChildAt(0)
-        val newChild2 = view.getChildAt(1)
+        assertThat(view.nonGoneChildCount).isEqualTo(2)
+        val (newChild1, newChild2) = view.nonGoneChildren.toList()
         assertIs<RelativeLayout>(newChild1)
         assertIs<RelativeLayout>(newChild2)
         assertThat(newChild1.gravity).isEqualTo(Gravity.CENTER)
@@ -169,9 +169,8 @@ class RemoteViewsTranslatorKtTest {
         val view = context.applyRemoteViews(rv)
 
         assertIs<RelativeLayout>(view)
-        assertThat(view.childCount).isEqualTo(2)
-        val child1 = view.getChildAt(0)
-        val child2 = view.getChildAt(1)
+        assertThat(view.nonGoneChildCount).isEqualTo(2)
+        val (child1, child2) = view.nonGoneChildren.toList()
         assertIs<RelativeLayout>(child1)
         assertIs<RelativeLayout>(child2)
         assertThat(child1.gravity).isEqualTo(Gravity.CENTER)
@@ -311,14 +310,12 @@ class RemoteViewsTranslatorKtTest {
         val view = context.applyRemoteViews(rv)
 
         assertIs<LinearLayout>(view)
-        assertThat(view.childCount).isEqualTo(3)
-        val child1 = view.getChildAt(0)
+        assertThat(view.nonGoneChildCount).isEqualTo(3)
+        val (child1, child2, child3) = view.nonGoneChildren.toList()
         assertIs<LinearLayout>(child1)
         assertThat(child1.gravity).isEqualTo(Gravity.CENTER)
-        val child2 = view.getChildAt(1)
         assertIs<LinearLayout>(child2)
         assertThat(child2.gravity).isEqualTo(Gravity.CENTER or Gravity.TOP)
-        val child3 = view.getChildAt(2)
         assertIs<LinearLayout>(child3)
         assertThat(child3.gravity).isEqualTo(Gravity.BOTTOM or Gravity.END)
     }
@@ -345,14 +342,12 @@ class RemoteViewsTranslatorKtTest {
         val view = context.applyRemoteViews(rv)
 
         assertIs<LinearLayout>(view)
-        assertThat(view.childCount).isEqualTo(3)
-        val child1 = view.getChildAt(0)
+        assertThat(view.nonGoneChildCount).isEqualTo(3)
+        val (child1, child2, child3) = view.nonGoneChildren.toList()
         assertIs<LinearLayout>(child1)
         assertThat(child1.gravity).isEqualTo(Gravity.CENTER)
-        val child2 = view.getChildAt(1)
         assertIs<LinearLayout>(child2)
         assertThat(child2.gravity).isEqualTo(Gravity.CENTER or Gravity.TOP)
-        val child3 = view.getChildAt(2)
         assertIs<LinearLayout>(child3)
         assertThat(child3.gravity).isEqualTo(Gravity.BOTTOM or Gravity.END)
     }
@@ -391,7 +386,6 @@ class RemoteViewsTranslatorKtTest {
             ) { }
         }
         val view = context.applyRemoteViews(rv)
-
         assertIs<LinearLayout>(view)
         assertThat(view.paddingLeft).isEqualTo(13.dp.toPixels())
         assertThat(view.paddingRight).isEqualTo(12.dp.toPixels())
@@ -590,14 +584,11 @@ class RemoteViewsTranslatorKtTest {
             val providedViews = RemoteViews(context.packageName, R.layout.text_sample).also {
                 it.setTextViewText(R.id.text_view, "Android Remote Views")
             }
-
-            Box {
-                AndroidRemoteViews(providedViews)
-            }
+            AndroidRemoteViews(providedViews)
         }
 
-        val rootLayout = assertIs<ViewGroup>(context.applyRemoteViews(result))
-        val actual = assertIs<TextView>(rootLayout.children.single())
+        val boxView = assertIs<FrameLayout>(context.applyRemoteViews(result))
+        val actual = assertIs<TextView>(boxView.children.single())
         assertThat(actual.id).isEqualTo(R.id.text_view)
         assertThat(actual.text).isEqualTo("Android Remote Views")
     }
@@ -615,12 +606,16 @@ class RemoteViewsTranslatorKtTest {
             }
         }
 
-        val rootLayout = assertIs<LinearLayout>(context.applyRemoteViews(result))
-        assertThat(rootLayout.orientation).isEqualTo(LinearLayout.VERTICAL)
-        assertThat(rootLayout.childCount).isEqualTo(2)
-        val child1 = assertIs<TextView>(rootLayout.getChildAt(0))
+        val rootLayout = assertIs<FrameLayout>(context.applyRemoteViews(result))
+        assertThat(rootLayout.childCount).isEqualTo(1)
+        val containerLayout = assertIs<LinearLayout>(rootLayout.getChildAt(0))
+        assertThat(containerLayout.orientation).isEqualTo(LinearLayout.VERTICAL)
+        assertThat(containerLayout.childCount).isEqualTo(2)
+        val boxChild1 = assertIs<FrameLayout>(containerLayout.getChildAt(0))
+        val child1 = assertIs<TextView>(boxChild1.getChildAt(0))
         assertThat(child1.text.toString()).isEqualTo("inner text 1")
-        val child2 = assertIs<TextView>(rootLayout.getChildAt(1))
+        val boxChild2 = assertIs<FrameLayout>(containerLayout.getChildAt(1))
+        val child2 = assertIs<TextView>(boxChild2.getChildAt(0))
         assertThat(child2.text.toString()).isEqualTo("inner text 2")
     }
 
@@ -650,11 +645,11 @@ class RemoteViewsTranslatorKtTest {
         }
         val view = context.applyRemoteViews(rv)
 
-        assertIs<ViewGroup>(view)
-        val iconView = view.findViewById<ImageView>(R.id.checkBoxIcon)
+        assertIs<LinearLayout>(view)
+        val iconView = assertIs<ImageView>(view.getChildAt(0))
         assertThat(iconView.isEnabled).isFalse()
 
-        val textView = view.findViewById<TextView>(R.id.checkBoxText)
+        val textView = assertIs<TextView>(view.getChildAt(1))
         val textContent = assertIs<SpannedString>(textView.text)
         assertThat(textContent.toString()).isEqualTo("test")
         assertThat(textContent.getSpans(0, textContent.length, Any::class.java)).hasLength(1)
@@ -673,11 +668,11 @@ class RemoteViewsTranslatorKtTest {
         }
         val view = context.applyRemoteViews(rv)
 
-        assertIs<ViewGroup>(view)
-        val iconView = view.findViewById<ImageView>(R.id.checkBoxIcon)
+        assertIs<LinearLayout>(view)
+        val iconView = assertIs<ImageView>(view.getChildAt(0))
         assertThat(iconView.isEnabled).isTrue()
 
-        val textView = view.findViewById<TextView>(R.id.checkBoxText)
+        val textView = assertIs<TextView>(view.getChildAt(1))
         val textContent = assertIs<SpannedString>(textView.text)
         assertThat(textContent.toString()).isEqualTo("test checked")
         assertThat(textContent.getSpans(0, textContent.length, Any::class.java)).hasLength(1)
@@ -811,7 +806,13 @@ class RemoteViewsTranslatorKtTest {
         content: @Composable () -> Unit
     ): RemoteViews {
         val root = runTestingComposition(content)
-        return translateComposition(context, appWidgetId, TestWidget::class.java, root)
+        return translateComposition(
+            context,
+            appWidgetId,
+            TestWidget::class.java,
+            root,
+            rootViewIndex = 0,
+        )
     }
 
     private fun configurationContext(modifier: Configuration.() -> Unit): Context {

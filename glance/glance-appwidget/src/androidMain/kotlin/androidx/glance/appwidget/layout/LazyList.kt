@@ -23,6 +23,8 @@ import androidx.glance.Applier
 import androidx.glance.EmittableWithChildren
 import androidx.glance.GlanceModifier
 import androidx.glance.layout.Alignment
+import androidx.glance.layout.fillMaxWidth
+import androidx.glance.layout.wrapContentHeight
 
 /**
  * A vertical scrolling list that only lays out the currently visible items. The [content] block
@@ -244,7 +246,12 @@ internal abstract class EmittableLazyList : EmittableWithChildren(resetsDepthFor
 }
 
 internal class EmittableLazyListItem : EmittableWithChildren() {
-    override var modifier: GlanceModifier = GlanceModifier
+    override var modifier: GlanceModifier
+        get() = children.singleOrNull()?.modifier
+            ?: GlanceModifier.wrapContentHeight().fillMaxWidth()
+        set(_) {
+            throw IllegalAccessError("You cannot set the modifier of an EmittableLazyListItem")
+        }
     var itemId: Long = 0
     var alignment: Alignment = Alignment.CenterStart
 

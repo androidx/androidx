@@ -43,6 +43,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
+import org.robolectric.shadows.ShadowLog
 import kotlin.test.assertIs
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -56,13 +57,14 @@ class GlanceAppWidgetTest {
     @Before
     fun setUp() {
         fakeCoroutineScope = TestCoroutineScope()
+        ShadowLog.stream = System.out
     }
 
     @Test
     fun createEmptyUI() = fakeCoroutineScope.runBlockingTest {
         val composer = SampleGlanceAppWidget { }
 
-        val rv = composer.composeForSize(context, 1, Bundle(), DpSize(40.dp, 50.dp))
+        val rv = composer.composeForSize(context, 1, Bundle(), DpSize(40.dp, 50.dp), 0)
 
         val view = context.applyRemoteViews(rv)
         assertIs<RelativeLayout>(view)
@@ -76,7 +78,7 @@ class GlanceAppWidgetTest {
             Text("${size.width} x ${size.height}")
         }
 
-        val rv = composer.composeForSize(context, 1, Bundle(), DpSize(40.dp, 50.dp))
+        val rv = composer.composeForSize(context, 1, Bundle(), DpSize(40.dp, 50.dp), 0)
 
         val view = context.applyRemoteViews(rv)
         assertIs<TextView>(view)
@@ -93,7 +95,8 @@ class GlanceAppWidgetTest {
 
         val bundle = Bundle()
         bundle.putString("StringKey", "FOUND")
-        val rv = composer.composeForSize(context, 1, bundle, DpSize(40.dp, 50.dp))
+        val rv =
+            composer.composeForSize(context, 1, bundle, DpSize(40.dp, 50.dp), 0)
 
         val view = context.applyRemoteViews(rv)
         assertIs<TextView>(view)
@@ -109,7 +112,8 @@ class GlanceAppWidgetTest {
         }
 
         val bundle = bundleOf("StringKey" to "FOUND")
-        val rv = composer.composeForSize(context, 1, bundle, DpSize(40.dp, 50.dp))
+        val rv =
+            composer.composeForSize(context, 1, bundle, DpSize(40.dp, 50.dp), 0)
 
         val view = context.applyRemoteViews(rv)
         assertIs<TextView>(view)
@@ -319,6 +323,47 @@ class GlanceAppWidgetTest {
 
         assertThat(composer.appWidgetMinSize(displayMetrics, appWidgetManager, 1))
             .isEqualTo(DpSize(50.dp, 50.dp))
+    }
+
+    @Test
+    fun findBestSize_onlyFitting() {
+        assertThat(
+            findBestSize(
+                DpSize(10.dp, 10.dp),
+                setOf(DpSize(15.dp, 15.dp), DpSize(50.dp, 50.dp))
+            )
+        ).isNull()
+
+        val sizes = setOf(
+            DpSize(90.dp, 90.dp),
+            DpSize(180.dp, 180.dp),
+            DpSize(300.dp, 300.dp),
+            DpSize(180.dp, 48.dp),
+            DpSize(300.dp, 48.dp),
+            DpSize(48.dp, 180.dp),
+            DpSize(48.dp, 300.dp),
+        )
+        assertThat(findBestSize(DpSize(48.dp, 91.dp), sizes))
+            .isNull()
+    }
+
+    @Test
+    fun findBestSize_smallestFitting() {
+        val sizes = setOf(
+            DpSize(90.dp, 90.dp),
+            DpSize(180.dp, 180.dp),
+            DpSize(300.dp, 300.dp),
+            DpSize(180.dp, 48.dp),
+            DpSize(300.dp, 48.dp),
+            DpSize(48.dp, 180.dp),
+            DpSize(48.dp, 300.dp),
+        )
+        assertThat(findBestSize(DpSize(140.dp, 500.dp), sizes))
+            .isEqualTo(DpSize(48.dp, 300.dp))
+        assertThat(findBestSize(DpSize(90.dp, 91.dp), sizes))
+            .isEqualTo(DpSize(90.dp, 90.dp))
+        assertThat(findBestSize(DpSize(200.dp, 200.dp), sizes))
+            .isEqualTo(DpSize(180.dp, 180.dp))
     }
 
     private fun optionsBundleOf(sizes: List<DpSize>): Bundle {

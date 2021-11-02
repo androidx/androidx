@@ -14,18 +14,10 @@
   limitations under the License.
   -->
 
-<resources>
-    <id name="checkBoxIcon" />
-    <id name="checkBoxText" />
-    <id name="glanceView" />
-    <id name="glanceViewStub" />
-    <id name="relativeLayout" />
-    <id name="sizeView" />
-    <id name="sizeViewStub" />
-    <id name="switchText" />
-    <id name="switchTrack" />
-    <id name="switchThumb" />
-    <id name="rootView" />
-    <id name="rootStubId" />
-    <id name="deletedViewId" />
-</resources>
+<ImageView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="32dp"
+    android:layout_height="32dp"
+    android:src="@drawable/abc_btn_check_material_anim_enabled"
+    android:layout_centerVertical="true"
+    android:tint="?android:attr/colorAccent"
+    style="@style/Glance.AppWidget.CheckBoxIcon"/>

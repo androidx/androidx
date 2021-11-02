@@ -58,7 +58,7 @@ internal fun applyModifiers(
     translationContext: TranslationContext,
     rv: RemoteViews,
     modifiers: GlanceModifier,
-    layoutDef: RemoteViewsInfo
+    viewDef: InsertedViewInfo,
 ) {
     val context = translationContext.context
     var widthModifier: WidthModifier? = null
@@ -66,15 +66,10 @@ internal fun applyModifiers(
     modifiers.foldIn(Unit) { _, modifier ->
         when (modifier) {
             is ActionModifier ->
-                applyAction(rv, modifier.action, translationContext, layoutDef.mainViewId)
+                applyAction(translationContext, rv, modifier.action, viewDef.mainViewId)
             is WidthModifier -> widthModifier = modifier
             is HeightModifier -> heightModifier = modifier
-            is BackgroundModifier -> applyBackgroundModifier(
-                rv,
-                modifier,
-                context,
-                layoutDef
-            )
+            is BackgroundModifier -> applyBackgroundModifier(context, rv, modifier, viewDef)
             is PaddingModifier -> {
             } // Nothing to do for those
             else -> {
@@ -82,13 +77,13 @@ internal fun applyModifiers(
             }
         }
     }
-    applySizeModifiers(rv, widthModifier, heightModifier, translationContext, layoutDef)
+    applySizeModifiers(translationContext, rv, widthModifier, heightModifier, viewDef)
     modifiers.collectPaddingInDp(context.resources)
         ?.toAbsolute(translationContext.isRtl)
         ?.let {
             val displayMetrics = context.resources.displayMetrics
             rv.setViewPadding(
-                layoutDef.mainViewId,
+                viewDef.mainViewId,
                 it.left.toPixels(displayMetrics),
                 it.top.toPixels(displayMetrics),
                 it.right.toPixels(displayMetrics),
@@ -98,9 +93,9 @@ internal fun applyModifiers(
 }
 
 private fun applyAction(
+    translationContext: TranslationContext,
     rv: RemoteViews,
     action: Action,
-    translationContext: TranslationContext,
     @IdRes viewId: Int
 ) {
     when (action) {
@@ -138,17 +133,21 @@ private fun applyAction(
 }
 
 private fun applySizeModifiers(
+    translationContext: TranslationContext,
     rv: RemoteViews,
     widthModifier: WidthModifier?,
     heightModifier: HeightModifier?,
-    translationContext: TranslationContext,
-    layoutDef: RemoteViewsInfo
+    viewDef: InsertedViewInfo
 ) {
     val context = translationContext.context
-    if (layoutDef.isSimple) {
-        widthModifier?.let { applySimpleWidthModifier(rv, it, context, layoutDef) }
-        heightModifier?.let { applySimpleHeightModifier(rv, it, context, layoutDef) }
+    if (viewDef.isSimple) {
+        widthModifier?.let { applySimpleWidthModifier(context, rv, it, viewDef.mainViewId) }
+        heightModifier?.let { applySimpleHeightModifier(context, rv, it, viewDef.mainViewId) }
         return
+    }
+
+    check(Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
+        "There is currently no valid use case where a complex view is used on Android S"
     }
 
     val width = widthModifier?.width
@@ -184,59 +183,70 @@ private fun applySizeModifiers(
     }.let {}
 }
 
-private fun applySimpleWidthModifier(
+internal fun applySimpleWidthModifier(
+    context: Context,
     rv: RemoteViews,
     modifier: WidthModifier,
-    context: Context,
-    layoutDef: RemoteViewsInfo,
+    viewId: Int,
 ) {
-    // These layouts already have the appropriate attribute in the xml, so no action is needed.
     val width = modifier.width
-    if (
-        width.resolveDimension(context) in listOf(Dimension.Wrap, Dimension.Fill, Dimension.Expand)
-    ) {
-        return
-    }
-
     if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
+        // Prior to Android S, these layouts already have the appropriate attribute in the xml, so
+        // no action is needed.
+        if (
+            width.resolveDimension(context) in listOf(
+                Dimension.Wrap,
+                Dimension.Fill,
+                Dimension.Expand
+            )
+        ) {
+            return
+        }
         throw IllegalArgumentException(
-            "Using a width of $width requires a complex layout before API 31, but used $layoutDef"
+            "Using a width of $width requires a complex layout before API 31"
         )
     }
-
-    ApplyModifiersApi31Impl.setViewWidth(rv, layoutDef.mainViewId, width)
+    // Wrap and Expand are done in XML on Android S+
+    if (width in listOf(Dimension.Wrap, Dimension.Expand)) return
+    ApplyModifiersApi31Impl.setViewWidth(rv, viewId, width)
 }
 
-private fun applySimpleHeightModifier(
+internal fun applySimpleHeightModifier(
+    context: Context,
     rv: RemoteViews,
     modifier: HeightModifier,
-    context: Context,
-    layoutDef: RemoteViewsInfo,
+    viewId: Int,
 ) {
     // These layouts already have the appropriate attribute in the xml, so no action is needed.
     val height = modifier.height
-    if (
-        height.resolveDimension(context) in listOf(Dimension.Wrap, Dimension.Fill, Dimension.Expand)
-    ) {
-        return
-    }
-
     if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
+        // Prior to Android S, these layouts already have the appropriate attribute in the xml, so
+        // no action is needed.
+        if (
+            height.resolveDimension(context) in listOf(
+                Dimension.Wrap,
+                Dimension.Fill,
+                Dimension.Expand
+            )
+        ) {
+            return
+        }
         throw IllegalArgumentException(
-            "Using a height of $height requires a complex layout before API 31, but used $layoutDef"
+            "Using a height of $height requires a complex layout before API 31"
         )
     }
-
-    ApplyModifiersApi31Impl.setViewHeight(rv, layoutDef.mainViewId, height)
+    // Wrap and Expand are done in XML on Android S+
+    if (height in listOf(Dimension.Wrap, Dimension.Expand)) return
+    ApplyModifiersApi31Impl.setViewHeight(rv, viewId, height)
 }
 
 private fun applyBackgroundModifier(
+    context: Context,
     rv: RemoteViews,
     modifier: BackgroundModifier,
-    context: Context,
-    layoutDef: RemoteViewsInfo
+    viewDef: InsertedViewInfo
 ) {
-    val viewId = layoutDef.mainViewId
+    val viewId = viewDef.mainViewId
     when (val colorProvider = modifier.colorProvider) {
         is FixedColorProvider -> rv.setViewBackgroundColor(viewId, colorProvider.color.toArgb())
         is ResourceColorProvider -> rv.setViewBackgroundColorResource(viewId, colorProvider.resId)
@@ -268,6 +278,12 @@ private fun Color.toArgb(): Int {
     )
 }
 
+private val Dimension?.isFixed: Boolean
+    get() = when (this) {
+        is Dimension.Dp, is Dimension.Resource -> true
+        Dimension.Expand, Dimension.Fill, Dimension.Wrap, null -> false
+    }
+
 @RequiresApi(Build.VERSION_CODES.S)
 private object ApplyModifiersApi31Impl {
     @DoNotInline
@@ -279,7 +295,9 @@ private object ApplyModifiersApi31Impl {
             is Dimension.Expand -> rv.setViewLayoutWidth(viewId, 0f, COMPLEX_UNIT_PX)
             is Dimension.Dp -> rv.setViewLayoutWidth(viewId, width.dp.value, COMPLEX_UNIT_DIP)
             is Dimension.Resource -> rv.setViewLayoutWidthDimen(viewId, width.res)
-            Dimension.Fill -> rv.setViewLayoutWidth(viewId, MATCH_PARENT.toFloat(), COMPLEX_UNIT_PX)
+            Dimension.Fill -> {
+                rv.setViewLayoutWidth(viewId, MATCH_PARENT.toFloat(), COMPLEX_UNIT_PX)
+            }
         }.let {}
     }
 
@@ -298,9 +316,3 @@ private object ApplyModifiersApi31Impl {
         }.let {}
     }
 }
-
-private val Dimension?.isFixed: Boolean
-    get() = when (this) {
-        is Dimension.Dp, is Dimension.Resource -> true
-        Dimension.Expand, Dimension.Fill, Dimension.Wrap, null -> false
-    }

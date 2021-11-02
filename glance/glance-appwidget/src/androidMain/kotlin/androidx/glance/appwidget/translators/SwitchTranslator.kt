@@ -19,49 +19,50 @@ package androidx.glance.appwidget.translators
 import android.os.Build
 import android.view.Gravity
 import android.widget.RemoteViews
-import androidx.glance.appwidget.LayoutSelector
+import androidx.glance.appwidget.LayoutType
 import androidx.glance.appwidget.R
 import androidx.glance.appwidget.TranslationContext
 import androidx.glance.appwidget.applyModifiers
-import androidx.glance.appwidget.createRemoteViews
+import androidx.glance.appwidget.inflateViewStub
+import androidx.glance.appwidget.insertView
 import androidx.glance.appwidget.layout.EmittableSwitch
 import androidx.glance.appwidget.setViewEnabled
 
-internal fun translateEmittableSwitch(
+internal fun RemoteViews.translateEmittableSwitch(
     translationContext: TranslationContext,
     element: EmittableSwitch
-): RemoteViews {
+) {
 
     val layoutType = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-        LayoutSelector.Type.Swtch
+        LayoutType.Swtch
     } else {
-        LayoutSelector.Type.SwtchBackport
+        LayoutType.SwtchBackport
     }
 
-    val layoutDef = createRemoteViews(translationContext, layoutType, element.modifier)
-    val rv = layoutDef.remoteViews
+    val viewDef = insertView(translationContext, layoutType, element.modifier)
     val textViewId: Int
 
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-        textViewId = layoutDef.mainViewId
+        textViewId = viewDef.mainViewId
         CompoundButtonApi31Impl.setCompoundButtonChecked(
-            rv,
-            layoutDef.mainViewId,
+            this,
+            viewDef.mainViewId,
             element.checked
         )
     } else {
-        textViewId = R.id.switchText
-        rv.setViewEnabled(R.id.switchThumb, element.checked)
-        rv.setViewEnabled(R.id.switchTrack, element.checked)
+        textViewId = inflateViewStub(translationContext, R.id.switchText)
+        val thumbId = inflateViewStub(translationContext, R.id.switchThumb)
+        val trackId = inflateViewStub(translationContext, R.id.switchTrack)
+        setViewEnabled(thumbId, element.checked)
+        setViewEnabled(trackId, element.checked)
     }
 
-    rv.setText(
+    setText(
         translationContext,
         textViewId,
         element.text,
         element.style,
         verticalTextGravity = Gravity.CENTER_VERTICAL,
     )
-    applyModifiers(translationContext, rv, element.modifier, layoutDef)
-    return rv
+    applyModifiers(translationContext, this, element.modifier, viewDef)
 }
