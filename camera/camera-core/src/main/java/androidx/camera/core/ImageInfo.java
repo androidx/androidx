@@ -78,20 +78,47 @@ public interface ImageInfo {
      * which is, from the value of {@link CameraCharacteristics#SENSOR_INFO_ACTIVE_ARRAY_SIZE} to
      * {@code (0, 0, image.getWidth, image.getHeight)}. The matrix can be used to map the
      * coordinates from one {@link UseCase} to another. For example, mapping coordinates of the
-     * face detected with {@link ImageAnalysis} to {@link Preview}.
+     * face detected with {@link ImageAnalysis} to {@link ImageCapture}.
+     *
+     * If {@link ImageAnalysis.Builder#setOutputImageRotationEnabled} is set to false,
+     * {@link ImageInfo#getRotationDegrees()} will return the rotation degree that needs to be
+     * applied to the image buffer to user. In this case, the transform matrix can be
+     * calculated using rotation degrees.
+     *
+     * If {@link ImageAnalysis.Builder#setOutputImageRotationEnabled} is set to true, the
+     * ImageAnalysis pipeline will apply the rotation to the image buffer and
+     * {@link ImageInfo#getRotationDegrees()} will always return 0. In this case, the transform
+     * matrix cannot be calculated.
+     *
+     * This API provides the transform matrix which could handle both cases.
      *
      * <pre>
      *     <code>
-     *         float[] points = new float[] {x0, y0, x1, y1};
-     *         Matrix matrix = getSensorToBufferTransformMatrix();
-     *         matrix.mapPoints(points);
+     *         // Calculate the matrix
+     *         Matrix analysisToSensor = new Matrix();
+     *         analysisToSensor.invert(
+     *             imageAnalysisImageProxy.getImageInfo()
+     *                                    .getSensorToBufferTransformMatrix());
+     *         Matrix sensorToCapture = captureImageProxy.getImageInfo()
+     *                                                   .getSensorToBufferTransformMatrix();
+     *         Matrix analysisToCapture = new Matrix();
+     *         analysisToCapture.setConcat(analysisToSensor, sensorToCapture);
+     *
+     *         // Transforming the coordinates
+     *         Rect faceBoundingBoxInAnalysis;
+     *         Rect faceBoundingBoxInCapture;
+     *         analysisToCapture.mapRect(faceBoundingBoxInAnalysis, faceBoundingBoxInCapture);
+     *
+     *         // faceBoundingBoxInCapture is the desired value
      *     </code>
      * </pre>
      *
      * @return the transform matrix.
      */
     @NonNull
-    Matrix getSensorToBufferTransformMatrix();
+    default Matrix getSensorToBufferTransformMatrix() {
+        return new Matrix();
+    }
 
     /**
      * Adds any stored EXIF information in this ImageInfo into the provided ExifData builder.
