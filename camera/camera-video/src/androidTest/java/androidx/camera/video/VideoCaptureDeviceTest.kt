@@ -24,7 +24,6 @@ import androidx.camera.camera2.Camera2Config
 import androidx.camera.core.CameraInfo
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.SurfaceRequest
-import androidx.camera.core.UseCase
 import androidx.camera.core.impl.MutableStateObservable
 import androidx.camera.core.impl.Observable
 import androidx.camera.core.internal.CameraUseCaseAdapter
@@ -152,7 +151,7 @@ class VideoCaptureDeviceTest {
             val videoCapture = VideoCapture.withOutput(videoOutput)
 
             // Act.
-            if (!checkUseCasesCombinationSupported(videoCapture)) {
+            if (!cameraUseCaseAdapter.isUseCasesCombinationSupported(videoCapture)) {
                 return@loop
             }
             instrumentation.runOnMainSync {
@@ -301,14 +300,5 @@ class VideoCaptureDeviceTest {
         }
 
         return frameUpdateSemaphore
-    }
-
-    private fun checkUseCasesCombinationSupported(vararg useCases: UseCase): Boolean {
-        return try {
-            cameraUseCaseAdapter.checkAttachUseCases(listOf(*useCases))
-            true
-        } catch (e: CameraUseCaseAdapter.CameraException) {
-            false
-        }
     }
 }
