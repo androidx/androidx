@@ -82,7 +82,8 @@ actual open class LongSparseArray<E>
 
     actual open fun remove(key: Long): Unit = commonRemove(key)
 
-    @Deprecated("", level = HIDDEN) // For binary compatibility.
+    // String cannot be empty, it crashes dokka (b/204878198)
+    @Deprecated("deprecated", level = HIDDEN) // For binary compatibility.
     open fun delete(key: Long): Unit = remove(key)
 
     actual open fun remove(key: Long, value: Any?): Boolean = commonRemove(key, value)
