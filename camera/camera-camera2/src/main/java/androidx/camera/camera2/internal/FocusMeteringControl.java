@@ -351,9 +351,11 @@ class FocusMeteringControl {
      *
      * @param completer used to complete the associated {@link ListenableFuture} when the
      *                  operation succeeds or fails. Passing null to simply ignore the result.
+     * @param overrideAeMode true for overriding AE_MODE to CONTROL_AE_MODE_ON
+     *
      */
     @ExecutedBy("mExecutor")
-    void triggerAf(@Nullable Completer<CameraCaptureResult> completer) {
+    void triggerAf(@Nullable Completer<CameraCaptureResult> completer, boolean overrideAeMode) {
         if (!mIsActive) {
             if (completer != null) {
                 completer.setException(
@@ -368,6 +370,15 @@ class FocusMeteringControl {
         Camera2ImplConfig.Builder configBuilder = new Camera2ImplConfig.Builder();
         configBuilder.setCaptureRequestOption(CaptureRequest.CONTROL_AF_TRIGGER,
                 CaptureRequest.CONTROL_AF_TRIGGER_START);
+
+        if (overrideAeMode) {
+            // This option will override the AE_MODE option in repeating request.
+            // On many devices, triggering Af with CONTROL_AE_MODE_ON_ALWAYS_FLASH or
+            // CONTROL_AE_MODE_ON_AUTO_FLASH will fire the flash when it's low light.
+            // Override it to AE_MODE_ON to prevent from this issue.
+            configBuilder.setCaptureRequestOption(CaptureRequest.CONTROL_AE_MODE,
+                    mCameraControl.getSupportedAeMode(CaptureRequest.CONTROL_AE_MODE_ON));
+        }
         builder.addImplementationOptions(configBuilder.build());
         builder.addCameraCaptureCallback(new CameraCaptureCallback() {
             @Override
@@ -554,7 +565,7 @@ class FocusMeteringControl {
             mIsAutoFocusCompleted = false;
             mIsFocusSuccessful = false;
             sessionUpdateId = mCameraControl.updateSessionConfigSynchronous();
-            triggerAf(null);
+            triggerAf(null, /* overrideAeMode */ true);
         } else {
             mIsInAfAutoMode = false;
             mIsAutoFocusCompleted = true; // Don't need to wait for auto-focus
