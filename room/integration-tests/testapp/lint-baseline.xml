@@ -1,27 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.1.0-alpha08" type="baseline" client="gradle" dependencies="false" name="AGP (7.1.0-alpha08)" variant="all" version="7.1.0-alpha08">
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 21 (current min is 14): `LOCALIZED`"
-        errorLine1="        @ColumnInfo(collate = ColumnInfo.LOCALIZED)"
-        errorLine2="                                         ~~~~~~~~~">
-        <location
-            file="src/androidTest/java/androidx/room/integration/testapp/test/CollationTest.java"
-            line="120"
-            column="42"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 21 (current min is 14): `UNICODE`"
-        errorLine1="        @ColumnInfo(collate = ColumnInfo.UNICODE)"
-        errorLine2="                                         ~~~~~~~">
-        <location
-            file="src/androidTest/java/androidx/room/integration/testapp/test/CollationTest.java"
-            line="122"
-            column="42"/>
-    </issue>
+<issues format="6" by="lint 7.2.0-dev" type="baseline" client="gradle" dependencies="false" name="AGP (7.2.0-dev)" variant="all" version="7.2.0-dev">
 
     <issue
         id="NewApi"

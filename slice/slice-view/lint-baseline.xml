@@ -1,27 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.1.0-alpha08" type="baseline" client="gradle" dependencies="false" name="AGP (7.1.0-alpha08)" variant="all" version="7.1.0-alpha08">
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 20 (current min is 19): `android.app.RemoteInput.Builder#build`"
-        errorLine1="        RemoteInput remoteInput = new RemoteInput.Builder(&quot;&quot;).build();"
-        errorLine2="                                                              ~~~~~">
-        <location
-            file="src/androidTest/java/androidx/slice/SliceXmlTest.java"
-            line="81"
-            column="63"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 20 (current min is 19): `new android.app.RemoteInput.Builder`"
-        errorLine1="        RemoteInput remoteInput = new RemoteInput.Builder(&quot;&quot;).build();"
-        errorLine2="                                  ~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidTest/java/androidx/slice/SliceXmlTest.java"
-            line="81"
-            column="35"/>
-    </issue>
+<issues format="6" by="lint 7.1.0-beta02" type="baseline" client="gradle" dependencies="false" name="AGP (7.1.0-beta02)" variant="all" version="7.1.0-beta02">
 
     <issue
         id="BanSynchronizedMethods"

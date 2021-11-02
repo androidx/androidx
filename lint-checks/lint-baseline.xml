@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.1.0-alpha08" type="baseline" client="gradle" dependencies="false" name="AGP (7.1.0-alpha08)" variant="all" version="7.1.0-alpha08">
+<issues format="6" by="lint 7.1.0-beta02" type="baseline" client="gradle" dependencies="false" name="AGP (7.1.0-beta02)" variant="all" version="7.1.0-beta02">
 
     <issue
         id="BanConcurrentHashMap"
@@ -41,6 +41,17 @@
         errorLine2="    ^">
         <location
             file="integration-tests/src/main/java/androidx/SynchronizedMethodJava.java"
+            line="22"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="BanSynchronizedMethods"
+        message="Use of synchronized methods is not recommended"
+        errorLine1="    @Synchronized"
+        errorLine2="    ^">
+        <location
+            file="integration-tests/src/main/java/androidx/SynchronizedMethodKotlin.kt"
             line="22"
             column="5"/>
     </issue>
