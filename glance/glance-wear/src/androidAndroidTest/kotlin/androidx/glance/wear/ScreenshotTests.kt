@@ -56,7 +56,6 @@ import androidx.test.core.app.ApplicationProvider.getApplicationContext
 import androidx.test.screenshot.AndroidXScreenshotTestRule
 import androidx.test.screenshot.matchers.MSSIMMatcher
 import androidx.wear.tiles.LayoutElementBuilders
-import androidx.wear.tiles.ResourceBuilders
 import androidx.wear.tiles.renderer.TileRenderer
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.coroutineScope
@@ -203,12 +202,12 @@ class ScreenshotTests {
     ) = fakeCoroutineScope.runBlockingTest {
         val context = getApplicationContext<Context>()
         val composition = runComposition(content)
-        val translatedComposition = translateComposition(context, composition)
+        val translatedComposition = translateTopLevelComposition(context, composition)
 
         val renderer = TileRenderer(
             context,
-            LayoutElementBuilders.Layout.Builder().setRoot(translatedComposition).build(),
-            ResourceBuilders.Resources.Builder().build(),
+            LayoutElementBuilders.Layout.Builder().setRoot(translatedComposition.layout).build(),
+            translatedComposition.resources.build(),
             ContextCompat.getMainExecutor(getApplicationContext())
         ) {}
 
