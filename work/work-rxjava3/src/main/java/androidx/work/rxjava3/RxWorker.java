@@ -24,8 +24,11 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.work.Configuration;
 import androidx.work.Data;
+import androidx.work.ForegroundInfo;
 import androidx.work.ListenableWorker;
+import androidx.work.OutOfQuotaPolicy;
 import androidx.work.WorkManager;
+import androidx.work.WorkRequest;
 import androidx.work.Worker;
 import androidx.work.WorkerParameters;
 import androidx.work.impl.utils.SynchronousExecutor;
@@ -77,17 +80,7 @@ public abstract class RxWorker extends ListenableWorker {
     @Override
     public final ListenableFuture<Result> startWork() {
         mSingleFutureObserverAdapter = new SingleFutureAdapter<>();
-
-        final Scheduler scheduler = getBackgroundScheduler();
-        createWork()
-                .subscribeOn(scheduler)
-                // observe on WM's private thread
-                .observeOn(Schedulers.from(
-                        getTaskExecutor().getBackgroundExecutor(),
-                        /* interruptible */true,
-                        /* fair */true))
-                .subscribe(mSingleFutureObserverAdapter);
-        return mSingleFutureObserverAdapter.mFuture;
+        return convert(mSingleFutureObserverAdapter, createWork());
     }
 
     /**
@@ -149,6 +142,49 @@ public abstract class RxWorker extends ListenableWorker {
             observer.dispose();
             mSingleFutureObserverAdapter = null;
         }
+    }
+
+    @NonNull
+    @Override
+    public ListenableFuture<ForegroundInfo> getForegroundInfoAsync() {
+        return convert(new SingleFutureAdapter<>(), getForegroundInfo());
+    }
+
+    /**
+     * Return an {@code Single} with an instance of {@link ForegroundInfo} if the
+     * {@link WorkRequest} is
+     * important to the user.  In this case, WorkManager provides a signal to the OS that the
+     * process should be kept alive while this work is executing.
+     * <p>
+     * Prior to Android S, WorkManager manages and runs a foreground service on your behalf to
+     * execute the WorkRequest, showing the notification provided in the {@link ForegroundInfo}.
+     * To update this notification subsequently, the application can use
+     * {@link android.app.NotificationManager}.
+     * <p>
+     * Starting in Android S and above, WorkManager manages this WorkRequest using an immediate job.
+     *
+     * @return A {@link Single} of {@link ForegroundInfo} instance if the WorkRequest
+     * is marked immediate. For more information look at
+     * {@link WorkRequest.Builder#setExpedited(OutOfQuotaPolicy)}.
+     */
+    @NonNull
+    public Single<ForegroundInfo> getForegroundInfo() {
+        String message =
+                "Expedited WorkRequests require a RxWorker to provide an implementation for"
+                        + " `getForegroundInfo()`";
+        return Single.error(new IllegalStateException(message));
+    }
+
+    private <T> ListenableFuture<T> convert(SingleFutureAdapter<T> adapter, Single<T> single) {
+        final Scheduler scheduler = getBackgroundScheduler();
+        single.subscribeOn(scheduler)
+                // observe on WM's private thread
+                .observeOn(Schedulers.from(
+                        getTaskExecutor().getBackgroundExecutor(),
+                        /* interruptible */true,
+                        /* fair */true))
+                .subscribe(adapter);
+        return adapter.mFuture;
     }
 
     /**
