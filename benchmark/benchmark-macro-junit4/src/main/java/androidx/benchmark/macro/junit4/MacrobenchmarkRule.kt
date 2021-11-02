@@ -38,6 +38,18 @@ public class MacrobenchmarkRule : TestRule {
     /**
      * Measure behavior of the specified [packageName] given a set of [metrics].
      *
+     * This performs a macrobenchmark with the below control flow:
+     * ```
+     *     resetAppCompilation()
+     *     compile(compilationMode)
+     *     repeat(iterations) {
+     *         setupBlock()
+     *         captureTrace {
+     *             measureBlock()
+     *         }
+     *     }
+     * ```
+     *
      * @param packageName Package name of the app being measured.
      * @param metrics List of metrics to measure.
      * @param compilationMode Mode of compilation used before capturing measurement, such as
@@ -47,10 +59,12 @@ public class MacrobenchmarkRule : TestRule {
      * type. For example, `COLD` launches kill the process before the measureBlock, to ensure
      * startups will go through full process creation. Generally, leave as null for non-startup
      * benchmarks.
-     * @param iterations Number of times the [measureBlock] will be run during measurement.
-     * @param setupBlock The block performing app actions prior to the benchmark, for example,
-     * navigating to a UI where scrolling will be measured.
-     * @param measureBlock The block performing app actions to benchmark.
+     * @param iterations Number of times the [measureBlock] will be run during measurement. Note
+     * that total iteration count may not match, due to warmup iterations needed for the
+     * [compilationMode].
+     * @param setupBlock The block performing app actions each iteration, prior to the
+     * [measureBlock]. For example, navigating to a UI where scrolling will be measured.
+     * @param measureBlock The block performing app actions to benchmark each iteration.
      */
     @JvmOverloads
     public fun measureRepeated(
