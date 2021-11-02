@@ -97,6 +97,7 @@ import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.android.asCoroutineDispatcher
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -2225,6 +2226,41 @@ public class EditorSessionTest {
                 assertFailsWith<IllegalArgumentException> {
                     activity.editorSession.userStyle.value =
                         UserStyle(mapOf(watchColorSetting to greenOption))
+                }
+            } finally {
+                activity.editorSession.close()
+                activity.finish()
+            }
+        }
+    }
+
+    @Test
+    public fun cantAssignUnrelatedUserStyle_compareAndSet() {
+        val redOption = ListOption(Option.Id("red"), "Red", icon = null)
+        val greenOption = ListOption(Option.Id("green"), "Green", icon = null)
+        val colorStyleList = listOf(redOption, greenOption)
+        val watchColorSetting = UserStyleSetting.ListUserStyleSetting(
+            UserStyleSetting.Id("color_id"),
+            "Color",
+            "Watch face color", /* icon = */
+            null,
+            colorStyleList,
+            listOf(WatchFaceLayer.COMPLICATIONS_OVERLAY)
+        )
+
+        val scenario = createOnWatchFaceEditingTestActivity(
+            listOf(colorStyleSetting, watchHandStyleSetting),
+            listOf(leftComplication, rightComplication)
+        )
+
+        scenario.onActivity { activity ->
+            try {
+                // Trying to set an unrelated UserStyle should fail.
+                assertFailsWith<IllegalArgumentException> {
+                    // NB update uses compareAndSet under the hood.
+                    activity.editorSession.userStyle.update {
+                        UserStyle(mapOf(watchColorSetting to greenOption))
+                    }
                 }
             } finally {
                 activity.editorSession.close()

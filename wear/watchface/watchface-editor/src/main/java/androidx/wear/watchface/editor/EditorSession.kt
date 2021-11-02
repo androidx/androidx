@@ -801,10 +801,17 @@ internal class OnWatchFaceEditorSessionImpl(
         if (args == null) {
             method?.invoke(wrappedUserStyle)
         } else {
-            if (method?.name == "setValue") {
-                validateAndUpdateUserStyle(args[0] as UserStyle)
+            val result = method?.invoke(wrappedUserStyle, *args)
+            when (method?.name) {
+                "setValue" -> validateAndUpdateUserStyle(args[0] as UserStyle)
+                "compareAndSet" -> {
+                    if (result is Boolean && result == true) {
+                        validateAndUpdateUserStyle(args[1] as UserStyle)
+                    }
+                }
+                else -> {}
             }
-            method?.invoke(wrappedUserStyle, *args)
+            result
         }
     } as MutableStateFlow<UserStyle>
 
