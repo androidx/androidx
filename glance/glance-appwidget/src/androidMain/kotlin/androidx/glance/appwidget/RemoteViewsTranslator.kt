@@ -18,6 +18,7 @@ package androidx.glance.appwidget
 
 import android.content.Context
 import android.os.Build
+import android.util.Log
 import android.view.Gravity
 import android.view.View
 import android.widget.RemoteViews
@@ -150,7 +151,10 @@ private fun Alignment.Horizontal.toGravity(): Int =
         Alignment.Horizontal.Start -> Gravity.START
         Alignment.Horizontal.End -> Gravity.END
         Alignment.Horizontal.CenterHorizontally -> Gravity.CENTER_HORIZONTAL
-        else -> throw IllegalArgumentException("Unknown horizontal alignment: $this")
+        else -> {
+            Log.w(GlanceAppWidgetTag, "Unknown horizontal alignment: $this")
+            Gravity.START
+        }
     }
 
 private fun Alignment.Vertical.toGravity(): Int =
@@ -158,7 +162,10 @@ private fun Alignment.Vertical.toGravity(): Int =
         Alignment.Vertical.Top -> Gravity.TOP
         Alignment.Vertical.Bottom -> Gravity.BOTTOM
         Alignment.Vertical.CenterVertically -> Gravity.CENTER_VERTICAL
-        else -> throw IllegalArgumentException("Unknown vertical alignment: $this")
+        else -> {
+            Log.w(GlanceAppWidgetTag, "Unknown vertical alignment: $this")
+            Gravity.TOP
+        }
     }
 
 internal fun Alignment.toGravity() = horizontal.toGravity() or vertical.toGravity()

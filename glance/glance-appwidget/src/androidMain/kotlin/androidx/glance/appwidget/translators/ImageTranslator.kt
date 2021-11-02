@@ -18,12 +18,14 @@ package androidx.glance.appwidget.translators
 
 import android.graphics.drawable.Icon
 import android.os.Build
+import android.util.Log
 import android.widget.RemoteViews
 import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 import androidx.glance.BackgroundModifier
 import androidx.glance.Emittable
 import androidx.glance.GlanceModifier
+import androidx.glance.appwidget.GlanceAppWidgetTag
 import androidx.glance.appwidget.LayoutType
 import androidx.glance.appwidget.TranslationContext
 import androidx.glance.appwidget.applyModifiers
@@ -48,7 +50,10 @@ internal fun RemoteViews.translateEmittableImage(
         ContentScale.Crop -> LayoutType.ImageCrop
         ContentScale.Fit -> LayoutType.ImageFit
         ContentScale.FillBounds -> LayoutType.ImageFillBounds
-        else -> throw IllegalArgumentException("An unsupported ContentScale type was used.")
+        else -> {
+            Log.w(GlanceAppWidgetTag, "Unsupported ContentScale user: ${element.contentScale}")
+            LayoutType.ImageFit
+        }
     }
     val viewDef = insertView(translationContext, selector, element.modifier)
     setContentDescription(viewDef.mainViewId, element.contentDescription)
