@@ -228,7 +228,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/androidTest/java/androidx/graphics/opengl/egl/EglManagerTest.kt"
-            line="32"
+            line="33"
             column="9"/>
     </issue>
 
@@ -239,7 +239,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/androidTest/java/androidx/graphics/opengl/egl/EglManagerTest.kt"
-            line="53"
+            line="54"
             column="9"/>
     </issue>
 
@@ -250,7 +250,29 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/androidTest/java/androidx/graphics/opengl/egl/EglManagerTest.kt"
-            line="71"
+            line="72"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="MissingTestSizeAnnotation"
+        message="Missing test size annotation"
+        errorLine1="    fun testDefaultSurface() {"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/graphics/opengl/egl/EglManagerTest.kt"
+            line="89"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="MissingTestSizeAnnotation"
+        message="Missing test size annotation"
+        errorLine1="    fun testCreatePBufferSurface() {"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/graphics/opengl/egl/EglManagerTest.kt"
+            line="123"
             column="9"/>
     </issue>
 
