@@ -96,45 +96,28 @@ internal fun generateRegistry(
     file.addFunction(generatedContainerApi21)
     file.addType(generatedContainerApi31)
 
-    val generatedComplexLayouts = propertySpec(
-        "generatedComplexLayouts",
-        LayoutsMap,
-        INTERNAL,
-    ) {
+    val generatedComplexLayouts = propertySpec("generatedComplexLayouts", LayoutsMap, INTERNAL) {
         initializer(buildComplexInitializer())
     }
     file.addProperty(generatedComplexLayouts)
 
-    val generatedRoots = propertySpec(
-        "generatedRootLayoutShifts",
-        RootShiftMap,
-        INTERNAL,
-    ) {
+    val generatedRoots = propertySpec("generatedRootLayoutShifts", RootShiftMap, INTERNAL) {
         addKdoc("Shift per root layout before Android S, based on width, height")
         initializer(buildRootInitializer())
     }
     file.addProperty(generatedRoots)
 
-    val firstRootAlias = propertySpec(
-        "FirstRootAlias",
-        INT,
-        INTERNAL
-    ) {
+    val firstRootAlias = propertySpec("FirstRootAlias", INT, INTERNAL) {
         initializer("R.layout.${makeRootAliasResourceName(0)}")
     }
-    val lastRootAlias = propertySpec(
-        "LastRootAlias",
-        INT,
-        INTERNAL
-    ) {
-        initializer("R.layout.${makeRootAliasResourceName(4 * RootLayoutAliasCount - 1)}")
+    val lastRootAlias = propertySpec("LastRootAlias", INT, INTERNAL) {
+        initializer(
+            "R.layout.%L",
+            makeRootAliasResourceName(generatedRootSizePairs.size * RootLayoutAliasCount - 1)
+        )
     }
-    val rootAliasCount = propertySpec(
-        "RootAliasCount",
-        INT,
-        INTERNAL,
-    ) {
-        initializer("%L", 4 * RootLayoutAliasCount)
+    val rootAliasCount = propertySpec("RootAliasCount", INT, INTERNAL) {
+        initializer("%L", generatedRootSizePairs.size * RootLayoutAliasCount)
     }
     file.addProperty(firstRootAlias)
     file.addProperty(lastRootAlias)
@@ -190,8 +173,7 @@ private fun buildRootInitializer(): CodeBlock {
     return buildCodeBlock {
         addStatement("mapOf(")
         withIndent {
-            val sizes = crossProduct(StubSizes, StubSizes)
-            sizes.forEachIndexed { index, (width, height) ->
+            generatedRootSizePairs.forEachIndexed { index, (width, height) ->
                 addStatement(
                     "%T(width = %M, height = %M) to %L,",
                     SizeSelector,
@@ -331,13 +313,6 @@ private fun ValidSize.toValue() = when (this) {
     ValidSize.Match -> MatchValue
 }
 
-internal fun makeSimpleResourceName(file: File, width: ValidSize, height: ValidSize) =
-    listOf(
-        file.nameWithoutExtension,
-        width.resourceName,
-        height.resourceName,
-    ).joinToString(separator = "_")
-
 internal fun makeComplexResourceName(width: ValidSize, height: ValidSize) =
     listOf(
         "complex",
@@ -398,11 +373,9 @@ internal fun propertySpec(
 ) = PropertySpec.builder(name, type, *modifiers).apply(builder).build()
 
 private val listConfigurations =
-    ValidSize.values().flatMap { width ->
-        ValidSize.values().map { height ->
-            width to height
-        }
-    }
+    crossProduct(ValidSize.values().toList(), ValidSize.values().toList())
+
+private val generatedRootSizePairs = crossProduct(StubSizes, StubSizes)
 
 internal inline fun mapConfiguration(
     function: (width: ValidSize, height: ValidSize) -> File
