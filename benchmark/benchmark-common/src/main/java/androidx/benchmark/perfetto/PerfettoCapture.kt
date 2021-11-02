@@ -71,8 +71,6 @@ public class PerfettoCapture(
      * such as result of `context.getExternalFilesDir(null)` or other similar `external` paths.
      */
     public fun stop(destinationPath: String) = userspaceTrace("stop perfetto") {
-        // Wait time determined empirically by running a trivial startup test (3 iterations) 200
-        // times, and validating no metric capture failures.
-        helper.stopCollecting(500, destinationPath)
+        helper.stopCollecting(destinationPath)
     }
 }
