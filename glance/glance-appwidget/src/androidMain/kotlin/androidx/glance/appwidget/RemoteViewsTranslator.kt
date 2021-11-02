@@ -54,11 +54,13 @@ internal fun translateComposition(
     context: Context,
     appWidgetId: Int,
     appWidgetClass: Class<out GlanceAppWidget>,
-    element: RemoteViewsRoot
+    element: RemoteViewsRoot,
+    rootViewIndex: Int,
 ) =
     translateComposition(
         TranslationContext(context, appWidgetId, appWidgetClass, context.isRtl, itemPosition = -1),
         element.children,
+        rootViewIndex,
     )
 
 @VisibleForTesting
@@ -70,16 +72,18 @@ private val Context.isRtl: Boolean
 
 internal fun translateComposition(
     translationContext: TranslationContext,
-    children: List<Emittable>
+    children: List<Emittable>,
+    rootViewIndex: Int
 ): RemoteViews {
     if (children.size != 1) {
         return translateComposition(
             translationContext,
-            listOf(EmittableBox().also { it.children.addAll(children) })
+            listOf(EmittableBox().also { it.children.addAll(children) }),
+            rootViewIndex,
         )
     }
     val child = children.first()
-    val remoteViewsInfo = createRootView(translationContext, child.modifier)
+    val remoteViewsInfo = createRootView(translationContext, child.modifier, rootViewIndex)
     val rv = remoteViewsInfo.remoteViews
     rv.translateChild(translationContext.forRoot(root = remoteViewsInfo), child)
     return rv
@@ -241,7 +245,7 @@ private fun RemoteViews.translateEmittableAndroidRemoteViews(
         element.remoteViews.copy().apply {
             removeAllViews(element.containerViewId)
             element.children.forEachIndexed { index, child ->
-                val rvInfo = createRootView(translationContext, child.modifier)
+                val rvInfo = createRootView(translationContext, child.modifier, index)
                 val rv = rvInfo.remoteViews
                 rv.translateChild(translationContext.forRoot(rvInfo), child)
                 addChildView(element.containerViewId, rv, index)

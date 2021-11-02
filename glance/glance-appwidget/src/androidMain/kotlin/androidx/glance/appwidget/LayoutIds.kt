@@ -91,6 +91,7 @@ internal enum class LayoutType {
     CheckBoxBackport,
     Button,
     Frame,
+
     // Note: Java keywords, such as 'switch', can't be used for layout ids.
     Swtch,
     SwtchBackport,
@@ -126,28 +127,35 @@ private fun LayoutSize.toViewStubSize() =
 private fun makeViewStubSelector(width: LayoutSize, height: LayoutSize) =
     SizeSelector(width = width.toViewStubSize(), height = height.toViewStubSize())
 
-internal val TopLevelLayoutsCount: Int = generatedRootLayouts.size
+internal val TopLevelLayoutsCount: Int = RootAliasCount
+
+private val NumberAliasType = generatedRootLayoutShifts.size
 
 /**
  * Create the [RemoteViews] that can be used to create the child.
  *
  * @param translationContext Context for the translation for that node
  * @param modifier Modifier attached to the view that will be added to the root
+ * @param aliasIndex Alias to use to create this root view
  * @return The [RemoteViews] created and the descriptor needed to be able to add the first view.
  */
 internal fun createRootView(
     translationContext: TranslationContext,
-    modifier: GlanceModifier
+    modifier: GlanceModifier,
+    aliasIndex: Int
 ): RemoteViewsInfo {
     val context = translationContext.context
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+        require(aliasIndex < RootAliasCount) {
+            "Index of the root view cannot be more than $RootAliasCount, " +
+                "currently $aliasIndex"
+        }
         val sizeSelector = SizeSelector(LayoutSize.Wrap, LayoutSize.Wrap)
-        val layoutInfo = generatedRootLayouts[sizeSelector]
-            ?: throw IllegalStateException("Cannot find root element for size $sizeSelector")
+        val layoutId = FirstRootAlias + aliasIndex
         return RemoteViewsInfo(
             remoteViews = remoteViews(
                 translationContext,
-                layoutInfo.layoutId
+                layoutId
             ).apply {
                 modifier.findModifier<WidthModifier>()?.let {
                     applySimpleWidthModifier(context, this, it, R.id.rootView)
@@ -159,6 +167,10 @@ internal fun createRootView(
             view = InsertedViewInfo(children = mapOf(0 to mapOf(sizeSelector to R.id.rootStubId)))
         )
     }
+    require(NumberAliasType * aliasIndex < RootAliasCount) {
+        "Index of the root view cannot be more than ${RootAliasCount / 4}, " +
+            "currently $aliasIndex"
+    }
     val widthMod =
         modifier.findModifier<WidthModifier>()?.width?.resolveDimension(context) ?: Dimension.Wrap
     val heightMod =
@@ -166,10 +178,11 @@ internal fun createRootView(
     val width = if (widthMod == Dimension.Fill) LayoutSize.MatchParent else LayoutSize.Wrap
     val height = if (heightMod == Dimension.Fill) LayoutSize.MatchParent else LayoutSize.Wrap
     val sizeSelector = makeViewStubSelector(width, height)
-    val layoutInfo = generatedRootLayouts[sizeSelector]
+    val layoutIdShift = generatedRootLayoutShifts[sizeSelector]
         ?: throw IllegalStateException("Cannot find root element for size [$width, $height]")
+    val layoutId = FirstRootAlias + NumberAliasType * aliasIndex + layoutIdShift
     return RemoteViewsInfo(
-        remoteViews = remoteViews(translationContext, layoutInfo.layoutId),
+        remoteViews = remoteViews(translationContext, layoutId),
         view = InsertedViewInfo(children = mapOf(0 to mapOf(sizeSelector to R.id.rootStubId))),
     )
 }

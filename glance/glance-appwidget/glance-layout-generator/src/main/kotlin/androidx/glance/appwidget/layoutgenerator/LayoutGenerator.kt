@@ -86,8 +86,9 @@ internal class LayoutGenerator {
             generateComplexLayouts(outputLayoutDir) +
             generateChildIds(outputValueDir) +
             generateContainersChildrenForS(outputLayoutDirS) +
-            generateContainersChildrenForR(outputLayoutDir) +
-            generateRootElements(outputLayoutDir)
+            generateContainersChildrenBeforeS(outputLayoutDir) +
+            generateRootElements(outputLayoutDir) +
+            generateRootAliases(outputValueDir)
         return GeneratedFiles(
             generatedContainers = files.associateWith {
                 generateContainers(it, outputLayoutDir)
@@ -96,10 +97,9 @@ internal class LayoutGenerator {
         )
     }
 
-    private fun generateChildIds(outputValuesDir: File): Set<File> {
-        val fileName = outputValuesDir.resolveRes("ids")
-        val containerSizes = listOf(ValidSize.Match, ValidSize.Wrap, ValidSize.Expand)
-        val generated = documentBuilder.newDocument().apply {
+    private fun generateChildIds(outputValuesDir: File) =
+        generateRes(outputValuesDir, "ids") {
+            val containerSizes = listOf(ValidSize.Match, ValidSize.Wrap, ValidSize.Expand)
             val root = createElement("resources")
             appendChild(root)
             repeat(MaxChildCount) { pos ->
@@ -107,21 +107,16 @@ internal class LayoutGenerator {
                     val id = createElement("id")
                     root.appendChild(id)
                     id.attributes.apply {
-                        setNamedItem(createAttribute("name").apply {
-                            textContent = makeIdName(pos, width, height)
-                        })
+                        setNamedItem(attribute("name", makeIdName(pos, width, height)))
                     }
                 }
             }
         }
-        writeGeneratedLayout(generated, fileName)
-        return setOf(fileName)
-    }
 
     private fun generateContainersChildrenForS(outputLayoutDir: File) =
         generateContainersChildren(outputLayoutDir, listOf(ValidSize.Wrap))
 
-    private fun generateContainersChildrenForR(outputLayoutDir: File) =
+    private fun generateContainersChildrenBeforeS(outputLayoutDir: File) =
         generateContainersChildren(outputLayoutDir, StubSizes)
 
     private fun generateContainersChildren(
@@ -143,7 +138,7 @@ internal class LayoutGenerator {
         val widths = sizes + containerOrientation.extraWidths
         val heights = sizes + containerOrientation.extraHeights
         return (0 until MaxChildCount).map { pos ->
-            generateRes(outputLayoutDir, makeChildrenResourceName(pos, containerOrientation)) {
+            generateRes(outputLayoutDir, makeChildResourceName(pos, containerOrientation)) {
                 val root = createElement("merge")
                 appendChild(root)
                 forEachInCrossProduct(widths, heights) { width, height ->
@@ -349,10 +344,10 @@ internal class LayoutGenerator {
                 createElement("include").apply {
                     attributes.apply {
                         setNamedItem(
-                            createAttribute("layout").apply {
-                                textContent =
-                                    "@layout/${makeChildrenResourceName(pos, containerOrientation)}"
-                            }
+                            attribute(
+                                "layout",
+                                "@layout/${makeChildResourceName(pos, containerOrientation)}"
+                            )
                         )
                     }
                 }
@@ -389,13 +384,34 @@ internal class LayoutGenerator {
         return generated
     }
 
+    private fun generateRootAliases(outputValueDir: File) =
+        generateRes(outputValueDir, "layouts") {
+            val root = createElement("resources")
+            appendChild(root)
+            val sizes = crossProduct(StubSizes, StubSizes)
+            val numStubs = sizes.size
+            repeat(RootLayoutAliasCount) { aliasIndex ->
+                sizes.forEachIndexed() { index, (width, height) ->
+                    val fullIndex = aliasIndex * numStubs + index
+                    val alias = createElement("item").apply {
+                        attributes.apply {
+                            setNamedItem(attribute("name", makeRootAliasResourceName(fullIndex)))
+                            setNamedItem(attribute("type", "layout"))
+                        }
+                        textContent = "@layout/${makeRootResourceName(width, height)}"
+                    }
+                    root.appendChild(alias)
+                }
+            }
+        }
+
     private inline fun generateRes(
-        outputLayoutDir: File,
+        outputDir: File,
         resName: String,
         builder: Document.() -> Unit
     ): File {
         val document = documentBuilder.newDocument()
-        val file = outputLayoutDir.resolveRes(resName)
+        val file = outputDir.resolveRes(resName)
         builder(document)
         writeGeneratedLayout(document, file)
         return file
@@ -404,6 +420,12 @@ internal class LayoutGenerator {
 
 /** Maximum number of children generated in containers. */
 private const val MaxChildCount = 10
+
+/**
+ * Number of aliases for the root view.
+ * As pre-S we need four aliases per position, effectively 4 times that number will be generated.
+ */
+internal const val RootLayoutAliasCount = 100
 
 internal data class GeneratedFiles(
     val generatedContainers: Map<File, List<ContainerProperties>>,
@@ -454,6 +476,9 @@ internal fun Document.androidAttr(name: String, value: String) =
 internal fun Node.androidAttr(name: String): Node? =
     attributes.getNamedItemNS(AndroidNS, name)
 
+internal fun Document.attribute(name: String, value: String): Node? =
+    createAttribute(name).apply { textContent = value }
+
 internal fun Document.androidId(value: String) = androidAttr("id", value)
 
 internal val Node.androidId: Node?
@@ -469,11 +494,6 @@ internal fun Document.androidWeight(value: Int) = androidAttr("layout_weight", v
 
 internal fun Document.androidLayoutDirection(value: String) =
     androidAttr("layoutDirection", value)
-
-internal fun Document.include(layout: String) =
-    createAttribute("layout").apply {
-        textContent = layout
-    }
 
 internal val Document.androidNamespace
     get() = createAttribute("xmlns:android").apply {

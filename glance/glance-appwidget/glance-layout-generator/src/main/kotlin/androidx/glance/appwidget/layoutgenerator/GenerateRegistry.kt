@@ -21,6 +21,7 @@ import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.CodeBlock
 import com.squareup.kotlinpoet.FileSpec
 import com.squareup.kotlinpoet.FunSpec
+import com.squareup.kotlinpoet.INT
 import com.squareup.kotlinpoet.KModifier
 import com.squareup.kotlinpoet.KModifier.PRIVATE
 import com.squareup.kotlinpoet.KModifier.INTERNAL
@@ -105,13 +106,39 @@ internal fun generateRegistry(
     file.addProperty(generatedComplexLayouts)
 
     val generatedRoots = propertySpec(
-        "generatedRootLayouts",
-        LayoutsMap,
+        "generatedRootLayoutShifts",
+        RootShiftMap,
         INTERNAL,
     ) {
+        addKdoc("Shift per root layout before Android S, based on width, height")
         initializer(buildRootInitializer())
     }
     file.addProperty(generatedRoots)
+
+    val firstRootAlias = propertySpec(
+        "FirstRootAlias",
+        INT,
+        INTERNAL
+    ) {
+        initializer("R.layout.${makeRootAliasResourceName(0)}")
+    }
+    val lastRootAlias = propertySpec(
+        "LastRootAlias",
+        INT,
+        INTERNAL
+    ) {
+        initializer("R.layout.${makeRootAliasResourceName(4 * RootLayoutAliasCount - 1)}")
+    }
+    val rootAliasCount = propertySpec(
+        "RootAliasCount",
+        INT,
+        INTERNAL,
+    ) {
+        initializer("%L", 4 * RootLayoutAliasCount)
+    }
+    file.addProperty(firstRootAlias)
+    file.addProperty(lastRootAlias)
+    file.addProperty(rootAliasCount)
 
     file.build().writeTo(outputSourceDir)
 }
@@ -163,17 +190,15 @@ private fun buildRootInitializer(): CodeBlock {
     return buildCodeBlock {
         addStatement("mapOf(")
         withIndent {
-            forEachInCrossProduct(StubSizes, StubSizes) { width, height ->
+            val sizes = crossProduct(StubSizes, StubSizes)
+            sizes.forEachIndexed { index, (width, height) ->
                 addStatement(
-                    "%T(width = %M, height = %M) to ",
+                    "%T(width = %M, height = %M) to %L,",
                     SizeSelector,
                     width.toValue(),
                     height.toValue(),
+                    index,
                 )
-                withIndent {
-                    val resId = makeRootResourceName(width, height)
-                    addStatement("%T(layoutId = R.layout.$resId),", LayoutInfo)
-                }
             }
         }
         addStatement(")")
@@ -281,6 +306,7 @@ private val FixedValue = MemberName("$LayoutSpecSize", "Fixed")
 private val MatchValue = MemberName("$LayoutSpecSize", "MatchParent")
 private val ExpandValue = MemberName("$LayoutSpecSize", "Expand")
 private val LayoutsMap = Map::class.asTypeName().parameterizedBy(SizeSelector, LayoutInfo)
+private val RootShiftMap = Map::class.asTypeName().parameterizedBy(SizeSelector, INT)
 private val AndroidBuildVersion = ClassName("android.os", "Build", "VERSION")
 private val AndroidBuildVersionCodes = ClassName("android.os", "Build", "VERSION_CODES")
 private val SdkInt = AndroidBuildVersion.member("SDK_INT")
@@ -326,13 +352,15 @@ internal fun makeRootResourceName(width: ValidSize, height: ValidSize) =
         height.resourceName,
     ).joinToString(separator = "_")
 
+internal fun makeRootAliasResourceName(index: Int) = "root_alias_%03d".format(index)
+
 internal fun makeContainerResourceName(file: File, numChildren: Int) =
     listOf(
         file.nameWithoutExtension,
         "${numChildren}children"
     ).joinToString(separator = "_")
 
-internal fun makeChildrenResourceName(pos: Int, containerOrientation: ContainerOrientation) =
+internal fun makeChildResourceName(pos: Int, containerOrientation: ContainerOrientation) =
     listOf(
         containerOrientation.resourceName,
         "child",
@@ -407,5 +435,11 @@ internal inline fun <A, B, T> forEachInCrossProduct(
         }
     }
 }
+
+internal fun <A, B> crossProduct(
+    first: Iterable<A>,
+    second: Iterable<B>,
+): List<Pair<A, B>> =
+    mapInCrossProduct(first, second) { a, b -> a to b }
 
 internal fun File.resolveRes(resName: String) = resolve("$resName.xml")

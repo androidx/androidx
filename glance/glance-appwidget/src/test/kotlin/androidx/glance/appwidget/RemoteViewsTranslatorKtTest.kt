@@ -86,6 +86,11 @@ class RemoteViewsTranslatorKtTest {
     }
 
     @Test
+    fun checkRootAliasCorrectness() {
+        assertThat(LastRootAlias - FirstRootAlias + 1).isEqualTo(RootAliasCount)
+    }
+
+    @Test
     fun canTranslateBox() = fakeCoroutineScope.runBlockingTest {
         val rv = context.runAndTranslate { Box {} }
         val view = context.applyRemoteViews(rv)
@@ -801,7 +806,13 @@ class RemoteViewsTranslatorKtTest {
         content: @Composable () -> Unit
     ): RemoteViews {
         val root = runTestingComposition(content)
-        return translateComposition(context, appWidgetId, TestWidget::class.java, root)
+        return translateComposition(
+            context,
+            appWidgetId,
+            TestWidget::class.java,
+            root,
+            rootViewIndex = 0,
+        )
     }
 
     private fun configurationContext(modifier: Configuration.() -> Unit): Context {
