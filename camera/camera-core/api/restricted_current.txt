@@ -216,7 +216,6 @@ package androidx.camera.core {
     method public int getTargetRotation();
     method public void setCropAspectRatio(android.util.Rational);
     method public void setFlashMode(int);
-    method public void setSensorToBufferTransformMatrix(android.graphics.Matrix);
     method public void setTargetRotation(int);
     method public void takePicture(java.util.concurrent.Executor, androidx.camera.core.ImageCapture.OnImageCapturedCallback);
     method public void takePicture(androidx.camera.core.ImageCapture.OutputFileOptions, java.util.concurrent.Executor, androidx.camera.core.ImageCapture.OnImageSavedCallback);
@@ -288,7 +287,7 @@ package androidx.camera.core {
 
   @RequiresApi(21) public interface ImageInfo {
     method public int getRotationDegrees();
-    method public android.graphics.Matrix getSensorToBufferTransformMatrix();
+    method public default android.graphics.Matrix getSensorToBufferTransformMatrix();
     method public long getTimestamp();
   }
 

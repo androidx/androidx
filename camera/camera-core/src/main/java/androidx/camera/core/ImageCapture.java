@@ -843,6 +843,12 @@ public final class ImageCapture extends UseCase {
         return super.getResolutionInfo();
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
     public void setSensorToBufferTransformMatrix(@NonNull Matrix sensorToBufferTransformMatrix) {
         mSensorToBufferTransformMatrix = sensorToBufferTransformMatrix;
