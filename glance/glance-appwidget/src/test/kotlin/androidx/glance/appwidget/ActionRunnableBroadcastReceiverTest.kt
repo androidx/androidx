@@ -69,6 +69,16 @@ class ActionRunnableBroadcastReceiverTest {
         assertNotEquals(firstIntent, secondIntent)
     }
 
+    @Test
+    fun createDifferentPendingIntentWithSameParameters() {
+        val key = ActionParameters.Key<Boolean>("test")
+        val parameters = actionParametersOf(key to false)
+        val firstIntent = createPendingIntent(parameters)
+        val secondIntent = createPendingIntent(parameters)
+
+        assertNotEquals(firstIntent, secondIntent)
+    }
+
     private fun createPendingIntent(parameters: ActionParameters): PendingIntent {
         return ActionRunnableBroadcastReceiver.createPendingIntent(
             context = context,
