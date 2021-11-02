@@ -129,7 +129,7 @@ private fun makeViewStubSelector(width: LayoutSize, height: LayoutSize) =
 
 internal val TopLevelLayoutsCount: Int = RootAliasCount
 
-private val NumberAliasType = generatedRootLayoutShifts.size
+private val RootAliasTypeCount = generatedRootLayoutShifts.size
 
 /**
  * Create the [RemoteViews] that can be used to create the child.
@@ -167,7 +167,7 @@ internal fun createRootView(
             view = InsertedViewInfo(children = mapOf(0 to mapOf(sizeSelector to R.id.rootStubId)))
         )
     }
-    require(NumberAliasType * aliasIndex < RootAliasCount) {
+    require(RootAliasTypeCount * aliasIndex < RootAliasCount) {
         "Index of the root view cannot be more than ${RootAliasCount / 4}, " +
             "currently $aliasIndex"
     }
@@ -180,7 +180,7 @@ internal fun createRootView(
     val sizeSelector = makeViewStubSelector(width, height)
     val layoutIdShift = generatedRootLayoutShifts[sizeSelector]
         ?: throw IllegalStateException("Cannot find root element for size [$width, $height]")
-    val layoutId = FirstRootAlias + NumberAliasType * aliasIndex + layoutIdShift
+    val layoutId = FirstRootAlias + RootAliasTypeCount * aliasIndex + layoutIdShift
     return RemoteViewsInfo(
         remoteViews = remoteViews(translationContext, layoutId),
         view = InsertedViewInfo(children = mapOf(0 to mapOf(sizeSelector to R.id.rootStubId))),
