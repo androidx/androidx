@@ -65,6 +65,8 @@ class EglManager(val eglSpec: EglSpec = EglSpec.Egl14) {
     /**
      * Creates an [EGLContext] from the given [EGLConfig] returning
      * null if the context could not be created
+     *
+     * @throws EglException if the default surface could not be made current after context creation
      */
     fun createContext(config: EGLConfig): EGLContext {
         val eglContext = eglSpec.eglCreateContext(config)
@@ -78,7 +80,9 @@ class EglManager(val eglSpec: EglSpec = EglSpec.Egl14) {
                 }
                 eglSpec.eglCreatePBufferSurface(config, configAttrs)
             }
-            makeCurrent(pbBufferSurface)
+            if (!eglSpec.eglMakeCurrent(eglContext, pbBufferSurface, pbBufferSurface)) {
+                throw EglException(eglSpec.eglGetError(), "Unable to make default surface current")
+            }
             mPBufferSurface = pbBufferSurface
             mEglContext = eglContext
             mEglConfig = config
@@ -160,7 +164,7 @@ class EglManager(val eglSpec: EglSpec = EglSpec.Egl14) {
      * The same EGLSurface may be specified for both draw and read surfaces.
      *
      * If the context is not previously configured, the only valid parameters for the
-     * draw and read surfaces if [EGL14.EGL_NO_SURFACE]. This is useful to make sure there is
+     * draw and read surfaces is [EGL14.EGL_NO_SURFACE]. This is useful to make sure there is
      * always a surface specified and to release the current context without assigning a new one.
      *
      * See https://www.khronos.org/registry/EGL/sdk/docs/man/html/eglMakeCurrent.xhtml
