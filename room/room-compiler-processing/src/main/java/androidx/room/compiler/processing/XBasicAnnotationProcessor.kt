@@ -45,6 +45,14 @@ interface XBasicAnnotationProcessor {
     val xProcessingEnv: XProcessingEnv
 
     /**
+     * Initializes the processor with the processing environment.
+     *
+     * This will be invoked before any other function in this interface and before any
+     * [processingSteps].
+     */
+    fun initialize(env: XProcessingEnv) { }
+
+    /**
      * The list of processing steps to execute.
      */
     fun processingSteps(): Iterable<XProcessingStep>
