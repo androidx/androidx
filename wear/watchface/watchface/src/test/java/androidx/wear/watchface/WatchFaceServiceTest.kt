@@ -1145,6 +1145,26 @@ public class WatchFaceServiceTest {
     }
 
     @Test
+    public fun computeDelayTillNextFrame_frame_scheduled_at_near_perfect_time() {
+        initEngine(
+            WatchFaceType.ANALOG,
+            listOf(leftComplication, rightComplication),
+            UserStyleSchema(emptyList())
+        )
+
+        renderer.interactiveDrawModeUpdateDelayMillis = 1000
+
+        // Simulate rendering 0.74s into a second, after which we expect a short delay.
+        watchFaceImpl.nextDrawTimeMillis = 10000
+        assertThat(
+            watchFaceImpl.computeDelayTillNextFrame(
+                startTimeMillis = 10000,
+                currentTimeMillis = 10001
+            )
+        ).isEqualTo(999)
+    }
+
+    @Test
     public fun getComplicationSlotIdAt_returnsCorrectComplications() {
         initEngine(
             WatchFaceType.ANALOG,
