@@ -42,6 +42,7 @@ abstract class JavacBasicAnnotationProcessor :
 
     final override fun init(processingEnv: ProcessingEnvironment?) {
         super.init(processingEnv)
+        initialize(xEnv)
     }
 
     final override fun getSupportedAnnotationTypes() = steps.flatMap { it.annotations() }.toSet()
