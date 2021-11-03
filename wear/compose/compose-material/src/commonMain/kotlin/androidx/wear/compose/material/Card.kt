@@ -69,7 +69,12 @@ import kotlin.math.min
  *
  * For more information, see the
  * [Cards](https://developer.android.com/training/wearables/components/cards)
- * guide.
+ * Wear OS Material design guide.
+ *
+ * Note that the Wear OS design guidance recommends a gradient or image background for Cards which
+ * is not the case for Mobile Cards. As a result you will see a backgroundPainter rather than a
+ * backgroundColor for Cards. If you want to workaround this recommendation you could use a
+ * ColorPainter to produce a solid colored background.
  *
  * @param onClick Will be called when the user clicks the card
  * @param modifier Modifier to be applied to the card
