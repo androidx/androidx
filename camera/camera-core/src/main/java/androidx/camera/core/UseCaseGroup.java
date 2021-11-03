@@ -66,7 +66,6 @@ public final class UseCaseGroup {
     /**
      * A builder for generating {@link UseCaseGroup}.
      */
-    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
     public static final class Builder {
 
         private ViewPort mViewPort;

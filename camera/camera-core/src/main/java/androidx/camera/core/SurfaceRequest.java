@@ -476,7 +476,6 @@ public final class SurfaceRequest {
      * Listener that receives updates of the {@link TransformationInfo} associated with the
      * {@link SurfaceRequest}.
      */
-    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
     public interface TransformationInfoListener {
 
         /**
@@ -501,7 +500,6 @@ public final class SurfaceRequest {
      * Result of providing a surface to a {@link SurfaceRequest} via
      * {@link #provideSurface(Surface, Executor, Consumer)}.
      */
-    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
     @AutoValue
     public abstract static class Result {
 
@@ -655,7 +653,6 @@ public final class SurfaceRequest {
      * @see CameraCharacteristics#SENSOR_ORIENTATION
      * @see ViewPort
      */
-    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
     @AutoValue
     public abstract static class TransformationInfo {
 

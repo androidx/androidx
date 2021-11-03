@@ -200,7 +200,6 @@ public final class CameraSelector {
     }
 
     /** Builder for a {@link CameraSelector}. */
-    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
     public static final class Builder {
         private final LinkedHashSet<CameraFilter> mCameraFilterSet;
 

@@ -86,7 +86,6 @@ public interface ImageProxy extends AutoCloseable {
     PlaneProxy[] getPlanes();
 
     /** A plane proxy which has an analogous interface as {@link android.media.Image.Plane}. */
-    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
     interface PlaneProxy {
         /**
          * Returns the row stride.

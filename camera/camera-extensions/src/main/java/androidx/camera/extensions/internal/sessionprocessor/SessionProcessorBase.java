@@ -192,7 +192,6 @@ abstract class SessionProcessorBase implements SessionProcessor {
 
     protected abstract void deInitSessionInternal();
 
-    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
     private static class ImageRefHolder implements ImageReference {
         private int mRefCount;
         private Image mImage;
