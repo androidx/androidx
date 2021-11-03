@@ -431,17 +431,6 @@
     </issue>
 
     <issue
-        id="KotlinPropertyAccess"
-        message="This getter should be public such that `useRepeatingSurface` can be accessed as a property from Kotlin; see https://android.github.io/kotlin-guides/interop.html#property-prefixes"
-        errorLine1="        boolean isUseRepeatingSurface() {"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/core/impl/CaptureConfig.java"
-            line="312"
-            column="17"/>
-    </issue>
-
-    <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="    ListenableFuture&lt;O> apply(@Nullable I input) throws Exception;"
