@@ -24,8 +24,9 @@
  * not, gradle will use the root project path to set the projectDir, which might conflict in
  * playground. Instead, this method checks if another project in that path exists and if so,
  * changes the project dir to avoid the conflict.
+ * see b/197253160 for details.
  */
-def includeProjectIfNotExists(String name, File projectDir) {
+def includeFakeParentProjectIfNotExists(String name, File projectDir) {
     if (name.isEmpty()) return
     if (settings.findProject(name)) {
         return
@@ -36,13 +37,19 @@ def includeProjectIfNotExists(String name, File projectDir) {
         projectDir = new File(projectDir.getParentFile(), ".ignore-${projectDir.name}")
     }
     includeProject(name, projectDir)
+    // Set it to a gradle file that does not exist.
+    // We must always include projects starting with root, if we are including nested projects.
+    settings.project(name).buildFileName = "ignored.gradle"
 }
 
 def includeProject(String name, File projectDir) {
-    // Make sure parent is created first. see: b/197253160 for details
+    if (settings.findProject(name) != null) {
+        throw new GradleException("Cannot include project twice: $name is already included.")
+    }
     def parentPath = name.substring(0, name.lastIndexOf(":"))
     def parentDir = projectDir.getParentFile()
-    includeProjectIfNotExists(
+    // Make sure parent is created first. see: b/197253160 for details
+    includeFakeParentProjectIfNotExists(
         parentPath,
         parentDir
     )
