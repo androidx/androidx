@@ -25,6 +25,7 @@ import androidx.benchmark.DeviceInfo.deviceSummaryString
 import androidx.benchmark.Shell
 import androidx.benchmark.userspaceTrace
 import androidx.test.platform.app.InstrumentationRegistry
+import androidx.tracing.trace
 import org.jetbrains.annotations.TestOnly
 import java.io.File
 import java.io.IOException
@@ -153,6 +154,7 @@ public class PerfettoHelper(
                 "1" -> {
                     // success!
                     Log.i(LOG_TAG, "$path = 1, polled $it times, capture fully started")
+                    trace("Perfetto - capture started successfully") {}
                     return@checkTracingOn
                 }
                 else -> {
@@ -183,17 +185,10 @@ public class PerfettoHelper(
      * Stop the perfetto trace collection under /data/misc/perfetto-traces/trace_output.pb after
      * waiting for given time in msecs and copy the output to the destination file.
      *
-     * @param waitTimeInMsecs time to wait in msecs before stopping the trace collection.
      * @param destinationFile file to copy the perfetto output trace.
      * @return true if the trace collection is successful otherwise false.
      */
-    public fun stopCollecting(waitTimeInMsecs: Long, destinationFile: String) {
-        // Wait for the dump interval before stopping the trace.
-        userspaceTrace("Wait for perfetto flush") {
-            Log.i(LOG_TAG, "Waiting for $waitTimeInMsecs millis before stopping perfetto.")
-            SystemClock.sleep(waitTimeInMsecs)
-        }
-
+    public fun stopCollecting(destinationFile: String) {
         // Stop the perfetto and copy the output file.
         Log.i(LOG_TAG, "Stopping perfetto.")
 
@@ -214,6 +209,10 @@ public class PerfettoHelper(
      */
     private fun stopPerfetto() {
         val pid = perfettoPid
+
+        // add an empty trace section just before stopping,
+        // to help debugging missing content at end of trace
+        trace("Perfetto - preparing to stop") {}
 
         require(pid != null)
         Shell.terminateProcessesAndWait(
