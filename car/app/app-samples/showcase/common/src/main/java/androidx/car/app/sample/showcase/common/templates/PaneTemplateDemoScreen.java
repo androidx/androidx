@@ -70,6 +70,7 @@ public final class PaneTemplateDemoScreen extends Screen implements DefaultLifec
     @Override
     public Template onGetTemplate() {
         Pane.Builder paneBuilder = new Pane.Builder();
+        CarIcon image = new CarIcon.Builder(mImage).build();
 
         // Add a non-clickable rows.
         paneBuilder.addRow(
@@ -84,8 +85,11 @@ public final class PaneTemplateDemoScreen extends Screen implements DefaultLifec
                 new Row.Builder()
                         .setTitle("Row with a large image")
                         .addText("Text text text")
-                        .setImage(new CarIcon.Builder(mImage).build(), Row.IMAGE_TYPE_LARGE)
+                        .setImage(image, Row.IMAGE_TYPE_LARGE)
                         .build());
+
+        // Also set a large image outside of the rows.
+        paneBuilder.setImage(image);
 
         Action.Builder primaryActionBuilder = new Action.Builder()
                 .setTitle("Search")
