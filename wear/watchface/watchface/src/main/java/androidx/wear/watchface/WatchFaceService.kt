@@ -53,6 +53,7 @@ import androidx.annotation.WorkerThread
 import androidx.versionedparcelable.ParcelUtils
 import androidx.wear.watchface.complications.SystemDataSources.DataSourceId
 import androidx.wear.watchface.complications.data.ComplicationData
+import androidx.wear.watchface.complications.data.ComplicationType
 import androidx.wear.watchface.complications.data.toApiComplicationData
 import androidx.wear.watchface.complications.data.toWireTypes
 import androidx.wear.watchface.utility.AsyncTraceEvent
@@ -1807,10 +1808,17 @@ public abstract class WatchFaceService : WallpaperService() {
                         )
                     )
 
-                    // Add a ContentDescriptionLabel for each enabled complication.
+                    // Add a ContentDescriptionLabel for each enabled complication that isn't empty
+                    // or no data.
                     val screenBounds = renderer.screenBounds
                     for ((_, complication) in complicationSlotsManager.complicationSlots) {
-                        if (complication.enabled) {
+                        if (complication.enabled &&
+                            when (complication.complicationData.value.type) {
+                                ComplicationType.EMPTY -> false
+                                ComplicationType.NO_DATA -> false
+                                else -> true
+                            }
+                        ) {
                             if (complication.boundsType == ComplicationSlotBoundsType.BACKGROUND) {
                                 ComplicationSlotBoundsType.BACKGROUND
                             } else {
