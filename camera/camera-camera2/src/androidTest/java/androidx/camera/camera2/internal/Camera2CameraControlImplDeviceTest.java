@@ -184,6 +184,16 @@ public final class Camera2CameraControlImplDeviceTest {
         return mCameraCharacteristics.get(CameraCharacteristics.CONTROL_MAX_REGIONS_AWB);
     }
 
+    private boolean isAeSupported() {
+        int[] modes = mCameraCharacteristics.get(CameraCharacteristics.CONTROL_AE_AVAILABLE_MODES);
+        for (int mode : modes) {
+            if (mode == CONTROL_AE_MODE_ON) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     @Test
     public void canIncrementDecrementUseCount() {
         // incrementUseCount() in setup()
@@ -454,6 +464,13 @@ public final class Camera2CameraControlImplDeviceTest {
         assertThat(resultCaptureConfig.getCaptureRequestOption(
                 CaptureRequest.CONTROL_AF_TRIGGER, null))
                 .isEqualTo(CaptureRequest.CONTROL_AF_TRIGGER_START);
+
+        // Ensures AE_MODE is overridden to CONTROL_AE_MODE_ON to prevent from flash being fired.
+        if (isAeSupported()) {
+            assertThat(resultCaptureConfig.getCaptureRequestOption(
+                    CaptureRequest.CONTROL_AE_MODE, null))
+                    .isEqualTo(CONTROL_AE_MODE_ON);
+        }
     }
 
     @Test
