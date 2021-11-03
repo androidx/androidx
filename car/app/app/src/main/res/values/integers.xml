@@ -24,5 +24,5 @@
     <integer name="content_limit_grid">6</integer>
     <integer name="content_limit_place_list">6</integer>
     <integer name="content_limit_route_list">3</integer>
-    <integer name="content_limit_pane">2</integer>
+    <integer name="content_limit_pane">4</integer>
 </resources>
