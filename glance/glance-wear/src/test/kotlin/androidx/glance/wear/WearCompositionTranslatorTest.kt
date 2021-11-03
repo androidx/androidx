@@ -42,6 +42,9 @@ import androidx.glance.text.TextStyle
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.glance.layout.ContentScale
+import androidx.glance.layout.Image
+import androidx.glance.layout.ImageProvider
 import androidx.glance.layout.Spacer
 import androidx.glance.wear.layout.AnchorType
 import androidx.glance.wear.layout.AndroidLayoutElement
@@ -84,7 +87,7 @@ class WearCompositionTranslatorTest {
     fun canTranslateBox() = fakeCoroutineScope.runBlockingTest {
         val content = runAndTranslate {
             Box {}
-        }
+        }.layout
 
         // runAndTranslate wraps the result in a Box...ensure that the layout generated two Boxes
         val outerBox = content as LayoutElementBuilders.Box
@@ -97,7 +100,7 @@ class WearCompositionTranslatorTest {
     fun canTranslateBoxWithAlignment() = fakeCoroutineScope.runBlockingTest {
         val content = runAndTranslate {
             Box(contentAlignment = Alignment.Center) {}
-        }
+        }.layout
 
         val innerBox =
             (content as LayoutElementBuilders.Box).contents[0] as LayoutElementBuilders.Box
@@ -113,7 +116,7 @@ class WearCompositionTranslatorTest {
                 Box(contentAlignment = Alignment.TopCenter) {}
                 Box(contentAlignment = Alignment.BottomEnd) {}
             }
-        }
+        }.layout
 
         val innerBox =
             (content as LayoutElementBuilders.Box).contents[0] as LayoutElementBuilders.Box
@@ -132,7 +135,7 @@ class WearCompositionTranslatorTest {
         val content = runAndTranslate {
             Box(modifier =
                 GlanceModifier.padding(start = 1.dp, top = 2.dp, end = 3.dp, bottom = 4.dp)) {}
-        }
+        }.layout
 
         val innerBox =
             (content as LayoutElementBuilders.Box).contents[0] as LayoutElementBuilders.Box
@@ -148,7 +151,7 @@ class WearCompositionTranslatorTest {
     fun canTranslateBackgroundModifier() = fakeCoroutineScope.runBlockingTest {
         val content = runAndTranslate {
             Box(modifier = GlanceModifier.background(Color(0x11223344))) {}
-        }
+        }.layout
 
         val innerBox =
             (content as LayoutElementBuilders.Box).contents[0] as LayoutElementBuilders.Box
@@ -161,7 +164,7 @@ class WearCompositionTranslatorTest {
     fun canTranslateBackgroundModifier_resId() = fakeCoroutineScope.runBlockingTest {
         val content = runAndTranslate {
             Box(modifier = GlanceModifier.background(R.color.color1)) {}
-        }
+        }.layout
 
         val innerBox =
             (content as LayoutElementBuilders.Box).contents[0] as LayoutElementBuilders.Box
@@ -178,7 +181,7 @@ class WearCompositionTranslatorTest {
                 Box(contentAlignment = Alignment.TopCenter) {}
                 Box(contentAlignment = Alignment.BottomEnd) {}
             }
-        }
+        }.layout
 
         val innerRow =
             (content as LayoutElementBuilders.Box).contents[0] as LayoutElementBuilders.Row
@@ -206,7 +209,7 @@ class WearCompositionTranslatorTest {
                     .height(100.dp)
                     .background(Color(0x11223344))
             ) {}
-        }
+        }.layout
 
         val innerColumn =
             (content as LayoutElementBuilders.Box).contents[0] as LayoutElementBuilders.Column
@@ -239,7 +242,7 @@ class WearCompositionTranslatorTest {
                 Box(contentAlignment = Alignment.TopCenter) {}
                 Box(contentAlignment = Alignment.BottomEnd) {}
             }
-        }
+        }.layout
 
         val innerColumn =
             (content as LayoutElementBuilders.Box).contents[0] as LayoutElementBuilders.Column
@@ -267,7 +270,7 @@ class WearCompositionTranslatorTest {
                     .width(100.dp)
                     .background(Color(0x11223344))
             ) {}
-        }
+        }.layout
 
         val innerRow =
             (content as LayoutElementBuilders.Box).contents[0] as LayoutElementBuilders.Row
@@ -303,7 +306,7 @@ class WearCompositionTranslatorTest {
                 textDecoration = TextDecoration.Underline
             )
             Text("Hello World", modifier = GlanceModifier.padding(1.dp), style = style)
-        }
+        }.layout
 
         val innerText = (content as LayoutElementBuilders.Box).contents[0]
             as LayoutElementBuilders.Text
@@ -319,7 +322,7 @@ class WearCompositionTranslatorTest {
     fun textWithSizeInflatesInBox() = fakeCoroutineScope.runBlockingTest {
         val content = runAndTranslate {
             Text("Hello World", modifier = GlanceModifier.size(100.dp).padding(10.dp))
-        }
+        }.layout
 
         val innerBox = (content as LayoutElementBuilders.Box).contents[0] as
             LayoutElementBuilders.Box
@@ -346,7 +349,7 @@ class WearCompositionTranslatorTest {
                 anchorType = AnchorType.End,
                 modifier = GlanceModifier.padding(20.dp)
             ) {}
-        }
+        }.layout
 
         val innerArc = (content as LayoutElementBuilders.Box).contents[0]
             as LayoutElementBuilders.Arc
@@ -367,7 +370,7 @@ class WearCompositionTranslatorTest {
                 anchorType = AnchorType.End,
                 modifier = GlanceModifier.padding(20.dp).size(10.dp)
             ) {}
-        }
+        }.layout
 
         val innerBox = (content as LayoutElementBuilders.Box).contents[0]
             as LayoutElementBuilders.Box
@@ -397,7 +400,7 @@ class WearCompositionTranslatorTest {
             CurvedRow {
                 CurvedText(text = "Hello World", textStyle = style)
             }
-        }
+        }.layout
 
         val innerArc = (content as LayoutElementBuilders.Box).contents[0]
             as LayoutElementBuilders.Arc
@@ -416,7 +419,7 @@ class WearCompositionTranslatorTest {
 
         val content = runAndTranslate {
             AndroidLayoutElement(providedLayoutElement)
-        }
+        }.layout
 
         val box = assertIs<LayoutElementBuilders.Box>(content)
         val textElement = assertIs<LayoutElementBuilders.Text>(box.contents[0])
@@ -429,7 +432,7 @@ class WearCompositionTranslatorTest {
             CurvedRow {
                 Box {}
             }
-        }
+        }.layout
 
         val innerArc = (content as LayoutElementBuilders.Box).contents[0]
             as LayoutElementBuilders.Arc
@@ -444,7 +447,7 @@ class WearCompositionTranslatorTest {
                 modifier = GlanceModifier.clickable(actionLaunchActivity(TestActivity::class.java)),
                 text = "Hello World"
             )
-        }
+        }.layout
 
         val innerText = (content as LayoutElementBuilders.Box).contents[0] as
             LayoutElementBuilders.Text
@@ -477,7 +480,7 @@ class WearCompositionTranslatorTest {
                 modifier = GlanceModifier.padding(1.dp),
                 style = style
             )
-        }
+        }.layout
 
         val box = assertIs<LayoutElementBuilders.Box>(content)
         val innerText = assertIs<LayoutElementBuilders.Text>(box.contents[0])
@@ -500,7 +503,7 @@ class WearCompositionTranslatorTest {
             Spacer(GlanceModifier.width(10.dp))
             Spacer(GlanceModifier.height(15.dp))
             Spacer(GlanceModifier.size(8.dp, 12.dp))
-        }
+        }.layout
 
         val spacerWithWidth = (content as LayoutElementBuilders.Box).contents[0] as
             LayoutElementBuilders.Spacer
@@ -515,13 +518,46 @@ class WearCompositionTranslatorTest {
     }
 
     @Test
+    fun canTranslateImage() = fakeCoroutineScope.runBlockingTest {
+        val compositionResult = runAndTranslate {
+          Image(
+              provider = ImageProvider(R.drawable.oval),
+              contentDescription = "Oval",
+              modifier = GlanceModifier.width(R.dimen.dimension1).height(R.dimen.dimension2),
+              contentScale = ContentScale.FillBounds
+          )
+        }
+        val content = compositionResult.layout
+        val resources = compositionResult.resources
+
+        val image = (content as LayoutElementBuilders.Box).contents[0] as
+            LayoutElementBuilders.Image
+
+        val context = getApplicationContext<Context>()
+        assertThat((image.width as DimensionBuilders.DpProp).value).isEqualTo(
+            context.resources.getDimension(R.dimen.dimension1)
+        )
+        assertThat((image.height as DimensionBuilders.DpProp).value).isEqualTo(
+                context.resources.getDimension(R.dimen.dimension2)
+        )
+        assertThat(image.contentScaleMode!!.value).isEqualTo(
+            LayoutElementBuilders.CONTENT_SCALE_MODE_FILL_BOUNDS
+        )
+        assertThat(image.resourceId!!.value).isEqualTo("android_" + R.drawable.oval)
+
+        assertThat(resources.build().idToImageMapping.containsKey(R.drawable.oval.toString()))
+
+        assertThat(image.modifiers!!.semantics!!.contentDescription).isEqualTo("Oval")
+    }
+
+    @Test
     fun setSizeFromResource() = fakeCoroutineScope.runBlockingTest {
         val content = runAndTranslate {
             Column(
                 modifier = GlanceModifier.width(R.dimen.dimension1)
                     .height(R.dimen.dimension2)
             ) {}
-        }
+        }.layout
 
         val innerColumn =
             (content as LayoutElementBuilders.Box).contents[0] as LayoutElementBuilders.Column
@@ -538,10 +574,10 @@ class WearCompositionTranslatorTest {
 
     private suspend fun runAndTranslate(
         content: @Composable () -> Unit
-    ): LayoutElementBuilders.LayoutElement {
+    ): CompositionResult {
         val root = runTestingComposition(content)
 
-        return translateComposition(getApplicationContext(), root)
+        return translateTopLevelComposition(getApplicationContext(), root)
     }
 }
 

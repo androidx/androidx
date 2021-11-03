@@ -50,6 +50,9 @@ import androidx.glance.unit.ColorProvider
 import androidx.glance.unit.FixedColorProvider
 import androidx.glance.unit.ResourceColorProvider
 import androidx.compose.ui.unit.dp
+import androidx.glance.layout.AndroidResourceImageProvider
+import androidx.glance.layout.ContentScale
+import androidx.glance.layout.EmittableImage
 import androidx.glance.unit.resolve
 import androidx.glance.wear.layout.AnchorType
 import androidx.glance.wear.layout.CurvedTextStyle
@@ -82,6 +85,7 @@ import androidx.wear.tiles.LayoutElementBuilders.VERTICAL_ALIGN_CENTER
 import androidx.wear.tiles.LayoutElementBuilders.VERTICAL_ALIGN_TOP
 import androidx.wear.tiles.LayoutElementBuilders.VerticalAlignment
 import androidx.wear.tiles.ModifiersBuilders
+import androidx.wear.tiles.ResourceBuilders
 
 @VerticalAlignment
 private fun Alignment.Vertical.toProto(): Int =
@@ -204,6 +208,7 @@ private fun GlanceModifier.getHeight(
 
 private fun translateEmittableBox(
     context: Context,
+    resourceBuilder: ResourceBuilders.Resources.Builder,
     element: EmittableBox
 ) = LayoutElementBuilders.Box.Builder()
     .setVerticalAlignment(element.contentAlignment.vertical.toProto())
@@ -211,11 +216,16 @@ private fun translateEmittableBox(
     .setModifiers(translateModifiers(context, element.modifier))
     .setWidth(element.modifier.getWidth(context).toContainerDimension())
     .setHeight(element.modifier.getHeight(context).toContainerDimension())
-    .also { box -> element.children.forEach { box.addContent(translateComposition(context, it)) } }
+    .also {
+            box -> element.children.forEach {
+                box.addContent(translateComposition(context, resourceBuilder, it))
+            }
+    }
     .build()
 
 private fun translateEmittableRow(
     context: Context,
+    resourceBuilder: ResourceBuilders.Resources.Builder,
     element: EmittableRow
 ): LayoutElementBuilders.LayoutElement {
     val width = element.modifier.getWidth(context)
@@ -225,7 +235,9 @@ private fun translateEmittableRow(
         .setHeight(height.toContainerDimension())
         .setVerticalAlignment(element.verticalAlignment.toProto())
         .also { row ->
-            element.children.forEach { row.addContent(translateComposition(context, it)) }
+            element.children.forEach {
+                row.addContent(translateComposition(context, resourceBuilder, it))
+            }
         }
 
     // Do we need to wrap it in a column to set the horizontal alignment?
@@ -249,6 +261,7 @@ private fun translateEmittableRow(
 
 private fun translateEmittableColumn(
     context: Context,
+    resourceBuilder: ResourceBuilders.Resources.Builder,
     element: EmittableColumn
 ): LayoutElementBuilders.LayoutElement {
     val width = element.modifier.getWidth(context)
@@ -258,7 +271,9 @@ private fun translateEmittableColumn(
         .setWidth(width.toContainerDimension())
         .setHorizontalAlignment(element.horizontalAlignment.toProto())
         .also { column ->
-            element.children.forEach { column.addContent(translateComposition(context, it)) }
+            element.children.forEach {
+                column.addContent(translateComposition(context, resourceBuilder, it))
+            }
         }
 
     // Do we need to wrap it in a row to set the vertical alignment?
@@ -351,8 +366,51 @@ private fun translateEmittableText(
     }
 }
 
+private fun Dimension.toImageDimension(): DimensionBuilders.ImageDimension =
+    when (this) {
+        is Dimension.Expand -> expand()
+        is Dimension.Fill -> expand()
+        is Dimension.Dp -> dp(this.dp.value)
+        else -> throw IllegalArgumentException("The dimension should be fully resolved, not $this.")
+    }
+
+private fun translateEmittableImage(
+    context: Context,
+    resourceBuilder: ResourceBuilders.Resources.Builder,
+    element: EmittableImage
+): LayoutElementBuilders.LayoutElement {
+
+    val resId = (element.provider as AndroidResourceImageProvider).resId
+    val mappedResId = "android_$resId"
+    resourceBuilder.addIdToImageMapping(
+        mappedResId,
+        ResourceBuilders.ImageResource.Builder().setAndroidResourceByResId(
+            ResourceBuilders.AndroidImageResourceByResId.Builder()
+                .setResourceId(resId)
+                .build()
+        ).build()
+    )
+
+    val imageBuilder = LayoutElementBuilders.Image.Builder()
+        .setWidth(element.modifier.getWidth(context).toImageDimension())
+        .setHeight(element.modifier.getHeight(context).toImageDimension())
+        .setModifiers(translateModifiers(context, element.modifier, element.contentDescription))
+        .setResourceId(mappedResId)
+        .setContentScaleMode(
+            when (element.contentScale) {
+                ContentScale.Crop -> LayoutElementBuilders.CONTENT_SCALE_MODE_CROP
+                ContentScale.Fit -> LayoutElementBuilders.CONTENT_SCALE_MODE_FIT
+                ContentScale.FillBounds -> LayoutElementBuilders.CONTENT_SCALE_MODE_FILL_BOUNDS
+                // Defaults to CONTENT_SCALE_MODE_FIT
+                else -> LayoutElementBuilders.CONTENT_SCALE_MODE_FIT
+            })
+
+    return imageBuilder.build()
+}
+
 private fun translateEmittableCurvedRow(
     context: Context,
+    resourceBuilder: ResourceBuilders.Resources.Builder,
     element: EmittableCurvedRow
 ): LayoutElementBuilders.LayoutElement {
     // Does it have a width or height set? If so, we need to wrap it in a Box.
@@ -367,7 +425,9 @@ private fun translateEmittableCurvedRow(
         .setVerticalAlign(element.radialAlignment.toProto())
 
     // Add all the children first...
-    element.children.forEach { arcBuilder.addContent(translateCompositionInArc(context, it)) }
+    element.children.forEach {
+        arcBuilder.addContent(translateCompositionInArc(context, resourceBuilder, it))
+    }
 
     return if (width is Dimension.Dp || height is Dimension.Dp) {
         LayoutElementBuilders.Box.Builder()
@@ -398,14 +458,16 @@ private fun translateEmittableCurvedText(
 
 private fun translateEmittableElementInArc(
     context: Context,
+    resourceBuilder: ResourceBuilders.Resources.Builder,
     element: Emittable
 ): LayoutElementBuilders.ArcLayoutElement = LayoutElementBuilders.ArcAdapter.Builder()
-    .setContent(translateComposition(context, element))
+    .setContent(translateComposition(context, resourceBuilder, element))
     .build()
 
 private fun translateModifiers(
     context: Context,
-    modifier: GlanceModifier
+    modifier: GlanceModifier,
+    contentDescription: String? = null
 ): ModifiersBuilders.Modifiers =
     modifier.foldIn(ModifiersBuilders.Modifiers.Builder()) { builder, element ->
         when (element) {
@@ -424,16 +486,25 @@ private fun translateModifiers(
                 ?.let {
                     builder.setPadding(it.toProto())
                 }
+
+            contentDescription?.let { contentDescription ->
+                builder.setSemantics(
+                    ModifiersBuilders.Semantics.Builder()
+                        .setContentDescription(contentDescription)
+                        .build()
+                )
+            }
         }
         .build()
 
 private fun translateCompositionInArc(
     context: Context,
+    resourceBuilder: ResourceBuilders.Resources.Builder,
     element: Emittable
 ): LayoutElementBuilders.ArcLayoutElement {
     return when (element) {
         is EmittableCurvedText -> translateEmittableCurvedText(element)
-        else -> translateEmittableElementInArc(context, element)
+        else -> translateEmittableElementInArc(context, resourceBuilder, element)
     }
 }
 
@@ -464,17 +535,33 @@ private fun translateEmittableAndroidLayoutElement(element: EmittableAndroidLayo
  */
 internal fun translateComposition(
     context: Context,
+    resourceBuilder: ResourceBuilders.Resources.Builder,
     element: Emittable
 ): LayoutElementBuilders.LayoutElement {
     return when (element) {
-        is EmittableBox -> translateEmittableBox(context, element)
-        is EmittableRow -> translateEmittableRow(context, element)
-        is EmittableColumn -> translateEmittableColumn(context, element)
+        is EmittableBox -> translateEmittableBox(context, resourceBuilder, element)
+        is EmittableRow -> translateEmittableRow(context, resourceBuilder, element)
+        is EmittableColumn -> translateEmittableColumn(context, resourceBuilder, element)
         is EmittableText -> translateEmittableText(context, element)
-        is EmittableCurvedRow -> translateEmittableCurvedRow(context, element)
+        is EmittableCurvedRow -> translateEmittableCurvedRow(context, resourceBuilder, element)
         is EmittableAndroidLayoutElement -> translateEmittableAndroidLayoutElement(element)
         is EmittableButton -> translateEmittableText(context, element.toEmittableText())
         is EmittableSpacer -> translateEmittableSpacer(context, element)
+        is EmittableImage -> translateEmittableImage(context, resourceBuilder, element)
         else -> throw IllegalArgumentException("Unknown element $element")
     }
+}
+
+internal class CompositionResult(
+    val layout: LayoutElementBuilders.LayoutElement,
+    val resources: ResourceBuilders.Resources.Builder
+)
+
+internal fun translateTopLevelComposition(
+    context: Context,
+    element: Emittable
+): CompositionResult {
+    val resourceBuilder = ResourceBuilders.Resources.Builder()
+    val layout = translateComposition(context, resourceBuilder, element)
+    return CompositionResult(layout, resourceBuilder)
 }
