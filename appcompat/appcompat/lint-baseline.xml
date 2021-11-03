@@ -487,105 +487,6 @@
 
     <issue
         id="ClassVerificationFailure"
-        message="This call references a method added in API level 17; however, the containing class androidx.appcompat.widget.AppCompatSpinner is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            mPopup.show(getTextDirection(), getTextAlignment());"
-        errorLine2="                        ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/AppCompatSpinner.java"
-            line="610"
-            column="25"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 17; however, the containing class androidx.appcompat.widget.AppCompatSpinner is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            mPopup.show(getTextDirection(), getTextAlignment());"
-        errorLine2="                                            ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/AppCompatSpinner.java"
-            line="610"
-            column="45"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 16; however, the containing class null is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                                vto.removeOnGlobalLayoutListener(this);"
-        errorLine2="                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/AppCompatSpinner.java"
-            line="643"
-            column="37"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 23; however, the containing class androidx.appcompat.widget.AppCompatSpinner.DropDownAdapter is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                    if (themedAdapter.getDropDownViewTheme() != dropDownTheme) {"
-        errorLine2="                                      ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/AppCompatSpinner.java"
-            line="717"
-            column="39"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 23; however, the containing class androidx.appcompat.widget.AppCompatSpinner.DropDownAdapter is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                        themedAdapter.setDropDownViewTheme(dropDownTheme);"
-        errorLine2="                                      ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/AppCompatSpinner.java"
-            line="718"
-            column="39"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 17; however, the containing class androidx.appcompat.widget.AppCompatSpinner.DialogPopup is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                listView.setTextDirection(textDirection);"
-        errorLine2="                         ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/AppCompatSpinner.java"
-            line="907"
-            column="26"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 17; however, the containing class androidx.appcompat.widget.AppCompatSpinner.DialogPopup is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                listView.setTextAlignment(textAlignment);"
-        errorLine2="                         ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/AppCompatSpinner.java"
-            line="908"
-            column="26"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 17; however, the containing class androidx.appcompat.widget.AppCompatSpinner.DropdownPopup is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                listView.setTextDirection(textDirection);"
-        errorLine2="                         ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/AppCompatSpinner.java"
-            line="1056"
-            column="26"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 17; however, the containing class androidx.appcompat.widget.AppCompatSpinner.DropdownPopup is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                listView.setTextAlignment(textAlignment);"
-        errorLine2="                         ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/AppCompatSpinner.java"
-            line="1057"
-            column="26"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
         message="This call references a method added in API level 23; however, the containing class androidx.appcompat.widget.AppCompatTextClassifierHelper is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                    mTextView.getContext().getSystemService(TextClassificationManager.class);"
         errorLine2="                                           ~~~~~~~~~~~~~~~~">
@@ -5885,7 +5786,7 @@
         errorLine2="                                        ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/AppCompatSpinner.java"
-            line="210"
+            line="212"
             column="41"/>
     </issue>
 
@@ -5896,7 +5797,7 @@
         errorLine2="           ~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/AppCompatSpinner.java"
-            line="310"
+            line="312"
             column="12"/>
     </issue>
 
@@ -5907,7 +5808,7 @@
         errorLine2="                                           ~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/AppCompatSpinner.java"
-            line="315"
+            line="317"
             column="44"/>
     </issue>
 
@@ -5918,7 +5819,7 @@
         errorLine2="           ~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/AppCompatSpinner.java"
-            line="329"
+            line="331"
             column="12"/>
     </issue>
 
@@ -5929,7 +5830,7 @@
         errorLine2="                           ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/AppCompatSpinner.java"
-            line="403"
+            line="405"
             column="28"/>
     </issue>
 
@@ -5940,7 +5841,7 @@
         errorLine2="                                ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/AppCompatSpinner.java"
-            line="429"
+            line="431"
             column="33"/>
     </issue>
 
@@ -5951,7 +5852,7 @@
         errorLine2="                          ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/AppCompatSpinner.java"
-            line="464"
+            line="466"
             column="27"/>
     </issue>
 
@@ -5962,7 +5863,7 @@
         errorLine2="           ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/AppCompatSpinner.java"
-            line="473"
+            line="475"
             column="12"/>
     </issue>
 
@@ -5973,7 +5874,7 @@
         errorLine2="           ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/AppCompatSpinner.java"
-            line="618"
+            line="620"
             column="12"/>
     </issue>
 
@@ -5984,7 +5885,7 @@
         errorLine2="                                       ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/AppCompatSpinner.java"
-            line="626"
+            line="628"
             column="40"/>
     </issue>
 
