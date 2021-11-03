@@ -41,7 +41,6 @@ import androidx.appsearch.localstorage.stats.SearchStats;
 import androidx.appsearch.testutil.AppSearchEmail;
 import androidx.appsearch.testutil.SimpleTestLogger;
 import androidx.test.core.app.ApplicationProvider;
-import androidx.test.filters.FlakyTest;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
@@ -348,7 +347,6 @@ public class AppSearchSessionLocalCtsTest extends AppSearchSessionCtsTestBase {
 
     // TODO(b/194207451) This test can be moved to CtsTestBase if customized logger is
     //  supported for platform backend.
-    @FlakyTest(bugId = 204478878)
     @Test
     public void testSetSchemaStats_withSchemaMigration() throws Exception {
         SimpleTestLogger logger = new SimpleTestLogger();
@@ -410,7 +408,8 @@ public class AppSearchSessionLocalCtsTest extends AppSearchSessionCtsTestBase {
 
         db2.setSchema(new SetSchemaRequest.Builder().addSchemas(
                 schema).setForceOverride(true).build()).get();
-        db2.put(new PutDocumentsRequest.Builder().addGenericDocuments(doc).build());
+        checkIsBatchResultSuccess(db2.put(
+                new PutDocumentsRequest.Builder().addGenericDocuments(doc).build()));
         db2.setSchema(new SetSchemaRequest.Builder().addSchemas(newSchema)
                 .setMigrator("testSchema", migrator)
                 .setVersion(2)     // upgrade version
