@@ -72,6 +72,22 @@ def setupPlayground(settings, String relativePathToRoot) {
             new File(supportRoot, "testutils/testutils-common"))
     settings.includeProject(":internal-testutils-gradle-plugin",
             new File(supportRoot, "testutils/testutils-gradle-plugin"))
+
+    settings.gradleEnterprise {
+        server = "https://ge.androidx.dev"
+        buildScan {
+            publishAlways()
+            publishIfAuthenticated()
+            capture {
+                taskInputFiles = true
+            }
+            obfuscation {
+                username { name -> "unset" }
+                hostname { host -> "unset" }
+                ipAddresses { addresses -> addresses.collect { address -> "0.0.0.0"} }
+            }
+        }
+    }
 }
 
 /**

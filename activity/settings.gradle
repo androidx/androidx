@@ -14,6 +14,10 @@
  * limitations under the License.
  */
 
+plugins {
+    id "com.gradle.enterprise" version "3.7.1"
+}
+
 // see ../playground-common/README.md for details on how this works
 rootProject.name = "activity-playground"
 apply from: "../playground-common/playground-include-settings.gradle"
