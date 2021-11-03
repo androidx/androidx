@@ -49,6 +49,8 @@ import androidx.glance.layout.HeightModifier
 import androidx.glance.layout.PaddingModifier
 import androidx.glance.layout.WidthModifier
 import androidx.compose.ui.graphics.Color
+import androidx.core.widget.setViewBackgroundResource
+import androidx.glance.layout.AndroidResourceImageProvider
 import androidx.glance.unit.FixedColorProvider
 import androidx.glance.unit.ResourceColorProvider
 import kotlin.math.roundToInt
@@ -249,9 +251,21 @@ private fun applyBackgroundModifier(
     viewDef: InsertedViewInfo
 ) {
     val viewId = viewDef.mainViewId
+    val imageProvider = modifier.imageProvider
+    if (imageProvider != null) {
+        if (imageProvider is AndroidResourceImageProvider) {
+            rv.setViewBackgroundResource(viewId, imageProvider.resId)
+        }
+        // Otherwise, the background has been transformed and should be ignored
+        // (removing modifiers is not really possible).
+        return
+    }
     when (val colorProvider = modifier.colorProvider) {
         is FixedColorProvider -> rv.setViewBackgroundColor(viewId, colorProvider.color.toArgb())
-        is ResourceColorProvider -> rv.setViewBackgroundColorResource(viewId, colorProvider.resId)
+        is ResourceColorProvider -> rv.setViewBackgroundColorResource(
+            viewId,
+            colorProvider.resId
+        )
         is DayNightColorProvider -> {
             if (Build.VERSION.SDK_INT >= 31) {
                 rv.setViewBackgroundColor(

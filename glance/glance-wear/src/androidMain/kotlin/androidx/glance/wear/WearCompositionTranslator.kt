@@ -110,10 +110,12 @@ private fun PaddingInDp.toProto(): ModifiersBuilders.Padding =
         .setRtlAware(true)
         .build()
 
-private fun BackgroundModifier.toProto(context: Context): ModifiersBuilders.Background =
-    ModifiersBuilders.Background.Builder()
-        .setColor(argb(this.colorProvider.getColor(context)))
-        .build()
+private fun BackgroundModifier.toProto(context: Context): ModifiersBuilders.Background? =
+    this.colorProvider?.let { provider ->
+        ModifiersBuilders.Background.Builder()
+            .setColor(argb(provider.getColor(context)))
+            .build()
+    }
 
 private fun ColorProvider.getColor(context: Context) = when (this) {
     is FixedColorProvider -> color.toArgb()
@@ -409,7 +411,9 @@ private fun translateModifiers(
 ): ModifiersBuilders.Modifiers =
     modifier.foldIn(ModifiersBuilders.Modifiers.Builder()) { builder, element ->
         when (element) {
-            is BackgroundModifier -> builder.setBackground(element.toProto(context))
+            is BackgroundModifier -> {
+                element.toProto(context)?.let { builder.setBackground(it) } ?: builder
+            }
             is WidthModifier -> builder /* Skip for now, handled elsewhere. */
             is HeightModifier -> builder /* Skip for now, handled elsewhere. */
             is ActionModifier -> builder.setClickable(element.toProto(context))

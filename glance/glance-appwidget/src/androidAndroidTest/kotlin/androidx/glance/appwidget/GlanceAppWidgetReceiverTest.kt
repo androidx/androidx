@@ -18,6 +18,7 @@ package androidx.glance.appwidget
 
 import android.app.Activity
 import android.graphics.Typeface
+import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.GradientDrawable
 import android.os.Build
 import android.text.SpannedString
@@ -38,14 +39,17 @@ import androidx.glance.LocalContext
 import androidx.glance.LocalSize
 import androidx.glance.action.actionLaunchActivity
 import androidx.glance.appwidget.test.R
+import androidx.glance.background
 import androidx.glance.layout.Box
 import androidx.glance.layout.Button
 import androidx.glance.layout.Column
+import androidx.glance.layout.ContentScale
 import androidx.glance.layout.Image
 import androidx.glance.layout.ImageProvider
 import androidx.glance.layout.Row
 import androidx.glance.layout.Text
 import androidx.glance.layout.fillMaxHeight
+import androidx.glance.layout.fillMaxSize
 import androidx.glance.layout.fillMaxWidth
 import androidx.glance.layout.height
 import androidx.glance.layout.width
@@ -385,6 +389,70 @@ class GlanceAppWidgetReceiverTest {
             assertThat(image.contentDescription).isEqualTo("oval")
             val gradientDrawable = assertIs<GradientDrawable>(image.drawable)
             assertThat(gradientDrawable.shape).isEqualTo(GradientDrawable.OVAL)
+        }
+    }
+
+    @Test
+    fun drawableBackground() {
+        TestGlanceAppWidget.uiDefinition = {
+            Text(
+                "Some useful text",
+                modifier = GlanceModifier.fillMaxWidth().height(220.dp)
+                    .background(ImageProvider(R.drawable.oval))
+            )
+        }
+
+        mHostRule.startHost()
+
+        mHostRule.onUnboxedHostView<TextView> { textView ->
+            assertThat(textView.background).isNotNull()
+        }
+    }
+
+    @Test
+    fun drawableFitBackground() {
+        TestGlanceAppWidget.uiDefinition = {
+            Text(
+                "Some useful text",
+                modifier = GlanceModifier.fillMaxWidth().height(220.dp)
+                    .background(ImageProvider(R.drawable.oval), contentScale = ContentScale.Fit)
+            )
+        }
+
+        mHostRule.startHost()
+
+        mHostRule.onUnboxedHostView<RelativeLayout> { box ->
+            assertThat(box.notGoneChildCount).isEqualTo(2)
+            val (boxedImage, boxedText) = box.notGoneChildren.toList()
+            val image = boxedImage.getTargetView<ImageView>()
+            val text = boxedText.getTargetView<TextView>()
+            assertThat(image.drawable).isNotNull()
+            assertThat(text.background).isNull()
+        }
+    }
+
+    @Test
+    fun bitmapBackground() {
+        TestGlanceAppWidget.uiDefinition = compose@{
+            val context = LocalContext.current
+            val bitmap =
+                (context.resources.getDrawable(R.drawable.compose, null) as BitmapDrawable).bitmap
+            Text(
+                "Some useful text",
+                modifier = GlanceModifier.fillMaxSize()
+                    .background(ImageProvider(bitmap))
+            )
+        }
+
+        mHostRule.startHost()
+
+        mHostRule.onUnboxedHostView<RelativeLayout> { box ->
+            assertThat(box.notGoneChildCount).isEqualTo(2)
+            val (boxedImage, boxedText) = box.notGoneChildren.toList()
+            val image = boxedImage.getTargetView<ImageView>()
+            val text = boxedText.getTargetView<TextView>()
+            assertIs<BitmapDrawable>(image.drawable)
+            assertThat(text.background).isNull()
         }
     }
 

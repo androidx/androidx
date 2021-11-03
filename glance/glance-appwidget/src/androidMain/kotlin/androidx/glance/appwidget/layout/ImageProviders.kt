@@ -19,7 +19,9 @@ package androidx.glance.appwidget.layout
 import android.net.Uri
 import androidx.glance.layout.ImageProvider
 
-internal class UriImageProvider(val uri: Uri) : ImageProvider
+internal class UriImageProvider(val uri: Uri) : ImageProvider {
+    override fun toString() = "UriImageProvider(uri='$uri')"
+}
 
 /**
  * Image resource from a URI.
