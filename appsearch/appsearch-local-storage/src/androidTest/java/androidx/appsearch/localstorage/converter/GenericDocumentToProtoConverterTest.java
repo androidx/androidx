@@ -34,6 +34,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 public class GenericDocumentToProtoConverterTest {
     private static final byte[] BYTE_ARRAY_1 = new byte[]{(byte) 1, (byte) 2, (byte) 3};
@@ -124,110 +125,225 @@ public class GenericDocumentToProtoConverterTest {
 
     @Test
     public void testConvertDocument_whenPropertyHasEmptyList() {
-        String emptyStringPropertyName = "emptyStringProperty";
-        DocumentProto documentProto = DocumentProto.newBuilder()
+        // Build original GenericDocument
+        GenericDocument document =
+                new GenericDocument.Builder<GenericDocument.Builder<?>>("namespace", "id1",
+                        SCHEMA_TYPE_1)
+                        .setCreationTimestampMillis(5L)
+                        .setScore(1)
+                        .setTtlMillis(1L)
+                        .setPropertyLong("emptyLongKey")
+                        .setPropertyDouble("emptyDoubleKey")
+                        .setPropertyBoolean("emptyBooleanKey")
+                        .setPropertyString("emptyStringKey")
+                        .setPropertyBytes("emptyByteKey")
+                        .setPropertyDocument("emptyDocumentKey")
+                        .build();
+
+        // Build original DocumentProto
+        DocumentProto.Builder documentProtoBuilder = DocumentProto.newBuilder()
                 .setUri("id1")
                 .setSchema(SCHEMA_TYPE_1)
                 .setCreationTimestampMs(5L)
-                .setNamespace("namespace")
-                .addProperties(
-                        PropertyProto.newBuilder()
-                                .setName(emptyStringPropertyName)
-                                .build()
-                ).build();
+                .setScore(1)
+                .setTtlMs(1L)
+                .setNamespace("namespace");
+        TreeMap<String, PropertyProto.Builder> propertyProtoMap = new TreeMap<>();
+        propertyProtoMap.put("emptyLongKey",
+                PropertyProto.newBuilder().setName("emptyLongKey"));
+        propertyProtoMap.put("emptyDoubleKey",
+                PropertyProto.newBuilder().setName("emptyDoubleKey"));
+        propertyProtoMap.put("emptyBooleanKey",
+                PropertyProto.newBuilder().setName("emptyBooleanKey"));
+        propertyProtoMap.put("emptyStringKey",
+                PropertyProto.newBuilder().setName("emptyStringKey"));
+        propertyProtoMap.put("emptyByteKey",
+                PropertyProto.newBuilder().setName("emptyByteKey"));
+        propertyProtoMap.put("emptyDocumentKey",
+                PropertyProto.newBuilder().setName("emptyDocumentKey"));
+        for (Map.Entry<String, PropertyProto.Builder> entry : propertyProtoMap.entrySet()) {
+            documentProtoBuilder.addProperties(entry.getValue());
+        }
+        DocumentProto documentProto = documentProtoBuilder.build();
 
+        // Build schema proto used for find empty property type
+        PropertyConfigProto emptyLongListProperty = PropertyConfigProto.newBuilder()
+                .setCardinality(PropertyConfigProto.Cardinality.Code.REPEATED)
+                .setDataType(PropertyConfigProto.DataType.Code.INT64)
+                .setPropertyName("emptyLongKey")
+                .build();
+        PropertyConfigProto emptyDoubleListProperty = PropertyConfigProto.newBuilder()
+                .setCardinality(PropertyConfigProto.Cardinality.Code.REPEATED)
+                .setDataType(PropertyConfigProto.DataType.Code.DOUBLE)
+                .setPropertyName("emptyDoubleKey")
+                .build();
+        PropertyConfigProto emptyBooleanListProperty = PropertyConfigProto.newBuilder()
+                .setCardinality(PropertyConfigProto.Cardinality.Code.REPEATED)
+                .setDataType(PropertyConfigProto.DataType.Code.BOOLEAN)
+                .setPropertyName("emptyBooleanKey")
+                .build();
         PropertyConfigProto emptyStringListProperty = PropertyConfigProto.newBuilder()
                 .setCardinality(PropertyConfigProto.Cardinality.Code.REPEATED)
                 .setDataType(PropertyConfigProto.DataType.Code.STRING)
-                .setPropertyName(emptyStringPropertyName)
+                .setPropertyName("emptyStringKey")
+                .build();
+        PropertyConfigProto emptyByteListProperty = PropertyConfigProto.newBuilder()
+                .setCardinality(PropertyConfigProto.Cardinality.Code.REPEATED)
+                .setDataType(PropertyConfigProto.DataType.Code.BYTES)
+                .setPropertyName("emptyByteKey")
+                .build();
+        PropertyConfigProto emptyDocumentListProperty = PropertyConfigProto.newBuilder()
+                .setCardinality(PropertyConfigProto.Cardinality.Code.REPEATED)
+                .setDataType(PropertyConfigProto.DataType.Code.DOCUMENT)
+                .setPropertyName("emptyDocumentKey")
                 .build();
         SchemaTypeConfigProto schemaTypeConfigProto = SchemaTypeConfigProto.newBuilder()
+                .addProperties(emptyLongListProperty)
+                .addProperties(emptyDoubleListProperty)
+                .addProperties(emptyBooleanListProperty)
                 .addProperties(emptyStringListProperty)
-                .setSchemaType(SCHEMA_TYPE_1)
+                .addProperties(emptyByteListProperty)
+                .addProperties(emptyDocumentListProperty)
+                .setSchemaType(PREFIX + SCHEMA_TYPE_1)
                 .build();
         Map<String, SchemaTypeConfigProto> schemaMap =
                 ImmutableMap.of(PREFIX + SCHEMA_TYPE_1, schemaTypeConfigProto);
 
-        GenericDocument convertedDocument = GenericDocumentToProtoConverter.toGenericDocument(
-                documentProto, PREFIX, schemaMap);
-
-        GenericDocument expectedDocument =
-                new GenericDocument.Builder<GenericDocument.Builder<?>>("namespace", "id1",
-                        SCHEMA_TYPE_1)
-                        .setCreationTimestampMillis(5L)
-                        .setPropertyString(emptyStringPropertyName)
-                        .build();
-        assertThat(convertedDocument).isEqualTo(expectedDocument);
-        assertThat(expectedDocument.getPropertyStringArray(emptyStringPropertyName)).isEmpty();
+        // Convert to the other type and check if they are matched.
+        GenericDocument convertedGenericDocument =
+                GenericDocumentToProtoConverter.toGenericDocument(documentProto, PREFIX,
+                        schemaMap);
+        DocumentProto convertedDocumentProto =
+                GenericDocumentToProtoConverter.toDocumentProto(document);
+        assertThat(convertedDocumentProto).isEqualTo(documentProto);
+        assertThat(convertedGenericDocument).isEqualTo(document);
     }
 
     @Test
     public void testConvertDocument_whenNestedDocumentPropertyHasEmptyList() {
-        String emptyStringPropertyName = "emptyStringProperty";
-        String documentPropertyName = "documentProperty";
-        DocumentProto nestedDocumentProto = DocumentProto.newBuilder()
-                .setUri("id2")
-                .setSchema(SCHEMA_TYPE_2)
-                .setCreationTimestampMs(5L)
-                .setNamespace("namespace")
-                .addProperties(
-                        PropertyProto.newBuilder()
-                                .setName(emptyStringPropertyName)
-                                .build()
-                ).build();
-        DocumentProto documentProto = DocumentProto.newBuilder()
+        // Build original nested document in type 1 and outer document in type2
+        GenericDocument nestedDocument =
+                new GenericDocument.Builder<GenericDocument.Builder<?>>("namespace", "id1",
+                        SCHEMA_TYPE_1)
+                        .setCreationTimestampMillis(5L)
+                        .setScore(1)
+                        .setTtlMillis(1L)
+                        .setPropertyLong("emptyLongKey")
+                        .setPropertyDouble("emptyDoubleKey")
+                        .setPropertyBoolean("emptyBooleanKey")
+                        .setPropertyString("emptyStringKey")
+                        .setPropertyBytes("emptyByteKey")
+                        .setPropertyDocument("emptyDocumentKey")
+                        .build();
+        GenericDocument outerDocument =
+                new GenericDocument.Builder<GenericDocument.Builder<?>>("namespace", "id2",
+                        SCHEMA_TYPE_2)
+                        .setCreationTimestampMillis(5L)
+                        .setScore(1)
+                        .setTtlMillis(1L)
+                        .setPropertyDocument("documentKey", nestedDocument)
+                .build();
+
+        // Build original nested Document proto in type 1 and outer DocumentProto in type 2.
+        DocumentProto.Builder documentProtoBuilder = DocumentProto.newBuilder()
                 .setUri("id1")
                 .setSchema(SCHEMA_TYPE_1)
+                .setCreationTimestampMs(5L)
+                .setScore(1)
+                .setTtlMs(1L)
+                .setNamespace("namespace");
+        TreeMap<String, PropertyProto.Builder> propertyProtoMap = new TreeMap<>();
+        propertyProtoMap.put("emptyLongKey",
+                PropertyProto.newBuilder().setName("emptyLongKey"));
+        propertyProtoMap.put("emptyDoubleKey",
+                PropertyProto.newBuilder().setName("emptyDoubleKey"));
+        propertyProtoMap.put("emptyBooleanKey",
+                PropertyProto.newBuilder().setName("emptyBooleanKey"));
+        propertyProtoMap.put("emptyStringKey",
+                PropertyProto.newBuilder().setName("emptyStringKey"));
+        propertyProtoMap.put("emptyByteKey",
+                PropertyProto.newBuilder().setName("emptyByteKey"));
+        propertyProtoMap.put("emptyDocumentKey",
+                PropertyProto.newBuilder().setName("emptyDocumentKey"));
+        for (Map.Entry<String, PropertyProto.Builder> entry : propertyProtoMap.entrySet()) {
+            documentProtoBuilder.addProperties(entry.getValue());
+        }
+        DocumentProto nestedDocumentProto = documentProtoBuilder.build();
+        DocumentProto outerDocumentProto = DocumentProto.newBuilder()
+                .setUri("id2")
+                .setSchema(SCHEMA_TYPE_2)
+                .setScore(1)
+                .setTtlMs(1L)
                 .setCreationTimestampMs(5L)
                 .setNamespace("namespace")
                 .addProperties(
                         PropertyProto.newBuilder()
                                 .addDocumentValues(nestedDocumentProto)
-                                .setName(documentPropertyName)
+                                .setName("documentKey")
                                 .build()
                 ).build();
 
-        PropertyConfigProto documentProperty = PropertyConfigProto.newBuilder()
+        // Build nested schema proto in type 1 and outer schema proto in type 2.
+        PropertyConfigProto emptyLongListProperty = PropertyConfigProto.newBuilder()
                 .setCardinality(PropertyConfigProto.Cardinality.Code.REPEATED)
-                .setDataType(PropertyConfigProto.DataType.Code.DOCUMENT)
-                .setPropertyName(documentPropertyName)
-                .setSchemaType(SCHEMA_TYPE_2)
+                .setDataType(PropertyConfigProto.DataType.Code.INT64)
+                .setPropertyName("emptyLongKey")
                 .build();
-        SchemaTypeConfigProto schemaTypeConfigProto = SchemaTypeConfigProto.newBuilder()
-                .addProperties(documentProperty)
-                .setSchemaType(SCHEMA_TYPE_1)
+        PropertyConfigProto emptyDoubleListProperty = PropertyConfigProto.newBuilder()
+                .setCardinality(PropertyConfigProto.Cardinality.Code.REPEATED)
+                .setDataType(PropertyConfigProto.DataType.Code.DOUBLE)
+                .setPropertyName("emptyDoubleKey")
+                .build();
+        PropertyConfigProto emptyBooleanListProperty = PropertyConfigProto.newBuilder()
+                .setCardinality(PropertyConfigProto.Cardinality.Code.REPEATED)
+                .setDataType(PropertyConfigProto.DataType.Code.BOOLEAN)
+                .setPropertyName("emptyBooleanKey")
                 .build();
         PropertyConfigProto emptyStringListProperty = PropertyConfigProto.newBuilder()
                 .setCardinality(PropertyConfigProto.Cardinality.Code.REPEATED)
                 .setDataType(PropertyConfigProto.DataType.Code.STRING)
-                .setPropertyName(emptyStringPropertyName)
+                .setPropertyName("emptyStringKey")
+                .build();
+        PropertyConfigProto emptyByteListProperty = PropertyConfigProto.newBuilder()
+                .setCardinality(PropertyConfigProto.Cardinality.Code.REPEATED)
+                .setDataType(PropertyConfigProto.DataType.Code.BYTES)
+                .setPropertyName("emptyByteKey")
+                .build();
+        PropertyConfigProto emptyDocumentListProperty = PropertyConfigProto.newBuilder()
+                .setCardinality(PropertyConfigProto.Cardinality.Code.REPEATED)
+                .setDataType(PropertyConfigProto.DataType.Code.DOCUMENT)
+                .setPropertyName("emptyDocumentKey")
                 .build();
         SchemaTypeConfigProto nestedSchemaTypeConfigProto = SchemaTypeConfigProto.newBuilder()
+                .addProperties(emptyLongListProperty)
+                .addProperties(emptyDoubleListProperty)
+                .addProperties(emptyBooleanListProperty)
                 .addProperties(emptyStringListProperty)
-                .setSchemaType(SCHEMA_TYPE_2)
+                .addProperties(emptyByteListProperty)
+                .addProperties(emptyDocumentListProperty)
+                .setSchemaType(PREFIX + SCHEMA_TYPE_1)
+                .build();
+        PropertyConfigProto nestedDocumentProperty = PropertyConfigProto.newBuilder()
+                .setCardinality(PropertyConfigProto.Cardinality.Code.REPEATED)
+                .setDataType(PropertyConfigProto.DataType.Code.DOCUMENT)
+                .setPropertyName("documentKey")
+                .setSchemaType(PREFIX + SCHEMA_TYPE_1)
+                .build();
+        SchemaTypeConfigProto outerSchemaTypeConfigProto = SchemaTypeConfigProto.newBuilder()
+                .addProperties(nestedDocumentProperty)
+                .setSchemaType(PREFIX + SCHEMA_TYPE_2)
                 .build();
         Map<String, SchemaTypeConfigProto> schemaMap =
-                ImmutableMap.of(PREFIX + SCHEMA_TYPE_1, schemaTypeConfigProto,
-                        PREFIX + SCHEMA_TYPE_2, nestedSchemaTypeConfigProto);
+                ImmutableMap.of(PREFIX + SCHEMA_TYPE_1, nestedSchemaTypeConfigProto,
+                        PREFIX + SCHEMA_TYPE_2, outerSchemaTypeConfigProto);
 
-        GenericDocument convertedDocument = GenericDocumentToProtoConverter.toGenericDocument(
-                documentProto, PREFIX, schemaMap);
-
-        GenericDocument expectedDocument =
-                new GenericDocument.Builder<GenericDocument.Builder<?>>("namespace", "id1",
-                        SCHEMA_TYPE_1)
-                        .setCreationTimestampMillis(5L)
-                        .setPropertyDocument(documentPropertyName,
-                                new GenericDocument.Builder<GenericDocument.Builder<?>>("namespace",
-                                        "id2", SCHEMA_TYPE_2)
-                                        .setCreationTimestampMillis(5L)
-                                        .setPropertyString(emptyStringPropertyName)
-                                        .build()
-                        )
-                        .build();
-        assertThat(convertedDocument).isEqualTo(expectedDocument);
-        assertThat(
-                expectedDocument.getPropertyDocument(documentPropertyName).getPropertyStringArray(
-                        emptyStringPropertyName)).isEmpty();
+        // Convert to the other type and check if they are matched.
+        GenericDocument convertedGenericDocument =
+                GenericDocumentToProtoConverter.toGenericDocument(outerDocumentProto, PREFIX,
+                        schemaMap);
+        DocumentProto convertedDocumentProto =
+                GenericDocumentToProtoConverter.toDocumentProto(outerDocument);
+        assertThat(convertedDocumentProto).isEqualTo(outerDocumentProto);
+        assertThat(convertedGenericDocument).isEqualTo(outerDocument);
     }
 }
