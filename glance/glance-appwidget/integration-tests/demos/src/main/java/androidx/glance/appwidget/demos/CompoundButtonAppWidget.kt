@@ -36,6 +36,7 @@ import androidx.glance.text.FontStyle
 import androidx.glance.text.FontWeight
 import androidx.glance.text.TextStyle
 import androidx.compose.ui.graphics.Color
+import androidx.glance.unit.ColorProvider
 
 class CompoundButtonAppWidget : GlanceAppWidget() {
 
@@ -51,6 +52,7 @@ class CompoundButtonAppWidget : GlanceAppWidget() {
             horizontalAlignment = Alignment.Horizontal.CenterHorizontally
         ) {
             val textStyle = TextStyle(
+                color = ColorProvider(Color.Red),
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Bold,
                 fontStyle = FontStyle.Italic

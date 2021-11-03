@@ -33,19 +33,26 @@ import android.view.Gravity
 import android.widget.RemoteViews
 import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
+import androidx.compose.ui.graphics.toArgb
 import androidx.core.widget.setTextViewGravity
+import androidx.core.widget.setTextViewTextColor
+import androidx.core.widget.setTextViewTextColorResource
 import androidx.glance.appwidget.GlanceAppWidgetTag
 import androidx.glance.appwidget.LayoutType
 import androidx.glance.appwidget.R
 import androidx.glance.appwidget.TranslationContext
 import androidx.glance.appwidget.insertView
 import androidx.glance.appwidget.applyModifiers
+import androidx.glance.appwidget.unit.DayNightColorProvider
 import androidx.glance.layout.EmittableText
 import androidx.glance.text.FontStyle
 import androidx.glance.text.FontWeight
 import androidx.glance.text.TextAlign
 import androidx.glance.text.TextDecoration
 import androidx.glance.text.TextStyle
+import androidx.glance.unit.FixedColorProvider
+import androidx.glance.unit.ResourceColorProvider
+import androidx.glance.unit.resolve
 
 internal fun RemoteViews.translateEmittableText(
     translationContext: TranslationContext,
@@ -117,6 +124,30 @@ internal fun RemoteViews.setText(
         content.setSpan(span, 0, length, Spanned.SPAN_INCLUSIVE_EXCLUSIVE)
     }
     setTextViewText(resId, content)
+
+    when (val colorProvider = style.color) {
+        is FixedColorProvider -> setTextColor(resId, colorProvider.color.toArgb())
+        is ResourceColorProvider -> {
+            if (Build.VERSION.SDK_INT >= 31) {
+                setTextViewTextColorResource(resId, colorProvider.resId)
+            } else {
+                setTextColor(resId, colorProvider.resolve(translationContext.context).toArgb())
+            }
+        }
+        is DayNightColorProvider -> {
+            if (Build.VERSION.SDK_INT >= 31) {
+                setTextViewTextColor(
+                    resId,
+                    notNight = colorProvider.day.toArgb(),
+                    night = colorProvider.night.toArgb()
+                )
+            } else {
+                setTextColor(resId, colorProvider.resolve(translationContext.context).toArgb())
+            }
+        }
+        null -> {}
+        else -> Log.w(GlanceAppWidgetTag, "Unexpected text color: $colorProvider")
+    }
 }
 
 private fun TextAlign.toGravity(): Int =

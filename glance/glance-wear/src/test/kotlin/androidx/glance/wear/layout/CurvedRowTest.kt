@@ -16,12 +16,16 @@
 
 package androidx.glance.wear.layout
 
+import androidx.compose.ui.graphics.Color
 import androidx.glance.GlanceModifier
 import androidx.glance.findModifier
 import androidx.glance.layout.PaddingModifier
 import androidx.glance.layout.padding
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.glance.text.FontStyle
+import androidx.glance.text.FontWeight
+import androidx.glance.unit.ColorProvider
 import androidx.glance.wear.runTestingComposition
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -38,6 +42,28 @@ class CurvedRowTest {
     @Before
     fun setUp() {
         fakeCoroutineScope = TestCoroutineScope()
+    }
+
+    @Test
+    fun equality() {
+        assertThat(
+            CurvedTextStyle(
+                color = ColorProvider(Color.Magenta),
+                fontSize = 12.sp,
+                fontWeight = FontWeight.Normal,
+                fontStyle = FontStyle.Italic
+            )
+        ).isEqualTo(
+            CurvedTextStyle(
+                color = ColorProvider(Color.Magenta),
+                fontSize = 12.sp,
+                fontWeight = FontWeight.Normal,
+                fontStyle = FontStyle.Italic
+            )
+        )
+
+        assertThat(CurvedTextStyle(color = ColorProvider(Color.Magenta)))
+            .isNotEqualTo(CurvedTextStyle(color = ColorProvider(Color.Red)))
     }
 
     @Test
@@ -68,7 +94,7 @@ class CurvedRowTest {
                 CurvedText(
                     text = "Hello World",
                     modifier = GlanceModifier.padding(5.dp),
-                    textStyle = CurvedTextStyle(fontSize = 24.sp)
+                    textStyle = CurvedTextStyle(color = ColorProvider(Color.Gray), fontSize = 24.sp)
                 )
             }
         }
@@ -80,5 +106,6 @@ class CurvedRowTest {
         assertThat(arcText.modifier.findModifier<PaddingModifier>()).isNotNull()
         assertThat(arcText.textStyle).isNotNull()
         assertThat(arcText.textStyle!!.fontSize).isEqualTo(24.sp)
+        assertThat(arcText.textStyle!!.color).isEqualTo(ColorProvider(Color.Gray))
     }
 }

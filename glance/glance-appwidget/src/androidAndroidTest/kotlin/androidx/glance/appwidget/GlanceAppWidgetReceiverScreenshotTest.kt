@@ -28,6 +28,7 @@ import androidx.glance.action.actionLaunchActivity
 import androidx.glance.appwidget.layout.CheckBox
 import androidx.glance.appwidget.layout.Switch
 import androidx.glance.appwidget.test.R
+import androidx.glance.appwidget.unit.ColorProvider
 import androidx.glance.background
 import androidx.glance.layout.Alignment
 import androidx.glance.layout.Box
@@ -50,6 +51,7 @@ import androidx.glance.text.FontWeight
 import androidx.glance.text.TextAlign
 import androidx.glance.text.TextDecoration
 import androidx.glance.text.TextStyle
+import androidx.glance.unit.ColorProvider
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import org.junit.Rule
@@ -202,6 +204,25 @@ class GlanceAppWidgetReceiverScreenshotTest {
         mHostRule.startHost()
 
         mScreenshotRule.checkScreenshot(mHostRule.mHostView, "backgroundColor_dark")
+    }
+
+    @Test
+    fun checkTextColor_light() {
+        TestGlanceAppWidget.uiDefinition = { TextColorTest() }
+
+        mHostRule.startHost()
+
+        mScreenshotRule.checkScreenshot(mHostRule.mHostView, "textColor")
+    }
+
+    @Test
+    @WithNightMode
+    fun checkTextColor_dark() {
+        TestGlanceAppWidget.uiDefinition = { TextColorTest() }
+
+        mHostRule.startHost()
+
+        mScreenshotRule.checkScreenshot(mHostRule.mHostView, "textColor_dark")
     }
 
     @Test
@@ -489,5 +510,20 @@ private fun BackgroundTest() {
                 ) {}
             }
         }
+    }
+}
+
+@Composable
+private fun TextColorTest() {
+    Column(modifier = GlanceModifier.background(R.color.background_color)) {
+        Text("Cyan", style = TextStyle(color = ColorProvider(Color.Cyan)))
+        Text(
+            "Red (light) or yellow (dark)",
+            style = TextStyle(color = ColorProvider(day = Color.Red, night = Color.Yellow))
+        )
+        Text(
+            "Resource (inverse of background color)",
+            style = TextStyle(color = ColorProvider(R.color.text_color))
+        )
     }
 }

@@ -297,9 +297,13 @@ private fun translateEmittableColumn(
     }
 }
 
-private fun translateTextStyle(style: TextStyle): LayoutElementBuilders.FontStyle {
+private fun translateTextStyle(
+    context: Context,
+    style: TextStyle
+): LayoutElementBuilders.FontStyle {
     val fontStyleBuilder = LayoutElementBuilders.FontStyle.Builder()
 
+    style.color?.let { fontStyleBuilder.setColor(argb(it.getColor(context))) }
     // TODO(b/203656358): Can we support Em here too?
     style.fontSize?.let {
         if (!it.isSp) {
@@ -324,9 +328,13 @@ private fun translateTextStyle(style: TextStyle): LayoutElementBuilders.FontStyl
     return fontStyleBuilder.build()
 }
 
-private fun translateTextStyle(style: CurvedTextStyle): LayoutElementBuilders.FontStyle {
+private fun translateTextStyle(
+    context: Context,
+    style: CurvedTextStyle
+): LayoutElementBuilders.FontStyle {
     val fontStyleBuilder = LayoutElementBuilders.FontStyle.Builder()
 
+    style.color?.let { fontStyleBuilder.setColor(argb(it.getColor(context))) }
     style.fontSize?.let { fontStyleBuilder.setSize(sp(it.value)) }
     style.fontStyle?.let { fontStyleBuilder.setItalic(it == FontStyle.Italic) }
     style.fontWeight?.let {
@@ -354,7 +362,7 @@ private fun translateEmittableText(
     val textBuilder = LayoutElementBuilders.Text.Builder()
         .setText(element.text)
 
-    element.style?.let { textBuilder.setFontStyle(translateTextStyle(it)) }
+    element.style?.let { textBuilder.setFontStyle(translateTextStyle(context, it)) }
 
     return if (width !is Dimension.Wrap || height !is Dimension.Wrap) {
         LayoutElementBuilders.Box.Builder()
@@ -446,6 +454,7 @@ private fun translateEmittableCurvedRow(
 }
 
 private fun translateEmittableCurvedText(
+    context: Context,
     element: EmittableCurvedText
 ): LayoutElementBuilders.ArcLayoutElement {
     // Modifiers are currently ignored for this element; we'll have to add CurvedScope modifiers in
@@ -453,7 +462,7 @@ private fun translateEmittableCurvedText(
     val arcTextBuilder = LayoutElementBuilders.ArcText.Builder()
         .setText(element.text)
 
-    element.textStyle?.let { arcTextBuilder.setFontStyle(translateTextStyle(it)) }
+    element.textStyle?.let { arcTextBuilder.setFontStyle(translateTextStyle(context, it)) }
 
     return arcTextBuilder.build()
 }
@@ -507,7 +516,7 @@ private fun translateCompositionInArc(
     element: Emittable
 ): LayoutElementBuilders.ArcLayoutElement {
     return when (element) {
-        is EmittableCurvedText -> translateEmittableCurvedText(element)
+        is EmittableCurvedText -> translateEmittableCurvedText(context, element)
         else -> translateEmittableElementInArc(context, resourceBuilder, element)
     }
 }

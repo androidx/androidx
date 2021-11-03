@@ -40,28 +40,23 @@ public fun ColorProvider(@ColorRes resId: Int): ColorProvider {
 
 /** @suppress */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class FixedColorProvider(val color: Color) : ColorProvider
+public data class FixedColorProvider(val color: Color) : ColorProvider
 
 /** @suppress */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class ResourceColorProvider(@ColorRes val resId: Int) : ColorProvider
+public data class ResourceColorProvider(@ColorRes val resId: Int) : ColorProvider
 
 /** @suppress */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Suppress("INLINE_CLASS_DEPRECATED")
 public fun ResourceColorProvider.resolve(context: Context): Color {
     val androidColor = if (Build.VERSION.SDK_INT >= 23) {
-        ColorProviderApi23Impl.getColor(context.applicationContext, resId)
+        ColorProviderApi23Impl.getColor(context, resId)
     } else {
         @Suppress("DEPRECATION") // Resources.getColor must be used on < 23.
-        context.applicationContext.resources.getColor(resId)
+        context.resources.getColor(resId)
     }
-    return Color(
-        red = android.graphics.Color.red(androidColor) / 255f,
-        green = android.graphics.Color.green(androidColor) / 255f,
-        blue = android.graphics.Color.blue(androidColor) / 255f,
-        alpha = android.graphics.Color.alpha(androidColor) / 255f
-    )
+    return Color(androidColor)
 }
 
 @RequiresApi(23)

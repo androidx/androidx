@@ -18,6 +18,7 @@ package androidx.glance.appwidget
 
 import android.graphics.drawable.ColorDrawable
 import android.view.View
+import android.widget.TextView
 import androidx.annotation.ColorInt
 import androidx.annotation.Px
 import androidx.compose.ui.unit.Dp
@@ -26,9 +27,9 @@ import com.google.common.truth.Subject
 import com.google.common.truth.Truth.assertAbout
 import kotlin.test.assertNotNull
 
-internal class ViewSubject<V : View>(
+internal open class ViewSubject(
     metaData: FailureMetadata,
-    private val actual: V?
+    private val actual: View?
 ) : Subject(metaData, actual) {
     fun hasBackgroundColor(@ColorInt color: Int) {
         isNotNull()
@@ -64,10 +65,37 @@ internal class ViewSubject<V : View>(
     }
 
     companion object {
-        internal fun <V : View> views(): Factory<ViewSubject<V>, V> {
-            return Factory<ViewSubject<V>, V> { metadata, actual -> ViewSubject(metadata, actual) }
+        fun views(): Factory<ViewSubject, View> {
+            return Factory<ViewSubject, View> { metadata, actual -> ViewSubject(metadata, actual) }
         }
 
-        internal fun <V : View> assertThat(view: V) = assertAbout(views()).that(view)
+        fun assertThat(view: View?): ViewSubject = assertAbout(views()).that(view)
+    }
+}
+
+internal open class TextViewSubject(
+    metaData: FailureMetadata,
+    private val actual: TextView?
+) : ViewSubject(metaData, actual) {
+    fun hasTextColor(@ColorInt color: Int) {
+        isNotNull()
+        actual!!
+        // Comparing the hex string representation is equivalent to comparing the int, and the
+        // error message is a lot more readable with the hex string if this fails.
+        check("getCurrentTextColor()")
+            .that(Integer.toHexString(actual.currentTextColor))
+            .isEqualTo(Integer.toHexString(color))
+    }
+
+    fun hasTextColor(hexString: String) = hasTextColor(android.graphics.Color.parseColor(hexString))
+
+    companion object {
+        fun textViews(): Factory<TextViewSubject, TextView> {
+            return Factory<TextViewSubject, TextView> { metadata, actual ->
+                TextViewSubject(metadata, actual)
+            }
+        }
+
+        fun assertThat(view: TextView?): TextViewSubject = assertAbout(textViews()).that(view)
     }
 }
