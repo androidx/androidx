@@ -25,7 +25,8 @@
         <receiver
             android:name="androidx.glance.appwidget.demos.ResponsiveAppWidgetReceiver"
             android:label="@string/responsive_widget_name"
-            android:exported="true">
+            android:enabled="@bool/glance_appwidget_available"
+            android:exported="false">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
                 <action android:name="android.intent.action.LOCALE_CHANGED" />
@@ -38,7 +39,8 @@
         <receiver
             android:name="androidx.glance.appwidget.demos.ExactAppWidgetReceiver"
             android:label="@string/exact_widget_name"
-            android:exported="true">
+            android:enabled="@bool/glance_appwidget_available"
+            android:exported="false">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
                 <action android:name="android.intent.action.LOCALE_CHANGED" />
@@ -51,7 +53,8 @@
         <receiver
             android:name="androidx.glance.appwidget.demos.ResizingAppWidgetReceiver"
             android:label="@string/resizing_widget_name"
-            android:exported="true">
+            android:enabled="@bool/glance_appwidget_available"
+            android:exported="false">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
                 <action android:name="android.intent.action.LOCALE_CHANGED" />
@@ -64,7 +67,8 @@
         <receiver
             android:name="androidx.glance.appwidget.demos.CompoundButtonAppWidgetReceiver"
             android:label="@string/compound_button_widget_name"
-            android:exported="true">
+            android:enabled="@bool/glance_appwidget_available"
+            android:exported="false">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>
@@ -75,7 +79,8 @@
         <receiver
             android:name="androidx.glance.appwidget.demos.UpdatingAppWidgetReceiver"
             android:label="@string/updating_widget_name"
-            android:exported="true">
+            android:enabled="@bool/glance_appwidget_available"
+            android:exported="false">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
                 <action android:name="android.intent.action.LOCALE_CHANGED" />
