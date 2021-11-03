@@ -867,8 +867,7 @@ public class WatchFaceImpl @UiThread constructor(
         // If the delay is long then round to the beginning of the next period.
         var nextFrameTimeMillis = if (updateRateMillis >= 500) {
             val nextUnroundedTime = previousRequestedFrameTimeMillis + updateRateMillis
-            val delay =
-                (updateRateMillis - (nextUnroundedTime % updateRateMillis)) % updateRateMillis
+            val delay = updateRateMillis - (nextUnroundedTime % updateRateMillis)
             previousRequestedFrameTimeMillis + delay
         } else {
             previousRequestedFrameTimeMillis + updateRateMillis
