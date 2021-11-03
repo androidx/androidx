@@ -96,7 +96,7 @@ public abstract class GlanceTileService : TileService() {
         super.onStart(intent, startId)
     }
 
-    private suspend fun runComposition(): LayoutElementBuilders.LayoutElement = coroutineScope {
+    private suspend fun runComposition(): CompositionResult = coroutineScope {
         val root = EmittableBox()
         val applier = Applier(root)
         val recomposer = Recomposer(currentCoroutineContext())
@@ -109,7 +109,7 @@ public abstract class GlanceTileService : TileService() {
         recomposer.close()
         recomposer.join()
 
-        translateComposition(this@GlanceTileService, root)
+        translateTopLevelComposition(this@GlanceTileService, root)
     }
 
     /** Implement with the layout to use in your Tile. */
@@ -125,7 +125,7 @@ public abstract class GlanceTileService : TileService() {
     final override fun onTileRequest(
         requestParams: RequestBuilders.TileRequest
     ): ListenableFuture<TileBuilders.Tile> = coroutineScope.future {
-        val content = runComposition()
+        val content = runComposition().layout
 
         TileBuilders.Tile.Builder()
             .setResourcesVersion(ResourcesVersion)
@@ -151,7 +151,7 @@ public abstract class GlanceTileService : TileService() {
     final override fun onResourcesRequest(
         requestParams: RequestBuilders.ResourcesRequest
     ): ListenableFuture<ResourceBuilders.Resources> = coroutineScope.future {
-        ResourceBuilders.Resources.Builder().setVersion(ResourcesVersion).build()
+        runComposition().resources.setVersion(ResourcesVersion).build()
     }
 
     @VisibleForTesting
