@@ -18,7 +18,9 @@ package androidx.graphics.opengl.egl
 
 import android.opengl.EGL14
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.SmallTest
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
@@ -27,6 +29,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
+@SmallTest
 class EglManagerTest {
 
     @Test
@@ -120,6 +123,70 @@ class EglManagerTest {
     }
 
     @Test
+    fun testDefaultSurfaceWithoutSurfacelessContext() {
+        // Create a new EGL Spec instance that does not support the
+        // EglKhrSurfacelessContext extension in order to verify
+        // the fallback support of initializing the current surface
+        // to a PBuffer instead of EGL14.EGL_NO_SURFACE
+        val wrappedEglSpec = object : EglSpec by EglSpec.Egl14 {
+            override fun eglQueryString(nameId: Int): String {
+                val queryString = EglSpec.Egl14.eglQueryString(nameId)
+                return if (nameId == EGL14.EGL_EXTENSIONS) {
+                    // Parse the space separated string of EGL extensions into a set
+                    val set = HashSet<String>().apply {
+                        addAll(queryString.split(' '))
+                    }
+                    // Remove EglKhrSurfacelessContext if it exists
+                    // and repack the set into a space separated string
+                    set.remove(EglKhrSurfacelessContext)
+                    StringBuilder().let {
+                        for (entry in set) {
+                            it.append(entry)
+                            it.append(' ')
+                        }
+                        it.toString()
+                    }
+                } else {
+                    queryString
+                }
+            }
+        }
+
+        testEglManager(wrappedEglSpec) {
+            initialize()
+
+            // Verify that the wrapped EGL spec implementation in fact does not
+            // advertise support for EglKhrSurfacelessContext
+            assertFalse(isExtensionSupported(EglKhrSurfacelessContext))
+
+            assertEquals(defaultSurface, EGL14.EGL_NO_SURFACE)
+            assertEquals(currentDrawSurface, EGL14.EGL_NO_SURFACE)
+            assertEquals(currentReadSurface, EGL14.EGL_NO_SURFACE)
+
+            val config = loadConfig(EglConfigAttributes8888)
+
+            if (config == null) {
+                fail("Config 8888 should be supported")
+            }
+
+            // Create context at this point should fallback of eglCreatePBufferSurface
+            // instead of EGL_NO_SURFACE as a result of no longer advertising support
+            // for EglKhrSurfacelessContext
+            createContext(config!!)
+
+            assertNotEquals(defaultSurface, EGL14.EGL_NO_SURFACE)
+            assertEquals(currentDrawSurface, defaultSurface)
+            assertEquals(currentReadSurface, defaultSurface)
+
+            release()
+
+            assertEquals(defaultSurface, EGL14.EGL_NO_SURFACE)
+            assertEquals(currentDrawSurface, EGL14.EGL_NO_SURFACE)
+            assertEquals(currentReadSurface, EGL14.EGL_NO_SURFACE)
+        }
+    }
+
+    @Test
     fun testCreatePBufferSurface() {
         testEglManager {
             initialize()
@@ -160,8 +227,11 @@ class EglManagerTest {
      * Helper method to ensure EglManager has the corresponding release calls
      * made to it and verifies that no exceptions were thrown as part of the test.
      */
-    private fun testEglManager(block: EglManager.() -> Unit = {}) {
-        with(EglManager()) {
+    private fun testEglManager(
+        eglSpec: EglSpec = EglSpec.Egl14,
+        block: EglManager.() -> Unit = {}
+    ) {
+        with(EglManager(eglSpec)) {
             assertEquals(EglVersion.Unknown, eglVersion)
             assertEquals(EGL14.EGL_NO_CONTEXT, eglContext)
             block()

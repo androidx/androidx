@@ -123,6 +123,18 @@ interface EglSpec {
      */
     fun eglDestroyContext(eglContext: EGLContext)
 
+    /**
+     * Returns the error of the last called EGL function in the current thread. Initially,
+     * the error is set to EGL_SUCCESS. When an EGL function could potentially generate several
+     * different errors (for example, when passed both a bad attribute name, and a bad attribute
+     * value for a legal attribute name), the implementation may choose to generate any one of the
+     * applicable errors.
+     *
+     * See https://khronos.org/registry/EGL/sdk/docs/man/html/eglGetError.xhtml for more information
+     * and error codes that could potentially be returned
+     */
+    fun eglGetError(): Int
+
     companion object {
 
         @JvmField
@@ -221,6 +233,8 @@ interface EglSpec {
                 }
             }
 
+            override fun eglGetError(): Int = EGL14.eglGetError()
+
             private fun getDefaultDisplay() = EGL14.eglGetDisplay(EGL14.EGL_DEFAULT_DISPLAY)
         }
 
@@ -251,6 +265,12 @@ interface EglSpec {
             }
     }
 }
+
+/**
+ * Convenience method to obtain the corresponding error string from the
+ * error code obtained from [EglSpec.eglGetError]
+ */
+fun EglSpec.getErrorMessage(): String = EglSpec.getStatusString(eglGetError())
 
 /**
  * Exception class for reporting errors with EGL
