@@ -48,7 +48,6 @@ import androidx.glance.layout.Dimension
 import androidx.glance.layout.HeightModifier
 import androidx.glance.layout.PaddingModifier
 import androidx.glance.layout.WidthModifier
-import androidx.glance.layout.collectPaddingInDp
 import androidx.compose.ui.graphics.Color
 import androidx.glance.unit.FixedColorProvider
 import androidx.glance.unit.ResourceColorProvider
@@ -63,6 +62,7 @@ internal fun applyModifiers(
     val context = translationContext.context
     var widthModifier: WidthModifier? = null
     var heightModifier: HeightModifier? = null
+    var paddingModifiers: PaddingModifier? = null
     modifiers.foldIn(Unit) { _, modifier ->
         when (modifier) {
             is ActionModifier ->
@@ -71,25 +71,25 @@ internal fun applyModifiers(
             is HeightModifier -> heightModifier = modifier
             is BackgroundModifier -> applyBackgroundModifier(context, rv, modifier, viewDef)
             is PaddingModifier -> {
-            } // Nothing to do for those
+                paddingModifiers = paddingModifiers?.let { it + modifier } ?: modifier
+            }
             else -> {
                 Log.w(GlanceAppWidgetTag, "Unknown modifier '$modifier', nothing done.")
             }
         }
     }
     applySizeModifiers(translationContext, rv, widthModifier, heightModifier, viewDef)
-    modifiers.collectPaddingInDp(context.resources)
-        ?.toAbsolute(translationContext.isRtl)
-        ?.let {
-            val displayMetrics = context.resources.displayMetrics
-            rv.setViewPadding(
-                viewDef.mainViewId,
-                it.left.toPixels(displayMetrics),
-                it.top.toPixels(displayMetrics),
-                it.right.toPixels(displayMetrics),
-                it.bottom.toPixels(displayMetrics)
-            )
-        }
+    paddingModifiers?.let { padding ->
+        val absolutePadding = padding.toDp(context.resources).toAbsolute(translationContext.isRtl)
+        val displayMetrics = context.resources.displayMetrics
+        rv.setViewPadding(
+            viewDef.mainViewId,
+            absolutePadding.left.toPixels(displayMetrics),
+            absolutePadding.top.toPixels(displayMetrics),
+            absolutePadding.right.toPixels(displayMetrics),
+            absolutePadding.bottom.toPixels(displayMetrics)
+        )
+    }
 }
 
 private fun applyAction(
@@ -174,12 +174,14 @@ private fun applySizeModifiers(
     when (width) {
         is Dimension.Dp -> rv.setTextViewWidth(sizeTargetViewId, width.toPixels())
         is Dimension.Resource -> rv.setTextViewWidth(sizeTargetViewId, width.toPixels())
-        Dimension.Expand, Dimension.Fill, Dimension.Wrap, null -> {}
+        Dimension.Expand, Dimension.Fill, Dimension.Wrap, null -> {
+        }
     }.let {}
     when (height) {
         is Dimension.Dp -> rv.setTextViewHeight(sizeTargetViewId, height.toPixels())
         is Dimension.Resource -> rv.setTextViewHeight(sizeTargetViewId, height.toPixels())
-        Dimension.Expand, Dimension.Fill, Dimension.Wrap, null -> {}
+        Dimension.Expand, Dimension.Fill, Dimension.Wrap, null -> {
+        }
     }.let {}
 }
 

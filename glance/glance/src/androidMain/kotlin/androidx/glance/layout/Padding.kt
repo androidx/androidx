@@ -192,16 +192,7 @@ public fun GlanceModifier.collectPadding(): PaddingModifier? =
 /** @suppress */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun GlanceModifier.collectPaddingInDp(resources: Resources) =
-    collectPadding()?.let { padding ->
-        PaddingInDp(
-            left = padding.left.dp + padding.left.resources.toDp(resources),
-            start = padding.start.dp + padding.start.resources.toDp(resources),
-            top = padding.top.dp + padding.top.resources.toDp(resources),
-            right = padding.right.dp + padding.right.resources.toDp(resources),
-            end = padding.end.dp + padding.end.resources.toDp(resources),
-            bottom = padding.bottom.dp + padding.bottom.resources.toDp(resources),
-        )
-    }
+    collectPadding()?.toDp(resources)
 
 private fun List<Int>.toDp(resources: Resources) =
     fold(0.dp) { acc, res ->
@@ -228,20 +219,30 @@ public data class PaddingModifier(
             end = end + other.end,
             bottom = bottom + other.bottom,
         )
+
+    public fun toDp(resources: Resources): PaddingInDp =
+        PaddingInDp(
+            left = left.dp + left.resourceIds.toDp(resources),
+            start = start.dp + start.resourceIds.toDp(resources),
+            top = top.dp + top.resourceIds.toDp(resources),
+            right = right.dp + right.resourceIds.toDp(resources),
+            end = end.dp + end.resourceIds.toDp(resources),
+            bottom = bottom.dp + bottom.resourceIds.toDp(resources),
+        )
 }
 
 /** @suppress */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public data class PaddingDimension(
     public val dp: Dp = 0.dp,
-    public val resources: List<Int> = emptyList(),
+    public val resourceIds: List<Int> = emptyList(),
 ) {
-    constructor(@DimenRes resource: Int) : this(resources = listOf(resource))
+    constructor(@DimenRes resource: Int) : this(resourceIds = listOf(resource))
 
     public operator fun plus(other: PaddingDimension) =
         PaddingDimension(
             dp = dp + other.dp,
-            resources = resources + other.resources,
+            resourceIds = resourceIds + other.resourceIds,
         )
 
     companion object {
