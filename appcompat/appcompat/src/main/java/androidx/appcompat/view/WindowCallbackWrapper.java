@@ -30,6 +30,7 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.view.accessibility.AccessibilityEvent;
 
+import androidx.annotation.DoNotInline;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 
@@ -142,7 +143,7 @@ public class WindowCallbackWrapper implements Window.Callback {
     @RequiresApi(23)
     @Override
     public boolean onSearchRequested(SearchEvent searchEvent) {
-        return mWrapped.onSearchRequested(searchEvent);
+        return Api23Impl.onSearchRequested(mWrapped, searchEvent);
     }
 
     @Override
@@ -158,7 +159,7 @@ public class WindowCallbackWrapper implements Window.Callback {
     @RequiresApi(23)
     @Override
     public ActionMode onWindowStartingActionMode(ActionMode.Callback callback, int type) {
-        return mWrapped.onWindowStartingActionMode(callback, type);
+        return Api23Impl.onWindowStartingActionMode(mWrapped, callback, type);
     }
 
     @Override
@@ -175,16 +176,61 @@ public class WindowCallbackWrapper implements Window.Callback {
     @Override
     public void onProvideKeyboardShortcuts(
             List<KeyboardShortcutGroup> data, Menu menu, int deviceId) {
-        mWrapped.onProvideKeyboardShortcuts(data, menu, deviceId);
+        Api24Impl.onProvideKeyboardShortcuts(mWrapped, data, menu, deviceId);
     }
 
     @RequiresApi(26)
     @Override
     public void onPointerCaptureChanged(boolean hasCapture) {
-        mWrapped.onPointerCaptureChanged(hasCapture);
+        Api26Impl.onPointerCaptureChanged(mWrapped, hasCapture);
     }
 
     public final Window.Callback getWrapped() {
         return mWrapped;
+    }
+
+    @RequiresApi(23)
+    static class Api23Impl {
+        private Api23Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static boolean onSearchRequested(Window.Callback callback, SearchEvent searchEvent) {
+            return callback.onSearchRequested(searchEvent);
+        }
+
+        @DoNotInline
+        static ActionMode onWindowStartingActionMode(Window.Callback windowCallback,
+                ActionMode.Callback actionModeCallback, int i) {
+            return windowCallback.onWindowStartingActionMode(actionModeCallback, i);
+        }
+    }
+
+    @RequiresApi(24)
+    static class Api24Impl {
+        private Api24Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static void onProvideKeyboardShortcuts(Window.Callback callback,
+                List<KeyboardShortcutGroup> data, Menu menu, int deviceId) {
+            callback.onProvideKeyboardShortcuts(data, menu, deviceId);
+        }
+
+    }
+
+    @RequiresApi(26)
+    static class Api26Impl {
+        private Api26Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static void onPointerCaptureChanged(Window.Callback callback, boolean hasCapture) {
+            callback.onPointerCaptureChanged(hasCapture);
+        }
+
     }
 }
