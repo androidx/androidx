@@ -18,16 +18,44 @@
 // artifacts and the playground-build.gradle build file.
 // See README.md for details
 
-def includeProject(name, filePath) {
+/**
+ * Includes the project if it does not already exist.
+ * This is invoked from `includeProject` to ensure all parent projects are included. If they are
+ * not, gradle will use the root project path to set the projectDir, which might conflict in
+ * playground. Instead, this method checks if another project in that path exists and if so,
+ * changes the project dir to avoid the conflict.
+ * see b/197253160 for details.
+ */
+def includeFakeParentProjectIfNotExists(String name, File projectDir) {
+    if (name.isEmpty()) return
+    if (settings.findProject(name)) {
+        return
+    }
+    if (settings.findProject(projectDir) != null) {
+        // Project directory conflicts with an existing project (possibly root). Move it
+        // to another directory to avoid the conflict.
+        projectDir = new File(projectDir.getParentFile(), ".ignore-${projectDir.name}")
+    }
+    includeProject(name, projectDir)
+    // Set it to a gradle file that does not exist.
+    // We must always include projects starting with root, if we are including nested projects.
+    settings.project(name).buildFileName = "ignored.gradle"
+}
+
+def includeProject(String name, File projectDir) {
+    if (settings.findProject(name) != null) {
+        throw new GradleException("Cannot include project twice: $name is already included.")
+    }
+    def parentPath = name.substring(0, name.lastIndexOf(":"))
+    def parentDir = projectDir.getParentFile()
+    // Make sure parent is created first. see: b/197253160 for details
+    includeFakeParentProjectIfNotExists(
+        parentPath,
+        parentDir
+    )
     settings.include(name)
 
-    def file
-    if (filePath instanceof String) {
-        file = new File(rootDir, filePath)
-    } else {
-        file = filePath
-    }
-    project(name).projectDir = file
+    project(name).projectDir = projectDir
 }
 
 /**
@@ -94,8 +122,8 @@ def selectProjectsFromAndroidX(filter) {
         def projectGradlePath = matcher.group("name")
         def projectFilePath = matcher.group("path")
         if (filter(projectGradlePath)) {
-            settings.includeProject(projectGradlePath,
-                    new File(ext.supportRootDir, projectFilePath))
+            def projectDir = new File(ext.supportRootDir, projectFilePath)
+            settings.includeProject(projectGradlePath, projectDir)
         }
     }
 }
