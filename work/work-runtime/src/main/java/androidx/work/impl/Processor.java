@@ -167,11 +167,16 @@ public class Processor implements ExecutionListener, ForegroundProcessor {
      * @return {@code true} if the work was stopped successfully
      */
     public boolean stopForegroundWork(@NonNull String id) {
+        WorkerWrapper wrapper = null;
         synchronized (mLock) {
             Logger.get().debug(TAG, "Processor stopping foreground work " + id);
-            WorkerWrapper wrapper = mForegroundWorkMap.remove(id);
-            return interrupt(id, wrapper);
+            wrapper = mForegroundWorkMap.remove(id);
         }
+        // Move interrupt() outside the critical section.
+        // This is because calling interrupt() eventually calls ListenableWorker.onStopped()
+        // If onStopped() takes too long, there is a good chance this causes an ANR
+        // in Processor.onExecuted().
+        return interrupt(id, wrapper);
     }
 
     /**
@@ -181,11 +186,16 @@ public class Processor implements ExecutionListener, ForegroundProcessor {
      * @return {@code true} if the work was stopped successfully
      */
     public boolean stopWork(@NonNull String id) {
+        WorkerWrapper wrapper = null;
         synchronized (mLock) {
             Logger.get().debug(TAG, "Processor stopping background work " + id);
-            WorkerWrapper wrapper = mEnqueuedWorkMap.remove(id);
-            return interrupt(id, wrapper);
+            wrapper = mEnqueuedWorkMap.remove(id);
         }
+        // Move interrupt() outside the critical section.
+        // This is because calling interrupt() eventually calls ListenableWorker.onStopped()
+        // If onStopped() takes too long, there is a good chance this causes an ANR
+        // in Processor.onExecuted().
+        return interrupt(id, wrapper);
     }
 
     /**
@@ -195,23 +205,28 @@ public class Processor implements ExecutionListener, ForegroundProcessor {
      * @return {@code true} if the work was stopped successfully
      */
     public boolean stopAndCancelWork(@NonNull String id) {
+        WorkerWrapper wrapper = null;
+        boolean isForegroundWork = false;
         synchronized (mLock) {
             Logger.get().debug(TAG, "Processor cancelling " + id);
             mCancelledIds.add(id);
-            WorkerWrapper wrapper;
             // Check if running in the context of a foreground service
             wrapper = mForegroundWorkMap.remove(id);
-            boolean isForegroundWork = wrapper != null;
+            isForegroundWork = wrapper != null;
             if (wrapper == null) {
                 // Fallback to enqueued Work
                 wrapper = mEnqueuedWorkMap.remove(id);
             }
-            boolean interrupted = interrupt(id, wrapper);
-            if (isForegroundWork) {
-                stopForegroundService();
-            }
-            return interrupted;
         }
+        // Move interrupt() outside the critical section.
+        // This is because calling interrupt() eventually calls ListenableWorker.onStopped()
+        // If onStopped() takes too long, there is a good chance this causes an ANR
+        // in Processor.onExecuted().
+        boolean interrupted = interrupt(id, wrapper);
+        if (isForegroundWork) {
+            stopForegroundService();
+        }
+        return interrupted;
     }
 
     @Override
