@@ -45,6 +45,9 @@ import androidx.glance.text.TextStyle
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.glance.layout.ContentScale
+import androidx.glance.layout.Image
+import androidx.glance.layout.ImageProvider
 import androidx.glance.layout.Spacer
 import androidx.glance.layout.height
 import androidx.glance.layout.width
@@ -52,6 +55,7 @@ import androidx.glance.wear.layout.AnchorType
 import androidx.glance.wear.layout.CurvedRow
 import androidx.glance.wear.layout.CurvedTextStyle
 import androidx.glance.wear.layout.RadialAlignment
+import androidx.glance.wear.test.R
 import androidx.test.core.app.ApplicationProvider.getApplicationContext
 import androidx.test.screenshot.AndroidXScreenshotTestRule
 import androidx.test.screenshot.matchers.MSSIMMatcher
@@ -173,6 +177,32 @@ class ScreenshotTests {
             Box(modifier = GlanceModifier.size(30.dp).background(Color.Green)) {}
             Spacer(modifier = GlanceModifier.width(10.dp))
             Box(modifier = GlanceModifier.size(30.dp).background(Color.Blue)) {}
+        }
+    }
+
+    @Test
+    fun imageScaleModes() = runSingleGoldenTest("image-scale-modes") {
+        Column {
+            Image(
+                provider = ImageProvider(R.drawable.oval),
+                contentDescription = "Oval-crop",
+                modifier = GlanceModifier.size(50.dp),
+                contentScale = ContentScale.Crop
+            )
+            Spacer(modifier = GlanceModifier.height(10.dp))
+            Image(
+                provider = ImageProvider(R.drawable.oval),
+                contentDescription = "Oval-fit",
+                modifier = GlanceModifier.size(50.dp),
+                contentScale = ContentScale.Fit
+            )
+            Spacer(modifier = GlanceModifier.height(10.dp))
+            Image(
+                provider = ImageProvider(R.drawable.oval),
+                contentDescription = "Oval-fill-bounds",
+                modifier = GlanceModifier.size(50.dp),
+                contentScale = ContentScale.FillBounds
+            )
         }
     }
 
