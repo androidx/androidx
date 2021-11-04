@@ -2,17 +2,6 @@
 <issues format="6" by="lint 7.1.0-alpha08" type="baseline" client="gradle" dependencies="false" name="AGP (7.1.0-alpha08)" variant="all" version="7.1.0-alpha08">
 
     <issue
-        id="NewApi"
-        message="Call requires API level 28 (current min is 23): `triggerImage`"
-        errorLine1="        triggerImage(processingSurface, 1);"
-        errorLine2="        ~~~~~~~~~~~~">
-        <location
-            file="src/androidTest/java/androidx/camera/core/ProcessingSurfaceTest.java"
-            line="158"
-            column="9"/>
-    </issue>
-
-    <issue
         id="BanSynchronizedMethods"
         message="Use of synchronized methods is not recommended"
         errorLine1="    @Override"
@@ -428,17 +417,6 @@
             file="src/main/java/androidx/camera/core/SingleCloseImageProxy.java"
             line="38"
             column="5"/>
-    </issue>
-
-    <issue
-        id="KotlinPropertyAccess"
-        message="This getter should be public such that `useRepeatingSurface` can be accessed as a property from Kotlin; see https://android.github.io/kotlin-guides/interop.html#property-prefixes"
-        errorLine1="        boolean isUseRepeatingSurface() {"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/core/impl/CaptureConfig.java"
-            line="312"
-            column="17"/>
     </issue>
 
     <issue
