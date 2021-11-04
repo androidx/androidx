@@ -14,32 +14,31 @@
  * limitations under the License.
  */
 
-package androidx.glance.layout
+package androidx.glance
 
 import androidx.annotation.RestrictTo
 import androidx.compose.runtime.Composable
-import androidx.glance.Emittable
-import androidx.glance.GlanceModifier
-import androidx.glance.GlanceNode
+import androidx.compose.runtime.ComposeNode
+import androidx.compose.runtime.DisallowComposableCalls
+import androidx.compose.runtime.Updater
 
 /** @suppress */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class EmittableSpacer : Emittable {
-    override var modifier: GlanceModifier = GlanceModifier
+@Composable
+inline fun <T : Emittable> GlanceNode(
+    noinline factory: () -> T,
+    update: @DisallowComposableCalls Updater<T>.() -> Unit
+) {
+    ComposeNode<T, Applier>(factory, update)
 }
 
-/**
- * Component that represents an empty space layout, whose size can be defined using
- * [GlanceModifier.width], [GlanceModifier.height], [GlanceModifier.size] modifiers.
- *
- * @param modifier Modifiers to set to this spacer
- */
+/** @suppress */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Composable
-public fun Spacer(modifier: GlanceModifier = GlanceModifier) {
-    GlanceNode(
-        factory = :: EmittableSpacer,
-        update = {
-          this.set(modifier) { this.modifier = it }
-        }
-    )
+inline fun <T : Emittable> GlanceNode(
+    noinline factory: () -> T,
+    update: @DisallowComposableCalls Updater<T>.() -> Unit,
+    content: @Composable () -> Unit,
+) {
+    ComposeNode<T, Applier>(factory, update, content)
 }

@@ -18,10 +18,9 @@ package androidx.glance.layout
 
 import androidx.annotation.RestrictTo
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.ComposeNode
-import androidx.glance.Applier
 import androidx.glance.EmittableWithChildren
 import androidx.glance.GlanceModifier
+import androidx.glance.GlanceNode
 
 /** @suppress */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -52,7 +51,7 @@ public fun Box(
     contentAlignment: Alignment = Alignment.TopStart,
     content: @Composable () -> Unit
 ) {
-    ComposeNode<EmittableBox, Applier>(
+    GlanceNode(
         factory = ::EmittableBox,
         update = {
             this.set(modifier) { this.modifier = it }
