@@ -16,11 +16,11 @@
   -->
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="androidx.glance.test">
+    package="androidx.glance.appwidget.test">
     <uses-permission android:name="android.permission.BIND_APPWIDGET" />
     <application>
         <receiver
-            android:name="androidx.glance.test.SampleAppWidgetProvider"
+            android:name="androidx.glance.appwidget.SampleAppWidgetProvider"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />

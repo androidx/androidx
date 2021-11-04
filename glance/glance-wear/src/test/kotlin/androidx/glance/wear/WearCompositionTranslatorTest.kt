@@ -40,12 +40,14 @@ import androidx.glance.text.FontWeight
 import androidx.glance.text.TextDecoration
 import androidx.glance.text.TextStyle
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.glance.layout.ContentScale
 import androidx.glance.layout.Image
 import androidx.glance.layout.ImageProvider
 import androidx.glance.layout.Spacer
+import androidx.glance.unit.ColorProvider
 import androidx.glance.wear.layout.AnchorType
 import androidx.glance.wear.layout.AndroidLayoutElement
 import androidx.glance.wear.layout.CurvedRow
@@ -300,6 +302,7 @@ class WearCompositionTranslatorTest {
     fun canInflateText() = fakeCoroutineScope.runBlockingTest {
         val content = runAndTranslate {
             val style = TextStyle(
+                color = ColorProvider(Color.Gray),
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Bold,
                 fontStyle = FontStyle.Italic,
@@ -312,6 +315,7 @@ class WearCompositionTranslatorTest {
             as LayoutElementBuilders.Text
 
         assertThat(innerText.text!!.value).isEqualTo("Hello World")
+        assertThat(innerText.fontStyle!!.color!!.argb).isEqualTo(Color.Gray.toArgb())
         assertThat(innerText.fontStyle!!.size!!.value).isEqualTo(16f)
         assertThat(innerText.fontStyle!!.italic!!.value).isTrue()
         assertThat(innerText.fontStyle!!.weight!!.value).isEqualTo(FONT_WEIGHT_BOLD)
@@ -392,6 +396,7 @@ class WearCompositionTranslatorTest {
     fun canTranslateCurvedText() = fakeCoroutineScope.runBlockingTest {
         val content = runAndTranslate {
             val style = CurvedTextStyle(
+                color = ColorProvider(R.color.color1),
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Bold,
                 fontStyle = FontStyle.Italic,
@@ -407,6 +412,8 @@ class WearCompositionTranslatorTest {
         val innerArcText = innerArc.contents[0] as LayoutElementBuilders.ArcText
 
         assertThat(innerArcText.text!!.value).isEqualTo("Hello World")
+        assertThat(innerArcText.fontStyle!!.color!!.argb)
+            .isEqualTo(android.graphics.Color.rgb(0xC0, 0xFF, 0xEE))
         assertThat(innerArcText.fontStyle!!.size!!.value).isEqualTo(16f)
         assertThat(innerArcText.fontStyle!!.italic!!.value).isTrue()
         assertThat(innerArcText.fontStyle!!.weight!!.value).isEqualTo(FONT_WEIGHT_BOLD)
@@ -469,6 +476,7 @@ class WearCompositionTranslatorTest {
     fun canTranslateButton() = fakeCoroutineScope.runBlockingTest {
         val content = runAndTranslate {
             val style = TextStyle(
+                color = ColorProvider(Color.Magenta),
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Bold,
                 fontStyle = FontStyle.Italic,
@@ -487,6 +495,7 @@ class WearCompositionTranslatorTest {
 
         assertThat(innerText.text!!.value).isEqualTo("Hello World")
 
+        assertThat(innerText.fontStyle!!.color!!.argb).isEqualTo(Color.Magenta.toArgb())
         assertThat(innerText.fontStyle!!.size!!.value).isEqualTo(16f)
         assertThat(innerText.fontStyle!!.italic!!.value).isTrue()
         assertThat(innerText.fontStyle!!.weight!!.value).isEqualTo(FONT_WEIGHT_BOLD)

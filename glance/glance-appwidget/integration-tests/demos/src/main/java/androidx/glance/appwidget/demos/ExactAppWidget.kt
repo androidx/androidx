@@ -22,6 +22,7 @@ import androidx.compose.ui.unit.dp
 import androidx.glance.GlanceModifier
 import androidx.glance.LocalContext
 import androidx.glance.LocalSize
+import androidx.glance.appwidget.unit.ColorProvider
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.GlanceAppWidgetReceiver
 import androidx.glance.appwidget.SizeMode
@@ -50,6 +51,7 @@ class ExactAppWidget : GlanceAppWidget() {
             Text(
                 context.getString(R.string.exact_widget_title),
                 style = TextStyle(
+                    color = ColorProvider(day = Color.DarkGray, night = Color.LightGray),
                     fontWeight = FontWeight.Bold,
                     textDecoration = TextDecoration.Underline
                 ),

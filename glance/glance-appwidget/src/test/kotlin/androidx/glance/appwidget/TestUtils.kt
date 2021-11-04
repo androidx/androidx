@@ -36,6 +36,7 @@ import androidx.compose.runtime.Recomposer
 import androidx.compose.ui.unit.TextUnit
 import androidx.core.view.children
 import androidx.glance.Applier
+import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.currentCoroutineContext
@@ -146,3 +147,10 @@ internal val ViewGroup.nonGoneChildCount: Int
 /** Iterate over children that are not gone. */
 internal val ViewGroup.nonGoneChildren: Sequence<View>
     get() = children.filter { it.visibility != View.GONE }
+
+fun configurationContext(modifier: Configuration.() -> Unit): Context {
+    val configuration = Configuration()
+    modifier(configuration)
+    return ApplicationProvider.getApplicationContext<Context>()
+        .createConfigurationContext(configuration)
+}
