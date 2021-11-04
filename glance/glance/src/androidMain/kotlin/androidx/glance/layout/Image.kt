@@ -23,10 +23,9 @@ import androidx.annotation.DrawableRes
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.ComposeNode
-import androidx.glance.Applier
 import androidx.glance.Emittable
 import androidx.glance.GlanceModifier
+import androidx.glance.GlanceNode
 
 /**
  * Interface representing an Image source which can be used with a Glance [Image] element.
@@ -106,7 +105,7 @@ public fun Image(
     modifier: GlanceModifier = GlanceModifier,
     contentScale: ContentScale = ContentScale.Fit
 ) {
-    ComposeNode<EmittableImage, Applier>(
+    GlanceNode(
         factory = ::EmittableImage,
         update = {
             this.set(provider) { this.provider = it }

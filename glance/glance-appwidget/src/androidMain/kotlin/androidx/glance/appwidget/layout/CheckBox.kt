@@ -17,10 +17,9 @@
 package androidx.glance.appwidget.layout
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.ComposeNode
-import androidx.glance.Applier
 import androidx.glance.Emittable
 import androidx.glance.GlanceModifier
+import androidx.glance.GlanceNode
 import androidx.glance.text.TextStyle
 
 /**
@@ -38,7 +37,7 @@ public fun CheckBox(
     text: String = "",
     style: TextStyle? = null
 ) {
-    ComposeNode<EmittableCheckBox, Applier>(
+    GlanceNode(
         factory = ::EmittableCheckBox,
         update = {
             this.set(checked) { this.checked = it }
