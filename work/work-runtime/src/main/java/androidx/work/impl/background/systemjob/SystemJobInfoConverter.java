@@ -18,6 +18,7 @@ package androidx.work.impl.background.systemjob;
 
 import static androidx.annotation.VisibleForTesting.PACKAGE_PRIVATE;
 
+import android.annotation.SuppressLint;
 import android.app.job.JobInfo;
 import android.content.ComponentName;
 import android.content.Context;
@@ -46,6 +47,7 @@ import androidx.work.impl.model.WorkSpec;
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @RequiresApi(api = WorkManagerImpl.MIN_JOB_SCHEDULER_API_LEVEL)
+@SuppressLint("ClassVerificationFailure")
 class SystemJobInfoConverter {
     private static final String TAG = Logger.tagWithPrefix("SystemJobInfoConverter");
 
