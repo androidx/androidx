@@ -27,12 +27,14 @@ import android.text.style.StrikethroughSpan
 import android.text.style.StyleSpan
 import android.text.style.TextAppearanceSpan
 import android.text.style.UnderlineSpan
+import android.util.Log
 import android.util.TypedValue
 import android.view.Gravity
 import android.widget.RemoteViews
 import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 import androidx.core.widget.setTextViewGravity
+import androidx.glance.appwidget.GlanceAppWidgetTag
 import androidx.glance.appwidget.LayoutType
 import androidx.glance.appwidget.R
 import androidx.glance.appwidget.TranslationContext
@@ -124,7 +126,10 @@ private fun TextAlign.toGravity(): Int =
         TextAlign.Right -> Gravity.RIGHT
         TextAlign.Start -> Gravity.START
         TextAlign.End -> Gravity.END
-        else -> throw IllegalArgumentException("Unknown TextAlign: $this")
+        else -> {
+            Log.w(GlanceAppWidgetTag, "Unknown TextAlign: $this")
+            Gravity.START
+        }
     }
 
 private fun TextAlign.toAlignment(isRtl: Boolean): Alignment =
@@ -134,7 +139,10 @@ private fun TextAlign.toAlignment(isRtl: Boolean): Alignment =
         TextAlign.Right -> if (isRtl) Alignment.ALIGN_NORMAL else Alignment.ALIGN_OPPOSITE
         TextAlign.Start -> Alignment.ALIGN_NORMAL
         TextAlign.End -> Alignment.ALIGN_OPPOSITE
-        else -> throw IllegalArgumentException("Unknown TextAlign: $this")
+        else -> {
+            Log.w(GlanceAppWidgetTag, "Unknown TextAlign: $this")
+            Alignment.ALIGN_NORMAL
+        }
     }
 
 @RequiresApi(Build.VERSION_CODES.S)

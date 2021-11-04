@@ -22,7 +22,7 @@ package androidx.glance.appwidget {
   }
 
   public abstract class GlanceAppWidget {
-    ctor public GlanceAppWidget();
+    ctor public GlanceAppWidget(optional boolean enableErrorUi);
     method @androidx.compose.runtime.Composable public abstract void Content();
     method public androidx.glance.appwidget.SizeMode getSizeMode();
     method public final suspend Object? update(android.content.Context context, androidx.glance.appwidget.GlanceId glanceId, kotlin.coroutines.Continuation<? super kotlin.Unit> p);

@@ -26,6 +26,7 @@ import androidx.glance.action.ActionParameters
 import androidx.glance.action.ActionRunnable
 import androidx.glance.action.UpdateContentAction
 import androidx.glance.action.mutableActionParametersOf
+import kotlinx.coroutines.CancellationException
 import java.util.UUID
 
 /**
@@ -33,27 +34,29 @@ import java.util.UUID
  */
 internal class ActionRunnableBroadcastReceiver : BroadcastReceiver() {
 
-    override fun onReceive(context: Context?, intent: Intent?) {
-        if (intent == null || context == null) {
-            return
-        }
-
+    override fun onReceive(context: Context, intent: Intent) {
         goAsync {
-            val extras = requireNotNull(intent.extras) {
-                "The intent must have action parameters extras."
-            }
-            val paramsBundle = requireNotNull(extras.getBundle(ExtraParameters)) {
-                "The intent must contain a parameters bundle using extra: $ExtraParameters"
-            }
-
-            val parameters = mutableActionParametersOf().apply {
-                paramsBundle.keySet().forEach { key ->
-                    set(ActionParameters.Key(key), paramsBundle[key])
+            try {
+                val extras = requireNotNull(intent.extras) {
+                    "The intent must have action parameters extras."
                 }
-            }
+                val paramsBundle = requireNotNull(extras.getBundle(ExtraParameters)) {
+                    "The intent must contain a parameters bundle using extra: $ExtraParameters"
+                }
 
-            runActionWork(context, intent, parameters)
-            updateWidget(context, intent)
+                val parameters = mutableActionParametersOf().apply {
+                    paramsBundle.keySet().forEach { key ->
+                        set(ActionParameters.Key(key), paramsBundle[key])
+                    }
+                }
+
+                runActionWork(context, intent, parameters)
+                updateWidget(context, intent)
+            } catch (ex: CancellationException) {
+                throw ex
+            } catch (throwable: Throwable) {
+                logException(throwable)
+            }
         }
     }
 

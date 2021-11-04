@@ -130,7 +130,12 @@ private fun applyAction(
                 )
             rv.setOnClickPendingIntent(viewId, pendingIntent)
         }
-        else -> throw IllegalArgumentException("Unrecognized action type.")
+        else -> {
+            Log.e(
+                GlanceAppWidgetTag,
+                "Unrecognized action type: ${action.javaClass.canonicalName}."
+            )
+        }
     }
 }
 
