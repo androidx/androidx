@@ -55,9 +55,9 @@ class StartupTimingQueryTest {
         api = 24,
         startupMode = StartupMode.COLD,
         StartupTimingQuery.SubMetrics(
-            timeToInitialDisplayNs = 358237760,
-            timeToFullDisplayNs = 784769167,
-            timelineRangeNs = 269543917431669..269544702200836
+            timeToInitialDisplayNs = 264869885,
+            timeToFullDisplayNs = 715406822,
+            timelineRangeNs = 791231114368..791946521190
         )
     )
 
@@ -66,9 +66,9 @@ class StartupTimingQueryTest {
         api = 24,
         startupMode = StartupMode.WARM,
         StartupTimingQuery.SubMetrics(
-            timeToInitialDisplayNs = 135008333,
-            timeToFullDisplayNs = 598500833,
-            timelineRangeNs = 268757401479247..268757999980080
+            timeToInitialDisplayNs = 108563770,
+            timeToFullDisplayNs = 581026583,
+            timelineRangeNs = 800868511677..801449538260
         )
     )
 
@@ -77,9 +77,9 @@ class StartupTimingQueryTest {
         api = 24,
         startupMode = StartupMode.HOT,
         StartupTimingQuery.SubMetrics(
-            timeToInitialDisplayNs = 54248802,
-            timeToFullDisplayNs = 529336511,
-            timelineRangeNs = 268727533977218..268728063313729
+            timeToInitialDisplayNs = 35039927,
+            timeToFullDisplayNs = 537343160,
+            timelineRangeNs = 780778904571..781316247731
         )
     )
 
@@ -88,7 +88,7 @@ class StartupTimingQueryTest {
         api = 31,
         startupMode = StartupMode.COLD,
         StartupTimingQuery.SubMetrics(
-            timeToInitialDisplayNs = 145792410,
+            timeToInitialDisplayNs = 143980066,
             timeToFullDisplayNs = 620815843,
             timelineRangeNs = 186974938196632..186975559012475
         )
@@ -99,7 +99,7 @@ class StartupTimingQueryTest {
         api = 31,
         startupMode = StartupMode.WARM,
         StartupTimingQuery.SubMetrics(
-            timeToInitialDisplayNs = 64748027,
+            timeToInitialDisplayNs = 62373965,
             timeToFullDisplayNs = 555968701,
             timelineRangeNs = 186982050780778..186982606749479
         )
@@ -110,7 +110,7 @@ class StartupTimingQueryTest {
         api = 31,
         startupMode = StartupMode.HOT,
         StartupTimingQuery.SubMetrics(
-            timeToInitialDisplayNs = 47329015,
+            timeToInitialDisplayNs = 40534066,
             timeToFullDisplayNs = 542222554,
             timelineRangeNs = 186969441973689..186969984196243
         )
