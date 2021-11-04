@@ -34,5 +34,4 @@ playground {
 
     includeProject(":inspection:inspection", "inspection/inspection")
     includeProject(":inspection:inspection-testing", "inspection/inspection-testing")
-    includeProject(":inspection:inspection-gradle-plugin", "inspection/inspection-testing")
 }
