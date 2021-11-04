@@ -5,6 +5,8 @@ import org.gradle.api.initialization.Settings
 
 class PlaygroundPlugin implements Plugin<Settings> {
     void apply(Settings settings) {
+        settings.apply(plugin: 'playground-ge-conventions')
+
         settings.extensions.create('playground', PlaygroundExtension, settings)
 
         validateJvm(settings)
