@@ -97,11 +97,14 @@ class MapQueryResultAdapter(
                 addStatement("final $T $L", keyTypeArg.typeName, tmpKeyVarName)
                 keyRowAdapter.convert(tmpKeyVarName, cursorVarName, scope)
 
+                val columnNullCheckVarName = getColumnNullCheck(
+                    cursorVarName = cursorVarName,
+                    valueRowAdapter = valueRowAdapter
+                )
+
                 // If valueCollectionType is null, this means that we have a 1-to-1 mapping, as
                 // opposed to a 1-to-many mapping.
                 if (valueCollectionType != null) {
-                    addStatement("final $T $L", valueTypeArg.typeName, tmpValueVarName)
-                    valueRowAdapter.convert(tmpValueVarName, cursorVarName, scope)
                     val tmpCollectionVarName = scope.getTmpVar("_values")
                     addStatement("$T $L", declaredValueType, tmpCollectionVarName)
 
@@ -127,8 +130,22 @@ class MapQueryResultAdapter(
                         )
                     }
                     endControlFlow()
+
+                    // Perform column null check
+                    beginControlFlow("if ($L)", columnNullCheckVarName).apply {
+                        addStatement("continue")
+                    }.endControlFlow()
+
+                    addStatement("final $T $L", valueTypeArg.typeName, tmpValueVarName)
+                    valueRowAdapter.convert(tmpValueVarName, cursorVarName, scope)
                     addStatement("$L.add($L)", tmpCollectionVarName, tmpValueVarName)
                 } else {
+                    // Perform column null check
+                    beginControlFlow("if ($L)", columnNullCheckVarName).apply {
+                        addStatement("$L.put($L, null)", outVarName, tmpKeyVarName)
+                        addStatement("continue")
+                    }.endControlFlow()
+
                     addStatement(
                         "final $T $L",
                         valueTypeArg.typeElement?.className,
