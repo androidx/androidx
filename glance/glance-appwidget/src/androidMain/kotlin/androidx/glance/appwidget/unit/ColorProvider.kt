@@ -29,7 +29,7 @@ public fun ColorProvider(day: Color, night: Color): ColorProvider {
     return DayNightColorProvider(day, night)
 }
 
-internal class DayNightColorProvider(val day: Color, val night: Color) : ColorProvider {
+internal data class DayNightColorProvider(val day: Color, val night: Color) : ColorProvider {
     fun resolve(context: Context) = if (context.isNightMode) night else day
 }
 

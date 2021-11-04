@@ -26,7 +26,7 @@ import androidx.glance.EmittableWithChildren
 import androidx.glance.GlanceModifier
 import androidx.glance.text.FontStyle
 import androidx.glance.text.FontWeight
-import androidx.glance.text.TextStyle
+import androidx.glance.unit.ColorProvider
 
 /**
  * The alignment of a [CurvedRow]'s elements, with respect to its anchor angle. This specifies how
@@ -161,16 +161,16 @@ public fun CurvedRow(
  */
 @Immutable
 public class CurvedTextStyle(
+    public val color: ColorProvider? = null,
     public val fontSize: TextUnit? = null,
     public val fontWeight: FontWeight? = null,
     public val fontStyle: FontStyle? = null
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
-        if (javaClass != other?.javaClass) return false
+        if (other !is CurvedTextStyle) return false
 
-        other as TextStyle
-
+        if (color != other.color) return false
         if (fontSize != other.fontSize) return false
         if (fontWeight != other.fontWeight) return false
         if (fontStyle != other.fontStyle) return false

@@ -17,6 +17,7 @@
 package androidx.glance.appwidget.translators
 
 import android.content.Context
+import android.content.res.Configuration
 import android.graphics.Typeface
 import android.os.Build
 import android.text.Layout
@@ -29,14 +30,19 @@ import android.text.style.UnderlineSpan
 import android.view.Gravity
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.sp
 import androidx.glance.GlanceModifier
+import androidx.glance.appwidget.TextViewSubject.Companion.assertThat
 import androidx.glance.appwidget.applyRemoteViews
+import androidx.glance.appwidget.configurationContext
 import androidx.glance.appwidget.nonGoneChildCount
 import androidx.glance.appwidget.nonGoneChildren
 import androidx.glance.appwidget.runAndTranslate
 import androidx.glance.appwidget.runAndTranslateInRtl
+import androidx.glance.appwidget.test.R
 import androidx.glance.appwidget.toPixels
+import androidx.glance.appwidget.unit.ColorProvider
 import androidx.glance.layout.Column
 import androidx.glance.layout.Text
 import androidx.glance.layout.fillMaxWidth
@@ -45,6 +51,7 @@ import androidx.glance.text.FontWeight
 import androidx.glance.text.TextAlign
 import androidx.glance.text.TextDecoration
 import androidx.glance.text.TextStyle
+import androidx.glance.unit.ColorProvider
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -63,6 +70,8 @@ class TextTranslatorTest {
 
     private lateinit var fakeCoroutineScope: TestCoroutineScope
     private val context = ApplicationProvider.getApplicationContext<Context>()
+    private val lightContext = configurationContext { uiMode = Configuration.UI_MODE_NIGHT_NO }
+    private val darkContext = configurationContext { uiMode = Configuration.UI_MODE_NIGHT_YES }
     private val displayMetrics = context.resources.displayMetrics
 
     @Before
@@ -275,6 +284,80 @@ class TextTranslatorTest {
                 assertThat(it.alignment).isEqualTo(Layout.Alignment.ALIGN_OPPOSITE)
             }
         }
+    }
+
+    @Test
+    fun canTranslateText_withColor_fixed() = fakeCoroutineScope.runBlockingTest {
+        val rv = context.runAndTranslate {
+            Column {
+                Text("Blue", style = TextStyle(color = ColorProvider(Color.Blue)))
+                Text("Red", style = TextStyle(color = ColorProvider(Color.Red)))
+            }
+        }
+        val view = context.applyRemoteViews(rv)
+
+        assertIs<LinearLayout>(view)
+        assertThat(view.nonGoneChildCount).isEqualTo(2)
+
+        val (blue, red) = view.nonGoneChildren.toList()
+        assertIs<TextView>(blue)
+        assertIs<TextView>(red)
+        assertThat(blue).hasTextColor(android.graphics.Color.BLUE)
+        assertThat(red).hasTextColor(android.graphics.Color.RED)
+    }
+
+    @Config(minSdk = 29)
+    @Test
+    fun canTranslateText_withColor_resource_light() = fakeCoroutineScope.runBlockingTest {
+        val rv = lightContext.runAndTranslate {
+            Text("GrayResource", style = TextStyle(color = ColorProvider(R.color.my_color)))
+        }
+        val view = lightContext.applyRemoteViews(rv)
+
+        assertIs<TextView>(view)
+        assertThat(view).hasTextColor("#EEEEEE")
+    }
+
+    @Config(minSdk = 29)
+    @Test
+    fun canTranslateText_withColor_resource_dark() = fakeCoroutineScope.runBlockingTest {
+        val rv = darkContext.runAndTranslate {
+            Text("GrayResource", style = TextStyle(color = ColorProvider(R.color.my_color)))
+        }
+        val view = darkContext.applyRemoteViews(rv)
+
+        assertIs<TextView>(view)
+        assertThat(view).hasTextColor("#111111")
+    }
+
+    @Config(minSdk = 29)
+    @Test
+    fun canTranslateText_withColor_dayNight_light() = fakeCoroutineScope.runBlockingTest {
+        val rv = lightContext.runAndTranslate {
+            Text(
+                "Green day / Magenta night",
+                style = TextStyle(color = ColorProvider(day = Color.Green, night = Color.Magenta))
+            )
+        }
+        val view = lightContext.applyRemoteViews(rv)
+
+        assertIs<TextView>(view)
+        assertThat(view).hasTextColor(android.graphics.Color.GREEN)
+    }
+
+    @Config(minSdk = 29)
+    @Test
+    fun canTranslateText_withColor_dayNight_dark() = fakeCoroutineScope.runBlockingTest {
+        val rv = darkContext.runAndTranslate {
+            Text(
+                "Green day / Magenta night",
+                style = TextStyle(color = ColorProvider(day = Color.Green, night = Color.Magenta))
+            )
+        }
+        val view = darkContext.applyRemoteViews(rv)
+
+        assertIs<TextView>(view)
+        assertThat(view).hasTextColor(android.graphics.Color.MAGENTA)
     }
 
     // Check there is a single span, that it's of the correct type and passes the [check].

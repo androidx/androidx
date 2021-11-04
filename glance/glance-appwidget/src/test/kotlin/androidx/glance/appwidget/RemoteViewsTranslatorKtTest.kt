@@ -40,6 +40,7 @@ import androidx.compose.ui.unit.dp
 import androidx.core.view.children
 import androidx.glance.GlanceModifier
 import androidx.glance.action.actionLaunchActivity
+import androidx.glance.appwidget.TextViewSubject.Companion.assertThat
 import androidx.glance.appwidget.ViewSubject.Companion.assertThat
 import androidx.glance.appwidget.layout.AndroidRemoteViews
 import androidx.glance.appwidget.layout.CheckBox
@@ -57,6 +58,7 @@ import androidx.glance.layout.absolutePadding
 import androidx.glance.layout.padding
 import androidx.glance.text.TextDecoration
 import androidx.glance.text.TextStyle
+import androidx.glance.unit.ColorProvider
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -640,7 +642,10 @@ class RemoteViewsTranslatorKtTest {
             CheckBox(
                 checked = false,
                 text = "test",
-                style = TextStyle(textDecoration = TextDecoration.Underline),
+                style = TextStyle(
+                    color = ColorProvider(Color.Red),
+                    textDecoration = TextDecoration.Underline
+                ),
             )
         }
         val view = context.applyRemoteViews(rv)
@@ -650,6 +655,7 @@ class RemoteViewsTranslatorKtTest {
         assertThat(iconView.isEnabled).isFalse()
 
         val textView = assertIs<TextView>(view.getChildAt(1))
+        assertThat(textView).hasTextColor(android.graphics.Color.RED)
         val textContent = assertIs<SpannedString>(textView.text)
         assertThat(textContent.toString()).isEqualTo("test")
         assertThat(textContent.getSpans(0, textContent.length, Any::class.java)).hasLength(1)
@@ -813,12 +819,6 @@ class RemoteViewsTranslatorKtTest {
             root,
             rootViewIndex = 0,
         )
-    }
-
-    private fun configurationContext(modifier: Configuration.() -> Unit): Context {
-        val configuration = Configuration()
-        modifier(configuration)
-        return context.createConfigurationContext(configuration)
     }
 
     private fun Dp.toPixels() = toPixels(displayMetrics)

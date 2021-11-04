@@ -26,10 +26,11 @@ import android.util.TypedValue.COMPLEX_UNIT_PX
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.widget.RemoteViews
-import androidx.annotation.ColorInt
 import androidx.annotation.DoNotInline
 import androidx.annotation.IdRes
 import androidx.annotation.RequiresApi
+import androidx.compose.ui.graphics.toArgb
+import androidx.core.widget.setViewBackgroundResource
 import androidx.core.widget.setTextViewHeight
 import androidx.core.widget.setTextViewWidth
 import androidx.core.widget.setViewBackgroundColor
@@ -48,12 +49,9 @@ import androidx.glance.layout.Dimension
 import androidx.glance.layout.HeightModifier
 import androidx.glance.layout.PaddingModifier
 import androidx.glance.layout.WidthModifier
-import androidx.compose.ui.graphics.Color
-import androidx.core.widget.setViewBackgroundResource
 import androidx.glance.layout.AndroidResourceImageProvider
 import androidx.glance.unit.FixedColorProvider
 import androidx.glance.unit.ResourceColorProvider
-import kotlin.math.roundToInt
 
 internal fun applyModifiers(
     translationContext: TranslationContext,
@@ -284,19 +282,6 @@ private fun applyBackgroundModifier(
         }
         else -> Log.w(GlanceAppWidgetTag, "Unexpected background color modifier: $colorProvider")
     }
-}
-
-// TODO(b/202150620): Use the shared Compose utility when we use the same Color class.
-@ColorInt
-private fun Color.toArgb(): Int {
-    // Converts a value from a float in [0,1] to an int in [0x00,0xFF].
-    fun Float.toColorComponent() = (this * 0xFF).roundToInt()
-    return android.graphics.Color.argb(
-        /* alpha= */ alpha.toColorComponent(),
-        /* red= */ red.toColorComponent(),
-        /* green= */ green.toColorComponent(),
-        /* blue= */ blue.toColorComponent()
-    )
 }
 
 private val Dimension?.isFixed: Boolean

@@ -58,7 +58,7 @@ class TextTest {
             Text(
                 "text",
                 style = TextStyle(
-                    20.sp,
+                    fontSize = 20.sp,
                     fontStyle = FontStyle.Italic,
                     fontWeight = FontWeight.Medium
                 )
@@ -71,7 +71,7 @@ class TextTest {
         assertThat(text.style)
             .isEqualTo(
                 TextStyle(
-                    20.sp,
+                    fontSize = 20.sp,
                     fontStyle = FontStyle.Italic,
                     fontWeight = FontWeight.Medium
                 )

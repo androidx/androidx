@@ -16,4 +16,5 @@
 
 <resources>
     <color name="background_color">@android:color/black</color>
+    <color name="text_color">@android:color/white</color>
 </resources>
