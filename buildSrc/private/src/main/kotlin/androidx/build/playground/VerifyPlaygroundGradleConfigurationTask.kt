@@ -99,19 +99,22 @@ abstract class VerifyPlaygroundGradleConfigurationTask : DefaultTask() {
         // this includes properties that are not defined in the root androidx build as they might
         // be properties which can alter the build output. We might consider allow listing certain
         // properties in the future if necessary.
-        playgroundProperties.forEach {
-            val rootValue = rootProperties[it.key]
-            if (rootValue != it.value) {
-                throw GradleException(
-                    """
-                    ${it.key} is defined as ${it.value} in playground properties but
-                    it does not match the value defined in root properties file ($rootValue).
-                    Having inconsistent properties in playground projects might trigger wrong
-                    compilation output in the main AndroidX build, thus not allowed.
-                    """.trimIndent()
-                )
+        playgroundProperties
+            .filter { !it.key.toString().startsWith("androidx.github") }
+            .filter { !it.key.toString().startsWith("androidx.kmp") }
+            .forEach {
+                val rootValue = rootProperties[it.key]
+                if (rootValue != it.value) {
+                    throw GradleException(
+                        """
+                        ${it.key} is defined as ${it.value} in playground properties but
+                        it does not match the value defined in root properties file ($rootValue).
+                        Having inconsistent properties in playground projects might trigger wrong
+                        compilation output in the main AndroidX build, thus not allowed.
+                        """.trimIndent()
+                    )
+                }
             }
-        }
     }
 
     private fun loadPropertiesFile(file: File) = file.inputStream().use { inputStream ->

@@ -30,7 +30,9 @@ dependencies {
 
 SdkResourceGenerator.generateForHostTest(project)
 
-tasks.findByPath("test").dependsOn(
-        tasks.findByPath(":compose:compiler:compiler:publish"),
-        tasks.findByPath(":compose:runtime:runtime:publish")
-)
+def githubBuild = project.properties['androidx.github.build']?.toBoolean() ?: false
+def testTask = tasks.findByPath("test")
+testTask.dependsOn(tasks.findByPath(":compose:compiler:compiler:publish"))
+if (!githubBuild) {
+     testTask.dependsOn(tasks.findByPath(":compose:runtime:runtime:publish"))
+}
