@@ -19,9 +19,12 @@ package androidx.core.view.accessibility;
 import static android.os.Build.VERSION.SDK_INT;
 
 import android.graphics.Rect;
+import android.view.accessibility.AccessibilityNodeInfo;
 import android.view.accessibility.AccessibilityWindowInfo;
 
+import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 
 /**
  * Helper for accessing {@link android.view.accessibility.AccessibilityWindowInfo}.
@@ -89,7 +92,6 @@ public class AccessibilityWindowInfoCompat {
      * Gets the type of the window.
      *
      * @return The type.
-     *
      * @see #TYPE_APPLICATION
      * @see #TYPE_INPUT_METHOD
      * @see #TYPE_SYSTEM
@@ -97,7 +99,7 @@ public class AccessibilityWindowInfoCompat {
      */
     public int getType() {
         if (SDK_INT >= 21) {
-            return ((AccessibilityWindowInfo) mInfo).getType();
+            return Api21Impl.getType((AccessibilityWindowInfo) mInfo);
         } else {
             return UNDEFINED;
         }
@@ -111,7 +113,7 @@ public class AccessibilityWindowInfoCompat {
      */
     public int getLayer() {
         if (SDK_INT >= 21) {
-            return ((AccessibilityWindowInfo) mInfo).getLayer();
+            return Api21Impl.getLayer((AccessibilityWindowInfo) mInfo);
         } else {
             return UNDEFINED;
         }
@@ -125,7 +127,7 @@ public class AccessibilityWindowInfoCompat {
     public AccessibilityNodeInfoCompat getRoot() {
         if (SDK_INT >= 21) {
             return AccessibilityNodeInfoCompat.wrapNonNullInstance(
-                    ((AccessibilityWindowInfo) mInfo).getRoot());
+                    Api21Impl.getRoot((AccessibilityWindowInfo) mInfo));
         } else {
             return null;
         }
@@ -138,7 +140,7 @@ public class AccessibilityWindowInfoCompat {
      */
     public AccessibilityWindowInfoCompat getParent() {
         if (SDK_INT >= 21) {
-            return wrapNonNullInstance(((AccessibilityWindowInfo) mInfo).getParent());
+            return wrapNonNullInstance(Api21Impl.getParent((AccessibilityWindowInfo) mInfo));
         } else {
             return null;
         }
@@ -151,7 +153,7 @@ public class AccessibilityWindowInfoCompat {
      */
     public int getId() {
         if (SDK_INT >= 21) {
-            return ((AccessibilityWindowInfo) mInfo).getId();
+            return Api21Impl.getId((AccessibilityWindowInfo) mInfo);
         } else {
             return UNDEFINED;
         }
@@ -164,7 +166,7 @@ public class AccessibilityWindowInfoCompat {
      */
     public void getBoundsInScreen(Rect outBounds) {
         if (SDK_INT >= 21) {
-            ((AccessibilityWindowInfo) mInfo).getBoundsInScreen(outBounds);
+            Api21Impl.getBoundsInScreen((AccessibilityWindowInfo) mInfo, outBounds);
         }
     }
 
@@ -177,7 +179,7 @@ public class AccessibilityWindowInfoCompat {
      */
     public boolean isActive() {
         if (SDK_INT >= 21) {
-            return ((AccessibilityWindowInfo) mInfo).isActive();
+            return Api21Impl.isActive((AccessibilityWindowInfo) mInfo);
         } else {
             return true;
         }
@@ -190,7 +192,7 @@ public class AccessibilityWindowInfoCompat {
      */
     public boolean isFocused() {
         if (SDK_INT >= 21) {
-            return ((AccessibilityWindowInfo) mInfo).isFocused();
+            return Api21Impl.isFocused((AccessibilityWindowInfo) mInfo);
         } else {
             return true;
         }
@@ -203,7 +205,7 @@ public class AccessibilityWindowInfoCompat {
      */
     public boolean isAccessibilityFocused() {
         if (SDK_INT >= 21) {
-            return ((AccessibilityWindowInfo) mInfo).isAccessibilityFocused();
+            return Api21Impl.isAccessibilityFocused((AccessibilityWindowInfo) mInfo);
         } else {
             return true;
         }
@@ -216,7 +218,7 @@ public class AccessibilityWindowInfoCompat {
      */
     public int getChildCount() {
         if (SDK_INT >= 21) {
-            return ((AccessibilityWindowInfo) mInfo).getChildCount();
+            return Api21Impl.getChildCount((AccessibilityWindowInfo) mInfo);
         } else {
             return 0;
         }
@@ -230,7 +232,7 @@ public class AccessibilityWindowInfoCompat {
      */
     public AccessibilityWindowInfoCompat getChild(int index) {
         if (SDK_INT >= 21) {
-            return wrapNonNullInstance(((AccessibilityWindowInfo) mInfo).getChild(index));
+            return wrapNonNullInstance(Api21Impl.getChild((AccessibilityWindowInfo) mInfo, index));
         } else {
             return null;
         }
@@ -244,7 +246,7 @@ public class AccessibilityWindowInfoCompat {
      */
     public CharSequence getTitle() {
         if (SDK_INT >= 24) {
-            return ((AccessibilityWindowInfo) mInfo).getTitle();
+            return Api24Impl.getTitle((AccessibilityWindowInfo) mInfo);
         } else {
             return null;
         }
@@ -258,7 +260,7 @@ public class AccessibilityWindowInfoCompat {
     public AccessibilityNodeInfoCompat getAnchor() {
         if (SDK_INT >= 24) {
             return AccessibilityNodeInfoCompat.wrapNonNullInstance(
-                    ((AccessibilityWindowInfo) mInfo).getAnchor());
+                    Api24Impl.getAnchor((AccessibilityWindowInfo) mInfo));
         } else {
             return null;
         }
@@ -272,7 +274,7 @@ public class AccessibilityWindowInfoCompat {
      */
     public static AccessibilityWindowInfoCompat obtain() {
         if (SDK_INT >= 21) {
-            return wrapNonNullInstance(AccessibilityWindowInfo.obtain());
+            return wrapNonNullInstance(Api21Impl.obtain());
         } else {
             return null;
         }
@@ -291,7 +293,7 @@ public class AccessibilityWindowInfoCompat {
             return info == null
                     ? null
                     : wrapNonNullInstance(
-                            AccessibilityWindowInfo.obtain((AccessibilityWindowInfo) info.mInfo));
+                            Api21Impl.obtain((AccessibilityWindowInfo) info.mInfo));
         } else {
             return null;
         }
@@ -307,7 +309,7 @@ public class AccessibilityWindowInfoCompat {
      */
     public void recycle() {
         if (SDK_INT >= 21) {
-            ((AccessibilityWindowInfo) mInfo).recycle();
+            Api21Impl.recycle((AccessibilityWindowInfo) mInfo);
         }
     }
 
@@ -373,6 +375,100 @@ public class AccessibilityWindowInfoCompat {
             }
             default:
                 return "<UNKNOWN>";
+        }
+    }
+
+    @RequiresApi(21)
+    private static class Api21Impl {
+        private Api21Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static void getBoundsInScreen(AccessibilityWindowInfo info, Rect outBounds) {
+            info.getBoundsInScreen(outBounds);
+        }
+
+        @DoNotInline
+        static AccessibilityWindowInfo getChild(AccessibilityWindowInfo info, int index) {
+            return info.getChild(index);
+        }
+
+        @DoNotInline
+        static int getChildCount(AccessibilityWindowInfo info) {
+            return info.getChildCount();
+        }
+
+        @DoNotInline
+        static int getId(AccessibilityWindowInfo info) {
+            return info.getId();
+        }
+
+        @DoNotInline
+        static int getLayer(AccessibilityWindowInfo info) {
+            return info.getLayer();
+        }
+
+        @DoNotInline
+        static AccessibilityWindowInfo getParent(AccessibilityWindowInfo info) {
+            return info.getParent();
+        }
+
+        @DoNotInline
+        static AccessibilityNodeInfo getRoot(AccessibilityWindowInfo info) {
+            return info.getRoot();
+        }
+
+        @DoNotInline
+        static int getType(AccessibilityWindowInfo info) {
+            return info.getType();
+        }
+
+        @DoNotInline
+        static boolean isAccessibilityFocused(AccessibilityWindowInfo info) {
+            return info.isAccessibilityFocused();
+        }
+
+        @DoNotInline
+        static boolean isActive(AccessibilityWindowInfo info) {
+            return info.isActive();
+        }
+
+        @DoNotInline
+        static boolean isFocused(AccessibilityWindowInfo info) {
+            return info.isFocused();
+        }
+
+        @DoNotInline
+        static AccessibilityWindowInfo obtain() {
+            return AccessibilityWindowInfo.obtain();
+        }
+
+        @DoNotInline
+        static AccessibilityWindowInfo obtain(AccessibilityWindowInfo info) {
+            return AccessibilityWindowInfo.obtain(info);
+        }
+
+        @DoNotInline
+        static void recycle(AccessibilityWindowInfo info) {
+            info.recycle();
+        }
+    }
+
+    @RequiresApi(24)
+    private static class Api24Impl {
+        private Api24Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static AccessibilityNodeInfo getAnchor(AccessibilityWindowInfo info) {
+            return info.getAnchor();
+        }
+
+        @DoNotInline
+        static CharSequence getTitle(AccessibilityWindowInfo info) {
+            return info.getTitle();
         }
     }
 }
