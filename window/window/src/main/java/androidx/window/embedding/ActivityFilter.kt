@@ -33,14 +33,17 @@ class ActivityFilter(
     /**
      * Component name in the intent for the activity. Must be non-empty. Can contain a single
      * wildcard at the end. Supported formats:
-     * <li>package/class</li>
-     * <li>package/\*</li>
-     * <li>package/suffix.\*</li>
-     * <li>\*\/\*</li>
+     *   - package/class
+     *   - `package/*`
+     *   - `package/suffix.*`
+     *   - `*/*`
      */
     val componentName: ComponentName,
     /**
      * Action used for activity launch intent.
+     *
+     * To match with intents based only on the [Intent.getAction], use a wildcard (&#42/&#42) with
+     * [componentName].
      */
     val intentAction: String?
 ) {
