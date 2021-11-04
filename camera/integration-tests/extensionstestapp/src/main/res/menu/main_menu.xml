@@ -1,5 +1,5 @@
-<!--
-  Copyright 2019 The Android Open Source Project
+<?xml version="1.0" encoding="utf-8"?><!--
+  Copyright 2021 The Android Open Source Project
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -14,8 +14,8 @@
   limitations under the License.
   -->
 
-<resources>
-    <string name="extensions_app">Extensions App</string>
-    <string name="extensions_validator">Extensions Validator</string>
-    <string name="error_msg_no_camera_support_extension">No camera supports any extension modes!</string>
-</resources>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/menu_validation_tool"
+        android:title="Validation Tool" />
+</menu>
