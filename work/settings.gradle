@@ -29,4 +29,4 @@ includeProject(":inspection:inspection",
 includeProject(":inspection:inspection-testing",
     new File(supportRootDir, "inspection/inspection-testing"))
 includeProject(":inspection:inspection-gradle-plugin",
-    new File(supportRootDir, "inspection/inspection-testing"))
+    new File(supportRootDir, "inspection/inspection-gradle-plugin"))
