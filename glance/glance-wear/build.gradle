@@ -53,6 +53,8 @@ dependencies {
     testImplementation(libs.kotlinCoroutinesTest)
     testImplementation(libs.robolectric)
     testImplementation(libs.kotlinReflect)
+    testImplementation(libs.mockitoCore)
+    testImplementation(libs.mockitoKotlin)
     // TODO(b/197638718): Remove when tiles-testing dependencies are fixed.
     testImplementation("androidx.wear.tiles:tiles-renderer:1.0.0-alpha12")
     testImplementation("androidx.wear.tiles:tiles-testing:1.0.0-alpha12")

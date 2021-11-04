@@ -36,6 +36,11 @@ package androidx.glance.wear.layout {
     method @androidx.compose.runtime.Composable public static void AndroidLayoutElement(androidx.wear.tiles.LayoutElementBuilders.LayoutElement layoutElement);
   }
 
+  public final class BorderKt {
+    method public static androidx.glance.GlanceModifier border(androidx.glance.GlanceModifier, float width, androidx.glance.unit.ColorProvider color);
+    method public static androidx.glance.GlanceModifier border(androidx.glance.GlanceModifier, @DimenRes int width, androidx.glance.unit.ColorProvider color);
+  }
+
   public final class CurvedRowKt {
     method @androidx.compose.runtime.Composable public static void CurvedRow(optional androidx.glance.GlanceModifier modifier, optional float anchorDegrees, optional int anchorType, optional int radialAlignment, kotlin.jvm.functions.Function1<? super androidx.glance.wear.layout.CurvedRowScope,kotlin.Unit> content);
   }

@@ -56,6 +56,7 @@ import androidx.glance.unit.FixedColorProvider
 import androidx.glance.unit.ResourceColorProvider
 import androidx.glance.unit.resolve
 import androidx.glance.wear.layout.AnchorType
+import androidx.glance.wear.layout.BorderModifier
 import androidx.glance.wear.layout.CurvedTextStyle
 import androidx.glance.wear.layout.EmittableAndroidLayoutElement
 import androidx.glance.wear.layout.EmittableCurvedRow
@@ -121,6 +122,12 @@ private fun BackgroundModifier.toProto(context: Context): ModifiersBuilders.Back
             .setColor(argb(provider.getColor(context)))
             .build()
     }
+
+private fun BorderModifier.toProto(context: Context): ModifiersBuilders.Border =
+    ModifiersBuilders.Border.Builder()
+            .setWidth(dp(this.width.toDp(context.resources).value))
+            .setColor(argb(this.color.getColor(context)))
+            .build()
 
 private fun ColorProvider.getColor(context: Context) = when (this) {
     is FixedColorProvider -> color.toArgb()
@@ -496,6 +503,7 @@ private fun translateModifiers(
             is ActionModifier -> builder.setClickable(element.toProto(context))
             is PaddingModifier -> builder // Processing that after
             is VisibilityModifier -> builder // Already processed
+            is BorderModifier -> builder.setBorder(element.toProto(context))
             else -> throw IllegalArgumentException("Unknown modifier type")
         }
     }
