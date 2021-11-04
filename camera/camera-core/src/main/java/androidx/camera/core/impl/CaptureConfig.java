@@ -309,7 +309,7 @@ public final class CaptureConfig {
             return mImplementationOptions;
         }
 
-        boolean isUseRepeatingSurface() {
+        public boolean isUseRepeatingSurface() {
             return mUseRepeatingSurface;
         }
 
