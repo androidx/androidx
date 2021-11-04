@@ -2,11 +2,24 @@ plugins {
     id 'groovy-gradle-plugin'
 }
 
+repositories {
+    gradlePluginPortal()
+}
+
+dependencies {
+    implementation 'com.gradle:gradle-enterprise-gradle-plugin:3.7.1'
+    implementation 'com.gradle:common-custom-user-data-gradle-plugin:1.4.2'
+}
+
 gradlePlugin {
     plugins {
         playgroundConventions {
             id = 'playground'
             implementationClass = 'androidx.playground.PlaygroundPlugin'
+        }
+        gradleEnterpriseConventions {
+            id = 'playground-ge-conventions'
+            implementationClass = 'androidx.playground.GradleEnterpriseConventionsPlugin'
         }
     }
 }
