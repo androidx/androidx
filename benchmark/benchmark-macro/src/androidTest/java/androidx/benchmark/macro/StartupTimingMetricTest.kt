@@ -76,7 +76,7 @@ class StartupTimingMetricTest {
         }
 
         assertEquals(
-            setOf("timeToInitialDisplayMs", "timeToFullDisplayMs"),
+            setOf("timeToInitialDisplayMs"),
             iterationResult.singleMetrics.keys
         )
         assertNotNull(iterationResult.timelineRangeNs)
@@ -180,9 +180,9 @@ class StartupTimingMetricTest {
             setOf("timeToInitialDisplayMs", "timeToFullDisplayMs"),
             metrics.singleMetrics.keys
         )
-        assertEquals(169.67427, metrics.singleMetrics["timeToInitialDisplayMs"]!!, 0.0001)
-        assertEquals(169.67427, metrics.singleMetrics["timeToFullDisplayMs"]!!, 0.0001)
-        assertEquals(477547965787..477717640057, metrics.timelineRangeNs)
+        assertEquals(178.58525, metrics.singleMetrics["timeToInitialDisplayMs"]!!, 0.0001)
+        assertEquals(178.58525, metrics.singleMetrics["timeToFullDisplayMs"]!!, 0.0001)
+        assertEquals(1680207215350..1680385800600, metrics.timelineRangeNs)
     }
 
     @MediumTest
@@ -195,7 +195,7 @@ class StartupTimingMetricTest {
             setOf("timeToInitialDisplayMs", "timeToFullDisplayMs"),
             metrics.singleMetrics.keys
         )
-        assertEquals(64.748027, metrics.singleMetrics["timeToInitialDisplayMs"]!!, 0.0001)
+        assertEquals(62.373965, metrics.singleMetrics["timeToInitialDisplayMs"]!!, 0.0001)
         assertEquals(555.968701, metrics.singleMetrics["timeToFullDisplayMs"]!!, 0.0001)
         assertEquals(186982050780778..186982606749479, metrics.timelineRangeNs)
     }
