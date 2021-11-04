@@ -37,3 +37,6 @@ jacoco.exec
 # Layout Inspector creates it.
 captures/
 __pycache__
+
+# Don't ignore src files under build package
+!**/src/**/build
