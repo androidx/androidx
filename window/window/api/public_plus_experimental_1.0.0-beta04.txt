@@ -27,8 +27,9 @@ package androidx.window.embedding {
   }
 
   @androidx.window.core.ExperimentalWindowApi public final class ActivityStack {
-    ctor public ActivityStack(java.util.List<? extends android.app.Activity> activities);
+    ctor public ActivityStack(java.util.List<? extends android.app.Activity> activities, optional boolean isEmpty);
     method public operator boolean contains(android.app.Activity activity);
+    method public boolean isEmpty();
   }
 
   @androidx.window.core.ExperimentalWindowApi public abstract class EmbeddingRule {

@@ -33,13 +33,38 @@ public class ActivityStack {
     @NonNull
     private final List<Activity> mActivities;
 
-    public ActivityStack(@NonNull List<Activity> activities) {
+    private final boolean mIsEmpty;
+
+    public ActivityStack(@NonNull List<Activity> activities, boolean isEmpty) {
         mActivities = new ArrayList<>(activities);
+        mIsEmpty = isEmpty;
     }
 
+    /**
+     * Returns {@link Activity Activities} in this application's process that belongs to this
+     * ActivityStack.
+     * <p>
+     * Note that Activities that are running in other processes are not reported in the returned
+     * Activity list. They can be in any position in terms of ordering relative to the activities
+     * in the list.
+     * </p>
+     */
     @NonNull
     public List<Activity> getActivities() {
         return new ArrayList<>(mActivities);
+    }
+
+    /**
+     * Returns {@code true} if there's no {@link Activity} running in this ActivityStack.
+     * <p>
+     * Note that {@link #getActivities()} only report Activity in the process used to create this
+     * ActivityStack. That said, if this ActivityStack only contains activities from another
+     * process, {@link #getActivities()} will return empty list, while this method will return
+     * {@code false}.
+     * </p>
+     */
+    public boolean isEmpty() {
+        return mIsEmpty;
     }
 
     @Override
@@ -47,17 +72,20 @@ public class ActivityStack {
         if (this == o) return true;
         if (!(o instanceof ActivityStack)) return false;
         ActivityStack that = (ActivityStack) o;
-        return mActivities.equals(that.mActivities);
+        return mActivities.equals(that.mActivities)
+                && mIsEmpty == that.mIsEmpty;
     }
 
     @Override
     public int hashCode() {
-        return mActivities.hashCode();
+        int result = (mIsEmpty ? 1 : 0);
+        return result * 31 + mActivities.hashCode();
     }
 
     @NonNull
     @Override
     public String toString() {
-        return "ActivityStack{" + "mActivities=" + mActivities + '}';
+        return "ActivityStack{" + "mActivities=" + mActivities
+                + ", mIsEmpty=" + mIsEmpty + '}';
     }
 }
