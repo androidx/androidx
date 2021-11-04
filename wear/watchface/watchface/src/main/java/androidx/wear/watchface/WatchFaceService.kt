@@ -1863,6 +1863,12 @@ public abstract class WatchFaceService : WallpaperService() {
             }
         }
 
+        override fun getComplicationDeniedIntent() =
+            getWatchFaceImplOrNull()?.complicationDeniedDialogIntent
+
+        override fun getComplicationRationaleIntent() =
+            getWatchFaceImplOrNull()?.complicationRationaleDialogIntent
+
         internal fun draw() {
             try {
                 if (TRACE_DRAW) {

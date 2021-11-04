@@ -545,7 +545,7 @@ public class ComplicationDrawableTest {
         Application context = ApplicationProvider.getApplicationContext();
         Intent expected =
                 ComplicationHelperActivity.createPermissionRequestHelperIntent(
-                        context, new ComponentName(context, context.getClass()))
+                        context, new ComponentName(context, context.getClass()), null, null)
                         .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         Intent actual = shadowOf(context).getNextStartedActivity();
 

@@ -17,6 +17,7 @@
 package androidx.wear.watchface.samples
 
 import android.content.Context
+import android.content.Intent
 import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.Path
@@ -38,6 +39,8 @@ import androidx.wear.watchface.WatchFace
 import androidx.wear.watchface.WatchFaceService
 import androidx.wear.watchface.WatchFaceType
 import androidx.wear.watchface.WatchState
+import androidx.wear.watchface.complications.permission.dialogs.sample.ComplicationDeniedActivity
+import androidx.wear.watchface.complications.permission.dialogs.sample.ComplicationRationalActivity
 import androidx.wear.watchface.complications.rendering.CanvasComplicationDrawable
 import androidx.wear.watchface.style.CurrentUserStyleRepository
 import androidx.wear.watchface.style.UserStyleSchema
@@ -297,6 +300,12 @@ open class ExampleCanvasAnalogWatchFaceService : WatchFaceService() {
             complicationSlotsManager
         )
     )
+        .setComplicationDeniedDialogIntent(
+            Intent(this, ComplicationDeniedActivity::class.java)
+        )
+        .setComplicationRationaleDialogIntent(
+            Intent(this, ComplicationRationalActivity::class.java)
+        )
 }
 
 class ExampleAnalogWatchCanvasRenderer(

@@ -337,7 +337,9 @@ public class ComplicationSlotsManager(
             watchFaceHostApi.getContext().startActivity(
                 ComplicationHelperActivity.createPermissionRequestHelperIntent(
                     watchFaceHostApi.getContext(),
-                    getComponentName(watchFaceHostApi.getContext())
+                    getComponentName(watchFaceHostApi.getContext()),
+                    watchFaceHostApi.getComplicationDeniedIntent(),
+                    watchFaceHostApi.getComplicationRationaleIntent()
                 ).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             )
             return
