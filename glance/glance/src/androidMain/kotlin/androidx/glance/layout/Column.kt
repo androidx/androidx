@@ -18,10 +18,9 @@ package androidx.glance.layout
 
 import androidx.annotation.RestrictTo
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.ComposeNode
-import androidx.glance.Applier
 import androidx.glance.EmittableWithChildren
 import androidx.glance.GlanceModifier
+import androidx.glance.GlanceNode
 
 /** @suppress */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -69,7 +68,7 @@ public fun Column(
     horizontalAlignment: Alignment.Horizontal = Alignment.Start,
     content: @Composable ColumnScope.() -> Unit
 ) {
-    ComposeNode<EmittableColumn, Applier>(
+    GlanceNode(
         factory = ::EmittableColumn,
         update = {
             this.set(modifier) { this.modifier = it }

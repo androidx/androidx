@@ -20,10 +20,9 @@ import android.view.View
 import android.widget.RemoteViews
 import androidx.annotation.IdRes
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.ComposeNode
-import androidx.glance.Applier
 import androidx.glance.EmittableWithChildren
 import androidx.glance.GlanceModifier
+import androidx.glance.GlanceNode
 
 /**
  * Add [RemoteViews] into a glance composition.
@@ -50,7 +49,7 @@ fun AndroidRemoteViews(
     @IdRes containerViewId: Int,
     content: @Composable () -> Unit,
 ) {
-    ComposeNode<EmittableAndroidRemoteViews, Applier>(
+    GlanceNode(
         factory = ::EmittableAndroidRemoteViews,
         update = {
             this.set(remoteViews) { this.remoteViews = it }

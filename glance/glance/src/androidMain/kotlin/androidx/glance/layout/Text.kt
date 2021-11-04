@@ -19,10 +19,9 @@ package androidx.glance.layout
 
 import androidx.annotation.RestrictTo
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.ComposeNode
-import androidx.glance.Applier
 import androidx.glance.Emittable
 import androidx.glance.GlanceModifier
+import androidx.glance.GlanceNode
 import androidx.glance.text.TextStyle
 
 /**
@@ -30,7 +29,7 @@ import androidx.glance.text.TextStyle
  */
 @Composable
 public fun Text(text: String, modifier: GlanceModifier = GlanceModifier, style: TextStyle? = null) {
-    ComposeNode<EmittableText, Applier>(
+    GlanceNode(
         factory = ::EmittableText,
         update = {
             this.set(text) { this.text = it }

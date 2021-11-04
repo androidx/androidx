@@ -18,10 +18,9 @@ package androidx.glance.appwidget.layout
 
 import androidx.annotation.VisibleForTesting
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.ComposeNode
-import androidx.glance.Applier
 import androidx.glance.EmittableWithChildren
 import androidx.glance.GlanceModifier
+import androidx.glance.GlanceNode
 import androidx.glance.layout.Alignment
 import androidx.glance.layout.fillMaxWidth
 import androidx.glance.layout.wrapContentHeight
@@ -42,7 +41,7 @@ public fun LazyColumn(
     horizontalAlignment: Alignment.Horizontal = Alignment.Start,
     content: LazyListScope.() -> Unit
 ) {
-    ComposeNode<EmittableLazyColumn, Applier>(
+    GlanceNode(
         factory = ::EmittableLazyColumn,
         update = {
             this.set(modifier) { this.modifier = it }
@@ -100,7 +99,7 @@ private fun LazyListItem(
     alignment: Alignment,
     content: @Composable () -> Unit
 ) {
-    ComposeNode<EmittableLazyListItem, Applier>(
+    GlanceNode(
         factory = ::EmittableLazyListItem,
         update = {
             this.set(itemId) { this.itemId = it }

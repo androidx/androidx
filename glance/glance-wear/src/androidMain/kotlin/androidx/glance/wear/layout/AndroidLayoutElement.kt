@@ -17,10 +17,9 @@
 package androidx.glance.wear.layout
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.ComposeNode
-import androidx.glance.Applier
 import androidx.glance.Emittable
 import androidx.glance.GlanceModifier
+import androidx.glance.GlanceNode
 import androidx.wear.tiles.LayoutElementBuilders
 
 /**
@@ -30,7 +29,7 @@ import androidx.wear.tiles.LayoutElementBuilders
  */
 @Composable
 fun AndroidLayoutElement(layoutElement: LayoutElementBuilders.LayoutElement) {
-    ComposeNode<EmittableAndroidLayoutElement, Applier>(
+    GlanceNode(
         factory = ::EmittableAndroidLayoutElement,
         update = {
             this.set(layoutElement) { this.layoutElement = it }

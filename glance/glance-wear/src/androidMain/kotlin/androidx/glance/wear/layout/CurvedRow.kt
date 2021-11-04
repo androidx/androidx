@@ -17,13 +17,12 @@
 package androidx.glance.wear.layout
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.ComposeNode
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.unit.TextUnit
-import androidx.glance.Applier
 import androidx.glance.Emittable
 import androidx.glance.EmittableWithChildren
 import androidx.glance.GlanceModifier
+import androidx.glance.GlanceNode
 import androidx.glance.text.FontStyle
 import androidx.glance.text.FontWeight
 import androidx.glance.text.TextStyle
@@ -144,7 +143,7 @@ public fun CurvedRow(
     radialAlignment: RadialAlignment = RadialAlignment.Center,
     content: @Composable CurvedRowScope.() -> Unit
 ) {
-    ComposeNode<EmittableCurvedRow, Applier>(
+    GlanceNode(
         factory = ::EmittableCurvedRow,
         update = {
             this.set(modifier) { this.modifier = it }
@@ -204,7 +203,7 @@ class CurvedRowScope {
         modifier: GlanceModifier = GlanceModifier,
         textStyle: CurvedTextStyle? = null
     ) {
-        ComposeNode<EmittableCurvedText, Applier>(
+        GlanceNode(
             factory = ::EmittableCurvedText,
             update = {
                 this.set(text) { this.text = it }

@@ -18,10 +18,9 @@ package androidx.glance.layout
 
 import androidx.annotation.RestrictTo
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.ComposeNode
-import androidx.glance.Applier
 import androidx.glance.Emittable
 import androidx.glance.GlanceModifier
+import androidx.glance.GlanceNode
 import androidx.glance.action.Action
 import androidx.glance.action.clickable
 import androidx.glance.text.TextStyle
@@ -44,7 +43,7 @@ fun Button(
     style: TextStyle? = null
 ) {
     val finalModifier = if (enabled) modifier.clickable(onClick) else modifier
-    ComposeNode<EmittableButton, Applier>(
+    GlanceNode(
         factory = ::EmittableButton,
         update = {
             this.set(text) { this.text = it }
