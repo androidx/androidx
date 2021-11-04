@@ -27,3 +27,22 @@ inline fun <reified T> GlanceModifier.findModifier(): T? = this.foldIn<T?>(null)
         acc
     }
 }
+
+/**
+ * Find the last modifier of the given type, and create a new [GlanceModifier] which is equivalent
+ * with the previous one, but without any modifiers of specified type.
+ * @suppress
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+inline fun <reified T> GlanceModifier.extractModifier(): Pair<T?, GlanceModifier> =
+    if (any { it is T }) {
+        foldIn<Pair<T?, GlanceModifier>>(null to GlanceModifier) { acc, cur ->
+            if (cur is T) {
+                cur to acc.second
+            } else {
+                acc.first to acc.second.then(cur)
+            }
+        }
+    } else {
+        null to this
+    }

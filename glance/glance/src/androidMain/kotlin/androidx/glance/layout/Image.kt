@@ -35,15 +35,22 @@ public interface ImageProvider
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 /** @suppress */
-public class AndroidResourceImageProvider(@DrawableRes public val resId: Int) : ImageProvider
+public class AndroidResourceImageProvider(@DrawableRes public val resId: Int) : ImageProvider {
+    override fun toString() = "AndroidResourceImageProvider(resId=$resId)"
+}
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 /** @suppress */
-public class BitmapImageProvider(val bitmap: Bitmap) : ImageProvider
+public class BitmapImageProvider(val bitmap: Bitmap) : ImageProvider {
+    override fun toString() =
+        "BitmapImageProvider(bitmap=Bitmap(${bitmap.width}px x ${bitmap.height}px))"
+}
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 /** @suppress */
-public class IconImageProvider(val icon: Icon) : ImageProvider
+public class IconImageProvider(val icon: Icon) : ImageProvider {
+    override fun toString() = "IconImageProvider(icon=$icon)"
+}
 
 /**
  * Image resource from an Android Drawable resource.

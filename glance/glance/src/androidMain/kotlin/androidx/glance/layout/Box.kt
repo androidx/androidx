@@ -50,7 +50,7 @@ public class EmittableBox : EmittableWithChildren() {
 public fun Box(
     modifier: GlanceModifier = GlanceModifier,
     contentAlignment: Alignment = Alignment.TopStart,
-    content: @Composable() () -> Unit
+    content: @Composable () -> Unit
 ) {
     ComposeNode<EmittableBox, Applier>(
         factory = ::EmittableBox,

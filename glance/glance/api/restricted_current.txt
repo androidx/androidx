@@ -5,6 +5,7 @@ package androidx.glance {
     method public static androidx.glance.GlanceModifier background(androidx.glance.GlanceModifier, long color);
     method public static androidx.glance.GlanceModifier background(androidx.glance.GlanceModifier, @ColorRes int color);
     method public static androidx.glance.GlanceModifier background(androidx.glance.GlanceModifier, androidx.glance.unit.ColorProvider colorProvider);
+    method public static androidx.glance.GlanceModifier background(androidx.glance.GlanceModifier, androidx.glance.layout.ImageProvider imageProvider, optional int contentScale);
   }
 
   public final class CombinedGlanceModifier implements androidx.glance.GlanceModifier {

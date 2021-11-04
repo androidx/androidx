@@ -17,11 +17,13 @@
 package androidx.glance.appwidget
 
 import android.app.Activity
+import android.graphics.drawable.BitmapDrawable
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.glance.GlanceModifier
+import androidx.glance.LocalContext
 import androidx.glance.action.actionLaunchActivity
 import androidx.glance.appwidget.layout.CheckBox
 import androidx.glance.appwidget.layout.Switch
@@ -31,6 +33,8 @@ import androidx.glance.layout.Alignment
 import androidx.glance.layout.Box
 import androidx.glance.layout.Button
 import androidx.glance.layout.Column
+import androidx.glance.layout.ContentScale
+import androidx.glance.layout.ImageProvider
 import androidx.glance.layout.Row
 import androidx.glance.layout.Text
 import androidx.glance.layout.fillMaxHeight
@@ -331,6 +335,71 @@ class GlanceAppWidgetReceiverScreenshotTest {
         mHostRule.startHost()
 
         mScreenshotRule.checkScreenshot(mHostRule.mHostView, "wrap_top_level_size")
+    }
+
+    @Test
+    fun drawableBackground() {
+        TestGlanceAppWidget.uiDefinition = {
+            Box(
+                modifier = GlanceModifier.fillMaxSize().background(Color.Green).padding(8.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    "Some useful text",
+                    modifier = GlanceModifier.fillMaxWidth().height(220.dp)
+                        .background(ImageProvider(R.drawable.filled_oval))
+                )
+            }
+        }
+
+        mHostRule.startHost()
+
+        mScreenshotRule.checkScreenshot(mHostRule.mHostView, "drawable_background")
+    }
+
+    @Test
+    fun drawableFitBackground() {
+        TestGlanceAppWidget.uiDefinition = {
+            Box(
+                modifier = GlanceModifier.fillMaxSize().background(Color.Green).padding(8.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    "Some useful text",
+                    modifier = GlanceModifier.fillMaxWidth().height(220.dp)
+                        .background(
+                            ImageProvider(R.drawable.filled_oval),
+                            contentScale = ContentScale.Fit
+                        )
+                )
+            }
+        }
+
+        mHostRule.startHost()
+
+        mScreenshotRule.checkScreenshot(mHostRule.mHostView, "drawable_fit_background")
+    }
+
+    @Test
+    fun bitmapBackground() {
+        TestGlanceAppWidget.uiDefinition = {
+            val context = LocalContext.current
+            val bitmap = context.resources.getDrawable(R.drawable.compose, null) as BitmapDrawable
+            Box(
+                modifier = GlanceModifier.fillMaxSize().background(Color.Green).padding(8.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    "Some useful text",
+                    modifier = GlanceModifier.fillMaxWidth().height(220.dp)
+                        .background(ImageProvider(bitmap.bitmap!!))
+                )
+            }
+        }
+
+        mHostRule.startHost()
+
+        mScreenshotRule.checkScreenshot(mHostRule.mHostView, "bitmap_background")
     }
 }
 
