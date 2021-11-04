@@ -864,18 +864,11 @@ public final class AppSearchImpl implements Closeable {
                 return new SearchResultPage(Bundle.EMPTY);
             }
 
-            // Find the target schema filter and namespace filter. We should only search those
-            // existing filters in AppSearch.
             String prefix = createPrefix(packageName, databaseName);
-            if (!mNamespaceMapLocked.containsKey(prefix)) {
-                return new SearchResultPage(Bundle.EMPTY);
-            }
-            Set<String> prefixInSet = Collections.singleton(prefix);
-            Set<String> targetNamespaceFilters = QueryProcessor.getPrefixedTargetNamespaceFilters(
-                    prefixInSet, searchSpec.getFilterNamespaces(), mNamespaceMapLocked);
-            Set<String> targetSchemaFilters = QueryProcessor.getPrefixedTargetSchemaFilters(
-                    prefixInSet, searchSpec.getFilterSchemas(), mSchemaMapLocked);
-            if (targetNamespaceFilters.isEmpty() || targetSchemaFilters.isEmpty()) {
+            SearchSpecToProtoConverter searchSpecToProtoConverter =
+                    new SearchSpecToProtoConverter(searchSpec, Collections.singleton(prefix),
+                            mNamespaceMapLocked, mSchemaMapLocked);
+            if (searchSpecToProtoConverter.isNothingToSearch()) {
                 // there is nothing to search over given their search filters, so we can return an
                 // empty SearchResult and skip sending request to Icing.
                 return new SearchResultPage(Bundle.EMPTY);
@@ -884,10 +877,7 @@ public final class AppSearchImpl implements Closeable {
             SearchResultPage searchResultPage =
                     doQueryLocked(
                             queryExpression,
-                            searchSpec,
-                            prefixInSet,
-                            targetSchemaFilters,
-                            targetNamespaceFilters,
+                            searchSpecToProtoConverter,
                             sStatsBuilder);
             addNextPageToken(packageName, searchResultPage.getNextPageToken());
             return searchResultPage;
@@ -960,31 +950,21 @@ public final class AppSearchImpl implements Closeable {
                     }
                 }
             }
-
-            // Find the target schema filter and namespace filter. We should only search those
-            // existing filters in AppSearch.
-            Set<String> targetPrefixedNamespaceFilters = QueryProcessor
-                    .getPrefixedTargetNamespaceFilters(prefixFilters,
-                            searchSpec.getFilterNamespaces(), mNamespaceMapLocked);
-            Set<String> targetPrefixedSchemaFilters = QueryProcessor
-                    .getPrefixedTargetSchemaFilters(prefixFilters,
-                            searchSpec.getFilterSchemas(), mSchemaMapLocked);
+            SearchSpecToProtoConverter searchSpecToProtoConverter =
+                    new SearchSpecToProtoConverter(searchSpec, prefixFilters, mNamespaceMapLocked,
+                    mSchemaMapLocked);
             // Remove those inaccessible schemas.
-            QueryProcessor.removeInaccessibleSchemaFilter(callerPackageName,
-                    visibilityStore, callerUid, callerHasSystemAccess, targetPrefixedSchemaFilters);
-            if (targetPrefixedNamespaceFilters.isEmpty() || targetPrefixedSchemaFilters.isEmpty()) {
+            searchSpecToProtoConverter.removeInaccessibleSchemaFilter(callerPackageName,
+                    visibilityStore, callerUid, callerHasSystemAccess);
+            if (searchSpecToProtoConverter.isNothingToSearch()) {
                 // there is nothing to search over given their search filters, so we can return an
                 // empty SearchResult and skip sending request to Icing.
                 return new SearchResultPage(Bundle.EMPTY);
             }
-
             SearchResultPage searchResultPage =
                     doQueryLocked(
                             queryExpression,
-                            searchSpec,
-                            prefixFilters,
-                            targetPrefixedSchemaFilters,
-                            targetPrefixedNamespaceFilters,
+                            searchSpecToProtoConverter,
                             sStatsBuilder);
             addNextPageToken(callerPackageName, searchResultPage.getNextPageToken());
             return searchResultPage;
@@ -1002,20 +982,17 @@ public final class AppSearchImpl implements Closeable {
     @GuardedBy("mReadWriteLock")
     private SearchResultPage doQueryLocked(
             @NonNull String queryExpression,
-            @NonNull SearchSpec searchSpec,
-            @NonNull Set<String> prefixes,
-            @NonNull Set<String> targetSchemaFilters,
-            @NonNull Set<String> targetNamespaceFilters,
+            @NonNull SearchSpecToProtoConverter searchSpecToProtoConverter,
             @Nullable SearchStats.Builder sStatsBuilder)
             throws AppSearchException {
         // Rewrite the given SearchSpec into SearchSpecProto, ResultSpecProto and ScoringSpecProto.
         // All processes are counted in rewriteSearchSpecLatencyMillis
         long rewriteSearchSpecLatencyStartMillis = SystemClock.elapsedRealtime();
-        SearchSpecProto finalSearchSpec = SearchSpecToProtoConverter.toSearchSpecProto(
-                queryExpression, searchSpec, targetSchemaFilters, targetNamespaceFilters);
-        ResultSpecProto finalResultSpec = SearchSpecToProtoConverter.toResultSpecProto(searchSpec,
-                prefixes, targetSchemaFilters, mNamespaceMapLocked);
-        ScoringSpecProto scoringSpec = SearchSpecToProtoConverter.toScoringSpecProto(searchSpec);
+        SearchSpecProto finalSearchSpec =
+                searchSpecToProtoConverter.toSearchSpecProto(queryExpression);
+        ResultSpecProto finalResultSpec = searchSpecToProtoConverter.toResultSpecProto(
+                mNamespaceMapLocked);
+        ScoringSpecProto scoringSpec = searchSpecToProtoConverter.toScoringSpecProto();
         if (sStatsBuilder != null) {
             sStatsBuilder.setRewriteSearchSpecLatencyMillis((int)
                     (SystemClock.elapsedRealtime() - rewriteSearchSpecLatencyStartMillis));
@@ -1327,26 +1304,25 @@ public final class AppSearchImpl implements Closeable {
                 return;
             }
 
-            Set<String> prefixInSet = Collections.singleton(prefix);
-
-            // Process given schema filter and namespace filter. We should only apply those filter
-            // which is existing in AppSearch and is accessible to the caller.
-            Set<String> targetNamespaceFilters = QueryProcessor.getPrefixedTargetNamespaceFilters(
-                    prefixInSet, searchSpec.getFilterNamespaces(), mNamespaceMapLocked);
-            Set<String> targetSchemaFilters = QueryProcessor.getPrefixedTargetSchemaFilters(
-                    prefixInSet, searchSpec.getFilterSchemas(), mSchemaMapLocked);
-            if (targetNamespaceFilters.isEmpty() || targetSchemaFilters.isEmpty()) {
+            SearchSpecToProtoConverter searchSpecToProtoConverter =
+                    new SearchSpecToProtoConverter(searchSpec, Collections.singleton(prefix),
+                            mNamespaceMapLocked, mSchemaMapLocked);
+            if (searchSpecToProtoConverter.isNothingToSearch()) {
                 // there is nothing to search over given their search filters, so we can return
                 // early and skip sending request to Icing.
                 return;
             }
-            SearchSpecProto finalSearchSpec = SearchSpecToProtoConverter.toSearchSpecProto(
-                    queryExpression, searchSpec, targetSchemaFilters, targetNamespaceFilters);
+
+            SearchSpecProto finalSearchSpec =
+                    searchSpecToProtoConverter.toSearchSpecProto(queryExpression);
 
             Set<String> prefixedObservedSchemas = null;
             if (mObserverManager.isPackageObserved(packageName)) {
                 prefixedObservedSchemas = new ArraySet<>();
-                for (String prefixedType : targetSchemaFilters) {
+                List<String> prefixedTargetSchemaTypes =
+                        finalSearchSpec.getSchemaTypeFiltersList();
+                for (int i = 0; i < prefixedTargetSchemaTypes.size(); i++) {
+                    String prefixedType = prefixedTargetSchemaTypes.get(i);
                     String shortTypeName = PrefixUtil.removePrefix(prefixedType);
                     if (mObserverManager.isSchemaTypeObserved(packageName, shortTypeName)) {
                         prefixedObservedSchemas.add(prefixedType);
