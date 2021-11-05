@@ -269,6 +269,16 @@ class FlattenedPageEventStorageTest {
                     if (snapshot.items.isEmpty()) return Snapshot()
                     throw IllegalStateException("shouldn't have any state updates")
                 }
+                is PageEvent.StaticList -> {
+                    snapshot.copy(
+                        items = event.data,
+                        placeholdersBefore = 0,
+                        placeholdersAfter = 0,
+                        sourceLoadStates = event.sourceLoadStates ?: snapshot.sourceLoadStates,
+                        mediatorLoadStates = event.mediatorLoadStates
+                            ?: snapshot.mediatorLoadStates,
+                    )
+                }
             }
         }
     }

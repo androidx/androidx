@@ -29,7 +29,6 @@ public class PagingData<T : Any> internal constructor(
     internal val flow: Flow<PageEvent<T>>,
     internal val receiver: UiReceiver
 ) {
-
     public companion object {
         internal val NOOP_RECEIVER = object : UiReceiver {
             override fun accessHint(viewportHint: ViewportHint) {}
@@ -39,38 +38,93 @@ public class PagingData<T : Any> internal constructor(
             override fun refresh() {}
         }
 
-        @Suppress("MemberVisibilityCanBePrivate") // synthetic access
-        internal val EMPTY = PagingData(
-            flow = flowOf(PageEvent.Insert.EMPTY_REFRESH_LOCAL),
+        /**
+         * Create a [PagingData] that immediately displays an empty list of items without
+         * dispatching any load state updates when submitted to a presenter. E.g.,
+         * [AsyncPagingDataAdapter][androidx.paging.AsyncPagingDataAdapter].
+         */
+        @Suppress("UNCHECKED_CAST")
+        @JvmStatic // Convenience for Java developers.
+        public fun <T : Any> empty(): PagingData<T> = PagingData(
+            flow = flowOf(
+                PageEvent.StaticList(
+                    data = listOf(),
+                    sourceLoadStates = null,
+                    mediatorLoadStates = null,
+                )
+            ),
             receiver = NOOP_RECEIVER
         )
 
         /**
          * Create a [PagingData] that immediately displays an empty list of items when submitted to
-         * [AsyncPagingDataAdapter][androidx.paging.AsyncPagingDataAdapter].
+         * a presenter. E.g., [AsyncPagingDataAdapter][androidx.paging.AsyncPagingDataAdapter].
+         *
+         * @param sourceLoadStates [LoadStates] of [PagingSource] to pass forward to a presenter.
+         * E.g., [AsyncPagingDataAdapter][androidx.paging.AsyncPagingDataAdapter].
+         * @param mediatorLoadStates [LoadStates] of [RemoteMediator] to pass forward to a
+         * presenter. E.g., [AsyncPagingDataAdapter][androidx.paging.AsyncPagingDataAdapter].
          */
         @Suppress("UNCHECKED_CAST")
+        @JvmOverloads
         @JvmStatic // Convenience for Java developers.
-        public fun <T : Any> empty(): PagingData<T> = EMPTY as PagingData<T>
+        public fun <T : Any> empty(
+            sourceLoadStates: LoadStates,
+            mediatorLoadStates: LoadStates? = null,
+        ): PagingData<T> = PagingData(
+            flow = flowOf(
+                PageEvent.StaticList(
+                    data = listOf(),
+                    sourceLoadStates = sourceLoadStates,
+                    mediatorLoadStates = mediatorLoadStates,
+                )
+            ),
+            receiver = NOOP_RECEIVER
+        )
 
         /**
-         * Create a [PagingData] that immediately displays a static list of items when submitted to
+         * Create a [PagingData] that immediately displays a static list of items without
+         * dispatching any load state updates when submitted to a presenter. E.g.,
          * [AsyncPagingDataAdapter][androidx.paging.AsyncPagingDataAdapter].
          *
          * @param data Static list of [T] to display.
          */
         @JvmStatic // Convenience for Java developers.
-        public fun <T : Any> from(data: List<T>): PagingData<T> = PagingData(
+        public fun <T : Any> from(
+            data: List<T>,
+        ): PagingData<T> = PagingData(
             flow = flowOf(
-                PageEvent.Insert.Refresh(
-                    pages = listOf(TransformablePage(originalPageOffset = 0, data = data)),
-                    placeholdersBefore = 0,
-                    placeholdersAfter = 0,
-                    sourceLoadStates = LoadStates(
-                        refresh = LoadState.NotLoading.Incomplete,
-                        prepend = LoadState.NotLoading.Complete,
-                        append = LoadState.NotLoading.Complete
-                    )
+                PageEvent.StaticList(
+                    data = data,
+                    sourceLoadStates = null,
+                    mediatorLoadStates = null,
+                )
+            ),
+            receiver = NOOP_RECEIVER
+        )
+
+        /**
+         * Create a [PagingData] that immediately displays a static list of items when submitted to
+         * a presenter. E.g., [AsyncPagingDataAdapter][androidx.paging.AsyncPagingDataAdapter].
+         *
+         * @param data Static list of [T] to display.
+         * @param sourceLoadStates [LoadStates] of [PagingSource] to pass forward to a presenter.
+         * E.g., [AsyncPagingDataAdapter][androidx.paging.AsyncPagingDataAdapter].
+         * @param mediatorLoadStates [LoadStates] of [RemoteMediator] to pass forward to a
+         * presenter. E.g., [AsyncPagingDataAdapter][androidx.paging.AsyncPagingDataAdapter].
+         */
+        @JvmOverloads
+        @JvmStatic // Convenience for Java developers.
+        public fun <T : Any> from(
+            data: List<T>,
+            sourceLoadStates: LoadStates,
+            mediatorLoadStates: LoadStates? = null,
+        ): PagingData<T> = PagingData(
+            flow = flowOf(
+                PageEvent.StaticList(
+                    data = data,
+                    sourceLoadStates = sourceLoadStates,
+                    mediatorLoadStates = mediatorLoadStates,
                 )
             ),
             receiver = NOOP_RECEIVER
