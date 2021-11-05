@@ -35,7 +35,6 @@ class GradleEnterpriseConventionsPlugin implements Plugin<Settings> {
                     taskInputFiles = true
                 }
                 obfuscation {
-                    username { name -> "unset" }
                     hostname { host -> "unset" }
                     ipAddresses { addresses -> addresses.collect { address -> "0.0.0.0"} }
                 }
