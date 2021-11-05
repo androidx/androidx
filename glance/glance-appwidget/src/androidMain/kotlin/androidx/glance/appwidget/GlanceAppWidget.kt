@@ -331,13 +331,15 @@ public abstract class GlanceAppWidget(
 
         normalizeCompositionTree(root)
 
-        // TODO: Traverse the tree before translation and store the layout state, to detect changes
+        val layoutChanged = updateWidgetLayout(context, appWidgetId, root)
+        val index = if (layoutChanged) rootViewIndex.inc() else rootViewIndex
+
         translateComposition(
             context,
             appWidgetId,
             this@GlanceAppWidget.javaClass,
             root,
-            rootViewIndex
+            index
         )
     }
 
