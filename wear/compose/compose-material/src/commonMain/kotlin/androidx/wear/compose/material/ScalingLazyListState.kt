@@ -48,7 +48,6 @@ public fun rememberScalingLazyListState(): ScalingLazyListState {
  */
 @Stable
 public class ScalingLazyListState : ScrollableState {
-
     internal var lazyListState: LazyListState = LazyListState(0, 0)
     internal val extraPaddingInPixels = mutableStateOf<Int?>(null)
     internal val scalingParams = mutableStateOf<ScalingParams?>(null)
@@ -68,6 +67,7 @@ public class ScalingLazyListState : ScrollableState {
             EmptyScalingLazyListLayoutInfo
         } else {
             val visibleItemsInfo = mutableListOf<ScalingLazyListItemInfo>()
+            val centralItemIndex: Int
 
             if (lazyListState.layoutInfo.visibleItemsInfo.isNotEmpty()) {
                 val verticalAdjustment =
@@ -89,7 +89,7 @@ public class ScalingLazyListState : ScrollableState {
                     centerItemInfo
                 )
                 // Go Up
-                val centralItemIndex = centralItem.index
+                centralItemIndex = centralItem.index
                 var nextItemBottomNoPadding = centerItemInfo.offset - gapBetweenItemsPx.value!!
                 val minIndex =
                     lazyListState.layoutInfo.visibleItemsInfo.minOf { it.index }
@@ -142,7 +142,7 @@ public class ScalingLazyListState : ScrollableState {
                 viewportStartOffset = lazyListState.layoutInfo.viewportStartOffset +
                     extraPaddingInPixels.value!!,
                 viewportEndOffset = lazyListState.layoutInfo.viewportEndOffset -
-                    extraPaddingInPixels.value!!
+                    extraPaddingInPixels.value!!,
             )
         }
     }
@@ -169,7 +169,7 @@ public class ScalingLazyListState : ScrollableState {
         /**
          * The default [Saver] implementation for [ScalingLazyListState].
          */
-        val Saver: Saver<ScalingLazyListState, *> = listSaver(
+        val Saver = listSaver<ScalingLazyListState, Int>(
             save = {
                 listOf(
                     it.lazyListState.firstVisibleItemIndex,
