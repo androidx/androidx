@@ -26,6 +26,7 @@ import androidx.glance.GlanceModifier
 import androidx.glance.LocalContext
 import androidx.glance.action.actionLaunchActivity
 import androidx.glance.appwidget.layout.CheckBox
+import androidx.glance.appwidget.layout.CheckBoxColors
 import androidx.glance.appwidget.layout.Switch
 import androidx.glance.appwidget.test.R
 import androidx.glance.appwidget.unit.ColorProvider
@@ -95,21 +96,23 @@ class GlanceAppWidgetReceiverScreenshotTest {
             Column {
                 CheckBox(
                     checked = true,
-                    text = "Hello Checked Checkbox",
+                    text = "Hello Checked Checkbox (magenta box)",
                     style = TextStyle(
                         fontWeight = FontWeight.Bold,
                         fontStyle = FontStyle.Normal,
-                    )
+                    ),
+                    colors = CheckBoxColors(checked = Color.Magenta, unchecked = Color.Blue)
                 )
 
                 CheckBox(
                     checked = false,
-                    text = "Hello Unchecked Checkbox",
+                    text = "Hello Unchecked Checkbox (green box)",
                     style = TextStyle(
                         textDecoration = TextDecoration.Underline,
                         fontWeight = FontWeight.Medium,
                         fontStyle = FontStyle.Italic,
-                    )
+                    ),
+                    colors = CheckBoxColors(checked = Color.Red, unchecked = Color.Green)
                 )
             }
         }

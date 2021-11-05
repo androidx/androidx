@@ -87,8 +87,19 @@ package androidx.glance.appwidget.layout {
     method @androidx.compose.runtime.Composable public static void AndroidRemoteViews(android.widget.RemoteViews remoteViews, @IdRes int containerViewId, kotlin.jvm.functions.Function0<kotlin.Unit> content);
   }
 
+  public sealed interface CheckBoxColors {
+  }
+
+  public final class CheckBoxDefaults {
+    method public androidx.glance.appwidget.layout.CheckBoxColors getColors();
+    property public final androidx.glance.appwidget.layout.CheckBoxColors colors;
+    field public static final androidx.glance.appwidget.layout.CheckBoxDefaults INSTANCE;
+  }
+
   public final class CheckBoxKt {
-    method @androidx.compose.runtime.Composable public static void CheckBox(boolean checked, optional androidx.glance.GlanceModifier modifier, optional String text, optional androidx.glance.text.TextStyle? style);
+    method @androidx.compose.runtime.Composable public static void CheckBox(boolean checked, optional androidx.glance.GlanceModifier modifier, optional String text, optional androidx.glance.text.TextStyle? style, optional androidx.glance.appwidget.layout.CheckBoxColors colors);
+    method public static androidx.glance.appwidget.layout.CheckBoxColors CheckBoxColors(long checked, long unchecked);
+    method public static androidx.glance.appwidget.layout.CheckBoxColors CheckBoxColors(@ColorRes int resId);
   }
 
   public final class ImageProvidersKt {
