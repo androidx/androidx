@@ -141,6 +141,8 @@ jobs:
     env:
       artifact-id: ${{matrix.project}}
       project-root: ${{matrix.project-root || matrix.project}}
+      GRADLE_BUILD_CACHE_PASSWORD: ${{ secrets.GRADLE_BUILD_CACHE_PASSWORD }}
+      GRADLE_ENTERPRISE_ACCESS_KEY: ${{ secrets.GRADLE_ENTERPRISE_ACCESS_KEY }}
     steps:
       - name: "Checkout androidx repo"
         uses: actions/checkout@v2
