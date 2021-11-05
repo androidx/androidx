@@ -48,9 +48,10 @@ private fun coerceToOneChild(container: EmittableWithChildren) {
 
 /** Transform each node in the tree. */
 private fun EmittableWithChildren.transformTree(block: (Emittable) -> Emittable) {
-    children.mapIndexed { index, child ->
-        children[index] = block(child)
-        if (child is EmittableWithChildren) child.transformTree(block)
+    children.forEachIndexed() { index, child ->
+        val newChild = block(child)
+        children[index] = newChild
+        if (newChild is EmittableWithChildren) newChild.transformTree(block)
     }
 }
 
