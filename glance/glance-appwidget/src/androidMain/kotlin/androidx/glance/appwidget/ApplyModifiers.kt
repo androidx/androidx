@@ -23,6 +23,7 @@ import android.os.Build
 import android.util.Log
 import android.util.TypedValue.COMPLEX_UNIT_DIP
 import android.util.TypedValue.COMPLEX_UNIT_PX
+import android.view.View
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.widget.RemoteViews
@@ -50,6 +51,8 @@ import androidx.glance.layout.HeightModifier
 import androidx.glance.layout.PaddingModifier
 import androidx.glance.layout.WidthModifier
 import androidx.glance.layout.AndroidResourceImageProvider
+import androidx.glance.layout.Visibility
+import androidx.glance.layout.VisibilityModifier
 import androidx.glance.unit.FixedColorProvider
 import androidx.glance.unit.ResourceColorProvider
 
@@ -63,6 +66,7 @@ internal fun applyModifiers(
     var widthModifier: WidthModifier? = null
     var heightModifier: HeightModifier? = null
     var paddingModifiers: PaddingModifier? = null
+    var visibility = Visibility.Visible
     modifiers.foldIn(Unit) { _, modifier ->
         when (modifier) {
             is ActionModifier ->
@@ -73,6 +77,7 @@ internal fun applyModifiers(
             is PaddingModifier -> {
                 paddingModifiers = paddingModifiers?.let { it + modifier } ?: modifier
             }
+            is VisibilityModifier -> visibility = modifier.visibility
             else -> {
                 Log.w(GlanceAppWidgetTag, "Unknown modifier '$modifier', nothing done.")
             }
@@ -90,7 +95,15 @@ internal fun applyModifiers(
             absolutePadding.bottom.toPixels(displayMetrics)
         )
     }
+    rv.setViewVisibility(viewDef.mainViewId, visibility.toViewVisibility())
 }
+
+private fun Visibility.toViewVisibility() =
+    when (this) {
+        Visibility.Visible -> View.VISIBLE
+        Visibility.Invisible -> View.INVISIBLE
+        Visibility.Gone -> View.GONE
+    }
 
 private fun applyAction(
     translationContext: TranslationContext,

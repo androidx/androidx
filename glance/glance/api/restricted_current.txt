@@ -267,6 +267,16 @@ package androidx.glance.layout {
     method @androidx.compose.runtime.Composable public static void Text(String text, optional androidx.glance.GlanceModifier modifier, optional androidx.glance.text.TextStyle? style);
   }
 
+  public enum Visibility {
+    enum_constant public static final androidx.glance.layout.Visibility Gone;
+    enum_constant public static final androidx.glance.layout.Visibility Invisible;
+    enum_constant public static final androidx.glance.layout.Visibility Visible;
+  }
+
+  public final class VisibilityKt {
+    method public static androidx.glance.GlanceModifier visibility(androidx.glance.GlanceModifier, androidx.glance.layout.Visibility visibility);
+  }
+
 }
 
 package androidx.glance.text {
