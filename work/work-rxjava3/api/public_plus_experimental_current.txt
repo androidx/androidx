@@ -7,6 +7,7 @@ package androidx.work.rxjava3 {
     method protected io.reactivex.rxjava3.core.Scheduler getBackgroundScheduler();
     method public io.reactivex.rxjava3.core.Single<androidx.work.ForegroundInfo!> getForegroundInfo();
     method public final io.reactivex.rxjava3.core.Completable setCompletableProgress(androidx.work.Data);
+    method public final io.reactivex.rxjava3.core.Completable setForeground(androidx.work.ForegroundInfo);
     method public final com.google.common.util.concurrent.ListenableFuture<androidx.work.ListenableWorker.Result!> startWork();
   }
 
