@@ -35,7 +35,6 @@ import androidx.glance.appwidget.layout.EmittableLazyColumn
 import androidx.glance.appwidget.layout.EmittableLazyListItem
 import androidx.glance.appwidget.layout.EmittableSwitch
 import androidx.glance.appwidget.translators.setText
-import androidx.glance.appwidget.translators.transformBackgroundImage
 import androidx.glance.appwidget.translators.translateEmittableCheckBox
 import androidx.glance.appwidget.translators.translateEmittableImage
 import androidx.glance.appwidget.translators.translateEmittableLazyColumn
@@ -48,8 +47,8 @@ import androidx.glance.layout.EmittableButton
 import androidx.glance.layout.EmittableColumn
 import androidx.glance.layout.EmittableImage
 import androidx.glance.layout.EmittableRow
-import androidx.glance.layout.EmittableText
 import androidx.glance.layout.EmittableSpacer
+import androidx.glance.layout.EmittableText
 import java.util.concurrent.atomic.AtomicInteger
 
 internal fun translateComposition(
@@ -77,12 +76,9 @@ internal fun translateComposition(
     children: List<Emittable>,
     rootViewIndex: Int
 ): RemoteViews {
-    if (children.size != 1) {
-        return translateComposition(
-            translationContext,
-            listOf(EmittableBox().also { it.children.addAll(children) }),
-            rootViewIndex,
-        )
+    require(children.size == 1) {
+        "The root of the tree must have exactly one child. " +
+            "The normalization of the composition tree failed."
     }
     val child = children.first()
     val remoteViewsInfo = createRootView(translationContext, child.modifier, rootViewIndex)
@@ -116,32 +112,28 @@ internal fun RemoteViews.translateChild(
     translationContext: TranslationContext,
     element: Emittable
 ) {
-    when (val processed = preprocess(element)) {
-        is EmittableBox -> translateEmittableBox(translationContext, processed)
-        is EmittableButton -> translateEmittableButton(translationContext, processed)
-        is EmittableRow -> translateEmittableRow(translationContext, processed)
-        is EmittableColumn -> translateEmittableColumn(translationContext, processed)
-        is EmittableText -> translateEmittableText(translationContext, processed)
-        is EmittableLazyListItem -> translateEmittableLazyListItem(translationContext, processed)
-        is EmittableLazyColumn -> translateEmittableLazyColumn(translationContext, processed)
+    when (element) {
+        is EmittableBox -> translateEmittableBox(translationContext, element)
+        is EmittableButton -> translateEmittableButton(translationContext, element)
+        is EmittableRow -> translateEmittableRow(translationContext, element)
+        is EmittableColumn -> translateEmittableColumn(translationContext, element)
+        is EmittableText -> translateEmittableText(translationContext, element)
+        is EmittableLazyListItem -> translateEmittableLazyListItem(translationContext, element)
+        is EmittableLazyColumn -> translateEmittableLazyColumn(translationContext, element)
         is EmittableAndroidRemoteViews -> {
-            translateEmittableAndroidRemoteViews(translationContext, processed)
+            translateEmittableAndroidRemoteViews(translationContext, element)
         }
-        is EmittableCheckBox -> translateEmittableCheckBox(translationContext, processed)
-        is EmittableSpacer -> translateEmittableSpacer(translationContext, processed)
-        is EmittableSwitch -> translateEmittableSwitch(translationContext, processed)
-        is EmittableImage -> translateEmittableImage(translationContext, processed)
+        is EmittableCheckBox -> translateEmittableCheckBox(translationContext, element)
+        is EmittableSpacer -> translateEmittableSpacer(translationContext, element)
+        is EmittableSwitch -> translateEmittableSwitch(translationContext, element)
+        is EmittableImage -> translateEmittableImage(translationContext, element)
         else -> {
             throw IllegalArgumentException(
-                "Unknown element type ${processed.javaClass.canonicalName}"
+                "Unknown element type ${element.javaClass.canonicalName}"
             )
         }
     }
 }
-
-/** Perform preprocessing of the element, such as decomposition into many sub-elements. */
-private fun preprocess(element: Emittable) =
-    element.transformBackgroundImage()
 
 internal fun remoteViews(translationContext: TranslationContext, @LayoutRes layoutId: Int) =
     RemoteViews(translationContext.context.packageName, layoutId)

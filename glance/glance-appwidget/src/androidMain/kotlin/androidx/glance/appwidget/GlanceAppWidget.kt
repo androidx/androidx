@@ -300,6 +300,8 @@ public abstract class GlanceAppWidget(
         recomposer.close()
         recomposer.join()
 
+        normalizeCompositionTree(root)
+
         translateComposition(
             context,
             appWidgetId,

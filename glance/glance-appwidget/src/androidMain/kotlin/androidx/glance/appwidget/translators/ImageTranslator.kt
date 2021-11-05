@@ -22,25 +22,17 @@ import android.util.Log
 import android.widget.RemoteViews
 import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
-import androidx.glance.BackgroundModifier
-import androidx.glance.Emittable
-import androidx.glance.GlanceModifier
 import androidx.glance.appwidget.GlanceAppWidgetTag
 import androidx.glance.appwidget.LayoutType
 import androidx.glance.appwidget.TranslationContext
 import androidx.glance.appwidget.applyModifiers
 import androidx.glance.appwidget.insertView
 import androidx.glance.appwidget.layout.UriImageProvider
-import androidx.glance.extractModifier
 import androidx.glance.layout.AndroidResourceImageProvider
 import androidx.glance.layout.BitmapImageProvider
 import androidx.glance.layout.ContentScale
-import androidx.glance.layout.EmittableBox
 import androidx.glance.layout.EmittableImage
-import androidx.glance.layout.HeightModifier
 import androidx.glance.layout.IconImageProvider
-import androidx.glance.layout.WidthModifier
-import androidx.glance.layout.fillMaxSize
 
 internal fun RemoteViews.translateEmittableImage(
     translationContext: TranslationContext,
@@ -77,51 +69,6 @@ private fun setImageViewIcon(rv: RemoteViews, viewId: Int, provider: IconImagePr
     }
     ImageTranslatorApi23Impl.setImageViewIcon(rv, viewId, provider.icon)
 }
-
-internal fun Emittable.transformBackgroundImage(): Emittable {
-    val (bgModifier, modifier) = modifier.extractModifier<BackgroundModifier>()
-    if (bgModifier?.imageProvider == null ||
-        (bgModifier.imageProvider is AndroidResourceImageProvider &&
-            bgModifier.contentScale == ContentScale.FillBounds)
-    ) {
-        return this
-    }
-    val split = modifier.extractSizeModifiers()
-    this.modifier = split.nonSizeModifiers.fillMaxSize()
-    return EmittableBox().also { box ->
-        box.modifier = split.sizeModifiers
-        box.children += listOf(
-            EmittableImage().also { image ->
-                image.modifier = GlanceModifier.fillMaxSize()
-                image.provider = bgModifier.imageProvider
-                image.contentScale = bgModifier.contentScale
-            },
-            this
-        )
-    }
-}
-
-private data class ExtractedSizeModifiers(
-    val sizeModifiers: GlanceModifier = GlanceModifier,
-    val nonSizeModifiers: GlanceModifier = GlanceModifier,
-)
-
-/**
- * Split the [GlanceModifier] into one that contains the [WidthModifier]s and [HeightModifier]s and
- * one that contains the rest.
- */
-private fun GlanceModifier.extractSizeModifiers() =
-    if (any { it is WidthModifier || it is HeightModifier }) {
-        foldIn(ExtractedSizeModifiers()) { acc, modifier ->
-            if (modifier is WidthModifier || modifier is HeightModifier) {
-                acc.copy(sizeModifiers = acc.sizeModifiers.then(modifier))
-            } else {
-                acc.copy(nonSizeModifiers = acc.nonSizeModifiers.then(modifier))
-            }
-        }
-    } else {
-        ExtractedSizeModifiers(nonSizeModifiers = this)
-    }
 
 @RequiresApi(Build.VERSION_CODES.M)
 private object ImageTranslatorApi23Impl {
