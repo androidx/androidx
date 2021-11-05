@@ -314,6 +314,9 @@ package androidx.work {
   }
 
   public final class WorkQuery {
+    method public static androidx.work.WorkQuery fromIds(java.util.List<java.util.UUID!>);
+    method public static androidx.work.WorkQuery fromIds(java.util.UUID);
+    method public static androidx.work.WorkQuery fromIds(java.util.UUID!...);
     method public java.util.List<java.util.UUID!> getIds();
     method public java.util.List<androidx.work.WorkInfo.State!> getStates();
     method public java.util.List<java.lang.String!> getTags();
