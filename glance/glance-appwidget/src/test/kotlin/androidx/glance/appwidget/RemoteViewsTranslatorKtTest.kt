@@ -53,8 +53,10 @@ import androidx.glance.layout.Button
 import androidx.glance.layout.Column
 import androidx.glance.layout.Row
 import androidx.glance.layout.Text
+import androidx.glance.layout.Visibility
 import androidx.glance.layout.absolutePadding
 import androidx.glance.layout.padding
+import androidx.glance.layout.visibility
 import androidx.glance.text.TextDecoration
 import androidx.glance.text.TextStyle
 import androidx.glance.unit.ColorProvider
@@ -784,6 +786,27 @@ class RemoteViewsTranslatorKtTest {
         val view = darkContext.applyRemoteViews(rv)
 
         assertThat(view).hasBackgroundColor(android.graphics.Color.BLUE)
+    }
+
+    @Test
+    fun visibility() = fakeCoroutineScope.runBlockingTest {
+        val rv = context.runAndTranslate {
+            Column {
+                Text("first", modifier = GlanceModifier.visibility(Visibility.Invisible))
+                Text("second", modifier = GlanceModifier.visibility(Visibility.Gone))
+                Text("third")
+            }
+        }
+
+        val view = context.applyRemoteViews(rv)
+
+        val firstText = checkNotNull(view.findView<TextView> { it.text == "first" })
+        val secondText = checkNotNull(view.findView<TextView> { it.text == "second" })
+        val thirdText = checkNotNull(view.findView<TextView> { it.text == "third" })
+
+        assertThat(firstText.visibility).isEqualTo(View.INVISIBLE)
+        assertThat(secondText.visibility).isEqualTo(View.GONE)
+        assertThat(thirdText.visibility).isEqualTo(View.VISIBLE)
     }
 
     // Check there is a single span, that it's of the correct type and passes the [check].
