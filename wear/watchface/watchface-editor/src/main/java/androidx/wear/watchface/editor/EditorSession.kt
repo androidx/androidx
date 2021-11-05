@@ -153,8 +153,10 @@ public interface EditorSession : AutoCloseable {
     /**
      * Returns a flow of maps of [androidx.wear.watchface.ComplicationSlot] ids to preview
      * [ComplicationData] suitable for use in rendering a preview of the watch face. This data is
-     * fetched asynchronously and the map will initially be empty. New data may be pushed as
-     * result of running [openComplicationDataSourceChooser].
+     * fetched asynchronously and the map will initially be empty. For watch faces without
+     * complications this will always be empty.
+     *
+     * Note new data may be pushed as a result of running [openComplicationDataSourceChooser].
      *
      * Note if a slot is configured to be empty then the map will contain an instance of
      * [EmptyComplicationData] for that slot. Disabled complicationSlots are included in the map.
@@ -168,7 +170,9 @@ public interface EditorSession : AutoCloseable {
      * Returns a flow of maps of [androidx.wear.watchface.ComplicationSlot] ids to
      * [ComplicationDataSourceInfo] that represent the information available about the data
      * source for each complication. This data is fetched asynchronously and the map will initially
-     * be empty. New data may be pushed as result of running [openComplicationDataSourceChooser].
+     * be empty. For watch faces without complications this will always be empty.
+     *
+     * Note new data may be pushed as result of running [openComplicationDataSourceChooser].
      *
      * Note a `null` [ComplicationDataSourceInfo] will be associated with a complication slot id if
      * the [androidx.wear.watchface.ComplicationSlot] is configured to show the empty complication
