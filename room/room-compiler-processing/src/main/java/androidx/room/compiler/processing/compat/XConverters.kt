@@ -127,5 +127,14 @@ object XConverters {
     fun Messager.toXProcessing(): XMessager =
         JavacProcessingEnvMessager(this)
 
-    // TODO: TypeMirror to XType, this will be more complicated since location context is lost...
+    /**
+     * Returns an [XType] for the given [TypeMirror].
+     *
+     * Warning: This method should be used only for migration since the returned [XType] will be
+     * missing nullability information. Calling [XType#nullability] on these types will result in
+     * an [IllegalStateException].
+     */
+    @JvmStatic
+    fun TypeMirror.toXProcessing(env: XProcessingEnv): XType =
+        (env as JavacProcessingEnv).wrap(this, null, null)
 }

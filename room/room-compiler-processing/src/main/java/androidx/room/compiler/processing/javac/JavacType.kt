@@ -24,13 +24,15 @@ import androidx.room.compiler.processing.javac.kotlin.KmType
 import androidx.room.compiler.processing.ksp.ERROR_TYPE_NAME
 import androidx.room.compiler.processing.safeTypeName
 import com.google.auto.common.MoreTypes
+import java.lang.IllegalStateException
 import javax.lang.model.type.TypeKind
 import javax.lang.model.type.TypeMirror
 import kotlin.reflect.KClass
 
 internal abstract class JavacType(
     protected val env: JavacProcessingEnv,
-    open val typeMirror: TypeMirror
+    open val typeMirror: TypeMirror,
+    private val maybeNullability: XNullability?,
 ) : XType, XEquality {
     // Kotlin type information about the type if this type is driven from kotlin code.
     abstract val kotlinType: KmType?
@@ -112,7 +114,7 @@ internal abstract class JavacType(
             env.wrap<JavacType>(
                 typeMirror = it,
                 kotlinType = kotlinType?.extendsBound,
-                elementNullability = nullability
+                elementNullability = maybeNullability
             )
         }
     }
@@ -165,5 +167,13 @@ internal abstract class JavacType(
         // unlike makeNullable, we don't try to degrade to primitives here because it is valid for
         // a boxed primitive to be marked as non-null.
         return copyWithNullability(XNullability.NONNULL)
+    }
+
+    override val nullability: XNullability get() {
+        return maybeNullability
+            ?: throw IllegalStateException(
+                "XType#nullibility cannot be called from this type because it is missing " +
+                    "nullability information. Was this type derived from a type created with " +
+                    "TypeMirror#toXProcessing(XProcessingEnv)?")
     }
 }
