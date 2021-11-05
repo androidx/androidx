@@ -1,48 +1,48 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.1.0-alpha08" type="baseline" client="gradle" dependencies="false" name="AGP (7.1.0-alpha08)" variant="all" version="7.1.0-alpha08">
+<issues format="6" by="lint 7.1.0-beta02" type="baseline" client="gradle" dependencies="false" name="AGP (7.1.0-beta02)" variant="all" version="7.1.0-beta02">
 
     <issue
         id="NewApi"
         message="Call requires API level 30 (current min is 14): `android.util.SparseArray#contains`"
         errorLine1="        assertFalse(1 in array)"
-        errorLine2="                    ~~~~~~~~~~">
+        errorLine2="                      ~~">
         <location
             file="src/androidTest/java/androidx/core/util/SparseArrayTest.kt"
             line="42"
-            column="21"/>
+            column="23"/>
     </issue>
 
     <issue
         id="NewApi"
         message="Call requires API level 30 (current min is 14): `android.util.SparseArray#contains`"
         errorLine1="        assertTrue(1 in array)"
-        errorLine2="                   ~~~~~~~~~~">
+        errorLine2="                     ~~">
         <location
             file="src/androidTest/java/androidx/core/util/SparseArrayTest.kt"
             line="44"
-            column="20"/>
+            column="22"/>
     </issue>
 
     <issue
         id="NewApi"
         message="Call requires API level 30 (current min is 14): `android.util.SparseArray#contains`"
         errorLine1="        assertFalse(2 in array)"
-        errorLine2="                    ~~~~~~~~~~">
+        errorLine2="                      ~~">
         <location
             file="src/androidTest/java/androidx/core/util/SparseArrayTest.kt"
             line="52"
-            column="21"/>
+            column="23"/>
     </issue>
 
     <issue
         id="NewApi"
         message="Call requires API level 30 (current min is 14): `android.util.SparseArray#contains`"
         errorLine1="        assertTrue(2 in array)"
-        errorLine2="                   ~~~~~~~~~~">
+        errorLine2="                     ~~">
         <location
             file="src/androidTest/java/androidx/core/util/SparseArrayTest.kt"
             line="55"
-            column="20"/>
+            column="22"/>
     </issue>
 
     <issue

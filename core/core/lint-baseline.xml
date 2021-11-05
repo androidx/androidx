@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.1.0-alpha08" type="baseline" client="gradle" dependencies="false" name="AGP (7.1.0-alpha08)" variant="all" version="7.1.0-alpha08">
+<issues format="6" by="lint 7.1.0-beta02" type="baseline" client="gradle" dependencies="false" name="AGP (7.1.0-beta02)" variant="all" version="7.1.0-beta02">
 
     <issue
         id="NewApi"
@@ -652,7 +652,7 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level 29 (current min is 28): `COLOR_DODGE`"
+        message="Field requires API level 29 (current min is 28): `COLOR_DODGE`"
         errorLine1="        verifyPorterDuffMatchesCompat(BlendModeCompat.COLOR_DODGE, null);"
         errorLine2="                                                      ~~~~~~~~~~~">
         <location
@@ -663,7 +663,7 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level 29 (current min is 28): `COLOR_BURN`"
+        message="Field requires API level 29 (current min is 28): `COLOR_BURN`"
         errorLine1="        verifyPorterDuffMatchesCompat(BlendModeCompat.COLOR_BURN, null);"
         errorLine2="                                                      ~~~~~~~~~~">
         <location
@@ -674,7 +674,7 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level 29 (current min is 28): `HARD_LIGHT`"
+        message="Field requires API level 29 (current min is 28): `HARD_LIGHT`"
         errorLine1="        verifyPorterDuffMatchesCompat(BlendModeCompat.HARD_LIGHT, null);"
         errorLine2="                                                      ~~~~~~~~~~">
         <location
@@ -685,7 +685,7 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level 29 (current min is 28): `SOFT_LIGHT`"
+        message="Field requires API level 29 (current min is 28): `SOFT_LIGHT`"
         errorLine1="        verifyPorterDuffMatchesCompat(BlendModeCompat.SOFT_LIGHT, null);"
         errorLine2="                                                      ~~~~~~~~~~">
         <location
@@ -696,7 +696,7 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level 29 (current min is 28): `DIFFERENCE`"
+        message="Field requires API level 29 (current min is 28): `DIFFERENCE`"
         errorLine1="        verifyPorterDuffMatchesCompat(BlendModeCompat.DIFFERENCE, null);"
         errorLine2="                                                      ~~~~~~~~~~">
         <location
@@ -707,7 +707,7 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level 29 (current min is 28): `EXCLUSION`"
+        message="Field requires API level 29 (current min is 28): `EXCLUSION`"
         errorLine1="        verifyPorterDuffMatchesCompat(BlendModeCompat.EXCLUSION, null);"
         errorLine2="                                                      ~~~~~~~~~">
         <location
@@ -718,7 +718,7 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level 29 (current min is 28): `MULTIPLY`"
+        message="Field requires API level 29 (current min is 28): `MULTIPLY`"
         errorLine1="        verifyPorterDuffMatchesCompat(BlendModeCompat.MULTIPLY, null);"
         errorLine2="                                                      ~~~~~~~~">
         <location
@@ -729,7 +729,7 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level 29 (current min is 28): `HUE`"
+        message="Field requires API level 29 (current min is 28): `HUE`"
         errorLine1="        verifyPorterDuffMatchesCompat(BlendModeCompat.HUE, null);"
         errorLine2="                                                      ~~~">
         <location
@@ -740,7 +740,7 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level 29 (current min is 28): `SATURATION`"
+        message="Field requires API level 29 (current min is 28): `SATURATION`"
         errorLine1="        verifyPorterDuffMatchesCompat(BlendModeCompat.SATURATION, null);"
         errorLine2="                                                      ~~~~~~~~~~">
         <location
@@ -751,7 +751,7 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level 29 (current min is 28): `COLOR`"
+        message="Field requires API level 29 (current min is 28): `COLOR`"
         errorLine1="        verifyPorterDuffMatchesCompat(BlendModeCompat.COLOR, null);"
         errorLine2="                                                      ~~~~~">
         <location
@@ -762,7 +762,7 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level 29 (current min is 28): `LUMINOSITY`"
+        message="Field requires API level 29 (current min is 28): `LUMINOSITY`"
         errorLine1="        verifyPorterDuffMatchesCompat(BlendModeCompat.LUMINOSITY, null);"
         errorLine2="                                                      ~~~~~~~~~~">
         <location
@@ -1048,7 +1048,7 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level 23 (current min is 21): `scenario`"
+        message="Field requires API level 23 (current min is 21): `scenario`"
         errorLine1="        scenario.onActivity {"
         errorLine2="        ~~~~~~~~">
         <location
@@ -1059,7 +1059,7 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level 23 (current min is 21): `windowInsetsController`"
+        message="Field requires API level 23 (current min is 21): `windowInsetsController`"
         errorLine1="            windowInsetsController.systemBarsBehavior ="
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -1070,7 +1070,7 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level 23 (current min is 21): `scenario`"
+        message="Field requires API level 23 (current min is 21): `scenario`"
         errorLine1="        val decorView = scenario.withActivity { window.decorView }"
         errorLine2="                        ~~~~~~~~">
         <location
@@ -1081,7 +1081,7 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level 23 (current min is 21): `scenario`"
+        message="Field requires API level 23 (current min is 21): `scenario`"
         errorLine1="        scenario.onActivity {"
         errorLine2="        ~~~~~~~~">
         <location
@@ -1092,7 +1092,7 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level 23 (current min is 21): `windowInsetsController`"
+        message="Field requires API level 23 (current min is 21): `windowInsetsController`"
         errorLine1="            windowInsetsController.systemBarsBehavior ="
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -1103,7 +1103,7 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level 23 (current min is 21): `scenario`"
+        message="Field requires API level 23 (current min is 21): `scenario`"
         errorLine1="        val decorView = scenario.withActivity { window.decorView }"
         errorLine2="                        ~~~~~~~~">
         <location

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.1.0-alpha08" type="baseline" client="gradle" dependencies="false" name="AGP (7.1.0-alpha08)" variant="all" version="7.1.0-alpha08">
+<issues format="6" by="lint 7.1.0-beta02" type="baseline" client="gradle" dependencies="false" name="AGP (7.1.0-beta02)" variant="all" version="7.1.0-beta02">
 
     <issue
         id="NewApi"
@@ -10,6 +10,17 @@
             file="src/androidTest/java/androidx/work/impl/workers/ConstraintTrackingWorkerTest.java"
             line="157"
             column="24"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 24 (current min is 23): `getTriggeredContentAuthorities`"
+        errorLine1="                sTriggeredContentAuthorities = getTriggeredContentAuthorities();"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/work/impl/background/systemjob/SystemJobServiceTest.java"
+            line="304"
+            column="17"/>
     </issue>
 
     <issue
@@ -27,11 +38,33 @@
         id="NewApi"
         message="Call requires API level 24 (current min is 23): `getTriggeredContentUris`"
         errorLine1="                sTriggeredContentUris = getTriggeredContentUris();"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/work/impl/background/systemjob/SystemJobServiceTest.java"
+            line="305"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 24 (current min is 23): `getTriggeredContentUris`"
+        errorLine1="                sTriggeredContentUris = getTriggeredContentUris();"
         errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/androidTest/java/androidx/work/impl/background/systemjob/SystemJobServiceTest.java"
             line="305"
             column="41"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 28 (current min is 23): `getNetwork`"
+        errorLine1="                sNetwork = getNetwork();"
+        errorLine2="                ~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/work/impl/background/systemjob/SystemJobServiceTest.java"
+            line="325"
+            column="17"/>
     </issue>
 
     <issue
@@ -284,94 +317,6 @@
         <location
             file="src/main/java/androidx/work/impl/foreground/SystemForegroundService.java"
             line="124"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 28; however, the containing class androidx.work.impl.background.systemjob.SystemJobInfoConverter is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                builder.setImportantWhileForeground(true);"
-        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/background/systemjob/SystemJobInfoConverter.java"
-            line="106"
-            column="25"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 24; however, the containing class androidx.work.impl.background.systemjob.SystemJobInfoConverter is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                builder.addTriggerContentUri(convertContentUriTrigger(trigger));"
-        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/background/systemjob/SystemJobInfoConverter.java"
-            line="113"
-            column="25"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 24; however, the containing class androidx.work.impl.background.systemjob.SystemJobInfoConverter is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            builder.setTriggerContentUpdateDelay(constraints.getTriggerContentUpdateDelay());"
-        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/background/systemjob/SystemJobInfoConverter.java"
-            line="115"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 24; however, the containing class androidx.work.impl.background.systemjob.SystemJobInfoConverter is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            builder.setTriggerContentMaxDelay(constraints.getTriggerMaxContentDelay());"
-        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/background/systemjob/SystemJobInfoConverter.java"
-            line="116"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 26; however, the containing class androidx.work.impl.background.systemjob.SystemJobInfoConverter is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            builder.setRequiresBatteryNotLow(constraints.requiresBatteryNotLow());"
-        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/background/systemjob/SystemJobInfoConverter.java"
-            line="123"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 26; however, the containing class androidx.work.impl.background.systemjob.SystemJobInfoConverter is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            builder.setRequiresStorageNotLow(constraints.requiresStorageNotLow());"
-        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/background/systemjob/SystemJobInfoConverter.java"
-            line="124"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 24; however, the containing class androidx.work.impl.background.systemjob.SystemJobInfoConverter is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="        return new JobInfo.TriggerContentUri(trigger.getUri(), flag);"
-        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/background/systemjob/SystemJobInfoConverter.java"
-            line="140"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 28; however, the containing class androidx.work.impl.background.systemjob.SystemJobInfoConverter is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            builder.setRequiredNetwork(networkRequest);"
-        errorLine2="                    ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/background/systemjob/SystemJobInfoConverter.java"
-            line="158"
             column="21"/>
     </issue>
 

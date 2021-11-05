@@ -53,3 +53,16 @@ android {
         }
     }
 }
+
+// Entire block is to workaround b/203448887
+afterEvaluate {
+    tasks.named("bundleDebugLocalLintAar").configure {
+        it.dependsOn("prefabDebugConfigurePackage")
+    }
+    tasks.named("bundleReleaseAar").configure {
+        it.dependsOn("prefabReleaseConfigurePackage")
+    }
+    tasks.named("reportLibraryMetrics").configure {
+        it.dependsOn("prefabReleaseConfigurePackage")
+    }
+}
