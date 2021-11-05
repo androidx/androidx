@@ -44,6 +44,9 @@ package androidx.glance.appwidget {
   public final class LayoutIdsKt {
   }
 
+  public final class NormalizeCompositionTreeKt {
+  }
+
   public final class RemoteViewsTranslatorKt {
   }
 
