@@ -21,6 +21,7 @@ import android.annotation.SuppressLint;
 import androidx.annotation.NonNull;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
@@ -86,6 +87,40 @@ public final class WorkQuery {
         return mStates;
     }
 
+    /**
+     * Creates a query for {@link WorkRequest}s the given ids.
+     *
+     * @param ids list of ids of {@link WorkRequest}s
+     * @return a requested WorkQuery
+     */
+    @NonNull
+    public static WorkQuery fromIds(@NonNull List<UUID> ids) {
+        return Builder.fromIds(ids).build();
+    }
+
+    /**
+     * Creates a query for {@link WorkRequest}s the given ids.
+     *
+     * @param id  an id of {@link WorkRequest}s
+     * @return a requested WorkQuery
+     */
+    @NonNull
+    public static WorkQuery fromIds(@NonNull UUID id) {
+        ArrayList<UUID> list = new ArrayList<>(1);
+        list.add(id);
+        return Builder.fromIds(list).build();
+    }
+
+    /**
+     * Creates a query for {@link WorkRequest}s the given ids.
+     *
+     * @param ids ids of {@link WorkRequest}s
+     * @return a requested WorkQuery
+     */
+    @NonNull
+    public static WorkQuery fromIds(@NonNull UUID... ids) {
+        return fromIds(Arrays.asList(ids));
+    }
 
     /**
      * A builder for {@link WorkQuery}.
