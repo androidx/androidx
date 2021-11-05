@@ -99,12 +99,36 @@ class RawWorkInfoDaoTest : DatabaseTest() {
             .fromIds(listOf(test.id))
             .build()
 
-        val pojos = mDatabase.rawWorkInfoDao().getWorkInfoPojos(
-            RawQueries
-                .workQueryToRawQuery(querySpec)
-        )
-        assertThat(pojos.size, `is`(1))
-        assertThat(pojos[0].id, `is`(test.stringId))
+        listOf(querySpec, WorkQuery.fromIds(test.id)).forEach {
+            val pojos = mDatabase.rawWorkInfoDao().getWorkInfoPojos(
+                RawQueries.workQueryToRawQuery(it)
+            )
+            assertThat(pojos.size, `is`(1))
+            assertThat(pojos[0].id, `is`(test.stringId))
+        }
+    }
+
+    @Test
+    @SmallTest
+    fun idsOnlyTest2() {
+        val test = OneTimeWorkRequest.from(TestWorker::class.java)
+        val retry = OneTimeWorkRequest.from(RetryWorker::class.java)
+
+        insertWork(test)
+        insertWork(retry)
+
+        val builderSpec = WorkQuery.Builder.fromIds(listOf(test.id, retry.id)).build()
+        val varArgSpec = WorkQuery.fromIds(test.id, retry.id)
+        val listSpec = WorkQuery.fromIds(listOf(test.id, retry.id))
+
+        listOf(builderSpec, varArgSpec, listSpec).forEach {
+            val pojos = mDatabase.rawWorkInfoDao().getWorkInfoPojos(
+                RawQueries.workQueryToRawQuery(it)
+            )
+            val actualIds = pojos.map { it.id }
+            assertThat(pojos.size, `is`(2))
+            assertThat(actualIds, containsInAnyOrder("${test.id}", "${retry.id}"))
+        }
     }
 
     @Test
