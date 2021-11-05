@@ -1,27 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.1.0-alpha08" type="baseline" client="gradle" dependencies="false" name="AGP (7.1.0-alpha08)" variant="all" version="7.1.0-alpha08">
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 20 (current min is 19): `android.app.RemoteInput.Builder#build`"
-        errorLine1="        RemoteInput remoteInput = new RemoteInput.Builder(&quot;&quot;).build();"
-        errorLine2="                                                              ~~~~~">
-        <location
-            file="src/androidTest/java/androidx/slice/SliceXmlTest.java"
-            line="81"
-            column="63"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 20 (current min is 19): `new android.app.RemoteInput.Builder`"
-        errorLine1="        RemoteInput remoteInput = new RemoteInput.Builder(&quot;&quot;).build();"
-        errorLine2="                                  ~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidTest/java/androidx/slice/SliceXmlTest.java"
-            line="81"
-            column="35"/>
-    </issue>
+<issues format="6" by="lint 7.1.0-beta02" type="baseline" client="gradle" dependencies="false" name="AGP (7.1.0-beta02)" variant="all" version="7.1.0-beta02">
 
     <issue
         id="BanSynchronizedMethods"
@@ -114,7 +92,7 @@
     <issue
         id="MissingQuantity"
         message="For locale &quot;fr&quot; (French) the following quantities should also be defined: `many`"
-        errorLine1="    &lt;plurals name=&quot;abc_slice_duration_min&quot; formatted=&quot;false&quot; msgid=&quot;6996334305156847955&quot;>"
+        errorLine1="    &lt;plurals name=&quot;abc_slice_duration_min&quot; formatted=&quot;false&quot; msgid=&quot;7664017844210142826&quot;>"
         errorLine2="    ^">
         <location
             file="src/main/res/values-fr-rCA/strings.xml"
@@ -125,7 +103,7 @@
     <issue
         id="MissingQuantity"
         message="For locale &quot;fr&quot; (French) the following quantities should also be defined: `many`"
-        errorLine1="    &lt;plurals name=&quot;abc_slice_duration_min&quot; formatted=&quot;false&quot; msgid=&quot;6996334305156847955&quot;>"
+        errorLine1="    &lt;plurals name=&quot;abc_slice_duration_min&quot; formatted=&quot;false&quot; msgid=&quot;7664017844210142826&quot;>"
         errorLine2="    ^">
         <location
             file="src/main/res/values-fr/strings.xml"
@@ -136,7 +114,7 @@
     <issue
         id="MissingQuantity"
         message="For locale &quot;fr&quot; (French) the following quantities should also be defined: `many`"
-        errorLine1="    &lt;plurals name=&quot;abc_slice_duration_years&quot; formatted=&quot;false&quot; msgid=&quot;6212691832333991589&quot;>"
+        errorLine1="    &lt;plurals name=&quot;abc_slice_duration_years&quot; formatted=&quot;false&quot; msgid=&quot;2628491538787454021&quot;>"
         errorLine2="    ^">
         <location
             file="src/main/res/values-fr-rCA/strings.xml"
@@ -147,7 +125,7 @@
     <issue
         id="MissingQuantity"
         message="For locale &quot;fr&quot; (French) the following quantities should also be defined: `many`"
-        errorLine1="    &lt;plurals name=&quot;abc_slice_duration_years&quot; formatted=&quot;false&quot; msgid=&quot;6212691832333991589&quot;>"
+        errorLine1="    &lt;plurals name=&quot;abc_slice_duration_years&quot; formatted=&quot;false&quot; msgid=&quot;2628491538787454021&quot;>"
         errorLine2="    ^">
         <location
             file="src/main/res/values-fr/strings.xml"
@@ -158,7 +136,7 @@
     <issue
         id="MissingQuantity"
         message="For locale &quot;fr&quot; (French) the following quantities should also be defined: `many`"
-        errorLine1="    &lt;plurals name=&quot;abc_slice_duration_days&quot; formatted=&quot;false&quot; msgid=&quot;6241698511167107334&quot;>"
+        errorLine1="    &lt;plurals name=&quot;abc_slice_duration_days&quot; formatted=&quot;false&quot; msgid=&quot;8356547162075064530&quot;>"
         errorLine2="    ^">
         <location
             file="src/main/res/values-fr-rCA/strings.xml"
@@ -169,7 +147,7 @@
     <issue
         id="MissingQuantity"
         message="For locale &quot;fr&quot; (French) the following quantities should also be defined: `many`"
-        errorLine1="    &lt;plurals name=&quot;abc_slice_duration_days&quot; formatted=&quot;false&quot; msgid=&quot;6241698511167107334&quot;>"
+        errorLine1="    &lt;plurals name=&quot;abc_slice_duration_days&quot; formatted=&quot;false&quot; msgid=&quot;8356547162075064530&quot;>"
         errorLine2="    ^">
         <location
             file="src/main/res/values-fr/strings.xml"

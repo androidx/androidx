@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.1.0-alpha08" type="baseline" client="gradle" dependencies="false" name="AGP (7.1.0-alpha08)" variant="all" version="7.1.0-alpha08">
+<issues format="6" by="lint 7.1.0-beta02" type="baseline" client="gradle" dependencies="false" name="AGP (7.1.0-beta02)" variant="all" version="7.1.0-beta02">
 
     <issue
         id="NewApi"
@@ -118,7 +118,7 @@
         errorLine2="                ~~~~~~~~~">
         <location
             file="src/androidTest/java/androidx/mediarouter/media/MediaRouterTest.java"
-            line="277"
+            line="285"
             column="17"/>
     </issue>
 

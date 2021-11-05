@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.1.0-alpha08" type="baseline" client="gradle" dependencies="false" name="AGP (7.1.0-alpha08)" variant="all" version="7.1.0-alpha08">
+<issues format="6" by="lint 7.1.0-beta02" type="baseline" client="gradle" dependencies="false" name="AGP (7.1.0-beta02)" variant="all" version="7.1.0-beta02">
 
     <issue
         id="MissingTestSizeAnnotation"
@@ -218,61 +218,6 @@
         <location
             file="src/androidTest/java/androidx/graphics/opengl/egl/EglExtensionsTest.kt"
             line="141"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="MissingTestSizeAnnotation"
-        message="Missing test size annotation"
-        errorLine1="    fun testInitializeAndRelease() {"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidTest/java/androidx/graphics/opengl/egl/EglManagerTest.kt"
-            line="33"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="MissingTestSizeAnnotation"
-        message="Missing test size annotation"
-        errorLine1="    fun testMultipleInitializeCallsIgnored() {"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidTest/java/androidx/graphics/opengl/egl/EglManagerTest.kt"
-            line="54"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="MissingTestSizeAnnotation"
-        message="Missing test size annotation"
-        errorLine1="    fun testMultipleReleaseCallsIgnored() {"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidTest/java/androidx/graphics/opengl/egl/EglManagerTest.kt"
-            line="72"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="MissingTestSizeAnnotation"
-        message="Missing test size annotation"
-        errorLine1="    fun testDefaultSurface() {"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidTest/java/androidx/graphics/opengl/egl/EglManagerTest.kt"
-            line="89"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="MissingTestSizeAnnotation"
-        message="Missing test size annotation"
-        errorLine1="    fun testCreatePBufferSurface() {"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidTest/java/androidx/graphics/opengl/egl/EglManagerTest.kt"
-            line="123"
             column="9"/>
     </issue>
 

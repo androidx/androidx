@@ -1,5 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.1.0-alpha08" type="baseline" client="gradle" dependencies="false" name="AGP (7.1.0-alpha08)" variant="all" version="7.1.0-alpha08">
+<issues format="6" by="lint 7.1.0-beta02" type="baseline" client="gradle" dependencies="false" name="AGP (7.1.0-beta02)" variant="all" version="7.1.0-beta02">
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 19 (current min is 14): `DefaultGlyphChecker`"
+        errorLine1="        GlyphChecker mGlyphChecker = new EmojiProcessor.DefaultGlyphChecker();"
+        errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/emoji/text/EmojiCompat.java"
+            line="971"
+            column="38"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Class requires API level 19 (current min is 14): `EmojiMetadata`"
+        errorLine1="        final EmojiMetadata metadata = mock(EmojiMetadata.class);"
+        errorLine2="                                            ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/emoji/widget/EmojiEditableFactoryTest.java"
+            line="64"
+            column="45"/>
+    </issue>
 
     <issue
         id="NewApi"
@@ -10,6 +32,17 @@
             file="src/androidTest/java/androidx/emoji/widget/EmojiEditableFactoryTest.java"
             line="65"
             column="32"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Class requires API level 19 (current min is 14): `EmojiSpan`"
+        errorLine1="        final EmojiSpan[] spans = editable.getSpans(0, 1, EmojiSpan.class);"
+        errorLine2="                                                          ~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/emoji/widget/EmojiEditableFactoryTest.java"
+            line="71"
+            column="59"/>
     </issue>
 
     <issue
@@ -113,6 +146,39 @@
 
     <issue
         id="NewApi"
+        message="Class requires API level 19 (current min is 14): `EmojiSpan`"
+        errorLine1="            mSpans = ((Spanned) charSequence).getSpans(0, charSequence.length(), EmojiSpan.class);"
+        errorLine2="                                                                                 ~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/emoji/util/EmojiMatcher.java"
+            line="104"
+            column="82"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Class requires API level 19 (current min is 14): `EmojiSpan`"
+        errorLine1="            mSpans = ((Spanned) charSequence).getSpans(0, charSequence.length(), EmojiSpan.class);"
+        errorLine2="                                                                                 ~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/emoji/util/EmojiMatcher.java"
+            line="140"
+            column="82"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Class requires API level 19 (current min is 14): `EmojiSpan`"
+        errorLine1="            final EmojiSpan[] spans = spanned.getSpans(0, charSequence.length(), EmojiSpan.class);"
+        errorLine2="                                                                                 ~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/emoji/util/EmojiMatcher.java"
+            line="224"
+            column="82"/>
+    </issue>
+
+    <issue
+        id="NewApi"
         message="Call requires API level 19 (current min is 14): `getId`"
         errorLine1="                    if (mResId == spans[index].getId()) {"
         errorLine2="                                               ~~~~~">
@@ -208,6 +274,17 @@
             file="src/androidTest/java/androidx/emoji/widget/EmojiTextWatcherTest.java"
             line="105"
             column="22"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 19 (current min is 14): `setEmojiReplaceStrategy`"
+        errorLine1="        mTextWatcher.setEmojiReplaceStrategy(EmojiCompat.REPLACE_STRATEGY_ALL);"
+        errorLine2="                                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/emoji/widget/EmojiTextWatcherTest.java"
+            line="105"
+            column="46"/>
     </issue>
 
     <issue
@@ -329,6 +406,50 @@
             file="src/androidTest/java/androidx/emoji/widget/EmojiTransformationMethodTest.java"
             line="150"
             column="59"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Class requires API level 19 (current min is 14): `EmojiSpan`"
+        errorLine1="        final EmojiSpan span = mock(EmojiSpan.class);"
+        errorLine2="                                    ~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/emoji/widget/SpannableBuilderTest.java"
+            line="124"
+            column="37"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Class requires API level 19 (current min is 14): `EmojiSpan`"
+        errorLine1="        EmojiSpan[] spans = spannable.getSpans(0, spannable.length(), EmojiSpan.class);"
+        errorLine2="                                                                      ~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/emoji/widget/SpannableBuilderTest.java"
+            line="135"
+            column="71"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Class requires API level 19 (current min is 14): `EmojiSpan`"
+        errorLine1="        final EmojiSpan span = mock(EmojiSpan.class);"
+        errorLine2="                                    ~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/emoji/widget/SpannableBuilderTest.java"
+            line="188"
+            column="37"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Class requires API level 19 (current min is 14): `EmojiSpan`"
+        errorLine1="        EmojiSpan[] spans = spannable.getSpans(0, spannable.length(), EmojiSpan.class);"
+        errorLine2="                                                                      ~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/emoji/widget/SpannableBuilderTest.java"
+            line="200"
+            column="71"/>
     </issue>
 
     <issue
