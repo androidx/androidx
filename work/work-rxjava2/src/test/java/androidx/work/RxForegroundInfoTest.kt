@@ -16,8 +16,10 @@
 
 package androidx.work
 
+import android.app.Notification
 import android.content.Context
 import androidx.work.impl.utils.SynchronousExecutor
+import com.google.common.truth.Truth
 import io.reactivex.Single
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -27,31 +29,17 @@ import java.util.UUID
 import java.util.concurrent.Executor
 
 @RunWith(JUnit4::class)
-class SingleForegroundInfoTest {
-
+class RxForegroundInfoTest {
     @Test
-    fun foo() {
+    fun testForegroundInfo() {
         val context = mock(Context::class.java)
-        TestRxWorker(context, createWorkerParams())
+        val foregroundInfo = WorkerForeground(context, createWorkerParams())
+            .foregroundInfoAsync.get()
+        Truth.assertThat(foregroundInfo).isEqualTo(testForegroundInfo)
     }
-
-    private fun createWorkerParams(
-        executor: Executor = SynchronousExecutor(),
-        progressUpdater: ProgressUpdater = mock(ProgressUpdater::class.java),
-        foregroundUpdater: ForegroundUpdater = mock(ForegroundUpdater::class.java)
-    ) = WorkerParameters(
-        UUID.randomUUID(),
-        Data.EMPTY,
-        emptyList(),
-        WorkerParameters.RuntimeExtras(),
-        1,
-        executor,
-        RxWorkerTest.InstantWorkTaskExecutor(),
-        WorkerFactory.getDefaultWorkerFactory(),
-        progressUpdater,
-        foregroundUpdater
-    )
 }
+
+private val testForegroundInfo = ForegroundInfo(10, mock(Notification::class.java))
 
 private class WorkerForeground(
     appContext: Context,
@@ -60,4 +48,23 @@ private class WorkerForeground(
     override fun createWork(): Single<Result> {
         throw UnsupportedOperationException()
     }
+
+    override fun getForegroundInfo(): Single<ForegroundInfo> = Single.just(testForegroundInfo)
 }
+
+private fun createWorkerParams(
+    executor: Executor = SynchronousExecutor(),
+    progressUpdater: ProgressUpdater = mock(ProgressUpdater::class.java),
+    foregroundUpdater: ForegroundUpdater = mock(ForegroundUpdater::class.java)
+) = WorkerParameters(
+    UUID.randomUUID(),
+    Data.EMPTY,
+    emptyList(),
+    WorkerParameters.RuntimeExtras(),
+    1,
+    executor,
+    RxWorkerTest.InstantWorkTaskExecutor(),
+    WorkerFactory.getDefaultWorkerFactory(),
+    progressUpdater,
+    foregroundUpdater
+)
