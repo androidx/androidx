@@ -31,7 +31,6 @@ import androidx.glance.appwidget.layout.ReservedItemIdRangeEnd
 import androidx.glance.appwidget.translateChild
 import androidx.glance.appwidget.translateComposition
 import androidx.glance.layout.Alignment
-import androidx.glance.layout.EmittableBox
 
 internal fun RemoteViews.translateEmittableLazyColumn(
     translationContext: TranslationContext,
@@ -91,16 +90,11 @@ internal fun RemoteViews.translateEmittableLazyListItem(
     translationContext: TranslationContext,
     element: EmittableLazyListItem
 ) {
-    val child = if (element.children.size == 1 && element.alignment == Alignment.CenterStart) {
-        element.children.single()
-    } else {
-        EmittableBox().apply {
-            modifier = element.modifier
-            contentAlignment = element.alignment
-            children.addAll(element.children)
-        }
+    require(element.children.size == 1 && element.alignment == Alignment.CenterStart) {
+        "Lazy list items can only have a single child align at the center start of the view. " +
+            "The normalization of the composition tree failed."
     }
-    translateChild(translationContext, child)
+    translateChild(translationContext, element.children.first())
 }
 
 // All the lazy list items should use the same ids, to ensure the layouts can be re-used.
