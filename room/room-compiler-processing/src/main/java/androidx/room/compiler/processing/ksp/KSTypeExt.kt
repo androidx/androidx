@@ -116,10 +116,8 @@ private fun KSDeclaration.typeName(
  * Turns a KSTypeArgument into a TypeName in java's type system.
  */
 internal fun KSTypeArgument.typeName(
-    param: KSTypeParameter,
     resolver: Resolver
 ): TypeName = typeName(
-    param = param,
     resolver = resolver,
     typeArgumentTypeLookup = TypeArgumentTypeLookup()
 )
@@ -147,7 +145,6 @@ private fun KSTypeParameter.typeName(
 }
 
 private fun KSTypeArgument.typeName(
-    param: KSTypeParameter,
     resolver: Resolver,
     typeArgumentTypeLookup: TypeArgumentTypeLookup
 ): TypeName {
@@ -163,7 +160,7 @@ private fun KSTypeArgument.typeName(
                 // explicit *
                 WildcardTypeName.subtypeOf(TypeName.OBJECT)
             } else {
-                param.typeName(resolver, typeArgumentTypeLookup)
+                WildcardTypeName.subtypeOf(type.typeName(resolver, typeArgumentTypeLookup))
             }
         }
         else -> resolveTypeName()
@@ -185,9 +182,8 @@ private fun KSType.typeName(
 ): TypeName {
     return if (this.arguments.isNotEmpty()) {
         val args: Array<TypeName> = this.arguments
-            .mapIndexed { index, typeArg ->
+            .map { typeArg ->
                 typeArg.typeName(
-                    param = this.declaration.typeParameters[index],
                     resolver = resolver,
                     typeArgumentTypeLookup = typeArgumentTypeLookup
                 )
