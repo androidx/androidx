@@ -16,6 +16,7 @@
 
 package androidx.room.compiler.processing.compat
 
+import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.compat.XConverters.toJavac
 import androidx.room.compiler.processing.compat.XConverters.toXProcessing
 import androidx.room.compiler.processing.javac.JavacProcessingEnv
@@ -26,13 +27,16 @@ import androidx.room.compiler.processing.util.getDeclaredField
 import androidx.room.compiler.processing.util.getDeclaredMethod
 import androidx.room.compiler.processing.util.runKaptTest
 import com.google.auto.common.MoreElements
+import com.google.auto.common.MoreTypes
 import com.google.common.truth.Truth.assertThat
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.JavaFile
 import com.squareup.javapoet.TypeSpec
 import org.junit.Test
+import java.lang.IllegalStateException
 import javax.annotation.processing.Filer
 import javax.annotation.processing.Messager
+import javax.lang.model.type.TypeMirror
 import javax.lang.model.util.ElementFilter
 import javax.tools.Diagnostic
 
@@ -60,6 +64,93 @@ class XConvertersTest {
         }
         """.trimIndent()
     )
+
+    @Test
+    fun typeMirror() {
+        val kotlinSrc = Source.kotlin(
+            "KotlinClass.kt",
+            """
+            class KotlinClass {
+              class FooImpl<T: String>: Foo<T> {
+                override fun foo(param: T) {}
+              }
+              interface Foo<T> {
+                fun foo(param: T)
+              }
+            }
+            """.trimIndent()
+        )
+        val javaSrc = Source.java(
+            "JavaClass",
+            """
+            public class JavaClass {
+              static class FooImpl<T extends String> implements Foo<T> {
+                @Override public void foo(T param) {}
+              }
+              interface Foo<T> {
+                void foo(T param);
+              }
+            }
+            """.trimIndent()
+        )
+        runKaptTest(
+            sources = listOf(kotlinSrc, javaSrc)
+        ) { invocation ->
+            fun TypeMirror.equivalence() = MoreTypes.equivalence().wrap(this)
+
+            val xKotlinClass = invocation.processingEnv.requireTypeElement("KotlinClass.FooImpl")
+            val xJavaClass = invocation.processingEnv.requireTypeElement("JavaClass.FooImpl")
+            val kotlinClass = invocation.getJavacTypeElement("KotlinClass.FooImpl")
+            val javaClass = invocation.getJavacTypeElement("JavaClass.FooImpl")
+
+            // Test toJavac returns an equivalent TypeMirror
+            assertThat(xKotlinClass.type.toJavac().equivalence())
+                .isEqualTo(kotlinClass.asType().equivalence())
+            assertThat(xJavaClass.type.toJavac().equivalence())
+                .isEqualTo(javaClass.asType().equivalence())
+
+            // Test toXProcessing returns an equivalent XType
+            fun assertEqualTypes(t: XType?, tFromXConverters: XType?) {
+                if (t == tFromXConverters) {
+                    return
+                }
+                if (t == null || tFromXConverters == null) {
+                    assertThat(t).isNull()
+                    assertThat(tFromXConverters).isNull()
+                    return
+                }
+                assertThat(t.typeName).isEqualTo(tFromXConverters.typeName)
+                assertThat(t.typeElement).isEqualTo(tFromXConverters.typeElement)
+                assertThat(t.rawType.typeName).isEqualTo(tFromXConverters.rawType.typeName)
+                assertThat(t.typeArguments.size).isEqualTo(tFromXConverters.typeArguments.size)
+                for (i in 0..t.typeArguments.size) {
+                    assertEqualTypes(t.typeArguments[i], tFromXConverters.typeArguments[i])
+                }
+                assertEqualTypes(t.boxed(), tFromXConverters.boxed())
+                assertEqualTypes(t.extendsBoundOrSelf(), tFromXConverters.extendsBoundOrSelf())
+
+                // Test calling nullability is okay for "normal" xprocessing types
+                assertThat(t.nullability).isNotNull()
+
+                // Test calling nullability throws for xprocessing types created with XConverters
+                try {
+                    tFromXConverters.nullability
+                    error("Expected the above statement to fail.")
+                } catch (e: IllegalStateException) {
+                    assertThat(e.message)
+                        .contains("XType#nullibility cannot be called from this type")
+                }
+            }
+            assertEqualTypes(
+                xKotlinClass.type,
+                kotlinClass.asType().toXProcessing(invocation.processingEnv)
+            )
+            assertEqualTypes(
+                xJavaClass.type,
+                javaClass.asType().toXProcessing(invocation.processingEnv)
+            )
+        }
+    }
 
     @Test
     fun typeElement() {
