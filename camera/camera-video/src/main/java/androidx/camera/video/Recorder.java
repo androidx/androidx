@@ -64,6 +64,7 @@ import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.camera.video.internal.AudioSource;
 import androidx.camera.video.internal.AudioSourceAccessException;
 import androidx.camera.video.internal.BufferProvider;
+import androidx.camera.video.internal.ResourceCreationException;
 import androidx.camera.video.internal.compat.Api26Impl;
 import androidx.camera.video.internal.compat.quirk.DeactivateEncoderSurfaceBeforeStopEncoderQuirk;
 import androidx.camera.video.internal.compat.quirk.DeviceQuirks;
@@ -190,6 +191,10 @@ public final class Recorder implements VideoOutput {
          */
         INITIALIZING,
         /**
+         * The audio has been initialized and is waiting for a new recording to be started.
+         */
+        IDLING,
+        /**
          * Audio recording is disabled for the running recording.
          */
         DISABLED,
@@ -198,13 +203,9 @@ public final class Recorder implements VideoOutput {
          */
         ACTIVE,
         /**
-         * The recording is muted because the audio source is silenced.
+         * The audio source or the audio encoder encountered errors.
          */
-        SOURCE_SILENCED,
-        /**
-         * The recording is muted because the audio encoder encountered errors.
-         */
-        ENCODER_ERROR
+        ERROR
     }
 
     /**
@@ -326,7 +327,6 @@ public final class Recorder implements VideoOutput {
     private RecordingRecord mInProgressRecording = null;
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     boolean mInProgressRecordingStopping = false;
-    private boolean mAudioInitialized = false;
     private SurfaceRequest.TransformationInfo mSurfaceTransformationInfo = null;
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     final List<ListenableFuture<Void>> mEncodingFutures = new ArrayList<>();
@@ -368,13 +368,13 @@ public final class Recorder implements VideoOutput {
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     Throwable mRecordingStopErrorCause = null;
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
-    AudioState mCachedAudioState;
-    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     EncodedData mPendingFirstVideoData = null;
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     EncodedData mPendingFirstAudioData = null;
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     Throwable mAudioErrorCause = null;
+    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
+    boolean mIsAudioSourceSilenced = false;
     //--------------------------------------------------------------------------------------------//
 
     Recorder(@Nullable Executor executor, @NonNull MediaSpec mediaSpec) {
@@ -1093,32 +1093,22 @@ public final class Recorder implements VideoOutput {
                 .build();
     }
 
+    /**
+     * Setup audio related resources.
+     *
+     * @throws ResourceCreationException if the necessary resource for audio to work failed to be
+     * setup.
+     */
     @RequiresPermission(Manifest.permission.RECORD_AUDIO)
     @ExecutedBy("mSequentialExecutor")
-    private void setupAudioIfNeeded(@NonNull RecordingRecord activeRecording) {
-        if (!activeRecording.hasAudioEnabled()) {
-            // Skip if audio is not enabled for the recording.
-            return;
-        }
-
-        if (!isAudioSupported()) {
-            throw new IllegalStateException("The Recorder doesn't support recording with audio");
-        }
-
-        if (mAudioInitialized) {
-            // Skip if audio has already been initialized.
-            return;
-        }
-
+    private void setupAudio() throws ResourceCreationException {
         MediaSpec mediaSpec = getObservableData(mMediaSpec);
         AudioEncoderConfig config = composeAudioEncoderConfig(mediaSpec);
 
         try {
             mAudioEncoder = new EncoderImpl(mExecutor, config);
         } catch (InvalidConfigException e) {
-            Logger.e(TAG, "Unable to initialize audio encoder." + e);
-            onEncoderSetupError(e);
-            return;
+            throw new ResourceCreationException(e);
         }
 
         Encoder.EncoderInput bufferProvider = mAudioEncoder.getInput();
@@ -1129,11 +1119,8 @@ public final class Recorder implements VideoOutput {
             mAudioSource = setupAudioSource((Encoder.ByteBufferInput) bufferProvider,
                     mediaSpec.getAudioSpec());
         } catch (AudioSourceAccessException e) {
-            Logger.e(TAG, "Unable to create audio source." + e);
-            throw new AssertionError("Unable to create audio source.", e);
+            throw new ResourceCreationException(e);
         }
-
-        mAudioInitialized = true;
     }
 
     @RequiresPermission(Manifest.permission.RECORD_AUDIO)
@@ -1152,30 +1139,14 @@ public final class Recorder implements VideoOutput {
                 new AudioSource.AudioSourceCallback() {
                     @Override
                     public void onSilenced(boolean silenced) {
-                        switch (mAudioState) {
-                            case DISABLED:
-                                // Fall-through
-                            case ENCODER_ERROR:
-                                // Fall-through
-                            case INITIALIZING:
-                                // No-op
-                                break;
-                            case ACTIVE:
-                                if (silenced) {
-                                    mCachedAudioState = mAudioState;
-                                    setAudioState(AudioState.SOURCE_SILENCED);
-                                    mAudioErrorCause = new IllegalStateException("The audio "
-                                            + "source has been silenced.");
-                                    updateInProgressStatusEvent();
-                                }
-                                break;
-                            case SOURCE_SILENCED:
-                                if (!silenced) {
-                                    setAudioState(mCachedAudioState);
-                                    mAudioErrorCause = null;
-                                    updateInProgressStatusEvent();
-                                }
-                                break;
+                        if (mIsAudioSourceSilenced != silenced) {
+                            mIsAudioSourceSilenced = silenced;
+                            mAudioErrorCause = silenced ? new IllegalStateException(
+                                    "The audio source has been silenced.") : null;
+                            updateInProgressStatusEvent();
+                        } else {
+                            Logger.w(TAG, "Audio source silenced transitions to the same state "
+                                    + silenced);
                         }
                     }
 
@@ -1220,8 +1191,8 @@ public final class Recorder implements VideoOutput {
             mVideoEncoder = new EncoderImpl(mExecutor, config);
         } catch (InvalidConfigException e) {
             surfaceRequest.willNotProvideSurface();
-            Logger.e(TAG, "Unable to initialize video encoder." + e);
-            onEncoderSetupError(e);
+            Logger.e(TAG, "Unable to initialize video encoder.", e);
+            onEncoderSetupError(new ResourceCreationException(e));
             return;
         }
 
@@ -1369,12 +1340,37 @@ public final class Recorder implements VideoOutput {
             mFileSizeLimitInBytes = OutputOptions.FILE_SIZE_UNLIMITED;
         }
 
-        setupAudioIfNeeded(recordingToStart);
-
         mInProgressRecording = recordingToStart;
-        if (mAudioState == AudioState.INITIALIZING) {
-            setAudioState(recordingToStart.hasAudioEnabled() ? AudioState.ACTIVE
-                    : AudioState.DISABLED);
+
+        // Configure audio based on the current audio state.
+        switch (mAudioState) {
+            case ERROR:
+                // Fall-through
+            case ACTIVE:
+                // Fall-through
+            case DISABLED:
+                throw new AssertionError(
+                        "Incorrectly invoke startInternal in audio state " + mAudioState);
+            case IDLING:
+                setAudioState(recordingToStart.hasAudioEnabled() ? AudioState.ACTIVE
+                        : AudioState.DISABLED);
+                break;
+            case INITIALIZING:
+                if (recordingToStart.hasAudioEnabled()) {
+                    if (!isAudioSupported()) {
+                        throw new AssertionError(
+                                "The Recorder doesn't support recording with audio");
+                    }
+                    try {
+                        setupAudio();
+                        setAudioState(AudioState.ACTIVE);
+                    } catch (ResourceCreationException e) {
+                        Logger.e(TAG, "Unable to create audio resource with error: ", e);
+                        setAudioState(AudioState.ERROR);
+                        mAudioErrorCause = e;
+                    }
+                }
+                break;
         }
 
         initEncoderCallbacks(recordingToStart);
@@ -1506,7 +1502,7 @@ public final class Recorder implements VideoOutput {
                             public void onEncodeError(@NonNull EncodeException e) {
                                 // If the audio encoder encounters error, update the status event
                                 // to notify users. Then continue recording without audio data.
-                                setAudioState(AudioState.ENCODER_ERROR);
+                                setAudioState(AudioState.ERROR);
                                 mAudioErrorCause = e;
                                 updateInProgressStatusEvent();
                                 completer.set(null);
@@ -1712,21 +1708,29 @@ public final class Recorder implements VideoOutput {
             mAudioSource = null;
         }
 
-        mAudioInitialized = false;
+        setAudioState(AudioState.INITIALIZING);
     }
 
+    @ExecutedBy("mSequentialExecutor")
     private int internalAudioStateToAudioStatsState(@NonNull AudioState audioState) {
         switch (audioState) {
             case DISABLED:
-                return AudioStats.AUDIO_STATE_DISABLED;
-            case INITIALIZING:
                 // Fall-through
+            case INITIALIZING:
+                // Audio will not be initialized until the first recording with audio enabled is
+                // started. So if the audio state is INITIALIZING, consider the audio is disabled.
+                return AudioStats.AUDIO_STATE_DISABLED;
             case ACTIVE:
-                return AudioStats.AUDIO_STATE_ACTIVE;
-            case SOURCE_SILENCED:
-                return AudioStats.AUDIO_STATE_SOURCE_SILENCED;
-            case ENCODER_ERROR:
+                if (mIsAudioSourceSilenced) {
+                    return AudioStats.AUDIO_STATE_SOURCE_SILENCED;
+                } else {
+                    return AudioStats.AUDIO_STATE_ACTIVE;
+                }
+            case ERROR:
                 return AudioStats.AUDIO_STATE_ENCODER_ERROR;
+            case IDLING:
+                // AudioStats should not be produced when audio is in IDLING state.
+                break;
         }
         // Should not reach.
         throw new AssertionError("Invalid internal audio state: " + audioState);
@@ -1746,7 +1750,7 @@ public final class Recorder implements VideoOutput {
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     @ExecutedBy("mSequentialExecutor")
     boolean isAudioEnabled() {
-        return mAudioState != AudioState.DISABLED && mAudioState != AudioState.ENCODER_ERROR;
+        return mAudioState == AudioState.ACTIVE;
     }
 
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
@@ -1803,6 +1807,25 @@ public final class Recorder implements VideoOutput {
         mRecordingStopError = ERROR_UNKNOWN;
         mRecordingStopErrorCause = null;
         mAudioErrorCause = null;
+
+        switch (mAudioState) {
+            case IDLING:
+                throw new AssertionError(
+                        "Incorrectly finalize recording when audio state is IDLING");
+            case INITIALIZING:
+                // No-op, the audio hasn't been initialized. Keep it in INITIALIZING state.
+                break;
+            case DISABLED:
+                // Fall-through
+            case ACTIVE:
+                setAudioState(AudioState.IDLING);
+                break;
+            case ERROR:
+                // Reset audio state to INITIALIZING if the audio encoder encountered error, so
+                // that it can be setup again when the next recording with audio enabled is started.
+                setAudioState(AudioState.INITIALIZING);
+                break;
+        }
 
         onRecordingFinalized(finalizedRecording);
     }
