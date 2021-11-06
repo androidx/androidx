@@ -45,7 +45,7 @@ class GradleEnterpriseConventionsPlugin implements Plugin<Settings> {
             remote(HttpBuildCache) {
                 url = "https://ge.androidx.dev/cache/"
                 var buildCachePassword = System.getenv("GRADLE_BUILD_CACHE_PASSWORD")
-                if (buildCachePassword != null) {
+                if (buildCachePassword != null && !buildCachePassword.empty) {
                     push = true
                     credentials {
                         username = "ci"
