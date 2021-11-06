@@ -174,21 +174,31 @@ class AndroidXPlaygroundRootImplPlugin : Plugin<Project> {
     }
 
     private fun RepositoryHandler.addPlaygroundRepositories() {
-        repos.all.forEach { playgroundRepository ->
+        fun RepositoryHandler.addPlaygroundRepository(customRepository: PlaygroundRepository) {
             maven { repository ->
-                repository.url = URI(playgroundRepository.url)
+                repository.url = URI(customRepository.url)
                 repository.metadataSources {
                     it.mavenPom()
                     it.artifact()
                 }
                 repository.content {
-                    it.includeGroupByRegex(playgroundRepository.includeGroupRegex)
+                    it.includeGroupByRegex(customRepository.includeGroupRegex)
                 }
             }
         }
+
+        // Note, order is important here! It affects dependency download speeds.
+        // snapshots is required to be first to make projectOrArtifact work
+        // metalava and doclava repositories here next because we know we want these libraries
+        // from these repositories
+        addPlaygroundRepository(repos.snapshots)
+        addPlaygroundRepository(repos.metalava)
+        addPlaygroundRepository(repos.doclava)
         google()
         mavenCentral()
         gradlePluginPortal()
+        // prebuilts are at the end because these are fallback when no other repository can find it
+        addPlaygroundRepository(repos.prebuilts)
     }
 
     private class PlaygroundRepositories(
