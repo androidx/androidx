@@ -3,7 +3,7 @@ package androidx.work {
 
   public final class ArrayCreatingInputMerger extends androidx.work.InputMerger {
     ctor public ArrayCreatingInputMerger();
-    method public androidx.work.Data merge(java.util.List<androidx.work.Data!>);
+    method public androidx.work.Data merge(java.util.List<androidx.work.Data> inputs);
   }
 
   public enum BackoffPolicy {

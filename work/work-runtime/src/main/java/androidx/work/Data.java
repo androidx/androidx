@@ -283,7 +283,7 @@ public final class Data {
      * Gets the String value for the given key.
      *
      * @param key The key for the argument
-     * @return The value specified by the key if it exists; the default value otherwise
+     * @return The value specified by the key if it exists; {@code null} otherwise
      */
     @Nullable
     public String getString(@NonNull String key) {

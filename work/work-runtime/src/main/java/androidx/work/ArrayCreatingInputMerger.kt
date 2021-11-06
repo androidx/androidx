@@ -13,124 +13,93 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package androidx.work
 
-package androidx.work;
-
-import androidx.annotation.NonNull;
-
-import java.lang.reflect.Array;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.lang.IllegalArgumentException
+import java.lang.reflect.Array
+import java.util.HashMap
 
 /**
- * An {@link InputMerger} that attempts to merge the inputs, creating arrays when necessary.  For
+ * An [InputMerger] that attempts to merge the inputs, creating arrays when necessary.  For
  * each input, we look at each key:
- * <p><ul>
- * <li>If this is the first time we encountered the key:</li>
- *   <ul>
- *   <li>If it's an array, put it in the output</li>
- *   <li>If it's a primitive, turn it into a size 1 array and put it in the output</li>
- *   </ul>
- * <li>Else (we have encountered the key before):</li>
- *   <ul>
- *   <li>If the value type matches the old value type:</li>
- *     <ul>
- *     <li>If they are arrays, concatenate them</li>
- *     <li>If they are primitives, turn them into a size 2 array</li>
- *     </ul>
- *   <li>Else if one is an array and the other is a primitive of that type:</li>
- *     <ul>
- *     <li>Make a longer array and concatenate them</li>
- *     </ul>
- *   <li>Else throw an {@link IllegalArgumentException} because the types don't match</li>
- *   </ul>
- * </ul>
+ *
+ *  * If this is the first time we encountered the key:
+ *      * If it's an array, put it in the output
+ *      * If it's a primitive, turn it into a size 1 array and put it in the output
+ *  * Else (we have encountered the key before):
+ *      * If the value type matches the old value type:
+ *         * If they are arrays, concatenate them
+ *         * If they are primitives, turn them into a size 2 array
+ *      * Else if one is an array and the other is a primitive of that type:
+ *          * Make a longer array and concatenate them
+ *      * Else throw an [IllegalArgumentException] because the types don't match.
+ *
+ *  If a value by a key is `null`, it is considered to have type `String`, because it is the only
+ *  nullable typed allowed in [Data].
  */
-public final class ArrayCreatingInputMerger extends InputMerger {
-
-    @Override
-    public @NonNull Data merge(@NonNull List<Data> inputs) {
-        Data.Builder output = new Data.Builder();
-        Map<String, Object> mergedValues = new HashMap<>();
-
-        for (Data input : inputs) {
-            for (Map.Entry<String, Object> entry : input.getKeyValueMap().entrySet()) {
-                String key = entry.getKey();
-                Object value = entry.getValue();
-                Class<?> valueClass = value.getClass();
-                Object mergedValue;
-
-                Object existingValue = mergedValues.get(key);
-                if (existingValue == null) {
+class ArrayCreatingInputMerger : InputMerger() {
+    @Suppress("DocumentExceptions")
+    override fun merge(inputs: List<Data>): Data {
+        val output = Data.Builder()
+        // values are always arrays
+        val mergedValues: MutableMap<String, Any> = HashMap()
+        for (input in inputs) {
+            for ((key, value) in input.keyValueMap) {
+                val valueClass: Class<*> = value?.javaClass ?: String::class.java
+                val existingValue = mergedValues[key]
+                mergedValues[key] = if (existingValue == null) {
                     // First time encountering this key.
-                    if (valueClass.isArray()) {
+                    if (valueClass.isArray) {
                         // Arrays carry over as-is.
-                        mergedValue = value;
+                        value
                     } else {
                         // Primitives get turned into size 1 arrays.
-                        mergedValue = createArrayFor(value);
+                        createArrayFor(value, valueClass)
                     }
                 } else {
                     // We've encountered this key before.
-                    Class<?> existingValueClass = existingValue.getClass();
-
-                    if (existingValueClass.equals(valueClass)) {
-                        // The classes match; we can merge.
-                        if (existingValueClass.isArray()) {
-                            mergedValue = concatenateArrays(existingValue, value);
-                        } else {
-                            mergedValue = concatenateNonArrays(existingValue, value);
+                    val existingValueClass: Class<*> = existingValue.javaClass
+                    when {
+                        existingValueClass == valueClass -> {
+                            // The classes match; we can merge.
+                            concatenateArrays(existingValue, value)
                         }
-                    } else if (existingValueClass.isArray()
-                            && existingValueClass.getComponentType().equals(valueClass)) {
-                        // We have an existing array of the same type.
-                        mergedValue = concatenateArrayAndNonArray(existingValue, value);
-                    } else if (valueClass.isArray()
-                            && valueClass.getComponentType().equals(existingValueClass)) {
-                        // We have an existing array of the same type.
-                        mergedValue = concatenateArrayAndNonArray(value, existingValue);
-                    } else {
-                        throw new IllegalArgumentException();
+                        existingValueClass.componentType == valueClass -> {
+                            // We have an existing array of the same type.
+                            concatenateArrayAndNonArray(existingValue, value, valueClass)
+                        }
+                        else -> throw IllegalArgumentException()
                     }
                 }
-
-                mergedValues.put(key, mergedValue);
             }
         }
-
-        output.putAll(mergedValues);
-        return output.build();
+        output.putAll(mergedValues)
+        return output.build()
     }
 
-    private Object concatenateArrays(Object array1, Object array2) {
-        int length1 = Array.getLength(array1);
-        int length2 = Array.getLength(array2);
-        Object newArray = Array.newInstance(array1.getClass().getComponentType(),
-                length1 + length2);
-        System.arraycopy(array1, 0, newArray, 0, length1);
-        System.arraycopy(array2, 0, newArray, length1, length2);
-        return newArray;
+    private fun concatenateArrays(array1: Any, array2: Any): Any {
+        val length1 = Array.getLength(array1)
+        val length2 = Array.getLength(array2)
+        val newArray = Array.newInstance(
+            array1.javaClass.componentType!!,
+            length1 + length2
+        )
+        System.arraycopy(array1, 0, newArray, 0, length1)
+        System.arraycopy(array2, 0, newArray, length1, length2)
+        return newArray
     }
 
-    private Object concatenateNonArrays(Object obj1, Object obj2) {
-        Object newArray = Array.newInstance(obj1.getClass(), 2);
-        Array.set(newArray, 0, obj1);
-        Array.set(newArray, 1, obj2);
-        return newArray;
+    private fun concatenateArrayAndNonArray(array: Any, obj: Any?, valueClass: Class<*>): Any {
+        val arrayLength = Array.getLength(array)
+        val newArray = Array.newInstance(valueClass, arrayLength + 1)
+        System.arraycopy(array, 0, newArray, 0, arrayLength)
+        Array.set(newArray, arrayLength, obj)
+        return newArray
     }
 
-    private Object concatenateArrayAndNonArray(Object array, Object obj) {
-        int arrayLength = Array.getLength(array);
-        Object newArray = Array.newInstance(obj.getClass(), arrayLength + 1);
-        System.arraycopy(array, 0, newArray, 0, arrayLength);
-        Array.set(newArray, arrayLength, obj);
-        return newArray;
-    }
-
-    private Object createArrayFor(Object obj) {
-        Object newArray = Array.newInstance(obj.getClass(), 1);
-        Array.set(newArray, 0, obj);
-        return newArray;
+    private fun createArrayFor(obj: Any?, valueClass: Class<*>): Any {
+        val newArray = Array.newInstance(valueClass, 1)
+        Array.set(newArray, 0, obj)
+        return newArray
     }
 }
