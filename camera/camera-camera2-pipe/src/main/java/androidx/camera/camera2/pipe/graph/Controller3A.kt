@@ -35,12 +35,14 @@ import androidx.camera.camera2.pipe.AfMode
 import androidx.camera.camera2.pipe.AwbMode
 import androidx.camera.camera2.pipe.CameraGraph.Constants3A.DEFAULT_FRAME_LIMIT
 import androidx.camera.camera2.pipe.CameraGraph.Constants3A.DEFAULT_TIME_LIMIT_NS
+import androidx.camera.camera2.pipe.CameraMetadata
 import androidx.camera.camera2.pipe.FlashMode
 import androidx.camera.camera2.pipe.Lock3ABehavior
 import androidx.camera.camera2.pipe.Result3A
 import androidx.camera.camera2.pipe.Result3A.Status
 import androidx.camera.camera2.pipe.TorchState
 import androidx.camera.camera2.pipe.core.Log.debug
+import androidx.camera.camera2.pipe.supportsAutoFocusTrigger
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.cancel
@@ -50,6 +52,7 @@ import kotlinx.coroutines.cancel
  */
 internal class Controller3A(
     private val graphProcessor: GraphProcessor,
+    private val metadata: CameraMetadata,
     private val graphState3A: GraphState3A,
     private val graphListener3A: Listener3A
 ) {
@@ -218,6 +221,9 @@ internal class Controller3A(
      * If we received an error when submitting any of the above requests or if waiting for the
      * desired 3A state times out then we return early with the appropriate status code.
      *
+     * If the operation is not supported by the camera device then this method returns early with
+     * Result3A made of 'OK' status and 'null' metadata.
+     *
      * Note: the frameLimit and timeLimitNs applies to each of the above steps (a) and (b) and not
      * as a whole for the whole lock3A method. Thus, in the worst case this method including the
      * completion of returned Deferred<Result3A> can take 2 * min(time equivalent of frameLimit,
@@ -233,6 +239,13 @@ internal class Controller3A(
         frameLimit: Int = DEFAULT_FRAME_LIMIT,
         timeLimitNs: Long? = DEFAULT_TIME_LIMIT_NS
     ): Deferred<Result3A> {
+        var afLockBehaviorSanitized = afLockBehavior
+        if (!metadata.supportsAutoFocusTrigger) {
+            afLockBehaviorSanitized = null
+        }
+        if (aeLockBehavior == null && afLockBehaviorSanitized == null && awbLockBehavior == null) {
+            return CompletableDeferred(Result3A(Status.OK, /* frameMetadata= */ null))
+        }
         // Update the 3A state of camera graph with the given metering regions. If metering regions
         // are given as null then they are ignored and the current metering regions continue to be
         // applied in subsequent requests to the camera device.
@@ -240,7 +253,7 @@ internal class Controller3A(
 
         // If we explicitly need to unlock af first before proceeding to lock it, we need to send
         // a single request with TRIGGER = TRIGGER_CANCEL so that af can start a fresh scan.
-        if (afLockBehavior.shouldUnlockAf()) {
+        if (afLockBehaviorSanitized.shouldUnlockAf()) {
             debug { "lock3A - sending a request to unlock af first." }
             if (!graphProcessor.submit(parameterForAfTriggerCancel)) {
                 return CompletableDeferred(result3ASubmitFailed)
@@ -249,12 +262,12 @@ internal class Controller3A(
 
         // As needed unlock ae, awb and wait for ae, af and awb to converge.
         if (aeLockBehavior.shouldWaitForAeToConverge() ||
-            afLockBehavior.shouldWaitForAfToConverge() ||
+            afLockBehaviorSanitized.shouldWaitForAfToConverge() ||
             awbLockBehavior.shouldWaitForAwbToConverge()
         ) {
             val converged3AExitConditions = createConverged3AExitConditions(
                 aeLockBehavior.shouldWaitForAeToConverge(),
-                afLockBehavior.shouldWaitForAfToConverge(),
+                afLockBehaviorSanitized.shouldWaitForAfToConverge(),
                 awbLockBehavior.shouldWaitForAwbToConverge()
             )
             val listener = Result3AStateListenerImpl(
@@ -283,7 +296,7 @@ internal class Controller3A(
             debug {
                 "lock3A - waiting for" +
                     (if (aeLockBehavior.shouldWaitForAeToConverge()) " ae" else "") +
-                    (if (afLockBehavior.shouldWaitForAfToConverge()) " af" else "") +
+                    (if (afLockBehaviorSanitized.shouldWaitForAfToConverge()) " af" else "") +
                     (if (awbLockBehavior.shouldWaitForAwbToConverge()) " awb" else "") +
                     " to converge before locking them."
             }
@@ -299,12 +312,19 @@ internal class Controller3A(
             }
         }
 
-        return lock3ANow(aeLockBehavior, afLockBehavior, awbLockBehavior, frameLimit, timeLimitNs)
+        return lock3ANow(
+            aeLockBehavior,
+            afLockBehaviorSanitized,
+            awbLockBehavior,
+            frameLimit,
+            timeLimitNs
+        )
     }
 
     /**
      * This method unlocks ae, af and awb, as specified by setting the corresponding parameter to
-     * true.
+     * true. If this operation is not supported by the camera device, then we return early with
+     * Result3A made of 'OK' status and metadata as null.
      *
      * There are two requests involved in this operation, (a) a single request with af trigger =
      * cancel, to unlock af, and then (a) a repeating request to unlock ae, awb.
@@ -314,10 +334,16 @@ internal class Controller3A(
         af: Boolean? = null,
         awb: Boolean? = null
     ): Deferred<Result3A> {
-        check(ae == true || af == true || awb == true) { "No parameter has value as true" }
+        var afSanitized = af
+        if (!metadata.supportsAutoFocusTrigger) {
+            afSanitized = null
+        }
+        if (!(ae == true || afSanitized == true || awb == true)) {
+            return CompletableDeferred(Result3A(Status.OK, /* frameMetadata= */ null))
+        }
         // If we explicitly need to unlock af first before proceeding to lock it, we need to send
         // a single request with TRIGGER = TRIGGER_CANCEL so that af can start a fresh scan.
-        if (af == true) {
+        if (afSanitized == true) {
             debug { "unlock3A - sending a request to unlock af first." }
             if (!graphProcessor.submit(parameterForAfTriggerCancel)) {
                 debug { "unlock3A - request to unlock af failed, returning early." }
@@ -328,7 +354,7 @@ internal class Controller3A(
         // As needed unlock ae, awb and wait for ae, af and awb to converge.
         val unlocked3AExitConditions = createUnLocked3AExitConditions(
             ae == true,
-            af == true,
+            afSanitized == true,
             awb == true
         )
         val listener = Result3AStateListenerImpl(unlocked3AExitConditions)
