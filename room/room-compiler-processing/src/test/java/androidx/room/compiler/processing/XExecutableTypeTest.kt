@@ -23,12 +23,64 @@ import androidx.room.compiler.processing.util.getMethod
 import androidx.room.compiler.processing.util.runProcessorTest
 import androidx.room.compiler.processing.util.typeName
 import com.google.common.truth.Truth.assertThat
+import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.ParameterizedTypeName
 import com.squareup.javapoet.TypeName
+import com.squareup.javapoet.TypeVariableName
 import com.squareup.javapoet.WildcardTypeName
 import org.junit.Test
 
 class XExecutableTypeTest {
+    @Test
+    fun constructorInheritanceResolution() {
+        runProcessorTest(
+            sources = listOf(
+                Source.kotlin(
+                    "KotlinClass.kt",
+                    """
+                    abstract class KotlinClass<T> constructor(t: T) {
+                        abstract fun foo(): KotlinClass<String>
+                    }
+                    """.trimIndent()
+                ),
+                Source.java(
+                    "JavaClass.java",
+                    """
+                    abstract class JavaClass<T> {
+                        JavaClass(T t) {}
+                        abstract JavaClass<String> foo();
+                    }
+                    """.trimIndent()
+                )
+            )
+        ) { invocation ->
+            fun checkConstructor(className: String) {
+                val typeElement = invocation.processingEnv.requireTypeElement(className)
+                val constructorElement = typeElement.getConstructors().single()
+                val constructorType = constructorElement.executableType
+
+                // Assert that the XConstructorElement parameter is unresolved type, T.
+                // TODO(10/06/2021): Should KSP also return T?
+                if (invocation.isKsp) {
+                    assertThat(constructorType.parameterTypes.single().typeName)
+                        .isEqualTo(TypeVariableName.OBJECT)
+                } else {
+                    assertThat(constructorType.parameterTypes.single().typeName)
+                        .isEqualTo(TypeVariableName.get("T"))
+                }
+
+                val resolvedType = typeElement.getDeclaredMethods().single().returnType
+                val resolvedConstructorType = constructorElement.asMemberOf(resolvedType)
+
+                // Assert that the XConstructorType parameter is resolved type, String
+                assertThat(resolvedConstructorType.parameterTypes.single().typeName)
+                    .isEqualTo(ClassName.get("java.lang", "String"))
+            }
+            checkConstructor("JavaClass")
+            checkConstructor("KotlinClass")
+        }
+    }
+
     @Test
     fun inheritanceResolution() {
         val src = Source.kotlin(

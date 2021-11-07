@@ -16,32 +16,9 @@
 
 package androidx.room.compiler.processing
 
-import com.squareup.javapoet.TypeVariableName
-import kotlin.contracts.contract
-
 /**
- * Represents a type information for a method.
+ * Represents a type information for a constructor.
  *
  * It is not an XType as it does not represent a class or primitive.
  */
-interface XMethodType : XExecutableType {
-    /**
-     * The return type of the method
-     */
-    val returnType: XType
-
-    /**
-     * Returns the names of [TypeVariableName]s for this executable.
-     */
-    val typeVariableNames: List<TypeVariableName>
-}
-
-/**
- * Returns `true` if this method type represents a suspend function
- */
-fun XMethodType.isSuspendFunction(): Boolean {
-    contract {
-        returns(true) implies (this@isSuspendFunction is XSuspendMethodType)
-    }
-    return this is XSuspendMethodType
-}
+interface XConstructorType : XExecutableType

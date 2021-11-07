@@ -22,22 +22,10 @@ import androidx.room.compiler.processing.XType
 import com.squareup.javapoet.TypeVariableName
 
 internal sealed class KspMethodType(
-    val env: KspProcessingEnv,
-    val origin: KspMethodElement,
-    val containing: KspType?
-) : XMethodType {
-    override val parameterTypes: List<XType> by lazy {
-        if (containing == null) {
-            origin.parameters.map {
-                it.type
-            }
-        } else {
-            origin.parameters.map {
-                it.asMemberOf(containing)
-            }
-        }
-    }
-
+    env: KspProcessingEnv,
+    override val origin: KspMethodElement,
+    containing: KspType?
+) : KspExecutableType(env, origin, containing), XMethodType {
     override val typeVariableNames: List<TypeVariableName> by lazy {
         origin.declaration.typeParameters.map {
             val typeParameterBounds = it.bounds.map {

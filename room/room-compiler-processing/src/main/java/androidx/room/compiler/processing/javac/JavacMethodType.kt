@@ -24,10 +24,10 @@ import com.squareup.javapoet.TypeVariableName
 import javax.lang.model.type.ExecutableType
 
 internal sealed class JavacMethodType(
-    val env: JavacProcessingEnv,
-    val element: JavacMethodElement,
-    val executableType: ExecutableType
-) : XMethodType {
+    env: JavacProcessingEnv,
+    override val element: JavacMethodElement,
+    executableType: ExecutableType
+) : JavacExecutableType(env, element, executableType), XMethodType {
     override val returnType: JavacType by lazy {
         env.wrap<JavacType>(
             typeMirror = executableType.returnType,
@@ -46,29 +46,6 @@ internal sealed class JavacMethodType(
         executableType.typeVariables.map {
             TypeVariableName.get(it)
         }
-    }
-
-    override val parameterTypes: List<JavacType> by lazy {
-        executableType.parameterTypes.mapIndexed { index, typeMirror ->
-            env.wrap<JavacType>(
-                typeMirror = typeMirror,
-                kotlinType = element.parameters[index].kotlinType,
-                elementNullability = element.parameters[index].element.nullability
-            )
-        }
-    }
-
-    override fun equals(other: Any?): Boolean {
-        if (other !is JavacMethodType) return false
-        return executableType == other.executableType
-    }
-
-    override fun hashCode(): Int {
-        return executableType.hashCode()
-    }
-
-    override fun toString(): String {
-        return executableType.toString()
     }
 
     private class NormalMethodType(
