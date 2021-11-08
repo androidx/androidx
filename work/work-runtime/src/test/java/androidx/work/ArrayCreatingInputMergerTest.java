@@ -101,6 +101,42 @@ public class ArrayCreatingInputMergerTest {
         assertThat(throwable, instanceOf(IllegalArgumentException.class));
     }
 
+    @Test
+    public void testMerge_nulls() {
+        // two nulls
+        Data data1 = new Data.Builder().putString("a", null).build();
+        Data data2 = new Data.Builder().putString("a", null).build();
+
+        Data expected = new Data.Builder().putStringArray("a", new String[]{null, null}).build();
+        assertThat(getOutputFor(data1, data2), is(expected));
+
+        // value, null
+        data1 = new Data.Builder().putString("a", "b").build();
+        data2 = new Data.Builder().putString("a", null).build();
+        expected = new Data.Builder().putStringArray("a", new String[]{"b", null}).build();
+        assertThat(getOutputFor(data1, data2), is(expected));
+
+        // null, value
+        data1 = new Data.Builder().putString("a", null).build();
+        data2 = new Data.Builder().putString("a", "b").build();
+        expected = new Data.Builder().putStringArray("a", new String[]{null, "b"}).build();
+        assertThat(getOutputFor(data1, data2), is(expected));
+
+        // string array, null
+        data1 = new Data.Builder().putStringArray("a", new String[]{"b", "c"}).build();
+        data2 = new Data.Builder().putString("a", null).build();
+        expected = new Data.Builder()
+                .putStringArray("a", new String[]{"b", "c", null}).build();
+        assertThat(getOutputFor(data1, data2), is(expected));
+
+        // null, string array
+        data1 = new Data.Builder().putString("a", null).build();
+        data2 = new Data.Builder().putStringArray("a", new String[]{"b", "c"}).build();
+        expected = new Data.Builder()
+                .putStringArray("a", new String[]{null, "b", "c"}).build();
+        assertThat(getOutputFor(data1, data2), is(expected));
+    }
+
     private Data getOutputFor(Data... inputs) {
         return mArrayCreatingInputMerger.merge(Arrays.asList(inputs));
     }
