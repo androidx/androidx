@@ -1407,6 +1407,9 @@ public abstract class WatchFaceService : WallpaperService() {
             createComplicationSlotsManager(
                 CurrentUserStyleRepository(createUserStyleSchema())
             ).complicationSlots.map {
+                val systemDataSourceFallbackDefaultType =
+                    it.value.defaultDataSourcePolicy.systemDataSourceFallbackDefaultType
+                        .toWireComplicationType()
                 ComplicationSlotMetadataWireFormat(
                     it.key,
                     it.value.complicationSlotBounds.perComplicationTypeBounds.keys.map {
@@ -1418,7 +1421,11 @@ public abstract class WatchFaceService : WallpaperService() {
                     it.value.supportedTypes.toWireTypes(),
                     it.value.defaultDataSourcePolicy.dataSourcesAsList(),
                     it.value.defaultDataSourcePolicy.systemDataSourceFallback,
-                    it.value.defaultDataSourceType.toWireComplicationType(),
+                    systemDataSourceFallbackDefaultType,
+                    it.value.defaultDataSourcePolicy.primaryDataSourceDefaultType
+                        ?.toWireComplicationType() ?: systemDataSourceFallbackDefaultType,
+                    it.value.defaultDataSourcePolicy.secondaryDataSourceDefaultType
+                        ?.toWireComplicationType() ?: systemDataSourceFallbackDefaultType,
                     it.value.initiallyEnabled,
                     it.value.fixedComplicationDataSource,
                     it.value.configExtras

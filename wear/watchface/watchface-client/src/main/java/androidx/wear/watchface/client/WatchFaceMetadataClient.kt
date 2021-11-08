@@ -182,8 +182,6 @@ public interface WatchFaceMetadataClient : AutoCloseable {
  * during complication data source selection, this list should be non-empty.
  * @param defaultDataSourcePolicy The [DefaultComplicationDataSourcePolicy] which controls the
  * initial complication data source when the watch face is first installed.
- * @param defaultDataSourceType The default [ComplicationType] for the default  complication data
- * source.
  * @param isInitiallyEnabled At creation a complication slot is either enabled or disabled. This
  * can be overridden by a [ComplicationSlotsUserStyleSetting] (see
  * [ComplicationSlotOverlay.enabled]).
@@ -193,14 +191,13 @@ public interface WatchFaceMetadataClient : AutoCloseable {
  * source is fixed (i.e. can't be changed by the user). This is useful for watch faces built
  * around specific complication  complication data sources.
  * @param complicationConfigExtras Extras to be merged into the Intent sent when invoking the
- *  complication data source chooser activity.
+ * complication data source chooser activity.
  */
 public class ComplicationSlotMetadata(
     public val bounds: ComplicationSlotBounds?,
     @ComplicationSlotBoundsType public val boundsType: Int,
     public val supportedTypes: List<ComplicationType>,
     public val defaultDataSourcePolicy: DefaultComplicationDataSourcePolicy,
-    public val defaultDataSourceType: ComplicationType,
     @get:JvmName("isInitiallyEnabled")
     public val isInitiallyEnabled: Boolean,
     public val fixedComplicationDataSource: Boolean,
@@ -282,9 +279,15 @@ internal class WatchFaceMetadataClientImpl internal constructor(
                             it.supportedTypes.map { ComplicationType.fromWireType(it) },
                             DefaultComplicationDataSourcePolicy(
                                 it.defaultDataSourcesToTry ?: emptyList(),
-                                it.fallbackSystemDataSource
+                                it.fallbackSystemDataSource,
+                                ComplicationType.fromWireType(
+                                    it.primaryDataSourceDefaultType
+                                ),
+                                ComplicationType.fromWireType(
+                                    it.secondaryDataSourceDefaultType
+                                ),
+                                ComplicationType.fromWireType(it.defaultDataSourceType)
                             ),
-                            ComplicationType.fromWireType(it.defaultDataSourceType),
                             it.isInitiallyEnabled,
                             it.isFixedComplicationDataSource,
                             it.complicationConfigExtras
@@ -298,7 +301,6 @@ internal class WatchFaceMetadataClientImpl internal constructor(
                         it.value.boundsType,
                         it.value.supportedTypes,
                         it.value.defaultDataSourcePolicy,
-                        it.value.defaultDataSourceType,
                         it.value.isInitiallyEnabled,
                         it.value.fixedComplicationDataSource,
                         it.value.complicationConfigExtras
@@ -334,7 +336,6 @@ internal class XmlWatchFaceMetadataClientImpl(
                     it.boundsType,
                     it.supportedTypes,
                     it.defaultDataSourcePolicy,
-                    it.defaultDataSourceType,
                     it.initiallyEnabled,
                     it.fixedComplicationDataSource,
                     Bundle()

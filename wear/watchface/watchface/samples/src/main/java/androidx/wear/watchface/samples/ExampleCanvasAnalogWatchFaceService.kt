@@ -257,10 +257,13 @@ open class ExampleCanvasAnalogWatchFaceService : WatchFaceService() {
                 ComplicationType.MONOCHROMATIC_IMAGE,
                 ComplicationType.SMALL_IMAGE
             ),
-            DefaultComplicationDataSourcePolicy(SystemDataSources.DATA_SOURCE_DAY_OF_WEEK),
+            DefaultComplicationDataSourcePolicy(
+                SystemDataSources.DATA_SOURCE_DAY_OF_WEEK,
+                ComplicationType.SHORT_TEXT
+            ),
             ComplicationSlotBounds(RectF(0.2f, 0.4f, 0.4f, 0.6f))
-        ).setDefaultDataSourceType(ComplicationType.SHORT_TEXT)
-            .build()
+        ).build()
+
         val rightComplication = ComplicationSlot.createRoundRectComplicationSlotBuilder(
             EXAMPLE_CANVAS_WATCHFACE_RIGHT_COMPLICATION_ID,
             canvasComplicationFactory,
@@ -271,10 +274,12 @@ open class ExampleCanvasAnalogWatchFaceService : WatchFaceService() {
                 ComplicationType.MONOCHROMATIC_IMAGE,
                 ComplicationType.SMALL_IMAGE
             ),
-            DefaultComplicationDataSourcePolicy(SystemDataSources.DATA_SOURCE_STEP_COUNT),
+            DefaultComplicationDataSourcePolicy(
+                SystemDataSources.DATA_SOURCE_STEP_COUNT,
+                ComplicationType.SHORT_TEXT
+            ),
             ComplicationSlotBounds(RectF(0.6f, 0.4f, 0.8f, 0.6f))
-        ).setDefaultDataSourceType(ComplicationType.SHORT_TEXT)
-            .build()
+        ).build()
         return ComplicationSlotsManager(
             listOf(leftComplication, rightComplication),
             currentUserStyleRepository

@@ -127,11 +127,11 @@ fun kDocCreateExampleWatchFaceService(): WatchFaceService {
                             ComplicationType.SMALL_IMAGE
                         ),
                         DefaultComplicationDataSourcePolicy(
-                            SystemDataSources.DATA_SOURCE_DAY_OF_WEEK
+                            SystemDataSources.DATA_SOURCE_DAY_OF_WEEK,
+                            ComplicationType.SHORT_TEXT
                         ),
                         ComplicationSlotBounds(RectF(0.15625f, 0.1875f, 0.84375f, 0.3125f))
-                    ).setDefaultDataSourceType(ComplicationType.SHORT_TEXT)
-                        .build(),
+                    ).build(),
                     ComplicationSlot.createRoundRectComplicationSlotBuilder(
                         /*id */ 1,
                         canvasComplicationFactory,
@@ -143,11 +143,11 @@ fun kDocCreateExampleWatchFaceService(): WatchFaceService {
                             ComplicationType.SMALL_IMAGE
                         ),
                         DefaultComplicationDataSourcePolicy(
-                            SystemDataSources.DATA_SOURCE_STEP_COUNT
+                            SystemDataSources.DATA_SOURCE_STEP_COUNT,
+                            ComplicationType.SHORT_TEXT
                         ),
                         ComplicationSlotBounds(RectF(0.1f, 0.5625f, 0.35f, 0.8125f))
-                    ).setDefaultDataSourceType(ComplicationType.SHORT_TEXT)
-                        .build()
+                    ).build()
                 ),
                 currentUserStyleRepository
             )
