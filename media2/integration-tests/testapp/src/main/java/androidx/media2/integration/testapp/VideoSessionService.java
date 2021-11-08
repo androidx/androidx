@@ -39,7 +39,6 @@ import androidx.media2.session.MediaSessionService;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
-import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.util.List;
 import java.util.concurrent.Executor;
@@ -196,11 +195,7 @@ public class VideoSessionService extends MediaSessionService {
             Bitmap musicAlbumBitmap = extractAlbumArt(retriever);
 
             if (retriever != null) {
-                try {
-                    retriever.release();
-                } catch (IOException e) {
-                    // Nothing we can do about that...
-                }
+                retriever.release();
             }
 
             MediaMetadata metadata = mediaItem.getMetadata();

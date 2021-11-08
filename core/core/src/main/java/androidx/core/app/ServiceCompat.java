@@ -94,7 +94,6 @@ public final class ServiceCompat {
      * {@link #STOP_FOREGROUND_DETACH}.
      * @see Service#startForeground(int, Notification)
      */
-    @SuppressWarnings("deprecation")
     public static void stopForeground(@NonNull Service service, @StopForegroundFlags int flags) {
         if (Build.VERSION.SDK_INT >= 24) {
             service.stopForeground(flags);

@@ -53,7 +53,6 @@ public final class NavigationCarAppService extends CarAppService {
                 NavigationSession.URI_SCHEME, NavigationSession.URI_HOST, deepLinkAction);
     }
 
-    @SuppressWarnings("deprecation")
     @Override
     @NonNull
     public Session onCreateSession() {
