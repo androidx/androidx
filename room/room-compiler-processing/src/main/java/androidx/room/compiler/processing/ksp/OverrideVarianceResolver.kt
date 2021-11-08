@@ -157,6 +157,8 @@ internal class OverrideVarianceResolver(
                 typeRef = myTypeRef.inheritVariance(overridee.type),
                 variance = if (overridee.variance == Variance.STAR) {
                     Variance.COVARIANT
+                } else if (overridee.variance == Variance.INVARIANT) {
+                    param.variance
                 } else {
                     overridee.variance
                 }
