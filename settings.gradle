@@ -464,6 +464,7 @@ includeProject(":core:core-remoteviews", "core/core-remoteviews", [BuildType.MAI
 includeProject(":core:core-remoteviews:integration-tests:demos", "core/core-remoteviews/integration-tests/demos", [BuildType.MAIN])
 includeProject(":core:core-splashscreen", "core/core-splashscreen", [BuildType.MAIN])
 includeProject(":core:core-splashscreen:core-splashscreen-samples", "core/core-splashscreen/samples", [BuildType.MAIN])
+includeProject(":core:core-graphics-integration-tests:core-graphics-integration-tests", "core/core-graphics-integration-tests/testapp", [BuildType.MAIN])
 includeProject(":core:core-role", "core/core-role", [BuildType.MAIN])
 includeProject(":core:uwb:uwb", "core/uwb/uwb", [BuildType.MAIN])
 includeProject(":cursoradapter:cursoradapter", "cursoradapter/cursoradapter", [BuildType.MAIN])
