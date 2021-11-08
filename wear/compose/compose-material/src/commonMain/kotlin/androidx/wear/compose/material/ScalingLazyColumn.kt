@@ -22,6 +22,8 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.calculateEndPadding
+import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
@@ -35,14 +37,17 @@ import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.offset
 
 /**
  * Receiver scope which is used by [ScalingLazyColumn].
  */
+@ScalingLazyScopeMarker
 public interface ScalingLazyListScope {
     /**
      * Adds a single item.
@@ -55,7 +60,7 @@ public interface ScalingLazyListScope {
      * will be kept as the first visible one.
      * @param content the content of the item
      */
-    fun item(key: Any? = null, content: @Composable () -> Unit)
+    fun item(key: Any? = null, content: @Composable ScalingLazyListItemScope.() -> Unit)
 
     /**
      * Adds a [count] of items.
@@ -72,7 +77,7 @@ public interface ScalingLazyListScope {
     fun items(
         count: Int,
         key: ((index: Int) -> Any)? = null,
-        itemContent: @Composable (index: Int) -> Unit
+        itemContent: @Composable ScalingLazyListItemScope.(index: Int) -> Unit
     )
 }
 
@@ -91,7 +96,7 @@ public interface ScalingLazyListScope {
 inline fun <T> ScalingLazyListScope.items(
     items: List<T>,
     noinline key: ((item: T) -> Any)? = null,
-    crossinline itemContent: @Composable ScalingLazyListScope.(item: T) -> Unit
+    crossinline itemContent: @Composable ScalingLazyListItemScope.(item: T) -> Unit
 ) = items(items.size, if (key != null) { index: Int -> key(items[index]) } else null) {
     itemContent(items[it])
 }
@@ -111,7 +116,7 @@ inline fun <T> ScalingLazyListScope.items(
 inline fun <T> ScalingLazyListScope.itemsIndexed(
     items: List<T>,
     noinline key: ((index: Int, item: T) -> Any)? = null,
-    crossinline itemContent: @Composable ScalingLazyListScope.(index: Int, item: T) -> Unit
+    crossinline itemContent: @Composable ScalingLazyListItemScope.(index: Int, item: T) -> Unit
 ) = items(items.size, if (key != null) { index: Int -> key(index, items[index]) } else null) {
     itemContent(it, items[it])
 }
@@ -131,7 +136,7 @@ inline fun <T> ScalingLazyListScope.itemsIndexed(
 inline fun <T> ScalingLazyListScope.items(
     items: Array<T>,
     noinline key: ((item: T) -> Any)? = null,
-    crossinline itemContent: @Composable ScalingLazyListScope.(item: T) -> Unit
+    crossinline itemContent: @Composable ScalingLazyListItemScope.(item: T) -> Unit
 ) = items(items.size, if (key != null) { index: Int -> key(items[index]) } else null) {
     itemContent(items[it])
 }
@@ -151,7 +156,7 @@ inline fun <T> ScalingLazyListScope.items(
 public inline fun <T> ScalingLazyListScope.itemsIndexed(
     items: Array<T>,
     noinline key: ((index: Int, item: T) -> Any)? = null,
-    crossinline itemContent: @Composable ScalingLazyListScope.(index: Int, item: T) -> Unit
+    crossinline itemContent: @Composable ScalingLazyListItemScope.(index: Int, item: T) -> Unit
 ) = items(items.size, if (key != null) { index: Int -> key(index, items[index]) } else null) {
     itemContent(it, items[it])
 }
@@ -202,14 +207,30 @@ public fun ScalingLazyColumn(
     content: ScalingLazyListScope.() -> Unit
 ) {
     BoxWithConstraints(modifier = modifier) {
+        val density = LocalDensity.current
+        val layoutDirection = LocalLayoutDirection.current
         val extraPaddingInPixels = scalingParams.resolveViewportVerticalOffset(constraints)
-        val extraPadding = with(LocalDensity.current) { extraPaddingInPixels.toDp() }
-
+        val extraPadding = with(density) { extraPaddingInPixels.toDp() }
+        val itemScope = with(density) {
+            ScalingLazyListItemScopeImpl(
+                density = density,
+                constraints = constraints.offset(
+                    horizontal = -(
+                        contentPadding.calculateStartPadding(layoutDirection) +
+                            contentPadding.calculateEndPadding(layoutDirection)
+                        ).toPx().toInt(),
+                    vertical = -(
+                        contentPadding.calculateTopPadding() +
+                            contentPadding.calculateBottomPadding()
+                        ).roundToPx()
+                )
+            )
+        }
         // Set up transient state
         state.scalingParams.value = scalingParams
         state.extraPaddingInPixels.value = extraPaddingInPixels
         state.viewportHeightPx.value = constraints.maxHeight
-        state.gapBetweenItemsPx.value = with(LocalDensity.current) {
+        state.gapBetweenItemsPx.value = with(density) {
             verticalArrangement.spacing.roundToPx()
         }
         state.reverseLayout.value = reverseLayout
@@ -230,8 +251,9 @@ public fun ScalingLazyColumn(
             state = state.lazyListState
         ) {
             val scope = ScalingLazyListScopeImpl(
-                state,
-                this,
+                state = state,
+                scope = this,
+                itemScope = itemScope
             )
             scope.content()
         }
@@ -370,17 +392,19 @@ public object ScalingLazyColumnDefaults {
 private class ScalingLazyListScopeImpl(
     private val state: ScalingLazyListState,
     private val scope: LazyListScope,
+    private val itemScope: ScalingLazyListItemScope
 ) : ScalingLazyListScope {
 
     private var currentStartIndex = 0
 
-    override fun item(key: Any?, content: @Composable () -> Unit) {
+    override fun item(key: Any?, content: @Composable (ScalingLazyListItemScope.() -> Unit)) {
         val startIndex = currentStartIndex
         scope.item(key = key) {
             ScalingLazyColumnItemWrapper(
                 startIndex,
                 state,
-                content = content
+                itemScope,
+                content
             )
         }
         currentStartIndex++
@@ -389,13 +413,14 @@ private class ScalingLazyListScopeImpl(
     override fun items(
         count: Int,
         key: ((index: Int) -> Any)?,
-        itemContent: @Composable ((Int) -> Unit)
+        itemContent: @Composable (ScalingLazyListItemScope.(index: Int) -> Unit)
     ) {
         val startIndex = currentStartIndex
         scope.items(count = count, key = key) {
             ScalingLazyColumnItemWrapper(
                 startIndex + it,
-                state,
+                state = state,
+                itemScope = itemScope
             ) {
                 itemContent(it)
             }
@@ -408,10 +433,11 @@ private class ScalingLazyListScopeImpl(
 private fun ScalingLazyColumnItemWrapper(
     index: Int,
     state: ScalingLazyListState,
-    content: @Composable () -> Unit
+    itemScope: ScalingLazyListItemScope,
+    content: @Composable (ScalingLazyListItemScope.() -> Unit)
 ) {
     Box(
-        Modifier.graphicsLayer {
+        modifier = Modifier.graphicsLayer {
             val items = state.layoutInfo.visibleItemsInfo
             val reverseLayout = state.reverseLayout.value!!
             val currentItem = items.find { it.index == index }
@@ -428,7 +454,7 @@ private fun ScalingLazyColumnItemWrapper(
             }
         }
     ) {
-        content()
+        itemScope.content()
     }
 }
 

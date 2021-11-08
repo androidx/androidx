@@ -17,11 +17,21 @@
 package androidx.wear.compose.material
 
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.requiredHeight
 import androidx.compose.foundation.layout.requiredSize
+import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.testutils.WithTouchSlop
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.test.assertHeightIsEqualTo
+import androidx.compose.ui.test.assertWidthIsEqualTo
+import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performTouchInput
@@ -43,6 +53,8 @@ import kotlin.math.roundToInt
 // These tests are in addition to ScalingLazyListLayoutInfoTest which handles scroll events at an
 // absolute level and is designed to exercise scrolling through the UI directly.
 public class ScalingLazyColumnTest {
+    private val firstItemTag = "firstItemTag"
+
     @get:Rule
     val rule = createComposeRule()
 
@@ -239,5 +251,158 @@ public class ScalingLazyColumnTest {
             }
             previousEndOffset = it.offset + it.size
         }
+    }
+
+    @Test
+    fun itemFillingParentWidth() {
+        rule.setContentWithTestViewConfiguration {
+            ScalingLazyColumn(
+                modifier = Modifier.requiredSize(width = 100.dp, height = 150.dp),
+                contentPadding = PaddingValues(horizontal = 0.dp),
+                scalingParams = ScalingLazyColumnDefaults.scalingParams(1.0f, 1.0f)
+            ) {
+                items(listOf(0)) {
+                    Spacer(
+                        Modifier.fillParentMaxWidth().requiredHeight(50.dp).testTag(firstItemTag)
+                    )
+                }
+            }
+        }
+
+        rule.onNodeWithTag(firstItemTag)
+            .assertWidthIsEqualTo(100.dp)
+            .assertHeightIsEqualTo(50.dp)
+    }
+
+    @Test
+    fun itemFillingParentHeight() {
+        rule.setContentWithTestViewConfiguration {
+            ScalingLazyColumn(
+                modifier = Modifier.requiredSize(width = 100.dp, height = 150.dp),
+                scalingParams = ScalingLazyColumnDefaults.scalingParams(1.0f, 1.0f)
+            ) {
+                items(listOf(0)) {
+                    Spacer(
+                        Modifier.requiredWidth(50.dp).fillParentMaxHeight().testTag(firstItemTag)
+                    )
+                }
+            }
+        }
+
+        rule.onNodeWithTag(firstItemTag)
+            .assertWidthIsEqualTo(50.dp)
+            .assertHeightIsEqualTo(150.dp)
+    }
+
+    @Test
+    fun itemFillingParentSize() {
+        rule.setContentWithTestViewConfiguration {
+            ScalingLazyColumn(
+                modifier = Modifier.requiredSize(width = 100.dp, height = 150.dp),
+                contentPadding = PaddingValues(horizontal = 0.dp),
+                scalingParams = ScalingLazyColumnDefaults.scalingParams(1.0f, 1.0f)
+            ) {
+                items(listOf(0)) {
+                    Spacer(Modifier.fillParentMaxSize().testTag(firstItemTag))
+                }
+            }
+        }
+
+        rule.onNodeWithTag(firstItemTag)
+            .assertWidthIsEqualTo(100.dp)
+            .assertHeightIsEqualTo(150.dp)
+    }
+
+    @Test
+    fun itemFillingParentWidthFraction() {
+        rule.setContentWithTestViewConfiguration {
+            ScalingLazyColumn(
+                modifier = Modifier.requiredSize(width = 100.dp, height = 150.dp),
+                contentPadding = PaddingValues(horizontal = 0.dp),
+                scalingParams = ScalingLazyColumnDefaults.scalingParams(1.0f, 1.0f)
+            ) {
+                items(listOf(0)) {
+                    Spacer(
+                        Modifier.fillParentMaxWidth(0.7f)
+                            .requiredHeight(50.dp)
+                            .testTag(firstItemTag)
+                    )
+                }
+            }
+        }
+
+        rule.onNodeWithTag(firstItemTag)
+            .assertWidthIsEqualTo(70.dp)
+            .assertHeightIsEqualTo(50.dp)
+    }
+
+    @Test
+    fun itemFillingParentHeightFraction() {
+        rule.setContentWithTestViewConfiguration {
+            ScalingLazyColumn(Modifier.requiredSize(width = 100.dp, height = 150.dp)) {
+                items(listOf(0)) {
+                    Spacer(
+                        Modifier.requiredWidth(50.dp)
+                            .fillParentMaxHeight(0.3f)
+                            .testTag(firstItemTag)
+                    )
+                }
+            }
+        }
+
+        rule.onNodeWithTag(firstItemTag)
+            .assertWidthIsEqualTo(50.dp)
+            .assertHeightIsEqualTo(45.dp)
+    }
+
+    @Test
+    fun itemFillingParentSizeFraction() {
+        rule.setContentWithTestViewConfiguration {
+            ScalingLazyColumn(
+                modifier = Modifier.requiredSize(width = 100.dp, height = 150.dp),
+                contentPadding = PaddingValues(horizontal = 0.dp)
+            ) {
+                items(listOf(0)) {
+                    Spacer(Modifier.fillParentMaxSize(0.5f).testTag(firstItemTag))
+                }
+            }
+        }
+
+        rule.onNodeWithTag(firstItemTag)
+            .assertWidthIsEqualTo(50.dp)
+            .assertHeightIsEqualTo(75.dp)
+    }
+
+    @Test
+    fun itemFillingParentSizeParentResized() {
+        var parentSize by mutableStateOf(100.dp)
+        rule.setContentWithTestViewConfiguration {
+            ScalingLazyColumn(
+                modifier = Modifier.requiredSize(parentSize),
+                contentPadding = PaddingValues(horizontal = 0.dp),
+            ) {
+                items(listOf(0)) {
+                    Spacer(Modifier.fillParentMaxSize().testTag(firstItemTag))
+                }
+            }
+        }
+
+        rule.runOnIdle {
+            parentSize = 150.dp
+        }
+
+        rule.onNodeWithTag(firstItemTag)
+            .assertWidthIsEqualTo(150.dp)
+            .assertHeightIsEqualTo(150.dp)
+    }
+}
+
+internal const val TestTouchSlop = 18f
+
+internal fun ComposeContentTestRule.setContentWithTestViewConfiguration(
+    composable: @Composable () -> Unit
+) {
+    this.setContent {
+        WithTouchSlop(TestTouchSlop, composable)
     }
 }
