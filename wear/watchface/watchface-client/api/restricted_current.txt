@@ -1,6 +1,26 @@
 // Signature format: 4.0
 package androidx.wear.watchface.client {
 
+  public final class ComplicationSlotMetadata {
+    ctor public ComplicationSlotMetadata(androidx.wear.watchface.complications.ComplicationSlotBounds? bounds, @androidx.wear.watchface.ComplicationSlotBoundsType int boundsType, java.util.List<? extends androidx.wear.watchface.complications.data.ComplicationType> supportedTypes, androidx.wear.watchface.complications.DefaultComplicationDataSourcePolicy defaultDataSourcePolicy, androidx.wear.watchface.complications.data.ComplicationType defaultDataSourceType, boolean isInitiallyEnabled, boolean fixedComplicationDataSource, android.os.Bundle complicationConfigExtras);
+    method public androidx.wear.watchface.complications.ComplicationSlotBounds? getBounds();
+    method public int getBoundsType();
+    method public android.os.Bundle getComplicationConfigExtras();
+    method public androidx.wear.watchface.complications.DefaultComplicationDataSourcePolicy getDefaultDataSourcePolicy();
+    method public androidx.wear.watchface.complications.data.ComplicationType getDefaultDataSourceType();
+    method public boolean getFixedComplicationDataSource();
+    method public java.util.List<androidx.wear.watchface.complications.data.ComplicationType> getSupportedTypes();
+    method public boolean isInitiallyEnabled();
+    property public final androidx.wear.watchface.complications.ComplicationSlotBounds? bounds;
+    property public final int boundsType;
+    property public final android.os.Bundle complicationConfigExtras;
+    property public final androidx.wear.watchface.complications.DefaultComplicationDataSourcePolicy defaultDataSourcePolicy;
+    property public final androidx.wear.watchface.complications.data.ComplicationType defaultDataSourceType;
+    property public final boolean fixedComplicationDataSource;
+    property public final boolean isInitiallyEnabled;
+    property public final java.util.List<androidx.wear.watchface.complications.data.ComplicationType> supportedTypes;
+  }
+
   public final class ComplicationSlotState {
     ctor public ComplicationSlotState(android.graphics.Rect bounds, @androidx.wear.watchface.ComplicationSlotBoundsType int boundsType, java.util.List<? extends androidx.wear.watchface.complications.data.ComplicationType> supportedTypes, androidx.wear.watchface.complications.DefaultComplicationDataSourcePolicy defaultDataSourcePolicy, androidx.wear.watchface.complications.data.ComplicationType defaultDataSourceType, boolean isEnabled, boolean isInitiallyEnabled, androidx.wear.watchface.complications.data.ComplicationType currentType, boolean fixedComplicationDataSource, android.os.Bundle complicationConfigExtras);
     method public android.graphics.Rect getBounds();
@@ -170,6 +190,24 @@ package androidx.wear.watchface.client {
     ctor public WatchFaceId(String id);
     method public String getId();
     property public final String id;
+  }
+
+  public interface WatchFaceMetadataClient extends java.lang.AutoCloseable {
+    method public java.util.Map<java.lang.Integer,androidx.wear.watchface.client.ComplicationSlotMetadata> getComplicationSlotMetadataMap();
+    method public androidx.wear.watchface.style.UserStyleSchema getUserStyleSchema();
+    field public static final androidx.wear.watchface.client.WatchFaceMetadataClient.Companion Companion;
+  }
+
+  public static final class WatchFaceMetadataClient.Companion {
+    method @kotlin.jvm.Throws(exceptionClasses={ServiceNotBoundException::class, ServiceStartFailureException::class, PackageManager.NameNotFoundException::class}) public suspend Object? create(android.content.Context context, android.content.ComponentName watchFaceName, kotlin.coroutines.Continuation<? super androidx.wear.watchface.client.WatchFaceMetadataClient> p) throws android.content.pm.PackageManager.NameNotFoundException, androidx.wear.watchface.client.WatchFaceMetadataClient.ServiceNotBoundException, androidx.wear.watchface.client.WatchFaceMetadataClient.ServiceStartFailureException;
+  }
+
+  public static final class WatchFaceMetadataClient.ServiceNotBoundException extends java.lang.Exception {
+    ctor public WatchFaceMetadataClient.ServiceNotBoundException();
+  }
+
+  public static final class WatchFaceMetadataClient.ServiceStartFailureException extends java.lang.Exception {
+    ctor public WatchFaceMetadataClient.ServiceStartFailureException(optional String message);
   }
 
   public final class WatchUiState {

@@ -48,9 +48,8 @@ import kotlinx.coroutines.CompletableDeferred
 
 /**
  * Interface for fetching watch face metadata. E.g. the [UserStyleSchema] and
- * [ComplicationSlotMetadata].
+ * [ComplicationSlotMetadata]. This must be [close]d after use to release resources.
  */
-@WatchFaceClientExperimental
 public interface WatchFaceMetadataClient : AutoCloseable {
 
     public companion object {
@@ -67,18 +66,18 @@ public interface WatchFaceMetadataClient : AutoCloseable {
          * androidx.wear.watchface.XmlSchemaAndComplicationSlotsDefinition meta data node then
          * [PackageManager.NameNotFoundException] is thrown if [watchFaceName] is invalid.
          */
-        @JvmStatic
         @Throws(
             ServiceNotBoundException::class,
             ServiceStartFailureException::class,
             PackageManager.NameNotFoundException::class
         )
-        public suspend fun createWatchFaceMetadataClient(
+        @SuppressWarnings("MissingJvmstatic") // Can't really call a suspend fun from java.
+        public suspend fun create(
             context: Context,
             watchFaceName: ComponentName
         ): WatchFaceMetadataClient {
             // Fallback to binding the service (slow).
-            return createWatchFaceMetadataClientImpl(
+            return createImpl(
                 context,
                 Intent(WatchFaceControlService.ACTION_WATCHFACE_CONTROL_SERVICE).apply {
                     setPackage(watchFaceName.packageName)
@@ -107,7 +106,7 @@ public interface WatchFaceMetadataClient : AutoCloseable {
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @Suppress("ShowingMemberInHiddenClass") // Spurious warning about exposing the
         // 'hidden' companion object, which _isn't_ hidden.
-        public suspend fun createWatchFaceMetadataClientImpl(
+        public suspend fun createImpl(
             context: Context,
             intent: Intent,
             watchFaceName: ComponentName,
@@ -164,14 +163,12 @@ public interface WatchFaceMetadataClient : AutoCloseable {
     /**
      * Returns the watch face's [UserStyleSchema].
      */
-    @Throws(RemoteException::class)
     public fun getUserStyleSchema(): UserStyleSchema
 
     /**
      * Returns a map of [androidx.wear.watchface.ComplicationSlot] ID to [ComplicationSlotMetadata]
      * for each slot in the watch face's [androidx.wear.watchface.ComplicationSlotsManager].
      */
-    @Throws(RemoteException::class)
     public fun getComplicationSlotMetadataMap(): Map<Int, ComplicationSlotMetadata>
 }
 
@@ -198,7 +195,6 @@ public interface WatchFaceMetadataClient : AutoCloseable {
  * @param complicationConfigExtras Extras to be merged into the Intent sent when invoking the
  *  complication data source chooser activity.
  */
-@WatchFaceClientExperimental
 public class ComplicationSlotMetadata(
     public val bounds: ComplicationSlotBounds?,
     @ComplicationSlotBoundsType public val boundsType: Int,
@@ -211,7 +207,6 @@ public class ComplicationSlotMetadata(
     public val complicationConfigExtras: Bundle
 )
 
-@OptIn(WatchFaceClientExperimental::class)
 internal class WatchFaceMetadataClientImpl internal constructor(
     private val context: Context,
     private val service: IWatchFaceControlService,
@@ -254,55 +249,64 @@ internal class WatchFaceMetadataClientImpl internal constructor(
 
     override fun getUserStyleSchema(): UserStyleSchema {
         requireNotClosed()
-        return if (service.apiVersion >= 3) {
-            UserStyleSchema(service.getUserStyleSchema(GetUserStyleSchemaParams(watchFaceName)))
-        } else {
-            headlessClient.userStyleSchema
+        try {
+            return if (service.apiVersion >= 3) {
+                UserStyleSchema(service.getUserStyleSchema(GetUserStyleSchemaParams(watchFaceName)))
+            } else {
+                headlessClient.userStyleSchema
+            }
+        } catch (e: RemoteException) {
+            throw RuntimeException(e)
         }
     }
 
     override fun getComplicationSlotMetadataMap(): Map<Int, ComplicationSlotMetadata> {
         requireNotClosed()
-        return if (service.apiVersion >= 3) {
-            val wireFormat = service.getComplicationSlotMetadata(
-                GetComplicationSlotMetadataParams(watchFaceName)
-            )
-            wireFormat.associateBy(
-                { it.id },
-                {
-                    val perSlotBounds = HashMap<ComplicationType, RectF>()
-                    for (i in it.complicationBoundsType.indices) {
-                        perSlotBounds[ComplicationType.fromWireType(it.complicationBoundsType[i])] =
-                            it.complicationBounds[i]
+        try {
+            return if (service.apiVersion >= 3) {
+                val wireFormat = service.getComplicationSlotMetadata(
+                    GetComplicationSlotMetadataParams(watchFaceName)
+                )
+                wireFormat.associateBy(
+                    { it.id },
+                    {
+                        val perSlotBounds = HashMap<ComplicationType, RectF>()
+                        for (i in it.complicationBoundsType.indices) {
+                            perSlotBounds[
+                                ComplicationType.fromWireType(it.complicationBoundsType[i])
+                            ] = it.complicationBounds[i]
+                        }
+                        ComplicationSlotMetadata(
+                            ComplicationSlotBounds(perSlotBounds),
+                            it.boundsType,
+                            it.supportedTypes.map { ComplicationType.fromWireType(it) },
+                            DefaultComplicationDataSourcePolicy(
+                                it.defaultDataSourcesToTry ?: emptyList(),
+                                it.fallbackSystemDataSource
+                            ),
+                            ComplicationType.fromWireType(it.defaultDataSourceType),
+                            it.isInitiallyEnabled,
+                            it.isFixedComplicationDataSource,
+                            it.complicationConfigExtras
+                        )
                     }
+                )
+            } else {
+                headlessClient.complicationSlotsState.mapValues {
                     ComplicationSlotMetadata(
-                        ComplicationSlotBounds(perSlotBounds),
-                        it.boundsType,
-                        it.supportedTypes.map { ComplicationType.fromWireType(it) },
-                        DefaultComplicationDataSourcePolicy(
-                            it.defaultDataSourcesToTry ?: emptyList(),
-                            it.fallbackSystemDataSource
-                        ),
-                        ComplicationType.fromWireType(it.defaultDataSourceType),
-                        it.isInitiallyEnabled,
-                        it.isFixedComplicationDataSource,
-                        it.complicationConfigExtras
+                        null,
+                        it.value.boundsType,
+                        it.value.supportedTypes,
+                        it.value.defaultDataSourcePolicy,
+                        it.value.defaultDataSourceType,
+                        it.value.isInitiallyEnabled,
+                        it.value.fixedComplicationDataSource,
+                        it.value.complicationConfigExtras
                     )
                 }
-            )
-        } else {
-            headlessClient.complicationSlotsState.mapValues {
-                ComplicationSlotMetadata(
-                    null,
-                    it.value.boundsType,
-                    it.value.supportedTypes,
-                    it.value.defaultDataSourcePolicy,
-                    it.value.defaultDataSourceType,
-                    it.value.isInitiallyEnabled,
-                    it.value.fixedComplicationDataSource,
-                    it.value.complicationConfigExtras
-                )
             }
+        } catch (e: RemoteException) {
+            throw RuntimeException(e)
         }
     }
 
@@ -315,7 +319,6 @@ internal class WatchFaceMetadataClientImpl internal constructor(
     }
 }
 
-@OptIn(WatchFaceClientExperimental::class)
 internal class XmlWatchFaceMetadataClientImpl(
     private val xmlSchemaAndComplicationSlotsDefinition: XmlSchemaAndComplicationSlotsDefinition
 ) : WatchFaceMetadataClient {

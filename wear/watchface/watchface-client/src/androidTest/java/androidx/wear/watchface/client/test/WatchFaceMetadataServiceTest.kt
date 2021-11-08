@@ -26,7 +26,6 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.wear.watchface.complications.SystemDataSources
 import androidx.wear.watchface.complications.data.ComplicationType
-import androidx.wear.watchface.client.WatchFaceClientExperimental
 import androidx.wear.watchface.client.WatchFaceMetadataClient
 import androidx.wear.watchface.control.WatchFaceControlService
 import androidx.wear.watchface.ComplicationSlotBoundsType
@@ -40,7 +39,6 @@ import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 @MediumTest
-@OptIn(WatchFaceClientExperimental::class)
 public class WatchFaceMetadataServiceTest {
     private val exampleWatchFaceComponentName = ComponentName(
         "androidx.wear.watchface.client.test",
@@ -49,7 +47,7 @@ public class WatchFaceMetadataServiceTest {
 
     private val context = ApplicationProvider.getApplicationContext<Context>()
     private val service = runBlocking {
-        WatchFaceMetadataClient.createWatchFaceMetadataClientImpl(
+        WatchFaceMetadataClient.createImpl(
             context,
             Intent(context, WatchFaceControlTestService::class.java).apply {
                 action = WatchFaceControlService.ACTION_WATCHFACE_CONTROL_SERVICE
@@ -163,7 +161,7 @@ public class WatchFaceMetadataServiceTest {
     @Test
     public fun getSchema_static_metadata() {
         runBlocking {
-            val client = WatchFaceMetadataClient.createWatchFaceMetadataClientImpl(
+            val client = WatchFaceMetadataClient.createImpl(
                 context,
                 Intent(context, WatchFaceControlTestService::class.java).apply {
                     action = WatchFaceControlService.ACTION_WATCHFACE_CONTROL_SERVICE
