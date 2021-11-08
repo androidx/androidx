@@ -143,7 +143,6 @@ public class MediaNotificationManager extends BroadcastReceiver {
      * Removes the notification and stops tracking the session. If the session
      * was destroyed this has no effect.
      */
-    @SuppressWarnings("deprecation")
     public void stopNotification() {
         if (mStarted) {
             mStarted = false;
@@ -325,7 +324,6 @@ public class MediaNotificationManager extends BroadcastReceiver {
         builder.addAction(new NotificationCompat.Action(icon, label, intent));
     }
 
-    @SuppressWarnings("deprecation")
     private void setNotificationPlaybackState(NotificationCompat.Builder builder) {
         Log.d(TAG, "updateNotificationPlaybackState. mPlaybackState=" + mPlaybackState);
         if (mPlaybackState == null || !mStarted) {

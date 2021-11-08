@@ -391,7 +391,6 @@ public class NavigationService extends Service {
     }
 
     /** Stops navigation. */
-    @SuppressWarnings("deprecation")
     public void stopNavigation() {
         Log.i(TAG, "Stopping Navigation");
         if (mScript != null) {
