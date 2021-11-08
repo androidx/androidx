@@ -410,8 +410,8 @@ class VideoRecordingTest(
     }
 
     private fun startVideoRecording(videoCapture: VideoCapture<Recorder>, file: File):
-        ActiveRecording {
-            val activeRecording = videoCapture.output
+        Recording {
+            val recording = videoCapture.output
                 .prepareRecording(context, FileOutputOptions.Builder(file).build())
                 .withEventListener(
                     CameraXExecutors.directExecutor(),
@@ -422,13 +422,13 @@ class VideoRecordingTest(
             // Wait for status event to proceed recording for a while.
             assertThat(latchForVideoRecording.await(VIDEO_TIMEOUT_SEC, TimeUnit.SECONDS)).isTrue()
 
-            return activeRecording
+            return recording
         }
 
     private fun completeVideoRecording(videoCapture: VideoCapture<Recorder>, file: File) {
-        val activeRecording = startVideoRecording(videoCapture, file)
+        val recording = startVideoRecording(videoCapture, file)
 
-        activeRecording.stop()
+        recording.stop()
         // Wait for finalize event to saved file.
         assertThat(latchForVideoSaved.await(VIDEO_TIMEOUT_SEC, TimeUnit.SECONDS)).isTrue()
 

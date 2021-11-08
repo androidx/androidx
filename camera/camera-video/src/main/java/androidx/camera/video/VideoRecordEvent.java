@@ -45,7 +45,7 @@ import java.util.concurrent.Executor;
  *
  * <pre>{@code
  *
- * ActiveRecording activeRecording = recorder.prepareRecording(context, outputOptions)
+ * Recording recording = recorder.prepareRecording(context, outputOptions)
  *     .withEventListener(ContextCompat.getMainExecutor(context), videoRecordEvent -> {
  *         if (videoRecordEvent instanceof VideoRecordEvent.Start) {
  *             // Handle the start of a new active recording
@@ -421,7 +421,7 @@ public abstract class VideoRecordEvent {
     /**
      * Indicates the pause event of recording.
      *
-     * <p>A {@code Pause} event will be triggered after calling {@link ActiveRecording#pause()}.
+     * <p>A {@code Pause} event will be triggered after calling {@link Recording#pause()}.
      */
     @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
     public static final class Pause extends VideoRecordEvent {
@@ -441,7 +441,7 @@ public abstract class VideoRecordEvent {
     /**
      * Indicates the resume event of recording.
      *
-     * <p>A {@code Resume} event will be triggered after calling {@link ActiveRecording#resume()}.
+     * <p>A {@code Resume} event will be triggered after calling {@link Recording#resume()}.
      */
     @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
     public static final class Resume extends VideoRecordEvent {

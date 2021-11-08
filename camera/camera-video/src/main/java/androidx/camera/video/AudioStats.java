@@ -32,7 +32,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * The audio information about an {@link ActiveRecording} at a point in time.
+ * The audio information about an {@link Recording} at a point in time.
  *
  * <p>The audio information will be contained in every {@link RecordingStats}.
  */

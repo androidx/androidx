@@ -44,7 +44,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * {@link Recorder} that generated the object until that occurs.
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
-public final class ActiveRecording implements AutoCloseable {
+public final class Recording implements AutoCloseable {
 
     // Indicates the recording has been explicitly stopped by users.
     private final AtomicBoolean mIsStopped = new AtomicBoolean(false);
@@ -53,7 +53,7 @@ public final class ActiveRecording implements AutoCloseable {
     private final OutputOptions mOutputOptions;
     private final CloseGuardHelper mCloseGuard = CloseGuardHelper.create();
 
-    ActiveRecording(@NonNull Recorder recorder, long recordingId, @NonNull OutputOptions options,
+    Recording(@NonNull Recorder recorder, long recordingId, @NonNull OutputOptions options,
             boolean finalizedOnCreation) {
         mRecorder = recorder;
         mRecordingId = recordingId;
@@ -67,22 +67,22 @@ public final class ActiveRecording implements AutoCloseable {
     }
 
     /**
-     * Creates an {@link ActiveRecording} from a {@link PendingRecording} and recording ID.
+     * Creates an {@link Recording} from a {@link PendingRecording} and recording ID.
      *
      * <p>The recording ID is expected to be unique to the recorder that generated the pending
      * recording.
      */
     @NonNull
-    static ActiveRecording from(@NonNull PendingRecording pendingRecording, long recordingId) {
+    static Recording from(@NonNull PendingRecording pendingRecording, long recordingId) {
         Preconditions.checkNotNull(pendingRecording, "The given PendingRecording cannot be null.");
-        return new ActiveRecording(pendingRecording.getRecorder(),
+        return new Recording(pendingRecording.getRecorder(),
                 recordingId,
                 pendingRecording.getOutputOptions(),
                 /*finalizedOnCreation=*/false);
     }
 
     /**
-     * Creates an {@link ActiveRecording} from a {@link PendingRecording} and recording ID in a
+     * Creates an {@link Recording} from a {@link PendingRecording} and recording ID in a
      * finalized state.
      *
      * <p>This can be used if there was an error setting up the active recording and it would not
@@ -92,10 +92,10 @@ public final class ActiveRecording implements AutoCloseable {
      * recording.
      */
     @NonNull
-    static ActiveRecording createFinalizedFrom(@NonNull PendingRecording pendingRecording,
+    static Recording createFinalizedFrom(@NonNull PendingRecording pendingRecording,
             long recordingId) {
         Preconditions.checkNotNull(pendingRecording, "The given PendingRecording cannot be null.");
-        return new ActiveRecording(pendingRecording.getRecorder(),
+        return new Recording(pendingRecording.getRecorder(),
                 recordingId,
                 pendingRecording.getOutputOptions(),
                 /*finalizedOnCreation=*/true);
