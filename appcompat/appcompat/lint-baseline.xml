@@ -487,28 +487,6 @@
 
     <issue
         id="ClassVerificationFailure"
-        message="This call references a method added in API level 23; however, the containing class androidx.appcompat.widget.AppCompatTextClassifierHelper is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                    mTextView.getContext().getSystemService(TextClassificationManager.class);"
-        errorLine2="                                           ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/AppCompatTextClassifierHelper.java"
-            line="64"
-            column="44"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 26; however, the containing class androidx.appcompat.widget.AppCompatTextClassifierHelper is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                return tcm.getTextClassifier();"
-        errorLine2="                           ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/AppCompatTextClassifierHelper.java"
-            line="66"
-            column="28"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
         message="This call references a method added in API level 17; however, the containing class androidx.appcompat.view.ContextThemeWrapper is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                final Context resContext = createConfigurationContext(mOverrideConfiguration);"
         errorLine2="                                           ~~~~~~~~~~~~~~~~~~~~~~~~~~">
