@@ -187,7 +187,7 @@ public abstract class ListenableWorker {
      * The future will also be cancelled if this worker is stopped for any reason
      * (see {@link #onStopped()}).
      *
-     * @return A {@link ListenableFuture} with the {@link Result} of the computation.  If you
+     * @return A {@code ListenableFuture} with the {@link Result} of the computation.  If you
      * cancel this Future, WorkManager will treat this unit of work as failed.
      */
     @MainThread
