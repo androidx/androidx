@@ -46,9 +46,11 @@ import android.widget.PopupWindow;
 import android.widget.Spinner;
 import android.widget.SpinnerAdapter;
 
+import androidx.annotation.DoNotInline;
 import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.appcompat.R;
@@ -607,7 +609,7 @@ public class AppCompatSpinner extends Spinner implements TintableBackgroundView 
 
     void showPopup() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
-            mPopup.show(getTextDirection(), getTextAlignment());
+            mPopup.show(Api17Impl.getTextDirection(this), Api17Impl.getTextAlignment(this));
         } else {
             mPopup.show(-1, -1);
         }
@@ -640,7 +642,7 @@ public class AppCompatSpinner extends Spinner implements TintableBackgroundView 
                         final ViewTreeObserver vto = getViewTreeObserver();
                         if (vto != null) {
                             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-                                vto.removeOnGlobalLayoutListener(this);
+                                Api16Impl.removeOnGlobalLayoutListener(vto, this);
                             } else {
                                 vto.removeGlobalOnLayoutListener(this);
                             }
@@ -714,9 +716,7 @@ public class AppCompatSpinner extends Spinner implements TintableBackgroundView 
                          && adapter instanceof android.widget.ThemedSpinnerAdapter) {
                     final android.widget.ThemedSpinnerAdapter themedAdapter =
                             (android.widget.ThemedSpinnerAdapter) adapter;
-                    if (themedAdapter.getDropDownViewTheme() != dropDownTheme) {
-                        themedAdapter.setDropDownViewTheme(dropDownTheme);
-                    }
+                    Api23Impl.setDropDownViewTheme(themedAdapter, dropDownTheme);
                 } else if (adapter instanceof ThemedSpinnerAdapter) {
                     final ThemedSpinnerAdapter themedAdapter = (ThemedSpinnerAdapter) adapter;
                     if (themedAdapter.getDropDownViewTheme() == null) {
@@ -904,8 +904,8 @@ public class AppCompatSpinner extends Spinner implements TintableBackgroundView 
                     getSelectedItemPosition(), this).create();
             final ListView listView = mPopup.getListView();
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
-                listView.setTextDirection(textDirection);
-                listView.setTextAlignment(textAlignment);
+                Api17Impl.setTextDirection(listView, textDirection);
+                Api17Impl.setTextAlignment(listView, textAlignment);
             }
             mPopup.show();
         }
@@ -1053,8 +1053,8 @@ public class AppCompatSpinner extends Spinner implements TintableBackgroundView 
             final ListView listView = getListView();
             listView.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
-                listView.setTextDirection(textDirection);
-                listView.setTextAlignment(textAlignment);
+                Api17Impl.setTextDirection(listView, textDirection);
+                Api17Impl.setTextAlignment(listView, textAlignment);
             }
             setSelection(AppCompatSpinner.this.getSelectedItemPosition());
 
@@ -1112,6 +1112,65 @@ public class AppCompatSpinner extends Spinner implements TintableBackgroundView 
         @Override
         public int getHorizontalOriginalOffset() {
             return mOriginalHorizontalOffset;
+        }
+    }
+
+    @RequiresApi(23)
+    private static final class Api23Impl {
+        private Api23Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static void setDropDownViewTheme(
+                @NonNull android.widget.ThemedSpinnerAdapter themedSpinnerAdapter,
+                @Nullable Resources.Theme theme
+        ) {
+            if (themedSpinnerAdapter.getDropDownViewTheme() != theme) {
+                themedSpinnerAdapter.setDropDownViewTheme(theme);
+            }
+        }
+    }
+
+    @RequiresApi(17)
+    private static final class Api17Impl {
+        private Api17Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static int getTextAlignment(@NonNull View view) {
+            return view.getTextAlignment();
+        }
+
+        @DoNotInline
+        static void setTextAlignment(@NonNull View view, int textAlignment) {
+            view.setTextAlignment(textAlignment);
+        }
+
+        @DoNotInline
+        static int getTextDirection(@NonNull View view) {
+            return view.getTextDirection();
+        }
+
+        @DoNotInline
+        static void setTextDirection(@NonNull View view, int textDirection) {
+            view.setTextDirection(textDirection);
+        }
+    }
+
+    @RequiresApi(16)
+    private static final class Api16Impl {
+        private Api16Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static void removeOnGlobalLayoutListener(
+                @NonNull ViewTreeObserver viewTreeObserver,
+                @Nullable OnGlobalLayoutListener victim
+        ) {
+            viewTreeObserver.removeOnGlobalLayoutListener(victim);
         }
     }
 }
