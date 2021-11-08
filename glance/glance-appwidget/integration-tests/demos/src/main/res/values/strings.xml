@@ -21,10 +21,11 @@
     <string name="responsive_widget_name">Responsive Widget</string>
     <string name="exact_widget_name">Exact Widget</string>
     <string name="responsive_widget_title"><u>Responsive layout</u></string>
-    <string name="updating_widget_name"><u>Updating widget</u></string>
-    <string name="updating_title"><u>Updating Widget</u></string>
+    <string name="action_widget_name"><u>Action widget</u></string>
     <string name="exact_widget_title"><u>Exact layout</u></string>
     <string name="resizing_widget_name">Resizing Widget</string>
     <string name="compound_button_widget_name">CheckBox Widget</string>
     <string name="error_widget_name">Error UI Widget</string>
+    <string name="scrollable_widget_name">Scrollable Widget</string>
+    <string name="image_widget_name">Image Widget</string>
 </resources>
