@@ -1005,9 +1005,6 @@ public final class ImageCapture extends UseCase {
                     }
                 };
 
-        // If the final output image needs to be cropped, setting the JPEG quality as 100 when
-        // capturing the image. So that the image quality won't be lost when uncompressing and
-        // compressing the image again in the cropping process.
         int rotationDegrees = getRelativeRotation(getCamera());
         Size dispatchResolution = getAttachedSurfaceResolution();
         // At this point, we can't know whether HAL will rotate the captured image or not. No
@@ -1020,7 +1017,21 @@ public final class ImageCapture extends UseCase {
                 rotationDegrees, dispatchResolution, rotationDegrees);
         boolean shouldCropImage = ImageUtil.shouldCropImage(dispatchResolution.getWidth(),
                 dispatchResolution.getHeight(), cropRect.width(), cropRect.height());
-        int capturingJpegQuality = shouldCropImage ? 100 : outputJpegQuality;
+        int capturingJpegQuality;
+        if (shouldCropImage) {
+            // When cropping is required, jpeg compression will occur twice:
+            // 1. Jpeg quality set to camera HAL by camera capture request.
+            // 2. Bitmap compression during cropping process in ImageSaver.
+            // Here we need to define the first compression value and be careful to lose too much
+            // quality due to double compression.
+            // Setting 100 for the first compression can minimize quality loss, but will result
+            // in poor performance during cropping than setting 95 (see b/206348741 for more
+            // detail). As a trade-off, max quality mode is set to 100, and the others are set
+            // to 95.
+            capturingJpegQuality = mCaptureMode == CAPTURE_MODE_MAXIMIZE_QUALITY ? 100 : 95;
+        } else {
+            capturingJpegQuality = outputJpegQuality;
+        }
 
         // Always use the mainThreadExecutor for the initial callback so we don't need to double
         // post to another thread
