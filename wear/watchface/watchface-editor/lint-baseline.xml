@@ -8,7 +8,7 @@
         errorLine2="                    ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/wear/watchface/editor/EditorSession.kt"
-            line="507"
+            line="511"
             column="21"/>
     </issue>
 
@@ -19,7 +19,7 @@
         errorLine2="                            ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/wear/watchface/editor/EditorSession.kt"
-            line="688"
+            line="692"
             column="29"/>
     </issue>
 
