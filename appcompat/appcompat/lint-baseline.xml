@@ -294,7 +294,7 @@
         errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/AppCompatTextViewAutoSizeHelper.java"
-            line="675"
+            line="677"
             column="25"/>
     </issue>
 
@@ -305,7 +305,7 @@
         errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/AppCompatTextViewAutoSizeHelper.java"
-            line="847"
+            line="814"
             column="26"/>
     </issue>
 
@@ -604,204 +604,6 @@
             file="src/main/java/androidx/appcompat/widget/AppCompatTextClassifierHelper.java"
             line="66"
             column="28"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 18; however, the containing class androidx.appcompat.widget.AppCompatTextViewAutoSizeHelper is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                isInLayout = mTextView.isInLayout();"
-        errorLine2="                                       ~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/AppCompatTextViewAutoSizeHelper.java"
-            line="664"
-            column="40"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 16; however, the containing class androidx.appcompat.widget.AppCompatTextViewAutoSizeHelper is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="        final int maxLines = Build.VERSION.SDK_INT >= 16 ? mTextView.getMaxLines() : -1;"
-        errorLine2="                                                                     ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/AppCompatTextViewAutoSizeHelper.java"
-            line="753"
-            column="70"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 23; however, the containing class androidx.appcompat.widget.AppCompatTextViewAutoSizeHelper is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="        final StaticLayout.Builder layoutBuilder = StaticLayout.Builder.obtain("
-        errorLine2="                                                                        ~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/AppCompatTextViewAutoSizeHelper.java"
-            line="779"
-            column="73"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 23; however, the containing class androidx.appcompat.widget.AppCompatTextViewAutoSizeHelper is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="        layoutBuilder.setAlignment(alignment)"
-        errorLine2="                      ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/AppCompatTextViewAutoSizeHelper.java"
-            line="782"
-            column="23"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 23; however, the containing class androidx.appcompat.widget.AppCompatTextViewAutoSizeHelper is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                .setLineSpacing("
-        errorLine2="                 ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/AppCompatTextViewAutoSizeHelper.java"
-            line="783"
-            column="18"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 16; however, the containing class androidx.appcompat.widget.AppCompatTextViewAutoSizeHelper is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                        mTextView.getLineSpacingExtra(),"
-        errorLine2="                                  ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/AppCompatTextViewAutoSizeHelper.java"
-            line="784"
-            column="35"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 16; however, the containing class androidx.appcompat.widget.AppCompatTextViewAutoSizeHelper is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                        mTextView.getLineSpacingMultiplier())"
-        errorLine2="                                  ~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/AppCompatTextViewAutoSizeHelper.java"
-            line="785"
-            column="35"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 16; however, the containing class androidx.appcompat.widget.AppCompatTextViewAutoSizeHelper is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                .setIncludePad(mTextView.getIncludeFontPadding())"
-        errorLine2="                                         ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/AppCompatTextViewAutoSizeHelper.java"
-            line="786"
-            column="42"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 23; however, the containing class androidx.appcompat.widget.AppCompatTextViewAutoSizeHelper is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                .setIncludePad(mTextView.getIncludeFontPadding())"
-        errorLine2="                 ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/AppCompatTextViewAutoSizeHelper.java"
-            line="786"
-            column="18"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 23; however, the containing class androidx.appcompat.widget.AppCompatTextViewAutoSizeHelper is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                .setBreakStrategy(mTextView.getBreakStrategy())"
-        errorLine2="                 ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/AppCompatTextViewAutoSizeHelper.java"
-            line="787"
-            column="18"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 23; however, the containing class androidx.appcompat.widget.AppCompatTextViewAutoSizeHelper is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                .setBreakStrategy(mTextView.getBreakStrategy())"
-        errorLine2="                                            ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/AppCompatTextViewAutoSizeHelper.java"
-            line="787"
-            column="45"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 23; however, the containing class androidx.appcompat.widget.AppCompatTextViewAutoSizeHelper is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                .setHyphenationFrequency(mTextView.getHyphenationFrequency())"
-        errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/AppCompatTextViewAutoSizeHelper.java"
-            line="788"
-            column="18"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 23; however, the containing class androidx.appcompat.widget.AppCompatTextViewAutoSizeHelper is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                .setHyphenationFrequency(mTextView.getHyphenationFrequency())"
-        errorLine2="                                                   ~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/AppCompatTextViewAutoSizeHelper.java"
-            line="788"
-            column="52"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 23; however, the containing class androidx.appcompat.widget.AppCompatTextViewAutoSizeHelper is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                .setMaxLines(maxLines == -1 ? Integer.MAX_VALUE : maxLines);"
-        errorLine2="                 ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/AppCompatTextViewAutoSizeHelper.java"
-            line="789"
-            column="18"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 23; however, the containing class androidx.appcompat.widget.AppCompatTextViewAutoSizeHelper is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="        return layoutBuilder.build();"
-        errorLine2="                             ~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/AppCompatTextViewAutoSizeHelper.java"
-            line="799"
-            column="30"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 16; however, the containing class androidx.appcompat.widget.AppCompatTextViewAutoSizeHelper is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="        final float lineSpacingMultiplier = mTextView.getLineSpacingMultiplier();"
-        errorLine2="                                                      ~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/AppCompatTextViewAutoSizeHelper.java"
-            line="805"
-            column="55"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 16; however, the containing class androidx.appcompat.widget.AppCompatTextViewAutoSizeHelper is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="        final float lineSpacingAdd = mTextView.getLineSpacingExtra();"
-        errorLine2="                                               ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/AppCompatTextViewAutoSizeHelper.java"
-            line="806"
-            column="48"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 16; however, the containing class androidx.appcompat.widget.AppCompatTextViewAutoSizeHelper is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="        final boolean includePad = mTextView.getIncludeFontPadding();"
-        errorLine2="                                             ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/AppCompatTextViewAutoSizeHelper.java"
-            line="807"
-            column="46"/>
     </issue>
 
     <issue
