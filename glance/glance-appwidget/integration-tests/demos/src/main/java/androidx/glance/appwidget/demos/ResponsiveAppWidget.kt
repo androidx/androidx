@@ -32,7 +32,6 @@ import androidx.glance.action.actionUpdateContent
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.GlanceAppWidgetReceiver
 import androidx.glance.appwidget.SizeMode
-import androidx.glance.appwidget.demos.ResponsiveAppWidget.Companion.KEY_ITEM_CLICKED
 import androidx.glance.background
 import androidx.glance.layout.Alignment
 import androidx.glance.layout.Box
@@ -60,13 +59,6 @@ class ResponsiveAppWidget : GlanceAppWidget() {
         private val LARGE_ROW = DpSize(300.dp, 48.dp)
         private val COLUMN = DpSize(48.dp, 180.dp)
         private val LARGE_COLUMN = DpSize(48.dp, 300.dp)
-
-        val KEY_ITEM_CLICKED = ActionParameters.Key<String>("name")
-
-        private val parentModifier = GlanceModifier
-            .fillMaxSize()
-            .padding(8.dp)
-            .background(R.color.default_widget_background)
     }
 
     override val sizeMode = SizeMode.Responsive(
@@ -77,89 +69,95 @@ class ResponsiveAppWidget : GlanceAppWidget() {
     override fun Content() {
         // Content will be called for each of the provided sizes
         when (LocalSize.current) {
-            COLUMN -> ParentColumn(numItems = 3)
-            ROW -> ParentRow(numItems = 3)
-            LARGE_COLUMN -> ParentColumn(numItems = 5)
-            LARGE_ROW -> ParentRow(numItems = 5)
-            SMALL_BOX -> ParentBox(numItems = 1)
-            BIG_BOX -> ParentBox(numItems = 3)
-            VERY_BIG_BOX -> ParentBox(numItems = 5)
+            COLUMN -> ResponsiveColumn(numItems = 3)
+            ROW -> ResponsiveRow(numItems = 3)
+            LARGE_COLUMN -> ResponsiveColumn(numItems = 5)
+            LARGE_ROW -> ResponsiveRow(numItems = 5)
+            SMALL_BOX -> ResponsiveBox(numItems = 1)
+            BIG_BOX -> ResponsiveBox(numItems = 3)
+            VERY_BIG_BOX -> ResponsiveBox(numItems = 5)
             else -> throw IllegalArgumentException("Invalid size not matching the provided ones")
         }
     }
+}
 
-    private val columnColors = listOf(Color(0xff70D689), Color(0xffB2E5BF))
-    private val rowColors = listOf(Color(0xff5087EF), Color(0xffA2BDF2))
-    private val boxColors = listOf(Color(0xffF7A998), Color(0xffFA5F3D))
+private val KEY_ITEM_CLICKED = ActionParameters.Key<String>("name")
 
-    /**
-     * Displays a column with three items that share evenly the available space
-     */
-    @Composable
-    private fun ParentColumn(numItems: Int) {
-        Column(parentModifier) {
-            val modifier = GlanceModifier.fillMaxSize().padding(4.dp).defaultWeight()
-            (1..numItems).forEach {
-                val color = columnColors[(it - 1) % columnColors.size]
-                ContentItem("$it", color, modifier)
-            }
+private val parentModifier = GlanceModifier
+    .fillMaxSize()
+    .padding(8.dp)
+    .background(R.color.default_widget_background)
+
+private val columnColors = listOf(Color(0xff70D689), Color(0xffB2E5BF))
+private val rowColors = listOf(Color(0xff5087EF), Color(0xffA2BDF2))
+private val boxColors = listOf(Color(0xffF7A998), Color(0xffFA5F3D))
+
+/**
+ * Displays a column with three items that share evenly the available space
+ */
+@Composable
+private fun ResponsiveColumn(numItems: Int) {
+    Column(parentModifier) {
+        val modifier = GlanceModifier.fillMaxSize().padding(4.dp).defaultWeight()
+        (1..numItems).forEach {
+            val color = columnColors[(it - 1) % columnColors.size]
+            ContentItem("$it", color, modifier)
         }
     }
+}
 
-    /**
-     * Displays a row with three items that share evenly the available space
-     */
-    @Composable
-    private fun ParentRow(numItems: Int) {
-        Row(parentModifier) {
-            val modifier = GlanceModifier.fillMaxSize().padding(4.dp).defaultWeight()
-            (1..numItems).forEach {
-                val color = rowColors[(it - 1) % rowColors.size]
-                ContentItem("$it", color, modifier)
-            }
+/**
+ * Displays a row with three items that share evenly the available space
+ */
+@Composable
+private fun ResponsiveRow(numItems: Int) {
+    Row(parentModifier) {
+        val modifier = GlanceModifier.fillMaxSize().padding(4.dp).defaultWeight()
+        (1..numItems).forEach {
+            val color = rowColors[(it - 1) % rowColors.size]
+            ContentItem("$it", color, modifier)
         }
     }
+}
 
-    /**
-     * Displays a Box with three items on top of each other
-     */
-    @Composable
-    private fun ParentBox(numItems: Int) {
-        val size = LocalSize.current
-        Box(modifier = parentModifier, contentAlignment = Alignment.Center) {
-            (1..numItems).forEach {
-                val index = numItems - it + 1
-                val color = boxColors[(index - 1) % boxColors.size]
-                val boxSize = (size.width * index) / numItems
-                ContentItem(
-                    "$index",
-                    color,
-                    GlanceModifier.size(boxSize),
-                    textStyle = TextStyle(textAlign = TextAlign.End).takeIf { numItems != 1 }
-                )
-            }
-        }
-    }
-
-    @Composable
-    private fun ContentItem(
-        text: String,
-        color: Color,
-        modifier: GlanceModifier,
-        textStyle: TextStyle? = null
-    ) {
-        Box(modifier = modifier) {
-            Button(
-                text = text,
-                modifier = GlanceModifier.fillMaxSize().padding(8.dp).background(color),
-                style = textStyle ?: TextStyle(textAlign = TextAlign.Center),
-                onClick = actionUpdateContent<ResponsiveAction>(
-                    actionParametersOf(
-                        KEY_ITEM_CLICKED to text
-                    )
-                )
+/**
+ * Displays a Box with three items on top of each other
+ */
+@Composable
+private fun ResponsiveBox(numItems: Int) {
+    val size = LocalSize.current
+    Box(modifier = parentModifier, contentAlignment = Alignment.Center) {
+        (1..numItems).forEach {
+            val index = numItems - it + 1
+            val color = boxColors[(index - 1) % boxColors.size]
+            val boxSize = (size.width * index) / numItems
+            ContentItem("$index",
+                color,
+                GlanceModifier.size(boxSize),
+                textStyle = TextStyle(textAlign = TextAlign.End).takeIf { numItems != 1 }
             )
         }
+    }
+}
+
+@Composable
+private fun ContentItem(
+    text: String,
+    color: Color,
+    modifier: GlanceModifier,
+    textStyle: TextStyle? = null
+) {
+    Box(modifier = modifier) {
+        Button(
+            text = text,
+            modifier = GlanceModifier.fillMaxSize().padding(8.dp).background(color),
+            style = textStyle ?: TextStyle(textAlign = TextAlign.Center),
+            onClick = actionUpdateContent<ResponsiveAction>(
+                actionParametersOf(
+                    KEY_ITEM_CLICKED to text
+                )
+            )
+        )
     }
 }
 
