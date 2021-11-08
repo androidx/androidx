@@ -600,6 +600,34 @@ class XTypeTest {
     }
 
     /**
+     * Reproduces the first bug in b/204415667
+     */
+    @Test
+    fun starVarianceInParameter() {
+        val libSource = Source.kotlin(
+            "lib.kt",
+            """
+            class MyClass<R> {
+                fun setLists(starList: List<*>, rList: List<R>) {}
+            }
+            """.trimIndent()
+        )
+        runProcessorTest(listOf(libSource)) { invocation ->
+            val actual = invocation.processingEnv.requireTypeElement("MyClass")
+                .getDeclaredMethod("setLists").parameters.associate {
+                    it.name to it.type.typeName.toString()
+                }
+            assertThat(actual["starList"]).isEqualTo("java.util.List<?>")
+            if (invocation.isKsp) {
+                // TODO b/204415667 resolve variance properly in KSP
+                assertThat(actual["rList"]).isEqualTo("java.util.List<R>")
+            } else {
+                assertThat(actual["rList"]).isEqualTo("java.util.List<? extends R>")
+            }
+        }
+    }
+
+    /**
      * Dumps the typename with its bounds in a given depth.
      * This makes tests more readable.
      */
