@@ -2479,7 +2479,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityWindowInfoCompat.java"
-            line="125"
+            line="127"
             column="12"/>
     </issue>
 
@@ -2490,7 +2490,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityWindowInfoCompat.java"
-            line="139"
+            line="141"
             column="12"/>
     </issue>
 
@@ -2501,7 +2501,7 @@
         errorLine2="                                  ~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityWindowInfoCompat.java"
-            line="165"
+            line="167"
             column="35"/>
     </issue>
 
@@ -2512,7 +2512,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityWindowInfoCompat.java"
-            line="231"
+            line="233"
             column="12"/>
     </issue>
 
@@ -2523,7 +2523,7 @@
         errorLine2="           ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityWindowInfoCompat.java"
-            line="245"
+            line="247"
             column="12"/>
     </issue>
 
@@ -2534,7 +2534,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityWindowInfoCompat.java"
-            line="258"
+            line="260"
             column="12"/>
     </issue>
 
@@ -2545,7 +2545,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityWindowInfoCompat.java"
-            line="273"
+            line="275"
             column="19"/>
     </issue>
 
@@ -2556,7 +2556,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityWindowInfoCompat.java"
-            line="289"
+            line="291"
             column="19"/>
     </issue>
 
@@ -2567,7 +2567,7 @@
         errorLine2="                                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityWindowInfoCompat.java"
-            line="289"
+            line="291"
             column="56"/>
     </issue>
 
