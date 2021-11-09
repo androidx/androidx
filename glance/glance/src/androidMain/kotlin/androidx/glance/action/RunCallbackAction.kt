@@ -18,63 +18,72 @@ package androidx.glance.action
 
 import android.content.Context
 import androidx.annotation.RestrictTo
+import androidx.glance.GlanceId
 
 /** @suppress */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class UpdateContentAction(
-    public val runnableClass: Class<out ActionRunnable>,
+public class RunCallbackAction(
+    public val callbackClass: Class<out ActionCallback>,
     public val parameters: ActionParameters
 ) : Action {
     companion object {
 
-        public suspend fun run(context: Context, className: String, parameters: ActionParameters) {
+        public suspend fun run(
+            context: Context,
+            className: String,
+            glanceId: GlanceId,
+            parameters: ActionParameters
+        ) {
             val workClass = Class.forName(className)
 
-            if (!ActionRunnable::class.java.isAssignableFrom(workClass)) {
-                error("Runnable class must implement ActionRunnable.")
+            if (!ActionCallback::class.java.isAssignableFrom(workClass)) {
+                error("Provided class must implement ActionCallback.")
             }
 
-            val work = workClass.newInstance()
-            (work as ActionRunnable).run(context, parameters)
+            val actionCallback = workClass.newInstance() as ActionCallback
+            actionCallback.onRun(context, glanceId, parameters)
         }
     }
 }
 
 /**
- * A runnable task executed in response to the user action, before the content is updated. The
+ * A callback executed in response to the user action, before the content is updated. The
  * implementing class must have a public zero argument constructor, this is used to instantiate
  * the class at runtime.
  */
-public interface ActionRunnable {
+public interface ActionCallback {
     /**
      * Performs the work associated with this action. Called when the action is triggered.
      *
      * @param context the calling context
+     * @param glanceId the [GlanceId] that triggered this action
      * @param parameters the parameters associated with the action
      */
-    suspend fun run(context: Context, parameters: ActionParameters = actionParametersOf())
+    suspend fun onRun(
+        context: Context,
+        glanceId: GlanceId,
+        parameters: ActionParameters
+    )
 }
 
 /**
- * Creates an [Action] that executes a custom [ActionRunnable] and then updates the component
- * content.
+ * Creates an [Action] that executes a given [ActionCallback] implementation
  *
- * @param runnable the class of the runnable
+ * @param callbackClass the class that implements [ActionCallback]
  * @param parameters the parameters associated with the action
  */
-public fun <T : ActionRunnable> actionUpdateContent(
-    runnable: Class<T>,
+public fun <T : ActionCallback> actionRunCallback(
+    callbackClass: Class<T>,
     parameters: ActionParameters = actionParametersOf()
-): Action = UpdateContentAction(runnable, parameters)
+): Action = RunCallbackAction(callbackClass, parameters)
 
 @Suppress("MissingNullability") /* Shouldn't need to specify @NonNull. b/199284086 */
 /**
- * Creates an [Action] that executes a custom [ActionRunnable] and then updates the component
- * content.
+ * Creates an [Action] that executes a given [ActionCallback] implementation
  *
  * @param parameters the parameters associated with the action
  */
 // TODO(b/201418282): Add the UI update path
-public inline fun <reified T : ActionRunnable> actionUpdateContent(
+public inline fun <reified T : ActionCallback> actionRunCallback(
     parameters: ActionParameters = actionParametersOf()
-): Action = actionUpdateContent(T::class.java, parameters)
+): Action = actionRunCallback(T::class.java, parameters)

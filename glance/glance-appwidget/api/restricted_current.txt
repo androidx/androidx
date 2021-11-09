@@ -30,10 +30,8 @@ package androidx.glance.appwidget {
 
   public final class CompositionLocalsKt {
     method public static androidx.compose.runtime.ProvidableCompositionLocal<android.os.Bundle> getLocalAppWidgetOptions();
-    method public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.glance.appwidget.GlanceId> getLocalGlanceId();
     method public static androidx.compose.runtime.ProvidableCompositionLocal<java.lang.String> getLocalUiKey();
     property public static final androidx.compose.runtime.ProvidableCompositionLocal<android.os.Bundle> LocalAppWidgetOptions;
-    property public static final androidx.compose.runtime.ProvidableCompositionLocal<androidx.glance.appwidget.GlanceId> LocalGlanceId;
     property public static final androidx.compose.runtime.ProvidableCompositionLocal<java.lang.String> LocalUiKey;
   }
 
@@ -48,7 +46,7 @@ package androidx.glance.appwidget {
     method @androidx.compose.runtime.Composable public abstract void Content();
     method public androidx.glance.appwidget.SizeMode getSizeMode();
     method public androidx.glance.state.GlanceStateDefinition<?>? getStateDefinition();
-    method public final suspend Object? update(android.content.Context context, androidx.glance.appwidget.GlanceId glanceId, kotlin.coroutines.Continuation<? super kotlin.Unit> p);
+    method public final suspend Object? update(android.content.Context context, androidx.glance.GlanceId glanceId, kotlin.coroutines.Continuation<? super kotlin.Unit> p);
     property public androidx.glance.appwidget.SizeMode sizeMode;
     property public androidx.glance.state.GlanceStateDefinition<?>? stateDefinition;
   }
@@ -60,9 +58,6 @@ package androidx.glance.appwidget {
     ctor public GlanceAppWidgetReceiver();
     method public abstract androidx.glance.appwidget.GlanceAppWidget getGlanceAppWidget();
     property public abstract androidx.glance.appwidget.GlanceAppWidget glanceAppWidget;
-  }
-
-  public interface GlanceId {
   }
 
   public final class ImageProvidersKt {
