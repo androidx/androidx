@@ -134,7 +134,6 @@ class StartupTimingMetricTest {
 
     @LargeTest
     @Test
-    @SdkSuppress(minSdkVersion = 29) // TODO: fullydrawn behavior pre-profileable tag
     fun validateStartup_fullyDrawn_delayed() {
         validateStartup_fullyDrawn(100)
     }
