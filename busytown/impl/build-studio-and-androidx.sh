@@ -56,6 +56,12 @@ function zipStudio() {
 buildStudio
 zipStudio
 
+# list java processes to check for any running kotlin daemons, b/201504768
+function listJavaProcesses() {
+  ps -ef | grep /java || true
+}
+listJavaProcesses
+
 # Mac grep doesn't support -P, so use perl version of `grep -oP "(?<=buildVersion = ).*"`
 export LINT_VERSION=`perl -nle'print $& while m{(?<=baseVersion = ).*}g' $TOOLS_DIR/buildSrc/base/version.properties`
 export GRADLE_PLUGIN_VERSION=`perl -nle'print $& while m{(?<=buildVersion = ).*}g' $TOOLS_DIR/buildSrc/base/version.properties`
