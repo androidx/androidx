@@ -42,6 +42,7 @@ import androidx.glance.appwidget.LocalUiKey
 import androidx.glance.appwidget.SizeMode
 import androidx.glance.appwidget.Switch
 import androidx.glance.appwidget.layout.cornerRadius
+import androidx.glance.appwidget.unit.ColorProvider
 import androidx.glance.background
 import androidx.glance.currentState
 import androidx.glance.layout.Alignment
@@ -75,7 +76,7 @@ class CompoundButtonAppWidget : GlanceAppWidget() {
             horizontalAlignment = Alignment.Horizontal.CenterHorizontally
         ) {
             val textStyle = TextStyle(
-                color = ColorProvider(Color.Red),
+                color = ColorProvider(day = Color.Red, night = Color.Cyan),
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Bold,
                 fontStyle = FontStyle.Italic
@@ -88,7 +89,16 @@ class CompoundButtonAppWidget : GlanceAppWidget() {
                 text = "Checkbox 2",
                 style = textStyle,
                 modifier = fillModifier,
-                colors = CheckBoxColors(checked = Color.Red, unchecked = Color.Green)
+                colors = CheckBoxColors(
+                    checked = ColorProvider(
+                        day = Color.Red,
+                        night = Color.Cyan
+                    ),
+                    unchecked = ColorProvider(
+                        day = Color.Green,
+                        night = Color.Magenta
+                    )
+                )
             )
             CheckBox(
                 checked = toggled,

@@ -17,6 +17,7 @@
 package androidx.glance.appwidget.translators
 
 import android.content.Context
+import android.content.res.Configuration
 import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.compose.ui.graphics.Color
@@ -24,9 +25,11 @@ import androidx.glance.appwidget.CheckBox
 import androidx.glance.appwidget.CheckBoxColors
 import androidx.glance.appwidget.ImageViewSubject.Companion.assertThat
 import androidx.glance.appwidget.applyRemoteViews
+import androidx.glance.appwidget.configurationContext
 import androidx.glance.appwidget.findViewByType
 import androidx.glance.appwidget.runAndTranslate
 import androidx.glance.appwidget.test.R
+import androidx.glance.appwidget.unit.ColorProvider
 import androidx.test.core.app.ApplicationProvider
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.TestCoroutineScope
@@ -44,6 +47,8 @@ class CheckBoxTranslatorTest {
 
     private lateinit var fakeCoroutineScope: TestCoroutineScope
     private val context = ApplicationProvider.getApplicationContext<Context>()
+    private val lightContext = configurationContext { uiMode = Configuration.UI_MODE_NIGHT_NO }
+    private val darkContext = configurationContext { uiMode = Configuration.UI_MODE_NIGHT_YES }
 
     @Before
     fun setUp() {
@@ -82,20 +87,80 @@ class CheckBoxTranslatorTest {
         assertThat(icon).hasColorFilter(Color.Red)
     }
 
-    @Config(sdk = [21, 23])
+    @Config(sdk = [29])
     @Test
-    fun canTranslateCheckBox_resource_unchecked() = fakeCoroutineScope.runBlockingTest {
-        val rv = context.runAndTranslate {
+    fun canTranslateCheckBox_dayNight_unchecked_day() = fakeCoroutineScope.runBlockingTest {
+        val rv = lightContext.runAndTranslate {
             CheckBox(
                 checked = false,
                 text = "Check",
-                colors = CheckBoxColors(R.color.my_checkbox_colors)
+                colors = CheckBoxColors(
+                    checked = ColorProvider(day = Color.Red, night = Color.Blue),
+                    unchecked = ColorProvider(day = Color.Yellow, night = Color.Green)
+                )
             )
         }
 
-        val checkBoxRoot = assertIs<ViewGroup>(context.applyRemoteViews(rv))
+        val checkBoxRoot = assertIs<ViewGroup>(lightContext.applyRemoteViews(rv))
         val icon = checkBoxRoot.findViewByType<ImageView>()
-        assertThat(icon).hasColorFilter("#0000FF")
+        assertThat(icon).hasColorFilter(Color.Yellow)
+    }
+
+    @Config(sdk = [29])
+    @Test
+    fun canTranslateCheckBox_dayNight_unchecked_night() = fakeCoroutineScope.runBlockingTest {
+        val rv = darkContext.runAndTranslate {
+            CheckBox(
+                checked = false,
+                text = "Check",
+                colors = CheckBoxColors(
+                    checked = ColorProvider(day = Color.Red, night = Color.Blue),
+                    unchecked = ColorProvider(day = Color.Yellow, night = Color.Green)
+                )
+            )
+        }
+
+        val checkBoxRoot = assertIs<ViewGroup>(darkContext.applyRemoteViews(rv))
+        val icon = checkBoxRoot.findViewByType<ImageView>()
+        assertThat(icon).hasColorFilter(Color.Green)
+    }
+
+    @Config(sdk = [29])
+    @Test
+    fun canTranslateCheckBox_dayNight_checked_day() = fakeCoroutineScope.runBlockingTest {
+        val rv = lightContext.runAndTranslate {
+            CheckBox(
+                checked = true,
+                text = "Check",
+                colors = CheckBoxColors(
+                    checked = ColorProvider(day = Color.Red, night = Color.Blue),
+                    unchecked = ColorProvider(day = Color.Yellow, night = Color.Green)
+                )
+            )
+        }
+
+        val checkBoxRoot = assertIs<ViewGroup>(lightContext.applyRemoteViews(rv))
+        val icon = checkBoxRoot.findViewByType<ImageView>()
+        assertThat(icon).hasColorFilter(Color.Red)
+    }
+
+    @Config(sdk = [29])
+    @Test
+    fun canTranslateCheckBox_dayNight_checked_night() = fakeCoroutineScope.runBlockingTest {
+        val rv = darkContext.runAndTranslate {
+            CheckBox(
+                checked = true,
+                text = "Check",
+                colors = CheckBoxColors(
+                    checked = ColorProvider(day = Color.Red, night = Color.Blue),
+                    unchecked = ColorProvider(day = Color.Yellow, night = Color.Green)
+                )
+            )
+        }
+
+        val checkBoxRoot = assertIs<ViewGroup>(darkContext.applyRemoteViews(rv))
+        val icon = checkBoxRoot.findViewByType<ImageView>()
+        assertThat(icon).hasColorFilter(Color.Blue)
     }
 
     @Config(sdk = [21, 23])
