@@ -52,7 +52,7 @@ internal class CameraGraphImpl @Inject constructor(
     // Only one session can be active at a time.
     private val sessionLock = TokenLockImpl(1)
 
-    private val controller3A = Controller3A(graphProcessor, graphState3A, listener3A)
+    private val controller3A = Controller3A(graphProcessor, metadata, graphState3A, listener3A)
 
     init {
         // Log out the configuration of the camera graph when it is created.

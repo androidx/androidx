@@ -28,6 +28,7 @@ import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.RequestNumber
 import androidx.camera.camera2.pipe.Result3A
 import androidx.camera.camera2.pipe.StreamId
+import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
 import androidx.camera.camera2.pipe.testing.FakeFrameMetadata
 import androidx.camera.camera2.pipe.testing.FakeGraphProcessor
 import androidx.camera.camera2.pipe.testing.FakeRequestMetadata
@@ -51,7 +52,12 @@ internal class Controller3AUpdate3ATest {
     private val graphProcessor = FakeGraphProcessor(graphState3A = graphState3A)
     private val requestProcessor = FakeRequestProcessor()
     private val listener3A = Listener3A()
-    private val controller3A = Controller3A(graphProcessor, graphState3A, listener3A)
+    private val controller3A = Controller3A(
+        graphProcessor,
+        FakeCameraMetadata(),
+        graphState3A,
+        listener3A
+    )
 
     @Test
     fun testUpdate3AUpdatesState3A() {
