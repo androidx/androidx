@@ -20,7 +20,6 @@ import android.app.Activity;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
-import android.os.AsyncTask;
 import android.os.Handler;
 import android.util.Log;
 import android.view.View;
@@ -59,6 +58,7 @@ public class BackgroundHelper {
         /**
          * Get cached bitmap by token, returns null if missing cache.
          */
+        @SuppressWarnings("ObjectToString")
         public Bitmap getCache(Object token) {
             if (token == null ? mLastToken == null : token.equals(mLastToken)) {
                 if (DEBUG) Log.v(TAG, "hitCache token:" + token + " " + mLastBitmap);
@@ -70,6 +70,7 @@ public class BackgroundHelper {
         /**
          * Add cached bitmap.
          */
+        @SuppressWarnings("ObjectToString")
         public void putCache(Object token, Bitmap bitmap) {
             if (DEBUG) Log.v(TAG, "putCache token:" + token + " " + bitmap);
             mLastToken = token;
@@ -123,7 +124,8 @@ public class BackgroundHelper {
         }
     }
 
-    class LoadBitmapTaskBase extends AsyncTask<Request, Object, Request> {
+    @SuppressWarnings("deprecation") /* AsyncTask */
+    class LoadBitmapTaskBase extends android.os.AsyncTask<Request, Object, Request> {
         @Override
         protected Request doInBackground(Request... params) {
             boolean cancelled = isCancelled();

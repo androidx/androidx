@@ -1,0 +1,57 @@
+/*
+ * Copyright (C) 2020 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import androidx.build.LibraryGroups
+import androidx.build.LibraryType
+
+plugins {
+    id("AndroidXPlugin")
+    id("kotlin")
+}
+
+dependencies {
+    implementation(project(":lifecycle:lifecycle-common"))
+    implementation(libs.kotlinStdlib)
+    implementation(libs.autoCommon)
+    implementation(libs.javapoet)
+    testImplementation(libs.googleCompileTesting)
+    testImplementation(libs.jsr250)
+}
+
+// The following tasks are used to regenerate src/test/test-data/lib/src/test-library.jar
+// and is run manually when these jars need updating.
+// We actually need to compile :lifecycle:lifecycle-common, but compileJava is easier
+tasks.register("compileTestLibrarySource", JavaCompile).configure {
+    dependsOn(compileJava)
+    source "src/test/test-data/lib/src"
+    classpath = project.compileJava.classpath
+    destinationDirectory.set(new File(project.buildDir, "test-data/lib/classes"))
+}
+
+tasks.register("jarTestLibrarySource", Jar).configure {
+    dependsOn("compileTestLibrarySource")
+    from compileTestLibrarySource.destinationDir
+    archiveFileName.set("test-library.jar")
+    destinationDirectory.set(file("src/test/test-data/lib/"))
+}
+
+androidx {
+    name = "Android Lifecycles Compiler"
+    type = LibraryType.ANNOTATION_PROCESSOR
+    mavenGroup = LibraryGroups.LIFECYCLE
+    inceptionYear = "2017"
+    description = "Android Lifecycles annotation processor"
+}

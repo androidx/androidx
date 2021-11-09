@@ -16,12 +16,13 @@
 
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
     <item
-        android:state_activated="true"
-        android:color="?android:attr/colorForeground"
+        android:state_activated="false"
+        android:color="@android:color/black"
+        android:alpha=".1"
         />
     <item
-        android:state_activated="false"
-        android:color="?android:attr/colorForeground"
-        android:alpha=".3"
+        android:state_activated="true"
+        android:color="#FFFF0000"
+        android:alpha=".4"
         />
 </selector>

@@ -26,6 +26,7 @@ import androidx.room.Query
 import androidx.room.Relation
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import androidx.room.Transaction
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
@@ -100,9 +101,11 @@ class ConstructorInheritanceTest {
         fun loadById2(id: Long): Child2
 
         @Suppress("unused")
+        @Transaction
         @Query("SELECT * FROM Child1 WHERE id = :id")
         fun loadGroupById1(id: Long): ChildGroup1
 
+        @Transaction
         @Query("SELECT * FROM Child1 WHERE id = :id")
         fun loadGroupById2(id: Long): ChildGroup2
     }
@@ -132,9 +135,13 @@ class ConstructorInheritanceTest {
         val childGroup = dao.loadGroupById2(1)
         assertThat(childGroup.child1.id, `is`(1L))
         assertThat(childGroup.children2, hasSize(2))
-        assertThat(childGroup.children2, hasItems(
-            Child2(2, Info("123")),
-            Child2(3, Info("123"))))
+        assertThat(
+            childGroup.children2,
+            hasItems(
+                Child2(2, Info("123")),
+                Child2(3, Info("123"))
+            )
+        )
     }
 
     private fun openDatabase(): EmbeddedDatabase {

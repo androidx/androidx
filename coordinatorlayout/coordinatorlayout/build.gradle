@@ -1,0 +1,47 @@
+import androidx.build.LibraryGroups
+import androidx.build.Publish
+
+plugins {
+    id("AndroidXPlugin")
+    id("com.android.library")
+}
+
+dependencies {
+    api("androidx.annotation:annotation:1.1.0")
+    api("androidx.core:core:1.3.0-beta01")
+    implementation("androidx.collection:collection:1.0.0")
+    api("androidx.customview:customview:1.0.0")
+
+    androidTestImplementation(libs.testExtJunit)
+    androidTestImplementation(libs.testCore)
+    androidTestImplementation(libs.testRunner)
+    androidTestImplementation(libs.testRules)
+    androidTestImplementation(libs.espressoCore, excludes.espresso)
+    androidTestImplementation(libs.espressoContrib, excludes.espresso)
+    androidTestImplementation(libs.mockitoCore, excludes.bytebuddy)
+    androidTestImplementation(libs.dexmakerMockito, excludes.bytebuddy) // DexMaker has it"s own MockMaker
+    androidTestImplementation(project(":internal-testutils-runtime"), {
+        exclude group: "androidx.coordinatorlayout", module: "coordinatorlayout"
+    })
+}
+
+android {
+    sourceSets {
+        main.res.srcDirs = [
+                "src/main/res",
+                "src/main/res-public"
+        ]
+    }
+    buildTypes.all {
+        consumerProguardFiles "proguard-rules.pro"
+    }
+}
+
+androidx {
+    name = "Android Support Library Coordinator Layout"
+    publish = Publish.SNAPSHOT_AND_RELEASE
+    mavenGroup = LibraryGroups.COORDINATORLAYOUT
+    inceptionYear = "2011"
+    description = "The Support Library is a static library that you can add to your Android application in order to use APIs that are either not available for older platform versions or utility APIs that aren't a part of the framework APIs. Compatible on devices running API 14 or later."
+    failOnDeprecationWarnings = false
+}

@@ -49,6 +49,9 @@ public class AssetLoaderListActivity extends AppCompatActivity {
                 new MenuListView.MenuItem(
                     getResources().getString(R.string.asset_loader_ajax_activity_title),
                     new Intent(activityContext, AssetLoaderAjaxActivity.class)),
+                new MenuListView.MenuItem(
+                    getResources().getString(R.string.asset_loader_internal_storage_activity_title),
+                    new Intent(activityContext, AssetLoaderInternalStorageActivity.class)),
         };
         listView.setItems(menuItems);
     }

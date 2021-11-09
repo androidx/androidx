@@ -1,0 +1,94 @@
+import androidx.build.LibraryGroups
+import androidx.build.LibraryVersions
+import androidx.build.Publish
+
+plugins {
+    id("AndroidXPlugin")
+    id("com.android.library")
+    id("kotlin-android")
+}
+
+dependencies {
+    api("androidx.annotation:annotation:1.2.0")
+    api("androidx.annotation:annotation-experimental:1.1.0")
+    api("androidx.lifecycle:lifecycle-runtime:2.3.1")
+    api("androidx.versionedparcelable:versionedparcelable:1.1.1")
+    implementation("androidx.collection:collection:1.0.0")
+    implementation("androidx.concurrent:concurrent-futures:1.0.0")
+
+    // Required for -Werror due to annotation-experimental use of Kotlin
+    compileOnly(libs.kotlinStdlib)
+
+    // We don't ship this as a public artifact, so it must remain a project-type dependency.
+    annotationProcessor(project(":versionedparcelable:versionedparcelable-compiler"))
+
+    androidTestImplementation("junit:junit:4.13")
+    androidTestImplementation(libs.kotlinStdlib)
+    androidTestImplementation(libs.testExtJunit)
+    androidTestImplementation(libs.testCore)
+    androidTestImplementation(libs.testRunner)
+    androidTestImplementation(libs.testRules)
+    androidTestImplementation(libs.truth)
+    androidTestImplementation(libs.espressoCore, excludes.espresso)
+    androidTestImplementation(libs.mockitoCore, excludes.bytebuddy) // DexMaker has it"s own MockMaker
+    androidTestImplementation(libs.multidex)
+
+    androidTestImplementation("androidx.lifecycle:lifecycle-runtime-testing:2.3.1")
+
+    // Including both dexmakers allows support for all API levels plus final mocking support on
+    // API 28+. The implementation is swapped based on the finality of the mock type. This
+    // delegation is handled manually inside androidx.core.util.mockito.CustomMockMaker.
+    androidTestImplementation(libs.dexmakerMockito, excludes.bytebuddy) // DexMaker has it"s own MockMaker
+    androidTestImplementation(libs.dexmakerMockitoInline, excludes.bytebuddy) // DexMaker has it"s own MockMaker
+    androidTestImplementation("androidx.appcompat:appcompat:1.1.0") {
+        exclude group: "androidx.core", module: "core"
+    }
+    androidTestImplementation(project(":internal-testutils-runtime"), {
+        exclude group: "androidx.core", module: "core"
+    })
+    androidTestImplementation(project(":internal-testutils-mockito"))
+
+    testImplementation("junit:junit:4.13")
+    testImplementation(libs.testCore)
+    testImplementation(libs.testRunner)
+    testImplementation(libs.truth)
+    testImplementation(libs.robolectric)
+}
+
+android {
+    buildFeatures {
+        aidl = true
+    }
+    testOptions.unitTests.includeAndroidResources = true
+    aaptOptions {
+        noCompress "ttf"
+    }
+    buildTypes.all {
+        consumerProguardFiles "proguard-rules.pro"
+    }
+
+    packagingOptions {
+        // Drop the file from external dependencies, preferring the local file inside androidTest
+        pickFirsts = [
+                "mockito-extensions/org.mockito.plugins.MockMaker",
+                "mockito-extensions/org.mockito.plugins.StackTraceCleanerProvider"
+        ]
+    }
+    defaultConfig {
+        multiDexEnabled = true
+    }
+    // TODO(aurimas): reenable once AGP 7.0-alpha15 lands
+    lintOptions {
+        disable("ClassVerificationFailure", "NewApi")
+    }
+}
+
+androidx {
+    name = "Android Support Library compat"
+    publish = Publish.SNAPSHOT_AND_RELEASE
+    mavenVersion = LibraryVersions.CORE
+    mavenGroup = LibraryGroups.CORE
+    inceptionYear = "2015"
+    description = "The Support Library is a static library that you can add to your Android application in order to use APIs that are either not available for older platform versions or utility APIs that aren\'t a part of the framework APIs. Compatible on devices running API 14 or later."
+    failOnDeprecationWarnings = false
+}

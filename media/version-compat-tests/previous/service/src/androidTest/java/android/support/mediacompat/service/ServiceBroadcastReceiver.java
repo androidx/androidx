@@ -27,6 +27,7 @@ import static android.support.mediacompat.testlib.MediaBrowserConstants
         .SEND_DELAYED_NOTIFY_CHILDREN_CHANGED;
 import static android.support.mediacompat.testlib.MediaBrowserConstants.SET_SESSION_TOKEN;
 import static android.support.mediacompat.testlib.MediaSessionConstants.RELEASE;
+import static android.support.mediacompat.testlib.MediaSessionConstants.RELEASE_AND_THEN_SET_PLAYBACK_STATE;
 import static android.support.mediacompat.testlib.MediaSessionConstants.SEND_SESSION_EVENT;
 import static android.support.mediacompat.testlib.MediaSessionConstants.SET_ACTIVE;
 import static android.support.mediacompat.testlib.MediaSessionConstants.SET_CAPTIONING_ENABLED;
@@ -55,11 +56,12 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.RatingCompat;
-import android.support.v4.media.VolumeProviderCompat;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.MediaSessionCompat.QueueItem;
 import android.support.v4.media.session.ParcelableVolumeInfo;
 import android.support.v4.media.session.PlaybackStateCompat;
+
+import androidx.media.VolumeProviderCompat;
 
 import java.util.List;
 
@@ -156,6 +158,10 @@ public class ServiceBroadcastReceiver extends BroadcastReceiver {
                     break;
                 case SET_RATING_TYPE:
                     session.setRatingType(RatingCompat.RATING_5_STARS);
+                    break;
+                case RELEASE_AND_THEN_SET_PLAYBACK_STATE:
+                    session.release();
+                    session.setPlaybackState(extras.getParcelable(KEY_ARGUMENT));
                     break;
             }
         }

@@ -21,10 +21,11 @@ import static androidx.recyclerview.widget.RecyclerView.HORIZONTAL;
 import static androidx.recyclerview.widget.RecyclerView.SCROLL_STATE_IDLE;
 import static androidx.recyclerview.widget.RecyclerView.VERTICAL;
 
+import static com.google.common.truth.Truth.assertWithMessage;
+
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.assertTrue;
 
 import android.app.Activity;
 import android.content.Context;
@@ -124,9 +125,10 @@ public class FocusSearchNavigationTest {
             }
         });
         waitForIdleSync();
-        assertThat("test sanity", mRecyclerView.getLayoutManager().getLayoutDirection(),
+        assertThat("Assumption check", mRecyclerView.getLayoutManager().getLayoutDirection(),
                 is(mLayoutDir));
-        assertThat("test sanity", ViewCompat.getLayoutDirection(mRecyclerView), is(mLayoutDir));
+        assertThat("Assumption check", ViewCompat.getLayoutDirection(mRecyclerView),
+                is(mLayoutDir));
     }
 
     @Test
@@ -174,6 +176,22 @@ public class FocusSearchNavigationTest {
         focusSearchAndGive(focused, View.FOCUS_BACKWARD);
         assertThat(mBefore, hasFocus());
         focusSearchAndGive(mBefore, View.FOCUS_BACKWARD);
+        assertThat(mAfter, hasFocus());
+    }
+
+    @Test
+    public void focusSearchForwardWithSingleItem() throws Throwable {
+        setup(1);
+        requestFocus(mBefore);
+        assertThat(mBefore, hasFocus());
+
+        View focused = mBefore;
+        focusSearchAndGive(focused, View.FOCUS_FORWARD);
+        RecyclerView.ViewHolder viewHolder = mRecyclerView.findViewHolderForAdapterPosition(0);
+        assertThat("The first view holder ", viewHolder, hasFocus());
+
+        focused = viewHolder.itemView;
+        focusSearchAndGive(focused, View.FOCUS_FORWARD);
         assertThat(mAfter, hasFocus());
     }
 
@@ -234,7 +252,9 @@ public class FocusSearchNavigationTest {
                 }
             }
         });
-        assertTrue("should go idle in 10 seconds", latch.await(10, TimeUnit.SECONDS));
+        assertWithMessage("should go idle in 10 seconds")
+                .that(latch.await(10, TimeUnit.SECONDS))
+                .isTrue();
     }
 
     static class FocusSearchAdapter extends RecyclerView.Adapter {

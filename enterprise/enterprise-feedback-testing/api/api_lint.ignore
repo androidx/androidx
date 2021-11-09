@@ -1,0 +1,5 @@
+// Baseline format: 1.0
+ExecutorRegistration: androidx.enterprise.feedback.FakeKeyedAppStatesReporter#setStates(java.util.Collection<androidx.enterprise.feedback.KeyedAppState>, androidx.enterprise.feedback.KeyedAppStatesCallback):
+    Registration methods should have overload that accepts delivery Executor: `setStates`
+ExecutorRegistration: androidx.enterprise.feedback.FakeKeyedAppStatesReporter#setStatesImmediate(java.util.Collection<androidx.enterprise.feedback.KeyedAppState>, androidx.enterprise.feedback.KeyedAppStatesCallback):
+    Registration methods should have overload that accepts delivery Executor: `setStatesImmediate`

@@ -68,8 +68,13 @@ public abstract class PKeyTestDatabase extends RoomDatabase {
         @Insert
         long[] insertAndGetIds(IntegerAutoIncPKeyEntity... item);
 
+        @Insert
+        Long[] insertAndGetIdsBoxed(IntegerAutoIncPKeyEntity... item);
+
         @Query("select data from IntegerAutoIncPKeyEntity WHERE pKey IN(:ids)")
         List<String> loadDataById(long... ids);
+        @Query("select data from IntegerAutoIncPKeyEntity WHERE pKey IN(:ids)")
+        List<String> loadDataById(Long[] ids);
     }
 
     @Dao

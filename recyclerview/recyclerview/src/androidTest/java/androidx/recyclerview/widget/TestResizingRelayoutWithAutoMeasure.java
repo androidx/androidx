@@ -101,13 +101,13 @@ public class TestResizingRelayoutWithAutoMeasure extends BaseRecyclerViewInstrum
         recyclerView.setAdapter(adapter);
         setRecyclerView(recyclerView);
         getInstrumentation().waitForIdleSync();
-        assertThat("Test sanity", recyclerView.getChildCount() > 0, is(true));
+        assertThat("Assumption check", recyclerView.getChildCount() > 0, is(true));
         final int lastPosition = recyclerView.getAdapter().getItemCount() - 1;
         smoothScrollToPosition(lastPosition);
-        assertThat("test sanity", recyclerView.findViewHolderForAdapterPosition(lastPosition),
+        assertThat("Assumption check", recyclerView.findViewHolderForAdapterPosition(lastPosition),
                 notNullValue());
-        assertThat("test sanity", mRvWidth, is(recyclerView.getWidth()));
-        assertThat("test sanity", mRvHeight, is(recyclerView.getHeight()));
+        assertThat("Assumption check", mRvWidth, is(recyclerView.getWidth()));
+        assertThat("Assumption check", mRvHeight, is(recyclerView.getHeight()));
         recyclerView.waitUntilLayout();
         recyclerView.waitUntilAnimations();
         final Map<Integer, Rect> startPositions = capturePositions(recyclerView);

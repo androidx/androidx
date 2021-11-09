@@ -301,7 +301,7 @@ class FastScroller extends RecyclerView.ItemDecoration implements RecyclerView.O
             canvas.translate(mVerticalThumbWidth, top);
             canvas.scale(-1, 1);
             mVerticalThumbDrawable.draw(canvas);
-            canvas.scale(1, 1);
+            canvas.scale(-1, 1);
             canvas.translate(-mVerticalThumbWidth, -top);
         } else {
             canvas.translate(left, 0);
@@ -493,7 +493,7 @@ class FastScroller extends RecyclerView.ItemDecoration implements RecyclerView.O
 
     @VisibleForTesting
     boolean isPointInsideVerticalThumb(float x, float y) {
-        return (isLayoutRTL() ? x <= mVerticalThumbWidth / 2
+        return (isLayoutRTL() ? x <= mVerticalThumbWidth
             : x >= mRecyclerViewWidth - mVerticalThumbWidth)
             && y >= mVerticalThumbCenterY - mVerticalThumbHeight / 2
             && y <= mVerticalThumbCenterY + mVerticalThumbHeight / 2;

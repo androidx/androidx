@@ -22,7 +22,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.StrictMode;
@@ -290,12 +289,12 @@ public class VideoSelectorActivity extends Activity {
             }
         }
 
-        // now add the the sorted directories to the result set.
+        // now add the sorted directories to the result set.
         for (VideoItem vi : dirs.values()) {
             retVal.add(vi);
         }
 
-        // finally add the the sorted files to the result set.
+        // finally add the sorted files to the result set.
         for (VideoItem vi : files.values()) {
             retVal.add(vi);
         }
@@ -303,7 +302,7 @@ public class VideoSelectorActivity extends Activity {
         return retVal;
     }
 
-    private final class VideoItemListTask extends AsyncTask<Void, Void, VideoItemList> {
+    private final class VideoItemListTask extends android.os.AsyncTask<Void, Void, VideoItemList> {
         private String mPath;
 
         VideoItemListTask(String path) {

@@ -42,15 +42,21 @@ import java.util.List;
                 MigrationDb.Entity4.class},
         views = {MigrationDb.View1.class})
 public abstract class MigrationDb extends RoomDatabase {
-    static final int LATEST_VERSION = 8;
+    static final int LATEST_VERSION = 13;
     static final int MAX_VERSION = 1000;
     abstract MigrationDao dao();
-    @Entity(indices = {@Index(value = "name", unique = true)})
+    @Entity(indices = {
+            @Index(value = "name", unique = true),
+            @Index(value = "addedInV10", unique = false)})
     static class Entity1 {
         public static final String TABLE_NAME = "Entity1";
         @PrimaryKey
         public int id;
         public String name;
+        @ColumnInfo(defaultValue = "0")
+        public int addedInV10;
+        @ColumnInfo(defaultValue = "(0)")
+        public int added1InV13;
     }
 
     @Entity
@@ -59,7 +65,9 @@ public abstract class MigrationDb extends RoomDatabase {
         @PrimaryKey(autoGenerate = true)
         public int id;
         public String addedInV3;
+        @ColumnInfo(defaultValue = "Unknown") // Added in version 11
         public String name;
+        public String addedInV9; // added via alter table with default value pre Room 2.2.0
     }
 
     @Entity
@@ -127,7 +135,7 @@ public abstract class MigrationDb extends RoomDatabase {
             long insertionId = mDb.insert(Entity1.TABLE_NAME,
                     SQLiteDatabase.CONFLICT_REPLACE, values);
             if (insertionId == -1) {
-                throw new RuntimeException("test sanity failure");
+                throw new RuntimeException("test failure");
             }
         }
     }
@@ -149,7 +157,7 @@ public abstract class MigrationDb extends RoomDatabase {
             long insertionId = mDb.insert(Entity2.TABLE_NAME,
                     SQLiteDatabase.CONFLICT_REPLACE, values);
             if (insertionId == -1) {
-                throw new RuntimeException("test sanity failure");
+                throw new RuntimeException("test failure");
             }
         }
     }

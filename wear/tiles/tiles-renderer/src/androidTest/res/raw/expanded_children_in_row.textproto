@@ -1,0 +1,178 @@
+column {
+  width {
+    expanded_dimension {}
+  }
+  height {
+    expanded_dimension {}
+  }
+
+  # A row that will not be displayed because it's set to wrap (by default), and
+  # all its children are set to expand, so it's undefined how to display it.
+  contents {
+    row {
+      contents {
+        box {
+          width {
+            expanded_dimension {}
+          }
+          height {
+            linear_dimension {
+              value: 20
+            }
+          }
+          modifiers {
+            background {
+              color {
+                argb: 0xFFFF0000
+              }
+            }
+          }
+        }
+      }
+
+      contents {
+        box {
+          width {
+            expanded_dimension {}
+          }
+          height {
+            linear_dimension {
+              value: 20
+            }
+          }
+          modifiers {
+            background {
+              color {
+                argb: 0xFF00FF00
+              }
+            }
+          }
+          contents {
+            text {
+              text {
+                value: "Should not be displayed"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  contents {
+    spacer {
+      height {
+        linear_dimension {
+          value: 10
+        }
+      }
+    }
+  }
+
+  # A row with expand = true
+  contents {
+    row {
+      width {
+        expanded_dimension {}
+      }
+      contents {
+        box {
+          width {
+            expanded_dimension {}
+          }
+          height {
+            linear_dimension {
+              value: 20
+            }
+          }
+          modifiers {
+            background {
+              color {
+                argb: 0xFFFF0000
+              }
+            }
+          }
+        }
+      }
+
+      contents {
+        box {
+          width {
+            expanded_dimension {}
+          }
+          height {
+            linear_dimension {
+              value: 20
+            }
+          }
+          modifiers {
+            background {
+              color {
+                argb: 0xFF00FF00
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  contents {
+    spacer {
+      height {
+        linear_dimension {
+          value: 10
+        }
+      }
+    }
+  }
+
+  # A row with a known width
+  contents {
+    row {
+      width {
+        linear_dimension {
+          value: 100
+        }
+      }
+      contents {
+        box {
+          width {
+            expanded_dimension {}
+          }
+          height {
+            linear_dimension {
+              value: 20
+            }
+          }
+          modifiers {
+            background {
+              color {
+                argb: 0xFFFF0000
+              }
+            }
+          }
+        }
+      }
+      contents {
+        box {
+          width {
+            expanded_dimension {}
+          }
+          height {
+            linear_dimension {
+              value: 20
+            }
+          }
+          modifiers {
+            background {
+              color {
+                argb: 0xFF00FF00
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

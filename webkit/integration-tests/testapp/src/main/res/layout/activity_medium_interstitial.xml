@@ -25,6 +25,23 @@
     android:background="@color/colorBackground"
     tools:ignore="Orientation">
 
-    <!--This will be populated at runtime with WebViews-->
+    <!--Width, height, and margins are re-configured at runtime, depending on orientation-->
+    <WebView
+        android:id="@+id/malware_webview"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+    <WebView
+        android:id="@+id/phishing_webview"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+    <WebView
+        android:id="@+id/unwanted_software_webview"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+    <WebView
+        android:id="@+id/billing_webview"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+    <!--Add more threat types (here and in the Activity), if we support more in the future-->
 
 </LinearLayout>

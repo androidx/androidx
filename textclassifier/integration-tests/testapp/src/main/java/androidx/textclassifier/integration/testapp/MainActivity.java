@@ -16,6 +16,7 @@
 
 package androidx.textclassifier.integration.testapp;
 
+import android.os.Build;
 import android.os.Bundle;
 import android.text.Spannable;
 import android.text.method.LinkMovementMethod;
@@ -24,6 +25,7 @@ import android.widget.AdapterView;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.textclassifier.MainThreadExecutor;
 import androidx.textclassifier.TextClassificationManager;
@@ -37,9 +39,9 @@ import java.util.concurrent.Executors;
 /**
  * Main activity.
  */
+@RequiresApi(api = Build.VERSION_CODES.M)
 public class MainActivity extends AppCompatActivity {
     private static final int DEFAULT = 0;
-    private static final int CUSTOM = 1;
 
     private static final Executor sWorkerThreadExecutor = Executors.newSingleThreadExecutor();
     private static final Executor sMainThreadExecutor = new MainThreadExecutor();
@@ -50,6 +52,10 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+//        Uncomment this to use the experimental toolbar.
+//        ToolbarController.setFloatingToolbarFactory(FloatingToolbar::new);
+
         setContentView(R.layout.activity_main);
         mInput = findViewById(R.id.textView_input);
         setLinkMovementMethod(mInput);

@@ -32,7 +32,7 @@ class TypeRewriterTest {
             to = "test.sample2.Class2",
             typesMap = TypesMap(
                 JavaType.fromDotVersion("test.sample.Class")
-                        to JavaType.fromDotVersion("test.sample2.Class2")
+                    to JavaType.fromDotVersion("test.sample2.Class2")
             )
         )
     }
@@ -44,7 +44,7 @@ class TypeRewriterTest {
             packagePrefix = "notTest/",
             typesMap = TypesMap(
                 JavaType.fromDotVersion("test.sample.Class")
-                        to JavaType.fromDotVersion("test.sample2.Class2")
+                    to JavaType.fromDotVersion("test.sample2.Class2")
             )
         )
     }
@@ -60,10 +60,12 @@ class TypeRewriterTest {
         testRewrite(
             from = "test.sample.Class",
             to = "test.sample2.Class2",
-            rewriteRulesMap = RewriteRulesMap(RewriteRule(
-                "test/sample/Cl(.*)",
-                "test/sample2/Cl{0}2"
-            )),
+            rewriteRulesMap = RewriteRulesMap(
+                RewriteRule(
+                    "test/sample/Cl(.*)",
+                    "test/sample2/Cl{0}2"
+                )
+            ),
             useFallback = true
         )
     }
@@ -72,10 +74,12 @@ class TypeRewriterTest {
         testRewrite(
             from = "test.sample.Class\$Inner",
             to = "test.sample2.Class2\$Inner",
-            rewriteRulesMap = RewriteRulesMap(RewriteRule(
+            rewriteRulesMap = RewriteRulesMap(
+                RewriteRule(
                     "test/sample/Class(.*)",
                     "test/sample2/Class2{0}"
-            )),
+                )
+            ),
             useFallback = true
         )
     }
@@ -84,10 +88,12 @@ class TypeRewriterTest {
         testRewrite(
             from = "test.sample.Class",
             to = "test.sample2.Class2",
-            rewriteRulesMap = RewriteRulesMap(RewriteRule(
-                "test/sample2/Cl(.*)2",
-                "test/sample/Cl{0}"
-            )).reverse(),
+            rewriteRulesMap = RewriteRulesMap(
+                RewriteRule(
+                    "test/sample2/Cl(.*)2",
+                    "test/sample/Cl{0}"
+                )
+            ).reverse(),
             useFallback = true
         )
     }
@@ -98,12 +104,14 @@ class TypeRewriterTest {
             to = "test.sample2.Class2",
             typesMap = TypesMap(
                 JavaType.fromDotVersion("test.sample.Class")
-                        to JavaType.fromDotVersion("test.sample2.Class2")
+                    to JavaType.fromDotVersion("test.sample2.Class2")
             ),
-            rewriteRulesMap = RewriteRulesMap(RewriteRule(
-                "test/sample/Cl(.*)",
-                "test/sample3/Cl{0}3"
-            )),
+            rewriteRulesMap = RewriteRulesMap(
+                RewriteRule(
+                    "test/sample/Cl(.*)",
+                    "test/sample3/Cl{0}3"
+                )
+            ),
             useFallback = true
         )
     }
@@ -114,22 +122,25 @@ class TypeRewriterTest {
             to = "test.sample2.Class2",
             typesMap = TypesMap(
                 JavaType.fromDotVersion("test.sample.Class")
-                        to JavaType.fromDotVersion("test.sample2.Class2")
+                    to JavaType.fromDotVersion("test.sample2.Class2")
             ),
-            rewriteRulesMap = RewriteRulesMap(RewriteRule(
-                "test/sample/Cl(.*)",
-                "ignoreInRuntime"
-            ))
+            rewriteRulesMap = RewriteRulesMap(
+                RewriteRule(
+                    "test/sample/Cl(.*)",
+                    "ignoreInRuntime"
+                )
+            )
         )
     }
 
     fun testRewrite(
-            from: String,
-            to: String?,
-            packagePrefix: String = "test/",
-            typesMap: TypesMap = TypesMap.EMPTY,
-            rewriteRulesMap: RewriteRulesMap = RewriteRulesMap.EMPTY,
-            useFallback: Boolean = false) {
+        from: String,
+        to: String?,
+        packagePrefix: String = "test/",
+        typesMap: TypesMap = TypesMap.EMPTY,
+        rewriteRulesMap: RewriteRulesMap = RewriteRulesMap.EMPTY,
+        useFallback: Boolean = false
+    ) {
         val config = Config.fromOptional(
             restrictToPackagePrefixes = setOf(packagePrefix),
             rulesMap = rewriteRulesMap,

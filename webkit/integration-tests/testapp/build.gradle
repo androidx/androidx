@@ -14,29 +14,64 @@
  * limitations under the License.
  */
 
+import androidx.build.BuildOnServerKt
+import androidx.build.BuildServerConfigurationKt
+
 plugins {
     id("AndroidXPlugin")
     id("com.android.application")
 }
 
 dependencies {
-    implementation(project(":appcompat"))
-    implementation(project(":webkit"))
+    implementation("androidx.appcompat:appcompat:1.1.0")
+    implementation("androidx.core:core:1.1.0")
+    implementation(project(":webkit:webkit"))
+    implementation(libs.guavaAndroid)
+    implementation(libs.espressoIdlingNet)
+    implementation(libs.espressoIdlingResource)
+
+    androidTestImplementation(libs.testExtJunit)
+    androidTestImplementation(libs.testCore)
+    androidTestImplementation(libs.testRunner)
+    androidTestImplementation(libs.testRules)
+    androidTestImplementation(libs.espressoCore, excludes.espresso)
+    androidTestImplementation(libs.espressoContrib, excludes.espresso)
+    androidTestImplementation(libs.espressoIdlingResource)
+    androidTestImplementation(libs.espressoWeb, excludes.espresso)
+    androidTestImplementation(libs.mockitoCore, excludes.bytebuddy)
+    // DexMaker has it"s own MockMaker
+    androidTestImplementation(libs.dexmakerMockito, excludes.bytebuddy)
 }
+
+// We want to publish a release apk of this project for webkit team's use
+def copyReleaseApk = tasks.register("copyReleaseApk", Copy) { task ->
+    android.applicationVariants.all { variant ->
+        if (variant.buildType.name == "release") {
+            task.from(variant.packageApplicationProvider.get().outputDirectory)
+        }
+    }
+    task.include("*.apk")
+    String projectPath = project.path
+    task.rename { fileName ->
+        "${projectPath.substring(1).replace(':', '-')}_$fileName"
+    }
+    task.destinationDir =
+            new File(BuildServerConfigurationKt.getDistributionDirectory(project), "apks")
+    task.dependsOn(projectPath + ":assembleRelease")
+}
+
+BuildOnServerKt.addToBuildOnServer(project, copyReleaseApk)
 
 android {
     defaultConfig {
         minSdkVersion 19
+        targetSdkVersion 29
     }
     lintOptions {
-        disable 'UnusedResources'
+        disable "UnusedResources"
     }
     buildTypes {
         release {
-            minifyEnabled true
-        }
-
-        debug {
             minifyEnabled true
         }
     }

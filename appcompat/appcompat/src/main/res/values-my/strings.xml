@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--  Copyright (C) 2012 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="abc_action_mode_done" msgid="4692188335987374352">"ပြီးပြီ"</string>
+    <string name="abc_action_bar_home_description" msgid="5976598919945601918">"မူလနေရာကို ပြန်သွားရန်"</string>
+    <string name="abc_action_bar_up_description" msgid="8388173803310557296">"အပေါ်သို့ ရွှေ့ရန်"</string>
+    <string name="abc_action_menu_overflow_description" msgid="3937310113216875497">"နောက်ထပ် ရွေးစရာများ"</string>
+    <string name="abc_toolbar_collapse_description" msgid="1656852541809559762">"လျှော့ပြရန်"</string>
+    <string name="abc_searchview_description_search" msgid="3417662926640357176">"ရှာရန်"</string>
+    <string name="abc_search_hint" msgid="7208076849092622260">"ရှာဖွေရန်…"</string>
+    <string name="abc_searchview_description_query" msgid="693312494995508443">"ရှာဖွေရန် မေးခွန်း"</string>
+    <string name="abc_searchview_description_clear" msgid="3741173234950517107">"ရှာဖွေမှုကို ဖယ်ရှားရန်"</string>
+    <string name="abc_searchview_description_submit" msgid="1486535517437947103">"ရှာဖွေစရာ အချက်အလက်ကို ပေးပို့ရန်"</string>
+    <string name="abc_searchview_description_voice" msgid="2293578557972875415">"အသံဖြင့် ရှာရန်"</string>
+    <string name="abc_activitychooserview_choose_application" msgid="2165779757652331008">"အက်ပ်တစ်ခုကို ရွေးရန်"</string>
+    <string name="abc_activity_chooser_view_see_all" msgid="1189761859438369441">"အားလုံး ကြည့်ရန်"</string>
+    <string name="abc_shareactionprovider_share_with_application" msgid="9055268688411532828">"<xliff:g id="APPLICATION_NAME">%s</xliff:g> ဖြင့် မျှဝေရန်"</string>
+    <string name="abc_shareactionprovider_share_with" msgid="8875138169939072951">"နှင့် မျှဝေရန်"</string>
+    <string name="abc_capital_on" msgid="884982626291842264">"ဖွင့်"</string>
+    <string name="abc_capital_off" msgid="4215997306490295099">"ပိတ်"</string>
+    <string name="search_menu_title" msgid="6264217191555673260">"ရှာဖွေမှု"</string>
+    <string name="abc_prepend_shortcut_label" msgid="5520303668377388990">"Menu+"</string>
+    <string name="abc_menu_meta_shortcut_label" msgid="4192209724446364286">"Meta+"</string>
+    <string name="abc_menu_ctrl_shortcut_label" msgid="2223301931652355242">"Ctrl+"</string>
+    <string name="abc_menu_alt_shortcut_label" msgid="8833365367933412986">"Alt+"</string>
+    <string name="abc_menu_shift_shortcut_label" msgid="4741552369836443843">"Shift+"</string>
+    <string name="abc_menu_sym_shortcut_label" msgid="6180552449598693998">"Sym+"</string>
+    <string name="abc_menu_function_shortcut_label" msgid="375214403600139847">"Function+"</string>
+    <string name="abc_menu_space_shortcut_label" msgid="5473865519181928982">"space"</string>
+    <string name="abc_menu_enter_shortcut_label" msgid="7986526966204849475">"enter"</string>
+    <string name="abc_menu_delete_shortcut_label" msgid="838001238306846836">"delete"</string>
+</resources>

@@ -15,11 +15,12 @@
  * limitations under the License.
  */
 
-import static androidx.build.dependencies.DependenciesKt.*
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.application")
+    id("kotlin-android")
 }
 
 android {
@@ -28,22 +29,32 @@ android {
         minSdkVersion 21
         versionCode 1
         multiDexEnabled true
-    }
+        testInstrumentationRunnerArgument "listener", "leakcanary.FailAnnotatedTestOnLeakRunListener"
 
-    sourceSets {
-        main.manifest.srcFile 'src/main/AndroidManifest.xml'
-        main.java.srcDirs = ['src/main/java']
-        main.java.excludes = ['**/build/**']
-        main.java.includes = ['**/*.java']
-        main.res.srcDirs = ['src/main/res']
+        externalNativeBuild {
+            cmake {
+                cppFlags "-std=c++17"
+                arguments "-DCMAKE_VERBOSE_MAKEFILE=ON"
+            }
+        }
     }
 
     buildTypes {
         debug {
-            testCoverageEnabled true
+            pseudoLocalesEnabled true
         }
 
         release {
+            minifyEnabled true
+            shrinkResources true
+            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"))
+        }
+    }
+
+    externalNativeBuild {
+        cmake {
+            path "src/main/cpp/CMakeLists.txt"
+            version "3.18.1"
         }
     }
 }
@@ -51,16 +62,52 @@ android {
 dependencies {
     // Internal library
     implementation(project(":camera:camera-camera2"))
+    implementation(project(":camera:camera-camera2-pipe-integration"))
+    implementation(project(":camera:camera-core"))
+    implementation(project(":camera:camera-lifecycle"))
+    implementation(project(":camera:camera-video"))
+    // Needed because AGP enforces same version between main and androidTest classpaths
+    implementation(project(":concurrent:concurrent-futures"))
 
     // Android Support Library
-    api(CONSTRAINT_LAYOUT, { transitive = true })
-    implementation(project(":appcompat"))
-    implementation 'androidx.test.espresso:espresso-idling-resource:3.1.0'
-    androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
-    androidTestImplementation(ANDROIDX_TEST_CORE)
-    androidTestImplementation(ANDROIDX_TEST_RUNNER)
-    androidTestImplementation(ANDROIDX_TEST_RULES)
-    androidTestImplementation(ANDROIDX_TEST_UIAUTOMATOR)
-    androidTestImplementation(ESPRESSO_CORE)
+    api(libs.constraintLayout)
+    implementation(libs.guavaAndroid)
+    implementation(libs.espressoIdlingResource)
+    implementation("androidx.appcompat:appcompat:1.3.0")
+    // MLKit library: Barcode scanner
+    implementation(libs.mlkitBarcode, excludes.mlkit)
+
+    // 3P library
+    debugImplementation(libs.leakcanary)
+    // Testing resource dependency for manifest
+    debugImplementation(project(":camera:camera-testing"))
+
+    // Testing framework
+    androidTestImplementation(libs.testCore)
+    androidTestImplementation(libs.testExtJunit)
+    androidTestImplementation(libs.testRules)
+    androidTestImplementation(libs.testRunner)
+    androidTestImplementation(libs.testUiautomator)
+    androidTestImplementation(libs.espressoCore)
+    androidTestImplementation(libs.espressoIdlingResource)
+    androidTestImplementation(libs.kotlinStdlib)
+    androidTestImplementation(libs.kotlinCoroutinesAndroid)
+    androidTestImplementation(libs.leakcanary)
+    androidTestImplementation(libs.leakcanaryInstrumentation)
+    androidTestImplementation(libs.truth)
+    androidTestImplementation(project(":camera:camera-testing"))
+    androidTestImplementation(project(":concurrent:concurrent-futures"))
+    androidTestImplementation(project(":concurrent:concurrent-futures-ktx"))
+    androidTestImplementation(project(":internal-testutils-runtime"))
+    androidTestImplementation("androidx.lifecycle:lifecycle-runtime-testing:2.3.1")
+
+    testImplementation(libs.junit)
+    testImplementation(libs.truth)
 }
 
+// Allow usage of Kotlin's @OptIn.
+tasks.withType(KotlinCompile).configureEach {
+    kotlinOptions {
+        freeCompilerArgs += ["-Xopt-in=kotlin.RequiresOptIn"]
+    }
+}

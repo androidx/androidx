@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 7.2.0-dev" type="baseline" client="gradle" dependencies="false" name="AGP (7.2.0-dev)" variant="all" version="7.2.0-dev">
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected void onCreate(Bundle savedInstanceState) {"
+        errorLine2="                            ~~~~~~">
+        <location
+            file="src/main/java/androidx/ads/identifier/testapp/AdsIdentifierActivity.java"
+            line="51"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void getId(View view) {"
+        errorLine2="                      ~~~~">
+        <location
+            file="src/main/java/androidx/ads/identifier/testapp/AdsIdentifierActivity.java"
+            line="57"
+            column="23"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void getIdSync(View view) {"
+        errorLine2="                          ~~~~">
+        <location
+            file="src/main/java/androidx/ads/identifier/testapp/AdsIdentifierActivity.java"
+            line="76"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void isProviderAvailable(View view) {"
+        errorLine2="                                    ~~~~">
+        <location
+            file="src/main/java/androidx/ads/identifier/testapp/AdsIdentifierActivity.java"
+            line="98"
+            column="37"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void listProvider(View view) {"
+        errorLine2="                             ~~~~">
+        <location
+            file="src/main/java/androidx/ads/identifier/testapp/AdsIdentifierActivity.java"
+            line="105"
+            column="30"/>
+    </issue>
+
+</issues>

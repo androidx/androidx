@@ -30,35 +30,33 @@ class ClassSpecTest_FieldsSelector {
             )
             .testThatGivenProGuard(
                 "-keep public class * extends support.Activity { \n" +
-                "  <fields>; \n" +
-                "}"
+                    "  <fields>; \n" +
+                    "}"
             )
             .rewritesTo(
                 "-keep public class * extends test.Activity { \n" +
-                "  <fields>; \n" +
-                "}"
+                    "  <fields>; \n" +
+                    "}"
             )
     }
 
     @Test fun proGuard_fieldsSelector_modifiers() {
         ProGuardTester()
-            .forGivenPrefixes(
-            )
-            .forGivenTypesMap(
-            )
+            .forGivenPrefixes()
+            .forGivenTypesMap()
             .testThatGivenProGuard(
                 "-keep public class * { \n" +
-                "  public <fields>; \n" +
-                "  public static <fields>; \n" +
-                "  !private !protected <fields>; \n" +
-                "}"
+                    "  public <fields>; \n" +
+                    "  public static <fields>; \n" +
+                    "  !private !protected <fields>; \n" +
+                    "}"
             )
             .rewritesTo(
                 "-keep public class * { \n" +
-                "  public <fields>; \n" +
-                "  public static <fields>; \n" +
-                "  !private !protected <fields>; \n" +
-                "}"
+                    "  public <fields>; \n" +
+                    "  public static <fields>; \n" +
+                    "  !private !protected <fields>; \n" +
+                    "}"
             )
     }
 
@@ -72,17 +70,17 @@ class ClassSpecTest_FieldsSelector {
             )
             .testThatGivenProGuard(
                 "-keep public class * { \n" +
-                "  @support.Annotation public <fields>; \n" +
-                "  @support.Annotation public static <fields>; \n" +
-                "  @support.Annotation !private !protected <fields>; \n" +
-                "}"
+                    "  @support.Annotation public <fields>; \n" +
+                    "  @support.Annotation public static <fields>; \n" +
+                    "  @support.Annotation !private !protected <fields>; \n" +
+                    "}"
             )
             .rewritesTo(
                 "-keep public class * { \n" +
-                "  @test.Annotation public <fields>; \n" +
-                "  @test.Annotation public static <fields>; \n" +
-                "  @test.Annotation !private !protected <fields>; \n" +
-                "}"
+                    "  @test.Annotation public <fields>; \n" +
+                    "  @test.Annotation public static <fields>; \n" +
+                    "  @test.Annotation !private !protected <fields>; \n" +
+                    "}"
             )
     }
 
@@ -96,13 +94,13 @@ class ClassSpecTest_FieldsSelector {
             )
             .testThatGivenProGuard(
                 "-keep public class * { \n" +
-                "  @support.Annotation  public \t  <fields> ; \n" +
-                "}"
+                    "  @support.Annotation  public \t  <fields> ; \n" +
+                    "}"
             )
             .rewritesTo(
                 "-keep public class * { \n" +
-                "  @test.Annotation  public \t  <fields> ; \n" +
-                "}"
+                    "  @test.Annotation  public \t  <fields> ; \n" +
+                    "}"
             )
     }
 
@@ -114,16 +112,16 @@ class ClassSpecTest_FieldsSelector {
             .forGivenProGuardMapSet("support.**" to setOf("support.**", "androidx.**"))
             .testThatGivenProGuard(
                 "-keep public class * extends support.** { \n" +
-                "  <fields>; \n" +
-                "}"
+                    "  <fields>; \n" +
+                    "}"
             )
             .rewritesTo(
                 "-keep public class * extends support.** { \n" +
-                "  <fields>; \n" +
-                "}\n" +
-                "-keep public class * extends androidx.** { \n" +
-                "  <fields>; \n" +
-                "}"
+                    "  <fields>; \n" +
+                    "}\n" +
+                    "-keep public class * extends androidx.** { \n" +
+                    "  <fields>; \n" +
+                    "}"
             )
     }
 }

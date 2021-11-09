@@ -20,6 +20,7 @@
     tools:ignore="GoogleAppIndexingWarning">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <application
         android:allowBackup="false"
@@ -51,8 +52,29 @@
             android:name=".LoudInterstitialActivity"
             android:exported="true" />
         <activity
-            android:name=".ProxyOverrideActivity"
+            android:name=".GiantInterstitialActivity"
             android:exported="true" />
+        <activity
+            android:name=".PerWebViewEnableActivity"
+            android:exported="true" />
+        <activity
+            android:name=".InvisibleActivity"
+            android:exported="true" />
+        <activity
+            android:name=".UnattachedActivity"
+            android:exported="true" />
+        <activity
+            android:name=".CustomInterstitialActivity"
+            android:exported="true" />
+        <activity
+            android:name=".PopupInterstitialActivity" />
+        <activity
+            android:name=".AllowlistActivity"
+            android:exported="true" />
+        <activity
+            android:name=".ProxyOverrideActivity"
+            android:exported="true"
+            android:networkSecurityConfig="@xml/proxy_override_network_security_config" />
         <activity
             android:name=".AssetLoaderListActivity"
             android:exported="true" />
@@ -61,6 +83,40 @@
             android:exported="true" />
         <activity
             android:name=".AssetLoaderAjaxActivity"
+            android:exported="true" />
+        <activity
+            android:name=".AssetLoaderInternalStorageActivity"
+            android:exported="true" />
+        <activity
+            android:name=".ForceDarkActivity"
+            android:theme="@style/AppDayNightTheme"
+            android:exported="true" />
+        <activity
+            android:name=".MultiProcessEnabledActivity"
+            android:exported="true" />
+        <activity
+            android:name=".TracingControllerActivity"
+            android:exported="true" />
+        <activity
+            android:name=".RendererTerminationActivity"
+            android:exported="true" />
+        <activity
+            android:name=".FullscreenActivity"
+            android:exported="true" />
+        <activity
+            android:name=".JsJavaInteractionActivity"
+            android:exported="true" />
+        <activity
+            android:name=".WebMessageListenerActivity"
+            android:exported="true" />
+        <activity
+            android:name=".WebMessageListenerMaliciousWebsiteActivity"
+            android:exported="true" />
+        <activity
+            android:name=".DocumentStartJavaScriptActivity"
+            android:exported="true" />
+        <activity
+            android:name=".ForceDarkStrategyActivity"
             android:exported="true" />
     </application>
 </manifest>

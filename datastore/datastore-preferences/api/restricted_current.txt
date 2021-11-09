@@ -1,0 +1,20 @@
+// Signature format: 4.0
+package androidx.datastore.preferences {
+
+  public final class PreferenceDataStoreDelegateKt {
+    method public static kotlin.properties.ReadOnlyProperty<android.content.Context,androidx.datastore.core.DataStore<androidx.datastore.preferences.core.Preferences>> preferencesDataStore(String name, optional androidx.datastore.core.handlers.ReplaceFileCorruptionHandler<androidx.datastore.preferences.core.Preferences>? corruptionHandler, optional kotlin.jvm.functions.Function1<? super android.content.Context,? extends java.util.List<? extends androidx.datastore.core.DataMigration<androidx.datastore.preferences.core.Preferences>>> produceMigrations, optional kotlinx.coroutines.CoroutineScope scope);
+  }
+
+  public final class PreferenceDataStoreFile {
+    method public static java.io.File preferencesDataStoreFile(android.content.Context, String name);
+  }
+
+  public final class SharedPreferencesMigrationKt {
+    method public static androidx.datastore.migrations.SharedPreferencesMigration<androidx.datastore.preferences.core.Preferences> SharedPreferencesMigration(kotlin.jvm.functions.Function0<? extends android.content.SharedPreferences> produceSharedPreferences, optional java.util.Set<java.lang.String> keysToMigrate);
+    method public static androidx.datastore.migrations.SharedPreferencesMigration<androidx.datastore.preferences.core.Preferences> SharedPreferencesMigration(kotlin.jvm.functions.Function0<? extends android.content.SharedPreferences> produceSharedPreferences);
+    method public static androidx.datastore.migrations.SharedPreferencesMigration<androidx.datastore.preferences.core.Preferences> SharedPreferencesMigration(android.content.Context context, String sharedPreferencesName, optional java.util.Set<java.lang.String> keysToMigrate);
+    method public static androidx.datastore.migrations.SharedPreferencesMigration<androidx.datastore.preferences.core.Preferences> SharedPreferencesMigration(android.content.Context context, String sharedPreferencesName);
+  }
+
+}
+

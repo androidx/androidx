@@ -1,9 +1,0 @@
-// Signature format: 3.0
-package androidx.legacy.app {
-
-  @Deprecated public class FragmentCompat {
-    method @Deprecated @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public static androidx.legacy.app.FragmentCompat.PermissionCompatDelegate! getPermissionCompatDelegate();
-  }
-
-}
-

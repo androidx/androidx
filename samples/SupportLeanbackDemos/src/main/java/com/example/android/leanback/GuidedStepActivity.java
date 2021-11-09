@@ -75,7 +75,8 @@ public class GuidedStepActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.guided_step_activity);
         if (savedInstanceState == null) {
-            GuidedStepFragment.addAsRoot(this, new FirstStepFragment(), R.id.lb_guidedstep_host);
+            GuidedStepFragment.addAsRoot(this, new FirstStepFragment(),
+                    R.id.lb_guidedstep_host);
         }
     }
 
@@ -128,20 +129,7 @@ public class GuidedStepActivity extends Activity {
                 .title(title)
                 .description(desc)
                 .editable(true)
-                .icon(R.drawable.lb_ic_search_mic)
-                .build());
-        return action;
-    }
-
-    private static GuidedAction addEditableAction(List<GuidedAction> actions, long id, String title,
-            String editTitle, String desc) {
-        GuidedAction action;
-        actions.add(action = new GuidedAction.Builder(null)
-                .id(id)
-                .title(title)
-                .editTitle(editTitle)
-                .description(desc)
-                .editable(true)
+                .icon(androidx.leanback.R.drawable.lb_ic_search_mic)
                 .build());
         return action;
     }
@@ -271,7 +259,7 @@ public class GuidedStepActivity extends Activity {
     static int sSelectedCard = -1;
     static {
         sCards.add("Visa-1234");
-        sCards.add("Master-4321");
+        sCards.add("AmEx-4321");
     }
 
     public static class NewPaymentStepFragment extends GuidedStepFragment {
@@ -324,7 +312,7 @@ public class GuidedStepActivity extends Activity {
                 if ((Integer.parseInt(cardNumber) & 1) == 0) {
                     card = "Visa "+cardNumber;
                 } else {
-                    card = "Master "+cardNumber;
+                    card = "AmEx "+cardNumber;
                 }
                 int selection = sCards.size();
                 sCards.add(card);
@@ -525,8 +513,8 @@ public class GuidedStepActivity extends Activity {
             CharSequence paymentType = findActionById(PAYMENT).getDescription();
             return (paymentType.length() >= 4 &&
                     paymentType.subSequence(0, 4).toString().equals("Visa")) ||
-                    (paymentType.length() >= 6 &&
-                    paymentType.subSequence(0, 6).toString().equals("Master"));
+                    (paymentType.length() >= 4 &&
+                    paymentType.subSequence(0, 4).toString().equals("AmEx"));
         }
 
         boolean isPasswordValid() {

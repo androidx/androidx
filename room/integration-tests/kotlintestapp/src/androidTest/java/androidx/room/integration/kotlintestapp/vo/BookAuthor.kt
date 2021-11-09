@@ -18,19 +18,28 @@ package androidx.room.integration.kotlintestapp.vo
 
 import androidx.room.Entity
 import androidx.room.ForeignKey
+import androidx.room.Index
 
-@Entity(foreignKeys = arrayOf(
-        ForeignKey(entity = Book::class,
-                parentColumns = arrayOf("bookId"),
-                childColumns = arrayOf("bookId"),
-                onUpdate = ForeignKey.CASCADE,
-                onDelete = ForeignKey.CASCADE,
-                deferred = true),
-        ForeignKey(entity = Author::class,
-                parentColumns = arrayOf("authorId"),
-                childColumns = arrayOf("authorId"),
-                onUpdate = ForeignKey.CASCADE,
-                onDelete = ForeignKey.CASCADE,
-                deferred = true)),
-        primaryKeys = arrayOf("bookId", "authorId"))
+@Entity(
+    foreignKeys = arrayOf(
+        ForeignKey(
+            entity = Book::class,
+            parentColumns = arrayOf("bookId"),
+            childColumns = arrayOf("bookId"),
+            onUpdate = ForeignKey.CASCADE,
+            onDelete = ForeignKey.CASCADE,
+            deferred = true
+        ),
+        ForeignKey(
+            entity = Author::class,
+            parentColumns = arrayOf("authorId"),
+            childColumns = arrayOf("authorId"),
+            onUpdate = ForeignKey.CASCADE,
+            onDelete = ForeignKey.CASCADE,
+            deferred = true
+        )
+    ),
+    primaryKeys = arrayOf("bookId", "authorId"),
+    indices = [Index("bookId"), Index("authorId")]
+)
 data class BookAuthor(val bookId: String, val authorId: String)

@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Copyright 2020 The Android Open Source Project
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  -->
+
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <style name="Theme.Example.AppCompat.Leanback" parent="Theme.AppCompat.Leanback">
+    </style>
+    <style name="Theme.Example.AppCompat.Leanback.Browse" parent="Theme.AppCompat.Leanback.Browse">
+    </style>
+    <style name="Theme.Example.AppCompat.Leanback.SearchDetails" parent="Theme.AppCompat.Leanback.Details.NoSharedElementTransition">
+    </style>
+    <style name="Theme.Example.AppCompat.Leanback.Details" parent="Theme.AppCompat.Leanback.Details">
+    </style>
+    <style name="Theme.Example.AppCompat.Leanback.Details.CustomTitle">
+        <item name="browseTitleViewLayout">@layout/custom_title</item>.
+    </style>
+    <style name="Theme.Example.AppCompat.Leanback.VerticalGrid" parent="Theme.AppCompat.Leanback.VerticalGrid">
+    </style>
+    <style name="Theme.Example.AppCompat.Leanback.Rows" parent="Theme.AppCompat.Leanback">
+        <item name="browseTitleTextStyle">@style/Widget.Example.Leanback.Title.Text</item>
+        <item name="rowsVerticalGridStyle">@style/Widget.Example.Leanback.Rows.VerticalGridView</item>
+    </style>
+    <style name="Theme.Example.AppCompat.Leanback.GuidedStep" parent="Theme.AppCompat.Leanback.GuidedStep">
+        <item name="guidanceIconStyle">@style/Widget.Example.Leanback.GuidanceIconStyle</item>
+    </style>
+    <style name="Theme.Example.AppCompat.Leanback.GuidedStep.First">
+        <item name="guidanceIconStyle">@style/Widget.Example.Leanback.FirstStepGuidanceIconStyle</item>
+    </style>
+    <style name="Theme.Example.AppCompat.Leanback.GuidedStep.Half" parent="Theme.AppCompat.Leanback.GuidedStep.Half">
+    </style>
+    <style name="Theme.Example.AppCompat.Leanback.Preferences">
+        <item name="preferenceTheme">@style/PreferenceThemeOverlay.v14.Leanback</item>
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:backgroundDimEnabled">true</item>
+        <item name="android:colorPrimary" tools:targetApi="21" >@color/settings_background</item>
+        <item name="android:colorAccent" tools:targetApi="21">?attr/defaultBrandColor</item>
+    </style>
+    <style name="Theme.Example.AppCompat.Leanback.Onboarding" parent="Theme.AppCompat.Leanback.Onboarding">
+        <item name="onboardingLogoStyle">@style/Widget.Example.Leanback.OnboardingLogoStyle</item>
+        <item name="onboardingPageIndicatorStyle">@style/Widget.Example.Leanback.OnboardingPageIndicatorStyle</item>
+    </style>
+</resources>

@@ -31,9 +31,11 @@ class ProcessorTest {
 
     @Test
     fun processor_getDependenciesMap_checkNoVariablesLeft() {
+        @Suppress("deprecation")
         val processor = Processor.createProcessor(
-                ConfigParser.loadDefaultConfig()!!,
-                dataBindingVersion = "1.0.0")
+            ConfigParser.loadDefaultConfig()!!,
+            dataBindingVersion = "1.0.0"
+        )
 
         val dependenciesMap = processor.getDependenciesMap(filterOutBaseLibrary = false)
 
@@ -49,9 +51,11 @@ class ProcessorTest {
 
     @Test
     fun processor_getDependenciesMap_filterOutBaseLibrary() {
+        @Suppress("deprecation")
         val processor = Processor.createProcessor(
-                ConfigParser.loadDefaultConfig()!!,
-                dataBindingVersion = "1.0.0")
+            ConfigParser.loadDefaultConfig()!!,
+            dataBindingVersion = "1.0.0"
+        )
 
         val dependenciesMap = processor.getDependenciesMap(filterOutBaseLibrary = true)
 
@@ -60,51 +64,89 @@ class ProcessorTest {
 
     @Test
     fun processor_isOldOrNewDependencyFile_shouldDetectProperly() {
-
+        @Suppress("deprecation")
         val processor = Processor.createProcessor(
             Config.fromOptional(
-                pomRewriteRules = setOf(PomRewriteRule(
-                    from = PomDependency("test.group", "artifactTest", "1.0.0"),
-                    to = PomDependency("test2.group2", "artifactTest2", "1.0.0")
-                ))
+                pomRewriteRules = setOf(
+                    PomRewriteRule(
+                        from = PomDependency("test.group", "artifactTest", "1.0.0"),
+                        to = PomDependency("test2.group2", "artifactTest2", "1.0.0")
+                    )
+                )
             )
         )
 
-        Truth.assertThat(processor.isOldDependencyFile(
-            File("test/group/artifactTest/1.0/artifactTest.aar"))).isTrue()
+        Truth.assertThat(
+            processor.isOldDependencyFile(
+                File("test/group/artifactTest/1.0/artifactTest.aar")
+            )
+        ).isTrue()
 
-        Truth.assertThat(processor.isNewDependencyFile(
-            File("test/group/artifactTest/1.0/artifactTest.aar"))).isFalse()
+        Truth.assertThat(
+            processor.isNewDependencyFile(
+                File("test/group/artifactTest/1.0/artifactTest.aar")
+            )
+        ).isFalse()
 
-        Truth.assertThat(processor.isOldDependencyFile(
-            File("test\\group\\artifactTest\\1.0\\artifactTest.aar"))).isTrue()
+        Truth.assertThat(
+            processor.isOldDependencyFile(
+                File("test\\group\\artifactTest\\1.0\\artifactTest.aar")
+            )
+        ).isTrue()
 
-        Truth.assertThat(processor.isNewDependencyFile(
-            File("test2\\group2\\artifactTest2\\1.0\\artifactTest2.aar"))).isTrue()
+        Truth.assertThat(
+            processor.isNewDependencyFile(
+                File("test2\\group2\\artifactTest2\\1.0\\artifactTest2.aar")
+            )
+        ).isTrue()
 
-        Truth.assertThat(processor.isOldDependencyFile(
-            File("test.group/artifactTest/1.0/artifactTest.aar"))).isTrue()
+        Truth.assertThat(
+            processor.isOldDependencyFile(
+                File("test.group/artifactTest/1.0/artifactTest.aar")
+            )
+        ).isTrue()
 
-        Truth.assertThat(processor.isOldDependencyFile(
-            File("test.group\\artifactTest\\1.0\\artifactTest.aar"))).isTrue()
+        Truth.assertThat(
+            processor.isOldDependencyFile(
+                File("test.group\\artifactTest\\1.0\\artifactTest.aar")
+            )
+        ).isTrue()
 
-        Truth.assertThat(processor.isOldDependencyFile(
-            File("test2/group2/artifactTest2/1.0/artifactTest2.aar"))).isFalse()
+        Truth.assertThat(
+            processor.isOldDependencyFile(
+                File("test2/group2/artifactTest2/1.0/artifactTest2.aar")
+            )
+        ).isFalse()
 
-        Truth.assertThat(processor.isNewDependencyFile(
-            File("test2/group2/artifactTest2/1.0/artifactTest2.aar"))).isTrue()
+        Truth.assertThat(
+            processor.isNewDependencyFile(
+                File("test2/group2/artifactTest2/1.0/artifactTest2.aar")
+            )
+        ).isTrue()
 
-        Truth.assertThat(processor.isOldDependencyFile(
-            File("random.aar"))).isFalse()
+        Truth.assertThat(
+            processor.isOldDependencyFile(
+                File("random.aar")
+            )
+        ).isFalse()
 
-        Truth.assertThat(processor.isNewDependencyFile(
-            File("random.aar"))).isFalse()
+        Truth.assertThat(
+            processor.isNewDependencyFile(
+                File("random.aar")
+            )
+        ).isFalse()
 
-        Truth.assertThat(processor.isOldDependencyFile(
-            File("test\\group\\artifactTestDoNotMatch\\1.0\\artifactTest.aar"))).isFalse()
+        Truth.assertThat(
+            processor.isOldDependencyFile(
+                File("test\\group\\artifactTestDoNotMatch\\1.0\\artifactTest.aar")
+            )
+        ).isFalse()
 
-        Truth.assertThat(processor.isNewDependencyFile(
-            File("test2\\group2\\artifactTest2DoNotMatch\\1.0\\artifactTest2.aar"))).isFalse()
+        Truth.assertThat(
+            processor.isNewDependencyFile(
+                File("test2\\group2\\artifactTest2DoNotMatch\\1.0\\artifactTest2.aar")
+            )
+        ).isFalse()
     }
 
     /**
@@ -114,11 +156,13 @@ class ProcessorTest {
      */
     @Test
     fun processor_xmlEncodingAutoDetectionFail_shouldRecover() {
+        @Suppress("deprecation")
         val processor = Processor.createProcessor(ConfigParser.loadDefaultConfig()!!)
 
         val fromFile = File(javaClass.getResource("/encodingTest/android.jar").file)
         val toFile = File.createTempFile("android-result.jar", "test")
 
+        @Suppress("deprecation")
         processor.transform(input = setOf(FileMapping(from = fromFile, to = toFile)))
     }
 }

@@ -105,6 +105,7 @@ public class CardViewActivity extends AppCompatActivity {
         return lp;
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -183,7 +184,7 @@ public class CardViewActivity extends AppCompatActivity {
             case R.id.selector:
                 return R.color.card_selector;
             default:
-                return R.color.cardview_light_background;
+                return androidx.cardview.R.color.cardview_light_background;
         }
     }
 }

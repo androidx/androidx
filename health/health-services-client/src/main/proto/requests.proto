@@ -1,0 +1,124 @@
+/*
+ * Copyright (C) 2021 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+syntax = "proto2";
+
+package androidx.health.services.client.proto;
+
+import "data.proto";
+
+option java_package = "androidx.health.services.client.proto";
+option java_outer_classname = "RequestsProto";
+
+// Request for enabling/disabling auto pause/resume.
+message AutoPauseAndResumeConfigRequest {
+  optional string package_name = 1;
+  optional bool should_enable = 2;
+  reserved 3 to max;  // Next ID
+}
+
+message BackgroundRegistrationRequest {
+  optional PassiveMonitoringConfig config = 1;
+  reserved 2 to max;  // Next ID
+}
+
+// Request for capabilities.
+message CapabilitiesRequest {
+  optional string package_name = 1;
+  reserved 2 to max;  // Next ID
+}
+
+// Request for enabling/disabling continuous heart rate monitoring.
+message ContinuousHeartRateMonitoringRequest {
+  optional string package_name = 1;
+  optional bool should_enable = 2;
+  reserved 3 to max;  // Next ID
+}
+
+// Request to flush data metrics.
+message FlushRequest {
+  optional string package_name = 1;
+  reserved 2 to max;  // Next ID
+}
+
+message HealthEventsRegistrationRequest {
+  optional string package_name = 1;
+  optional string receiver_class_name = 2;
+  repeated HealthEvent.HealthEventType event_types = 3;
+  reserved 4 to max;  // Next ID
+}
+
+// Request to unregister for health event updates.
+message HealthEventsUnregistrationRequest {
+  optional string package_name = 1;
+  reserved 2 to max;  // Next ID
+}
+
+message HeartRateAlertParamsRequest {
+  optional string package_name = 1;
+  optional HeartRateAlertParams.HeartRateAlertType alert_type = 2;
+  reserved 3 to max;  // Next ID
+}
+
+message MeasureRegistrationRequest {
+  optional string package_name = 1;
+  optional DataType data_type = 2;
+  reserved 3 to max;  // Next ID
+}
+
+message MeasureUnregistrationRequest {
+  optional string package_name = 1;
+  optional DataType data_type = 2;
+  reserved 3 to max;  // Next ID
+}
+
+// Request for passive unregistration.
+message PassiveGoalRequest {
+  optional string package_name = 1;
+  optional string receiver_class_name = 2;
+  optional PassiveGoal passive_goal = 3;
+  reserved 4 to max;  // Next ID
+}
+
+// Request for passive unregistration.
+message PassiveMonitoringUnregistrationRequest {
+  optional string package_name = 1;
+  reserved 2 to max;  // Next ID
+}
+
+message PrepareExerciseRequest {
+  optional string package_name = 1;
+  optional WarmUpConfig config = 2;
+  reserved 3 to max;  // Next ID
+}
+
+message RegisterForAutoExerciseRequest {
+  optional string package_name = 1;
+  optional AutoExerciseConfig config = 2;
+  reserved 3 to max;  // Next ID
+}
+
+message StartExerciseRequest {
+  optional string package_name = 1;
+  optional ExerciseConfig config = 2;
+  reserved 3 to max;  // Next ID
+}
+
+// Request to unregister for automatic exercise detection updates.
+message UnregisterFromAutoExerciseRequest {
+  optional string package_name = 1;
+  reserved 2 to max;  // Next ID
+}

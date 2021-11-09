@@ -37,7 +37,8 @@ public class AppCompatNightModeDialog extends AppCompatActivity {
     }
 
     public void setModeNightFollowSystem(View view) {
-        AppCompatDialog dialog = new AppCompatDialog(this, R.style.Theme_AppCompat_DayNight_Dialog);
+        AppCompatDialog dialog = new AppCompatDialog(this,
+                androidx.appcompat.R.style.Theme_AppCompat_DayNight_Dialog);
         dialog.getDelegate().setLocalNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
         dialog.setTitle(R.string.dialog_title);
         dialog.setContentView(R.layout.dialog_content);
@@ -45,7 +46,8 @@ public class AppCompatNightModeDialog extends AppCompatActivity {
     }
 
     public void setModeNightNo(View view) {
-        AppCompatDialog dialog = new AppCompatDialog(this, R.style.Theme_AppCompat_DayNight_Dialog);
+        AppCompatDialog dialog = new AppCompatDialog(this,
+                androidx.appcompat.R.style.Theme_AppCompat_DayNight_Dialog);
         dialog.getDelegate().setLocalNightMode(AppCompatDelegate.MODE_NIGHT_NO);
         dialog.setTitle(R.string.dialog_title);
         dialog.setContentView(R.layout.dialog_content);
@@ -53,7 +55,8 @@ public class AppCompatNightModeDialog extends AppCompatActivity {
     }
 
     public void setModeNightYes(View view) {
-        AppCompatDialog dialog = new AppCompatDialog(this, R.style.Theme_AppCompat_DayNight_Dialog);
+        AppCompatDialog dialog = new AppCompatDialog(this,
+                androidx.appcompat.R.style.Theme_AppCompat_DayNight_Dialog);
         dialog.getDelegate().setLocalNightMode(AppCompatDelegate.MODE_NIGHT_YES);
         dialog.setTitle(R.string.dialog_title);
         dialog.setContentView(R.layout.dialog_content);
@@ -61,7 +64,8 @@ public class AppCompatNightModeDialog extends AppCompatActivity {
     }
 
     public void setModeNightAutoTime(View view) {
-        AppCompatDialog dialog = new AppCompatDialog(this, R.style.Theme_AppCompat_DayNight_Dialog);
+        AppCompatDialog dialog = new AppCompatDialog(this,
+                androidx.appcompat.R.style.Theme_AppCompat_DayNight_Dialog);
         dialog.getDelegate().setLocalNightMode(AppCompatDelegate.MODE_NIGHT_AUTO_TIME);
         dialog.setTitle(R.string.dialog_title);
         dialog.setContentView(R.layout.dialog_content);
@@ -69,7 +73,8 @@ public class AppCompatNightModeDialog extends AppCompatActivity {
     }
 
     public void setModeNightAutoBattery(View view) {
-        AppCompatDialog dialog = new AppCompatDialog(this, R.style.Theme_AppCompat_DayNight_Dialog);
+        AppCompatDialog dialog = new AppCompatDialog(this,
+                androidx.appcompat.R.style.Theme_AppCompat_DayNight_Dialog);
         dialog.getDelegate().setLocalNightMode(AppCompatDelegate.MODE_NIGHT_AUTO_BATTERY);
         dialog.setTitle(R.string.dialog_title);
         dialog.setContentView(R.layout.dialog_content);

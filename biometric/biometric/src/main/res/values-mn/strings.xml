@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+  ~ Copyright (C) 2017 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+   -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="fingerprint_dialog_touch_sensor" msgid="1072308044213194243">"Хурууны хээ мэдрэгчид хүрнэ үү"</string>
+    <string name="fingerprint_not_recognized" msgid="3873359464293253009">"Таниагүй"</string>
+    <string name="fingerprint_error_hw_not_available" msgid="8216738333501875566">"Хурууны хээний төхөөрөмж боломжгүй байна."</string>
+    <string name="fingerprint_error_no_fingerprints" msgid="7520712796891883488">"Бүртгүүлсэн хурууны хээ алга байна."</string>
+    <string name="fingerprint_error_hw_not_present" msgid="6306988885793029438">"Энэ төхөөрөмжид хурууны хээ мэдрэгч алга байна"</string>
+    <string name="fingerprint_error_user_canceled" msgid="7627716295344353987">"Хэрэглэгч хурууны хээний баталгаажуулалтыг болиулсан байна."</string>
+    <string name="fingerprint_error_lockout" msgid="7291787166416782245">"Хэт олон удаа оролдлоо. Та дараа дахин оролдоно уу."</string>
+    <string name="default_error_msg" msgid="4776854077120974966">"Тодорхойгүй алдаа гарлаа"</string>
+    <string name="generic_error_user_canceled" msgid="7309881387583143581">"Хэрэглэгч нотолгоог цуцалсан."</string>
+    <string name="confirm_device_credential_password" msgid="5912733858573823945">"Нууц үг ашиглах"</string>
+    <string name="generic_error_no_device_credential" msgid="3791785319221634505">"Тохируулсан ПИН, хээ эсвэл нууц үг алга."</string>
+    <string name="generic_error_no_keyguard" msgid="1807436368654974044">"Энэ төхөөрөмж ПИН, хээ эсвэл нууц үгийг дэмждэггүй."</string>
+    <string name="fingerprint_dialog_icon_description" msgid="5462024216548165325">"Хурууны хээний дүрс тэмдэг"</string>
+    <string name="use_fingerprint_label" msgid="6961788485681412417">"Хурууны хээг ашиглах"</string>
+    <string name="use_face_label" msgid="6533512708069459542">"Царайг ашиглах"</string>
+    <string name="use_biometric_label" msgid="6524145989441579428">"Биометрыг ашиглах"</string>
+    <string name="use_screen_lock_label" msgid="5459869335976243512">"Дэлгэцийн түгжээг ашиглах"</string>
+    <string name="use_fingerprint_or_screen_lock_label" msgid="7577690399303139443">"Хурууны хээ эсвэл дэлгэцийн түгжээг ашиглах"</string>
+    <string name="use_face_or_screen_lock_label" msgid="2116180187159450292">"Царай эсвэл дэлгэцийн түгжээг ашиглах"</string>
+    <string name="use_biometric_or_screen_lock_label" msgid="5385448280139639016">"Биометр эсвэл дэлгэцийн түгжээг ашиглах"</string>
+    <string name="fingerprint_prompt_message" msgid="7449360011861769080">"Үргэлжлүүлэхийн тулд хурууны хээгээ ашиглана уу"</string>
+    <string name="face_prompt_message" msgid="2282389249605674226">"Үргэлжлүүлэхийн тулд царайгаа ашиглана уу"</string>
+    <string name="biometric_prompt_message" msgid="1160635338192065472">"Үргэлжлүүлэхийн тулд биометрээ ашиглана уу"</string>
+    <string name="screen_lock_prompt_message" msgid="5659570757430909869">"Үргэлжлүүлэхийн тулд дэлгэцийн түгжээгээ оруулна уу"</string>
+    <string name="fingerprint_or_screen_lock_prompt_message" msgid="8382576858490514495">"Үргэлжлүүлэхийн тулд хурууны хээ эсвэл дэлгэцийн түгжээгээ ашиглана уу"</string>
+    <string name="face_or_screen_lock_prompt_message" msgid="4562557128765735254">"Үргэлжлүүлэхийн тулд царай эсвэл дэлгэцийн түгжээгээ ашиглана уу"</string>
+    <string name="biometric_or_screen_lock_prompt_message" msgid="2102429900219199821">"Үргэлжлүүлэхийн тулд биометр эсвэл дэлгэцийн түгжээгээ ашиглана уу"</string>
+</resources>

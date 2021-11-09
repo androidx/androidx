@@ -1,0 +1,32 @@
+import androidx.build.LibraryGroups
+import androidx.build.Publish
+
+plugins {
+    id("AndroidXPlugin")
+    id("com.android.library")
+}
+
+dependencies {
+    api("androidx.annotation:annotation:1.1.0")
+    implementation("androidx.core:core:1.1.0")
+
+    androidTestImplementation(libs.testExtJunit)
+    androidTestImplementation(libs.testCore)
+    androidTestImplementation(libs.testRunner)
+    androidTestImplementation(libs.testRules)
+    androidTestImplementation(libs.espressoCore, excludes.espresso)
+}
+
+android {
+    sourceSets {
+        main.res.srcDir "res"
+    }
+}
+
+androidx {
+    name = "Android Percent Support Library"
+    publish = Publish.SNAPSHOT_AND_RELEASE
+    mavenGroup = LibraryGroups.PERCENTLAYOUT
+    inceptionYear = "2015"
+    description = "Android Percent Support Library"
+}

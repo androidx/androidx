@@ -18,7 +18,6 @@ package com.example.android.supportv4.media;
 
 import android.content.ComponentName;
 import android.os.Bundle;
-import android.os.RemoteException;
 import android.support.v4.media.MediaBrowserCompat;
 import android.support.v4.media.session.MediaControllerCompat;
 import android.support.v4.media.session.MediaSessionCompat;
@@ -59,6 +58,7 @@ public class QueueFragment extends Fragment {
     private MediaBrowserCompat.ConnectionCallback mConnectionCallback =
             new MediaBrowserCompat.ConnectionCallback() {
         @Override
+        @SuppressWarnings("ObjectToString")
         public void onConnected() {
             Log.d(TAG, "onConnected: session token " + mMediaBrowser.getSessionToken());
 
@@ -66,12 +66,8 @@ public class QueueFragment extends Fragment {
                 throw new IllegalArgumentException("No Session token");
             }
 
-            try {
-                mMediaController = new MediaControllerCompat(getActivity(),
-                        mMediaBrowser.getSessionToken());
-            } catch (RemoteException e) {
-                Log.e(TAG, "Failed to create MediaControllerCompat.", e);
-            }
+            mMediaController = new MediaControllerCompat(getActivity(),
+                    mMediaBrowser.getSessionToken());
             mTransportControls = mMediaController.getTransportControls();
             mMediaController.registerCallback(mSessionCallback);
 
@@ -195,6 +191,7 @@ public class QueueFragment extends Fragment {
     }
 
 
+    @SuppressWarnings("ObjectToString")
     private void onPlaybackStateChanged(PlaybackStateCompat state) {
         Log.d(TAG, "onPlaybackStateChanged " + state);
         if (state == null) {

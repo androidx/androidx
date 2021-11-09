@@ -1,0 +1,18 @@
+// Signature format: 3.0
+package androidx.benchmark {
+
+  public final class ArgumentsKt {
+  }
+
+  public final class BenchmarkState {
+    method public boolean keepRunning();
+    method public void pauseTiming();
+    method public void resumeTiming();
+    field public static final androidx.benchmark.BenchmarkState.Companion! Companion;
+  }
+
+  public static final class BenchmarkState.Companion {
+  }
+
+}
+

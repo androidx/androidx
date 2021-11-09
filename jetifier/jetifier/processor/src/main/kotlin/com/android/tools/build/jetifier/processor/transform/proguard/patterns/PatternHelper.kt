@@ -45,7 +45,11 @@ object PatternHelper {
     fun build(toReplace: String, flags: Int = 0): Pattern {
         var result = toReplace
         result = result.replace("(?<!\\\\)\\(".toRegex(), "(?:")
+        // Backup [ \\t] so other replacements don't break it.
+        result = result.replace("[ \\t]", "::whitespace::")
         rewrites.forEach { result = result.replace(it.first, it.second) }
+        // Restore [ \\t]
+        result = result.replace("::whitespace::", "[ \\t]")
         return Pattern.compile(result, flags)
     }
 }

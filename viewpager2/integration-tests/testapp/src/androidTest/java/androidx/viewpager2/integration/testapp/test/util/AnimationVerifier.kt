@@ -94,9 +94,9 @@ class AnimationVerifier(private val viewPager: ViewPager2) {
 
         // Get the animation values to verify
         hasRotation = !isZero(page!!.rotation) || !isZero(page.rotationX) ||
-                !isZero(page.rotationY)
+            !isZero(page.rotationY)
         hasTranslation = !isZero(page.translationX) || !isZero(page.translationY) ||
-                !isZero(ViewCompat.getTranslationZ(page))
+            !isZero(ViewCompat.getTranslationZ(page))
         hasScale = !isOne(page.scaleX) || !isOne(page.scaleY)
 
         // Mark verification as done

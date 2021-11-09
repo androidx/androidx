@@ -14,8 +14,8 @@
  * limitations under the License
  */
 
-import static androidx.build.dependencies.DependenciesKt.*
 import androidx.build.LibraryGroups
+import androidx.build.LibraryType
 import androidx.build.LibraryVersions
 
 plugins {
@@ -24,22 +24,24 @@ plugins {
 }
 
 dependencies {
-    compile project(':jetifier-core')
-    compile("org.ow2.asm:asm:6.0")
-    compile("org.ow2.asm:asm-util:6.0")
-    compile("org.ow2.asm:asm-commons:6.0")
-    compile("org.jdom:jdom2:2.0.6")
-    compile(KOTLIN_STDLIB)
-    testCompile("junit:junit:4.12")
-    testCompile(TRUTH)
+    api(project(":jetifier:jetifier-core"))
+    api("org.ow2.asm:asm:8.0.1")
+    api("org.ow2.asm:asm-util:8.0.1")
+    api("org.ow2.asm:asm-commons:8.0.1")
+    api("org.jdom:jdom2:2.0.6")
+    api(libs.kotlinStdlib)
+    api(libs.kotlinMetadataJvm)
+    testImplementation("junit:junit:4.12")
+    testImplementation(libs.truth)
+    testImplementation(libs.kotlinReflect)
+    testImplementation(libs.kotlinCompileTesting)
 }
 
 androidx {
     name = "Android Jetifier Processor"
-    publish = true
+    type = LibraryType.OTHER_CODE_PROCESSOR
     mavenVersion = LibraryVersions.JETIFIER
     mavenGroup = LibraryGroups.JETIFIER
-    toolingProject = true
     inceptionYear = "2018"
     description = "Android Jetifier Processor"
 }

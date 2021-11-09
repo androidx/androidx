@@ -1,0 +1,39 @@
+import androidx.build.LibraryGroups
+import androidx.build.LibraryVersions
+import androidx.build.Publish
+
+plugins {
+    id("AndroidXPlugin")
+    id("com.android.library")
+}
+
+dependencies {
+    api("androidx.annotation:annotation:1.1.0")
+    api("androidx.core:core:1.1.0")
+    implementation("androidx.collection:collection:1.1.0")
+
+    androidTestImplementation(libs.testExtJunit)
+    androidTestImplementation(libs.testCore)
+    androidTestImplementation(libs.testRunner)
+    androidTestImplementation(libs.testRules)
+}
+
+android {
+    defaultConfig {
+        // This disables the builds tools automatic vector -> PNG generation
+        generatedDensities = []
+    }
+    aaptOptions {
+        additionalParameters "--no-version-vectors"
+    }
+}
+
+androidx {
+    name = "Android Support VectorDrawable"
+    publish = Publish.SNAPSHOT_AND_RELEASE
+    mavenVersion = LibraryVersions.VECTORDRAWABLE
+    mavenGroup = LibraryGroups.VECTORDRAWABLE
+    inceptionYear = "2015"
+    description = "Android Support VectorDrawable"
+    failOnDeprecationWarnings = false
+}

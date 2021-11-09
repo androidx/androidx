@@ -1,0 +1,70 @@
+/*
+ * Copyright (C) 2020 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import androidx.build.LibraryGroups
+import androidx.build.LibraryType
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
+plugins {
+    id("AndroidXPlugin")
+    id("com.android.library")
+    id("kotlin-android")
+    id("androidx.inspection")
+}
+
+dependencies {
+    api("androidx.annotation:annotation:1.1.0")
+    api(libs.kotlinStdlib)
+    compileOnly("androidx.inspection:inspection:1.0.0")
+    compileOnly("androidx.lifecycle:lifecycle-runtime:2.2.0")
+    compileOnly(project(":work:work-runtime"))
+    compileOnly("androidx.room:room-runtime:2.2.5")
+    androidTestImplementation(project(":inspection:inspection-testing"))
+    androidTestImplementation(project(":work:work-runtime"))
+    androidTestImplementation(project(":work:work-runtime-ktx"))
+    androidTestImplementation(libs.testRunner)
+    androidTestImplementation(libs.testExtJunit)
+    androidTestImplementation(libs.truth)
+    androidTestImplementation(libs.kotlinCoroutinesAndroid)
+    androidTestImplementation(libs.kotlinCoroutinesTest)
+}
+
+androidx {
+    name = "Android WorkManager Inspector"
+    type = LibraryType.IDE_PLUGIN
+    mavenGroup = LibraryGroups.WORK
+    inceptionYear = "2020"
+    description = "The implementation of WorkManager Inspector."
+}
+
+android {
+    defaultConfig {
+        // studio pipeline works only starting with Android O
+        minSdkVersion 26
+    }
+    sourceSets {
+        main.resources.srcDirs += "src/main/proto"
+    }
+}
+
+// Allow usage of Kotlin's @OptIn.
+tasks.withType(KotlinCompile).configureEach {
+    kotlinOptions {
+        freeCompilerArgs += [
+                "-Xopt-in=kotlin.RequiresOptIn"
+        ]
+    }
+}

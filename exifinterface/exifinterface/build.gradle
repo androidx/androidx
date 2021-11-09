@@ -1,0 +1,24 @@
+import androidx.build.LibraryGroups
+import androidx.build.Publish
+
+plugins {
+    id("AndroidXPlugin")
+    id("com.android.library")
+}
+
+dependencies {
+    implementation("androidx.annotation:annotation:1.2.0")
+
+    androidTestImplementation(libs.testExtJunit)
+    androidTestImplementation(libs.testCore)
+    androidTestImplementation(libs.testRunner)
+    androidTestImplementation(libs.testRules)
+}
+
+androidx {
+    name = "Android Support ExifInterface"
+    publish = Publish.SNAPSHOT_AND_RELEASE
+    mavenGroup = LibraryGroups.EXIFINTERFACE
+    inceptionYear = "2016"
+    description = "Android Support ExifInterface"
+}

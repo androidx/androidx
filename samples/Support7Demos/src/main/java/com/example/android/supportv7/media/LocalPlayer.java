@@ -56,7 +56,7 @@ public abstract class LocalPlayer extends Player implements
     private static final String TAG = "LocalPlayer";
     private static final boolean DEBUG = Log.isLoggable(TAG, Log.DEBUG);
 
-    private final Context mContext;
+    @SuppressWarnings("deprecation")
     private final Handler mHandler = new Handler();
     private final Handler mUpdateSurfaceHandler = new Handler(mHandler.getLooper());
     private MediaPlayer mMediaPlayer;
@@ -325,13 +325,7 @@ public abstract class LocalPlayer extends Player implements
                     return;
                 }
                 if (mSurface != null) {
-                    // The setSurface API does not exist until V14+.
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
-                        ICSMediaPlayer.setSurface(mMediaPlayer, mSurface);
-                    } else {
-                        throw new UnsupportedOperationException("MediaPlayer does not support "
-                                + "setSurface() on this version of the platform.");
-                    }
+                    ICSMediaPlayer.setSurface(mMediaPlayer, mSurface);
                 } else if (mSurfaceHolder != null) {
                     mMediaPlayer.setDisplay(mSurfaceHolder);
                 } else {

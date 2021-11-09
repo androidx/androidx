@@ -25,8 +25,8 @@ import java.util.regex.Pattern
  * all possible replacements (Cartesian product) and returns multiple results.
  */
 class GroupsReplacer(
-        val pattern: Pattern,
-        private val groupsMap: List<(String) -> List<String>>
+    val pattern: Pattern,
+    private val groupsMap: List<(String) -> List<String>>
 ) {
 
     /**
@@ -54,7 +54,8 @@ class GroupsReplacer(
             // groupVal in each with a different element of replacements
             tempResults.clear()
             results.forEach {
-                result -> replacements.forEach {
+                result ->
+                replacements.forEach {
                     tempResults.add(
                         // Because we iterate in reverse, we know the index of groupVal in result
                         // will be the same as the index of groupVal in start

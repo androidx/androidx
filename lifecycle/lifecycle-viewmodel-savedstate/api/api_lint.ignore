@@ -1,0 +1,7 @@
+// Baseline format: 1.0
+KotlinOperator: androidx.lifecycle.SavedStateHandle#contains(String):
+    Method can be invoked as a "in" operator from Kotlin: `contains` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.lifecycle.SavedStateHandle#get(String):
+    Method can be invoked with an indexing operator from Kotlin: `get` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.lifecycle.SavedStateHandle#set(String, T):
+    Method can be invoked with an indexing operator from Kotlin: `set` (this is usually desirable; just make sure it makes sense for this type of object)

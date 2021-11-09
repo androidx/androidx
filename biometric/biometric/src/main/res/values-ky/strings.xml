@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+  ~ Copyright (C) 2017 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+   -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="fingerprint_dialog_touch_sensor" msgid="1072308044213194243">"Манжа изинин сенсорун басыңыз"</string>
+    <string name="fingerprint_not_recognized" msgid="3873359464293253009">"Таанылган жок"</string>
+    <string name="fingerprint_error_hw_not_available" msgid="8216738333501875566">"Манжа изинин аппараттык камсыздоосу жеткиликтүү эмес."</string>
+    <string name="fingerprint_error_no_fingerprints" msgid="7520712796891883488">"Бир да манжа изи катталган эмес."</string>
+    <string name="fingerprint_error_hw_not_present" msgid="6306988885793029438">"Бул түзмөктө манжа изинин сенсору жок"</string>
+    <string name="fingerprint_error_user_canceled" msgid="7627716295344353987">"Манжа изи менен аныктыгын текшерүүнү колдонуучу жокко чыгарды."</string>
+    <string name="fingerprint_error_lockout" msgid="7291787166416782245">"Өтө көп жолу аракет кылдыңыз. Кийинчерээк кайра кайталап көрүңүз."</string>
+    <string name="default_error_msg" msgid="4776854077120974966">"Белгисиз ката"</string>
+    <string name="generic_error_user_canceled" msgid="7309881387583143581">"Аутентификацияны колдонуучу жокко чыгарды."</string>
+    <string name="confirm_device_credential_password" msgid="5912733858573823945">"Сырсөз колдонуу"</string>
+    <string name="generic_error_no_device_credential" msgid="3791785319221634505">"PIN код, графикалык ачкыч же сырсөз коюлган жок."</string>
+    <string name="generic_error_no_keyguard" msgid="1807436368654974044">"Бул түзмөктө PIN кодду, графикалык ачкычты же сырсөздү колдонууга болбойт."</string>
+    <string name="fingerprint_dialog_icon_description" msgid="5462024216548165325">"Манжа изинин сүрөтчөсү"</string>
+    <string name="use_fingerprint_label" msgid="6961788485681412417">"Манжа изин колдонуу"</string>
+    <string name="use_face_label" msgid="6533512708069459542">"Жүзүнөн таанып ачууну колдонуу"</string>
+    <string name="use_biometric_label" msgid="6524145989441579428">"Биометрикалык жөндөөлөрдү колдонуу"</string>
+    <string name="use_screen_lock_label" msgid="5459869335976243512">"Экран кулпусун колдонуу"</string>
+    <string name="use_fingerprint_or_screen_lock_label" msgid="7577690399303139443">"Манжа изин же экрандын кулпусун колдонуу"</string>
+    <string name="use_face_or_screen_lock_label" msgid="2116180187159450292">"Жүзүнөн таанып ачууну же экрандын кулпусун колдонуу"</string>
+    <string name="use_biometric_or_screen_lock_label" msgid="5385448280139639016">"Биометрикалык жөндөөнү же экрандын кулпусун колдонуу"</string>
+    <string name="fingerprint_prompt_message" msgid="7449360011861769080">"Улантуу үчүн манжаңызды сканерге тийгизиңиз"</string>
+    <string name="face_prompt_message" msgid="2282389249605674226">"Улантуу үчүн жүзүңүздү көрсөтүңүз"</string>
+    <string name="biometric_prompt_message" msgid="1160635338192065472">"Улантуу үчүн биометрикалык жөндөөнү колдонуу"</string>
+    <string name="screen_lock_prompt_message" msgid="5659570757430909869">"Улантуу үчүн экрандын кулпусун киргизиңиз"</string>
+    <string name="fingerprint_or_screen_lock_prompt_message" msgid="8382576858490514495">"Улантуу үчүн манжа изин же экрандын кулпусун колдонуңуз"</string>
+    <string name="face_or_screen_lock_prompt_message" msgid="4562557128765735254">"Улантуу үчүн жүзүңүздү же экрандын кулпусун колдонуңуз"</string>
+    <string name="biometric_or_screen_lock_prompt_message" msgid="2102429900219199821">"Улантуу үчүн биометрикалык маалыматты же экрандын кулпусун колдонуңуз"</string>
+</resources>

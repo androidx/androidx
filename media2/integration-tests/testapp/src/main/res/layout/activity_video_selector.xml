@@ -57,8 +57,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_alignParentLeft="true"
-        android:layout_toLeftOf="@id/play_button"
-        android:editable="true" />
+        android:layout_toLeftOf="@id/play_button" />
 
     <ListView
         android:id="@+id/select_list"

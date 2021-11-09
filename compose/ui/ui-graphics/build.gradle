@@ -1,0 +1,156 @@
+/*
+ * Copyright 2020 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import androidx.build.AndroidXComposePlugin
+import androidx.build.LibraryGroups
+import androidx.build.LibraryType
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
+plugins {
+    id("AndroidXPlugin")
+    id("com.android.library")
+    id("AndroidXComposePlugin")
+}
+
+AndroidXComposePlugin.applyAndConfigureKotlinPlugin(project)
+
+if(!AndroidXComposePlugin.isMultiplatformEnabled(project)) {
+    dependencies {
+        /*
+         * When updating dependencies, make sure to make the an an analogous update in the
+         * corresponding block below
+         */
+
+        api("androidx.annotation:annotation:1.2.0")
+        api(project(":compose:ui:ui-unit"))
+
+        implementation(project(":compose:runtime:runtime"))
+        implementation(project(":compose:ui:ui-util"))
+        implementation(libs.kotlinStdlibCommon)
+
+        testImplementation(libs.testRules)
+        testImplementation(libs.testRunner)
+        testImplementation(libs.junit)
+        testImplementation(libs.truth)
+
+        androidTestImplementation(project(":compose:ui:ui-graphics:ui-graphics-samples"))
+        androidTestImplementation(project(":compose:ui:ui-test-junit4"))
+        androidTestImplementation(project(":compose:test-utils"))
+        androidTestImplementation(libs.testRules)
+        androidTestImplementation(libs.testRunner)
+        androidTestImplementation(libs.espressoCore)
+        androidTestImplementation(libs.junit)
+        androidTestImplementation(libs.truth)
+
+        lintPublish(project(":compose:ui:ui-graphics-lint"))
+
+        samples(projectOrArtifact(":compose:ui:ui-graphics:ui-graphics-samples"))
+    }
+}
+
+if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
+    kotlin {
+        android()
+        jvm("desktop")
+
+        /*
+         * When updating dependencies, make sure to make the an an analogous update in the
+         * corresponding block above
+         */
+
+        sourceSets {
+            commonMain.dependencies {
+                implementation(libs.kotlinStdlibCommon)
+
+                api(project(":compose:ui:ui-unit"))
+                implementation(project(":compose:runtime:runtime"))
+                implementation(project(":compose:ui:ui-util"))
+            }
+
+            androidMain.dependencies {
+                api("androidx.annotation:annotation:1.2.0")
+            }
+
+            skikoMain {
+                dependsOn(commonMain)
+                dependencies {
+                    api(libs.skikoCommon)
+                }
+            }
+
+            desktopMain {
+                dependsOn skikoMain
+                dependencies {
+                    implementation(libs.kotlinStdlib)
+                    implementation(libs.kotlinStdlibJdk8)
+                }
+            }
+
+            androidTest.dependencies {
+                implementation(libs.testRules)
+                implementation(libs.testRunner)
+                implementation(libs.junit)
+                implementation(libs.truth)
+            }
+
+            androidAndroidTest.dependencies {
+                implementation(project(":compose:ui:ui-graphics:ui-graphics-samples"))
+                implementation(project(":compose:ui:ui-test-junit4"))
+                implementation(project(":compose:test-utils"))
+                implementation(libs.testRules)
+                implementation(libs.testRunner)
+                implementation(libs.espressoCore)
+                implementation(libs.junit)
+            }
+
+            desktopTest {
+                resources.srcDirs += "src/desktopTest/res"
+                dependencies {
+                    implementation(project(":compose:ui:ui-test-junit4"))
+                    implementation(libs.junit)
+                    implementation(libs.truth)
+                    implementation(libs.skikoCurrentOs)
+                }
+            }
+        }
+    }
+    dependencies {
+        samples(projectOrArtifact(":compose:ui:ui-graphics:ui-graphics-samples"))
+    }
+}
+
+androidx {
+    name = "Compose Graphics"
+    type = LibraryType.PUBLISHED_LIBRARY
+    mavenGroup = LibraryGroups.Compose.UI
+    inceptionYear = "2020"
+    description = "Compose graphics"
+    legacyDisableKotlinStrictApiMode = true
+}
+
+if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
+    tasks.findByName("desktopTest").configure {
+        systemProperties["GOLDEN_PATH"] = project.rootDir.absolutePath + "/../../golden"
+    }
+}
+
+tasks.withType(KotlinCompile).configureEach {
+    kotlinOptions {
+        freeCompilerArgs += [
+            "-XXLanguage:+InlineClasses"
+        ]
+    }
+}

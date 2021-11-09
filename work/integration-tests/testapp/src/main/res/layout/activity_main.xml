@@ -135,6 +135,14 @@
             android:id="@+id/enqueue_periodic_work_flex"
             android:layout_marginTop="12dp"/>
 
+        <Button android:text="@string/enqueue_periodic_initial_delay"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="16dp"
+            android:layout_marginStart="16dp"
+            android:id="@+id/enqueue_periodic_initial_delay"
+            android:layout_marginTop="12dp"/>
+
         <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -195,6 +203,118 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/run_recursive_worker"
+            android:layout_marginTop="12dp"
+            android:layout_marginLeft="16dp"
+            android:layout_marginStart="16dp"/>
+
+        <Button android:text="@string/run_constraint_tracking_worker"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/run_constraint_tracking_worker"
+            android:layout_marginTop="12dp"
+            android:layout_marginLeft="16dp"
+            android:layout_marginStart="16dp"/>
+
+        <Button android:text="@string/cancel_constraint_tracking_worker"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/cancel_constraint_tracking_worker"
+            android:layout_marginTop="12dp"
+            android:layout_marginLeft="16dp"
+            android:layout_marginStart="16dp"/>
+
+        <Button android:text="@string/run_foreground_worker"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/run_foreground_worker"
+            android:layout_marginTop="12dp"
+            android:layout_marginLeft="16dp"
+            android:layout_marginStart="16dp"/>
+
+        <Button android:text="@string/cancel_foreground_worker"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/cancel_foreground_worker"
+            android:layout_marginTop="12dp"
+            android:layout_marginLeft="16dp"
+            android:layout_marginStart="16dp"/>
+
+        <Button android:text="@string/cancel_foreground_worker_intent"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/cancel_foreground_worker_intent"
+            android:layout_marginTop="12dp"
+            android:layout_marginLeft="16dp"
+            android:layout_marginStart="16dp"/>
+
+        <Button android:text="@string/enqueue_work_multi_process"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/enqueue_work_multi_process"
+            android:layout_marginTop="12dp"
+            android:layout_marginLeft="16dp"
+            android:layout_marginStart="16dp"/>
+
+        <Button android:text="@string/enqueue_continuation_multi_process"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/enqueue_continuation_multi_process"
+            android:layout_marginTop="12dp"
+            android:layout_marginLeft="16dp"
+            android:layout_marginStart="16dp"/>
+
+        <Button android:text="@string/cancel_work_tag_multiprocess"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/cancel_work_tag_multiprocess"
+            android:layout_marginTop="12dp"
+            android:layout_marginLeft="16dp"
+            android:layout_marginStart="16dp"/>
+
+        <Button android:text="@string/cancel_all_work_multiprocess"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/cancel_all_work_multiprocess"
+            android:layout_marginTop="12dp"
+            android:layout_marginLeft="16dp"
+            android:layout_marginStart="16dp"/>
+
+        <Button android:text="@string/query_work_multiprocess"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/query_work_multiprocess"
+            android:layout_marginTop="12dp"
+            android:layout_marginLeft="16dp"
+            android:layout_marginStart="16dp"/>
+
+        <Button android:text="@string/run_remote_worker_1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/enqueue_remote_worker_1"
+            android:layout_marginTop="12dp"
+            android:layout_marginLeft="16dp"
+            android:layout_marginStart="16dp"/>
+
+        <Button android:text="@string/run_remote_worker_2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/enqueue_remote_worker_2"
+            android:layout_marginTop="12dp"
+            android:layout_marginLeft="16dp"
+            android:layout_marginStart="16dp"/>
+
+        <Button android:text="@string/cancel_remote_workers"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/cancel_remote_workers"
+            android:layout_marginTop="12dp"
+            android:layout_marginLeft="16dp"
+            android:layout_marginStart="16dp"/>
+
+        <Button android:text="@string/crash_app"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/crash_app"
             android:layout_marginTop="12dp"
             android:layout_marginLeft="16dp"
             android:layout_marginStart="16dp"/>

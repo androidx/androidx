@@ -1,0 +1,91 @@
+/*
+ * Copyright 2019 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+
+import androidx.build.LibraryGroups
+import androidx.build.Publish
+
+plugins {
+    id("AndroidXPlugin")
+    id("com.android.library")
+    id("kotlin-android")
+}
+
+dependencies {
+    api(project(":camera:camera-core"))
+    api("androidx.annotation:annotation:1.2.0")
+    implementation("androidx.core:core:1.1.0")
+    implementation("androidx.concurrent:concurrent-futures:1.0.0")
+    implementation(libs.guavaListenableFuture)
+    implementation(libs.autoValueAnnotations)
+
+    annotationProcessor(libs.autoValue)
+
+    testImplementation(libs.testCore)
+    testImplementation(libs.testRunner)
+    testImplementation(libs.junit)
+    testImplementation(libs.truth)
+    testImplementation(libs.robolectric)
+    testImplementation(libs.mockitoCore)
+    testImplementation(libs.kotlinCoroutinesTest)
+    testImplementation("androidx.annotation:annotation-experimental:1.1.0")
+    testImplementation("androidx.lifecycle:lifecycle-runtime-testing:2.3.1")
+    testImplementation(project(":camera:camera-testing"))
+    testImplementation("androidx.arch.core:core-testing:2.1.0")
+    testImplementation("org.apache.maven:maven-ant-tasks:2.1.3")
+
+    androidTestImplementation(libs.multidex)
+    androidTestImplementation(libs.testExtJunit)
+    androidTestImplementation(libs.testCore)
+    androidTestImplementation(libs.testRunner)
+    androidTestImplementation(libs.testRules)
+    androidTestImplementation(libs.truth)
+    androidTestImplementation(libs.testUiautomator)
+    androidTestImplementation(libs.espressoCore)
+    androidTestImplementation(libs.mockitoCore, excludes.bytebuddy) // DexMaker has it's own MockMaker
+    androidTestImplementation(libs.dexmakerMockito, excludes.bytebuddy) // DexMaker has it's own MockMaker
+    androidTestImplementation("androidx.appcompat:appcompat:1.1.0")
+    androidTestImplementation(project(":camera:camera-testing"))
+    androidTestImplementation(libs.kotlinStdlib)
+    androidTestImplementation(libs.kotlinCoroutinesAndroid)
+    androidTestImplementation("androidx.annotation:annotation-experimental:1.1.0")
+    androidTestImplementation(project(":internal-testutils-truth"))
+    androidTestImplementation("org.jetbrains.kotlinx:atomicfu:0.13.1")
+    androidTestImplementation("androidx.exifinterface:exifinterface:1.0.0")
+    androidTestImplementation("androidx.concurrent:concurrent-futures-ktx:1.1.0")
+}
+android {
+    defaultConfig {
+        multiDexEnabled = true
+    }
+
+    buildTypes.all {
+        consumerProguardFiles "proguard-rules.pro"
+    }
+
+    // Use Robolectric 4.+
+    testOptions.unitTests.includeAndroidResources = true
+}
+
+androidx {
+    name = "Jetpack Camera Library Camera2 Implementation/Extensions"
+    publish = Publish.SNAPSHOT_AND_RELEASE
+    mavenGroup = LibraryGroups.CAMERA
+    inceptionYear = "2019"
+    description = "Camera2 implementation and extensions for the Jetpack Camera Library, a " +
+            "library providing a consistent and reliable camera foundation that enables great " +
+            "camera driven experiences across all of Android."
+}

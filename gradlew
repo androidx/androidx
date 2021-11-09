@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+set -o pipefail
+set -e
 
 ##############################################################################
 ##
@@ -8,18 +10,48 @@
 
 # --------- androidx specific code needed for build server. ------------------
 
+SCRIPT_PATH="$(cd $(dirname $0) && pwd -P)"
 if [ -n "$OUT_DIR" ] ; then
+    mkdir -p "$OUT_DIR"
+    OUT_DIR="$(cd $OUT_DIR && pwd -P)"
     export GRADLE_USER_HOME="$OUT_DIR/.gradle"
-    export LINT_PRINT_STACKTRACE=true
+    export TMPDIR=$OUT_DIR
 else
-    SCRIPT_PATH="$(cd $(dirname $0) && pwd)"
-    CHECKOUT_ROOT="$(cd $SCRIPT_PATH/../.. && pwd)"
+    CHECKOUT_ROOT="$(cd $SCRIPT_PATH/../.. && pwd -P)"
     export OUT_DIR="$CHECKOUT_ROOT/out"
 fi
 
+ORG_GRADLE_JVMARGS="$(cd $SCRIPT_PATH && grep org.gradle.jvmargs gradle.properties | sed 's/^/-D/')"
+if [ -n "$DIST_DIR" ]; then
+    mkdir -p "$DIST_DIR"
+    DIST_DIR="$(cd $DIST_DIR && pwd -P)"
+    export LINT_PRINT_STACKTRACE=true
+
+    #Set the initial heap size to match the max heap size,
+    #by replacing a string like "-Xmx1g" with one like "-Xms1g -Xmx1g"
+    MAX_MEM=24g
+    ORG_GRADLE_JVMARGS="$(echo $ORG_GRADLE_JVMARGS | sed "s/-Xmx\([^ ]*\)/-Xms$MAX_MEM -Xmx$MAX_MEM/")"
+
+    # tell Gradle where to put a heap dump on failure
+    ORG_GRADLE_JVMARGS="$(echo $ORG_GRADLE_JVMARGS | sed "s|$| -XX:HeapDumpPath=$DIST_DIR|")"
+
+    # We don't set a default DIST_DIR in an else clause here because Studio doesn't use gradlew
+    # and doesn't set DIST_DIR and we want gradlew and Studio to match
+fi
+
+# unset ANDROID_BUILD_TOP so that Lint doesn't think we're building the platform itself
+unset ANDROID_BUILD_TOP
 # ----------------------------------------------------------------------------
 
 # Add default JVM options here. You can also use JAVA_OPTS and GRADLE_OPTS to pass JVM options to this script.
+
+JAVA_OPTS="$JAVA_OPTS -Dkotlin.incremental.compilation=true" # b/188565660
+
+if [[ " ${@} " =~ " -PupdateLintBaseline " ]]; then
+  # remove when b/188666845 is complete
+  # Inform lint to not fail even when creating a baseline file
+  JAVA_OPTS="$JAVA_OPTS -Dlint.baselines.continue=true"
+fi
 
 APP_NAME="Gradle"
 APP_BASE_NAME=`basename "$0"`
@@ -84,11 +116,13 @@ else
 fi
 DEFAULT_JVM_OPTS="-DLINT_API_DATABASE=$APP_HOME/../../prebuilts/fullsdk-$plat/platform-tools/api/api-versions.xml"
 
-# Temporary solution for custom, private lint rules https://issuetracker.google.com/issues/65248347
-# Gradle automatically invokes 'jar' task on 'buildSrc/' projects so this will always be available.
-export ANDROID_LINT_JARS="$OUT_DIR/buildSrc/lint-checks/build/libs/lint-checks.jar"
+# Tests for lint checks default to using sdk defined by this variable. This removes a lot of
+# setup from each lint module.
+export ANDROID_HOME="$APP_HOME/../../prebuilts/fullsdk-$plat"
 # override JAVA_HOME, because CI machines have it and it points to very old JDK
-export JAVA_HOME="$APP_HOME/../../prebuilts/jdk/jdk8/$plat-x86"
+export JAVA_HOME="$APP_HOME/../../prebuilts/jdk/jdk11/$plat-x86"
+export JAVA_TOOLS_JAR="$APP_HOME/../../prebuilts/jdk/jdk8/$plat-x86/lib/tools.jar"
+export STUDIO_GRADLE_JDK=$JAVA_HOME
 
 # ----------------------------------------------------------------------------
 
@@ -187,4 +221,173 @@ function splitJvmOpts() {
 eval splitJvmOpts $DEFAULT_JVM_OPTS $JAVA_OPTS $GRADLE_OPTS
 JVM_OPTS[${#JVM_OPTS[*]}]="-Dorg.gradle.appname=$APP_BASE_NAME"
 
-exec "$JAVACMD" "${JVM_OPTS[@]}" -classpath "$CLASSPATH" org.gradle.wrapper.GradleWrapperMain "$@"
+#TODO: Remove HOME_SYSTEM_PROPERTY_ARGUMENT if https://github.com/gradle/gradle/issues/11433 gets fixed
+HOME_SYSTEM_PROPERTY_ARGUMENT=""
+if [ "$GRADLE_USER_HOME" != "" ]; then
+    HOME_SYSTEM_PROPERTY_ARGUMENT="-Duser.home=$GRADLE_USER_HOME"
+fi
+if [ "$TMPDIR" != "" ]; then
+  TMPDIR_ARG="-Djava.io.tmpdir=$TMPDIR"
+fi
+
+if [[ " ${@} " =~ " --clean " ]]; then
+  cleanCaches=true
+else
+  cleanCaches=false
+fi
+
+if [[ " ${@} " =~ " --no-ci " ]]; then
+  disableCi=true
+else
+  disableCi=false
+fi
+
+# workaround for https://github.com/gradle/gradle/issues/18386
+if [[ " ${@} " =~ " --profile " ]]; then
+  mkdir -p reports
+fi
+
+# Expand some arguments
+for compact in "--ci" "--strict" "--clean" "--no-ci"; do
+  expanded=""
+  if [ "$compact" == "--ci" ]; then
+    if [ "$disableCi" == "false" ]; then
+      expanded="--strict\
+       --stacktrace\
+       -Pandroidx.summarizeStderr\
+       -Pandroidx.enableAffectedModuleDetection\
+       --no-watch-fs"
+    fi
+  fi
+  if [ "$compact" == "--strict" ]; then
+    expanded="-Pandroidx.allWarningsAsErrors\
+     -Pandroidx.validateNoUnrecognizedMessages\
+     -Pandroidx.verifyUpToDate\
+     --no-watch-fs\
+     --no-daemon\
+     --offline"
+  fi
+  # if compact is something else then we parsed the argument above but
+  # still have to remove it (expanded == "") to avoid confusing Gradle
+
+  # check whether this particular compat argument was passed (and therefore needs expansion)
+  if [[ " ${@} " =~ " $compact " ]]; then
+    # Expand an individual argument
+    # Start by making a copy of our list of arguments and iterating through the copy
+    for arg in "$@"; do
+      # Remove this argument from our list of arguments.
+      # By the time we've completed this loop, we will have removed the original copy of
+      # each argument, and potentially re-added a new copy or an expansion of each.
+      shift
+      # Determine whether to expand this argument
+      if [ "$arg" == "$compact" ]; then
+        # Add the expansion to our arguments
+        set -- "$@" $expanded
+        if [ "$expanded" != "" ]; then
+          echo "gradlew expanded '$compact' into '$expanded'"
+          echo
+        fi
+        # We avoid re-adding this argument itself back into the list for two reasons:
+        # 1. This argument might not be directly understood by Gradle
+        # 2. We want to enforce that all behaviors enabled by this flag can be toggled independently,
+        # so we don't want it to be easy to inadvertently check for the presence of this flag
+        # specifically
+      else
+        # Add this argument back into our arguments
+        set -- "$@" "$arg"
+      fi
+    done
+  fi
+done
+
+if [[ " ${@} " =~ " --scan " ]]; then
+  if [[ " ${@} " =~ " --offline " ]]; then
+    echo "--scan incompatible with --offline"
+    echo "you could try --no-ci"
+    exit 1
+  fi
+fi
+
+function removeCaches() {
+  rm -rf $SCRIPT_PATH/.gradle
+  rm -rf $SCRIPT_PATH/buildSrc/.gradle
+  rm -f  $SCRIPT_PATH/local.properties
+  if [ "$GRADLE_USER_HOME" != "" ]; then
+    rm -rf "$GRADLE_USER_HOME"
+  else
+    rm -rf ~/.gradle
+  fi
+  # https://github.com/gradle/gradle/issues/18386
+  rm -rf $SCRIPT_PATH/reports
+  rm -rf $SCRIPT_PATH/build
+  rm -rf $OUT_DIR
+}
+
+if [ "$cleanCaches" == true ]; then
+  echo "IF ./gradlew --clean FIXES YOUR BUILD; OPEN A BUG."
+  echo "In nearly all cases, it should not be necessary to run a clean build."
+  echo
+  echo "You may be more interested in running:"
+  echo
+  echo "  ./development/diagnose-build-failure/diagnose-build-failure.sh $*"
+  echo
+  echo "which attempts to diagnose more details about build failures."
+  echo
+  echo "Removing caches"
+  # one case where it is convenient to have a clean build is for double-checking that a build failure isn't due to an incremental build failure
+  # another case where it is convenient to have a clean build is for performance testing
+  # another case where it is convenient to have a clean build is when you're modifying the build and may have introduced some errors but haven't shared your changes yet (at which point you should have fixed the errors)
+  echo
+
+  removeCaches
+fi
+
+function runGradle() {
+  processOutput=false
+  if [[ " ${@} " =~ " -Pandroidx.validateNoUnrecognizedMessages " ]]; then
+    processOutput=true
+  fi
+  if [[ " ${@} " =~ " -Pandroidx.summarizeStderr " ]]; then
+    processOutput=true
+  fi
+  if [ "$processOutput" == "true" ]; then
+    wrapper="$SCRIPT_PATH/development/build_log_processor.sh"
+  else
+    wrapper=""
+  fi
+
+  PROJECT_CACHE_DIR_ARGUMENT="--project-cache-dir $OUT_DIR/gradle-project-cache"
+  if $wrapper "$JAVACMD" "${JVM_OPTS[@]}" $TMPDIR_ARG -classpath "$CLASSPATH" org.gradle.wrapper.GradleWrapperMain $HOME_SYSTEM_PROPERTY_ARGUMENT $TMPDIR_ARG $PROJECT_CACHE_DIR_ARGUMENT "$ORG_GRADLE_JVMARGS" "$@"; then
+    return 0
+  else
+    # Print AndroidX-specific help message if build fails
+    # Have to do this build-failure detection in gradlew rather than in build.gradle
+    # so that this message still prints even if buildSrc itself fails
+    echo
+    echo For help with unexpected failures, see development/diagnose-build-failure/README.md
+    echo
+    return 1
+  fi
+}
+
+if [[ " ${@} " =~ " -PdisallowExecution " ]]; then
+  echo "Passing '-PdisallowExecution' directly is forbidden. Did you mean -Pandroidx.verifyUpToDate ?"
+  echo "See TaskUpToDateValidator.java for more information"
+  exit 1
+fi
+
+if [[ " ${@} " =~ " -PverifyUpToDate " ]]; then
+  echo "-PverifyUpToDate has been renamed to -Pandroidx.verifyUpToDate"
+  exit 1
+fi
+
+runGradle "$@"
+# Check whether we were given the "-Pandroidx.verifyUpToDate" argument
+if [[ " ${@} " =~ " -Pandroidx.verifyUpToDate " ]]; then
+  # Re-run Gradle, and find all tasks that are unexpectly out of date
+  if ! runGradle "$@" -PdisallowExecution --continue; then
+    echo >&2
+    echo "TaskUpToDateValidator's second build failed, -PdisallowExecution specified" >&2
+    exit 1
+  fi
+fi

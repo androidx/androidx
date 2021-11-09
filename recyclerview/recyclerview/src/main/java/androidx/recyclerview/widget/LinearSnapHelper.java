@@ -45,14 +45,14 @@ public class LinearSnapHelper extends SnapHelper {
             @NonNull RecyclerView.LayoutManager layoutManager, @NonNull View targetView) {
         int[] out = new int[2];
         if (layoutManager.canScrollHorizontally()) {
-            out[0] = distanceToCenter(layoutManager, targetView,
+            out[0] = distanceToCenter(targetView,
                     getHorizontalHelper(layoutManager));
         } else {
             out[0] = 0;
         }
 
         if (layoutManager.canScrollVertically()) {
-            out[1] = distanceToCenter(layoutManager, targetView,
+            out[1] = distanceToCenter(targetView,
                     getVerticalHelper(layoutManager));
         } else {
             out[1] = 0;
@@ -138,16 +138,10 @@ public class LinearSnapHelper extends SnapHelper {
         return null;
     }
 
-    private int distanceToCenter(@NonNull RecyclerView.LayoutManager layoutManager,
-            @NonNull View targetView, OrientationHelper helper) {
+    private int distanceToCenter(@NonNull View targetView, OrientationHelper helper) {
         final int childCenter = helper.getDecoratedStart(targetView)
                 + (helper.getDecoratedMeasurement(targetView) / 2);
-        final int containerCenter;
-        if (layoutManager.getClipToPadding()) {
-            containerCenter = helper.getStartAfterPadding() + helper.getTotalSpace() / 2;
-        } else {
-            containerCenter = helper.getEnd() / 2;
-        }
+        final int containerCenter = helper.getStartAfterPadding() + helper.getTotalSpace() / 2;
         return childCenter - containerCenter;
     }
 
@@ -192,12 +186,7 @@ public class LinearSnapHelper extends SnapHelper {
         }
 
         View closestChild = null;
-        final int center;
-        if (layoutManager.getClipToPadding()) {
-            center = helper.getStartAfterPadding() + helper.getTotalSpace() / 2;
-        } else {
-            center = helper.getEnd() / 2;
-        }
+        final int center = helper.getStartAfterPadding() + helper.getTotalSpace() / 2;
         int absClosest = Integer.MAX_VALUE;
 
         for (int i = 0; i < childCount; i++) {

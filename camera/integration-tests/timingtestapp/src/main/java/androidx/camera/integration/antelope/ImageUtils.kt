@@ -14,10 +14,12 @@
  * limitations under the License.
  */
 
+@file:Suppress("DEPRECATION")
+
 package androidx.camera.integration.antelope
 
-import android.annotation.TargetApi
-import android.app.Activity
+import android.content.ContentResolver
+import android.content.ContentValues
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.ImageFormat
@@ -26,15 +28,19 @@ import android.media.ImageReader
 import android.net.Uri
 import android.os.Build
 import android.os.Environment
+import android.provider.MediaStore
 import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.camera.core.ImageCapture
+import androidx.camera.core.ImageCaptureException
 import androidx.camera.core.ImageProxy
-import androidx.exifinterface.media.ExifInterface
 import androidx.camera.integration.antelope.MainActivity.Companion.PHOTOS_DIR
+import androidx.camera.integration.antelope.MainActivity.Companion.PHOTOS_PATH
 import androidx.camera.integration.antelope.MainActivity.Companion.logd
 import androidx.camera.integration.antelope.cameracontrollers.CameraState
 import androidx.camera.integration.antelope.cameracontrollers.closeCameraX
 import androidx.camera.integration.antelope.cameracontrollers.closePreviewAndCamera
+import androidx.exifinterface.media.ExifInterface
 import java.io.ByteArrayInputStream
 import java.io.File
 import java.io.FileOutputStream
@@ -55,8 +61,10 @@ class ImageAvailableListener(
 ) : ImageReader.OnImageAvailableListener {
 
     override fun onImageAvailable(reader: ImageReader) {
-        logd("onImageAvailable enter. Current test: " + testConfig.currentRunningTest +
-            " state: " + params.state)
+        logd(
+            "onImageAvailable enter. Current test: " + testConfig.currentRunningTest +
+                " state: " + params.state
+        )
 
         // Only save 1 photo each time
         if (CameraState.IMAGE_REQUESTED != params.state)
@@ -69,6 +77,7 @@ class ImageAvailableListener(
         when (image.format) {
             ImageFormat.JPEG -> {
                 // Orientation
+                @Suppress("DEPRECATION") /* defaultDisplay */
                 val rotation = activity.windowManager.defaultDisplay.rotation
                 val capturedImageRotation = getOrientation(params, rotation)
 
@@ -78,8 +87,12 @@ class ImageAvailableListener(
                 val bytes = ByteArray(image.planes[0].buffer.remaining())
                 image.planes[0].buffer.get(bytes)
 
-                params.backgroundHandler?.post(ImageSaver(activity, bytes, capturedImageRotation,
-                    params.isFront, params, testConfig))
+                params.backgroundHandler?.post(
+                    ImageSaver(
+                        activity, bytes, capturedImageRotation,
+                        params.isFront, params, testConfig
+                    )
+                )
             }
 
             // TODO: add RAW support
@@ -137,14 +150,16 @@ class ImageSaver internal constructor(
 fun rotateBitmap(original: Bitmap, degrees: Float): Bitmap {
     val matrix = Matrix()
     matrix.postRotate(degrees)
-    return Bitmap.createBitmap(original, 0, 0, original.width, original.height,
-        matrix, true)
+    return Bitmap.createBitmap(
+        original, 0, 0, original.width, original.height,
+        matrix, true
+    )
 }
 
 /**
  * Scale a given Bitmap by scaleFactor
  */
-fun scaleBitmap(activity: Activity, bitmap: Bitmap, scaleFactor: Float): Bitmap {
+fun scaleBitmap(bitmap: Bitmap, scaleFactor: Float): Bitmap {
     val scaledWidth = Math.round(bitmap.width * scaleFactor)
     val scaledHeight = Math.round(bitmap.height * scaleFactor)
 
@@ -154,7 +169,7 @@ fun scaleBitmap(activity: Activity, bitmap: Bitmap, scaleFactor: Float): Bitmap 
 /**
  * Flip a Bitmap horizontal
  */
-fun horizontalFlip(activity: Activity, bitmap: Bitmap): Bitmap {
+fun horizontalFlip(bitmap: Bitmap): Bitmap {
     val matrix = Matrix()
     matrix.preScale(-1.0f, 1.0f)
     return Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, matrix, true)
@@ -172,21 +187,40 @@ fun generateTimestamp(): String {
  * Actually write a byteArray file to disk. Assume the file is a jpg and use that extension
  */
 fun writeFile(activity: MainActivity, bytes: ByteArray) {
-    val rawFile = File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM),
-        "Antelope" + generateTimestamp() + ".dng")
+    if (Build.VERSION.SDK_INT > Build.VERSION_CODES.Q) {
+        writeFileAfterQ(activity, bytes)
+    } else {
+        writeFileBeforeQ(activity, bytes)
+    }
+}
 
-    val jpgFile = File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM),
+/**
+ * When the platform is Android Pie and Pie below, Environment.getExternalStoragePublicDirectory
+ * (Environment.DIRECTORY_DOCUMENTS) can work. For Q, set requestLegacyExternalStorage = true to
+ * make it workable. Ref:
+ * https://developer.android.com/training/data-storage/use-cases#opt-out-scoped-storage
+ */
+fun writeFileBeforeQ(activity: MainActivity, bytes: ByteArray) {
+    val jpgFile = File(
+        Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM),
         File.separatorChar + PHOTOS_DIR + File.separatorChar +
-            "Antelope" + generateTimestamp() + ".jpg")
+            "Antelope" + generateTimestamp() + ".jpg"
+    )
 
-    val photosDir = File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM),
-        PHOTOS_DIR)
+    val photosDir = File(
+        Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM),
+        PHOTOS_DIR
+    )
 
     if (!photosDir.exists()) {
         val createSuccess = photosDir.mkdir()
         if (!createSuccess) {
-            Toast.makeText(activity, "DCIM/" + PHOTOS_DIR + " creation failed.",
-                Toast.LENGTH_SHORT).show()
+            activity.runOnUiThread {
+                Toast.makeText(
+                    activity, "DCIM/" + PHOTOS_DIR + " creation failed.",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
             logd("Photo storage directory DCIM/" + PHOTOS_DIR + " creation failed!!")
         } else {
             logd("Photo storage directory DCIM/" + PHOTOS_DIR + " did not exist. Created.")
@@ -224,25 +258,105 @@ fun writeFile(activity: MainActivity, bytes: ByteArray) {
 }
 
 /**
- * Delete all the photos generated by testing from the default Antelope PHOTOS_DIR
+ * R and R above, change to use MediaStore to access the shared media files. Ref:
+ * https://developer.android.com/training/data-storage/shared
+ */
+fun writeFileAfterQ(activity: MainActivity, bytes: ByteArray) {
+    val resolver: ContentResolver = activity.contentResolver
+    val contentValues = ContentValues().apply {
+        put(MediaStore.MediaColumns.DISPLAY_NAME, generateTimestamp().toString() + ".jpg")
+        put(MediaStore.MediaColumns.MIME_TYPE, "image/jpeg")
+        put(MediaStore.MediaColumns.RELATIVE_PATH, PHOTOS_PATH)
+    }
+
+    val imageUri = resolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues)
+    if (imageUri != null) {
+        val output = activity.contentResolver.openOutputStream(imageUri)
+        try {
+            output?.write(bytes)
+        } catch (e: IOException) {
+            e.printStackTrace()
+        } finally {
+            if (null != output) {
+                try {
+                    output.close()
+                } catch (e: IOException) {
+                    e.printStackTrace()
+                }
+            }
+        }
+        logd("writeFile: Completed.")
+        if (PrefHelper.getAutoDelete(activity)) {
+            val result = resolver.delete(imageUri, null, null)
+            if (result > 0) {
+                logd("Delete image $imageUri completed.")
+            }
+        }
+    } else {
+        activity.runOnUiThread {
+            Toast.makeText(
+                activity, "Image file creation failed.",
+                Toast.LENGTH_SHORT
+            ).show()
+        }
+    }
+}
+
+/**
+ * Delete all the photos generated by testing
  */
 fun deleteTestPhotos(activity: MainActivity) {
-    val photosDir = File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM),
-        PHOTOS_DIR)
+    if (Build.VERSION.SDK_INT > Build.VERSION_CODES.Q) {
+        deleteTestPhotosAfterQ(activity)
+    } else {
+        deleteTestPhotosBeforeQ(activity)
+    }
+
+    activity.runOnUiThread {
+        Toast.makeText(activity, "All test photos deleted", Toast.LENGTH_SHORT).show()
+    }
+    logd("All photos in storage directory DCIM/" + PHOTOS_DIR + " deleted.")
+}
+
+/**
+ * When the platform is Android Pie and Pie below, Environment.getExternalStoragePublicDirectory
+ * (Environment.DIRECTORY_DOCUMENTS) can work. For Q, set requestLegacyExternalStorage = true to
+ * make it workable. Ref:
+ * https://developer.android.com/training/data-storage/use-cases#opt-out-scoped-storage
+ */
+fun deleteTestPhotosBeforeQ(activity: MainActivity) {
+    val photosDir = File(
+        Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM),
+        PHOTOS_DIR
+    )
 
     if (photosDir.exists()) {
 
-        for (photo in photosDir.listFiles())
+        for (photo in photosDir.listFiles()!!)
             photo.delete()
 
         // Files are deleted, let media scanner know
         val scannerIntent = Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE)
         scannerIntent.data = Uri.fromFile(photosDir)
         activity.sendBroadcast(scannerIntent)
-
-        Toast.makeText(activity, "All test photos deleted", Toast.LENGTH_SHORT).show()
-        logd("All photos in storage directory DCIM/" + PHOTOS_DIR + " deleted.")
     }
+}
+
+/**
+ * R and R above, change to use MediaStore to delete the photo files. Ref:
+ * https://developer.android.com/training/data-storage/shared
+ */
+fun deleteTestPhotosAfterQ(activity: MainActivity) {
+    val imageDirUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI
+    val resolver: ContentResolver = activity.contentResolver
+    val selection = MediaStore.MediaColumns.RELATIVE_PATH + " like ?"
+    val selectionArgs = arrayOf("%$PHOTOS_PATH%")
+
+    resolver.delete(
+        imageDirUri,
+        selection,
+        selectionArgs
+    )
 }
 
 /**
@@ -250,7 +364,7 @@ fun deleteTestPhotos(activity: MainActivity) {
  *
  * Note: this does not currently work.
  */
-@TargetApi(24)
+@RequiresApi(24)
 fun isHDRPlus(bytes: ByteArray?): Boolean {
     if (24 <= Build.VERSION.SDK_INT) {
         val bytestream = ByteArrayInputStream(bytes)
@@ -275,14 +389,16 @@ class CameraXImageAvailableListener(
     internal val activity: MainActivity,
     internal var params: CameraParams,
     internal val testConfig: TestConfig
-) : ImageCapture.OnImageCapturedListener() {
+) : ImageCapture.OnImageCapturedCallback() {
 
     /** Image was captured successfully */
-    override fun onCaptureSuccess(image: ImageProxy?, rotationDegrees: Int) {
-        logd("CameraXImageAvailableListener onCaptureSuccess. Current test: " +
-            testConfig.currentRunningTest)
+    override fun onCaptureSuccess(image: ImageProxy) {
+        logd(
+            "CameraXImageAvailableListener onCaptureSuccess. Current test: " +
+                testConfig.currentRunningTest
+        )
 
-        when (image?.format) {
+        when (image.format) {
             ImageFormat.JPEG -> {
                 params.timer.imageReaderEnd = System.currentTimeMillis()
 
@@ -307,8 +423,12 @@ class CameraXImageAvailableListener(
                 val bytes = ByteArray(image.planes[0].buffer.remaining())
                 image.planes[0].buffer.get(bytes)
 
-                params.backgroundHandler?.post(ImageSaver(activity, bytes, capturedImageRotation,
-                    params.isFront, params, testConfig))
+                params.backgroundHandler?.post(
+                    ImageSaver(
+                        activity, bytes, capturedImageRotation,
+                        params.isFront, params, testConfig
+                    )
+                )
             }
 
             ImageFormat.RAW_SENSOR -> {
@@ -318,16 +438,12 @@ class CameraXImageAvailableListener(
             }
         }
 
-        image?.close()
+        image.close()
     }
 
     /** Camera X was unable to capture a still image and threw an error */
-    override fun onError(
-        useCaseError: ImageCapture.UseCaseError?,
-        message: String?,
-        cause: Throwable?
-    ) {
-        logd("CameraX ImageCallback onError. Error: " + message)
+    override fun onError(exception: ImageCaptureException) {
+        logd("CameraX ImageCallback onError. Error: " + exception.message)
         params.timer.imageReaderEnd = System.currentTimeMillis()
         params.timer.imageSaveStart = System.currentTimeMillis()
         params.timer.imageSaveEnd = System.currentTimeMillis()

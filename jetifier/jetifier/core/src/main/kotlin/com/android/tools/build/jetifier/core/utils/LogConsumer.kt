@@ -29,4 +29,3 @@ interface LogConsumer {
 
     fun verbose(message: String)
 }
-

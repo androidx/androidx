@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+  Copyright 2021 The Android Open Source Project
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  -->
+
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <Preference
+        android:key="basic"
+        android:fragment="com.example.androidx.preference.TwoPanePreferences$BasicPreferences"
+        android:summary="@string/summary_basic_preferences"
+        android:title="@string/basic_preferences"
+        android:icon="@android:drawable/sym_def_app_icon"/>
+    <SwitchPreferenceCompat
+        android:key="switch"
+        android:title="@string/title_switch_preference"
+        android:summary="@string/summary_switch_preference"/>
+    <Preference
+        android:key="widgets"
+        android:fragment="com.example.androidx.preference.TwoPanePreferences$WidgetPreferences"
+        android:summary="@string/summary_widgets"
+        android:title="@string/widgets"/>
+    <Preference
+        android:key="dialogs"
+        android:fragment="com.example.androidx.preference.TwoPanePreferences$DialogPreferences"
+        android:summary="@string/summary_dialogs"
+        android:title="@string/dialogs" />
+    <Preference
+        android:key="advanced"
+        android:fragment="com.example.androidx.preference.TwoPanePreferences$AdvancedPreferences"
+        android:summary="@string/summary_advanced_attributes"
+        android:title="@string/advanced_attributes" />
+    <Preference
+        android:key="intent"
+        android:title="@string/title_intent_preference"
+        android:summary="@string/summary_intent_preference">
+        <intent android:action="android.intent.action.VIEW"
+            android:data="http://www.android.com"/>
+    </Preference>
+</PreferenceScreen>

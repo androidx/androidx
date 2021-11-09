@@ -24,8 +24,8 @@
     android:layout_height="match_parent"
     tools:context="androidx.camera.integration.extensions.CameraExtensionsActivity">
 
-    <TextureView
-        android:id="@+id/textureView"
+    <androidx.camera.view.PreviewView
+        android:id="@+id/previewView"
         android:layout_width="0dp"
         android:layout_height="0dp"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -73,4 +73,12 @@
         app:layout_constraintStart_toStartOf="@+id/constraintLayout"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.0"/>
+
+    <Button
+        android:id="@+id/Switch"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Switch"
+        app:layout_constraintEnd_toStartOf="@+id/Picture"
+        app:layout_constraintTop_toTopOf="@+id/Picture" />
 </androidx.constraintlayout.widget.ConstraintLayout>

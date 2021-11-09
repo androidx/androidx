@@ -1,0 +1,27 @@
+import androidx.build.LibraryGroups
+import androidx.build.Publish
+
+plugins {
+    id("AndroidXPlugin")
+    id("com.android.library")
+}
+
+dependencies {
+    api("androidx.annotation:annotation:1.1.0")
+    implementation("androidx.core:core:1.3.0-beta01")
+
+    androidTestImplementation(libs.testExtJunit)
+    androidTestImplementation(libs.testCore)
+    androidTestImplementation(libs.testRunner)
+    androidTestImplementation(libs.testRules)
+    androidTestImplementation(libs.espressoCore, excludes.espresso)
+}
+
+androidx {
+    name = "Android Support Grid Layout"
+    publish = Publish.SNAPSHOT_AND_RELEASE
+    mavenGroup = LibraryGroups.GRIDLAYOUT
+    inceptionYear = "2013"
+    description = "Android Support Grid Layout"
+    failOnDeprecationWarnings = false
+}

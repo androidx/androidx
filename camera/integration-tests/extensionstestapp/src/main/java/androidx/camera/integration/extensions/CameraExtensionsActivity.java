@@ -15,47 +15,57 @@
  */
 package androidx.camera.integration.extensions;
 
+import android.annotation.SuppressLint;
+import android.content.ContentValues;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
-import android.graphics.SurfaceTexture;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.StrictMode;
+import android.provider.MediaStore;
 import android.util.Log;
-import android.view.TextureView;
-import android.view.View;
-import android.view.ViewGroup;
+import android.view.MotionEvent;
+import android.view.ScaleGestureDetector;
 import android.widget.Button;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.VisibleForTesting;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.camera.core.CameraX;
-import androidx.camera.core.CameraX.LensFacing;
+import androidx.camera.core.Camera;
+import androidx.camera.core.CameraControl;
+import androidx.camera.core.CameraInfo;
+import androidx.camera.core.CameraSelector;
+import androidx.camera.core.FocusMeteringAction;
 import androidx.camera.core.ImageCapture;
-import androidx.camera.core.ImageCaptureConfig;
+import androidx.camera.core.ImageCaptureException;
+import androidx.camera.core.MeteringPoint;
 import androidx.camera.core.Preview;
-import androidx.camera.core.PreviewConfig;
-import androidx.camera.core.UseCase;
-import androidx.camera.extensions.BokehImageCaptureExtender;
-import androidx.camera.extensions.BokehPreviewExtender;
-import androidx.camera.extensions.HdrImageCaptureExtender;
-import androidx.camera.extensions.HdrPreviewExtender;
+import androidx.camera.extensions.ExtensionMode;
+import androidx.camera.extensions.ExtensionsManager;
+import androidx.camera.lifecycle.ProcessCameraProvider;
+import androidx.camera.view.PreviewView;
+import androidx.concurrent.futures.CallbackToFutureAdapter;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.core.math.MathUtils;
+import androidx.test.espresso.idling.CountingIdlingResource;
+
+import com.google.common.base.Preconditions;
+import com.google.common.util.concurrent.FutureCallback;
+import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.ListenableFuture;
 
 import java.io.File;
 import java.text.Format;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.List;
 import java.util.Locale;
-import java.util.concurrent.Callable;
-import java.util.concurrent.FutureTask;
-import java.util.concurrent.atomic.AtomicReference;
 
 /** An activity that shows off how extensions can be applied */
 public class CameraExtensionsActivity extends AppCompatActivity
@@ -63,227 +73,194 @@ public class CameraExtensionsActivity extends AppCompatActivity
     private static final String TAG = "CameraExtensionActivity";
     private static final int PERMISSIONS_REQUEST_CODE = 42;
 
-    private final SettableCallable<Boolean> mSettableResult = new SettableCallable<>();
-    private final FutureTask<Boolean> mCompletableFuture = new FutureTask<>(mSettableResult);
+    private CameraSelector mCurrentCameraSelector = CameraSelector.DEFAULT_BACK_CAMERA;
 
-    /** The cameraId to use. Assume that 0 is the typical back facing camera. */
-    private String mCurrentCameraId = "0";
+    boolean mPermissionsGranted = false;
+    private CallbackToFutureAdapter.Completer<Boolean> mPermissionCompleter;
 
-    private String mCurrentCameraFacing = "BACK";
-
+    @Nullable
     private Preview mPreview;
+
+    @Nullable
     private ImageCapture mImageCapture;
-    private ImageCaptureType mCurrentImageCaptureType = ImageCaptureType.IMAGE_CAPTURE_TYPE_HDR;
 
-    /**
-     * Creates a view finder use case.
-     *
-     * <p>This use case observes a {@link SurfaceTexture}. The texture is connected to a {@link
-     * TextureView} to display a camera preview.
-     */
-    private void createPreview() {
-        enablePreview();
-        Log.i(TAG, "Got UseCase: " + mPreview);
-    }
+    @NonNull
+    private ImageCaptureType mCurrentImageCaptureType = ImageCaptureType.IMAGE_CAPTURE_TYPE_DEFAULT;
 
-    void enablePreview() {
-        if (mPreview != null) {
-            CameraX.unbind(mPreview);
-        }
+    // Espresso testing variables
+    @VisibleForTesting
+    CountingIdlingResource mTakePictureIdlingResource = new CountingIdlingResource("TakePicture");
 
-        PreviewConfig.Builder builder =
-                new PreviewConfig.Builder()
-                        .setLensFacing(LensFacing.BACK)
-                        .setTargetName("Preview");
+    private PreviewView mPreviewView;
 
-        Log.d(TAG, "Enabling the extended view finder");
-        if (mCurrentImageCaptureType == ImageCaptureType.IMAGE_CAPTURE_TYPE_BOKEH) {
-            Log.d(TAG, "Enabling the extended view finder in bokeh mode.");
+    ProcessCameraProvider mCameraProvider;
 
-            BokehPreviewExtender extender = BokehPreviewExtender.create(builder);
-            if (extender.isExtensionAvailable()) {
-                extender.enableExtension();
-            }
-        } else if (mCurrentImageCaptureType == ImageCaptureType.IMAGE_CAPTURE_TYPE_HDR) {
-            Log.d(TAG, "Enabling the extended view finder in HDR mode.");
+    Camera mCamera;
 
-            HdrPreviewExtender extender = HdrPreviewExtender.create(builder);
-            if (extender.isExtensionAvailable()) {
-                extender.enableExtension();
-            }
-        }
-
-        mPreview = new Preview(builder.build());
-
-        TextureView textureView = findViewById(R.id.textureView);
-
-        mPreview.setOnPreviewOutputUpdateListener(
-                new Preview.OnPreviewOutputUpdateListener() {
-                    @Override
-                    public void onUpdated(Preview.PreviewOutput output) {
-                        // If TextureView was already created, need to re-add it to change the
-                        // SurfaceTexture.
-                        ViewGroup viewGroup = (ViewGroup) textureView.getParent();
-                        viewGroup.removeView(textureView);
-                        viewGroup.addView(textureView);
-                        textureView.setSurfaceTexture(output.getSurfaceTexture());
-                    }
-                });
-    }
+    ExtensionsManager mExtensionsManager;
 
     enum ImageCaptureType {
-        IMAGE_CAPTURE_TYPE_HDR,
-        IMAGE_CAPTURE_TYPE_BOKEH,
-        IMAGE_CAPTURE_TYPE_DEFAULT,
-        IMAGE_CAPTURE_TYPE_NONE,
+
+        IMAGE_CAPTURE_TYPE_HDR(0),
+        IMAGE_CAPTURE_TYPE_BOKEH(1),
+        IMAGE_CAPTURE_TYPE_NIGHT(2),
+        IMAGE_CAPTURE_TYPE_FACE_RETOUCH(3),
+        IMAGE_CAPTURE_TYPE_AUTO(4),
+        IMAGE_CAPTURE_TYPE_DEFAULT(5);
+
+        private final int mOrdinal;
+        private static final ImageCaptureType[] sTypes = ImageCaptureType.values();
+
+        ImageCaptureType(int i) {
+            this.mOrdinal = i;
+        }
+
+        ImageCaptureType getNextType() {
+            return sTypes[(mOrdinal + 1) % sTypes.length];
+        }
     }
 
-    /**
-     * Creates an image capture use case.
-     *
-     * <p>This use case takes a picture and saves it to a file, whenever the user clicks a button.
-     */
-    private void createImageCapture() {
-        Button button = findViewById(R.id.PhotoToggle);
-        enableImageCapture(mCurrentImageCaptureType);
-        button.setOnClickListener(
-                new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        disableImageCapture();
-                        // Toggle to next capture type and enable it and set it as current
-                        switch (mCurrentImageCaptureType) {
-                            case IMAGE_CAPTURE_TYPE_HDR:
-                                enableImageCapture(ImageCaptureType.IMAGE_CAPTURE_TYPE_BOKEH);
-                                enablePreview();
-                                break;
-                            case IMAGE_CAPTURE_TYPE_BOKEH:
-                                enableImageCapture(ImageCaptureType.IMAGE_CAPTURE_TYPE_DEFAULT);
-                                enablePreview();
-                                break;
-                            case IMAGE_CAPTURE_TYPE_DEFAULT:
-                                enableImageCapture(ImageCaptureType.IMAGE_CAPTURE_TYPE_NONE);
-                                enablePreview();
-                                break;
-                            case IMAGE_CAPTURE_TYPE_NONE:
-                                enableImageCapture(ImageCaptureType.IMAGE_CAPTURE_TYPE_HDR);
-                                enablePreview();
-                                break;
-                        }
-                        bindUseCases();
-                    }
-                });
-
-        Log.i(TAG, "Got UseCase: " + mImageCapture);
+    void setupButtons() {
+        Button btnToggleMode = findViewById(R.id.PhotoToggle);
+        Button btnSwitchCamera = findViewById(R.id.Switch);
+        btnToggleMode.setOnClickListener(view -> bindUseCasesWithNextExtension());
+        btnSwitchCamera.setOnClickListener(view -> switchCameras());
     }
 
-    void enableImageCapture(ImageCaptureType imageCaptureType) {
-        mCurrentImageCaptureType = imageCaptureType;
-        ImageCaptureConfig.Builder builder =
-                new ImageCaptureConfig.Builder()
-                        .setLensFacing(LensFacing.BACK)
-                        .setTargetName("ImageCapture");
+    void switchCameras() {
+        mCameraProvider.unbindAll();
+        mCurrentCameraSelector = (mCurrentCameraSelector == CameraSelector.DEFAULT_BACK_CAMERA)
+                ? CameraSelector.DEFAULT_FRONT_CAMERA : CameraSelector.DEFAULT_BACK_CAMERA;
+        bindUseCasesWithExtension(mCurrentImageCaptureType);
+    }
+
+    @ExtensionMode.Mode
+    int extensionModeFrom(ImageCaptureType imageCaptureType) {
+        switch (imageCaptureType) {
+            case IMAGE_CAPTURE_TYPE_HDR:
+                return ExtensionMode.HDR;
+            case IMAGE_CAPTURE_TYPE_BOKEH:
+                return ExtensionMode.BOKEH;
+            case IMAGE_CAPTURE_TYPE_NIGHT:
+                return ExtensionMode.NIGHT;
+            case IMAGE_CAPTURE_TYPE_FACE_RETOUCH:
+                return ExtensionMode.FACE_RETOUCH;
+            case IMAGE_CAPTURE_TYPE_AUTO:
+                return ExtensionMode.AUTO;
+            case IMAGE_CAPTURE_TYPE_DEFAULT:
+                return ExtensionMode.NONE;
+            default:
+                throw new IllegalArgumentException(
+                        "ImageCaptureType does not exist: " + imageCaptureType);
+        }
+    }
+
+    void bindUseCasesWithNextExtension() {
+        do {
+            mCurrentImageCaptureType = mCurrentImageCaptureType.getNextType();
+        } while (!bindUseCasesWithExtension(mCurrentImageCaptureType));
+    }
+
+    // TODO(b/162875208) Suppress until new extensions API made public
+    @SuppressLint("RestrictedAPI")
+    boolean bindUseCasesWithExtension(ImageCaptureType imageCaptureType) {
+        // Check that extension can be enabled and if so enable it
+        @ExtensionMode.Mode
+        int extensionMode = extensionModeFrom(imageCaptureType);
+
+        if (!mExtensionsManager.isExtensionAvailable(mCameraProvider, mCurrentCameraSelector,
+                extensionMode)) {
+            return false;
+        }
+
+        ImageCapture.Builder imageCaptureBuilder = new ImageCapture.Builder().setTargetName(
+                "ImageCapture");
+        mImageCapture = imageCaptureBuilder.build();
+
+        Preview.Builder previewBuilder = new Preview.Builder().setTargetName("Preview");
+
+        mPreview = previewBuilder.build();
+        mPreview.setSurfaceProvider(mPreviewView.getSurfaceProvider());
+
+        CameraSelector cameraSelector = mExtensionsManager.getExtensionEnabledCameraSelector(
+                mCameraProvider, mCurrentCameraSelector, extensionMode);
+
+        mCameraProvider.unbindAll();
+        mCamera = mCameraProvider.bindToLifecycle(this, cameraSelector, mImageCapture, mPreview);
+
+        // Update the UI and save location for ImageCapture
         Button toggleButton = findViewById(R.id.PhotoToggle);
         toggleButton.setText(mCurrentImageCaptureType.toString());
 
-        switch (imageCaptureType) {
-            case IMAGE_CAPTURE_TYPE_HDR:
-                HdrImageCaptureExtender hdrImageCaptureExtender = HdrImageCaptureExtender.create(
-                        builder);
-                if (hdrImageCaptureExtender.isExtensionAvailable()) {
-                    hdrImageCaptureExtender.enableExtension();
-                }
-                break;
-            case IMAGE_CAPTURE_TYPE_BOKEH:
-                BokehImageCaptureExtender bokehImageCapture = BokehImageCaptureExtender.create(
-                        builder);
-                if (bokehImageCapture.isExtensionAvailable()) {
-                    bokehImageCapture.enableExtension();
-                }
-                break;
-            case IMAGE_CAPTURE_TYPE_DEFAULT:
-                break;
-            case IMAGE_CAPTURE_TYPE_NONE:
-                return;
-        }
-
-        mImageCapture = new ImageCapture(builder.build());
-
         Button captureButton = findViewById(R.id.Picture);
 
-        final Format formatter = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss-SSS", Locale.US);
+        Format formatter = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss-SSS", Locale.US);
+        File dir = new File(
+                Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES),
+                "ExtensionsPictures");
 
-        final File dir =
-                new File(
-                        Environment.getExternalStoragePublicDirectory(
-                                Environment.DIRECTORY_PICTURES),
-                        "ExtensionsPictures");
-        dir.mkdirs();
-        captureButton.setOnClickListener(
-                new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        mImageCapture.takePicture(
-                                new File(
-                                        dir,
-                                        formatter.format(Calendar.getInstance().getTime())
-                                                + mCurrentImageCaptureType.name()
-                                                + ".jpg"),
-                                new ImageCapture.OnImageSavedListener() {
-                                    @Override
-                                    public void onImageSaved(File file) {
-                                        Log.d(TAG, "Saved image to " + file);
+        captureButton.setOnClickListener((view) -> {
+            mTakePictureIdlingResource.increment();
 
-                                        // Trigger MediaScanner to scan the file
-                                        Intent intent = new Intent(
-                                                Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
-                                        intent.setData(Uri.fromFile(file));
-                                        sendBroadcast(intent);
+            String fileName = formatter.format(Calendar.getInstance().getTime())
+                    + mCurrentImageCaptureType.name() + ".jpg";
+            File saveFile = new File(dir, fileName);
+            ImageCapture.OutputFileOptions outputFileOptions;
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                ContentValues contentValues = new ContentValues();
+                contentValues.put(MediaStore.MediaColumns.DISPLAY_NAME, fileName);
+                contentValues.put(MediaStore.MediaColumns.MIME_TYPE, "image/jpeg");
+                contentValues.put(MediaStore.MediaColumns.RELATIVE_PATH,
+                        "Pictures/ExtensionsPictures");
+                outputFileOptions = new ImageCapture.OutputFileOptions.Builder(
+                        getContentResolver(),
+                        MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                        contentValues).build();
+            } else {
+                if (!dir.exists()) {
+                    dir.mkdirs();
+                }
+                outputFileOptions = new ImageCapture.OutputFileOptions.Builder(saveFile).build();
+            }
 
-                                        Toast.makeText(getApplicationContext(),
-                                                "Saved image to " + file,
-                                                Toast.LENGTH_SHORT).show();
-                                    }
+            mImageCapture.takePicture(
+                    outputFileOptions,
+                    ContextCompat.getMainExecutor(CameraExtensionsActivity.this),
+                    new ImageCapture.OnImageSavedCallback() {
+                        @Override
+                        public void onImageSaved(
+                                @NonNull ImageCapture.OutputFileResults outputFileResults) {
+                            Log.d(TAG, "Saved image to " + saveFile);
 
-                                    @Override
-                                    public void onError(
-                                            ImageCapture.UseCaseError useCaseError,
-                                            String message,
-                                            Throwable cause) {
-                                        Log.e(TAG, "Failed to save image - " + message, cause);
-                                    }
-                                });
-                    }
-                });
+                            if (!mTakePictureIdlingResource.isIdleNow()) {
+                                mTakePictureIdlingResource.decrement();
+                            }
+
+                            // Trigger MediaScanner to scan the file
+                            if (outputFileResults.getSavedUri() == null) {
+                                Intent intent = new Intent(
+                                        Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
+                                intent.setData(Uri.fromFile(saveFile));
+                                sendBroadcast(intent);
+                            }
+
+                            Toast.makeText(getApplicationContext(),
+                                    "Saved image to " + saveFile,
+                                    Toast.LENGTH_SHORT).show();
+                        }
+
+                        @Override
+                        public void onError(@NonNull ImageCaptureException exception) {
+                            Log.e(TAG, "Failed to save image - " + exception.getMessage(),
+                                    exception.getCause());
+                        }
+                    });
+        });
+
+        return true;
     }
 
-    void disableImageCapture() {
-        if (mImageCapture != null) {
-            CameraX.unbind(mImageCapture);
-            mImageCapture = null;
-        }
-
-        Button button = findViewById(R.id.Picture);
-        button.setOnClickListener(null);
-    }
-
-    /** Creates all the use cases. */
-    private void createUseCases() {
-        createImageCapture();
-        createPreview();
-        bindUseCases();
-    }
-
-    private void bindUseCases() {
-        List<UseCase> useCases = new ArrayList();
-        // When it is not IMAGE_CAPTURE_TYPE_NONE, mImageCapture won't be null.
-        if (mImageCapture != null) {
-            useCases.add(mImageCapture);
-        }
-        useCases.add(mPreview);
-        CameraX.bindToLifecycle(this, useCases.toArray(new UseCase[useCases.size()]));
-    }
-
+    @SuppressWarnings("UnstableApiUsage")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -292,72 +269,133 @@ public class CameraExtensionsActivity extends AppCompatActivity
         StrictMode.VmPolicy policy =
                 new StrictMode.VmPolicy.Builder().detectAll().penaltyLog().build();
         StrictMode.setVmPolicy(policy);
+        mPreviewView = findViewById(R.id.previewView);
+        setupPinchToZoomAndTapToFocus(mPreviewView);
 
-        // Get params from adb extra string
-        Bundle bundle = getIntent().getExtras();
-        if (bundle != null) {
-            String newCameraFacing = bundle.getString("cameraFacing");
-            if (newCameraFacing != null) {
-                mCurrentCameraFacing = newCameraFacing;
+        ListenableFuture<ProcessCameraProvider> cameraProviderFuture =
+                ProcessCameraProvider.getInstance(this);
+        Futures.addCallback(setupPermissions(), new FutureCallback<Boolean>() {
+            @Override
+            public void onSuccess(@Nullable Boolean result) {
+                mPermissionsGranted = Preconditions.checkNotNull(result);
+                Futures.addCallback(cameraProviderFuture,
+                        new FutureCallback<ProcessCameraProvider>() {
+                            @Override
+                            public void onSuccess(@Nullable ProcessCameraProvider result) {
+                                mCameraProvider = result;
+                                setupCamera();
+                            }
+
+                            @Override
+                            public void onFailure(@NonNull Throwable t) {
+                                throw new RuntimeException("Failed to get camera provider", t);
+                            }
+                        }, ContextCompat.getMainExecutor(CameraExtensionsActivity.this));
             }
-        }
 
-        new Thread(
-                new Runnable() {
-                    @Override
-                    public void run() {
-                        setupCamera();
-                    }
-                })
-                .start();
-        setupPermissions();
+            @Override
+            public void onFailure(@NonNull Throwable t) {
+                throw new RuntimeException("Failed to get permissions", t);
+            }
+        }, ContextCompat.getMainExecutor(this));
     }
 
-    private void setupCamera() {
-        try {
-            // Wait for permissions before proceeding.
-            if (!mCompletableFuture.get()) {
-                Log.d(TAG, "Permissions denied.");
-                return;
-            }
-        } catch (Exception e) {
-            Log.e(TAG, "Exception occurred getting permission future: " + e);
+    // TODO(b/162875208) Suppress until new extensions API made public
+    @SuppressLint("RestrictedAPI")
+    void setupCamera() {
+        if (!mPermissionsGranted) {
+            Log.d(TAG, "Permissions denied.");
+            return;
         }
 
-        try {
-            Log.d(TAG, "Camera Facing: " + mCurrentCameraFacing);
-            LensFacing facing = LensFacing.BACK;
-            if (mCurrentCameraFacing.equalsIgnoreCase("BACK")) {
-                facing = LensFacing.BACK;
-            } else if (mCurrentCameraFacing.equalsIgnoreCase("FRONT")) {
-                facing = LensFacing.FRONT;
+        mCamera = mCameraProvider.bindToLifecycle(this, mCurrentCameraSelector);
+        ListenableFuture<ExtensionsManager> extensionsManagerFuture =
+                ExtensionsManager.getInstance(getApplicationContext());
+
+        Futures.addCallback(extensionsManagerFuture,
+                new FutureCallback<ExtensionsManager>() {
+                    @Override
+                    public void onSuccess(@Nullable ExtensionsManager extensionsManager) {
+                        mExtensionsManager = extensionsManager;
+                        bindUseCasesWithNextExtension();
+                        setupButtons();
+                    }
+
+                    @Override
+                    public void onFailure(@NonNull Throwable throwable) {
+                    }
+                },
+                ContextCompat.getMainExecutor(CameraExtensionsActivity.this)
+        );
+    }
+
+    ScaleGestureDetector.SimpleOnScaleGestureListener mScaleGestureListener =
+            new ScaleGestureDetector.SimpleOnScaleGestureListener() {
+                @Override
+                public boolean onScale(ScaleGestureDetector detector) {
+                    if (mCamera == null) {
+                        return true;
+                    }
+
+                    CameraInfo cameraInfo = mCamera.getCameraInfo();
+                    CameraControl cameraControl = mCamera.getCameraControl();
+                    float newZoom =
+                            cameraInfo.getZoomState().getValue().getZoomRatio()
+                                    * detector.getScaleFactor();
+                    float clampedNewZoom = MathUtils.clamp(newZoom,
+                            cameraInfo.getZoomState().getValue().getMinZoomRatio(),
+                            cameraInfo.getZoomState().getValue().getMaxZoomRatio());
+
+                    ListenableFuture<Void> listenableFuture = cameraControl.setZoomRatio(
+                            clampedNewZoom);
+                    Futures.addCallback(listenableFuture, new FutureCallback<Void>() {
+                        @Override
+                        public void onSuccess(@Nullable Void result) {
+                            Log.d(TAG, "setZoomRatio onSuccess: " + clampedNewZoom);
+                        }
+
+                        @Override
+                        public void onFailure(Throwable t) {
+                            Log.d(TAG, "setZoomRatio failed, " + t);
+                        }
+                    }, ContextCompat.getMainExecutor(CameraExtensionsActivity.this));
+                    return true;
+                }
+            };
+
+    private void setupPinchToZoomAndTapToFocus(PreviewView previewView) {
+        ScaleGestureDetector scaleDetector = new ScaleGestureDetector(this, mScaleGestureListener);
+
+        previewView.setOnTouchListener((view, motionEvent) -> {
+            scaleDetector.onTouchEvent(motionEvent);
+
+            if (motionEvent.getAction() == MotionEvent.ACTION_UP) {
+                if (mCamera == null) {
+                    return true;
+                }
+                MeteringPoint point =
+                        previewView.getMeteringPointFactory().createPoint(
+                                motionEvent.getX(), motionEvent.getY());
+
+                mCamera.getCameraControl().startFocusAndMetering(
+                        new FocusMeteringAction.Builder(point).build()).addListener(() -> {},
+                        ContextCompat.getMainExecutor(CameraExtensionsActivity.this));
+            }
+            return true;
+        });
+    }
+
+    private ListenableFuture<Boolean> setupPermissions() {
+        return CallbackToFutureAdapter.getFuture(completer -> {
+            mPermissionCompleter = completer;
+            if (!allPermissionsGranted()) {
+                makePermissionRequest();
             } else {
-                throw new RuntimeException("Invalid lens facing: " + mCurrentCameraFacing);
+                mPermissionCompleter.set(true);
             }
-            mCurrentCameraId = CameraX.getCameraWithLensFacing(facing);
-        } catch (Exception e) {
-            Log.e(TAG, "Unable to obtain camera with specified facing. " + e.getMessage());
-        }
 
-        Log.d(TAG, "Using cameraId: " + mCurrentCameraId);
-
-        // Run this on the UI thread to manipulate the Textures & Views.
-        CameraExtensionsActivity.this.runOnUiThread(
-                new Runnable() {
-                    @Override
-                    public void run() {
-                        createUseCases();
-                    }
-                });
-    }
-
-    private void setupPermissions() {
-        if (!allPermissionsGranted()) {
-            makePermissionRequest();
-        } else {
-            mSettableResult.set(true);
-            mCompletableFuture.run();
-        }
+            return "get_permissions";
+        });
     }
 
     private void makePermissionRequest() {
@@ -393,40 +431,34 @@ public class CameraExtensionsActivity extends AppCompatActivity
         }
     }
 
+    @Nullable
+    public Preview getPreview() {
+        return mPreview;
+    }
+
+    @Nullable
+    public ImageCapture getImageCapture() {
+        return mImageCapture;
+    }
+
     @Override
     public void onRequestPermissionsResult(
-            int requestCode, String[] permissions, int[] grantResults) {
+            int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         switch (requestCode) {
             case PERMISSIONS_REQUEST_CODE: {
                 // If request is cancelled, the result arrays are empty.
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     Log.d(TAG, "Permissions Granted.");
-                    mSettableResult.set(true);
-                    mCompletableFuture.run();
+                    mPermissionCompleter.set(true);
                 } else {
                     Log.d(TAG, "Permissions Denied.");
-                    mSettableResult.set(false);
-                    mCompletableFuture.run();
+                    mPermissionCompleter.set(false);
                 }
                 return;
             }
             default:
                 // No-op
-        }
-    }
-
-    /** A {@link Callable} whose return value can be set. */
-    private static final class SettableCallable<V> implements Callable<V> {
-        private final AtomicReference<V> mValue = new AtomicReference<>();
-
-        public void set(V value) {
-            mValue.set(value);
-        }
-
-        @Override
-        public V call() {
-            return mValue.get();
         }
     }
 }

@@ -39,7 +39,6 @@ import android.app.Instrumentation;
 import android.content.Intent;
 import android.os.Build;
 
-import androidx.core.util.Pair;
 import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.testapp.CollectingLifecycleOwner;
 import androidx.lifecycle.testapp.CollectingSupportActivity;
@@ -48,6 +47,7 @@ import androidx.lifecycle.testapp.NavigationDialogActivity;
 import androidx.lifecycle.testapp.TestEvent;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.filters.LargeTest;
+import androidx.test.filters.SdkSuppress;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.ActivityTestRule;
 
@@ -59,12 +59,15 @@ import org.junit.runners.Parameterized;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
+import kotlin.Pair;
+
 /**
  * Runs tests about the state when an activity is partially covered by another activity. Pre
  * API 24, framework behavior changes so the test rely on whether state is saved or not and makes
  * assertions accordingly.
  */
 @SuppressWarnings("unchecked")
+@SdkSuppress(maxSdkVersion = 28) // framework issue for API 29: b/142125019
 @RunWith(Parameterized.class)
 @LargeTest
 public class PartiallyCoveredActivityTest {

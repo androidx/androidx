@@ -31,21 +31,21 @@ class ClassSpecTest_NamedCtorSelector {
             )
             .testThatGivenProGuard(
                 "-keep public class * { \n" +
-                "  support.Activity(); \n" +
-                "  support.Activity(...); \n" +
-                "  support.Activity(*); \n" +
-                "  support.Activity(support.Activity); \n" +
-                "  support.Activity(support.Activity, support.Fragment, keep.Please); \n" +
-                "}"
+                    "  support.Activity(); \n" +
+                    "  support.Activity(...); \n" +
+                    "  support.Activity(*); \n" +
+                    "  support.Activity(support.Activity); \n" +
+                    "  support.Activity(support.Activity, support.Fragment, keep.Please); \n" +
+                    "}"
             )
             .rewritesTo(
                 "-keep public class * { \n" +
-                "  test.Activity(); \n" +
-                "  test.Activity(...); \n" +
-                "  test.Activity(*); \n" +
-                "  test.Activity(test.Activity); \n" +
-                "  test.Activity(test.Activity, test.Fragment, keep.Please); \n" +
-                "}"
+                    "  test.Activity(); \n" +
+                    "  test.Activity(...); \n" +
+                    "  test.Activity(*); \n" +
+                    "  test.Activity(test.Activity); \n" +
+                    "  test.Activity(test.Activity, test.Fragment, keep.Please); \n" +
+                    "}"
             )
     }
 
@@ -60,22 +60,23 @@ class ClassSpecTest_NamedCtorSelector {
             )
             .testThatGivenProGuard(
                 "-keep public class * { \n" +
-                "  public support.Activity(); \n" +
-                "  public static support.Activity(...); \n" +
-                "  !private support.Activity(*); \n" +
-                "  !public !static support.Activity(support.Activity); \n" +
-                "  !protected support.Activity(support.Activity, support.Fragment, keep.Please);" +
-                " \n" +
-                "}"
+                    "  public support.Activity(); \n" +
+                    "  public static support.Activity(...); \n" +
+                    "  !private support.Activity(*); \n" +
+                    "  !public !static support.Activity(support.Activity); \n" +
+                    "  !protected support.Activity(support.Activity, support.Fragment, " +
+                    "keep.Please);" +
+                    " \n" +
+                    "}"
             )
             .rewritesTo(
                 "-keep public class * { \n" +
-                "  public test.Activity(); \n" +
-                "  public static test.Activity(...); \n" +
-                "  !private test.Activity(*); \n" +
-                "  !public !static test.Activity(test.Activity); \n" +
-                "  !protected test.Activity(test.Activity, test.Fragment, keep.Please); \n" +
-                "}"
+                    "  public test.Activity(); \n" +
+                    "  public static test.Activity(...); \n" +
+                    "  !private test.Activity(*); \n" +
+                    "  !public !static test.Activity(test.Activity); \n" +
+                    "  !protected test.Activity(test.Activity, test.Fragment, keep.Please); \n" +
+                    "}"
             )
     }
 
@@ -91,22 +92,23 @@ class ClassSpecTest_NamedCtorSelector {
             )
             .testThatGivenProGuard(
                 "-keep public class * { \n" +
-                "  @support.Annotation support.Activity(); \n" +
-                "  @support.Annotation support.Activity(...); \n" +
-                "  @support.Annotation support.Activity(*); \n" +
-                "  @support.Annotation support.Activity(support.Activity); \n" +
-                "  @support.Annotation support.Activity(support.Activity, support.Fragment, " +
-                "keep.Please); \n" +
-                "}"
+                    "  @support.Annotation support.Activity(); \n" +
+                    "  @support.Annotation support.Activity(...); \n" +
+                    "  @support.Annotation support.Activity(*); \n" +
+                    "  @support.Annotation support.Activity(support.Activity); \n" +
+                    "  @support.Annotation support.Activity(support.Activity, support.Fragment, " +
+                    "keep.Please); \n" +
+                    "}"
             )
             .rewritesTo(
                 "-keep public class * { \n" +
-                "  @test.Annotation test.Activity(); \n" +
-                "  @test.Annotation test.Activity(...); \n" +
-                "  @test.Annotation test.Activity(*); \n" +
-                "  @test.Annotation test.Activity(test.Activity); \n" +
-                "  @test.Annotation test.Activity(test.Activity, test.Fragment, keep.Please); \n" +
-                "}"
+                    "  @test.Annotation test.Activity(); \n" +
+                    "  @test.Annotation test.Activity(...); \n" +
+                    "  @test.Annotation test.Activity(*); \n" +
+                    "  @test.Annotation test.Activity(test.Activity); \n" +
+                    "  @test.Annotation test.Activity(test.Activity, test.Fragment, " +
+                    "keep.Please); \n" +
+                    "}"
             )
     }
 
@@ -122,23 +124,23 @@ class ClassSpecTest_NamedCtorSelector {
             )
             .testThatGivenProGuard(
                 "-keep public class * { \n" +
-                "  @support.Annotation public support.Activity(); \n" +
-                "  @support.Annotation public static support.Activity(...); \n" +
-                "  @support.Annotation !private support.Activity(*); \n" +
-                "  @support.Annotation !public !static support.Activity(support.Activity); \n" +
-                "  @support.Annotation !protected support.Activity(support.Activity, " +
-                "support.Fragment, keep.Please); \n" +
-                "}"
+                    "  @support.Annotation public support.Activity(); \n" +
+                    "  @support.Annotation public static support.Activity(...); \n" +
+                    "  @support.Annotation !private support.Activity(*); \n" +
+                    "  @support.Annotation !public !static support.Activity(support.Activity); \n" +
+                    "  @support.Annotation !protected support.Activity(support.Activity, " +
+                    "support.Fragment, keep.Please); \n" +
+                    "}"
             )
             .rewritesTo(
                 "-keep public class * { \n" +
-                "  @test.Annotation public test.Activity(); \n" +
-                "  @test.Annotation public static test.Activity(...); \n" +
-                "  @test.Annotation !private test.Activity(*); \n" +
-                "  @test.Annotation !public !static test.Activity(test.Activity); \n" +
-                "  @test.Annotation !protected test.Activity(test.Activity, test.Fragment, " +
-                "keep.Please); \n" +
-                "}"
+                    "  @test.Annotation public test.Activity(); \n" +
+                    "  @test.Annotation public static test.Activity(...); \n" +
+                    "  @test.Annotation !private test.Activity(*); \n" +
+                    "  @test.Annotation !public !static test.Activity(test.Activity); \n" +
+                    "  @test.Annotation !protected test.Activity(test.Activity, test.Fragment, " +
+                    "keep.Please); \n" +
+                    "}"
             )
     }
 
@@ -154,13 +156,14 @@ class ClassSpecTest_NamedCtorSelector {
             )
             .testThatGivenProGuard(
                 "-keep public class * { \n" +
-                "  @support.Annotation  !protected \t support.Activity( support.Activity ); \n" +
-                "}"
+                    "  @support.Annotation  !protected \t support.Activity( " +
+                    "support.Activity ); \n" +
+                    "}"
             )
             .rewritesTo(
                 "-keep public class * { \n" +
-                "  @test.Annotation  !protected \t test.Activity(test.Activity); \n" +
-                "}"
+                    "  @test.Annotation  !protected \t test.Activity(test.Activity); \n" +
+                    "}"
             )
     }
 
@@ -169,25 +172,25 @@ class ClassSpecTest_NamedCtorSelector {
             .forGivenPrefixes(
                 "support/"
             )
-                .forGivenProGuardMapSet("support.**" to setOf("support.**", "androidx.**"))
+            .forGivenProGuardMapSet("support.**" to setOf("support.**", "androidx.**"))
             .testThatGivenProGuard(
                 "-keep public class * { \n" +
-                "  support.**(support.**); \n" +
-                "}"
+                    "  support.**(support.**); \n" +
+                    "}"
             )
             .rewritesTo(
                 "-keep public class * { \n" +
-                "  support.**(support.**); \n" +
-                "}\n" +
-                "-keep public class * { \n" +
-                "  androidx.**(support.**); \n" +
-                "}\n" +
-                "-keep public class * { \n" +
-                "  support.**(androidx.**); \n" +
-                "}\n" +
-                "-keep public class * { \n" +
-                "  androidx.**(androidx.**); \n" +
-                "}"
+                    "  support.**(support.**); \n" +
+                    "}\n" +
+                    "-keep public class * { \n" +
+                    "  androidx.**(support.**); \n" +
+                    "}\n" +
+                    "-keep public class * { \n" +
+                    "  support.**(androidx.**); \n" +
+                    "}\n" +
+                    "-keep public class * { \n" +
+                    "  androidx.**(androidx.**); \n" +
+                    "}"
             )
     }
 }

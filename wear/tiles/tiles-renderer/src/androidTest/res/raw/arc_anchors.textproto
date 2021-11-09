@@ -1,0 +1,140 @@
+box {
+  width {
+    expanded_dimension {}
+  }
+  height {
+    expanded_dimension {}
+  }
+  contents {
+    arc {
+      anchor_angle: {
+        value: 0
+      }
+      anchor_type {
+        value: ARC_ANCHOR_END
+      }
+      contents {
+        text {
+          text {
+            value: "ANCHOR_END - 0"
+          }
+          font_style {
+            weight {
+              value: FONT_WEIGHT_BOLD
+            }
+            size {
+              value: 16
+            }
+            color {
+              argb: 0xFFFF0000
+            }
+          }
+        }
+      }
+    }
+  }
+
+  contents {
+    arc {
+      anchor_angle: {
+        value: 0
+      }
+      anchor_type: {
+        value: ARC_ANCHOR_START
+      }
+      contents {
+        text {
+          text {
+            value: "ANCHOR_START - 0"
+          }
+          font_style {
+            weight {
+              value: FONT_WEIGHT_BOLD
+            }
+            size {
+              value: 16
+            }
+            color {
+              argb: 0xFFFF0000
+            }
+          }
+        }
+      }
+    }
+  }
+
+  contents {
+    arc {
+      anchor_angle: {
+        value: 180
+      }
+      anchor_type {
+        value: ARC_ANCHOR_CENTER
+      }
+      contents {
+        text {
+          text {
+            value: "ANCHOR_CENTER - 180"
+          }
+          font_style {
+            weight {
+              value: FONT_WEIGHT_BOLD
+            }
+            size {
+              value: 16
+            }
+            color {
+              argb: 0xFFFF0000
+            }
+          }
+        }
+      }
+    }
+  }
+
+  contents {
+    box {
+      modifiers {
+        padding {
+          start {
+            value: 30
+          }
+          end {
+            value: 30
+          }
+          top {
+            value: 30
+          }
+          bottom {
+            value: 30
+          }
+        }
+      }
+      contents {
+        arc {
+          anchor_angle: {
+            value: 0
+          }
+          contents {
+            text {
+              text {
+                value: "ANCHOR_DEFAULT - 0"
+              }
+              font_style {
+                weight {
+                  value: FONT_WEIGHT_BOLD
+                }
+                size {
+                  value: 16
+                }
+                color {
+                  argb: 0xFFFF0000
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,11 @@
+// Baseline format: 1.0
+BuilderSetStyle: androidx.palette.graphics.Palette.Builder#generate():
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.palette.graphics.Palette.Builder.generate()
+BuilderSetStyle: androidx.palette.graphics.Palette.Builder#maximumColorCount(int):
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.palette.graphics.Palette.Builder.maximumColorCount(int)
+BuilderSetStyle: androidx.palette.graphics.Palette.Builder#resizeBitmapArea(int):
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.palette.graphics.Palette.Builder.resizeBitmapArea(int)
+
+
+MissingBuildMethod: androidx.palette.graphics.Palette.Builder:
+    androidx.palette.graphics.Palette.Builder does not declare a `build()` method, but builder classes are expected to

@@ -38,8 +38,8 @@ import javax.xml.stream.XMLStreamException
  * Searches for any java type reference that is pointing to the support library and rewrites it
  * using the available mappings from [TypesMap].
  */
-class XmlResourcesTransformer internal constructor(private val context: TransformationContext)
-        : Transformer {
+class XmlResourcesTransformer internal constructor(private val context: TransformationContext) :
+    Transformer {
 
     companion object {
         const val TAG = "XmlResourcesTransformer"
@@ -59,6 +59,8 @@ class XmlResourcesTransformer internal constructor(private val context: Transfor
      * Matches xml tags in form of:
      * 1. '<(/)prefix(SOMETHING)'.
      * 2. <view ... class="prefix(SOMETHING)" ...>
+     * 3. >SOMETHING<
+     * 4. {@link SOMETHING#method()}
      *
      * Note that this can also rewrite commented blocks of XML. But on a library level we don't care
      * much about comments.
@@ -66,7 +68,8 @@ class XmlResourcesTransformer internal constructor(private val context: Transfor
     private val patterns = listOf(
         Pattern.compile("</?([a-zA-Z0-9.]+)"), // </{candidate} or <{candidate}
         Pattern.compile("[a-zA-Z0-9:]+=\"([^\"]+)\""), // any="{candidate}"
-        Pattern.compile(">\\s*([a-zA-Z0-9.\$_]+)<") // >{candidate}<
+        Pattern.compile(">\\s*([a-zA-Z0-9.\$_]+)<"), // >{candidate}<
+        Pattern.compile("\\{@link\\s*([a-zA-Z0-9.\$_]+)(#[^}]*)?}") // @{link {candidate}#*}
     )
 
     override fun canTransform(file: ArchiveFile) = file.isXmlFile() && !file.isPomFile()
@@ -91,8 +94,9 @@ class XmlResourcesTransformer internal constructor(private val context: Transfor
 
         // If we are dealing with linter annotations we need to move the xml files also
         if (context.isInReversedMode &&
-                changesDone &&
-                file.relativePath.toString().endsWith("annotations.xml")) {
+            changesDone &&
+            file.relativePath.toString().endsWith("annotations.xml")
+        ) {
             file.updateRelativePath(rewriteAnnotationsXmlPath(file.relativePath))
         }
     }
@@ -115,8 +119,12 @@ class XmlResourcesTransformer internal constructor(private val context: Transfor
             // Workaround for b/111814958. A subset of the android.jar xml files has a header that
             // causes our encoding detection to crash. However these files are otherwise valid UTF-8
             // files so we at least try to recover by defaulting to UTF-8.
-            Log.w(TAG, "Received malformed sequence exception when trying to detect the encoding " +
-                "for '%s'. Defaulting to UTF-8.", file.fileName)
+            Log.w(
+                TAG,
+                "Received malformed sequence exception when trying to detect the encoding " +
+                    "for '%s'. Defaulting to UTF-8.",
+                file.fileName
+            )
             val tracePrinter = StringWriter()
             e.printStackTrace(PrintWriter(tracePrinter))
             Log.w(TAG, tracePrinter.toString())
@@ -162,8 +170,9 @@ class XmlResourcesTransformer internal constructor(private val context: Transfor
 
                 // Try if we are rewriting annotations file and replace symbols there
                 if (context.isInReversedMode &&
-                        replacement == toReplace &&
-                        filePath.toString().endsWith("annotations.xml")) {
+                    replacement == toReplace &&
+                    filePath.toString().endsWith("annotations.xml")
+                ) {
                     replacement = tryToRewriteTypesInAnnotationFile(toReplace)
                 }
 
@@ -175,7 +184,8 @@ class XmlResourcesTransformer internal constructor(private val context: Transfor
                 val result = matched.replaceRange(
                     startIndex = localStart,
                     endIndex = localEnd,
-                    replacement = replacement)
+                    replacement = replacement
+                )
 
                 sb.append(result)
                 lastSeenChar = matcher.end()

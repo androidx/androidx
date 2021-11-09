@@ -1,0 +1,52 @@
+// Signature format: 4.0
+package androidx.benchmark {
+
+  @RequiresApi(21) public final class Api21Kt {
+  }
+
+  @RequiresApi(24) public final class Api24Kt {
+  }
+
+  @RequiresApi(27) public final class Api27Kt {
+  }
+
+  @RequiresApi(29) public final class Api29Kt {
+  }
+
+  public final class ArgumentsKt {
+  }
+
+  public final class BenchmarkState {
+    method public boolean keepRunning();
+    method public void pauseTiming();
+    method public void resumeTiming();
+    field public static final androidx.benchmark.BenchmarkState.Companion Companion;
+  }
+
+  public static final class BenchmarkState.Companion {
+  }
+
+  public final class ConfigurationErrorKt {
+  }
+
+  public final class MetricNameUtilsKt {
+  }
+
+  public final class ProfilerKt {
+  }
+
+  public final class UserspaceTracingKt {
+  }
+
+}
+
+package androidx.benchmark.perfetto {
+
+  public final class PerfettoConfigKt {
+  }
+
+  public final class UiStateKt {
+  }
+
+}
+

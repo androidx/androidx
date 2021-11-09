@@ -14,12 +14,7 @@
  * limitations under the License.
  */
 
-
-import androidx.build.CompilationTarget
-import androidx.build.LibraryGroups
-import androidx.build.LibraryVersions
-
-import static androidx.build.dependencies.DependenciesKt.*
+import androidx.build.*
 
 plugins {
     id("AndroidXPlugin")
@@ -27,18 +22,30 @@ plugins {
     id("java-gradle-plugin")
 }
 
-sourceSets {
-    test.java.srcDirs += 'src/main/kotlin'
-}
+apply from: "../../buildSrc/kotlin-dsl-dependency.gradle"
 
 dependencies {
-    implementation gradleApi()
-    implementation(build_libs.gradle)
-    implementation(KOTLIN_STDLIB)
-    implementation(ANDROIDX_TEST_RUNNER)
+    implementation(findGradleKotlinDsl())
+    implementation(gradleApi())
+    implementation("com.android.tools.build:gradle:4.0.0-beta04")
+    implementation(libs.kotlinStdlib)
 
-    testImplementation gradleTestKit()
-    testImplementation(JUNIT)
+    testImplementation(gradleTestKit())
+    testImplementation(project(":internal-testutils-gradle-plugin"))
+    testImplementation(libs.testRunner)
+    testImplementation(libs.junit)
+    testImplementation(libs.kotlinTest)
+}
+
+SdkResourceGenerator.generateForHostTest(project)
+
+def buildOnServer = tasks.register("buildOnServer", SingleFileCopy.class) {
+    def source = project.file("src/main/resources/scripts/lockClocks.sh")
+    if (!source.exists()) {
+        throw new GradleException(source.toString() + " does not exist")
+    }
+    it.sourceFile = source
+    it.destinationFile = new File(BuildServerConfigurationKt.getDistributionDirectory(rootProject), "lockClocks.sh")
 }
 
 gradlePlugin {
@@ -52,11 +59,15 @@ gradlePlugin {
 
 androidx {
     name = "Android Benchmark Gradle Plugin"
-    publish = true
-    toolingProject = true
-    mavenVersion = LibraryVersions.BENCHMARK
+    type = LibraryType.GRADLE_PLUGIN
     mavenGroup = LibraryGroups.BENCHMARK
     inceptionYear = "2019"
     description = "Android Benchmark Gradle Plugin"
-    compilationTarget = CompilationTarget.HOST
+}
+
+tasks {
+    validatePlugins {
+        failOnWarning.set(true)
+        enableStricterValidation.set(true)
+    }
 }

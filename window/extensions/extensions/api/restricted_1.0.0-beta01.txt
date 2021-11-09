@@ -1,0 +1,43 @@
+// Signature format: 4.0
+package androidx.window.extensions {
+
+  public interface WindowExtensions {
+    method public default int getVendorApiLevel();
+    method public androidx.window.extensions.layout.WindowLayoutComponent? getWindowLayoutComponent();
+  }
+
+  public class WindowExtensionsProvider {
+    method public static androidx.window.extensions.WindowExtensions getWindowExtensions();
+  }
+
+}
+
+package androidx.window.extensions.layout {
+
+  public interface DisplayFeature {
+    method public android.graphics.Rect getBounds();
+  }
+
+  public class FoldingFeature implements androidx.window.extensions.layout.DisplayFeature {
+    ctor public FoldingFeature(android.graphics.Rect, int, int);
+    method public android.graphics.Rect getBounds();
+    method public int getState();
+    method public int getType();
+    field public static final int STATE_FLAT = 1; // 0x1
+    field public static final int STATE_HALF_OPENED = 2; // 0x2
+    field public static final int TYPE_FOLD = 1; // 0x1
+    field public static final int TYPE_HINGE = 2; // 0x2
+  }
+
+  public interface WindowLayoutComponent {
+    method public void addWindowLayoutInfoListener(android.app.Activity, java.util.function.Consumer<androidx.window.extensions.layout.WindowLayoutInfo!>);
+    method public void removeWindowLayoutInfoListener(java.util.function.Consumer<androidx.window.extensions.layout.WindowLayoutInfo!>);
+  }
+
+  public class WindowLayoutInfo {
+    ctor public WindowLayoutInfo(java.util.List<androidx.window.extensions.layout.DisplayFeature!>);
+    method public java.util.List<androidx.window.extensions.layout.DisplayFeature!> getDisplayFeatures();
+  }
+
+}
+

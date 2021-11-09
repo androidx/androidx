@@ -16,13 +16,16 @@
 
 <LinearLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        tools:ignore="UnusedAttribute">
 
     <TextView
             android:text="@string/viewpager2"
             android:textStyle="bold"
+            android:textDirection="locale"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/spacer_large"
@@ -49,6 +52,7 @@
         <TextView
                 android:text="@string/toolbox"
                 android:textStyle="bold"
+                android:textDirection="locale"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_margin="@dimen/spacer_small"/>
@@ -70,6 +74,25 @@
                     android:layout_width="0dp"
                     android:layout_weight="1"
                     android:layout_height="wrap_content"/>
+        </LinearLayout>
+
+        <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+            <TextView
+                    android:layout_margin="@dimen/spacer_small"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/use_diff_util"/>
+
+            <CheckBox
+                    android:id="@+id/useDiffUtil"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="@dimen/spacer_small"
+                    android:checked="true" />
         </LinearLayout>
 
         <LinearLayout

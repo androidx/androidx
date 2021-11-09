@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2021 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/container"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <androidx.appcompat.widget.AppCompatCheckedTextView
+        android:id="@+id/checkedtextview_fontresource"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/sample_text1"
+        app:fontFamily="@font/samplefont" />
+
+    <androidx.appcompat.widget.AppCompatCheckedTextView
+        android:id="@+id/checkedtextview_check_mark_default"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <androidx.appcompat.widget.AppCompatCheckedTextView
+        android:id="@+id/checkedtextview_check_mark_platform"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:checkMark="?android:attr/listChoiceIndicatorMultiple" />
+
+    <androidx.appcompat.widget.AppCompatCheckedTextView
+        android:id="@+id/checkedtextview_check_mark_compat"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:checkMarkCompat="?android:attr/listChoiceIndicatorMultiple" />
+
+    <androidx.appcompat.widget.AppCompatCheckedTextView
+        android:id="@+id/checkedtextview_check_mark_both"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:checkMark="?android:attr/listChoiceIndicatorMultiple"
+        app:checkMarkCompat="?attr/listChoiceIndicatorMultipleAnimated" />
+
+    <androidx.appcompat.widget.AppCompatCheckedTextView
+        android:id="@+id/view_tinted_no_background"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/sample_text1"
+        app:backgroundTint="@color/color_state_list_lilac"
+        app:backgroundTintMode="src_in" />
+
+    <androidx.appcompat.widget.AppCompatCheckedTextView
+        android:id="@+id/view_tinted_background"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/sample_text2"
+        android:background="@drawable/test_drawable"
+        app:backgroundTint="@color/color_state_list_lilac"
+        app:backgroundTintMode="src_in" />
+
+    <androidx.appcompat.widget.AppCompatCheckedTextView
+        android:id="@+id/view_untinted_no_background"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/sample_text2" />
+
+    <androidx.appcompat.widget.AppCompatCheckedTextView
+        android:id="@+id/view_untinted_background"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/sample_text2"
+        android:background="@drawable/test_background_green" />
+
+</LinearLayout>

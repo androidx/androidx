@@ -1,0 +1,32 @@
+arc {
+  contents {
+    text {
+      font_style {
+        weight {
+          value: FONT_WEIGHT_NORMAL
+        }
+        color {
+          argb: 0xFFFF0000
+        }
+      }
+      text {
+        value: "Normal"
+      }
+    }
+  }
+  contents {
+    text {
+      font_style {
+        weight {
+          value: FONT_WEIGHT_BOLD
+        }
+        color {
+          argb: 0xFFFF0000
+        }
+      }
+      text {
+        value: "Bold"
+      }
+    }
+  }
+}

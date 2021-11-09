@@ -22,6 +22,10 @@
     <string name="sample_media_router_activity_dark">MediaRouter/Dark Theme</string>
     <string name="sample_media_router_activity_light">MediaRouter/Light Theme</string>
     <string name="sample_media_router_activity_light_with_dark_action_bar">MediaRouter/Light Theme, Dark Action Bar</string>
+    <string name="sample_media_router_activity_dynamic_group">MediaRouter/Dynamic Group
+        Dialog</string>
+    <string name="sample_media_router_activity_output_switcher">MediaRouter/Output Switcher</string>
+    <string name="sample_media_router_activity_legacy">MediaRouter/Disable MediaRouter2</string>
     <string name="sample_media_router_text">This activity demonstrates how to
             use MediaRouter from the support library.  Select a route from the action bar.</string>
     <string name="media_route_menu_title">Play on...</string>
@@ -71,14 +75,16 @@
     <string name="action_bar_share_action_provider">AppCompat/Action Bar/ShareActionProvider</string>
     <string name="action_bar_settings_action_provider_no_handling">Handling in onOptionsItemSelected avoided</string>
     <string name="action_bar_with_navigation_drawer">AppCompat/Action Bar/Navigation Drawer Toggle</string>
-    <string name="action_bar_preferences">AppCompat/Action Bar/Preferences</string>
     <string name="action_bar_action_mode">AppCompat/Action Bar/Action Mode</string>
     <string name="action_bar_hide_scroll">AppCompat/Action Bar/Hide on Scroll</string>
     <string name="appcompat_widgets_buttons">AppCompat/Widgets/Buttons</string>
+    <string name="appcompat_widgets_icons">AppCompat/Widgets/Icons</string>
+    <string name="appcompat_widgets_ratingbars">AppCompat/Widgets/Rating Bars</string>
     <string name="appcompat_widgets_spinners">AppCompat/Widgets/Spinners</string>
     <string name="appcompat_widgets_switches">AppCompat/Widgets/Switches</string>
     <string name="appcompat_widgets_text_input">AppCompat/Widgets/Text Input</string>
     <string name="appcompat_widgets_text_views">AppCompat/Widgets/Text Views</string>
+    <string name="appcompat_widgets_toggle_buttons">AppCompat/Widgets/Toggle Buttons</string>
 
     <string name="action_bar_search">Search</string>
     <string name="action_bar_add">Add</string>
@@ -91,6 +97,7 @@
     <string name="action_bar_sort">Sort</string>
     <string name="action_bar_sort_alpha">Alphabetically</string>
     <string name="action_bar_sort_size">By size</string>
+    <string name="action_bar_share_with">Share with...</string>
     <string name="action_bar_settings">Settings</string>
 
     <string name="action_bar_display_options">AppCompat/Action Bar/Display Options</string>
@@ -136,6 +143,7 @@
     <string name="toolbar_fragment_pager">AppCompat/Toolbar/Toolbar Fragment ViewPager</string>
     <string name="toolbar_action_mode">AppCompat/Toolbar/Action Mode</string>
     <string name="toolbar_background_change">AppCompat/Toolbar/Toolbar Background Change</string>
+    <string name="toolbar_tall">AppCompat/Toolbar/Toolbar (tall)</string>
 
     <string name="dialog_usage">AppCompat/Dialog/Dialog Usage</string>
     <string name="dialog_title">My great dialog</string>
@@ -147,7 +155,11 @@
     <string name="sample_media_route_activity_local">Local Playback</string>
     <string name="sample_media_route_activity_presentation">Local Playback on Presentation Display</string>
 
+    <string name="nested_scrolling_rv_cl_appbar_activity">Nested Scrolling/RecyclerView CoordinatorLayout Appbar Activity</string>
+    <string name="nested_scrolling_nsv_cl_appbar_activity">Nested Scrolling/NestedScrollView CoordinatorLayout Appbar Activity</string>
+
     <string name="recycler_view">RecyclerView/RecyclerViewActivity</string>
+    <string name="recycler_view_smooth_scroll_by">RecyclerView/RecyclerView SmoothScrollBy Activity</string>
     <string name="recycler_view_stableid">RecyclerView/Stable Ids</string>
     <string name="pager_recycler_view">RecyclerView/PagerRecyclerViewActivity</string>
     <string name="animated_recycler_view">RecyclerView/Animated RecyclerView</string>
@@ -164,6 +176,8 @@
     <string name="checkbox_layout_dir">Layout Dir</string>
     <string name="checkbox_stack_from_end">Stack From End</string>
     <string name="checkbox_snap">Snap</string>
+    <string name="checkbox_accessibility_custom_actions">Accessibility Custom Action</string>
+    <string name="arbitrary_action_label">Arbitrary Action</string>
     <string name="enableAnimations">Animate</string>
     <string name="enablePredictiveAnimations">Predictive</string>
     <string name="enableInPlaceChange">In Place Change</string>
@@ -196,6 +210,7 @@
     <string name="diff_util_activity">RecyclerView/Diff Util</string>
     <string name="add_new_item">Add New Item</string>
     <string name="start_action_mode">Start Action Mode</string>
+    <string name="action_mode_title">Action Mode</string>
 
     <string name="swipe_to_dismiss_activity">RecyclerView/ItemTouchHelper/Swipe To Dismiss</string>
     <string name="drag_and_drop_activity">RecyclerView/ItemTouchHelper/Drag and Drop Activity</string>
@@ -224,6 +239,8 @@
     <string name="mode_night_auto_battery">MODE_NIGHT_AUTO_BATTERY</string>
     <string name="mode_night_activity_title_local">AppCompat/DayNight/Activity Usage (local)</string>
     <string name="mode_night_activity_title_default">AppCompat/DayNight/Activity Usage (default)</string>
+    <string name="mode_night_activity_title_bootaware">AppCompat/DayNight/Activity Usage (boot aware)</string>
+    <string name="mode_night_activity_title_bounce">AppCompat/DayNight/Activity Usage (bounce to default)</string>
     <string name="mode_night_dialog_title">AppCompat/DayNight/Dialog Usage</string>
     <string name="mode_night_alertdialog_title">AppCompat/DayNight/AlertDialog Usage</string>
 
@@ -255,8 +272,11 @@
     <string name="appcompat_vector_title">AppCompat/Integrations/AnimatedVectorDrawable</string>
     <string name="appcompat_animated_selector_title">AppCompat/Integrations/AnimatedStateListDrawable</string>
 
-    <string name="simple_selection_demo_activity">RecyclerView Selection: Gesture Only</string>
-    <string name="fancy_selection_demo_activity">RecyclerView Selection: Gesture and Pointer</string>
+    <!-- RecyclerView-Selection -->
+    <string name="single_selection_demo_activity">RecyclerView/Selection/Single Select</string>
+    <string name="simple_selection_demo_activity">RecyclerView/Selection/Gesture Only</string>
+    <string name="fancy_selection_demo_activity">RecyclerView/Selection/Gesture and Pointer
+    (for Chromebooks!)</string>
 
     <string name="night_mode">DAY</string>
 
@@ -268,4 +288,12 @@
 
     <string name="menu_item_icon_tinting">AppCompat/Menu Item Icons</string>
     <string name="popup_group_dividers">Display group dividers</string>
+
+    <string name="webview">WebView</string>
+    <string name="editbox">EditText</string>
+    <string name="launch_activity">Launch Activity</string>
+
+    <string name="custom_drawable">Drawable/Custom drawable</string>
+
+    <string name="action_mode_done_content_description">Cancel</string>
 </resources>

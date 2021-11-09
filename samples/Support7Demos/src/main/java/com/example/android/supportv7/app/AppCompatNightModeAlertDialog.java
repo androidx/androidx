@@ -68,7 +68,7 @@ public class AppCompatNightModeAlertDialog extends AppCompatActivity {
 
     private AlertDialog createAlertDialog() {
         AlertDialog.Builder b = new AlertDialog.Builder(this,
-                R.style.Theme_AppCompat_DayNight_Dialog_Alert);
+                androidx.appcompat.R.style.Theme_AppCompat_DayNight_Dialog_Alert);
         b.setTitle(R.string.dialog_title);
         b.setMessage(R.string.dialog_content);
         return b.create();

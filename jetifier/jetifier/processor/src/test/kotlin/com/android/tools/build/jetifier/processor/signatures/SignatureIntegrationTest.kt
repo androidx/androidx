@@ -29,11 +29,12 @@ import java.io.File
 class SignatureIntegrationTest {
 
     private val signedLib = File(
-        javaClass.getResource("/signatureDetectionTest/signedLibrary.jar").file)
+        javaClass.getResource("/signatureDetectionTest/signedLibrary.jar").file
+    )
 
     @Test
     fun archiveWithSignature_notJetified_shouldBeOk() {
-        val processor = Processor.createProcessor3(
+        val processor = Processor.createProcessor4(
             // Since we give empty config, no jetification can happen. Thus jetifier thinks that
             // the library is not affected by it.
             Config.fromOptional()
@@ -41,16 +42,20 @@ class SignatureIntegrationTest {
 
         val toFile = File.createTempFile("signatureTestResult.jar", "test")
 
+        @Suppress("deprecation")
         processor.transform(input = setOf(FileMapping(from = signedLib, to = toFile)))
 
         // Make sure that signatures were not stripped out
         val archive = Archive.Builder.extract(toFile)
         val mf = archive.files.firstOrNull {
-            it.relativePath.toString() == "META-INF/MANIFEST.MF" }
+            it.relativePath.toString() == "META-INF/MANIFEST.MF"
+        }
         val rsa = archive.files.firstOrNull {
-            it.relativePath.toString() == "META-INF/PFOPENSO.RSA" }
+            it.relativePath.toString() == "META-INF/PFOPENSO.RSA"
+        }
         val sf = archive.files.firstOrNull {
-            it.relativePath.toString() == "META-INF/PFOPENSO.SF" }
+            it.relativePath.toString() == "META-INF/PFOPENSO.SF"
+        }
         Truth.assertThat(mf).isNotNull()
         Truth.assertThat(rsa).isNotNull()
         Truth.assertThat(sf).isNotNull()
@@ -58,21 +63,26 @@ class SignatureIntegrationTest {
 
     @Test
     fun archiveWithSignature_notJetified_stripRequired_shouldNotStrip() {
-        val processor = Processor.createProcessor3(
+        val processor = Processor.createProcessor4(
             Config.fromOptional(),
-            stripSignatures = true)
+            stripSignatures = true
+        )
 
         val toFile = File.createTempFile("signatureTestResult.jar", "test")
 
+        @Suppress("deprecation")
         processor.transform(input = setOf(FileMapping(from = signedLib, to = toFile)))
 
         val archive = Archive.Builder.extract(toFile)
         val mf = archive.files.firstOrNull {
-            it.relativePath.toString() == "META-INF/MANIFEST.MF" }
+            it.relativePath.toString() == "META-INF/MANIFEST.MF"
+        }
         val rsa = archive.files.firstOrNull {
-            it.relativePath.toString() == "META-INF/PFOPENSO.RSA" }
+            it.relativePath.toString() == "META-INF/PFOPENSO.RSA"
+        }
         val sf = archive.files.firstOrNull {
-            it.relativePath.toString() == "META-INF/PFOPENSO.SF" }
+            it.relativePath.toString() == "META-INF/PFOPENSO.SF"
+        }
         Truth.assertThat(mf).isNotNull()
         Truth.assertThat(rsa).isNotNull()
         Truth.assertThat(sf).isNotNull()
@@ -80,33 +90,38 @@ class SignatureIntegrationTest {
 
     @Test(expected = SignatureFilesFoundJetifierException::class)
     fun archiveWithSignature_andJetified_shouldThrowError() {
-        val processor = Processor.createProcessor3(
+        val processor = Processor.createProcessor4(
             ConfigParser.loadDefaultConfig()!!
         )
 
         val toFile = File.createTempFile("signatureTestResult.jar", "test")
 
+        @Suppress("deprecation")
         processor.transform(input = setOf(FileMapping(from = signedLib, to = toFile)))
     }
 
     @Test
     fun archiveWithSignature_andJetified__stripRequired_shouldStrip() {
-        val processor = Processor.createProcessor3(
+        val processor = Processor.createProcessor4(
             ConfigParser.loadDefaultConfig()!!,
             stripSignatures = true
         )
 
         val toFile = File.createTempFile("signatureTestResult.jar", "test")
 
+        @Suppress("deprecation")
         processor.transform(input = setOf(FileMapping(from = signedLib, to = toFile)))
 
         val archive = Archive.Builder.extract(toFile)
         val mf = archive.files.firstOrNull {
-            it.relativePath.toString() == "META-INF/MANIFEST.MF" }
+            it.relativePath.toString() == "META-INF/MANIFEST.MF"
+        }
         val rsa = archive.files.firstOrNull {
-            it.relativePath.toString() == "META-INF/PFOPENSO.RSA" }
+            it.relativePath.toString() == "META-INF/PFOPENSO.RSA"
+        }
         val sf = archive.files.firstOrNull {
-            it.relativePath.toString() == "META-INF/PFOPENSO.SF" }
+            it.relativePath.toString() == "META-INF/PFOPENSO.SF"
+        }
         Truth.assertThat(mf).isNull()
         Truth.assertThat(rsa).isNull()
         Truth.assertThat(sf).isNull()

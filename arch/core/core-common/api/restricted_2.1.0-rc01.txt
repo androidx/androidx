@@ -1,0 +1,33 @@
+// Signature format: 3.0
+package androidx.arch.core.internal {
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class FastSafeIterableMap<K, V> extends androidx.arch.core.internal.SafeIterableMap<K,V> {
+    ctor public FastSafeIterableMap();
+    method public java.util.Map.Entry<K!,V!>! ceil(K!);
+    method public boolean contains(K!);
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class SafeIterableMap<K, V> implements java.lang.Iterable<java.util.Map.Entry<K,V>> {
+    ctor public SafeIterableMap();
+    method public java.util.Iterator<java.util.Map.Entry<K!,V!>!>! descendingIterator();
+    method public java.util.Map.Entry<K!,V!>! eldest();
+    method protected androidx.arch.core.internal.SafeIterableMap.Entry<K!,V!>! get(K!);
+    method public java.util.Iterator<java.util.Map.Entry<K!,V!>!> iterator();
+    method public androidx.arch.core.internal.SafeIterableMap.IteratorWithAdditions! iteratorWithAdditions();
+    method public java.util.Map.Entry<K!,V!>! newest();
+    method protected androidx.arch.core.internal.SafeIterableMap.Entry<K!,V!>! put(K, V);
+    method public V! putIfAbsent(K, V);
+    method public V! remove(K);
+    method public int size();
+  }
+
+}
+
+package androidx.arch.core.util {
+
+  public interface Function<I, O> {
+    method public O! apply(I!);
+  }
+
+}
+

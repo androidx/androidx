@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2017 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:clipChildren="false">
+    <Space
+        android:layout_height="0dp"
+        android:layout_width="0dp"
+        android:layout_weight="@dimen/ws_nav_drawer_top_space_weight"
+        tools:ignore="ContentDescription" />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_gravity="center"
+        android:layout_weight="@dimen/ws_nav_drawer_items_weight"
+        android:orientation="vertical"
+        android:clipChildren="false">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_gravity="center"
+            android:layout_weight="0.5"
+            android:orientation="horizontal"
+            android:clipChildren="false">
+            <Space
+                android:layout_height="0dp"
+                android:layout_width="0dp"
+                android:layout_weight="@dimen/ws_nav_drawer_two_item_row_start_space_weight"
+                tools:ignore="ContentDescription" />
+            <androidx.wear.widget.CircledImageView
+                android:id="@+id/ws_nav_drawer_icon_0"
+                android:layout_gravity="center"
+                android:layout_weight="@dimen/ws_nav_drawer_two_item_row_item_weight"
+                tools:ignore="ContentDescription"
+                style="@style/WsSinglePageNavDrawerIconStyle" />
+            <androidx.wear.widget.CircledImageView
+                android:id="@+id/ws_nav_drawer_icon_1"
+                android:layout_gravity="center"
+                android:layout_weight="@dimen/ws_nav_drawer_two_item_row_item_weight"
+                tools:ignore="ContentDescription"
+                style="@style/WsSinglePageNavDrawerIconStyle" />
+            <Space
+                android:layout_height="0dp"
+                android:layout_width="0dp"
+                android:layout_weight="@dimen/ws_nav_drawer_two_item_row_end_space_weight"
+                tools:ignore="ContentDescription" />
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_gravity="center"
+            android:layout_weight="0.5"
+            android:clipChildren="false"
+            android:orientation="horizontal">
+            <Space
+                android:layout_height="0dp"
+                android:layout_width="0dp"
+                android:layout_weight="@dimen/ws_nav_drawer_three_item_row_start_space_weight"
+                tools:ignore="ContentDescription" />
+            <androidx.wear.widget.CircledImageView
+                android:id="@+id/ws_nav_drawer_icon_2"
+                style="@style/WsSinglePageNavDrawerIconStyle"
+                android:layout_gravity="center"
+                android:layout_weight="@dimen/ws_nav_drawer_three_item_row_item_weight"
+                tools:ignore="ContentDescription" />
+            <androidx.wear.widget.CircledImageView
+                android:id="@+id/ws_nav_drawer_icon_3"
+                style="@style/WsSinglePageNavDrawerIconStyle"
+                android:layout_gravity="center"
+                android:layout_weight="@dimen/ws_nav_drawer_three_item_row_item_weight"
+                tools:ignore="ContentDescription" />
+            <androidx.wear.widget.CircledImageView
+                android:id="@+id/ws_nav_drawer_icon_4"
+                style="@style/WsSinglePageNavDrawerIconStyle"
+                android:layout_gravity="center"
+                android:layout_weight="@dimen/ws_nav_drawer_three_item_row_item_weight"
+                tools:ignore="ContentDescription" />
+            <Space
+                android:layout_height="0dp"
+                android:layout_width="0dp"
+                android:layout_weight="@dimen/ws_nav_drawer_three_item_row_end_space_weight"
+                tools:ignore="ContentDescription" />
+        </LinearLayout>
+    </LinearLayout>
+    <include layout="@layout/ws_single_page_nav_drawer_text" />
+</LinearLayout>

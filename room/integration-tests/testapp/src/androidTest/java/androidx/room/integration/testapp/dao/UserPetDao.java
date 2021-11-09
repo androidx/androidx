@@ -29,6 +29,7 @@ import androidx.room.integration.testapp.vo.EmbeddedUserAndAllPets;
 import androidx.room.integration.testapp.vo.Pet;
 import androidx.room.integration.testapp.vo.User;
 import androidx.room.integration.testapp.vo.UserAndAllPets;
+import androidx.room.integration.testapp.vo.UserAndAllPetsViaJunction;
 import androidx.room.integration.testapp.vo.UserAndGenericPet;
 import androidx.room.integration.testapp.vo.UserAndPet;
 import androidx.room.integration.testapp.vo.UserAndPetAdoptionDates;
@@ -38,9 +39,6 @@ import androidx.room.integration.testapp.vo.UserIdAndPetNames;
 import androidx.room.integration.testapp.vo.UserWithPetsAndToys;
 
 import java.util.List;
-
-import io.reactivex.Flowable;
-import io.reactivex.Observable;
 
 @Dao
 public interface UserPetDao {
@@ -67,6 +65,10 @@ public interface UserPetDao {
     @Transaction
     @Query("SELECT * FROM User u")
     List<UserAndAllPets> loadAllUsersWithTheirPets();
+
+    @Transaction
+    @Query("SELECT * FROM User u")
+    List<UserAndAllPetsViaJunction> loadAllUsersWithTheirPetsViaJunction();
 
     @SuppressWarnings(RoomWarnings.CURSOR_MISMATCH)
     @Transaction
@@ -96,11 +98,19 @@ public interface UserPetDao {
 
     @Transaction
     @Query("SELECT * FROM User u where u.mId = :userId")
-    Flowable<UserAndAllPets> flowableUserWithPets(int userId);
+    io.reactivex.Flowable<UserAndAllPets> rx2_flowableUserWithPets(int userId);
 
     @Transaction
     @Query("SELECT * FROM User u where u.mId = :userId")
-    Observable<UserAndAllPets> observableUserWithPets(int userId);
+    io.reactivex.rxjava3.core.Flowable<UserAndAllPets> rx3_flowableUserWithPets(int userId);
+
+    @Transaction
+    @Query("SELECT * FROM User u where u.mId = :userId")
+    io.reactivex.Observable<UserAndAllPets> rx2_observableUserWithPets(int userId);
+
+    @Transaction
+    @Query("SELECT * FROM User u where u.mId = :userId")
+    io.reactivex.rxjava3.core.Observable<UserAndAllPets> rx3_observableUserWithPets(int userId);
 
     @Transaction
     @Query("SELECT * FROM User u where u.mId = :uid")

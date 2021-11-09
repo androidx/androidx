@@ -26,9 +26,10 @@ import static androidx.recyclerview.widget.ViewInfoStore.InfoRecord.FLAG_PRE_AND
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
-import androidx.collection.ArrayMap;
 import androidx.collection.LongSparseArray;
+import androidx.collection.SimpleArrayMap;
 import androidx.core.util.Pools;
+
 /**
  * This class abstracts all tracking for Views to run animations.
  */
@@ -40,7 +41,8 @@ class ViewInfoStore {
      * View data records for pre-layout
      */
     @VisibleForTesting
-    final ArrayMap<RecyclerView.ViewHolder, InfoRecord> mLayoutHolderMap = new ArrayMap<>();
+    final SimpleArrayMap<RecyclerView.ViewHolder, InfoRecord> mLayoutHolderMap =
+            new SimpleArrayMap<>();
 
     @VisibleForTesting
     final LongSparseArray<RecyclerView.ViewHolder> mOldChangedHolders = new LongSparseArray<>();

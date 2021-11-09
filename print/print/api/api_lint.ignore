@@ -1,0 +1,3 @@
+// Baseline format: 1.0
+ExecutorRegistration: androidx.print.PrintHelper#printBitmap(String, android.net.Uri, androidx.print.PrintHelper.OnPrintFinishCallback):
+    Registration methods should have overload that accepts delivery Executor: `printBitmap`

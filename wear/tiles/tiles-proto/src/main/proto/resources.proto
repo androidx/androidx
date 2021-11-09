@@ -1,0 +1,73 @@
+// The resources for a layout.
+syntax = "proto3";
+
+package androidx.wear.tiles.proto;
+
+option java_package = "androidx.wear.tiles.proto";
+option java_outer_classname = "ResourceProto";
+
+// Format describing the contents of an image data byte array.
+enum ImageFormat {
+  // An undefined image format.
+  IMAGE_FORMAT_UNDEFINED = 0;
+
+  // An image format where each pixel is stored on 2 bytes, with red using 5
+  // bits, green using 6 bits and blue using 5 bits of precision.
+  IMAGE_FORMAT_RGB_565 = 1;
+}
+
+// An image resource which maps to an Android drawable by resource ID.
+message AndroidImageResourceByResId {
+  // The Android resource ID of this image. This must refer to a drawable under
+  // R.drawable.
+  int32 resource_id = 1;
+}
+
+// An image resource whose data is fully inlined, with no dependency on a
+// system or app resource.
+message InlineImageResource {
+  // The byte array representing the image.
+  bytes data = 1;
+
+  // The native width of the image, in pixels. Only required for formats
+  // (e.g. IMAGE_FORMAT_RGB_565) where the image data does not include size.
+  int32 width_px = 2;
+
+  // The native height of the image, in pixels. Only required for formats
+  // (e.g. IMAGE_FORMAT_RGB_565) where the image data does not include size.
+  int32 height_px = 3;
+
+  // The format of the byte array data representing the image. May be left
+  // unspecified or set to IMAGE_FORMAT_UNDEFINED in which case the platform
+  // will attempt to extract this from the raw image data. If the platform does
+  // not support the format, the image will not be decoded or displayed.
+  ImageFormat format = 4;
+}
+
+// An image resource, which can be used by layouts. This holds multiple
+// underlying resource types, which the underlying runtime will pick according
+// to what it thinks is appropriate.
+message ImageResource {
+  // An image resource that maps to an Android drawable by resource ID.
+  AndroidImageResourceByResId android_resource_by_res_id = 1;
+
+  // An image resource that contains the image data inline.
+  InlineImageResource inline_resource = 2;
+}
+
+// The resources for a layout.
+message Resources {
+  // The version of this Resources instance.
+  //
+  // Each tile specifies the version of resources it requires. After fetching a
+  // tile, the renderer will use the resources version specified by the tile
+  // to separately fetch the resources.
+  //
+  // This value must match the version of the resources required by the tile
+  // for the tile to render successfully, and must match the resource version
+  // specified in ResourcesRequest which triggered this request.
+  string version = 1;
+
+  // A map of resource_ids to images, which can be used by layouts.
+  map<string, ImageResource> id_to_image = 2;
+}

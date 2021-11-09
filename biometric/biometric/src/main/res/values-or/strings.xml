@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+  ~ Copyright (C) 2017 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+   -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="fingerprint_dialog_touch_sensor" msgid="1072308044213194243">"ଟିପଚିହ୍ନ ସେନସର୍‌କୁ ଛୁଅଁନ୍ତୁ"</string>
+    <string name="fingerprint_not_recognized" msgid="3873359464293253009">"ଚିହ୍ନଟ ହେଲାନାହିଁ"</string>
+    <string name="fingerprint_error_hw_not_available" msgid="8216738333501875566">"ଟିପଚିହ୍ନ ହାର୍ଡୱେର୍‍ ଉପଲବ୍ଧ ନାହିଁ।"</string>
+    <string name="fingerprint_error_no_fingerprints" msgid="7520712796891883488">"କୌଣସି ଆଙ୍ଗୁଠି ଚିହ୍ନ ପଞ୍ଜୀକୃତ ହୋଇନାହିଁ।"</string>
+    <string name="fingerprint_error_hw_not_present" msgid="6306988885793029438">"ଏହି ଡିଭାଇସ୍‌ରେ ଟିପଚିହ୍ନ ସେନସର୍‌ ନାହିଁ"</string>
+    <string name="fingerprint_error_user_canceled" msgid="7627716295344353987">"ଟିପଚିହ୍ନ କାର୍ଯ୍ୟ ଉପଯୋଗକର୍ତ୍ତାଙ୍କ ଦ୍ୱାରା ବାତିଲ୍ କରାଯାଇଛି।"</string>
+    <string name="fingerprint_error_lockout" msgid="7291787166416782245">"ବହୁତ ଅଧିକ ପ୍ରଚେଷ୍ଟା। ଦୟାକରି ପରେ ପୁଣି ଚେଷ୍ଟା କରନ୍ତୁ।"</string>
+    <string name="default_error_msg" msgid="4776854077120974966">"ଅଜଣା ତ୍ରୁଟି"</string>
+    <string name="generic_error_user_canceled" msgid="7309881387583143581">"ଉପଯୋଗକର୍ତ୍ତାଙ୍କ ଦ୍ୱାରା ପ୍ରାମାଣିକତା ବାତିଲ୍ କରାଯାଇଛି।"</string>
+    <string name="confirm_device_credential_password" msgid="5912733858573823945">"ପାସ୍‌ୱାର୍ଡ୍ ବ୍ୟବହାର କରନ୍ତୁ"</string>
+    <string name="generic_error_no_device_credential" msgid="3791785319221634505">"କୌଣସି PIN, ପାଟର୍ନ ବା ପାସୱାର୍ଡ ସେଟ୍ ହୋଇନାହିଁ।"</string>
+    <string name="generic_error_no_keyguard" msgid="1807436368654974044">"ଏହି ଡିଭାଇସ୍ PIN, ପାଟର୍ନ କିମ୍ବା ପାସୱାର୍ଡକୁ ସମର୍ଥନ କରେ ନାହିଁ।"</string>
+    <string name="fingerprint_dialog_icon_description" msgid="5462024216548165325">"ଟିପଚିହ୍ନ ଆଇକନ୍"</string>
+    <string name="use_fingerprint_label" msgid="6961788485681412417">"ଟିପଚିହ୍ନ ବ୍ୟବହାର କରନ୍ତୁ"</string>
+    <string name="use_face_label" msgid="6533512708069459542">"ଫେସ ବ୍ୟବହାର କରନ୍ତୁ"</string>
+    <string name="use_biometric_label" msgid="6524145989441579428">"ବାୟୋମେଟ୍ରିକ୍ସ ବ୍ୟବହାର କରନ୍ତୁ"</string>
+    <string name="use_screen_lock_label" msgid="5459869335976243512">"ସ୍କ୍ରିନ ଲକ ବ୍ୟବହାର କରନ୍ତୁ"</string>
+    <string name="use_fingerprint_or_screen_lock_label" msgid="7577690399303139443">"ଟିପଚିହ୍ନ କିମ୍ବା ସ୍କ୍ରିନ ଲକ ବ୍ୟବହାର କରନ୍ତୁ"</string>
+    <string name="use_face_or_screen_lock_label" msgid="2116180187159450292">"ଫେସ କିମ୍ବା ସ୍କ୍ରିନ ଲକ ବ୍ୟବହାର କରନ୍ତୁ"</string>
+    <string name="use_biometric_or_screen_lock_label" msgid="5385448280139639016">"ବାୟୋମେଟ୍ରିକ୍ସ କିମ୍ବା ସ୍କ୍ରିନ ଲକ ବ୍ୟବହାର କରନ୍ତୁ"</string>
+    <string name="fingerprint_prompt_message" msgid="7449360011861769080">"ଜାରି ରଖିବାକୁ ଆପଣଙ୍କ ଟିପଚିହ୍ନ ବ୍ୟବହାର କରନ୍ତୁ"</string>
+    <string name="face_prompt_message" msgid="2282389249605674226">"ଜାରି ରଖିବାକୁ ଆପଣଙ୍କ ଫେସ ବ୍ୟବହାର କରନ୍ତୁ"</string>
+    <string name="biometric_prompt_message" msgid="1160635338192065472">"ଜାରି ରଖିବାକୁ ଆପଣଙ୍କ ବାୟୋମେଟ୍ରିକ ବ୍ୟବହାର କରନ୍ତୁ"</string>
+    <string name="screen_lock_prompt_message" msgid="5659570757430909869">"ଜାରି ରଖିବାକୁ ଆପଣଙ୍କ ସ୍କ୍ରିନ ଲକ ଏଣ୍ଟର କରନ୍ତୁ"</string>
+    <string name="fingerprint_or_screen_lock_prompt_message" msgid="8382576858490514495">"ଜାରି ରଖିବାକୁ ଆପଣଙ୍କ ଟିପଚିହ୍ନ କିମ୍ବା ସ୍କ୍ରିନ ଲକ ବ୍ୟବହାର କରନ୍ତୁ"</string>
+    <string name="face_or_screen_lock_prompt_message" msgid="4562557128765735254">"ଜାରି ରଖିବାକୁ ଆପଣଙ୍କ ଫେସ କିମ୍ବା ସ୍କ୍ରିନ ଲକ ବ୍ୟବହାର କରନ୍ତୁ"</string>
+    <string name="biometric_or_screen_lock_prompt_message" msgid="2102429900219199821">"ଜାରି ରଖିବାକୁ ଆପଣଙ୍କ ବାୟୋମେଟ୍ରିକ କିମ୍ବା ସ୍କ୍ରିନ ଲକ ବ୍ୟବହାର କରନ୍ତୁ"</string>
+</resources>

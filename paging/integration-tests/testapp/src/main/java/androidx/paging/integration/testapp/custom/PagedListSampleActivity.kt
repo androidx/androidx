@@ -18,33 +18,39 @@ package androidx.paging.integration.testapp.custom
 
 import android.os.Bundle
 import android.widget.Button
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
-import androidx.paging.PagedList
-import androidx.paging.PagedListAdapter
+import androidx.paging.LoadState
+import androidx.paging.LoadState.Error
+import androidx.paging.LoadState.Loading
+import androidx.paging.LoadState.NotLoading
+import androidx.paging.LoadType
 import androidx.paging.integration.testapp.R
+import androidx.paging.integration.testapp.v3.StateItemAdapter
 import androidx.recyclerview.widget.RecyclerView
 
 /**
  * Sample PagedList activity with artificial data source.
  */
 class PagedListSampleActivity : AppCompatActivity() {
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_recycler_view)
-        val viewModel = ViewModelProviders.of(this)
-            .get(PagedListItemViewModel::class.java)
+        val viewModel by viewModels<PagedListItemViewModel>()
 
-        val adapter = PagedListItemAdapter()
+        val pagingAdapter = PagedListItemAdapter()
         val recyclerView = findViewById<RecyclerView>(R.id.recyclerview)
-        recyclerView.adapter = adapter
+        recyclerView.adapter = pagingAdapter.withLoadStateHeaderAndFooter(
+            header = StateItemAdapter { pagingAdapter.currentList?.retry() },
+            footer = StateItemAdapter { pagingAdapter.currentList?.retry() }
+        )
 
-        viewModel.livePagedList.observe(this,
-            Observer<PagedList<Item>> { adapter.submitList(it) })
+        @Suppress("DEPRECATION")
+        viewModel.livePagedList.observe(this) { pagedList ->
+            pagingAdapter.submitList(pagedList)
+        }
 
-        setupLoadStateButtons(viewModel, adapter)
+        setupLoadStateButtons(viewModel, pagingAdapter)
 
         findViewById<Button>(R.id.button_error).setOnClickListener {
             dataSourceError.set(true)
@@ -53,46 +59,28 @@ class PagedListSampleActivity : AppCompatActivity() {
 
     private fun setupLoadStateButtons(
         viewModel: PagedListItemViewModel,
-        adapter: PagedListAdapter<Item, RecyclerView.ViewHolder>
+        @Suppress("DEPRECATION")
+        adapter: androidx.paging.PagedListAdapter<Item, RecyclerView.ViewHolder>
     ) {
-        val buttonStart = findViewById<Button>(R.id.button_start)
-        val buttonRefresh = findViewById<Button>(R.id.button_refresh)
-        val buttonEnd = findViewById<Button>(R.id.button_end)
+        val button = findViewById<Button>(R.id.button_refresh)
 
-        buttonRefresh.setOnClickListener {
+        button.setOnClickListener {
             viewModel.invalidateList()
         }
-        buttonStart.setOnClickListener {
-            adapter.currentList?.retry()
-        }
-        buttonEnd.setOnClickListener {
-            adapter.currentList?.retry()
-        }
 
-        adapter.addLoadStateListener { type, state, _ ->
-            val button = when (type) {
-                PagedList.LoadType.REFRESH -> buttonRefresh
-                PagedList.LoadType.START -> buttonStart
-                PagedList.LoadType.END -> buttonEnd
-            }
+        adapter.addLoadStateListener { type: LoadType, state: LoadState ->
+            if (type != LoadType.REFRESH) return@addLoadStateListener
+
             when (state) {
-                PagedList.LoadState.IDLE -> {
-                    button.text = "Idle"
-                    button.isEnabled = type == PagedList.LoadType.REFRESH
+                is NotLoading -> {
+                    button.text = if (state.endOfPaginationReached) "Refresh" else "Done"
+                    button.isEnabled = state.endOfPaginationReached
                 }
-                PagedList.LoadState.LOADING -> {
+                Loading -> {
                     button.text = "Loading"
                     button.isEnabled = false
                 }
-                PagedList.LoadState.DONE -> {
-                    button.text = "Done"
-                    button.isEnabled = false
-                }
-                PagedList.LoadState.ERROR -> {
-                    button.text = "Error"
-                    button.isEnabled = false
-                }
-                PagedList.LoadState.RETRYABLE_ERROR -> {
+                is Error -> {
                     button.text = "Error"
                     button.isEnabled = true
                 }

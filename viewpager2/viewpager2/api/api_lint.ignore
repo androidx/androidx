@@ -1,0 +1,13 @@
+// Baseline format: 1.0
+MissingNullability: androidx.viewpager2.widget.ViewPager2#dispatchRestoreInstanceState(android.util.SparseArray<android.os.Parcelable>) parameter #0:
+    Missing nullability on parameter `container` in method `dispatchRestoreInstanceState`
+MissingNullability: androidx.viewpager2.widget.ViewPager2#getAccessibilityClassName():
+    Missing nullability on method `getAccessibilityClassName` return
+MissingNullability: androidx.viewpager2.widget.ViewPager2#onInitializeAccessibilityNodeInfo(android.view.accessibility.AccessibilityNodeInfo) parameter #0:
+    Missing nullability on parameter `info` in method `onInitializeAccessibilityNodeInfo`
+MissingNullability: androidx.viewpager2.widget.ViewPager2#onRestoreInstanceState(android.os.Parcelable) parameter #0:
+    Missing nullability on parameter `state` in method `onRestoreInstanceState`
+MissingNullability: androidx.viewpager2.widget.ViewPager2#onViewAdded(android.view.View) parameter #0:
+    Missing nullability on parameter `child` in method `onViewAdded`
+MissingNullability: androidx.viewpager2.widget.ViewPager2#performAccessibilityAction(int, android.os.Bundle) parameter #1:
+    Missing nullability on parameter `arguments` in method `performAccessibilityAction`

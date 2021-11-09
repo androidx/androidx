@@ -1,0 +1,41 @@
+// Signature format: 4.0
+package androidx.wear.remote.interactions {
+
+  public final class RemoteActivityHelper {
+    ctor public RemoteActivityHelper(android.content.Context context, optional java.util.concurrent.Executor executor);
+    method public static android.content.Intent? getTargetIntent(android.content.Intent intent);
+    method public static String? getTargetNodeId(android.content.Intent intent);
+    method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void> startRemoteActivity(android.content.Intent targetIntent, optional String? targetNodeId);
+    method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void> startRemoteActivity(android.content.Intent targetIntent);
+    field public static final String ACTION_REMOTE_INTENT = "com.google.android.wearable.intent.action.REMOTE_INTENT";
+    field public static final androidx.wear.remote.interactions.RemoteActivityHelper.Companion Companion;
+    field public static final int RESULT_FAILED = 1; // 0x1
+    field public static final int RESULT_OK = 0; // 0x0
+  }
+
+  public static final class RemoteActivityHelper.Companion {
+    method public android.content.Intent? getTargetIntent(android.content.Intent intent);
+    method public String? getTargetNodeId(android.content.Intent intent);
+  }
+
+  public static final class RemoteActivityHelper.RemoteIntentException extends java.lang.Exception {
+    ctor public RemoteActivityHelper.RemoteIntentException(String message);
+  }
+
+  public final class WatchFaceConfigIntentHelper {
+    method public static String? getPeerIdExtra(android.content.Intent watchFaceIntent);
+    method public static android.content.ComponentName? getWatchFaceComponentExtra(android.content.Intent watchFaceIntent);
+    method public static android.content.Intent putPeerIdExtra(android.content.Intent watchFaceIntent, String peerId);
+    method public static android.content.Intent putWatchFaceComponentExtra(android.content.Intent watchFaceIntent, android.content.ComponentName componentName);
+    field public static final androidx.wear.remote.interactions.WatchFaceConfigIntentHelper.Companion Companion;
+  }
+
+  public static final class WatchFaceConfigIntentHelper.Companion {
+    method public String? getPeerIdExtra(android.content.Intent watchFaceIntent);
+    method public android.content.ComponentName? getWatchFaceComponentExtra(android.content.Intent watchFaceIntent);
+    method public android.content.Intent putPeerIdExtra(android.content.Intent watchFaceIntent, String peerId);
+    method public android.content.Intent putWatchFaceComponentExtra(android.content.Intent watchFaceIntent, android.content.ComponentName componentName);
+  }
+
+}
+

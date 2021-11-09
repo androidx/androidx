@@ -80,7 +80,7 @@ public class FragmentTabsPager extends FragmentActivity {
      * trick.  Normally a tab host has a simple API for supplying a View or
      * Intent that each tab will show.  This is not sufficient for switching
      * between pages.  So instead we make the content part of the tab host
-     * 0dp high (it is not shown) and the TabsAdapter supplies its own dummy
+     * 0dp high (it is not shown) and the TabsAdapter supplies its own no-op
      * view to show as the tab content.  It listens to changes in tabs, and takes
      * care of switch to the correct paged in the ViewPager whenever the selected
      * tab changes.
@@ -94,21 +94,19 @@ public class FragmentTabsPager extends FragmentActivity {
         private final ArrayList<TabInfo> mTabs = new ArrayList<TabInfo>();
 
         static final class TabInfo {
-            private final String tag;
             private final Class<?> clss;
             private final Bundle args;
 
-            TabInfo(String _tag, Class<?> _class, Bundle _args) {
-                tag = _tag;
+            TabInfo(Class<?> _class, Bundle _args) {
                 clss = _class;
                 args = _args;
             }
         }
 
-        static class DummyTabFactory implements TabHost.TabContentFactory {
+        static class SimpleTabFactory implements TabHost.TabContentFactory {
             private final Context mContext;
 
-            public DummyTabFactory(Context context) {
+            public SimpleTabFactory(Context context) {
                 mContext = context;
             }
 
@@ -133,10 +131,8 @@ public class FragmentTabsPager extends FragmentActivity {
         }
 
         public void addTab(TabHost.TabSpec tabSpec, Class<?> clss, Bundle args) {
-            tabSpec.setContent(new DummyTabFactory(mContext));
-            String tag = tabSpec.getTag();
-
-            TabInfo info = new TabInfo(tag, clss, args);
+            tabSpec.setContent(new SimpleTabFactory(mContext));
+            TabInfo info = new TabInfo(clss, args);
             mTabs.add(info);
             mTabHost.addTab(tabSpec);
             notifyDataSetChanged();

@@ -1,0 +1,32 @@
+import androidx.build.LibraryGroups
+import androidx.build.LibraryVersions
+import androidx.build.Publish
+
+plugins {
+    id("AndroidXPlugin")
+    id("com.android.library")
+    id("org.jetbrains.kotlin.android")
+}
+
+dependencies {
+    api(libs.kotlinStdlib)
+    api("androidx.annotation:annotation:1.1.0")
+    api(project(":core:core"))
+
+    androidTestImplementation(libs.junit)
+    androidTestImplementation(libs.testExtJunit)
+    androidTestImplementation(libs.testCore)
+    androidTestImplementation(libs.testRunner)
+    androidTestImplementation(libs.testRules)
+    androidTestImplementation(libs.truth)
+    androidTestImplementation(project(":internal-testutils-truth"))
+}
+
+androidx {
+    name = "Core Kotlin Extensions"
+    publish = Publish.SNAPSHOT_AND_RELEASE
+    mavenVersion = LibraryVersions.CORE
+    mavenGroup = LibraryGroups.CORE
+    inceptionYear = "2018"
+    description = "Kotlin extensions for 'core' artifact"
+}

@@ -14,15 +14,20 @@
  * limitations under the License.
  */
 
+// Not used by gen code, but tests an annotation processor case.
+@file:Suppress("unused", "UNUSED_PARAMETER")
+
 package androidx.room.integration.kotlintestapp.vo
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import androidx.room.RoomWarnings
 import androidx.room.TypeConverter
 import androidx.room.TypeConverters
 
 @Entity
 @TypeConverters(CategoryListConverter::class)
+@SuppressWarnings(RoomWarnings.MISMATCHED_GETTER)
 class EntityWithJavaPojoList {
     @PrimaryKey
     var id: Long = 0
@@ -37,7 +42,7 @@ class CategoryListConverter {
     }
 
     @TypeConverter
-    fun toString(pojoList: List<JavaPojo>): String? {
+    fun toString(pojoList: List<JavaPojo>?): String {
         return ""
     }
 }

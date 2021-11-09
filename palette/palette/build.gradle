@@ -1,0 +1,26 @@
+import androidx.build.LibraryGroups
+import androidx.build.Publish
+
+plugins {
+    id("AndroidXPlugin")
+    id("com.android.library")
+}
+
+dependencies {
+    api("androidx.core:core:1.1.0")
+    implementation("androidx.collection:collection:1.1.0")
+
+    annotationProcessor(libs.nullaway)
+
+    androidTestImplementation(libs.testExtJunit)
+    androidTestImplementation(libs.testCore)
+    androidTestImplementation(libs.testRunner)
+}
+
+androidx {
+    name = "Android Support Palette"
+    publish = Publish.SNAPSHOT_AND_RELEASE
+    mavenGroup = LibraryGroups.PALETTE
+    inceptionYear = "2014"
+    description = "Android Support Palette"
+}

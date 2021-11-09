@@ -14,33 +14,24 @@
  * limitations under the License.
  */
 
-import static androidx.build.dependencies.DependenciesKt.*
-
-import androidx.build.CompilationTarget
 import androidx.build.LibraryGroups
-import androidx.build.LibraryVersions
+import androidx.build.LibraryType
 
 plugins {
     id("AndroidXPlugin")
-    id("java")
+    id("java-library")
 }
 
-sourceCompatibility = JavaVersion.VERSION_1_8
-targetCompatibility = JavaVersion.VERSION_1_8
-
 dependencies {
-    compile(JAVAPOET)
+    api("androidx.annotation:annotation:1.1.0")
+    implementation(libs.javapoet)
 }
 
 androidx {
     name = "Remote Callback Compiler"
-    publish = true
-    toolingProject = true
-    mavenVersion = LibraryVersions.REMOTECALLBACK
+    type = LibraryType.COMPILER_PLUGIN
     mavenGroup = LibraryGroups.REMOTECALLBACK
     inceptionYear = "2018"
     description = "Compiler for RemoteCallback implementations"
-    failOnUncheckedWarnings = false
     failOnDeprecationWarnings = false
-    compilationTarget = CompilationTarget.HOST
 }

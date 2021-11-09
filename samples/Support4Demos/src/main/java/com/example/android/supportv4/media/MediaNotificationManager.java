@@ -28,7 +28,6 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.os.Build;
-import android.os.RemoteException;
 import android.support.v4.media.MediaDescriptionCompat;
 import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.MediaControllerCompat;
@@ -198,11 +197,7 @@ public class MediaNotificationManager extends BroadcastReceiver {
                 mController.unregisterCallback(mCb);
             }
             mSessionToken = freshToken;
-            try {
-                mController = new MediaControllerCompat(mService, mSessionToken);
-            } catch (RemoteException e) {
-                Log.e(TAG, "Failed to create MediaControllerCompat.", e);
-            }
+            mController = new MediaControllerCompat(mService, mSessionToken);
             mTransportControls = mController.getTransportControls();
             if (mStarted) {
                 mController.registerCallback(mCb);
@@ -234,6 +229,7 @@ public class MediaNotificationManager extends BroadcastReceiver {
         }
 
         @Override
+        @SuppressWarnings("ObjectToString")
         public void onMetadataChanged(MediaMetadataCompat metadata) {
             mMetadata = metadata;
             Log.d(TAG, "Received new metadata " + metadata);
@@ -251,6 +247,7 @@ public class MediaNotificationManager extends BroadcastReceiver {
         }
     };
 
+    @SuppressWarnings("ObjectToString")
     private Notification createNotification() {
         Log.d(TAG, "updateNotificationMetadata. mMetadata=" + mMetadata);
         if (mMetadata == null || mPlaybackState == null) {

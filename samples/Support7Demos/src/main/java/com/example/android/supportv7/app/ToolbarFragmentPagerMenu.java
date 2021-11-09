@@ -63,7 +63,7 @@ public class ToolbarFragmentPagerMenu extends AppCompatActivity {
         private final List<Fragment> mFragments;
 
         public PagerAdapter(FragmentManager fm, Fragment... fragments) {
-            super(fm, RESUME_ONLY_CURRENT_FRAGMENT);
+            super(fm, BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT);
 
             mFragments = new ArrayList<Fragment>();
             for (Fragment fragment : fragments) {
@@ -117,11 +117,11 @@ public class ToolbarFragmentPagerMenu extends AppCompatActivity {
 
         @Override
         public boolean onOptionsItemSelected(MenuItem item) {
-            if (item.getTitle().equals("Menu 1a")) {
+            if (item.getTitle().toString().equals("Menu 1a")) {
                 Toast.makeText(getActivity(), "Selected Menu 1a.", Toast.LENGTH_SHORT).show();
                 return true;
             }
-            if (item.getTitle().equals("Menu 1b")) {
+            if (item.getTitle().toString().equals("Menu 1b")) {
                 Toast.makeText(getActivity(), "Selected Menu 1b.", Toast.LENGTH_SHORT).show();
                 return true;
             }
@@ -160,7 +160,7 @@ public class ToolbarFragmentPagerMenu extends AppCompatActivity {
 
         @Override
         public boolean onOptionsItemSelected(MenuItem item) {
-            if (item.getTitle().equals("Menu 2")) {
+            if (item.getTitle().toString().equals("Menu 2")) {
                 Toast.makeText(getActivity(), "Selected Menu 2.", Toast.LENGTH_SHORT).show();
                 return true;
             }

@@ -31,7 +31,8 @@ class MapGenerationTest {
             .testThatRules(
                 RewriteRule("android/support/v7/(.*)", "android/test/{0}")
             )
-            .withAllowedPrefixes("android/support/"
+            .withAllowedPrefixes(
+                "android/support/"
             )
             .forGivenTypes(
                 JavaType("android/support/v7/pref/Preference")
@@ -156,7 +157,8 @@ class MapGenerationTest {
                 fun mapInto(types: Map<String, String>): Step2 {
                     val config = Config.fromOptional(
                         restrictToPackagePrefixes = prefixes,
-                        rulesMap = RewriteRulesMap(rules))
+                        rulesMap = RewriteRulesMap(rules)
+                    )
                     val scanner = MapGeneratorRemapper(config)
 
                     allTypes.forEach { scanner.rewriteType(it) }
@@ -179,4 +181,3 @@ class MapGenerationTest {
         }
     }
 }
-

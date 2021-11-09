@@ -53,7 +53,6 @@ import androidx.leanback.widget.SparseArrayObjectAdapter;
 public class NewDetailsFragment extends androidx.leanback.app.DetailsFragment {
 
     private static final String TAG = "leanback.DetailsFragment";
-    private static final String ITEM = "item";
 
     private static final int NUM_ROWS = 3;
     private ArrayObjectAdapter mRowsAdapter;

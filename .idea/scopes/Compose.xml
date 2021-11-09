@@ -1,0 +1,3 @@
+<component name="DependencyValidationManager">
+  <scope name="Compose" pattern="src:*androidx.compose..*||test:*androidx.compose..*||src:*androidx.ui..*||test:*androidx.ui..*" />
+</component>

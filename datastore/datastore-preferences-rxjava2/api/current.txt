@@ -1,0 +1,19 @@
+// Signature format: 4.0
+package androidx.datastore.preferences.rxjava2 {
+
+  public final class RxPreferenceDataStoreBuilder {
+    ctor public RxPreferenceDataStoreBuilder(java.util.concurrent.Callable<java.io.File> produceFile);
+    ctor public RxPreferenceDataStoreBuilder(android.content.Context context, String name);
+    method public androidx.datastore.preferences.rxjava2.RxPreferenceDataStoreBuilder addDataMigration(androidx.datastore.core.DataMigration<androidx.datastore.preferences.core.Preferences> dataMigration);
+    method public androidx.datastore.preferences.rxjava2.RxPreferenceDataStoreBuilder addRxDataMigration(androidx.datastore.rxjava2.RxDataMigration<androidx.datastore.preferences.core.Preferences> rxDataMigration);
+    method public androidx.datastore.rxjava2.RxDataStore<androidx.datastore.preferences.core.Preferences> build();
+    method public androidx.datastore.preferences.rxjava2.RxPreferenceDataStoreBuilder setCorruptionHandler(androidx.datastore.core.handlers.ReplaceFileCorruptionHandler<androidx.datastore.preferences.core.Preferences> corruptionHandler);
+    method public androidx.datastore.preferences.rxjava2.RxPreferenceDataStoreBuilder setIoScheduler(io.reactivex.Scheduler ioScheduler);
+  }
+
+  public final class RxPreferenceDataStoreDelegateKt {
+    method public static kotlin.properties.ReadOnlyProperty<android.content.Context,androidx.datastore.rxjava2.RxDataStore<androidx.datastore.preferences.core.Preferences>> rxPreferencesDataStore(String name, optional androidx.datastore.core.handlers.ReplaceFileCorruptionHandler<androidx.datastore.preferences.core.Preferences>? corruptionHandler, optional kotlin.jvm.functions.Function1<? super android.content.Context,? extends java.util.List<? extends androidx.datastore.core.DataMigration<androidx.datastore.preferences.core.Preferences>>> produceMigrations, optional io.reactivex.Scheduler scheduler);
+  }
+
+}
+

@@ -18,6 +18,9 @@ package androidx.room.integration.testapp.database;
 
 import androidx.room.Dao;
 import androidx.room.Insert;
+import androidx.room.Query;
+
+import java.util.List;
 
 /**
  * Simple Product DAO.
@@ -30,5 +33,17 @@ public interface ProductDao {
      */
     @Insert
     void insert(Product product);
+
+    /**
+     * Insert a review.
+     */
+    @Insert
+    void addReview(Review review);
+
+    /**
+     * Query a products reviews.
+     */
+    @Query("SELECT * FROM Review WHERE mProductId = :productId")
+    List<Review> getProductReviews(int productId);
 
 }

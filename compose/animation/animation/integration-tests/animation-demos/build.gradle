@@ -1,0 +1,24 @@
+plugins {
+    id("AndroidXPlugin")
+    id("com.android.library")
+    id("AndroidXComposePlugin")
+    id("org.jetbrains.kotlin.android")
+}
+
+dependencies {
+    kotlinPlugin(project(":compose:compiler:compiler"))
+
+    implementation(libs.kotlinStdlib)
+
+    implementation(project(":compose:foundation:foundation-layout"))
+    implementation(project(":compose:integration-tests:demos:common"))
+    implementation(project(":compose:runtime:runtime"))
+    implementation(project(":compose:ui:ui"))
+    implementation(project(":compose:ui:ui-text"))
+    implementation(project(":compose:animation:animation"))
+    implementation(project(":compose:animation:animation-graphics"))
+    implementation(project(":compose:animation:animation:animation-samples"))
+    implementation(project(":compose:animation:animation-core:animation-core-samples"))
+    implementation(project(":compose:foundation:foundation"))
+    implementation(project(":compose:material:material"))
+}

@@ -40,23 +40,37 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class GridLayoutManagerSnappingTest extends BaseGridLayoutManagerTest {
 
     final Config mConfig;
-    final boolean mReverseScroll;
+    private final boolean mReverseScroll;
+    private final boolean mApplyPadding;
 
-    public GridLayoutManagerSnappingTest(Config config, boolean reverseScroll) {
+    public GridLayoutManagerSnappingTest(Config config, boolean reverseScroll,
+            boolean applyPadding) {
         mConfig = config;
         mReverseScroll = reverseScroll;
+        mApplyPadding = applyPadding;
     }
 
-    @Parameterized.Parameters(name = "config:{0},reverseScroll:{1}")
+    @Parameterized.Parameters(name = "config:{0},reverseScroll:{1},applyPadding:{2}")
     public static List<Object[]> getParams() {
         List<Object[]> result = new ArrayList<>();
         List<Config> configs = createBaseVariations();
         for (Config config : configs) {
             for (boolean reverseScroll : new boolean[] {true, false}) {
-                result.add(new Object[]{config, reverseScroll});
+                for (boolean applyPadding : new boolean[] {true, false}) {
+                    result.add(new Object[]{config, reverseScroll, applyPadding});
+                }
             }
         }
         return result;
+    }
+
+    @Override
+    public RecyclerView setupBasic(Config config, GridTestAdapter testAdapter) throws Throwable {
+        RecyclerView rv = super.setupBasic(config, testAdapter);
+        if (mApplyPadding) {
+            rv.setPadding(17, 23, 0, 0);
+        }
+        return rv;
     }
 
     @Test
@@ -67,16 +81,16 @@ public class GridLayoutManagerSnappingTest extends BaseGridLayoutManagerTest {
         setupSnapHelper();
 
         // Record the current center view.
-        View view = findCenterView(mGlm);
+        View view = findCenterView();
         assertCenterAligned(view);
         int scrollDistance = (getViewDimension(view) / 2) - 1;
         int scrollDist = mReverseScroll ? -scrollDistance : scrollDistance;
         mGlm.expectIdleState(2);
         smoothScrollBy(scrollDist);
-        mGlm.waitForSnap(10);
+        mGlm.waitForSnap(25);
 
         // Views have not changed
-        View viewAfterFling = findCenterView(mGlm);
+        View viewAfterFling = findCenterView();
         assertSame("The view should have scrolled", view, viewAfterFling);
         assertCenterAligned(viewAfterFling);
     }
@@ -89,7 +103,7 @@ public class GridLayoutManagerSnappingTest extends BaseGridLayoutManagerTest {
         setupSnapHelper();
 
         // Record the current center view.
-        View view = findCenterView(mGlm);
+        View view = findCenterView();
         assertCenterAligned(view);
         CharSequence viewText = ((TextView) view).getText();
 
@@ -100,7 +114,7 @@ public class GridLayoutManagerSnappingTest extends BaseGridLayoutManagerTest {
         waitForIdleScroll(mRecyclerView);
         waitForIdleScroll(mRecyclerView);
 
-        View viewAfterScroll = findCenterView(mGlm);
+        View viewAfterScroll = findCenterView();
         CharSequence viewAfterFlingText = ((TextView) viewAfterScroll).getText();
 
         assertNotEquals("The view should have scrolled!", viewText, viewAfterFlingText);
@@ -115,7 +129,7 @@ public class GridLayoutManagerSnappingTest extends BaseGridLayoutManagerTest {
         setupSnapHelper();
 
         // Record the current center view.
-        View view = findCenterView(mGlm);
+        View view = findCenterView();
         assertCenterAligned(view);
 
         // Velocity small enough to not scroll to the next view.
@@ -127,7 +141,7 @@ public class GridLayoutManagerSnappingTest extends BaseGridLayoutManagerTest {
         waitForIdleScroll(mRecyclerView);
         mGlm.waitForSnap(100);
 
-        View viewAfterFling = findCenterView(mGlm);
+        View viewAfterFling = findCenterView();
 
         assertSame("The view should NOT have scrolled", view, viewAfterFling);
         assertCenterAligned(viewAfterFling);
@@ -141,7 +155,7 @@ public class GridLayoutManagerSnappingTest extends BaseGridLayoutManagerTest {
         setupSnapHelper();
 
         // Record the current center view.
-        View view = findCenterView(mGlm);
+        View view = findCenterView();
         assertCenterAligned(view);
         CharSequence viewText = ((TextView) view).getText();
 
@@ -154,7 +168,7 @@ public class GridLayoutManagerSnappingTest extends BaseGridLayoutManagerTest {
         mGlm.waitForSnap(100);
         getInstrumentation().waitForIdleSync();
 
-        View viewAfterFling = findCenterView(mGlm);
+        View viewAfterFling = findCenterView();
         CharSequence viewAfterFlingText = ((TextView) viewAfterFling).getText();
 
         assertNotEquals("The view should have scrolled!", viewText, viewAfterFlingText);
@@ -165,13 +179,13 @@ public class GridLayoutManagerSnappingTest extends BaseGridLayoutManagerTest {
         SnapHelper snapHelper = new LinearSnapHelper();
         mGlm.expectIdleState(1);
         snapHelper.attachToRecyclerView(mRecyclerView);
-        mGlm.waitForSnap(10);
+        mGlm.waitForSnap(25);
 
         mGlm.expectLayout(1);
         scrollToPosition(mConfig.mItemCount / 2);
         mGlm.waitForLayout(2);
 
-        View view = findCenterView(mGlm);
+        View view = findCenterView();
         int scrollDistance = distFromCenter(view) / 2;
         if (scrollDistance == 0) {
             return;
@@ -181,15 +195,12 @@ public class GridLayoutManagerSnappingTest extends BaseGridLayoutManagerTest {
 
         mGlm.expectIdleState(2);
         smoothScrollBy(scrollDist);
-        mGlm.waitForSnap(10);
+        mGlm.waitForSnap(25);
     }
 
-    @Nullable View findCenterView(RecyclerView.LayoutManager layoutManager) {
-        if (layoutManager.canScrollHorizontally()) {
-            return mRecyclerView.findChildViewUnder(mRecyclerView.getWidth() / 2, 0);
-        } else {
-            return mRecyclerView.findChildViewUnder(0, mRecyclerView.getHeight() / 2);
-        }
+    @Nullable
+    private View findCenterView() {
+        return mRecyclerView.findChildViewUnder(getRvCenterX(), getRvCenterY());
     }
 
     private int getViewDimension(View view) {
@@ -202,25 +213,45 @@ public class GridLayoutManagerSnappingTest extends BaseGridLayoutManagerTest {
         return helper.getDecoratedMeasurement(view);
     }
 
+    private int getWidthMinusPadding(View view) {
+        return view.getWidth() - view.getPaddingLeft() - view.getPaddingRight();
+    }
+
+    private int getHeightMinusPadding(View view) {
+        return view.getHeight() - view.getPaddingTop() - view.getPaddingBottom();
+    }
+
+    private int getRvCenterX() {
+        return getWidthMinusPadding(mRecyclerView) / 2 + mRecyclerView.getPaddingLeft();
+    }
+
+    private int getRvCenterY() {
+        return getHeightMinusPadding(mRecyclerView) / 2 + mRecyclerView.getPaddingTop();
+    }
+
+    private int getViewCenterX(View view) {
+        return mGlm.getViewBounds(view).centerX();
+    }
+
+    private int getViewCenterY(View view) {
+        return mGlm.getViewBounds(view).centerY();
+    }
+
     private void assertCenterAligned(View view) {
         if(mGlm.canScrollHorizontally()) {
             assertEquals("The child should align with the center of the parent",
-                    mRecyclerView.getWidth() / 2,
-                    mGlm.getDecoratedLeft(view) +
-                            mGlm.getDecoratedMeasuredWidth(view) / 2, 1);
+                    getRvCenterX(), getViewCenterX(view), 1);
         } else {
             assertEquals("The child should align with the center of the parent",
-                    mRecyclerView.getHeight() / 2,
-                    mGlm.getDecoratedTop(view) +
-                            mGlm.getDecoratedMeasuredHeight(view) / 2, 1);
+                    getRvCenterY(), getViewCenterY(view), 1);
         }
     }
 
     private int distFromCenter(View view) {
         if (mGlm.canScrollHorizontally()) {
-            return Math.abs(mRecyclerView.getWidth() / 2 - mGlm.getViewBounds(view).centerX());
+            return Math.abs(getRvCenterX() - getViewCenterX(view));
         } else {
-            return Math.abs(mRecyclerView.getHeight() / 2 - mGlm.getViewBounds(view).centerY());
+            return Math.abs(getRvCenterY() - getViewCenterY(view));
         }
     }
 

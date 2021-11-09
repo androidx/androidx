@@ -1,0 +1,26 @@
+import androidx.build.LibraryGroups
+import androidx.build.Publish
+
+plugins {
+    id("AndroidXPlugin")
+    id("com.android.library")
+}
+
+dependencies {
+    implementation("androidx.annotation:annotation:1.1.0")
+    implementation("androidx.core:core:1.7.0")
+
+    annotationProcessor(libs.nullaway)
+
+    androidTestImplementation(libs.testExtJunit)
+    androidTestImplementation(libs.testCore)
+    androidTestImplementation(libs.testRunner)
+}
+
+androidx {
+    name = "Android Support Library Document File"
+    publish = Publish.SNAPSHOT_AND_RELEASE
+    mavenGroup = LibraryGroups.DOCUMENTFILE
+    inceptionYear = "2018"
+    description = "The Support Library is a static library that you can add to your Android application in order to use APIs that are either not available for older platform versions or utility APIs that aren't a part of the framework APIs. Compatible on devices running API 14 or later."
+}

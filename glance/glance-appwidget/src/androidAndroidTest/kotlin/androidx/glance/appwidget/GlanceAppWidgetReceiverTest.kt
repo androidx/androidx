@@ -1,0 +1,476 @@
+/*
+ * Copyright 2021 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package androidx.glance.appwidget
+
+import android.app.Activity
+import android.graphics.Typeface
+import android.graphics.drawable.BitmapDrawable
+import android.graphics.drawable.GradientDrawable
+import android.os.Build
+import android.text.SpannedString
+import android.text.style.StyleSpan
+import android.text.style.TextAppearanceSpan
+import android.text.style.UnderlineSpan
+import android.view.View
+import android.widget.Button
+import android.widget.ImageView
+import android.widget.LinearLayout
+import android.widget.RelativeLayout
+import android.widget.TextView
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.DpSize
+import androidx.compose.ui.unit.dp
+import androidx.glance.GlanceModifier
+import androidx.glance.LocalContext
+import androidx.glance.LocalSize
+import androidx.glance.action.actionLaunchActivity
+import androidx.glance.appwidget.test.R
+import androidx.glance.background
+import androidx.glance.layout.Box
+import androidx.glance.layout.Button
+import androidx.glance.layout.Column
+import androidx.glance.layout.ContentScale
+import androidx.glance.layout.Image
+import androidx.glance.layout.ImageProvider
+import androidx.glance.layout.Row
+import androidx.glance.layout.Text
+import androidx.glance.layout.fillMaxHeight
+import androidx.glance.layout.fillMaxSize
+import androidx.glance.layout.fillMaxWidth
+import androidx.glance.layout.height
+import androidx.glance.layout.width
+import androidx.glance.layout.wrapContentHeight
+import androidx.glance.text.FontStyle
+import androidx.glance.text.FontWeight
+import androidx.glance.text.TextDecoration
+import androidx.glance.text.TextStyle
+import androidx.test.filters.MediumTest
+import androidx.test.filters.SdkSuppress
+import com.google.common.truth.Truth.assertThat
+import org.junit.Before
+import org.junit.Rule
+import org.junit.Test
+import kotlin.test.assertIs
+import kotlin.test.assertNotNull
+
+@SdkSuppress(minSdkVersion = 29)
+@MediumTest
+class GlanceAppWidgetReceiverTest {
+    @get:Rule
+    val mHostRule = AppWidgetHostRule()
+
+    @Before
+    fun setUp() {
+        // Reset the size mode to the default
+        TestGlanceAppWidget.sizeMode = SizeMode.Single
+    }
+
+    @Test
+    fun createSimpleAppWidget() {
+        TestGlanceAppWidget.uiDefinition = {
+            val density = LocalContext.current.resources.displayMetrics.density
+            val size = LocalSize.current
+            assertThat(size.width.value).isWithin(1 / density).of(40f)
+            assertThat(size.height.value).isWithin(1 / density).of(40f)
+            Text(
+                "text content",
+                style = TextStyle(
+                    textDecoration = TextDecoration.Underline,
+                    fontWeight = FontWeight.Medium,
+                    fontStyle = FontStyle.Italic,
+                )
+            )
+        }
+
+        mHostRule.startHost()
+
+        mHostRule.onUnboxedHostView<TextView> { textView ->
+            assertThat(textView.text.toString()).isEqualTo("text content")
+            val content = textView.text as SpannedString
+            content.checkHasSingleTypedSpan<UnderlineSpan> { }
+            content.checkHasSingleTypedSpan<StyleSpan> {
+                assertThat(it.style).isEqualTo(Typeface.ITALIC)
+            }
+            content.checkHasSingleTypedSpan<TextAppearanceSpan> {
+                assertThat(it.textFontWeight).isEqualTo(500)
+            }
+        }
+    }
+
+    @Test
+    fun createExactAppWidget() {
+        TestGlanceAppWidget.sizeMode = SizeMode.Exact
+        TestGlanceAppWidget.uiDefinition = {
+            val size = LocalSize.current
+            Text("size = ${size.width} x ${size.height}")
+        }
+
+        mHostRule.startHost()
+
+        mHostRule.onUnboxedHostView<TextView> { textView ->
+            assertThat(textView.text.toString()).isEqualTo("size = 200.0.dp x 300.0.dp")
+        }
+
+        mHostRule.setLandscapeOrientation()
+        mHostRule.onUnboxedHostView<TextView> { textView ->
+            assertThat(textView.text.toString()).isEqualTo("size = 300.0.dp x 200.0.dp")
+        }
+    }
+
+    @Test
+    fun createResponsiveAppWidget() {
+        TestGlanceAppWidget.sizeMode =
+            SizeMode.Responsive(setOf(DpSize(100.dp, 150.dp), DpSize(250.dp, 150.dp)))
+
+        TestGlanceAppWidget.uiDefinition = {
+            val size = LocalSize.current
+            Text("size = ${size.width} x ${size.height}")
+        }
+
+        mHostRule.startHost()
+
+        mHostRule.onUnboxedHostView<TextView> { textView ->
+            assertThat(textView.text.toString()).isEqualTo("size = 100.0.dp x 150.0.dp")
+        }
+
+        mHostRule.setLandscapeOrientation()
+        mHostRule.onUnboxedHostView<TextView> { textView ->
+            assertThat(textView.text.toString()).isEqualTo("size = 250.0.dp x 150.0.dp")
+        }
+
+        mHostRule.setSizes(
+            DpSize(50.dp, 100.dp), DpSize(100.dp, 50.dp),
+            updateRemoteViews = Build.VERSION.SDK_INT < Build.VERSION_CODES.S,
+        )
+
+        mHostRule.setPortraitOrientation()
+        mHostRule.onUnboxedHostView<TextView> { textView ->
+            assertThat(textView.text.toString()).isEqualTo("size = 100.0.dp x 150.0.dp")
+        }
+
+        mHostRule.setLandscapeOrientation()
+        mHostRule.onUnboxedHostView<TextView> { textView ->
+            assertThat(textView.text.toString()).isEqualTo("size = 100.0.dp x 150.0.dp")
+        }
+    }
+
+    @Test
+    fun createTextWithFillMaxDimensions() {
+        TestGlanceAppWidget.uiDefinition = {
+            Text("expanded text", modifier = GlanceModifier.fillMaxWidth().fillMaxHeight())
+        }
+
+        mHostRule.startHost()
+
+        mHostRule.onUnboxedHostView<TextView> { textView ->
+            assertViewSize(textView, mHostRule.portraitSize)
+        }
+    }
+
+    @Test
+    fun createTextViewWithExactDimensions() {
+        TestGlanceAppWidget.uiDefinition = {
+            Text("expanded text", modifier = GlanceModifier.width(150.dp).height(100.dp))
+        }
+
+        mHostRule.startHost()
+
+        mHostRule.onUnboxedHostView<TextView> { textView ->
+            assertViewSize(textView, DpSize(150.dp, 100.dp))
+        }
+    }
+
+    @Test
+    fun createTextViewWithMixedDimensions() {
+        TestGlanceAppWidget.uiDefinition = {
+            Text("expanded text", modifier = GlanceModifier.fillMaxWidth().height(110.dp))
+        }
+
+        mHostRule.startHost()
+
+        mHostRule.onUnboxedHostView<TextView> { textView ->
+            assertViewSize(textView, DpSize(mHostRule.portraitSize.width, 110.dp))
+        }
+    }
+
+    @Test
+    fun createBoxWithExactDimensions() {
+        TestGlanceAppWidget.uiDefinition = {
+            Box(modifier = GlanceModifier.width(150.dp).height(180.dp)) {
+                Text("Inside")
+            }
+        }
+
+        mHostRule.startHost()
+
+        mHostRule.onUnboxedHostView<RelativeLayout> { box ->
+            val realBox = box.getTargetView<RelativeLayout>()
+            assertThat(realBox.notGoneChildCount).isEqualTo(1)
+            assertViewSize(realBox, DpSize(150.dp, 180.dp))
+        }
+    }
+
+    @Test
+    fun createBoxWithMixedDimensions() {
+        TestGlanceAppWidget.uiDefinition = {
+            Box(modifier = GlanceModifier.width(150.dp).wrapContentHeight()) {
+                Text("Inside")
+            }
+        }
+
+        mHostRule.startHost()
+
+        mHostRule.onUnboxedHostView<RelativeLayout> { box ->
+            val text = assertNotNull(box.findChild<TextView> { it.text.toString() == "Inside" })
+            assertThat(box.height).isEqualTo(text.height)
+            assertViewDimension(box, box.width, 150.dp)
+        }
+    }
+
+    @Test
+    fun createColumnWithMixedDimensions() {
+        TestGlanceAppWidget.uiDefinition = {
+            Column(modifier = GlanceModifier.width(150.dp).fillMaxHeight()) {
+                Text("Inside 1")
+                Text("Inside 2")
+                Text("Inside 3")
+            }
+        }
+
+        mHostRule.startHost()
+
+        mHostRule.onHostView { hostView ->
+            assertThat(hostView.childCount).isEqualTo(1)
+            val child = assertNotNull(
+                hostView.findChild<LinearLayout> {
+                    it.orientation == LinearLayout.VERTICAL
+                }
+            )
+            assertViewSize(child, DpSize(150.dp, mHostRule.portraitSize.height))
+        }
+    }
+
+    @Test
+    fun createRowWithMixedDimensions() {
+        TestGlanceAppWidget.uiDefinition = {
+            Row(modifier = GlanceModifier.fillMaxWidth().height(200.dp)) {
+                Text("Inside 1")
+                Text("Inside 2")
+                Text("Inside 3")
+            }
+        }
+
+        mHostRule.startHost()
+
+        mHostRule.onHostView { hostView ->
+            assertThat(hostView.childCount).isEqualTo(1)
+            val child = assertNotNull(
+                hostView.findChild<LinearLayout> {
+                    it.orientation == LinearLayout.HORIZONTAL
+                }
+            )
+            assertViewSize(child, DpSize(mHostRule.portraitSize.width, 200.dp))
+        }
+    }
+
+    @Test
+    fun createRowWithTwoTexts() {
+        TestGlanceAppWidget.uiDefinition = {
+            Row(modifier = GlanceModifier.fillMaxWidth().fillMaxHeight()) {
+                Text("Inside 1", modifier = GlanceModifier.defaultWeight().height(100.dp))
+                Text("Inside 2", modifier = GlanceModifier.defaultWeight().fillMaxHeight())
+            }
+        }
+
+        mHostRule.startHost()
+
+        mHostRule.onUnboxedHostView<LinearLayout> { row ->
+            assertThat(row.orientation).isEqualTo(LinearLayout.HORIZONTAL)
+            assertThat(row.notGoneChildCount).isEqualTo(2)
+            val children = row.notGoneChildren.toList()
+            val child1 = children[0].getTargetView<TextView>()
+            val child2 = assertIs<TextView>(children[1])
+            assertViewSize(child1, DpSize(mHostRule.portraitSize.width / 2, 100.dp))
+            assertViewSize(
+                child2,
+                DpSize(mHostRule.portraitSize.width / 2, mHostRule.portraitSize.height),
+            )
+        }
+    }
+
+    @Test
+    fun createColumnWithTwoTexts() {
+        TestGlanceAppWidget.uiDefinition = {
+            Column(modifier = GlanceModifier.fillMaxWidth().fillMaxHeight()) {
+                Text("Inside 1", modifier = GlanceModifier.fillMaxWidth().defaultWeight())
+                Text("Inside 2", modifier = GlanceModifier.width(100.dp).defaultWeight())
+            }
+        }
+
+        mHostRule.startHost()
+
+        mHostRule.onUnboxedHostView<LinearLayout> { column ->
+            assertThat(column.orientation).isEqualTo(LinearLayout.VERTICAL)
+            assertThat(column.notGoneChildCount).isEqualTo(2)
+            val children = column.notGoneChildren.toList()
+            val child1 = assertIs<TextView>(children[0])
+            val child2 = children[1].getTargetView<TextView>()
+            assertViewSize(
+                child1,
+                DpSize(mHostRule.portraitSize.width, mHostRule.portraitSize.height / 2),
+            )
+            assertViewSize(child2, DpSize(100.dp, mHostRule.portraitSize.height / 2))
+        }
+    }
+
+    @Test
+    fun createColumnWithTwoTexts2() {
+        TestGlanceAppWidget.uiDefinition = {
+            Column(modifier = GlanceModifier.fillMaxWidth().fillMaxHeight()) {
+                Text("Inside 1", modifier = GlanceModifier.fillMaxWidth().defaultWeight())
+                Text("Inside 2", modifier = GlanceModifier.width(100.dp).fillMaxHeight())
+            }
+        }
+
+        mHostRule.startHost()
+
+        mHostRule.onUnboxedHostView<LinearLayout> { column ->
+            assertThat(column.orientation).isEqualTo(LinearLayout.VERTICAL)
+            assertThat(column.notGoneChildCount).isEqualTo(2)
+            val children = column.notGoneChildren.toList()
+            val child1 = assertIs<TextView>(children[0])
+            val child2 = children[1].getTargetView<TextView>()
+            assertViewSize(
+                child1,
+                DpSize(mHostRule.portraitSize.width, 0.dp),
+            )
+            assertViewSize(child2, DpSize(100.dp, mHostRule.portraitSize.height))
+        }
+    }
+
+    @Test
+    fun createButton() {
+        TestGlanceAppWidget.uiDefinition = {
+            Button("Button", onClick = actionLaunchActivity<Activity>(), enabled = false)
+        }
+
+        mHostRule.startHost()
+
+        mHostRule.onUnboxedHostView<Button> { button ->
+            assertThat(button.text).isEqualTo("Button")
+            assertThat(button.isEnabled).isFalse()
+            assertThat(button.hasOnClickListeners()).isFalse()
+        }
+    }
+
+    @Test
+    fun createImage() {
+        TestGlanceAppWidget.uiDefinition = {
+            Image(provider = ImageProvider(R.drawable.oval), contentDescription = "oval")
+        }
+
+        mHostRule.startHost()
+
+        mHostRule.onUnboxedHostView<ImageView> { image ->
+            assertThat(image.contentDescription).isEqualTo("oval")
+            val gradientDrawable = assertIs<GradientDrawable>(image.drawable)
+            assertThat(gradientDrawable.shape).isEqualTo(GradientDrawable.OVAL)
+        }
+    }
+
+    @Test
+    fun drawableBackground() {
+        TestGlanceAppWidget.uiDefinition = {
+            Text(
+                "Some useful text",
+                modifier = GlanceModifier.fillMaxWidth().height(220.dp)
+                    .background(ImageProvider(R.drawable.oval))
+            )
+        }
+
+        mHostRule.startHost()
+
+        mHostRule.onUnboxedHostView<TextView> { textView ->
+            assertThat(textView.background).isNotNull()
+        }
+    }
+
+    @Test
+    fun drawableFitBackground() {
+        TestGlanceAppWidget.uiDefinition = {
+            Text(
+                "Some useful text",
+                modifier = GlanceModifier.fillMaxWidth().height(220.dp)
+                    .background(ImageProvider(R.drawable.oval), contentScale = ContentScale.Fit)
+            )
+        }
+
+        mHostRule.startHost()
+
+        mHostRule.onUnboxedHostView<RelativeLayout> { box ->
+            assertThat(box.notGoneChildCount).isEqualTo(2)
+            val (boxedImage, boxedText) = box.notGoneChildren.toList()
+            val image = boxedImage.getTargetView<ImageView>()
+            val text = boxedText.getTargetView<TextView>()
+            assertThat(image.drawable).isNotNull()
+            assertThat(text.background).isNull()
+        }
+    }
+
+    @Test
+    fun bitmapBackground() {
+        TestGlanceAppWidget.uiDefinition = compose@{
+            val context = LocalContext.current
+            val bitmap =
+                (context.resources.getDrawable(R.drawable.compose, null) as BitmapDrawable).bitmap
+            Text(
+                "Some useful text",
+                modifier = GlanceModifier.fillMaxSize()
+                    .background(ImageProvider(bitmap))
+            )
+        }
+
+        mHostRule.startHost()
+
+        mHostRule.onUnboxedHostView<RelativeLayout> { box ->
+            assertThat(box.notGoneChildCount).isEqualTo(2)
+            val (boxedImage, boxedText) = box.notGoneChildren.toList()
+            val image = boxedImage.getTargetView<ImageView>()
+            val text = boxedText.getTargetView<TextView>()
+            assertIs<BitmapDrawable>(image.drawable)
+            assertThat(text.background).isNull()
+        }
+    }
+
+    // Check there is a single span of the given type and that it passes the [check].
+    private inline fun <reified T> SpannedString.checkHasSingleTypedSpan(check: (T) -> Unit) {
+        val spans = getSpans(0, length, T::class.java)
+        assertThat(spans).hasLength(1)
+        check(spans[0])
+    }
+
+    private fun assertViewSize(view: View, expectedSize: DpSize) {
+        val density = view.context.resources.displayMetrics.density
+        assertThat(view.width / density).isWithin(1.1f / density).of(expectedSize.width.value)
+        assertThat(view.height / density).isWithin(1.1f / density).of(expectedSize.height.value)
+    }
+
+    private fun assertViewDimension(view: View, sizePx: Int, expectedSize: Dp) {
+        val density = view.context.resources.displayMetrics.density
+        assertThat(sizePx / density).isWithin(1.1f / density).of(expectedSize.value)
+    }
+}

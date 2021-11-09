@@ -47,7 +47,8 @@ data class PomRewriteRule(val from: PomDependency, val to: PomDependency) {
 
             if (checkVersion && (dep.version == null || dep.version!!.isEmpty())) {
                 throw IllegalArgumentException(
-                    "Version is missing in the POM rule for ${dep.groupId}:${dep.artifactId}!")
+                    "Version is missing in the POM rule for ${dep.groupId}:${dep.artifactId}!"
+                )
             }
         }
     }
@@ -69,9 +70,13 @@ data class PomRewriteRule(val from: PomDependency, val to: PomDependency) {
         }
 
         if (!areVersionsMatching(from.version!!, input.version!!)) {
-            Log.e(TAG, "Version mismatch! Expected version '%s' but found version '%s' for " +
-                "'%s:%s' in '%s' file.", from.version, input.version, input.groupId,
-                input.artifactId, pomPath.toString())
+            Log.e(
+                TAG,
+                "Version mismatch! Expected version '%s' but found version '%s' for " +
+                    "'%s:%s' in '%s' file.",
+                from.version, input.version, input.groupId,
+                input.artifactId, pomPath.toString()
+            )
             return false
         }
 

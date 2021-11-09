@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <style name="CarListSubtitle" parent="TextAppearance.Car.Body1">
-        <item name="android:textColor">@color/car_accent</item>
-    </style>
-</resources>

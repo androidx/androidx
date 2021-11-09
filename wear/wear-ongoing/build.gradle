@@ -1,0 +1,42 @@
+import androidx.build.LibraryGroups
+import androidx.build.LibraryVersions
+import androidx.build.Publish
+
+plugins {
+    id("AndroidXPlugin")
+    id("com.android.library")
+    id("kotlin-android")
+}
+
+dependencies {
+    api("androidx.annotation:annotation:1.1.0")
+    api("androidx.core:core:1.6.0")
+    api("androidx.versionedparcelable:versionedparcelable:1.1.1")
+
+    testImplementation(libs.kotlinStdlib)
+    testImplementation(libs.testCore)
+    testImplementation(libs.testRunner)
+    testImplementation(libs.robolectric)
+
+    implementation "androidx.core:core-ktx:1.6.0"
+
+    annotationProcessor(project(":versionedparcelable:versionedparcelable-compiler"))
+}
+
+android {
+    defaultConfig {
+        minSdkVersion 25
+    }
+
+    // Use Robolectric 4.+
+    testOptions.unitTests.includeAndroidResources = true
+}
+
+androidx {
+    name = "Android Wear Ongoing Activities"
+    publish = Publish.SNAPSHOT_AND_RELEASE
+    mavenGroup = LibraryGroups.WEAR
+    mavenVersion = LibraryVersions.WEAR_ONGOING
+    inceptionYear = "2021"
+    description = "Android Wear Ongoing Activities"
+}

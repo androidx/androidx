@@ -25,15 +25,19 @@ import android.media.AudioManager;
 import android.media.MediaRouter;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
+import androidx.collection.ArrayMap;
 import androidx.mediarouter.media.MediaRouteDescriptor;
 import androidx.mediarouter.media.MediaRouteProvider;
 import androidx.mediarouter.media.MediaRouteProviderDescriptor;
 import androidx.mediarouter.media.MediaRouter.ControlRequestCallback;
+import androidx.mediarouter.media.MediaRouter.RouteInfo;
 
 import com.example.android.supportv7.R;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -52,7 +56,7 @@ final class SampleDynamicGroupMrp extends SampleMediaRouteProvider {
     private static final String STATIC_GROUP_ROUTE_ID = "static_group";
     private static final int MAX_GROUPABLE_TV_COUNT = 1;
 
-    private SampleDynamicGroupRouteController mController;
+    private SampleDynamicGroupRouteController mDynamicRouteController;
 
     SampleDynamicGroupMrp(Context context) {
         super(context);
@@ -60,10 +64,40 @@ final class SampleDynamicGroupMrp extends SampleMediaRouteProvider {
 
     @Override
     public RouteController onCreateRouteController(String routeId) {
-        return new SampleDynamicGroupRouteController(routeId, null);
+        if (!checkDrawOverlay()) return null;
+
+        MediaRouteDescriptor routeDescriptor = mRouteDescriptors.get(routeId);
+        if (routeDescriptor == null) {
+            Log.w(TAG, "onCreateRouteController: Unknown route ID " + routeId);
+            return null;
+        }
+
+        return new SampleRouteController(routeId);
     }
 
-    private String generateNewRouteId() {
+    @Override
+    public RouteController onCreateRouteController(@NonNull String routeId,
+            @NonNull String groupId) {
+        // Handle a static group exceptionally
+        if (groupId.equals(STATIC_GROUP_ROUTE_ID)) {
+            return onCreateRouteController(routeId);
+        }
+
+        //TODO: Handle multiple dynamic route controllers
+        // The below check filters invalid group IDs
+        if (mDynamicRouteController == null
+                || !groupId.equals(mDynamicRouteController.getGroupDescriptor().getId())) {
+            return null;
+        }
+        RouteController controller = onCreateRouteController(routeId);
+        if (controller != null) {
+            mDynamicRouteController.addAndSyncMemberController(routeId,
+                    (SampleRouteController) controller);
+        }
+        return controller;
+    }
+
+    private String generateUniqueId() {
         String routeId;
         do {
             routeId = UUID.randomUUID().toString();
@@ -73,62 +107,27 @@ final class SampleDynamicGroupMrp extends SampleMediaRouteProvider {
 
     @Override
     public DynamicGroupRouteController onCreateDynamicGroupRouteController(
-            String initialMemberRouteId) {
-        MediaRouteDescriptor initMemberDescriptor = mRouteDescriptors.get(initialMemberRouteId);
-        if (initMemberDescriptor == null || !initMemberDescriptor.isValid()) {
+            @NonNull String initialMemberRouteId) {
+        if (!checkDrawOverlay()) return null;
+
+        List<String> memberIds = new ArrayList<>();
+        MediaRouteDescriptor initialRoute = mRouteDescriptors.get(initialMemberRouteId);
+        if (initialRoute == null || !initialRoute.isValid()) {
             Log.w(TAG, "initial route doesn't exist or isn't valid : " + initialMemberRouteId);
             return null;
         }
 
-        mController = new SampleDynamicGroupRouteController(initialMemberRouteId,
-                initMemberDescriptor.getGroupMemberIds());
-
-        return mController;
-    }
-
-    void copyRouteWithNewId(String routeId) {
-        MediaRouteDescriptor routeDescriptor = mRouteDescriptors.get(routeId);
-        if (routeDescriptor == null || !routeDescriptor.isValid()) {
-            Log.w(TAG, "copyRouteWithNewId: Route doesn't exist or isn't valid : " + routeId);
-            return;
-        }
-
-        String newRouteId = generateNewRouteId();
-        MediaRouteDescriptor changedDescriptor = new MediaRouteDescriptor.Builder(routeDescriptor)
-                .setId(newRouteId)
-                .build();
-        mRouteDescriptors.put(newRouteId, changedDescriptor);
-
-        // Change route ids in static groups
-        for (String memberRouteId : mRouteDescriptors.keySet()) {
-            MediaRouteDescriptor groupDescriptor = mRouteDescriptors.get(memberRouteId);
-            if (groupDescriptor.getGroupMemberIds().contains(routeId)) {
-                MediaRouteDescriptor newGroupDescriptor =
-                        new MediaRouteDescriptor.Builder(groupDescriptor)
-                                .removeGroupMemberId(routeId)
-                                .addGroupMemberId(newRouteId)
-                                .build();
-                mRouteDescriptors.put(memberRouteId, newGroupDescriptor);
-                mController.updateDynamicRouteDescriptor(memberRouteId);
-            }
-        }
-
-        mController.addDynamicRouteDescriptor(newRouteId);
-
-        MediaRouteDescriptor descriptor = new MediaRouteDescriptor.Builder(routeDescriptor)
-                .setId(routeId)
-                .setIsDynamicGroupRoute(true)
-                .setName(routeDescriptor.getName() + " +")
-                .build();
-        mRouteDescriptors.put(routeId, descriptor);
-
-        if (routeDescriptor.getGroupMemberIds().isEmpty()) {
-            mController.onAddMemberRoute(newRouteId);
+        // Check if the selected route is a group or not.
+        if (initialRoute.getGroupMemberIds().isEmpty()) {
+            memberIds.add(initialMemberRouteId);
         } else {
-            for (String memberId: routeDescriptor.getGroupMemberIds()) {
-                mController.onAddMemberRoute(memberId);
-            }
+            memberIds.addAll(initialRoute.getGroupMemberIds());
         }
+
+        String groupId = generateUniqueId();
+        mDynamicRouteController = new SampleDynamicGroupRouteController(groupId, memberIds);
+
+        return mDynamicRouteController;
     }
 
     @Override
@@ -138,7 +137,14 @@ final class SampleDynamicGroupMrp extends SampleMediaRouteProvider {
         settingsIntent.setClass(getContext(), SampleMediaRouteSettingsActivity.class)
                 .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         IntentSender is = PendingIntent.getActivity(getContext(), 99, settingsIntent,
-                PendingIntent.FLAG_UPDATE_CURRENT).getIntentSender();
+                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE).getIntentSender();
+
+        mVolumes.put(VARIABLE_VOLUME_BASIC_ROUTE_ID + "1", VOLUME_DEFAULT);
+        mVolumes.put(VARIABLE_VOLUME_BASIC_ROUTE_ID + "2", VOLUME_DEFAULT);
+        mVolumes.put(VARIABLE_VOLUME_BASIC_ROUTE_ID + "3", VOLUME_DEFAULT);
+        mVolumes.put(VARIABLE_VOLUME_BASIC_ROUTE_ID + "4", VOLUME_DEFAULT);
+        mVolumes.put(FIXED_VOLUME_ROUTE_ID, VOLUME_DEFAULT);
+        mVolumes.put(STATIC_GROUP_ROUTE_ID, VOLUME_DEFAULT);
 
         MediaRouteDescriptor routeDescriptor1 = new MediaRouteDescriptor.Builder(
                 VARIABLE_VOLUME_BASIC_ROUTE_ID + "1",
@@ -150,7 +156,7 @@ final class SampleDynamicGroupMrp extends SampleMediaRouteProvider {
                 .setPlaybackType(MediaRouter.RouteInfo.PLAYBACK_TYPE_REMOTE)
                 .setVolumeHandling(MediaRouter.RouteInfo.PLAYBACK_VOLUME_VARIABLE)
                 .setVolumeMax(VOLUME_MAX)
-                .setVolume(mVolume)
+                .setVolume(VOLUME_DEFAULT)
                 .setCanDisconnect(true)
                 .setSettingsActivity(is)
                 .build();
@@ -165,7 +171,7 @@ final class SampleDynamicGroupMrp extends SampleMediaRouteProvider {
                 .setPlaybackType(MediaRouter.RouteInfo.PLAYBACK_TYPE_REMOTE)
                 .setVolumeHandling(MediaRouter.RouteInfo.PLAYBACK_VOLUME_VARIABLE)
                 .setVolumeMax(VOLUME_MAX)
-                .setVolume(mVolume)
+                .setVolume(VOLUME_DEFAULT)
                 .setCanDisconnect(true)
                 .setSettingsActivity(is)
                 .build();
@@ -180,7 +186,7 @@ final class SampleDynamicGroupMrp extends SampleMediaRouteProvider {
                 .setPlaybackType(MediaRouter.RouteInfo.PLAYBACK_TYPE_REMOTE)
                 .setVolumeHandling(MediaRouter.RouteInfo.PLAYBACK_VOLUME_VARIABLE)
                 .setVolumeMax(VOLUME_MAX)
-                .setVolume(mVolume)
+                .setVolume(VOLUME_DEFAULT)
                 .setCanDisconnect(true)
                 .setSettingsActivity(is)
                 .build();
@@ -195,7 +201,7 @@ final class SampleDynamicGroupMrp extends SampleMediaRouteProvider {
                 .setPlaybackType(MediaRouter.RouteInfo.PLAYBACK_TYPE_REMOTE)
                 .setVolumeHandling(MediaRouter.RouteInfo.PLAYBACK_VOLUME_VARIABLE)
                 .setVolumeMax(VOLUME_MAX)
-                .setVolume(mVolume)
+                .setVolume(VOLUME_DEFAULT)
                 .setCanDisconnect(true)
                 .setSettingsActivity(is)
                 .build();
@@ -250,24 +256,34 @@ final class SampleDynamicGroupMrp extends SampleMediaRouteProvider {
     final class SampleDynamicGroupRouteController
             extends MediaRouteProvider.DynamicGroupRouteController {
         private final String mRouteId;
-        private final RouteControlHelper mHelper;
+        private final Map<String, WeakReference<SampleRouteController>> mControllerMap =
+                new ArrayMap<>();
 
         private List<String> mMemberRouteIds = new ArrayList<>();
-        private Map<String, DynamicRouteDescriptor> mDynamicRouteDescriptors = new HashMap<>();
+        private Map<String, DynamicRouteDescriptor> mDynamicRouteDescriptors = new ArrayMap<>();
         private int mTvSelectedCount;
+        private MediaRouteDescriptor mGroupDescriptor;
 
-        SampleDynamicGroupRouteController(String dynamicGroupRouteId,
-                List<String> memberIds) {
-            mRouteId = dynamicGroupRouteId;
-            MediaRouteDescriptor selectedRouteDescriptor = mRouteDescriptors.get(mRouteId);
-            mTvSelectedCount = countTvFromRoute(selectedRouteDescriptor);
+        SampleDynamicGroupRouteController(String groupRouteId, List<String> memberIds) {
+            mRouteId = groupRouteId;
+            MediaRouteDescriptor initialMember = mRouteDescriptors.get(memberIds.get(0));
+            MediaRouteDescriptor.Builder groupRouteBuilder =
+                    new MediaRouteDescriptor.Builder(groupRouteId, initialMember.getName())
+                            .setVolume(VOLUME_DEFAULT)
+                            .setVolumeMax(VOLUME_MAX)
+                            .setVolumeHandling(RouteInfo.PLAYBACK_VOLUME_VARIABLE)
+                            .setConnectionState(RouteInfo.CONNECTION_STATE_CONNECTED)
+                            .addGroupMemberIds(memberIds);
+            groupRouteBuilder.addControlFilters(initialMember.getControlFilters());
+            mGroupDescriptor = groupRouteBuilder.build();
+            mTvSelectedCount = countTvFromRoute(mGroupDescriptor);
 
             // Initialize DynamicRouteDescriptor with all the route descriptors.
             List<MediaRouteDescriptor> routeDescriptors = getDescriptor().getRoutes();
             if (routeDescriptors != null && !routeDescriptors.isEmpty()) {
                 for (MediaRouteDescriptor descriptor: routeDescriptors) {
                     String routeId = descriptor.getId();
-                    boolean selected = memberIds != null && memberIds.contains(routeId);
+                    boolean selected = memberIds.contains(routeId);
                     DynamicRouteDescriptor.Builder builder =
                             new DynamicRouteDescriptor.Builder(descriptor)
                                     .setIsGroupable(true)
@@ -282,11 +298,7 @@ final class SampleDynamicGroupMrp extends SampleMediaRouteProvider {
                 mMemberRouteIds.addAll(memberIds);
             }
 
-            mHelper = new RouteControlHelper(mRouteId);
-            updateDynamicRouteDescriptors();
-            if (DEBUG) {
-                Log.d(TAG, mRouteId + ": Controller created.");
-            }
+            Log.d(TAG, mRouteId + ": Controller created.");
         }
 
         //////////////////////////////////////////////
@@ -305,136 +317,106 @@ final class SampleDynamicGroupMrp extends SampleMediaRouteProvider {
 
         @Override
         public void onUpdateMemberRoutes(List<String> routeIds) {
-            mMemberRouteIds = routeIds;
-        }
-
-        private boolean ensureDynamicRoute(String routeId) {
-            MediaRouteDescriptor selectedRouteDescriptor = mRouteDescriptors.get(routeId);
-            if (selectedRouteDescriptor == null) {
-                return false;
+            List<String> routeIdsToRemove = new ArrayList<>(mMemberRouteIds);
+            for (String routeId : routeIdsToRemove) {
+                removeMember(routeId);
             }
-            if (!selectedRouteDescriptor.isDynamicGroupRoute()) {
-                // We should reinitialize here not to add members twice
-                mTvSelectedCount = 0;
-                mMemberRouteIds.clear();
-                copyRouteWithNewId(mRouteId);
+            for (String routeId : routeIds) {
+                updateDynamicRouteDescriptors(/*shouldNotify=*/false);
+                addMember(routeId);
             }
-            return true;
+            updateGroupRouteDescriptor();
+            updateDynamicRouteDescriptors(/*shouldNotify=*/true);
         }
 
         @Override
-        public void onAddMemberRoute(String routeId) {
-            DynamicRouteDescriptor dynamicDescriptor = mDynamicRouteDescriptors.get(routeId);
-            if (dynamicDescriptor == null) {
-                Log.w(TAG, "onAddMemberRoute: Ignored for routeId: " + routeId);
+        public void onAddMemberRoute(@NonNull String routeId) {
+            if (!addMember(routeId)) {
+                Log.w(TAG, "onAddMemberRoute: Failed to add a member route:" + " " + routeId);
                 return;
             }
 
-            if (!ensureDynamicRoute(mRouteId)) {
-                Log.w(TAG, "onAddMemberRoute: Can't find selected route : " + mRouteId);
-                return;
-            }
-
-            // Add each member route do dynamic group
+            // Add each member route to the dynamic group
             MediaRouteDescriptor routeDescriptor = mRouteDescriptors.get(routeId);
-            if (routeDescriptor.getGroupMemberIds().size() > 0) {
-                onAddMemberRoutes(routeDescriptor.getGroupMemberIds());
-                return;
+            for (String memberRouteId : routeDescriptor.getGroupMemberIds()) {
+                addMember(memberRouteId);
+            }
+            updateGroupRouteDescriptor();
+            updateDynamicRouteDescriptors(/*shouldNotify=*/true);
+        }
+
+        private void updateGroupRouteDescriptor() {
+            MediaRouteDescriptor.Builder groupDescriptorBuilder =
+                    new MediaRouteDescriptor.Builder(mGroupDescriptor)
+                            .clearGroupMemberIds();
+            for (String memberRouteId : mMemberRouteIds) {
+                groupDescriptorBuilder.addGroupMemberId(memberRouteId);
             }
 
-            DynamicRouteDescriptor.Builder builder =
-                    new DynamicRouteDescriptor.Builder(dynamicDescriptor)
-                            .setSelectionState(DynamicRouteDescriptor.SELECTED);
+            mGroupDescriptor = groupDescriptorBuilder.build();
+        }
 
-            // Make fixed volume route not unselectable.
+        @Override
+        public void onRemoveMemberRoute(@NonNull String routeId) {
+            if (!removeMember(routeId)) {
+                Log.w(TAG, "onRemoveMemberRoute: Failed to remove a member route : " + routeId);
+                return;
+            }
+            updateGroupRouteDescriptor();
+            updateDynamicRouteDescriptors(/*shouldNotify=*/true);
+        }
+
+        private boolean addMember(String routeId) {
+            DynamicRouteDescriptor dynamicDescriptor = mDynamicRouteDescriptors.get(routeId);
+            if (dynamicDescriptor == null || !dynamicDescriptor.isGroupable()
+                    || mMemberRouteIds.contains(routeId)) {
+                return false;
+            }
+            mMemberRouteIds.add(routeId);
+
+            MediaRouteDescriptor routeDescriptor =
+                    mRouteDescriptors.get(dynamicDescriptor.getRouteDescriptor().getId());
+            DynamicRouteDescriptor.Builder builder =
+                    new DynamicRouteDescriptor.Builder(dynamicDescriptor);
+            builder.setSelectionState(DynamicRouteDescriptor.SELECTED);
+
+            //TODO: Depending on getVolumeHandling() doesn't look good to identify the route. It
+            // could be a signal that the current structure should be refactored.
+
+            // Use a unique feature of the not unselectable route.
             if (routeDescriptor.getVolumeHandling()
                     == MediaRouter.RouteInfo.PLAYBACK_VOLUME_FIXED) {
                 builder.setIsUnselectable(false);
             } else {
                 builder.setIsUnselectable(true);
             }
+
             mDynamicRouteDescriptors.put(routeId, builder.build());
-            mMemberRouteIds.add(routeId);
+
             if (routeDescriptor.getDeviceType() == MediaRouter.RouteInfo.DEVICE_TYPE_TV) {
                 mTvSelectedCount++;
             }
-
-            MediaRouteDescriptor groupDescriptor =
-                    new MediaRouteDescriptor.Builder(mRouteDescriptors.get(mRouteId))
-                            .addGroupMemberId(routeId)
-                            .build();
-            mRouteDescriptors.put(mRouteId, groupDescriptor);
-            updateDynamicRouteDescriptors();
-            publishRoutes();
+            return true;
         }
 
-        private void onAddMemberRoutes(List<String> memberRouteIds) {
-            MediaRouteDescriptor.Builder builder =
-                    new MediaRouteDescriptor.Builder(mRouteDescriptors.get(mRouteId));
-
-            for (String routeId : memberRouteIds) {
-                DynamicRouteDescriptor dynamicDescriptor = mDynamicRouteDescriptors.get(routeId);
-                if (dynamicDescriptor == null) {
-                    Log.w(TAG, "onAddMemberRoute: Ignored for routeId: " + routeId);
-                    return;
-                }
-
-                DynamicRouteDescriptor.Builder memberBuilder =
-                        new DynamicRouteDescriptor.Builder(dynamicDescriptor)
-                                .setSelectionState(DynamicRouteDescriptor.SELECTED);
-
-                MediaRouteDescriptor routeDescriptor = dynamicDescriptor.getRouteDescriptor();
-                // Make fixed volume route not unselectable.
-                if (routeDescriptor.getVolumeHandling()
-                        == MediaRouter.RouteInfo.PLAYBACK_VOLUME_FIXED) {
-                    memberBuilder.setIsUnselectable(false);
-                } else {
-                    memberBuilder.setIsUnselectable(true);
-                }
-                mDynamicRouteDescriptors.put(routeId, memberBuilder.build());
-                mMemberRouteIds.add(routeId);
-                if (routeDescriptor.getDeviceType() == MediaRouter.RouteInfo.DEVICE_TYPE_TV) {
-                    mTvSelectedCount++;
-                }
-                builder.addGroupMemberId(routeId);
-            }
-
-            MediaRouteDescriptor groupDescriptor = builder.build();
-            mRouteDescriptors.put(mRouteId, groupDescriptor);
-            publishRoutes();
-            updateDynamicRouteDescriptors();
-        }
-
-        @Override
-        public void onRemoveMemberRoute(String routeId) {
+        private boolean removeMember(String routeId) {
             DynamicRouteDescriptor dynamicDescriptor = mDynamicRouteDescriptors.get(routeId);
             if (dynamicDescriptor == null || !dynamicDescriptor.isUnselectable()
                     || !mMemberRouteIds.remove(routeId)) {
-                Log.w(TAG, "onRemoveMemberRoute: Ignored for routeId: " + routeId);
-                return;
+                return false;
             }
 
-            if (!ensureDynamicRoute(mRouteId)) {
-                Log.w(TAG, "onRemoveMemberRoute: Can't find selected route : " + mRouteId);
-                return;
-            }
-
-            MediaRouteDescriptor routeDescriptor = dynamicDescriptor.getRouteDescriptor();
             DynamicRouteDescriptor.Builder builder =
                     new DynamicRouteDescriptor.Builder(dynamicDescriptor);
             builder.setSelectionState(DynamicRouteDescriptor.UNSELECTED);
             mDynamicRouteDescriptors.put(routeId, builder.build());
+
+            MediaRouteDescriptor routeDescriptor =
+                    mRouteDescriptors.get(dynamicDescriptor.getRouteDescriptor().getId());
             if (routeDescriptor.getDeviceType() == MediaRouter.RouteInfo.DEVICE_TYPE_TV) {
                 mTvSelectedCount--;
             }
-
-            MediaRouteDescriptor groupDescriptor =
-                    new MediaRouteDescriptor.Builder(mRouteDescriptors.get(mRouteId))
-                            .removeGroupMemberId(routeId)
-                            .build();
-            mRouteDescriptors.put(mRouteId, groupDescriptor);
-            publishRoutes();
-            updateDynamicRouteDescriptors();
+            return true;
         }
 
         //////////////////////////////////////////////
@@ -444,73 +426,106 @@ final class SampleDynamicGroupMrp extends SampleMediaRouteProvider {
         @Override
         public void onRelease() {
             Log.d(TAG, mRouteId + ": Controller released");
-            mHelper.onRelease();
+            for (RouteController controller : getValidMemberControllers()) {
+                controller.onRelease();
+            }
         }
 
         @Override
         public void onSelect() {
             Log.d(TAG, mRouteId + ": Selected");
-            mHelper.onSelect();
+            updateDynamicRouteDescriptors(/*shouldNotify=*/true);
+
+            for (RouteController controller : getValidMemberControllers()) {
+                controller.onSelect();
+            }
         }
 
         @Override
-        public void onUnselect() {
-            Log.d(TAG, mRouteId + ": Unselected");
-            mHelper.onUnselect();
+        public void onUnselect(int reason) {
+            Log.d(TAG, mRouteId + ": Unselected. reason=" + reason);
 
-            if (mRouteDescriptors.get(mRouteId).isDynamicGroupRoute()) {
-                mRouteDescriptors.remove(mRouteId);
+            for (RouteController controller : getValidMemberControllers()) {
+                controller.onUnselect(reason);
             }
-            publishRoutes();
+
+            if (mGroupDescriptor != null) {
+                mGroupDescriptor = new MediaRouteDescriptor.Builder(mGroupDescriptor)
+                        .setConnectionState(RouteInfo.CONNECTION_STATE_DISCONNECTED)
+                        .build();
+                publishRoutes();
+            }
         }
 
         @Override
         public void onSetVolume(int volume) {
             Log.d(TAG, mRouteId + ": Set volume to " + volume);
-            mHelper.onSetVolume(volume);
+            mGroupDescriptor = new MediaRouteDescriptor.Builder(mGroupDescriptor)
+                    .setVolume(volume)
+                    .build();
+            for (RouteController controller : getValidMemberControllers()) {
+                controller.onSetVolume(volume);
+            }
+            notifyDynamicRoutesChanged(mGroupDescriptor, mDynamicRouteDescriptors.values());
         }
 
         @Override
         public void onUpdateVolume(int delta) {
             Log.d(TAG, mRouteId + ": Update volume by " + delta);
-            mHelper.onUpdateVolume(delta);
+            int updatedVolume = mGroupDescriptor.getVolume() + delta;
+            updatedVolume = Math.max(Math.min(updatedVolume, mGroupDescriptor.getVolumeMax()), 0);
+            mGroupDescriptor = new MediaRouteDescriptor.Builder(mGroupDescriptor)
+                    .setVolume(updatedVolume)
+                    .build();
+            for (RouteController controller : getValidMemberControllers()) {
+                controller.onSetVolume(updatedVolume);
+            }
+            notifyDynamicRoutesChanged(mGroupDescriptor, mDynamicRouteDescriptors.values());
         }
 
         @Override
         public boolean onControlRequest(Intent intent, ControlRequestCallback callback) {
             Log.d(TAG, mRouteId + ": Received control request " + intent);
-            return mHelper.onControlRequest(intent, callback);
+            for (RouteController controller : getValidMemberControllers()) {
+                controller.onControlRequest(intent, callback);
+                // Let the first member handles the callback
+                callback = null;
+            }
+            return true;
         }
 
-        void addDynamicRouteDescriptor(String routeId) {
-            MediaRouteDescriptor descriptor = mRouteDescriptors.get(routeId);
-            DynamicRouteDescriptor.Builder builder =
-                    new DynamicRouteDescriptor.Builder(descriptor)
-                            .setIsGroupable(true)
-                            .setIsTransferable(true)
-                            .setSelectionState(DynamicRouteDescriptor.UNSELECTED);
-            mDynamicRouteDescriptors.put(routeId, builder.build());
+        void addAndSyncMemberController(String routeId, SampleRouteController newController) {
+            SampleRouteController previousRoutingController = null;
+            for (WeakReference<SampleRouteController> controllerRef : mControllerMap.values()) {
+                SampleRouteController controller = controllerRef.get();
+                if (controller != null && !controller.isReleased()) {
+                    previousRoutingController = controller;
+                    break;
+                }
+            }
+            if (previousRoutingController != null) {
+                newController.getSessionManager().syncWithManager(
+                        previousRoutingController.getSessionManager());
+            }
+            mControllerMap.put(routeId, new WeakReference<>(newController));
         }
 
-        void updateDynamicRouteDescriptor(String routeId) {
-            MediaRouteDescriptor mediaDescriptor = mRouteDescriptors.get(routeId);
-            if (mediaDescriptor == null) {
-                Log.d(TAG, "updateDynamicRouteDescriptor : Ignored for route id " + routeId);
-                return;
+        List<SampleRouteController> getValidMemberControllers() {
+            List<SampleRouteController> controllers = new ArrayList<>();
+            for (Iterator<WeakReference<SampleRouteController>> it =
+                    mControllerMap.values().iterator(); it.hasNext(); ) {
+                SampleRouteController controller = it.next().get();
+                if (controller == null || controller.isReleased()) {
+                    it.remove();
+                } else {
+                    controllers.add(controller);
+                }
             }
+            return controllers;
+        }
 
-            DynamicRouteDescriptor dynamicDescriptor = mDynamicRouteDescriptors.get(routeId);
-            if (dynamicDescriptor == null) {
-                Log.d(TAG, "updateDynamicRouteDescriptor : Ignored for route id " + routeId);
-                return;
-            }
-            DynamicRouteDescriptor.Builder builder =
-                    new DynamicRouteDescriptor.Builder(mediaDescriptor)
-                            .setSelectionState(dynamicDescriptor.getSelectionState())
-                            .setIsUnselectable(dynamicDescriptor.isUnselectable())
-                            .setIsGroupable(dynamicDescriptor.isGroupable())
-                            .setIsTransferable(dynamicDescriptor.isTransferable());
-            mDynamicRouteDescriptors.put(routeId, builder.build());
+        MediaRouteDescriptor getGroupDescriptor() {
+            return mGroupDescriptor;
         }
 
         // Updates each route's dynamic route descriptor when a route is added to / removed from
@@ -519,20 +534,20 @@ final class SampleDynamicGroupMrp extends SampleMediaRouteProvider {
         //         (added) as a member of dynamic group, other TV devices cannot be groupable.
         // Rout 2. A static group route, whose members are all already selected, should be
         //         ungroupable.
-        private void updateDynamicRouteDescriptors() {
+        private void updateDynamicRouteDescriptors(boolean shouldNotify) {
             for (DynamicRouteDescriptor dynamicDescriptor : mDynamicRouteDescriptors.values()) {
-                MediaRouteDescriptor routeDescriptor = dynamicDescriptor.getRouteDescriptor();
-                String routeId = routeDescriptor.getId();
+                String routeId = dynamicDescriptor.getRouteDescriptor().getId();
+                MediaRouteDescriptor routeDescriptor = mRouteDescriptors.get(routeId);
                 if (mMemberRouteIds.contains(routeId)) {
                     // Skip selected routes.
                     continue;
                 }
                 boolean isGroupable = true;
-                boolean isTransferrable = true;
+                boolean isTransferable = true;
 
                 if (mRouteId.equals(routeId)) {
                     isGroupable = false;
-                    isTransferrable = false;
+                    isTransferable = false;
                 }
                 // This route is a group and its member routes are already all selected.
                 if (!routeDescriptor.getGroupMemberIds().isEmpty()
@@ -545,20 +560,22 @@ final class SampleDynamicGroupMrp extends SampleMediaRouteProvider {
                 }
                 if (mMemberRouteIds.contains(routeId)) {
                     isGroupable = false;
-                    isTransferrable = false;
+                    isTransferable = false;
                 }
 
                 if (isGroupable != dynamicDescriptor.isGroupable()
-                        || isTransferrable != dynamicDescriptor.isTransferable()) {
+                        || isTransferable != dynamicDescriptor.isTransferable()) {
                     DynamicRouteDescriptor.Builder builder =
                             new DynamicRouteDescriptor.Builder(dynamicDescriptor)
                                     .setIsGroupable(isGroupable)
-                                    .setIsTransferable(isTransferrable);
+                                    .setIsTransferable(isTransferable);
 
                     mDynamicRouteDescriptors.put(routeId, builder.build());
                 }
             }
-            notifyDynamicRoutesChanged(mDynamicRouteDescriptors.values());
+            if (shouldNotify) {
+                notifyDynamicRoutesChanged(mGroupDescriptor, mDynamicRouteDescriptors.values());
+            }
         }
 
         private int countTvFromRoute(MediaRouteDescriptor routeDescriptor) {

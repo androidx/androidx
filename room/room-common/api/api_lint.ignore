@@ -1,0 +1,13 @@
+// Baseline format: 1.0
+AcronymName: androidx.room.ColumnInfo.SQLiteTypeAffinity:
+    Acronyms should not be capitalized in class names: was `SQLiteTypeAffinity`, should this be `SqLiteTypeAffinity`?
+
+
+PublicTypedef: androidx.room.ColumnInfo.Collate:
+    Don't expose @IntDef: Collate must be hidden.
+PublicTypedef: androidx.room.ColumnInfo.SQLiteTypeAffinity:
+    Don't expose @IntDef: SQLiteTypeAffinity must be hidden.
+PublicTypedef: androidx.room.ForeignKey.Action:
+    Don't expose @IntDef: Action must be hidden.
+PublicTypedef: androidx.room.OnConflictStrategy:
+    Don't expose @IntDef: OnConflictStrategy must be hidden.

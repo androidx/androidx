@@ -19,7 +19,9 @@ package androidx.room.integration.kotlintestapp.dao
 import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
+import androidx.room.RawQuery
 import androidx.room.Update
+import androidx.sqlite.db.SupportSQLiteQuery
 
 interface BaseDao<T> {
 
@@ -28,6 +30,12 @@ interface BaseDao<T> {
 
     @Insert
     fun insertAll(t: List<T>)
+
+    @Insert
+    fun insertAllSet(t: Set<T>): List<Long>
+
+    @Insert
+    fun insertAllCollection(t: Collection<T>): Array<Long>
 
     @Insert
     fun insertAllArg(vararg t: T)
@@ -40,4 +48,13 @@ interface BaseDao<T> {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun suspendInsert(t: T)
+
+    @Update
+    suspend fun suspendUpdate(t: T)
+
+    @Delete
+    suspend fun suspendDelete(t: T)
+
+    @RawQuery
+    suspend fun rawQuery(query: SupportSQLiteQuery): List<T>
 }

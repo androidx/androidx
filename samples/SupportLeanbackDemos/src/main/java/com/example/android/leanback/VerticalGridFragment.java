@@ -34,7 +34,6 @@ public class VerticalGridFragment extends androidx.leanback.app.VerticalGridFrag
 
     private static final int NUM_COLUMNS = 3;
     private static final int NUM_ITEMS = 50;
-    private static final int HEIGHT = 200;
     private static final boolean TEST_ENTRANCE_TRANSITION = true;
 
     private static class Adapter extends ArrayObjectAdapter {
