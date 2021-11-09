@@ -103,11 +103,27 @@ class ProjectSetupRule : ExternalResource() {
     }
 
     private fun copyLocalProperties() {
+        var foundSdk = false
+
         val localProperties = File(props.rootProjectPath, "local.properties")
         if (localProperties.exists()) {
             localProperties.copyTo(File(rootDir, "local.properties"), overwrite = true)
-        } else {
-            throw IllegalStateException("local.properties doesn't exist at: $localProperties")
+            foundSdk = true
+        }
+
+        if (System.getenv("ANDROID_HOME") != null) {
+            foundSdk = true
+        }
+
+        if (System.getenv("ANDROID_SDK_ROOT") != null) {
+            foundSdk = true
+        }
+
+        if (!foundSdk) {
+            throw IllegalStateException(
+                "ProjectSetupRule was unable to copy local.properties at: $localProperties and " +
+                    "neither ANDROID_HOME or ANDROID_SDK_ROOT was set."
+            )
         }
     }
 
