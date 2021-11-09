@@ -14,15 +14,13 @@
  * limitations under the License.
  */
 
-package androidx.glance.layout
+package androidx.glance
 
 import androidx.annotation.RestrictTo
 import androidx.compose.runtime.Composable
-import androidx.glance.Emittable
-import androidx.glance.GlanceModifier
-import androidx.glance.GlanceNode
 import androidx.glance.action.Action
 import androidx.glance.action.clickable
+import androidx.glance.text.EmittableText
 import androidx.glance.text.TextStyle
 
 /**

@@ -29,11 +29,10 @@ import androidx.annotation.VisibleForTesting
 import androidx.core.widget.setLinearLayoutGravity
 import androidx.core.widget.setRelativeLayoutGravity
 import androidx.glance.Emittable
-import androidx.glance.appwidget.layout.EmittableAndroidRemoteViews
-import androidx.glance.appwidget.layout.EmittableCheckBox
-import androidx.glance.appwidget.layout.EmittableLazyColumn
-import androidx.glance.appwidget.layout.EmittableLazyListItem
-import androidx.glance.appwidget.layout.EmittableSwitch
+import androidx.glance.EmittableButton
+import androidx.glance.EmittableImage
+import androidx.glance.appwidget.lazy.EmittableLazyColumn
+import androidx.glance.appwidget.lazy.EmittableLazyListItem
 import androidx.glance.appwidget.translators.setText
 import androidx.glance.appwidget.translators.translateEmittableCheckBox
 import androidx.glance.appwidget.translators.translateEmittableImage
@@ -43,12 +42,10 @@ import androidx.glance.appwidget.translators.translateEmittableSwitch
 import androidx.glance.appwidget.translators.translateEmittableText
 import androidx.glance.layout.Alignment
 import androidx.glance.layout.EmittableBox
-import androidx.glance.layout.EmittableButton
 import androidx.glance.layout.EmittableColumn
-import androidx.glance.layout.EmittableImage
 import androidx.glance.layout.EmittableRow
 import androidx.glance.layout.EmittableSpacer
-import androidx.glance.layout.EmittableText
+import androidx.glance.text.EmittableText
 import java.util.concurrent.atomic.AtomicInteger
 
 internal fun translateComposition(

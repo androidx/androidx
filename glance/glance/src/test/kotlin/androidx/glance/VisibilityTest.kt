@@ -14,10 +14,8 @@
  * limitations under the License.
  */
 
-package androidx.glance.layout
+package androidx.glance
 
-import androidx.glance.GlanceModifier
-import androidx.glance.findModifier
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 

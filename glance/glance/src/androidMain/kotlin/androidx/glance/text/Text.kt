@@ -15,14 +15,13 @@
  * limitations under the License.
  */
 
-package androidx.glance.layout
+package androidx.glance.text
 
 import androidx.annotation.RestrictTo
 import androidx.compose.runtime.Composable
 import androidx.glance.Emittable
 import androidx.glance.GlanceModifier
 import androidx.glance.GlanceNode
-import androidx.glance.text.TextStyle
 
 /**
  * Adds a text view to the glance view.

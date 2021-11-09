@@ -16,11 +16,17 @@
 
 package androidx.glance.appwidget.layout
 
+import androidx.glance.appwidget.lazy.EmittableLazyColumn
+import androidx.glance.appwidget.lazy.EmittableLazyListItem
+import androidx.glance.appwidget.lazy.LazyColumn
+import androidx.glance.appwidget.lazy.ReservedItemIdRangeEnd
+import androidx.glance.appwidget.lazy.items
+import androidx.glance.appwidget.lazy.itemsIndexed
 import androidx.glance.appwidget.runTestingComposition
 import androidx.glance.layout.EmittableRow
-import androidx.glance.layout.EmittableText
 import androidx.glance.layout.Row
-import androidx.glance.layout.Text
+import androidx.glance.text.EmittableText
+import androidx.glance.text.Text
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.TestCoroutineScope

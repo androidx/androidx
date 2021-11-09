@@ -1,6 +1,15 @@
 // Signature format: 4.0
 package androidx.glance.wear {
 
+  public final class AndroidLayoutElementKt {
+    method @androidx.compose.runtime.Composable public static void AndroidLayoutElement(androidx.wear.tiles.LayoutElementBuilders.LayoutElement layoutElement);
+  }
+
+  public final class BorderKt {
+    method public static androidx.glance.GlanceModifier border(androidx.glance.GlanceModifier, float width, androidx.glance.unit.ColorProvider color);
+    method public static androidx.glance.GlanceModifier border(androidx.glance.GlanceModifier, @DimenRes int width, androidx.glance.unit.ColorProvider color);
+  }
+
   public abstract class GlanceTileService extends androidx.wear.tiles.TileService {
     ctor public GlanceTileService();
     method @androidx.compose.runtime.Composable public abstract void Content();
@@ -17,7 +26,7 @@ package androidx.glance.wear {
 
 }
 
-package androidx.glance.wear.layout {
+package androidx.glance.wear.curved {
 
   public final inline class AnchorType {
     ctor public AnchorType();
@@ -32,22 +41,13 @@ package androidx.glance.wear.layout {
     property public final int Start;
   }
 
-  public final class AndroidLayoutElementKt {
-    method @androidx.compose.runtime.Composable public static void AndroidLayoutElement(androidx.wear.tiles.LayoutElementBuilders.LayoutElement layoutElement);
-  }
-
-  public final class BorderKt {
-    method public static androidx.glance.GlanceModifier border(androidx.glance.GlanceModifier, float width, androidx.glance.unit.ColorProvider color);
-    method public static androidx.glance.GlanceModifier border(androidx.glance.GlanceModifier, @DimenRes int width, androidx.glance.unit.ColorProvider color);
-  }
-
   public final class CurvedRowKt {
-    method @androidx.compose.runtime.Composable public static void CurvedRow(optional androidx.glance.GlanceModifier modifier, optional float anchorDegrees, optional int anchorType, optional int radialAlignment, kotlin.jvm.functions.Function1<? super androidx.glance.wear.layout.CurvedRowScope,kotlin.Unit> content);
+    method @androidx.compose.runtime.Composable public static void CurvedRow(optional androidx.glance.GlanceModifier modifier, optional float anchorDegrees, optional int anchorType, optional int radialAlignment, kotlin.jvm.functions.Function1<? super androidx.glance.wear.curved.CurvedRowScope,kotlin.Unit> content);
   }
 
   public final class CurvedRowScope {
     ctor public CurvedRowScope();
-    method @androidx.compose.runtime.Composable public void CurvedText(String text, optional androidx.glance.GlanceModifier modifier, optional androidx.glance.wear.layout.CurvedTextStyle? textStyle);
+    method @androidx.compose.runtime.Composable public void CurvedText(String text, optional androidx.glance.GlanceModifier modifier, optional androidx.glance.wear.curved.CurvedTextStyle? textStyle);
   }
 
   @androidx.compose.runtime.Immutable public final class CurvedTextStyle {

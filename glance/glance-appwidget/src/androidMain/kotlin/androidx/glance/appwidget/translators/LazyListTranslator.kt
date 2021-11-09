@@ -24,10 +24,10 @@ import androidx.glance.appwidget.TopLevelLayoutsCount
 import androidx.glance.appwidget.TranslationContext
 import androidx.glance.appwidget.applyModifiers
 import androidx.glance.appwidget.insertView
-import androidx.glance.appwidget.layout.EmittableLazyColumn
-import androidx.glance.appwidget.layout.EmittableLazyList
-import androidx.glance.appwidget.layout.EmittableLazyListItem
-import androidx.glance.appwidget.layout.ReservedItemIdRangeEnd
+import androidx.glance.appwidget.lazy.EmittableLazyColumn
+import androidx.glance.appwidget.lazy.EmittableLazyList
+import androidx.glance.appwidget.lazy.EmittableLazyListItem
+import androidx.glance.appwidget.lazy.ReservedItemIdRangeEnd
 import androidx.glance.appwidget.translateChild
 import androidx.glance.appwidget.translateComposition
 import androidx.glance.layout.Alignment

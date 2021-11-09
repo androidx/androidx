@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.glance.appwidget.layout
+package androidx.glance.appwidget
 
 import androidx.annotation.ColorRes
 import androidx.compose.runtime.Composable
@@ -22,7 +22,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.glance.Emittable
 import androidx.glance.GlanceModifier
 import androidx.glance.GlanceNode
-import androidx.glance.appwidget.R
 import androidx.glance.text.TextStyle
 
 /** Set of colors to apply to a CheckBox depending on the checked state. */

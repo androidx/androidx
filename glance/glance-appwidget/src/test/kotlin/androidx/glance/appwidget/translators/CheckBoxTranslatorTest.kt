@@ -20,13 +20,13 @@ import android.content.Context
 import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.compose.ui.graphics.Color
+import androidx.glance.appwidget.CheckBox
+import androidx.glance.appwidget.CheckBoxColors
 import androidx.glance.appwidget.ImageViewSubject.Companion.assertThat
-import androidx.glance.appwidget.test.R
 import androidx.glance.appwidget.applyRemoteViews
 import androidx.glance.appwidget.findViewByType
-import androidx.glance.appwidget.layout.CheckBox
-import androidx.glance.appwidget.layout.CheckBoxColors
 import androidx.glance.appwidget.runAndTranslate
+import androidx.glance.appwidget.test.R
 import androidx.test.core.app.ApplicationProvider
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.TestCoroutineScope

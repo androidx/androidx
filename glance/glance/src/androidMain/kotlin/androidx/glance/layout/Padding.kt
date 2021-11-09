@@ -18,9 +18,9 @@ package androidx.glance.layout
 import android.content.res.Resources
 import androidx.annotation.DimenRes
 import androidx.annotation.RestrictTo
-import androidx.glance.GlanceModifier
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.glance.GlanceModifier
 
 /**
  * Apply additional space along each edge of the content in [Dp]: [start], [top], [end] and
