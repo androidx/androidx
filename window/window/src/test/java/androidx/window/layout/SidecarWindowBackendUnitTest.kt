@@ -31,29 +31,29 @@ import org.junit.Before
 import org.junit.Test
 
 /**
- * Unit tests for [ExtensionWindowBackend] that run on the JVM.
+ * Unit tests for [SidecarWindowBackend] that run on the JVM.
  */
-public class ExtensionWindowBackendUnitTest {
+public class SidecarWindowBackendUnitTest {
     private lateinit var context: Context
     @Before
     public fun setUp() {
         context = mock()
-        ExtensionWindowBackend.resetInstance()
+        SidecarWindowBackend.resetInstance()
     }
 
     @Test
     public fun testGetInstance() {
-        val backend = ExtensionWindowBackend.getInstance(context)
+        val backend = SidecarWindowBackend.getInstance(context)
         assertNotNull(backend)
 
         // Verify that getInstance always returns the same value
-        val newBackend = ExtensionWindowBackend.getInstance(context)
+        val newBackend = SidecarWindowBackend.getInstance(context)
         assertEquals(backend, newBackend)
     }
 
     @Test
     public fun testRegisterLayoutChangeCallback() {
-        val backend = ExtensionWindowBackend.getInstance(context)
+        val backend = SidecarWindowBackend.getInstance(context)
         backend.windowExtension = mock()
 
         // Check registering the layout change callback
@@ -73,7 +73,7 @@ public class ExtensionWindowBackendUnitTest {
 
     @Test
     public fun testRegisterLayoutChangeCallback_noExtension() {
-        val backend = ExtensionWindowBackend.getInstance(context)
+        val backend = SidecarWindowBackend.getInstance(context)
         backend.windowExtension = null
 
         // Check registering the layout change callback
@@ -88,7 +88,7 @@ public class ExtensionWindowBackendUnitTest {
         val expectedInfo = newTestWindowLayoutInfo()
         val extensionInterfaceCompat: ExtensionInterfaceCompat =
             SynchronousExtensionInterface(expectedInfo)
-        val backend = ExtensionWindowBackend(extensionInterfaceCompat)
+        val backend = SidecarWindowBackend(extensionInterfaceCompat)
 
         // Check registering the layout change callback
         val consumer: Consumer<WindowLayoutInfo> = mock()
@@ -101,7 +101,7 @@ public class ExtensionWindowBackendUnitTest {
 
     @Test
     public fun testRegisterLayoutChangeCallback_callsExtensionOnce() {
-        val backend = ExtensionWindowBackend.getInstance(context)
+        val backend = SidecarWindowBackend.getInstance(context)
         backend.windowExtension = mock()
 
         // Check registering the layout change callback
@@ -124,7 +124,7 @@ public class ExtensionWindowBackendUnitTest {
 
     @Test
     public fun testRegisterLayoutChangeCallback_clearListeners() {
-        val backend = ExtensionWindowBackend.getInstance(context)
+        val backend = SidecarWindowBackend.getInstance(context)
         backend.windowExtension = mock()
 
         // Check registering the layout change callback

@@ -32,7 +32,7 @@ import androidx.annotation.VisibleForTesting
 import androidx.window.core.Version
 import androidx.window.core.Version.Companion.parse
 import androidx.window.layout.ExtensionInterfaceCompat.ExtensionCallbackInterface
-import androidx.window.layout.ExtensionWindowBackend.Companion.DEBUG
+import androidx.window.layout.SidecarWindowBackend.Companion.DEBUG
 import androidx.window.sidecar.SidecarDeviceState
 import androidx.window.sidecar.SidecarDisplayFeature
 import androidx.window.sidecar.SidecarInterface

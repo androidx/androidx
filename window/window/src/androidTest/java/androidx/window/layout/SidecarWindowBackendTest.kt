@@ -21,6 +21,7 @@ import androidx.core.util.Consumer
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
+import androidx.window.TestConsumer
 import androidx.window.WindowTestBase
 import androidx.window.core.Bounds
 import androidx.window.layout.FoldingFeature.State.Companion.FLAT
@@ -38,25 +39,25 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 
-/** Tests for [ExtensionWindowBackend] class.  */
+/** Tests for [SidecarWindowBackend] class.  */
 @LargeTest
 @RunWith(AndroidJUnit4::class)
-public class ExtensionWindowBackendTest : WindowTestBase() {
+public class SidecarWindowBackendTest : WindowTestBase() {
     private lateinit var context: Context
 
     @Before
     public fun setUp() {
         context = ApplicationProvider.getApplicationContext()
-        ExtensionWindowBackend.resetInstance()
+        SidecarWindowBackend.resetInstance()
     }
 
     @Test
     public fun testGetInstance() {
-        val backend = ExtensionWindowBackend.getInstance(context)
+        val backend = SidecarWindowBackend.getInstance(context)
         assertNotNull(backend)
 
         // Verify that getInstance always returns the same value
-        val newBackend = ExtensionWindowBackend.getInstance(context)
+        val newBackend = SidecarWindowBackend.getInstance(context)
         assertEquals(backend, newBackend)
     }
 
@@ -64,8 +65,8 @@ public class ExtensionWindowBackendTest : WindowTestBase() {
     public fun testInitAndVerifySidecar() {
         val sidecarVersion = SidecarCompat.sidecarVersion
         assumeTrue(sidecarVersion != null)
-        assertTrue(ExtensionWindowBackend.isSidecarVersionSupported(sidecarVersion))
-        val sidecar = ExtensionWindowBackend.initAndVerifyExtension(context)
+        assertTrue(SidecarWindowBackend.isSidecarVersionSupported(sidecarVersion))
+        val sidecar = SidecarWindowBackend.initAndVerifyExtension(context)
         assertNotNull(sidecar)
         assertTrue(sidecar is SidecarCompat)
         assertTrue(sidecar!!.validateExtensionInterface())
@@ -74,7 +75,7 @@ public class ExtensionWindowBackendTest : WindowTestBase() {
     @Test
     public fun testRegisterLayoutChangeCallback() {
         activityTestRule.scenario.onActivity { activity ->
-            val backend = ExtensionWindowBackend.getInstance(context)
+            val backend = SidecarWindowBackend.getInstance(context)
             backend.windowExtension = mock()
             // Check registering the layout change callback
             val consumer = mock<Consumer<WindowLayoutInfo>>()
@@ -95,7 +96,7 @@ public class ExtensionWindowBackendTest : WindowTestBase() {
     @Test
     public fun testRegisterLayoutChangeCallback_callsExtensionOnce() {
         activityTestRule.scenario.onActivity { activity ->
-            val backend = ExtensionWindowBackend.getInstance(context)
+            val backend = SidecarWindowBackend.getInstance(context)
             backend.windowExtension = mock()
 
             // Check registering the layout change callback
@@ -117,7 +118,7 @@ public class ExtensionWindowBackendTest : WindowTestBase() {
     @Test
     public fun testRegisterLayoutChangeCallback_clearListeners() {
         activityTestRule.scenario.onActivity { activity ->
-            val backend = ExtensionWindowBackend.getInstance(context)
+            val backend = SidecarWindowBackend.getInstance(context)
             backend.windowExtension = mock()
 
             // Check registering the layout change callback
@@ -146,7 +147,7 @@ public class ExtensionWindowBackendTest : WindowTestBase() {
     @Test
     public fun testLayoutChangeCallback_emitNewValue() {
         activityTestRule.scenario.onActivity { activity ->
-            val backend = ExtensionWindowBackend.getInstance(context)
+            val backend = SidecarWindowBackend.getInstance(context)
             backend.windowExtension = mock()
 
             // Check that callbacks from the extension are propagated correctly
@@ -163,27 +164,26 @@ public class ExtensionWindowBackendTest : WindowTestBase() {
     @Test
     public fun testWindowLayoutInfo_updatesOnSubsequentRegistration() {
         val interfaceCompat = SwitchOnUnregisterExtensionInterfaceCompat()
-        val backend = ExtensionWindowBackend(interfaceCompat)
+        val backend = SidecarWindowBackend(interfaceCompat)
         val activity = mock<Activity>()
-        val consumer = SimpleConsumer<WindowLayoutInfo>()
-        val executor = MoreExecutors.directExecutor()
+        val consumer = TestConsumer<WindowLayoutInfo>()
         val expected = mutableListOf<WindowLayoutInfo>()
-        backend.registerLayoutChangeCallback(activity, executor, consumer)
+        backend.registerLayoutChangeCallback(activity, Runnable::run, consumer)
         expected.add(interfaceCompat.currentWindowLayoutInfo())
         backend.unregisterLayoutChangeCallback(consumer)
-        backend.registerLayoutChangeCallback(activity, executor, consumer)
+        backend.registerLayoutChangeCallback(activity, Runnable::run, consumer)
         expected.add(interfaceCompat.currentWindowLayoutInfo())
         backend.unregisterLayoutChangeCallback(consumer)
-        assertEquals(expected, consumer.values)
+        consumer.assertValues(expected)
     }
 
     @Test
     public fun testWindowLayoutInfo_secondCallbackUpdatesOnRegistration() {
         val interfaceCompat = SwitchOnUnregisterExtensionInterfaceCompat()
-        val backend = ExtensionWindowBackend(interfaceCompat)
+        val backend = SidecarWindowBackend(interfaceCompat)
         val activity = mock<Activity>()
-        val firstConsumer = SimpleConsumer<WindowLayoutInfo>()
-        val secondConsumer = SimpleConsumer<WindowLayoutInfo>()
+        val firstConsumer = TestConsumer<WindowLayoutInfo>()
+        val secondConsumer = TestConsumer<WindowLayoutInfo>()
         val executor = MoreExecutors.directExecutor()
         val firstExpected = mutableListOf<WindowLayoutInfo>()
         val secondExpected = mutableListOf<WindowLayoutInfo>()
@@ -193,16 +193,8 @@ public class ExtensionWindowBackendTest : WindowTestBase() {
         secondExpected.add(interfaceCompat.currentWindowLayoutInfo())
         backend.unregisterLayoutChangeCallback(firstConsumer)
         backend.unregisterLayoutChangeCallback(secondConsumer)
-        assertEquals(firstExpected, firstConsumer.values)
-        assertEquals(secondExpected, secondConsumer.values)
-    }
-
-    private class SimpleConsumer<T> : Consumer<T> {
-        val values = mutableListOf<T>()
-
-        override fun accept(t: T) {
-            values.add(t)
-        }
+        firstConsumer.assertValues(firstExpected)
+        secondConsumer.assertValues(secondExpected)
     }
 
     internal companion object {

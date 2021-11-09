@@ -18,8 +18,6 @@
     package="androidx.window.testing">
 
     <application>
-        <uses-library android:name="androidx.window.extension" android:required="false" />
-
         <activity android:name="androidx.window.TestActivity" />
         <activity android:name="androidx.window.TestConfigChangeHandlingActivity"
             android:configChanges="orientation|screenLayout|screenSize"/>

@@ -50,7 +50,7 @@ import java.util.HashSet
 /** Tests for the extension implementation on the device.  */
 @LargeTest
 @RunWith(AndroidJUnit4::class)
-public class ExtensionTest : WindowTestBase() {
+public class SidecarWindowBackendIntegrationTest : WindowTestBase() {
 
     private lateinit var context: Context
 
@@ -65,7 +65,7 @@ public class ExtensionTest : WindowTestBase() {
     @Test
     public fun testExtensionInterface() {
         assumeExtensionV10_V01()
-        val extension = ExtensionWindowBackend.initAndVerifyExtension(context)
+        val extension = SidecarWindowBackend.initAndVerifyExtension(context)
         assertTrue(extension!!.validateExtensionInterface())
     }
 
@@ -87,7 +87,7 @@ public class ExtensionTest : WindowTestBase() {
     @Test
     public fun testWindowLayoutCallback() {
         assumeExtensionV10_V01()
-        val extension = ExtensionWindowBackend.initAndVerifyExtension(context)
+        val extension = SidecarWindowBackend.initAndVerifyExtension(context)
         val callbackInterface = mock<ExtensionCallbackInterface>()
         extension!!.setExtensionCallback(callbackInterface)
         activityTestRule.scenario.onActivity { activity ->
@@ -103,7 +103,7 @@ public class ExtensionTest : WindowTestBase() {
     @Test
     public fun testRegisterWindowLayoutChangeListener() {
         assumeExtensionV10_V01()
-        val extension = ExtensionWindowBackend.initAndVerifyExtension(context)
+        val extension = SidecarWindowBackend.initAndVerifyExtension(context)
         activityTestRule.scenario.onActivity { activity ->
             extension!!.onWindowLayoutChangeListenerAdded(activity)
             extension.onWindowLayoutChangeListenerRemoved(activity)
@@ -113,7 +113,7 @@ public class ExtensionTest : WindowTestBase() {
     @Test
     public fun testWindowLayoutUpdatesOnConfigChange() {
         assumeExtensionV10_V01()
-        val extension = ExtensionWindowBackend.initAndVerifyExtension(context)
+        val extension = SidecarWindowBackend.initAndVerifyExtension(context)
         val callbackInterface = mock<ExtensionCallbackInterface>()
 
         extension!!.setExtensionCallback(callbackInterface)
@@ -154,7 +154,7 @@ public class ExtensionTest : WindowTestBase() {
     @Test
     public fun testWindowLayoutUpdatesOnRecreate() {
         assumeExtensionV10_V01()
-        val extension = ExtensionWindowBackend.initAndVerifyExtension(context)
+        val extension = SidecarWindowBackend.initAndVerifyExtension(context)
         val callbackInterface = mock<ExtensionCallbackInterface>()
         extension!!.setExtensionCallback(callbackInterface)
         activityTestRule.scenario.onActivity { activity ->

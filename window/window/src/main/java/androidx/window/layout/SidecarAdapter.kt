@@ -21,7 +21,7 @@ import android.annotation.SuppressLint
 import android.util.Log
 import androidx.annotation.VisibleForTesting
 import androidx.window.core.Bounds
-import androidx.window.layout.ExtensionWindowBackend.Companion.DEBUG
+import androidx.window.layout.SidecarWindowBackend.Companion.DEBUG
 import androidx.window.sidecar.SidecarDeviceState
 import androidx.window.sidecar.SidecarDisplayFeature
 import androidx.window.sidecar.SidecarWindowLayoutInfo

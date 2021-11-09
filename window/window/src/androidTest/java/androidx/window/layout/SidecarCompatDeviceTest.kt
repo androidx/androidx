@@ -36,6 +36,7 @@ import androidx.window.sidecar.SidecarWindowLayoutInfo
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.argThat
 import com.nhaarman.mockitokotlin2.atLeastOnce
+import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -101,9 +102,13 @@ public class SidecarCompatDeviceTest : WindowTestBase(), CompatDeviceTestInterfa
                 assertNotNull(windowToken)
                 val sidecarWindowLayoutInfo =
                     sidecarCompat.sidecar!!.getWindowLayoutInfo(windowToken)
+                val expected = SidecarAdapter().translate(
+                    sidecarWindowLayoutInfo,
+                    sidecarCompat.sidecar!!.deviceState
+                )
                 verify(callbackInterface, atLeastOnce()).onWindowLayoutChanged(
                     any(),
-                    argThat(SidecarMatcher(sidecarWindowLayoutInfo))
+                    eq(expected)
                 )
             }
             scenario.onActivity { activity ->
@@ -116,9 +121,13 @@ public class SidecarCompatDeviceTest : WindowTestBase(), CompatDeviceTestInterfa
                 assertNotNull(windowToken)
                 val updatedSidecarWindowLayoutInfo =
                     sidecarCompat.sidecar!!.getWindowLayoutInfo(windowToken)
+                val expected = SidecarAdapter().translate(
+                    updatedSidecarWindowLayoutInfo,
+                    sidecarCompat.sidecar!!.deviceState
+                )
                 verify(callbackInterface, atLeastOnce()).onWindowLayoutChanged(
                     any(),
-                    argThat(SidecarMatcher(updatedSidecarWindowLayoutInfo))
+                    eq(expected)
                 )
             }
         }
