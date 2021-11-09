@@ -360,7 +360,6 @@ A fine\-grained performance profile is available\: use the \-\-scan option\.
 # > Task :annotation:annotation-experimental-lint:compileKotlin
 w\: ATTENTION\!
 This build uses unsafe internal compiler arguments\:
-\-XXLanguage:\+NonParenthesizedAnnotationsOnFunctionalTypes
 This mode is not recommended for production use\,
 as no stability\/compatibility guarantees are given on
 compiler or generated code\. Use it at your own risk\!
