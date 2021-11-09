@@ -33,7 +33,7 @@ internal fun Resolver.requireClass(qName: String) = checkNotNull(findClass(qName
     "cannot find class $qName"
 }
 
-internal fun Resolver.requireType(qName: String) = requireClass(qName).asStarProjectedType()
+internal fun Resolver.requireType(qName: String) = requireClass(qName).asType(emptyList())
 
 internal fun Resolver.requireContinuationClass() = requireClass("kotlin.coroutines.Continuation")
 

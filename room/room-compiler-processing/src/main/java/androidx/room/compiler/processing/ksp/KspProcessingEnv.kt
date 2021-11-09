@@ -105,7 +105,7 @@ internal class KspProcessingEnv(
         return resolver.findClass(kotlinTypeName)?.let {
             wrap(
                 allowPrimitives = KspTypeMapper.isJavaPrimitiveType(qName),
-                ksType = it.asStarProjectedType()
+                ksType = it.asType(emptyList())
             )
         }
     }
