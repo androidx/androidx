@@ -1,0 +1,3 @@
+// Baseline format: 1.0
+DocumentExceptions: androidx.concurrent.futures.ListenableFutureKt#await(com.google.common.util.concurrent.ListenableFuture<T>, kotlin.coroutines.Continuation<? super T>):
+    Method ListenableFutureKt.await appears to be throwing java.lang.Throwable; this should be recorded with a @Throws annotation; see https://android.github.io/kotlin-guides/interop.html#document-exceptions

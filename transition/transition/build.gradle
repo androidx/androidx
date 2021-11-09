@@ -1,0 +1,52 @@
+import androidx.build.LibraryGroups
+import androidx.build.Publish
+
+plugins {
+    id("AndroidXPlugin")
+    id("com.android.library")
+    id("kotlin-android")
+}
+
+dependencies {
+    api("androidx.annotation:annotation:1.1.0")
+    api("androidx.core:core:1.1.0")
+    implementation("androidx.collection:collection:1.1.0")
+    compileOnly("androidx.fragment:fragment:1.2.5")
+    compileOnly("androidx.appcompat:appcompat:1.0.1")
+
+    androidTestImplementation(libs.kotlinStdlib)
+    androidTestImplementation(libs.testExtJunit)
+    androidTestImplementation(libs.testCore)
+    androidTestImplementation(libs.testRunner)
+    androidTestImplementation(libs.testRules)
+    androidTestImplementation(libs.truth)
+    androidTestImplementation(libs.espressoCore, excludes.espresso)
+    androidTestImplementation(libs.mockitoCore, excludes.bytebuddy) // DexMaker has it"s own MockMaker
+    androidTestImplementation(libs.dexmakerMockito, excludes.bytebuddy) // DexMaker has it"s own MockMaker
+    androidTestImplementation(project(":fragment:fragment"))
+    androidTestImplementation("androidx.appcompat:appcompat:1.1.0")
+    androidTestImplementation(project(":internal-testutils-runtime"), {
+        exclude group: "androidx.fragment", module: "fragment"
+    })
+    androidTestImplementation(libs.multidex)
+}
+
+android {
+    buildTypes.all {
+        consumerProguardFiles "proguard-rules.pro"
+    }
+    aaptOptions {
+        additionalParameters "--no-version-transitions"
+    }
+    defaultConfig {
+        multiDexEnabled = true
+    }
+}
+
+androidx {
+    name = "Android Transition Support Library"
+    publish = Publish.SNAPSHOT_AND_RELEASE
+    mavenGroup = LibraryGroups.TRANSITION
+    inceptionYear = "2016"
+    description = "Android Transition Support Library"
+}

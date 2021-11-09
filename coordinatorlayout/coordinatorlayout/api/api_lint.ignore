@@ -1,0 +1,101 @@
+// Baseline format: 1.0
+MissingNullability: androidx.coordinatorlayout.widget.CoordinatorLayout#checkLayoutParams(android.view.ViewGroup.LayoutParams) parameter #0:
+    Missing nullability on parameter `p` in method `checkLayoutParams`
+MissingNullability: androidx.coordinatorlayout.widget.CoordinatorLayout#drawChild(android.graphics.Canvas, android.view.View, long) parameter #0:
+    Missing nullability on parameter `canvas` in method `drawChild`
+MissingNullability: androidx.coordinatorlayout.widget.CoordinatorLayout#drawChild(android.graphics.Canvas, android.view.View, long) parameter #1:
+    Missing nullability on parameter `child` in method `drawChild`
+MissingNullability: androidx.coordinatorlayout.widget.CoordinatorLayout#generateDefaultLayoutParams():
+    Missing nullability on method `generateDefaultLayoutParams` return
+MissingNullability: androidx.coordinatorlayout.widget.CoordinatorLayout#generateLayoutParams(android.util.AttributeSet):
+    Missing nullability on method `generateLayoutParams` return
+MissingNullability: androidx.coordinatorlayout.widget.CoordinatorLayout#generateLayoutParams(android.util.AttributeSet) parameter #0:
+    Missing nullability on parameter `attrs` in method `generateLayoutParams`
+MissingNullability: androidx.coordinatorlayout.widget.CoordinatorLayout#generateLayoutParams(android.view.ViewGroup.LayoutParams):
+    Missing nullability on method `generateLayoutParams` return
+MissingNullability: androidx.coordinatorlayout.widget.CoordinatorLayout#generateLayoutParams(android.view.ViewGroup.LayoutParams) parameter #0:
+    Missing nullability on parameter `p` in method `generateLayoutParams`
+MissingNullability: androidx.coordinatorlayout.widget.CoordinatorLayout#onDraw(android.graphics.Canvas) parameter #0:
+    Missing nullability on parameter `c` in method `onDraw`
+MissingNullability: androidx.coordinatorlayout.widget.CoordinatorLayout#onInterceptTouchEvent(android.view.MotionEvent) parameter #0:
+    Missing nullability on parameter `ev` in method `onInterceptTouchEvent`
+MissingNullability: androidx.coordinatorlayout.widget.CoordinatorLayout#onMeasureChild(android.view.View, int, int, int, int) parameter #0:
+    Missing nullability on parameter `child` in method `onMeasureChild`
+MissingNullability: androidx.coordinatorlayout.widget.CoordinatorLayout#onNestedFling(android.view.View, float, float, boolean) parameter #0:
+    Missing nullability on parameter `target` in method `onNestedFling`
+MissingNullability: androidx.coordinatorlayout.widget.CoordinatorLayout#onNestedPreFling(android.view.View, float, float) parameter #0:
+    Missing nullability on parameter `target` in method `onNestedPreFling`
+MissingNullability: androidx.coordinatorlayout.widget.CoordinatorLayout#onNestedPreScroll(android.view.View, int, int, int[]) parameter #0:
+    Missing nullability on parameter `target` in method `onNestedPreScroll`
+MissingNullability: androidx.coordinatorlayout.widget.CoordinatorLayout#onNestedPreScroll(android.view.View, int, int, int[]) parameter #3:
+    Missing nullability on parameter `consumed` in method `onNestedPreScroll`
+MissingNullability: androidx.coordinatorlayout.widget.CoordinatorLayout#onNestedPreScroll(android.view.View, int, int, int[], int) parameter #0:
+    Missing nullability on parameter `target` in method `onNestedPreScroll`
+MissingNullability: androidx.coordinatorlayout.widget.CoordinatorLayout#onNestedPreScroll(android.view.View, int, int, int[], int) parameter #3:
+    Missing nullability on parameter `consumed` in method `onNestedPreScroll`
+MissingNullability: androidx.coordinatorlayout.widget.CoordinatorLayout#onNestedScroll(android.view.View, int, int, int, int) parameter #0:
+    Missing nullability on parameter `target` in method `onNestedScroll`
+MissingNullability: androidx.coordinatorlayout.widget.CoordinatorLayout#onNestedScroll(android.view.View, int, int, int, int, int) parameter #0:
+    Missing nullability on parameter `target` in method `onNestedScroll`
+MissingNullability: androidx.coordinatorlayout.widget.CoordinatorLayout#onNestedScrollAccepted(android.view.View, android.view.View, int) parameter #0:
+    Missing nullability on parameter `child` in method `onNestedScrollAccepted`
+MissingNullability: androidx.coordinatorlayout.widget.CoordinatorLayout#onNestedScrollAccepted(android.view.View, android.view.View, int) parameter #1:
+    Missing nullability on parameter `target` in method `onNestedScrollAccepted`
+MissingNullability: androidx.coordinatorlayout.widget.CoordinatorLayout#onNestedScrollAccepted(android.view.View, android.view.View, int, int) parameter #0:
+    Missing nullability on parameter `child` in method `onNestedScrollAccepted`
+MissingNullability: androidx.coordinatorlayout.widget.CoordinatorLayout#onNestedScrollAccepted(android.view.View, android.view.View, int, int) parameter #1:
+    Missing nullability on parameter `target` in method `onNestedScrollAccepted`
+MissingNullability: androidx.coordinatorlayout.widget.CoordinatorLayout#onRestoreInstanceState(android.os.Parcelable) parameter #0:
+    Missing nullability on parameter `state` in method `onRestoreInstanceState`
+MissingNullability: androidx.coordinatorlayout.widget.CoordinatorLayout#onSaveInstanceState():
+    Missing nullability on method `onSaveInstanceState` return
+MissingNullability: androidx.coordinatorlayout.widget.CoordinatorLayout#onStartNestedScroll(android.view.View, android.view.View, int) parameter #0:
+    Missing nullability on parameter `child` in method `onStartNestedScroll`
+MissingNullability: androidx.coordinatorlayout.widget.CoordinatorLayout#onStartNestedScroll(android.view.View, android.view.View, int) parameter #1:
+    Missing nullability on parameter `target` in method `onStartNestedScroll`
+MissingNullability: androidx.coordinatorlayout.widget.CoordinatorLayout#onStartNestedScroll(android.view.View, android.view.View, int, int) parameter #0:
+    Missing nullability on parameter `child` in method `onStartNestedScroll`
+MissingNullability: androidx.coordinatorlayout.widget.CoordinatorLayout#onStartNestedScroll(android.view.View, android.view.View, int, int) parameter #1:
+    Missing nullability on parameter `target` in method `onStartNestedScroll`
+MissingNullability: androidx.coordinatorlayout.widget.CoordinatorLayout#onStopNestedScroll(android.view.View) parameter #0:
+    Missing nullability on parameter `target` in method `onStopNestedScroll`
+MissingNullability: androidx.coordinatorlayout.widget.CoordinatorLayout#onStopNestedScroll(android.view.View, int) parameter #0:
+    Missing nullability on parameter `target` in method `onStopNestedScroll`
+MissingNullability: androidx.coordinatorlayout.widget.CoordinatorLayout#onTouchEvent(android.view.MotionEvent) parameter #0:
+    Missing nullability on parameter `ev` in method `onTouchEvent`
+MissingNullability: androidx.coordinatorlayout.widget.CoordinatorLayout#requestChildRectangleOnScreen(android.view.View, android.graphics.Rect, boolean) parameter #0:
+    Missing nullability on parameter `child` in method `requestChildRectangleOnScreen`
+MissingNullability: androidx.coordinatorlayout.widget.CoordinatorLayout#requestChildRectangleOnScreen(android.view.View, android.graphics.Rect, boolean) parameter #1:
+    Missing nullability on parameter `rectangle` in method `requestChildRectangleOnScreen`
+MissingNullability: androidx.coordinatorlayout.widget.CoordinatorLayout#setOnHierarchyChangeListener(android.view.ViewGroup.OnHierarchyChangeListener) parameter #0:
+    Missing nullability on parameter `onHierarchyChangeListener` in method `setOnHierarchyChangeListener`
+MissingNullability: androidx.coordinatorlayout.widget.CoordinatorLayout#verifyDrawable(android.graphics.drawable.Drawable) parameter #0:
+    Missing nullability on parameter `who` in method `verifyDrawable`
+MissingNullability: androidx.coordinatorlayout.widget.CoordinatorLayout.Behavior#Behavior(android.content.Context, android.util.AttributeSet) parameter #0:
+    Missing nullability on parameter `context` in method `Behavior`
+MissingNullability: androidx.coordinatorlayout.widget.CoordinatorLayout.Behavior#Behavior(android.content.Context, android.util.AttributeSet) parameter #1:
+    Missing nullability on parameter `attrs` in method `Behavior`
+MissingNullability: androidx.coordinatorlayout.widget.CoordinatorLayout.LayoutParams#LayoutParams(android.view.ViewGroup.LayoutParams) parameter #0:
+    Missing nullability on parameter `p` in method `LayoutParams`
+MissingNullability: androidx.coordinatorlayout.widget.CoordinatorLayout.LayoutParams#LayoutParams(android.view.ViewGroup.MarginLayoutParams) parameter #0:
+    Missing nullability on parameter `p` in method `LayoutParams`
+MissingNullability: androidx.coordinatorlayout.widget.CoordinatorLayout.LayoutParams#LayoutParams(androidx.coordinatorlayout.widget.CoordinatorLayout.LayoutParams) parameter #0:
+    Missing nullability on parameter `p` in method `LayoutParams`
+MissingNullability: androidx.coordinatorlayout.widget.CoordinatorLayout.SavedState#CREATOR:
+    Missing nullability on field `CREATOR` in class `class androidx.coordinatorlayout.widget.CoordinatorLayout.SavedState`
+MissingNullability: androidx.coordinatorlayout.widget.CoordinatorLayout.SavedState#SavedState(android.os.Parcel, ClassLoader) parameter #0:
+    Missing nullability on parameter `source` in method `SavedState`
+MissingNullability: androidx.coordinatorlayout.widget.CoordinatorLayout.SavedState#SavedState(android.os.Parcel, ClassLoader) parameter #1:
+    Missing nullability on parameter `loader` in method `SavedState`
+MissingNullability: androidx.coordinatorlayout.widget.CoordinatorLayout.SavedState#SavedState(android.os.Parcelable) parameter #0:
+    Missing nullability on parameter `superState` in method `SavedState`
+MissingNullability: androidx.coordinatorlayout.widget.CoordinatorLayout.SavedState#writeToParcel(android.os.Parcel, int) parameter #0:
+    Missing nullability on parameter `dest` in method `writeToParcel`
+
+
+ParcelCreator: androidx.coordinatorlayout.widget.CoordinatorLayout.SavedState:
+    Parcelable requires `public int describeContents()`; missing in androidx.coordinatorlayout.widget.CoordinatorLayout.SavedState
+
+
+ParcelNotFinal: androidx.coordinatorlayout.widget.CoordinatorLayout.SavedState:
+    Parcelable classes must be final: androidx.coordinatorlayout.widget.CoordinatorLayout.SavedState is not final

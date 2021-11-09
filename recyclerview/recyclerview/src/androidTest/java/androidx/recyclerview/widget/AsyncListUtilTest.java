@@ -22,6 +22,7 @@ import static org.junit.Assert.assertTrue;
 import android.util.SparseBooleanArray;
 
 import androidx.annotation.UiThread;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
 import androidx.test.filters.Suppress;
 import androidx.test.rule.ActivityTestRule;
@@ -31,7 +32,6 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -39,7 +39,7 @@ import java.util.concurrent.TimeUnit;
 // This test is disabled as it is flaky.
 @Suppress
 @MediumTest
-@RunWith(JUnit4.class)
+@RunWith(AndroidJUnit4.class)
 public class AsyncListUtilTest {
     @Rule
     public ActivityTestRule<TestActivity> mActivityRule =

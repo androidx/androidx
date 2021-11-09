@@ -22,8 +22,9 @@ limitations under the License.
     android:layout_height="match_parent"
     tools:context="androidx.camera.integration.core.CameraXActivity">
 
-    <TextureView
-        android:id="@+id/textureView"
+    <ViewStub
+        android:id="@+id/viewFinderStub"
+        android:inflatedId="@id/viewFinder"
         android:layout_width="0dp"
         android:layout_height="0dp"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -39,6 +40,23 @@ limitations under the License.
         android:elevation="2dp"
         android:scaleType="fitXY"
         android:src="@android:drawable/btn_radio"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintDimensionRatio="4:3"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="@+id/guideline"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="1.0" />
+
+    <TextView
+        android:id="@+id/video_stats"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:background="#FFF"
+        android:elevation="2dp"
+        android:scaleType="fitXY"
+        android:src="@android:drawable/btn_radio"
+        android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintDimensionRatio="4:3"
         app:layout_constraintEnd_toEndOf="parent"
@@ -98,25 +116,43 @@ limitations under the License.
         app:layout_constraintVertical_bias="1.0" />
 
     <Button
+        android:id="@+id/video_pause"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:scaleType="fitXY"
+        android:text="Pause"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toTopOf="@+id/Video"
+        app:layout_constraintEnd_toEndOf="@+id/Video"
+        app:layout_constraintStart_toStartOf="@+id/Video"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="1.0" />
+
+    <ToggleButton
         android:id="@+id/VideoToggle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:scaleType="fitXY"
-        android:text="Video"
+        android:textOn="@string/toggle_video_on"
+        android:textOff="@string/toggle_video_off"
+        android:checked="false"
+        android:background="@drawable/usecase_toggle_bg_selector"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0"
         app:layout_constraintStart_toStartOf="@+id/constraintLayout"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0"
-        />
+        app:layout_constraintVertical_bias="0" />
 
-    <Button
+    <ToggleButton
         android:id="@+id/PhotoToggle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:scaleType="fitXY"
-        android:text="Photo"
+        android:textOn="@string/toggle_photo_on"
+        android:textOff="@string/toggle_photo_off"
+        android:checked="true"
+        android:background="@drawable/usecase_toggle_bg_selector"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.333"
@@ -125,12 +161,15 @@ limitations under the License.
         app:layout_constraintVertical_bias="0"
         />
 
-    <Button
+    <ToggleButton
         android:id="@+id/AnalysisToggle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:scaleType="fitXY"
-        android:text="Analysis"
+        android:textOn="@string/toggle_analysis_on"
+        android:textOff="@string/toggle_analysis_off"
+        android:checked="true"
+        android:background="@drawable/usecase_toggle_bg_selector"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.666"
@@ -139,12 +178,15 @@ limitations under the License.
         app:layout_constraintVertical_bias="0"
         />
 
-    <Button
+    <ToggleButton
         android:id="@+id/PreviewToggle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:scaleType="fitXY"
-        android:text="Preview"
+        android:textOn="@string/toggle_preview_on"
+        android:textOff="@string/toggle_preview_off"
+        android:checked="true"
+        android:background="@drawable/usecase_toggle_bg_selector"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="1.0"
@@ -154,51 +196,152 @@ limitations under the License.
         />
 
     <ImageButton
-        android:id="@+id/torch_toggle"
+        android:id="@+id/direction_toggle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:scaleType="fitXY"
-        android:src="@drawable/ic_flashlight"
-        android:translationZ="1dp"
+        android:layout_marginLeft="5dp"
+        android:layout_marginTop="1dp"
         android:background="@android:drawable/btn_default"
-        android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.05"
-        app:layout_constraintStart_toStartOf="@id/constraintLayout"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.7" />
+        android:scaleType="fitXY"
+        android:src="@drawable/ic_camera_switch"
+        android:translationZ="1dp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/VideoToggle" />
 
     <ImageButton
         android:id="@+id/flash_toggle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginLeft="5dp"
+        android:layout_marginTop="1dp"
+        android:background="@android:drawable/btn_default"
         android:scaleType="fitXY"
         android:src="@drawable/ic_flash_off"
         android:translationZ="1dp"
-        android:background="@android:drawable/btn_default"
-        android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.05"
-        app:layout_constraintStart_toStartOf="@id/constraintLayout"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.5" />
+        app:layout_constraintLeft_toRightOf="@id/direction_toggle"
+        app:layout_constraintTop_toBottomOf="@id/VideoToggle" />
 
     <ImageButton
-        android:id="@+id/direction_toggle"
+        android:id="@+id/torch_toggle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:scaleType="fitXY"
-        android:src="@drawable/ic_camera_switch"
-        android:translationZ="1dp"
+        android:layout_marginLeft="5dp"
+        android:layout_marginTop="1dp"
         android:background="@android:drawable/btn_default"
-        android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:scaleType="fitXY"
+        android:src="@drawable/ic_flashlight"
+        android:translationZ="1dp"
+        app:layout_constraintLeft_toRightOf="@id/flash_toggle"
+        app:layout_constraintTop_toBottomOf="@id/VideoToggle" />
+
+    <ToggleButton
+        android:id="@+id/capture_quality"
+        android:layout_width="46dp"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="5dp"
+        android:layout_marginTop="1dp"
+        android:background="@android:drawable/btn_default"
+        android:textOn="@string/toggle_capture_quality_on"
+        android:textOff="@string/toggle_capture_quality_off"
+        android:textSize="11dp"
+        android:translationZ="1dp"
+        app:layout_constraintLeft_toRightOf="@id/torch_toggle"
+        app:layout_constraintTop_toBottomOf="@id/VideoToggle" />
+
+    <Button
+        android:id="@+id/plus_ev_toggle"
+        android:layout_width="46dp"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="5dp"
+        android:layout_marginTop="1dp"
+        android:background="@android:drawable/btn_default"
+        android:scaleType="fitXY"
+        android:text="@string/toggle_plus_ev"
+        android:textSize="10sp"
+        android:translationZ="1dp"
+        app:layout_constraintLeft_toRightOf="@id/capture_quality"
+        app:layout_constraintTop_toBottomOf="@id/VideoToggle" />
+
+    <Button
+        android:id="@+id/dec_ev_toggle"
+        android:layout_width="46dp"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="5dp"
+        android:layout_marginTop="1dp"
+        android:background="@android:drawable/btn_default"
+        android:scaleType="fitXY"
+        android:text="@string/toggle_dec_ev"
+        android:textSize="10sp"
+        android:translationZ="1dp"
+        app:layout_constraintLeft_toRightOf="@id/plus_ev_toggle"
+        app:layout_constraintTop_toBottomOf="@id/VideoToggle" />
+
+    <Button
+        android:id="@+id/video_quality"
+        android:layout_width="46dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="1dp"
+        android:layout_marginRight="5dp"
+        android:background="@drawable/round_button"
+        android:scaleType="fitXY"
+        android:textColor="#EEEEEE"
+        android:textSize="14dp"
+        android:visibility="invisible"
+        app:layout_constraintTop_toBottomOf="@id/direction_toggle"
+        app:layout_constraintRight_toRightOf="parent"
+        />
+
+    <SeekBar
+        android:id="@+id/seekBar"
+        android:layout_width="250dp"
+        android:layout_height="60dp"
+        android:elevation="3dp"
+
+        app:layout_constraintBottom_toTopOf="@+id/textView"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.05"
-        app:layout_constraintStart_toStartOf="@id/constraintLayout"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.3" />
+        app:layout_constraintHorizontal_bias="0.612"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <Button
+        android:id="@+id/zoom_reset_toggle"
+        android:layout_width="46dp"
+        android:layout_height="wrap_content"
+        android:background="@android:drawable/btn_default"
+        android:scaleType="fitXY"
+        android:text="@string/toggle_zoom_reset"
+        android:textSize="10sp"
+        android:translationZ="1dp"
+        app:layout_constraintStart_toStartOf="@+id/Picture"
+        app:layout_constraintBottom_toTopOf="@+id/Picture" />
+
+    <Button
+        android:id="@+id/zoom_in_2x_toggle"
+        android:layout_width="46dp"
+        android:layout_height="wrap_content"
+        android:background="@android:drawable/btn_default"
+        android:scaleType="fitXY"
+        android:text="@string/toggle_zoom_in_2x"
+        android:textSize="10sp"
+        android:translationZ="1dp"
+        app:layout_constraintLeft_toRightOf="@+id/zoom_reset_toggle"
+        app:layout_constraintBottom_toTopOf="@+id/Picture" />
+
+    <TextView
+        android:id="@+id/zoomRatio"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:elevation="3dp"
+        android:shadowColor="#000000"
+        android:shadowDx="1"
+        android:shadowDy="1"
+        android:shadowRadius= "1"
+        android:text="1x"
+        android:textSize="20dp"
+        android:textColor="#FFFFFF"
+        android:layout_marginRight="10dp"
+        app:layout_constraintBottom_toBottomOf="@+id/seekBar"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/seekBar"
+        app:layout_constraintTop_toTopOf="@+id/seekBar" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

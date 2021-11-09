@@ -1,0 +1,25 @@
+// Baseline format: 1.0
+CallbackMethodName: androidx.activity.OnBackPressedCallback#handleOnBackPressed():
+    Callback method names must follow the on<Something> style: handleOnBackPressed
+
+
+ExecutorRegistration: androidx.activity.OnBackPressedDispatcher#addCallback(androidx.lifecycle.LifecycleOwner, androidx.activity.OnBackPressedCallback):
+    Registration methods should have overload that accepts delivery Executor: `addCallback`
+ExecutorRegistration: androidx.activity.contextaware.ContextAware#addOnContextAvailableListener(androidx.activity.contextaware.OnContextAvailableListener):
+    Registration methods should have overload that accepts delivery Executor: `addOnContextAvailableListener`
+ExecutorRegistration: androidx.activity.contextaware.ContextAwareHelper#addOnContextAvailableListener(androidx.activity.contextaware.OnContextAvailableListener):
+    Registration methods should have overload that accepts delivery Executor: `addOnContextAvailableListener`
+
+
+ForbiddenSuperClass: androidx.activity.ComponentActivity:
+    ComponentActivity should not extend `Activity`. Activity subclasses are impossible to compose. Expose a composable API instead.
+
+
+MissingGetterMatchingBuilder: androidx.activity.result.IntentSenderRequest.Builder#setFlags(int, int):
+    androidx.activity.result.IntentSenderRequest does not declare a `getFlags()` method matching method androidx.activity.result.IntentSenderRequest.Builder.setFlags(int,int)
+
+
+RegistrationName: androidx.activity.OnBackPressedDispatcher#addCallback(androidx.activity.OnBackPressedCallback):
+    Callback methods should be named register/unregister; was addCallback
+RegistrationName: androidx.activity.OnBackPressedDispatcher#addCallback(androidx.lifecycle.LifecycleOwner, androidx.activity.OnBackPressedCallback):
+    Callback methods should be named register/unregister; was addCallback

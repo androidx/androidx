@@ -141,7 +141,8 @@ class ProGuardTypesMapper(private val context: TransformationContext) {
         val newSet = mutableSetOf<String>()
 
         setToMatch.forEach {
-            type -> run {
+            type ->
+            run {
                 if (prefixes.any { type.fullName.startsWith(it) }) {
                     // Type already covered
                     return@run
@@ -207,6 +208,7 @@ class ProGuardTypesMapper(private val context: TransformationContext) {
         type.fullName
             .substringAfterLast("/") // grabs class name
             .split("(?=\\p{Upper})".toRegex())
+            .filter { it.isNotEmpty() }
             .forEach { lastSegment += it; result.add(lastSegment + "*") }
 
         result.reverse()

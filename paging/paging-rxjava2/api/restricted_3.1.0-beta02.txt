@@ -1,0 +1,57 @@
+// Signature format: 4.0
+package androidx.paging {
+
+  @Deprecated public final class RxPagedListBuilder<Key, Value> {
+    ctor @Deprecated public RxPagedListBuilder(kotlin.jvm.functions.Function0<? extends androidx.paging.PagingSource<Key,Value>> pagingSourceFactory, androidx.paging.PagedList.Config config);
+    ctor @Deprecated public RxPagedListBuilder(kotlin.jvm.functions.Function0<? extends androidx.paging.PagingSource<Key,Value>> pagingSourceFactory, int pageSize);
+    ctor @Deprecated public RxPagedListBuilder(androidx.paging.DataSource.Factory<Key,Value> dataSourceFactory, androidx.paging.PagedList.Config config);
+    ctor @Deprecated public RxPagedListBuilder(androidx.paging.DataSource.Factory<Key,Value> dataSourceFactory, int pageSize);
+    method @Deprecated public io.reactivex.Flowable<androidx.paging.PagedList<Value>> buildFlowable(io.reactivex.BackpressureStrategy backpressureStrategy);
+    method @Deprecated public io.reactivex.Observable<androidx.paging.PagedList<Value>> buildObservable();
+    method @Deprecated public androidx.paging.RxPagedListBuilder<Key,Value> setBoundaryCallback(androidx.paging.PagedList.BoundaryCallback<Value>? boundaryCallback);
+    method @Deprecated public androidx.paging.RxPagedListBuilder<Key,Value> setFetchScheduler(io.reactivex.Scheduler scheduler);
+    method @Deprecated public androidx.paging.RxPagedListBuilder<Key,Value> setInitialLoadKey(Key? key);
+    method @Deprecated public androidx.paging.RxPagedListBuilder<Key,Value> setNotifyScheduler(io.reactivex.Scheduler scheduler);
+  }
+
+  public final class RxPagedListKt {
+    method @Deprecated public static <Key, Value> io.reactivex.Flowable<androidx.paging.PagedList<Value>> toFlowable(androidx.paging.DataSource.Factory<Key,Value>, androidx.paging.PagedList.Config config, optional Key? initialLoadKey, optional androidx.paging.PagedList.BoundaryCallback<Value>? boundaryCallback, optional io.reactivex.Scheduler? fetchScheduler, optional io.reactivex.Scheduler? notifyScheduler, optional io.reactivex.BackpressureStrategy backpressureStrategy);
+    method @Deprecated public static <Key, Value> io.reactivex.Flowable<androidx.paging.PagedList<Value>> toFlowable(androidx.paging.DataSource.Factory<Key,Value>, int pageSize, optional Key? initialLoadKey, optional androidx.paging.PagedList.BoundaryCallback<Value>? boundaryCallback, optional io.reactivex.Scheduler? fetchScheduler, optional io.reactivex.Scheduler? notifyScheduler, optional io.reactivex.BackpressureStrategy backpressureStrategy);
+    method @Deprecated public static <Key, Value> io.reactivex.Flowable<androidx.paging.PagedList<Value>> toFlowable(kotlin.jvm.functions.Function0<? extends androidx.paging.PagingSource<Key,Value>>, androidx.paging.PagedList.Config config, optional Key? initialLoadKey, optional androidx.paging.PagedList.BoundaryCallback<Value>? boundaryCallback, optional io.reactivex.Scheduler? fetchScheduler, optional io.reactivex.Scheduler? notifyScheduler, optional io.reactivex.BackpressureStrategy backpressureStrategy);
+    method @Deprecated public static <Key, Value> io.reactivex.Flowable<androidx.paging.PagedList<Value>> toFlowable(kotlin.jvm.functions.Function0<? extends androidx.paging.PagingSource<Key,Value>>, int pageSize, optional Key? initialLoadKey, optional androidx.paging.PagedList.BoundaryCallback<Value>? boundaryCallback, optional io.reactivex.Scheduler? fetchScheduler, optional io.reactivex.Scheduler? notifyScheduler, optional io.reactivex.BackpressureStrategy backpressureStrategy);
+    method @Deprecated public static <Key, Value> io.reactivex.Observable<androidx.paging.PagedList<Value>> toObservable(androidx.paging.DataSource.Factory<Key,Value>, androidx.paging.PagedList.Config config, optional Key? initialLoadKey, optional androidx.paging.PagedList.BoundaryCallback<Value>? boundaryCallback, optional io.reactivex.Scheduler? fetchScheduler, optional io.reactivex.Scheduler? notifyScheduler);
+    method @Deprecated public static <Key, Value> io.reactivex.Observable<androidx.paging.PagedList<Value>> toObservable(androidx.paging.DataSource.Factory<Key,Value>, int pageSize, optional Key? initialLoadKey, optional androidx.paging.PagedList.BoundaryCallback<Value>? boundaryCallback, optional io.reactivex.Scheduler? fetchScheduler, optional io.reactivex.Scheduler? notifyScheduler);
+    method @Deprecated public static <Key, Value> io.reactivex.Observable<androidx.paging.PagedList<Value>> toObservable(kotlin.jvm.functions.Function0<? extends androidx.paging.PagingSource<Key,Value>>, androidx.paging.PagedList.Config config, optional Key? initialLoadKey, optional androidx.paging.PagedList.BoundaryCallback<Value>? boundaryCallback, optional io.reactivex.Scheduler? fetchScheduler, optional io.reactivex.Scheduler? notifyScheduler);
+    method @Deprecated public static <Key, Value> io.reactivex.Observable<androidx.paging.PagedList<Value>> toObservable(kotlin.jvm.functions.Function0<? extends androidx.paging.PagingSource<Key,Value>>, int pageSize, optional Key? initialLoadKey, optional androidx.paging.PagedList.BoundaryCallback<Value>? boundaryCallback, optional io.reactivex.Scheduler? fetchScheduler, optional io.reactivex.Scheduler? notifyScheduler);
+  }
+
+}
+
+package androidx.paging.rxjava2 {
+
+  public final class PagingRx {
+    method @CheckResult public static <T> androidx.paging.PagingData<T> filter(androidx.paging.PagingData<T>, kotlin.jvm.functions.Function1<? super T,? extends io.reactivex.Single<java.lang.Boolean>> predicate);
+    method @CheckResult public static <T, R> androidx.paging.PagingData<R> flatMap(androidx.paging.PagingData<T>, kotlin.jvm.functions.Function1<? super T,? extends io.reactivex.Single<java.lang.Iterable<R>>> transform);
+    method public static <Key, Value> io.reactivex.Flowable<androidx.paging.PagingData<Value>> getFlowable(androidx.paging.Pager<Key,Value>);
+    method public static <Key, Value> io.reactivex.Observable<androidx.paging.PagingData<Value>> getObservable(androidx.paging.Pager<Key,Value>);
+    method @CheckResult public static <T extends R, R> androidx.paging.PagingData<R> insertSeparators(androidx.paging.PagingData<T>, kotlin.jvm.functions.Function2<? super T,? super T,? extends io.reactivex.Maybe<R>> generator);
+    method @CheckResult public static <T, R> androidx.paging.PagingData<R> map(androidx.paging.PagingData<T>, kotlin.jvm.functions.Function1<? super T,? extends io.reactivex.Single<R>> transform);
+  }
+
+  public final class PagingRx {
+    method @CheckResult public static <T> androidx.paging.PagingData<T> filter(androidx.paging.PagingData<T>, kotlin.jvm.functions.Function1<? super T,? extends io.reactivex.Single<java.lang.Boolean>> predicate);
+    method @CheckResult public static <T, R> androidx.paging.PagingData<R> flatMap(androidx.paging.PagingData<T>, kotlin.jvm.functions.Function1<? super T,? extends io.reactivex.Single<java.lang.Iterable<R>>> transform);
+    method public static <Key, Value> io.reactivex.Flowable<androidx.paging.PagingData<Value>> getFlowable(androidx.paging.Pager<Key,Value>);
+    method public static <Key, Value> io.reactivex.Observable<androidx.paging.PagingData<Value>> getObservable(androidx.paging.Pager<Key,Value>);
+    method @CheckResult public static <T extends R, R> androidx.paging.PagingData<R> insertSeparators(androidx.paging.PagingData<T>, kotlin.jvm.functions.Function2<? super T,? super T,? extends io.reactivex.Maybe<R>> generator);
+    method @CheckResult public static <T, R> androidx.paging.PagingData<R> map(androidx.paging.PagingData<T>, kotlin.jvm.functions.Function1<? super T,? extends io.reactivex.Single<R>> transform);
+  }
+
+  public abstract class RxPagingSource<Key, Value> extends androidx.paging.PagingSource<Key,Value> {
+    ctor public RxPagingSource();
+    method public final suspend Object? load(androidx.paging.PagingSource.LoadParams<Key> params, kotlin.coroutines.Continuation<? super androidx.paging.PagingSource.LoadResult<Key,Value>> p);
+    method public abstract io.reactivex.Single<androidx.paging.PagingSource.LoadResult<Key,Value>> loadSingle(androidx.paging.PagingSource.LoadParams<Key> params);
+  }
+
+}
+

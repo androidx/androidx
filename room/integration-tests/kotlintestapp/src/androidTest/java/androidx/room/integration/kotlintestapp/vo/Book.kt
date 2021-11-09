@@ -16,20 +16,31 @@
 
 package androidx.room.integration.kotlintestapp.vo
 
+import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
+import androidx.room.RoomWarnings
 import androidx.room.TypeConverters
 
-@Entity(foreignKeys = arrayOf(
-        ForeignKey(entity = Publisher::class,
-                parentColumns = arrayOf("publisherId"),
-                childColumns = arrayOf("bookPublisherId"),
-                deferred = true)))
+@SuppressWarnings(RoomWarnings.MISSING_INDEX_ON_FOREIGN_KEY_CHILD)
+@Entity(
+    foreignKeys = arrayOf(
+        ForeignKey(
+            entity = Publisher::class,
+            parentColumns = arrayOf("publisherId"),
+            childColumns = arrayOf("bookPublisherId"),
+            deferred = true
+        )
+    )
+)
 data class Book(
-        @PrimaryKey val bookId: String,
-        val title: String,
-        val bookPublisherId: String,
-        @field:TypeConverters(Lang::class)
-        val languages: Set<Lang>,
-        val salesCnt: Int)
+    @PrimaryKey val bookId: String,
+    val title: String,
+    val bookPublisherId: String,
+    @ColumnInfo(defaultValue = "0")
+    @field:TypeConverters(Lang::class)
+    val languages: Set<Lang>,
+    @ColumnInfo(defaultValue = "0")
+    val salesCnt: Int
+)

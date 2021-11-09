@@ -133,7 +133,7 @@ abstract public class BaseWrapContentTest extends BaseRecyclerViewInstrumentatio
         mIsWrapContent = true;
 
         List<Snapshot> s2 = runScenario(scenario, wrapContent, s1);
-        assertEquals("test sanity", s1.size(), s2.size());
+        assertEquals("Assumption check", s1.size(), s2.size());
 
         for (int i = 0; i < s1.size(); i++) {
             Snapshot step1 = s1.get(i);

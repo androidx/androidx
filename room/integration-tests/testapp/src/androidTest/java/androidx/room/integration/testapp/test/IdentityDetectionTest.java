@@ -19,7 +19,6 @@ package androidx.room.integration.testapp.test;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.fail;
 
 import android.util.Log;
 
@@ -87,12 +86,9 @@ public class IdentityDetectionTest {
         SupportSQLiteDatabase db = mTestDatabase.getOpenHelper().getWritableDatabase();
         db.execSQL("DROP TABLE " + Room.MASTER_TABLE_NAME);
         closeDb();
-        try {
-            openDb();
-            mTestDatabase.getUserDao().loadByIds(3);
-            fail("Was expecting an exception.");
-        } catch (IllegalStateException expected) {
-        }
+
+        openDb();
+        mTestDatabase.getUserDao().loadByIds(3);
     }
 
     private void closeDb() {

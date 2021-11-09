@@ -1,0 +1,36 @@
+import androidx.build.LibraryGroups
+import androidx.build.Publish
+
+plugins {
+    id("AndroidXPlugin")
+    id("com.android.library")
+    id("kotlin-android")
+}
+
+android {
+    buildTypes.all {
+        consumerProguardFiles("proguard-rules.pro")
+    }
+}
+
+dependencies {
+    api("androidx.annotation:annotation:1.1.0")
+    implementation("androidx.arch.core:core-common:2.0.1")
+    implementation("androidx.lifecycle:lifecycle-common:2.0.0")
+
+    androidTestImplementation(libs.kotlinStdlib)
+    androidTestImplementation("androidx.lifecycle:lifecycle-runtime:2.0.0")
+    androidTestImplementation(libs.testExtJunit)
+    androidTestImplementation(libs.testCore)
+    androidTestImplementation(libs.testRunner)
+    androidTestImplementation(libs.testRules)
+    androidTestImplementation(libs.truth)
+}
+
+androidx {
+    name = "Activity"
+    publish = Publish.SNAPSHOT_AND_RELEASE
+    mavenGroup = LibraryGroups.SAVEDSTATE
+    inceptionYear = "2018"
+    description = "Provides the base Activity subclass and the relevant hooks to build a composable structure on top."
+}

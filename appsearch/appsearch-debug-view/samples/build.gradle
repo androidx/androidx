@@ -1,0 +1,55 @@
+/*
+ * Copyright 2021 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import androidx.build.LibraryGroups
+import androidx.build.LibraryType
+import androidx.build.LibraryVersions
+
+plugins {
+    id("AndroidXPlugin")
+    id("com.android.application")
+}
+
+android {
+    defaultConfig {
+        multiDexEnabled true
+    }
+}
+
+dependencies {
+    annotationProcessor project(":appsearch:appsearch-compiler")
+
+    api('androidx.annotation:annotation:1.1.0')
+
+    implementation(libs.multidex)
+    implementation project(':appsearch:appsearch')
+    implementation project(':appsearch:appsearch-local-storage')
+    implementation project(':appsearch:appsearch-debug-view')
+    implementation('androidx.appcompat:appcompat:1.2.0')
+    implementation('androidx.concurrent:concurrent-futures:1.0.0')
+    implementation('com.google.android.material:material:1.0.0')
+    implementation('com.google.code.gson:gson:2.6.2')
+    implementation(libs.constraintLayout)
+    implementation(libs.guavaAndroid)
+}
+
+androidx {
+    name = "AndroidX AppSearch Debug View Sample App"
+    type = LibraryType.SAMPLES
+    mavenGroup = LibraryGroups.APPSEARCH
+    inceptionYear = "2021"
+    description = "Contains a sample app for integrating the Androidx AppSearch Debug View"
+}

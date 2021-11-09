@@ -154,13 +154,11 @@ public class GridLayoutManager extends LinearLayoutManager {
         if (mOrientation == HORIZONTAL) {
             info.setCollectionItemInfo(AccessibilityNodeInfoCompat.CollectionItemInfoCompat.obtain(
                     glp.getSpanIndex(), glp.getSpanSize(),
-                    spanGroupIndex, 1,
-                    mSpanCount > 1 && glp.getSpanSize() == mSpanCount, false));
+                    spanGroupIndex, 1, false, false));
         } else { // VERTICAL
             info.setCollectionItemInfo(AccessibilityNodeInfoCompat.CollectionItemInfoCompat.obtain(
                     spanGroupIndex , 1,
-                    glp.getSpanIndex(), glp.getSpanSize(),
-                    mSpanCount > 1 && glp.getSpanSize() == mSpanCount, false));
+                    glp.getSpanIndex(), glp.getSpanSize(), false, false));
         }
     }
 
@@ -419,13 +417,25 @@ public class GridLayoutManager extends LinearLayoutManager {
 
     @Override
     View findReferenceChild(RecyclerView.Recycler recycler, RecyclerView.State state,
-                            int start, int end, int itemCount) {
+            boolean layoutFromEnd, boolean traverseChildrenInReverseOrder) {
+
+        int start = 0;
+        int end = getChildCount();
+        int diff = 1;
+        if (traverseChildrenInReverseOrder) {
+            start = getChildCount() - 1;
+            end = -1;
+            diff = -1;
+        }
+
+        int itemCount = state.getItemCount();
+
         ensureLayoutState();
         View invalidMatch = null;
         View outOfBoundsMatch = null;
+
         final int boundsStart = mOrientationHelper.getStartAfterPadding();
         final int boundsEnd = mOrientationHelper.getEndAfterPadding();
-        final int diff = end > start ? 1 : -1;
 
         for (int i = start; i != end; i += diff) {
             final View view = getChildAt(i);
@@ -541,7 +551,6 @@ public class GridLayoutManager extends LinearLayoutManager {
         final boolean layingOutInPrimaryDirection =
                 layoutState.mItemDirection == LayoutState.ITEM_DIRECTION_TAIL;
         int count = 0;
-        int consumedSpanCount = 0;
         int remainingSpan = mSpanCount;
         if (!layingOutInPrimaryDirection) {
             int itemSpanIndex = getSpanIndex(recycler, state, layoutState.mCurrentPosition);
@@ -564,7 +573,6 @@ public class GridLayoutManager extends LinearLayoutManager {
             if (view == null) {
                 break;
             }
-            consumedSpanCount += spanSize;
             mSet[count] = view;
             count++;
         }
@@ -1065,7 +1073,7 @@ public class GridLayoutManager extends LinearLayoutManager {
     }
 
     @Override
-    public View onFocusSearchFailed(View focused, int focusDirection,
+    public View onFocusSearchFailed(View focused, int direction,
             RecyclerView.Recycler recycler, RecyclerView.State state) {
         View prevFocusedChild = findContainingItemView(focused);
         if (prevFocusedChild == null) {
@@ -1074,13 +1082,13 @@ public class GridLayoutManager extends LinearLayoutManager {
         LayoutParams lp = (LayoutParams) prevFocusedChild.getLayoutParams();
         final int prevSpanStart = lp.mSpanIndex;
         final int prevSpanEnd = lp.mSpanIndex + lp.mSpanSize;
-        View view = super.onFocusSearchFailed(focused, focusDirection, recycler, state);
+        View view = super.onFocusSearchFailed(focused, direction, recycler, state);
         if (view == null) {
             return null;
         }
         // LinearLayoutManager finds the last child. What we want is the child which has the same
         // spanIndex.
-        final int layoutDir = convertFocusDirectionToLayoutDirection(focusDirection);
+        final int layoutDir = convertFocusDirectionToLayoutDirection(direction);
         final boolean ascend = (layoutDir == LayoutState.LAYOUT_END) != mShouldReverseLayout;
         final int start, inc, limit;
         if (ascend) {

@@ -22,48 +22,53 @@ import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 
+import static org.junit.Assume.assumeTrue;
+
+import android.content.Context;
+import android.content.Intent;
+
 import androidx.camera.core.ImageAnalysis;
 import androidx.camera.core.Preview;
-import androidx.camera.integration.core.idlingresource.ElapsedTimeIdlingResource;
-import androidx.test.espresso.Espresso;
+import androidx.camera.testing.CameraUtil;
+import androidx.camera.testing.CoreAppTestUtil;
+import androidx.camera.testing.CoreAppTestUtil.ForegroundOccupiedError;
+import androidx.test.core.app.ApplicationProvider;
 import androidx.test.espresso.IdlingRegistry;
-import androidx.test.espresso.IdlingResource;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.filters.FlakyTest;
 import androidx.test.filters.LargeTest;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.ActivityTestRule;
 import androidx.test.rule.GrantPermissionRule;
-import androidx.test.uiautomator.By;
 import androidx.test.uiautomator.UiDevice;
-import androidx.test.uiautomator.Until;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestRule;
 import org.junit.runner.RunWith;
 
+import leakcanary.FailTestOnLeak;
+
 // Tests basic UI operation when using CoreTest app.
-@FlakyTest(bugId = 130783905)
 @RunWith(AndroidJUnit4.class)
 @LargeTest
 public final class BasicUITest {
-
-    private static final int LAUNCH_TIMEOUT_MS = 5000;
-    private static final int IDLE_TIMEOUT_MS = 1000;
+    private static final String BASIC_SAMPLE_PACKAGE = "androidx.camera.integration.core";
 
     private final UiDevice mDevice =
             UiDevice.getInstance(InstrumentationRegistry.getInstrumentation());
-    private final String mLauncherPackageName = mDevice.getLauncherPackageName();
+    private final Context mContext = ApplicationProvider.getApplicationContext();
+    private final Intent mIntent = mContext.getPackageManager()
+            .getLaunchIntentForPackage(BASIC_SAMPLE_PACKAGE);
 
     @Rule
     public ActivityTestRule<CameraXActivity> mActivityRule =
-            new ActivityTestRule<>(CameraXActivity.class);
+            new ActivityTestRule<>(CameraXActivity.class, true, false);
 
     @Rule
-    public GrantPermissionRule mCameraPermissionRule =
-            GrantPermissionRule.grant(android.Manifest.permission.CAMERA);
+    public TestRule mUseCamera = CameraUtil.grantCameraPermissionAndPreTest();
+
     @Rule
     public GrantPermissionRule mStoragePermissionRule =
             GrantPermissionRule.grant(android.Manifest.permission.WRITE_EXTERNAL_STORAGE);
@@ -72,69 +77,67 @@ public final class BasicUITest {
             GrantPermissionRule.grant(android.Manifest.permission.RECORD_AUDIO);
 
     @Before
-    public void setUp() {
-        checkViewReady();
+    public void setUp() throws ForegroundOccupiedError {
+        assumeTrue(CameraUtil.deviceHasCamera());
+        CoreAppTestUtil.assumeCompatibleDevice();
+
+        // Clear the device UI and check if there is no dialog or lock screen on the top of the
+        // window before start the test.
+        CoreAppTestUtil.prepareDeviceUI(InstrumentationRegistry.getInstrumentation());
+
+        // Launch Activity
+        mActivityRule.launchActivity(mIntent);
     }
 
     @After
     public void tearDown() {
         pressBackAndReturnHome();
+        mActivityRule.finishActivity();
     }
 
     @Test
+    @FailTestOnLeak
     public void testAnalysisButton() {
+        IdlingRegistry.getInstance().register(
+                mActivityRule.getActivity().getAnalysisIdlingResource());
 
         ImageAnalysis imageAnalysis = mActivityRule.getActivity().getImageAnalysis();
         // Click to disable the imageAnalysis use case.
         if (imageAnalysis != null) {
             onView(withId(R.id.AnalysisToggle)).perform(click());
-            waitForIdlingRegistry();
         }
 
         imageAnalysis = mActivityRule.getActivity().getImageAnalysis();
-        // Click to enable use imageAnalysis case.
+        // It is null(disable) and do click to enable use imageAnalysis case.
         if (imageAnalysis == null) {
-            IdlingRegistry.getInstance().register(
-                    mActivityRule.getActivity().mAnalysisIdlingResource);
             onView(withId(R.id.AnalysisToggle)).perform(click());
-            IdlingRegistry.getInstance().unregister(
-                    mActivityRule.getActivity().mAnalysisIdlingResource);
         }
+        IdlingRegistry.getInstance().unregister(
+                mActivityRule.getActivity().getAnalysisIdlingResource());
     }
 
     @Test
+    @FailTestOnLeak
     public void testPreviewButton() {
+        IdlingRegistry.getInstance().register(mActivityRule.getActivity().getViewIdlingResource());
 
         Preview preview = mActivityRule.getActivity().getPreview();
         // Click to disable the preview use case.
         if (preview != null) {
+            // Check preview started.
+            onView(withId(R.id.viewFinder)).check(matches(isDisplayed()));
+            // Click toggle.
             onView(withId(R.id.PreviewToggle)).perform(click());
-            waitForIdlingRegistry();
         }
 
-        preview = mActivityRule.getActivity().getPreview();
-        // Click to enable preview use case.
+        // It is null(disable) and do click to enable preview use case.
         if (preview == null) {
-            IdlingRegistry.getInstance().register(mActivityRule.getActivity().mViewIdlingResource);
             onView(withId(R.id.PreviewToggle)).perform(click());
-            IdlingRegistry.getInstance().unregister(
-                    mActivityRule.getActivity().mViewIdlingResource);
+            // Check preview started.
+            onView(withId(R.id.viewFinder)).check(matches(isDisplayed()));
         }
-
-    }
-
-    private void checkViewReady() {
-        IdlingRegistry.getInstance().register(mActivityRule.getActivity().mViewIdlingResource);
-        onView(withId(R.id.textureView)).perform(click()).check(matches(isDisplayed()));
-        IdlingRegistry.getInstance().unregister(mActivityRule.getActivity().mViewIdlingResource);
-    }
-
-    private void waitForIdlingRegistry() {
-        // Idles Espresso thread and make activity complete each action.
-        IdlingResource idlingResource = new ElapsedTimeIdlingResource(IDLE_TIMEOUT_MS);
-        IdlingRegistry.getInstance().register(idlingResource);
-        Espresso.onIdle();
-        IdlingRegistry.getInstance().unregister(idlingResource);
+        IdlingRegistry.getInstance().unregister(
+                mActivityRule.getActivity().getViewIdlingResource());
     }
 
     private void pressBackAndReturnHome() {
@@ -142,7 +145,7 @@ public final class BasicUITest {
 
         // Returns to Home to restart next test.
         mDevice.pressHome();
-        mDevice.wait(Until.hasObject(By.pkg(mLauncherPackageName).depth(0)), LAUNCH_TIMEOUT_MS);
+        mDevice.waitForIdle(3000);
     }
 }
 

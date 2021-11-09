@@ -14,32 +14,25 @@
  * limitations under the License.
  */
 
-import static androidx.build.dependencies.DependenciesKt.*
-
 plugins {
     id("AndroidXPlugin")
     id("com.android.application")
 }
 
 dependencies {
-    implementation(project(":slice-view"))
-    implementation(project(":slice-builders"))
-    implementation(project(":slice-core"))
-    implementation(project(":slice-test"))
-    implementation(project(":transition"))
-    implementation(project(":recyclerview"))
-    implementation(project(":appcompat"))
-    implementation(project(":cardview"))
-    api(ARCH_LIFECYCLE_EXTENSIONS, libs.exclude_annotations_transitive = {
-        exclude group: 'androidx.annotation'
-        exclude group: 'androidx.fragment'
-        transitive = true
-    })
+    implementation(project(":slice:slice-view"))
+    implementation(project(":slice:slice-builders"))
+    implementation(project(":slice:slice-core"))
+    implementation(project(":slice:slice-test"))
+    implementation(project(":transition:transition"))
+    implementation(project(":recyclerview:recyclerview"))
+    implementation(project(":appcompat:appcompat"))
+    implementation(project(":cardview:cardview"))
+    implementation(project(":core:core"))
 }
 
 android {
     defaultConfig {
         minSdkVersion 19
-        applicationId "com.example.androidx.slice.demos"
     }
 }

@@ -23,7 +23,6 @@ import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.viewpager2.integration.testapp.BaseCardActivity
 import androidx.viewpager2.integration.testapp.R
 import androidx.viewpager2.integration.testapp.test.util.AnimationVerifier
-import androidx.viewpager2.widget.ViewPager2
 import androidx.viewpager2.widget.ViewPager2.ORIENTATION_HORIZONTAL
 import androidx.viewpager2.widget.ViewPager2.ORIENTATION_VERTICAL
 import org.hamcrest.CoreMatchers.allOf
@@ -43,7 +42,7 @@ abstract class ViewPagerBaseTest<T : BaseCardActivity>(
     private val config: TestConfig
 ) : BaseTest<T>(clazz) {
     data class TestConfig(
-        @ViewPager2.Orientation val orientation: Int,
+        val orientation: Int,
         val animateRotate: Boolean,
         val animateTranslate: Boolean,
         val animateScale: Boolean

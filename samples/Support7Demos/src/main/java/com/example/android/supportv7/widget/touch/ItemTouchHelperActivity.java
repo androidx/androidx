@@ -115,7 +115,8 @@ abstract public class ItemTouchHelperActivity extends Activity {
             public boolean onMove(@NonNull RecyclerView recyclerView,
                     @NonNull RecyclerView.ViewHolder viewHolder,
                     @NonNull RecyclerView.ViewHolder target) {
-                mAdapter.move(viewHolder.getAdapterPosition(), target.getAdapterPosition());
+                mAdapter.move(viewHolder.getBindingAdapterPosition(),
+                        target.getBindingAdapterPosition());
                 return true;
             }
 

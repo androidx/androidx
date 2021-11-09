@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<lint>
+    <issue id="LintBaseline" severity="ignore">
+        <ignore regexp=".* filtered out because .* listed in the baseline file.*"/>
+    </issue>
+    <!-- Ignore all warnings for unused resources since this is not a real app. -->
+    <issue id="UnusedResources" severity="ignore" />
+    <!-- Ignore all warnings for missing icon density folders since this is not a real app. -->
+    <issue id="IconMissingDensityFolder" severity="ignore" />
+    <!-- Ignore all warnings for missing content description since this is not a real app. -->
+    <issue id="ContentDescription" severity="ignore" />
+</lint>

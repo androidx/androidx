@@ -50,8 +50,12 @@ object ConfigParser {
     fun loadDefaultConfig(): Config? {
         Log.v(TAG, "Using the default config '%s'", Config.DEFAULT_CONFIG_RES_PATH)
 
-        val inputStream = javaClass.getResourceAsStream(Config.DEFAULT_CONFIG_RES_PATH)
-        return parseFromString(inputStream.reader().readText())
+        // Use getResource().openStream() instead of getResourceAsStream() as the latter can result
+        // in concurrency issues (see http://issuetracker.google.com/137929327 for details).
+        val inputStream = javaClass.getResource(Config.DEFAULT_CONFIG_RES_PATH).openStream()
+        inputStream.reader().use {
+            return parseFromString(it.readText())
+        }
     }
 
     fun loadConfigOrFail(configPath: Path?): Config {

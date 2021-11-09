@@ -1,0 +1,59 @@
+/*
+ * Copyright (C) 2017 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import androidx.build.LibraryGroups
+import androidx.build.LibraryType
+import androidx.build.SdkResourceGenerator
+
+plugins {
+    id("AndroidXPlugin")
+    id("kotlin")
+    id("java-gradle-plugin")
+}
+
+dependencies {
+    implementation("com.android.tools.build:gradle:4.2.0")
+    implementation(libs.kotlinGradlePluginz)
+    api(project(":navigation:navigation-safe-args-generator"))
+    api(gradleApi())
+    implementation(libs.gson)
+    testImplementation(gradleTestKit())
+    testImplementation(project(":internal-testutils-gradle-plugin"))
+    testImplementation(libs.junit)
+}
+
+SdkResourceGenerator.generateForHostTest(project)
+
+gradlePlugin {
+    plugins {
+        safeargsJava {
+            id = "androidx.navigation.safeargs"
+            implementationClass = "androidx.navigation.safeargs.gradle.SafeArgsJavaPlugin"
+        }
+        safeargsKotlin {
+            id = "androidx.navigation.safeargs.kotlin"
+            implementationClass = "androidx.navigation.safeargs.gradle.SafeArgsKotlinPlugin"
+        }
+    }
+}
+
+androidx {
+    name = "Android Navigation TypeSafe Arguments Gradle Plugin"
+    type = LibraryType.GRADLE_PLUGIN
+    mavenGroup = LibraryGroups.NAVIGATION
+    inceptionYear = "2017"
+    description = "Android Navigation TypeSafe Arguments Gradle Plugin"
+}

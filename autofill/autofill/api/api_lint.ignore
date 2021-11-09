@@ -1,0 +1,57 @@
+// Baseline format: 1.0
+HiddenSuperclass: androidx.autofill.inline.common.ViewStyle:
+    Public class androidx.autofill.inline.common.ViewStyle stripped of unavailable superclass androidx.autofill.inline.common.BundledStyle
+HiddenSuperclass: androidx.autofill.inline.v1.InlineSuggestionUi.Content:
+    Public class androidx.autofill.inline.v1.InlineSuggestionUi.Content stripped of unavailable superclass androidx.autofill.inline.common.SlicedContent
+HiddenSuperclass: androidx.autofill.inline.v1.InlineSuggestionUi.Content.Builder:
+    Public class androidx.autofill.inline.v1.InlineSuggestionUi.Content.Builder stripped of unavailable superclass androidx.autofill.inline.common.SlicedContent.Builder
+HiddenSuperclass: androidx.autofill.inline.v1.InlineSuggestionUi.Style:
+    Public class androidx.autofill.inline.v1.InlineSuggestionUi.Style stripped of unavailable superclass androidx.autofill.inline.common.BundledStyle
+HiddenSuperclass: androidx.autofill.inline.v1.InlineSuggestionUi.Style.Builder:
+    Public class androidx.autofill.inline.v1.InlineSuggestionUi.Style.Builder stripped of unavailable superclass androidx.autofill.inline.common.BundledStyle.Builder
+
+
+MissingGetterMatchingBuilder: androidx.autofill.inline.UiVersions.StylesBuilder#addStyle(androidx.autofill.inline.UiVersions.Style):
+    android.os.Bundle does not declare a `getStyles()` method matching method androidx.autofill.inline.UiVersions.StylesBuilder.addStyle(androidx.autofill.inline.UiVersions.Style)
+MissingGetterMatchingBuilder: androidx.autofill.inline.common.ImageViewStyle.Builder#setBackground(android.graphics.drawable.Icon):
+    androidx.autofill.inline.common.ImageViewStyle does not declare a `getBackground()` method matching method androidx.autofill.inline.common.ImageViewStyle.Builder.setBackground(android.graphics.drawable.Icon)
+MissingGetterMatchingBuilder: androidx.autofill.inline.common.ImageViewStyle.Builder#setBackgroundColor(int):
+    androidx.autofill.inline.common.ImageViewStyle does not declare a `getBackgroundColor()` method matching method androidx.autofill.inline.common.ImageViewStyle.Builder.setBackgroundColor(int)
+MissingGetterMatchingBuilder: androidx.autofill.inline.common.ImageViewStyle.Builder#setLayoutMargin(int, int, int, int):
+    androidx.autofill.inline.common.ImageViewStyle does not declare a `getLayoutMargin()` method matching method androidx.autofill.inline.common.ImageViewStyle.Builder.setLayoutMargin(int,int,int,int)
+MissingGetterMatchingBuilder: androidx.autofill.inline.common.ImageViewStyle.Builder#setMaxHeight(int):
+    androidx.autofill.inline.common.ImageViewStyle does not declare a `getMaxHeight()` method matching method androidx.autofill.inline.common.ImageViewStyle.Builder.setMaxHeight(int)
+MissingGetterMatchingBuilder: androidx.autofill.inline.common.ImageViewStyle.Builder#setMaxWidth(int):
+    androidx.autofill.inline.common.ImageViewStyle does not declare a `getMaxWidth()` method matching method androidx.autofill.inline.common.ImageViewStyle.Builder.setMaxWidth(int)
+MissingGetterMatchingBuilder: androidx.autofill.inline.common.ImageViewStyle.Builder#setPadding(int, int, int, int):
+    androidx.autofill.inline.common.ImageViewStyle does not declare a `getPadding()` method matching method androidx.autofill.inline.common.ImageViewStyle.Builder.setPadding(int,int,int,int)
+MissingGetterMatchingBuilder: androidx.autofill.inline.common.ImageViewStyle.Builder#setScaleType(android.widget.ImageView.ScaleType):
+    androidx.autofill.inline.common.ImageViewStyle does not declare a `getScaleType()` method matching method androidx.autofill.inline.common.ImageViewStyle.Builder.setScaleType(android.widget.ImageView.ScaleType)
+MissingGetterMatchingBuilder: androidx.autofill.inline.common.ImageViewStyle.Builder#setTintList(android.content.res.ColorStateList):
+    androidx.autofill.inline.common.ImageViewStyle does not declare a `getTintList()` method matching method androidx.autofill.inline.common.ImageViewStyle.Builder.setTintList(android.content.res.ColorStateList)
+MissingGetterMatchingBuilder: androidx.autofill.inline.common.TextViewStyle.Builder#setBackground(android.graphics.drawable.Icon):
+    androidx.autofill.inline.common.TextViewStyle does not declare a `getBackground()` method matching method androidx.autofill.inline.common.TextViewStyle.Builder.setBackground(android.graphics.drawable.Icon)
+MissingGetterMatchingBuilder: androidx.autofill.inline.common.TextViewStyle.Builder#setBackgroundColor(int):
+    androidx.autofill.inline.common.TextViewStyle does not declare a `getBackgroundColor()` method matching method androidx.autofill.inline.common.TextViewStyle.Builder.setBackgroundColor(int)
+MissingGetterMatchingBuilder: androidx.autofill.inline.common.TextViewStyle.Builder#setLayoutMargin(int, int, int, int):
+    androidx.autofill.inline.common.TextViewStyle does not declare a `getLayoutMargin()` method matching method androidx.autofill.inline.common.TextViewStyle.Builder.setLayoutMargin(int,int,int,int)
+MissingGetterMatchingBuilder: androidx.autofill.inline.common.TextViewStyle.Builder#setPadding(int, int, int, int):
+    androidx.autofill.inline.common.TextViewStyle does not declare a `getPadding()` method matching method androidx.autofill.inline.common.TextViewStyle.Builder.setPadding(int,int,int,int)
+MissingGetterMatchingBuilder: androidx.autofill.inline.common.TextViewStyle.Builder#setTextColor(int):
+    androidx.autofill.inline.common.TextViewStyle does not declare a `getTextColor()` method matching method androidx.autofill.inline.common.TextViewStyle.Builder.setTextColor(int)
+MissingGetterMatchingBuilder: androidx.autofill.inline.common.TextViewStyle.Builder#setTextSize(float):
+    androidx.autofill.inline.common.TextViewStyle does not declare a `getTextSize()` method matching method androidx.autofill.inline.common.TextViewStyle.Builder.setTextSize(float)
+MissingGetterMatchingBuilder: androidx.autofill.inline.common.TextViewStyle.Builder#setTextSize(int, float):
+    androidx.autofill.inline.common.TextViewStyle does not declare a `getTextSize()` method matching method androidx.autofill.inline.common.TextViewStyle.Builder.setTextSize(int,float)
+MissingGetterMatchingBuilder: androidx.autofill.inline.common.TextViewStyle.Builder#setTypeface(String, int):
+    androidx.autofill.inline.common.TextViewStyle does not declare a `getTypeface()` method matching method androidx.autofill.inline.common.TextViewStyle.Builder.setTypeface(String,int)
+MissingGetterMatchingBuilder: androidx.autofill.inline.common.ViewStyle.Builder#setBackground(android.graphics.drawable.Icon):
+    androidx.autofill.inline.common.ViewStyle does not declare a `getBackground()` method matching method androidx.autofill.inline.common.ViewStyle.Builder.setBackground(android.graphics.drawable.Icon)
+MissingGetterMatchingBuilder: androidx.autofill.inline.common.ViewStyle.Builder#setBackgroundColor(int):
+    androidx.autofill.inline.common.ViewStyle does not declare a `getBackgroundColor()` method matching method androidx.autofill.inline.common.ViewStyle.Builder.setBackgroundColor(int)
+MissingGetterMatchingBuilder: androidx.autofill.inline.common.ViewStyle.Builder#setLayoutMargin(int, int, int, int):
+    androidx.autofill.inline.common.ViewStyle does not declare a `getLayoutMargin()` method matching method androidx.autofill.inline.common.ViewStyle.Builder.setLayoutMargin(int,int,int,int)
+MissingGetterMatchingBuilder: androidx.autofill.inline.common.ViewStyle.Builder#setPadding(int, int, int, int):
+    androidx.autofill.inline.common.ViewStyle does not declare a `getPadding()` method matching method androidx.autofill.inline.common.ViewStyle.Builder.setPadding(int,int,int,int)
+MissingGetterMatchingBuilder: androidx.autofill.inline.v1.InlineSuggestionUi.Content.Builder#setHints(java.util.List<java.lang.String>):
+    androidx.autofill.inline.v1.InlineSuggestionUi.Content does not declare a `getHints()` method matching method androidx.autofill.inline.v1.InlineSuggestionUi.Content.Builder.setHints(java.util.List<java.lang.String>)

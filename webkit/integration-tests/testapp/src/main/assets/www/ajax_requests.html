@@ -18,31 +18,43 @@
 
     <!-- Load html file from android_assets -->
     <script type="text/javascript">
-        fetch('https://example.com/androidx_webkit/example/assets/www/some_text.html')
-            .then(response => response.text())
-            .then(response => {
-                document.getElementById("assets_html").innerHTML = response;
-            })
-            .catch(err => {
-                document.getElementById("assets_html").innerHTML = "Loading file from assets failed";
-            })
+        var xhr = new XMLHttpRequest();
+        xhr.onreadystatechange = function() {
+            if (this.readyState === 4 && this.status === 200) {
+                document.getElementById("assets_html").innerHTML = this.responseText;
+            } else if (this.status !== 200) {
+                document.getElementById("assets_html").innerHTML =
+                        "Loading file from assets failed (status=" + this.status + ")";
+            }
+        };
+        xhr.onerror = function() {
+            document.getElementById("assets_html").innerHTML = "Loading file from assets failed";
+        };
+        xhr.open("GET", 'https://example.com/androidx_webkit/example/assets/www/some_text.html', true);
+        xhr.send();
     </script>
 
     <!-- Load html file from android_resources -->
     <script type="text/javascript">
-        fetch('https://example.com/androidx_webkit/example/res/raw/some_text.html')
-            .then(response => response.text())
-            .then(response => {
-                document.getElementById("res_html").innerHTML = response;
-            })
-            .catch(err => {
-                document.getElementById("res_html").innerHTML = "Loading file from resources failed";
-            })
+        var xhr = new XMLHttpRequest();
+        xhr.onreadystatechange = function() {
+            if (this.readyState === 4 && this.status === 200) {
+                document.getElementById("res_html").innerHTML = this.responseText;
+            } else if (this.status !== 200) {
+                document.getElementById("res_html").innerHTML =
+                        "Loading file from resources failed (status=" + this.status + ")";
+            }
+        };
+        xhr.onerror = function() {
+            document.getElementById("res_html").innerHTML = "Loading file from resources failed";
+        };
+        xhr.open("GET", 'https://example.com/androidx_webkit/example/res/raw/some_text.html', true);
+        xhr.send();
     </script>
 </head>
 
 <body>
-    <h1>Loaded HTML should appear below on success</h1>
+    <h1 id="title">Loaded HTML should appear below on success</h1>
     <hr>
     <div id="assets_html"></div>
     <div id="res_html"></div>

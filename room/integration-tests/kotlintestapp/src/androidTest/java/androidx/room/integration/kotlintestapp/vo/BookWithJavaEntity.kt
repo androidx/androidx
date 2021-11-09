@@ -17,10 +17,12 @@ package androidx.room.integration.kotlintestapp.vo
 
 import androidx.room.Embedded
 import androidx.room.Relation
+import androidx.room.RoomWarnings
 
+@SuppressWarnings(RoomWarnings.MISMATCHED_GETTER)
 class BookWithJavaEntity {
     @Embedded
     var book: Book? = null
-    @Relation(parentColumn = "bookId", entityColumn = "bookId", entity=JavaEntity::class)
+    @Relation(parentColumn = "bookId", entityColumn = "bookId", entity = JavaEntity::class)
     var javaEntities: List<JavaEntity>? = null
 }

@@ -33,7 +33,8 @@ class DependencyMappingTest {
                 PomRewriteRule(
                     from = PomDependency(groupId = "hello", artifactId = "world"),
                     to = PomDependency(groupId = "hi", artifactId = "all", version = "2.0.0")
-                ))
+                )
+            )
         )
     }
 
@@ -43,7 +44,7 @@ class DependencyMappingTest {
             val config = Config.fromOptional(
                 pomRewriteRules = rules
             )
-
+            @Suppress("deprecation")
             val processor = Processor.createProcessor(config)
             val result = processor.mapDependency(from)
 

@@ -34,7 +34,8 @@ data class ProGuardTypesMap(private val rules: Map<ProGuardType, Set<ProGuardTyp
         rules.forEach { (from, to) ->
             if (from.needsExpansion() || to.any { it.needsExpansion() }) {
                 ProGuardType.EXPANSION_TOKENS.forEach {
-                    t -> expandedMap.put(from.expandWith(t), to.map { it.expandWith(t) }.toSet())
+                    t ->
+                    expandedMap.put(from.expandWith(t), to.map { it.expandWith(t) }.toSet())
                 }
             } else {
                 expandedMap.put(from, to)
@@ -43,8 +44,8 @@ data class ProGuardTypesMap(private val rules: Map<ProGuardType, Set<ProGuardTyp
         expandedMap
     }
 
-    constructor(vararg rules: Pair<ProGuardType, ProGuardType>)
-        : this(rules.map { it.first to setOf(it.second) }.toMap())
+    constructor(vararg rules: Pair<ProGuardType, ProGuardType>) :
+        this(rules.map { it.first to setOf(it.second) }.toMap())
 
     /** Returns JSON data model of this class */
     fun toJson(): JsonData {
@@ -62,9 +63,11 @@ data class ProGuardTypesMap(private val rules: Map<ProGuardType, Set<ProGuardTyp
 
         /** Creates instance of [ProGuardTypesMap] */
         fun toMappings(): ProGuardTypesMap {
-            return ProGuardTypesMap(rules
-                .map { ProGuardType(it.key) to it.value.map { ProGuardType(it) }.toSet() }
-                .toMap())
+            return ProGuardTypesMap(
+                rules
+                    .map { ProGuardType(it.key) to it.value.map { ProGuardType(it) }.toSet() }
+                    .toMap()
+            )
         }
     }
 
@@ -83,14 +86,16 @@ data class ProGuardTypesMap(private val rules: Map<ProGuardType, Set<ProGuardTyp
             val conflictFrom = reversed[to.single()]
             if (conflictFrom != null) {
                 // Conflict - skip
-                Log.w(TAG, "Conflict: %s -> (%s, %s)", to, from, conflictFrom)
+                Log.v(TAG, "Conflict: %s -> (%s, %s)", to, from, conflictFrom)
                 continue
             }
             reversed[to.single()] = from
         }
 
-        return ProGuardTypesMap(reversed
-            .map { it.key to setOf(it.value) }
-            .toMap())
+        return ProGuardTypesMap(
+            reversed
+                .map { it.key to setOf(it.value) }
+                .toMap()
+        )
     }
 }

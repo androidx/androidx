@@ -20,20 +20,24 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.camera.integration.antelope.databinding.SettingsDialogBinding
 import androidx.fragment.app.DialogFragment
-import kotlinx.android.synthetic.main.settings_dialog.button_cancel
-import kotlinx.android.synthetic.main.settings_dialog.button_start
 
 /**
  * DialogFragment that backs the configuration for both single tests and multiple tests
  */
 internal class SettingsDialog : DialogFragment() {
 
+    private var _binding: SettingsDialogBinding? = null
+    private val binding get() = _binding!!
+
     override fun onStart() {
         // If we show a dialog with a title, it doesn't take up the whole screen
         // Adjust the window to take up the full screen
-        dialog?.window?.setLayout(ViewGroup.LayoutParams.MATCH_PARENT,
-            ViewGroup.LayoutParams.MATCH_PARENT)
+        dialog?.window?.setLayout(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            ViewGroup.LayoutParams.MATCH_PARENT
+        )
         super.onStart()
     }
 
@@ -58,7 +62,7 @@ internal class SettingsDialog : DialogFragment() {
 
         dialog?.setTitle(title)
 
-        val dialogView = inflater.inflate(R.layout.settings_dialog, container, false)
+        _binding = SettingsDialogBinding.inflate(inflater, container, false)
 
         if (null != cameraIds && null != cameraNames) {
             when (type) {
@@ -79,7 +83,7 @@ internal class SettingsDialog : DialogFragment() {
             }
         }
 
-        return dialogView
+        return binding.root
     }
 
     /** When view is created, set up action buttons */
@@ -91,26 +95,31 @@ internal class SettingsDialog : DialogFragment() {
 
         when (type) {
             DIALOG_TYPE_MULTI -> {
-                button_start.text = getString(R.string.settings_multi_go)
-                button_cancel.text = getString(R.string.settings_multi_cancel)
+                binding.buttonStart.text = getString(R.string.settings_multi_go)
+                binding.buttonCancel.text = getString(R.string.settings_multi_cancel)
 
-                button_start.setOnClickListener {
+                binding.buttonStart.setOnClickListener {
                     (activity as MainActivity).startMultiTest()
                     this.dismiss()
                 }
-                button_cancel.setOnClickListener { this.dismiss() }
+                binding.buttonCancel.setOnClickListener { this.dismiss() }
             }
             else -> {
-                button_start.text = getString(R.string.settings_single_go)
-                button_cancel.text = getString(R.string.settings_single_cancel)
+                binding.buttonStart.text = getString(R.string.settings_single_go)
+                binding.buttonCancel.text = getString(R.string.settings_single_cancel)
 
-                button_start.setOnClickListener {
+                binding.buttonStart.setOnClickListener {
                     (activity as MainActivity).startSingleTest()
                     this.dismiss()
                 }
-                button_cancel.setOnClickListener { this.dismiss() }
+                binding.buttonCancel.setOnClickListener { this.dismiss() }
             }
         }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 
     companion object {

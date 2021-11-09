@@ -19,10 +19,10 @@ package com.example.androidx.webkit;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
-import android.webkit.ValueCallback;
+import android.widget.TextView;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.webkit.WebViewCompat;
@@ -39,21 +39,35 @@ public class SafeBrowsingActivity extends AppCompatActivity {
 
         if (WebViewFeature.isFeatureSupported(WebViewFeature.START_SAFE_BROWSING)) {
             WebViewCompat.startSafeBrowsing(this.getApplicationContext(),
-                    new ValueCallback<Boolean>() {
-                        @Override
-                        public void onReceiveValue(@NonNull Boolean value) {
-                            if (value) {
-                                setupLayout();
-                            } else {
-                                WebkitHelpers.showMessageInActivity(SafeBrowsingActivity.this,
-                                        R.string.cannot_start_safe_browsing);
-                            }
+                    value -> {
+                        if (value) {
+                            setupLayout();
+                        } else {
+                            TextView t = WebkitHelpers.showMessageInActivity(
+                                    SafeBrowsingActivity.this,
+                                    R.string.cannot_start_safe_browsing);
+                            t.setOnClickListener(v -> showSafeBrowsingRequirementsInBrowser());
                         }
                     });
         } else {
             WebkitHelpers.showMessageInActivity(SafeBrowsingActivity.this,
                     R.string.webkit_api_not_available);
         }
+    }
+
+    private void showSafeBrowsingRequirementsInBrowser() {
+        // Open documentation for WebView Safe Browsing to help the user
+        // debug what's wrong.
+        Uri safeBrowsingRequirementsUri = new Uri.Builder()
+                .scheme("https")
+                .authority("chromium.googlesource.com")
+                .path("/chromium/src/+/main/android_webview/browser/safe_browsing/README.md")
+                .encodedFragment("opt_in_consent_requirements")
+                .build();
+
+        Intent i = new Intent(Intent.ACTION_VIEW);
+        i.setData(safeBrowsingRequirementsUri);
+        startActivity(i);
     }
 
     private void setupLayout() {
@@ -78,6 +92,24 @@ public class SafeBrowsingActivity extends AppCompatActivity {
                 new MenuListView.MenuItem(
                         getResources().getString(R.string.loud_interstitial_activity_title),
                         new Intent(activityContext, LoudInterstitialActivity.class)),
+                new MenuListView.MenuItem(
+                        getResources().getString(R.string.giant_interstitial_activity_title),
+                        new Intent(activityContext, GiantInterstitialActivity.class)),
+                new MenuListView.MenuItem(
+                        getResources().getString(R.string.per_web_view_enable_activity_title),
+                        new Intent(activityContext, PerWebViewEnableActivity.class)),
+                new MenuListView.MenuItem(
+                        getResources().getString(R.string.invisible_activity_title),
+                        new Intent(activityContext, InvisibleActivity.class)),
+                new MenuListView.MenuItem(
+                        getResources().getString(R.string.unattached_activity_title),
+                        new Intent(activityContext, UnattachedActivity.class)),
+                new MenuListView.MenuItem(
+                        getResources().getString(R.string.custom_interstitial_activity_title),
+                        new Intent(activityContext, CustomInterstitialActivity.class)),
+                new MenuListView.MenuItem(
+                        getResources().getString(R.string.allowlist_activity_title),
+                        new Intent(activityContext, AllowlistActivity.class)),
         };
         listView.setItems(menuItems);
     }

@@ -39,98 +39,102 @@ class ProguardSamplesTest {
                 "android/webkit/JavascriptInterface" to "test/webkit/JavascriptInterface"
             )
             .testThatGivenProGuard(
-                "-injars      bin/classes \n" +
-                "-injars      libs \n" +
-                "-outjars     bin/classes-processed.jar \n" +
-                "-libraryjars /usr/local/java/android-sdk/platforms/android-9/android.jar \n" +
-                "\n" +
-                "-dontpreverify \n" +
-                "-repackageclasses '' \n" +
-                "-allowaccessmodification \n" +
-                "-optimizations !code/simplification/arithmetic \n" +
-                "-keepattributes *Annotation* \n" +
-                "\n" +
-                "-keep public class * extends android.app.Activity \n" +
-                "-keep public class * extends android.app.Application \n" +
-                " \n" +
-                "-keep public class * extends android.view.View { \n" +
-                "      public <init>(android.content.Context); \n" +
-                "      public <init>(android.content.Context, android.util.AttributeSet); \n" +
-                "      public <init>(android.content.Context, android.util.AttributeSet, int); \n" +
-                "      public void set*(...); \n" +
-                "} \n" +
-                "\n" +
-                "-keepclasseswithmembers class * { \n" +
-                "    public <init>(android.content.Context, android.util.AttributeSet); \n" +
-                "} \n" +
-                "\n" +
-                "-keepclasseswithmembers class * { \n" +
-                "    public <init>(android.content.Context, android.util.AttributeSet, int); \n" +
-                "} \n" +
-                "\n" +
-                "-keepclassmembers class * extends android.content.Context { \n" +
-                "    public void *(android.view.View); \n" +
-                "    public void *(android.view.MenuItem); \n" +
-                "} \n" +
-                "\n" +
-                "-keepclassmembers class * implements android.os.Parcelable { \n" +
-                "    static ** CREATOR; \n" +
-                "} \n" +
-                "\n" +
-                "-keepclassmembers class **.R\$* { \n" +
-                "    public static <fields>; \n" +
-                "} \n" +
-                "\n" +
-                "-keepclassmembers class * { \n" +
-                "    @android.webkit.JavascriptInterface <methods>; \n" +
-                "} "
+                """
+                -injars      bin/classes
+                -injars      libs
+                -outjars     bin/classes-processed.jar
+                -libraryjars /usr/local/java/android-sdk/platforms/android-9/android.jar
+
+                -dontpreverify
+                -repackageclasses ''
+                -allowaccessmodification
+                -optimizations !code/simplification/arithmetic
+                -keepattributes *Annotation*
+
+                -keep public class * extends android.app.Activity
+                -keep public class * extends android.app.Application
+
+                -keep public class * extends android.view.View {
+                      public <init>(android.content.Context);
+                      public <init>(android.content.Context, android.util.AttributeSet);
+                      public <init>(android.content.Context, android.util.AttributeSet, int);
+                      public void set*(...);
+                }
+
+                -keepclasseswithmembers class * {
+                    public <init>(android.content.Context, android.util.AttributeSet);
+                }
+
+                -keepclasseswithmembers class * {
+                    public <init>(android.content.Context, android.util.AttributeSet, int);
+                }
+
+                -keepclassmembers class * extends android.content.Context {
+                    public void *(android.view.View);
+                    public void *(android.view.MenuItem);
+                }
+
+                -keepclassmembers class * implements android.os.Parcelable {
+                    static ** CREATOR;
+                }
+
+                -keepclassmembers class **.R$* {
+                    public static <fields>;
+                }
+
+                -keepclassmembers class * {
+                    @android.webkit.JavascriptInterface <methods>;
+                }
+                """.trimIndent()
             )
             .rewritesTo(
-                "-injars      bin/classes \n" +
-                "-injars      libs \n" +
-                "-outjars     bin/classes-processed.jar \n" +
-                "-libraryjars /usr/local/java/android-sdk/platforms/android-9/android.jar \n" +
-                "\n" +
-                "-dontpreverify \n" +
-                "-repackageclasses '' \n" +
-                "-allowaccessmodification \n" +
-                "-optimizations !code/simplification/arithmetic \n" +
-                "-keepattributes *Annotation* \n" +
-                "\n" +
-                "-keep public class * extends test.app.Activity \n" +
-                "-keep public class * extends test.app.Application \n" +
-                " \n" +
-                "-keep public class * extends test.view.View { \n" +
-                "      public <init>(test.content.Context); \n" +
-                "      public <init>(test.content.Context, android.util.AttributeSet); \n" +
-                "      public <init>(test.content.Context, android.util.AttributeSet, int); \n" +
-                "      public void set*(...); \n" +
-                "} \n" +
-                "\n" +
-                "-keepclasseswithmembers class * { \n" +
-                "    public <init>(test.content.Context, android.util.AttributeSet); \n" +
-                "} \n" +
-                "\n" +
-                "-keepclasseswithmembers class * { \n" +
-                "    public <init>(test.content.Context, android.util.AttributeSet, int); \n" +
-                "} \n" +
-                "\n" +
-                "-keepclassmembers class * extends test.content.Context { \n" +
-                "    public void *(test.view.View); \n" +
-                "    public void *(test.view.MenuItem); \n" +
-                "} \n" +
-                "\n" +
-                "-keepclassmembers class * implements test.os.Parcelable { \n" +
-                "    static ** CREATOR; \n" +
-                "} \n" +
-                "\n" +
-                "-keepclassmembers class **.R\$* { \n" +
-                "    public static <fields>; \n" +
-                "} \n" +
-                "\n" +
-                "-keepclassmembers class * { \n" +
-                "    @test.webkit.JavascriptInterface <methods>; \n" +
-                "} "
+                """
+                -injars      bin/classes
+                -injars      libs
+                -outjars     bin/classes-processed.jar
+                -libraryjars /usr/local/java/android-sdk/platforms/android-9/android.jar
+
+                -dontpreverify
+                -repackageclasses ''
+                -allowaccessmodification
+                -optimizations !code/simplification/arithmetic
+                -keepattributes *Annotation*
+
+                -keep public class * extends test.app.Activity
+                -keep public class * extends test.app.Application
+
+                -keep public class * extends test.view.View {
+                      public <init>(test.content.Context);
+                      public <init>(test.content.Context, android.util.AttributeSet);
+                      public <init>(test.content.Context, android.util.AttributeSet, int);
+                      public void set*(...);
+                }
+
+                -keepclasseswithmembers class * {
+                    public <init>(test.content.Context, android.util.AttributeSet);
+                }
+
+                -keepclasseswithmembers class * {
+                    public <init>(test.content.Context, android.util.AttributeSet, int);
+                }
+
+                -keepclassmembers class * extends test.content.Context {
+                    public void *(test.view.View);
+                    public void *(test.view.MenuItem);
+                }
+
+                -keepclassmembers class * implements test.os.Parcelable {
+                    static ** CREATOR;
+                }
+
+                -keepclassmembers class **.R$* {
+                    public static <fields>;
+                }
+
+                -keepclassmembers class * {
+                    @test.webkit.JavascriptInterface <methods>;
+                }
+                """.trimIndent()
             )
     }
 
@@ -143,20 +147,24 @@ class ProguardSamplesTest {
                 "android/support/v7/preference/Preference" to "test/Preference"
             )
             .testThatGivenProGuard(
-                "-keep public class android.support.v7.preference.Preference {\n" +
-                "  public <init>(android.content.Context, android.util.AttributeSet);\n" +
-                "}\n" +
-                "-keep public class * extends android.support.v7.preference.Preference {\n" +
-                "  public <init>(android.content.Context, android.util.AttributeSet);\n" +
-                "}"
+                """
+                -keep public class android.support.v7.preference.Preference {
+                  public <init>(android.content.Context, android.util.AttributeSet);
+                }
+                -keep public class * extends android.support.v7.preference.Preference {
+                  public <init>(android.content.Context, android.util.AttributeSet);
+                }
+                """.trimIndent()
             )
             .rewritesTo(
-                "-keep public class test.Preference {\n" +
-                "  public <init>(android.content.Context, android.util.AttributeSet);\n" +
-                "}\n" +
-                "-keep public class * extends test.Preference {\n" +
-                "  public <init>(android.content.Context, android.util.AttributeSet);\n" +
-                "}"
+                """
+                -keep public class test.Preference {
+                  public <init>(android.content.Context, android.util.AttributeSet);
+                }
+                -keep public class * extends test.Preference {
+                  public <init>(android.content.Context, android.util.AttributeSet);
+                }
+                """.trimIndent()
             )
     }
 
@@ -175,18 +183,22 @@ class ProguardSamplesTest {
                 "android/support/design/R\$*" to "test/design/R\$*"
             )
             .testThatGivenProGuard(
-                "-dontwarn android.support.design.**\n" +
-                "-keep class android.support.design.** { *; }\n" +
-                "-keep interface android.support.design.** { *; }\n" +
-                "-keep public class android.support.design.R\$* { *; }\n" +
-                "-keep class android.support.v7.widget.RoundRectDrawable { *; }"
+                """
+                -dontwarn android.support.design.**
+                -keep class android.support.design.** { *; }
+                -keep interface android.support.design.** { *; }
+                -keep public class android.support.design.R$* { *; }
+                -keep class android.support.v7.widget.RoundRectDrawable { *; }
+                """.trimIndent()
             )
             .rewritesTo(
-                "-dontwarn test.design.**\n" +
-                "-keep class test.design.** { *; }\n" +
-                "-keep interface test.design.** { *; }\n" +
-                "-keep public class test.design.R\$* { *; }\n" +
-                "-keep class test.RoundRectDrawable { *; }"
+                """
+                -dontwarn test.design.**
+                -keep class test.design.** { *; }
+                -keep interface test.design.** { *; }
+                -keep public class test.design.R$* { *; }
+                -keep class test.RoundRectDrawable { *; }
+                """.trimIndent()
             )
     }
 
@@ -208,37 +220,40 @@ class ProguardSamplesTest {
                 "android/support/v7/internal/**" to "test/v7/internal/**"
             )
             .testThatGivenProGuard(
-                "-dontwarn android.support.v7.**\n" +
-                "-keep public class android.support.v7.widget.** { *; }\n" +
-                "-keep public class android.support.v7.internal.widget.** { *; }\n" +
-                "-keep class android.support.v7.widget.LinearLayoutManager { *; }\n" +
-                "-keep class android.support.v7.internal.** { *; }\n" +
-                "-keep interface android.support.v7.internal.** { *; }\n" +
-                "\n" +
-                "-keep class android.support.v7.** { *; }\n" +
-                "-keep interface android.support.v7.** { *; }\n" +
-                "\n" +
-                "-keep public class * extends android.support.v4.view.ActionProvider {\n" +
-                "    public <init>(android.content.Context);"
+                """
+                -dontwarn android.support.v7.**
+                -keep public class android.support.v7.widget.** { *; }
+                -keep public class android.support.v7.internal.widget.** { *; }
+                -keep class android.support.v7.widget.LinearLayoutManager { *; }
+                -keep class android.support.v7.internal.** { *; }
+                -keep interface android.support.v7.internal.** { *; }
+
+                -keep class android.support.v7.** { *; }
+                -keep interface android.support.v7.** { *; }
+
+                -keep public class * extends android.support.v4.view.ActionProvider {
+                    public <init>(android.content.Context);
+                """.trimIndent()
             )
             .rewritesTo(
-                "-dontwarn test.v7.**\n" +
-                "-keep public class test.v7.widget.** { *; }\n" +
-                "-keep public class test.v7.internal.widget.** { *; }\n" +
-                "-keep class test.LinearLayoutManager { *; }\n" +
-                "-keep class test.v7.internal.** { *; }\n" +
-                "-keep interface test.v7.internal.** { *; }\n" +
-                "\n" +
-                "-keep class test.v7.** { *; }\n" +
-                "-keep interface test.v7.** { *; }\n" +
-                "\n" +
-                "-keep public class * extends test.ActionProvider {\n" +
-                "    public <init>(android.content.Context);"
+                """
+                -dontwarn test.v7.**
+                -keep public class test.v7.widget.** { *; }
+                -keep public class test.v7.internal.widget.** { *; }
+                -keep class test.LinearLayoutManager { *; }
+                -keep class test.v7.internal.** { *; }
+                -keep interface test.v7.internal.** { *; }
+
+                -keep class test.v7.** { *; }
+                -keep interface test.v7.** { *; }
+
+                -keep public class * extends test.ActionProvider {
+                    public <init>(android.content.Context);
+                """.trimIndent()
             )
     }
 
-    // Temporarily disabled due to b/120236364.
-    fun proGuard_sample5() {
+    @Test fun proGuard_sample5() {
         ProGuardTester()
             .forGivenPrefixes(
                 "support/"
@@ -249,28 +264,139 @@ class ProguardSamplesTest {
                 "support/Annotation" to "test/Annotation"
             )
             .testThatGivenProGuard(
-                "-keep public class * extends support.Activity { \n" +
-                "  public static <fields>; \n" +
-                "  public !static <methods>; \n" +
-                "  public support.Fragment height; \n" +
-                "  public static <fields>; \n" +
-                "  public not.related.Type width; public support.Fragment width; \n" +
-                "  ignoreMe; \n" +
-                "  @support.Annotation public support.Fragment get(); \n" +
-                "}\n" +
-                "-dontwarn support.**"
+                """
+                -keep public class * extends support.Activity {
+                  public static <fields>;
+                  public !static <methods>;
+                  public support.Fragment height;
+                  public static <fields>;
+                  public not.related.Type width; public support.Fragment width;
+                  ignoreMe;
+                  @support.Annotation public support.Fragment get();
+                }
+                -dontwarn support.**
+                """.trimIndent()
             )
             .rewritesTo(
-                "-keep public class * extends test.Activity { \n" +
-                "  public static <fields>; \n" +
-                "  public !static <methods>; \n" +
-                "  public test.Fragment height; \n" +
-                "  public static <fields>; \n" +
-                "  public not.related.Type width; public test.Fragment width; \n" +
-                "  ignoreMe; \n" +
-                "  @test.Annotation public test.Fragment get(); \n" +
-                "}\n" +
-                "-dontwarn test.**"
+                """
+                -keep public class * extends test.Activity {
+                  public static <fields>;
+                  public !static <methods>;
+                  public test.Fragment height;
+                  public static <fields>;
+                  public not.related.Type width; public test.Fragment width;
+                  ignoreMe;
+                  @test.Annotation public test.Fragment get();
+                }
+                -dontwarn test.**
+                """.trimIndent()
+            )
+    }
+
+    @Test fun proGuard_sample6() {
+        ProGuardTester()
+            .forGivenPrefixes(
+                "support/"
+            )
+            .forGivenTypesMap(
+                "support/Activity" to "test/Activity"
+            )
+            .testThatGivenProGuard(
+                "# Comment\n" +
+                    "-keep class * extends com.google.Class { *; }\n" +
+                    "-dontwarn com.google.**\n" +
+                    // Comment should not break the transformer
+                    "# Note: comment 'com.google.android.Class\$Nested {\n" +
+                    "-keep class com.google.android.Class\$*\n"
+            )
+            .rewritesTo(
+                "# Comment\n" +
+                    "-keep class * extends com.google.Class { *; }\n" +
+                    "-dontwarn com.google.**\n" +
+                    "# Note: comment 'com.google.android.Class\$Nested {\n" +
+                    "-keep class com.google.android.Class\$*\n"
+            )
+    }
+
+    @Test fun proGuard_sample7() {
+        ProGuardTester()
+            .forGivenPrefixes(
+                "support/"
+            )
+            .forGivenTypesMap(
+                "support/Activity" to "test/Activity"
+            )
+            .testThatGivenProGuard(
+                "-dontwarn support.Activity,\n" +
+                    "support.Activity\n" + // New line should not be rewritten
+                    "-dontwarn support.Activity\n" +
+                    "support.Activity" // New line should not be rewritten
+            )
+            .rewritesTo(
+                """
+                -dontwarn test.Activity
+                support.Activity
+                -dontwarn test.Activity
+                support.Activity
+                """.trimIndent()
+            )
+    }
+
+    @Test fun proGuard_sample8() {
+        ProGuardTester()
+            .forGivenPrefixes(
+                "support/"
+            )
+            .forGivenTypesMap(
+                "support/Activity" to "test/Activity",
+                "support/Fragment" to "test/Fragment"
+            )
+            .testThatGivenProGuard(
+                """
+                -keep public class * {
+                  void get(*);
+                  void get(support.Activity);
+                #  void get(support.Activity, support.Fragment, keep.Please);
+                }
+                """.trimIndent()
+            )
+            .rewritesTo(
+                """
+                -keep public class * {
+                  void get(*);
+                  void get(support.Activity);
+                #  void get(support.Activity, support.Fragment, keep.Please);
+                }
+                """.trimIndent()
+            )
+    }
+
+    @Test fun proGuard_sample9() {
+        ProGuardTester()
+            .forGivenPrefixes(
+                "support/"
+            )
+            .forGivenTypesMap(
+                "support/Activity" to "test/Activity",
+                "support/Fragment" to "test/Fragment"
+            )
+            .testThatGivenProGuard(
+                """
+                -keep public class * {
+                  void get(*);
+                  void get(#support.Activity);
+                  void get(support.Activity, support.Fragment, keep.Please);
+                }
+                """.trimIndent()
+            )
+            .rewritesTo(
+                """
+                -keep public class * {
+                  void get(*);
+                  void get(#support.Activity);
+                  void get(support.Activity, support.Fragment, keep.Please);
+                }
+                """.trimIndent()
             )
     }
 }

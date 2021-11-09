@@ -1,0 +1,243 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2017 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+
+<merge xmlns:android="http://schemas.android.com/apk/res/android">
+    <FrameLayout
+        android:id="@+id/center_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layoutDirection="ltr">
+
+        <View
+            android:id="@+id/center_view_background"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/media2_widget_center_view_background" />
+
+        <include
+            android:id="@+id/embedded_transport_controls"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            layout="@layout/media2_widget_embedded_transport_controls" />
+
+        <include
+            android:id="@+id/minimal_transport_controls"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            layout="@layout/media2_widget_minimal_transport_controls" />
+    </FrameLayout>
+
+    <LinearLayout
+        android:id="@+id/title_bar"
+        android:background="@drawable/media2_widget_title_bar_gradient"
+        android:baselineAligned="false"
+        style="@style/Media2_Widget_TitleBar">
+
+        <LinearLayout
+            android:id="@+id/title_bar_left"
+            android:gravity="center_vertical"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/title_text"
+                android:gravity="center_vertical"
+                android:ellipsize="middle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:singleLine="true"
+                android:paddingStart="@dimen/media2_widget_embedded_icon_padding"
+                android:paddingEnd="@dimen/media2_widget_embedded_icon_padding"
+                android:textSize="15sp"
+                android:textColor="#FFFFFFFF"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/title_bar_right"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <LinearLayout
+                android:id="@+id/ad_external_link"
+                android:clickable="true"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingStart="5dip"
+                android:paddingLeft="5dip"
+                android:paddingEnd="10dip"
+                android:paddingRight="10dip"
+                android:orientation="horizontal"
+                android:visibility="gone">
+
+                <TextView
+                    android:id="@+id/ad_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:paddingEnd="5dip"
+                    android:paddingRight="5dip"
+                    android:text="@string/MediaControlView_ad_text"
+                    android:textSize="10sp"
+                    android:textColor="#FFFFFFFF" />
+
+                <ImageButton
+                    android:id="@+id/ad_launch"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    style="@style/Media2_Widget_TitleBarButton.Launch" />
+            </LinearLayout>
+        </LinearLayout>
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/minimal_fullscreen_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="end"
+        android:layoutDirection="ltr">
+
+        <ImageButton
+            android:id="@+id/minimal_fullscreen"
+            style="@style/Media2_Widget_BottomBarButton.FullScreen" />
+    </LinearLayout>
+
+    <View
+        android:id="@+id/bottom_bar_background"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/media2_widget_bottom_bar_height"
+        android:background="@color/media2_widget_bottom_bar_background"
+        android:layoutDirection="ltr" />
+
+    <LinearLayout
+        android:id="@+id/bottom_bar_left"
+        android:layout_width="wrap_content"
+        android:layout_height="@dimen/media2_widget_bottom_bar_height"
+        android:layoutDirection="ltr">
+
+        <include
+            android:id="@+id/full_transport_controls"
+            layout="@layout/media2_widget_full_transport_controls" />
+
+        <TextView
+            android:id="@+id/ad_skip_time"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_marginStart="4dp"
+            android:layout_marginLeft="4dp"
+            android:gravity="center"
+            android:textColor="#FFFFFF"
+            android:textSize="12sp"
+            android:visibility="gone" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/time"
+        android:layout_width="wrap_content"
+        android:layout_height="@dimen/media2_widget_bottom_bar_height"
+        android:paddingStart="10dp"
+        android:paddingEnd="10dp"
+        android:layoutDirection="ltr">
+
+        <TextView
+            android:id="@+id/time_current"
+            style="@style/Media2_Widget_TimeText.Current" />
+
+        <TextView
+            android:id="@+id/time_interpunct"
+            style="@style/Media2_Widget_TimeText.Interpunct" />
+
+        <TextView
+            android:id="@+id/time_end"
+            style="@style/Media2_Widget_TimeText.End" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/basic_controls"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layoutDirection="ltr">
+
+        <TextView
+            android:id="@+id/ad_remaining"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:textColor="#FFFFFF"
+            android:textSize="12sp"
+            android:visibility="gone" />
+
+        <ImageButton
+            android:id="@+id/subtitle"
+            style="@style/Media2_Widget_BottomBarButton.CC"
+            android:alpha="0.5"
+            android:scaleType="fitCenter"
+            android:visibility="gone" />
+
+        <ImageButton
+            android:id="@+id/fullscreen"
+            style="@style/Media2_Widget_BottomBarButton.FullScreen"
+            android:visibility="gone" />
+
+        <ImageButton
+                android:id="@+id/overflow_show"
+                style="@style/Media2_Widget_BottomBarButton.OverflowShow" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/extra_controls"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:visibility="gone"
+        android:layoutDirection="ltr">
+
+        <ImageButton
+            android:id="@+id/settings"
+            style="@style/Media2_Widget_BottomBarButton.Settings" />
+
+        <ImageButton
+                android:id="@+id/overflow_hide"
+                style="@style/Media2_Widget_BottomBarButton.OverflowHide" />
+    </LinearLayout>
+
+    <FrameLayout
+        android:id="@+id/progress_bar"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/media2_widget_custom_progress_thumb_size"
+        android:layoutDirection="ltr">
+
+        <SeekBar
+            android:id="@+id/progress"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:contentDescription="@string/mcv2_seek_bar_desc"
+            android:paddingStart="0dp"
+            android:paddingEnd="0dp"
+            android:maxHeight="@dimen/media2_widget_custom_progress_max_size"
+            android:minHeight="@dimen/media2_widget_custom_progress_max_size"
+            android:progressDrawable="@drawable/media2_widget_custom_progress"
+            android:thumb="@drawable/media2_widget_custom_progress_thumb"
+            android:thumbOffset="0dp"
+            android:splitTrack="false"
+            android:elevation="10dp" />
+    </FrameLayout>
+</merge>

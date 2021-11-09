@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import static androidx.build.dependencies.DependenciesKt.*
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("AndroidXPlugin")
@@ -24,19 +24,40 @@ plugins {
 }
 
 dependencies {
-    implementation(ARCH_CORE_RUNTIME)
-    implementation(ARCH_ROOM_RUNTIME)
-    implementation(ARCH_ROOM_RXJAVA)
-    implementation(ARCH_LIFECYCLE_EXTENSIONS)
+    implementation("androidx.arch.core:core-runtime:2.1.0")
+    implementation(projectOrArtifact(":room:room-ktx"))
+    implementation(projectOrArtifact(":room:room-rxjava2"))
+    implementation(projectOrArtifact(":room:room-paging"))
 
     implementation(project(":paging:paging-common-ktx"))
     implementation(project(":paging:paging-runtime"))
     implementation(project(":paging:paging-rxjava2"))
 
-    kapt(ARCH_ROOM_COMPILER)
+    kapt(projectOrArtifact(":room:room-compiler"))
 
-    implementation(MULTIDEX)
-    implementation(SUPPORT_RECYCLERVIEW, libs.support_exclude_config)
-    implementation(SUPPORT_APPCOMPAT, libs.support_exclude_config)
-    implementation(KOTLIN_STDLIB)
+    implementation(libs.multidex)
+    implementation(projectOrArtifact(":recyclerview:recyclerview"))
+    implementation("androidx.fragment:fragment-ktx:1.3.0")
+    implementation("androidx.appcompat:appcompat:1.1.0")
+    implementation(libs.kotlinStdlib)
+
+    androidTestImplementation(libs.kotlinTest)
+    androidTestImplementation(libs.testCore)
+    androidTestImplementation(libs.testExtJunit)
+    androidTestImplementation(libs.testRunner)
+    androidTestImplementation(libs.truth)
+}
+
+kapt {
+    javacOptions {
+        option("-source", "8")
+        option("-target", "8")
+    }
+}
+
+// Allow usage of Kotlin's @OptIn.
+tasks.withType(KotlinCompile).configureEach {
+    kotlinOptions {
+        freeCompilerArgs += ["-Xopt-in=kotlin.RequiresOptIn"]
+    }
 }

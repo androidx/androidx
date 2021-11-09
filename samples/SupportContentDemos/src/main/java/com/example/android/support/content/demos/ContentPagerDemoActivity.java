@@ -34,7 +34,6 @@ import androidx.contentpager.content.Query;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
 import java.util.Locale;
@@ -49,7 +48,6 @@ public class ContentPagerDemoActivity extends AppCompatActivity {
     private RecyclerView mRecycler;
     private ContentPager mPager;
     private Adapter mAdapter;
-    private FloatingActionButton mFab;
     private Menu mMenu;
     private int mCurrentPage = -1;
 
@@ -62,10 +60,10 @@ public class ContentPagerDemoActivity extends AppCompatActivity {
         mPager = new ContentPager(getContentResolver(), runner);
         mAdapter = new Adapter(mPager, PAGE_SIZE);
 
-        mRecycler = (RecyclerView) findViewById(R.id.list);
+        mRecycler = findViewById(R.id.list);
         mRecycler.setLayoutManager(new LinearLayoutManager(this));
         mRecycler.setAdapter(mAdapter);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
     }
 
@@ -210,9 +208,6 @@ public class ContentPagerDemoActivity extends AppCompatActivity {
             notifyDataSetChanged();
         }
 
-        private int getCorpusSize(Bundle extras) {
-            return extras.getInt(ContentPager.EXTRA_TOTAL_COUNT, -1);
-        }
     }
 
     private static class Holder extends RecyclerView.ViewHolder {

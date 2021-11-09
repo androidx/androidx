@@ -1,0 +1,27 @@
+// Baseline format: 1.0
+BuilderSetStyle: androidx.work.testing.TestListenableWorkerBuilder#from(android.content.Context, Class<W>):
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.work.testing.TestListenableWorkerBuilder.from(android.content.Context,Class<W>)
+BuilderSetStyle: androidx.work.testing.TestListenableWorkerBuilder#from(android.content.Context, androidx.work.WorkRequest):
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.work.testing.TestListenableWorkerBuilder.from(android.content.Context,androidx.work.WorkRequest)
+
+
+MissingGetterMatchingBuilder: androidx.work.testing.TestListenableWorkerBuilder#setForegroundUpdater(androidx.work.ForegroundUpdater):
+    W does not declare a `getForegroundUpdater()` method matching method androidx.work.testing.TestListenableWorkerBuilder.setForegroundUpdater(androidx.work.ForegroundUpdater)
+MissingGetterMatchingBuilder: androidx.work.testing.TestListenableWorkerBuilder#setProgressUpdater(androidx.work.ProgressUpdater):
+    W does not declare a `getProgressUpdater()` method matching method androidx.work.testing.TestListenableWorkerBuilder.setProgressUpdater(androidx.work.ProgressUpdater)
+MissingGetterMatchingBuilder: androidx.work.testing.TestListenableWorkerBuilder#setWorkerFactory(androidx.work.WorkerFactory):
+    W does not declare a `getWorkerFactory()` method matching method androidx.work.testing.TestListenableWorkerBuilder.setWorkerFactory(androidx.work.WorkerFactory)
+
+
+MissingNullability: androidx.work.testing.TestListenableWorkerBuilderKt#TestListenableWorkerBuilder(android.content.Context, androidx.work.Data, java.util.List<? extends java.lang.String>, int, java.util.List<? extends android.net.Uri>, java.util.List<? extends java.lang.String>):
+    Missing nullability on method `TestListenableWorkerBuilder` return
+MissingNullability: androidx.work.testing.TestWorkerBuilderKt#TestWorkerBuilder(android.content.Context, java.util.concurrent.Executor, androidx.work.Data, java.util.List<? extends java.lang.String>, int, java.util.List<? extends android.net.Uri>, java.util.List<? extends java.lang.String>):
+    Missing nullability on method `TestWorkerBuilder` return
+
+
+StaticFinalBuilder: androidx.work.testing.TestListenableWorkerBuilder:
+    Builder must be final: androidx.work.testing.TestListenableWorkerBuilder
+
+
+TopLevelBuilder: androidx.work.testing.TestListenableWorkerBuilder:
+    Builder should be defined as inner class: androidx.work.testing.TestListenableWorkerBuilder

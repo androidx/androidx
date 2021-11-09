@@ -1,0 +1,521 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 7.2.0-dev" type="baseline" client="gradle" dependencies="false" name="AGP (7.2.0-dev)" variant="all" version="7.2.0-dev">
+
+    <issue
+        id="NewApi"
+        message="`&lt;animated-vector>` requires API level 21 (current min is 14)"
+        errorLine1="&lt;animated-vector xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
+        errorLine2=" ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/drawable/animation_vector_drawable_grouping_1.xml"
+            line="16"
+            column="2"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="`&lt;animated-vector>` requires API level 21 (current min is 14)"
+        errorLine1="&lt;animated-vector xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
+        errorLine2=" ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/drawable/animation_vector_drawable_grouping_1_path_motion.xml"
+            line="16"
+            column="2"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="`&lt;animated-vector>` requires API level 21 (current min is 14)"
+        errorLine1="&lt;animated-vector xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
+        errorLine2=" ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/drawable/animation_vector_drawable_grouping_1_path_motion_object.xml"
+            line="17"
+            column="2"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="`&lt;animated-vector>` requires API level 21 (current min is 14)"
+        errorLine1="&lt;animated-vector xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
+        errorLine2=" ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/drawable/animation_vector_drawable_grouping_accelerate.xml"
+            line="17"
+            column="2"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="`&lt;animated-vector>` requires API level 21 (current min is 14)"
+        errorLine1="&lt;animated-vector xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
+        errorLine2=" ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/drawable/animation_vector_drawable_grouping_decelerate.xml"
+            line="16"
+            column="2"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="`&lt;animated-vector>` requires API level 21 (current min is 14)"
+        errorLine1="&lt;animated-vector xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
+        errorLine2=" ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/drawable/animation_vector_progress_bar.xml"
+            line="16"
+            column="2"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="`&lt;animated-vector>` requires API level 21 (current min is 14)"
+        errorLine1="&lt;animated-vector xmlns:aapt=&quot;http://schemas.android.com/aapt&quot;"
+        errorLine2=" ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/drawable/btn_radio_on_to_off_bundle.xml"
+            line="16"
+            column="2"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="`&lt;animated-vector>` requires API level 21 (current min is 14)"
+        errorLine1="&lt;animated-vector xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
+        errorLine2=" ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/drawable/ic_hourglass_animation.xml"
+            line="15"
+            column="2"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="`&lt;animated-vector>` requires API level 21 (current min is 14)"
+        errorLine1="&lt;animated-vector xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
+        errorLine2=" ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/drawable/ic_signal_airplane_v2_animation.xml"
+            line="15"
+            column="2"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Using theme references in XML drawables requires API level 21 (current min is 14)"
+        errorLine1="                        android:fillColor=&quot;?android:attr/colorForeground&quot;"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/drawable/vector_drawable23.xml"
+            line="74"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Using theme references in XML drawables requires API level 21 (current min is 14)"
+        errorLine1="                        android:strokeColor=&quot;?android:attr/colorForeground&quot;"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/drawable/vector_drawable23.xml"
+            line="75"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Using theme references in XML drawables requires API level 21 (current min is 14)"
+        errorLine1="                        android:fillColor=&quot;?android:attr/colorForeground&quot;"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/drawable/vector_drawable24.xml"
+            line="74"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Using theme references in XML drawables requires API level 21 (current min is 14)"
+        errorLine1="                        android:strokeColor=&quot;?android:attr/colorForeground&quot;"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/drawable/vector_drawable24.xml"
+            line="75"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="InvalidVectorPath"
+        message="Use -0.001 instead of -.001 to avoid crashes on some devices"
+        errorLine1="                m-.001, 0"
+        errorLine2="                    ~~~~~">
+        <location
+            file="src/main/res/drawable/vector_drawable04.xml"
+            line="27"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="InvalidVectorPath"
+        message="Use 0.001 instead of .001 to avoid crashes on some devices"
+        errorLine1="                a .001,.001 0 1,0 .002,0"
+        errorLine2="                     ~~~~">
+        <location
+            file="src/main/res/drawable/vector_drawable04.xml"
+            line="28"
+            column="22"/>
+    </issue>
+
+    <issue
+        id="InvalidVectorPath"
+        message="Use 0.001 instead of .001 to avoid crashes on some devices"
+        errorLine1="                a .001,.001 0 1,0 .002,0"
+        errorLine2="                          ~~~~">
+        <location
+            file="src/main/res/drawable/vector_drawable04.xml"
+            line="28"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="InvalidVectorPath"
+        message="Use 0.002 instead of .002 to avoid crashes on some devices"
+        errorLine1="                a .001,.001 0 1,0 .002,0"
+        errorLine2="                                     ^">
+        <location
+            file="src/main/res/drawable/vector_drawable04.xml"
+            line="28"
+            column="38"/>
+    </issue>
+
+    <issue
+        id="InvalidVectorPath"
+        message="Use -0.002 instead of -.002 to avoid crashes on some devices"
+        errorLine1="                a .001,.001 0 1,0-.002,0z&quot; />"
+        errorLine2="                                    ~~~~~">
+        <location
+            file="src/main/res/drawable/vector_drawable04.xml"
+            line="29"
+            column="37"/>
+    </issue>
+
+    <issue
+        id="InvalidVectorPath"
+        message="Use 0.001 instead of .001 to avoid crashes on some devices"
+        errorLine1="                a .001,.001 0 1,0-.002,0z&quot; />"
+        errorLine2="                     ~~~~">
+        <location
+            file="src/main/res/drawable/vector_drawable04.xml"
+            line="29"
+            column="22"/>
+    </issue>
+
+    <issue
+        id="InvalidVectorPath"
+        message="Use 0.001 instead of .001 to avoid crashes on some devices"
+        errorLine1="                a .001,.001 0 1,0-.002,0z&quot; />"
+        errorLine2="                          ~~~~">
+        <location
+            file="src/main/res/drawable/vector_drawable04.xml"
+            line="29"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="InvalidVectorPath"
+        message="Use -0.5 instead of -.5 to avoid crashes on some devices"
+        errorLine1="            android:pathData=&quot;l0.0.0.5.0.0.5-0.5.0.0-.5z&quot;"
+        errorLine2="                                                    ~~~">
+        <location
+            file="src/main/res/drawable/vector_drawable29.xml"
+            line="25"
+            column="53"/>
+    </issue>
+
+    <issue
+        id="InvalidVectorPath"
+        message="Use 0.0 instead of .0 to avoid crashes on some devices"
+        errorLine1="            android:pathData=&quot;l0.0.0.5.0.0.5-0.5.0.0-.5z&quot;"
+        errorLine2="                                  ~~">
+        <location
+            file="src/main/res/drawable/vector_drawable29.xml"
+            line="25"
+            column="35"/>
+    </issue>
+
+    <issue
+        id="InvalidVectorPath"
+        message="Use 0.0 instead of .0 to avoid crashes on some devices"
+        errorLine1="            android:pathData=&quot;l0.0.0.5.0.0.5-0.5.0.0-.5z&quot;"
+        errorLine2="                                      ~~">
+        <location
+            file="src/main/res/drawable/vector_drawable29.xml"
+            line="25"
+            column="39"/>
+    </issue>
+
+    <issue
+        id="InvalidVectorPath"
+        message="Use 0.0 instead of .0 to avoid crashes on some devices"
+        errorLine1="            android:pathData=&quot;l0.0.0.5.0.0.5-0.5.0.0-.5z&quot;"
+        errorLine2="                                        ~~">
+        <location
+            file="src/main/res/drawable/vector_drawable29.xml"
+            line="25"
+            column="41"/>
+    </issue>
+
+    <issue
+        id="InvalidVectorPath"
+        message="Use 0.0 instead of .0 to avoid crashes on some devices"
+        errorLine1="            android:pathData=&quot;l0.0.0.5.0.0.5-0.5.0.0-.5z&quot;"
+        errorLine2="                                                ~~">
+        <location
+            file="src/main/res/drawable/vector_drawable29.xml"
+            line="25"
+            column="49"/>
+    </issue>
+
+    <issue
+        id="InvalidVectorPath"
+        message="Use 0.0 instead of .0 to avoid crashes on some devices"
+        errorLine1="            android:pathData=&quot;l0.0.0.5.0.0.5-0.5.0.0-.5z&quot;"
+        errorLine2="                                                  ~~">
+        <location
+            file="src/main/res/drawable/vector_drawable29.xml"
+            line="25"
+            column="51"/>
+    </issue>
+
+    <issue
+        id="InvalidVectorPath"
+        message="Use 0.5 instead of .5 to avoid crashes on some devices"
+        errorLine1="            android:pathData=&quot;l0.0.0.5.0.0.5-0.5.0.0-.5z&quot;"
+        errorLine2="                                    ~~">
+        <location
+            file="src/main/res/drawable/vector_drawable29.xml"
+            line="25"
+            column="37"/>
+    </issue>
+
+    <issue
+        id="InvalidVectorPath"
+        message="Use 0.5 instead of .5 to avoid crashes on some devices"
+        errorLine1="            android:pathData=&quot;l0.0.0.5.0.0.5-0.5.0.0-.5z&quot;"
+        errorLine2="                                          ~~">
+        <location
+            file="src/main/res/drawable/vector_drawable29.xml"
+            line="25"
+            column="43"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected void onCreate(Bundle savedInstanceState) {"
+        errorLine2="                            ~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/vectordrawable/app/AVDCListenerDemo.java"
+            line="39"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected int[] mIcons = {"
+        errorLine2="              ~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/vectordrawable/app/SimpleAnimatedVectorDrawable.java"
+            line="38"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected void onCreate(Bundle savedInstanceState) {"
+        errorLine2="                            ~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/vectordrawable/app/SimpleAnimatedVectorDrawable.java"
+            line="51"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void onClick(View v) {"
+        errorLine2="                        ~~~~">
+        <location
+            file="src/main/java/com/example/android/support/vectordrawable/app/SimpleAnimatedVectorDrawable.java"
+            line="101"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected int[] mIcons = {"
+        errorLine2="              ~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/vectordrawable/app/SimpleStaticVectorDrawable.java"
+            line="39"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected void onCreate(Bundle savedInstanceState) {"
+        errorLine2="                            ~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/vectordrawable/app/SimpleStaticVectorDrawable.java"
+            line="85"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void onCreate(Bundle savedInstanceState) {"
+        errorLine2="                         ~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/vectordrawable/app/SupportVectorDrawableDemos.java"
+            line="42"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected List&lt;Map&lt;String, Object>> getData(String prefix) {"
+        errorLine2="              ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/vectordrawable/app/SupportVectorDrawableDemos.java"
+            line="58"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected List&lt;Map&lt;String, Object>> getData(String prefix) {"
+        errorLine2="                                                ~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/vectordrawable/app/SupportVectorDrawableDemos.java"
+            line="58"
+            column="49"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected Intent activityIntent(String pkg, String componentName) {"
+        errorLine2="              ~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/vectordrawable/app/SupportVectorDrawableDemos.java"
+            line="127"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected Intent activityIntent(String pkg, String componentName) {"
+        errorLine2="                                    ~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/vectordrawable/app/SupportVectorDrawableDemos.java"
+            line="127"
+            column="37"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected Intent activityIntent(String pkg, String componentName) {"
+        errorLine2="                                                ~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/vectordrawable/app/SupportVectorDrawableDemos.java"
+            line="127"
+            column="49"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected Intent browseIntent(String path) {"
+        errorLine2="              ~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/vectordrawable/app/SupportVectorDrawableDemos.java"
+            line="133"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected Intent browseIntent(String path) {"
+        errorLine2="                                  ~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/vectordrawable/app/SupportVectorDrawableDemos.java"
+            line="133"
+            column="35"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected void addItem(List&lt;Map&lt;String, Object>> data, String name, Intent intent) {"
+        errorLine2="                           ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/vectordrawable/app/SupportVectorDrawableDemos.java"
+            line="140"
+            column="28"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected void addItem(List&lt;Map&lt;String, Object>> data, String name, Intent intent) {"
+        errorLine2="                                                           ~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/vectordrawable/app/SupportVectorDrawableDemos.java"
+            line="140"
+            column="60"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected void addItem(List&lt;Map&lt;String, Object>> data, String name, Intent intent) {"
+        errorLine2="                                                                        ~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/vectordrawable/app/SupportVectorDrawableDemos.java"
+            line="140"
+            column="73"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected void onListItemClick(ListView l, View v, int position, long id) {"
+        errorLine2="                                   ~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/vectordrawable/app/SupportVectorDrawableDemos.java"
+            line="149"
+            column="36"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected void onListItemClick(ListView l, View v, int position, long id) {"
+        errorLine2="                                               ~~~~">
+        <location
+            file="src/main/java/com/example/android/support/vectordrawable/app/SupportVectorDrawableDemos.java"
+            line="149"
+            column="48"/>
+    </issue>
+
+</issues>

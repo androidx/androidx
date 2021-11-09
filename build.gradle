@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017 The Android Open Source Project
+ * Copyright (C) 2019 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,40 +14,26 @@
  * limitations under the License.
  */
 
-import androidx.build.AndroidXPlugin
+import androidx.build.AndroidXRootPlugin
 import androidx.build.SdkHelperKt
 
-def currentJvmVersion = org.gradle.api.JavaVersion.current()
-if (currentJvmVersion.getMajorVersion() != "8") {
-  throw new Exception("Unsupported java version '" + currentJvmVersion.toString() + "'. Please install java 8.\n" +
-"\n" +
-"If you have already installed java 8, you can instruct Gradle to use it by setting the environment variable JAVA_HOME equal to its file path.")
-}
-
 buildscript {
-    ext.supportRootFolder = project.projectDir
-    apply from: 'buildSrc/repos.gradle'
-    apply from: 'buildSrc/build_dependencies.gradle'
-    repos.addMavenRepositories(repositories)
-    SdkHelperKt.setSdkInLocalPropertiesFile(ext.supportRootFolder)
+    SdkHelperKt.setSupportRootFolder(project, project.projectDir)
 
-    dependencies {
-        classpath build_libs.gradle
-        classpath build_libs.kotlin.gradle_plugin
-        classpath build_libs.dokka_gradle
-    }
+    apply from: "buildSrc/repos.gradle"
+    repos.addMavenRepositories(repositories)
+
+    SdkHelperKt.writeSdkPathToLocalPropertiesFile(project)
 }
 
-allprojects {
-    repos.addMavenRepositories(repositories)
+def root = project
+repos.addMavenRepositories(root.repositories)
+subprojects { subproject ->
+    subproject.repositories.addAll(root.repositories)
 }
 
 apply from: "buildSrc/dependencies.gradle"
 apply from: "buildSrc/out.gradle"
 init.chooseOutDir()
 
-apply plugin: AndroidXPlugin
-
-// AndroidX needed before jetify since it accesses the createArchive task name directly.
-apply from: 'buildSrc/jetify.gradle'
-
+apply plugin: AndroidXRootPlugin

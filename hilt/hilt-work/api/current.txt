@@ -1,0 +1,9 @@
+// Signature format: 4.0
+package androidx.hilt.work {
+
+  public final class HiltWorkerFactory extends androidx.work.WorkerFactory {
+    method public androidx.work.ListenableWorker? createWorker(android.content.Context, String, androidx.work.WorkerParameters);
+  }
+
+}
+

@@ -68,7 +68,7 @@ public class ScrollToPositionWithAutoMeasure extends BaseRecyclerViewInstrumenta
         recyclerView.setAdapter(new TestAdapter(1000));
         setRecyclerView(recyclerView);
         getInstrumentation().waitForIdleSync();
-        assertThat("Test sanity", recyclerView.getChildCount() > 0, is(true));
+        assertThat("Assumption check", recyclerView.getChildCount() > 0, is(true));
         mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {

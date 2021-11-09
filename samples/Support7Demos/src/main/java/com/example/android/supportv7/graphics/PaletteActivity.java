@@ -178,7 +178,6 @@ public class PaletteActivity extends AppCompatActivity {
             @SuppressLint("RestrictedApi")
             public PhotosCursorAdapter(Context context, Cursor c) {
                 super(context, R.layout.palette_list_item, c, false);
-                mContext = context;
             }
 
             /**
@@ -207,6 +206,7 @@ public class PaletteActivity extends AppCompatActivity {
                         cursor.getColumnIndexOrThrow(MediaStore.Images.ImageColumns._ID));
 
                 ImageLoader.loadMediaStoreThumbnail(imageView, id, new ImageLoader.Listener() {
+                    @SuppressWarnings("deprecation")
                     @Override
                     public void onImageLoaded(Bitmap bitmap) {
                         new Palette.Builder(bitmap).maximumColorCount(mNumColors).generate(

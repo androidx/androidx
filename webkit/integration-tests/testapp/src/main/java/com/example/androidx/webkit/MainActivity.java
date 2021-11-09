@@ -51,6 +51,28 @@ public class MainActivity extends AppCompatActivity {
                 new MenuListView.MenuItem(
                         getResources().getString(R.string.asset_loader_list_activity_title),
                         new Intent(activityContext, AssetLoaderListActivity.class)),
+                new MenuListView.MenuItem(
+                        getResources().getString(R.string.force_dark_activity_title),
+                        new Intent(activityContext, ForceDarkActivity.class)),
+                new MenuListView.MenuItem(
+                        getResources().getString(R.string.force_dark_strategy_activity_title),
+                        new Intent(activityContext, ForceDarkStrategyActivity.class)),
+                new MenuListView.MenuItem(
+                        getResources().getString(R.string.multi_process_enabled_activity_title),
+                        new Intent(activityContext, MultiProcessEnabledActivity.class)),
+                new MenuListView.MenuItem(
+                        getResources().getString(R.string.tracing_controller_activity_title),
+                        new Intent(activityContext, TracingControllerActivity.class)),
+                new MenuListView.MenuItem(
+                        getResources().getString(R.string.renderer_termination_activity_title),
+                        new Intent(activityContext, RendererTerminationActivity.class)),
+                new MenuListView.MenuItem(
+                        getResources().getString(R.string.fullscreen_activity_title),
+                        new Intent(activityContext, FullscreenActivity.class)),
+                new MenuListView.MenuItem(
+                        getResources().getString(R.string.js_java_interaction_activity_title),
+                        new Intent(activityContext, JsJavaInteractionActivity.class)),
+
         };
         listView.setItems(menuItems);
     }

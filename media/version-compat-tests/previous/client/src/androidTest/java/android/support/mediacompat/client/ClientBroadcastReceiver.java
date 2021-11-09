@@ -41,6 +41,7 @@ import static android.support.mediacompat.testlib.MediaControllerConstants.SEND_
 import static android.support.mediacompat.testlib.MediaControllerConstants
         .SEND_CUSTOM_ACTION_PARCELABLE;
 import static android.support.mediacompat.testlib.MediaControllerConstants.SET_CAPTIONING_ENABLED;
+import static android.support.mediacompat.testlib.MediaControllerConstants.SET_PLAYBACK_SPEED;
 import static android.support.mediacompat.testlib.MediaControllerConstants.SET_RATING;
 import static android.support.mediacompat.testlib.MediaControllerConstants.SET_REPEAT_MODE;
 import static android.support.mediacompat.testlib.MediaControllerConstants.SET_SHUFFLE_MODE;
@@ -62,7 +63,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.RemoteException;
 import android.os.ResultReceiver;
 import android.support.v4.media.MediaDescriptionCompat;
 import android.support.v4.media.RatingCompat;
@@ -81,14 +81,8 @@ public class ClientBroadcastReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         Bundle extras = intent.getExtras();
-        MediaControllerCompat controller;
-        try {
-            controller = new MediaControllerCompat(context,
-                    (MediaSessionCompat.Token) extras.getParcelable(KEY_SESSION_TOKEN));
-        } catch (RemoteException ex) {
-            // Do nothing.
-            return;
-        }
+        MediaControllerCompat controller = new MediaControllerCompat(context,
+                (MediaSessionCompat.Token) extras.getParcelable(KEY_SESSION_TOKEN));
         int method = extras.getInt(KEY_METHOD_ID, 0);
         Log.d(TAG, "action=" + intent.getAction() + ", method=" + method);
 
@@ -233,6 +227,9 @@ public class ClientBroadcastReceiver extends BroadcastReceiver {
                     break;
                 case SET_SHUFFLE_MODE:
                     controls.setShuffleMode(extras.getInt(KEY_ARGUMENT));
+                    break;
+                case SET_PLAYBACK_SPEED:
+                    controls.setPlaybackSpeed(extras.getFloat(KEY_ARGUMENT));
                     break;
             }
         }

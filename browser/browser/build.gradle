@@ -1,0 +1,53 @@
+import androidx.build.LibraryGroups
+import androidx.build.Publish
+
+plugins {
+    id("AndroidXPlugin")
+    id("com.android.library")
+}
+
+android {
+    defaultConfig {
+        minSdkVersion 16
+    }
+    buildFeatures {
+        aidl = true
+    }
+    testOptions.unitTests.includeAndroidResources = true
+}
+
+dependencies {
+    api("androidx.core:core:1.1.0")
+    api("androidx.annotation:annotation:1.1.0")
+    api(libs.guavaListenableFuture)
+
+    implementation("androidx.collection:collection:1.1.0")
+    implementation("androidx.concurrent:concurrent-futures:1.0.0")
+    implementation("androidx.interpolator:interpolator:1.0.0")
+
+    annotationProcessor(libs.nullaway)
+
+    testImplementation(libs.testCore)
+    testImplementation(libs.testRunner)
+    testImplementation(libs.junit)
+    testImplementation(libs.robolectric)
+    testImplementation(libs.mockitoCore)
+
+    androidTestImplementation("androidx.appcompat:appcompat:1.1.0")
+    androidTestImplementation(libs.testExtJunit)
+    androidTestImplementation(libs.testCore)
+    androidTestImplementation(libs.testRunner)
+    androidTestImplementation(libs.testRules)
+    androidTestImplementation(libs.espressoCore, excludes.espresso)
+    androidTestImplementation(libs.mockitoCore, excludes.bytebuddy) // DexMaker has it"s own MockMaker
+    androidTestImplementation(libs.dexmakerMockito, excludes.bytebuddy) // DexMaker has it"s own MockMaker
+    androidTestImplementation(project(":internal-testutils-runtime"))
+}
+
+androidx {
+    name = "Android Support Custom Tabs"
+    publish = Publish.SNAPSHOT_AND_RELEASE
+    mavenGroup = LibraryGroups.BROWSER
+    inceptionYear = "2015"
+    description = "Android Support Custom Tabs"
+}

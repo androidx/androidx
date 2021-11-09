@@ -1,19 +1,30 @@
 plugins {
     id("AndroidXPlugin")
     id("com.android.application")
+    id("kotlin-android")
 }
 
 dependencies {
-    implementation(project(":appcompat"))
-    implementation(project(":cardview"))
-    implementation(project(":gridlayout"))
-    implementation(project(":mediarouter"))
-    implementation(project(":palette"))
-    implementation(project(":recyclerview"))
-    implementation project(':recyclerview-selection')
+    api(libs.kotlinStdlib)
+    implementation(project(":appcompat:appcompat"))
+    implementation(project(":cardview:cardview"))
+    implementation(project(":drawerlayout:drawerlayout"))
+    implementation(project(":gridlayout:gridlayout"))
+    implementation(project(":mediarouter:mediarouter"))
+    implementation(project(":palette:palette"))
+    implementation(project(":recyclerview:recyclerview"))
+    implementation(project(":recyclerview:recyclerview-selection"))
+    implementation("androidx.concurrent:concurrent-futures:1.1.0")
+    api(libs.material)
 }
 
 android {
+    buildTypes {
+        release {
+            minifyEnabled = true
+            proguardFiles getDefaultProguardFile("proguard-android-optimize.txt")
+        }
+    }
     defaultConfig {
         vectorDrawables.useSupportLibrary = true
     }

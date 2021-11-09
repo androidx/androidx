@@ -17,11 +17,11 @@
 package androidx.room.integration.kotlintestapp.migration
 
 import androidx.room.Room
+import androidx.room.RoomDatabase
 import androidx.room.migration.Migration
 import androidx.room.testing.MigrationTestHelper
 import androidx.room.util.TableInfo
 import androidx.sqlite.db.SupportSQLiteDatabase
-import androidx.sqlite.db.framework.FrameworkSQLiteOpenHelperFactory
 import androidx.test.filters.MediumTest
 import androidx.test.platform.app.InstrumentationRegistry
 import org.hamcrest.CoreMatchers.`is`
@@ -39,20 +39,23 @@ class MigrationKotlinTest {
 
     @get:Rule
     var helper: MigrationTestHelper = MigrationTestHelper(
-            InstrumentationRegistry.getInstrumentation(),
-            MigrationDbKotlin::class.java.canonicalName,
-            FrameworkSQLiteOpenHelperFactory())
+        InstrumentationRegistry.getInstrumentation(),
+        MigrationDbKotlin::class.java
+    )
 
     companion object {
         val TEST_DB = "migration-test"
     }
 
+    abstract class EmptyDb : RoomDatabase()
+
     @Test
     @Throws(IOException::class)
     fun giveBadResource() {
         val helper = MigrationTestHelper(
-                InstrumentationRegistry.getInstrumentation(),
-                "foo", FrameworkSQLiteOpenHelperFactory())
+            InstrumentationRegistry.getInstrumentation(),
+            EmptyDb::class.java
+        )
         try {
             helper.createDatabase(TEST_DB, 1)
             throw AssertionError("must have failed with missing file exception")
@@ -64,8 +67,10 @@ class MigrationKotlinTest {
     @Test
     @Throws(IOException::class)
     fun startInCurrentVersion() {
-        val db = helper.createDatabase(TEST_DB,
-                MigrationDbKotlin.LATEST_VERSION)
+        val db = helper.createDatabase(
+            TEST_DB,
+            MigrationDbKotlin.LATEST_VERSION
+        )
         val dao = MigrationDbKotlin.Dao_V1(db)
         dao.insertIntoEntity1(2, "x")
         db.close()
@@ -83,8 +88,10 @@ class MigrationKotlinTest {
         dao.insertIntoEntity1(2, "foo")
         dao.insertIntoEntity1(3, "bar")
         db.close()
-        db = helper.runMigrationsAndValidate(TEST_DB, 2, true,
-                MIGRATION_1_2)
+        db = helper.runMigrationsAndValidate(
+            TEST_DB, 2, true,
+            MIGRATION_1_2
+        )
         MigrationDbKotlin.Dao_V2(db).insertIntoEntity2(3, "blah")
         db.close()
         val migrationDb = getLatestDb()
@@ -101,8 +108,9 @@ class MigrationKotlinTest {
     @Suppress("DEPRECATION")
     private fun getLatestDb(): MigrationDbKotlin {
         val db = Room.databaseBuilder(
-                InstrumentationRegistry.getInstrumentation().targetContext,
-                MigrationDbKotlin::class.java, TEST_DB).addMigrations(*ALL_MIGRATIONS).build()
+            InstrumentationRegistry.getInstrumentation().targetContext,
+            MigrationDbKotlin::class.java, TEST_DB
+        ).addMigrations(*ALL_MIGRATIONS).build()
         // trigger open
         db.beginTransaction()
         db.endTransaction()
@@ -123,14 +131,18 @@ class MigrationKotlinTest {
         db.close()
         var caught: IllegalStateException? = null
         try {
-            helper.runMigrationsAndValidate(TEST_DB, 3, true,
-                    EmptyMigration(2, 3))
+            helper.runMigrationsAndValidate(
+                TEST_DB, 3, true,
+                EmptyMigration(2, 3)
+            )
         } catch (ex: IllegalStateException) {
             caught = ex
         }
 
-        assertThat<IllegalStateException>(caught,
-                instanceOf<IllegalStateException>(IllegalStateException::class.java))
+        assertThat<IllegalStateException>(
+            caught,
+            instanceOf<IllegalStateException>(IllegalStateException::class.java)
+        )
     }
 
     @Test
@@ -164,8 +176,10 @@ class MigrationKotlinTest {
     @Throws(IOException::class)
     fun removeColumn() {
         helper.createDatabase(TEST_DB, 4)
-        val db = helper.runMigrationsAndValidate(TEST_DB,
-                5, true, MIGRATION_4_5)
+        val db = helper.runMigrationsAndValidate(
+            TEST_DB,
+            5, true, MIGRATION_4_5
+        )
         val info = TableInfo.read(db, MigrationDbKotlin.Entity3.TABLE_NAME)
         assertThat(info.columns.size, `is`(2))
     }
@@ -174,8 +188,10 @@ class MigrationKotlinTest {
     @Throws(IOException::class)
     fun dropTable() {
         helper.createDatabase(TEST_DB, 5)
-        val db = helper.runMigrationsAndValidate(TEST_DB,
-                6, true, MIGRATION_5_6)
+        val db = helper.runMigrationsAndValidate(
+            TEST_DB,
+            6, true, MIGRATION_5_6
+        )
         val info = TableInfo.read(db, MigrationDbKotlin.Entity3.TABLE_NAME)
         assertThat(info.columns.size, `is`(0))
     }
@@ -190,8 +206,10 @@ class MigrationKotlinTest {
     @Throws(IOException::class)
     fun failedToDropTableDontVerify() {
         helper.createDatabase(TEST_DB, 5)
-        val db = helper.runMigrationsAndValidate(TEST_DB,
-                6, false, EmptyMigration(5, 6))
+        val db = helper.runMigrationsAndValidate(
+            TEST_DB,
+            6, false, EmptyMigration(5, 6)
+        )
         val info = TableInfo.read(db, MigrationDbKotlin.Entity3.TABLE_NAME)
         assertThat(info.columns.size, `is`(2))
     }
@@ -203,30 +221,35 @@ class MigrationKotlinTest {
         db.close()
         var throwable: Throwable? = null
         try {
-            helper.runMigrationsAndValidate(TEST_DB,
-                    7, false, object : Migration(6, 7) {
-                override fun migrate(database: SupportSQLiteDatabase) {
-                    database.execSQL(
-                        "CREATE TABLE Entity4 (`id` INTEGER, `name` TEXT," +
+            helper.runMigrationsAndValidate(
+                TEST_DB,
+                7, false,
+                object : Migration(6, 7) {
+                    override fun migrate(database: SupportSQLiteDatabase) {
+                        database.execSQL(
+                            "CREATE TABLE Entity4 (`id` INTEGER, `name` TEXT," +
                                 " PRIMARY KEY(`id`))"
-                    )
+                        )
+                    }
                 }
-            })
+            )
         } catch (t: Throwable) {
             throwable = t
         }
 
         assertThat<Throwable>(throwable, instanceOf<Throwable>(IllegalStateException::class.java))
 
-        assertThat<String>(throwable!!.message, containsString("Migration failed"))
+        assertThat<String>(throwable!!.message, containsString("Migration didn't properly handle"))
     }
 
     @Test
     @Throws(IOException::class)
     fun newTableWithForeignKey() {
         helper.createDatabase(TEST_DB, 6)
-        val db = helper.runMigrationsAndValidate(TEST_DB,
-                7, false, MIGRATION_6_7)
+        val db = helper.runMigrationsAndValidate(
+            TEST_DB,
+            7, false, MIGRATION_6_7
+        )
         val info = TableInfo.read(db, MigrationDbKotlin.Entity4.TABLE_NAME)
         assertThat(info.foreignKeys.size, `is`(1))
     }
@@ -237,21 +260,23 @@ class MigrationKotlinTest {
         db.close()
         var throwable: Throwable? = null
         try {
-            helper.runMigrationsAndValidate(TEST_DB, endVersion, true,
-                    EmptyMigration(startVersion, endVersion))
+            helper.runMigrationsAndValidate(
+                TEST_DB, endVersion, true,
+                EmptyMigration(startVersion, endVersion)
+            )
         } catch (t: Throwable) {
             throwable = t
         }
 
         assertThat<Throwable>(throwable, instanceOf<Throwable>(IllegalStateException::class.java))
-        assertThat<String>(throwable!!.message, containsString("Migration failed"))
+        assertThat<String>(throwable!!.message, containsString("Migration didn't properly handle"))
     }
 
     internal val MIGRATION_1_2: Migration = object : Migration(1, 2) {
         override fun migrate(database: SupportSQLiteDatabase) {
             database.execSQL(
                 "CREATE TABLE IF NOT EXISTS `Entity2` (`id` INTEGER NOT NULL," +
-                        " `name` TEXT, PRIMARY KEY(`id`))"
+                    " `name` TEXT, PRIMARY KEY(`id`))"
             )
         }
     }
@@ -260,7 +285,7 @@ class MigrationKotlinTest {
         override fun migrate(database: SupportSQLiteDatabase) {
             database.execSQL(
                 "ALTER TABLE " + MigrationDbKotlin.Entity2.TABLE_NAME +
-                        " ADD COLUMN addedInV3 TEXT"
+                    " ADD COLUMN addedInV3 TEXT"
             )
         }
     }
@@ -269,7 +294,7 @@ class MigrationKotlinTest {
         override fun migrate(database: SupportSQLiteDatabase) {
             database.execSQL(
                 "CREATE TABLE IF NOT EXISTS `Entity3` (`id` INTEGER NOT NULL," +
-                        " `removedInV5` TEXT, `name` TEXT, PRIMARY KEY(`id`))"
+                    " `removedInV5` TEXT, `name` TEXT, PRIMARY KEY(`id`))"
             )
         }
     }
@@ -278,11 +303,11 @@ class MigrationKotlinTest {
         override fun migrate(database: SupportSQLiteDatabase) {
             database.execSQL(
                 "CREATE TABLE IF NOT EXISTS `Entity3_New` (`id` INTEGER NOT NULL," +
-                        " `name` TEXT, PRIMARY KEY(`id`))"
+                    " `name` TEXT, PRIMARY KEY(`id`))"
             )
             database.execSQL(
                 "INSERT INTO Entity3_New(`id`, `name`) " +
-                        "SELECT `id`, `name` FROM Entity3"
+                    "SELECT `id`, `name` FROM Entity3"
             )
             database.execSQL("DROP TABLE Entity3")
             database.execSQL("ALTER TABLE Entity3_New RENAME TO Entity3")
@@ -299,23 +324,25 @@ class MigrationKotlinTest {
         override fun migrate(database: SupportSQLiteDatabase) {
             database.execSQL(
                 "CREATE TABLE IF NOT EXISTS " +
-                        MigrationDbKotlin.Entity4.TABLE_NAME +
-                        " (`id` INTEGER NOT NULL, `name` TEXT, PRIMARY KEY(`id`)," +
-                        " FOREIGN KEY(`name`) REFERENCES `Entity1`(`name`)" +
-                        " ON UPDATE NO ACTION ON DELETE NO ACTION DEFERRABLE INITIALLY DEFERRED)"
+                    MigrationDbKotlin.Entity4.TABLE_NAME +
+                    " (`id` INTEGER NOT NULL, `name` TEXT, PRIMARY KEY(`id`)," +
+                    " FOREIGN KEY(`name`) REFERENCES `Entity1`(`name`)" +
+                    " ON UPDATE NO ACTION ON DELETE NO ACTION DEFERRABLE INITIALLY DEFERRED)"
             )
             database.execSQL(
                 "CREATE UNIQUE INDEX `index_entity1` ON " +
-                        MigrationDbKotlin.Entity1.TABLE_NAME + " (`name`)"
+                    MigrationDbKotlin.Entity1.TABLE_NAME + " (`name`)"
             )
         }
     }
 
-    private val ALL_MIGRATIONS = arrayOf(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5,
-            MIGRATION_5_6, MIGRATION_6_7)
+    private val ALL_MIGRATIONS = arrayOf(
+        MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5,
+        MIGRATION_5_6, MIGRATION_6_7
+    )
 
-    internal class EmptyMigration(startVersion: Int, endVersion: Int)
-        : Migration(startVersion, endVersion) {
+    internal class EmptyMigration(startVersion: Int, endVersion: Int) :
+        Migration(startVersion, endVersion) {
 
         override fun migrate(database: SupportSQLiteDatabase) {
             // do nothing

@@ -1,0 +1,13 @@
+// Baseline format: 1.0
+HiddenSuperclass: androidx.appcompat.graphics.drawable.AnimatedStateListDrawableCompat:
+    Public class androidx.appcompat.graphics.drawable.AnimatedStateListDrawableCompat stripped of unavailable superclass androidx.appcompat.graphics.drawable.StateListDrawable
+
+
+MissingNullability: androidx.appcompat.content.res.AppCompatResources#getColorStateList(android.content.Context, int):
+    Missing nullability on method `getColorStateList` return
+MissingNullability: androidx.appcompat.graphics.drawable.AnimatedStateListDrawableCompat#createFromXmlInner(android.content.Context, android.content.res.Resources, org.xmlpull.v1.XmlPullParser, android.util.AttributeSet, android.content.res.Resources.Theme):
+    Missing nullability on method `createFromXmlInner` return
+MissingNullability: androidx.appcompat.graphics.drawable.AnimatedStateListDrawableCompat#mutate():
+    Missing nullability on method `mutate` return
+MissingNullability: androidx.appcompat.graphics.drawable.AnimatedStateListDrawableCompat#onStateChange(int[]) parameter #0:
+    Missing nullability on parameter `stateSet` in method `onStateChange`

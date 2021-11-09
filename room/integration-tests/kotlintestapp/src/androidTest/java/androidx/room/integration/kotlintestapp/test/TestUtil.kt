@@ -16,7 +16,11 @@
 
 package androidx.room.integration.kotlintestapp.test
 
-import androidx.room.integration.kotlintestapp.vo.*
+import androidx.room.integration.kotlintestapp.vo.Author
+import androidx.room.integration.kotlintestapp.vo.Book
+import androidx.room.integration.kotlintestapp.vo.BookAuthor
+import androidx.room.integration.kotlintestapp.vo.Lang
+import androidx.room.integration.kotlintestapp.vo.Publisher
 
 class TestUtil {
 
@@ -28,12 +32,18 @@ class TestUtil {
         val AUTHOR_1 = Author("a1", "author 1")
         val AUTHOR_2 = Author("a2", "author 2")
 
-        val BOOK_1 = Book("b1", "book title 1", "ph1",
-                setOf(Lang.EN), 3)
-        val BOOK_2 = Book("b2", "book title 2", "ph1",
-                setOf(Lang.TR), 5)
-        val BOOK_3 = Book("b3", "book title 2", "ph1",
-                setOf(Lang.ES), 7)
+        val BOOK_1 = Book(
+            "b1", "book title 1", "ph1",
+            setOf(Lang.EN), 3
+        )
+        val BOOK_2 = Book(
+            "b2", "book title 2", "ph1",
+            setOf(Lang.TR), 5
+        )
+        val BOOK_3 = Book(
+            "b3", "book title 2", "ph1",
+            setOf(Lang.ES), 7
+        )
 
         val BOOK_AUTHOR_1_1 = BookAuthor(BOOK_1.bookId, AUTHOR_1.authorId)
         val BOOK_AUTHOR_1_2 = BookAuthor(BOOK_1.bookId, AUTHOR_2.authorId)

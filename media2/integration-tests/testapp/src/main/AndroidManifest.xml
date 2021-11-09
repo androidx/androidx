@@ -22,12 +22,15 @@
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
 
     <application android:label="Video View Test"
-                 android:supportsRtl="true">
+                 android:supportsRtl="true"
+                 android:requestLegacyExternalStorage="true">
 
         <activity android:name=".VideoSelectorActivity"
             android:theme="@style/Theme.AppCompat"
+            android:exported="true"
             android:configChanges="orientation|screenSize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
@@ -37,11 +40,18 @@
 
         <activity android:name=".VideoPlayerActivity"
             android:theme="@style/Theme.AppCompat"
+            android:exported="true"
             android:configChanges="orientation|screenSize">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW"/>
             </intent-filter>
         </activity>
-    </application>
 
+        <service android:name=".VideoSessionService" android:exported="false"
+                 android:process=":VideoSessionService">
+            <intent-filter>
+                <action android:name="androidx.media2.session.MediaSessionService" />
+            </intent-filter>
+        </service>
+    </application>
 </manifest>

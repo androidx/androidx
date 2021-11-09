@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="buttons_round_top_center" msgid="5559087816427379703">"ထိပ်ပိုင်း"</string>
+    <string name="buttons_round_top_right" msgid="4871780374047139328">"ညာဘက်ထိပ်"</string>
+    <string name="buttons_round_center_right" msgid="1509579668330531551">"ညာဘက် အလယ်"</string>
+    <string name="buttons_round_bottom_right" msgid="2377403938095293895">"ညာဘက်အောက်ခြေ"</string>
+    <string name="buttons_round_bottom_center" msgid="7330585893633364324">"အောက်ခြေ"</string>
+    <string name="buttons_round_bottom_left" msgid="2128239325315047486">"ဘယ်ဘက်အောက်ခြေ"</string>
+    <string name="buttons_round_center_left" msgid="4851687456301428363">"ဘယ်ဘက် အလယ်"</string>
+    <string name="buttons_round_top_left" msgid="6011962751086201079">"ဘယ်ဘက်ထိပ်"</string>
+    <string name="buttons_round_top_right_upper" msgid="5489914740902966147">"ညာဘက်ထိပ် အပေါ်ပိုင်း"</string>
+    <string name="buttons_round_top_right_lower" msgid="49744844591556337">"ညာဘက်ထိပ် အောက်ပိုင်း"</string>
+    <string name="buttons_round_bottom_right_upper" msgid="3762205785832512542">"ဘယ်ဘက်အောက်ခြေ၊ အပေါ်ပိုင်း"</string>
+    <string name="buttons_round_bottom_right_lower" msgid="6450671993962362349">"ညာဘက်အောက်ခြေ၊ အောက်ပိုင်း"</string>
+    <string name="buttons_round_bottom_left_lower" msgid="8840562761052904241">"ဘယ်ဘက်အောက်ခြေ၊ အောက်ပိုင်း"</string>
+    <string name="buttons_round_bottom_left_upper" msgid="5824161271890322696">"ဘယ်ဘက်အောက်ခြေ၊ အပေါ်ပိုင်း"</string>
+    <string name="buttons_round_top_left_lower" msgid="4749025344320804614">"ဘယ်ဘက်ထိပ် အောက်ပိုင်း"</string>
+    <string name="buttons_round_top_left_upper" msgid="2546930425604677415">"ဘယ်ဘက်ထိပ် အပေါ်ပိုင်း"</string>
+    <string name="buttons_rect_left_top" msgid="5658240954637179416">"ထိပ်ပိုင်း၊ ဘယ်ဘက်ခြမ်း"</string>
+    <string name="buttons_rect_left_center" msgid="2090348335774325845">"ဘယ်ဘက် အလယ်"</string>
+    <string name="buttons_rect_left_bottom" msgid="2890382227404669440">"အောက်ခြေ၊ ဘယ်ဘက်ခြမ်း"</string>
+    <string name="buttons_rect_right_top" msgid="8781047384037217975">"ထိပ်ပိုင်း၊ ညာဘက်ခြမ်း"</string>
+    <string name="buttons_rect_right_center" msgid="9046922334870476704">"ညာဘက် အလယ်"</string>
+    <string name="buttons_rect_right_bottom" msgid="231110280868923853">"အောက်ခြေ၊ ညာဘက်ခြမ်း"</string>
+    <string name="buttons_rect_top_left" msgid="7572206729575579647">"ဘယ်ဘက်ထိပ်"</string>
+    <string name="buttons_rect_top_center" msgid="79705740801041383">"ထိပ်ပိုင်း"</string>
+    <string name="buttons_rect_top_right" msgid="942888900599091776">"ညာဘက်ထိပ်"</string>
+    <string name="buttons_rect_bottom_left" msgid="1900303277997254019">"ဘယ်ဘက်အောက်ခြေ"</string>
+    <string name="buttons_rect_bottom_center" msgid="7032918537319714491">"အောက်ခြေ"</string>
+    <string name="buttons_rect_bottom_right" msgid="5128261908141175352">"ညာဘက်အောက်ခြေ"</string>
+</resources>

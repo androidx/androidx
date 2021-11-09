@@ -1,0 +1,3 @@
+// Baseline format: 1.0
+CallbackName: androidx.lifecycle.Observer:
+    Class should be named Callback

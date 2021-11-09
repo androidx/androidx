@@ -38,6 +38,7 @@ public class MediaSessionConstants {
     public static final int SET_PLAYBACK_TO_LOCAL = 115;
     public static final int SET_PLAYBACK_TO_REMOTE = 116;
     public static final int SET_RATING_TYPE = 117;
+    public static final int RELEASE_AND_THEN_SET_PLAYBACK_STATE = 118;
 
     public static final String TEST_SESSION_TAG = "test-session-tag";
     public static final String TEST_KEY = "test-key";
@@ -57,6 +58,13 @@ public class MediaSessionConstants {
 
     public static final int TEST_ERROR_CODE = 0x3;
     public static final String TEST_ERROR_MSG = "test-error-msg";
+
+    public static final String ROOT_HINT_EXTRA_KEY_CALLER_PKG =
+            "android.support.mediacompat.testlib.MediaSessionConstants.KEY_CALLER_PKG";
+    public static final String ROOT_HINT_EXTRA_KEY_CALLER_UID =
+            "android.support.mediacompat.testlib.MediaSessionConstants.KEY_CALLER_UID";
+    public static final String SESSION_EVENT_NOTIFY_CALLBACK_METHOD_NAME_PREFIX =
+            "android.support.mediacompat.testlib.MediaSessionConstants.CALLBACK_METHOD_NAME:";
 
     private MediaSessionConstants() {
     }

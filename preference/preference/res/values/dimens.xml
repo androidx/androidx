@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Minimum space to allocate to the left of a preference item for an icon.
+    This helps in aligning titles when some items have icons and some don't. When space is
+    at a premium, we don't pre-allocate any space. -->
+    <dimen name="preference_icon_minWidth">0dp</dimen>
+    <!-- The padding at the start and end of the Seekbar within a SeekBarPreference -->
+    <dimen name="preference_seekbar_padding_horizontal">0dp</dimen>
+    <!-- The padding at the top and bottom of the Seekbar within a SeekBarPreference -->
+    <dimen name="preference_seekbar_padding_vertical">15dp</dimen>
+    <!-- The minimum width of the TextView indicating the current value of the SeekBarPreference -->
+    <dimen name="preference_seekbar_value_minWidth">36dp</dimen>
+    <!-- The padding at the start of the dropdown menu within a DropDownPreference
+    TODO: Pending UX discussion in b/110975540 - keeping old behaviour for now.-->
+    <dimen name="preference_dropdown_padding_start">0dp</dimen>
+    <dimen name="preferences_header_width">384dp</dimen>
+    <dimen name="preferences_detail_width">300dp</dimen>
+</resources>

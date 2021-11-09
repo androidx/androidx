@@ -1,0 +1,125 @@
+// Baseline format: 1.0
+ExecutorRegistration: androidx.slice.builders.GridRowBuilder#setSeeMoreAction(androidx.remotecallback.RemoteCallback):
+    Registration methods should have overload that accepts delivery Executor: `setSeeMoreAction`
+ExecutorRegistration: androidx.slice.builders.GridRowBuilder.CellBuilder#setContentIntent(androidx.remotecallback.RemoteCallback):
+    Registration methods should have overload that accepts delivery Executor: `setContentIntent`
+ExecutorRegistration: androidx.slice.builders.ListBuilder#setSeeMoreAction(androidx.remotecallback.RemoteCallback):
+    Registration methods should have overload that accepts delivery Executor: `setSeeMoreAction`
+ExecutorRegistration: androidx.slice.builders.ListBuilder.InputRangeBuilder#setInputAction(androidx.remotecallback.RemoteCallback):
+    Registration methods should have overload that accepts delivery Executor: `setInputAction`
+ExecutorRegistration: androidx.slice.builders.SelectionBuilder#setInputAction(androidx.remotecallback.RemoteCallback):
+    Registration methods should have overload that accepts delivery Executor: `setInputAction`
+ExecutorRegistration: androidx.slice.builders.SliceAction#create(androidx.remotecallback.RemoteCallback, androidx.core.graphics.drawable.IconCompat, int, CharSequence):
+    Registration methods should have overload that accepts delivery Executor: `create`
+ExecutorRegistration: androidx.slice.builders.SliceAction#createDeeplink(androidx.remotecallback.RemoteCallback, androidx.core.graphics.drawable.IconCompat, int, CharSequence):
+    Registration methods should have overload that accepts delivery Executor: `createDeeplink`
+ExecutorRegistration: androidx.slice.builders.SliceAction#createToggle(androidx.remotecallback.RemoteCallback, androidx.core.graphics.drawable.IconCompat, CharSequence, boolean):
+    Registration methods should have overload that accepts delivery Executor: `createToggle`
+
+
+ListenerLast: androidx.slice.builders.SliceAction#create(androidx.remotecallback.RemoteCallback, androidx.core.graphics.drawable.IconCompat, int, CharSequence) parameter #1:
+    Listeners should always be at end of argument list (method `create`)
+ListenerLast: androidx.slice.builders.SliceAction#create(androidx.remotecallback.RemoteCallback, androidx.core.graphics.drawable.IconCompat, int, CharSequence) parameter #2:
+    Listeners should always be at end of argument list (method `create`)
+ListenerLast: androidx.slice.builders.SliceAction#create(androidx.remotecallback.RemoteCallback, androidx.core.graphics.drawable.IconCompat, int, CharSequence) parameter #3:
+    Listeners should always be at end of argument list (method `create`)
+ListenerLast: androidx.slice.builders.SliceAction#createDeeplink(androidx.remotecallback.RemoteCallback, androidx.core.graphics.drawable.IconCompat, int, CharSequence) parameter #1:
+    Listeners should always be at end of argument list (method `createDeeplink`)
+ListenerLast: androidx.slice.builders.SliceAction#createDeeplink(androidx.remotecallback.RemoteCallback, androidx.core.graphics.drawable.IconCompat, int, CharSequence) parameter #2:
+    Listeners should always be at end of argument list (method `createDeeplink`)
+ListenerLast: androidx.slice.builders.SliceAction#createDeeplink(androidx.remotecallback.RemoteCallback, androidx.core.graphics.drawable.IconCompat, int, CharSequence) parameter #3:
+    Listeners should always be at end of argument list (method `createDeeplink`)
+ListenerLast: androidx.slice.builders.SliceAction#createToggle(androidx.remotecallback.RemoteCallback, CharSequence, boolean) parameter #1:
+    Listeners should always be at end of argument list (method `createToggle`)
+ListenerLast: androidx.slice.builders.SliceAction#createToggle(androidx.remotecallback.RemoteCallback, CharSequence, boolean) parameter #2:
+    Listeners should always be at end of argument list (method `createToggle`)
+ListenerLast: androidx.slice.builders.SliceAction#createToggle(androidx.remotecallback.RemoteCallback, androidx.core.graphics.drawable.IconCompat, CharSequence, boolean) parameter #1:
+    Listeners should always be at end of argument list (method `createToggle`)
+ListenerLast: androidx.slice.builders.SliceAction#createToggle(androidx.remotecallback.RemoteCallback, androidx.core.graphics.drawable.IconCompat, CharSequence, boolean) parameter #2:
+    Listeners should always be at end of argument list (method `createToggle`)
+ListenerLast: androidx.slice.builders.SliceAction#createToggle(androidx.remotecallback.RemoteCallback, androidx.core.graphics.drawable.IconCompat, CharSequence, boolean) parameter #3:
+    Listeners should always be at end of argument list (method `createToggle`)
+
+
+MissingBuildMethod: androidx.slice.builders.GridRowBuilder:
+    androidx.slice.builders.GridRowBuilder does not declare a `build()` method, but builder classes are expected to
+MissingBuildMethod: androidx.slice.builders.GridRowBuilder.CellBuilder:
+    androidx.slice.builders.GridRowBuilder.CellBuilder does not declare a `build()` method, but builder classes are expected to
+MissingBuildMethod: androidx.slice.builders.ListBuilder.HeaderBuilder:
+    androidx.slice.builders.ListBuilder.HeaderBuilder does not declare a `build()` method, but builder classes are expected to
+MissingBuildMethod: androidx.slice.builders.ListBuilder.InputRangeBuilder:
+    androidx.slice.builders.ListBuilder.InputRangeBuilder does not declare a `build()` method, but builder classes are expected to
+MissingBuildMethod: androidx.slice.builders.ListBuilder.RangeBuilder:
+    androidx.slice.builders.ListBuilder.RangeBuilder does not declare a `build()` method, but builder classes are expected to
+MissingBuildMethod: androidx.slice.builders.ListBuilder.RowBuilder:
+    androidx.slice.builders.ListBuilder.RowBuilder does not declare a `build()` method, but builder classes are expected to
+MissingBuildMethod: androidx.slice.builders.SelectionBuilder:
+    androidx.slice.builders.SelectionBuilder does not declare a `build()` method, but builder classes are expected to
+
+
+MissingNullability: androidx.slice.builders.SelectionBuilder#addOption(String, CharSequence):
+    Missing nullability on method `addOption` return
+MissingNullability: androidx.slice.builders.SelectionBuilder#addOption(String, CharSequence) parameter #0:
+    Missing nullability on parameter `optionKey` in method `addOption`
+MissingNullability: androidx.slice.builders.SelectionBuilder#addOption(String, CharSequence) parameter #1:
+    Missing nullability on parameter `optionText` in method `addOption`
+MissingNullability: androidx.slice.builders.SelectionBuilder#setContentDescription(CharSequence):
+    Missing nullability on method `setContentDescription` return
+MissingNullability: androidx.slice.builders.SelectionBuilder#setInputAction(android.app.PendingIntent):
+    Missing nullability on method `setInputAction` return
+MissingNullability: androidx.slice.builders.SelectionBuilder#setInputAction(androidx.remotecallback.RemoteCallback):
+    Missing nullability on method `setInputAction` return
+MissingNullability: androidx.slice.builders.SelectionBuilder#setLayoutDirection(int):
+    Missing nullability on method `setLayoutDirection` return
+MissingNullability: androidx.slice.builders.SelectionBuilder#setPrimaryAction(androidx.slice.builders.SliceAction):
+    Missing nullability on method `setPrimaryAction` return
+MissingNullability: androidx.slice.builders.SelectionBuilder#setSelectedOption(String):
+    Missing nullability on method `setSelectedOption` return
+MissingNullability: androidx.slice.builders.SelectionBuilder#setSelectedOption(String) parameter #0:
+    Missing nullability on parameter `selectedOption` in method `setSelectedOption`
+MissingNullability: androidx.slice.builders.SelectionBuilder#setSubtitle(CharSequence):
+    Missing nullability on method `setSubtitle` return
+MissingNullability: androidx.slice.builders.SelectionBuilder#setTitle(CharSequence):
+    Missing nullability on method `setTitle` return
+MissingNullability: androidx.slice.builders.SliceAction#create(android.app.PendingIntent, androidx.core.graphics.drawable.IconCompat, int, CharSequence):
+    Missing nullability on method `create` return
+MissingNullability: androidx.slice.builders.SliceAction#create(androidx.remotecallback.RemoteCallback, androidx.core.graphics.drawable.IconCompat, int, CharSequence):
+    Missing nullability on method `create` return
+MissingNullability: androidx.slice.builders.SliceAction#createDeeplink(android.app.PendingIntent, androidx.core.graphics.drawable.IconCompat, int, CharSequence):
+    Missing nullability on method `createDeeplink` return
+MissingNullability: androidx.slice.builders.SliceAction#createDeeplink(androidx.remotecallback.RemoteCallback, androidx.core.graphics.drawable.IconCompat, int, CharSequence):
+    Missing nullability on method `createDeeplink` return
+MissingNullability: androidx.slice.builders.SliceAction#createToggle(android.app.PendingIntent, CharSequence, boolean):
+    Missing nullability on method `createToggle` return
+MissingNullability: androidx.slice.builders.SliceAction#createToggle(android.app.PendingIntent, androidx.core.graphics.drawable.IconCompat, CharSequence, boolean):
+    Missing nullability on method `createToggle` return
+MissingNullability: androidx.slice.builders.SliceAction#createToggle(androidx.remotecallback.RemoteCallback, CharSequence, boolean):
+    Missing nullability on method `createToggle` return
+MissingNullability: androidx.slice.builders.SliceAction#createToggle(androidx.remotecallback.RemoteCallback, androidx.core.graphics.drawable.IconCompat, CharSequence, boolean):
+    Missing nullability on method `createToggle` return
+
+
+StaticFinalBuilder: androidx.slice.builders.GridRowBuilder:
+    Builder must be final: androidx.slice.builders.GridRowBuilder
+StaticFinalBuilder: androidx.slice.builders.GridRowBuilder.CellBuilder:
+    Builder must be final: androidx.slice.builders.GridRowBuilder.CellBuilder
+StaticFinalBuilder: androidx.slice.builders.ListBuilder.HeaderBuilder:
+    Builder must be final: androidx.slice.builders.ListBuilder.HeaderBuilder
+StaticFinalBuilder: androidx.slice.builders.ListBuilder.InputRangeBuilder:
+    Builder must be final: androidx.slice.builders.ListBuilder.InputRangeBuilder
+StaticFinalBuilder: androidx.slice.builders.ListBuilder.RangeBuilder:
+    Builder must be final: androidx.slice.builders.ListBuilder.RangeBuilder
+StaticFinalBuilder: androidx.slice.builders.ListBuilder.RowBuilder:
+    Builder must be final: androidx.slice.builders.ListBuilder.RowBuilder
+StaticFinalBuilder: androidx.slice.builders.SelectionBuilder:
+    Builder must be final: androidx.slice.builders.SelectionBuilder
+StaticFinalBuilder: androidx.slice.builders.TemplateSliceBuilder:
+    Builder must be final: androidx.slice.builders.TemplateSliceBuilder
+
+
+TopLevelBuilder: androidx.slice.builders.GridRowBuilder:
+    Builder should be defined as inner class: androidx.slice.builders.GridRowBuilder
+TopLevelBuilder: androidx.slice.builders.SelectionBuilder:
+    Builder should be defined as inner class: androidx.slice.builders.SelectionBuilder
+TopLevelBuilder: androidx.slice.builders.TemplateSliceBuilder:
+    Builder should be defined as inner class: androidx.slice.builders.TemplateSliceBuilder

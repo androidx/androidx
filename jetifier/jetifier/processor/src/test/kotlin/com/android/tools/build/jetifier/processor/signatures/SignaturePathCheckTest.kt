@@ -131,7 +131,8 @@ class SignaturePathCheckTest {
         Truth.assertThat(
             checkSignatureFor(
                 "/meta-inf/manifest.mf",
-                "Hello world!".toByteArray())
+                "Hello world!".toByteArray()
+            )
         ).isFalse()
     }
 
@@ -140,7 +141,8 @@ class SignaturePathCheckTest {
         Truth.assertThat(
             checkSignatureFor(
                 "/meta-inf/manifest.mf",
-                "SHA1-Digest: (base64 representation of SHA1 digest)".toByteArray())
+                "SHA1-Digest: (base64 representation of SHA1 digest)".toByteArray()
+            )
         ).isTrue()
     }
 
@@ -149,7 +151,8 @@ class SignaturePathCheckTest {
         Truth.assertThat(
             checkSignatureFor(
                 "/meta-inf/manifest.mf",
-                "SHA-256-Digest: (base64 representation of SHA-256 digest)".toByteArray())
+                "SHA-256-Digest: (base64 representation of SHA-256 digest)".toByteArray()
+            )
         ).isTrue()
     }
 
@@ -158,7 +161,8 @@ class SignaturePathCheckTest {
         Truth.assertThat(
             checkSignatureFor(
                 "/not-meta-inf/manifest.mf",
-                "SHA1-Digest: (base64 representation of SHA1 digest)".toByteArray())
+                "SHA1-Digest: (base64 representation of SHA1 digest)".toByteArray()
+            )
         ).isFalse()
     }
 

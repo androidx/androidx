@@ -21,7 +21,6 @@ import android.hardware.camera2.CaptureFailure
 import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.CaptureResult
 import android.hardware.camera2.TotalCaptureResult
-import androidx.annotation.NonNull
 import androidx.camera.integration.antelope.CameraParams
 import androidx.camera.integration.antelope.MainActivity
 import androidx.camera.integration.antelope.TestConfig
@@ -40,7 +39,7 @@ class Camera2CaptureSessionCallback(
 ) : CameraCaptureSession.CaptureCallback() {
 
     override fun onCaptureSequenceCompleted(
-        session: CameraCaptureSession?,
+        session: CameraCaptureSession,
         sequenceId: Int,
         frameNumber: Long
     ) {
@@ -48,18 +47,20 @@ class Camera2CaptureSessionCallback(
         super.onCaptureSequenceCompleted(session, sequenceId, frameNumber)
     }
 
-    override fun onCaptureSequenceAborted(session: CameraCaptureSession?, sequenceId: Int) {
+    override fun onCaptureSequenceAborted(session: CameraCaptureSession, sequenceId: Int) {
         MainActivity.logd("Camera2CaptureSessionCallback : Capture sequence ABORTED")
         super.onCaptureSequenceAborted(session, sequenceId)
     }
 
     override fun onCaptureFailed(
-        session: CameraCaptureSession?,
-        request: CaptureRequest?,
-        failure: CaptureFailure?
+        session: CameraCaptureSession,
+        request: CaptureRequest,
+        failure: CaptureFailure
     ) {
-        MainActivity.logd("Camera2CaptureSessionCallback : Capture sequence FAILED - " +
-            failure?.reason)
+        MainActivity.logd(
+            "Camera2CaptureSessionCallback : Capture sequence FAILED - " +
+                failure.reason
+        )
 
         if (!params.isOpen) {
             return
@@ -85,13 +86,17 @@ class Camera2CaptureSessionCallback(
             // We are waiting for AF and AE to converge, check if this has happened
             CameraState.WAITING_FOCUS_LOCK -> {
                 val afState = result.get(CaptureResult.CONTROL_AF_STATE)
-                MainActivity.logd("Camera2CaptureSessionCallback: STATE_WAITING_LOCK, afstate == " +
-                    afState + ", frame number: " + result.frameNumber)
+                MainActivity.logd(
+                    "Camera2CaptureSessionCallback: STATE_WAITING_LOCK, afstate == " +
+                        afState + ", frame number: " + result.frameNumber
+                )
 
                 when (afState) {
                     null -> {
-                        MainActivity.logd("Camera2CaptureSessionCallback: STATE_WAITING_LOCK, " +
-                            "afState == null, Calling captureStillPicture!")
+                        MainActivity.logd(
+                            "Camera2CaptureSessionCallback: STATE_WAITING_LOCK, " +
+                                "afState == null, Calling captureStillPicture!"
+                        )
                         params.state = CameraState.IMAGE_REQUESTED
                         captureStillPicture(activity, params, testConfig)
                     }
@@ -103,8 +108,10 @@ class Camera2CaptureSessionCallback(
                         // some devices this can be longer or get stuck indefinitely. If AF has not
                         // started after 50 frames, just run the capture.
                         if (params.autoFocusStuckCounter++ > 50) {
-                            MainActivity.logd("Camera2CaptureSessionCallback : " +
-                                "STATE_WAITING_LOCK, AF is stuck! Calling captureStillPicture!")
+                            MainActivity.logd(
+                                "Camera2CaptureSessionCallback : " +
+                                    "STATE_WAITING_LOCK, AF is stuck! Calling captureStillPicture!"
+                            )
                             params.state = CameraState.IMAGE_REQUESTED
                             captureStillPicture(activity, params, testConfig)
                         }
@@ -116,15 +123,18 @@ class Camera2CaptureSessionCallback(
                         // AF is locked, check AE. Note CONTROL_AE_STATE can be null on some devices
                         val aeState = result.get(CaptureResult.CONTROL_AE_STATE)
                         if (aeState == null ||
-                            aeState == CaptureResult.CONTROL_AE_STATE_CONVERGED) {
-                            MainActivity.logd("Camera2CaptureSessionCallback : " +
-                                "STATE_WAITING_LOCK, AF and AE converged! " +
-                                "Calling captureStillPicture!")
+                            aeState == CaptureResult.CONTROL_AE_STATE_CONVERGED
+                        ) {
+                            MainActivity.logd(
+                                "Camera2CaptureSessionCallback : " +
+                                    "STATE_WAITING_LOCK, AF and AE converged! " +
+                                    "Calling captureStillPicture!"
+                            )
                             params.state = CameraState.IMAGE_REQUESTED
                             captureStillPicture(activity, params, testConfig)
                         } else {
                             // AF is locked but not AE
-                            runPrecaptureSequence(activity, params, testConfig)
+                            runPrecaptureSequence(params)
                         }
                     }
 
@@ -142,8 +152,10 @@ class Camera2CaptureSessionCallback(
 
                 // No aeState on this device, just do the capture
                 if (aeState == null) {
-                    MainActivity.logd("Camera2CaptureSessionCallback : STATE_WAITING_PRECAPTURE, " +
-                        "aeState == null, Calling captureStillPicture!")
+                    MainActivity.logd(
+                        "Camera2CaptureSessionCallback : STATE_WAITING_PRECAPTURE, " +
+                            "aeState == null, Calling captureStillPicture!"
+                    )
                     params.state = CameraState.IMAGE_REQUESTED
                     captureStillPicture(activity, params, testConfig)
                 } else when (aeState) {
@@ -162,14 +174,18 @@ class Camera2CaptureSessionCallback(
                     // just do the capture to avoid getting stuck.
                     CaptureResult.CONTROL_AE_STATE_FLASH_REQUIRED,
                     CaptureResult.CONTROL_AE_STATE_INACTIVE -> {
-                        MainActivity.logd("Camera2CaptureSessionCallback : " +
-                            "STATE_WAITING_PRECAPTURE, aeState: " + aeState +
-                            ", AE stuck or needs flash, calling captureStillPicture!")
+                        MainActivity.logd(
+                            "Camera2CaptureSessionCallback : " +
+                                "STATE_WAITING_PRECAPTURE, aeState: " + aeState +
+                                ", AE stuck or needs flash, calling captureStillPicture!"
+                        )
                         params.state = CameraState.IMAGE_REQUESTED
                         captureStillPicture(activity, params, testConfig)
                     }
                 }
             }
+
+            else -> {}
         }
     }
 
@@ -186,9 +202,9 @@ class Camera2CaptureSessionCallback(
 
     /** Both onCaptureProgressed and onCaptureComplete call through to the processing function */
     override fun onCaptureProgressed(
-        @NonNull session: CameraCaptureSession,
-        @NonNull request: CaptureRequest,
-        @NonNull partialResult: CaptureResult
+        session: CameraCaptureSession,
+        request: CaptureRequest,
+        partialResult: CaptureResult
     ) {
         // MainActivity.logd("Camera2CaptureSessionCallback captureCallback: onCaptureProgressed, " +
         // "partial result frame number: " + partialResult.frameNumber)
@@ -197,9 +213,9 @@ class Camera2CaptureSessionCallback(
 
     /** Both onCaptureProgressed and onCaptureComplete call through to the processing function */
     override fun onCaptureCompleted(
-        @NonNull session: CameraCaptureSession,
-        @NonNull request: CaptureRequest,
-        @NonNull result: TotalCaptureResult
+        session: CameraCaptureSession,
+        request: CaptureRequest,
+        result: TotalCaptureResult
     ) {
         // MainActivity.logd("Camera2CaptureSessionCallback captureCallback: onCaptureCompleted." +
         // " Total result frame number: " + result.frameNumber)

@@ -29,7 +29,7 @@
         android:theme="@style/ThemeOverlay.AppCompat.Dark"
         android:transitionName="toolbar"
         tools:ignore="UnusedAttribute"/>
-    <fragment
+    <androidx.fragment.app.FragmentContainerView
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"

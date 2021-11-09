@@ -40,29 +40,36 @@ class PomRewriteInZipTest {
                     from = PomDependency(
                         groupId = "old.group",
                         artifactId = "myOldArtifact",
-                        version = "0.1.0"),
+                        version = "0.1.0"
+                    ),
                     to = PomDependency(
                         groupId = "com.sample.my.group",
                         artifactId = "myArtifact",
                         version = "1.0.0"
                     )
-            ))
+                )
+            )
         )
     }
 
     @Test fun rewritePomInZip_rewritingSL_shouldRewrite() {
         val inputZipPath = "/pomRefactorTest/pomTest.zip"
 
+        @Suppress("deprecation")
         val processor = Processor.createProcessor(
             TEST_CONFIG,
             rewritingSupportLib = true,
-            reversedMode = true)
+            reversedMode = true
+        )
 
         val inputFile = File(javaClass.getResource(inputZipPath).file)
 
+        @Suppress("DEPRECATION") // b/174695914
         val tempDir = createTempDir()
+        @Suppress("DEPRECATION") // b/174695914
         val expectedFile = File(createTempDir(), "test.zip")
 
+        @Suppress("deprecation")
         val resultFiles = processor.transform(setOf(FileMapping(inputFile, expectedFile)))
 
         Truth.assertThat(resultFiles).hasSize(1)
@@ -87,16 +94,21 @@ class PomRewriteInZipTest {
     @Test fun rewritePomInZip_notRewritingSL_shouldStillRewrite() {
         val inputZipPath = "/pomRefactorTest/pomTest.zip"
 
+        @Suppress("deprecation")
         val processor = Processor.createProcessor(
             TEST_CONFIG,
             rewritingSupportLib = false,
-            reversedMode = true)
+            reversedMode = true
+        )
 
         val inputFile = File(javaClass.getResource(inputZipPath).file)
 
+        @Suppress("DEPRECATION") // b/174695914
         val tempDir = createTempDir()
+        @Suppress("DEPRECATION") // b/174695914
         val expectedFile = File(createTempDir(), "test.zip")
 
+        @Suppress("deprecation")
         val resultFiles = processor.transform(setOf(FileMapping(inputFile, expectedFile)))
 
         Truth.assertThat(resultFiles).hasSize(1)

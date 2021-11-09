@@ -79,11 +79,16 @@ class CardView(layoutInflater: LayoutInflater, container: ViewGroup?) {
 
     companion object {
         private val COLOR_MAP = arrayOf(
-                intArrayOf(R.color.red_100, R.color.red_300, R.color.red_500, R.color.red_700),
-                intArrayOf(R.color.blue_100, R.color.blue_300, R.color.blue_500, R.color.blue_700),
-                intArrayOf(R.color.green_100, R.color.green_300, R.color.green_500,
-                        R.color.green_700),
-                intArrayOf(R.color.yellow_100, R.color.yellow_300, R.color.yellow_500,
-                        R.color.yellow_700))
+            intArrayOf(R.color.red_100, R.color.red_300, R.color.red_500, R.color.red_700),
+            intArrayOf(R.color.blue_100, R.color.blue_300, R.color.blue_500, R.color.blue_700),
+            intArrayOf(
+                R.color.green_100, R.color.green_300, R.color.green_500,
+                R.color.green_700
+            ),
+            intArrayOf(
+                R.color.yellow_100, R.color.yellow_300, R.color.yellow_500,
+                R.color.yellow_700
+            )
+        )
     }
 }

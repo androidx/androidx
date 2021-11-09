@@ -1,0 +1,151 @@
+// Baseline format: 1.0
+ActionValue: androidx.mediarouter.media.MediaControlIntent#ACTION_END_SESSION:
+    Inconsistent action value; expected `androidx.mediarouter.media.action.END_SESSION`, was `android.media.intent.action.END_SESSION`
+ActionValue: androidx.mediarouter.media.MediaControlIntent#ACTION_ENQUEUE:
+    Inconsistent action value; expected `androidx.mediarouter.media.action.ENQUEUE`, was `android.media.intent.action.ENQUEUE`
+ActionValue: androidx.mediarouter.media.MediaControlIntent#ACTION_GET_SESSION_STATUS:
+    Inconsistent action value; expected `androidx.mediarouter.media.action.GET_SESSION_STATUS`, was `android.media.intent.action.GET_SESSION_STATUS`
+ActionValue: androidx.mediarouter.media.MediaControlIntent#ACTION_GET_STATUS:
+    Inconsistent action value; expected `androidx.mediarouter.media.action.GET_STATUS`, was `android.media.intent.action.GET_STATUS`
+ActionValue: androidx.mediarouter.media.MediaControlIntent#ACTION_PAUSE:
+    Inconsistent action value; expected `androidx.mediarouter.media.action.PAUSE`, was `android.media.intent.action.PAUSE`
+ActionValue: androidx.mediarouter.media.MediaControlIntent#ACTION_PLAY:
+    Inconsistent action value; expected `androidx.mediarouter.media.action.PLAY`, was `android.media.intent.action.PLAY`
+ActionValue: androidx.mediarouter.media.MediaControlIntent#ACTION_REMOVE:
+    Inconsistent action value; expected `androidx.mediarouter.media.action.REMOVE`, was `android.media.intent.action.REMOVE`
+ActionValue: androidx.mediarouter.media.MediaControlIntent#ACTION_RESUME:
+    Inconsistent action value; expected `androidx.mediarouter.media.action.RESUME`, was `android.media.intent.action.RESUME`
+ActionValue: androidx.mediarouter.media.MediaControlIntent#ACTION_SEEK:
+    Inconsistent action value; expected `androidx.mediarouter.media.action.SEEK`, was `android.media.intent.action.SEEK`
+ActionValue: androidx.mediarouter.media.MediaControlIntent#ACTION_SEND_MESSAGE:
+    Inconsistent action value; expected `androidx.mediarouter.media.action.SEND_MESSAGE`, was `android.media.intent.action.SEND_MESSAGE`
+ActionValue: androidx.mediarouter.media.MediaControlIntent#ACTION_START_SESSION:
+    Inconsistent action value; expected `androidx.mediarouter.media.action.START_SESSION`, was `android.media.intent.action.START_SESSION`
+ActionValue: androidx.mediarouter.media.MediaControlIntent#ACTION_STOP:
+    Inconsistent action value; expected `androidx.mediarouter.media.action.STOP`, was `android.media.intent.action.STOP`
+ActionValue: androidx.mediarouter.media.MediaControlIntent#EXTRA_ERROR_CODE:
+    Inconsistent extra value; expected `androidx.mediarouter.media.extra.ERROR_CODE`, was `android.media.intent.extra.ERROR_CODE`
+ActionValue: androidx.mediarouter.media.MediaControlIntent#EXTRA_ITEM_CONTENT_POSITION:
+    Inconsistent extra value; expected `androidx.mediarouter.media.extra.ITEM_CONTENT_POSITION`, was `android.media.intent.extra.ITEM_POSITION`
+ActionValue: androidx.mediarouter.media.MediaControlIntent#EXTRA_ITEM_HTTP_HEADERS:
+    Inconsistent extra value; expected `androidx.mediarouter.media.extra.ITEM_HTTP_HEADERS`, was `android.media.intent.extra.HTTP_HEADERS`
+ActionValue: androidx.mediarouter.media.MediaControlIntent#EXTRA_ITEM_ID:
+    Inconsistent extra value; expected `androidx.mediarouter.media.extra.ITEM_ID`, was `android.media.intent.extra.ITEM_ID`
+ActionValue: androidx.mediarouter.media.MediaControlIntent#EXTRA_ITEM_METADATA:
+    Inconsistent extra value; expected `androidx.mediarouter.media.extra.ITEM_METADATA`, was `android.media.intent.extra.ITEM_METADATA`
+ActionValue: androidx.mediarouter.media.MediaControlIntent#EXTRA_ITEM_STATUS:
+    Inconsistent extra value; expected `androidx.mediarouter.media.extra.ITEM_STATUS`, was `android.media.intent.extra.ITEM_STATUS`
+ActionValue: androidx.mediarouter.media.MediaControlIntent#EXTRA_ITEM_STATUS_UPDATE_RECEIVER:
+    Inconsistent extra value; expected `androidx.mediarouter.media.extra.ITEM_STATUS_UPDATE_RECEIVER`, was `android.media.intent.extra.ITEM_STATUS_UPDATE_RECEIVER`
+ActionValue: androidx.mediarouter.media.MediaControlIntent#EXTRA_MESSAGE:
+    Inconsistent extra value; expected `androidx.mediarouter.media.extra.MESSAGE`, was `android.media.intent.extra.MESSAGE`
+ActionValue: androidx.mediarouter.media.MediaControlIntent#EXTRA_MESSAGE_RECEIVER:
+    Inconsistent extra value; expected `androidx.mediarouter.media.extra.MESSAGE_RECEIVER`, was `android.media.intent.extra.MESSAGE_RECEIVER`
+ActionValue: androidx.mediarouter.media.MediaControlIntent#EXTRA_SESSION_ID:
+    Inconsistent extra value; expected `androidx.mediarouter.media.extra.SESSION_ID`, was `android.media.intent.extra.SESSION_ID`
+ActionValue: androidx.mediarouter.media.MediaControlIntent#EXTRA_SESSION_STATUS:
+    Inconsistent extra value; expected `androidx.mediarouter.media.extra.SESSION_STATUS`, was `android.media.intent.extra.SESSION_STATUS`
+ActionValue: androidx.mediarouter.media.MediaControlIntent#EXTRA_SESSION_STATUS_UPDATE_RECEIVER:
+    Inconsistent extra value; expected `androidx.mediarouter.media.extra.SESSION_STATUS_UPDATE_RECEIVER`, was `android.media.intent.extra.SESSION_STATUS_UPDATE_RECEIVER`
+ActionValue: androidx.mediarouter.media.MediaItemStatus#EXTRA_HTTP_RESPONSE_HEADERS:
+    Inconsistent extra value; expected `androidx.mediarouter.media.extra.HTTP_RESPONSE_HEADERS`, was `android.media.status.extra.HTTP_RESPONSE_HEADERS`
+ActionValue: androidx.mediarouter.media.MediaItemStatus#EXTRA_HTTP_STATUS_CODE:
+    Inconsistent extra value; expected `androidx.mediarouter.media.extra.HTTP_STATUS_CODE`, was `android.media.status.extra.HTTP_STATUS_CODE`
+
+
+AsyncSuffixFuture: androidx.mediarouter.media.MediaRouter.OnPrepareTransferListener#onPrepareTransfer(androidx.mediarouter.media.MediaRouter.RouteInfo, androidx.mediarouter.media.MediaRouter.RouteInfo):
+    Methods returning com.google.common.util.concurrent.ListenableFuture should have a suffix *Async to reserve unmodified name for a suspend function
+
+
+ExecutorRegistration: androidx.mediarouter.media.MediaRouteProvider#setCallback(androidx.mediarouter.media.MediaRouteProvider.Callback):
+    Registration methods should have overload that accepts delivery Executor: `setCallback`
+ExecutorRegistration: androidx.mediarouter.media.MediaRouter#addCallback(androidx.mediarouter.media.MediaRouteSelector, androidx.mediarouter.media.MediaRouter.Callback, int):
+    Registration methods should have overload that accepts delivery Executor: `addCallback`
+ExecutorRegistration: androidx.mediarouter.media.MediaRouter#setOnPrepareTransferListener(androidx.mediarouter.media.MediaRouter.OnPrepareTransferListener):
+    Registration methods should have overload that accepts delivery Executor: `setOnPrepareTransferListener`
+ExecutorRegistration: androidx.mediarouter.media.MediaRouter.RouteInfo#sendControlRequest(android.content.Intent, androidx.mediarouter.media.MediaRouter.ControlRequestCallback):
+    Registration methods should have overload that accepts delivery Executor: `sendControlRequest`
+ExecutorRegistration: androidx.mediarouter.media.RemotePlaybackClient#endSession(android.os.Bundle, androidx.mediarouter.media.RemotePlaybackClient.SessionActionCallback):
+    Registration methods should have overload that accepts delivery Executor: `endSession`
+ExecutorRegistration: androidx.mediarouter.media.RemotePlaybackClient#enqueue(android.net.Uri, String, android.os.Bundle, long, android.os.Bundle, androidx.mediarouter.media.RemotePlaybackClient.ItemActionCallback):
+    Registration methods should have overload that accepts delivery Executor: `enqueue`
+ExecutorRegistration: androidx.mediarouter.media.RemotePlaybackClient#getSessionStatus(android.os.Bundle, androidx.mediarouter.media.RemotePlaybackClient.SessionActionCallback):
+    Registration methods should have overload that accepts delivery Executor: `getSessionStatus`
+ExecutorRegistration: androidx.mediarouter.media.RemotePlaybackClient#getStatus(String, android.os.Bundle, androidx.mediarouter.media.RemotePlaybackClient.ItemActionCallback):
+    Registration methods should have overload that accepts delivery Executor: `getStatus`
+ExecutorRegistration: androidx.mediarouter.media.RemotePlaybackClient#pause(android.os.Bundle, androidx.mediarouter.media.RemotePlaybackClient.SessionActionCallback):
+    Registration methods should have overload that accepts delivery Executor: `pause`
+ExecutorRegistration: androidx.mediarouter.media.RemotePlaybackClient#play(android.net.Uri, String, android.os.Bundle, long, android.os.Bundle, androidx.mediarouter.media.RemotePlaybackClient.ItemActionCallback):
+    Registration methods should have overload that accepts delivery Executor: `play`
+ExecutorRegistration: androidx.mediarouter.media.RemotePlaybackClient#resume(android.os.Bundle, androidx.mediarouter.media.RemotePlaybackClient.SessionActionCallback):
+    Registration methods should have overload that accepts delivery Executor: `resume`
+ExecutorRegistration: androidx.mediarouter.media.RemotePlaybackClient#seek(String, long, android.os.Bundle, androidx.mediarouter.media.RemotePlaybackClient.ItemActionCallback):
+    Registration methods should have overload that accepts delivery Executor: `seek`
+ExecutorRegistration: androidx.mediarouter.media.RemotePlaybackClient#sendMessage(android.os.Bundle, androidx.mediarouter.media.RemotePlaybackClient.SessionActionCallback):
+    Registration methods should have overload that accepts delivery Executor: `sendMessage`
+ExecutorRegistration: androidx.mediarouter.media.RemotePlaybackClient#setOnMessageReceivedListener(androidx.mediarouter.media.RemotePlaybackClient.OnMessageReceivedListener):
+    Registration methods should have overload that accepts delivery Executor: `setOnMessageReceivedListener`
+ExecutorRegistration: androidx.mediarouter.media.RemotePlaybackClient#setStatusCallback(androidx.mediarouter.media.RemotePlaybackClient.StatusCallback):
+    Registration methods should have overload that accepts delivery Executor: `setStatusCallback`
+ExecutorRegistration: androidx.mediarouter.media.RemotePlaybackClient#startSession(android.os.Bundle, androidx.mediarouter.media.RemotePlaybackClient.SessionActionCallback):
+    Registration methods should have overload that accepts delivery Executor: `startSession`
+ExecutorRegistration: androidx.mediarouter.media.RemotePlaybackClient#stop(android.os.Bundle, androidx.mediarouter.media.RemotePlaybackClient.SessionActionCallback):
+    Registration methods should have overload that accepts delivery Executor: `stop`
+
+
+InterfaceConstant: androidx.mediarouter.media.MediaRouteProviderService#SERVICE_INTERFACE:
+    Inconsistent interface constant; expected 'androidx.mediarouter.media.MediaRouteProviderService'`
+
+
+KotlinOperator: androidx.mediarouter.media.MediaRouteSelector#contains(androidx.mediarouter.media.MediaRouteSelector):
+    Method can be invoked as a "in" operator from Kotlin: `contains` (this is usually desirable; just make sure it makes sense for this type of object)
+
+
+MissingGetterMatchingBuilder: androidx.mediarouter.media.MediaRouteDescriptor.Builder#setCanDisconnect(boolean):
+    androidx.mediarouter.media.MediaRouteDescriptor does not declare a `canDisconnect()` method matching method androidx.mediarouter.media.MediaRouteDescriptor.Builder.setCanDisconnect(boolean)
+MissingGetterMatchingBuilder: androidx.mediarouter.media.MediaRouteDescriptor.Builder#setIsDynamicGroupRoute(boolean):
+    androidx.mediarouter.media.MediaRouteDescriptor does not declare a `isIsDynamicGroupRoute()` method matching method androidx.mediarouter.media.MediaRouteDescriptor.Builder.setIsDynamicGroupRoute(boolean)
+MissingGetterMatchingBuilder: androidx.mediarouter.media.MediaRouteProvider.DynamicGroupRouteController.DynamicRouteDescriptor.Builder#setIsGroupable(boolean):
+    androidx.mediarouter.media.MediaRouteProvider.DynamicGroupRouteController.DynamicRouteDescriptor does not declare a `isIsGroupable()` method matching method androidx.mediarouter.media.MediaRouteProvider.DynamicGroupRouteController.DynamicRouteDescriptor.Builder.setIsGroupable(boolean)
+MissingGetterMatchingBuilder: androidx.mediarouter.media.MediaRouteProvider.DynamicGroupRouteController.DynamicRouteDescriptor.Builder#setIsTransferable(boolean):
+    androidx.mediarouter.media.MediaRouteProvider.DynamicGroupRouteController.DynamicRouteDescriptor does not declare a `isIsTransferable()` method matching method androidx.mediarouter.media.MediaRouteProvider.DynamicGroupRouteController.DynamicRouteDescriptor.Builder.setIsTransferable(boolean)
+MissingGetterMatchingBuilder: androidx.mediarouter.media.MediaRouteProvider.DynamicGroupRouteController.DynamicRouteDescriptor.Builder#setIsUnselectable(boolean):
+    androidx.mediarouter.media.MediaRouteProvider.DynamicGroupRouteController.DynamicRouteDescriptor does not declare a `isIsUnselectable()` method matching method androidx.mediarouter.media.MediaRouteProvider.DynamicGroupRouteController.DynamicRouteDescriptor.Builder.setIsUnselectable(boolean)
+MissingGetterMatchingBuilder: androidx.mediarouter.media.MediaRouteProviderDescriptor.Builder#setSupportsDynamicGroupRoute(boolean):
+    androidx.mediarouter.media.MediaRouteProviderDescriptor does not declare a `isSupportsDynamicGroupRoute()` method matching method androidx.mediarouter.media.MediaRouteProviderDescriptor.Builder.setSupportsDynamicGroupRoute(boolean)
+MissingGetterMatchingBuilder: androidx.mediarouter.media.MediaRouteSelector.Builder#addSelector(androidx.mediarouter.media.MediaRouteSelector):
+    androidx.mediarouter.media.MediaRouteSelector does not declare a `getSelectors()` method matching method androidx.mediarouter.media.MediaRouteSelector.Builder.addSelector(androidx.mediarouter.media.MediaRouteSelector)
+
+
+MissingNullability: androidx.mediarouter.media.MediaRouteSelector#EMPTY:
+    Missing nullability on field `EMPTY` in class `class androidx.mediarouter.media.MediaRouteSelector`
+
+
+NullableCollection: androidx.mediarouter.media.MediaItemStatus#getExtras():
+    Return type of method androidx.mediarouter.media.MediaItemStatus.getExtras() is a nullable collection (`android.os.Bundle`); must be non-null
+NullableCollection: androidx.mediarouter.media.MediaRouteDescriptor#getExtras():
+    Return type of method androidx.mediarouter.media.MediaRouteDescriptor.getExtras() is a nullable collection (`android.os.Bundle`); must be non-null
+NullableCollection: androidx.mediarouter.media.MediaRouter.ControlRequestCallback#onError(String, android.os.Bundle) parameter #1:
+    Type of parameter data in androidx.mediarouter.media.MediaRouter.ControlRequestCallback.onError(String error, android.os.Bundle data) is a nullable collection (`android.os.Bundle`); must be non-null
+NullableCollection: androidx.mediarouter.media.MediaRouter.ControlRequestCallback#onResult(android.os.Bundle) parameter #0:
+    Type of parameter data in androidx.mediarouter.media.MediaRouter.ControlRequestCallback.onResult(android.os.Bundle data) is a nullable collection (`android.os.Bundle`); must be non-null
+NullableCollection: androidx.mediarouter.media.MediaRouter.RouteInfo#getExtras():
+    Return type of method androidx.mediarouter.media.MediaRouter.RouteInfo.getExtras() is a nullable collection (`android.os.Bundle`); must be non-null
+NullableCollection: androidx.mediarouter.media.MediaSessionStatus#getExtras():
+    Return type of method androidx.mediarouter.media.MediaSessionStatus.getExtras() is a nullable collection (`android.os.Bundle`); must be non-null
+NullableCollection: androidx.mediarouter.media.RemotePlaybackClient.ActionCallback#onError(String, int, android.os.Bundle) parameter #2:
+    Type of parameter data in androidx.mediarouter.media.RemotePlaybackClient.ActionCallback.onError(String error, int code, android.os.Bundle data) is a nullable collection (`android.os.Bundle`); must be non-null
+NullableCollection: androidx.mediarouter.media.RemotePlaybackClient.OnMessageReceivedListener#onMessageReceived(String, android.os.Bundle) parameter #1:
+    Type of parameter message in androidx.mediarouter.media.RemotePlaybackClient.OnMessageReceivedListener.onMessageReceived(String sessionId, android.os.Bundle message) is a nullable collection (`android.os.Bundle`); must be non-null
+NullableCollection: androidx.mediarouter.media.RemotePlaybackClient.StatusCallback#onItemStatusChanged(android.os.Bundle, String, androidx.mediarouter.media.MediaSessionStatus, String, androidx.mediarouter.media.MediaItemStatus) parameter #0:
+    Type of parameter data in androidx.mediarouter.media.RemotePlaybackClient.StatusCallback.onItemStatusChanged(android.os.Bundle data, String sessionId, androidx.mediarouter.media.MediaSessionStatus sessionStatus, String itemId, androidx.mediarouter.media.MediaItemStatus itemStatus) is a nullable collection (`android.os.Bundle`); must be non-null
+NullableCollection: androidx.mediarouter.media.RemotePlaybackClient.StatusCallback#onSessionStatusChanged(android.os.Bundle, String, androidx.mediarouter.media.MediaSessionStatus) parameter #0:
+    Type of parameter data in androidx.mediarouter.media.RemotePlaybackClient.StatusCallback.onSessionStatusChanged(android.os.Bundle data, String sessionId, androidx.mediarouter.media.MediaSessionStatus sessionStatus) is a nullable collection (`android.os.Bundle`); must be non-null
+
+
+RegistrationName: androidx.mediarouter.media.MediaRouter#addCallback(androidx.mediarouter.media.MediaRouteSelector, androidx.mediarouter.media.MediaRouter.Callback):
+    Callback methods should be named register/unregister; was addCallback
+RegistrationName: androidx.mediarouter.media.MediaRouter#addCallback(androidx.mediarouter.media.MediaRouteSelector, androidx.mediarouter.media.MediaRouter.Callback, int):
+    Callback methods should be named register/unregister; was addCallback
+RegistrationName: androidx.mediarouter.media.MediaRouter#removeCallback(androidx.mediarouter.media.MediaRouter.Callback):
+    Callback methods should be named register/unregister; was removeCallback

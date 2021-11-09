@@ -14,7 +14,12 @@
  * limitations under the License.
  */
 
-import static androidx.build.dependencies.DependenciesKt.*
+buildscript {
+    // TODO: Remove this when this test app no longer depends on 1.0.0 of vectordrawable-animated.
+    // vectordrawable and vectordrawable-animated were accidentally using the same package name
+    // which is no longer valid in namespaced resource world.
+    project.ext["android.uniquePackageNames"] = false
+}
 
 plugins {
     id("AndroidXPlugin")
@@ -23,52 +28,115 @@ plugins {
 
 android {
     defaultConfig {
+        multiDexEnabled true
         javaCompileOptions {
             annotationProcessorOptions {
-                arguments = ["room.schemaLocation": "$projectDir/schemas".toString()]
+                arguments = [
+                        "room.schemaLocation"  : "$projectDir/schemas".toString(),
+                ]
             }
         }
+    }
+    buildFeatures {
+        aidl = true
     }
     sourceSets {
         androidTest.assets.srcDirs += files("$projectDir/schemas".toString())
         androidTest.assets.srcDirs += files("$projectDir/databases".toString())
+    }
+    flavorDimensions "processorConfiguration"
+    productFlavors {
+        withExpandProjection {
+            dimension "processorConfiguration"
+            javaCompileOptions {
+                annotationProcessorOptions {
+                    arguments = [
+                            "room.schemaLocation"  : "$projectDir/schemas".toString(),
+                            "room.expandProjection"  : "true"
+                    ]
+                }
+            }
+        }
+        withoutExpandProjection {
+            dimension "processorConfiguration"
+            javaCompileOptions {
+                annotationProcessorOptions {
+                    arguments = [
+                            "room.schemaLocation"  : "$projectDir/schemas".toString(),
+                            "room.expandProjection"  : "false"
+                    ]
+                }
+            }
+        }
+        withNullAwareTypeConverter {
+            dimension "processorConfiguration"
+            javaCompileOptions {
+                annotationProcessorOptions {
+                    arguments = [
+                            "room.schemaLocation"  : "$projectDir/schemas".toString(),
+                            "room.expandProjection"  : "false",
+                            "room.useNullAwareTypeAnalysis": "true"
+                    ]
+                }
+            }
+        }
     }
 }
 
 dependencies {
     implementation(project(":room:room-common"))
     implementation(project(":room:room-runtime"))
-    implementation(project(":sqlite:sqlite"))
-    implementation(project(":sqlite:sqlite-framework"))
-    implementation(project(":arch:core-runtime"))
-    implementation(project(":lifecycle:lifecycle-extensions"))
+    implementation(projectOrArtifact(":arch:core:core-runtime"))
+    implementation(projectOrArtifact(":lifecycle:lifecycle-livedata"))
+    implementation(projectOrArtifact(":lifecycle:lifecycle-runtime"))
+    implementation(libs.multidex)
 
-    // FINDBUGS dependency resolves an app/testapp version conflict.
-    implementation(FINDBUGS)
-    implementation(SUPPORT_RECYCLERVIEW, libs.support_exclude_config)
-    implementation(SUPPORT_APPCOMPAT, libs.support_exclude_config)
-    annotationProcessor project(":room:room-compiler")
-    androidTestAnnotationProcessor project(":room:room-compiler")
+    // Workaround for b/191286558.
+    implementation(project(":annotation:annotation-experimental"))
 
-    // IJ's gradle integration just cannot figure this out ...
-    androidTestImplementation(ARCH_LIFECYCLE_EXTENSIONS)
+    // libs.findbugs dependency resolves an app/testapp version conflict.
+    implementation(libs.findbugs)
+    implementation("androidx.recyclerview:recyclerview:1.0.0")
+    implementation("androidx.appcompat:appcompat:1.3.1")
+    // use the shadowed dependency in tests so that if the shadowing does not work properly,
+    // our tests fail.
+    annotationProcessor project(path: ":room:room-compiler",
+            configuration: "shadowAndImplementation")
+    androidTestAnnotationProcessor project(path: ":room:room-compiler",
+            configuration: "shadowAndImplementation")
+
     androidTestImplementation(project(":room:room-testing"))
     androidTestImplementation(project(":room:room-rxjava2"))
+    androidTestImplementation(project(":room:room-rxjava3"))
     androidTestImplementation(project(":room:room-guava"))
-    androidTestImplementation(ARCH_CORE_TESTING)
-    androidTestImplementation(ARCH_PAGING_RUNTIME)
+    androidTestImplementation(project(":room:room-paging"))
+    androidTestImplementation("androidx.arch.core:core-testing:2.0.1")
+    androidTestImplementation(projectOrArtifact(":paging:paging-runtime"))
+    androidTestImplementation(projectOrArtifact(":lifecycle:lifecycle-runtime"))
+    androidTestImplementation(projectOrArtifact(":lifecycle:lifecycle-runtime-testing"))
+    androidTestImplementation(projectOrArtifact(":lifecycle:lifecycle-livedata"))
 
-    // FINDBUGS dependency resolves an app/testapp version conflict.
-    androidTestImplementation(FINDBUGS)
-    androidTestImplementation(GUAVA_ANDROID)
-    androidTestImplementation(RX_JAVA)
-    androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
-    androidTestImplementation(ANDROIDX_TEST_CORE)
-    androidTestImplementation(ANDROIDX_TEST_RUNNER)
-    androidTestImplementation(ANDROIDX_TEST_RULES)
-    androidTestImplementation(ESPRESSO_CORE)
-    androidTestImplementation(MOCKITO_CORE, libs.exclude_bytebuddy) // DexMaker has it's own MockMaker
-    androidTestImplementation(DEXMAKER_MOCKITO, libs.exclude_bytebuddy) // DexMaker has it's own MockMaker
+    // libs.findbugs dependency resolves an app/testapp version conflict.
+    androidTestImplementation(libs.findbugs)
+    androidTestImplementation(libs.guavaAndroid)
+    androidTestImplementation(libs.rxjava2)
+    androidTestImplementation(libs.rxjava3)
+    androidTestImplementation(libs.testExtJunit)
+    androidTestImplementation(libs.testCore)
+    androidTestImplementation(libs.testRunner)
+    androidTestImplementation(libs.testRules)
+    androidTestImplementation(libs.espressoCore)
+    androidTestImplementation(libs.truth)
+    androidTestImplementation(libs.mockitoCore, excludes.bytebuddy) // DexMaker has it's own MockMaker
+    androidTestImplementation(libs.dexmakerMockito, excludes.bytebuddy) // DexMaker has it's own MockMaker
+    androidTestImplementation(project(":internal-testutils-truth"))
 
-    testImplementation(JUNIT)
+
+    testImplementation(libs.junit)
+}
+
+// Enable parameter names to support Room incremental when its a project() dep.
+// See b/198431380
+tasks.withType(JavaCompile) {
+    options.compilerArgs << "-parameters"
 }

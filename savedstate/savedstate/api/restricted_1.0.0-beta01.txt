@@ -1,0 +1,32 @@
+// Signature format: 3.0
+package androidx.savedstate {
+
+  public final class SavedStateRegistry {
+    method @MainThread public android.os.Bundle? consumeRestoredStateForKey(String);
+    method @MainThread public boolean isRestored();
+    method @MainThread public void registerSavedStateProvider(String, androidx.savedstate.SavedStateRegistry.SavedStateProvider);
+    method @MainThread public void runOnNextRecreation(Class<? extends androidx.savedstate.SavedStateRegistry.AutoRecreated>);
+    method @MainThread public void unregisterSavedStateProvider(String);
+  }
+
+  public static interface SavedStateRegistry.AutoRecreated {
+    method public void onRecreated(androidx.savedstate.SavedStateRegistryOwner);
+  }
+
+  public static interface SavedStateRegistry.SavedStateProvider {
+    method public android.os.Bundle saveState();
+  }
+
+  public final class SavedStateRegistryController {
+    method public static androidx.savedstate.SavedStateRegistryController create(androidx.savedstate.SavedStateRegistryOwner);
+    method public androidx.savedstate.SavedStateRegistry getSavedStateRegistry();
+    method @MainThread public void performRestore(android.os.Bundle?);
+    method @MainThread public void performSave(android.os.Bundle);
+  }
+
+  public interface SavedStateRegistryOwner extends androidx.lifecycle.LifecycleOwner {
+    method public androidx.savedstate.SavedStateRegistry getSavedStateRegistry();
+  }
+
+}
+

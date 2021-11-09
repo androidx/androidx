@@ -1,0 +1,13 @@
+// Color utilities for layout elements.
+syntax = "proto3";
+
+package androidx.wear.tiles.testing.proto;
+
+option java_package = "androidx.wear.tiles.testing.proto";
+option java_outer_classname = "ColorProto";
+
+// A property defining a color.
+message ColorProp {
+  // The color value, in ARGB format.
+  uint32 argb = 1;
+}

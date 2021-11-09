@@ -22,6 +22,7 @@ import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.RawQuery
+import androidx.room.RoomWarnings
 import androidx.room.Transaction
 import androidx.room.TypeConverters
 import androidx.room.Update
@@ -33,6 +34,7 @@ import androidx.room.integration.kotlintestapp.vo.BookWithJavaEntity
 import androidx.room.integration.kotlintestapp.vo.BookWithPublisher
 import androidx.room.integration.kotlintestapp.vo.DateConverter
 import androidx.room.integration.kotlintestapp.vo.Lang
+import androidx.room.integration.kotlintestapp.vo.MiniBook
 import androidx.room.integration.kotlintestapp.vo.Publisher
 import androidx.room.integration.kotlintestapp.vo.PublisherWithBookSales
 import androidx.room.integration.kotlintestapp.vo.PublisherWithBooks
@@ -43,6 +45,8 @@ import io.reactivex.Completable
 import io.reactivex.Flowable
 import io.reactivex.Maybe
 import io.reactivex.Single
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.runBlocking
 import java.util.Date
 
 @Dao
@@ -114,6 +118,9 @@ interface BooksDao {
 
     @Insert
     fun addBooks(vararg books: Book)
+
+    @Insert(entity = Book::class)
+    fun addMiniBook(miniBook: MiniBook)
 
     @Insert
     fun addBookAuthors(vararg bookAuthors: BookAuthor)
@@ -236,9 +243,11 @@ interface BooksDao {
     @Update
     suspend fun updateBookWithResultSuspend(book: Book): Int
 
-    @Query("""SELECT * FROM book WHERE
+    @Query(
+        """SELECT * FROM book WHERE
             bookId IN(:bookIds)
-            order by bookId DESC""")
+            order by bookId DESC"""
+    )
     fun getBooksMultiLineQuery(bookIds: List<String>): List<Book>
 
     @Query("SELECT * FROM book WHERE bookId = :bookId")
@@ -268,31 +277,47 @@ interface BooksDao {
     @Query("SELECT * FROM book WHERE bookId = :bookId")
     fun getBookMaybe(bookId: String): Maybe<Book>
 
-    @Query("SELECT * FROM book INNER JOIN publisher " +
-            "ON book.bookPublisherId = publisher.publisherId ")
+    @SuppressWarnings(RoomWarnings.CURSOR_MISMATCH)
+    @Query(
+        "SELECT * FROM book INNER JOIN publisher " +
+            "ON book.bookPublisherId = publisher.publisherId "
+    )
     fun getBooksWithPublisher(): List<BookWithPublisher>
 
-    @Query("SELECT * FROM book INNER JOIN publisher " +
-            "ON book.bookPublisherId = publisher.publisherId ")
+    @SuppressWarnings(RoomWarnings.CURSOR_MISMATCH)
+    @Query(
+        "SELECT * FROM book INNER JOIN publisher " +
+            "ON book.bookPublisherId = publisher.publisherId "
+    )
     fun getBooksWithPublisherLiveData(): LiveData<List<BookWithPublisher>>
 
-    @Query("SELECT * FROM book INNER JOIN publisher " +
-            "ON book.bookPublisherId = publisher.publisherId ")
+    @SuppressWarnings(RoomWarnings.CURSOR_MISMATCH)
+    @Query(
+        "SELECT * FROM book INNER JOIN publisher " +
+            "ON book.bookPublisherId = publisher.publisherId "
+    )
     fun getBooksWithPublisherFlowable(): Flowable<List<BookWithPublisher>>
 
-    @Query("SELECT * FROM book INNER JOIN publisher " +
-            "ON book.bookPublisherId = publisher.publisherId ")
+    @SuppressWarnings(RoomWarnings.CURSOR_MISMATCH)
+    @Query(
+        "SELECT * FROM book INNER JOIN publisher " +
+            "ON book.bookPublisherId = publisher.publisherId "
+    )
     fun getBooksWithPublisherListenableFuture(): ListenableFuture<List<BookWithPublisher>>
 
+    @Transaction
     @Query("SELECT * FROM publisher WHERE publisherId = :publisherId")
     fun getPublisherWithBooks(publisherId: String): PublisherWithBooks
 
+    @Transaction
     @Query("SELECT * FROM publisher WHERE publisherId = :publisherId")
     fun getPublisherWithBookSales(publisherId: String): PublisherWithBookSales
 
+    @Transaction
     @Query("SELECT * FROM publisher WHERE publisherId = :publisherId")
     fun getPublisherWithBooksLiveData(publisherId: String): LiveData<PublisherWithBooks>
 
+    @Transaction
     @Query("SELECT * FROM publisher WHERE publisherId = :publisherId")
     fun getPublisherWithBooksFlowable(publisherId: String): Flowable<PublisherWithBooks>
 
@@ -304,6 +329,7 @@ interface BooksDao {
     fun findByLanguages(langs: Set<Lang>): List<Book>
 
     // see: b/78199923 just a compilation test to ensure we can generate proper code.
+    @Transaction
     @Query("SELECT * FROM book WHERE bookId = :bookId")
     fun getWithJavaEntities(bookId: String): BookWithJavaEntity
 
@@ -376,4 +402,51 @@ interface BooksDao {
             insertBookSuspend(book)
         }
     }
+
+    @Query("SELECT * FROM book")
+    fun getBooksFlow(): Flow<List<Book>>
+
+    @Transaction
+    @Query("SELECT * FROM book")
+    fun getBooksFlowInTransaction(): Flow<List<Book>>
+
+    @Query("SELECT * FROM book WHERE bookId = :id")
+    fun getOneBooksFlow(id: String): Flow<Book?>
+
+    fun addAndRemovePublisher(thePublisher: Publisher) {
+        addPublishers(thePublisher)
+        deletePublishers(thePublisher)
+    }
+
+    fun concreteFunction() = ""
+
+    fun concreteVoidFunction() {
+    }
+
+    fun concreteUnitFunction() {
+    }
+
+    fun concreteFunctionWithParams(num: Int, text: String) = "$num - $text"
+
+    suspend fun concreteSuspendFunction() = ""
+
+    suspend fun concreteVoidSuspendFunction() {
+    }
+
+    suspend fun concreteSuspendFunctionWithParams(num: Int, text: String) = "$num - $text"
+
+    @Transaction
+    fun functionWithSuspendFunctionalParam(
+        input: Book,
+        action: suspend (input: Book) -> Book
+    ): Book = runBlocking { action(input) }
+
+    @Transaction
+    suspend fun suspendFunctionWithSuspendFunctionalParam(
+        input: Book,
+        action: suspend (input: Book) -> Book
+    ): Book = action(input)
+
+    // This is a private method to validate b/194706278
+    private fun getNullAuthor(): Author? = null
 }

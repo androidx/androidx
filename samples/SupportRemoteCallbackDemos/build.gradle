@@ -14,28 +14,20 @@
  * limitations under the License.
  */
 
-import static androidx.build.dependencies.DependenciesKt.*
-
 plugins {
     id("AndroidXPlugin")
     id("com.android.application")
 }
 
 dependencies {
-    implementation(project(":remotecallback"))
-    implementation(project(":recyclerview"))
-    implementation(project(":appcompat"))
-    annotationProcessor project(":remotecallback-processor")
-    api(ARCH_LIFECYCLE_EXTENSIONS, libs.exclude_annotations_transitive = {
-        exclude group: 'androidx.annotation'
-        exclude group: 'androidx.fragment'
-        transitive = true
-    })
+    implementation(project(":remotecallback:remotecallback"))
+    implementation(project(":recyclerview:recyclerview"))
+    implementation(project(":appcompat:appcompat"))
+    annotationProcessor(project(":remotecallback:remotecallback-processor"))
 }
 
 android {
     defaultConfig {
         minSdkVersion 19
-        applicationId "com.example.androidx.remotecallback.demos"
     }
 }

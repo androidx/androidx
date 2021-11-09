@@ -12,6 +12,7 @@ public final class com/jakewharton/rxbinding2/support/design/widget/RxSnackbarKt
   public final static dismisses(Lcom/google/android/material/snackbar/Snackbar;)Lio/reactivex/Observable;
   @Landroidx/annotation/();() // invisible
   @Lorg/jetbrains/annotations/NotNull;() // invisible
+    // annotable parameter count: 1 (invisible)
     @Lorg/jetbrains/annotations/NotNull;() // invisible, parameter 0
    L0
     LINENUMBER 18 L0

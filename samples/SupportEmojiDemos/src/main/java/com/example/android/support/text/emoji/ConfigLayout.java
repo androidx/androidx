@@ -20,8 +20,12 @@ import android.content.Context;
 import android.os.Build;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.CompoundButton;
 import android.widget.LinearLayout;
+import android.widget.Spinner;
 import android.widget.Switch;
 
 import androidx.annotation.RequiresApi;
@@ -30,10 +34,9 @@ import androidx.annotation.RequiresApi;
  * Layout that includes configuration parameters.
  */
 public class ConfigLayout extends LinearLayout {
-    private Switch mEnableEmojiCompat;
     private Switch mReplaceAll;
-    private Switch mDownloadable;
     private Switch mIndicator;
+    private Spinner mFontSource;
 
     public ConfigLayout(Context context) {
         super(context);
@@ -63,20 +66,6 @@ public class ConfigLayout extends LinearLayout {
         setOrientation(VERTICAL);
         LayoutInflater.from(context).inflate(R.layout.layout_config, this, true);
 
-        mEnableEmojiCompat = findViewById(R.id.enable);
-        mEnableEmojiCompat.setChecked(Config.get().isCompatEnabled());
-        mEnableEmojiCompat.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                post(new Runnable() {
-                    @Override
-                    public void run() {
-                        fireListener();
-                    }
-                });
-            }
-        });
-
         mReplaceAll = findViewById(R.id.replaceAll);
         mReplaceAll.setChecked(Config.get().isReplaceAll());
         mReplaceAll.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
@@ -91,17 +80,22 @@ public class ConfigLayout extends LinearLayout {
             }
         });
 
-        mDownloadable = findViewById(R.id.useDownloadable);
-        mDownloadable.setChecked(Config.get().isDownloadable());
-        mDownloadable.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        mFontSource = findViewById(R.id.fontSource);
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(context,
+                R.array.sourcesArray, R.layout.spinner_item);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        mFontSource.setAdapter(adapter);
+        mFontSource.setSelection(Config.get().getSource().getPosition());
+
+        mFontSource.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                post(new Runnable() {
-                    @Override
-                    public void run() {
-                        fireListener();
-                    }
-                });
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                fireListener();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+                fireListener();
             }
         });
 
@@ -122,8 +116,18 @@ public class ConfigLayout extends LinearLayout {
     }
 
     void fireListener() {
-        Config.get().update(mEnableEmojiCompat.isChecked(), mReplaceAll.isChecked(),
-                mDownloadable.isChecked(), mIndicator.isChecked());
+        int itemPosition = mFontSource.getSelectedItemPosition();
+
+        Config.Source source = Config.Source.DEFAULT;
+        if (itemPosition == 1) {
+            source = Config.Source.BUNDLED;
+        } else if (itemPosition == 2) {
+            source = Config.Source.DOWNLOADABLE;
+        } else if (itemPosition == 3) {
+            source = Config.Source.DISABLED;
+        }
+
+        Config.get().update(source, mReplaceAll.isChecked(), mIndicator.isChecked());
     }
 
 }

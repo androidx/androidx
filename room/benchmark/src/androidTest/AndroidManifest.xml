@@ -16,13 +16,9 @@
   -->
 <manifest
         xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:tools="http://schemas.android.com/tools"
         package="androidx.room.benchmark">
-    <uses-sdk android:targetSdkVersion="${target-sdk-version}"/>
-
-    <!-- Important: disable debuggable for accurate performance results -->
-    <application
-            android:debuggable="false"
-            tools:replace="android:debuggable">
+    <application>
+        <!-- enable profiling by shell for non-intrusive profiling tools -->
+        <profileable android:shell="true"/>
     </application>
 </manifest>

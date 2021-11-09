@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
+@file:OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
+
 package androidx.lifecycle
 
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.setMain
@@ -31,7 +32,6 @@ import java.util.concurrent.TimeUnit
 /**
  * To ensure consistent behavior, we run these tests both on androidTest and test
  */
-@ExperimentalCoroutinesApi
 @RunWith(JUnit4::class)
 class LifecycleCoroutineScopeTest : LifecycleCoroutineScopeTestBase() {
     private val mainExecutor = Executors.newSingleThreadExecutor()

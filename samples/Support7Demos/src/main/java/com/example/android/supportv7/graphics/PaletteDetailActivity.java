@@ -126,6 +126,7 @@ public class PaletteDetailActivity extends AppCompatActivity {
 
         ImageLoader.loadMediaStoreThumbnail(mImageView, id, new ImageLoader.Listener() {
             @Override
+            @SuppressWarnings("deprecation")
             public void onImageLoaded(Bitmap bitmap) {
                 new Palette.Builder(bitmap).maximumColorCount(numColors).generate(
                         new Palette.PaletteAsyncListener() {

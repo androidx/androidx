@@ -15,9 +15,7 @@
  */
 
 import androidx.build.LibraryGroups
-import androidx.build.LibraryVersions
-
-import static androidx.build.dependencies.DependenciesKt.CHECKER_FRAMEWORK
+import androidx.build.Publish
 
 plugins {
     id("AndroidXPlugin")
@@ -26,20 +24,19 @@ plugins {
 
 android {
     buildTypes.all {
-        consumerProguardFiles 'proguard-rules.pro'
+        consumerProguardFiles "proguard-rules.pro"
     }
 }
 
 dependencies {
-    compileOnly(CHECKER_FRAMEWORK)
+    compileOnly(libs.checkerframework)
 
     api files("src/main/libs/exoplayer-media2.jar")
 }
 
 androidx {
     name = "Media2 repackaged ExoPlayer dependency"
-    publish = true
-    mavenVersion = LibraryVersions.MEDIA2_EXOPLAYER
+    publish = Publish.SNAPSHOT_AND_RELEASE
     mavenGroup = LibraryGroups.MEDIA2
     inceptionYear = "2018"
     description = "Repackaged ExoPlayer for 'media2' artifact"

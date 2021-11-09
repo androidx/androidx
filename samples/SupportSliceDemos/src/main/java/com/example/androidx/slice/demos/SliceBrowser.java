@@ -25,6 +25,7 @@ import static androidx.slice.test.SampleSliceProvider.getUri;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
@@ -34,6 +35,7 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.BaseColumns;
+import android.speech.tts.TextToSpeech;
 import android.util.ArrayMap;
 import android.util.Log;
 import android.util.TypedValue;
@@ -66,6 +68,7 @@ import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * Example use of SliceView. Uses a search bar to select/auto-complete a slice uri which is
@@ -76,6 +79,8 @@ public class SliceBrowser extends AppCompatActivity implements SliceView.OnSlice
     private static final String TAG = "SliceBrowser";
 
     private static final String SLICE_METADATA_KEY = "android.metadata.SLICE_URI";
+    private static final String SHARED_PREFS_NAME = "shared_prefs";
+    private static final String KEY_URI = "com.example.androidx.slice.demos.sliceuris";
     private static final boolean TEST_INTENT = false;
 
     private ArrayList<Uri> mSliceUris = new ArrayList<Uri>();
@@ -84,6 +89,8 @@ public class SliceBrowser extends AppCompatActivity implements SliceView.OnSlice
     private SimpleCursorAdapter mAdapter;
     private LiveData<Slice> mSliceLiveData;
     private SliceView mSliceView;
+    private SharedPreferences mSharedPreferences;
+    private TextToSpeech mTextToSpeech;
 
     // Mode menu
     private int mSelectedMode;
@@ -106,6 +113,7 @@ public class SliceBrowser extends AppCompatActivity implements SliceView.OnSlice
         mSearchView = findViewById(R.id.search_view);
 
         mSliceView = findViewById(R.id.slice_view);
+        mSliceView.setShowTitleItems(true);
 
         final String[] from = new String[]{"uri"};
         final int[] to = new int[]{android.R.id.text1};
@@ -140,6 +148,10 @@ public class SliceBrowser extends AppCompatActivity implements SliceView.OnSlice
                 return false;
             }
         });
+        mTextToSpeech = new TextToSpeech(getApplicationContext(), status -> {
+        });
+
+        mSharedPreferences = getSharedPreferences(SHARED_PREFS_NAME, Context.MODE_PRIVATE);
 
         mSelectedMode = (savedInstanceState != null)
                 ? savedInstanceState.getInt("SELECTED_MODE", SliceView.MODE_LARGE)
@@ -150,6 +162,8 @@ public class SliceBrowser extends AppCompatActivity implements SliceView.OnSlice
             mScrollingEnabled = savedInstanceState.getBoolean("SCROLLING_ENABLED");
             mSelectedHeight = savedInstanceState.getInt("SELECTED_HEIGHT", WRAP_CONTENT);
             uri = savedInstanceState.getString("SELECTED_SLICE", null);
+        } else if (mSharedPreferences != null) {
+            uri = mSharedPreferences.getString(KEY_URI, null);
         }
 
         updateAvailableSlices();
@@ -165,7 +179,7 @@ public class SliceBrowser extends AppCompatActivity implements SliceView.OnSlice
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         mTypeMenu = menu.addSubMenu("Type");
-        mTypeMenu.setIcon(R.drawable.ic_large);
+        mTypeMenu.setIcon(androidx.slice.test.R.drawable.ic_large);
         mTypeMenu.getItem().setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
         mTypeMenu.add("Shortcut");
         mTypeMenu.add("Small");
@@ -187,17 +201,17 @@ public class SliceBrowser extends AppCompatActivity implements SliceView.OnSlice
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getTitle().toString()) {
             case "Shortcut":
-                mTypeMenu.setIcon(R.drawable.ic_shortcut);
+                mTypeMenu.setIcon(androidx.slice.test.R.drawable.ic_shortcut);
                 mSelectedMode = SliceView.MODE_SHORTCUT;
                 updateSliceModes();
                 return true;
             case "Small":
-                mTypeMenu.setIcon(R.drawable.ic_small);
+                mTypeMenu.setIcon(androidx.slice.test.R.drawable.ic_small);
                 mSelectedMode = SliceView.MODE_SMALL;
                 updateSliceModes();
                 return true;
             case "Large":
-                mTypeMenu.setIcon(R.drawable.ic_large);
+                mTypeMenu.setIcon(androidx.slice.test.R.drawable.ic_large);
                 mSelectedMode = SliceView.MODE_LARGE;
                 updateSliceModes();
                 return true;
@@ -326,6 +340,7 @@ public class SliceBrowser extends AppCompatActivity implements SliceView.OnSlice
 
     private void addSlice(Uri uri) {
         if (ContentResolver.SCHEME_CONTENT.equals(uri.getScheme())) {
+            mSharedPreferences.edit().putString(KEY_URI, uri.toString()).apply();
             mSliceView.setTag(uri);
             showSlice(SliceLiveData.fromUri(this, uri));
         } else {
@@ -347,6 +362,11 @@ public class SliceBrowser extends AppCompatActivity implements SliceView.OnSlice
             }
             mShowingSerialized = false;
             mSliceView.setSlice(slice);
+            Bundle hostExtras = SliceMetadata.from(this, slice).getHostExtras();
+            if (hostExtras.getString("tts") != null) {
+                mTextToSpeech.setLanguage(Locale.ENGLISH);
+                mTextToSpeech.speak(hostExtras.getString("tts"), TextToSpeech.QUEUE_FLUSH, null);
+            }
         });
     }
 

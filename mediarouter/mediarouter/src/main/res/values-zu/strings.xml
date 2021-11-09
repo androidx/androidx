@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--  Copyright (C) 2013 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="mr_system_route_name" msgid="7449553026175453403">"Isistimu"</string>
+    <string name="mr_user_route_category_name" msgid="4088331695424166162">"Amadivayisi"</string>
+    <string name="mr_button_content_description" msgid="2939063992730535343">"Sakaza"</string>
+    <string name="mr_cast_button_disconnected" msgid="8071109333469380363">"Sakaza. Inqamukile"</string>
+    <string name="mr_cast_button_connecting" msgid="6629927151350192407">"Sakaza. Iyaxhuma"</string>
+    <string name="mr_cast_button_connected" msgid="6073720094880410356">"Sakaza. Ixhunyiwe"</string>
+    <string name="mr_chooser_title" msgid="1419936397646839840">"Sakaza ku-"</string>
+    <string name="mr_chooser_searching" msgid="6114250663023140921">"Ithola amadivayisi"</string>
+    <string name="mr_controller_disconnect" msgid="7812275474138309497">"Nqamula"</string>
+    <string name="mr_controller_stop_casting" msgid="804210341192624074">"Misa ukusakaza"</string>
+    <string name="mr_controller_close_description" msgid="5684434439232634509">"Vala"</string>
+    <string name="mr_controller_play" msgid="1253345086594430054">"Dlala"</string>
+    <string name="mr_controller_pause" msgid="747801650871398383">"Phumula"</string>
+    <string name="mr_controller_stop" msgid="5497722768305745508">"Misa"</string>
+    <string name="mr_controller_expand_group" msgid="4521419834052044261">"Nweba"</string>
+    <string name="mr_controller_collapse_group" msgid="2585048604188129749">"Goqa"</string>
+    <string name="mr_controller_album_art" msgid="3330502667672708728">"Ubuciko be-albhamu"</string>
+    <string name="mr_controller_volume_slider" msgid="2955862765169128170">"Isilayida sevolumu"</string>
+    <string name="mr_controller_no_media_selected" msgid="5495452265246139458">"Ayikho imidiya ekhethiwe"</string>
+    <string name="mr_controller_no_info_available" msgid="855271725131981086">"Alukho ulwazi olutholakalayo"</string>
+    <string name="mr_controller_casting_screen" msgid="9171231064758955152">"Isikrini sokusakaza"</string>
+    <string name="mr_dialog_default_group_name" msgid="4115858704575247342">"Iqembu"</string>
+    <string name="mr_dialog_groupable_header" msgid="4307018456678388936">"Engeza idivayisi"</string>
+    <string name="mr_dialog_transferable_header" msgid="6068257520605505468">"Dlala eqenjini"</string>
+    <string name="mr_cast_dialog_title_view_placeholder" msgid="2175930138959078155">"Alukho ulwazi olutholakalayo"</string>
+</resources>

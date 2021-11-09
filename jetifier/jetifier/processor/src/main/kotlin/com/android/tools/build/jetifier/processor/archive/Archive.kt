@@ -17,6 +17,7 @@
 package com.android.tools.build.jetifier.processor.archive
 
 import com.android.tools.build.jetifier.core.utils.Log
+import com.android.tools.build.jetifier.processor.TimestampsPolicy
 import java.io.BufferedOutputStream
 import java.io.File
 import java.io.FileInputStream
@@ -27,8 +28,8 @@ import java.io.OutputStream
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
+import java.nio.file.StandardCopyOption
 import java.nio.file.attribute.FileTime
-import java.time.Instant
 import java.util.zip.ZipEntry
 import java.util.zip.ZipInputStream
 import java.util.zip.ZipOutputStream
@@ -38,7 +39,8 @@ import java.util.zip.ZipOutputStream
  */
 class Archive(
     override val relativePath: Path,
-    files: List<ArchiveItem>
+    files: List<ArchiveItem>,
+    override val lastModifiedTime: FileTime? = null
 ) : ArchiveItem {
 
     private val _files: MutableList<ArchiveItem> = files.toMutableList()
@@ -76,15 +78,19 @@ class Archive(
         visitor.visit(this)
     }
 
-    @Throws(IOException::class)
-    fun writeSelfToDir(outputDirPath: Path): File {
-        val outputPath = Paths.get(outputDirPath.toString(), fileName)
-
-        return writeSelfToFile(outputPath)
+    fun writeSelf(timestampsPolicy: TimestampsPolicy): File {
+        return writeSelfToFile(targetPath, timestampsPolicy)
     }
 
-    fun writeSelf(): File {
-        return writeSelfToFile(targetPath)
+    /**
+     * Copies the original file into the target path.
+     *
+     * Meaning that any changes made to this archive so far won't be propagated to the target.
+     * @return Returns the copied file in the target path.
+     */
+    fun copySelfFromOriginToTarget(): File {
+        Files.copy(relativePath, targetPath, StandardCopyOption.REPLACE_EXISTING)
+        return targetPath.toFile()
     }
 
     fun removeItem(item: ArchiveItem) {
@@ -96,28 +102,40 @@ class Archive(
     }
 
     @Throws(IOException::class)
-    fun writeSelfToFile(outputPath: Path): File {
+    fun writeSelfToFile(
+        outputPath: Path,
+        timestampsPolicy: TimestampsPolicy = TimestampsPolicy.KEEP_PREVIOUS
+    ): File {
         if (Files.exists(outputPath)) {
             Log.i(TAG, "Deleting old output file")
             Files.delete(outputPath)
         }
 
         // Create directories if they don't exist yet
-        if (outputPath.parent == null) {
-            Files.createDirectories(outputPath.parent)
+        if (outputPath.parent != null) {
+            // By default createDirectories should check if the directory already exists and not
+            // throw anything. However apparently it does not consider "tmp" to be directory and
+            // throws exception. That's why we need to check for exists here.
+            if (!Files.exists(outputPath.parent)) {
+                Files.createDirectories(outputPath.parent)
+            }
         }
 
         Log.i(TAG, "Writing archive: %s", outputPath.toUri())
         val file = outputPath.toFile()
         Files.createFile(outputPath)
         val stream = BufferedOutputStream(FileOutputStream(file))
-        writeSelfTo(stream)
-        stream.close()
+        stream.use {
+            writeSelfTo(it, timestampsPolicy)
+        }
         return file
     }
 
     @Throws(IOException::class)
-    override fun writeSelfTo(outputStream: OutputStream) {
+    override fun writeSelfTo(
+        outputStream: OutputStream,
+        timestampsPolicy: TimestampsPolicy
+    ) {
         val out = ZipOutputStream(outputStream)
 
         for (file in files) {
@@ -130,9 +148,11 @@ class Archive(
             // up with a corrupted zip file on a non-Unix OS (b/109738608).
             val path = file.relativePath.toString().replace('\\', '/')
             val entry = ZipEntry(path)
-            entry.lastModifiedTime = FileTime.from(Instant.now()) // b/78249473
+            timestampsPolicy.getModifiedTime(file.lastModifiedTime)?.also { newModifiedTime ->
+                entry.lastModifiedTime = newModifiedTime
+            }
             out.putNextEntry(entry)
-            file.writeSelfTo(out)
+            file.writeSelfTo(out, timestampsPolicy)
             out.closeEntry()
         }
         out.finish()
@@ -149,7 +169,10 @@ class Archive(
 
             val inputStream = FileInputStream(archiveFile)
             inputStream.use {
-                return extractArchive(it, archiveFile.toPath(), recursive)
+                return extractArchive(
+                    it, archiveFile.toPath(), recursive,
+                    originalModifiedTime = null
+                )
             }
         }
 
@@ -157,7 +180,8 @@ class Archive(
         private fun extractArchive(
             inputStream: InputStream,
             relativePath: Path,
-            recursive: Boolean
+            recursive: Boolean,
+            originalModifiedTime: FileTime?
         ): Archive {
             val zipIn = ZipInputStream(inputStream)
             val files = mutableListOf<ArchiveItem>()
@@ -165,13 +189,14 @@ class Archive(
             var entry: ZipEntry? = zipIn.nextEntry
             // iterates over entries in the zip file
             while (entry != null) {
+                val modifiedTime = entry.lastModifiedTime
                 if (!entry.isDirectory) {
                     val entryPath = Paths.get(entry.name)
                     if (isArchive(entry) && recursive) {
                         Log.i(TAG, "Extracting nested: %s", entryPath)
-                        files.add(extractArchive(zipIn, entryPath, recursive))
+                        files.add(extractArchive(zipIn, entryPath, recursive, modifiedTime))
                     } else {
-                        files.add(extractFile(zipIn, entryPath))
+                        files.add(extractFile(zipIn, entryPath, modifiedTime))
                     }
                 }
                 zipIn.closeEntry()
@@ -180,15 +205,19 @@ class Archive(
             // Cannot close the zip stream at this moment as that would close also any parent zip
             // streams in case we are processing a nested archive.
 
-            return Archive(relativePath, files.toList())
+            return Archive(relativePath, files.toList(), originalModifiedTime)
         }
 
         @Throws(IOException::class)
-        private fun extractFile(zipIn: ZipInputStream, relativePath: Path): ArchiveFile {
+        private fun extractFile(
+            zipIn: ZipInputStream,
+            relativePath: Path,
+            originalModifiedTime: FileTime?
+        ): ArchiveFile {
             Log.v(TAG, "Extracting archive: %s", relativePath)
 
             val data = zipIn.readBytes()
-            return ArchiveFile(relativePath, data)
+            return ArchiveFile(relativePath, data, originalModifiedTime)
         }
 
         private fun isArchive(zipEntry: ZipEntry): Boolean {

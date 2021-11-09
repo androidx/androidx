@@ -1,167 +1,124 @@
-#!/bin/bash
-set -e
+#!/usr/bin/env bash
 
-# This is a wrapper script that runs the specific version of Android Studio that is recommended for developing in this repository.
-# (This serves a similar purpose to gradlew)
-
-
-function getStudioUrl() {
-  propertiesFile="${scriptDir}/buildSrc/studio_versions.properties"
-  version="$(grep "studio_version=" ${propertiesFile} | sed 's/[^=]*=//')"
-  ideaMajorVersion="$(grep "idea_major_version=" ${propertiesFile} | sed 's/[^=]*=//')"
-  buildNumber="$(grep "studio_build_number=" ${propertiesFile} | sed 's/[^=]*=//')"
-  osName="$1"
-  extension=""
-  if [ "${osName}" == "linux" ]; then
-    extension="tar.gz"
-  else
-    extension="zip"
-  fi
-  studioUrl="https://dl.google.com/dl/android/studio/ide-zips/${version}/android-studio-ide-${ideaMajorVersion}.${buildNumber}-${osName}.${extension}"
-  echo "${studioUrl}"
-}
-
-acceptsLicenseAgreement="$1"
-scriptDir="$(cd $(dirname $0) && pwd)"
-projectDir=$scriptDir
-tempDir="${scriptDir}/studio"
-function getOsName() {
-  unameOutput="$(uname)"
-  osName=""
-  if [ "${unameOutput}" == "Linux" ]; then
-    osName="linux"
-  else
-    osName="mac"
-  fi
-  echo "${osName}"
-}
-osName="$(getOsName)"
-studioUrl="$(getStudioUrl $osName)"
-studioDestName="$(basename ${studioUrl})"
-studioZipPath="${tempDir}/${studioDestName}"
-studioUnzippedPath="$(echo ${studioZipPath} | sed 's/\.zip$//; s/\.tar.gz$//')"
-
-function downloadFile() {
-  fromUrl="$1"
-  destPath="$2"
-  tempPath="${destPath}.tmp"
-  if [ -f "${destPath}" ]; then
-    read -r -n 1 -p "File already exists. Do you want to delete and re-download? [Y/n]? " reply
-
-    if [ ! -z "${reply}" ]; then
-      # Fix missing newline
-      echo
-    fi
-
-    case "${reply}" in
-      [yY]|"")
-        rm "${destPath}"
-        ;;
-      *)
-    esac
-  fi
-
-  if [ -f "${destPath}" ]; then
-    echo "Using existing file from ${destPath}"
-  else
-    echo "Downloading ${fromUrl} to ${destPath}"
-    curl "${fromUrl}" > "${tempPath}"
-    mv "${tempPath}" "${destPath}"
-  fi
-}
-
-function findStudioMacAppPath() {
-  echo "$(find "${studioUnzippedPath}" -type d -depth 1 -name "Android Studio*.app")"
-}
-
-function getLicensePath() {
-  if [ "${osName}" == "mac" ]; then
-    appPath="$(findStudioMacAppPath)"
-    echo "${appPath}/Contents/Resources/LICENSE.txt"
-  else
-    echo "${studioUnzippedPath}/android-studio/LICENSE.txt"
-  fi
-}
-
-function checkLicenseAgreement() {
-  # TODO: Is there a more official way to check that the user accepts the license?
-
-  licenseAcceptedPath="${studioUnzippedPath}/STUDIOW_LICENSE_ACCEPTED"
-
-  if [ ! -f "${licenseAcceptedPath}" ]; then
-    if [ "${acceptsLicenseAgreement}" == "-y" ]; then
-      touch "${licenseAcceptedPath}"
-    else
-      read -r -n 1 -p "Do you accept the license agreement at $(getLicensePath) [Y/n]? " reply
-
-      if [ ! -z "${reply}" ]; then
-	# Fix missing newline
-        echo
-      fi
-
-      case "${reply}" in
-        [yY]|"")
-          touch "${licenseAcceptedPath}"
-          ;;
-        *)
-          exit 1
-          ;;
-      esac
-    fi
-  fi
-}
-
-function updateStudio() {
-  # skip if already up-to-date
-  if stat "${studioUnzippedPath}" >/dev/null 2>/dev/null; then
-    # already up-to-date
-    return
-  fi
-
-  mkdir -p "${tempDir}"
-  downloadFile "${studioUrl}" "${studioZipPath}"
+function usage() {
+  echo "Usage: studiow [--clean] [--reinstall] [<project subset>]"
   echo
+  echo "OPTIONS"
+  echo " --clean"
+  echo "   Clear (with backup) generated files (settings, caches, etc) before launching"
+  echo
+  echo " --reinstall"
+  echo "   Remove and re-download Studio itself. Also implies --clean"
+  echo
+  echo "Project subsets:"
+  echo " m, main"
+  echo "  Open the project subset main: non-Compose Jetpack libraries"
+  echo
+  echo " c, compose"
+  echo "  Open the project subset compose"
+  echo
+  echo " f, flan"
+  echo "  Open the project subset flan: Fragment, Lifecycle, Activity, and Navigation"
+  echo
+  echo " media"
+  echo "  Open the project subset media: Media, Media2, and MediaRouter"
+  echo
+  echo " w, wear"
+  echo "  Open the project subset for Wear OS libraries"
+  echo
+  echo " a, all"
+  echo "  Open the project subset all"
+  echo
+  exit 1
+}
 
-  echo "Removing previous installations"
-  ls "${tempDir}" | grep -v "^${studioDestName}\$" | sed "s|^|${tempDir}/|" | xargs rm -rf
+cd "$(dirname $0)"
 
-  echo "Unzipping"
-  if [ ${studioZipPath: -7} == ".tar.gz" ]; then
-    mkdir "${studioUnzippedPath}"
-    tar -xvf "${studioZipPath}" -C "${studioUnzippedPath}"
-  else
-    unzip "${studioZipPath}" -d "${studioUnzippedPath}"
+subsetArg=""
+clean=false
+reinstall=false
+projectSubset=""
+while [ "$1" != "" ]; do
+  arg="$1"
+  shift
+  # parse options
+  if [ "$arg" == "--clean" ]; then
+    clean=true
+    continue
+  fi
+  if [ "$arg" == "--reinstall" ]; then
+    clean=true
+    reinstall=true
+    continue
+  fi
+  # parse arguments
+  subsetArg="$arg"
+  newSubset=""
+  if [ "$subsetArg" == "m" -o "$subsetArg" == "main" ]; then
+    newSubset=main
+  fi
+  if [ "$subsetArg" == "c" -o "$subsetArg" == "compose" ]; then
+    newSubset=compose
+  fi
+  if [ "$subsetArg" == "f" -o "$subsetArg" == "flan" ]; then
+    newSubset=flan
+  fi
+  if [ "$subsetArg" == "media" ]; then
+    newSubset=media
+  fi
+  if [ "$subsetArg" == "w" -o "$subsetArg" == "wear" ]; then
+    newSubset=wear
+  fi
+  if [ "$subsetArg" == "a" -o "$subsetArg" == "all" ]; then
+    newSubset=all
+  fi
+  if [ "$newSubset" == "" ]; then
+    echo "Unrecognized argument: '$subsetArg'"
+    usage
+  fi
+  if [ "$projectSubset" != "" ]; then
+    echo "Unrecognized argument '$subsetArg', cannot specify project subset more than once"
+    usage
+  fi
+  projectSubset=$newSubset
+done
+
+if [ "$projectSubset" == "" ]; then
+  echo "Project subset is required"
+  usage
+fi
+
+export ANDROIDX_PROJECTS=$projectSubset
+
+# ensures the nonexistence of a file or directory, and makes a backup
+function remove() {
+  path="$1"
+  backup="$(dirname $path)/studio-backup/$(basename $path)"
+  if [ -e "$path" ]; then
+    echo "Moving $path to $backup"
+    rm "$backup" -rf
+    mkdir -p "$(dirname $backup)"
+    mv "$path" "$backup"
   fi
 }
 
-function runStudioLinux() {
-  studioPath="${studioUnzippedPath}/android-studio/bin/studio.sh"
-  echo "$studioPath &"
-  env STUDIO_PROPERTIES="${projectDir}/development/studio/idea.properties" \
-      STUDIO_VM_OPTIONS="${projectDir}/development/studio/studio.vmoptions" \
-      "${studioPath}" "${projectDir}" &
-}
+if [ "$reinstall" == "true" ]; then
+  # remove Studio itself so Gradle will re-download it
+  rm studio -rf
+fi
 
-function runStudioMac() {
-  appPath="$(findStudioMacAppPath)"
-  echo "open ${appPath}"
-  env STUDIO_PROPERTIES="${projectDir}/development/studio/idea.properties" \
-      STUDIO_VM_OPTIONS="${projectDir}/development/studio/studio.vmoptions" \
-      open -a "${appPath}" "${projectDir}"
-}
+if [ "$clean" == "true" ]; then
+  # remove studio-specific caches
 
-function runStudio() {
-  if [ "${osName}" == "mac" ]; then
-    runStudioMac
-  else
-    runStudioLinux
-  fi
-}
-
-function main() {
-  updateStudio
-  checkLicenseAgreement
-  runStudio
-}
-
-main
+  # make backups of files that users might have customized
+  remove ~/.AndroidStudioAndroidX
+  remove ~/.AndroidStudioAndroidXPlayground
+  remove ~/.android
+  # delete (without backup) files that users won't have customized
+  git clean -fdX .idea/
+  # remove gradle caches too and build
+  ./cleanBuild.sh -y studio
+else
+  # ask gradle to launch studio
+  ./gradlew :studio
+fi

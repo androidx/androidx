@@ -23,12 +23,14 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.core.view.ViewCompat;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.android.supportv7.Cheeses;
 import com.example.android.supportv7.R;
+import com.example.android.supportv7.widget.util.ConfigToggle;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -37,6 +39,7 @@ import java.util.Arrays;
  * A sample nested RecyclerView activity.
  */
 public class NestedRecyclerViewActivity extends BaseLayoutManagerActivity<LinearLayoutManager> {
+
     @Override
     protected LinearLayoutManager createLayoutManager() {
         return new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
@@ -46,6 +49,25 @@ public class NestedRecyclerViewActivity extends BaseLayoutManagerActivity<Linear
     protected void onRecyclerViewInit(RecyclerView recyclerView) {
         recyclerView.addItemDecoration(
                 new DividerItemDecoration(this, mLayoutManager.getOrientation()));
+    }
+
+    @Override
+    protected ConfigToggle[] createConfigToggles() {
+        return new ConfigToggle[]{
+                new ConfigToggle(this, R.string.checkbox_accessibility_custom_actions) {
+                    @Override
+                    public boolean isChecked() {
+                        return ((OuterAdapter) mRecyclerView.getAdapter())
+                                .mShouldAddAccessibilityCustomAction;
+                    }
+
+                    @Override
+                    public void onChange(boolean newValue) {
+                        mRecyclerView.setAdapter(
+                                new OuterAdapter(Cheeses.sCheeseStrings, newValue));
+                    }
+                }
+        };
     }
 
     static class InnerAdapter extends RecyclerView.Adapter<InnerAdapter.ViewHolder> {
@@ -98,8 +120,11 @@ public class NestedRecyclerViewActivity extends BaseLayoutManagerActivity<Linear
         ArrayList<InnerAdapter> mAdapters = new ArrayList<>();
         ArrayList<Parcelable> mSavedStates = new ArrayList<>();
         RecyclerView.RecycledViewPool mSharedPool = new RecyclerView.RecycledViewPool();
+        boolean mShouldAddAccessibilityCustomAction;
 
-        OuterAdapter(String[] data) {
+
+        OuterAdapter(String[] data, boolean shouldAddAccessibilityCustomAction) {
+            mShouldAddAccessibilityCustomAction = shouldAddAccessibilityCustomAction;
             int currentCharIndex = 0;
             char currentChar = data[0].charAt(0);
             for (int i = 1; i <= data.length; i++) {
@@ -118,6 +143,13 @@ public class NestedRecyclerViewActivity extends BaseLayoutManagerActivity<Linear
         @Override
         public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
             RecyclerView rv = new RecyclerView(parent.getContext());
+            if (mShouldAddAccessibilityCustomAction) {
+                ViewCompat.addAccessibilityAction(rv,
+                        rv.getContext().getString(R.string.arbitrary_action_label),
+                        (v, a) -> {
+                            return true;
+                        });
+            }
             rv.setLayoutManager(new LinearLayoutManager(parent.getContext(),
                     LinearLayoutManager.HORIZONTAL, false));
             rv.setRecycledViewPool(mSharedPool);
@@ -138,7 +170,7 @@ public class NestedRecyclerViewActivity extends BaseLayoutManagerActivity<Linear
 
         @Override
         public void onViewRecycled(@NonNull ViewHolder holder) {
-            mSavedStates.set(holder.getAdapterPosition(),
+            mSavedStates.set(holder.getBindingAdapterPosition(),
                     holder.mRecyclerView.getLayoutManager().onSaveInstanceState());
         }
 
@@ -150,6 +182,6 @@ public class NestedRecyclerViewActivity extends BaseLayoutManagerActivity<Linear
 
     @Override
     protected RecyclerView.Adapter createAdapter() {
-        return new OuterAdapter(Cheeses.sCheeseStrings);
+        return new OuterAdapter(Cheeses.sCheeseStrings, false);
     }
 }

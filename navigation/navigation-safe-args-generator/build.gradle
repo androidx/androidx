@@ -1,0 +1,68 @@
+/*
+ * Copyright (C) 2017 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import androidx.build.LibraryGroups
+import androidx.build.LibraryType
+import androidx.build.SdkHelperKt
+import androidx.build.SupportConfig
+
+plugins {
+    id("AndroidXPlugin")
+    id("kotlin")
+}
+
+dependencies {
+    implementation(libs.xpp3)
+    implementation(libs.xmlpull)
+    implementation(libs.kotlinStdlib)
+
+    implementation(libs.javapoet)
+    implementation(libs.kotlinPoet)
+
+    testImplementation(libs.junit)
+    testImplementation(libs.googleCompileTesting)
+    testImplementation(fileTree(
+            dir: "${SdkHelperKt.getSdkPath(project)}/platforms/$SupportConfig.COMPILE_SDK_VERSION/",
+            include : "android.jar"
+    ))
+    testImplementation(fileTree(
+            dir: "${new File(project(":navigation:navigation-common").buildDir, "libJar")}",
+            include : "*.jar"
+    ))
+    testImplementation(fileTree(
+            dir: "${new File(project(":lifecycle:lifecycle-viewmodel-savedstate").buildDir, "libJar")}",
+            include : "*.jar"
+    ))
+}
+
+tasks.findByName("test").doFirst {
+    // android.jar and xmlpull has the same classes, but android.jar has stubs instead of real
+    // implementation, so we move android.jar to end of classpath
+    def classpath = it.classpath.getFiles()
+    def androidJar = classpath.find { it.name == "android.jar" }
+    it.classpath = files(classpath.minus(androidJar).plus(androidJar))
+}
+
+tasks.findByName("compileKotlin").dependsOn(":navigation:navigation-common:jarRelease")
+tasks.findByName("compileKotlin").dependsOn(":lifecycle:lifecycle-viewmodel-savedstate:jarRelease")
+
+androidx {
+    name = "Android Navigation TypeSafe Arguments Generator"
+    type = LibraryType.OTHER_CODE_PROCESSOR
+    mavenGroup = LibraryGroups.NAVIGATION
+    inceptionYear = "2017"
+    description = "Android Navigation TypeSafe Arguments Generator"
+}

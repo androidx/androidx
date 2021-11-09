@@ -32,16 +32,16 @@ class PomDocumentTest {
     @Test fun pom_noRules_noChange() {
         testRewriteToTheSame(
             givenAndExpectedXml =
-            "  <dependencies>\n" +
-            "    <dependency>\n" +
-            "      <groupId>supportGroup</groupId>\n" +
-            "      <artifactId>supportArtifact</artifactId>\n" +
-            "      <version>4.0</version>\n" +
-            "      <type>jar</type>\n" +
-            "      <scope>test</scope>\n" +
-            "      <optional>true</optional>\n" +
-            "    </dependency>\n" +
-            "  </dependencies>",
+                "  <dependencies>\n" +
+                    "    <dependency>\n" +
+                    "      <groupId>supportGroup</groupId>\n" +
+                    "      <artifactId>supportArtifact</artifactId>\n" +
+                    "      <version>4.0</version>\n" +
+                    "      <type>jar</type>\n" +
+                    "      <scope>test</scope>\n" +
+                    "      <optional>true</optional>\n" +
+                    "    </dependency>\n" +
+                    "  </dependencies>",
             rules = emptySet()
         )
     }
@@ -49,35 +49,37 @@ class PomDocumentTest {
     @Test fun pom_oneRule_shouldApply() {
         testRewrite(
             givenXml =
-            "  <dependencies>\n" +
-            "    <dependency>\n" +
-            "      <groupId>supportGroup</groupId>\n" +
-            "      <artifactId>supportArtifact</artifactId>\n" +
-            "      <version>4.0</version>\n" +
-            "    </dependency>\n" +
-            "    <dependency>\n" +
-            "      <systemPath>test/test</systemPath>\n" +
-            "    </dependency>\n" +
-            "  </dependencies>",
+                "  <dependencies>\n" +
+                    "    <dependency>\n" +
+                    "      <groupId>supportGroup</groupId>\n" +
+                    "      <artifactId>supportArtifact</artifactId>\n" +
+                    "      <version>4.0</version>\n" +
+                    "    </dependency>\n" +
+                    "    <dependency>\n" +
+                    "      <systemPath>test/test</systemPath>\n" +
+                    "    </dependency>\n" +
+                    "  </dependencies>",
             expectedXml =
-            "  <dependencies>\n" +
-            "    <dependency>\n" +
-            "      <groupId>testGroup</groupId>\n" +
-            "      <artifactId>testArtifact</artifactId>\n" +
-            "      <version>1.0</version>\n" +
-            "    </dependency>\n" +
-            "    <dependency>\n" +
-            "      <systemPath>test/test</systemPath>\n" +
-            "    </dependency>\n" +
-            "  </dependencies>",
+                "  <dependencies>\n" +
+                    "    <dependency>\n" +
+                    "      <groupId>testGroup</groupId>\n" +
+                    "      <artifactId>testArtifact</artifactId>\n" +
+                    "      <version>1.0</version>\n" +
+                    "    </dependency>\n" +
+                    "    <dependency>\n" +
+                    "      <systemPath>test/test</systemPath>\n" +
+                    "    </dependency>\n" +
+                    "  </dependencies>",
             rules = setOf(
                 PomRewriteRule(
                     PomDependency(
                         groupId = "supportGroup", artifactId = "supportArtifact",
-                        version = "4.0"),
+                        version = "4.0"
+                    ),
                     PomDependency(
                         groupId = "testGroup", artifactId = "testArtifact",
-                        version = "1.0")
+                        version = "1.0"
+                    )
                 )
             )
         )
@@ -86,29 +88,31 @@ class PomDocumentTest {
     @Test fun pom_oneRule_withVersionSubstitution_shouldApply() {
         testRewrite(
             givenXml =
-            "  <dependencies>\n" +
-            "    <dependency>\n" +
-            "      <groupId>supportGroup</groupId>\n" +
-            "      <artifactId>supportArtifact</artifactId>\n" +
-            "      <version>4.0</version>\n" +
-            "    </dependency>\n" +
-            "  </dependencies>",
+                "  <dependencies>\n" +
+                    "    <dependency>\n" +
+                    "      <groupId>supportGroup</groupId>\n" +
+                    "      <artifactId>supportArtifact</artifactId>\n" +
+                    "      <version>4.0</version>\n" +
+                    "    </dependency>\n" +
+                    "  </dependencies>",
             expectedXml =
-            "  <dependencies>\n" +
-            "    <dependency>\n" +
-            "      <groupId>testGroup</groupId>\n" +
-            "      <artifactId>testArtifact</artifactId>\n" +
-            "      <version>1.0.0-test</version>\n" +
-            "    </dependency>\n" +
-            "  </dependencies>",
+                "  <dependencies>\n" +
+                    "    <dependency>\n" +
+                    "      <groupId>testGroup</groupId>\n" +
+                    "      <artifactId>testArtifact</artifactId>\n" +
+                    "      <version>1.0.0-test</version>\n" +
+                    "    </dependency>\n" +
+                    "  </dependencies>",
             rules = setOf(
                 PomRewriteRule(
                     PomDependency(
                         groupId = "supportGroup", artifactId = "supportArtifact",
-                        version = "4.0"),
+                        version = "4.0"
+                    ),
                     PomDependency(
                         groupId = "testGroup", artifactId = "testArtifact",
-                        version = "{newSlVersion}")
+                        version = "{newSlVersion}"
+                    )
                 )
             ),
             versions = DependencyVersions(mapOf("newSlVersion" to "1.0.0-test"))
@@ -118,21 +122,23 @@ class PomDocumentTest {
     @Test fun pom_oneRule_notApplicable() {
         testRewriteToTheSame(
             givenAndExpectedXml =
-            "  <dependencies>\n" +
-            "    <dependency>\n" +
-            "      <groupId>supportGroup</groupId>\n" +
-            "      <artifactId>supportArtifact</artifactId>\n" +
-            "      <version>4.0</version>\n" +
-            "    </dependency>\n" +
-            "  </dependencies>",
+                "  <dependencies>\n" +
+                    "    <dependency>\n" +
+                    "      <groupId>supportGroup</groupId>\n" +
+                    "      <artifactId>supportArtifact</artifactId>\n" +
+                    "      <version>4.0</version>\n" +
+                    "    </dependency>\n" +
+                    "  </dependencies>",
             rules = setOf(
                 PomRewriteRule(
                     PomDependency(
                         groupId = "supportGroup", artifactId = "supportArtifact2",
-                        version = "4.0"),
+                        version = "4.0"
+                    ),
                     PomDependency(
                         groupId = "testGroup", artifactId = "testArtifact",
-                        version = "1.0")
+                        version = "1.0"
+                    )
                 )
             )
         )
@@ -141,43 +147,45 @@ class PomDocumentTest {
     @Test fun pom_oneRule_appliedForEachType() {
         testRewrite(
             givenXml =
-            "  <dependencies>\n" +
-            "    <dependency>\n" +
-            "      <groupId>supportGroup</groupId>\n" +
-            "      <artifactId>supportArtifact</artifactId>\n" +
-            "      <version>4.0</version>\n" +
-            "      <type>test</type>\n" +
-            "    </dependency>\n" +
-            "    <dependency>\n" +
-            "      <groupId>supportGroup</groupId>\n" +
-            "      <artifactId>supportArtifact</artifactId>\n" +
-            "      <version>4.0</version>\n" +
-            "      <type>compile</type>\n" +
-            "    </dependency>\n" +
-            "  </dependencies>",
+                "  <dependencies>\n" +
+                    "    <dependency>\n" +
+                    "      <groupId>supportGroup</groupId>\n" +
+                    "      <artifactId>supportArtifact</artifactId>\n" +
+                    "      <version>4.0</version>\n" +
+                    "      <type>test</type>\n" +
+                    "    </dependency>\n" +
+                    "    <dependency>\n" +
+                    "      <groupId>supportGroup</groupId>\n" +
+                    "      <artifactId>supportArtifact</artifactId>\n" +
+                    "      <version>4.0</version>\n" +
+                    "      <type>compile</type>\n" +
+                    "    </dependency>\n" +
+                    "  </dependencies>",
             expectedXml =
-            "  <dependencies>\n" +
-            "    <dependency>\n" +
-            "      <groupId>testGroup</groupId>\n" +
-            "      <artifactId>testArtifact</artifactId>\n" +
-            "      <version>1.0</version>\n" +
-            "      <type>test</type>\n" +
-            "    </dependency>\n" +
-            "    <dependency>\n" +
-            "      <groupId>testGroup</groupId>\n" +
-            "      <artifactId>testArtifact</artifactId>\n" +
-            "      <version>1.0</version>\n" +
-            "      <type>compile</type>\n" +
-            "    </dependency>\n" +
-            "  </dependencies>",
+                "  <dependencies>\n" +
+                    "    <dependency>\n" +
+                    "      <groupId>testGroup</groupId>\n" +
+                    "      <artifactId>testArtifact</artifactId>\n" +
+                    "      <version>1.0</version>\n" +
+                    "      <type>test</type>\n" +
+                    "    </dependency>\n" +
+                    "    <dependency>\n" +
+                    "      <groupId>testGroup</groupId>\n" +
+                    "      <artifactId>testArtifact</artifactId>\n" +
+                    "      <version>1.0</version>\n" +
+                    "      <type>compile</type>\n" +
+                    "    </dependency>\n" +
+                    "  </dependencies>",
             rules = setOf(
                 PomRewriteRule(
                     PomDependency(
                         groupId = "supportGroup", artifactId = "supportArtifact",
-                        version = "4.0"),
+                        version = "4.0"
+                    ),
                     PomDependency(
                         groupId = "testGroup", artifactId = "testArtifact",
-                        version = "1.0")
+                        version = "1.0"
+                    )
                 )
             )
         )
@@ -186,39 +194,41 @@ class PomDocumentTest {
     @Test fun pom_oneRule_hasToKeepExtraAttributesAndRewrite() {
         testRewrite(
             givenXml =
-            "  <dependencies>\n" +
-            "    <dependency>\n" +
-            "      <groupId>supportGroup</groupId>\n" +
-            "      <artifactId>supportArtifact</artifactId>\n" +
-            "      <version>4.0</version>\n" +
-            "      <classifier>hey</classifier>\n" +
-            "      <type>jar</type>\n" +
-            "      <scope>runtime</scope>\n" +
-            "      <systemPath>somePath</systemPath>\n" +
-            "      <optional>true</optional>\n" +
-            "    </dependency>\n" +
-            "  </dependencies>",
+                "  <dependencies>\n" +
+                    "    <dependency>\n" +
+                    "      <groupId>supportGroup</groupId>\n" +
+                    "      <artifactId>supportArtifact</artifactId>\n" +
+                    "      <version>4.0</version>\n" +
+                    "      <classifier>hey</classifier>\n" +
+                    "      <type>jar</type>\n" +
+                    "      <scope>runtime</scope>\n" +
+                    "      <systemPath>somePath</systemPath>\n" +
+                    "      <optional>true</optional>\n" +
+                    "    </dependency>\n" +
+                    "  </dependencies>",
             expectedXml =
-            "  <dependencies>\n" +
-            "    <dependency>\n" +
-            "      <groupId>testGroup</groupId>\n" +
-            "      <artifactId>testArtifact</artifactId>\n" +
-            "      <version>1.0</version>\n" +
-            "      <classifier>hey</classifier>\n" +
-            "      <type>jar</type>\n" +
-            "      <scope>runtime</scope>\n" +
-            "      <systemPath>somePath</systemPath>\n" +
-            "      <optional>true</optional>\n" +
-            "    </dependency>\n" +
-            "  </dependencies>",
+                "  <dependencies>\n" +
+                    "    <dependency>\n" +
+                    "      <groupId>testGroup</groupId>\n" +
+                    "      <artifactId>testArtifact</artifactId>\n" +
+                    "      <version>1.0</version>\n" +
+                    "      <classifier>hey</classifier>\n" +
+                    "      <type>jar</type>\n" +
+                    "      <scope>runtime</scope>\n" +
+                    "      <systemPath>somePath</systemPath>\n" +
+                    "      <optional>true</optional>\n" +
+                    "    </dependency>\n" +
+                    "  </dependencies>",
             rules = setOf(
                 PomRewriteRule(
                     PomDependency(
                         groupId = "supportGroup", artifactId = "supportArtifact",
-                        version = "4.0"),
+                        version = "4.0"
+                    ),
                     PomDependency(
                         groupId = "testGroup", artifactId = "testArtifact",
-                        version = "1.0")
+                        version = "1.0"
+                    )
                 )
             )
         )
@@ -227,13 +237,13 @@ class PomDocumentTest {
     @Test fun pom_usingEmptyProperties_shouldNotCrash() {
         val document = loadDocument(
             "  <properties/>\n" +
-            "  <dependencies>\n" +
-            "    <dependency>\n" +
-            "      <groupId>supportGroup</groupId>\n" +
-            "      <artifactId>\${groupId.version.property}</artifactId>\n" +
-            "      <version>\${groupId.version.property}</version>\n" +
-            "    </dependency>\n" +
-            "  </dependencies>"
+                "  <dependencies>\n" +
+                "    <dependency>\n" +
+                "      <groupId>supportGroup</groupId>\n" +
+                "      <artifactId>\${groupId.version.property}</artifactId>\n" +
+                "      <version>\${groupId.version.property}</version>\n" +
+                "    </dependency>\n" +
+                "  </dependencies>"
         )
 
         Truth.assertThat(document.dependencies).hasSize(1)
@@ -242,16 +252,16 @@ class PomDocumentTest {
     @Test fun pom_usingProperties_shouldResolve() {
         val document = loadDocument(
             "  <properties>\n" +
-            "    <groupId.version.property>1.0.0</groupId.version.property>\n" +
-            "    <groupId.artifactId.property>supportArtifact</groupId.artifactId.property>\n" +
-            "  </properties>\n" +
-            "  <dependencies>\n" +
-            "    <dependency>\n" +
-            "      <groupId>supportGroup</groupId>\n" +
-            "      <artifactId>\${groupId.artifactId.property}</artifactId>\n" +
-            "      <version>\${groupId.version.property}</version>\n" +
-            "    </dependency>\n" +
-            "  </dependencies>"
+                "    <groupId.version.property>1.0.0</groupId.version.property>\n" +
+                "    <groupId.artifactId.property>supportArtifact</groupId.artifactId.property>\n" +
+                "  </properties>\n" +
+                "  <dependencies>\n" +
+                "    <dependency>\n" +
+                "      <groupId>supportGroup</groupId>\n" +
+                "      <artifactId>\${groupId.artifactId.property}</artifactId>\n" +
+                "      <version>\${groupId.version.property}</version>\n" +
+                "    </dependency>\n" +
+                "  </dependencies>"
         )
 
         Truth.assertThat(document.dependencies).hasSize(1)
@@ -273,35 +283,36 @@ class PomDocumentTest {
     ) {
         val given =
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-            "<project xmlns=\"http://maven.apache.org/POM/4.0.0\" " +
-            "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" " +
-            "xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 " +
-            "http://maven.apache.org/xsd/maven-4.0.0.xsd\">\n" +
-            "  <!-- Some comment -->\n" +
-            "  <groupId>test.group</groupId>\n" +
-            "  <artifactId>test.artifact.id</artifactId>\n" +
-            "  <version>1.0</version>\n" +
-            "  $givenXml\n" +
-            "</project>\n"
+                "<project xmlns=\"http://maven.apache.org/POM/4.0.0\" " +
+                "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" " +
+                "xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 " +
+                "http://maven.apache.org/xsd/maven-4.0.0.xsd\">\n" +
+                "  <!-- Some comment -->\n" +
+                "  <groupId>test.group</groupId>\n" +
+                "  <artifactId>test.artifact.id</artifactId>\n" +
+                "  <version>1.0</version>\n" +
+                "  $givenXml\n" +
+                "</project>\n"
 
         var expected =
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-            "<project xmlns=\"http://maven.apache.org/POM/4.0.0\" " +
-            "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" " +
-            "xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 " +
-            "http://maven.apache.org/xsd/maven-4.0.0.xsd\">\n" +
-            "  <!-- Some comment -->\n" +
-            "  <groupId>test.group</groupId>\n" +
-            "  <artifactId>test.artifact.id</artifactId>\n" +
-            "  <version>1.0</version>\n" +
-            "  $expectedXml\n" +
-            "</project>\n"
+                "<project xmlns=\"http://maven.apache.org/POM/4.0.0\" " +
+                "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" " +
+                "xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 " +
+                "http://maven.apache.org/xsd/maven-4.0.0.xsd\">\n" +
+                "  <!-- Some comment -->\n" +
+                "  <groupId>test.group</groupId>\n" +
+                "  <artifactId>test.artifact.id</artifactId>\n" +
+                "  <version>1.0</version>\n" +
+                "  $expectedXml\n" +
+                "</project>\n"
 
         val file = ArchiveFile(Paths.get("pom.xml"), given.toByteArray())
         val pomDocument = PomDocument.loadFrom(file)
         val config = Config.fromOptional(
             restrictToPackagePrefixes = emptySet(),
-            pomRewriteRules = rules)
+            pomRewriteRules = rules
+        )
         val context = TransformationContext(config, versions = versions)
         pomDocument.applyRules(context)
         pomDocument.saveBackToFileIfNeeded()
@@ -323,20 +334,19 @@ class PomDocumentTest {
     private fun loadDocument(givenXml: String): PomDocument {
         val given =
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-            "<project xmlns=\"http://maven.apache.org/POM/4.0.0\" " +
-            "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" " +
-            "xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 " +
-            "http://maven.apache.org/xsd/maven-4.0.0.xsd\">\n" +
-            "  <!-- Some comment -->\n" +
-            "  <groupId>test.group</groupId>\n" +
-            "  <artifactId>test.artifact.id</artifactId>\n" +
-            "  <version>1.0</version>\n" +
-            "  $givenXml\n" +
-            "</project>\n"
+                "<project xmlns=\"http://maven.apache.org/POM/4.0.0\" " +
+                "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" " +
+                "xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 " +
+                "http://maven.apache.org/xsd/maven-4.0.0.xsd\">\n" +
+                "  <!-- Some comment -->\n" +
+                "  <groupId>test.group</groupId>\n" +
+                "  <artifactId>test.artifact.id</artifactId>\n" +
+                "  <version>1.0</version>\n" +
+                "  $givenXml\n" +
+                "</project>\n"
 
         val file = ArchiveFile(Paths.get("pom.xml"), given.toByteArray())
         val pomDocument = PomDocument.loadFrom(file)
         return pomDocument
     }
 }
-

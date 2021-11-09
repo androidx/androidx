@@ -32,6 +32,7 @@ import androidx.annotation.NonNull;
 import androidx.arch.core.executor.testing.CountingTaskExecutorRule;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LiveData;
+import androidx.lifecycle.testing.TestLifecycleOwner;
 import androidx.room.Dao;
 import androidx.room.Database;
 import androidx.room.Entity;
@@ -42,6 +43,7 @@ import androidx.room.PrimaryKey;
 import androidx.room.Query;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
+import androidx.sqlite.db.SupportSQLiteDatabase;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
@@ -79,6 +81,23 @@ public class InvalidationTrackerTest {
                 ApplicationProvider.getApplicationContext(),
                 InvalidationTestDatabase.class)
                 .build();
+    }
+
+    @Test
+    public void testInit_differentTempStore() {
+        InvalidationTestDatabase db = Room.inMemoryDatabaseBuilder(
+                ApplicationProvider.getApplicationContext(),
+                InvalidationTestDatabase.class)
+                .addCallback(new RoomDatabase.Callback() {
+                    @Override
+                    public void onCreate(@NonNull SupportSQLiteDatabase db) {
+                        db.execSQL("PRAGMA temp_store = FILE;");
+                        db.execSQL("CREATE TEMP TABLE cache (id INTEGER PRIMARY KEY)");
+                    }
+                })
+                .build();
+        // Open DB to init InvalidationTracker, should not crash.
+        db.getOpenHelper().getWritableDatabase();
     }
 
     @Test
@@ -129,11 +148,12 @@ public class InvalidationTrackerTest {
 
         mDb.getItemDao().insert(new Item(1, "v1"));
 
-        final TestLifecycleOwner lifecycleOwner = new TestLifecycleOwner();
+        final TestLifecycleOwner lifecycleOwner = new TestLifecycleOwner(
+                Lifecycle.State.INITIALIZED);
         TestObserver<Item> observer = new MyObserver<>();
         TestUtil.observeOnMainThread(liveData, lifecycleOwner, observer);
         assertThat(observer.hasValue(), is(false));
-        lifecycleOwner.handleEvent(Lifecycle.Event.ON_START);
+        lifecycleOwner.handleLifecycleEvent(Lifecycle.Event.ON_START);
         drain();
         assertThat(observer.get(), is(new Item(1, "v1")));
 

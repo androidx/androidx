@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 7.1.0-beta02" type="baseline" client="gradle" dependencies="false" name="AGP (7.1.0-beta02)" variant="all" version="7.1.0-beta02">
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 27 (current min is 14): `android.app.Activity#setTurnScreenOn`"
+        errorLine1="        setTurnScreenOn(true);"
+        errorLine2="        ~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/mediarouter/media/MediaRouter2TestActivity.java"
+            line="47"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 27 (current min is 14): `android.app.Activity#setShowWhenLocked`"
+        errorLine1="        setShowWhenLocked(true);"
+        errorLine2="        ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/mediarouter/media/MediaRouter2TestActivity.java"
+            line="48"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="BanUncheckedReflection"
+        message="Calling `Method.invoke` without an SDK check"
+        errorLine1="                        mSelectRouteIntMethod.invoke(router, types, route);"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="jellybean/androidx/mediarouter/media/MediaRouterJellybean.java"
+            line="340"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="BanUncheckedReflection"
+        message="Calling `Method.invoke` without an SDK check"
+        errorLine1="                    return mGetSystemAudioRouteMethod.invoke(router);"
+        errorLine2="                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="jellybean/androidx/mediarouter/media/MediaRouterJellybean.java"
+            line="385"
+            column="28"/>
+    </issue>
+
+    <issue
+        id="BanUncheckedReflection"
+        message="Calling `Method.invoke` without an SDK check"
+        errorLine1="                    mScanWifiDisplaysMethod.invoke(mDisplayManager);"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="jellybean-mr1/androidx/mediarouter/media/MediaRouterJellybeanMr1.java"
+            line="133"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="BanUncheckedReflection"
+        message="Calling `Method.invoke` without an SDK check"
+        errorLine1="                    int statusCode = (Integer)mGetStatusCodeMethod.invoke(route);"
+        errorLine2="                                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="jellybean-mr1/androidx/mediarouter/media/MediaRouterJellybeanMr1.java"
+            line="175"
+            column="47"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 17; however, the containing class androidx.mediarouter.app.MediaRouteDynamicControllerDialog is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="        ScriptIntrinsicBlur blurScript = ScriptIntrinsicBlur.create(rs, Element.U8_4(rs));"
+        errorLine2="                                                             ~~~~~~">
+        <location
+            file="src/main/java/androidx/mediarouter/app/MediaRouteDynamicControllerDialog.java"
+            line="664"
+            column="62"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 17; however, the containing class androidx.mediarouter.app.MediaRouteDynamicControllerDialog is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="        blurScript.setRadius(radius);"
+        errorLine2="                   ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/mediarouter/app/MediaRouteDynamicControllerDialog.java"
+            line="665"
+            column="20"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 17; however, the containing class androidx.mediarouter.app.MediaRouteDynamicControllerDialog is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="        blurScript.setInput(allocation);"
+        errorLine2="                   ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/mediarouter/app/MediaRouteDynamicControllerDialog.java"
+            line="666"
+            column="20"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 17; however, the containing class androidx.mediarouter.app.MediaRouteDynamicControllerDialog is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="        blurScript.forEach(blurAllocation);"
+        errorLine2="                   ~~~~~~~">
+        <location
+            file="src/main/java/androidx/mediarouter/app/MediaRouteDynamicControllerDialog.java"
+            line="667"
+            column="20"/>
+    </issue>
+
+    <issue
+        id="MissingTestSizeAnnotation"
+        message="Missing test size annotation"
+        errorLine1="    public void testReset() {"
+        errorLine2="                ~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/mediarouter/media/MediaRouterTest.java"
+            line="285"
+            column="17"/>
+    </issue>
+
+</issues>

@@ -76,8 +76,6 @@ public class HorizontalGridTestActivity extends Activity {
 
         if (DEBUG) Log.v(TAG, "onCreate");
 
-        RecyclerView.Adapter adapter = new MyAdapter();
-
         View view = createView();
 
         mHorizontalGridView.setAdapter(new MyAdapter());

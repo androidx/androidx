@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- custom colors. -->
+    <color name="transparent">#00000000</color>
+    <color name="white">@android:color/white</color>
+    <color name="white_10">#1DFFFFFF</color>
+    <color name="white_30">#4DFFFFFF</color>
+    <color name="white_50">#80FFFFFF</color>
+    <color name="white_60">#96FFFFFF</color>
+    <color name="white_70">#B3FFFFFF</color>
+    <color name="white_90">#D3FFFFFF</color>
+    <color name="black">@android:color/black</color>
+    <color name="black_40">#66000000</color>
+    <color name="black_50">#80000000</color>
+    <color name="dark_green">#008616</color>
+    <color name="light_green">#00E676</color>
+    <color name="light_green_30">#4D00E676</color>
+    <color name="light_green_50">#8000E676</color>
+    <color name="light_green_60">#9600E676</color>
+    <color name="light_green_70">#B300E676</color>
+    <color name="light_blue">#4FC3F7</color>
+    <color name="light_blue_30">#4D4FC3F7</color>
+    <color name="light_blue_50">#804FC3F7</color>
+    <color name="light_blue_60">#964FC3F7</color>
+    <color name="light_blue_70">#B34FC3F7</color>
+    <color name="gray">#424242</color>
+    <color name="gray_30">#4D424242</color>
+    <color name="gray_40">#64424242</color>
+    <color name="gray_50">#80424242</color>
+    <color name="gray_70">#B3424242</color>
+    <color name="dark_gray">#211E1D</color>
+    <color name="maroon">#EEA19A</color>
+    <color name="maroon_30">#4DEEA19A</color>
+    <color name="maroon_50">#80EEA19A</color>
+    <color name="maroon_70">#B3EEA19A</color>
+    <color name="yellow">#FDE7B1</color>
+    <color name="yellow_30">#4DFDE7B1</color>
+    <color name="yellow_50">#80FDE7B1</color>
+    <color name="yellow_70">#B3FDE7B1</color>
+    <color name="gray_white">#EEEEEE</color>
+    <color name="dark_pink">#F50057</color>
+    <color name="dark_blue">#1565C0</color>
+</resources>

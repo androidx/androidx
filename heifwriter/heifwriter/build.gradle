@@ -1,0 +1,31 @@
+import androidx.build.LibraryGroups
+import androidx.build.Publish
+
+plugins {
+    id("AndroidXPlugin")
+    id("com.android.library")
+}
+
+android {
+    defaultConfig {
+        minSdkVersion 28
+    }
+}
+
+dependencies {
+    api("androidx.annotation:annotation:1.1.0")
+
+    androidTestImplementation(libs.testExtJunit)
+    androidTestImplementation(libs.testCore)
+    androidTestImplementation(libs.testRunner)
+    androidTestImplementation(libs.testRules)
+    androidTestImplementation(libs.espressoCore, excludes.espresso)
+}
+
+androidx {
+    name = "Android Support HeifWriter"
+    publish = Publish.SNAPSHOT_AND_RELEASE
+    mavenGroup = LibraryGroups.HEIFWRITER
+    inceptionYear = "2018"
+    description = "Android Support HeifWriter for writing HEIF still images"
+}

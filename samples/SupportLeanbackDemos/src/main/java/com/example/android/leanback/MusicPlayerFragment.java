@@ -145,7 +145,7 @@ public class MusicPlayerFragment extends PlaybackFragment implements
                 PlaybackControlsRow.RepeatAction repeatAction =
                         ((PlaybackControlsRow.RepeatAction) action);
                 repeatAction.nextIndex();
-                int index = (repeatAction).getIndex();
+                int index = repeatAction.getIndex();
                 if (getPlayerAdapter() != null) {
                     getPlayerAdapter().setRepeatAction(index);
                 }
@@ -159,7 +159,7 @@ public class MusicPlayerFragment extends PlaybackFragment implements
                 PlaybackControlsRow.ShuffleAction shuffleAction =
                         ((PlaybackControlsRow.ShuffleAction) action);
                 shuffleAction.nextIndex();
-                int index = (shuffleAction).getIndex();
+                int index = shuffleAction.getIndex();
                 if (getPlayerAdapter() != null) {
                     getPlayerAdapter().setShuffleAction(index);
                 }

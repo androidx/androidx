@@ -48,7 +48,7 @@ class PomDocument(val file: ArchiveFile, private val document: Document) {
 
     private fun initialize() {
         val propertiesGroup = document.rootElement
-                .getChild("properties", document.rootElement.namespace)
+            .getChild("properties", document.rootElement.namespace)
         if (propertiesGroup != null) {
             propertiesGroup.children
                 .filterNot { it.value.isNullOrEmpty() }
@@ -56,7 +56,7 @@ class PomDocument(val file: ArchiveFile, private val document: Document) {
         }
 
         dependenciesGroup = document.rootElement
-                .getChild("dependencies", document.rootElement.namespace) ?: return
+            .getChild("dependencies", document.rootElement.namespace) ?: return
         dependenciesGroup!!.children.mapTo(dependencies) {
             XmlUtils.createDependencyFrom(it, properties)
         }
@@ -109,22 +109,22 @@ class PomDocument(val file: ArchiveFile, private val document: Document) {
 
     fun getAsPomDependency(): PomDependency {
         val groupIdNode = document.rootElement
-                .getChild("groupId", document.rootElement.namespace)
+            .getChild("groupId", document.rootElement.namespace)
         val artifactIdNode = document.rootElement
-                .getChild("artifactId", document.rootElement.namespace)
+            .getChild("artifactId", document.rootElement.namespace)
         val version = document.rootElement
-                .getChild("version", document.rootElement.namespace)
+            .getChild("version", document.rootElement.namespace)
 
         return PomDependency(groupIdNode.text, artifactIdNode.text, version.text)
     }
 
     private fun tryRewriteOwnArtifactInfo(context: TransformationContext) {
         val groupIdNode = document.rootElement
-                .getChild("groupId", document.rootElement.namespace)
+            .getChild("groupId", document.rootElement.namespace)
         val artifactIdNode = document.rootElement
-                .getChild("artifactId", document.rootElement.namespace)
+            .getChild("artifactId", document.rootElement.namespace)
         val version = document.rootElement
-                .getChild("version", document.rootElement.namespace)
+            .getChild("version", document.rootElement.namespace)
 
         if (groupIdNode == null || artifactIdNode == null || version == null) {
             return
@@ -159,7 +159,8 @@ class PomDocument(val file: ArchiveFile, private val document: Document) {
             context.reportNoPackageMappingFoundFailure(
                 TAG,
                 dependency.toStringNotation(),
-                file.relativePath)
+                file.relativePath
+            )
         }
 
         // No rule to rewrite => keep it

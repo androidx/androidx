@@ -85,17 +85,20 @@ public class CustomerViewModel extends AndroidViewModel {
                 () -> mDatabase.getCustomerDao().removeAll());
     }
 
+    @SuppressWarnings("deprecation")
     private static <K> LiveData<PagedList<Customer>> getLivePagedList(
             K initialLoadKey, DataSource.Factory<K, Customer> dataSourceFactory) {
         PagedList.Config config = new PagedList.Config.Builder()
                 .setPageSize(10)
                 .setEnablePlaceholders(false)
                 .build();
+        // Maintained for compatibility.
         return new LivePagedListBuilder<>(dataSourceFactory, config)
                 .setInitialLoadKey(initialLoadKey)
                 .build();
     }
 
+    @SuppressWarnings("deprecation")
     private static <K> Flowable<PagedList<Customer>> getPagedListFlowable(
             DataSource.Factory<K, Customer> dataSourceFactory) {
         PagedList.Config config = new PagedList.Config.Builder()

@@ -20,7 +20,6 @@ import android.view.Gravity;
 import android.view.Menu;
 import android.view.View;
 import android.view.ViewGroup.LayoutParams;
-import android.widget.ArrayAdapter;
 
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.ActionBar.Tab;
@@ -57,10 +56,6 @@ public class ActionBarDisplayOptions extends AppCompatActivity
 
         final ActionBar bar = getSupportActionBar();
         bar.setCustomView(mCustomView, mCustomViewLayoutParams);
-
-        final ArrayAdapter<String> listAdapter = new ArrayAdapter<String>(bar.getThemedContext(),
-                R.layout.support_simple_spinner_dropdown_item,
-                new String[] { "Item 1", "Item 2", "Item 3" });
 
         bar.setLogo(R.drawable.ic_media_play);
     }

@@ -46,7 +46,8 @@ data class PomDependency(
     val systemPath: String? = null,
 
     @SerializedName("optional")
-    val optional: String? = null) {
+    val optional: String? = null
+) {
 
     /**
      * Returns a new dependency created by taking all the items from the [input] dependency and then

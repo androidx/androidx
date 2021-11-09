@@ -4,9 +4,17 @@ plugins {
 }
 
 dependencies {
-    implementation(project(":leanback"))
-    implementation(project(":leanback-preference"))
-    implementation 'com.google.code.gson:gson:2.6.2'
+    implementation(project(":leanback:leanback"))
+    implementation(project(":leanback:leanback-preference"))
+    implementation(project(":leanback:leanback-paging"))
+    implementation(project(":leanback:leanback-tab"))
+    implementation("com.google.code.gson:gson:2.6.2")
+    implementation("androidx.lifecycle:lifecycle-extensions:2.2.0")
+    implementation(libs.constraintLayout)
+
+    implementation(projectOrArtifact(":room:room-paging"))
+    implementation(projectOrArtifact(":room:room-runtime"))
+    annotationProcessor(projectOrArtifact(":room:room-compiler"))
 }
 
 android {

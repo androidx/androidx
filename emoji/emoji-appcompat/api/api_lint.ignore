@@ -1,0 +1,45 @@
+// Baseline format: 1.0
+ArrayReturn: androidx.emoji.widget.EmojiAppCompatButton#setFilters(android.text.InputFilter[]) parameter #0:
+    Method parameter should be Collection<InputFilter> (or subclass) instead of raw array; was `android.text.InputFilter[]`
+ArrayReturn: androidx.emoji.widget.EmojiAppCompatTextView#setFilters(android.text.InputFilter[]) parameter #0:
+    Method parameter should be Collection<InputFilter> (or subclass) instead of raw array; was `android.text.InputFilter[]`
+
+
+MissingNullability: androidx.emoji.widget.EmojiAppCompatButton#EmojiAppCompatButton(android.content.Context) parameter #0:
+    Missing nullability on parameter `context` in method `EmojiAppCompatButton`
+MissingNullability: androidx.emoji.widget.EmojiAppCompatButton#EmojiAppCompatButton(android.content.Context, android.util.AttributeSet) parameter #0:
+    Missing nullability on parameter `context` in method `EmojiAppCompatButton`
+MissingNullability: androidx.emoji.widget.EmojiAppCompatButton#EmojiAppCompatButton(android.content.Context, android.util.AttributeSet) parameter #1:
+    Missing nullability on parameter `attrs` in method `EmojiAppCompatButton`
+MissingNullability: androidx.emoji.widget.EmojiAppCompatButton#EmojiAppCompatButton(android.content.Context, android.util.AttributeSet, int) parameter #0:
+    Missing nullability on parameter `context` in method `EmojiAppCompatButton`
+MissingNullability: androidx.emoji.widget.EmojiAppCompatButton#EmojiAppCompatButton(android.content.Context, android.util.AttributeSet, int) parameter #1:
+    Missing nullability on parameter `attrs` in method `EmojiAppCompatButton`
+MissingNullability: androidx.emoji.widget.EmojiAppCompatButton#setFilters(android.text.InputFilter[]) parameter #0:
+    Missing nullability on parameter `filters` in method `setFilters`
+MissingNullability: androidx.emoji.widget.EmojiAppCompatEditText#EmojiAppCompatEditText(android.content.Context) parameter #0:
+    Missing nullability on parameter `context` in method `EmojiAppCompatEditText`
+MissingNullability: androidx.emoji.widget.EmojiAppCompatEditText#EmojiAppCompatEditText(android.content.Context, android.util.AttributeSet) parameter #0:
+    Missing nullability on parameter `context` in method `EmojiAppCompatEditText`
+MissingNullability: androidx.emoji.widget.EmojiAppCompatEditText#EmojiAppCompatEditText(android.content.Context, android.util.AttributeSet) parameter #1:
+    Missing nullability on parameter `attrs` in method `EmojiAppCompatEditText`
+MissingNullability: androidx.emoji.widget.EmojiAppCompatEditText#EmojiAppCompatEditText(android.content.Context, android.util.AttributeSet, int) parameter #0:
+    Missing nullability on parameter `context` in method `EmojiAppCompatEditText`
+MissingNullability: androidx.emoji.widget.EmojiAppCompatEditText#EmojiAppCompatEditText(android.content.Context, android.util.AttributeSet, int) parameter #1:
+    Missing nullability on parameter `attrs` in method `EmojiAppCompatEditText`
+MissingNullability: androidx.emoji.widget.EmojiAppCompatEditText#onCreateInputConnection(android.view.inputmethod.EditorInfo):
+    Missing nullability on method `onCreateInputConnection` return
+MissingNullability: androidx.emoji.widget.EmojiAppCompatEditText#onCreateInputConnection(android.view.inputmethod.EditorInfo) parameter #0:
+    Missing nullability on parameter `outAttrs` in method `onCreateInputConnection`
+MissingNullability: androidx.emoji.widget.EmojiAppCompatTextView#EmojiAppCompatTextView(android.content.Context) parameter #0:
+    Missing nullability on parameter `context` in method `EmojiAppCompatTextView`
+MissingNullability: androidx.emoji.widget.EmojiAppCompatTextView#EmojiAppCompatTextView(android.content.Context, android.util.AttributeSet) parameter #0:
+    Missing nullability on parameter `context` in method `EmojiAppCompatTextView`
+MissingNullability: androidx.emoji.widget.EmojiAppCompatTextView#EmojiAppCompatTextView(android.content.Context, android.util.AttributeSet) parameter #1:
+    Missing nullability on parameter `attrs` in method `EmojiAppCompatTextView`
+MissingNullability: androidx.emoji.widget.EmojiAppCompatTextView#EmojiAppCompatTextView(android.content.Context, android.util.AttributeSet, int) parameter #0:
+    Missing nullability on parameter `context` in method `EmojiAppCompatTextView`
+MissingNullability: androidx.emoji.widget.EmojiAppCompatTextView#EmojiAppCompatTextView(android.content.Context, android.util.AttributeSet, int) parameter #1:
+    Missing nullability on parameter `attrs` in method `EmojiAppCompatTextView`
+MissingNullability: androidx.emoji.widget.EmojiAppCompatTextView#setFilters(android.text.InputFilter[]) parameter #0:
+    Missing nullability on parameter `filters` in method `setFilters`

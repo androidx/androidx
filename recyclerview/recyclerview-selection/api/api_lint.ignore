@@ -1,0 +1,47 @@
+// Baseline format: 1.0
+AutoBoxing: androidx.recyclerview.selection.StableIdKeyProvider#getKey(int):
+    Must avoid boxed primitives (`java.lang.Long`)
+AutoBoxing: androidx.recyclerview.selection.StableIdKeyProvider#getPosition(Long) parameter #0:
+    Must avoid boxed primitives (`java.lang.Long`)
+
+
+BuilderSetStyle: androidx.recyclerview.selection.SelectionTracker.Builder#withBandOverlay(int):
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.recyclerview.selection.SelectionTracker.Builder.withBandOverlay(int)
+BuilderSetStyle: androidx.recyclerview.selection.SelectionTracker.Builder#withBandPredicate(androidx.recyclerview.selection.BandPredicate):
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.recyclerview.selection.SelectionTracker.Builder.withBandPredicate(androidx.recyclerview.selection.BandPredicate)
+BuilderSetStyle: androidx.recyclerview.selection.SelectionTracker.Builder#withFocusDelegate(androidx.recyclerview.selection.FocusDelegate<K>):
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.recyclerview.selection.SelectionTracker.Builder.withFocusDelegate(androidx.recyclerview.selection.FocusDelegate<K>)
+BuilderSetStyle: androidx.recyclerview.selection.SelectionTracker.Builder#withOnContextClickListener(androidx.recyclerview.selection.OnContextClickListener):
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.recyclerview.selection.SelectionTracker.Builder.withOnContextClickListener(androidx.recyclerview.selection.OnContextClickListener)
+BuilderSetStyle: androidx.recyclerview.selection.SelectionTracker.Builder#withOnDragInitiatedListener(androidx.recyclerview.selection.OnDragInitiatedListener):
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.recyclerview.selection.SelectionTracker.Builder.withOnDragInitiatedListener(androidx.recyclerview.selection.OnDragInitiatedListener)
+BuilderSetStyle: androidx.recyclerview.selection.SelectionTracker.Builder#withOnItemActivatedListener(androidx.recyclerview.selection.OnItemActivatedListener<K>):
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.recyclerview.selection.SelectionTracker.Builder.withOnItemActivatedListener(androidx.recyclerview.selection.OnItemActivatedListener<K>)
+BuilderSetStyle: androidx.recyclerview.selection.SelectionTracker.Builder#withOperationMonitor(androidx.recyclerview.selection.OperationMonitor):
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.recyclerview.selection.SelectionTracker.Builder.withOperationMonitor(androidx.recyclerview.selection.OperationMonitor)
+BuilderSetStyle: androidx.recyclerview.selection.SelectionTracker.Builder#withSelectionPredicate(androidx.recyclerview.selection.SelectionTracker.SelectionPredicate<K>):
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.recyclerview.selection.SelectionTracker.Builder.withSelectionPredicate(androidx.recyclerview.selection.SelectionTracker.SelectionPredicate<K>)
+
+
+CallbackName: androidx.recyclerview.selection.SelectionTracker.SelectionObserver:
+    Class should be named SelectionCallback
+
+
+ExecutorRegistration: androidx.recyclerview.selection.OperationMonitor#addListener(androidx.recyclerview.selection.OperationMonitor.OnChangeListener):
+    Registration methods should have overload that accepts delivery Executor: `addListener`
+ExecutorRegistration: androidx.recyclerview.selection.SelectionTracker.Builder#withOnContextClickListener(androidx.recyclerview.selection.OnContextClickListener):
+    Registration methods should have overload that accepts delivery Executor: `withOnContextClickListener`
+ExecutorRegistration: androidx.recyclerview.selection.SelectionTracker.Builder#withOnDragInitiatedListener(androidx.recyclerview.selection.OnDragInitiatedListener):
+    Registration methods should have overload that accepts delivery Executor: `withOnDragInitiatedListener`
+
+
+KotlinOperator: androidx.recyclerview.selection.Selection#contains(K):
+    Method can be invoked as a "in" operator from Kotlin: `contains` (this is usually desirable; just make sure it makes sense for this type of object)
+
+
+PublicTypedef: androidx.recyclerview.selection.ItemKeyProvider.Scope:
+    Don't expose @IntDef: Scope must be hidden.
+
+
+VisiblySynchronized: androidx.recyclerview.selection.OperationMonitor#isStarted():
+    Internal locks must not be exposed: method androidx.recyclerview.selection.OperationMonitor.isStarted()

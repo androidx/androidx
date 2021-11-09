@@ -41,10 +41,12 @@ fun onViewPager(): ViewInteraction {
  * both show exactly 50%, the selected page is undefined.
  */
 fun onCurrentPage(): ViewInteraction {
-    return onView(allOf(
-        withParent(withParent(isAssignableFrom(ViewPager2::class.java))),
-        isDisplayingAtLeast(50)
-    ))
+    return onView(
+        allOf(
+            withParent(withParent(isAssignableFrom(ViewPager2::class.java))),
+            isDisplayingAtLeast(50)
+        )
+    )
 }
 
 /**

@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright 2018 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:padding="@dimen/media2_widget_music_view_full_padding"
+    android:background="@color/media2_widget_music_view_default_background"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_gravity="center">
+
+    <ImageView
+        android:id="@+id/album"
+        android:layout_width="@dimen/media2_widget_music_view_full_image_size"
+        android:layout_height="@dimen/media2_widget_music_view_full_image_size"
+        android:layout_gravity="center_vertical"
+        android:layout_marginEnd="@dimen/media2_widget_music_view_image_title_gap"
+        android:layout_marginRight="@dimen/media2_widget_music_view_image_title_gap"
+        android:src="@drawable/media2_widget_ic_default_album_image" />
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:minWidth="@dimen/media2_widget_music_view_landscape_text_minimum_width"
+        android:layout_gravity="center_vertical"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/mcv2_music_title_unknown_text"
+            android:textSize="@dimen/media2_widget_music_view_title_text_size"
+            android:textStyle="bold"
+            android:textColor="#FFFFFF" />
+
+        <TextView
+            android:id="@+id/artist"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/mcv2_music_artist_unknown_text"
+            android:textSize="@dimen/media2_widget_music_view_artist_text_size"
+            android:textColor="#BBBBBB" />
+    </LinearLayout>
+</LinearLayout>

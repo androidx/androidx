@@ -64,7 +64,7 @@ public class SendResult extends Activity
         {
             // To send a result, simply call setResult() before your
             // activity is finished.
-            setResult(RESULT_OK, (new Intent()).setAction("Corky!"));
+            setResult(RESULT_OK, new Intent().setAction("Corky!"));
             finish();
         }
     };
@@ -76,7 +76,7 @@ public class SendResult extends Activity
         {
             // To send a result, simply call setResult() before your
             // activity is finished.
-            setResult(RESULT_OK, (new Intent()).setAction("Violet!"));
+            setResult(RESULT_OK, new Intent().setAction("Violet!"));
             finish();
         }
     };

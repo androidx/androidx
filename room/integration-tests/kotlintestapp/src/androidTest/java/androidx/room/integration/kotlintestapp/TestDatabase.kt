@@ -32,9 +32,11 @@ import androidx.room.integration.kotlintestapp.vo.NoArgClass
 import androidx.room.integration.kotlintestapp.vo.Publisher
 
 @Database(
-    entities = [Book::class, Author::class, Publisher::class, BookAuthor::class,
+    entities = [
+        Book::class, Author::class, Publisher::class, BookAuthor::class,
         NoArgClass::class, DataClassFromDependency::class, JavaEntity::class,
-        EntityWithJavaPojoList::class],
+        EntityWithJavaPojoList::class
+    ],
     version = 1,
     exportSchema = false
 )

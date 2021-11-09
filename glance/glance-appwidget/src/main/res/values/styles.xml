@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+  Copyright 2021 The Android Open Source Project
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  -->
+
+<resources>
+    <style name="Glance.AppWidget.Box" parent=""/>
+    <style name="Glance.AppWidget.Button" parent=""/>
+    <style name="Glance.AppWidget.CheckBox" parent=""/>
+    <style name="Glance.AppWidget.CheckBoxBackport" parent=""/>
+    <style name="Glance.AppWidget.CheckBoxIcon" parent=""/>
+    <style name="Glance.AppWidget.CheckBoxText" parent=""/>
+    <style name="Glance.AppWidget.Column" parent=""/>
+    <style name="Glance.AppWidget.List" parent=""/>
+    <style name="Glance.AppWidget.Row" parent=""/>
+    <style name="Glance.AppWidget.Switch" parent=""/>
+    <style name="Glance.AppWidget.SwitchBackport" parent=""/>
+    <style name="Glance.AppWidget.SwitchText" parent=""/>
+    <style name="Glance.AppWidget.SwitchThumb" parent=""/>
+    <style name="Glance.AppWidget.SwitchTrack" parent=""/>
+    <style name="Glance.AppWidget.Text" parent=""/>
+</resources>

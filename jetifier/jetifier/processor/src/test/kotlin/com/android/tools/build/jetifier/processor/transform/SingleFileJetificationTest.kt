@@ -22,6 +22,7 @@ import com.android.tools.build.jetifier.core.type.TypesMap
 import com.android.tools.build.jetifier.processor.FileMapping
 import com.android.tools.build.jetifier.processor.Processor
 import com.google.common.truth.Truth
+import org.intellij.lang.annotations.Language
 import java.io.File
 import org.junit.Test
 
@@ -34,9 +35,9 @@ class SingleFileJetificationTest {
     fun xmlSourceJetifiedProperly() {
         testSingleFileJetification(
             givenFileContent = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" +
-                    "<android.support.v7.preference.Preference/>",
+                "<android.support.v7.preference.Preference/>",
             expectedOutputFileContent = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" +
-                    "<androidx.preference.Preference/>",
+                "<androidx.preference.Preference/>",
             fileExtension = ".xml",
             typesMap = mapOf(
                 "android/support/v7/preference/Preference" to "androidx/preference/Preference"
@@ -48,29 +49,29 @@ class SingleFileJetificationTest {
     fun javaSourceJetifiedProperly() {
         testSingleFileJetification(
             givenFileContent = "import android.support.v7.preference.Preference;\n" +
-                    "import android.support.v7.widget.CardViewBaseImpl\n" +
-                    "import android.support.v7.widget.CardViewApi21Impl\n" +
-                    "android.support.v7.widget.CardViewDelegate\n" +
-                    "code\n" +
-                    "inlineUsage(android.support.v7.widget.ThemedSpinnerAdapter variable);",
+                "import android.support.v7.widget.CardViewBaseImpl\n" +
+                "import android.support.v7.widget.CardViewApi21Impl\n" +
+                "android.support.v7.widget.CardViewDelegate\n" +
+                "code\n" +
+                "inlineUsage(android.support.v7.widget.ThemedSpinnerAdapter variable);",
             expectedOutputFileContent = "import androidx.preference.Preference;\n" +
-                    "import androidx.cardview.widget.CardViewBaseImpl\n" +
-                    "import androidx.cardview.widget.CardViewApi21Impl\n" +
-                    "androidx.cardview.widget.CardViewDelegate\n" +
-                    "code\n" +
-                    "inlineUsage(androidx.appcompat.widget.ThemedSpinnerAdapter variable);",
+                "import androidx.cardview.widget.CardViewBaseImpl\n" +
+                "import androidx.cardview.widget.CardViewApi21Impl\n" +
+                "androidx.cardview.widget.CardViewDelegate\n" +
+                "code\n" +
+                "inlineUsage(androidx.appcompat.widget.ThemedSpinnerAdapter variable);",
             fileExtension = ".java",
             typesMap = mapOf(
                 "android/support/v7/preference/Preference" to
-                        "androidx/preference/Preference",
+                    "androidx/preference/Preference",
                 "android/support/v7/widget/CardViewApi21Impl" to
-                        "androidx/cardview/widget/CardViewApi21Impl",
+                    "androidx/cardview/widget/CardViewApi21Impl",
                 "android/support/v7/widget/CardViewBaseImpl" to
-                        "androidx/cardview/widget/CardViewBaseImpl",
+                    "androidx/cardview/widget/CardViewBaseImpl",
                 "android/support/v7/widget/CardViewDelegate" to
-                        "androidx/cardview/widget/CardViewDelegate",
+                    "androidx/cardview/widget/CardViewDelegate",
                 "android/support/v7/widget/ThemedSpinnerAdapter" to
-                        "androidx/appcompat/widget/ThemedSpinnerAdapter"
+                    "androidx/appcompat/widget/ThemedSpinnerAdapter"
             )
         )
     }
@@ -79,29 +80,29 @@ class SingleFileJetificationTest {
     fun javaSourceDejetifiedProperly() {
         testSingleFileJetification(
             givenFileContent = "import androidx.preference.Preference;\n" +
-                    "import androidx.cardview.widget.CardViewBaseImpl\n" +
-                    "import androidx.cardview.widget.CardViewApi21Impl\n" +
-                    "androidx.cardview.widget.CardViewDelegate\n" +
-                    "code\n" +
-                    "inlineUsage(androidx.appcompat.widget.ThemedSpinnerAdapter variable);",
+                "import androidx.cardview.widget.CardViewBaseImpl\n" +
+                "import androidx.cardview.widget.CardViewApi21Impl\n" +
+                "androidx.cardview.widget.CardViewDelegate\n" +
+                "code\n" +
+                "inlineUsage(androidx.appcompat.widget.ThemedSpinnerAdapter variable);",
             expectedOutputFileContent = "import android.support.v7.preference.Preference;\n" +
-                    "import android.support.v7.widget.CardViewBaseImpl\n" +
-                    "import android.support.v7.widget.CardViewApi21Impl\n" +
-                    "android.support.v7.widget.CardViewDelegate\n" +
-                    "code\n" +
-                    "inlineUsage(android.support.v7.widget.ThemedSpinnerAdapter variable);",
+                "import android.support.v7.widget.CardViewBaseImpl\n" +
+                "import android.support.v7.widget.CardViewApi21Impl\n" +
+                "android.support.v7.widget.CardViewDelegate\n" +
+                "code\n" +
+                "inlineUsage(android.support.v7.widget.ThemedSpinnerAdapter variable);",
             fileExtension = ".java",
             typesMap = mapOf(
                 "android/support/v7/preference/Preference" to
-                        "androidx/preference/Preference",
+                    "androidx/preference/Preference",
                 "android/support/v7/widget/CardViewApi21Impl" to
-                        "androidx/cardview/widget/CardViewApi21Impl",
+                    "androidx/cardview/widget/CardViewApi21Impl",
                 "android/support/v7/widget/CardViewBaseImpl" to
-                        "androidx/cardview/widget/CardViewBaseImpl",
+                    "androidx/cardview/widget/CardViewBaseImpl",
                 "android/support/v7/widget/CardViewDelegate" to
-                        "androidx/cardview/widget/CardViewDelegate",
+                    "androidx/cardview/widget/CardViewDelegate",
                 "android/support/v7/widget/ThemedSpinnerAdapter" to
-                        "androidx/appcompat/widget/ThemedSpinnerAdapter"
+                    "androidx/appcompat/widget/ThemedSpinnerAdapter"
             ),
             isReversed = true
         )
@@ -110,17 +111,17 @@ class SingleFileJetificationTest {
     @Test
     fun doesNotJetifySubstring() {
         val sameInputOutput = "import android.support.v7.preference.PreferenceExtension;\n" +
-                "code\n" +
-                "inlineUsage(android.support.v7.widget.ThemedSpinnerAdapter2 variable);"
+            "code\n" +
+            "inlineUsage(android.support.v7.widget.ThemedSpinnerAdapter2 variable);"
         testSingleFileJetification(
             givenFileContent = sameInputOutput,
             expectedOutputFileContent = sameInputOutput,
             fileExtension = ".java",
             typesMap = mapOf(
                 "android/support/v7/preference/Preference" to
-                        "androidx/preference/Preference",
+                    "androidx/preference/Preference",
                 "android/support/v7/widget/ThemedSpinnerAdapter" to
-                        "androidx/appcompat/widget/ThemedSpinnerAdapter"
+                    "androidx/appcompat/widget/ThemedSpinnerAdapter"
             )
         )
     }
@@ -129,15 +130,51 @@ class SingleFileJetificationTest {
     fun doesNotSourceJetifyNonJavaOrXMLFiles() {
         testSingleFileJetification(
             givenFileContent =
-            "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" +
+                "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" +
                     "<android.support.v7.preference.Preference/>",
             expectedOutputFileContent = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" +
-                    "<androidx.preference.Preference/>",
+                "<androidx.preference.Preference/>",
             fileExtension = ".aar",
             typesMap = mapOf(
                 "android/support/v7/preference/Preference" to "androidx/preference/Preference"
             ),
             expectSpecifiedOutput = false
+        )
+    }
+
+    @Test
+    fun kotlinSourceDejetifiedProperly() {
+        @Language("kotlin")
+        val input = """
+            package foo
+            import androidx.shiny.library.Bar
+                
+            fun function(): Bar {
+                TODO()
+            }
+            var property: androidx.shiny.library.Foo? = null
+        """.trimIndent()
+
+        @Language("kotlin")
+        val expected = """
+            package foo
+            import android.matt.library.Bar
+                
+            fun function(): Bar {
+                TODO()
+            }
+            var property: android.matt.library.Foo? = null
+        """.trimIndent()
+
+        testSingleFileJetification(
+            givenFileContent = input,
+            expectedOutputFileContent = expected,
+            typesMap = mapOf(
+                "android/matt/library/Bar" to "androidx/shiny/library/Bar",
+                "android/matt/library/Foo" to "androidx/shiny/library/Foo",
+            ),
+            fileExtension = ".kt",
+            isReversed = true
         )
     }
 
@@ -158,14 +195,16 @@ class SingleFileJetificationTest {
         val config = Config.fromOptional(
             typesMap = typeMap
         )
-        val processor = Processor.createProcessor3(
+        val processor = Processor.createProcessor4(
             config = config,
             reversedMode = isReversed,
-            rewritingSupportLib = false)
+            rewritingSupportLib = false
+        )
 
         val inputFile = File("/tmp/singleFileTestInput" + fileExtension)
         inputFile.writeText(givenFileContent)
         val outputFile = File("/tmp/singleFileTestOutput" + fileExtension)
+        @Suppress("deprecation")
         processor.transform(setOf(FileMapping(inputFile, outputFile)))
         if (expectSpecifiedOutput) {
             Truth.assertThat(outputFile.readText()).isEqualTo(expectedOutputFileContent)

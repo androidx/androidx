@@ -15,8 +15,6 @@
  * limitations under the License.
  */
 
-import static androidx.build.dependencies.DependenciesKt.*
-
 plugins {
     id("AndroidXPlugin")
     id("com.android.application")
@@ -30,10 +28,11 @@ android {
         multiDexEnabled true
     }
 
-    buildTypes {
-        debug {
-            testCoverageEnabled true
-        }
+    buildTypes.all {
+        minifyEnabled true
+        shrinkResources true
+        proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        testProguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
     }
 }
 
@@ -41,12 +40,29 @@ dependencies {
     // Internal library
     implementation(project(":camera:camera-camera2"))
     implementation(project(":camera:camera-extensions"))
+    implementation(project(":camera:camera-lifecycle"))
+    implementation(project(":camera:camera-view"))
+    implementation("androidx.test.espresso:espresso-idling-resource:3.1.0")
+    implementation(libs.guavaListenableFuture)
+    implementation("androidx.concurrent:concurrent-futures:1.0.0")
 
     // Android Support Library
-    api(CONSTRAINT_LAYOUT, { transitive = true })
-    implementation(project(":appcompat"))
+    api(libs.constraintLayout)
+    implementation("androidx.appcompat:appcompat:1.1.0")
 
     // Guava
-    implementation(GUAVA_ANDROID)
+    implementation(libs.guavaAndroid)
+
+    androidTestImplementation(libs.testExtJunit)
+    androidTestImplementation(libs.testCore)
+    androidTestImplementation(libs.testRunner)
+    androidTestImplementation(libs.testRules)
+    androidTestImplementation(libs.testUiautomator)
+    androidTestImplementation(libs.espressoCore)
+    androidTestImplementation(project(":camera:camera-testing"))
+    androidTestCompileOnly(project(":camera:camera-extensions-stub"))
+
+    // Testing resource dependency for manifest
+    debugImplementation(project(":camera:camera-testing"))
 }
 

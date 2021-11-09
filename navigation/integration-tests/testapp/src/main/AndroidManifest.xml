@@ -21,28 +21,19 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:ignore="AllowBackup,GoogleAppIndexingWarning,MissingApplicationIcon">
-        <activity android:name=".NavigationActivity">
+        <activity android:name=".NavigationActivity" android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.DEFAULT"/>
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-            <!-- Handle the 'More information' link on www.example.com -->
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW"/>
-                <category android:name="android.intent.category.DEFAULT"/>
-                <category android:name="android.intent.category.BROWSABLE"/>
-                <data android:scheme="https"/>
-                <data android:scheme="http"/>
-                <data android:host="www.iana.org"/>
-                <data android:pathPrefix="/domains/"/>
-            </intent-filter>
+            <nav-graph android:value="@navigation/nav_main"/>
         </activity>
         <activity
             android:name=".HelpActivity"
-            android:label="@string/help"/>
+            android:label="@string/help" android:exported="true"/>
 
-        <receiver android:name=".DeepLinkAppWidgetProvider" >
+        <receiver android:name=".DeepLinkAppWidgetProvider" android:exported="true">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>

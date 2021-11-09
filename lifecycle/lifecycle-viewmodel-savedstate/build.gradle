@@ -1,0 +1,80 @@
+/*
+ * Copyright 2018 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+
+import androidx.build.LibraryGroups
+import androidx.build.Publish
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
+plugins {
+    id("AndroidXPlugin")
+    id("com.android.library")
+    id("kotlin-android")
+}
+
+android {
+    buildTypes.all {
+        consumerProguardFiles("proguard-rules.pro")
+    }
+}
+
+dependencies {
+    api("androidx.annotation:annotation:1.0.0")
+    api("androidx.savedstate:savedstate:1.0.0")
+    api(projectOrArtifact(":lifecycle:lifecycle-livedata-core"))
+    api(projectOrArtifact(":lifecycle:lifecycle-viewmodel"))
+    api(libs.kotlinStdlib)
+
+    androidTestImplementation projectOrArtifact(":lifecycle:lifecycle-runtime")
+    androidTestImplementation projectOrArtifact(":lifecycle:lifecycle-livedata-core")
+    androidTestImplementation ("androidx.fragment:fragment:1.3.0")
+    androidTestImplementation project(":internal-testutils-runtime")
+    androidTestImplementation(libs.truth)
+    androidTestImplementation(libs.kotlinStdlib)
+    androidTestImplementation(libs.testExtJunit)
+    androidTestImplementation(libs.testCore)
+    androidTestImplementation(libs.testRunner)
+    androidTestImplementation(libs.testRules)
+}
+
+//used by testImplementation safe-args-generator
+android.libraryVariants.all { variant ->
+    def name = variant.name
+    def suffix = name.capitalize()
+    project.tasks.register("jar${suffix}", Copy).configure {
+        dependsOn ("assemble$suffix")
+        from(zipTree("${project.buildDir}/outputs/aar/lifecycle-viewmodel-savedstate-${name}.aar")) {
+            include "classes.jar"
+        }
+        destinationDir new File(project.buildDir, "libJar")
+    }
+}
+
+androidx {
+    name = "Android Lifecycle ViewModel with SavedState"
+    publish = Publish.SNAPSHOT_AND_RELEASE
+    mavenGroup = LibraryGroups.LIFECYCLE
+    inceptionYear = "2018"
+    description = "Android Lifecycle ViewModel"
+}
+
+tasks.withType(KotlinCompile).configureEach {
+    kotlinOptions {
+        freeCompilerArgs += [
+                "-Xjvm-default=all",
+        ]
+    }
+}

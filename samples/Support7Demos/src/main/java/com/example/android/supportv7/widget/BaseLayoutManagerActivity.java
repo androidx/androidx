@@ -87,7 +87,7 @@ abstract public class BaseLayoutManagerActivity<T extends RecyclerView.LayoutMan
                 vh.itemView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        final int pos = vh.getAdapterPosition();
+                        final int pos = vh.getBindingAdapterPosition();
                         if (pos != RecyclerView.NO_POSITION && pos + 1 < getItemCount()) {
                             swap(pos, pos + 1);
                         }

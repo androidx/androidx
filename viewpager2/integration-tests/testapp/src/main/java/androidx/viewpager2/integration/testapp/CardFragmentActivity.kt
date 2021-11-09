@@ -39,7 +39,7 @@ class CardFragmentActivity : BaseCardActivity() {
         super.onCreate(savedInstanceState)
 
         viewPager.adapter = object : FragmentStateAdapter(this) {
-            override fun getItem(position: Int): Fragment {
+            override fun createFragment(position: Int): Fragment {
                 return CardFragment.create(Card.DECK[position])
             }
 
@@ -56,7 +56,7 @@ class CardFragmentActivity : BaseCardActivity() {
             savedInstanceState: Bundle?
         ): View? {
             val cardView = CardView(layoutInflater, container)
-            cardView.bind(Card.fromBundle(arguments!!))
+            cardView.bind(Card.fromBundle(requireArguments()))
             return cardView.view
         }
 

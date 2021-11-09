@@ -42,6 +42,7 @@ import android.widget.SearchView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
@@ -259,21 +260,21 @@ public class LoaderCustomSupport extends FragmentActivity {
          * super class will take care of delivering it; the implementation
          * here just adds a little more logic.
          */
-        @Override public void deliverResult(List<AppEntry> apps) {
+        @Override public void deliverResult(List<AppEntry> data) {
             if (isReset()) {
                 // An async query came in while the loader is stopped.  We
                 // don't need the result.
-                if (apps != null) {
-                    onReleaseResources(apps);
+                if (data != null) {
+                    onReleaseResources(data);
                 }
             }
-            List<AppEntry> oldApps = apps;
-            mApps = apps;
+            List<AppEntry> oldApps = data;
+            mApps = data;
 
             if (isStarted()) {
                 // If the Loader is currently started, we can immediately
                 // deliver its results.
-                super.deliverResult(apps);
+                super.deliverResult(data);
             }
 
             // At this point we can release the resources associated with
@@ -321,12 +322,12 @@ public class LoaderCustomSupport extends FragmentActivity {
         /**
          * Handles a request to cancel a load.
          */
-        @Override public void onCanceled(List<AppEntry> apps) {
-            super.onCanceled(apps);
+        @Override public void onCanceled(List<AppEntry> data) {
+            super.onCanceled(data);
 
             // At this point we can release the resources associated with 'apps'
             // if needed.
-            onReleaseResources(apps);
+            onReleaseResources(data);
         }
 
         /**
@@ -410,8 +411,9 @@ public class LoaderCustomSupport extends FragmentActivity {
         // If non-null, this is the current filter the user has provided.
         String mCurFilter;
 
-        @Override public void onActivityCreated(Bundle savedInstanceState) {
-            super.onActivityCreated(savedInstanceState);
+        @Override
+        public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+            super.onViewCreated(view, savedInstanceState);
 
             // Give some text to display if there is no data.  In a real
             // application this would come from a resource.

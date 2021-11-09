@@ -18,6 +18,8 @@ package androidx.viewpager2.integration.testapp.test
 
 import android.view.View
 import androidx.annotation.LayoutRes
+import androidx.core.text.TextUtilsCompat
+import androidx.core.view.ViewCompat
 import androidx.fragment.app.FragmentActivity
 import androidx.test.espresso.Espresso.onData
 import androidx.test.espresso.Espresso.onIdle
@@ -27,13 +29,14 @@ import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.hasDescendant
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.espresso.matcher.ViewMatchers.withText
-import androidx.test.rule.ActivityTestRule
+import androidx.testutils.setSystemExclusionRectsForEspressoSwipes
 import androidx.viewpager2.integration.testapp.R
 import androidx.viewpager2.integration.testapp.test.util.ViewPagerIdleWatcher
 import androidx.viewpager2.integration.testapp.test.util.onCurrentPage
 import androidx.viewpager2.integration.testapp.test.util.onViewPager
 import androidx.viewpager2.integration.testapp.test.util.swipeNext
 import androidx.viewpager2.integration.testapp.test.util.swipePrevious
+import androidx.viewpager2.integration.testapp.test.util.waitForInjectMotionEvents
 import androidx.viewpager2.widget.ViewPager2
 import androidx.viewpager2.widget.ViewPager2.ORIENTATION_HORIZONTAL
 import androidx.viewpager2.widget.ViewPager2.ORIENTATION_VERTICAL
@@ -42,6 +45,7 @@ import org.hamcrest.Matcher
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
+import java.util.Locale
 
 /**
  * Base class for all tests. Contains common functionality, like finding the [ViewPager2] under
@@ -52,20 +56,25 @@ import org.junit.Rule
  * @see TabLayoutTest
  */
 abstract class BaseTest<T : FragmentActivity>(clazz: Class<T>) {
+    @Suppress("DEPRECATION")
     @Rule
     @JvmField
-    var activityTestRule = ActivityTestRule(clazz)
+    var activityTestRule = androidx.test.rule.ActivityTestRule(clazz)
 
     @get:LayoutRes
     abstract val layoutId: Int
 
     lateinit var idleWatcher: ViewPagerIdleWatcher
     lateinit var viewPager: ViewPager2
+    val isRtl = TextUtilsCompat.getLayoutDirectionFromLocale(Locale.getDefault()) ==
+        ViewCompat.LAYOUT_DIRECTION_RTL
 
     @Before
     open fun setUp() {
         viewPager = activityTestRule.activity.findViewById(layoutId)
+        viewPager.setSystemExclusionRectsForEspressoSwipes()
         idleWatcher = ViewPagerIdleWatcher(viewPager)
+        onView(withId(layoutId)).perform(waitForInjectMotionEvents())
     }
 
     @After
@@ -73,15 +82,17 @@ abstract class BaseTest<T : FragmentActivity>(clazz: Class<T>) {
         idleWatcher.unregister()
     }
 
-    fun selectOrientation(@ViewPager2.Orientation orientation: Int) {
+    fun selectOrientation(orientation: Int) {
         onView(withId(R.id.orientation_spinner)).perform(click())
-        onData(equalTo(
-            when (orientation) {
-                ORIENTATION_HORIZONTAL -> "horizontal"
-                ORIENTATION_VERTICAL -> "vertical"
-                else -> throw IllegalArgumentException("Orientation $orientation doesn't exist")
-            }
-        )).perform(click())
+        onData(
+            equalTo(
+                when (orientation) {
+                    ORIENTATION_HORIZONTAL -> "horizontal"
+                    ORIENTATION_VERTICAL -> "vertical"
+                    else -> throw IllegalArgumentException("Orientation $orientation doesn't exist")
+                }
+            )
+        ).perform(click())
     }
 
     fun swipeToNextPage() {

@@ -16,6 +16,8 @@
 
 package com.example.androidx.webkit;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -55,6 +57,7 @@ public class Proxy {
      * @param port port number
      * @param callback callback run when this proxy serves a request
      */
+    @SuppressWarnings("CatchAndPrintStackTrace")
     public Proxy(int port, ProxyRequestCallback callback) {
         mRequestCount = 0;
         mCallback = callback;
@@ -109,6 +112,7 @@ public class Proxy {
         }).start();
     }
 
+    @SuppressWarnings("CatchAndPrintStackTrace")
     private void listen() {
         try {
             Socket socket = mServerSocket.accept();
@@ -127,6 +131,7 @@ public class Proxy {
     /**
      * Shutdown.
      */
+    @SuppressWarnings("CatchAndPrintStackTrace")
     public void shutdown() {
         if (!mRunning) return;
         mRunning = false;
@@ -152,18 +157,22 @@ public class Proxy {
         private BufferedReader mReader;
         private BufferedWriter mWriter;
 
+        @SuppressWarnings("CatchAndPrintStackTrace")
         RequestHandler(Socket socket) {
             mSocket = socket;
             try {
                 mSocket.setSoTimeout(TIMEOUT_MILLIS);
-                mReader = new BufferedReader(new InputStreamReader(mSocket.getInputStream()));
-                mWriter = new BufferedWriter(new OutputStreamWriter(mSocket.getOutputStream()));
+                mReader = new BufferedReader(
+                        new InputStreamReader(mSocket.getInputStream(), UTF_8));
+                mWriter = new BufferedWriter(
+                        new OutputStreamWriter(mSocket.getOutputStream(), UTF_8));
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
 
         @Override
+        @SuppressWarnings("CatchAndPrintStackTrace")
         public void run() {
             try {
                 StringBuilder sb = new StringBuilder();

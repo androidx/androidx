@@ -39,23 +39,36 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class StaggeredGridLayoutManagerSnappingTest extends BaseStaggeredGridLayoutManagerTest {
 
     final Config mConfig;
-    final boolean mReverseScroll;
+    private final boolean mReverseScroll;
+    private final boolean mApplyPadding;
 
-    public StaggeredGridLayoutManagerSnappingTest(Config config, boolean reverseScroll) {
+    public StaggeredGridLayoutManagerSnappingTest(Config config, boolean reverseScroll,
+            boolean applyPadding) {
         mConfig = config;
         mReverseScroll = reverseScroll;
+        mApplyPadding = applyPadding;
     }
 
-    @Parameterized.Parameters(name = "config:{0},reverseScroll:{1}")
+    @Parameterized.Parameters(name = "config:{0},reverseScroll:{1},applyPadding:{2}")
     public static List<Object[]> getParams() {
         List<Object[]> result = new ArrayList<>();
         List<Config> configs = createBaseVariations();
         for (Config config : configs) {
             for (boolean reverseScroll : new boolean[] {true, false}) {
-                result.add(new Object[]{config, reverseScroll});
+                for (boolean applyPadding : new boolean[] {true, false}) {
+                    result.add(new Object[]{config, reverseScroll, applyPadding});
+                }
             }
         }
         return result;
+    }
+
+    @Override
+    void setupByConfig(Config config, GridTestAdapter adapter) throws Throwable {
+        super.setupByConfig(config, adapter);
+        if (mApplyPadding) {
+            mRecyclerView.setPadding(17, 23, 0, 0);
+        }
     }
 
     @Test
@@ -81,7 +94,7 @@ public class StaggeredGridLayoutManagerSnappingTest extends BaseStaggeredGridLay
         setupSnapHelper();
 
         // Record the current center view.
-        View view = findCenterView(mLayoutManager);
+        View view = findCenterView();
         assertCenterAligned(view);
         // This number comes from the sizes of the fixed views that are created for this config/
         // See getLayoutParamsForPosition(int) below. Obtained manually.
@@ -89,10 +102,10 @@ public class StaggeredGridLayoutManagerSnappingTest extends BaseStaggeredGridLay
         int scrollDist = mReverseScroll ? -scrollDistance : scrollDistance;
         mLayoutManager.expectIdleState(2);
         smoothScrollBy(scrollDist);
-        mLayoutManager.waitForSnap(10);
+        mLayoutManager.waitForSnap(25);
 
         // Views have not changed
-        View viewAfterScroll = findCenterView(mLayoutManager);
+        View viewAfterScroll = findCenterView();
         assertSame("The view should NOT have scrolled", view, viewAfterScroll);
         assertCenterAligned(viewAfterScroll);
     }
@@ -105,7 +118,7 @@ public class StaggeredGridLayoutManagerSnappingTest extends BaseStaggeredGridLay
         setupSnapHelper();
 
         // Record the current center view.
-        View view = findCenterView(mLayoutManager);
+        View view = findCenterView();
         assertCenterAligned(view);
         // For a staggered grid layout manager with unknown item size we need to keep the distance
         // small enough to ensure we do not scroll over to an offset view in a different span.
@@ -113,10 +126,10 @@ public class StaggeredGridLayoutManagerSnappingTest extends BaseStaggeredGridLay
         int scrollDist = mReverseScroll ? -scrollDistance : scrollDistance;
         mLayoutManager.expectIdleState(2);
         smoothScrollBy(scrollDist);
-        mLayoutManager.waitForSnap(10);
+        mLayoutManager.waitForSnap(25);
 
         // Views have not changed
-        View viewAfterScroll = findCenterView(mLayoutManager);
+        View viewAfterScroll = findCenterView();
         assertSame("The view should NOT have scrolled", view, viewAfterScroll);
         assertCenterAligned(viewAfterScroll);
     }
@@ -129,7 +142,7 @@ public class StaggeredGridLayoutManagerSnappingTest extends BaseStaggeredGridLay
         setupSnapHelper();
 
         // Record the current center view.
-        View view = findCenterView(mLayoutManager);
+        View view = findCenterView();
         assertCenterAligned(view);
         int scrollDistance = getViewDimension(view) + 1;
         int scrollDist = mReverseScroll ? -scrollDistance : scrollDistance;
@@ -138,7 +151,7 @@ public class StaggeredGridLayoutManagerSnappingTest extends BaseStaggeredGridLay
         waitForIdleScroll(mRecyclerView);
         waitForIdleScroll(mRecyclerView);
 
-        View viewAfterScroll = findCenterView(mLayoutManager);
+        View viewAfterScroll = findCenterView();
 
         assertNotSame("The view should have scrolled", view, viewAfterScroll);
         assertCenterAligned(viewAfterScroll);
@@ -152,7 +165,7 @@ public class StaggeredGridLayoutManagerSnappingTest extends BaseStaggeredGridLay
         setupSnapHelper();
 
         // Record the current center view.
-        View view = findCenterView(mLayoutManager);
+        View view = findCenterView();
         assertCenterAligned(view);
 
         // Velocity small enough to not scroll to the next view.
@@ -164,7 +177,7 @@ public class StaggeredGridLayoutManagerSnappingTest extends BaseStaggeredGridLay
         waitForIdleScroll(mRecyclerView);
         mLayoutManager.waitForSnap(100);
 
-        View viewAfterFling = findCenterView(mLayoutManager);
+        View viewAfterFling = findCenterView();
 
         assertSame("The view should NOT have scrolled", view, viewAfterFling);
         assertCenterAligned(viewAfterFling);
@@ -178,7 +191,7 @@ public class StaggeredGridLayoutManagerSnappingTest extends BaseStaggeredGridLay
         setupSnapHelper();
 
         // Record the current center view.
-        View view = findCenterView(mLayoutManager);
+        View view = findCenterView();
         assertCenterAligned(view);
 
         // Velocity high enough to scroll beyond the current view.
@@ -190,7 +203,7 @@ public class StaggeredGridLayoutManagerSnappingTest extends BaseStaggeredGridLay
         mLayoutManager.waitForSnap(100);
         getInstrumentation().waitForIdleSync();
 
-        View viewAfterFling = findCenterView(mLayoutManager);
+        View viewAfterFling = findCenterView();
 
         assertNotSame("The view should have scrolled", view, viewAfterFling);
         assertCenterAligned(viewAfterFling);
@@ -207,7 +220,8 @@ public class StaggeredGridLayoutManagerSnappingTest extends BaseStaggeredGridLay
         }
     }
 
-    @Nullable View findCenterView(RecyclerView.LayoutManager layoutManager) {
+    @Nullable
+    private View findCenterView() {
         return mLayoutManager.findFirstVisibleItemClosestToCenter();
     }
 
@@ -215,13 +229,13 @@ public class StaggeredGridLayoutManagerSnappingTest extends BaseStaggeredGridLay
         SnapHelper snapHelper = new LinearSnapHelper();
         mLayoutManager.expectIdleState(1);
         snapHelper.attachToRecyclerView(mRecyclerView);
-        mLayoutManager.waitForSnap(10);
+        mLayoutManager.waitForSnap(25);
 
         mLayoutManager.expectLayouts(1);
         scrollToPosition(mConfig.mItemCount / 2);
         mLayoutManager.waitForLayout(2);
 
-        View view = findCenterView(mLayoutManager);
+        View view = findCenterView();
         int scrollDistance = distFromCenter(view) / 2;
         if (scrollDistance == 0) {
             return;
@@ -231,7 +245,8 @@ public class StaggeredGridLayoutManagerSnappingTest extends BaseStaggeredGridLay
 
         mLayoutManager.expectIdleState(2);
         smoothScrollBy(scrollDist);
-        mLayoutManager.waitForSnap(10);
+        // Very high number to try to reduce flakiness.
+        mLayoutManager.waitForSnap(50);
     }
 
     private int getViewDimension(View view) {
@@ -244,13 +259,35 @@ public class StaggeredGridLayoutManagerSnappingTest extends BaseStaggeredGridLay
         return helper.getDecoratedMeasurement(view);
     }
 
+    private int getWidthMinusPadding(View view) {
+        return view.getWidth() - view.getPaddingLeft() - view.getPaddingRight();
+    }
+
+    private int getHeightMinusPadding(View view) {
+        return view.getHeight() - view.getPaddingTop() - view.getPaddingBottom();
+    }
+
+    private int getRvCenterX() {
+        return getWidthMinusPadding(mRecyclerView) / 2 + mRecyclerView.getPaddingLeft();
+    }
+
+    private int getRvCenterY() {
+        return getHeightMinusPadding(mRecyclerView) / 2 + mRecyclerView.getPaddingTop();
+    }
+
+    private int getViewCenterX(View view) {
+        return mLayoutManager.getViewBounds(view).centerX();
+    }
+
+    private int getViewCenterY(View view) {
+        return mLayoutManager.getViewBounds(view).centerY();
+    }
+
     private void assertCenterAligned(View view) {
         if (mLayoutManager.canScrollHorizontally()) {
-            assertEquals(mRecyclerView.getWidth() / 2,
-                    mLayoutManager.getViewBounds(view).centerX());
+            assertEquals(getRvCenterX(), getViewCenterX(view));
         } else {
-            assertEquals(mRecyclerView.getHeight() / 2,
-                    mLayoutManager.getViewBounds(view).centerY());
+            assertEquals(getRvCenterY(), getViewCenterY(view));
         }
     }
 
@@ -268,11 +305,9 @@ public class StaggeredGridLayoutManagerSnappingTest extends BaseStaggeredGridLay
 
     private int distFromCenter(View view) {
         if (mLayoutManager.canScrollHorizontally()) {
-            return Math.abs(mRecyclerView.getWidth() / 2 -
-                    mLayoutManager.getViewBounds(view).centerX());
+            return Math.abs(getRvCenterX() - getViewCenterX(view));
         } else {
-            return Math.abs(mRecyclerView.getHeight() / 2 -
-                    mLayoutManager.getViewBounds(view).centerY());
+            return Math.abs(getRvCenterY() - getViewCenterY(view));
         }
     }
 
