@@ -197,7 +197,12 @@ class XElementTest {
             }
             validateElement(
                 element = it.processingEnv.requireTypeElement("foo.bar.Base"),
-                tTypeName = TypeVariableName.get("T"),
+                tTypeName = if (it.isKsp) {
+                    // when inheritance resolution happens, KSP resolves them to object
+                    TypeName.OBJECT
+                } else {
+                    TypeVariableName.get("T")
+                },
                 rTypeName = TypeVariableName.get("R")
             )
             validateElement(

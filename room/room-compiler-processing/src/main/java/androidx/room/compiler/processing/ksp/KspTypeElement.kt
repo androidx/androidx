@@ -72,7 +72,7 @@ internal sealed class KspTypeElement(
 
     override val type: KspType by lazy {
         env.wrap(
-            ksType = declaration.asType(emptyList()),
+            ksType = declaration.asStarProjectedType(),
             allowPrimitives = false
         )
     }

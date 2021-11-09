@@ -47,7 +47,7 @@ internal class KspTypeArgumentType(
     }
 
     override val typeName: TypeName by lazy {
-        typeArg.typeName(env.resolver)
+        typeArg.typeName(typeParam, env.resolver)
     }
 
     override fun boxed(): KspTypeArgumentType {
