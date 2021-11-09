@@ -310,11 +310,7 @@ class VideoRecordingTest(
         // Act.
         videoCapture.output
             .prepareRecording(context, FileOutputOptions.Builder(file).build())
-            .withEventListener(
-                CameraXExecutors.directExecutor(),
-                mockListener
-            )
-            .start()
+            .start(CameraXExecutors.directExecutor(), mockListener)
 
         // Verify.
         verify(mockListener, timeout(1000L))
@@ -413,11 +409,7 @@ class VideoRecordingTest(
         Recording {
             val recording = videoCapture.output
                 .prepareRecording(context, FileOutputOptions.Builder(file).build())
-                .withEventListener(
-                    CameraXExecutors.directExecutor(),
-                    videoRecordEventListener
-                )
-                .start()
+                .start(CameraXExecutors.directExecutor(), videoRecordEventListener)
 
             // Wait for status event to proceed recording for a while.
             assertThat(latchForVideoRecording.await(VIDEO_TIMEOUT_SEC, TimeUnit.SECONDS)).isTrue()

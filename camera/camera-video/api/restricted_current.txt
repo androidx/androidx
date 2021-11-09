@@ -60,9 +60,8 @@ package androidx.camera.video {
   }
 
   @RequiresApi(21) public final class PendingRecording {
-    method @CheckResult public androidx.camera.video.Recording start();
+    method @CheckResult public androidx.camera.video.Recording start(java.util.concurrent.Executor, androidx.core.util.Consumer<androidx.camera.video.VideoRecordEvent!>);
     method @RequiresPermission(android.Manifest.permission.RECORD_AUDIO) public androidx.camera.video.PendingRecording withAudioEnabled();
-    method public androidx.camera.video.PendingRecording withEventListener(java.util.concurrent.Executor, androidx.core.util.Consumer<androidx.camera.video.VideoRecordEvent!>);
   }
 
   @RequiresApi(21) public class QualitySelector {

@@ -377,9 +377,8 @@ public class CameraXActivity extends AppCompatActivity {
                     mActiveRecording = getVideoCapture().getOutput()
                             .prepareRecording(this, getNewVideoOutputMediaStoreOptions())
                             .withAudioEnabled()
-                            .withEventListener(ContextCompat.getMainExecutor(CameraXActivity.this),
-                                    mVideoRecordEventListener)
-                            .start();
+                            .start(ContextCompat.getMainExecutor(CameraXActivity.this),
+                                    mVideoRecordEventListener);
                     mRecordUi.setState(RecordUi.State.RECORDING);
                     break;
                 case RECORDING:

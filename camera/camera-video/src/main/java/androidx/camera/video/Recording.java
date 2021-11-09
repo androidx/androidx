@@ -29,13 +29,12 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * Provides controls for the currently active recording.
  *
  * <p>An active recording is created by starting a pending recording with
- * {@link PendingRecording#start()}. If there are no errors starting the recording, upon
- * creation, an active recording will provide controls to pause, resume or stop a recording. If
- * errors occur while starting the recording, the active recording will be instantiated in a
- * {@link VideoRecordEvent.Finalize finalized} state, and all controls will be no-ops. The state
- * of the recording can be observed by
- * {@link PendingRecording#withEventListener(Executor, Consumer) adding a video record event
- * listener} to the pending recording before starting.
+ * {@link PendingRecording#start(Executor, Consumer)}. If there are no errors starting the
+ * recording, upon creation, an active recording will provide controls to pause, resume or stop a
+ * recording. If errors occur while starting the recording, the active recording will be
+ * instantiated in a {@link VideoRecordEvent.Finalize finalized} state, and all controls will be
+ * no-ops. The state of the recording can be observed by the video record event listener provided
+ * to {@link PendingRecording#start(Executor, Consumer)} when starting the recording.
  *
  * <p>Either {@link #stop()} or {@link #close()} can be called when it is desired to
  * stop the recording. If {@link #stop()} or {@link #close()} are not called on this object
@@ -110,8 +109,8 @@ public final class Recording implements AutoCloseable {
      * Pauses the current recording if active.
      *
      * <p>Successful pausing of a recording will generate a {@link VideoRecordEvent.Pause} event
-     * which will be sent to the listener set on
-     * {@link PendingRecording#withEventListener(Executor, Consumer)}.
+     * which will be sent to the listener passed to
+     * {@link PendingRecording#start(Executor, Consumer)}.
      *
      * <p>If the recording has already been paused or has been finalized internally, this is a
      * no-op.
@@ -130,8 +129,8 @@ public final class Recording implements AutoCloseable {
      * Resumes the current recording if paused.
      *
      * <p>Successful resuming of a recording will generate a {@link VideoRecordEvent.Resume} event
-     * which will be sent to the listener set on
-     * {@link PendingRecording#withEventListener(Executor, Consumer)}.
+     * which will be sent to the listener passed to
+     * {@link PendingRecording#start(Executor, Consumer)}.
      *
      * <p>If the recording is active or has been finalized internally, this is a no-op.
      *
@@ -152,7 +151,7 @@ public final class Recording implements AutoCloseable {
      * {@code stop()} or {@link #close()} will throw an {@link IllegalStateException}.
      *
      * <p>Once an active recording has been stopped, the next recording can be started with
-     * {@link PendingRecording#start()}.
+     * {@link PendingRecording#start(Executor, Consumer)}.
      *
      * <p>This method is idempotent; if the recording has already been stopped or has been
      * finalized internally, calling {@code stop()} is a no-op.

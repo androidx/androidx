@@ -33,7 +33,7 @@ import java.util.concurrent.Executor;
  *
  * <p>Recording stats are generated for every {@link VideoRecordEvent} and can be retrieved via
  * {@link VideoRecordEvent#getRecordingStats()}.
- * @see PendingRecording#withEventListener(Executor, Consumer)
+ * @see PendingRecording#start(Executor, Consumer)
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 @AutoValue
