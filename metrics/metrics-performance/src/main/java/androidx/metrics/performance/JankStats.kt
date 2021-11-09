@@ -20,6 +20,8 @@ import android.content.ContextWrapper
 import android.os.Build
 import android.view.View
 import androidx.annotation.UiThread
+import java.lang.IllegalStateException
+import java.util.concurrent.Executor
 
 /**
  * This class is used to both accumulate and report information about UI "jank" (runtime
@@ -39,8 +41,8 @@ import androidx.annotation.UiThread
  * of this state is provided automatically, and internally, by various AndroidX libraries.
  * But developers are encouraged to provide their own app-specific state as well.
  *
- * **Reporting Results**: On every frame, the JankStats client is notified via the listener
- * they supplied with information about that frame, including how long the frame took to
+ * **Reporting Results**: On every frame, the JankStats client is notified via a listener
+ * with information about that frame, including how long the frame took to
  * complete, whether it was considered jank, and what the UI context was during that frame.
  * Clients are encouraged to aggregate and upload the data as they see fit for analysis that
  * can help debug overall performance problems.
@@ -57,23 +59,45 @@ import androidx.annotation.UiThread
  * of JankStats should at least provide useful information about performance problems, along
  * with the state of the application during those frames, but the timing data will be necessarily
  * more accurate for later releases, as described above.
- *
- * @param view Any view in the hierarchy which this JankStats object will track. A JankStats
- * instance is specific to each window in an application, since the timining metrics are tracked
- * on a per-window basis internally, and the view hiearchy can be used as a proxy for that window.
- * @param frameListener This listener will be called on any frame in which jank is detected.
  */
-@Suppress("SingletonConstructor", "ExecutorRegistration")
-class JankStats @UiThread constructor(
+@Suppress("SingletonConstructor")
+class JankStats private constructor(
     view: View,
+    private val executor: Executor,
     private val frameListener: OnFrameListener
 ) {
 
     /**
      * Whether this JankStats instance is enabled for tracking and reporting jank data.
-     * @see [.setTrackingEnabled]
+     * Enabling tracking causes JankStats to listen to system frame-timing information and
+     * record data on a per-frame basis that can later be reported to the JankStats listener.
+     * Tracking is enabled by default at creation time.
      */
-    private var trackingEnabled = false
+    var isTrackingEnabled: Boolean = false
+        /**
+         * Enabling tracking causes JankStats to listen to system frame-timing information and
+         * record data on a per-frame basis that can later be reported to the JankStats listener.
+         * Tracking is enabled by default at creation time.
+         */
+        @UiThread
+        set(value) {
+            implementation.setupFrameTimer(value)
+            field = value
+        }
+
+    /**
+     * This multiplier is used to determine when frames are exhibiting jank.
+     *
+     * The factor is multiplied by the current refresh rate to calculate a frame
+     * duration beyond which frames are considered, and reported, as having jank.
+     * By default, the multiplier is 2.
+     */
+    var jankHeuristicMultiplier: Float = 2.0f
+        set(value) {
+            // reset calculated value to force recalculation based on new heuristic
+            JankStatsBaseImpl.frameDuration = -1
+            field = value
+        }
 
     /**
      * Data to track UI and user state in this JankStats object.
@@ -125,54 +149,29 @@ class JankStats @UiThread constructor(
             }
         }
 
-    /**
-     * Enabling tracking causes JankStats to listen to system frame-timing information and
-     * record data on a per-frame basis that can later be reported to the JankStats listener.
-     *
-     * @param enabled true to enable tracking, false otherwise
-     */
-    @UiThread
-    fun setTrackingEnabled(enabled: Boolean) {
-        implementation.setupFrameTimer(enabled)
-        trackingEnabled = enabled
-    }
-
-    fun isTrackingEnabled(): Boolean {
-        return trackingEnabled
-    }
-
     private fun addFrameState(
         frameStartTime: Long,
         frameEndTime: Long,
         frameStates: MutableList<StateInfo>,
         activeStates: MutableList<StateData>
     ) {
-        synchronized(activeStates) {
-            for (i in activeStates.indices.reversed()) {
-                // idea: add state if state was active during this frame
-                // so state start time must be before vsync+duration
-                // also, if state end time < vsync, delete it
-                val item = activeStates[i]
-                if (item.timeRemoved > 0 && item.timeRemoved < frameStartTime) {
+        for (i in activeStates.indices.reversed()) {
+            // idea: add state if state was active during this frame
+            // so state start time must be before vsync+duration
+            // also, if state end time < vsync, delete it
+            val item = activeStates[i]
+            if (item.timeRemoved > 0 && item.timeRemoved < frameStartTime) {
+                activeStates.removeAt(i)
+            } else if (item.timeAdded < frameEndTime) {
+                // Only add unique state. There may be several states added in
+                // a given frame (especially during heavy jank periods), but it is
+                // only necessary/helpful to log one of those items
+                if (item.state !in frameStates) {
+                    frameStates.add(item.state)
+                }
+                // Single-frame states should only be logged once
+                if (activeStates == singleFrameStates) {
                     activeStates.removeAt(i)
-                } else if (item.timeAdded < frameEndTime) {
-                    // Only add unique state. There may be several states added in
-                    // a given frame (especially during heavy jank periods), but it is
-                    // only necessary/helpful to log one of those items
-                    var add = true
-                    for (pair in frameStates) {
-                        if (pair == item.state) {
-                            add = false
-                            break
-                        }
-                    }
-                    if (add) {
-                        frameStates.add(item.state)
-                        // Single-frame states should only be logged once
-                        if (activeStates == singleFrameStates) {
-                            activeStates.removeAt(i)
-                        }
-                    }
                 }
             }
         }
@@ -199,10 +198,11 @@ class JankStats @UiThread constructor(
         states: List<StateData>,
         removalTime: Long
     ) {
-        for (i in states.indices) {
-            val item = states[i]
-            if (item.state.stateName == stateName && item.timeRemoved < 0) {
-                item.timeRemoved = removalTime
+        synchronized(singleFrameStates) {
+            for (item in states) {
+                if (item.state.stateName == stateName && item.timeRemoved < 0) {
+                    item.timeRemoved = removalTime
+                }
             }
         }
     }
@@ -213,6 +213,8 @@ class JankStats @UiThread constructor(
      *
      * State information can be about UI elements that are currently active (such as the current
      * [Activity] or layout) or a user interaction like flinging a list.
+     * Adding a state with a stateName which is already added will replace that earlier
+     * `state` value with the new `state` value.
      *
      * Some state may be provided automatically by other AndroidX libraries.
      * But applications are encouraged to add user state specific to those applications
@@ -229,7 +231,7 @@ class JankStats @UiThread constructor(
      * @see JankStats.removeState
      */
     fun addState(stateName: String, state: String) {
-        synchronized(states) {
+        synchronized(singleFrameStates) {
             val nowTime = System.nanoTime()
             markStateForRemoval(stateName, states, nowTime)
             states.add(
@@ -239,7 +241,7 @@ class JankStats @UiThread constructor(
                 )
             )
         }
-        // TODO: consider pooled Pair objects that we reuse here instead of creating new
+        // TODO: consider pooled StateInfo objects that we reuse here instead of creating new
         // ones every time
     }
 
@@ -297,7 +299,7 @@ class JankStats @UiThread constructor(
      * with frame boundaries during the FrameMetrics callback, when we can compare which states
      * were active during any given frame start/end period.
      */
-    internal inner class StateData(
+    internal class StateData(
         var timeAdded: Long,
         var timeRemoved: Long,
         var state: StateInfo
@@ -320,22 +322,26 @@ class JankStats @UiThread constructor(
 
     internal fun logFrameData(startTime: Long, actualDuration: Long, expectedDuration: Long) {
         val endTime = startTime + actualDuration
-        val frameStates = ArrayList<StateInfo>(
-            states.size +
-                singleFrameStates.size
-        )
-        addFrameState(
-            startTime, endTime, frameStates,
-            states
-        )
-        addFrameState(
-            startTime, endTime,
-            frameStates, singleFrameStates
-        )
-        val frameData = FrameData(
-            startTime, actualDuration, (actualDuration > expectedDuration), frameStates
-        )
-        frameListener.onJankStatsFrame(frameData)
+        var frameStates: MutableList<StateInfo>
+        synchronized(singleFrameStates) {
+            frameStates = ArrayList<StateInfo>(
+                states.size +
+                    singleFrameStates.size
+            )
+            addFrameState(
+                startTime, endTime, frameStates,
+                states
+            )
+            addFrameState(
+                startTime, endTime,
+                frameStates, singleFrameStates
+            )
+        }
+        val isJank = actualDuration > expectedDuration
+        executor.execute(Runnable {
+            frameListener.onFrame(FrameData(startTime, actualDuration, isJank, frameStates))
+        })
+
         // Remove any states intended for just one frame
         if (singleFrameStates.size > 0) {
             synchronized(singleFrameStates) {
@@ -347,8 +353,41 @@ class JankStats @UiThread constructor(
     }
 
     companion object {
+
         /**
-         * Gets a JankStats object for the given View.
+         * Gets a JankStats object for the given View, creating one if necessary.
+         *
+         * There is only ever one JankStats object per View hierarchy; those singleton objects are
+         * created by calling this method. The View used can be any view currently attached in
+         * the hierarchy; the JankStats object is cached at the root level of the hierarchy.
+         * If no such object exists, one will be created.
+         *
+         * Because this method takes a View instance, it should only be called on the UI
+         * thread, to ensure that that View is usable at this time, since it will be used
+         * internally to set up hierarchy-specific JankStats logging.
+         *
+         * @param view Any view in the hierarchy which this JankStats object will track. A JankStats
+         * instance is specific to each window in an application, since the timing metrics are
+         * tracked on a per-window basis internally, and the view hierarchy can be used as a proxy
+         * for that window.
+         * @param executor The executor that will be used to call the frameListener.
+         * @param frameListener This listener will be called on any frame in which jank is detected.
+         * @return A new JankStatus object for the given View's hierarchy.
+         * @throws IllegalStateException This function will throw an exception if there is already
+         * an existing JankStats object for this view hierarchy.
+         */
+        @JvmStatic
+        @UiThread
+        fun create(view: View, executor: Executor, frameListener: OnFrameListener): JankStats {
+            if (get(view) != null) {
+                throw IllegalStateException(
+                    "JankStats object already exists in this view hierarchy")
+            }
+            return JankStats(view, executor, frameListener)
+        }
+
+        /**
+         * Gets a JankStats object for the given View if it exists.
          *
          * There is only ever one JankStats object per View hierarchy; those singleton objects are
          * retrieved by calling this method. The View used can be any view currently attached in
@@ -369,7 +408,8 @@ class JankStats @UiThread constructor(
          */
         @JvmStatic
         @UiThread
-        fun getInstance(view: View): JankStats? {
+        @JvmName("getInstance")
+        fun get(view: View): JankStats? {
             val activity: Activity? = generateSequence(view.context) {
                 if (it is ContextWrapper) {
                     it.baseContext
@@ -378,21 +418,6 @@ class JankStats @UiThread constructor(
 
             return activity?.window?.decorView?.getTag(R.id.jankstats) as JankStats?
         }
-
-        /**
-         * This multiplier is used to determine when frames are exhibiting jank.
-         *
-         * The factor is multiplied by the current refresh rate to calculate a frame
-         * duration beyond which frames are considered, and reported, as having jank.
-         * By default, the multiplier is 2.
-         */
-        @JvmStatic
-        var jankHeuristicMultiplier: Float = 2.0f
-            set(value) {
-                // reset calculated value to force recalculation based on new heuristic
-                JankStatsBaseImpl.frameDuration = -1
-                field = value
-            }
     }
 
     init {
@@ -403,6 +428,8 @@ class JankStats @UiThread constructor(
         }.firstOrNull { it is Activity } as Activity?
 
         activity?.window?.decorView?.setTag(R.id.jankstats, this)
+
+        isTrackingEnabled = true
     }
 
     /**
@@ -415,18 +442,12 @@ class JankStats @UiThread constructor(
     fun interface OnFrameListener {
 
         /**
-         * The implementation of this method will be called on every frame.
+         * The implementation of this method will be called on every frame when an
+         * OnFrameListener is set on this JankStats object.
          *
-         * Note that this method will be called synchronously on whatever thread
-         * JankStats receives frame data on, including possibly the UI thread.
-         * Therefore, apps should minimize processing during this callback and offload
-         * work to a different thread or later time to return as quickly as possible.
-         *
-         * @param frameData The data for the frame which just occurred. This data should be
-         * copied elsewhere if it will be used after the call returns, as the data structure
-         * is mutable and may be recycled with future frame data.
+         * @param frameData The data for the frame which just occurred.
          */
-        fun onJankStatsFrame(
+        fun onFrame(
             frameData: FrameData
         )
     }
