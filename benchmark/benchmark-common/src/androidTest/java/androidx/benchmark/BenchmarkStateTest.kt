@@ -151,10 +151,9 @@ public class BenchmarkStateTest {
     }
 
     private fun iterationCheck(checkingForThermalThrottling: Boolean) {
-        val state = BenchmarkState()
         // disable thermal throttle checks, since it can cause loops to be thrown out
         // note that this bypasses allocation count
-        state.simplifiedTimingOnlyMode = checkingForThermalThrottling
+        val state = BenchmarkState(simplifiedTimingOnlyMode = checkingForThermalThrottling)
         var total = 0
         while (state.keepRunning()) {
             total++

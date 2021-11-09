@@ -20,6 +20,7 @@ import android.os.Build
 import android.os.Debug
 import android.util.Log
 import androidx.annotation.RequiresApi
+import androidx.benchmark.BenchmarkState.Companion.TAG
 import androidx.benchmark.simpleperf.ProfileSession
 import androidx.benchmark.simpleperf.RecordOptions
 
@@ -210,10 +211,17 @@ internal object StackSamplingSimpleperf : Profiler() {
                     .traceOffCpu() // track time sleeping
                     .setOutputFilename("simpleperf.data")
                     .apply {
-                        if (Build.MODEL.contains("Cuttlefish")) {
-                            // Cuttlefish on cloud usually doesn't support hardware perf events like
-                            // cpu-cycles (the default event) so instead we use cpu-clock, which is
-                            // a software perf event using kernel hrtimer to generate interrupts
+                        // some emulators don't support cpu-cycles, the default event, so instead we
+                        // use cpu-clock, which is a software perf event using kernel hrtimer to
+                        // generate interrupts
+                        val hwEventsOutput = Shell.executeCommand("simpleperf list hw").trim()
+                        check(hwEventsOutput.startsWith("List of hardware events:"))
+                        val events = hwEventsOutput
+                            .split("\n")
+                            .drop(1)
+                            .map { line -> line.trim() }
+                        if (!events.any { hwEvent -> hwEvent.trim() == "cpu-cycles" }) {
+                            Log.d(TAG, "cpu-cycles not found - using cpu-clock (events = $events)")
                             setEvent("cpu-clock")
                         }
                     }
