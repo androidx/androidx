@@ -211,6 +211,7 @@ package androidx.appsearch.app {
     field public static final String GLOBAL_SEARCH_SESSION_REGISTER_OBSERVER_CALLBACK = "GLOBAL_SEARCH_SESSION_REGISTER_OBSERVER_CALLBACK";
     field public static final String NUMERIC_SEARCH = "NUMERIC_SEARCH";
     field public static final String SEARCH_RESULT_MATCH_INFO_SUBMATCH = "SEARCH_RESULT_MATCH_INFO_SUBMATCH";
+    field public static final String SEARCH_SPEC_PROPERTY_WEIGHTS = "SEARCH_SPEC_PROPERTY_WEIGHTS";
     field public static final String TOKENIZER_TYPE_RFC822 = "TOKENIZER_TYPE_RFC822";
   }
 
@@ -443,6 +444,8 @@ package androidx.appsearch.app {
     method public int getOrder();
     method public java.util.Map<java.lang.String!,java.util.List<androidx.appsearch.app.PropertyPath!>!> getProjectionPaths();
     method public java.util.Map<java.lang.String!,java.util.List<java.lang.String!>!> getProjections();
+    method public java.util.Map<java.lang.String!,java.util.Map<androidx.appsearch.app.PropertyPath!,java.lang.Double!>!> getPropertyWeightPaths();
+    method public java.util.Map<java.lang.String!,java.util.Map<java.lang.String!,java.lang.Double!>!> getPropertyWeights();
     method public int getRankingStrategy();
     method public int getResultCountPerPage();
     method public int getResultGroupingLimit();
@@ -484,6 +487,10 @@ package androidx.appsearch.app {
     method public androidx.appsearch.app.SearchSpec build();
     method public androidx.appsearch.app.SearchSpec.Builder setMaxSnippetSize(@IntRange(from=0, to=0x2710) int);
     method public androidx.appsearch.app.SearchSpec.Builder setOrder(int);
+    method @RequiresFeature(enforcement="androidx.appsearch.app.Features#isFeatureSupported", name=androidx.appsearch.app.Features.SEARCH_SPEC_PROPERTY_WEIGHTS) public androidx.appsearch.app.SearchSpec.Builder setPropertyWeightPaths(String, java.util.Map<androidx.appsearch.app.PropertyPath!,java.lang.Double!>);
+    method @RequiresFeature(enforcement="androidx.appsearch.app.Features#isFeatureSupported", name=androidx.appsearch.app.Features.SEARCH_SPEC_PROPERTY_WEIGHTS) public androidx.appsearch.app.SearchSpec.Builder setPropertyWeightPathsForDocumentClass(Class<?>, java.util.Map<androidx.appsearch.app.PropertyPath!,java.lang.Double!>) throws androidx.appsearch.exceptions.AppSearchException;
+    method @RequiresFeature(enforcement="androidx.appsearch.app.Features#isFeatureSupported", name=androidx.appsearch.app.Features.SEARCH_SPEC_PROPERTY_WEIGHTS) public androidx.appsearch.app.SearchSpec.Builder setPropertyWeights(String, java.util.Map<java.lang.String!,java.lang.Double!>);
+    method @RequiresFeature(enforcement="androidx.appsearch.app.Features#isFeatureSupported", name=androidx.appsearch.app.Features.SEARCH_SPEC_PROPERTY_WEIGHTS) public androidx.appsearch.app.SearchSpec.Builder setPropertyWeightsForDocumentClass(Class<?>, java.util.Map<java.lang.String!,java.lang.Double!>) throws androidx.appsearch.exceptions.AppSearchException;
     method public androidx.appsearch.app.SearchSpec.Builder setRankingStrategy(int);
     method public androidx.appsearch.app.SearchSpec.Builder setResultCountPerPage(@IntRange(from=0, to=0x2710) int);
     method public androidx.appsearch.app.SearchSpec.Builder setResultGrouping(int, int);

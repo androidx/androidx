@@ -81,6 +81,11 @@ public interface Features {
      */
     String NUMERIC_SEARCH = "NUMERIC_SEARCH";
 
+    /** Feature for {@link #isFeatureSupported}. This feature covers
+     * {@link SearchSpec.Builder#setPropertyWeights}.
+     */
+    String SEARCH_SPEC_PROPERTY_WEIGHTS = "SEARCH_SPEC_PROPERTY_WEIGHTS";
+
     /**
      * Returns whether a feature is supported at run-time. Feature support depends on the
      * feature in question, the AppSearch backend being used and the Android version of the

@@ -60,6 +60,7 @@ import androidx.collection.ArrayMap;
 import androidx.test.core.app.ApplicationProvider;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.MoreExecutors;
@@ -3517,5 +3518,253 @@ public abstract class AppSearchSessionCtsTestBase {
         // "Alex Saveliev <alex.sav@google.com>" : ["Alex", "Saveliev", "<", "alex.sav",
         // "google.com", ">"]. So "com" will not match any of the tokens produced.
         assertThat(sr.getNextPageAsync().get()).hasSize(0);
+    }
+
+    @Test
+    public void testQuery_propertyWeights() throws Exception {
+        assumeTrue(mDb1.getFeatures().isFeatureSupported(Features.SEARCH_SPEC_PROPERTY_WEIGHTS));
+
+        // Schema registration
+        mDb1.setSchemaAsync(
+                new SetSchemaRequest.Builder()
+                        .addSchemas(AppSearchEmail.SCHEMA)
+                        .build()).get();
+
+        // Index two documents
+        AppSearchEmail email1 =
+                new AppSearchEmail.Builder("namespace", "id1")
+                        .setCreationTimestampMillis(1000)
+                        .setSubject("foo")
+                        .build();
+        AppSearchEmail email2 =
+                new AppSearchEmail.Builder("namespace", "id2")
+                        .setCreationTimestampMillis(1000)
+                        .setBody("foo")
+                        .build();
+        checkIsBatchResultSuccess(mDb1.putAsync(
+                new PutDocumentsRequest.Builder()
+                        .addGenericDocuments(email1, email2).build()));
+
+        // Query for "foo". It should match both emails.
+        SearchResults searchResults = mDb1.search("foo", new SearchSpec.Builder()
+                .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
+                .setRankingStrategy(SearchSpec.RANKING_STRATEGY_RELEVANCE_SCORE)
+                .setOrder(SearchSpec.ORDER_DESCENDING)
+                .setPropertyWeights(AppSearchEmail.SCHEMA_TYPE, ImmutableMap.of("subject",
+                        2.0, "body", 0.5))
+                .build());
+        List<SearchResult> results = retrieveAllSearchResults(searchResults);
+
+        // email1 should be ranked higher because "foo" appears in the "subject" property which
+        // has higher weight than the "body" property.
+        assertThat(results).hasSize(2);
+        assertThat(results.get(0).getRankingSignal()).isGreaterThan(0);
+        assertThat(results.get(0).getRankingSignal()).isGreaterThan(
+                results.get(1).getRankingSignal());
+        assertThat(results.get(0).getGenericDocument()).isEqualTo(email1);
+        assertThat(results.get(1).getGenericDocument()).isEqualTo(email2);
+
+        // Query for "foo" without property weights.
+        SearchSpec searchSpecWithoutWeights = new SearchSpec.Builder()
+                .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
+                .setRankingStrategy(SearchSpec.RANKING_STRATEGY_RELEVANCE_SCORE)
+                .setOrder(SearchSpec.ORDER_DESCENDING)
+                .build();
+        SearchResults searchResultsWithoutWeights = mDb1.search("foo", searchSpecWithoutWeights);
+        List<SearchResult> resultsWithoutWeights =
+                retrieveAllSearchResults(searchResultsWithoutWeights);
+
+        // email1 should have the same ranking signal as email2 as each contains the term "foo"
+        // once.
+        assertThat(resultsWithoutWeights).hasSize(2);
+        assertThat(resultsWithoutWeights.get(0).getRankingSignal()).isGreaterThan(0);
+        assertThat(resultsWithoutWeights.get(0).getRankingSignal()).isEqualTo(
+                resultsWithoutWeights.get(1).getRankingSignal());
+    }
+
+    @Test
+    public void testQuery_propertyWeightsNestedProperties() throws Exception {
+        assumeTrue(mDb1.getFeatures().isFeatureSupported(Features.SEARCH_SPEC_PROPERTY_WEIGHTS));
+
+        // Register a schema with a nested type
+        AppSearchSchema schema =
+                new AppSearchSchema.Builder("TypeA").addProperty(
+                        new AppSearchSchema.DocumentPropertyConfig.Builder("nestedEmail",
+                                AppSearchEmail.SCHEMA_TYPE).setShouldIndexNestedProperties(
+                                true).build()).build();
+        mDb1.setSchemaAsync(new SetSchemaRequest.Builder().addSchemas(AppSearchEmail.SCHEMA,
+                schema).build()).get();
+
+        // Index two documents
+        AppSearchEmail nestedEmail1 =
+                new AppSearchEmail.Builder("namespace", "id1")
+                        .setCreationTimestampMillis(1000)
+                        .setSubject("foo")
+                        .build();
+        GenericDocument doc1 =
+                new GenericDocument.Builder<>("namespace", "id1", "TypeA").setPropertyDocument(
+                        "nestedEmail", nestedEmail1).build();
+        AppSearchEmail nestedEmail2 =
+                new AppSearchEmail.Builder("namespace", "id2")
+                        .setCreationTimestampMillis(1000)
+                        .setBody("foo")
+                        .build();
+        GenericDocument doc2 =
+                new GenericDocument.Builder<>("namespace", "id2", "TypeA").setPropertyDocument(
+                        "nestedEmail", nestedEmail2).build();
+        checkIsBatchResultSuccess(mDb1.putAsync(
+                new PutDocumentsRequest.Builder()
+                        .addGenericDocuments(doc1, doc2).build()));
+
+        // Query for "foo". It should match both emails.
+        SearchResults searchResults = mDb1.search("foo", new SearchSpec.Builder()
+                .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
+                .setRankingStrategy(SearchSpec.RANKING_STRATEGY_RELEVANCE_SCORE)
+                .setOrder(SearchSpec.ORDER_DESCENDING)
+                .setPropertyWeights("TypeA", ImmutableMap.of(
+                        "nestedEmail.subject",
+                        2.0, "nestedEmail.body", 0.5))
+                .build());
+        List<SearchResult> results = retrieveAllSearchResults(searchResults);
+
+        // email1 should be ranked higher because "foo" appears in the "nestedEmail.subject"
+        // property which has higher weight than the "nestedEmail.body" property.
+        assertThat(results).hasSize(2);
+        assertThat(results.get(0).getRankingSignal()).isGreaterThan(0);
+        assertThat(results.get(0).getRankingSignal()).isGreaterThan(
+                results.get(1).getRankingSignal());
+        assertThat(results.get(0).getGenericDocument()).isEqualTo(doc1);
+        assertThat(results.get(1).getGenericDocument()).isEqualTo(doc2);
+
+        // Query for "foo" without property weights.
+        SearchSpec searchSpecWithoutWeights = new SearchSpec.Builder()
+                .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
+                .setRankingStrategy(SearchSpec.RANKING_STRATEGY_RELEVANCE_SCORE)
+                .setOrder(SearchSpec.ORDER_DESCENDING)
+                .build();
+        SearchResults searchResultsWithoutWeights = mDb1.search("foo", searchSpecWithoutWeights);
+        List<SearchResult> resultsWithoutWeights =
+                retrieveAllSearchResults(searchResultsWithoutWeights);
+
+        // email1 should have the same ranking signal as email2 as each contains the term "foo"
+        // once.
+        assertThat(resultsWithoutWeights).hasSize(2);
+        assertThat(resultsWithoutWeights.get(0).getRankingSignal()).isGreaterThan(0);
+        assertThat(resultsWithoutWeights.get(0).getRankingSignal()).isEqualTo(
+                resultsWithoutWeights.get(1).getRankingSignal());
+    }
+
+    @Test
+    public void testQuery_propertyWeightsDefaults() throws Exception {
+        assumeTrue(mDb1.getFeatures().isFeatureSupported(Features.SEARCH_SPEC_PROPERTY_WEIGHTS));
+
+        // Schema registration
+        mDb1.setSchemaAsync(
+                new SetSchemaRequest.Builder()
+                        .addSchemas(AppSearchEmail.SCHEMA)
+                        .build()).get();
+
+        // Index two documents
+        AppSearchEmail email1 =
+                new AppSearchEmail.Builder("namespace", "id1")
+                        .setCreationTimestampMillis(1000)
+                        .setSubject("foo")
+                        .build();
+        AppSearchEmail email2 =
+                new AppSearchEmail.Builder("namespace", "id2")
+                        .setCreationTimestampMillis(1000)
+                        .setBody("foo bar")
+                        .build();
+        checkIsBatchResultSuccess(mDb1.putAsync(
+                new PutDocumentsRequest.Builder()
+                        .addGenericDocuments(email1, email2).build()));
+
+        // Query for "foo" without assigning property weights for any path.
+        SearchResults searchResults = mDb1.search("foo", new SearchSpec.Builder()
+                .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
+                .setRankingStrategy(SearchSpec.RANKING_STRATEGY_RELEVANCE_SCORE)
+                .setOrder(SearchSpec.ORDER_DESCENDING)
+                .setPropertyWeights(AppSearchEmail.SCHEMA_TYPE, ImmutableMap.of())
+                .build());
+        List<SearchResult> resultsWithoutPropertyWeights = retrieveAllSearchResults(
+                searchResults);
+
+        // Query for "foo" with assigning default property weights.
+        searchResults = mDb1.search("foo", new SearchSpec.Builder()
+                .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
+                .setRankingStrategy(SearchSpec.RANKING_STRATEGY_RELEVANCE_SCORE)
+                .setOrder(SearchSpec.ORDER_DESCENDING)
+                .setPropertyWeights(AppSearchEmail.SCHEMA_TYPE, ImmutableMap.of("subject", 1.0,
+                        "body", 1.0))
+                .build());
+        List<SearchResult> expectedResults = retrieveAllSearchResults(searchResults);
+
+        assertThat(resultsWithoutPropertyWeights).hasSize(2);
+        assertThat(expectedResults).hasSize(2);
+
+        assertThat(resultsWithoutPropertyWeights.get(0).getGenericDocument()).isEqualTo(email1);
+        assertThat(resultsWithoutPropertyWeights.get(1).getGenericDocument()).isEqualTo(email2);
+        assertThat(expectedResults.get(0).getGenericDocument()).isEqualTo(email1);
+        assertThat(expectedResults.get(1).getGenericDocument()).isEqualTo(email2);
+
+        // The ranking signal for results with no property path and weights set should be equal
+        // to the ranking signal for results with explicitly set default weights.
+        assertThat(resultsWithoutPropertyWeights.get(0).getRankingSignal()).isEqualTo(
+                expectedResults.get(0).getRankingSignal());
+        assertThat(resultsWithoutPropertyWeights.get(1).getRankingSignal()).isEqualTo(
+                expectedResults.get(1).getRankingSignal());
+    }
+
+    @Test
+    public void testQuery_propertyWeightsIgnoresInvalidPropertyPaths() throws Exception {
+        assumeTrue(mDb1.getFeatures().isFeatureSupported(Features.SEARCH_SPEC_PROPERTY_WEIGHTS));
+
+        // Schema registration
+        mDb1.setSchemaAsync(
+                new SetSchemaRequest.Builder()
+                        .addSchemas(AppSearchEmail.SCHEMA)
+                        .build()).get();
+
+        // Index an email
+        AppSearchEmail email1 =
+                new AppSearchEmail.Builder("namespace", "id1")
+                        .setCreationTimestampMillis(1000)
+                        .setSubject("baz")
+                        .build();
+        checkIsBatchResultSuccess(mDb1.putAsync(
+                new PutDocumentsRequest.Builder()
+                        .addGenericDocuments(email1).build()));
+
+        // Query for "baz" with property weight for "subject", a valid property in the schema type.
+        SearchResults searchResults = mDb1.search("baz", new SearchSpec.Builder()
+                .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
+                .setRankingStrategy(SearchSpec.RANKING_STRATEGY_RELEVANCE_SCORE)
+                .setOrder(SearchSpec.ORDER_DESCENDING)
+                .setPropertyWeights(AppSearchEmail.SCHEMA_TYPE, ImmutableMap.of("subject", 2.0))
+                .build());
+        List<SearchResult> results = retrieveAllSearchResults(searchResults);
+
+        // Query for "baz" with property weights, one for valid property "subject" and one for a
+        // non-existing property "invalid".
+        searchResults = mDb1.search("baz", new SearchSpec.Builder()
+                .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
+                .setRankingStrategy(SearchSpec.RANKING_STRATEGY_RELEVANCE_SCORE)
+                .setOrder(SearchSpec.ORDER_DESCENDING)
+                .setPropertyWeights(AppSearchEmail.SCHEMA_TYPE, ImmutableMap.of("subject", 2.0,
+                        "invalid", 3.0))
+                .build());
+        List<SearchResult> resultsWithInvalidPath = retrieveAllSearchResults(searchResults);
+
+        assertThat(results).hasSize(1);
+        assertThat(resultsWithInvalidPath).hasSize(1);
+
+        // We expect the ranking signal to be unchanged in the presence of an invalid property
+        // weight.
+        assertThat(results.get(0).getRankingSignal()).isGreaterThan(0);
+        assertThat(resultsWithInvalidPath.get(0).getRankingSignal()).isEqualTo(
+                results.get(0).getRankingSignal());
+
+        assertThat(results.get(0).getGenericDocument()).isEqualTo(email1);
+        assertThat(resultsWithInvalidPath.get(0).getGenericDocument()).isEqualTo(email1);
     }
 }
