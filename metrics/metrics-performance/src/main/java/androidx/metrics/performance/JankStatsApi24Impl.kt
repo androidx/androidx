@@ -43,7 +43,7 @@ internal open class JankStatsApi24Impl(
             // ignore historical data gathered before we started listening
             if (startTime >= listenerAddedTime) {
                 val expectedDuration = getExpectedFrameDuration(frameMetrics) *
-                    JankStats.jankHeuristicMultiplier
+                    jankStats.jankHeuristicMultiplier
                 jankStats.logFrameData(
                     startTime,
                     getFrameDuration(frameMetrics),

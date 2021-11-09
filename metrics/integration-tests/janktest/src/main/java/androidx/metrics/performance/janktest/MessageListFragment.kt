@@ -46,7 +46,7 @@ class MessageListFragment : Fragment() {
         recyclerView.adapter = MessageListAdapter(messageList)
         recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
-                val jankStats = activity?.let { JankStats.getInstance(view) }
+                val jankStats = activity?.let { JankStats.get(view) }
                 if (jankStats != null) {
                     if (newState == RecyclerView.SCROLL_STATE_DRAGGING) {
                         jankStats.addState("RecyclerView", "Dragging")
