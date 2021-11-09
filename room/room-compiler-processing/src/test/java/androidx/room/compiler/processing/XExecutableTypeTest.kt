@@ -59,16 +59,8 @@ class XExecutableTypeTest {
                 val constructorElement = typeElement.getConstructors().single()
                 val constructorType = constructorElement.executableType
 
-                // Assert that the XConstructorElement parameter is unresolved type, T.
-                // TODO(10/06/2021): Should KSP also return T?
-                if (invocation.isKsp) {
-                    assertThat(constructorType.parameterTypes.single().typeName)
-                        .isEqualTo(TypeVariableName.OBJECT)
-                } else {
-                    assertThat(constructorType.parameterTypes.single().typeName)
-                        .isEqualTo(TypeVariableName.get("T"))
-                }
-
+                assertThat(constructorType.parameterTypes.single().typeName)
+                    .isEqualTo(TypeVariableName.get("T"))
                 val resolvedType = typeElement.getDeclaredMethods().single().returnType
                 val resolvedConstructorType = constructorElement.asMemberOf(resolvedType)
 
