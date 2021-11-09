@@ -264,8 +264,7 @@ class ExtensionsManagerTest(
         assertThrows<IllegalArgumentException> {
             extensionsManager.getEstimatedCaptureLatencyRange(
                 baseCameraSelector,
-                extensionMode,
-                null
+                extensionMode
             )
         }
     }
@@ -282,8 +281,7 @@ class ExtensionsManagerTest(
         // the getEstimatedCaptureLatencyRange function.
         val latencyInfo = extensionsManager.getEstimatedCaptureLatencyRange(
             baseCameraSelector,
-            extensionMode,
-            null
+            extensionMode
         )
 
         assertThat(latencyInfo).isNull()
@@ -301,8 +299,7 @@ class ExtensionsManagerTest(
         // the getEstimatedCaptureLatencyRange function.
         val latencyInfo = extensionsManager.getEstimatedCaptureLatencyRange(
             baseCameraSelector,
-            extensionMode,
-            null
+            extensionMode
         )
 
         // Calls bind to lifecycle to get the selected camera
@@ -338,8 +335,7 @@ class ExtensionsManagerTest(
         assertThrows<IllegalArgumentException> {
             extensionsManager.getEstimatedCaptureLatencyRange(
                 emptyCameraSelector,
-                extensionMode,
-                null
+                extensionMode
             )
         }
     }

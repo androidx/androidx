@@ -17,7 +17,6 @@ package androidx.camera.extensions;
 
 import android.content.Context;
 import android.util.Range;
-import android.util.Size;
 
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
@@ -374,8 +373,8 @@ public final class ExtensionsManager {
     }
 
     /**
-     * Returns the estimated capture latency range in milliseconds for the target capture
-     * resolution.
+     * Returns the estimated capture latency range in milliseconds for the target camera and
+     * extension mode.
      *
      * <p>This includes the time spent processing the multi-frame capture request along with any
      * additional time for encoding of the processed buffer in the framework if necessary.
@@ -383,11 +382,6 @@ public final class ExtensionsManager {
      * @param cameraSelector    The {@link CameraSelector} to find a camera which supports the
      *                          specified extension mode.
      * @param mode              The extension mode to check.
-     * @param surfaceResolution the surface resolution of the {@link ImageCapture} which will be
-     *                          used to take a picture. If the input value of this parameter is
-     *                          null or it is not included in the supported output sizes, the
-     *                          maximum capture output size is used to get the estimated range
-     *                          information.
      * @return the range of estimated minimal and maximal capture latency in milliseconds.
      * Returns null if no capture latency info can be provided.
      * @throws IllegalArgumentException If this device doesn't support extensions function, or no
@@ -398,7 +392,7 @@ public final class ExtensionsManager {
     @Nullable
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public Range<Long> getEstimatedCaptureLatencyRange(@NonNull CameraSelector cameraSelector,
-            @ExtensionMode.Mode int mode, @Nullable Size surfaceResolution) {
+            @ExtensionMode.Mode int mode) {
         if (mode == ExtensionMode.NONE
                 || mExtensionsAvailability != ExtensionsAvailability.LIBRARY_AVAILABLE) {
             throw new IllegalArgumentException(
@@ -407,8 +401,7 @@ public final class ExtensionsManager {
                             + "getEstimatedCaptureLatencyRange.");
         }
 
-        return mExtensionsInfo.getEstimatedCaptureLatencyRange(cameraSelector, mode,
-                surfaceResolution);
+        return mExtensionsInfo.getEstimatedCaptureLatencyRange(cameraSelector, mode, null);
     }
 
     @VisibleForTesting
