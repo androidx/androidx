@@ -18,6 +18,7 @@ package androidx.window.embedding
 import android.annotation.SuppressLint
 import androidx.window.core.ExperimentalWindowApi
 import androidx.window.embedding.EmbeddingInterfaceCompat.EmbeddingCallbackInterface
+import androidx.window.extensions.embedding.SplitInfo
 import java.util.function.Consumer
 
 @SuppressLint("NewApi") // The callback is only used with extensions on SDK levels 30+.
@@ -25,8 +26,8 @@ import java.util.function.Consumer
 internal class EmbeddingTranslatingCallback(
     private val callback: EmbeddingCallbackInterface,
     private val adapter: EmbeddingAdapter
-) : Consumer<List<androidx.window.extensions.embedding.SplitInfo>> {
-    override fun accept(splitInfoList: List<androidx.window.extensions.embedding.SplitInfo>) {
+) : Consumer<List<SplitInfo>> {
+    override fun accept(splitInfoList: List<SplitInfo>) {
         callback.onSplitInfoChanged(adapter.translate(splitInfoList))
     }
 }
