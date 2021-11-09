@@ -27,18 +27,29 @@ import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
+import java.util.concurrent.Executors
 
-class MainActivity : AppCompatActivity() {
+/**
+ * This activity shows the basic usage of JankStats, from creating and enabling it to track
+ * a view hierarchy, to setting application state on JankStats, to receiving and logging per-frame
+ * callbacks with jank data.
+ */
+class JankLoggingActivity : AppCompatActivity() {
 
     private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var binding: ActivityMainBinding
+    lateinit var jankStats: JankStats
+
+    lateinit var jankStatsAggregator: JankStatsAggregator
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        jankStats = JankStats(binding.root, jankFrameListener)
+        val executor = Executors.newSingleThreadExecutor()
+
+        jankStats = JankStats.create(binding.root, executor, jankFrameListener)
         jankStats.addState("Activity", javaClass.simpleName)
 
         setSupportActionBar(binding.toolbar)
@@ -50,7 +61,7 @@ class MainActivity : AppCompatActivity() {
 
     object jankFrameListener : JankStats.OnFrameListener {
 
-        override fun onJankStatsFrame(frameData: FrameData) {
+        override fun onFrame(frameData: FrameData) {
             println(
                 "*** Jank frame start, duration, jank = ${frameData.frameStartNanos}, " +
                     "${frameData.frameDurationNanos}, ${frameData.isJank}"
@@ -61,16 +72,15 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    lateinit var jankStats: JankStats
-
     override fun onResume() {
         super.onResume()
-        jankStats.setTrackingEnabled(true)
+        jankStats.isTrackingEnabled = true
     }
 
     override fun onPause() {
         super.onPause()
-        jankStats.setTrackingEnabled(false)
+        jankStatsAggregator.issueJankReport("Activity paused")
+        jankStats.isTrackingEnabled = false
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {

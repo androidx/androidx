@@ -16,6 +16,7 @@
 
 package androidx.camera.camera2.pipe.graph
 
+import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.CaptureResult
 import android.hardware.camera2.params.MeteringRectangle
@@ -26,6 +27,7 @@ import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.RequestNumber
 import androidx.camera.camera2.pipe.Result3A
 import androidx.camera.camera2.pipe.StreamId
+import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
 import androidx.camera.camera2.pipe.testing.FakeFrameMetadata
 import androidx.camera.camera2.pipe.testing.FakeGraphProcessor
 import androidx.camera.camera2.pipe.testing.FakeRequestMetadata
@@ -49,7 +51,13 @@ internal class Controller3ALock3ATest {
     private val graphProcessor = FakeGraphProcessor(graphState3A = graphState3A)
     private val requestProcessor = FakeRequestProcessor()
     private val listener3A = Listener3A()
-    private val controller3A = Controller3A(graphProcessor, graphState3A, listener3A)
+    private val fakeMetadata = FakeCameraMetadata(
+        mapOf(
+            CameraCharacteristics.CONTROL_AF_AVAILABLE_MODES to
+                intArrayOf(CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE)
+        ),
+    )
+    private val controller3A = Controller3A(graphProcessor, fakeMetadata, graphState3A, listener3A)
 
     @OptIn(DelicateCoroutinesApi::class)
     @Test
@@ -743,6 +751,23 @@ internal class Controller3ALock3ATest {
         assertThat(request2.requiredParameters[CaptureRequest.CONTROL_AE_LOCK]).isEqualTo(
             true
         )
+    }
+
+    @OptIn(DelicateCoroutinesApi::class)
+    @Test
+    fun testLock3AWithUnsupportedAutoFocusTrigger(): Unit = runBlocking {
+        initGraphProcessor()
+
+        val fakeMetadata = FakeCameraMetadata(
+            mapOf(
+                CameraCharacteristics.CONTROL_AF_AVAILABLE_MODES to
+                    intArrayOf(CaptureRequest.CONTROL_AF_MODE_OFF)
+            ),
+        )
+        val controller3A = Controller3A(graphProcessor, fakeMetadata, graphState3A, listener3A)
+        val result = controller3A.lock3A(afLockBehavior = Lock3ABehavior.AFTER_NEW_SCAN).await()
+        assertThat(result.status).isEqualTo(Result3A.Status.OK)
+        assertThat(result.frameMetadata).isEqualTo(null)
     }
 
     private fun initGraphProcessor() {

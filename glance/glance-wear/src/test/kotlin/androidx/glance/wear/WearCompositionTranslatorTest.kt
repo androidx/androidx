@@ -53,6 +53,7 @@ import androidx.glance.wear.layout.AndroidLayoutElement
 import androidx.glance.wear.layout.CurvedRow
 import androidx.glance.wear.layout.CurvedTextStyle
 import androidx.glance.wear.layout.RadialAlignment
+import androidx.glance.wear.layout.border
 import androidx.glance.wear.test.R
 import androidx.test.core.app.ApplicationProvider.getApplicationContext
 import androidx.wear.tiles.ActionBuilders
@@ -147,6 +148,35 @@ class WearCompositionTranslatorTest {
         assertThat(padding.top!!.value).isEqualTo(2f)
         assertThat(padding.end!!.value).isEqualTo(3f)
         assertThat(padding.bottom!!.value).isEqualTo(4f)
+    }
+
+    @Test
+    fun canTranslateBorderModifier() = fakeCoroutineScope.runBlockingTest {
+        val content = runAndTranslate {
+            Box(modifier = GlanceModifier.border(
+                    width = 3.dp,
+                    color = ColorProvider(color = Color.Blue)
+            )) {}
+            Box(modifier = GlanceModifier.border(
+                    width = R.dimen.dimension1,
+                color = ColorProvider(color = Color.Red)
+            )) {}
+        }.layout
+
+        val innerBox1 =
+            (content as LayoutElementBuilders.Box).contents[0] as LayoutElementBuilders.Box
+        val innerBox2 = content.contents[1] as LayoutElementBuilders.Box
+
+        val border1 = requireNotNull(innerBox1.modifiers!!.border)
+        assertThat(border1.width!!.value).isEqualTo(3f)
+        assertThat(border1.color!!.argb).isEqualTo(Color.Blue.toArgb())
+
+        val border2 = requireNotNull(innerBox2.modifiers!!.border)
+        val context = getApplicationContext<Context>()
+        assertThat(border2.width!!.value).isEqualTo(
+            context.resources.getDimension(R.dimen.dimension1)
+        )
+        assertThat(border2.color!!.argb).isEqualTo(Color.Red.toArgb())
     }
 
     @Test

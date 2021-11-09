@@ -102,6 +102,11 @@ package androidx.glance.appwidget.layout {
     method public static androidx.glance.appwidget.layout.CheckBoxColors CheckBoxColors(@ColorRes int resId);
   }
 
+  public final class CornerRadiusKt {
+    method public static androidx.glance.GlanceModifier cornerRadius(androidx.glance.GlanceModifier, float radius);
+    method public static androidx.glance.GlanceModifier cornerRadius(androidx.glance.GlanceModifier, @DimenRes int radius);
+  }
+
   public final class ImageProvidersKt {
     method public static androidx.glance.layout.ImageProvider ImageProvider(android.net.Uri uri);
   }
