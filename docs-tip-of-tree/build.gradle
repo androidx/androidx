@@ -102,6 +102,7 @@ dependencies {
     docs(project(":core:core-appdigest"))
     docs(project(":core:core-google-shortcuts"))
     docs(project(":core:core-ktx"))
+    docs(project(":core:core-performance"))
     docs(project(":core:core-remoteviews"))
     docs(project(":core:core-splashscreen"))
     docs(project(":core:core-role"))
