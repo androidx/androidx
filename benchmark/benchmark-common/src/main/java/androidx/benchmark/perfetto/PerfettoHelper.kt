@@ -50,6 +50,13 @@ public class PerfettoHelper(
 
     var perfettoPid: Int? = null
 
+    /**
+     * For now, we use --background-wait only when unbundled.
+     *
+     * Eventually, we should also use it when using bundled platform version that support it (T+?)
+     */
+    private val useBackgroundWait = unbundled
+
     private fun perfettoStartupException(label: String, cause: Exception?): IllegalStateException {
         return IllegalStateException(
             """
@@ -104,9 +111,17 @@ public class PerfettoHelper(
             // Perfetto
             val perfettoCmd = perfettoCommand(actualConfigPath, isTextProtoConfig)
             Log.i(LOG_TAG, "Starting perfetto tracing with cmd: $perfettoCmd")
-            val perfettoCmdOutput = Shell.executeScript(perfettoCmd).trim()
-            Log.i(LOG_TAG, "Perfetto pid - $perfettoCmdOutput")
-            perfettoPid = perfettoCmdOutput.toInt()
+            val perfettoCmdOutput = Shell.executeScript("$perfettoCmd; echo EXITCODE=$?").trim()
+
+            val expectedSuffix = "\nEXITCODE=0"
+            if (!perfettoCmdOutput.endsWith(expectedSuffix)) {
+                throw perfettoStartupException(
+                    "Perfetto unexpected exit code, output = $perfettoCmdOutput",
+                    null
+                )
+            }
+            Log.i(LOG_TAG, "Perfetto output - $perfettoCmdOutput")
+            perfettoPid = perfettoCmdOutput.removeSuffix(expectedSuffix).toInt()
         } catch (ioe: IOException) {
             throw perfettoStartupException("Unable to start perfetto tracing", ioe)
         }
@@ -116,7 +131,9 @@ public class PerfettoHelper(
         }
         Log.i(LOG_TAG, "Perfetto tracing started successfully with pid $perfettoPid.")
 
-        checkTracingOn()
+        if (!useBackgroundWait) {
+            checkTracingOn()
+        }
     }
 
     /**
@@ -231,14 +248,21 @@ public class PerfettoHelper(
      */
     private fun perfettoCommand(configFilePath: String, isTextProtoConfig: Boolean): String {
         val outputPath = getPerfettoTmpOutputFilePath()
-        var command = if (!unbundled) (
+
+        val backgroundArg = if (useBackgroundWait) {
+            "--background-wait"
+        } else {
+            "--background"
+        }
+
+        var command = if (!unbundled) {
             // Bundled perfetto reads configuration from stdin.
-            "cat $configFilePath | perfetto --background -c - -o $outputPath"
-            ) else {
+            "cat $configFilePath | perfetto $backgroundArg -c - -o $outputPath"
+        } else {
             // Unbundled perfetto can read configuration from a file that it has permissions to
             // read from. This because it assumes the identity of the shell and therefore has
             // access to /data/local/tmp directory.
-            "$unbundledPerfettoShellPath --background" +
+            "$unbundledPerfettoShellPath $backgroundArg" +
                 " -c $configFilePath" +
                 " -o $outputPath"
         }
