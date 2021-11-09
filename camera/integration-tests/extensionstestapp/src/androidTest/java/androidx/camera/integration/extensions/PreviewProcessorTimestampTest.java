@@ -140,8 +140,8 @@ public class PreviewProcessorTimestampTest {
         mProcessCameraProvider = ProcessCameraProvider.getInstance(mContext).get(10000,
                 TimeUnit.MILLISECONDS);
 
-        mExtensionsManager = ExtensionsManager.getInstance(mContext).get(10000,
-                TimeUnit.MILLISECONDS);
+        mExtensionsManager = ExtensionsManager.getInstance(mContext, mProcessCameraProvider).get(
+                10000, TimeUnit.MILLISECONDS);
 
         mCameraSelector = new CameraSelector.Builder().requireLensFacing(mLensFacing).build();
         mFakeLifecycleOwner.startAndResume();
@@ -213,8 +213,7 @@ public class PreviewProcessorTimestampTest {
     @Test
     public void timestampIsCorrect() throws InterruptedException {
         assumeTrue(androidx.camera.testing.CameraUtil.hasCameraWithLensFacing(mLensFacing));
-        assumeTrue(mExtensionsManager.isExtensionAvailable(mProcessCameraProvider, mCameraSelector,
-                mExtensionMode));
+        assumeTrue(mExtensionsManager.isExtensionAvailable(mCameraSelector, mExtensionMode));
 
         // To test bind/unbind and take picture.
         ImageCapture imageCapture = mImageCaptureBuilder.build();
@@ -228,8 +227,8 @@ public class PreviewProcessorTimestampTest {
         Preview preview = mPreviewBuilder.build();
 
         CameraSelector extensionCameraSelector =
-                mExtensionsManager.getExtensionEnabledCameraSelector(mProcessCameraProvider,
-                        mCameraSelector, mExtensionMode);
+                mExtensionsManager.getExtensionEnabledCameraSelector(mCameraSelector,
+                        mExtensionMode);
         mInstrumentation.runOnMainSync(() -> {
             // To set the update listener and Preview will change to active state.
             preview.setSurfaceProvider(createSurfaceTextureProvider(

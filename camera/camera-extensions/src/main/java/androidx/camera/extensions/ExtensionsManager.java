@@ -48,14 +48,14 @@ import java.util.concurrent.ExecutionException;
  * functions.
  *
  * <p>Only a single {@link ExtensionsManager} instance can exist within a process, and it can be
- * retrieved with {@link #getInstance(Context)}. After retrieving the {@link ExtensionsManager}
- * instance, the availability of a specific extension mode can be checked by
- * {@link #isExtensionAvailable(CameraProvider, CameraSelector, int)}. For an available extension
+ * retrieved with {@link #getInstance(Context, CameraProvider)}. After retrieving the
+ * {@link ExtensionsManager} instance, the availability of a specific extension mode can be
+ * checked by {@link #isExtensionAvailable(CameraSelector, int)}. For an available extension
  * mode, an extension enabled {@link CameraSelector} can be obtained by calling
- * {@link #getExtensionEnabledCameraSelector(CameraProvider, CameraSelector, int)}. After binding
- * use cases by the extension enabled {@link CameraSelector}, the extension mode will be applied
- * to the bound {@link Preview} and {@link ImageCapture}. The following sample code describes how
- * to enable an extension mode for use cases.
+ * {@link #getExtensionEnabledCameraSelector(CameraSelector, int)}. After binding use cases by
+ * the extension enabled {@link CameraSelector}, the extension mode will be applied to the bound
+ * {@link Preview} and {@link ImageCapture}. The following sample code describes how to enable an
+ * extension mode for use cases.
  * </p>
  * <pre>
  * void onCreate() {
@@ -120,6 +120,8 @@ public final class ExtensionsManager {
 
     private final ExtensionsAvailability mExtensionsAvailability;
 
+    private final ExtensionsInfo mExtensionsInfo;
+
     /**
      * Retrieves the {@link ExtensionsManager} associated with the current process.
      *
@@ -127,16 +129,24 @@ public final class ExtensionsManager {
      * {@link ExtensionsManager} instance. The {@link ExtensionsManager} instance can be used to
      * access the extensions related functions.
      *
+     * @param context The context to initialize the extensions library.
+     * @param cameraProvider     A {@link CameraProvider} will be used to query the information
+     *                           of cameras on the device. The {@link CameraProvider} can be the
+     *                           {@link androidx.camera.lifecycle.ProcessCameraProvider}
+     *                           which is obtained by
+     *                 {@link androidx.camera.lifecycle.ProcessCameraProvider#getInstance(Context)}.
+     *
      * @hide
      */
     @NonNull
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public static ListenableFuture<ExtensionsManager> getInstance(@NonNull Context context) {
-        return getInstance(context, VersionName.getCurrentVersion());
+    public static ListenableFuture<ExtensionsManager> getInstance(@NonNull Context context,
+            @NonNull CameraProvider cameraProvider) {
+        return getInstance(context, cameraProvider, VersionName.getCurrentVersion());
     }
 
     static ListenableFuture<ExtensionsManager> getInstance(@NonNull Context context,
-            @NonNull VersionName versionName) {
+            @NonNull CameraProvider cameraProvider, @NonNull VersionName versionName) {
         synchronized (EXTENSIONS_LOCK) {
             if (sDeinitializeFuture != null && !sDeinitializeFuture.isDone()) {
                 throw new IllegalStateException("Not yet done deinitializing extensions");
@@ -147,13 +157,14 @@ public final class ExtensionsManager {
             // as unavailable
             if (ExtensionVersion.getRuntimeVersion() == null) {
                 return Futures.immediateFuture(
-                        getOrCreateExtensionsManager(ExtensionsAvailability.NONE));
+                        getOrCreateExtensionsManager(ExtensionsAvailability.NONE, cameraProvider));
             }
 
             // Prior to 1.1 no additional initialization logic required
             if (ExtensionVersion.getRuntimeVersion().compareTo(Version.VERSION_1_1) < 0) {
                 return Futures.immediateFuture(
-                        getOrCreateExtensionsManager(ExtensionsAvailability.LIBRARY_AVAILABLE));
+                        getOrCreateExtensionsManager(ExtensionsAvailability.LIBRARY_AVAILABLE,
+                                cameraProvider));
             }
 
             if (sInitializeFuture == null) {
@@ -166,7 +177,8 @@ public final class ExtensionsManager {
                                     public void onSuccess() {
                                         Logger.d(TAG, "Successfully initialized extensions");
                                         completer.set(getOrCreateExtensionsManager(
-                                                ExtensionsAvailability.LIBRARY_AVAILABLE));
+                                                ExtensionsAvailability.LIBRARY_AVAILABLE,
+                                                cameraProvider));
                                     }
 
                                     @Override
@@ -174,7 +186,8 @@ public final class ExtensionsManager {
                                         Logger.e(TAG, "Failed to initialize extensions");
                                         completer.set(getOrCreateExtensionsManager(
                                                 ExtensionsAvailability
-                                                        .LIBRARY_UNAVAILABLE_ERROR_LOADING));
+                                                        .LIBRARY_UNAVAILABLE_ERROR_LOADING,
+                                                cameraProvider));
                                     }
                                 },
                                 CameraXExecutors.directExecutor());
@@ -182,7 +195,8 @@ public final class ExtensionsManager {
                         Logger.e(TAG, "Failed to initialize extensions. Some classes or methods "
                                 + "are missed in the vendor library. " + e);
                         completer.set(getOrCreateExtensionsManager(
-                                ExtensionsAvailability.LIBRARY_UNAVAILABLE_MISSING_IMPLEMENTATION));
+                                ExtensionsAvailability.LIBRARY_UNAVAILABLE_MISSING_IMPLEMENTATION,
+                                cameraProvider));
                     } catch (RuntimeException e) {
                         // Catches all unexpected runtime exceptions and still returns an
                         // ExtensionsManager instance which performs default behavior.
@@ -191,7 +205,8 @@ public final class ExtensionsManager {
                                         + "initializing the vendor library. "
                                         + e);
                         completer.set(getOrCreateExtensionsManager(
-                                ExtensionsAvailability.LIBRARY_UNAVAILABLE_ERROR_LOADING));
+                                ExtensionsAvailability.LIBRARY_UNAVAILABLE_ERROR_LOADING,
+                                cameraProvider));
                     }
 
                     return "Initialize extensions";
@@ -208,8 +223,9 @@ public final class ExtensionsManager {
      * <p> For the moment only used for testing to shutdown the extensions. Calling this function
      * can deinitialize the extensions vendor library and release the created
      * {@link ExtensionsManager} instance. Tests should wait until the returned future is
-     * complete. Then, tests can call the {@link ExtensionsManager#getInstance(Context)} function
-     * again to initialize a new {@link ExtensionsManager} instance.
+     * complete. Then, tests can call the
+     * {@link ExtensionsManager#getInstance(Context, CameraProvider)} function again to
+     * initialize a new {@link ExtensionsManager} instance.
      *
      * @hide
      */
@@ -280,13 +296,14 @@ public final class ExtensionsManager {
     }
 
     static ExtensionsManager getOrCreateExtensionsManager(
-            ExtensionsAvailability extensionsAvailability) {
+            @NonNull ExtensionsAvailability extensionsAvailability,
+            @NonNull CameraProvider cameraProvider) {
         synchronized (EXTENSIONS_LOCK) {
             if (sExtensionsManager != null) {
                 return sExtensionsManager;
             }
 
-            sExtensionsManager = new ExtensionsManager(extensionsAvailability);
+            sExtensionsManager = new ExtensionsManager(extensionsAvailability, cameraProvider);
 
             return sExtensionsManager;
         }
@@ -299,16 +316,11 @@ public final class ExtensionsManager {
      * desired {@link LifecycleOwner} and then the specified extension mode will be enabled on
      * the camera.
      *
-     * @param cameraProvider     A {@link CameraProvider} will be used to query the information
-     *                           of cameras on the device. The {@link CameraProvider} can be the
-     *                           {@link androidx.camera.lifecycle.ProcessCameraProvider}
-     *                           which is obtained by
-     *                 {@link androidx.camera.lifecycle.ProcessCameraProvider#getInstance(Context)}.
      * @param baseCameraSelector The base {@link CameraSelector} on top of which the extension
      *                           config is applied.
-     *                           {@link #isExtensionAvailable(CameraProvider, CameraSelector, int)}
-     *                           can be used to check whether any camera can support the specified
-     *                           extension mode for the base camera selector.
+     *                           {@link #isExtensionAvailable(CameraSelector, int)} can be used
+     *                           to check whether any camera can support the specified extension
+     *                           mode for the base camera selector.
      * @param mode               The target extension mode.
      * @return a {@link CameraSelector} for the specified Extensions mode.
      * @throws IllegalArgumentException If this device doesn't support extensions function, no
@@ -320,7 +332,7 @@ public final class ExtensionsManager {
      */
     @NonNull
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public CameraSelector getExtensionEnabledCameraSelector(@NonNull CameraProvider cameraProvider,
+    public CameraSelector getExtensionEnabledCameraSelector(
             @NonNull CameraSelector baseCameraSelector, @ExtensionMode.Mode int mode) {
         // Directly return the input baseCameraSelector if the target extension mode is NONE.
         if (mode == ExtensionMode.NONE) {
@@ -333,27 +345,22 @@ public final class ExtensionsManager {
                     + "getExtensionEnabledCameraSelector.");
         }
 
-        return ExtensionsInfo.getExtensionCameraSelectorAndInjectCameraConfig(cameraProvider,
-                baseCameraSelector, mode);
+        return mExtensionsInfo.getExtensionCameraSelectorAndInjectCameraConfig(baseCameraSelector,
+                mode);
     }
 
     /**
      * Returns true if the particular extension mode is available for the specified
      * {@link CameraSelector}.
      *
-     * @param cameraProvider     A {@link CameraProvider} will be used to query the information
-     *                           of cameras on the device. The {@link CameraProvider} can be the
-     *                           {@link androidx.camera.lifecycle.ProcessCameraProvider}
-     *                           which is obtained by
-     *                 {@link androidx.camera.lifecycle.ProcessCameraProvider#getInstance(Context)}.
      * @param baseCameraSelector The base {@link CameraSelector} to find a camera to use.
      * @param mode               The target extension mode to support.
      *
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public boolean isExtensionAvailable(@NonNull CameraProvider cameraProvider,
-            @NonNull CameraSelector baseCameraSelector, @ExtensionMode.Mode int mode) {
+    public boolean isExtensionAvailable(@NonNull CameraSelector baseCameraSelector,
+            @ExtensionMode.Mode int mode) {
         if (mode == ExtensionMode.NONE) {
             return true;
         }
@@ -363,7 +370,7 @@ public final class ExtensionsManager {
             return false;
         }
 
-        return ExtensionsInfo.isExtensionAvailable(cameraProvider, baseCameraSelector, mode);
+        return mExtensionsInfo.isExtensionAvailable(baseCameraSelector, mode);
     }
 
     /**
@@ -373,11 +380,6 @@ public final class ExtensionsManager {
      * <p>This includes the time spent processing the multi-frame capture request along with any
      * additional time for encoding of the processed buffer in the framework if necessary.
      *
-     * @param cameraProvider    A {@link CameraProvider} will be used to query the information
-     *                          of cameras on the device. The {@link CameraProvider} can be the
-     *                          {@link androidx.camera.lifecycle.ProcessCameraProvider}
-     *                          which is obtained by
-     *                 {@link androidx.camera.lifecycle.ProcessCameraProvider#getInstance(Context)}.
      * @param cameraSelector    The {@link CameraSelector} to find a camera which supports the
      *                          specified extension mode.
      * @param mode              The extension mode to check.
@@ -395,9 +397,8 @@ public final class ExtensionsManager {
      */
     @Nullable
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public Range<Long> getEstimatedCaptureLatencyRange(@NonNull CameraProvider cameraProvider,
-            @NonNull CameraSelector cameraSelector, @ExtensionMode.Mode int mode,
-            @Nullable Size surfaceResolution) {
+    public Range<Long> getEstimatedCaptureLatencyRange(@NonNull CameraSelector cameraSelector,
+            @ExtensionMode.Mode int mode, @Nullable Size surfaceResolution) {
         if (mode == ExtensionMode.NONE
                 || mExtensionsAvailability != ExtensionsAvailability.LIBRARY_AVAILABLE) {
             throw new IllegalArgumentException(
@@ -406,7 +407,7 @@ public final class ExtensionsManager {
                             + "getEstimatedCaptureLatencyRange.");
         }
 
-        return ExtensionsInfo.getEstimatedCaptureLatencyRange(cameraProvider, cameraSelector, mode,
+        return mExtensionsInfo.getEstimatedCaptureLatencyRange(cameraSelector, mode,
                 surfaceResolution);
     }
 
@@ -416,7 +417,9 @@ public final class ExtensionsManager {
         return mExtensionsAvailability;
     }
 
-    private ExtensionsManager(@NonNull ExtensionsAvailability extensionsAvailability) {
+    private ExtensionsManager(@NonNull ExtensionsAvailability extensionsAvailability,
+            @NonNull CameraProvider cameraProvider) {
         mExtensionsAvailability = extensionsAvailability;
+        mExtensionsInfo = new ExtensionsInfo(cameraProvider);
     }
 }

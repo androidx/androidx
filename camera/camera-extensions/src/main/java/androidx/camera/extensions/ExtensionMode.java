@@ -20,7 +20,6 @@ import androidx.annotation.IntDef;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.camera.core.Camera;
-import androidx.camera.core.CameraProvider;
 import androidx.camera.core.CameraSelector;
 
 import java.lang.annotation.Retention;
@@ -52,7 +51,7 @@ public final class ExtensionMode {
      *
      * <p>Not all devices and cameras support the different extension modes. To query whether or
      * not a specific Camera supports an extension mode use
-     * {@link ExtensionsInfo#isExtensionAvailable(CameraProvider, CameraSelector, int)}.
+     * {@link ExtensionsManager#isExtensionAvailable(CameraSelector, int)}.
      *
      * @hide
      */

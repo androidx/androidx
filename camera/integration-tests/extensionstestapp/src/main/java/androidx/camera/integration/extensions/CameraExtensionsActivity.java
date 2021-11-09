@@ -168,8 +168,7 @@ public class CameraExtensionsActivity extends AppCompatActivity
         @ExtensionMode.Mode
         int extensionMode = extensionModeFrom(imageCaptureType);
 
-        if (!mExtensionsManager.isExtensionAvailable(mCameraProvider, mCurrentCameraSelector,
-                extensionMode)) {
+        if (!mExtensionsManager.isExtensionAvailable(mCurrentCameraSelector, extensionMode)) {
             return false;
         }
 
@@ -183,7 +182,7 @@ public class CameraExtensionsActivity extends AppCompatActivity
         mPreview.setSurfaceProvider(mPreviewView.getSurfaceProvider());
 
         CameraSelector cameraSelector = mExtensionsManager.getExtensionEnabledCameraSelector(
-                mCameraProvider, mCurrentCameraSelector, extensionMode);
+                mCurrentCameraSelector, extensionMode);
 
         mCameraProvider.unbindAll();
         mCamera = mCameraProvider.bindToLifecycle(this, cameraSelector, mImageCapture, mPreview);
@@ -310,7 +309,7 @@ public class CameraExtensionsActivity extends AppCompatActivity
 
         mCamera = mCameraProvider.bindToLifecycle(this, mCurrentCameraSelector);
         ListenableFuture<ExtensionsManager> extensionsManagerFuture =
-                ExtensionsManager.getInstance(getApplicationContext());
+                ExtensionsManager.getInstance(getApplicationContext(), mCameraProvider);
 
         Futures.addCallback(extensionsManagerFuture,
                 new FutureCallback<ExtensionsManager>() {
