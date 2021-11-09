@@ -42,6 +42,7 @@ import androidx.glance.appwidget.GlanceAppWidgetReceiver
 import androidx.glance.appwidget.LocalUiKey
 import androidx.glance.appwidget.SizeMode
 import androidx.glance.appwidget.Switch
+import androidx.glance.appwidget.SwitchColors
 import androidx.glance.appwidget.layout.cornerRadius
 import androidx.glance.appwidget.unit.ColorProvider
 import androidx.glance.background
@@ -58,7 +59,6 @@ import androidx.glance.text.FontStyle
 import androidx.glance.text.FontWeight
 import androidx.glance.text.Text
 import androidx.glance.text.TextStyle
-import androidx.glance.unit.ColorProvider
 import java.io.File
 
 class CompoundButtonAppWidget : GlanceAppWidget() {
@@ -91,14 +91,8 @@ class CompoundButtonAppWidget : GlanceAppWidget() {
                 style = textStyle,
                 modifier = fillModifier,
                 colors = CheckBoxColors(
-                    checked = ColorProvider(
-                        day = Color.Red,
-                        night = Color.Cyan
-                    ),
-                    unchecked = ColorProvider(
-                        day = Color.Green,
-                        night = Color.Magenta
-                    )
+                    checkedColor = ColorProvider(day = Color.Red, night = Color.Cyan),
+                    uncheckedColor = ColorProvider(day = Color.Green, night = Color.Magenta)
                 )
             )
             CheckBox(
@@ -106,7 +100,16 @@ class CompoundButtonAppWidget : GlanceAppWidget() {
                 text = "Checkbox 3",
                 colors = CheckBoxColors(R.color.my_checkbox_colors)
             )
-            Switch(checked = toggled, text = "Switch 1")
+            Switch(
+                checked = toggled,
+                text = "Switch 1",
+                colors = SwitchColors(
+                    checkedThumbColor = ColorProvider(day = Color.Red, night = Color.Cyan),
+                    uncheckedThumbColor = ColorProvider(day = Color.Green, night = Color.Magenta),
+                    checkedTrackColor = ColorProvider(day = Color.Blue, night = Color.Yellow),
+                    uncheckedTrackColor = ColorProvider(day = Color.Magenta, night = Color.Green)
+                )
+            )
             Switch(
                 checked = !toggled,
                 text = "Switch 2",

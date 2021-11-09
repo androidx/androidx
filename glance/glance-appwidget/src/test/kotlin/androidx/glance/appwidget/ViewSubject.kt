@@ -34,6 +34,7 @@ import androidx.core.view.children
 import androidx.glance.layout.Alignment
 import com.google.common.truth.FailureMetadata
 import com.google.common.truth.Subject
+import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertAbout
 import org.robolectric.Shadows.shadowOf
 import kotlin.test.assertIs
@@ -231,5 +232,41 @@ internal open class LinearLayoutSubject(
 
         fun assertThat(view: LinearLayout?): LinearLayoutSubject =
             assertAbout(linearLayouts()).that(view)
+    }
+}
+
+internal class ColorSubject(
+    metaData: FailureMetadata,
+    private val actual: Color?
+) : Subject(metaData, actual) {
+    fun isSameColorAs(string: String) {
+        isEqualTo(Color(android.graphics.Color.parseColor(string)))
+    }
+
+    fun isSameColorAs(color: Color) {
+        isEqualTo(color)
+    }
+
+    override fun isEqualTo(expected: Any?) {
+        assertThat(actual.toHexString()).isEqualTo(expected.toHexString())
+    }
+
+    override fun isNotEqualTo(unexpected: Any?) {
+        assertThat(actual.toHexString()).isNotEqualTo(unexpected.toHexString())
+    }
+
+    private fun Any?.toHexString(): Any? = if (this is Color?) this.toHexString() else this
+
+    private fun Color?.toHexString(): String? = this?.let { Integer.toHexString(it.toArgb()) }
+
+    companion object {
+        fun colors(): Factory<ColorSubject, Color> {
+            return Factory<ColorSubject, Color> { metadata, actual ->
+                ColorSubject(metadata, actual)
+            }
+        }
+
+        fun assertThat(color: Color?): ColorSubject =
+            assertAbout(colors()).that(color)
     }
 }

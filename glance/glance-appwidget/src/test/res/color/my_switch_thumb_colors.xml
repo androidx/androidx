@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   Copyright 2021 The Android Open Source Project
 
   Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +15,6 @@
   -->
 
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:state_enabled="true"
-        android:color="?android:attr/colorControlActivated" />
-    <item android:color="@color/switch_thumb_normal_material_light" />
+    <item android:color="#11040040" android:state_checked="true"/>
+    <item android:color="#110FF0FF"/>
 </selector>

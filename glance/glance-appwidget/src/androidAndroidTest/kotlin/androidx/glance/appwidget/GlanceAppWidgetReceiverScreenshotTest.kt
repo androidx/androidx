@@ -110,32 +110,21 @@ class GlanceAppWidgetReceiverScreenshotTest {
 
     @Test
     fun createCheckSwitchAppWidget() {
-        TestGlanceAppWidget.uiDefinition = {
-            Column {
-                Switch(
-                    checked = true,
-                    text = "Hello Checked Switch",
-                    style = TextStyle(
-                        fontWeight = FontWeight.Bold,
-                        fontStyle = FontStyle.Normal,
-                    )
-                )
-
-                Switch(
-                    checked = false,
-                    text = "Hello Unchecked Switch",
-                    style = TextStyle(
-                        textDecoration = TextDecoration.Underline,
-                        fontWeight = FontWeight.Medium,
-                        fontStyle = FontStyle.Italic,
-                    )
-                )
-            }
-        }
+        TestGlanceAppWidget.uiDefinition = { SwitchTest() }
 
         mHostRule.startHost()
 
         mScreenshotRule.checkScreenshot(mHostRule.mHostView, "switchWidget")
+    }
+
+    @WithNightMode
+    @Test
+    fun createCheckSwitchAppWidget_dark() {
+        TestGlanceAppWidget.uiDefinition = { SwitchTest() }
+
+        mHostRule.startHost()
+
+        mScreenshotRule.checkScreenshot(mHostRule.mHostView, "switchWidget_dark")
     }
 
     @Test
@@ -601,8 +590,7 @@ private fun CheckBoxScreenshotTest() {
                 fontStyle = FontStyle.Normal,
             ),
             colors = CheckBoxColors(
-                checked = ColorProvider(day = Color.Magenta, night = Color.Yellow),
-                unchecked = ColorProvider(day = Color.Blue, night = Color.Green)
+                checkedColor = ColorProvider(day = Color.Magenta, night = Color.Yellow)
             )
         )
 
@@ -615,7 +603,37 @@ private fun CheckBoxScreenshotTest() {
                 fontWeight = FontWeight.Medium,
                 fontStyle = FontStyle.Italic,
             ),
-            colors = CheckBoxColors(checked = Color.Red, unchecked = Color.Green)
+            colors = CheckBoxColors(checkedColor = Color.Red, uncheckedColor = Color.Green)
+        )
+    }
+}
+
+@Composable
+private fun SwitchTest() {
+    Column(modifier = GlanceModifier.background(day = Color.White, night = Color.Black)) {
+        Switch(
+            checked = true,
+            text = "Hello Checked Switch (day: Blue/Green, night: Red/Yellow)",
+            style = TextStyle(
+                color = ColorProvider(day = Color.Black, night = Color.White),
+                fontWeight = FontWeight.Bold,
+                fontStyle = FontStyle.Normal,
+            ),
+            colors = SwitchColors(
+                checkedThumbColor = ColorProvider(day = Color.Blue, night = Color.Red),
+                checkedTrackColor = ColorProvider(day = Color.Green, night = Color.Yellow),
+            )
+        )
+
+        Switch(
+            checked = false,
+            text = "Hello Unchecked Switch",
+            style = TextStyle(
+                color = ColorProvider(day = Color.Black, night = Color.White),
+                textDecoration = TextDecoration.Underline,
+                fontWeight = FontWeight.Medium,
+                fontStyle = FontStyle.Italic,
+            )
         )
     }
 }

@@ -13,7 +13,7 @@ package androidx.glance.appwidget {
     method public static androidx.glance.GlanceModifier background(androidx.glance.GlanceModifier, long day, long night);
   }
 
-  public sealed interface CheckBoxColors {
+  public abstract sealed class CheckBoxColors {
   }
 
   public final class CheckBoxDefaults {
@@ -24,9 +24,9 @@ package androidx.glance.appwidget {
 
   public final class CheckBoxKt {
     method @androidx.compose.runtime.Composable public static void CheckBox(boolean checked, optional androidx.glance.GlanceModifier modifier, optional String text, optional androidx.glance.text.TextStyle? style, optional androidx.glance.appwidget.CheckBoxColors colors);
-    method public static androidx.glance.appwidget.CheckBoxColors CheckBoxColors(long checked, long unchecked);
-    method public static androidx.glance.appwidget.CheckBoxColors CheckBoxColors(androidx.glance.unit.ColorProvider checked, androidx.glance.unit.ColorProvider unchecked);
-    method public static androidx.glance.appwidget.CheckBoxColors CheckBoxColors(@ColorRes int resId);
+    method public static androidx.glance.appwidget.CheckBoxColors CheckBoxColors(long checkedColor, long uncheckedColor);
+    method public static androidx.glance.appwidget.CheckBoxColors CheckBoxColors(optional androidx.glance.unit.ColorProvider? checkedColor, optional androidx.glance.unit.ColorProvider? uncheckedColor);
+    method public static androidx.glance.appwidget.CheckBoxColors CheckBoxColors(@ColorRes int checkBoxColor);
   }
 
   public final class CompositionLocalsKt {
@@ -103,8 +103,19 @@ package androidx.glance.appwidget {
     field public static final androidx.glance.appwidget.SizeMode.Single INSTANCE;
   }
 
+  public abstract sealed class SwitchColors {
+  }
+
+  public final class SwitchDefaults {
+    method public androidx.glance.appwidget.SwitchColors getColors();
+    property public final androidx.glance.appwidget.SwitchColors colors;
+    field public static final androidx.glance.appwidget.SwitchDefaults INSTANCE;
+  }
+
   public final class SwitchKt {
-    method @androidx.compose.runtime.Composable public static void Switch(boolean checked, optional androidx.glance.GlanceModifier modifier, optional String text, optional androidx.glance.text.TextStyle? style);
+    method @androidx.compose.runtime.Composable public static void Switch(boolean checked, optional androidx.glance.GlanceModifier modifier, optional String text, optional androidx.glance.text.TextStyle? style, optional androidx.glance.appwidget.SwitchColors colors);
+    method public static androidx.glance.appwidget.SwitchColors SwitchColors(optional androidx.glance.unit.ColorProvider? checkedThumbColor, optional androidx.glance.unit.ColorProvider? uncheckedThumbColor, optional androidx.glance.unit.ColorProvider? checkedTrackColor, optional androidx.glance.unit.ColorProvider? uncheckedTrackColor);
+    method public static androidx.glance.appwidget.SwitchColors SwitchColors(@ColorRes int thumbColor, optional @ColorRes int trackColor);
   }
 
   public final class UtilsKt {
@@ -161,6 +172,9 @@ package androidx.glance.appwidget.lazy {
 package androidx.glance.appwidget.translators {
 
   public final class CheckBoxTranslatorKt {
+  }
+
+  public final class CompoundButtonTranslatorKt {
   }
 
   public final class ImageTranslatorKt {
