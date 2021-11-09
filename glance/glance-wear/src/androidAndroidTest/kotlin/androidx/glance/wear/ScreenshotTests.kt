@@ -56,6 +56,7 @@ import androidx.glance.text.TextDecoration
 import androidx.glance.text.TextStyle
 import androidx.glance.unit.ColorProvider
 import androidx.glance.wear.layout.AnchorType
+import androidx.glance.wear.layout.border
 import androidx.glance.wear.layout.CurvedRow
 import androidx.glance.wear.layout.CurvedTextStyle
 import androidx.glance.wear.layout.RadialAlignment
@@ -102,6 +103,40 @@ class ScreenshotTests {
             Column {
                 Box(modifier = GlanceModifier.size(20.dp).background(Color.Blue)) {}
                 Box(modifier = GlanceModifier.size(20.dp).background(Color.Cyan)) {}
+            }
+        }
+    }
+
+    @Test
+    fun boxesWithBorder() = runSingleGoldenTest("boxes-with-border") {
+        Row {
+            Column {
+                Box(modifier = GlanceModifier
+                        .size(20.dp)
+                        .background(Color.Red)
+                        .border(width = 4.dp, color = ColorProvider(Color.Cyan))) {}
+                Box(modifier = GlanceModifier
+                        .size(20.dp)
+                        .background(Color.Green)
+                        .border(width = 4.dp, color = ColorProvider(Color.Blue))) {}
+            }
+            Column {
+                Box(modifier = GlanceModifier
+                        .size(20.dp)
+                        .background(Color.Blue)
+                        .border(
+                            width = R.dimen.border_dimension,
+                            color = ColorProvider(Color.Green)
+                        )
+                ) {}
+                Box(modifier = GlanceModifier
+                        .size(20.dp)
+                        .background(Color.Cyan)
+                        .border(
+                            width = R.dimen.border_dimension,
+                            color = ColorProvider(Color.Red)
+                        )
+                ) {}
             }
         }
     }
