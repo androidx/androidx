@@ -199,7 +199,8 @@ public class SliceSerializeMetrics {
             builder.addText("Some text", null);
         }
         if (items > 3) {
-            PendingIntent pi = PendingIntent.getActivity(context, 0, new Intent(), 0);
+            PendingIntent pi = PendingIntent.getActivity(
+                    context, 0, new Intent(), PendingIntent.FLAG_IMMUTABLE);
             builder.addAction(pi,
                     new Slice.Builder(Uri.parse("content://pkg/slice/action"))
                             .addText("Action text", null)
