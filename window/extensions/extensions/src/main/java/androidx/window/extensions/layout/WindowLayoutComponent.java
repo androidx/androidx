@@ -44,13 +44,13 @@ public interface WindowLayoutComponent {
      * @param activity hosting a {@link android.view.Window}
      * @param consumer interested in receiving updates to {@link WindowLayoutInfo}
      */
-    public void addWindowLayoutInfoListener(@NonNull Activity activity,
+    void addWindowLayoutInfoListener(@NonNull Activity activity,
             @NonNull Consumer<WindowLayoutInfo> consumer);
 
     /**
      * Removes a listener no longer interested in receiving updates.
      * @param consumer no longer interested in receiving updates to {@link WindowLayoutInfo}
      */
-    public void removeWindowLayoutInfoListener(
+    void removeWindowLayoutInfoListener(
             @NonNull Consumer<WindowLayoutInfo> consumer);
 }
