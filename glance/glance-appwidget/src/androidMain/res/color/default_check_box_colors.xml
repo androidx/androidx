@@ -14,9 +14,7 @@
   limitations under the License.
   -->
 
-<ImageView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="32dp"
-    android:layout_height="32dp"
-    android:src="@drawable/abc_btn_check_material_anim_enabled"
-    android:layout_centerVertical="true"
-    style="@style/Glance.AppWidget.CheckBoxIcon"/>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:color="?android:attr/colorControlActivated" android:state_checked="true"/>
+    <item android:color="?android:attr/colorControlNormal" android:alpha="0.6"/>
+</selector>

@@ -36,6 +36,8 @@ import androidx.glance.text.FontStyle
 import androidx.glance.text.FontWeight
 import androidx.glance.text.TextStyle
 import androidx.compose.ui.graphics.Color
+import androidx.glance.appwidget.layout.CheckBoxColors
+import androidx.glance.appwidget.unit.ColorProvider
 import androidx.glance.unit.ColorProvider
 
 class CompoundButtonAppWidget : GlanceAppWidget() {
@@ -45,7 +47,7 @@ class CompoundButtonAppWidget : GlanceAppWidget() {
     @Composable
     override fun Content() {
         val size = LocalSize.current
-        val toggled = size.width >= 100.dp
+        val toggled = size.width >= 150.dp
         Column(
             modifier = GlanceModifier.fillMaxSize().background(Color.LightGray).padding(8.dp),
             verticalAlignment = Alignment.Vertical.CenterVertically,
@@ -64,7 +66,13 @@ class CompoundButtonAppWidget : GlanceAppWidget() {
                 checked = !toggled,
                 text = "Checkbox 2",
                 style = textStyle,
-                modifier = fillModifier
+                modifier = fillModifier,
+                colors = CheckBoxColors(checked = Color.Red, unchecked = Color.Green)
+            )
+            CheckBox(
+                checked = toggled,
+                text = "Checkbox 3",
+                colors = CheckBoxColors(R.color.my_checkbox_colors)
             )
             Switch(checked = toggled, text = "Switch 1")
             Switch(
