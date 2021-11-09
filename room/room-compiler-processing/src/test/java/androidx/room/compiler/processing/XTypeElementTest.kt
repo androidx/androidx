@@ -349,12 +349,7 @@ class XTypeElementTest {
             }
 
             baseClass.getField("genericProp").let { field ->
-                if (invocation.isKsp) {
-                    // ksp replaces these with Any?
-                    assertThat(field.type.typeName).isEqualTo(TypeName.OBJECT)
-                } else {
-                    assertThat(field.type.typeName).isEqualTo(TypeVariableName.get("T"))
-                }
+                assertThat(field.type.typeName).isEqualTo(TypeVariableName.get("T"))
             }
 
             subClass.getField("genericProp").let { field ->
