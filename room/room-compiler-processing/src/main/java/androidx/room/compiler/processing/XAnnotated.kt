@@ -149,6 +149,17 @@ interface XAnnotated {
     }
 
     /**
+     * Returns the [Annotation]s that are annotated with [annotationName]
+     */
+    fun getAnnotationsAnnotatedWith(
+        annotationName: ClassName
+    ): Set<XAnnotation> {
+        return getAllAnnotations().filter {
+            it.type.typeElement?.hasAnnotation(annotationName) ?: false
+        }.toSet()
+    }
+
+    /**
      * Returns the [XAnnotation] that has the same qualified name as [annotationName].
      *
      * @see [hasAnnotation]
