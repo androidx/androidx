@@ -74,4 +74,11 @@ public class BoundsTest {
         assertTrue(isRectEmpty)
         assertFalse(isRectNotEmpty)
     }
+
+    @Test
+    public fun testIsZero() {
+        val zeroBounds = Bounds(Rect(0, 0, 0, 0))
+
+        assertTrue(zeroBounds.isZero)
+    }
 }

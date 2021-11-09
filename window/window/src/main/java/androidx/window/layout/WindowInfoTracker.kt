@@ -18,8 +18,10 @@ package androidx.window.layout
 
 import android.app.Activity
 import android.content.Context
+import android.util.Log
 import androidx.annotation.RestrictTo
 import androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP
+import androidx.window.extensions.WindowExtensionsProvider
 import kotlinx.coroutines.flow.Flow
 
 /**
@@ -48,6 +50,9 @@ public interface WindowInfoTracker {
 
     public companion object {
 
+        private val DEBUG = false
+        private val TAG = WindowInfoTracker::class.simpleName
+
         private var decorator: WindowInfoTrackerDecorator = EmptyDecorator
 
         /**
@@ -62,9 +67,23 @@ public interface WindowInfoTracker {
         public fun getOrCreate(context: Context): WindowInfoTracker {
             val repo = WindowInfoTrackerImpl(
                     WindowMetricsCalculatorCompat,
-                    ExtensionWindowBackend.getInstance(context)
+                    windowBackend(context)
                 )
             return decorator.decorate(repo)
+        }
+
+        @Suppress("MemberVisibilityCanBePrivate") // Avoid synthetic accessor
+        internal fun windowBackend(context: Context): WindowBackend {
+            val extensionBackend = try {
+                WindowExtensionsProvider.getWindowExtensions().windowLayoutComponent
+                    ?.let(::ExtensionWindowLayoutInfoBackend)
+            } catch (t: Throwable) {
+                if (DEBUG) {
+                    Log.d(TAG, "Failed to load WindowExtensions")
+                }
+                null
+            }
+            return extensionBackend ?: SidecarWindowBackend.getInstance(context)
         }
 
         @JvmStatic
