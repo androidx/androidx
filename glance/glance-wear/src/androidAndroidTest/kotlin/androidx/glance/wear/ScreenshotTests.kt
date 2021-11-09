@@ -25,6 +25,9 @@ import androidx.compose.runtime.BroadcastFrameClock
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Composition
 import androidx.compose.runtime.Recomposer
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import androidx.glance.Applier
 import androidx.glance.GlanceModifier
@@ -32,25 +35,26 @@ import androidx.glance.background
 import androidx.glance.layout.Alignment
 import androidx.glance.layout.Box
 import androidx.glance.layout.Column
+import androidx.glance.layout.ContentScale
 import androidx.glance.layout.EmittableBox
+import androidx.glance.layout.Image
+import androidx.glance.layout.ImageProvider
 import androidx.glance.layout.Row
+import androidx.glance.layout.Spacer
 import androidx.glance.layout.Text
+import androidx.glance.layout.Visibility
 import androidx.glance.layout.fillMaxHeight
+import androidx.glance.layout.fillMaxSize
 import androidx.glance.layout.fillMaxWidth
+import androidx.glance.layout.height
 import androidx.glance.layout.size
+import androidx.glance.layout.visibility
+import androidx.glance.layout.width
 import androidx.glance.text.FontStyle
 import androidx.glance.text.FontWeight
 import androidx.glance.text.TextDecoration
 import androidx.glance.text.TextStyle
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import androidx.glance.layout.ContentScale
-import androidx.glance.layout.Image
-import androidx.glance.layout.ImageProvider
-import androidx.glance.layout.Spacer
-import androidx.glance.layout.height
-import androidx.glance.layout.width
+import androidx.glance.unit.ColorProvider
 import androidx.glance.wear.layout.AnchorType
 import androidx.glance.wear.layout.CurvedRow
 import androidx.glance.wear.layout.CurvedTextStyle
@@ -206,6 +210,28 @@ class ScreenshotTests {
         }
     }
 
+    @Test
+    fun visibility() = runSingleGoldenTest("visibility") {
+        Column(modifier = GlanceModifier.fillMaxSize().background(Color.DarkGray)) {
+            Text("First", style = TextStyle(color = ColorProvider(Color.Red)))
+            Text("gone", modifier = GlanceModifier.visibility(Visibility.Gone))
+            Row {
+                Text("First",
+                    modifier = GlanceModifier.visibility(Visibility.Invisible)
+                        .background(ColorProvider(Color.Red))
+                )
+                Text("after")
+            }
+            Text("Third")
+            Row(
+                modifier = GlanceModifier.visibility(Visibility.Invisible).background(Color.Green)
+            ) {
+                Spacer(modifier = GlanceModifier.size(10.dp).background(Color.Red))
+            }
+            Text("Last")
+        }
+    }
+
     private suspend fun runComposition(content: @Composable () -> Unit) = coroutineScope {
         val root = EmittableBox()
         root.modifier = GlanceModifier.fillMaxWidth().fillMaxHeight()
@@ -232,6 +258,7 @@ class ScreenshotTests {
     ) = fakeCoroutineScope.runBlockingTest {
         val context = getApplicationContext<Context>()
         val composition = runComposition(content)
+        normalizeCompositionTree(context, composition)
         val translatedComposition = translateTopLevelComposition(context, composition)
 
         val renderer = TileRenderer(

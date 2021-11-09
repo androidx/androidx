@@ -20,6 +20,7 @@ import android.content.Context
 import android.view.View
 import android.view.ViewGroup
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.unit.dp
 import androidx.glance.BackgroundModifier
 import androidx.glance.Emittable
 import androidx.glance.GlanceModifier
@@ -29,16 +30,20 @@ import androidx.glance.action.LaunchActivityClassAction
 import androidx.glance.action.LaunchActivityComponentAction
 import androidx.glance.findModifier
 import androidx.glance.layout.Alignment
+import androidx.glance.layout.AndroidResourceImageProvider
+import androidx.glance.layout.ContentScale
 import androidx.glance.layout.Dimension
 import androidx.glance.layout.EmittableBox
 import androidx.glance.layout.EmittableButton
 import androidx.glance.layout.EmittableColumn
+import androidx.glance.layout.EmittableImage
 import androidx.glance.layout.EmittableRow
-import androidx.glance.layout.EmittableText
 import androidx.glance.layout.EmittableSpacer
+import androidx.glance.layout.EmittableText
 import androidx.glance.layout.HeightModifier
 import androidx.glance.layout.PaddingInDp
 import androidx.glance.layout.PaddingModifier
+import androidx.glance.layout.VisibilityModifier
 import androidx.glance.layout.WidthModifier
 import androidx.glance.layout.collectPaddingInDp
 import androidx.glance.layout.toEmittableText
@@ -49,10 +54,6 @@ import androidx.glance.text.TextStyle
 import androidx.glance.unit.ColorProvider
 import androidx.glance.unit.FixedColorProvider
 import androidx.glance.unit.ResourceColorProvider
-import androidx.compose.ui.unit.dp
-import androidx.glance.layout.AndroidResourceImageProvider
-import androidx.glance.layout.ContentScale
-import androidx.glance.layout.EmittableImage
 import androidx.glance.unit.resolve
 import androidx.glance.wear.layout.AnchorType
 import androidx.glance.wear.layout.CurvedTextStyle
@@ -143,7 +144,8 @@ private fun LaunchActivityAction.toProto(context: Context): ActionBuilders.Launc
                         is LaunchActivityComponentAction -> componentName.className
                         is LaunchActivityClassAction -> activityClass.name
                         else -> error("Action type not defined in wear package: $this")
-                    })
+                    }
+                )
                 .build()
         )
         .build()
@@ -218,10 +220,10 @@ private fun translateEmittableBox(
     .setModifiers(translateModifiers(context, element.modifier))
     .setWidth(element.modifier.getWidth(context).toContainerDimension())
     .setHeight(element.modifier.getHeight(context).toContainerDimension())
-    .also {
-            box -> element.children.forEach {
-                box.addContent(translateComposition(context, resourceBuilder, it))
-            }
+    .also { box ->
+        element.children.forEach {
+            box.addContent(translateComposition(context, resourceBuilder, it))
+        }
     }
     .build()
 
@@ -299,7 +301,7 @@ private fun translateEmittableColumn(
 
 private fun translateTextStyle(
     context: Context,
-    style: TextStyle
+    style: TextStyle,
 ): LayoutElementBuilders.FontStyle {
     val fontStyleBuilder = LayoutElementBuilders.FontStyle.Builder()
 
@@ -309,7 +311,8 @@ private fun translateTextStyle(
         if (!it.isSp) {
             throw IllegalArgumentException("Only Sp is supported for font size")
         }
-        fontStyleBuilder.setSize(sp(it.value)) }
+        fontStyleBuilder.setSize(sp(it.value))
+    }
     style.fontStyle?.let { fontStyleBuilder.setItalic(it == FontStyle.Italic) }
     style.fontWeight?.let {
         fontStyleBuilder.setWeight(
@@ -330,7 +333,7 @@ private fun translateTextStyle(
 
 private fun translateTextStyle(
     context: Context,
-    style: CurvedTextStyle
+    style: CurvedTextStyle,
 ): LayoutElementBuilders.FontStyle {
     val fontStyleBuilder = LayoutElementBuilders.FontStyle.Builder()
 
@@ -413,7 +416,8 @@ private fun translateEmittableImage(
                 ContentScale.FillBounds -> LayoutElementBuilders.CONTENT_SCALE_MODE_FILL_BOUNDS
                 // Defaults to CONTENT_SCALE_MODE_FIT
                 else -> LayoutElementBuilders.CONTENT_SCALE_MODE_FIT
-            })
+            }
+        )
 
     return imageBuilder.build()
 }
@@ -462,7 +466,9 @@ private fun translateEmittableCurvedText(
     val arcTextBuilder = LayoutElementBuilders.ArcText.Builder()
         .setText(element.text)
 
-    element.textStyle?.let { arcTextBuilder.setFontStyle(translateTextStyle(context, it)) }
+    element.textStyle?.let {
+        arcTextBuilder.setFontStyle(translateTextStyle(context, it))
+    }
 
     return arcTextBuilder.build()
 }
@@ -489,6 +495,7 @@ private fun translateModifiers(
             is HeightModifier -> builder /* Skip for now, handled elsewhere. */
             is ActionModifier -> builder.setClickable(element.toProto(context))
             is PaddingModifier -> builder // Processing that after
+            is VisibilityModifier -> builder // Already processed
             else -> throw IllegalArgumentException("Unknown modifier type")
         }
     }

@@ -9,6 +9,9 @@ package androidx.glance.wear {
     method protected final com.google.common.util.concurrent.ListenableFuture<androidx.wear.tiles.TileBuilders.Tile> onTileRequest(androidx.wear.tiles.RequestBuilders.TileRequest requestParams);
   }
 
+  public final class NormalizeCompositionTreeKt {
+  }
+
   public final class WearCompositionTranslatorKt {
   }
 

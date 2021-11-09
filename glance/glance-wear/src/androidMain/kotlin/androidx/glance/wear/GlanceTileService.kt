@@ -109,6 +109,8 @@ public abstract class GlanceTileService : TileService() {
         recomposer.close()
         recomposer.join()
 
+        normalizeCompositionTree(this@GlanceTileService, root)
+
         translateTopLevelComposition(this@GlanceTileService, root)
     }
 
