@@ -25,6 +25,7 @@ import androidx.benchmark.Shell
 import androidx.benchmark.macro.perfetto.forceTrace
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiDevice
+import androidx.tracing.trace
 
 /**
  * Provides access to common operations in app automation, such as killing the app,
@@ -107,6 +108,14 @@ public class MacrobenchmarkScope(
         }
         if (result.stderr.isNotEmpty()) {
             throw IllegalStateException(result.stderr)
+        }
+
+        // because `am start -W` doesn't wait for renderthread pre API 29, we stick a conservative
+        // extra wait in to ensure the launch has fully rendered.
+        if (Build.VERSION.SDK_INT < 29) {
+            trace("sleeping to ensure am start completed") {
+                Thread.sleep(250) // conservative number, determined empirically
+            }
         }
     }
 
