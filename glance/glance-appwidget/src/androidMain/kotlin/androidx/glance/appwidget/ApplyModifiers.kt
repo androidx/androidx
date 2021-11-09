@@ -31,11 +31,12 @@ import androidx.annotation.DoNotInline
 import androidx.annotation.IdRes
 import androidx.annotation.RequiresApi
 import androidx.compose.ui.graphics.toArgb
-import androidx.core.widget.setViewBackgroundResource
 import androidx.core.widget.setTextViewHeight
 import androidx.core.widget.setTextViewWidth
 import androidx.core.widget.setViewBackgroundColor
 import androidx.core.widget.setViewBackgroundColorResource
+import androidx.core.widget.setViewBackgroundResource
+import androidx.core.widget.setViewClipToOutline
 import androidx.glance.BackgroundModifier
 import androidx.glance.GlanceModifier
 import androidx.glance.action.Action
@@ -45,14 +46,15 @@ import androidx.glance.action.LaunchActivityClassAction
 import androidx.glance.action.LaunchActivityComponentAction
 import androidx.glance.action.UpdateContentAction
 import androidx.glance.appwidget.action.LaunchActivityIntentAction
+import androidx.glance.appwidget.layout.CornerRadiusModifier
 import androidx.glance.appwidget.unit.DayNightColorProvider
+import androidx.glance.layout.AndroidResourceImageProvider
 import androidx.glance.layout.Dimension
 import androidx.glance.layout.HeightModifier
 import androidx.glance.layout.PaddingModifier
-import androidx.glance.layout.WidthModifier
-import androidx.glance.layout.AndroidResourceImageProvider
 import androidx.glance.layout.Visibility
 import androidx.glance.layout.VisibilityModifier
+import androidx.glance.layout.WidthModifier
 import androidx.glance.unit.FixedColorProvider
 import androidx.glance.unit.ResourceColorProvider
 
@@ -66,6 +68,7 @@ internal fun applyModifiers(
     var widthModifier: WidthModifier? = null
     var heightModifier: HeightModifier? = null
     var paddingModifiers: PaddingModifier? = null
+    var cornerRadius: Dimension? = null
     var visibility = Visibility.Visible
     modifiers.foldIn(Unit) { _, modifier ->
         when (modifier) {
@@ -78,12 +81,14 @@ internal fun applyModifiers(
                 paddingModifiers = paddingModifiers?.let { it + modifier } ?: modifier
             }
             is VisibilityModifier -> visibility = modifier.visibility
+            is CornerRadiusModifier -> cornerRadius = modifier.radius
             else -> {
                 Log.w(GlanceAppWidgetTag, "Unknown modifier '$modifier', nothing done.")
             }
         }
     }
     applySizeModifiers(translationContext, rv, widthModifier, heightModifier, viewDef)
+    cornerRadius?.let { applyRoundedCorners(rv, viewDef.mainViewId, it) }
     paddingModifiers?.let { padding ->
         val absolutePadding = padding.toDp(context.resources).toAbsolute(translationContext.isRtl)
         val displayMetrics = context.resources.displayMetrics
@@ -303,6 +308,14 @@ private val Dimension?.isFixed: Boolean
         Dimension.Expand, Dimension.Fill, Dimension.Wrap, null -> false
     }
 
+private fun applyRoundedCorners(rv: RemoteViews, viewId: Int, radius: Dimension) {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+        ApplyModifiersApi31Impl.applyRoundedCorners(rv, viewId, radius)
+        return
+    }
+    Log.w(GlanceAppWidgetTag, "Cannot set the rounded corner of views before Api 31.")
+}
+
 @RequiresApi(Build.VERSION_CODES.S)
 private object ApplyModifiersApi31Impl {
     @DoNotInline
@@ -333,5 +346,19 @@ private object ApplyModifiersApi31Impl {
                 rv.setViewLayoutHeight(viewId, MATCH_PARENT.toFloat(), COMPLEX_UNIT_PX)
             }
         }.let {}
+    }
+
+    @DoNotInline
+    fun applyRoundedCorners(rv: RemoteViews, viewId: Int, radius: Dimension) {
+        rv.setViewClipToOutline(viewId, true)
+        when (radius) {
+            is Dimension.Dp -> {
+                rv.setViewOutlinePreferredRadius(viewId, radius.dp.value, COMPLEX_UNIT_DIP)
+            }
+            is Dimension.Resource -> {
+                rv.setViewOutlinePreferredRadiusDimen(viewId, radius.res)
+            }
+            else -> error("Rounded corners should not be ${radius.javaClass.canonicalName}")
+        }
     }
 }
