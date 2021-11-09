@@ -41,7 +41,7 @@ fun MacrobenchmarkRule.measureStartup(
     compilationMode: CompilationMode,
     startupMode: StartupMode,
     packageName: String,
-    iterations: Int = 3,
+    iterations: Int = 10,
     setupIntent: Intent.() -> Unit = {}
 ) = measureRepeated(
     packageName = packageName,
