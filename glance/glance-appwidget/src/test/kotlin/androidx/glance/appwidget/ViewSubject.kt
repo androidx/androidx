@@ -16,15 +16,21 @@
 
 package androidx.glance.appwidget
 
+import android.graphics.PorterDuffColorFilter
 import android.graphics.drawable.ColorDrawable
 import android.view.View
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.annotation.ColorInt
 import androidx.annotation.Px
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.unit.Dp
 import com.google.common.truth.FailureMetadata
 import com.google.common.truth.Subject
 import com.google.common.truth.Truth.assertAbout
+import org.robolectric.Shadows.shadowOf
+import kotlin.test.assertIs
 import kotlin.test.assertNotNull
 
 internal open class ViewSubject(
@@ -97,5 +103,39 @@ internal open class TextViewSubject(
         }
 
         fun assertThat(view: TextView?): TextViewSubject = assertAbout(textViews()).that(view)
+    }
+}
+
+internal open class ImageViewSubject(
+    metaData: FailureMetadata,
+    private val actual: ImageView?
+) : ViewSubject(metaData, actual) {
+    fun hasColorFilter(@ColorInt color: Int) {
+        assertNotNull(actual)
+        val colorFilter = actual.colorFilter
+        assertIs<PorterDuffColorFilter>(colorFilter)
+
+        check("getColorFilter().getColor()")
+            .that(Integer.toHexString(shadowOf(colorFilter).color))
+            .isEqualTo(Integer.toHexString(color))
+    }
+
+    fun hasColorFilter(color: Color) {
+        hasColorFilter(color.toArgb())
+    }
+
+    fun hasColorFilter(color: String) {
+        hasColorFilter(android.graphics.Color.parseColor(color))
+    }
+
+    companion object {
+        fun imageViews(): Factory<ImageViewSubject, ImageView> {
+            return Factory<ImageViewSubject, ImageView> { metadata, actual ->
+                ImageViewSubject(metadata, actual)
+            }
+        }
+
+        fun assertThat(view: ImageView?): ImageViewSubject =
+            assertAbout(imageViews()).that(view)
     }
 }
