@@ -206,6 +206,17 @@ public fun ScalingLazyColumn(
     state: ScalingLazyListState = rememberScalingLazyListState(),
     content: ScalingLazyListScope.() -> Unit
 ) {
+    require(scalingParams.minElementHeight <= scalingParams.maxElementHeight) {
+        "minElementHeight must be less than or equal to maxElementHeight"
+    }
+    require(scalingParams.minTransitionArea <= scalingParams.maxTransitionArea) {
+        "minTransitionArea must be less than or equal to maxTransitionArea"
+    }
+    require(scalingParams.minElementHeight != scalingParams.maxElementHeight ||
+        scalingParams.minTransitionArea == scalingParams.maxTransitionArea) {
+        "when minElementHeight and maxElementHeight are equal, " +
+            "so should be minTransitionArea and maxTransitionArea"
+    }
     BoxWithConstraints(modifier = modifier) {
         val density = LocalDensity.current
         val layoutDirection = LocalLayoutDirection.current

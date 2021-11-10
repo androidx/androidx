@@ -30,6 +30,7 @@ import androidx.wear.compose.material.samples.InlineSliderSample
 import androidx.wear.compose.material.samples.InlineSliderSegmentedSample
 import androidx.wear.compose.material.samples.ScalingLazyColumnWithHeaders
 import androidx.wear.compose.material.samples.ScalingLazyColumnWithHeadersReversed
+import androidx.wear.compose.material.samples.SimplePicker
 import androidx.wear.compose.material.samples.SimpleScaffoldWithScrollIndicator
 import androidx.wear.compose.material.samples.SimpleScalingLazyColumn
 import androidx.wear.compose.material.samples.SimpleScalingLazyColumnWithContentPadding
@@ -260,5 +261,16 @@ val WearMaterialDemos = DemoCategory(
             )
         ),
         ComposableDemo("Curved Text") { CurvedTextDemo() },
+        DemoCategory(
+            "Picker",
+            listOf(
+                ComposableDemo("Simple Picker") {
+                    SimplePicker()
+                },
+                ComposableDemo("Time Picker") {
+                    PickerTimeDemo()
+                }
+            )
+        )
     ),
 )

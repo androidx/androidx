@@ -67,7 +67,7 @@ public class ScalingLazyListState : ScrollableState {
             EmptyScalingLazyListLayoutInfo
         } else {
             val visibleItemsInfo = mutableListOf<ScalingLazyListItemInfo>()
-            val centralItemIndex: Int
+            var centralItemIndex = -1
 
             if (lazyListState.layoutInfo.visibleItemsInfo.isNotEmpty()) {
                 val verticalAdjustment =
@@ -143,6 +143,7 @@ public class ScalingLazyListState : ScrollableState {
                     extraPaddingInPixels.value!!,
                 viewportEndOffset = lazyListState.layoutInfo.viewportEndOffset -
                     extraPaddingInPixels.value!!,
+                centralItemIndex = centralItemIndex
             )
         }
     }
@@ -209,4 +210,5 @@ private object EmptyScalingLazyListLayoutInfo : ScalingLazyListLayoutInfo {
     override val viewportStartOffset = 0
     override val viewportEndOffset = 0
     override val totalItemsCount = 0
+    override val centralItemIndex = -1
 }
