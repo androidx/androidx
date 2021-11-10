@@ -423,6 +423,17 @@ public class PerfettoHelper(
                     processName
                 )
             }
+
+            // Have seen cases where unbundled Perfetto crashes, and leaves ftrace enabled,
+            // e.g. b/205763418. --cleanup-after-crash will reset that state, so it doesn't leak
+            // between tests. If this sort of crash happens on higher API levels, may need to do
+            // this there as well. Can't use /system/bin/traced_probes, as that requires root, and
+            // unbundled tracebox otherwise not used/installed on higher APIs, outside of tests.
+            if (Build.VERSION.SDK_INT < LOWEST_BUNDLED_VERSION_SUPPORTED) {
+                Shell.executeCommand(
+                    "$unbundledPerfettoShellPath traced_probes --cleanup-after-crash"
+                )
+            }
         }
     }
 }
