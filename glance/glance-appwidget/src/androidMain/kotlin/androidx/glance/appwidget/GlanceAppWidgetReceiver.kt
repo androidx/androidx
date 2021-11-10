@@ -26,8 +26,10 @@ import android.os.Bundle
 import android.util.Log
 import androidx.annotation.CallSuper
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.launch
 
 /**
  * [AppWidgetProvider] using the given [GlanceAppWidget] to generate the remote views when needed.
@@ -67,6 +69,7 @@ abstract class GlanceAppWidgetReceiver : AppWidgetProvider() {
             )
         }
         goAsync {
+            updateManager(context)
             appWidgetIds.map { async { glanceAppWidget.update(context, appWidgetManager, it) } }
                 .awaitAll()
         }
@@ -80,6 +83,7 @@ abstract class GlanceAppWidgetReceiver : AppWidgetProvider() {
         newOptions: Bundle
     ) {
         goAsync {
+            updateManager(context)
             glanceAppWidget.resize(context, appWidgetManager, appWidgetId, newOptions)
         }
     }
@@ -91,8 +95,17 @@ abstract class GlanceAppWidgetReceiver : AppWidgetProvider() {
         }
     }
 
+    private fun CoroutineScope.updateManager(context: Context) {
+        launch {
+            runAndLogExceptions {
+                GlanceAppWidgetManager(context)
+                    .updateReceiver(this@GlanceAppWidgetReceiver, glanceAppWidget)
+            }
+        }
+    }
+
     override fun onReceive(context: Context, intent: Intent) {
-        try {
+        runAndLogExceptions {
             if (intent.action == Intent.ACTION_LOCALE_CHANGED) {
                 val appWidgetManager = AppWidgetManager.getInstance(context)
                 val componentName =
@@ -105,10 +118,16 @@ abstract class GlanceAppWidgetReceiver : AppWidgetProvider() {
                 return
             }
             super.onReceive(context, intent)
-        } catch (ex: CancellationException) {
-            // Nothing to do
-        } catch (throwable: Throwable) {
-            logException(throwable)
         }
+    }
+}
+
+private inline fun runAndLogExceptions(block: () -> Unit) {
+    try {
+        block()
+    } catch (ex: CancellationException) {
+        // Nothing to do
+    } catch (throwable: Throwable) {
+        logException(throwable)
     }
 }

@@ -55,10 +55,22 @@ package androidx.glance.appwidget {
   public final class GlanceAppWidgetKt {
   }
 
+  public final class GlanceAppWidgetManager {
+    ctor public GlanceAppWidgetManager(android.content.Context context);
+    method public suspend Object? getAppWidgetSizes(androidx.glance.GlanceId glanceId, kotlin.coroutines.Continuation<? super java.util.List<? extends androidx.compose.ui.unit.DpSize>> p);
+    method public suspend <T extends androidx.glance.appwidget.GlanceAppWidget> Object? getGlanceIds(Class<T> provider, kotlin.coroutines.Continuation<? super java.util.List<? extends androidx.glance.GlanceId>> p);
+  }
+
+  public final class GlanceAppWidgetManagerKt {
+  }
+
   public abstract class GlanceAppWidgetReceiver extends android.appwidget.AppWidgetProvider {
     ctor public GlanceAppWidgetReceiver();
     method public abstract androidx.glance.appwidget.GlanceAppWidget getGlanceAppWidget();
     property public abstract androidx.glance.appwidget.GlanceAppWidget glanceAppWidget;
+  }
+
+  public final class GlanceAppWidgetReceiverKt {
   }
 
   public final class ImageProvidersKt {

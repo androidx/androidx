@@ -16,6 +16,7 @@
 
 
 import androidx.build.AndroidXComposePlugin
+import androidx.build.BundleInsideHelper
 import androidx.build.LibraryGroups
 import androidx.build.LibraryType
 import androidx.build.Publish
@@ -43,6 +44,9 @@ dependencies {
     implementation project(path: ':core:core-remoteviews')
     implementation project(path: ':core:core-ktx')
     implementation project(path: ':datastore:datastore-core')
+    implementation project(path: ':datastore:datastore')
+    implementation("androidx.datastore:datastore-preferences-core:1.0.0")
+    implementation("androidx.datastore:datastore-preferences:1.0.0")
     implementation(libs.kotlinStdlib)
 
     testImplementation(project(":core:core-ktx"))
@@ -59,7 +63,7 @@ dependencies {
     testImplementation(libs.kotlinReflect)
     testImplementation("androidx.datastore:datastore-core:1.0.0")
     testImplementation("androidx.datastore:datastore-preferences-core:1.0.0")
-    testImplementation("androidx.datastore:datastore-preferences:1.0.0-rc02")
+    testImplementation("androidx.datastore:datastore-preferences:1.0.0")
 
     androidTestImplementation("androidx.test.uiautomator:uiautomator:2.2.0")
     androidTestImplementation(project(":test:screenshot:screenshot"))
