@@ -309,7 +309,7 @@ public class CameraExtensionsActivity extends AppCompatActivity
 
         mCamera = mCameraProvider.bindToLifecycle(this, mCurrentCameraSelector);
         ListenableFuture<ExtensionsManager> extensionsManagerFuture =
-                ExtensionsManager.getInstance(getApplicationContext(), mCameraProvider);
+                ExtensionsManager.getInstanceAsync(getApplicationContext(), mCameraProvider);
 
         Futures.addCallback(extensionsManagerFuture,
                 new FutureCallback<ExtensionsManager>() {

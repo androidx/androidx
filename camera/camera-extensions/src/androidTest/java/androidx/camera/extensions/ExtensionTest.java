@@ -113,8 +113,8 @@ public class ExtensionTest {
 
         mProcessCameraProvider = ProcessCameraProvider.getInstance(mContext).get(10000,
                 TimeUnit.MILLISECONDS);
-        mExtensionsManager = ExtensionsManager.getInstance(mContext, mProcessCameraProvider).get(
-                10000, TimeUnit.MILLISECONDS);
+        mExtensionsManager = ExtensionsManager.getInstanceAsync(mContext,
+                mProcessCameraProvider).get(10000, TimeUnit.MILLISECONDS);
         assumeTrue(isTargetDeviceAvailableForExtensions(mLensFacing));
         mBaseCameraSelector = new CameraSelector.Builder().requireLensFacing(mLensFacing).build();
         assumeTrue(mExtensionsManager.isExtensionAvailable(mBaseCameraSelector, mExtensionMode));

@@ -140,8 +140,8 @@ public class PreviewProcessorTimestampTest {
         mProcessCameraProvider = ProcessCameraProvider.getInstance(mContext).get(10000,
                 TimeUnit.MILLISECONDS);
 
-        mExtensionsManager = ExtensionsManager.getInstance(mContext, mProcessCameraProvider).get(
-                10000, TimeUnit.MILLISECONDS);
+        mExtensionsManager = ExtensionsManager.getInstanceAsync(mContext,
+                mProcessCameraProvider).get(10000, TimeUnit.MILLISECONDS);
 
         mCameraSelector = new CameraSelector.Builder().requireLensFacing(mLensFacing).build();
         mFakeLifecycleOwner.startAndResume();

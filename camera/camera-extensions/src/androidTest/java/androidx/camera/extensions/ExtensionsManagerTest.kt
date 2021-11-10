@@ -100,7 +100,7 @@ class ExtensionsManagerTest(
 
     @Test
     fun getInstanceSuccessfully_whenExtensionAvailabilityIsNotAvailable() {
-        extensionsManager = ExtensionsManager.getInstance(
+        extensionsManager = ExtensionsManager.getInstanceAsync(
             context,
             cameraProvider,
             VersionName("99.0.0")
@@ -115,7 +115,7 @@ class ExtensionsManagerTest(
 
     @Test
     fun getExtensionsCameraSelectorThrowsException_whenExtensionAvailabilityIsNotAvailable() {
-        extensionsManager = ExtensionsManager.getInstance(
+        extensionsManager = ExtensionsManager.getInstanceAsync(
             context,
             cameraProvider,
             VersionName("99.0.0")
@@ -138,8 +138,10 @@ class ExtensionsManagerTest(
 
     @Test
     fun getExtensionsCameraSelectorThrowsException_whenExtensionModeIsNotSupported() {
-        extensionsManager =
-            ExtensionsManager.getInstance(context, cameraProvider)[10000, TimeUnit.MILLISECONDS]
+        extensionsManager = ExtensionsManager.getInstanceAsync(
+            context,
+            cameraProvider
+        )[10000, TimeUnit.MILLISECONDS]
         val baseCameraSelector = CameraSelector.Builder().requireLensFacing(lensFacing).build()
 
         assumeFalse(
@@ -171,8 +173,10 @@ class ExtensionsManagerTest(
 
     @Test
     fun correctAvailability_whenExtensionIsNotAvailable() {
-        extensionsManager =
-            ExtensionsManager.getInstance(context, cameraProvider)[10000, TimeUnit.MILLISECONDS]
+        extensionsManager = ExtensionsManager.getInstanceAsync(
+            context,
+            cameraProvider
+        )[10000, TimeUnit.MILLISECONDS]
         val baseCameraSelector = CameraSelector.Builder().requireLensFacing(lensFacing).build()
 
         assumeFalse(
@@ -250,7 +254,7 @@ class ExtensionsManagerTest(
 
     @Test
     fun getEstimatedCaptureLatencyRangeThrowsException_whenExtensionAvailabilityIsNotAvailable() {
-        extensionsManager = ExtensionsManager.getInstance(
+        extensionsManager = ExtensionsManager.getInstanceAsync(
             context,
             cameraProvider,
             VersionName("99.0.0")
@@ -427,8 +431,10 @@ class ExtensionsManagerTest(
     }
 
     private fun checkExtensionAvailabilityAndInit(): CameraSelector {
-        extensionsManager =
-            ExtensionsManager.getInstance(context, cameraProvider)[10000, TimeUnit.MILLISECONDS]
+        extensionsManager = ExtensionsManager.getInstanceAsync(
+            context,
+            cameraProvider
+        )[10000, TimeUnit.MILLISECONDS]
 
         assumeTrue(
             extensionsManager.isExtensionAvailable(

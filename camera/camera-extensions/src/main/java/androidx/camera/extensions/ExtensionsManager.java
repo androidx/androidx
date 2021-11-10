@@ -47,7 +47,7 @@ import java.util.concurrent.ExecutionException;
  * functions.
  *
  * <p>Only a single {@link ExtensionsManager} instance can exist within a process, and it can be
- * retrieved with {@link #getInstance(Context, CameraProvider)}. After retrieving the
+ * retrieved with {@link #getInstanceAsync(Context, CameraProvider)}. After retrieving the
  * {@link ExtensionsManager} instance, the availability of a specific extension mode can be
  * checked by {@link #isExtensionAvailable(CameraSelector, int)}. For an available extension
  * mode, an extension enabled {@link CameraSelector} can be obtained by calling
@@ -139,12 +139,12 @@ public final class ExtensionsManager {
      */
     @NonNull
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public static ListenableFuture<ExtensionsManager> getInstance(@NonNull Context context,
+    public static ListenableFuture<ExtensionsManager> getInstanceAsync(@NonNull Context context,
             @NonNull CameraProvider cameraProvider) {
-        return getInstance(context, cameraProvider, VersionName.getCurrentVersion());
+        return getInstanceAsync(context, cameraProvider, VersionName.getCurrentVersion());
     }
 
-    static ListenableFuture<ExtensionsManager> getInstance(@NonNull Context context,
+    static ListenableFuture<ExtensionsManager> getInstanceAsync(@NonNull Context context,
             @NonNull CameraProvider cameraProvider, @NonNull VersionName versionName) {
         synchronized (EXTENSIONS_LOCK) {
             if (sDeinitializeFuture != null && !sDeinitializeFuture.isDone()) {
@@ -223,7 +223,7 @@ public final class ExtensionsManager {
      * can deinitialize the extensions vendor library and release the created
      * {@link ExtensionsManager} instance. Tests should wait until the returned future is
      * complete. Then, tests can call the
-     * {@link ExtensionsManager#getInstance(Context, CameraProvider)} function again to
+     * {@link ExtensionsManager#getInstanceAsync(Context, CameraProvider)} function again to
      * initialize a new {@link ExtensionsManager} instance.
      *
      * @hide

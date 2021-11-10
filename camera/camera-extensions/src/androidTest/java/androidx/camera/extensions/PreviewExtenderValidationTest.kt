@@ -70,8 +70,10 @@ class PreviewExtenderValidationTest(
         )
 
         cameraProvider = ProcessCameraProvider.getInstance(context)[10000, TimeUnit.MILLISECONDS]
-        extensionsManager =
-            ExtensionsManager.getInstance(context, cameraProvider)[10000, TimeUnit.MILLISECONDS]
+        extensionsManager = ExtensionsManager.getInstanceAsync(
+            context,
+            cameraProvider
+        )[10000, TimeUnit.MILLISECONDS]
         assumeTrue(
             extensionsManager.isExtensionAvailable(
                 CameraSelector.Builder().requireLensFacing(lensFacing).build(),
