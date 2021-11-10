@@ -51,6 +51,16 @@ internal abstract class KspType(
         }
     }
 
+    override val superTypes: List<XType> by lazy {
+        val declaration = ksType.declaration as? KSClassDeclaration
+        declaration?.superTypes?.toList()?.map {
+            env.wrap(
+                ksType = it.resolve(),
+                allowPrimitives = false
+            )
+        } ?: emptyList()
+    }
+
     override val typeElement by lazy {
         // for primitive types, we could technically return null from here as they are not backed
         // by a type element in javac but in Kotlin we have types for them, hence returning them
