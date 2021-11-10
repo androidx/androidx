@@ -98,7 +98,7 @@ internal data class TranslationContext(
     val isRtl: Boolean,
     val layoutConfiguration: LayoutConfiguration,
     val itemPosition: Int,
-    val areLazyCollectionsAllowed: Boolean = true,
+    val isLazyCollectionDescendant: Boolean = false,
     val lastViewId: AtomicInteger = AtomicInteger(0),
     val parentContext: InsertedViewInfo = InsertedViewInfo(),
 ) {

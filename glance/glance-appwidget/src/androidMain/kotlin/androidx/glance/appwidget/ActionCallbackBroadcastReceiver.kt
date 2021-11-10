@@ -81,6 +81,16 @@ internal class ActionCallbackBroadcastReceiver : BroadcastReceiver() {
         ): PendingIntent = PendingIntent.getBroadcast(
             context,
             0,
+            createIntent(context, callbackClass, appWidgetId, parameters),
+            PendingIntent.FLAG_MUTABLE
+        )
+
+        internal fun createIntent(
+            context: Context,
+            callbackClass: Class<out ActionCallback>,
+            appWidgetId: Int,
+            parameters: ActionParameters
+        ) =
             Intent(context, ActionCallbackBroadcastReceiver::class.java)
                 .setPackage(context.packageName)
                 .putExtra(ExtraCallbackClassName, callbackClass.canonicalName)
@@ -91,9 +101,7 @@ internal class ActionCallbackBroadcastReceiver : BroadcastReceiver() {
                         .buildUpon()
                         .scheme("remoteAction")
                         .build()
-                },
-            PendingIntent.FLAG_MUTABLE
-        )
+                }
 
         private fun Intent.putParameterExtras(parameters: ActionParameters): Intent {
             val parametersPairs = parameters.asMap().map { (key, value) ->
