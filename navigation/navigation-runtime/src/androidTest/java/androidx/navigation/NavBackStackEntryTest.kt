@@ -466,9 +466,89 @@ class NavBackStackEntryTest {
             .isTrue()
     }
 
+    @UiThreadTest
+    @Test
+    fun testLifecyclePoppedGraph() {
+        val navController = createNavController(true)
+        val navGraph = navController.navigatorProvider.navigation(
+            startDestination = "first",
+            route = "main"
+        ) {
+            test(route = "first")
+            navigation(startDestination = "second_test", route = "graph_nested") {
+                test(route = "second_test")
+            }
+        }
+        navController.graph = navGraph
+
+        navController.navigatorProvider[TestNavigator::class].onTransitionComplete(
+            navController.getBackStackEntry("first")
+        )
+
+        navController.navigate("graph_nested")
+
+        navController.navigatorProvider[TestNavigator::class].onTransitionComplete(
+            navController.getBackStackEntry("second_test")
+        )
+
+        val graphBackStackEntry = navController.getBackStackEntry("main")
+        assertWithMessage("The parent graph should be resumed when its child is resumed")
+            .that(graphBackStackEntry.lifecycle.currentState)
+            .isEqualTo(Lifecycle.State.RESUMED)
+        val nestedGraphBackStackEntry = navController.getBackStackEntry("graph_nested")
+        assertWithMessage("The nested graph should be resumed when its child is resumed")
+            .that(nestedGraphBackStackEntry.lifecycle.currentState)
+            .isEqualTo(Lifecycle.State.RESUMED)
+        val nestedBackStackEntry = navController.getBackStackEntry("second_test")
+        assertWithMessage("The nested start destination should be resumed")
+            .that(nestedBackStackEntry.lifecycle.currentState)
+            .isEqualTo(Lifecycle.State.RESUMED)
+
+        val savedState = navController.saveState()
+
+        val restoredNavController = createNavController(true)
+        restoredNavController.restoreState(savedState)
+
+        restoredNavController.graph = navGraph
+
+        val restoredGraphBackStackEntry = restoredNavController.getBackStackEntry("main")
+        assertWithMessage("The restored parent graph should be resumed when its child is resumed")
+            .that(restoredGraphBackStackEntry.lifecycle.currentState)
+            .isEqualTo(Lifecycle.State.RESUMED)
+        val restoredNestedGraphBackStackEntry =
+            restoredNavController.getBackStackEntry("graph_nested")
+        assertWithMessage("The restored nested graph should be resumed when its child is resumed")
+            .that(restoredNestedGraphBackStackEntry.lifecycle.currentState)
+            .isEqualTo(Lifecycle.State.RESUMED)
+        val restoredNestedBackStackEntry = restoredNavController.getBackStackEntry("second_test")
+        assertWithMessage("The restored nested start destination should be resumed")
+            .that(restoredNestedBackStackEntry.lifecycle.currentState)
+            .isEqualTo(Lifecycle.State.RESUMED)
+
+        restoredNavController.popBackStack()
+
+        assertWithMessage("The nested graph should be created when its children are transitioning")
+            .that(restoredNestedGraphBackStackEntry.lifecycle.currentState)
+            .isEqualTo(Lifecycle.State.CREATED)
+        assertWithMessage("The nested start destination should be created while transitioning")
+            .that(restoredNestedBackStackEntry.lifecycle.currentState)
+            .isEqualTo(Lifecycle.State.CREATED)
+
+        restoredNavController.navigatorProvider[TestNavigator::class].onTransitionComplete(
+            restoredNestedBackStackEntry
+        )
+
+        assertWithMessage("The nested graph should be destroyed when its children are destroyed")
+            .that(restoredNestedGraphBackStackEntry.lifecycle.currentState)
+            .isEqualTo(Lifecycle.State.DESTROYED)
+        assertWithMessage("The nested start destination should be destroyed after being popped")
+            .that(restoredNestedBackStackEntry.lifecycle.currentState)
+            .isEqualTo(Lifecycle.State.DESTROYED)
+    }
+
     private fun createNavController(withTransitions: Boolean = false): NavController {
         val navController = NavHostController(ApplicationProvider.getApplicationContext())
-        navController.setLifecycleOwner(TestLifecycleOwner())
+        navController.setLifecycleOwner(TestLifecycleOwner(Lifecycle.State.RESUMED))
         val navigator = TestNavigator(withTransitions)
         navController.navigatorProvider.addNavigator(navigator)
         return navController
