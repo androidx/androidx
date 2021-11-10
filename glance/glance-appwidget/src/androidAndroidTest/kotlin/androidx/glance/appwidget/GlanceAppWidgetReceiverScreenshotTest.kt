@@ -89,34 +89,21 @@ class GlanceAppWidgetReceiverScreenshotTest {
 
     @Test
     fun createCheckBoxAppWidget() {
-        TestGlanceAppWidget.uiDefinition = {
-            Column {
-                CheckBox(
-                    checked = true,
-                    text = "Hello Checked Checkbox (magenta box)",
-                    style = TextStyle(
-                        fontWeight = FontWeight.Bold,
-                        fontStyle = FontStyle.Normal,
-                    ),
-                    colors = CheckBoxColors(checked = Color.Magenta, unchecked = Color.Blue)
-                )
-
-                CheckBox(
-                    checked = false,
-                    text = "Hello Unchecked Checkbox (green box)",
-                    style = TextStyle(
-                        textDecoration = TextDecoration.Underline,
-                        fontWeight = FontWeight.Medium,
-                        fontStyle = FontStyle.Italic,
-                    ),
-                    colors = CheckBoxColors(checked = Color.Red, unchecked = Color.Green)
-                )
-            }
-        }
+        TestGlanceAppWidget.uiDefinition = { CheckBoxScreenshotTest() }
 
         mHostRule.startHost()
 
         mScreenshotRule.checkScreenshot(mHostRule.mHostView, "checkBoxWidget")
+    }
+
+    @WithNightMode
+    @Test
+    fun createCheckBoxAppWidget_dark() {
+        TestGlanceAppWidget.uiDefinition = { CheckBoxScreenshotTest() }
+
+        mHostRule.startHost()
+
+        mScreenshotRule.checkScreenshot(mHostRule.mHostView, "checkBoxWidget_dark")
     }
 
     @Test
@@ -524,6 +511,38 @@ private fun TextColorTest() {
         Text(
             "Resource (inverse of background color)",
             style = TextStyle(color = ColorProvider(R.color.text_color))
+        )
+    }
+}
+
+@Composable
+private fun CheckBoxScreenshotTest() {
+    Column(modifier = GlanceModifier.background(day = Color.White, night = Color.Black)) {
+        CheckBox(
+            checked = true,
+            text = "Hello Checked Checkbox (text: day=black, night=white| box: day=magenta, " +
+                "night=yellow)",
+            style = TextStyle(
+                color = ColorProvider(day = Color.Black, night = Color.White),
+                fontWeight = FontWeight.Bold,
+                fontStyle = FontStyle.Normal,
+            ),
+            colors = CheckBoxColors(
+                checked = ColorProvider(day = Color.Magenta, night = Color.Yellow),
+                unchecked = ColorProvider(day = Color.Blue, night = Color.Green)
+            )
+        )
+
+        CheckBox(
+            checked = false,
+            text = "Hello Unchecked Checkbox (text: day=dark gray, night=light gray, green box)",
+            style = TextStyle(
+                color = ColorProvider(day = Color.DarkGray, night = Color.LightGray),
+                textDecoration = TextDecoration.Underline,
+                fontWeight = FontWeight.Medium,
+                fontStyle = FontStyle.Italic,
+            ),
+            colors = CheckBoxColors(checked = Color.Red, unchecked = Color.Green)
         )
     }
 }

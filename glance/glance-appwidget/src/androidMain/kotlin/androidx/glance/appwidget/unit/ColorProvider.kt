@@ -33,7 +33,7 @@ internal data class DayNightColorProvider(val day: Color, val night: Color) : Co
     fun resolve(context: Context) = if (context.isNightMode) night else day
 }
 
-private val Context.isNightMode: Boolean
+internal val Context.isNightMode: Boolean
     get() =
         resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK ==
-        Configuration.UI_MODE_NIGHT_YES
+            Configuration.UI_MODE_NIGHT_YES

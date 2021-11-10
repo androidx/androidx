@@ -23,6 +23,7 @@ import androidx.glance.Emittable
 import androidx.glance.GlanceModifier
 import androidx.glance.GlanceNode
 import androidx.glance.text.TextStyle
+import androidx.glance.unit.ColorProvider
 
 /** Set of colors to apply to a CheckBox depending on the checked state. */
 public sealed interface CheckBoxColors
@@ -32,11 +33,22 @@ public sealed interface CheckBoxColors
  * CheckBox.
  */
 public fun CheckBoxColors(checked: Color, unchecked: Color): CheckBoxColors =
-    ResolvedCheckBoxColors(checked, unchecked)
+    CheckBoxColors(ColorProvider(checked), ColorProvider(unchecked))
 
-internal data class ResolvedCheckBoxColors(
-    val checked: Color,
-    val unchecked: Color
+/**
+ * [CheckBoxColors] that uses [checked] or [unchecked] depending on the checked state of the
+ * CheckBox.
+ *
+ * Note: It is not supported to provide [ColorProvider]s pointing to a `@ColorRes Int` to this
+ * method. Instead, you should pass a single resource id for a selector color resource using the
+ * `CheckBoxColors(Int)` method.
+ */
+public fun CheckBoxColors(checked: ColorProvider, unchecked: ColorProvider): CheckBoxColors =
+    ColorProviderCheckBoxColors(checked, unchecked)
+
+internal data class ColorProviderCheckBoxColors(
+    val checked: ColorProvider,
+    val unchecked: ColorProvider
 ) : CheckBoxColors
 
 /**

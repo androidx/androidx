@@ -25,6 +25,7 @@ package androidx.glance.appwidget {
   public final class CheckBoxKt {
     method @androidx.compose.runtime.Composable public static void CheckBox(boolean checked, optional androidx.glance.GlanceModifier modifier, optional String text, optional androidx.glance.text.TextStyle? style, optional androidx.glance.appwidget.CheckBoxColors colors);
     method public static androidx.glance.appwidget.CheckBoxColors CheckBoxColors(long checked, long unchecked);
+    method public static androidx.glance.appwidget.CheckBoxColors CheckBoxColors(androidx.glance.unit.ColorProvider checked, androidx.glance.unit.ColorProvider unchecked);
     method public static androidx.glance.appwidget.CheckBoxColors CheckBoxColors(@ColorRes int resId);
   }
 
