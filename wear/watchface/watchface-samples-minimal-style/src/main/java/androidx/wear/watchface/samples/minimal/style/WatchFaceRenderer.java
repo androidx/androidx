@@ -33,6 +33,8 @@ import androidx.wear.watchface.ListenableCanvasRenderer;
 import androidx.wear.watchface.RenderParameters;
 import androidx.wear.watchface.WatchState;
 import androidx.wear.watchface.style.CurrentUserStyleRepository;
+import androidx.wear.watchface.style.UserStyle;
+import androidx.wear.watchface.style.UserStyleSetting;
 
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -57,23 +59,20 @@ public class WatchFaceRenderer extends ListenableCanvasRenderer {
     private final TimeRenderer mSecondsRenderer;
     private final Paint mHighlightPaint;
     private final CurrentUserStyleRepository mCurrentUserStyleRepository;
-    private final TimeStyle mTimeStyle;
+    private final UserStyleSetting.Id mTimeStyleId = new UserStyleSetting.Id("TimeStyle");
 
     private TimeRenderer mTimeRenderer;
 
     public WatchFaceRenderer(
             @NotNull SurfaceHolder surfaceHolder,
             @NotNull CurrentUserStyleRepository currentUserStyleRepository,
-            @NotNull WatchState watchState,
-            @NotNull TimeStyle timeStyle) {
+            @NotNull WatchState watchState) {
         super(surfaceHolder, currentUserStyleRepository, watchState, CanvasType.HARDWARE,
                 UPDATE_DELAY_MILLIS);
         mMinimalRenderer = new MinimalRenderer(watchState);
         mSecondsRenderer = new SecondsRenderer(watchState);
         mHighlightPaint = new Paint();
         mCurrentUserStyleRepository = currentUserStyleRepository;
-        mTimeStyle = timeStyle;
-        updateTimeStyle(timeStyle.get(currentUserStyleRepository.getUserStyle().getValue()));
     }
 
     @UiThread
@@ -83,7 +82,7 @@ public class WatchFaceRenderer extends ListenableCanvasRenderer {
         // observeForever has to be called from the UI thread but the WatchFaceRenderer is called
         // from a background thread.
         FlowLiveDataConversions.asLiveData(mCurrentUserStyleRepository.getUserStyle())
-                .observeForever(userStyle -> updateTimeStyle(mTimeStyle.get(userStyle)));
+                .observeForever(this::updateTimeStyle);
         return Futures.immediateFuture(Unit.INSTANCE);
     }
 
@@ -104,12 +103,12 @@ public class WatchFaceRenderer extends ListenableCanvasRenderer {
                 bounds.centerX(), bounds.centerY(), bounds.width() / 2 - 2, mHighlightPaint);
     }
 
-    private void updateTimeStyle(TimeStyle.Value value) {
-        switch (value) {
-            case MINIMAL:
+    private void updateTimeStyle(UserStyle userStyle) {
+        switch (userStyle.get(mTimeStyleId).getId().toString()) {
+            case "minimal":
                 mTimeRenderer = mMinimalRenderer;
                 break;
-            case SECONDS:
+            case "seconds":
                 mTimeRenderer = mSecondsRenderer;
                 break;
         }

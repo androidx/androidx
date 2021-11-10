@@ -16,53 +16,79 @@
 
 package androidx.wear.watchface.test
 
-import android.graphics.Canvas
+import android.content.Context
 import android.graphics.Rect
 import android.view.SurfaceHolder
+import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
-import androidx.wear.watchface.CanvasType
+import androidx.wear.watchface.CanvasComplicationFactory
+import androidx.wear.watchface.ComplicationSlotInflationFactory
 import androidx.wear.watchface.ComplicationSlotsManager
 import androidx.wear.watchface.ListenableWatchFaceService
 import androidx.wear.watchface.MutableWatchState
-import androidx.wear.watchface.Renderer
 import androidx.wear.watchface.WatchFace
 import androidx.wear.watchface.WatchFaceType
 import androidx.wear.watchface.WatchState
+import androidx.wear.watchface.complications.rendering.CanvasComplicationDrawable
+import androidx.wear.watchface.complications.rendering.ComplicationDrawable
+import androidx.wear.watchface.guava.test.R
 import androidx.wear.watchface.style.CurrentUserStyleRepository
-import androidx.wear.watchface.style.UserStyleSchema
 import com.google.common.truth.Truth.assertThat
 import com.google.common.util.concurrent.ListenableFuture
 import com.google.common.util.concurrent.SettableFuture
-import org.junit.Assert
+import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mockito
 import java.time.Instant
-import java.time.ZonedDateTime
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 
+val TIME_OUT_MILLIS = 500L
 private val REFERENCE_PREVIEW_TIME = Instant.ofEpochMilli(123456L)
 
-internal class FakeRenderer(
-    surfaceHolder: SurfaceHolder,
-    watchState: WatchState,
-    currentUserStyleRepository: CurrentUserStyleRepository
-) : Renderer.CanvasRenderer(
-    surfaceHolder,
-    currentUserStyleRepository,
-    watchState,
-    CanvasType.SOFTWARE,
-    16
-) {
-    override fun render(canvas: Canvas, bounds: Rect, zonedDateTime: ZonedDateTime) {}
+private class TestAsyncXmlListenableWatchFaceService(
+    testContext: Context
+) : ListenableWatchFaceService() {
 
-    override fun renderHighlightLayer(canvas: Canvas, bounds: Rect, zonedDateTime: ZonedDateTime) {}
-}
+    init {
+        attachBaseContext(testContext)
+    }
 
-private class TestAsyncListenableWatchFaceService :
-    ListenableWatchFaceService() {
+    override fun getXmlWatchFaceResourceId() = R.xml.xml_watchface
+
+    override fun getComplicationSlotInflationFactory() =
+        object : ComplicationSlotInflationFactory() {
+            override fun getCanvasComplicationFactory(
+                slotId: Int
+            ) = CanvasComplicationFactory { watchState, invalidateCallback ->
+                CanvasComplicationDrawable(
+                    ComplicationDrawable(),
+                    watchState,
+                    invalidateCallback
+                )
+            }
+        }
+
+    fun createUserStyleSchemaForTest() = createUserStyleSchema()
+
+    fun createComplicationSlotsManagerForTest(
+        currentUserStyleRepository: CurrentUserStyleRepository
+    ) = createComplicationSlotsManager(currentUserStyleRepository)
+
+    fun createWatchFaceFutureForTest(
+        surfaceHolder: SurfaceHolder,
+        watchState: WatchState,
+        complicationSlotsManager: ComplicationSlotsManager,
+        currentUserStyleRepository: CurrentUserStyleRepository
+    ) = createWatchFaceFuture(
+        surfaceHolder,
+        watchState,
+        complicationSlotsManager,
+        currentUserStyleRepository
+    )
+
     override fun createWatchFaceFuture(
         surfaceHolder: SurfaceHolder,
         watchState: WatchState,
@@ -81,38 +107,26 @@ private class TestAsyncListenableWatchFaceService :
         }
         return future
     }
-
-    fun createWatchFaceFutureForTest(
-        surfaceHolder: SurfaceHolder,
-        watchState: WatchState,
-        complicationSlotsManager: ComplicationSlotsManager,
-        currentUserStyleRepository: CurrentUserStyleRepository
-    ) = createWatchFaceFuture(
-        surfaceHolder,
-        watchState,
-        complicationSlotsManager,
-        currentUserStyleRepository
-    )
 }
 
-/**
- * Illustrates that createWatchFaceFuture can be resolved in a different task posted to the main
- * looper.
- */
 @RunWith(AndroidJUnit4::class)
 @MediumTest
-public class AsyncListenableWatchFaceServiceTest {
+public class AsyncXmlListenableWatchFaceServiceTest {
 
     @Test
     public fun asyncTest() {
-        val service = TestAsyncListenableWatchFaceService()
+        val service = TestAsyncXmlListenableWatchFaceService(
+            ApplicationProvider.getApplicationContext<Context>()
+        )
         val mockSurfaceHolder = Mockito.mock(SurfaceHolder::class.java)
         Mockito.`when`(mockSurfaceHolder.surfaceFrame).thenReturn(Rect(0, 0, 100, 100))
 
         val currentUserStyleRepository =
-            CurrentUserStyleRepository(UserStyleSchema(emptyList()))
+            CurrentUserStyleRepository(service.createUserStyleSchemaForTest())
+
         val complicationSlotsManager =
-            ComplicationSlotsManager(emptyList(), currentUserStyleRepository)
+            service.createComplicationSlotsManagerForTest(currentUserStyleRepository)
+
         val future = service.createWatchFaceFutureForTest(
             mockSurfaceHolder,
             MutableWatchState().asWatchState(),
@@ -128,13 +142,18 @@ public class AsyncListenableWatchFaceServiceTest {
             { runnable -> runnable.run() }
         )
 
-        Assert.assertTrue(latch.await(TIME_OUT_MILLIS, TimeUnit.MILLISECONDS))
+        assertTrue(latch.await(TIME_OUT_MILLIS, TimeUnit.MILLISECONDS))
 
         val watchFace = future.get()
 
         // Simple check that [watchFace] looks sensible.
         assertThat(watchFace.overridePreviewReferenceInstant).isEqualTo(
-            REFERENCE_PREVIEW_TIME
+            REFERENCE_PREVIEW_TIME)
+
+        assertThat(currentUserStyleRepository.schema.toString()).isEqualTo(
+            "[{TimeStyle : minimal, seconds}]"
         )
+
+        assertThat(complicationSlotsManager.complicationSlots.size).isEqualTo(2)
     }
 }

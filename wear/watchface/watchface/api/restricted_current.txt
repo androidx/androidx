@@ -78,6 +78,12 @@ package androidx.wear.watchface {
     method public androidx.wear.watchface.ComplicationSlot.Builder createRoundRectComplicationSlotBuilder(int id, androidx.wear.watchface.CanvasComplicationFactory canvasComplicationFactory, java.util.List<? extends androidx.wear.watchface.complications.data.ComplicationType> supportedTypes, androidx.wear.watchface.complications.DefaultComplicationDataSourcePolicy defaultDataSourcePolicy, androidx.wear.watchface.complications.ComplicationSlotBounds bounds);
   }
 
+  public abstract class ComplicationSlotInflationFactory {
+    ctor public ComplicationSlotInflationFactory();
+    method public abstract androidx.wear.watchface.CanvasComplicationFactory getCanvasComplicationFactory(int slotId);
+    method public androidx.wear.watchface.ComplicationTapFilter getEdgeComplicationTapFilter(int slotId);
+  }
+
   public final class ComplicationSlotsManager {
     ctor public ComplicationSlotsManager(java.util.Collection<androidx.wear.watchface.ComplicationSlot> complicationSlotCollection, androidx.wear.watchface.style.CurrentUserStyleRepository currentUserStyleRepository);
     method @UiThread public void addTapListener(androidx.wear.watchface.ComplicationSlotsManager.TapCallback tapCallback);
@@ -300,6 +306,7 @@ package androidx.wear.watchface {
     method @WorkerThread protected androidx.wear.watchface.style.UserStyleSchema createUserStyleSchema();
     method @WorkerThread protected abstract suspend Object? createWatchFace(android.view.SurfaceHolder surfaceHolder, androidx.wear.watchface.WatchState watchState, androidx.wear.watchface.ComplicationSlotsManager complicationSlotsManager, androidx.wear.watchface.style.CurrentUserStyleRepository currentUserStyleRepository, kotlin.coroutines.Continuation<? super androidx.wear.watchface.WatchFace> p);
     method public final android.os.Handler getBackgroundThreadHandler();
+    method @WorkerThread protected androidx.wear.watchface.ComplicationSlotInflationFactory? getComplicationSlotInflationFactory();
     method public final android.os.Handler getUiThreadHandler();
     method public final android.service.wallpaper.WallpaperService.Engine onCreateEngine();
     field public static final androidx.wear.watchface.WatchFaceService.Companion Companion;

@@ -29,6 +29,7 @@ dependencies {
     api(project(":wear:watchface:watchface"))
     api(libs.guavaAndroid)
 
+    androidTestImplementation(project(":wear:watchface:watchface-complications-rendering"))
     androidTestImplementation(project(":wear:watchface:watchface-client"))
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)

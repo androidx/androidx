@@ -196,14 +196,14 @@ package androidx.wear.watchface.client {
   }
 
   @androidx.wear.watchface.client.WatchFaceClientExperimental public interface WatchFaceMetadataClient extends java.lang.AutoCloseable {
-    method @kotlin.jvm.Throws(exceptionClasses={ServiceNotBoundException::class, ServiceStartFailureException::class}) public default static suspend Object? createWatchFaceMetadataClient(android.content.Context context, android.content.ComponentName watchFaceName, kotlin.coroutines.Continuation<? super androidx.wear.watchface.client.WatchFaceMetadataClient> p) throws androidx.wear.watchface.client.WatchFaceMetadataClient.ServiceNotBoundException, androidx.wear.watchface.client.WatchFaceMetadataClient.ServiceStartFailureException;
+    method @kotlin.jvm.Throws(exceptionClasses={ServiceNotBoundException::class, ServiceStartFailureException::class, PackageManager.NameNotFoundException::class}) public default static suspend Object? createWatchFaceMetadataClient(android.content.Context context, android.content.ComponentName watchFaceName, kotlin.coroutines.Continuation<? super androidx.wear.watchface.client.WatchFaceMetadataClient> p) throws android.content.pm.PackageManager.NameNotFoundException, androidx.wear.watchface.client.WatchFaceMetadataClient.ServiceNotBoundException, androidx.wear.watchface.client.WatchFaceMetadataClient.ServiceStartFailureException;
     method @kotlin.jvm.Throws(exceptionClasses=RemoteException::class) public java.util.Map<java.lang.Integer,androidx.wear.watchface.client.ComplicationSlotMetadata> getComplicationSlotMetadataMap() throws android.os.RemoteException;
     method @kotlin.jvm.Throws(exceptionClasses=RemoteException::class) public androidx.wear.watchface.style.UserStyleSchema getUserStyleSchema() throws android.os.RemoteException;
     field public static final androidx.wear.watchface.client.WatchFaceMetadataClient.Companion Companion;
   }
 
   public static final class WatchFaceMetadataClient.Companion {
-    method @kotlin.jvm.Throws(exceptionClasses={ServiceNotBoundException::class, ServiceStartFailureException::class}) public suspend Object? createWatchFaceMetadataClient(android.content.Context context, android.content.ComponentName watchFaceName, kotlin.coroutines.Continuation<? super androidx.wear.watchface.client.WatchFaceMetadataClient> p) throws androidx.wear.watchface.client.WatchFaceMetadataClient.ServiceNotBoundException, androidx.wear.watchface.client.WatchFaceMetadataClient.ServiceStartFailureException;
+    method @kotlin.jvm.Throws(exceptionClasses={ServiceNotBoundException::class, ServiceStartFailureException::class, PackageManager.NameNotFoundException::class}) public suspend Object? createWatchFaceMetadataClient(android.content.Context context, android.content.ComponentName watchFaceName, kotlin.coroutines.Continuation<? super androidx.wear.watchface.client.WatchFaceMetadataClient> p) throws android.content.pm.PackageManager.NameNotFoundException, androidx.wear.watchface.client.WatchFaceMetadataClient.ServiceNotBoundException, androidx.wear.watchface.client.WatchFaceMetadataClient.ServiceStartFailureException;
   }
 
   public static final class WatchFaceMetadataClient.ServiceNotBoundException extends java.lang.Exception {
