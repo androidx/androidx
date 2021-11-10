@@ -359,6 +359,7 @@ package androidx.work {
   public abstract class Worker extends androidx.work.ListenableWorker {
     ctor @Keep public Worker(android.content.Context, androidx.work.WorkerParameters);
     method @WorkerThread public abstract androidx.work.ListenableWorker.Result doWork();
+    method @WorkerThread public androidx.work.ForegroundInfo getForegroundInfo();
     method public final com.google.common.util.concurrent.ListenableFuture<androidx.work.ListenableWorker.Result!> startWork();
   }
 
