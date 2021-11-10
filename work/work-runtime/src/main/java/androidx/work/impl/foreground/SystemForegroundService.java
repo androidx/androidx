@@ -97,6 +97,7 @@ public class SystemForegroundService extends LifecycleService implements
         mDispatcher.setCallback(this);
     }
 
+    @SuppressWarnings("deprecation")
     @MainThread
     @Override
     public void stop() {
