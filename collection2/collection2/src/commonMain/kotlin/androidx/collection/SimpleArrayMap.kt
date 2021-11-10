@@ -246,7 +246,7 @@ open class SimpleArrayMap<K, V> {
      * or null if there is no such key.
      */
     @Suppress("UNCHECKED_CAST")
-    open fun get(key: K): V? {
+    open operator fun get(key: K): V? {
         // TODO: Explain why re-impl instead of using getOrDefault()
         val index = indexOfKey(key)
         return if (index >= 0) keyValues[(index shl 1) + 1] as V else null

@@ -30,8 +30,9 @@ buildscript {
 
 plugins {
     id("AndroidXPlugin")
-    id("java") // https://github.com/gradle/gradle/issues/18622
+    // multiplatform must be above java due to b/205844758
     id("org.jetbrains.kotlin.multiplatform")
+    id("java") // https://github.com/gradle/gradle/issues/18622
     id("me.champeau.gradle.japicmp")
 }
 
