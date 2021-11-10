@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.glance.layout
+package androidx.glance
 
 import android.app.Activity
 import androidx.glance.action.ActionModifier
 import androidx.glance.action.LaunchActivityAction
 import androidx.glance.action.actionLaunchActivity
-import androidx.glance.findModifier
+import androidx.glance.layout.runTestingComposition
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.TestCoroutineScope

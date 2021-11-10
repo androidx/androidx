@@ -22,17 +22,17 @@ import android.util.Log
 import android.widget.RemoteViews
 import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
+import androidx.glance.AndroidResourceImageProvider
+import androidx.glance.BitmapImageProvider
+import androidx.glance.layout.ContentScale
+import androidx.glance.EmittableImage
+import androidx.glance.IconImageProvider
 import androidx.glance.appwidget.GlanceAppWidgetTag
 import androidx.glance.appwidget.LayoutType
 import androidx.glance.appwidget.TranslationContext
+import androidx.glance.appwidget.UriImageProvider
 import androidx.glance.appwidget.applyModifiers
 import androidx.glance.appwidget.insertView
-import androidx.glance.appwidget.layout.UriImageProvider
-import androidx.glance.layout.AndroidResourceImageProvider
-import androidx.glance.layout.BitmapImageProvider
-import androidx.glance.layout.ContentScale
-import androidx.glance.layout.EmittableImage
-import androidx.glance.layout.IconImageProvider
 
 internal fun RemoteViews.translateEmittableImage(
     translationContext: TranslationContext,

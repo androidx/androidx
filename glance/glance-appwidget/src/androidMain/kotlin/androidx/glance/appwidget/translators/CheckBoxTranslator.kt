@@ -28,16 +28,16 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.core.widget.setCompoundButtonTintList
 import androidx.core.widget.setImageViewColorFilter
+import androidx.glance.appwidget.CheckBoxColors
+import androidx.glance.appwidget.EmittableCheckBox
 import androidx.glance.appwidget.LayoutType
 import androidx.glance.appwidget.R
+import androidx.glance.appwidget.ResolvedCheckBoxColors
+import androidx.glance.appwidget.ResourceCheckBoxColors
 import androidx.glance.appwidget.TranslationContext
 import androidx.glance.appwidget.applyModifiers
 import androidx.glance.appwidget.inflateViewStub
 import androidx.glance.appwidget.insertView
-import androidx.glance.appwidget.layout.CheckBoxColors
-import androidx.glance.appwidget.layout.EmittableCheckBox
-import androidx.glance.appwidget.layout.ResolvedCheckBoxColors
-import androidx.glance.appwidget.layout.ResourceCheckBoxColors
 import androidx.glance.appwidget.setViewEnabled
 
 internal fun RemoteViews.translateEmittableCheckBox(

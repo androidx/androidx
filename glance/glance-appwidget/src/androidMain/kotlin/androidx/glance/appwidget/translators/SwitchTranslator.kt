@@ -19,13 +19,13 @@ package androidx.glance.appwidget.translators
 import android.os.Build
 import android.view.Gravity
 import android.widget.RemoteViews
+import androidx.glance.appwidget.EmittableSwitch
 import androidx.glance.appwidget.LayoutType
 import androidx.glance.appwidget.R
 import androidx.glance.appwidget.TranslationContext
 import androidx.glance.appwidget.applyModifiers
 import androidx.glance.appwidget.inflateViewStub
 import androidx.glance.appwidget.insertView
-import androidx.glance.appwidget.layout.EmittableSwitch
 import androidx.glance.appwidget.setViewEnabled
 
 internal fun RemoteViews.translateEmittableSwitch(

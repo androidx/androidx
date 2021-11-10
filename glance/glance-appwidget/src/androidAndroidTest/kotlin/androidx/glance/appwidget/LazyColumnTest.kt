@@ -26,11 +26,11 @@ import android.widget.TextView
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.glance.GlanceModifier
-import androidx.glance.appwidget.layout.LazyColumn
-import androidx.glance.appwidget.layout.ReservedItemIdRangeEnd
+import androidx.glance.appwidget.lazy.LazyColumn
+import androidx.glance.appwidget.lazy.ReservedItemIdRangeEnd
 import androidx.glance.layout.Alignment
-import androidx.glance.layout.Text
 import androidx.glance.layout.padding
+import androidx.glance.text.Text
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat

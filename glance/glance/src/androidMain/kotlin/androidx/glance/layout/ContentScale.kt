@@ -16,6 +16,8 @@
 
 package androidx.glance.layout
 
+import androidx.glance.Image
+
 /**
  * Scaling to be used when an element is smaller than its available bounds. Mainly used by
  * [Image] to dictate how the image should be drawn within the [Image] element's bounding box.

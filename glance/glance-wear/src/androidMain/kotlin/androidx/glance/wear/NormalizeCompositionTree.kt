@@ -20,29 +20,29 @@ import android.content.Context
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
+import androidx.glance.AndroidResourceImageProvider
+import androidx.glance.BitmapImageProvider
 import androidx.glance.Emittable
+import androidx.glance.EmittableImage
 import androidx.glance.EmittableWithChildren
 import androidx.glance.GlanceModifier
+import androidx.glance.IconImageProvider
+import androidx.glance.ImageProvider
+import androidx.glance.Visibility
+import androidx.glance.VisibilityModifier
 import androidx.glance.findModifier
-import androidx.glance.layout.AndroidResourceImageProvider
-import androidx.glance.layout.BitmapImageProvider
-import androidx.glance.layout.Dimension
-import androidx.glance.layout.EmittableImage
 import androidx.glance.layout.EmittableSpacer
-import androidx.glance.layout.EmittableText
 import androidx.glance.layout.HeightModifier
-import androidx.glance.layout.IconImageProvider
-import androidx.glance.layout.ImageProvider
 import androidx.glance.layout.PaddingModifier
-import androidx.glance.layout.Visibility
-import androidx.glance.layout.VisibilityModifier
 import androidx.glance.layout.WidthModifier
 import androidx.glance.layout.size
-import androidx.glance.layout.visibility
+import androidx.glance.text.EmittableText
 import androidx.glance.text.TextStyle
 import androidx.glance.unit.ColorProvider
-import androidx.glance.wear.layout.CurvedTextStyle
-import androidx.glance.wear.layout.EmittableCurvedText
+import androidx.glance.unit.Dimension
+import androidx.glance.visibility
+import androidx.glance.wear.curved.CurvedTextStyle
+import androidx.glance.wear.curved.EmittableCurvedText
 
 internal fun normalizeCompositionTree(context: Context, root: EmittableWithChildren) {
     root.transformTree { view ->

@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package androidx.glance.appwidget.layout
+package androidx.glance.appwidget
 
 import android.net.Uri
-import androidx.glance.layout.ImageProvider
+import androidx.glance.ImageProvider
 
 internal class UriImageProvider(val uri: Uri) : ImageProvider {
     override fun toString() = "UriImageProvider(uri='$uri')"

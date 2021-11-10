@@ -21,6 +21,7 @@ import androidx.compose.runtime.Composable
 import androidx.glance.EmittableWithChildren
 import androidx.glance.GlanceModifier
 import androidx.glance.GlanceNode
+import androidx.glance.unit.Dimension
 
 /** @suppress */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)

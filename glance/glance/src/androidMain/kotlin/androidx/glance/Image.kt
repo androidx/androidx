@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.glance.layout
+package androidx.glance
 
 import android.graphics.Bitmap
 import android.graphics.drawable.Icon
@@ -23,9 +23,7 @@ import androidx.annotation.DrawableRes
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.compose.runtime.Composable
-import androidx.glance.Emittable
-import androidx.glance.GlanceModifier
-import androidx.glance.GlanceNode
+import androidx.glance.layout.ContentScale
 
 /**
  * Interface representing an Image source which can be used with a Glance [Image] element.

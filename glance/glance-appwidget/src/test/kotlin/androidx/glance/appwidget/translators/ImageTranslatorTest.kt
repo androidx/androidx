@@ -26,12 +26,12 @@ import android.net.Uri
 import android.widget.ImageView
 import androidx.core.graphics.drawable.toBitmap
 import androidx.glance.appwidget.applyRemoteViews
-import androidx.glance.appwidget.layout.ImageProvider
+import androidx.glance.appwidget.ImageProvider
 import androidx.glance.appwidget.runAndTranslate
 import androidx.glance.appwidget.test.R
 import androidx.glance.layout.ContentScale
-import androidx.glance.layout.Image
-import androidx.glance.layout.ImageProvider
+import androidx.glance.Image
+import androidx.glance.ImageProvider
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat

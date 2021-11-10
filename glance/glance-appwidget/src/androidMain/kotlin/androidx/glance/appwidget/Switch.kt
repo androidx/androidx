@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.glance.appwidget.layout
+package androidx.glance.appwidget
 
 import androidx.compose.runtime.Composable
 import androidx.glance.Emittable

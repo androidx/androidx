@@ -15,17 +15,17 @@
  */
 package androidx.glance.appwidget
 
+import androidx.glance.AndroidResourceImageProvider
 import androidx.glance.BackgroundModifier
+import androidx.glance.layout.ContentScale
 import androidx.glance.Emittable
+import androidx.glance.EmittableImage
 import androidx.glance.EmittableWithChildren
 import androidx.glance.GlanceModifier
-import androidx.glance.appwidget.layout.EmittableLazyListItem
+import androidx.glance.appwidget.lazy.EmittableLazyListItem
 import androidx.glance.extractModifier
 import androidx.glance.layout.Alignment
-import androidx.glance.layout.AndroidResourceImageProvider
-import androidx.glance.layout.ContentScale
 import androidx.glance.layout.EmittableBox
-import androidx.glance.layout.EmittableImage
 import androidx.glance.layout.HeightModifier
 import androidx.glance.layout.WidthModifier
 import androidx.glance.layout.fillMaxSize

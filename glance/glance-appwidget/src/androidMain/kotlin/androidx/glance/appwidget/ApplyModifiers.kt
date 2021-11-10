@@ -37,8 +37,11 @@ import androidx.core.widget.setViewBackgroundColor
 import androidx.core.widget.setViewBackgroundColorResource
 import androidx.core.widget.setViewBackgroundResource
 import androidx.core.widget.setViewClipToOutline
+import androidx.glance.AndroidResourceImageProvider
 import androidx.glance.BackgroundModifier
 import androidx.glance.GlanceModifier
+import androidx.glance.Visibility
+import androidx.glance.VisibilityModifier
 import androidx.glance.action.Action
 import androidx.glance.action.ActionModifier
 import androidx.glance.action.LaunchActivityAction
@@ -48,13 +51,10 @@ import androidx.glance.action.UpdateContentAction
 import androidx.glance.appwidget.action.LaunchActivityIntentAction
 import androidx.glance.appwidget.layout.CornerRadiusModifier
 import androidx.glance.appwidget.unit.DayNightColorProvider
-import androidx.glance.layout.AndroidResourceImageProvider
-import androidx.glance.layout.Dimension
 import androidx.glance.layout.HeightModifier
 import androidx.glance.layout.PaddingModifier
-import androidx.glance.layout.Visibility
-import androidx.glance.layout.VisibilityModifier
 import androidx.glance.layout.WidthModifier
+import androidx.glance.unit.Dimension
 import androidx.glance.unit.FixedColorProvider
 import androidx.glance.unit.ResourceColorProvider
 
