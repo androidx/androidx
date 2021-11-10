@@ -345,7 +345,7 @@ class ArraySet<E>
         return removed
     }
 
-    override fun contains(element: E): Boolean = indexOf(element) >= 0
+    override operator fun contains(element: E): Boolean = indexOf(element) >= 0
 
     override fun containsAll(elements: Collection<E>): Boolean {
         return elements.all { it in this }
