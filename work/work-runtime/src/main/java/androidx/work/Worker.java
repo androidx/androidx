@@ -93,4 +93,42 @@ public abstract class Worker extends ListenableWorker {
         });
         return mFuture;
     }
+
+    @Override
+    public @NonNull ListenableFuture<ForegroundInfo> getForegroundInfoAsync() {
+        SettableFuture<ForegroundInfo> future = SettableFuture.create();
+        getBackgroundExecutor().execute(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    ForegroundInfo info = getForegroundInfo();
+                    future.set(info);
+                } catch (Throwable throwable) {
+                    future.setException(throwable);
+                }
+            }
+        });
+        return future;
+    }
+
+    /**
+     * Return an instance of {@link  ForegroundInfo} if the {@link WorkRequest} is important to
+     * the user.  In this case, WorkManager provides a signal to the OS that the process should
+     * be kept alive while this work is executing.
+     * <p>
+     * Prior to Android S, WorkManager manages and runs a foreground service on your behalf to
+     * execute the WorkRequest, showing the notification provided in the {@link ForegroundInfo}.
+     * To update this notification subsequently, the application can use
+     * {@link android.app.NotificationManager}.
+     * <p>
+     * Starting in Android S and above, WorkManager manages this WorkRequest using an immediate job.
+     *
+     * @return A {@link ForegroundInfo} instance if the WorkRequest is marked immediate.
+     * For more information look at {@link WorkRequest.Builder#setExpedited(OutOfQuotaPolicy)}.
+     */
+    @WorkerThread
+    public @NonNull ForegroundInfo getForegroundInfo() {
+        throw new IllegalStateException("Expedited WorkRequests require a Worker to "
+                + "provide an implementation for \n `getForegroundInfo()`");
+    }
 }
