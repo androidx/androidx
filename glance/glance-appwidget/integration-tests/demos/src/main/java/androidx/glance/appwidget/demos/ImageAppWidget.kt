@@ -60,7 +60,7 @@ class ImageAppWidget : GlanceAppWidget() {
                 onClick = actionRunCallback<ChangeImageAction>()
             )
             Image(
-                provider = ImageProvider(R.drawable.ic_launcher_foreground),
+                provider = ImageProvider(R.drawable.compose),
                 contentDescription = "Content Scale image sample (value: $contentScale)",
                 contentScale = contentScale,
                 modifier = GlanceModifier.fillMaxSize().background(Color.DarkGray)
