@@ -19,6 +19,7 @@ package androidx.glance.appwidget.translators
 import android.content.Context
 import android.content.res.ColorStateList
 import android.os.Build
+import android.util.Log
 import android.view.Gravity
 import android.widget.RemoteViews
 import androidx.annotation.ColorRes
@@ -29,16 +30,22 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.core.widget.setCompoundButtonTintList
 import androidx.core.widget.setImageViewColorFilter
 import androidx.glance.appwidget.CheckBoxColors
+import androidx.glance.appwidget.ColorProviderCheckBoxColors
 import androidx.glance.appwidget.EmittableCheckBox
+import androidx.glance.appwidget.GlanceAppWidgetTag
 import androidx.glance.appwidget.LayoutType
 import androidx.glance.appwidget.R
-import androidx.glance.appwidget.ResolvedCheckBoxColors
 import androidx.glance.appwidget.ResourceCheckBoxColors
 import androidx.glance.appwidget.TranslationContext
 import androidx.glance.appwidget.applyModifiers
 import androidx.glance.appwidget.inflateViewStub
 import androidx.glance.appwidget.insertView
 import androidx.glance.appwidget.setViewEnabled
+import androidx.glance.appwidget.unit.DayNightColorProvider
+import androidx.glance.appwidget.unit.isNightMode
+import androidx.glance.unit.ColorProvider
+import androidx.glance.unit.FixedColorProvider
+import androidx.glance.unit.ResourceColorProvider
 
 internal fun RemoteViews.translateEmittableCheckBox(
     translationContext: TranslationContext,
@@ -62,8 +69,10 @@ internal fun RemoteViews.translateEmittableCheckBox(
             element.checked
         )
         when (val colors = element.colors) {
-            is ResolvedCheckBoxColors -> {
-                setCompoundButtonTintList(viewDef.mainViewId, colors.toColorStateList())
+            is ColorProviderCheckBoxColors -> {
+                colors.toDayNightColorStateList()?.let { (day, night) ->
+                    setCompoundButtonTintList(viewDef.mainViewId, notNight = day, night = night)
+                }
             }
             is ResourceCheckBoxColors -> setCompoundButtonTintList(viewDef.mainViewId, colors.resId)
         }.let {}
@@ -71,10 +80,9 @@ internal fun RemoteViews.translateEmittableCheckBox(
         val iconId = inflateViewStub(translationContext, R.id.checkBoxIcon)
         textViewId = inflateViewStub(translationContext, R.id.checkBoxText)
         setViewEnabled(iconId, element.checked)
-        setImageViewColorFilter(
-            iconId,
-            element.colors.resolve(translationContext.context, element.checked).toArgb()
-        )
+        element.colors.resolve(translationContext.context, element.checked)?.let {
+            setImageViewColorFilter(iconId, it.toArgb())
+        }
     }
 
     setText(
@@ -87,30 +95,56 @@ internal fun RemoteViews.translateEmittableCheckBox(
     applyModifiers(translationContext, this, element.modifier, viewDef)
 }
 
-private fun ResolvedCheckBoxColors.toColorStateList(): ColorStateList {
-    return ColorStateList(
-        arrayOf(intArrayOf(android.R.attr.state_checked), intArrayOf()),
-        intArrayOf(checked.toArgb(), unchecked.toArgb())
+private fun ColorProviderCheckBoxColors.toDayNightColorStateList(): DayNightColorStateList? {
+    require(checked !is ResourceColorProvider && unchecked !is ResourceColorProvider) {
+        "Resource-backed ColorProviders may not be used for CheckBox Colors. Use " +
+            "CheckBoxColors(Int) instead, providing a resource for a color or color selector."
+    }
+
+    fun ColorProvider.getColor(isNight: Boolean) = when (this) {
+        is FixedColorProvider -> this.color
+        is DayNightColorProvider -> if (isNight) this.night else this.day
+        else -> {
+            Log.w(GlanceAppWidgetTag, "Unexpected checkbox color provider: $this")
+            null
+        }
+    }
+
+    val dayChecked = checked.getColor(isNight = false) ?: return null
+    val dayUnchecked = unchecked.getColor(isNight = false) ?: return null
+    val nightChecked = checked.getColor(isNight = true) ?: return null
+    val nightUnchecked = unchecked.getColor(isNight = true) ?: return null
+    return DayNightColorStateList(
+        day = createCheckedColorStateList(checked = dayChecked, unchecked = dayUnchecked),
+        night = createCheckedColorStateList(checked = nightChecked, unchecked = nightUnchecked)
     )
 }
 
-private fun CheckBoxColors.resolve(context: Context, isChecked: Boolean): Color {
-    return when (this) {
-        is ResolvedCheckBoxColors -> if (isChecked) checked else unchecked
-        is ResourceCheckBoxColors -> {
-            val colorStateList = getColorStateList(context, resId)
-            return Color(
-                colorStateList.getColorForState(
-                    if (isChecked) CheckedStateSet else UncheckedStateSet,
-                    colorStateList.defaultColor
-                )
-            )
+private fun CheckBoxColors.resolve(context: Context, isChecked: Boolean): Color? {
+    val colorStateList = when (this) {
+        is ColorProviderCheckBoxColors -> {
+            val (day, night) = toDayNightColorStateList() ?: return null
+            if (context.isNightMode) night else day
         }
+        is ResourceCheckBoxColors -> getColorStateList(context, resId)
     }
+    return Color(
+        colorStateList.getColorForState(
+            if (isChecked) CheckedStateSet else UncheckedStateSet,
+            colorStateList.defaultColor
+        )
+    )
 }
 
 private val CheckedStateSet = intArrayOf(android.R.attr.state_checked)
 private val UncheckedStateSet = intArrayOf(-android.R.attr.state_checked)
+
+private fun createCheckedColorStateList(checked: Color, unchecked: Color): ColorStateList {
+    return ColorStateList(
+        arrayOf(CheckedStateSet, intArrayOf()),
+        intArrayOf(checked.toArgb(), unchecked.toArgb())
+    )
+}
 
 private fun getColorStateList(context: Context, @ColorRes resId: Int): ColorStateList {
     if (Build.VERSION.SDK_INT >= 23) {
@@ -124,6 +158,8 @@ private fun getColorStateList(context: Context, @ColorRes resId: Int): ColorStat
         )
     }
 }
+
+private data class DayNightColorStateList(val day: ColorStateList, val night: ColorStateList)
 
 @RequiresApi(23)
 private object CheckBoxTranslatorApi23Impl {
