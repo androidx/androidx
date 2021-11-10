@@ -627,6 +627,34 @@ class XTypeTest {
         }
     }
 
+    @Test
+    fun superTypes() {
+        val libSource = Source.kotlin(
+            "foo.kt",
+            """
+            package foo.bar;
+            class Baz : MyInterface, AbstractClass<String>() {
+            }
+            abstract class AbstractClass<T> {}
+            interface MyInterface {}
+            """.trimIndent()
+        )
+        runProcessorTest(listOf(libSource)) { invocation ->
+            invocation.processingEnv.requireType("foo.bar.Baz").let {
+                val superTypes = it.superTypes
+                assertThat(superTypes).hasSize(2)
+                val superClass = superTypes.first {
+                        type -> type.rawType.toString() == "foo.bar.AbstractClass" }
+                val superInterface = superTypes.first {
+                        type -> type.rawType.toString() == "foo.bar.MyInterface" }
+                assertThat(superClass.typeArguments).hasSize(1)
+                assertThat(superClass.typeArguments[0].typeName)
+                    .isEqualTo(ClassName.get("java.lang", "String"))
+                assertThat(superInterface.typeArguments).isEmpty()
+            }
+        }
+    }
+
     /**
      * Dumps the typename with its bounds in a given depth.
      * This makes tests more readable.
