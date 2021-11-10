@@ -171,6 +171,7 @@ private val goldenDefaultConfig = """
     <include name="google/unbundled/common/setup" />
     <target_preparer class="com.android.tradefed.targetprep.suite.SuiteApkInstaller">
     <option name="cleanup-apks" value="false" />
+    <option name="install-arg" value="-t" />
     <option name="test-file-name" value="placeholder.apk" />
     </target_preparer>
     <test class="com.android.tradefed.testtype.AndroidJUnitTest">
@@ -203,6 +204,7 @@ private val goldenMediaDefaultConfig = """
     <include name="google/unbundled/common/setup" />
     <target_preparer class="com.android.tradefed.targetprep.suite.SuiteApkInstaller">
     <option name="cleanup-apks" value="true" />
+    <option name="install-arg" value="-t" />
     <option name="test-file-name" value="clientPlaceholder.apk" />
     <option name="test-file-name" value="servicePlaceholder.apk" />
     </target_preparer>
