@@ -39,7 +39,10 @@ import androidx.compose.ui.unit.dp
 import androidx.glance.Applier
 import androidx.glance.LocalContext
 import androidx.glance.LocalSize
+import androidx.glance.LocalState
 import kotlinx.coroutines.CancellationException
+import androidx.glance.state.GlanceState
+import androidx.glance.state.GlanceStateDefinition
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
@@ -70,7 +73,12 @@ public abstract class GlanceAppWidget(
     /**
      * Defines the handling of sizes.
      */
-    open val sizeMode: SizeMode = SizeMode.Single
+    public open val sizeMode: SizeMode = SizeMode.Single
+
+    /**
+     * Data store for widget data specific to the view.
+     */
+    public open val stateDefinition: GlanceStateDefinition<*>? = null
 
     /**
      * Triggers the composition of [Content] and sends the result to the [AppWidgetManager].
@@ -93,9 +101,12 @@ public abstract class GlanceAppWidget(
     ) {
         safeRun(context, appWidgetManager, appWidgetId) {
             val opts = options ?: appWidgetManager.getAppWidgetOptions(appWidgetId)!!
+            val state = stateDefinition?.let {
+                GlanceState.getValue(context, it, createUniqueRemoteUiName(appWidgetId))
+            }
             appWidgetManager.updateAppWidget(
                 appWidgetId,
-                compose(context, appWidgetManager, appWidgetId, opts)
+                compose(context, appWidgetManager, appWidgetId, state, opts)
             )
         }
     }
@@ -151,6 +162,7 @@ public abstract class GlanceAppWidget(
         context: Context,
         appWidgetManager: AppWidgetManager,
         appWidgetId: Int,
+        state: Any?,
         options: Bundle
     ): RemoteViews =
         when (val localSizeMode = this.sizeMode) {
@@ -158,6 +170,7 @@ public abstract class GlanceAppWidget(
                 composeForSize(
                     context,
                     appWidgetId,
+                    state,
                     options,
                     appWidgetMinSize(
                         context.resources.displayMetrics,
@@ -173,6 +186,7 @@ public abstract class GlanceAppWidget(
                         this,
                         context,
                         appWidgetId,
+                        state,
                         options,
                         options.extractAllSizes {
                             appWidgetMinSize(
@@ -183,7 +197,7 @@ public abstract class GlanceAppWidget(
                         }
                     )
                 } else {
-                    composeExactMode(context, appWidgetManager, appWidgetId, options)
+                    composeExactMode(context, appWidgetManager, appWidgetId, state, options)
                 }
             }
             is SizeMode.Responsive -> {
@@ -192,11 +206,12 @@ public abstract class GlanceAppWidget(
                         this,
                         context,
                         appWidgetId,
+                        state,
                         options,
                         localSizeMode.sizes,
                     )
                 } else {
-                    composeResponsiveMode(context, appWidgetId, options, localSizeMode.sizes)
+                    composeResponsiveMode(context, appWidgetId, state, options, localSizeMode.sizes)
                 }
             }
         }
@@ -205,6 +220,7 @@ public abstract class GlanceAppWidget(
         context: Context,
         appWidgetManager: AppWidgetManager,
         appWidgetId: Int,
+        state: Any?,
         options: Bundle,
     ) = coroutineScope {
         val views =
@@ -214,6 +230,7 @@ public abstract class GlanceAppWidget(
                         composeForSize(
                             context,
                             appWidgetId,
+                            state,
                             options,
                             size,
                             rootViewIndex = index
@@ -223,6 +240,7 @@ public abstract class GlanceAppWidget(
         combineLandscapeAndPortrait(views) ?: composeForSize(
             context,
             appWidgetId,
+            state,
             options,
             appWidgetMinSize(context.resources.displayMetrics, appWidgetManager, appWidgetId),
             rootViewIndex = 0,
@@ -242,6 +260,7 @@ public abstract class GlanceAppWidget(
     private suspend fun composeResponsiveMode(
         context: Context,
         appWidgetId: Int,
+        state: Any?,
         options: Bundle,
         sizes: Set<DpSize>
     ) = coroutineScope {
@@ -259,6 +278,7 @@ public abstract class GlanceAppWidget(
                         composeForSize(
                             context,
                             appWidgetId,
+                            state,
                             options,
                             size,
                             rootViewIndex = index,
@@ -268,6 +288,7 @@ public abstract class GlanceAppWidget(
         combineLandscapeAndPortrait(views) ?: composeForSize(
             context,
             appWidgetId,
+            state,
             options,
             smallestSize,
             rootViewIndex = 0,
@@ -278,6 +299,7 @@ public abstract class GlanceAppWidget(
     internal suspend fun composeForSize(
         context: Context,
         appWidgetId: Int,
+        state: Any?,
         options: Bundle,
         size: DpSize,
         rootViewIndex: Int,
@@ -288,11 +310,14 @@ public abstract class GlanceAppWidget(
         val recomposer = Recomposer(coroutineContext)
         val composition = Composition(applier, recomposer)
         val glanceId = AppWidgetId(appWidgetId)
+        val uiKey = createUniqueRemoteUiName(appWidgetId)
         composition.setContent {
             CompositionLocalProvider(
                 LocalContext provides context,
                 LocalGlanceId provides glanceId,
                 LocalAppWidgetOptions provides options,
+                LocalUiKey provides uiKey,
+                LocalState provides state,
                 LocalSize provides size,
             ) { Content() }
         }
@@ -302,6 +327,7 @@ public abstract class GlanceAppWidget(
 
         normalizeCompositionTree(root)
 
+        // TODO: Traverse the tree before translation and store the layout state, to detect changes
         translateComposition(
             context,
             appWidgetId,
@@ -326,6 +352,7 @@ public abstract class GlanceAppWidget(
             glance: GlanceAppWidget,
             context: Context,
             appWidgetId: Int,
+            state: Any?,
             options: Bundle,
             allSizes: Collection<DpSize>,
         ): RemoteViews = coroutineScope {
@@ -335,6 +362,7 @@ public abstract class GlanceAppWidget(
                         size.toSizeF() to glance.composeForSize(
                             context,
                             appWidgetId,
+                            state,
                             options,
                             size,
                             rootViewIndex = index
@@ -365,6 +393,8 @@ public abstract class GlanceAppWidget(
         }
     }
 }
+
+internal fun createUniqueRemoteUiName(appWidgetId: Int) = "appWidget-$appWidgetId"
 
 internal data class AppWidgetId(val appWidgetId: Int) : GlanceId
 

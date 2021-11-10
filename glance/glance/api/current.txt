@@ -17,10 +17,13 @@ package androidx.glance {
   }
 
   public final class CompositionLocalsKt {
+    method @androidx.compose.runtime.Composable public static inline <reified T> T! currentState();
     method public static androidx.compose.runtime.ProvidableCompositionLocal<android.content.Context> getLocalContext();
     method public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.unit.DpSize> getLocalSize();
+    method public static androidx.compose.runtime.ProvidableCompositionLocal<java.lang.Object> getLocalState();
     property public static final androidx.compose.runtime.ProvidableCompositionLocal<android.content.Context> LocalContext;
     property public static final androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.unit.DpSize> LocalSize;
+    property public static final androidx.compose.runtime.ProvidableCompositionLocal<java.lang.Object> LocalState;
   }
 
   @androidx.compose.runtime.Stable public interface GlanceModifier {
@@ -275,6 +278,21 @@ package androidx.glance.layout {
 
   public final class VisibilityKt {
     method public static androidx.glance.GlanceModifier visibility(androidx.glance.GlanceModifier, androidx.glance.layout.Visibility visibility);
+  }
+
+}
+
+package androidx.glance.state {
+
+  public final class GlanceState {
+    method public suspend <T> Object? getValue(android.content.Context context, androidx.glance.state.GlanceStateDefinition<T> definition, String fileName, kotlin.coroutines.Continuation<? super T> p);
+    method public suspend <T> Object? updateValue(android.content.Context context, androidx.glance.state.GlanceStateDefinition<T> definition, String fileName, kotlin.jvm.functions.Function2<? super T,? super kotlin.coroutines.Continuation<? super T>,?> updateBlock, kotlin.coroutines.Continuation<? super T> p);
+    field public static final androidx.glance.state.GlanceState INSTANCE;
+  }
+
+  public interface GlanceStateDefinition<T> {
+    method public suspend <T> Object? getDataStore(android.content.Context context, String fileKey, kotlin.coroutines.Continuation<? super androidx.datastore.core.DataStore<T>> p);
+    method public java.io.File getLocation(android.content.Context context, String fileKey);
   }
 
 }

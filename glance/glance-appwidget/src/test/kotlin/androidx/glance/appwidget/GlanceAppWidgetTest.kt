@@ -32,6 +32,11 @@ import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.max
 import androidx.compose.ui.unit.min
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.PreferenceDataStoreFactory
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.preferencesDataStoreFile
+import androidx.glance.state.GlanceStateDefinition
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.mock
@@ -44,6 +49,7 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import org.robolectric.shadows.ShadowLog
+import java.io.File
 import kotlin.test.assertIs
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -64,7 +70,14 @@ class GlanceAppWidgetTest {
     fun createEmptyUI() = fakeCoroutineScope.runBlockingTest {
         val composer = SampleGlanceAppWidget { }
 
-        val rv = composer.composeForSize(context, 1, Bundle(), DpSize(40.dp, 50.dp), 0)
+        val rv = composer.composeForSize(
+            context,
+            1,
+            EmptyStateDefinition,
+            Bundle(),
+            DpSize(40.dp, 50.dp),
+            0
+        )
 
         val view = context.applyRemoteViews(rv)
         assertIs<RelativeLayout>(view)
@@ -78,7 +91,14 @@ class GlanceAppWidgetTest {
             Text("${size.width} x ${size.height}")
         }
 
-        val rv = composer.composeForSize(context, 1, Bundle(), DpSize(40.dp, 50.dp), 0)
+        val rv = composer.composeForSize(
+            context,
+            1,
+            EmptyStateDefinition,
+            Bundle(),
+            DpSize(40.dp, 50.dp),
+            0
+        )
 
         val view = context.applyRemoteViews(rv)
         assertIs<TextView>(view)
@@ -95,8 +115,14 @@ class GlanceAppWidgetTest {
 
         val bundle = Bundle()
         bundle.putString("StringKey", "FOUND")
-        val rv =
-            composer.composeForSize(context, 1, bundle, DpSize(40.dp, 50.dp), 0)
+        val rv = composer.composeForSize(
+            context,
+            1,
+            EmptyStateDefinition,
+            bundle,
+            DpSize(40.dp, 50.dp),
+            0
+        )
 
         val view = context.applyRemoteViews(rv)
         assertIs<TextView>(view)
@@ -112,8 +138,14 @@ class GlanceAppWidgetTest {
         }
 
         val bundle = bundleOf("StringKey" to "FOUND")
-        val rv =
-            composer.composeForSize(context, 1, bundle, DpSize(40.dp, 50.dp), 0)
+        val rv = composer.composeForSize(
+            context,
+            1,
+            EmptyStateDefinition,
+            bundle,
+            DpSize(40.dp, 50.dp),
+            0
+        )
 
         val view = context.applyRemoteViews(rv)
         assertIs<TextView>(view)
@@ -138,7 +170,13 @@ class GlanceAppWidgetTest {
             )
         }
 
-        val rv = composer.compose(context, appWidgetManager, appWidgetId = 1, options = Bundle())
+        val rv = composer.compose(
+            context,
+            appWidgetManager,
+            appWidgetId = 1,
+            EmptyStateDefinition,
+            options = Bundle()
+        )
 
         val view = context.applyRemoteViews(rv)
         assertIs<TextView>(view)
@@ -156,7 +194,13 @@ class GlanceAppWidgetTest {
         val appWidgetManager = mock<AppWidgetManager> {
             on { getAppWidgetInfo(1) }.thenThrow(RuntimeException("This should not be called"))
         }
-        val rv = composer.compose(context, appWidgetManager, appWidgetId = 1, options = options)
+        val rv = composer.compose(
+            context,
+            appWidgetManager,
+            appWidgetId = 1,
+            EmptyStateDefinition,
+            options = options
+        )
 
         val portraitView = createPortraitContext().applyRemoteViews(rv)
         assertIs<TextView>(portraitView)
@@ -184,7 +228,13 @@ class GlanceAppWidgetTest {
                 }
             )
         }
-        val rv = composer.compose(context, appWidgetManager, appWidgetId = 1, options = Bundle())
+        val rv = composer.compose(
+            context,
+            appWidgetManager,
+            appWidgetId = 1,
+            EmptyStateDefinition,
+            options = Bundle()
+        )
 
         val portraitView = createPortraitContext().applyRemoteViews(rv)
         assertIs<TextView>(portraitView)
@@ -212,7 +262,13 @@ class GlanceAppWidgetTest {
         val appWidgetManager = mock<AppWidgetManager> {
             on { getAppWidgetInfo(1) }.thenThrow(RuntimeException("This should not be called"))
         }
-        val rv = composer.compose(context, appWidgetManager, appWidgetId = 1, options = options)
+        val rv = composer.compose(
+            context,
+            appWidgetManager,
+            appWidgetId = 1,
+            EmptyStateDefinition,
+            options = options
+        )
 
         val portraitView = createPortraitContext().applyRemoteViews(rv)
         assertIs<TextView>(portraitView)
@@ -238,7 +294,13 @@ class GlanceAppWidgetTest {
         val appWidgetManager = mock<AppWidgetManager> {
             on { getAppWidgetInfo(1) }.thenThrow(RuntimeException("This should not be called"))
         }
-        val rv = composer.compose(context, appWidgetManager, appWidgetId = 1, options = Bundle())
+        val rv = composer.compose(
+            context,
+            appWidgetManager,
+            appWidgetId = 1,
+            EmptyStateDefinition,
+            options = Bundle()
+        )
 
         val portraitView = createPortraitContext().applyRemoteViews(rv)
         assertIs<TextView>(portraitView)
@@ -402,5 +464,16 @@ class GlanceAppWidgetTest {
         override fun Content() {
             ui()
         }
+    }
+
+    object EmptyStateDefinition : GlanceStateDefinition<Preferences> {
+        override fun getLocation(context: Context, fileKey: String): File =
+            context.preferencesDataStoreFile(fileKey)
+
+        @Suppress("UNCHECKED_CAST")
+        override suspend fun <T> getDataStore(context: Context, fileKey: String): DataStore<T> =
+            PreferenceDataStoreFactory.create {
+                context.preferencesDataStoreFile(fileKey)
+            } as DataStore<T>
     }
 }
