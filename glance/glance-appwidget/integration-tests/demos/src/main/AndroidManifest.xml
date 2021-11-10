@@ -35,6 +35,8 @@
 
         <activity android:name=".ActionDemoActivity" />
 
+        <activity android:name=".ListClickDestinationActivity" android:exported="false" />
+
         <receiver
             android:name="androidx.glance.appwidget.demos.ResponsiveAppWidgetReceiver"
             android:enabled="@bool/glance_appwidget_available"
