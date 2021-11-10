@@ -123,6 +123,12 @@ private const val RIGHT_COMPLICATION = "RIGHT_COMPLICATION"
 private const val LEFT_AND_RIGHT_COMPLICATIONS = "LEFT_AND_RIGHT_COMPLICATIONS"
 private const val RIGHT_AND_LEFT_COMPLICATIONS = "RIGHT_AND_LEFT_COMPLICATIONS"
 
+internal enum class Priority {
+    Unset,
+    Normal,
+    Interactive
+}
+
 @Config(manifest = Config.NONE)
 @RequiresApi(Build.VERSION_CODES.O)
 @RunWith(WatchFaceTestRunner::class)
@@ -132,6 +138,18 @@ public class WatchFaceServiceTest {
     private val iWatchFaceService = mock<IWatchFaceService>()
     private val surfaceHolder = mock<SurfaceHolder>()
     private val tapListener = mock<WatchFace.TapListener>()
+    private val mainThreadPriorityDelegate = object : WatchFaceService.MainThreadPriorityDelegate {
+        var priority = Priority.Unset
+
+        override fun setNormalPriority() {
+            priority = Priority.Normal
+        }
+
+        override fun setInteractivePriority() {
+            priority = Priority.Interactive
+        }
+    }
+
     private val watchState = MutableWatchState()
 
     init {
@@ -3482,6 +3500,137 @@ public class WatchFaceServiceTest {
         assertThat(dump).contains("screenBounds=Rect(0, 0 - 100, 100)")
         assertThat(dump).contains("interactiveDrawModeUpdateDelayMillis=16")
         assertThat(dump).contains("watchFaceLayers=BASE, COMPLICATIONS, COMPLICATIONS_OVERLAY")
+    }
+
+    @Test
+    public fun uiThreadPriority_interactive() {
+        testWatchFaceService = TestWatchFaceService(
+            WatchFaceType.DIGITAL,
+            emptyList(),
+            { _, currentUserStyleRepository, watchState ->
+                TestRenderer(
+                    surfaceHolder,
+                    currentUserStyleRepository,
+                    watchState,
+                    INTERACTIVE_UPDATE_RATE_MS
+                )
+            },
+            UserStyleSchema(emptyList()),
+            watchState,
+            handler,
+            null,
+            false,
+            null,
+            choreographer,
+            mainThreadPriorityDelegate = mainThreadPriorityDelegate
+        )
+
+        InteractiveInstanceManager
+            .getExistingInstanceOrSetPendingWallpaperInteractiveWatchFaceInstance(
+                InteractiveInstanceManager.PendingWallpaperInteractiveWatchFaceInstance(
+                    WallpaperInteractiveWatchFaceInstanceParams(
+                        "TestID",
+                        DeviceConfig(
+                            false,
+                            false,
+                            0,
+                            0
+                        ),
+                        WatchUiState(false, 0),
+                        UserStyle(emptyMap()).toWireFormat(),
+                        emptyList()
+                    ),
+                    object : IPendingInteractiveWatchFace.Stub() {
+                        override fun getApiVersion() =
+                            IPendingInteractiveWatchFace.API_VERSION
+
+                        override fun onInteractiveWatchFaceCreated(
+                            iInteractiveWatchFace: IInteractiveWatchFace
+                        ) {
+                            interactiveWatchFaceInstance = iInteractiveWatchFace
+                        }
+
+                        override fun onInteractiveWatchFaceCrashed(exception: CrashInfoParcel?) {
+                            fail("WatchFace crashed: $exception")
+                        }
+                    }
+                )
+            )
+
+        engineWrapper = testWatchFaceService.onCreateEngine() as WatchFaceService.EngineWrapper
+        engineWrapper.onCreate(surfaceHolder)
+        assertThat(mainThreadPriorityDelegate.priority).isEqualTo(Priority.Interactive)
+
+        // The first call to onVisibilityChanged before WF init has completed should be ignored.
+        engineWrapper.onVisibilityChanged(false)
+        assertThat(mainThreadPriorityDelegate.priority).isEqualTo(Priority.Interactive)
+
+        engineWrapper.onSurfaceChanged(surfaceHolder, 0, 100, 100)
+        engineWrapper.onVisibilityChanged(true)
+        assertThat(mainThreadPriorityDelegate.priority).isEqualTo(Priority.Interactive)
+
+        engineWrapper.onVisibilityChanged(false)
+        assertThat(mainThreadPriorityDelegate.priority).isEqualTo(Priority.Normal)
+
+        engineWrapper.onVisibilityChanged(true)
+        assertThat(mainThreadPriorityDelegate.priority).isEqualTo(Priority.Interactive)
+
+        engineWrapper.onDestroy()
+        assertThat(mainThreadPriorityDelegate.priority).isEqualTo(Priority.Normal)
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O_MR1)
+    @Test
+    public fun uiThreadPriority_headless() {
+        testWatchFaceService = TestWatchFaceService(
+            WatchFaceType.ANALOG,
+            emptyList(),
+            { _, currentUserStyleRepository, watchState ->
+                TestRenderer(
+                    surfaceHolder,
+                    currentUserStyleRepository,
+                    watchState,
+                    INTERACTIVE_UPDATE_RATE_MS
+                )
+            },
+            UserStyleSchema(emptyList()),
+            watchState,
+            handler,
+            null,
+            false, // Allows DirectBoot
+            WallpaperInteractiveWatchFaceInstanceParams(
+                "Headless",
+                DeviceConfig(
+                    false,
+                    false,
+                    0,
+                    0
+                ),
+                WatchUiState(false, 0),
+                UserStyle(
+                    hashMapOf(
+                        colorStyleSetting to blueStyleOption,
+                        watchHandStyleSetting to gothicStyleOption
+                    )
+                ).toWireFormat(),
+                null
+            ),
+            choreographer
+        )
+
+        engineWrapper =
+            testWatchFaceService.createHeadlessEngine() as WatchFaceService.EngineWrapper
+
+        engineWrapper.createHeadlessInstance(
+            HeadlessWatchFaceInstanceParams(
+                ComponentName("test.watchface.app", "test.watchface.class"),
+                DeviceConfig(false, false, 100, 200),
+                100,
+                100
+            )
+        )
+
+        assertThat(mainThreadPriorityDelegate.priority).isEqualTo(Priority.Unset)
     }
 
     @SuppressLint("NewApi")
