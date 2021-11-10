@@ -41,6 +41,28 @@
 
         <service
             android:name=
+                "androidx.wear.watchface.complications.datasource.samples.InteractiveDataSourceService"
+            android:label="@string/interactive_data_source_name"
+            android:exported="true"
+            android:icon="@drawable/circle"
+            android:permission="com.google.android.wearable.permission.BIND_COMPLICATION_PROVIDER">
+            <meta-data
+                android:name="android.support.wearable.complications.SUPPORTED_TYPES"
+                android:value="SHORT_TEXT,LONG_TEXT"/>
+            <meta-data
+                android:name="android.support.wearable.complications.UPDATE_PERIOD_SECONDS"
+                android:value="120"/>
+            <meta-data
+                android:name="androidx.wear.watchface.complications.data.source.SYNCHRONOUS_UPDATE_PERIOD_MILLISECONDS"
+                android:value="1"/>
+            <intent-filter>
+                <action android:name=
+                    "android.support.wearable.complications.ACTION_COMPLICATION_UPDATE_REQUEST"/>
+            </intent-filter>
+        </service>
+
+        <service
+            android:name=
                 "androidx.wear.watchface.complications.datasource.samples.BackgroundDataSourceService"
             android:label="@string/background_data_source_name"
             android:exported="true"
