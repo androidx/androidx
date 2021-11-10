@@ -53,20 +53,23 @@ public class ListenableWatchFaceMetadataClient {
                 Intent(WatchFaceControlService.ACTION_WATCHFACE_CONTROL_SERVICE).apply {
                     setPackage(watchFaceName.packageName)
                 },
-                watchFaceName
+                watchFaceName,
+                WatchFaceMetadataClient.Companion.ParserProvider()
             )
 
         internal fun createListenableWatchFaceMetadataClientImpl(
             context: Context,
             intent: Intent,
-            watchFaceName: ComponentName
+            watchFaceName: ComponentName,
+            parserProvider: WatchFaceMetadataClient.Companion.ParserProvider
         ) = ListenableWatchFaceControlClient.launchFutureCoroutine(
             "ListenableWatchFaceMetadataClient.listenableCreateWatchFaceMetadataClient"
         ) {
             WatchFaceMetadataClient.createWatchFaceMetadataClientImpl(
                 context,
                 intent,
-                watchFaceName
+                watchFaceName,
+                parserProvider
             )
         }
     }

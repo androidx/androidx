@@ -18,7 +18,13 @@ package androidx.wear.watchface.complications.data
 
 import androidx.annotation.RestrictTo
 
-/** The possible complication data types. */
+/**
+ * The possible complication data types.
+ *
+ * See also wear/watchface/watchface-complications-data/src/main/res/values/attrs.xml for the XML
+ * definition. And supportedTypes in wear/watchface/watchface/src/main/res/values/attrs.xml.
+ * And wear/watchface/watchface/src/main/res/values/attrs.xml which defines a subset.
+ */
 public enum class ComplicationType(private val wireType: Int) {
     NO_DATA(WireComplicationData.TYPE_NO_DATA),
     EMPTY(WireComplicationData.TYPE_EMPTY),

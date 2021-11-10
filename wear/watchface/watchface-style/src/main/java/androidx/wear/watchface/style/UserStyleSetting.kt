@@ -20,6 +20,8 @@ import android.annotation.SuppressLint
 import android.content.ContentResolver
 import android.content.Context
 import android.content.res.Resources
+import android.content.res.TypedArray
+import android.content.res.XmlResourceParser
 import android.graphics.BitmapFactory
 import android.graphics.drawable.Icon
 import android.os.Build
@@ -46,6 +48,7 @@ import androidx.wear.watchface.style.data.LongRangeOptionWireFormat
 import androidx.wear.watchface.style.data.LongRangeUserStyleSettingWireFormat
 import androidx.wear.watchface.style.data.OptionWireFormat
 import androidx.wear.watchface.style.data.UserStyleSettingWireFormat
+import org.xmlpull.v1.XmlPullParser
 import java.io.InputStream
 import java.nio.ByteBuffer
 import java.security.InvalidParameterException
@@ -201,6 +204,46 @@ public sealed class UserStyleSetting private constructor(
             else -> throw IllegalArgumentException(
                 "Unknown StyleCategoryWireFormat " + wireFormat::javaClass.name
             )
+        }
+
+        internal fun affectsWatchFaceLayersFlagsToSet(
+            affectsWatchFaceLayers: Int
+        ) = HashSet<WatchFaceLayer>().apply {
+            if ((affectsWatchFaceLayers and 0x1) != 0) {
+                add(WatchFaceLayer.BASE)
+            }
+            if ((affectsWatchFaceLayers and 0x2) != 0) {
+                add(WatchFaceLayer.COMPLICATIONS)
+            }
+            if ((affectsWatchFaceLayers and 0x4) != 0) {
+                add(WatchFaceLayer.COMPLICATIONS_OVERLAY)
+            }
+        }
+
+        internal fun createDisplayText(
+            resources: Resources,
+            attributes: TypedArray,
+            attributeId: Int
+        ): DisplayText {
+            val displayNameId = attributes.getResourceId(attributeId, -1)
+            return if (displayNameId != -1) {
+                DisplayText.ResourceDisplayText(resources, displayNameId)
+            } else {
+                DisplayText.CharSequenceDisplayText(attributes.getString(attributeId) ?: "")
+            }
+        }
+
+        internal fun createIcon(
+            resources: Resources,
+            attributes: TypedArray,
+            attributeId: Int
+        ): Icon? {
+            val iconId = attributes.getResourceId(attributeId, -1)
+            return if (iconId != -1) {
+                Icon.createWithResource(resources.getResourcePackageName(iconId), iconId)
+            } else {
+                null
+            }
         }
     }
 
@@ -470,6 +513,26 @@ public sealed class UserStyleSetting private constructor(
             affectsWatchFaceLayers
         )
 
+        internal constructor (
+            id: Id,
+            displayName: DisplayText,
+            description: DisplayText,
+            icon: Icon?,
+            affectsWatchFaceLayers: Collection<WatchFaceLayer>,
+            defaultValue: Boolean
+        ) : super(
+            id,
+            displayName,
+            description,
+            icon,
+            listOf(BooleanOption.TRUE, BooleanOption.FALSE),
+            when (defaultValue) {
+                true -> 0
+                false -> 1
+            },
+            affectsWatchFaceLayers
+        )
+
         internal constructor(wireFormat: BooleanUserStyleSettingWireFormat) : super(wireFormat)
 
         /** @hide */
@@ -487,6 +550,58 @@ public sealed class UserStyleSetting private constructor(
 
         /** Returns the default value. */
         public fun getDefaultValue(): Boolean = (options[defaultOptionIndex] as BooleanOption).value
+
+        internal companion object {
+            @SuppressLint("ResourceType")
+            fun inflate(resources: Resources, parser: XmlResourceParser): BooleanUserStyleSetting {
+                val attributes = resources.obtainAttributes(
+                    parser,
+                    R.styleable.BooleanUserStyleSetting
+                )
+                val id = attributes.getString(R.styleable.BooleanUserStyleSetting_id)
+                require(id != null) { "BooleanUserStyleSetting must have an id" }
+                val displayName = createDisplayText(
+                    resources,
+                    attributes,
+                    R.styleable.BooleanUserStyleSetting_displayName
+                )
+                val description = createDisplayText(
+                    resources,
+                    attributes,
+                    R.styleable.BooleanUserStyleSetting_description
+                )
+                val icon = createIcon(
+                    resources,
+                    attributes,
+                    R.styleable.BooleanUserStyleSetting_android_icon
+                )
+                require(
+                    attributes.hasValue(R.styleable.BooleanUserStyleSetting_defaultBoolean)
+                ) {
+                    "defaultBoolean is required for BooleanUserStyleSetting"
+                }
+                val defaultValue = attributes.getBoolean(
+                    R.styleable.BooleanUserStyleSetting_defaultBoolean,
+                    true
+                )
+                val affectsWatchFaceLayers = affectsWatchFaceLayersFlagsToSet(
+                    attributes.getInt(
+                        R.styleable.BooleanUserStyleSetting_affectedWatchFaceLayers,
+                        0b111 // first 3 bits set
+                    )
+                )
+                attributes.recycle()
+
+                return BooleanUserStyleSetting(
+                    Id(id),
+                    displayName,
+                    description,
+                    icon,
+                    affectsWatchFaceLayers,
+                    defaultValue
+                )
+            }
+        }
 
         /**
          * Represents a true or false option in the [BooleanUserStyleSetting].
@@ -659,6 +774,58 @@ public sealed class UserStyleSetting private constructor(
                     },
                     accessibilityTraversalIndex
                 )
+
+            internal companion object {
+                @SuppressLint("ResourceType")
+                fun inflate(
+                    resources: Resources,
+                    parser: XmlResourceParser
+                ): ComplicationSlotOverlay {
+                    val attributes = resources.obtainAttributes(
+                        parser,
+                        R.styleable.ComplicationSlotOverlay
+                    )
+                    require(
+                        attributes.hasValue(R.styleable.ComplicationSlotOverlay_complicationSlotId)
+                    ) {
+                        "ComplicationSlotOverlay missing complicationSlotId"
+                    }
+                    val complicationSlotId = attributes.getInteger(
+                        R.styleable.ComplicationSlotOverlay_complicationSlotId,
+                        0
+                    )
+                    val enabled =
+                        if (attributes.hasValue(R.styleable.ComplicationSlotOverlay_enabled)) {
+                            attributes.getBoolean(
+                                R.styleable.ComplicationSlotOverlay_enabled,
+                                true
+                            )
+                        } else {
+                            null
+                        }
+                    val accessibilityTraversalIndex =
+                        if (attributes.hasValue(
+                                R.styleable.ComplicationSlotOverlay_accessibilityTraversalIndex
+                            )
+                        ) {
+                            attributes.getInteger(
+                                R.styleable.ComplicationSlotOverlay_accessibilityTraversalIndex,
+                                0
+                            )
+                        } else {
+                            null
+                        }
+                    val bounds = ComplicationSlotBounds.inflate(resources, parser)
+                    attributes.recycle()
+
+                    return ComplicationSlotOverlay(
+                        complicationSlotId,
+                        enabled,
+                        bounds,
+                        accessibilityTraversalIndex
+                    )
+                }
+            }
         }
 
         /**
@@ -748,6 +915,32 @@ public sealed class UserStyleSetting private constructor(
             requireUniqueOptionIds(id, complicationConfig)
         }
 
+        internal constructor (
+            id: Id,
+            displayName: DisplayText,
+            description: DisplayText,
+            icon: Icon?,
+            options: List<ComplicationSlotsOption>,
+            affectsWatchFaceLayers: Collection<WatchFaceLayer>,
+            defaultOptionIndex: Int
+        ) : super(
+            id,
+            displayName,
+            description,
+            icon,
+            options,
+            defaultOptionIndex,
+            affectsWatchFaceLayers
+        ) {
+            require(defaultOptionIndex >= 0 && defaultOptionIndex < options.size) {
+                "defaultOptionIndex must be within the range of the options list"
+            }
+            require(affectsWatchFaceLayers.contains(WatchFaceLayer.COMPLICATIONS)) {
+                "ComplicationSlotsUserStyleSetting must affect the complications layer"
+            }
+            requireUniqueOptionIds(id, options)
+        }
+
         internal constructor(
             wireFormat: ComplicationsUserStyleSettingWireFormat
         ) : super(wireFormat)
@@ -764,6 +957,74 @@ public sealed class UserStyleSetting private constructor(
                 defaultOptionIndex,
                 affectedWatchFaceLayers.map { it.ordinal }
             )
+
+        internal companion object {
+            @SuppressLint("ResourceType")
+            fun inflate(
+                resources: Resources,
+                parser: XmlResourceParser
+            ): ComplicationSlotsUserStyleSetting {
+                val attributes = resources.obtainAttributes(
+                    parser,
+                    R.styleable.ComplicationSlotsUserStyleSetting
+                )
+                val id = attributes.getString(R.styleable.ComplicationSlotsUserStyleSetting_id)
+                require(id != null) { "ComplicationSlotsUserStyleSetting must have an id" }
+                val displayName = createDisplayText(
+                    resources,
+                    attributes,
+                    R.styleable.ComplicationSlotsUserStyleSetting_displayName
+                )
+                val description = createDisplayText(
+                    resources,
+                    attributes,
+                    R.styleable.ComplicationSlotsUserStyleSetting_description
+                )
+                val icon = createIcon(
+                    resources,
+                    attributes,
+                    R.styleable.ComplicationSlotsUserStyleSetting_android_icon
+                )
+                val defaultOptionIndex = attributes.getInteger(
+                    R.styleable.ComplicationSlotsUserStyleSetting_defaultOptionIndex,
+                    0
+                )
+                val affectsWatchFaceLayers = affectsWatchFaceLayersFlagsToSet(
+                    attributes.getInt(
+                        R.styleable.BooleanUserStyleSetting_affectedWatchFaceLayers,
+                        0b111 // first 3 bits set
+                    )
+                )
+
+                val options = ArrayList<ComplicationSlotsOption>()
+                var type = 0
+                val outerDepth = parser.depth
+                do {
+                    if (type == XmlPullParser.START_TAG) {
+                        when (parser.name) {
+                            "ComplicationSlotsOption" -> options.add(
+                                ComplicationSlotsOption.inflate(resources, parser)
+                            )
+                            else -> throw IllegalArgumentException(
+                                "Unexpected node ${parser.name} at line ${parser.lineNumber}"
+                            )
+                        }
+                    }
+                    type = parser.next()
+                } while (type != XmlPullParser.END_DOCUMENT && parser.depth > outerDepth)
+                attributes.recycle()
+
+                return ComplicationSlotsUserStyleSetting(
+                    Id(id),
+                    displayName,
+                    description,
+                    icon,
+                    options,
+                    affectsWatchFaceLayers,
+                    defaultOptionIndex
+                )
+            }
+        }
 
         /**
          * Represents an override to the initial [androidx.wear.watchface.ComplicationSlotsManager]
@@ -839,6 +1100,17 @@ public sealed class UserStyleSetting private constructor(
             }
 
             internal constructor(
+                id: Id,
+                displayName: DisplayText,
+                icon: Icon?,
+                complicationSlotOverlays: Collection<ComplicationSlotOverlay>
+            ) : super(id) {
+                this.complicationSlotOverlays = complicationSlotOverlays
+                this.displayNameInternal = displayName
+                this.icon = icon
+            }
+
+            internal constructor(
                 wireFormat: ComplicationsOptionWireFormat
             ) : super(Id(wireFormat.mId)) {
                 complicationSlotOverlays =
@@ -885,6 +1157,56 @@ public sealed class UserStyleSetting private constructor(
                         icon,
                         complicationSlotOverlays.map { it.toWireFormat() }.toTypedArray()
                     )
+
+            internal companion object {
+                @SuppressLint("ResourceType")
+                fun inflate(
+                    resources: Resources,
+                    parser: XmlResourceParser
+                ): ComplicationSlotsOption {
+                    val attributes = resources.obtainAttributes(
+                        parser,
+                        R.styleable.ComplicationSlotsOption
+                    )
+                    val id = attributes.getString(R.styleable.ComplicationSlotsOption_id)
+                    require(id != null) { "ComplicationSlotsOption must have an id" }
+                    val displayName = createDisplayText(
+                        resources,
+                        attributes,
+                        R.styleable.ComplicationSlotsOption_displayName
+                    )
+                    val icon = createIcon(
+                        resources,
+                        attributes,
+                        R.styleable.ComplicationSlotsOption_android_icon
+                    )
+
+                    val complicationSlotOverlays = ArrayList<ComplicationSlotOverlay>()
+                    var type = 0
+                    val outerDepth = parser.depth
+                    do {
+                        if (type == XmlPullParser.START_TAG) {
+                            when (parser.name) {
+                                "ComplicationSlotOverlay" -> complicationSlotOverlays.add(
+                                    ComplicationSlotOverlay.inflate(resources, parser)
+                                )
+                                else -> throw IllegalArgumentException(
+                                    "Unexpected node ${parser.name} at line ${parser.lineNumber}"
+                                )
+                            }
+                        }
+                        type = parser.next()
+                    } while (type != XmlPullParser.END_DOCUMENT && parser.depth > outerDepth)
+                    attributes.recycle()
+
+                    return ComplicationSlotsOption(
+                        Id(id),
+                        displayName,
+                        icon,
+                        complicationSlotOverlays
+                    )
+                }
+            }
         }
     }
 
@@ -913,6 +1235,72 @@ public sealed class UserStyleSetting private constructor(
                 } else {
                     listOf(DoubleRangeOption(minimumValue), DoubleRangeOption(maximumValue))
                 }
+            }
+
+            @SuppressLint("ResourceType")
+            fun inflate(
+                resources: Resources,
+                parser: XmlResourceParser
+            ): DoubleRangeUserStyleSetting {
+                val attributes = resources.obtainAttributes(
+                    parser,
+                    R.styleable.DoubleRangeUserStyleSetting
+                )
+                val id = attributes.getString(R.styleable.DoubleRangeUserStyleSetting_id)
+                require(id != null) { "DoubleRangeUserStyleSetting must have an id" }
+                val displayName = createDisplayText(
+                    resources,
+                    attributes,
+                    R.styleable.DoubleRangeUserStyleSetting_displayName
+                )
+                val description = createDisplayText(
+                    resources,
+                    attributes,
+                    R.styleable.DoubleRangeUserStyleSetting_description
+                )
+                val icon = createIcon(
+                    resources,
+                    attributes,
+                    R.styleable.DoubleRangeUserStyleSetting_android_icon
+                )
+                require(attributes.hasValue(R.styleable.DoubleRangeUserStyleSetting_maxDouble)) {
+                    "maxInteger is required for DoubleRangeUserStyleSetting"
+                }
+                require(attributes.hasValue(R.styleable.DoubleRangeUserStyleSetting_minDouble)) {
+                    "minInteger is required for DoubleRangeUserStyleSetting"
+                }
+                require(
+                    attributes.hasValue(R.styleable.DoubleRangeUserStyleSetting_defaultDouble)
+                ) {
+                    "defaultInteger is required for DoubleRangeUserStyleSetting"
+                }
+                val maxDouble = attributes.getString(
+                    R.styleable.DoubleRangeUserStyleSetting_maxDouble
+                )!!.toDouble()
+                val minDouble = attributes.getString(
+                    R.styleable.DoubleRangeUserStyleSetting_minDouble
+                )!!.toDouble()
+                val defaultDouble = attributes.getString(
+                    R.styleable.DoubleRangeUserStyleSetting_defaultDouble
+                )!!.toDouble()
+                val affectsWatchFaceLayers = affectsWatchFaceLayersFlagsToSet(
+                    attributes.getInt(
+                        R.styleable.BooleanUserStyleSetting_affectedWatchFaceLayers,
+                        0b111 // first 3 bits set
+                    )
+                )
+                attributes.recycle()
+
+                return DoubleRangeUserStyleSetting(
+                    Id(id),
+                    displayName,
+                    description,
+                    icon,
+                    minDouble.toDouble(),
+                    maxDouble.toDouble(),
+                    affectsWatchFaceLayers,
+                    defaultDouble.toDouble()
+                )
             }
         }
 
@@ -990,6 +1378,29 @@ public sealed class UserStyleSetting private constructor(
             id,
             DisplayText.ResourceDisplayText(resources, displayNameResourceId),
             DisplayText.ResourceDisplayText(resources, descriptionResourceId),
+            icon,
+            createOptionsList(minimumValue, maximumValue, defaultValue),
+            // The index of defaultValue can only ever be 0 or 1.
+            when (defaultValue) {
+                minimumValue -> 0
+                else -> 1
+            },
+            affectsWatchFaceLayers
+        )
+
+        internal constructor (
+            id: Id,
+            displayName: DisplayText,
+            description: DisplayText,
+            icon: Icon?,
+            minimumValue: Double,
+            maximumValue: Double,
+            affectsWatchFaceLayers: Collection<WatchFaceLayer>,
+            defaultValue: Double
+        ) : super(
+            id,
+            displayName,
+            description,
             icon,
             createOptionsList(minimumValue, maximumValue, defaultValue),
             // The index of defaultValue can only ever be 0 or 1.
@@ -1159,6 +1570,28 @@ public sealed class UserStyleSetting private constructor(
             requireUniqueOptionIds(id, options)
         }
 
+        internal constructor (
+            id: Id,
+            displayName: DisplayText,
+            description: DisplayText,
+            icon: Icon?,
+            options: List<ListOption>,
+            affectsWatchFaceLayers: Collection<WatchFaceLayer>,
+            defaultOptionIndex: Int
+        ) : super(
+            id,
+            displayName,
+            description,
+            icon,
+            options,
+            defaultOptionIndex,
+            affectsWatchFaceLayers
+        ) {
+            require(defaultOptionIndex >= 0 && defaultOptionIndex < options.size) {
+                "defaultOptionIndex must be within the range of the options list"
+            }
+        }
+
         internal constructor(wireFormat: ListUserStyleSettingWireFormat) : super(wireFormat)
 
         /** @hide */
@@ -1173,6 +1606,65 @@ public sealed class UserStyleSetting private constructor(
                 defaultOptionIndex,
                 affectedWatchFaceLayers.map { it.ordinal }
             )
+
+        internal companion object {
+            @SuppressLint("ResourceType")
+            fun inflate(resources: Resources, parser: XmlResourceParser): ListUserStyleSetting {
+                val attributes =
+                    resources.obtainAttributes(parser, R.styleable.ListUserStyleSetting)
+                val id = attributes.getString(R.styleable.ListUserStyleSetting_id)
+                require(id != null) { "ListUserStyleSetting must have an id" }
+                val displayName = createDisplayText(
+                    resources,
+                    attributes,
+                    R.styleable.ListUserStyleSetting_displayName
+                )
+                val description = createDisplayText(
+                    resources,
+                    attributes,
+                    R.styleable.ListUserStyleSetting_description
+                )
+                val icon = createIcon(
+                    resources,
+                    attributes,
+                    R.styleable.ListUserStyleSetting_android_icon
+                )
+                val defaultOptionIndex =
+                    attributes.getInteger(R.styleable.ListUserStyleSetting_defaultOptionIndex, 0)
+                val affectsWatchFaceLayers = affectsWatchFaceLayersFlagsToSet(
+                    attributes.getInt(
+                        R.styleable.BooleanUserStyleSetting_affectedWatchFaceLayers,
+                        0b111 // first 3 bits set
+                    )
+                )
+
+                val options = ArrayList<ListOption>()
+                var type = 0
+                val outerDepth = parser.depth
+                do {
+                    if (type == XmlPullParser.START_TAG) {
+                        when (parser.name) {
+                            "ListOption" -> options.add(ListOption.inflate(resources, parser))
+                            else -> throw IllegalArgumentException(
+                                "Unexpected node ${parser.name} at line ${parser.lineNumber}"
+                            )
+                        }
+                    }
+                    type = parser.next()
+                } while (type != XmlPullParser.END_DOCUMENT && parser.depth > outerDepth)
+                attributes.recycle()
+
+                return ListUserStyleSetting(
+                    Id(id),
+                    displayName,
+                    description,
+                    icon,
+                    options,
+                    affectsWatchFaceLayers,
+                    defaultOptionIndex
+                )
+            }
+        }
 
         /**
          * Represents choice within a [ListUserStyleSetting], these must be enumerated up front.
@@ -1228,6 +1720,15 @@ public sealed class UserStyleSetting private constructor(
             }
 
             internal constructor(
+                id: Id,
+                displayName: DisplayText,
+                icon: Icon?
+            ) : super(id) {
+                displayNameInternal = displayName
+                this.icon = icon
+            }
+
+            internal constructor(
                 wireFormat: ListOptionWireFormat
             ) : super(Id(wireFormat.mId)) {
                 displayNameInternal = DisplayText.CharSequenceDisplayText(wireFormat.mDisplayName)
@@ -1267,6 +1768,27 @@ public sealed class UserStyleSetting private constructor(
                     displayName,
                     icon
                 )
+
+            internal companion object {
+                @SuppressLint("ResourceType")
+                fun inflate(resources: Resources, parser: XmlResourceParser): ListOption {
+                    val attributes = resources.obtainAttributes(parser, R.styleable.ListOption)
+                    val id = attributes.getString(R.styleable.ListOption_id)
+                    require(id != null) { "ListOption must have an id" }
+                    val displayName = createDisplayText(
+                        resources,
+                        attributes,
+                        R.styleable.ListOption_displayName
+                    )
+                    val icon = createIcon(
+                        resources,
+                        attributes,
+                        R.styleable.ListOption_android_icon
+                    )
+                    attributes.recycle()
+                    return ListOption(Id(id), displayName, icon)
+                }
+            }
         }
     }
 
@@ -1298,6 +1820,68 @@ public sealed class UserStyleSetting private constructor(
                         LongRangeOption(maximumValue)
                     )
                 }
+            }
+
+            @SuppressLint("ResourceType")
+            fun inflate(
+                resources: Resources,
+                parser: XmlResourceParser
+            ): LongRangeUserStyleSetting {
+                val attributes = resources.obtainAttributes(
+                    parser,
+                    R.styleable.LongRangeUserStyleSetting
+                )
+                val id = attributes.getString(R.styleable.LongRangeUserStyleSetting_id)
+                require(id != null) { "LongRangeUserStyleSetting must have an id" }
+                val displayName = createDisplayText(
+                    resources,
+                    attributes,
+                    R.styleable.LongRangeUserStyleSetting_displayName
+                )
+                val description = createDisplayText(
+                    resources,
+                    attributes,
+                    R.styleable.LongRangeUserStyleSetting_description
+                )
+                val icon = createIcon(
+                    resources,
+                    attributes,
+                    R.styleable.LongRangeUserStyleSetting_android_icon
+                )
+                require(attributes.hasValue(R.styleable.LongRangeUserStyleSetting_maxLong)) {
+                    "maxLong is required for LongRangeUserStyleSetting"
+                }
+                require(attributes.hasValue(R.styleable.LongRangeUserStyleSetting_minLong)) {
+                    "minLong is required for LongRangeUserStyleSetting"
+                }
+                require(attributes.hasValue(R.styleable.LongRangeUserStyleSetting_defaultLong)) {
+                    "defaultLong is required for LongRangeUserStyleSetting"
+                }
+                val maxInteger =
+                    attributes.getString(R.styleable.LongRangeUserStyleSetting_maxLong)!!.toLong()
+                val minInteger =
+                    attributes.getString(R.styleable.LongRangeUserStyleSetting_minLong)!!.toLong()
+                val defaultInteger = attributes.getString(
+                    R.styleable.LongRangeUserStyleSetting_defaultLong
+                )!!.toLong()
+                val affectsWatchFaceLayers = affectsWatchFaceLayersFlagsToSet(
+                    attributes.getInt(
+                        R.styleable.BooleanUserStyleSetting_affectedWatchFaceLayers,
+                        0b111 // first 3 bits set
+                    )
+                )
+                attributes.recycle()
+
+                return LongRangeUserStyleSetting(
+                    Id(id),
+                    displayName,
+                    description,
+                    icon,
+                    minInteger.toLong(),
+                    maxInteger.toLong(),
+                    affectsWatchFaceLayers,
+                    defaultInteger.toLong()
+                )
             }
         }
 
@@ -1374,6 +1958,29 @@ public sealed class UserStyleSetting private constructor(
             id,
             DisplayText.ResourceDisplayText(resources, displayNameResourceId),
             DisplayText.ResourceDisplayText(resources, descriptionResourceId),
+            icon,
+            createOptionsList(minimumValue, maximumValue, defaultValue),
+            // The index of defaultValue can only ever be 0 or 1.
+            when (defaultValue) {
+                minimumValue -> 0
+                else -> 1
+            },
+            affectsWatchFaceLayers
+        )
+
+        internal constructor (
+            id: Id,
+            displayName: DisplayText,
+            description: DisplayText,
+            icon: Icon?,
+            minimumValue: Long,
+            maximumValue: Long,
+            affectsWatchFaceLayers: Collection<WatchFaceLayer>,
+            defaultValue: Long
+        ) : super(
+            id,
+            displayName,
+            description,
             icon,
             createOptionsList(minimumValue, maximumValue, defaultValue),
             // The index of defaultValue can only ever be 0 or 1.

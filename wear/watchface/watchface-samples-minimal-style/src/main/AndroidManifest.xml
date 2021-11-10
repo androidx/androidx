@@ -55,6 +55,9 @@
           android:name="com.google.android.wearable.watchface.companionBuiltinConfigurationEnabled"
           android:value="true" />
 
+      <meta-data
+          android:name="androidx.wear.watchface.XmlSchemaAndComplicationSlotsDefinition"
+          android:resource="@xml/xml_watchface" />
     </service>
 
   </application>
