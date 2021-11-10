@@ -27,6 +27,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyInt;
@@ -35,6 +36,7 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.isNull;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
@@ -283,6 +285,92 @@ public class ShortcutManagerCompatTest extends BaseInstrumentationTestCase<TestA
         verify(mShortcutInfoChangeListener).onAllShortcutsRemoved();
         verify(mShortcutInfoCompatSaver).addShortcuts(shortcuts);
         verify(mShortcutInfoChangeListener).onShortcutAdded(shortcuts);
+    }
+
+    @LargeTest
+    @Test
+    @SdkSuppress(minSdkVersion = 25)
+    public void testHiddenShortcuts() throws Throwable {
+        final ShortcutManager mockShortcutManager = mock(ShortcutManager.class);
+        doReturn(mockShortcutManager).when(mContext).getSystemService(eq(Context.SHORTCUT_SERVICE));
+
+        final ShortcutInfoCompat hiddenShortcut1 = new ShortcutInfoCompat.Builder(
+                mContext, "my-shortcut")
+                .setShortLabel("bitmap")
+                .setIcon(createBitmapIcon())
+                .setIntent(new Intent().setAction(Intent.ACTION_DEFAULT))
+                .setIsHiddenFromLauncher(true)
+                .build();
+        final ShortcutInfoCompat hiddenShortcut2 = new ShortcutInfoCompat.Builder(
+                mContext, "my-shortcut-2")
+                .setShortLabel("bitmap")
+                .setIcon(createBitmapIcon())
+                .setIntent(new Intent().setAction(Intent.ACTION_DEFAULT))
+                .setIsHiddenFromLauncher(true)
+                .build();
+        final ShortcutInfoCompat hiddenShortcut3 = new ShortcutInfoCompat.Builder(
+                mContext, "my-shortcut-3")
+                .setShortLabel("bitmap")
+                .setIcon(createBitmapIcon())
+                .setIntent(new Intent().setAction(Intent.ACTION_DEFAULT))
+                .setIsHiddenFromLauncher(true)
+                .build();
+
+        final List<ShortcutInfoCompat> hiddenShortcuts = new ArrayList<>();
+        hiddenShortcuts.add(hiddenShortcut1);
+        hiddenShortcuts.add(hiddenShortcut2);
+        hiddenShortcuts.add(hiddenShortcut3);
+
+        ShortcutManagerCompat.addDynamicShortcuts(mContext, hiddenShortcuts);
+        if (Build.VERSION.SDK_INT > 31) {
+            verify(mockShortcutManager).addDynamicShortcuts(
+                    ArgumentMatchers.<ShortcutInfo>anyList());
+        } else {
+            verify(mockShortcutManager).addDynamicShortcuts(Collections.EMPTY_LIST);
+        }
+
+        reset(mockShortcutManager);
+        when(mockShortcutManager.setDynamicShortcuts(ArgumentMatchers.<ShortcutInfo>anyList()))
+                .thenReturn(true);
+
+        ShortcutManagerCompat.setDynamicShortcuts(mContext, hiddenShortcuts);
+        if (Build.VERSION.SDK_INT > 31) {
+            verify(mockShortcutManager).setDynamicShortcuts(
+                    ArgumentMatchers.<ShortcutInfo>anyList());
+        } else if (Build.VERSION.SDK_INT >= 25) {
+            verify(mockShortcutManager).setDynamicShortcuts(Collections.EMPTY_LIST);
+        }
+        verify(mShortcutInfoCompatSaver).removeAllShortcuts();
+        verify(mShortcutInfoChangeListener).onAllShortcutsRemoved();
+        verify(mShortcutInfoCompatSaver).addShortcuts(Collections.EMPTY_LIST);
+        verify(mShortcutInfoChangeListener).onShortcutAdded(hiddenShortcuts);
+
+        reset(mockShortcutManager);
+        ShortcutManagerCompat.pushDynamicShortcut(mContext, hiddenShortcut1);
+        if (Build.VERSION.SDK_INT > 31) {
+            verify(mockShortcutManager).pushDynamicShortcut(any(ShortcutInfo.class));
+        } else if (Build.VERSION.SDK_INT >= 30) {
+            verify(mockShortcutManager, never())
+                    .pushDynamicShortcut(any(ShortcutInfo.class));
+        } else if (Build.VERSION.SDK_INT >= 25) {
+            verify(mockShortcutManager, never()).addDynamicShortcuts(anyList());
+        }
+
+        reset(mockShortcutManager);
+        ShortcutManagerCompat.updateShortcuts(mContext, hiddenShortcuts);
+        if (Build.VERSION.SDK_INT > 31) {
+            verify(mockShortcutManager).updateShortcuts(anyList());
+        } else if (Build.VERSION.SDK_INT >= 25) {
+            verify(mockShortcutManager).updateShortcuts(Collections.EMPTY_LIST);
+        }
+
+        reset(mockShortcutManager);
+        ShortcutManagerCompat.enableShortcuts(mContext, hiddenShortcuts);
+        if (Build.VERSION.SDK_INT > 31) {
+            verify(mockShortcutManager).enableShortcuts(anyList());
+        } else if (Build.VERSION.SDK_INT >= 25) {
+            verify(mockShortcutManager).enableShortcuts(Collections.EMPTY_LIST);
+        }
     }
 
     @MediumTest
