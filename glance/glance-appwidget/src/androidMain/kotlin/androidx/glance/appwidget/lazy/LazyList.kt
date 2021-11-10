@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.glance.appwidget.layout
+package androidx.glance.appwidget.lazy
 
 import androidx.annotation.VisibleForTesting
 import androidx.compose.runtime.Composable

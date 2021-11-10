@@ -14,10 +14,9 @@
  * limitations under the License.
  */
 
-package androidx.glance.layout
+package androidx.glance
 
 import androidx.annotation.RestrictTo
-import androidx.glance.GlanceModifier
 
 /**
  * Value of the visibility field for a node in the composition tree.

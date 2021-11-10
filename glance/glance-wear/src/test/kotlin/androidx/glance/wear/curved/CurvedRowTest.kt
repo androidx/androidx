@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-package androidx.glance.wear.layout
+package androidx.glance.wear.curved
 
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.glance.GlanceModifier
 import androidx.glance.findModifier
 import androidx.glance.layout.PaddingModifier
 import androidx.glance.layout.padding
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.glance.text.FontStyle
 import androidx.glance.text.FontWeight
 import androidx.glance.unit.ColorProvider

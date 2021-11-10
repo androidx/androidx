@@ -18,7 +18,7 @@ package androidx.glance.wear
 
 import android.os.Looper
 import androidx.compose.runtime.Composable
-import androidx.glance.layout.Text
+import androidx.glance.text.Text
 import androidx.wear.tiles.LayoutElementBuilders
 import androidx.wear.tiles.RequestBuilders
 import androidx.wear.tiles.testing.TestTileClient

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.glance.wear.layout
+package androidx.glance.wear
 
 import android.content.res.Resources
 import androidx.annotation.DimenRes

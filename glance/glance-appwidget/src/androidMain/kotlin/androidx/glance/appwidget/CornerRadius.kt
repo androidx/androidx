@@ -19,7 +19,7 @@ package androidx.glance.appwidget.layout
 import androidx.annotation.DimenRes
 import androidx.compose.ui.unit.Dp
 import androidx.glance.GlanceModifier
-import androidx.glance.layout.Dimension
+import androidx.glance.unit.Dimension
 
 /**
  * Modifier to add Rounded Corners on Android S+.

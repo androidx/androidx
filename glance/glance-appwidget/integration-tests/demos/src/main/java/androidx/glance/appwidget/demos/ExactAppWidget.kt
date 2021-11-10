@@ -28,10 +28,10 @@ import androidx.glance.appwidget.background
 import androidx.glance.appwidget.layout.cornerRadius
 import androidx.glance.appwidget.unit.ColorProvider
 import androidx.glance.layout.Column
-import androidx.glance.layout.Text
 import androidx.glance.layout.fillMaxSize
 import androidx.glance.layout.padding
 import androidx.glance.text.FontWeight
+import androidx.glance.text.Text
 import androidx.glance.text.TextDecoration
 import androidx.glance.text.TextStyle
 import java.text.DecimalFormat

@@ -20,23 +20,7 @@ import androidx.annotation.DimenRes
 import androidx.annotation.RestrictTo
 import androidx.compose.ui.unit.Dp
 import androidx.glance.GlanceModifier
-
-/**
- * Dimension types. This contains all the dimension types which are supported by androidx.glance.
- *
- * These should only be used internally; developers should be using the width/height Modifiers
- * below rather than this class directly.
- *
- * @suppress
- */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public sealed class Dimension {
-    public class Dp(public val dp: androidx.compose.ui.unit.Dp) : Dimension()
-    public object Wrap : Dimension()
-    public object Fill : Dimension()
-    public object Expand : Dimension()
-    public class Resource(@DimenRes public val res: Int) : Dimension()
-}
+import androidx.glance.unit.Dimension
 
 /**
  * Modifier to represent the width of an element.

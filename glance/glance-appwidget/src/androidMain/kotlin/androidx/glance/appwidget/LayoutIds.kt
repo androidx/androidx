@@ -25,9 +25,9 @@ import androidx.annotation.LayoutRes
 import androidx.compose.ui.unit.dp
 import androidx.glance.GlanceModifier
 import androidx.glance.findModifier
-import androidx.glance.layout.Dimension
 import androidx.glance.layout.HeightModifier
 import androidx.glance.layout.WidthModifier
+import androidx.glance.unit.Dimension
 
 /**
  * Information about a generated layout, including the layout id, ids of elements within, and other

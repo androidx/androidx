@@ -14,11 +14,13 @@
  * limitations under the License.
  */
 
-package androidx.glance.layout
+package androidx.glance
 
 import androidx.compose.ui.unit.dp
-import androidx.glance.findModifier
-import androidx.glance.GlanceModifier
+import androidx.glance.layout.ContentScale
+import androidx.glance.layout.PaddingModifier
+import androidx.glance.layout.padding
+import androidx.glance.layout.runTestingComposition
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.TestCoroutineScope

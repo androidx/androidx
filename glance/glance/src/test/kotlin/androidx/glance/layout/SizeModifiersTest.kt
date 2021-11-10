@@ -16,14 +16,15 @@
 
 package androidx.glance.layout
 
+import androidx.compose.ui.unit.dp
 import androidx.glance.GlanceModifier
 import androidx.glance.findModifier
-import androidx.compose.ui.unit.dp
+import androidx.glance.unit.Dimension
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import kotlin.test.assertIs
 
-class DimensionTest {
+class SizeModifiersTest {
     @Test
     fun absoluteWidthModifier() {
         val modifier = GlanceModifier.width(5.dp)
