@@ -35,6 +35,7 @@ import androidx.benchmark.perfetto.UiState
 import androidx.benchmark.perfetto.appendUiState
 import androidx.benchmark.userspaceTrace
 import androidx.test.platform.app.InstrumentationRegistry
+import androidx.tracing.trace
 import java.io.File
 
 internal fun checkErrors(packageName: String): ConfigurationError.SuppressionState? {
@@ -126,7 +127,10 @@ private fun macrobenchmark(
     val startTime = System.nanoTime()
     val scope = MacrobenchmarkScope(packageName, launchWithClearTask)
 
-    // always kill the process at beginning of test
+    // Ensure the device is awake
+    scope.device.wakeUp()
+
+    // Always kill the process at beginning of test
     scope.killProcess()
 
     userspaceTrace("compile $packageName") {
@@ -149,6 +153,11 @@ private fun macrobenchmark(
         }
         var isFirstRun = true
         val measurements = List(iterations) { iteration ->
+            // Wake the device to ensure it stays awake with large iteration count
+            userspaceTrace("wake device") {
+                scope.device.wakeUp()
+            }
+
             userspaceTrace("setupBlock") {
                 setupBlock(scope, isFirstRun)
             }
@@ -174,16 +183,16 @@ private fun macrobenchmark(
                 }
             ) {
                 try {
-                    userspaceTrace("start metrics") {
+                    trace("start metrics") {
                         metrics.forEach {
                             it.start()
                         }
                     }
-                    userspaceTrace("measureBlock") {
+                    trace("measureBlock") {
                         measureBlock(scope)
                     }
                 } finally {
-                    userspaceTrace("stop metrics") {
+                    trace("stop metrics") {
                         metrics.forEach {
                             it.stop()
                         }
