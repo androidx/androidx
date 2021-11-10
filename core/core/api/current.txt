@@ -1125,6 +1125,7 @@ package androidx.core.content.pm {
     method public androidx.core.content.pm.ShortcutInfoCompat.Builder setIntent(android.content.Intent);
     method public androidx.core.content.pm.ShortcutInfoCompat.Builder setIntents(android.content.Intent![]);
     method public androidx.core.content.pm.ShortcutInfoCompat.Builder setIsConversation();
+    method public androidx.core.content.pm.ShortcutInfoCompat.Builder setIsHiddenFromLauncher(boolean);
     method public androidx.core.content.pm.ShortcutInfoCompat.Builder setLocusId(androidx.core.content.LocusIdCompat?);
     method public androidx.core.content.pm.ShortcutInfoCompat.Builder setLongLabel(CharSequence);
     method @Deprecated public androidx.core.content.pm.ShortcutInfoCompat.Builder setLongLived();
