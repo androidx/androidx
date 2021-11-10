@@ -60,7 +60,7 @@ internal class SidecarCompat @VisibleForTesting constructor(
     private var extensionCallback: ExtensionCallbackInterface? = null
 
     constructor(context: Context) : this(
-        SidecarProvider.getSidecarImpl(context.applicationContext),
+        getSidecarCompat(context),
         SidecarAdapter()
     )
 
@@ -455,6 +455,10 @@ internal class SidecarCompat @VisibleForTesting constructor(
                 }
                 null
             }
+
+        internal fun getSidecarCompat(context: Context): SidecarInterface? {
+            return SidecarProvider.getSidecarImpl(context.applicationContext)
+        }
 
         /**
          * A utility method [Activity] to return an optional [IBinder] window token from an
