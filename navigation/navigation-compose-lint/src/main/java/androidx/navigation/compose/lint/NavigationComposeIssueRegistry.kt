@@ -30,6 +30,8 @@ class NavigationComposeIssueRegistry : IssueRegistry() {
     override val api = 11
     override val minApi = CURRENT_API
     override val issues get() = listOf(
+        ComposableDestinationInComposeScopeDetector.ComposableDestinationInComposeScope,
+        ComposableDestinationInComposeScopeDetector.ComposableNavGraphInComposeScope,
         UnrememberedGetBackStackEntryDetector.UnrememberedGetBackStackEntry
     )
     override val vendor = Vendor(
