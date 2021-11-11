@@ -129,17 +129,13 @@ final class ExtensionsInfo {
     boolean isExtensionAvailable(
             @NonNull CameraSelector baseCameraSelector,
             @ExtensionMode.Mode int mode) {
-        try {
-            CameraSelector.Builder builder = CameraSelector.Builder.fromSelector(
-                    baseCameraSelector);
-            builder.addCameraFilter(getFilter(mode));
+        CameraSelector.Builder builder = CameraSelector.Builder.fromSelector(
+                baseCameraSelector);
+        builder.addCameraFilter(getFilter(mode));
 
-            List<CameraInfo> cameraInfos = builder.build().filter(
-                    mCameraProvider.getAvailableCameraInfos());
-            return !cameraInfos.isEmpty();
-        } catch (IllegalArgumentException e) {
-            return false;
-        }
+        List<CameraInfo> cameraInfos = builder.build().filter(
+                mCameraProvider.getAvailableCameraInfos());
+        return !cameraInfos.isEmpty();
     }
 
     /**
@@ -170,22 +166,14 @@ final class ExtensionsInfo {
                 cameraSelector).addCameraFilter(getFilter(mode)).build();
 
         CameraInfo extensionsCameraInfo;
-        try {
-            List<CameraInfo> cameraInfos =
-                    newCameraSelector.filter(mCameraProvider.getAvailableCameraInfos());
+        List<CameraInfo> cameraInfos =
+                newCameraSelector.filter(mCameraProvider.getAvailableCameraInfos());
 
-            if (cameraInfos.isEmpty()) {
-                throw new IllegalArgumentException("No cameras found for given CameraSelector");
-            }
-
-            extensionsCameraInfo = cameraInfos.get(0);
-        } catch (IllegalArgumentException e) {
-            // No CameraInfo can be found to support the target extension mode.
-            throw new IllegalArgumentException(
-                    "No camera can be found to support the specified extensions mode! "
-                            + "isExtensionAvailable should be checked first before calling "
-                            + "getEstimatedCaptureLatencyRange.");
+        if (cameraInfos.isEmpty()) {
+            throw new IllegalArgumentException("No cameras found for given CameraSelector");
         }
+
+        extensionsCameraInfo = cameraInfos.get(0);
 
         // This API is only supported since version 1.2
         if (ExtensionVersion.getRuntimeVersion().compareTo(Version.VERSION_1_2) < 0) {
