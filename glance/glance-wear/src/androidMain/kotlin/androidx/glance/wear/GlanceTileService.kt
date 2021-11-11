@@ -22,6 +22,7 @@ import androidx.annotation.VisibleForTesting
 import androidx.compose.runtime.BroadcastFrameClock
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Composition
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Recomposer
 import androidx.glance.Applier
 import androidx.glance.layout.EmittableBox
@@ -96,25 +97,37 @@ public abstract class GlanceTileService : TileService() {
         super.onStart(intent, startId)
     }
 
-    private suspend fun runComposition(): CompositionResult = coroutineScope {
-        val root = EmittableBox()
-        val applier = Applier(root)
-        val recomposer = Recomposer(currentCoroutineContext())
-        val composition = Composition(applier, recomposer)
+    private suspend fun runComposition(
+        timeInterval: TimeInterval? = null
+    ): CompositionResult =
+        coroutineScope {
+            val root = EmittableBox()
+            val applier = Applier(root)
+            val recomposer = Recomposer(currentCoroutineContext())
+            val composition = Composition(applier, recomposer)
 
-        composition.setContent { Content() }
+            composition.setContent {
+                CompositionLocalProvider(
+                    LocalTimeInterval provides timeInterval
+                ) { Content() }
+            }
 
-        launch { recomposer.runRecomposeAndApplyChanges() }
+            launch { recomposer.runRecomposeAndApplyChanges() }
 
-        recomposer.close()
-        recomposer.join()
+            recomposer.close()
+            recomposer.join()
 
-        normalizeCompositionTree(this@GlanceTileService, root)
+            normalizeCompositionTree(this@GlanceTileService, root)
 
-        translateTopLevelComposition(this@GlanceTileService, root)
-    }
+            translateTopLevelComposition(this@GlanceTileService, root)
+        }
 
-    /** Implement with the layout to use in your Tile. */
+    /**
+     * Defines the handling of timeline
+     */
+    public open val timelineMode: TimelineMode = TimelineMode.SingleEntry
+
+    /** Override this method to set the layout to use in your Tile. */
     @Composable
     public abstract fun Content()
 
@@ -127,21 +140,46 @@ public abstract class GlanceTileService : TileService() {
     final override fun onTileRequest(
         requestParams: RequestBuilders.TileRequest
     ): ListenableFuture<TileBuilders.Tile> = coroutineScope.future {
-        val content = runComposition().layout
+        val timelineBuilders = TimelineBuilders.Timeline.Builder()
+        if (timelineMode === TimelineMode.SingleEntry) {
+            val content = runComposition().layout
+
+            timelineBuilders
+                .addTimelineEntry(
+                    TimelineBuilders.TimelineEntry.Builder()
+                        .setLayout(
+                            LayoutElementBuilders.Layout.Builder()
+                                .setRoot(content)
+                                .build()
+                        ).build()
+                )
+        } else { // timelineMode is TimelineMode.TimeBoundEntries
+            val timeIntervals = (timelineMode as TimelineMode.TimeBoundEntries).timeIntervals
+            timeIntervals.forEach {
+                val result = runComposition(it).layout
+
+                timelineBuilders
+                    .addTimelineEntry(
+                        TimelineBuilders.TimelineEntry.Builder()
+                            .setValidity(
+                                TimelineBuilders.TimeInterval.Builder()
+                                    .setStartMillis(it.start.toEpochMilli())
+                                    .setEndMillis(it.end.toEpochMilli())
+                                    .build()
+                            )
+                            .setLayout(
+                                LayoutElementBuilders.Layout.Builder()
+                                    .setRoot(result)
+                                    .build()
+                            ).build()
+                    )
+            }
+        }
 
         TileBuilders.Tile.Builder()
             .setResourcesVersion(ResourcesVersion)
-            .setTimeline(
-                TimelineBuilders.Timeline.Builder()
-                    .addTimelineEntry(
-                        TimelineBuilders.TimelineEntry.Builder()
-                            .setLayout(
-                                LayoutElementBuilders.Layout.Builder()
-                                    .setRoot(content)
-                                    .build()
-                            ).build()
-                    ).build()
-            ).build()
+            .setTimeline(timelineBuilders.build())
+            .build()
     }
 
     /**
@@ -153,7 +191,21 @@ public abstract class GlanceTileService : TileService() {
     final override fun onResourcesRequest(
         requestParams: RequestBuilders.ResourcesRequest
     ): ListenableFuture<ResourceBuilders.Resources> = coroutineScope.future {
-        runComposition().resources.setVersion(ResourcesVersion).build()
+        var resourceBuilder: ResourceBuilders.Resources.Builder
+        if (timelineMode === TimelineMode.SingleEntry) {
+            resourceBuilder = runComposition().resources
+        } else {
+            timelineMode is TimelineMode.TimeBoundEntries
+            resourceBuilder = ResourceBuilders.Resources.Builder()
+            val timeIntervals = (timelineMode as TimelineMode.TimeBoundEntries).timeIntervals
+            timeIntervals.forEach {
+                val result = runComposition(it).resources
+                result.build().idToImageMapping.forEach { res ->
+                    resourceBuilder.addIdToImageMapping(res.key, res.value)
+                }
+            }
+        }
+        resourceBuilder.setVersion(ResourcesVersion).build()
     }
 
     @VisibleForTesting
