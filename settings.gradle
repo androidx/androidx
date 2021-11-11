@@ -225,6 +225,7 @@ includeProject(":appcompat:appcompat-lint", "appcompat/appcompat-lint", [BuildTy
 includeProject(":appcompat:appcompat-resources", "appcompat/appcompat-resources", [BuildType.MAIN])
 includeProject(":appcompat:integration-tests:receive-content-testapp", "appcompat/integration-tests/receive-content-testapp", [BuildType.MAIN])
 includeProject(":appsearch:appsearch", "appsearch/appsearch", [BuildType.MAIN])
+includeProject(":appsearch:appsearch-builtin-types", "appsearch/appsearch-builtin-types", [BuildType.MAIN])
 includeProject(":appsearch:appsearch-compiler", "appsearch/compiler", [BuildType.MAIN])
 includeProject(":appsearch:appsearch-debug-view", "appsearch/appsearch-debug-view", [BuildType.MAIN])
 includeProject(":appsearch:appsearch-debug-view:samples", "appsearch/appsearch-debug-view/samples",

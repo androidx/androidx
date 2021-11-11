@@ -1,0 +1,39 @@
+// Signature format: 4.0
+package androidx.appsearch.builtintypes {
+
+  @androidx.appsearch.annotation.Document public class Timer {
+    method public long getDurationMillis();
+    method public long getExpireTimeMillis();
+    method public String getId();
+    method public String? getName();
+    method public String getNamespace();
+    method public long getRemainingTimeMillis();
+    method public String? getRingtone();
+    method public int getScore();
+    method public int getTimerStatus();
+    method public long getTtlMillis();
+    method public boolean isVibrate();
+    field public static final int STATUS_EXPIRED = 3; // 0x3
+    field public static final int STATUS_MISSED = 4; // 0x4
+    field public static final int STATUS_PAUSED = 2; // 0x2
+    field public static final int STATUS_RESET = 5; // 0x5
+    field public static final int STATUS_STARTED = 1; // 0x1
+    field public static final int STATUS_UNKNOWN = 0; // 0x0
+  }
+
+  public static final class Timer.Builder {
+    ctor public Timer.Builder(String, String);
+    method public androidx.appsearch.builtintypes.Timer build();
+    method public androidx.appsearch.builtintypes.Timer.Builder setDurationMillis(long);
+    method public androidx.appsearch.builtintypes.Timer.Builder setExpireTimeMillis(long);
+    method public androidx.appsearch.builtintypes.Timer.Builder setName(String?);
+    method public androidx.appsearch.builtintypes.Timer.Builder setRemainingTimeMillis(long);
+    method public androidx.appsearch.builtintypes.Timer.Builder setRingtone(String?);
+    method public androidx.appsearch.builtintypes.Timer.Builder setScore(int);
+    method public androidx.appsearch.builtintypes.Timer.Builder setTimerStatus(int);
+    method public androidx.appsearch.builtintypes.Timer.Builder setTtlMillis(long);
+    method public androidx.appsearch.builtintypes.Timer.Builder setVibrate(boolean);
+  }
+
+}
+
