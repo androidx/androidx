@@ -24,12 +24,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.glance.Button
+import androidx.glance.GlanceId
 import androidx.glance.GlanceModifier
 import androidx.glance.LocalSize
 import androidx.glance.action.ActionParameters
-import androidx.glance.action.ActionRunnable
+import androidx.glance.action.ActionCallback
+import androidx.glance.action.actionRunCallback
 import androidx.glance.action.actionParametersOf
-import androidx.glance.action.actionUpdateContent
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.GlanceAppWidgetReceiver
 import androidx.glance.appwidget.SizeMode
@@ -152,7 +153,7 @@ private fun ContentItem(
             text = text,
             modifier = GlanceModifier.fillMaxSize().padding(8.dp).background(color),
             style = textStyle ?: TextStyle(textAlign = TextAlign.Center),
-            onClick = actionUpdateContent<ResponsiveAction>(
+            onClick = actionRunCallback<ResponsiveAction>(
                 actionParametersOf(
                     KEY_ITEM_CLICKED to text
                 )
@@ -161,8 +162,8 @@ private fun ContentItem(
     }
 }
 
-class ResponsiveAction : ActionRunnable {
-    override suspend fun run(context: Context, parameters: ActionParameters) {
+class ResponsiveAction : ActionCallback {
+    override suspend fun onRun(context: Context, glanceId: GlanceId, parameters: ActionParameters) {
         Handler(context.mainLooper).post {
             Toast.makeText(
                 context,

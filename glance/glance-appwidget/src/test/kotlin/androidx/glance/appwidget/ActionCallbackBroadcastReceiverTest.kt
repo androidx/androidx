@@ -19,7 +19,7 @@ package androidx.glance.appwidget
 import android.app.PendingIntent
 import android.content.Context
 import androidx.glance.action.ActionParameters
-import androidx.glance.action.ActionRunnable
+import androidx.glance.action.ActionCallback
 import androidx.glance.action.actionParametersOf
 import androidx.glance.action.mutableActionParametersOf
 import androidx.test.core.app.ApplicationProvider
@@ -30,7 +30,7 @@ import java.io.Serializable
 import kotlin.test.assertNotEquals
 
 @RunWith(RobolectricTestRunner::class)
-class ActionRunnableBroadcastReceiverTest {
+class ActionCallbackBroadcastReceiverTest {
 
     private val context = ApplicationProvider.getApplicationContext<Context>()
 
@@ -80,10 +80,9 @@ class ActionRunnableBroadcastReceiverTest {
     }
 
     private fun createPendingIntent(parameters: ActionParameters): PendingIntent {
-        return ActionRunnableBroadcastReceiver.createPendingIntent(
+        return ActionCallbackBroadcastReceiver.createPendingIntent(
             context = context,
-            runnableClass = ActionRunnable::class.java,
-            appWidgetClass = GlanceAppWidget::class.java,
+            callbackClass = ActionCallback::class.java,
             appWidgetId = 1,
             parameters = parameters
         )

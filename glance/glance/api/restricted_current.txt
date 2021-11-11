@@ -23,11 +23,16 @@ package androidx.glance {
   public final class CompositionLocalsKt {
     method @androidx.compose.runtime.Composable public static inline <reified T> T! currentState();
     method public static androidx.compose.runtime.ProvidableCompositionLocal<android.content.Context> getLocalContext();
+    method public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.glance.GlanceId> getLocalGlanceId();
     method public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.unit.DpSize> getLocalSize();
     method public static androidx.compose.runtime.ProvidableCompositionLocal<java.lang.Object> getLocalState();
     property public static final androidx.compose.runtime.ProvidableCompositionLocal<android.content.Context> LocalContext;
+    property public static final androidx.compose.runtime.ProvidableCompositionLocal<androidx.glance.GlanceId> LocalGlanceId;
     property public static final androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.unit.DpSize> LocalSize;
     property public static final androidx.compose.runtime.ProvidableCompositionLocal<java.lang.Object> LocalState;
+  }
+
+  public interface GlanceId {
   }
 
   @androidx.compose.runtime.Stable public interface GlanceModifier {
@@ -86,6 +91,10 @@ package androidx.glance.action {
   public interface Action {
   }
 
+  public interface ActionCallback {
+    method public suspend Object? onRun(android.content.Context context, androidx.glance.GlanceId glanceId, androidx.glance.action.ActionParameters parameters, kotlin.coroutines.Continuation<? super kotlin.Unit> p);
+  }
+
   public final class ActionKt {
     method public static androidx.glance.GlanceModifier clickable(androidx.glance.GlanceModifier, androidx.glance.action.Action onClick);
   }
@@ -114,10 +123,6 @@ package androidx.glance.action {
     method public static androidx.glance.action.ActionParameters toParameters(androidx.glance.action.ActionParameters);
   }
 
-  public interface ActionRunnable {
-    method public suspend Object? run(android.content.Context context, optional androidx.glance.action.ActionParameters parameters, optional kotlin.coroutines.Continuation<? super kotlin.Unit> p);
-  }
-
   public final class LaunchActivityActionKt {
     method public static androidx.glance.action.Action actionLaunchActivity(android.content.ComponentName componentName);
     method public static <T extends android.app.Activity> androidx.glance.action.Action actionLaunchActivity(Class<T> activity);
@@ -134,9 +139,9 @@ package androidx.glance.action {
     method public operator <T> T? set(androidx.glance.action.ActionParameters.Key<T> key, T? value);
   }
 
-  public final class UpdateContentActionKt {
-    method public static <T extends androidx.glance.action.ActionRunnable> androidx.glance.action.Action actionUpdateContent(Class<T> runnable, optional androidx.glance.action.ActionParameters parameters);
-    method public static inline <reified T extends androidx.glance.action.ActionRunnable> androidx.glance.action.Action! actionUpdateContent(optional androidx.glance.action.ActionParameters parameters);
+  public final class RunCallbackActionKt {
+    method public static <T extends androidx.glance.action.ActionCallback> androidx.glance.action.Action actionRunCallback(Class<T> callbackClass, optional androidx.glance.action.ActionParameters parameters);
+    method public static inline <reified T extends androidx.glance.action.ActionCallback> androidx.glance.action.Action! actionRunCallback(optional androidx.glance.action.ActionParameters parameters);
   }
 
 }

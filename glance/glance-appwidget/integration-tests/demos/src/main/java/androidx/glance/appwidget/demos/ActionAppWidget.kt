@@ -24,13 +24,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.glance.Button
+import androidx.glance.GlanceId
 import androidx.glance.GlanceModifier
 import androidx.glance.LocalContext
 import androidx.glance.action.ActionParameters
-import androidx.glance.action.ActionRunnable
+import androidx.glance.action.ActionCallback
+import androidx.glance.action.actionRunCallback
 import androidx.glance.action.actionLaunchActivity
 import androidx.glance.action.actionParametersOf
-import androidx.glance.action.actionUpdateContent
 import androidx.glance.action.clickable
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.GlanceAppWidgetReceiver
@@ -67,7 +68,7 @@ class ActionAppWidget : GlanceAppWidget() {
                 modifier = GlanceModifier
                     .padding(8.dp)
                     .clickable(
-                        actionUpdateContent<UpdateAction>(
+                        actionRunCallback<UpdateAction>(
                             actionParametersOf(
                                 KEY_USE_UNDERLINE to useUnderline.get()
                             )
@@ -100,9 +101,10 @@ private var useUnderline = AtomicBoolean(false)
 /**
  * Action to update the [useUnderline] value whenever users clicks on text
  */
-class UpdateAction : ActionRunnable {
-    override suspend fun run(context: Context, parameters: ActionParameters) {
+class UpdateAction : ActionCallback {
+    override suspend fun onRun(context: Context, glanceId: GlanceId, parameters: ActionParameters) {
         useUnderline.set(!parameters.getOrDefault(KEY_USE_UNDERLINE, false))
+        ActionAppWidget().update(context, glanceId)
     }
 }
 
