@@ -46,7 +46,7 @@ public abstract class DatabaseTest extends WorkManagerTest {
     }
 
     protected void insertWork(OneTimeWorkRequest work) {
-        mDatabase.workSpecDao().insertWorkSpec(getWorkSpec(work));
+        mDatabase.workSpecDao().insertWorkSpec(work.getWorkSpec());
     }
 
     protected void insertTags(OneTimeWorkRequest work) {
@@ -62,6 +62,6 @@ public abstract class DatabaseTest extends WorkManagerTest {
     }
 
     protected void insertWork(PeriodicWorkRequest periodicWork) {
-        mDatabase.workSpecDao().insertWorkSpec(getWorkSpec(periodicWork));
+        mDatabase.workSpecDao().insertWorkSpec(periodicWork.getWorkSpec());
     }
 }

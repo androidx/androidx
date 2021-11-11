@@ -362,9 +362,9 @@ public class SystemJobInfoConverterTest extends WorkManagerTest {
     }
 
     private WorkSpec getTestWorkSpecWithConstraints(Constraints constraints) {
-        return getWorkSpec(new OneTimeWorkRequest.Builder(TestWorker.class)
+        return new OneTimeWorkRequest.Builder(TestWorker.class)
                 .setConstraints(constraints)
-                .build());
+                .build().getWorkSpec();
     }
 
     private void assertCloseValues(long value, long target) {
