@@ -43,7 +43,14 @@ public class MacrobenchmarkScope(
 ) {
     private val instrumentation = InstrumentationRegistry.getInstrumentation()
     private val context = instrumentation.context
-    private val device = UiDevice.getInstance(instrumentation)
+
+    /**
+     * Get the [UiDevice] instance, to use in reading target app UI state, or interacting with the
+     * UI via touches, scrolls, or other inputs.
+     *
+     * Convenience for `UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())`
+     */
+    val device: UiDevice = UiDevice.getInstance(instrumentation)
 
     /**
      * Start an activity, by default the default launch of the package, and wait until
