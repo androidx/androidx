@@ -25,6 +25,7 @@ import androidx.annotation.LayoutRes
 import androidx.compose.ui.unit.dp
 import androidx.glance.GlanceModifier
 import androidx.glance.findModifier
+import androidx.glance.layout.Alignment
 import androidx.glance.layout.HeightModifier
 import androidx.glance.layout.WidthModifier
 import androidx.glance.unit.Dimension
@@ -33,9 +34,7 @@ import androidx.glance.unit.Dimension
  * Information about a generated layout, including the layout id, ids of elements within, and other
  * details about the layout contents.
  */
-internal data class LayoutInfo(
-    @LayoutRes val layoutId: Int
-)
+internal data class LayoutInfo(@LayoutRes val layoutId: Int)
 
 /**
  * Information about a [RemoteViews] created from generated layouts, including the layout id, ids
@@ -63,13 +62,11 @@ internal val InsertedViewInfo.isSimple: Boolean
 internal data class ContainerSelector(
     val type: LayoutType,
     val numChildren: Int,
+    val horizontalAlignment: Alignment.Horizontal? = null,
+    val verticalAlignment: Alignment.Vertical? = null,
 )
 
-internal data class ContainerInfo(
-    @LayoutRes val layoutId: Int,
-    /** Maps, for each position, the list of children available. */
-    val children: Map<Int, Map<SizeSelector, Int>>,
-)
+internal data class ContainerInfo(@LayoutRes val layoutId: Int)
 
 /** Type of size needed for a layout. */
 internal enum class LayoutSize {
@@ -255,12 +252,21 @@ internal fun RemoteViews.insertContainerView(
     translationContext: TranslationContext,
     type: LayoutType,
     numChildren: Int,
-    modifier: GlanceModifier
+    modifier: GlanceModifier,
+    horizontalAlignment: Alignment.Horizontal?,
+    verticalAlignment: Alignment.Vertical?,
 ): InsertedViewInfo {
-    val childLayout = generatedContainers[ContainerSelector(type, numChildren)]
+    val childLayout = generatedContainers[ContainerSelector(
+        type,
+        numChildren,
+        horizontalAlignment,
+        verticalAlignment
+    )]
         ?: throw IllegalArgumentException("Cannot find container $type with $numChildren children")
+    val childrenMapping = generatedChildren[type]
+        ?: throw IllegalArgumentException("Cannot find generated children for $type")
     return insertViewInternal(translationContext, childLayout.layoutId, modifier)
-        .copy(children = childLayout.children)
+        .copy(children = childrenMapping)
 }
 
 private fun Dimension.toSpecSize(): LayoutSize =

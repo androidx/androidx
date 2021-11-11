@@ -27,9 +27,9 @@ import android.text.style.TextAppearanceSpan
 import android.text.style.UnderlineSpan
 import android.view.View
 import android.widget.Button
+import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.LinearLayout
-import android.widget.RelativeLayout
 import android.widget.TextView
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
@@ -217,10 +217,9 @@ class GlanceAppWidgetReceiverTest {
 
         mHostRule.startHost()
 
-        mHostRule.onUnboxedHostView<RelativeLayout> { box ->
-            val realBox = box.getTargetView<RelativeLayout>()
-            assertThat(realBox.notGoneChildCount).isEqualTo(1)
-            assertViewSize(realBox, DpSize(150.dp, 180.dp))
+        mHostRule.onUnboxedHostView<FrameLayout> { box ->
+            assertThat(box.notGoneChildCount).isEqualTo(1)
+            assertViewSize(box, DpSize(150.dp, 180.dp))
         }
     }
 
@@ -234,7 +233,7 @@ class GlanceAppWidgetReceiverTest {
 
         mHostRule.startHost()
 
-        mHostRule.onUnboxedHostView<RelativeLayout> { box ->
+        mHostRule.onUnboxedHostView<FrameLayout> { box ->
             val text = assertNotNull(box.findChild<TextView> { it.text.toString() == "Inside" })
             assertThat(box.height).isEqualTo(text.height)
             assertViewDimension(box, box.width, 150.dp)
@@ -421,7 +420,7 @@ class GlanceAppWidgetReceiverTest {
 
         mHostRule.startHost()
 
-        mHostRule.onUnboxedHostView<RelativeLayout> { box ->
+        mHostRule.onUnboxedHostView<FrameLayout> { box ->
             assertThat(box.notGoneChildCount).isEqualTo(2)
             val (boxedImage, boxedText) = box.notGoneChildren.toList()
             val image = boxedImage.getTargetView<ImageView>()
@@ -446,7 +445,7 @@ class GlanceAppWidgetReceiverTest {
 
         mHostRule.startHost()
 
-        mHostRule.onUnboxedHostView<RelativeLayout> { box ->
+        mHostRule.onUnboxedHostView<FrameLayout> { box ->
             assertThat(box.notGoneChildCount).isEqualTo(2)
             val (boxedImage, boxedText) = box.notGoneChildren.toList()
             val image = boxedImage.getTargetView<ImageView>()
