@@ -27,6 +27,7 @@ import com.android.tools.lint.detector.api.Detector
 import com.android.tools.lint.detector.api.Implementation
 import com.android.tools.lint.detector.api.Issue
 import com.android.tools.lint.detector.api.JavaContext
+import com.android.tools.lint.detector.api.LintFix
 import com.android.tools.lint.detector.api.Scope
 import com.android.tools.lint.detector.api.Severity
 import com.android.tools.lint.detector.api.SourceCodeScanner
@@ -54,6 +55,7 @@ import org.jetbrains.uast.UCallExpression
 import org.jetbrains.uast.UCallableReferenceExpression
 import org.jetbrains.uast.UClass
 import org.jetbrains.uast.UClassLiteralExpression
+import org.jetbrains.uast.UDeclaration
 import org.jetbrains.uast.UElement
 import org.jetbrains.uast.UEnumConstant
 import org.jetbrains.uast.UExpression
@@ -62,6 +64,8 @@ import org.jetbrains.uast.UMethod
 import org.jetbrains.uast.UReferenceExpression
 import org.jetbrains.uast.USimpleNameReferenceExpression
 import org.jetbrains.uast.UVariable
+import org.jetbrains.uast.getContainingUClass
+import org.jetbrains.uast.getContainingUMethod
 import org.jetbrains.uast.java.JavaUAnnotation
 import org.jetbrains.uast.toUElement
 import org.jetbrains.uast.tryResolve
@@ -502,7 +506,7 @@ class ExperimentalDetector : Detector(), SourceCodeScanner {
         // This method may get called multiple times when there is more than one instance of the
         // annotation in the hierarchy. We don't care which one we're looking at, but we shouldn't
         // report the same usage and annotation pair multiple times.
-        val visitedAnnotations = visitedUsages.getOrPut(usage, { mutableSetOf() })
+        val visitedAnnotations = visitedUsages.getOrPut(usage) { mutableSetOf() }
         if (!visitedAnnotations.add(annotationFqName)) {
             return
         }
@@ -601,6 +605,50 @@ class ExperimentalDetector : Detector(), SourceCodeScanner {
             })
     }
 
+    private fun createLintFix(
+        context: JavaContext,
+        usage: UElement,
+        annotation: String,
+    ): LintFix {
+        val propagateAnnotation = "@$annotation"
+        val lintFixes = fix().alternatives()
+        usage.getContainingUMethod()?.let { containingMethod ->
+            val isKotlin = isKotlin(usage.sourcePsi)
+            val optInAnnotation = if (isKotlin) {
+                "@androidx.annotation.OptIn($annotation::class)"
+            } else {
+                "@androidx.annotation.OptIn(markerClass = $annotation.class)"
+            }
+            lintFixes.add(createAnnotateFix(context, containingMethod, optInAnnotation))
+            lintFixes.add(createAnnotateFix(context, containingMethod, propagateAnnotation))
+        }
+        usage.getContainingUClass()?.let { containingClass ->
+            lintFixes.add(createAnnotateFix(context, containingClass, propagateAnnotation))
+        }
+        return lintFixes.build()
+    }
+
+    private fun createAnnotateFix(
+        context: JavaContext,
+        element: UDeclaration,
+        annotation: String,
+    ): LintFix? {
+        val elementLabel = when (element) {
+            is UMethod -> "'${element.name}'"
+            is UClass -> "containing class '${element.name}'"
+            else -> throw IllegalArgumentException("Unsupported element type")
+        }
+
+        return fix()
+            .name("Add '$annotation' annotation to $elementLabel")
+            .replace()
+            .range(context.getLocation(element as UElement))
+            .beginning()
+            .with("$annotation ")
+            .shortenNames()
+            .build()
+    }
+
     /**
      * Reports an issue and trims indentation on the [message].
      */
@@ -621,7 +669,8 @@ class ExperimentalDetector : Detector(), SourceCodeScanner {
 
         try {
             if (context.configuration.getOption(issue, "opt-in")?.contains(annotation) != true) {
-                context.report(issue, usage, context.getNameLocation(usage), message.trimIndent())
+                context.report(issue, usage, context.getNameLocation(usage), message.trimIndent(),
+                    createLintFix(context, usage, annotation))
             }
         } catch (e: UnsupportedOperationException) {
             if ("Method not implemented" == e.message) {
