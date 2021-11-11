@@ -47,7 +47,7 @@ import androidx.glance.action.ActionModifier
 import androidx.glance.action.LaunchActivityAction
 import androidx.glance.action.LaunchActivityClassAction
 import androidx.glance.action.LaunchActivityComponentAction
-import androidx.glance.action.UpdateContentAction
+import androidx.glance.action.RunCallbackAction
 import androidx.glance.appwidget.action.LaunchActivityIntentAction
 import androidx.glance.appwidget.layout.CornerRadiusModifier
 import androidx.glance.appwidget.unit.DayNightColorProvider
@@ -135,12 +135,11 @@ private fun applyAction(
                 )
             rv.setOnClickPendingIntent(viewId, pendingIntent)
         }
-        is UpdateContentAction -> {
+        is RunCallbackAction -> {
             val pendingIntent =
-                ActionRunnableBroadcastReceiver.createPendingIntent(
+                ActionCallbackBroadcastReceiver.createPendingIntent(
                     translationContext.context,
-                    action.runnableClass,
-                    translationContext.appWidgetClass,
+                    action.callbackClass,
                     translationContext.appWidgetId,
                     action.parameters
                 )

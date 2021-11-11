@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.glance.appwidget
+package androidx.glance
 
 /** Opaque object used to describe a glance view. */
 interface GlanceId

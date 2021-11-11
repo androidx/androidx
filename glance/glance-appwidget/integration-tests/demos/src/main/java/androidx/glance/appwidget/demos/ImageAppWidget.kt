@@ -21,12 +21,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.glance.Button
+import androidx.glance.GlanceId
 import androidx.glance.GlanceModifier
 import androidx.glance.Image
 import androidx.glance.ImageProvider
 import androidx.glance.action.ActionParameters
-import androidx.glance.action.ActionRunnable
-import androidx.glance.action.actionUpdateContent
+import androidx.glance.action.ActionCallback
+import androidx.glance.action.actionRunCallback
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.GlanceAppWidgetReceiver
 import androidx.glance.appwidget.SizeMode
@@ -42,11 +43,6 @@ import androidx.glance.layout.padding
  */
 class ImageAppWidget : GlanceAppWidget() {
 
-    companion object {
-        // Note: this won't be persisted
-        var contentScale: ContentScale = ContentScale.Fit
-    }
-
     override val sizeMode: SizeMode = SizeMode.Exact
 
     @Composable
@@ -61,7 +57,7 @@ class ImageAppWidget : GlanceAppWidget() {
             Button(
                 text = "Content Scale: $title",
                 modifier = GlanceModifier.fillMaxWidth(),
-                onClick = actionUpdateContent<ChangeImageAction>()
+                onClick = actionRunCallback<ChangeImageAction>()
             )
             Image(
                 provider = ImageProvider(R.drawable.ic_launcher_foreground),
@@ -73,13 +69,17 @@ class ImageAppWidget : GlanceAppWidget() {
     }
 }
 
-class ChangeImageAction : ActionRunnable {
-    override suspend fun run(context: Context, parameters: ActionParameters) {
-        ImageAppWidget.contentScale = when (ImageAppWidget.contentScale) {
+// Note: this won't be persisted
+private var contentScale: ContentScale = ContentScale.Fit
+
+class ChangeImageAction : ActionCallback {
+    override suspend fun onRun(context: Context, glanceId: GlanceId, parameters: ActionParameters) {
+        contentScale = when (contentScale) {
             ContentScale.Fit -> ContentScale.Crop
             ContentScale.Crop -> ContentScale.FillBounds
             else -> ContentScale.Fit
         }
+        ImageAppWidget().update(context, glanceId)
     }
 }
 

@@ -28,12 +28,13 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.preferencesDataStoreFile
 import androidx.glance.Button
+import androidx.glance.GlanceId
 import androidx.glance.GlanceModifier
 import androidx.glance.LocalSize
 import androidx.glance.action.ActionParameters
-import androidx.glance.action.ActionRunnable
+import androidx.glance.action.ActionCallback
+import androidx.glance.action.actionRunCallback
 import androidx.glance.action.actionParametersOf
-import androidx.glance.action.actionUpdateContent
 import androidx.glance.appwidget.CheckBox
 import androidx.glance.appwidget.CheckBoxColors
 import androidx.glance.appwidget.GlanceAppWidget
@@ -126,14 +127,14 @@ fun CountClicks() {
     Row(modifier = GlanceModifier.fillMaxWidth()) {
         Button(
             text = "Count clicks",
-            onClick = actionUpdateContent<ClickAction>(parameters)
+            onClick = actionRunCallback<ClickAction>(parameters)
         )
         Text(text = "$count clicks")
     }
 }
 
-class ClickAction : ActionRunnable {
-    override suspend fun run(context: Context, parameters: ActionParameters) {
+class ClickAction : ActionCallback {
+    override suspend fun onRun(context: Context, glanceId: GlanceId, parameters: ActionParameters) {
         val uiKey = requireNotNull(parameters[uiNameKey]) {
             "Add UI name to parameters, to access the view state."
         }
@@ -142,6 +143,7 @@ class ClickAction : ActionRunnable {
                 this[countClicksKey] = prefs[countClicksKey]!! + 1
             }.toPreferences()
         }
+        CompoundButtonAppWidget().update(context, glanceId)
     }
 }
 

@@ -37,7 +37,9 @@ import androidx.compose.runtime.Recomposer
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.glance.Applier
+import androidx.glance.GlanceId
 import androidx.glance.LocalContext
+import androidx.glance.LocalGlanceId
 import androidx.glance.LocalSize
 import androidx.glance.LocalState
 import kotlinx.coroutines.CancellationException
