@@ -39,7 +39,7 @@ internal class ScheduledExecutor : Scheduler, Executor {
         scheduler = Schedulers.from(executor)
     }
 
-    override fun createWorker() = scheduler.createWorker()
+    override fun createWorker(): Worker = scheduler.createWorker()
 
     override fun execute(command: Runnable) {
         executor.execute(command)
