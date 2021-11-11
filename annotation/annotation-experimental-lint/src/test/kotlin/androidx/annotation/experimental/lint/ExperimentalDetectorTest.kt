@@ -69,9 +69,60 @@ src/sample/experimental/UseJavaExperimentalFromJava.java:54: Error: This declara
                                                          ~~~~~~~~~~~
 4 errors, 0 warnings
         """.trimIndent()
+
+        val expectedFix = """
+Fix for src/sample/experimental/UseJavaExperimentalFromJava.java line 25: Add '@androidx.annotation.OptIn(markerClass = sample.experimental.ExperimentalDateTime.class)' annotation to 'getDateUnsafe':
+@@ -24 +24
+-     int getDateUnsafe() {
++     int @androidx.annotation.OptIn(markerClass = ExperimentalDateTime.class) getDateUnsafe() {
+Fix for src/sample/experimental/UseJavaExperimentalFromJava.java line 25: Add '@sample.experimental.ExperimentalDateTime' annotation to 'getDateUnsafe':
+@@ -24 +24
+-     int getDateUnsafe() {
++     int @ExperimentalDateTime getDateUnsafe() {
+Fix for src/sample/experimental/UseJavaExperimentalFromJava.java line 25: Add '@sample.experimental.ExperimentalDateTime' annotation to containing class 'UseJavaExperimentalFromJava':
+@@ -19 +19
+- @SuppressWarnings({"unused", "WeakerAccess", "deprecation"})
++ @ExperimentalDateTime @SuppressWarnings({"unused", "WeakerAccess", "deprecation"})
+Fix for src/sample/experimental/UseJavaExperimentalFromJava.java line 26: Add '@androidx.annotation.OptIn(markerClass = sample.experimental.ExperimentalDateTime.class)' annotation to 'getDateUnsafe':
+@@ -24 +24
+-     int getDateUnsafe() {
++     int @androidx.annotation.OptIn(markerClass = ExperimentalDateTime.class) getDateUnsafe() {
+Fix for src/sample/experimental/UseJavaExperimentalFromJava.java line 26: Add '@sample.experimental.ExperimentalDateTime' annotation to 'getDateUnsafe':
+@@ -24 +24
+-     int getDateUnsafe() {
++     int @ExperimentalDateTime getDateUnsafe() {
+Fix for src/sample/experimental/UseJavaExperimentalFromJava.java line 26: Add '@sample.experimental.ExperimentalDateTime' annotation to containing class 'UseJavaExperimentalFromJava':
+@@ -19 +19
+- @SuppressWarnings({"unused", "WeakerAccess", "deprecation"})
++ @ExperimentalDateTime @SuppressWarnings({"unused", "WeakerAccess", "deprecation"})
+Fix for src/sample/experimental/UseJavaExperimentalFromJava.java line 53: Add '@androidx.annotation.OptIn(markerClass = sample.experimental.ExperimentalLocation.class)' annotation to 'getDateExperimentalLocationUnsafe':
+@@ -51 +51
+-     int getDateExperimentalLocationUnsafe() {
++     int @androidx.annotation.OptIn(markerClass = ExperimentalLocation.class) getDateExperimentalLocationUnsafe() {
+Fix for src/sample/experimental/UseJavaExperimentalFromJava.java line 53: Add '@sample.experimental.ExperimentalLocation' annotation to 'getDateExperimentalLocationUnsafe':
+@@ -51 +51
+-     int getDateExperimentalLocationUnsafe() {
++     int @ExperimentalLocation getDateExperimentalLocationUnsafe() {
+Fix for src/sample/experimental/UseJavaExperimentalFromJava.java line 53: Add '@sample.experimental.ExperimentalLocation' annotation to containing class 'UseJavaExperimentalFromJava':
+@@ -19 +19
+- @SuppressWarnings({"unused", "WeakerAccess", "deprecation"})
++ @ExperimentalLocation @SuppressWarnings({"unused", "WeakerAccess", "deprecation"})
+Fix for src/sample/experimental/UseJavaExperimentalFromJava.java line 54: Add '@androidx.annotation.OptIn(markerClass = sample.experimental.ExperimentalLocation.class)' annotation to 'getDateExperimentalLocationUnsafe':
+@@ -51 +51
+-     int getDateExperimentalLocationUnsafe() {
++     int @androidx.annotation.OptIn(markerClass = ExperimentalLocation.class) getDateExperimentalLocationUnsafe() {
+Fix for src/sample/experimental/UseJavaExperimentalFromJava.java line 54: Add '@sample.experimental.ExperimentalLocation' annotation to 'getDateExperimentalLocationUnsafe':
+@@ -51 +51
+-     int getDateExperimentalLocationUnsafe() {
++     int @ExperimentalLocation getDateExperimentalLocationUnsafe() {
+Fix for src/sample/experimental/UseJavaExperimentalFromJava.java line 54: Add '@sample.experimental.ExperimentalLocation' annotation to containing class 'UseJavaExperimentalFromJava':
+@@ -19 +19
+- @SuppressWarnings({"unused", "WeakerAccess", "deprecation"})
++ @ExperimentalLocation @SuppressWarnings({"unused", "WeakerAccess", "deprecation"})
+        """.trimIndent()
         /* ktlint-enable max-line-length */
 
-        check(*input).expect(expected)
+        check(*input).expect(expected).expectFixDiffs(expectedFix)
     }
 
     @Test
@@ -136,9 +187,60 @@ src/sample/experimental/UseJavaExperimentalFromKt.kt:58: Error: This declaration
                                                     ~~~~~~~~
 4 errors, 0 warnings
         """.trimIndent()
+
+        val expectedFix = """
+Fix for src/sample/experimental/UseJavaExperimentalFromKt.kt line 29: Add '@androidx.annotation.OptIn(sample.experimental.ExperimentalDateTime::class)' annotation to 'getDateUnsafe':
+@@ -28 +28
+-     fun getDateUnsafe(): Int {
++     fun @androidx.annotation.OptIn(ExperimentalDateTime::class) getDateUnsafe(): Int {
+Fix for src/sample/experimental/UseJavaExperimentalFromKt.kt line 29: Add '@sample.experimental.ExperimentalDateTime' annotation to 'getDateUnsafe':
+@@ -28 +28
+-     fun getDateUnsafe(): Int {
++     fun @ExperimentalDateTime getDateUnsafe(): Int {
+Fix for src/sample/experimental/UseJavaExperimentalFromKt.kt line 29: Add '@sample.experimental.ExperimentalDateTime' annotation to containing class 'UseJavaExperimentalFromKt':
+@@ -23 +23
+- @Suppress("unused", "MemberVisibilityCanBePrivate")
++ @ExperimentalDateTime @Suppress("unused", "MemberVisibilityCanBePrivate")
+Fix for src/sample/experimental/UseJavaExperimentalFromKt.kt line 30: Add '@androidx.annotation.OptIn(sample.experimental.ExperimentalDateTime::class)' annotation to 'getDateUnsafe':
+@@ -28 +28
+-     fun getDateUnsafe(): Int {
++     fun @androidx.annotation.OptIn(ExperimentalDateTime::class) getDateUnsafe(): Int {
+Fix for src/sample/experimental/UseJavaExperimentalFromKt.kt line 30: Add '@sample.experimental.ExperimentalDateTime' annotation to 'getDateUnsafe':
+@@ -28 +28
+-     fun getDateUnsafe(): Int {
++     fun @ExperimentalDateTime getDateUnsafe(): Int {
+Fix for src/sample/experimental/UseJavaExperimentalFromKt.kt line 30: Add '@sample.experimental.ExperimentalDateTime' annotation to containing class 'UseJavaExperimentalFromKt':
+@@ -23 +23
+- @Suppress("unused", "MemberVisibilityCanBePrivate")
++ @ExperimentalDateTime @Suppress("unused", "MemberVisibilityCanBePrivate")
+Fix for src/sample/experimental/UseJavaExperimentalFromKt.kt line 57: Add '@androidx.annotation.OptIn(sample.experimental.ExperimentalLocation::class)' annotation to 'getDateExperimentalLocationUnsafe':
+@@ -55 +55
+-     fun getDateExperimentalLocationUnsafe(): Int {
++     fun @androidx.annotation.OptIn(ExperimentalLocation::class) getDateExperimentalLocationUnsafe(): Int {
+Fix for src/sample/experimental/UseJavaExperimentalFromKt.kt line 57: Add '@sample.experimental.ExperimentalLocation' annotation to 'getDateExperimentalLocationUnsafe':
+@@ -55 +55
+-     fun getDateExperimentalLocationUnsafe(): Int {
++     fun @ExperimentalLocation getDateExperimentalLocationUnsafe(): Int {
+Fix for src/sample/experimental/UseJavaExperimentalFromKt.kt line 57: Add '@sample.experimental.ExperimentalLocation' annotation to containing class 'UseJavaExperimentalFromKt':
+@@ -23 +23
+- @Suppress("unused", "MemberVisibilityCanBePrivate")
++ @ExperimentalLocation @Suppress("unused", "MemberVisibilityCanBePrivate")
+Fix for src/sample/experimental/UseJavaExperimentalFromKt.kt line 58: Add '@androidx.annotation.OptIn(sample.experimental.ExperimentalLocation::class)' annotation to 'getDateExperimentalLocationUnsafe':
+@@ -55 +55
+-     fun getDateExperimentalLocationUnsafe(): Int {
++     fun @androidx.annotation.OptIn(ExperimentalLocation::class) getDateExperimentalLocationUnsafe(): Int {
+Fix for src/sample/experimental/UseJavaExperimentalFromKt.kt line 58: Add '@sample.experimental.ExperimentalLocation' annotation to 'getDateExperimentalLocationUnsafe':
+@@ -55 +55
+-     fun getDateExperimentalLocationUnsafe(): Int {
++     fun @ExperimentalLocation getDateExperimentalLocationUnsafe(): Int {
+Fix for src/sample/experimental/UseJavaExperimentalFromKt.kt line 58: Add '@sample.experimental.ExperimentalLocation' annotation to containing class 'UseJavaExperimentalFromKt':
+@@ -23 +23
+- @Suppress("unused", "MemberVisibilityCanBePrivate")
++ @ExperimentalLocation @Suppress("unused", "MemberVisibilityCanBePrivate")
+        """.trimIndent()
         /* ktlint-enable max-line-length */
 
-        check(*input).expect(expected)
+        check(*input).expect(expected).expectFixDiffs(expectedFix)
     }
 
     @Ignore("b/196881523")
@@ -182,9 +284,13 @@ src/sample/experimental/UseKtExperimentalFromJava.java:97: Error: This declarati
                              ~~~~~~~~~~~
 8 errors, 0 warnings
         """.trimIndent()
+
+        val expectedFix = """
+TODO once b/196881523 is fixed and this test is re-enabled.
+        """.trimIndent()
         /* ktlint-enable max-line-length */
 
-        check(*input).expect(expected)
+        check(*input).expectFixDiffs(expectedFix).expect(expected)
     }
 
     @Test
