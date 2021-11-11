@@ -79,7 +79,6 @@ public final class FakeAppConfig {
     }
 
     /** @hide */
-    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static final class DefaultProvider implements CameraXConfig.Provider {
 

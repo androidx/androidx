@@ -156,7 +156,6 @@ public final class FocusMeteringAction {
     /**
      * The builder used to create the {@link FocusMeteringAction}.
      */
-    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
     public static class Builder {
         @SuppressWarnings("WeakerAccess") /* synthetic accessor */
         final List<MeteringPoint> mMeteringPointsAf = new ArrayList<>();

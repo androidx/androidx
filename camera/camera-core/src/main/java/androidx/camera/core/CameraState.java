@@ -258,7 +258,6 @@ public abstract class CameraState {
      * {@link #ERROR_STREAM_CONFIG}, {@link #ERROR_CAMERA_DISABLED},
      * {@link #ERROR_CAMERA_FATAL_ERROR} and {@link #ERROR_DO_NOT_DISTURB_MODE_ENABLED}.
      */
-    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
     public enum ErrorType {
         /**
          * An error the camera encountered that CameraX will attempt to recover from.
@@ -280,7 +279,6 @@ public abstract class CameraState {
     }
 
     /** States the camera can be in. */
-    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
     public enum Type {
         /**
          * Represents a state where the camera is waiting for a signal to attempt to open the camera
@@ -442,7 +440,6 @@ public abstract class CameraState {
      * </tr>
      * </table>
      */
-    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
     @AutoValue
     public abstract static class StateError {
 
