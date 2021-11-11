@@ -37,7 +37,6 @@ import androidx.annotation.LayoutRes
 import androidx.annotation.Px
 import androidx.annotation.RequiresApi
 import androidx.annotation.StringRes
-import androidx.core.os.BuildCompat
 
 /**
  * Helper for accessing features in [RemoteViews].
@@ -72,14 +71,11 @@ public object RemoteViewsCompat {
         @IdRes viewId: Int,
         items: RemoteCollectionItems
     ) {
-        if (BuildCompat.isAtLeastS()) {
-            try {
-                CollectionItemsApi31Impl.setRemoteAdapter(remoteViews, viewId, items)
-                return
-            } catch (e: LinkageError) {
-                // This will occur if the API doesn't exist yet on this version of S. We can simply
-                // fall back to the approach we use on pre-S devices.
-            }
+        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.S) {
+            // Due to an inefficient Parcelable implementation, the platform collections API is
+            // unsuitable on API 31.
+            CollectionItemsApi31Impl.setRemoteAdapter(remoteViews, viewId, items)
+            return
         }
         val intent = RemoteViewsCompatService.createIntent(context, appWidgetId, viewId)
         check(context.packageManager.resolveService(intent, /* flags= */ 0) != null) {
