@@ -1220,6 +1220,7 @@ package androidx.core.content.pm {
     method public String getPackage();
     method public int getRank();
     method public CharSequence getShortLabel();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public android.os.Bundle? getTransientExtras();
     method public android.os.UserHandle? getUserHandle();
     method public boolean hasKeyFieldsOnly();
     method public boolean isCached();
@@ -1259,6 +1260,7 @@ package androidx.core.content.pm {
     method public androidx.core.content.pm.ShortcutInfoCompat.Builder setRank(int);
     method public androidx.core.content.pm.ShortcutInfoCompat.Builder setShortLabel(CharSequence);
     method public androidx.core.content.pm.ShortcutInfoCompat.Builder setSliceUri(android.net.Uri);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public androidx.core.content.pm.ShortcutInfoCompat.Builder setTransientExtras(android.os.Bundle);
   }
 
   @IntDef({androidx.core.content.pm.ShortcutInfoCompat.SURFACE_LAUNCHER}) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface ShortcutInfoCompat.Surface {
