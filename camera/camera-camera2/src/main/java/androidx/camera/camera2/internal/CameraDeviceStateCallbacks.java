@@ -82,7 +82,6 @@ public final class CameraDeviceStateCallbacks {
         }
     }
 
-    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
     private static final class ComboDeviceStateCallback extends CameraDevice.StateCallback {
         private final List<CameraDevice.StateCallback> mCallbacks = new ArrayList<>();
 

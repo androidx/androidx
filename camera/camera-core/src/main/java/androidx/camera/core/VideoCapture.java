@@ -1312,7 +1312,6 @@ public final class VideoCapture extends UseCase {
      *
      * @hide
      */
-    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
     @RestrictTo(Scope.LIBRARY_GROUP)
     public static final class Defaults
             implements ConfigProvider<VideoCaptureConfig> {

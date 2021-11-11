@@ -195,7 +195,6 @@ public final class CoreAppTestUtil {
     }
 
     /** The display foreground of the device is occupied that cannot execute UI related test. */
-    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
     public static class ForegroundOccupiedError extends Exception {
         public ForegroundOccupiedError(@NonNull String message) {
             super(message);
