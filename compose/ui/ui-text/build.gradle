@@ -35,18 +35,18 @@ if(!AndroidXComposePlugin.isMultiplatformEnabled(project)) {
          */
         implementation(libs.kotlinStdlibCommon)
 
-        api(project(":compose:ui:ui-graphics"))
-        api(project(":compose:ui:ui-unit"))
+        api(projectOrArtifact(":compose:ui:ui-graphics"))
+        api(projectOrArtifact(":compose:ui:ui-unit"))
         api("androidx.annotation:annotation:1.1.0")
 
-        implementation(project(":compose:runtime:runtime"))
-        implementation(project(":compose:runtime:runtime-saveable"))
-        implementation(project(":compose:ui:ui-util"))
+        implementation(projectOrArtifact(":compose:runtime:runtime"))
+        implementation(projectOrArtifact(":compose:runtime:runtime-saveable"))
+        implementation(projectOrArtifact(":compose:ui:ui-util"))
         implementation(libs.kotlinStdlib)
         implementation("androidx.collection:collection:1.1.0")
         implementation("androidx.core:core:1.5.0")
 
-        testImplementation(project(":compose:ui:ui-test-font"))
+        testImplementation(projectOrArtifact(":compose:ui:ui-test-font"))
         testImplementation(libs.testRules)
         testImplementation(libs.testRunner)
         testImplementation(libs.junit)
@@ -55,8 +55,8 @@ if(!AndroidXComposePlugin.isMultiplatformEnabled(project)) {
         testImplementation(libs.kotlinReflect)
         testImplementation(libs.mockitoKotlin)
 
-        androidTestImplementation(project(":compose:ui:ui-test-font"))
-        androidTestImplementation(project(":compose:ui:ui-test-junit4"))
+        androidTestImplementation(projectOrArtifact(":compose:ui:ui-test-font"))
+        androidTestImplementation(projectOrArtifact(":compose:ui:ui-test-junit4"))
         androidTestImplementation(libs.testCore)
         androidTestImplementation(libs.testRules)
         androidTestImplementation(libs.testRunner)
@@ -92,12 +92,12 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
             commonMain.dependencies {
                 implementation(libs.kotlinStdlibCommon)
 
-                api(project(":compose:ui:ui-graphics"))
-                api(project(":compose:ui:ui-unit"))
+                api(projectOrArtifact(":compose:ui:ui-graphics"))
+                api(projectOrArtifact(":compose:ui:ui-unit"))
 
-                implementation(project(":compose:runtime:runtime"))
-                implementation(project(":compose:runtime:runtime-saveable"))
-                implementation(project(":compose:ui:ui-util"))
+                implementation(projectOrArtifact(":compose:runtime:runtime"))
+                implementation(projectOrArtifact(":compose:runtime:runtime-saveable"))
+                implementation(projectOrArtifact(":compose:ui:ui-util"))
             }
 
             jvmMain.dependencies {
@@ -126,7 +126,7 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
             androidMain.kotlin.srcDirs("../../../text/text/src/main/java")
 
             androidTest.dependencies {
-                implementation(project(":compose:ui:ui-test-font"))
+                implementation(projectOrArtifact(":compose:ui:ui-test-font"))
                 implementation(libs.testRules)
                 implementation(libs.testRunner)
                 implementation(libs.junit)
@@ -137,8 +137,8 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
             }
 
             androidAndroidTest.dependencies {
-                implementation(project(":compose:ui:ui-test-junit4"))
-                implementation(project(":compose:ui:ui-test-font"))
+                implementation(projectOrArtifact(":compose:ui:ui-test-junit4"))
+                implementation(projectOrArtifact(":compose:ui:ui-test-font"))
                 implementation(libs.testRules)
                 implementation(libs.testRunner)
                 implementation(libs.espressoCore)
@@ -153,9 +153,9 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
                 implementation(libs.truth)
                 implementation(libs.junit)
                 implementation(libs.skikoCurrentOs)
-                implementation(project(":compose:foundation:foundation"))
-                implementation(project(":compose:ui:ui-test-junit4"))
-                implementation(project(":compose:ui:ui-test-font"))
+                implementation(projectOrArtifact(":compose:foundation:foundation"))
+                implementation(projectOrArtifact(":compose:ui:ui-test-junit4"))
+                implementation(projectOrArtifact(":compose:ui:ui-test-font"))
             }
         }
     }

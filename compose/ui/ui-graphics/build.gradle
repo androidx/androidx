@@ -35,10 +35,10 @@ if(!AndroidXComposePlugin.isMultiplatformEnabled(project)) {
          */
 
         api("androidx.annotation:annotation:1.2.0")
-        api(project(":compose:ui:ui-unit"))
+        api(projectOrArtifact(":compose:ui:ui-unit"))
 
-        implementation(project(":compose:runtime:runtime"))
-        implementation(project(":compose:ui:ui-util"))
+        implementation(projectOrArtifact(":compose:runtime:runtime"))
+        implementation(projectOrArtifact(":compose:ui:ui-util"))
         implementation(libs.kotlinStdlibCommon)
 
         testImplementation(libs.testRules)
@@ -46,16 +46,16 @@ if(!AndroidXComposePlugin.isMultiplatformEnabled(project)) {
         testImplementation(libs.junit)
         testImplementation(libs.truth)
 
-        androidTestImplementation(project(":compose:ui:ui-graphics:ui-graphics-samples"))
-        androidTestImplementation(project(":compose:ui:ui-test-junit4"))
-        androidTestImplementation(project(":compose:test-utils"))
+        androidTestImplementation(projectOrArtifact(":compose:ui:ui-graphics:ui-graphics-samples"))
+        androidTestImplementation(projectOrArtifact(":compose:ui:ui-test-junit4"))
+        androidTestImplementation(projectOrArtifact(":compose:test-utils"))
         androidTestImplementation(libs.testRules)
         androidTestImplementation(libs.testRunner)
         androidTestImplementation(libs.espressoCore)
         androidTestImplementation(libs.junit)
         androidTestImplementation(libs.truth)
 
-        lintPublish(project(":compose:ui:ui-graphics-lint"))
+        lintPublish(projectOrArtifact(":compose:ui:ui-graphics-lint"))
 
         samples(projectOrArtifact(":compose:ui:ui-graphics:ui-graphics-samples"))
     }
@@ -75,9 +75,9 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
             commonMain.dependencies {
                 implementation(libs.kotlinStdlibCommon)
 
-                api(project(":compose:ui:ui-unit"))
-                implementation(project(":compose:runtime:runtime"))
-                implementation(project(":compose:ui:ui-util"))
+                api(projectOrArtifact(":compose:ui:ui-unit"))
+                implementation(projectOrArtifact(":compose:runtime:runtime"))
+                implementation(projectOrArtifact(":compose:ui:ui-util"))
             }
 
             androidMain.dependencies {
@@ -107,9 +107,9 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
             }
 
             androidAndroidTest.dependencies {
-                implementation(project(":compose:ui:ui-graphics:ui-graphics-samples"))
-                implementation(project(":compose:ui:ui-test-junit4"))
-                implementation(project(":compose:test-utils"))
+                implementation(projectOrArtifact(":compose:ui:ui-graphics:ui-graphics-samples"))
+                implementation(projectOrArtifact(":compose:ui:ui-test-junit4"))
+                implementation(projectOrArtifact(":compose:test-utils"))
                 implementation(libs.testRules)
                 implementation(libs.testRunner)
                 implementation(libs.espressoCore)
@@ -119,7 +119,7 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
             desktopTest {
                 resources.srcDirs += "src/desktopTest/res"
                 dependencies {
-                    implementation(project(":compose:ui:ui-test-junit4"))
+                    implementation(projectOrArtifact(":compose:ui:ui-test-junit4"))
                     implementation(libs.junit)
                     implementation(libs.truth)
                     implementation(libs.skikoCurrentOs)

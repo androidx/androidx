@@ -27,38 +27,38 @@ plugins {
 AndroidXComposePlugin.applyAndConfigureKotlinPlugin(project)
 
 dependencies {
-    kotlinPlugin(project(":compose:compiler:compiler"))
+    kotlinPlugin(projectOrArtifact(":compose:compiler:compiler"))
 
     if(!AndroidXComposePlugin.isMultiplatformEnabled(project)) {
         implementation(libs.kotlinStdlib)
 
         api("androidx.annotation:annotation:1.1.0")
-        implementation(project(":compose:animation:animation"))
+        implementation(projectOrArtifact(":compose:animation:animation"))
 
-        api(project(":compose:runtime:runtime"))
-        api(project(":compose:ui:ui"))
-        api(project(":compose:ui:ui-tooling-preview"))
-        api(project(":compose:ui:ui-tooling-data"))
+        api(projectOrArtifact(":compose:runtime:runtime"))
+        api(projectOrArtifact(":compose:ui:ui"))
+        api(projectOrArtifact(":compose:ui:ui-tooling-preview"))
+        api(projectOrArtifact(":compose:ui:ui-tooling-data"))
         implementation("androidx.compose.material:material:1.0.0")
         implementation("androidx.activity:activity-compose:1.3.0")
 
         // kotlin-reflect and animation-tooling-internal are provided by Studio at runtime
-        compileOnly(project(":compose:animation:animation-tooling-internal"))
+        compileOnly(projectOrArtifact(":compose:animation:animation-tooling-internal"))
         compileOnly(libs.kotlinReflect)
 
-        androidTestImplementation(project(":compose:ui:ui-test-junit4"))
+        androidTestImplementation(projectOrArtifact(":compose:ui:ui-test-junit4"))
 
         androidTestImplementation(libs.junit)
         androidTestImplementation(libs.testRunner)
         androidTestImplementation(libs.testRules)
-        androidTestImplementation(project(":compose:foundation:foundation-layout"))
-        androidTestImplementation(project(":compose:foundation:foundation"))
-        androidTestImplementation(project(":compose:test-utils"))
+        androidTestImplementation(projectOrArtifact(":compose:foundation:foundation-layout"))
+        androidTestImplementation(projectOrArtifact(":compose:foundation:foundation"))
+        androidTestImplementation(projectOrArtifact(":compose:test-utils"))
         androidTestImplementation(libs.truth)
         androidTestImplementation(libs.kotlinReflect)
-        androidTestImplementation(project(":compose:animation:animation-tooling-internal"))
-        androidTestImplementation(project(":lifecycle:lifecycle-viewmodel-compose"))
-        androidTestImplementation(project(":compose:runtime:runtime-livedata"))
+        androidTestImplementation(projectOrArtifact(":compose:animation:animation-tooling-internal"))
+        androidTestImplementation(projectOrArtifact(":lifecycle:lifecycle-viewmodel-compose"))
+        androidTestImplementation(projectOrArtifact(":compose:runtime:runtime-livedata"))
     }
 }
 
@@ -74,20 +74,20 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
         sourceSets {
             commonMain.dependencies {
                 implementation(libs.kotlinStdlibCommon)
-                api(project(":compose:ui:ui-tooling-preview"))
-                api(project(":compose:runtime:runtime"))
-                api(project(":compose:ui:ui"))
+                api(projectOrArtifact(":compose:ui:ui-tooling-preview"))
+                api(projectOrArtifact(":compose:runtime:runtime"))
+                api(projectOrArtifact(":compose:ui:ui"))
             }
             androidMain.dependencies {
                 api("androidx.annotation:annotation:1.1.0")
-                implementation(project(":compose:animation:animation"))
+                implementation(projectOrArtifact(":compose:animation:animation"))
 
-                api(project(":compose:ui:ui-tooling-data"))
-                implementation(project(":compose:material:material"))
+                api(projectOrArtifact(":compose:ui:ui-tooling-data"))
+                implementation(projectOrArtifact(":compose:material:material"))
                 implementation("androidx.activity:activity-compose:1.3.0")
 
                 // kotlin-reflect and tooling-animation-internal are provided by Studio at runtime
-                compileOnly(project(":compose:animation:animation-tooling-internal"))
+                compileOnly(projectOrArtifact(":compose:animation:animation-tooling-internal"))
                 compileOnly(libs.kotlinReflect)
             }
 
@@ -96,24 +96,24 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
 
             desktopMain.dependencies {
                 implementation(libs.kotlinStdlib)
-                implementation(project(":compose:runtime:runtime"))
-                implementation(project(":compose:ui:ui"))
+                implementation(projectOrArtifact(":compose:runtime:runtime"))
+                implementation(projectOrArtifact(":compose:ui:ui"))
             }
 
             androidAndroidTest.dependencies {
-                implementation(project(":compose:ui:ui-test-junit4"))
+                implementation(projectOrArtifact(":compose:ui:ui-test-junit4"))
 
                 implementation(libs.junit)
                 implementation(libs.testRunner)
                 implementation(libs.testRules)
-                implementation(project(":compose:foundation:foundation-layout"))
-                implementation(project(":compose:foundation:foundation"))
-                implementation(project(":compose:test-utils"))
+                implementation(projectOrArtifact(":compose:foundation:foundation-layout"))
+                implementation(projectOrArtifact(":compose:foundation:foundation"))
+                implementation(projectOrArtifact(":compose:test-utils"))
                 implementation(libs.truth)
                 implementation(libs.kotlinReflect)
-                implementation(project(":compose:animation:animation-tooling-internal"))
-                implementation(project(":lifecycle:lifecycle-viewmodel-compose"))
-                implementation(project(":compose:runtime:runtime-livedata"))
+                implementation(projectOrArtifact(":compose:animation:animation-tooling-internal"))
+                implementation(projectOrArtifact(":lifecycle:lifecycle-viewmodel-compose"))
+                implementation(projectOrArtifact(":compose:runtime:runtime-livedata"))
             }
         }
     }

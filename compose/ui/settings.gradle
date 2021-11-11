@@ -14,26 +14,23 @@
  * limitations under the License.
  */
 
+// see ../playground-common/README.md for details on how this works
+
+pluginManagement {
+    includeBuild "../../playground-common/playground-plugin"
+}
 plugins {
-    id("AndroidXPlugin")
-    id("AndroidXComposePlugin")
-    id("com.android.application")
-    id("org.jetbrains.kotlin.android")
+    id "playground"
 }
 
-dependencies {
-    kotlinPlugin(projectOrArtifact(":compose:compiler:compiler"))
+rootProject.name = "compose-ui"
 
-    debugImplementation(projectOrArtifact(":compose:ui:ui-test-manifest"))
-
-    implementation(projectOrArtifact(":compose:ui:ui"))
-    androidTestImplementation(projectOrArtifact(":compose:ui:ui-test-junit4"))
-    androidTestImplementation(libs.testRunner)
-    androidTestImplementation(libs.testCore)
-}
-
-android {
-    defaultConfig {
-        minSdkVersion 21
-    }
+playground {
+    setupPlayground("../..")
+    selectProjectsFromAndroidX({ name ->
+        if (name.startsWith(":compose:ui") && name != ":compose:ui") return true
+        if (name == ":internal-testutils-runtime") return true
+        if (isNeededForComposePlayground(name)) return true
+        return false
+    })
 }

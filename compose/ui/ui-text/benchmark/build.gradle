@@ -23,18 +23,18 @@ plugins {
 }
 
 dependencies {
-    kotlinPlugin project(":compose:compiler:compiler")
-    implementation project(":benchmark:benchmark-junit4")
-    implementation project(":compose:runtime:runtime")
-    implementation project(":compose:ui:ui-test-junit4")
+    kotlinPlugin projectOrArtifact(":compose:compiler:compiler")
+    implementation projectOrArtifact(":benchmark:benchmark-junit4")
+    implementation projectOrArtifact(":compose:runtime:runtime")
+    implementation projectOrArtifact(":compose:ui:ui-test-junit4")
     implementation(libs.kotlinStdlib)
     implementation(libs.kotlinReflect)
     implementation(libs.testRules)
     implementation(libs.junit)
 
-    androidTestImplementation project(":compose:runtime:runtime")
-    androidTestImplementation project(":compose:benchmark-utils")
-    androidTestImplementation project(":compose:ui:ui")
+    androidTestImplementation projectOrArtifact(":compose:runtime:runtime")
+    androidTestImplementation projectOrArtifact(":compose:benchmark-utils")
+    androidTestImplementation projectOrArtifact(":compose:ui:ui")
     androidTestImplementation(libs.kotlinTestCommon)
     androidTestImplementation(libs.truth)
 }

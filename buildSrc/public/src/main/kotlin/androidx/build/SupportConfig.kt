@@ -30,7 +30,7 @@ object SupportConfig {
     val NDK_VERSION by lazy {
         // TODO(aurimas) b/173737578 remove when we no longer have divergent versions
         when (getOperatingSystem()) {
-            OperatingSystem.LINUX -> "23.0.7243079"
+            OperatingSystem.LINUX -> "23.1.7779620"
             else -> "23.0.7599858"
         }
     }

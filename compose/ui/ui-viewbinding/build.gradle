@@ -25,23 +25,23 @@ plugins {
 }
 
 dependencies {
-    kotlinPlugin(project(":compose:compiler:compiler"))
+    kotlinPlugin(projectOrArtifact(":compose:compiler:compiler"))
 
     implementation(libs.kotlinStdlib)
-    implementation(project(":compose:ui:ui"))
-    implementation(project(":compose:ui:ui-util"))
+    implementation(projectOrArtifact(":compose:ui:ui"))
+    implementation(projectOrArtifact(":compose:ui:ui-util"))
     implementation(libs.viewBinding)
     // Required to ensure that Fragments inflated by AndroidViewBinding
     // actually appear after configuration changes
     implementation("androidx.fragment:fragment-ktx:1.3.2")
 
-    androidTestImplementation(project(":compose:foundation:foundation"))
-    androidTestImplementation(project(":compose:test-utils"))
+    androidTestImplementation(projectOrArtifact(":compose:foundation:foundation"))
+    androidTestImplementation(projectOrArtifact(":compose:test-utils"))
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.junit)
     androidTestImplementation(libs.truth)
 
-    samples(project(":compose:ui:ui-viewbinding:ui-viewbinding-samples"))
+    samples(projectOrArtifact(":compose:ui:ui-viewbinding:ui-viewbinding-samples"))
 }
 
 androidx {

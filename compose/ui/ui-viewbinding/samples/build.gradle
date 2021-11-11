@@ -25,20 +25,20 @@ plugins {
 }
 
 dependencies {
-    kotlinPlugin(project(":compose:compiler:compiler"))
+    kotlinPlugin(projectOrArtifact(":compose:compiler:compiler"))
 
     implementation(libs.kotlinStdlib)
-    compileOnly(project(":annotation:annotation-sampled"))
-    implementation(project(":compose:runtime:runtime"))
-    implementation(project(":compose:ui:ui"))
-    implementation(project(":compose:ui:ui-viewbinding"))
+    compileOnly(projectOrArtifact(":annotation:annotation-sampled"))
+    implementation(projectOrArtifact(":compose:runtime:runtime"))
+    implementation(projectOrArtifact(":compose:ui:ui"))
+    implementation(projectOrArtifact(":compose:ui:ui-viewbinding"))
     // Used when creating layouts that contain a FragmentContainerView
     implementation("androidx.fragment:fragment-ktx:1.3.2")
 
-    androidTestImplementation(project(":compose:foundation:foundation"))
-    androidTestImplementation(project(":compose:test-utils"))
+    androidTestImplementation(projectOrArtifact(":compose:foundation:foundation"))
+    androidTestImplementation(projectOrArtifact(":compose:test-utils"))
     androidTestImplementation("androidx.activity:activity-compose:1.3.1")
-    androidTestImplementation(project(":internal-testutils-runtime"))
+    androidTestImplementation(projectOrArtifact(":internal-testutils-runtime"))
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.junit)
     androidTestImplementation(libs.truth)

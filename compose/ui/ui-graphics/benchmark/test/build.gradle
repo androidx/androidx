@@ -22,14 +22,14 @@ plugins {
 }
 
 dependencies {
-    kotlinPlugin project(":compose:compiler:compiler")
+    kotlinPlugin projectOrArtifact(":compose:compiler:compiler")
 
-    androidTestImplementation project(":compose:foundation:foundation")
-    androidTestImplementation project(":compose:runtime:runtime")
-    androidTestImplementation project(":compose:test-utils")
-    androidTestImplementation project(":compose:ui:ui")
-    androidTestImplementation project(":compose:ui:ui-graphics")
-    androidTestImplementation project(":compose:ui:ui-graphics:ui-graphics-benchmark")
+    androidTestImplementation projectOrArtifact(":compose:foundation:foundation")
+    androidTestImplementation projectOrArtifact(":compose:runtime:runtime")
+    androidTestImplementation projectOrArtifact(":compose:test-utils")
+    androidTestImplementation projectOrArtifact(":compose:ui:ui")
+    androidTestImplementation projectOrArtifact(":compose:ui:ui-graphics")
+    androidTestImplementation projectOrArtifact(":compose:ui:ui-graphics:ui-graphics-benchmark")
     androidTestImplementation(libs.kotlinStdlib)
     androidTestImplementation(libs.testRules)
     androidTestImplementation(libs.truth)

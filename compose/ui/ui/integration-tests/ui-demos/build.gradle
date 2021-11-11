@@ -6,21 +6,21 @@ plugins {
 }
 
 dependencies {
-    kotlinPlugin(project(":compose:compiler:compiler"))
+    kotlinPlugin(projectOrArtifact(":compose:compiler:compiler"))
 
     implementation(libs.kotlinStdlib)
 
-    implementation(project(":compose:animation:animation"))
-    implementation(project(":compose:foundation:foundation"))
-    implementation(project(":compose:foundation:foundation-layout"))
-    implementation(project(":compose:integration-tests:demos:common"))
-    implementation(project(":compose:ui:ui:ui-samples"))
-    implementation(project(":compose:material:material"))
-    implementation(project(":compose:runtime:runtime"))
-    implementation(project(":compose:runtime:runtime-livedata"))
-    implementation(project(":compose:ui:ui"))
-    implementation(project(":compose:ui:ui-text"))
-    implementation(project(":compose:ui:ui-viewbinding"))
+    implementation(projectOrArtifact(":compose:animation:animation"))
+    implementation(projectOrArtifact(":compose:foundation:foundation"))
+    implementation(projectOrArtifact(":compose:foundation:foundation-layout"))
+    implementation(projectOrArtifact(":compose:integration-tests:demos:common"))
+    implementation(projectOrArtifact(":compose:ui:ui:ui-samples"))
+    implementation(projectOrArtifact(":compose:material:material"))
+    implementation(projectOrArtifact(":compose:runtime:runtime"))
+    implementation(projectOrArtifact(":compose:runtime:runtime-livedata"))
+    implementation(projectOrArtifact(":compose:ui:ui"))
+    implementation(projectOrArtifact(":compose:ui:ui-text"))
+    implementation(projectOrArtifact(":compose:ui:ui-viewbinding"))
 
     implementation("androidx.fragment:fragment-ktx:1.2.5")
     implementation("androidx.recyclerview:recyclerview:1.1.0")

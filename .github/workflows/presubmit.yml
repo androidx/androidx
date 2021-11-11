@@ -62,6 +62,10 @@ jobs:
         shell: bash
         run: |
           set -x
+<<<<<<< HEAD
+=======
+          echo "ANDROID_NDK_HOME=$ANDROID_NDK_LATEST_HOME" >> $GITHUB_ENV
+>>>>>>> 71795e2a08a (Add `compose-ui` playground.)
           echo "DIST_DIR=$HOME/dist" >> $GITHUB_ENV
 
       - name: "Checkout androidx repo"
@@ -129,10 +133,12 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest]
-        project: ["activity", "biometric", "compose-runtime", "datastore", "fragment", "lifecycle", "navigation", "paging", "room", "work"]
+        project: ["activity", "biometric", "compose-runtime", "compose-ui", "datastore", "fragment", "lifecycle", "navigation", "paging", "room", "work"]
         include:
           - project: "compose-runtime"
             project-root: "compose/runtime"
+          - project: "compose-ui"
+            project-root: "compose/ui"
           - project: "navigation"
             custom-os: "macos-latest" # run one of them on a mac to ensure mac setup works
     runs-on: ${{ matrix.custom-os || matrix.os }}
@@ -170,6 +176,7 @@ jobs:
         shell: bash
         run: |
           set -x
+          echo "ANDROID_NDK_HOME=$ANDROID_NDK_LATEST_HOME" >> $GITHUB_ENV
           echo "DIST_DIR=$HOME/dist" >> $GITHUB_ENV
       # gradle action loads the dependencies cache only on the first run based on arguments.
       # to control it, we explicitly invoke it once which makes it load the dependencies cache with the parameters
