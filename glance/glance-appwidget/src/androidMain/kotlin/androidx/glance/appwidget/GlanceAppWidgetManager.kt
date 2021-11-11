@@ -19,6 +19,7 @@ package androidx.glance.appwidget
 import android.appwidget.AppWidgetManager
 import android.content.ComponentName
 import android.content.Context
+import androidx.annotation.VisibleForTesting
 import androidx.compose.ui.unit.DpSize
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
@@ -106,6 +107,28 @@ class GlanceAppWidgetManager(private val context: Context) {
         val bundle = appWidgetManager.getAppWidgetOptions(glanceId.appWidgetId)
         return bundle.extractAllSizes { DpSize.Zero }
     }
+
+    /** Check which receivers still exist, and clean the data store to only keep those. */
+    internal suspend fun cleanReceivers() {
+        val packageName = context.packageName
+        val receivers = appWidgetManager.installedProviders
+            .filter { it.provider.packageName == packageName }
+            .map { it.provider.className }
+            .toSet()
+        dataStore.updateData { prefs ->
+            val knownReceivers = prefs[providersKey] ?: return@updateData prefs
+            val toRemove = knownReceivers.filter { it !in receivers }
+            if (toRemove.isEmpty()) return@updateData prefs
+            prefs.toMutablePreferences().apply {
+                this[providersKey] = knownReceivers - toRemove
+                toRemove.forEach { receiver -> remove(providerKey(receiver)) }
+            }.toPreferences()
+        }
+    }
+
+    @VisibleForTesting
+    internal suspend fun listKnownReceivers(): Collection<String>? =
+        dataStore.data.firstOrNull()?.let { it[providersKey] }
 
     private companion object {
         private val Context.appManagerDataStore

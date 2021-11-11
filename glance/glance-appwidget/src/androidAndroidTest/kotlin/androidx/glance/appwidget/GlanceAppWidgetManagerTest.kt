@@ -69,4 +69,28 @@ class GlanceAppWidgetManagerTest {
             }
         }
     }
+
+    @Test
+    fun cleanReceivers() {
+        mHostRule.onHostActivity { activity ->
+            val manager = GlanceAppWidgetManager(activity)
+
+            runBlocking {
+                manager.updateReceiver(DummyGlanceAppWidgetReceiver(), TestGlanceAppWidget)
+                assertThat(manager.listKnownReceivers()).containsExactly(
+                    DummyGlanceAppWidgetReceiver::class.java.canonicalName,
+                    TestGlanceAppWidgetReceiver::class.java.canonicalName
+                )
+
+                manager.cleanReceivers()
+                assertThat(manager.listKnownReceivers()).containsExactly(
+                    TestGlanceAppWidgetReceiver::class.java.canonicalName
+                )
+            }
+        }
+    }
+}
+
+private class DummyGlanceAppWidgetReceiver : GlanceAppWidgetReceiver() {
+    override val glanceAppWidget: GlanceAppWidget = TestGlanceAppWidget
 }
