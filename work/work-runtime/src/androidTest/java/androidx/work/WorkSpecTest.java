@@ -48,7 +48,7 @@ public class WorkSpecTest extends WorkManagerTest {
                 .setInitialDelay(DEFAULT_INITIAL_DELAY_TIME_MS, TimeUnit.MILLISECONDS)
                 .setPeriodStartTime(DEFAULT_PERIOD_START_TIME, TimeUnit.MILLISECONDS)
                 .build();
-        long actualDelay = getWorkSpec(work).calculateNextRunTime();
+        long actualDelay = work.getWorkSpec().calculateNextRunTime();
         assertThat(actualDelay, is(DEFAULT_PERIOD_START_TIME + DEFAULT_INITIAL_DELAY_TIME_MS));
     }
 
@@ -64,7 +64,7 @@ public class WorkSpecTest extends WorkManagerTest {
                 .build();
 
         long now = System.currentTimeMillis();
-        WorkSpec workSpec = getWorkSpec(periodicWork);
+        WorkSpec workSpec = periodicWork.getWorkSpec();
         long nextRunTime = workSpec.calculateNextRunTime();
         assertThat(nextRunTime, greaterThan(now));
     }
@@ -81,7 +81,7 @@ public class WorkSpecTest extends WorkManagerTest {
                 .build();
 
         long now = System.currentTimeMillis();
-        WorkSpec workSpec = getWorkSpec(periodicWork);
+        WorkSpec workSpec = periodicWork.getWorkSpec();
         long nextRunTime = workSpec.calculateNextRunTime();
         assertCloseValues(nextRunTime, now);
     }
@@ -96,7 +96,7 @@ public class WorkSpecTest extends WorkManagerTest {
                 .setPeriodStartTime(DEFAULT_PERIOD_START_TIME, TimeUnit.MILLISECONDS)
                 .build();
 
-        WorkSpec workSpec = getWorkSpec(periodicWork);
+        WorkSpec workSpec = periodicWork.getWorkSpec();
         long nextRunTime = workSpec.calculateNextRunTime();
         assertThat(nextRunTime,
                 is(DEFAULT_PERIOD_START_TIME + DEFAULT_INTERVAL_TIME_MS));
@@ -114,7 +114,7 @@ public class WorkSpecTest extends WorkManagerTest {
                 .setPeriodStartTime(DEFAULT_PERIOD_START_TIME, TimeUnit.MILLISECONDS)
                 .build();
 
-        WorkSpec workSpec = getWorkSpec(periodicWork);
+        WorkSpec workSpec = periodicWork.getWorkSpec();
         long nextRunTime = workSpec.calculateNextRunTime();
         assertThat(nextRunTime, is(DEFAULT_PERIOD_START_TIME + DEFAULT_INTERVAL_TIME_MS));
     }
@@ -130,7 +130,7 @@ public class WorkSpecTest extends WorkManagerTest {
                 .setInitialDelay(delay, TimeUnit.MILLISECONDS)
                 .build();
 
-        WorkSpec workSpec = getWorkSpec(periodicWork);
+        WorkSpec workSpec = periodicWork.getWorkSpec();
         long now = System.currentTimeMillis();
         long nextRunTime = workSpec.calculateNextRunTime();
         long delta = nextRunTime - now;
@@ -148,7 +148,7 @@ public class WorkSpecTest extends WorkManagerTest {
                 .setInitialDelay(delay, TimeUnit.MILLISECONDS)
                 .build();
 
-        WorkSpec workSpec = getWorkSpec(periodicWork);
+        WorkSpec workSpec = periodicWork.getWorkSpec();
         long now = System.currentTimeMillis();
         long nextRunTime = workSpec.calculateNextRunTime();
         long delta = nextRunTime - now;
@@ -183,9 +183,9 @@ public class WorkSpecTest extends WorkManagerTest {
                 .setPeriodStartTime(DEFAULT_PERIOD_START_TIME, TimeUnit.MILLISECONDS)
                 .build();
 
-        long nextRunTime1 = getWorkSpec(work1).calculateNextRunTime();
-        long nextRunTime2 = getWorkSpec(work2).calculateNextRunTime();
-        long nextRunTime3 = getWorkSpec(work3).calculateNextRunTime();
+        long nextRunTime1 = work1.getWorkSpec().calculateNextRunTime();
+        long nextRunTime2 = work2.getWorkSpec().calculateNextRunTime();
+        long nextRunTime3 = work3.getWorkSpec().calculateNextRunTime();
 
         long nextRunTimeDeltaBetweenWork2AndWork1 = nextRunTime2 - nextRunTime1;
         long nextRunTimeDeltaBetweenWork3AndWork2 = nextRunTime3 - nextRunTime2;
@@ -222,9 +222,9 @@ public class WorkSpecTest extends WorkManagerTest {
                 .setPeriodStartTime(DEFAULT_PERIOD_START_TIME, TimeUnit.MILLISECONDS)
                 .build();
 
-        long nextRunTime1 = getWorkSpec(work1).calculateNextRunTime();
-        long nextRunTime2 = getWorkSpec(work2).calculateNextRunTime();
-        long nextRunTime3 = getWorkSpec(work3).calculateNextRunTime();
+        long nextRunTime1 = work1.getWorkSpec().calculateNextRunTime();
+        long nextRunTime2 = work2.getWorkSpec().calculateNextRunTime();
+        long nextRunTime3 = work3.getWorkSpec().calculateNextRunTime();
 
         long nextRunTimeDeltaBetweenWork2AndWork1 = nextRunTime2 - nextRunTime1;
         long nextRunTimeDeltaBetweenWork3AndWork2 = nextRunTime3 - nextRunTime2;
@@ -243,7 +243,7 @@ public class WorkSpecTest extends WorkManagerTest {
                 .setInitialRunAttemptCount(1)
                 .setPeriodStartTime(DEFAULT_PERIOD_START_TIME, TimeUnit.MILLISECONDS)
                 .build();
-        assertThat(getWorkSpec(work).calculateNextRunTime(),
+        assertThat(work.getWorkSpec().calculateNextRunTime(),
                 is(DEFAULT_PERIOD_START_TIME + WorkRequest.MAX_BACKOFF_MILLIS));
     }
 
@@ -259,7 +259,7 @@ public class WorkSpecTest extends WorkManagerTest {
                 .setPeriodStartTime(DEFAULT_PERIOD_START_TIME, TimeUnit.MILLISECONDS)
                 .build();
 
-        assertThat(getWorkSpec(work).calculateNextRunTime(),
+        assertThat(work.getWorkSpec().calculateNextRunTime(),
                 is(DEFAULT_PERIOD_START_TIME + WorkRequest.MAX_BACKOFF_MILLIS));
     }
 

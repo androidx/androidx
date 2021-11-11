@@ -84,7 +84,7 @@ public class GreedySchedulerTest extends WorkManagerTest {
     @SmallTest
     public void testGreedyScheduler_startsUnconstrainedWork() {
         OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class).build();
-        WorkSpec workSpec = getWorkSpec(work);
+        WorkSpec workSpec = work.getWorkSpec();
         mGreedyScheduler.schedule(workSpec);
         verify(mWorkManagerImpl).startWork(workSpec.id);
     }
@@ -95,7 +95,7 @@ public class GreedySchedulerTest extends WorkManagerTest {
         PeriodicWorkRequest periodicWork =
                 new PeriodicWorkRequest.Builder(TestWorker.class, 0L, TimeUnit.MILLISECONDS)
                         .build();
-        mGreedyScheduler.schedule(getWorkSpec(periodicWork));
+        mGreedyScheduler.schedule(periodicWork.getWorkSpec());
         // PeriodicWorkRequests are special because their periodStartTime is set to 0.
         // So the first invocation will always result in startWork(). Subsequent runs will
         // use `delayedStartWork()`.
@@ -108,7 +108,7 @@ public class GreedySchedulerTest extends WorkManagerTest {
         OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class)
                 .setInitialDelay(1000L, TimeUnit.MILLISECONDS)
                 .build();
-        mGreedyScheduler.schedule(getWorkSpec(work));
+        mGreedyScheduler.schedule(work.getWorkSpec());
         verify(mDelayedWorkTracker).schedule(work.getWorkSpec());
     }
 
@@ -119,7 +119,7 @@ public class GreedySchedulerTest extends WorkManagerTest {
                 .setPeriodStartTime(System.currentTimeMillis(), TimeUnit.MILLISECONDS)
                 .setInitialRunAttemptCount(5)
                 .build();
-        mGreedyScheduler.schedule(getWorkSpec(work));
+        mGreedyScheduler.schedule(work.getWorkSpec());
         verify(mDelayedWorkTracker).schedule(work.getWorkSpec());
     }
 
@@ -133,7 +133,7 @@ public class GreedySchedulerTest extends WorkManagerTest {
         OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class)
                 .setConstraints(constraints)
                 .build();
-        mGreedyScheduler.schedule(getWorkSpec(work));
+        mGreedyScheduler.schedule(work.getWorkSpec());
         verify(mMockWorkConstraintsTracker, never()).replace(ArgumentMatchers.<WorkSpec>anyList());
     }
 
@@ -157,7 +157,7 @@ public class GreedySchedulerTest extends WorkManagerTest {
         final OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class)
                 .setConstraints(new Constraints.Builder().setRequiresCharging(true).build())
                 .build();
-        final WorkSpec workSpec = getWorkSpec(work);
+        final WorkSpec workSpec = work.getWorkSpec();
         Set<WorkSpec> expected = new HashSet<WorkSpec>();
         expected.add(workSpec);
 
@@ -173,7 +173,7 @@ public class GreedySchedulerTest extends WorkManagerTest {
     @SmallTest
     public void testGreedyScheduler_executionListenerIsRegistered() {
         OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class).build();
-        WorkSpec workSpec = getWorkSpec(work);
+        WorkSpec workSpec = work.getWorkSpec();
         mGreedyScheduler.schedule(workSpec);
         verify(mMockProcessor).addExecutionListener(mGreedyScheduler);
     }
@@ -183,7 +183,7 @@ public class GreedySchedulerTest extends WorkManagerTest {
     public void testGreedyScheduler_executionListenerIsRegisteredOnlyOnce() {
         for (int i = 0; i < 2; ++i) {
             OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class).build();
-            WorkSpec workSpec = getWorkSpec(work);
+            WorkSpec workSpec = work.getWorkSpec();
             mGreedyScheduler.schedule(workSpec);
         }
         verify(mMockProcessor, times(1)).addExecutionListener(mGreedyScheduler);
@@ -195,7 +195,7 @@ public class GreedySchedulerTest extends WorkManagerTest {
         // Context.getSystemService() returns null so no work should be executed.
         mGreedyScheduler.mInDefaultProcess = false;
         OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class).build();
-        WorkSpec workSpec = getWorkSpec(work);
+        WorkSpec workSpec = work.getWorkSpec();
         mGreedyScheduler.schedule(workSpec);
         verify(mMockProcessor, times(0)).addExecutionListener(mGreedyScheduler);
         verify(mMockWorkConstraintsTracker, never()).replace(ArgumentMatchers.<WorkSpec>anyList());

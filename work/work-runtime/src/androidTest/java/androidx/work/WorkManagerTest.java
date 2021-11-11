@@ -22,7 +22,6 @@ import android.os.Build;
 
 import androidx.test.core.app.ApplicationProvider;
 import androidx.work.impl.WorkManagerImpl;
-import androidx.work.impl.model.WorkSpec;
 
 import org.junit.After;
 
@@ -38,10 +37,6 @@ public abstract class WorkManagerTest {
                     .getSystemService(Context.JOB_SCHEDULER_SERVICE);
             jobScheduler.cancelAll();
         }
-    }
-
-    protected WorkSpec getWorkSpec(WorkRequest work) {
-        return work.getWorkSpec();
     }
 
     protected Set<String> getTags(WorkRequest work) {
