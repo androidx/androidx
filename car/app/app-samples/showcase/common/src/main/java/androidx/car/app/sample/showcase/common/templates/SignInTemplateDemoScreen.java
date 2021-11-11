@@ -216,10 +216,6 @@ public class SignInTemplateDemoScreen extends Screen {
         if (!isError) {
             // If there's no error, go to the password screen.
             mState = State.PASSWORD;
-        } else {
-            // If there's an error, display a toast.
-            CarToast.makeText(getCarContext(), "Please enter a valid user name",
-                    LENGTH_LONG).show();
         }
 
         // Invalidate the template so that we either display an error, or go to the password screen.
