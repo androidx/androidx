@@ -27,6 +27,7 @@ import android.util.Log
 import android.util.SizeF
 import android.widget.RemoteViews
 import androidx.annotation.DoNotInline
+import androidx.annotation.LayoutRes
 import androidx.annotation.RequiresApi
 import androidx.annotation.VisibleForTesting
 import androidx.compose.runtime.BroadcastFrameClock
@@ -58,11 +59,12 @@ import kotlin.math.min
  * the composition and translate [Content] into a [RemoteViews] which is then sent to the
  * [AppWidgetManager].
  *
- * @param enableErrorUi If true and an error occurs within this GlanceAppWidget, the App Widget is
- * updated with an error Ui.
+ * @param errorUiLayout If different from 0 and an error occurs within this GlanceAppWidget,
+ * the App Widget is updated with an error UI using this layout resource ID.
  */
 public abstract class GlanceAppWidget(
-    private val enableErrorUi: Boolean = true
+    @LayoutRes
+    private val errorUiLayout: Int = R.layout.glance_error_layout
 ) {
     /**
      * Definition of the UI.
@@ -384,11 +386,11 @@ public abstract class GlanceAppWidget(
         } catch (ex: CancellationException) {
             // Nothing to do
         } catch (throwable: Throwable) {
-            if (!enableErrorUi) {
+            if (errorUiLayout == 0) {
                 throw throwable
             }
             logException(throwable)
-            val rv = RemoteViews(context.packageName, R.layout.error_layout)
+            val rv = RemoteViews(context.packageName, errorUiLayout)
             appWidgetManager.updateAppWidget(appWidgetId, rv)
         }
     }

@@ -22,7 +22,7 @@ class TestGlanceAppWidgetReceiver : GlanceAppWidgetReceiver() {
     override val glanceAppWidget: GlanceAppWidget = TestGlanceAppWidget
 }
 
-object TestGlanceAppWidget : GlanceAppWidget(enableErrorUi = false) {
+object TestGlanceAppWidget : GlanceAppWidget(errorUiLayout = 0) {
 
     override var sizeMode: SizeMode = SizeMode.Single
 
