@@ -283,7 +283,7 @@ public class SystemJobServiceTest extends WorkManagerTest {
     }
 
     private void insertWork(WorkRequest work) {
-        mDatabase.workSpecDao().insertWorkSpec(getWorkSpec(work));
+        mDatabase.workSpecDao().insertWorkSpec(work.getWorkSpec());
     }
 
     public static class ContentUriTriggerLoggingWorker extends Worker {
