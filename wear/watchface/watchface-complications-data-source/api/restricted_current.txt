@@ -8,6 +8,9 @@ package androidx.wear.watchface.complications.datasource {
     method @UiThread public void onComplicationActivated(int complicationInstanceId, androidx.wear.watchface.complications.data.ComplicationType type);
     method @UiThread public void onComplicationDeactivated(int complicationInstanceId);
     method @UiThread public abstract void onComplicationRequest(androidx.wear.watchface.complications.datasource.ComplicationRequest request, androidx.wear.watchface.complications.datasource.ComplicationDataSourceService.ComplicationRequestListener listener);
+    method @UiThread public void onStartSynchronousComplicationRequests(int complicationInstanceId);
+    method @UiThread public void onStopSynchronousComplicationRequests(int complicationInstanceId);
+    method @UiThread public androidx.wear.watchface.complications.data.ComplicationData? onSynchronousComplicationRequest(androidx.wear.watchface.complications.datasource.ComplicationRequest request);
     field public static final String ACTION_COMPLICATION_UPDATE_REQUEST = "android.support.wearable.complications.ACTION_COMPLICATION_UPDATE_REQUEST";
     field public static final String CATEGORY_DATA_SOURCE_CONFIG = "android.support.wearable.complications.category.PROVIDER_CONFIG";
     field public static final androidx.wear.watchface.complications.datasource.ComplicationDataSourceService.Companion Companion;
@@ -17,6 +20,7 @@ package androidx.wear.watchface.complications.datasource {
     field public static final String METADATA_KEY_DATA_SOURCE_CONFIG_ACTION = "android.support.wearable.complications.PROVIDER_CONFIG_ACTION";
     field public static final String METADATA_KEY_SAFE_WATCH_FACES = "android.support.wearable.complications.SAFE_WATCH_FACES";
     field public static final String METADATA_KEY_SUPPORTED_TYPES = "android.support.wearable.complications.SUPPORTED_TYPES";
+    field public static final String METADATA_KEY_SYNCHRONOUS_UPDATE_PERIOD_MILLISECONDS = "androidx.wear.watchface.complications.data.source.SYNCHRONOUS_UPDATE_PERIOD_MILLISECONDS";
     field public static final String METADATA_KEY_UPDATE_PERIOD_SECONDS = "android.support.wearable.complications.UPDATE_PERIOD_SECONDS";
   }
 
