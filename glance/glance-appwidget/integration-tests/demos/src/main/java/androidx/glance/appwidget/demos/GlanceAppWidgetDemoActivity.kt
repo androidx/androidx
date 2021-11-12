@@ -16,6 +16,7 @@
 
 package androidx.glance.appwidget.demos
 
+import android.appwidget.AppWidgetManager
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -44,6 +45,7 @@ import androidx.compose.ui.unit.sp
 import androidx.glance.GlanceId
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.GlanceAppWidgetManager
+import androidx.glance.appwidget.GlanceAppWidgetReceiver
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
 
@@ -65,6 +67,20 @@ class GlanceAppWidgetDemoActivity : ComponentActivity() {
 
     private fun updateView() {
         lifecycleScope.launch {
+            // Discover the GlanceAppWidget
+            val appWidgetManager = AppWidgetManager.getInstance(this@GlanceAppWidgetDemoActivity)
+            val receivers = appWidgetManager.installedProviders
+                .filter { it.provider.packageName == packageName }
+                .map { it.provider.className }
+            val allClassNames = receivers.mapNotNull { receiverName ->
+                val receiverClass = Class.forName(receiverName)
+                if (!GlanceAppWidgetReceiver::class.java.isAssignableFrom(receiverClass)) {
+                    return@mapNotNull null
+                }
+                val receiver = receiverClass.newInstance() as GlanceAppWidgetReceiver
+                receiver.glanceAppWidget.javaClass
+            }
+
             val data = allClassNames.map { provider ->
                 ProviderData(
                     provider = provider,
@@ -142,16 +158,6 @@ fun ShowAppWidget(index: Int, widgetDesc: AppWidgetDesc) {
         }
     }
 }
-
-private val allClassNames = listOf(
-    CompoundButtonAppWidget::class.java,
-    ErrorUiAppWidget::class.java,
-    ExactAppWidget::class.java,
-    ImageAppWidget::class.java,
-    ResizingAppWidget::class.java,
-    ResponsiveAppWidget::class.java,
-    ScrollableAppWidget::class.java
-)
 
 data class ProviderData(
     val provider: Class<out GlanceAppWidget>,
