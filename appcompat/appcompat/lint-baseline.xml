@@ -1,5 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.1.0-beta02" type="baseline" client="gradle" dependencies="false" name="AGP (7.1.0-beta02)" variant="all" version="7.1.0-beta02">
+<issues format="6" by="lint 7.2.0-dev" type="baseline" client="gradle" dependencies="false" name="AGP (7.2.0-dev)" variant="all" version="7.2.0-dev">
+
+    <issue
+        id="ResourceType"
+        message="Expected resource of type styleable"
+        errorLine1="                aa = context.obtainStyledAttributes(attrs, ATTRS_ANDROID_SPINNERMODE,"
+        errorLine2="                                                           ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appcompat/widget/AppCompatSpinner.java"
+            line="236"
+            column="60"/>
+    </issue>
 
     <issue
         id="NewApi"
@@ -448,11 +459,11 @@
         errorLine2="                ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/ActionBarContainer.java"
-            line="242"
+            line="243"
             column="17"/>
         <location
             file="src/main/java/androidx/appcompat/widget/ActionBarContainer.java"
-            line="228"
+            line="229"
             column="17"
             message="Setter here"/>
     </issue>
@@ -1276,7 +1287,7 @@
         errorLine2="                              ~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/ActionBarContainer.java"
-            line="54"
+            line="55"
             column="31"/>
     </issue>
 
@@ -1287,7 +1298,7 @@
         errorLine2="                              ~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/ActionBarContainer.java"
-            line="58"
+            line="59"
             column="31"/>
     </issue>
 
@@ -1298,7 +1309,7 @@
         errorLine2="                                               ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/ActionBarContainer.java"
-            line="58"
+            line="59"
             column="48"/>
     </issue>
 
@@ -1309,7 +1320,7 @@
         errorLine2="                                     ~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/ActionBarContainer.java"
-            line="89"
+            line="90"
             column="38"/>
     </issue>
 
@@ -1320,7 +1331,7 @@
         errorLine2="                                     ~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/ActionBarContainer.java"
-            line="110"
+            line="111"
             column="38"/>
     </issue>
 
@@ -1331,7 +1342,7 @@
         errorLine2="                                   ~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/ActionBarContainer.java"
-            line="131"
+            line="132"
             column="36"/>
     </issue>
 
@@ -1342,7 +1353,7 @@
         errorLine2="                                     ~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/ActionBarContainer.java"
-            line="161"
+            line="162"
             column="38"/>
     </issue>
 
@@ -1353,7 +1364,7 @@
         errorLine2="                                         ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/ActionBarContainer.java"
-            line="208"
+            line="209"
             column="42"/>
     </issue>
 
@@ -1364,7 +1375,7 @@
         errorLine2="                                ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/ActionBarContainer.java"
-            line="213"
+            line="214"
             column="33"/>
     </issue>
 
@@ -1375,7 +1386,7 @@
         errorLine2="                                ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/ActionBarContainer.java"
-            line="221"
+            line="222"
             column="33"/>
     </issue>
 
@@ -1386,7 +1397,7 @@
         errorLine2="                                ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/ActionBarContainer.java"
-            line="228"
+            line="229"
             column="33"/>
     </issue>
 
@@ -1397,7 +1408,7 @@
         errorLine2="           ~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/ActionBarContainer.java"
-            line="242"
+            line="243"
             column="12"/>
     </issue>
 
@@ -1408,7 +1419,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/ActionBarContainer.java"
-            line="247"
+            line="248"
             column="12"/>
     </issue>
 
@@ -1419,7 +1430,7 @@
         errorLine2="                                                           ~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/ActionBarContainer.java"
-            line="247"
+            line="248"
             column="60"/>
     </issue>
 
@@ -1430,7 +1441,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/ActionBarContainer.java"
-            line="248"
+            line="249"
             column="13"/>
     </issue>
 
@@ -1441,7 +1452,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/ActionBarContainer.java"
-            line="254"
+            line="255"
             column="12"/>
     </issue>
 
@@ -1452,7 +1463,7 @@
         errorLine2="                                                           ~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/ActionBarContainer.java"
-            line="254"
+            line="255"
             column="60"/>
     </issue>
 
@@ -1463,7 +1474,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/ActionBarContainer.java"
-            line="255"
+            line="256"
             column="13"/>
     </issue>
 
@@ -1573,7 +1584,7 @@
         errorLine2="                                     ~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/ActionBarDrawerToggle.java"
-            line="90"
+            line="92"
             column="38"/>
     </issue>
 
@@ -1584,7 +1595,7 @@
         errorLine2="        ~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/ActionBarDrawerToggle.java"
-            line="102"
+            line="104"
             column="9"/>
     </issue>
 
@@ -1595,7 +1606,7 @@
         errorLine2="        ~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/ActionBarDrawerToggle.java"
-            line="107"
+            line="109"
             column="9"/>
     </issue>
 
@@ -1606,7 +1617,7 @@
         errorLine2="                                 ~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/ActionBarDrawerToggle.java"
-            line="150"
+            line="152"
             column="34"/>
     </issue>
 
@@ -1617,7 +1628,7 @@
         errorLine2="                                                    ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/ActionBarDrawerToggle.java"
-            line="150"
+            line="152"
             column="53"/>
     </issue>
 
@@ -1628,7 +1639,7 @@
         errorLine2="                                 ~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/ActionBarDrawerToggle.java"
-            line="181"
+            line="183"
             column="34"/>
     </issue>
 
@@ -1639,7 +1650,7 @@
         errorLine2="                                                    ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/ActionBarDrawerToggle.java"
-            line="181"
+            line="183"
             column="53"/>
     </issue>
 
@@ -1650,7 +1661,7 @@
         errorLine2="            ~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/ActionBarDrawerToggle.java"
-            line="182"
+            line="184"
             column="13"/>
     </issue>
 
@@ -1661,7 +1672,7 @@
         errorLine2="                                       ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/ActionBarDrawerToggle.java"
-            line="256"
+            line="258"
             column="40"/>
     </issue>
 
@@ -1672,7 +1683,7 @@
         errorLine2="                                         ~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/ActionBarDrawerToggle.java"
-            line="273"
+            line="275"
             column="42"/>
     </issue>
 
@@ -1683,7 +1694,7 @@
         errorLine2="                                     ~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/ActionBarDrawerToggle.java"
-            line="302"
+            line="304"
             column="38"/>
     </issue>
 
@@ -1694,7 +1705,7 @@
         errorLine2="                              ~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/ActionBarDrawerToggle.java"
-            line="412"
+            line="414"
             column="31"/>
     </issue>
 
@@ -1705,7 +1716,7 @@
         errorLine2="                               ~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/ActionBarDrawerToggle.java"
-            line="428"
+            line="430"
             column="32"/>
     </issue>
 
@@ -1716,7 +1727,7 @@
         errorLine2="                               ~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/ActionBarDrawerToggle.java"
-            line="443"
+            line="445"
             column="32"/>
     </issue>
 
@@ -1727,7 +1738,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/ActionBarDrawerToggle.java"
-            line="470"
+            line="472"
             column="12"/>
     </issue>
 
@@ -1738,7 +1749,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/ActionBarDrawerToggle.java"
-            line="484"
+            line="486"
             column="13"/>
     </issue>
 
