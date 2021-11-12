@@ -403,7 +403,7 @@ internal fun createUniqueRemoteUiName(appWidgetId: Int) = "appWidget-$appWidgetI
 internal data class AppWidgetId(val appWidgetId: Int) : GlanceId
 
 // Extract the sizes from the bundle
-private fun Bundle.extractAllSizes(minSize: () -> DpSize): List<DpSize> =
+internal fun Bundle.extractAllSizes(minSize: () -> DpSize): List<DpSize> =
     getParcelableArrayList<SizeF>(AppWidgetManager.OPTION_APPWIDGET_SIZES)
         ?.map { DpSize(it.width.dp, it.height.dp) } ?: estimateSizes(minSize)
 

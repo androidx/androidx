@@ -23,14 +23,20 @@ plugins {
 }
 
 dependencies {
-    implementation "androidx.datastore:datastore-preferences-core:1.0.0"
-    implementation "androidx.datastore:datastore-preferences:1.0.0-rc02"
-
     kotlinPlugin(project(":compose:compiler:compiler"))
 
     implementation(libs.kotlinStdlib)
     implementation(project(":glance:glance"))
     implementation(project(":glance:glance-appwidget"))
+    implementation(project(":compose:material:material"))
+    implementation(project(":compose:ui:ui"))
+    implementation(project(":compose:foundation:foundation"))
+    implementation(project(":compose:foundation:foundation-layout"))
+    implementation(project(":compose:material:material"))
+    implementation(project(":activity:activity"))
+    implementation(project(":activity:activity-compose"))
+    implementation("androidx.datastore:datastore-preferences-core:1.0.0")
+    implementation("androidx.datastore:datastore-preferences:1.0.0-rc02")
 }
 
 android {
