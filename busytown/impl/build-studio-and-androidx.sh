@@ -45,6 +45,9 @@ function buildStudio() {
     echo failed to build studio
     return 1
   fi
+
+  # stop any remaining Gradle daemons, b/205883835
+  JAVA_HOME="$STUDIO_DIR/prebuilts/studio/jdk/jdk11/$STUDIO_JDK" $gw -p $TOOLS_DIR --stop
 }
 
 function zipStudio() {
