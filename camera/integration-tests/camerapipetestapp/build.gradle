@@ -56,7 +56,7 @@ dependencies {
     implementation(libs.constraintLayout)
 
     // Camera Pipe
-    implementation(project(":camera:camera-camera2-pipe"))
+    implementation(projectOrArtifact(":camera:camera-camera2-pipe"))
 
     // Testing framework
     testImplementation(libs.truth)

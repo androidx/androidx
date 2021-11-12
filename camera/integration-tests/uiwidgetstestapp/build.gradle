@@ -50,17 +50,17 @@ android {
 dependencies {
     // Internal library
     implementation(libs.kotlinStdlib)
-    implementation(project(":camera:camera-camera2"))
-    implementation(project(":camera:camera-lifecycle"))
-    implementation(project(":camera:camera-view"))
+    implementation(projectOrArtifact(":camera:camera-camera2"))
+    implementation(projectOrArtifact(":camera:camera-lifecycle"))
+    implementation(projectOrArtifact(":camera:camera-view"))
 
     // Android Support Library
     implementation("androidx.appcompat:appcompat:1.2.0")
     implementation("androidx.activity:activity-ktx:1.2.0")
     implementation("androidx.viewpager2:viewpager2:1.1.0-alpha01")
     implementation("androidx.concurrent:concurrent-futures-ktx:1.1.0")
-    implementation(project(":window:window"))
-    implementation(project(":window:window-java"))
+    implementation(projectOrArtifact(":window:window"))
+    implementation(projectOrArtifact(":window:window-java"))
     implementation(libs.constraintLayout)
 
     // Guava
@@ -73,11 +73,11 @@ dependencies {
     androidTestImplementation(libs.testRules)
     androidTestImplementation(libs.testUiautomator)
     androidTestImplementation(libs.espressoCore)
-    androidTestImplementation(project(":camera:camera-testing"))
-    androidTestImplementation(project(":internal-testutils-runtime"))
+    androidTestImplementation(projectOrArtifact(":camera:camera-testing"))
+    androidTestImplementation(projectOrArtifact(":internal-testutils-runtime"))
     androidTestImplementation(libs.truth)
     debugImplementation(libs.testCore)
     debugImplementation("androidx.fragment:fragment-testing:1.2.5")
     // Testing resource dependency for manifest
-    debugImplementation(project(":camera:camera-testing"))
+    debugImplementation(projectOrArtifact(":camera:camera-testing"))
 }

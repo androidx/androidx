@@ -27,21 +27,21 @@ plugins {
 
 dependencies {
     api(libs.guavaListenableFuture)
-    api(project(":camera:camera-core"))
-    implementation(project(":camera:camera-camera2"))
+    api(projectOrArtifact(":camera:camera-core"))
+    implementation(projectOrArtifact(":camera:camera-camera2"))
     implementation("androidx.core:core:1.0.0")
     implementation("androidx.concurrent:concurrent-futures:1.0.0")
     implementation(libs.autoValueAnnotations)
     annotationProcessor(libs.autoValue)
 
-    compileOnly(project(":camera:camera-extensions-stub"))
+    compileOnly(projectOrArtifact(":camera:camera-extensions-stub"))
 
     testImplementation(libs.junit)
     testImplementation(libs.mockitoCore)
     testImplementation(libs.robolectric)
     testImplementation(libs.truth)
-    testImplementation(project(":camera:camera-testing"))
-    testImplementation(project(":camera:camera-extensions-stub"))
+    testImplementation(projectOrArtifact(":camera:camera-testing"))
+    testImplementation(projectOrArtifact(":camera:camera-extensions-stub"))
     // To use the extensions-stub for testing directly.
 
     androidTestImplementation(libs.testExtJunit)
@@ -54,10 +54,10 @@ dependencies {
     androidTestImplementation(libs.mockitoCore, excludes.bytebuddy) // DexMaker has its own MockMaker
     androidTestImplementation(libs.truth)
     androidTestImplementation(libs.multidex)
-    androidTestImplementation(project(":camera:camera-lifecycle"))
-    androidTestImplementation(project(":camera:camera-testing"))
-    androidTestImplementation(project(":internal-testutils-truth"))
-    androidTestImplementation(project(":camera:camera-testlib-extensions"))
+    androidTestImplementation(projectOrArtifact(":camera:camera-lifecycle"))
+    androidTestImplementation(projectOrArtifact(":camera:camera-testing"))
+    androidTestImplementation(projectOrArtifact(":internal-testutils-truth"))
+    androidTestImplementation(projectOrArtifact(":camera:camera-testlib-extensions"))
     // To use the testlib to have the implementation of the extensions-stub interface.
 }
 

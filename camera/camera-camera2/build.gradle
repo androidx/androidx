@@ -25,7 +25,7 @@ plugins {
 }
 
 dependencies {
-    api(project(":camera:camera-core"))
+    api(projectOrArtifact(":camera:camera-core"))
     api("androidx.annotation:annotation:1.2.0")
     implementation("androidx.core:core:1.1.0")
     implementation("androidx.concurrent:concurrent-futures:1.0.0")
@@ -43,7 +43,7 @@ dependencies {
     testImplementation(libs.kotlinCoroutinesTest)
     testImplementation("androidx.annotation:annotation-experimental:1.1.0")
     testImplementation("androidx.lifecycle:lifecycle-runtime-testing:2.3.1")
-    testImplementation(project(":camera:camera-testing"))
+    testImplementation(projectOrArtifact(":camera:camera-testing"))
     testImplementation("androidx.arch.core:core-testing:2.1.0")
     testImplementation("org.apache.maven:maven-ant-tasks:2.1.3")
 
@@ -58,11 +58,11 @@ dependencies {
     androidTestImplementation(libs.mockitoCore, excludes.bytebuddy) // DexMaker has it's own MockMaker
     androidTestImplementation(libs.dexmakerMockito, excludes.bytebuddy) // DexMaker has it's own MockMaker
     androidTestImplementation("androidx.appcompat:appcompat:1.1.0")
-    androidTestImplementation(project(":camera:camera-testing"))
+    androidTestImplementation(projectOrArtifact(":camera:camera-testing"))
     androidTestImplementation(libs.kotlinStdlib)
     androidTestImplementation(libs.kotlinCoroutinesAndroid)
     androidTestImplementation("androidx.annotation:annotation-experimental:1.1.0")
-    androidTestImplementation(project(":internal-testutils-truth"))
+    androidTestImplementation(projectOrArtifact(":internal-testutils-truth"))
     androidTestImplementation("org.jetbrains.kotlinx:atomicfu:0.13.1")
     androidTestImplementation("androidx.exifinterface:exifinterface:1.0.0")
     androidTestImplementation("androidx.concurrent:concurrent-futures-ktx:1.1.0")

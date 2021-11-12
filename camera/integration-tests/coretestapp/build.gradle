@@ -61,13 +61,13 @@ android {
 
 dependencies {
     // Internal library
-    implementation(project(":camera:camera-camera2"))
-    implementation(project(":camera:camera-camera2-pipe-integration"))
-    implementation(project(":camera:camera-core"))
-    implementation(project(":camera:camera-lifecycle"))
-    implementation(project(":camera:camera-video"))
+    implementation(projectOrArtifact(":camera:camera-camera2"))
+    implementation(projectOrArtifact(":camera:camera-camera2-pipe-integration"))
+    implementation(projectOrArtifact(":camera:camera-core"))
+    implementation(projectOrArtifact(":camera:camera-lifecycle"))
+    implementation(projectOrArtifact(":camera:camera-video"))
     // Needed because AGP enforces same version between main and androidTest classpaths
-    implementation(project(":concurrent:concurrent-futures"))
+    implementation(projectOrArtifact(":concurrent:concurrent-futures"))
 
     // Android Support Library
     api(libs.constraintLayout)
@@ -80,7 +80,7 @@ dependencies {
     // 3P library
     debugImplementation(libs.leakcanary)
     // Testing resource dependency for manifest
-    debugImplementation(project(":camera:camera-testing"))
+    debugImplementation(projectOrArtifact(":camera:camera-testing"))
 
     // Testing framework
     androidTestImplementation(libs.testCore)
@@ -95,10 +95,10 @@ dependencies {
     androidTestImplementation(libs.leakcanary)
     androidTestImplementation(libs.leakcanaryInstrumentation)
     androidTestImplementation(libs.truth)
-    androidTestImplementation(project(":camera:camera-testing"))
-    androidTestImplementation(project(":concurrent:concurrent-futures"))
-    androidTestImplementation(project(":concurrent:concurrent-futures-ktx"))
-    androidTestImplementation(project(":internal-testutils-runtime"))
+    androidTestImplementation(projectOrArtifact(":camera:camera-testing"))
+    androidTestImplementation(projectOrArtifact(":concurrent:concurrent-futures"))
+    androidTestImplementation(projectOrArtifact(":concurrent:concurrent-futures-ktx"))
+    androidTestImplementation(projectOrArtifact(":internal-testutils-runtime"))
     androidTestImplementation("androidx.lifecycle:lifecycle-runtime-testing:2.3.1")
 
     testImplementation(libs.junit)

@@ -39,11 +39,11 @@ BundleInsideHelper.forInsideAar(
 dependencies {
     implementation("androidx.core:core:1.3.2")
     implementation("androidx.concurrent:concurrent-listenablefuture-callback:1.0.0-beta01")
-    bundleInside(project(path: ":camera:camera-camera2-pipe", configuration: "exportRelease"))
+    bundleInside(projectOrArtifact(path: ":camera:camera-camera2-pipe", configuration: "exportRelease"))
 
     // Classes and types that are needed at compile & runtime
     api("androidx.annotation:annotation:1.1.0")
-    api(project(":camera:camera-core"))
+    api(projectOrArtifact(":camera:camera-core"))
 
     // Classes and types that are only needed at runtime
     implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.3.1")
@@ -63,10 +63,10 @@ dependencies {
     testImplementation(libs.truth)
     testImplementation(libs.robolectric)
     testImplementation(libs.kotlinCoroutinesTest)
-    testImplementation(project(":camera:camera-camera2-pipe-testing"))
-    testImplementation(project(":camera:camera-testing"))
-    testImplementation(project(":internal-testutils-ktx"))
-    testImplementation(project(":internal-testutils-truth"))
+    testImplementation(projectOrArtifact(":camera:camera-camera2-pipe-testing"))
+    testImplementation(projectOrArtifact(":camera:camera-testing"))
+    testImplementation(projectOrArtifact(":internal-testutils-ktx"))
+    testImplementation(projectOrArtifact(":internal-testutils-truth"))
 
     androidTestImplementation(libs.multidex)
     androidTestImplementation(libs.testExtJunit)
@@ -74,11 +74,11 @@ dependencies {
     androidTestImplementation(libs.kotlinCoroutinesAndroid)
     androidTestImplementation(libs.kotlinStdlib)
     androidTestImplementation(libs.truth)
-    androidTestImplementation(project(":annotation:annotation-experimental"))
-    androidTestImplementation(project(":camera:camera-lifecycle"))
-    androidTestImplementation(project(":camera:camera-testing"))
-    androidTestImplementation(project(":concurrent:concurrent-futures-ktx"))
-    androidTestImplementation(project(":internal-testutils-truth"))
+    androidTestImplementation(projectOrArtifact(":annotation:annotation-experimental"))
+    androidTestImplementation(projectOrArtifact(":camera:camera-lifecycle"))
+    androidTestImplementation(projectOrArtifact(":camera:camera-testing"))
+    androidTestImplementation(projectOrArtifact(":concurrent:concurrent-futures-ktx"))
+    androidTestImplementation(projectOrArtifact(":internal-testutils-truth"))
 }
 
 android {

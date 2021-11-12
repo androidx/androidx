@@ -35,7 +35,7 @@ dependencies {
     implementation("androidx.concurrent:concurrent-futures:1.0.0")
     implementation("androidx.lifecycle:lifecycle-common:2.1.0")
     implementation(libs.autoValueAnnotations)
-    compileOnly(project(":external:libyuv"))
+    compileOnly(projectOrArtifact(":external:libyuv"))
 
     annotationProcessor(libs.autoValue)
 
@@ -46,7 +46,7 @@ dependencies {
     testImplementation(libs.truth)
     testImplementation(libs.robolectric)
     testImplementation(libs.mockitoCore)
-    testImplementation(project(":camera:camera-testing"), {
+    testImplementation(projectOrArtifact(":camera:camera-testing"), {
         exclude group: "androidx.camera", module: "camera-core"
     })
     testImplementation("androidx.exifinterface:exifinterface:1.3.2")
@@ -59,11 +59,11 @@ dependencies {
     androidTestImplementation(libs.truth)
     androidTestImplementation(libs.mockitoCore, excludes.bytebuddy) // DexMaker has it's own MockMaker
     androidTestImplementation(libs.dexmakerMockito, excludes.bytebuddy) // DexMaker has it's own MockMaker
-    androidTestImplementation(project(":camera:camera-testing"))
+    androidTestImplementation(projectOrArtifact(":camera:camera-testing"))
     androidTestImplementation(libs.kotlinStdlib)
     androidTestImplementation(libs.kotlinCoroutinesAndroid)
     androidTestImplementation("androidx.concurrent:concurrent-futures-ktx:1.1.0")
-    androidTestImplementation(project(":internal-testutils-truth"))
+    androidTestImplementation(projectOrArtifact(":internal-testutils-truth"))
 }
 
 android {
