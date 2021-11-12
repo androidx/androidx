@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  Copyright 2020 The Android Open Source Project
+  Copyright 2021 The Android Open Source Project
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -15,15 +15,15 @@
   limitations under the License.
   -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="androidx.wear.watchface.test">
-    <application android:requestLegacyExternalStorage="true">
-        <activity android:name=".ComplicationTapActivity" android:exported="false"/>
+    package="androidx.wear.watchface.complications.permission.dialogs.sample">
+    <application>
         <activity
-            android:name="androidx.wear.watchface.ComplicationHelperActivity"
-            android:exported="false"
-            android:theme="@android:style/Theme.Translucent.NoTitleBar"/>
-
+            android:name=".ComplicationDeniedActivity"
+            android:excludeFromRecents="true"
+            android:exported="false"/>
+        <activity
+            android:name=".ComplicationRationalActivity"
+            android:excludeFromRecents="true"
+            android:exported="false"/>
     </application>
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
 </manifest>

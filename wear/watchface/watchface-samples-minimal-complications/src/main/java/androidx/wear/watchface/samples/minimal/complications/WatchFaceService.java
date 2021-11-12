@@ -17,6 +17,7 @@
 package androidx.wear.watchface.samples.minimal.complications;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.RectF;
 import android.view.SurfaceHolder;
 
@@ -29,6 +30,8 @@ import androidx.wear.watchface.Renderer;
 import androidx.wear.watchface.WatchFace;
 import androidx.wear.watchface.WatchFaceType;
 import androidx.wear.watchface.WatchState;
+import androidx.wear.watchface.complications.permission.dialogs.sample.ComplicationDeniedActivity;
+import androidx.wear.watchface.complications.permission.dialogs.sample.ComplicationRationalActivity;
 import androidx.wear.watchface.complications.rendering.CanvasComplicationDrawable;
 import androidx.wear.watchface.complications.rendering.ComplicationDrawable;
 import androidx.wear.watchface.style.CurrentUserStyleRepository;
@@ -58,7 +61,13 @@ public class WatchFaceService extends ListenableWatchFaceService {
                         currentUserStyleRepository,
                         watchState,
                         complicationSlotsManager);
-        return Futures.immediateFuture(new WatchFace(WatchFaceType.DIGITAL, renderer));
+        return Futures.immediateFuture(
+                new WatchFace(WatchFaceType.DIGITAL, renderer)
+                        .setComplicationDeniedDialogIntent(
+                                new Intent(this, ComplicationDeniedActivity.class))
+                        .setComplicationRationaleDialogIntent(
+                                new Intent(this, ComplicationRationalActivity.class))
+        );
     }
 
     @NotNull

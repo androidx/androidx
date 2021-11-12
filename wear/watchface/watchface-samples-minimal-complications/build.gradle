@@ -28,6 +28,7 @@ dependencies {
     api(project(":wear:watchface:watchface"))
     api(project(":wear:watchface:watchface-client-guava"))
     api(project(":wear:watchface:watchface-complications-rendering"))
+    api(project(":wear:watchface:watchface-complications-permission-dialogs-sample"))
     api(project(":wear:watchface:watchface-editor"))
     api(project(":wear:watchface:watchface-editor-guava"))
     api(project(":wear:watchface:watchface-guava"))

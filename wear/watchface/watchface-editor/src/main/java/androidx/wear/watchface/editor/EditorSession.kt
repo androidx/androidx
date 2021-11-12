@@ -508,7 +508,9 @@ public abstract class BaseEditorSession internal constructor(
                 ComplicationDataSourceChooserRequest(
                     this,
                     complicationSlotId,
-                    watchFaceId.id
+                    watchFaceId.id,
+                    showComplicationDeniedDialogIntent,
+                    showComplicationRationaleDialogIntent
                 )
             )
         }
@@ -741,6 +743,10 @@ public abstract class BaseEditorSession internal constructor(
 
     @UiThread
     protected abstract fun releaseResources()
+
+    protected open val showComplicationDeniedDialogIntent: Intent? = null
+
+    protected open val showComplicationRationaleDialogIntent: Intent? = null
 }
 
 internal class OnWatchFaceEditorSessionImpl(
@@ -905,6 +911,12 @@ internal class OnWatchFaceEditorSessionImpl(
 
         fetchComplicationsDataJob = fetchComplicationsData(backgroundCoroutineScope)
     }
+
+    override val showComplicationDeniedDialogIntent
+        get() = editorDelegate.complicationDeniedDialogIntent
+
+    override val showComplicationRationaleDialogIntent
+        get() = editorDelegate.complicationRationaleDialogIntent
 }
 
 @RequiresApi(27)
@@ -977,7 +989,9 @@ internal class HeadlessEditorSession(
 internal class ComplicationDataSourceChooserRequest(
     internal val editorSession: EditorSession,
     internal val complicationSlotId: Int,
-    internal val instanceId: String?
+    internal val instanceId: String?,
+    internal var showComplicationDeniedDialogIntent: Intent?,
+    internal val showComplicationRationaleDialogIntent: Intent?
 )
 
 internal class ComplicationDataSourceChooserResult(
@@ -1015,7 +1029,9 @@ internal class ComplicationDataSourceChooserContract : ActivityResultContract<
             input.editorSession.watchFaceComponentName,
             input.complicationSlotId,
             complicationSlotsState[input.complicationSlotId]!!.supportedTypes,
-            input.instanceId
+            input.instanceId,
+            input.showComplicationDeniedDialogIntent,
+            input.showComplicationRationaleDialogIntent,
         )
         val complicationState = complicationSlotsState[input.complicationSlotId]!!
         intent.replaceExtras(
