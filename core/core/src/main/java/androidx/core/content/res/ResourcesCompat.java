@@ -21,6 +21,7 @@ import static android.os.Build.VERSION.SDK_INT;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.ColorStateList;
 import android.content.res.Configuration;
@@ -32,6 +33,7 @@ import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.os.Looper;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.SparseArray;
 import android.util.TypedValue;
@@ -40,6 +42,7 @@ import androidx.annotation.AnyRes;
 import androidx.annotation.ColorInt;
 import androidx.annotation.ColorRes;
 import androidx.annotation.DimenRes;
+import androidx.annotation.DoNotInline;
 import androidx.annotation.DrawableRes;
 import androidx.annotation.FontRes;
 import androidx.annotation.NonNull;
@@ -62,7 +65,7 @@ import java.lang.reflect.Method;
 import java.util.WeakHashMap;
 
 /**
- * Helper for accessing features in {@link android.content.res.Resources}.
+ * Helper for accessing features in {@link Resources}.
  */
 public final class ResourcesCompat {
     private static final String TAG = "ResourcesCompat";
@@ -101,7 +104,7 @@ public final class ResourcesCompat {
     public static Drawable getDrawable(@NonNull Resources res, @DrawableRes int id,
             @Nullable Theme theme) throws NotFoundException {
         if (SDK_INT >= 21) {
-            return res.getDrawable(id, theme);
+            return Api21Impl.getDrawable(res, id, theme);
         } else {
             return res.getDrawable(id);
         }
@@ -122,7 +125,7 @@ public final class ResourcesCompat {
      *           tool. This integer encodes the package, type, and resource
      *           entry. The value 0 is an invalid identifier.
      * @param density The desired screen density indicated by the resource as
-     *                found in {@link android.util.DisplayMetrics}.
+     *                found in {@link DisplayMetrics}.
      * @param theme The theme used to style the drawable attributes, may be
      *              {@code null}.
      * @return Drawable An object that can be used to draw this resource.
@@ -134,9 +137,9 @@ public final class ResourcesCompat {
     public static Drawable getDrawableForDensity(@NonNull Resources res, @DrawableRes int id,
             int density, @Nullable Theme theme) throws NotFoundException {
         if (SDK_INT >= 21) {
-            return res.getDrawableForDensity(id, density, theme);
+            return Api21Impl.getDrawableForDensity(res, id, density, theme);
         } else if (SDK_INT >= 15) {
-            return res.getDrawableForDensity(id, density);
+            return Api15Impl.getDrawableForDensity(res, id, density);
         } else {
             return res.getDrawable(id);
         }
@@ -164,7 +167,7 @@ public final class ResourcesCompat {
     public static int getColor(@NonNull Resources res, @ColorRes int id, @Nullable Theme theme)
             throws NotFoundException {
         if (SDK_INT >= 23) {
-            return res.getColor(id, theme);
+            return ResourcesCompat.Api23Impl.getColor(res, id, theme);
         } else {
             return res.getColor(id);
         }
@@ -208,7 +211,7 @@ public final class ResourcesCompat {
         }
         // If we reach here then we couldn't inflate it, so let the framework handle it
         if (SDK_INT >= 23) {
-            return Api23Impl.getColorStateList(res, id, theme);
+            return ResourcesCompat.Api23Impl.getColorStateList(res, id, theme);
         } else {
             return res.getColorStateList(id);
         }
@@ -331,7 +334,7 @@ public final class ResourcesCompat {
      */
     public static float getFloat(@NonNull Resources res, @DimenRes int id) {
         if (SDK_INT >= 29) {
-            return ImplApi29.getFloat(res, id);
+            return Api29Impl.getFloat(res, id);
         }
 
         TypedValue value = getTypedValue();
@@ -434,13 +437,9 @@ public final class ResourcesCompat {
          * @hide
          */
         @RestrictTo(LIBRARY_GROUP_PREFIX)
-        public final void callbackSuccessAsync(final Typeface typeface, @Nullable Handler handler) {
-            getHandler(handler).post(new Runnable() {
-                @Override
-                public void run() {
-                    onFontRetrieved(typeface);
-                }
-            });
+        public final void callbackSuccessAsync(final @NonNull Typeface typeface,
+                @Nullable Handler handler) {
+            getHandler(handler).post(() -> onFontRetrieved(typeface));
         }
 
         /**
@@ -451,12 +450,7 @@ public final class ResourcesCompat {
         @RestrictTo(LIBRARY_GROUP_PREFIX)
         public final void callbackFailAsync(
                 @FontRequestFailReason final int reason, @Nullable Handler handler) {
-            getHandler(handler).post(new Runnable() {
-                @Override
-                public void run() {
-                    onFontRetrievalFailed(reason);
-                }
-            });
+            getHandler(handler).post(() -> onFontRetrievalFailed(reason));
         }
 
         /** @hide */
@@ -502,9 +496,11 @@ public final class ResourcesCompat {
      *
      * @hide
      */
+    @Nullable
     @RestrictTo(LIBRARY_GROUP_PREFIX)
-    public static Typeface getFont(@NonNull Context context, @FontRes int id, TypedValue value,
-            int style, @Nullable FontCallback fontCallback) throws NotFoundException {
+    public static Typeface getFont(@NonNull Context context, @FontRes int id,
+            @NonNull TypedValue value, int style, @Nullable FontCallback fontCallback)
+            throws NotFoundException {
         if (context.isRestricted()) {
             return null;
         }
@@ -523,9 +519,10 @@ public final class ResourcesCompat {
      * @param isRequestFromLayoutInflator Whether this request originated from XML. This is used to
      *                     determine if we use or ignore the fontProviderFetchStrategy attribute in
      *                     font provider XML fonts.
-     * @return
+     * @return The font as a Typeface
+     * @throws NotFoundException if the resource ID could not be retrieved
      */
-    private static Typeface loadFont(@NonNull Context context, int id, TypedValue value,
+    private static Typeface loadFont(@NonNull Context context, int id, @NonNull TypedValue value,
             int style, @Nullable FontCallback fontCallback, @Nullable Handler handler,
             boolean isRequestFromLayoutInflator, boolean isCachedOnly) {
         final Resources resources = context.getResources();
@@ -555,8 +552,8 @@ public final class ResourcesCompat {
      *                     font provider XML fonts.
      */
     private static Typeface loadFont(
-            @NonNull Context context, Resources wrapper, TypedValue value, int id, int style,
-            @Nullable FontCallback fontCallback, @Nullable Handler handler,
+            @NonNull Context context, Resources wrapper, @NonNull TypedValue value, int id,
+            int style, @Nullable FontCallback fontCallback, @Nullable Handler handler,
             boolean isRequestFromLayoutInflator, boolean isCachedOnly) {
         if (value.string == null) {
             throw new NotFoundException("Resource \"" + wrapper.getResourceName(id) + "\" ("
@@ -623,8 +620,12 @@ public final class ResourcesCompat {
     }
 
     @RequiresApi(29)
-    static class ImplApi29 {
-        private ImplApi29() {}
+    static class Api29Impl {
+        private Api29Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
         static float getFloat(@NonNull Resources res, @DimenRes int id) {
             return res.getFloat(id);
         }
@@ -636,11 +637,48 @@ public final class ResourcesCompat {
             // This class is not instantiable.
         }
 
+        @DoNotInline
         @NonNull
         static ColorStateList getColorStateList(@NonNull Resources res, @ColorRes int id,
                 @Nullable Theme theme) {
             return res.getColorStateList(id, theme);
         }
+
+        @DoNotInline
+        static int getColor(Resources resources, int id, Theme theme) {
+            return resources.getColor(id, theme);
+        }
+    }
+
+    @RequiresApi(21)
+    static class Api21Impl {
+        private Api21Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static Drawable getDrawable(Resources resources, int id, Theme theme) {
+            return resources.getDrawable(id, theme);
+        }
+
+        @DoNotInline
+        static Drawable getDrawableForDensity(Resources resources, int id, int density,
+                Theme theme) {
+            return resources.getDrawableForDensity(id, density, theme);
+        }
+    }
+
+    @RequiresApi(15)
+    static class Api15Impl {
+        private Api15Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static Drawable getDrawableForDensity(Resources resources, int id, int density) {
+            return resources.getDrawableForDensity(id, density);
+        }
+
     }
 
     private ResourcesCompat() {}
@@ -666,28 +704,36 @@ public final class ResourcesCompat {
          */
         public static void rebase(@NonNull Theme theme) {
             if (SDK_INT >= 29) {
-                ImplApi29.rebase(theme);
+                Api29Impl.rebase(theme);
             } else if (SDK_INT >= 23) {
-                ImplApi23.rebase(theme);
+                Api23Impl.rebase(theme);
             }
         }
 
         @RequiresApi(29)
-        static class ImplApi29 {
-            private ImplApi29() { }
+        static class Api29Impl {
+            private Api29Impl() {
+                // This class is not instantiable.
+            }
+
+            @DoNotInline
             static void rebase(@NonNull Theme theme) {
                 theme.rebase();
             }
         }
 
         @RequiresApi(23)
-        static class ImplApi23 {
-            private ImplApi23() { }
+        static class Api23Impl {
+            private Api23Impl() {
+                // This class is not instantiable.
+            }
+
             private static final Object sRebaseMethodLock = new Object();
 
             private static Method sRebaseMethod;
             private static boolean sRebaseMethodFetched;
 
+            @SuppressLint("BanUncheckedReflection") // @RequiresApiRange(min=23, max=29)
             static void rebase(@NonNull Theme theme) {
                 synchronized (sRebaseMethodLock) {
                     if (!sRebaseMethodFetched) {

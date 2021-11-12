@@ -1067,7 +1067,7 @@ package androidx.core.content {
   }
 
   public final class ContentResolverCompat {
-    method public static android.database.Cursor! query(android.content.ContentResolver!, android.net.Uri!, String![]!, String!, String![]!, String!, androidx.core.os.CancellationSignal!);
+    method public static android.database.Cursor? query(android.content.ContentResolver, android.net.Uri, String![]?, String?, String![]?, String?, androidx.core.os.CancellationSignal?);
   }
 
   public class ContextCompat {
@@ -1097,13 +1097,13 @@ package androidx.core.content {
   public class FileProvider extends android.content.ContentProvider {
     ctor public FileProvider();
     method public int delete(android.net.Uri, String?, String![]?);
-    method public String! getType(android.net.Uri);
+    method public String? getType(android.net.Uri);
     method public static android.net.Uri! getUriForFile(android.content.Context, String, java.io.File);
     method public static android.net.Uri getUriForFile(android.content.Context, String, java.io.File, String);
-    method public android.net.Uri! insert(android.net.Uri, android.content.ContentValues!);
+    method public android.net.Uri! insert(android.net.Uri, android.content.ContentValues);
     method public boolean onCreate();
-    method public android.database.Cursor! query(android.net.Uri, String![]?, String?, String![]?, String?);
-    method public int update(android.net.Uri, android.content.ContentValues!, String?, String![]?);
+    method public android.database.Cursor query(android.net.Uri, String![]?, String?, String![]?, String?);
+    method public int update(android.net.Uri, android.content.ContentValues, String?, String![]?);
   }
 
   public final class IntentCompat {
@@ -1328,8 +1328,8 @@ package androidx.core.content.res {
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class FontResourcesParserCompat {
-    method public static androidx.core.content.res.FontResourcesParserCompat.FamilyResourceEntry? parse(org.xmlpull.v1.XmlPullParser!, android.content.res.Resources!) throws java.io.IOException, org.xmlpull.v1.XmlPullParserException;
-    method public static java.util.List<java.util.List<byte[]!>!>! readCerts(android.content.res.Resources!, @ArrayRes int);
+    method public static androidx.core.content.res.FontResourcesParserCompat.FamilyResourceEntry? parse(org.xmlpull.v1.XmlPullParser, android.content.res.Resources) throws java.io.IOException, org.xmlpull.v1.XmlPullParserException;
+    method public static java.util.List<java.util.List<byte[]!>!> readCerts(android.content.res.Resources, @ArrayRes int);
     field public static final int FETCH_STRATEGY_ASYNC = 1; // 0x1
     field public static final int FETCH_STRATEGY_BLOCKING = 0; // 0x0
     field public static final int INFINITE_TIMEOUT_VALUE = -1; // 0xffffffff
@@ -1372,14 +1372,14 @@ package androidx.core.content.res {
     method public static float getFloat(android.content.res.Resources, @DimenRes int);
     method public static android.graphics.Typeface? getFont(android.content.Context, @FontRes int) throws android.content.res.Resources.NotFoundException;
     method public static void getFont(android.content.Context, @FontRes int, androidx.core.content.res.ResourcesCompat.FontCallback, android.os.Handler?) throws android.content.res.Resources.NotFoundException;
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static android.graphics.Typeface! getFont(android.content.Context, @FontRes int, android.util.TypedValue!, int, androidx.core.content.res.ResourcesCompat.FontCallback?) throws android.content.res.Resources.NotFoundException;
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static android.graphics.Typeface? getFont(android.content.Context, @FontRes int, android.util.TypedValue, int, androidx.core.content.res.ResourcesCompat.FontCallback?) throws android.content.res.Resources.NotFoundException;
     field @AnyRes public static final int ID_NULL = 0; // 0x0
   }
 
   public abstract static class ResourcesCompat.FontCallback {
     ctor public ResourcesCompat.FontCallback();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final void callbackFailAsync(@androidx.core.provider.FontsContractCompat.FontRequestCallback.FontRequestFailReason int, android.os.Handler?);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final void callbackSuccessAsync(android.graphics.Typeface!, android.os.Handler?);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final void callbackSuccessAsync(android.graphics.Typeface, android.os.Handler?);
     method public abstract void onFontRetrievalFailed(@androidx.core.provider.FontsContractCompat.FontRequestCallback.FontRequestFailReason int);
     method public abstract void onFontRetrieved(android.graphics.Typeface);
   }

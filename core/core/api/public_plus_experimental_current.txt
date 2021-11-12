@@ -960,7 +960,7 @@ package androidx.core.content {
   }
 
   public final class ContentResolverCompat {
-    method public static android.database.Cursor! query(android.content.ContentResolver!, android.net.Uri!, String![]!, String!, String![]!, String!, androidx.core.os.CancellationSignal!);
+    method public static android.database.Cursor? query(android.content.ContentResolver, android.net.Uri, String![]?, String?, String![]?, String?, androidx.core.os.CancellationSignal?);
   }
 
   public class ContextCompat {
@@ -990,13 +990,13 @@ package androidx.core.content {
   public class FileProvider extends android.content.ContentProvider {
     ctor public FileProvider();
     method public int delete(android.net.Uri, String?, String![]?);
-    method public String! getType(android.net.Uri);
+    method public String? getType(android.net.Uri);
     method public static android.net.Uri! getUriForFile(android.content.Context, String, java.io.File);
     method public static android.net.Uri getUriForFile(android.content.Context, String, java.io.File, String);
-    method public android.net.Uri! insert(android.net.Uri, android.content.ContentValues!);
+    method public android.net.Uri! insert(android.net.Uri, android.content.ContentValues);
     method public boolean onCreate();
-    method public android.database.Cursor! query(android.net.Uri, String![]?, String?, String![]?, String?);
-    method public int update(android.net.Uri, android.content.ContentValues!, String?, String![]?);
+    method public android.database.Cursor query(android.net.Uri, String![]?, String?, String![]?, String?);
+    method public int update(android.net.Uri, android.content.ContentValues, String?, String![]?);
   }
 
   public final class IntentCompat {
