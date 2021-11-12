@@ -24,7 +24,6 @@ import com.android.tools.lint.checks.infrastructure.TestFiles.kotlin
 import com.android.tools.lint.checks.infrastructure.TestFiles.xml
 import com.android.tools.lint.checks.infrastructure.TestLintResult
 import com.android.tools.lint.checks.infrastructure.TestLintTask.lint
-import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -243,7 +242,6 @@ Fix for src/sample/experimental/UseJavaExperimentalFromKt.kt line 58: Add '@samp
         check(*input).expect(expected).expectFixDiffs(expectedFix)
     }
 
-    @Ignore("b/196881523")
     @Test
     fun useKtExperimentalFromJava() {
         val input = arrayOf(
