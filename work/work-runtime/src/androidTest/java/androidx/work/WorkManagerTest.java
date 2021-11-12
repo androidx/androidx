@@ -25,8 +25,6 @@ import androidx.work.impl.WorkManagerImpl;
 
 import org.junit.After;
 
-import java.util.Set;
-
 public abstract class WorkManagerTest {
 
     @After
@@ -37,9 +35,5 @@ public abstract class WorkManagerTest {
                     .getSystemService(Context.JOB_SCHEDULER_SERVICE);
             jobScheduler.cancelAll();
         }
-    }
-
-    protected Set<String> getTags(WorkRequest work) {
-        return work.getTags();
     }
 }
