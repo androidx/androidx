@@ -46,7 +46,7 @@
             </intent-filter>
             <meta-data
                 android:name="android.appwidget.provider"
-                android:resource="@xml/responsive_app_widget_info" />
+                android:resource="@xml/default_app_widget_info" />
         </receiver>
 
         <receiver
@@ -60,7 +60,7 @@
             </intent-filter>
             <meta-data
                 android:name="android.appwidget.provider"
-                android:resource="@xml/exact_app_widget_info" />
+                android:resource="@xml/default_app_widget_info" />
         </receiver>
 
         <receiver
@@ -74,7 +74,7 @@
             </intent-filter>
             <meta-data
                 android:name="android.appwidget.provider"
-                android:resource="@xml/resizing_app_widget_info" />
+                android:resource="@xml/default_app_widget_info" />
         </receiver>
 
         <receiver
@@ -87,7 +87,7 @@
             </intent-filter>
             <meta-data
                 android:name="android.appwidget.provider"
-                android:resource="@xml/compound_button_app_widget_info" />
+                android:resource="@xml/default_app_widget_info" />
         </receiver>
 
         <receiver
@@ -106,39 +106,42 @@
 
         <receiver
             android:name="androidx.glance.appwidget.demos.ErrorUiAppWidgetReceiver"
-            android:exported="true"
-            android:label="@string/error_widget_name">
+            android:label="@string/error_widget_name"
+            android:enabled="@bool/glance_appwidget_available"
+            android:exported="false">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
                 <action android:name="android.intent.action.LOCALE_CHANGED" />
             </intent-filter>
             <meta-data
                 android:name="android.appwidget.provider"
-                android:resource="@xml/error_app_widget_info" />
+                android:resource="@xml/default_app_widget_info" />
         </receiver>
 
         <receiver
             android:name="androidx.glance.appwidget.demos.ScrollableAppWidgetReceiver"
-            android:exported="true"
-            android:label="@string/scrollable_widget_name">
+            android:label="@string/scrollable_widget_name"
+            android:enabled="@bool/glance_appwidget_available"
+            android:exported="false">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>
             <meta-data
                 android:name="android.appwidget.provider"
-                android:resource="@xml/scrollable_app_widget_info" />
+                android:resource="@xml/default_app_widget_info" />
         </receiver>
 
         <receiver
             android:name="androidx.glance.appwidget.demos.ImageAppWidgetReceiver"
-            android:exported="true"
-            android:label="@string/image_widget_name">
+            android:label="@string/image_widget_name"
+            android:enabled="@bool/glance_appwidget_available"
+            android:exported="false">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>
             <meta-data
                 android:name="android.appwidget.provider"
-                android:resource="@xml/image_app_widget_info" />
+                android:resource="@xml/default_app_widget_info" />
         </receiver>
     </application>
 </manifest>

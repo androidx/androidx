@@ -31,13 +31,20 @@
     <style name="Glance.AppWidget.SwitchTrack" parent=""/>
     <style name="Glance.AppWidget.Text" parent=""/>
 
-    <style name="Widget.Glance.AppWidget.ErrorBackground"
-        parent="Widget.Glance.AppWidget.ErrorBackground.Base">
+    <style name="Base.Glance.AppWidget.Background" parent="">
         <item name="android:id">@android:id/background</item>
+    </style>
+
+    <style name="Glance.AppWidget.Background"
+        parent="Base.Glance.AppWidget.Background">
+        <item name="android:padding">8dp</item>
+    </style>
+
+    <style name="Glance.AppWidget.Background.Error">
         <item name="android:background">@drawable/error_layout_background</item>
     </style>
 
-    <style name="Widget.Glance.AppWidget.ErrorBackground.Base" parent="">
-        <item name="android:padding">8dp</item>
+    <style name="Glance.AppWidget.Background.Loading">
+        <item name="android:background">@drawable/loading_layout_background</item>
     </style>
 </resources>
