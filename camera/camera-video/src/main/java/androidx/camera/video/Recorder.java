@@ -16,11 +16,6 @@
 
 package androidx.camera.video;
 
-import static androidx.camera.video.QualitySelector.FALLBACK_STRATEGY_HIGHER;
-import static androidx.camera.video.QualitySelector.QUALITY_FHD;
-import static androidx.camera.video.QualitySelector.QUALITY_HD;
-import static androidx.camera.video.QualitySelector.QUALITY_NONE;
-import static androidx.camera.video.QualitySelector.QUALITY_SD;
 import static androidx.camera.video.VideoRecordEvent.Finalize.ERROR_ENCODING_FAILED;
 import static androidx.camera.video.VideoRecordEvent.Finalize.ERROR_FILE_SIZE_LIMIT_REACHED;
 import static androidx.camera.video.VideoRecordEvent.Finalize.ERROR_INVALID_OUTPUT_OPTIONS;
@@ -97,6 +92,7 @@ import com.google.common.util.concurrent.ListenableFuture;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
@@ -242,19 +238,15 @@ public final class Recorder implements VideoOutput {
      * <p>The default quality selector chooses a video quality suitable for recordings based on
      * device and compatibility constraints. It is equivalent to:
      * <pre>{@code
-     * QualitySelector.firstTry(QUALITY_FHD)
-     *         .thenTry(QUALITY_HD)
-     *         .thenTry(QUALITY_SD)
-     *         .finallyTry(QUALITY_FHD, FALLBACK_STRATEGY_HIGHER);
+     * QualitySelector.fromOrderedList(Arrays.asList(Quality.FHD, Quality.HD, Quality.SD),
+     *         FallbackStrategy.higherQualityOrLowerThan(Quality.FHD));
      * }</pre>
      *
      * @see QualitySelector
      */
     public static final QualitySelector DEFAULT_QUALITY_SELECTOR =
-            QualitySelector.firstTry(QUALITY_FHD)
-                    .thenTry(QUALITY_HD)
-                    .thenTry(QUALITY_SD)
-                    .finallyTry(QUALITY_FHD, FALLBACK_STRATEGY_HIGHER);
+            QualitySelector.fromOrderedList(Arrays.asList(Quality.FHD, Quality.HD, Quality.SD),
+                    FallbackStrategy.higherQualityOrLowerThan(Quality.FHD));
 
     private static final VideoSpec VIDEO_SPEC_DEFAULT =
             VideoSpec.builder()
@@ -978,10 +970,11 @@ public final class Recorder implements VideoOutput {
             // Fetch and cache nearest camcorder profile, if one exists.
             VideoCapabilities capabilities =
                     VideoCapabilities.from(surfaceRequest.getCamera().getCameraInfo());
-            int highestSupportedQuality = capabilities.findHighestSupportedQualityFor(surfaceSize);
-            Logger.d(TAG, "Using supported quality of " + QualitySelector.videoQualityString(
-                    highestSupportedQuality) + " for surface size " + surfaceSize);
-            if (highestSupportedQuality != QUALITY_NONE) {
+            Quality highestSupportedQuality =
+                    capabilities.findHighestSupportedQualityFor(surfaceSize);
+            Logger.d(TAG, "Using supported quality of " + highestSupportedQuality
+                    + " for surface size " + surfaceSize);
+            if (highestSupportedQuality != Quality.NONE) {
                 mResolvedCamcorderProfile = capabilities.getProfile(highestSupportedQuality);
                 if (mResolvedCamcorderProfile == null) {
                     throw new AssertionError("Camera advertised available quality but did not "

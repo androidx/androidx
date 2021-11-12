@@ -511,10 +511,10 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
         Preconditions.checkArgument(mediaSpec != null,
                 "Unable to update target resolution by null MediaSpec.");
 
-        List<Integer> supportedQualities = QualitySelector.getSupportedQualities(cameraInfo);
+        List<Quality> supportedQualities = QualitySelector.getSupportedQualities(cameraInfo);
         if (supportedQualities.isEmpty()) {
             // When the device does not have any supported quality, even the most flexible
-            // QualitySelector such as QualitySelector.of(QUALITY_HIGHEST), still cannot
+            // QualitySelector such as QualitySelector.from(Quality.HIGHEST), still cannot
             // find any resolution. This should be a rare case but will cause VideoCapture
             // to always fail to bind. The workaround is not set any resolution and leave it to
             // auto resolution mechanism.
@@ -524,7 +524,7 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
 
         QualitySelector qualitySelector = mediaSpec.getVideoSpec().getQualitySelector();
 
-        List<Integer> selectedQualities = qualitySelector.getPrioritizedQualities(cameraInfo);
+        List<Quality> selectedQualities = qualitySelector.getPrioritizedQualities(cameraInfo);
 
         Logger.d(TAG,
                 "Found selectedQualities " + selectedQualities + " by " + qualitySelector);
@@ -535,7 +535,7 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
         }
 
         List<Size> supportedResolutions = new ArrayList<>();
-        for (Integer selectedQuality : selectedQualities) {
+        for (Quality selectedQuality : selectedQualities) {
             supportedResolutions.add(QualitySelector.getResolution(cameraInfo, selectedQuality));
         }
         Logger.d(TAG, "Set supported resolutions = " + supportedResolutions);

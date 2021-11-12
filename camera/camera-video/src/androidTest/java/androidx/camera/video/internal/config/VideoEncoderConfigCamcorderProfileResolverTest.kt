@@ -24,7 +24,7 @@ import androidx.camera.core.CameraSelector
 import androidx.camera.core.internal.CameraUseCaseAdapter
 import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.CameraXUtil
-import androidx.camera.video.QualitySelector.QUALITY_HIGHEST
+import androidx.camera.video.Quality
 import androidx.camera.video.VideoCapabilities
 import androidx.camera.video.VideoSpec
 import androidx.test.core.app.ApplicationProvider
@@ -111,7 +111,7 @@ class VideoEncoderConfigCamcorderProfileResolverTest {
 
     @Test
     fun bitrateIncreasesOrDecreasesWithIncreaseOrDecreaseInSurfaceSize() {
-        val profile = videoCapabilities.getProfile(QUALITY_HIGHEST)!!
+        val profile = videoCapabilities.getProfile(Quality.HIGHEST)!!
         val surfaceSize = Size(profile.videoFrameWidth, profile.videoFrameHeight)
 
         val defaultBitrate = VideoEncoderConfigCamcorderProfileResolver(
@@ -145,7 +145,7 @@ class VideoEncoderConfigCamcorderProfileResolverTest {
 
     @Test
     fun bitrateRangeInVideoSpecClampsBitrate() {
-        val profile = videoCapabilities.getProfile(QUALITY_HIGHEST)!!
+        val profile = videoCapabilities.getProfile(Quality.HIGHEST)!!
         val surfaceSize = Size(profile.videoFrameWidth, profile.videoFrameHeight)
 
         val defaultBitrate = VideoEncoderConfigCamcorderProfileResolver(
@@ -191,7 +191,7 @@ class VideoEncoderConfigCamcorderProfileResolverTest {
     fun frameRateIsAlways30() {
         // Give a VideoSpec with a frame rate higher than 30
         val videoSpec = VideoSpec.builder().setFrameRate(Range(60, 60)).build()
-        val profile = videoCapabilities.getProfile(QUALITY_HIGHEST)!!
+        val profile = videoCapabilities.getProfile(Quality.HIGHEST)!!
         val surfaceSize = Size(profile.videoFrameWidth, profile.videoFrameHeight)
 
         assertThat(
