@@ -284,7 +284,102 @@ src/sample/experimental/UseKtExperimentalFromJava.java:97: Error: This declarati
         """.trimIndent()
 
         val expectedFix = """
-TODO once b/196881523 is fixed and this test is re-enabled.
+Fix for src/sample/experimental/UseKtExperimentalFromJava.java line 25: Add '@androidx.annotation.OptIn(markerClass = sample.experimental.ExperimentalDateTimeKt.class)' annotation to 'getDateUnsafe':
+@@ -24 +24
+-     int getDateUnsafe() {
++     int @androidx.annotation.OptIn(markerClass = ExperimentalDateTimeKt.class) getDateUnsafe() {
+Fix for src/sample/experimental/UseKtExperimentalFromJava.java line 25: Add '@sample.experimental.ExperimentalDateTimeKt' annotation to 'getDateUnsafe':
+@@ -24 +24
+-     int getDateUnsafe() {
++     int @ExperimentalDateTimeKt getDateUnsafe() {
+Fix for src/sample/experimental/UseKtExperimentalFromJava.java line 25: Add '@sample.experimental.ExperimentalDateTimeKt' annotation to containing class 'UseKtExperimentalFromJava':
+@@ -19 +19
+- @SuppressWarnings({"unused", "WeakerAccess"})
++ @ExperimentalDateTimeKt @SuppressWarnings({"unused", "WeakerAccess"})
+Fix for src/sample/experimental/UseKtExperimentalFromJava.java line 26: Add '@androidx.annotation.OptIn(markerClass = sample.experimental.ExperimentalDateTimeKt.class)' annotation to 'getDateUnsafe':
+@@ -24 +24
+-     int getDateUnsafe() {
++     int @androidx.annotation.OptIn(markerClass = ExperimentalDateTimeKt.class) getDateUnsafe() {
+Fix for src/sample/experimental/UseKtExperimentalFromJava.java line 26: Add '@sample.experimental.ExperimentalDateTimeKt' annotation to 'getDateUnsafe':
+@@ -24 +24
+-     int getDateUnsafe() {
++     int @ExperimentalDateTimeKt getDateUnsafe() {
+Fix for src/sample/experimental/UseKtExperimentalFromJava.java line 26: Add '@sample.experimental.ExperimentalDateTimeKt' annotation to containing class 'UseKtExperimentalFromJava':
+@@ -19 +19
+- @SuppressWarnings({"unused", "WeakerAccess"})
++ @ExperimentalDateTimeKt @SuppressWarnings({"unused", "WeakerAccess"})
+Fix for src/sample/experimental/UseKtExperimentalFromJava.java line 54: Add '@androidx.annotation.OptIn(markerClass = sample.experimental.ExperimentalLocationKt.class)' annotation to 'getDateExperimentalLocationUnsafe':
+@@ -52 +52
+-     int getDateExperimentalLocationUnsafe() {
++     int @androidx.annotation.OptIn(markerClass = ExperimentalLocationKt.class) getDateExperimentalLocationUnsafe() {
+Fix for src/sample/experimental/UseKtExperimentalFromJava.java line 54: Add '@sample.experimental.ExperimentalLocationKt' annotation to 'getDateExperimentalLocationUnsafe':
+@@ -52 +52
+-     int getDateExperimentalLocationUnsafe() {
++     int @ExperimentalLocationKt getDateExperimentalLocationUnsafe() {
+Fix for src/sample/experimental/UseKtExperimentalFromJava.java line 54: Add '@sample.experimental.ExperimentalLocationKt' annotation to containing class 'UseKtExperimentalFromJava':
+@@ -19 +19
+- @SuppressWarnings({"unused", "WeakerAccess"})
++ @ExperimentalLocationKt @SuppressWarnings({"unused", "WeakerAccess"})
+Fix for src/sample/experimental/UseKtExperimentalFromJava.java line 55: Add '@androidx.annotation.OptIn(markerClass = sample.experimental.ExperimentalLocationKt.class)' annotation to 'getDateExperimentalLocationUnsafe':
+@@ -52 +52
+-     int getDateExperimentalLocationUnsafe() {
++     int @androidx.annotation.OptIn(markerClass = ExperimentalLocationKt.class) getDateExperimentalLocationUnsafe() {
+Fix for src/sample/experimental/UseKtExperimentalFromJava.java line 55: Add '@sample.experimental.ExperimentalLocationKt' annotation to 'getDateExperimentalLocationUnsafe':
+@@ -52 +52
+-     int getDateExperimentalLocationUnsafe() {
++     int @ExperimentalLocationKt getDateExperimentalLocationUnsafe() {
+Fix for src/sample/experimental/UseKtExperimentalFromJava.java line 55: Add '@sample.experimental.ExperimentalLocationKt' annotation to containing class 'UseKtExperimentalFromJava':
+@@ -19 +19
+- @SuppressWarnings({"unused", "WeakerAccess"})
++ @ExperimentalLocationKt @SuppressWarnings({"unused", "WeakerAccess"})
+Fix for src/sample/experimental/UseKtExperimentalFromJava.java line 88: Add '@androidx.annotation.OptIn(markerClass = sample.experimental.ExperimentalDateTimeKt.class)' annotation to 'regressionTestStaticUsage':
+@@ -87 +87
+-     void regressionTestStaticUsage() {
++     void @androidx.annotation.OptIn(markerClass = ExperimentalDateTimeKt.class) regressionTestStaticUsage() {
+Fix for src/sample/experimental/UseKtExperimentalFromJava.java line 88: Add '@sample.experimental.ExperimentalDateTimeKt' annotation to 'regressionTestStaticUsage':
+@@ -87 +87
+-     void regressionTestStaticUsage() {
++     void @ExperimentalDateTimeKt regressionTestStaticUsage() {
+Fix for src/sample/experimental/UseKtExperimentalFromJava.java line 88: Add '@sample.experimental.ExperimentalDateTimeKt' annotation to containing class 'UseKtExperimentalFromJava':
+@@ -19 +19
+- @SuppressWarnings({"unused", "WeakerAccess"})
++ @ExperimentalDateTimeKt @SuppressWarnings({"unused", "WeakerAccess"})
+Fix for src/sample/experimental/UseKtExperimentalFromJava.java line 89: Add '@androidx.annotation.OptIn(markerClass = sample.experimental.ExperimentalDateTimeKt.class)' annotation to 'regressionTestStaticUsage':
+@@ -87 +87
+-     void regressionTestStaticUsage() {
++     void @androidx.annotation.OptIn(markerClass = ExperimentalDateTimeKt.class) regressionTestStaticUsage() {
+Fix for src/sample/experimental/UseKtExperimentalFromJava.java line 89: Add '@sample.experimental.ExperimentalDateTimeKt' annotation to 'regressionTestStaticUsage':
+@@ -87 +87
+-     void regressionTestStaticUsage() {
++     void @ExperimentalDateTimeKt regressionTestStaticUsage() {
+Fix for src/sample/experimental/UseKtExperimentalFromJava.java line 89: Add '@sample.experimental.ExperimentalDateTimeKt' annotation to containing class 'UseKtExperimentalFromJava':
+@@ -19 +19
+- @SuppressWarnings({"unused", "WeakerAccess"})
++ @ExperimentalDateTimeKt @SuppressWarnings({"unused", "WeakerAccess"})
+Fix for src/sample/experimental/UseKtExperimentalFromJava.java line 96: Add '@androidx.annotation.OptIn(markerClass = sample.experimental.ExperimentalDateTimeKt.class)' annotation to 'regressionTestInlineUsage':
+@@ -95 +95
+-     void regressionTestInlineUsage() {
++     void @androidx.annotation.OptIn(markerClass = ExperimentalDateTimeKt.class) regressionTestInlineUsage() {
+Fix for src/sample/experimental/UseKtExperimentalFromJava.java line 96: Add '@sample.experimental.ExperimentalDateTimeKt' annotation to 'regressionTestInlineUsage':
+@@ -95 +95
+-     void regressionTestInlineUsage() {
++     void @ExperimentalDateTimeKt regressionTestInlineUsage() {
+Fix for src/sample/experimental/UseKtExperimentalFromJava.java line 96: Add '@sample.experimental.ExperimentalDateTimeKt' annotation to containing class 'UseKtExperimentalFromJava':
+@@ -19 +19
+- @SuppressWarnings({"unused", "WeakerAccess"})
++ @ExperimentalDateTimeKt @SuppressWarnings({"unused", "WeakerAccess"})
+Fix for src/sample/experimental/UseKtExperimentalFromJava.java line 97: Add '@androidx.annotation.OptIn(markerClass = sample.experimental.ExperimentalDateTime.class)' annotation to 'regressionTestInlineUsage':
+@@ -95 +95
+-     void regressionTestInlineUsage() {
++     void @androidx.annotation.OptIn(markerClass = ExperimentalDateTime.class) regressionTestInlineUsage() {
+Fix for src/sample/experimental/UseKtExperimentalFromJava.java line 97: Add '@sample.experimental.ExperimentalDateTime' annotation to 'regressionTestInlineUsage':
+@@ -95 +95
+-     void regressionTestInlineUsage() {
++     void @ExperimentalDateTime regressionTestInlineUsage() {
+Fix for src/sample/experimental/UseKtExperimentalFromJava.java line 97: Add '@sample.experimental.ExperimentalDateTime' annotation to containing class 'UseKtExperimentalFromJava':
+@@ -19 +19
+- @SuppressWarnings({"unused", "WeakerAccess"})
++ @ExperimentalDateTime @SuppressWarnings({"unused", "WeakerAccess"})
         """.trimIndent()
         /* ktlint-enable max-line-length */
 
