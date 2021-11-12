@@ -50,7 +50,7 @@ public interface AccessibilityViewCommand {
          * @hide
          */
         @RestrictTo(LIBRARY_GROUP_PREFIX)
-        public void setBundle(Bundle bundle) {
+        public void setBundle(@Nullable Bundle bundle) {
             mBundle = bundle;
         }
     }
@@ -100,6 +100,7 @@ public interface AccessibilityViewCommand {
         /**
          * @return HTML element type, for example BUTTON, INPUT, TABLE, etc.
          */
+        @Nullable
         public String getHTMLElement() {
             return mBundle.getString(
                     AccessibilityNodeInfoCompat.ACTION_ARGUMENT_HTML_ELEMENT_STRING);
@@ -135,6 +136,7 @@ public interface AccessibilityViewCommand {
         /**
          * @return The text content to set.
          */
+        @Nullable
         public CharSequence getText() {
             return mBundle.getCharSequence(
                     AccessibilityNodeInfoCompat.ACTION_ARGUMENT_SET_TEXT_CHARSEQUENCE);

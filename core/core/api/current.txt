@@ -2956,14 +2956,14 @@ package androidx.core.view.accessibility {
   public final class AccessibilityEventCompat {
     method @Deprecated public static void appendRecord(android.view.accessibility.AccessibilityEvent!, androidx.core.view.accessibility.AccessibilityRecordCompat!);
     method @Deprecated public static androidx.core.view.accessibility.AccessibilityRecordCompat! asRecord(android.view.accessibility.AccessibilityEvent!);
-    method public static int getAction(android.view.accessibility.AccessibilityEvent!);
-    method public static int getContentChangeTypes(android.view.accessibility.AccessibilityEvent!);
-    method public static int getMovementGranularity(android.view.accessibility.AccessibilityEvent!);
+    method public static int getAction(android.view.accessibility.AccessibilityEvent);
+    method public static int getContentChangeTypes(android.view.accessibility.AccessibilityEvent);
+    method public static int getMovementGranularity(android.view.accessibility.AccessibilityEvent);
     method @Deprecated public static androidx.core.view.accessibility.AccessibilityRecordCompat! getRecord(android.view.accessibility.AccessibilityEvent!, int);
     method @Deprecated public static int getRecordCount(android.view.accessibility.AccessibilityEvent!);
-    method public static void setAction(android.view.accessibility.AccessibilityEvent!, int);
-    method public static void setContentChangeTypes(android.view.accessibility.AccessibilityEvent!, int);
-    method public static void setMovementGranularity(android.view.accessibility.AccessibilityEvent!, int);
+    method public static void setAction(android.view.accessibility.AccessibilityEvent, int);
+    method public static void setContentChangeTypes(android.view.accessibility.AccessibilityEvent, int);
+    method public static void setMovementGranularity(android.view.accessibility.AccessibilityEvent, int);
     field public static final int CONTENT_CHANGE_TYPE_CONTENT_DESCRIPTION = 4; // 0x4
     field public static final int CONTENT_CHANGE_TYPE_PANE_APPEARED = 16; // 0x10
     field public static final int CONTENT_CHANGE_TYPE_PANE_DISAPPEARED = 32; // 0x20
@@ -2995,12 +2995,12 @@ package androidx.core.view.accessibility {
 
   public final class AccessibilityManagerCompat {
     method @Deprecated public static boolean addAccessibilityStateChangeListener(android.view.accessibility.AccessibilityManager!, androidx.core.view.accessibility.AccessibilityManagerCompat.AccessibilityStateChangeListener!);
-    method public static boolean addTouchExplorationStateChangeListener(android.view.accessibility.AccessibilityManager!, androidx.core.view.accessibility.AccessibilityManagerCompat.TouchExplorationStateChangeListener!);
+    method public static boolean addTouchExplorationStateChangeListener(android.view.accessibility.AccessibilityManager, androidx.core.view.accessibility.AccessibilityManagerCompat.TouchExplorationStateChangeListener);
     method @Deprecated public static java.util.List<android.accessibilityservice.AccessibilityServiceInfo!>! getEnabledAccessibilityServiceList(android.view.accessibility.AccessibilityManager!, int);
     method @Deprecated public static java.util.List<android.accessibilityservice.AccessibilityServiceInfo!>! getInstalledAccessibilityServiceList(android.view.accessibility.AccessibilityManager!);
     method @Deprecated public static boolean isTouchExplorationEnabled(android.view.accessibility.AccessibilityManager!);
     method @Deprecated public static boolean removeAccessibilityStateChangeListener(android.view.accessibility.AccessibilityManager!, androidx.core.view.accessibility.AccessibilityManagerCompat.AccessibilityStateChangeListener!);
-    method public static boolean removeTouchExplorationStateChangeListener(android.view.accessibility.AccessibilityManager!, androidx.core.view.accessibility.AccessibilityManagerCompat.TouchExplorationStateChangeListener!);
+    method public static boolean removeTouchExplorationStateChangeListener(android.view.accessibility.AccessibilityManager, androidx.core.view.accessibility.AccessibilityManagerCompat.TouchExplorationStateChangeListener);
   }
 
   @Deprecated public static interface AccessibilityManagerCompat.AccessibilityStateChangeListener {
@@ -3287,13 +3287,13 @@ package androidx.core.view.accessibility {
 
   public class AccessibilityNodeProviderCompat {
     ctor public AccessibilityNodeProviderCompat();
-    ctor public AccessibilityNodeProviderCompat(Object!);
+    ctor public AccessibilityNodeProviderCompat(Object?);
     method public void addExtraDataToAccessibilityNodeInfo(int, androidx.core.view.accessibility.AccessibilityNodeInfoCompat, String, android.os.Bundle?);
     method public androidx.core.view.accessibility.AccessibilityNodeInfoCompat? createAccessibilityNodeInfo(int);
-    method public java.util.List<androidx.core.view.accessibility.AccessibilityNodeInfoCompat!>? findAccessibilityNodeInfosByText(String!, int);
+    method public java.util.List<androidx.core.view.accessibility.AccessibilityNodeInfoCompat!>? findAccessibilityNodeInfosByText(String, int);
     method public androidx.core.view.accessibility.AccessibilityNodeInfoCompat? findFocus(int);
-    method public Object! getProvider();
-    method public boolean performAction(int, int, android.os.Bundle!);
+    method public Object? getProvider();
+    method public boolean performAction(int, int, android.os.Bundle?);
     field public static final int HOST_VIEW_ID = -1; // 0xffffffff
   }
 
@@ -3309,9 +3309,9 @@ package androidx.core.view.accessibility {
     method @Deprecated public Object! getImpl();
     method @Deprecated public int getItemCount();
     method @Deprecated public int getMaxScrollX();
-    method public static int getMaxScrollX(android.view.accessibility.AccessibilityRecord!);
+    method public static int getMaxScrollX(android.view.accessibility.AccessibilityRecord);
     method @Deprecated public int getMaxScrollY();
-    method public static int getMaxScrollY(android.view.accessibility.AccessibilityRecord!);
+    method public static int getMaxScrollY(android.view.accessibility.AccessibilityRecord);
     method @Deprecated public android.os.Parcelable! getParcelableData();
     method @Deprecated public int getRemovedCount();
     method @Deprecated public int getScrollX();
@@ -3340,9 +3340,9 @@ package androidx.core.view.accessibility {
     method @Deprecated public void setFullScreen(boolean);
     method @Deprecated public void setItemCount(int);
     method @Deprecated public void setMaxScrollX(int);
-    method public static void setMaxScrollX(android.view.accessibility.AccessibilityRecord!, int);
+    method public static void setMaxScrollX(android.view.accessibility.AccessibilityRecord, int);
     method @Deprecated public void setMaxScrollY(int);
-    method public static void setMaxScrollY(android.view.accessibility.AccessibilityRecord!, int);
+    method public static void setMaxScrollY(android.view.accessibility.AccessibilityRecord, int);
     method @Deprecated public void setParcelableData(android.os.Parcelable!);
     method @Deprecated public void setPassword(boolean);
     method @Deprecated public void setRemovedCount(int);
@@ -3351,7 +3351,7 @@ package androidx.core.view.accessibility {
     method @Deprecated public void setScrollable(boolean);
     method @Deprecated public void setSource(android.view.View!);
     method @Deprecated public void setSource(android.view.View!, int);
-    method public static void setSource(android.view.accessibility.AccessibilityRecord, android.view.View!, int);
+    method public static void setSource(android.view.accessibility.AccessibilityRecord, android.view.View?, int);
     method @Deprecated public void setToIndex(int);
   }
 
@@ -3371,7 +3371,7 @@ package androidx.core.view.accessibility {
 
   public static final class AccessibilityViewCommand.MoveHtmlArguments extends androidx.core.view.accessibility.AccessibilityViewCommand.CommandArguments {
     ctor public AccessibilityViewCommand.MoveHtmlArguments();
-    method public String! getHTMLElement();
+    method public String? getHTMLElement();
   }
 
   public static final class AccessibilityViewCommand.MoveWindowArguments extends androidx.core.view.accessibility.AccessibilityViewCommand.CommandArguments {
@@ -3399,25 +3399,25 @@ package androidx.core.view.accessibility {
 
   public static final class AccessibilityViewCommand.SetTextArguments extends androidx.core.view.accessibility.AccessibilityViewCommand.CommandArguments {
     ctor public AccessibilityViewCommand.SetTextArguments();
-    method public CharSequence! getText();
+    method public CharSequence? getText();
   }
 
   public class AccessibilityWindowInfoCompat {
-    method public androidx.core.view.accessibility.AccessibilityNodeInfoCompat! getAnchor();
-    method public void getBoundsInScreen(android.graphics.Rect!);
-    method public androidx.core.view.accessibility.AccessibilityWindowInfoCompat! getChild(int);
+    method public androidx.core.view.accessibility.AccessibilityNodeInfoCompat? getAnchor();
+    method public void getBoundsInScreen(android.graphics.Rect);
+    method public androidx.core.view.accessibility.AccessibilityWindowInfoCompat? getChild(int);
     method public int getChildCount();
     method public int getId();
     method public int getLayer();
-    method public androidx.core.view.accessibility.AccessibilityWindowInfoCompat! getParent();
-    method public androidx.core.view.accessibility.AccessibilityNodeInfoCompat! getRoot();
-    method public CharSequence! getTitle();
+    method public androidx.core.view.accessibility.AccessibilityWindowInfoCompat? getParent();
+    method public androidx.core.view.accessibility.AccessibilityNodeInfoCompat? getRoot();
+    method public CharSequence? getTitle();
     method public int getType();
     method public boolean isAccessibilityFocused();
     method public boolean isActive();
     method public boolean isFocused();
-    method public static androidx.core.view.accessibility.AccessibilityWindowInfoCompat! obtain();
-    method public static androidx.core.view.accessibility.AccessibilityWindowInfoCompat! obtain(androidx.core.view.accessibility.AccessibilityWindowInfoCompat!);
+    method public static androidx.core.view.accessibility.AccessibilityWindowInfoCompat? obtain();
+    method public static androidx.core.view.accessibility.AccessibilityWindowInfoCompat? obtain(androidx.core.view.accessibility.AccessibilityWindowInfoCompat?);
     method public void recycle();
     field public static final int TYPE_ACCESSIBILITY_OVERLAY = 4; // 0x4
     field public static final int TYPE_APPLICATION = 1; // 0x1
