@@ -16,10 +16,8 @@
 
 package androidx.work;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 
-import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.WorkerThread;
 import androidx.work.impl.utils.futures.SettableFuture;
@@ -49,8 +47,6 @@ public abstract class Worker extends ListenableWorker {
     // Package-private to avoid synthetic accessor.
     SettableFuture<Result> mFuture;
 
-    @Keep
-    @SuppressLint("BanKeepAnnotation")
     public Worker(@NonNull Context context, @NonNull WorkerParameters workerParams) {
         super(context, workerParams);
     }
