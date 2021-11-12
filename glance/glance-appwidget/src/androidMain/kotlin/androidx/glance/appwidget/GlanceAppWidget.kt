@@ -168,6 +168,23 @@ public abstract class GlanceAppWidget(
         appWidgetId: Int,
         state: Any?,
         options: Bundle
+    ): RemoteViews {
+        val layoutConfig = LayoutConfiguration.load(context, appWidgetId)
+        return try {
+            compose(context, appWidgetManager, appWidgetId, state, options, layoutConfig)
+        } finally {
+            layoutConfig.save()
+        }
+    }
+
+    @VisibleForTesting
+    internal suspend fun compose(
+        context: Context,
+        appWidgetManager: AppWidgetManager,
+        appWidgetId: Int,
+        state: Any?,
+        options: Bundle,
+        layoutConfig: LayoutConfiguration,
     ): RemoteViews =
         when (val localSizeMode = this.sizeMode) {
             is SizeMode.Single -> {
@@ -181,7 +198,7 @@ public abstract class GlanceAppWidget(
                         appWidgetManager,
                         appWidgetId
                     ),
-                    rootViewIndex = 0,
+                    layoutConfig,
                 )
             }
             is SizeMode.Exact -> {
@@ -198,10 +215,18 @@ public abstract class GlanceAppWidget(
                                 appWidgetManager,
                                 appWidgetId
                             )
-                        }
+                        },
+                        layoutConfig,
                     )
                 } else {
-                    composeExactMode(context, appWidgetManager, appWidgetId, state, options)
+                    composeExactMode(
+                        context,
+                        appWidgetManager,
+                        appWidgetId,
+                        state,
+                        options,
+                        layoutConfig,
+                    )
                 }
             }
             is SizeMode.Responsive -> {
@@ -213,9 +238,17 @@ public abstract class GlanceAppWidget(
                         state,
                         options,
                         localSizeMode.sizes,
+                        layoutConfig,
                     )
                 } else {
-                    composeResponsiveMode(context, appWidgetId, state, options, localSizeMode.sizes)
+                    composeResponsiveMode(
+                        context,
+                        appWidgetId,
+                        state,
+                        options,
+                        localSizeMode.sizes,
+                        layoutConfig,
+                    )
                 }
             }
         }
@@ -226,10 +259,11 @@ public abstract class GlanceAppWidget(
         appWidgetId: Int,
         state: Any?,
         options: Bundle,
+        layoutConfig: LayoutConfiguration,
     ) = coroutineScope {
         val views =
             options.extractOrientationSizes()
-                .mapIndexed { index, size ->
+                .map { size ->
                     async {
                         composeForSize(
                             context,
@@ -237,7 +271,7 @@ public abstract class GlanceAppWidget(
                             state,
                             options,
                             size,
-                            rootViewIndex = index
+                            layoutConfig,
                         )
                     }
                 }.awaitAll()
@@ -247,7 +281,7 @@ public abstract class GlanceAppWidget(
             state,
             options,
             appWidgetMinSize(context.resources.displayMetrics, appWidgetManager, appWidgetId),
-            rootViewIndex = 0,
+            layoutConfig,
         )
     }
 
@@ -266,7 +300,8 @@ public abstract class GlanceAppWidget(
         appWidgetId: Int,
         state: Any?,
         options: Bundle,
-        sizes: Set<DpSize>
+        sizes: Set<DpSize>,
+        layoutConfig: LayoutConfiguration,
     ) = coroutineScope {
         // Find the best view, emulating what Android S+ would do.
         val orderedSizes = sizes.sortedBySize()
@@ -274,10 +309,9 @@ public abstract class GlanceAppWidget(
         val views =
             options.extractOrientationSizes()
                 .map { size ->
-                    findBestSize(size, sizes)?.let { orderedSizes.indexOf(it) to it }
-                        ?: 0 to smallestSize
+                    findBestSize(size, sizes) ?: smallestSize
                 }
-                .map { (index, size) ->
+                .map { size ->
                     async {
                         composeForSize(
                             context,
@@ -285,7 +319,7 @@ public abstract class GlanceAppWidget(
                             state,
                             options,
                             size,
-                            rootViewIndex = index,
+                            layoutConfig,
                         )
                     }
                 }.awaitAll()
@@ -295,7 +329,7 @@ public abstract class GlanceAppWidget(
             state,
             options,
             smallestSize,
-            rootViewIndex = 0,
+            layoutConfig,
         )
     }
 
@@ -306,7 +340,7 @@ public abstract class GlanceAppWidget(
         state: Any?,
         options: Bundle,
         size: DpSize,
-        rootViewIndex: Int,
+        layoutConfig: LayoutConfiguration,
     ): RemoteViews = withContext(BroadcastFrameClock()) {
         // The maximum depth must be reduced if the compositions are combined
         val root = RemoteViewsRoot(maxDepth = MaxComposeTreeDepth)
@@ -331,15 +365,13 @@ public abstract class GlanceAppWidget(
 
         normalizeCompositionTree(root)
 
-        val layoutChanged = updateWidgetLayout(context, appWidgetId, root)
-        val index = if (layoutChanged) rootViewIndex.inc() else rootViewIndex
-
         translateComposition(
             context,
             appWidgetId,
             this@GlanceAppWidget.javaClass,
             root,
-            index
+            layoutConfig,
+            layoutConfig.addLayout(root)
         )
     }
 
@@ -361,9 +393,10 @@ public abstract class GlanceAppWidget(
             state: Any?,
             options: Bundle,
             allSizes: Collection<DpSize>,
+            layoutConfig: LayoutConfiguration
         ): RemoteViews = coroutineScope {
             val allViews =
-                allSizes.sortedBySize().mapIndexed { index, size ->
+                allSizes.map { size ->
                     async {
                         size.toSizeF() to glance.composeForSize(
                             context,
@@ -371,7 +404,7 @@ public abstract class GlanceAppWidget(
                             state,
                             options,
                             size,
-                            rootViewIndex = index
+                            layoutConfig,
                         )
                     }
                 }.awaitAll()

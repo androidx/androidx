@@ -54,7 +54,7 @@ private fun RemoteViews.translateEmittableLazyList(
     }
     val items = RemoteViewsCompat.RemoteCollectionItems.Builder().apply {
         val childContext = translationContext.copy(areLazyCollectionsAllowed = false)
-        element.children.foldIndexed(false) { index, previous, itemEmittable ->
+        element.children.fold(false) { previous, itemEmittable ->
             itemEmittable as EmittableLazyListItem
             val itemId = itemEmittable.itemId
             addItem(
@@ -62,7 +62,7 @@ private fun RemoteViews.translateEmittableLazyList(
                 translateComposition(
                     childContext.resetViewId(LazyListItemStartingViewId),
                     listOf(itemEmittable),
-                    index,
+                    translationContext.layoutConfiguration.addLayout(itemEmittable),
                 )
             )
             // If the user specifies any explicit ids, we assume the list to be stable

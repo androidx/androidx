@@ -38,180 +38,209 @@ import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.mock
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.TestCoroutineScope
+import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
-import org.robolectric.shadows.ShadowLog
 import kotlin.test.assertIs
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(RobolectricTestRunner::class)
 class GlanceAppWidgetTest {
 
+    private lateinit var fakeCoroutineScope: TestCoroutineScope
     private val context = ApplicationProvider.getApplicationContext<Context>()
     private val displayMetrics = context.resources.displayMetrics
 
     @Before
     fun setUp() {
-        ShadowLog.stream = System.out
+        fakeCoroutineScope = TestCoroutineScope()
     }
 
     @Test
-    fun createEmptyUI() {
-        runBlocking {
-            val composer = SampleGlanceAppWidget { }
+    fun createEmptyUi() = fakeCoroutineScope.runBlockingTest {
+        val composer = SampleGlanceAppWidget { }
 
-            val rv = composer.composeForSize(
-                context,
-                1,
-                null,
-                Bundle(),
-                DpSize(40.dp, 50.dp),
-                0
-            )
+        val rv = composer.composeForSize(
+            context,
+            1,
+            state = null,
+            Bundle(),
+            DpSize(40.dp, 50.dp),
+            LayoutConfiguration.create(context, 1),
+        )
 
-            val view = context.applyRemoteViews(rv)
-            assertIs<FrameLayout>(view)
-            assertThat(view.childCount).isEqualTo(0)
-        }
+        val view = context.applyRemoteViews(rv)
+        assertIs<FrameLayout>(view)
+        assertThat(view.childCount).isEqualTo(0)
     }
 
     @Test
-    fun createUiWithSize() {
-        runBlocking {
-            val composer = SampleGlanceAppWidget {
-                val size = LocalSize.current
-                Text("${size.width} x ${size.height}")
-            }
-
-            val rv = composer.composeForSize(
-                context,
-                1,
-                null,
-                Bundle(),
-                DpSize(40.dp, 50.dp),
-                0
-            )
-
-            val view = context.applyRemoteViews(rv)
-            assertIs<TextView>(view)
-            assertThat(view.text).isEqualTo("40.0.dp x 50.0.dp")
+    fun createUiWithSize() = fakeCoroutineScope.runBlockingTest {
+        val composer = SampleGlanceAppWidget {
+            val size = LocalSize.current
+            Text("${size.width} x ${size.height}")
         }
+
+        val rv = composer.composeForSize(
+            context,
+            1,
+            state = null,
+            Bundle(),
+            DpSize(40.dp, 50.dp),
+            LayoutConfiguration.create(context, 1),
+        )
+
+        val view = context.applyRemoteViews(rv)
+        assertIs<TextView>(view)
+        assertThat(view.text).isEqualTo("40.0.dp x 50.0.dp")
     }
 
     @Test
-    fun createUiFromOptionBundle() {
-        runBlocking {
-            val composer = SampleGlanceAppWidget {
-                val options = LocalAppWidgetOptions.current
+    fun createUiFromOptionBundle() = fakeCoroutineScope.runBlockingTest {
+        val composer = SampleGlanceAppWidget {
+            val options = LocalAppWidgetOptions.current
 
-                Text(options.getString("StringKey", "<NOT FOUND>"))
-            }
-
-            val bundle = Bundle()
-            bundle.putString("StringKey", "FOUND")
-            val rv = composer.composeForSize(
-                context,
-                1,
-                null,
-                bundle,
-                DpSize(40.dp, 50.dp),
-                0
-            )
-
-            val view = context.applyRemoteViews(rv)
-            assertIs<TextView>(view)
-            assertThat(view.text).isEqualTo("FOUND")
+            Text(options.getString("StringKey", "<NOT FOUND>"))
         }
+
+        val bundle = Bundle()
+        bundle.putString("StringKey", "FOUND")
+        val rv = composer.composeForSize(
+            context,
+            1,
+            state = null,
+            bundle,
+            DpSize(40.dp, 50.dp),
+            LayoutConfiguration.create(context, 1),
+        )
+
+        val view = context.applyRemoteViews(rv)
+        assertIs<TextView>(view)
+        assertThat(view.text).isEqualTo("FOUND")
     }
 
     @Test
-    fun createUiFromGlanceId() {
-        runBlocking {
-            val composer = SampleGlanceAppWidget {
-                val glanceId = LocalGlanceId.current
+    fun createUiFromGlanceId() = fakeCoroutineScope.runBlockingTest {
+        val composer = SampleGlanceAppWidget {
+            val glanceId = LocalGlanceId.current
 
-                Text(glanceId.toString())
-            }
-
-            val bundle = bundleOf("StringKey" to "FOUND")
-            val rv = composer.composeForSize(
-                context,
-                1,
-                null,
-                bundle,
-                DpSize(40.dp, 50.dp),
-                0
-            )
-
-            val view = context.applyRemoteViews(rv)
-            assertIs<TextView>(view)
-            assertThat(view.text).isEqualTo("AppWidgetId(appWidgetId=1)")
+            Text(glanceId.toString())
         }
+
+        val bundle = bundleOf("StringKey" to "FOUND")
+        val rv = composer.composeForSize(
+            context,
+            1,
+            state = null,
+            bundle,
+            DpSize(40.dp, 50.dp),
+            LayoutConfiguration.create(context, 1),
+        )
+
+        val view = context.applyRemoteViews(rv)
+        assertIs<TextView>(view)
+        assertThat(view.text).isEqualTo("AppWidgetId(appWidgetId=1)")
     }
 
     @Test
-    fun createUiWithUniqueMode() {
-        runBlocking {
-            val composer = SampleGlanceAppWidget {
-                val size = LocalSize.current
-                Text("${size.width} x ${size.height}")
-            }
-            val appWidgetManager = mock<AppWidgetManager> {
-                on { getAppWidgetInfo(1) }.thenReturn(
-                    appWidgetProviderInfo {
-                        minWidth = 50
-                        minHeight = 50
-                        minResizeWidth = 40
-                        minResizeHeight = 60
-                        resizeMode = AppWidgetProviderInfo.RESIZE_BOTH
-                    }
-                )
-            }
-            val rv = composer.compose(
-                context,
-                appWidgetManager,
-                appWidgetId = 1,
-                null,
-                options = Bundle()
-            )
-
-            val view = context.applyRemoteViews(rv)
-            assertIs<TextView>(view)
-            assertThat(view.text).isEqualTo("40.0.dp x 50.0.dp")
+    fun createUiWithUniqueMode() = fakeCoroutineScope.runBlockingTest {
+        val composer = SampleGlanceAppWidget {
+            val size = LocalSize.current
+            Text("${size.width} x ${size.height}")
         }
+        val appWidgetManager = mock<AppWidgetManager> {
+            on { getAppWidgetInfo(1) }.thenReturn(
+                appWidgetProviderInfo {
+                    minWidth = 50
+                    minHeight = 50
+                    minResizeWidth = 40
+                    minResizeHeight = 60
+                    resizeMode = AppWidgetProviderInfo.RESIZE_BOTH
+                }
+            )
+        }
+
+        val rv = composer.compose(
+            context,
+            appWidgetManager,
+            appWidgetId = 1,
+            state = null,
+            options = Bundle(),
+            LayoutConfiguration.create(context, 2),
+        )
+
+        val view = context.applyRemoteViews(rv)
+        assertIs<TextView>(view)
+        assertThat(view.text).isEqualTo("40.0.dp x 50.0.dp")
     }
 
     @Config(sdk = [30])
     @Test
-    fun createUiWithExactModePreS() {
-        runBlocking {
-            val composer = SampleGlanceAppWidget(SizeMode.Exact) {
-                val size = LocalSize.current
-                Text("${size.width} x ${size.height}")
-            }
-            val options = optionsBundleOf(listOf(DpSize(100.dp, 50.dp), DpSize(50.dp, 100.dp)))
-            val appWidgetManager = mock<AppWidgetManager> {
-                on { getAppWidgetInfo(1) }.thenThrow(RuntimeException("This should not be called"))
-            }
-            val rv = composer.compose(
-                context,
-                appWidgetManager,
-                appWidgetId = 1,
-                null,
-                options = options
-            )
-
-            val portraitView = createPortraitContext().applyRemoteViews(rv)
-            assertIs<TextView>(portraitView)
-            assertThat(portraitView.text).isEqualTo("50.0.dp x 100.0.dp")
-
-            val landscapeView = createLandscapeContext().applyRemoteViews(rv)
-            assertIs<TextView>(landscapeView)
-            assertThat(landscapeView.text).isEqualTo("100.0.dp x 50.0.dp")
+    fun createUiWithExactModePreS() = fakeCoroutineScope.runBlockingTest {
+        val composer = SampleGlanceAppWidget(SizeMode.Exact) {
+            val size = LocalSize.current
+            Text("${size.width} x ${size.height}")
         }
+        val options = optionsBundleOf(listOf(DpSize(100.dp, 50.dp), DpSize(50.dp, 100.dp)))
+        val appWidgetManager = mock<AppWidgetManager> {
+            on { getAppWidgetInfo(1) }.thenThrow(RuntimeException("This should not be called"))
+        }
+        val rv = composer.compose(
+            context,
+            appWidgetManager,
+            appWidgetId = 1,
+            state = null,
+            options = options,
+            LayoutConfiguration.create(context, 1),
+        )
+
+        val portraitView = createPortraitContext().applyRemoteViews(rv)
+        assertIs<TextView>(portraitView)
+        assertThat(portraitView.text).isEqualTo("50.0.dp x 100.0.dp")
+
+        val landscapeView = createLandscapeContext().applyRemoteViews(rv)
+        assertIs<TextView>(landscapeView)
+        assertThat(landscapeView.text).isEqualTo("100.0.dp x 50.0.dp")
+    }
+
+    @Config(sdk = [30])
+    @Test
+    fun createUiWithResponsiveModePreS() = fakeCoroutineScope.runBlockingTest {
+        val sizes = setOf(
+            DpSize(60.dp, 80.dp),
+            DpSize(100.dp, 70.dp),
+            DpSize(120.dp, 100.dp),
+        )
+        val composer = SampleGlanceAppWidget(SizeMode.Responsive(sizes)) {
+            val size = LocalSize.current
+            Text("${size.width} x ${size.height}")
+        }
+        // Note: Landscape fits the 60x80 and 100x70, portrait doesn't fit anything
+        val options =
+            optionsBundleOf(listOf(DpSize(125.dp, 90.dp), DpSize(40.0.dp, 120.dp)))
+        val appWidgetManager = mock<AppWidgetManager> {
+            on { getAppWidgetInfo(1) }.thenThrow(RuntimeException("This should not be called"))
+        }
+        val rv = composer.compose(
+            context,
+            appWidgetManager,
+            appWidgetId = 1,
+            state = null,
+            options = options,
+            LayoutConfiguration.create(context, 1),
+        )
+
+        val portraitView = createPortraitContext().applyRemoteViews(rv)
+        assertIs<TextView>(portraitView)
+        assertThat(portraitView.text).isEqualTo("60.0.dp x 80.0.dp")
+
+        val landscapeView = createLandscapeContext().applyRemoteViews(rv)
+        assertIs<TextView>(landscapeView)
+        assertThat(landscapeView.text).isEqualTo("100.0.dp x 70.0.dp")
     }
 
     @Test
@@ -236,8 +265,9 @@ class GlanceAppWidgetTest {
                 context,
                 appWidgetManager,
                 appWidgetId = 1,
-                null,
-                options = Bundle()
+                state = null,
+                options = Bundle(),
+                LayoutConfiguration.create(context, 1),
             )
 
             val portraitView = createPortraitContext().applyRemoteViews(rv)
@@ -252,72 +282,35 @@ class GlanceAppWidgetTest {
 
     @Config(sdk = [30])
     @Test
-    fun createUiWithResponsiveModePreS() {
-        runBlocking {
-            val sizes = setOf(
-                DpSize(60.dp, 80.dp),
-                DpSize(100.dp, 70.dp),
-                DpSize(120.dp, 100.dp),
-            )
-            val composer = SampleGlanceAppWidget(SizeMode.Responsive(sizes)) {
-                val size = LocalSize.current
-                Text("${size.width} x ${size.height}")
-            }
-            // Note: Landscape fits the 60x80 and 100x70, portrait doesn't fit anything
-            val options = optionsBundleOf(listOf(DpSize(125.dp, 90.dp), DpSize(40.0.dp, 120.dp)))
-            val appWidgetManager = mock<AppWidgetManager> {
-                on { getAppWidgetInfo(1) }.thenThrow(RuntimeException("This should not be called"))
-            }
-            val rv = composer.compose(
-                context,
-                appWidgetManager,
-                appWidgetId = 1,
-                null,
-                options = options
-            )
-
-            val portraitView = createPortraitContext().applyRemoteViews(rv)
-            assertIs<TextView>(portraitView)
-            assertThat(portraitView.text).isEqualTo("60.0.dp x 80.0.dp")
-
-            val landscapeView = createLandscapeContext().applyRemoteViews(rv)
-            assertIs<TextView>(landscapeView)
-            assertThat(landscapeView.text).isEqualTo("100.0.dp x 70.0.dp")
+    fun createUiWithResponsiveMode_noSizeUseMinSize() = fakeCoroutineScope.runBlockingTest {
+        val sizes = setOf(
+            DpSize(60.dp, 80.dp),
+            DpSize(100.dp, 70.dp),
+            DpSize(120.dp, 100.dp),
+        )
+        val composer = SampleGlanceAppWidget(SizeMode.Responsive(sizes)) {
+            val size = LocalSize.current
+            Text("${size.width} x ${size.height}")
         }
-    }
-
-    @Config(sdk = [30])
-    @Test
-    fun createUiWithResponsiveMode_noSizeUseMinSize() {
-        runBlocking {
-            val sizes = setOf(
-                DpSize(60.dp, 80.dp),
-                DpSize(100.dp, 70.dp),
-                DpSize(120.dp, 100.dp),
-            )
-            val composer = SampleGlanceAppWidget(SizeMode.Responsive(sizes)) {
-                val size = LocalSize.current
-                Text("${size.width} x ${size.height}")
-            }
-            val appWidgetManager = mock<AppWidgetManager> {
-                on { getAppWidgetInfo(1) }.thenThrow(RuntimeException("This should not be called"))
-            }
-            val rv = composer.compose(
-                context,
-                appWidgetManager,
-                appWidgetId = 1,
-                null,
-                options = Bundle()
-            )
-
-            val portraitView = createPortraitContext().applyRemoteViews(rv)
-            assertIs<TextView>(portraitView)
-            assertThat(portraitView.text).isEqualTo("60.0.dp x 80.0.dp")
-
-            val landscapeView = createLandscapeContext().applyRemoteViews(rv)
-            assertIs<TextView>(landscapeView)
-            assertThat(landscapeView.text).isEqualTo("60.0.dp x 80.0.dp")
+        val appWidgetManager = mock<AppWidgetManager> {
+            on { getAppWidgetInfo(1) }.thenThrow(RuntimeException("This should not be called"))
         }
+        val rv = composer.compose(
+            context,
+            appWidgetManager,
+            appWidgetId = 1,
+            state = null,
+            options = Bundle(),
+            LayoutConfiguration.create(context, 1),
+        )
+
+        val portraitView = createPortraitContext().applyRemoteViews(rv)
+        assertIs<TextView>(portraitView)
+        assertThat(portraitView.text).isEqualTo("60.0.dp x 80.0.dp")
+
+        val landscapeView = createLandscapeContext().applyRemoteViews(rv)
+        assertIs<TextView>(landscapeView)
+        assertThat(landscapeView.text).isEqualTo("60.0.dp x 80.0.dp")
     }
 
     @Test
@@ -445,9 +438,15 @@ class GlanceAppWidgetTest {
         }
         return Bundle().apply {
             putInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH, minSize.width.value.toInt())
-            putInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT, minSize.height.value.toInt())
+            putInt(
+                AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT,
+                minSize.height.value.toInt()
+            )
             putInt(AppWidgetManager.OPTION_APPWIDGET_MAX_WIDTH, maxSize.width.value.toInt())
-            putInt(AppWidgetManager.OPTION_APPWIDGET_MAX_HEIGHT, maxSize.height.value.toInt())
+            putInt(
+                AppWidgetManager.OPTION_APPWIDGET_MAX_HEIGHT,
+                maxSize.height.value.toInt()
+            )
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                 val sizeList = sizes.map { it.toSizeF() }.toArrayList()
                 putParcelableArrayList(AppWidgetManager.OPTION_APPWIDGET_SIZES, sizeList)
@@ -455,7 +454,9 @@ class GlanceAppWidgetTest {
         }
     }
 
-    private fun createPortraitContext() = makeOrientationContext(Configuration.ORIENTATION_PORTRAIT)
+    private fun createPortraitContext() =
+        makeOrientationContext(Configuration.ORIENTATION_PORTRAIT)
+
     private fun createLandscapeContext() =
         makeOrientationContext(Configuration.ORIENTATION_LANDSCAPE)
 

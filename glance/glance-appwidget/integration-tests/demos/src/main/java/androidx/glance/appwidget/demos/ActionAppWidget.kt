@@ -26,12 +26,14 @@ import androidx.compose.ui.unit.sp
 import androidx.glance.Button
 import androidx.glance.GlanceId
 import androidx.glance.GlanceModifier
+import androidx.glance.Image
+import androidx.glance.ImageProvider
 import androidx.glance.LocalContext
-import androidx.glance.action.ActionParameters
 import androidx.glance.action.ActionCallback
-import androidx.glance.action.actionRunCallback
+import androidx.glance.action.ActionParameters
 import androidx.glance.action.actionLaunchActivity
 import androidx.glance.action.actionParametersOf
+import androidx.glance.action.actionRunCallback
 import androidx.glance.action.clickable
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.GlanceAppWidgetReceiver
@@ -40,6 +42,7 @@ import androidx.glance.layout.Alignment
 import androidx.glance.layout.Column
 import androidx.glance.layout.fillMaxSize
 import androidx.glance.layout.padding
+import androidx.glance.layout.size
 import androidx.glance.text.FontWeight
 import androidx.glance.text.Text
 import androidx.glance.text.TextDecoration
@@ -59,7 +62,7 @@ class ActionAppWidget : GlanceAppWidget() {
                 text = "Tap to change me",
                 style = TextStyle(
                     fontSize = 16.sp, fontWeight = FontWeight.Bold,
-                    textDecoration = if (useUnderline.get()) {
+                    textDecoration = if (shouldChangeView.get()) {
                         TextDecoration.Underline
                     } else {
                         TextDecoration.None
@@ -70,11 +73,18 @@ class ActionAppWidget : GlanceAppWidget() {
                     .clickable(
                         actionRunCallback<UpdateAction>(
                             actionParametersOf(
-                                KEY_USE_UNDERLINE to useUnderline.get()
+                                KEY_USE_UNDERLINE to shouldChangeView.get()
                             )
                         )
                     )
             )
+            if (shouldChangeView.get()) {
+                Image(
+                    ImageProvider(R.drawable.compose),
+                    "Compose",
+                    modifier = GlanceModifier.size(40.dp)
+                )
+            }
             Button(
                 text = "Intent",
                 onClick = actionLaunchActivity(
@@ -96,14 +106,14 @@ class ActionAppWidget : GlanceAppWidget() {
 }
 
 private val KEY_USE_UNDERLINE = ActionParameters.Key<Boolean>("underline")
-private var useUnderline = AtomicBoolean(false)
+private var shouldChangeView = AtomicBoolean(false)
 
 /**
- * Action to update the [useUnderline] value whenever users clicks on text
+ * Action to update the [shouldChangeView] value whenever users clicks on text
  */
 class UpdateAction : ActionCallback {
     override suspend fun onRun(context: Context, glanceId: GlanceId, parameters: ActionParameters) {
-        useUnderline.set(!parameters.getOrDefault(KEY_USE_UNDERLINE, false))
+        shouldChangeView.set(!parameters.getOrDefault(KEY_USE_UNDERLINE, false))
         ActionAppWidget().update(context, glanceId)
     }
 }
