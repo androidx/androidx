@@ -24,6 +24,7 @@ Note: The contributions workflow via GitHub is currently experimental - only con
 * [Paging](paging)
 * [Room](room)
 * [WorkManager](work)
+* [Camera](camera)
 
 ## Code Review Etiquette
 When contributing to Jetpack, follow the [code review etiquette](code-review.md).

@@ -20,6 +20,7 @@ You can start contributing to any of the following library groups from GitHub:
   - [Paging](https://developer.android.com/topic/libraries/architecture/paging)
   - [Room](https://developer.android.com/topic/libraries/architecture/room)
   - [WorkManager](https://developer.android.com/topic/libraries/architecture/workmanager)
+  - [Camera](https://developer.android.com/training/camerax)
 
 Not sure where to start? Take a look at the official [feature/bug bounty list](http://goo.gle/androidx-bug-bounty).
 
