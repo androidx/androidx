@@ -31,6 +31,13 @@ package androidx.activity {
     method @Deprecated public void startIntentSenderForResult(android.content.IntentSender!, int, android.content.Intent?, int, int, int, android.os.Bundle?) throws android.content.IntentSender.SendIntentException;
   }
 
+  public class ComponentDialog extends android.app.Dialog implements androidx.lifecycle.LifecycleOwner androidx.activity.OnBackPressedDispatcherOwner {
+    ctor public ComponentDialog(android.content.Context context, optional @StyleRes int themeResId);
+    ctor public ComponentDialog(android.content.Context context);
+    method public final androidx.lifecycle.Lifecycle getLifecycle();
+    method public final androidx.activity.OnBackPressedDispatcher getOnBackPressedDispatcher();
+  }
+
   public abstract class OnBackPressedCallback {
     ctor public OnBackPressedCallback(boolean);
     method @MainThread public abstract void handleOnBackPressed();
