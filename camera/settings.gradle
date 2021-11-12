@@ -1,0 +1,55 @@
+/*
+ * Copyright 2020 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+// see ../playground-common/README.md for details on how this works
+pluginManagement {
+    includeBuild "../playground-common/playground-plugin"
+}
+plugins {
+    id "playground"
+}
+
+rootProject.name = "camera-playground"
+
+playground {
+    setupPlayground("..")
+    selectProjectsFromAndroidX({ name ->
+        if (name.startsWith(":camera")) return true
+        if (name == ":annotation:annotation-sampled") return true
+        if (name == ":internal-testutils-ktx") return true
+	if (name == ":internal-testutils-truth") return true
+	if (name == ":annotation:annotation-experimental") return true
+	if (name == ":annotation:annotation-experimental-lint") return true
+	if (name == ":annotation:annotation-experimental-lint-integration-tests") return true
+	if (name == ":concurrent:concurrent-futures-ktx") return true
+	if (name == ":concurrent:concurrent-futures") return true
+	if (name == ":external:libyuv") return true
+	if (name == ":window:window") return true
+	if (name == ":window:sidecar:sidecar") return true
+	if (name == ":window:extensions:extensions") return true
+	if (name == ":window:window-samples") return true
+	if (name == ":window:window-java") return true
+	if (name == ":internal-testutils-runtime") return true
+	if (name == ":compose:lint:internal-lint-checks") return true
+	if (name == ":lifecycle:lifecycle-common-java8") return true
+	if (name == ":lifecycle:lifecycle-common") return true
+	if (name == ":compose:runtime:runtime") return true
+	if (name == ":compose:lint:common") return true
+	if (name == ":compose:lint:common-test") return true
+	if (name == ":external:libyuv:bundleDebugLocalLintAar") return true
+        return false
+    })
+}
