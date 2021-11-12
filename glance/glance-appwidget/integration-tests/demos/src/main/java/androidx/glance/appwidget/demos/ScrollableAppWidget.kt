@@ -16,62 +16,113 @@
 
 package androidx.glance.appwidget.demos
 
+import android.content.Context
+import android.os.Handler
+import android.widget.Toast
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import androidx.glance.Button
+import androidx.glance.GlanceId
 import androidx.glance.GlanceModifier
+import androidx.glance.LocalSize
+import androidx.glance.action.ActionCallback
+import androidx.glance.action.ActionParameters
+import androidx.glance.action.actionRunCallback
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.GlanceAppWidgetReceiver
 import androidx.glance.appwidget.SizeMode
 import androidx.glance.appwidget.lazy.LazyColumn
 import androidx.glance.background
+import androidx.glance.layout.Box
+import androidx.glance.layout.Column
+import androidx.glance.layout.Row
+import androidx.glance.layout.fillMaxHeight
 import androidx.glance.layout.fillMaxSize
 import androidx.glance.layout.fillMaxWidth
 import androidx.glance.layout.padding
 import androidx.glance.text.Text
-import androidx.glance.text.TextAlign
-import androidx.glance.text.TextDecoration
-import androidx.glance.text.TextStyle
 
 /**
  * Sample AppWidget that showcase scrollable layouts using the LazyColumn
  */
 class ScrollableAppWidget : GlanceAppWidget() {
 
-    override val sizeMode: SizeMode = SizeMode.Exact
+    companion object {
+        private val singleColumn = DpSize(100.dp, 48.dp)
+        private val doubleColumn = DpSize(200.dp, 48.dp)
+        private val tripleColumn = DpSize(300.dp, 48.dp)
+    }
+
+    override val sizeMode: SizeMode = SizeMode.Responsive(
+        setOf(singleColumn, doubleColumn, tripleColumn)
+    )
 
     @Composable
     override fun Content() {
-        LazyColumn(
+        Column(
             modifier = GlanceModifier.fillMaxSize().background(R.color.default_widget_background)
         ) {
-            item {
-                Text(
-                    text = "Top item",
-                    style = TextStyle(fontSize = 16.sp, textDecoration = TextDecoration.Underline),
-                    modifier = GlanceModifier.fillMaxWidth().padding(
-                        top = 16.dp, bottom = 8.dp, start = 16.dp, end = 16.dp
-                    )
-                )
+            Text(
+                text = "Fix header",
+                modifier = GlanceModifier
+                    .fillMaxWidth()
+                    .padding(16.dp)
+                    .background(Color(0x0a000000))
+            )
+            val width = LocalSize.current.width
+            if (width <= singleColumn.width) {
+                ScrollColumn(GlanceModifier.fillMaxSize())
+            } else {
+                Row {
+                    val modifier = GlanceModifier.fillMaxHeight().defaultWeight()
+                    ScrollColumn(modifier)
+                    ScrollColumn(modifier)
+                    if (width >= tripleColumn.width) {
+                        ScrollColumn(modifier)
+                    }
+                }
             }
+        }
+    }
+}
 
-            items(20) { index: Int ->
-                Text(
-                    text = "Item $index",
-                    modifier = GlanceModifier.fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 8.dp)
+@Composable
+private fun ScrollColumn(modifier: GlanceModifier) {
+    LazyColumn(modifier) {
+        items(20) { index: Int ->
+            Text(
+                text = "Item $index",
+                modifier = GlanceModifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 8.dp)
+            )
+        }
+        item {
+            Box(
+                modifier = GlanceModifier
+                    .fillMaxWidth()
+                    .padding(8.dp)
+            ) {
+                Button(
+                    text = "Bottom!",
+                    modifier = GlanceModifier.fillMaxWidth(),
+                    onClick = actionRunCallback<ScrollableAction>()
                 )
             }
+        }
+    }
+}
 
-            item {
-                Text(
-                    text = "Last item",
-                    style = TextStyle(fontSize = 16.sp, textAlign = TextAlign.Center),
-                    modifier = GlanceModifier.fillMaxWidth().padding(
-                        top = 8.dp, bottom = 16.dp, start = 16.dp, end = 16.dp
-                    )
-                )
-            }
+class ScrollableAction : ActionCallback {
+    override suspend fun onRun(context: Context, glanceId: GlanceId, parameters: ActionParameters) {
+        Handler(context.mainLooper).post {
+            Toast.makeText(
+                context,
+                "You've reached the bottom!",
+                Toast.LENGTH_SHORT
+            ).show()
         }
     }
 }
