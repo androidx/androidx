@@ -16,6 +16,7 @@
 
 package androidx.wear.watchface.samples
 
+import android.content.Intent
 import android.graphics.Color
 import android.graphics.RectF
 import android.graphics.drawable.Icon
@@ -38,6 +39,8 @@ import androidx.wear.watchface.WatchFace
 import androidx.wear.watchface.WatchFaceService
 import androidx.wear.watchface.WatchFaceType
 import androidx.wear.watchface.WatchState
+import androidx.wear.watchface.complications.permission.dialogs.sample.ComplicationDeniedActivity
+import androidx.wear.watchface.complications.permission.dialogs.sample.ComplicationRationalActivity
 import androidx.wear.watchface.complications.rendering.CanvasComplicationDrawable
 import androidx.wear.watchface.complications.rendering.GlesTextureComplication
 import androidx.wear.watchface.style.CurrentUserStyleRepository
@@ -149,13 +152,20 @@ open class ExampleOpenGLWatchFaceService : WatchFaceService() {
             colorStyleSetting,
             complication
         )
-    ).setLegacyWatchFaceStyle(
-        WatchFace.LegacyWatchFaceOverlayStyle(
-            0,
-            Gravity.RIGHT or Gravity.TOP,
-            true
-        )
     )
+        .setLegacyWatchFaceStyle(
+            WatchFace.LegacyWatchFaceOverlayStyle(
+                0,
+                Gravity.RIGHT or Gravity.TOP,
+                true
+            )
+        )
+        .setComplicationDeniedDialogIntent(
+            Intent(this, ComplicationDeniedActivity::class.java)
+        )
+        .setComplicationRationaleDialogIntent(
+            Intent(this, ComplicationRationalActivity::class.java)
+        )
 }
 
 class ExampleOpenGLRenderer(

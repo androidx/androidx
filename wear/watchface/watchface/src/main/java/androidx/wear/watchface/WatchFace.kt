@@ -17,6 +17,7 @@
 package androidx.wear.watchface
 
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.app.NotificationManager
 import android.content.ComponentName
 import android.content.Context
@@ -27,6 +28,7 @@ import android.graphics.Rect
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
+import android.provider.Settings
 import android.support.wearable.watchface.SharedMemoryImage
 import android.support.wearable.watchface.WatchFaceStyle
 import android.view.Gravity
@@ -41,7 +43,6 @@ import androidx.wear.watchface.complications.SystemDataSources
 import androidx.wear.watchface.complications.data.ComplicationData
 import androidx.wear.watchface.complications.data.ComplicationType
 import androidx.wear.watchface.complications.data.toApiComplicationData
-import androidx.wear.watchface.utility.TraceEvent
 import androidx.wear.watchface.control.data.ComplicationRenderParams
 import androidx.wear.watchface.control.data.HeadlessWatchFaceInstanceParams
 import androidx.wear.watchface.control.data.WatchFaceRenderParams
@@ -52,6 +53,7 @@ import androidx.wear.watchface.style.UserStyle
 import androidx.wear.watchface.style.UserStyleData
 import androidx.wear.watchface.style.UserStyleSchema
 import androidx.wear.watchface.style.WatchFaceLayer
+import androidx.wear.watchface.utility.TraceEvent
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -106,6 +108,8 @@ public class WatchFace(
     public val renderer: Renderer
 ) {
     internal var tapListener: TapListener? = null
+    internal var complicationDeniedDialogIntent: Intent? = null
+    internal var complicationRationaleDialogIntent: Intent? = null
 
     public companion object {
         /** Returns whether [LegacyWatchFaceOverlayStyle] is supported on this device. */
@@ -233,7 +237,15 @@ public class WatchFace(
         /** The [Handler] for the background thread. */
         public val backgroundThreadHandler: Handler
 
-        /** Renders the watchface to a [Bitmap] with the [CurrentUserStyleRepository]'s [UserStyle]. */
+        /** [Intent] to launch the complication permission denied dialog. */
+        public val complicationDeniedDialogIntent: Intent?
+
+        /** [Intent] to launch the complication permission request rationale dialog. */
+        public val complicationRationaleDialogIntent: Intent?
+
+        /**
+         * Renders the watchface to a [Bitmap] with the [CurrentUserStyleRepository]'s [UserStyle].
+         */
         public fun renderWatchFaceToBitmap(
             renderParameters: RenderParameters,
             instant: Instant,
@@ -384,6 +396,36 @@ public class WatchFace(
     public fun setSystemTimeProvider(systemTimeProvider: SystemTimeProvider): WatchFace = apply {
         this.systemTimeProvider = systemTimeProvider
     }
+
+    /**
+     * Sets the [Intent] to launch an activity which explains the watch face needs permission to
+     * display complications. It is recommended the activity have a button which launches an intent
+     * with [Settings.ACTION_APPLICATION_DETAILS_SETTINGS] to allow the user to grant permissions if
+     * they wish.
+     *
+     * This [complicationDeniedDialogIntent] is launched when the user tries to configure a
+     * complication slot when the `com.google.android.wearable.permission.RECEIVE_COMPLICATION_DATA`
+     * permission has been denied. If the intent is not set or is `null` then no dialog will be
+     * displayed.
+     */
+    public fun setComplicationDeniedDialogIntent(
+        complicationDeniedDialogIntent: Intent?
+    ): WatchFace = apply {
+        this.complicationDeniedDialogIntent = complicationDeniedDialogIntent
+    }
+
+    /**
+     * Sets the [Intent] to launch an activity that explains the rational for the requesting the
+     * com.google.android.wearable.permission.RECEIVE_COMPLICATION_DATA` permission prior to
+     * requesting it, if [Activity.shouldShowRequestPermissionRationale] returns `true`.
+     *
+     * If the intent is not set or is `null` then no dialog will be displayed.
+     */
+    public fun setComplicationRationaleDialogIntent(
+        complicationRationaleDialogIntent: Intent?
+    ): WatchFace = apply {
+        this.complicationRationaleDialogIntent = complicationRationaleDialogIntent
+    }
 }
 
 internal class MockTime(var speed: Double, var minTime: Long, var maxTime: Long) {
@@ -486,6 +528,10 @@ public class WatchFaceImpl @UiThread constructor(
     private val legacyWatchFaceStyle = watchface.legacyWatchFaceStyle
     internal val renderer = watchface.renderer
     private val tapListener = watchface.tapListener
+    internal var complicationDeniedDialogIntent =
+        watchface.complicationDeniedDialogIntent
+    internal var complicationRationaleDialogIntent =
+        watchface.complicationRationaleDialogIntent
 
     private var mockTime = MockTime(1.0, 0, Long.MAX_VALUE)
 
@@ -667,14 +713,14 @@ public class WatchFaceImpl @UiThread constructor(
     }
 
     internal inner class WFEditorDelegate : WatchFace.EditorDelegate {
-        override val userStyleSchema: UserStyleSchema
+        override val userStyleSchema
             get() = currentUserStyleRepository.schema
 
         override var userStyle: UserStyle
             get() = currentUserStyleRepository.userStyle.value
             set(value) { currentUserStyleRepository.updateUserStyle(value) }
 
-        override val complicationSlotsManager: ComplicationSlotsManager
+        override val complicationSlotsManager
             get() = this@WatchFaceImpl.complicationSlotsManager
 
         override val screenBounds
@@ -685,6 +731,12 @@ public class WatchFaceImpl @UiThread constructor(
 
         override val backgroundThreadHandler
             get() = watchFaceHostApi.getBackgroundThreadHandler()
+
+        override val complicationDeniedDialogIntent
+            get() = watchFaceHostApi.getComplicationDeniedIntent()
+
+        override val complicationRationaleDialogIntent
+            get() = watchFaceHostApi.getComplicationRationaleIntent()
 
         override fun renderWatchFaceToBitmap(
             renderParameters: RenderParameters,

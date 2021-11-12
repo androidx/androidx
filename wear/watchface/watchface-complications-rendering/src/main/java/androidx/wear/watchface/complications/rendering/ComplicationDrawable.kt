@@ -653,7 +653,9 @@ public class ComplicationDrawable : Drawable {
                     context!!.startActivity(
                         ComplicationHelperActivity.createPermissionRequestHelperIntent(
                             context!!,
-                            ComponentName(context!!, context!!.javaClass)
+                            ComponentName(context!!, context!!.javaClass),
+                            /* complicationDenied */ null,
+                            /* complicationRationale */null
                         ).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                     )
                 } else {

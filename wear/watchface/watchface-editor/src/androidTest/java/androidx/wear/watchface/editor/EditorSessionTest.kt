@@ -471,6 +471,8 @@ public class EditorSessionTest {
     private val dataSourceIcon =
         Icon.createWithBitmap(Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888))
     private val dataSourceComponentName = ComponentName("test.package", "test.class")
+    internal val complicationDeniedDialogIntent = Intent("ComplicationDeniedDialog")
+    internal val complicationRationaleDialogIntent = Intent("ComplicationRationaleDialog")
 
     private val leftComplication =
         ComplicationSlot.createRoundRectComplicationSlotBuilder(
@@ -565,6 +567,10 @@ public class EditorSessionTest {
             override val screenBounds = this@EditorSessionTest.screenBounds
             override val previewReferenceInstant = previewReferenceInstant
             override val backgroundThreadHandler = backgroundHandler
+            override val complicationDeniedDialogIntent =
+                this@EditorSessionTest.complicationDeniedDialogIntent
+            override val complicationRationaleDialogIntent =
+                this@EditorSessionTest.complicationRationaleDialogIntent
 
             override fun renderWatchFaceToBitmap(
                 renderParameters: RenderParameters,
@@ -1145,6 +1151,22 @@ public class EditorSessionTest {
                     ComplicationDataSourceChooserIntent.EXTRA_WATCHFACE_INSTANCE_ID
                 )
             ).isEqualTo(testInstanceId.id)
+
+            assertThat(
+                (TestComplicationHelperActivity.lastIntent?.getParcelableExtra(
+                    ComplicationDataSourceChooserIntent.EXTRA_COMPLICATION_DENIED
+                ) as Intent?)?.action
+            ).isEqualTo(
+                complicationDeniedDialogIntent.action
+            )
+
+            assertThat(
+                (TestComplicationHelperActivity.lastIntent?.getParcelableExtra(
+                    ComplicationDataSourceChooserIntent.EXTRA_COMPLICATION_RATIONALE
+                ) as Intent?)?.action
+            ).isEqualTo(
+                complicationRationaleDialogIntent.action
+            )
 
             // Selecting a LONG_TEXT complication should enlarge the complication's bounds due to
             // it's set up.

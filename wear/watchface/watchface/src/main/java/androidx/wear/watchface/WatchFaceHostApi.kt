@@ -18,6 +18,7 @@ package androidx.wear.watchface
 
 import android.content.ComponentName
 import android.content.Context
+import android.content.Intent
 import android.os.Handler
 import android.support.wearable.complications.ComplicationData
 import androidx.annotation.RestrictTo
@@ -117,4 +118,10 @@ public interface WatchFaceHostApi {
     /** Schedules a call to [Renderer.renderInternal] to draw the next frame. */
     @UiThread
     public fun invalidate()
+
+    /** Intent to launch the complication permission denied activity. */
+    public fun getComplicationDeniedIntent(): Intent?
+
+    /** Intent to launch the complication permission rationale activity. */
+    public fun getComplicationRationaleIntent(): Intent?
 }
