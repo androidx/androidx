@@ -3588,9 +3588,9 @@ package androidx.core.widget {
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public int computeVerticalScrollExtent();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public int computeVerticalScrollOffset();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public int computeVerticalScrollRange();
-    method public boolean dispatchNestedPreScroll(int, int, int[]!, int[]!, int);
+    method public boolean dispatchNestedPreScroll(int, int, int[]?, int[]?, int);
     method public void dispatchNestedScroll(int, int, int, int, int[]?, int, int[]);
-    method public boolean dispatchNestedScroll(int, int, int, int, int[]!, int);
+    method public boolean dispatchNestedScroll(int, int, int, int, int[]?, int);
     method public boolean executeKeyEvent(android.view.KeyEvent);
     method public void fling(int);
     method public boolean fullScroll(int);
@@ -3618,7 +3618,7 @@ package androidx.core.widget {
   }
 
   public static interface NestedScrollView.OnScrollChangeListener {
-    method public void onScrollChange(androidx.core.widget.NestedScrollView!, int, int, int, int);
+    method public void onScrollChange(androidx.core.widget.NestedScrollView, int, int, int, int);
   }
 
   public final class PopupMenuCompat {
