@@ -23,6 +23,12 @@ plugins {
     id("kotlin-android")
 }
 
+android {
+    buildTypes.all {
+        consumerProguardFiles "proguard-rules.pro"
+    }
+}
+
 dependencies {
     api project(":work:work-runtime")
     implementation(libs.gcmNetworkManager)
