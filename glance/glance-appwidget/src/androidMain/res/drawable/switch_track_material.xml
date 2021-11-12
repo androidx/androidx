@@ -18,8 +18,7 @@
     <item android:gravity="center_vertical|fill_horizontal"
         android:start="4dp"
         android:end="4dp">
-        <shape android:shape="rectangle"
-            android:tint="@color/switch_track_material">
+        <shape android:shape="rectangle">
             <corners android:radius="7dp" />
             <solid android:color="@color/white_disabled_material_anim" />
             <size android:height="14dp" />

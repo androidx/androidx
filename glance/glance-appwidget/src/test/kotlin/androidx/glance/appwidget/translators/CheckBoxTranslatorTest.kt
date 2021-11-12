@@ -62,7 +62,7 @@ class CheckBoxTranslatorTest {
             CheckBox(
                 checked = false,
                 text = "Check",
-                colors = CheckBoxColors(checked = Color.Red, unchecked = Color.Blue)
+                colors = CheckBoxColors(checkedColor = Color.Red, uncheckedColor = Color.Blue)
             )
         }
 
@@ -78,7 +78,7 @@ class CheckBoxTranslatorTest {
             CheckBox(
                 checked = true,
                 text = "Check",
-                colors = CheckBoxColors(checked = Color.Red, unchecked = Color.Blue)
+                colors = CheckBoxColors(checkedColor = Color.Red, uncheckedColor = Color.Blue)
             )
         }
 
@@ -95,8 +95,8 @@ class CheckBoxTranslatorTest {
                 checked = false,
                 text = "Check",
                 colors = CheckBoxColors(
-                    checked = ColorProvider(day = Color.Red, night = Color.Blue),
-                    unchecked = ColorProvider(day = Color.Yellow, night = Color.Green)
+                    checkedColor = ColorProvider(day = Color.Red, night = Color.Blue),
+                    uncheckedColor = ColorProvider(day = Color.Yellow, night = Color.Green)
                 )
             )
         }
@@ -114,8 +114,8 @@ class CheckBoxTranslatorTest {
                 checked = false,
                 text = "Check",
                 colors = CheckBoxColors(
-                    checked = ColorProvider(day = Color.Red, night = Color.Blue),
-                    unchecked = ColorProvider(day = Color.Yellow, night = Color.Green)
+                    checkedColor = ColorProvider(day = Color.Red, night = Color.Blue),
+                    uncheckedColor = ColorProvider(day = Color.Yellow, night = Color.Green)
                 )
             )
         }
@@ -133,8 +133,8 @@ class CheckBoxTranslatorTest {
                 checked = true,
                 text = "Check",
                 colors = CheckBoxColors(
-                    checked = ColorProvider(day = Color.Red, night = Color.Blue),
-                    unchecked = ColorProvider(day = Color.Yellow, night = Color.Green)
+                    checkedColor = ColorProvider(day = Color.Red, night = Color.Blue),
+                    uncheckedColor = ColorProvider(day = Color.Yellow, night = Color.Green)
                 )
             )
         }
@@ -152,8 +152,8 @@ class CheckBoxTranslatorTest {
                 checked = true,
                 text = "Check",
                 colors = CheckBoxColors(
-                    checked = ColorProvider(day = Color.Red, night = Color.Blue),
-                    unchecked = ColorProvider(day = Color.Yellow, night = Color.Green)
+                    checkedColor = ColorProvider(day = Color.Red, night = Color.Blue),
+                    uncheckedColor = ColorProvider(day = Color.Yellow, night = Color.Green)
                 )
             )
         }
