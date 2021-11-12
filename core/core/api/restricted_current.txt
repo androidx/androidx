@@ -146,7 +146,7 @@ package androidx.core.app {
     method @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public <T extends androidx.core.app.ComponentActivity.ExtraData> T! getExtraData(Class<T!>!);
     method public androidx.lifecycle.Lifecycle getLifecycle();
     method @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void putExtraData(androidx.core.app.ComponentActivity.ExtraData!);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public boolean superDispatchKeyEvent(android.view.KeyEvent!);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public boolean superDispatchKeyEvent(android.view.KeyEvent);
   }
 
   @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static class ComponentActivity.ExtraData {
@@ -2553,18 +2553,18 @@ package androidx.core.view {
   }
 
   public final class GestureDetectorCompat {
-    ctor public GestureDetectorCompat(android.content.Context!, android.view.GestureDetector.OnGestureListener!);
-    ctor public GestureDetectorCompat(android.content.Context!, android.view.GestureDetector.OnGestureListener!, android.os.Handler!);
+    ctor public GestureDetectorCompat(android.content.Context, android.view.GestureDetector.OnGestureListener);
+    ctor public GestureDetectorCompat(android.content.Context, android.view.GestureDetector.OnGestureListener, android.os.Handler?);
     method public boolean isLongpressEnabled();
-    method public boolean onTouchEvent(android.view.MotionEvent!);
+    method public boolean onTouchEvent(android.view.MotionEvent);
     method public void setIsLongpressEnabled(boolean);
-    method public void setOnDoubleTapListener(android.view.GestureDetector.OnDoubleTapListener!);
+    method public void setOnDoubleTapListener(android.view.GestureDetector.OnDoubleTapListener?);
   }
 
   public final class GravityCompat {
-    method public static void apply(int, int, int, android.graphics.Rect!, android.graphics.Rect!, int);
-    method public static void apply(int, int, int, android.graphics.Rect!, int, int, android.graphics.Rect!, int);
-    method public static void applyDisplay(int, android.graphics.Rect!, android.graphics.Rect!, int);
+    method public static void apply(int, int, int, android.graphics.Rect, android.graphics.Rect, int);
+    method public static void apply(int, int, int, android.graphics.Rect, int, int, android.graphics.Rect, int);
+    method public static void applyDisplay(int, android.graphics.Rect, android.graphics.Rect, int);
     method public static int getAbsoluteGravity(int, int);
     field public static final int END = 8388613; // 0x800005
     field public static final int RELATIVE_HORIZONTAL_GRAVITY_MASK = 8388615; // 0x800007
@@ -2602,7 +2602,7 @@ package androidx.core.view {
   }
 
   public static interface KeyEventDispatcher.Component {
-    method public boolean superDispatchKeyEvent(android.view.KeyEvent!);
+    method public boolean superDispatchKeyEvent(android.view.KeyEvent);
   }
 
   public final class LayoutInflaterCompat {
@@ -2616,18 +2616,18 @@ package androidx.core.view {
   }
 
   public final class MarginLayoutParamsCompat {
-    method public static int getLayoutDirection(android.view.ViewGroup.MarginLayoutParams!);
-    method public static int getMarginEnd(android.view.ViewGroup.MarginLayoutParams!);
-    method public static int getMarginStart(android.view.ViewGroup.MarginLayoutParams!);
-    method public static boolean isMarginRelative(android.view.ViewGroup.MarginLayoutParams!);
-    method public static void resolveLayoutDirection(android.view.ViewGroup.MarginLayoutParams!, int);
-    method public static void setLayoutDirection(android.view.ViewGroup.MarginLayoutParams!, int);
-    method public static void setMarginEnd(android.view.ViewGroup.MarginLayoutParams!, int);
-    method public static void setMarginStart(android.view.ViewGroup.MarginLayoutParams!, int);
+    method public static int getLayoutDirection(android.view.ViewGroup.MarginLayoutParams);
+    method public static int getMarginEnd(android.view.ViewGroup.MarginLayoutParams);
+    method public static int getMarginStart(android.view.ViewGroup.MarginLayoutParams);
+    method public static boolean isMarginRelative(android.view.ViewGroup.MarginLayoutParams);
+    method public static void resolveLayoutDirection(android.view.ViewGroup.MarginLayoutParams, int);
+    method public static void setLayoutDirection(android.view.ViewGroup.MarginLayoutParams, int);
+    method public static void setMarginEnd(android.view.ViewGroup.MarginLayoutParams, int);
+    method public static void setMarginStart(android.view.ViewGroup.MarginLayoutParams, int);
   }
 
   public final class MenuCompat {
-    method public static void setGroupDividerEnabled(android.view.Menu!, boolean);
+    method public static void setGroupDividerEnabled(android.view.Menu, boolean);
     method @Deprecated public static void setShowAsAction(android.view.MenuItem!, int);
   }
 
@@ -2652,27 +2652,27 @@ package androidx.core.view {
   public final class MenuItemCompat {
     method @Deprecated public static boolean collapseActionView(android.view.MenuItem!);
     method @Deprecated public static boolean expandActionView(android.view.MenuItem!);
-    method public static androidx.core.view.ActionProvider! getActionProvider(android.view.MenuItem!);
+    method public static androidx.core.view.ActionProvider? getActionProvider(android.view.MenuItem);
     method @Deprecated public static android.view.View! getActionView(android.view.MenuItem!);
-    method public static int getAlphabeticModifiers(android.view.MenuItem!);
-    method public static CharSequence! getContentDescription(android.view.MenuItem!);
-    method public static android.content.res.ColorStateList! getIconTintList(android.view.MenuItem!);
-    method public static android.graphics.PorterDuff.Mode! getIconTintMode(android.view.MenuItem!);
-    method public static int getNumericModifiers(android.view.MenuItem!);
-    method public static CharSequence! getTooltipText(android.view.MenuItem!);
+    method public static int getAlphabeticModifiers(android.view.MenuItem);
+    method public static CharSequence? getContentDescription(android.view.MenuItem);
+    method public static android.content.res.ColorStateList? getIconTintList(android.view.MenuItem);
+    method public static android.graphics.PorterDuff.Mode? getIconTintMode(android.view.MenuItem);
+    method public static int getNumericModifiers(android.view.MenuItem);
+    method public static CharSequence? getTooltipText(android.view.MenuItem);
     method @Deprecated public static boolean isActionViewExpanded(android.view.MenuItem!);
-    method public static android.view.MenuItem! setActionProvider(android.view.MenuItem!, androidx.core.view.ActionProvider!);
+    method public static android.view.MenuItem? setActionProvider(android.view.MenuItem, androidx.core.view.ActionProvider?);
     method @Deprecated public static android.view.MenuItem! setActionView(android.view.MenuItem!, android.view.View!);
     method @Deprecated public static android.view.MenuItem! setActionView(android.view.MenuItem!, int);
-    method public static void setAlphabeticShortcut(android.view.MenuItem!, char, int);
-    method public static void setContentDescription(android.view.MenuItem!, CharSequence!);
-    method public static void setIconTintList(android.view.MenuItem!, android.content.res.ColorStateList!);
-    method public static void setIconTintMode(android.view.MenuItem!, android.graphics.PorterDuff.Mode!);
-    method public static void setNumericShortcut(android.view.MenuItem!, char, int);
+    method public static void setAlphabeticShortcut(android.view.MenuItem, char, int);
+    method public static void setContentDescription(android.view.MenuItem, CharSequence?);
+    method public static void setIconTintList(android.view.MenuItem, android.content.res.ColorStateList?);
+    method public static void setIconTintMode(android.view.MenuItem, android.graphics.PorterDuff.Mode?);
+    method public static void setNumericShortcut(android.view.MenuItem, char, int);
     method @Deprecated public static android.view.MenuItem! setOnActionExpandListener(android.view.MenuItem!, androidx.core.view.MenuItemCompat.OnActionExpandListener!);
-    method public static void setShortcut(android.view.MenuItem!, char, char, int, int);
+    method public static void setShortcut(android.view.MenuItem, char, char, int, int);
     method @Deprecated public static void setShowAsAction(android.view.MenuItem!, int);
-    method public static void setTooltipText(android.view.MenuItem!, CharSequence!);
+    method public static void setTooltipText(android.view.MenuItem, CharSequence?);
     field @Deprecated public static final int SHOW_AS_ACTION_ALWAYS = 2; // 0x2
     field @Deprecated public static final int SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW = 8; // 0x8
     field @Deprecated public static final int SHOW_AS_ACTION_IF_ROOM = 1; // 0x1
@@ -2702,7 +2702,7 @@ package androidx.core.view {
     method @Deprecated public static int getSource(android.view.MotionEvent!);
     method @Deprecated public static float getX(android.view.MotionEvent!, int);
     method @Deprecated public static float getY(android.view.MotionEvent!, int);
-    method public static boolean isFromSource(android.view.MotionEvent!, int);
+    method public static boolean isFromSource(android.view.MotionEvent, int);
     field @Deprecated public static final int ACTION_HOVER_ENTER = 9; // 0x9
     field @Deprecated public static final int ACTION_HOVER_EXIT = 10; // 0xa
     field @Deprecated public static final int ACTION_HOVER_MOVE = 7; // 0x7
