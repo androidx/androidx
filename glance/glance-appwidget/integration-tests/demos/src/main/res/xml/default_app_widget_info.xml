@@ -17,7 +17,9 @@
 <appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
     android:minWidth="100dp"
     android:minHeight="100dp"
-    android:initialLayout="@layout/empty_layout"
+    android:initialLayout="@layout/loading_layout"
+    android:minResizeHeight="40dp"
+    android:minResizeWidth="40dp"
+    android:previewImage="@drawable/compose"
     android:resizeMode="horizontal|vertical"
-    android:widgetCategory="home_screen">
-</appwidget-provider>
+    android:widgetCategory="home_screen" />
