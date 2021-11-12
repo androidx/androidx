@@ -92,11 +92,11 @@ import androidx.camera.core.UseCaseGroup;
 import androidx.camera.core.ViewPort;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.lifecycle.ProcessCameraProvider;
-import androidx.camera.video.ActiveRecording;
 import androidx.camera.video.MediaStoreOutputOptions;
 import androidx.camera.video.OutputOptions;
 import androidx.camera.video.QualitySelector;
 import androidx.camera.video.Recorder;
+import androidx.camera.video.Recording;
 import androidx.camera.video.RecordingStats;
 import androidx.camera.video.VideoCapture;
 import androidx.camera.video.VideoRecordEvent;
@@ -157,7 +157,7 @@ public class CameraXActivity extends AppCompatActivity {
     private final MutableLiveData<String> mImageAnalysisResult = new MutableLiveData<>();
     private static final String BACKWARD = "BACKWARD";
 
-    private ActiveRecording mActiveRecording;
+    private Recording mActiveRecording;
     /** The camera to use */
     CameraSelector mCurrentCameraSelector = BACK_SELECTOR;
     ProcessCameraProvider mCameraProvider;
@@ -377,9 +377,8 @@ public class CameraXActivity extends AppCompatActivity {
                     mActiveRecording = getVideoCapture().getOutput()
                             .prepareRecording(this, getNewVideoOutputMediaStoreOptions())
                             .withAudioEnabled()
-                            .withEventListener(ContextCompat.getMainExecutor(CameraXActivity.this),
-                                    mVideoRecordEventListener)
-                            .start();
+                            .start(ContextCompat.getMainExecutor(CameraXActivity.this),
+                                    mVideoRecordEventListener);
                     mRecordUi.setState(RecordUi.State.RECORDING);
                     break;
                 case RECORDING:
