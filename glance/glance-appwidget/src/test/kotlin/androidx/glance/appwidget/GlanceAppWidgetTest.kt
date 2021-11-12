@@ -30,13 +30,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.max
 import androidx.compose.ui.unit.min
 import androidx.core.os.bundleOf
-import androidx.datastore.core.DataStore
-import androidx.datastore.preferences.core.PreferenceDataStoreFactory
-import androidx.datastore.preferences.core.Preferences
-import androidx.datastore.preferences.preferencesDataStoreFile
 import androidx.glance.LocalGlanceId
 import androidx.glance.LocalSize
-import androidx.glance.state.GlanceStateDefinition
 import androidx.glance.text.Text
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
@@ -50,7 +45,6 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import org.robolectric.shadows.ShadowLog
-import java.io.File
 import kotlin.test.assertIs
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -74,7 +68,7 @@ class GlanceAppWidgetTest {
         val rv = composer.composeForSize(
             context,
             1,
-            EmptyStateDefinition,
+            null,
             Bundle(),
             DpSize(40.dp, 50.dp),
             0
@@ -95,7 +89,7 @@ class GlanceAppWidgetTest {
         val rv = composer.composeForSize(
             context,
             1,
-            EmptyStateDefinition,
+            null,
             Bundle(),
             DpSize(40.dp, 50.dp),
             0
@@ -119,7 +113,7 @@ class GlanceAppWidgetTest {
         val rv = composer.composeForSize(
             context,
             1,
-            EmptyStateDefinition,
+            null,
             bundle,
             DpSize(40.dp, 50.dp),
             0
@@ -142,7 +136,7 @@ class GlanceAppWidgetTest {
         val rv = composer.composeForSize(
             context,
             1,
-            EmptyStateDefinition,
+            null,
             bundle,
             DpSize(40.dp, 50.dp),
             0
@@ -175,7 +169,7 @@ class GlanceAppWidgetTest {
             context,
             appWidgetManager,
             appWidgetId = 1,
-            EmptyStateDefinition,
+            null,
             options = Bundle()
         )
 
@@ -199,7 +193,7 @@ class GlanceAppWidgetTest {
             context,
             appWidgetManager,
             appWidgetId = 1,
-            EmptyStateDefinition,
+            null,
             options = options
         )
 
@@ -233,7 +227,7 @@ class GlanceAppWidgetTest {
             context,
             appWidgetManager,
             appWidgetId = 1,
-            EmptyStateDefinition,
+            null,
             options = Bundle()
         )
 
@@ -267,7 +261,7 @@ class GlanceAppWidgetTest {
             context,
             appWidgetManager,
             appWidgetId = 1,
-            EmptyStateDefinition,
+            null,
             options = options
         )
 
@@ -299,7 +293,7 @@ class GlanceAppWidgetTest {
             context,
             appWidgetManager,
             appWidgetId = 1,
-            EmptyStateDefinition,
+            null,
             options = Bundle()
         )
 
@@ -465,16 +459,5 @@ class GlanceAppWidgetTest {
         override fun Content() {
             ui()
         }
-    }
-
-    object EmptyStateDefinition : GlanceStateDefinition<Preferences> {
-        override fun getLocation(context: Context, fileKey: String): File =
-            context.preferencesDataStoreFile(fileKey)
-
-        @Suppress("UNCHECKED_CAST")
-        override suspend fun <T> getDataStore(context: Context, fileKey: String): DataStore<T> =
-            PreferenceDataStoreFactory.create {
-                context.preferencesDataStoreFile(fileKey)
-            } as DataStore<T>
     }
 }
