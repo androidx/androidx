@@ -152,7 +152,7 @@ package androidx.work {
   }
 
   public abstract class ListenableWorker {
-    ctor @Keep public ListenableWorker(android.content.Context, androidx.work.WorkerParameters);
+    ctor public ListenableWorker(android.content.Context, androidx.work.WorkerParameters);
     method public final android.content.Context getApplicationContext();
     method public com.google.common.util.concurrent.ListenableFuture<androidx.work.ForegroundInfo!> getForegroundInfoAsync();
     method public final java.util.UUID getId();
@@ -357,7 +357,7 @@ package androidx.work {
   }
 
   public abstract class Worker extends androidx.work.ListenableWorker {
-    ctor @Keep public Worker(android.content.Context, androidx.work.WorkerParameters);
+    ctor public Worker(android.content.Context, androidx.work.WorkerParameters);
     method @WorkerThread public abstract androidx.work.ListenableWorker.Result doWork();
     method public final com.google.common.util.concurrent.ListenableFuture<androidx.work.ListenableWorker.Result!> startWork();
   }
