@@ -96,7 +96,7 @@ function remove() {
   backup="$(dirname $path)/studio-backup/$(basename $path)"
   if [ -e "$path" ]; then
     echo "Moving $path to $backup"
-    rm "$backup" -rf
+    rm -rf "$backup"
     mkdir -p "$(dirname $backup)"
     mv "$path" "$backup"
   fi
@@ -104,7 +104,7 @@ function remove() {
 
 if [ "$reinstall" == "true" ]; then
   # remove Studio itself so Gradle will re-download it
-  rm studio -rf
+  rm -rf studio
 fi
 
 if [ "$clean" == "true" ]; then
