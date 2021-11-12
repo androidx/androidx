@@ -299,6 +299,60 @@ class NavHostTest {
     }
 
     @Test
+    fun testSaveableStateClearedAfterConfigChange() {
+        lateinit var navController: NavHostController
+        lateinit var state: MutableState<Int>
+        var viewModel: BackStackEntryIdViewModel? = null
+        var savedState: Bundle? = null
+        composeTestRule.setContent {
+            val context = LocalContext.current
+            state = remember { mutableStateOf(0) }
+            navController = if (savedState == null) {
+                rememberNavController()
+            } else {
+                NavHostController(context).apply {
+                    restoreState(savedState)
+                    setViewModelStore(LocalViewModelStoreOwner.current!!.viewModelStore)
+                    navigatorProvider += ComposeNavigator()
+                    navigatorProvider += DialogNavigator()
+                }
+            }
+            if (state.value == 0) {
+                NavHost(navController, startDestination = "first") {
+                    composable("first") {
+                        viewModel = viewModel()
+                    }
+                    composable("second") { }
+                }
+            }
+        }
+
+        assertThat(viewModel?.saveableStateHolder).isNotNull()
+
+        composeTestRule.runOnIdle {
+            navController.navigate("second")
+        }
+
+        savedState = navController.saveState()
+
+        runOnUiThread {
+            // dispose the NavHost
+            state.value = 1
+        }
+
+        // wait for recompose without NavHost then recompose with the NavHost
+        composeTestRule.runOnIdle {
+            state.value = 0
+        }
+
+        composeTestRule.runOnIdle {
+            assertWithMessage("Second destination should be current")
+                .that(navController.currentDestination?.route).isEqualTo("second")
+            assertThat(viewModel?.saveableStateHolder).isNull()
+        }
+    }
+
+    @Test
     fun testStateOfInactiveScreenIsRestoredWhenWeGoBackToIt() {
         var increment = 0
         var numberOnScreen1 = -1
