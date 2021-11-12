@@ -27,7 +27,6 @@ import androidx.annotation.LayoutRes
 import androidx.annotation.RequiresApi
 import androidx.annotation.VisibleForTesting
 import androidx.core.widget.setLinearLayoutGravity
-import androidx.core.widget.setRelativeLayoutGravity
 import androidx.glance.Emittable
 import androidx.glance.EmittableButton
 import androidx.glance.EmittableImage
@@ -135,7 +134,7 @@ internal fun RemoteViews.translateChild(
 internal fun remoteViews(translationContext: TranslationContext, @LayoutRes layoutId: Int) =
     RemoteViews(translationContext.context.packageName, layoutId)
 
-private fun Alignment.Horizontal.toGravity(): Int =
+internal fun Alignment.Horizontal.toGravity(): Int =
     when (this) {
         Alignment.Horizontal.Start -> Gravity.START
         Alignment.Horizontal.End -> Gravity.END
@@ -146,7 +145,7 @@ private fun Alignment.Horizontal.toGravity(): Int =
         }
     }
 
-private fun Alignment.Vertical.toGravity(): Int =
+internal fun Alignment.Vertical.toGravity(): Int =
     when (this) {
         Alignment.Vertical.Top -> Gravity.TOP
         Alignment.Vertical.Bottom -> Gravity.BOTTOM
@@ -167,9 +166,10 @@ private fun RemoteViews.translateEmittableBox(
         translationContext,
         LayoutType.Box,
         element.children.size,
-        element.modifier
+        element.modifier,
+        element.contentAlignment.horizontal,
+        element.contentAlignment.vertical,
     )
-    setRelativeLayoutGravity(viewDef.mainViewId, element.contentAlignment.toGravity())
     applyModifiers(
         translationContext,
         this,
@@ -191,11 +191,13 @@ private fun RemoteViews.translateEmittableRow(
         translationContext,
         LayoutType.Row,
         element.children.size,
-        element.modifier
+        element.modifier,
+        horizontalAlignment = null,
+        verticalAlignment = element.verticalAlignment,
     )
     setLinearLayoutGravity(
         viewDef.mainViewId,
-        element.horizontalAlignment.toGravity() or element.verticalAlignment.toGravity()
+        element.horizontalAlignment.toGravity()
     )
     applyModifiers(
         translationContext,
@@ -218,11 +220,13 @@ private fun RemoteViews.translateEmittableColumn(
         translationContext,
         LayoutType.Column,
         element.children.size,
-        element.modifier
+        element.modifier,
+        horizontalAlignment = element.horizontalAlignment,
+        verticalAlignment = null,
     )
     setLinearLayoutGravity(
         viewDef.mainViewId,
-        element.horizontalAlignment.toGravity() or element.verticalAlignment.toGravity()
+        element.verticalAlignment.toGravity()
     )
     applyModifiers(
         translationContext,

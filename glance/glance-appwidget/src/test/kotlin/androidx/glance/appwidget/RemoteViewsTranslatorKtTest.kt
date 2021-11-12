@@ -20,17 +20,14 @@ import android.annotation.TargetApi
 import android.app.Activity
 import android.content.Context
 import android.content.res.Configuration
-import android.os.Build
 import android.text.SpannedString
 import android.text.style.StrikethroughSpan
 import android.text.style.UnderlineSpan
-import android.view.Gravity
 import android.view.View
 import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.ListView
-import android.widget.RelativeLayout
 import android.widget.RemoteViews
 import android.widget.TextView
 import androidx.compose.ui.graphics.Color
@@ -41,6 +38,8 @@ import androidx.glance.Button
 import androidx.glance.GlanceModifier
 import androidx.glance.Visibility
 import androidx.glance.action.actionLaunchActivity
+import androidx.glance.appwidget.FrameLayoutSubject.Companion.assertThat
+import androidx.glance.appwidget.LinearLayoutSubject.Companion.assertThat
 import androidx.glance.appwidget.TextViewSubject.Companion.assertThat
 import androidx.glance.appwidget.ViewSubject.Companion.assertThat
 import androidx.glance.appwidget.lazy.LazyColumn
@@ -96,86 +95,83 @@ class RemoteViewsTranslatorKtTest {
         val rv = context.runAndTranslate { Box {} }
         val view = context.applyRemoteViews(rv)
 
-        assertIs<RelativeLayout>(view)
+        assertIs<FrameLayout>(view)
         assertThat(view.childCount).isEqualTo(0)
     }
 
     @Test
     fun canTranslateBoxWithAlignment() = fakeCoroutineScope.runBlockingTest {
         val rv = context.runAndTranslate {
-            Box(contentAlignment = Alignment.BottomEnd) { }
+            Box(contentAlignment = Alignment.BottomEnd) { Text("text") }
         }
         val view = context.applyRemoteViews(rv)
 
-        assertIs<RelativeLayout>(view)
-        assertThat(view.gravity).isEqualTo(Gravity.BOTTOM or Gravity.END)
+        assertIs<FrameLayout>(view)
+        assertThat(view).hasContentAlignment(Alignment.BottomEnd)
     }
 
     @Test
     fun canTranslateBoxWithChildren() = fakeCoroutineScope.runBlockingTest {
         val rv = context.runAndTranslate {
             Box {
-                Box(contentAlignment = Alignment.Center) {}
-                Box(contentAlignment = Alignment.BottomEnd) {}
+                Box(contentAlignment = Alignment.Center) { Text("text1") }
+                Box(contentAlignment = Alignment.BottomEnd) { Text("text2") }
             }
         }
         val view = context.applyRemoteViews(rv)
 
-        assertIs<RelativeLayout>(view)
+        assertIs<FrameLayout>(view)
         assertThat(view.nonGoneChildCount).isEqualTo(2)
         val (child1, child2) = view.nonGoneChildren.toList()
-        assertIs<RelativeLayout>(child1)
-        assertIs<RelativeLayout>(child2)
-        assertThat(child1.gravity).isEqualTo(Gravity.CENTER)
-        assertThat(child2.gravity).isEqualTo(Gravity.BOTTOM or Gravity.END)
+        assertIs<FrameLayout>(child1)
+        assertIs<FrameLayout>(child2)
+        assertThat(child1).hasContentAlignment(Alignment.Center)
+        assertThat(child2).hasContentAlignment(Alignment.BottomEnd)
     }
 
     @Test
     fun canReapplyTranslateBox() = fakeCoroutineScope.runBlockingTest {
         val rv = context.runAndTranslate {
             Box {
-                Box(contentAlignment = Alignment.Center) {}
-                Box(contentAlignment = Alignment.BottomEnd) {}
+                Box(contentAlignment = Alignment.Center) { Text("tex1") }
+                Box(contentAlignment = Alignment.BottomEnd) { Text("text2") }
             }
         }
         val view = context.applyRemoteViews(rv)
-        assertIs<RelativeLayout>(view)
+        assertIs<FrameLayout>(view)
         assertThat(view.nonGoneChildCount).isEqualTo(2)
         val (child1, child2) = view.nonGoneChildren.toList()
-        assertIs<RelativeLayout>(child1)
-        assertIs<RelativeLayout>(child2)
+        assertIs<FrameLayout>(child1)
+        assertIs<FrameLayout>(child2)
 
         rv.reapply(context, view)
 
-        assertIs<RelativeLayout>(view)
+        assertIs<FrameLayout>(view)
         assertThat(view.nonGoneChildCount).isEqualTo(2)
         val (newChild1, newChild2) = view.nonGoneChildren.toList()
-        assertIs<RelativeLayout>(newChild1)
-        assertIs<RelativeLayout>(newChild2)
-        assertThat(newChild1.gravity).isEqualTo(Gravity.CENTER)
-        assertThat(newChild2.gravity).isEqualTo(Gravity.BOTTOM or Gravity.END)
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            assertThat(newChild1).isSameInstanceAs(child1)
-            assertThat(newChild2).isSameInstanceAs(child2)
-        }
+        assertIs<FrameLayout>(newChild1)
+        assertIs<FrameLayout>(newChild2)
+        assertThat(newChild1).hasContentAlignment(Alignment.Center)
+        assertThat(newChild2).hasContentAlignment(Alignment.BottomEnd)
+        assertThat(newChild1).isSameInstanceAs(child1)
+        assertThat(newChild2).isSameInstanceAs(child2)
     }
 
     @Test
     fun canTranslateMultipleNodes() = fakeCoroutineScope.runBlockingTest {
         val rv = context.runAndTranslate {
-            Box(contentAlignment = Alignment.Center) {}
-            Box(contentAlignment = Alignment.BottomEnd) {}
+            Box(contentAlignment = Alignment.Center) { Text("text1") }
+            Box(contentAlignment = Alignment.BottomEnd) { Text("text2") }
         }
         val view = context.applyRemoteViews(rv)
 
-        assertIs<RelativeLayout>(view)
+        assertIs<FrameLayout>(view)
         assertThat(view.nonGoneChildCount).isEqualTo(2)
         val (child1, child2) = view.nonGoneChildren.toList()
-        assertIs<RelativeLayout>(child1)
-        assertIs<RelativeLayout>(child2)
-        assertThat(child1.gravity).isEqualTo(Gravity.CENTER)
-        assertThat(child2.gravity).isEqualTo(Gravity.BOTTOM or Gravity.END)
+        assertIs<FrameLayout>(child1)
+        assertIs<FrameLayout>(child2)
+        assertThat(child1).hasContentAlignment(Alignment.Center)
+        assertThat(child2).hasContentAlignment(Alignment.BottomEnd)
     }
 
     @Test
@@ -192,7 +188,7 @@ class RemoteViewsTranslatorKtTest {
         }
         val view = context.applyRemoteViews(rv)
 
-        assertIs<RelativeLayout>(view)
+        assertIs<FrameLayout>(view)
         assertThat(view.paddingLeft).isEqualTo(4.dp.toPixels())
         assertThat(view.paddingRight).isEqualTo(5.dp.toPixels())
         assertThat(view.paddingTop).isEqualTo(6.dp.toPixels())
@@ -213,7 +209,7 @@ class RemoteViewsTranslatorKtTest {
         }
         val view = context.applyRemoteViews(rv)
 
-        assertIs<RelativeLayout>(view)
+        assertIs<FrameLayout>(view)
         assertThat(view.paddingLeft).isEqualTo(5.dp.toPixels())
         assertThat(view.paddingRight).isEqualTo(4.dp.toPixels())
         assertThat(view.paddingTop).isEqualTo(6.dp.toPixels())
@@ -234,7 +230,7 @@ class RemoteViewsTranslatorKtTest {
         }
         val view = context.applyRemoteViews(rv)
 
-        assertIs<RelativeLayout>(view)
+        assertIs<FrameLayout>(view)
         assertThat(view.paddingLeft).isEqualTo(4.dp.toPixels())
         assertThat(view.paddingRight).isEqualTo(5.dp.toPixels())
         assertThat(view.paddingTop).isEqualTo(6.dp.toPixels())
@@ -271,7 +267,8 @@ class RemoteViewsTranslatorKtTest {
         val view = context.applyRemoteViews(rv)
 
         assertIs<LinearLayout>(view)
-        assertThat(view.gravity).isEqualTo(Gravity.BOTTOM or Gravity.END)
+        assertThat(view).hasContentAlignment(Alignment.End)
+        assertThat(view).hasContentAlignment(Alignment.Bottom)
     }
 
     @Test
@@ -286,7 +283,8 @@ class RemoteViewsTranslatorKtTest {
         val view = context.applyRemoteViews(rv)
 
         assertIs<LinearLayout>(view)
-        assertThat(view.gravity).isEqualTo(Gravity.BOTTOM or Gravity.START)
+        assertThat(view).hasContentAlignment(Alignment.Start)
+        assertThat(view).hasContentAlignment(Alignment.Bottom)
     }
 
     @Test
@@ -314,11 +312,11 @@ class RemoteViewsTranslatorKtTest {
         assertThat(view.nonGoneChildCount).isEqualTo(3)
         val (child1, child2, child3) = view.nonGoneChildren.toList()
         assertIs<LinearLayout>(child1)
-        assertThat(child1.gravity).isEqualTo(Gravity.CENTER)
+        assertThat(child1).hasContentAlignment(Alignment.Center)
         assertIs<LinearLayout>(child2)
-        assertThat(child2.gravity).isEqualTo(Gravity.CENTER or Gravity.TOP)
+        assertThat(child2).hasContentAlignment(Alignment.TopCenter)
         assertIs<LinearLayout>(child3)
-        assertThat(child3.gravity).isEqualTo(Gravity.BOTTOM or Gravity.END)
+        assertThat(child3).hasContentAlignment(Alignment.BottomEnd)
     }
 
     @Test
@@ -329,15 +327,15 @@ class RemoteViewsTranslatorKtTest {
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalAlignment = Alignment.CenterVertically
-                ) { }
+                ) { Text("text") }
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalAlignment = Alignment.Top
-                ) { }
+                ) { Text("text") }
                 Column(
                     horizontalAlignment = Alignment.End,
                     verticalAlignment = Alignment.Bottom
-                ) { }
+                ) { Text("text") }
             }
         }
         val view = context.applyRemoteViews(rv)
@@ -346,11 +344,11 @@ class RemoteViewsTranslatorKtTest {
         assertThat(view.nonGoneChildCount).isEqualTo(3)
         val (child1, child2, child3) = view.nonGoneChildren.toList()
         assertIs<LinearLayout>(child1)
-        assertThat(child1.gravity).isEqualTo(Gravity.CENTER)
+        assertThat(child1).hasContentAlignment(Alignment.Center)
         assertIs<LinearLayout>(child2)
-        assertThat(child2.gravity).isEqualTo(Gravity.CENTER or Gravity.TOP)
+        assertThat(child2).hasContentAlignment(Alignment.TopCenter)
         assertIs<LinearLayout>(child3)
-        assertThat(child3.gravity).isEqualTo(Gravity.BOTTOM or Gravity.END)
+        assertThat(child3).hasContentAlignment(Alignment.BottomEnd)
     }
 
     @Test

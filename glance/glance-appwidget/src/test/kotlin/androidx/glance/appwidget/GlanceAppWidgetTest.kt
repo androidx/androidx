@@ -22,7 +22,7 @@ import android.content.Context
 import android.content.res.Configuration
 import android.os.Build
 import android.os.Bundle
-import android.widget.RelativeLayout
+import android.widget.FrameLayout
 import android.widget.TextView
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.DpSize
@@ -81,7 +81,7 @@ class GlanceAppWidgetTest {
         )
 
         val view = context.applyRemoteViews(rv)
-        assertIs<RelativeLayout>(view)
+        assertIs<FrameLayout>(view)
         assertThat(view.childCount).isEqualTo(0)
     }
 

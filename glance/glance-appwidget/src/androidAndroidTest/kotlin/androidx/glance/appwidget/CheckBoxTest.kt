@@ -17,9 +17,9 @@
 package androidx.glance.appwidget
 
 import android.content.Context
+import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.LinearLayout
-import android.widget.RelativeLayout
 import android.widget.TextView
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.Dp
@@ -80,7 +80,7 @@ class CheckBoxTest {
 
         mHostRule.startHost()
 
-        mHostRule.onUnboxedHostView<RelativeLayout> { box ->
+        mHostRule.onUnboxedHostView<FrameLayout> { box ->
             val row = assertIs<LinearLayout>(box.notGoneChildren.single())
             val textView = assertIs<TextView>(row.getChildAt(1))
             assertThat(textView.text.toString()).isEqualTo("Hello world")
@@ -113,7 +113,7 @@ class CheckBoxTest {
 
         mHostRule.startHost()
 
-        mHostRule.onUnboxedHostView<RelativeLayout> { box ->
+        mHostRule.onUnboxedHostView<FrameLayout> { box ->
             val row = assertIs<LinearLayout>(box.notGoneChildren.single())
             val textView = assertIs<TextView>(row.getChildAt(1))
             assertThat(textView.text.toString()).isEqualTo("Hola mundo")
@@ -133,7 +133,7 @@ class CheckBoxTest {
 
         mHostRule.startHost()
 
-        mHostRule.onUnboxedHostView<RelativeLayout> { hostView ->
+        mHostRule.onUnboxedHostView<FrameLayout> { hostView ->
             assertThat(hostView.notGoneChildCount).isEqualTo(1)
 
             val checkboxRoot = hostView.notGoneChildren.single()
