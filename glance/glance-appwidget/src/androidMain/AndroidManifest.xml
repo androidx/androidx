@@ -18,11 +18,20 @@
     package="androidx.glance.appwidget" >
     <application>
         <receiver
-            android:name="androidx.glance.appwidget.ActionCallbackBroadcastReceiver"
+            android:name=".ActionCallbackBroadcastReceiver"
             android:exported="false"
             android:enabled="true">
             <intent-filter>
                 <data android:scheme="remoteAction" />
+            </intent-filter>
+        </receiver>
+
+        <receiver
+            android:name=".MyPackageReplacedReceiver"
+            android:exported="false"
+            android:enabled="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
             </intent-filter>
         </receiver>
     </application>
