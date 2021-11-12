@@ -234,11 +234,11 @@ class FragmentContainerViewTest {
             fragmentContainerView,
             object : OnApplyWindowInsetsListener {
                 override fun onApplyWindowInsets(
-                    v: View?,
-                    insets: WindowInsetsCompat?
+                    v: View,
+                    insets: WindowInsetsCompat
                 ): WindowInsetsCompat {
                     calledListener = true
-                    return insets!!
+                    return insets
                 }
             }
         )

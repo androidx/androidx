@@ -54,7 +54,6 @@ import java.util.Objects;
  * future. To adjust insets, use one of the supplied clone methods to obtain a new
  * WindowInsetsCompat instance with the adjusted properties.</p>
  */
-@SuppressWarnings("JavadocReference")
 public class WindowInsetsCompat {
     private static final String TAG = "WindowInsetsCompat";
 

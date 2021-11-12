@@ -2420,7 +2420,7 @@ package androidx.core.view {
   }
 
   public interface OnApplyWindowInsetsListener {
-    method public androidx.core.view.WindowInsetsCompat! onApplyWindowInsets(android.view.View!, androidx.core.view.WindowInsetsCompat!);
+    method public androidx.core.view.WindowInsetsCompat onApplyWindowInsets(android.view.View, androidx.core.view.WindowInsetsCompat);
   }
 
   public interface OnReceiveContentListener {
@@ -2434,15 +2434,15 @@ package androidx.core.view {
   public final class OneShotPreDrawListener implements android.view.View.OnAttachStateChangeListener android.view.ViewTreeObserver.OnPreDrawListener {
     method public static androidx.core.view.OneShotPreDrawListener add(android.view.View, Runnable);
     method public boolean onPreDraw();
-    method public void onViewAttachedToWindow(android.view.View!);
-    method public void onViewDetachedFromWindow(android.view.View!);
+    method public void onViewAttachedToWindow(android.view.View);
+    method public void onViewDetachedFromWindow(android.view.View);
     method public void removeListener();
   }
 
   public final class PointerIconCompat {
-    method public static androidx.core.view.PointerIconCompat! create(android.graphics.Bitmap!, float, float);
-    method public static androidx.core.view.PointerIconCompat! getSystemIcon(android.content.Context!, int);
-    method public static androidx.core.view.PointerIconCompat! load(android.content.res.Resources!, int);
+    method public static androidx.core.view.PointerIconCompat create(android.graphics.Bitmap, float, float);
+    method public static androidx.core.view.PointerIconCompat getSystemIcon(android.content.Context, int);
+    method public static androidx.core.view.PointerIconCompat load(android.content.res.Resources, int);
     field public static final int TYPE_ALIAS = 1010; // 0x3f2
     field public static final int TYPE_ALL_SCROLL = 1013; // 0x3f5
     field public static final int TYPE_ARROW = 1000; // 0x3e8
@@ -2470,9 +2470,9 @@ package androidx.core.view {
 
   public final class ScaleGestureDetectorCompat {
     method @Deprecated public static boolean isQuickScaleEnabled(Object!);
-    method public static boolean isQuickScaleEnabled(android.view.ScaleGestureDetector!);
+    method public static boolean isQuickScaleEnabled(android.view.ScaleGestureDetector);
     method @Deprecated public static void setQuickScaleEnabled(Object!, boolean);
-    method public static void setQuickScaleEnabled(android.view.ScaleGestureDetector!, boolean);
+    method public static void setQuickScaleEnabled(android.view.ScaleGestureDetector, boolean);
   }
 
   public interface ScrollingView {
@@ -2707,11 +2707,11 @@ package androidx.core.view {
 
   public final class ViewConfigurationCompat {
     method public static float getScaledHorizontalScrollFactor(android.view.ViewConfiguration, android.content.Context);
-    method public static int getScaledHoverSlop(android.view.ViewConfiguration!);
+    method public static int getScaledHoverSlop(android.view.ViewConfiguration);
     method @Deprecated public static int getScaledPagingTouchSlop(android.view.ViewConfiguration!);
     method public static float getScaledVerticalScrollFactor(android.view.ViewConfiguration, android.content.Context);
     method @Deprecated public static boolean hasPermanentMenuKey(android.view.ViewConfiguration!);
-    method public static boolean shouldShowMenuShortcutsWhenKeyboardPresent(android.view.ViewConfiguration!, android.content.Context);
+    method public static boolean shouldShowMenuShortcutsWhenKeyboardPresent(android.view.ViewConfiguration, android.content.Context);
   }
 
   public final class ViewGroupCompat {
@@ -2727,78 +2727,78 @@ package androidx.core.view {
   }
 
   public final class ViewParentCompat {
-    method public static void notifySubtreeAccessibilityStateChanged(android.view.ViewParent!, android.view.View!, android.view.View!, int);
-    method public static boolean onNestedFling(android.view.ViewParent!, android.view.View!, float, float, boolean);
-    method public static boolean onNestedPreFling(android.view.ViewParent!, android.view.View!, float, float);
-    method public static void onNestedPreScroll(android.view.ViewParent!, android.view.View!, int, int, int[]!);
-    method public static void onNestedPreScroll(android.view.ViewParent!, android.view.View!, int, int, int[]!, int);
-    method public static void onNestedScroll(android.view.ViewParent!, android.view.View!, int, int, int, int);
-    method public static void onNestedScroll(android.view.ViewParent!, android.view.View!, int, int, int, int, int);
-    method public static void onNestedScroll(android.view.ViewParent!, android.view.View!, int, int, int, int, int, int[]);
-    method public static void onNestedScrollAccepted(android.view.ViewParent!, android.view.View!, android.view.View!, int);
-    method public static void onNestedScrollAccepted(android.view.ViewParent!, android.view.View!, android.view.View!, int, int);
-    method public static boolean onStartNestedScroll(android.view.ViewParent!, android.view.View!, android.view.View!, int);
-    method public static boolean onStartNestedScroll(android.view.ViewParent!, android.view.View!, android.view.View!, int, int);
-    method public static void onStopNestedScroll(android.view.ViewParent!, android.view.View!);
-    method public static void onStopNestedScroll(android.view.ViewParent!, android.view.View!, int);
+    method public static void notifySubtreeAccessibilityStateChanged(android.view.ViewParent, android.view.View, android.view.View, int);
+    method public static boolean onNestedFling(android.view.ViewParent, android.view.View, float, float, boolean);
+    method public static boolean onNestedPreFling(android.view.ViewParent, android.view.View, float, float);
+    method public static void onNestedPreScroll(android.view.ViewParent, android.view.View, int, int, int[]);
+    method public static void onNestedPreScroll(android.view.ViewParent, android.view.View, int, int, int[], int);
+    method public static void onNestedScroll(android.view.ViewParent, android.view.View, int, int, int, int);
+    method public static void onNestedScroll(android.view.ViewParent, android.view.View, int, int, int, int, int);
+    method public static void onNestedScroll(android.view.ViewParent, android.view.View, int, int, int, int, int, int[]);
+    method public static void onNestedScrollAccepted(android.view.ViewParent, android.view.View, android.view.View, int);
+    method public static void onNestedScrollAccepted(android.view.ViewParent, android.view.View, android.view.View, int, int);
+    method public static boolean onStartNestedScroll(android.view.ViewParent, android.view.View, android.view.View, int);
+    method public static boolean onStartNestedScroll(android.view.ViewParent, android.view.View, android.view.View, int, int);
+    method public static void onStopNestedScroll(android.view.ViewParent, android.view.View);
+    method public static void onStopNestedScroll(android.view.ViewParent, android.view.View, int);
     method @Deprecated public static boolean requestSendAccessibilityEvent(android.view.ViewParent!, android.view.View!, android.view.accessibility.AccessibilityEvent!);
   }
 
   public final class ViewPropertyAnimatorCompat {
-    method public androidx.core.view.ViewPropertyAnimatorCompat! alpha(float);
-    method public androidx.core.view.ViewPropertyAnimatorCompat! alphaBy(float);
+    method public androidx.core.view.ViewPropertyAnimatorCompat alpha(float);
+    method public androidx.core.view.ViewPropertyAnimatorCompat alphaBy(float);
     method public void cancel();
     method public long getDuration();
-    method public android.view.animation.Interpolator! getInterpolator();
+    method public android.view.animation.Interpolator? getInterpolator();
     method public long getStartDelay();
-    method public androidx.core.view.ViewPropertyAnimatorCompat! rotation(float);
-    method public androidx.core.view.ViewPropertyAnimatorCompat! rotationBy(float);
-    method public androidx.core.view.ViewPropertyAnimatorCompat! rotationX(float);
-    method public androidx.core.view.ViewPropertyAnimatorCompat! rotationXBy(float);
-    method public androidx.core.view.ViewPropertyAnimatorCompat! rotationY(float);
-    method public androidx.core.view.ViewPropertyAnimatorCompat! rotationYBy(float);
-    method public androidx.core.view.ViewPropertyAnimatorCompat! scaleX(float);
-    method public androidx.core.view.ViewPropertyAnimatorCompat! scaleXBy(float);
-    method public androidx.core.view.ViewPropertyAnimatorCompat! scaleY(float);
-    method public androidx.core.view.ViewPropertyAnimatorCompat! scaleYBy(float);
-    method public androidx.core.view.ViewPropertyAnimatorCompat! setDuration(long);
-    method public androidx.core.view.ViewPropertyAnimatorCompat! setInterpolator(android.view.animation.Interpolator!);
-    method public androidx.core.view.ViewPropertyAnimatorCompat! setListener(androidx.core.view.ViewPropertyAnimatorListener!);
-    method public androidx.core.view.ViewPropertyAnimatorCompat! setStartDelay(long);
-    method public androidx.core.view.ViewPropertyAnimatorCompat! setUpdateListener(androidx.core.view.ViewPropertyAnimatorUpdateListener!);
+    method public androidx.core.view.ViewPropertyAnimatorCompat rotation(float);
+    method public androidx.core.view.ViewPropertyAnimatorCompat rotationBy(float);
+    method public androidx.core.view.ViewPropertyAnimatorCompat rotationX(float);
+    method public androidx.core.view.ViewPropertyAnimatorCompat rotationXBy(float);
+    method public androidx.core.view.ViewPropertyAnimatorCompat rotationY(float);
+    method public androidx.core.view.ViewPropertyAnimatorCompat rotationYBy(float);
+    method public androidx.core.view.ViewPropertyAnimatorCompat scaleX(float);
+    method public androidx.core.view.ViewPropertyAnimatorCompat scaleXBy(float);
+    method public androidx.core.view.ViewPropertyAnimatorCompat scaleY(float);
+    method public androidx.core.view.ViewPropertyAnimatorCompat scaleYBy(float);
+    method public androidx.core.view.ViewPropertyAnimatorCompat setDuration(long);
+    method public androidx.core.view.ViewPropertyAnimatorCompat setInterpolator(android.view.animation.Interpolator?);
+    method public androidx.core.view.ViewPropertyAnimatorCompat setListener(androidx.core.view.ViewPropertyAnimatorListener?);
+    method public androidx.core.view.ViewPropertyAnimatorCompat setStartDelay(long);
+    method public androidx.core.view.ViewPropertyAnimatorCompat setUpdateListener(androidx.core.view.ViewPropertyAnimatorUpdateListener?);
     method public void start();
-    method public androidx.core.view.ViewPropertyAnimatorCompat! translationX(float);
-    method public androidx.core.view.ViewPropertyAnimatorCompat! translationXBy(float);
-    method public androidx.core.view.ViewPropertyAnimatorCompat! translationY(float);
-    method public androidx.core.view.ViewPropertyAnimatorCompat! translationYBy(float);
-    method public androidx.core.view.ViewPropertyAnimatorCompat! translationZ(float);
-    method public androidx.core.view.ViewPropertyAnimatorCompat! translationZBy(float);
-    method public androidx.core.view.ViewPropertyAnimatorCompat! withEndAction(Runnable!);
-    method public androidx.core.view.ViewPropertyAnimatorCompat! withLayer();
-    method public androidx.core.view.ViewPropertyAnimatorCompat! withStartAction(Runnable!);
-    method public androidx.core.view.ViewPropertyAnimatorCompat! x(float);
-    method public androidx.core.view.ViewPropertyAnimatorCompat! xBy(float);
-    method public androidx.core.view.ViewPropertyAnimatorCompat! y(float);
-    method public androidx.core.view.ViewPropertyAnimatorCompat! yBy(float);
-    method public androidx.core.view.ViewPropertyAnimatorCompat! z(float);
-    method public androidx.core.view.ViewPropertyAnimatorCompat! zBy(float);
+    method public androidx.core.view.ViewPropertyAnimatorCompat translationX(float);
+    method public androidx.core.view.ViewPropertyAnimatorCompat translationXBy(float);
+    method public androidx.core.view.ViewPropertyAnimatorCompat translationY(float);
+    method public androidx.core.view.ViewPropertyAnimatorCompat translationYBy(float);
+    method public androidx.core.view.ViewPropertyAnimatorCompat translationZ(float);
+    method public androidx.core.view.ViewPropertyAnimatorCompat translationZBy(float);
+    method public androidx.core.view.ViewPropertyAnimatorCompat withEndAction(Runnable);
+    method public androidx.core.view.ViewPropertyAnimatorCompat withLayer();
+    method public androidx.core.view.ViewPropertyAnimatorCompat withStartAction(Runnable);
+    method public androidx.core.view.ViewPropertyAnimatorCompat x(float);
+    method public androidx.core.view.ViewPropertyAnimatorCompat xBy(float);
+    method public androidx.core.view.ViewPropertyAnimatorCompat y(float);
+    method public androidx.core.view.ViewPropertyAnimatorCompat yBy(float);
+    method public androidx.core.view.ViewPropertyAnimatorCompat z(float);
+    method public androidx.core.view.ViewPropertyAnimatorCompat zBy(float);
   }
 
   public interface ViewPropertyAnimatorListener {
-    method public void onAnimationCancel(android.view.View!);
-    method public void onAnimationEnd(android.view.View!);
-    method public void onAnimationStart(android.view.View!);
+    method public void onAnimationCancel(android.view.View);
+    method public void onAnimationEnd(android.view.View);
+    method public void onAnimationStart(android.view.View);
   }
 
   public class ViewPropertyAnimatorListenerAdapter implements androidx.core.view.ViewPropertyAnimatorListener {
     ctor public ViewPropertyAnimatorListenerAdapter();
-    method public void onAnimationCancel(android.view.View!);
-    method public void onAnimationEnd(android.view.View!);
-    method public void onAnimationStart(android.view.View!);
+    method public void onAnimationCancel(android.view.View);
+    method public void onAnimationEnd(android.view.View);
+    method public void onAnimationStart(android.view.View);
   }
 
   public interface ViewPropertyAnimatorUpdateListener {
-    method public void onAnimationUpdate(android.view.View!);
+    method public void onAnimationUpdate(android.view.View);
   }
 
   public final class WindowCompat {
