@@ -19,5 +19,6 @@
     <string name="app_name" translatable="false">Example Complication Provider</string>
     <string name="asynchronous_data_source_name" translatable="false">Asynchronous</string>
     <string name="background_data_source_name" translatable="false">Background</string>
+    <string name="interactive_data_source_name" translatable="false">Interactive</string>
     <string name="synchronous_data_source_name" translatable="false">Synchronous</string>
 </resources>

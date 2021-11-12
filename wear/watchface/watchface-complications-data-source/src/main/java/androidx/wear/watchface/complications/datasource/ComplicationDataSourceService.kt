@@ -33,6 +33,7 @@ import androidx.wear.watchface.complications.data.ComplicationData
 import androidx.wear.watchface.complications.data.ComplicationType
 import androidx.wear.watchface.complications.data.ComplicationType.Companion.fromWireType
 import androidx.wear.watchface.complications.data.TimeRange
+import java.util.concurrent.CountDownLatch
 
 /**
  * Data associated with complication request in [ComplicationDataSourceService.onComplicationRequest].
@@ -93,6 +94,17 @@ public class ComplicationRequest(
  * android:value="600"/>
  * ```
  *
+ * There is a lower limit for android.support.wearable.complications.UPDATE_PERIOD_SECONDS imposed
+ * by the system to prevent excessive power drain. For complications with frequent updates they can
+ * also register a separate SYNCHRONOUS_UPDATE_PERIOD_MILLISECONDS meta data tag which supports
+ * sampling at up to 1Hz when the watch face is visible and non-ambient. This triggers
+ * [onSynchronousComplicationRequest] requests.
+ *
+ * ```
+ * <meta-data android:name=
+ * "androidx.wear.watchface.complications.data.source.SYNCHRONOUS_UPDATE_PERIOD_MILLISECONDS"
+ * android:value="1"/>
+ * ```
  *
  * - A ComplicationDataSourceService can include a `meta-data` tag with
  * android.support.wearable.complications.PROVIDER_CONFIG_ACTION its manifest entry to cause a
@@ -162,10 +174,14 @@ public abstract class ComplicationDataSourceService : Service() {
      * @param type The [ComplicationType] of the activated slot.
      */
     @UiThread
-    public open fun onComplicationActivated(complicationInstanceId: Int, type: ComplicationType) {}
+    public open fun onComplicationActivated(complicationInstanceId: Int, type: ComplicationType) {
+    }
 
     /**
-     * Called when a complication data update is requested for the given complication id.
+     * Called when a complication data update is requested for the given complication id. Note if a
+     * metadata key with [METADATA_KEY_SYNCHRONOUS_UPDATE_PERIOD_MILLISECONDS] is present in the
+     * manifest then this will not be called if the complication is visible and non-ambient,
+     * onSynchronousComplicationRequest() will be called instead.
      *
      * In response to this request the result callback should be called with the data to be
      * displayed. If the request can not be fulfilled or no update is needed then null should be
@@ -210,6 +226,55 @@ public abstract class ComplicationDataSourceService : Service() {
     }
 
     /**
+     * If a metadata key with [METADATA_KEY_SYNCHRONOUS_UPDATE_PERIOD_MILLISECONDS] is present in the
+     * manifest, then onStartInteractiveComplication will be called when the watch face is visible
+     * and non-ambient. A series of [onSynchronousComplicationRequest]s will follow, ending with a
+     * call to [onStopSynchronousComplicationRequests].
+     *
+     * After onStopInteractiveComplication calls to [onComplicationRequest] will stop until the
+     * watchface ceases to be visible and non-ambient.
+     *
+     * @param complicationInstanceId The system's ID for the complication. Note this ID is distinct
+     * from the complication slot used by the watch face itself.
+     */
+    @UiThread
+    public open fun onStartSynchronousComplicationRequests(complicationInstanceId: Int) {
+    }
+
+    /**
+     * If a metadata key with [METADATA_KEY_SYNCHRONOUS_UPDATE_PERIOD_MILLISECONDS] is present in the
+     * manifest, then onStartInteractiveComplication will be called when the watch face ceases to be
+     * visible and non-ambient. No subsequent calls to [onSynchronousComplicationRequest] will me
+     * made unless the complication becomes visible and non-ambient again.
+     *
+     * After onStopInteractiveComplication calls to [onComplicationRequest] may resume (depending on
+     * the value of METADATA_KEY_UPDATE_PERIOD_SECONDS).
+     *
+     * @param complicationInstanceId The system's ID for the complication. Note this ID is distinct
+     * from the complication slot used by the watch face itself.
+     */
+    @UiThread
+    public open fun onStopSynchronousComplicationRequests(complicationInstanceId: Int) {
+    }
+
+    /**
+     * If a metadata key with [METADATA_KEY_SYNCHRONOUS_UPDATE_PERIOD_MILLISECONDS] is present in the
+     * manifest, then [onSynchronousComplicationRequest] will be called while the watch face is
+     * visible and non-ambient.
+     *
+     * In response to this request the [ComplicationData] must be returned immediately, or `null`
+     * if there's ether no data available or no update is necessary.
+     *
+     * @param request The details about the complication that has been requested.
+     * @return The updated [ComplicationData] or null if either no update is necessary or if data is
+     * not available (in which case any previous data will be displayed).
+     */
+    @UiThread
+    public open fun onSynchronousComplicationRequest(
+        request: ComplicationRequest
+    ): ComplicationData? = null
+
+    /**
      * Called when a complication is deactivated.
      *
      * This occurs when the current watch face changes, or when the watch face calls
@@ -221,16 +286,18 @@ public abstract class ComplicationDataSourceService : Service() {
      * @param complicationInstanceId The system's ID for the complication. Note this ID is distinct
      * from the complication slot used by the watch face itself.
      */
-    @UiThread public open fun onComplicationDeactivated(complicationInstanceId: Int) {}
+    @UiThread
+    public open fun onComplicationDeactivated(complicationInstanceId: Int) {
+    }
 
     private inner class IComplicationProviderWrapper : IComplicationProvider.Stub() {
         @SuppressLint("SyntheticAccessor")
         override fun onUpdate(complicationInstanceId: Int, type: Int, manager: IBinder) {
-            val complicationType = fromWireType(type)
+            val expectedDataType = fromWireType(type)
             val iComplicationManager = IComplicationManager.Stub.asInterface(manager)
             mainThreadHandler.post {
                 onComplicationRequest(
-                    ComplicationRequest(complicationInstanceId, complicationType),
+                    ComplicationRequest(complicationInstanceId, expectedDataType),
                     object : ComplicationRequestListener {
                         override fun onComplicationData(complicationData: ComplicationData?) {
                             // This can be run on an arbitrary thread, but that's OK.
@@ -242,19 +309,12 @@ public abstract class ComplicationDataSourceService : Service() {
                                 "Cannot send data of TYPE_NOT_CONFIGURED or " +
                                     "TYPE_EMPTY. Use TYPE_NO_DATA instead."
                             }
-
                             require(
                                 dataType == ComplicationType.NO_DATA ||
-                                    dataType == complicationType
+                                    dataType == expectedDataType
                             ) {
-                                "Preview data should match the requested type. " +
-                                    "Expected $complicationType got $dataType."
-                            }
-
-                            if (complicationData != null) {
-                                require(complicationData.validTimeRange == TimeRange.ALWAYS) {
-                                    "Preview data should have time range set to ALWAYS."
-                                }
+                                "Complication data should match the requested type. " +
+                                    "Expected $expectedDataType got $dataType."
                             }
 
                             // When no update is needed, the complicationData is going to be
@@ -297,8 +357,75 @@ public abstract class ComplicationDataSourceService : Service() {
         @SuppressLint("SyntheticAccessor")
         override fun getComplicationPreviewData(
             type: Int
-        ): android.support.wearable.complications.ComplicationData? =
-            getPreviewData(fromWireType(type))?.asWireComplicationData()
+        ): android.support.wearable.complications.ComplicationData? {
+            val expectedDataType = fromWireType(type)
+            val complicationData = getPreviewData(expectedDataType)
+            val dataType = complicationData?.type ?: ComplicationType.NO_DATA
+            require(
+                dataType == ComplicationType.NO_DATA ||
+                    dataType == expectedDataType
+            ) {
+                "Preview data should match the requested type. " +
+                    "Expected $expectedDataType got $dataType."
+            }
+
+            if (complicationData != null) {
+                require(complicationData.validTimeRange == TimeRange.ALWAYS) {
+                    "Preview data should have time range set to ALWAYS."
+                }
+            }
+            return complicationData?.asWireComplicationData()
+        }
+
+        override fun onStartSynchronousComplicationRequests(complicationInstanceId: Int) {
+            mainThreadHandler.post {
+                this@ComplicationDataSourceService.onStartSynchronousComplicationRequests(
+                    complicationInstanceId
+                )
+            }
+        }
+
+        override fun onStopSynchronousComplicationRequests(complicationInstanceId: Int) {
+            mainThreadHandler.post {
+                this@ComplicationDataSourceService.onStopSynchronousComplicationRequests(
+                    complicationInstanceId
+                )
+            }
+        }
+
+        override fun onSynchronousComplicationRequest(
+            complicationInstanceId: Int,
+            type: Int
+        ): android.support.wearable.complications.ComplicationData? {
+            val expectedDataType = fromWireType(type)
+            val complicationType = fromWireType(type)
+            val latch = CountDownLatch(1)
+            var complicationData: ComplicationData? = null
+            mainThreadHandler.post {
+                complicationData =
+                    this@ComplicationDataSourceService.onSynchronousComplicationRequest(
+                        ComplicationRequest(complicationInstanceId, complicationType),
+                    )
+                val dataType = complicationData?.type ?: ComplicationType.NO_DATA
+                require(
+                    dataType != ComplicationType.NOT_CONFIGURED &&
+                        dataType != ComplicationType.EMPTY
+                ) {
+                    "Cannot send data of TYPE_NOT_CONFIGURED or " +
+                        "TYPE_EMPTY. Use TYPE_NO_DATA instead."
+                }
+                require(
+                    dataType == ComplicationType.NO_DATA ||
+                        dataType == expectedDataType
+                ) {
+                    "Complication data should match the requested type. " +
+                        "Expected $expectedDataType got $dataType."
+                }
+                latch.countDown()
+            }
+            latch.await()
+            return complicationData?.asWireComplicationData()
+        }
     }
 
     public companion object {
@@ -340,8 +467,7 @@ public abstract class ComplicationDataSourceService : Service() {
          *
          * A ComplicationDataSourceService should include a `meta-data` tag with this name in its
          * manifest entry. The value of this tag is the number of seconds the complication data
-         * source would like to
-         * elapse between update requests.
+         * source would like to elapse between update requests.
          *
          * Note that update requests are not guaranteed to be sent with this frequency.
          *
@@ -358,6 +484,21 @@ public abstract class ComplicationDataSourceService : Service() {
         // TODO(b/192233205): Migrate value to androidx.
         public const val METADATA_KEY_UPDATE_PERIOD_SECONDS: String =
             "android.support.wearable.complications.UPDATE_PERIOD_SECONDS"
+
+        /**
+         * Metadata key used to declare the requested frequency of
+         * [onSynchronousComplicationRequest]s when the watch face is visible and non-ambient.
+         *
+         * A ComplicationDataSourceService should include a `meta-data` tag with this name in its
+         * manifest entry. The value of this tag is the number of seconds the complication data
+         * source would like to elapse between [onSynchronousComplicationRequest]s requests.
+         *
+         * Note that update requests are not guaranteed to be sent with this frequency and a lower
+         * limit exists (initially 1 second).
+         */
+        public const val METADATA_KEY_SYNCHRONOUS_UPDATE_PERIOD_MILLISECONDS: String =
+            "androidx.wear.watchface.complications.data.source." +
+                "SYNCHRONOUS_UPDATE_PERIOD_MILLISECONDS"
 
         /**
          * Metadata key used to declare a list of watch faces that may receive data from a
