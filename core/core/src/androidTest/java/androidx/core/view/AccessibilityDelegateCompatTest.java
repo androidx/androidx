@@ -47,6 +47,8 @@ import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
 import android.view.accessibility.AccessibilityNodeProvider;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.core.view.accessibility.AccessibilityEventCompat;
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat;
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat;
@@ -627,48 +629,54 @@ public class AccessibilityDelegateCompatTest extends
         }
 
         @Override
-        public void sendAccessibilityEvent(View host, int eventType) {
+        public void sendAccessibilityEvent(@NonNull View host, int eventType) {
             mMockCompat.sendAccessibilityEvent(host, eventType);
         }
 
         @Override
-        public void sendAccessibilityEventUnchecked(View host, AccessibilityEvent event) {
+        public void sendAccessibilityEventUnchecked(@NonNull View host,
+                @NonNull AccessibilityEvent event) {
             mMockCompat.sendAccessibilityEventUnchecked(host, event);
         }
 
         @Override
-        public boolean dispatchPopulateAccessibilityEvent(View host, AccessibilityEvent event) {
+        public boolean dispatchPopulateAccessibilityEvent(
+                @NonNull View host, @NonNull AccessibilityEvent event) {
             return mMockCompat.dispatchPopulateAccessibilityEvent(host, event);
         }
 
         @Override
-        public void onPopulateAccessibilityEvent(View host, AccessibilityEvent event) {
+        public void onPopulateAccessibilityEvent(
+                @NonNull View host, @NonNull AccessibilityEvent event) {
             mMockCompat.onPopulateAccessibilityEvent(host, event);
         }
 
         @Override
-        public void onInitializeAccessibilityEvent(View host, AccessibilityEvent event) {
+        public void onInitializeAccessibilityEvent(
+                @NonNull View host, @NonNull AccessibilityEvent event) {
             mMockCompat.onInitializeAccessibilityEvent(host, event);
         }
 
         @Override
-        public void onInitializeAccessibilityNodeInfo(View host, AccessibilityNodeInfoCompat info) {
+        public void onInitializeAccessibilityNodeInfo(
+                @NonNull View host, @NonNull AccessibilityNodeInfoCompat info) {
             mMockCompat.onInitializeAccessibilityNodeInfo(host, info);
         }
 
         @Override
-        public boolean onRequestSendAccessibilityEvent(ViewGroup host, View child,
-                AccessibilityEvent event) {
+        public boolean onRequestSendAccessibilityEvent(@NonNull ViewGroup host, @NonNull View child,
+                @NonNull AccessibilityEvent event) {
             return mMockCompat.onRequestSendAccessibilityEvent(host, child, event);
         }
 
         @Override
-        public AccessibilityNodeProviderCompat getAccessibilityNodeProvider(View host) {
+        public AccessibilityNodeProviderCompat getAccessibilityNodeProvider(@NonNull View host) {
             return mMockCompat.getAccessibilityNodeProvider(host);
         }
 
         @Override
-        public boolean performAccessibilityAction(View host, int action, Bundle args) {
+        public boolean performAccessibilityAction(
+                @NonNull View host, int action, @Nullable Bundle args) {
             return mMockCompat.performAccessibilityAction(host, action, args);
         }
     }
