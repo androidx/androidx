@@ -87,11 +87,8 @@ internal fun TypeName.tryBox(): TypeName {
  */
 object MethodSpecHelper {
     /**
-     * Creates an overriding [MethodSpec] for the given [XExecutableElement] where:
-     * * all parameters are marked as final
-     * * parameter names are copied from KotlinMetadata when available
-     * * [Override] annotation is added and other annotations are dropped
-     * * thrown types are copied if the backing element is from java
+     * Creates an overriding [MethodSpec] for the given [XMethodElement] that
+     * does everything in [overriding] and also mark all parameters as final
      */
     @JvmStatic
     fun overridingWithFinalParams(
@@ -99,15 +96,35 @@ object MethodSpecHelper {
         owner: XType
     ): MethodSpec.Builder {
         val asMember = elm.asMemberOf(owner)
-        return overridingWithFinalParams(
+        return overriding(
+            executableElement = elm,
+            resolvedType = asMember,
+            Modifier.FINAL
+        )
+    }
+
+    /**
+     * Creates an overriding [MethodSpec] for the given [XMethodElement] where:
+     * * parameter names are copied from KotlinMetadata when available
+     * * [Override] annotation is added and other annotations are dropped
+     * * thrown types are copied if the backing element is from java
+     */
+    @JvmStatic
+    fun overriding(
+        elm: XMethodElement,
+        owner: XType
+    ): MethodSpec.Builder {
+        val asMember = elm.asMemberOf(owner)
+        return overriding(
             executableElement = elm,
             resolvedType = asMember
         )
     }
 
-    private fun overridingWithFinalParams(
+    private fun overriding(
         executableElement: XMethodElement,
-        resolvedType: XMethodType = executableElement.executableType
+        resolvedType: XMethodType = executableElement.executableType,
+        vararg paramModifiers: Modifier
     ): MethodSpec.Builder {
         return MethodSpec.methodBuilder(executableElement.jvmName).apply {
             addTypeVariables(
@@ -118,7 +135,7 @@ object MethodSpecHelper {
                     ParameterSpec.builder(
                         paramType.typeName,
                         executableElement.parameters[index].name,
-                        Modifier.FINAL
+                        *paramModifiers
                     ).build()
                 )
             }
