@@ -183,6 +183,33 @@ public abstract class RxWorker extends ListenableWorker {
         return Single.error(new IllegalStateException(message));
     }
 
+    /**
+     * This specifies that the {@link WorkRequest} is long-running or otherwise important.  In
+     * this case, WorkManager provides a signal to the OS that the process should be kept alive
+     * if possible while this work is executing.
+     * <p>
+     * Calls to {@code setForegroundAsync} *must* complete before a {@link RxWorker}
+     * signals completion by returning a {@link Result}.
+     * <p>
+     * Under the hood, WorkManager manages and runs a foreground service on your behalf to
+     * execute this WorkRequest, showing the notification provided in
+     * {@link ForegroundInfo}.
+     * <p>
+     * Calling {@code setForeground} will fail with an
+     * {@link IllegalStateException} when the process is subject to foreground
+     * service restrictions. Consider using
+     * {@link WorkRequest.Builder#setExpedited(OutOfQuotaPolicy)} and
+     * {@link RxWorker#getForegroundInfo()} instead.
+     *
+     * @param foregroundInfo The {@link ForegroundInfo}
+     * @return A {@link Completable} which resolves after the {@link RxWorker}
+     * transitions to running in the context of a foreground {@link android.app.Service}.
+     */
+    @NonNull
+    public final Completable setForeground(@NonNull ForegroundInfo foregroundInfo) {
+        return Completable.fromFuture(setForegroundAsync(foregroundInfo));
+    }
+
     private <T> ListenableFuture<T> convert(SingleFutureAdapter<T> adapter, Single<T> single) {
         final Scheduler scheduler = getBackgroundScheduler();
         single.subscribeOn(scheduler)
