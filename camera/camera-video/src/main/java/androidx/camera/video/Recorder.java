@@ -126,8 +126,8 @@ import java.util.concurrent.atomic.AtomicReference;
  * create a {@link VideoCapture} by calling {@link VideoCapture#withOutput(VideoOutput)}, a new
  * recording can be generated with one of the prepareRecording methods, such as
  * {@link #prepareRecording(Context, MediaStoreOutputOptions)}. The {@link PendingRecording} class
- * then can be used to adjust per-recording settings and to start the recording. It also allows
- * setting a listener with {@link PendingRecording#withEventListener(Executor, Consumer)} to
+ * then can be used to adjust per-recording settings and to start the recording. It also requires
+ * passing a listener to {@link PendingRecording#start(Executor, Consumer)} to
  * listen for {@link VideoRecordEvent}s such as {@link VideoRecordEvent.Start},
  * {@link VideoRecordEvent.Pause}, {@link VideoRecordEvent.Resume}, and
  * {@link VideoRecordEvent.Finalize}. This listener will also receive regular recording status
@@ -494,8 +494,8 @@ public final class Recorder implements VideoOutput {
      *
      * <p>Calling this method multiple times will generate multiple {@link PendingRecording}s,
      * each of the recordings can be used to adjust per-recording settings individually. The
-     * recording will not begin until {@link PendingRecording#start()} is called. Only a single
-     * pending recording can be started per {@link Recorder} instance.
+     * recording will not begin until {@link PendingRecording#start(Executor, Consumer)} is called.
+     * Only a single pending recording can be started per {@link Recorder} instance.
      *
      * @param context the context used to enforce runtime permissions, interface with the media
      *                scanner service, and attribute access to permission protected data, such as
@@ -524,8 +524,8 @@ public final class Recorder implements VideoOutput {
      *
      * <p>Calling this method multiple times will generate multiple {@link PendingRecording}s,
      * each of the recordings can be used to adjust per-recording settings individually. The
-     * recording will not begin until {@link PendingRecording#start()} is called. Only a single
-     * pending recording can be started per {@link Recorder} instance.
+     * recording will not begin until {@link PendingRecording#start(Executor, Consumer)} is called.
+     * Only a single pending recording can be started per {@link Recorder} instance.
      *
      * @param context the context used to enforce runtime permissions, interface with the media
      *                scanner service, and attribute access to permission protected data, such as
@@ -560,8 +560,8 @@ public final class Recorder implements VideoOutput {
      *
      * <p>Calling this method multiple times will generate multiple {@link PendingRecording}s,
      * each of the recordings can be used to adjust per-recording settings individually. The
-     * recording will not begin until {@link PendingRecording#start()} is called. Only a single
-     * pending recording can be started per {@link Recorder} instance.
+     * recording will not begin until {@link PendingRecording#start(Executor, Consumer)} is called.
+     * Only a single pending recording can be started per {@link Recorder} instance.
      *
      * @param context the context used to enforce runtime permissions, interface with the media
      *                scanner service, and attribute access to permission protected data, such as
@@ -653,7 +653,7 @@ public final class Recorder implements VideoOutput {
      *                               granted.
      */
     @NonNull
-    ActiveRecording start(@NonNull PendingRecording pendingRecording) {
+    Recording start(@NonNull PendingRecording pendingRecording) {
         Preconditions.checkNotNull(pendingRecording, "The given PendingRecording cannot be null.");
         RecordingRecord alreadyInProgressRecording = null;
         @VideoRecordError int error = ERROR_NONE;
@@ -728,17 +728,17 @@ public final class Recorder implements VideoOutput {
             // Immediately update the listener if the Recorder encountered an error.
             finalizePendingRecording(RecordingRecord.from(pendingRecording, recordingId),
                     error, errorCause);
-            return ActiveRecording.createFinalizedFrom(pendingRecording, recordingId);
+            return Recording.createFinalizedFrom(pendingRecording, recordingId);
         }
 
-        return ActiveRecording.from(pendingRecording, recordingId);
+        return Recording.from(pendingRecording, recordingId);
     }
 
-    void pause(@NonNull ActiveRecording activeRecording) {
+    void pause(@NonNull Recording activeRecording) {
         synchronized (mLock) {
             if (!isSameRecording(activeRecording, mPendingRecordingRecord) && !isSameRecording(
                     activeRecording, mActiveRecordingRecord)) {
-                // If this ActiveRecording is no longer active, log and treat as a no-op.
+                // If this Recording is no longer active, log and treat as a no-op.
                 // This is not technically an error since the recording can be finalized
                 // asynchronously.
                 Logger.d(TAG,
@@ -779,11 +779,11 @@ public final class Recorder implements VideoOutput {
         }
     }
 
-    void resume(@NonNull ActiveRecording activeRecording) {
+    void resume(@NonNull Recording activeRecording) {
         synchronized (mLock) {
             if (!isSameRecording(activeRecording, mPendingRecordingRecord) && !isSameRecording(
                     activeRecording, mActiveRecordingRecord)) {
-                // If this ActiveRecording is no longer active, log and treat as a no-op.
+                // If this Recording is no longer active, log and treat as a no-op.
                 // This is not technically an error since the recording can be finalized
                 // asynchronously.
                 Logger.d(TAG,
@@ -825,12 +825,12 @@ public final class Recorder implements VideoOutput {
         }
     }
 
-    void stop(@NonNull ActiveRecording activeRecording) {
+    void stop(@NonNull Recording activeRecording) {
         RecordingRecord pendingRecordingToFinalize = null;
         synchronized (mLock) {
             if (!isSameRecording(activeRecording, mPendingRecordingRecord) && !isSameRecording(
                     activeRecording, mActiveRecordingRecord)) {
-                // If this ActiveRecording is no longer active, log and treat as a no-op.
+                // If this Recording is no longer active, log and treat as a no-op.
                 // This is not technically an error since the recording can be finalized
                 // asynchronously.
                 Logger.d(TAG,
@@ -1021,7 +1021,7 @@ public final class Recorder implements VideoOutput {
 
         if (recordingToStart != null) {
             // Start new active recording inline on sequential executor (but unlocked).
-            startActiveRecording(recordingToStart, startRecordingPaused);
+            startRecording(recordingToStart, startRecordingPaused);
         }
     }
 
@@ -1057,7 +1057,7 @@ public final class Recorder implements VideoOutput {
         return mediaSpecBuilder.build();
     }
 
-    private static boolean isSameRecording(@NonNull ActiveRecording activeRecording,
+    private static boolean isSameRecording(@NonNull Recording activeRecording,
             @Nullable RecordingRecord recordingRecord) {
         if (recordingRecord == null) {
             return false;
@@ -1878,7 +1878,7 @@ public final class Recorder implements VideoOutput {
         if (needsReset) {
             resetInternal();
         } else if (recordingToStart != null) {
-            startActiveRecording(recordingToStart, startRecordingPaused);
+            startRecording(recordingToStart, startRecordingPaused);
         }
     }
 
@@ -1963,7 +1963,7 @@ public final class Recorder implements VideoOutput {
 
         if (recordingToStart != null) {
             // Start new active recording inline on sequential executor (but unlocked).
-            startActiveRecording(recordingToStart, startRecordingPaused);
+            startRecording(recordingToStart, startRecordingPaused);
         }
     }
 
@@ -2014,7 +2014,7 @@ public final class Recorder implements VideoOutput {
      * passed to this method should be the newly-made-active recording.
      */
     @ExecutedBy("mSequentialExecutor")
-    private void startActiveRecording(@NonNull RecordingRecord recordingToStart,
+    private void startRecording(@NonNull RecordingRecord recordingToStart,
             boolean startRecordingPaused) {
         // Start pending recording inline since we are already on sequential executor.
         startInternal(recordingToStart);
@@ -2163,7 +2163,7 @@ public final class Recorder implements VideoOutput {
         static RecordingRecord from(@NonNull PendingRecording pendingRecording, long recordingId) {
             return new AutoValue_Recorder_RecordingRecord(
                     pendingRecording.getOutputOptions(),
-                    pendingRecording.getCallbackExecutor(),
+                    pendingRecording.getListenerExecutor(),
                     pendingRecording.getEventListener(),
                     pendingRecording.isAudioEnabled(),
                     recordingId

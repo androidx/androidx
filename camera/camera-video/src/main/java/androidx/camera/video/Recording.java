@@ -29,13 +29,12 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * Provides controls for the currently active recording.
  *
  * <p>An active recording is created by starting a pending recording with
- * {@link PendingRecording#start()}. If there are no errors starting the recording, upon
- * creation, an active recording will provide controls to pause, resume or stop a recording. If
- * errors occur while starting the recording, the active recording will be instantiated in a
- * {@link VideoRecordEvent.Finalize finalized} state, and all controls will be no-ops. The state
- * of the recording can be observed by
- * {@link PendingRecording#withEventListener(Executor, Consumer) adding a video record event
- * listener} to the pending recording before starting.
+ * {@link PendingRecording#start(Executor, Consumer)}. If there are no errors starting the
+ * recording, upon creation, an active recording will provide controls to pause, resume or stop a
+ * recording. If errors occur while starting the recording, the active recording will be
+ * instantiated in a {@link VideoRecordEvent.Finalize finalized} state, and all controls will be
+ * no-ops. The state of the recording can be observed by the video record event listener provided
+ * to {@link PendingRecording#start(Executor, Consumer)} when starting the recording.
  *
  * <p>Either {@link #stop()} or {@link #close()} can be called when it is desired to
  * stop the recording. If {@link #stop()} or {@link #close()} are not called on this object
@@ -44,7 +43,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * {@link Recorder} that generated the object until that occurs.
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
-public final class ActiveRecording implements AutoCloseable {
+public final class Recording implements AutoCloseable {
 
     // Indicates the recording has been explicitly stopped by users.
     private final AtomicBoolean mIsStopped = new AtomicBoolean(false);
@@ -53,7 +52,7 @@ public final class ActiveRecording implements AutoCloseable {
     private final OutputOptions mOutputOptions;
     private final CloseGuardHelper mCloseGuard = CloseGuardHelper.create();
 
-    ActiveRecording(@NonNull Recorder recorder, long recordingId, @NonNull OutputOptions options,
+    Recording(@NonNull Recorder recorder, long recordingId, @NonNull OutputOptions options,
             boolean finalizedOnCreation) {
         mRecorder = recorder;
         mRecordingId = recordingId;
@@ -67,22 +66,22 @@ public final class ActiveRecording implements AutoCloseable {
     }
 
     /**
-     * Creates an {@link ActiveRecording} from a {@link PendingRecording} and recording ID.
+     * Creates an {@link Recording} from a {@link PendingRecording} and recording ID.
      *
      * <p>The recording ID is expected to be unique to the recorder that generated the pending
      * recording.
      */
     @NonNull
-    static ActiveRecording from(@NonNull PendingRecording pendingRecording, long recordingId) {
+    static Recording from(@NonNull PendingRecording pendingRecording, long recordingId) {
         Preconditions.checkNotNull(pendingRecording, "The given PendingRecording cannot be null.");
-        return new ActiveRecording(pendingRecording.getRecorder(),
+        return new Recording(pendingRecording.getRecorder(),
                 recordingId,
                 pendingRecording.getOutputOptions(),
                 /*finalizedOnCreation=*/false);
     }
 
     /**
-     * Creates an {@link ActiveRecording} from a {@link PendingRecording} and recording ID in a
+     * Creates an {@link Recording} from a {@link PendingRecording} and recording ID in a
      * finalized state.
      *
      * <p>This can be used if there was an error setting up the active recording and it would not
@@ -92,10 +91,10 @@ public final class ActiveRecording implements AutoCloseable {
      * recording.
      */
     @NonNull
-    static ActiveRecording createFinalizedFrom(@NonNull PendingRecording pendingRecording,
+    static Recording createFinalizedFrom(@NonNull PendingRecording pendingRecording,
             long recordingId) {
         Preconditions.checkNotNull(pendingRecording, "The given PendingRecording cannot be null.");
-        return new ActiveRecording(pendingRecording.getRecorder(),
+        return new Recording(pendingRecording.getRecorder(),
                 recordingId,
                 pendingRecording.getOutputOptions(),
                 /*finalizedOnCreation=*/true);
@@ -110,8 +109,8 @@ public final class ActiveRecording implements AutoCloseable {
      * Pauses the current recording if active.
      *
      * <p>Successful pausing of a recording will generate a {@link VideoRecordEvent.Pause} event
-     * which will be sent to the listener set on
-     * {@link PendingRecording#withEventListener(Executor, Consumer)}.
+     * which will be sent to the listener passed to
+     * {@link PendingRecording#start(Executor, Consumer)}.
      *
      * <p>If the recording has already been paused or has been finalized internally, this is a
      * no-op.
@@ -130,8 +129,8 @@ public final class ActiveRecording implements AutoCloseable {
      * Resumes the current recording if paused.
      *
      * <p>Successful resuming of a recording will generate a {@link VideoRecordEvent.Resume} event
-     * which will be sent to the listener set on
-     * {@link PendingRecording#withEventListener(Executor, Consumer)}.
+     * which will be sent to the listener passed to
+     * {@link PendingRecording#start(Executor, Consumer)}.
      *
      * <p>If the recording is active or has been finalized internally, this is a no-op.
      *
@@ -152,7 +151,7 @@ public final class ActiveRecording implements AutoCloseable {
      * {@code stop()} or {@link #close()} will throw an {@link IllegalStateException}.
      *
      * <p>Once an active recording has been stopped, the next recording can be started with
-     * {@link PendingRecording#start()}.
+     * {@link PendingRecording#start(Executor, Consumer)}.
      *
      * <p>This method is idempotent; if the recording has already been stopped or has been
      * finalized internally, calling {@code stop()} is a no-op.
