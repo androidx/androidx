@@ -22,58 +22,88 @@ import androidx.compose.ui.graphics.Color
 import androidx.glance.Emittable
 import androidx.glance.GlanceModifier
 import androidx.glance.GlanceNode
+import androidx.glance.appwidget.unit.CheckableColorProvider
+import androidx.glance.appwidget.unit.CheckedUncheckedColorProvider.Companion.createCheckableColorProvider
+import androidx.glance.appwidget.unit.ResourceCheckableColorProvider
 import androidx.glance.text.TextStyle
 import androidx.glance.unit.ColorProvider
+import androidx.glance.unit.FixedColorProvider
 
 /** Set of colors to apply to a CheckBox depending on the checked state. */
-public sealed interface CheckBoxColors
+public sealed class CheckBoxColors {
+    internal abstract val checkBox: CheckableColorProvider
+}
+
+internal data class CheckBoxColorsImpl(
+    override val checkBox: CheckableColorProvider
+) : CheckBoxColors()
 
 /**
- * [CheckBoxColors] that uses [checked] or [unchecked] depending on the checked state of the
- * CheckBox.
- */
-public fun CheckBoxColors(checked: Color, unchecked: Color): CheckBoxColors =
-    CheckBoxColors(ColorProvider(checked), ColorProvider(unchecked))
-
-/**
- * [CheckBoxColors] that uses [checked] or [unchecked] depending on the checked state of the
+ * [CheckBoxColors] that uses [checkedColor] or [uncheckedColor] depending ons the checked state of the
  * CheckBox.
  *
- * Note: It is not supported to provide [ColorProvider]s pointing to a `@ColorRes Int` to this
- * method. Instead, you should pass a single resource id for a selector color resource using the
- * `CheckBoxColors(Int)` method.
+ * @param checkedColor the [Color] to use when the CheckBox is checked
+ * @param uncheckedColor the [Color] to use when the CheckBox is not checked
  */
-public fun CheckBoxColors(checked: ColorProvider, unchecked: ColorProvider): CheckBoxColors =
-    ColorProviderCheckBoxColors(checked, unchecked)
-
-internal data class ColorProviderCheckBoxColors(
-    val checked: ColorProvider,
-    val unchecked: ColorProvider
-) : CheckBoxColors
+public fun CheckBoxColors(checkedColor: Color, uncheckedColor: Color): CheckBoxColors =
+    CheckBoxColors(FixedColorProvider(checkedColor), FixedColorProvider(uncheckedColor))
 
 /**
- * [CheckBoxColors] set to a color resource [resId]. This may be a fixed color or a
- * [android.content.res.ColorStateList] that selects color depending on
- * [android.R.attr.state_checked].
+ * [CheckBoxColors] that uses [checkedColor] or [uncheckedColor] depending on the checked state of
+ * the CheckBox.
+ *
+ * None of the [ColorProvider] parameters to this function can be created from resource ids. To use
+ * resources to tint the check box color, use `CheckBoxColors(Int)` instead.
+ *
+ * @param checkedColor the [ColorProvider] to use when the check box is checked, or null to use the
+ * default tint
+ * @param uncheckedColor the [ColorProvider] to use when the check box is not checked, or null to
+ * use the default tint
  */
-public fun CheckBoxColors(@ColorRes resId: Int): CheckBoxColors =
-    ResourceCheckBoxColors(resId)
+public fun CheckBoxColors(
+    checkedColor: ColorProvider? = null,
+    uncheckedColor: ColorProvider? = null
+): CheckBoxColors =
+    CheckBoxColorsImpl(
+        createCheckableColorProvider(
+            source = "CheckBoxColors",
+            checked = checkedColor,
+            unchecked = uncheckedColor,
+            fallback = R.color.glance_default_check_box
+        )
+    )
 
-internal data class ResourceCheckBoxColors(@ColorRes val resId: Int) : CheckBoxColors
+/**
+ * [CheckBoxColors] set to the color resource [checkBoxColor].
+ *
+ * This may be a fixed color or a color selector that selects color depending on
+ * [android.R.attr.state_checked].
+ *
+ * @param checkBoxColor the resource to use to tint the check box. If an invalid resource id is
+ * provided, the default check box colors will be used.
+ */
+public fun CheckBoxColors(@ColorRes checkBoxColor: Int): CheckBoxColors =
+    CheckBoxColorsImpl(
+        ResourceCheckableColorProvider(
+            resId = checkBoxColor,
+            fallback = R.color.glance_default_check_box
+        )
+    )
 
 /** Collection of defaults for [CheckBox]es. */
 public object CheckBoxDefaults {
     /** Default colors applied to a CheckBox. */
-    val colors = CheckBoxColors(R.color.default_check_box_colors)
+    val colors = CheckBoxColors()
 }
 
 /**
  * Adds a check box view to the glance view.
  *
- * @param checked whether the check box is checked.
- * @param modifier the modifier to apply to the check box.
- * @param text the text to display to the end of the check box.
- * @param style the style to apply to [text].
+ * @param checked whether the check box is checked
+ * @param modifier the modifier to apply to the check box
+ * @param text the text to display to the end of the check box
+ * @param style the style to apply to [text]
+ * @param colors the color tint to apply to the check box
  */
 @Composable
 public fun CheckBox(
