@@ -22,8 +22,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.glance.Button
 import androidx.glance.GlanceModifier
+import androidx.glance.Image
 import androidx.glance.ImageProvider
 import androidx.glance.LocalContext
 import androidx.glance.action.actionLaunchActivity
@@ -408,6 +410,77 @@ class GlanceAppWidgetReceiverScreenshotTest {
         mHostRule.startHost()
 
         mScreenshotRule.checkScreenshot(mHostRule.mHostView, "bitmap_background")
+    }
+
+    @Test
+    fun alignment() {
+        TestGlanceAppWidget.uiDefinition = {
+            Row(
+                modifier = GlanceModifier.fillMaxSize(),
+                horizontalAlignment = Alignment.End,
+                verticalAlignment = Alignment.Bottom,
+            ) {
+                Text("##")
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = GlanceModifier.fillMaxHeight(),
+                ) {
+                    Box(
+                        contentAlignment = Alignment.Center,
+                        modifier = GlanceModifier.height(80.dp),
+                    ) {
+                        Text("Center")
+                    }
+                    Box(
+                        contentAlignment = Alignment.Center,
+                        modifier = GlanceModifier.height(80.dp),
+                    ) {
+                        Text("BottomCenter")
+                    }
+                    Box(
+                        contentAlignment = Alignment.Center,
+                        modifier = GlanceModifier.height(80.dp),
+                    ) {
+                        Text("CenterStart")
+                    }
+                }
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = GlanceModifier.fillMaxHeight(),
+                ) {
+                    Box(contentAlignment = Alignment.Center) {
+                        Image(
+                            ImageProvider(R.drawable.compose),
+                            "Compose",
+                            modifier = GlanceModifier.size(80.dp),
+                        )
+                        Text("OXO", style = TextStyle(fontSize = 18.sp))
+                    }
+                    Box(contentAlignment = Alignment.BottomCenter) {
+                        Image(
+                            ImageProvider(R.drawable.compose),
+                            "Compose",
+                            modifier = GlanceModifier.size(80.dp),
+                        )
+                        Text("OXO", style = TextStyle(fontSize = 18.sp))
+                    }
+                    Box(contentAlignment = Alignment.CenterStart) {
+                        Image(
+                            ImageProvider(R.drawable.compose),
+                            "Compose",
+                            modifier = GlanceModifier.size(80.dp),
+                        )
+                        Text("OXO", style = TextStyle(fontSize = 18.sp))
+                    }
+                }
+            }
+        }
+
+        mHostRule.startHost()
+
+        mScreenshotRule.checkScreenshot(mHostRule.mHostView, "alignment")
     }
 }
 

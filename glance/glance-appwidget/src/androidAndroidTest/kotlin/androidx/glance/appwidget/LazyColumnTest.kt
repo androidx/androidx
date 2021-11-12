@@ -21,7 +21,6 @@ import android.view.Gravity
 import android.view.View
 import android.widget.FrameLayout
 import android.widget.ListView
-import android.widget.RelativeLayout
 import android.widget.TextView
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -241,8 +240,10 @@ class LazyColumnTest {
         mHostRule.startHost()
 
         waitForListViewChildren { list ->
-            val listItem = list.getUnboxedListItem<RelativeLayout>(0)
-            assertThat(listItem.gravity).isEqualTo(Gravity.CENTER)
+            val listItem = list.getUnboxedListItem<FrameLayout>(0)
+            val layoutParams =
+                assertIs<FrameLayout.LayoutParams>(listItem.notGoneChildren.first().layoutParams)
+            assertThat(layoutParams.gravity).isEqualTo(Gravity.CENTER)
         }
     }
 
@@ -259,8 +260,10 @@ class LazyColumnTest {
         mHostRule.startHost()
 
         waitForListViewChildren { list ->
-            val listItem = list.getUnboxedListItem<RelativeLayout>(0)
-            assertThat(listItem.gravity).isEqualTo(Gravity.END + Gravity.CENTER_VERTICAL)
+            val listItem = list.getUnboxedListItem<FrameLayout>(0)
+            val layoutParams =
+                assertIs<FrameLayout.LayoutParams>(listItem.notGoneChildren.first().layoutParams)
+            assertThat(layoutParams.gravity).isEqualTo(Gravity.END + Gravity.CENTER_VERTICAL)
         }
     }
 
@@ -278,7 +281,7 @@ class LazyColumnTest {
         mHostRule.startHost()
 
         waitForListViewChildren { list ->
-            val row = list.getUnboxedListItem<RelativeLayout>(0)
+            val row = list.getUnboxedListItem<FrameLayout>(0)
             val (rowItem0, rowItem1) = row.notGoneChildren.toList()
             assertIs<TextView>(rowItem0)
             assertIs<TextView>(rowItem1)
