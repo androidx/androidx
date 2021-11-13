@@ -68,6 +68,8 @@ import androidx.camera.video.internal.ResourceCreationException;
 import androidx.camera.video.internal.compat.Api26Impl;
 import androidx.camera.video.internal.compat.quirk.DeactivateEncoderSurfaceBeforeStopEncoderQuirk;
 import androidx.camera.video.internal.compat.quirk.DeviceQuirks;
+import androidx.camera.video.internal.config.AudioSourceSettingsCamcorderProfileResolver;
+import androidx.camera.video.internal.config.AudioSourceSettingsDefaultResolver;
 import androidx.camera.video.internal.config.MimeInfo;
 import androidx.camera.video.internal.config.VideoEncoderConfigCamcorderProfileResolver;
 import androidx.camera.video.internal.config.VideoEncoderConfigDefaultResolver;
@@ -272,8 +274,6 @@ public final class Recorder implements VideoOutput {
                     .setVideoSpec(VIDEO_SPEC_DEFAULT)
                     .build();
     private static final int AUDIO_BITRATE_DEFAULT = 88200;
-    // Default to 44100 for now as it's guaranteed supported on devices.
-    private static final int AUDIO_SAMPLE_RATE_DEFAULT = 44100;
     @SuppressWarnings("deprecation")
     private static final String MEDIA_COLUMN = MediaStore.Video.Media.DATA;
     private static final Exception PENDING_RECORDING_ERROR_CAUSE_SOURCE_INACTIVE =
@@ -1083,6 +1083,47 @@ public final class Recorder implements VideoOutput {
 
     @ExecutedBy("mSequentialExecutor")
     @NonNull
+    private MimeInfo resolveAudioMimeInfo(@NonNull MediaSpec mediaSpec) {
+        String mediaSpecAudioMime = MediaSpec.outputFormatToAudioMime(mediaSpec.getOutputFormat());
+        String resolvedAudioMime = mediaSpecAudioMime;
+        boolean camcorderProfileIsCompatible = false;
+        if (mResolvedCamcorderProfile != null) {
+            String camcorderProfileAudioMime = mResolvedCamcorderProfile.getAudioCodecMimeType();
+
+            if (camcorderProfileAudioMime == null) {
+                Logger.d(TAG, "CamcorderProfile contains undefined AUDIO mime type so cannot be "
+                        + "used. May rely on fallback defaults to derive settings [chosen mime "
+                        + "type: " + resolvedAudioMime + ")]");
+            } else if (mediaSpec.getOutputFormat() == MediaSpec.OUTPUT_FORMAT_AUTO) {
+                camcorderProfileIsCompatible = true;
+                resolvedAudioMime = camcorderProfileAudioMime;
+                Logger.d(TAG, "MediaSpec contains OUTPUT_FORMAT_AUTO. Using CamcorderProfile "
+                        + "to derive AUDIO settings [mime type: " + resolvedAudioMime + ")]");
+            } else if (Objects.equals(mediaSpecAudioMime, camcorderProfileAudioMime)) {
+                camcorderProfileIsCompatible = true;
+                resolvedAudioMime = camcorderProfileAudioMime;
+                Logger.d(TAG, "MediaSpec audio mime/profile matches CamcorderProfile. "
+                        + "Using CamcorderProfile to derive AUDIO settings [mime type: "
+                        + resolvedAudioMime + ")]");
+            } else {
+                Logger.d(TAG, "MediaSpec audio mime or profile does not match CamcorderProfile, so "
+                        + "CamcorderProfile settings cannot be used. May rely on fallback "
+                        + "defaults to derive AUDIO settings [CamcorderProfile mime type: "
+                        + camcorderProfileAudioMime + ", chosen mime type: "
+                        + resolvedAudioMime + ")]");
+            }
+        }
+
+        MimeInfo.Builder mimeInfoBuilder = MimeInfo.builder(resolvedAudioMime);
+        if (camcorderProfileIsCompatible) {
+            mimeInfoBuilder.setCompatibleCamcorderProfile(mResolvedCamcorderProfile);
+        }
+
+        return mimeInfoBuilder.build();
+    }
+
+    @ExecutedBy("mSequentialExecutor")
+    @NonNull
     private MimeInfo resolveVideoMimeInfo(@NonNull MediaSpec mediaSpec) {
         String mediaSpecVideoMime = MediaSpec.outputFormatToVideoMime(mediaSpec.getOutputFormat());
         String resolvedVideoMime = mediaSpecVideoMime;
@@ -1128,6 +1169,20 @@ public final class Recorder implements VideoOutput {
     }
 
     @NonNull
+    private static AudioSource.Settings resolveAudioSourceSettings(@NonNull MimeInfo audioMimeInfo,
+            @NonNull AudioSpec audioSpec) {
+        Supplier<AudioSource.Settings> settingsSupplier;
+        if (audioMimeInfo.getCompatibleCamcorderProfile() != null) {
+            settingsSupplier = new AudioSourceSettingsCamcorderProfileResolver(audioSpec,
+                    audioMimeInfo.getCompatibleCamcorderProfile());
+        } else {
+            settingsSupplier = new AudioSourceSettingsDefaultResolver(audioSpec);
+        }
+
+        return settingsSupplier.get();
+    }
+
+    @NonNull
     private static VideoEncoderConfig resolveVideoEncoderConfig(@NonNull MimeInfo videoMimeInfo,
             @NonNull VideoSpec videoSpec, @NonNull Size surfaceSize) {
         Supplier<VideoEncoderConfig> configSupplier;
@@ -1145,12 +1200,13 @@ public final class Recorder implements VideoOutput {
 
     @ExecutedBy("mSequentialExecutor")
     @NonNull
-    private AudioEncoderConfig composeAudioEncoderConfig(@NonNull MediaSpec mediaSpec) {
+    private AudioEncoderConfig composeAudioEncoderConfig(@NonNull MimeInfo audioMimeInfo,
+            @NonNull AudioSource.Settings audioSourceSettings) {
         return AudioEncoderConfig.builder()
-                .setMimeType(MediaSpec.outputFormatToAudioMime(mediaSpec.getOutputFormat()))
+                .setMimeType(audioMimeInfo.getMimeType())
                 .setBitrate(AUDIO_BITRATE_DEFAULT)
-                .setSampleRate(selectSampleRate(mediaSpec.getAudioSpec()))
-                .setChannelCount(mediaSpec.getAudioSpec().getChannelCount())
+                .setSampleRate(audioSourceSettings.getSampleRate())
+                .setChannelCount(audioSourceSettings.getChannelCount())
                 .build();
     }
 
@@ -1164,24 +1220,20 @@ public final class Recorder implements VideoOutput {
     @ExecutedBy("mSequentialExecutor")
     private void setupAudio() throws ResourceCreationException {
         MediaSpec mediaSpec = getObservableData(mMediaSpec);
-        // Create the audio source
-        AudioSpec audioSpec = mediaSpec.getAudioSpec();
-        AudioSource.Settings audioSourceSettings = AudioSource.Settings.builder()
-                .setAudioSource(audioSpec.getSource())
-                .setSampleRate(selectSampleRate(audioSpec))
-                .setChannelCount(audioSpec.getChannelCount())
-                .setAudioFormat(audioSpec.getSourceFormat())
-                .build();
+        // Resolve the audio mime info
+        MimeInfo audioMimeInfo = resolveAudioMimeInfo(mediaSpec);
 
+        // Select and create the audio source
+        AudioSource.Settings audioSourceSettings =
+                resolveAudioSourceSettings(audioMimeInfo, mediaSpec.getAudioSpec());
         try {
             mAudioSource = setupAudioSource(audioSourceSettings);
         } catch (AudioSourceAccessException e) {
             throw new ResourceCreationException(e);
         }
 
-
         // Create the audio encoder
-        AudioEncoderConfig config = composeAudioEncoderConfig(mediaSpec);
+        AudioEncoderConfig config = composeAudioEncoderConfig(audioMimeInfo, audioSourceSettings);
         try {
             mAudioEncoder = new EncoderImpl(mExecutor, config);
         } catch (InvalidConfigException e) {
@@ -1226,26 +1278,6 @@ public final class Recorder implements VideoOutput {
                     }
                 });
         return audioSource;
-    }
-
-    @ExecutedBy("mSequentialExecutor")
-    private int selectSampleRate(AudioSpec audioSpec) {
-        // The default sample rate should work on most devices. May consider throw an
-        // exception or have other way to notify users that the specified sample rate
-        // can not be satisfied.
-        int selectedSampleRate = AUDIO_SAMPLE_RATE_DEFAULT;
-        for (int sampleRate : AudioSource.COMMON_SAMPLE_RATES) {
-            if (audioSpec.getSampleRate().contains(sampleRate)) {
-                if (AudioSource.isSettingsSupported(sampleRate, audioSpec.getChannelCount(),
-                        audioSpec.getSourceFormat())) {
-                    // Choose the largest valid sample rate as the list has descending order.
-                    selectedSampleRate = sampleRate;
-                    break;
-                }
-            }
-        }
-
-        return selectedSampleRate;
     }
 
     @ExecutedBy("mSequentialExecutor")
