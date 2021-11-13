@@ -19,7 +19,7 @@ package androidx.room.compiler.processing
 import androidx.room.compiler.processing.util.CONTINUATION_CLASS_NAME
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.UNIT_CLASS_NAME
-import androidx.room.compiler.processing.util.getMethod
+import androidx.room.compiler.processing.util.getMethodByJvmName
 import androidx.room.compiler.processing.util.runProcessorTest
 import androidx.room.compiler.processing.util.typeName
 import com.google.common.truth.Truth.assertThat
@@ -101,8 +101,8 @@ class XExecutableTypeTest {
             ) {
                 assertThat(subjects).isNotEmpty()
                 subjects.forEach {
-                    callback(myInterface.getMethod(methodName).asMemberOf(it.type))
-                    callback(it.getMethod(methodName).executableType)
+                    callback(myInterface.getMethodByJvmName(methodName).asMemberOf(it.type))
+                    callback(it.getMethodByJvmName(methodName).executableType)
                 }
             }
 
@@ -168,8 +168,8 @@ class XExecutableTypeTest {
             ) {
                 assertThat(subjects).isNotEmpty()
                 subjects.forEach {
-                    callback(myInterface.getMethod(methodName).asMemberOf(it.type))
-                    callback(it.getMethod(methodName).executableType)
+                    callback(myInterface.getMethodByJvmName(methodName).asMemberOf(it.type))
+                    callback(it.getMethodByJvmName(methodName).executableType)
                 }
             }
 

@@ -162,7 +162,7 @@ class DefaultMethodProcessorDelegate(
 
     override fun findTransactionMethodBinder(callType: TransactionMethod.CallType) =
         InstantTransactionMethodBinder(
-            TransactionMethodAdapter(executableElement.name, callType)
+            TransactionMethodAdapter(executableElement.jvmName, callType)
         )
 }
 
@@ -256,7 +256,7 @@ class SuspendMethodProcessorDelegate(
 
     override fun findTransactionMethodBinder(callType: TransactionMethod.CallType) =
         CoroutineTransactionMethodBinder(
-            adapter = TransactionMethodAdapter(executableElement.name, callType),
+            adapter = TransactionMethodAdapter(executableElement.jvmName, callType),
             continuationParamName = continuationParam.name
         )
 }

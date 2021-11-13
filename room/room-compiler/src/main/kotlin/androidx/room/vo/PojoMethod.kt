@@ -25,5 +25,4 @@ import androidx.room.compiler.processing.XMethodType
 class PojoMethod(
     val element: XMethodElement,
     val resolvedType: XMethodType,
-    val name: String
 )

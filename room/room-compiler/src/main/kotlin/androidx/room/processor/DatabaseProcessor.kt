@@ -107,7 +107,7 @@ class DatabaseProcessor(baseContext: Context, val element: XTypeElement) {
             } else {
                 val dao = DaoProcessor(context, daoElement, declaredType, dbVerifier)
                     .process()
-                DaoMethod(executable, executable.name, dao)
+                DaoMethod(executable, dao)
             }
         }.toList()
 
@@ -331,7 +331,9 @@ class DatabaseProcessor(baseContext: Context, val element: XTypeElement) {
         daoMethods.groupBy { it.dao.typeName }
             .forEach {
                 if (it.value.size > 1) {
-                    val error = ProcessorErrors.duplicateDao(it.key, it.value.map { it.name })
+                    val error = ProcessorErrors.duplicateDao(it.key,
+                        it.value.map { it.element.jvmName }
+                    )
                     it.value.forEach { daoMethod ->
                         context.logger.e(
                             daoMethod.element,

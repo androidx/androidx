@@ -70,7 +70,6 @@ class UpdateMethodProcessor(
 
         return UpdateMethod(
             element = delegate.executableElement,
-            name = delegate.executableElement.name,
             entities = entities,
             onConflictStrategy = onConflict,
             methodBinder = methodBinder,

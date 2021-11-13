@@ -63,7 +63,7 @@ internal sealed class KspSyntheticPropertyMethodElement(
     ) {
 
     @OptIn(KspExperimental::class)
-    override val name: String by lazy {
+    override val jvmName: String by lazy {
         env.resolver.getJvmName(accessor) ?: error("Cannot find the name for accessor $accessor")
     }
 

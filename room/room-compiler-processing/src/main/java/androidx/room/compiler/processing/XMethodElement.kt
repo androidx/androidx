@@ -24,9 +24,10 @@ package androidx.room.compiler.processing
  */
 interface XMethodElement : XExecutableElement {
     /**
-     * The name of the method.
+     * The name of the method in JVM.
+     * Use this properly when you need to generate code accessing this method.
      */
-    val name: String
+    val jvmName: String
 
     /**
      * The return type for the method. Note that it might be [XType.isNone] if it does not return or
@@ -43,7 +44,7 @@ interface XMethodElement : XExecutableElement {
         get() = buildString {
             append(enclosingElement.fallbackLocationText)
             append(".")
-            append(name)
+            append(jvmName)
             append("(")
             // don't report last parameter if it is a suspend function
             append(

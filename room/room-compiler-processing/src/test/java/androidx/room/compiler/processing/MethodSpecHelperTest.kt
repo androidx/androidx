@@ -506,7 +506,7 @@ class MethodSpecHelperTest(
             .requireTypeElement("java.lang.Object")
             .getAllNonPrivateInstanceMethods()
             .map {
-                it.name
+                it.jvmName
             }
         val target = processingEnv.requireTypeElement("foo.bar.Baz")
         val methods = if (ignoreInheritedMethods) {
@@ -517,7 +517,7 @@ class MethodSpecHelperTest(
         val selectedMethods = methods.filter {
             it.isOverrideableIgnoringContainer()
         }.filterNot {
-            it.name in objectMethodNames
+            it.jvmName in objectMethodNames
         }
         return target to selectedMethods
     }

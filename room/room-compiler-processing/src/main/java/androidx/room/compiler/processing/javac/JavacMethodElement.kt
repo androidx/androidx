@@ -45,7 +45,7 @@ internal class JavacMethodElement(
         }
     }
 
-    override val name: String
+    override val jvmName: String
         get() = element.simpleName.toString()
 
     override val enclosingElement: XTypeElement by lazy {
@@ -146,7 +146,7 @@ internal class JavacMethodElement(
             }
         }
         return kotlinDefaultImplClass?.getDeclaredMethods()?.any {
-            it.name == this.name && paramsMatch(parameters, it.parameters)
+            it.jvmName == this.jvmName && paramsMatch(parameters, it.parameters)
         } ?: false
     }
 

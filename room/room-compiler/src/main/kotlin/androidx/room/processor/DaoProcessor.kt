@@ -246,7 +246,7 @@ class DaoProcessor(
         annotatedMethods: List<XMethodElement>
     ) = unannotatedMethods.mapNotNull { unannotated ->
         annotatedMethods.firstOrNull {
-            if (it.name != unannotated.name) {
+            if (it.jvmName != unannotated.jvmName) {
                 return@firstOrNull false
             }
             if (!it.returnType.boxed().isSameType(unannotated.returnType.boxed())) {

@@ -56,7 +56,7 @@ class TransactionMethodProcessorTest {
                 public String doInTransaction(int param) { return null; }
                 """
         ) { transaction, _ ->
-            assertThat(transaction.name, `is`("doInTransaction"))
+            assertThat(transaction.jvmName, `is`("doInTransaction"))
         }
     }
 
@@ -68,7 +68,7 @@ class TransactionMethodProcessorTest {
                 private String doInTransaction(int param) { return null; }
                 """
         ) { transaction, invocation ->
-            assertThat(transaction.name, `is`("doInTransaction"))
+            assertThat(transaction.jvmName, `is`("doInTransaction"))
             invocation.assertCompilationResult {
                 hasErrorContaining(
                     ProcessorErrors.TRANSACTION_METHOD_MODIFIERS
@@ -85,7 +85,7 @@ class TransactionMethodProcessorTest {
                 public final String doInTransaction(int param) { return null; }
                 """
         ) { transaction, invocation ->
-            assertThat(transaction.name, `is`("doInTransaction"))
+            assertThat(transaction.jvmName, `is`("doInTransaction"))
             invocation.assertCompilationResult {
                 hasErrorContaining(ProcessorErrors.TRANSACTION_METHOD_MODIFIERS)
             }
@@ -102,7 +102,7 @@ class TransactionMethodProcessorTest {
                 }
                 """
         ) { transaction, invocation ->
-            assertThat(transaction.name, `is`("doInTransaction"))
+            assertThat(transaction.jvmName, `is`("doInTransaction"))
             invocation.assertCompilationResult {
                 hasErrorContaining(
                     ProcessorErrors.transactionMethodAsync(
@@ -121,7 +121,7 @@ class TransactionMethodProcessorTest {
                 public LiveData<String> doInTransaction(int param) { return null; }
                 """
         ) { transaction, invocation ->
-            assertThat(transaction.name, `is`("doInTransaction"))
+            assertThat(transaction.jvmName, `is`("doInTransaction"))
             invocation.assertCompilationResult {
                 hasErrorContaining(
                     ProcessorErrors.transactionMethodAsync(
@@ -140,7 +140,7 @@ class TransactionMethodProcessorTest {
                 public io.reactivex.Flowable<String> doInTransaction(int param) { return null; }
                 """
         ) { transaction, invocation ->
-            assertThat(transaction.name, `is`("doInTransaction"))
+            assertThat(transaction.jvmName, `is`("doInTransaction"))
             invocation.assertCompilationResult {
                 hasErrorContaining(
                     ProcessorErrors.transactionMethodAsync(
@@ -161,7 +161,7 @@ class TransactionMethodProcessorTest {
                 }
                 """
         ) { transaction, invocation ->
-            assertThat(transaction.name, `is`("doInTransaction"))
+            assertThat(transaction.jvmName, `is`("doInTransaction"))
             invocation.assertCompilationResult {
                 hasErrorContaining(
                     ProcessorErrors.transactionMethodAsync(
@@ -180,7 +180,7 @@ class TransactionMethodProcessorTest {
                 public io.reactivex.Completable doInTransaction(int param) { return null; }
                 """
         ) { transaction, invocation ->
-            assertThat(transaction.name, `is`("doInTransaction"))
+            assertThat(transaction.jvmName, `is`("doInTransaction"))
             invocation.assertCompilationResult {
                 hasErrorContaining(
                     ProcessorErrors.transactionMethodAsync(
@@ -201,7 +201,7 @@ class TransactionMethodProcessorTest {
                 }
                 """
         ) { transaction, invocation ->
-            assertThat(transaction.name, `is`("doInTransaction"))
+            assertThat(transaction.jvmName, `is`("doInTransaction"))
             invocation.assertCompilationResult {
                 hasErrorContaining(
                     ProcessorErrors.transactionMethodAsync(
@@ -220,7 +220,7 @@ class TransactionMethodProcessorTest {
                 public io.reactivex.Single<String> doInTransaction(int param) { return null; }
                 """
         ) { transaction, invocation ->
-            assertThat(transaction.name, `is`("doInTransaction"))
+            assertThat(transaction.jvmName, `is`("doInTransaction"))
             invocation.assertCompilationResult {
                 hasErrorContaining(
                     ProcessorErrors.transactionMethodAsync(
@@ -241,7 +241,7 @@ class TransactionMethodProcessorTest {
                 }
                 """
         ) { transaction, invocation ->
-            assertThat(transaction.name, `is`("doInTransaction"))
+            assertThat(transaction.jvmName, `is`("doInTransaction"))
             invocation.assertCompilationResult {
                 hasErrorContaining(
                     ProcessorErrors.transactionMethodAsync(
@@ -260,7 +260,7 @@ class TransactionMethodProcessorTest {
                 public ListenableFuture<String> doInTransaction(int param) { return null; }
                 """
         ) { transaction, invocation ->
-            assertThat(transaction.name, `is`("doInTransaction"))
+            assertThat(transaction.jvmName, `is`("doInTransaction"))
             invocation.assertCompilationResult {
                 hasErrorContaining(
                     ProcessorErrors.transactionMethodAsync(
@@ -271,8 +271,8 @@ class TransactionMethodProcessorTest {
         }
     }
 
-    private val TransactionMethod.name: String
-        get() = element.name
+    private val TransactionMethod.jvmName: String
+        get() = element.jvmName
 
     private fun singleTransactionMethod(
         vararg input: String,

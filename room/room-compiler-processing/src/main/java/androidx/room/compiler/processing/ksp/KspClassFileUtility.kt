@@ -112,14 +112,14 @@ internal object KspClassFileUtility {
     ): List<KspMethodElement> {
         // no reason to try to load .class if we don't have any fields to sort
         if (methods.isEmpty()) return methods
-        val comparator = getNamesComparator(owner, Type.METHOD, KspMethodElement::name)
+        val comparator = getNamesComparator(owner, Type.METHOD, KspMethodElement::jvmName)
         return if (comparator == null) {
             methods
         } else {
             methods.forEach {
                 // make sure each name gets registered so that if we didn't find it in .class for
                 // whatever reason, we keep the order given from KSP.
-                comparator.register(it.name)
+                comparator.register(it.jvmName)
             }
             methods.sortedWith(comparator)
         }
