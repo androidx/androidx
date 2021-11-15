@@ -14,10 +14,12 @@
  * limitations under the License.
  */
 
+@file:SuppressLint("ClassVerificationFailure") // Entire file is RequiresApi(26)
 @file:Suppress("NOTHING_TO_INLINE") // Aliases to other public API.
 
 package androidx.core.util
 
+import android.annotation.SuppressLint
 import android.util.Half
 import androidx.annotation.HalfFloat
 import androidx.annotation.RequiresApi
