@@ -22,39 +22,55 @@ import android.content.ComponentName
 
 /** @suppress */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public interface LaunchActivityAction : Action
+public interface LaunchActivityAction : Action {
+    abstract val parameters: ActionParameters
+}
 
 /** @suppress */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class LaunchActivityComponentAction(
-    public val componentName: ComponentName
+    public val componentName: ComponentName,
+    public override val parameters: ActionParameters
 ) : LaunchActivityAction
 
 /** @suppress */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class LaunchActivityClassAction(
-    public val activityClass: Class<out Activity>
+    public val activityClass: Class<out Activity>,
+    public override val parameters: ActionParameters
 ) : LaunchActivityAction
 
 /**
  * Creates an [Action] that launches the [Activity] specified by the given [ComponentName].
  *
  * @param componentName component of the activity to launch
+ * @param parameters the parameters associated with the action. Parameter values will be added to
+ * the activity intent, keyed by the parameter key name string.
  */
-public fun actionLaunchActivity(componentName: ComponentName): Action =
-    LaunchActivityComponentAction(componentName)
+public fun actionLaunchActivity(
+    componentName: ComponentName,
+    parameters: ActionParameters = actionParametersOf()
+): Action = LaunchActivityComponentAction(componentName, parameters)
 
 /**
  * Creates an [Action] that launches the specified [Activity] when triggered.
  *
  * @param activity class of the activity to launch
+ * @param parameters the parameters associated with the action. Parameter values will be added to
+ * the activity intent, keyed by the parameter key name string.
  */
-public fun <T : Activity> actionLaunchActivity(activity: Class<T>): Action =
-    LaunchActivityClassAction(activity)
+public fun <T : Activity> actionLaunchActivity(
+    activity: Class<T>,
+    parameters: ActionParameters = actionParametersOf()
+): Action = LaunchActivityClassAction(activity, parameters)
 
 @Suppress("MissingNullability") /* Shouldn't need to specify @NonNull. b/199284086 */
 /**
  * Creates an [Action] that launches the specified [Activity] when triggered.
+ *
+ * @param parameters the parameters associated with the action. Parameter values will be added to
+ * the activity intent, keyed by the parameter key name string.
  */
-public inline fun <reified T : Activity> actionLaunchActivity(): Action =
-    actionLaunchActivity(T::class.java)
+public inline fun <reified T : Activity> actionLaunchActivity(
+    parameters: ActionParameters = actionParametersOf()
+): Action = actionLaunchActivity(T::class.java, parameters)

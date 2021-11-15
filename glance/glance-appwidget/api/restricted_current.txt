@@ -142,7 +142,7 @@ package androidx.glance.appwidget.action {
   }
 
   public final class LaunchActivityIntentActionKt {
-    method public static androidx.glance.action.Action actionLaunchActivity(android.content.Intent intent);
+    method public static androidx.glance.action.Action actionLaunchActivity(android.content.Intent intent, optional androidx.glance.action.ActionParameters parameters);
   }
 
   public final class RunCallbackActionKt {

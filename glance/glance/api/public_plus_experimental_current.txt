@@ -120,9 +120,9 @@ package androidx.glance.action {
   }
 
   public final class LaunchActivityActionKt {
-    method public static androidx.glance.action.Action actionLaunchActivity(android.content.ComponentName componentName);
-    method public static <T extends android.app.Activity> androidx.glance.action.Action actionLaunchActivity(Class<T> activity);
-    method public static inline <reified T extends android.app.Activity> androidx.glance.action.Action! actionLaunchActivity();
+    method public static androidx.glance.action.Action actionLaunchActivity(android.content.ComponentName componentName, optional androidx.glance.action.ActionParameters parameters);
+    method public static <T extends android.app.Activity> androidx.glance.action.Action actionLaunchActivity(Class<T> activity, optional androidx.glance.action.ActionParameters parameters);
+    method public static inline <reified T extends android.app.Activity> androidx.glance.action.Action! actionLaunchActivity(optional androidx.glance.action.ActionParameters parameters);
   }
 
   public final class MutableActionParameters extends androidx.glance.action.ActionParameters {
