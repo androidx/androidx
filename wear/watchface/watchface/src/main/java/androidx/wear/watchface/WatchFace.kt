@@ -612,7 +612,7 @@ public class WatchFaceImpl @UiThread constructor(
         }
     }
 
-    private fun visibility(isVisible: Boolean) {
+    internal fun onVisibility(isVisible: Boolean) {
         TraceEvent("WatchFaceImpl.visibility").use {
             if (isVisible) {
                 registerReceivers()
@@ -687,14 +687,6 @@ public class WatchFaceImpl @UiThread constructor(
             watchState.interruptionFilter.collect {
                 if (it != null) {
                     interruptionFilter(it)
-                }
-            }
-        }
-
-        mainScope.launch {
-            watchState.isVisible.collect {
-                if (it != null) {
-                    visibility(it)
                 }
             }
         }
