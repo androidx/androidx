@@ -45,6 +45,10 @@ internal class JavacMethodElement(
         }
     }
 
+    override val name: String by lazy {
+        kotlinMetadata?.name ?: jvmName
+    }
+
     override val jvmName: String
         get() = element.simpleName.toString()
 

@@ -1072,4 +1072,83 @@ class XExecutableElementTest {
             )
         }
     }
+
+    @Test
+    fun name() {
+        fun buildSources(pkg: String) = listOf(
+            Source.kotlin(
+                "KotlinSource.kt",
+                """
+            package $pkg;
+            @JvmInline
+            value class ValueClass(val value: String)
+            internal class InternalClass(val value: String)
+            class KotlinSubject {
+                var property: String = ""
+                internal var internalProperty: String = ""
+                var valueClassProperty: ValueClass = ValueClass("")
+                internal var internalClassProperty = InternalClass("")
+                fun normalFun() { TODO() }
+                @JvmName("jvmNameForFun")
+                fun jvmNameFun() { TODO() }
+                internal fun internalFun() { TODO() }
+                fun valueReceivingFun(param: ValueClass) { TODO() }
+                fun valueReturningFun(): ValueClass { TODO() }
+                internal fun internalValueReceivingFun(param: ValueClass) { TODO() }
+                internal fun internalValueReturningFun(): ValueClass { TODO() }
+            }
+            """.trimIndent()
+            )
+        )
+
+        val sources = buildSources("app")
+        val classpath = compileFiles(buildSources("lib"))
+        runProcessorTest(
+            sources = sources,
+            classpath = classpath
+        ) { invocation ->
+            // we use this to remove the hash added by the compiler for function names that don't
+            // have valid JVM names
+            // regex: match 7 characters after -
+            val removeHashRegex = """(?<=-)(.{7})""".toRegex()
+
+            fun XTypeElement.collectNameJvmNamePairs() = getDeclaredMethods().map {
+                it.name to removeHashRegex.replace(it.jvmName, "HASH")
+            }
+            listOf("app", "lib").forEach { pkg ->
+                val kotlinSubject = invocation.processingEnv
+                    .requireTypeElement("$pkg.KotlinSubject")
+                val validJvmProperties = listOf(
+                    "getInternalClassProperty" to "getInternalClassProperty\$main",
+                    "getInternalProperty" to "getInternalProperty\$main",
+                    "getProperty" to "getProperty",
+                    "internalFun" to "internalFun\$main",
+                    "jvmNameFun" to "jvmNameForFun",
+                    "normalFun" to "normalFun",
+                    "setInternalClassProperty" to "setInternalClassProperty\$main",
+                    "setInternalProperty" to "setInternalProperty\$main",
+                    "setProperty" to "setProperty",
+                )
+                // these won't show up in KAPT stubs as they don't have valid jvm names
+                val nonJvmProperties = listOf(
+                    "getValueClassProperty" to "getValueClassProperty-HASH",
+                    "internalValueReceivingFun" to "internalValueReceivingFun-HASH\$main",
+                    "internalValueReturningFun" to "internalValueReturningFun-HASH\$main",
+                    "setValueClassProperty" to "setValueClassProperty-HASH",
+                    "valueReceivingFun" to "valueReceivingFun-HASH",
+                    "valueReturningFun" to "valueReturningFun-HASH",
+                )
+                val expected = if (invocation.isKsp || pkg == "lib") {
+                    validJvmProperties + nonJvmProperties
+                } else {
+                    validJvmProperties
+                }
+                assertWithMessage("declarations in $pkg")
+                    .that(kotlinSubject.collectNameJvmNamePairs())
+                    .containsExactlyElementsIn(
+                        expected
+                    )
+            }
+        }
+    }
 }

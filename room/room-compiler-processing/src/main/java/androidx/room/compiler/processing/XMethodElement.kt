@@ -34,11 +34,12 @@ interface XMethodElement : XExecutableElement {
      * @see jvmName
      */
     val name: String
-        get() = jvmName
 
     /**
      * The name of the method in JVM.
      * Use this properly when you need to generate code accessing this method.
+     *
+     * @see name
      */
     val jvmName: String
 
