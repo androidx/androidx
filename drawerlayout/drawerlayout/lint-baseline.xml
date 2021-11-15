@@ -1,59 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.1.0-beta02" type="baseline" client="gradle" dependencies="false" name="AGP (7.1.0-beta02)" variant="all" version="7.1.0-beta02">
+<issues format="6" by="lint 7.2.0-dev" type="baseline" client="gradle" dependencies="false" name="AGP (7.2.0-dev)" variant="all" version="7.2.0-dev">
 
     <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public void onDrawerSlide(View drawerView, float slideOffset) {"
-        errorLine2="                                  ~~~~">
+        id="ResourceType"
+        message="Expected resource of type styleable"
+        errorLine1="                final TypedArray a = context.obtainStyledAttributes(THEME_ATTRS);"
+        errorLine2="                                                                    ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/drawerlayout/widget/DrawerLayout.java"
-            line="310"
-            column="35"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public void onDrawerOpened(View drawerView) {"
-        errorLine2="                                   ~~~~">
-        <location
-            file="src/main/java/androidx/drawerlayout/widget/DrawerLayout.java"
-            line="314"
-            column="36"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public void onDrawerClosed(View drawerView) {"
-        errorLine2="                                   ~~~~">
-        <location
-            file="src/main/java/androidx/drawerlayout/widget/DrawerLayout.java"
-            line="318"
-            column="36"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void setChildInsets(WindowInsetsCompat insets, boolean draw) {"
-        errorLine2="                               ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/drawerlayout/widget/DrawerLayout.java"
-            line="439"
-            column="32"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void setDrawerShadow(Drawable shadowDrawable, @EdgeGravity int gravity) {"
-        errorLine2="                                ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/drawerlayout/widget/DrawerLayout.java"
-            line="460"
-            column="33"/>
+            line="370"
+            column="69"/>
     </issue>
 
     <issue
@@ -63,7 +19,7 @@
         errorLine2="                                  ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/drawerlayout/widget/DrawerLayout.java"
-            line="525"
+            line="517"
             column="35"/>
     </issue>
 
@@ -74,7 +30,7 @@
         errorLine2="                       ~~~~~~">
         <location
             file="src/main/java/androidx/drawerlayout/widget/DrawerLayout.java"
-            line="1437"
+            line="1420"
             column="24"/>
     </issue>
 
@@ -85,7 +41,7 @@
         errorLine2="                                ~~~~~~">
         <location
             file="src/main/java/androidx/drawerlayout/widget/DrawerLayout.java"
-            line="1454"
+            line="1437"
             column="33"/>
     </issue>
 
@@ -96,7 +52,7 @@
         errorLine2="                                               ~~~~">
         <location
             file="src/main/java/androidx/drawerlayout/widget/DrawerLayout.java"
-            line="1454"
+            line="1437"
             column="48"/>
     </issue>
 
@@ -107,7 +63,7 @@
         errorLine2="                                         ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/drawerlayout/widget/DrawerLayout.java"
-            line="1538"
+            line="1518"
             column="42"/>
     </issue>
 
@@ -118,7 +74,7 @@
         errorLine2="                                              ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/drawerlayout/widget/DrawerLayout.java"
-            line="1583"
+            line="1563"
             column="47"/>
     </issue>
 
@@ -129,7 +85,7 @@
         errorLine2="                                ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/drawerlayout/widget/DrawerLayout.java"
-            line="1620"
+            line="1600"
             column="33"/>
     </issue>
 
@@ -140,7 +96,7 @@
         errorLine2="              ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/drawerlayout/widget/DrawerLayout.java"
-            line="1963"
+            line="1943"
             column="15"/>
     </issue>
 
@@ -151,7 +107,7 @@
         errorLine2="              ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/drawerlayout/widget/DrawerLayout.java"
-            line="1968"
+            line="1948"
             column="15"/>
     </issue>
 
@@ -162,7 +118,7 @@
         errorLine2="                                                          ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/drawerlayout/widget/DrawerLayout.java"
-            line="1968"
+            line="1948"
             column="59"/>
     </issue>
 
@@ -173,7 +129,7 @@
         errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/drawerlayout/widget/DrawerLayout.java"
-            line="1977"
+            line="1957"
             column="41"/>
     </issue>
 
@@ -184,7 +140,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/drawerlayout/widget/DrawerLayout.java"
-            line="1982"
+            line="1962"
             column="12"/>
     </issue>
 
@@ -195,7 +151,7 @@
         errorLine2="                                                       ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/drawerlayout/widget/DrawerLayout.java"
-            line="1982"
+            line="1962"
             column="56"/>
     </issue>
 
@@ -206,7 +162,7 @@
         errorLine2="                              ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/drawerlayout/widget/DrawerLayout.java"
-            line="1987"
+            line="1967"
             column="31"/>
     </issue>
 
@@ -217,7 +173,7 @@
         errorLine2="                                          ~~~~~~~~">
         <location
             file="src/main/java/androidx/drawerlayout/widget/DrawerLayout.java"
-            line="2052"
+            line="2032"
             column="43"/>
     </issue>
 
@@ -228,7 +184,7 @@
         errorLine2="                                        ~~~~~~~~">
         <location
             file="src/main/java/androidx/drawerlayout/widget/DrawerLayout.java"
-            line="2061"
+            line="2041"
             column="41"/>
     </issue>
 
@@ -239,7 +195,7 @@
         errorLine2="                                          ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/drawerlayout/widget/DrawerLayout.java"
-            line="2073"
+            line="2053"
             column="43"/>
     </issue>
 
@@ -250,7 +206,7 @@
         errorLine2="              ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/drawerlayout/widget/DrawerLayout.java"
-            line="2104"
+            line="2084"
             column="15"/>
     </issue>
 
@@ -261,7 +217,7 @@
         errorLine2="                        ~~~~">
         <location
             file="src/main/java/androidx/drawerlayout/widget/DrawerLayout.java"
-            line="2133"
+            line="2113"
             column="25"/>
     </issue>
 
@@ -272,7 +228,7 @@
         errorLine2="                                               ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/drawerlayout/widget/DrawerLayout.java"
-            line="2133"
+            line="2113"
             column="48"/>
     </issue>
 
