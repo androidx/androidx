@@ -60,6 +60,7 @@ import org.jetbrains.uast.UThisExpression
 import org.jetbrains.uast.getContainingUClass
 import org.jetbrains.uast.getContainingUMethod
 import org.jetbrains.uast.java.JavaUAnnotation
+import org.jetbrains.uast.java.JavaUQualifiedReferenceExpression
 import org.jetbrains.uast.java.JavaUSimpleNameReferenceExpression
 import org.jetbrains.uast.util.isConstructorCall
 import org.jetbrains.uast.util.isMethodCall
@@ -656,17 +657,22 @@ class ClassVerificationFailureDetector : Detector(), SourceCodeScanner {
                 unwrappedCallReceiver = unwrappedCallReceiver.expression
             }
 
-            val isStatic = context.evaluator.isStatic(method)
-            val isConstructor = method.isConstructor
-            val isSimpleReference = unwrappedCallReceiver is JavaUSimpleNameReferenceExpression
-
             val callReceiverStr = when {
-                isStatic -> null
-                isConstructor -> null
-                isSimpleReference ->
-                    (unwrappedCallReceiver as JavaUSimpleNameReferenceExpression).identifier
+                // Static method
+                context.evaluator.isStatic(method) ->
+                    null
+                // Constructor
+                method.isConstructor ->
+                    null
+                // Simple reference
+                unwrappedCallReceiver is JavaUSimpleNameReferenceExpression ->
+                    unwrappedCallReceiver.identifier
+                // Qualified reference
+                unwrappedCallReceiver is JavaUQualifiedReferenceExpression ->
+                    "${unwrappedCallReceiver.receiver}.${unwrappedCallReceiver.selector}"
                 else -> {
-                    // We don't know how to handle this type of receiver. This should never happen.
+                    // We don't know how to handle this type of receiver. If this happens a lot, we
+                    // might try returning `UElement.asSourceString()` by default.
                     return null
                 }
             }
