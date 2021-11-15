@@ -14,10 +14,12 @@
  * limitations under the License.
  */
 
+@file:SuppressLint("ClassVerificationFailure") // Entire file is RequiresApi(21)
 @file:Suppress("NOTHING_TO_INLINE")
 
 package androidx.core.util
 
+import android.annotation.SuppressLint
 import android.util.Size
 import android.util.SizeF
 import androidx.annotation.RequiresApi

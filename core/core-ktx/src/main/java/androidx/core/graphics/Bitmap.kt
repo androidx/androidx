@@ -18,6 +18,7 @@
 
 package androidx.core.graphics
 
+import android.annotation.SuppressLint
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.ColorSpace
@@ -107,6 +108,7 @@ public inline fun createBitmap(
  *
  * @return A new bitmap with the specified dimensions and config
  */
+@SuppressLint("ClassVerificationFailure") // Inline fun
 @RequiresApi(26)
 public inline fun createBitmap(
     width: Int,
@@ -125,7 +127,7 @@ public inline fun createBitmap(
  */
 public inline operator fun Bitmap.contains(
     p: Point
-): Boolean = p.x >= 0 && p.x < width && p.y >= 0 && p.y < height
+): Boolean = p.x in 0 until width && p.y >= 0 && p.y < height
 
 /**
  * Returns true if the specified point is inside the bitmap.
