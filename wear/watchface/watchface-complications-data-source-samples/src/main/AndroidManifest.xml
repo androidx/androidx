@@ -41,8 +41,8 @@
 
         <service
             android:name=
-                "androidx.wear.watchface.complications.datasource.samples.InteractiveDataSourceService"
-            android:label="@string/interactive_data_source_name"
+                "androidx.wear.watchface.complications.datasource.samples.SynchronousDataSourceService"
+            android:label="@string/synchronous_data_source_name"
             android:exported="true"
             android:icon="@drawable/circle"
             android:permission="com.google.android.wearable.permission.BIND_COMPLICATION_PROVIDER">
@@ -82,8 +82,8 @@
 
         <service
             android:name=
-                "androidx.wear.watchface.complications.datasource.samples.SynchronousDataSourceService"
-            android:label="@string/synchronous_data_source_name"
+                "androidx.wear.watchface.complications.datasource.samples.ImmediateDataSourceService"
+            android:label="@string/immediate_data_source_name"
             android:exported="true"
             android:icon="@drawable/circle"
             android:permission="com.google.android.wearable.permission.BIND_COMPLICATION_PROVIDER">
