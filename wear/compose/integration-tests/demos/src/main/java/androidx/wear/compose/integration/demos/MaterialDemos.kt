@@ -19,12 +19,15 @@ package androidx.wear.compose.integration.demos
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.wear.compose.material.ExperimentalWearMaterialApi
+import androidx.wear.compose.material.samples.AlertDialogWithButtons
+import androidx.wear.compose.material.samples.AlertDialogWithChips
 import androidx.wear.compose.material.samples.AppCardWithIcon
 import androidx.wear.compose.material.samples.ButtonWithIcon
 import androidx.wear.compose.material.samples.ButtonWithText
 import androidx.wear.compose.material.samples.ChipWithIconAndLabels
 import androidx.wear.compose.material.samples.CompactButtonWithIcon
 import androidx.wear.compose.material.samples.CompactChipWithIconAndLabel
+import androidx.wear.compose.material.samples.ConfirmationDialogWithAnimation
 import androidx.wear.compose.material.samples.CurvedTextDemo
 import androidx.wear.compose.material.samples.InlineSliderSample
 import androidx.wear.compose.material.samples.InlineSliderSegmentedSample
@@ -144,6 +147,14 @@ val WearMaterialDemos = DemoCategory(
                         },
                     )
                 ),
+            )
+        ),
+        DemoCategory(
+            "Dialogs",
+            listOf(
+                ComposableDemo("AlertDialog - Buttons") { AlertDialogWithButtons() },
+                ComposableDemo("AlertDialog - Chips") { AlertDialogWithChips() },
+                ComposableDemo("ConfirmationDialog") { ConfirmationDialogWithAnimation() },
             )
         ),
         DemoCategory(
