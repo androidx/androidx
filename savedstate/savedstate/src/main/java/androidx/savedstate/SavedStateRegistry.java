@@ -23,9 +23,8 @@ import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.arch.core.internal.SafeIterableMap;
-import androidx.lifecycle.GenericLifecycleObserver;
 import androidx.lifecycle.Lifecycle;
-import androidx.lifecycle.LifecycleOwner;
+import androidx.lifecycle.LifecycleEventObserver;
 
 import java.util.Iterator;
 import java.util.Map;
@@ -41,7 +40,7 @@ public final class SavedStateRegistry {
     private static final String SAVED_COMPONENTS_KEY =
             "androidx.lifecycle.BundlableSavedStateRegistry.key";
 
-    private SafeIterableMap<String, SavedStateProvider> mComponents =
+    private final SafeIterableMap<String, SavedStateProvider> mComponents =
             new SafeIterableMap<>();
     @Nullable
     private Bundle mRestoredState;
@@ -194,14 +193,11 @@ public final class SavedStateRegistry {
             mRestoredState = savedState.getBundle(SAVED_COMPONENTS_KEY);
         }
 
-        lifecycle.addObserver(new GenericLifecycleObserver() {
-            @Override
-            public void onStateChanged(LifecycleOwner source, Lifecycle.Event event) {
-                if (event == Lifecycle.Event.ON_START) {
-                    mAllowingSavingState = true;
-                } else if (event == Lifecycle.Event.ON_STOP) {
-                    mAllowingSavingState = false;
-                }
+        lifecycle.addObserver((LifecycleEventObserver) (source, event) -> {
+            if (event == Lifecycle.Event.ON_START) {
+                mAllowingSavingState = true;
+            } else if (event == Lifecycle.Event.ON_STOP) {
+                mAllowingSavingState = false;
             }
         });
 

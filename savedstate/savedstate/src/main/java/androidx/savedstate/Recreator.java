@@ -21,8 +21,8 @@ import android.annotation.SuppressLint;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
-import androidx.lifecycle.GenericLifecycleObserver;
 import androidx.lifecycle.Lifecycle;
+import androidx.lifecycle.LifecycleEventObserver;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.savedstate.SavedStateRegistry.AutoRecreated;
 
@@ -32,7 +32,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 @SuppressLint("RestrictedApi")
-final class Recreator implements GenericLifecycleObserver {
+final class Recreator implements LifecycleEventObserver {
 
     static final String CLASSES_KEY = "classes_to_restore";
     static final String COMPONENT_KEY = "androidx.savedstate.Restarter";
@@ -44,7 +44,7 @@ final class Recreator implements GenericLifecycleObserver {
     }
 
     @Override
-    public void onStateChanged(LifecycleOwner source, Lifecycle.Event event) {
+    public void onStateChanged(@NonNull LifecycleOwner source, @NonNull Lifecycle.Event event) {
         if (event != Lifecycle.Event.ON_CREATE) {
             throw new AssertionError("Next event must be ON_CREATE");
         }
