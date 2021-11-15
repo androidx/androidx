@@ -87,8 +87,11 @@ class AndroidXPlaygroundRootImplPlugin : Plugin<Project> {
         project.repositories.addPlaygroundRepositories()
         project.extra.set(PROJECT_OR_ARTIFACT_EXT_NAME, projectOrArtifactClosure)
         project.configurations.all { configuration ->
-            configuration.resolutionStrategy.dependencySubstitution.all { substitution ->
-                substitution.replaceIfSnapshot()
+            configuration.resolutionStrategy.eachDependency { details ->
+                if (details.requested.version == SNAPSHOT_MARKER) {
+                    val snapshotVersion = findSnapshotVersion(details.requested.group, details.requested.name)
+                    details.useVersion(snapshotVersion)
+                }
             }
         }
     }
@@ -127,14 +130,6 @@ class AndroidXPlaygroundRootImplPlugin : Plugin<Project> {
             }
 
             throw GradleException("projectOrArtifact cannot find/replace project $path")
-        }
-    }
-
-    private fun DependencySubstitution.replaceIfSnapshot() {
-        val requested = this.requested
-        if (requested is ModuleComponentSelector && requested.version == SNAPSHOT_MARKER) {
-            val snapshotVersion = findSnapshotVersion(requested.group, requested.module)
-            useTarget("${requested.group}:${requested.module}:$snapshotVersion")
         }
     }
 
