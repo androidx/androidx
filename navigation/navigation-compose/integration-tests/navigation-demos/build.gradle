@@ -27,7 +27,7 @@ dependencies {
     kotlinPlugin(projectOrArtifact(":compose:compiler:compiler"))
     implementation(libs.kotlinStdlib)
 
-    implementation(projectOrArtifact(":compose:integration-tests:demos:common"))
+    implementation(project(":compose:integration-tests:demos:common"))
     implementation(projectOrArtifact(":compose:foundation:foundation"))
     implementation(projectOrArtifact(":compose:material:material"))
     implementation(projectOrArtifact(":navigation:navigation-compose"))

@@ -67,7 +67,7 @@ if(!AndroidXComposePlugin.isMultiplatformEnabled(project)) {
         androidTestImplementation(libs.truth)
         androidTestImplementation(libs.mockitoKotlin)
 
-        samples(projectOrArtifact(":compose:ui:ui-text:ui-text-samples"))
+        samples(project(":compose:ui:ui-text:ui-text-samples"))
     }
 
     android {
@@ -160,7 +160,7 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
         }
     }
     dependencies {
-        samples(projectOrArtifact(":compose:ui:ui-text:ui-text-samples"))
+        samples(project(":compose:ui:ui-text:ui-text-samples"))
     }
 }
 

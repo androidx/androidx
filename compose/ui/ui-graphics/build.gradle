@@ -57,7 +57,7 @@ if(!AndroidXComposePlugin.isMultiplatformEnabled(project)) {
 
         lintPublish(project(":compose:ui:ui-graphics-lint"))
 
-        samples(projectOrArtifact(":compose:ui:ui-graphics:ui-graphics-samples"))
+        samples(project(":compose:ui:ui-graphics:ui-graphics-samples"))
     }
 }
 
@@ -128,7 +128,7 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
         }
     }
     dependencies {
-        samples(projectOrArtifact(":compose:ui:ui-graphics:ui-graphics-samples"))
+        samples(project(":compose:ui:ui-graphics:ui-graphics-samples"))
     }
 }
 

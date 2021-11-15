@@ -91,6 +91,13 @@ fun Project.getSdkPath(): File {
  * @return the root project's platform-specific NDK path as a file.
  */
 fun Project.getNdkPath(): File {
+    val envValue = System.getenv("ANDROID_NDK_HOME")
+    if (envValue != null) {
+        val ndkDirectory = File(envValue)
+        if (ndkDirectory.isDirectory) {
+            return ndkDirectory
+        }
+    }
     return File(getSdkPath(), "ndk")
 }
 

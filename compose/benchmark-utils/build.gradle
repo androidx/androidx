@@ -26,7 +26,7 @@ dependencies {
 
     api("androidx.activity:activity:1.2.0")
     api(project(":compose:test-utils"))
-    api(project(":benchmark:benchmark-junit4"))
+    api(projectOrArtifact(":benchmark:benchmark-junit4"))
 
     implementation(libs.kotlinStdlibCommon)
     implementation(project(":compose:runtime:runtime"))

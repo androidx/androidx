@@ -19,7 +19,7 @@ dependencies {
     kotlinPlugin(project(":compose:compiler:compiler"))
 
     implementation(libs.kotlinStdlib)
-    implementation(project(":activity:activity-compose"))
+    implementation(projectOrArtifact(":activity:activity-compose"))
     implementation(project(":compose:foundation:foundation-layout"))
     implementation(project(":compose:material:material"))
     implementation(project(":compose:runtime:runtime"))
