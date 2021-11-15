@@ -121,6 +121,9 @@ package androidx.glance.appwidget {
   public final class UtilsKt {
   }
 
+  public final class WidgetLayoutKt {
+  }
+
 }
 
 package androidx.glance.appwidget.action {
