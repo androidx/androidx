@@ -1,0 +1,54 @@
+syntax = "proto3";
+
+package androidx.glance.appwidget.proto;
+
+option java_package  = "androidx.glance.appwidget.proto";
+option java_outer_classname = "LayoutProto";
+
+message LayoutNode {
+  LayoutType type = 1;
+  Dimension width = 2;
+  Dimension height = 3;
+  repeated LayoutNode children = 4;
+}
+
+message Dimension {
+  oneof value {
+    Dp dp_dimension = 1;
+    Wrap wrap_dimension = 2;
+    Fill fill_dimension = 3;
+    Expand expand_dimension = 4;
+    Resource resource_dimension = 5;
+  }
+
+  message Dp {
+    float value = 1;
+  }
+
+  message Wrap {}
+
+  message Fill {}
+
+  message Expand {}
+
+  message Resource {
+    int32 value = 1;
+  }
+}
+
+enum LayoutType {
+  UNKNOWN_TYPE = 0;
+  ROW = 1;
+  COLUMN = 2;
+  BOX = 3;
+  TEXT = 4;
+  LAZY_COLUMN = 5;
+  LIST_ITEM = 6;
+  CHECK_BOX = 7;
+  BUTTON = 8;
+  SPACER = 9;
+  SWITCH = 10;
+  ANDROID_REMOTE_VIEWS = 11;
+  REMOTE_VIEWS_ROOT = 12;
+  IMAGE = 13;
+}
