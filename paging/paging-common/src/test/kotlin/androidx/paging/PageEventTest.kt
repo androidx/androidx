@@ -19,11 +19,13 @@ package androidx.paging
 import androidx.paging.LoadType.PREPEND
 import androidx.paging.LoadType.REFRESH
 import androidx.paging.PageEvent.Drop
+import androidx.testutils.DirectDispatcher
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
+import org.junit.runners.Parameterized
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertSame
@@ -271,5 +273,80 @@ class PageEventTest {
             ),
             flatMappedAgain
         )
+    }
+
+    @RunWith(Parameterized::class)
+    class StaticPagingData(
+        private val original: PagingData<String>
+    ) {
+        companion object {
+            @JvmStatic
+            @Parameterized.Parameters(name = "original = {0}")
+            fun initParameters() = listOf(
+                PagingData.from(listOf("a", "b", "c")),
+                PagingData.empty(),
+            )
+        }
+
+        private val differ = TestPagingDataDiffer<String>(DirectDispatcher)
+
+        @Test
+        fun map() = runBlockingTest {
+            val transform = { it: String -> it + it }
+            differ.collectFrom(original)
+            val originalItems = differ.snapshot().items
+            val expectedItems = originalItems.map(transform)
+            val transformedPagingData = original.map { transform(it) }
+            differ.collectFrom(transformedPagingData)
+            assertEquals(expectedItems, differ.snapshot().items)
+        }
+
+        @Test
+        fun flatMap() = runBlockingTest {
+            val transform = { it: String -> listOf(it, it) }
+            differ.collectFrom(original)
+            val originalItems = differ.snapshot().items
+            val expectedItems = originalItems.flatMap(transform)
+            val transformedPagingData = original.flatMap { transform(it) }
+            differ.collectFrom(transformedPagingData)
+            assertEquals(expectedItems, differ.snapshot().items)
+        }
+
+        @Test
+        fun filter() = runBlockingTest {
+            val predicate = { it: String -> it != "b" }
+            differ.collectFrom(original)
+            val originalItems = differ.snapshot().items
+            val expectedItems = originalItems.filter(predicate)
+            val transformedPagingData = original.filter { predicate(it) }
+            differ.collectFrom(transformedPagingData)
+            assertEquals(expectedItems, differ.snapshot().items)
+        }
+
+        @Test
+        fun insertSeparators() = runBlockingTest {
+            val transform = { left: String?, right: String? ->
+                if (left == null || right == null) null else "|"
+            }
+            differ.collectFrom(original)
+            val originalItems = differ.snapshot().items
+            val expectedItems = originalItems.flatMapIndexed { index, s ->
+                val result = mutableListOf<String>()
+                if (index == 0) {
+                    transform(null, s)?.let(result::add)
+                }
+                result.add(s)
+                transform(s, originalItems.getOrNull(index + 1))?.let(result::add)
+                if (index == originalItems.lastIndex) {
+                    transform(s, null)?.let(result::add)
+                }
+                result
+            }
+            val transformedPagingData = original.insertSeparators { left, right ->
+                transform(left, right)
+            }
+            differ.collectFrom(transformedPagingData)
+            assertEquals(expectedItems, differ.snapshot().items)
+        }
     }
 }
