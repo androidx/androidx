@@ -19,7 +19,7 @@ package androidx.glance.appwidget.translators
 import android.os.Build
 import android.view.Gravity
 import android.widget.RemoteViews
-import androidx.core.widget.setCompoundButtonTintList
+import androidx.core.widget.RemoteViewsCompat.setCompoundButtonTintList
 import androidx.glance.appwidget.EmittableCheckBox
 import androidx.glance.appwidget.LayoutType
 import androidx.glance.appwidget.R
