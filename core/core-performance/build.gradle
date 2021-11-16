@@ -26,7 +26,9 @@ plugins {
 
 dependencies {
     api(libs.kotlinStdlib)
-    // Add dependencies here
+    testImplementation(libs.kotlinStdlib)
+    testImplementation(libs.junit)
+    testImplementation(libs.truth)
 }
 
 androidx {
