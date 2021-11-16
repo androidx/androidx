@@ -221,9 +221,23 @@ public class ImageCaptureTest {
     }
 
     @Test
-    public void captureWithCropAspectRatioByImageSavedCallback_jpegQualityIs100() {
+    public void captureWithCropAspectRatioByImageSavedCallbackAndMinLatencyMode_jpegQualityIs95() {
         int jpegQuality = 50;
-        ImageCapture imageCapture = new ImageCapture.Builder().setJpegQuality(jpegQuality).build();
+        ImageCapture imageCapture = new ImageCapture.Builder()
+                .setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
+                .setJpegQuality(jpegQuality).build();
+        imageCapture.setCropAspectRatio(new Rational(1, 1));
+        List<CaptureConfig> captureConfigs = captureImage(imageCapture,
+                ImageCapture.OnImageSavedCallback.class);
+        assertThat(hasJpegQuality(captureConfigs, 95)).isTrue();
+    }
+
+    @Test
+    public void captureWithCropAspectRatioByImageSavedCallbackAndMaxQualityMode_jpegQualityIs100() {
+        int jpegQuality = 50;
+        ImageCapture imageCapture = new ImageCapture.Builder()
+                .setCaptureMode(ImageCapture.CAPTURE_MODE_MAXIMIZE_QUALITY)
+                .setJpegQuality(jpegQuality).build();
         imageCapture.setCropAspectRatio(new Rational(1, 1));
         List<CaptureConfig> captureConfigs = captureImage(imageCapture,
                 ImageCapture.OnImageSavedCallback.class);
@@ -241,11 +255,26 @@ public class ImageCaptureTest {
     }
 
     @Test
-    public void captureWithViewPortByImageSavedCallback_jpegQualityIs100() {
+    public void captureWithViewPortByImageSavedCallbackAndMinLatencyMode_jpegQualityIs95() {
         mCameraUseCaseAdapter.setViewPort(new ViewPort.Builder(new Rational(1, 1),
                 Surface.ROTATION_0).build());
         int jpegQuality = 50;
-        ImageCapture imageCapture = new ImageCapture.Builder().setJpegQuality(jpegQuality).build();
+        ImageCapture imageCapture = new ImageCapture.Builder()
+                .setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
+                .setJpegQuality(jpegQuality).build();
+        List<CaptureConfig> captureConfigs = captureImage(imageCapture,
+                ImageCapture.OnImageSavedCallback.class);
+        assertThat(hasJpegQuality(captureConfigs, 95)).isTrue();
+    }
+
+    @Test
+    public void captureWithViewPortByImageSavedCallbackAndMaxQualityMode_jpegQualityIs100() {
+        mCameraUseCaseAdapter.setViewPort(new ViewPort.Builder(new Rational(1, 1),
+                Surface.ROTATION_0).build());
+        int jpegQuality = 50;
+        ImageCapture imageCapture = new ImageCapture.Builder()
+                .setCaptureMode(ImageCapture.CAPTURE_MODE_MAXIMIZE_QUALITY)
+                .setJpegQuality(jpegQuality).build();
         List<CaptureConfig> captureConfigs = captureImage(imageCapture,
                 ImageCapture.OnImageSavedCallback.class);
         assertThat(hasJpegQuality(captureConfigs, 100)).isTrue();
