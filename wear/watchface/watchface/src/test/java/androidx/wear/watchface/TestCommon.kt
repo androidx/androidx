@@ -132,10 +132,6 @@ internal class TestWatchFaceService(
 
     override fun getChoreographer() = choreographer
 
-    fun setIsVisible(isVisible: Boolean) {
-        watchState.isVisible.value = isVisible
-    }
-
     override fun readDirectBootPrefs(
         context: Context,
         fileName: String

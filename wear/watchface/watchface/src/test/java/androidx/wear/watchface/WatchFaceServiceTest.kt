@@ -434,8 +434,7 @@ public class WatchFaceServiceTest {
         watchFaceImpl = engineWrapper.getWatchFaceImplOrNull()!!
         currentUserStyleRepository = watchFaceImpl.currentUserStyleRepository
         complicationSlotsManager = watchFaceImpl.complicationSlotsManager
-
-        testWatchFaceService.setIsVisible(true)
+        engineWrapper.onVisibilityChanged(true)
     }
 
     private fun initEngineBeforeGetWatchFaceImpl(
@@ -560,7 +559,7 @@ public class WatchFaceServiceTest {
 
         currentUserStyleRepository = watchFaceImpl.currentUserStyleRepository
         complicationSlotsManager = watchFaceImpl.complicationSlotsManager
-        testWatchFaceService.setIsVisible(true)
+        engineWrapper.onVisibilityChanged(true)
     }
 
     private fun sendBinder(engine: WatchFaceService.EngineWrapper, apiVersion: Int) {
@@ -3631,6 +3630,25 @@ public class WatchFaceServiceTest {
         )
 
         assertThat(mainThreadPriorityDelegate.priority).isEqualTo(Priority.Unset)
+    }
+
+    @Test
+    fun onVisibilityChanged_true_always_renders_a_frame() {
+        initEngine(
+            WatchFaceType.ANALOG,
+            listOf(leftComplication, rightComplication),
+            UserStyleSchema(emptyList())
+        )
+
+        watchState.isAmbient.value = false
+
+        testWatchFaceService.mockSystemTimeMillis = 1000L
+        engineWrapper.onVisibilityChanged(true)
+        assertThat(renderer.lastOnDrawZonedDateTime!!.toInstant().toEpochMilli()).isEqualTo(1000L)
+
+        testWatchFaceService.mockSystemTimeMillis = 2000L
+        engineWrapper.onVisibilityChanged(true)
+        assertThat(renderer.lastOnDrawZonedDateTime!!.toInstant().toEpochMilli()).isEqualTo(2000L)
     }
 
     @SuppressLint("NewApi")
