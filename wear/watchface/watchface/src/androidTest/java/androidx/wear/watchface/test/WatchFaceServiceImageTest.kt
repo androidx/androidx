@@ -563,6 +563,7 @@ public class WatchFaceServiceImageTest {
         )
     }
 
+    @FlakyTest(bugId = 206648285)
     @SuppressLint("NewApi")
     @Test
     public fun testCommandTakeOpenGLScreenShot() {
@@ -715,6 +716,7 @@ public class WatchFaceServiceImageTest {
         )
     }
 
+    @FlakyTest(bugId = 206647510)
     @SuppressLint("NewApi")
     @Test
     public fun testHighlightRightComplicationInScreenshot() {

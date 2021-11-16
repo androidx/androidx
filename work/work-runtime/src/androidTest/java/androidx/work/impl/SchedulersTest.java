@@ -28,6 +28,7 @@ import android.os.Build;
 
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.FlakyTest;
 import androidx.test.filters.MediumTest;
 import androidx.test.filters.SdkSuppress;
 import androidx.work.impl.background.systemalarm.SystemAlarmScheduler;
@@ -52,6 +53,7 @@ public class SchedulersTest {
         mAppContext = ApplicationProvider.getApplicationContext();
     }
 
+    @FlakyTest(bugId = 206647994)
     @Test
     @SdkSuppress(minSdkVersion = WorkManagerImpl.MIN_JOB_SCHEDULER_API_LEVEL)
     public void testGetBackgroundScheduler_withJobSchedulerApiLevel() {
