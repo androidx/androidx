@@ -28,11 +28,16 @@ function fetch_logs() {
   mkdir $newDir
   cd $newDir
   # download as many logs as exist
-  for i in $(seq 20); do
-    if fetch_artifact --bid "$buildId" --target "$target" "logs/gradle.${i}.log"; then
+  for i in 0 $(seq 20); do
+    if [ "$i" == "0" ]; then
+      logName="gradle.log"
+    else
+      logName="gradle.${i}.log"
+    fi
+    if fetch_artifact --bid "$buildId" --target "$target" "logs/$logName"; then
       echo "downloaded log ${i} in build $buildId target $target"
     else
-      echo "log ${i} does not exist in build $buildId target ${target}; continuing"
+      echo "$logName does not exist in build $buildId target ${target}; continuing"
       echo
       break
     fi
