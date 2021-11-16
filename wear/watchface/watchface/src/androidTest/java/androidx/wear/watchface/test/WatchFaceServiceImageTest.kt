@@ -37,6 +37,7 @@ import android.view.SurfaceHolder
 import androidx.annotation.RequiresApi
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.FlakyTest
 import androidx.test.filters.MediumTest
 import androidx.test.screenshot.AndroidXScreenshotTestRule
 import androidx.test.screenshot.assertAgainstGolden
@@ -634,6 +635,7 @@ public class WatchFaceServiceImageTest {
         bitmap.assertAgainstGolden(screenshotRule, "green_screenshot_no_complication_data")
     }
 
+    @FlakyTest(bugId = 206484052)
     @SuppressLint("NewApi")
     @Test
     public fun testHighlightAllComplicationsInScreenshot() {
@@ -675,6 +677,7 @@ public class WatchFaceServiceImageTest {
 
     @SuppressLint("NewApi")
     @Test
+    @FlakyTest(bugId = 206485794)
     public fun testRenderLeftComplicationPressed() {
         val latch = CountDownLatch(1)
 
