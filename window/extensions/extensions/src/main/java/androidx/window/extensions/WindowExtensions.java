@@ -47,7 +47,6 @@ public interface WindowExtensions {
      * device, {@code null} otherwise. The implementation must match the API level reported in
      * {@link WindowExtensions}.
      * @return the OEM implementation of {@link WindowLayoutComponent}
-     * @throws UnsupportedOperationException if the device does not support
      */
     @Nullable
     WindowLayoutComponent getWindowLayoutComponent();
