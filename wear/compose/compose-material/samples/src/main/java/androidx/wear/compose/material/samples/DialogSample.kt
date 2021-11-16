@@ -19,6 +19,8 @@ package androidx.wear.compose.material.samples
 import androidx.annotation.Sampled
 import androidx.compose.animation.graphics.ExperimentalAnimationGraphicsApi
 import androidx.compose.animation.graphics.res.animatedVectorResource
+import androidx.compose.animation.graphics.res.rememberAnimatedVectorPainter
+import androidx.compose.animation.graphics.vector.AnimatedImageVector
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -114,7 +116,7 @@ fun AlertDialogWithChips() {
 @Sampled
 @Composable
 fun ConfirmationDialogWithAnimation() {
-    val animation = animatedVectorResource(id = R.drawable.open_on_phone_animation)
+    val animation = AnimatedImageVector.animatedVectorResource(R.drawable.open_on_phone_animation)
     ConfirmationDialog(
         onTimeout = {
             /* Do something e.g. navController.popBackStack() */
@@ -129,7 +131,7 @@ fun ConfirmationDialogWithAnimation() {
                 onDispose {}
             }
             Image(
-                painter = animation.painterFor(atEnd),
+                painter = rememberAnimatedVectorPainter(animation, atEnd),
                 contentDescription = "Open on phone",
                 modifier = Modifier.size(64.dp)
             )
