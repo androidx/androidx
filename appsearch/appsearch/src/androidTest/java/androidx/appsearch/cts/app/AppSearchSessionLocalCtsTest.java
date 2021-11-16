@@ -408,7 +408,8 @@ public class AppSearchSessionLocalCtsTest extends AppSearchSessionCtsTestBase {
 
         db2.setSchema(new SetSchemaRequest.Builder().addSchemas(
                 schema).setForceOverride(true).build()).get();
-        db2.put(new PutDocumentsRequest.Builder().addGenericDocuments(doc).build());
+        checkIsBatchResultSuccess(db2.put(
+                new PutDocumentsRequest.Builder().addGenericDocuments(doc).build()));
         db2.setSchema(new SetSchemaRequest.Builder().addSchemas(newSchema)
                 .setMigrator("testSchema", migrator)
                 .setVersion(2)     // upgrade version

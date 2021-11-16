@@ -200,9 +200,7 @@ public final class WorkSpec {
      */
     public void setPeriodic(long intervalDuration) {
         if (intervalDuration < MIN_PERIODIC_INTERVAL_MILLIS) {
-            Logger.get().warning(TAG, String.format(
-                    "Interval duration lesser than minimum allowed value; Changed to %s",
-                    MIN_PERIODIC_INTERVAL_MILLIS));
+            Logger.get().warning(TAG, "Interval duration lesser than minimum allowed value; Changed to " + MIN_PERIODIC_INTERVAL_MILLIS);
             intervalDuration = MIN_PERIODIC_INTERVAL_MILLIS;
         }
         setPeriodic(intervalDuration, intervalDuration);
@@ -216,21 +214,17 @@ public final class WorkSpec {
      */
     public void setPeriodic(long intervalDuration, long flexDuration) {
         if (intervalDuration < MIN_PERIODIC_INTERVAL_MILLIS) {
-            Logger.get().warning(TAG, String.format(
-                    "Interval duration lesser than minimum allowed value; Changed to %s",
-                    MIN_PERIODIC_INTERVAL_MILLIS));
+            Logger.get().warning(TAG, "Interval duration lesser than minimum allowed value; Changed to " + MIN_PERIODIC_INTERVAL_MILLIS);
             intervalDuration = MIN_PERIODIC_INTERVAL_MILLIS;
         }
         if (flexDuration < MIN_PERIODIC_FLEX_MILLIS) {
             Logger.get().warning(TAG,
-                    String.format("Flex duration lesser than minimum allowed value; Changed to %s",
-                            MIN_PERIODIC_FLEX_MILLIS));
+                    "Flex duration lesser than minimum allowed value; Changed to " + MIN_PERIODIC_FLEX_MILLIS);
             flexDuration = MIN_PERIODIC_FLEX_MILLIS;
         }
         if (flexDuration > intervalDuration) {
             Logger.get().warning(TAG,
-                    String.format("Flex duration greater than interval duration; Changed to %s",
-                            intervalDuration));
+                    "Flex duration greater than interval duration; Changed to " + intervalDuration);
             flexDuration = intervalDuration;
         }
         this.intervalDuration = intervalDuration;

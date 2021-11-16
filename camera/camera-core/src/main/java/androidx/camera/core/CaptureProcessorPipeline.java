@@ -27,6 +27,7 @@ import androidx.camera.core.impl.CaptureProcessor;
 import androidx.camera.core.impl.ImageProxyBundle;
 import androidx.camera.core.impl.ImageReaderProxy;
 import androidx.camera.core.impl.TagBundle;
+import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.core.util.Preconditions;
 
 import com.google.common.util.concurrent.ListenableFuture;
@@ -35,15 +36,17 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
+import java.util.concurrent.RejectedExecutionException;
 
 /**
  * A CaptureProcessor which can link two CaptureProcessors.
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 class CaptureProcessorPipeline implements CaptureProcessor {
+    private static final String TAG = "CaptureProcessorPipeline";
     private final CaptureProcessor mPreCaptureProcessor;
     private final CaptureProcessor mPostCaptureProcessor;
-    private final Executor mExecutor;
+    final Executor mExecutor;
     private final int mMaxImages;
     private ImageReaderProxy mIntermediateImageReader = null;
     private ImageInfo mSourceImageInfo = null;
@@ -120,12 +123,17 @@ class CaptureProcessorPipeline implements CaptureProcessor {
         // Register the ImageAvailableListener to receive the processed image from the
         // pre-processing CaptureProcessor.
         mIntermediateImageReader.setOnImageAvailableListener(
-                new ImageReaderProxy.OnImageAvailableListener() {
-                    @Override
-                    public void onImageAvailable(@NonNull ImageReaderProxy imageReader) {
-                        postProcess(imageReader.acquireNextImage());
+                imageReader -> {
+                    ImageProxy image = imageReader.acquireNextImage();
+                    try {
+                        mExecutor.execute(() -> postProcess(image));
+                    } catch (RejectedExecutionException e) {
+                        Logger.e(TAG, "The executor for post-processing might have been "
+                                + "shutting down or terminated!");
+                        image.close();
                     }
-                }, mExecutor);
+                },
+                CameraXExecutors.directExecutor());
     }
 
     void postProcess(ImageProxy imageProxy) {

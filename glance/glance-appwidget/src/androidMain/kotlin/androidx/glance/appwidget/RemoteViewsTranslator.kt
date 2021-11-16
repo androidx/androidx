@@ -18,6 +18,7 @@ package androidx.glance.appwidget
 
 import android.content.Context
 import android.os.Build
+import android.util.Log
 import android.view.Gravity
 import android.view.View
 import android.widget.RemoteViews
@@ -28,29 +29,36 @@ import androidx.annotation.VisibleForTesting
 import androidx.core.widget.setLinearLayoutGravity
 import androidx.core.widget.setRelativeLayoutGravity
 import androidx.glance.Emittable
-import androidx.glance.appwidget.layout.EmittableAndroidRemoteViews
-import androidx.glance.appwidget.layout.EmittableCheckBox
-import androidx.glance.appwidget.layout.EmittableLazyColumn
-import androidx.glance.appwidget.layout.EmittableLazyListItem
-import androidx.glance.appwidget.layout.EmittableSwitch
-import androidx.glance.appwidget.translators.translateEmittableCheckBox
-import androidx.glance.appwidget.translators.translateEmittableSwitch
-import androidx.glance.appwidget.translators.translateEmittableText
+import androidx.glance.EmittableButton
+import androidx.glance.EmittableImage
+import androidx.glance.appwidget.lazy.EmittableLazyColumn
+import androidx.glance.appwidget.lazy.EmittableLazyListItem
 import androidx.glance.appwidget.translators.setText
+import androidx.glance.appwidget.translators.translateEmittableCheckBox
+import androidx.glance.appwidget.translators.translateEmittableImage
 import androidx.glance.appwidget.translators.translateEmittableLazyColumn
 import androidx.glance.appwidget.translators.translateEmittableLazyListItem
+import androidx.glance.appwidget.translators.translateEmittableSwitch
+import androidx.glance.appwidget.translators.translateEmittableText
 import androidx.glance.layout.Alignment
 import androidx.glance.layout.EmittableBox
-import androidx.glance.layout.EmittableButton
 import androidx.glance.layout.EmittableColumn
 import androidx.glance.layout.EmittableRow
-import androidx.glance.layout.EmittableText
+import androidx.glance.layout.EmittableSpacer
+import androidx.glance.text.EmittableText
 import java.util.concurrent.atomic.AtomicInteger
 
-internal fun translateComposition(context: Context, appWidgetId: Int, element: RemoteViewsRoot) =
+internal fun translateComposition(
+    context: Context,
+    appWidgetId: Int,
+    appWidgetClass: Class<out GlanceAppWidget>,
+    element: RemoteViewsRoot,
+    rootViewIndex: Int,
+) =
     translateComposition(
-        TranslationContext(context, appWidgetId, context.isRtl),
-        element
+        TranslationContext(context, appWidgetId, appWidgetClass, context.isRtl, itemPosition = -1),
+        element.children,
+        rootViewIndex,
     )
 
 @VisibleForTesting
@@ -60,32 +68,48 @@ private val Context.isRtl: Boolean
     get() = forceRtl
         ?: (resources.configuration.layoutDirection == View.LAYOUT_DIRECTION_RTL)
 
-private fun translateComposition(
+internal fun translateComposition(
     translationContext: TranslationContext,
-    element: RemoteViewsRoot
+    children: List<Emittable>,
+    rootViewIndex: Int
 ): RemoteViews {
-    if (element.children.size == 1) {
-        return translateChild(translationContext, element.children[0])
+    require(children.size == 1) {
+        "The root of the tree must have exactly one child. " +
+            "The normalization of the composition tree failed."
     }
-    return translateChild(
-        translationContext,
-        EmittableBox().also { it.children.addAll(element.children) }
-    )
+    val child = children.first()
+    val remoteViewsInfo = createRootView(translationContext, child.modifier, rootViewIndex)
+    val rv = remoteViewsInfo.remoteViews
+    rv.translateChild(translationContext.forRoot(root = remoteViewsInfo), child)
+    return rv
 }
 
 internal data class TranslationContext(
     val context: Context,
     val appWidgetId: Int,
+    val appWidgetClass: Class<out GlanceAppWidget>,
     val isRtl: Boolean,
-    val listCount: AtomicInteger = AtomicInteger(0),
-    val areLazyCollectionsAllowed: Boolean = true
-)
+    val itemPosition: Int,
+    val areLazyCollectionsAllowed: Boolean = true,
+    val lastViewId: AtomicInteger = AtomicInteger(0),
+    val parentContext: InsertedViewInfo = InsertedViewInfo(),
+) {
+    fun nextViewId() = lastViewId.incrementAndGet()
 
-internal fun translateChild(
+    fun forChild(parent: InsertedViewInfo, pos: Int): TranslationContext =
+        copy(itemPosition = pos, parentContext = parent)
+
+    fun forRoot(root: RemoteViewsInfo): TranslationContext =
+        forChild(pos = 0, parent = root.view)
+
+    fun resetViewId(newViewId: Int = 0) = copy(lastViewId = AtomicInteger(newViewId))
+}
+
+internal fun RemoteViews.translateChild(
     translationContext: TranslationContext,
     element: Emittable
-): RemoteViews {
-    return when (element) {
+) {
+    when (element) {
         is EmittableBox -> translateEmittableBox(translationContext, element)
         is EmittableButton -> translateEmittableButton(translationContext, element)
         is EmittableRow -> translateEmittableRow(translationContext, element)
@@ -97,8 +121,14 @@ internal fun translateChild(
             translateEmittableAndroidRemoteViews(translationContext, element)
         }
         is EmittableCheckBox -> translateEmittableCheckBox(translationContext, element)
+        is EmittableSpacer -> translateEmittableSpacer(translationContext, element)
         is EmittableSwitch -> translateEmittableSwitch(translationContext, element)
-        else -> throw IllegalArgumentException("Unknown element type ${element::javaClass}")
+        is EmittableImage -> translateEmittableImage(translationContext, element)
+        else -> {
+            throw IllegalArgumentException(
+                "Unknown element type ${element.javaClass.canonicalName}"
+            )
+        }
     }
 }
 
@@ -110,7 +140,10 @@ private fun Alignment.Horizontal.toGravity(): Int =
         Alignment.Horizontal.Start -> Gravity.START
         Alignment.Horizontal.End -> Gravity.END
         Alignment.Horizontal.CenterHorizontally -> Gravity.CENTER_HORIZONTAL
-        else -> throw IllegalArgumentException("Unknown horizontal alignment: $this")
+        else -> {
+            Log.w(GlanceAppWidgetTag, "Unknown horizontal alignment: $this")
+            Gravity.START
+        }
     }
 
 private fun Alignment.Vertical.toGravity(): Int =
@@ -118,119 +151,140 @@ private fun Alignment.Vertical.toGravity(): Int =
         Alignment.Vertical.Top -> Gravity.TOP
         Alignment.Vertical.Bottom -> Gravity.BOTTOM
         Alignment.Vertical.CenterVertically -> Gravity.CENTER_VERTICAL
-        else -> throw IllegalArgumentException("Unknown vertical alignment: $this")
+        else -> {
+            Log.w(GlanceAppWidgetTag, "Unknown vertical alignment: $this")
+            Gravity.TOP
+        }
     }
 
 internal fun Alignment.toGravity() = horizontal.toGravity() or vertical.toGravity()
 
-private fun translateEmittableBox(
+private fun RemoteViews.translateEmittableBox(
     translationContext: TranslationContext,
     element: EmittableBox
-): RemoteViews {
-    val layoutDef = selectLayout(translationContext, LayoutSelector.Type.Box, element.modifier)
-    return remoteViews(translationContext, layoutDef.layoutId)
-        .also { rv ->
-            rv.setRelativeLayoutGravity(layoutDef.mainViewId, element.contentAlignment.toGravity())
-            applyModifiers(
-                translationContext,
-                rv,
-                element.modifier,
-                layoutDef
-            )
-            rv.setChildren(
-                translationContext,
-                layoutDef.mainViewId,
-                element.children
-            )
-        }
+) {
+    val viewDef = insertContainerView(
+        translationContext,
+        LayoutType.Box,
+        element.children.size,
+        element.modifier
+    )
+    setRelativeLayoutGravity(viewDef.mainViewId, element.contentAlignment.toGravity())
+    applyModifiers(
+        translationContext,
+        this,
+        element.modifier,
+        viewDef
+    )
+    setChildren(
+        translationContext,
+        viewDef,
+        element.children
+    )
 }
 
-private fun translateEmittableRow(
+private fun RemoteViews.translateEmittableRow(
     translationContext: TranslationContext,
     element: EmittableRow
-): RemoteViews {
-    val layoutDef = selectLayout(translationContext, LayoutSelector.Type.Row, element.modifier)
-    return remoteViews(translationContext, layoutDef.layoutId)
-        .also { rv ->
-            rv.setLinearLayoutGravity(
-                layoutDef.mainViewId,
-                element.horizontalAlignment.toGravity() or element.verticalAlignment.toGravity()
-            )
-            applyModifiers(
-                translationContext,
-                rv,
-                element.modifier,
-                layoutDef
-            )
-            rv.setChildren(
-                translationContext,
-                layoutDef.mainViewId,
-                element.children
-            )
-        }
+) {
+    val viewDef = insertContainerView(
+        translationContext,
+        LayoutType.Row,
+        element.children.size,
+        element.modifier
+    )
+    setLinearLayoutGravity(
+        viewDef.mainViewId,
+        element.horizontalAlignment.toGravity() or element.verticalAlignment.toGravity()
+    )
+    applyModifiers(
+        translationContext,
+        this,
+        element.modifier,
+        viewDef
+    )
+    setChildren(
+        translationContext,
+        viewDef,
+        element.children
+    )
 }
 
-private fun translateEmittableColumn(
+private fun RemoteViews.translateEmittableColumn(
     translationContext: TranslationContext,
     element: EmittableColumn
-): RemoteViews {
-    val layoutDef = selectLayout(translationContext, LayoutSelector.Type.Column, element.modifier)
-    return remoteViews(translationContext, layoutDef.layoutId)
-        .also { rv ->
-            rv.setLinearLayoutGravity(
-                layoutDef.mainViewId,
-                element.horizontalAlignment.toGravity() or element.verticalAlignment.toGravity()
-            )
-            applyModifiers(
-                translationContext,
-                rv,
-                element.modifier,
-                layoutDef
-            )
-            rv.setChildren(
-                translationContext,
-                layoutDef.mainViewId,
-                element.children
-            )
-        }
+) {
+    val viewDef = insertContainerView(
+        translationContext,
+        LayoutType.Column,
+        element.children.size,
+        element.modifier
+    )
+    setLinearLayoutGravity(
+        viewDef.mainViewId,
+        element.horizontalAlignment.toGravity() or element.verticalAlignment.toGravity()
+    )
+    applyModifiers(
+        translationContext,
+        this,
+        element.modifier,
+        viewDef
+    )
+    setChildren(
+        translationContext,
+        viewDef,
+        element.children
+    )
 }
 
-private fun translateEmittableAndroidRemoteViews(
+private fun RemoteViews.translateEmittableAndroidRemoteViews(
     translationContext: TranslationContext,
     element: EmittableAndroidRemoteViews
-): RemoteViews {
-    if (element.children.isNotEmpty()) {
+) {
+    val rv = if (element.children.isEmpty()) {
+        element.remoteViews
+    } else {
         check(element.containerViewId != View.NO_ID) {
             "To add children to an `AndroidRemoteViews`, its `containerViewId` must be set."
         }
-        return element.remoteViews.copy().apply {
-            setChildren(
-                translationContext,
-                element.containerViewId,
-                element.children
-            )
+        element.remoteViews.copy().apply {
+            removeAllViews(element.containerViewId)
+            element.children.forEachIndexed { index, child ->
+                val rvInfo = createRootView(translationContext, child.modifier, index)
+                val rv = rvInfo.remoteViews
+                rv.translateChild(translationContext.forRoot(rvInfo), child)
+                addChildView(element.containerViewId, rv, index)
+            }
         }
     }
-    return element.remoteViews
+    val viewDef = insertView(translationContext, LayoutType.Frame, element.modifier)
+    applyModifiers(translationContext, this, element.modifier, viewDef)
+    removeAllViews(viewDef.mainViewId)
+    addChildView(viewDef.mainViewId, rv, stableId = 0)
 }
 
-private fun translateEmittableButton(
+private fun RemoteViews.translateEmittableButton(
     translationContext: TranslationContext,
     element: EmittableButton
-): RemoteViews {
-    val layoutDef =
-        selectLayout(translationContext, LayoutSelector.Type.Button, element.modifier)
-    return remoteViews(translationContext, layoutDef.layoutId)
-        .also { rv ->
-            rv.setText(
-                translationContext,
-                layoutDef.mainViewId,
-                element.text,
-                element.style
-            )
-            rv.setBoolean(layoutDef.mainViewId, "setEnabled", element.enabled)
-            applyModifiers(translationContext, rv, element.modifier, layoutDef)
-        }
+) {
+    val viewDef = insertView(translationContext, LayoutType.Button, element.modifier)
+    setText(
+        translationContext,
+        viewDef.mainViewId,
+        element.text,
+        element.style,
+        verticalTextGravity = Gravity.CENTER_VERTICAL,
+    )
+    setBoolean(viewDef.mainViewId, "setEnabled", element.enabled)
+    applyModifiers(translationContext, this, element.modifier, viewDef)
+}
+
+private fun RemoteViews.translateEmittableSpacer(
+    translationContext: TranslationContext,
+    element: EmittableSpacer
+) {
+    val viewDef = insertView(translationContext, LayoutType.Frame, element.modifier)
+    applyModifiers(translationContext, this, element.modifier, viewDef)
 }
 
 // Sets the emittables as children to the view. This first remove any previously added view, the
@@ -238,15 +292,13 @@ private fun translateEmittableButton(
 // of the child in the iterable.
 internal fun RemoteViews.setChildren(
     translationContext: TranslationContext,
-    viewId: Int,
+    parentDef: InsertedViewInfo,
     children: Iterable<Emittable>
 ) {
-    removeAllViews(viewId)
     children.forEachIndexed { index, child ->
-        addChildView(
-            viewId,
-            translateChild(translationContext, child),
-            index
+        translateChild(
+            translationContext.forChild(parent = parentDef, pos = index),
+            child,
         )
     }
 }

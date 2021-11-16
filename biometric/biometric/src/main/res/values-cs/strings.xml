@@ -30,4 +30,18 @@
     <string name="generic_error_no_device_credential" msgid="3791785319221634505">"Není nastaven žádný PIN, gesto ani heslo."</string>
     <string name="generic_error_no_keyguard" msgid="1807436368654974044">"Toto zařízení nepodporuje kódy PIN, hesla ani gesta."</string>
     <string name="fingerprint_dialog_icon_description" msgid="5462024216548165325">"Ikona otisku prstů"</string>
+    <string name="use_fingerprint_label" msgid="6961788485681412417">"Použít otisk prstu"</string>
+    <string name="use_face_label" msgid="6533512708069459542">"Použít obličej"</string>
+    <string name="use_biometric_label" msgid="6524145989441579428">"Použít biometrii"</string>
+    <string name="use_screen_lock_label" msgid="5459869335976243512">"Použít zámek obrazovky"</string>
+    <string name="use_fingerprint_or_screen_lock_label" msgid="7577690399303139443">"Použít otisk prstu nebo zámek obrazovky"</string>
+    <string name="use_face_or_screen_lock_label" msgid="2116180187159450292">"Použít odemknutí obličejem nebo zámek obrazovky"</string>
+    <string name="use_biometric_or_screen_lock_label" msgid="5385448280139639016">"Použít biometrii nebo zámek obrazovky"</string>
+    <string name="fingerprint_prompt_message" msgid="7449360011861769080">"Pokračujte přiložením prstu"</string>
+    <string name="face_prompt_message" msgid="2282389249605674226">"Pokračujte ověřením obličeje"</string>
+    <string name="biometric_prompt_message" msgid="1160635338192065472">"Pokračujte biometrickým ověřením"</string>
+    <string name="screen_lock_prompt_message" msgid="5659570757430909869">"Pokračujte zadáním zámku obrazovky"</string>
+    <string name="fingerprint_or_screen_lock_prompt_message" msgid="8382576858490514495">"Pokračujte ověřením pomocí otisku prstu nebo zámku obrazovky"</string>
+    <string name="face_or_screen_lock_prompt_message" msgid="4562557128765735254">"Pokračujte ověřením pomocí obličeje nebo zámku obrazovky"</string>
+    <string name="biometric_or_screen_lock_prompt_message" msgid="2102429900219199821">"Pokračujte ověřením pomocí biometrických údajů nebo zámku obrazovky"</string>
 </resources>

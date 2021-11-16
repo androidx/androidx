@@ -57,7 +57,7 @@ import androidx.transition.ChangeBounds;
 import androidx.transition.Transition;
 import androidx.transition.TransitionManager;
 import androidx.window.layout.FoldingFeature;
-import androidx.window.layout.WindowInfoRepository;
+import androidx.window.layout.WindowInfoTracker;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -333,16 +333,11 @@ public class SlidingPaneLayout extends ViewGroup implements Openable {
         mDragHelper = ViewDragHelper.create(this, 0.5f, new DragHelperCallback());
         mDragHelper.setMinVelocity(MIN_FLING_VELOCITY * density);
 
-        try {
-            Activity activity = requireActivity(context);
-            WindowInfoRepository repo = WindowInfoRepository.getOrCreate(activity);
-            Executor mainExecutor = ContextCompat.getMainExecutor(activity);
-            FoldingFeatureObserver foldingFeatureObserver = new FoldingFeatureObserver(repo,
-                    mainExecutor);
-            setFoldingFeatureObserver(foldingFeatureObserver);
-        } catch (IllegalArgumentException exception) {
-            // Disable fold detection.
-        }
+        WindowInfoTracker repo = WindowInfoTracker.getOrCreate(context);
+        Executor mainExecutor = ContextCompat.getMainExecutor(context);
+        FoldingFeatureObserver foldingFeatureObserver =
+                new FoldingFeatureObserver(repo, mainExecutor);
+        setFoldingFeatureObserver(foldingFeatureObserver);
     }
 
     private void setFoldingFeatureObserver(
@@ -585,7 +580,10 @@ public class SlidingPaneLayout extends ViewGroup implements Openable {
         super.onAttachedToWindow();
         mFirstLayout = true;
         if (mFoldingFeatureObserver != null) {
-            mFoldingFeatureObserver.registerLayoutStateChangeCallback();
+            Activity activity = getActivityOrNull(getContext());
+            if (activity != null) {
+                mFoldingFeatureObserver.registerLayoutStateChangeCallback(activity);
+            }
         }
     }
 
@@ -1901,7 +1899,8 @@ public class SlidingPaneLayout extends ViewGroup implements Openable {
         return foldRectInView;
     }
 
-    private static Activity requireActivity(Context context) {
+    @Nullable
+    private static Activity getActivityOrNull(Context context) {
         Context iterator = context;
         while (iterator instanceof ContextWrapper) {
             if (iterator instanceof Activity) {
@@ -1909,9 +1908,6 @@ public class SlidingPaneLayout extends ViewGroup implements Openable {
             }
             iterator = ((ContextWrapper) iterator).getBaseContext();
         }
-        throw new IllegalArgumentException("Used non-visual Context to obtain an instance of "
-                + "WindowManager. Please use an Activity or a ContextWrapper around one "
-                + "instead."
-        );
+        return null;
     }
 }

@@ -22,6 +22,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.platform.app.InstrumentationRegistry
 import org.junit.Assert.assertEquals
+import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -46,6 +47,7 @@ class TrivialTestModuleTest {
         )
     }
 
+    @Ignore // b/202321897
     @Test
     fun targetPackageInstalled() {
         val pm = InstrumentationRegistry.getInstrumentation().context.packageManager

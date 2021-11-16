@@ -1438,6 +1438,37 @@ class PageFetcherTest {
         fetcherState.job.cancel()
     }
 
+    /**
+     * See b/183345509
+     */
+    @Test
+    fun remoteRefreshTriggeredDespiteImmediateInvalidation() = testScope.runBlockingTest {
+        @OptIn(ExperimentalPagingApi::class)
+        val remoteMediator = RemoteMediatorMock().apply {
+            initializeResult = LAUNCH_INITIAL_REFRESH
+            loadCallback = { _, _ ->
+                RemoteMediator.MediatorResult.Success(endOfPaginationReached = true)
+            }
+        }
+        var generation = 0
+        val pageFetcher = PageFetcher(
+            pagingSourceFactory = {
+                TestPagingSource(items = emptyList()).also {
+                    if (generation++ == 0) it.invalidate()
+                }
+            },
+            initialKey = 0,
+            config = config,
+            remoteMediator = remoteMediator
+        )
+
+        val fetcherState = collectFetcherState(pageFetcher)
+        advanceUntilIdle()
+
+        assertThat(remoteMediator.newLoadEvents).isNotEmpty()
+        fetcherState.job.cancel()
+    }
+
     companion object {
         internal val EMPTY_SOURCE_REFRESH =
             localRefresh<Int>(

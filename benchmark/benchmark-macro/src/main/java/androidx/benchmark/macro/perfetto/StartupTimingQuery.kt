@@ -20,14 +20,6 @@ import androidx.benchmark.macro.StartupMode
 
 internal object StartupTimingQuery {
 
-    /**
-     * On older platforms, process name may be truncated, especially in cold startup traces,
-     * when the process name dump at trace begin happens _before_ app process is created.
-     *
-     * @see perfetto.protos.ProcessStatsConfig.scan_all_processes_on_start
-     */
-    private fun String.truncatedProcessName() = takeLast(15)
-
     private fun getFullQuery(testProcessName: String, targetProcessName: String) = """
         ------ Select all startup-relevant slices from slice table
         SELECT
@@ -39,19 +31,19 @@ internal object StartupTimingQuery {
             INNER JOIN thread USING(utid)
             INNER JOIN process USING(upid)
         WHERE (
-            -- Test process starts before tracing, so it shouldn't have truncation problem
             (process.name LIKE "$testProcessName" AND slice.name LIKE "startActivityAndWait") OR
             (
-                (
-                    -- check for full or truncated process name (can happen on older platforms)
-                    process.name LIKE "$targetProcessName" OR
-                    process.name LIKE "${targetProcessName.truncatedProcessName()}"
-                ) AND (
+                process.name LIKE "$targetProcessName" AND (
                     (slice.name LIKE "activityResume" AND process.pid LIKE thread.tid) OR
                     (slice.name LIKE "Choreographer#doFrame%" AND process.pid LIKE thread.tid) OR
                     (slice.name LIKE "reportFullyDrawn() for %" AND process.pid LIKE thread.tid) OR
                     (slice.name LIKE "DrawFrame%" AND thread.name LIKE "RenderThread")
                 )
+            ) OR
+            (
+                -- Signals beginning of launch event, only present in API 29+
+                process.name LIKE "system_server" AND
+                slice.name LIKE "MetricsLogger:launchObserverNotifyIntentStarted"
             )
         )
         ------ Add in async slices
@@ -73,6 +65,7 @@ internal object StartupTimingQuery {
 
     enum class StartupSliceType {
         StartActivityAndWait,
+        NotifyStarted,
         Launching,
         ReportFullyDrawn,
         FrameUiThread,
@@ -83,7 +76,7 @@ internal object StartupTimingQuery {
     data class SubMetrics(
         val timeToInitialDisplayNs: Long,
         val timeToFullDisplayNs: Long?,
-        val timelineRange: LongRange
+        val timelineRangeNs: LongRange
     ) {
         constructor(
             startTs: Long,
@@ -92,7 +85,7 @@ internal object StartupTimingQuery {
         ) : this(
             timeToInitialDisplayNs = initialDisplayTs - startTs,
             timeToFullDisplayNs = fullDisplayTs?.let { it - startTs },
-            timelineRange = startTs..(fullDisplayTs ?: initialDisplayTs),
+            timelineRangeNs = startTs..(fullDisplayTs ?: initialDisplayTs),
         )
     }
 
@@ -137,6 +130,8 @@ internal object StartupTimingQuery {
                     it.name.startsWith("DrawFrame") -> StartupSliceType.FrameRenderThread
                     it.name.startsWith("launching") -> StartupSliceType.Launching
                     it.name.startsWith("reportFullyDrawn") -> StartupSliceType.ReportFullyDrawn
+                    it.name == "MetricsLogger:launchObserverNotifyIntentStarted" ->
+                        StartupSliceType.NotifyStarted
                     it.name == "activityResume" -> StartupSliceType.ActivityResume
                     it.name == "startActivityAndWait" -> StartupSliceType.StartActivityAndWait
                     else -> throw IllegalStateException("Unexpected slice $it")
@@ -158,8 +153,24 @@ internal object StartupTimingQuery {
                 startActivityAndWaitSlice.contains(it.ts) &&
                     (captureApiLevel < 23 || it.name == "launching: $targetPackageName")
             } ?: return null
-            startTs = launchingSlice.ts
-            initialDisplayTs = launchingSlice.endTs
+
+            startTs = if (captureApiLevel >= 29) {
+                // Starting on API 29, expect to see 'notify started' system_server slice
+                val notifyStartedSlice = groupedData[StartupSliceType.NotifyStarted]?.lastOrNull {
+                    it.ts < launchingSlice.ts
+                } ?: return null
+                notifyStartedSlice.ts
+            } else {
+                launchingSlice.ts
+            }
+
+            // We use the end of rt slice here instead of the end of the 'launching' slice. This is
+            // both because on some platforms the launching slice may not wait for renderthread, but
+            // also because this allows us to make the guarantee that timeToInitialDisplay ==
+            // timeToFirstDisplay when they are the same frame.
+            initialDisplayTs = findEndRenderTimeForUiFrame(uiSlices, rtSlices) { uiSlice ->
+                uiSlice.ts > launchingSlice.ts
+            }
         } else {
             // Prior to API 29, hot starts weren't traced with the launching slice, so we do a best
             // guess - the time taken to Activity#onResume, and then produce the next frame.

@@ -477,9 +477,7 @@ public class BiometricFragment extends Fragment {
 
         // Fall back to device credential immediately if no known biometrics are available.
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP
-                && isManagingDeviceCredentialButton()
-                && BiometricManager.from(host).canAuthenticate(Authenticators.BIOMETRIC_WEAK)
-                        != BiometricManager.BIOMETRIC_SUCCESS) {
+                && isKeyguardManagerNeededForCredential()) {
             viewModel.setAwaitingResult(true);
             launchConfirmCredentialActivity();
             return;
@@ -510,7 +508,7 @@ public class BiometricFragment extends Fragment {
             viewModel.setPromptShowing(true);
             viewModel.setAwaitingResult(true);
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP
-                    && isKeyguardManagerNeededForAuthentication()) {
+                    && isKeyguardManagerNeededForBiometricAndCredential()) {
                 launchConfirmCredentialActivity();
             } else if (isUsingFingerprintDialog()) {
                 showFingerprintDialogForAuthentication();
@@ -1206,6 +1204,24 @@ public class BiometricFragment extends Fragment {
                 && !mInjector.isFingerprintHardwarePresent(getContext());
     }
 
+    private boolean isKeyguardManagerNeededForCredential() {
+        final Context context = getContext();
+
+        // On API 29, BiometricPrompt fails to launch the confirm device credential Settings
+        // activity if no biometric hardware is present.
+        if (Build.VERSION.SDK_INT == Build.VERSION_CODES.Q
+                && !mInjector.isFingerprintHardwarePresent(context)
+                && !mInjector.isFaceHardwarePresent(context)
+                && !mInjector.isIrisHardwarePresent(context)) {
+            return true;
+        }
+
+        // Launch CDC activity if managing the credential button and if no biometrics are available.
+        return isManagingDeviceCredentialButton()
+                && BiometricManager.from(context).canAuthenticate(Authenticators.BIOMETRIC_WEAK)
+                        != BiometricManager.BIOMETRIC_SUCCESS;
+    }
+
     /**
      * Checks if this fragment should invoke {@link
      * KeyguardManager#createConfirmDeviceCredentialIntent(CharSequence, CharSequence)} directly to
@@ -1213,11 +1229,10 @@ public class BiometricFragment extends Fragment {
      *
      * @return Whether this fragment should use {@link KeyguardManager} directly.
      */
-    private boolean isKeyguardManagerNeededForAuthentication() {
-        final Context context = getContext();
-
+    private boolean isKeyguardManagerNeededForBiometricAndCredential() {
         // Devices from some vendors should use KeyguardManager for authentication if both biometric
         // and credential authenticator types are allowed (on API 29).
+        final Context context = getContext();
         if (context != null && DeviceUtils.shouldUseKeyguardManagerForBiometricAndCredential(
                 context, Build.MANUFACTURER)) {
 
@@ -1234,12 +1249,7 @@ public class BiometricFragment extends Fragment {
             }
         }
 
-        // On API 29, BiometricPrompt fails to launch the confirm device credential Settings
-        // activity if no biometric hardware is present.
-        return Build.VERSION.SDK_INT == Build.VERSION_CODES.Q
-                && !mInjector.isFingerprintHardwarePresent(context)
-                && !mInjector.isFaceHardwarePresent(context)
-                && !mInjector.isIrisHardwarePresent(context);
+        return false;
     }
 
     /**

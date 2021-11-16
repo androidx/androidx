@@ -35,17 +35,6 @@
     </issue>
 
     <issue
-        id="SupportAnnotationUsage"
-        message="The API level is already known to be at least 14 from the `minSdkVersion`"
-        errorLine1="    @RequiresApi(api = Build.VERSION_CODES.HONEYCOMB)"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/support/text/emoji/ConfigLayout.java"
-            line="51"
-            column="5"/>
-    </issue>
-
-    <issue
         id="SyntheticAccessor"
         message="Access to `private` method `read` of class `EmojiRepo` requires synthetic accessor"
         errorLine1="                    read(context);"

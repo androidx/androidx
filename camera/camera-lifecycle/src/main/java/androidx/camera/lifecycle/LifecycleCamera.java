@@ -260,4 +260,9 @@ final class LifecycleCamera implements LifecycleObserver, Camera {
     public void setExtendedConfig(@Nullable CameraConfig cameraConfig)  {
         mCameraUseCaseAdapter.setExtendedConfig(cameraConfig);
     }
+
+    @Override
+    public boolean isUseCasesCombinationSupported(@NonNull UseCase... useCases) {
+        return mCameraUseCaseAdapter.isUseCasesCombinationSupported(useCases);
+    }
 }

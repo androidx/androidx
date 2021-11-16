@@ -21,7 +21,6 @@ import android.os.Build
 import android.util.Size
 import android.view.Surface
 import androidx.camera.core.CameraSelector
-import androidx.camera.core.CameraX
 import androidx.camera.core.CameraXConfig
 import androidx.camera.core.SurfaceRequest
 import androidx.camera.core.impl.CamcorderProfileProxy
@@ -41,6 +40,7 @@ import androidx.camera.testing.CamcorderProfileUtil.RESOLUTION_2160P
 import androidx.camera.testing.CamcorderProfileUtil.RESOLUTION_480P
 import androidx.camera.testing.CamcorderProfileUtil.RESOLUTION_720P
 import androidx.camera.testing.CameraUtil
+import androidx.camera.testing.CameraXUtil
 import androidx.camera.testing.fakes.FakeAppConfig
 import androidx.camera.testing.fakes.FakeCamcorderProfileProvider
 import androidx.camera.testing.fakes.FakeCamera
@@ -96,7 +96,7 @@ class VideoCaptureTest {
                 removeUseCases(useCases)
             }
         }
-        CameraX.shutdown().get(10, TimeUnit.SECONDS)
+        CameraXUtil.shutdown().get(10, TimeUnit.SECONDS)
     }
 
     @Test
@@ -469,6 +469,6 @@ class VideoCaptureTest {
             .setCameraFactoryProvider { _, _, _ -> cameraFactory }
             .setDeviceSurfaceManagerProvider { _, _, _ -> surfaceManager }
             .build()
-        CameraX.initialize(context, cameraXConfig).get()
+        CameraXUtil.initialize(context, cameraXConfig).get()
     }
 }

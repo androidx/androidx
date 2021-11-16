@@ -3,7 +3,7 @@ package androidx.work {
 
   public final class ArrayCreatingInputMerger extends androidx.work.InputMerger {
     ctor public ArrayCreatingInputMerger();
-    method public androidx.work.Data merge(java.util.List<androidx.work.Data!>);
+    method public androidx.work.Data merge(java.util.List<androidx.work.Data> inputs);
   }
 
   public enum BackoffPolicy {
@@ -314,6 +314,9 @@ package androidx.work {
   }
 
   public final class WorkQuery {
+    method public static androidx.work.WorkQuery fromIds(java.util.List<java.util.UUID!>);
+    method public static androidx.work.WorkQuery fromIds(java.util.UUID);
+    method public static androidx.work.WorkQuery fromIds(java.util.UUID!...);
     method public java.util.List<java.util.UUID!> getIds();
     method public java.util.List<androidx.work.WorkInfo.State!> getStates();
     method public java.util.List<java.lang.String!> getTags();
@@ -356,6 +359,7 @@ package androidx.work {
   public abstract class Worker extends androidx.work.ListenableWorker {
     ctor @Keep public Worker(android.content.Context, androidx.work.WorkerParameters);
     method @WorkerThread public abstract androidx.work.ListenableWorker.Result doWork();
+    method @WorkerThread public androidx.work.ForegroundInfo getForegroundInfo();
     method public final com.google.common.util.concurrent.ListenableFuture<androidx.work.ListenableWorker.Result!> startWork();
   }
 

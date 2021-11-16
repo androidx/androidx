@@ -19,6 +19,8 @@ package androidx.window.layout
 import android.app.Activity
 import android.os.Build
 import android.view.Display
+import androidx.annotation.RestrictTo
+import androidx.window.core.ExperimentalWindowApi
 
 /**
  * An interface to calculate the [WindowMetrics] for an [Activity].
@@ -75,9 +77,39 @@ interface WindowMetricsCalculator {
     fun computeMaximumWindowMetrics(activity: Activity): WindowMetrics
 
     companion object {
+
+        private var decorator: (WindowMetricsCalculator) -> WindowMetricsCalculator =
+            { it }
+
         @JvmStatic
         fun getOrCreate(): WindowMetricsCalculator {
-            return WindowMetricsCalculatorCompat
+            return decorator(WindowMetricsCalculatorCompat)
+        }
+
+        @ExperimentalWindowApi
+        @JvmStatic
+        @RestrictTo(RestrictTo.Scope.TESTS)
+        public fun overrideDecorator(overridingDecorator: WindowMetricsCalculatorDecorator) {
+            decorator = overridingDecorator::decorate
+        }
+
+        @ExperimentalWindowApi
+        @JvmStatic
+        @RestrictTo(RestrictTo.Scope.TESTS)
+        public fun reset() {
+            decorator = { it }
         }
     }
+}
+
+@ExperimentalWindowApi
+@RestrictTo(RestrictTo.Scope.TESTS)
+public interface WindowMetricsCalculatorDecorator {
+
+    @ExperimentalWindowApi
+    /**
+     * Returns an instance of [WindowMetricsCalculator]
+     */
+    @RestrictTo(RestrictTo.Scope.TESTS)
+    public fun decorate(calculator: WindowMetricsCalculator): WindowMetricsCalculator
 }

@@ -58,6 +58,14 @@ internal data class IterationResult(
             }
         }
     }
+
+    companion object {
+        val EMPTY = IterationResult(
+            singleMetrics = emptyMap(),
+            sampledMetrics = emptyMap(),
+            timelineRangeNs = null
+        )
+    }
 }
 
 internal fun List<IterationResult>.mergeIterationMeasurements() = BenchmarkResult.Measurements(

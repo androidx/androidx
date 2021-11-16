@@ -13,6 +13,17 @@
     </issue>
 
     <issue
+        id="MissingTestSizeAnnotation"
+        message="Missing test size annotation"
+        errorLine1="    fun useAppContext() {"
+        errorLine2="        ~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/camera/integration/camera2/pipe/BasicInstrumentedTest.kt"
+            line="35"
+            column="9"/>
+    </issue>
+
+    <issue
         id="UnknownNullness"
         message="Should explicitly declare type here since implicit type does not specify nullness"
         errorLine1="    val cameraPipe: CameraPipe"

@@ -49,7 +49,7 @@ package androidx.camera.video {
     field public static final android.content.ContentValues EMPTY_CONTENT_VALUES;
   }
 
-  @RequiresApi(21) public static final class MediaStoreOutputOptions.Builder {
+  public static final class MediaStoreOutputOptions.Builder {
     ctor public MediaStoreOutputOptions.Builder(android.content.ContentResolver, android.net.Uri);
     method public androidx.camera.video.MediaStoreOutputOptions build();
     method public androidx.camera.video.MediaStoreOutputOptions.Builder setContentValues(android.content.ContentValues);
@@ -91,7 +91,7 @@ package androidx.camera.video {
     field public static final int QUALITY_UHD = 8; // 0x8
   }
 
-  @RequiresApi(21) public static class QualitySelector.Procedure {
+  public static class QualitySelector.Procedure {
     method public androidx.camera.video.QualitySelector finallyTry(int);
     method public androidx.camera.video.QualitySelector finallyTry(int, int);
     method public androidx.camera.video.QualitySelector.Procedure thenTry(int);

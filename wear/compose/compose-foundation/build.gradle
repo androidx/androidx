@@ -43,9 +43,9 @@ dependencies {
         testImplementation(libs.testRunner)
         testImplementation(libs.junit)
 
-        androidTestImplementation project(path: ':compose:ui:ui-test')
-        androidTestImplementation project(path: ':compose:ui:ui-test-junit4')
-        androidTestImplementation project(path: ':compose:test-utils')
+        androidTestImplementation(project(":compose:ui:ui-test"))
+        androidTestImplementation(project(":compose:ui:ui-test-junit4"))
+        androidTestImplementation(project(":compose:test-utils"))
         androidTestImplementation(libs.testRunner)
 
         samples(project(":wear:compose:compose-foundation-samples"))

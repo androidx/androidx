@@ -189,6 +189,10 @@ public final class PeriodicWorkRequest extends WorkRequest {
                 throw new IllegalArgumentException(
                         "Cannot set backoff criteria on an idle mode job");
             }
+            if (mWorkSpec.expedited) {
+                throw new IllegalArgumentException(
+                        "PeriodicWorkRequests cannot be expedited");
+            }
             return new PeriodicWorkRequest(this);
         }
 

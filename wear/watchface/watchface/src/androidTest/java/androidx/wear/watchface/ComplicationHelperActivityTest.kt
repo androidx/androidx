@@ -80,7 +80,7 @@ public class ComplicationHelperActivityTest {
         ).isEqualTo("ID-1")
     }
 
-    /** Creates an intent with default values for unspecified parameters. */
+    /** Creates an intent with default xml for unspecified parameters. */
     private fun createIntent(
         watchFaceComponentName: ComponentName = defaultWatchFaceComponentName,
         complicationSlotId: Int = defaultComplicationSlotId,

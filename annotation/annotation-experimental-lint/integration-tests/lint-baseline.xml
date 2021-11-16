@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.2.0-dev" type="baseline" client="gradle" dependencies="false" name="AGP (7.2.0-dev)" variant="all" version="7.2.0-dev">
+<issues format="6" by="lint 7.1.0-beta02" type="baseline" client="cli" dependencies="false" name="AGP (7.1.0-beta02)" variant="all" version="7.1.0-beta02">
 
     <issue
         id="ExperimentalAnnotationRetention"
@@ -322,17 +322,6 @@
 
     <issue
         id="UnsafeOptInUsageError"
-        message="This declaration is opt-in and its usage should be marked with `@sample.experimental.ExperimentalDateTime` or `@OptIn(markerClass = sample.experimental.ExperimentalDateTime.class)`"
-        errorLine1="        return dateProvider.date"
-        errorLine2="                            ~~~~">
-        <location
-            file="src/main/java/sample/experimental/UseJavaExperimentalFromKt.kt"
-            line="30"
-            column="29"/>
-    </issue>
-
-    <issue
-        id="UnsafeOptInUsageError"
         message="This declaration is opt-in and its usage should be marked with `@sample.optin.ExperimentalJavaAnnotation` or `@OptIn(markerClass = sample.optin.ExperimentalJavaAnnotation.class)`"
         errorLine1="        val experimentalObject = AnnotatedJavaClass()"
         errorLine2="                                 ~~~~~~~~~~~~~~~~~~">
@@ -384,17 +373,6 @@
             file="src/main/java/sample/experimental/UseJavaExperimentalFromKt.kt"
             line="57"
             column="32"/>
-    </issue>
-
-    <issue
-        id="UnsafeOptInUsageError"
-        message="This declaration is opt-in and its usage should be marked with `@sample.experimental.ExperimentalLocation` or `@OptIn(markerClass = sample.experimental.ExperimentalLocation.class)`"
-        errorLine1="        return dateProvider.date + locationProvider.location"
-        errorLine2="                                                    ~~~~~~~~">
-        <location
-            file="src/main/java/sample/experimental/UseJavaExperimentalFromKt.kt"
-            line="58"
-            column="53"/>
     </issue>
 
     <issue

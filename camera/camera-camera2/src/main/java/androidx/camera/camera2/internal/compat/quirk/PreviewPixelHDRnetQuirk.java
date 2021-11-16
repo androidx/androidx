@@ -41,7 +41,7 @@ public class PreviewPixelHDRnetQuirk implements Quirk {
 
     /** The devices that support wysiwyg preview in 3rd party apps (go/p20-wysiwyg-hdr) */
     private static final List<String> SUPPORTED_DEVICES =
-            Arrays.asList("sunfish", "bramble", "redfin");
+            Arrays.asList("sunfish", "bramble", "redfin", "barbet");
 
     static boolean load() {
         return "Google".equals(Build.MANUFACTURER) && SUPPORTED_DEVICES.contains(

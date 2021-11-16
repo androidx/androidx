@@ -23,6 +23,7 @@ import android.webkit.WebView;
 import androidx.annotation.Nullable;
 import androidx.concurrent.futures.ResolvableFuture;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.FlakyTest;
 import androidx.test.filters.LargeTest;
 
 import org.junit.After;
@@ -36,6 +37,7 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
+@FlakyTest(bugId = 204342476)
 @LargeTest
 @RunWith(AndroidJUnit4.class)
 public class WebViewRenderProcessClientTest {

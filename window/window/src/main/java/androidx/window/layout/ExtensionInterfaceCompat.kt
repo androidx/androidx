@@ -19,8 +19,6 @@ import android.app.Activity
 
 /**
  * Base interface for different extension versions that serves as an API compatibility wrapper.
- * @see ExtensionCompat
- *
  * @see SidecarCompat
  */
 internal interface ExtensionInterfaceCompat {

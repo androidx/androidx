@@ -46,6 +46,7 @@ import static androidx.camera.core.impl.UseCaseConfig.OPTION_CAMERA_SELECTOR;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.graphics.ImageFormat;
+import android.graphics.Matrix;
 import android.graphics.Rect;
 import android.location.Location;
 import android.media.Image;
@@ -341,6 +342,8 @@ public final class ImageCapture extends UseCase {
     // Synthetic access
     @SuppressWarnings("WeakerAccess")
     final Executor mSequentialIoExecutor;
+
+    private Matrix mSensorToBufferTransformMatrix = new Matrix();
 
     /**
      * Creates a new image capture use case from the given configuration.
@@ -846,6 +849,17 @@ public final class ImageCapture extends UseCase {
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
+    @Override
+    public void setSensorToBufferTransformMatrix(@NonNull Matrix sensorToBufferTransformMatrix) {
+        mSensorToBufferTransformMatrix = sensorToBufferTransformMatrix;
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
     @Override
     protected ResolutionInfo getResolutionInfoInternal() {
@@ -1085,7 +1099,7 @@ public final class ImageCapture extends UseCase {
 
         mImageCaptureRequestProcessor.sendRequest(new ImageCaptureRequest(
                 getRelativeRotation(attachedCamera), jpegQuality, mCropAspectRatio,
-                getViewPortCropRect(), callbackExecutor, callback));
+                getViewPortCropRect(), mSensorToBufferTransformMatrix, callbackExecutor, callback));
     }
 
     private void lockFlashMode() {
@@ -1893,7 +1907,6 @@ public final class ImageCapture extends UseCase {
     }
 
     /** Listener containing callbacks for image file I/O events. */
-    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
     public interface OnImageSavedCallback {
         /** Called when an image has been successfully saved. */
         void onImageSaved(@NonNull OutputFileResults outputFileResults);
@@ -1910,7 +1923,6 @@ public final class ImageCapture extends UseCase {
     /**
      * Callback for when an image capture has completed.
      */
-    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
     public abstract static class OnImageCapturedCallback {
         /**
          * Callback for when the image has been captured.
@@ -1992,7 +2004,6 @@ public final class ImageCapture extends UseCase {
      * either a {@link File}, {@link MediaStore} or a {@link OutputStream}. The metadata will be
      * stored with the saved image. For JPEG this will be included in the EXIF.
      */
-    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
     public static final class OutputFileOptions {
 
         @Nullable
@@ -2063,7 +2074,6 @@ public final class ImageCapture extends UseCase {
         /**
          * Builder class for {@link OutputFileOptions}.
          */
-        @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info
         public static final class Builder {
             @Nullable
             private File mFile;
@@ -2154,7 +2164,6 @@ public final class ImageCapture extends UseCase {
     /**
      * Info about the saved image file.
      */
-    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
     public static class OutputFileResults {
         @Nullable
         private Uri mSavedUri;
@@ -2177,7 +2186,6 @@ public final class ImageCapture extends UseCase {
     }
 
     /** Holder class for metadata that will be saved with captured images. */
-    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
     public static final class Metadata {
         /**
          * Indicates a left-right mirroring (reflection).
@@ -2419,7 +2427,6 @@ public final class ImageCapture extends UseCase {
     }
 
     @VisibleForTesting
-    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
     static class ImageCaptureRequest {
         @RotationValue
         final int mRotationDegrees;
@@ -2436,6 +2443,9 @@ public final class ImageCapture extends UseCase {
 
         private final Rect mViewPortCropRect;
 
+        @NonNull
+        private final Matrix mSensorToBufferTransformMatrix;
+
         /**
          * @param rotationDegrees The degrees to rotate the image buffer from sensor
          *                        coordinates into the final output coordinate space.
@@ -2448,6 +2458,7 @@ public final class ImageCapture extends UseCase {
                 @IntRange(from = 1, to = 100) int jpegQuality,
                 Rational targetRatio,
                 @Nullable Rect viewPortCropRect,
+                @NonNull Matrix sensorToBufferTransformMatrix,
                 @NonNull Executor executor,
                 @NonNull OnImageCapturedCallback callback) {
             mRotationDegrees = rotationDegrees;
@@ -2459,6 +2470,7 @@ public final class ImageCapture extends UseCase {
             }
             mTargetRatio = targetRatio;
             mViewPortCropRect = viewPortCropRect;
+            mSensorToBufferTransformMatrix = sensorToBufferTransformMatrix;
             mListenerExecutor = executor;
             mCallback = callback;
         }
@@ -2505,7 +2517,9 @@ public final class ImageCapture extends UseCase {
             // Construct the ImageProxy with the updated rotation & crop for the output
             ImageInfo imageInfo = ImmutableImageInfo.create(
                     image.getImageInfo().getTagBundle(),
-                    image.getImageInfo().getTimestamp(), dispatchRotationDegrees);
+                    image.getImageInfo().getTimestamp(),
+                    dispatchRotationDegrees,
+                    mSensorToBufferTransformMatrix);
 
             final ImageProxy dispatchedImageProxy = new SettableImageProxy(image,
                     dispatchResolution, imageInfo);
@@ -2546,7 +2560,6 @@ public final class ImageCapture extends UseCase {
 
     /** Builder for an {@link ImageCapture}. */
     @SuppressWarnings("ObjectToString")
-    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
     public static final class Builder implements
             UseCaseConfig.Builder<ImageCapture, ImageCaptureConfig, Builder>,
             ImageOutputConfig.Builder<Builder>,

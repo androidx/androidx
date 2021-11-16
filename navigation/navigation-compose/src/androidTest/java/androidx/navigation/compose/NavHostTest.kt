@@ -32,6 +32,7 @@ import androidx.compose.material.Button
 import androidx.compose.material.Text
 import androidx.compose.material.TextField
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -40,11 +41,13 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.platform.LocalSavedStateRegistryOwner
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.testing.TestLifecycleOwner
@@ -753,6 +756,38 @@ class NavHostTest {
         // Assert that there's no enabled callbacks left when all of the NavControllers
         // are on their start destination
         assertThat(onBackPressedDispatcher.hasEnabledCallbacks()).isFalse()
+    }
+
+    @Test
+    fun navBackStackEntryLifecycleTest() {
+        var stopCount = 0
+        lateinit var navController: NavHostController
+        composeTestRule.setContent {
+            navController = rememberNavController()
+            NavHost(navController, startDestination = "First") {
+                composable("First") {
+                    val lifecycleOwner = LocalLifecycleOwner.current
+                    DisposableEffect(lifecycleOwner) {
+                        val observer = LifecycleEventObserver { _, event ->
+                            if (event == Lifecycle.Event.ON_STOP) {
+                                stopCount++
+                            }
+                        }
+                        lifecycleOwner.lifecycle.addObserver(observer)
+
+                        onDispose {
+                            lifecycleOwner.lifecycle.removeObserver(observer)
+                        }
+                    }
+                }
+            }
+        }
+
+        composeTestRule.runOnIdle {
+            assertWithMessage("Lifecycle should not have been stopped")
+                .that(stopCount)
+                .isEqualTo(0)
+        }
     }
 
     private fun createNavController(context: Context): TestNavHostController {

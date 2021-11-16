@@ -22,6 +22,9 @@ import androidx.annotation.RequiresApi;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.impl.Quirk;
 
+import java.util.Arrays;
+import java.util.List;
+
 /**
  * Quirk required to turn on/off HDR+ on Pixel devices by enabling/disabling zero-shutter-lag
  * (ZSL) mode on the capture request, depending on the image capture use case's capture mode, i.e.
@@ -33,15 +36,16 @@ import androidx.camera.core.impl.Quirk;
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class ImageCapturePixelHDRPlusQuirk implements Quirk {
 
+    public static final List<String> BUILD_MODELS = Arrays.asList(
+            "Pixel 2",
+            "Pixel 2 XL",
+            "Pixel 3",
+            "Pixel 3 XL"
+    );
+
     static boolean load() {
-        return (isPixel2() || isPixel3()) && Build.VERSION.SDK_INT >= Build.VERSION_CODES.O;
-    }
-
-    private static boolean isPixel2() {
-        return "Google".equals(Build.MANUFACTURER) && "Pixel 2".equals(Build.MODEL);
-    }
-
-    private static boolean isPixel3() {
-        return "Google".equals(Build.MANUFACTURER) && "Pixel 3".equals(Build.MODEL);
+        return BUILD_MODELS.contains(Build.MODEL)
+                && "Google".equals(Build.MANUFACTURER)
+                && Build.VERSION.SDK_INT >= Build.VERSION_CODES.O;
     }
 }

@@ -87,7 +87,7 @@ public class SplashScreenTestController(private val activity: Activity) {
         activity.setContentView(R.layout.main_activity)
 
         if (waitForSplashscreen) {
-            splashScreen.setKeepVisibleCondition {
+            splashScreen.setKeepOnScreenCondition {
                 waitedLatch.countDown()
                 val shouldWait = waitBarrier.get() || waitedLatch.count > 0L
                 if (!shouldWait && takeScreenShot && splashScreenScreenshot == null) {

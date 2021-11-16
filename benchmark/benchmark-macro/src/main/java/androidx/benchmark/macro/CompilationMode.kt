@@ -21,6 +21,7 @@ import android.util.Log
 import androidx.annotation.RestrictTo
 import androidx.benchmark.DeviceInfo
 import androidx.benchmark.Shell
+import androidx.benchmark.macro.CompilationMode.BaselineProfile
 import androidx.benchmark.macro.CompilationMode.SpeedProfile
 import androidx.profileinstaller.ProfileInstallReceiver
 import androidx.profileinstaller.ProfileInstaller
@@ -29,8 +30,27 @@ import org.junit.AssumptionViolatedException
 /**
  * Type of compilation to use for a Macrobenchmark.
  *
- * For example, [SpeedProfile] will run a configurable number of profiling iterations to generate
- * a profile, and use that to compile the target app.
+ * Every Macrobenchmark has compilation reset before running, so that previous runs do not interfere
+ * with the next. This compilation mode dictates any pre-compilation that occurs before repeatedly
+ * running the setup / measure blocks of the benchmark.
+ *
+ * If [SpeedProfile] is used, the following occur before measurement:
+ * 1. Compilation is reset
+ * 2. The setup / measure loop will be run a configurable number of profiling iterations to capture
+ * a profile
+ * 3. The app is compiled with `cmd package compile -f -m speed-profile <package>`
+ *
+ * * [None] skips steps 2 and 3 above.
+ * * [BaselineProfile] has an alternate implementation of 2, where it installs profile information
+ * bundled within the APK.
+ * * [Speed] skips 2 (since it AOT compiles the full app), and uses `speed` instead of
+ * `speed-profile` for 3.
+ *
+ * While some of these modes directly map to
+ * [Android Runtime compilation modes](https://source.android.com/devices/tech/dalvik/configure#compilation_options)
+ * (which can be passed to
+ * [`cmd compile`](https://source.android.com/devices/tech/dalvik/jit-compiler#force-compilation-of-a-specific-package)),
+ * there isn't a direct mapping.
  */
 public sealed class CompilationMode(
     // for modes other than [None], is argument passed `cmd package compile`
@@ -45,6 +65,8 @@ public sealed class CompilationMode(
 
     /**
      * No pre-compilation - entire app will be allowed to Just-In-Time compile as it runs.
+     *
+     * Note that later iterations may perform differently, as app code is jitted.
      */
     public object None : CompilationMode(null) {
         public override fun toString(): String = "None"
@@ -52,6 +74,8 @@ public sealed class CompilationMode(
 
     /**
      * Partial pre-compilation, based on configurable number of profiling iterations.
+     *
+     * The compilation itself is performed with `cmd package compile -f -m speed-profile <package>`
      */
     public class SpeedProfile(
         public val warmupIterations: Int = 3
@@ -64,6 +88,8 @@ public sealed class CompilationMode(
      *
      * Note: this mode is only supported for APKs that have the profileinstaller library
      * included, and have been built by AGP 7.0+ to package the baseline profile in the APK.
+     *
+     * The compilation itself is performed with `cmd package compile -f -m speed-profile <package>`
      */
     public object BaselineProfile : CompilationMode("speed-profile") {
         public override fun toString(): String = "BaselineProfile"
@@ -71,6 +97,8 @@ public sealed class CompilationMode(
 
     /**
      * Full ahead-of-time compilation.
+     *
+     * Equates to `cmd package compile -f -m speed <package>`
      */
     public object Speed : CompilationMode("speed") {
         public override fun toString(): String = "Speed"
@@ -163,7 +191,7 @@ internal fun CompilationMode.compile(packageName: String, block: () -> Unit) {
         // Compile
         compilePackage(packageName)
         Log.d(TAG, "$packageName is compiled.")
-    } else if (this is CompilationMode.SpeedProfile) {
+    } else if (this is SpeedProfile) {
         repeat(this.warmupIterations) {
             block()
         }

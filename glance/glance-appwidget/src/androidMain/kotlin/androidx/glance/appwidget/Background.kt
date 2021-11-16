@@ -16,15 +16,15 @@
 
 package androidx.glance.appwidget
 
-import androidx.glance.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.glance.GlanceModifier
 import androidx.glance.appwidget.unit.ColorProvider
 import androidx.glance.background
-import androidx.glance.unit.Color
 
 /**
  * Apply a background color to the element this modifier is attached to. This will cause the
  * element to paint the specified [Color] as its background, choosing [day] or [night]
  * depending on the device configuration, which will fill the bounds of the element.
  */
-public fun Modifier.background(day: Color, night: Color): Modifier =
+public fun GlanceModifier.background(day: Color, night: Color): GlanceModifier =
     background(ColorProvider(day, night))

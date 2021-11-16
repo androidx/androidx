@@ -37,7 +37,7 @@ interface XMethodElement : XExecutableElement {
     /**
      * The type representation of the method where more type parameters might be resolved.
      */
-    val executableType: XMethodType
+    override val executableType: XMethodType
 
     override val fallbackLocationText: String
         get() = buildString {
@@ -69,7 +69,7 @@ interface XMethodElement : XExecutableElement {
      * This is specifically useful if you have a method that has type arguments and there is a
      * subclass ([other]) where type arguments are specified to actual types.
      */
-    fun asMemberOf(other: XType): XMethodType
+    override fun asMemberOf(other: XType): XMethodType
 
     /**
      * Returns true if this method has a default implementation in Kotlin.

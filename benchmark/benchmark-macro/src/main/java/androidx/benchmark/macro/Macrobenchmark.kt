@@ -35,6 +35,7 @@ import androidx.benchmark.perfetto.UiState
 import androidx.benchmark.perfetto.appendUiState
 import androidx.benchmark.userspaceTrace
 import androidx.test.platform.app.InstrumentationRegistry
+import androidx.tracing.trace
 import java.io.File
 
 internal fun checkErrors(packageName: String): ConfigurationError.SuppressionState? {
@@ -107,6 +108,7 @@ private fun macrobenchmark(
     compilationMode: CompilationMode = CompilationMode.SpeedProfile(),
     iterations: Int,
     launchWithClearTask: Boolean,
+    startupModeMetricHint: StartupMode?,
     setupBlock: MacrobenchmarkScope.(Boolean) -> Unit,
     measureBlock: MacrobenchmarkScope.() -> Unit
 ) {
@@ -116,10 +118,6 @@ private fun macrobenchmark(
     require(metrics.isNotEmpty()) {
         "Empty list of metrics passed to metrics param, must pass at least one Metric"
     }
-    require(Build.VERSION.SDK_INT >= 23) {
-        "Macrobenchmark currently requires Android 6 (API 23) or greater."
-    }
-
     // skip benchmark if not supported by vm settings
     compilationMode.assumeSupportedWithVmSettings()
 
@@ -129,7 +127,10 @@ private fun macrobenchmark(
     val startTime = System.nanoTime()
     val scope = MacrobenchmarkScope(packageName, launchWithClearTask)
 
-    // always kill the process at beginning of test
+    // Ensure the device is awake
+    scope.device.wakeUp()
+
+    // Always kill the process at beginning of test
     scope.killProcess()
 
     userspaceTrace("compile $packageName") {
@@ -152,6 +153,11 @@ private fun macrobenchmark(
         }
         var isFirstRun = true
         val measurements = List(iterations) { iteration ->
+            // Wake the device to ensure it stays awake with large iteration count
+            userspaceTrace("wake device") {
+                scope.device.wakeUp()
+            }
+
             userspaceTrace("setupBlock") {
                 setupBlock(scope, isFirstRun)
             }
@@ -177,16 +183,16 @@ private fun macrobenchmark(
                 }
             ) {
                 try {
-                    userspaceTrace("start metrics") {
+                    trace("start metrics") {
                         metrics.forEach {
                             it.start()
                         }
                     }
-                    userspaceTrace("measureBlock") {
+                    trace("measureBlock") {
                         measureBlock(scope)
                     }
                 } finally {
-                    userspaceTrace("stop metrics") {
+                    trace("stop metrics") {
                         metrics.forEach {
                             it.stop()
                         }
@@ -199,7 +205,12 @@ private fun macrobenchmark(
             val iterationResult = userspaceTrace("extract metrics") {
                 metrics
                     // capture list of Map<String,Long> per metric
-                    .map { it.getMetrics(packageName, tracePath) }
+                    .map { it.getMetrics(Metric.CaptureInfo(
+                        targetPackageName = packageName,
+                        testPackageName = macrobenchPackageName,
+                        startupMode = startupModeMetricHint,
+                        apiLevel = Build.VERSION.SDK_INT
+                    ), tracePath) }
                     // merge into one map
                     .reduce { sum, element -> sum + element }
             }
@@ -295,6 +306,7 @@ public fun macrobenchmarkWithStartupMode(
         metrics = metrics,
         compilationMode = compilationMode,
         iterations = iterations,
+        startupModeMetricHint = startupMode,
         setupBlock = { firstIterationAfterCompile ->
             if (startupMode == StartupMode.COLD) {
                 killProcess()

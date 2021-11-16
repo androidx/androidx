@@ -16,6 +16,7 @@
 
 package androidx.car.app.activity.renderer;
 
+import androidx.car.app.activity.renderer.IInsetsListener;
 import androidx.car.app.activity.renderer.IRendererCallback;
 import androidx.car.app.activity.renderer.surface.ISurfaceListener;
 import androidx.car.app.serialization.Bundleable;
@@ -49,4 +50,7 @@ oneway interface ICarAppActivity {
 
     /** Notifies that there has been a selection update for the currently active input. */
     void onUpdateSelection(int oldSelStart, int oldSelEnd, int newSelStart, int newSelEnd) = 8;
+
+    /** Registers the listener to get insets updates. */
+    void setInsetsListener(IInsetsListener listener) = 9;
 }

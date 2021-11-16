@@ -49,10 +49,16 @@ public class NavDeepLink internal constructor(
 ) {
     private val arguments = mutableListOf<String>()
     private val paramArgMap = mutableMapOf<String, ParamQuery>()
-    private var pattern: Pattern? = null
+    private var patternFinalRegex: String? = null
+    private val pattern by lazy {
+        patternFinalRegex?.let { Pattern.compile(it, Pattern.CASE_INSENSITIVE) }
+    }
     private var isParameterizedQuery = false
 
-    private var mimeTypePattern: Pattern? = null
+    private var mimeTypeFinalRegex: String? = null
+    private val mimeTypePattern by lazy {
+        mimeTypeFinalRegex?.let { Pattern.compile(it) }
+    }
 
     /** Arguments present in the deep link, including both path and query arguments. */
     internal val argumentsNames: List<String>
@@ -454,8 +460,7 @@ public class NavDeepLink internal constructor(
             // Since we've used Pattern.quote() above, we need to
             // specifically escape any .* instances to ensure
             // they are still treated as wildcards in our final regex
-            val finalRegex = uriRegex.toString().replace(".*", "\\E.*\\Q")
-            pattern = Pattern.compile(finalRegex, Pattern.CASE_INSENSITIVE)
+            patternFinalRegex = uriRegex.toString().replace(".*", "\\E.*\\Q")
         }
         if (mimeType != null) {
             val mimeTypePattern = Pattern.compile("^[\\s\\S]+/[\\s\\S]+$")
@@ -473,8 +478,7 @@ public class NavDeepLink internal constructor(
             val mimeTypeRegex = "^(${splitMimeType.type}|[*]+)/(${splitMimeType.subType}|[*]+)$"
 
             // if the deep link type or subtype is wildcard, allow anything
-            val finalRegex = mimeTypeRegex.replace("*|[*]", "[\\s\\S]")
-            this.mimeTypePattern = Pattern.compile(finalRegex)
+            mimeTypeFinalRegex = mimeTypeRegex.replace("*|[*]", "[\\s\\S]")
         }
     }
 }

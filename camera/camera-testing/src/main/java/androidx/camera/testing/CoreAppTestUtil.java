@@ -16,6 +16,8 @@
 
 package androidx.camera.testing;
 
+import static org.junit.Assume.assumeTrue;
+
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Instrumentation;
@@ -24,6 +26,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.os.RemoteException;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -143,7 +146,7 @@ public final class CoreAppTestUtil {
      *
      * @param instrumentation The instrumentation instance.
      * @throws ForegroundOccupiedError throw the exception when the test app cannot get
-     *                                 foreground of the device window.
+     *                                 foreground of the device window in CameraX lab.
      */
     public static void prepareDeviceUI(@NonNull Instrumentation instrumentation)
             throws ForegroundOccupiedError {
@@ -184,11 +187,14 @@ public final class CoreAppTestUtil {
             }
         }
 
+        // Throw AssumptionViolatedException to skip the test if not in the CameraX lab
+        // environment. The loggable tag will be set when running the CameraX daily testing.
+        assumeTrue(Log.isLoggable("MH", Log.DEBUG));
+
         throw new ForegroundOccupiedError("CameraX_fail_to_start_foreground, model:" + Build.MODEL);
     }
 
     /** The display foreground of the device is occupied that cannot execute UI related test. */
-    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
     public static class ForegroundOccupiedError extends Exception {
         public ForegroundOccupiedError(@NonNull String message) {
             super(message);

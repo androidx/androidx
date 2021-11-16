@@ -16,27 +16,40 @@
 
 package androidx.glance.appwidget
 
+import android.app.Activity
+import android.graphics.drawable.BitmapDrawable
 import androidx.compose.runtime.Composable
-import androidx.glance.Modifier
-import androidx.glance.background
-import androidx.glance.appwidget.layout.CheckBox
-import androidx.glance.appwidget.layout.Switch
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.DpSize
+import androidx.compose.ui.unit.dp
+import androidx.glance.Button
+import androidx.glance.GlanceModifier
+import androidx.glance.ImageProvider
+import androidx.glance.LocalContext
+import androidx.glance.action.actionLaunchActivity
 import androidx.glance.appwidget.test.R
+import androidx.glance.appwidget.unit.ColorProvider
+import androidx.glance.background
+import androidx.glance.layout.Alignment
 import androidx.glance.layout.Box
 import androidx.glance.layout.Column
+import androidx.glance.layout.ContentScale
 import androidx.glance.layout.Row
-import androidx.glance.layout.Text
+import androidx.glance.layout.fillMaxHeight
+import androidx.glance.layout.fillMaxSize
 import androidx.glance.layout.fillMaxWidth
 import androidx.glance.layout.height
 import androidx.glance.layout.padding
+import androidx.glance.layout.size
 import androidx.glance.layout.width
+import androidx.glance.layout.wrapContentSize
 import androidx.glance.text.FontStyle
 import androidx.glance.text.FontWeight
+import androidx.glance.text.Text
 import androidx.glance.text.TextAlign
 import androidx.glance.text.TextDecoration
 import androidx.glance.text.TextStyle
-import androidx.glance.unit.Color
-import androidx.glance.unit.dp
+import androidx.glance.unit.ColorProvider
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import org.junit.Rule
@@ -76,32 +89,21 @@ class GlanceAppWidgetReceiverScreenshotTest {
 
     @Test
     fun createCheckBoxAppWidget() {
-        TestGlanceAppWidget.uiDefinition = {
-            Column {
-                CheckBox(
-                    checked = true,
-                    text = "Hello Checked Checkbox",
-                    textStyle = TextStyle(
-                        fontWeight = FontWeight.Bold,
-                        fontStyle = FontStyle.Normal,
-                    )
-                )
-
-                CheckBox(
-                    checked = false,
-                    text = "Hello Unchecked Checkbox",
-                    textStyle = TextStyle(
-                        textDecoration = TextDecoration.Underline,
-                        fontWeight = FontWeight.Medium,
-                        fontStyle = FontStyle.Italic,
-                    )
-                )
-            }
-        }
+        TestGlanceAppWidget.uiDefinition = { CheckBoxScreenshotTest() }
 
         mHostRule.startHost()
 
         mScreenshotRule.checkScreenshot(mHostRule.mHostView, "checkBoxWidget")
+    }
+
+    @WithNightMode
+    @Test
+    fun createCheckBoxAppWidget_dark() {
+        TestGlanceAppWidget.uiDefinition = { CheckBoxScreenshotTest() }
+
+        mHostRule.startHost()
+
+        mScreenshotRule.checkScreenshot(mHostRule.mHostView, "checkBoxWidget_dark")
     }
 
     @Test
@@ -111,7 +113,7 @@ class GlanceAppWidgetReceiverScreenshotTest {
                 Switch(
                     checked = true,
                     text = "Hello Checked Switch",
-                    textStyle = TextStyle(
+                    style = TextStyle(
                         fontWeight = FontWeight.Bold,
                         fontStyle = FontStyle.Normal,
                     )
@@ -120,7 +122,7 @@ class GlanceAppWidgetReceiverScreenshotTest {
                 Switch(
                     checked = false,
                     text = "Hello Unchecked Switch",
-                    textStyle = TextStyle(
+                    style = TextStyle(
                         textDecoration = TextDecoration.Underline,
                         fontWeight = FontWeight.Medium,
                         fontStyle = FontStyle.Italic,
@@ -190,91 +192,357 @@ class GlanceAppWidgetReceiverScreenshotTest {
 
         mScreenshotRule.checkScreenshot(mHostRule.mHostView, "backgroundColor_dark")
     }
+
+    @Test
+    fun checkTextColor_light() {
+        TestGlanceAppWidget.uiDefinition = { TextColorTest() }
+
+        mHostRule.startHost()
+
+        mScreenshotRule.checkScreenshot(mHostRule.mHostView, "textColor")
+    }
+
+    @Test
+    @WithNightMode
+    fun checkTextColor_dark() {
+        TestGlanceAppWidget.uiDefinition = { TextColorTest() }
+
+        mHostRule.startHost()
+
+        mScreenshotRule.checkScreenshot(mHostRule.mHostView, "textColor_dark")
+    }
+
+    @Test
+    fun checkButtonTextAlignement() {
+        TestGlanceAppWidget.uiDefinition = {
+            Column(modifier = GlanceModifier.fillMaxSize()) {
+                Row(modifier = GlanceModifier.defaultWeight().fillMaxWidth()) {
+                    Button(
+                        "Start",
+                        onClick = actionLaunchActivity<Activity>(),
+                        modifier = GlanceModifier.defaultWeight().fillMaxHeight(),
+                        style = TextStyle(textAlign = TextAlign.Start)
+                    )
+                    Button(
+                        "End",
+                        onClick = actionLaunchActivity<Activity>(),
+                        modifier = GlanceModifier.defaultWeight().fillMaxHeight(),
+                        style = TextStyle(textAlign = TextAlign.End)
+                    )
+                }
+                Row(modifier = GlanceModifier.defaultWeight().fillMaxWidth()) {
+                    CheckBox(
+                        checked = false,
+                        text = "Start",
+                        modifier = GlanceModifier.defaultWeight().fillMaxHeight(),
+                        style = TextStyle(textAlign = TextAlign.Start)
+                    )
+                    CheckBox(
+                        checked = true,
+                        text = "End",
+                        modifier = GlanceModifier.defaultWeight().fillMaxHeight(),
+                        style = TextStyle(textAlign = TextAlign.End)
+                    )
+                }
+                Row(modifier = GlanceModifier.defaultWeight().fillMaxWidth()) {
+                    Switch(
+                        checked = false,
+                        text = "Start",
+                        modifier = GlanceModifier.defaultWeight().fillMaxHeight(),
+                        style = TextStyle(textAlign = TextAlign.Start)
+                    )
+                    Switch(
+                        checked = true,
+                        text = "End",
+                        modifier = GlanceModifier.defaultWeight().fillMaxHeight(),
+                        style = TextStyle(textAlign = TextAlign.End)
+                    )
+                }
+            }
+        }
+
+        mHostRule.setSizes(DpSize(300.dp, 400.dp))
+        mHostRule.startHost()
+
+        Thread.sleep(5000)
+
+        mScreenshotRule.checkScreenshot(mHostRule.mHostView, "button_text_align")
+    }
+
+    @Test
+    fun checkFixTopLevelSize() {
+        TestGlanceAppWidget.uiDefinition = {
+            Column(
+                modifier = GlanceModifier.size(100.dp)
+                    .background(Color.DarkGray),
+                horizontalAlignment = Alignment.End,
+            ) {
+                Text(
+                    "Upper half",
+                    modifier = GlanceModifier.defaultWeight().fillMaxWidth()
+                        .background(Color.Green)
+                )
+                Text(
+                    "Lower right half",
+                    modifier = GlanceModifier.defaultWeight().width(50.dp)
+                        .background(Color.Cyan)
+                )
+            }
+        }
+
+        mHostRule.startHost()
+
+        mScreenshotRule.checkScreenshot(mHostRule.mHostView, "fixed_top_level_size")
+    }
+
+    @Test
+    fun checkTopLevelFill() {
+        TestGlanceAppWidget.uiDefinition = {
+            Column(
+                modifier = GlanceModifier.fillMaxSize()
+                    .background(Color.DarkGray),
+                horizontalAlignment = Alignment.End,
+            ) {
+                Text(
+                    "Upper half",
+                    modifier = GlanceModifier.defaultWeight().fillMaxWidth()
+                        .background(Color.Green)
+                )
+                Text(
+                    "Lower right half",
+                    modifier = GlanceModifier.defaultWeight().width(50.dp)
+                        .background(Color.Cyan)
+                )
+            }
+        }
+
+        mHostRule.startHost()
+
+        mScreenshotRule.checkScreenshot(mHostRule.mHostView, "fill_top_level_size")
+    }
+
+    @Test
+    fun checkTopLevelWrap() {
+        TestGlanceAppWidget.uiDefinition = {
+            Column(
+                modifier = GlanceModifier.wrapContentSize()
+                    .background(Color.DarkGray),
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
+                Text(
+                    "Above",
+                    modifier = GlanceModifier.background(Color.Green)
+                )
+                Text(
+                    "Larger below",
+                    modifier = GlanceModifier.background(Color.Cyan)
+                )
+            }
+        }
+
+        mHostRule.startHost()
+
+        mScreenshotRule.checkScreenshot(mHostRule.mHostView, "wrap_top_level_size")
+    }
+
+    @Test
+    fun drawableBackground() {
+        TestGlanceAppWidget.uiDefinition = {
+            Box(
+                modifier = GlanceModifier.fillMaxSize().background(Color.Green).padding(8.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    "Some useful text",
+                    modifier = GlanceModifier.fillMaxWidth().height(220.dp)
+                        .background(ImageProvider(R.drawable.filled_oval))
+                )
+            }
+        }
+
+        mHostRule.startHost()
+
+        mScreenshotRule.checkScreenshot(mHostRule.mHostView, "drawable_background")
+    }
+
+    @Test
+    fun drawableFitBackground() {
+        TestGlanceAppWidget.uiDefinition = {
+            Box(
+                modifier = GlanceModifier.fillMaxSize().background(Color.Green).padding(8.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    "Some useful text",
+                    modifier = GlanceModifier.fillMaxWidth().height(220.dp)
+                        .background(
+                            ImageProvider(R.drawable.filled_oval),
+                            contentScale = ContentScale.Fit
+                        )
+                )
+            }
+        }
+
+        mHostRule.startHost()
+
+        mScreenshotRule.checkScreenshot(mHostRule.mHostView, "drawable_fit_background")
+    }
+
+    @Test
+    fun bitmapBackground() {
+        TestGlanceAppWidget.uiDefinition = {
+            val context = LocalContext.current
+            val bitmap = context.resources.getDrawable(R.drawable.compose, null) as BitmapDrawable
+            Box(
+                modifier = GlanceModifier.fillMaxSize().background(Color.Green).padding(8.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    "Some useful text",
+                    modifier = GlanceModifier.fillMaxWidth().height(220.dp)
+                        .background(ImageProvider(bitmap.bitmap!!))
+                )
+            }
+        }
+
+        mHostRule.startHost()
+
+        mScreenshotRule.checkScreenshot(mHostRule.mHostView, "bitmap_background")
+    }
 }
 
 @Composable
 private fun TextAlignmentTest() {
-    Column(modifier = Modifier.fillMaxWidth()) {
+    Column(modifier = GlanceModifier.fillMaxWidth()) {
         Text(
             "Center",
             style = TextStyle(textAlign = TextAlign.Center),
-            modifier = Modifier.fillMaxWidth()
+            modifier = GlanceModifier.fillMaxWidth()
         )
         Text(
             "Left",
             style = TextStyle(textAlign = TextAlign.Left),
-            modifier = Modifier.fillMaxWidth()
+            modifier = GlanceModifier.fillMaxWidth()
         )
         Text(
             "Right",
             style = TextStyle(textAlign = TextAlign.Right),
-            modifier = Modifier.fillMaxWidth()
+            modifier = GlanceModifier.fillMaxWidth()
         )
         Text(
             "Start",
             style = TextStyle(textAlign = TextAlign.Start),
-            modifier = Modifier.fillMaxWidth()
+            modifier = GlanceModifier.fillMaxWidth()
         )
         Text(
             "End",
             style = TextStyle(textAlign = TextAlign.End),
-            modifier = Modifier.fillMaxWidth()
+            modifier = GlanceModifier.fillMaxWidth()
         )
     }
 }
 
 @Composable
 private fun RowTest() {
-    Row(modifier = Modifier.fillMaxWidth()) {
+    Row(modifier = GlanceModifier.fillMaxWidth()) {
         Text(
             "Start",
             style = TextStyle(textAlign = TextAlign.Start),
-            modifier = Modifier.defaultWeight()
+            modifier = GlanceModifier.defaultWeight()
         )
         Text(
             "Center",
             style = TextStyle(textAlign = TextAlign.Center),
-            modifier = Modifier.defaultWeight()
+            modifier = GlanceModifier.defaultWeight()
         )
         Text(
             "End",
             style = TextStyle(textAlign = TextAlign.End),
-            modifier = Modifier.defaultWeight()
+            modifier = GlanceModifier.defaultWeight()
         )
     }
 }
 
 @Composable
 private fun BackgroundTest() {
-    Column(modifier = Modifier.background(R.color.background_color)) {
+    Column(modifier = GlanceModifier.background(R.color.background_color)) {
         Text(
             "100x50 and cyan",
-            modifier = Modifier.width(100.dp).height(50.dp).background(Color.Cyan)
+            modifier = GlanceModifier.width(100.dp).height(50.dp).background(Color.Cyan)
         )
         Text(
             "Transparent background",
-            modifier = Modifier.height(50.dp).background(Color.Transparent)
+            modifier = GlanceModifier.height(50.dp).background(Color.Transparent)
         )
         Text(
             "wrapx30 and red (light), yellow (dark)",
-            modifier = Modifier.height(30.dp).background(day = Color.Red, night = Color.Yellow)
+            modifier = GlanceModifier
+                .height(30.dp)
+                .background(day = Color.Red, night = Color.Yellow)
         )
         Text("Below this should be 4 color boxes")
-        Row(modifier = Modifier.padding(8.dp)) {
+        Row(modifier = GlanceModifier.padding(8.dp)) {
             Box(
                 modifier =
-                Modifier
+                GlanceModifier
                     .width(32.dp)
                     .height(32.dp)
                     .background(day = Color.Black, night = Color.White)
             ) {}
             val colors = listOf(Color.Red, Color.Green, Color.Blue)
             repeat(3) {
-                Box(modifier = Modifier.width(8.dp).height(1.dp)) {}
+                Box(modifier = GlanceModifier.width(8.dp).height(1.dp)) {}
                 Box(
-                    modifier = Modifier.width(32.dp).height(32.dp).background(colors[it])
+                    modifier = GlanceModifier.width(32.dp).height(32.dp).background(colors[it])
                 ) {}
             }
         }
+    }
+}
+
+@Composable
+private fun TextColorTest() {
+    Column(modifier = GlanceModifier.background(R.color.background_color)) {
+        Text("Cyan", style = TextStyle(color = ColorProvider(Color.Cyan)))
+        Text(
+            "Red (light) or yellow (dark)",
+            style = TextStyle(color = ColorProvider(day = Color.Red, night = Color.Yellow))
+        )
+        Text(
+            "Resource (inverse of background color)",
+            style = TextStyle(color = ColorProvider(R.color.text_color))
+        )
+    }
+}
+
+@Composable
+private fun CheckBoxScreenshotTest() {
+    Column(modifier = GlanceModifier.background(day = Color.White, night = Color.Black)) {
+        CheckBox(
+            checked = true,
+            text = "Hello Checked Checkbox (text: day=black, night=white| box: day=magenta, " +
+                "night=yellow)",
+            style = TextStyle(
+                color = ColorProvider(day = Color.Black, night = Color.White),
+                fontWeight = FontWeight.Bold,
+                fontStyle = FontStyle.Normal,
+            ),
+            colors = CheckBoxColors(
+                checked = ColorProvider(day = Color.Magenta, night = Color.Yellow),
+                unchecked = ColorProvider(day = Color.Blue, night = Color.Green)
+            )
+        )
+
+        CheckBox(
+            checked = false,
+            text = "Hello Unchecked Checkbox (text: day=dark gray, night=light gray, green box)",
+            style = TextStyle(
+                color = ColorProvider(day = Color.DarkGray, night = Color.LightGray),
+                textDecoration = TextDecoration.Underline,
+                fontWeight = FontWeight.Medium,
+                fontStyle = FontStyle.Italic,
+            ),
+            colors = CheckBoxColors(checked = Color.Red, unchecked = Color.Green)
+        )
     }
 }

@@ -424,11 +424,13 @@ public final class SearchResult {
          * <p>Class example 2: for the first {@link MatchInfo}, this returns [0, 4] and, for the
          * second {@link MatchInfo}, this returns [0, 4].
          *
+         * <!--@exportToFramework:ifJetpack()-->
          * <p>This information may not be available depending on the backend and Android API
          * level. To ensure it is available, call {@link Capabilities#isSubmatchSupported}.
          *
          * @throws UnsupportedOperationException if {@link Capabilities#isSubmatchSupported} is
          * false.
+         * <!--@exportToFramework:else()-->
          */
         @NonNull
         public MatchRange getSubmatchRange() {
@@ -447,11 +449,13 @@ public final class SearchResult {
          * <p>Class example 2: for the first {@link MatchInfo}, this returns "Test" and, for the
          * second {@link MatchInfo}, this returns "Test".
          *
-         * This information may not be available depending on the backend and Android API level. To
-         * ensure it is available, call {@link Capabilities#isSubmatchSupported}.
+         * <!--@exportToFramework:ifJetpack()-->
+         * <p>This information may not be available depending on the backend and Android API
+         * level. To ensure it is available, call {@link Capabilities#isSubmatchSupported}.
          *
          * @throws UnsupportedOperationException if {@link Capabilities#isSubmatchSupported} is
          * false.
+         * <!--@exportToFramework:else()-->
          */
         @NonNull
         public CharSequence getSubmatch() {

@@ -14,10 +14,18 @@
  * limitations under the License.
  */
 
+/** Removes the KT class from the public API */
+@file:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+
 package androidx.wear.watchface.complications
 
+import android.content.res.Resources
+import android.content.res.TypedArray
+import android.content.res.XmlResourceParser
 import android.graphics.RectF
+import androidx.annotation.RestrictTo
 import androidx.wear.watchface.complications.data.ComplicationType
+import org.xmlpull.v1.XmlPullParser
 
 /**
  * ComplicationSlotBounds are defined by fractional screen space coordinates in unit-square [0..1].
@@ -47,4 +55,88 @@ public class ComplicationSlotBounds(
             }
         }
     }
+
+    /** @hide */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    companion object {
+        /**
+         * The [parser] should be inside a node with any number of ComplicationSlotBounds child
+         * nodes. No other child nodes are expected.
+         */
+        fun inflate(resources: Resources, parser: XmlResourceParser): ComplicationSlotBounds? {
+            var type = 0
+            val outerDepth = parser.depth
+            val perComplicationTypeBounds by lazy { HashMap<ComplicationType, RectF>() }
+            do {
+                if (type == XmlPullParser.START_TAG) {
+                    when (parser.name) {
+                        "ComplicationSlotBounds" -> {
+                            val attrs = resources.obtainAttributes(
+                                parser,
+                                R.styleable.ComplicationSlotBounds
+                            )
+                            val rect = RectF(
+                                attrs.requireAndGet(R.styleable.ComplicationSlotBounds_left) {
+                                    "ComplicationSlotBounds must define 'left'"
+                                },
+                                attrs.requireAndGet(R.styleable.ComplicationSlotBounds_top) {
+                                    "ComplicationSlotBounds must define 'top'"
+                                },
+                                attrs.requireAndGet(R.styleable.ComplicationSlotBounds_right) {
+                                    "ComplicationSlotBounds must define 'right'"
+                                },
+                                attrs.requireAndGet(R.styleable.ComplicationSlotBounds_bottom) {
+                                    "ComplicationSlotBounds must define 'bottom'"
+                                }
+                            )
+                            if (attrs.hasValue(
+                                    R.styleable.ComplicationSlotBounds_complicationType
+                                )
+                            ) {
+                                val complicationType = ComplicationType.fromWireType(
+                                    attrs.getInteger(
+                                        R.styleable.ComplicationSlotBounds_complicationType,
+                                        0
+                                    )
+                                )
+                                require(
+                                    !perComplicationTypeBounds.contains(complicationType)
+                                ) {
+                                    "Duplicate $complicationType"
+                                }
+                                perComplicationTypeBounds[complicationType] = rect
+                            } else {
+                                for (complicationType in ComplicationType.values()) {
+                                    require(
+                                        !perComplicationTypeBounds.contains(
+                                            complicationType
+                                        )
+                                    ) {
+                                        "Duplicate $complicationType"
+                                    }
+                                    perComplicationTypeBounds[complicationType] = rect
+                                }
+                            }
+                            attrs.recycle()
+                        }
+                        else -> throw IllegalArgumentException(
+                            "Unexpected node ${parser.name} at line ${parser.lineNumber}"
+                        )
+                    }
+                }
+                type = parser.next()
+            } while (type != XmlPullParser.END_DOCUMENT && parser.depth > outerDepth)
+
+            return if (perComplicationTypeBounds.isEmpty()) {
+                null
+            } else {
+                ComplicationSlotBounds(perComplicationTypeBounds)
+            }
+        }
+    }
+}
+
+internal fun TypedArray.requireAndGet(resourceId: Int, produceError: () -> String): Float {
+    require(hasValue(resourceId), produceError)
+    return getFloat(resourceId, 0f)
 }

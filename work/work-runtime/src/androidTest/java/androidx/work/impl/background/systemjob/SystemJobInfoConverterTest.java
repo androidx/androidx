@@ -269,6 +269,20 @@ public class SystemJobInfoConverterTest extends WorkManagerTest {
         assertThat(jobInfo.isExpedited(), is(false));
     }
 
+    @Test
+    @SmallTest
+    public void testConvertExpeditedJobs_delaysAreNotExpedited() {
+        if (!BuildCompat.isAtLeastS()) {
+            return;
+        }
+
+        WorkSpec workSpec = new WorkSpec("id", TestWorker.class.getName());
+        workSpec.expedited = true;
+        workSpec.initialDelay = 1000L; // delay
+        JobInfo jobInfo = mConverter.convert(workSpec, JOB_ID);
+        assertThat(jobInfo.isExpedited(), is(false));
+    }
+
     private void convertWithRequiredNetworkType(NetworkType networkType,
                                                 int jobInfoNetworkType,
                                                 int minSdkVersion) {

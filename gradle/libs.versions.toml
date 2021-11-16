@@ -2,20 +2,20 @@
 # -----------------------------------------------------------------------------
 # All of the following should be updated in sync.
 # -----------------------------------------------------------------------------
-androidGradlePlugin = "7.1.0-alpha08"
+androidGradlePlugin = "7.1.0-beta02"
 # NOTE: When updating the lint version we also need to update the `api` version
 # supported by `IssueRegistry`'s.' For e.g. r.android.com/1331903
-androidLint = "30.1.0-alpha08"
+androidLint = "30.1.0-beta02"
 # Once you have a chosen version of AGP to upgrade to, go to
 # https://developer.android.com/studio/archive and find the matching version of Studio.
-androidStudio = "2021.1.1.8"
+androidStudio = "2021.1.1.15"
 # -----------------------------------------------------------------------------
 
 androidLintMin = "27.2.1"
 androidLintMinCompose = "30.0.0"
 androidxTestRunner = "1.4.0"
 androidxTestRules = "1.4.0"
-androidxTestMonitor = "1.4.0"
+androidxTestMonitor = "1.5.0-beta01"
 androidxTestCore = "1.4.0"
 androidxTestExtJunit = "1.1.3"
 androidxTestExtTruth = "1.4.0"
@@ -35,7 +35,7 @@ ksp = "1.5.31-1.0.0"
 ktlint = "0.42.1"
 leakcanary = "2.7"
 mockito = "2.25.0"
-skiko = "0.4.16"
+skiko = "0.5.2"
 sqldelight = "1.3.0"
 wire = "3.6.0"
 
@@ -127,7 +127,7 @@ kspGradlePluginz = { module = "com.google.devtools.ksp:symbol-processing-gradle-
 leakcanary = { module = "com.squareup.leakcanary:leakcanary-android", version.ref = "leakcanary" }
 leakcanaryInstrumentation = { module = "com.squareup.leakcanary:leakcanary-android-instrumentation", version.ref = "leakcanary" }
 material = { module = "com.google.android.material:material", version = "1.2.1" }
-metalava = { module = "com.android.tools.metalava:metalava", version = "1.0.0-alpha04" }
+metalava = { module = "com.android.tools.metalava:metalava", version = "1.0.0-alpha05" }
 mlkitBarcode = { module = "com.google.mlkit:barcode-scanning", version = "16.1.1" }
 mockitoCore = { module = "org.mockito:mockito-core", version.ref = "mockito" }
 mockitoAndroid = { module = "org.mockito:mockito-android", version.ref = "mockito" }

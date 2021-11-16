@@ -16,6 +16,7 @@
 
 package androidx.camera.core;
 
+import android.graphics.Matrix;
 import android.graphics.Rect;
 import android.media.Image;
 
@@ -57,7 +58,11 @@ final class AndroidImageProxy implements ImageProxy {
             mPlanes = new PlaneProxy[0];
         }
 
-        mImageInfo = ImmutableImageInfo.create(TagBundle.emptyBundle(), image.getTimestamp(), 0);
+        mImageInfo = ImmutableImageInfo.create(
+                TagBundle.emptyBundle(),
+                image.getTimestamp(),
+                0,
+                new Matrix());
     }
 
     @Override
@@ -98,7 +103,6 @@ final class AndroidImageProxy implements ImageProxy {
     }
 
     /** An {@link ImageProxy.PlaneProxy} which wraps around an {@link Image.Plane}. */
-    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
     private static final class PlaneProxy implements ImageProxy.PlaneProxy {
         @GuardedBy("this")
         private final Image.Plane mPlane;

@@ -493,7 +493,7 @@ public class RemoteWorkManagerClient extends RemoteWorkManager {
         public void onNullBinding(@NonNull ComponentName name) {
             Logger.get().error(TAG, "Unable to bind to service");
             mFuture.setException(
-                    new RuntimeException(String.format("Cannot bind to service %s", name)));
+                    new RuntimeException("Cannot bind to service " + name));
         }
     }
 

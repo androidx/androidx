@@ -35,8 +35,8 @@ dependencies {
     api(libs.junit)
     api(libs.kotlinStdlib)
 
-    implementation("androidx.test:rules:1.3.0")
-    implementation("androidx.test:runner:1.3.0")
+    implementation("androidx.test:rules:1.4.0")
+    implementation("androidx.test:runner:1.4.0")
     implementation("androidx.tracing:tracing-ktx:1.0.0")
     api("androidx.annotation:annotation:1.1.0")
 

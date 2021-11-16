@@ -19,6 +19,7 @@ package androidx.car.app.hardware.common;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
 import androidx.annotation.IntDef;
+import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.annotations.RequiresCarApi;
@@ -28,7 +29,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-/** Units such as speed and distance for car hardware measurements and display. */
+/** Units such as speed, distance and volume for car hardware measurements and display. */
 @CarProtocol
 @RequiresCarApi(3)
 public final class CarUnit {
@@ -66,6 +67,39 @@ public final class CarUnit {
     public static final int MILE = 4;
 
     /**
+     * Defines the possible volume units from car hardware.
+     *
+     * @hide
+     */
+    @IntDef({
+            MILLILITER,
+            LITER,
+            US_GALLON,
+            IMPERIAL_GALLON
+    })
+    @Retention(RetentionPolicy.SOURCE)
+    @Target({ElementType.TYPE_USE})
+    @RestrictTo(LIBRARY)
+    public @interface CarVolumeUnit {
+    }
+
+    /** Milliliter unit. */
+    @CarVolumeUnit
+    public static final int MILLILITER = 201;
+
+    /** Liter unit. */
+    @CarVolumeUnit
+    public static final int LITER = 202;
+
+    /** US Gallon unit. */
+    @CarVolumeUnit
+    public static final int US_GALLON = 203;
+
+    /** Imperial Gallon unit. */
+    @CarVolumeUnit
+    public static final int IMPERIAL_GALLON = 204;
+
+    /**
      * Defines the possible distance units from car hardware.
      *
      * @hide
@@ -94,4 +128,35 @@ public final class CarUnit {
     public static final int MILES_PER_HOUR = 103;
 
     private CarUnit() {}
+
+    /** Get a user friendly representation of the unit. */
+    @NonNull
+    public static String toString(int unit) {
+        switch (unit) {
+            case MILLIMETER:
+                return "MILLIMETER";
+            case METER:
+                return "METER";
+            case KILOMETER:
+                return "KILOMETER";
+            case MILE:
+                return "MILE";
+            case MILLILITER:
+                return "MILLILITER";
+            case LITER:
+                return "LITER";
+            case US_GALLON :
+                return "US_GALLON ";
+            case IMPERIAL_GALLON:
+                return "IMPERIAL_GALLON";
+            case METERS_PER_SEC:
+                return "METERS_PER_SEC";
+            case KILOMETERS_PER_HOUR:
+                return "KILOMETERS_PER_HOUR";
+            case MILES_PER_HOUR :
+                return "MILES_PER_HOUR ";
+            default:
+                return "UNKNOWN";
+        }
+    }
 }

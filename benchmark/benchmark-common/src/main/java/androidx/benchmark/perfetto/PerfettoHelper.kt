@@ -25,6 +25,7 @@ import androidx.benchmark.DeviceInfo.deviceSummaryString
 import androidx.benchmark.Shell
 import androidx.benchmark.userspaceTrace
 import androidx.test.platform.app.InstrumentationRegistry
+import androidx.tracing.trace
 import org.jetbrains.annotations.TestOnly
 import java.io.File
 import java.io.IOException
@@ -48,6 +49,13 @@ public class PerfettoHelper(
     }
 
     var perfettoPid: Int? = null
+
+    /**
+     * For now, we use --background-wait only when unbundled.
+     *
+     * Eventually, we should also use it when using bundled platform version that support it (T+?)
+     */
+    private val useBackgroundWait = unbundled
 
     private fun perfettoStartupException(label: String, cause: Exception?): IllegalStateException {
         return IllegalStateException(
@@ -103,9 +111,17 @@ public class PerfettoHelper(
             // Perfetto
             val perfettoCmd = perfettoCommand(actualConfigPath, isTextProtoConfig)
             Log.i(LOG_TAG, "Starting perfetto tracing with cmd: $perfettoCmd")
-            val perfettoCmdOutput = Shell.executeScript(perfettoCmd).trim()
-            Log.i(LOG_TAG, "Perfetto pid - $perfettoCmdOutput")
-            perfettoPid = perfettoCmdOutput.toInt()
+            val perfettoCmdOutput = Shell.executeScript("$perfettoCmd; echo EXITCODE=$?").trim()
+
+            val expectedSuffix = "\nEXITCODE=0"
+            if (!perfettoCmdOutput.endsWith(expectedSuffix)) {
+                throw perfettoStartupException(
+                    "Perfetto unexpected exit code, output = $perfettoCmdOutput",
+                    null
+                )
+            }
+            Log.i(LOG_TAG, "Perfetto output - $perfettoCmdOutput")
+            perfettoPid = perfettoCmdOutput.removeSuffix(expectedSuffix).toInt()
         } catch (ioe: IOException) {
             throw perfettoStartupException("Unable to start perfetto tracing", ioe)
         }
@@ -115,7 +131,9 @@ public class PerfettoHelper(
         }
         Log.i(LOG_TAG, "Perfetto tracing started successfully with pid $perfettoPid.")
 
-        checkTracingOn()
+        if (!useBackgroundWait) {
+            checkTracingOn()
+        }
     }
 
     /**
@@ -153,6 +171,7 @@ public class PerfettoHelper(
                 "1" -> {
                     // success!
                     Log.i(LOG_TAG, "$path = 1, polled $it times, capture fully started")
+                    trace("Perfetto - capture started successfully") {}
                     return@checkTracingOn
                 }
                 else -> {
@@ -183,17 +202,10 @@ public class PerfettoHelper(
      * Stop the perfetto trace collection under /data/misc/perfetto-traces/trace_output.pb after
      * waiting for given time in msecs and copy the output to the destination file.
      *
-     * @param waitTimeInMsecs time to wait in msecs before stopping the trace collection.
      * @param destinationFile file to copy the perfetto output trace.
      * @return true if the trace collection is successful otherwise false.
      */
-    public fun stopCollecting(waitTimeInMsecs: Long, destinationFile: String) {
-        // Wait for the dump interval before stopping the trace.
-        userspaceTrace("Wait for perfetto flush") {
-            Log.i(LOG_TAG, "Waiting for $waitTimeInMsecs millis before stopping perfetto.")
-            SystemClock.sleep(waitTimeInMsecs)
-        }
-
+    public fun stopCollecting(destinationFile: String) {
         // Stop the perfetto and copy the output file.
         Log.i(LOG_TAG, "Stopping perfetto.")
 
@@ -215,6 +227,10 @@ public class PerfettoHelper(
     private fun stopPerfetto() {
         val pid = perfettoPid
 
+        // add an empty trace section just before stopping,
+        // to help debugging missing content at end of trace
+        trace("Perfetto - preparing to stop") {}
+
         require(pid != null)
         Shell.terminateProcessesAndWait(
             waitPollPeriodMs = PERFETTO_KILL_WAIT_TIME_MS,
@@ -232,14 +248,21 @@ public class PerfettoHelper(
      */
     private fun perfettoCommand(configFilePath: String, isTextProtoConfig: Boolean): String {
         val outputPath = getPerfettoTmpOutputFilePath()
-        var command = if (!unbundled) (
+
+        val backgroundArg = if (useBackgroundWait) {
+            "--background-wait"
+        } else {
+            "--background"
+        }
+
+        var command = if (!unbundled) {
             // Bundled perfetto reads configuration from stdin.
-            "cat $configFilePath | perfetto --background -c - -o $outputPath"
-            ) else {
+            "cat $configFilePath | perfetto $backgroundArg -c - -o $outputPath"
+        } else {
             // Unbundled perfetto can read configuration from a file that it has permissions to
             // read from. This because it assumes the identity of the shell and therefore has
             // access to /data/local/tmp directory.
-            "$unbundledPerfettoShellPath --background" +
+            "$unbundledPerfettoShellPath $backgroundArg" +
                 " -c $configFilePath" +
                 " -o $outputPath"
         }
@@ -344,7 +367,7 @@ public class PerfettoHelper(
 
         // A set of supported ABIs
         private val SUPPORTED_64_ABIS = setOf("arm64-v8a", "x86_64")
-        private val SUPPORTED_32_ABIS = setOf("armeabi")
+        private val SUPPORTED_32_ABIS = setOf("armeabi", "x86")
 
         // potential paths that tracing_on may reside in
         private const val TRACING_ON_PATH = "/sys/kernel/tracing/tracing_on"
@@ -378,6 +401,7 @@ public class PerfettoHelper(
                     // least specific. For e.g. emulators claim to support aarch64, when in reality
                     // they can only support x86 or x86_64.
                     Build.SUPPORTED_64_BIT_ABIS.any { it.startsWith("x86_64") } -> "x86_64"
+                    Build.SUPPORTED_32_BIT_ABIS.any { it.startsWith("x86") } -> "x86"
                     Build.SUPPORTED_64_BIT_ABIS.any { it.startsWith("arm64") } -> "aarch64"
                     Build.SUPPORTED_32_BIT_ABIS.any { it.startsWith("armeabi") } -> "arm"
                     else -> IllegalStateException(
@@ -397,6 +421,17 @@ public class PerfettoHelper(
                     waitPollPeriodMs = PERFETTO_KILL_WAIT_TIME_MS,
                     waitPollMaxCount = PERFETTO_KILL_WAIT_COUNT,
                     processName
+                )
+            }
+
+            // Have seen cases where unbundled Perfetto crashes, and leaves ftrace enabled,
+            // e.g. b/205763418. --cleanup-after-crash will reset that state, so it doesn't leak
+            // between tests. If this sort of crash happens on higher API levels, may need to do
+            // this there as well. Can't use /system/bin/traced_probes, as that requires root, and
+            // unbundled tracebox otherwise not used/installed on higher APIs, outside of tests.
+            if (Build.VERSION.SDK_INT < LOWEST_BUNDLED_VERSION_SUPPORTED) {
+                Shell.executeCommand(
+                    "$unbundledPerfettoShellPath traced_probes --cleanup-after-crash"
                 )
             }
         }

@@ -34,7 +34,7 @@ android {
 
     externalNativeBuild {
         cmake {
-            version "3.10.2"
+            version "3.18.1"
             path "${yuvSourceDir}/files/CMakeLists.txt"
         }
     }
@@ -51,5 +51,18 @@ android {
             headers "${yuvSourceDir}/files/include"
             name "yuv"
         }
+    }
+}
+
+// Entire block is to workaround b/203448887
+afterEvaluate {
+    tasks.named("bundleDebugLocalLintAar").configure {
+        it.dependsOn("prefabDebugConfigurePackage")
+    }
+    tasks.named("bundleReleaseAar").configure {
+        it.dependsOn("prefabReleaseConfigurePackage")
+    }
+    tasks.named("reportLibraryMetrics").configure {
+        it.dependsOn("prefabReleaseConfigurePackage")
     }
 }

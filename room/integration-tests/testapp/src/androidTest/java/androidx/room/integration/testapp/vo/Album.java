@@ -19,6 +19,8 @@ package androidx.room.integration.testapp.vo;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
+import javax.annotation.Nullable;
+
 @Entity
 public class Album {
     @PrimaryKey
@@ -26,12 +28,21 @@ public class Album {
     public final String mAlbumName;
     public final String mAlbumArtist;
     public final int mAlbumReleaseYear;
+    @Nullable
+    public final String mFeaturedArtist;
 
-    public Album(int albumId, String albumName, String albumArtist, int albumReleaseYear) {
+    public Album(
+            int albumId,
+            String albumName,
+            String albumArtist,
+            int albumReleaseYear,
+            @Nullable String featuredArtist
+    ) {
         mAlbumId = albumId;
         mAlbumName = albumName;
         mAlbumArtist = albumArtist;
         mAlbumReleaseYear = albumReleaseYear;
+        mFeaturedArtist = featuredArtist;
     }
 
     @Override

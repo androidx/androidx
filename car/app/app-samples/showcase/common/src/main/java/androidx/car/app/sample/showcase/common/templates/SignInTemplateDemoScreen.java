@@ -23,11 +23,9 @@ import android.net.Uri;
 
 import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
-import androidx.annotation.OptIn;
 import androidx.car.app.CarContext;
 import androidx.car.app.CarToast;
 import androidx.car.app.Screen;
-import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.model.Action;
 import androidx.car.app.model.CarColor;
 import androidx.car.app.model.CarIcon;
@@ -271,7 +269,6 @@ public class SignInTemplateDemoScreen extends Screen {
                 .build();
     }
 
-    @OptIn(markerClass = ExperimentalCarApi.class)
     private Template getQRCodeSignInTemplate() {
         QRCodeSignInMethod qrCodeSignInMethod = new QRCodeSignInMethod(Uri.parse("https://www"
                 + ".youtube.com/watch?v=dQw4w9WgXcQ"));

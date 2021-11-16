@@ -37,15 +37,17 @@ dependencies {
         api(project(":compose:runtime:runtime"))
 
         implementation(libs.kotlinStdlib)
+        implementation(project(":compose:animation:animation"))
         implementation(project(":compose:material:material"))
         implementation(project(":compose:material:material-ripple"))
         implementation(project(":compose:ui:ui-util"))
         implementation(project(":wear:compose:compose-foundation"))
 
-        androidTestImplementation project(path: ':compose:ui:ui-test')
-        androidTestImplementation project(path: ':compose:ui:ui-test-junit4')
-        androidTestImplementation project(path: ':compose:test-utils')
-        androidTestImplementation project(":test:screenshot:screenshot")
+        androidTestImplementation(project(":compose:ui:ui-test"))
+        androidTestImplementation(project(":compose:ui:ui-test-junit4"))
+        androidTestImplementation(project(":compose:test-utils"))
+
+        androidTestImplementation(project(":test:screenshot:screenshot"))
         androidTestImplementation(libs.testRunner)
         androidTestImplementation(libs.truth)
 
@@ -72,6 +74,7 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
                 api(project(":compose:runtime:runtime"))
                 api("androidx.annotation:annotation:1.1.0")
 
+                implementation(project(":compose:animation:animation"))
                 implementation(project(":compose:material:material"))
                 implementation(project(":compose:material:material-ripple"))
                 implementation(project(":compose:ui:ui-util"))
@@ -96,9 +99,9 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
                 implementation(libs.testRunner)
                 implementation(libs.truth)
                 implementation(project(":compose:ui:ui-util"))
-                implementation(project(path: ':compose:ui:ui-test'))
-                implementation(project(path: ':compose:ui:ui-test-junit4'))
-                implementation(project(path: ':compose:test-utils'))
+                implementation(project(":compose:ui:ui-test"))
+                implementation(project(":compose:ui:ui-test-junit4"))
+                implementation(project(":compose:test-utils"))
                 implementation(project(":test:screenshot:screenshot"))
             }
         }

@@ -17,11 +17,11 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 29
+    compileSdkVersion 31
     defaultConfig {
         applicationId "androidx.car.app.sample.places"
         minSdkVersion 23
-        targetSdkVersion 29
+        targetSdkVersion 31
         versionCode 1
         versionName "1.0"
     }
@@ -43,6 +43,6 @@ android {
 }
 
 dependencies {
-    implementation "androidx.car.app:app-projected:1.1.0-beta01"
+    implementation "androidx.car.app:app-projected:1.2.0-alpha01"
     implementation project(":places:common")
 }

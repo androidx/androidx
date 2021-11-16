@@ -24,9 +24,11 @@ import android.content.Context
 import android.content.pm.ActivityInfo
 import android.os.Build
 import android.view.View
+import android.view.ViewGroup
 import android.view.ViewTreeObserver
-import androidx.glance.unit.DpSize
-import androidx.glance.unit.dp
+import androidx.compose.ui.unit.DpSize
+import androidx.compose.ui.unit.dp
+import androidx.core.view.children
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.Espresso.onView
@@ -46,6 +48,7 @@ import org.junit.runner.Description
 import org.junit.runners.model.Statement
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
+import kotlin.test.assertIs
 import kotlin.test.fail
 
 @SdkSuppress(minSdkVersion = 29)
@@ -125,6 +128,19 @@ class AppWidgetHostRule(
         onHostActivity { block(mHostView) }
     }
 
+    /**
+     * The top-level view is always boxed into a FrameLayout.
+     *
+     * This will retrieve the actual top-level view, skipping the boxing for the root view, and
+     * possibly the one to get the exact size.
+     */
+    inline fun <reified T : View> onUnboxedHostView(crossinline block: (T) -> Unit) {
+        onHostActivity {
+            val boxingView = assertIs<ViewGroup>(mHostView.getChildAt(0))
+            block(boxingView.children.single().getTargetView())
+        }
+    }
+
     /** Change the orientation to landscape.*/
     fun setLandscapeOrientation() {
         onView(isRoot()).perform(orientationLandscape())
@@ -140,12 +156,34 @@ class AppWidgetHostRule(
      *
      * If specified, the options bundle for the AppWidget is updated and the code waits for the
      * new RemoteViews from the provider.
+     *
+     * @param portraitSize Size of the view in portrait mode.
+     * @param landscapeSize Size of the view in landscape. If null, the portrait and landscape sizes
+     *   will be set to be such that portrait is narrower than tall and the landscape wider than
+     *   tall.
+     * @param updateRemoteViews If the host is already started and this is true, the provider will
+     *   be called to get a new set of RemoteViews for the new sizes.
      */
-    fun setSizes(portraitSize: DpSize, landscapeSize: DpSize, updateRemoteViews: Boolean = true) {
-        mLandscapeSize = landscapeSize
-        mPortraitSize = portraitSize
+    fun setSizes(
+        portraitSize: DpSize,
+        landscapeSize: DpSize? = null,
+        updateRemoteViews: Boolean = true
+    ) {
+        val (portrait, landscape) = if (landscapeSize != null) {
+            portraitSize to landscapeSize
+        } else {
+            if (portraitSize.width < portraitSize.height) {
+                portraitSize to DpSize(portraitSize.height, portraitSize.width)
+            } else {
+                DpSize(portraitSize.height, portraitSize.width) to portraitSize
+            }
+        }
+        mLandscapeSize = landscape
+        mPortraitSize = portrait
+        if (!mHostStarted) return
+
         mScenario.onActivity {
-            mHostView.setSizes(portraitSize, landscapeSize)
+            mHostView.setSizes(portrait, landscape)
         }
 
         if (updateRemoteViews) {
@@ -153,7 +191,7 @@ class AppWidgetHostRule(
                 mHostView.resetRemoteViewsLatch()
                 AppWidgetManager.getInstance(mContext).updateAppWidgetOptions(
                     mAppWidgetId,
-                    optionsBundleOf(portraitSize, landscapeSize)
+                    optionsBundleOf(listOf(portrait, landscape))
                 )
                 mHostView.waitForRemoteViews()
             }

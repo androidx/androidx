@@ -18,7 +18,7 @@ package androidx.glance.appwidget.unit
 
 import android.content.Context
 import android.content.res.Configuration
-import androidx.glance.unit.Color
+import androidx.compose.ui.graphics.Color
 import androidx.glance.unit.ColorProvider
 
 /**
@@ -29,11 +29,11 @@ public fun ColorProvider(day: Color, night: Color): ColorProvider {
     return DayNightColorProvider(day, night)
 }
 
-internal class DayNightColorProvider(val day: Color, val night: Color) : ColorProvider {
+internal data class DayNightColorProvider(val day: Color, val night: Color) : ColorProvider {
     fun resolve(context: Context) = if (context.isNightMode) night else day
 }
 
-private val Context.isNightMode: Boolean
+internal val Context.isNightMode: Boolean
     get() =
         resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK ==
-        Configuration.UI_MODE_NIGHT_YES
+            Configuration.UI_MODE_NIGHT_YES

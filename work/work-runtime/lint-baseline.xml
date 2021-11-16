@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.2.0-dev" type="baseline" client="gradle" dependencies="false" name="AGP (7.2.0-dev)" variant="all" version="7.2.0-dev">
+<issues format="6" by="lint 7.1.0-beta02" type="baseline" client="gradle" dependencies="false" name="AGP (7.1.0-beta02)" variant="all" version="7.1.0-beta02">
 
     <issue
         id="NewApi"
@@ -184,7 +184,7 @@
         errorLine2="                             ~~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/background/systemalarm/Alarms.java"
-            line="134"
+            line="131"
             column="30"/>
     </issue>
 
@@ -322,111 +322,12 @@
 
     <issue
         id="ClassVerificationFailure"
-        message="This call references a method added in API level 28; however, the containing class androidx.work.impl.background.systemjob.SystemJobInfoConverter is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                builder.setImportantWhileForeground(true);"
-        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/background/systemjob/SystemJobInfoConverter.java"
-            line="106"
-            column="25"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 24; however, the containing class androidx.work.impl.background.systemjob.SystemJobInfoConverter is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                builder.addTriggerContentUri(convertContentUriTrigger(trigger));"
-        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/background/systemjob/SystemJobInfoConverter.java"
-            line="113"
-            column="25"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 24; however, the containing class androidx.work.impl.background.systemjob.SystemJobInfoConverter is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            builder.setTriggerContentUpdateDelay(constraints.getTriggerContentUpdateDelay());"
-        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/background/systemjob/SystemJobInfoConverter.java"
-            line="115"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 24; however, the containing class androidx.work.impl.background.systemjob.SystemJobInfoConverter is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            builder.setTriggerContentMaxDelay(constraints.getTriggerMaxContentDelay());"
-        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/background/systemjob/SystemJobInfoConverter.java"
-            line="116"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 26; however, the containing class androidx.work.impl.background.systemjob.SystemJobInfoConverter is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            builder.setRequiresBatteryNotLow(constraints.requiresBatteryNotLow());"
-        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/background/systemjob/SystemJobInfoConverter.java"
-            line="123"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 26; however, the containing class androidx.work.impl.background.systemjob.SystemJobInfoConverter is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            builder.setRequiresStorageNotLow(constraints.requiresStorageNotLow());"
-        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/background/systemjob/SystemJobInfoConverter.java"
-            line="124"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 31; however, the containing class androidx.work.impl.background.systemjob.SystemJobInfoConverter is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            builder.setExpedited(true);"
-        errorLine2="                    ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/background/systemjob/SystemJobInfoConverter.java"
-            line="130"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 24; however, the containing class androidx.work.impl.background.systemjob.SystemJobInfoConverter is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="        return new JobInfo.TriggerContentUri(trigger.getUri(), flag);"
-        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/background/systemjob/SystemJobInfoConverter.java"
-            line="140"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 28; however, the containing class androidx.work.impl.background.systemjob.SystemJobInfoConverter is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            builder.setRequiredNetwork(networkRequest);"
-        errorLine2="                    ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/background/systemjob/SystemJobInfoConverter.java"
-            line="158"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
         message="This call references a method added in API level 24; however, the containing class androidx.work.impl.background.systemjob.SystemJobService is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            if (params.getTriggeredContentUris() != null) {"
         errorLine2="                       ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/background/systemjob/SystemJobService.java"
-            line="125"
+            line="124"
             column="24"/>
     </issue>
 
@@ -437,7 +338,7 @@
         errorLine2="                                             ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/background/systemjob/SystemJobService.java"
-            line="127"
+            line="126"
             column="46"/>
     </issue>
 
@@ -448,7 +349,7 @@
         errorLine2="                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/background/systemjob/SystemJobService.java"
-            line="129"
+            line="128"
             column="24"/>
     </issue>
 
@@ -459,7 +360,7 @@
         errorLine2="                                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/background/systemjob/SystemJobService.java"
-            line="131"
+            line="130"
             column="46"/>
     </issue>
 
@@ -470,7 +371,7 @@
         errorLine2="                                               ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/background/systemjob/SystemJobService.java"
-            line="134"
+            line="133"
             column="48"/>
     </issue>
 
@@ -536,7 +437,7 @@
         errorLine2="                      ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/constraints/trackers/ConstraintTracker.java"
-            line="124"
+            line="123"
             column="23"/>
     </issue>
 
@@ -909,7 +810,7 @@
         errorLine2="                               ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/constraints/trackers/ConstraintTracker.java"
-            line="83"
+            line="82"
             column="32"/>
     </issue>
 
@@ -1076,336 +977,6 @@
             file="src/main/java/androidx/work/Logger.java"
             line="68"
             column="32"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public abstract void verbose(String tag, String message, Throwable... throwables);"
-        errorLine2="                                 ~~~~~~">
-        <location
-            file="src/main/java/androidx/work/Logger.java"
-            line="87"
-            column="34"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public abstract void verbose(String tag, String message, Throwable... throwables);"
-        errorLine2="                                             ~~~~~~">
-        <location
-            file="src/main/java/androidx/work/Logger.java"
-            line="87"
-            column="46"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public abstract void verbose(String tag, String message, Throwable... throwables);"
-        errorLine2="                                                             ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/Logger.java"
-            line="87"
-            column="62"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public abstract void debug(String tag, String message, Throwable... throwables);"
-        errorLine2="                               ~~~~~~">
-        <location
-            file="src/main/java/androidx/work/Logger.java"
-            line="92"
-            column="32"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public abstract void debug(String tag, String message, Throwable... throwables);"
-        errorLine2="                                           ~~~~~~">
-        <location
-            file="src/main/java/androidx/work/Logger.java"
-            line="92"
-            column="44"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public abstract void debug(String tag, String message, Throwable... throwables);"
-        errorLine2="                                                           ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/Logger.java"
-            line="92"
-            column="60"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public abstract void info(String tag, String message, Throwable... throwables);"
-        errorLine2="                              ~~~~~~">
-        <location
-            file="src/main/java/androidx/work/Logger.java"
-            line="97"
-            column="31"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public abstract void info(String tag, String message, Throwable... throwables);"
-        errorLine2="                                          ~~~~~~">
-        <location
-            file="src/main/java/androidx/work/Logger.java"
-            line="97"
-            column="43"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public abstract void info(String tag, String message, Throwable... throwables);"
-        errorLine2="                                                          ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/Logger.java"
-            line="97"
-            column="59"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public abstract void warning(String tag, String message, Throwable... throwables);"
-        errorLine2="                                 ~~~~~~">
-        <location
-            file="src/main/java/androidx/work/Logger.java"
-            line="102"
-            column="34"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public abstract void warning(String tag, String message, Throwable... throwables);"
-        errorLine2="                                             ~~~~~~">
-        <location
-            file="src/main/java/androidx/work/Logger.java"
-            line="102"
-            column="46"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public abstract void warning(String tag, String message, Throwable... throwables);"
-        errorLine2="                                                             ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/Logger.java"
-            line="102"
-            column="62"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public abstract void error(String tag, String message, Throwable... throwables);"
-        errorLine2="                               ~~~~~~">
-        <location
-            file="src/main/java/androidx/work/Logger.java"
-            line="107"
-            column="32"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public abstract void error(String tag, String message, Throwable... throwables);"
-        errorLine2="                                           ~~~~~~">
-        <location
-            file="src/main/java/androidx/work/Logger.java"
-            line="107"
-            column="44"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public abstract void error(String tag, String message, Throwable... throwables);"
-        errorLine2="                                                           ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/Logger.java"
-            line="107"
-            column="60"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public void verbose(String tag, String message, Throwable... throwables) {"
-        errorLine2="                            ~~~~~~">
-        <location
-            file="src/main/java/androidx/work/Logger.java"
-            line="124"
-            column="29"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public void verbose(String tag, String message, Throwable... throwables) {"
-        errorLine2="                                        ~~~~~~">
-        <location
-            file="src/main/java/androidx/work/Logger.java"
-            line="124"
-            column="41"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public void verbose(String tag, String message, Throwable... throwables) {"
-        errorLine2="                                                        ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/Logger.java"
-            line="124"
-            column="57"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public void debug(String tag, String message, Throwable... throwables) {"
-        errorLine2="                          ~~~~~~">
-        <location
-            file="src/main/java/androidx/work/Logger.java"
-            line="135"
-            column="27"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public void debug(String tag, String message, Throwable... throwables) {"
-        errorLine2="                                      ~~~~~~">
-        <location
-            file="src/main/java/androidx/work/Logger.java"
-            line="135"
-            column="39"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public void debug(String tag, String message, Throwable... throwables) {"
-        errorLine2="                                                      ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/Logger.java"
-            line="135"
-            column="55"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public void info(String tag, String message, Throwable... throwables) {"
-        errorLine2="                         ~~~~~~">
-        <location
-            file="src/main/java/androidx/work/Logger.java"
-            line="146"
-            column="26"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public void info(String tag, String message, Throwable... throwables) {"
-        errorLine2="                                     ~~~~~~">
-        <location
-            file="src/main/java/androidx/work/Logger.java"
-            line="146"
-            column="38"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public void info(String tag, String message, Throwable... throwables) {"
-        errorLine2="                                                     ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/Logger.java"
-            line="146"
-            column="54"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public void warning(String tag, String message, Throwable... throwables) {"
-        errorLine2="                            ~~~~~~">
-        <location
-            file="src/main/java/androidx/work/Logger.java"
-            line="157"
-            column="29"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public void warning(String tag, String message, Throwable... throwables) {"
-        errorLine2="                                        ~~~~~~">
-        <location
-            file="src/main/java/androidx/work/Logger.java"
-            line="157"
-            column="41"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public void warning(String tag, String message, Throwable... throwables) {"
-        errorLine2="                                                        ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/Logger.java"
-            line="157"
-            column="57"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public void error(String tag, String message, Throwable... throwables) {"
-        errorLine2="                          ~~~~~~">
-        <location
-            file="src/main/java/androidx/work/Logger.java"
-            line="168"
-            column="27"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public void error(String tag, String message, Throwable... throwables) {"
-        errorLine2="                                      ~~~~~~">
-        <location
-            file="src/main/java/androidx/work/Logger.java"
-            line="168"
-            column="39"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public void error(String tag, String message, Throwable... throwables) {"
-        errorLine2="                                                      ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/Logger.java"
-            line="168"
-            column="55"/>
     </issue>
 
     <issue
@@ -1954,7 +1525,7 @@
         errorLine2="               ~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/model/WorkSpec.java"
-            line="377"
+            line="371"
             column="16"/>
     </issue>
 
@@ -1965,7 +1536,7 @@
         errorLine2="               ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/model/WorkSpec.java"
-            line="380"
+            line="374"
             column="16"/>
     </issue>
 
@@ -1976,7 +1547,7 @@
         errorLine2="               ~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/model/WorkSpec.java"
-            line="407"
+            line="401"
             column="16"/>
     </issue>
 
@@ -1987,7 +1558,7 @@
         errorLine2="               ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/model/WorkSpec.java"
-            line="410"
+            line="404"
             column="16"/>
     </issue>
 
@@ -1998,7 +1569,7 @@
         errorLine2="               ~~~~">
         <location
             file="src/main/java/androidx/work/impl/model/WorkSpec.java"
-            line="413"
+            line="407"
             column="16"/>
     </issue>
 
@@ -2009,7 +1580,7 @@
         errorLine2="               ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/model/WorkSpec.java"
-            line="423"
+            line="417"
             column="16"/>
     </issue>
 
@@ -2020,7 +1591,7 @@
         errorLine2="               ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/model/WorkSpec.java"
-            line="432"
+            line="426"
             column="16"/>
     </issue>
 

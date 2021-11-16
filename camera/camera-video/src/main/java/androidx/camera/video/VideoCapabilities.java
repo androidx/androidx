@@ -26,6 +26,8 @@ import androidx.camera.core.Logger;
 import androidx.camera.core.impl.CamcorderProfileProvider;
 import androidx.camera.core.impl.CamcorderProfileProxy;
 import androidx.camera.core.impl.CameraInfoInternal;
+import androidx.camera.video.internal.compat.quirk.DeviceQuirks;
+import androidx.camera.video.internal.compat.quirk.VideoQualityNotSupportQuirk;
 import androidx.core.util.Preconditions;
 
 import java.util.ArrayDeque;
@@ -71,7 +73,7 @@ public final class VideoCapabilities {
             // SortedQualities is from size large to small
 
             // Get CamcorderProfile
-            if (!camcorderProfileProvider.hasProfile(quality)) {
+            if (!camcorderProfileProvider.hasProfile(quality) || !isDeviceValidQuality(quality)) {
                 continue;
             }
             CamcorderProfileProxy profile = camcorderProfileProvider.get(quality);
@@ -151,4 +153,10 @@ public final class VideoCapabilities {
         Preconditions.checkArgument(QualitySelector.containsQuality(quality),
                 "Unknown quality: " + quality);
     }
+
+    private boolean isDeviceValidQuality(@QualitySelector.VideoQuality int quality) {
+        VideoQualityNotSupportQuirk quirk = DeviceQuirks.get(VideoQualityNotSupportQuirk.class);
+        return quirk == null || !quirk.isProblematicVideoQuality(quality);
+    }
+
 }

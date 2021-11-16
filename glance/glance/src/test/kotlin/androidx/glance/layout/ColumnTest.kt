@@ -16,9 +16,10 @@
 
 package androidx.glance.layout
 
-import androidx.glance.Modifier
+import androidx.compose.ui.unit.dp
+import androidx.glance.GlanceModifier
 import androidx.glance.findModifier
-import androidx.glance.unit.dp
+import androidx.glance.unit.Dimension
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.TestCoroutineScope
@@ -51,7 +52,7 @@ class ColumnTest {
     fun createComposableRowWithParams() = fakeCoroutineScope.runBlockingTest {
         val root = runTestingComposition {
             Column(
-                modifier = Modifier.padding(2.dp),
+                modifier = GlanceModifier.padding(2.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalAlignment = Alignment.CenterVertically
             ) {}
@@ -85,7 +86,7 @@ class ColumnTest {
     fun createComposableColumnWithWeightChildren() = fakeCoroutineScope.runBlockingTest {
         val root = runTestingComposition {
             Column {
-                Box(modifier = Modifier.defaultWeight()) { }
+                Box(modifier = GlanceModifier.defaultWeight()) { }
             }
         }
 

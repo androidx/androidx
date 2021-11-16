@@ -22,8 +22,7 @@ import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.window.layout.DisplayFeature
-import androidx.window.layout.WindowInfoRepository
-import androidx.window.layout.WindowInfoRepository.Companion.windowInfoRepository
+import androidx.window.layout.WindowInfoTracker
 import androidx.window.layout.WindowLayoutInfo
 import androidx.window.testing.TestActivity
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -34,6 +33,7 @@ import kotlinx.coroutines.flow.toCollection
 import kotlinx.coroutines.test.TestCoroutineScope
 import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.RuleChain
@@ -64,7 +64,7 @@ public class WindowLayoutInfoPublisherRuleTest {
         val expected = WindowLayoutInfo(emptyList())
         activityRule.scenario.onActivity { activity ->
             val value = testScope.async {
-                activity.windowInfoRepository().windowLayoutInfo.first()
+                WindowInfoTracker.getOrCreate(activity).windowLayoutInfo(activity).first()
             }
             publisherRule.overrideWindowLayoutInfo(expected)
             runBlockingTest {
@@ -78,8 +78,7 @@ public class WindowLayoutInfoPublisherRuleTest {
     @Test
     public fun testException_resetsFactoryMethod() {
         ActivityScenario.launch(TestActivity::class.java).onActivity { activity ->
-            WindowInfoRepository.reset()
-            val expected = activity.windowInfoRepository()
+            WindowInfoTracker.reset()
             try {
                 WindowLayoutInfoPublisherRule().apply(
                     object : Statement() {
@@ -92,7 +91,7 @@ public class WindowLayoutInfoPublisherRuleTest {
             } catch (e: TestException) {
                 // Throw unexpected exceptions.
             }
-            assertEquals(expected, activity.windowInfoRepository())
+            assertFalse(WindowInfoTracker.getOrCreate(activity) is PublishLayoutInfoTracker)
         }
     }
 
@@ -112,7 +111,8 @@ public class WindowLayoutInfoPublisherRuleTest {
         activityRule.scenario.onActivity { activity ->
             val values = mutableListOf<WindowLayoutInfo>()
             val value = testScope.async {
-                activity.windowInfoRepository().windowLayoutInfo.take(4).toCollection(values)
+                WindowInfoTracker.getOrCreate(activity).windowLayoutInfo(activity).take(4)
+                    .toCollection(values)
             }
             publisherRule.overrideWindowLayoutInfo(expected1)
             publisherRule.overrideWindowLayoutInfo(expected2)

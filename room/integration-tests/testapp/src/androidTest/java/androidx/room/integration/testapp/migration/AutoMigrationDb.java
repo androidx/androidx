@@ -460,7 +460,7 @@ public abstract class AutoMigrationDb extends RoomDatabase {
     @RenameTable(fromTableName = "Entity19", toTableName = "Entity19_V2")
     @RenameTable(fromTableName = "Entity20", toTableName = "Entity20_V2")
     @RenameTable(fromTableName = "Entity13", toTableName = "Entity13_V2")
-    @RenameColumn(tableName = "Entity16", fromColumnName = "addedInV1",
+    @RenameColumn(tableName = "Entity16", fromColumnName = "index",
             toColumnName = "renamedInV2")
     @RenameColumn(tableName = "Entity17", fromColumnName = "addedInV1",
             toColumnName = "renamedInV2")

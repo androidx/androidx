@@ -43,6 +43,8 @@ import androidx.window.layout.WindowMetricsCalculator
  * always cover the window in one dimension and that determines the other coordinates.
  *
  * @param activity that will house the [FoldingFeature].
+ * @param center the center of the fold complementary to the orientation. For a [HORIZONTAL] fold,
+ * this is the y-axis and for a [VERTICAL] fold this is the x-axis.
  * @param size the smaller dimension  of the fold. The larger dimension  always covers the entire
  * window.
  * @param state [State] of the fold. The default value is [HALF_OPENED]
@@ -50,7 +52,6 @@ import androidx.window.layout.WindowMetricsCalculator
  * @return [FoldingFeature] that is splitting if the width is not 0 and runs parallel to the
  * [Orientation] axis.
  */
-@Suppress("FunctionName")
 @JvmOverloads
 @JvmName("createFoldingFeature")
 fun FoldingFeature(
@@ -71,7 +72,28 @@ fun FoldingFeature(
     )
 }
 
-@Suppress("FunctionName")
+/**
+ * A convenience method to get a test [FoldingFeature] with default values provided. With the
+ * default values it returns a [FoldingFeature.State.HALF_OPENED] feature that splits the screen
+ * along the [FoldingFeature.Orientation.HORIZONTAL] axis.
+ *
+ * The bounds of the feature are calculated based on [orientation] and [size]. If the
+ * feature is [VERTICAL] then the feature is centered horizontally. The top-left x-coordinate is
+ * center - ([size] / 2) and the top-right x-coordinate is center + ([size] / 2). If the feature is
+ * [HORIZONTAL] then the feature is centered vertically. The top-left y-coordinate is center -
+ * ([size] / 2) and the bottom-left y-coordinate is center - ([size] / 2). The folding features
+ * always cover the window in one dimension and that determines the other coordinates.
+ *
+ * @param windowBounds that will contain the [FoldingFeature].
+ * @param center the center of the fold complementary to the orientation. For a [HORIZONTAL] fold,
+ * this is the y-axis and for a [VERTICAL] fold this is the x-axis.
+ * @param size the smaller dimension  of the fold. The larger dimension  always covers the entire
+ * window.
+ * @param state [State] of the fold. The default value is [HALF_OPENED]
+ * @param orientation [Orientation] of the fold. The default value is [HORIZONTAL]
+ * @return [FoldingFeature] that is splitting if the width is not 0 and runs parallel to the
+ * [Orientation] axis.
+ */
 @JvmOverloads
 @JvmName("createFoldingFeature")
 @ExperimentalWindowApi

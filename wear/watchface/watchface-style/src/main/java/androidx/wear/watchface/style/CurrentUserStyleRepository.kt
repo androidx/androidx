@@ -16,11 +16,16 @@
 
 package androidx.wear.watchface.style
 
+import android.content.res.Resources
+import android.content.res.XmlResourceParser
 import androidx.annotation.RestrictTo
 import androidx.wear.watchface.style.data.UserStyleSchemaWireFormat
 import androidx.wear.watchface.style.data.UserStyleWireFormat
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import org.xmlpull.v1.XmlPullParser
+import org.xmlpull.v1.XmlPullParserException
+import java.io.IOException
 
 /**
  * An immutable representation of user style choices that maps each [UserStyleSetting] to
@@ -370,6 +375,58 @@ public class UserStyleData(
 public class UserStyleSchema(
     public val userStyleSettings: List<UserStyleSetting>
 ) {
+    /** @hide */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    companion object {
+        @Throws(IOException::class, XmlPullParserException::class)
+        fun inflate(resources: Resources, parser: XmlResourceParser): UserStyleSchema {
+            require(parser.name == "UserStyleSchema") {
+               "Expected a UserStyleSchema node"
+            }
+
+            val userStyleSettings = ArrayList<UserStyleSetting>()
+            val outerDepth = parser.depth
+            var type = parser.next()
+
+            // Parse the UserStyle declaration.
+            do {
+                if (type == XmlPullParser.START_TAG) {
+                    when (parser.name) {
+                        "BooleanUserStyleSetting" -> userStyleSettings.add(
+                            UserStyleSetting.BooleanUserStyleSetting.inflate(resources, parser)
+                        )
+
+                        "ComplicationSlotsUserStyleSetting" -> userStyleSettings.add(
+                            UserStyleSetting.ComplicationSlotsUserStyleSetting.inflate(
+                                resources,
+                                parser
+                            )
+                        )
+
+                        "DoubleRangeUserStyleSetting" -> userStyleSettings.add(
+                            UserStyleSetting.DoubleRangeUserStyleSetting.inflate(resources, parser)
+                        )
+
+                        "ListUserStyleSetting" -> userStyleSettings.add(
+                            UserStyleSetting.ListUserStyleSetting.inflate(resources, parser)
+                        )
+
+                        "LongRangeUserStyleSetting" -> userStyleSettings.add(
+                            UserStyleSetting.LongRangeUserStyleSetting.inflate(resources, parser)
+                        )
+
+                        else -> throw IllegalArgumentException(
+                            "Unexpected node ${parser.name} at line ${parser.lineNumber}"
+                        )
+                    }
+                }
+                type = parser.next()
+            } while (type != XmlPullParser.END_DOCUMENT && parser.depth > outerDepth)
+
+            return UserStyleSchema(userStyleSettings)
+        }
+    }
+
     init {
         var complicationSlotsUserStyleSettingCount = 0
         var customValueUserStyleSettingCount = 0

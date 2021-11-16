@@ -36,11 +36,12 @@ dependencies {
     implementation(libs.kotlinStdlib)
     implementation("androidx.navigation:navigation-compose:2.4.0-alpha10")
 
-    androidTestImplementation project(path: ':compose:ui:ui-test')
-    androidTestImplementation project(path: ':compose:ui:ui-test-junit4')
-    androidTestImplementation project(path: ':compose:test-utils')
+    androidTestImplementation(project(":compose:test-utils"))
+    androidTestImplementation(project(":compose:ui:ui-test-junit4"))
+    androidTestImplementation(project(":compose:test-utils"))
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(project(":wear:compose:compose-material"))
+    androidTestImplementation(libs.truth)
 }
 
 android {

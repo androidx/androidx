@@ -63,6 +63,12 @@ internal class PageFetcher<Key : Any, Value : Any>(
             }
             .simpleScan(null) { previousGeneration: GenerationInfo<Key, Value>?,
                 triggerRemoteRefresh: Boolean ->
+                // Enable refresh if this is the first generation and we have LAUNCH_INITIAL_REFRESH
+                // or if this generation was started due to [refresh] being invoked.
+                if (triggerRemoteRefresh) {
+                    remoteMediatorAccessor?.allowRefresh()
+                }
+
                 val pagingSource = generateNewPagingSource(
                     previousPagingSource = previousGeneration?.snapshot?.pagingSource
                 )
@@ -102,7 +108,6 @@ internal class PageFetcher<Key : Any, Value : Any>(
                         retryFlow = retryEvents.flow,
                         // Only trigger remote refresh on refresh signals that do not originate from
                         // initialization or PagingSource invalidation.
-                        triggerRemoteRefresh = triggerRemoteRefresh,
                         remoteMediatorConnection = remoteMediatorAccessor,
                         invalidate = this@PageFetcher::refresh,
                         previousPagingState = previousPagingState,

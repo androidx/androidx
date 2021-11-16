@@ -45,6 +45,9 @@ package androidx.wear.watchface.complications {
     property public final java.util.Map<androidx.wear.watchface.complications.data.ComplicationType,android.graphics.RectF> perComplicationTypeBounds;
   }
 
+  @RestrictTo({androidx.annotation.RestrictTo.Scope}) public final class ComplicationSlotBoundsKt {
+  }
+
   public final class DefaultComplicationDataSourcePolicy {
     ctor public DefaultComplicationDataSourcePolicy();
     ctor public DefaultComplicationDataSourcePolicy(int systemProvider);

@@ -16,6 +16,7 @@
 
 package androidx.benchmark.macro
 
+import android.annotation.SuppressLint
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
@@ -24,6 +25,7 @@ import androidx.benchmark.macro.perfetto.FrameTimingQuery
 import androidx.benchmark.macro.perfetto.FrameTimingQuery.SubMetric
 import androidx.benchmark.macro.perfetto.PerfettoResultsParser.parseStartupResult
 import androidx.benchmark.macro.perfetto.PerfettoTraceProcessor
+import androidx.benchmark.macro.perfetto.StartupTimingQuery
 import androidx.test.platform.app.InstrumentationRegistry
 
 /**
@@ -41,8 +43,17 @@ public sealed class Metric {
      * TODO: takes package for package level filtering, but probably want a
      *  general config object coming into [start].
      */
-    internal abstract fun getMetrics(packageName: String, tracePath: String): IterationResult
+    internal abstract fun getMetrics(captureInfo: CaptureInfo, tracePath: String): IterationResult
+
+    internal data class CaptureInfo(
+        val apiLevel: Int,
+        val targetPackageName: String,
+        val testPackageName: String,
+        val startupMode: StartupMode?
+    )
 }
+
+private fun Long.nsToDoubleMs(): Double = this / 1_000_000.0
 
 /**
  * Legacy version of FrameTimingMetric, based on 'dumpsys gfxinfo' instead of trace data.
@@ -125,7 +136,7 @@ public class FrameTimingGfxInfoMetric : Metric() {
         "totalFrameCount"
     )
 
-    internal override fun getMetrics(packageName: String, tracePath: String) = IterationResult(
+    internal override fun getMetrics(captureInfo: CaptureInfo, tracePath: String) = IterationResult(
         singleMetrics = helper.metrics
             .map {
                 val prefix = "gfxinfo_${packageName}_"
@@ -147,6 +158,15 @@ public class FrameTimingGfxInfoMetric : Metric() {
 /**
  * Metric which captures timing information from frames produced by a benchmark, such as
  * a scrolling or animation benchmark.
+ *
+ * This outputs the following measurements:
+ *
+ * * `frameOverrunMs` (Requires API 29) - How much time a given frame missed its deadline by.
+ * Positive numbers indicate a dropped frame and visible jank / stutter, negative numbers indicate
+ * how much faster than the deadline a frame was.
+ *
+ * * `frameCpuTimeMs` - How much time the frame took to be produced on the CPU - on both the UI
+ * Thread, and RenderThread.
  */
 @Suppress("CanSealedSubClassBeObject")
 public class FrameTimingMetric : Metric() {
@@ -154,20 +174,19 @@ public class FrameTimingMetric : Metric() {
     internal override fun start() {}
     internal override fun stop() {}
 
-    internal override fun getMetrics(packageName: String, tracePath: String): IterationResult {
+    @SuppressLint("SyntheticAccessor")
+    internal override fun getMetrics(captureInfo: CaptureInfo, tracePath: String): IterationResult {
         val subMetricsMsMap = FrameTimingQuery.getFrameSubMetrics(
             absoluteTracePath = tracePath,
             captureApiLevel = Build.VERSION.SDK_INT,
-            packageName = packageName
+            packageName = captureInfo.targetPackageName
         )
-            .filterKeys { it == SubMetric.FrameCpuTime || it == SubMetric.FrameNegativeSlackTime }
+            .filterKeys { it == SubMetric.FrameCpuTime || it == SubMetric.FrameOverrunTime }
             .mapKeys {
-                if (it.key == SubMetric.FrameCpuTime) "frameCpuTimeMs" else "frameNegativeSlackMs"
+                if (it.key == SubMetric.FrameCpuTime) "frameCpuTimeMs" else "frameOverrunMs"
             }
             .mapValues { entry ->
-                entry.value.map { timeNs ->
-                    timeNs / 1_000_000.0 // Convert to ms
-                }
+                entry.value.map { timeNs -> timeNs.nsToDoubleMs() }
             }
         return IterationResult(
             singleMetrics = emptyMap(),
@@ -179,9 +198,18 @@ public class FrameTimingMetric : Metric() {
 
 /**
  * Captures app startup timing metrics.
+ *
+ * This outputs the following measurements:
+ *
+ * * `timeToInitialDisplayMs` - Time from the system receiving a launch intent to rendering the
+ * first frame of the destination Activity.
+ *
+ * * `timeToFullDisplayMs` - Time from the system receiving a launch intent until the application
+ * reports fully drawn via [android.app.Activity.reportFullyDrawn]. The measurement stops at the
+ * completion of rendering the first frame after (or containing) the `reportFullyDrawn()` call. This
+ * measurement may not be available prior to API 29.
  */
 @Suppress("CanSealedSubClassBeObject")
-@RequiresApi(29)
 public class StartupTimingMetric : Metric() {
     internal override fun configure(packageName: String) {
     }
@@ -192,8 +220,87 @@ public class StartupTimingMetric : Metric() {
     internal override fun stop() {
     }
 
-    internal override fun getMetrics(packageName: String, tracePath: String): IterationResult {
+    @SuppressLint("SyntheticAccessor")
+    internal override fun getMetrics(captureInfo: CaptureInfo, tracePath: String): IterationResult {
+        return StartupTimingQuery.getFrameSubMetrics(
+            absoluteTracePath = tracePath,
+            captureApiLevel = captureInfo.apiLevel,
+            targetPackageName = captureInfo.targetPackageName,
+            testPackageName = captureInfo.testPackageName,
+
+            // Pick an arbitrary startup mode if unspecified. In the future, consider throwing an
+            // error if startup mode not defined
+            startupMode = captureInfo.startupMode ?: StartupMode.COLD
+        )?.run {
+            @Suppress("UNCHECKED_CAST")
+            IterationResult(
+                singleMetrics = mapOf(
+                    "timeToInitialDisplayMs" to timeToInitialDisplayNs.nsToDoubleMs(),
+                    "timeToFullDisplayMs" to timeToFullDisplayNs?.nsToDoubleMs()
+                ).filterValues { it != null } as Map<String, Double>,
+                sampledMetrics = emptyMap(),
+                timelineRangeNs = timelineRangeNs
+            )
+        } ?: IterationResult.EMPTY
+    }
+}
+
+/**
+ * Captures app startup timing metrics.
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@Suppress("CanSealedSubClassBeObject")
+@RequiresApi(29)
+public class StartupTimingLegacyMetric : Metric() {
+    internal override fun configure(packageName: String) {
+    }
+
+    internal override fun start() {
+    }
+
+    internal override fun stop() {
+    }
+
+    internal override fun getMetrics(captureInfo: CaptureInfo, tracePath: String): IterationResult {
         val json = PerfettoTraceProcessor.getJsonMetrics(tracePath, "android_startup")
-        return parseStartupResult(json, packageName)
+        return parseStartupResult(json, captureInfo.targetPackageName)
+    }
+}
+
+/**
+ * Captures the time taken by a trace section - a named begin / end pair matching the provided name.
+ *
+ * Always selects the first instance of a trace section captured during a measurement.
+ *
+ * @see androidx.tracing.Trace.beginSection
+ * @see androidx.tracing.Trace.endSection
+ * @see androidx.tracing.trace
+ */
+@RequiresApi(29) // Remove once b/182386956 fixed, as app tag may be needed for this to work.
+@ExperimentalMetricApi
+public class TraceSectionMetric(
+    private val sectionName: String
+) : Metric() {
+    internal override fun configure(packageName: String) {
+    }
+
+    internal override fun start() {
+    }
+
+    internal override fun stop() {
+    }
+
+    @SuppressLint("SyntheticAccessor")
+    internal override fun getMetrics(captureInfo: CaptureInfo, tracePath: String): IterationResult {
+        val slice = PerfettoTraceProcessor.querySlices(tracePath, sectionName).firstOrNull()
+        return if (slice == null) {
+            IterationResult.EMPTY
+        } else IterationResult(
+            singleMetrics = mapOf(
+                sectionName + "Ms" to slice.dur / 1_000_000.0
+            ),
+            sampledMetrics = emptyMap(),
+            timelineRangeNs = slice.ts..slice.endTs
+        )
     }
 }

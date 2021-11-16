@@ -16,6 +16,7 @@
 package androidx.car.app.hardware.info;
 
 import static androidx.car.app.hardware.common.CarUnit.CarDistanceUnit;
+import static androidx.car.app.hardware.common.CarUnit.CarVolumeUnit;
 
 import static java.util.Objects.requireNonNull;
 
@@ -54,6 +55,10 @@ public final class EnergyLevel {
     @NonNull
     private final CarValue<@CarDistanceUnit Integer> mDistanceDisplayUnit;
 
+    @Keep
+    @NonNull
+    private final CarValue<@CarVolumeUnit Integer> mFuelVolumeDisplayUnit;
+
     /** Returns the battery percentage remaining from the car hardware. */
     @NonNull
     public CarValue<Float> getBatteryPercent() {
@@ -88,6 +93,15 @@ public final class EnergyLevel {
         return requireNonNull(mDistanceDisplayUnit);
     }
 
+    /** Returns the fuel volume display unit from the car hardware.
+     *
+     * <p>See {@link CarUnit} for possible volume values.
+     */
+    @NonNull
+    public CarValue<@CarVolumeUnit Integer> getFuelVolumeDisplayUnit() {
+        return requireNonNull(mFuelVolumeDisplayUnit);
+    }
+
     @Override
     @NonNull
     public String toString() {
@@ -101,13 +115,15 @@ public final class EnergyLevel {
                 + getRangeRemainingMeters()
                 + ", distance display unit: "
                 + mDistanceDisplayUnit
+                + ", fuel volume display unit: "
+                + mFuelVolumeDisplayUnit
                 + "]";
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(mBatteryPercent, mFuelPercent, mEnergyIsLow, getRangeRemainingMeters(),
-                mDistanceDisplayUnit);
+                mDistanceDisplayUnit, mFuelVolumeDisplayUnit);
     }
 
     @Override
@@ -125,7 +141,8 @@ public final class EnergyLevel {
                 && Objects.equals(mEnergyIsLow, otherEnergyLevel.mEnergyIsLow)
                 && Objects.equals(getRangeRemainingMeters(),
                 otherEnergyLevel.getRangeRemainingMeters())
-                && Objects.equals(mDistanceDisplayUnit, otherEnergyLevel.mDistanceDisplayUnit);
+                && Objects.equals(mDistanceDisplayUnit, otherEnergyLevel.mDistanceDisplayUnit)
+                && Objects.equals(mFuelVolumeDisplayUnit, otherEnergyLevel.mFuelVolumeDisplayUnit);
     }
 
     EnergyLevel(Builder builder) {
@@ -134,6 +151,7 @@ public final class EnergyLevel {
         mEnergyIsLow = requireNonNull(builder.mEnergyIsLow);
         mRangeRemainingMeters = requireNonNull(builder.mRangeRemainingMeters);
         mDistanceDisplayUnit = requireNonNull(builder.mDistanceDisplayUnit);
+        mFuelVolumeDisplayUnit = requireNonNull(builder.mFuelVolumeDisplayUnit);
     }
 
     /** Constructs an empty instance, used by serialization code. */
@@ -143,6 +161,7 @@ public final class EnergyLevel {
         mEnergyIsLow = CarValue.UNIMPLEMENTED_BOOLEAN;
         mRangeRemainingMeters = CarValue.UNIMPLEMENTED_FLOAT;
         mDistanceDisplayUnit = CarValue.UNIMPLEMENTED_INTEGER;
+        mFuelVolumeDisplayUnit = CarValue.UNIMPLEMENTED_INTEGER;
     }
 
     /** A builder of {@link EnergyLevel}. */
@@ -152,6 +171,8 @@ public final class EnergyLevel {
         CarValue<Boolean> mEnergyIsLow = CarValue.UNIMPLEMENTED_BOOLEAN;
         CarValue<Float> mRangeRemainingMeters = CarValue.UNIMPLEMENTED_FLOAT;
         CarValue<@CarDistanceUnit Integer> mDistanceDisplayUnit =
+                CarValue.UNIMPLEMENTED_INTEGER;
+        CarValue<@CarVolumeUnit Integer> mFuelVolumeDisplayUnit =
                 CarValue.UNIMPLEMENTED_INTEGER;
 
         /** Sets the remaining batter percentage. */
@@ -205,6 +226,18 @@ public final class EnergyLevel {
         public Builder setDistanceDisplayUnit(
                 @NonNull CarValue<@CarDistanceUnit Integer> distanceDisplayUnit) {
             mDistanceDisplayUnit = requireNonNull(distanceDisplayUnit);
+            return this;
+        }
+
+        /**
+         * Sets the fuel volume display unit.
+         *
+         * @throws NullPointerException if {@code fuelVolumeDisplayUnit} is {@code null}
+         */
+        @NonNull
+        public Builder setFuelVolumeDisplayUnit(@NonNull CarValue<@CarVolumeUnit Integer>
+                fuelVolumeDisplayUnit) {
+            mFuelVolumeDisplayUnit = requireNonNull(fuelVolumeDisplayUnit);
             return this;
         }
 

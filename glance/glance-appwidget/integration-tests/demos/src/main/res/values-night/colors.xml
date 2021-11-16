@@ -15,6 +15,5 @@
   -->
 
 <resources>
-    <color name="responsive_widget_background">#FF444444</color>
-    <color name="exact_widget_background">@color/dark_gray</color>
+    <color name="default_widget_background">@color/dark_gray</color>
 </resources>

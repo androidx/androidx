@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryGroups
-import me.champeau.gradle.japicmp.JapicmpTask
 
-import static androidx.build.dependencies.DependenciesKt.*
+import androidx.build.LibraryGroups
 import androidx.build.Publish
 import androidx.build.RunApiTasks
+import me.champeau.gradle.japicmp.JapicmpTask
+import org.jetbrains.kotlin.gradle.tasks.KotlinNativeCompile
 
 buildscript {
     dependencies {
@@ -30,8 +30,9 @@ buildscript {
 
 plugins {
     id("AndroidXPlugin")
-    id("java") // https://github.com/gradle/gradle/issues/18622
+    // multiplatform must be above java due to b/205844758
     id("org.jetbrains.kotlin.multiplatform")
+    id("java") // https://github.com/gradle/gradle/issues/18622
     id("me.champeau.gradle.japicmp")
 }
 
@@ -39,9 +40,13 @@ plugins {
 // from AOSP.  Use this to block out any features or code that we're not
 // ready to build yet in AOSP
 
-def githubBuild = project.properties['androidx.github.build'] ?: false
+def githubBuild = project.properties['androidx.github.build']?.toBoolean() ?: false
 
-def enableMac = project.properties['androidx.kmp.mac.enabled'] ?: githubBuild
+def enableMac = project.properties['androidx.kmp.mac.enabled']?.toBoolean() ?: githubBuild
+
+def enableJs = project.properties['androidx.kmp.js.enabled']?.toBoolean() ?: githubBuild
+
+def enableLinux = project.properties['androidx.kmp.linux.enabled']?.toBoolean() ?: githubBuild
 
 kotlin {
     jvm {
@@ -58,11 +63,17 @@ kotlin {
         }
     }
 
-    if (githubBuild) {
+    if (enableJs) {
         js {
             nodejs()
         }
+    }
 
+    if (enableLinux) {
+        linuxX64()
+    }
+
+    if (githubBuild) {
         linuxX64()
         mingwX64()
         iosX64()
@@ -89,7 +100,7 @@ kotlin {
             }
         }
 
-        if (githubBuild || enableMac) {
+        if (githubBuild || enableMac || enableJs || enableLinux) {
             nonJvmMain {
                 // Used for JS and all native targets.
                 dependencies {
@@ -104,13 +115,19 @@ kotlin {
             }
         }
 
-        if (githubBuild) {
-            configure([linuxX64Main, mingwX64Main, iosX64Main, iosArm32Main, iosArm64Main]) {
+        if (enableLinux) {
+            configure([linuxX64Main]) {
                 dependsOn nonJvmMain
             }
         }
 
-        if (githubBuild || enableMac) {
+        if (githubBuild) {
+            configure([mingwX64Main, iosX64Main, iosArm32Main, iosArm64Main]) {
+                dependsOn nonJvmMain
+            }
+        }
+
+        if (githubBuild || enableMac || enableLinux) {
             nativeTest // Used for all native targets.
         }
 
@@ -120,13 +137,19 @@ kotlin {
             }
         }
 
-        if (githubBuild) {
-            configure([linuxX64Test, mingwX64Test, iosX64Test, iosArm32Test, iosArm64Test]) {
+	if (enableLinux) {
+            configure([linuxX64Test]) {
                 dependsOn nativeTest
             }
         }
 
         if (githubBuild) {
+            configure([mingwX64Test, iosX64Test, iosArm32Test, iosArm64Test]) {
+                dependsOn nativeTest
+            }
+        }
+
+        if (enableJs) {
             jsMain {
                 dependsOn nonJvmMain
                 dependencies {
@@ -166,7 +189,6 @@ androidx {
     inceptionYear = "2020"
     description = "Standalone efficient collections."
     legacyDisableKotlinStrictApiMode = true // TODO: Re-enable this!
-    runApiTasks = new RunApiTasks.No("metalava issues prevent api checks on kmp: b/188171162")
     multiplatform = true
 }
 

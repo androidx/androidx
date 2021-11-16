@@ -28,7 +28,9 @@ import android.widget.AbsListView;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 
+import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.R;
 import androidx.appcompat.graphics.drawable.DrawableWrapper;
 import androidx.core.graphics.drawable.DrawableCompat;
@@ -670,7 +672,7 @@ class DropDownListView extends ListView {
         final float childX = x - child.getLeft();
         final float childY = y - child.getTop();
         if (Build.VERSION.SDK_INT >= 21) {
-            child.drawableHotspotChanged(childX, childY);
+            Api21Impl.drawableHotspotChanged(child, childX, childY);
         }
         if (!child.isPressed()) {
             child.setPressed(true);
@@ -714,6 +716,18 @@ class DropDownListView extends ListView {
 
         public void post() {
             DropDownListView.this.post(this);
+        }
+    }
+
+    @RequiresApi(21)
+    static class Api21Impl {
+        private Api21Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static void drawableHotspotChanged(View view, float x, float y) {
+            view.drawableHotspotChanged(x, y);
         }
     }
 }

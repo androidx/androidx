@@ -26,8 +26,11 @@ import androidx.wear.compose.material.samples.ChipWithIconAndLabels
 import androidx.wear.compose.material.samples.CompactButtonWithIcon
 import androidx.wear.compose.material.samples.CompactChipWithIconAndLabel
 import androidx.wear.compose.material.samples.CurvedTextDemo
+import androidx.wear.compose.material.samples.InlineSliderSample
+import androidx.wear.compose.material.samples.InlineSliderSegmentedSample
 import androidx.wear.compose.material.samples.ScalingLazyColumnWithHeaders
 import androidx.wear.compose.material.samples.ScalingLazyColumnWithHeadersReversed
+import androidx.wear.compose.material.samples.SimplePicker
 import androidx.wear.compose.material.samples.SimpleScaffoldWithScrollIndicator
 import androidx.wear.compose.material.samples.SimpleScalingLazyColumn
 import androidx.wear.compose.material.samples.SimpleScalingLazyColumnWithContentPadding
@@ -77,6 +80,28 @@ val WearMaterialDemos = DemoCategory(
     "Material",
     listOf(
         DemoCategory(
+            "Slider",
+            listOf(
+                DemoCategory(
+                    "Samples",
+                    listOf(
+                        ComposableDemo("Inline slider") { Centralize { InlineSliderSample() } },
+                        ComposableDemo("Segmented inline slider") {
+                            Centralize { InlineSliderSegmentedSample() }
+                        },
+                    )
+                ),
+                DemoCategory(
+                    "Demos",
+                    listOf(
+                        ComposableDemo("Inline slider") { InlineSliderDemo() },
+                        ComposableDemo("RTL Inline slider") { InlineSliderRTLDemo() },
+                        ComposableDemo("Inline slider segmented") { InlineSliderSegmented() },
+                    )
+                )
+            )
+        ),
+        DemoCategory(
             "TimeText",
             listOf(
                 DemoCategory(
@@ -107,6 +132,15 @@ val WearMaterialDemos = DemoCategory(
                         },
                         ComposableDemo("Clock with padding") {
                             TimeTextWithPadding()
+                        },
+                        ComposableDemo("Clock with yyyy.MM.dd HH:mm:ss format") {
+                            TimeTextWithLongDateTime()
+                        },
+                        ComposableDemo("Clock with custom format and color") {
+                            TimeTextWithCustomFormatAndColor()
+                        },
+                        ComposableDemo("Clock with localised format") {
+                            TimeTextWithLocalisedFormat()
                         },
                     )
                 ),
@@ -227,5 +261,16 @@ val WearMaterialDemos = DemoCategory(
             )
         ),
         ComposableDemo("Curved Text") { CurvedTextDemo() },
+        DemoCategory(
+            "Picker",
+            listOf(
+                ComposableDemo("Simple Picker") {
+                    SimplePicker()
+                },
+                ComposableDemo("Time Picker") {
+                    PickerTimeDemo()
+                }
+            )
+        )
     ),
 )

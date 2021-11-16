@@ -17,17 +17,19 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <group >
         <item
+            android:id="@+id/implementationMode"
+            android:title="Current impl: PERFORMANCE" />
+        <item
             android:id="@+id/fillCenter"
-            android:title="Fill Center" />
+            android:title="scaleType: Fill Center" />
         <item
             android:id="@+id/fitCenter"
-            android:title="Fit Center" />
-
+            android:title="scaleType: Fit Center" />
         <item
             android:id="@+id/fitStart"
-            android:title="Fit Start" />
+            android:title="scaleType: Fit Start" />
         <item
             android:id="@+id/fitEnd"
-            android:title="Fit End" />
+            android:title="scaleType: Fit End" />
     </group>
 </menu>
