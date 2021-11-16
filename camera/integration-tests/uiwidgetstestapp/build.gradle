@@ -50,9 +50,9 @@ android {
 dependencies {
     // Internal library
     implementation(libs.kotlinStdlib)
-    implementation(projectOrArtifact(":camera:camera-camera2"))
-    implementation(projectOrArtifact(":camera:camera-lifecycle"))
-    implementation(projectOrArtifact(":camera:camera-view"))
+    implementation(project(":camera:camera-camera2"))
+    implementation(project(":camera:camera-lifecycle"))
+    implementation(project(":camera:camera-view"))
 
     // Android Support Library
     implementation("androidx.appcompat:appcompat:1.2.0")
@@ -73,11 +73,11 @@ dependencies {
     androidTestImplementation(libs.testRules)
     androidTestImplementation(libs.testUiautomator)
     androidTestImplementation(libs.espressoCore)
-    androidTestImplementation(projectOrArtifact(":camera:camera-testing"))
+    androidTestImplementation(project(":camera:camera-testing"))
     androidTestImplementation(projectOrArtifact(":internal-testutils-runtime"))
     androidTestImplementation(libs.truth)
     debugImplementation(libs.testCore)
     debugImplementation("androidx.fragment:fragment-testing:1.2.5")
     // Testing resource dependency for manifest
-    debugImplementation(projectOrArtifact(":camera:camera-testing"))
+    debugImplementation(project(":camera:camera-testing"))
 }

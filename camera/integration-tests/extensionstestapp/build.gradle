@@ -38,10 +38,10 @@ android {
 
 dependencies {
     // Internal library
-    implementation(projectOrArtifact(":camera:camera-camera2"))
-    implementation(projectOrArtifact(":camera:camera-extensions"))
-    implementation(projectOrArtifact(":camera:camera-lifecycle"))
-    implementation(projectOrArtifact(":camera:camera-view"))
+    implementation(project(":camera:camera-camera2"))
+    implementation(project(":camera:camera-extensions"))
+    implementation(project(":camera:camera-lifecycle"))
+    implementation(project(":camera:camera-view"))
     implementation("androidx.test.espresso:espresso-idling-resource:3.1.0")
     implementation(libs.guavaListenableFuture)
     implementation("androidx.concurrent:concurrent-futures:1.0.0")
@@ -59,10 +59,10 @@ dependencies {
     androidTestImplementation(libs.testRules)
     androidTestImplementation(libs.testUiautomator)
     androidTestImplementation(libs.espressoCore)
-    androidTestImplementation(projectOrArtifact(":camera:camera-testing"))
-    androidTestCompileOnly(projectOrArtifact(":camera:camera-extensions-stub"))
+    androidTestImplementation(project(":camera:camera-testing"))
+    androidTestCompileOnly(project(":camera:camera-extensions-stub"))
 
     // Testing resource dependency for manifest
-    debugImplementation(projectOrArtifact(":camera:camera-testing"))
+    debugImplementation(project(":camera:camera-testing"))
 }
 

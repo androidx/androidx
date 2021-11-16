@@ -46,7 +46,7 @@ dependencies {
     testImplementation(libs.truth)
     testImplementation(libs.robolectric)
     testImplementation(libs.mockitoCore)
-    testImplementation(projectOrArtifact(":camera:camera-testing"), {
+    testImplementation(project(":camera:camera-testing"), {
         exclude group: "androidx.camera", module: "camera-core"
     })
     testImplementation("androidx.exifinterface:exifinterface:1.3.2")
@@ -59,7 +59,7 @@ dependencies {
     androidTestImplementation(libs.truth)
     androidTestImplementation(libs.mockitoCore, excludes.bytebuddy) // DexMaker has it's own MockMaker
     androidTestImplementation(libs.dexmakerMockito, excludes.bytebuddy) // DexMaker has it's own MockMaker
-    androidTestImplementation(projectOrArtifact(":camera:camera-testing"))
+    androidTestImplementation(project(":camera:camera-testing"))
     androidTestImplementation(libs.kotlinStdlib)
     androidTestImplementation(libs.kotlinCoroutinesAndroid)
     androidTestImplementation("androidx.concurrent:concurrent-futures-ktx:1.1.0")

@@ -52,9 +52,9 @@ android {
 
 dependencies {
     // Internal library
-    implementation(projectOrArtifact(":camera:camera-camera2"))
-    implementation(projectOrArtifact(":camera:camera-core"))
-    implementation(projectOrArtifact(":camera:camera-lifecycle"))
+    implementation(project(":camera:camera-camera2"))
+    implementation(project(":camera:camera-core"))
+    implementation(project(":camera:camera-lifecycle"))
 
     // Android support library
     implementation(projectOrArtifact(":concurrent:concurrent-futures-ktx"))

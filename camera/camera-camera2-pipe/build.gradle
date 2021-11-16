@@ -45,7 +45,7 @@ dependencies {
     testImplementation(libs.truth)
     testImplementation(libs.robolectric)
     testImplementation(libs.kotlinCoroutinesTest)
-    testImplementation(projectOrArtifact(":camera:camera-camera2-pipe-testing"))
+    testImplementation(project(":camera:camera-camera2-pipe-testing"))
     testImplementation(projectOrArtifact(":internal-testutils-truth"))
 
     kaptTest(libs.daggerCompiler)

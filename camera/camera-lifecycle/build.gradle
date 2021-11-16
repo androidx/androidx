@@ -27,7 +27,7 @@ plugins {
 dependencies {
     api("androidx.lifecycle:lifecycle-common:2.1.0")
     api(libs.guavaListenableFuture)
-    api(projectOrArtifact(":camera:camera-core"))
+    api(project(":camera:camera-core"))
     implementation("androidx.core:core:1.1.0")
     implementation(libs.autoValueAnnotations)
     implementation("androidx.concurrent:concurrent-futures:1.0.0")
@@ -40,7 +40,7 @@ dependencies {
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.testRules)
     androidTestImplementation(libs.truth)
-    androidTestImplementation(projectOrArtifact(":camera:camera-testing"))
+    androidTestImplementation(project(":camera:camera-testing"))
     androidTestImplementation(libs.kotlinStdlib)
     androidTestImplementation(libs.kotlinCoroutinesAndroid)
     androidTestImplementation("androidx.annotation:annotation-experimental:1.1.0")
