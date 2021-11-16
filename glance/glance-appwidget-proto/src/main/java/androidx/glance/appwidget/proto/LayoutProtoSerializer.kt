@@ -18,7 +18,7 @@ package androidx.glance.appwidget.proto
 
 import androidx.datastore.core.CorruptionException
 import androidx.datastore.core.Serializer
-import androidx.glance.appwidget.proto.LayoutProto.LayoutNode
+import androidx.glance.appwidget.proto.LayoutProto.LayoutConfig
 import com.google.protobuf.InvalidProtocolBufferException
 import java.io.InputStream
 import java.io.OutputStream
@@ -26,18 +26,18 @@ import java.io.OutputStream
 /**
  * Serializes the proto for use with DataStore.
  */
-public object LayoutProtoSerializer : Serializer<LayoutNode> {
+public object LayoutProtoSerializer : Serializer<LayoutConfig> {
 
-    override val defaultValue: LayoutNode = LayoutNode.getDefaultInstance()
+    override val defaultValue: LayoutConfig = LayoutConfig.getDefaultInstance()
 
     @Throws(CorruptionException::class)
-    override suspend fun readFrom(input: InputStream): LayoutNode {
+    override suspend fun readFrom(input: InputStream): LayoutConfig {
         try {
-            return LayoutNode.parseFrom(input)
+            return LayoutConfig.parseFrom(input)
         } catch (e: InvalidProtocolBufferException) {
             throw CorruptionException("Cannot read proto.", e)
         }
     }
 
-    override suspend fun writeTo(t: LayoutNode, output: OutputStream) = t.writeTo(output)
+    override suspend fun writeTo(t: LayoutConfig, output: OutputStream) = t.writeTo(output)
 }

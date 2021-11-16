@@ -5,35 +5,53 @@ package androidx.glance.appwidget.proto;
 option java_package  = "androidx.glance.appwidget.proto";
 option java_outer_classname = "LayoutProto";
 
-message LayoutNode {
-  LayoutType type = 1;
-  Dimension width = 2;
-  Dimension height = 3;
-  repeated LayoutNode children = 4;
+message LayoutConfig {
+  repeated LayoutDefinition layout = 1;
+  int32 next_index = 2;
 }
 
-message Dimension {
-  oneof value {
-    Dp dp_dimension = 1;
-    Wrap wrap_dimension = 2;
-    Fill fill_dimension = 3;
-    Expand expand_dimension = 4;
-    Resource resource_dimension = 5;
-  }
+message LayoutDefinition {
+  LayoutNode layout = 1;
+  int32 layout_index = 2;
+}
 
-  message Dp {
-    float value = 1;
-  }
+message LayoutNode {
+  LayoutType type = 1;
+  DimensionType width = 2;
+  DimensionType height = 3;
+  HorizontalAlignment horizontal_alignment = 4;
+  VerticalAlignment vertical_alignment = 5;
+  ContentScale image_scale = 6;
+  repeated LayoutNode children = 7;
+}
 
-  message Wrap {}
+enum ContentScale {
+  UNSPECIFIED_CONTENT_SCALE = 0;
+  FIT = 1;
+  CROP = 2;
+  FILL_BOUNDS = 3;
+}
 
-  message Fill {}
+enum HorizontalAlignment {
+  UNSPECIFIED_HORIZONTAL_ALIGNMENT = 0;
+  START = 1;
+  CENTER_HORIZONTALLY = 2;
+  END = 3;
+}
 
-  message Expand {}
+enum VerticalAlignment {
+  UNSPECIFIED_VERTICAL_ALIGNMENT = 0;
+  TOP = 1;
+  CENTER_VERTICALLY = 2;
+  BOTTOM = 3;
+}
 
-  message Resource {
-    int32 value = 1;
-  }
+enum DimensionType {
+  UNKNOWN_DIMENSION_TYPE = 0;
+  EXACT = 1;
+  WRAP = 2;
+  FILL = 3;
+  EXPAND = 4;
 }
 
 enum LayoutType {
