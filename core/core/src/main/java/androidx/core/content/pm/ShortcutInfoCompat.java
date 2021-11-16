@@ -97,6 +97,7 @@ public class ShortcutInfoCompat {
     boolean mIsEnabled = true;
     boolean mHasKeyFieldsOnly;
     int mDisabledReason;
+    boolean mIsHiddenFromLauncher;
 
     ShortcutInfoCompat() { }
 
@@ -545,6 +546,7 @@ public class ShortcutInfoCompat {
             if (shortcutInfo.mExtras != null) {
                 mInfo.mExtras = shortcutInfo.mExtras;
             }
+            mInfo.mIsHiddenFromLauncher = shortcutInfo.mIsHiddenFromLauncher;
         }
 
         /**
@@ -782,6 +784,24 @@ public class ShortcutInfoCompat {
         @NonNull
         public Builder setLongLived(boolean longLived) {
             mInfo.mIsLongLived = longLived;
+            return this;
+        }
+
+        /**
+         * Sets if a shortcut is considered hidden from Launcher. If so, shortcuts will be
+         * excluded from the search result of {@link android.content.pm.LauncherApps#getShortcuts(
+         * android.content.pm.LauncherApps.ShortcutQuery, UserHandle)}. This generally means the
+         * shortcut would not be displayed by a launcher app (e.g. in Long-Press menu), while remain
+         * visible in other surfaces such as assistant or on-device-intelligence.
+         *
+         * <p>On API <= 31, shortcuts that are hidden from launcher are not actually sent to
+         * {@link ShortcutManager}. These shortcuts might still be made available to other surfaces
+         * via alternative means.
+         */
+        @SuppressWarnings("MissingGetterMatchingBuilder")
+        @NonNull
+        public Builder setIsHiddenFromLauncher(boolean isHidden) {
+            mInfo.mIsHiddenFromLauncher = isHidden;
             return this;
         }
 

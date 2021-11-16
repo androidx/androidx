@@ -34,12 +34,15 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeRight
+import androidx.lifecycle.Lifecycle
+import androidx.navigation.NavHostController
 import androidx.wear.compose.material.Button
 import androidx.wear.compose.material.CompactChip
 import androidx.wear.compose.material.ExperimentalWearMaterialApi
 import androidx.wear.compose.material.MaterialTheme
 import androidx.wear.compose.material.Text
 import androidx.wear.compose.material.ToggleButton
+import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test
 
@@ -170,9 +173,61 @@ class SwipeDismissableNavHostTest {
         rule.onNodeWithText("On").assertExists()
     }
 
+    @Test
+    fun updates_lifecycle_for_initial_destination() {
+        lateinit var navController: NavHostController
+        rule.mainClock.autoAdvance = false
+        rule.setContentWithTheme {
+            navController = rememberSwipeDismissableNavController()
+            SwipeDismissWithNavigation(navController)
+        }
+
+        val entry = navController.getBackStackEntry(START)
+
+        rule.runOnIdle {
+            assertThat(entry.lifecycle.currentState).isEqualTo(Lifecycle.State.RESUMED)
+        }
+    }
+
+    @Test
+    fun updates_lifecycle_after_navigation() {
+        lateinit var navController: NavHostController
+        rule.setContentWithTheme {
+            navController = rememberSwipeDismissableNavController()
+            SwipeDismissWithNavigation(navController)
+        }
+
+        // Click to move to next destination then swipe back.
+        rule.onNodeWithText(START).performClick()
+
+        rule.runOnIdle {
+            assertThat(navController.currentBackStackEntry?.lifecycle?.currentState)
+                .isEqualTo(Lifecycle.State.RESUMED)
+        }
+    }
+
+    @Test
+    fun updates_lifecycle_after_navigation_and_swipe_back() {
+        lateinit var navController: NavHostController
+        rule.setContentWithTheme {
+            navController = rememberSwipeDismissableNavController()
+            SwipeDismissWithNavigation(navController)
+        }
+
+        // Click to move to next destination then swipe back.
+        rule.onNodeWithText(START).performClick()
+        rule.onNodeWithTag(TEST_TAG).performTouchInput({ swipeRight() })
+
+        rule.runOnIdle {
+            assertThat(navController.currentBackStackEntry?.lifecycle?.currentState)
+                .isEqualTo(Lifecycle.State.RESUMED)
+        }
+    }
+
     @Composable
-    fun SwipeDismissWithNavigation() {
-        val navController = rememberSwipeDismissableNavController()
+    fun SwipeDismissWithNavigation(
+        navController: NavHostController = rememberSwipeDismissableNavController()
+    ) {
         SwipeDismissableNavHost(
             navController = navController,
             startDestination = START,

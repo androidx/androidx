@@ -26,21 +26,28 @@ public interface LaunchActivityAction : Action
 
 /** @suppress */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class LaunchActivityComponentAction(val componentName: ComponentName) : LaunchActivityAction
+public class LaunchActivityComponentAction(
+    public val componentName: ComponentName
+) : LaunchActivityAction
 
 /** @suppress */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class LaunchActivityClassAction(val activityClass: Class<out Activity>) :
-    LaunchActivityAction
+public class LaunchActivityClassAction(
+    public val activityClass: Class<out Activity>
+) : LaunchActivityAction
 
 /**
  * Creates an [Action] that launches the [Activity] specified by the given [ComponentName].
+ *
+ * @param componentName component of the activity to launch
  */
 public fun actionLaunchActivity(componentName: ComponentName): Action =
     LaunchActivityComponentAction(componentName)
 
 /**
  * Creates an [Action] that launches the specified [Activity] when triggered.
+ *
+ * @param activity class of the activity to launch
  */
 public fun <T : Activity> actionLaunchActivity(activity: Class<T>): Action =
     LaunchActivityClassAction(activity)

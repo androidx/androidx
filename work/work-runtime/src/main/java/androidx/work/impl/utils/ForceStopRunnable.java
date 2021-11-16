@@ -141,7 +141,7 @@ public class ForceStopRunnable implements Runnable {
                     } else {
                         long duration = mRetryCount * BACKOFF_DURATION_MS;
                         Logger.get()
-                                .debug(TAG, String.format("Retrying after %s", duration),
+                                .debug(TAG, "Retrying after " + duration,
                                         exception);
                         sleep(mRetryCount * BACKOFF_DURATION_MS);
                     }
@@ -304,7 +304,7 @@ public class ForceStopRunnable implements Runnable {
             return true;
         }
         boolean isDefaultProcess = ProcessUtils.isDefaultProcess(mContext, configuration);
-        Logger.get().debug(TAG, String.format("Is default app process = %s", isDefaultProcess));
+        Logger.get().debug(TAG, "Is default app process = " + isDefaultProcess);
         return isDefaultProcess;
     }
 

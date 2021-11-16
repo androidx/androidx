@@ -3,7 +3,7 @@ package androidx.core.splashscreen {
 
   public final class SplashScreen {
     method public static androidx.core.splashscreen.SplashScreen installSplashScreen(android.app.Activity);
-    method public void setKeepVisibleCondition(androidx.core.splashscreen.SplashScreen.KeepOnScreenCondition condition);
+    method public void setKeepOnScreenCondition(androidx.core.splashscreen.SplashScreen.KeepOnScreenCondition condition);
     method public void setOnExitAnimationListener(androidx.core.splashscreen.SplashScreen.OnExitAnimationListener listener);
     field public static final androidx.core.splashscreen.SplashScreen.Companion Companion;
   }

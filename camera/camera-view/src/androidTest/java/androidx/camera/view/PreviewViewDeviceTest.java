@@ -49,7 +49,6 @@ import androidx.annotation.Nullable;
 import androidx.camera.core.Camera;
 import androidx.camera.core.CameraInfo;
 import androidx.camera.core.CameraSelector;
-import androidx.camera.core.CameraX;
 import androidx.camera.core.MeteringPoint;
 import androidx.camera.core.MeteringPointFactory;
 import androidx.camera.core.Preview;
@@ -59,12 +58,15 @@ import androidx.camera.core.impl.CameraInfoInternal;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.impl.utils.futures.FutureCallback;
 import androidx.camera.core.impl.utils.futures.Futures;
+import androidx.camera.lifecycle.ProcessCameraProvider;
 import androidx.camera.testing.CameraUtil;
 import androidx.camera.testing.CoreAppTestUtil;
 import androidx.camera.testing.SurfaceFormatUtil;
 import androidx.camera.testing.fakes.FakeActivity;
 import androidx.camera.testing.fakes.FakeCamera;
 import androidx.camera.testing.fakes.FakeCameraInfoInternal;
+import androidx.camera.view.internal.compat.quirk.DeviceQuirks;
+import androidx.camera.view.internal.compat.quirk.SurfaceViewStretchedQuirk;
 import androidx.camera.view.test.R;
 import androidx.core.content.ContextCompat;
 import androidx.test.annotation.UiThreadTest;
@@ -108,6 +110,7 @@ public class PreviewViewDeviceTest {
     private static final Size DEFAULT_SURFACE_SIZE = new Size(640, 480);
     private static final Rect DEFAULT_CROP_RECT = new Rect(0, 0, 640, 480);
     private static final Rect SMALLER_CROP_RECT = new Rect(20, 20, 600, 400);
+    private static final int TIMEOUT_SECONDS = 10;
 
     @Rule
     public TestRule mUseCamera = CameraUtil.grantCameraPermissionAndPreTest();
@@ -115,15 +118,19 @@ public class PreviewViewDeviceTest {
     private final Instrumentation mInstrumentation = InstrumentationRegistry.getInstrumentation();
     private ActivityScenario<FakeActivity> mActivityScenario;
     private final Context mContext = ApplicationProvider.getApplicationContext();
+    private ProcessCameraProvider mCameraProvider = null;
     private final List<SurfaceRequest> mSurfaceRequestList = new ArrayList<>();
     private PreviewView mPreviewView;
     private MeteringPointFactory mMeteringPointFactory;
     private final UiDevice mUiDevice = UiDevice.getInstance(mInstrumentation);
 
     @Before
-    public void setUp() throws CoreAppTestUtil.ForegroundOccupiedError {
+    public void setUp() throws CoreAppTestUtil.ForegroundOccupiedError, ExecutionException,
+            InterruptedException, TimeoutException {
         CoreAppTestUtil.prepareDeviceUI(mInstrumentation);
         mActivityScenario = ActivityScenario.launch(FakeActivity.class);
+        mCameraProvider = ProcessCameraProvider.getInstance(mContext).get(10000,
+                TimeUnit.MILLISECONDS);
     }
 
     @After
@@ -133,7 +140,9 @@ public class PreviewViewDeviceTest {
             // Ensure all successful requests have their returned future finish.
             surfaceRequest.getDeferrableSurface().close();
         }
-        CameraX.shutdown().get(10, TimeUnit.SECONDS);
+        if (mCameraProvider != null) {
+            mCameraProvider.shutdown();
+        }
     }
 
     @Test
@@ -166,7 +175,7 @@ public class PreviewViewDeviceTest {
             setContentView(previewView);
         });
         // Wait for layout ready
-        assertThat(countDownLatch.await(1, TimeUnit.SECONDS)).isTrue();
+        assertThat(countDownLatch.await(TIMEOUT_SECONDS, TimeUnit.SECONDS)).isTrue();
 
         // Act: set controller then change the scale type.
         mInstrumentation.runOnMainSync(() -> {
@@ -175,7 +184,7 @@ public class PreviewViewDeviceTest {
         });
 
         // Assert: cameraController receives a fit type ViewPort.
-        assertThat(fitTypeSemaphore.tryAcquire(1, TimeUnit.SECONDS)).isTrue();
+        assertThat(fitTypeSemaphore.tryAcquire(TIMEOUT_SECONDS, TimeUnit.SECONDS)).isTrue();
     }
 
     @Test
@@ -196,7 +205,7 @@ public class PreviewViewDeviceTest {
         updateCropRectAndWaitForIdle(DEFAULT_CROP_RECT);
 
         // Assert: OutputTransform is not null.
-        assertThat(countDownLatch.await(1, TimeUnit.SECONDS)).isTrue();
+        assertThat(countDownLatch.await(TIMEOUT_SECONDS, TimeUnit.SECONDS)).isTrue();
         mInstrumentation.runOnMainSync(
                 () -> assertThat(previewView.get().getOutputTransform()).isNotNull());
     }
@@ -213,7 +222,7 @@ public class PreviewViewDeviceTest {
         });
 
         // Assert: OutputTransform is null.
-        assertThat(countDownLatch.await(1, TimeUnit.SECONDS)).isTrue();
+        assertThat(countDownLatch.await(TIMEOUT_SECONDS, TimeUnit.SECONDS)).isTrue();
         mInstrumentation.runOnMainSync(
                 () -> assertThat(previewView.get().getOutputTransform()).isNull());
     }
@@ -248,13 +257,13 @@ public class PreviewViewDeviceTest {
             setContentView(previewView);
         });
         // Wait for layout ready
-        assertThat(countDownLatch.await(1, TimeUnit.SECONDS)).isTrue();
+        assertThat(countDownLatch.await(TIMEOUT_SECONDS, TimeUnit.SECONDS)).isTrue();
 
         // Act: pinch-in 80% in 100 steps.
         mUiDevice.findObject(new UiSelector().index(0)).pinchIn(80, 100);
 
         // Assert: pinch-to-zoom is called.
-        assertThat(semaphore.tryAcquire(1, TimeUnit.SECONDS)).isTrue();
+        assertThat(semaphore.tryAcquire(TIMEOUT_SECONDS, TimeUnit.SECONDS)).isTrue();
     }
 
     @Test
@@ -282,13 +291,13 @@ public class PreviewViewDeviceTest {
             setContentView(previewView);
         });
         // Wait for layout ready
-        assertThat(countDownLatch.await(1, TimeUnit.SECONDS)).isTrue();
+        assertThat(countDownLatch.await(TIMEOUT_SECONDS, TimeUnit.SECONDS)).isTrue();
 
         // Act: click on PreviewView
         mUiDevice.findObject(new UiSelector().index(0)).click();
 
         // Assert: tap-to-focus is invoked.
-        assertThat(semaphore.tryAcquire(1, TimeUnit.SECONDS)).isTrue();
+        assertThat(semaphore.tryAcquire(TIMEOUT_SECONDS, TimeUnit.SECONDS)).isTrue();
     }
 
     @Test
@@ -304,13 +313,13 @@ public class PreviewViewDeviceTest {
             setContentView(previewView);
         });
         // Wait for layout ready
-        assertThat(countDownLatch.await(1, TimeUnit.SECONDS)).isTrue();
+        assertThat(countDownLatch.await(TIMEOUT_SECONDS, TimeUnit.SECONDS)).isTrue();
 
         // Act: click on PreviewView.
         mUiDevice.findObject(new UiSelector().index(0)).click();
 
         // Assert: view is clicked.
-        assertThat(semaphore.tryAcquire(1, TimeUnit.SECONDS)).isTrue();
+        assertThat(semaphore.tryAcquire(TIMEOUT_SECONDS, TimeUnit.SECONDS)).isTrue();
     }
 
     @Test
@@ -357,7 +366,7 @@ public class PreviewViewDeviceTest {
 
         // Assert
         assertThat(previewView.getController()).isEqualTo(newController);
-        assertThat(previewClearSemaphore.tryAcquire(1, TimeUnit.SECONDS)).isTrue();
+        assertThat(previewClearSemaphore.tryAcquire(TIMEOUT_SECONDS, TimeUnit.SECONDS)).isTrue();
     }
 
 
@@ -395,6 +404,7 @@ public class PreviewViewDeviceTest {
     @UiThreadTest
     public void usesSurfaceView_whenNonLegacyDevice_andAPILevelNewerThanN() {
         assumeTrue(Build.VERSION.SDK_INT > 24);
+        assumeTrue(DeviceQuirks.get(SurfaceViewStretchedQuirk.class) == null);
         final CameraInfoInternal cameraInfo =
                 createCameraInfo(CameraInfo.IMPLEMENTATION_TYPE_CAMERA2);
 
@@ -452,7 +462,7 @@ public class PreviewViewDeviceTest {
             }
         }, CameraXExecutors.directExecutor());
 
-        assertThat(countDownLatch.await(1, TimeUnit.SECONDS)).isTrue();
+        assertThat(countDownLatch.await(TIMEOUT_SECONDS, TimeUnit.SECONDS)).isTrue();
         assertThat(SurfaceFormatUtil.getSurfaceFormat(surface[0])).isEqualTo(PixelFormat.RGBA_8888);
     }
 
@@ -470,7 +480,7 @@ public class PreviewViewDeviceTest {
             surfaceProvider.onSurfaceRequested(createSurfaceRequest(cameraInfo));
         });
         // Wait for layout ready
-        assertThat(countDownLatch.await(1, TimeUnit.SECONDS)).isTrue();
+        assertThat(countDownLatch.await(TIMEOUT_SECONDS, TimeUnit.SECONDS)).isTrue();
 
         updateCropRectAndWaitForIdle(DEFAULT_CROP_RECT);
 
@@ -533,7 +543,7 @@ public class PreviewViewDeviceTest {
         });
 
         // Wait until the new layout is changed.
-        assertThat(latchToWaitForLayoutChange.await(1, TimeUnit.SECONDS)).isTrue();
+        assertThat(latchToWaitForLayoutChange.await(TIMEOUT_SECONDS, TimeUnit.SECONDS)).isTrue();
     }
 
     @Test

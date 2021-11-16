@@ -26,15 +26,18 @@ import android.annotation.SuppressLint;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.pm.ResolveInfo;
+import android.graphics.Insets;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.WindowInsets;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 import androidx.car.app.CarAppService;
 import androidx.car.app.activity.renderer.ICarAppActivity;
+import androidx.car.app.activity.renderer.IInsetsListener;
 import androidx.car.app.activity.renderer.IRendererCallback;
 import androidx.car.app.activity.renderer.IRendererService;
 import androidx.car.app.activity.renderer.surface.ISurfaceListener;
@@ -48,6 +51,8 @@ import androidx.car.app.automotive.R;
 import androidx.car.app.serialization.Bundleable;
 import androidx.car.app.serialization.BundlerException;
 import androidx.car.app.utils.ThreadUtils;
+import androidx.core.view.WindowCompat;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.ViewModelProvider;
 
@@ -104,11 +109,49 @@ public final class CarAppActivity extends FragmentActivity {
     TemplateSurfaceView mSurfaceView;
     ErrorMessageView mErrorMessageView;
     LoadingView mLoadingView;
+    View mActivityContainerView;
+    View mLocalContentContainerView;
     @Nullable SurfaceHolderListener mSurfaceHolderListener;
     @Nullable ActivityLifecycleDelegate mActivityLifecycleDelegate;
     @Nullable CarAppViewModel mViewModel;
     @Nullable OnBackPressedListener mOnBackPressedListener;
     @Nullable HostUpdateReceiver mHostUpdateReceiver;
+
+    /**
+     * A listener to conditionally send insets to the host, or handle them locally if the host
+     * is not capable.
+     */
+    private final View.OnApplyWindowInsetsListener mWindowInsetsListener =
+            new View.OnApplyWindowInsetsListener() {
+                @Nullable
+                @Override
+                public WindowInsets onApplyWindowInsets(@NonNull View view,
+                        @NonNull WindowInsets windowInsets) {
+                    // IMPORTANT: The insets calculated here must match the windowing settings in
+                    // SystemUiVisibility set in CarAppActivity#onCreate(). Failing to do so would
+                    // cause a mismatch between the insets applied to the content on the hosts side
+                    // vs. the actual visible window available on the client side.
+                    Insets insets = WindowInsetsCompat.toWindowInsetsCompat(windowInsets)
+                            .getInsets(WindowInsetsCompat.Type.systemBars()
+                                    | WindowInsetsCompat.Type.ime())
+                            .toPlatformInsets();
+                    boolean insetsHandled = requireNonNull(mViewModel).updateWindowInsets(insets);
+
+                    if (insetsHandled) {
+                        // Insets are handled by the host. Only local content need padding.
+                        mActivityContainerView.setPadding(0, 0, 0, 0);
+                        mLocalContentContainerView.setPadding(insets.left, insets.top,
+                                insets.right, insets.bottom);
+                    } else {
+                        // Insets are handled locally, padding is applied at the top level.
+                        mActivityContainerView.setPadding(insets.left, insets.top,
+                                insets.right, insets.bottom);
+                        mLocalContentContainerView.setPadding(0, 0, 0, 0);
+                    }
+
+                    return WindowInsetsCompat.CONSUMED.toWindowInsets();
+                }
+            };
 
     /**
      * {@link ICarAppActivity} implementation that allows the {@link IRendererService} to
@@ -146,6 +189,18 @@ public final class CarAppActivity extends FragmentActivity {
                                 requireNonNull(mActivityLifecycleDelegate)
                                         .registerRendererCallback(callback);
                                 requireNonNull(mViewModel).setRendererCallback(callback);
+                            });
+                }
+
+                @Override
+                public void setInsetsListener(@NonNull IInsetsListener listener) {
+                    requireNonNull(listener);
+                    ThreadUtils.runOnMain(
+                            () -> {
+                                requireNonNull(mViewModel).setInsetsListener(listener);
+                                // We need to adjust local insets now that we know the host will
+                                // take care of them.
+                                mActivityContainerView.requestApplyInsets();
                             });
                 }
 
@@ -190,9 +245,19 @@ public final class CarAppActivity extends FragmentActivity {
         super.onCreate(savedInstanceState);
         setSoftInputHandling();
         setContentView(R.layout.activity_template);
+        mActivityContainerView = requireViewById(R.id.activity_container);
+        mLocalContentContainerView = requireViewById(R.id.local_content_container);
         mSurfaceView = requireViewById(R.id.template_view_surface);
         mErrorMessageView = requireViewById(R.id.error_message_view);
         mLoadingView = requireViewById(R.id.loading_view);
+
+        mActivityContainerView.setOnApplyWindowInsetsListener(mWindowInsetsListener);
+        // IMPORTANT: The SystemUiVisibility applied here must match the insets provided to the
+        // host in OnApplyWindowInsetsListener above. Failing to do so would cause a mismatch
+        // between the insets applied to the content on the hosts side vs. the actual visible
+        // window available on the client side.
+        WindowCompat.setDecorFitsSystemWindows(getWindow(), false);
+        mActivityContainerView.requestApplyInsets();
 
         ComponentName serviceComponentName = retrieveServiceComponentName();
         if (serviceComponentName == null) {

@@ -128,7 +128,7 @@ public abstract class PreferenceFragment extends android.app.Fragment implements
     @SuppressWarnings("deprecation")
     private final Handler mHandler = new Handler() {
         @Override
-        public void handleMessage(Message msg) {
+        public void handleMessage(@NonNull Message msg) {
             switch (msg.what) {
                 case MSG_BIND_PREFERENCES:
                     bindPreferences();
@@ -145,7 +145,7 @@ public abstract class PreferenceFragment extends android.app.Fragment implements
     };
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         final TypedValue tv = new TypedValue();
         getActivity().getTheme().resolveAttribute(R.attr.preferenceTheme, tv, true);
@@ -181,11 +181,12 @@ public abstract class PreferenceFragment extends android.app.Fragment implements
      * @deprecated Use {@link PreferenceFragmentCompat} instead
      */
     @Deprecated
-    public abstract void onCreatePreferences(Bundle savedInstanceState, String rootKey);
+    public abstract void onCreatePreferences(@Nullable Bundle savedInstanceState, String rootKey);
 
+    @NonNull
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-            Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
+            @Nullable Bundle savedInstanceState) {
 
         TypedArray a = mStyledContext.obtainStyledAttributes(null,
                 R.styleable.PreferenceFragment,
@@ -250,7 +251,7 @@ public abstract class PreferenceFragment extends android.app.Fragment implements
      * @deprecated Use {@link PreferenceFragmentCompat} instead
      */
     @Deprecated
-    public void setDivider(Drawable divider) {
+    public void setDivider(@Nullable Drawable divider) {
         mDividerDecoration.setDivider(divider);
     }
 
@@ -269,7 +270,7 @@ public abstract class PreferenceFragment extends android.app.Fragment implements
     }
 
     @Override
-    public void onViewCreated(View view, Bundle savedInstanceState) {
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
         if (savedInstanceState != null) {
@@ -319,7 +320,7 @@ public abstract class PreferenceFragment extends android.app.Fragment implements
     }
 
     @Override
-    public void onSaveInstanceState(Bundle outState) {
+    public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
 
         final PreferenceScreen preferenceScreen = getPreferenceScreen();
@@ -426,7 +427,7 @@ public abstract class PreferenceFragment extends android.app.Fragment implements
      */
     @Deprecated
     @Override
-    public boolean onPreferenceTreeClick(Preference preference) {
+    public boolean onPreferenceTreeClick(@NonNull Preference preference) {
         if (preference.getFragment() != null) {
             boolean handled = false;
             if (getCallbackFragment() instanceof OnPreferenceStartFragmentCallback) {
@@ -455,7 +456,7 @@ public abstract class PreferenceFragment extends android.app.Fragment implements
      */
     @Deprecated
     @Override
-    public void onNavigateToScreen(PreferenceScreen preferenceScreen) {
+    public void onNavigateToScreen(@NonNull PreferenceScreen preferenceScreen) {
         boolean handled = false;
         if (getCallbackFragment() instanceof OnPreferenceStartScreenCallback) {
             handled = ((OnPreferenceStartScreenCallback) getCallbackFragment())
@@ -479,7 +480,7 @@ public abstract class PreferenceFragment extends android.app.Fragment implements
     @Deprecated
     @Override
     @SuppressWarnings("TypeParameterUnusedInFormals")
-    public <T extends Preference> T findPreference(CharSequence key) {
+    public <T extends Preference> T findPreference(@NonNull CharSequence key) {
         if (mPreferenceManager == null) {
             return null;
         }
@@ -546,8 +547,9 @@ public abstract class PreferenceFragment extends android.app.Fragment implements
      * @deprecated Use {@link PreferenceFragmentCompat} instead
      */
     @Deprecated
-    public RecyclerView onCreateRecyclerView(LayoutInflater inflater, ViewGroup parent,
-            Bundle savedInstanceState) {
+    @NonNull
+    public RecyclerView onCreateRecyclerView(@NonNull LayoutInflater inflater,
+            @NonNull ViewGroup parent, @Nullable Bundle savedInstanceState) {
         // If device detected is Auto, use Auto's custom layout that contains a custom ViewGroup
         // wrapping a RecyclerView
         if (mStyledContext.getPackageManager().hasSystemFeature(PackageManager
@@ -576,6 +578,7 @@ public abstract class PreferenceFragment extends android.app.Fragment implements
      * @deprecated Use {@link PreferenceFragmentCompat} instead
      */
     @Deprecated
+    @NonNull
     public RecyclerView.LayoutManager onCreateLayoutManager() {
         return new LinearLayoutManager(getActivity());
     }
@@ -589,7 +592,8 @@ public abstract class PreferenceFragment extends android.app.Fragment implements
      * @deprecated Use {@link PreferenceFragmentCompat} instead
      */
     @Deprecated
-    protected RecyclerView.Adapter onCreateAdapter(PreferenceScreen preferenceScreen) {
+    @NonNull
+    protected RecyclerView.Adapter onCreateAdapter(@NonNull PreferenceScreen preferenceScreen) {
         return new PreferenceGroupAdapter(preferenceScreen);
     }
 
@@ -604,7 +608,7 @@ public abstract class PreferenceFragment extends android.app.Fragment implements
      */
     @Deprecated
     @Override
-    public void onDisplayPreferenceDialog(Preference preference) {
+    public void onDisplayPreferenceDialog(@NonNull Preference preference) {
 
         boolean handled = false;
         if (getCallbackFragment() instanceof OnPreferenceDisplayDialogCallback) {
@@ -655,7 +659,7 @@ public abstract class PreferenceFragment extends android.app.Fragment implements
      * @deprecated Use {@link PreferenceFragmentCompat} instead
      */
     @Deprecated
-    public void scrollToPreference(final String key) {
+    public void scrollToPreference(@NonNull String key) {
         scrollToPreferenceInternal(null, key);
     }
 
@@ -663,7 +667,7 @@ public abstract class PreferenceFragment extends android.app.Fragment implements
      * @deprecated Use {@link PreferenceFragmentCompat} instead
      */
     @Deprecated
-    public void scrollToPreference(final Preference preference) {
+    public void scrollToPreference(@NonNull Preference preference) {
         scrollToPreferenceInternal(preference, null);
     }
 
@@ -671,7 +675,7 @@ public abstract class PreferenceFragment extends android.app.Fragment implements
         final Runnable r = new Runnable() {
             @Override
             public void run() {
-                final RecyclerView.Adapter adapter = mList.getAdapter();
+                final RecyclerView.Adapter<?> adapter = mList.getAdapter();
                 if (!(adapter instanceof PreferenceGroup.PreferencePositionCallback)) {
                     if (adapter != null) {
                         throw new IllegalStateException("Adapter must implement "
@@ -719,7 +723,8 @@ public abstract class PreferenceFragment extends android.app.Fragment implements
          * @param pref   The preference requesting the fragment
          * @return {@code true} if the fragment creation has been handled
          */
-        boolean onPreferenceStartFragment(PreferenceFragment caller, Preference pref);
+        boolean onPreferenceStartFragment(@NonNull PreferenceFragment caller,
+                @NonNull Preference pref);
     }
 
     /**
@@ -735,7 +740,8 @@ public abstract class PreferenceFragment extends android.app.Fragment implements
          * @param pref   The preference screen to navigate to
          * @return {@code true} if the screen navigation has been handled
          */
-        boolean onPreferenceStartScreen(PreferenceFragment caller, PreferenceScreen pref);
+        boolean onPreferenceStartScreen(@NonNull PreferenceFragment caller,
+                @NonNull PreferenceScreen pref);
     }
 
     /**
@@ -748,17 +754,18 @@ public abstract class PreferenceFragment extends android.app.Fragment implements
          * @param pref   The preference requesting the dialog
          * @return {@code true} if the dialog creation has been handled
          */
-        boolean onPreferenceDisplayDialog(@NonNull PreferenceFragment caller, Preference pref);
+        boolean onPreferenceDisplayDialog(@NonNull PreferenceFragment caller,
+                @NonNull Preference pref);
     }
 
     private static class ScrollToPreferenceObserver extends RecyclerView.AdapterDataObserver {
-        private final RecyclerView.Adapter mAdapter;
+        private final RecyclerView.Adapter<?> mAdapter;
         private final RecyclerView mList;
         private final Preference mPreference;
         private final String mKey;
 
-        ScrollToPreferenceObserver(RecyclerView.Adapter adapter, RecyclerView list,
-                Preference preference, String key) {
+        ScrollToPreferenceObserver(@NonNull RecyclerView.Adapter<?> adapter,
+                @NonNull RecyclerView list, Preference preference, String key) {
             mAdapter = adapter;
             mList = list;
             mPreference = preference;
@@ -820,7 +827,8 @@ public abstract class PreferenceFragment extends android.app.Fragment implements
         DividerDecoration() {}
 
         @Override
-        public void onDrawOver(Canvas c, RecyclerView parent, RecyclerView.State state) {
+        public void onDrawOver(@NonNull Canvas c, @NonNull RecyclerView parent,
+                @NonNull RecyclerView.State state) {
             if (mDivider == null) {
                 return;
             }
@@ -837,14 +845,14 @@ public abstract class PreferenceFragment extends android.app.Fragment implements
         }
 
         @Override
-        public void getItemOffsets(Rect outRect, View view, RecyclerView parent,
-                RecyclerView.State state) {
+        public void getItemOffsets(@NonNull Rect outRect, @NonNull View view,
+                @NonNull RecyclerView parent, @NonNull RecyclerView.State state) {
             if (shouldDrawDividerBelow(view, parent)) {
                 outRect.bottom = mDividerHeight;
             }
         }
 
-        private boolean shouldDrawDividerBelow(View view, RecyclerView parent) {
+        private boolean shouldDrawDividerBelow(@NonNull View view, @NonNull RecyclerView parent) {
             final RecyclerView.ViewHolder holder = parent.getChildViewHolder(view);
             final boolean dividerAllowedBelow = holder instanceof PreferenceViewHolder
                     && ((PreferenceViewHolder) holder).isDividerAllowedBelow();
@@ -862,7 +870,7 @@ public abstract class PreferenceFragment extends android.app.Fragment implements
             return nextAllowed;
         }
 
-        public void setDivider(Drawable divider) {
+        public void setDivider(@Nullable Drawable divider) {
             if (divider != null) {
                 mDividerHeight = divider.getIntrinsicHeight();
             } else {

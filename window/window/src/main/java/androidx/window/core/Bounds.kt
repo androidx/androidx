@@ -58,6 +58,12 @@ internal class Bounds(
     public val isEmpty: Boolean
         get() = height == 0 || width == 0
 
+    /**
+     * Returns if the dimensions of the bounds is 0.
+     */
+    public val isZero: Boolean
+        get() = height == 0 && width == 0
+
     override fun toString(): String {
         return "${Bounds::class.java.simpleName} { [$left,$top,$right,$bottom] }"
     }

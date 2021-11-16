@@ -394,7 +394,8 @@ public class Camera2CameraControlImpl implements CameraControlInternal {
         }
         return Futures.nonCancellationPropagating(CallbackToFutureAdapter.getFuture(
                 completer -> {
-                    mExecutor.execute(() -> mFocusMeteringControl.triggerAf(completer));
+                    mExecutor.execute(() -> mFocusMeteringControl.triggerAf(
+                            completer, /* overrideAeMode */ false));
                     return "triggerAf";
                 }));
     }
@@ -802,7 +803,7 @@ public class Camera2CameraControlImpl implements CameraControlInternal {
      * </pre>
      */
     @ExecutedBy("mExecutor")
-    private int getSupportedAeMode(int preferredMode) {
+    int getSupportedAeMode(int preferredMode) {
         int[] modes = mCameraCharacteristics.get(CameraCharacteristics.CONTROL_AE_AVAILABLE_MODES);
 
         if (modes == null) {

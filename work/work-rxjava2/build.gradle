@@ -26,6 +26,7 @@ plugins {
 dependencies {
     api(project(":work:work-runtime"))
     api(libs.rxjava2)
+    testImplementation(libs.truth)
     testImplementation(libs.junit)
     testImplementation(libs.kotlinStdlib)
     testImplementation(libs.mockitoCore)

@@ -24,6 +24,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RequiresOptIn;
 import androidx.annotation.RestrictTo;
 
+import java.util.Locale;
+
 /**
  * This class contains additional platform version checking methods for targeting pre-release
  * versions of Android.
@@ -54,7 +56,7 @@ public class BuildCompat {
 
         // Otherwise lexically compare them.  Return true if the build codename is equal to or
         // greater than the requested codename.
-        return buildCodename.compareTo(codename) >= 0;
+        return buildCodename.toUpperCase(Locale.ROOT).compareTo(codename) >= 0;
     }
 
     /**
@@ -163,7 +165,8 @@ public class BuildCompat {
      */
     @ChecksSdkIntAtLeast(api = 31, codename = "S")
     public static boolean isAtLeastS() {
-        return VERSION.SDK_INT >= 31 || isAtLeastPreReleaseCodename("S", VERSION.CODENAME);
+        return VERSION.SDK_INT >= 31
+                || (VERSION.SDK_INT >= 30 && isAtLeastPreReleaseCodename("S", VERSION.CODENAME));
     }
 
     /**
@@ -179,7 +182,7 @@ public class BuildCompat {
     @PrereleaseSdkCheck
     @ChecksSdkIntAtLeast(codename = "T")
     public static boolean isAtLeastT() {
-        return isAtLeastPreReleaseCodename("T", VERSION.CODENAME);
+        return VERSION.SDK_INT >= 31 && isAtLeastPreReleaseCodename("T", VERSION.CODENAME);
     }
 
     /**

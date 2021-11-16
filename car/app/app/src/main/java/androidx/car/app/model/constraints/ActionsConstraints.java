@@ -25,7 +25,6 @@ import static java.util.Objects.requireNonNull;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
-import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.model.Action;
 import androidx.car.app.model.Action.ActionType;
 import androidx.car.app.model.CarText;
@@ -165,8 +164,6 @@ public final class ActionsConstraints {
      *                                  actions do not contain all required types, or if the
      *                                  actions contain any disallowed types
      */
-    // TODO(b/201548973): Remove this annotation once set/getFlags are ready
-    @androidx.annotation.OptIn(markerClass = ExperimentalCarApi.class)
     public void validateOrThrow(@NonNull List<Action> actions) {
         int maxAllowedActions = mMaxActions;
         int maxAllowedPrimaryActions = mMaxPrimaryActions;

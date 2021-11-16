@@ -26,17 +26,15 @@ import android.os.Build
 import android.os.ParcelFileDescriptor
 import android.provider.MediaStore
 import android.util.Size
-import androidx.annotation.NonNull
 import androidx.camera.core.CameraSelector
-import androidx.camera.core.CameraX
 import androidx.camera.core.Logger
 import androidx.camera.core.Preview
-import androidx.camera.core.UseCase
 import androidx.camera.core.VideoCapture
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.core.internal.CameraUseCaseAdapter
 import androidx.camera.testing.AudioUtil
 import androidx.camera.testing.CameraUtil
+import androidx.camera.testing.CameraXUtil
 import androidx.camera.testing.SurfaceTextureProvider.SurfaceTextureCallback
 import androidx.camera.testing.SurfaceTextureProvider.createSurfaceTextureProvider
 import androidx.test.core.app.ApplicationProvider
@@ -68,20 +66,20 @@ import java.util.concurrent.TimeUnit
 @LargeTest
 @RunWith(AndroidJUnit4::class)
 @SdkSuppress(minSdkVersion = 21)
-public class VideoCaptureTest {
-    public companion object {
+class VideoCaptureTest {
+    companion object {
         @ClassRule
         @JvmField
-        public val useRecordingResource: TestRule = CameraUtil.checkVideoRecordingResource()
+        val useRecordingResource: TestRule = CameraUtil.checkVideoRecordingResource()
 
         private const val TAG = "VideoCaptureTest"
     }
 
     @get:Rule
-    public val useCamera: TestRule = CameraUtil.grantCameraPermissionAndPreTest()
+    val useCamera: TestRule = CameraUtil.grantCameraPermissionAndPreTest()
 
     @get:Rule
-    public val permissionRule: GrantPermissionRule =
+    val permissionRule: GrantPermissionRule =
         GrantPermissionRule.grant(
             Manifest.permission.WRITE_EXTERNAL_STORAGE,
             Manifest.permission.RECORD_AUDIO
@@ -98,7 +96,7 @@ public class VideoCaptureTest {
     private lateinit var contentResolver: ContentResolver
 
     @Before
-    public fun setUp() {
+    fun setUp() {
         // TODO(b/168175357): Fix VideoCaptureTest problems on CuttleFish API 29
         assumeFalse(
             "Cuttlefish has MediaCodec dequeueInput/Output buffer fails issue. Unable to test.",
@@ -114,26 +112,29 @@ public class VideoCaptureTest {
             CameraSelector.DEFAULT_FRONT_CAMERA
         }
 
-        CameraX.initialize(context, Camera2Config.defaultConfig()).get()
+        CameraXUtil.initialize(
+            context,
+            Camera2Config.defaultConfig()
+        ).get()
         cameraUseCaseAdapter = CameraUtil.createCameraUseCaseAdapter(context, cameraSelector)
 
         contentResolver = context.contentResolver
     }
 
     @After
-    public fun tearDown() {
+    fun tearDown() {
         instrumentation.runOnMainSync {
             if (this::cameraUseCaseAdapter.isInitialized) {
                 cameraUseCaseAdapter.removeUseCases(cameraUseCaseAdapter.useCases)
             }
         }
 
-        CameraX.shutdown().get(10000, TimeUnit.MILLISECONDS)
+        CameraXUtil.shutdown().get(10000, TimeUnit.MILLISECONDS)
     }
 
     @Test
     @SdkSuppress(minSdkVersion = 21, maxSdkVersion = 25)
-    public fun buildFileOutputOptionsWithFileDescriptor_throwExceptionWhenAPILevelSmallerThan26() {
+    fun buildFileOutputOptionsWithFileDescriptor_throwExceptionWhenAPILevelSmallerThan26() {
         val file = File.createTempFile("CameraX", ".tmp").apply {
             deleteOnExit()
         }
@@ -150,7 +151,7 @@ public class VideoCaptureTest {
 
     @Test(timeout = 30000)
     @SdkSuppress(minSdkVersion = 26)
-    public fun startRecordingWithFileDescriptor_whenAPILevelLargerThan26() {
+    fun startRecordingWithFileDescriptor_whenAPILevelLargerThan26() {
         val file = File.createTempFile("CameraX", ".tmp").apply {
             deleteOnExit()
         }
@@ -167,7 +168,7 @@ public class VideoCaptureTest {
 
         assumeTrue(
             "This combination (videoCapture, preview) is not supported.",
-            checkUseCasesCombinationSupported(videoCapture, preview)
+            cameraUseCaseAdapter.isUseCasesCombinationSupported(videoCapture, preview)
         )
 
         instrumentation.runOnMainSync {
@@ -205,7 +206,7 @@ public class VideoCaptureTest {
 
     @FlakyTest // b/182165222
     @Test(timeout = 30000)
-    public fun unbind_shouldStopRecording() {
+    fun unbind_shouldStopRecording() {
         val file = File.createTempFile("CameraX", ".tmp").apply {
             deleteOnExit()
         }
@@ -215,7 +216,7 @@ public class VideoCaptureTest {
 
         assumeTrue(
             "This combination (videoCapture, preview) is not supported.",
-            checkUseCasesCombinationSupported(videoCapture, preview)
+            cameraUseCaseAdapter.isUseCasesCombinationSupported(videoCapture, preview)
         )
         instrumentation.runOnMainSync {
             preview.setSurfaceProvider(
@@ -247,13 +248,13 @@ public class VideoCaptureTest {
 
     @Test(timeout = 30000)
     @SdkSuppress(minSdkVersion = 26)
-    public fun startRecordingWithUri_whenAPILevelLargerThan26() {
+    fun startRecordingWithUri_whenAPILevelLargerThan26() {
         val preview = Preview.Builder().build()
         val videoCapture = VideoCapture.Builder().build()
 
         assumeTrue(
             "This combination (videoCapture, preview) is not supported.",
-            checkUseCasesCombinationSupported(videoCapture, preview)
+            cameraUseCaseAdapter.isUseCasesCombinationSupported(videoCapture, preview)
         )
         instrumentation.runOnMainSync {
             preview.setSurfaceProvider(
@@ -290,7 +291,7 @@ public class VideoCaptureTest {
     }
 
     @Test(timeout = 30000)
-    public fun videoCapture_saveResultToFile() {
+    fun videoCapture_saveResultToFile() {
         val file = File.createTempFile("CameraX", ".tmp").apply {
             deleteOnExit()
         }
@@ -300,7 +301,7 @@ public class VideoCaptureTest {
 
         assumeTrue(
             "This combination (videoCapture, preview) is not supported.",
-            checkUseCasesCombinationSupported(videoCapture, preview)
+            cameraUseCaseAdapter.isUseCasesCombinationSupported(videoCapture, preview)
         )
         instrumentation.runOnMainSync {
             preview.setSurfaceProvider(
@@ -326,7 +327,7 @@ public class VideoCaptureTest {
     }
 
     @Test(timeout = 30000)
-    public fun videoCapture_noKeyFrameVideoShouldCallOnError() {
+    fun videoCapture_noKeyFrameVideoShouldCallOnError() {
         val realFile = File.createTempFile("CameraX", ".tmp").apply { deleteOnExit() }
 
         val preview = Preview.Builder().build()
@@ -334,7 +335,7 @@ public class VideoCaptureTest {
 
         assumeTrue(
             "This combination (videoCapture, preview) is not supported.",
-            checkUseCasesCombinationSupported(videoCapture, preview)
+            cameraUseCaseAdapter.isUseCasesCombinationSupported(videoCapture, preview)
         )
         instrumentation.runOnMainSync {
             preview.setSurfaceProvider(
@@ -390,18 +391,6 @@ public class VideoCaptureTest {
                 surfaceTexture.release()
             }
         })
-    }
-
-    private fun checkUseCasesCombinationSupported(@NonNull vararg useCases: UseCase): Boolean {
-        val useCaseList = useCases.asList()
-
-        try {
-            cameraUseCaseAdapter.checkAttachUseCases(useCaseList)
-        } catch (e: CameraUseCaseAdapter.CameraException) {
-            // This use combination is not supported. on this device, abort this test.
-            return false
-        }
-        return true
     }
 
     private fun recordingUntilKeyFrameArrived(videoCapture: VideoCapture) {

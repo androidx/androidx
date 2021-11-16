@@ -16,8 +16,6 @@
 
 package androidx.inspection.gradle
 
-import androidx.inspection.gradle.GenerateProguardDetectionFileTask.Language.JAVA
-import androidx.inspection.gradle.GenerateProguardDetectionFileTask.Language.KOTLIN
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
 import org.gradle.api.Project
@@ -34,12 +32,6 @@ import java.io.File
  */
 @Suppress("UnstableApiUsage")
 abstract class GenerateProguardDetectionFileTask : DefaultTask() {
-    enum class Language {
-        JAVA, KOTLIN
-    }
-
-    @get:Input
-    abstract val targetLanguage: Property<Language>
 
     @get:Input
     abstract val mavenGroup: Property<String>
@@ -58,11 +50,8 @@ abstract class GenerateProguardDetectionFileTask : DefaultTask() {
         if (!dir.exists() && !dir.mkdirs()) {
             throw GradleException("Failed to create directory $dir")
         }
-
-        val extension = if (targetLanguage.get() == KOTLIN) "kt" else "java"
-        val file = File(dir, "ProguardDetection.$extension")
+        val file = File(dir, "ProguardDetection.kt")
         logger.debug("Generating ProguardDetection in $dir")
-        val modifier = if (targetLanguage.get() == KOTLIN) "private" else ""
 
         val text = """
             package $packageName;
@@ -76,7 +65,7 @@ abstract class GenerateProguardDetectionFileTask : DefaultTask() {
              * inspection isn't available for the current app and that they should rebuild it
              * again without proguarding to continue.
              */
-             $modifier class ProguardDetection {}
+             private class ProguardDetection {}
         """.trimIndent()
 
         file.writeText(text)
@@ -97,7 +86,6 @@ fun Project.registerGenerateProguardDetectionFileTask(
         it.outputDir.set(outputDir)
         it.mavenGroup.set(mavenGroup)
         it.mavenArtifactId.set(mavenArtifactId)
-        it.targetLanguage.set(if (plugins.hasPlugin("kotlin-android")) KOTLIN else JAVA)
     }
     variant.registerJavaGeneratingTask(task, outputDir)
 }

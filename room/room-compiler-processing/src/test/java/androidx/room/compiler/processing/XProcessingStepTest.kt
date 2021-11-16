@@ -680,8 +680,8 @@ class XProcessingStepTest {
             class Main {}
             """.trimIndent()
         )
+        val invokedLifecycles = mutableListOf<String>()
         val stepsProcessed = mutableListOf<XProcessingStep>()
-        var invokedProcessOver = 0
         val mainStep = object : XProcessingStep {
             var round = 0
             override fun annotations() = setOf(MainAnnotation::class.qualifiedName!!)
@@ -689,6 +689,7 @@ class XProcessingStepTest {
                 env: XProcessingEnv,
                 elementsByAnnotation: Map<String, Set<XElement>>
             ): Set<XElement> {
+                invokedLifecycles.add("process")
                 stepsProcessed.add(this)
                 val deferredElements = if (round++ == 0) {
                     // Generate a random class to trigger another processing round
@@ -710,10 +711,9 @@ class XProcessingStepTest {
                 env: XProcessingEnv,
                 elementsByAnnotation: Map<String, Set<XElement>>
             ) {
-                invokedProcessOver++
+                invokedLifecycles.add("processOver")
             }
         }
-        var invokedProcessingSteps = 0
         val invokedPostRound = mutableListOf<Boolean>()
         assertAbout(
             JavaSourcesSubjectFactory.javaSources()
@@ -721,12 +721,16 @@ class XProcessingStepTest {
             listOf(main)
         ).processedWith(
             object : JavacBasicAnnotationProcessor() {
+                override fun initialize(env: XProcessingEnv) {
+                    invokedLifecycles.add("initialize")
+                }
                 override fun processingSteps(): List<XProcessingStep> {
-                    invokedProcessingSteps++
+                    invokedLifecycles.add("processingSteps")
                     return listOf(mainStep)
                 }
 
                 override fun postRound(env: XProcessingEnv, round: XRoundEnv) {
+                    invokedLifecycles.add("postRound")
                     invokedPostRound.add(round.isProcessingOver)
                 }
             }
@@ -735,11 +739,19 @@ class XProcessingStepTest {
         // Assert that mainStep was processed twice due to deferring
         assertThat(stepsProcessed).containsExactly(mainStep, mainStep)
 
+        // Assert initialize() was only called once
         // Assert processingSteps() was only called once
-        assertThat(invokedProcessingSteps).isEqualTo(1)
-
         // Assert processOver() was only called once
-        assertThat(invokedProcessOver).isEqualTo(1)
+        assertThat(invokedLifecycles).containsExactly(
+            "initialize",
+            "processingSteps",
+            "process", // 1st round
+            "postRound", // 1st round
+            "process", // 2nd round
+            "postRound", // 2nd round
+            "processOver", // final round
+            "postRound", // final round
+        ).inOrder()
 
         // Assert postRound() is invoked exactly 3 times, and the last round env reported
         // that processing was over.
@@ -950,8 +962,8 @@ class XProcessingStepTest {
             class Main {}
             """.trimIndent()
         )
+        val invokedLifecycles = mutableListOf<String>()
         val stepsProcessed = mutableListOf<XProcessingStep>()
-        var invokedProcessOver = 0
         val mainStep = object : XProcessingStep {
             var round = 0
             override fun annotations() = setOf(MainAnnotation::class.qualifiedName!!)
@@ -959,6 +971,7 @@ class XProcessingStepTest {
                 env: XProcessingEnv,
                 elementsByAnnotation: Map<String, Set<XElement>>
             ): Set<XElement> {
+                invokedLifecycles.add("process")
                 stepsProcessed.add(this)
                 val deferredElements = if (round++ == 0) {
                     // Generate a random class to trigger another processing round
@@ -980,20 +993,24 @@ class XProcessingStepTest {
                 env: XProcessingEnv,
                 elementsByAnnotation: Map<String, Set<XElement>>
             ) {
-                invokedProcessOver++
+                invokedLifecycles.add("processOver")
             }
         }
-        var invokedProcessingSteps = 0
         val invokedPostRound = mutableListOf<Boolean>()
         val processorProvider = object : SymbolProcessorProvider {
             override fun create(environment: SymbolProcessorEnvironment): SymbolProcessor {
                 return object : KspBasicAnnotationProcessor(environment) {
+                    override fun initialize(env: XProcessingEnv) {
+                        invokedLifecycles.add("initialize")
+                    }
+
                     override fun processingSteps(): List<XProcessingStep> {
-                        invokedProcessingSteps++
+                        invokedLifecycles.add("processingSteps")
                         return listOf(mainStep)
                     }
 
                     override fun postRound(env: XProcessingEnv, round: XRoundEnv) {
+                        invokedLifecycles.add("postRound")
                         invokedPostRound.add(round.isProcessingOver)
                     }
                 }
@@ -1009,11 +1026,19 @@ class XProcessingStepTest {
         // Assert that mainStep was processed twice due to deferring
         assertThat(stepsProcessed).containsExactly(mainStep, mainStep)
 
+        // Assert initialize() was only called once
         // Assert processingSteps() was only called once
-        assertThat(invokedProcessingSteps).isEqualTo(1)
-
         // Assert processOver() was only called once
-        assertThat(invokedProcessOver).isEqualTo(1)
+        assertThat(invokedLifecycles).containsExactly(
+            "initialize",
+            "processingSteps",
+            "process", // 1st round
+            "postRound", // 1st round
+            "process", // 2nd round
+            "postRound", // 2nd round
+            "processOver", // final round
+            "postRound", // final round
+        ).inOrder()
 
         // Assert postRound() is invoked exactly 3 times, and the last round env reported
         // that processing was over.

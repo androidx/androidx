@@ -16,6 +16,7 @@
 
 import androidx.build.LibraryGroups
 import androidx.build.Publish
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("AndroidXPlugin")
@@ -25,8 +26,7 @@ plugins {
 
 android {
     defaultConfig {
-        // 21 is perfetto min API, and required for shell commands
-        minSdkVersion 21
+        minSdkVersion 23
         multiDexEnabled true
     }
 }
@@ -60,4 +60,11 @@ androidx {
     mavenGroup = LibraryGroups.BENCHMARK
     inceptionYear = "2020"
     description = "Android Benchmark - Macrobenchmark JUnit4"
+}
+
+// Allow usage of Kotlin's @OptIn.
+tasks.withType(KotlinCompile).configureEach {
+    kotlinOptions {
+        freeCompilerArgs += [ '-Xopt-in=kotlin.RequiresOptIn' ]
+    }
 }

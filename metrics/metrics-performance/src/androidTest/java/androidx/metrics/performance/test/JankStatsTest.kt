@@ -18,7 +18,6 @@ package androidx.metrics.performance.test
 import androidx.core.util.Pair
 import androidx.metrics.performance.FrameData
 import androidx.metrics.performance.JankStats
-import androidx.metrics.performance.JankStats.Companion.jankHeuristicMultiplier
 import androidx.metrics.performance.JankStats.OnFrameListener
 import androidx.metrics.performance.StateInfo
 import androidx.test.annotation.UiThreadTest
@@ -34,6 +33,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import java.util.concurrent.CountDownLatch
+import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 
 @LargeTest
@@ -61,25 +61,25 @@ class JankStatsTest {
             delayedView = delayedActivity.findViewById(R.id.delayedView)
             latchedListener = LatchedListener()
             latchedListener.latch = CountDownLatch(1)
-            jankStats = JankStats(delayedView, latchedListener)
-            jankStats.setTrackingEnabled(true)
+            jankStats = JankStats.create(delayedView, Executors.newSingleThreadExecutor(),
+                latchedListener)
         }
     }
 
     @Test
     @UiThreadTest
     fun testGetInstance() {
-        assert(JankStats.getInstance(delayedView) == jankStats)
+        assert(JankStats.get(delayedView) == jankStats)
     }
 
     @Test
     @UiThreadTest
     fun testEnable() {
-        assertTrue(jankStats.isTrackingEnabled())
-        jankStats.setTrackingEnabled(false)
-        assertFalse(jankStats.isTrackingEnabled())
-        jankStats.setTrackingEnabled(true)
-        assertTrue(jankStats.isTrackingEnabled())
+        assertTrue(jankStats.isTrackingEnabled)
+        jankStats.isTrackingEnabled = false
+        assertFalse(jankStats.isTrackingEnabled)
+        jankStats.isTrackingEnabled = true
+        assertTrue(jankStats.isTrackingEnabled)
     }
 
     @Test
@@ -94,7 +94,7 @@ class JankStatsTest {
         Assert.assertEquals("numJankFrames should equal 0", 0, latchedListener.numJankFrames)
         latchedListener.reset()
 
-        jankHeuristicMultiplier = 0f
+        jankStats.jankHeuristicMultiplier = 0f
         runDelayTest(frameDelay, NUM_FRAMES, latchedListener)
         Assert.assertEquals(
             "multiplier 0, extremeMs 0: numJankFrames should equal NUM_FRAMES",
@@ -118,7 +118,7 @@ class JankStatsTest {
         )
         latchedListener.reset()
 
-        jankHeuristicMultiplier = 20f
+        jankStats.jankHeuristicMultiplier = 20f
         runDelayTest(frameDelay, NUM_FRAMES, latchedListener)
         Assert.assertEquals(
             "multiplier 20, extremeMs 0: numJankFrames should equal 0",
@@ -210,7 +210,11 @@ class JankStatsTest {
         latchedListener.reset()
     }
 
-    private fun runDelayTest(frameDelay: Int, numFrames: Int, listener: LatchedListener) {
+    private fun runDelayTest(
+        frameDelay: Int,
+        numFrames: Int,
+        listener: LatchedListener
+    ) {
         val latch = CountDownLatch(numFrames)
         listener.latch = latch
         delayedActivity.repetions = numFrames
@@ -239,7 +243,7 @@ class JankStatsTest {
             numJankFrames = 0
         }
 
-        override fun onJankStatsFrame(
+        override fun onFrame(
             frameData: FrameData
         ) {
             if (latch == null) {

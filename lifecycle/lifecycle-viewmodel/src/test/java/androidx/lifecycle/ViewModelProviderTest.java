@@ -17,6 +17,8 @@
 package androidx.lifecycle;
 
 import static androidx.lifecycle.ViewModelProvider.NewInstanceFactory.VIEW_MODEL_KEY;
+import static androidx.lifecycle.ViewModelProviderTest.ViewModelStoreOwnerWithCreationExtras.TEST_KEY;
+import static androidx.lifecycle.ViewModelProviderTest.ViewModelStoreOwnerWithCreationExtras.TEST_VALUE;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
@@ -25,6 +27,8 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import androidx.annotation.NonNull;
 import androidx.lifecycle.ViewModelProvider.NewInstanceFactory;
 import androidx.lifecycle.viewmodel.CreationExtras;
+import androidx.lifecycle.viewmodel.CreationExtras.Key;
+import androidx.lifecycle.viewmodel.MutableCreationExtras;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -125,6 +129,36 @@ public class ViewModelProviderTest {
         new ViewModelProvider(owner, implicitlyKeyed).get("customkey", ViewModel1.class);
     }
 
+    @Test
+    public void testDefaultCreationExtras() {
+        ViewModelStoreOwnerWithCreationExtras owner = new ViewModelStoreOwnerWithCreationExtras();
+        boolean[] wasCalled = new boolean[1];
+        ViewModelProvider.Factory testFactory = new ViewModelProvider.Factory() {
+            @SuppressWarnings("unchecked")
+            @NonNull
+            @Override
+            public <T extends ViewModel> T create(@NonNull Class<T> modelClass,
+                    @NonNull CreationExtras extras) {
+                String key = extras.get(VIEW_MODEL_KEY);
+                assertThat(key, is("customkey"));
+                assertThat(extras.get(TEST_KEY), is(TEST_VALUE));
+                wasCalled[0] = true;
+                return (T) new ViewModel1();
+            }
+        };
+        new ViewModelProvider(owner, testFactory).get("customkey", ViewModel1.class);
+        assertThat(wasCalled[0], is(true));
+        wasCalled[0] = false;
+        new ViewModelProvider(new ViewModelStoreOwnerWithCreationExtras() {
+            @NonNull
+            @Override
+            public ViewModelProvider.Factory getDefaultViewModelProviderFactory() {
+                return testFactory;
+            }
+        }).get("customkey", ViewModel1.class);
+        assertThat(wasCalled[0], is(true));
+    }
+
     public static class ViewModelStoreOwnerWithFactory implements
             ViewModelStoreOwner, HasDefaultViewModelProviderFactory {
         private final ViewModelStore mStore;
@@ -169,6 +203,34 @@ public class ViewModelProviderTest {
         public <T extends ViewModel> T create(@NonNull Class<T> modelClass) {
             mCalled++;
             return super.create(modelClass);
+        }
+    }
+
+    static class ViewModelStoreOwnerWithCreationExtras implements
+            ViewModelStoreOwner, HasDefaultViewModelProviderFactory {
+        private final ViewModelStore mViewModelStore = new ViewModelStore();
+        static final Key<String> TEST_KEY = new Key<String>() {
+        };
+        static final String TEST_VALUE = "test_value";
+
+        @NonNull
+        @Override
+        public ViewModelProvider.Factory getDefaultViewModelProviderFactory() {
+            throw new UnsupportedOperationException();
+        }
+
+        @NonNull
+        @Override
+        public CreationExtras getDefaultViewModelCreationExtras() {
+            MutableCreationExtras extras = new MutableCreationExtras();
+            extras.set(TEST_KEY, TEST_VALUE);
+            return extras;
+        }
+
+        @NonNull
+        @Override
+        public ViewModelStore getViewModelStore() {
+            return mViewModelStore;
         }
     }
 }

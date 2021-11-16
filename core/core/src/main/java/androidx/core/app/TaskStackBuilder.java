@@ -60,7 +60,7 @@ import java.util.Iterator;
  * task.</p>
  *
  * <div class="special reference">
- * <h3>About Navigation</h3>
+ * ### About Navigation
  * For more detailed information about tasks, the back stack, and navigation design guidelines,
  * please read
  * <a href="{@docRoot}guide/topics/fundamentals/tasks-and-back-stack.html">Tasks and Back Stack</a>

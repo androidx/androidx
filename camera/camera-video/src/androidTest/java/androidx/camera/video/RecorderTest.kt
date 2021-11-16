@@ -31,7 +31,6 @@ import android.provider.MediaStore
 import android.util.Size
 import androidx.camera.camera2.Camera2Config
 import androidx.camera.core.CameraSelector
-import androidx.camera.core.CameraX
 import androidx.camera.core.Preview
 import androidx.camera.core.SurfaceRequest
 import androidx.camera.core.impl.ImageFormatConstants
@@ -40,9 +39,11 @@ import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.core.internal.CameraUseCaseAdapter
 import androidx.camera.testing.AudioUtil
 import androidx.camera.testing.CameraUtil
+import androidx.camera.testing.CameraXUtil
 import androidx.camera.testing.GarbageCollectionUtil
 import androidx.camera.testing.SurfaceTextureProvider
 import androidx.camera.video.VideoRecordEvent.Finalize.ERROR_FILE_SIZE_LIMIT_REACHED
+import androidx.camera.video.VideoRecordEvent.Finalize.ERROR_INVALID_OUTPUT_OPTIONS
 import androidx.camera.video.VideoRecordEvent.Finalize.ERROR_SOURCE_INACTIVE
 import androidx.camera.video.internal.compat.quirk.DeactivateEncoderSurfaceBeforeStopEncoderQuirk
 import androidx.camera.video.internal.compat.quirk.DeviceQuirks
@@ -58,11 +59,11 @@ import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
 import org.junit.After
 import org.junit.Assume.assumeFalse
-import org.junit.Assume.assumeNoException
 import org.junit.Assume.assumeTrue
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import org.junit.rules.TestName
 import org.junit.rules.TestRule
 import org.junit.runner.RunWith
 import org.mockito.ArgumentCaptor
@@ -88,6 +89,9 @@ class RecorderTest {
 
     @get:Rule
     var cameraRule: TestRule = CameraUtil.grantCameraPermissionAndPreTest()
+
+    @get:Rule
+    var testName: TestName = TestName()
 
     @get:Rule
     val permissionRule: GrantPermissionRule =
@@ -118,23 +122,36 @@ class RecorderTest {
         )
         assumeTrue(AudioUtil.canStartAudioRecord(MediaRecorder.AudioSource.CAMCORDER))
 
-        CameraX.initialize(context, Camera2Config.defaultConfig()).get()
+        CameraXUtil.initialize(
+            context,
+            Camera2Config.defaultConfig()
+        ).get()
         cameraUseCaseAdapter = CameraUtil.createCameraUseCaseAdapter(context, cameraSelector)
 
         recorder = Recorder.Builder().build()
 
         // Using Preview so that the surface provider could be set to control when to issue the
         // surface request.
-        val resolution = QualitySelector.getResolution(
-            cameraUseCaseAdapter.cameraInfo,
-            QualitySelector.QUALITY_LOWEST
-        )
-        assumeTrue(resolution != null)
+        val cameraInfo = cameraUseCaseAdapter.cameraInfo
+        val candidates = mutableSetOf<Size>().apply {
+            if (testName.methodName == "setFileSizeLimit") {
+                QualitySelector.getResolution(cameraInfo, QualitySelector.QUALITY_FHD)
+                    ?.let { add(it) }
+                QualitySelector.getResolution(cameraInfo, QualitySelector.QUALITY_HD)
+                    ?.let { add(it) }
+                QualitySelector.getResolution(cameraInfo, QualitySelector.QUALITY_SD)
+                    ?.let { add(it) }
+            }
+            QualitySelector.getResolution(cameraInfo, QualitySelector.QUALITY_LOWEST)
+                ?.let { add(it) }
+        }
+        assumeTrue(candidates.isNotEmpty())
+
         val resolutions: List<android.util.Pair<Int, Array<Size>>> =
             listOf<android.util.Pair<Int, Array<Size>>>(
                 android.util.Pair.create(
                     ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE,
-                    arrayOf(resolution!!)
+                    candidates.toTypedArray()
                 )
             )
         preview = Preview.Builder().setSupportedResolutions(resolutions).build()
@@ -160,11 +177,13 @@ class RecorderTest {
             )
         }
 
-        try {
-            cameraUseCaseAdapter.checkAttachUseCases(listOf(preview, surfaceTexturePreview))
-        } catch (e: CameraUseCaseAdapter.CameraException) {
-            assumeNoException("The device doesn't support the use cases combination.", e)
-        }
+        assumeTrue(
+            "This combination (preview, surfaceTexturePreview) is not supported.",
+            cameraUseCaseAdapter.isUseCasesCombinationSupported(
+                preview,
+                surfaceTexturePreview
+            )
+        )
 
         cameraUseCaseAdapter = CameraUtil.createCameraAndAttachUseCase(
             context,
@@ -184,7 +203,7 @@ class RecorderTest {
             }
         }
 
-        CameraX.shutdown().get(10, TimeUnit.SECONDS)
+        CameraXUtil.shutdown().get(10, TimeUnit.SECONDS)
     }
 
     @Test
@@ -272,29 +291,55 @@ class RecorderTest {
         clearInvocations(videoRecordEventListener)
         invokeSurfaceRequest()
         val file = File.createTempFile("CameraX", ".tmp").apply { deleteOnExit() }
-        ParcelFileDescriptor.open(
+        val pfd = ParcelFileDescriptor.open(
             file,
             ParcelFileDescriptor.MODE_READ_WRITE
-        ).use { pfd ->
-            val activeRecording = recorder
-                .prepareRecording(context, FileDescriptorOutputOptions.Builder(pfd).build())
-                .withEventListener(CameraXExecutors.directExecutor(), videoRecordEventListener)
-                .withAudioEnabled()
-                .start()
+        )
+        val activeRecording = recorder
+            .prepareRecording(context, FileDescriptorOutputOptions.Builder(pfd).build())
+            .withEventListener(CameraXExecutors.directExecutor(), videoRecordEventListener)
+            .withAudioEnabled()
+            .start()
 
-            val inOrder = inOrder(videoRecordEventListener)
-            inOrder.verify(videoRecordEventListener, timeout(1000L))
-                .accept(any(VideoRecordEvent.Start::class.java))
-            inOrder.verify(videoRecordEventListener, timeout(15000L).atLeast(5))
-                .accept(any(VideoRecordEvent.Status::class.java))
+        // ParcelFileDescriptor should be safe to close after PendingRecording#start.
+        pfd.close()
 
-            activeRecording.stopSafely()
+        val inOrder = inOrder(videoRecordEventListener)
+        inOrder.verify(videoRecordEventListener, timeout(1000L))
+            .accept(any(VideoRecordEvent.Start::class.java))
+        inOrder.verify(videoRecordEventListener, timeout(15000L).atLeast(5))
+            .accept(any(VideoRecordEvent.Status::class.java))
 
-            inOrder.verify(videoRecordEventListener, timeout(FINALIZE_TIMEOUT))
-                .accept(any(VideoRecordEvent.Finalize::class.java))
+        activeRecording.stopSafely()
 
-            checkFileHasAudioAndVideo(Uri.fromFile(file))
-        }
+        inOrder.verify(videoRecordEventListener, timeout(FINALIZE_TIMEOUT))
+            .accept(any(VideoRecordEvent.Finalize::class.java))
+
+        checkFileHasAudioAndVideo(Uri.fromFile(file))
+
+        file.delete()
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 26)
+    fun recordToFileDescriptor_withClosedFileDescriptor_receiveError() {
+        clearInvocations(videoRecordEventListener)
+        invokeSurfaceRequest()
+        val file = File.createTempFile("CameraX", ".tmp").apply { deleteOnExit() }
+        val pfd = ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_WRITE)
+
+        pfd.close()
+
+        recorder.prepareRecording(context, FileDescriptorOutputOptions
+            .Builder(pfd).build())
+            .withEventListener(CameraXExecutors.directExecutor(), videoRecordEventListener)
+            .withAudioEnabled()
+            .start()
+
+        val captor = ArgumentCaptor.forClass(VideoRecordEvent::class.java)
+        verify(videoRecordEventListener).accept(captor.capture())
+        val finalize = captor.value as VideoRecordEvent.Finalize
+        assertThat(finalize.error).isEqualTo(ERROR_INVALID_OUTPUT_OPTIONS)
 
         file.delete()
     }
@@ -982,6 +1027,77 @@ class RecorderTest {
         file.delete()
     }
 
+    // TODO:(b/187266265): Encoder surface cannot be reused on API level < 23 on some devices
+    @SdkSuppress(minSdkVersion = 23)
+    @Test
+    fun canSwitchAudioOnOff() {
+        clearInvocations(videoRecordEventListener)
+        invokeSurfaceRequest()
+        val file1 = File.createTempFile("CameraX", ".tmp").apply { deleteOnExit() }
+        val file2 = File.createTempFile("CameraX", ".tmp").apply { deleteOnExit() }
+        val file3 = File.createTempFile("CameraX", ".tmp").apply { deleteOnExit() }
+
+        val inOrder = inOrder(videoRecordEventListener)
+        try {
+            // Record the first video with audio enabled.
+            recorder.prepareRecording(context, FileOutputOptions.Builder(file1).build())
+                .withEventListener(CameraXExecutors.directExecutor(), videoRecordEventListener)
+                .withAudioEnabled()
+                .start().use {
+                    inOrder.verify(videoRecordEventListener, timeout(1000L))
+                        .accept(any(VideoRecordEvent.Start::class.java))
+                    inOrder.verify(videoRecordEventListener, timeout(15000L).atLeast(5))
+                        .accept(any(VideoRecordEvent.Status::class.java))
+                }
+
+            // Record the second video with audio disabled.
+            recorder.prepareRecording(context, FileOutputOptions.Builder(file2).build())
+                .withEventListener(CameraXExecutors.directExecutor(), videoRecordEventListener)
+                .start().use {
+                    inOrder.verify(videoRecordEventListener, timeout(FINALIZE_TIMEOUT))
+                        .accept(any(VideoRecordEvent.Finalize::class.java))
+                    inOrder.verify(videoRecordEventListener, timeout(1000L))
+                        .accept(any(VideoRecordEvent.Start::class.java))
+                    inOrder.verify(videoRecordEventListener, timeout(15000L).atLeast(5))
+                        .accept(any(VideoRecordEvent.Status::class.java))
+
+                    // Check the audio information reports state as disabled.
+                    val captor = ArgumentCaptor.forClass(VideoRecordEvent::class.java)
+                    verify(videoRecordEventListener, atLeastOnce()).accept(captor.capture())
+                    assertThat(captor.value).isInstanceOf(VideoRecordEvent.Status::class.java)
+                    val status = captor.value as VideoRecordEvent.Status
+                    assertThat(status.recordingStats.audioStats.audioState)
+                        .isEqualTo(AudioStats.AUDIO_STATE_DISABLED)
+                }
+
+            // Record the third video with audio enabled.
+            recorder.prepareRecording(context, FileOutputOptions.Builder(file3).build())
+                .withEventListener(CameraXExecutors.directExecutor(), videoRecordEventListener)
+                .withAudioEnabled()
+                .start().use {
+                    inOrder.verify(videoRecordEventListener, timeout(FINALIZE_TIMEOUT))
+                        .accept(any(VideoRecordEvent.Finalize::class.java))
+                    inOrder.verify(videoRecordEventListener, timeout(1000L))
+                        .accept(any(VideoRecordEvent.Start::class.java))
+                    inOrder.verify(videoRecordEventListener, timeout(15000L).atLeast(5))
+                        .accept(any(VideoRecordEvent.Status::class.java))
+                }
+
+            inOrder.verify(videoRecordEventListener, timeout(FINALIZE_TIMEOUT))
+                .accept(any(VideoRecordEvent.Finalize::class.java))
+
+            // Check the audio in file is as expected.
+            checkFileHasAudioAndVideo(Uri.fromFile(file1))
+            checkFileAudio(Uri.fromFile(file2), false)
+            checkFileVideo(Uri.fromFile(file2), true)
+            checkFileHasAudioAndVideo(Uri.fromFile(file3))
+        } finally {
+            file1.delete()
+            file2.delete()
+            file3.delete()
+        }
+    }
+
     @Test
     fun cannotStartMultiplePendingRecordingsWhileInitializing() {
         val file1 = File.createTempFile("CameraX1", ".tmp").apply { deleteOnExit() }
@@ -1107,6 +1223,10 @@ class RecorderTest {
     }
 
     private fun runFileSizeLimitTest(fileSizeLimit: Long) {
+        // For the file size is small, the final file length possibly exceeds the file size limit
+        // after adding the file header. We still add the buffer for the tolerance of comparing the
+        // file length and file size limit.
+        val sizeLimitBuffer = 50 * 1024 // 50k threshold buffer
         invokeSurfaceRequest()
         val file = File.createTempFile("CameraX", ".tmp").apply { deleteOnExit() }
         val outputOptions = FileOutputOptions.Builder(file)
@@ -1115,6 +1235,7 @@ class RecorderTest {
 
         val activeRecording = recorder
             .prepareRecording(context, outputOptions)
+            .withAudioEnabled()
             .withEventListener(CameraXExecutors.directExecutor(), videoRecordEventListener)
             .start()
 
@@ -1129,7 +1250,7 @@ class RecorderTest {
         assertThat(captor.value).isInstanceOf(VideoRecordEvent.Finalize::class.java)
         val finalize = captor.value as VideoRecordEvent.Finalize
         assertThat(finalize.error).isEqualTo(ERROR_FILE_SIZE_LIMIT_REACHED)
-        assertThat(file.length()).isLessThan(fileSizeLimit)
+        assertThat(file.length()).isLessThan(fileSizeLimit + sizeLimitBuffer)
 
         activeRecording.close()
         file.delete()

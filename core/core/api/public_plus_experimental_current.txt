@@ -379,6 +379,7 @@ package androidx.core.app {
     method @androidx.core.app.NotificationCompat.Action.SemanticAction public int getSemanticAction();
     method public boolean getShowsUserInterface();
     method public CharSequence? getTitle();
+    method public boolean isAuthenticationRequired();
     method public boolean isContextual();
     field public static final int SEMANTIC_ACTION_ARCHIVE = 5; // 0x5
     field public static final int SEMANTIC_ACTION_CALL = 10; // 0xa
@@ -406,6 +407,7 @@ package androidx.core.app {
     method public androidx.core.app.NotificationCompat.Action.Builder extend(androidx.core.app.NotificationCompat.Action.Extender);
     method public android.os.Bundle getExtras();
     method public androidx.core.app.NotificationCompat.Action.Builder setAllowGeneratedReplies(boolean);
+    method public androidx.core.app.NotificationCompat.Action.Builder setAuthenticationRequired(boolean);
     method public androidx.core.app.NotificationCompat.Action.Builder setContextual(boolean);
     method public androidx.core.app.NotificationCompat.Action.Builder setSemanticAction(@androidx.core.app.NotificationCompat.Action.SemanticAction int);
     method public androidx.core.app.NotificationCompat.Action.Builder setShowsUserInterface(boolean);
@@ -1123,6 +1125,7 @@ package androidx.core.content.pm {
     method public androidx.core.content.pm.ShortcutInfoCompat.Builder setIntent(android.content.Intent);
     method public androidx.core.content.pm.ShortcutInfoCompat.Builder setIntents(android.content.Intent![]);
     method public androidx.core.content.pm.ShortcutInfoCompat.Builder setIsConversation();
+    method public androidx.core.content.pm.ShortcutInfoCompat.Builder setIsHiddenFromLauncher(boolean);
     method public androidx.core.content.pm.ShortcutInfoCompat.Builder setLocusId(androidx.core.content.LocusIdCompat?);
     method public androidx.core.content.pm.ShortcutInfoCompat.Builder setLongLabel(CharSequence);
     method @Deprecated public androidx.core.content.pm.ShortcutInfoCompat.Builder setLongLived();

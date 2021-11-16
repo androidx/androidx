@@ -53,9 +53,17 @@ import java.util.concurrent.TimeUnit
  * @see androidx.benchmark.junit4.BenchmarkRule#getState()
  */
 public class BenchmarkState {
+    internal constructor(simplifiedTimingOnlyMode: Boolean) {
+        this.simplifiedTimingOnlyMode = simplifiedTimingOnlyMode
+        profiler = if (simplifiedTimingOnlyMode) null else Arguments.profiler
+    }
 
     /** @suppress */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) constructor()
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    constructor() {
+        simplifiedTimingOnlyMode = false
+        profiler = null
+    }
 
     private var stages = listOf(
         MetricsContainer(arrayOf(TimeCapture()), 1),
@@ -112,10 +120,15 @@ public class BenchmarkState {
      * - perform allocation counting (only timing results matter)
      * - call [ThrottleDetector], since it would infinitely recurse
      */
-    internal var simplifiedTimingOnlyMode = false
+    private val simplifiedTimingOnlyMode: Boolean
     private var throttleRemainingRetries = THROTTLE_MAX_RETRIES
 
     private var metricResults = mutableListOf<MetricResult>()
+
+    /**
+     * Profiler reference which is null when [simplifiedTimingOnlyMode] = true
+     */
+    private val profiler: Profiler?
 
     /** @suppress */
     @SuppressLint("MethodNameUnits")
@@ -220,7 +233,7 @@ public class BenchmarkState {
                 Trace.beginSection("Warmup")
             }
             RUNNING_TIME_STAGE -> {
-                Arguments.profiler?.start(traceUniqueName)
+                profiler?.start(traceUniqueName)
                 Trace.beginSection("Benchmark Time")
             }
             RUNNING_ALLOCATION_STAGE -> {
@@ -240,6 +253,12 @@ public class BenchmarkState {
             throttleRemainingRetries > 0 &&
             sleepIfThermalThrottled(THROTTLE_BACKOFF_S)
         ) {
+            // restart profiler
+            profiler?.apply {
+                stop()
+                start(traceUniqueName)
+            }
+
             // We've slept due to thermal throttle - retry benchmark!
             throttleRemainingRetries -= 1
             metrics.captureInit()
@@ -253,15 +272,14 @@ public class BenchmarkState {
                 iterationsPerRepeat = computeMaxIterations()
             }
             RUNNING_TIME_STAGE, RUNNING_ALLOCATION_STAGE -> {
-                if (state == RUNNING_TIME_STAGE) {
-                    Arguments.profiler?.stop()
-                }
-
                 metricResults.addAll(metrics.captureFinished(maxIterations = iterationsPerRepeat))
             }
         }
         state++
         if (state == RUNNING_ALLOCATION_STAGE) {
+            // profiling happens in RUNNING_TIME_STAGE
+            profiler?.stop()
+
             // skip allocation stage if we are only doing minimal looping (startupMode, dryRunMode,
             // profilingMode), or if we only care about timing (checkForThermalThrottling)
             if (simplifiedTimingOnlyMode ||

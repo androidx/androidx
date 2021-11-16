@@ -72,8 +72,9 @@ internal class KspProcessingEnv(
 
     override val messager: XMessager = KspMessager(logger)
 
-    private val arrayTypeFactory
-        get() = KspArrayType.Factory(this)
+    private val arrayTypeFactory by lazy {
+        KspArrayType.Factory(this)
+    }
 
     override val filer: XFiler = KspFiler(codeGenerator, messager)
 
@@ -104,7 +105,7 @@ internal class KspProcessingEnv(
         return resolver.findClass(kotlinTypeName)?.let {
             wrap(
                 allowPrimitives = KspTypeMapper.isJavaPrimitiveType(qName),
-                ksType = it.asStarProjectedType()
+                ksType = it.asType(emptyList())
             )
         }
     }

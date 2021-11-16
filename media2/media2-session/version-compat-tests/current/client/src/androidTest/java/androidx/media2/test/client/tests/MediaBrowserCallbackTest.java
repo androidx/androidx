@@ -57,6 +57,7 @@ import androidx.media2.test.client.MediaTestUtils;
 import androidx.media2.test.common.MediaBrowserConstants;
 import androidx.media2.test.common.TestUtils;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.FlakyTest;
 import androidx.test.filters.LargeTest;
 import androidx.versionedparcelable.ParcelUtils;
 
@@ -76,6 +77,7 @@ import java.util.concurrent.atomic.AtomicReference;
  * {@link MediaController} works cleanly.
  */
 // TODO: (internal cleanup) Move tests that aren't related with callbacks.
+@FlakyTest(bugId = 202942942)
 @RunWith(AndroidJUnit4.class)
 @LargeTest
 public class MediaBrowserCallbackTest extends MediaControllerCallbackTest {

@@ -55,6 +55,7 @@ public class MultiSelectListPreferenceDialogFragment extends PreferenceDialogFra
     /**
      * @deprecated Use {@link MultiSelectListPreferenceDialogFragmentCompat} instead
      */
+    @NonNull
     @Deprecated
     public static MultiSelectListPreferenceDialogFragment newInstance(String key) {
         final MultiSelectListPreferenceDialogFragment fragment =
@@ -106,7 +107,7 @@ public class MultiSelectListPreferenceDialogFragment extends PreferenceDialogFra
     }
 
     @Override
-    protected void onPrepareDialogBuilder(AlertDialog.Builder builder) {
+    protected void onPrepareDialogBuilder(@NonNull AlertDialog.Builder builder) {
         super.onPrepareDialogBuilder(builder);
 
         final int entryCount = mEntryValues.length;

@@ -17,9 +17,9 @@ package androidx.glance.layout
 
 import android.content.res.Resources
 import android.util.DisplayMetrics
-import androidx.glance.Modifier
+import androidx.compose.ui.unit.dp
+import androidx.glance.GlanceModifier
 import androidx.glance.findModifier
-import androidx.glance.unit.dp
 import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.mock
@@ -39,7 +39,7 @@ class PaddingTest {
 
     @Test
     fun buildPadding() {
-        val modifiers = Modifier.padding(
+        val modifiers = GlanceModifier.padding(
             start = 1.dp,
             top = 2.dp,
             end = 3.dp,
@@ -61,7 +61,7 @@ class PaddingTest {
 
     @Test
     fun buildVerticalHorizontalPadding() {
-        val modifiers = Modifier.padding(vertical = 2.dp, horizontal = 4.dp)
+        val modifiers = GlanceModifier.padding(vertical = 2.dp, horizontal = 4.dp)
 
         val paddingModifier = checkNotNull(modifiers.findModifier<PaddingModifier>())
 
@@ -77,7 +77,7 @@ class PaddingTest {
 
     @Test
     fun buildAllPadding() {
-        val modifiers = Modifier.padding(all = 5.dp)
+        val modifiers = GlanceModifier.padding(all = 5.dp)
 
         val paddingModifier = checkNotNull(modifiers.findModifier<PaddingModifier>())
 
@@ -93,7 +93,7 @@ class PaddingTest {
 
     @Test
     fun buildAbsolutePadding() {
-        val modifiers = Modifier.absolutePadding(
+        val modifiers = GlanceModifier.absolutePadding(
             left = 1.dp,
             top = 2.dp,
             right = 3.dp,
@@ -114,7 +114,7 @@ class PaddingTest {
 
     @Test
     fun extractPadding_shouldReturnNull() {
-        val modifiers = Modifier.then(object : Modifier.Element {})
+        val modifiers = GlanceModifier.then(object : GlanceModifier.Element {})
 
         assertThat(modifiers.collectPadding()).isNull()
         assertThat(modifiers.collectPaddingInDp(mockResources)).isNull()
@@ -122,7 +122,7 @@ class PaddingTest {
 
     @Test
     fun mergePadding_noOrientation() {
-        val modifiers = Modifier.padding(horizontal = 15.dp).padding(vertical = dimensionRes1)
+        val modifiers = GlanceModifier.padding(horizontal = 15.dp).padding(vertical = dimensionRes1)
 
         val paddingModifier = checkNotNull(modifiers.collectPadding())
 
@@ -149,14 +149,14 @@ class PaddingTest {
 
     @Test
     fun mergePadding_resetWithAll() {
-        val modifiers = Modifier.padding(horizontal = 12.dp).padding(all = dimensionRes2)
+        val modifiers = GlanceModifier.padding(horizontal = 12.dp).padding(all = dimensionRes2)
 
         val paddingModifier = checkNotNull(modifiers.collectPadding())
 
         assertThat(paddingModifier).isEqualTo(
             PaddingModifier(
-                start = PaddingDimension(dp = 12.dp, resources = listOf(dimensionRes2)),
-                end = PaddingDimension(dp = 12.dp, resources = listOf(dimensionRes2)),
+                start = PaddingDimension(dp = 12.dp, resourceIds = listOf(dimensionRes2)),
+                end = PaddingDimension(dp = 12.dp, resourceIds = listOf(dimensionRes2)),
                 top = PaddingDimension(dimensionRes2),
                 bottom = PaddingDimension(dimensionRes2),
             )
@@ -176,7 +176,7 @@ class PaddingTest {
 
     @Test
     fun mergePadding_withRelativeOrientation() {
-        val modifiers = Modifier.padding(start = 15.dp, end = 12.dp, top = 20.dp)
+        val modifiers = GlanceModifier.padding(start = 15.dp, end = 12.dp, top = 20.dp)
             .padding(end = dimensionRes1)
 
         val paddingModifier = checkNotNull(modifiers.collectPadding())
@@ -184,7 +184,7 @@ class PaddingTest {
         assertThat(paddingModifier).isEqualTo(
             PaddingModifier(
                 start = PaddingDimension(15.dp),
-                end = PaddingDimension(dp = 12.dp, resources = listOf(dimensionRes1)),
+                end = PaddingDimension(dp = 12.dp, resourceIds = listOf(dimensionRes1)),
                 top = PaddingDimension(20.dp),
             )
         )
@@ -192,14 +192,14 @@ class PaddingTest {
 
     @Test
     fun mergePadding_withAbsoluteOrientation() {
-        val modifiers = Modifier.absolutePadding(left = 15.dp, right = 12.dp)
+        val modifiers = GlanceModifier.absolutePadding(left = 15.dp, right = 12.dp)
             .absolutePadding(left = dimensionRes1, bottom = dimensionRes2)
 
         val paddingModifier = checkNotNull(modifiers.collectPadding())
 
         assertThat(paddingModifier).isEqualTo(
             PaddingModifier(
-                left = PaddingDimension(dp = 15.dp, resources = listOf(dimensionRes1)),
+                left = PaddingDimension(dp = 15.dp, resourceIds = listOf(dimensionRes1)),
                 right = PaddingDimension(12.dp),
                 bottom = PaddingDimension(dimensionRes2),
             )
@@ -208,7 +208,7 @@ class PaddingTest {
 
     @Test
     fun mergePadding_setOrientationToRelative() {
-        val modifiers = Modifier.absolutePadding(left = 10.dp, right = 10.dp)
+        val modifiers = GlanceModifier.absolutePadding(left = 10.dp, right = 10.dp)
             .padding(start = dimensionRes1, end = dimensionRes2)
 
         val paddingModifier = checkNotNull(modifiers.collectPadding())
@@ -225,7 +225,7 @@ class PaddingTest {
 
     @Test
     fun mergePadding_setOrientationToAbsolute() {
-        val modifiers = Modifier.padding(start = dimensionRes1, end = dimensionRes2)
+        val modifiers = GlanceModifier.padding(start = dimensionRes1, end = dimensionRes2)
             .absolutePadding(left = 10.dp, right = 12.dp)
 
         val paddingModifier = checkNotNull(modifiers.collectPadding())

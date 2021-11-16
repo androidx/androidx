@@ -17,7 +17,7 @@ dependencies {
     api("androidx.annotation:annotation:1.1.0")
     api("androidx.interpolator:interpolator:1.0.0")
     api("androidx.core:core:1.1.0")
-    implementation("androidx.collection:collection:1.0.0")
+    api(project(":leanback:leanback-grid"))
     api("androidx.media:media:1.0.0")
     api("androidx.fragment:fragment:1.0.0")
     api("androidx.recyclerview:recyclerview:1.2.0-rc01")
@@ -58,8 +58,8 @@ android {
 androidx {
     name = "Android Support Leanback v17"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenVersion = LibraryVersions.LEANBACK
     mavenGroup = LibraryGroups.LEANBACK
+    mavenVersion = LibraryVersions.LEANBACK
     inceptionYear = "2014"
     description = "Android Support Leanback v17"
     failOnDeprecationWarnings = false

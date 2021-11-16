@@ -16,6 +16,7 @@
 
 package androidx.datastore.core
 
+import java.io.IOException
 import java.io.InputStream
 import java.io.OutputStream
 
@@ -50,9 +51,9 @@ public interface Serializer<T> {
 }
 
 /**
- * A subclass of StorageException that indicates that the file could not be de-serialized due to
- * data format corruption. This exception should not be thrown when the StorageException is due
- * to a transient IO issue or permissions issue.
+ * A subclass of IOException that indicates that the file could not be de-serialized due
+ * to data format corruption. This exception should not be thrown when the IOException is
+ * due to a transient IO issue or permissions issue.
  */
 public class CorruptionException(message: String, cause: Throwable? = null) :
-    StorageException(message, cause)
+    IOException(message, cause)

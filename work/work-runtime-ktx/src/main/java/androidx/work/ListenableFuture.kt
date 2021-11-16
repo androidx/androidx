@@ -60,6 +60,10 @@ public suspend inline fun <R> ListenableFuture<R>.await(): R {
             },
             DirectExecutor.INSTANCE
         )
+
+        cancellableContinuation.invokeOnCancellation {
+            cancel(false)
+        }
     }
 }
 

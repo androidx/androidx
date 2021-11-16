@@ -103,7 +103,7 @@ public class ActivityCompat extends ContextCompat {
          * further requests for permission.
          *
          * @param activity The target activity.
-         * @param permissions The requested permissions. Must me non-null and not empty.
+         * @param permissions The requested permissions. Must be non-null and not empty.
          * @param requestCode Application specific request code to match with a result reported to
          *    {@link
          *    OnRequestPermissionsResultCallback#onRequestPermissionsResult(int, String[], int[])}.
@@ -486,7 +486,7 @@ public class ActivityCompat extends ContextCompat {
      * </p>
      *
      * @param activity The target activity.
-     * @param permissions The requested permissions. Must me non-null and not empty.
+     * @param permissions The requested permissions. Must be non-null and not empty.
      * @param requestCode Application specific request code to match with a result
      *    reported to {@link OnRequestPermissionsResultCallback#onRequestPermissionsResult(int, String[], int[])}.
      *    Should be >= 0.

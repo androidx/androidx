@@ -28,7 +28,6 @@ import android.support.wearable.complications.ComplicationText
 import android.support.wearable.watchface.IWatchFaceService
 import android.support.wearable.watchface.WatchFaceStyle
 import android.support.wearable.watchface.accessibility.ContentDescriptionLabel
-import android.view.Choreographer
 import android.view.SurfaceHolder
 import androidx.test.core.app.ApplicationProvider
 import androidx.wear.watchface.complications.data.toApiComplicationData
@@ -55,13 +54,19 @@ internal class TestWatchFaceService(
     private val tapListener: WatchFace.TapListener?,
     private val preAndroidR: Boolean,
     private val directBootParams: WallpaperInteractiveWatchFaceInstanceParams?,
-    private val choreographer: Choreographer
+    private val choreographer: ChoreographerWrapper,
+    var mockSystemTimeMillis: Long = 0L,
+    private val mainThreadPriorityDelegate: MainThreadPriorityDelegate =
+        object : MainThreadPriorityDelegate {
+            override fun setNormalPriority() {}
+
+            override fun setInteractivePriority() {}
+        }
 ) : WatchFaceService() {
     /** The ids of the [ComplicationSlot]s that have been tapped. */
     val tappedComplicationSlotIds: List<Int>
         get() = mutableTappedComplicationIds
     var complicationSelected: Int? = null
-    var mockSystemTimeMillis = 0L
     var mockZoneId: ZoneId = ZoneId.of("UTC")
     var renderer: TestRenderer? = null
 
@@ -99,6 +104,8 @@ internal class TestWatchFaceService(
         )
         return complicationSlotsManager
     }
+
+    override fun getMainThreadPriorityDelegate() = mainThreadPriorityDelegate
 
     override suspend fun createWatchFace(
         surfaceHolder: SurfaceHolder,

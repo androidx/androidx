@@ -20,6 +20,7 @@ package androidx.work
 
 import androidx.concurrent.futures.ResolvableFuture
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.FlakyTest
 import androidx.test.filters.SmallTest
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
@@ -47,6 +48,7 @@ class ListenableFutureTest {
             job.join()
         }
     }
+
     @OptIn(DelicateCoroutinesApi::class)
     @Test
     fun testFutureWithException() {
@@ -65,6 +67,7 @@ class ListenableFutureTest {
             job.join()
         }
     }
+
     @OptIn(DelicateCoroutinesApi::class)
     @Test
     fun testFutureCancellation() {
@@ -76,6 +79,21 @@ class ListenableFutureTest {
         runBlocking {
             job.join()
             assertThat(job.isCancelled, `is`(true))
+        }
+    }
+
+    @FlakyTest(bugId = 203776153)
+    @OptIn(DelicateCoroutinesApi::class)
+    @Test
+    fun testCoroutineScopeCancellation() {
+        val future: ResolvableFuture<Int> = ResolvableFuture.create()
+        val job = GlobalScope.launch {
+            future.await()
+        }
+        job.cancel()
+        runBlocking {
+            job.join()
+            assertThat(future.isCancelled, `is`(true))
         }
     }
 }

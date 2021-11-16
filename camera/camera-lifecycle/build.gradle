@@ -30,6 +30,7 @@ dependencies {
     api(project(":camera:camera-core"))
     implementation("androidx.core:core:1.1.0")
     implementation(libs.autoValueAnnotations)
+    implementation("androidx.concurrent:concurrent-futures:1.0.0")
 
     annotationProcessor(libs.autoValue)
 

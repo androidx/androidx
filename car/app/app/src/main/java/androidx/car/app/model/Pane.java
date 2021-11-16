@@ -22,7 +22,6 @@ import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.car.app.annotations.CarProtocol;
-import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.utils.CollectionUtils;
 
@@ -76,7 +75,6 @@ public final class Pane {
      * Returns the optional image to display in this pane.
      */
     @RequiresCarApi(4)
-    @ExperimentalCarApi
     @Nullable
     public CarIcon getImage() {
         return mImage;
@@ -181,11 +179,16 @@ public final class Pane {
         /**
          * Sets an {@link CarIcon} to display alongside the rows in the pane.
          *
+         * <h4>Image Sizing Guidance</h4>
+         *
+         * To minimize scaling artifacts across a wide range of car screens, apps should provide
+         * images targeting a 480 x 854 (9:16) dp bounding box. If the image exceeds this maximum
+         * size in either one of the dimensions, it will be scaled down to be centered inside the
+         * bounding box while preserving its aspect ratio.
+         *
          * @throws NullPointerException if {@code image} is {@code null}
          */
-        // TODO(b/158099280): document recommended size.
         @RequiresCarApi(4)
-        @ExperimentalCarApi
         @NonNull
         public Builder setImage(@NonNull CarIcon image) {
             mImage = requireNonNull(image);

@@ -16,6 +16,7 @@
 
 package androidx.glance.appwidget.layoutgenerator.gradle
 
+import androidx.glance.appwidget.layoutgenerator.ContainerProperties
 import androidx.glance.appwidget.layoutgenerator.LayoutGenerator
 import androidx.glance.appwidget.layoutgenerator.cleanResources
 import androidx.glance.appwidget.layoutgenerator.generateRegistry
@@ -54,9 +55,23 @@ abstract class LayoutGeneratorTask : DefaultTask() {
             checkNotNull(layoutDirectory.get().asFile.listFiles()).asList(),
             outputResourcesDir.get().asFile
         )
-        generateRegistry(outputModule, generatedFiles, outputSourceDir.get().asFile)
-        cleanResources(outputResourcesDir.get().asFile, generatedFiles.keys)
+        generateRegistry(
+            packageName = outputModule,
+            layouts = generatedFiles.generatedContainers,
+            outputSourceDir = outputSourceDir.get().asFile
+        )
+        val generatedContainers = generatedFiles.generatedContainers.extractGeneratedFiles()
+        cleanResources(
+            outputResourcesDir.get().asFile,
+            generatedContainers +
+                generatedFiles.extraFiles
+        )
     }
+
+    private fun Map<File, List<ContainerProperties>>.extractGeneratedFiles(): Set<File> =
+        values.flatMap { containers ->
+            containers.map { it.generatedFile }
+        }.toSet()
 
     companion object {
         /**

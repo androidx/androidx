@@ -18,7 +18,7 @@ package androidx.camera.integration.core
 
 import android.content.Context
 import android.content.Intent
-import androidx.camera.core.CameraX
+import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.CoreAppTestUtil
 import androidx.concurrent.futures.await
@@ -78,7 +78,9 @@ class InitializationTest(private val config: TestConfig) {
         @AfterClass
         @JvmStatic
         fun shutdownCameraX() {
-            CameraX.shutdown().get(10, TimeUnit.SECONDS)
+            val context = ApplicationProvider.getApplicationContext<Context>()
+            val cameraProvider = ProcessCameraProvider.getInstance(context)[10, TimeUnit.SECONDS]
+            cameraProvider.shutdown()[10, TimeUnit.SECONDS]
         }
     }
 

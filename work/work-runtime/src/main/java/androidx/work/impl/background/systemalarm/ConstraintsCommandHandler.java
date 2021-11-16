@@ -86,8 +86,7 @@ class ConstraintsCommandHandler {
         for (WorkSpec workSpec : eligibleWorkSpecs) {
             String workSpecId = workSpec.id;
             Intent intent = CommandHandler.createDelayMetIntent(mContext, workSpecId);
-            Logger.get().debug(TAG, String.format(
-                    "Creating a delay_met command for workSpec with id (%s)", workSpecId));
+            Logger.get().debug(TAG, "Creating a delay_met command for workSpec with id (" + workSpecId + ")");
             mDispatcher.postOnMainThread(
                     new SystemAlarmDispatcher.AddRunnable(mDispatcher, intent, mStartId));
         }

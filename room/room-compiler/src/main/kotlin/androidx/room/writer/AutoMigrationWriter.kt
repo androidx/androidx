@@ -242,9 +242,10 @@ class AutoMigrationWriter(
             migrateBuilder,
             buildString {
                 append(
-                    "INSERT INTO `${newTable.tableName}` (${newColumnSequence.joinToString(",")})" +
-                        " SELECT ${oldColumnSequence.joinToString(",")} FROM " +
-                        "`$selectFromTable`",
+                    "INSERT INTO `${newTable.tableName}` " +
+                        "(${newColumnSequence.joinToString(",") { "`$it`" }})" +
+                        " SELECT ${oldColumnSequence.joinToString(",") { "`$it`" }} " +
+                        "FROM `$selectFromTable`",
                 )
             }
         )
@@ -312,8 +313,8 @@ class AutoMigrationWriter(
             buildString {
                 append(
                     "INSERT INTO `$tableNameWithNewPrefix` " +
-                        "(${newColumnSequence.joinToString(",")})" +
-                        " SELECT ${oldColumnSequence.joinToString(",")} FROM " +
+                        "(${newColumnSequence.joinToString(",") { "`$it`" }})" +
+                        " SELECT ${oldColumnSequence.joinToString(",") { "`$it`" }} FROM " +
                         "`$oldTableName`",
                 )
             }
@@ -428,12 +429,18 @@ class AutoMigrationWriter(
             val addNewColumnSql = buildString {
                 append(
                     "ALTER TABLE `${it.tableName}` ADD COLUMN `${it.fieldBundle.columnName}` " +
-                        "${it.fieldBundle.affinity} "
+                        "${it.fieldBundle.affinity}"
                 )
                 if (it.fieldBundle.isNonNull) {
-                    append("NOT NULL DEFAULT ${it.fieldBundle.defaultValue}")
+                    append(" NOT NULL")
+                }
+                if (it.fieldBundle.defaultValue?.isNotEmpty() == true) {
+                    append(" DEFAULT ${it.fieldBundle.defaultValue}")
                 } else {
-                    append("DEFAULT NULL")
+                    check(
+                        !it.fieldBundle.isNonNull
+                    ) { "A Non-Null field should always have a default value." }
+                    append(" DEFAULT NULL")
                 }
             }
             addDatabaseExecuteSqlStatement(

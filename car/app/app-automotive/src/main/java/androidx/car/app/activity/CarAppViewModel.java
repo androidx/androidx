@@ -24,19 +24,26 @@ import android.app.Activity;
 import android.app.Application;
 import android.content.ComponentName;
 import android.content.Intent;
+import android.graphics.Insets;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.OptIn;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
+import androidx.car.app.HandshakeInfo;
 import androidx.car.app.activity.renderer.ICarAppActivity;
+import androidx.car.app.activity.renderer.IInsetsListener;
 import androidx.car.app.activity.renderer.IRendererCallback;
+import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.utils.ThreadUtils;
+import androidx.car.app.versioning.CarAppApiLevels;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import java.lang.ref.WeakReference;
+import java.util.Objects;
 
 /**
  * The view model to keep track of the CarAppActivity data.
@@ -54,6 +61,8 @@ public class CarAppViewModel extends AndroidViewModel implements
     private final MutableLiveData<State> mState = new MutableLiveData<>(State.IDLE);
     private ServiceConnectionManager mServiceConnectionManager;
     @Nullable private IRendererCallback mIRendererCallback;
+    @Nullable private IInsetsListener mIInsetsListener;
+    @Nullable private Insets mInsets = Insets.NONE;
     private static WeakReference<Activity> sActivity = new WeakReference<>(null);
 
     /** Possible view states */
@@ -122,6 +131,7 @@ public class CarAppViewModel extends AndroidViewModel implements
     /** Closes the connection to the renderer service if any. */
     void unbind() {
         mServiceConnectionManager.unbind();
+        mIInsetsListener = null;
     }
 
     @Override
@@ -221,5 +231,47 @@ public class CarAppViewModel extends AndroidViewModel implements
             return activity.getCallingActivity();
         }
         return null;
+    }
+
+    /**
+     * Updates the insets for this {@link CarAppActivity}
+     *
+     * @param insets latest received {@link Insets}
+     * @return true if this insets will be consumed by the host. Otherwise, the insets should be
+     * consumed by the client.
+     */
+    public boolean updateWindowInsets(@NonNull Insets insets) {
+        if (!Objects.equals(mInsets, insets)) {
+            mInsets = insets;
+            dispatchInsetsUpdates();
+        }
+        return isHostHandlingInsets();
+    }
+
+    @OptIn(markerClass = ExperimentalCarApi.class)
+    private boolean isHostHandlingInsets() {
+        HandshakeInfo handshakeInfo = mServiceConnectionManager.getHandshakeInfo();
+        return mIInsetsListener != null
+                && handshakeInfo != null
+                && handshakeInfo.getHostCarAppApiLevel() >= CarAppApiLevels.LEVEL_4;
+    }
+
+    @SuppressWarnings("NullAway")
+    private void dispatchInsetsUpdates() {
+        if (isHostHandlingInsets()) {
+            getServiceDispatcher().dispatch("onInsetsChanged",
+                    () -> requireNonNull(mIInsetsListener).onInsetsChanged(mInsets)
+            );
+        }
+    }
+
+    /**
+     * Updates the listener that will handle insets changes. If a non-null listener is set, it will
+     * be assumed that inset changes are handled by the host, and
+     * {@link #updateWindowInsets(Insets)} will return <code>false</code>
+     */
+    public void setInsetsListener(@Nullable IInsetsListener listener) {
+        mIInsetsListener = listener;
+        dispatchInsetsUpdates();
     }
 }

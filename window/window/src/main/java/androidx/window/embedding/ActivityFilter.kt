@@ -33,14 +33,17 @@ class ActivityFilter(
     /**
      * Component name in the intent for the activity. Must be non-empty. Can contain a single
      * wildcard at the end. Supported formats:
-     * <li>package/class</li>
-     * <li>package/\*</li>
-     * <li>package/suffix.\*</li>
-     * <li>\*\/\*</li>
+     *   - package/class
+     *   - `package/*`
+     *   - `package/suffix.*`
+     *   - `*/*`
      */
     val componentName: ComponentName,
     /**
      * Action used for activity launch intent.
+     *
+     * To match with intents based only on the [Intent.getAction], use a wildcard (&#42/&#42) with
+     * [componentName].
      */
     val intentAction: String?
 ) {
@@ -85,12 +88,9 @@ class ActivityFilter(
     }
 
     fun matchesActivity(activity: Activity): Boolean {
-        // Check if the activity component names match
-        var match = MatcherUtils.areComponentsMatching(activity.componentName, componentName)
-        // If the intent is not empty - check that the rest of the filter fields match
-        if (activity.intent != null) {
-            match = match && matchesIntent(activity.intent)
-        }
+        val match =
+            MatcherUtils.areActivityOrIntentComponentsMatching(activity, componentName) &&
+                (intentAction == null || intentAction == activity.intent?.action)
         if (sDebugMatchers) {
             val matchString = if (match) "MATCH" else "NO MATCH"
             Log.w(

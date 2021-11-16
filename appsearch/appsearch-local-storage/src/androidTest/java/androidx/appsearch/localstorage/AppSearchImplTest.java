@@ -42,6 +42,7 @@ import androidx.appsearch.localstorage.stats.OptimizeStats;
 import androidx.appsearch.localstorage.util.PrefixUtil;
 import androidx.collection.ArrayMap;
 import androidx.collection.ArraySet;
+import androidx.test.filters.FlakyTest;
 import androidx.test.core.app.ApplicationProvider;
 
 import com.google.android.icing.proto.DocumentProto;
@@ -1663,6 +1664,7 @@ public class AppSearchImplTest {
         }
     }
 
+    @FlakyTest(bugId = 204186664)
     @Test
     public void testReportUsage() throws Exception {
         // Insert schema

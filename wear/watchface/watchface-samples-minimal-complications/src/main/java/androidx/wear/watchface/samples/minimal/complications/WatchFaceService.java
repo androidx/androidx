@@ -20,17 +20,15 @@ import android.content.Context;
 import android.graphics.RectF;
 import android.view.SurfaceHolder;
 
-import androidx.wear.watchface.ComplicationSlot;
+import androidx.annotation.NonNull;
+import androidx.wear.watchface.CanvasComplicationFactory;
+import androidx.wear.watchface.ComplicationSlotInflationFactory;
 import androidx.wear.watchface.ComplicationSlotsManager;
 import androidx.wear.watchface.ListenableWatchFaceService;
 import androidx.wear.watchface.Renderer;
 import androidx.wear.watchface.WatchFace;
 import androidx.wear.watchface.WatchFaceType;
 import androidx.wear.watchface.WatchState;
-import androidx.wear.watchface.complications.ComplicationSlotBounds;
-import androidx.wear.watchface.complications.DefaultComplicationDataSourcePolicy;
-import androidx.wear.watchface.complications.SystemDataSources;
-import androidx.wear.watchface.complications.data.ComplicationType;
 import androidx.wear.watchface.complications.rendering.CanvasComplicationDrawable;
 import androidx.wear.watchface.complications.rendering.ComplicationDrawable;
 import androidx.wear.watchface.style.CurrentUserStyleRepository;
@@ -40,16 +38,10 @@ import com.google.common.util.concurrent.ListenableFuture;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Arrays;
-import java.util.Collections;
-
 /** The service hosting the watch face. */
 public class WatchFaceService extends ListenableWatchFaceService {
 
     public static final int COMPLICATION_ID = 1;
-    public static final ComplicationType[] COMPLICATION_TYPES = {
-        ComplicationType.SHORT_TEXT, ComplicationType.RANGED_VALUE, ComplicationType.SMALL_IMAGE
-    };
     public static final RectF COMPLICATION_BOUNDS = new RectF(.3f, 0.7f, .7f, .9f);
 
     @NotNull
@@ -71,27 +63,18 @@ public class WatchFaceService extends ListenableWatchFaceService {
 
     @NotNull
     @Override
-    protected ComplicationSlotsManager createComplicationSlotsManager(
-            @NotNull CurrentUserStyleRepository currentUserStyleRepository) {
-        return new ComplicationSlotsManager(
-                Collections.singleton(createComplication(this)), currentUserStyleRepository);
-    }
-
-    @NotNull
-    private static ComplicationSlot createComplication(Context context) {
-        ComplicationSlot.Builder complication =
-                ComplicationSlot.createRoundRectComplicationSlotBuilder(
-                        COMPLICATION_ID,
-                        (watchState, invalidateCallback) ->
-                                new CanvasComplicationDrawable(
-                                        new ComplicationDrawable(context),
-                                        watchState,
-                                        invalidateCallback),
-                        Arrays.asList(COMPLICATION_TYPES),
-                        new DefaultComplicationDataSourcePolicy(
-                                SystemDataSources.DATA_SOURCE_WATCH_BATTERY),
-                        new ComplicationSlotBounds(COMPLICATION_BOUNDS));
-        complication.setDefaultDataSourceType(ComplicationType.RANGED_VALUE);
-        return complication.build();
+    public ComplicationSlotInflationFactory getComplicationSlotInflationFactory() {
+        final Context context = this;
+        return new ComplicationSlotInflationFactory() {
+            @NonNull
+            @Override
+            public CanvasComplicationFactory getCanvasComplicationFactory(int slotId) {
+                return (watchState, invalidateCallback) ->
+                        new CanvasComplicationDrawable(
+                                new ComplicationDrawable(context),
+                                watchState,
+                                invalidateCallback);
+            }
+        };
     }
 }

@@ -24,16 +24,11 @@ import kotlin.contracts.contract
  *
  * It is not an XType as it does not represent a class or primitive.
  */
-interface XMethodType {
+interface XMethodType : XExecutableType {
     /**
      * The return type of the method
      */
     val returnType: XType
-
-    /**
-     * Parameter types of the method.
-     */
-    val parameterTypes: List<XType>
 
     /**
      * Returns the names of [TypeVariableName]s for this executable.

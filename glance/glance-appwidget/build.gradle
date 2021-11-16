@@ -35,11 +35,14 @@ dependencies {
 
     api(project(":glance:glance"))
     api("androidx.annotation:annotation:1.1.0")
-    api("androidx.compose.runtime:runtime:1.0.1")
+    api("androidx.compose.runtime:runtime:1.1.0-beta01")
+    api("androidx.compose.ui:ui-graphics:1.1.0-beta01")
+    api("androidx.compose.ui:ui-unit:1.1.0-beta01")
 
     implementation project(path: ':annotation:annotation')
     implementation project(path: ':core:core-remoteviews')
     implementation project(path: ':core:core-ktx')
+    implementation project(path: ':datastore:datastore-core')
     implementation(libs.kotlinStdlib)
 
     testImplementation(project(":core:core-ktx"))
@@ -54,6 +57,9 @@ dependencies {
     testImplementation(libs.testRunner)
     testImplementation(libs.truth)
     testImplementation(libs.kotlinReflect)
+    testImplementation("androidx.datastore:datastore-core:1.0.0")
+    testImplementation("androidx.datastore:datastore-preferences-core:1.0.0")
+    testImplementation("androidx.datastore:datastore-preferences:1.0.0-rc02")
 
     androidTestImplementation("androidx.test.uiautomator:uiautomator:2.2.0")
     androidTestImplementation(project(":test:screenshot:screenshot"))

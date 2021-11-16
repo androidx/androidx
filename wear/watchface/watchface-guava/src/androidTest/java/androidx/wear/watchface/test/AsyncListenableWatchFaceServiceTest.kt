@@ -34,16 +34,18 @@ import androidx.wear.watchface.style.UserStyleSchema
 import com.google.common.truth.Truth.assertThat
 import com.google.common.util.concurrent.ListenableFuture
 import com.google.common.util.concurrent.SettableFuture
-import kotlinx.coroutines.runBlocking
+import org.junit.Assert
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mockito
 import java.time.Instant
 import java.time.ZonedDateTime
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 
 private val REFERENCE_PREVIEW_TIME = Instant.ofEpochMilli(123456L)
 
-private class FakeRenderer(
+internal class FakeRenderer(
     surfaceHolder: SurfaceHolder,
     watchState: WatchState,
     currentUserStyleRepository: CurrentUserStyleRepository
@@ -80,12 +82,12 @@ private class TestAsyncListenableWatchFaceService :
         return future
     }
 
-    suspend fun createWatchFaceForTest(
+    fun createWatchFaceFutureForTest(
         surfaceHolder: SurfaceHolder,
         watchState: WatchState,
         complicationSlotsManager: ComplicationSlotsManager,
         currentUserStyleRepository: CurrentUserStyleRepository
-    ): WatchFace = createWatchFace(
+    ) = createWatchFaceFuture(
         surfaceHolder,
         watchState,
         complicationSlotsManager,
@@ -107,22 +109,32 @@ public class AsyncListenableWatchFaceServiceTest {
         val mockSurfaceHolder = Mockito.mock(SurfaceHolder::class.java)
         Mockito.`when`(mockSurfaceHolder.surfaceFrame).thenReturn(Rect(0, 0, 100, 100))
 
-        runBlocking {
-            val currentUserStyleRepository =
-                CurrentUserStyleRepository(UserStyleSchema(emptyList()))
-            val complicationSlotsManager =
-                ComplicationSlotsManager(emptyList(), currentUserStyleRepository)
-            val watchFace = service.createWatchFaceForTest(
-                mockSurfaceHolder,
-                MutableWatchState().asWatchState(),
-                complicationSlotsManager,
-                currentUserStyleRepository
-            )
+        val currentUserStyleRepository =
+            CurrentUserStyleRepository(UserStyleSchema(emptyList()))
+        val complicationSlotsManager =
+            ComplicationSlotsManager(emptyList(), currentUserStyleRepository)
+        val future = service.createWatchFaceFutureForTest(
+            mockSurfaceHolder,
+            MutableWatchState().asWatchState(),
+            complicationSlotsManager,
+            currentUserStyleRepository
+        )
 
-            // Simple check that [watchFace] looks sensible.
-            assertThat(watchFace.overridePreviewReferenceInstant).isEqualTo(
-                REFERENCE_PREVIEW_TIME
-            )
-        }
+        val latch = CountDownLatch(1)
+        future.addListener(
+            {
+                latch.countDown()
+            },
+            { runnable -> runnable.run() }
+        )
+
+        Assert.assertTrue(latch.await(TIME_OUT_MILLIS, TimeUnit.MILLISECONDS))
+
+        val watchFace = future.get()
+
+        // Simple check that [watchFace] looks sensible.
+        assertThat(watchFace.overridePreviewReferenceInstant).isEqualTo(
+            REFERENCE_PREVIEW_TIME
+        )
     }
 }

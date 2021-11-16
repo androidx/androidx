@@ -84,7 +84,7 @@ class CameraSelectionOptimizer {
                     availableCameraIds.add(cameraId);
                 }
             } catch (IllegalArgumentException e) {
-                // Return empty available id list if no camera is found.
+                // Return empty available id list if there's an issue with filtering
                 return availableCameraIds;
             }
 

@@ -19,6 +19,7 @@
 package androidx.camera.camera2.pipe
 
 import android.content.Context
+import android.hardware.camera2.CameraCharacteristics
 import android.os.HandlerThread
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.config.CameraGraphConfigModule
@@ -75,7 +76,8 @@ public class CameraPipe(config: Config, threadConfig: ThreadConfig = ThreadConfi
      */
     public data class Config(
         val appContext: Context,
-        val threadConfig: ThreadConfig = ThreadConfig()
+        val threadConfig: ThreadConfig = ThreadConfig(),
+        val cameraMetadataConfig: CameraMetadataConfig = CameraMetadataConfig()
     )
 
     /**
@@ -94,6 +96,20 @@ public class CameraPipe(config: Config, threadConfig: ThreadConfig = ThreadConfi
         val defaultBackgroundExecutor: Executor? = null,
         val defaultCameraExecutor: Executor? = null,
         val defaultCameraHandler: HandlerThread? = null
+    )
+
+    /**
+     * Application level configuration options for [CameraMetadata] provider(s).
+     *
+     * @param cacheBlocklist is used to prevent the metadata backend from caching the results of
+     *   specific keys.
+     * @param cameraCacheBlocklist is used to prevent the metadata backend from caching the results
+     *   of specific keys for specific cameraIds.
+     */
+    public class CameraMetadataConfig(
+        public val cacheBlocklist: Set<CameraCharacteristics.Key<*>> = emptySet(),
+        public val cameraCacheBlocklist: Map<CameraId, Set<CameraCharacteristics.Key<*>>> =
+            emptyMap()
     )
 
     override fun toString(): String = "CameraPipe-$debugId"

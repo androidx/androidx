@@ -21,8 +21,8 @@ import android.hardware.camera2.CameraCharacteristics;
 import android.os.Build;
 
 import androidx.camera.core.CameraSelector;
-import androidx.camera.core.CameraX;
 import androidx.camera.core.CameraXConfig;
+import androidx.camera.testing.CameraXUtil;
 import androidx.test.core.app.ApplicationProvider;
 
 import org.junit.Test;
@@ -47,10 +47,10 @@ public class CameraXConfigTest {
                         .setAvailableCamerasLimiter(CameraSelector.DEFAULT_BACK_CAMERA)
                         .build();
 
-        CameraX.initialize(ApplicationProvider.getApplicationContext(), cameraXConfig).get(3,
+        CameraXUtil.initialize(ApplicationProvider.getApplicationContext(), cameraXConfig).get(3,
                 TimeUnit.SECONDS);
 
-        CameraX.shutdown().get(3, TimeUnit.SECONDS);
+        CameraXUtil.shutdown().get(3, TimeUnit.SECONDS);
     }
 
     private void initCharacterisics(String cameraId, int lensFacing) {

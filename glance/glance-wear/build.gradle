@@ -33,7 +33,9 @@ dependencies {
     kotlinPlugin(project(":compose:compiler:compiler"))
 
     api(project(":glance:glance"))
-    api("androidx.compose.runtime:runtime:1.0.1")
+    api("androidx.compose.runtime:runtime:1.1.0-beta01")
+    api("androidx.compose.ui:ui-graphics:1.1.0-beta01")
+    api("androidx.compose.ui:ui-unit:1.1.0-beta01")
     api("androidx.wear.tiles:tiles:1.0.0-alpha12")
 
     implementation(libs.kotlinStdlib)
@@ -51,11 +53,13 @@ dependencies {
     testImplementation(libs.kotlinCoroutinesTest)
     testImplementation(libs.robolectric)
     testImplementation(libs.kotlinReflect)
+    testImplementation(libs.mockitoCore)
+    testImplementation(libs.mockitoKotlin)
     // TODO(b/197638718): Remove when tiles-testing dependencies are fixed.
     testImplementation("androidx.wear.tiles:tiles-renderer:1.0.0-alpha12")
     testImplementation("androidx.wear.tiles:tiles-testing:1.0.0-alpha12")
 
-    androidTestImplementation(project(":core:core"))
+    androidTestImplementation("androidx.core:core:1.7.0")
     androidTestImplementation(project(":test:screenshot:screenshot"))
     androidTestImplementation("androidx.wear.tiles:tiles-renderer:1.0.0-alpha12")
     androidTestImplementation(libs.testExtJunit)

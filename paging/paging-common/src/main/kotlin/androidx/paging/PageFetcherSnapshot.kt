@@ -56,7 +56,6 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
     internal val pagingSource: PagingSource<Key, Value>,
     private val config: PagingConfig,
     private val retryFlow: Flow<Unit>,
-    private val triggerRemoteRefresh: Boolean = false,
     val remoteMediatorConnection: RemoteMediatorConnection<Key, Value>? = null,
     private val previousPagingState: PagingState<Key, Value>? = null,
     private val invalidate: () -> Unit = {},
@@ -150,13 +149,17 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
                 }
         }
 
-        if (triggerRemoteRefresh) {
-            remoteMediatorConnection?.let {
-                val pagingState = previousPagingState ?: stateHolder.withLock { state ->
-                    state.currentPagingState(null)
-                }
-                it.requestLoad(REFRESH, pagingState)
+        // NOTE: We always try to enqueue on init, but this request will only go through if
+        // [RemoteMediatorConnection.refreshEnabled] is `true`. It is important for it to be done
+        // this way to ensure that we always have a valid [LoadStates] for [PagingSource] before we
+        // trigger remote load, in case remote emits multiple [LoadStates] before [PagingSource]
+        // starts, which would cause us to drop remote [LoadStates] emissions since we wait for
+        // valid events from both.
+        remoteMediatorConnection?.let {
+            val pagingState = previousPagingState ?: stateHolder.withLock { state ->
+                state.currentPagingState(null)
             }
+            it.requestRefreshIfAllowed(pagingState)
         }
 
         // Setup finished, start the initial load even if RemoteMediator throws an error.

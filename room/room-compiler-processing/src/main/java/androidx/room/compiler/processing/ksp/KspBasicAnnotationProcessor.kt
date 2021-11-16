@@ -47,10 +47,16 @@ abstract class KspBasicAnnotationProcessor(
 
     private val commonDelegate by lazy { CommonProcessorDelegate(this.javaClass, xEnv, steps) }
 
+    private var initialized = false
+
     final override val xProcessingEnv: XProcessingEnv get() = xEnv
 
     final override fun process(resolver: Resolver): List<KSAnnotated> {
         xEnv.resolver = resolver // Set the resolver at the beginning of each round
+        if (!initialized) {
+            initialize(xEnv)
+            initialized = true
+        }
         val xRoundEnv = KspRoundEnv(xEnv, false)
         commonDelegate.processRound(xRoundEnv)
         postRound(xEnv, xRoundEnv)

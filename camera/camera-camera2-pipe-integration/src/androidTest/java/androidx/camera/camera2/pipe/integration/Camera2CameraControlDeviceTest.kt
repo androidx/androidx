@@ -35,11 +35,11 @@ import androidx.camera.camera2.pipe.integration.interop.CaptureRequestOptions
 import androidx.camera.camera2.pipe.integration.interop.ExperimentalCamera2Interop
 import androidx.camera.core.CameraControl
 import androidx.camera.core.CameraSelector
-import androidx.camera.core.CameraX
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.impl.CameraInfoInternal
 import androidx.camera.core.internal.CameraUseCaseAdapter
 import androidx.camera.testing.CameraUtil
+import androidx.camera.testing.CameraXUtil
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
@@ -82,7 +82,10 @@ class Camera2CameraControlDeviceTest {
         Assume.assumeTrue(CameraUtil.hasCameraWithLensFacing(CameraSelector.LENS_FACING_BACK))
 
         context = ApplicationProvider.getApplicationContext()
-        CameraX.initialize(context, CameraPipeConfig.defaultConfig())
+        CameraXUtil.initialize(
+            context,
+            CameraPipeConfig.defaultConfig()
+        )
         cameraSelector = CameraSelector.Builder().requireLensFacing(
             CameraSelector.LENS_FACING_BACK
         ).build()
@@ -98,7 +101,7 @@ class Camera2CameraControlDeviceTest {
             camera.detachUseCases()
         }
 
-        CameraX.shutdown()[10000, TimeUnit.MILLISECONDS]
+        CameraXUtil.shutdown()[10000, TimeUnit.MILLISECONDS]
     }
 
     @Test

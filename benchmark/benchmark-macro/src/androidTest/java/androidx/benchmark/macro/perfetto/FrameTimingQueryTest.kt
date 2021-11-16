@@ -18,7 +18,7 @@ package androidx.benchmark.macro.perfetto
 
 import androidx.benchmark.macro.createTempFileFromAsset
 import androidx.benchmark.macro.perfetto.FrameTimingQuery.SubMetric.FrameCpuTime
-import androidx.benchmark.macro.perfetto.FrameTimingQuery.SubMetric.FrameNegativeSlackTime
+import androidx.benchmark.macro.perfetto.FrameTimingQuery.SubMetric.FrameOverrunTime
 import androidx.benchmark.macro.perfetto.FrameTimingQuery.SubMetric.FrameUiTime
 import androidx.benchmark.perfetto.PerfettoHelper.Companion.isAbiSupported
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -73,7 +73,7 @@ class FrameTimingQueryTest {
             expected = mapOf(
                 FrameCpuTime to listOf(6881407L, 5648542L, 3830261L, 4343438L),
                 FrameUiTime to listOf(2965052L, 3246407L, 1562188L, 1945469L),
-                FrameNegativeSlackTime to listOf(-5207137L, -11699862L, -14025295L, -12300155L)
+                FrameOverrunTime to listOf(-5207137L, -11699862L, -14025295L, -12300155L)
             ),
             actual = frameSubMetrics.mapValues {
                 it.value.subList(0, 4)

@@ -92,13 +92,13 @@ public class WorkForegroundRunnable implements Runnable {
                 try {
                     ForegroundInfo foregroundInfo = foregroundFuture.get();
                     if (foregroundInfo == null) {
-                        String message =
-                                String.format("Worker was marked important (%s) but did not "
-                                        + "provide ForegroundInfo", mWorkSpec.workerClassName);
+                        String message = "Worker was marked important (" +
+                                mWorkSpec.workerClassName +
+                                ") but did not provide ForegroundInfo";
                         throw new IllegalStateException(message);
                     }
-                    Logger.get().debug(TAG, String.format("Updating notification for %s",
-                            mWorkSpec.workerClassName));
+                    Logger.get().debug(TAG,
+                            "Updating notification for " + mWorkSpec.workerClassName);
                     // Mark as running in the foreground
                     mWorker.setRunInForeground(true);
                     mFuture.setFuture(

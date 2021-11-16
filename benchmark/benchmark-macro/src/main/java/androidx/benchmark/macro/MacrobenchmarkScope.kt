@@ -25,6 +25,7 @@ import androidx.benchmark.Shell
 import androidx.benchmark.macro.perfetto.forceTrace
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiDevice
+import androidx.tracing.trace
 
 /**
  * Provides access to common operations in app automation, such as killing the app,
@@ -42,7 +43,14 @@ public class MacrobenchmarkScope(
 ) {
     private val instrumentation = InstrumentationRegistry.getInstrumentation()
     private val context = instrumentation.context
-    private val device = UiDevice.getInstance(instrumentation)
+
+    /**
+     * Get the [UiDevice] instance, to use in reading target app UI state, or interacting with the
+     * UI via touches, scrolls, or other inputs.
+     *
+     * Convenience for `UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())`
+     */
+    val device: UiDevice = UiDevice.getInstance(instrumentation)
 
     /**
      * Start an activity, by default the default launch of the package, and wait until
@@ -55,6 +63,7 @@ public class MacrobenchmarkScope(
      *
      * @param block Allows customization of the intent used to launch the activity.
      */
+    @JvmOverloads
     public fun startActivityAndWait(
         block: (Intent) -> Unit = {}
     ) {
@@ -107,6 +116,14 @@ public class MacrobenchmarkScope(
         if (result.stderr.isNotEmpty()) {
             throw IllegalStateException(result.stderr)
         }
+
+        // because `am start -W` doesn't wait for renderthread pre API 29, we stick a conservative
+        // extra wait in to ensure the launch has fully rendered.
+        if (Build.VERSION.SDK_INT < 29) {
+            trace("sleeping to ensure am start completed") {
+                Thread.sleep(250) // conservative number, determined empirically
+            }
+        }
     }
 
     /**
@@ -115,6 +132,7 @@ public class MacrobenchmarkScope(
      * Useful for resetting the test to a base condition in cases where the app isn't killed in
      * each iteration.
      */
+    @JvmOverloads
     public fun pressHome(delayDurationMs: Long = 300) {
         device.pressHome()
         Thread.sleep(delayDurationMs)

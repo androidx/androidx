@@ -19,9 +19,14 @@ package androidx.window.sample.demos
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.RecyclerView
-import androidx.window.sample.DisplayFeaturesActivity
+import androidx.window.sample.DisplayFeaturesConfigChangeActivity
+import androidx.window.sample.DisplayFeaturesNoConfigChangeActivity
 import androidx.window.sample.PresentationActivity
 import androidx.window.sample.R
+import androidx.window.sample.R.string.display_features_config_change
+import androidx.window.sample.R.string.display_features_no_config_change
+import androidx.window.sample.R.string.show_all_display_features_config_change_description
+import androidx.window.sample.R.string.show_all_display_features_no_config_change_description
 import androidx.window.sample.SplitLayoutActivity
 import androidx.window.sample.WindowMetricsActivity
 
@@ -35,9 +40,14 @@ class WindowDemosActivity : AppCompatActivity() {
         setContentView(R.layout.activity_window_demos)
         val demoItems = listOf(
             DemoItem(
-                buttonTitle = getString(R.string.display_features),
-                description = getString(R.string.show_all_display_features_description),
-                clazz = DisplayFeaturesActivity::class.java
+                buttonTitle = getString(display_features_config_change),
+                description = getString(show_all_display_features_config_change_description),
+                clazz = DisplayFeaturesConfigChangeActivity::class.java
+            ),
+            DemoItem(
+                buttonTitle = getString(display_features_no_config_change),
+                description = getString(show_all_display_features_no_config_change_description),
+                clazz = DisplayFeaturesNoConfigChangeActivity::class.java
             ),
             DemoItem(
                 buttonTitle = getString(R.string.window_metrics),

@@ -528,7 +528,6 @@ public class QualitySelector {
      *                   QualitySelector.FALLBACK_STRATEGY_STRICTLY_LOWER)
      * }</pre>
      */
-    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
     public static class Procedure {
         private final List<Integer> mPreferredQualityList = new ArrayList<>();
 

@@ -32,8 +32,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.window.layout.FoldingFeature
-import androidx.window.layout.WindowInfoRepository
-import androidx.window.layout.WindowInfoRepository.Companion.windowInfoRepository
+import androidx.window.layout.WindowInfoTracker
 import androidx.window.layout.WindowLayoutInfo
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collect
@@ -46,14 +45,11 @@ import kotlinx.coroutines.launch
 class PresentationActivity : AppCompatActivity() {
     private val TAG = "FoldablePresentation"
 
-    private lateinit var mWindowInfoRepository: WindowInfoRepository
     private var presentation: DemoPresentation? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_foldin)
-
-        mWindowInfoRepository = windowInfoRepository()
 
         lifecycleScope.launch(Dispatchers.Main) {
             // The block passed to repeatOnLifecycle is executed when the lifecycle
@@ -62,7 +58,8 @@ class PresentationActivity : AppCompatActivity() {
             lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 // Safely collect from windowInfoRepo when the lifecycle is STARTED
                 // and stops collection when the lifecycle is STOPPED
-                mWindowInfoRepository.windowLayoutInfo
+                WindowInfoTracker.getOrCreate(this@PresentationActivity)
+                    .windowLayoutInfo(this@PresentationActivity)
                     .collect { newLayoutInfo ->
                         // New posture information
                         updateCurrentState(newLayoutInfo)

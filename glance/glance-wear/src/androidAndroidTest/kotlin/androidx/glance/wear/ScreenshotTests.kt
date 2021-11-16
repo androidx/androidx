@@ -25,35 +25,45 @@ import androidx.compose.runtime.BroadcastFrameClock
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Composition
 import androidx.compose.runtime.Recomposer
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import androidx.glance.Applier
-import androidx.glance.Modifier
+import androidx.glance.GlanceModifier
+import androidx.glance.Image
+import androidx.glance.ImageProvider
+import androidx.glance.Visibility
 import androidx.glance.background
 import androidx.glance.layout.Alignment
 import androidx.glance.layout.Box
 import androidx.glance.layout.Column
+import androidx.glance.layout.ContentScale
 import androidx.glance.layout.EmittableBox
 import androidx.glance.layout.Row
-import androidx.glance.layout.Text
+import androidx.glance.layout.Spacer
 import androidx.glance.layout.fillMaxHeight
+import androidx.glance.layout.fillMaxSize
 import androidx.glance.layout.fillMaxWidth
+import androidx.glance.layout.height
 import androidx.glance.layout.size
+import androidx.glance.layout.width
 import androidx.glance.text.FontStyle
 import androidx.glance.text.FontWeight
+import androidx.glance.text.Text
 import androidx.glance.text.TextDecoration
 import androidx.glance.text.TextStyle
-import androidx.glance.unit.Color
-import androidx.glance.unit.dp
-import androidx.glance.unit.sp
-import androidx.glance.wear.layout.AnchorType
-import androidx.glance.wear.layout.CurvedRow
-import androidx.glance.wear.layout.CurvedTextStyle
-import androidx.glance.wear.layout.RadialAlignment
+import androidx.glance.unit.ColorProvider
+import androidx.glance.visibility
+import androidx.glance.wear.curved.AnchorType
+import androidx.glance.wear.curved.CurvedRow
+import androidx.glance.wear.curved.CurvedTextStyle
+import androidx.glance.wear.curved.RadialAlignment
+import androidx.glance.wear.test.R
 import androidx.test.core.app.ApplicationProvider.getApplicationContext
 import androidx.test.screenshot.AndroidXScreenshotTestRule
 import androidx.test.screenshot.matchers.MSSIMMatcher
 import androidx.wear.tiles.LayoutElementBuilders
-import androidx.wear.tiles.ResourceBuilders
 import androidx.wear.tiles.renderer.TileRenderer
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.coroutineScope
@@ -79,19 +89,53 @@ class ScreenshotTests {
 
     @Test
     fun basicBoxTest() = runSingleGoldenTest("basic-box") {
-        Box(modifier = Modifier.size(100.dp).background(Color.Green)) { }
+        Box(modifier = GlanceModifier.size(100.dp).background(Color.Green)) { }
     }
 
     @Test
     fun rowColumnGrid() = runSingleGoldenTest("row-column-grid") {
         Row {
             Column {
-                Box(modifier = Modifier.size(20.dp).background(Color.Red)) {}
-                Box(modifier = Modifier.size(20.dp).background(Color.Green)) {}
+                Box(modifier = GlanceModifier.size(20.dp).background(Color.Red)) {}
+                Box(modifier = GlanceModifier.size(20.dp).background(Color.Green)) {}
             }
             Column {
-                Box(modifier = Modifier.size(20.dp).background(Color.Blue)) {}
-                Box(modifier = Modifier.size(20.dp).background(Color.Cyan)) {}
+                Box(modifier = GlanceModifier.size(20.dp).background(Color.Blue)) {}
+                Box(modifier = GlanceModifier.size(20.dp).background(Color.Cyan)) {}
+            }
+        }
+    }
+
+    @Test
+    fun boxesWithBorder() = runSingleGoldenTest("boxes-with-border") {
+        Row {
+            Column {
+                Box(modifier = GlanceModifier
+                        .size(20.dp)
+                        .background(Color.Red)
+                        .border(width = 4.dp, color = ColorProvider(Color.Cyan))) {}
+                Box(modifier = GlanceModifier
+                        .size(20.dp)
+                        .background(Color.Green)
+                        .border(width = 4.dp, color = ColorProvider(Color.Blue))) {}
+            }
+            Column {
+                Box(modifier = GlanceModifier
+                        .size(20.dp)
+                        .background(Color.Blue)
+                        .border(
+                            width = R.dimen.border_dimension,
+                            color = ColorProvider(Color.Green)
+                        )
+                ) {}
+                Box(modifier = GlanceModifier
+                        .size(20.dp)
+                        .background(Color.Cyan)
+                        .border(
+                            width = R.dimen.border_dimension,
+                            color = ColorProvider(Color.Red)
+                        )
+                ) {}
             }
         }
     }
@@ -118,14 +162,14 @@ class ScreenshotTests {
     fun textWithSize() = runSingleGoldenTest("text-with-size") {
         Text(
             text = "Hello World! This is a test",
-            modifier = Modifier.size(200.dp).background(Color.Red)
+            modifier = GlanceModifier.size(200.dp).background(Color.Red)
         )
     }
 
     @Test
     fun curvedText() = runSingleGoldenTest("curved-text") {
         CurvedRow(
-            modifier = Modifier.background(Color.Blue),
+            modifier = GlanceModifier.background(Color.Blue),
             radialAlignment = RadialAlignment.Center,
             anchorDegrees = -90f,
             anchorType = AnchorType.Center
@@ -138,17 +182,93 @@ class ScreenshotTests {
     @Test
     fun curvedRowWithNormalElements() = runSingleGoldenTest("curved-row-with-normal-elements") {
         CurvedRow {
-            Box(modifier = Modifier.size(30.dp).background(Color.Red)) {}
-            Box(modifier = Modifier.size(30.dp).background(Color.Green)) {}
-            Box(modifier = Modifier.size(30.dp).background(Color.Blue)) {}
-            Box(modifier = Modifier.size(30.dp).background(Color.Cyan)) {}
-            Box(modifier = Modifier.size(30.dp).background(Color.Magenta)) {}
+            Box(modifier = GlanceModifier.size(30.dp).background(Color.Red)) {}
+            Box(modifier = GlanceModifier.size(30.dp).background(Color.Green)) {}
+            Box(modifier = GlanceModifier.size(30.dp).background(Color.Blue)) {}
+            Box(modifier = GlanceModifier.size(30.dp).background(Color.Cyan)) {}
+            Box(modifier = GlanceModifier.size(30.dp).background(Color.Magenta)) {}
+        }
+    }
+
+    @Test
+    fun spacersInGrid() = runSingleGoldenTest("spacers-in-grid") {
+        Row {
+            Column {
+                Box(modifier = GlanceModifier.size(20.dp).background(Color.Red)) {}
+                Spacer(modifier = GlanceModifier.height(10.dp))
+                Box(modifier = GlanceModifier.size(20.dp).background(Color.Green)) {}
+            }
+            Spacer(modifier = GlanceModifier.width(10.dp))
+            Column {
+                Box(modifier = GlanceModifier.size(20.dp).background(Color.Blue)) {}
+                Spacer(modifier = GlanceModifier.height(10.dp))
+                Box(modifier = GlanceModifier.size(20.dp).background(Color.Cyan)) {}
+            }
+        }
+    }
+
+    @Test
+    fun spacersInCurvedRow() = runSingleGoldenTest("spacers-in-curved-row") {
+        CurvedRow {
+            Box(modifier = GlanceModifier.size(30.dp).background(Color.Red)) {}
+            Spacer(modifier = GlanceModifier.width(10.dp))
+            Box(modifier = GlanceModifier.size(30.dp).background(Color.Green)) {}
+            Spacer(modifier = GlanceModifier.width(10.dp))
+            Box(modifier = GlanceModifier.size(30.dp).background(Color.Blue)) {}
+        }
+    }
+
+    @Test
+    fun imageScaleModes() = runSingleGoldenTest("image-scale-modes") {
+        Column {
+            Image(
+                provider = ImageProvider(R.drawable.oval),
+                contentDescription = "Oval-crop",
+                modifier = GlanceModifier.size(50.dp),
+                contentScale = ContentScale.Crop
+            )
+            Spacer(modifier = GlanceModifier.height(10.dp))
+            Image(
+                provider = ImageProvider(R.drawable.oval),
+                contentDescription = "Oval-fit",
+                modifier = GlanceModifier.size(50.dp),
+                contentScale = ContentScale.Fit
+            )
+            Spacer(modifier = GlanceModifier.height(10.dp))
+            Image(
+                provider = ImageProvider(R.drawable.oval),
+                contentDescription = "Oval-fill-bounds",
+                modifier = GlanceModifier.size(50.dp),
+                contentScale = ContentScale.FillBounds
+            )
+        }
+    }
+
+    @Test
+    fun visibility() = runSingleGoldenTest("visibility") {
+        Column(modifier = GlanceModifier.fillMaxSize().background(Color.DarkGray)) {
+            Text("First", style = TextStyle(color = ColorProvider(Color.Red)))
+            Text("gone", modifier = GlanceModifier.visibility(Visibility.Gone))
+            Row {
+                Text("First",
+                    modifier = GlanceModifier.visibility(Visibility.Invisible)
+                        .background(ColorProvider(Color.Red))
+                )
+                Text("after")
+            }
+            Text("Third")
+            Row(
+                modifier = GlanceModifier.visibility(Visibility.Invisible).background(Color.Green)
+            ) {
+                Spacer(modifier = GlanceModifier.size(10.dp).background(Color.Red))
+            }
+            Text("Last")
         }
     }
 
     private suspend fun runComposition(content: @Composable () -> Unit) = coroutineScope {
         val root = EmittableBox()
-        root.modifier = Modifier.fillMaxWidth().fillMaxHeight()
+        root.modifier = GlanceModifier.fillMaxWidth().fillMaxHeight()
         root.contentAlignment = Alignment.Center
 
         val applier = Applier(root)
@@ -172,12 +292,13 @@ class ScreenshotTests {
     ) = fakeCoroutineScope.runBlockingTest {
         val context = getApplicationContext<Context>()
         val composition = runComposition(content)
-        val translatedComposition = translateComposition(context, composition)
+        normalizeCompositionTree(context, composition)
+        val translatedComposition = translateTopLevelComposition(context, composition)
 
         val renderer = TileRenderer(
             context,
-            LayoutElementBuilders.Layout.Builder().setRoot(translatedComposition).build(),
-            ResourceBuilders.Resources.Builder().build(),
+            LayoutElementBuilders.Layout.Builder().setRoot(translatedComposition.layout).build(),
+            translatedComposition.resources.build(),
             ContextCompat.getMainExecutor(getApplicationContext())
         ) {}
 

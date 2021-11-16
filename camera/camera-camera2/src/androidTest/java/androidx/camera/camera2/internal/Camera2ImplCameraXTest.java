@@ -44,13 +44,13 @@ import androidx.camera.camera2.interop.Camera2Interop;
 import androidx.camera.camera2.interop.ExperimentalCamera2Interop;
 import androidx.camera.core.CameraInfoUnavailableException;
 import androidx.camera.core.CameraSelector;
-import androidx.camera.core.CameraX;
 import androidx.camera.core.ImageAnalysis;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageProxy;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.internal.CameraUseCaseAdapter;
 import androidx.camera.testing.CameraUtil;
+import androidx.camera.testing.CameraXUtil;
 import androidx.camera.testing.fakes.FakeLifecycleOwner;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -102,7 +102,7 @@ public final class Camera2ImplCameraXTest {
     @Before
     public void setUp() {
         mContext = ApplicationProvider.getApplicationContext();
-        CameraX.initialize(mContext, Camera2Config.defaultConfig());
+        CameraXUtil.initialize(mContext, Camera2Config.defaultConfig());
         mLifecycle = new FakeLifecycleOwner();
 
         mDeviceStateCallback = mock(CameraDevice.StateCallback.class);
@@ -118,7 +118,7 @@ public final class Camera2ImplCameraXTest {
             );
         }
 
-        CameraX.shutdown().get(10000, TimeUnit.MILLISECONDS);
+        CameraXUtil.shutdown().get(10000, TimeUnit.MILLISECONDS);
     }
 
     @Test

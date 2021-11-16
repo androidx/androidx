@@ -81,6 +81,7 @@ import kotlin.math.roundToInt
  * The edge of the item furthest from the edge of the screen is used as a scaling trigger
  * point for each item.
  */
+@Stable
 public interface ScalingParams {
     /**
      * What fraction of the full size of the item to scale it by when most
@@ -287,17 +288,20 @@ internal fun calculateScaleAndAlpha(
     // TODO(b/202164558) - double check the height calculations with UX
     val heightAsFractionOfHalfViewPort = itemHeightPx / viewPortEdgeToCenterPx
     if (itemEdgeAsFractionOfHalfViewport > 0.0f && itemEdgeAsFractionOfHalfViewport < 1.0f) {
-        // Work out the scaling line based on size, this is a value between 0.0..1.0
-        val sizeRatio: Float =
-            (
-                (heightAsFractionOfHalfViewPort - scalingParams.minElementHeight) /
-                    (scalingParams.maxElementHeight - scalingParams.minElementHeight)
-                ).coerceIn(0f, 1f)
-
         val scalingLineAsFractionOfViewPort =
-            scalingParams.minTransitionArea +
-                (scalingParams.maxTransitionArea - scalingParams.minTransitionArea) *
-                sizeRatio
+            if (scalingParams.minTransitionArea == scalingParams.maxTransitionArea) {
+                scalingParams.minTransitionArea
+            } else {
+                // Work out the scaling line based on size, this is a value between 0.0..1.0
+                val sizeRatio: Float = (
+                    (heightAsFractionOfHalfViewPort - scalingParams.minElementHeight) /
+                        (scalingParams.maxElementHeight - scalingParams.minElementHeight)
+                    ).coerceIn(0f, 1f)
+
+                scalingParams.minTransitionArea +
+                    (scalingParams.maxTransitionArea - scalingParams.minTransitionArea) *
+                    sizeRatio
+            }
 
         if (itemEdgeAsFractionOfHalfViewport < scalingLineAsFractionOfViewPort) {
             // We are scaling
@@ -362,6 +366,7 @@ internal fun createItemInfo(
 
     return DefaultScalingLazyListItemInfo(
         index = item.index,
+        key = item.key,
         unadjustedOffset = item.offset,
         offset = scaledItemTop,
         size = scaledHeight,
@@ -374,11 +379,13 @@ internal class DefaultScalingLazyListLayoutInfo(
     override val visibleItemsInfo: List<ScalingLazyListItemInfo>,
     override val viewportStartOffset: Int,
     override val viewportEndOffset: Int,
-    override val totalItemsCount: Int
+    override val totalItemsCount: Int,
+    override val centralItemIndex: Int
 ) : ScalingLazyListLayoutInfo
 
 internal class DefaultScalingLazyListItemInfo(
     override val index: Int,
+    override val key: Any,
     override val unadjustedOffset: Int,
     override val offset: Int,
     override val size: Int,

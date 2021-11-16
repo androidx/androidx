@@ -36,7 +36,6 @@ import android.media.MediaExtractor;
 import android.media.MediaFormat;
 import android.media.MediaMetadataRetriever;
 import android.opengl.GLES20;
-import android.os.Environment;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Process;
@@ -48,6 +47,7 @@ import androidx.heifwriter.test.R;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.FlakyTest;
 import androidx.test.filters.LargeTest;
+import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 import androidx.test.rule.GrantPermissionRule;
 
@@ -193,6 +193,7 @@ public class HeifWriterTest {
         doTestForVariousNumberImages(builder);
     }
 
+    @SdkSuppress(maxSdkVersion = 29) // b/192261638
     @Test
     @LargeTest
     public void testInputSurface_NoGrid_NoHandler() throws Throwable {
@@ -202,6 +203,7 @@ public class HeifWriterTest {
         doTestForVariousNumberImages(builder);
     }
 
+    @SdkSuppress(maxSdkVersion = 29) // b/192261638
     @Test
     @LargeTest
     public void testInputSurface_Grid_NoHandler() throws Throwable {
@@ -211,6 +213,7 @@ public class HeifWriterTest {
         doTestForVariousNumberImages(builder);
     }
 
+    @SdkSuppress(maxSdkVersion = 29) // b/192261638
     @Test
     @LargeTest
     public void testInputSurface_NoGrid_Handler() throws Throwable {
@@ -220,6 +223,7 @@ public class HeifWriterTest {
         doTestForVariousNumberImages(builder);
     }
 
+    @SdkSuppress(maxSdkVersion = 29) // b/192261638
     @Test
     @LargeTest
     public void testInputSurface_Grid_Handler() throws Throwable {
@@ -229,6 +233,7 @@ public class HeifWriterTest {
         doTestForVariousNumberImages(builder);
     }
 
+    @SdkSuppress(maxSdkVersion = 29) // b/192261638
     @Test
     @LargeTest
     public void testInputBitmap_NoGrid_NoHandler() throws Throwable {
@@ -242,6 +247,7 @@ public class HeifWriterTest {
         }
     }
 
+    @SdkSuppress(maxSdkVersion = 29) // b/192261638
     @Test
     @LargeTest
     public void testInputBitmap_Grid_NoHandler() throws Throwable {
@@ -255,6 +261,7 @@ public class HeifWriterTest {
         }
     }
 
+    @SdkSuppress(maxSdkVersion = 29) // b/192261638
     @Test
     @LargeTest
     public void testInputBitmap_NoGrid_Handler() throws Throwable {
@@ -268,6 +275,7 @@ public class HeifWriterTest {
         }
     }
 
+    @SdkSuppress(maxSdkVersion = 29) // b/192261638
     @Test
     @LargeTest
     public void testInputBitmap_Grid_Handler() throws Throwable {
@@ -281,6 +289,7 @@ public class HeifWriterTest {
         }
     }
 
+    @SdkSuppress(maxSdkVersion = 29) // b/192261638
     @Test
     @SmallTest
     public void testCloseWithoutStart() throws Throwable {

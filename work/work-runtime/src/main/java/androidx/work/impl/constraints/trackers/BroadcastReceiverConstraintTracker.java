@@ -67,9 +67,7 @@ public abstract class BroadcastReceiverConstraintTracker<T> extends ConstraintTr
 
     @Override
     public void startTracking() {
-        Logger.get().debug(
-                TAG,
-                String.format("%s: registering receiver", getClass().getSimpleName()));
+        Logger.get().debug(TAG, getClass().getSimpleName() + ": registering receiver");
         mAppContext.registerReceiver(mBroadcastReceiver, getIntentFilter());
     }
 
@@ -77,7 +75,7 @@ public abstract class BroadcastReceiverConstraintTracker<T> extends ConstraintTr
     public void stopTracking() {
         Logger.get().debug(
                 TAG,
-                String.format("%s: unregistering receiver", getClass().getSimpleName()));
+                getClass().getSimpleName() + ": unregistering receiver");
         mAppContext.unregisterReceiver(mBroadcastReceiver);
     }
 }

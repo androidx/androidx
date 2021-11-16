@@ -15,6 +15,20 @@ pluginManagement {
     }
 }
 
+buildscript {
+    repositories {
+        maven {
+            url = new File(buildscript.sourceFile.parent + "/../../prebuilts/androidx/external").getCanonicalFile()
+        }
+    }
+
+    dependencies {
+        classpath("com.gradle:gradle-enterprise-gradle-plugin:3.6.3")
+    }
+}
+
+apply(plugin: "com.gradle.enterprise")
+
 rootProject.name = "androidx"
 
 enableFeaturePreview("VERSION_CATALOGS")
@@ -231,9 +245,9 @@ includeProject(":benchmark:benchmark-junit4", "benchmark/benchmark-junit4")
 includeProject(":benchmark:benchmark-macro", "benchmark/benchmark-macro", [BuildType.MAIN, BuildType.COMPOSE])
 includeProject(":benchmark:benchmark-macro-junit4", "benchmark/benchmark-macro-junit4", [BuildType.MAIN, BuildType.COMPOSE])
 includeProject(":benchmark:integration-tests:dry-run-benchmark", "benchmark/integration-tests/dry-run-benchmark", [BuildType.MAIN])
-includeProject(":benchmark:integration-tests:macrobenchmark", "benchmark/integration-tests/macrobenchmark", [BuildType.MAIN, BuildType.COMPOSE])
-includeProject(":benchmark:integration-tests:macrobenchmark-target", "benchmark/integration-tests/macrobenchmark-target", [BuildType.MAIN, BuildType.COMPOSE])
-includeProject(":benchmark:integration-tests:test-module-sample", "benchmark/integration-tests/test-module-sample", [BuildType.MAIN, BuildType.COMPOSE])
+includeProject(":benchmark:integration-tests:macrobenchmark", "benchmark/integration-tests/macrobenchmark", [BuildType.MAIN])
+includeProject(":benchmark:integration-tests:macrobenchmark-target", "benchmark/integration-tests/macrobenchmark-target", [BuildType.MAIN])
+includeProject(":benchmark:integration-tests:test-module-sample", "benchmark/integration-tests/test-module-sample", [BuildType.MAIN])
 includeProject(":benchmark:integration-tests:startup-benchmark", "benchmark/integration-tests/startup-benchmark", [BuildType.MAIN])
 includeProject(":biometric:biometric", "biometric/biometric", [BuildType.MAIN])
 includeProject(":biometric:biometric-ktx", "biometric/biometric-ktx", [BuildType.MAIN])
@@ -411,7 +425,9 @@ includeProject(":core:core-animation-testing", "core/core-animation-testing", [B
 includeProject(":core:core-appdigest", "core/core-appdigest", [BuildType.MAIN])
 includeProject(":core:core-google-shortcuts", "core/core-google-shortcuts", [BuildType.MAIN])
 includeProject(":core:core-ktx", "core/core-ktx", [BuildType.MAIN])
+includeProject(":core:core-performance", "core/core-performance", [BuildType.MAIN])
 includeProject(":core:core-remoteviews", "core/core-remoteviews", [BuildType.MAIN])
+includeProject(":core:core-remoteviews:integration-tests:demos", "core/core-remoteviews/integration-tests/demos", [BuildType.MAIN])
 includeProject(":core:core-splashscreen", "core/core-splashscreen", [BuildType.MAIN])
 includeProject(":core:core-splashscreen:core-splashscreen-samples", "core/core-splashscreen/samples", [BuildType.MAIN])
 includeProject(":core:core-role", "core/core-role", [BuildType.MAIN])
@@ -434,6 +450,7 @@ includeProject(":datastore:datastore-rxjava3", "datastore/datastore-rxjava3", [B
 includeProject(":datastore:datastore-sampleapp", "datastore/datastore-sampleapp", [BuildType.MAIN])
 includeProject(":documentfile:documentfile", "documentfile/documentfile", [BuildType.MAIN])
 includeProject(":draganddrop:draganddrop", "draganddrop/draganddrop", [BuildType.MAIN])
+includeProject(":draganddrop:integration-tests:sampleapp", "draganddrop/integration-tests/sampleapp", [BuildType.MAIN])
 includeProject(":drawerlayout:drawerlayout", "drawerlayout/drawerlayout", [BuildType.MAIN])
 includeProject(":dynamicanimation", "dynamicanimation", [BuildType.MAIN])
 includeProject(":dynamicanimation:dynamicanimation", "dynamicanimation/dynamicanimation", [BuildType.MAIN])
@@ -487,6 +504,7 @@ includeProject(":jetifier:jetifier-preprocessor", "jetifier/jetifier/preprocesso
 includeProject(":jetifier:jetifier-processor", "jetifier/jetifier/processor", [BuildType.MAIN])
 includeProject(":jetifier:jetifier-standalone", "jetifier/jetifier/standalone", [BuildType.MAIN])
 includeProject(":leanback:leanback", "leanback/leanback", [BuildType.MAIN])
+includeProject(":leanback:leanback-grid", "leanback/leanback-grid", [BuildType.MAIN])
 includeProject(":leanback:leanback-paging", "leanback/leanback-paging", [BuildType.MAIN])
 includeProject(":leanback:leanback-preference", "leanback/leanback-preference", [BuildType.MAIN])
 includeProject(":leanback:leanback-tab", "leanback/leanback-tab", [BuildType.MAIN])
@@ -702,12 +720,12 @@ includeProject(":wear:watchface:watchface-style", "wear/watchface/watchface-styl
 includeProject(":webkit:integration-tests:testapp", "webkit/integration-tests/testapp", [BuildType.MAIN])
 includeProject(":webkit:webkit", "webkit/webkit", [BuildType.MAIN])
 includeProject(":window:window", "window/window", [BuildType.MAIN, BuildType.FLAN])
-includeProject(":window:window-extensions", "window/window-extensions", [BuildType.MAIN, BuildType.FLAN])
+includeProject(":window:extensions:extensions", "window/extensions/extensions", [BuildType.MAIN, BuildType.FLAN])
+includeProject(":window:sidecar:sidecar", "window/sidecar/sidecar", [BuildType.MAIN, BuildType.FLAN])
 includeProject(":window:window-java", "window/window-java", [BuildType.MAIN])
 includeProject(":window:window-rxjava2", "window/window-rxjava2", [BuildType.MAIN])
 includeProject(":window:window-rxjava3", "window/window-rxjava3", [BuildType.MAIN])
 includeProject(":window:window-samples", "window/window-samples", [BuildType.MAIN, BuildType.FLAN])
-includeProject(":window:window-sidecar", "window/window-sidecar", [BuildType.MAIN, BuildType.FLAN])
 includeProject(":window:window-testing", "window/window-testing", [BuildType.MAIN, BuildType.FLAN])
 includeProject(":work:integration-tests:testapp", "work/integration-tests/testapp", [BuildType.MAIN])
 includeProject(":work:work-benchmark", "work/work-benchmark", [BuildType.MAIN])

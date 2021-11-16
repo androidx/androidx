@@ -20,6 +20,8 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
+import android.content.pm.PackageManager
+import android.content.res.XmlResourceParser
 import android.graphics.RectF
 import android.os.Bundle
 import android.os.IBinder
@@ -37,6 +39,8 @@ import androidx.wear.watchface.control.data.GetComplicationSlotMetadataParams
 import androidx.wear.watchface.control.data.GetUserStyleSchemaParams
 import androidx.wear.watchface.control.data.HeadlessWatchFaceInstanceParams
 import androidx.wear.watchface.ComplicationSlotBoundsType
+import androidx.wear.watchface.WatchFaceService
+import androidx.wear.watchface.XmlSchemaAndComplicationSlotsDefinition
 import androidx.wear.watchface.style.UserStyleSchema
 import androidx.wear.watchface.style.UserStyleSetting.ComplicationSlotsUserStyleSetting
 import androidx.wear.watchface.style.UserStyleSetting.ComplicationSlotsUserStyleSetting.ComplicationSlotOverlay
@@ -58,20 +62,46 @@ public interface WatchFaceMetadataClient : AutoCloseable {
          * @param watchFaceName The [ComponentName] of the watch face to fetch meta data from.
          * @return The [WatchFaceMetadataClient] if there is one.
          * @throws [ServiceNotBoundException] if the underlying watch face control service can not
-         * be bound or a [ServiceStartFailureException] if the watch face dies during startup.
+         * be bound or a [ServiceStartFailureException] if the watch face dies during startup. If
+         * the service's manifest contains an
+         * androidx.wear.watchface.XmlSchemaAndComplicationSlotsDefinition meta data node then
+         * [PackageManager.NameNotFoundException] is thrown if [watchFaceName] is invalid.
          */
         @JvmStatic
-        @Throws(ServiceNotBoundException::class, ServiceStartFailureException::class)
+        @Throws(
+            ServiceNotBoundException::class,
+            ServiceStartFailureException::class,
+            PackageManager.NameNotFoundException::class
+        )
         public suspend fun createWatchFaceMetadataClient(
             context: Context,
             watchFaceName: ComponentName
-        ): WatchFaceMetadataClient = createWatchFaceMetadataClientImpl(
-            context,
-            Intent(WatchFaceControlService.ACTION_WATCHFACE_CONTROL_SERVICE).apply {
-                setPackage(watchFaceName.packageName)
-            },
-            watchFaceName
-        )
+        ): WatchFaceMetadataClient {
+            // Fallback to binding the service (slow).
+            return createWatchFaceMetadataClientImpl(
+                context,
+                Intent(WatchFaceControlService.ACTION_WATCHFACE_CONTROL_SERVICE).apply {
+                    setPackage(watchFaceName.packageName)
+                },
+                watchFaceName,
+                ParserProvider()
+            )
+        }
+
+        /** @hide */
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        open class ParserProvider {
+            // Open to allow testing without having to install the sample app.
+            open fun getParser(context: Context, watchFaceName: ComponentName): XmlResourceParser? {
+                return context.packageManager.getServiceInfo(
+                    watchFaceName,
+                    PackageManager.GET_META_DATA
+                ).loadXmlMetaData(
+                    context.packageManager,
+                    WatchFaceService.XML_WATCH_FACE_METADATA
+                )
+            }
+        }
 
         /** @hide */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -80,8 +110,21 @@ public interface WatchFaceMetadataClient : AutoCloseable {
         public suspend fun createWatchFaceMetadataClientImpl(
             context: Context,
             intent: Intent,
-            watchFaceName: ComponentName
+            watchFaceName: ComponentName,
+            parserProvider: ParserProvider
         ): WatchFaceMetadataClient {
+            // Check if there's static metadata we can read (fast).
+            parserProvider.getParser(context, watchFaceName)?.let {
+                return XmlWatchFaceMetadataClientImpl(
+                    XmlSchemaAndComplicationSlotsDefinition.inflate(
+                        context.packageManager.getResourcesForApplication(
+                            watchFaceName.packageName
+                        ),
+                        it
+                    )
+                )
+            }
+
             val deferredService = CompletableDeferred<IWatchFaceControlService>()
             val traceEvent = AsyncTraceEvent("WatchFaceMetadataClientImpl.bindService")
             val serviceConnection = object : ServiceConnection {
@@ -270,4 +313,31 @@ internal class WatchFaceMetadataClientImpl internal constructor(
         }
         context.unbindService(serviceConnection)
     }
+}
+
+@OptIn(WatchFaceClientExperimental::class)
+internal class XmlWatchFaceMetadataClientImpl(
+    private val xmlSchemaAndComplicationSlotsDefinition: XmlSchemaAndComplicationSlotsDefinition
+) : WatchFaceMetadataClient {
+    override fun getUserStyleSchema() =
+        xmlSchemaAndComplicationSlotsDefinition.schema ?: UserStyleSchema(emptyList())
+
+    override fun getComplicationSlotMetadataMap() =
+        xmlSchemaAndComplicationSlotsDefinition.complicationSlots.associateBy(
+            { it.slotId },
+            {
+                ComplicationSlotMetadata(
+                    it.bounds,
+                    it.boundsType,
+                    it.supportedTypes,
+                    it.defaultDataSourcePolicy,
+                    it.defaultDataSourceType,
+                    it.initiallyEnabled,
+                    it.fixedComplicationDataSource,
+                    Bundle()
+                )
+            }
+        )
+
+    override fun close() {}
 }

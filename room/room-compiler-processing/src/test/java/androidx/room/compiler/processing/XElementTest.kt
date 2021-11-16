@@ -31,6 +31,7 @@ import com.squareup.javapoet.TypeVariableName
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
+import kotlin.reflect.KClass
 
 @RunWith(JUnit4::class)
 class XElementTest {
@@ -196,12 +197,7 @@ class XElementTest {
             }
             validateElement(
                 element = it.processingEnv.requireTypeElement("foo.bar.Base"),
-                tTypeName = if (it.isKsp) {
-                    // when inheritance resolution happens, KSP resolves them to object
-                    TypeName.OBJECT
-                } else {
-                    TypeVariableName.get("T")
-                },
+                tTypeName = TypeVariableName.get("T"),
                 rTypeName = TypeVariableName.get("R")
             )
             validateElement(
@@ -267,6 +263,53 @@ class XElementTest {
                     "foo.bar"
                 )
             ).isFalse()
+        }
+    }
+
+    @Test
+    fun hasAllAnnotations() {
+        val source = Source.java(
+            "foo.bar.Baz",
+            """
+            package foo.bar;
+            import org.junit.*;
+            import org.junit.runner.*;
+            import org.junit.runners.*;
+            import androidx.room.compiler.processing.testcode.OtherAnnotation;
+
+            @RunWith(JUnit4.class)
+            class Baz {
+                @OtherAnnotation(value="xx")
+                String testField;
+
+                @org.junit.Test
+                @OtherAnnotation(value="yy")
+                void testMethod() {}
+            }
+            """.trimIndent()
+        )
+        runProcessorTest(
+            listOf(source)
+        ) {
+            val element = it.processingEnv.requireTypeElement("foo.bar.Baz")
+            assertThat(element.hasAllAnnotations(*arrayOf<KClass<Annotation>>())).isTrue()
+            assertThat(element.hasAllAnnotations(RunWith::class)).isTrue()
+            assertThat(element.hasAllAnnotations(RunWith::class, Test::class)).isFalse()
+
+            element.getMethod("testMethod").let { method ->
+                assertThat(method.hasAllAnnotations(*arrayOf<KClass<Annotation>>())).isTrue()
+                assertThat(method.hasAllAnnotations(Test::class)).isTrue()
+                assertThat(method.hasAllAnnotations(Test::class, OtherAnnotation::class)).isTrue()
+                assertThat(method.hasAllAnnotations(Test::class, OtherAnnotation::class,
+                    RunWith::class)).isFalse()
+            }
+            element.getField("testField").let { field ->
+                assertThat(field.hasAllAnnotations(*arrayOf<KClass<Annotation>>())).isTrue()
+                assertThat(field.hasAllAnnotations(OtherAnnotation::class)).isTrue()
+                assertThat(field.hasAllAnnotations(OtherAnnotation::class, Test::class)).isFalse()
+                assertThat(field.hasAllAnnotations(OtherAnnotation::class, OtherAnnotation::class))
+                    .isTrue()
+            }
         }
     }
 

@@ -64,5 +64,4 @@ androidx {
     mavenGroup = LibraryGroups.METRICS
     inceptionYear = "2021"
     description = "Library for tracking and reporting various runtime metrics for applications"
-    runApiTasks = new RunApiTasks.No("Temporarily disabled pending Executor decision before alpha")
 }

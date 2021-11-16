@@ -314,8 +314,9 @@ public final class CameraUtil {
     /**
      * Creates the CameraUseCaseAdapter that would be created with the given CameraSelector.
      *
-     * <p> This requires that {@link CameraX#initialize(Context, CameraXConfig)} has been called
-     * to properly initialize the cameras.
+     * <p>This requires that {@link CameraXUtil#initialize(Context, CameraXConfig)} has been called
+     * to properly initialize the cameras. {@link CameraXUtil#shutdown()} also needs to be
+     * properly called by the caller class to release the created {@link CameraX} instance.
      *
      * <p>A new CameraUseCaseAdapter instance will be created every time this method is called.
      * UseCases previously attached to CameraUseCasesAdapters returned by this method or
@@ -331,7 +332,8 @@ public final class CameraUtil {
     public static CameraUseCaseAdapter createCameraUseCaseAdapter(@NonNull Context context,
             @NonNull CameraSelector cameraSelector) {
         try {
-            CameraX cameraX = CameraX.getOrCreateInstance(context).get(5000, TimeUnit.MILLISECONDS);
+            CameraX cameraX = CameraXUtil.getOrCreateInstance(context, null).get(5000,
+                    TimeUnit.MILLISECONDS);
             LinkedHashSet<CameraInternal> cameras =
                     cameraSelector.filter(cameraX.getCameraRepository().getCameras());
             return new CameraUseCaseAdapter(cameras,
@@ -345,8 +347,9 @@ public final class CameraUtil {
      * Creates the CameraUseCaseAdapter that would be created with the given CameraSelector and
      * attaches the UseCases.
      *
-     * <p> This requires that {@link CameraX#initialize(Context, CameraXConfig)} has been called
-     * to properly initialize the cameras.
+     * <p>This requires that {@link CameraXUtil#initialize(Context, CameraXConfig)} has been called
+     * to properly initialize the cameras. {@link CameraXUtil#shutdown()} also needs to be
+     * properly called by the caller class to release the created {@link CameraX} instance.
      *
      * <p>A new CameraUseCaseAdapter instance will be created every time this method is called.
      * UseCases previously attached to CameraUseCasesAdapters returned by this method or

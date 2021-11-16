@@ -36,6 +36,7 @@ import android.widget.TextView;
 import androidx.annotation.DoNotInline;
 import androidx.annotation.LayoutRes;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.appcompat.app.AlertDialog;
@@ -76,7 +77,7 @@ public abstract class PreferenceDialogFragmentCompat extends DialogFragment impl
 
     @SuppressWarnings("deprecation")
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         final Fragment rawFragment = getTargetFragment();
@@ -88,7 +89,7 @@ public abstract class PreferenceDialogFragmentCompat extends DialogFragment impl
         final DialogPreference.TargetFragment fragment =
                 (DialogPreference.TargetFragment) rawFragment;
 
-        final String key = getArguments().getString(ARG_KEY);
+        final String key = requireArguments().getString(ARG_KEY);
         if (savedInstanceState == null) {
             mPreference = fragment.findPreference(key);
             mDialogTitle = mPreference.getDialogTitle();
@@ -137,16 +138,16 @@ public abstract class PreferenceDialogFragmentCompat extends DialogFragment impl
 
     @Override
     public @NonNull
-    Dialog onCreateDialog(Bundle savedInstanceState) {
+    Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
         mWhichButtonClicked = DialogInterface.BUTTON_NEGATIVE;
 
-        final AlertDialog.Builder builder = new AlertDialog.Builder(getContext())
+        final AlertDialog.Builder builder = new AlertDialog.Builder(requireContext())
                 .setTitle(mDialogTitle)
                 .setIcon(mDialogIcon)
                 .setPositiveButton(mPositiveButtonText, this)
                 .setNegativeButton(mNegativeButtonText, this);
 
-        View contentView = onCreateDialogView(getContext());
+        View contentView = onCreateDialogView(requireContext());
         if (contentView != null) {
             onBindDialogView(contentView);
             builder.setView(contentView);
@@ -174,7 +175,7 @@ public abstract class PreferenceDialogFragmentCompat extends DialogFragment impl
     @SuppressWarnings("deprecation")
     public DialogPreference getPreference() {
         if (mPreference == null) {
-            final String key = getArguments().getString(ARG_KEY);
+            final String key = requireArguments().getString(ARG_KEY);
             final DialogPreference.TargetFragment fragment =
                     (DialogPreference.TargetFragment) getTargetFragment();
             mPreference = fragment.findPreference(key);
@@ -188,7 +189,7 @@ public abstract class PreferenceDialogFragmentCompat extends DialogFragment impl
      *
      * <p>Do not {@link AlertDialog.Builder#create()} or {@link AlertDialog.Builder#show()}.
      */
-    protected void onPrepareDialogBuilder(AlertDialog.Builder builder) {}
+    protected void onPrepareDialogBuilder(@NonNull AlertDialog.Builder builder) {}
 
     /**
      * Returns whether the preference needs to display a soft input method when the dialog is
@@ -225,7 +226,7 @@ public abstract class PreferenceDialogFragmentCompat extends DialogFragment impl
      * on-demand, so there is no longer a need to schedule showing soft-input when input connection
      * established by the focused editor.</p>
      */
-    private void requestInputMethod(Dialog dialog) {
+    private void requestInputMethod(@NonNull Dialog dialog) {
         Window window = dialog.getWindow();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             Api30Impl.showIme(window);
@@ -241,7 +242,8 @@ public abstract class PreferenceDialogFragmentCompat extends DialogFragment impl
      * @return The content view for the dialog
      * @see DialogPreference#setLayoutResource(int)
      */
-    protected View onCreateDialogView(Context context) {
+    @Nullable
+    protected View onCreateDialogView(@NonNull Context context) {
         final int resId = mDialogLayoutRes;
         if (resId == 0) {
             return null;
@@ -257,7 +259,7 @@ public abstract class PreferenceDialogFragmentCompat extends DialogFragment impl
      *
      * @param view The content view of the dialog, if it is custom
      */
-    protected void onBindDialogView(View view) {
+    protected void onBindDialogView(@NonNull View view) {
         View dialogMessageView = view.findViewById(android.R.id.message);
 
         if (dialogMessageView != null) {
@@ -279,7 +281,7 @@ public abstract class PreferenceDialogFragmentCompat extends DialogFragment impl
     }
 
     @Override
-    public void onClick(DialogInterface dialog, int which) {
+    public void onClick(@NonNull DialogInterface dialog, int which) {
         mWhichButtonClicked = which;
     }
 

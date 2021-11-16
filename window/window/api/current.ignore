@@ -1,9 +1,3 @@
 // Baseline format: 1.0
-RemovedClass: androidx.window.layout.WindowLayoutInfo.Builder:
-    Removed class androidx.window.layout.WindowLayoutInfo.Builder
-
-
-RemovedMethod: androidx.window.layout.WindowInfoRepository#getCurrentWindowMetrics():
-    Removed method androidx.window.layout.WindowInfoRepository.getCurrentWindowMetrics()
-RemovedMethod: androidx.window.layout.WindowMetrics#WindowMetrics(android.graphics.Rect):
-    Removed constructor androidx.window.layout.WindowMetrics(android.graphics.Rect)
+RemovedInterface: androidx.window.layout.WindowInfoRepository:
+    Removed class androidx.window.layout.WindowInfoRepository

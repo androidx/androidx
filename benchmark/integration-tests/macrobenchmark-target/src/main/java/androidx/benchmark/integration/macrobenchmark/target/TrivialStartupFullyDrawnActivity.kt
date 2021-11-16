@@ -17,11 +17,10 @@
 package androidx.benchmark.integration.macrobenchmark.target
 
 import android.annotation.SuppressLint
-import android.os.Build
 import android.os.Bundle
-import android.os.Trace
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.tracing.Trace
 
 /**
  * Trivial activity which triggers reportFullyDrawn ~500ms after resume
@@ -31,8 +30,7 @@ class TrivialStartupFullyDrawnActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-
-        forceEnablePlatformTracing() // ensure reportFullyDrawn will be traced
+        Trace.forceEnableAppTracing() // ensure reportFullyDrawn will be traced
     }
 
     override fun onResume() {
@@ -48,21 +46,4 @@ class TrivialStartupFullyDrawnActivity : AppCompatActivity() {
         }
         notice.postDelayed(runnable, 500 /* ms */)
     }
-}
-
-/**
- * Force-enables platform tracing on older API levels, where it's disabled for non-debuggable apps.
- *
- * TODO: move this to an androidx.tracing API
- */
-@SuppressLint("BanUncheckedReflection") // b/202759865
-private fun forceEnablePlatformTracing() {
-    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR2) return
-    if (Build.VERSION.SDK_INT >= 29) return
-
-    val method = android.os.Trace::class.java.getMethod(
-        "setAppTracingAllowed",
-        Boolean::class.javaPrimitiveType
-    )
-    method.invoke(null, true)
 }

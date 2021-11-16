@@ -21,6 +21,7 @@ import android.app.Service
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import android.content.res.XmlResourceParser
 import android.os.Handler
 import android.os.IBinder
 import android.os.Looper
@@ -29,6 +30,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.wear.watchface.client.ListenableWatchFaceMetadataClient
 import androidx.wear.watchface.client.WatchFaceClientExperimental
+import androidx.wear.watchface.client.WatchFaceMetadataClient
 import androidx.wear.watchface.control.IWatchFaceInstanceServiceStub
 import androidx.wear.watchface.control.WatchFaceControlService
 import com.google.common.truth.Truth
@@ -76,7 +78,13 @@ public class ListenableWatchFaceMetadataClientTest {
                 Intent(context, WatchFaceControlTestService::class.java).apply {
                     action = WatchFaceControlService.ACTION_WATCHFACE_CONTROL_SERVICE
                 },
-                exampleWatchFaceComponentName
+                exampleWatchFaceComponentName,
+                object : WatchFaceMetadataClient.Companion.ParserProvider() {
+                    override fun getParser(
+                        context: Context,
+                        watchFaceName: ComponentName
+                    ): XmlResourceParser? = null
+                }
             )
 
         val watchFaceMetadataClient = listenableFuture.get(TIMEOUT_MS, TimeUnit.MILLISECONDS)

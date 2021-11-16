@@ -27,7 +27,6 @@ import android.util.Size
 import android.view.Surface
 import androidx.camera.camera2.Camera2Config
 import androidx.camera.core.CameraSelector
-import androidx.camera.core.CameraX
 import androidx.camera.core.CameraXConfig
 import androidx.camera.core.Preview
 import androidx.camera.core.Preview.SurfaceProvider
@@ -36,6 +35,7 @@ import androidx.camera.core.impl.CameraInfoInternal
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.core.internal.CameraUseCaseAdapter
 import androidx.camera.testing.CameraUtil
+import androidx.camera.testing.CameraXUtil
 import androidx.camera.testing.SurfaceTextureProvider
 import androidx.camera.testing.SurfaceTextureProvider.SurfaceTextureCallback
 import androidx.camera.video.QualitySelector
@@ -112,7 +112,7 @@ class VideoEncoderTest {
         )
 
         val cameraXConfig: CameraXConfig = Camera2Config.defaultConfig()
-        CameraX.initialize(context, cameraXConfig).get()
+        CameraXUtil.initialize(context, cameraXConfig).get()
 
         camera = CameraUtil.createCameraUseCaseAdapter(context, cameraSelector)
 
@@ -156,7 +156,7 @@ class VideoEncoderTest {
         }
 
         // Ensure all cameras are released for the next test
-        CameraX.shutdown()[10, TimeUnit.SECONDS]
+        CameraXUtil.shutdown()[10, TimeUnit.SECONDS]
     }
 
     @Test

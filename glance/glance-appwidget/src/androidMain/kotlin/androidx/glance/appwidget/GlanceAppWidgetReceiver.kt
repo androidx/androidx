@@ -25,6 +25,7 @@ import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import androidx.annotation.CallSuper
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 
@@ -83,18 +84,31 @@ abstract class GlanceAppWidgetReceiver : AppWidgetProvider() {
         }
     }
 
-    override fun onReceive(context: Context, intent: Intent) {
-        if (intent.action == Intent.ACTION_LOCALE_CHANGED) {
-            val appWidgetManager = AppWidgetManager.getInstance(context)
-            val componentName =
-                ComponentName(context.packageName, checkNotNull(javaClass.canonicalName))
-            onUpdate(
-                context,
-                appWidgetManager,
-                appWidgetManager.getAppWidgetIds(componentName)
-            )
-            return
+    override fun onDeleted(context: Context?, appWidgetIds: IntArray?) {
+        // TODO: When a widget is deleted, delete the datastore
+        appWidgetIds?.forEach {
+            createUniqueRemoteUiName(it)
         }
-        super.onReceive(context, intent)
+    }
+
+    override fun onReceive(context: Context, intent: Intent) {
+        try {
+            if (intent.action == Intent.ACTION_LOCALE_CHANGED) {
+                val appWidgetManager = AppWidgetManager.getInstance(context)
+                val componentName =
+                    ComponentName(context.packageName, checkNotNull(javaClass.canonicalName))
+                onUpdate(
+                    context,
+                    appWidgetManager,
+                    appWidgetManager.getAppWidgetIds(componentName)
+                )
+                return
+            }
+            super.onReceive(context, intent)
+        } catch (ex: CancellationException) {
+            // Nothing to do
+        } catch (throwable: Throwable) {
+            logException(throwable)
+        }
     }
 }

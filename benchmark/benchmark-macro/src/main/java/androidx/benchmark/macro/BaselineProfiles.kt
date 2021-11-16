@@ -19,26 +19,10 @@ package androidx.benchmark.macro
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RestrictTo
-import androidx.benchmark.ConfigurationError
-import androidx.benchmark.DeviceInfo
 import androidx.benchmark.InstrumentationResults
 import androidx.benchmark.Outputs
 import androidx.benchmark.Shell
-import androidx.benchmark.checkAndGetSuppressionState
-import androidx.benchmark.conditionalError
 import androidx.benchmark.userspaceTrace
-
-/**
- * A list of configuration errors applicable for baseline profile collection.
- */
-private val errors: List<ConfigurationError> = listOfNotNull(
-    conditionalError(
-        hasError = !DeviceInfo.isRooted,
-        id = "NEEDS-ROOT",
-        summary = "Run on a rooted device",
-        message = "Baseline Profile Collection needs to run on a rooted device."
-    )
-)
 
 /**
  * Collects baseline profiles using a given [profileBlock].
@@ -57,10 +41,9 @@ fun collectBaselineProfile(
     }
 
     require(Shell.isSessionRooted()) {
-        "Baseline Profile Collection requires a rooted session. Use `adb root`."
+        "Baseline Profile Collection requires a rooted device, and a rooted adb session." +
+            " Use `adb root`."
     }
-
-    errors.checkAndGetSuppressionState(emptySet())
 
     val startTime = System.nanoTime()
     val scope = MacrobenchmarkScope(packageName, /* launchWithClearTask */ true)

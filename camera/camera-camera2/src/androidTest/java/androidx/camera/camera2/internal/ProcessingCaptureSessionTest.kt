@@ -335,22 +335,22 @@ class ProcessingCaptureSessionTest(
         // Arrange
         val cameraDevice = cameraDeviceHolder.get()!!
         val captureSession = createProcessingCaptureSession()
-
-        // Act
+        // Some devices require repeating request being set before single requests.
+        captureSession.sessionConfig =
+            sessionConfigParameters.getActiveSessionConfigForRepeating()
         captureSession.open(
             sessionConfigParameters.getSessionConfigForOpen(), cameraDevice,
             captureSessionOpenerBuilder.build()
         ).awaitWithTimeout(3000)
 
         // Act
-        captureSession.sessionConfig =
-            sessionConfigParameters.getActiveSessionConfigForRepeating()
         captureSession.issueCaptureRequests(
             listOf(sessionConfigParameters.getStillCaptureCaptureConfig())
         )
 
         // Assert
         sessionConfigParameters.assertStillCaptureCompleted()
+        sessionConfigParameters.assertCaptureImageReceived()
         val parametersConfig = sessionProcessor.getLatestParameters()
         assertThat(
             parametersConfig.isParameterSet(
@@ -491,6 +491,9 @@ class ProcessingCaptureSessionTest(
         // Arrange
         val cameraDevice = cameraDeviceHolder.get()!!
         val captureSession = createProcessingCaptureSession()
+        captureSession.sessionConfig =
+            sessionConfigParameters.getActiveSessionConfigForRepeating()
+
         captureSession.open(
             sessionConfigParameters.getSessionConfigForOpen(), cameraDevice,
             captureSessionOpenerBuilder.build()

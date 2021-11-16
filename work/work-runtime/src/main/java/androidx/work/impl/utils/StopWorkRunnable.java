@@ -75,10 +75,7 @@ public class StopWorkRunnable implements Runnable {
 
             Logger.get().debug(
                     TAG,
-                    String.format(
-                            "StopWorkRunnable for %s; Processor.stopWork = %s",
-                            mWorkSpecId,
-                            isStopped));
+                    "StopWorkRunnable for " + mWorkSpecId + "; Processor.stopWork = " + isStopped);
 
             workDatabase.setTransactionSuccessful();
         } finally {

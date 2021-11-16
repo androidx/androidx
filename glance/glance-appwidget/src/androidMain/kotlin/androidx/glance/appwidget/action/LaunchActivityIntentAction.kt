@@ -28,5 +28,7 @@ internal class LaunchActivityIntentAction(val intent: Intent) : LaunchActivityAc
  * intent should specify a component with [Intent.setClass] or [Intent.setComponent].
  *
  * This action is supported by app widgets only.
+ *
+ * @param intent the intent used to launch the activity
  */
-public fun launchActivityAction(intent: Intent): Action = LaunchActivityIntentAction(intent)
+public fun actionLaunchActivity(intent: Intent): Action = LaunchActivityIntentAction(intent)

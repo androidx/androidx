@@ -34,15 +34,14 @@ internal object ForceTracing {
         android.os.Trace::class.java.getMethod(
             "traceBegin",
             Long::class.javaPrimitiveType,
-            String::class.javaPrimitiveType
+            String::class.java
         )
     } else null
 
     private val traceEndMethod = if (Build.VERSION.SDK_INT < 24) {
         android.os.Trace::class.java.getMethod(
             "traceEnd",
-            Long::class.javaPrimitiveType,
-            String::class.javaPrimitiveType
+            Long::class.javaPrimitiveType
         )
     } else null
 

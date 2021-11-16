@@ -33,6 +33,13 @@ public interface CreationExtras {
      * Returns an element associated with the given [key]
      */
     public operator fun <T> get(key: Key<T>): T?
+
+    /**
+     * Empty [CreationExtras]
+     */
+    object Empty : CreationExtras {
+        override fun <T> get(key: Key<T>): T? = null
+    }
 }
 
 /**
@@ -51,5 +58,14 @@ public class MutableCreationExtras : CreationExtras {
     public override fun <T> get(key: CreationExtras.Key<T>): T? {
         @Suppress("UNCHECKED_CAST")
         return map[key] as T?
+    }
+}
+
+internal class CombinedCreationExtras(
+    val first: CreationExtras,
+    val second: CreationExtras
+) : CreationExtras {
+    override fun <T> get(key: CreationExtras.Key<T>): T? {
+        return first[key] ?: second[key]
     }
 }

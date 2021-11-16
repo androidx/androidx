@@ -15,12 +15,12 @@
     <issue
         id="UnknownNullness"
         message="Should explicitly declare type here since implicit type does not specify nullness"
-        errorLine1="public fun Modifier.collectPaddingInDp(resources: Resources) ="
-        errorLine2="                    ~~~~~~~~~~~~~~~~~~">
+        errorLine1="public fun GlanceModifier.collectPaddingInDp(resources: Resources) ="
+        errorLine2="                          ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/androidMain/kotlin/androidx/glance/layout/Padding.kt"
             line="194"
-            column="21"/>
+            column="27"/>
     </issue>
 
 </issues>
