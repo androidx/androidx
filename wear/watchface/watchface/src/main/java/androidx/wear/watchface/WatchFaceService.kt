@@ -1841,6 +1841,8 @@ public abstract class WatchFaceService : WallpaperService() {
 
             mutableWatchState.isVisible.value = visible
             wslFlow.pendingVisibilityChanged = null
+
+            getWatchFaceImplOrNull()?.onVisibility(visible)
         }
 
         override fun invalidate() {
