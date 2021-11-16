@@ -19,6 +19,9 @@ package androidx.room.compiler.processing.ksp
 import androidx.room.compiler.processing.XProcessingConfig
 import com.google.devtools.ksp.symbol.ClassKind
 import com.google.devtools.ksp.symbol.KSClassDeclaration
+import com.google.devtools.ksp.symbol.KSFunctionDeclaration
+import com.google.devtools.ksp.symbol.KSNode
+import com.google.devtools.ksp.symbol.KSPropertyDeclaration
 import com.google.devtools.ksp.symbol.Origin
 import java.lang.reflect.InvocationHandler
 import java.lang.reflect.Method
@@ -46,6 +49,12 @@ internal object KspClassFileUtility {
     ): List<KspFieldElement> {
         // no reason to try to load .class if we don't have any fields to sort
         if (fields.isEmpty()) return fields
+        if (owner.origin == Origin.KOTLIN) {
+            // this is simple and temporary case that KSP can fix. No reason to create a more
+            // complicated comparator for it since it will be removed
+            // https://github.com/google/ksp/issues/727
+            return orderKotlinSourceFields(owner, fields)
+        }
         val comparator = getNamesComparator(owner, Type.FIELD, KspFieldElement::name)
         return if (comparator == null) {
             fields
@@ -57,6 +66,39 @@ internal object KspClassFileUtility {
             }
             fields.sortedWith(comparator)
         }
+    }
+
+    /**
+     * KSP returns properties from primary constructor last instead of first.
+     * https://github.com/google/ksp/issues/727
+     * This function reverts that. This method traverses declaration hierarchy instead of looking at
+     * the primary constructor's fields as some of them may not be fields.
+     */
+    private fun orderKotlinSourceFields(
+        owner: KSClassDeclaration,
+        fields: List<KspFieldElement>
+    ): List<KspFieldElement> {
+        val primaryConstructor = owner.primaryConstructor ?: return fields
+        return fields.sortedBy {
+            if (it.declaration.isDeclaredInside(primaryConstructor)) {
+                0
+            } else {
+                1
+            }
+        }
+    }
+
+    private fun KSPropertyDeclaration.isDeclaredInside(
+        functionDeclaration: KSFunctionDeclaration
+    ): Boolean {
+        var current: KSNode? = this
+        while (current != null) {
+            if (current == functionDeclaration) {
+                return true
+            }
+            current = current.parent
+        }
+        return false
     }
 
     /**
