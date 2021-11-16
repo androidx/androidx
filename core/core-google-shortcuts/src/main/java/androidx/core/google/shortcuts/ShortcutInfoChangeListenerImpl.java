@@ -18,7 +18,7 @@ package androidx.core.google.shortcuts;
 
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
-import static androidx.core.google.shortcuts.ShortcutUtils.CAPABILITY_PARAM_SEPARATOR;
+import static androidx.core.google.shortcuts.utils.ShortcutUtils.CAPABILITY_PARAM_SEPARATOR;
 
 import android.content.Context;
 import android.os.Build;
@@ -34,6 +34,7 @@ import androidx.core.content.pm.ShortcutInfoCompat;
 import androidx.core.google.shortcuts.builders.CapabilityBuilder;
 import androidx.core.google.shortcuts.builders.ParameterBuilder;
 import androidx.core.google.shortcuts.builders.ShortcutBuilder;
+import androidx.core.google.shortcuts.utils.ShortcutUtils;
 import androidx.core.graphics.drawable.IconCompat;
 
 import com.google.crypto.tink.KeysetHandle;

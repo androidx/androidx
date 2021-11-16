@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package androidx.core.google.shortcuts;
+package androidx.core.google.shortcuts.utils;
 
-import static androidx.core.google.shortcuts.ShortcutUtils.SHORTCUT_LISTENER_INTENT_FILTER_ACTION;
-import static androidx.core.google.shortcuts.ShortcutUtils.SHORTCUT_TAG_KEY;
-import static androidx.core.google.shortcuts.ShortcutUtils.SHORTCUT_URL_KEY;
+import static androidx.core.google.shortcuts.utils.ShortcutUtils.SHORTCUT_LISTENER_INTENT_FILTER_ACTION;
+import static androidx.core.google.shortcuts.utils.ShortcutUtils.SHORTCUT_TAG_KEY;
+import static androidx.core.google.shortcuts.utils.ShortcutUtils.SHORTCUT_URL_KEY;
 
 import static com.google.common.truth.Truth.assertThat;
 
