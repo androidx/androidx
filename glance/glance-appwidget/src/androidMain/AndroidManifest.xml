@@ -18,11 +18,11 @@
     package="androidx.glance.appwidget" >
     <application>
         <activity
-            android:name=".ListAdapterLaunchActivityTrampolineActivity"
+            android:name=".ListAdapterTrampolineActivity"
             android:exported="false"
             android:enabled="true" />
         <activity
-            android:name=".ListAdapterCallbackTrampolineActivity"
+            android:name=".ListAdapterInvisibleTrampolineActivity"
             android:exported="false"
             android:taskAffinity="androidx.glance.appwidget.ListAdapterCallbackTrampoline"
             android:theme="@style/Widget.Glance.AppWidget.CallbackTrampoline"

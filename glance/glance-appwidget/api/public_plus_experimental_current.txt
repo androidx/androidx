@@ -90,6 +90,9 @@ package androidx.glance.appwidget {
   public final class LayoutSelectionKt {
   }
 
+  public final class ListAdapterTrampolineKt {
+  }
+
   public final class NormalizeCompositionTreeKt {
   }
 
@@ -144,6 +147,13 @@ package androidx.glance.appwidget.action {
 
   public final class LaunchActivityIntentActionKt {
     method public static androidx.glance.action.Action actionLaunchActivity(android.content.Intent intent, optional androidx.glance.action.ActionParameters parameters);
+  }
+
+  public final class LaunchServiceActionKt {
+    method public static androidx.glance.action.Action actionLaunchService(android.content.Intent intent, optional boolean isForegroundService);
+    method public static androidx.glance.action.Action actionLaunchService(android.content.ComponentName componentName, optional boolean isForegroundService);
+    method public static <T extends android.app.Service> androidx.glance.action.Action actionLaunchService(Class<T> service, optional boolean isForegroundService);
+    method public static inline <reified T extends android.app.Service> androidx.glance.action.Action! actionLaunchService(optional boolean isForegroundService);
   }
 
   public final class RunCallbackActionKt {
