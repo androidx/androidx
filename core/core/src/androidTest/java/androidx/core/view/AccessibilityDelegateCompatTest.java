@@ -465,6 +465,7 @@ public class AccessibilityDelegateCompatTest extends
         assertMockAccessibilityDelegateWorkingOnView(mockDelegate);
     }
 
+    @FlakyTest(bugId = 206644987)
     @Test
     @SdkSuppress(minSdkVersion = 19)
     public void testSetAccessibilityPaneTitle_sendsOutCorrectEvent() throws TimeoutException {
