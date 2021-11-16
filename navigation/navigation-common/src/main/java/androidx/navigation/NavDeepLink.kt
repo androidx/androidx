@@ -97,10 +97,10 @@ public class NavDeepLink internal constructor(
             uriRegex.append(Pattern.quote(uri.substring(appendPos)))
         }
         // Match either the end of string if all params are optional or match the
-        // question mark and 0 or more characters after it
+        // question mark (or pound symbol) and 0 or more characters after it
         // We do not use '.*' here because the finalregex would replace it with a quoted
         // version below.
-        uriRegex.append("($|(\\?(.)*))")
+        uriRegex.append("($|(\\?(.)*)|(\\#(.)*))")
         return exactDeepLink
     }
 
