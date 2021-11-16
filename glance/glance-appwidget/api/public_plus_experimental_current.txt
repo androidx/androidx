@@ -128,8 +128,17 @@ package androidx.glance.appwidget {
 
 package androidx.glance.appwidget.action {
 
+  public interface ActionCallback {
+    method public suspend Object? onRun(android.content.Context context, androidx.glance.GlanceId glanceId, androidx.glance.action.ActionParameters parameters, kotlin.coroutines.Continuation<? super kotlin.Unit> p);
+  }
+
   public final class LaunchActivityIntentActionKt {
     method public static androidx.glance.action.Action actionLaunchActivity(android.content.Intent intent);
+  }
+
+  public final class RunCallbackActionKt {
+    method public static <T extends androidx.glance.appwidget.action.ActionCallback> androidx.glance.action.Action actionRunCallback(Class<T> callbackClass, optional androidx.glance.action.ActionParameters parameters);
+    method public static inline <reified T extends androidx.glance.appwidget.action.ActionCallback> androidx.glance.action.Action! actionRunCallback(optional androidx.glance.action.ActionParameters parameters);
   }
 
 }

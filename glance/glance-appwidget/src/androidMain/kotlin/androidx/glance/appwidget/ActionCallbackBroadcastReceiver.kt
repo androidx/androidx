@@ -23,8 +23,8 @@ import android.content.Intent
 import android.net.Uri
 import androidx.core.os.bundleOf
 import androidx.glance.action.ActionParameters
-import androidx.glance.action.ActionCallback
-import androidx.glance.action.RunCallbackAction
+import androidx.glance.appwidget.action.ActionCallback
+import androidx.glance.appwidget.action.RunCallbackAction
 import androidx.glance.action.mutableActionParametersOf
 import kotlinx.coroutines.CancellationException
 import java.util.UUID

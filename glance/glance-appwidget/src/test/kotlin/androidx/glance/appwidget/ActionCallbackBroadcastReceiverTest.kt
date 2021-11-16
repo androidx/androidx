@@ -19,7 +19,7 @@ package androidx.glance.appwidget
 import android.app.PendingIntent
 import android.content.Context
 import androidx.glance.action.ActionParameters
-import androidx.glance.action.ActionCallback
+import androidx.glance.appwidget.action.ActionCallback
 import androidx.glance.action.actionParametersOf
 import androidx.glance.action.mutableActionParametersOf
 import androidx.test.core.app.ApplicationProvider
