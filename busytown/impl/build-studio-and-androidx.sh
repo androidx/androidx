@@ -52,7 +52,7 @@ function buildStudio() {
 
 function zipStudio() {
   cd "$STUDIO_DIR/out/"
-  zip -r "$DIST_DIR/tools.zip" repo
+  zip -qr "$DIST_DIR/tools.zip" repo
   cd -
 }
 
