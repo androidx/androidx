@@ -86,7 +86,14 @@ internal suspend fun Context.runAndTranslate(
 ): RemoteViews {
     val root = runTestingComposition(content)
     normalizeCompositionTree(root)
-    return translateComposition(this, appWidgetId, TestWidget::class.java, root, rootViewIndex = 0)
+    return translateComposition(
+        this,
+        appWidgetId,
+        TestWidget::class.java,
+        root,
+        LayoutConfiguration.create(this, appWidgetId),
+        rootViewIndex = 0
+    )
 }
 
 internal suspend fun Context.runAndTranslateInRtl(

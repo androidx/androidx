@@ -83,7 +83,6 @@ internal enum class LayoutType {
     Box,
     Text,
     List,
-    ListItem,
     CheckBox,
     CheckBoxBackport,
     Button,
@@ -124,9 +123,13 @@ private fun LayoutSize.toViewStubSize() =
 private fun makeViewStubSelector(width: LayoutSize, height: LayoutSize) =
     SizeSelector(width = width.toViewStubSize(), height = height.toViewStubSize())
 
-internal val TopLevelLayoutsCount: Int = RootAliasCount
-
 private val RootAliasTypeCount = generatedRootLayoutShifts.size
+
+internal val TopLevelLayoutsCount: Int = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+    RootAliasCount
+} else {
+    RootAliasCount / RootAliasTypeCount
+}
 
 /**
  * Create the [RemoteViews] that can be used to create the child.

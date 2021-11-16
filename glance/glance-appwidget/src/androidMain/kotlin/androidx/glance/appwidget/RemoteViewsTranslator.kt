@@ -52,10 +52,18 @@ internal fun translateComposition(
     appWidgetId: Int,
     appWidgetClass: Class<out GlanceAppWidget>,
     element: RemoteViewsRoot,
+    layoutConfiguration: LayoutConfiguration,
     rootViewIndex: Int,
 ) =
     translateComposition(
-        TranslationContext(context, appWidgetId, appWidgetClass, context.isRtl, itemPosition = -1),
+        TranslationContext(
+            context,
+            appWidgetId,
+            appWidgetClass,
+            context.isRtl,
+            layoutConfiguration,
+            itemPosition = -1
+        ),
         element.children,
         rootViewIndex,
     )
@@ -88,6 +96,7 @@ internal data class TranslationContext(
     val appWidgetId: Int,
     val appWidgetClass: Class<out GlanceAppWidget>,
     val isRtl: Boolean,
+    val layoutConfiguration: LayoutConfiguration,
     val itemPosition: Int,
     val areLazyCollectionsAllowed: Boolean = true,
     val lastViewId: AtomicInteger = AtomicInteger(0),
