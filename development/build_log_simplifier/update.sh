@@ -2,12 +2,20 @@
 set -e
 
 function usage() {
-  echo "Usage: $0 <buildId> [<buildId>...]"
+  echo "Usage: $0 [--gc] <buildId> [<buildId>...]"
   echo
-  echo "Downloads logs from the given build Ids and then garbage collects any messages in"
-  echo "messages.ignore that don't match any of the downloaded logs"
+  echo "Downloads logs from the given build Ids, and then"
+  echo "Updates the exemptions file (messages.ignore) to include a suppression for each of those messages."
+  echo
+  echo "  [--gc] Also remove any suppressions that don't match any existent messages"
   exit 1
 }
+
+gc=false
+if [ "$1" == "--gc" ]; then
+  gc=true
+  shift
+fi
 
 if [ "$1" == "" ]; then
   usage
@@ -78,4 +86,9 @@ done
 logs="$(echo */*.log)"
 echo
 echo $SCRIPT_DIR/build_log_simplifier.py --update --gc $logs
-$SCRIPT_DIR/build_log_simplifier.py --update --gc $logs
+if [ "$gc" == "true" ]; then
+  gcArg="--gc"
+else
+  gcArg=""
+fi
+$SCRIPT_DIR/build_log_simplifier.py --update $gcArg $logs
