@@ -119,6 +119,63 @@ class XAnnotationTest(
     }
 
     @Test
+    fun getAnnotationsAnnotatedWith() {
+        val source = Source.kotlin(
+            "MyClass.kt",
+            """
+            package foo.bar
+
+            @Target(AnnotationTarget.ANNOTATION_CLASS)
+            @Retention(AnnotationRetention.SOURCE)
+            annotation class SourceAnnotation
+
+            @Target(AnnotationTarget.ANNOTATION_CLASS)
+            @Retention(AnnotationRetention.BINARY)
+            annotation class BinaryAnnotation
+
+            @Target(AnnotationTarget.ANNOTATION_CLASS)
+            @Retention(AnnotationRetention.RUNTIME)
+            annotation class RuntimeAnnotation
+
+            @SourceAnnotation
+            @BinaryAnnotation
+            @RuntimeAnnotation
+            @Target(AnnotationTarget.CLASS)
+            @Retention(AnnotationRetention.RUNTIME)
+            annotation class Foo
+
+            @Foo
+            class MyClass
+            """.trimIndent()
+        )
+        runTest(
+            sources = listOf(source),
+        ) { invocation ->
+            val element = invocation.processingEnv.requireTypeElement("foo.bar.MyClass")
+
+            val annotationsForAnnotations = if (preCompiled) {
+                // Source level annotations are gone if it's pre-compiled
+                listOf("BinaryAnnotation", "RuntimeAnnotation")
+            } else {
+                listOf("SourceAnnotation", "BinaryAnnotation", "RuntimeAnnotation")
+            }
+
+            annotationsForAnnotations.forEach {
+                val annotations = element.getAnnotationsAnnotatedWith(
+                    ClassName.get("foo.bar", it))
+                assertThat(annotations).hasSize(1)
+                val annotation = annotations.first()
+                assertThat(annotation.name)
+                    .isEqualTo("Foo")
+                assertThat(annotation.qualifiedName)
+                    .isEqualTo("foo.bar.Foo")
+                assertThat(annotation.type.typeElement)
+                    .isEqualTo(invocation.processingEnv.requireTypeElement("foo.bar.Foo"))
+            }
+        }
+    }
+
+    @Test
     fun annotationsInClassPathCanBeBoxed() {
         val source = Source.kotlin(
             "MyClass.kt",
