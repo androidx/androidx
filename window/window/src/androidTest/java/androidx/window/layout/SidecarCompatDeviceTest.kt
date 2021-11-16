@@ -18,7 +18,6 @@
 
 package androidx.window.layout
 
-import android.content.Context
 import android.content.pm.ActivityInfo
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
@@ -26,6 +25,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.window.TestConfigChangeHandlingActivity
 import androidx.window.WindowTestBase
+import androidx.window.core.SpecificationComputer.VerificationMode.QUIET
 import androidx.window.core.Version
 import androidx.window.layout.ExtensionInterfaceCompat.ExtensionCallbackInterface
 import androidx.window.layout.HardwareFoldingFeature.Type
@@ -63,7 +63,9 @@ public class SidecarCompatDeviceTest : WindowTestBase(), CompatDeviceTestInterfa
     @Before
     public fun setUp() {
         assumeValidSidecar()
-        sidecarCompat = SidecarCompat(ApplicationProvider.getApplicationContext() as Context)
+        val sidecar = SidecarCompat.getSidecarCompat(ApplicationProvider.getApplicationContext())
+        // TODO(b/206055949) convert to strict validation.
+        sidecarCompat = SidecarCompat(sidecar, SidecarAdapter(verificationMode = QUIET))
     }
 
     @Test
