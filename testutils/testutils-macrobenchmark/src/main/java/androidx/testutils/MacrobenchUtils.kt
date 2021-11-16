@@ -27,6 +27,16 @@ import androidx.benchmark.macro.isSupportedWithVmSettings
 import androidx.benchmark.macro.junit4.MacrobenchmarkRule
 
 /**
+ * Default compilation modes to test for all AndroidX macrobenchmarks.
+ */
+val COMPILATION_MODES = listOf(
+    CompilationMode.None,
+    CompilationMode.Interpreted,
+    CompilationMode.BaselineProfile,
+    CompilationMode.SpeedProfile()
+)
+
+/**
  * Temporary, while transitioning to new metrics
  */
 @RequiresApi(23)
@@ -64,11 +74,7 @@ fun createStartupCompilationParams(
         StartupMode.WARM,
         StartupMode.COLD
     ),
-    compilationModes: List<CompilationMode> = listOf(
-        CompilationMode.None,
-        CompilationMode.Interpreted,
-        CompilationMode.SpeedProfile()
-    )
+    compilationModes: List<CompilationMode> = COMPILATION_MODES
 ): List<Array<Any>> = mutableListOf<Array<Any>>().apply {
     for (startupMode in startupModes) {
         for (compilationMode in compilationModes) {
@@ -83,11 +89,7 @@ fun createStartupCompilationParams(
 
 @RequiresApi(21)
 fun createCompilationParams(
-    compilationModes: List<CompilationMode> = listOf(
-        CompilationMode.None,
-        CompilationMode.Interpreted,
-        CompilationMode.SpeedProfile()
-    )
+    compilationModes: List<CompilationMode> = COMPILATION_MODES
 ): List<Array<Any>> = mutableListOf<Array<Any>>().apply {
     for (compilationMode in compilationModes) {
         // Skip configs that can't run, so they don't clutter Studio benchmark
