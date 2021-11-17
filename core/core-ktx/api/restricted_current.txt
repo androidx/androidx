@@ -451,8 +451,10 @@ package androidx.core.util {
   public final class SizeKt {
     method @RequiresApi(21) public static inline operator int component1(android.util.Size);
     method @RequiresApi(21) public static inline operator float component1(android.util.SizeF);
+    method public static inline operator float component1(androidx.core.util.SizeFCompat);
     method @RequiresApi(21) public static inline operator int component2(android.util.Size);
     method @RequiresApi(21) public static inline operator float component2(android.util.SizeF);
+    method public static inline operator float component2(androidx.core.util.SizeFCompat);
   }
 
   public final class SparseArrayKt {
