@@ -29,6 +29,7 @@ dependencies {
     testImplementation(libs.kotlinStdlib)
     testImplementation(libs.junit)
     testImplementation(libs.truth)
+    testImplementation(libs.robolectric)
 }
 
 androidx {
