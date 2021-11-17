@@ -17,6 +17,18 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="androidx.glance.appwidget" >
     <application>
+        <activity
+            android:name=".ListAdapterLaunchActivityTrampolineActivity"
+            android:exported="false"
+            android:enabled="true" />
+        <activity
+            android:name=".ListAdapterCallbackTrampolineActivity"
+            android:exported="false"
+            android:taskAffinity="androidx.glance.appwidget.ListAdapterCallbackTrampoline"
+            android:theme="@style/Widget.Glance.AppWidget.CallbackTrampoline"
+            android:launchMode="singleInstance"
+            android:noHistory="true"
+            android:enabled="true" />
         <receiver
             android:name=".ActionCallbackBroadcastReceiver"
             android:exported="false"

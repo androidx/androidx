@@ -47,4 +47,9 @@
     <style name="Glance.AppWidget.Background.Loading">
         <item name="android:background">@drawable/loading_layout_background</item>
     </style>
+
+    <style name="Widget.Glance.AppWidget.CallbackTrampoline" parent="android:Theme">
+        <item name="android:windowAnimationStyle">@null</item>
+        <item name="android:windowIsTranslucent">true</item>
+    </style>
 </resources>
