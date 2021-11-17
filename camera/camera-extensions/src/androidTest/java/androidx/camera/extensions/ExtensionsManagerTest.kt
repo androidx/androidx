@@ -21,6 +21,7 @@ import androidx.camera.camera2.interop.Camera2CameraInfo
 import androidx.camera.core.Camera
 import androidx.camera.core.CameraInfo
 import androidx.camera.core.CameraSelector
+import androidx.camera.core.VideoCapture
 import androidx.camera.core.impl.CameraInfoInternal
 import androidx.camera.extensions.internal.ExtensionVersion
 import androidx.camera.extensions.internal.Version
@@ -427,6 +428,23 @@ class ExtensionsManagerTest(
                 baseCameraSelector,
                 FakeUseCase()
             )
+        }
+    }
+
+    @Test
+    fun throwIllegalArgumentException_whenBindingVideoCapture(): Unit = runBlocking {
+        val extensionCameraSelector = checkExtensionAvailabilityAndInit()
+
+        withContext(Dispatchers.Main) {
+            val fakeLifecycleOwner = FakeLifecycleOwner()
+
+            assertThrows<IllegalArgumentException> {
+                cameraProvider.bindToLifecycle(
+                    fakeLifecycleOwner,
+                    extensionCameraSelector,
+                    VideoCapture.Builder().build()
+                )
+            }
         }
     }
 
