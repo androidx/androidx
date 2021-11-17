@@ -229,7 +229,6 @@ location\: class PendingIntent
 \$OUT_DIR\/androidx\/docs\-public\/build\/unzippedDocsSources\/androidx\/work\/impl\/utils\/ForceStopRunnable\.java\:[0-9]+\: error\: cannot find symbol
 # > Task :buildOnServer
 [0-9]+ problems were found reusing the configuration cache, [0-9]+ of which seem unique\.
-\- Task `:docs\-tip\-of\-tree:unzipSampleSources` of type `org\.gradle\.api\.tasks\.Sync`: cannot deserialize object of type 'org\.gradle\.api\.Project' as these are not supported with the configuration cache\.
 [0-9]+ actionable tasks: [0-9]+ executed, [0-9]+ up\-to\-date
 Configuration cache entry reused with [0-9]+ problems\.
 See the profiling report at: file://\$GRADLE_USER_HOME/daemon/.*/reports/profile/profile\-[0-9]+\-[0-9]+\-[0-9]+\-[0-9]+\-[0-9]+\-[0-9]+\.html
@@ -311,16 +310,7 @@ w\: \$CHECKOUT\/prebuilts\/androidx\/external\/org\/jetbrains\/kotlin\/kotlin\-s
 # > Task :compose:material:material:icons:generator:zipHtmlResultsOfTest
 Html results of .* zipped into.*\.zip
 [0-9]+ problems were found storing the configuration cache, [0-9]+ of which seem unique\.
-\- Task `:docs\-tip\-of\-tree:unzipSampleSources` of type `org\.gradle\.api\.tasks\.Sync`: cannot serialize object of type 'org\.gradle\.api\.internal\.artifacts\.configurations\.DefaultConfiguration', a subtype of 'org\.gradle\.api\.artifacts\.Configuration', as these are not supported with the configuration cache\.
 See https://docs\.gradle\.org/[0-9]+\.[0-9]+.*/userguide/configuration_cache\.html\#config_cache:requirements:disallowed_types
-\- Task `:docs\-tip\-of\-tree:unzipSampleSources` of type `org\.gradle\.api\.tasks\.Sync`: cannot deserialize object of type 'org\.gradle\.api\.artifacts\.Configuration' as these are not supported with the configuration cache\.
-\- Task `:docs\-tip\-of\-tree:unzipSampleSources` of type `org\.gradle\.api\.tasks\.Sync`: value 'file collection' is not assignable to 'org\.gradle\.api\.artifacts\.Configuration'
-\- Task `:docs\-tip\-of\-tree:unzipSourcesForDackka` of type `org\.gradle\.api\.tasks\.Sync`: cannot deserialize object of type 'org\.gradle\.api\.Project' as these are not supported with the configuration cache\.
-\- Task `:docs\-tip\-of\-tree:unzipSourcesForDackka` of type `org\.gradle\.api\.tasks\.Sync`: cannot deserialize object of type 'org\.gradle\.api\.artifacts\.Configuration' as these are not supported with the configuration cache\.
-\- Task `:docs\-tip\-of\-tree:unzipSourcesForDackka` of type `org\.gradle\.api\.tasks\.Sync`: value 'file collection' is not assignable to 'org\.gradle\.api\.artifacts\.Configuration'
-\- Task `:docs\-tip\-of\-tree:unzipDocsSources` of type `org\.gradle\.api\.tasks\.Sync`: cannot deserialize object of type 'org\.gradle\.api\.artifacts\.Configuration' as these are not supported with the configuration cache\.
-\- Task `:docs\-tip\-of\-tree:unzipDocsSources` of type `org\.gradle\.api\.tasks\.Sync`: value 'file collection' is not assignable to 'org\.gradle\.api\.artifacts\.Configuration'
-\- Task `:docs\-tip\-of\-tree:unzipSampleSources` of type `org\.gradle\.api\.tasks\.Sync`: cannot serialize object of type 'org\.gradle\.api\.internal\.project\.DefaultProject', a subtype of 'org\.gradle\.api\.Project', as these are not supported with the configuration cache\.
 [0-9]+ problem was found storing the configuration cache.
 \- Task `:listTaskOutputs` of type `androidx\.build\.ListTaskOutputsTask`: invocation of 'Task\.project' at execution time is unsupported\.
 \- Task `[^ ]*checkExternalLicenses` of type `[^ ]*CheckExternalDependencyLicensesTask`: invocation of 'Task\.project' at execution time is unsupported\.
