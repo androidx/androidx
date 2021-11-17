@@ -205,11 +205,20 @@ private fun RemoteViews.insertViewInternal(
     val pos = translationContext.itemPosition
     val widthMod = modifier.findModifier<WidthModifier>()?.width ?: Dimension.Wrap
     val heightMod = modifier.findModifier<HeightModifier>()?.height ?: Dimension.Wrap
+    // Null unless the view Id is specified by some attributes.
+    val specifiedViewId = if (modifier.all { it !is AppWidgetBackgroundModifier }) {
+        null
+    } else {
+        check(!translationContext.isBackgroundSpecified.getAndSet(true)) {
+            "At most one view can be set as AppWidgetBackground."
+        }
+        android.R.id.background
+    }
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
         val width = if (widthMod == Dimension.Expand) LayoutSize.Expand else LayoutSize.Wrap
         val height = if (heightMod == Dimension.Expand) LayoutSize.Expand else LayoutSize.Wrap
         val stubId = selectChild(translationContext, pos, width, height)
-        val resId = inflateViewStub(translationContext, stubId, childLayout)
+        val resId = inflateViewStub(translationContext, stubId, childLayout, specifiedViewId)
         return InsertedViewInfo(mainViewId = resId)
     }
     val context = translationContext.context
@@ -223,10 +232,11 @@ private fun RemoteViews.insertViewInternal(
                 "Could not find complex layout for width=$width, height=$height"
             )
         val complexId = inflateViewStub(translationContext, stubId, complexLayout.layoutId)
-        val childId = inflateViewStub(translationContext, R.id.glanceViewStub, childLayout)
+        val childId =
+            inflateViewStub(translationContext, R.id.glanceViewStub, childLayout, specifiedViewId)
         InsertedViewInfo(mainViewId = childId, complexViewId = complexId)
     } else {
-        val resId = inflateViewStub(translationContext, stubId, childLayout)
+        val resId = inflateViewStub(translationContext, stubId, childLayout, specifiedViewId)
         InsertedViewInfo(mainViewId = resId)
     }
 }

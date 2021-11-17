@@ -805,6 +805,34 @@ class RemoteViewsTranslatorKtTest {
         assertThat(thirdText.visibility).isEqualTo(View.VISIBLE)
     }
 
+    @Test
+    fun setAsAppWidgetBackground() = fakeCoroutineScope.runBlockingTest {
+        val rv = context.runAndTranslate {
+            Column(modifier = GlanceModifier.appWidgetBackground()) {
+                Text("text1")
+            }
+        }
+
+        val view = context.applyRemoteViews(rv)
+
+        val column =
+            checkNotNull(view.findView<LinearLayout> { it.id == android.R.id.background }) {
+                "No LinearLayout with `background` view id"
+            }
+        assertThat(column.nonGoneChildCount).isEqualTo(1)
+    }
+
+    @Test
+    fun setAsAppWidgetBackground_multipleTimes_shouldFail() = fakeCoroutineScope.runBlockingTest {
+        assertFailsWith<IllegalStateException> {
+            context.runAndTranslate {
+                Column(modifier = GlanceModifier.appWidgetBackground()) {
+                    Text("text1", modifier = GlanceModifier.appWidgetBackground())
+                }
+            }
+        }
+    }
+
     // Check there is a single span, that it's of the correct type and passes the [check].
     private inline fun <reified T> SpannedString.checkSingleSpan(check: (T) -> Unit) {
         val spans = getSpans(0, length, Any::class.java)
