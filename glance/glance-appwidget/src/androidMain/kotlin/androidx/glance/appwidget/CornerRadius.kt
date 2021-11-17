@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.glance.appwidget.layout
+package androidx.glance.appwidget
 
 import androidx.annotation.DimenRes
 import androidx.compose.ui.unit.Dp

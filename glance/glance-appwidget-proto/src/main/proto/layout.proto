@@ -22,6 +22,7 @@ message LayoutNode {
   HorizontalAlignment horizontal_alignment = 4;
   VerticalAlignment vertical_alignment = 5;
   ContentScale image_scale = 6;
+  NodeIdentity identity = 8;
   repeated LayoutNode children = 7;
 }
 
@@ -52,6 +53,11 @@ enum DimensionType {
   WRAP = 2;
   FILL = 3;
   EXPAND = 4;
+}
+
+enum NodeIdentity {
+  DEFAULT_IDENTITY = 0;
+  BACKGROUND_NODE = 1;
 }
 
 enum LayoutType {
