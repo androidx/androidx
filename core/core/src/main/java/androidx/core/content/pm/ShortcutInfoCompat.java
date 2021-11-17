@@ -31,6 +31,7 @@ import android.os.PersistableBundle;
 import android.os.UserHandle;
 import android.text.TextUtils;
 
+import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -41,6 +42,8 @@ import androidx.core.content.LocusIdCompat;
 import androidx.core.graphics.drawable.IconCompat;
 import androidx.core.net.UriCompat;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -60,6 +63,17 @@ public class ShortcutInfoCompat {
     private static final String EXTRA_LONG_LIVED = "extraLongLived";
 
     private static final String EXTRA_SLICE_URI = "extraSliceUri";
+
+    /** @hide */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    @IntDef({SURFACE_LAUNCHER})
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface Surface {}
+
+    /**
+     * Indicates system surfaces managed by a launcher app. e.g. Long-Press Menu.
+     */
+    public static final int SURFACE_LAUNCHER = 1 << 0;
 
     Context mContext;
     String mId;
@@ -97,7 +111,7 @@ public class ShortcutInfoCompat {
     boolean mIsEnabled = true;
     boolean mHasKeyFieldsOnly;
     int mDisabledReason;
-    boolean mIsHiddenFromLauncher;
+    int mExcludedSurfaces;
 
     ShortcutInfoCompat() { }
 
@@ -480,6 +494,13 @@ public class ShortcutInfoCompat {
     }
 
     /**
+     * Return true if the shortcut is excluded from specified surface.
+     */
+    public boolean isExcludedFrom(@Surface final int surface) {
+        return (mExcludedSurfaces & surface) > 0;
+    }
+
+    /**
      * @hide
      */
     @RequiresApi(25)
@@ -546,7 +567,7 @@ public class ShortcutInfoCompat {
             if (shortcutInfo.mExtras != null) {
                 mInfo.mExtras = shortcutInfo.mExtras;
             }
-            mInfo.mIsHiddenFromLauncher = shortcutInfo.mIsHiddenFromLauncher;
+            mInfo.mExcludedSurfaces = shortcutInfo.mExcludedSurfaces;
         }
 
         /**
@@ -788,20 +809,23 @@ public class ShortcutInfoCompat {
         }
 
         /**
-         * Sets if a shortcut is considered hidden from Launcher. If so, shortcuts will be
-         * excluded from the search result of {@link android.content.pm.LauncherApps#getShortcuts(
-         * android.content.pm.LauncherApps.ShortcutQuery, UserHandle)}. This generally means the
-         * shortcut would not be displayed by a launcher app (e.g. in Long-Press menu), while remain
-         * visible in other surfaces such as assistant or on-device-intelligence.
+         * Sets which surfaces a shortcut will be excluded from.
          *
-         * <p>On API <= 31, shortcuts that are hidden from launcher are not actually sent to
-         * {@link ShortcutManager}. These shortcuts might still be made available to other surfaces
-         * via alternative means.
+         * If the shortcut is set to be excluded from {@link #SURFACE_LAUNCHER}, shortcuts will be
+         * excluded from the search result of {@link android.content.pm.LauncherApps#getShortcuts(
+         * android.content.pm.LauncherApps.ShortcutQuery, UserHandle)} and
+         * {@link android.content.pm.ShortcutManager#getShortcuts(int)}. This generally means the
+         * shortcut would not be displayed by a launcher app (e.g. in Long-Press menu), while
+         * remain visible in other surfaces such as assistant or on-device-intelligence.
+         *
+         * <p>On API <= 31, shortcuts that are excluded from {@link #SURFACE_LAUNCHER} are not
+         * actually sent to {@link ShortcutManager}. These shortcuts might still be made
+         * available to other surfaces via alternative means.
          */
         @SuppressWarnings("MissingGetterMatchingBuilder")
         @NonNull
-        public Builder setIsHiddenFromLauncher(boolean isHidden) {
-            mInfo.mIsHiddenFromLauncher = isHidden;
+        public Builder setExcludedSurfaces(final int surfaces) {
+            mInfo.mExcludedSurfaces = surfaces;
             return this;
         }
 
