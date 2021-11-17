@@ -101,7 +101,15 @@ class GlanceAppWidgetManager(private val context: Context) {
         }
     }
 
-    /** Retrieve the sizes for a given App Widget */
+    /**
+     * Retrieve the sizes for a given App Widget, if provided by the host.
+     *
+     * The list of sizes will be extracted from the App Widget options bundle, using the content of
+     * [AppWidgetManager.OPTION_APPWIDGET_SIZES] if provided. If not, and if
+     * [AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT] and similar are provided, the landscape and
+     * portrait sizes will be estimated from those and returned. Otherwise, the list will contain
+     * [DpSize.Zero] only.
+     */
     suspend fun getAppWidgetSizes(glanceId: GlanceId): List<DpSize> {
         require(glanceId is AppWidgetId) { "This method only accepts App Widget Glance Id" }
         val bundle = appWidgetManager.getAppWidgetOptions(glanceId.appWidgetId)
