@@ -25,6 +25,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.os.Build
 import android.os.Parcel
 import android.view.View
 import android.view.ViewGroup
@@ -33,7 +34,6 @@ import android.widget.Adapter
 import android.widget.ListView
 import android.widget.RemoteViews
 import android.widget.TextView
-import androidx.core.os.BuildCompat
 import androidx.core.remoteviews.test.R
 import androidx.core.widget.RemoteViewsCompat.RemoteCollectionItems
 import androidx.test.core.app.ApplicationProvider
@@ -54,7 +54,7 @@ import kotlin.test.fail
 @SdkSuppress(minSdkVersion = 29)
 @MediumTest
 public class RemoteViewsCompatTest {
-    private val mUsingBackport = !BuildCompat.isAtLeastS()
+    private val mUsingBackport = Build.VERSION.SDK_INT <= Build.VERSION_CODES.S
     private val mContext = ApplicationProvider.getApplicationContext<Context>()
     private val mPackageName = mContext.packageName
     private val mAppWidgetManager = AppWidgetManager.getInstance(mContext)
