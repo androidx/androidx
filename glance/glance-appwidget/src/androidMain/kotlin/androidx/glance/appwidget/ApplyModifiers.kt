@@ -47,7 +47,7 @@ import androidx.glance.action.ActionModifier
 import androidx.glance.action.LaunchActivityAction
 import androidx.glance.action.LaunchActivityClassAction
 import androidx.glance.action.LaunchActivityComponentAction
-import androidx.glance.action.RunCallbackAction
+import androidx.glance.appwidget.action.RunCallbackAction
 import androidx.glance.appwidget.action.LaunchActivityIntentAction
 import androidx.glance.appwidget.layout.CornerRadiusModifier
 import androidx.glance.appwidget.unit.DayNightColorProvider

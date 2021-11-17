@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-package androidx.glance.action
+package androidx.glance.appwidget.action
 
 import android.content.Context
-import androidx.annotation.RestrictTo
 import androidx.glance.GlanceId
+import androidx.glance.action.Action
+import androidx.glance.action.ActionParameters
+import androidx.glance.action.actionParametersOf
 
-/** @suppress */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class RunCallbackAction(
+internal class RunCallbackAction(
     public val callbackClass: Class<out ActionCallback>,
     public val parameters: ActionParameters
 ) : Action {
@@ -83,7 +83,6 @@ public fun <T : ActionCallback> actionRunCallback(
  *
  * @param parameters the parameters associated with the action
  */
-// TODO(b/201418282): Add the UI update path
 public inline fun <reified T : ActionCallback> actionRunCallback(
     parameters: ActionParameters = actionParametersOf()
 ): Action = actionRunCallback(T::class.java, parameters)

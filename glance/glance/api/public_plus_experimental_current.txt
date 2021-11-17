@@ -91,10 +91,6 @@ package androidx.glance.action {
   public interface Action {
   }
 
-  public interface ActionCallback {
-    method public suspend Object? onRun(android.content.Context context, androidx.glance.GlanceId glanceId, androidx.glance.action.ActionParameters parameters, kotlin.coroutines.Continuation<? super kotlin.Unit> p);
-  }
-
   public final class ActionKt {
     method public static androidx.glance.GlanceModifier clickable(androidx.glance.GlanceModifier, androidx.glance.action.Action onClick);
   }
@@ -137,11 +133,6 @@ package androidx.glance.action {
     method public <T> T getOrDefault(androidx.glance.action.ActionParameters.Key<T> key, T defaultValue);
     method public <T> T? remove(androidx.glance.action.ActionParameters.Key<T> key);
     method public operator <T> T? set(androidx.glance.action.ActionParameters.Key<T> key, T? value);
-  }
-
-  public final class RunCallbackActionKt {
-    method public static <T extends androidx.glance.action.ActionCallback> androidx.glance.action.Action actionRunCallback(Class<T> callbackClass, optional androidx.glance.action.ActionParameters parameters);
-    method public static inline <reified T extends androidx.glance.action.ActionCallback> androidx.glance.action.Action! actionRunCallback(optional androidx.glance.action.ActionParameters parameters);
   }
 
 }
