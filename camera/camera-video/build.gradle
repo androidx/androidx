@@ -62,7 +62,7 @@ dependencies {
     androidTestImplementation(project(":camera:camera-testing"))
     androidTestImplementation(libs.kotlinStdlib)
     androidTestImplementation(libs.kotlinCoroutinesAndroid)
-    androidTestImplementation(project(":concurrent:concurrent-futures-ktx"))
+    androidTestImplementation(projectOrArtifact(":concurrent:concurrent-futures-ktx"))
     androidTestImplementation(project(":internal-testutils-truth"))
     androidTestImplementation libs.mockitoKotlin, {
         exclude group: 'org.mockito' // to keep control on the mockito version

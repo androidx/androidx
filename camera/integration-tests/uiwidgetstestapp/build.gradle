@@ -61,8 +61,8 @@ dependencies {
     implementation("androidx.activity:activity-ktx:1.2.0")
     implementation("androidx.viewpager2:viewpager2:1.1.0-alpha01")
     implementation("androidx.concurrent:concurrent-futures-ktx:1.1.0")
-    implementation(project(":window:window"))
-    implementation(project(":window:window-java"))
+    implementation(projectOrArtifact(":window:window"))
+    implementation(projectOrArtifact(":window:window-java"))
     implementation(libs.constraintLayout)
 
     // Guava

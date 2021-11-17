@@ -125,7 +125,13 @@ class AndroidXPlaygroundRootImplPlugin : Plugin<Project> {
                     // Last element is the artifact.
                     .dropLast(1)
                     .joinToString(".")
-                return "androidx.$group:${sections.last()}:$SNAPSHOT_MARKER"
+                    .let { projectGroup ->
+                        when (projectGroup) {
+                            "external" -> sections.last()
+                            else -> "androidx.$projectGroup"
+                        }
+                    }
+                return "$group:${sections.last()}:$SNAPSHOT_MARKER"
             }
 
             throw GradleException("projectOrArtifact cannot find/replace project $path")
@@ -190,7 +196,7 @@ class AndroidXPlaygroundRootImplPlugin : Plugin<Project> {
     ) {
         val snapshots = PlaygroundRepository(
             "https://androidx.dev/snapshots/builds/${props.snapshotBuildId}/artifacts/repository",
-            includeGroupRegex = """androidx\..*"""
+            includeGroupRegex = """(androidx\..*|libyuv)"""
         )
         val metalava = PlaygroundRepository(
             "https://androidx.dev/metalava/builds/${props.metalavaBuildId}/artifacts" +

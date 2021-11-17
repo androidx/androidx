@@ -33,6 +33,11 @@ runs:
       uses: actions/setup-java@v1
       with:
         java-version: "11"
+    # AndroidX requires a specific version of CMake.
+    - name: "Install CMake"
+      uses: jwlawson/actions-setup-cmake@v1.12
+      with:
+        cmake-version: '3.22.1'
     # Required for CMake when building workmanager.
     - name: "Install Ninja"
       shell: bash
@@ -47,7 +52,7 @@ runs:
         elif [ "$RUNNER_OS" == "Windows" ]; then
           choco install ninja --version=1.10.2
         else
-          echo "Failed to install ninja due to unsupport OS: $RUNNER_OS"
+          echo "Failed to install ninja due to unsupported OS: $RUNNER_OS"
           exit 1
         fi
         # See b/206099937. Hack needed to make ninja visible to cmake during NDK builds

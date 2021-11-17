@@ -74,10 +74,10 @@ dependencies {
     androidTestImplementation(libs.kotlinCoroutinesAndroid)
     androidTestImplementation(libs.kotlinStdlib)
     androidTestImplementation(libs.truth)
-    androidTestImplementation(project(":annotation:annotation-experimental"))
+    androidTestImplementation(projectOrArtifact(":annotation:annotation-experimental"))
     androidTestImplementation(project(":camera:camera-lifecycle"))
     androidTestImplementation(project(":camera:camera-testing"))
-    androidTestImplementation(project(":concurrent:concurrent-futures-ktx"))
+    androidTestImplementation(projectOrArtifact(":concurrent:concurrent-futures-ktx"))
     androidTestImplementation(project(":internal-testutils-truth"))
 }
 

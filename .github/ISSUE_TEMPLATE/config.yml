@@ -6,6 +6,9 @@ contact_links:
   - name: Biometric
     url: https://issuetracker.google.com/issues/new?component=559537&template=1214425
     about: File a bug or feature request for Biometric
+  - name: Camera
+    url: https://issuetracker.google.com/issues/new?component=618491&template=1257717
+    about: File a bug or feature request for Camera
   - name: Collection
     url: https://b.corp.google.com/issues/new?component=460756&template=1422573
     about: File a bug or feature request for Collection

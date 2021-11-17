@@ -68,7 +68,7 @@ dependencies {
     implementation(project(":camera:camera-lifecycle"))
     implementation(project(":camera:camera-video"))
     // Needed because AGP enforces same version between main and androidTest classpaths
-    implementation(project(":concurrent:concurrent-futures"))
+    implementation(projectOrArtifact(":concurrent:concurrent-futures"))
 
     // Android Support Library
     api(libs.constraintLayout)
@@ -97,8 +97,8 @@ dependencies {
     androidTestImplementation(libs.leakcanaryInstrumentation)
     androidTestImplementation(libs.truth)
     androidTestImplementation(project(":camera:camera-testing"))
-    androidTestImplementation(project(":concurrent:concurrent-futures"))
-    androidTestImplementation(project(":concurrent:concurrent-futures-ktx"))
+    androidTestImplementation(projectOrArtifact(":concurrent:concurrent-futures"))
+    androidTestImplementation(projectOrArtifact(":concurrent:concurrent-futures-ktx"))
     androidTestImplementation(project(":internal-testutils-runtime"))
     androidTestImplementation("androidx.lifecycle:lifecycle-runtime-testing:2.3.1")
 

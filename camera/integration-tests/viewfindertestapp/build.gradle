@@ -53,8 +53,8 @@ dependencies {
     implementation("androidx.activity:activity-ktx:1.2.0")
     implementation("androidx.legacy:legacy-support-v4:1.0.0")
     implementation("androidx.concurrent:concurrent-futures-ktx:1.1.0")
-    implementation(project(":window:window"))
-    implementation(project(":window:window-java"))
+    implementation(projectOrArtifact(":window:window"))
+    implementation(projectOrArtifact(":window:window-java"))
 
     implementation(libs.guavaAndroid)
     implementation(libs.constraintLayout)
