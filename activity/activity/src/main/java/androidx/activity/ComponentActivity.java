@@ -271,6 +271,7 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
                 getLifecycle().removeObserver(this);
             }
         });
+        mSavedStateRegistryController.performAttach();
 
         if (19 <= SDK_INT && SDK_INT <= 23) {
             getLifecycle().addObserver(new ImmLeaksCleaner(this));
