@@ -17,7 +17,6 @@
 package androidx.savedstate;
 
 
-import android.annotation.SuppressLint;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -31,7 +30,6 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
-@SuppressLint("RestrictedApi")
 final class Recreator implements LifecycleEventObserver {
 
     static final String CLASSES_KEY = "classes_to_restore";

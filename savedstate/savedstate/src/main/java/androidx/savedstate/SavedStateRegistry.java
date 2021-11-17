@@ -42,6 +42,7 @@ public final class SavedStateRegistry {
 
     private final SafeIterableMap<String, SavedStateProvider> mComponents =
             new SafeIterableMap<>();
+    private boolean mAttached;
     @Nullable
     private Bundle mRestoredState;
     private boolean mRestored;
@@ -180,17 +181,13 @@ public final class SavedStateRegistry {
     }
 
     /**
-     * An interface for an owner of this @{code {@link SavedStateRegistry} to restore saved state.
-     *
+     * An interface for an owner of this @{code {@link SavedStateRegistry} to attach this
+     * to a {@link Lifecycle}.
      */
-    @SuppressWarnings("WeakerAccess")
     @MainThread
-    void performRestore(@NonNull Lifecycle lifecycle, @Nullable Bundle savedState) {
-        if (mRestored) {
-            throw new IllegalStateException("SavedStateRegistry was already restored.");
-        }
-        if (savedState != null) {
-            mRestoredState = savedState.getBundle(SAVED_COMPONENTS_KEY);
+    void performAttach(@NonNull Lifecycle lifecycle) {
+        if (mAttached) {
+            throw new IllegalStateException("SavedStateRegistry was already attached.");
         }
 
         lifecycle.addObserver((LifecycleEventObserver) (source, event) -> {
@@ -200,6 +197,26 @@ public final class SavedStateRegistry {
                 mAllowingSavingState = false;
             }
         });
+
+        mAttached = true;
+    }
+
+    /**
+     * An interface for an owner of this @{code {@link SavedStateRegistry} to restore saved state.
+     *
+     */
+    @MainThread
+    void performRestore(@Nullable Bundle savedState) {
+        if (!mAttached) {
+            throw new IllegalStateException("You must call performAttach() before calling "
+                    + "performRestore(Bundle).");
+        }
+        if (mRestored) {
+            throw new IllegalStateException("SavedStateRegistry was already restored.");
+        }
+        if (savedState != null) {
+            mRestoredState = savedState.getBundle(SAVED_COMPONENTS_KEY);
+        }
 
         mRestored = true;
     }
