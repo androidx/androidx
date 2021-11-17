@@ -97,7 +97,7 @@ protobuf {
 androidx {
     name = "Glance AppWidget Protos"
     type = LibraryType.PUBLISHED_LIBRARY
-    publish = Publish.NONE
+    publish = Publish.SNAPSHOT_ONLY
     mavenGroup = LibraryGroups.GLANCE
     inceptionYear = "2021"
     runApiTasks = new RunApiTasks.No("No public API required for internal use with app widgets.")
