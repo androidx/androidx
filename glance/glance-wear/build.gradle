@@ -85,6 +85,7 @@ android {
     sourceSets {
         androidTest.assets.srcDirs += project.rootDir.absolutePath + "/../../golden/glance/glance-wear"
     }
+
 }
 
 androidx {

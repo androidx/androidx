@@ -929,14 +929,9 @@ class XExecutableElementTest {
                 invocation.processingEnv.requireTypeElement("$pkg.JavaSubject").let { subject ->
                     assertWithMessage(subject.qualifiedName).that(
                         collectExceptions(subject)
-                    ).containsExactlyElementsIn(
-                        listOfNotNull(
-                            expectedConstructor.takeIf {
-                                // TODO https://github.com/google/ksp/issues/507
-                                !invocation.isKsp || pkg != "lib"
-                            },
-                            expectedMethod
-                        ),
+                    ).containsExactly(
+                        expectedConstructor,
+                        expectedMethod
                     )
                 }
                 invocation.processingEnv.requireTypeElement("$pkg.KotlinAccessors").let { subject ->

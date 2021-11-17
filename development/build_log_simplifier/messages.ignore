@@ -215,10 +215,11 @@ application@android:debuggable was tagged at .*\.xml:[0-9]+ to replace other dec
 \$SUPPORT/compose/runtime/runtime/compose\-runtime\-benchmark/src/androidTest/AndroidManifest\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
 # > Task :compose:ui:ui:compileKotlinMetadata
 w: Runtime JAR files in the classpath should have the same version\. These files were found in the classpath:
-\$CHECKOUT/prebuilts/androidx/external/org/jetbrains/kotlin/kotlin\-reflect/[0-9]+\.[0-9]+\.[0-9]+/kotlin\-reflect\-[0-9]+\.[0-9]+\.[0-9]+\.jar \(version [0-9]+\.[0-9]+\)
-\$CHECKOUT/prebuilts/androidx/external/org/jetbrains/kotlin/kotlin\-stdlib/[0-9]+\.[0-9]+\.[0-9]+-?[A-Z0-9]*/kotlin\-stdlib\-[0-9]+\.[0-9]+\.[0-9]+-?[A-Z0-9]*\.jar \(version [0-9]+\.[0-9]+-?[A-Z0-9]*\)
-\$CHECKOUT/prebuilts/androidx/external/org/jetbrains/kotlin/kotlin\-stdlib\-common/[0-9]+\.[0-9]+\.[0-9]+-?[A-Z0-9]*/kotlin\-stdlib\-common\-[0-9]+\.[0-9]+\.[0-9]+-?[A-Z0-9]*\.jar \(version [0-9]+\.[0-9]+-?[A-Z0-9]*\)
 w: Consider providing an explicit dependency on kotlin\-reflect [0-9]+\.[0-9]+ to prevent strange errors
+\$CHECKOUT/prebuilts/androidx/external/org/jetbrains/kotlin/kotlin\-stdlib/[0-9]+\.[0-9]+\.[0-9]+-?[\-A-Z0-9]*/kotlin\-stdlib\-[0-9]+\.[0-9]+\.[0-9]+-?[\-A-Z0-9]*\.jar \(version [0-9]+\.[0-9]+-?[\-A-Z0-9]*\)
+\$CHECKOUT/prebuilts/androidx/external/org/jetbrains/kotlin/kotlin\-reflect/[0-9]+\.[0-9]+\.[0-9]+-?[\-A-Z0-9]*/kotlin\-reflect\-[0-9]+\.[0-9]+\.[0-9]+-?[\-A-Z0-9]*\.jar \(version [0-9]+\.[0-9]+-?[\-A-Z0-9]*\)
+\$CHECKOUT/prebuilts/androidx/external/org/jetbrains/kotlin/kotlin\-script-runtime/[0-9]+\.[0-9]+\.[0-9]+-?[\-A-Z0-9]*/kotlin\-script-runtime\-[0-9]+\.[0-9]+\.[0-9]+-?[\-A-Z0-9]*\.jar \(version [0-9]+\.[0-9]+-?[\-A-Z0-9]*\)
+\$CHECKOUT/prebuilts/androidx/external/org/jetbrains/kotlin/kotlin\-stdlib\-common/[0-9]+\.[0-9]+\.[0-9]+-?[\-A-Z0-9]*/kotlin\-stdlib\-common\-[0-9]+\.[0-9]+\.[0-9]+-?[\-A-Z0-9]*\.jar \(version [0-9]+\.[0-9]+-?[\-A-Z0-9]*\)
 w: Some runtime JAR files in the classpath have an incompatible version\. Consider removing them from the classpath
 w: \$SUPPORT/compose/ui/ui/src/commonMain/kotlin/androidx/compose/ui/node/DepthSortedSet\.kt: \([0-9]+, [0-9]+\): The corresponding parameter in the supertype 'Comparator' is named 'a'\. This may cause problems when calling this function with named arguments\.
 w: \$SUPPORT/compose/ui/ui/src/commonMain/kotlin/androidx/compose/ui/node/DepthSortedSet\.kt: \([0-9]+, [0-9]+\): The corresponding parameter in the supertype 'Comparator' is named 'b'\. This may cause problems when calling this function with named arguments\.
@@ -350,7 +351,7 @@ WARNING: Illegal reflective access by androidx\.room\.compiler\.processing\.java
 WARNING: Illegal reflective access by androidx\.room\.compiler\.processing\.javac\.JavacProcessingEnvMessager\$Companion \(file:\$OUT_DIR/androidx/room/room\-compiler\-processing/build/(classes/kotlin/main/|libs/room\-compiler\-processing\-[0-9]+\.[0-9]+\.[0-9]+(\-(alpha|beta|rc)[0-9]+)?\.jar)\) to field com\.sun\.tools\.javac\.code\.Symbol\.owner
 WARNING: Please consider reporting this to the maintainers of androidx\.room\.compiler\.processing\.javac\.JavacProcessingEnvMessager\$Companion
 # > Task :docs-runner:dokkaJavaTipOfTreeDocs
-\$CHECKOUT/prebuilts/androidx/external/org/jetbrains/kotlin/kotlin\-stdlib\-jdk[0-9]+/[0-9]+\.[0-9]+\.[0-9]+-?[A-Z0-9]*/kotlin\-stdlib\-jdk[0-9]+\-[0-9]+\.[0-9]+\.[0-9]+-?[A-Z0-9]*\.jar \(version [0-9]+\.[0-9]+-?[A-Z0-9]*\)
+\$CHECKOUT/prebuilts/androidx/external/org/jetbrains/kotlin/kotlin\-stdlib\-jdk[0-9]+/[0-9]+\.[0-9]+\.[0-9]+-?[\-A-Z0-9]*/kotlin\-stdlib\-jdk[0-9]+\-[0-9]+\.[0-9]+\.[0-9]+-?[\-A-Z0-9]*\.jar \(version [0-9]+\.[0-9]+-?[\-A-Z0-9]*\)
 # > Task :compose:ui:ui:processDebugAndroidTestManifest
 \$OUT_DIR/androidx/compose/ui/ui/build/intermediates/tmp/manifest/androidTest/debug/tempFile[0-9]+ProcessTestManifest[0-9]+\.xml Warning:
 Package name 'androidx\.compose\.ui\.test' used in: tempFile[0-9]+ProcessTestManifest[0-9]+\.xml, :compose:ui:ui\-test\.
@@ -600,6 +601,7 @@ dagger\.lint\.DaggerIssueRegistry in .*/lint\.jar does not specify a vendor; see
 Info: Stripped invalid locals information from [0-9]+ methods\.
 Info: Methods with invalid locals information:
 java\.lang\.Object androidx\.glance\.appwidget\.GlanceAppWidget\.compose\$glance_appwidget_release\(android\.content\.Context\, android\.appwidget\.AppWidgetManager\, int\, java\.lang\.Object\, android\.os\.Bundle\, kotlin\.coroutines\.Continuation\)
+java\.lang\.Object androidx\.glance\.state\.GlanceState\.getDataStore\(android\.content\.Context, androidx\.glance\.state\.GlanceStateDefinition, java\.lang\.String, kotlin\.coroutines\.Continuation\)
 java\.lang\.Object androidx\.wear\.complications\.ComplicationDataSourceInfoRetriever\.retrievePreviewComplicationData\(android\.content\.ComponentName, androidx\.wear\.complications\.data\.ComplicationType, kotlin\.coroutines\.Continuation\)
 java\.lang\.Object androidx\.wear\.watchface\.editor\.BaseEditorSession\.openComplicationDataSourceChooser\$suspendImpl\(androidx\.wear\.watchface\.editor\.BaseEditorSession, int, kotlin\.coroutines\.Continuation\)
 java\.lang\.Object androidx\.compose\.ui\.platform\.GlobalSnapshotManager\$ensureStarted\$[0-9]+\.invokeSuspend\(java\.lang\.Object\)
