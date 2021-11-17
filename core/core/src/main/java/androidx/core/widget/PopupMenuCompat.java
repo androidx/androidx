@@ -20,8 +20,10 @@ import android.os.Build;
 import android.view.View.OnTouchListener;
 import android.widget.PopupMenu;
 
+import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 
 /**
  * Helper for accessing features in {@link PopupMenu}.
@@ -32,7 +34,7 @@ public final class PopupMenuCompat {
     }
 
     /**
-     * On API {@link android.os.Build.VERSION_CODES#KITKAT} and higher, returns
+     * On API {@link Build.VERSION_CODES#KITKAT} and higher, returns
      * an {@link OnTouchListener} that can be added to the anchor view to
      * implement drag-to-open behavior.
      * <p>
@@ -53,9 +55,21 @@ public final class PopupMenuCompat {
     @Nullable
     public static OnTouchListener getDragToOpenListener(@NonNull Object popupMenu) {
         if (Build.VERSION.SDK_INT >= 19) {
-            return ((PopupMenu) popupMenu).getDragToOpenListener();
+            return Api19Impl.getDragToOpenListener((PopupMenu) popupMenu);
         } else {
             return null;
+        }
+    }
+
+    @RequiresApi(19)
+    static class Api19Impl {
+        private Api19Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static OnTouchListener getDragToOpenListener(PopupMenu popupMenu) {
+            return popupMenu.getDragToOpenListener();
         }
     }
 }
