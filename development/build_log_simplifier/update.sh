@@ -2,20 +2,32 @@
 set -e
 
 function usage() {
-  echo "Usage: $0 [--gc] <buildId> [<buildId>...]"
+  echo "Usage: $0 [--gc] [--target <target>] <buildId> [<buildId>...]"
   echo
   echo "Downloads logs from the given build Ids, and then"
   echo "Updates the exemptions file (messages.ignore) to include a suppression for each of those messages."
   echo
   echo "  [--gc] Also remove any suppressions that don't match any existent messages"
+  echo "  [--target] Only download from logs from <target>, not from all targets"
   exit 1
 }
 
+targets=""
 gc=false
-if [ "$1" == "--gc" ]; then
-  gc=true
-  shift
-fi
+while true; do
+  if [ "$1" == "--gc" ]; then
+    gc=true
+    shift
+    continue
+  fi
+  if [ "$1" == "--target" ]; then
+    shift
+    targets="$1"
+    shift
+    continue
+  fi
+  break
+done
 
 if [ "$1" == "" ]; then
   usage
@@ -45,6 +57,7 @@ function fetch_logs() {
     if fetch_artifact --bid "$buildId" --target "$target" "logs/$logName"; then
       echo "downloaded log ${i} in build $buildId target $target"
     else
+      echo
       echo "$logName does not exist in build $buildId target ${target}; continuing"
       echo
       break
@@ -70,7 +83,9 @@ BUILD_SCRIPTS_DIR="$SUPPORT_ROOT/busytown"
 target_scripts="$(cd $BUILD_SCRIPTS_DIR && find -maxdepth 1 -name "*.sh" -type f | grep -v androidx-studio-integration | sed 's|^./||')"
 
 # find the target names that enable build log validation
-targets="$(echo $target_scripts | sed 's/\.sh//g')"
+if [ "$targets" == "" ]; then
+  targets="$(echo $target_scripts | sed 's/\.sh//g')"
+fi
 
 # download log for each target
 setup_temp_dir
@@ -92,3 +107,5 @@ else
   gcArg=""
 fi
 $SCRIPT_DIR/build_log_simplifier.py --update $gcArg $logs
+echo
+echo succeeded
