@@ -16,6 +16,8 @@
 
 package androidx.core.performance
 
+import android.os.Build
+
 /**
  * Reports the media performance class of the device.
  */
@@ -34,6 +36,9 @@ class PerformanceClass {
      * Defaults to {@link Build.MEDIA_PERFORMANCE_CLASS}
      */
     fun getPerformanceClass(): Int {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            return Build.VERSION.MEDIA_PERFORMANCE_CLASS
+        }
         return 0
     }
 }
