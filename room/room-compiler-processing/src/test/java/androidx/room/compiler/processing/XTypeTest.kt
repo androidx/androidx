@@ -618,12 +618,7 @@ class XTypeTest {
                     it.name to it.type.typeName.toString()
                 }
             assertThat(actual["starList"]).isEqualTo("java.util.List<?>")
-            if (invocation.isKsp) {
-                // TODO b/204415667 resolve variance properly in KSP
-                assertThat(actual["rList"]).isEqualTo("java.util.List<R>")
-            } else {
-                assertThat(actual["rList"]).isEqualTo("java.util.List<? extends R>")
-            }
+            assertThat(actual["rList"]).isEqualTo("java.util.List<? extends R>")
         }
     }
 
