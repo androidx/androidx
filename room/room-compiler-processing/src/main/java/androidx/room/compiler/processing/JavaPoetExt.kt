@@ -15,8 +15,6 @@
  */
 package androidx.room.compiler.processing
 
-import androidx.room.compiler.processing.ksp.KspMethodElement
-import androidx.room.compiler.processing.ksp.KspMethodType
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.MethodSpec
 import com.squareup.javapoet.ParameterSpec
@@ -101,17 +99,10 @@ object MethodSpecHelper {
         owner: XType
     ): MethodSpec.Builder {
         val asMember = elm.asMemberOf(owner)
-        return if (elm is KspMethodElement && asMember is KspMethodType) {
-            overridingWithFinalParams(
-                executableElement = elm,
-                resolvedType = asMember.inheritVarianceForOverride()
-            )
-        } else {
-            overridingWithFinalParams(
-                executableElement = elm,
-                resolvedType = asMember
-            )
-        }
+        return overridingWithFinalParams(
+            executableElement = elm,
+            resolvedType = asMember
+        )
     }
 
     private fun overridingWithFinalParams(

@@ -23,6 +23,7 @@ import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.XTypeElement
 import androidx.room.compiler.processing.ksp.synthetic.KspSyntheticContinuationParameterElement
 import com.google.devtools.ksp.KspExperimental
+import com.google.devtools.ksp.closestClassDeclaration
 import com.google.devtools.ksp.symbol.ClassKind
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
@@ -41,7 +42,11 @@ internal sealed class KspMethodElement(
 
     @OptIn(KspExperimental::class)
     override val name: String by lazy {
-        env.resolver.getJvmName(declaration) ?: declaration.simpleName.asString()
+        val jvmName = runCatching {
+            // see https://github.com/google/ksp/issues/716
+            env.resolver.getJvmName(declaration)
+        }
+        jvmName.getOrNull() ?: declaration.simpleName.asString()
     }
 
     override val executableType: XMethodType by lazy {
@@ -50,6 +55,23 @@ internal sealed class KspMethodElement(
             origin = this,
             containing = this.containing.type
         )
+    }
+
+    /**
+     * The method type for the declaration if it is inherited from a super.
+     * If this method is declared in the containing class (or in a file), it will be null.
+     */
+    val declarationMethodType: XMethodType? by lazy {
+        val declaredIn = declaration.closestClassDeclaration()
+        if (declaredIn == null || declaredIn == containing.declaration) {
+            null
+        } else {
+            create(
+                env = env,
+                containing = env.wrapClassDeclaration(declaredIn),
+                declaration = declaration
+            ).executableType
+        }
     }
 
     override fun isJavaDefault(): Boolean {
@@ -97,7 +119,7 @@ internal sealed class KspMethodElement(
         env, containing, declaration
     ) {
         override val returnType: XType by lazy {
-            declaration.returnXType(
+            declaration.returnKspType(
                 env = env,
                 containing = containing.type
             )

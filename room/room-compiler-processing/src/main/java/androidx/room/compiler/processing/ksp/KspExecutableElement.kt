@@ -53,11 +53,12 @@ internal abstract class KspExecutableElement(
     }
 
     override val parameters: List<XExecutableParameterElement> by lazy {
-        declaration.parameters.map {
+        declaration.parameters.mapIndexed { index, param ->
             KspExecutableParameterElement(
                 env = env,
                 enclosingMethodElement = this,
-                parameter = it
+                parameter = param,
+                parameterIndex = index
             )
         }
     }
