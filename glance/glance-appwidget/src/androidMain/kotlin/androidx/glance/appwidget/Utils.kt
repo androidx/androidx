@@ -23,8 +23,8 @@ import android.view.View
 import android.widget.RemoteViews
 import androidx.annotation.IdRes
 import androidx.annotation.LayoutRes
-import androidx.core.widget.setViewStubInflatedId
-import androidx.core.widget.setViewStubLayoutResource
+import androidx.core.widget.RemoteViewsCompat.setViewStubInflatedId
+import androidx.core.widget.RemoteViewsCompat.setViewStubLayoutResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 

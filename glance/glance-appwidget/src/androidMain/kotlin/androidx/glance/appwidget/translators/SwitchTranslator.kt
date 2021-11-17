@@ -19,8 +19,8 @@ package androidx.glance.appwidget.translators
 import android.os.Build
 import android.view.Gravity
 import android.widget.RemoteViews
-import androidx.core.widget.setSwitchThumbTintList
-import androidx.core.widget.setSwitchTrackTintList
+import androidx.core.widget.RemoteViewsCompat.setSwitchThumbTintList
+import androidx.core.widget.RemoteViewsCompat.setSwitchTrackTintList
 import androidx.glance.appwidget.EmittableSwitch
 import androidx.glance.appwidget.LayoutType
 import androidx.glance.appwidget.R

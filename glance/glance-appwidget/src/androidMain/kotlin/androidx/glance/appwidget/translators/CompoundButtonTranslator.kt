@@ -21,7 +21,7 @@ import android.content.res.ColorStateList
 import android.widget.RemoteViews
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
-import androidx.core.widget.setImageViewColorFilter
+import androidx.core.widget.RemoteViewsCompat.setImageViewColorFilter
 import androidx.glance.appwidget.unit.CheckableColorProvider
 import androidx.glance.appwidget.unit.CheckedStateSet
 import androidx.glance.appwidget.unit.CheckedUncheckedColorProvider
