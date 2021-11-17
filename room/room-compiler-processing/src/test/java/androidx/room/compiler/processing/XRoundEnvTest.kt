@@ -289,26 +289,18 @@ class XRoundEnvTest {
             val annotatedElements =
                 testInvocation.roundEnv.getElementsAnnotatedWith(TopLevelAnnotation::class)
             val annotatedParams = annotatedElements.filterIsInstance<XExecutableParameterElement>()
-            if (!testInvocation.isKsp) {
-                // TODO: https://github.com/google/ksp/issues/636
-                // KSP can't find ctor param annotated elements from property
-                val ctorProperty = annotatedParams.first { it.name == "ctorProperty" }
-                assertThat(ctorProperty.enclosingMethodElement).isEqualTo(
-                    typeElement.findPrimaryConstructor()
-                )
-            }
+            val ctorProperty = annotatedParams.first { it.name == "ctorProperty" }
+            assertThat(ctorProperty.enclosingMethodElement).isEqualTo(
+                typeElement.findPrimaryConstructor()
+            )
             val ctorParam = annotatedParams.first { it.name == "ctorParam" }
             assertThat(ctorParam.enclosingMethodElement).isEqualTo(
                 typeElement.findPrimaryConstructor()
             )
-            if (!testInvocation.isKsp) {
-                // TODO: https://github.com/google/ksp/issues/636
-                // KSP can't find setter param annotated elements
-                val setterParam = annotatedParams.first { it.name == "p0" }
-                assertThat(setterParam.enclosingMethodElement).isEqualTo(
-                    typeElement.getDeclaredMethod("setProperty")
-                )
-            }
+            val setterParam = annotatedParams.first { it.name == "p0" || it.name == "arg0" }
+            assertThat(setterParam.enclosingMethodElement).isEqualTo(
+                typeElement.getDeclaredMethod("setProperty")
+            )
             val methodParam = annotatedParams.first { it.name == "methodParam" }
             assertThat(methodParam.enclosingMethodElement).isEqualTo(
                 typeElement.getDeclaredMethod("method")

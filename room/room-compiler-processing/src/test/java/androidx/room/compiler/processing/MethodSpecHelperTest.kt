@@ -458,16 +458,11 @@ class MethodSpecHelperTest(
         ) { invocation ->
             val (target, methods) = invocation.getOverrideTestTargets(ignoreInheritedMethods)
             methods.forEachIndexed { index, method ->
-                if (invocation.isKsp && method.name == "throwsException" && preCompiledCode) {
-                    // TODO b/171572318
-                    //  https://github.com/google/ksp/issues/507
-                } else {
-                    val subject = MethodSpecHelper.overridingWithFinalParams(
-                        method,
-                        target.type
-                    ).toSignature()
-                    assertThat(subject).isEqualTo(golden[index])
-                }
+                val subject = MethodSpecHelper.overridingWithFinalParams(
+                    method,
+                    target.type
+                ).toSignature()
+                assertThat(subject).isEqualTo(golden[index])
             }
         }
     }

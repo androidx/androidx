@@ -103,3 +103,12 @@ androidx {
     runApiTasks = new RunApiTasks.No("No public API required for internal use with app widgets.")
     description = "Protos for use with glance app widgets."
 }
+
+// Kotlin 1.5.31 would provide a different set of attributes on some of the variants, which,
+// possibly due to a coincidence, could sometimes nudge Gradle variant-aware dependency resolution
+// to choosing one of the variants as the best match, while also making it silently choose not the
+// variant that we wanted it to match in other cases.
+// It isn't clear to me if the old (1.5.31) is more correct, or if the new behavior (1.6.0)
+// highlighting a potential ambiguity is more correct.  Presumably the later (so no tracking bug?),
+// but I made Jetbrains aware and I think they might take a look to investigate further.
+configurations.getByName("shadowRuntimeElements").canBeConsumed = false

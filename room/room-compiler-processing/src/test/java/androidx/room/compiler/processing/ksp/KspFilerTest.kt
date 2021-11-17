@@ -26,6 +26,7 @@ import androidx.room.compiler.processing.util.runKspTest
 import com.google.common.truth.Truth.assertThat
 import com.google.devtools.ksp.processing.CodeGenerator
 import com.google.devtools.ksp.processing.Dependencies
+import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSFile
 import com.squareup.kotlinpoet.FileSpec
 import com.squareup.kotlinpoet.FunSpec
@@ -132,6 +133,15 @@ class KspFilerTest {
             extensionName: String
         ) {
             // no-op for the sake of dependency tracking.
+        }
+
+        override fun associateWithClasses(
+            classes: List<KSClassDeclaration>,
+            packageName: String,
+            fileName: String,
+            extensionName: String
+        ) {
+            // no-op required override.
         }
 
         override fun createNewFile(
