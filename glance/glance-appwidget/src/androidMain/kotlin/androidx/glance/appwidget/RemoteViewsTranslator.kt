@@ -45,6 +45,7 @@ import androidx.glance.layout.EmittableColumn
 import androidx.glance.layout.EmittableRow
 import androidx.glance.layout.EmittableSpacer
 import androidx.glance.text.EmittableText
+import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger
 
 internal fun translateComposition(
@@ -101,6 +102,7 @@ internal data class TranslationContext(
     val areLazyCollectionsAllowed: Boolean = true,
     val lastViewId: AtomicInteger = AtomicInteger(0),
     val parentContext: InsertedViewInfo = InsertedViewInfo(),
+    val isBackgroundSpecified: AtomicBoolean = AtomicBoolean(false),
 ) {
     fun nextViewId() = lastViewId.incrementAndGet()
 

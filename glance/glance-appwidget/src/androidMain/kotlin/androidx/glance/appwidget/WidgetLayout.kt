@@ -39,6 +39,7 @@ import androidx.glance.appwidget.proto.LayoutProto.LayoutConfig
 import androidx.glance.appwidget.proto.LayoutProto.LayoutDefinition
 import androidx.glance.appwidget.proto.LayoutProto.LayoutNode
 import androidx.glance.appwidget.proto.LayoutProto.LayoutType
+import androidx.glance.appwidget.proto.LayoutProto.NodeIdentity
 import androidx.glance.appwidget.proto.LayoutProtoSerializer
 import androidx.glance.findModifier
 import androidx.glance.layout.Alignment
@@ -226,6 +227,9 @@ internal fun createNode(context: Context, element: Emittable): LayoutNode =
         type = element.getLayoutType()
         width = element.modifier.widthModifier.toProto(context)
         height = element.modifier.heightModifier.toProto(context)
+        if (element.modifier.findModifier<AppWidgetBackgroundModifier>() != null) {
+            identity = NodeIdentity.BACKGROUND_NODE
+        }
         when (element) {
             is EmittableImage -> setImageNode(element)
             is EmittableColumn -> setColumnNode(element)
