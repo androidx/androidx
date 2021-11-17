@@ -23,35 +23,42 @@ import android.content.Intent
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.glance.Button
 import androidx.glance.GlanceId
 import androidx.glance.GlanceModifier
 import androidx.glance.Image
 import androidx.glance.ImageProvider
 import androidx.glance.LocalContext
-import androidx.glance.appwidget.action.ActionCallback
 import androidx.glance.action.ActionParameters
 import androidx.glance.action.actionLaunchActivity
 import androidx.glance.action.actionParametersOf
-import androidx.glance.appwidget.action.actionRunCallback
 import androidx.glance.action.clickable
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.GlanceAppWidgetReceiver
+import androidx.glance.appwidget.action.ActionCallback
 import androidx.glance.appwidget.action.actionLaunchActivity
+import androidx.glance.appwidget.action.actionRunCallback
 import androidx.glance.appwidget.appWidgetBackground
 import androidx.glance.appwidget.cornerRadius
+import androidx.glance.appwidget.state.updateAppWidgetState
+import androidx.glance.currentState
 import androidx.glance.layout.Alignment
 import androidx.glance.layout.Column
 import androidx.glance.layout.fillMaxSize
 import androidx.glance.layout.padding
 import androidx.glance.layout.size
+import androidx.glance.state.PreferencesGlanceStateDefinition
+import androidx.glance.action.toParametersKey
 import androidx.glance.text.FontWeight
 import androidx.glance.text.Text
 import androidx.glance.text.TextDecoration
 import androidx.glance.text.TextStyle
-import java.util.concurrent.atomic.AtomicBoolean
 
 class ActionAppWidget : GlanceAppWidget() {
+
+    override val stateDefinition = PreferencesGlanceStateDefinition
 
     @Composable
     override fun Content() {
@@ -61,11 +68,12 @@ class ActionAppWidget : GlanceAppWidget() {
             verticalAlignment = Alignment.Vertical.CenterVertically,
             horizontalAlignment = Alignment.Horizontal.CenterHorizontally
         ) {
+            val shouldChangeView = currentState<Preferences>()[shouldChangeViewKey] ?: false
             Text(
                 text = "Tap to change me",
                 style = TextStyle(
                     fontSize = 16.sp, fontWeight = FontWeight.Bold,
-                    textDecoration = if (shouldChangeView.get()) {
+                    textDecoration = if (shouldChangeView) {
                         TextDecoration.Underline
                     } else {
                         TextDecoration.None
@@ -76,12 +84,12 @@ class ActionAppWidget : GlanceAppWidget() {
                     .clickable(
                         actionRunCallback<UpdateAction>(
                             actionParametersOf(
-                                KEY_USE_UNDERLINE to shouldChangeView.get()
+                                shouldChangeViewKey.toParametersKey() to shouldChangeView
                             )
                         )
                     )
             )
-            if (shouldChangeView.get()) {
+            if (shouldChangeView) {
                 Image(
                     ImageProvider(R.drawable.compose),
                     "Compose",
@@ -108,15 +116,19 @@ class ActionAppWidget : GlanceAppWidget() {
     }
 }
 
-private val KEY_USE_UNDERLINE = ActionParameters.Key<Boolean>("underline")
-private var shouldChangeView = AtomicBoolean(false)
+private val shouldChangeViewKey = booleanPreferencesKey("shouldChangeView")
 
 /**
- * Action to update the [shouldChangeView] value whenever users clicks on text
+ * Action to update the [shouldChangeViewKey] value whenever users clicks on text
  */
 class UpdateAction : ActionCallback {
     override suspend fun onRun(context: Context, glanceId: GlanceId, parameters: ActionParameters) {
-        shouldChangeView.set(!parameters.getOrDefault(KEY_USE_UNDERLINE, false))
+        updateAppWidgetState(context, PreferencesGlanceStateDefinition, glanceId) { prefs ->
+            prefs.toMutablePreferences().apply {
+                this[shouldChangeViewKey] =
+                    !(parameters[shouldChangeViewKey.toParametersKey()] ?: false)
+            }
+        }
         ActionAppWidget().update(context, glanceId)
     }
 }

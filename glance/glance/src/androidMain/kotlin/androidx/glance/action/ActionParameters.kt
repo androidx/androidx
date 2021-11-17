@@ -16,6 +16,7 @@
 
 package androidx.glance.action
 
+import androidx.datastore.preferences.core.Preferences
 import java.util.Collections
 
 /**
@@ -197,3 +198,7 @@ public fun ActionParameters.toMutableParameters(): MutableActionParameters =
  * @return a copy of this Parameters
  */
 public fun ActionParameters.toParameters(): ActionParameters = toMutableParameters()
+
+/** Creates an action key from a preferences key. */
+public fun <T : Any> Preferences.Key<T>.toParametersKey(): ActionParameters.Key<T> =
+    ActionParameters.Key(name)

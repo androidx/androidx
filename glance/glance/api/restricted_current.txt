@@ -117,6 +117,7 @@ package androidx.glance.action {
     method public static androidx.glance.action.MutableActionParameters mutableActionParametersOf(androidx.glance.action.ActionParameters.Pair<?>... pairs);
     method public static androidx.glance.action.MutableActionParameters toMutableParameters(androidx.glance.action.ActionParameters);
     method public static androidx.glance.action.ActionParameters toParameters(androidx.glance.action.ActionParameters);
+    method public static <T> androidx.glance.action.ActionParameters.Key<T> toParametersKey(androidx.datastore.preferences.core.Preferences.Key<T>);
   }
 
   public final class LaunchActivityActionKt {
@@ -276,15 +277,15 @@ package androidx.glance.layout {
 
 package androidx.glance.state {
 
-  public final class GlanceState {
-    method public suspend <T> Object? getValue(android.content.Context context, androidx.glance.state.GlanceStateDefinition<T> definition, String fileName, kotlin.coroutines.Continuation<? super T> p);
-    method public suspend <T> Object? updateValue(android.content.Context context, androidx.glance.state.GlanceStateDefinition<T> definition, String fileName, kotlin.jvm.functions.Function2<? super T,? super kotlin.coroutines.Continuation<? super T>,?> updateBlock, kotlin.coroutines.Continuation<? super T> p);
-    field public static final androidx.glance.state.GlanceState INSTANCE;
+  public interface GlanceStateDefinition<T> {
+    method public suspend Object? getDataStore(android.content.Context context, String fileKey, kotlin.coroutines.Continuation<? super androidx.datastore.core.DataStore<T>> p);
+    method public java.io.File getLocation(android.content.Context context, String fileKey);
   }
 
-  public interface GlanceStateDefinition<T> {
-    method public suspend <T> Object? getDataStore(android.content.Context context, String fileKey, kotlin.coroutines.Continuation<? super androidx.datastore.core.DataStore<T>> p);
+  public final class PreferencesGlanceStateDefinition implements androidx.glance.state.GlanceStateDefinition<androidx.datastore.preferences.core.Preferences> {
+    method public suspend Object? getDataStore(android.content.Context context, String fileKey, kotlin.coroutines.Continuation<? super androidx.datastore.core.DataStore<androidx.datastore.preferences.core.Preferences>> p);
     method public java.io.File getLocation(android.content.Context context, String fileKey);
+    field public static final androidx.glance.state.PreferencesGlanceStateDefinition INSTANCE;
   }
 
 }
