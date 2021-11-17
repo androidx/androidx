@@ -214,8 +214,12 @@ internal class LayoutConfiguration private constructor(
 /**
  * Returns the proto layout tree corresponding to the provided root node.
  *
- * A node should change if either the [LayoutType] selected by the translation of that node changes
- * or if the [SizeSelector] used to find the stub to be replaced changes.
+ * A node should change if either the [LayoutType] selected by the translation of that node changes,
+ * if the [SizeSelector] used to find the stub to be replaced changes or if the [ContainerSelector]
+ * used to find the container's layout changes.
+ *
+ * Note: The number of children, although an element in [ContainerSelector] is not used, as this
+ * will anyway invalidate the structure.
  */
 internal fun createNode(context: Context, element: Emittable): LayoutNode =
     LayoutNode.newBuilder().apply {
