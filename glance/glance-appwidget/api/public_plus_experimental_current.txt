@@ -149,6 +149,14 @@ package androidx.glance.appwidget.action {
     method public static androidx.glance.action.Action actionLaunchActivity(android.content.Intent intent, optional androidx.glance.action.ActionParameters parameters);
   }
 
+  public final class LaunchBroadcastActionKt {
+    method public static androidx.glance.action.Action actionLaunchBroadcastReceiver(String action, optional android.content.ComponentName? componentName);
+    method public static androidx.glance.action.Action actionLaunchBroadcastReceiver(android.content.Intent intent);
+    method public static androidx.glance.action.Action actionLaunchBroadcastReceiver(android.content.ComponentName componentName);
+    method public static <T extends android.content.BroadcastReceiver> androidx.glance.action.Action actionLaunchBroadcastReceiver(Class<T> receiver);
+    method public static inline <reified T extends android.content.BroadcastReceiver> androidx.glance.action.Action! actionLaunchBroadcastReceiver();
+  }
+
   public final class LaunchServiceActionKt {
     method public static androidx.glance.action.Action actionLaunchService(android.content.Intent intent, optional boolean isForegroundService);
     method public static androidx.glance.action.Action actionLaunchService(android.content.ComponentName componentName, optional boolean isForegroundService);
