@@ -32,10 +32,6 @@ import org.mockito.Mockito.mock
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.internal.DoNotInstrument
-import org.robolectric.shadows.ShadowBuild
-
-private const val BRAND = "SAMSUNG"
-private const val HARDWARE = "samsungexynos7570"
 
 @RunWith(RobolectricTestRunner::class)
 @DoNotInstrument
@@ -52,7 +48,6 @@ class SurfaceSorterTest {
     @Test
     fun sort_mediaCodecSurfaceIsInTheLast() {
         // Arrange.
-        setupQuirkDevice()
         val videoSurface = createSurface(containerClass = MediaCodec::class.java)
         val previewSurface = createSurface(containerClass = Preview::class.java)
         val imageSurface = createSurface(containerClass = ImageCapture::class.java)
@@ -86,7 +81,6 @@ class SurfaceSorterTest {
     @Test
     fun sort_videoCaptureSurfaceIsInTheLast() {
         // Arrange.
-        setupQuirkDevice()
         val videoSurface = createSurface(containerClass = VideoCapture::class.java)
         val previewSurface = createSurface(containerClass = Preview::class.java)
         val imageSurface = createSurface(containerClass = ImageCapture::class.java)
@@ -117,22 +111,6 @@ class SurfaceSorterTest {
         assertThat(surfaces6.last()).isEqualTo(videoSurface)
     }
 
-    @Test
-    fun notQuirkDevice_wontSort() {
-        // Arrange.
-        val videoSurface = createSurface(containerClass = VideoCapture::class.java)
-        val previewSurface = createSurface(containerClass = Preview::class.java)
-        val imageSurface = createSurface(containerClass = ImageCapture::class.java)
-        val surfaceSorter = SurfaceSorter()
-        val surfaces = mutableListOf(videoSurface, previewSurface, imageSurface)
-
-        // Act.
-        surfaceSorter.sort(surfaces)
-
-        // Assert.
-        assertThat(surfaces).isEqualTo(listOf(videoSurface, previewSurface, imageSurface))
-    }
-
     private fun createSurface(
         containerClass: Class<*>
     ): DeferrableSurface {
@@ -140,10 +118,5 @@ class SurfaceSorterTest {
         deferrableSurface.setContainerClass(containerClass)
         deferrableSurfaces.add(deferrableSurface)
         return deferrableSurface
-    }
-
-    private fun setupQuirkDevice() {
-        ShadowBuild.setBrand(BRAND)
-        ShadowBuild.setHardware(HARDWARE)
     }
 }
