@@ -24,12 +24,17 @@ class GradleEnterpriseConventionsPlugin implements Plugin<Settings> {
         settings.apply(plugin: "com.gradle.enterprise")
         settings.apply(plugin: "com.gradle.common-custom-user-data-gradle-plugin")
 
+        // Github Actions always sets a "CI" environment variable
+        var isCI = System.getenv("CI") != null
+
         settings.gradleEnterprise {
             server = "https://ge.androidx.dev"
 
             buildScan {
                 publishAlways()
                 publishIfAuthenticated()
+
+                uploadInBackground = !isCI
 
                 capture {
                     taskInputFiles = true
@@ -45,7 +50,7 @@ class GradleEnterpriseConventionsPlugin implements Plugin<Settings> {
             remote(HttpBuildCache) {
                 url = "https://ge.androidx.dev/cache/"
                 var buildCachePassword = System.getenv("GRADLE_BUILD_CACHE_PASSWORD")
-                if (buildCachePassword != null && !buildCachePassword.empty) {
+                if (isCI && buildCachePassword != null && !buildCachePassword.empty) {
                     push = true
                     credentials {
                         username = "ci"
