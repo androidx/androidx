@@ -15,8 +15,5 @@
   -->
 
 <resources>
-    <style name="Theme.TestDimensionAttr" parent="">
-        <item name="dimensionAttr">@dimen/testDimension</item>
-    </style>
-    <style name="Glance.AppWidget.Theme" parent=""/>
+    <style name="Glance.AppWidget.Theme" parent="android:Theme.DeviceDefault"/>
 </resources>
