@@ -296,12 +296,36 @@ class XElementTest {
             assertThat(element.hasAllAnnotations(RunWith::class)).isTrue()
             assertThat(element.hasAllAnnotations(RunWith::class, Test::class)).isFalse()
 
+            assertThat(element.hasAllAnnotations(*arrayOf<ClassName>())).isTrue()
+            assertThat(element.hasAllAnnotations(RunWith::class.className())).isTrue()
+            assertThat(element.hasAllAnnotations(RunWith::class.className(),
+                Test::class.className())).isFalse()
+
+            assertThat(element.hasAllAnnotations(emptyList<ClassName>())).isTrue()
+            assertThat(element.hasAllAnnotations(listOf(RunWith::class.className()))).isTrue()
+            assertThat(element.hasAllAnnotations(listOf(RunWith::class.className(),
+                Test::class.className()))).isFalse()
+
             element.getMethod("testMethod").let { method ->
                 assertThat(method.hasAllAnnotations(*arrayOf<KClass<Annotation>>())).isTrue()
                 assertThat(method.hasAllAnnotations(Test::class)).isTrue()
                 assertThat(method.hasAllAnnotations(Test::class, OtherAnnotation::class)).isTrue()
                 assertThat(method.hasAllAnnotations(Test::class, OtherAnnotation::class,
                     RunWith::class)).isFalse()
+
+                assertThat(method.hasAllAnnotations(*arrayOf<ClassName>())).isTrue()
+                assertThat(method.hasAllAnnotations(Test::class.className())).isTrue()
+                assertThat(method.hasAllAnnotations(Test::class.className(),
+                    OtherAnnotation::class.className())).isTrue()
+                assertThat(method.hasAllAnnotations(Test::class.className(),
+                    OtherAnnotation::class.className(), RunWith::class.className())).isFalse()
+
+                assertThat(method.hasAllAnnotations(emptyList<ClassName>())).isTrue()
+                assertThat(method.hasAllAnnotations(listOf(Test::class.className()))).isTrue()
+                assertThat(method.hasAllAnnotations(
+                    listOf(Test::class.className(), OtherAnnotation::class.className()))).isTrue()
+                assertThat(method.hasAllAnnotations(listOf(Test::class.className(),
+                    OtherAnnotation::class.className(), RunWith::class.className()))).isFalse()
             }
             element.getField("testField").let { field ->
                 assertThat(field.hasAllAnnotations(*arrayOf<KClass<Annotation>>())).isTrue()
@@ -309,6 +333,107 @@ class XElementTest {
                 assertThat(field.hasAllAnnotations(OtherAnnotation::class, Test::class)).isFalse()
                 assertThat(field.hasAllAnnotations(OtherAnnotation::class, OtherAnnotation::class))
                     .isTrue()
+
+                assertThat(field.hasAllAnnotations(*arrayOf<ClassName>())).isTrue()
+                assertThat(field.hasAllAnnotations(OtherAnnotation::class.className())).isTrue()
+                assertThat(field.hasAllAnnotations(OtherAnnotation::class.className(),
+                    Test::class.className())).isFalse()
+                assertThat(field.hasAllAnnotations(OtherAnnotation::class.className(),
+                    OtherAnnotation::class.className())).isTrue()
+
+                assertThat(field.hasAllAnnotations(listOf<ClassName>())).isTrue()
+                assertThat(field.hasAllAnnotations(listOf(OtherAnnotation::class.className())))
+                    .isTrue()
+                assertThat(field.hasAllAnnotations(listOf(OtherAnnotation::class.className(),
+                    Test::class.className()))).isFalse()
+                assertThat(field.hasAllAnnotations(listOf(OtherAnnotation::class.className(),
+                    OtherAnnotation::class.className()))).isTrue()
+            }
+        }
+    }
+
+    @Test
+    fun hasAnyAnnotations() {
+        val source = Source.java(
+            "foo.bar.Baz",
+            """
+            package foo.bar;
+            import org.junit.*;
+            import org.junit.runner.*;
+            import org.junit.runners.*;
+            import androidx.room.compiler.processing.testcode.OtherAnnotation;
+
+            @RunWith(JUnit4.class)
+            class Baz {
+                @OtherAnnotation(value="xx")
+                String testField;
+
+                @org.junit.Test
+                @OtherAnnotation(value="yy")
+                void testMethod() {}
+            }
+            """.trimIndent()
+        )
+        runProcessorTest(
+            listOf(source)
+        ) { it ->
+            val element = it.processingEnv.requireTypeElement("foo.bar.Baz")
+            assertThat(element.hasAnyAnnotation(*arrayOf<KClass<Annotation>>())).isFalse()
+            assertThat(element.hasAnyAnnotation(RunWith::class)).isTrue()
+            assertThat(element.hasAnyAnnotation(RunWith::class, Test::class)).isTrue()
+
+            assertThat(element.hasAnyAnnotation(*arrayOf<ClassName>())).isFalse()
+            assertThat(element.hasAnyAnnotation(RunWith::class.className())).isTrue()
+            assertThat(element.hasAnyAnnotation(RunWith::class.className(),
+                Test::class.className())).isTrue()
+
+            assertThat(element.hasAnyAnnotation(emptyList<ClassName>())).isFalse()
+            assertThat(element.hasAnyAnnotation(listOf(RunWith::class.className()))).isTrue()
+            assertThat(element.hasAnyAnnotation(listOf(RunWith::class.className(),
+                Test::class.className()))).isTrue()
+
+            element.getMethod("testMethod").let { method ->
+                assertThat(method.hasAnyAnnotation(*arrayOf<KClass<Annotation>>())).isFalse()
+                assertThat(method.hasAnyAnnotation(Test::class)).isTrue()
+                assertThat(method.hasAnyAnnotation(Test::class, OtherAnnotation::class)).isTrue()
+                assertThat(method.hasAnyAnnotation(Test::class, OtherAnnotation::class,
+                    RunWith::class)).isTrue()
+
+                assertThat(method.hasAnyAnnotation(*arrayOf<ClassName>())).isFalse()
+                assertThat(method.hasAnyAnnotation(Test::class.className())).isTrue()
+                assertThat(method.hasAnyAnnotation(Test::class.className(),
+                    OtherAnnotation::class.className())).isTrue()
+                assertThat(method.hasAnyAnnotation(Test::class.className(),
+                    OtherAnnotation::class.className(), RunWith::class.className())).isTrue()
+
+                assertThat(method.hasAnyAnnotation(emptyList<ClassName>())).isFalse()
+                assertThat(method.hasAnyAnnotation(listOf(Test::class.className()))).isTrue()
+                assertThat(method.hasAnyAnnotation(
+                    listOf(Test::class.className(), OtherAnnotation::class.className()))).isTrue()
+                assertThat(method.hasAnyAnnotation(listOf(Test::class.className(),
+                    OtherAnnotation::class.className(), RunWith::class.className()))).isTrue()
+            }
+            element.getField("testField").let { field ->
+                assertThat(field.hasAnyAnnotation(*arrayOf<KClass<Annotation>>())).isFalse()
+                assertThat(field.hasAnyAnnotation(OtherAnnotation::class)).isTrue()
+                assertThat(field.hasAnyAnnotation(OtherAnnotation::class, Test::class)).isTrue()
+                assertThat(field.hasAnyAnnotation(OtherAnnotation::class, OtherAnnotation::class))
+                    .isTrue()
+
+                assertThat(field.hasAnyAnnotation(*arrayOf<ClassName>())).isFalse()
+                assertThat(field.hasAnyAnnotation(OtherAnnotation::class.className())).isTrue()
+                assertThat(field.hasAnyAnnotation(OtherAnnotation::class.className(),
+                    Test::class.className())).isTrue()
+                assertThat(field.hasAnyAnnotation(OtherAnnotation::class.className(),
+                    OtherAnnotation::class.className())).isTrue()
+
+                assertThat(field.hasAnyAnnotation(listOf<ClassName>())).isFalse()
+                assertThat(field.hasAnyAnnotation(listOf(OtherAnnotation::class.className())))
+                    .isTrue()
+                assertThat(field.hasAnyAnnotation(listOf(OtherAnnotation::class.className(),
+                    Test::class.className()))).isTrue()
+                assertThat(field.hasAnyAnnotation(listOf(OtherAnnotation::class.className(),
+                    OtherAnnotation::class.className()))).isTrue()
             }
         }
     }
