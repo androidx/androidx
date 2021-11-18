@@ -17,9 +17,15 @@
 package androidx.fragment.app
 
 import android.os.Bundle
+import androidx.activity.result.ActivityResultRegistry
+import androidx.activity.result.contract.ActivityResultContract
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.app.ActivityOptionsCompat
+import androidx.fragment.app.test.ViewModelActivity
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.Lifecycle.State.CREATED
 import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.ViewModelProvider
 import androidx.savedstate.SavedStateRegistry
 import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -83,6 +89,20 @@ class FragmentSavedStateRegistryTest {
             recreate()
         }
     }
+
+    @Test
+    fun savedStateOnActivityResult() {
+        with(ActivityScenario.launch(FragmentSavedStateActivity::class.java)) {
+            val registry = withActivity { registry }
+            initializeSavedState(OnActivityResultCheckingFragment(registry))
+            recreate()
+            moveToState(Lifecycle.State.CREATED)
+            withActivity {
+                (fragment as OnActivityResultCheckingFragment).launcher.launch("")
+            }
+            moveToState(Lifecycle.State.RESUMED)
+        }
+    }
 }
 
 private fun checkDefaultSavedState(store: SavedStateRegistry) {
@@ -92,6 +112,31 @@ private fun checkDefaultSavedState(store: SavedStateRegistry) {
 }
 
 class FragmentSavedStateActivity : RecreatedActivity() {
+    val registry = object : ActivityResultRegistry() {
+        override fun <I : Any?, O : Any?> onLaunch(
+            requestCode: Int,
+            contract: ActivityResultContract<I, O>,
+            input: I,
+            options: ActivityOptionsCompat?
+        ) {
+            if (contract is ActivityResultContracts.GetContent) {
+                dispatchResult(requestCode, null)
+            }
+        }
+    }
+
+    init {
+        supportFragmentManager.fragmentFactory = object : FragmentFactory() {
+            override fun instantiate(classLoader: ClassLoader, className: String): Fragment {
+                return when (loadFragmentClass(classLoader, className)) {
+                    OnActivityResultCheckingFragment::class.java ->
+                        OnActivityResultCheckingFragment(registry)
+                    else -> super.instantiate(classLoader, className)
+                }
+            }
+        }
+    }
+
     val fragment: Fragment get() = supportFragmentManager.findFragmentByTag(FRAGMENT_TAG)
         ?: throw IllegalStateException("Fragment under test wasn't found")
 }
@@ -102,6 +147,23 @@ class OnCreateCheckingFragment : Fragment() {
         if (savedInstanceState != null) {
             checkDefaultSavedState(savedStateRegistry)
         }
+    }
+}
+
+class OnActivityResultCheckingFragment(
+    activityResultRegistry: ActivityResultRegistry
+) : Fragment() {
+    val viewModel by lazy {
+        ViewModelProvider(this).get(ViewModelActivity.TestSavedStateViewModel::class.java)
+    }
+
+    val launcher = registerForActivityResult(
+        ActivityResultContracts.GetContent(),
+        activityResultRegistry
+    ) {
+        // Accessing the ViewModel is what triggers the startup behavior of
+        // SavedStateRegistryController
+        viewModel
     }
 }
 
