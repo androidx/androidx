@@ -27,14 +27,21 @@ import androidx.benchmark.macro.isSupportedWithVmSettings
 import androidx.benchmark.macro.junit4.MacrobenchmarkRule
 
 /**
- * Default compilation modes to test for all AndroidX macrobenchmarks.
+ * Basic, always-usable compilation modes, when baseline profiles aren't available.
+ *
+ * Over time, it's expected very few macrobenchmarks will reference this directly, as more libraries
+ * gain baseline profiles.
  */
-val COMPILATION_MODES = listOf(
+val BASIC_COMPILATION_MODES = listOf(
     CompilationMode.None,
     CompilationMode.Interpreted,
-    CompilationMode.BaselineProfile,
     CompilationMode.SpeedProfile()
 )
+
+/**
+ * Default compilation modes to test for all AndroidX macrobenchmarks.
+ */
+val COMPILATION_MODES = listOf(CompilationMode.BaselineProfile) + BASIC_COMPILATION_MODES
 
 /**
  * Temporary, while transitioning to new metrics
