@@ -714,6 +714,36 @@ class NavHostTest {
     }
 
     @Test
+    fun testGetDialogViewModel() {
+        lateinit var navController: NavHostController
+        lateinit var model: TestViewModel
+
+        composeTestRule.setContent {
+            navController = rememberNavController()
+            NavHost(navController, first) {
+                composable(first) { }
+                dialog(second) {
+                    model = viewModel(it)
+                }
+            }
+        }
+
+        composeTestRule.runOnIdle {
+            navController.navigate(second)
+        }
+
+        composeTestRule.runOnIdle {
+            navController.popBackStack()
+        }
+
+        assertThat(model.wasCleared).isFalse()
+
+        composeTestRule.waitForIdle()
+
+        assertThat(model.wasCleared).isTrue()
+    }
+
+    @Test
     fun testGetGraphViewModelAfterRecompose() {
         lateinit var navController: NavHostController
         lateinit var model: TestViewModel
