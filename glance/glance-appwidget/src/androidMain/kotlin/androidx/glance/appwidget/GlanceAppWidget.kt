@@ -19,7 +19,6 @@ package androidx.glance.appwidget
 import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProviderInfo
 import android.content.Context
-import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.util.DisplayMetrics
@@ -85,6 +84,13 @@ public abstract class GlanceAppWidget(
     public open val stateDefinition: GlanceStateDefinition<*>? = null
 
     /**
+     * Method called by the framework when an App Widget has been removed from its host.
+     *
+     * When the method returns, the state associated with the [glanceId] will be deleted.
+     */
+    public open suspend fun onDelete(glanceId: GlanceId) { }
+
+    /**
      * Triggers the composition of [Content] and sends the result to the [AppWidgetManager].
      */
     public suspend fun update(context: Context, glanceId: GlanceId) {
@@ -92,6 +98,26 @@ public abstract class GlanceAppWidget(
             "The glanceId '$glanceId' is not a valid App Widget glance id"
         }
         update(context, AppWidgetManager.getInstance(context), glanceId.appWidgetId)
+    }
+
+    /**
+     * Calls [onDelete], then clear local data associated with the [appWidgetId].
+     *
+     * This is meant to be called when the App Widget instance has been deleted from the host.
+     */
+    internal suspend fun deleted(context: Context, appWidgetId: Int) {
+        val glanceId = AppWidgetId(appWidgetId)
+        try {
+            onDelete(glanceId)
+        } catch (cancelled: CancellationException) {
+            // Nothing to do here
+        } catch (t: Throwable) {
+            Log.e(GlanceAppWidgetTag, "Error in user-provided deletion callback", t)
+        } finally {
+            stateDefinition?.let {
+                GlanceState.deleteStore(context, it, createUniqueRemoteUiName(appWidgetId))
+            }
+        }
     }
 
     /**
@@ -504,15 +530,3 @@ private fun Collection<DpSize>.sortedBySize() =
 internal fun logException(throwable: Throwable) {
     Log.e(GlanceAppWidgetTag, "Error in Glance App Widget", throwable)
 }
-
-private fun Intent.extractAppWidgetIds() =
-    getIntArrayExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS)
-        ?: intArrayOf(
-            getIntExtra(
-                AppWidgetManager.EXTRA_APPWIDGET_ID,
-                AppWidgetManager.INVALID_APPWIDGET_ID
-            ).also {
-                check(it != AppWidgetManager.INVALID_APPWIDGET_ID) {
-                    "Cannot determine the app widget id"
-                }
-            })

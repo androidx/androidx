@@ -34,6 +34,7 @@ import android.widget.TextView
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
+import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.glance.Button
 import androidx.glance.GlanceModifier
 import androidx.glance.Image
@@ -41,6 +42,7 @@ import androidx.glance.ImageProvider
 import androidx.glance.LocalContext
 import androidx.glance.LocalSize
 import androidx.glance.action.actionLaunchActivity
+import androidx.glance.appwidget.state.updateAppWidgetState
 import androidx.glance.appwidget.test.R
 import androidx.glance.background
 import androidx.glance.layout.Box
@@ -53,6 +55,7 @@ import androidx.glance.layout.fillMaxWidth
 import androidx.glance.layout.height
 import androidx.glance.layout.width
 import androidx.glance.layout.wrapContentHeight
+import androidx.glance.state.PreferencesGlanceStateDefinition
 import androidx.glance.text.FontStyle
 import androidx.glance.text.FontWeight
 import androidx.glance.text.Text
@@ -61,9 +64,13 @@ import androidx.glance.text.TextStyle
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
+import kotlinx.coroutines.runBlocking
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 import kotlin.test.assertIs
 import kotlin.test.assertNotNull
 
@@ -455,6 +462,50 @@ class GlanceAppWidgetReceiverTest {
         }
     }
 
+    @Test
+    fun removeAppWidget() {
+        TestGlanceAppWidget.stateDefinition = PreferencesGlanceStateDefinition
+        TestGlanceAppWidget.uiDefinition = {
+            Text("something")
+        }
+
+        mHostRule.startHost()
+
+        val appWidgetManager = GlanceAppWidgetManager(context)
+        val glanceId = runBlocking {
+            appWidgetManager.getGlanceIds(TestGlanceAppWidget::class.java).single()
+        }
+
+        runBlocking {
+            updateAppWidgetState(context, PreferencesGlanceStateDefinition, glanceId) { prefs ->
+                prefs.toMutablePreferences().apply {
+                    this[testKey] = 3
+                }
+            }
+        }
+
+        val fileKey = createUniqueRemoteUiName((glanceId as AppWidgetId).appWidgetId)
+        val preferencesFile = PreferencesGlanceStateDefinition.getLocation(context, fileKey)
+
+        assertThat(preferencesFile.exists())
+
+        val deleteLatch = CountDownLatch(1)
+        TestGlanceAppWidget.setOnDeleteBlock {
+            deleteLatch.countDown()
+        }
+
+        mHostRule.removeAppWidget()
+
+        deleteLatch.await(5, TimeUnit.SECONDS)
+        val interval = 200L
+        for (timeout in 0..2000L step interval) {
+            if (!preferencesFile.exists()) return
+            Thread.sleep(interval)
+        }
+        assertWithMessage("View state file exists").that(preferencesFile.exists())
+            .isFalse()
+    }
+
     // Check there is a single span of the given type and that it passes the [check].
     private inline fun <reified T> SpannedString.checkHasSingleTypedSpan(check: (T) -> Unit) {
         val spans = getSpans(0, length, T::class.java)
@@ -473,3 +524,5 @@ class GlanceAppWidgetReceiverTest {
         assertThat(sizePx / density).isWithin(1.1f / density).of(expectedSize.value)
     }
 }
+
+private val testKey = intPreferencesKey("testKey")
