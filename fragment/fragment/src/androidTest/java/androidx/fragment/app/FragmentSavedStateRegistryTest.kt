@@ -21,12 +21,12 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.Lifecycle.State.CREATED
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.savedstate.SavedStateRegistry
+import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.testutils.RecreatedActivity
-import androidx.testutils.recreate
+import androidx.testutils.withActivity
 import com.google.common.truth.Truth.assertThat
-import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -34,52 +34,54 @@ import org.junit.runner.RunWith
 @LargeTest
 class FragmentSavedStateRegistryTest {
 
-    @Suppress("DEPRECATION")
-    @get:Rule
-    var activityRule = androidx.test.rule.ActivityTestRule(FragmentSavedStateActivity::class.java)
-
-    private fun initializeSavedState(testFragment: Fragment = Fragment()) {
-        activityRule.runOnUiThread {
-            val fragmentManager = activityRule.activity.supportFragmentManager
-            fragmentManager.beginTransaction().add(testFragment, FRAGMENT_TAG).commitNow()
-            assertThat(fragmentManager.findFragmentByTag(FRAGMENT_TAG)).isNotNull()
-            assertThat(testFragment.lifecycle.currentState.isAtLeast(CREATED)).isTrue()
-            val registry = testFragment.savedStateRegistry
-            val savedState = registry.consumeRestoredStateForKey(CALLBACK_KEY)
-            assertThat(savedState).isNull()
-            registry.registerSavedStateProvider(CALLBACK_KEY, DefaultProvider())
-        }
+    private fun ActivityScenario<FragmentSavedStateActivity>.initializeSavedState(
+        testFragment: Fragment = Fragment()
+    ) = withActivity {
+        val fragmentManager = supportFragmentManager
+        fragmentManager.beginTransaction().add(testFragment, FRAGMENT_TAG).commitNow()
+        assertThat(fragmentManager.findFragmentByTag(FRAGMENT_TAG)).isNotNull()
+        assertThat(testFragment.lifecycle.currentState.isAtLeast(CREATED)).isTrue()
+        val registry = testFragment.savedStateRegistry
+        val savedState = registry.consumeRestoredStateForKey(CALLBACK_KEY)
+        assertThat(savedState).isNull()
+        registry.registerSavedStateProvider(CALLBACK_KEY, DefaultProvider())
     }
 
     @Test
     fun savedState() {
-        initializeSavedState()
-        val recreated = activityRule.recreate()
-        activityRule.runOnUiThread {
-            assertThat(recreated.fragment().lifecycle.currentState.isAtLeast(CREATED)).isTrue()
-            checkDefaultSavedState(recreated.fragment().savedStateRegistry)
+        with(ActivityScenario.launch(FragmentSavedStateActivity::class.java)) {
+            initializeSavedState()
+            recreate()
+            withActivity {
+                assertThat(fragment.lifecycle.currentState.isAtLeast(CREATED)).isTrue()
+                checkDefaultSavedState(fragment.savedStateRegistry)
+            }
         }
     }
 
     @Test
     fun savedStateLateInit() {
-        initializeSavedState()
-        val recreated = activityRule.recreate()
-        activityRule.runOnUiThread {
-            recreated.fragment().lifecycle.addObserver(
-                LifecycleEventObserver { _, event ->
-                    if (event == Lifecycle.Event.ON_RESUME) {
-                        checkDefaultSavedState(recreated.fragment().savedStateRegistry)
+        with(ActivityScenario.launch(FragmentSavedStateActivity::class.java)) {
+            initializeSavedState()
+            recreate()
+            withActivity {
+                fragment.lifecycle.addObserver(
+                    LifecycleEventObserver { _, event ->
+                        if (event == Lifecycle.Event.ON_RESUME) {
+                            checkDefaultSavedState(fragment.savedStateRegistry)
+                        }
                     }
-                }
-            )
+                )
+            }
         }
     }
 
     @Test
     fun savedStateEarlyRegister() {
-        initializeSavedState(OnCreateCheckingFragment())
-        activityRule.recreate()
+        with(ActivityScenario.launch(FragmentSavedStateActivity::class.java)) {
+            initializeSavedState(OnCreateCheckingFragment())
+            recreate()
+        }
     }
 }
 
@@ -90,7 +92,7 @@ private fun checkDefaultSavedState(store: SavedStateRegistry) {
 }
 
 class FragmentSavedStateActivity : RecreatedActivity() {
-    fun fragment() = supportFragmentManager.findFragmentByTag(FRAGMENT_TAG)
+    val fragment: Fragment get() = supportFragmentManager.findFragmentByTag(FRAGMENT_TAG)
         ?: throw IllegalStateException("Fragment under test wasn't found")
 }
 
