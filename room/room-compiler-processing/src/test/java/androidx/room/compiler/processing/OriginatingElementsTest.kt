@@ -18,17 +18,11 @@ package androidx.room.compiler.processing
 
 import androidx.room.compiler.processing.ksp.KSClassDeclarationAsOriginatingElement
 import androidx.room.compiler.processing.ksp.KSFileAsOriginatingElement
-import androidx.room.compiler.processing.ksp.KspFiler
 import androidx.room.compiler.processing.ksp.KspTypeElement
 import androidx.room.compiler.processing.ksp.synthetic.KspSyntheticPropertyMethodElement
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.runProcessorTest
 import com.google.common.truth.Truth.assertThat
-import com.google.devtools.ksp.processing.CodeGenerator
-import com.google.devtools.ksp.processing.Dependencies
-import com.google.devtools.ksp.symbol.KSClassDeclaration
-import com.google.devtools.ksp.symbol.KSFile
-import com.squareup.javapoet.JavaFile
 import com.squareup.javapoet.TypeSpec
 import org.junit.Test
 import org.junit.runner.RunWith
