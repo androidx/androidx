@@ -196,8 +196,8 @@ public fun AlertDialog(
  * @param scrollState The scroll state for the dialog so that the scroll position can be displayed
  * e.g. by the [PositionIndicator] passed to [Scaffold].
  * @param durationMillis The number of milliseconds for which the dialog is displayed,
- * must be positive. Expected to be [DialogDefaults.ShortDuration], [DialogDefaults.LongDuration],
- * or [DialogDefaults.IndefiniteDuration].
+ * must be positive. Suggested values are [DialogDefaults.ShortDurationMillis],
+ * [DialogDefaults.LongDurationMillis] or [DialogDefaults.IndefiniteDurationMillis].
  * @param backgroundColor [Color] representing the background color for this dialog.
  * @param contentColor [Color] representing the content color for this dialog.
  * @param iconTintColor Icon [Color] that defaults to the [contentColor],
@@ -211,7 +211,7 @@ public fun ConfirmationDialog(
     modifier: Modifier = Modifier,
     icon: @Composable (() -> Unit)? = null,
     scrollState: ScrollState = rememberScrollState(),
-    durationMillis: Long = DialogDefaults.ShortDuration,
+    durationMillis: Long = DialogDefaults.ShortDurationMillis,
     backgroundColor: Color = MaterialTheme.colors.background,
     contentColor: Color = contentColorFor(backgroundColor),
     iconTintColor: Color = contentColor,
@@ -286,17 +286,17 @@ public object DialogDefaults {
     /**
      * Short duration for showing [ConfirmationDialog].
      */
-    val ShortDuration = 4000L
+    val ShortDurationMillis = 4000L
 
     /**
      * Long duration for showing [ConfirmationDialog].
      */
-    val LongDuration = 10000L
+    val LongDurationMillis = 10000L
 
     /**
      * Show [ConfirmationDialog] indefinitely (supports swipe-to-dismiss).
      */
-    val IndefiniteDuration = Long.MAX_VALUE
+    val IndefiniteDurationMillis = Long.MAX_VALUE
 
     /**
      * Spacing between [Button]s.
