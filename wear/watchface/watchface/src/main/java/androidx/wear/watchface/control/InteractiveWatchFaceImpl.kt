@@ -170,6 +170,8 @@ internal class InteractiveWatchFaceImpl(
     }
 
     fun onDestroy() {
-        engine = null
+        uiThreadCoroutineScope.launch {
+            engine = null
+        }
     }
 }
