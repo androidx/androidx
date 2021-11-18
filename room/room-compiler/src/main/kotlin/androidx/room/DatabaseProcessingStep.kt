@@ -18,6 +18,7 @@ package androidx.room
 
 import androidx.room.compiler.processing.XElement
 import androidx.room.compiler.processing.XProcessingEnv
+import androidx.room.compiler.processing.XProcessingEnvConfig
 import androidx.room.compiler.processing.XProcessingStep
 import androidx.room.compiler.processing.XTypeElement
 import androidx.room.log.RLog
@@ -57,6 +58,10 @@ class DatabaseProcessingStep : XProcessingStep {
         elementsByAnnotation: Map<String, Set<XElement>>,
         isProcessingOver: Boolean
     ): Set<XTypeElement> {
+        check(env.config == ENV_CONFIG) {
+            "Room Processor expected $ENV_CONFIG but was invoked with a different configuration:" +
+                "${env.config}"
+        }
         val context = Context(env)
 
         val rejectedElements = mutableSetOf<XTypeElement>()
@@ -172,5 +177,11 @@ class DatabaseProcessingStep : XProcessingStep {
                     }
                 }
             }
+    }
+
+    companion object {
+        internal val ENV_CONFIG = XProcessingEnvConfig.DEFAULT.copy(
+            excludeMethodsWithInvalidJvmSourceNames = true
+        )
     }
 }
