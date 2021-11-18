@@ -40,6 +40,7 @@ import android.view.accessibility.AccessibilityNodeInfo.TouchDelegateInfo;
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.OptIn;
 import androidx.annotation.RestrictTo;
 import androidx.core.R;
 import androidx.core.accessibilityservice.AccessibilityServiceInfoCompat;
@@ -1232,6 +1233,9 @@ public class AccessibilityNodeInfoCompat {
 
     private static final String STATE_DESCRIPTION_KEY =
             "androidx.view.accessibility.AccessibilityNodeInfoCompat.STATE_DESCRIPTION_KEY";
+
+    private static final String UNIQUE_ID_KEY =
+            "androidx.view.accessibility.AccessibilityNodeInfoCompat.UNIQUE_ID_KEY";
 
     // These don't line up with the internal framework constants, since they are independent
     // and we might as well get all 32 bits of utility here.
@@ -2852,6 +2856,42 @@ public class AccessibilityNodeInfoCompat {
     }
 
     /**
+     * Gets the unique id of this node.
+     *
+     * @return the unique id or null if android version smaller
+     * than 19.
+     */
+    @OptIn(markerClass = BuildCompat.PrereleaseSdkCheck.class)
+    public @Nullable String getUniqueId() {
+        if (BuildCompat.isAtLeastT()) {
+            return mInfo.getUniqueId();
+        } else if (Build.VERSION.SDK_INT >= 19) {
+            return mInfo.getExtras().getString(UNIQUE_ID_KEY);
+        }
+        return null;
+    }
+
+    /**
+     * Sets the unique id of this node.
+     * <p>
+     *   <strong>Note:</strong> Cannot be called from an
+     *   {@link android.accessibilityservice.AccessibilityService}.
+     *   This class is made immutable before being delivered to an AccessibilityService.
+     * </p>
+     *
+     * @param uniqueId the unique id of this node.
+     * @throws IllegalStateException If called from an AccessibilityService.
+     */
+    @OptIn(markerClass = BuildCompat.PrereleaseSdkCheck.class)
+    public void setUniqueId(@Nullable String uniqueId) {
+        if (BuildCompat.isAtLeastT()) {
+            mInfo.setUniqueId(uniqueId);
+        } else if (Build.VERSION.SDK_INT >= 19) {
+            mInfo.getExtras().putString(UNIQUE_ID_KEY, uniqueId);
+        }
+    }
+
+    /**
      * Return an instance back to be reused.
      * <p>
      * <strong>Note:</strong> You must not touch the object after calling this function.
@@ -4125,6 +4165,7 @@ public class AccessibilityNodeInfoCompat {
         builder.append("; text: ").append(getText());
         builder.append("; contentDescription: ").append(getContentDescription());
         builder.append("; viewId: ").append(getViewIdResourceName());
+        builder.append("; uniqueId: ").append(getUniqueId());
 
         builder.append("; checkable: ").append(isCheckable());
         builder.append("; checked: ").append(isChecked());
