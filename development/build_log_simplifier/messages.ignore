@@ -133,7 +133,6 @@ Here are the highlights of this release:
 \- Support for Scala 3
 For more details see .*
 Daemon will be stopped at the end of the build
-# > Task :buildSrc:build
 # > Configure project :appsearch:appsearch\-local\-backend
 Configuration on demand is an incubating feature\.
 Configuration cache is an incubating feature\.
@@ -177,9 +176,6 @@ Note: Some input files use or override a deprecated API that is marked for remov
 Note: Recompile with \-Xlint:removal for details\.
 Note\: Some input files use unchecked or unsafe operations\.
 Note\: Recompile with \-Xlint\:unchecked for details\.
-# > Task :benchmark:benchmark-junit4:processDebugAndroidTestManifest
-# > Task :benchmark:benchmark-common:processDebugAndroidTestManifest
-# > Task :tracing:tracing:compileDebugAndroidTestJavaWithJavac
 # > Task :ui:ui-tooling:processDebugAndroidTestManifest
 application@android:debuggable was tagged at .*\.xml:[0-9]+ to replace other declarations but no other declaration present
 \$OUT_DIR/androidx/wear/compose/compose\-material\-benchmark/build/intermediates/tmp/manifest/androidTest/release/tempFile[0-9]+ProcessTestManifest[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
@@ -208,7 +204,6 @@ application@android:debuggable was tagged at .*\.xml:[0-9]+ to replace other dec
 \$OUT_DIR/androidx/compose/ui/ui\-graphics/ui\-graphics\-benchmark/build/intermediates/tmp/manifest/androidTest/release/tempFile[0-9]+ProcessTestManifest[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
 # > Task :compose:foundation:foundation-layout:processDebugAndroidTestManifest
 \$SUPPORT/compose/foundation/foundation\-layout/src/androidAndroidTest/AndroidManifest\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
-# > Task :compose:navigation:navigation:processDebugAndroidTestManifest
 # > Task :compose:runtime:runtime-saveable:processDebugAndroidTestManifest
 \$SUPPORT/compose/runtime/runtime\-saveable/src/androidAndroidTest/AndroidManifest\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
 # > Task :compose:runtime:runtime:benchmark:processReleaseAndroidTestManifest
@@ -244,19 +239,8 @@ See the profiling report at\: file\:\/\/\$OUT_DIR\/gradle\/external\/doclava\/bu
 # > Task :lifecycle:lifecycle-common:compileJava
 Note: \$[^ ]+ uses or overrides a deprecated API\.
 Note: Recompile with \-Xlint\:deprecation for details\.
-# > Task :concurrent:concurrent-futures:compileJava
-# > Task :contentpager:contentpager:compileReleaseJavaWithJavac
-# > Task :coordinatorlayout:coordinatorlayout:compileReleaseJavaWithJavac
-# > Task :customview:customview:compileReleaseJavaWithJavac
-# > Task :recommendation:recommendation:compileReleaseJavaWithJavac
-# > Task :textclassifier:textclassifier:compileReleaseJavaWithJavac
 # > Task :publicDocsTask
 [0-9]+ warnings
-# > Task :support-animation-demos:compileDebugJavaWithJavac
-# > Task :lint-demos:lint-demo-appcompat:compileDebugJavaWithJavac
-# > Task :support-transition-demos:compileDebugJavaWithJavac
-# > Task :support-content-demos:compileDebugJavaWithJavac
-# > Task :support-preference-demos:compileDebugJavaWithJavac
 # > Task :startup:integration-tests:first-library:processDebugManifest
 \$SUPPORT/startup/integration\-tests/first\-library/src/main/AndroidManifest\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
 meta\-data\#androidx\.work\.WorkManagerInitializer was tagged at AndroidManifest\.xml\:[0-9]+ to remove other declarations but no other declaration present
@@ -264,23 +248,12 @@ meta\-data\#androidx\.work\.WorkManagerInitializer was tagged at AndroidManifest
 Note: \$SUPPORT/samples/SupportSliceDemos/src/main/java/com/example/androidx/slice/demos/SliceBrowser\.java uses unchecked or unsafe operations\.
 # > Task :emoji2:emoji2-benchmark:processReleaseAndroidTestManifest
 \$SUPPORT/emoji[0-9]+/emoji[0-9]+\-benchmark/src/androidTest/AndroidManifest\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
-# > Task :gridlayout:gridlayout:compileDebugAndroidTestJavaWithJavac
-# > Task :leanback:leanback-tab:processDebugAndroidTestManifest
-# > Task :lifecycle:lifecycle-extensions:processDebugAndroidTestManifest
 # > Task :leanback:leanback:compileDebugAndroidTestJavaWithJavac
 reason: class file for kotlin\.annotation\.AnnotationTarget not found
 reason: class file for kotlin\.annotation\.AnnotationRetention not found
 warning: unknown enum constant AnnotationTarget\.ANNOTATION_CLASS
-# > Task :navigation:navigation-dynamic-features-runtime:processDebugAndroidTestManifest
-# > Task :mediarouter:mediarouter:compileDebugAndroidTestJavaWithJavac
-# > Task :palette:palette:processDebugAndroidTestManifest
-# > Task :percentlayout:percentlayout:processDebugAndroidTestManifest
-# > Task :preference:preference-ktx:processDebugAndroidTestManifest
 # > Task :recyclerview:recyclerview-benchmark:processReleaseAndroidTestManifest
 \$SUPPORT/recyclerview/recyclerview\-benchmark/src/androidTest/AndroidManifest\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
-# > Task :remotecallback:remotecallback:processDebugAndroidTestManifest
-# > Task :recyclerview:recyclerview-selection:compileDebugAndroidTestJavaWithJavac
-# > Task :savedstate:savedstate:processDebugAndroidTestManifest
 # > Task :room:room-benchmark:processReleaseAndroidTestManifest
 \$SUPPORT/room/benchmark/src/androidTest/AndroidManifest\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
 # > Task :room:room-benchmark:kaptReleaseAndroidTestKotlin
@@ -290,7 +263,6 @@ public abstract java\.util\.List<androidx\.room\.benchmark\.RelationBenchmark\.U
 \$SUPPORT/room/integration\-tests/noappcompattestapp/src/androidTest/java/androidx/room/integration/noappcompat/BareRelationDatabaseTest\.java:[0-9]+: warning: The return value includes a POJO with a @Relation\. It is usually desired to annotate this method with @Transaction to avoid possibility of inconsistent results between the POJO and its relations\. See https://developer\.android\.com/reference/androidx/room/Transaction\.html for details\.
 UserAndPets getUserWithPets\(long id\);
 List<UserAndPet> getUsersWithPet\(\);
-# > Task :textclassifier:integration-tests:testapp:compileDebugAndroidTestJavaWithJavac
 # > Task :room:integration-tests:room-testapp:compileDebugAndroidTestJavaWithJavac
 Note: \$SUPPORT/room/integration\-tests/testapp/src/androidTest/java/androidx/room/integration/testapp/test/TestUtil\.java uses unchecked or unsafe operations\.
 # > Task :activity:integration-tests:testapp:processDebugAndroidTestManifest
@@ -380,7 +352,6 @@ w\: \$SUPPORT\/viewpager[0-9]+\/viewpager[0-9]+\/src\/androidTest\/java\/android
 w\: \$SUPPORT\/viewpager[0-9]+\/viewpager[0-9]+\/src\/androidTest\/java\/androidx\/viewpager[0-9]+\/widget\/OnApplyWindowInsetsListenerTest\.kt\: \([0-9]+\, [0-9]+\)\: Unnecessary non\-null assertion \(\!\!\) on a non\-null receiver of type WindowInsetsCompat
 w\: \$SUPPORT\/viewpager[0-9]+\/viewpager[0-9]+\/src\/androidTest\/java\/androidx\/viewpager[0-9]+\/widget\/OnApplyWindowInsetsListenerTest\.kt\: \([0-9]+\, [0-9]+\)\: \'consumeStableInsets\(\)\: WindowInsetsCompat\' is deprecated\. Deprecated in Java
 w\: \$SUPPORT\/viewpager[0-9]+\/viewpager[0-9]+\/src\/androidTest\/java\/androidx\/viewpager[0-9]+\/widget\/OnApplyWindowInsetsListenerTest\.kt\: \([0-9]+\, [0-9]+\)\: \'consumeDisplayCutout\(\)\: WindowInsetsCompat\' is deprecated\. Deprecated in Java
-# > Task :contentpager:contentpager:compileDebugAndroidTestJavaWithJavac
 # > Task :docs-public:dokkaKotlinDocs
 No documentation for .*
 Found an unresolved type in androidx\.compose\.runtime\.snapshots\.SnapshotStateList\$add\(androidx\.compose\.runtime\.snapshots\.SnapshotStateList\.T\) \(SnapshotStateList\.kt:[0-9]+\)
@@ -587,11 +558,8 @@ Scanning .+: \.*
 \$SUPPORT/compose/ui/ui\-tooling/src/androidAndroidTest/AndroidManifest\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
 No issues found.*
 dagger\.lint\.DaggerIssueRegistry in .*/lint\.jar does not specify a vendor; see IssueRegistry#vendor
-# > Task :paging:paging-samples:reportLibraryMetrics
 # > Task :compose:foundation:foundation:androidReleaseSourcesJar
 Encountered duplicate path "android[a-zA-Z]*/.+" during copy operation configured with DuplicatesStrategy\.WARN
-# > Task :camera:camera-camera2-pipe:reportLibraryMetrics
-# > Task :compose:foundation:foundation:integration-tests:foundation-demos:reportLibraryMetrics
 # > Task :profileinstaller:profileinstaller-benchmark:processReleaseAndroidTestManifest
 \$SUPPORT/profileinstaller/profileinstaller\-benchmark/src/androidTest/AndroidManifest\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
 # > Task :wear:compose:compose-material-benchmark:processReleaseAndroidTestManifest
