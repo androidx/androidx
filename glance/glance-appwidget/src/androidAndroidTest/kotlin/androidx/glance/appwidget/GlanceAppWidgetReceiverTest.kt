@@ -34,6 +34,7 @@ import android.widget.TextView
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
+import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.glance.Button
 import androidx.glance.GlanceModifier
@@ -63,6 +64,7 @@ import androidx.glance.text.TextDecoration
 import androidx.glance.text.TextStyle
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
+import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import kotlinx.coroutines.runBlocking
@@ -71,6 +73,7 @@ import org.junit.Rule
 import org.junit.Test
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.test.assertIs
 import kotlin.test.assertNotNull
 
@@ -79,6 +82,8 @@ import kotlin.test.assertNotNull
 class GlanceAppWidgetReceiverTest {
     @get:Rule
     val mHostRule = AppWidgetHostRule()
+
+    val context = InstrumentationRegistry.getInstrumentation().targetContext!!
 
     @Before
     fun setUp() {
@@ -439,7 +444,7 @@ class GlanceAppWidgetReceiverTest {
 
     @Test
     fun bitmapBackground() {
-        TestGlanceAppWidget.uiDefinition = compose@{
+        TestGlanceAppWidget.uiDefinition = {
             val context = LocalContext.current
             val bitmap =
                 (context.resources.getDrawable(R.drawable.compose, null) as BitmapDrawable).bitmap
@@ -506,8 +511,80 @@ class GlanceAppWidgetReceiverTest {
             .isFalse()
     }
 
+    @Test
+    fun updateAll() {
+        TestGlanceAppWidget.uiDefinition = {
+            Text("before")
+        }
+
+        mHostRule.startHost()
+
+        val didRun = AtomicBoolean(false)
+        TestGlanceAppWidget.uiDefinition = {
+            didRun.set(true)
+            Text("after")
+        }
+
+        runBlocking {
+            TestGlanceAppWidget.updateAll(context)
+        }
+        assertThat(didRun.get()).isTrue()
+    }
+
+    @Test
+    fun updateIf() {
+        TestGlanceAppWidget.stateDefinition = PreferencesGlanceStateDefinition
+
+        TestGlanceAppWidget.uiDefinition = {
+            Text("before")
+        }
+
+        mHostRule.startHost()
+
+        val appWidgetManager = GlanceAppWidgetManager(context)
+        runBlocking {
+            appWidgetManager.getGlanceIds(TestGlanceAppWidget::class.java)
+                .forEach { glanceId ->
+                    updateAppWidgetState(
+                        context,
+                        PreferencesGlanceStateDefinition,
+                        glanceId
+                    ) { prefs ->
+                        prefs.toMutablePreferences().apply {
+                            this[testKey] = 2
+                        }
+                    }
+                }
+        }
+
+        // Make sure the app widget is updated if the test is true
+        val didRun = AtomicBoolean(false)
+        TestGlanceAppWidget.uiDefinition = {
+            didRun.set(true)
+            Text("after")
+        }
+        runBlocking {
+            TestGlanceAppWidget.updateIf<Preferences>(context) { prefs ->
+                prefs[testKey] == 2
+            }
+        }
+
+        assertThat(didRun.get()).isTrue()
+
+        // Make sure it is not if the test is false
+        didRun.set(false)
+        runBlocking {
+            TestGlanceAppWidget.updateIf<Preferences>(context) { prefs ->
+                prefs[testKey] == 3
+            }
+        }
+
+        assertThat(didRun.get()).isFalse()
+    }
+
     // Check there is a single span of the given type and that it passes the [check].
-    private inline fun <reified T> SpannedString.checkHasSingleTypedSpan(check: (T) -> Unit) {
+    private inline
+    fun <reified T> SpannedString.checkHasSingleTypedSpan(check: (T) -> Unit) {
         val spans = getSpans(0, length, T::class.java)
         assertThat(spans).hasLength(1)
         check(spans[0])
@@ -515,8 +592,10 @@ class GlanceAppWidgetReceiverTest {
 
     private fun assertViewSize(view: View, expectedSize: DpSize) {
         val density = view.context.resources.displayMetrics.density
-        assertThat(view.width / density).isWithin(1.1f / density).of(expectedSize.width.value)
-        assertThat(view.height / density).isWithin(1.1f / density).of(expectedSize.height.value)
+        assertThat(view.width / density).isWithin(1.1f / density)
+            .of(expectedSize.width.value)
+        assertThat(view.height / density).isWithin(1.1f / density)
+            .of(expectedSize.height.value)
     }
 
     private fun assertViewDimension(view: View, sizePx: Int, expectedSize: Dp) {

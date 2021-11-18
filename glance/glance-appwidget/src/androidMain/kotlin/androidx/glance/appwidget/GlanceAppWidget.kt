@@ -42,6 +42,7 @@ import androidx.glance.LocalContext
 import androidx.glance.LocalGlanceId
 import androidx.glance.LocalSize
 import androidx.glance.LocalState
+import androidx.glance.appwidget.state.getAppWidgetState
 import kotlinx.coroutines.CancellationException
 import androidx.glance.state.GlanceState
 import androidx.glance.state.GlanceStateDefinition
@@ -529,4 +530,26 @@ private fun Collection<DpSize>.sortedBySize() =
 
 internal fun logException(throwable: Throwable) {
     Log.e(GlanceAppWidgetTag, "Error in Glance App Widget", throwable)
+}
+
+/** Update all App Widgets managed by the [GlanceAppWidget] class. */
+public suspend fun GlanceAppWidget.updateAll(@Suppress("ContextFirst") context: Context) {
+    val manager = GlanceAppWidgetManager(context)
+    manager.getGlanceIds(javaClass).forEach { update(context, it) }
+}
+
+/**
+ * Update all App Widgets managed by the [GlanceAppWidget] class, if they fulfill some condition.
+ */
+public suspend inline fun <reified State> GlanceAppWidget.updateIf(
+    @Suppress("ContextFirst") context: Context,
+    predicate: (State) -> Boolean
+) {
+    val stateDef = stateDefinition
+    requireNotNull(stateDef) { "GlanceAppWidget.updateIf cannot be used if no state is defined." }
+    val manager = GlanceAppWidgetManager(context)
+    manager.getGlanceIds(javaClass).forEach { glanceId ->
+        val state = getAppWidgetState(context, stateDef, glanceId) as State
+        if (predicate(state)) update(context, glanceId)
+    }
 }
