@@ -1127,14 +1127,15 @@ public final class Recorder implements VideoOutput {
     @NonNull
     private AudioSource setupAudioSource(@NonNull BufferProvider<InputBuffer> bufferProvider,
             @NonNull AudioSpec audioSpec) throws AudioSourceAccessException {
-        AudioSource audioSource = new AudioSource.Builder()
-                .setExecutor(CameraXExecutors.ioExecutor())
-                .setBufferProvider(bufferProvider)
-                .setAudioSource(audioSpec.getSource())
-                .setSampleRate(selectSampleRate(audioSpec))
-                .setChannelCount(audioSpec.getChannelCount())
-                .setAudioFormat(audioSpec.getSourceFormat())
-                .build();
+        AudioSource audioSource = new AudioSource(
+                AudioSource.Settings.builder()
+                        .setAudioSource(audioSpec.getSource())
+                        .setSampleRate(selectSampleRate(audioSpec))
+                        .setChannelCount(audioSpec.getChannelCount())
+                        .setAudioFormat(audioSpec.getSourceFormat())
+                        .build(),
+                CameraXExecutors.ioExecutor(),
+                bufferProvider);
         audioSource.setAudioSourceCallback(mSequentialExecutor,
                 new AudioSource.AudioSourceCallback() {
                     @Override
