@@ -80,7 +80,11 @@ fun createStartupCompilationParams(
         StartupMode.HOT,
         StartupMode.WARM,
         StartupMode.COLD
-    ),
+    ).filter {
+        // skip StartupMode.HOT on Angler, API 23 - it works locally with same build on Bullhead,
+        // but not in Jetpack CI (b/204572406)
+        !(Build.VERSION.SDK_INT == 23 && it == StartupMode.HOT && Build.DEVICE == "angler")
+    },
     compilationModes: List<CompilationMode> = COMPILATION_MODES
 ): List<Array<Any>> = mutableListOf<Array<Any>>().apply {
     for (startupMode in startupModes) {
