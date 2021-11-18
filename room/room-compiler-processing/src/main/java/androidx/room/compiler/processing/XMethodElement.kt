@@ -24,6 +24,19 @@ package androidx.room.compiler.processing
  */
 interface XMethodElement : XExecutableElement {
     /**
+     * The name of the method in source.
+     *
+     * For Kotlin sources, this might be different from [jvmName] if:
+     * * Function is annotated with @JvmName
+     * * Function has a value class as a parameter or return type
+     * * Function is internal
+     *
+     * @see jvmName
+     */
+    val name: String
+        get() = jvmName
+
+    /**
      * The name of the method in JVM.
      * Use this properly when you need to generate code accessing this method.
      */
