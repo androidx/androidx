@@ -32,16 +32,28 @@ import androidx.benchmark.macro.junit4.MacrobenchmarkRule
  * Over time, it's expected very few macrobenchmarks will reference this directly, as more libraries
  * gain baseline profiles.
  */
-val BASIC_COMPILATION_MODES = listOf(
-    CompilationMode.None,
-    CompilationMode.Interpreted,
-    CompilationMode.SpeedProfile()
-)
+val BASIC_COMPILATION_MODES = if (Build.VERSION.SDK_INT < 24) {
+    // other modes aren't supported
+    listOf(CompilationMode.None)
+} else {
+    listOf(
+        CompilationMode.None,
+        CompilationMode.Interpreted,
+        CompilationMode.SpeedProfile()
+    )
+}
 
 /**
  * Default compilation modes to test for all AndroidX macrobenchmarks.
+ *
+ * Baseline profiles are only supported from Nougat (API 24),
+ * currently through Android 11 (API 30)
  */
-val COMPILATION_MODES = listOf(CompilationMode.BaselineProfile) + BASIC_COMPILATION_MODES
+val COMPILATION_MODES = if (Build.VERSION.SDK_INT in 24..30) {
+    listOf(CompilationMode.BaselineProfile)
+} else {
+    emptyList()
+} + BASIC_COMPILATION_MODES
 
 /**
  * Temporary, while transitioning to new metrics
