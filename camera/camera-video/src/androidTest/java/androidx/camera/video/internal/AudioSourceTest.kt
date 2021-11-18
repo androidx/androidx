@@ -68,14 +68,16 @@ class AudioSourceTest {
         }
         fakeBufferProvider.setActive(true)
 
-        audioSource = AudioSource.Builder()
-            .setExecutor(CameraXExecutors.ioExecutor())
-            .setAudioSource(AUDIO_SOURCE)
-            .setSampleRate(SAMPLE_RATE)
-            .setChannelCount(CHANNEL_COUNT)
-            .setAudioFormat(AUDIO_FORMAT)
-            .setBufferProvider(fakeBufferProvider)
-            .build()
+        audioSource = AudioSource(
+            AudioSource.Settings.builder()
+                .setAudioSource(AUDIO_SOURCE)
+                .setSampleRate(SAMPLE_RATE)
+                .setChannelCount(CHANNEL_COUNT)
+                .setAudioFormat(AUDIO_FORMAT)
+                .build(),
+            CameraXExecutors.ioExecutor(),
+            fakeBufferProvider
+        )
     }
 
     @After
