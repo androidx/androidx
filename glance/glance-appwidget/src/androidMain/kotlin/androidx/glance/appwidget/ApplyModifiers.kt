@@ -32,6 +32,7 @@ import androidx.annotation.DoNotInline
 import androidx.annotation.IdRes
 import androidx.annotation.RequiresApi
 import androidx.compose.ui.graphics.toArgb
+import androidx.core.os.bundleOf
 import androidx.core.widget.RemoteViewsCompat.setTextViewHeight
 import androidx.core.widget.RemoteViewsCompat.setTextViewWidth
 import androidx.core.widget.RemoteViewsCompat.setViewBackgroundColor
@@ -127,6 +128,10 @@ private fun applyAction(
                 is LaunchActivityIntentAction -> action.intent
                 else -> error("Action type not defined in app widget package: $action")
             }
+            val parametersPairs = action.parameters.asMap().map { (key, value) ->
+                key.name to value
+            }.toTypedArray()
+            activityIntent.putExtras(bundleOf(*parametersPairs))
 
             if (translationContext.isLazyCollectionDescendant) {
                 val fillIntent = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
