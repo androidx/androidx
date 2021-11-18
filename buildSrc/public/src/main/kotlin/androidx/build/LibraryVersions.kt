@@ -39,7 +39,7 @@ object LibraryVersions {
     val CAMERA_VIEW = Version("1.0.0-alpha31")
     val CARDVIEW = Version("1.1.0-alpha01")
     val CAR_APP = Version("1.2.0-alpha02")
-    val COLLECTION = Version("1.2.0-rc01")
+    val COLLECTION = Version("1.2.0")
     val COLLECTION2 = Version("1.3.0-alpha01")
     val CONTENTPAGER = Version("1.1.0-alpha01")
     val COMPOSE_MATERIAL3 = Version(System.getenv("COMPOSE_CUSTOM_VERSION") ?: "1.0.0-alpha02")
