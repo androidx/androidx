@@ -145,15 +145,15 @@ package androidx.wear.compose.material {
     method @androidx.compose.runtime.Composable public androidx.compose.foundation.layout.PaddingValues getButtonsContentPadding();
     method @androidx.compose.runtime.Composable public androidx.compose.foundation.layout.PaddingValues getChipsContentPadding();
     method @androidx.compose.runtime.Composable public androidx.compose.foundation.layout.PaddingValues getConfirmationContentPadding();
-    method public long getIndefiniteDuration();
-    method public long getLongDuration();
-    method public long getShortDuration();
+    method public long getIndefiniteDurationMillis();
+    method public long getLongDurationMillis();
+    method public long getShortDurationMillis();
     property @androidx.compose.runtime.Composable public final androidx.compose.foundation.layout.PaddingValues ButtonsContentPadding;
     property @androidx.compose.runtime.Composable public final androidx.compose.foundation.layout.PaddingValues ChipsContentPadding;
     property @androidx.compose.runtime.Composable public final androidx.compose.foundation.layout.PaddingValues ConfirmationContentPadding;
-    property public final long IndefiniteDuration;
-    property public final long LongDuration;
-    property public final long ShortDuration;
+    property public final long IndefiniteDurationMillis;
+    property public final long LongDurationMillis;
+    property public final long ShortDurationMillis;
     field public static final androidx.wear.compose.material.DialogDefaults INSTANCE;
   }
 
