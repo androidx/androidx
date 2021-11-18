@@ -14,54 +14,47 @@
  * limitations under the License.
  */
 
-package androidx.room;
-
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Repeatable;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+package androidx.room
 
 /**
- * Repeatable annotation declaring the renamed columns in the {@link AutoMigration#to} version of
+ * Repeatable annotation declaring the renamed columns in the [AutoMigration.to] version of
  * an auto migration.
  *
  * @see AutoMigration
  */
-@Repeatable(RenameColumn.Entries.class)
-@Target(ElementType.TYPE)
-@Retention(RetentionPolicy.CLASS)
-public @interface RenameColumn {
+@JvmRepeatable(RenameColumn.Entries::class)
+@Target(AnnotationTarget.CLASS)
+@Retention(AnnotationRetention.BINARY)
+public annotation class RenameColumn(
     /**
-     * Name of the table in the {@link AutoMigration#from} version of the database the renamed
-     * column is found in. The name in {@link AutoMigration#from} version is used in case the table
-     * was renamed in the {@link AutoMigration#to} version.
+     * Name of the table in the [AutoMigration.from] version of the database the renamed
+     * column is found in. The name in [AutoMigration.from] version is used in case the table
+     * was renamed in the [AutoMigration.to] version.
      *
      * @return Name of the table
      */
-    String tableName();
+    val tableName: String,
 
     /**
-     * Name of the column in the {@link AutoMigration#from} version of the database.
+     * Name of the column in the [AutoMigration.from] version of the database.
      *
      * @return Name of the column.
      */
-    String fromColumnName();
+    val fromColumnName: String,
 
     /**
-     * Name of the column in the {@link AutoMigration#to} version of the database.
+     * Name of the column in the [AutoMigration.to] version of the database.
      *
      * @return Name of the column.
      */
-    String toColumnName();
-
+    val toColumnName: String,
+) {
     /**
-     * Container annotation for the repeatable annotation {@link RenameColumn}.
+     * Container annotation for the repeatable annotation [RenameColumn].
      */
-    @Target(ElementType.TYPE)
-    @Retention(RetentionPolicy.CLASS)
-    @interface Entries {
-        RenameColumn[] value();
-    }
+    @Target(AnnotationTarget.CLASS)
+    @Retention(AnnotationRetention.BINARY)
+    public annotation class Entries(
+        vararg val value: RenameColumn
+    )
 }
-

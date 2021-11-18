@@ -14,48 +14,48 @@
  * limitations under the License.
  */
 
-package androidx.room;
+package androidx.room
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import kotlin.reflect.KClass
 
 /**
  * Specifies additional type converters that Room can use. The TypeConverter is added to the scope
  * of the element so if you put it on a class / interface, all methods / fields in that class will
  * be able to use the converters.
  *
- * <p>
  * TypeConverters can only be used to convert columns / fields, hence cannot be used by a method
  * with a row return value such as DAO methods that query rows.
  *
- * <ul>
- * <li>If you put it on a {@link Database}, all Daos and Entities in that database will be able to
+ * * If you put it on a [Database], all Daos and Entities in that database will be able to
  * use it.
- * <li>If you put it on a {@link Dao}, all methods in the Dao will be able to use it.
- * <li>If you put it on an {@link Entity}, all fields of the Entity will be able to use it.
- * <li>If you put it on a POJO, all fields of the POJO will be able to use it.
- * <li>If you put it on an {@link Entity} field, only that field will be able to use it.
- * <li>If you put it on a {@link Dao} method, all parameters of the method will be able to use it.
- * <li>If you put it on a {@link Dao} method parameter, just that field will be able to use it.
- * </ul>
- * @see TypeConverter
+ * * If you put it on a [Dao], all methods in the Dao will be able to use it.
+ * * If you put it on an [Entity], all fields of the Entity will be able to use it.
+ * * If you put it on a POJO, all fields of the POJO will be able to use it.
+ * * If you put it on an [Entity] field, only that field will be able to use it.
+ * * If you put it on a [Dao] method, all parameters of the method will be able to use it.
+ * * If you put it on a [Dao] method parameter, just that field will be able to use it.
+ *
+ * @see [TypeConverter]
  */
-@Target({ElementType.METHOD, ElementType.PARAMETER, ElementType.TYPE, ElementType.FIELD})
-@Retention(RetentionPolicy.CLASS)
-public @interface TypeConverters {
+@Target(
+    AnnotationTarget.FUNCTION,
+    AnnotationTarget.VALUE_PARAMETER,
+    AnnotationTarget.FIELD,
+    AnnotationTarget.CLASS
+)
+@Retention(AnnotationRetention.BINARY)
+public annotation class TypeConverters(
     /**
      * The list of type converter classes. If converter methods are not static, Room will create
      * an instance of these classes.
      *
      * @return The list of classes that contains the converter methods.
      */
-    Class<?>[] value() default {};
+    vararg val value: KClass<*> = [],
 
     /**
      * Configure whether Room can use various built in converters for common types.
-     * See {@link BuiltInTypeConverters} for details.
+     * See [BuiltInTypeConverters] for details.
      */
-    BuiltInTypeConverters builtInTypeConverters() default @BuiltInTypeConverters;
-}
+    val builtInTypeConverters: BuiltInTypeConverters = BuiltInTypeConverters()
+)

@@ -24,7 +24,7 @@ plugins {
 
 dependencies {
     api("androidx.annotation:annotation:1.1.0")
-    testImplementation(libs.kotlinStdlib)
+    api(libs.kotlinStdlibJdk8)
     testImplementation(libs.junit)
     testImplementation(libs.mockitoCore)
     testImplementation(libs.guava)

@@ -1,0 +1,71 @@
+// Baseline format: 1.0
+ChangedType: androidx.room.AutoMigration#spec():
+    Method androidx.room.AutoMigration.spec has changed return type from Class<?> to kotlin.reflect.KClass<?>
+ChangedType: androidx.room.Database#entities():
+    Method androidx.room.Database.entities has changed return type from Class<?>[] to kotlin.reflect.KClass<?>[]
+ChangedType: androidx.room.Database#views():
+    Method androidx.room.Database.views has changed return type from Class<?>[] to kotlin.reflect.KClass<?>[]
+ChangedType: androidx.room.Delete#entity():
+    Method androidx.room.Delete.entity has changed return type from Class<?> to kotlin.reflect.KClass<?>
+ChangedType: androidx.room.ForeignKey#entity():
+    Method androidx.room.ForeignKey.entity has changed return type from Class<?> to kotlin.reflect.KClass<?>
+ChangedType: androidx.room.Fts4#contentEntity():
+    Method androidx.room.Fts4.contentEntity has changed return type from Class<?> to kotlin.reflect.KClass<?>
+ChangedType: androidx.room.Insert#entity():
+    Method androidx.room.Insert.entity has changed return type from Class<?> to kotlin.reflect.KClass<?>
+ChangedType: androidx.room.Junction#value():
+    Method androidx.room.Junction.value has changed return type from Class<?> to kotlin.reflect.KClass<?>
+ChangedType: androidx.room.RawQuery#observedEntities():
+    Method androidx.room.RawQuery.observedEntities has changed return type from Class<?>[] to kotlin.reflect.KClass<?>[]
+ChangedType: androidx.room.Relation#entity():
+    Method androidx.room.Relation.entity has changed return type from Class<?> to kotlin.reflect.KClass<?>
+ChangedType: androidx.room.TypeConverters#value():
+    Method androidx.room.TypeConverters.value has changed return type from Class<?>[] to kotlin.reflect.KClass<?>[]
+ChangedType: androidx.room.Update#entity():
+    Method androidx.room.Update.entity has changed return type from Class<?> to kotlin.reflect.KClass<?>
+
+
+ChangedValue: androidx.room.AutoMigration#spec():
+    Method androidx.room.AutoMigration.spec has changed value from java.lang.Object.class to java.lang.Object
+ChangedValue: androidx.room.Database#autoMigrations():
+    Method androidx.room.Database.autoMigrations has changed value from {} to nothing
+ChangedValue: androidx.room.Database#views():
+    Method androidx.room.Database.views has changed value from {} to nothing
+ChangedValue: androidx.room.Delete#entity():
+    Method androidx.room.Delete.entity has changed value from java.lang.Object.class to java.lang.Object
+ChangedValue: androidx.room.Entity#foreignKeys():
+    Method androidx.room.Entity.foreignKeys has changed value from {} to nothing
+ChangedValue: androidx.room.Entity#ignoredColumns():
+    Method androidx.room.Entity.ignoredColumns has changed value from {} to nothing
+ChangedValue: androidx.room.Entity#indices():
+    Method androidx.room.Entity.indices has changed value from {} to nothing
+ChangedValue: androidx.room.Entity#primaryKeys():
+    Method androidx.room.Entity.primaryKeys has changed value from {} to nothing
+ChangedValue: androidx.room.Fts3#tokenizerArgs():
+    Method androidx.room.Fts3.tokenizerArgs has changed value from {} to nothing
+ChangedValue: androidx.room.Fts4#contentEntity():
+    Method androidx.room.Fts4.contentEntity has changed value from java.lang.Object.class to java.lang.Object
+ChangedValue: androidx.room.Fts4#notIndexed():
+    Method androidx.room.Fts4.notIndexed has changed value from {} to nothing
+ChangedValue: androidx.room.Fts4#prefix():
+    Method androidx.room.Fts4.prefix has changed value from {} to nothing
+ChangedValue: androidx.room.Fts4#tokenizerArgs():
+    Method androidx.room.Fts4.tokenizerArgs has changed value from {} to nothing
+ChangedValue: androidx.room.Index#orders():
+    Method androidx.room.Index.orders has changed value from {} to nothing
+ChangedValue: androidx.room.Insert#entity():
+    Method androidx.room.Insert.entity has changed value from java.lang.Object.class to java.lang.Object
+ChangedValue: androidx.room.RawQuery#observedEntities():
+    Method androidx.room.RawQuery.observedEntities has changed value from {} to nothing
+ChangedValue: androidx.room.Relation#associateBy():
+    Method androidx.room.Relation.associateBy has changed value from @androidx.room.Junction to androidx.room.Junction(java.lang.Object)
+ChangedValue: androidx.room.Relation#entity():
+    Method androidx.room.Relation.entity has changed value from java.lang.Object.class to java.lang.Object
+ChangedValue: androidx.room.Relation#projection():
+    Method androidx.room.Relation.projection has changed value from {} to nothing
+ChangedValue: androidx.room.TypeConverters#builtInTypeConverters():
+    Method androidx.room.TypeConverters.builtInTypeConverters has changed value from @androidx.room.BuiltInTypeConverters to androidx.room.BuiltInTypeConverters()
+ChangedValue: androidx.room.TypeConverters#value():
+    Method androidx.room.TypeConverters.value has changed value from {} to nothing
+ChangedValue: androidx.room.Update#entity():
+    Method androidx.room.Update.entity has changed value from java.lang.Object.class to java.lang.Object

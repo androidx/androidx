@@ -14,20 +14,14 @@
  * limitations under the License.
  */
 
-package androidx.room;
-
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+package androidx.room
 
 /**
  * Ignores the marked element from Room's processing logic.
- * <p>
+ *
  * This annotation can be used in multiple places where Room processor runs. For instance, you can
- * add it to a field of an {@link Entity} and Room will not persist that field.
+ * add it to a field of an [Entity] and Room will not persist that field.
  */
-@Target({ElementType.METHOD, ElementType.FIELD, ElementType.CONSTRUCTOR})
-@Retention(RetentionPolicy.CLASS)
-public @interface Ignore {
-}
+@Target(AnnotationTarget.FUNCTION, AnnotationTarget.FIELD, AnnotationTarget.CONSTRUCTOR)
+@Retention(AnnotationRetention.BINARY)
+public annotation class Ignore

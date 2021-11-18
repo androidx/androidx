@@ -14,99 +14,101 @@
  * limitations under the License.
  */
 
-package androidx.room;
+package androidx.room
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import kotlin.reflect.KClass
 
 /**
- * Marks a method in a {@link Dao} annotated class as an insert method.
- * <p>
+ * Marks a method in a [Dao] annotated class as an insert method.
+ *
  * The implementation of the method will insert its parameters into the database.
- * <p>
- * All of the parameters of the Insert method must either be classes annotated with {@link Entity}
+ *
+ * All of the parameters of the Insert method must either be classes annotated with [Entity]
  * or collections/array of it.
- * <p>
+ *
  * Example:
- * <pre>
- * {@literal @}Dao
+ *
+ * ```
+ * @Dao
  * public interface MusicDao {
- *   {@literal @}Insert(onConflict = OnConflictStrategy.REPLACE)
- *   public void insertSongs(Song... songs);
+ *   @Insert(onConflict = OnConflictStrategy.REPLACE)
+ *   public fun insertSongs(varargs songs: Song)
  *
- *   {@literal @}Insert
- *   public void insertBoth(Song song1, Song song2);
+ *   @Insert
+ *   public fun insertBoth(song1: Song, song2: Song)
  *
- *   {@literal @}Insert
- *   public void insertAlbumWithSongs(Album album, List&lt;Song&gt; songs);
+ *   @Insert
+ *   public fun insertAlbumWithSongs(album: Album, songs: List<Song>);
  * }
- * </pre>
- * If the target entity is specified via {@link #entity()} then the parameters can be of arbitrary
+ * ```
+ *
+ * If the target entity is specified via [entity] then the parameters can be of arbitrary
  * POJO types that will be interpreted as partial entities. For example:
- * <pre>
- * {@literal @}Entity
- * public class Playlist {
- *   {@literal @}PrimaryKey(autoGenerate = true)
- *   long playlistId;
- *   String name;
- *   {@literal @}Nullable
- *   String description
- *   {@literal @}ColumnInfo(defaultValue = "normal")
- *   String category;
- *   {@literal @}ColumnInfo(defaultValue = "CURRENT_TIMESTAMP")
- *   String createdTime;
- *   {@literal @}ColumnInfo(defaultValue = "CURRENT_TIMESTAMP")
- *   String lastModifiedTime;
- * }
  *
- * public class NameAndDescription {
- *   String name;
- *   String description
- * }
+ * ```
+ * @Entity
+ * data class Playlist (
+ *   @PrimaryKey(autoGenerate = true)
+ *   val playlistId: Long,
+ *   val name: String,
+ *   val description: String?,
  *
- * {@literal @}Dao
+ *   @ColumnInfo(defaultValue = "normal")
+ *   val category: String,
+ *
+ *   @ColumnInfo(defaultValue = "CURRENT_TIMESTAMP")
+ *   val createdTime: String,
+ *
+ *   @ColumnInfo(defaultValue = "CURRENT_TIMESTAMP")
+ *   val lastModifiedTime: String
+ * )
+ *
+ * data class NameAndDescription (
+ *   val name: String,
+ *   val description: String
+ * )
+ *
+ * @Dao
  * public interface PlaylistDao {
- *   {@literal @}Insert(entity = Playlist.class)
- *   public void insertNewPlaylist(NameAndDescription nameDescription);
+ *   @Insert(entity = Playlist::class)
+ *   public fun insertNewPlaylist(nameDescription: NameAndDescription);
  * }
- * </pre>
+ * ```
  *
- * @see Update
- * @see Delete
+ * @see [Update]
+ * @see [Delete]
  */
-@Target({ElementType.METHOD})
-@Retention(RetentionPolicy.CLASS)
-public @interface Insert {
+@Target(AnnotationTarget.FUNCTION)
+@Retention(AnnotationRetention.BINARY)
+public annotation class Insert(
 
     /**
      * The target entity of the insert method.
-     * <p>
+     *
      * When this is declared, the insert method parameters are interpreted as partial entities when
      * the type of the parameter differs from the target. The POJO class that represents the entity
      * must contain all of the non-null fields without default values of the target entity.
-     * <p>
-     * If the target entity contains a {@link PrimaryKey} that is auto generated, then the POJO
+     *
+     * If the target entity contains a [PrimaryKey] that is auto generated, then the POJO
      * class doesn't need an equal primary key field, otherwise primary keys must also be present
      * in the POJO.
-     * <p>
+     *
      * By default the target entity is interpreted by the method parameters.
      *
      * @return the target entity of the insert method or none if the method should use the
      *         parameter type entities.
      */
-    Class<?> entity() default Object.class;
+    val entity: KClass<*> = Any::class,
 
     /**
      * What to do if a conflict happens.
-     * <p>
-     * Use {@link OnConflictStrategy#ABORT} (default) to roll back the transaction on conflict.
-     * Use {@link OnConflictStrategy#REPLACE} to replace the existing rows with the new rows.
-     * Use {@link OnConflictStrategy#IGNORE} to keep the existing rows.
      *
-     * @return How to handle conflicts. Defaults to {@link OnConflictStrategy#ABORT}.
+     * Use [OnConflictStrategy.ABORT] (default) to roll back the transaction on conflict.
+     * Use [OnConflictStrategy.REPLACE] to replace the existing rows with the new rows.
+     * Use [OnConflictStrategy.IGNORE] to keep the existing rows.
+     *
+     * @return How to handle conflicts. Defaults to [OnConflictStrategy.ABORT].
      */
     @OnConflictStrategy
-    int onConflict() default OnConflictStrategy.ABORT;
-}
+    val onConflict: Int = OnConflictStrategy.ABORT
+)

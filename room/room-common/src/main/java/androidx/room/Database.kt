@@ -14,67 +14,67 @@
  * limitations under the License.
  */
 
-package androidx.room;
+package androidx.room
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import kotlin.reflect.KClass
 
 /**
  * Marks a class as a RoomDatabase.
- * <p>
- * The class should be an abstract class and extend {@link androidx.room.RoomDatabase RoomDatabase}.
- * <p>
+ *
+ * The class should be an abstract class and extend [androidx.room.RoomDatabase].
+ *
  * You can receive an implementation of the class via
- * {@link androidx.room.Room#databaseBuilder Room.databaseBuilder} or
- * {@link androidx.room.Room#inMemoryDatabaseBuilder Room.inMemoryDatabaseBuilder}.
- * <p>
- * <pre>
- * // Song and Album are classes annotated with {@literal @}Entity.
- * {@literal @}Database(version = 1, entities = {Song.class, Album.class})
- * abstract class MusicDatabase extends RoomDatabase {
- *   // SongDao is a class annotated with {@literal @}Dao.
- *   abstract public SongDao getSongDao();
- *   // AlbumDao is a class annotated with {@literal @}Dao.
- *   abstract public ArtistDao getArtistDao();
- *   // SongAlbumDao is a class annotated with {@literal @}Dao.
- *   abstract public SongAlbumDao getSongAlbumDao();
+ * [androidx.room.Room.databaseBuilder] or
+ * [androidx.room.Room.inMemoryDatabaseBuilder].
+ *
+ * ```
+ * // Song and Album are classes annotated with @Entity.
+ * @Database(version = 1, entities = {Song.class, Album.class})
+ * abstract class MusicDatabase : RoomDatabase {
+ *   // SongDao is a class annotated with @Dao.
+ *   abstract fun getSongDao(): SongDao
+ *
+ *   // AlbumDao is a class annotated with @Dao.
+ *   abstract fun getArtistDao(): ArtistDao
+ *
+ *   // SongAlbumDao is a class annotated with @Dao.
+ *   abstract fun getSongAlbumDao(): SongAlbumDao
  * }
- * </pre>
+ * ```
+ *
  * The example above defines a class that has 2 tables and 3 DAO classes that are used to access it.
- * There is no limit on the number of {@link Entity} or {@link Dao} classes but they must be unique
+ * There is no limit on the number of [Entity] or [Dao] classes but they must be unique
  * within the Database.
- * <p>
+ *
  * Instead of running queries on the database directly, you are highly recommended to create
- * {@link Dao} classes. Using Dao classes will allow you to abstract the database communication in
+ * [Dao] classes. Using Dao classes will allow you to abstract the database communication in
  * a more logical layer which will be much easier to mock in tests (compared to running direct
- * SQL queries). It also automatically does the conversion from {@code Cursor} to your application
+ * SQL queries). It also automatically does the conversion from `Cursor` to your application
  * data classes so you don't need to deal with lower level database APIs for most of your data
  * access.
- * <p>
- * Room also verifies all of your queries in {@link Dao} classes while the application is being
- * compiled so that if there is a problem in one of the queries, you will be notified instantly.
- * <p>
- * To automatically generate a migration between two versions of the database, assuming you have
- * the relevant schema files, you are recommended to use {@link AutoMigration} annotations. Note
- * that if an autoMigration is defined in a database, {@code exportSchema} must be {@code true}.
  *
- * @see Dao
- * @see Entity
- * @see AutoMigration
- * @see androidx.room.RoomDatabase RoomDatabase
+ * Room also verifies all of your queries in [Dao] classes while the application is being
+ * compiled so that if there is a problem in one of the queries, you will be notified instantly.
+ *
+ * To automatically generate a migration between two versions of the database, assuming you have
+ * the relevant schema files, you are recommended to use [AutoMigration] annotations. Note
+ * that if an autoMigration is defined in a database, `exportSchema` must be `true`.
+ *
+ * @see [Dao]
+ * @see [Entity]
+ * @see [AutoMigration]
+ * @see [androidx.room.RoomDatabase]
  */
-@Target(ElementType.TYPE)
-@Retention(RetentionPolicy.CLASS)
-public @interface Database {
+@Target(AnnotationTarget.CLASS)
+@Retention(AnnotationRetention.BINARY)
+public annotation class Database(
     /**
      * The list of entities included in the database. Each entity turns into a table in the
      * database.
      *
      * @return The list of entities in the database.
      */
-    Class<?>[] entities();
+    val entities: Array<KClass<*>> = [],
 
     /**
      * The list of database views included in the database. Each class turns into a view in the
@@ -82,42 +82,42 @@ public @interface Database {
      *
      * @return The list of database views.
      */
-    Class<?>[] views() default {};
+    val views: Array<KClass<*>> = [],
 
     /**
      * The database version.
      *
      * @return The database version.
      */
-    int version();
+    val version: Int,
 
     /**
-     * You can set the annotation processor argument ({@code room.schemaLocation}) to tell Room to
+     * You can set the annotation processor argument (`room.schemaLocation`) to tell Room to
      * export the database schema into a folder. Even though it is not mandatory, it is a good
      * practice to have version history of your schema in your codebase and you should commit the
      * schema files into your version control system (but don't ship them with your app!).
-     * <p>
-     * When {@code room.schemaLocation} is set, Room will check this variable and if it is set to
-     * {@code true}, the database schema will be exported into the given folder.
-     * <p>
-     * {@code exportSchema} is {@code true} by default but you can disable it for databases when
+     *
+     * When `room.schemaLocation` is set, Room will check this variable and if it is set to
+     * `true`, the database schema will be exported into the given folder.
+     *
+     * Value of `exportSchema` is `true` by default but you can disable it for databases when
      * you don't want to keep history of versions (like an in-memory only database).
      *
      * @return Whether the schema should be exported to the given folder when the
-     * {@code room.schemaLocation} argument is set. Defaults to {@code true}.
+     * `room.schemaLocation` argument is set. Defaults to `true`.
      */
-    boolean exportSchema() default true;
+    val exportSchema: Boolean = true,
 
     /**
      * List of AutoMigrations that can be performed on this Database.
      *
-     * See {@link AutoMigration} for example code usage.
+     * See [AutoMigration] for example code usage.
      *
-     * For more complicated cases not covered by {@link AutoMigration}, runtime defined
-     * {@link androidx.room.migration.Migration Migration} added with
-     * {@link androidx.room.RoomDatabase.Builder#addMigrations addMigrations} can still be used.
+     * For more complicated cases not covered by [AutoMigration], runtime defined
+     * [androidx.room.migration.Migration] added with
+     * [androidx.room.RoomDatabase.Builder.addMigrations] can still be used.
      *
-     * @return List of AutoMigration annotations.
+     * @return List of [AutoMigration] annotations.
      */
-    AutoMigration[] autoMigrations() default {};
-}
+    val autoMigrations: Array<AutoMigration> = []
+)

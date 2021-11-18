@@ -14,34 +14,28 @@
  * limitations under the License.
  */
 
-package androidx.room;
-
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+package androidx.room
 
 /**
  * Marks the class as a Data Access Object.
- * <p>
+ *
  * Data Access Objects are the main classes where you define your database interactions. They can
  * include a variety of query methods.
- * <p>
- * The class marked with {@code @Dao} should either be an interface or an abstract class. At compile
+ *
+ * The class marked with `@Dao` should either be an interface or an abstract class. At compile
  * time, Room will generate an implementation of this class when it is referenced by a
- * {@link Database}.
- * <p>
- * An abstract {@code @Dao} class can optionally have a constructor that takes a {@link Database}
+ * [Database].
+ *
+ * An abstract `@Dao` class can optionally have a constructor that takes a [Database]
  * as its only parameter.
- * <p>
- * It is recommended to have multiple {@code Dao} classes in your codebase depending on the tables
+ *
+ * It is recommended to have multiple `Dao` classes in your codebase depending on the tables
  * they touch.
  *
- * @see Query
- * @see Delete
- * @see Insert
+ * @see [Query]
+ * @see [Delete]
+ * @see [Insert]
  */
-@Target(ElementType.TYPE)
-@Retention(RetentionPolicy.CLASS)
-public @interface Dao {
-}
+@Target(AnnotationTarget.CLASS)
+@Retention(AnnotationRetention.BINARY)
+public annotation class Dao

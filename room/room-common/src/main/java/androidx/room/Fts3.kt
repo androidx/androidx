@@ -14,89 +14,69 @@
  * limitations under the License.
  */
 
-package androidx.room;
+package androidx.room
 
-import static androidx.room.FtsOptions.TOKENIZER_SIMPLE;
-
-import androidx.annotation.RequiresApi;
-
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import androidx.annotation.RequiresApi
+import androidx.room.FtsOptions.TOKENIZER_SIMPLE
 
 /**
- * Marks an {@link Entity} annotated class as a FTS3 entity. This class will have a mapping SQLite
+ * Marks an [Entity] annotated class as a FTS3 entity. This class will have a mapping SQLite
  * FTS3 table in the database.
- * <p>
- * <a href="https://www.sqlite.org/fts3.html">FTS3 and FTS4</a> are SQLite virtual table modules
+ *
+ * [FTS3 and FTS4](https://www.sqlite.org/fts3.html) are SQLite virtual table modules
  * that allows full-text searches to be performed on a set of documents.
- * <p>
- * An FTS entity table always has a column named <code>rowid</code> that is the equivalent of an
- * <code>INTEGER PRIMARY KEY</code> index. Therefore, an FTS entity can only have a single field
- * annotated with {@link PrimaryKey}, it must be named <code>rowid</code> and must be of
- * <code>INTEGER</code> affinity. The field can be optionally omitted in the class but can still be
+ *
+ * An FTS entity table always has a column named `rowid` that is the equivalent of an
+ * `INTEGER PRIMARY KEY` index. Therefore, an FTS entity can only have a single field
+ * annotated with [PrimaryKey], it must be named `rowid` and must be of
+ * `INTEGER` affinity. The field can be optionally omitted in the class but can still be
  * used in queries.
- * <p>
- * All fields in an FTS entity are of <code>TEXT</code> affinity, except the for the 'rowid' field.
- * <p>
+ *
+ * All fields in an FTS entity are of `TEXT` affinity, except the for the 'rowid' field.
+ *
  * Example:
- * <pre>
- * {@literal @}Entity
- * {@literal @}Fts3
- * public class Mail {
- *   {@literal @}PrimaryKey
- *   {@literal @}ColumnInfo(name = "rowid")
- *   private final int rowId;
- *   private final String subject;
- *   private final String body;
  *
- *   public Mail(int rowId, String subject, String body) {
- *       this.rowId = rowId;
- *       this.subject = subject;
- *       this.body = body;
- *   }
+ * ```
+ * @Entity
+ * @Fts3
+ * data class Mail (
+ *   @PrimaryKey
+ *   @ColumnInfo(name = "rowid")
+ *   val rowId: Int,
+ *   val subject: String,
+ *   val body: String
+ * )
+ * ```
  *
- *   public String getRowId() {
- *       return rowId;
- *   }
- *   public String getSubject() {
- *       return subject;
- *   }
- *   public void getBody() {
- *       return body;
- *   }
- * }
- * </pre>
- *
- * @see Entity
- * @see Dao
- * @see Database
- * @see PrimaryKey
- * @see ColumnInfo
+ * @see [Entity]
+ * @see [Dao]
+ * @see [Database]
+ * @see [PrimaryKey]
+ * @see [ColumnInfo]
  */
-@Target(ElementType.TYPE)
-@Retention(RetentionPolicy.CLASS)
+@Target(AnnotationTarget.CLASS)
+@Retention(AnnotationRetention.BINARY)
 @RequiresApi(16)
-public @interface Fts3 {
+public annotation class Fts3(
 
     /**
      * The tokenizer to be used in the FTS table.
-     * <p>
-     * The default value is {@link FtsOptions#TOKENIZER_SIMPLE}. Tokenizer arguments can be defined
-     * with {@link #tokenizerArgs()}.
-     * <p>
+     *
+     * The default value is [FtsOptions.TOKENIZER_SIMPLE]. Tokenizer arguments can be defined
+     * with [tokenizerArgs].
+     *
      * If a custom tokenizer is used, the tokenizer and its arguments are not verified at compile
      * time.
      *
+     * See [SQLite tokenizers documentation](https://www.sqlite.org/fts3.html#tokenizer) for more
+     * details.
+     *
      * @return The tokenizer to use on the FTS table. Built-in available tokenizers are
-     * {@link FtsOptions#TOKENIZER_SIMPLE}, {@link FtsOptions#TOKENIZER_PORTER} and
-     * {@link FtsOptions#TOKENIZER_UNICODE61}.
-     * @see #tokenizerArgs()
-     * @see <a href="https://www.sqlite.org/fts3.html#tokenizer">SQLite tokernizers
-     * documentation</a>
+     * [FtsOptions.TOKENIZER_SIMPLE], [FtsOptions.TOKENIZER_PORTER] and
+     * [FtsOptions.TOKENIZER_UNICODE61].
+     * @see [tokenizerArgs]
      */
-    String tokenizer() default TOKENIZER_SIMPLE;
+    val tokenizer: String = TOKENIZER_SIMPLE,
 
     /**
      * Optional arguments to configure the defined tokenizer.
@@ -106,10 +86,9 @@ public @interface Fts3 {
      * additional separator when using the {@link FtsOptions#TOKENIZER_UNICODE61} tokenizer.
      * <p>
      * The available arguments that can be defined depend on the tokenizer defined, see the
-     * <a href="https://www.sqlite.org/fts3.html#tokenizer">SQLite tokernizers documentation</a> for
-     * details.
+     * [SQLite tokernizers documentation](https://www.sqlite.org/fts3.html#tokenizer) for details.
      *
      * @return A list of tokenizer arguments strings.
      */
-    String[] tokenizerArgs() default {};
-}
+    val tokenizerArgs: Array<String> = []
+)

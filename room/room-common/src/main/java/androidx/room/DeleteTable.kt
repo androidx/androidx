@@ -14,37 +14,31 @@
  * limitations under the License.
  */
 
-package androidx.room;
-
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Repeatable;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+package androidx.room
 
 /**
- * Repeatable annotation declaring the deleted tables in the {@link AutoMigration#to} version of
+ * Repeatable annotation declaring the deleted tables in the [AutoMigration.to] version of
  * an auto migration.
  *
  * @see AutoMigration
  */
-@Repeatable(DeleteTable.Entries.class)
-@Target(ElementType.TYPE)
-@Retention(RetentionPolicy.CLASS)
-public @interface DeleteTable {
+@JvmRepeatable(DeleteTable.Entries::class)
+@Target(AnnotationTarget.CLASS)
+@Retention(AnnotationRetention.BINARY)
+public annotation class DeleteTable(
     /**
-     * Name of the table in the {@link AutoMigration#from} version of the database to be deleted.
+     * Name of the table in the [AutoMigration.from] version of the database to be deleted.
      *
      * @return Name of the table.
      */
-    String tableName();
-
+    val tableName: String
+) {
     /**
-     * Container annotation for the repeatable annotation {@link DeleteTable}.
+     * Container annotation for the repeatable annotation [DeleteTable].
      */
-    @Target(ElementType.TYPE)
-    @Retention(RetentionPolicy.CLASS)
-    @interface Entries {
-        DeleteTable[] value();
-    }
+    @Target(AnnotationTarget.CLASS)
+    @Retention(AnnotationRetention.BINARY)
+    public annotation class Entries(
+        vararg val value: DeleteTable
+    )
 }

@@ -14,32 +14,26 @@
  * limitations under the License.
  */
 
-package androidx.room;
-
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+package androidx.room
 
 /**
  * Skips database verification for the annotated element.
- * <p>
- * If it is a class annotated with {@link Database}, none of the queries for the database will
+ *
+ * If it is a class annotated with [Database], none of the queries for the database will
  * be verified at compile time.
- * <p>
- * If it is a class annotated with {@link Dao}, none of the queries in the Dao class will
+ *
+ * If it is a class annotated with [Dao], none of the queries in the Dao class will
  * be verified at compile time.
- * <p>
+ *
  * If it is a method in a Dao class, just the method's sql verification will be skipped.
- * <p>
- * If it is a class annotated with {@link DatabaseView}, the SELECT SQL for creating the view will
+ *
+ * If it is a class annotated with [DatabaseView], the SELECT SQL for creating the view will
  * not be verified at compile time.
- * <p>
+ *
  * You should use this as the last resort if Room cannot properly understand your query and you are
  * 100% sure it works. Removing validation may limit the functionality of Room since it won't be
  * able to understand the query response.
  */
-@Target({ElementType.METHOD, ElementType.TYPE})
-@Retention(RetentionPolicy.CLASS)
-public @interface SkipQueryVerification {
-}
+@Target(AnnotationTarget.FUNCTION, AnnotationTarget.CLASS)
+@Retention(AnnotationRetention.BINARY)
+public annotation class SkipQueryVerification

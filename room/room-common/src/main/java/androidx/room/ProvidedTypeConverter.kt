@@ -14,21 +14,15 @@
  * limitations under the License.
  */
 
-package androidx.room;
-
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+package androidx.room
 
 /**
  * Marks a class as a type converter that will be provided to Room at runtime.
  * If Room uses the annotated type converter class, it will verify that it is provided in the
  * builder and if not, will throw an exception.
  * An instance of a class annotated with this annotation has to be provided to Room using
- * {@code Room.databaseBuilder.addTypeConverter(Object)}
+ * `Room.databaseBuilder.addTypeConverter(Object)`
  */
-@Target(ElementType.TYPE)
-@Retention(RetentionPolicy.CLASS)
-public @interface ProvidedTypeConverter {
-}
+@Target(AnnotationTarget.CLASS)
+@Retention(AnnotationRetention.BINARY)
+public annotation class ProvidedTypeConverter

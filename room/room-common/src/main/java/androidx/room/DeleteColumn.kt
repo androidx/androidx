@@ -14,45 +14,39 @@
  * limitations under the License.
  */
 
-package androidx.room;
-
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Repeatable;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+package androidx.room
 
 /**
- * Repeatable annotation declaring the deleted columns in the {@link AutoMigration#to} version of
+ * Repeatable annotation declaring the deleted columns in the [AutoMigration.to] version of
  * an auto migration.
  *
  * @see AutoMigration
  */
-@Repeatable(DeleteColumn.Entries.class)
-@Target(ElementType.TYPE)
-@Retention(RetentionPolicy.CLASS)
-public @interface DeleteColumn {
+@JvmRepeatable(DeleteColumn.Entries::class)
+@Target(AnnotationTarget.CLASS)
+@Retention(AnnotationRetention.BINARY)
+public annotation class DeleteColumn(
     /**
-     * Name of the table in the {@link AutoMigration#from} version of the database the column was
+     * Name of the table in the [AutoMigration.from] version of the database the column was
      * deleted from.
      *
      * @return Name of the table
      */
-    String tableName();
+    val tableName: String,
 
     /**
-     * Name of the column deleted in the {@link AutoMigration#to} version of the database.
+     * Name of the column deleted in the [AutoMigration.to] version of the database.
      *
      * @return Name of the column.
      */
-    String columnName();
-
+    val columnName: String,
+) {
     /**
-     * Container annotation for the repeatable annotation {@link DeleteColumn}.
+     * Container annotation for the repeatable annotation [DeleteColumn].
      */
-    @Target(ElementType.TYPE)
-    @Retention(RetentionPolicy.CLASS)
-    @interface Entries {
-        DeleteColumn[] value();
-    }
+    @Target(AnnotationTarget.CLASS)
+    @Retention(AnnotationRetention.BINARY)
+    public annotation class Entries(
+        vararg val value: DeleteColumn
+    )
 }

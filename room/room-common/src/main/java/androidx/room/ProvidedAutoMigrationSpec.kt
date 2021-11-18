@@ -14,22 +14,16 @@
  * limitations under the License.
  */
 
-package androidx.room;
-
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+package androidx.room
 
 /**
  * Marks a class as an auto migration spec that will be provided to Room at runtime.
- * <p>
+ *
  * An instance of a class annotated with this annotation has to be provided to Room using
- * {@code Room.databaseBuilder.addAutoMigrationSpec(AutoMigrationSpec)}. Room will verify that
- * the spec is provided in the builder configuration and if not, an
- * {@link IllegalArgumentException} will be thrown.
+ * `Room.databaseBuilder.addAutoMigrationSpec(AutoMigrationSpec)`. Room will verify that
+ * the spec is provided in the builder configuration and if not, an [IllegalArgumentException]
+ * will be thrown.
  */
-@Target(ElementType.TYPE)
-@Retention(RetentionPolicy.CLASS)
-public @interface ProvidedAutoMigrationSpec {
-}
+@Target(AnnotationTarget.CLASS)
+@Retention(AnnotationRetention.BINARY)
+public annotation class ProvidedAutoMigrationSpec

@@ -14,72 +14,72 @@
  * limitations under the License.
  */
 
-package androidx.room;
+package androidx.room
 
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import kotlin.reflect.KClass
 
 /**
  * Declares a junction to be used for joining a relationship.
- * <p>
- * If a {@link Relation} should use an associative table (also know as junction table or join
+ *
+ * If a [Relation] should use an associative table (also know as junction table or join
  * table) then you can use this annotation to reference such table. This is useful for fetching
  * many-to-many relations.
- * <pre>
- * {@literal @}Entity(primaryKeys = {"pId", "sId"})
+ *
+ * ```
+ * @Entity(primaryKeys = {"pId", "sId"})
  * public class PlaylistSongXRef {
- *     int pId;
- *     int sId;
+ *     val pId: Int,
+ *     val sId: Int
  * }
  * public class PlaylistWithSongs {
- *     {@literal @}Embedded
- *     Playlist playlist;
- *     {@literal @}Relation(
+ *     @Embedded
+ *     val playlist: Playlist
+ *     @Relation(
  *             parentColumn = "playlistId",
- *             entity = Song.class,
+ *             entity = Song::class,
  *             entityColumn = "songId",
- *             associateBy = {@literal @}Junction(
- *                     value = PlaylistSongXRef.class,
+ *             associateBy = @Junction(
+ *                     value = PlaylistSongXRef::class,
  *                     parentColumn = "pId",
  *                     entityColumn = "sId")
  *     )
- *     List&lt;String&gt; songs;
+ *     val songs: List<String>
  * }
- * {@literal @}Dao
- * public interface MusicDao {
- *     {@literal @}Query("SELECT * FROM Playlist")
- *     List&lt;PlaylistWithSongs&gt; getAllPlaylistsWithSongs();
- * }
- * </pre>
- * <p>
- * In the above example the many-to-many relationship between {@code Song} and {@code Playlist} has
- * an associative table defined by the entity {@code PlaylistSongXRef}.
  *
- * @see Relation
+ * @Dao
+ * public interface MusicDao {
+ *     @Query("SELECT * FROM Playlist")
+ *     val getAllPlaylistsWithSongs(): List<PlaylistWithSongs>
+ * }
+ * ```
+ *
+ * In the above example the many-to-many relationship between `Song` and `Playlist` has
+ * an associative table defined by the entity `PlaylistSongXRef`.
+ *
+ * @see [Relation]
  */
-@Target({})
-@Retention(RetentionPolicy.CLASS)
-public @interface Junction {
+@Target(allowedTargets = []) // Complex annotation target
+@Retention(AnnotationRetention.BINARY)
+public annotation class Junction(
     /**
      * An entity or database view to be used as a junction table when fetching the
      * relating entities.
      *
      * @return The entity or database view to be used as a junction table.
      */
-    Class<?> value();
+    val value: KClass<*>,
 
     /**
-     * The junction column that will be used to match against the {@link Relation#parentColumn()}.
-     * <p>
-     * If not specified it defaults to {@link Relation#parentColumn()}.
+     * The junction column that will be used to match against the [Relation.parentColumn].
+     *
+     * If not specified it defaults to [Relation.parentColumn].
      */
-    String parentColumn() default "";
+    val parentColumn: String = "",
 
     /**
-     * The junction column that will be used to match against the {@link Relation#entityColumn()}.
-     * <p>
-     * If not specified it defaults to {@link Relation#entityColumn()}.
+     * The junction column that will be used to match against the [Relation.entityColumn].
+     *
+     * If not specified it defaults to [Relation.entityColumn].
      */
-    String entityColumn() default "";
-}
+    val entityColumn: String = ""
+)

@@ -14,76 +14,76 @@
  * limitations under the License.
  */
 
-package androidx.room;
+package androidx.room
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import kotlin.reflect.KClass
 
 /**
- * Marks a method in a {@link Dao} annotated class as a delete method.
- * <p>
+ * Marks a method in a [Dao] annotated class as a delete method.
+ *
  * The implementation of the method will delete its parameters from the database.
- * <p>
- * All of the parameters of the Delete method must either be classes annotated with {@link Entity}
+ *
+ * All of the parameters of the Delete method must either be classes annotated with [Entity]
  * or collections/array of it.
- * <p>
+ *
  * Example:
- * <pre>
- * {@literal @}Dao
+ * ```
+ * @Dao
  * public interface MusicDao {
- *     {@literal @}Delete
- *     public void deleteSongs(Song... songs);
+ *     @Delete
+ *     public fun deleteSongs(vararg songs: Song)
  *
- *     {@literal @}Delete
- *     public void deleteAlbumAndSongs(Album album, List&lt;Song&gt; songs);
+ *     @Delete
+ *     public fun deleteAlbumAndSongs(val album: Album, val songs: List<Song>)
  * }
- * </pre>
- * If the target entity is specified via {@link #entity()} then the parameters can be of arbitrary
+ * ```
+ *
+ * If the target entity is specified via [entity] then the parameters can be of arbitrary
  * POJO types that will be interpreted as partial entities. For example:
- * <pre>
- * {@literal @}Entity
- * public class Playlist {
- *   {@literal @}PrimaryKey
- *   long playlistId;
- *   long ownerId;
- *   String name;
- *   {@literal @}ColumnInfo(defaultValue = "normal")
- *   String category;
- * }
  *
- * public class OwnerIdAndCategory {
- *   long ownerId;
- *   String category;
- * }
+ * ```
+ * @Entity
+ * data class Playlist (
+ *     @PrimaryKey
+ *     val playlistId: Long,
+ *     val ownerId: Long,
+ *     val name: String,
+ *     @ColumnInfo(defaultValue = "normal")
+ *     val category: String
+ * )
  *
- * {@literal @}Dao
+ * data class OwnerIdAndCategory (
+ *     val ownerId: Long,
+ *     val category: String
+ * )
+ *
+ * @Dao
  * public interface PlaylistDao {
- *   {@literal @}Delete(entity = Playlist.class)
- *   public void deleteByOwnerIdAndCategory(OwnerIdAndCategory... idCategory);
+ *     @Delete(entity = Playlist::class)
+ *     fun deleteByOwnerIdAndCategory(varargs idCategory: OwnerIdAndCategory)
  * }
- * </pre>
+ * ```
  *
  * @see Insert
  * @see Update
  */
-@Target(ElementType.METHOD)
-@Retention(RetentionPolicy.CLASS)
-public @interface Delete {
+
+@Target(AnnotationTarget.FUNCTION)
+@Retention(AnnotationRetention.BINARY)
+public annotation class Delete(
 
     /**
      * The target entity of the delete method.
-     * <p>
+     *
      * When this is declared, the delete method parameters are interpreted as partial entities when
      * the type of the parameter differs from the target. The POJO class that represents the entity
      * must contain a subset of the fields of the target entity. The fields value will be used to
      * find matching entities to delete.
-     * <p>
+     *
      * By default the target entity is interpreted by the method parameters.
      *
      * @return the target entity of the delete method or none if the method should use the
      *         parameter type entities.
      */
-    Class<?> entity() default Object.class;
-}
+    val entity: KClass<*> = Any::class
+)

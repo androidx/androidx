@@ -14,130 +14,133 @@
  * limitations under the License.
  */
 
-package androidx.room;
+package androidx.room
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import kotlin.reflect.KClass
 
 /**
  * A convenience annotation which can be used in a POJO to automatically fetch relation entities.
  * When the POJO is returned from a query, all of its relations are also fetched by Room.
  *
- * <pre>
- * {@literal @}Entity
- * public class Song {
- *     {@literal @} PrimaryKey
- *     int songId;
- *     int albumId;
- *     String name;
+ * ```
+ * @Entity
+ * data class Song (
+ *     @PrimaryKey
+ *     val songId: Int,
+ *     val albumId: Int,
+ *     val name: String
  *     // other fields
- * }
- * public class AlbumNameAndAllSongs {
- *     int id;
- *     String name;
- *     {@literal @}Relation(parentColumn = "id", entityColumn = "albumId")
- *     List&lt;Song&gt; songs;
- * }
+ * )
  *
- * {@literal @}Dao
+ * data class AlbumNameAndAllSongs (
+ *     val id: Int,
+ *     val name: String,
+ *     @Relation(parentColumn = "id", entityColumn = "albumId")
+ *     val songs: List<Song>
+ * )
+ *
+ * @Dao
  * public interface MusicDao {
- *     {@literal @}Query("SELECT id, name FROM Album")
- *     List&lt;AlbumNameAndAllSongs&gt; loadAlbumAndSongs();
+ *     @Query("SELECT id, name FROM Album")
+ *     fun loadAlbumAndSongs(): List<AlbumNameAndAllSongs>
  * }
- * </pre>
- * <p>
+ * ```
+ *
  * For a one-to-many or many-to-many relationship, the type of the field annotated with
- * {@code Relation} must be a {@link java.util.List} or {@link java.util.Set}.
- * <p>
- * By default, the {@link Entity} type is inferred from the return type.
- * If you would like to return a different object, you can specify the {@link #entity()} property
- * in the annotation.
- * <pre>
- * public class Album {
- *     int id;
- *     // other fields
- * }
- * public class SongNameAndId {
- *     int songId;
- *     String name;
- * }
- * public class AlbumAllSongs {
- *     {@literal @}Embedded
- *     Album album;
- *     {@literal @}Relation(parentColumn = "id", entityColumn = "albumId", entity = Song.class)
- *     List&lt;SongNameAndId&gt; songs;
- * }
- * {@literal @}Dao
- * public interface MusicDao {
- *     {@literal @}Query("SELECT * from Album")
- *     List&lt;AlbumAllSongs&gt; loadAlbumAndSongs();
- * }
- * </pre>
- * <p>
- * In the example above, {@code SongNameAndId} is a regular POJO but all of fields are fetched
- * from the {@code entity} defined in the {@code @Relation} annotation (<i>Song</i>).
- * {@code SongNameAndId} could also define its own relations all of which would also be fetched
- * automatically.
- * <p>
- * If you would like to specify which columns are fetched from the child {@link Entity}, you can
- * use {@link #projection()} property in the {@code Relation} annotation.
- * <pre>
- * public class AlbumAndAllSongs {
- *     {@literal @}Embedded
- *     Album album;
- *     {@literal @}Relation(
- *             parentColumn = "id",
- *             entityColumn = "albumId",
- *             entity = Song.class,
- *             projection = {"name"})
- *     List&lt;String&gt; songNames;
- * }
- * </pre>
- * <p>
- * If the relationship is defined by an associative table (also know as junction table) then you can
- * use {@link #associateBy()} to specify it. This is useful for fetching many-to-many relations.
- * <p>
- * Note that {@code @Relation} annotation can be used only in POJO classes, an {@link Entity} class
- * cannot have relations. This is a design decision to avoid common pitfalls in {@link Entity}
- * setups. You can read more about it in the main
- * <href="https://developer.android.com/training/data-storage/room/referencing-data#understand-no-object-references">
- * Room documentation</>. When loading data, you can simply work around this limitation by creating
- * POJO classes that extend the {@link Entity}.
+ * `Relation` must be a [java.util.List] or [java.util.Set].
  *
- * @see Junction
+ * By default, the [Entity] type is inferred from the return type.
+ * If you would like to return a different object, you can specify the [entity] property
+ * in the annotation.
+ *
+ * ```
+ * data class Album (
+ *     val id: Int
+ *     // other fields
+ * )
+ *
+ * data class SongNameAndId (
+ *     val songId: Int,
+ *     val name: String
+ * )
+ *
+ * data class AlbumAllSongs (
+ *     @Embedded
+ *     val album: Album,
+ *     @Relation(parentColumn = "id", entityColumn = "albumId", entity = Song.class)
+ *     val songs: List<SongNameAndId>
+ * )
+ *
+ * @Dao
+ * public interface MusicDao {
+ *     @Query("SELECT * from Album")
+ *     val loadAlbumAndSongs(): List<AlbumAllSongs>
+ * }
+ * ```
+ *
+ * In the example above, `SongNameAndId` is a regular POJO but all of fields are fetched
+ * from the `entity` defined in the `@Relation` annotation _Song_.
+ * `SongNameAndId` could also define its own relations all of which would also be fetched
+ * automatically.
+ *
+ * If you would like to specify which columns are fetched from the child [Entity], you can
+ * use [projection] property in the `Relation` annotation.
+ *
+ * ```
+ * data class AlbumAndAllSongs (
+ *     @Embedded
+ *     val album: Album,
+ *     @Relation(
+ *         parentColumn = "id",
+ *         entityColumn = "albumId",
+ *         entity = Song.class,
+ *         projection = {"name"})
+ *     val songNames: List<String>
+ * )
+ * ```
+ *
+ * If the relationship is defined by an associative table (also know as junction table) then you can
+ * use [associateBy] to specify it. This is useful for fetching many-to-many relations.
+ *
+ * Note that `@Relation` annotation can be used only in POJO classes, an [Entity] class
+ * cannot have relations. This is a design decision to avoid common pitfalls in [Entity]
+ * setups. You can read more about it in the main
+ * [Room documentation](https://developer.android.com/training/data-storage/room/referencing-data#understand-no-object-references).
+ * When loading data, you can simply work around this limitation by creating
+ * POJO classes that extend the [Entity].
+ *
+ * @see [Junction]
  */
-@Target({ElementType.FIELD, ElementType.METHOD})
-@Retention(RetentionPolicy.CLASS)
-public @interface Relation {
+@Target(AnnotationTarget.FIELD, AnnotationTarget.FUNCTION)
+@Retention(AnnotationRetention.BINARY)
+public annotation class Relation(
     /**
      * The entity or view to fetch the item from. You don't need to set this if the entity or view
      * matches the type argument in the return type.
      *
      * @return The entity or view to fetch from. By default, inherited from the return type.
      */
-    Class<?> entity() default Object.class;
+    val entity: KClass<*> = Any::class,
 
     /**
      * Reference column in the parent POJO.
-     * <p>
+     *
      * In a one-to-one or one-to-many relation, this value will be matched against the column
-     * defined in {@link #entityColumn()}. In a many-to-many using {@link #associateBy()} then
-     * this value will be matched against the {@link Junction#parentColumn()}
+     * defined in [entityColumn]. In a many-to-many using [associateBy] then
+     * this value will be matched against the [Junction.parentColumn]
      *
      * @return The column reference in the parent object.
      */
-    String parentColumn();
+    val parentColumn: String,
 
     /**
-     * The column to match in the {@link #entity()}.
-     * <p>
+     * The column to match in the [entity].
+     *
      * In a one-to-one or one-to-many relation, this value will be matched against the column
-     * defined in {@link #parentColumn()} ()}. In a many-to-many using {@link #associateBy()} then
-     * this value will be matched against the {@link Junction#entityColumn()}
+     * defined in [parentColumn]. In a many-to-many using [associateBy] then
+     * this value will be matched against the [Junction.entityColumn].
      */
-    String entityColumn();
+    val entityColumn: String,
 
     /**
      * The entity or view to be used as a associative table (also known as a junction table) when
@@ -148,14 +151,14 @@ public @interface Relation {
      *
      * @see Junction
      */
-    Junction associateBy() default @Junction(Object.class);
+    val associateBy: Junction = Junction(Any::class),
 
     /**
      * If sub columns should be fetched from the entity, you can specify them using this field.
-     * <p>
+     *
      * By default, inferred from the the return type.
      *
-     * @return The list of columns to be selected from the {@link #entity()}.
+     * @return The list of columns to be selected from the [entity].
      */
-    String[] projection() default {};
-}
+    val projection: Array<String> = []
+)

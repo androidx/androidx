@@ -13,95 +13,98 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.room;
+package androidx.room
 
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
+import kotlin.reflect.KClass
 
 /**
- * Marks a method in a {@link Dao} annotated class as an update method.
- * <p>
+ * Marks a method in a [Dao] annotated class as an update method.
+ *
  * The implementation of the method will update its parameters in the database if they already
  * exists (checked by primary keys). If they don't already exists, this option will not change the
  * database.
- * <p>
- * All of the parameters of the Update method must either be classes annotated with {@link Entity}
+ *
+ * All of the parameters of the Update method must either be classes annotated with [Entity]
  * or collections/array of it.
- * <p>
+ *
  * Example:
- * <pre>
- * {@literal @}Dao
+ *
+ * ```
+ * @Dao
  * public interface MusicDao {
- *     {@literal @}Update
- *     public void updateSong(Song);
+ *     @Update
+ *     fun updateSong(song: Song)
  *
- *     {@literal @}Update
- *     public int updateSongs(List&lt;Song&gt; songs);
+ *     @Update
+ *     fun updateSongs(songs: List<Song>): Int
  * }
- * </pre>
- * If the target entity is specified via {@link #entity()} then the parameters can be of arbitrary
+ * ```
+ *
+ * If the target entity is specified via [entity] then the parameters can be of arbitrary
  * POJO types that will be interpreted as partial entities. For example:
- * <pre>
- * {@literal @}Entity
- * public class Playlist {
- *   {@literal @}PrimaryKey(autoGenerate = true)
- *   long playlistId;
- *   String name;
- *   {@literal @}ColumnInfo(defaultValue = "")
- *   String description
- *   {@literal @}ColumnInfo(defaultValue = "normal")
- *   String category;
- *   {@literal @}ColumnInfo(defaultValue = "CURRENT_TIMESTAMP")
- *   String createdTime;
- *   {@literal @}ColumnInfo(defaultValue = "CURRENT_TIMESTAMP")
- *   String lastModifiedTime;
- * }
  *
- * public class PlaylistCategory {
- *   long playlistId;
- *   String category;
- *   String lastModifiedTime
- * }
+ * ```
+ * @Entity
+ * data class Playlist (
+ *     @PrimaryKey(autoGenerate = true)
+ *     val playlistId: Long,
+ *     val name: String,
+ *     @ColumnInfo(defaultValue = "")
+ *     val description: String,
+ *     @ColumnInfo(defaultValue = "normal")
+ *     val category: String,
+ *     @ColumnInfo(defaultValue = "CURRENT_TIMESTAMP")
+ *     val createdTime: String,
+ *     @ColumnInfo(defaultValue = "CURRENT_TIMESTAMP")
+ *     val lastModifiedTime: String
+ * )
  *
- * {@literal @}Dao
+ * data class PlaylistCategory (
+ *   val playlistId: Long,
+ *   val category: String,
+ *   val lastModifiedTime: String
+ * )
+ *
+ * @Dao
  * public interface PlaylistDao {
- *   {@literal @}Update(entity = Playlist.class)
- *   public void updateCategory(PlaylistCategory... category);
+ *   @Update(entity = Playlist::class)
+ *   fun updateCategory(varargs category: Category)
  * }
- * </pre>
+ * ```
  *
- * @see Insert
- * @see Delete
+ * @see [Insert]
+ * @see [Delete]
  */
-@Retention(RetentionPolicy.CLASS)
-public @interface Update {
+@Target(AnnotationTarget.FUNCTION)
+@Retention(AnnotationRetention.BINARY)
+public annotation class Update(
 
     /**
      * The target entity of the update method.
-     * <p>
+     *
      * When this is declared, the update method parameters are interpreted as partial entities when
      * the type of the parameter differs from the target. The POJO class that represents the entity
      * must contain a subset of the fields of the target entity along with its primary keys.
-     * <p>
+     *
      * Only the columns represented by the partial entity fields will be updated if an entity with
      * equal primary key is found.
-     * <p>
+     *
      * By default the target entity is interpreted by the method parameters.
      *
      * @return the target entity of the update method or none if the method should use the
      *         parameter type entities.
      */
-    Class<?> entity() default Object.class;
+    val entity: KClass<*> = Any::class,
 
     /**
      * What to do if a conflict happens.
-     * <p>
-     * Use {@link OnConflictStrategy#ABORT} (default) to roll back the transaction on conflict.
-     * Use {@link OnConflictStrategy#REPLACE} to replace the existing rows with the new rows.
-     * Use {@link OnConflictStrategy#IGNORE} to keep the existing rows.
      *
-     * @return How to handle conflicts. Defaults to {@link OnConflictStrategy#ABORT}.
+     * Use [OnConflictStrategy.ABORT] (default) to roll back the transaction on conflict.
+     * Use [OnConflictStrategy.REPLACE] to replace the existing rows with the new rows.
+     * Use [OnConflictStrategy.IGNORE] to keep the existing rows.
+     *
+     * @return How to handle conflicts. Defaults to [OnConflictStrategy.ABORT].
      */
     @OnConflictStrategy
-    int onConflict() default OnConflictStrategy.ABORT;
-}
+    val onConflict: Int = OnConflictStrategy.ABORT
+)

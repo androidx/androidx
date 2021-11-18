@@ -16,8 +16,7 @@
 
 package androidx.room.processor
 
-import androidx.room.OnConflictStrategy.IGNORE
-import androidx.room.OnConflictStrategy.REPLACE
+import androidx.room.OnConflictStrategy
 import androidx.room.Update
 import androidx.room.compiler.processing.XMethodElement
 import androidx.room.compiler.processing.XType
@@ -38,7 +37,7 @@ class UpdateMethodProcessor(
 
         val onConflict = annotation?.value?.onConflict ?: OnConflictProcessor.INVALID_ON_CONFLICT
         context.checker.check(
-            onConflict in REPLACE..IGNORE,
+            onConflict in OnConflictStrategy.REPLACE..OnConflictStrategy.IGNORE,
             executableElement, ProcessorErrors.INVALID_ON_CONFLICT_VALUE
         )
 

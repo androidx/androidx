@@ -14,45 +14,38 @@
  * limitations under the License.
  */
 
-package androidx.room;
-
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Repeatable;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
-
+package androidx.room
 
 /**
  * Repeatable annotation declaring the renamed tables in the new version of an auto migration.
  *
- * @see AutoMigration
+ * @see [AutoMigration]
  *
  */
-@Repeatable(RenameTable.Entries.class)
-@Target(ElementType.TYPE)
-@Retention(RetentionPolicy.CLASS)
-public @interface RenameTable {
+@JvmRepeatable(RenameTable.Entries::class)
+@Target(AnnotationTarget.CLASS)
+@Retention(AnnotationRetention.BINARY)
+public annotation class RenameTable(
     /**
-     * Name of the table in the {@link AutoMigration#from} version of the database.
+     * Name of the table in the [AutoMigration.from] version of the database.
      *
      * @return Name of the table to rename from.
      */
-    String fromTableName();
+    val fromTableName: String,
 
     /**
-     * Name of the table in the {@link AutoMigration#to} version of the database.
+     * Name of the table in the [AutoMigration.to] version of the database.
      *
      * @return Name of the table to rename to.
      */
-    String toTableName();
-
+    val toTableName: String,
+) {
     /**
-     * Container annotation for the repeatable annotation {@link RenameTable}.
+     * Container annotation for the repeatable annotation [RenameTable].
      */
-    @Target(ElementType.TYPE)
-    @Retention(RetentionPolicy.CLASS)
-    @interface Entries {
-        RenameTable[] value();
-    }
+    @Target(AnnotationTarget.CLASS)
+    @Retention(AnnotationRetention.BINARY)
+    public annotation class Entries(
+        vararg val value: RenameTable
+    )
 }
