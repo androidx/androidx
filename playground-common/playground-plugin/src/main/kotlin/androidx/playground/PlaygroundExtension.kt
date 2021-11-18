@@ -13,24 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
- package androidx.playground
 
-import javax.inject.Inject
+package androidx.playground
+
 import org.gradle.api.GradleException
-import org.gradle.api.model.ObjectFactory
 import org.gradle.api.initialization.Settings
+import org.gradle.api.model.ObjectFactory
+import java.io.File
+import java.util.Properties
+import javax.inject.Inject
 
-class PlaygroundExtension {
-    private final ObjectFactory objectFactory
-    private final Settings settings
-
-    private File supportRootDir
-
-    @Inject
-    PlaygroundExtension(Settings settings, ObjectFactory objectFactory) {
-        this.settings = settings
-        this.objectFactory = objectFactory
-    }
+open class PlaygroundExtension @Inject constructor(
+    private val settings: Settings,
+    private val objectFactory: ObjectFactory
+) {
+    private var supportRootDir: File? = null
 
     /**
      * Includes the project if it does not already exist.
@@ -40,28 +37,30 @@ class PlaygroundExtension {
      * changes the project dir to avoid the conflict.
      * see b/197253160 for details.
      */
-    private includeFakeParentProjectIfNotExists(String name, File projectDir) {
+    private fun includeFakeParentProjectIfNotExists(name: String, projectDir: File) {
         if (name.isEmpty()) return
-        if (settings.findProject(name)) {
+        if (settings.findProject(name) != null) {
             return
         }
-        if (settings.findProject(projectDir) != null) {
+        val actualProjectDir: File = if (settings.findProject(projectDir) != null) {
             // Project directory conflicts with an existing project (possibly root). Move it
             // to another directory to avoid the conflict.
-            projectDir = new File(projectDir.getParentFile(), ".ignore-${projectDir.name}")
+            File(projectDir.parentFile, ".ignore-${projectDir.name}")
+        } else {
+            projectDir
         }
-        includeProjectAt(name, projectDir)
+        includeProjectAt(name, actualProjectDir)
         // Set it to a gradle file that does not exist.
         // We must always include projects starting with root, if we are including nested projects.
         settings.project(name).buildFileName = "ignored.gradle"
     }
 
-    private includeProjectAt(String name, File projectDir) {
+    private fun includeProjectAt(name: String, projectDir: File) {
         if (settings.findProject(name) != null) {
-            throw new GradleException("Cannot include project twice: $name is already included.")
+            throw GradleException("Cannot include project twice: $name is already included.")
         }
-        def parentPath = name.substring(0, name.lastIndexOf(":"))
-        def parentDir = projectDir.getParentFile()
+        val parentPath = name.substring(0, name.lastIndexOf(":"))
+        val parentDir = projectDir.parentFile
         // Make sure parent is created first. see: b/197253160 for details
         includeFakeParentProjectIfNotExists(
             parentPath,
@@ -74,50 +73,44 @@ class PlaygroundExtension {
     /**
      * Includes a project by name, with a path relative to the root of AndroidX.
      */
-    def includeProject(String name, String filePath) {
+    fun includeProject(name: String, filePath: String) {
         if (supportRootDir == null) {
-            throw new GradleException("Must call setupPlayground() first.")
+            throw GradleException("Must call setupPlayground() first.")
         }
-        includeProjectAt(name, new File(supportRootDir, filePath))
+        includeProjectAt(name, File(supportRootDir, filePath))
     }
 
     /**
-    * Initializes the playground project to use public repositories as well as other internal projects
-    * that cannot be found in public repositories.
-    *
-    * @param settings The reference to the settings script
-    * @param relativePathToRoot The relative path of the project to the root AndroidX project
-    */
-    def setupPlayground(String relativePathToRoot) {
-        def projectDir = settings.rootProject.getProjectDir()
-        def supportRoot = new File(projectDir, relativePathToRoot).getCanonicalFile()
+     * Initializes the playground project to use public repositories as well as other internal
+     * projects that cannot be found in public repositories.
+     *
+     * @param relativePathToRoot The relative path of the project to the root AndroidX project
+     */
+    fun setupPlayground(relativePathToRoot: String) {
+        val projectDir = settings.rootProject.projectDir
+        val supportRoot = File(projectDir, relativePathToRoot).canonicalFile
         this.supportRootDir = supportRoot
-        def buildFile = new File(supportRoot, "playground-common/playground-build.gradle")
-        def relativePathToBuild = projectDir.toPath().relativize(buildFile.toPath()).toString()
+        val buildFile = File(supportRoot, "playground-common/playground-build.gradle")
+        val relativePathToBuild = projectDir.toPath().relativize(buildFile.toPath()).toString()
 
-        Properties playgroundProperties = new Properties()
-        File propertiesFile = new File(supportRoot, "playground-common/playground.properties")
-        propertiesFile.withInputStream {
-            playgroundProperties.load(it)
-        }
+        val playgroundProperties = Properties()
+        val propertiesFile = File(supportRoot, "playground-common/playground.properties")
+        playgroundProperties.load(propertiesFile.inputStream())
         settings.gradle.beforeProject { project ->
             // load playground properties. These are not kept in the playground projects to prevent
             // AndroidX build from reading them.
-            playgroundProperties.each {
-                project.ext[it.key] = it.value
+            playgroundProperties.forEach {
+                project.extensions.extraProperties[it.key as String] = it.value
             }
         }
 
         settings.rootProject.buildFileName = relativePathToBuild
         settings.enableFeaturePreview("VERSION_CATALOGS")
 
-        def catalogFiles = objectFactory.fileCollection().from("$supportRoot/gradle/libs.versions.toml")
+        val catalogFiles =
+            objectFactory.fileCollection().from("$supportRoot/gradle/libs.versions.toml")
         settings.dependencyResolutionManagement {
-            versionCatalogs {
-                libs {
-                    from(catalogFiles)
-                }
-            }
+            it.versionCatalogs.create("libs").from(catalogFiles)
         }
 
         includeProject(":lint-checks", "lint-checks")
@@ -133,30 +126,33 @@ class PlaygroundExtension {
         System.setProperty("CHECKOUT_ROOT", supportRoot.path)
     }
 
-
     /**
-    * A convenience method to include projects from the main AndroidX build using a filter.
-    *
-    * @param filter This filter will be called with the project name (project path in gradle).
-    *               If filter returns true, it will be included in the build.
-    */
-    def selectProjectsFromAndroidX(filter) {
+     * A convenience method to include projects from the main AndroidX build using a filter.
+     *
+     * @param filter This filter will be called with the project name (project path in gradle).
+     *               If filter returns true, it will be included in the build.
+     */
+    fun selectProjectsFromAndroidX(filter: (String) -> Boolean) {
         if (supportRootDir == null) {
-            throw new RuntimeException("Must call setupPlayground() first.")
+            throw RuntimeException("Must call setupPlayground() first.")
         }
 
         // Multiline matcher for anything of the form:
         //  includeProject(name, path, ...)
         // where '...' is anything except the ')' character.
-        def includeProjectPattern = ~/(?m)^[\n\r\s]*includeProject\("(?<name>[a-z0-9-:]*)",[\n\r\s]*"(?<path>[a-z0-9-\/]+)[^)]+\)$/
-        def supportSettingsFile = new File(supportRootDir, "settings.gradle")
-        def matcher = includeProjectPattern.matcher(supportSettingsFile.text)
+        /* ktlint-disable max-line-length */
+        val includeProjectPattern = Regex(
+            """[\n\r\s]*includeProject\("(?<name>[a-z0-9-:]*)",[\n\r\s]*"(?<path>[a-z0-9-\/]+)[^)]+\)$""",
+            setOf(RegexOption.MULTILINE, RegexOption.IGNORE_CASE)
+        ).toPattern()
+        val supportSettingsFile = File(supportRootDir, "settings.gradle")
+        val matcher = includeProjectPattern.matcher(supportSettingsFile.readText())
 
         while (matcher.find()) {
             // check if is an include project line, if so, extract project gradle path and
             // file system path and call the filter
-            def projectGradlePath = matcher.group("name")
-            def projectFilePath = matcher.group("path")
+            val projectGradlePath = matcher.group("name")
+            val projectFilePath = matcher.group("path")
             if (filter(projectGradlePath)) {
                 includeProject(projectGradlePath, projectFilePath)
             }
@@ -164,9 +160,9 @@ class PlaygroundExtension {
     }
 
     /**
-    * Checks if a project is necessary for playground projects that involve compose.
-    */
-    def isNeededForComposePlayground(name) {
+     * Checks if a project is necessary for playground projects that involve compose.
+     */
+    fun isNeededForComposePlayground(name: String): Boolean {
         if (name == ":compose:lint:common") return true
         if (name == ":compose:lint:internal-lint-checks") return true
         if (name == ":compose:test-utils") return true
