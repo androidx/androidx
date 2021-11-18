@@ -46,17 +46,21 @@ import androidx.glance.Visibility
 import androidx.glance.VisibilityModifier
 import androidx.glance.action.Action
 import androidx.glance.action.ActionModifier
+import androidx.glance.action.ActionParameters
 import androidx.glance.action.LaunchActivityAction
 import androidx.glance.action.LaunchActivityClassAction
 import androidx.glance.action.LaunchActivityComponentAction
+import androidx.glance.action.toMutableParameters
+import androidx.glance.appwidget.ListAdapterCallbackTrampolineActivity.Companion.putBroadcastIntentExtra
 import androidx.glance.appwidget.ListAdapterLaunchActivityTrampolineActivity.Companion.putActivityIntentExtra
-import androidx.glance.appwidget.action.RunCallbackAction
+import androidx.glance.appwidget.action.CompoundButtonAction
 import androidx.glance.appwidget.action.LaunchActivityIntentAction
+import androidx.glance.appwidget.action.RunCallbackAction
+import androidx.glance.appwidget.action.ToggleableStateKey
 import androidx.glance.appwidget.unit.DayNightColorProvider
 import androidx.glance.layout.HeightModifier
 import androidx.glance.layout.PaddingModifier
 import androidx.glance.layout.WidthModifier
-import androidx.glance.appwidget.ListAdapterCallbackTrampolineActivity.Companion.putBroadcastIntentExtra
 import androidx.glance.unit.Dimension
 import androidx.glance.unit.FixedColorProvider
 import androidx.glance.unit.ResourceColorProvider
@@ -120,83 +124,52 @@ private fun applyAction(
     @IdRes viewId: Int
 ) {
     when (action) {
-        is LaunchActivityAction -> {
-            val activityIntent = when (action) {
-                is LaunchActivityComponentAction -> Intent().setComponent(action.componentName)
-                is LaunchActivityClassAction ->
-                    Intent(translationContext.context, action.activityClass)
-                is LaunchActivityIntentAction -> action.intent
-                else -> error("Action type not defined in app widget package: $action")
-            }
-            val parametersPairs = action.parameters.asMap().map { (key, value) ->
-                key.name to value
-            }.toTypedArray()
-            activityIntent.putExtras(bundleOf(*parametersPairs))
-
+        is LaunchActivityAction, is RunCallbackAction -> {
             if (translationContext.isLazyCollectionDescendant) {
-                val fillIntent = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                    // Fill in the pending intent template with the action intent directly, with a
-                    // unique identifier to ensure unique filterEquals
-                    ApplyModifiersApiApi29Impl.setIntentIdentifier(activityIntent, viewId)
-                } else {
-                    // Send the action intent to an activity trampoline, where it will be invoked,
-                    // unmodified
-                    Intent(
-                        translationContext.context,
-                        ListAdapterLaunchActivityTrampolineActivity::class.java
-                    ).apply {
-                        data = Uri.parse(toUri(0))
-                            .buildUpon()
-                            .scheme("startActivityAction")
-                            .path(viewId.toString())
-                            .build()
-                        putActivityIntentExtra(activityIntent)
-                    }
-                }
-                rv.setOnClickFillInIntent(viewId, fillIntent)
-            } else {
-                val pendingIntent: PendingIntent =
-                    PendingIntent.getActivity(
-                        translationContext.context,
-                        0,
-                        activityIntent,
-                        PendingIntent.FLAG_MUTABLE
-                    )
-
-                rv.setOnClickPendingIntent(viewId, pendingIntent)
-            }
-        }
-        is RunCallbackAction -> {
-            if (translationContext.isLazyCollectionDescendant) {
-                val actionIntent = ActionCallbackBroadcastReceiver.createIntent(
-                    translationContext.context,
-                    action.callbackClass,
-                    translationContext.appWidgetId,
-                    action.parameters
-                )
                 rv.setOnClickFillInIntent(
                     viewId,
-                    Intent(
-                        translationContext.context,
-                        ListAdapterCallbackTrampolineActivity::class.java
-                    ).apply {
-                        data = Uri.parse(toUri(0))
-                            .buildUpon()
-                            .scheme("updateContentAction")
-                            .path(viewId.toString())
-                            .build()
-                        putBroadcastIntentExtra(actionIntent)
-                    }
+                    getFillInIntentForAction(action, translationContext, viewId)
                 )
             } else {
-                val pendingIntent =
-                    ActionCallbackBroadcastReceiver.createPendingIntent(
-                        translationContext.context,
-                        action.callbackClass,
-                        translationContext.appWidgetId,
-                        action.parameters
-                    )
-                rv.setOnClickPendingIntent(viewId, pendingIntent)
+                rv.setOnClickPendingIntent(
+                    viewId,
+                    getPendingIntentForAction(action, translationContext)
+                )
+            }
+        }
+        is CompoundButtonAction -> {
+            val editParams = { params: ActionParameters ->
+                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
+                    params.toMutableParameters().apply {
+                        set(ToggleableStateKey, !action.checked)
+                    }
+                } else {
+                    params
+                }
+            }
+            if (translationContext.isLazyCollectionDescendant) {
+                val intent = getFillInIntentForAction(
+                    action.innerAction,
+                    translationContext,
+                    viewId,
+                    editParams
+                )
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                    ApplyModifiersApi31Impl.setOnCheckedChangeResponse(rv, viewId, intent)
+                } else {
+                    rv.setOnClickFillInIntent(viewId, intent)
+                }
+            } else {
+                val intent = getPendingIntentForAction(
+                    action.innerAction,
+                    translationContext,
+                    editParams
+                )
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                    ApplyModifiersApi31Impl.setOnCheckedChangeResponse(rv, viewId, intent)
+                } else {
+                    rv.setOnClickPendingIntent(viewId, intent)
+                }
             }
         }
         else -> {
@@ -206,6 +179,106 @@ private fun applyAction(
             )
         }
     }
+}
+
+private fun getPendingIntentForAction(
+    action: Action,
+    translationContext: TranslationContext,
+    editParams: (ActionParameters) -> ActionParameters = { it }
+): PendingIntent {
+    when (action) {
+        is LaunchActivityAction -> {
+            val activityIntent = getLaunchActivityIntent(action, translationContext, editParams)
+            return PendingIntent.getActivity(
+                translationContext.context,
+                0,
+                activityIntent,
+                PendingIntent.FLAG_MUTABLE
+            )
+        }
+        is RunCallbackAction -> {
+            return ActionCallbackBroadcastReceiver.createPendingIntent(
+                translationContext.context,
+                action.callbackClass,
+                translationContext.appWidgetId,
+                editParams(action.parameters)
+            )
+        }
+        else -> error("Cannot create PendingIntent for action type: $action")
+    }
+}
+private fun getFillInIntentForAction(
+    action: Action,
+    translationContext: TranslationContext,
+    @IdRes viewId: Int,
+    editParams: (ActionParameters) -> ActionParameters = { it }
+): Intent {
+    when (action) {
+        is LaunchActivityAction -> {
+            val activityIntent = getLaunchActivityIntent(action, translationContext, editParams)
+            val fillIntent = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                // Fill in the pending intent template with the action intent directly, with a
+                // unique identifier to ensure unique filterEquals
+                ApplyModifiersApiApi29Impl.setIntentIdentifier(activityIntent, viewId)
+            } else {
+                // Send the action intent to an activity trampoline, where it will be invoked,
+                // unmodified
+                Intent(
+                    translationContext.context,
+                    ListAdapterLaunchActivityTrampolineActivity::class.java
+                ).apply {
+                    data = Uri.parse(toUri(0))
+                        .buildUpon()
+                        .scheme("startActivityAction")
+                        .path(viewId.toString())
+                        .build()
+                    putActivityIntentExtra(activityIntent)
+                }
+            }
+            return fillIntent
+        }
+        is RunCallbackAction -> {
+            val actionIntent = ActionCallbackBroadcastReceiver.createIntent(
+                translationContext.context,
+                action.callbackClass,
+                translationContext.appWidgetId,
+                editParams(action.parameters)
+            )
+            return Intent(
+                translationContext.context,
+                ListAdapterCallbackTrampolineActivity::class.java
+            ).apply {
+                data = Uri.parse(toUri(0))
+                    .buildUpon()
+                    .scheme("updateContentAction")
+                    .path(viewId.toString())
+                    .build()
+                putBroadcastIntentExtra(actionIntent)
+            }
+        }
+        else -> error("Cannot create fill-in Intent for action type: $action")
+    }
+}
+
+private fun getLaunchActivityIntent(
+    action: LaunchActivityAction,
+    translationContext: TranslationContext,
+    editParams: (ActionParameters) -> ActionParameters = { it }
+): Intent {
+    val activityIntent = when (action) {
+        is LaunchActivityComponentAction -> Intent().setComponent(action.componentName)
+        is LaunchActivityClassAction ->
+            Intent(translationContext.context, action.activityClass)
+        is LaunchActivityIntentAction -> action.intent
+        else -> error("Action type not defined in app widget package: $action")
+    }
+
+    val parametersPairs = editParams(action.parameters).asMap().map { (key, value) ->
+        key.name to value
+    }.toTypedArray()
+
+    activityIntent.putExtras(bundleOf(*parametersPairs))
+    return activityIntent
 }
 
 private fun applySizeModifiers(
@@ -413,6 +486,16 @@ private object ApplyModifiersApi31Impl {
             }
             else -> error("Rounded corners should not be ${radius.javaClass.canonicalName}")
         }
+    }
+
+    @DoNotInline
+    fun setOnCheckedChangeResponse(rv: RemoteViews, viewId: Int, intent: PendingIntent) {
+        rv.setOnCheckedChangeResponse(viewId, RemoteViews.RemoteResponse.fromPendingIntent(intent))
+    }
+
+    @DoNotInline
+    fun setOnCheckedChangeResponse(rv: RemoteViews, viewId: Int, intent: Intent) {
+        rv.setOnCheckedChangeResponse(viewId, RemoteViews.RemoteResponse.fromFillInIntent(intent))
     }
 }
 

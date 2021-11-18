@@ -21,6 +21,9 @@ import androidx.compose.runtime.Composable
 import androidx.glance.Emittable
 import androidx.glance.GlanceModifier
 import androidx.glance.GlanceNode
+import androidx.glance.action.Action
+import androidx.glance.action.ActionModifier
+import androidx.glance.appwidget.action.CompoundButtonAction
 import androidx.glance.appwidget.unit.CheckableColorProvider
 import androidx.glance.appwidget.unit.CheckedUncheckedColorProvider.Companion.createCheckableColorProvider
 import androidx.glance.appwidget.unit.ResourceCheckableColorProvider
@@ -111,6 +114,10 @@ object SwitchDefaults {
  * Adds a switch view to the glance view.
  *
  * @param checked whether the switch is checked
+ * @param onCheckedChange the action to be run when the switch is clicked. The current value of
+ * checked is provided to this action in its ActionParameters, and can be retrieved using the
+ * [ToggleableStateKey]. If this action launches an activity, the current value of checked will be
+ * passed as an intent extra with the name [RemoteViews.EXTRA_CHECKED].
  * @param modifier the modifier to apply to the switch
  * @param text the text to display to the end of the switch
  * @param style the style to apply to [text]
@@ -119,17 +126,23 @@ object SwitchDefaults {
 @Composable
 fun Switch(
     checked: Boolean,
+    onCheckedChange: Action?,
     modifier: GlanceModifier = GlanceModifier,
     text: String = "",
     style: TextStyle? = null,
     colors: SwitchColors = SwitchDefaults.colors
 ) {
+    val finalModifier = if (onCheckedChange != null) {
+        modifier.then(ActionModifier(CompoundButtonAction(onCheckedChange, checked)))
+    } else {
+        modifier
+    }
     GlanceNode(
         factory = ::EmittableSwitch,
         update = {
             this.set(checked) { this.checked = it }
             this.set(text) { this.text = it }
-            this.set(modifier) { this.modifier = it }
+            this.set(finalModifier) { this.modifier = it }
             this.set(style) { this.style = it }
             this.set(colors) { this.colors = it }
         }

@@ -19,6 +19,7 @@ package androidx.glance.appwidget
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
+import android.widget.RemoteViews
 
 /**
  * Trampoline activity for handling click interactions of list adapter items that invoke action
@@ -30,7 +31,15 @@ internal class ListAdapterCallbackTrampolineActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         intent?.getParcelableExtra<Intent>(ActionIntentKey)
-            ?.let { sendBroadcast(it) }
+            ?.let {
+                if (intent.hasExtra(RemoteViews.EXTRA_CHECKED)) {
+                    it.putExtra(
+                        RemoteViews.EXTRA_CHECKED,
+                        intent.getBooleanExtra(RemoteViews.EXTRA_CHECKED, false)
+                    )
+                }
+                sendBroadcast(it)
+            }
             ?: error("List adapter activity trampoline invoked without specifying target intent.")
         finish()
     }
