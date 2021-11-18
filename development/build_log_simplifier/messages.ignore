@@ -587,39 +587,11 @@ Scanning .+: \.*
 \$SUPPORT/compose/ui/ui\-tooling/src/androidAndroidTest/AndroidManifest\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
 No issues found.*
 dagger\.lint\.DaggerIssueRegistry in .*/lint\.jar does not specify a vendor; see IssueRegistry#vendor
-# > Task :camera:camera-camera2-pipe:reportLibraryMetrics
-Info: Stripped invalid locals information from [0-9]+ methods\.
-Info: Methods with invalid locals information:
-java\.lang\.Object androidx\.glance\.appwidget\.GlanceAppWidget\.compose\$glance_appwidget_release\(android\.content\.Context\, android\.appwidget\.AppWidgetManager\, int\, java\.lang\.Object\, android\.os\.Bundle\, kotlin\.coroutines\.Continuation\)
-java\.lang\.Object androidx\.glance\.state\.GlanceState\.getDataStore\(android\.content\.Context, androidx\.glance\.state\.GlanceStateDefinition, java\.lang\.String, kotlin\.coroutines\.Continuation\)
-java\.lang\.Object androidx\.wear\.complications\.ComplicationDataSourceInfoRetriever\.retrievePreviewComplicationData\(android\.content\.ComponentName, androidx\.wear\.complications\.data\.ComplicationType, kotlin\.coroutines\.Continuation\)
-java\.lang\.Object androidx\.wear\.watchface\.editor\.BaseEditorSession\.openComplicationDataSourceChooser\$suspendImpl\(androidx\.wear\.watchface\.editor\.BaseEditorSession, int, kotlin\.coroutines\.Continuation\)
-java\.lang\.Object androidx\.compose\.ui\.platform\.GlobalSnapshotManager\$ensureStarted\$[0-9]+\.invokeSuspend\(java\.lang\.Object\)
-java\.lang\.Object androidx\.wear\.watchface\.editor\.BaseEditorSession\$fetchComplicationsData\$[0-9]+\.invokeSuspend\(java\.lang\.Object\)
-java\.lang\.Object androidx\.camera\.camera[0-9]+\.pipe\.CameraDevicesKt\$find\$[0-9]+\.invokeSuspend\(java\.lang\.Object\)
-java\.lang\.Object androidx\.camera\.camera[0-9]+\.pipe\.compat\.VirtualCameraManager\$requestLoop\$[0-9]+\.invokeSuspend\(java\.lang\.Object\)
-Information in locals\-table is invalid with respect to the stack map table\. Local refers to non\-present stack map type for register: [0-9]+ with constraint OBJECT\.
-java\.lang\.Object androidx\.camera\.camera[0-9]+\.pipe\.compat\.VirtualCameraManager\.openCameraWithRetry\-RzXb[0-9]+QE\(java\.lang\.String, kotlinx\.coroutines\.CoroutineScope, kotlin\.coroutines\.Continuation\)
-Information in locals\-table is invalid with respect to the stack map table\. Local refers to non\-present stack map type for register: [0-9]+ with constraint INT\.
-Info: Some warnings are typically a sign of using an outdated Java toolchain\. To fix, recompile the source with an updated toolchain\.
 # > Task :paging:paging-samples:reportLibraryMetrics
-java\.lang\.Object androidx\.paging\.samples\.RemoteMediatorSampleKt\$remoteMediatorItemKeyedSample\$ExampleRemoteMediator\.load\(androidx\.paging\.LoadType, androidx\.paging\.PagingState, kotlin\.coroutines\.Continuation\)
-java\.lang\.Object androidx\.paging\.samples\.RemoteMediatorSampleKt\$remoteMediatorPageKeyedSample\$ExampleRemoteMediator\.load\(androidx\.paging\.LoadType, androidx\.paging\.PagingState, kotlin\.coroutines\.Continuation\)
-# > Task :wear:wear-complications-data:reportLibraryMetrics
-Info: Stripped invalid locals information from [0-9]+ method\.
-# > Task :wear:wear-watchface-editor:reportLibraryMetrics
-java\.lang\.Object androidx\.wear\.watchface\.editor\.BaseEditorSession\.getPreviewData\$wear_watchface_editor_release\(androidx\.wear\.complications\.ComplicationDataSourceInfoRetriever, androidx\.wear\.complications\.ComplicationDataSourceInfo, kotlin\.coroutines\.Continuation\)
-# > Task :work:work-runtime-ktx:reportLibraryMetrics
-java\.lang\.Object androidx\.work\.OperationKt\.await\(androidx\.work\.Operation, kotlin\.coroutines\.Continuation\)
-# > Task :compose:material:material:reportLibraryMetrics
-java\.lang\.Object androidx\.compose\.material\.SnackbarHostState\.showSnackbar\(java\.lang\.String, java\.lang\.String, androidx\.compose\.material\.SnackbarDuration, kotlin\.coroutines\.Continuation\)
 # > Task :compose:foundation:foundation:androidReleaseSourcesJar
 Encountered duplicate path "android[a-zA-Z]*/.+" during copy operation configured with DuplicatesStrategy\.WARN
 # > Task :camera:camera-camera2-pipe:reportLibraryMetrics
-java\.lang\.Object androidx\.camera\.camera[0-9]+\.pipe\.compat\.Camera[0-9]+DeviceCache\$getCameras\$[0-9]+\.invokeSuspend\(java\.lang\.Object\)
-Type information in locals\-table is inconsistent\. Cannot constrain type: @Nullable androidx\.camera\.camera[0-9]+\.pipe\.core\.Debug \{\} for value: v[0-9]+\(this_\$iv\$iv\) by constraint INT\.
 # > Task :compose:foundation:foundation:integration-tests:foundation-demos:reportLibraryMetrics
-java\.lang\.Object androidx\.compose\.foundation\.demos\.ListDemosKt\$ListHoistedStateDemo\$[0-9]+\$[0-9]+\$[0-9]+\$[0-9]+\$[0-9]+\.invokeSuspend\(java\.lang\.Object\)
 # > Task :profileinstaller:profileinstaller-benchmark:processReleaseAndroidTestManifest
 \$SUPPORT/profileinstaller/profileinstaller\-benchmark/src/androidTest/AndroidManifest\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
 # > Task :wear:compose:compose-material-benchmark:processReleaseAndroidTestManifest
@@ -665,3 +637,9 @@ C/C\+\+: (debug|release)\|(x86_64|x86|arm64\-v8a|armeabi\-v7a) :Building ver\.\:
 C/C\+\+: (debug|release)\|(x86_64|x86|arm64\-v8a|armeabi\-v7a) :Packaging for\: (amd\-[0-9]+|armhf\-[0-9]+|x86\-[0-9]+)
 C/C\+\+: (debug|release)\|(x86_64|x86|arm64\-v8a|armeabi\-v7a) :  CMakeLists\.txt:[0-9]+ \(PROJECT\)
 C/C\+\+: (debug|release)\|(x86_64|x86|arm64\-v8a|armeabi\-v7a) :Compiling for ARM
+# > Task :glance:glance:reportLibraryMetrics
+Info: Stripped invalid locals information from [0-9]+ method\.
+Info: Methods with invalid locals information:
+java\.lang\.Object androidx\.glance\.state\.GlanceState\.getDataStore\(android\.content\.Context, androidx\.glance\.state\.GlanceStateDefinition, java\.lang\.String, kotlin\.coroutines\.Continuation\)
+Information in locals\-table is invalid with respect to the stack map table\. Local refers to non\-present stack map type for register: [0-9]+ with constraint OBJECT\.
+Info: Some warnings are typically a sign of using an outdated Java toolchain\. To fix, recompile the source with an updated toolchain\.
