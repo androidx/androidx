@@ -52,8 +52,8 @@ import kotlinx.coroutines.flow.dropWhile
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
-import kotlinx.coroutines.withTimeout
 import org.junit.After
+import org.junit.Assert.assertTrue
 import org.junit.Assume
 import org.junit.Before
 import org.junit.Rule
@@ -223,17 +223,15 @@ class Camera2InteropIntegrationTest {
 
         val waitingList = mutableListOf<CaptureContainer>()
 
-        suspend fun waitFor(
+        fun waitFor(
             timeout: Long = TimeUnit.SECONDS.toMillis(5),
             numOfCaptures: Int = 1,
             verifyResults: (captureRequests: List<CaptureRequest>) -> Unit
         ) {
             val resultContainer = CaptureContainer(CountDownLatch(numOfCaptures))
             waitingList.add(resultContainer)
-            withTimeout(timeout) {
-                resultContainer.countDownLatch.await()
-                verifyResults(resultContainer.captureRequests)
-            }
+            assertTrue(resultContainer.countDownLatch.await(timeout, TimeUnit.MILLISECONDS))
+            verifyResults(resultContainer.captureRequests)
             waitingList.remove(resultContainer)
         }
 
