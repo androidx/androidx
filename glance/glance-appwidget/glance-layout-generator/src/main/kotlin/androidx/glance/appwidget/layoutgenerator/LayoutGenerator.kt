@@ -323,6 +323,7 @@ internal class LayoutGenerator {
                 setNamedItemNS(androidId("@id/rootView"))
                 setNamedItemNS(androidWidth(width))
                 setNamedItemNS(androidHeight(height))
+                setNamedItemNS(androidAttr("theme", "@style/Glance.AppWidget.Theme"))
             }
             val stub = createElement("ViewStub")
             root.appendChild(stub)
