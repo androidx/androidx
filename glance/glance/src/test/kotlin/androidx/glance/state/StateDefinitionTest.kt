@@ -17,12 +17,8 @@
 package androidx.glance.state
 
 import android.content.Context
-import androidx.datastore.core.DataStore
-import androidx.datastore.preferences.core.PreferenceDataStoreFactory
-import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
-import androidx.datastore.preferences.preferencesDataStoreFile
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -30,7 +26,6 @@ import kotlinx.coroutines.runBlocking
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
-import java.io.File
 import kotlin.test.assertNotNull
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -45,7 +40,13 @@ class StateDefinitionTest {
     fun emptyStore() {
         runBlocking {
             val uiString = "testUiString1"
-            val store = assertNotNull(GlanceState.getValue(context, EmptyStateDefinition, uiString))
+            val store = assertNotNull(
+                GlanceState.getValue(
+                    context,
+                    PreferencesGlanceStateDefinition,
+                    uiString
+                )
+            )
             assertThat(store.contains(counterKey)).isFalse()
             assertThat(store.contains(stringKey)).isFalse()
         }
@@ -55,20 +56,32 @@ class StateDefinitionTest {
     fun counterKey() {
         runBlocking {
             val uiString = "testUiString2"
-            GlanceState.updateValue(context, EmptyStateDefinition, uiString) { prefs ->
+            GlanceState.updateValue(context, PreferencesGlanceStateDefinition, uiString) { prefs ->
                 prefs.toMutablePreferences().apply { this[counterKey] = 0 }.toPreferences()
             }
 
-            var store = assertNotNull(GlanceState.getValue(context, EmptyStateDefinition, uiString))
+            var store = assertNotNull(
+                GlanceState.getValue(
+                    context,
+                    PreferencesGlanceStateDefinition,
+                    uiString
+                )
+            )
             assertThat(store.contains(counterKey)).isTrue()
             assertThat(store[counterKey]).isEqualTo(0)
 
-            GlanceState.updateValue(context, EmptyStateDefinition, uiString) { prefs ->
+            GlanceState.updateValue(context, PreferencesGlanceStateDefinition, uiString) { prefs ->
                 prefs.toMutablePreferences().apply {
                     this[counterKey] = prefs[counterKey]!! + 1
                 }.toPreferences()
             }
-            store = assertNotNull(GlanceState.getValue(context, EmptyStateDefinition, uiString))
+            store = assertNotNull(
+                GlanceState.getValue(
+                    context,
+                    PreferencesGlanceStateDefinition,
+                    uiString
+                )
+            )
             assertThat(store.contains(counterKey)).isTrue()
             assertThat(store[counterKey]).isEqualTo(1)
         }
@@ -81,36 +94,37 @@ class StateDefinitionTest {
         val storedMessage2 = "Another test string"
 
         runBlocking {
-            GlanceState.updateValue(context, EmptyStateDefinition, uiString) { prefs ->
+            GlanceState.updateValue(context, PreferencesGlanceStateDefinition, uiString) { prefs ->
                 prefs.toMutablePreferences().apply { this[stringKey] = storedMessage1 }
                     .toPreferences()
             }
 
-            var store = assertNotNull(GlanceState.getValue(context, EmptyStateDefinition, uiString))
+            var store = assertNotNull(
+                GlanceState.getValue(
+                    context,
+                    PreferencesGlanceStateDefinition,
+                    uiString
+                )
+            )
             assertThat(store.contains(counterKey)).isFalse()
             assertThat(store.contains(stringKey)).isTrue()
             assertThat(store[stringKey]).isEqualTo(storedMessage1)
 
-            GlanceState.updateValue(context, EmptyStateDefinition, uiString) { prefs ->
+            GlanceState.updateValue(context, PreferencesGlanceStateDefinition, uiString) { prefs ->
                 prefs.toMutablePreferences().apply {
                     this[stringKey] = storedMessage2
                 }.toPreferences()
             }
-            store = assertNotNull(GlanceState.getValue(context, EmptyStateDefinition, uiString))
+            store = assertNotNull(
+                GlanceState.getValue(
+                    context,
+                    PreferencesGlanceStateDefinition,
+                    uiString
+                )
+            )
             assertThat(store.contains(counterKey)).isFalse()
             assertThat(store.contains(stringKey)).isTrue()
             assertThat(store[stringKey]).isEqualTo(storedMessage2)
         }
-    }
-
-    object EmptyStateDefinition : GlanceStateDefinition<Preferences> {
-        override fun getLocation(context: Context, fileKey: String): File =
-            context.preferencesDataStoreFile(fileKey)
-
-        @Suppress("UNCHECKED_CAST")
-        override suspend fun <T> getDataStore(context: Context, fileKey: String): DataStore<T> =
-            PreferenceDataStoreFactory.create {
-                context.preferencesDataStoreFile(fileKey)
-            } as DataStore<T>
     }
 }
