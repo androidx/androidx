@@ -280,11 +280,13 @@ private object LayoutStateDefinition : GlanceStateDefinition<LayoutProto.LayoutC
     override fun getLocation(context: Context, fileKey: String): File =
         context.dataStoreFile(fileKey)
 
-    @Suppress("UNCHECKED_CAST")
-    override suspend fun <T> getDataStore(context: Context, fileKey: String): DataStore<T> =
+    override suspend fun getDataStore(
+        context: Context,
+        fileKey: String,
+    ): DataStore<LayoutProto.LayoutConfig> =
         DataStoreFactory.create(serializer = LayoutProtoSerializer) {
             context.dataStoreFile(fileKey)
-        } as DataStore<T>
+        }
 }
 
 private fun Alignment.Vertical.toProto() = when (this) {

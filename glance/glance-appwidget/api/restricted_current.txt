@@ -35,9 +35,7 @@ package androidx.glance.appwidget {
 
   public final class CompositionLocalsKt {
     method public static androidx.compose.runtime.ProvidableCompositionLocal<android.os.Bundle> getLocalAppWidgetOptions();
-    method public static androidx.compose.runtime.ProvidableCompositionLocal<java.lang.String> getLocalUiKey();
     property public static final androidx.compose.runtime.ProvidableCompositionLocal<android.os.Bundle> LocalAppWidgetOptions;
-    property public static final androidx.compose.runtime.ProvidableCompositionLocal<java.lang.String> LocalUiKey;
   }
 
   public final class CornerRadiusKt {
@@ -177,6 +175,15 @@ package androidx.glance.appwidget.lazy {
   }
 
   @kotlin.DslMarker public @interface LazyScopeMarker {
+  }
+
+}
+
+package androidx.glance.appwidget.state {
+
+  public final class GlanceAppWidgetStateKt {
+    method public static suspend <T> Object? getAppWidgetState(android.content.Context context, androidx.glance.state.GlanceStateDefinition<T> definition, androidx.glance.GlanceId glanceId, kotlin.coroutines.Continuation<? super T> p);
+    method public static suspend <T> Object? updateAppWidgetState(android.content.Context context, androidx.glance.state.GlanceStateDefinition<T> definition, androidx.glance.GlanceId glanceId, kotlin.jvm.functions.Function2<? super T,? super kotlin.coroutines.Continuation<? super T>,?> updateState, kotlin.coroutines.Continuation<? super T> p);
   }
 
 }

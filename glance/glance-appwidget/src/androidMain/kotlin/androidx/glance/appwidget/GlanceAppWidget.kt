@@ -348,13 +348,11 @@ public abstract class GlanceAppWidget(
         val recomposer = Recomposer(coroutineContext)
         val composition = Composition(applier, recomposer)
         val glanceId = AppWidgetId(appWidgetId)
-        val uiKey = createUniqueRemoteUiName(appWidgetId)
         composition.setContent {
             CompositionLocalProvider(
                 LocalContext provides context,
                 LocalGlanceId provides glanceId,
                 LocalAppWidgetOptions provides options,
-                LocalUiKey provides uiKey,
                 LocalState provides state,
                 LocalSize provides size,
             ) { Content() }

@@ -21,30 +21,25 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.datastore.core.DataStore
-import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import androidx.datastore.preferences.core.Preferences
-import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.intPreferencesKey
-import androidx.datastore.preferences.preferencesDataStoreFile
 import androidx.glance.Button
 import androidx.glance.GlanceId
 import androidx.glance.GlanceModifier
 import androidx.glance.LocalSize
 import androidx.glance.action.ActionParameters
-import androidx.glance.appwidget.action.ActionCallback
-import androidx.glance.appwidget.action.actionRunCallback
-import androidx.glance.action.actionParametersOf
 import androidx.glance.appwidget.CheckBox
 import androidx.glance.appwidget.CheckBoxColors
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.GlanceAppWidgetReceiver
-import androidx.glance.appwidget.LocalUiKey
 import androidx.glance.appwidget.SizeMode
 import androidx.glance.appwidget.Switch
 import androidx.glance.appwidget.SwitchColors
+import androidx.glance.appwidget.action.ActionCallback
+import androidx.glance.appwidget.action.actionRunCallback
 import androidx.glance.appwidget.appWidgetBackground
 import androidx.glance.appwidget.cornerRadius
+import androidx.glance.appwidget.state.updateAppWidgetState
 import androidx.glance.appwidget.unit.ColorProvider
 import androidx.glance.background
 import androidx.glance.currentState
@@ -54,18 +49,17 @@ import androidx.glance.layout.Row
 import androidx.glance.layout.fillMaxSize
 import androidx.glance.layout.fillMaxWidth
 import androidx.glance.layout.padding
-import androidx.glance.state.GlanceState
 import androidx.glance.state.GlanceStateDefinition
+import androidx.glance.state.PreferencesGlanceStateDefinition
 import androidx.glance.text.FontStyle
 import androidx.glance.text.FontWeight
 import androidx.glance.text.Text
 import androidx.glance.text.TextStyle
-import java.io.File
 
 class CompoundButtonAppWidget : GlanceAppWidget() {
 
     override val sizeMode: SizeMode = SizeMode.Exact
-    override var stateDefinition: GlanceStateDefinition<*> = MyStateDefinition
+    override var stateDefinition: GlanceStateDefinition<*> = PreferencesGlanceStateDefinition
 
     @Composable
     override fun Content() {
@@ -126,13 +120,11 @@ class CompoundButtonAppWidget : GlanceAppWidget() {
 @Composable
 fun CountClicks() {
     val prefs = currentState<Preferences>()
-    val count = prefs[countClicksKey]
-
-    val parameters = actionParametersOf(uiNameKey to LocalUiKey.current)
+    val count = prefs[countClicksKey] ?: 0
     Row(modifier = GlanceModifier.fillMaxWidth()) {
         Button(
             text = "Count clicks",
-            onClick = actionRunCallback<ClickAction>(parameters)
+            onClick = actionRunCallback<ClickAction>()
         )
         Text(text = "$count clicks")
     }
@@ -140,36 +132,16 @@ fun CountClicks() {
 
 class ClickAction : ActionCallback {
     override suspend fun onRun(context: Context, glanceId: GlanceId, parameters: ActionParameters) {
-        val uiKey = requireNotNull(parameters[uiNameKey]) {
-            "Add UI name to parameters, to access the view state."
-        }
-        GlanceState.updateValue(context, MyStateDefinition, uiKey) { prefs ->
+        updateAppWidgetState(context, PreferencesGlanceStateDefinition, glanceId) { prefs ->
             prefs.toMutablePreferences().apply {
-                this[countClicksKey] = prefs[countClicksKey]!! + 1
-            }.toPreferences()
+                this[countClicksKey] = (prefs[countClicksKey] ?: 0) + 1
+            }
         }
         CompoundButtonAppWidget().update(context, glanceId)
     }
 }
 
-object MyStateDefinition : GlanceStateDefinition<Preferences> {
-    override fun getLocation(context: Context, fileKey: String): File =
-        context.preferencesDataStoreFile(fileKey)
-
-    @Suppress("UNCHECKED_CAST")
-    override suspend fun <T> getDataStore(context: Context, fileKey: String): DataStore<T> =
-        PreferenceDataStoreFactory.create { context.preferencesDataStoreFile(fileKey) }
-            .apply {
-                edit { prefs ->
-                    if (prefs[countClicksKey] == null) {
-                        prefs[countClicksKey] = 0
-                    }
-                }
-            } as DataStore<T>
-}
-
 private val countClicksKey = intPreferencesKey("CountClicks")
-private val uiNameKey = ActionParameters.Key<String>("UiKey")
 
 class CompoundButtonAppWidgetReceiver : GlanceAppWidgetReceiver() {
     override val glanceAppWidget = CompoundButtonAppWidget()
