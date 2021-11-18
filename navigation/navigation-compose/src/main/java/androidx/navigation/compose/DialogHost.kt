@@ -17,6 +17,7 @@
 package androidx.navigation.compose
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
@@ -46,6 +47,12 @@ public fun DialogHost(dialogNavigator: DialogNavigator) {
             // ViewModelStoreOwner and LifecycleOwner
             backStackEntry.LocalOwnersProvider(saveableStateHolder) {
                 destination.content(backStackEntry)
+            }
+
+            DisposableEffect(backStackEntry) {
+                onDispose {
+                    dialogNavigator.onTransitionComplete(backStackEntry)
+                }
             }
         }
     }
