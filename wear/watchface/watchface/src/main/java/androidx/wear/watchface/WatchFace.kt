@@ -881,7 +881,7 @@ public class WatchFaceImpl @UiThread constructor(
 
     internal fun onDestroy() {
         pendingUpdateTime.cancel()
-        renderer.onDestroy()
+        renderer.onDestroyInternal()
         if (!watchState.isHeadless) {
             WatchFace.unregisterEditorDelegate(componentName)
         }
