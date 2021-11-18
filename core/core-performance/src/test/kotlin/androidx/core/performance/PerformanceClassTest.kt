@@ -34,17 +34,17 @@ class PerformanceClassTest {
 
     @Test
     @Config(maxSdk = R)
-    fun getPerformanceClass_sdk30() {
-        assertThat(pc.getPerformanceClass()).isEqualTo(0)
+    fun getMediaPerformanceClass_sdk30() {
+        assertThat(pc.getMediaPerformanceClass()).isEqualTo(0)
     }
 
     @Test
     // Note this test is not actually running because robolectric does not support sdk31 yet
     @Ignore("b/206673076")
     @Config(minSdk = S)
-    fun getPerformanceClass_sdk31() {
+    fun getMediaPerformanceClass_sdk31() {
         // TODO(b/205732671): Use ShadowBuild.setMediaPerformanceClass when available
         ShadowSystemProperties.override("ro.odm.build.media_performance_class", "31")
-        assertThat(pc.getPerformanceClass()).isEqualTo(31)
+        assertThat(pc.getMediaPerformanceClass()).isEqualTo(31)
     }
 }

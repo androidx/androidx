@@ -35,7 +35,7 @@ class PerformanceClass {
      * <p>
      * Defaults to {@link Build.MEDIA_PERFORMANCE_CLASS}
      */
-    fun getPerformanceClass(): Int {
+    fun getMediaPerformanceClass(): Int {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             return Build.VERSION.MEDIA_PERFORMANCE_CLASS
         }
