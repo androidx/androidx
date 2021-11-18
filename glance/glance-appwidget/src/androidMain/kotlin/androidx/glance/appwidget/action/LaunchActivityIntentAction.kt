@@ -19,9 +19,14 @@ package androidx.glance.appwidget.action
 import android.app.Activity
 import android.content.Intent
 import androidx.glance.action.Action
+import androidx.glance.action.ActionParameters
 import androidx.glance.action.LaunchActivityAction
+import androidx.glance.action.actionParametersOf
 
-internal class LaunchActivityIntentAction(val intent: Intent) : LaunchActivityAction
+internal class LaunchActivityIntentAction(
+    val intent: Intent,
+    override val parameters: ActionParameters = actionParametersOf()
+) : LaunchActivityAction
 
 /**
  * Creates an [Action] that launches an [Activity] from the given [Intent] when triggered. The
@@ -30,5 +35,10 @@ internal class LaunchActivityIntentAction(val intent: Intent) : LaunchActivityAc
  * This action is supported by app widgets only.
  *
  * @param intent the intent used to launch the activity
+ * @param parameters the parameters associated with the action. Parameter values will be added to
+ * the activity intent, keyed by the parameter key name string.
  */
-public fun actionLaunchActivity(intent: Intent): Action = LaunchActivityIntentAction(intent)
+public fun actionLaunchActivity(
+    intent: Intent,
+    parameters: ActionParameters = actionParametersOf()
+): Action = LaunchActivityIntentAction(intent, parameters)

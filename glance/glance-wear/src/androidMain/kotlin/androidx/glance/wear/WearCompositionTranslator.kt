@@ -133,6 +133,7 @@ private fun ColorProvider.getColor(context: Context) = when (this) {
     else -> error("Unsupported color provider: $this")
 }
 
+// TODO: handle parameters
 private fun LaunchActivityAction.toProto(context: Context): ActionBuilders.LaunchAction =
     ActionBuilders.LaunchAction.Builder()
         .setAndroidActivity(
