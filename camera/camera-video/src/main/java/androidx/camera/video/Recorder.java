@@ -63,7 +63,6 @@ import androidx.camera.core.impl.utils.futures.FutureCallback;
 import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.camera.video.internal.AudioSource;
 import androidx.camera.video.internal.AudioSourceAccessException;
-import androidx.camera.video.internal.BufferProvider;
 import androidx.camera.video.internal.ResourceCreationException;
 import androidx.camera.video.internal.compat.Api26Impl;
 import androidx.camera.video.internal.compat.quirk.DeactivateEncoderSurfaceBeforeStopEncoderQuirk;
@@ -74,7 +73,6 @@ import androidx.camera.video.internal.encoder.EncodedData;
 import androidx.camera.video.internal.encoder.Encoder;
 import androidx.camera.video.internal.encoder.EncoderCallback;
 import androidx.camera.video.internal.encoder.EncoderImpl;
-import androidx.camera.video.internal.encoder.InputBuffer;
 import androidx.camera.video.internal.encoder.InvalidConfigException;
 import androidx.camera.video.internal.encoder.OutputConfig;
 import androidx.camera.video.internal.encoder.VideoEncoderConfig;
@@ -1103,39 +1101,44 @@ public final class Recorder implements VideoOutput {
     @ExecutedBy("mSequentialExecutor")
     private void setupAudio() throws ResourceCreationException {
         MediaSpec mediaSpec = getObservableData(mMediaSpec);
-        AudioEncoderConfig config = composeAudioEncoderConfig(mediaSpec);
+        // Create the audio source
+        AudioSpec audioSpec = mediaSpec.getAudioSpec();
+        AudioSource.Settings audioSourceSettings = AudioSource.Settings.builder()
+                .setAudioSource(audioSpec.getSource())
+                .setSampleRate(selectSampleRate(audioSpec))
+                .setChannelCount(audioSpec.getChannelCount())
+                .setAudioFormat(audioSpec.getSourceFormat())
+                .build();
 
+        try {
+            mAudioSource = setupAudioSource(audioSourceSettings);
+        } catch (AudioSourceAccessException e) {
+            throw new ResourceCreationException(e);
+        }
+
+
+        // Create the audio encoder
+        AudioEncoderConfig config = composeAudioEncoderConfig(mediaSpec);
         try {
             mAudioEncoder = new EncoderImpl(mExecutor, config);
         } catch (InvalidConfigException e) {
             throw new ResourceCreationException(e);
         }
 
+        // Connect the audio source to the audio encoder
         Encoder.EncoderInput bufferProvider = mAudioEncoder.getInput();
         if (!(bufferProvider instanceof Encoder.ByteBufferInput)) {
             throw new AssertionError("The EncoderInput of audio isn't a ByteBufferInput.");
         }
-        try {
-            mAudioSource = setupAudioSource((Encoder.ByteBufferInput) bufferProvider,
-                    mediaSpec.getAudioSpec());
-        } catch (AudioSourceAccessException e) {
-            throw new ResourceCreationException(e);
-        }
+        mAudioSource.setBufferProvider((Encoder.ByteBufferInput) bufferProvider);
     }
 
     @RequiresPermission(Manifest.permission.RECORD_AUDIO)
     @NonNull
-    private AudioSource setupAudioSource(@NonNull BufferProvider<InputBuffer> bufferProvider,
-            @NonNull AudioSpec audioSpec) throws AudioSourceAccessException {
-        AudioSource audioSource = new AudioSource(
-                AudioSource.Settings.builder()
-                        .setAudioSource(audioSpec.getSource())
-                        .setSampleRate(selectSampleRate(audioSpec))
-                        .setChannelCount(audioSpec.getChannelCount())
-                        .setAudioFormat(audioSpec.getSourceFormat())
-                        .build(),
-                CameraXExecutors.ioExecutor(),
-                bufferProvider);
+    private AudioSource setupAudioSource(@NonNull AudioSource.Settings audioSourceSettings)
+            throws AudioSourceAccessException {
+        AudioSource audioSource = new AudioSource(audioSourceSettings,
+                CameraXExecutors.ioExecutor());
         audioSource.setAudioSourceCallback(mSequentialExecutor,
                 new AudioSource.AudioSourceCallback() {
                     @Override
