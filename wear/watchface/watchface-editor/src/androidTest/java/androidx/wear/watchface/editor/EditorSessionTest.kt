@@ -583,6 +583,12 @@ public class EditorSessionTest {
                 onDestroyLatch.countDown()
                 backgroundHandlerThread.quitSafely()
             }
+
+            override fun setComplicationSlotConfigExtrasChangeCallback(
+                callback: WatchFace.ComplicationSlotConfigExtrasChangeCallback?
+            ) {
+                complicationSlotsManager.configExtrasChangeCallback = callback
+            }
         }
         if (!shouldTimeout) {
             WatchFace.registerEditorDelegate(watchComponentName, editorDelegate)
@@ -1436,6 +1442,57 @@ public class EditorSessionTest {
                     PROVIDER_CHOOSER_EXTRA_KEY
                 )
             ).isEqualTo(PROVIDER_CHOOSER_EXTRA_VALUE)
+        }
+    }
+
+    @Test
+    public fun mutable_configExtras() {
+        // Invoke the test data source chooser to record the result.
+        ComplicationHelperActivity.useTestComplicationDataSourceChooserActivity = true
+        // Invoke the data source chooser without checking for permissions first.
+        ComplicationHelperActivity.skipPermissionCheck = true
+
+        val chosenComplicationDataSourceInfo = ComplicationDataSourceInfo(
+            "TestDataSource3App",
+            "TestDataSource3",
+            Icon.createWithBitmap(
+                Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888)
+            ),
+            ComplicationType.LONG_TEXT,
+            dataSource3
+        )
+        TestComplicationDataSourceChooserActivity.lastIntent = null
+        TestComplicationDataSourceChooserActivity.resultIntent = Intent().apply {
+            putExtra(
+                ComplicationDataSourceChooserIntent.EXTRA_PROVIDER_INFO,
+                chosenComplicationDataSourceInfo.toWireComplicationProviderInfo()
+            )
+        }
+
+        val scenario = createOnWatchFaceEditingTestActivity(
+            emptyList(),
+            listOf(leftComplication, rightComplication)
+        )
+
+        lateinit var editorSession: EditorSession
+        scenario.onActivity { activity ->
+            editorSession = activity.editorSession
+        }
+
+        runBlocking {
+            rightComplication.configExtras = Bundle().apply {
+                putString(PROVIDER_CHOOSER_EXTRA_KEY, "Updated")
+            }
+
+            val chosenComplicationDataSource =
+                editorSession.openComplicationDataSourceChooser(RIGHT_COMPLICATION_ID)
+            assertThat(chosenComplicationDataSource).isNotNull()
+
+            assertThat(
+                TestComplicationDataSourceChooserActivity.lastIntent?.extras?.getString(
+                    PROVIDER_CHOOSER_EXTRA_KEY
+                )
+            ).isEqualTo("Updated")
         }
     }
 
