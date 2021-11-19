@@ -24,6 +24,7 @@ import androidx.test.annotation.UiThreadTest
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
 import org.junit.Assert
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -168,6 +169,17 @@ class SavedStateRegistryTest {
         owner.lifecycleRegistry.currentState = Lifecycle.State.STARTED
         // shouldn't fail
         owner.savedStateRegistry.runOnNextRecreation(ToBeRecreated::class.java)
+    }
+
+    @UiThreadTest
+    @Test
+    fun emptyBundle() {
+        val owner = FakeSavedStateRegistryOwner()
+        val outBundle = Bundle()
+        owner.savedStateRegistryController.performSave(outBundle)
+        assertWithMessage("Bundle $outBundle should be empty")
+            .that(outBundle.isEmpty)
+            .isTrue()
     }
 
     @UiThreadTest
