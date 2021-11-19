@@ -27,8 +27,18 @@ import org.junit.runner.RunWith
 public class InstrumentationResultsTest {
     @Test
     public fun ideSummary_alignment() {
-        val summary1 = InstrumentationResults.ideSummaryLine("foo", 1000.0, 100.0)
-        val summary2 = InstrumentationResults.ideSummaryLine("fooBarLongerKey", 10000.0, 0.0)
+        val summary1 = InstrumentationResults.ideSummaryLine(
+            key = "foo",
+            nanos = 1000.0,
+            allocations = 100.0,
+            traceRelPath = "path"
+        )
+        val summary2 = InstrumentationResults.ideSummaryLine(
+            key = "fooBarLongerKey",
+            nanos = 10000.0,
+            allocations = 0.0,
+            traceRelPath = "path"
+        )
 
         assertEquals(
             summary1.indexOf("foo"),
@@ -40,11 +50,11 @@ public class InstrumentationResultsTest {
     public fun ideSummary_allocs() {
         assertEquals(
             "        1,000   ns    foo",
-            InstrumentationResults.ideSummaryLine("foo", 1000.0, null)
+            InstrumentationResults.ideSummaryLine("foo", 1000.0, null, null)
         )
         assertEquals(
             "        1,000   ns          10 allocs    foo",
-            InstrumentationResults.ideSummaryLine("foo", 1000.0, 10.0)
+            InstrumentationResults.ideSummaryLine("foo", 1000.0, 10.0, null)
         )
     }
 
@@ -52,19 +62,27 @@ public class InstrumentationResultsTest {
     public fun ideSummary_decimal() {
         assertEquals(
             "        1,000   ns    foo",
-            InstrumentationResults.ideSummaryLine("foo", 1000.0, null)
+            InstrumentationResults.ideSummaryLine("foo", 1000.0, null, null)
         )
         assertEquals(
             "          100   ns    foo", // 10ths not shown ...
-            InstrumentationResults.ideSummaryLine("foo", 100.4, null)
+            InstrumentationResults.ideSummaryLine("foo", 100.4, null, null)
         )
         assertEquals(
             "           99.9 ns    foo", // ... until value is < 100
-            InstrumentationResults.ideSummaryLine("foo", 99.9, null)
+            InstrumentationResults.ideSummaryLine("foo", 99.9, null, null)
         )
         assertEquals(
             "            1.0 ns    foo",
-            InstrumentationResults.ideSummaryLine("foo", 1.0, null)
+            InstrumentationResults.ideSummaryLine("foo", 1.0, null, null)
+        )
+    }
+
+    @Test
+    public fun ideSummary_traceRelPath() {
+        assertEquals(
+            "        1,000   ns    [trace](file://bar)    foo",
+            InstrumentationResults.ideSummaryLine("foo", 1000.0, null, "bar")
         )
     }
 }

@@ -199,10 +199,19 @@ public class BenchmarkStateTest {
             while (keepRunning()) {
                 // nothing, we're ignoring numbers
             }
-        }.getFullStatusReport(key = "foo", reportMetrics = true)
+        }.getFullStatusReport(
+            key = "foo",
+            reportMetrics = true,
+            tracePath = Outputs.outputDirectory.absolutePath + "/bar"
+        )
 
+        val displayStringV1 = (bundle.get("android.studio.display.benchmark") as String)
+        val displayStringV2 = (bundle.get("android.studio.v2display.benchmark") as String)
+        assertTrue("$displayStringV1 should contain foo", displayStringV1.contains("foo"))
+        assertTrue("$displayStringV2 should contain foo", displayStringV2.contains("foo"))
         assertTrue(
-            (bundle.get("android.studio.display.benchmark") as String).contains("foo")
+            "$displayStringV2 should contain [trace](file://bar)",
+            displayStringV2.contains("[trace](file://bar)")
         )
 
         // check attribute presence and naming
