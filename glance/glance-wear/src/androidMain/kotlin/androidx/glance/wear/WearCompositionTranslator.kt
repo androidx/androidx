@@ -17,12 +17,14 @@
 package androidx.glance.wear
 
 import android.content.Context
+import android.graphics.Bitmap
 import android.view.View
 import android.view.ViewGroup
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.unit.dp
 import androidx.glance.AndroidResourceImageProvider
 import androidx.glance.BackgroundModifier
+import androidx.glance.BitmapImageProvider
 import androidx.glance.Emittable
 import androidx.glance.EmittableButton
 import androidx.glance.EmittableImage
@@ -86,6 +88,8 @@ import androidx.wear.tiles.LayoutElementBuilders.VERTICAL_ALIGN_TOP
 import androidx.wear.tiles.LayoutElementBuilders.VerticalAlignment
 import androidx.wear.tiles.ModifiersBuilders
 import androidx.wear.tiles.ResourceBuilders
+import java.io.ByteArrayOutputStream
+import java.util.Arrays
 
 @VerticalAlignment
 private fun Alignment.Vertical.toProto(): Int =
@@ -398,17 +402,40 @@ private fun translateEmittableImage(
     resourceBuilder: ResourceBuilders.Resources.Builder,
     element: EmittableImage
 ): LayoutElementBuilders.LayoutElement {
-
-    val resId = (element.provider as AndroidResourceImageProvider).resId
-    val mappedResId = "android_$resId"
-    resourceBuilder.addIdToImageMapping(
-        mappedResId,
-        ResourceBuilders.ImageResource.Builder().setAndroidResourceByResId(
-            ResourceBuilders.AndroidImageResourceByResId.Builder()
-                .setResourceId(resId)
-                .build()
-        ).build()
-    )
+    var mappedResId: String
+    when (element.provider) {
+        is AndroidResourceImageProvider -> {
+            val resId = (element.provider as AndroidResourceImageProvider).resId
+            mappedResId = "android_$resId"
+            resourceBuilder.addIdToImageMapping(
+                mappedResId,
+                ResourceBuilders.ImageResource.Builder().setAndroidResourceByResId(
+                    ResourceBuilders.AndroidImageResourceByResId.Builder()
+                        .setResourceId(resId)
+                        .build()
+                ).build()
+            )
+        }
+        is BitmapImageProvider -> {
+            val bitmap = (element.provider as BitmapImageProvider).bitmap
+            val buffer = ByteArrayOutputStream().apply {
+                bitmap.compress(Bitmap.CompressFormat.PNG, 100, this)
+            }.toByteArray()
+            mappedResId = "android_${Arrays.hashCode(buffer)}"
+            resourceBuilder.addIdToImageMapping(
+                mappedResId,
+                ResourceBuilders.ImageResource.Builder().setInlineResource(
+                    ResourceBuilders.InlineImageResource.Builder()
+                        .setWidthPx(bitmap.width)
+                        .setHeightPx(bitmap.height)
+                        .setData(buffer)
+                        .build()
+                ).build()
+            )
+        }
+        else ->
+            throw IllegalArgumentException("An unsupported ImageProvider type was used")
+    }
 
     val imageBuilder = LayoutElementBuilders.Image.Builder()
         .setWidth(element.modifier.getWidth(context).toImageDimension())

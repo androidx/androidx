@@ -18,11 +18,13 @@ package androidx.glance.wear
 
 import android.app.Activity
 import android.content.Context
+import android.graphics.Bitmap
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.graphics.drawable.toBitmap
 import androidx.glance.Button
 import androidx.glance.GlanceModifier
 import androidx.glance.Image
@@ -72,6 +74,8 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import java.io.ByteArrayOutputStream
+import java.util.Arrays
 import kotlin.test.assertIs
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -134,8 +138,10 @@ class WearCompositionTranslatorTest {
     @Test
     fun canTranslatePaddingModifier() = fakeCoroutineScope.runBlockingTest {
         val content = runAndTranslate {
-            Box(modifier =
-                GlanceModifier.padding(start = 1.dp, top = 2.dp, end = 3.dp, bottom = 4.dp)) {}
+            Box(
+                modifier =
+                GlanceModifier.padding(start = 1.dp, top = 2.dp, end = 3.dp, bottom = 4.dp)
+            ) {}
         }.layout
 
         val innerBox =
@@ -151,14 +157,18 @@ class WearCompositionTranslatorTest {
     @Test
     fun canTranslateBorderModifier() = fakeCoroutineScope.runBlockingTest {
         val content = runAndTranslate {
-            Box(modifier = GlanceModifier.border(
+            Box(
+                modifier = GlanceModifier.border(
                     width = 3.dp,
                     color = ColorProvider(color = Color.Blue)
-            )) {}
-            Box(modifier = GlanceModifier.border(
+                )
+            ) {}
+            Box(
+                modifier = GlanceModifier.border(
                     width = R.dimen.dimension1,
-                color = ColorProvider(color = Color.Red)
-            )) {}
+                    color = ColorProvider(color = Color.Red)
+                )
+            ) {}
         }.layout
 
         val innerBox1 =
@@ -556,37 +566,61 @@ class WearCompositionTranslatorTest {
 
     @Test
     fun canTranslateImage() = fakeCoroutineScope.runBlockingTest {
+        val context = getApplicationContext<Context>()
+        val bitmap = context.getDrawable(R.drawable.oval)!!.toBitmap()
         val compositionResult = runAndTranslate {
-          Image(
-              provider = ImageProvider(R.drawable.oval),
-              contentDescription = "Oval",
-              modifier = GlanceModifier.width(R.dimen.dimension1).height(R.dimen.dimension2),
-              contentScale = ContentScale.FillBounds
-          )
+            Image(
+                provider = ImageProvider(R.drawable.oval),
+                contentDescription = "Oval",
+                modifier = GlanceModifier.width(R.dimen.dimension1).height(R.dimen.dimension2),
+                contentScale = ContentScale.FillBounds
+            )
+            Image(
+                provider = ImageProvider(bitmap),
+                contentDescription = "OvalBitmap",
+                modifier = GlanceModifier.width(R.dimen.dimension1).height(R.dimen.dimension2),
+                contentScale = ContentScale.Crop
+            )
         }
         val content = compositionResult.layout
         val resources = compositionResult.resources
 
-        val image = (content as LayoutElementBuilders.Box).contents[0] as
+        val image1 = (content as LayoutElementBuilders.Box).contents[0] as
             LayoutElementBuilders.Image
 
-        val context = getApplicationContext<Context>()
-        assertThat((image.width as DimensionBuilders.DpProp).value).isEqualTo(
+        assertThat((image1.width as DimensionBuilders.DpProp).value).isEqualTo(
             context.resources.getDimension(R.dimen.dimension1)
         )
-        assertThat((image.height as DimensionBuilders.DpProp).value).isEqualTo(
-                context.resources.getDimension(R.dimen.dimension2)
+        assertThat((image1.height as DimensionBuilders.DpProp).value).isEqualTo(
+            context.resources.getDimension(R.dimen.dimension2)
         )
-        assertThat(image.contentScaleMode!!.value).isEqualTo(
+        assertThat(image1.contentScaleMode!!.value).isEqualTo(
             LayoutElementBuilders.CONTENT_SCALE_MODE_FILL_BOUNDS
         )
-        assertThat(image.resourceId!!.value).isEqualTo("android_" + R.drawable.oval)
+        val mappedId1 = "android_" + R.drawable.oval
+        assertThat(image1.resourceId!!.value).isEqualTo(mappedId1)
 
-        assertThat(
-            resources.build().idToImageMapping.containsKey("android_" + R.drawable.oval)
-        ).isTrue()
+        assertThat(image1.modifiers!!.semantics!!.contentDescription).isEqualTo("Oval")
 
-        assertThat(image.modifiers!!.semantics!!.contentDescription).isEqualTo("Oval")
+        val image2 = content.contents[1] as LayoutElementBuilders.Image
+        assertThat(image2.contentScaleMode!!.value).isEqualTo(
+            LayoutElementBuilders.CONTENT_SCALE_MODE_CROP
+        )
+
+        val buffer = ByteArrayOutputStream().apply {
+            bitmap.compress(Bitmap.CompressFormat.PNG, 100, this) }
+            .toByteArray()
+        val mappedId2 = "android_" + Arrays.hashCode(buffer)
+        assertThat(image2.resourceId!!.value).isEqualTo(mappedId2)
+        assertThat(image2.modifiers!!.semantics!!.contentDescription).isEqualTo("OvalBitmap")
+
+        val idToImageMap = resources.build().idToImageMapping
+        assertThat(idToImageMap.containsKey(mappedId1)).isTrue()
+        assertThat(idToImageMap[mappedId1]!!.androidResourceByResId).isNotNull()
+        assertThat(idToImageMap[mappedId1]!!.inlineResource).isNull()
+        assertThat(idToImageMap.containsKey(mappedId2)).isTrue()
+        assertThat(idToImageMap[mappedId2]!!.inlineResource).isNotNull()
+        assertThat(idToImageMap[mappedId2]!!.androidResourceByResId).isNull()
     }
 
     @Test
