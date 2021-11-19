@@ -582,7 +582,9 @@ class WearCompositionTranslatorTest {
         )
         assertThat(image.resourceId!!.value).isEqualTo("android_" + R.drawable.oval)
 
-        assertThat(resources.build().idToImageMapping.containsKey(R.drawable.oval.toString()))
+        assertThat(
+            resources.build().idToImageMapping.containsKey("android_" + R.drawable.oval)
+        ).isTrue()
 
         assertThat(image.modifiers!!.semantics!!.contentDescription).isEqualTo("Oval")
     }
