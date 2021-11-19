@@ -2400,6 +2400,7 @@ package androidx.core.util {
     method public static void checkArgument(boolean);
     method public static void checkArgument(boolean, Object);
     method public static void checkArgument(boolean, String, java.lang.Object!...);
+    method public static float checkArgumentFinite(float, String);
     method public static int checkArgumentInRange(int, int, int, String);
     method public static long checkArgumentInRange(long, long, long, String);
     method public static float checkArgumentInRange(float, float, float, String);
@@ -2418,6 +2419,14 @@ package androidx.core.util {
 
   public interface Predicate<T> {
     method public boolean test(T!);
+  }
+
+  public final class SizeFCompat {
+    ctor public SizeFCompat(float, float);
+    method @RequiresApi(21) public static androidx.core.util.SizeFCompat createFromSizeF(android.util.SizeF);
+    method public float getHeight();
+    method public float getWidth();
+    method @RequiresApi(21) public android.util.SizeF toSizeF();
   }
 
   public interface Supplier<T> {
