@@ -118,6 +118,11 @@ public class ComplicationSlotsManager(
 
     private val complicationListeners = HashSet<TapCallback>()
 
+    /** @hide */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public var configExtrasChangeCallback: WatchFace.ComplicationSlotConfigExtrasChangeCallback? =
+        null
+
     @VisibleForTesting
     internal constructor(
         complicationSlotCollection: Collection<ComplicationSlot>,

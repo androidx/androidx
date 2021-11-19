@@ -45,6 +45,7 @@ package androidx.wear.watchface {
     method @UiThread public boolean isEnabled();
     method @UiThread public void render(android.graphics.Canvas canvas, java.time.ZonedDateTime zonedDateTime, androidx.wear.watchface.RenderParameters renderParameters);
     method @UiThread public void renderHighlightLayer(android.graphics.Canvas canvas, java.time.ZonedDateTime zonedDateTime, androidx.wear.watchface.RenderParameters renderParameters);
+    method public void setConfigExtras(android.os.Bundle value);
     property @UiThread public final int accessibilityTraversalIndex;
     property public final int boundsType;
     property public final androidx.wear.watchface.CanvasComplicationFactory canvasComplicationFactory;

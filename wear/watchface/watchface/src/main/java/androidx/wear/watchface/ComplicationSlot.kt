@@ -208,7 +208,8 @@ public annotation class ComplicationSlotBoundsType {
  * Editors need to know the initial state of a complication slot to predict the effects of making a
  * style change.
  * @param configExtras Extras to be merged into the Intent sent when invoking the complication data
- * source chooser activity.
+ * source chooser activity. This features is intended for OEM watch faces where they have elements
+ * that behave like a complication but are in fact entirely watch face specific.
  * @param fixedComplicationDataSource  Whether or not the complication data source is fixed (i.e.
  * can't be changed by the user).  This is useful for watch faces built around specific
  * complications.
@@ -226,7 +227,7 @@ public class ComplicationSlot internal constructor(
     defaultDataSourceType: ComplicationType,
     @get:JvmName("isInitiallyEnabled")
     public val initiallyEnabled: Boolean,
-    public val configExtras: Bundle,
+    configExtras: Bundle,
     @get:JvmName("isFixedComplicationDataSource")
     public val fixedComplicationDataSource: Boolean,
     public val tapFilter: ComplicationTapFilter
@@ -236,6 +237,17 @@ public class ComplicationSlot internal constructor(
      * [ComplicationSlotsManager] has been created.
      */
     internal lateinit var complicationSlotsManager: ComplicationSlotsManager
+
+    /**
+     * Extras to be merged into the Intent sent when invoking the complication data source chooser
+     * activity.
+     */
+    public var configExtras: Bundle = configExtras
+        set(value) {
+            field = value
+            complicationSlotsManager.configExtrasChangeCallback
+                ?.onComplicationSlotConfigExtrasChanged()
+        }
 
     /**
      * The [CanvasComplication] used to render the complication. This can't be used until after
