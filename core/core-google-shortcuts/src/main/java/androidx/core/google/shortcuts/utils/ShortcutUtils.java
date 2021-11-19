@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.core.google.shortcuts;
+package androidx.core.google.shortcuts.utils;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
@@ -26,6 +26,7 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+import androidx.core.google.shortcuts.TrampolineActivity;
 
 import com.google.crypto.tink.KeysetHandle;
 import com.google.crypto.tink.Mac;
@@ -43,7 +44,7 @@ import java.security.GeneralSecurityException;
  * @hide
  */
 @RestrictTo(LIBRARY)
-class ShortcutUtils {
+public class ShortcutUtils {
     public static final String ID_KEY = "id";
     public static final String SHORTCUT_URL_KEY = "shortcutUrl";
     public static final String CAPABILITY_PARAM_SEPARATOR = "/";
@@ -66,6 +67,7 @@ class ShortcutUtils {
      * @param shortcutId the shortcut id used to generate the url.
      * @return the indexable url.
      */
+    @NonNull
     public static String getIndexableUrl(@NonNull Context context, @NonNull String shortcutId) {
         Intent intent = new Intent(context, TrampolineActivity.class);
         intent.setAction(SHORTCUT_LISTENER_INTENT_FILTER_ACTION);
@@ -84,6 +86,7 @@ class ShortcutUtils {
      * @return the shortcut url wrapped inside an intent that opens the Trampoline Activity if
      * the shortcut can be signed. Otherwise return just the shortcut url.
      */
+    @NonNull
     public static String getIndexableShortcutUrl(@NonNull Context context,
             @NonNull Intent shortcutIntent, @Nullable KeysetHandle keysetHandle) {
         String shortcutUrl = shortcutIntent.toUri(Intent.URI_INTENT_SCHEME);
@@ -119,10 +122,12 @@ class ShortcutUtils {
         }
     }
 
+    /** Returns whether or not the capability is a App Actions BII. */
     public static boolean isAppActionCapability(@NonNull final String capability) {
         return capability.startsWith(APP_ACTION_CAPABILITY_PREFIX);
     }
 
+    /** Creates the {@link KeysetHandle} used to compute security MAC for Shortcut Urls. */
     @Nullable
     public static KeysetHandle getOrCreateShortcutKeysetHandle(@NonNull Context context) {
         try {
