@@ -17,8 +17,6 @@
 
 import androidx.build.LibraryType
 
-import androidx.build.LibraryGroups
-import androidx.build.LibraryVersions
 import androidx.build.Publish
 
 plugins {

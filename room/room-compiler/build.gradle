@@ -15,7 +15,6 @@
  */
 
 import androidx.build.BuildOnServerKt
-import androidx.build.LibraryGroups
 import androidx.build.LibraryType
 import androidx.build.SupportConfig
 import androidx.build.SdkHelperKt
