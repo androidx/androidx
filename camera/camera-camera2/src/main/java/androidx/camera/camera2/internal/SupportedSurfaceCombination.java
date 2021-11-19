@@ -53,6 +53,7 @@ import androidx.camera.core.impl.SurfaceConfig.ConfigType;
 import androidx.camera.core.impl.SurfaceSizeDefinition;
 import androidx.camera.core.impl.UseCaseConfig;
 import androidx.camera.core.impl.utils.CameraOrientationUtil;
+import androidx.camera.core.impl.utils.CompareSizesByArea;
 import androidx.core.util.Preconditions;
 
 import java.util.ArrayList;
@@ -1332,34 +1333,6 @@ final class SupportedSurfaceCombination {
         }
 
         return excludedSizes;
-    }
-
-    /** Comparator based on area of the given {@link Size} objects. */
-    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
-    static final class CompareSizesByArea implements Comparator<Size> {
-        private boolean mReverse = false;
-
-        CompareSizesByArea() {
-        }
-
-        CompareSizesByArea(boolean reverse) {
-            mReverse = reverse;
-        }
-
-        @Override
-        public int compare(Size lhs, Size rhs) {
-            // We cast here to ensure the multiplications won't overflow
-            int result =
-                    Long.signum(
-                            (long) lhs.getWidth() * lhs.getHeight()
-                                    - (long) rhs.getWidth() * rhs.getHeight());
-
-            if (mReverse) {
-                result *= -1;
-            }
-
-            return result;
-        }
     }
 
     /** Comparator based on how close they are to the target aspect ratio. */
