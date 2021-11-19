@@ -16,6 +16,8 @@
 
 package androidx.camera.video;
 
+import android.util.Size;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -26,6 +28,7 @@ import androidx.camera.core.Logger;
 import androidx.camera.core.impl.CamcorderProfileProvider;
 import androidx.camera.core.impl.CamcorderProfileProxy;
 import androidx.camera.core.impl.CameraInfoInternal;
+import androidx.camera.core.impl.utils.CompareSizesByArea;
 import androidx.camera.video.internal.compat.quirk.DeviceQuirks;
 import androidx.camera.video.internal.compat.quirk.VideoQualityNotSupportQuirk;
 import androidx.core.util.Preconditions;
@@ -36,6 +39,7 @@ import java.util.Deque;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 /**
  * VideoCapabilities is used to query video recording capabilities on the device.
@@ -54,6 +58,8 @@ public final class VideoCapabilities {
      * order is from size large to small.
      */
     private final Map<Integer, CamcorderProfileProxy> mSupportedProfileMap = new LinkedHashMap<>();
+    private final TreeMap<Size, Integer> mAreaSortedSizeToQualityMap =
+            new TreeMap<>(new CompareSizesByArea());
     private final CamcorderProfileProxy mHighestProfile;
     private final CamcorderProfileProxy mLowestProfile;
 
@@ -76,9 +82,13 @@ public final class VideoCapabilities {
             if (!camcorderProfileProvider.hasProfile(quality) || !isDeviceValidQuality(quality)) {
                 continue;
             }
-            CamcorderProfileProxy profile = camcorderProfileProvider.get(quality);
+            CamcorderProfileProxy profile =
+                    Preconditions.checkNotNull(camcorderProfileProvider.get(quality));
+            Size profileSize = new Size(profile.getVideoFrameWidth(),
+                    profile.getVideoFrameHeight());
             Logger.d(TAG, "profile = " + profile);
             mSupportedProfileMap.put(quality, profile);
+            mAreaSortedSizeToQualityMap.put(profileSize, quality);
         }
         if (mSupportedProfileMap.isEmpty()) {
             Logger.e(TAG, "No supported CamcorderProfile");
@@ -147,6 +157,37 @@ public final class VideoCapabilities {
             return mLowestProfile;
         }
         return mSupportedProfileMap.get(quality);
+    }
+
+    /**
+     * Finds the nearest quality by number of pixels to the given {@link Size}.
+     *
+     * <p>If the size aligns exactly with the pixel count of a supported quality, that quality
+     * will be selected. If the size falls between two qualities, the higher quality will always
+     * be selected. Otherwise, the nearest single quality will be selected, whether that
+     * quality's size is above or below the given size.
+     * @param size The size representing the number of pixels for comparison. Pixels are assumed
+     *             to be square.
+     * @return The quality constant defined in {@link QualitySelector}. If no qualities are
+     * supported, then {@link QualitySelector#QUALITY_NONE} is returned.
+     */
+    public int findHighestSupportedQualityFor(@NonNull Size size) {
+        Map.Entry<Size, Integer> ceilEntry = mAreaSortedSizeToQualityMap.ceilingEntry(size);
+
+        if (ceilEntry != null) {
+            // The ceiling entry will either be equivalent or higher in size, so always return it.
+            return ceilEntry.getValue();
+        } else {
+            // If a ceiling entry doesn't exist and a floor entry exists, it is the closest we have,
+            // so return it.
+            Map.Entry<Size, Integer> floorEntry = mAreaSortedSizeToQualityMap.floorEntry(size);
+            if (floorEntry != null) {
+                return floorEntry.getValue();
+            }
+        }
+
+        // No supported qualities.
+        return QualitySelector.QUALITY_NONE;
     }
 
     private static void checkQualityConstantsOrThrow(@QualitySelector.VideoQuality int quality) {

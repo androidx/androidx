@@ -16,6 +16,7 @@
 
 package androidx.camera.video.internal.encoder;
 
+import android.media.MediaCodecInfo;
 import android.media.MediaFormat;
 import android.util.Size;
 
@@ -29,6 +30,10 @@ import com.google.auto.value.AutoValue;
 @AutoValue
 public abstract class VideoEncoderConfig implements EncoderConfig {
 
+    private static final int VIDEO_INTRA_FRAME_INTERVAL_DEFAULT = 1;
+    private static final int VIDEO_COLOR_FORMAT_DEFAULT =
+            MediaCodecInfo.CodecCapabilities.COLOR_FormatSurface;
+
     // Restrict constructor to same package
     VideoEncoderConfig() {
     }
@@ -36,7 +41,9 @@ public abstract class VideoEncoderConfig implements EncoderConfig {
     /** Returns a build for this config. */
     @NonNull
     public static Builder builder() {
-        return new AutoValue_VideoEncoderConfig.Builder();
+        return new AutoValue_VideoEncoderConfig.Builder()
+                .setIFrameInterval(VIDEO_INTRA_FRAME_INTERVAL_DEFAULT)
+                .setColorFormat(VIDEO_COLOR_FORMAT_DEFAULT);
     }
 
     /** {@inheritDoc} */
