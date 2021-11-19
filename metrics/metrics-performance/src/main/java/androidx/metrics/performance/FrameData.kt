@@ -41,7 +41,7 @@ class FrameData(
      * other library code, that can be used later, during analysis, to determine what
      * UI state was current when jank occurred.
      *
-     * @see JankStats.addState
+     * @see PerformanceMetricsState.addState
      */
     val states: List<StateInfo>
 
@@ -74,6 +74,11 @@ class FrameData(
         result = 31 * result + isJank.hashCode()
         result = 31 * result + states.hashCode()
         return result
+    }
+
+    override fun toString(): String {
+        return "FrameData(frameStartNanos=$frameStartNanos, " +
+            "frameDurationNanos=$frameDurationNanos, isJank=$isJank, states=$states)"
     }
 }
 
