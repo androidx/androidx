@@ -93,6 +93,56 @@ class KspFilerTest {
         }
     }
 
+    @Test
+    fun originatingClassAddedForClassPathAndFileType() {
+        runKspTest(sources = listOf(simpleKotlinClass)) { invocation ->
+            val sourceElement = invocation.processingEnv.requireTypeElement("foo.bar.Baz")
+            val classPathElement = invocation.processingEnv
+                .requireTypeElement("com.google.devtools.ksp.processing.SymbolProcessor")
+
+            val fileWithType = FileSpec.builder("foo", "Bar.kt").apply {
+                addType(
+                    TypeSpec.classBuilder("Bar").apply {
+                        addOriginatingElement(sourceElement)
+                        addOriginatingElement(classPathElement)
+                    }.build()
+                )
+            }.build()
+
+            val codeGenerator = DependencyTrackingCodeGenerator()
+            KspFiler(codeGenerator, TestMessager()).write(fileWithType)
+            codeGenerator.fileDependencies[fileWithType.name]
+                .containsExactlySimpleKotlinClass()
+            val (file, classDeclarations) = codeGenerator.classDependencies.entries.single()
+            assertThat(file).isEqualTo("Bar.kt")
+            assertThat(classDeclarations.single())
+                .isEqualTo((classPathElement as KspTypeElement).declaration)
+        }
+    }
+
+    @Test
+    fun originatingClassAddedForClassPathType() {
+        runKspTest(sources = listOf()) { invocation ->
+            val classPathElement = invocation.processingEnv
+                .requireTypeElement("com.google.devtools.ksp.processing.SymbolProcessor")
+
+            val fileWithType = FileSpec.builder("foo", "Bar.kt").apply {
+                addType(
+                    TypeSpec.classBuilder("Bar").apply {
+                        addOriginatingElement(classPathElement)
+                    }.build()
+                )
+            }.build()
+
+            val codeGenerator = DependencyTrackingCodeGenerator()
+            KspFiler(codeGenerator, TestMessager()).write(fileWithType)
+            val (file, classDeclarations) = codeGenerator.classDependencies.entries.single()
+            assertThat(file).isEqualTo("Bar.kt")
+            assertThat(classDeclarations.single())
+                .isEqualTo((classPathElement as KspTypeElement).declaration)
+        }
+    }
+
     private fun Dependencies?.containsExactlySimpleKotlinClass() {
         assertThat(this).isNotNull()
         val originatingFiles = this!!.originatingFiles.map { it.fileName }
@@ -122,6 +172,7 @@ class KspFilerTest {
     class DependencyTrackingCodeGenerator : CodeGenerator {
 
         val fileDependencies = mutableMapOf<String, Dependencies>()
+        val classDependencies = mutableMapOf<String, MutableSet<KSClassDeclaration>>()
 
         override val generatedFile: Collection<File>
             get() = emptyList()
@@ -141,7 +192,7 @@ class KspFilerTest {
             fileName: String,
             extensionName: String
         ) {
-            // no-op required override.
+            classDependencies.getOrPut(fileName) { mutableSetOf() }.addAll(classes)
         }
 
         override fun createNewFile(

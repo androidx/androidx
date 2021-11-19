@@ -16,6 +16,7 @@
 
 package androidx.room.compiler.processing
 
+import androidx.room.compiler.processing.ksp.KSClassDeclarationAsOriginatingElement
 import androidx.room.compiler.processing.ksp.KSFileAsOriginatingElement
 import androidx.room.compiler.processing.ksp.KspTypeElement
 import androidx.room.compiler.processing.ksp.synthetic.KspSyntheticPropertyMethodElement
@@ -67,6 +68,34 @@ class OriginatingElementsTest {
                 assertThat(originatingElement).isInstanceOf(TypeElement::class.java)
                 assertThat((originatingElement as TypeElement).qualifiedName.toString())
                     .isEqualTo("foo.bar.Baz")
+            }
+        }
+    }
+
+    @Test
+    fun classPathTypeIsConvertedToOriginatingElement() {
+        runProcessorTest {
+            val element = it.processingEnv
+                .requireTypeElement("com.google.devtools.ksp.processing.SymbolProcessor")
+
+            val originatingElement = element.originatingElementForPoet()
+            assertThat(originatingElement).isNotNull()
+
+            if (it.isKsp) {
+                assertThat(originatingElement)
+                    .isInstanceOf(KSClassDeclarationAsOriginatingElement::class.java)
+
+                val ksClassDeclaration =
+                    (originatingElement as KSClassDeclarationAsOriginatingElement)
+                        .ksClassDeclaration
+                assertThat(ksClassDeclaration)
+                    .isEqualTo(
+                        (element as KspTypeElement).declaration
+                    )
+            } else {
+                assertThat(originatingElement).isInstanceOf(TypeElement::class.java)
+                assertThat((originatingElement as TypeElement).qualifiedName.toString())
+                    .isEqualTo("com.google.devtools.ksp.processing.SymbolProcessor")
             }
         }
     }

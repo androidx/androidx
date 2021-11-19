@@ -16,6 +16,7 @@
 
 package androidx.room.compiler.processing.ksp
 
+import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSFile
 import javax.lang.model.element.AnnotationMirror
 import javax.lang.model.element.Element
@@ -26,12 +27,27 @@ import javax.lang.model.element.Name
 import javax.lang.model.type.TypeMirror
 
 /**
- * When generating java code, JavaPoet only provides an API that receives Element.
- * This wrapper class helps us wrap a KSFile as an originating element and KspFiler unwraps it to
- * get the actual KSFile out of it.
+ * Implementation of [OriginatingElementWrapper] to wrap a [KSFile] for the case of a dependency
+ * within the sources being processed.
  */
 internal data class KSFileAsOriginatingElement(
     val ksFile: KSFile
+) : OriginatingElementWrapper(ksFile.fileName)
+
+/**
+ * Implementation of [OriginatingElementWrapper] to wrap a [KSClassDeclaration] for the case of
+ * a dependency in the classpath, in which case a [KSFile] is not available.
+ */
+internal data class KSClassDeclarationAsOriginatingElement(
+    val ksClassDeclaration: KSClassDeclaration
+) : OriginatingElementWrapper(ksClassDeclaration.simpleName.asString())
+
+/**
+ * When generating java code, JavaPoet only provides an API that receives Element.
+ * This wrapper class helps us wrap KSP constructs which KspFiler can unwrap later.
+ */
+internal sealed class OriginatingElementWrapper(
+    val elementSimpleName: String
 ) : Element {
     override fun getAnnotationMirrors(): List<AnnotationMirror> {
         return emptyList()
@@ -48,7 +64,7 @@ internal data class KSFileAsOriginatingElement(
 
     override fun asType(): TypeMirror {
         throw UnsupportedOperationException(
-            "KSFileAsOriginatingElement cannot be converted to a type"
+            "${this::class.simpleName} cannot be converted to a type"
         )
     }
 
@@ -61,7 +77,7 @@ internal data class KSFileAsOriginatingElement(
     }
 
     override fun getSimpleName(): Name {
-        return NameImpl(ksFile.fileName)
+        return NameImpl(elementSimpleName)
     }
 
     override fun getEnclosingElement(): Element? {
