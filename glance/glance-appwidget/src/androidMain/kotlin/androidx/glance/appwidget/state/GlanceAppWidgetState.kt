@@ -19,6 +19,7 @@ package androidx.glance.appwidget.state
 import android.content.Context
 import androidx.glance.GlanceId
 import androidx.glance.appwidget.AppWidgetId
+import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.createUniqueRemoteUiName
 import androidx.glance.state.GlanceState
 import androidx.glance.state.GlanceStateDefinition
@@ -56,3 +57,31 @@ public suspend fun <T> updateAppWidgetState(
         updateState,
     )
 }
+
+/** Get the state of an App Widget. */
+@Suppress("UNCHECKED_CAST")
+public suspend fun <T> GlanceAppWidget.getAppWidgetState(
+    @Suppress("ContextFirst") context: Context,
+    glanceId: GlanceId
+): T =
+    getAppWidgetState(
+        context,
+        checkNotNull(stateDefinition) { "No state defined in this provider" },
+        glanceId
+    ) as T
+
+/** Update the state of an app widget. */
+@Suppress("UNCHECKED_CAST")
+public suspend fun <T> GlanceAppWidget.updateAppWidgetState(
+    @Suppress("ContextFirst") context: Context,
+    glanceId: GlanceId,
+    updateState: suspend (T) -> T,
+): T =
+    updateAppWidgetState(
+        context,
+        checkNotNull(stateDefinition as GlanceStateDefinition<T>) {
+            "No state defined in this provider"
+        },
+        glanceId,
+        updateState,
+    )

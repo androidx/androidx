@@ -37,15 +37,18 @@ import androidx.compose.ui.unit.dp
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.glance.Button
+import androidx.glance.GlanceId
 import androidx.glance.GlanceModifier
 import androidx.glance.Image
 import androidx.glance.ImageProvider
 import androidx.glance.LocalContext
 import androidx.glance.LocalSize
 import androidx.glance.action.actionLaunchActivity
+import androidx.glance.appwidget.state.getAppWidgetState
 import androidx.glance.appwidget.state.updateAppWidgetState
 import androidx.glance.appwidget.test.R
 import androidx.glance.background
+import androidx.glance.currentState
 import androidx.glance.layout.Box
 import androidx.glance.layout.Column
 import androidx.glance.layout.ContentScale
@@ -74,6 +77,7 @@ import org.junit.Test
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
+import java.util.concurrent.atomic.AtomicReference
 import kotlin.test.assertIs
 import kotlin.test.assertNotNull
 
@@ -482,7 +486,7 @@ class GlanceAppWidgetReceiverTest {
         }
 
         runBlocking {
-            updateAppWidgetState(context, PreferencesGlanceStateDefinition, glanceId) { prefs ->
+            TestGlanceAppWidget.updateAppWidgetState<Preferences>(context, glanceId) { prefs ->
                 prefs.toMutablePreferences().apply {
                     this[testKey] = 3
                 }
@@ -580,6 +584,38 @@ class GlanceAppWidgetReceiverTest {
         }
 
         assertThat(didRun.get()).isFalse()
+    }
+
+    @Test
+    fun viewState() {
+        TestGlanceAppWidget.stateDefinition = PreferencesGlanceStateDefinition
+
+        TestGlanceAppWidget.uiDefinition = {
+            val value = currentState<Preferences>()[testKey] ?: -1
+            Text("Value = $value")
+        }
+
+        mHostRule.startHost()
+
+        val appWidgetId = AtomicReference<GlanceId>()
+        mHostRule.onHostView { view ->
+            appWidgetId.set(AppWidgetId(view.appWidgetId))
+        }
+
+        runBlocking {
+            TestGlanceAppWidget.updateAppWidgetState<Preferences>(
+                context,
+                appWidgetId.get()
+            ) { prefs ->
+                prefs.toMutablePreferences().apply {
+                    this[testKey] = 2
+                }
+            }
+
+            val prefs =
+                TestGlanceAppWidget.getAppWidgetState<Preferences>(context, appWidgetId.get())
+            assertThat(prefs[testKey]).isEqualTo(2)
+        }
     }
 
     // Check there is a single span of the given type and that it passes the [check].
