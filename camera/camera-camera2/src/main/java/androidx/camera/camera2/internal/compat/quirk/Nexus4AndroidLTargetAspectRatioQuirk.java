@@ -24,6 +24,7 @@ import androidx.camera.core.impl.Quirk;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * Quirk that produces stretched preview on Nexus 4 devices running Android L(API levels 21 and 22).
@@ -40,8 +41,8 @@ public class Nexus4AndroidLTargetAspectRatioQuirk implements Quirk {
     );
 
     static boolean load() {
-        return "GOOGLE".equals(Build.BRAND.toUpperCase()) && Build.VERSION.SDK_INT < 23
-                && DEVICE_MODELS.contains(android.os.Build.MODEL.toUpperCase());
+        return "GOOGLE".equalsIgnoreCase(Build.BRAND) && Build.VERSION.SDK_INT < 23
+                && DEVICE_MODELS.contains(android.os.Build.MODEL.toUpperCase(Locale.US));
     }
 
     /**

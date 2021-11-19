@@ -42,6 +42,7 @@ import androidx.camera.camera2.internal.annotation.CameraExecutor;
 import androidx.camera.camera2.internal.compat.CameraCharacteristicsCompat;
 import androidx.camera.camera2.internal.compat.workaround.AeFpsRange;
 import androidx.camera.camera2.internal.compat.workaround.AutoFlashAEModeDisabler;
+import androidx.camera.camera2.internal.compat.workaround.OverrideAeModeForStillCapture;
 import androidx.camera.camera2.internal.compat.workaround.UseTorchAsFlash;
 import androidx.camera.camera2.interop.Camera2CameraControl;
 import androidx.camera.camera2.interop.CaptureRequestOptions;
@@ -127,8 +128,6 @@ public class Camera2CameraControlImpl implements CameraControlInternal {
     private final TorchControl mTorchControl;
     private final ExposureControl mExposureControl;
     private final Camera2CameraControl mCamera2CameraControl;
-    private final AeFpsRange mAeFpsRange;
-    private final UseTorchAsFlash mUseTorchAsFlash;
     @GuardedBy("mLock")
     private int mUseCount = 0;
     // use volatile modifier to make these variables in sync in all threads.
@@ -137,6 +136,11 @@ public class Camera2CameraControlImpl implements CameraControlInternal {
     private boolean mIsAeTriggeredByFlash = false;
     @ImageCapture.FlashMode
     private volatile int mFlashMode = FLASH_MODE_OFF;
+
+    // Workarounds
+    private final AeFpsRange mAeFpsRange;
+    private final UseTorchAsFlash mUseTorchAsFlash;
+    private final OverrideAeModeForStillCapture mOverrideAeModeForStillCapture;
     private final AutoFlashAEModeDisabler mAutoFlashAEModeDisabler = new AutoFlashAEModeDisabler();
 
     static final String TAG_SESSION_UPDATE_ID = "CameraControlSessionUpdateId";
@@ -195,8 +199,12 @@ public class Camera2CameraControlImpl implements CameraControlInternal {
         mFocusMeteringControl = new FocusMeteringControl(this, scheduler, mExecutor);
         mZoomControl = new ZoomControl(this, mCameraCharacteristics, mExecutor);
         mTorchControl = new TorchControl(this, mCameraCharacteristics, mExecutor);
+
+        // Workarounds
         mAeFpsRange = new AeFpsRange(cameraQuirks);
         mUseTorchAsFlash = new UseTorchAsFlash(cameraQuirks);
+        mOverrideAeModeForStillCapture = new OverrideAeModeForStillCapture(cameraQuirks);
+
         mCamera2CameraControl = new Camera2CameraControl(this, mExecutor);
         mExecutor.execute(
                 () -> addCaptureResultListener(mCamera2CameraControl.getCaptureRequestListener()));
@@ -480,6 +488,7 @@ public class Camera2CameraControlImpl implements CameraControlInternal {
                                     Logger.d(TAG, "startFlashSequence: use triggerAePrecapture");
                                     mFocusMeteringControl.triggerAePrecapture(completer);
                                     mIsAeTriggeredByFlash = true;
+                                    mOverrideAeModeForStillCapture.onAePrecaptureStarted();
                                 }
                                 return "startFlashSequence";
                             });
@@ -517,6 +526,7 @@ public class Camera2CameraControlImpl implements CameraControlInternal {
                 if (mIsAeTriggeredByFlash) {
                     mIsAeTriggeredByFlash = false;
                     cancelAeTrigger = true;
+                    mOverrideAeModeForStillCapture.onAePrecaptureFinished();
                 }
             }
 
@@ -557,9 +567,20 @@ public class Camera2CameraControlImpl implements CameraControlInternal {
                     templateToModify = CameraDevice.TEMPLATE_STILL_CAPTURE;
                 }
 
-                if (templateToModify != CaptureConfig.TEMPLATE_TYPE_NONE) {
+                if (templateToModify != CaptureConfig.TEMPLATE_TYPE_NONE
+                        || mOverrideAeModeForStillCapture.shouldSetAeModeAlwaysFlash(mFlashMode)) {
                     CaptureConfig.Builder configBuilder = CaptureConfig.Builder.from(captureConfig);
-                    configBuilder.setTemplateType(templateToModify);
+                    if (templateToModify != CaptureConfig.TEMPLATE_TYPE_NONE) {
+                        configBuilder.setTemplateType(templateToModify);
+                    }
+
+                    // Override AE Mode to ON_ALWAYS_FLASH if necessary.
+                    if (mOverrideAeModeForStillCapture.shouldSetAeModeAlwaysFlash(mFlashMode)) {
+                        Camera2ImplConfig.Builder impBuilder = new Camera2ImplConfig.Builder();
+                        impBuilder.setCaptureRequestOption(CaptureRequest.CONTROL_AE_MODE,
+                                CaptureRequest.CONTROL_AE_MODE_ON_ALWAYS_FLASH);
+                        configBuilder.addImplementationOptions(impBuilder.build());
+                    }
                     configsToSubmit.set(i, configBuilder.build());
                 }
             }
