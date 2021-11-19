@@ -132,6 +132,21 @@ public class QualitySelector {
     public @interface VideoQuality {
     }
 
+    @NonNull
+    static String videoQualityString(@VideoQuality int videoQuality) {
+        switch (videoQuality) {
+            case QUALITY_NONE: return "QUALITY_NONE";
+            case QUALITY_LOWEST: return "QUALITY_LOWEST";
+            case QUALITY_HIGHEST: return "QUALITY_HIGHEST";
+            case QUALITY_SD: return "QUALITY_SD";
+            case QUALITY_HD: return "QUALITY_HD";
+            case QUALITY_FHD: return "QUALITY_FHD";
+            case QUALITY_UHD: return "QUALITY_UHD";
+        }
+
+        return "<Undefined Video Quality>";
+    }
+
     /** All quality constants. */
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     static final List<Integer> QUALITIES = Arrays.asList(QUALITY_NONE, QUALITY_LOWEST,

@@ -16,12 +16,25 @@
 
 package androidx.camera.core.impl;
 
-import android.media.CamcorderProfile;
+import static android.media.MediaRecorder.VideoEncoder.DEFAULT;
+import static android.media.MediaRecorder.VideoEncoder.H263;
+import static android.media.MediaRecorder.VideoEncoder.H264;
+import static android.media.MediaRecorder.VideoEncoder.HEVC;
+import static android.media.MediaRecorder.VideoEncoder.MPEG_4_SP;
+import static android.media.MediaRecorder.VideoEncoder.VP8;
 
+import android.media.CamcorderProfile;
+import android.media.MediaFormat;
+
+import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 
 import com.google.auto.value.AutoValue;
+
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 
 /**
  * CamcorderProfileProxy defines the get methods that is mapping to the fields of
@@ -31,12 +44,17 @@ import com.google.auto.value.AutoValue;
 @AutoValue
 public abstract class CamcorderProfileProxy {
 
+    @Retention(RetentionPolicy.SOURCE)
+    @IntDef({H263, H264, HEVC, VP8, MPEG_4_SP, DEFAULT})
+    @interface VideoEncoder {
+    }
+
     /** Creates a CamcorderProfileProxy instance. */
     @NonNull
     public static CamcorderProfileProxy create(int duration,
             int quality,
             int fileFormat,
-            int videoCodec,
+            @VideoEncoder int videoCodec,
             int videoBitRate,
             int videoFrameRate,
             int videoFrameWidth,
@@ -91,6 +109,7 @@ public abstract class CamcorderProfileProxy {
     public abstract int getFileFormat();
 
     /** @see CamcorderProfile#videoCodec */
+    @VideoEncoder
     public abstract int getVideoCodec();
 
     /** @see CamcorderProfile#videoBitRate */
@@ -116,5 +135,33 @@ public abstract class CamcorderProfileProxy {
 
     /** @see CamcorderProfile#audioChannels */
     public abstract int getAudioChannels();
-}
 
+    /**
+     * Returns a mime-type string for the video codec type returned by {@link #getVideoCodec()}.
+     *
+     * @return A mime-type string or {@code null} if the codec type is
+     * {@link android.media.MediaRecorder.VideoEncoder#DEFAULT}, as this type is under-defined
+     * and cannot be resolved to a specific mime type without more information.
+     */
+    @Nullable
+    public String getVideoCodecMimeType() {
+        // Mime-type definitions taken from
+        // frameworks/av/media/libstagefright/foundation/MediaDefs.cpp
+        switch (getVideoCodec()) {
+            case H263:
+                return MediaFormat.MIMETYPE_VIDEO_H263;
+            case H264:
+                return MediaFormat.MIMETYPE_VIDEO_AVC;
+            case HEVC:
+                return MediaFormat.MIMETYPE_VIDEO_HEVC;
+            case VP8:
+                return MediaFormat.MIMETYPE_VIDEO_VP8;
+            case MPEG_4_SP:
+                return MediaFormat.MIMETYPE_VIDEO_MPEG4;
+            case DEFAULT:
+                break;
+        }
+
+        return null;
+    }
+}
