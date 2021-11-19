@@ -10,15 +10,46 @@ package androidx.glance.wear {
     method public static androidx.glance.GlanceModifier border(androidx.glance.GlanceModifier, @DimenRes int width, androidx.glance.unit.ColorProvider color);
   }
 
+  public final class CompositionLocalsKt {
+    method public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.glance.wear.TimeInterval> getLocalTimeInterval();
+    property public static final androidx.compose.runtime.ProvidableCompositionLocal<androidx.glance.wear.TimeInterval> LocalTimeInterval;
+  }
+
   public abstract class GlanceTileService extends androidx.wear.tiles.TileService {
     ctor public GlanceTileService();
     method @androidx.compose.runtime.Composable public abstract void Content();
+    method public androidx.glance.wear.TimelineMode getTimelineMode();
     method protected final com.google.common.util.concurrent.ListenableFuture<androidx.wear.tiles.ResourceBuilders.Resources> onResourcesRequest(androidx.wear.tiles.RequestBuilders.ResourcesRequest requestParams);
     method public void onStart(android.content.Intent? intent, int startId);
     method protected final com.google.common.util.concurrent.ListenableFuture<androidx.wear.tiles.TileBuilders.Tile> onTileRequest(androidx.wear.tiles.RequestBuilders.TileRequest requestParams);
+    property public androidx.glance.wear.TimelineMode timelineMode;
   }
 
   public final class NormalizeCompositionTreeKt {
+  }
+
+  public final class TimeInterval {
+    ctor public TimeInterval(optional java.time.Instant start, optional java.time.Instant end);
+    method public java.time.Instant component1();
+    method public java.time.Instant component2();
+    method public androidx.glance.wear.TimeInterval copy(java.time.Instant start, java.time.Instant end);
+    method public java.time.Instant getEnd();
+    method public java.time.Instant getStart();
+    property public final java.time.Instant end;
+    property public final java.time.Instant start;
+  }
+
+  public sealed interface TimelineMode {
+  }
+
+  public static final class TimelineMode.SingleEntry implements androidx.glance.wear.TimelineMode {
+    field public static final androidx.glance.wear.TimelineMode.SingleEntry INSTANCE;
+  }
+
+  public static final class TimelineMode.TimeBoundEntries implements androidx.glance.wear.TimelineMode {
+    ctor public TimelineMode.TimeBoundEntries(java.util.Set<androidx.glance.wear.TimeInterval> timeIntervals);
+    method public java.util.Set<androidx.glance.wear.TimeInterval> getTimeIntervals();
+    property public final java.util.Set<androidx.glance.wear.TimeInterval> timeIntervals;
   }
 
   public final class WearCompositionTranslatorKt {
