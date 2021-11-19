@@ -16,6 +16,7 @@
 
 package androidx.room.compiler.processing.javac.kotlin
 
+import androidx.room.compiler.processing.util.sanitizeAsJavaParameterName
 import kotlinx.metadata.ClassName
 import kotlinx.metadata.Flag
 import kotlinx.metadata.Flags
@@ -25,15 +26,19 @@ import kotlinx.metadata.KmConstructorVisitor
 import kotlinx.metadata.KmExtensionType
 import kotlinx.metadata.KmFunctionExtensionVisitor
 import kotlinx.metadata.KmFunctionVisitor
+import kotlinx.metadata.KmPropertyExtensionVisitor
 import kotlinx.metadata.KmPropertyVisitor
 import kotlinx.metadata.KmTypeParameterVisitor
 import kotlinx.metadata.KmTypeVisitor
 import kotlinx.metadata.KmValueParameterVisitor
 import kotlinx.metadata.KmVariance
 import kotlinx.metadata.jvm.JvmConstructorExtensionVisitor
+import kotlinx.metadata.jvm.JvmFieldSignature
 import kotlinx.metadata.jvm.JvmFunctionExtensionVisitor
 import kotlinx.metadata.jvm.JvmMethodSignature
+import kotlinx.metadata.jvm.JvmPropertyExtensionVisitor
 import kotlinx.metadata.jvm.KotlinClassMetadata
+import java.util.Locale
 
 // represents a function or constructor
 internal interface KmExecutable {
@@ -44,6 +49,14 @@ internal interface KmExecutable {
  * Represents the kotlin metadata of a function
  */
 internal data class KmFunction(
+    /**
+     * Name of the function in byte code
+     */
+    val jvmName: String,
+    /**
+     * Name of the function in source code
+     */
+    val name: String,
     val descriptor: String,
     private val flags: Flags,
     override val parameters: List<KmValueParameter>,
@@ -65,7 +78,9 @@ internal data class KmConstructor(
 
 internal data class KmProperty(
     val name: String,
-    val type: KmType
+    val type: KmType,
+    val getter: KmFunction?,
+    val setter: KmFunction?
 ) {
     val typeParameters
         get() = type.typeArguments
@@ -118,7 +133,7 @@ private class FunctionReader(val result: MutableList<KmFunction>) : KmClassVisit
     override fun visitFunction(flags: Flags, name: String): KmFunctionVisitor {
         return object : KmFunctionVisitor() {
 
-            lateinit var descriptor: String
+            lateinit var methodSignature: JvmMethodSignature
             val parameters = mutableListOf<KmValueParameter>()
             lateinit var returnType: KmType
 
@@ -137,7 +152,7 @@ private class FunctionReader(val result: MutableList<KmFunction>) : KmClassVisit
                 }
                 return object : JvmFunctionExtensionVisitor() {
                     override fun visit(signature: JvmMethodSignature?) {
-                        descriptor = signature!!.asString()
+                        methodSignature = signature!!
                     }
                 }
             }
@@ -149,7 +164,16 @@ private class FunctionReader(val result: MutableList<KmFunction>) : KmClassVisit
             }
 
             override fun visitEnd() {
-                result.add(KmFunction(descriptor, flags, parameters, returnType))
+                result.add(
+                    KmFunction(
+                        name = name,
+                        jvmName = methodSignature.name,
+                        descriptor = methodSignature.asString(),
+                        flags = flags,
+                        parameters = parameters,
+                        returnType = returnType
+                    )
+                )
             }
         }
     }
@@ -239,13 +263,45 @@ private class PropertyReader(
         getterFlags: Flags,
         setterFlags: Flags
     ): KmPropertyVisitor {
+        var setterParam: KmValueParameter? = null
+        var getter: JvmMethodSignature? = null
+        var setter: JvmMethodSignature? = null
         return object : KmPropertyVisitor() {
             lateinit var returnType: KmType
             override fun visitEnd() {
                 result.add(
                     KmProperty(
                         type = returnType,
-                        name = name
+                        name = name,
+                        setter = setter?.let { setterSignature ->
+                            // setter parameter visitor may not be invoked when not declared
+                            // explicitly
+                            val param = setterParam ?: KmValueParameter(
+                                // kotlinc will set this to set-? but it is better to not expose
+                                // it here since it is not valid name
+                                name = "set-?".sanitizeAsJavaParameterName(0),
+                                type = returnType,
+                                flags = 0
+                            )
+                            KmFunction(
+                                jvmName = setterSignature.name,
+                                name = computeSetterName(name),
+                                descriptor = setterSignature.asString(),
+                                flags = 0,
+                                parameters = listOf(param),
+                                returnType = KM_VOID_TYPE
+                            )
+                        },
+                        getter = getter?.let { getterSignature ->
+                            KmFunction(
+                                jvmName = getterSignature.name,
+                                name = computeGetterName(name),
+                                descriptor = getterSignature.asString(),
+                                flags = flags,
+                                parameters = emptyList(),
+                                returnType = returnType
+                            )
+                        }
                     )
                 )
             }
@@ -253,6 +309,35 @@ private class PropertyReader(
             override fun visitReturnType(flags: Flags): KmTypeVisitor {
                 return TypeReader(flags) {
                     returnType = it
+                }
+            }
+
+            override fun visitSetterParameter(
+                flags: Flags,
+                name: String
+            ): KmValueParameterVisitor {
+                return ValueParameterReader(
+                    name = name,
+                    flags = flags
+                ) {
+                    setterParam = it
+                }
+            }
+
+            override fun visitExtensions(type: KmExtensionType): KmPropertyExtensionVisitor? {
+                if (type != JvmPropertyExtensionVisitor.TYPE) {
+                    return null
+                }
+                return object : JvmPropertyExtensionVisitor() {
+                    override fun visit(
+                        jvmFlags: Flags,
+                        fieldSignature: JvmFieldSignature?,
+                        getterSignature: JvmMethodSignature?,
+                        setterSignature: JvmMethodSignature?
+                    ) {
+                        getter = getterSignature
+                        setter = setterSignature
+                    }
                 }
             }
         }
@@ -388,3 +473,47 @@ private class TypeParameterReader(
         }
     }
 }
+
+/**
+ * Computes the getter name based on the property. Note that this might be different than the
+ * JVM name for internal properties.
+ * See: https://kotlinlang.org/docs/java-to-kotlin-interop.html#properties
+ */
+private fun computeGetterName(
+    propName: String
+): String {
+    return if (propName.startsWith("is")) {
+        propName
+    } else {
+        val capitalizedName = propName.replaceFirstChar {
+            if (it.isLowerCase()) it.titlecase(
+                Locale.US
+            ) else it.toString()
+        }
+        "get$capitalizedName"
+    }
+}
+
+/**
+ * Computes the getter name based on the property. Note that this might be different than the
+ * JVM name for internal properties.
+ * See: https://kotlinlang.org/docs/java-to-kotlin-interop.html#properties
+ */
+private fun computeSetterName(propName: String): String {
+    return if (propName.startsWith("is")) {
+        "set${propName.substring(2)}"
+    } else {
+        val capitalizedName = propName.replaceFirstChar {
+            if (it.isLowerCase()) it.titlecase(
+                Locale.US
+            ) else it.toString()
+        }
+        "set$capitalizedName"
+    }
+}
+
+private val KM_VOID_TYPE = KmType(
+    flags = 0,
+    typeArguments = emptyList(),
+    extendsBound = null
+)

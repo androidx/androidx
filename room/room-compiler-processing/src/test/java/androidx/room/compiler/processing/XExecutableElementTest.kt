@@ -416,6 +416,7 @@ class XExecutableElementTest {
                     protected set
                 protected var prop7: String
                     private set
+                internal var prop8: String
             }
             """.trimIndent()
         )
@@ -429,19 +430,24 @@ class XExecutableElementTest {
                     "setX", "setProp1", "setProp3", "setZ", "setProp4", "getProp4", "setProp7"
                 )
             )
-            listOf("getX", "getProp1", "getProp2", "getProp3", "getProp5", "getProp6").forEach {
+            listOf("getX", "getProp1", "getProp2", "getProp3", "getProp5", "getProp6",
+                "getProp8\$main").forEach {
                 klass.getMethod(it).let { method ->
                     assertThat(method.returnType.typeName).isEqualTo(String::class.typeName())
                     assertThat(method.parameters).isEmpty()
+                    assertThat(method.returnType.nullability).isEqualTo(XNullability.NONNULL)
                 }
             }
-            listOf("setY", "setProp2").forEach {
+            listOf("setY", "setProp2", "setProp8\$main").forEach {
                 klass.getMethod(it).let { method ->
                     assertThat(method.returnType.typeName).isEqualTo(TypeName.VOID)
                     assertThat(method.parameters.first().type.typeName).isEqualTo(
                         String::class.typeName()
                     )
                     assertThat(method.isPublic()).isTrue()
+                    assertThat(method.parameters.first().type.nullability).isEqualTo(
+                        XNullability.NONNULL
+                    )
                 }
             }
             listOf("getProp5", "getProp7").forEach {
