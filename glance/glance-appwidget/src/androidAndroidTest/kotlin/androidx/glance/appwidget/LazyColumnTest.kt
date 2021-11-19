@@ -362,8 +362,8 @@ class LazyColumnTest {
 
     private inline fun <reified T : View> ListView.getUnboxedListItem(position: Int): T {
         val remoteViewFrame = assertIs<FrameLayout>(getChildAt(position))
-        // Android R- have a RemoteViewsAdapter$RemoteViewsFrameLayout first, Android S+ do not.
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+        // Android S- have a RemoteViewsAdapter$RemoteViewsFrameLayout first, Android T+ do not.
+        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.S) {
             return remoteViewFrame.getChildAt(0).getTargetView()
         }
         val frame = assertIs<FrameLayout>(remoteViewFrame.getChildAt(0))
