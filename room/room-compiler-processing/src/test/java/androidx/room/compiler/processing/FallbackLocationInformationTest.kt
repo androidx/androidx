@@ -49,10 +49,10 @@ class FallbackLocationInformationTest {
             class JavaSubject {
                 String field1;
                 // naming this arg0 because javac cannot read the real param name after compilation
-                JavaSubject(int arg0) {
+                JavaSubject(int p0) {
                 }
                 // naming this arg0 because javac cannot read the real param name after compilation
-                void method1(int arg0) {}
+                void method1(int p0) {}
             }
             """.trimIndent()
         )
@@ -109,7 +109,7 @@ class FallbackLocationInformationTest {
                 assertThat(
                     propSetter.parameters.first().fallbackLocationText
                 ).isEqualTo(
-                    "arg0 in foo.bar.KotlinSubject.setProp(java.lang.String)"
+                    "p0 in foo.bar.KotlinSubject.setProp(java.lang.String)"
                 )
             }
 
