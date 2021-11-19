@@ -16,8 +16,6 @@
 
 
 import androidx.build.BundleInsideHelper
-import androidx.build.LibraryGroups
-import androidx.build.LibraryVersions
 import androidx.build.Publish
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 

@@ -172,6 +172,7 @@ testRules = { module = "androidx.test:rules", version.ref = "androidxTestRules" 
 testRunner = { module = "androidx.test:runner", version.ref = "androidxTestRunner" }
 testUiautomator = { module = "androidx.test.uiautomator:uiautomator", version = "2.2.0" }
 truth = { module = "com.google.truth:truth", version = "1.0.1" }
+toml = { module = "org.tomlj:tomlj", version = "1.0.0" }
 viewBinding = { module = "androidx.databinding:viewbinding", version = "4.1.2" }
 wireGradlePluginz = { module = "com.squareup.wire:wire-gradle-plugin", version.ref = "wire" }
 wireRuntime = { module = "com.squareup.wire:wire-runtime", version.ref = "wire" }
