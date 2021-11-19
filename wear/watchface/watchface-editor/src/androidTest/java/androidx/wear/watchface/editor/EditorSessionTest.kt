@@ -34,6 +34,7 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.HandlerThread
 import android.os.IBinder
+import android.os.Looper
 import android.support.wearable.complications.IPreviewComplicationDataCallback
 import android.support.wearable.complications.IProviderInfoService
 import android.support.wearable.watchface.Constants
@@ -2175,8 +2176,8 @@ public class EditorSessionTest {
 
         scenario.onActivity { activity ->
             val mockWatchFaceHostApi = mock(WatchFaceHostApi::class.java)
-            val mockHandler = mock(Handler::class.java)
-            `when`(mockWatchFaceHostApi.getUiThreadHandler()).thenReturn(mockHandler)
+            val handler = Handler(Looper.myLooper()!!)
+            `when`(mockWatchFaceHostApi.getUiThreadHandler()).thenReturn(handler)
             `when`(mockWatchFaceHostApi.getContext()).thenReturn(
                 ApplicationProvider.getApplicationContext<Context>()
             )
@@ -2222,7 +2223,7 @@ public class EditorSessionTest {
                     watchState,
                     mockWatchFaceHostApi,
                     CompletableDeferred(),
-                    CoroutineScope(mockHandler.asCoroutineDispatcher())
+                    CoroutineScope(handler.asCoroutineDispatcher())
                 ),
                 null
             )

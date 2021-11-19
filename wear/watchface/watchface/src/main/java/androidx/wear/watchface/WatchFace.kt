@@ -671,6 +671,7 @@ public class WatchFaceImpl @UiThread constructor(
 
         if (!watchState.isHeadless) {
             WatchFace.registerEditorDelegate(componentName, WFEditorDelegate())
+            registerReceivers()
         }
 
         val mainScope = CoroutineScope(Dispatchers.Main.immediate)
@@ -806,10 +807,10 @@ public class WatchFaceImpl @UiThread constructor(
 
     @UiThread
     private fun registerReceivers() {
+        // Looper can be null in some tests.
         require(watchFaceHostApi.getUiThreadHandler().looper.isCurrentThread) {
             "registerReceivers must be called the UiThread"
         }
-
         // There's no point registering BroadcastsReceiver for headless instances.
         if (broadcastsReceiver == null && !watchState.isHeadless) {
             broadcastsReceiver =
@@ -819,6 +820,7 @@ public class WatchFaceImpl @UiThread constructor(
 
     @UiThread
     private fun unregisterReceivers() {
+        // Looper can be null in some tests.
         require(watchFaceHostApi.getUiThreadHandler().looper.isCurrentThread) {
             "unregisterReceivers must be called the UiThread"
         }
