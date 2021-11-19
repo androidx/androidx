@@ -224,9 +224,9 @@ public class AutomotiveCarInfoTest {
         assertThat(tollCard.getCardState().getValue()).isEqualTo(TollCard.TOLLCARD_STATE_VALID);
     }
 
-    @Config(minSdk = 30)
+    @Config(maxSdk = 30)
     @Test
-    public void getTollCard_verifyResponseApi30() {
+    public void getTollCard_verifyResponseApi30() throws InterruptedException {
         AtomicReference<TollCard> loadedResult = new AtomicReference<>();
         OnCarDataAvailableListener<TollCard> listener = (data) -> {
             loadedResult.set(data);
