@@ -254,6 +254,21 @@ public class WatchFace(
 
         /** Signals that the activity is going away and resources should be released. */
         public fun onDestroy()
+
+        /** Sets a callback to observe an y changes to [ComplicationSlot.configExtras]. */
+        public fun setComplicationSlotConfigExtrasChangeCallback(
+            callback: ComplicationSlotConfigExtrasChangeCallback?
+        )
+    }
+
+    /**
+     * Used to inform EditorSession about changes to [ComplicationSlot.configExtras].
+     *
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public interface ComplicationSlotConfigExtrasChangeCallback {
+      public fun onComplicationSlotConfigExtrasChanged()
     }
 
     /**
@@ -756,6 +771,12 @@ public class WatchFaceImpl @UiThread constructor(
                 }
             }
             return screenShot
+        }
+
+        override fun setComplicationSlotConfigExtrasChangeCallback(
+            callback: WatchFace.ComplicationSlotConfigExtrasChangeCallback?
+        ) {
+            complicationSlotsManager.configExtrasChangeCallback = callback
         }
 
         override fun onDestroy(): Unit = TraceEvent("WFEditorDelegate.onDestroy").use {
