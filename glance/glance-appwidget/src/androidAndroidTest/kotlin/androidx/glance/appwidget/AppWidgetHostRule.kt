@@ -85,11 +85,14 @@ class AppWidgetHostRule(
     private val mInnerRules = RuleChain.outerRule(mActivityRule).around(mOrientationRule)
 
     private var mHostStarted = false
-    lateinit var mHostView: TestAppWidgetHostView
+    private var mMaybeHostView: TestAppWidgetHostView? = null
     private var mAppWidgetId = 0
     private val mScenario: ActivityScenario<AppWidgetHostTestActivity>
         get() = mActivityRule.scenario
     private val mContext = ApplicationProvider.getApplicationContext<Context>()
+
+    val mHostView: TestAppWidgetHostView
+        get() = checkNotNull(mMaybeHostView) { "No app widget installed on the host" }
 
     override fun apply(base: Statement, description: Description) = object : Statement() {
 
@@ -111,12 +114,21 @@ class AppWidgetHostRule(
         mHostStarted = true
 
         mActivityRule.scenario.onActivity { activity ->
-            mHostView = activity.bindAppWidget(mPortraitSize, mLandscapeSize)
+            mMaybeHostView = activity.bindAppWidget(mPortraitSize, mLandscapeSize)
         }
 
+        val hostView = checkNotNull(mMaybeHostView) { "Host view wasn't successfully started" }
+
         runAndWaitForChildren {
-            mAppWidgetId = mHostView.appWidgetId
-            mHostView.waitForRemoteViews()
+            mAppWidgetId = hostView.appWidgetId
+            hostView.waitForRemoteViews()
+        }
+    }
+
+    fun removeAppWidget() {
+        mActivityRule.scenario.onActivity { activity ->
+            val hostView = checkNotNull(mMaybeHostView) { "No app widget to remove" }
+            activity.deleteAppWidget(hostView)
         }
     }
 
@@ -182,18 +194,21 @@ class AppWidgetHostRule(
         mPortraitSize = portrait
         if (!mHostStarted) return
 
-        mScenario.onActivity {
-            mHostView.setSizes(portrait, landscape)
-        }
+        val hostView = mMaybeHostView
+        if (hostView != null) {
+            mScenario.onActivity {
+                hostView.setSizes(portrait, landscape)
+            }
 
-        if (updateRemoteViews) {
-            runAndWaitForChildren {
-                mHostView.resetRemoteViewsLatch()
-                AppWidgetManager.getInstance(mContext).updateAppWidgetOptions(
-                    mAppWidgetId,
-                    optionsBundleOf(listOf(portrait, landscape))
-                )
-                mHostView.waitForRemoteViews()
+            if (updateRemoteViews) {
+                runAndWaitForChildren {
+                    hostView.resetRemoteViewsLatch()
+                    AppWidgetManager.getInstance(mContext).updateAppWidgetOptions(
+                        mAppWidgetId,
+                        optionsBundleOf(listOf(portrait, landscape))
+                    )
+                    hostView.waitForRemoteViews()
+                }
             }
         }
     }
@@ -203,12 +218,13 @@ class AppWidgetHostRule(
         run: () -> Unit = {},
         test: () -> Boolean
     ) {
+        val hostView = mHostView
         val latch = CountDownLatch(1)
         val onDrawListener = ViewTreeObserver.OnDrawListener {
-            if (mHostView.childCount > 0 && test()) latch.countDown()
+            if (hostView.childCount > 0 && test()) latch.countDown()
         }
         mActivityRule.scenario.onActivity {
-            mHostView.viewTreeObserver.addOnDrawListener(onDrawListener)
+            hostView.viewTreeObserver.addOnDrawListener(onDrawListener)
         }
 
         run()
@@ -224,7 +240,7 @@ class AppWidgetHostRule(
         } finally {
             latch.countDown() // make sure it's released in all conditions
             mActivityRule.scenario.onActivity {
-                mHostView.viewTreeObserver.removeOnDrawListener(onDrawListener)
+                hostView.viewTreeObserver.removeOnDrawListener(onDrawListener)
             }
         }
     }

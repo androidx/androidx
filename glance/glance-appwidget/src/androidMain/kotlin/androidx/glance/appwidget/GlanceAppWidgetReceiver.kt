@@ -43,6 +43,10 @@ import kotlinx.coroutines.launch
  *
  * Note: If you override any of the [AppWidgetProvider] methods, ensure you call their super-class
  * implementation.
+ *
+ * Important: if you override any of the methods of this class, you must call the super
+ * implementation, and you must not call [AppWidgetProvider.goAsync], as it will be called by the
+ * super implementation. This means your processing time must be short.
  */
 abstract class GlanceAppWidgetReceiver : AppWidgetProvider() {
 
@@ -88,10 +92,11 @@ abstract class GlanceAppWidgetReceiver : AppWidgetProvider() {
         }
     }
 
-    override fun onDeleted(context: Context?, appWidgetIds: IntArray?) {
-        // TODO: When a widget is deleted, delete the datastore
-        appWidgetIds?.forEach {
-            createUniqueRemoteUiName(it)
+    @CallSuper
+    override fun onDeleted(context: Context, appWidgetIds: IntArray) {
+        goAsync {
+            updateManager(context)
+            appWidgetIds.forEach { glanceAppWidget.deleted(context, it) }
         }
     }
 

@@ -62,43 +62,57 @@ public interface GlanceStateDefinition<T> {
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public object GlanceState {
-    // TODO(b/205496180): Make methods internal
     /**
      * Returns the stored data associated with the given UI key string.
      *
      * @param definition the configuration that defines this state.
-     * @param fileName identifies the data file associated with the store, must be unique for any
+     * @param fileKey identifies the data file associated with the store, must be unique for any
      * remote UI in the app.
      */
     public suspend fun <T> getValue(
         context: Context,
         definition: GlanceStateDefinition<T>,
-        fileName: String
-    ): T = getDataStore(context, definition, fileName).data.first()
+        fileKey: String
+    ): T = getDataStore(context, definition, fileKey).data.first()
 
     /**
      * Updates the underlying data by applying the provided update block.
      *
      * @param definition the configuration that defines this state.
-     * @param fileName identifies the date file associated with the store, must be unique for any
+     * @param fileKey identifies the date file associated with the store, must be unique for any
      * remote UI in the app.
      */
     public suspend fun <T> updateValue(
         context: Context,
         definition: GlanceStateDefinition<T>,
-        fileName: String,
+        fileKey: String,
         updateBlock: suspend (T) -> T
-    ): T = getDataStore(context, definition, fileName).updateData(updateBlock)
+    ): T = getDataStore(context, definition, fileKey).updateData(updateBlock)
+
+    /**
+     * Delete the file underlying the [DataStore] and remove local references to the [DataStore].
+     */
+    public suspend fun deleteStore(
+        context: Context,
+        definition: GlanceStateDefinition<*>,
+        fileKey: String
+    ) {
+        mutex.withLock {
+            dataStores.remove(fileKey)
+            val location = definition.getLocation(context, fileKey)
+            location.delete()
+        }
+    }
 
     @Suppress("UNCHECKED_CAST")
     private suspend fun <T> getDataStore(
         context: Context,
         definition: GlanceStateDefinition<T>,
-        fileName: String
+        fileKey: String
     ): DataStore<T> =
         mutex.withLock {
-            dataStores.getOrPut(fileName) {
-                definition.getDataStore(context, fileName)
+            dataStores.getOrPut(fileKey) {
+                definition.getDataStore(context, fileKey)
             } as DataStore<T>
         }
 
