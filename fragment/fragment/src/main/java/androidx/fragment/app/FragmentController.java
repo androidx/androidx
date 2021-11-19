@@ -385,7 +385,11 @@ public class FragmentController {
      * their memory usage.
      *
      * @see Fragment#onLowMemory()
+     * @deprecated Have your {@link FragmentHostCallback} implement
+     * {@link androidx.core.content.OnTrimMemoryProvider}
+     * to automatically dispatch low memory callbacks to fragments.
      */
+    @Deprecated
     public void dispatchLowMemory() {
         mHost.mFragmentManager.dispatchLowMemory();
     }

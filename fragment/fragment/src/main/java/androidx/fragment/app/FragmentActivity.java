@@ -50,6 +50,8 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.SharedElementCallback;
+import androidx.core.content.OnTrimMemoryProvider;
+import androidx.core.util.Consumer;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.LifecycleRegistry;
@@ -305,17 +307,6 @@ public class FragmentActivity extends ComponentActivity implements
         super.onDestroy();
         mFragments.dispatchDestroy();
         mFragmentLifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_DESTROY);
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * Dispatch onLowMemory() to all fragments.
-     */
-    @Override
-    public void onLowMemory() {
-        super.onLowMemory();
-        mFragments.dispatchLowMemory();
     }
 
     /**
@@ -693,6 +684,7 @@ public class FragmentActivity extends ComponentActivity implements
     }
 
     class HostCallbacks extends FragmentHostCallback<FragmentActivity> implements
+            OnTrimMemoryProvider,
             ViewModelStoreOwner,
             OnBackPressedDispatcherOwner,
             ActivityResultRegistryOwner,
@@ -797,6 +789,16 @@ public class FragmentActivity extends ComponentActivity implements
         @Override
         public SavedStateRegistry getSavedStateRegistry() {
             return FragmentActivity.this.getSavedStateRegistry();
+        }
+
+        @Override
+        public void addOnTrimMemoryListener(@NonNull Consumer<Integer> listener) {
+            FragmentActivity.this.addOnTrimMemoryListener(listener);
+        }
+
+        @Override
+        public void removeOnTrimMemoryListener(@NonNull Consumer<Integer> listener) {
+            FragmentActivity.this.removeOnTrimMemoryListener(listener);
         }
     }
 
