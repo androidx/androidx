@@ -34,15 +34,21 @@ import android.widget.TextView
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.glance.Button
+import androidx.glance.GlanceId
 import androidx.glance.GlanceModifier
 import androidx.glance.Image
 import androidx.glance.ImageProvider
 import androidx.glance.LocalContext
 import androidx.glance.LocalSize
 import androidx.glance.action.actionLaunchActivity
+import androidx.glance.appwidget.state.getAppWidgetState
+import androidx.glance.appwidget.state.updateAppWidgetState
 import androidx.glance.appwidget.test.R
 import androidx.glance.background
+import androidx.glance.currentState
 import androidx.glance.layout.Box
 import androidx.glance.layout.Column
 import androidx.glance.layout.ContentScale
@@ -53,6 +59,7 @@ import androidx.glance.layout.fillMaxWidth
 import androidx.glance.layout.height
 import androidx.glance.layout.width
 import androidx.glance.layout.wrapContentHeight
+import androidx.glance.state.PreferencesGlanceStateDefinition
 import androidx.glance.text.FontStyle
 import androidx.glance.text.FontWeight
 import androidx.glance.text.Text
@@ -60,10 +67,17 @@ import androidx.glance.text.TextDecoration
 import androidx.glance.text.TextStyle
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
+import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
+import kotlinx.coroutines.runBlocking
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicBoolean
+import java.util.concurrent.atomic.AtomicReference
 import kotlin.test.assertIs
 import kotlin.test.assertNotNull
 
@@ -72,6 +86,8 @@ import kotlin.test.assertNotNull
 class GlanceAppWidgetReceiverTest {
     @get:Rule
     val mHostRule = AppWidgetHostRule()
+
+    val context = InstrumentationRegistry.getInstrumentation().targetContext!!
 
     @Before
     fun setUp() {
@@ -432,7 +448,7 @@ class GlanceAppWidgetReceiverTest {
 
     @Test
     fun bitmapBackground() {
-        TestGlanceAppWidget.uiDefinition = compose@{
+        TestGlanceAppWidget.uiDefinition = {
             val context = LocalContext.current
             val bitmap =
                 (context.resources.getDrawable(R.drawable.compose, null) as BitmapDrawable).bitmap
@@ -455,8 +471,156 @@ class GlanceAppWidgetReceiverTest {
         }
     }
 
+    @Test
+    fun removeAppWidget() {
+        TestGlanceAppWidget.stateDefinition = PreferencesGlanceStateDefinition
+        TestGlanceAppWidget.uiDefinition = {
+            Text("something")
+        }
+
+        mHostRule.startHost()
+
+        val appWidgetManager = GlanceAppWidgetManager(context)
+        val glanceId = runBlocking {
+            appWidgetManager.getGlanceIds(TestGlanceAppWidget::class.java).single()
+        }
+
+        runBlocking {
+            TestGlanceAppWidget.updateAppWidgetState<Preferences>(context, glanceId) { prefs ->
+                prefs.toMutablePreferences().apply {
+                    this[testKey] = 3
+                }
+            }
+        }
+
+        val fileKey = createUniqueRemoteUiName((glanceId as AppWidgetId).appWidgetId)
+        val preferencesFile = PreferencesGlanceStateDefinition.getLocation(context, fileKey)
+
+        assertThat(preferencesFile.exists())
+
+        val deleteLatch = CountDownLatch(1)
+        TestGlanceAppWidget.setOnDeleteBlock {
+            deleteLatch.countDown()
+        }
+
+        mHostRule.removeAppWidget()
+
+        deleteLatch.await(5, TimeUnit.SECONDS)
+        val interval = 200L
+        for (timeout in 0..2000L step interval) {
+            if (!preferencesFile.exists()) return
+            Thread.sleep(interval)
+        }
+        assertWithMessage("View state file exists").that(preferencesFile.exists())
+            .isFalse()
+    }
+
+    @Test
+    fun updateAll() {
+        TestGlanceAppWidget.uiDefinition = {
+            Text("before")
+        }
+
+        mHostRule.startHost()
+
+        val didRun = AtomicBoolean(false)
+        TestGlanceAppWidget.uiDefinition = {
+            didRun.set(true)
+            Text("after")
+        }
+
+        runBlocking {
+            TestGlanceAppWidget.updateAll(context)
+        }
+        assertThat(didRun.get()).isTrue()
+    }
+
+    @Test
+    fun updateIf() {
+        TestGlanceAppWidget.stateDefinition = PreferencesGlanceStateDefinition
+
+        TestGlanceAppWidget.uiDefinition = {
+            Text("before")
+        }
+
+        mHostRule.startHost()
+
+        val appWidgetManager = GlanceAppWidgetManager(context)
+        runBlocking {
+            appWidgetManager.getGlanceIds(TestGlanceAppWidget::class.java)
+                .forEach { glanceId ->
+                    updateAppWidgetState(
+                        context,
+                        PreferencesGlanceStateDefinition,
+                        glanceId
+                    ) { prefs ->
+                        prefs.toMutablePreferences().apply {
+                            this[testKey] = 2
+                        }
+                    }
+                }
+        }
+
+        // Make sure the app widget is updated if the test is true
+        val didRun = AtomicBoolean(false)
+        TestGlanceAppWidget.uiDefinition = {
+            didRun.set(true)
+            Text("after")
+        }
+        runBlocking {
+            TestGlanceAppWidget.updateIf<Preferences>(context) { prefs ->
+                prefs[testKey] == 2
+            }
+        }
+
+        assertThat(didRun.get()).isTrue()
+
+        // Make sure it is not if the test is false
+        didRun.set(false)
+        runBlocking {
+            TestGlanceAppWidget.updateIf<Preferences>(context) { prefs ->
+                prefs[testKey] == 3
+            }
+        }
+
+        assertThat(didRun.get()).isFalse()
+    }
+
+    @Test
+    fun viewState() {
+        TestGlanceAppWidget.stateDefinition = PreferencesGlanceStateDefinition
+
+        TestGlanceAppWidget.uiDefinition = {
+            val value = currentState<Preferences>()[testKey] ?: -1
+            Text("Value = $value")
+        }
+
+        mHostRule.startHost()
+
+        val appWidgetId = AtomicReference<GlanceId>()
+        mHostRule.onHostView { view ->
+            appWidgetId.set(AppWidgetId(view.appWidgetId))
+        }
+
+        runBlocking {
+            TestGlanceAppWidget.updateAppWidgetState<Preferences>(
+                context,
+                appWidgetId.get()
+            ) { prefs ->
+                prefs.toMutablePreferences().apply {
+                    this[testKey] = 2
+                }
+            }
+
+            val prefs =
+                TestGlanceAppWidget.getAppWidgetState<Preferences>(context, appWidgetId.get())
+            assertThat(prefs[testKey]).isEqualTo(2)
+        }
+    }
+
     // Check there is a single span of the given type and that it passes the [check].
-    private inline fun <reified T> SpannedString.checkHasSingleTypedSpan(check: (T) -> Unit) {
+    private inline
+    fun <reified T> SpannedString.checkHasSingleTypedSpan(check: (T) -> Unit) {
         val spans = getSpans(0, length, T::class.java)
         assertThat(spans).hasLength(1)
         check(spans[0])
@@ -464,8 +628,10 @@ class GlanceAppWidgetReceiverTest {
 
     private fun assertViewSize(view: View, expectedSize: DpSize) {
         val density = view.context.resources.displayMetrics.density
-        assertThat(view.width / density).isWithin(1.1f / density).of(expectedSize.width.value)
-        assertThat(view.height / density).isWithin(1.1f / density).of(expectedSize.height.value)
+        assertThat(view.width / density).isWithin(1.1f / density)
+            .of(expectedSize.width.value)
+        assertThat(view.height / density).isWithin(1.1f / density)
+            .of(expectedSize.height.value)
     }
 
     private fun assertViewDimension(view: View, sizePx: Int, expectedSize: Dp) {
@@ -473,3 +639,5 @@ class GlanceAppWidgetReceiverTest {
         assertThat(sizePx / density).isWithin(1.1f / density).of(expectedSize.value)
     }
 }
+
+private val testKey = intPreferencesKey("testKey")
