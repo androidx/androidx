@@ -224,6 +224,7 @@ symbol\:   static FLAG_MUTABLE
 location\: class PendingIntent
 \$OUT_DIR\/androidx\/docs\-public\/build\/unzippedDocsSources\/androidx\/work\/impl\/utils\/ForceStopRunnable\.java\:[0-9]+\: error\: cannot find symbol
 # > Task :buildOnServer
+[0-9]+ problems were found reusing the configuration cache\.
 [0-9]+ problems were found reusing the configuration cache, [0-9]+ of which seem unique\.
 [0-9]+ actionable tasks: [0-9]+ executed, [0-9]+ up\-to\-date
 Configuration cache entry reused with [0-9]+ problems\.
@@ -611,3 +612,5 @@ Info: Methods with invalid locals information:
 java\.lang\.Object androidx\.glance\.state\.GlanceState\.getDataStore\(android\.content\.Context, androidx\.glance\.state\.GlanceStateDefinition, java\.lang\.String, kotlin\.coroutines\.Continuation\)
 Information in locals\-table is invalid with respect to the stack map table\. Local refers to non\-present stack map type for register: [0-9]+ with constraint OBJECT\.
 Info: Some warnings are typically a sign of using an outdated Java toolchain\. To fix, recompile the source with an updated toolchain\.
+# > Task :compose:ui:ui-inspection:buildCMakeRelWithDebInfo[arm64-v8a]
+C/C\+\+: ninja: warning: bad deps log signature or version; starting over
