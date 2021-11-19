@@ -16,12 +16,14 @@
 
 package androidx.core.performance
 
+import android.content.Context
 import android.os.Build
 
 /**
  * Reports the media performance class of the device.
+ * @param context ApplicationContext
  */
-class PerformanceClass {
+class PerformanceClass(private val context: Context) {
 
     /**
      * The media performance class of the device or 0 if none.

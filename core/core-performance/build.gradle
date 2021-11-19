@@ -26,6 +26,8 @@ plugins {
 
 dependencies {
     api(libs.kotlinStdlib)
+
+    testImplementation(libs.testCore)
     testImplementation(libs.kotlinStdlib)
     testImplementation(libs.junit)
     testImplementation(libs.truth)
