@@ -36,29 +36,29 @@ class PerformanceClassTest {
     @Config(maxSdk = R)
     fun getMediaPerformanceClass_sdk30() {
         val pc = createPerformanceClass()
-        assertThat(pc.getMediaPerformanceClass()).isEqualTo(0)
+        assertThat(pc.mediaPerformanceClass).isEqualTo(0)
     }
 
     @Test
     @Config(minSdk = S)
     fun getMediaPerformanceClass_sdk31_declared30() {
-        val pc = createPerformanceClass()
         // TODO(b/205732671): Use ShadowBuild.setMediaPerformanceClass when available
         ShadowSystemProperties.override("ro.odm.build.media_performance_class", "30")
         ShadowBuild.reset()
-        assertThat(pc.getMediaPerformanceClass()).isEqualTo(30)
+        val pc = createPerformanceClass()
+        assertThat(pc.mediaPerformanceClass).isEqualTo(30)
     }
 
     @Test
     @Config(minSdk = S)
     fun getMediaPerformanceClass_sdk31_notDeclared() {
-        val pc = createPerformanceClass()
         // TODO(b/205732671): Use ShadowBuild.setMediaPerformanceClass when available
         ShadowBuild.reset()
-        assertThat(pc.getMediaPerformanceClass()).isEqualTo(0)
+        val pc = createPerformanceClass()
+        assertThat(pc.mediaPerformanceClass).isEqualTo(0)
     }
 
     private fun createPerformanceClass(): PerformanceClass {
-        return PerformanceClass(ApplicationProvider.getApplicationContext<Application>())
+        return PerformanceClass.create(ApplicationProvider.getApplicationContext<Application>())
     }
 }

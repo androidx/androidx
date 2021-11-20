@@ -21,26 +21,48 @@ import android.os.Build
 
 /**
  * Reports the media performance class of the device.
- * @param context ApplicationContext
  */
-class PerformanceClass(private val context: Context) {
+interface PerformanceClass {
 
     /**
      * The media performance class of the device or 0 if none.
      * <p>
      * If this value is not <code>0</code>, the device conforms to the media performance class
-     * definition of the SDK version of this value. This value never changes while a device is
-     * booted, but it may increase when the hardware manufacturer provides an OTA update.
+     * definition of the SDK version of this value. This value is stable for the duration of
+     * the process.
      * <p>
      * Possible non-zero values are defined in {@link Build.VERSION_CODES} starting with
      * {@link Build.VERSION_CODES#R}.
      * <p>
      * Defaults to {@link Build.MEDIA_PERFORMANCE_CLASS}
      */
-    fun getMediaPerformanceClass(): Int {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            return Build.VERSION.MEDIA_PERFORMANCE_CLASS
+    val mediaPerformanceClass: Int
+
+    companion object {
+        /**
+         * Create PerformanceClass from the context.
+         * @param context The ApplicationContext.
+         */
+        fun create(
+            // Other implementations will require a context
+            @Suppress("UNUSED_PARAMETER") context: Context
+        ): PerformanceClass = DefaultPerformanceClassImpl()
+    }
+}
+
+/**
+ * Reports the media performance class of the device.
+ */
+private class DefaultPerformanceClassImpl : PerformanceClass {
+
+    override val mediaPerformanceClass: Int = calculateMediaPerformanceClass()
+
+    companion object {
+        fun calculateMediaPerformanceClass(): Int {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                return Build.VERSION.MEDIA_PERFORMANCE_CLASS
+            }
+            return 0
         }
-        return 0
     }
 }
