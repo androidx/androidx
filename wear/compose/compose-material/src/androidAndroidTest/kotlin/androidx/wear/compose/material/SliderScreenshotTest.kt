@@ -39,7 +39,7 @@ import org.junit.runner.RunWith
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
-class InlineSliderScreenshotTest {
+class SliderScreenshotTest {
 
     @get:Rule
     val rule = createComposeRule()
