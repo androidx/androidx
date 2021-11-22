@@ -77,12 +77,12 @@ public fun <T : ActionCallback> actionRunCallback(
     parameters: ActionParameters = actionParametersOf()
 ): Action = RunCallbackAction(callbackClass, parameters)
 
-@Suppress("MissingNullability") /* Shouldn't need to specify @NonNull. b/199284086 */
 /**
  * Creates an [Action] that executes a given [ActionCallback] implementation
  *
  * @param parameters the parameters associated with the action
  */
+@Suppress("MissingNullability") // Shouldn't need to specify @NonNull. b/199284086
 public inline fun <reified T : ActionCallback> actionRunCallback(
     parameters: ActionParameters = actionParametersOf()
 ): Action = actionRunCallback(T::class.java, parameters)

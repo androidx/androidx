@@ -638,6 +638,7 @@ class RemoteViewsTranslatorKtTest {
         val rv = context.runAndTranslate {
             CheckBox(
                 checked = false,
+                onCheckedChange = null,
                 text = "test",
                 style = TextStyle(
                     color = ColorProvider(Color.Red),
@@ -665,6 +666,7 @@ class RemoteViewsTranslatorKtTest {
         val rv = context.runAndTranslate {
             CheckBox(
                 checked = true,
+                onCheckedChange = null,
                 text = "test checked",
                 style = TextStyle(textDecoration = TextDecoration.LineThrough),
             )

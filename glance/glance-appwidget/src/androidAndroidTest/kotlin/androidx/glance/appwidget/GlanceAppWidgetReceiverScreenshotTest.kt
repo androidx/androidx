@@ -224,12 +224,14 @@ class GlanceAppWidgetReceiverScreenshotTest {
                 Row(modifier = GlanceModifier.defaultWeight().fillMaxWidth()) {
                     CheckBox(
                         checked = false,
+                        onCheckedChange = null,
                         text = "Start",
                         modifier = GlanceModifier.defaultWeight().fillMaxHeight(),
                         style = TextStyle(textAlign = TextAlign.Start)
                     )
                     CheckBox(
                         checked = true,
+                        onCheckedChange = null,
                         text = "End",
                         modifier = GlanceModifier.defaultWeight().fillMaxHeight(),
                         style = TextStyle(textAlign = TextAlign.End)
@@ -238,12 +240,14 @@ class GlanceAppWidgetReceiverScreenshotTest {
                 Row(modifier = GlanceModifier.defaultWeight().fillMaxWidth()) {
                     Switch(
                         checked = false,
+                        onCheckedChange = null,
                         text = "Start",
                         modifier = GlanceModifier.defaultWeight().fillMaxHeight(),
                         style = TextStyle(textAlign = TextAlign.Start)
                     )
                     Switch(
                         checked = true,
+                        onCheckedChange = null,
                         text = "End",
                         modifier = GlanceModifier.defaultWeight().fillMaxHeight(),
                         style = TextStyle(textAlign = TextAlign.End)
@@ -582,6 +586,7 @@ private fun CheckBoxScreenshotTest() {
     Column(modifier = GlanceModifier.background(day = Color.White, night = Color.Black)) {
         CheckBox(
             checked = true,
+            onCheckedChange = null,
             text = "Hello Checked Checkbox (text: day=black, night=white| box: day=magenta, " +
                 "night=yellow)",
             style = TextStyle(
@@ -596,6 +601,7 @@ private fun CheckBoxScreenshotTest() {
 
         CheckBox(
             checked = false,
+            onCheckedChange = null,
             text = "Hello Unchecked Checkbox (text: day=dark gray, night=light gray, green box)",
             style = TextStyle(
                 color = ColorProvider(day = Color.DarkGray, night = Color.LightGray),
@@ -613,6 +619,7 @@ private fun SwitchTest() {
     Column(modifier = GlanceModifier.background(day = Color.White, night = Color.Black)) {
         Switch(
             checked = true,
+            onCheckedChange = null,
             text = "Hello Checked Switch (day: Blue/Green, night: Red/Yellow)",
             style = TextStyle(
                 color = ColorProvider(day = Color.Black, night = Color.White),
@@ -627,6 +634,7 @@ private fun SwitchTest() {
 
         Switch(
             checked = false,
+            onCheckedChange = null,
             text = "Hello Unchecked Switch",
             style = TextStyle(
                 color = ColorProvider(day = Color.Black, night = Color.White),

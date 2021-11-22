@@ -24,6 +24,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.glance.appwidget.ImageViewSubject.Companion.assertThat
 import androidx.glance.appwidget.Switch
 import androidx.glance.appwidget.SwitchColors
+import androidx.glance.appwidget.action.ActionCallback
+import androidx.glance.appwidget.action.actionRunCallback
 import androidx.glance.appwidget.applyRemoteViews
 import androidx.glance.appwidget.configurationContext
 import androidx.glance.appwidget.findView
@@ -32,6 +34,7 @@ import androidx.glance.appwidget.test.R
 import androidx.glance.appwidget.unit.ColorProvider
 import androidx.glance.unit.ColorProvider
 import androidx.test.core.app.ApplicationProvider
+import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.TestCoroutineScope
 import kotlinx.coroutines.test.runBlockingTest
@@ -63,6 +66,7 @@ class SwitchTranslatorTest {
         val rv = context.runAndTranslate {
             Switch(
                 checked = false,
+                onCheckedChange = null,
                 text = "Switch",
                 colors = SwitchColors(
                     checkedThumbColor = ColorProvider(Color.Blue),
@@ -83,6 +87,7 @@ class SwitchTranslatorTest {
         val rv = context.runAndTranslate {
             Switch(
                 checked = true,
+                onCheckedChange = null,
                 text = "Switch",
                 colors = SwitchColors(
                     checkedThumbColor = ColorProvider(Color.Blue),
@@ -103,6 +108,7 @@ class SwitchTranslatorTest {
         val rv = lightContext.runAndTranslate {
             Switch(
                 checked = false,
+                onCheckedChange = null,
                 text = "Switch",
                 colors = SwitchColors(
                     checkedThumbColor = ColorProvider(day = Color.Blue, night = Color.Red),
@@ -126,6 +132,7 @@ class SwitchTranslatorTest {
         val rv = darkContext.runAndTranslate {
             Switch(
                 checked = false,
+                onCheckedChange = null,
                 text = "Switch",
                 colors = SwitchColors(
                     checkedThumbColor = ColorProvider(day = Color.Blue, night = Color.Red),
@@ -149,6 +156,7 @@ class SwitchTranslatorTest {
         val rv = lightContext.runAndTranslate {
             Switch(
                 checked = true,
+                onCheckedChange = null,
                 text = "Switch",
                 colors = SwitchColors(
                     checkedThumbColor = ColorProvider(day = Color.Blue, night = Color.Red),
@@ -172,6 +180,7 @@ class SwitchTranslatorTest {
         val rv = darkContext.runAndTranslate {
             Switch(
                 checked = true,
+                onCheckedChange = null,
                 text = "Switch",
                 colors = SwitchColors(
                     checkedThumbColor = ColorProvider(day = Color.Blue, night = Color.Red),
@@ -195,6 +204,7 @@ class SwitchTranslatorTest {
         val rv = lightContext.runAndTranslate {
             Switch(
                 checked = false,
+                onCheckedChange = null,
                 text = "Switch",
                 colors = SwitchColors(
                     thumbColor = R.color.my_switch_thumb_colors,
@@ -213,6 +223,7 @@ class SwitchTranslatorTest {
         val rv = lightContext.runAndTranslate {
             Switch(
                 checked = true,
+                onCheckedChange = null,
                 text = "Switch",
                 colors = SwitchColors(
                     thumbColor = R.color.my_switch_thumb_colors,
@@ -224,6 +235,34 @@ class SwitchTranslatorTest {
         val switchRoot = assertIs<ViewGroup>(lightContext.applyRemoteViews(rv))
         assertThat(switchRoot.thumbImageView).hasColorFilter("#11040040")
         assertThat(switchRoot.trackImageView).hasColorFilter("#22040040")
+    }
+
+    @Test
+    fun canTranslateSwitch_onCheckedChange_null() = fakeCoroutineScope.runBlockingTest {
+        val rv = context.runAndTranslate {
+            Switch(
+                checked = true,
+                onCheckedChange = null,
+                text = "Switch",
+            )
+        }
+
+        val switchRoot = assertIs<ViewGroup>(context.applyRemoteViews(rv))
+        assertThat(switchRoot.hasOnClickListeners()).isFalse()
+    }
+
+    @Test
+    fun canTranslateSwitch_onCheckedChange_withAction() = fakeCoroutineScope.runBlockingTest {
+        val rv = context.runAndTranslate {
+            Switch(
+                checked = true,
+                onCheckedChange = actionRunCallback<ActionCallback>(),
+                text = "Switch",
+            )
+        }
+
+        val switchRoot = assertIs<ViewGroup>(context.applyRemoteViews(rv))
+        assertThat(switchRoot.hasOnClickListeners()).isTrue()
     }
 
     private val ViewGroup.thumbImageView: ImageView?

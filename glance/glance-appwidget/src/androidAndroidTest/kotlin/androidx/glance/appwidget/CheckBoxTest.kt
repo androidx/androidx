@@ -47,13 +47,13 @@ class CheckBoxTest {
 
     private val checkedCheckBox: @Composable () -> Unit = {
         Box {
-            CheckBox(checked = true, text = "Hello world")
+            CheckBox(checked = true, onCheckedChange = null, text = "Hello world")
         }
     }
 
     private val uncheckedCheckBox: @Composable () -> Unit = {
         Box {
-            CheckBox(checked = false, text = "Hola mundo")
+            CheckBox(checked = false, onCheckedChange = null, text = "Hola mundo")
         }
     }
 
@@ -127,7 +127,10 @@ class CheckBoxTest {
     fun check_box_modifiers() {
         TestGlanceAppWidget.uiDefinition = {
             Box {
-                CheckBox(checked = true, modifier = GlanceModifier.padding(5.dp, 6.dp, 7.dp, 8.dp))
+                CheckBox(
+                    checked = true,
+                    onCheckedChange = null,
+                    modifier = GlanceModifier.padding(5.dp, 6.dp, 7.dp, 8.dp))
             }
         }
 
