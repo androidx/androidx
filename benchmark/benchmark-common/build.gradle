@@ -78,3 +78,15 @@ tasks.withType(KotlinCompile).configureEach {
         freeCompilerArgs += ["-Xopt-in=kotlin.Experimental"]
     }
 }
+
+// https://github.com/square/wire/issues/1947
+// Remove when we upgrade to fixed wire library
+afterEvaluate {
+    tasks.named("compileReleaseKotlin").configure {
+        it.dependsOn("generateDebugProtos")
+    }
+    tasks.named("compileDebugKotlin").configure {
+        it.dependsOn("generateReleaseProtos")
+    }
+}
+
