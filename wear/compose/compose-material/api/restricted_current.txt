@@ -178,7 +178,9 @@ package androidx.wear.compose.material {
   public final class InlineSliderDefaults {
     method @androidx.compose.runtime.Composable public androidx.wear.compose.material.InlineSliderColors colors(optional long backgroundColor, optional long spacerColor, optional long selectedBarColor, optional long unselectedBarColor, optional long disabledBackgroundColor, optional long disabledSpacerColor, optional long disabledSelectedBarColor, optional long disabledUnselectedBarColor);
     method public androidx.compose.ui.graphics.vector.ImageVector getDecreaseIcon();
+    method public androidx.compose.ui.graphics.vector.ImageVector getIncreaseIcon();
     property public final androidx.compose.ui.graphics.vector.ImageVector DecreaseIcon;
+    property public final androidx.compose.ui.graphics.vector.ImageVector IncreaseIcon;
     field public static final androidx.wear.compose.material.InlineSliderDefaults INSTANCE;
   }
 
@@ -233,7 +235,7 @@ package androidx.wear.compose.material {
     method @androidx.compose.runtime.Composable public static void PositionIndicator(androidx.compose.foundation.ScrollState scrollState, optional androidx.compose.ui.Modifier modifier, optional boolean reverseDirection);
     method @androidx.compose.runtime.Composable public static void PositionIndicator(androidx.wear.compose.material.ScalingLazyListState scalingLazyListState, optional androidx.compose.ui.Modifier modifier, optional boolean reverseDirection);
     method @androidx.compose.runtime.Composable public static void PositionIndicator(androidx.compose.foundation.lazy.LazyListState lazyListState, optional androidx.compose.ui.Modifier modifier, optional boolean reverseDirection);
-    method @androidx.compose.runtime.Composable public static void PositionIndicator(float rsbRatio, optional androidx.compose.ui.Modifier modifier, optional long color, optional boolean reverseDirection);
+    method @androidx.compose.runtime.Composable public static void PositionIndicator(kotlin.jvm.functions.Function0<java.lang.Float> value, optional androidx.compose.ui.Modifier modifier, optional kotlin.ranges.ClosedFloatingPointRange<java.lang.Float> range, optional long color, optional boolean reverseDirection);
     method @androidx.compose.runtime.Composable public static void PositionIndicator(androidx.wear.compose.material.PositionIndicatorState state, float indicatorHeight, float indicatorWidth, float paddingRight, optional androidx.compose.ui.Modifier modifier, optional long color, optional long background, optional boolean autoHide, optional boolean reverseDirection);
   }
 
@@ -241,6 +243,15 @@ package androidx.wear.compose.material {
     method public float getPositionFraction();
     method public float sizeFraction(float scrollableContainerSizePx);
     property public abstract float positionFraction;
+  }
+
+  public final class RangeDefaultsKt {
+  }
+
+  public final class RangeIcons {
+    method public androidx.compose.ui.graphics.vector.ImageVector getMinusIcon();
+    property public final androidx.compose.ui.graphics.vector.ImageVector MinusIcon;
+    field public static final androidx.wear.compose.material.RangeIcons INSTANCE;
   }
 
   public final class Resources_androidKt {
@@ -364,6 +375,18 @@ package androidx.wear.compose.material {
 
   public final class SliderKt {
     method @androidx.compose.runtime.Composable public static void InlineSlider(float value, kotlin.jvm.functions.Function1<? super java.lang.Float,kotlin.Unit> onValueChange, int steps, optional androidx.compose.ui.Modifier modifier, optional boolean enabled, optional kotlin.ranges.ClosedFloatingPointRange<java.lang.Float> valueRange, optional boolean segmented, optional kotlin.jvm.functions.Function0<kotlin.Unit> decreaseIcon, optional kotlin.jvm.functions.Function0<kotlin.Unit> increaseIcon, optional androidx.wear.compose.material.InlineSliderColors colors);
+  }
+
+  public final class StepperDefaults {
+    method public androidx.compose.ui.graphics.vector.ImageVector getDecreaseIcon();
+    method public androidx.compose.ui.graphics.vector.ImageVector getIncreaseIcon();
+    property public final androidx.compose.ui.graphics.vector.ImageVector DecreaseIcon;
+    property public final androidx.compose.ui.graphics.vector.ImageVector IncreaseIcon;
+    field public static final androidx.wear.compose.material.StepperDefaults INSTANCE;
+  }
+
+  public final class StepperKt {
+    method @androidx.compose.runtime.Composable public static void Stepper(float value, kotlin.jvm.functions.Function1<? super java.lang.Float,kotlin.Unit> onValueChange, int steps, optional androidx.compose.ui.Modifier modifier, optional kotlin.ranges.ClosedFloatingPointRange<java.lang.Float> valueRange, optional kotlin.jvm.functions.Function0<kotlin.Unit> decreaseIcon, optional kotlin.jvm.functions.Function0<kotlin.Unit> increaseIcon, optional long backgroundColor, optional long contentColor, optional long iconTintColor, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.BoxScope,kotlin.Unit> content);
   }
 
   public final class SwipeToDismissBoxKt {

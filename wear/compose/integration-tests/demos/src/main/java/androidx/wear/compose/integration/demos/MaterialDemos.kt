@@ -40,6 +40,7 @@ import androidx.wear.compose.material.samples.SimpleScalingLazyColumnWithContent
 import androidx.wear.compose.material.samples.SimpleSwipeToDismissBox
 import androidx.wear.compose.material.samples.SplitToggleChipWithCheckbox
 import androidx.wear.compose.material.samples.StatefulSwipeToDismissBox
+import androidx.wear.compose.material.samples.StepperSample
 import androidx.wear.compose.material.samples.TimeTextWithCustomSeparator
 import androidx.wear.compose.material.samples.TimeTextWithFullDateAndTimeFormat
 import androidx.wear.compose.material.samples.TitleCardStandard
@@ -100,6 +101,31 @@ val WearMaterialDemos = DemoCategory(
                         ComposableDemo("Inline slider") { InlineSliderDemo() },
                         ComposableDemo("RTL Inline slider") { InlineSliderRTLDemo() },
                         ComposableDemo("Inline slider segmented") { InlineSliderSegmented() },
+                    )
+                )
+            )
+        ),
+        DemoCategory(
+            "Stepper",
+            listOf(
+                DemoCategory(
+                    "Samples",
+                    listOf(
+                        ComposableDemo("Stepper") {
+                            Centralize({ StepperSample() })
+                        },
+                    )
+                ),
+                DemoCategory(
+                    "Demos",
+                    listOf(
+                        ComposableDemo("Simple stepper") { StepperDemo() },
+                        ComposableDemo("With scrollbar") {
+                            StepperWithScrollBarDemo()
+                        },
+                        ComposableDemo("With custom colors") {
+                            StepperWithCustomColors()
+                        },
                     )
                 )
             )
