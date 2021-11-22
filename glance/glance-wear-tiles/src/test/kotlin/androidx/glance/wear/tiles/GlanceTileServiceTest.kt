@@ -16,9 +16,12 @@
 
 package androidx.glance.wear.tiles
 
+import android.content.Context
+import android.graphics.Bitmap
 import android.os.Looper
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.dp
+import androidx.core.graphics.drawable.toBitmap
 import androidx.glance.GlanceModifier
 import androidx.glance.Image
 import androidx.glance.ImageProvider
@@ -30,6 +33,7 @@ import androidx.wear.tiles.LayoutElementBuilders
 import androidx.wear.tiles.RequestBuilders
 import androidx.wear.tiles.TimelineBuilders
 import androidx.wear.tiles.testing.TestTileClient
+import androidx.test.core.app.ApplicationProvider.getApplicationContext
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -41,7 +45,9 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows.shadowOf
+import java.io.ByteArrayOutputStream
 import java.time.Instant
+import java.util.Arrays
 import kotlin.test.assertIs
 
 @OptIn(ExperimentalCoroutinesApi::class, ExperimentalStdlibApi::class)
@@ -52,6 +58,8 @@ class GlanceTileServiceTest {
     private lateinit var tileServiceClient: TestTileClient<GlanceTileService>
     private lateinit var tileServiceWithTimeline: TestGlanceTileServiceWithTimeline
     private lateinit var tileServiceClientWithTimeline: TestTileClient<GlanceTileService>
+    private lateinit var ovalBitmap: Bitmap
+    private var ovalBitmapHashCode: Int = 0
 
     @Before
     fun setUp() {
@@ -70,6 +78,15 @@ class GlanceTileServiceTest {
             fakeCoroutineScope,
             fakeCoroutineScope.coroutineContext[CoroutineDispatcher]!!
         )
+
+        ovalBitmap =
+            getApplicationContext<Context>()
+                .getDrawable(R.drawable.oval)!!
+                .toBitmap()
+        val buffer = ByteArrayOutputStream().apply {
+            ovalBitmap.compress(Bitmap.CompressFormat.PNG, 100, this) }
+            .toByteArray()
+        ovalBitmapHashCode = Arrays.hashCode(buffer)
     }
 
     @Test
@@ -83,8 +100,9 @@ class GlanceTileServiceTest {
         shadowOf(Looper.getMainLooper()).idle()
         val tile = tileFuture.await()
 
-        // Just uses a simple resource version for now.
-        assertThat(tile.resourcesVersion).isEqualTo(GlanceTileService.ResourcesVersion)
+        val resourcesIds = arrayOf("android_" + R.drawable.oval)
+        val resourcesVersion = Arrays.hashCode(resourcesIds).toString()
+        assertThat(tile.resourcesVersion).isEqualTo(resourcesVersion)
 
         // No freshness interval (for now)
         assertThat(tile.freshnessIntervalMillis).isEqualTo(0)
@@ -112,8 +130,13 @@ class GlanceTileServiceTest {
         shadowOf(Looper.getMainLooper()).idle()
         val tile = tileFuture.await()
 
-        // Just uses a simple resource version for now.
-        assertThat(tile.resourcesVersion).isEqualTo(GlanceTileService.ResourcesVersion)
+        val resourcesIds = arrayOf(
+            "android_" + ovalBitmapHashCode,
+            "android_" + R.drawable.ic_launcher_background
+        )
+        resourcesIds.sortDescending()
+        val resourcesVersion = Arrays.hashCode(resourcesIds).toString()
+        assertThat(tile.resourcesVersion).isEqualTo(resourcesVersion)
 
         // No freshness interval (for now)
         assertThat(tile.freshnessIntervalMillis).isEqualTo(0)
@@ -151,28 +174,43 @@ class GlanceTileServiceTest {
 
     @Test
     fun tileProviderReturnsResources() = fakeCoroutineScope.runBlockingTest {
-        val resourcesRequest = RequestBuilders.ResourcesRequest.Builder().build()
+        val tileRequest = RequestBuilders.TileRequest.Builder().build()
+        val tileFuture = tileServiceClient.requestTile(tileRequest)
+        shadowOf(Looper.getMainLooper()).idle()
+        val tile = tileFuture.await()
 
+        val resourcesRequest =
+            RequestBuilders.ResourcesRequest.Builder()
+                .setVersion(tile.resourcesVersion)
+                .build()
         val resourcesFuture = tileServiceClient.requestResources(resourcesRequest)
         shadowOf(Looper.getMainLooper()).idle()
         val resources = resourcesFuture.await()
 
-        assertThat(resources.version).isEqualTo(GlanceTileService.ResourcesVersion)
+        assertThat(resources.version).isEqualTo(tile.resourcesVersion)
         assertThat(resources.idToImageMapping.size).isEqualTo(1)
         assertThat(resources.idToImageMapping.containsKey("android_" + R.drawable.oval)).isTrue()
     }
 
     @Test
     fun tileProviderReturnsTimelineResources() = fakeCoroutineScope.runBlockingTest {
-        val resourcesRequest = RequestBuilders.ResourcesRequest.Builder().build()
+        val tileRequest = RequestBuilders.TileRequest.Builder().build()
+        val tileFuture = tileServiceClientWithTimeline.requestTile(tileRequest)
+        shadowOf(Looper.getMainLooper()).idle()
+        val tile = tileFuture.await()
+
+        val resourcesRequest =
+            RequestBuilders.ResourcesRequest.Builder()
+                .setVersion(tile.resourcesVersion)
+                .build()
 
         val resourcesFuture = tileServiceClientWithTimeline.requestResources(resourcesRequest)
         shadowOf(Looper.getMainLooper()).idle()
         val resources = resourcesFuture.await()
 
-        assertThat(resources.version).isEqualTo(GlanceTileService.ResourcesVersion)
+        assertThat(resources.version).isEqualTo(tile.resourcesVersion)
         assertThat(resources.idToImageMapping.size).isEqualTo(2)
-        assertThat(resources.idToImageMapping.containsKey("android_" + R.drawable.oval)).isTrue()
+        assertThat(resources.idToImageMapping.containsKey("android_" + ovalBitmapHashCode)).isTrue()
         assertThat(
             resources.idToImageMapping.containsKey("android_" + R.drawable.ic_launcher_background)
         ).isTrue()
@@ -214,7 +252,7 @@ class GlanceTileServiceTest {
                  testTimelineMode.timeIntervals.elementAt(1) -> {
                      Text("Coffee")
                      Image(
-                         provider = ImageProvider(R.drawable.oval),
+                         provider = ImageProvider(ovalBitmap),
                          contentDescription = "Oval",
                          modifier = GlanceModifier.size(40.dp),
                          contentScale = ContentScale.FillBounds
