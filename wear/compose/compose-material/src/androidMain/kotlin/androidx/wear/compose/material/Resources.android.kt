@@ -27,18 +27,15 @@ import androidx.compose.ui.res.painterResource
 internal actual fun isRoundDevice(): Boolean = LocalConfiguration.current.isScreenRound
 
 @Composable
-internal actual fun imageResource(res: String): Painter {
-    val id = drawableId(res)
-    return painterResource(id)
-}
-
-// TODO: improve resource loading
-private fun drawableId(res: String): Int {
-    val imageName = res.substringAfterLast("/").substringBeforeLast(".")
-    val drawableClass = R.drawable::class.java
-    val field = drawableClass.getDeclaredField(imageName)
-    return field.get(drawableClass) as Int
-}
+internal actual fun imageResource(image: ImageResources): Painter =
+    painterResource(
+        when (image) {
+            ImageResources.CircularVignetteBottom -> R.drawable.circular_vignette_bottom
+            ImageResources.CircularVignetteTop -> R.drawable.circular_vignette_top
+            ImageResources.RectangularVignetteBottom -> R.drawable.rectangular_vignette_bottom
+            ImageResources.RectangularVignetteTop -> R.drawable.rectangular_vignette_top
+        }
+    )
 
 @Composable
 internal actual fun is24HourFormat(): Boolean = DateFormat.is24HourFormat(LocalContext.current)
