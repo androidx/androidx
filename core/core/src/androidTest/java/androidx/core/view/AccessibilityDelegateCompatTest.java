@@ -167,27 +167,29 @@ public class AccessibilityDelegateCompatTest extends
 
     @Test
     @SdkSuppress(minSdkVersion = 19, maxSdkVersion = 27)
-    @FlakyTest(bugId = 187190911)
-    public void testAccessibilityPaneTitle_isntTrackedAsPaneWithoutTitle() {
-        // This test isn't to test the propagation up, just that the event is sent correctly
-        ViewCompat.setAccessibilityLiveRegion(mView,
-                ViewCompat.ACCESSIBILITY_LIVE_REGION_POLITE);
-
-        ViewCompat.setAccessibilityPaneTitle(mView, "Sample title");
-
-        ViewCompat.setAccessibilityPaneTitle(mView, null);
-
+    public void testAccessibilityPaneTitle_isntTrackedAsPaneWithoutTitle() throws Throwable {
+        // This test isn't to test the propagation up, just that the event-sending behavior
         final AccessibilityDelegateCompat mockDelegate = mock(
                 AccessibilityDelegateCompat.class);
-        ViewCompat.setAccessibilityDelegate(mView, new BridgingDelegateCompat(mockDelegate));
+        mActivityTestRule.runOnUiThread(() -> {
+            ViewCompat.setAccessibilityLiveRegion(mView,
+                    ViewCompat.ACCESSIBILITY_LIVE_REGION_POLITE);
 
-        mView.setVisibility(View.VISIBLE);
+            ViewCompat.setAccessibilityPaneTitle(mView, "Sample title");
 
-        mView.getViewTreeObserver().dispatchOnGlobalLayout();
-        ArgumentCaptor<AccessibilityEvent> argumentCaptor =
-                ArgumentCaptor.forClass(AccessibilityEvent.class);
-        verify(mockDelegate, never()).sendAccessibilityEventUnchecked(
-                eq(mView), argumentCaptor.capture());
+            ViewCompat.setAccessibilityPaneTitle(mView, null);
+
+            ViewCompat.setAccessibilityDelegate(mView, new BridgingDelegateCompat(mockDelegate));
+
+            mView.setVisibility(View.VISIBLE);
+
+            mView.getViewTreeObserver().dispatchOnGlobalLayout();
+
+            ArgumentCaptor<AccessibilityEvent> argumentCaptor =
+                    ArgumentCaptor.forClass(AccessibilityEvent.class);
+            verify(mockDelegate, never()).sendAccessibilityEventUnchecked(
+                    eq(mView), argumentCaptor.capture());
+        });
     }
 
     @Test
