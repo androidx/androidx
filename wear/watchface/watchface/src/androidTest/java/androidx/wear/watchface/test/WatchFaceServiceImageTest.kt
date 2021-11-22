@@ -601,8 +601,13 @@ public class WatchFaceServiceImageTest {
 
     @Test
     public fun testSetGreenStyle() {
-        handler.post(this::initCanvasWatchFace)
+        handler.post {
+            initCanvasWatchFace()
+            assertThat(engineWrapper.mutableWatchState.watchFaceInstanceId.value)
+                .isEqualTo(INTERACTIVE_INSTANCE_ID)
+        }
         assertThat(initLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS)).isTrue()
+
         // Note this will clear complicationSlots.
         interactiveWatchFaceInstance.updateWatchfaceInstance(
             "newId",
@@ -611,6 +616,7 @@ public class WatchFaceServiceImageTest {
         sendComplications()
 
         handler.post {
+            assertThat(engineWrapper.mutableWatchState.watchFaceInstanceId.value).isEqualTo("newId")
             engineWrapper.draw()
         }
 

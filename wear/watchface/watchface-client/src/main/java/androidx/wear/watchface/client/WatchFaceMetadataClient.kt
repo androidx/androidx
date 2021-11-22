@@ -231,7 +231,8 @@ internal class WatchFaceMetadataClientImpl internal constructor(
                 watchFaceName,
                 androidx.wear.watchface.data.DeviceConfig(false, false, 0, 0),
                 1,
-                1
+                1,
+                null
             )
         )?.let {
             HeadlessWatchFaceClientImpl(it)

@@ -1459,6 +1459,7 @@ public class WatchFaceServiceTest {
 
         assertTrue(watchState.hasLowBitAmbient)
         assertFalse(watchState.hasBurnInProtection)
+        assertThat(watchState.watchFaceInstanceId.value).isEqualTo("interactiveInstanceId")
     }
 
     @Test
@@ -2350,7 +2351,8 @@ public class WatchFaceServiceTest {
                 ComponentName("test.watchface.app", "test.watchface.class"),
                 DeviceConfig(false, false, 100, 200),
                 100,
-                100
+                100,
+                null
             )
         )
 
@@ -2435,7 +2437,7 @@ public class WatchFaceServiceTest {
     }
 
     @Test
-    public fun updateInvalidCOmpliationIdDoesNotCrash() {
+    public fun updateInvalidCompliationIdDoesNotCrash() {
         initWallpaperInteractiveWatchFaceInstance(
             WatchFaceType.ANALOG,
             listOf(leftComplication),
@@ -3635,7 +3637,8 @@ public class WatchFaceServiceTest {
                 ComponentName("test.watchface.app", "test.watchface.class"),
                 DeviceConfig(false, false, 100, 200),
                 100,
-                100
+                100,
+                null
             )
         )
 
@@ -3659,6 +3662,54 @@ public class WatchFaceServiceTest {
         testWatchFaceService.mockSystemTimeMillis = 2000L
         engineWrapper.onVisibilityChanged(true)
         assertThat(renderer.lastOnDrawZonedDateTime!!.toInstant().toEpochMilli()).isEqualTo(2000L)
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O_MR1)
+    public fun headlessId() {
+        testWatchFaceService = TestWatchFaceService(
+            WatchFaceType.ANALOG,
+            emptyList(),
+            { _, currentUserStyleRepository, watchState ->
+                TestRenderer(
+                    surfaceHolder,
+                    currentUserStyleRepository,
+                    watchState,
+                    INTERACTIVE_UPDATE_RATE_MS
+                )
+            },
+            UserStyleSchema(emptyList()),
+            watchState,
+            handler,
+            null,
+            false, // Allows DirectBoot
+            WallpaperInteractiveWatchFaceInstanceParams(
+                "Headless",
+                DeviceConfig(
+                    false,
+                    false,
+                    0,
+                    0
+                ),
+                WatchUiState(false, 0),
+                UserStyle(emptyMap()).toWireFormat(),
+                null
+            ),
+            choreographer
+        )
+
+        engineWrapper =
+            testWatchFaceService.createHeadlessEngine() as WatchFaceService.EngineWrapper
+
+        engineWrapper.createHeadlessInstance(
+            HeadlessWatchFaceInstanceParams(
+                ComponentName("test.watchface.app", "test.watchface.class"),
+                DeviceConfig(false, false, 100, 200),
+                100,
+                100,
+                "Headless-instance"
+            )
+        )
+        assertThat(watchState.watchFaceInstanceId.value).isEqualTo("Headless-instance")
     }
 
     @SuppressLint("NewApi")
