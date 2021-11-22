@@ -29,6 +29,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
+import androidx.core.graphics.drawable.toBitmap
 import androidx.glance.Applier
 import androidx.glance.GlanceModifier
 import androidx.glance.Image
@@ -81,10 +82,12 @@ class ScreenshotTests {
     var screenshotRule = AndroidXScreenshotTestRule("glance/glance-wear")
 
     private lateinit var fakeCoroutineScope: TestCoroutineScope
+    private lateinit var testBitmap: Bitmap
 
     @Before
     fun setUp() {
         fakeCoroutineScope = TestCoroutineScope()
+        testBitmap = getApplicationContext<Context>().getDrawable(R.drawable.oval)!!.toBitmap()
     }
 
     @Test
@@ -229,7 +232,7 @@ class ScreenshotTests {
             )
             Spacer(modifier = GlanceModifier.height(10.dp))
             Image(
-                provider = ImageProvider(R.drawable.oval),
+                provider = ImageProvider(testBitmap),
                 contentDescription = "Oval-fit",
                 modifier = GlanceModifier.size(50.dp),
                 contentScale = ContentScale.Fit
