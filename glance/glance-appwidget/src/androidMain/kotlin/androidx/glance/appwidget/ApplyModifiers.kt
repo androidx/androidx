@@ -85,6 +85,9 @@ internal fun applyModifiers(
             }
             is VisibilityModifier -> visibility = modifier.visibility
             is CornerRadiusModifier -> cornerRadius = modifier.radius
+            is AppWidgetBackgroundModifier -> {
+                // This modifier is handled somewhere else.
+            }
             else -> {
                 Log.w(GlanceAppWidgetTag, "Unknown modifier '$modifier', nothing done.")
             }
