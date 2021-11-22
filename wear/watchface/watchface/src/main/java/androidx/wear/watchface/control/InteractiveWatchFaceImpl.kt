@@ -79,6 +79,22 @@ internal class InteractiveWatchFaceImpl(
             )
         }
 
+    override fun getPendingIntentForTouchEvent(xPos: Int, yPos: Int, tapType: Int) =
+        awaitDeferredWatchFaceImplThenRunOnUiThreadBlocking(
+            "InteractiveWatchFaceImpl.sendTouchEvent"
+        ) { watchFaceImpl ->
+            watchFaceImpl.getPendingIntentForTapCommand(
+                tapType,
+                TapEvent(
+                    xPos,
+                    yPos,
+                    Instant.ofEpochMilli(
+                        watchFaceImpl.systemTimeProvider.getSystemTimeMillis()
+                    )
+                )
+            )
+        }
+
     override fun getContentDescriptionLabels() =
         awaitDeferredWatchFaceImplThenRunOnUiThreadBlocking(
             "InteractiveWatchFaceImpl.getContentDescriptionLabels"
