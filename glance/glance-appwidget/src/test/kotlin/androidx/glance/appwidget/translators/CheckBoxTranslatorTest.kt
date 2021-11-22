@@ -24,6 +24,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.glance.appwidget.CheckBox
 import androidx.glance.appwidget.CheckBoxColors
 import androidx.glance.appwidget.ImageViewSubject.Companion.assertThat
+import androidx.glance.appwidget.action.ActionCallback
+import androidx.glance.appwidget.action.actionRunCallback
 import androidx.glance.appwidget.applyRemoteViews
 import androidx.glance.appwidget.configurationContext
 import androidx.glance.appwidget.findViewByType
@@ -31,6 +33,7 @@ import androidx.glance.appwidget.runAndTranslate
 import androidx.glance.appwidget.test.R
 import androidx.glance.appwidget.unit.ColorProvider
 import androidx.test.core.app.ApplicationProvider
+import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.TestCoroutineScope
 import kotlinx.coroutines.test.runBlockingTest
@@ -61,6 +64,7 @@ class CheckBoxTranslatorTest {
         val rv = context.runAndTranslate {
             CheckBox(
                 checked = false,
+                onCheckedChange = null,
                 text = "Check",
                 colors = CheckBoxColors(checkedColor = Color.Red, uncheckedColor = Color.Blue)
             )
@@ -77,6 +81,7 @@ class CheckBoxTranslatorTest {
         val rv = context.runAndTranslate {
             CheckBox(
                 checked = true,
+                onCheckedChange = null,
                 text = "Check",
                 colors = CheckBoxColors(checkedColor = Color.Red, uncheckedColor = Color.Blue)
             )
@@ -93,6 +98,7 @@ class CheckBoxTranslatorTest {
         val rv = lightContext.runAndTranslate {
             CheckBox(
                 checked = false,
+                onCheckedChange = null,
                 text = "Check",
                 colors = CheckBoxColors(
                     checkedColor = ColorProvider(day = Color.Red, night = Color.Blue),
@@ -112,6 +118,7 @@ class CheckBoxTranslatorTest {
         val rv = darkContext.runAndTranslate {
             CheckBox(
                 checked = false,
+                onCheckedChange = null,
                 text = "Check",
                 colors = CheckBoxColors(
                     checkedColor = ColorProvider(day = Color.Red, night = Color.Blue),
@@ -131,6 +138,7 @@ class CheckBoxTranslatorTest {
         val rv = lightContext.runAndTranslate {
             CheckBox(
                 checked = true,
+                onCheckedChange = null,
                 text = "Check",
                 colors = CheckBoxColors(
                     checkedColor = ColorProvider(day = Color.Red, night = Color.Blue),
@@ -150,6 +158,7 @@ class CheckBoxTranslatorTest {
         val rv = darkContext.runAndTranslate {
             CheckBox(
                 checked = true,
+                onCheckedChange = null,
                 text = "Check",
                 colors = CheckBoxColors(
                     checkedColor = ColorProvider(day = Color.Red, night = Color.Blue),
@@ -169,6 +178,7 @@ class CheckBoxTranslatorTest {
         val rv = context.runAndTranslate {
             CheckBox(
                 checked = true,
+                onCheckedChange = null,
                 text = "Check",
                 colors = CheckBoxColors(R.color.my_checkbox_colors)
             )
@@ -177,5 +187,35 @@ class CheckBoxTranslatorTest {
         val checkBoxRoot = assertIs<ViewGroup>(context.applyRemoteViews(rv))
         val icon = checkBoxRoot.findViewByType<ImageView>()
         assertThat(icon).hasColorFilter("#FF0000")
+    }
+
+    @Config(sdk = [29])
+    @Test
+    fun canTranslateCheckBox_onCheckedChange_null() = fakeCoroutineScope.runBlockingTest {
+        val rv = context.runAndTranslate {
+            CheckBox(
+                checked = true,
+                onCheckedChange = null,
+                text = "CheckBox",
+            )
+        }
+
+        val checkboxRoot = assertIs<ViewGroup>(context.applyRemoteViews(rv))
+        assertThat(checkboxRoot.hasOnClickListeners()).isFalse()
+    }
+
+    @Config(sdk = [29])
+    @Test
+    fun canTranslateCheckBox_onCheckedChange_withAction() = fakeCoroutineScope.runBlockingTest {
+        val rv = context.runAndTranslate {
+            CheckBox(
+                checked = true,
+                onCheckedChange = actionRunCallback<ActionCallback>(),
+                text = "CheckBox",
+            )
+        }
+
+        val checkboxRoot = assertIs<ViewGroup>(context.applyRemoteViews(rv))
+        assertThat(checkboxRoot.hasOnClickListeners()).isTrue()
     }
 }

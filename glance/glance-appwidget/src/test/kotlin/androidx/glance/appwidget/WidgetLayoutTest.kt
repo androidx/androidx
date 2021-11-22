@@ -62,7 +62,11 @@ class WidgetLayoutTest {
     fun testLayout() = fakeCoroutineScope.runBlockingTest {
         val root = runTestingComposition {
             Column(horizontalAlignment = Alignment.End) {
-                CheckBox(checked = false, modifier = GlanceModifier.fillMaxSize())
+                CheckBox(
+                    checked = false,
+                    onCheckedChange = null,
+                    modifier = GlanceModifier.fillMaxSize()
+                )
                 Button(text = "test", onClick = actionLaunchActivity<Activity>())
                 Image(
                     ImageProvider(R.drawable.oval),
@@ -102,7 +106,11 @@ class WidgetLayoutTest {
         val appId = 999
         val root = runTestingComposition {
             Column {
-                CheckBox(checked = true, modifier = GlanceModifier.fillMaxSize())
+                CheckBox(
+                    checked = true,
+onCheckedChange = null,
+                    modifier = GlanceModifier.fillMaxSize()
+                )
                 Button(text = "test", onClick = actionLaunchActivity<Activity>())
             }
         }
@@ -110,6 +118,7 @@ class WidgetLayoutTest {
             Column {
                 CheckBox(
                     checked = true,
+                    onCheckedChange = null,
                     modifier = GlanceModifier.wrapContentWidth().fillMaxHeight()
                 )
                 Button(text = "test", onClick = actionLaunchActivity<Activity>())
@@ -324,13 +333,21 @@ class WidgetLayoutTest {
         val appId = 787
         val root = runTestingComposition {
             Column {
-                CheckBox(checked = true, modifier = GlanceModifier.fillMaxSize())
+                CheckBox(
+                    checked = true,
+                    onCheckedChange = null,
+                    modifier = GlanceModifier.fillMaxSize()
+                )
                 Button(text = "test", onClick = actionLaunchActivity<Activity>())
             }
         }
         val root2 = runTestingComposition {
             Column {
-                CheckBox(checked = false, modifier = GlanceModifier.fillMaxSize())
+                CheckBox(
+                    checked = false,
+                    onCheckedChange = null,
+                    modifier = GlanceModifier.fillMaxSize()
+                )
                 Button(text = "testtesttest", onClick = actionLaunchActivity<Activity>())
             }
         }

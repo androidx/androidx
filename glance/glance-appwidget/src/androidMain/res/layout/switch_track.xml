@@ -14,6 +14,8 @@
   limitations under the License.
   -->
 
-<inset xmlns:android="http://schemas.android.com/apk/res/android"
-    android:drawable="@drawable/abc_btn_switch_to_on_mtrl_00012"
-    android:insetRight="18dp"/>
+<ImageView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="42dp"
+    android:layout_height="28dp"
+    android:src="@drawable/switch_track"
+    style="@style/Glance.AppWidget.SwitchTrack"/>

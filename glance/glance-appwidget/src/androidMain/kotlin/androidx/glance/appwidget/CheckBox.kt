@@ -22,6 +22,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.glance.Emittable
 import androidx.glance.GlanceModifier
 import androidx.glance.GlanceNode
+import androidx.glance.action.Action
+import androidx.glance.action.ActionModifier
+import androidx.glance.appwidget.action.CompoundButtonAction
 import androidx.glance.appwidget.unit.CheckableColorProvider
 import androidx.glance.appwidget.unit.CheckedUncheckedColorProvider.Companion.createCheckableColorProvider
 import androidx.glance.appwidget.unit.ResourceCheckableColorProvider
@@ -100,6 +103,10 @@ public object CheckBoxDefaults {
  * Adds a check box view to the glance view.
  *
  * @param checked whether the check box is checked
+ * @param onCheckedChange the action to be run when the checkbox is clicked. The current value of
+ * checked is provided to this action in its ActionParameters, and can be retrieved using the
+ * [ToggleableStateKey]. If this action launches an activity, the current value of checked will be
+ * passed as an intent extra with the name [RemoteViews.EXTRA_CHECKED].
  * @param modifier the modifier to apply to the check box
  * @param text the text to display to the end of the check box
  * @param style the style to apply to [text]
@@ -108,17 +115,23 @@ public object CheckBoxDefaults {
 @Composable
 public fun CheckBox(
     checked: Boolean,
+    onCheckedChange: Action?,
     modifier: GlanceModifier = GlanceModifier,
     text: String = "",
     style: TextStyle? = null,
     colors: CheckBoxColors = CheckBoxDefaults.colors
 ) {
+    val finalModifier = if (onCheckedChange != null) {
+        modifier.then(ActionModifier(CompoundButtonAction(onCheckedChange, checked)))
+    } else {
+        modifier
+    }
     GlanceNode(
         factory = ::EmittableCheckBox,
         update = {
             this.set(checked) { this.checked = it }
             this.set(text) { this.text = it }
-            this.set(modifier) { this.modifier = it }
+            this.set(finalModifier) { this.modifier = it }
             this.set(style) { this.style = it }
             this.set(colors) { this.colors = it }
         }
