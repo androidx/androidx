@@ -18,8 +18,12 @@ package androidx.car.app.sample.showcase.common.misc;
 
 import static android.content.pm.PackageManager.FEATURE_AUTOMOTIVE;
 
+import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.location.LocationManager;
+import android.provider.Settings;
 
 import androidx.annotation.NonNull;
 import androidx.car.app.CarAppPermission;
@@ -33,6 +37,7 @@ import androidx.car.app.model.MessageTemplate;
 import androidx.car.app.model.OnClickListener;
 import androidx.car.app.model.ParkedOnlyOnClickListener;
 import androidx.car.app.model.Template;
+import androidx.core.location.LocationManagerCompat;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -131,10 +136,9 @@ public class RequestPermissionScreen extends Screen {
                                 getCarContext(),
                                 String.format("Approved: %s Rejected: %s", approved, rejected),
                                 CarToast.LENGTH_LONG).show();
-                        finish();
                     });
             if (!getCarContext().getPackageManager().hasSystemFeature(FEATURE_AUTOMOTIVE)) {
-                CarToast.makeText(getCarContext(), "Grant Permission on the phone",
+                CarToast.makeText(getCarContext(), "Grant Permission on the phone screen",
                         CarToast.LENGTH_LONG).show();
             }
         });
@@ -145,10 +149,39 @@ public class RequestPermissionScreen extends Screen {
                 .setOnClickListener(listener)
                 .build();
 
-        return new LongMessageTemplate.Builder(message)
+
+        Action action2 = null;
+        LocationManager locationManager =
+                (LocationManager) getCarContext().getSystemService(Context.LOCATION_SERVICE);
+        if (!LocationManagerCompat.isLocationEnabled(locationManager)) {
+            message.append("Enable Location Permissions on device\n");
+            action2 = new Action.Builder()
+                    .setTitle("Enable Location")
+                    .setBackgroundColor(CarColor.BLUE)
+                    .setOnClickListener(ParkedOnlyOnClickListener.create(() -> {
+                        getCarContext().startActivity(
+                                new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS).addFlags(
+                                        Intent.FLAG_ACTIVITY_NEW_TASK));
+                        if (!getCarContext().getPackageManager().hasSystemFeature(
+                                FEATURE_AUTOMOTIVE)) {
+                            CarToast.makeText(getCarContext(), "Enable location on the phone "
+                                            + "screen",
+                                    CarToast.LENGTH_LONG).show();
+                        }
+                    }))
+                    .build();
+        }
+
+
+        LongMessageTemplate.Builder builder = new LongMessageTemplate.Builder(message)
                 .setTitle("Required Permissions")
                 .addAction(action)
-                .setHeaderAction(headerAction)
-                .build();
+                .setHeaderAction(headerAction);
+
+        if (action2 != null) {
+            builder.addAction(action2);
+        }
+
+        return builder.build();
     }
 }
