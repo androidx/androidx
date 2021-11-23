@@ -17,7 +17,6 @@
 package androidx.car.app.sample.showcase.common.templates;
 
 import static androidx.car.app.CarToast.LENGTH_LONG;
-import static androidx.car.app.CarToast.LENGTH_SHORT;
 
 import androidx.annotation.NonNull;
 import androidx.car.app.CarContext;
@@ -55,20 +54,10 @@ public class SearchTemplateDemoScreen extends Screen {
                 new SearchCallback() {
                     @Override
                     public void onSearchTextChanged(@NonNull String searchText) {
-                        CarToast.makeText(
-                                getCarContext(),
-                                "Search changed: " + searchText,
-                                LENGTH_SHORT)
-                                .show();
                     }
 
                     @Override
                     public void onSearchSubmitted(@NonNull String searchText) {
-                        CarToast.makeText(
-                                getCarContext(),
-                                "Search submitted: " + searchText,
-                                LENGTH_LONG)
-                                .show();
                     }
                 };
 
