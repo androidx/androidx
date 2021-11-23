@@ -263,12 +263,6 @@ package androidx.wear.compose.material {
   public final class RangeDefaultsKt {
   }
 
-  public final class RangeIcons {
-    method public androidx.compose.ui.graphics.vector.ImageVector getMinusIcon();
-    property public final androidx.compose.ui.graphics.vector.ImageVector MinusIcon;
-    field public static final androidx.wear.compose.material.RangeIcons INSTANCE;
-  }
-
   @androidx.compose.runtime.Immutable @androidx.wear.compose.material.ExperimentalWearMaterialApi public final class ResistanceConfig {
     ctor public ResistanceConfig(float basis, optional float factorAtMin, optional float factorAtMax);
     method public float computeResistance(float overflow);
