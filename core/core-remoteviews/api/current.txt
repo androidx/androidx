@@ -1,6 +1,13 @@
 // Signature format: 4.0
 package androidx.core.widget {
 
+  public final class AppWidgetManagerCompat {
+    method public static android.widget.RemoteViews createExactSizeAppWidget(android.appwidget.AppWidgetManager appWidgetManager, int appWidgetId, kotlin.jvm.functions.Function1<? super androidx.core.util.SizeFCompat,? extends android.widget.RemoteViews> factory);
+    method public static android.widget.RemoteViews createResponsiveSizeAppWidget(android.appwidget.AppWidgetManager appWidgetManager, int appWidgetId, java.util.Collection<androidx.core.util.SizeFCompat> dpSizes, kotlin.jvm.functions.Function1<? super androidx.core.util.SizeFCompat,? extends android.widget.RemoteViews> factory);
+    method public static void updateAppWidget(android.appwidget.AppWidgetManager, int appWidgetId, kotlin.jvm.functions.Function1<? super androidx.core.util.SizeFCompat,? extends android.widget.RemoteViews> factory);
+    method public static void updateAppWidget(android.appwidget.AppWidgetManager, int appWidgetId, java.util.Collection<androidx.core.util.SizeFCompat> dpSizes, kotlin.jvm.functions.Function1<? super androidx.core.util.SizeFCompat,? extends android.widget.RemoteViews> factory);
+  }
+
   public final class RemoteViewsCompat {
     method public static void setChronometerBase(android.widget.RemoteViews, @IdRes int viewId, long base);
     method public static void setChronometerFormat(android.widget.RemoteViews, @IdRes int viewId, String? format);
