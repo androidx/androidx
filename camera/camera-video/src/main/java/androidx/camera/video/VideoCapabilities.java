@@ -57,8 +57,8 @@ public final class VideoCapabilities {
      * The supported @link CamcorderProfileProxy} map from quality to CamcorderProfileProxy. The
      * order is from size large to small.
      */
-    private final Map<Integer, CamcorderProfileProxy> mSupportedProfileMap = new LinkedHashMap<>();
-    private final TreeMap<Size, Integer> mAreaSortedSizeToQualityMap =
+    private final Map<Quality, CamcorderProfileProxy> mSupportedProfileMap = new LinkedHashMap<>();
+    private final TreeMap<Size, Quality> mAreaSortedSizeToQualityMap =
             new TreeMap<>(new CompareSizesByArea());
     private final CamcorderProfileProxy mHighestProfile;
     private final CamcorderProfileProxy mLowestProfile;
@@ -75,15 +75,19 @@ public final class VideoCapabilities {
                 cameraInfoInternal.getCamcorderProfileProvider();
 
         // Construct supported profile map
-        for (@QualitySelector.VideoQuality int quality : QualitySelector.getSortedQualities()) {
+        for (Quality quality : Quality.getSortedQualities()) {
             // SortedQualities is from size large to small
+            Preconditions.checkState(quality instanceof Quality.ConstantQuality,
+                    "Currently only support ConstantQuality");
+            int qualityValue = ((Quality.ConstantQuality) quality).getValue();
 
             // Get CamcorderProfile
-            if (!camcorderProfileProvider.hasProfile(quality) || !isDeviceValidQuality(quality)) {
+            if (!camcorderProfileProvider.hasProfile(qualityValue) || !isDeviceValidQuality(
+                    quality)) {
                 continue;
             }
             CamcorderProfileProxy profile =
-                    Preconditions.checkNotNull(camcorderProfileProvider.get(quality));
+                    Preconditions.checkNotNull(camcorderProfileProvider.get(qualityValue));
             Size profileSize = new Size(profile.getVideoFrameWidth(),
                     profile.getVideoFrameHeight());
             Logger.d(TAG, "profile = " + profile);
@@ -112,14 +116,13 @@ public final class VideoCapabilities {
      * Gets all supported qualities on the device.
      *
      * <p>The returned list is sorted by quality size from large to small. For the qualities in
-     * the returned list, calling {@link #getProfile(int)} with these qualities will return a
+     * the returned list, calling {@link #getProfile(Quality)} with these qualities will return a
      * non-null result.
      *
-     * <p>Note: Constants {@link QualitySelector#QUALITY_HIGHEST} and
-     * {@link QualitySelector#QUALITY_LOWEST} are not included.
+     * <p>Note: Constants {@link Quality#HIGHEST} and {@link Quality#LOWEST} are not included.
      */
     @NonNull
-    public List<Integer> getSupportedQualities() {
+    public List<Quality> getSupportedQualities() {
         return new ArrayList<>(mSupportedProfileMap.keySet());
     }
 
@@ -127,13 +130,12 @@ public final class VideoCapabilities {
      * Checks if the quality is supported.
      *
      * @param quality one of the quality constants. Possible values include
-     * {@link QualitySelector#QUALITY_LOWEST}, {@link QualitySelector#QUALITY_HIGHEST},
-     * {@link QualitySelector#QUALITY_SD}, {@link QualitySelector#QUALITY_HD},
-     * {@link QualitySelector#QUALITY_FHD}, or {@link QualitySelector#QUALITY_UHD}.
+     * {@link Quality#LOWEST}, {@link Quality#HIGHEST}, {@link {@link Quality#SD},
+     * {@link Quality#HD}, {@link {@link Quality#FHD}, or {@link Quality#UHD}.
      * @return {@code true} if the quality is supported; {@code false} otherwise.
      * @throws IllegalArgumentException if not a quality constant.
      */
-    public boolean isQualitySupported(@QualitySelector.VideoQuality int quality) {
+    public boolean isQualitySupported(@NonNull Quality quality) {
         checkQualityConstantsOrThrow(quality);
         return getProfile(quality) != null;
     }
@@ -142,18 +144,17 @@ public final class VideoCapabilities {
      * Gets the corresponding {@link CamcorderProfileProxy} of the input quality.
      *
      * @param quality one of the quality constants. Possible values include
-     * {@link QualitySelector#QUALITY_LOWEST}, {@link QualitySelector#QUALITY_HIGHEST},
-     * {@link QualitySelector#QUALITY_SD}, {@link QualitySelector#QUALITY_HD},
-     * {@link QualitySelector#QUALITY_FHD}, or {@link QualitySelector#QUALITY_UHD}.
+     * {@link Quality#LOWEST}, {@link Quality#HIGHEST}, {@link Quality#SD}, {@link Quality#HD},
+     * {@link Quality#FHD}, or {@link Quality#UHD}.
      * @return the CamcorderProfileProxy
      * @throws IllegalArgumentException if not a quality constant
      */
     @Nullable
-    public CamcorderProfileProxy getProfile(@QualitySelector.VideoQuality int quality) {
+    public CamcorderProfileProxy getProfile(@NonNull Quality quality) {
         checkQualityConstantsOrThrow(quality);
-        if (quality == QualitySelector.QUALITY_HIGHEST) {
+        if (quality == Quality.HIGHEST) {
             return mHighestProfile;
-        } else if (quality == QualitySelector.QUALITY_LOWEST) {
+        } else if (quality == Quality.LOWEST) {
             return mLowestProfile;
         }
         return mSupportedProfileMap.get(quality);
@@ -168,11 +169,12 @@ public final class VideoCapabilities {
      * quality's size is above or below the given size.
      * @param size The size representing the number of pixels for comparison. Pixels are assumed
      *             to be square.
-     * @return The quality constant defined in {@link QualitySelector}. If no qualities are
-     * supported, then {@link QualitySelector#QUALITY_NONE} is returned.
+     * @return The quality constant defined in {@link Quality}. If no qualities are supported,
+     * then {@link Quality#NONE} is returned.
      */
-    public int findHighestSupportedQualityFor(@NonNull Size size) {
-        Map.Entry<Size, Integer> ceilEntry = mAreaSortedSizeToQualityMap.ceilingEntry(size);
+    @NonNull
+    public Quality findHighestSupportedQualityFor(@NonNull Size size) {
+        Map.Entry<Size, Quality> ceilEntry = mAreaSortedSizeToQualityMap.ceilingEntry(size);
 
         if (ceilEntry != null) {
             // The ceiling entry will either be equivalent or higher in size, so always return it.
@@ -180,22 +182,22 @@ public final class VideoCapabilities {
         } else {
             // If a ceiling entry doesn't exist and a floor entry exists, it is the closest we have,
             // so return it.
-            Map.Entry<Size, Integer> floorEntry = mAreaSortedSizeToQualityMap.floorEntry(size);
+            Map.Entry<Size, Quality> floorEntry = mAreaSortedSizeToQualityMap.floorEntry(size);
             if (floorEntry != null) {
                 return floorEntry.getValue();
             }
         }
 
         // No supported qualities.
-        return QualitySelector.QUALITY_NONE;
+        return Quality.NONE;
     }
 
-    private static void checkQualityConstantsOrThrow(@QualitySelector.VideoQuality int quality) {
-        Preconditions.checkArgument(QualitySelector.containsQuality(quality),
+    private static void checkQualityConstantsOrThrow(@NonNull Quality quality) {
+        Preconditions.checkArgument(Quality.containsQuality(quality),
                 "Unknown quality: " + quality);
     }
 
-    private boolean isDeviceValidQuality(@QualitySelector.VideoQuality int quality) {
+    private boolean isDeviceValidQuality(@NonNull Quality quality) {
         VideoQualityNotSupportQuirk quirk = DeviceQuirks.get(VideoQualityNotSupportQuirk.class);
         return quirk == null || !quirk.isProblematicVideoQuality(quality);
     }

@@ -27,7 +27,7 @@ import androidx.camera.testing.AudioUtil
 import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.CameraXUtil
 import androidx.camera.video.AudioSpec
-import androidx.camera.video.QualitySelector.QUALITY_HIGHEST
+import androidx.camera.video.Quality
 import androidx.camera.video.VideoCapabilities
 import androidx.camera.video.internal.AudioSource
 import androidx.test.core.app.ApplicationProvider
@@ -128,7 +128,7 @@ class AudioSourceSettingsCamcorderProfileResolverTest {
 
     @Test
     fun sampleRateCanOverrideCamcorderProfile_ifSupported() {
-        val profile = videoCapabilities.getProfile(QUALITY_HIGHEST)
+        val profile = videoCapabilities.getProfile(Quality.HIGHEST)
         // Get a config using the default audio spec to retrieve the source format
         // Note: This relies on resolution of sample rate and source format being independent.
         // If a dependency between the two is introduced, this will stop working and will
@@ -162,7 +162,7 @@ class AudioSourceSettingsCamcorderProfileResolverTest {
 
     @Test
     fun audioSpecDefaultProducesValidSourceEnum() {
-        val profile = videoCapabilities.getProfile(QUALITY_HIGHEST)
+        val profile = videoCapabilities.getProfile(Quality.HIGHEST)
         val audioSpec = AudioSpec.builder().build()
         val resolvedAudioSourceEnum =
             AudioSourceSettingsCamcorderProfileResolver(
@@ -178,7 +178,7 @@ class AudioSourceSettingsCamcorderProfileResolverTest {
 
     @Test
     fun audioSpecDefaultProducesValidSourceFormat() {
-        val profile = videoCapabilities.getProfile(QUALITY_HIGHEST)
+        val profile = videoCapabilities.getProfile(Quality.HIGHEST)
         val audioSpec = AudioSpec.builder().build()
         val resolvedAudioSourceFormat =
             AudioSourceSettingsCamcorderProfileResolver(

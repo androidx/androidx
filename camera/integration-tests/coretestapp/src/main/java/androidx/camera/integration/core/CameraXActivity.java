@@ -19,11 +19,6 @@ package androidx.camera.integration.core;
 import static androidx.camera.core.ImageCapture.FLASH_MODE_AUTO;
 import static androidx.camera.core.ImageCapture.FLASH_MODE_OFF;
 import static androidx.camera.core.ImageCapture.FLASH_MODE_ON;
-import static androidx.camera.video.QualitySelector.QUALITY_FHD;
-import static androidx.camera.video.QualitySelector.QUALITY_HD;
-import static androidx.camera.video.QualitySelector.QUALITY_NONE;
-import static androidx.camera.video.QualitySelector.QUALITY_SD;
-import static androidx.camera.video.QualitySelector.QUALITY_UHD;
 import static androidx.camera.video.VideoRecordEvent.Finalize.ERROR_FILE_SIZE_LIMIT_REACHED;
 import static androidx.camera.video.VideoRecordEvent.Finalize.ERROR_INSUFFICIENT_STORAGE;
 import static androidx.camera.video.VideoRecordEvent.Finalize.ERROR_NONE;
@@ -94,6 +89,7 @@ import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.lifecycle.ProcessCameraProvider;
 import androidx.camera.video.MediaStoreOutputOptions;
 import androidx.camera.video.OutputOptions;
+import androidx.camera.video.Quality;
 import androidx.camera.video.QualitySelector;
 import androidx.camera.video.Recorder;
 import androidx.camera.video.Recording;
@@ -156,6 +152,7 @@ public class CameraXActivity extends AppCompatActivity {
     private final AtomicLong mPreviewFrameCount = new AtomicLong(0);
     private final MutableLiveData<String> mImageAnalysisResult = new MutableLiveData<>();
     private static final String BACKWARD = "BACKWARD";
+    private static final Quality QUALITY_AUTO = null;
 
     private Recording mActiveRecording;
     /** The camera to use */
@@ -192,7 +189,7 @@ public class CameraXActivity extends AppCompatActivity {
     private OpenGLRenderer mPreviewRenderer;
     private DisplayManager.DisplayListener mDisplayListener;
     private RecordUi mRecordUi;
-    private int mVideoQuality = QUALITY_NONE;
+    private Quality mVideoQuality;
 
     SessionImagesUriSet mSessionImagesUriSet = new SessionImagesUriSet();
 
@@ -423,21 +420,22 @@ public class CameraXActivity extends AppCompatActivity {
             // Add Auto item
             final int groupId = Menu.NONE;
             final int autoOrder = 0;
-            menu.add(groupId, QUALITY_NONE, autoOrder, getQualityMenuItemName(QUALITY_NONE));
-            if (mVideoQuality == QUALITY_NONE) {
-                menu.findItem(QUALITY_NONE).setChecked(true);
+            final int autoMenuId = qualityToItemId(QUALITY_AUTO);
+            menu.add(groupId, autoMenuId, autoOrder, getQualityMenuItemName(QUALITY_AUTO));
+            if (mVideoQuality == QUALITY_AUTO) {
+                menu.findItem(autoMenuId).setChecked(true);
             }
 
             // Add device supported qualities
-            List<Integer> supportedQualities =
+            List<Quality> supportedQualities =
                     QualitySelector.getSupportedQualities(mCamera.getCameraInfo());
             // supportedQualities has been sorted by descending order.
             for (int i = 0; i < supportedQualities.size(); i++) {
-                int quality = supportedQualities.get(i);
-                menu.add(groupId, quality, autoOrder + 1 + i,
-                        getQualityMenuItemName(quality));
+                Quality quality = supportedQualities.get(i);
+                int itemId = qualityToItemId(quality);
+                menu.add(groupId, itemId, autoOrder + 1 + i, getQualityMenuItemName(quality));
                 if (mVideoQuality == quality) {
-                    menu.findItem(quality).setChecked(true);
+                    menu.findItem(itemId).setChecked(true);
                 }
 
             }
@@ -445,8 +443,9 @@ public class CameraXActivity extends AppCompatActivity {
             menu.setGroupCheckable(groupId, true, true);
 
             popup.setOnMenuItemClickListener(item -> {
-                if (item.getItemId() != mVideoQuality) {
-                    mVideoQuality = item.getItemId();
+                Quality quality = itemIdToQuality(item.getItemId());
+                if (quality != mVideoQuality) {
+                    mVideoQuality = quality;
                     mRecordUi.getButtonQuality().setText(getQualityIconName(mVideoQuality));
                     // Quality changed, rebind UseCases
                     tryBindUseCases();
@@ -877,7 +876,7 @@ public class CameraXActivity extends AppCompatActivity {
             mUseCases = useCases;
         } catch (IllegalArgumentException ex) {
             String msg;
-            if (mVideoQuality != QUALITY_NONE) {
+            if (mVideoQuality != QUALITY_AUTO) {
                 msg = "Bind too many use cases or video quality is too large.";
             } else {
                 msg = "Bind too many use cases.";
@@ -891,7 +890,7 @@ public class CameraXActivity extends AppCompatActivity {
             mAnalysisToggle.setChecked(getImageAnalysis() != null);
             mVideoToggle.setChecked(getVideoCapture() != null);
             // Reset video quality to avoid always fail by quality too large.
-            mRecordUi.getButtonQuality().setText(getQualityIconName(mVideoQuality = QUALITY_NONE));
+            mRecordUi.getButtonQuality().setText(getQualityIconName(mVideoQuality = QUALITY_AUTO));
 
             if (!calledBySelf) {
                 // Only call self if not already calling self to avoid an infinite loop.
@@ -942,8 +941,8 @@ public class CameraXActivity extends AppCompatActivity {
 
         if (mVideoToggle.isChecked()) {
             Recorder.Builder builder = new Recorder.Builder();
-            if (mVideoQuality != QUALITY_NONE) {
-                builder.setQualitySelector(QualitySelector.of(mVideoQuality));
+            if (mVideoQuality != QUALITY_AUTO) {
+                builder.setQualitySelector(QualitySelector.from(mVideoQuality));
             }
             VideoCapture<Recorder> videoCapture = VideoCapture.withOutput(builder.build());
             useCases.add(videoCapture);
@@ -1401,38 +1400,68 @@ public class CameraXActivity extends AppCompatActivity {
     }
 
     @NonNull
-    private static String getQualityIconName(int quality) {
-        switch (quality) {
-            case QUALITY_NONE:
-                return "Auto";
-            case QUALITY_UHD:
-                return "UHD";
-            case QUALITY_FHD:
-                return "FHD";
-            case QUALITY_HD:
-                return "HD";
-            case QUALITY_SD:
-                return "SD";
-            default:
-                return "?";
+    private static String getQualityIconName(@Nullable Quality quality) {
+        if (quality == QUALITY_AUTO) {
+            return "Auto";
+        } else if (quality == Quality.UHD) {
+            return "UHD";
+        } else if (quality == Quality.FHD) {
+            return "FHD";
+        } else if (quality == Quality.HD) {
+            return "HD";
+        } else if (quality == Quality.SD) {
+            return "SD";
         }
+        return "?";
     }
 
     @NonNull
-    private static String getQualityMenuItemName(int quality) {
-        switch (quality) {
-            case QUALITY_NONE:
-                return "Auto";
-            case QUALITY_UHD:
-                return "UHD (2160P)";
-            case QUALITY_FHD:
-                return "FHD (1080P)";
-            case QUALITY_HD:
-                return "HD (720P)";
-            case QUALITY_SD:
-                return "SD (480P)";
+    private static String getQualityMenuItemName(@Nullable Quality quality) {
+        if (quality == QUALITY_AUTO) {
+            return "Auto";
+        } else if (quality == Quality.UHD) {
+            return "UHD (2160P)";
+        } else if (quality == Quality.FHD) {
+            return "FHD (1080P)";
+        } else if (quality == Quality.HD) {
+            return "HD (720P)";
+        } else if (quality == Quality.SD) {
+            return "SD (480P)";
+        }
+        return "Unknown quality";
+    }
+
+    private static int qualityToItemId(@Nullable Quality quality) {
+        if (quality == QUALITY_AUTO) {
+            return 0;
+        } else if (quality == Quality.UHD) {
+            return 1;
+        } else if (quality == Quality.FHD) {
+            return 2;
+        } else if (quality == Quality.HD) {
+            return 3;
+        } else if (quality == Quality.SD) {
+            return 4;
+        } else {
+            throw new IllegalArgumentException("Undefined quality: " + quality);
+        }
+    }
+
+    @Nullable
+    private static Quality itemIdToQuality(int itemId) {
+        switch (itemId) {
+            case 0:
+                return QUALITY_AUTO;
+            case 1:
+                return Quality.UHD;
+            case 2:
+                return Quality.FHD;
+            case 3:
+                return Quality.HD;
+            case 4:
+                return Quality.SD;
             default:
-                return "Unknown quality";
+                throw new IllegalArgumentException("Undefined item id: " + itemId);
         }
     }
 }
