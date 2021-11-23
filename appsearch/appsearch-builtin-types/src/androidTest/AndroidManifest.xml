@@ -15,4 +15,5 @@
   -->
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="androidx.appsearch.builtintypes.test"/>
+          package="androidx.appsearch.builtintypes.test">
+</manifest>
