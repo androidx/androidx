@@ -18,8 +18,8 @@ package androidx.core.view.accessibility;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.IsEqual.equalTo;
-import static org.junit.Assert.assertThat;
 
 import android.graphics.Region;
 import android.os.Build;
@@ -121,6 +121,14 @@ public class AccessibilityNodeInfoCompatTest {
         assertThat(nodeCompat.isTextEntryKey(), is(true));
         nodeCompat.setTextEntryKey(false);
         assertThat(nodeCompat.isTextEntryKey(), is(false));
+    }
+
+    @Test
+    public void testGetSetUniqueId() {
+        final String uniqueId = (Build.VERSION.SDK_INT >= 19) ? "localUId" : null;
+        AccessibilityNodeInfoCompat nodeCompat = obtainedWrappedNodeCompat();
+        nodeCompat.setUniqueId(uniqueId);
+        assertThat(nodeCompat.getUniqueId(), equalTo(uniqueId));
     }
 
     @SdkSuppress(minSdkVersion = 19)

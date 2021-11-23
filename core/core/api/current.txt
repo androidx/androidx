@@ -3068,6 +3068,7 @@ package androidx.core.view.accessibility {
     method public androidx.core.view.accessibility.AccessibilityNodeInfoCompat.TouchDelegateInfoCompat? getTouchDelegateInfo();
     method public androidx.core.view.accessibility.AccessibilityNodeInfoCompat! getTraversalAfter();
     method public androidx.core.view.accessibility.AccessibilityNodeInfoCompat! getTraversalBefore();
+    method public String? getUniqueId();
     method public String! getViewIdResourceName();
     method public androidx.core.view.accessibility.AccessibilityWindowInfoCompat! getWindow();
     method public int getWindowId();
@@ -3160,6 +3161,7 @@ package androidx.core.view.accessibility {
     method public void setTraversalAfter(android.view.View!, int);
     method public void setTraversalBefore(android.view.View!);
     method public void setTraversalBefore(android.view.View!, int);
+    method public void setUniqueId(String?);
     method public void setViewIdResourceName(String!);
     method public void setVisibleToUser(boolean);
     method public android.view.accessibility.AccessibilityNodeInfo! unwrap();
