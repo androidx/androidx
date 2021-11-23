@@ -201,6 +201,7 @@ public class RenderParametersWireFormat implements VersionedParcelable, Parcelab
 
     public static final Parcelable.Creator<RenderParametersWireFormat> CREATOR =
             new Parcelable.Creator<RenderParametersWireFormat>() {
+                @SuppressWarnings("deprecation")
                 @Override
                 public RenderParametersWireFormat createFromParcel(Parcel source) {
                     return ParcelUtils.fromParcelable(

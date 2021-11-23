@@ -108,6 +108,7 @@ public class ComplicationOverlayWireFormat implements VersionedParcelable, Parce
 
     public static final Creator<ComplicationOverlayWireFormat> CREATOR =
             new Creator<ComplicationOverlayWireFormat>() {
+                @SuppressWarnings("deprecation")
                 @Override
                 public ComplicationOverlayWireFormat createFromParcel(Parcel source) {
                     return ParcelUtils.fromParcelable(
