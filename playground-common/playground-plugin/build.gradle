@@ -13,8 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
- plugins {
+
+plugins {
     id "groovy-gradle-plugin"
+    alias(libs.plugins.kotlinJvm)
 }
 
 repositories {
@@ -24,6 +26,15 @@ repositories {
 dependencies {
     implementation "com.gradle:gradle-enterprise-gradle-plugin:3.7.1"
     implementation "com.gradle:common-custom-user-data-gradle-plugin:1.5"
+}
+
+// Needed to be able to use Groovy code from Kotlin
+// https://docs.gradle.org/6.1-rc-1/release-notes.html#compilation-order
+tasks.named('compileGroovy') {
+    classpath = sourceSets.main.compileClasspath
+}
+tasks.named('compileKotlin') {
+    classpath += files(sourceSets.main.groovy.classesDirectory)
 }
 
 gradlePlugin {
