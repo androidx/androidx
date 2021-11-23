@@ -23,12 +23,12 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import android.content.Context;
+import android.os.Build;
 import android.view.MotionEvent;
 import android.view.ViewGroup;
 import android.widget.EdgeEffect;
 
 import androidx.annotation.NonNull;
-import androidx.core.os.BuildCompat;
 import androidx.core.view.InputDeviceCompat;
 import androidx.core.widget.EdgeEffectCompat;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -85,12 +85,12 @@ public class StretchEdgeEffectTest extends BaseRecyclerViewInstrumentationTest {
         scrollToPosition(0);
         waitForIdleScroll(mRecyclerView);
         scrollHorizontalBy(-3);
-        if (BuildCompat.isAtLeastS()) {
+        if (Build.VERSION.SDK_INT >= 31) {
             assertTrue(EdgeEffectCompat.getDistance(mFactory.mLeft) > 0);
         }
         scrollHorizontalBy(4);
         assertEquals(0f, EdgeEffectCompat.getDistance(mFactory.mLeft), 0f);
-        if (BuildCompat.isAtLeastS()) {
+        if (Build.VERSION.SDK_INT >= 31) {
             assertTrue(mFactory.mLeft.isFinished());
         }
     }
@@ -103,12 +103,12 @@ public class StretchEdgeEffectTest extends BaseRecyclerViewInstrumentationTest {
         scrollToPosition(0);
         waitForIdleScroll(mRecyclerView);
         scrollVerticalBy(3);
-        if (BuildCompat.isAtLeastS()) {
+        if (Build.VERSION.SDK_INT >= 31) {
             assertTrue(EdgeEffectCompat.getDistance(mFactory.mTop) > 0);
         }
         scrollVerticalBy(-4);
         assertEquals(0f, EdgeEffectCompat.getDistance(mFactory.mTop), 0f);
-        if (BuildCompat.isAtLeastS()) {
+        if (Build.VERSION.SDK_INT >= 31) {
             assertTrue(mFactory.mTop.isFinished());
         }
     }
@@ -123,12 +123,12 @@ public class StretchEdgeEffectTest extends BaseRecyclerViewInstrumentationTest {
         scrollToPosition(NUM_ITEMS - 1);
         waitForIdleScroll(mRecyclerView);
         scrollHorizontalBy(3);
-        if (BuildCompat.isAtLeastS()) {
+        if (Build.VERSION.SDK_INT >= 31) {
             assertTrue(EdgeEffectCompat.getDistance(mFactory.mRight) > 0);
         }
         scrollHorizontalBy(-4);
         assertEquals(0f, EdgeEffectCompat.getDistance(mFactory.mRight), 0f);
-        if (BuildCompat.isAtLeastS()) {
+        if (Build.VERSION.SDK_INT >= 31) {
             assertTrue(mFactory.mRight.isFinished());
         }
     }
@@ -141,12 +141,12 @@ public class StretchEdgeEffectTest extends BaseRecyclerViewInstrumentationTest {
         scrollToPosition(NUM_ITEMS - 1);
         waitForIdleScroll(mRecyclerView);
         scrollVerticalBy(-3);
-        if (BuildCompat.isAtLeastS()) {
+        if (Build.VERSION.SDK_INT >= 31) {
             assertTrue(EdgeEffectCompat.getDistance(mFactory.mBottom) > 0);
         }
 
         scrollVerticalBy(4);
-        if (BuildCompat.isAtLeastS()) {
+        if (Build.VERSION.SDK_INT >= 31) {
             assertEquals(0f, EdgeEffectCompat.getDistance(mFactory.mBottom), 0f);
             assertTrue(mFactory.mBottom.isFinished());
         }
@@ -165,7 +165,7 @@ public class StretchEdgeEffectTest extends BaseRecyclerViewInstrumentationTest {
         // test flinging right
         dragHorizontally(1000);
 
-        if (BuildCompat.isAtLeastS()) {
+        if (Build.VERSION.SDK_INT >= 31) {
             mActivityRule.runOnUiThread(() -> {
                 float pullDistance = EdgeEffectCompat.getDistance(mFactory.mLeft);
                 assertTrue(pullDistance > 0);
@@ -219,7 +219,7 @@ public class StretchEdgeEffectTest extends BaseRecyclerViewInstrumentationTest {
         dragVertically(1000);
         Thread.sleep(1000);
 
-        if (BuildCompat.isAtLeastS()) {
+        if (Build.VERSION.SDK_INT >= 31) {
             mActivityRule.runOnUiThread(() -> {
                 float pullDistance = EdgeEffectCompat.getDistance(mFactory.mTop);
                 assertTrue(pullDistance > 0);
@@ -273,7 +273,7 @@ public class StretchEdgeEffectTest extends BaseRecyclerViewInstrumentationTest {
         // test flinging left
         dragHorizontally(-1000);
 
-        if (BuildCompat.isAtLeastS()) {
+        if (Build.VERSION.SDK_INT >= 31) {
             mActivityRule.runOnUiThread(() -> {
                 float pullDistance = EdgeEffectCompat.getDistance(mFactory.mRight);
                 assertTrue(pullDistance > 0);
@@ -328,7 +328,7 @@ public class StretchEdgeEffectTest extends BaseRecyclerViewInstrumentationTest {
         // test flinging up
         dragVertically(-1000);
 
-        if (BuildCompat.isAtLeastS()) {
+        if (Build.VERSION.SDK_INT >= 31) {
             mActivityRule.runOnUiThread(() -> {
                 float pullDistance = EdgeEffectCompat.getDistance(mFactory.mBottom);
                 assertTrue(pullDistance > 0);
