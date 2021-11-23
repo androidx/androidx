@@ -20,6 +20,7 @@ import android.opengl.EGL14
 import android.opengl.EGLConfig
 import android.opengl.EGLContext
 import android.opengl.EGLSurface
+import android.view.Surface
 
 /**
  * Interface for accessing various EGL facilities independent of EGL versions.
@@ -43,10 +44,30 @@ interface EglSpec {
      * https://www.khronos.org/registry/EGL/sdk/docs/man/html/eglCreatePbufferSurface.xhtml
      *
      * If a pixel buffer surface could not be created, [EGL14.EGL_NO_SURFACE] is returned.
+     *
+     * @param config Specifies the EGL Frame buffer configuration that defines the frame buffer
+     * resource available to the surface
+     * @param configAttributes Optional list of attributes for the pixel buffer surface
      */
     fun eglCreatePBufferSurface(
         config: EGLConfig,
-        configAttributes: EglConfigAttributes
+        configAttributes: EglConfigAttributes?
+    ): EGLSurface
+
+    /**
+     * Creates an on screen EGL window surface from the given [Surface] and returns a handle to it.
+     *
+     * See https://khronos.org/registry/EGL/sdk/docs/man/html/eglCreateWindowSurface.xhtml
+     *
+     * @param config Specifies the EGL frame buffer configuration that defines the frame buffer
+     * resource available to the surface
+     * @param surface Android surface to consume rendered content
+     * @param configAttributes Optional list of attributes for the specified surface
+     */
+    fun eglCreateWindowSurface(
+        config: EGLConfig,
+        surface: Surface,
+        configAttributes: EglConfigAttributes?
     ): EGLSurface
 
     /**
@@ -175,12 +196,25 @@ interface EglSpec {
 
             override fun eglCreatePBufferSurface(
                 config: EGLConfig,
-                configAttributes: EglConfigAttributes
+                configAttributes: EglConfigAttributes?
             ): EGLSurface =
                 EGL14.eglCreatePbufferSurface(
                     getDefaultDisplay(),
                     config,
-                    configAttributes.attrs,
+                    configAttributes?.attrs,
+                    0
+                )
+
+            override fun eglCreateWindowSurface(
+                config: EGLConfig,
+                surface: Surface,
+                configAttributes: EglConfigAttributes?,
+            ): EGLSurface =
+                EGL14.eglCreateWindowSurface(
+                    getDefaultDisplay(),
+                    config,
+                    surface,
+                    configAttributes?.attrs,
                     0
                 )
 

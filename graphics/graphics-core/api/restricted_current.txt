@@ -86,7 +86,8 @@ package androidx.graphics.opengl.egl {
 
   public interface EglSpec {
     method public android.opengl.EGLContext eglCreateContext(android.opengl.EGLConfig config);
-    method public android.opengl.EGLSurface eglCreatePBufferSurface(android.opengl.EGLConfig config, int[] configAttributes);
+    method public android.opengl.EGLSurface eglCreatePBufferSurface(android.opengl.EGLConfig config, int[]? configAttributes);
+    method public android.opengl.EGLSurface eglCreateWindowSurface(android.opengl.EGLConfig config, android.view.Surface surface, int[]? configAttributes);
     method public void eglDestroyContext(android.opengl.EGLContext eglContext);
     method public boolean eglDestroySurface(android.opengl.EGLSurface surface);
     method public android.opengl.EGLSurface eglGetCurrentDrawSurface();
