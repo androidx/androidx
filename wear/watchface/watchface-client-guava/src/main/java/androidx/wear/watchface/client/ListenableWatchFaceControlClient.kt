@@ -182,6 +182,7 @@ public open class ListenableWatchFaceControlClient(
     override fun getEditorServiceClient(): EditorServiceClient =
         watchFaceControlClient.getEditorServiceClient()
 
+    @Suppress("DEPRECATION")
     override fun getDefaultComplicationDataSourcePoliciesAndType(
         watchFaceName: ComponentName
     ): Map<Int, DefaultComplicationDataSourcePolicyAndType> =

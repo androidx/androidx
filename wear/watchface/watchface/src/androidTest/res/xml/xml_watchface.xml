@@ -33,17 +33,18 @@
         app:slotId="10"
         app:boundsType="ROUND_RECT"
         app:supportedTypes="SHORT_TEXT|RANGED_VALUE|SMALL_IMAGE"
-        app:defaultDataSourceType="RANGED_VALUE"
-        app:systemDataSourceFallback="DATA_SOURCE_WATCH_BATTERY">
+        app:systemDataSourceFallback="DATA_SOURCE_WATCH_BATTERY"
+        app:systemDataSourceFallbackDefaultType="RANGED_VALUE">
         <ComplicationSlotBounds app:left="0.3" app:top="0.7" app:right="0.7" app:bottom="0.9"/>
     </ComplicationSlot>
     <ComplicationSlot
         app:slotId="20"
         app:boundsType="BACKGROUND"
-        app:supportedTypes="LONG_TEXT"
-        app:defaultDataSourceType="LONG_TEXT"
+        app:supportedTypes="LONG_TEXT|SHORT_TEXT"
         app:primaryDataSource="com.package/com.app"
-        app:systemDataSourceFallback="DATA_SOURCE_SUNRISE_SUNSET">
+        app:primaryDataSourceDefaultType="SHORT_TEXT"
+        app:systemDataSourceFallback="DATA_SOURCE_SUNRISE_SUNSET"
+        app:systemDataSourceFallbackDefaultType="LONG_TEXT">
         <ComplicationSlotBounds app:left="0.1" app:top="0.2" app:right="0.3" app:bottom="0.4"/>
     </ComplicationSlot>
 </XmlWatchFace>

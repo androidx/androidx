@@ -127,10 +127,12 @@ open class ExampleOpenGLWatchFaceService : WatchFaceService() {
             ComplicationType.MONOCHROMATIC_IMAGE,
             ComplicationType.SMALL_IMAGE
         ),
-        DefaultComplicationDataSourcePolicy(SystemDataSources.DATA_SOURCE_DAY_OF_WEEK),
+        DefaultComplicationDataSourcePolicy(
+            SystemDataSources.DATA_SOURCE_DAY_OF_WEEK,
+            ComplicationType.SHORT_TEXT
+        ),
         ComplicationSlotBounds(RectF(0.2f, 0.7f, 0.4f, 0.9f))
-    ).setDefaultDataSourceType(ComplicationType.SHORT_TEXT)
-        .build()
+    ).build()
 
     public override fun createUserStyleSchema() = UserStyleSchema(listOf(colorStyleSetting))
 

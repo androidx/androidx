@@ -97,7 +97,8 @@ package androidx.wear.watchface.control.data {
 package androidx.wear.watchface.data {
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @androidx.versionedparcelable.VersionedParcelize public final class ComplicationSlotMetadataWireFormat implements android.os.Parcelable androidx.versionedparcelable.VersionedParcelable {
-    ctor public ComplicationSlotMetadataWireFormat(int, int[], android.graphics.RectF![], int, @android.support.wearable.complications.ComplicationData.ComplicationType int[], java.util.List<android.content.ComponentName!>?, int, @android.support.wearable.complications.ComplicationData.ComplicationType int, boolean, boolean, android.os.Bundle);
+    ctor public ComplicationSlotMetadataWireFormat(int, int[], android.graphics.RectF![], int, @android.support.wearable.complications.ComplicationData.ComplicationType int[], java.util.List<android.content.ComponentName!>?, int, @android.support.wearable.complications.ComplicationData.ComplicationType int, @android.support.wearable.complications.ComplicationData.ComplicationType int, @android.support.wearable.complications.ComplicationData.ComplicationType int, boolean, boolean, android.os.Bundle);
+    ctor @Deprecated public ComplicationSlotMetadataWireFormat(int, int[], android.graphics.RectF![], int, @android.support.wearable.complications.ComplicationData.ComplicationType int[], java.util.List<android.content.ComponentName!>?, int, @android.support.wearable.complications.ComplicationData.ComplicationType int, boolean, boolean, android.os.Bundle);
     method public int describeContents();
     method public int getBoundsType();
     method public android.graphics.RectF![] getComplicationBounds();
@@ -107,6 +108,8 @@ package androidx.wear.watchface.data {
     method public java.util.List<android.content.ComponentName!>? getDefaultDataSourcesToTry();
     method public int getFallbackSystemDataSource();
     method public int getId();
+    method @android.support.wearable.complications.ComplicationData.ComplicationType public int getPrimaryDataSourceDefaultType();
+    method @android.support.wearable.complications.ComplicationData.ComplicationType public int getSecondaryDataSourceDefaultType();
     method @android.support.wearable.complications.ComplicationData.ComplicationType public int[] getSupportedTypes();
     method public boolean isFixedComplicationDataSource();
     method public boolean isInitiallyEnabled();
@@ -115,15 +118,20 @@ package androidx.wear.watchface.data {
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @androidx.versionedparcelable.VersionedParcelize public final class ComplicationStateWireFormat implements android.os.Parcelable androidx.versionedparcelable.VersionedParcelable {
-    ctor public ComplicationStateWireFormat(android.graphics.Rect, int, @android.support.wearable.complications.ComplicationData.ComplicationType int[], java.util.List<android.content.ComponentName!>?, int, @android.support.wearable.complications.ComplicationData.ComplicationType int, boolean, boolean, @android.support.wearable.complications.ComplicationData.ComplicationType int, boolean, android.os.Bundle);
+    ctor public ComplicationStateWireFormat(android.graphics.Rect, int, @android.support.wearable.complications.ComplicationData.ComplicationType int[], java.util.List<android.content.ComponentName!>?, int, @android.support.wearable.complications.ComplicationData.ComplicationType int, @android.support.wearable.complications.ComplicationData.ComplicationType int, @android.support.wearable.complications.ComplicationData.ComplicationType int, boolean, boolean, @android.support.wearable.complications.ComplicationData.ComplicationType int, boolean, android.os.Bundle);
+    ctor @Deprecated public ComplicationStateWireFormat(android.graphics.Rect, int, @android.support.wearable.complications.ComplicationData.ComplicationType int[], java.util.List<android.content.ComponentName!>?, int, @android.support.wearable.complications.ComplicationData.ComplicationType int, boolean, boolean, @android.support.wearable.complications.ComplicationData.ComplicationType int, boolean, android.os.Bundle);
     method public int describeContents();
     method public android.graphics.Rect getBounds();
     method public int getBoundsType();
     method public android.os.Bundle getComplicationConfigExtras();
     method @android.support.wearable.complications.ComplicationData.ComplicationType public int getCurrentType();
-    method @android.support.wearable.complications.ComplicationData.ComplicationType public int getDefaultProviderType();
-    method public java.util.List<android.content.ComponentName!>? getDefaultProvidersToTry();
+    method @android.support.wearable.complications.ComplicationData.ComplicationType public int getDefaultDataSourceType();
+    method public java.util.List<android.content.ComponentName!>? getDefaultDataSourcesToTry();
+    method @Deprecated @android.support.wearable.complications.ComplicationData.ComplicationType public int getDefaultProviderType();
+    method @Deprecated public java.util.List<android.content.ComponentName!>? getDefaultProvidersToTry();
     method public int getFallbackSystemProvider();
+    method @android.support.wearable.complications.ComplicationData.ComplicationType public int getPrimaryDataSourceDefaultType();
+    method @android.support.wearable.complications.ComplicationData.ComplicationType public int getSecondaryDataSourceDefaultType();
     method @android.support.wearable.complications.ComplicationData.ComplicationType public int[] getSupportedTypes();
     method public boolean isEnabled();
     method public boolean isFixedComplicationProvider();

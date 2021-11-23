@@ -95,10 +95,6 @@ internal val RIGHT_CIRCLE_COMPLICATION_CENTER_FRACTION = PointF(0.823f, 0.5f)
 internal val MARGIN_FRACTION_WITHOUT_COMPLICATION = Vec2f(0.2f, 0.2f)
 internal val MARGIN_FRACTION_WITH_COMPLICATION = Vec2f(0.4f, 0.4f)
 
-// If the lightness in HSL color space is greater than this threshold, this color would be regarded
-// as a light color.
-internal const val BACKGROUND_COLOR_LIGHTNESS_THRESHOLD = 0.5f
-
 enum class ComplicationID {
     UPPER,
     RIGHT,
@@ -465,10 +461,6 @@ internal fun createBoundsRect(
     )
 }
 
-fun Byte.toUnsigned(): Int {
-    return if (this < 0) this + 256 else this.toInt()
-}
-
 /** A simple example canvas based digital watch face. */
 class ExampleCanvasDigitalWatchFaceService : WatchFaceService() {
     // Lazy because the context isn't initialized til later.
@@ -527,15 +519,17 @@ class ExampleCanvasDigitalWatchFaceService : WatchFaceService() {
             ComplicationType.MONOCHROMATIC_IMAGE,
             ComplicationType.SMALL_IMAGE
         ),
-        DefaultComplicationDataSourcePolicy(SystemDataSources.DATA_SOURCE_WATCH_BATTERY),
+        DefaultComplicationDataSourcePolicy(
+            SystemDataSources.DATA_SOURCE_WATCH_BATTERY,
+            ComplicationType.SHORT_TEXT
+        ),
         ComplicationSlotBounds(
             createBoundsRect(
                 LEFT_CIRCLE_COMPLICATION_CENTER_FRACTION,
                 CIRCLE_COMPLICATION_DIAMETER_FRACTION
             )
         )
-    ).setDefaultDataSourceType(ComplicationType.SHORT_TEXT)
-        .build()
+    ).build()
 
     private val rightComplication = ComplicationSlot.createRoundRectComplicationSlotBuilder(
         ComplicationID.RIGHT.ordinal,
@@ -546,15 +540,17 @@ class ExampleCanvasDigitalWatchFaceService : WatchFaceService() {
             ComplicationType.MONOCHROMATIC_IMAGE,
             ComplicationType.SMALL_IMAGE
         ),
-        DefaultComplicationDataSourcePolicy(SystemDataSources.DATA_SOURCE_DATE),
+        DefaultComplicationDataSourcePolicy(
+            SystemDataSources.DATA_SOURCE_DATE,
+            ComplicationType.SHORT_TEXT
+        ),
         ComplicationSlotBounds(
             createBoundsRect(
                 RIGHT_CIRCLE_COMPLICATION_CENTER_FRACTION,
                 CIRCLE_COMPLICATION_DIAMETER_FRACTION
             )
         )
-    ).setDefaultDataSourceType(ComplicationType.SHORT_TEXT)
-        .build()
+    ).build()
 
     private val upperAndLowerComplicationTypes = listOf(
         ComplicationType.LONG_TEXT,
@@ -568,7 +564,10 @@ class ExampleCanvasDigitalWatchFaceService : WatchFaceService() {
         ComplicationID.UPPER.ordinal,
         canvasComplicationFactory,
         upperAndLowerComplicationTypes,
-        DefaultComplicationDataSourcePolicy(SystemDataSources.DATA_SOURCE_WORLD_CLOCK),
+        DefaultComplicationDataSourcePolicy(
+            SystemDataSources.DATA_SOURCE_WORLD_CLOCK,
+            ComplicationType.LONG_TEXT
+        ),
         ComplicationSlotBounds(
             ComplicationType.values().associateWith {
                 if (it == ComplicationType.LONG_TEXT) {
@@ -584,14 +583,16 @@ class ExampleCanvasDigitalWatchFaceService : WatchFaceService() {
                 }
             }
         )
-    ).setDefaultDataSourceType(ComplicationType.LONG_TEXT)
-        .build()
+    ).build()
 
     private val lowerComplication = ComplicationSlot.createRoundRectComplicationSlotBuilder(
         ComplicationID.LOWER.ordinal,
         canvasComplicationFactory,
         upperAndLowerComplicationTypes,
-        DefaultComplicationDataSourcePolicy(SystemDataSources.DATA_SOURCE_NEXT_EVENT),
+        DefaultComplicationDataSourcePolicy(
+            SystemDataSources.DATA_SOURCE_NEXT_EVENT,
+            ComplicationType.LONG_TEXT
+        ),
         ComplicationSlotBounds(
             ComplicationType.values().associateWith {
                 if (it == ComplicationType.LONG_TEXT) {
@@ -607,8 +608,7 @@ class ExampleCanvasDigitalWatchFaceService : WatchFaceService() {
                 }
             }
         )
-    ).setDefaultDataSourceType(ComplicationType.LONG_TEXT)
-        .build()
+    ).build()
 
     private val backgroundComplication = ComplicationSlot.createBackgroundComplicationSlotBuilder(
         ComplicationID.BACKGROUND.ordinal,
