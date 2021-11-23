@@ -1,17 +1,4 @@
 // Signature format: 4.0
-package androidx.appsearch.app {
-
-  @RequiresApi(api=android.os.Build.VERSION_CODES.LOLLIPOP) public class ShortcutAdapter {
-    method public static androidx.core.content.pm.ShortcutInfoCompat.Builder createShortcutBuilderFromDocument(android.content.Context, Object) throws androidx.appsearch.exceptions.AppSearchException;
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static androidx.appsearch.app.GenericDocument? extractDocument(androidx.core.content.pm.ShortcutInfoCompat);
-    method public static android.net.Uri getDocumentUri(Object) throws androidx.appsearch.exceptions.AppSearchException;
-    method public static android.net.Uri getDocumentUri(String);
-    field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static final String DEFAULT_DATABASE = "__shortcut_adapter_db__";
-    field public static final String DEFAULT_NAMESPACE = "__shortcut_adapter_ns__";
-  }
-
-}
-
 package androidx.appsearch.builtintypes {
 
   @androidx.appsearch.annotation.Document public class Timer {
