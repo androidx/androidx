@@ -18,16 +18,46 @@ package androidx.collection
 
 import kotlin.jvm.JvmOverloads
 
+/**
+ * ArraySet is a generic set data structure that is designed to be more memory efficient than a
+ * traditional [HashSet].  The design is very similar to `ArrayMap`, with all of the caveats
+ * described there.  This implementation is separate from `ArrayMap`, however, so the array
+ * contains only one item for each entry in the set (instead of a pair for a mapping).
+ *
+ * Note that this implementation is not intended to be appropriate for data structures
+ * that may contain large numbers of items.  It is generally slower than a traditional
+ * [HashSet], since lookups require a binary search and adds and removes require inserting
+ * and deleting entries in the array.  For containers holding up to hundreds of items,
+ * the performance difference is not significant, less than 50%.
+ *
+ * Because this container is intended to better balance memory use, unlike most other
+ * standard Java containers it will shrink its array as items are removed from it.  Currently
+ * you have no control over this shrinking -- if you set a capacity and then remove an
+ * item, it may reduce the capacity to better match the current size.  In the future an
+ * explicit call to set the capacity should turn off this aggressive shrinking behavior.
+ *
+ * This structure is *NOT* thread-safe.
+ *
+ * @param capacity initial capacity of the set.  The default capacity of an array set is 0, and it
+ * will grow once items are added to it.
+ */
 class ArraySet<E>
 @JvmOverloads constructor(
     capacity: Int = 0
 ) : MutableCollection<E>, MutableSet<E> {
+
+    /**
+     * Create a new ArraySet with the elements from the given ArraySet.
+     */
     constructor(set: ArraySet<out E>?) : this(0) {
         if (set != null) {
             addAll(set)
         }
     }
 
+    /**
+     * Create a new ArraySet with the elements from the given [Collection].
+     */
     constructor(set: Collection<E>?) : this(0) {
         if (set != null) {
             addAll(set)
@@ -50,12 +80,20 @@ class ArraySet<E>
 
     private var _size: Int = 0
 
+    /**
+     * The number of items in this set.
+     */
     @Suppress("NON_FINAL_MEMBER_IN_FINAL_CLASS") // For japicmp.
     open override val size: Int get() = _size
 
+    /**
+     * Return `true` if the set contains no items.
+     */
     override fun isEmpty(): Boolean = _size == 0
 
     /**
+     * Ensure the set can hold at least [minimumCapacity] items.
+     *
      * @throws ConcurrentModificationException if the set has been concurrently modified.
      */
     @Suppress("NON_FINAL_MEMBER_IN_FINAL_CLASS") // For japicmp.
@@ -70,6 +108,12 @@ class ArraySet<E>
         }
     }
 
+    /**
+     * Returns the index of [element] in the set.
+     *
+     * @param element The value to search for.
+     * @return the index of [element] if it exists, else a negative integer.
+     */
     @Suppress("NON_FINAL_MEMBER_IN_FINAL_CLASS") // For japicmp.
     open fun indexOf(element: E): Int {
         return if (element == null) {
@@ -132,10 +176,21 @@ class ArraySet<E>
         return end.inv()
     }
 
+    /**
+     * Return the value at the given index in the array.
+     *
+     * @param index The desired index, must be between 0 and [size]-1.
+     * @return the value stored at [index].
+     */
     @Suppress("NON_FINAL_MEMBER_IN_FINAL_CLASS") // For japicmp.
     open fun valueAt(index: Int): E? = values[index]
 
     /**
+     * Adds the specified [element] to this set. The set is not modified if it
+     * already contains [element].
+     *
+     * @param element the object to add.
+     * @return `true` if this set is modified, `false` otherwise.
      * @throws ConcurrentModificationException if the set has been concurrently modified.
      */
     override fun add(element: E): Boolean {
@@ -194,6 +249,10 @@ class ArraySet<E>
         return true
     }
 
+    /**
+     * [add] all values in [elements]
+     * @param elements The collection whose contents are to be added.
+     */
     override fun addAll(elements: Collection<E>): Boolean {
         ensureCapacity(_size + elements.size)
         var added = false
@@ -203,6 +262,10 @@ class ArraySet<E>
         return added
     }
 
+    /**
+     * [add] all values in [elements]
+     * @param elements The array whose contents are to be added.
+     */
     @Suppress("NON_FINAL_MEMBER_IN_FINAL_CLASS") // For japicmp.
     open fun addAll(elements: ArraySet<E>) {
         val arraySize = elements._size
@@ -219,6 +282,12 @@ class ArraySet<E>
         }
     }
 
+    /**
+     * Removes the specified [element] from this set.
+     *
+     * @param element the object to remove.
+     * @return `true` if this set is modified, `false` otherwise.
+     */
     override fun remove(element: E): Boolean {
         val index = indexOf(element)
         if (index >= 0) {
@@ -229,6 +298,10 @@ class ArraySet<E>
     }
 
     /**
+     * Remove the element at the given [index].
+     * @param index The desired index, must be between 0 and [size]-1.
+     * @return Returns the value that was stored at this [index].
+     *
      * @throws ConcurrentModificationException if the set has been concurrently modified.
      */
     @Suppress("NON_FINAL_MEMBER_IN_FINAL_CLASS") // For japicmp.
@@ -304,6 +377,10 @@ class ArraySet<E>
         return value
     }
 
+    /**
+     * [remove] all values in [elements]
+     * @return `true` if any values were removed from the array set, else `false`.
+     */
     override fun removeAll(elements: Collection<E>): Boolean {
         var removed = false
         for (element in elements) {
@@ -312,6 +389,10 @@ class ArraySet<E>
         return removed
     }
 
+    /**
+     * [remove] all values in [elements]
+     * @return `true` if any values were removed from the array set, else `false`.
+     */
     @Suppress("NON_FINAL_MEMBER_IN_FINAL_CLASS") // For japicmp.
     open fun removeAll(elements: ArraySet<out E>): Boolean {
         // TODO: If array is sufficiently large, a marking approach might be beneficial. In a first
@@ -327,6 +408,9 @@ class ArraySet<E>
         return originalSize != _size
     }
 
+    /**
+     * Make the set empty.  All storage is released.
+     */
     override fun clear() {
         hashes = EMPTY_INTS
         @Suppress("UNCHECKED_CAST") // Empty array.
@@ -334,6 +418,12 @@ class ArraySet<E>
         _size = 0
     }
 
+    /**
+     * Remove all values in the array set that do *not* exist in the given [elements].
+     * @param elements The collection whose contents are to be used to determine which
+     * values to keep.
+     * @return `true` if any values were removed from the array set, else `false`.
+     */
     override fun retainAll(elements: Collection<E>): Boolean {
         var removed = false
         for (i in 0 until _size) {
@@ -345,12 +435,31 @@ class ArraySet<E>
         return removed
     }
 
+    /**
+     * Check whether a value exists in the set.
+     *
+     * @param element The value to search for.
+     * @return whether [element] exists in the set.
+     */
     override operator fun contains(element: E): Boolean = indexOf(element) >= 0
 
+    /**
+     * Determine if the array set contains all of the values in the given collection.
+     *
+     * @param elements The collection whose contents are to be checked against.
+     * @return `true` if this array set contains a value for every entry
+     * in [elements], else `false`.
+     */
     override fun containsAll(elements: Collection<E>): Boolean {
         return elements.all { it in this }
     }
 
+    /**
+     * Return an [MutableIterator] over all values in the set.
+     *
+     * *Note:* this is a less efficient way to access the array contents compared to
+     * looping from 0 until [size] and calling [valueAt].
+     */
     override fun iterator(): MutableIterator<E> {
         return Iterator(_size)
     }
@@ -365,6 +474,10 @@ class ArraySet<E>
     }
 
     private companion object {
+        /**
+         * The minimum amount by which the capacity of a [ArraySet] will increase.
+         * This is tuned to be relatively space-efficient.
+         */
         private const val BASE_SIZE = 4
         private const val BASE_SIZE_2X = BASE_SIZE * 2
     }
