@@ -30,7 +30,6 @@ import androidx.camera.core.internal.CameraUseCaseAdapter
 import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.CameraXUtil
 import androidx.camera.testing.GLUtil
-import androidx.camera.video.QualitySelector.QUALITY_LOWEST
 import androidx.camera.video.VideoOutput.StreamState
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -145,7 +144,7 @@ class VideoCaptureDeviceTest {
             val targetResolution = QualitySelector.getResolution(cameraInfo, quality)
             val videoOutput = TestVideoOutput(
                 mediaSpec = MediaSpec.builder().configureVideo {
-                    it.setQualitySelector(QualitySelector.of(quality))
+                    it.setQualitySelector(QualitySelector.from(quality))
                 }.build()
             )
             val videoCapture = VideoCapture.withOutput(videoOutput)
@@ -178,7 +177,7 @@ class VideoCaptureDeviceTest {
         // Cuttlefish API 29 has inconsistent resolution issue. See b/184015059.
         assumeFalse(Build.MODEL.contains("Cuttlefish") && Build.VERSION.SDK_INT == 29)
 
-        val targetResolution = QualitySelector.getResolution(cameraInfo, QUALITY_LOWEST)
+        val targetResolution = QualitySelector.getResolution(cameraInfo, Quality.LOWEST)
 
         arrayOf(
             Surface.ROTATION_0, Surface.ROTATION_90, Surface.ROTATION_180, Surface.ROTATION_270
@@ -186,7 +185,7 @@ class VideoCaptureDeviceTest {
             // Arrange.
             val videoOutput = TestVideoOutput(
                 mediaSpec = MediaSpec.builder().configureVideo {
-                    it.setQualitySelector(QualitySelector.of(QUALITY_LOWEST))
+                    it.setQualitySelector(QualitySelector.from(Quality.LOWEST))
                 }.build()
             )
             val videoCapture = VideoCapture.withOutput(videoOutput)

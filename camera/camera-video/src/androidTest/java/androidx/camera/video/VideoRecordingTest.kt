@@ -205,7 +205,7 @@ class VideoRecordingTest(
             }
 
             val recorder = Recorder.Builder()
-                .setQualitySelector(QualitySelector.of(quality)).build()
+                .setQualitySelector(QualitySelector.from(quality)).build()
 
             val videoCapture = VideoCapture.withOutput(recorder)
 

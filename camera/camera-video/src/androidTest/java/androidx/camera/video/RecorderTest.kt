@@ -135,14 +135,14 @@ class RecorderTest {
         val cameraInfo = cameraUseCaseAdapter.cameraInfo
         val candidates = mutableSetOf<Size>().apply {
             if (testName.methodName == "setFileSizeLimit") {
-                QualitySelector.getResolution(cameraInfo, QualitySelector.QUALITY_FHD)
+                QualitySelector.getResolution(cameraInfo, Quality.FHD)
                     ?.let { add(it) }
-                QualitySelector.getResolution(cameraInfo, QualitySelector.QUALITY_HD)
+                QualitySelector.getResolution(cameraInfo, Quality.HD)
                     ?.let { add(it) }
-                QualitySelector.getResolution(cameraInfo, QualitySelector.QUALITY_SD)
+                QualitySelector.getResolution(cameraInfo, Quality.SD)
                     ?.let { add(it) }
             }
-            QualitySelector.getResolution(cameraInfo, QualitySelector.QUALITY_LOWEST)
+            QualitySelector.getResolution(cameraInfo, Quality.LOWEST)
                 ?.let { add(it) }
         }
         assumeTrue(candidates.isNotEmpty())
@@ -946,7 +946,7 @@ class RecorderTest {
 
     @Test
     fun optionsOverridesDefaults() {
-        val qualitySelector = QualitySelector.of(QualitySelector.QUALITY_HIGHEST)
+        val qualitySelector = QualitySelector.from(Quality.HIGHEST)
         val recorder = Recorder.Builder()
             .setQualitySelector(qualitySelector)
             .build()
