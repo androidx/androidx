@@ -26,6 +26,7 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.takeWhile
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -196,6 +197,8 @@ public class CachedPageEventFlowLeakTest {
         }
     }
 
+    // Broken: b/206981029
+    @Ignore
     @Test
     public fun dontLeakPreviousPageInfoWithCache_stillCollecting() {
         val scope = CoroutineScope(EmptyCoroutineContext)
