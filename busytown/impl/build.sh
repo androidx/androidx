@@ -19,6 +19,10 @@ fi
 mkdir -p "$DIST_DIR"
 export DIST_DIR="$DIST_DIR"
 
+if [ "$CHANGE_INFO" != "" ]; then
+  cp "$CHANGE_INFO" "$DIST_DIR/"
+fi
+
 # parse arguments
 if [ "$1" == "--diagnose" ]; then
   DIAGNOSE=true
