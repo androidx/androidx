@@ -270,6 +270,7 @@ public final class ComplicationStateWireFormat implements VersionedParcelable, P
 
     public static final Parcelable.Creator<ComplicationStateWireFormat> CREATOR =
             new Parcelable.Creator<ComplicationStateWireFormat>() {
+                @SuppressWarnings("deprecation")
                 @Override
                 public ComplicationStateWireFormat createFromParcel(Parcel source) {
                     return ParcelUtils.fromParcelable(

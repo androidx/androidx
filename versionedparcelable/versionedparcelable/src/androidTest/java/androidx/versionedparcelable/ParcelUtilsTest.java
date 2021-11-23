@@ -37,6 +37,7 @@ import org.junit.runner.RunWith;
 @SmallTest
 public class ParcelUtilsTest {
 
+    @SuppressWarnings("deprecation")
     @Test
     public void testBundlingWithoutCrash() {
         Bundle b = new Bundle();
@@ -54,6 +55,7 @@ public class ParcelUtilsTest {
         assertNotNull(ParcelUtils.getVersionedParcelable(after, "myKey"));
     }
 
+    @SuppressWarnings("deprecation")
     @Test(expected = BadParcelableException.class)
     public void testBundlingExpectedCrash() {
         Bundle b = new Bundle();

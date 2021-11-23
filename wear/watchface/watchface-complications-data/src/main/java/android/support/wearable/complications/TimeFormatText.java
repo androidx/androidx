@@ -232,6 +232,7 @@ public final class TimeFormatText implements TimeDependentText {
         dest.writeSerializable(this.mTimeZone);
     }
 
+    @SuppressWarnings("deprecation")
     protected TimeFormatText(@NonNull Parcel in) {
         this.mDateFormat = (SimpleDateFormat) in.readSerializable();
         this.mStyle = in.readInt();

@@ -2144,6 +2144,7 @@ public class MediaSessionCompat {
 
         public static final Parcelable.Creator<Token> CREATOR
                 = new Parcelable.Creator<Token>() {
+                    @SuppressWarnings("deprecation")
                     @Override
                     public Token createFromParcel(Parcel in) {
                         Object inner;
