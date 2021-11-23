@@ -2447,32 +2447,32 @@ package androidx.core.view {
 
   public class AccessibilityDelegateCompat {
     ctor public AccessibilityDelegateCompat();
-    ctor @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public AccessibilityDelegateCompat(android.view.View.AccessibilityDelegate!);
-    method public boolean dispatchPopulateAccessibilityEvent(android.view.View!, android.view.accessibility.AccessibilityEvent!);
-    method public androidx.core.view.accessibility.AccessibilityNodeProviderCompat! getAccessibilityNodeProvider(android.view.View!);
-    method public void onInitializeAccessibilityEvent(android.view.View!, android.view.accessibility.AccessibilityEvent!);
-    method public void onInitializeAccessibilityNodeInfo(android.view.View!, androidx.core.view.accessibility.AccessibilityNodeInfoCompat!);
-    method public void onPopulateAccessibilityEvent(android.view.View!, android.view.accessibility.AccessibilityEvent!);
-    method public boolean onRequestSendAccessibilityEvent(android.view.ViewGroup!, android.view.View!, android.view.accessibility.AccessibilityEvent!);
-    method public boolean performAccessibilityAction(android.view.View!, int, android.os.Bundle!);
-    method public void sendAccessibilityEvent(android.view.View!, int);
-    method public void sendAccessibilityEventUnchecked(android.view.View!, android.view.accessibility.AccessibilityEvent!);
+    ctor @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public AccessibilityDelegateCompat(android.view.View.AccessibilityDelegate);
+    method public boolean dispatchPopulateAccessibilityEvent(android.view.View, android.view.accessibility.AccessibilityEvent);
+    method public androidx.core.view.accessibility.AccessibilityNodeProviderCompat? getAccessibilityNodeProvider(android.view.View);
+    method public void onInitializeAccessibilityEvent(android.view.View, android.view.accessibility.AccessibilityEvent);
+    method public void onInitializeAccessibilityNodeInfo(android.view.View, androidx.core.view.accessibility.AccessibilityNodeInfoCompat);
+    method public void onPopulateAccessibilityEvent(android.view.View, android.view.accessibility.AccessibilityEvent);
+    method public boolean onRequestSendAccessibilityEvent(android.view.ViewGroup, android.view.View, android.view.accessibility.AccessibilityEvent);
+    method public boolean performAccessibilityAction(android.view.View, int, android.os.Bundle);
+    method public void sendAccessibilityEvent(android.view.View, int);
+    method public void sendAccessibilityEventUnchecked(android.view.View, android.view.accessibility.AccessibilityEvent);
   }
 
   public abstract class ActionProvider {
-    ctor public ActionProvider(android.content.Context!);
-    method public android.content.Context! getContext();
+    ctor public ActionProvider(android.content.Context);
+    method public android.content.Context getContext();
     method public boolean hasSubMenu();
     method public boolean isVisible();
-    method public abstract android.view.View! onCreateActionView();
-    method public android.view.View! onCreateActionView(android.view.MenuItem!);
+    method public abstract android.view.View onCreateActionView();
+    method public android.view.View onCreateActionView(android.view.MenuItem);
     method public boolean onPerformDefaultAction();
-    method public void onPrepareSubMenu(android.view.SubMenu!);
+    method public void onPrepareSubMenu(android.view.SubMenu);
     method public boolean overridesItemVisibility();
     method public void refreshVisibility();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void reset();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void setSubUiVisibilityListener(androidx.core.view.ActionProvider.SubUiVisibilityListener!);
-    method public void setVisibilityListener(androidx.core.view.ActionProvider.VisibilityListener!);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void setSubUiVisibilityListener(androidx.core.view.ActionProvider.SubUiVisibilityListener?);
+    method public void setVisibilityListener(androidx.core.view.ActionProvider.VisibilityListener?);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void subUiVisibilityChanged(boolean);
   }
 
@@ -2533,7 +2533,7 @@ package androidx.core.view {
   }
 
   public final class DisplayCutoutCompat {
-    ctor public DisplayCutoutCompat(android.graphics.Rect!, java.util.List<android.graphics.Rect!>!);
+    ctor public DisplayCutoutCompat(android.graphics.Rect?, java.util.List<android.graphics.Rect!>?);
     ctor public DisplayCutoutCompat(androidx.core.graphics.Insets, android.graphics.Rect?, android.graphics.Rect?, android.graphics.Rect?, android.graphics.Rect?, androidx.core.graphics.Insets);
     method public java.util.List<android.graphics.Rect!> getBoundingRects();
     method public int getSafeInsetBottom();
@@ -2545,20 +2545,20 @@ package androidx.core.view {
 
   public final class DragAndDropPermissionsCompat {
     method public void release();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static androidx.core.view.DragAndDropPermissionsCompat? request(android.app.Activity!, android.view.DragEvent!);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static androidx.core.view.DragAndDropPermissionsCompat? request(android.app.Activity, android.view.DragEvent);
   }
 
   public class DragStartHelper {
-    ctor public DragStartHelper(android.view.View!, androidx.core.view.DragStartHelper.OnDragStartListener!);
+    ctor public DragStartHelper(android.view.View, androidx.core.view.DragStartHelper.OnDragStartListener);
     method public void attach();
     method public void detach();
-    method public void getTouchPosition(android.graphics.Point!);
-    method public boolean onLongClick(android.view.View!);
-    method public boolean onTouch(android.view.View!, android.view.MotionEvent!);
+    method public void getTouchPosition(android.graphics.Point);
+    method public boolean onLongClick(android.view.View);
+    method public boolean onTouch(android.view.View, android.view.MotionEvent);
   }
 
   public static interface DragStartHelper.OnDragStartListener {
-    method public boolean onDragStart(android.view.View!, androidx.core.view.DragStartHelper!);
+    method public boolean onDragStart(android.view.View, androidx.core.view.DragStartHelper);
   }
 
   public final class GestureDetectorCompat {
@@ -3900,9 +3900,9 @@ package androidx.core.view.accessibility {
 package androidx.core.view.animation {
 
   public final class PathInterpolatorCompat {
-    method public static android.view.animation.Interpolator! create(android.graphics.Path!);
-    method public static android.view.animation.Interpolator! create(float, float);
-    method public static android.view.animation.Interpolator! create(float, float, float, float);
+    method public static android.view.animation.Interpolator create(android.graphics.Path);
+    method public static android.view.animation.Interpolator create(float, float);
+    method public static android.view.animation.Interpolator create(float, float, float, float);
   }
 
 }
