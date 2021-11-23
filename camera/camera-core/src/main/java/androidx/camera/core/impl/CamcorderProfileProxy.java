@@ -16,7 +16,13 @@
 
 package androidx.camera.core.impl;
 
-import static android.media.MediaRecorder.VideoEncoder.DEFAULT;
+import static android.media.MediaRecorder.AudioEncoder.AAC;
+import static android.media.MediaRecorder.AudioEncoder.AAC_ELD;
+import static android.media.MediaRecorder.AudioEncoder.AMR_NB;
+import static android.media.MediaRecorder.AudioEncoder.AMR_WB;
+import static android.media.MediaRecorder.AudioEncoder.HE_AAC;
+import static android.media.MediaRecorder.AudioEncoder.OPUS;
+import static android.media.MediaRecorder.AudioEncoder.VORBIS;
 import static android.media.MediaRecorder.VideoEncoder.H263;
 import static android.media.MediaRecorder.VideoEncoder.H264;
 import static android.media.MediaRecorder.VideoEncoder.HEVC;
@@ -24,7 +30,9 @@ import static android.media.MediaRecorder.VideoEncoder.MPEG_4_SP;
 import static android.media.MediaRecorder.VideoEncoder.VP8;
 
 import android.media.CamcorderProfile;
+import android.media.MediaCodecInfo;
 import android.media.MediaFormat;
+import android.media.MediaRecorder;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
@@ -44,9 +52,18 @@ import java.lang.annotation.RetentionPolicy;
 @AutoValue
 public abstract class CamcorderProfileProxy {
 
+    /** Constant representing no codec profile. */
+    public static int CODEC_PROFILE_NONE = -1;
+
     @Retention(RetentionPolicy.SOURCE)
-    @IntDef({H263, H264, HEVC, VP8, MPEG_4_SP, DEFAULT})
+    @IntDef({H263, H264, HEVC, VP8, MPEG_4_SP, MediaRecorder.VideoEncoder.DEFAULT})
     @interface VideoEncoder {
+    }
+
+    @Retention(RetentionPolicy.SOURCE)
+    @IntDef({AAC, AAC_ELD, AMR_NB, AMR_WB, HE_AAC, OPUS, VORBIS,
+            MediaRecorder.AudioEncoder.DEFAULT})
+    @interface AudioEncoder {
     }
 
     /** Creates a CamcorderProfileProxy instance. */
@@ -59,7 +76,7 @@ public abstract class CamcorderProfileProxy {
             int videoFrameRate,
             int videoFrameWidth,
             int videoFrameHeight,
-            int audioCodec,
+            @AudioEncoder int audioCodec,
             int audioBitRate,
             int audioSampleRate,
             int audioChannels) {
@@ -125,6 +142,7 @@ public abstract class CamcorderProfileProxy {
     public abstract int getVideoFrameHeight();
 
     /** @see CamcorderProfile#audioCodec */
+    @AudioEncoder
     public abstract int getAudioCodec();
 
     /** @see CamcorderProfile#audioBitRate */
@@ -158,10 +176,66 @@ public abstract class CamcorderProfileProxy {
                 return MediaFormat.MIMETYPE_VIDEO_VP8;
             case MPEG_4_SP:
                 return MediaFormat.MIMETYPE_VIDEO_MPEG4;
-            case DEFAULT:
+            case MediaRecorder.VideoEncoder.DEFAULT:
                 break;
         }
 
         return null;
+    }
+
+    /**
+     * Returns a mime-type string for the audio codec type returned by {@link #getAudioCodec()}.
+     *
+     * @return A mime-type string or {@code null} if the codec type is
+     * {@link android.media.MediaRecorder.AudioEncoder#DEFAULT}, as this type is under-defined
+     * and cannot be resolved to a specific mime type without more information.
+     */
+    @Nullable
+    public String getAudioCodecMimeType() {
+        // Mime-type definitions taken from
+        // frameworks/av/media/libstagefright/foundation/MediaDefs.cpp
+        switch (getAudioCodec()) {
+            case AAC: // Should use aac-profile LC
+            case HE_AAC: // Should use aac-profile HE
+            case AAC_ELD: // Should use aac-profile ELD
+                return MediaFormat.MIMETYPE_AUDIO_AAC;
+            case AMR_NB:
+                return MediaFormat.MIMETYPE_AUDIO_AMR_NB;
+            case AMR_WB:
+                return MediaFormat.MIMETYPE_AUDIO_AMR_WB;
+            case OPUS:
+                return MediaFormat.MIMETYPE_AUDIO_OPUS;
+            case VORBIS:
+                return MediaFormat.MIMETYPE_AUDIO_VORBIS;
+            case MediaRecorder.AudioEncoder.DEFAULT:
+                break;
+        }
+
+        return null;
+    }
+
+    /**
+     * Returns the required audio profile for the audio encoder given by {@link #getAudioCodec()}.
+     *
+     * <p>For example, this can be used to differentiate between AAC encoders
+     * {@link android.media.MediaRecorder.AudioEncoder#AAC},
+     * {@link android.media.MediaRecorder.AudioEncoder#AAC_ELD},
+     * and {@link android.media.MediaRecorder.AudioEncoder#HE_AAC}.
+     * Should be used with the {@link MediaCodecInfo.CodecProfileLevel#profile} field.
+     *
+     * @return The profile required by the audio codec. If no profile is required, returns
+     * {@link #CODEC_PROFILE_NONE}.
+     */
+    public int getRequiredAudioProfile() {
+        switch (getAudioCodec()) {
+            case AAC:
+                return MediaCodecInfo.CodecProfileLevel.AACObjectLC;
+            case AAC_ELD:
+                return MediaCodecInfo.CodecProfileLevel.AACObjectELD;
+            case HE_AAC:
+                return MediaCodecInfo.CodecProfileLevel.AACObjectHE;
+            default:
+                return CODEC_PROFILE_NONE;
+        }
     }
 }
