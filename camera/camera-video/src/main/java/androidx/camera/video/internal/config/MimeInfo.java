@@ -20,6 +20,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.camera.core.impl.CamcorderProfileProxy;
+import androidx.camera.video.internal.encoder.EncoderConfig;
 
 import com.google.auto.value.AutoValue;
 
@@ -39,6 +40,15 @@ public abstract class MimeInfo {
     public abstract String getMimeType();
 
     /**
+     * Returns the profile for the given mime.
+     *
+     * <p>The returned integer will generally come from
+     * {@link android.media.MediaCodecInfo.CodecProfileLevel}, or if no profile is required,
+     * {@link androidx.camera.video.internal.encoder.EncoderConfig#CODEC_PROFILE_NONE}.
+     */
+    public abstract int getProfile();
+
+    /**
      * Returns compatible {@link CamcorderProfileProxy} that can be used to resolve settings.
      *
      * <p>If no camcorder profile is provided, returns {@code null}
@@ -50,7 +60,8 @@ public abstract class MimeInfo {
     @NonNull
     public static Builder builder(@NonNull String mimeType) {
         return new AutoValue_MimeInfo.Builder()
-                .setMimeType(mimeType);
+                .setMimeType(mimeType)
+                .setProfile(EncoderConfig.CODEC_PROFILE_NONE);
     }
 
     /** A Builder for a {@link androidx.camera.video.internal.config.MimeInfo} */
@@ -60,6 +71,10 @@ public abstract class MimeInfo {
         // Package-private since this should be passed to builder factory method.
         @NonNull
         abstract Builder setMimeType(@NonNull String mimeType);
+
+        /** Sets the mime profile */
+        @NonNull
+        public abstract Builder setProfile(int profile);
 
         /** Sets a compatible camcorder profile */
         @NonNull
