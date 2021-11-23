@@ -78,6 +78,8 @@ public interface WatchFaceHostApi {
     public fun setActiveComplicationSlots(complicationSlotIds: IntArray)
 
     /**
+     * For WSL flow, not used in androidx flow.
+     *
      * Accepts a list of custom complication data sources to attempt to set as the default
      * complication data source for the specified watch face [ComplicationSlot] id. The custom
      * complication data sources are tried in turn, if the first doesn't exist then the next one

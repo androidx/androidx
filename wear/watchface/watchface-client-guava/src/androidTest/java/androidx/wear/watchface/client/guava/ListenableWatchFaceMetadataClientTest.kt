@@ -29,7 +29,6 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.wear.watchface.client.ListenableWatchFaceMetadataClient
-import androidx.wear.watchface.client.WatchFaceClientExperimental
 import androidx.wear.watchface.client.WatchFaceMetadataClient
 import androidx.wear.watchface.control.IWatchFaceInstanceServiceStub
 import androidx.wear.watchface.control.WatchFaceControlService
@@ -61,7 +60,6 @@ public class WatchFaceControlTestService : Service() {
 
 @RunWith(AndroidJUnit4::class)
 @MediumTest
-@OptIn(WatchFaceClientExperimental::class)
 public class ListenableWatchFaceMetadataClientTest {
     private val exampleWatchFaceComponentName = ComponentName(
         "androidx.wear.watchface.samples.test",
@@ -73,7 +71,7 @@ public class ListenableWatchFaceMetadataClientTest {
     @Test
     public fun getSchema() {
         val listenableFuture =
-            ListenableWatchFaceMetadataClient.createListenableWatchFaceMetadataClientImpl(
+            ListenableWatchFaceMetadataClient.createImpl(
                 context,
                 Intent(context, WatchFaceControlTestService::class.java).apply {
                     action = WatchFaceControlService.ACTION_WATCHFACE_CONTROL_SERVICE

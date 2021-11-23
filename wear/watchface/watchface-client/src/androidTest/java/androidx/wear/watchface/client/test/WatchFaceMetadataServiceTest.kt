@@ -26,7 +26,6 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.wear.watchface.complications.SystemDataSources
 import androidx.wear.watchface.complications.data.ComplicationType
-import androidx.wear.watchface.client.WatchFaceClientExperimental
 import androidx.wear.watchface.client.WatchFaceMetadataClient
 import androidx.wear.watchface.control.WatchFaceControlService
 import androidx.wear.watchface.ComplicationSlotBoundsType
@@ -40,7 +39,6 @@ import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 @MediumTest
-@OptIn(WatchFaceClientExperimental::class)
 public class WatchFaceMetadataServiceTest {
     private val exampleWatchFaceComponentName = ComponentName(
         "androidx.wear.watchface.client.test",
@@ -49,7 +47,7 @@ public class WatchFaceMetadataServiceTest {
 
     private val context = ApplicationProvider.getApplicationContext<Context>()
     private val service = runBlocking {
-        WatchFaceMetadataClient.createWatchFaceMetadataClientImpl(
+        WatchFaceMetadataClient.createImpl(
             context,
             Intent(context, WatchFaceControlTestService::class.java).apply {
                 action = WatchFaceControlService.ACTION_WATCHFACE_CONTROL_SERVICE
@@ -124,9 +122,10 @@ public class WatchFaceMetadataServiceTest {
         Truth.assertThat(
             leftComplicationMetadata.defaultDataSourcePolicy.systemDataSourceFallback
         ).isEqualTo(SystemDataSources.DATA_SOURCE_DAY_OF_WEEK)
-        Truth.assertThat(leftComplicationMetadata.defaultDataSourceType).isEqualTo(
-            ComplicationType.SHORT_TEXT
-        )
+        Truth.assertThat(
+            leftComplicationMetadata.defaultDataSourcePolicy
+                .systemDataSourceFallbackDefaultType
+        ).isEqualTo(ComplicationType.SHORT_TEXT)
         Truth.assertThat(leftComplicationMetadata.supportedTypes).containsExactly(
             ComplicationType.RANGED_VALUE,
             ComplicationType.LONG_TEXT,
@@ -148,9 +147,10 @@ public class WatchFaceMetadataServiceTest {
         Truth.assertThat(
             rightComplicationMetadata.defaultDataSourcePolicy.systemDataSourceFallback
         ).isEqualTo(SystemDataSources.DATA_SOURCE_STEP_COUNT)
-        Truth.assertThat(rightComplicationMetadata.defaultDataSourceType).isEqualTo(
-            ComplicationType.SHORT_TEXT
-        )
+        Truth.assertThat(
+            rightComplicationMetadata.defaultDataSourcePolicy
+                .systemDataSourceFallbackDefaultType
+        ).isEqualTo(ComplicationType.SHORT_TEXT)
         Truth.assertThat(rightComplicationMetadata.supportedTypes).containsExactly(
             ComplicationType.RANGED_VALUE,
             ComplicationType.LONG_TEXT,
@@ -163,7 +163,7 @@ public class WatchFaceMetadataServiceTest {
     @Test
     public fun getSchema_static_metadata() {
         runBlocking {
-            val client = WatchFaceMetadataClient.createWatchFaceMetadataClientImpl(
+            val client = WatchFaceMetadataClient.createImpl(
                 context,
                 Intent(context, WatchFaceControlTestService::class.java).apply {
                     action = WatchFaceControlService.ACTION_WATCHFACE_CONTROL_SERVICE
@@ -181,6 +181,92 @@ public class WatchFaceMetadataServiceTest {
             Truth.assertThat(schema.userStyleSettings.toString()).isEqualTo(
                 "[{TimeStyle : minimal, seconds}]"
             )
+        }
+    }
+
+    @Test
+    public fun getComplicationSlotMetadataMap_static_metadata() {
+        runBlocking {
+            val client = WatchFaceMetadataClient.createImpl(
+                context,
+                Intent(context, WatchFaceControlTestService::class.java).apply {
+                    action = WatchFaceControlService.ACTION_WATCHFACE_CONTROL_SERVICE
+                },
+                exampleWatchFaceComponentName,
+                object : WatchFaceMetadataClient.Companion.ParserProvider() {
+                    override fun getParser(
+                        context: Context,
+                        watchFaceName: ComponentName
+                    ) = context.resources.getXml(R.xml.xml_watchface)
+                }
+            )
+            val complications = client.getComplicationSlotMetadataMap()
+
+            Truth.assertThat(complications.keys).containsExactly(10, 20)
+
+            Truth.assertThat(complications[10]!!.boundsType)
+                .isEqualTo(ComplicationSlotBoundsType.ROUND_RECT)
+
+            Truth.assertThat(complications[10]!!.supportedTypes)
+                .containsExactly(
+                    ComplicationType.SHORT_TEXT,
+                    ComplicationType.RANGED_VALUE,
+                    ComplicationType.SMALL_IMAGE
+                )
+
+            Truth.assertThat(complications[10]!!.defaultDataSourcePolicy.primaryDataSource)
+                .isEqualTo(ComponentName("com.app.example1", "com.app.example1.Class"))
+
+            Truth.assertThat(
+                complications[10]!!.defaultDataSourcePolicy.primaryDataSourceDefaultType
+            ).isEqualTo(ComplicationType.SHORT_TEXT)
+
+            Truth.assertThat(complications[10]!!.defaultDataSourcePolicy.secondaryDataSource)
+                .isEqualTo(ComponentName("com.app.example2", "com.app.example2.Class"))
+
+            Truth.assertThat(
+                complications[10]!!.defaultDataSourcePolicy.secondaryDataSourceDefaultType
+            ).isEqualTo(ComplicationType.SMALL_IMAGE)
+
+            Truth.assertThat(complications[10]!!.defaultDataSourcePolicy.systemDataSourceFallback)
+                .isEqualTo(SystemDataSources.DATA_SOURCE_WATCH_BATTERY)
+
+            Truth.assertThat(
+                complications[10]!!.defaultDataSourcePolicy
+                    .systemDataSourceFallbackDefaultType
+            ).isEqualTo(ComplicationType.RANGED_VALUE)
+
+            Truth.assertThat(
+                complications[10]!!.bounds!!.perComplicationTypeBounds[ComplicationType.SHORT_TEXT]
+            ).isEqualTo(RectF(0.3f, 0.7f, 0.7f, 0.9f))
+
+            Truth.assertThat(complications[20]!!.boundsType)
+                .isEqualTo(ComplicationSlotBoundsType.BACKGROUND)
+
+            Truth.assertThat(complications[20]!!.supportedTypes)
+                .containsExactly(ComplicationType.PHOTO_IMAGE)
+
+            Truth.assertThat(complications[20]!!.defaultDataSourcePolicy.primaryDataSource)
+                .isEqualTo(ComponentName("com.package", "com.app"))
+
+            Truth.assertThat(
+                complications[20]!!.defaultDataSourcePolicy.primaryDataSourceDefaultType
+            ).isEqualTo(ComplicationType.PHOTO_IMAGE)
+
+            Truth.assertThat(complications[20]!!.defaultDataSourcePolicy.secondaryDataSource)
+                .isNull()
+
+            Truth.assertThat(
+                complications[20]!!.defaultDataSourcePolicy.secondaryDataSourceDefaultType
+            ).isNull()
+
+            Truth.assertThat(complications[20]!!.defaultDataSourcePolicy.systemDataSourceFallback)
+                .isEqualTo(SystemDataSources.DATA_SOURCE_SUNRISE_SUNSET)
+
+            Truth.assertThat(
+                complications[20]!!.defaultDataSourcePolicy
+                    .systemDataSourceFallbackDefaultType
+            ).isEqualTo(ComplicationType.PHOTO_IMAGE)
         }
     }
 }

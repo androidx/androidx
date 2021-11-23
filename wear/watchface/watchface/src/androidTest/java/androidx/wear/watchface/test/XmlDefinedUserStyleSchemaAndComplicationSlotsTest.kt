@@ -237,12 +237,17 @@ public class XmlDefinedUserStyleSchemaAndComplicationSlotsTest {
                 ComplicationType.RANGED_VALUE,
                 ComplicationType.SMALL_IMAGE
             )
-            assertThat(slotA.defaultDataSourceType).isEqualTo(ComplicationType.RANGED_VALUE)
             assertThat(slotA.defaultDataSourcePolicy.primaryDataSource).isNull()
+            assertThat(slotA.defaultDataSourcePolicy.primaryDataSourceDefaultType)
+                .isNull()
             assertThat(slotA.defaultDataSourcePolicy.secondaryDataSource).isNull()
+            assertThat(slotA.defaultDataSourcePolicy.secondaryDataSourceDefaultType)
+                .isNull()
             assertThat(slotA.defaultDataSourcePolicy.systemDataSourceFallback).isEqualTo(
                 SystemDataSources.DATA_SOURCE_WATCH_BATTERY
             )
+            assertThat(slotA.defaultDataSourcePolicy.systemDataSourceFallbackDefaultType)
+                .isEqualTo(ComplicationType.RANGED_VALUE)
             assertThat(
                 slotA.complicationSlotBounds.perComplicationTypeBounds[
                     ComplicationType.SHORT_TEXT
@@ -254,16 +259,21 @@ public class XmlDefinedUserStyleSchemaAndComplicationSlotsTest {
             val slotB = watchFaceImpl.complicationSlotsManager.complicationSlots[20]!!
             assertThat(slotB.boundsType).isEqualTo(ComplicationSlotBoundsType.BACKGROUND)
             assertThat(slotB.supportedTypes).containsExactly(
-                ComplicationType.LONG_TEXT
+                ComplicationType.SHORT_TEXT, ComplicationType.LONG_TEXT
             )
-            assertThat(slotB.defaultDataSourceType).isEqualTo(ComplicationType.LONG_TEXT)
             assertThat(slotB.defaultDataSourcePolicy.primaryDataSource).isEqualTo(
                 ComponentName("com.package", "com.app")
             )
+            assertThat(slotB.defaultDataSourcePolicy.primaryDataSourceDefaultType)
+                .isEqualTo(ComplicationType.SHORT_TEXT)
             assertThat(slotB.defaultDataSourcePolicy.secondaryDataSource).isNull()
+            assertThat(slotB.defaultDataSourcePolicy.secondaryDataSourceDefaultType)
+                .isNull()
             assertThat(slotB.defaultDataSourcePolicy.systemDataSourceFallback).isEqualTo(
                 SystemDataSources.DATA_SOURCE_SUNRISE_SUNSET
             )
+            assertThat(slotB.defaultDataSourcePolicy.systemDataSourceFallbackDefaultType)
+                .isEqualTo(ComplicationType.LONG_TEXT)
             assertThat(
                 slotB.complicationSlotBounds.perComplicationTypeBounds[
                     ComplicationType.SHORT_TEXT

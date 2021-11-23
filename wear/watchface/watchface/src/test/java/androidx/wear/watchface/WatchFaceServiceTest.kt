@@ -211,6 +211,7 @@ public class WatchFaceServiceTest {
     private val badStyleOption =
         ListUserStyleSetting.ListOption(Option.Id("bad_option"), "Bad", icon = null)
 
+    @Suppress("DEPRECATION") // setDefaultDataSourceType
     private val leftComplication =
         ComplicationSlot.createRoundRectComplicationSlotBuilder(
             LEFT_COMPLICATION_ID,
@@ -233,6 +234,7 @@ public class WatchFaceServiceTest {
         ).setDefaultDataSourceType(ComplicationType.SHORT_TEXT)
             .build()
 
+    @Suppress("DEPRECATION") // setDefaultDataSourceType
     private val rightComplication =
         ComplicationSlot.createRoundRectComplicationSlotBuilder(
             RIGHT_COMPLICATION_ID,
@@ -256,6 +258,7 @@ public class WatchFaceServiceTest {
             .build()
 
     private val edgeComplicationHitTester = mock<ComplicationTapFilter>()
+    @Suppress("DEPRECATION") // setDefaultDataSourceType
     private val edgeComplication =
         ComplicationSlot.createEdgeComplicationSlotBuilder(
             EDGE_COMPLICATION_ID,
@@ -279,6 +282,7 @@ public class WatchFaceServiceTest {
         ).setDefaultDataSourceType(ComplicationType.SHORT_TEXT)
             .build()
 
+    @Suppress("DEPRECATION") // setDefaultDataSourceType
     private val backgroundComplication =
         ComplicationSlot.createBackgroundComplicationSlotBuilder(
             BACKGROUND_COMPLICATION_ID,
@@ -437,6 +441,7 @@ public class WatchFaceServiceTest {
         engineWrapper.onVisibilityChanged(true)
     }
 
+    @Suppress("DEPRECATION") // defaultDataSourceType
     private fun initEngineBeforeGetWatchFaceImpl(
         watchFaceType: Int,
         complicationSlots: List<ComplicationSlot>,
@@ -1755,6 +1760,7 @@ public class WatchFaceServiceTest {
         assertThat(argument.value.acceptsTapEvents).isEqualTo(true)
     }
 
+    @Suppress("DEPRECATION") // setDefaultDataSourceType
     @Test
     public fun defaultComplicationDataSourcesWithFallbacks_newApi() {
         val dataSource1 = ComponentName("com.app1", "com.app1.App1")
@@ -1785,6 +1791,7 @@ public class WatchFaceServiceTest {
         )
     }
 
+    @Suppress("DEPRECATION") // setDefaultDataSourceType
     @Test
     public fun defaultComplicationDataSourcesWithFallbacks_oldApi() {
         val dataSource1 = ComponentName("com.app1", "com.app1.App1")
@@ -2142,6 +2149,7 @@ public class WatchFaceServiceTest {
         assertFalse(rightComplication.enabled)
     }
 
+    @Suppress("DEPRECATION") // setDefaultDataSourceType
     public fun UserStyleManager_init_applies_ComplicationsUserStyleSetting() {
         val complicationSlotId1 = 101
         val complicationSlotId2 = 102
@@ -3021,6 +3029,7 @@ public class WatchFaceServiceTest {
         )
     }
 
+    @Suppress("DEPRECATION") // DefaultComplicationDataSourcePolicyAndType
     @Test
     public fun canvasComplication_onRendererCreated() {
         val leftCanvasComplication = mock<CanvasComplication>()
@@ -3059,6 +3068,7 @@ public class WatchFaceServiceTest {
         verify(rightCanvasComplication).onRendererCreated(renderer)
     }
 
+    @Suppress("DEPRECATION") // DefaultComplicationDataSourcePolicyAndType
     @Test
     public fun complicationSlotsWithTheSameRenderer() {
         val sameCanvasComplication = mock<CanvasComplication>()

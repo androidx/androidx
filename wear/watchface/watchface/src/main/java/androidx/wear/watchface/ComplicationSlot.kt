@@ -407,7 +407,7 @@ public class ComplicationSlot internal constructor(
         private val id: Int,
         private val canvasComplicationFactory: CanvasComplicationFactory,
         private val supportedTypes: List<ComplicationType>,
-        private val defaultDataSourcePolicy: DefaultComplicationDataSourcePolicy,
+        private var defaultDataSourcePolicy: DefaultComplicationDataSourcePolicy,
         @ComplicationSlotBoundsType private val boundsType: Int,
         private val bounds: ComplicationSlotBounds,
         private val complicationTapFilter: ComplicationTapFilter
@@ -439,9 +439,38 @@ public class ComplicationSlot internal constructor(
          * Note care should be taken to ensure [defaultDataSourceType] is compatible with the
          * [DefaultComplicationDataSourcePolicy].
          */
+        @Deprecated("Instead set DefaultComplicationDataSourcePolicy" +
+            ".systemDataSourceFallbackDefaultType.")
         public fun setDefaultDataSourceType(
             defaultDataSourceType: ComplicationType
         ): Builder {
+            defaultDataSourcePolicy = when {
+                defaultDataSourcePolicy.secondaryDataSource != null ->
+                    DefaultComplicationDataSourcePolicy(
+                        defaultDataSourcePolicy.primaryDataSource!!,
+                        defaultDataSourcePolicy.primaryDataSourceDefaultType
+                            ?: defaultDataSourceType,
+                        defaultDataSourcePolicy.secondaryDataSource!!,
+                        defaultDataSourcePolicy.secondaryDataSourceDefaultType
+                            ?: defaultDataSourceType,
+                        defaultDataSourcePolicy.systemDataSourceFallback,
+                        defaultDataSourceType
+                    )
+
+                defaultDataSourcePolicy.primaryDataSource != null ->
+                    DefaultComplicationDataSourcePolicy(
+                        defaultDataSourcePolicy.primaryDataSource!!,
+                        defaultDataSourcePolicy.primaryDataSourceDefaultType
+                            ?: defaultDataSourceType,
+                        defaultDataSourcePolicy.systemDataSourceFallback,
+                        defaultDataSourceType
+                    )
+
+                else -> DefaultComplicationDataSourcePolicy(
+                    defaultDataSourcePolicy.systemDataSourceFallback,
+                    defaultDataSourceType
+                )
+            }
             this.defaultDataSourceType = defaultDataSourceType
             return this
         }
@@ -573,6 +602,8 @@ public class ComplicationSlot internal constructor(
     /**
      * The default [ComplicationType] to use alongside [defaultDataSourcePolicy].
      */
+    @Deprecated("Use DefaultComplicationDataSourcePolicy." +
+        "systemDataSourceFallbackDefaultType instead")
     public var defaultDataSourceType: ComplicationType = defaultDataSourceType
         @UiThread
         get
@@ -752,14 +783,20 @@ public class ComplicationSlot internal constructor(
         writer.println(
             "defaultDataSourcePolicy.primaryDataSource=${defaultDataSourcePolicy.primaryDataSource}"
         )
+        writer.println("defaultDataSourcePolicy.primaryDataSourceDefaultDataSourceType=" +
+            defaultDataSourcePolicy.primaryDataSourceDefaultType)
         writer.println(
             "defaultDataSourcePolicy.secondaryDataSource=" +
                 defaultDataSourcePolicy.secondaryDataSource
         )
+        writer.println("defaultDataSourcePolicy.secondaryDataSourceDefaultDataSourceType=" +
+            defaultDataSourcePolicy.secondaryDataSourceDefaultType)
         writer.println(
             "defaultDataSourcePolicy.systemDataSourceFallback=" +
                 defaultDataSourcePolicy.systemDataSourceFallback
         )
+        writer.println("defaultDataSourcePolicy.systemDataSourceFallbackDefaultType=" +
+            defaultDataSourcePolicy.systemDataSourceFallbackDefaultType)
         writer.println("data=${renderer.getData()}")
         val bounds = complicationSlotBounds.perComplicationTypeBounds.map {
             "${it.key} -> ${it.value}"
