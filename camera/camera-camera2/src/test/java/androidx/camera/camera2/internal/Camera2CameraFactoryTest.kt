@@ -82,6 +82,21 @@ class Camera2CameraFactoryTest {
         assertThat(camera2CameraFactory.availableCameraIds).containsExactly("0", "2")
     }
 
+    @Test
+    fun NotFilterOutIncompatibleCameras_whenBuildFingerprintIsRobolectric() {
+        setupCameras()
+
+        val camera2CameraFactory = Camera2CameraFactory(
+            ApplicationProvider.getApplicationContext(),
+            CameraThreadConfig.create(
+                CameraXExecutors.mainThreadExecutor(),
+                Handler(Looper.getMainLooper())
+            ),
+            null)
+
+        assertThat(camera2CameraFactory.availableCameraIds).containsExactly("0", "1", "2", "3")
+    }
+
     private fun setupCameras() {
         val capabilities =
             intArrayOf(CameraMetadata.REQUEST_AVAILABLE_CAPABILITIES_BACKWARD_COMPATIBLE)
