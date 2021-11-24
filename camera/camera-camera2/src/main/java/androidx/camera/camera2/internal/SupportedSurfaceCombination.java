@@ -18,11 +18,9 @@ package androidx.camera.camera2.internal;
 
 import android.content.Context;
 import android.graphics.ImageFormat;
-import android.graphics.Point;
 import android.graphics.SurfaceTexture;
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.params.StreamConfigurationMap;
-import android.hardware.display.DisplayManager;
 import android.media.CamcorderProfile;
 import android.media.MediaRecorder;
 import android.os.Build;
@@ -76,7 +74,6 @@ import java.util.Map;
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 final class SupportedSurfaceCombination {
     private static final String TAG = "SupportedSurfaceCombination";
-    private static final Size MAX_PREVIEW_SIZE = new Size(1920, 1080);
     private static final Size DEFAULT_SIZE = new Size(640, 480);
     private static final Size ZERO_SIZE = new Size(0, 0);
     private static final Size QUALITY_1080P_SIZE = new Size(1920, 1080);
@@ -101,6 +98,8 @@ final class SupportedSurfaceCombination {
     private boolean mIsBurstCaptureSupported = false;
     private SurfaceSizeDefinition mSurfaceSizeDefinition;
     private Map<Integer, Size[]> mOutputSizesCache = new HashMap<>();
+    @NonNull
+    private final DisplayInfoManager mDisplayInfoManager;
 
     SupportedSurfaceCombination(@NonNull Context context, @NonNull String cameraId,
             @NonNull CameraManagerCompat cameraManagerCompat,
@@ -111,6 +110,7 @@ final class SupportedSurfaceCombination {
         mExcludedSupportedSizesContainer = new ExcludedSupportedSizesContainer(cameraId);
         mExtraSupportedSurfaceCombinationsContainer =
                 new ExtraSupportedSurfaceCombinationsContainer();
+        mDisplayInfoManager = DisplayInfoManager.getInstance(context);
 
         try {
             mCharacteristics = cameraManagerCompat.getCameraCharacteristicsCompat(mCameraId);
@@ -123,7 +123,7 @@ final class SupportedSurfaceCombination {
             throw CameraUnavailableExceptionHelper.createFrom(e);
         }
         generateSupportedCombinationList();
-        generateSurfaceSizeDefinition(DisplayUtil.getDisplayManager(context));
+        generateSurfaceSizeDefinition();
         checkCustomization();
     }
 
@@ -223,6 +223,25 @@ final class SupportedSurfaceCombination {
     Map<UseCaseConfig<?>, Size> getSuggestedResolutions(
             @NonNull List<SurfaceConfig> existingSurfaces,
             @NonNull List<UseCaseConfig<?>> newUseCaseConfigs) {
+       // Refresh Preview Size based on current display configurations.
+        refreshPreviewSize();
+
+        // Use the small size (640x480) for new use cases to check whether there is any possible
+        // supported combination first
+        List<SurfaceConfig> surfaceConfigs = new ArrayList<>(existingSurfaces);
+        for (UseCaseConfig<?> useCaseConfig : newUseCaseConfigs) {
+            surfaceConfigs.add(
+                    transformSurfaceConfig(useCaseConfig.getInputFormat(),
+                            new Size(640, 480)));
+        }
+
+        if (!checkSupported(surfaceConfigs)) {
+            throw new IllegalArgumentException(
+                    "No supported surface combination is found for camera device - Id : "
+                            + mCameraId + ".  May be attempting to bind too many use cases. "
+                            + "Existing surfaces: " + existingSurfaces + " New configs: "
+                            + newUseCaseConfigs);
+        }
 
         // Get the index order list by the use case priority for finding stream configuration
         List<Integer> useCasesPriorityOrder = getUseCasesPriorityOrder(newUseCaseConfigs);
@@ -323,6 +342,7 @@ final class SupportedSurfaceCombination {
         return outputRatio;
     }
 
+    @VisibleForTesting
     SurfaceSizeDefinition getSurfaceSizeDefinition() {
         return mSurfaceSizeDefinition;
     }
@@ -1190,40 +1210,25 @@ final class SupportedSurfaceCombination {
     // Utility classes and methods:
     // *********************************************************************************************
 
-    private void generateSurfaceSizeDefinition(@NonNull DisplayManager displayManager) {
+    private void generateSurfaceSizeDefinition() {
         Size analysisSize = new Size(640, 480);
-        Size previewSize = getPreviewSize(displayManager);
+        Size previewSize = mDisplayInfoManager.getPreviewSize();
         Size recordSize = getRecordSize();
         mSurfaceSizeDefinition =
                 SurfaceSizeDefinition.create(analysisSize, previewSize, recordSize);
     }
 
-    /**
-     * PREVIEW refers to the best size match to the device's screen resolution, or to 1080p
-     * (1920x1080), whichever is smaller.
-     */
-    @SuppressWarnings("deprecation") /* getRealSize */
-    @NonNull
-    static Size getPreviewSize(@NonNull DisplayManager displayManager) {
-        Point displaySize = new Point();
-        DisplayUtil.getMaxSizeDisplay(displayManager).getRealSize(displaySize);
-
-        Size displayViewSize;
-        if (displaySize.x > displaySize.y) {
-            displayViewSize = new Size(displaySize.x, displaySize.y);
+    private void refreshPreviewSize() {
+        mDisplayInfoManager.refresh();
+        if (mSurfaceSizeDefinition == null) {
+            generateSurfaceSizeDefinition();
         } else {
-            displayViewSize = new Size(displaySize.y, displaySize.x);
+            Size previewSize = mDisplayInfoManager.getPreviewSize();
+            mSurfaceSizeDefinition = SurfaceSizeDefinition.create(
+                    mSurfaceSizeDefinition.getAnalysisSize(),
+                    previewSize,
+                    mSurfaceSizeDefinition.getRecordSize());
         }
-
-        // Limit the max preview size to under min(display size, 1080P) by comparing the area size
-        Size previewSize =
-                Collections.min(
-                        Arrays.asList(
-                                new Size(displayViewSize.getWidth(), displayViewSize.getHeight()),
-                                MAX_PREVIEW_SIZE),
-                        new CompareSizesByArea());
-
-        return previewSize;
     }
 
     /**
