@@ -25,6 +25,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -36,15 +37,20 @@ import androidx.wear.compose.material.rememberPickerState
 
 @Composable
 fun PickerTimeDemo() {
-    val hourState = rememberPickerState()
-    val minuteState = rememberPickerState()
+    // The option initially selected on the Picker can be passed to rememberPickerState()
+    val hourState = rememberPickerState(numberOfOptions = 24, initiallySelectedOption = 6)
+    val minuteState = rememberPickerState(numberOfOptions = 60)
+    LaunchedEffect(true) {
+        // This is possible, but not desirable, since the observed state.selectedOption may take a
+        // few frames to update to this value.
+        minuteState.scrollToOption(15)
+    }
     Box(modifier = Modifier.fillMaxSize()) {
         Row(
             modifier = Modifier.align(Alignment.Center),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Picker(
-                24,
                 state = hourState,
                 modifier = Modifier
                     .size(40.dp, 65.dp)
@@ -59,7 +65,6 @@ fun PickerTimeDemo() {
             }
             Spacer(modifier = Modifier.size(10.dp))
             Picker(
-                60,
                 state = minuteState,
                 modifier = Modifier
                     .size(50.dp, 65.dp)

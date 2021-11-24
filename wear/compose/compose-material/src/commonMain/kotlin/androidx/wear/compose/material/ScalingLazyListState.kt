@@ -64,8 +64,8 @@ public fun rememberScalingLazyListState(
 // TODO (b/193792848): Add snap support.
 @Stable
 class ScalingLazyListState constructor(
-    private val initialCenterItemIndex: Int = 0,
-    private val initialCenterItemScrollOffset: Int = 0
+    private var initialCenterItemIndex: Int = 0,
+    private var initialCenterItemScrollOffset: Int = 0
 ) : ScrollableState {
 
     internal var lazyListState: LazyListState = LazyListState(0, 0)
@@ -274,6 +274,12 @@ class ScalingLazyListState constructor(
         /*@IntRange(from = 0)*/
         scrollOffset: Int = 0
     ) {
+        if (!initialized.value) {
+            // We can't scroll yet, save to do it when we can (on the first composition).
+            initialCenterItemIndex = index
+            initialCenterItemScrollOffset = scrollOffset
+            return
+        }
         val offsetToCenterOfViewport =
             beforeContentPaddingPx.value!! - (viewportHeightPx.value!! / 2)
         if (anchorType.value == ScalingLazyListAnchorType.ItemStart) {
