@@ -203,7 +203,7 @@ internal class GraphProcessorImpl @Inject constructor(
     override fun submit(requests: List<Request>) {
         synchronized(lock) {
             if (closed) {
-                graphScope.launch(threads.defaultDispatcher) {
+                graphScope.launch(threads.lightweightDispatcher) {
                     abortBurst(requests)
                 }
                 return
@@ -211,7 +211,7 @@ internal class GraphProcessorImpl @Inject constructor(
             submitQueue.add(requests)
         }
 
-        graphScope.launch(threads.defaultDispatcher) {
+        graphScope.launch(threads.lightweightDispatcher) {
             submitLoop()
         }
     }
@@ -220,7 +220,7 @@ internal class GraphProcessorImpl @Inject constructor(
      * Submit a request to the camera using only the current repeating request.
      */
     override suspend fun <T : Any> submit(parameters: Map<T, Any?>): Boolean =
-        withContext(threads.defaultDispatcher) {
+        withContext(threads.lightweightDispatcher) {
             val processor: RequestProcessor?
             val request: Request?
             val requiredParameters: MutableMap<Any, Any?> = mutableMapOf()
@@ -249,7 +249,7 @@ internal class GraphProcessorImpl @Inject constructor(
     override fun invalidate() {
         // Invalidate is only used for updates to internal state (listeners, parameters, etc) and
         // should not (currently) attempt to resubmit the normal request queue.
-        graphScope.launch(threads.defaultDispatcher) {
+        graphScope.launch(threads.lightweightDispatcher) {
             tryStartRepeating()
         }
     }
@@ -297,7 +297,7 @@ internal class GraphProcessorImpl @Inject constructor(
     }
 
     private fun resubmit() {
-        graphScope.launch(threads.defaultDispatcher) {
+        graphScope.launch(threads.lightweightDispatcher) {
             tryStartRepeating()
             submitLoop()
         }
