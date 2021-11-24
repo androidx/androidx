@@ -4027,7 +4027,7 @@ public class AccessibilityNodeInfoCompat {
      */
     public @Nullable CharSequence getRoleDescription() {
         if (Build.VERSION.SDK_INT >= 19) {
-            return mInfo.getExtras().getCharSequence(ROLE_DESCRIPTION_KEY);
+            return getExtras().getCharSequence(ROLE_DESCRIPTION_KEY);
         } else {
             return null;
         }
@@ -4059,7 +4059,7 @@ public class AccessibilityNodeInfoCompat {
      */
     public void setRoleDescription(@Nullable CharSequence roleDescription) {
         if (Build.VERSION.SDK_INT >= 19) {
-            mInfo.getExtras().putCharSequence(ROLE_DESCRIPTION_KEY, roleDescription);
+            getExtras().putCharSequence(ROLE_DESCRIPTION_KEY, roleDescription);
         }
     }
 
