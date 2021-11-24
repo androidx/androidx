@@ -247,12 +247,12 @@ internal class ImageAnalysisTest(
                 .setBackpressureStrategy(strategy)
                 .build()
             withContext(Dispatchers.Main) {
-            cameraProvider.bindToLifecycle(fakeLifecycleOwner, DEFAULT_CAMERA_SELECTOR, useCase)
+                cameraProvider.bindToLifecycle(fakeLifecycleOwner, DEFAULT_CAMERA_SELECTOR, useCase)
+            }
+            useCase.setAnalyzer(CameraXExecutors.newHandlerExecutor(handler), analyzer)
+            analysisResultsSemaphore.tryAcquire(5, TimeUnit.SECONDS)
+            synchronized(analysisResultLock) { assertThat(analysisResults).isNotEmpty() }
         }
-        useCase.setAnalyzer(CameraXExecutors.newHandlerExecutor(handler), analyzer)
-        analysisResultsSemaphore.tryAcquire(5, TimeUnit.SECONDS)
-        synchronized(analysisResultLock) { assertThat(analysisResults).isNotEmpty() }
-    }
 
     @Test
     fun analyzerDoesNotAnalyzeImages_whenCameraIsNotOpen() = runBlocking {
@@ -349,41 +349,6 @@ internal class ImageAnalysisTest(
 
         // Expected targetResolution will be reversed from original target resolution.
         assertThat(newConfig.targetResolution == expectedTargetResolution).isTrue()
-    }
-
-    // TODO(b/162298517): change the test to be deterministic instead of depend upon timing.
-    @Test
-    fun analyzerSetMultipleTimesInKeepOnlyLatestMode() = runBlocking {
-        val useCase = ImageAnalysis.Builder()
-            .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
-            .build()
-        withContext(Dispatchers.Main) {
-            cameraProvider.bindToLifecycle(fakeLifecycleOwner, DEFAULT_CAMERA_SELECTOR, useCase)
-        }
-        useCase.setAnalyzer(CameraXExecutors.newHandlerExecutor(handler), analyzer)
-        analysisResultsSemaphore.tryAcquire(5, TimeUnit.SECONDS)
-
-        val slowAnalyzer = ImageAnalysis.Analyzer { image ->
-            try {
-                Thread.sleep(200)
-                image.close()
-            } catch (e: Exception) {
-            }
-        }
-        useCase.setAnalyzer(CameraXExecutors.newHandlerExecutor(handler), slowAnalyzer)
-        Thread.sleep(100)
-
-        useCase.setAnalyzer(CameraXExecutors.newHandlerExecutor(handler), slowAnalyzer)
-        Thread.sleep(100)
-
-        useCase.setAnalyzer(CameraXExecutors.newHandlerExecutor(handler), slowAnalyzer)
-        Thread.sleep(100)
-
-        useCase.setAnalyzer(CameraXExecutors.newHandlerExecutor(handler), slowAnalyzer)
-        Thread.sleep(100)
-
-        useCase.setAnalyzer(CameraXExecutors.newHandlerExecutor(handler), slowAnalyzer)
-        Thread.sleep(100)
     }
 
     @Test
