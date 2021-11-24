@@ -16,9 +16,11 @@
 
 package androidx.core.os;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import android.graphics.Rect;
 import android.os.Parcel;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -39,5 +41,27 @@ public class ParcelCompatTest {
         p.setDataPosition(0);
         assertTrue(ParcelCompat.readBoolean(p));
         assertFalse(ParcelCompat.readBoolean(p));
+    }
+
+    @Test
+    public void readParcelable2Arg() {
+        Rect r = new Rect(0, 0, 10, 10);
+        Parcel p = Parcel.obtain();
+        p.writeParcelable(r, 0);
+
+        p.setDataPosition(0);
+        Rect r2 = ParcelCompat.readParcelable(p, Rect.class.getClassLoader(), Rect.class);
+        assertEquals(r, r2);
+    }
+
+    @Test
+    public void readSerializable2Arg() {
+        String s = "Hello World";
+        Parcel p = Parcel.obtain();
+        p.writeSerializable(s);
+
+        p.setDataPosition(0);
+        String s2 = ParcelCompat.readSerializable(p, String.class.getClassLoader(), String.class);
+        assertEquals(s, s2);
     }
 }

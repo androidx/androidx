@@ -198,10 +198,10 @@ public class BuildCompat {
      * removed and all calls must be replaced with {@code Build.VERSION.SDK_INT >=
      * Build.VERSION_CODES.TIRAMISU}.
      *
-     * @return {@code true} if T APIs are available for use, {@code false} otherwise
+     * @return {@code true} if Tiramisu APIs are available for use, {@code false} otherwise
      */
     @PrereleaseSdkCheck
-    @ChecksSdkIntAtLeast(codename = "Tiramisu")
+    @ChecksSdkIntAtLeast(api = 33) // 33 is wrong but required for NewApi, see b/204776549
     public static boolean isAtLeastT() {
         return VERSION.SDK_INT >= 32 && isAtLeastPreReleaseCodename("Tiramisu", VERSION.CODENAME);
     }
