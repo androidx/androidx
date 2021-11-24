@@ -108,7 +108,7 @@ class QueryMethodProcessorTest(private val enableVerification: Boolean) {
                 abstract public int[] foo();
             """
         ) { parsedQuery, _ ->
-            assertThat(parsedQuery.name, `is`("foo"))
+            assertThat(parsedQuery.element.jvmName, `is`("foo"))
             assertThat(parsedQuery.parameters.size, `is`(0))
             assertThat(
                 parsedQuery.returnType.typeName,
@@ -125,7 +125,7 @@ class QueryMethodProcessorTest(private val enableVerification: Boolean) {
                 abstract public long foo(int x);
                 """
         ) { parsedQuery, invocation ->
-            assertThat(parsedQuery.name, `is`("foo"))
+            assertThat(parsedQuery.element.jvmName, `is`("foo"))
             assertThat(parsedQuery.returnType.typeName, `is`(TypeName.LONG))
             assertThat(parsedQuery.parameters.size, `is`(1))
             val param = parsedQuery.parameters.first()
@@ -146,7 +146,7 @@ class QueryMethodProcessorTest(private val enableVerification: Boolean) {
                 abstract public long foo(int... ids);
                 """
         ) { parsedQuery, _ ->
-            assertThat(parsedQuery.name, `is`("foo"))
+            assertThat(parsedQuery.element.jvmName, `is`("foo"))
             assertThat(parsedQuery.returnType.typeName, `is`(TypeName.LONG))
             assertThat(parsedQuery.parameters.size, `is`(1))
             val param = parsedQuery.parameters.first()
@@ -465,7 +465,7 @@ class QueryMethodProcessorTest(private val enableVerification: Boolean) {
                 abstract public int foo(int id);
                 """
         ) { parsedQuery, _ ->
-            assertThat(parsedQuery.name, `is`("foo"))
+            assertThat(parsedQuery.element.jvmName, `is`("foo"))
             assertThat(parsedQuery.parameters.size, `is`(1))
             assertThat(parsedQuery.returnType.typeName, `is`(TypeName.INT))
         }
@@ -479,7 +479,7 @@ class QueryMethodProcessorTest(private val enableVerification: Boolean) {
                 abstract public void foo(int id);
                 """
         ) { parsedQuery, _ ->
-            assertThat(parsedQuery.name, `is`("foo"))
+            assertThat(parsedQuery.element.jvmName, `is`("foo"))
             assertThat(parsedQuery.parameters.size, `is`(1))
             assertThat(parsedQuery.returnType.typeName, `is`(TypeName.VOID))
         }
@@ -493,7 +493,7 @@ class QueryMethodProcessorTest(private val enableVerification: Boolean) {
                 abstract public void updateAllNames(String name);
                 """
         ) { parsedQuery, invocation ->
-            assertThat(parsedQuery.name, `is`("updateAllNames"))
+            assertThat(parsedQuery.element.jvmName, `is`("updateAllNames"))
             assertThat(parsedQuery.parameters.size, `is`(1))
             assertThat(parsedQuery.returnType.typeName, `is`(TypeName.VOID))
             assertThat(
@@ -511,7 +511,7 @@ class QueryMethodProcessorTest(private val enableVerification: Boolean) {
                 abstract public void insertUsername(String name);
                 """
         ) { parsedQuery, invocation ->
-            assertThat(parsedQuery.name, `is`("insertUsername"))
+            assertThat(parsedQuery.element.jvmName, `is`("insertUsername"))
             assertThat(parsedQuery.parameters.size, `is`(1))
             assertThat(parsedQuery.returnType.typeName, `is`(TypeName.VOID))
             assertThat(
@@ -529,7 +529,7 @@ class QueryMethodProcessorTest(private val enableVerification: Boolean) {
                 abstract public long insertUsername(String name);
                 """
         ) { parsedQuery, invocation ->
-            assertThat(parsedQuery.name, `is`("insertUsername"))
+            assertThat(parsedQuery.element.jvmName, `is`("insertUsername"))
             assertThat(parsedQuery.parameters.size, `is`(1))
             assertThat(parsedQuery.returnType.typeName, `is`(TypeName.LONG))
             assertThat(
@@ -774,7 +774,7 @@ class QueryMethodProcessorTest(private val enableVerification: Boolean) {
                 abstract public int[] foo();
                 """
         ) { parsedQuery, _ ->
-            assertThat(parsedQuery.name, `is`("foo"))
+            assertThat(parsedQuery.element.jvmName, `is`("foo"))
             assertThat(parsedQuery.parameters.size, `is`(0))
             assertThat(
                 parsedQuery.returnType.typeName,
@@ -792,7 +792,7 @@ class QueryMethodProcessorTest(private val enableVerification: Boolean) {
                 abstract NotAnEntity getPojo();
                 """
         ) { parsedQuery, _ ->
-            assertThat(parsedQuery.name, `is`("getPojo"))
+            assertThat(parsedQuery.element.jvmName, `is`("getPojo"))
             assertThat(parsedQuery.parameters.size, `is`(0))
             assertThat(
                 parsedQuery.returnType.typeName,

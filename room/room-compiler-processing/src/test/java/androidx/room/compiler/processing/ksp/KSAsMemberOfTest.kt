@@ -20,7 +20,7 @@ import androidx.room.compiler.processing.XNullability
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.className
 import androidx.room.compiler.processing.util.getField
-import androidx.room.compiler.processing.util.getMethod
+import androidx.room.compiler.processing.util.getMethodByJvmName
 import androidx.room.compiler.processing.util.runKspTest
 import com.google.common.truth.Truth.assertThat
 import com.squareup.javapoet.ClassName
@@ -196,7 +196,7 @@ class KSAsMemberOfTest {
         runKspTest(sources = listOf(kotlinSrc, javaSrc)) { invocation ->
             listOf("KotlinClass", "JavaClass").forEach {
                 val typeElement = invocation.processingEnv.requireTypeElement(it)
-                typeElement.getMethod("staticFun").let { staticFun ->
+                typeElement.getMethodByJvmName("staticFun").let { staticFun ->
                     val asMember = staticFun.asMemberOf(typeElement.type)
                     assertThat(asMember.returnType.typeName).isEqualTo(TypeName.VOID)
                     assertThat(

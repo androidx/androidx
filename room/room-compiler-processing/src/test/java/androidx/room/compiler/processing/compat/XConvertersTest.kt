@@ -24,7 +24,7 @@ import androidx.room.compiler.processing.testcode.TestSuppressWarnings
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.XTestInvocation
 import androidx.room.compiler.processing.util.getDeclaredField
-import androidx.room.compiler.processing.util.getDeclaredMethod
+import androidx.room.compiler.processing.util.getDeclaredMethodByJvmName
 import androidx.room.compiler.processing.util.runKaptTest
 import com.google.auto.common.MoreElements
 import com.google.auto.common.MoreTypes
@@ -203,12 +203,12 @@ class XConvertersTest {
                 invocation.getJavacTypeElement("KotlinClass").enclosedElements
             ).first { it.simpleName.toString() == "foo" }
             assertThat(kotlinFoo.toXProcessing(invocation.processingEnv))
-                .isEqualTo(kotlinClass.getDeclaredMethod("foo"))
+                .isEqualTo(kotlinClass.getDeclaredMethodByJvmName("foo"))
             val javaFoo = ElementFilter.methodsIn(
                 invocation.getJavacTypeElement("JavaClass").enclosedElements
             ).first { it.simpleName.toString() == "foo" }
             assertThat(javaFoo.toXProcessing(invocation.processingEnv))
-                .isEqualTo(javaClass.getDeclaredMethod("foo"))
+                .isEqualTo(javaClass.getDeclaredMethodByJvmName("foo"))
         }
     }
 
@@ -257,14 +257,14 @@ class XConvertersTest {
             val javaClass = invocation.processingEnv.requireTypeElement("JavaClass")
 
             assertThat(
-                kotlinClass.getDeclaredMethod("foo").parameters.map { it.toJavac() }
+                kotlinClass.getDeclaredMethodByJvmName("foo").parameters.map { it.toJavac() }
             ).containsExactlyElementsIn(
                 ElementFilter.methodsIn(
                     invocation.getJavacTypeElement("KotlinClass").enclosedElements
                 ).first { it.simpleName.toString() == "foo" }.parameters
             )
             assertThat(
-                javaClass.getDeclaredMethod("foo").parameters.map { it.toJavac() }
+                javaClass.getDeclaredMethodByJvmName("foo").parameters.map { it.toJavac() }
             ).containsExactlyElementsIn(
                 ElementFilter.methodsIn(
                     invocation.getJavacTypeElement("JavaClass").enclosedElements
@@ -275,12 +275,12 @@ class XConvertersTest {
                 invocation.getJavacTypeElement("KotlinClass").enclosedElements
             ).first { it.simpleName.toString() == "foo" }.parameters.first()
             assertThat(kotlinParam.toXProcessing(invocation.processingEnv))
-                .isEqualTo(kotlinClass.getDeclaredMethod("foo").parameters.first())
+                .isEqualTo(kotlinClass.getDeclaredMethodByJvmName("foo").parameters.first())
             val javaParam = ElementFilter.methodsIn(
                 invocation.getJavacTypeElement("JavaClass").enclosedElements
             ).first { it.simpleName.toString() == "foo" }.parameters.first()
             assertThat(javaParam.toXProcessing(invocation.processingEnv))
-                .isEqualTo(javaClass.getDeclaredMethod("foo").parameters.first())
+                .isEqualTo(javaClass.getDeclaredMethodByJvmName("foo").parameters.first())
         }
     }
 

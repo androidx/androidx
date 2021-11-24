@@ -358,7 +358,7 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
                 @Ignore public int id(){ return id; }
                 """
         ) { entity, _ ->
-            assertThat(entity.fields.first().getter.name, `is`("getId"))
+            assertThat(entity.fields.first().getter.jvmName, `is`("getId"))
         }
     }
 
@@ -373,7 +373,7 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
                 protected int id(){ return id; }
                 """
         ) { entity, _ ->
-            assertThat(entity.fields.first().getter.name, `is`("getId"))
+            assertThat(entity.fields.first().getter.jvmName, `is`("getId"))
         }
     }
 
@@ -387,7 +387,7 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
                 public int getId(){ return id; }
                 """
         ) { entity, _ ->
-            assertThat(entity.fields.first().getter.name, `is`("id"))
+            assertThat(entity.fields.first().getter.jvmName, `is`("id"))
             assertThat(entity.fields.first().getter.callType, `is`(CallType.FIELD))
         }
     }
@@ -420,7 +420,7 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
                 public int getId(){ return id; }
                 """
         ) { entity, _ ->
-            assertThat(entity.fields.first().setter.name, `is`("setId"))
+            assertThat(entity.fields.first().setter.jvmName, `is`("setId"))
         }
     }
 
@@ -435,7 +435,7 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
                 public int getId(){ return id; }
                 """
         ) { entity, _ ->
-            assertThat(entity.fields.first().setter.name, `is`("setId"))
+            assertThat(entity.fields.first().setter.jvmName, `is`("setId"))
         }
     }
 
@@ -449,7 +449,7 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
                 public int getId(){ return id; }
                 """
         ) { entity, _ ->
-            assertThat(entity.fields.first().setter.name, `is`("id"))
+            assertThat(entity.fields.first().setter.jvmName, `is`("id"))
             assertThat(entity.fields.first().setter.callType, `is`(CallType.FIELD))
         }
     }
@@ -464,8 +464,8 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
                 public int getId(){ return id; }
                 """
         ) { entity, _ ->
-            assertThat(entity.fields.first().setter.name, `is`("setId"))
-            assertThat(entity.fields.first().getter.name, `is`("getId"))
+            assertThat(entity.fields.first().setter.jvmName, `is`("setId"))
+            assertThat(entity.fields.first().getter.jvmName, `is`("getId"))
         }
     }
 

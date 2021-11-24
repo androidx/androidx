@@ -34,6 +34,6 @@ data class CustomTypeConverter(
     val typeName: TypeName by lazy { enclosingClass.typeName }
     val fromTypeName: TypeName by lazy { from.typeName }
     val toTypeName: TypeName by lazy { to.typeName }
-    val methodName by lazy { method.name }
+    val methodName by lazy { method.jvmName }
     val isStatic by lazy { method.isStatic() }
 }

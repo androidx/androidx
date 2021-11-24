@@ -65,7 +65,7 @@ class InternalModifierTest {
         fun XFieldElement.toSignature() = "$name : ${type.toSignature()}"
 
         fun XMethodElement.toSignature() = buildString {
-            append(name)
+            append(jvmName)
             append("(")
             parameters.forEach {
                 append(it.type.toSignature())

@@ -109,7 +109,7 @@ object MethodSpecHelper {
         executableElement: XMethodElement,
         resolvedType: XMethodType = executableElement.executableType
     ): MethodSpec.Builder {
-        return MethodSpec.methodBuilder(executableElement.name).apply {
+        return MethodSpec.methodBuilder(executableElement.jvmName).apply {
             addTypeVariables(
                 resolvedType.typeVariableNames
             )

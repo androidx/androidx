@@ -50,7 +50,6 @@ class DeletionMethodProcessor(
 
         return DeletionMethod(
             element = delegate.executableElement,
-            name = delegate.executableElement.name,
             entities = entities,
             parameters = params,
             methodBinder = methodBinder

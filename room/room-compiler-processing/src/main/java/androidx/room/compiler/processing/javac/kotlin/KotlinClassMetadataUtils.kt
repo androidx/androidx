@@ -479,7 +479,7 @@ private class TypeParameterReader(
  * JVM name for internal properties.
  * See: https://kotlinlang.org/docs/java-to-kotlin-interop.html#properties
  */
-private fun computeGetterName(
+internal fun computeGetterName(
     propName: String
 ): String {
     return if (propName.startsWith("is")) {
@@ -499,7 +499,7 @@ private fun computeGetterName(
  * JVM name for internal properties.
  * See: https://kotlinlang.org/docs/java-to-kotlin-interop.html#properties
  */
-private fun computeSetterName(propName: String): String {
+internal fun computeSetterName(propName: String): String {
     return if (propName.startsWith("is")) {
         "set${propName.substring(2)}"
     } else {

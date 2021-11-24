@@ -21,7 +21,7 @@ import androidx.room.compiler.processing.util.XTestInvocation
 import androidx.room.compiler.processing.util.compileFiles
 import androidx.room.compiler.processing.util.getAllFieldNames
 import androidx.room.compiler.processing.util.getField
-import androidx.room.compiler.processing.util.getMethod
+import androidx.room.compiler.processing.util.getMethodByJvmName
 import androidx.room.compiler.processing.util.runProcessorTest
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
@@ -342,7 +342,7 @@ class XTypeElementTest {
             assertThat(subClass.getDeclaredFields().map { it.name })
                 .containsExactly("subClassProp")
 
-            val baseMethod = baseClass.getMethod("baseMethod")
+            val baseMethod = baseClass.getMethodByJvmName("baseMethod")
             baseMethod.asMemberOf(subClass.type).let { methodType ->
                 val genericArg = methodType.parameterTypes.first()
                 assertThat(genericArg.typeName).isEqualTo(TypeName.INT.box())
@@ -438,7 +438,7 @@ class XTypeElementTest {
                 assertWithMessage(subject.qualifiedName)
                     .that(allFields.toList())
                     .containsExactlyElementsIn(expectedFields)
-                val methodNames = subject.getDeclaredMethods().map { it.name }
+                val methodNames = subject.getDeclaredMethods().map { it.jvmName }
                 assertWithMessage(subject.qualifiedName)
                     .that(methodNames)
                     .containsAtLeast("getNoBackingVal", "getNoBackingVar", "setNoBackingVar")
@@ -508,7 +508,7 @@ class XTypeElementTest {
                         "x", "y"
                     )
                 assertWithMessage(subject.fallbackLocationText)
-                    .that(subject.getDeclaredMethods().map { it.name })
+                    .that(subject.getDeclaredMethods().map { it.jvmName })
                     .containsExactly(
                         "getX", "setX", "getY", "setY"
                     )
@@ -529,10 +529,10 @@ class XTypeElementTest {
         runProcessorTest(sources = listOf(src)) { invocation ->
             val element = invocation.processingEnv.requireTypeElement("MyInterface")
             assertThat(element.getAllFieldsIncludingPrivateSupers().toList()).isEmpty()
-            element.getMethod("getX").let {
+            element.getMethodByJvmName("getX").let {
                 assertThat(it.isAbstract()).isTrue()
             }
-            element.getMethod("setX").let {
+            element.getMethodByJvmName("setX").let {
                 assertThat(it.isAbstract()).isTrue()
             }
         }
@@ -559,22 +559,22 @@ class XTypeElementTest {
                 "nonAbstractVar", "jvmVar"
             )
             assertThat(
-                element.getDeclaredMethods().map { it.name }
+                element.getDeclaredMethods().map { it.jvmName }
             ).containsExactly(
                 "getAbstractVar", "setAbstractVar",
                 "getNonAbstractVar", "setNonAbstractVar"
             )
-            element.getMethod("getAbstractVar").let {
+            element.getMethodByJvmName("getAbstractVar").let {
                 assertThat(it.isAbstract()).isTrue()
             }
-            element.getMethod("setAbstractVar").let {
+            element.getMethodByJvmName("setAbstractVar").let {
                 assertThat(it.isAbstract()).isTrue()
             }
 
-            element.getMethod("getNonAbstractVar").let {
+            element.getMethodByJvmName("getNonAbstractVar").let {
                 assertThat(it.isAbstract()).isFalse()
             }
-            element.getMethod("setNonAbstractVar").let {
+            element.getMethodByJvmName("setNonAbstractVar").let {
                 assertThat(it.isAbstract()).isFalse()
             }
         }
@@ -642,7 +642,7 @@ class XTypeElementTest {
                 assertWithMessage(subject.qualifiedName)
                     .that(
                         subject.getDeclaredMethods().map {
-                            it.name
+                            it.jvmName
                         }
                     ).containsExactly(
                         "getMutable", "setMutable", "getImmutable"
@@ -684,16 +684,16 @@ class XTypeElementTest {
         runProcessorTest(sources = listOf(src)) { invocation ->
             val base = invocation.processingEnv.requireTypeElement("Base")
             val objectMethodNames = invocation.objectMethodNames()
-            assertThat(base.getDeclaredMethods().names()).containsExactly(
+            assertThat(base.getDeclaredMethods().jvmNames()).containsExactly(
                 "baseFun", "suspendFun", "privateBaseFun", "staticBaseFun"
             )
 
             val sub = invocation.processingEnv.requireTypeElement("SubClass")
-            assertThat(sub.getDeclaredMethods().names()).containsExactly(
+            assertThat(sub.getDeclaredMethods().jvmNames()).containsExactly(
                 "baseFun", "subFun", "privateSubFun", "staticFun"
             )
             assertThat(
-                sub.getAllNonPrivateInstanceMethods().names() - objectMethodNames
+                sub.getAllNonPrivateInstanceMethods().jvmNames() - objectMethodNames
             ).containsExactly(
                 "baseFun", "suspendFun", "subFun"
             )
@@ -732,7 +732,7 @@ class XTypeElementTest {
         ) { invocation ->
             listOf("lib", "app").forEach { pkg ->
                 val objectMethodNames = invocation.processingEnv.requireTypeElement(Any::class)
-                    .getAllMethods().names()
+                    .getAllMethods().jvmNames()
 
                 fun XMethodElement.signature(
                     owner: XType
@@ -741,11 +741,11 @@ class XTypeElementTest {
                     val params = methodType.parameterTypes.joinToString(",") {
                         it.typeName.toString()
                     }
-                    return "$name($params):${returnType.typeName}"
+                    return "$jvmName($params):${returnType.typeName}"
                 }
 
                 fun XTypeElement.allMethodSignatures(): List<String> = getAllMethods().filterNot {
-                    it.name in objectMethodNames
+                    it.jvmName in objectMethodNames
                 }.map { it.signature(this.type) }.toList()
                 invocation.processingEnv.requireTypeElement("$pkg.Subject1").let { subject ->
                     assertWithMessage(subject.qualifiedName).that(
@@ -799,7 +799,7 @@ class XTypeElementTest {
 
         runProcessorTest(sources = listOf(src)) { invocation ->
             val objectMethodNames = invocation.processingEnv.requireTypeElement(Any::class)
-                .getAllMethods().names()
+                .getAllMethods().jvmNames()
             fun XMethodElement.signature(
                 owner: XType
             ): String {
@@ -807,11 +807,11 @@ class XTypeElementTest {
                 val params = methodType.parameterTypes.joinToString(",") {
                     it.typeName.toString()
                 }
-                return "$name($params):${returnType.typeName}"
+                return "$jvmName($params):${returnType.typeName}"
             }
 
             fun XTypeElement.allMethodSignatures(): List<String> = getAllMethods().filterNot {
-                it.name in objectMethodNames
+                it.jvmName in objectMethodNames
             }.map { it.signature(this.type) }.toList()
 
             invocation.processingEnv.requireTypeElement(
@@ -878,7 +878,7 @@ class XTypeElementTest {
             val objectMethodNames = invocation.objectMethodNames()
             val klass = invocation.processingEnv.requireTypeElement("SubClass")
             assertThat(
-                klass.getAllMethods().names() - objectMethodNames
+                klass.getAllMethods().jvmNames() - objectMethodNames
             ).containsExactly(
                 "baseMethod", "overriddenMethod", "baseCompanionMethod",
                 "interfaceMethod", "subMethod", "privateSubMethod", "subCompanionMethod"
@@ -904,27 +904,27 @@ class XTypeElementTest {
         runProcessorTest(sources = listOf(src)) { invocation ->
             val objectMethodNames = invocation.objectMethodNames()
             invocation.processingEnv.requireTypeElement("JustGetter").let { base ->
-                assertThat(base.getDeclaredMethods().names()).containsExactly(
+                assertThat(base.getDeclaredMethods().jvmNames()).containsExactly(
                     "getX"
                 )
-                assertThat(base.getAllMethods().names() - objectMethodNames).containsExactly(
+                assertThat(base.getAllMethods().jvmNames() - objectMethodNames).containsExactly(
                     "getX"
                 )
                 assertThat(
-                    base.getAllNonPrivateInstanceMethods().names() - objectMethodNames
+                    base.getAllNonPrivateInstanceMethods().jvmNames() - objectMethodNames
                 ).containsExactly(
                     "getX"
                 )
             }
             invocation.processingEnv.requireTypeElement("GetterSetter").let { sub ->
-                assertThat(sub.getDeclaredMethods().names()).containsExactly(
+                assertThat(sub.getDeclaredMethods().jvmNames()).containsExactly(
                     "getY", "setY"
                 )
-                assertThat(sub.getAllMethods().names() - objectMethodNames).containsExactly(
+                assertThat(sub.getAllMethods().jvmNames() - objectMethodNames).containsExactly(
                     "getX", "getY", "setY"
                 )
                 assertThat(
-                    sub.getAllNonPrivateInstanceMethods().names() - objectMethodNames
+                    sub.getAllNonPrivateInstanceMethods().jvmNames() - objectMethodNames
                 ).containsExactly(
                     "getX", "getY", "setY"
                 )
@@ -962,7 +962,7 @@ class XTypeElementTest {
         runProcessorTest(sources = listOf(src)) { invocation ->
             val objectMethodNames = invocation.processingEnv.requireTypeElement(
                 Any::class
-            ).getAllMethods().names()
+            ).getAllMethods().jvmNames()
             val subject = invocation.processingEnv.requireTypeElement("CompanionSubject")
             assertThat(subject.getAllFieldNames() - "Companion").containsExactly(
                 "mutableStatic", "immutableStatic", "companionProp",
@@ -974,22 +974,22 @@ class XTypeElementTest {
                 "companionMethodWithJvmStatic"
             )
             assertThat(
-                subject.getDeclaredMethods().names()
+                subject.getDeclaredMethods().jvmNames()
             ).containsExactlyElementsIn(
                 expectedMethodNames
             )
             assertThat(
-                subject.getAllMethods().names() - objectMethodNames
+                subject.getAllMethods().jvmNames() - objectMethodNames
             ).containsExactlyElementsIn(
                 expectedMethodNames
             )
             assertThat(
-                subject.getAllNonPrivateInstanceMethods().names() - objectMethodNames
+                subject.getAllNonPrivateInstanceMethods().jvmNames() - objectMethodNames
             ).isEmpty()
             val subClass = invocation.processingEnv.requireTypeElement("SubClass")
             assertThat(subClass.getDeclaredMethods()).isEmpty()
             assertThat(
-                subClass.getAllMethods().names() - objectMethodNames
+                subClass.getAllMethods().jvmNames() - objectMethodNames
             ).containsExactlyElementsIn(
                 expectedMethodNames
             )
@@ -999,7 +999,7 @@ class XTypeElementTest {
                 assertWithMessage(it.name).that(it.isStatic()).isTrue()
             }
             subject.getDeclaredMethods().forEach {
-                assertWithMessage(it.name).that(it.isStatic()).isTrue()
+                assertWithMessage(it.jvmName).that(it.isStatic()).isTrue()
             }
 
             // make sure asMemberOf works fine for statics
@@ -1015,7 +1015,7 @@ class XTypeElementTest {
                 try {
                     it.asMemberOf(subClassType)
                 } catch (th: Throwable) {
-                    throw AssertionError("Couldn't run asMemberOf for ${it.name}")
+                    throw AssertionError("Couldn't run asMemberOf for ${it.jvmName}")
                 }
             }
         }
@@ -1036,24 +1036,24 @@ class XTypeElementTest {
         )
         runProcessorTest(sources = listOf(src)) { invocation ->
             invocation.processingEnv.requireTypeElement("JustGetter").let { base ->
-                assertThat(base.getDeclaredMethods().names()).containsExactly(
+                assertThat(base.getDeclaredMethods().jvmNames()).containsExactly(
                     "getX"
                 )
-                assertThat(base.getAllMethods().names()).containsExactly(
+                assertThat(base.getAllMethods().jvmNames()).containsExactly(
                     "getX"
                 )
-                assertThat(base.getAllNonPrivateInstanceMethods().names()).containsExactly(
+                assertThat(base.getAllNonPrivateInstanceMethods().jvmNames()).containsExactly(
                     "getX"
                 )
             }
             invocation.processingEnv.requireTypeElement("GetterSetter").let { sub ->
-                assertThat(sub.getDeclaredMethods().names()).containsExactly(
+                assertThat(sub.getDeclaredMethods().jvmNames()).containsExactly(
                     "getY", "setY"
                 )
-                assertThat(sub.getAllMethods().names()).containsExactly(
+                assertThat(sub.getAllMethods().jvmNames()).containsExactly(
                     "getX", "getY", "setY"
                 )
-                assertThat(sub.getAllNonPrivateInstanceMethods().names()).containsExactly(
+                assertThat(sub.getAllNonPrivateInstanceMethods().jvmNames()).containsExactly(
                     "getX", "getY", "setY"
                 )
             }
@@ -1141,8 +1141,8 @@ class XTypeElementTest {
         )
         runProcessorTest(sources = listOf(src)) { invocation ->
             val subject = invocation.processingEnv.requireTypeElement("MyInterface")
-            assertThat(subject.getMethod("notJvmDefault").isJavaDefault()).isFalse()
-            assertThat(subject.getMethod("jvmDefault").isJavaDefault()).isTrue()
+            assertThat(subject.getMethodByJvmName("notJvmDefault").isJavaDefault()).isFalse()
+            assertThat(subject.getMethodByJvmName("jvmDefault").isJavaDefault()).isTrue()
         }
     }
 
@@ -1266,7 +1266,7 @@ class XTypeElementTest {
                     .that(typeElement.isEnum())
                     .isTrue()
                 assertWithMessage("$qName does not report enum constants in methods")
-                    .that(typeElement.getDeclaredMethods().map { it.name })
+                    .that(typeElement.getDeclaredMethods().map { it.jvmName })
                     .run {
                         contains("enumMethod")
                         containsNoneOf("VAL1", "VAL2")
@@ -1356,13 +1356,13 @@ class XTypeElementTest {
     private fun XTestInvocation.objectMethodNames() = processingEnv
         .requireTypeElement("java.lang.Object")
         .getAllMethods()
-        .names()
+        .jvmNames()
 
-    private fun Sequence<XMethodElement>.names() = map {
-        it.name
+    private fun Sequence<XMethodElement>.jvmNames() = map {
+        it.jvmName
     }.toList()
 
-    private fun List<XMethodElement>.names() = map {
-        it.name
+    private fun List<XMethodElement>.jvmNames() = map {
+        it.jvmName
     }.toList()
 }
