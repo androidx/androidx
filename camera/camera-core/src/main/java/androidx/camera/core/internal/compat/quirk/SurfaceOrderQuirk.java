@@ -30,11 +30,11 @@ import androidx.camera.core.internal.compat.workaround.SurfaceSorter;
  *
  *  <p>On Pixel 1, when the MediaCodec surface size is 3840x2160(UHD) and the input list for
  *  creating CameraCaptureSession does not have Preview surface in front of the MediaCodec
- *  surface, Preview will have interlaced color lines after start recording. See b/205340278.
- *  MediaCodec surface resolutions for 1920x1080(FHD), 1280x720(HD) and 720x480(SD) do not have
- *  this issue. Not clearly know if there is another resolution will encounter this issue, but
- *  this quirk should be safe to apply regardless the video surface resolution since the workaround
- *  just sorts the surface list while creating CameraCaptureSession.
+ *  surface and ImageCapture surface, Preview will have interlaced color lines after start
+ *  recording. See b/205340278. MediaCodec surface resolutions for 1920x1080(FHD), 1280x720(HD)
+ *  and 720x480(SD) do not have this issue. Not clearly know if there is another resolution will
+ *  encounter this issue, but this quirk should be safe to apply regardless the video surface
+ *  resolution since the workaround just sorts the surface list while creating CameraCaptureSession.
  *
  * @see SurfaceSorter
  */
