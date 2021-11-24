@@ -64,10 +64,12 @@ function run() {
 # export some variables
 ANDROID_HOME=../../prebuilts/fullsdk-linux
 
+EXIT_VALUE=0
 # run the build
 if run ./gradlew --ci saveSystemStats "$@"; then
   echo build passed
 else
+  EXIT_VALUE=1
   if [ "$DIAGNOSE" == "true" ]; then
     # see if diagnose-build-failure.sh can identify the root cauase
     echo "running diagnose-build-failure.sh, see build.log" >&2
@@ -77,7 +79,13 @@ else
     # more easily investigate further
     ./development/diagnose-build-failure/diagnose-build-failure.sh --timeout 600 "--ci saveSystemStats $*"
   fi
-  exit 1
+fi
+
+#export build scan information
+zip -q -r $DIST_DIR/build_scans.zip $OUT_DIR/.gradle/build-scan-data || true
+
+if [ "$EXIT_VALUE" != "0" ]; then
+  exit "$EXIT_VALUE"
 fi
 
 # check that no unexpected modifications were made to the source repository, such as new cache directories
