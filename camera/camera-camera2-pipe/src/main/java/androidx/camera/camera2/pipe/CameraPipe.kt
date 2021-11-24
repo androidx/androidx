@@ -94,6 +94,7 @@ public class CameraPipe(config: Config, threadConfig: ThreadConfig = ThreadConfi
     public data class ThreadConfig(
         val defaultLightweightExecutor: Executor? = null,
         val defaultBackgroundExecutor: Executor? = null,
+        val defaultBlockingExecutor: Executor? = null,
         val defaultCameraExecutor: Executor? = null,
         val defaultCameraHandler: HandlerThread? = null
     )

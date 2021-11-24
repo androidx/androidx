@@ -89,7 +89,7 @@ internal abstract class CameraGraphModules {
         @Provides
         @ForCameraGraph
         fun provideCameraGraphCoroutineScope(threads: Threads): CoroutineScope {
-            return CoroutineScope(threads.defaultDispatcher.plus(CoroutineName("CXCP-Graph")))
+            return CoroutineScope(threads.lightweightDispatcher.plus(CoroutineName("CXCP-Graph")))
         }
 
         @CameraGraphScope
