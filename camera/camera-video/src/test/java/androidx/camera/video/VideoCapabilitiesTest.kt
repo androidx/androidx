@@ -52,29 +52,27 @@ class VideoCapabilitiesTest {
     @Test
     fun isQualitySupported() {
         val videoCapabilities = VideoCapabilities.from(cameraInfo)
-        assertThat(videoCapabilities.isQualitySupported(QualitySelector.QUALITY_NONE)).isFalse()
-        assertThat(videoCapabilities.isQualitySupported(QualitySelector.QUALITY_HIGHEST)).isTrue()
-        assertThat(videoCapabilities.isQualitySupported(QualitySelector.QUALITY_LOWEST)).isTrue()
-        assertThat(videoCapabilities.isQualitySupported(QualitySelector.QUALITY_UHD)).isTrue()
-        assertThat(videoCapabilities.isQualitySupported(QualitySelector.QUALITY_FHD)).isFalse()
-        assertThat(videoCapabilities.isQualitySupported(QualitySelector.QUALITY_HD)).isTrue()
-        assertThat(videoCapabilities.isQualitySupported(QualitySelector.QUALITY_SD)).isFalse()
+        assertThat(videoCapabilities.isQualitySupported(Quality.HIGHEST)).isTrue()
+        assertThat(videoCapabilities.isQualitySupported(Quality.LOWEST)).isTrue()
+        assertThat(videoCapabilities.isQualitySupported(Quality.UHD)).isTrue()
+        assertThat(videoCapabilities.isQualitySupported(Quality.FHD)).isFalse()
+        assertThat(videoCapabilities.isQualitySupported(Quality.HD)).isTrue()
+        assertThat(videoCapabilities.isQualitySupported(Quality.SD)).isFalse()
     }
 
     @Test
     fun getProfile() {
         val videoCapabilities = VideoCapabilities.from(cameraInfo)
-        assertThat(videoCapabilities.getProfile(QualitySelector.QUALITY_NONE)).isNull()
-        assertThat(videoCapabilities.getProfile(QualitySelector.QUALITY_HIGHEST))
+        assertThat(videoCapabilities.getProfile(Quality.HIGHEST))
             .isEqualTo(PROFILE_2160P)
-        assertThat(videoCapabilities.getProfile(QualitySelector.QUALITY_LOWEST))
+        assertThat(videoCapabilities.getProfile(Quality.LOWEST))
             .isEqualTo(PROFILE_720P)
-        assertThat(videoCapabilities.getProfile(QualitySelector.QUALITY_UHD))
+        assertThat(videoCapabilities.getProfile(Quality.UHD))
             .isEqualTo(PROFILE_2160P)
-        assertThat(videoCapabilities.getProfile(QualitySelector.QUALITY_FHD)).isNull()
-        assertThat(videoCapabilities.getProfile(QualitySelector.QUALITY_HD))
+        assertThat(videoCapabilities.getProfile(Quality.FHD)).isNull()
+        assertThat(videoCapabilities.getProfile(Quality.HD))
             .isEqualTo(PROFILE_720P)
-        assertThat(videoCapabilities.getProfile(QualitySelector.QUALITY_SD)).isNull()
+        assertThat(videoCapabilities.getProfile(Quality.SD)).isNull()
     }
 
     @Test
@@ -85,7 +83,7 @@ class VideoCapabilitiesTest {
         val inBetweenSize = Size(width720p + 10, height720p)
 
         assertThat(videoCapabilities.findHighestSupportedQualityFor(inBetweenSize))
-            .isEqualTo(QualitySelector.QUALITY_UHD)
+            .isEqualTo(Quality.UHD)
     }
 
     @Test
@@ -96,7 +94,7 @@ class VideoCapabilitiesTest {
         val aboveHighestSize = Size(width2160p + 10, height2160p)
 
         assertThat(videoCapabilities.findHighestSupportedQualityFor(aboveHighestSize))
-            .isEqualTo(QualitySelector.QUALITY_UHD)
+            .isEqualTo(Quality.UHD)
     }
 
     @Test
@@ -107,7 +105,7 @@ class VideoCapabilitiesTest {
         val belowLowestSize = Size(width720p - 10, height720p)
 
         assertThat(videoCapabilities.findHighestSupportedQualityFor(belowLowestSize))
-            .isEqualTo(QualitySelector.QUALITY_HD)
+            .isEqualTo(Quality.HD)
     }
 
     @Test
@@ -116,6 +114,6 @@ class VideoCapabilitiesTest {
         val exactSize720p = CamcorderProfileUtil.RESOLUTION_720P
 
         assertThat(videoCapabilities.findHighestSupportedQualityFor(exactSize720p))
-            .isEqualTo(QualitySelector.QUALITY_HD)
+            .isEqualTo(Quality.HD)
     }
 }

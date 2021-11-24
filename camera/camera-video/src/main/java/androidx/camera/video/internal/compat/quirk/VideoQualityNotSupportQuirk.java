@@ -20,10 +20,11 @@ import android.media.CamcorderProfile;
 import android.media.MediaRecorder.VideoEncoder;
 import android.os.Build;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.camera.core.impl.CamcorderProfileProvider;
 import androidx.camera.core.impl.Quirk;
-import androidx.camera.video.QualitySelector;
+import androidx.camera.video.Quality;
 import androidx.camera.video.VideoCapabilities;
 
 /**
@@ -52,7 +53,7 @@ public class VideoQualityNotSupportQuirk implements Quirk {
     }
 
     /** Checks if the given mime type is a problematic quality. */
-    public boolean isProblematicVideoQuality(@QualitySelector.VideoQuality int quality) {
-        return quality == QualitySelector.QUALITY_UHD;
+    public boolean isProblematicVideoQuality(@NonNull Quality quality) {
+        return quality == Quality.UHD;
     }
 }

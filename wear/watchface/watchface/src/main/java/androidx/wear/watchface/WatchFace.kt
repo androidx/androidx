@@ -1002,6 +1002,9 @@ public class WatchFaceImpl @UiThread constructor(
 
     @UiThread
     internal fun getComplicationState() = complicationSlotsManager.complicationSlots.map {
+        val systemDataSourceFallbackDefaultType =
+            it.value.defaultDataSourcePolicy.systemDataSourceFallbackDefaultType
+                .toWireComplicationType()
         IdAndComplicationStateWireFormat(
             it.key,
             ComplicationStateWireFormat(
@@ -1010,7 +1013,11 @@ public class WatchFaceImpl @UiThread constructor(
                 ComplicationType.toWireTypes(it.value.supportedTypes),
                 it.value.defaultDataSourcePolicy.dataSourcesAsList(),
                 it.value.defaultDataSourcePolicy.systemDataSourceFallback,
-                it.value.defaultDataSourceType.toWireComplicationType(),
+                systemDataSourceFallbackDefaultType,
+                it.value.defaultDataSourcePolicy.primaryDataSourceDefaultType
+                    ?.toWireComplicationType() ?: systemDataSourceFallbackDefaultType,
+                it.value.defaultDataSourcePolicy.secondaryDataSourceDefaultType
+                    ?.toWireComplicationType() ?: systemDataSourceFallbackDefaultType,
                 it.value.enabled,
                 it.value.initiallyEnabled,
                 it.value.renderer.getData().type.toWireComplicationType(),

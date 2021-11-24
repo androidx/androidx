@@ -248,12 +248,6 @@ package androidx.wear.compose.material {
   public final class RangeDefaultsKt {
   }
 
-  public final class RangeIcons {
-    method public androidx.compose.ui.graphics.vector.ImageVector getMinusIcon();
-    property public final androidx.compose.ui.graphics.vector.ImageVector MinusIcon;
-    field public static final androidx.wear.compose.material.RangeIcons INSTANCE;
-  }
-
   public final class Resources_androidKt {
   }
 

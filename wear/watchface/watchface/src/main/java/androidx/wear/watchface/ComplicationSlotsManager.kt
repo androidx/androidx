@@ -239,11 +239,13 @@ public class ComplicationSlotsManager(
                 if (complication.defaultDataSourcePolicyDirty ||
                     complication.defaultDataSourceTypeDirty
                 ) {
+                    // Note this is a NOP in the androidx flow.
                     watchFaceHostApi.setDefaultComplicationDataSourceWithFallbacks(
                         complication.id,
                         complication.defaultDataSourcePolicy.dataSourcesAsList(),
                         complication.defaultDataSourcePolicy.systemDataSourceFallback,
-                        complication.defaultDataSourceType.toWireComplicationType()
+                        complication.defaultDataSourcePolicy
+                            .systemDataSourceFallbackDefaultType.toWireComplicationType()
                     )
                 }
 
@@ -410,7 +412,8 @@ public class ComplicationSlotsManager(
                 it.key,
                 it.value.defaultDataSourcePolicy.dataSourcesAsList(),
                 it.value.defaultDataSourcePolicy.systemDataSourceFallback,
-                it.value.defaultDataSourceType.toWireComplicationType()
+                it.value.defaultDataSourcePolicy
+                    .systemDataSourceFallbackDefaultType.toWireComplicationType()
             )
         }.toTypedArray()
 }

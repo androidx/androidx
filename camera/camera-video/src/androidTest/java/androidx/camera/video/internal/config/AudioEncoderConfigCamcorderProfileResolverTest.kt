@@ -24,7 +24,7 @@ import androidx.camera.core.internal.CameraUseCaseAdapter
 import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.CameraXUtil
 import androidx.camera.video.AudioSpec
-import androidx.camera.video.QualitySelector.QUALITY_HIGHEST
+import androidx.camera.video.Quality
 import androidx.camera.video.VideoCapabilities
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -103,7 +103,7 @@ class AudioEncoderConfigCamcorderProfileResolverTest {
     @Test
     fun increasedChannelCountIncreasesBitrate() {
         // Get default channel count
-        val profile = videoCapabilities.getProfile(QUALITY_HIGHEST)!!
+        val profile = videoCapabilities.getProfile(Quality.HIGHEST)!!
         val defaultSourceSettings =
             AudioSourceSettingsCamcorderProfileResolver(defaultAudioSpec, profile).get()
         val defaultConfig =
@@ -133,7 +133,7 @@ class AudioEncoderConfigCamcorderProfileResolverTest {
     @Test
     fun increasedSampleRateIncreasesBitrate() {
         // Get default sample rate
-        val profile = videoCapabilities.getProfile(QUALITY_HIGHEST)!!
+        val profile = videoCapabilities.getProfile(Quality.HIGHEST)!!
         val defaultSourceSettings =
             AudioSourceSettingsCamcorderProfileResolver(defaultAudioSpec, profile).get()
         val defaultConfig =
@@ -162,7 +162,7 @@ class AudioEncoderConfigCamcorderProfileResolverTest {
 
     @Test
     fun bitrateRangeInVideoSpecClampsBitrate() {
-        val profile = videoCapabilities.getProfile(QUALITY_HIGHEST)!!
+        val profile = videoCapabilities.getProfile(Quality.HIGHEST)!!
         val defaultSourceSettings =
             AudioSourceSettingsCamcorderProfileResolver(defaultAudioSpec, profile).get()
 

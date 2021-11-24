@@ -47,12 +47,6 @@ import androidx.camera.testing.fakes.FakeCamera
 import androidx.camera.testing.fakes.FakeCameraDeviceSurfaceManager
 import androidx.camera.testing.fakes.FakeCameraFactory
 import androidx.camera.testing.fakes.FakeCameraInfoInternal
-import androidx.camera.video.QualitySelector.QUALITY_FHD
-import androidx.camera.video.QualitySelector.QUALITY_HD
-import androidx.camera.video.QualitySelector.QUALITY_HIGHEST
-import androidx.camera.video.QualitySelector.QUALITY_LOWEST
-import androidx.camera.video.QualitySelector.QUALITY_SD
-import androidx.camera.video.QualitySelector.QUALITY_UHD
 import androidx.camera.video.VideoOutput.StreamState
 import androidx.camera.video.impl.VideoCaptureConfig
 import androidx.core.util.Consumer
@@ -170,10 +164,10 @@ class VideoCaptureTest {
 
         // Camera 0 support 2160P(UHD) and 720P(HD)
         val qualityList = arrayOf(
-            QUALITY_UHD to RESOLUTION_2160P,
-            QUALITY_HD to RESOLUTION_720P,
-            QUALITY_HIGHEST to RESOLUTION_2160P,
-            QUALITY_LOWEST to RESOLUTION_720P,
+            Quality.UHD to RESOLUTION_2160P,
+            Quality.HD to RESOLUTION_720P,
+            Quality.HIGHEST to RESOLUTION_2160P,
+            Quality.LOWEST to RESOLUTION_720P,
         )
         qualityList.forEach { (quality, resolution) ->
             surfaceManager.setSuggestedResolution(
@@ -184,7 +178,7 @@ class VideoCaptureTest {
 
             val videoOutput = createVideoOutput(
                 mediaSpec = MediaSpec.builder().configureVideo {
-                    it.setQualitySelector(QualitySelector.of(quality))
+                    it.setQualitySelector(QualitySelector.from(quality))
                 }.build()
             )
             val videoCapture = VideoCapture.Builder(videoOutput)
@@ -223,10 +217,14 @@ class VideoCaptureTest {
         val videoOutput = createVideoOutput(
             mediaSpec = MediaSpec.builder().configureVideo {
                 it.setQualitySelector(
-                    QualitySelector.firstTry(QUALITY_UHD) // 2160P
-                        .thenTry(QUALITY_SD) // 480P
-                        .thenTry(QUALITY_HD) // 720P
-                        .finallyTry(QUALITY_FHD) // 1080P
+                    QualitySelector.fromOrderedList(
+                        listOf(
+                            Quality.UHD, // 2160P
+                            Quality.SD, // 480P
+                            Quality.HD, // 720P
+                            Quality.FHD // 1080P
+                        )
+                    )
                 )
             }.build()
         )
@@ -254,7 +252,7 @@ class VideoCaptureTest {
         // Camera 0 support 2160P(UHD) and 720P(HD)
         val videoOutput = createVideoOutput(
             mediaSpec = MediaSpec.builder().configureVideo {
-                it.setQualitySelector(QualitySelector.of(QUALITY_FHD))
+                it.setQualitySelector(QualitySelector.from(Quality.FHD))
             }.build()
         )
         val videoCapture = VideoCapture.Builder(videoOutput)
@@ -277,7 +275,7 @@ class VideoCaptureTest {
 
         val videoOutput = createVideoOutput(
             mediaSpec = MediaSpec.builder().configureVideo {
-                it.setQualitySelector(QualitySelector.of(QUALITY_UHD))
+                it.setQualitySelector(QualitySelector.from(Quality.UHD))
             }.build()
         )
         val videoCapture = VideoCapture.Builder(videoOutput)

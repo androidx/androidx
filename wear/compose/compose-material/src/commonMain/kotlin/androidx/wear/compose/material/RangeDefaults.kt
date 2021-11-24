@@ -30,7 +30,7 @@ import kotlin.math.roundToInt
 /**
  * Icons which are used by Range controls like slider and stepper
  */
-object RangeIcons {
+internal object RangeIcons {
 
     /**
      * An [Icon] with a minus sign.
