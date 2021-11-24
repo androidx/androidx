@@ -63,9 +63,7 @@ public class ProjectSubsetsTest {
         }
         GradleRunner.create()
             .withProjectDir(projectDir)
-            // TODO(b/207407626) remove --no-configuration-cache once changing the subset works
-            // correctly
-            .withArguments("-Pandroidx.projects=$name", "tasks", "--no-configuration-cache")
+            .withArguments("-Pandroidx.projects=$name", "tasks")
             .withTestKitDir(File(outDir, ".gradle-testkit"))
             .build(); // fails the test if the build fails
     }

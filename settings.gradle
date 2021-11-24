@@ -88,11 +88,14 @@ enum BuildType {
 }
 
 private String getRequestedProjectSubsetName() {
-    if (startParameter.projectProperties.containsKey("androidx.projects")) {
-        return startParameter.projectProperties["androidx.projects"].toUpperCase()
+    def prop = providers.gradleProperty("androidx.projects").forUseAtConfigurationTime()
+    if (prop.isPresent()) {
+        return prop.get().toUpperCase()
     }
-    if (System.getenv().containsKey("ANDROIDX_PROJECTS")) {
-        return System.getenv()["ANDROIDX_PROJECTS"].toUpperCase()
+
+    def envProp = providers.environmentVariable("ANDROIDX_PROJECTS").forUseAtConfigurationTime()
+    if (envProp.isPresent()) {
+        return envProp.get().toUpperCase()
     }
     return null
 }
