@@ -1133,11 +1133,15 @@ class ExampleDigitalWatchCanvasRenderer(
     private fun drawComplications(canvas: Canvas, zonedDateTime: ZonedDateTime) {
         // First, draw the background complication if not in ambient mode
         if (renderParameters.drawMode != DrawMode.AMBIENT) {
-            complicationSlotsManager[ComplicationID.BACKGROUND.ordinal]!!.render(
-                canvas,
-                zonedDateTime,
-                renderParameters
-            )
+            complicationSlotsManager[ComplicationID.BACKGROUND.ordinal]?.let {
+                if (it.complicationData.value.type != ComplicationType.NO_DATA) {
+                    it.render(
+                        canvas,
+                        zonedDateTime,
+                        renderParameters
+                    )
+                }
+            }
         }
         for (i in FOREGROUND_COMPLICATION_IDS) {
             val complication = complicationSlotsManager[i] as ComplicationSlot

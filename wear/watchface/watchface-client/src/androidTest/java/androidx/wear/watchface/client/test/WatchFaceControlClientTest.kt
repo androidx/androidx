@@ -1334,6 +1334,17 @@ class WatchFaceControlClientTest {
         interactiveInstance.close()
         assertThat(interactiveInstance.isConnectionAlive()).isFalse()
     }
+
+    @Test
+    fun hasComplicationCache_oldApi() {
+        WatchFaceControlTestService.apiVersionOverride = 3
+        assertFalse(service.hasComplicationDataCache())
+    }
+
+    @Test
+    fun hasComplicationCache_currentApi() {
+        assertTrue(service.hasComplicationDataCache())
+    }
 }
 
 internal class TestExampleCanvasAnalogWatchFaceService(

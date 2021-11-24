@@ -61,7 +61,8 @@ internal class TestWatchFaceService(
             override fun setNormalPriority() {}
 
             override fun setInteractivePriority() {}
-        }
+        },
+    private val complicationCache: MutableMap<String, ByteArray>? = null
 ) : WatchFaceService() {
     /** The ids of the [ComplicationSlot]s that have been tapped. */
     val tappedComplicationSlotIds: List<Int>
@@ -141,7 +142,19 @@ internal class TestWatchFaceService(
         context: Context,
         fileName: String,
         prefs: WallpaperInteractiveWatchFaceInstanceParams
+    ) {}
+
+    override fun readComplicationDataCacheByteArray(
+        context: Context,
+        fileName: String
+    ): ByteArray? = complicationCache?.get(fileName)
+
+    override fun writeComplicationDataCacheByteArray(
+        context: Context,
+        fileName: String,
+        byteArray: ByteArray
     ) {
+        complicationCache?.set(fileName, byteArray)
     }
 
     override fun expectPreRInitFlow() = preAndroidR

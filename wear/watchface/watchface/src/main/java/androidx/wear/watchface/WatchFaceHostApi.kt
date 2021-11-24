@@ -126,4 +126,8 @@ public interface WatchFaceHostApi {
 
     /** Intent to launch the complication permission rationale activity. */
     public fun getComplicationRationaleIntent(): Intent?
+
+    /** Schedules a call to serialize [ComplicationSlotsManager]'s [ComplicationData]. */
+    @UiThread
+    public fun scheduleWriteComplicationDataCache()
 }

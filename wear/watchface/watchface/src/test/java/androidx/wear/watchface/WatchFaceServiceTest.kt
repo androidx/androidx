@@ -507,7 +507,8 @@ public class WatchFaceServiceTest {
         @WatchFaceType watchFaceType: Int,
         complicationSlots: List<ComplicationSlot>,
         userStyleSchema: UserStyleSchema,
-        wallpaperInteractiveWatchFaceInstanceParams: WallpaperInteractiveWatchFaceInstanceParams
+        wallpaperInteractiveWatchFaceInstanceParams: WallpaperInteractiveWatchFaceInstanceParams,
+        complicationCache: MutableMap<String, ByteArray>? = null
     ) {
         testWatchFaceService = TestWatchFaceService(
             watchFaceType,
@@ -528,7 +529,8 @@ public class WatchFaceServiceTest {
             false,
             null,
             choreographer,
-            mockSystemTimeMillis = looperTimeMillis
+            mockSystemTimeMillis = looperTimeMillis,
+            complicationCache = complicationCache
         )
 
         InteractiveInstanceManager
@@ -2285,6 +2287,123 @@ public class WatchFaceServiceTest {
         assertThat(rightComplicationData.type).isEqualTo(ComplicationData.TYPE_SHORT_TEXT)
         assertThat(rightComplicationData.shortText?.getTextAt(context.resources, 0))
             .isEqualTo("TYPE_SHORT_TEXT")
+    }
+
+    @Test
+    public fun complicationCache() {
+        val complicationCache = HashMap<String, ByteArray>()
+        val instanceParams = WallpaperInteractiveWatchFaceInstanceParams(
+            "interactiveInstanceId",
+            DeviceConfig(false, false, 0, 0),
+            WatchUiState(false, 0),
+            UserStyle(emptyMap()).toWireFormat(),
+            null
+        )
+        initWallpaperInteractiveWatchFaceInstance(
+            WatchFaceType.ANALOG,
+            listOf(leftComplication, rightComplication),
+            UserStyleSchema(emptyList()),
+            instanceParams,
+            complicationCache = complicationCache
+        )
+
+        assertThat(complicationCache).isEmpty()
+        assertThat(complicationSlotsManager[LEFT_COMPLICATION_ID]!!.complicationData.value.type)
+            .isEqualTo(ComplicationType.NO_DATA)
+        assertThat(complicationSlotsManager[RIGHT_COMPLICATION_ID]!!.complicationData.value.type)
+            .isEqualTo(ComplicationType.NO_DATA)
+
+        // Set some ComplicationData.
+        interactiveWatchFaceInstance.updateComplicationData(
+            listOf(
+                IdAndComplicationDataWireFormat(
+                    LEFT_COMPLICATION_ID,
+                    ComplicationData.Builder(ComplicationData.TYPE_LONG_TEXT)
+                        .setLongText(ComplicationText.plainText("TYPE_LONG_TEXT")).build()
+                ),
+                IdAndComplicationDataWireFormat(
+                    RIGHT_COMPLICATION_ID,
+                    ComplicationData.Builder(ComplicationData.TYPE_SHORT_TEXT)
+                        .setShortText(ComplicationText.plainText("TYPE_SHORT_TEXT")).build()
+                )
+            )
+        )
+
+        // Complication cache writes are deferred for 1s to try and batch up multiple updates.
+        runPostedTasksFor(1000)
+        assertThat(complicationCache.size).isEqualTo(1)
+        assertThat(complicationCache).containsKey("interactiveInstanceId")
+
+        engineWrapper.onDestroy()
+
+        val service2 = TestWatchFaceService(
+            WatchFaceType.ANALOG,
+            listOf(leftComplication, rightComplication),
+            { _, currentUserStyleRepository, watchState ->
+                TestRenderer(
+                    surfaceHolder,
+                    currentUserStyleRepository,
+                    watchState,
+                    INTERACTIVE_UPDATE_RATE_MS
+                )
+            },
+            UserStyleSchema(emptyList()),
+            watchState,
+            handler,
+            null,
+            true,
+            null,
+            choreographer,
+            complicationCache = complicationCache
+        )
+
+        InteractiveInstanceManager
+            .getExistingInstanceOrSetPendingWallpaperInteractiveWatchFaceInstance(
+                InteractiveInstanceManager.PendingWallpaperInteractiveWatchFaceInstance(
+                    instanceParams,
+                    object : IPendingInteractiveWatchFace.Stub() {
+                        override fun getApiVersion() =
+                            IPendingInteractiveWatchFace.API_VERSION
+
+                        override fun onInteractiveWatchFaceCreated(
+                            iInteractiveWatchFace: IInteractiveWatchFace
+                        ) {}
+
+                        override fun onInteractiveWatchFaceCrashed(exception: CrashInfoParcel?) {
+                            fail("WatchFace crashed: $exception")
+                        }
+                    }
+                )
+            )
+
+        val engineWrapper2 = service2.onCreateEngine() as WatchFaceService.EngineWrapper
+        engineWrapper2.onCreate(surfaceHolder)
+        engineWrapper2.onSurfaceChanged(surfaceHolder, 0, 100, 100)
+
+        // [WatchFaceService.createWatchFace] Will have run by now because we're using an immediate
+        // coroutine dispatcher.
+        runBlocking {
+            val watchFaceImpl2 = engineWrapper2.deferredWatchFaceImpl.await()
+
+            // Check the ComplicationData was cached.
+            val leftComplicationData =
+                watchFaceImpl2.complicationSlotsManager[
+                    LEFT_COMPLICATION_ID
+                ]!!.complicationData.value.asWireComplicationData()
+            val rightComplicationData =
+                watchFaceImpl2.complicationSlotsManager[
+                    RIGHT_COMPLICATION_ID
+                ]!!.complicationData.value.asWireComplicationData()
+
+            assertThat(leftComplicationData.type).isEqualTo(ComplicationData.TYPE_LONG_TEXT)
+            assertThat(leftComplicationData.longText?.getTextAt(context.resources, 0))
+                .isEqualTo("TYPE_LONG_TEXT")
+            assertThat(rightComplicationData.type).isEqualTo(ComplicationData.TYPE_SHORT_TEXT)
+            assertThat(rightComplicationData.shortText?.getTextAt(context.resources, 0))
+                .isEqualTo("TYPE_SHORT_TEXT")
+        }
+
+        engineWrapper2.onDestroy()
     }
 
     @Test
