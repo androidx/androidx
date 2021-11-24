@@ -205,7 +205,8 @@ public abstract class ComplicationDataSourceService : Service() {
      * A request for representative preview data for the complication, for use in the editor UI.
      * Preview data is assumed to be static per type. E.g. for a complication that displays the date
      * and time of an event, rather than returning the real time it should return a fixed date and
-     * time such as 10:10 Aug 1st.
+     * time such as 10:10 Aug 1st. This data may be cached by the system and the result should be
+     * constant based on the current locale.
      *
      * This will be called on a background thread.
      *
