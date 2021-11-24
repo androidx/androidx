@@ -17,7 +17,6 @@
 package androidx.glance.appwidget
 
 import android.app.Activity
-import android.content.Intent
 import android.os.Bundle
 
 /**
@@ -25,24 +24,10 @@ import android.os.Bundle
  * This trampoline is only used for device versions before [android.os.Build.VERSION_CODES.Q].
  */
 @Suppress("ForbiddenSuperClass")
-internal class ListAdapterLaunchActivityTrampolineActivity : Activity() {
+internal class ListAdapterTrampolineActivity : Activity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        intent?.getParcelableExtra<Intent>(ActionIntentKey)
-            ?.let {
-                // Copy flags from trampoline intent to action intent
-                it.flags = it.flags or intent.flags
-                startActivity(it)
-            }
-            ?: error("List adapter activity trampoline invoked without specifying target intent.")
-        finish()
-    }
-
-    companion object {
-        private const val ActionIntentKey = "ACTIVITY_ACTION_INTENT"
-
-        internal fun Intent.putActivityIntentExtra(actionIntent: Intent) =
-            putExtra(ActionIntentKey, actionIntent)
+        launchTrampolineAction(intent)
     }
 }
