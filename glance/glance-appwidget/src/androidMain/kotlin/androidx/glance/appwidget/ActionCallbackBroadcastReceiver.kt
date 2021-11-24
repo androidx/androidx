@@ -21,11 +21,13 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.widget.RemoteViews
 import androidx.core.os.bundleOf
 import androidx.glance.action.ActionParameters
+import androidx.glance.action.mutableActionParametersOf
 import androidx.glance.appwidget.action.ActionCallback
 import androidx.glance.appwidget.action.RunCallbackAction
-import androidx.glance.action.mutableActionParametersOf
+import androidx.glance.appwidget.action.ToggleableStateKey
 import kotlinx.coroutines.CancellationException
 import java.util.UUID
 
@@ -46,6 +48,9 @@ internal class ActionCallbackBroadcastReceiver : BroadcastReceiver() {
                 val parameters = mutableActionParametersOf().apply {
                     paramsBundle.keySet().forEach { key ->
                         set(ActionParameters.Key(key), paramsBundle[key])
+                    }
+                    if (extras.containsKey(RemoteViews.EXTRA_CHECKED)) {
+                        set(ToggleableStateKey, extras.getBoolean(RemoteViews.EXTRA_CHECKED))
                     }
                 }
                 val className = requireNotNull(extras.getString(ExtraCallbackClassName)) {
