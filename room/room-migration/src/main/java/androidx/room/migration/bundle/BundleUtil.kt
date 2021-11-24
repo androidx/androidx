@@ -13,36 +13,33 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:JvmName("BundleUtil")
+@file:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 
-package androidx.room.migration.bundle;
+package androidx.room.migration.bundle
 
-import androidx.annotation.RestrictTo;
+import androidx.annotation.RestrictTo
 
 /**
  * Utility functions for bundling.
  *
  * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-public class BundleUtil {
-    /**
-     * Placeholder for table names in queries.
-     */
-    public static final String TABLE_NAME_PLACEHOLDER = "${TABLE_NAME}";
 
-    /**
-     * Placeholder for view names in queries.
-     */
-    public static final String VIEW_NAME_PLACEHOLDER = "${VIEW_NAME}";
+/**
+ * Placeholder for table names in queries.
+ */
+public const val TABLE_NAME_PLACEHOLDER: String = "\${TABLE_NAME}"
 
-    static String replaceTableName(String contents, String tableName) {
-        return contents.replace(TABLE_NAME_PLACEHOLDER, tableName);
-    }
+/**
+ * Placeholder for view names in queries.
+ */
+public const val VIEW_NAME_PLACEHOLDER: String = "\${VIEW_NAME}"
 
-    static String replaceViewName(String contents, String viewName) {
-        return contents.replace(VIEW_NAME_PLACEHOLDER, viewName);
-    }
+public fun replaceTableName(contents: String, tableName: String): String {
+    return contents.replace(TABLE_NAME_PLACEHOLDER, tableName)
+}
 
-    private BundleUtil() {
-    }
+public fun replaceViewName(contents: String, viewName: String): String {
+    return contents.replace(VIEW_NAME_PLACEHOLDER, viewName)
 }

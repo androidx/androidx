@@ -14,15 +14,11 @@
  * limitations under the License.
  */
 
-package androidx.room.migration.bundle;
+package androidx.room.migration.bundle
 
-import androidx.annotation.RestrictTo;
-import androidx.room.Fts3;
-import androidx.room.Fts4;
+import androidx.annotation.RestrictTo
 
-import com.google.gson.annotations.SerializedName;
-
-import java.util.List;
+import com.google.gson.annotations.SerializedName
 
 /**
  * Data class that holds FTS Options of an {@link Fts3 Fts3} or
@@ -31,68 +27,38 @@ import java.util.List;
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-public class FtsOptionsBundle implements SchemaEquality<FtsOptionsBundle> {
-
+public open class FtsOptionsBundle(
     @SerializedName("tokenizer")
-    private final String mTokenizer;
-
+    private val tokenizer: String,
     @SerializedName("tokenizerArgs")
-    private final List<String> mTokenizerArgs;
-
+    public open val tokenizerArgs: List<String>,
     @SerializedName("contentTable")
-    private final String mContentTable;
-
+    public open val contentTable: String,
     @SerializedName("languageIdColumnName")
-    private final String mLanguageIdColumnName;
-
+    public open val languageIdColumnName: String,
     @SerializedName("matchInfo")
-    private final String mMatchInfo;
-
+    public open val matchInfo: String,
     @SerializedName("notIndexedColumns")
-    private final List<String> mNotIndexedColumns;
-
+    public open val notIndexedColumns: List<String>,
     @SerializedName("prefixSizes")
-    private final List<Integer> mPrefixSizes;
-
+    public open val prefixSizes: List<Int>,
     @SerializedName("preferredOrder")
-    private final String mPreferredOrder;
+    public open val preferredOrder: String
+) : SchemaEquality<FtsOptionsBundle> {
 
-    public FtsOptionsBundle(
-            String tokenizer,
-            List<String> tokenizerArgs,
-            String contentTable,
-            String languageIdColumnName,
-            String matchInfo,
-            List<String> notIndexedColumns,
-            List<Integer> prefixSizes,
-            String preferredOrder) {
-        mTokenizer = tokenizer;
-        mTokenizerArgs = tokenizerArgs;
-        mContentTable = contentTable;
-        mLanguageIdColumnName = languageIdColumnName;
-        mMatchInfo = matchInfo;
-        mNotIndexedColumns = notIndexedColumns;
-        mPrefixSizes = prefixSizes;
-        mPreferredOrder = preferredOrder;
-    }
+    // Used by GSON
+    @Deprecated("Marked deprecated to avoid usage in the codebase")
+    @SuppressWarnings("unused")
+    private constructor() : this("", emptyList(), "", "", "", emptyList(), emptyList(), "")
 
-    /**
-     * @return The external content table name
-     */
-    public String getContentTable() {
-        return mContentTable;
-    }
-
-    @Override
-    public boolean isSchemaEqual(FtsOptionsBundle other) {
-        return mTokenizer.equals(other.mTokenizer)
-                && mTokenizerArgs.equals(other.mTokenizerArgs)
-                && mContentTable.equals(other.mContentTable)
-                && mLanguageIdColumnName.equals(other.mLanguageIdColumnName)
-                && mMatchInfo.equals(other.mMatchInfo)
-                && mNotIndexedColumns.equals(other.mNotIndexedColumns)
-                && mPrefixSizes.equals(other.mPrefixSizes)
-                && mPreferredOrder.equals(other.mPreferredOrder);
-
+    override fun isSchemaEqual(other: FtsOptionsBundle): Boolean {
+        return tokenizer == other.tokenizer &&
+            tokenizerArgs == other.tokenizerArgs &&
+            contentTable == other.contentTable &&
+            languageIdColumnName == other.languageIdColumnName &&
+            matchInfo == other.matchInfo &&
+            notIndexedColumns == other.notIndexedColumns &&
+            prefixSizes == other.prefixSizes &&
+            preferredOrder == other.preferredOrder
     }
 }

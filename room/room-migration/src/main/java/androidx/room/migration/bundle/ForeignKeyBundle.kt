@@ -14,106 +14,48 @@
  * limitations under the License.
  */
 
-package androidx.room.migration.bundle;
+package androidx.room.migration.bundle
 
-import androidx.annotation.RestrictTo;
+import androidx.annotation.RestrictTo
 
-import com.google.gson.annotations.SerializedName;
-
-import java.util.List;
+import com.google.gson.annotations.SerializedName
 
 /**
- * Holds the information about a foreign key reference.
+ * @constructor Creates a foreign key bundle with the given parameters. Holds the information about
+ * a foreign key reference.
+ *
+ * @property table             The target table
+ * @property onDelete          OnDelete action
+ * @property onUpdate          OnUpdate action
+ * @property columns           The list of columns in the current table
+ * @property referencedColumns The list of columns in the referenced table
  *
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-public class ForeignKeyBundle implements SchemaEquality<ForeignKeyBundle> {
-    @SerializedName("table")
-    private String mTable;
-    @SerializedName("onDelete")
-    private String mOnDelete;
-    @SerializedName("onUpdate")
-    private String mOnUpdate;
-    @SerializedName("columns")
-    private List<String> mColumns;
-    @SerializedName("referencedColumns")
-    private List<String> mReferencedColumns;
+public open class ForeignKeyBundle(
+    @field:SerializedName("table")
+    public open val table: String,
+    @field:SerializedName("onDelete")
+    public open val onDelete: String,
+    @field:SerializedName("onUpdate")
+    public open val onUpdate: String,
+    @field:SerializedName("columns")
+    public open val columns: List<String>,
+    @field:SerializedName("referencedColumns")
+    public open val referencedColumns: List<String>
+) : SchemaEquality<ForeignKeyBundle> {
 
-    /**
-     * Creates a foreign key bundle with the given parameters.
-     *
-     * @param table             The target table
-     * @param onDelete          OnDelete action
-     * @param onUpdate          OnUpdate action
-     * @param columns           The list of columns in the current table
-     * @param referencedColumns The list of columns in the referenced table
-     */
-    public ForeignKeyBundle(String table, String onDelete, String onUpdate,
-            List<String> columns, List<String> referencedColumns) {
-        mTable = table;
-        mOnDelete = onDelete;
-        mOnUpdate = onUpdate;
-        mColumns = columns;
-        mReferencedColumns = referencedColumns;
-    }
+    // Used by GSON
+    @Deprecated("Marked deprecated to avoid usage in the codebase")
+    @SuppressWarnings("unused")
+    private constructor() : this("", "", "", emptyList(), emptyList())
 
-    /**
-     * Returns the table name
-     *
-     * @return Returns the table name
-     */
-    public String getTable() {
-        return mTable;
-    }
-
-    /**
-     * Returns the SQLite foreign key action that will be performed when referenced row is deleted.
-     *
-     * @return The SQLite on delete action
-     */
-    public String getOnDelete() {
-        return mOnDelete;
-    }
-
-    /**
-     * Returns the SQLite foreign key action that will be performed when referenced row is updated.
-     *
-     * @return The SQLite on update action
-     */
-    public String getOnUpdate() {
-        return mOnUpdate;
-    }
-
-    /**
-     * Returns the ordered list of columns in the current table.
-     *
-     * @return The list of columns in the current entity.
-     */
-    public List<String> getColumns() {
-        return mColumns;
-    }
-
-    /**
-     * Returns the ordered list of columns in the referenced table.
-     *
-     * @return The list of columns in the referenced entity.
-     */
-    public List<String> getReferencedColumns() {
-        return mReferencedColumns;
-    }
-
-    @Override
-    public boolean isSchemaEqual(ForeignKeyBundle other) {
-        if (mTable != null ? !mTable.equals(other.mTable) : other.mTable != null) return false;
-        if (mOnDelete != null ? !mOnDelete.equals(other.mOnDelete) : other.mOnDelete != null) {
-            return false;
-        }
-        if (mOnUpdate != null ? !mOnUpdate.equals(other.mOnUpdate) : other.mOnUpdate != null) {
-            return false;
-        }
+    override fun isSchemaEqual(other: ForeignKeyBundle): Boolean {
+        if (table != other.table) return false
+        if (onDelete != other.onDelete) return false
+        if (onUpdate != other.onUpdate) return false
         // order matters
-        return mColumns.equals(other.mColumns) && mReferencedColumns.equals(
-                other.mReferencedColumns);
+        return (columns == other.columns && referencedColumns == other.referencedColumns)
     }
 }

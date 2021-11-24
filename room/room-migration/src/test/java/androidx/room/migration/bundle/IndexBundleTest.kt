@@ -14,98 +14,94 @@
  * limitations under the License.
  */
 
-package androidx.room.migration.bundle;
+package androidx.room.migration.bundle
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
+import org.hamcrest.CoreMatchers.`is`
+import org.hamcrest.MatcherAssert.assertThat
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.junit.runners.JUnit4
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
-
-import java.util.Arrays;
-import java.util.Collections;
-
-@RunWith(JUnit4.class)
-public class IndexBundleTest {
+@RunWith(JUnit4::class)
+class IndexBundleTest {
     @Test
-    public void schemaEquality_same_equal() {
-        IndexBundle bundle = new IndexBundle("index1", false,
-                Arrays.asList("col1", "col2"), Arrays.asList("ASC", "ASC"), "sql");
-        IndexBundle other = new IndexBundle("index1", false,
-                Arrays.asList("col1", "col2"), Arrays.asList("ASC", "ASC"), "sql");
-        assertThat(bundle.isSchemaEqual(other), is(true));
+    fun schemaEquality_same_equal() {
+        val bundle = IndexBundle("index1", false,
+            listOf("col1", "col2"), listOf("ASC", "ASC"), "sql")
+        val other = IndexBundle("index1", false,
+            listOf("col1", "col2"), listOf("ASC", "ASC"), "sql")
+        assertThat(bundle.isSchemaEqual(other), `is`(true))
     }
 
     @Test
-    public void schemaEquality_diffName_notEqual() {
-        IndexBundle bundle = new IndexBundle("index1", false,
-                Arrays.asList("col1", "col2"), Arrays.asList("ASC", "ASC"),  "sql");
-        IndexBundle other = new IndexBundle("index3", false,
-                Arrays.asList("col1", "col2"), Arrays.asList("ASC", "ASC"), "sql");
-        assertThat(bundle.isSchemaEqual(other), is(false));
+    fun schemaEquality_diffName_notEqual() {
+        val bundle = IndexBundle("index1", false,
+            listOf("col1", "col2"), listOf("ASC", "ASC"), "sql")
+        val other = IndexBundle("index3", false,
+            listOf("col1", "col2"), listOf("ASC", "ASC"), "sql")
+        assertThat(bundle.isSchemaEqual(other), `is`(false))
     }
 
     @Test
-    public void schemaEquality_diffGenericName_equal() {
-        IndexBundle bundle = new IndexBundle(IndexBundle.DEFAULT_PREFIX + "x", false,
-                Arrays.asList("col1", "col2"), Arrays.asList("ASC", "ASC"), "sql");
-        IndexBundle other = new IndexBundle(IndexBundle.DEFAULT_PREFIX + "y", false,
-                Arrays.asList("col1", "col2"), Arrays.asList("ASC", "ASC"), "sql");
-        assertThat(bundle.isSchemaEqual(other), is(true));
+    fun schemaEquality_diffGenericName_equal() {
+        val bundle = IndexBundle(IndexBundle.DEFAULT_PREFIX + "x", false,
+            listOf("col1", "col2"), listOf("ASC", "ASC"), "sql")
+        val other = IndexBundle(IndexBundle.DEFAULT_PREFIX + "y", false,
+            listOf("col1", "col2"), listOf("ASC", "ASC"), "sql")
+        assertThat(bundle.isSchemaEqual(other), `is`(true))
     }
 
     @Test
-    public void schemaEquality_diffUnique_notEqual() {
-        IndexBundle bundle = new IndexBundle("index1", false,
-                Arrays.asList("col1", "col2"), Arrays.asList("ASC", "ASC"), "sql");
-        IndexBundle other = new IndexBundle("index1", true,
-                Arrays.asList("col1", "col2"), Arrays.asList("ASC", "ASC"), "sql");
-        assertThat(bundle.isSchemaEqual(other), is(false));
+    fun schemaEquality_diffUnique_notEqual() {
+        val bundle = IndexBundle("index1", false,
+            listOf("col1", "col2"), listOf("ASC", "ASC"), "sql")
+        val other = IndexBundle("index1", true,
+            listOf("col1", "col2"), listOf("ASC", "ASC"), "sql")
+        assertThat(bundle.isSchemaEqual(other), `is`(false))
     }
 
     @Test
-    public void schemaEquality_diffColumns_notEqual() {
-        IndexBundle bundle = new IndexBundle("index1", false,
-                Arrays.asList("col1", "col2"), Arrays.asList("ASC", "ASC"), "sql");
-        IndexBundle other = new IndexBundle("index1", false,
-                Arrays.asList("col2", "col1"), Arrays.asList("ASC", "ASC"), "sql");
-        assertThat(bundle.isSchemaEqual(other), is(false));
+    fun schemaEquality_diffColumns_notEqual() {
+        val bundle = IndexBundle("index1", false,
+            listOf("col1", "col2"), listOf("ASC", "ASC"), "sql")
+        val other = IndexBundle("index1", false,
+            listOf("col2", "col1"), listOf("ASC", "ASC"), "sql")
+        assertThat(bundle.isSchemaEqual(other), `is`(false))
     }
 
     @Test
-    public void schemaEquality_diffSql_equal() {
-        IndexBundle bundle = new IndexBundle("index1", false,
-                Arrays.asList("col1", "col2"), Arrays.asList("ASC", "ASC"), "sql");
-        IndexBundle other = new IndexBundle("index1", false,
-                Arrays.asList("col1", "col2"), Arrays.asList("ASC", "ASC"), "sql22");
-        assertThat(bundle.isSchemaEqual(other), is(true));
+    fun schemaEquality_diffSql_equal() {
+        val bundle = IndexBundle("index1", false,
+            listOf("col1", "col2"), listOf("ASC", "ASC"), "sql")
+        val other = IndexBundle("index1", false,
+            listOf("col1", "col2"), listOf("ASC", "ASC"), "sql22")
+        assertThat(bundle.isSchemaEqual(other), `is`(true))
     }
 
     @Test
-    public void schemaEquality_diffSort_notEqual() {
-        IndexBundle bundle = new IndexBundle("index1", false,
-                Arrays.asList("col1", "col2"), Arrays.asList("ASC", "DESC"), "sql");
-        IndexBundle other = new IndexBundle("index1", false,
-                Arrays.asList("col1", "col2"), Arrays.asList("DESC", "ASC"), "sql");
-        assertThat(bundle.isSchemaEqual(other), is(false));
+    fun schemaEquality_diffSort_notEqual() {
+        val bundle = IndexBundle("index1", false,
+            listOf("col1", "col2"), listOf("ASC", "DESC"), "sql")
+        val other = IndexBundle("index1", false,
+            listOf("col1", "col2"), listOf("DESC", "ASC"), "sql")
+        assertThat(bundle.isSchemaEqual(other), `is`(false))
     }
 
     @Test
-    public void schemaEquality_sortNullVsAllAsc_isEqual() {
-        IndexBundle bundle = new IndexBundle("index1", false,
-                Arrays.asList("col1", "col2"), Arrays.asList("ASC", "ASC"), "sql");
-        IndexBundle other = new IndexBundle("index1", false,
-                Arrays.asList("col1", "col2"), null, "sql");
-        assertThat(bundle.isSchemaEqual(other), is(true));
+    fun schemaEquality_sortNullVsAllAsc_isEqual() {
+        val bundle = IndexBundle("index1", false,
+            listOf("col1", "col2"), listOf("ASC", "ASC"), "sql")
+        val other = IndexBundle("index1", false,
+            listOf("col1", "col2"), null, "sql")
+        assertThat(bundle.isSchemaEqual(other), `is`(true))
     }
 
     @Test
-    public void schemaEquality_sortEmptyVsAllAsc_isEqual() {
-        IndexBundle bundle = new IndexBundle("index1", false,
-                Arrays.asList("col1", "col2"), Arrays.asList("ASC", "ASC"), "sql");
-        IndexBundle other = new IndexBundle("index1", false,
-                Arrays.asList("col1", "col2"), Collections.emptyList(), "sql");
-        assertThat(bundle.isSchemaEqual(other), is(true));
+    fun schemaEquality_sortEmptyVsAllAsc_isEqual() {
+        val bundle = IndexBundle("index1", false,
+            listOf("col1", "col2"), listOf("ASC", "ASC"), "sql")
+        val other = IndexBundle("index1", false,
+            listOf("col1", "col2"), emptyList(), "sql")
+        assertThat(bundle.isSchemaEqual(other), `is`(true))
     }
 }

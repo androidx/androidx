@@ -14,146 +14,87 @@
  * limitations under the License.
  */
 
-package androidx.room.migration.bundle;
+package androidx.room.migration.bundle
 
-import androidx.annotation.RestrictTo;
-
-import com.google.gson.annotations.SerializedName;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import androidx.annotation.RestrictTo
+import androidx.room.migration.bundle.SchemaEqualityUtil.checkSchemaEquality
+import com.google.gson.annotations.SerializedName
 
 /**
  * Data class that holds the schema information for a
- * {@link androidx.room.Database Database}.
+ * [androidx.room.Database].
+ *
+ * @constructor Creates a new database
+ * @property version Version
+ * @property identityHash Identity hash
+ * @property entities List of entities
+ * @property views List of views
  *
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-public class DatabaseBundle implements SchemaEquality<DatabaseBundle> {
-    @SerializedName("version")
-    private int mVersion;
-    @SerializedName("identityHash")
-    private String mIdentityHash;
-    @SerializedName("entities")
-    private List<EntityBundle> mEntities;
-    @SerializedName("views")
-    private List<DatabaseViewBundle> mViews;
-    // then entity where we keep room information
-    @SerializedName("setupQueries")
-    private List<String> mSetupQueries;
-    private transient Map<String, EntityBundle> mEntitiesByTableName;
-
-    /**
-     * Creates a new database
-     * @param version Version
-     * @param identityHash Identity hash
-     * @param entities List of entities
-     * @param views List of views
-     * */
-    public DatabaseBundle(int version, String identityHash, List<EntityBundle> entities,
-            List<DatabaseViewBundle> views, List<String> setupQueries) {
-        mVersion = version;
-        mIdentityHash = identityHash;
-        mEntities = entities;
-        mViews = views;
-        mSetupQueries = setupQueries;
-    }
+public open class DatabaseBundle(
+    @field:SerializedName("version")
+    public open val version: Int,
+    @field:SerializedName("identityHash")
+    public open val identityHash: String,
+    @field:SerializedName("entities")
+    public open val entities: List<EntityBundle>,
+    @field:SerializedName("views")
+    public open val views: List<DatabaseViewBundle>,
+    @field:SerializedName("setupQueries")
+    private val setupQueries: List<String>,
+) : SchemaEquality<DatabaseBundle> {
 
     // Used by GSON
+    @Deprecated("Marked deprecated to avoid usage in the codebase")
     @SuppressWarnings("unused")
-    public DatabaseBundle() {
-        // Set default values to newly added fields
-        mViews = Collections.emptyList();
-    }
+    public constructor() : this(0, "", emptyList(), emptyList(), emptyList())
 
-    /**
-     * @return The identity has of the Database.
-     */
-    public String getIdentityHash() {
-        return mIdentityHash;
-    }
-
-    /**
-     * @return The database version.
-     */
-    public int getVersion() {
-        return mVersion;
-    }
-
-    /**
-     * @return List of entities.
-     */
-    public List<EntityBundle> getEntities() {
-        return mEntities;
-    }
-
-    /**
-     * @return Map of entities, keyed by table name.
-     */
-    @SuppressWarnings("unused")
-    public Map<String, EntityBundle> getEntitiesByTableName() {
-        if (mEntitiesByTableName == null) {
-            mEntitiesByTableName = new HashMap<>();
-            for (EntityBundle bundle : mEntities) {
-                mEntitiesByTableName.put(bundle.getTableName(), bundle);
-            }
-        }
-        return mEntitiesByTableName;
-    }
-
-    /**
-     * @return List of views.
-     */
-    public List<DatabaseViewBundle> getViews() {
-        return mViews;
+    @delegate:Transient
+    public open val entitiesByTableName: Map<String, EntityBundle> by lazy {
+        entities.associateBy { it.tableName }
     }
 
     /**
      * @return List of SQL queries to build this database from scratch.
      */
-    public List<String> buildCreateQueries() {
-        List<String> result = new ArrayList<>();
-        Collections.sort(mEntities, new FtsEntityCreateComparator());
-        for (EntityBundle entityBundle : mEntities) {
-            result.addAll(entityBundle.buildCreateQueries());
+    public open fun buildCreateQueries(): List<String> {
+        return buildList {
+            entities.sortedWith(FtsEntityCreateComparator()).forEach { entityBundle ->
+                addAll(entityBundle.buildCreateQueries())
+            }
+            views.forEach { viewBundle ->
+                add(viewBundle.createView())
+            }
+            addAll(setupQueries)
         }
-        for (DatabaseViewBundle viewBundle : mViews) {
-            result.add(viewBundle.createView());
-        }
-        result.addAll(mSetupQueries);
-        return result;
     }
 
     @Override
-    public boolean isSchemaEqual(DatabaseBundle other) {
-        return SchemaEqualityUtil.checkSchemaEquality(getEntitiesByTableName(),
-                other.getEntitiesByTableName());
+    override fun isSchemaEqual(other: DatabaseBundle): Boolean {
+        return checkSchemaEquality(
+            entitiesByTableName,
+            other.entitiesByTableName
+        )
     }
 
     // Comparator to sort FTS entities after their declared external content entity so that the
     // content entity table gets created first.
-    static final class FtsEntityCreateComparator implements Comparator<EntityBundle> {
-        @Override
-        public int compare(EntityBundle firstEntity, EntityBundle secondEntity) {
-            if (firstEntity instanceof FtsEntityBundle) {
-                FtsEntityBundle ftsEntity = (FtsEntityBundle) firstEntity;
-                String contentTable = ftsEntity.getFtsOptions().getContentTable();
-                if (contentTable.equals(secondEntity.getTableName())) {
-                    return 1;
+    public class FtsEntityCreateComparator : Comparator<EntityBundle> {
+        override fun compare(firstEntity: EntityBundle, secondEntity: EntityBundle): Int {
+            if (firstEntity is FtsEntityBundle) {
+                val contentTable = firstEntity.ftsOptions.contentTable
+                if (contentTable == secondEntity.tableName) {
+                    return 1
                 }
-            } else if (secondEntity instanceof FtsEntityBundle) {
-                FtsEntityBundle ftsEntity = (FtsEntityBundle) secondEntity;
-                String contentTable = ftsEntity.getFtsOptions().getContentTable();
-                if (contentTable.equals(firstEntity.getTableName())) {
-                    return -1;
+            } else if (secondEntity is FtsEntityBundle) {
+                val contentTable = secondEntity.ftsOptions.contentTable
+                if (contentTable == firstEntity.tableName) {
+                    return -1
                 }
             }
-            return 0;
+            return 0
         }
     }
 }

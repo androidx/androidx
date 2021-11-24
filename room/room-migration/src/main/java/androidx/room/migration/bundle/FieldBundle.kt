@@ -14,79 +14,52 @@
  * limitations under the License.
  */
 
-package androidx.room.migration.bundle;
+package androidx.room.migration.bundle
 
-import androidx.annotation.RestrictTo;
+import androidx.annotation.RestrictTo
 
-import com.google.gson.annotations.SerializedName;
+import com.google.gson.annotations.SerializedName
 
 /**
  * Data class that holds the schema information for an
- * {@link androidx.room.Entity Entity} field.
+ * [androidx.room.Entity] field.
  *
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-public class FieldBundle implements SchemaEquality<FieldBundle> {
+public open class FieldBundle(
     @SerializedName("fieldPath")
-    private String mFieldPath;
+    public open val fieldPath: String,
     @SerializedName("columnName")
-    private String mColumnName;
+    public open val columnName: String,
     @SerializedName("affinity")
-    private String mAffinity;
+    public open val affinity: String,
     @SerializedName("notNull")
-    private boolean mNonNull;
+    public open val isNonNull: Boolean,
     @SerializedName("defaultValue")
-    private String mDefaultValue;
+    public open val defaultValue: String?,
+) : SchemaEquality<FieldBundle> {
 
     /**
-     * @deprecated Use {@link #FieldBundle(String, String, String, boolean, String)}
+     * @deprecated Use [FieldBundle(String, String, String, boolean, String)]
      */
-    @Deprecated
-    public FieldBundle(String fieldPath, String columnName, String affinity, boolean nonNull) {
-        this(fieldPath, columnName, affinity, nonNull, null);
-    }
+    @Deprecated("Use [FieldBundle(String, String, String, boolean, String)")
+    public constructor(fieldPath: String, columnName: String, affinity: String, nonNull: Boolean) :
+        this(fieldPath, columnName, affinity, nonNull, null)
 
-    public FieldBundle(String fieldPath, String columnName, String affinity, boolean nonNull,
-            String defaultValue) {
-        mFieldPath = fieldPath;
-        mColumnName = columnName;
-        mAffinity = affinity;
-        mNonNull = nonNull;
-        mDefaultValue = defaultValue;
-    }
+    // Used by GSON
+    @Deprecated("Marked deprecated to avoid usage in the codebase")
+    @SuppressWarnings("unused")
+    private constructor() : this("", "", "", false, null)
 
-    public String getFieldPath() {
-        return mFieldPath;
-    }
-
-    public String getColumnName() {
-        return mColumnName;
-    }
-
-    public String getAffinity() {
-        return mAffinity;
-    }
-
-    public boolean isNonNull() {
-        return mNonNull;
-    }
-
-    public String getDefaultValue() {
-        return mDefaultValue;
-    }
-
-    @Override
-    public boolean isSchemaEqual(FieldBundle other) {
-        if (mNonNull != other.mNonNull) return false;
-        if (mColumnName != null ? !mColumnName.equals(other.mColumnName)
-                : other.mColumnName != null) {
-            return false;
+    override fun isSchemaEqual(other: FieldBundle): Boolean {
+        if (isNonNull != other.isNonNull) return false
+        if (columnName != other.columnName) {
+            return false
         }
-        if (mDefaultValue != null ? !mDefaultValue.equals(other.mDefaultValue)
-                : other.mDefaultValue != null) {
-            return false;
+        if (defaultValue?.let { it != other.defaultValue } ?: (other.defaultValue != null)) {
+            return false
         }
-        return mAffinity != null ? mAffinity.equals(other.mAffinity) : other.mAffinity == null;
+        return affinity == other.affinity
     }
 }

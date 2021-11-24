@@ -14,179 +14,111 @@
  * limitations under the License.
  */
 
-package androidx.room.migration.bundle;
+package androidx.room.migration.bundle
 
-import static androidx.room.migration.bundle.SchemaEqualityUtil.checkSchemaEquality;
+import androidx.annotation.RestrictTo
+import androidx.room.migration.bundle.SchemaEqualityUtil.checkSchemaEquality
 
-import androidx.annotation.RestrictTo;
-
-import com.google.gson.annotations.SerializedName;
-
-import org.jetbrains.annotations.NotNull;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import com.google.gson.annotations.SerializedName
 
 /**
  * Data class that holds the schema information about an
- * {@link androidx.room.Entity Entity}.
+ * [androidx.room.Entity].
+ *
+ * @constructor Creates a new bundle.
+ *
+ * @property tableName The table name.
+ * @property createSql Create query with the table name placeholder.
+ * @property fields The list of fields.
+ * @property primaryKey The primary key.
+ * @property indices The list of indices
+ * @property foreignKeys The list of foreign keys
  *
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-public class EntityBundle implements SchemaEquality<EntityBundle> {
-
-    static final String NEW_TABLE_PREFIX = "_new_";
-
+public open class EntityBundle(
     @SerializedName("tableName")
-    private final String mTableName;
+    public open val tableName: String,
     @SerializedName("createSql")
-    private final String mCreateSql;
+    public open val createSql: String,
     @SerializedName("fields")
-    private final List<FieldBundle> mFields;
+    public open val fields: List<FieldBundle>,
     @SerializedName("primaryKey")
-    private final PrimaryKeyBundle mPrimaryKey;
+    public open val primaryKey: PrimaryKeyBundle,
     @SerializedName("indices")
-    private final List<IndexBundle> mIndices;
+    public open val indices: List<IndexBundle>,
     @SerializedName("foreignKeys")
-    private final List<ForeignKeyBundle> mForeignKeys;
+    public open val foreignKeys: List<ForeignKeyBundle>
+) : SchemaEquality<EntityBundle> {
 
-    private transient String mNewTableName;
-    private transient Map<String, FieldBundle> mFieldsByColumnName;
+    // Used by GSON
+    @Deprecated("Marked deprecated to avoid usage in the codebase")
+    @SuppressWarnings("unused")
+    private constructor() : this(
+        "",
+        "",
+        emptyList(),
+        PrimaryKeyBundle(false, emptyList()),
+        emptyList(),
+        emptyList()
+    )
 
-    /**
-     * Creates a new bundle.
-     *
-     * @param tableName The table name.
-     * @param createSql Create query with the table name placeholder.
-     * @param fields The list of fields.
-     * @param primaryKey The primary key.
-     * @param indices The list of indices
-     * @param foreignKeys The list of foreign keys
-     */
-    public EntityBundle(String tableName, String createSql,
-            List<FieldBundle> fields,
-            PrimaryKeyBundle primaryKey,
-            List<IndexBundle> indices,
-            List<ForeignKeyBundle> foreignKeys) {
-        mTableName = tableName;
-        mCreateSql = createSql;
-        mFields = fields;
-        mPrimaryKey = primaryKey;
-        mIndices = indices;
-        mForeignKeys = foreignKeys;
+    public companion object {
+        public const val NEW_TABLE_PREFIX: String = "_new_"
     }
 
-    /**
-     * @return The table name if it is created during a table schema modification.
-     */
-    public String getNewTableName() {
-        if (mNewTableName == null) {
-            mNewTableName = NEW_TABLE_PREFIX + mTableName;
-        }
-        return mNewTableName;
-    }
+    @Transient
+    public open val newTableName: String = NEW_TABLE_PREFIX + tableName
 
-    /**
-     * @return Map of fields keyed by their column names.
-     */
-    public Map<String, FieldBundle> getFieldsByColumnName() {
-        if (mFieldsByColumnName == null) {
-            mFieldsByColumnName = new HashMap<>();
-            for (FieldBundle bundle : mFields) {
-                mFieldsByColumnName.put(bundle.getColumnName(), bundle);
-            }
-        }
-        return mFieldsByColumnName;
-    }
-
-    /**
-     * @return The table name.
-     */
-    public String getTableName() {
-        return mTableName;
-    }
-
-    /**
-     * @return The create query with table name placeholder.
-     */
-    public String getCreateSql() {
-        return mCreateSql;
-    }
-
-    /**
-     * @return List of fields.
-     */
-    public List<FieldBundle> getFields() {
-        return mFields;
-    }
-
-    /**
-     * @return The primary key description.
-     */
-    public PrimaryKeyBundle getPrimaryKey() {
-        return mPrimaryKey;
-    }
-
-    /**
-     * @return List of indices.
-     */
-    public List<IndexBundle> getIndices() {
-        return mIndices;
-    }
-
-    /**
-     * @return List of foreign keys.
-     */
-    public List<ForeignKeyBundle> getForeignKeys() {
-        return mForeignKeys;
+    @delegate:Transient
+    public open val fieldsByColumnName: Map<String, FieldBundle> by lazy {
+        fields.associateBy { it.columnName }
     }
 
     /**
      * @return Create table SQL query that uses the actual table name.
      */
-    public String createTable() {
-        return BundleUtil.replaceTableName(mCreateSql, getTableName());
+    public open fun createTable(): String {
+        return replaceTableName(createSql, tableName)
     }
 
     /**
      * @return Create table SQL query that uses the table name with "new" prefix.
      */
-    public String createNewTable() {
-        return BundleUtil.replaceTableName(mCreateSql, getNewTableName());
+    public open fun createNewTable(): String {
+        return replaceTableName(createSql, newTableName)
     }
 
     /**
      * @return Renames the table with {@link #getNewTableName()} to {@link #getTableName()}.
      */
-    @NotNull
-    public String renameToOriginal() {
-        return "ALTER TABLE " + getNewTableName() + " RENAME TO " + getTableName();
+    public open fun renameToOriginal(): String {
+        return "ALTER TABLE " + newTableName + " RENAME TO " + tableName
     }
 
     /**
      * @return Creates the list of SQL queries that are necessary to create this entity.
      */
-    public Collection<String> buildCreateQueries() {
-        List<String> result = new ArrayList<>();
-        result.add(createTable());
-        for (IndexBundle indexBundle : mIndices) {
-            result.add(indexBundle.create(getTableName()));
+    public open fun buildCreateQueries(): Collection<String> {
+        return buildList {
+            add(createTable())
+            this@EntityBundle.indices.forEach { indexBundle ->
+                add(indexBundle.create(tableName))
+            }
         }
-        return result;
     }
 
-    @Override
-    public boolean isSchemaEqual(EntityBundle other) {
-        if (!mTableName.equals(other.mTableName)) {
-            return false;
+    override fun isSchemaEqual(other: EntityBundle): Boolean {
+        if (tableName != other.tableName) {
+            return false
         }
-        return checkSchemaEquality(getFieldsByColumnName(), other.getFieldsByColumnName())
-                && checkSchemaEquality(mPrimaryKey, other.mPrimaryKey)
-                && checkSchemaEquality(mIndices, other.mIndices)
-                && checkSchemaEquality(mForeignKeys, other.mForeignKeys);
+        return checkSchemaEquality(
+            fieldsByColumnName,
+            other.fieldsByColumnName
+        ) &&
+            checkSchemaEquality(primaryKey, other.primaryKey) &&
+            checkSchemaEquality(indices, other.indices) &&
+            checkSchemaEquality(foreignKeys, other.foreignKeys)
     }
 }

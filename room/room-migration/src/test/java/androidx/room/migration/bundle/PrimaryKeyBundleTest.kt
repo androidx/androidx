@@ -14,52 +14,51 @@
  * limitations under the License.
  */
 
-package androidx.room.migration.bundle;
+package androidx.room.migration.bundle
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
+import org.hamcrest.CoreMatchers.`is`
+import org.hamcrest.MatcherAssert.assertThat
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.junit.runners.JUnit4
 
-import java.util.Arrays;
-
-@RunWith(JUnit4.class)
-public class PrimaryKeyBundleTest {
+@RunWith(JUnit4::class)
+class PrimaryKeyBundleTest {
     @Test
-    public void schemaEquality_same_equal() {
-        PrimaryKeyBundle bundle = new PrimaryKeyBundle(true,
-                Arrays.asList("foo", "bar"));
-        PrimaryKeyBundle other = new PrimaryKeyBundle(true,
-                Arrays.asList("foo", "bar"));
-        assertThat(bundle.isSchemaEqual(other), is(true));
+    fun schemaEquality_same_equal() {
+        val bundle = PrimaryKeyBundle(true,
+                listOf("foo", "bar")
+        )
+        val other = PrimaryKeyBundle(true,
+            listOf("foo", "bar"))
+        assertThat(bundle.isSchemaEqual(other), `is`(true))
     }
 
     @Test
-    public void schemaEquality_diffAutoGen_notEqual() {
-        PrimaryKeyBundle bundle = new PrimaryKeyBundle(true,
-                Arrays.asList("foo", "bar"));
-        PrimaryKeyBundle other = new PrimaryKeyBundle(false,
-                Arrays.asList("foo", "bar"));
-        assertThat(bundle.isSchemaEqual(other), is(false));
+    fun schemaEquality_diffAutoGen_notEqual() {
+        val bundle = PrimaryKeyBundle(true,
+            listOf("foo", "bar"))
+        val other = PrimaryKeyBundle(false,
+            listOf("foo", "bar"))
+        assertThat(bundle.isSchemaEqual(other), `is`(false))
     }
 
     @Test
-    public void schemaEquality_diffColumns_notEqual() {
-        PrimaryKeyBundle bundle = new PrimaryKeyBundle(true,
-                Arrays.asList("foo", "baz"));
-        PrimaryKeyBundle other = new PrimaryKeyBundle(true,
-                Arrays.asList("foo", "bar"));
-        assertThat(bundle.isSchemaEqual(other), is(false));
+    fun schemaEquality_diffColumns_notEqual() {
+        val bundle = PrimaryKeyBundle(true,
+            listOf("foo", "baz"))
+        val other = PrimaryKeyBundle(true,
+            listOf("foo", "bar"))
+        assertThat(bundle.isSchemaEqual(other), `is`(false))
     }
 
-    @Test
-    public void schemaEquality_diffColumnOrder_notEqual() {
-        PrimaryKeyBundle bundle = new PrimaryKeyBundle(true,
-                Arrays.asList("foo", "bar"));
-        PrimaryKeyBundle other = new PrimaryKeyBundle(true,
-                Arrays.asList("bar", "foo"));
-        assertThat(bundle.isSchemaEqual(other), is(false));
+   @Test
+   fun schemaEquality_diffColumnOrder_notEqual() {
+        val bundle = PrimaryKeyBundle(true,
+            listOf("foo", "bar"))
+        val other = PrimaryKeyBundle(true,
+            listOf("bar", "foo"))
+        assertThat(bundle.isSchemaEqual(other), `is`(false))
     }
 }

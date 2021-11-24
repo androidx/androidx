@@ -14,13 +14,11 @@
  * limitations under the License.
  */
 
-package androidx.room.migration.bundle;
+package androidx.room.migration.bundle
 
-import androidx.annotation.RestrictTo;
+import androidx.annotation.RestrictTo
 
-import com.google.gson.annotations.SerializedName;
-
-import java.util.List;
+import com.google.gson.annotations.SerializedName
 
 /**
  * Data class that holds the schema information about a primary key.
@@ -28,27 +26,18 @@ import java.util.List;
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-public class PrimaryKeyBundle implements SchemaEquality<PrimaryKeyBundle> {
-    @SerializedName("columnNames")
-    private List<String> mColumnNames;
+public open class PrimaryKeyBundle(
     @SerializedName("autoGenerate")
-    private boolean mAutoGenerate;
+    public open val isAutoGenerate: Boolean,
+    @SerializedName("columnNames")
+    public open val columnNames: List<String>
+) : SchemaEquality<PrimaryKeyBundle> {
+    // Used by GSON
+    @Deprecated("Marked deprecated to avoid usage in the codebase")
+    @SuppressWarnings("unused")
+    private constructor() : this(false, emptyList())
 
-    public PrimaryKeyBundle(boolean autoGenerate, List<String> columnNames) {
-        mColumnNames = columnNames;
-        mAutoGenerate = autoGenerate;
-    }
-
-    public List<String> getColumnNames() {
-        return mColumnNames;
-    }
-
-    public boolean isAutoGenerate() {
-        return mAutoGenerate;
-    }
-
-    @Override
-    public boolean isSchemaEqual(PrimaryKeyBundle other) {
-        return mColumnNames.equals(other.mColumnNames) && mAutoGenerate == other.mAutoGenerate;
+    override fun isSchemaEqual(other: PrimaryKeyBundle): Boolean {
+        return columnNames == other.columnNames && isAutoGenerate == other.isAutoGenerate
     }
 }

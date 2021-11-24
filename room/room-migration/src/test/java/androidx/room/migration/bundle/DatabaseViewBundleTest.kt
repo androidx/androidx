@@ -14,25 +14,23 @@
  * limitations under the License.
  */
 
-package androidx.room.migration.bundle;
+package androidx.room.migration.bundle
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
+import org.hamcrest.CoreMatchers.`is`
+import org.hamcrest.MatcherAssert.assertThat
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.junit.runners.JUnit4
 
-@RunWith(JUnit4.class)
-public class DatabaseViewBundleTest {
-
+@RunWith(JUnit4::class)
+class DatabaseViewBundleTest {
     @Test
-    public void basic() {
-        DatabaseViewBundle bundle = new DatabaseViewBundle("abc", "def");
-        DatabaseViewBundle other = new DatabaseViewBundle("abc", "def");
-        assertThat(bundle.isSchemaEqual(other), is(true));
-        assertThat(bundle.getViewName(), is(equalTo("abc")));
-        assertThat(bundle.getCreateSql(), is(equalTo("def")));
+    fun basic() {
+        val bundle = DatabaseViewBundle("abc", "def")
+        val other = DatabaseViewBundle("abc", "def")
+        assertThat(bundle.isSchemaEqual(other), `is`(true))
+        assertThat(bundle.viewName, `is`("abc"))
+        assertThat(bundle.createSql, `is`("def"))
     }
 }

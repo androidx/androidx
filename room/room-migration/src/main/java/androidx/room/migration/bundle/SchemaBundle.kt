@@ -14,30 +14,29 @@
  * limitations under the License.
  */
 
-package androidx.room.migration.bundle;
+package androidx.room.migration.bundle
 
-import androidx.annotation.NonNull;
-import androidx.annotation.RestrictTo;
+import androidx.annotation.RestrictTo
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.TypeAdapter;
-import com.google.gson.TypeAdapterFactory;
-import com.google.gson.annotations.SerializedName;
-import com.google.gson.reflect.TypeToken;
-import com.google.gson.stream.JsonReader;
-import com.google.gson.stream.JsonWriter;
+import com.google.gson.Gson
+import com.google.gson.GsonBuilder
+import com.google.gson.JsonElement
+import com.google.gson.JsonObject
+import com.google.gson.TypeAdapter
+import com.google.gson.TypeAdapterFactory
+import com.google.gson.annotations.SerializedName
+import com.google.gson.reflect.TypeToken
+import com.google.gson.stream.JsonReader
+import com.google.gson.stream.JsonWriter
 
-import java.io.Closeable;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.io.UnsupportedEncodingException;
+import java.io.File
+import java.io.FileOutputStream
+import java.io.IOException
+import java.io.InputStream
+import java.io.InputStreamReader
+import java.io.OutputStreamWriter
+import java.io.UnsupportedEncodingException
+import kotlin.jvm.Throws
 
 /**
  * Data class that holds the information about a database schema export.
@@ -45,140 +44,97 @@ import java.io.UnsupportedEncodingException;
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-public class SchemaBundle implements SchemaEquality<SchemaBundle> {
-
+public open class SchemaBundle(
     @SerializedName("formatVersion")
-    private int mFormatVersion;
+    public open val formatVersion: Int,
     @SerializedName("database")
-    private DatabaseBundle mDatabase;
+    public open val database: DatabaseBundle
+) : SchemaEquality<SchemaBundle> {
+    public companion object {
+        private const val CHARSET = "UTF-8"
+        public const val LATEST_FORMAT: Int = 1
+        private val GSON: Gson = GsonBuilder()
+            .setPrettyPrinting()
+            .disableHtmlEscaping()
+            .registerTypeAdapterFactory(
+                EntityTypeAdapterFactory()
+            )
+            .create()
 
-    private static final Gson GSON;
-    private static final String CHARSET = "UTF-8";
-    public static final int LATEST_FORMAT = 1;
-
-    static {
-        GSON = new GsonBuilder()
-                .setPrettyPrinting()
-                .disableHtmlEscaping()
-                .registerTypeAdapterFactory(new EntityTypeAdapterFactory())
-                .create();
-    }
-
-    public SchemaBundle(int formatVersion, DatabaseBundle database) {
-        mFormatVersion = formatVersion;
-        mDatabase = database;
-    }
-
-    @SuppressWarnings("unused")
-    public int getFormatVersion() {
-        return mFormatVersion;
-    }
-
-    public DatabaseBundle getDatabase() {
-        return mDatabase;
-    }
-
-    /**
-     * @hide
-     */
-    @NonNull
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-    public static SchemaBundle deserialize(InputStream fis)
-            throws UnsupportedEncodingException {
-        InputStreamReader is = new InputStreamReader(fis, CHARSET);
-        try {
-            SchemaBundle result = GSON.fromJson(is, SchemaBundle.class);
-            if (result == null || result.getDatabase() == null) {
-                throw new IllegalStateException("Invalid schema file");
+        /**
+         * @hide
+         */
+        @Throws(UnsupportedEncodingException::class)
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+        @JvmStatic
+        public fun deserialize(fis: InputStream): SchemaBundle {
+            InputStreamReader(fis, CHARSET).use { inputStream ->
+                return GSON.fromJson(inputStream, SchemaBundle::class.javaObjectType)
+                    ?: throw IllegalStateException("Invalid schema file")
             }
-            return result;
-        } finally {
-            safeClose(is);
-            safeClose(fis);
         }
-    }
 
-    /**
-     * @hide
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-    public static void serialize(SchemaBundle bundle, File file) throws IOException {
-        FileOutputStream fos = new FileOutputStream(file, false);
-        OutputStreamWriter osw = new OutputStreamWriter(fos, CHARSET);
-        try {
-            GSON.toJson(bundle, osw);
-        } finally {
-            safeClose(osw);
-            safeClose(fos);
-        }
-    }
-
-    private static void safeClose(Closeable closeable) {
-        if (closeable != null) {
-            try {
-                closeable.close();
-            } catch (Throwable ignored) {
+        /**
+         * @hide
+         */
+        @Throws(IOException::class)
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+        @JvmStatic
+        public fun serialize(bundle: SchemaBundle, file: File) {
+            val fos = FileOutputStream(file, false)
+            OutputStreamWriter(fos, CHARSET).use { outputStreamWriter ->
+                GSON.toJson(bundle, outputStreamWriter)
             }
         }
     }
 
-    @Override
-    public boolean isSchemaEqual(SchemaBundle other) {
-        return SchemaEqualityUtil.checkSchemaEquality(mDatabase, other.mDatabase)
-                && mFormatVersion == other.mFormatVersion;
+    override fun isSchemaEqual(other: SchemaBundle): Boolean {
+        return SchemaEqualityUtil.checkSchemaEquality(database, other.database) &&
+            formatVersion == other.formatVersion
     }
 
-    private static class EntityTypeAdapterFactory implements TypeAdapterFactory {
-        EntityTypeAdapterFactory() {
+    private open class EntityTypeAdapterFactory : TypeAdapterFactory {
+        @Suppress("UNCHECKED_CAST")
+        override fun <T> create(gson: Gson, type: TypeToken<T>): TypeAdapter<T>? {
+            if (!EntityBundle::class.java.isAssignableFrom(type.rawType)) {
+                return null
+            }
+            val jsonElementAdapter = gson.getAdapter(
+                JsonElement::class.java
+            )
+            val entityBundleAdapter = gson.getDelegateAdapter(
+                this,
+                TypeToken.get(EntityBundle::class.java)
+            )
+            val ftsEntityBundleAdapter = gson.getDelegateAdapter(
+                this,
+                TypeToken.get(FtsEntityBundle::class.java)
+            )
+            return EntityTypeAdapter(
+                jsonElementAdapter, entityBundleAdapter, ftsEntityBundleAdapter
+            ) as TypeAdapter<T>
         }
 
-        @Override
-        @SuppressWarnings("unchecked")
-        public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
-            if (!EntityBundle.class.isAssignableFrom(type.getRawType())) {
-                return null;
-            }
-
-            TypeAdapter<JsonElement> jsonElementAdapter = gson.getAdapter(JsonElement.class);
-            TypeAdapter<EntityBundle> entityBundleAdapter = gson.getDelegateAdapter(this,
-                    TypeToken.get(EntityBundle.class));
-            TypeAdapter<FtsEntityBundle> ftsEntityBundleAdapter = gson.getDelegateAdapter(this,
-                    TypeToken.get(FtsEntityBundle.class));
-            return (TypeAdapter<T>) new EntityTypeAdapter(
-                    jsonElementAdapter, entityBundleAdapter, ftsEntityBundleAdapter);
-        }
-
-        private static class EntityTypeAdapter extends TypeAdapter<EntityBundle> {
-
-            private final TypeAdapter<JsonElement> mJsonElementAdapter;
-            private final TypeAdapter<EntityBundle> mEntityBundleAdapter;
-            private final TypeAdapter<FtsEntityBundle> mFtsEntityBundleAdapter;
-
-            EntityTypeAdapter(
-                    TypeAdapter<JsonElement> jsonElementAdapter,
-                    TypeAdapter<EntityBundle> entityBundleAdapter,
-                    TypeAdapter<FtsEntityBundle> ftsEntityBundleAdapter) {
-                this.mJsonElementAdapter = jsonElementAdapter;
-                this.mEntityBundleAdapter = entityBundleAdapter;
-                this.mFtsEntityBundleAdapter = ftsEntityBundleAdapter;
-            }
-
-            @Override
-            public void write(JsonWriter out, EntityBundle value) throws IOException {
-                if (value instanceof FtsEntityBundle) {
-                    mFtsEntityBundleAdapter.write(out, (FtsEntityBundle) value);
+        private class EntityTypeAdapter(
+            val jsonElementAdapter: TypeAdapter<JsonElement>,
+            val entityBundleAdapter: TypeAdapter<EntityBundle>,
+            val ftsEntityBundleAdapter: TypeAdapter<FtsEntityBundle>
+        ) : TypeAdapter<EntityBundle>() {
+            @Throws(IOException::class)
+            override fun write(out: JsonWriter?, value: EntityBundle?) {
+                if (value is FtsEntityBundle) {
+                    ftsEntityBundleAdapter.write(out, value)
                 } else {
-                    mEntityBundleAdapter.write(out, value);
+                    entityBundleAdapter.write(out, value)
                 }
             }
 
-            @Override
-            public EntityBundle read(JsonReader in) throws IOException {
-                JsonObject jsonObject = mJsonElementAdapter.read(in).getAsJsonObject();
-                if (jsonObject.has("ftsVersion")) {
-                    return mFtsEntityBundleAdapter.fromJsonTree(jsonObject);
+            override fun read(input: JsonReader?): EntityBundle {
+                val jsonObject: JsonObject = jsonElementAdapter.read(input).asJsonObject
+                return if (jsonObject.has("ftsVersion")) {
+                    ftsEntityBundleAdapter.fromJsonTree(jsonObject)
                 } else {
-                    return mEntityBundleAdapter.fromJsonTree(jsonObject);
+                    entityBundleAdapter.fromJsonTree(jsonObject)
                 }
             }
         }

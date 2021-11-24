@@ -14,13 +14,9 @@
  * limitations under the License.
  */
 
-package androidx.room.migration.bundle;
+package androidx.room.migration.bundle
 
-import androidx.annotation.Nullable;
-import androidx.annotation.RestrictTo;
-
-import java.util.List;
-import java.util.Map;
+import androidx.annotation.RestrictTo
 
 /**
  * utility class to run schema equality on collections.
@@ -28,66 +24,46 @@ import java.util.Map;
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-class SchemaEqualityUtil {
-    static <T, K extends SchemaEquality<K>> boolean checkSchemaEquality(
-            @Nullable Map<T, K> map1, @Nullable Map<T, K> map2) {
-        if (map1 == null) {
-            return map2 == null;
-        }
-        if (map2 == null) {
-            return false;
-        }
-        if (map1.size() != map2.size()) {
-            return false;
-        }
-        for (Map.Entry<T, K> pair : map1.entrySet()) {
-            if (!checkSchemaEquality(pair.getValue(), map2.get(pair.getKey()))) {
-                return false;
+public object SchemaEqualityUtil {
+    public fun <T, K : SchemaEquality<K>> checkSchemaEquality(
+        map1: Map<T, K>?,
+        map2: Map<T, K>?
+    ): Boolean {
+        return when {
+            map1 == null -> map2 == null
+            map2 == null -> false
+            map1.size != map2.size -> false
+            else -> map1.entries.all {
+                checkSchemaEquality(it.value, map2.get(it.key))
             }
         }
-        return true;
     }
 
-    static <K extends SchemaEquality<K>> boolean checkSchemaEquality(
-            @Nullable List<K> list1, @Nullable List<K> list2) {
-        if (list1 == null) {
-            return list2 == null;
-        }
-        if (list2 == null) {
-            return false;
-        }
-        if (list1.size() != list2.size()) {
-            return false;
-        }
-        // we don't care this is n^2, small list + only used for testing.
-        for (K item1 : list1) {
-            // find matching item
-            boolean matched = false;
-            for (K item2 : list2) {
-                if (checkSchemaEquality(item1, item2)) {
-                    matched = true;
-                    break;
+    public fun <K : SchemaEquality<K>> checkSchemaEquality(
+        list1: List<K>?,
+        list2: List<K>?
+    ): Boolean {
+        return when {
+            list1 == null -> list2 == null
+            list2 == null -> false
+            list1.size != list2.size -> false
+            else -> list1.all { item1 ->
+                list2.any { item2 ->
+                    checkSchemaEquality(item1, item2)
                 }
             }
-            if (!matched) {
-                return false;
-            }
         }
-        return true;
     }
 
     @SuppressWarnings("SimplifiableIfStatement")
-    static <K extends SchemaEquality<K>> boolean checkSchemaEquality(
-            @Nullable K item1, @Nullable K item2) {
-        if (item1 == null) {
-            return item2 == null;
+    public fun <K : SchemaEquality<K>> checkSchemaEquality(
+        item1: K?,
+        item2: K?
+    ): Boolean {
+        return when {
+            item1 == null -> item2 == null
+            item2 == null -> false
+            else -> item1.isSchemaEqual(item2)
         }
-        if (item2 == null) {
-            return false;
-        }
-        return item1.isSchemaEqual(item2);
-    }
-
-    private SchemaEqualityUtil() {
     }
 }

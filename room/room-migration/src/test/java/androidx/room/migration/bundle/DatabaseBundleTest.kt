@@ -14,97 +14,96 @@
  * limitations under the License.
  */
 
-package androidx.room.migration.bundle;
+package androidx.room.migration.bundle
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
+import org.hamcrest.CoreMatchers.`is`
+import org.hamcrest.MatcherAssert.assertThat
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.junit.runners.JUnit4
 
-import static java.util.Arrays.asList;
-
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
-
-import java.util.Collections;
-
-@RunWith(JUnit4.class)
-public class DatabaseBundleTest {
+@RunWith(JUnit4::class)
+class DatabaseBundleTest {
 
     @Test
-    public void buildCreateQueries_noFts() {
-        EntityBundle entity1 = new EntityBundle("e1", "sq1",
-                asList(createFieldBundle("foo1"), createFieldBundle("bar")),
-                new PrimaryKeyBundle(false, asList("foo1")),
-                Collections.<IndexBundle>emptyList(),
-                Collections.<ForeignKeyBundle>emptyList());
-        EntityBundle entity2 = new EntityBundle("e2", "sq2",
-                asList(createFieldBundle("foo2"), createFieldBundle("bar")),
-                new PrimaryKeyBundle(false, asList("foo2")),
-                Collections.<IndexBundle>emptyList(),
-                Collections.<ForeignKeyBundle>emptyList());
-        DatabaseBundle bundle = new DatabaseBundle(1, "hash",
-                asList(entity1, entity2), Collections.<DatabaseViewBundle>emptyList(),
-                Collections.<String>emptyList());
+    fun buildCreateQueries_noFts() {
+        val entity1 = EntityBundle("e1", "sq1",
+                listOf(createFieldBundle("foo1"), createFieldBundle("bar")),
+                PrimaryKeyBundle(false, listOf("foo1")),
+                emptyList(),
+                emptyList())
+        val entity2 = EntityBundle("e2", "sq2",
+            listOf(createFieldBundle("foo2"), createFieldBundle("bar")),
+                PrimaryKeyBundle(false, listOf("foo2")),
+                emptyList(),
+                emptyList())
+        val bundle = DatabaseBundle(1, "hash",
+            listOf(entity1, entity2), emptyList(),
+                emptyList())
 
-        assertThat(bundle.buildCreateQueries(), is(asList("sq1", "sq2")));
+        assertThat(bundle.buildCreateQueries(), `is`(listOf("sq1", "sq2")))
     }
 
     @Test
-    public void buildCreateQueries_withFts() {
-        EntityBundle entity1 = new EntityBundle("e1", "sq1",
-                asList(createFieldBundle("foo1"), createFieldBundle("bar")),
-                new PrimaryKeyBundle(false, asList("foo1")),
-                Collections.<IndexBundle>emptyList(),
-                Collections.<ForeignKeyBundle>emptyList());
-        FtsEntityBundle entity2 = new FtsEntityBundle("e2", "sq2",
-                asList(createFieldBundle("foo2"), createFieldBundle("bar")),
-                new PrimaryKeyBundle(false, asList("foo2")),
+    fun buildCreateQueries_withFts() {
+        val entity1 = EntityBundle("e1", "sq1",
+            listOf(createFieldBundle("foo1"), createFieldBundle("bar")),
+                PrimaryKeyBundle(false, listOf("foo1")),
+                emptyList(),
+                emptyList())
+        val entity2 = FtsEntityBundle("e2", "sq2",
+            listOf(createFieldBundle("foo2"), createFieldBundle("bar")),
+                PrimaryKeyBundle(false, listOf("foo2")),
                 "FTS4",
                 createFtsOptionsBundle(""),
-                Collections.<String>emptyList());
-        EntityBundle entity3 = new EntityBundle("e3", "sq3",
-                asList(createFieldBundle("foo3"), createFieldBundle("bar")),
-                new PrimaryKeyBundle(false, asList("foo3")),
-                Collections.<IndexBundle>emptyList(),
-                Collections.<ForeignKeyBundle>emptyList());
-        DatabaseBundle bundle = new DatabaseBundle(1, "hash",
-                asList(entity1, entity2, entity3), Collections.<DatabaseViewBundle>emptyList(),
-                Collections.<String>emptyList());
+                emptyList())
+        val entity3 = EntityBundle("e3", "sq3",
+            listOf(createFieldBundle("foo3"), createFieldBundle("bar")),
+                PrimaryKeyBundle(false, listOf("foo3")),
+                emptyList(),
+                emptyList())
+        val bundle = DatabaseBundle(1, "hash",
+            listOf(entity1, entity2, entity3), emptyList(),
+                emptyList())
 
-        assertThat(bundle.buildCreateQueries(), is(asList("sq1", "sq2", "sq3")));
+        assertThat(bundle.buildCreateQueries(), `is`(listOf("sq1", "sq2", "sq3")))
     }
 
     @Test
-    public void buildCreateQueries_withExternalContentFts() {
-        EntityBundle entity1 = new EntityBundle("e1", "sq1",
-                asList(createFieldBundle("foo1"), createFieldBundle("bar")),
-                new PrimaryKeyBundle(false, asList("foo1")),
-                Collections.<IndexBundle>emptyList(),
-                Collections.<ForeignKeyBundle>emptyList());
-        FtsEntityBundle entity2 = new FtsEntityBundle("e2", "sq2",
-                asList(createFieldBundle("foo2"), createFieldBundle("bar")),
-                new PrimaryKeyBundle(false, asList("foo2")),
+    fun buildCreateQueries_withExternalContentFts() {
+        val entity1 = EntityBundle("e1", "sq1",
+            listOf(createFieldBundle("foo1"), createFieldBundle("bar")),
+                PrimaryKeyBundle(false, listOf("foo1")),
+                emptyList(),
+                emptyList())
+        val entity2 = FtsEntityBundle("e2", "sq2",
+            listOf(createFieldBundle("foo2"), createFieldBundle("bar")),
+                PrimaryKeyBundle(false, listOf("foo2")),
                 "FTS4",
                 createFtsOptionsBundle("e3"),
-                asList("e2_trig"));
-        EntityBundle entity3 = new EntityBundle("e3", "sq3",
-                asList(createFieldBundle("foo3"), createFieldBundle("bar")),
-                new PrimaryKeyBundle(false, asList("foo3")),
-                Collections.<IndexBundle>emptyList(),
-                Collections.<ForeignKeyBundle>emptyList());
-        DatabaseBundle bundle = new DatabaseBundle(1, "hash",
-                asList(entity1, entity2, entity3), Collections.<DatabaseViewBundle>emptyList(),
-                Collections.<String>emptyList());
+            listOf("e2_trig"))
+        val entity3 = EntityBundle("e3", "sq3",
+        listOf(createFieldBundle("foo3"), createFieldBundle("bar")),
+                PrimaryKeyBundle(false, listOf("foo3")),
+                emptyList(),
+                emptyList())
+        val bundle = DatabaseBundle(
+            1,
+            "hash",
+            listOf(entity1, entity2, entity3),
+            emptyList(),
+            emptyList()
+        )
 
-        assertThat(bundle.buildCreateQueries(), is(asList("sq1", "sq3", "sq2", "e2_trig")));
+        assertThat(bundle.buildCreateQueries(), `is`(listOf("sq1", "sq3", "sq2", "e2_trig")))
     }
 
-    private FieldBundle createFieldBundle(String name) {
-        return new FieldBundle("foo", name, "text", false, null);
+    private fun createFieldBundle(name: String): FieldBundle {
+        return FieldBundle("foo", name, "text", false, null)
     }
 
-    private FtsOptionsBundle createFtsOptionsBundle(String contentTableName) {
-        return new FtsOptionsBundle("", Collections.<String>emptyList(), contentTableName,
-                "", "", Collections.<String>emptyList(), Collections.<Integer>emptyList(), "");
+    private fun createFtsOptionsBundle(contentTableName: String): FtsOptionsBundle {
+        return FtsOptionsBundle("", emptyList(), contentTableName,
+                "", "", emptyList(), emptyList(), "")
     }
 }

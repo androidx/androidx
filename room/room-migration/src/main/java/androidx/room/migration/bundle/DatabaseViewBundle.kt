@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package androidx.room.migration.bundle;
+package androidx.room.migration.bundle
 
-import androidx.annotation.RestrictTo;
+import androidx.annotation.RestrictTo
 
-import com.google.gson.annotations.SerializedName;
+import com.google.gson.annotations.SerializedName
 
 /**
  * Data class that holds the schema information about a
@@ -27,42 +27,26 @@ import com.google.gson.annotations.SerializedName;
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-public class DatabaseViewBundle implements SchemaEquality<DatabaseViewBundle> {
-
+public open class DatabaseViewBundle(
     @SerializedName("viewName")
-    private String mViewName;
+    public open val viewName: String,
     @SerializedName("createSql")
-    private String mCreateSql;
+    public open val createSql: String
+) : SchemaEquality<DatabaseViewBundle> {
 
-    public DatabaseViewBundle(String viewName, String createSql) {
-        mViewName = viewName;
-        mCreateSql = createSql;
-    }
-
-    /**
-     * @return The name of this view.
-     */
-    public String getViewName() {
-        return mViewName;
-    }
-
-    /**
-     * @return Create view SQL query.
-     */
-    public String getCreateSql() {
-        return mCreateSql;
-    }
+    // Used by GSON
+    @Deprecated("Marked deprecated to avoid usage in the codebase")
+    @SuppressWarnings("unused")
+    private constructor() : this("", "")
 
     /**
      * @return Create view SQL query that uses the actual view name.
      */
-    public String createView() {
-        return BundleUtil.replaceViewName(mCreateSql, getViewName());
+    public open fun createView(): String {
+        return replaceViewName(createSql, viewName)
     }
 
-    @Override
-    public boolean isSchemaEqual(DatabaseViewBundle other) {
-        return mViewName != null && mViewName.equals(other.mViewName)
-                && mCreateSql != null && mCreateSql.equals(other.mCreateSql);
+    override fun isSchemaEqual(other: DatabaseViewBundle): Boolean {
+        return viewName == other.viewName && createSql == other.createSql
     }
 }
