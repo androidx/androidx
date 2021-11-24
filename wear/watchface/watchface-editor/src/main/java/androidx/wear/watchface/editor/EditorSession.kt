@@ -788,7 +788,6 @@ internal class OnWatchFaceEditorSessionImpl(
                 it.value.boundsType,
                 it.value.supportedTypes,
                 it.value.defaultDataSourcePolicy,
-                it.value.defaultDataSourceType,
                 it.value.enabled,
                 it.value.initiallyEnabled,
                 it.value.renderer.getData().type,

@@ -239,7 +239,9 @@ public final class SavedStateRegistry {
             Map.Entry<String, SavedStateProvider> entry1 = it.next();
             components.putBundle(entry1.getKey(), entry1.getValue().saveState());
         }
-        outBundle.putBundle(SAVED_COMPONENTS_KEY, components);
+        if (!components.isEmpty()) {
+            outBundle.putBundle(SAVED_COMPONENTS_KEY, components);
+        }
     }
 
     /**

@@ -170,6 +170,7 @@ public final class SupportedSurfaceCombinationTest {
     @Before
     @SuppressWarnings("deprecation") /* defaultDisplay */
     public void setUp() throws IllegalAccessException {
+        DisplayInfoManager.releaseInstance();
         WindowManager windowManager =
                 (WindowManager) mContext.getSystemService(Context.WINDOW_SERVICE);
         Shadows.shadowOf(windowManager.getDefaultDisplay()).setRealWidth(mDisplaySize.getWidth());

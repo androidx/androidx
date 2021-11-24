@@ -196,6 +196,8 @@ public interface WatchFaceControlClient : AutoCloseable {
      * [DefaultComplicationDataSourcePolicyAndType]s for. It must be in the same APK the
      * WatchFaceControlClient is connected to. NB a single apk can contain multiple watch faces.
      */
+    @Deprecated("Use the WatchFaceMetadataClient instead.")
+    @Suppress("DEPRECATION") // DefaultComplicationDataSourcePolicyAndType
     @Throws(RemoteException::class)
     public fun getDefaultComplicationDataSourcePoliciesAndType(
         watchFaceName: ComponentName
@@ -210,10 +212,12 @@ public interface WatchFaceControlClient : AutoCloseable {
  * [androidx.wear.watchface.ComplicationSlot].
  * @param type The default [ComplicationType] for the [androidx.wear.watchface.ComplicationSlot].
  */
+@Deprecated("Use the WatchFaceMetadataClient instead.")
 public class DefaultComplicationDataSourcePolicyAndType(
     public val policy: DefaultComplicationDataSourcePolicy,
     public val type: ComplicationType
 ) {
+    @Suppress("DEPRECATION") // DefaultComplicationDataSourcePolicyAndType
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
@@ -351,6 +355,7 @@ internal class WatchFaceControlClientImpl internal constructor(
         return EditorServiceClientImpl(service.editorService)
     }
 
+    @Suppress("DEPRECATION") // DefaultComplicationDataSourcePolicyAndType
     override fun getDefaultComplicationDataSourcePoliciesAndType(
         watchFaceName: ComponentName
     ): Map<Int, DefaultComplicationDataSourcePolicyAndType> = TraceEvent(
@@ -368,7 +373,10 @@ internal class WatchFaceControlClientImpl internal constructor(
                         DefaultComplicationDataSourcePolicyAndType(
                             DefaultComplicationDataSourcePolicy(
                                 it.defaultProvidersToTry ?: emptyList(),
-                                it.fallbackSystemProvider
+                                it.fallbackSystemProvider,
+                                ComplicationType.fromWireType(it.defaultProviderType),
+                                ComplicationType.fromWireType(it.defaultProviderType),
+                                ComplicationType.fromWireType(it.defaultProviderType)
                             ),
                             ComplicationType.fromWireType(it.defaultProviderType)
                         )

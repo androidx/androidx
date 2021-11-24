@@ -57,14 +57,14 @@ public final class ComplicationStateWireFormat implements VersionedParcelable, P
 
     @ParcelField(4)
     @Nullable
-    List<ComponentName> mDefaultProvidersToTry;
+    List<ComponentName> mDefaultDataSourcesToTry;
 
     @ParcelField(5)
     int mFallbackSystemProvider;
 
     @ParcelField(6)
     @ComplicationData.ComplicationType
-    int mDefaultProviderType;
+    int mDefaultType;
 
     @ParcelField(7)
     boolean mIsEnabled;
@@ -83,6 +83,16 @@ public final class ComplicationStateWireFormat implements VersionedParcelable, P
     @NonNull
     Bundle mComplicationConfigExtras;
 
+    // Not supported in library v1.0.
+    @ParcelField(12)
+    @ComplicationData.ComplicationType
+    int mPrimaryDataSourceDefaultType = ComplicationData.TYPE_NOT_CONFIGURED;
+
+    // Not supported in library v1.0.
+    @ParcelField(13)
+    @ComplicationData.ComplicationType
+    int mSecondaryDataSourceDefaultType = ComplicationData.TYPE_NOT_CONFIGURED;
+
     /** Used by VersionedParcelable. */
     ComplicationStateWireFormat() {
     }
@@ -91,9 +101,11 @@ public final class ComplicationStateWireFormat implements VersionedParcelable, P
             @NonNull Rect bounds,
             int boundsType,
             @NonNull @ComplicationData.ComplicationType int[] supportedTypes,
-            @Nullable List<ComponentName> defaultProvidersToTry,
+            @Nullable List<ComponentName> defaultDataSourcesToTry,
             int fallbackSystemProvider,
-            @ComplicationData.ComplicationType int defaultProviderType,
+            @ComplicationData.ComplicationType int defaultDataSourceType,
+            @ComplicationData.ComplicationType int primaryDataSourceDefaultType,
+            @ComplicationData.ComplicationType int secondaryDataSourceDefaultType,
             boolean isEnabled,
             boolean isInitiallyEnabled,
             @ComplicationData.ComplicationType int currentType,
@@ -102,9 +114,38 @@ public final class ComplicationStateWireFormat implements VersionedParcelable, P
         mBounds = bounds;
         mBoundsType = boundsType;
         mSupportedTypes = supportedTypes;
-        mDefaultProvidersToTry = defaultProvidersToTry;
+        mDefaultDataSourcesToTry = defaultDataSourcesToTry;
         mFallbackSystemProvider = fallbackSystemProvider;
-        mDefaultProviderType = defaultProviderType;
+        mDefaultType = defaultDataSourceType;
+        mPrimaryDataSourceDefaultType = primaryDataSourceDefaultType;
+        mSecondaryDataSourceDefaultType = secondaryDataSourceDefaultType;
+        mIsEnabled = isEnabled;
+        mIsInitiallyEnabled = isInitiallyEnabled;
+        mCurrentType = currentType;
+        mFixedComplicationProvider = fixedComplicationProvider;
+        mComplicationConfigExtras = complicationConfigExtras;
+    }
+
+    /** @deprecated Use the other constructor instead. */
+    @Deprecated
+    public ComplicationStateWireFormat(
+            @NonNull Rect bounds,
+            int boundsType,
+            @NonNull @ComplicationData.ComplicationType int[] supportedTypes,
+            @Nullable List<ComponentName> defaultDataSourcesToTry,
+            int fallbackSystemProvider,
+            @ComplicationData.ComplicationType int defaultDataSourceType,
+            boolean isEnabled,
+            boolean isInitiallyEnabled,
+            @ComplicationData.ComplicationType int currentType,
+            boolean fixedComplicationProvider,
+            @NonNull Bundle complicationConfigExtras) {
+        mBounds = bounds;
+        mBoundsType = boundsType;
+        mSupportedTypes = supportedTypes;
+        mDefaultDataSourcesToTry = defaultDataSourcesToTry;
+        mFallbackSystemProvider = fallbackSystemProvider;
+        mDefaultType = defaultDataSourceType;
         mIsEnabled = isEnabled;
         mIsInitiallyEnabled = isInitiallyEnabled;
         mCurrentType = currentType;
@@ -130,23 +171,68 @@ public final class ComplicationStateWireFormat implements VersionedParcelable, P
     /**
      * Along with {@link #getFallbackSystemProvider} this is the wire format for
      * DefaultComplicationDataSourcePolicy.
+     * @deprecated Use {@link #getDefaultDataSourcesToTry} instead.
      */
+    @Deprecated
     @Nullable
     public List<ComponentName> getDefaultProvidersToTry() {
-        return mDefaultProvidersToTry;
+        return mDefaultDataSourcesToTry;
     }
 
     /**
-     * Along with {@link #getDefaultProvidersToTry} this is the wire format for
+     * Along with {@link #getFallbackSystemProvider} this is the wire format for
+     * DefaultComplicationDataSourcePolicy.
+     */
+    @Nullable
+    public List<ComponentName> getDefaultDataSourcesToTry() {
+        return mDefaultDataSourcesToTry;
+    }
+
+    /**
+     * Along with {@link #getDefaultDataSourcesToTry} this is the wire format for
      * DefaultComplicationDataSourcePolicy.
      */
     public int getFallbackSystemProvider() {
         return mFallbackSystemProvider;
     }
 
+    /** @deprecated Use {@link #getDefaultDataSourceType} instead. */
+    @Deprecated
     @ComplicationData.ComplicationType
     public int getDefaultProviderType() {
-        return mDefaultProviderType;
+        return mDefaultType;
+    }
+
+    /**
+     * @return The {@link ComplicationData.ComplicationType} for {@link #getFallbackSystemProvider}.
+     */
+    @ComplicationData.ComplicationType
+    public int getDefaultDataSourceType() {
+        return mDefaultType;
+    }
+
+    /**
+     * @return The {@link ComplicationData.ComplicationType} for the first entry from
+     * {@link #getDefaultDataSourcesToTry}.
+     */
+    @ComplicationData.ComplicationType
+    public int getPrimaryDataSourceDefaultType() {
+        // Not supported in library v1.0. TYPE_NOT_CONFIGURED is not a valid API choice indicating
+        // and old client.
+        return (mPrimaryDataSourceDefaultType == ComplicationData.TYPE_NOT_CONFIGURED)
+                ? mDefaultType : mPrimaryDataSourceDefaultType;
+    }
+
+    /**
+     * @return The {@link ComplicationData.ComplicationType} for the second entry from
+     * {@link #getDefaultDataSourcesToTry}.
+     */
+    @ComplicationData.ComplicationType
+    public int getSecondaryDataSourceDefaultType() {
+        // Not supported in library v1.0. TYPE_NOT_CONFIGURED is not a valid API choice indicating
+        // and old client.
+        return (mSecondaryDataSourceDefaultType == ComplicationData.TYPE_NOT_CONFIGURED)
+                ? mDefaultType : mSecondaryDataSourceDefaultType;
     }
 
     public boolean isEnabled() {
@@ -161,7 +247,6 @@ public final class ComplicationStateWireFormat implements VersionedParcelable, P
         return mFixedComplicationProvider;
     }
 
-    @NonNull
     @ComplicationData.ComplicationType
     public int getCurrentType() {
         return mCurrentType;

@@ -618,7 +618,7 @@ Make sure to upload this change before or concurrently (ex. in the same Gerrit
 topic) with the dependent library code.
 
 Libraries typically reference dependencies using constants defined in
-[`Dependencies.kt`](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:buildSrc/src/main/kotlin/androidx/build/dependencies/Dependencies.kt),
+[`Dependencies.kt`](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:buildSrc/public/src/main/kotlin/androidx/build/dependencies/Dependencies.kt),
 so please update this file to include a constant for the version of the library
 that you have checked in. You will reference this constant in your library's
 `build.gradle` dependencies.
@@ -888,3 +888,22 @@ cp -a <path-to-sdk>/extras/m2repository/androidx/recyclerview/recyclerview/1.1.0
 
 Make sure the library versions are the same before and after replacement. Then
 you can build the Android platform code with the new `androidx` code.
+
+### How do I measure library size? {#library-size}
+
+Method count and bytecode size are tracked in CI
+[alongside benchmarks](benchmarking.md#monitoring) to detect regressions.
+
+For local measurements, use the `:reportLibraryMetrics` task. For example:
+
+```shell
+./gradlew benchmark:benchmark-macro:reportLibraryMetrics
+cat ../../out/dist/librarymetrics/androidx.benchmark_benchmark-macro.json
+```
+
+Will output something like: `{"method_count":1256,"bytecode_size":178822}`
+
+Note: this only counts the weight of your library's jar/aar, including
+resources. It does not count library dependencies. It does not account for a
+minification step (e.g. with R8), as that is dynamic, and done at app build time
+(and depend on which entrypoints the app uses).

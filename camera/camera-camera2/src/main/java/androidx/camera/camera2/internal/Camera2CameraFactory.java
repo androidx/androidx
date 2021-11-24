@@ -20,6 +20,7 @@ import static android.hardware.camera2.CameraMetadata.REQUEST_AVAILABLE_CAPABILI
 
 import android.content.Context;
 import android.hardware.camera2.CameraCharacteristics;
+import android.os.Build;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -132,6 +133,13 @@ public final class Camera2CameraFactory implements CameraFactory {
     }
 
     private boolean isBackwardCompatible(@NonNull String cameraId) throws InitializationException {
+        // Always returns true to not break robolectric tests because the cameras setup in
+        // robolectric don't have REQUEST_AVAILABLE_CAPABILITIES_BACKWARD_COMPATIBLE capability
+        // by default.
+        if ("robolectric".equals(Build.FINGERPRINT)) {
+            return true;
+        }
+
         int[] availableCapabilities;
 
         try {

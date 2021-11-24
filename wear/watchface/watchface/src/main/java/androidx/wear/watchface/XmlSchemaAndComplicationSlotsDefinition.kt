@@ -91,7 +91,6 @@ public class XmlSchemaAndComplicationSlotsDefinition(
         val bounds: ComplicationSlotBounds,
         val supportedTypes: List<ComplicationType>,
         val defaultDataSourcePolicy: DefaultComplicationDataSourcePolicy,
-        val defaultDataSourceType: ComplicationType,
         val initiallyEnabled: Boolean,
         val fixedComplicationDataSource: Boolean
     ) {
@@ -164,10 +163,40 @@ public class XmlSchemaAndComplicationSlotsDefinition(
                     attributes.getString(R.styleable.ComplicationSlot_primaryDataSource)?.let {
                         ComponentName.unflattenFromString(it)
                     }
+                val primaryDataSourceDefaultType =
+                    if (attributes.hasValue(
+                            R.styleable.ComplicationSlot_primaryDataSourceDefaultType
+                        )
+                    ) {
+                        ComplicationType.fromWireType(
+                            attributes.getInt(
+                                R.styleable.ComplicationSlot_primaryDataSourceDefaultType,
+                                0
+                            )
+                        )
+                    } else {
+                        null
+                    }
                 val secondaryDataSource =
                     attributes.getString(R.styleable.ComplicationSlot_secondaryDataSource)?.let {
                         ComponentName.unflattenFromString(it)
                     }
+
+                val secondaryDataSourceDefaultType =
+                    if (attributes.hasValue(
+                            R.styleable.ComplicationSlot_secondaryDataSourceDefaultType
+                        )
+                    ) {
+                        ComplicationType.fromWireType(
+                            attributes.getInt(
+                                R.styleable.ComplicationSlot_secondaryDataSourceDefaultType,
+                                0
+                            )
+                        )
+                    } else {
+                        null
+                    }
+
                 require(
                     attributes.hasValue(R.styleable.ComplicationSlot_systemDataSourceFallback)
                 ) {
@@ -177,37 +206,64 @@ public class XmlSchemaAndComplicationSlotsDefinition(
                     R.styleable.ComplicationSlot_systemDataSourceFallback,
                     0
                 )
+                require(
+                    attributes.hasValue(
+                        R.styleable.ComplicationSlot_systemDataSourceFallbackDefaultType
+                    )
+                ) {
+                    "A ComplicationSlot must have a systemDataSourceFallbackDefaultType" +
+                        " attribute"
+                }
+                val systemDataSourceFallbackDefaultType = ComplicationType.fromWireType(
+                    attributes.getInt(
+                        R.styleable.ComplicationSlot_systemDataSourceFallbackDefaultType,
+                        0
+                    )
+                )
                 val defaultComplicationDataSourcePolicy = when {
                     secondaryDataSource != null -> {
                         require(primaryDataSource != null) {
                             "If a secondaryDataSource is specified, a primaryDataSource must be too"
                         }
+                        require(primaryDataSourceDefaultType != null) {
+                            "If a primaryDataSource is specified, a " +
+                                "primaryDataSourceDefaultType must be too"
+                        }
+                        require(secondaryDataSourceDefaultType != null) {
+                            "If a secondaryDataSource is specified, a " +
+                                "secondaryDataSourceDefaultType must be too"
+                        }
                         DefaultComplicationDataSourcePolicy(
                             primaryDataSource,
+                            primaryDataSourceDefaultType,
                             secondaryDataSource,
-                            systemDataSourceFallback
+                            secondaryDataSourceDefaultType,
+                            systemDataSourceFallback,
+                            systemDataSourceFallbackDefaultType
                         )
                     }
 
-                    primaryDataSource != null -> DefaultComplicationDataSourcePolicy(
-                        primaryDataSource,
-                        systemDataSourceFallback
-                    )
+                    primaryDataSource != null -> {
+                        require(primaryDataSourceDefaultType != null) {
+                            "If a primaryDataSource is specified, a " +
+                                "primaryDataSourceDefaultType must be too"
+                        }
+                        DefaultComplicationDataSourcePolicy(
+                            primaryDataSource,
+                            primaryDataSourceDefaultType,
+                            systemDataSourceFallback,
+                            systemDataSourceFallbackDefaultType
+                        )
+                    }
 
-                    else -> DefaultComplicationDataSourcePolicy(systemDataSourceFallback)
+                    else -> {
+                        DefaultComplicationDataSourcePolicy(
+                            systemDataSourceFallback,
+                            systemDataSourceFallbackDefaultType
+                        )
+                    }
                 }
 
-                require(
-                    attributes.hasValue(R.styleable.ComplicationSlot_defaultDataSourceType)
-                ) {
-                    "A ComplicationSlot must have a defaultDataSourceType attribute"
-                }
-                val defaultDataSourceType = ComplicationType.fromWireType(
-                    attributes.getInt(
-                        R.styleable.ComplicationSlot_defaultDataSourceType,
-                        0
-                    )
-                )
                 val initiallyEnabled = attributes.getBoolean(
                     R.styleable.ComplicationSlot_initiallyEnabled,
                     true
@@ -231,7 +287,6 @@ public class XmlSchemaAndComplicationSlotsDefinition(
                     bounds,
                     supportedTypesList,
                     defaultComplicationDataSourcePolicy,
-                    defaultDataSourceType,
                     initiallyEnabled,
                     fixedComplicationDataSource
                 )
@@ -262,7 +317,7 @@ public class XmlSchemaAndComplicationSlotsDefinition(
                     complicationSlotInflationFactory.getCanvasComplicationFactory(it.slotId),
                     it.supportedTypes,
                     it.defaultDataSourcePolicy,
-                    it.defaultDataSourceType,
+                    it.defaultDataSourcePolicy.systemDataSourceFallbackDefaultType,
                     it.initiallyEnabled,
                     Bundle(),
                     it.fixedComplicationDataSource,
