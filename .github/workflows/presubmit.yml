@@ -104,7 +104,7 @@ jobs:
         with:
           arguments: tasks -PandroidXUnusedParameter=activity # add project name to cache key
           build-root-directory: activity
-          configuration-cache-enabled: true
+          configuration-cache-enabled: false
           dependencies-cache-enabled: true
           dependencies-cache-key: |
             **/libs.versions.toml
@@ -183,7 +183,7 @@ jobs:
         with:
           arguments: tasks -PandroidXUnusedParameter=${{ env.project-root }} # add project name to cache key
           build-root-directory: ${{ env.project-root }}
-          configuration-cache-enabled: true
+          configuration-cache-enabled: false
           dependencies-cache-enabled: true
           dependencies-cache-key: |
             **/libs.versions.toml
