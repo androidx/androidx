@@ -24,7 +24,6 @@ import androidx.room.solver.shortcut.binder.DeleteOrUpdateMethodBinder
  */
 abstract class ShortcutMethod(
     val element: XMethodElement,
-    val name: String,
     val entities: Map<String, ShortcutEntity>,
     val parameters: List<ShortcutQueryParameter>,
     val methodBinder: DeleteOrUpdateMethodBinder?

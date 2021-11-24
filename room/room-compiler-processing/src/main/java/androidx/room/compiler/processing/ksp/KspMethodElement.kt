@@ -40,8 +40,11 @@ internal sealed class KspMethodElement(
 ),
     XMethodElement {
 
+    override val name: String
+        get() = declaration.simpleName.asString()
+
     @OptIn(KspExperimental::class)
-    override val name: String by lazy {
+    override val jvmName: String by lazy {
         val jvmName = runCatching {
             // see https://github.com/google/ksp/issues/716
             env.resolver.getJvmName(declaration)

@@ -58,7 +58,7 @@ internal fun Resolver.overrides(
         return false
     }
     // do a quick check on name before doing the more expensive operations
-    if (overriderElement.name != overrideeElement.name) {
+    if (overriderElement.jvmName != overrideeElement.jvmName) {
         return false
     }
     val ksOverrider = overriderElement.getDeclarationForOverride()

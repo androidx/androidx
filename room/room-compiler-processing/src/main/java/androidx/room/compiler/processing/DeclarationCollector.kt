@@ -69,14 +69,14 @@ internal fun collectAllMethods(
             // Finally, visit all methods declared in this type.
             if (type == xTypeElement) {
                 type.getDeclaredMethods().forEach {
-                    methodsByName.getOrPut(it.name) { linkedSetOf() }.add(it)
+                    methodsByName.getOrPut(it.jvmName) { linkedSetOf() }.add(it)
                 }
             } else {
                 type.getDeclaredMethods()
                     .filter { it.isAccessibleFrom(type.packageName) }
                     .filterNot { it.isStaticInterfaceMethod() }
                     .map { it.copyTo(xTypeElement) }
-                    .forEach { methodsByName.getOrPut(it.name) { linkedSetOf() }.add(it) }
+                    .forEach { methodsByName.getOrPut(it.jvmName) { linkedSetOf() }.add(it) }
             }
         }
         collectAllMethodsByName(xTypeElement)

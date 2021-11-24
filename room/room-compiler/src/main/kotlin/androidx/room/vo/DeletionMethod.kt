@@ -20,8 +20,7 @@ import androidx.room.solver.shortcut.binder.DeleteOrUpdateMethodBinder
 
 class DeletionMethod(
     element: XMethodElement,
-    name: String,
     entities: Map<String, ShortcutEntity>,
     parameters: List<ShortcutQueryParameter>,
     methodBinder: DeleteOrUpdateMethodBinder?
-) : ShortcutMethod(element, name, entities, parameters, methodBinder)
+) : ShortcutMethod(element, entities, parameters, methodBinder)

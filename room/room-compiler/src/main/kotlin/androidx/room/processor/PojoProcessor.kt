@@ -739,14 +739,14 @@ class PojoProcessor private constructor(
             },
             assignFromField = {
                 field.getter = FieldGetter(
-                    name = field.name,
+                    jvmName = field.name,
                     type = field.type,
                     callType = CallType.FIELD
                 )
             },
             assignFromMethod = { match ->
                 field.getter = FieldGetter(
-                    name = match.name,
+                    jvmName = match.element.jvmName,
                     type = match.resolvedType.returnType,
                     callType = CallType.METHOD
                 )
@@ -799,7 +799,7 @@ class PojoProcessor private constructor(
     ) {
         if (constructor != null && constructor.hasField(field)) {
             field.setter = FieldSetter(
-                name = field.name,
+                jvmName = field.name,
                 type = field.type,
                 callType = CallType.CONSTRUCTOR
             )
@@ -814,7 +814,7 @@ class PojoProcessor private constructor(
             },
             assignFromField = {
                 field.setter = FieldSetter(
-                    name = field.name,
+                    jvmName = field.name,
                     type = field.type,
                     callType = CallType.FIELD
                 )
@@ -822,7 +822,7 @@ class PojoProcessor private constructor(
             assignFromMethod = { match ->
                 val paramType = match.resolvedType.parameterTypes.first()
                 field.setter = FieldSetter(
-                    name = match.name,
+                    jvmName = match.element.jvmName,
                     type = paramType,
                     callType = CallType.METHOD
                 )
@@ -883,8 +883,8 @@ class PojoProcessor private constructor(
                 // b/69164099
                 field.type.isAssignableFromWithoutVariance(getType(it)) &&
                     (
-                        field.nameWithVariations.contains(it.name) ||
-                            nameVariations.contains(it.name)
+                        field.nameWithVariations.contains(it.element.jvmName) ||
+                            nameVariations.contains(it.element.jvmName)
                         )
             }
             .groupBy {
@@ -917,7 +917,7 @@ class PojoProcessor private constructor(
             return null
         }
         if (candidates.size > 1) {
-            reportAmbiguity(candidates.map { it.name })
+            reportAmbiguity(candidates.map { it.element.jvmName })
         }
         return candidates.first()
     }
@@ -927,7 +927,7 @@ class PojoProcessor private constructor(
         fun onPreProcess(element: XTypeElement)
 
         /**
-         * Constructors are XExecutableElement rather than XConstrcutorElement to account for
+         * Constructors are XExecutableElement rather than XConstructorElement to account for
          * factory methods.
          */
         fun findConstructors(element: XTypeElement): List<XExecutableElement>

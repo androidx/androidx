@@ -108,7 +108,7 @@ class KspClassFileUtilityTest(
             sources = listOf(libSource)
         ) { invocation ->
             val element = invocation.processingEnv.requireTypeElement("KotlinClass")
-            assertThat(element.getDeclaredMethods().map { it.name })
+            assertThat(element.getDeclaredMethods().map { it.jvmName })
                 .containsExactly("b", "a", "c", "isB", "isA", "isC")
                 .inOrder()
         }
@@ -133,7 +133,7 @@ class KspClassFileUtilityTest(
             sources = listOf(libSource),
         ) { invocation ->
             val element = invocation.processingEnv.requireTypeElement("JavaClass")
-            assertThat(element.getDeclaredMethods().map { it.name })
+            assertThat(element.getDeclaredMethods().map { it.jvmName })
                 .containsExactly("b", "a", "c", "isB", "isA", "isC")
                 .inOrder()
         }

@@ -67,7 +67,7 @@ abstract class ShortcutMethodProcessorTest<out T : ShortcutMethod>(
                 abstract public void foo();
                 """
         ) { shortcut, invocation ->
-            assertThat(shortcut.name, `is`("foo"))
+            assertThat(shortcut.element.jvmName, `is`("foo"))
             assertThat(shortcut.parameters.size, `is`(0))
             invocation.assertCompilationResult {
                 hasErrorContaining(noParamsError())
@@ -85,7 +85,7 @@ abstract class ShortcutMethodProcessorTest<out T : ShortcutMethod>(
                 abstract public int foo(User user);
                 """
         ) { shortcut, _ ->
-            assertThat(shortcut.name, `is`("foo"))
+            assertThat(shortcut.element.jvmName, `is`("foo"))
             assertThat(shortcut.parameters.size, `is`(1))
             val param = shortcut.parameters.first()
             assertThat(param.type.typeName, `is`(USER_TYPE_NAME))
@@ -104,7 +104,7 @@ abstract class ShortcutMethodProcessorTest<out T : ShortcutMethod>(
                 abstract public void foo(NotAnEntity notValid);
                 """
         ) { shortcut, invocation ->
-            assertThat(shortcut.name, `is`("foo"))
+            assertThat(shortcut.element.jvmName, `is`("foo"))
             assertThat(shortcut.parameters.size, `is`(1))
             assertThat(shortcut.entities.size, `is`(0))
             invocation.assertCompilationResult {
@@ -123,7 +123,7 @@ abstract class ShortcutMethodProcessorTest<out T : ShortcutMethod>(
                 abstract public void foo(User u1, User u2);
                 """
         ) { shortcut, _ ->
-            assertThat(shortcut.name, `is`("foo"))
+            assertThat(shortcut.element.jvmName, `is`("foo"))
 
             assertThat(shortcut.parameters.size, `is`(2))
             shortcut.parameters.forEach {
@@ -159,7 +159,7 @@ abstract class ShortcutMethodProcessorTest<out T : ShortcutMethod>(
                 abstract public $type users(List<User> users);
                 """
             ) { shortcut, _ ->
-                assertThat(shortcut.name, `is`("users"))
+                assertThat(shortcut.element.jvmName, `is`("users"))
                 assertThat(shortcut.parameters.size, `is`(1))
                 val param = shortcut.parameters.first()
                 assertThat(
@@ -185,7 +185,7 @@ abstract class ShortcutMethodProcessorTest<out T : ShortcutMethod>(
                 abstract public void users(User[] users);
                 """
         ) { shortcut, _ ->
-            assertThat(shortcut.name, `is`("users"))
+            assertThat(shortcut.element.jvmName, `is`("users"))
             assertThat(shortcut.parameters.size, `is`(1))
             val param = shortcut.parameters.first()
             assertThat(
@@ -207,7 +207,7 @@ abstract class ShortcutMethodProcessorTest<out T : ShortcutMethod>(
                 abstract public void modifyUsers(Set<User> users);
                 """
         ) { shortcut, _ ->
-            assertThat(shortcut.name, `is`("modifyUsers"))
+            assertThat(shortcut.element.jvmName, `is`("modifyUsers"))
             assertThat(shortcut.parameters.size, `is`(1))
             val param = shortcut.parameters.first()
             assertThat(
@@ -232,7 +232,7 @@ abstract class ShortcutMethodProcessorTest<out T : ShortcutMethod>(
                 abstract public void modifyUsers(Iterable<User> users);
                 """
         ) { shortcut, _ ->
-            assertThat(shortcut.name, `is`("modifyUsers"))
+            assertThat(shortcut.element.jvmName, `is`("modifyUsers"))
             assertThat(shortcut.parameters.size, `is`(1))
             val param = shortcut.parameters.first()
             assertThat(
@@ -258,7 +258,7 @@ abstract class ShortcutMethodProcessorTest<out T : ShortcutMethod>(
                 abstract public void modifyUsers(MyList<String, User> users);
                 """
         ) { shortcut, _ ->
-            assertThat(shortcut.name, `is`("modifyUsers"))
+            assertThat(shortcut.element.jvmName, `is`("modifyUsers"))
             assertThat(shortcut.parameters.size, `is`(1))
             val param = shortcut.parameters.first()
             assertThat(
@@ -362,7 +362,7 @@ abstract class ShortcutMethodProcessorTest<out T : ShortcutMethod>(
                 """,
             additionalSources = listOf(usernameSource)
         ) { shortcut, _ ->
-            assertThat(shortcut.name, `is`("foo"))
+            assertThat(shortcut.element.jvmName, `is`("foo"))
             assertThat(shortcut.parameters.size, `is`(1))
             val param = shortcut.parameters.first()
             assertThat(param.type.typeName, `is`(USERNAME_TYPE_NAME))

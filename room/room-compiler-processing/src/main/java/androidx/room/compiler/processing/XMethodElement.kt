@@ -24,9 +24,24 @@ package androidx.room.compiler.processing
  */
 interface XMethodElement : XExecutableElement {
     /**
-     * The name of the method.
+     * The name of the method in source.
+     *
+     * For Kotlin sources, this might be different from [jvmName] if:
+     * * Function is annotated with @JvmName
+     * * Function has a value class as a parameter or return type
+     * * Function is internal
+     *
+     * @see jvmName
      */
     val name: String
+
+    /**
+     * The name of the method in JVM.
+     * Use this properly when you need to generate code accessing this method.
+     *
+     * @see name
+     */
+    val jvmName: String
 
     /**
      * The return type for the method. Note that it might be [XType.isNone] if it does not return or
@@ -43,7 +58,7 @@ interface XMethodElement : XExecutableElement {
         get() = buildString {
             append(enclosingElement.fallbackLocationText)
             append(".")
-            append(name)
+            append(jvmName)
             append("(")
             // don't report last parameter if it is a suspend function
             append(
