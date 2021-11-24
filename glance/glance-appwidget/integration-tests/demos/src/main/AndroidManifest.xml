@@ -34,6 +34,7 @@
         </activity>
 
         <activity android:name=".ActionDemoActivity" />
+        <service android:name=".ActionDemoService" />
 
         <activity android:name=".ListClickDestinationActivity" android:exported="false" />
 
