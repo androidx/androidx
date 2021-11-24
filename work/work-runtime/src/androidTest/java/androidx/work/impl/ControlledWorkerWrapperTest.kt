@@ -48,7 +48,7 @@ class ControlledWorkerWrapperTest {
     private val taskExecutor = ManualTaskExecutor()
     private val backgroundExecutor = ManualExecutor()
     private val workDatabase = WorkDatabase.create(
-        context, taskExecutor.backgroundExecutor, true
+        context, taskExecutor.serialTaskExecutor, true
     )
     private val foregroundInfoFuture = SettableFuture.create<ForegroundInfo>()
     private val resultFuture = SettableFuture.create<Result>().also { it.set(Result.success()) }
@@ -61,10 +61,10 @@ class ControlledWorkerWrapperTest {
         val workerWrapper = workerWrapper(work.stringId) { worker = it }
         workerWrapper.run()
 
-        while (taskExecutor.backgroundExecutor.hasPendingTask() ||
+        while (taskExecutor.serialTaskExecutor.hasPendingTask() ||
             backgroundExecutor.hasPendingTask()
         ) {
-            taskExecutor.backgroundExecutor.drain()
+            taskExecutor.serialTaskExecutor.drain()
             backgroundExecutor.drain()
         }
         workerWrapper.interrupt()
@@ -100,11 +100,11 @@ class ControlledWorkerWrapperTest {
 
     private fun drainAll() {
         while (
-            taskExecutor.backgroundExecutor.hasPendingTask() ||
+            taskExecutor.serialTaskExecutor.hasPendingTask() ||
             backgroundExecutor.hasPendingTask() ||
             taskExecutor.mainExecutor.hasPendingTask()
         ) {
-            taskExecutor.backgroundExecutor.drain()
+            taskExecutor.serialTaskExecutor.drain()
             backgroundExecutor.drain()
             taskExecutor.mainExecutor.drain()
         }
@@ -190,15 +190,12 @@ class ManualExecutor : Executor {
 
 class ManualTaskExecutor : TaskExecutor {
     val mainExecutor = ManualExecutor()
-    val backgroundExecutor = ManualExecutor()
-    private val serialBackgroundExecutor = SerialExecutor(backgroundExecutor)
+    val serialTaskExecutor = ManualExecutor()
+    private val serialBackgroundExecutor = SerialExecutor(serialTaskExecutor)
 
     override fun postToMainThread(runnable: Runnable) = mainExecutor.execute(runnable)
 
     override fun getMainThreadExecutor() = mainExecutor
 
-    override fun executeOnBackgroundThread(runnable: Runnable) =
-        backgroundExecutor.execute(runnable)
-
-    override fun getBackgroundExecutor(): SerialExecutor = serialBackgroundExecutor
+    override fun getSerialTaskExecutor(): SerialExecutor = serialBackgroundExecutor
 }

@@ -339,7 +339,7 @@ public class WorkerWrapper implements Runnable {
                         onWorkFinished();
                     }
                 }
-            }, mWorkTaskExecutor.getBackgroundExecutor());
+            }, mWorkTaskExecutor.getSerialTaskExecutor());
         } else {
             resolveIncorrectStatus();
         }

@@ -71,7 +71,7 @@ public class WorkManagerInitHelperTest {
         WorkManagerTestInitHelper.initializeTestWorkManager(mContext, configuration);
         WorkManagerImpl workManager = (WorkManagerImpl) WorkManager.getInstance(mContext);
         assertThat(workManager, is(notNullValue()));
-        SerialExecutor serialExecutor = workManager.getWorkTaskExecutor().getBackgroundExecutor();
+        SerialExecutor serialExecutor = workManager.getWorkTaskExecutor().getSerialTaskExecutor();
         assertThat(serialExecutor.getDelegatedExecutor(), is(mExecutor));
     }
 
@@ -84,7 +84,7 @@ public class WorkManagerInitHelperTest {
         WorkManagerTestInitHelper.initializeTestWorkManager(mContext, configuration);
         WorkManagerImpl workManager = (WorkManagerImpl) WorkManager.getInstance(mContext);
         assertThat(workManager, is(notNullValue()));
-        SerialExecutor serialExecutor = workManager.getWorkTaskExecutor().getBackgroundExecutor();
+        SerialExecutor serialExecutor = workManager.getWorkTaskExecutor().getSerialTaskExecutor();
         assertThat(serialExecutor.getDelegatedExecutor(), instanceOf(SynchronousExecutor.class));
     }
 
@@ -102,7 +102,7 @@ public class WorkManagerInitHelperTest {
         WorkManagerTestInitHelper.initializeTestWorkManager(mContext, configuration);
         WorkManagerImpl workManager = (WorkManagerImpl) WorkManager.getInstance(mContext);
         assertThat(workManager, is(notNullValue()));
-        SerialExecutor serialExecutor = workManager.getWorkTaskExecutor().getBackgroundExecutor();
+        SerialExecutor serialExecutor = workManager.getWorkTaskExecutor().getSerialTaskExecutor();
         assertThat(serialExecutor.getDelegatedExecutor(), instanceOf(SynchronousExecutor.class));
         Configuration used = workManager.getConfiguration();
 
