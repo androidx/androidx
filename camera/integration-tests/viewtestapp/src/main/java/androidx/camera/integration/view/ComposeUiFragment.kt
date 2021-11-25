@@ -24,6 +24,9 @@ import android.widget.LinearLayout
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.Preview
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
+import androidx.camera.integration.view.MainActivity.CAMERA_DIRECTION_BACK
+import androidx.camera.integration.view.MainActivity.CAMERA_DIRECTION_FRONT
+import androidx.camera.integration.view.MainActivity.INTENT_EXTRA_CAMERA_DIRECTION
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
 import androidx.compose.runtime.Composable
@@ -33,11 +36,12 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.LifecycleOwner
 
 class ComposeUiFragment : Fragment() {
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         val cameraProvider = ProcessCameraProvider.getInstance(requireContext()).get()
         val previewView = PreviewView(requireContext())
 
@@ -60,16 +64,14 @@ class ComposeUiFragment : Fragment() {
         previewView.scaleType = PreviewView.ScaleType.FILL_CENTER
 
         AndroidView(
-            factory = { _ ->
+            factory = {
                 previewView
             }
         )
 
-        CameraXExecutors.mainThreadExecutor().execute(
-            Runnable {
-                bindPreview(cameraProvider, this, previewView)
-            }
-        )
+        CameraXExecutors.mainThreadExecutor().execute {
+            bindPreview(cameraProvider, this, previewView)
+        }
     }
 
     private fun bindPreview(
@@ -77,14 +79,24 @@ class ComposeUiFragment : Fragment() {
         lifecycleOwner: LifecycleOwner,
         previewView: PreviewView,
     ) {
-        val preview: Preview = Preview.Builder()
-            .build()
-
-        val cameraSelector: CameraSelector = CameraSelector.Builder()
-            .requireLensFacing(CameraSelector.LENS_FACING_BACK)
-            .build()
+        val preview = Preview.Builder().build()
+        val cameraSelector = getCameraSelector()
 
         preview.setSurfaceProvider(previewView.surfaceProvider)
         cameraProvider.bindToLifecycle(lifecycleOwner, cameraSelector, preview)
+    }
+
+    private fun getCameraSelector(): CameraSelector {
+        var cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
+        val bundle: Bundle? = requireActivity().intent.extras
+        if (bundle != null) {
+            cameraSelector =
+                when (bundle.getString(INTENT_EXTRA_CAMERA_DIRECTION, CAMERA_DIRECTION_BACK)) {
+                    CAMERA_DIRECTION_BACK -> CameraSelector.DEFAULT_BACK_CAMERA
+                    CAMERA_DIRECTION_FRONT -> CameraSelector.DEFAULT_FRONT_CAMERA
+                    else -> CameraSelector.DEFAULT_BACK_CAMERA
+                }
+        }
+        return cameraSelector
     }
 }
