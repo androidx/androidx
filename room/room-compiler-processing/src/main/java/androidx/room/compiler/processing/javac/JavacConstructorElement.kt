@@ -45,6 +45,19 @@ internal class JavacConstructorElement(
         element.requireEnclosingType(env)
     }
 
+    override val parameters: List<JavacMethodParameter> by lazy {
+        element.parameters.mapIndexed { index, variable ->
+            JavacMethodParameter(
+                env = env,
+                enclosingMethodElement = this,
+                containing = containing,
+                element = variable,
+                kotlinMetadataFactory = { kotlinMetadata?.parameters?.getOrNull(index) },
+                argIndex = index
+            )
+        }
+    }
+
     override val executableType: XConstructorType by lazy {
         val asMemberOf = env.typeUtils.asMemberOf(containing.type.typeMirror, element)
         JavacConstructorType(
