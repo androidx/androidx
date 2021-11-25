@@ -49,6 +49,7 @@ dependencies {
     testImplementation(libs.kotlinStdlib)
     testImplementation(libs.truth)
     testImplementation(libs.testRunner) // Needed for @FlakyTest and @Ignore
+    lintPublish(project(":room:room-lint"))
 
     androidTestImplementation(libs.junit)
     androidTestImplementation(libs.testExtJunit)
