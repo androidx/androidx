@@ -446,7 +446,13 @@ public abstract class WatchFaceService : WallpaperService() {
                 backgroundThread = HandlerThread(
                     "WatchFaceBackground",
                     Process.THREAD_PRIORITY_FOREGROUND // The user is waiting on WF init.
-                ).apply { start() }
+                ).apply {
+                    uncaughtExceptionHandler = Thread.UncaughtExceptionHandler {
+                            _, throwable ->
+                        Log.e(TAG, "Uncaught exception on watch face background thread", throwable)
+                    }
+                    start()
+                }
             }
             return Handler(backgroundThread!!.looper)
         }
