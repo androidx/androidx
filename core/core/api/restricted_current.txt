@@ -2428,10 +2428,10 @@ package androidx.core.util {
 
   public final class SizeFCompat {
     ctor public SizeFCompat(float, float);
-    method @RequiresApi(21) public static androidx.core.util.SizeFCompat createFromSizeF(android.util.SizeF);
     method public float getHeight();
     method public float getWidth();
     method @RequiresApi(21) public android.util.SizeF toSizeF();
+    method @RequiresApi(21) public static androidx.core.util.SizeFCompat toSizeFCompat(android.util.SizeF);
   }
 
   public interface Supplier<T> {
