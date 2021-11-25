@@ -224,7 +224,7 @@ private object AppWidgetManagerApi31Impl {
         return RemoteViews(dpSizes.associate { it.toSizeF() to factory(it) })
     }
 
-    private fun SizeF.toSizeFCompat() = SizeFCompat.createFromSizeF(this)
+    private fun SizeF.toSizeFCompat() = SizeFCompat.toSizeFCompat(this)
 }
 
 @RequiresApi(16)
