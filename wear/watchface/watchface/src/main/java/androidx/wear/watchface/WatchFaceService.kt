@@ -1167,6 +1167,15 @@ public abstract class WatchFaceService : WallpaperService() {
             }
         }
 
+        @UiThread
+        internal suspend fun updateInstance(newInstanceId: String) {
+            val watchFaceImpl = deferredWatchFaceImpl.await()
+            // If the favorite ID has changed then the complications are probably invalid.
+            watchFaceImpl.complicationSlotsManager.clearComplicationData()
+
+            mutableWatchState.watchFaceInstanceId.value = newInstanceId
+        }
+
         override fun getContext(): Context = _context
 
         override fun getUiThreadHandler(): Handler = uiThreadHandler
@@ -1498,6 +1507,7 @@ public abstract class WatchFaceService : WallpaperService() {
 
             allowWatchfaceToAnimate = false
             require(mutableWatchState.isHeadless)
+            mutableWatchState.watchFaceInstanceId.value = params.instanceId
             val watchState = mutableWatchState.asWatchState()
 
             createWatchFaceInternal(
@@ -1530,6 +1540,7 @@ public abstract class WatchFaceService : WallpaperService() {
             setWatchUiState(params.watchUiState)
             initialUserStyle = params.userStyle
 
+            mutableWatchState.watchFaceInstanceId.value = params.instanceId
             val watchState = mutableWatchState.asWatchState()
 
             // Store the initial complications, this could be modified by new data before being

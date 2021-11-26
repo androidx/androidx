@@ -228,6 +228,7 @@ class WatchFaceControlClientTest {
     @Test
     fun headlessScreenshot() {
         val headlessInstance = service.createHeadlessWatchFaceClient(
+            "id",
             exampleWatchFaceComponentName,
             DeviceConfig(
                 false,
@@ -258,6 +259,7 @@ class WatchFaceControlClientTest {
     @Test
     fun yellowComplicationHighlights() {
         val headlessInstance = service.createHeadlessWatchFaceClient(
+            "id",
             exampleWatchFaceComponentName,
             DeviceConfig(
                 false,
@@ -292,6 +294,7 @@ class WatchFaceControlClientTest {
     @Test
     fun highlightOnlyLayer() {
         val headlessInstance = service.createHeadlessWatchFaceClient(
+            "id",
             exampleWatchFaceComponentName,
             DeviceConfig(
                 false,
@@ -326,6 +329,7 @@ class WatchFaceControlClientTest {
     @Test
     fun headlessComplicationDetails() {
         val headlessInstance = service.createHeadlessWatchFaceClient(
+            "id",
             exampleWatchFaceComponentName,
             deviceConfig,
             400,
@@ -432,6 +436,7 @@ class WatchFaceControlClientTest {
     @Test
     fun headlessUserStyleSchema() {
         val headlessInstance = service.createHeadlessWatchFaceClient(
+            "id",
             exampleWatchFaceComponentName,
             deviceConfig,
             400,
@@ -459,6 +464,7 @@ class WatchFaceControlClientTest {
     fun headlessToBundleAndCreateFromBundle() {
         val headlessInstance = HeadlessWatchFaceClient.createFromBundle(
             service.createHeadlessWatchFaceClient(
+                "id",
                 exampleWatchFaceComponentName,
                 deviceConfig,
                 400,

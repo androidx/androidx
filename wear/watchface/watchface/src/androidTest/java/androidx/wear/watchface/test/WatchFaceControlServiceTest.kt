@@ -133,7 +133,8 @@ public class WatchFaceControlServiceTest {
                     0
                 ),
                 width,
-                height
+                height,
+                null
             )
         )
     }
@@ -159,7 +160,8 @@ public class WatchFaceControlServiceTest {
                     0
                 ),
                 width,
-                height
+                height,
+                null
             )
         )
     }
@@ -298,7 +300,8 @@ public class WatchFaceControlServiceTest {
                     0
                 ),
                 100,
-                100
+                100,
+                null
             )
         )
 
