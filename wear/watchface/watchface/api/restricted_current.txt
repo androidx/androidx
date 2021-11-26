@@ -270,6 +270,7 @@ package androidx.wear.watchface {
     method public androidx.wear.watchface.WatchFace setComplicationRationaleDialogIntent(android.content.Intent? complicationRationaleDialogIntent);
     method public androidx.wear.watchface.WatchFace setLegacyWatchFaceStyle(androidx.wear.watchface.WatchFace.LegacyWatchFaceOverlayStyle legacyWatchFaceStyle);
     method public androidx.wear.watchface.WatchFace setOverridePreviewReferenceInstant(java.time.Instant previewReferenceTimeMillis);
+    method public androidx.wear.watchface.WatchFace setPendingIntentTapListener(androidx.wear.watchface.WatchFace.PendingIntentTapListener? pendingIntentTapListener);
     method public androidx.wear.watchface.WatchFace setTapListener(androidx.wear.watchface.WatchFace.TapListener? tapListener);
     method public void setWatchFaceType(int watchFaceType);
     property public final androidx.wear.watchface.WatchFace.LegacyWatchFaceOverlayStyle legacyWatchFaceStyle;
@@ -294,6 +295,10 @@ package androidx.wear.watchface {
     property public final int statusBarGravity;
     property public final boolean tapEventsAccepted;
     property public final int viewProtectionMode;
+  }
+
+  public static interface WatchFace.PendingIntentTapListener {
+    method @UiThread public android.app.PendingIntent? onTapEvent(int tapType, androidx.wear.watchface.TapEvent tapEvent, androidx.wear.watchface.ComplicationSlot? complicationSlot);
   }
 
   public static interface WatchFace.TapListener {

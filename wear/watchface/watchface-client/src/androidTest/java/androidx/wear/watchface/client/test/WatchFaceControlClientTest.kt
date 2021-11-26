@@ -17,6 +17,8 @@
 package androidx.wear.watchface.client.test
 
 import android.annotation.SuppressLint
+import android.app.PendingIntent
+import android.app.PendingIntent.FLAG_IMMUTABLE
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
@@ -54,6 +56,8 @@ import androidx.wear.watchface.ContentDescriptionLabel
 import androidx.wear.watchface.DrawMode
 import androidx.wear.watchface.RenderParameters
 import androidx.wear.watchface.Renderer
+import androidx.wear.watchface.TapEvent
+import androidx.wear.watchface.TapType
 import androidx.wear.watchface.WatchFace
 import androidx.wear.watchface.WatchFaceService
 import androidx.wear.watchface.WatchFaceType
@@ -92,6 +96,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
@@ -191,12 +196,18 @@ class WatchFaceControlClientTest {
                 PlainComplicationText.Builder("ID").build(),
                 ComplicationText.EMPTY
             ).setTitle(PlainComplicationText.Builder("Left").build())
+                .setTapAction(
+                    PendingIntent.getActivity(context, 0, Intent("left"), FLAG_IMMUTABLE)
+                )
                 .build(),
         EXAMPLE_CANVAS_WATCHFACE_RIGHT_COMPLICATION_ID to
             ShortTextComplicationData.Builder(
                 PlainComplicationText.Builder("ID").build(),
                 ComplicationText.EMPTY
             ).setTitle(PlainComplicationText.Builder("Right").build())
+                .setTapAction(
+                    PendingIntent.getActivity(context, 0, Intent("right"), FLAG_IMMUTABLE)
+                )
                 .build()
     )
 
@@ -1345,6 +1356,78 @@ class WatchFaceControlClientTest {
     fun hasComplicationCache_currentApi() {
         assertTrue(service.hasComplicationDataCache())
     }
+
+    @Test
+    fun getPendingIntentForTouchEvent() {
+        val deferredInteractiveInstance = handlerCoroutineScope.async {
+            service.getOrCreateInteractiveWatchFaceClient(
+                "testId",
+                deviceConfig,
+                systemState,
+                null,
+                complications
+            )
+        }
+
+        // Create the engine which triggers creation of InteractiveWatchFaceClient.
+        createEngine()
+
+        val interactiveInstance = awaitWithTimeout(deferredInteractiveInstance)
+
+        assertNull(interactiveInstance.getPendingIntentForTouchEvent(0, 0, TapType.DOWN))
+        assertNull(interactiveInstance.getPendingIntentForTouchEvent(0, 0, TapType.UP))
+
+        assertNull(interactiveInstance.getPendingIntentForTouchEvent(85, 165, TapType.DOWN))
+        // Due to PendingIntent's opaque nature we can't really assert much else.
+        assertNotNull(
+            interactiveInstance.getPendingIntentForTouchEvent(85, 165, TapType.UP)
+        )
+
+        assertNull(interactiveInstance.getPendingIntentForTouchEvent(255, 165, TapType.DOWN))
+        assertNotNull(
+            interactiveInstance.getPendingIntentForTouchEvent(255, 165, TapType.UP)
+        )
+        interactiveInstance.close()
+    }
+
+    @Test
+    fun getPendingIntentForTouchEvent_pendingIntentTapListener() {
+        val wallpaperService = TestPendingIntentTapListenerWatchFaceService(
+            context,
+            surfaceHolder
+        )
+        val deferredInteractiveInstance = handlerCoroutineScope.async {
+            service.getOrCreateInteractiveWatchFaceClient(
+                "testId",
+                deviceConfig,
+                systemState,
+                null,
+                complications
+            )
+        }
+
+        val bitmap = Bitmap.createBitmap(10, 10, Bitmap.Config.ARGB_8888)
+        val canvas = Canvas(bitmap)
+        Mockito.`when`(surfaceHolder.lockHardwareCanvas()).thenReturn(canvas)
+
+        // Create the engine which triggers the crashing watchface.
+        handler.post {
+            engine = wallpaperService.onCreateEngine() as WatchFaceService.EngineWrapper
+        }
+
+        // Wait for the instance to be created.
+        val interactiveInstance = awaitWithTimeout(deferredInteractiveInstance)
+
+        assertThat(
+            interactiveInstance.getPendingIntentForTouchEvent(0, 0, TapType.DOWN)
+        ).isNull()
+
+        assertThat(
+            interactiveInstance.getPendingIntentForTouchEvent(20, 50, TapType.UP)
+        ).isNotNull()
+
+        interactiveInstance.close()
+    }
 }
 
 internal class TestExampleCanvasAnalogWatchFaceService(
@@ -1373,6 +1456,62 @@ internal class TestExampleCanvasAnalogWatchFaceService(
         )
         return watchFace
     }
+}
+
+internal class TestPendingIntentTapListenerWatchFaceService(
+    testContext: Context,
+    private var surfaceHolderOverride: SurfaceHolder
+) : ExampleCanvasAnalogWatchFaceService() {
+
+    init {
+        attachBaseContext(testContext)
+    }
+
+    override fun getWallpaperSurfaceHolderOverride() = surfaceHolderOverride
+
+    override suspend fun createWatchFace(
+        surfaceHolder: SurfaceHolder,
+        watchState: WatchState,
+        complicationSlotsManager: ComplicationSlotsManager,
+        currentUserStyleRepository: CurrentUserStyleRepository
+    ) = WatchFace(
+        WatchFaceType.DIGITAL,
+        object : Renderer.CanvasRenderer(
+            surfaceHolder,
+            currentUserStyleRepository,
+            watchState,
+            CanvasType.HARDWARE,
+            16
+        ) {
+            override fun render(canvas: Canvas, bounds: Rect, zonedDateTime: ZonedDateTime) {}
+
+            override fun renderHighlightLayer(
+                canvas: Canvas,
+                bounds: Rect,
+                zonedDateTime: ZonedDateTime
+            ) {
+            }
+        }
+    ).setPendingIntentTapListener(
+        object : WatchFace.PendingIntentTapListener {
+            override fun onTapEvent(
+                tapType: Int,
+                tapEvent: TapEvent,
+                complicationSlot: ComplicationSlot?
+            ) = if (tapType == TapType.UP && tapEvent.xPos >= 20 && tapEvent.xPos < 40 &&
+                tapEvent.yPos >= 50 && tapEvent.yPos < 90
+            ) {
+                PendingIntent.getActivity(
+                    this@TestPendingIntentTapListenerWatchFaceService,
+                    0,
+                    Intent("Test"),
+                    FLAG_IMMUTABLE
+                )
+            } else {
+                null
+            }
+        }
+    )
 }
 
 internal open class TestCrashingWatchFaceService : WatchFaceService() {
@@ -1543,7 +1682,8 @@ internal class TestComplicationProviderDefaultsWatchFaceService(
                                 zonedDateTime: ZonedDateTime,
                                 renderParameters: RenderParameters,
                                 slotId: Int
-                            ) {}
+                            ) {
+                            }
 
                             override fun drawHighlight(
                                 canvas: Canvas,
@@ -1551,14 +1691,16 @@ internal class TestComplicationProviderDefaultsWatchFaceService(
                                 boundsType: Int,
                                 zonedDateTime: ZonedDateTime,
                                 color: Int
-                            ) {}
+                            ) {
+                            }
 
                             override fun getData() = NoDataComplicationData()
 
                             override fun loadData(
                                 complicationData: ComplicationData,
                                 loadDrawablesAsynchronous: Boolean
-                            ) {}
+                            ) {
+                            }
                         }
                     },
                     listOf(
@@ -1604,7 +1746,8 @@ internal class TestComplicationProviderDefaultsWatchFaceService(
                 canvas: Canvas,
                 bounds: Rect,
                 zonedDateTime: ZonedDateTime
-            ) {}
+            ) {
+            }
         }
     )
 }

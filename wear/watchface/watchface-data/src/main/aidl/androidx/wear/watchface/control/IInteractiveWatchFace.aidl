@@ -33,12 +33,12 @@ import androidx.wear.watchface.style.data.UserStyleWireFormat;
 interface IInteractiveWatchFace {
     // IMPORTANT NOTE: All methods must be given an explicit transaction id that must never change
     // in the future to remain binary backwards compatible.
-    // Next Id: 18
+    // Next Id: 19
 
     /**
      * API version number. This should be incremented every time a new method is added.
      */
-    const int API_VERSION = 2;
+    const int API_VERSION = 3;
 
     /** Indicates a "down" touch event on the watch face. */
     const int TAP_TYPE_DOWN = 0;
@@ -184,4 +184,17 @@ interface IInteractiveWatchFace {
      * @since API version 2.
      */
     oneway void addWatchfaceReadyListener(in IWatchfaceReadyListener listener) = 17;
+
+    /**
+     * Forwards a touch event for the WatchFace to process and returns the corresponding
+     * PendingIntent to be fired if any. The reason for using this is for 5 seconds after tapping
+     * the home button, background applications (such as the watch face) are not allowed by the
+     * framework to send intents which can look broken from the user's point of view.
+     *
+     * @param xPos X Coordinate of the touch event
+     * @param yPos Y Coordinate of the touch event
+     * @param tapType One of {@link #TAP_TYPE_DOWN}, {@link #TAP_TYPE_CANCEL}, {@link #TAP_TYPE_UP}
+     * @since API version 3.
+     */
+    PendingIntent getPendingIntentForTouchEvent(in int xPos, in int yPos, in int tapType) = 18;
 }
