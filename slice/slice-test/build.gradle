@@ -16,6 +16,7 @@
 
 import androidx.build.LibraryVersions
 import androidx.build.LibraryGroups
+import androidx.build.LibraryType
 import androidx.build.Publish
 
 plugins {
@@ -40,6 +41,7 @@ dependencies {
 
 androidx {
     name = "Slice test code"
+    type = LibraryType.INTERNAL_TEST_LIBRARY
     publish = Publish.NONE
     mavenVersion = LibraryVersions.SLICE
     mavenGroup = LibraryGroups.SLICE
