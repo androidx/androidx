@@ -316,7 +316,8 @@ public interface EditorSession : AutoCloseable {
                                     editorRequest.watchFaceComponentName,
                                     editorRequest.headlessDeviceConfig.asWireDeviceConfig(),
                                     activity.resources.displayMetrics.widthPixels,
-                                    activity.resources.displayMetrics.heightPixels
+                                    activity.resources.displayMetrics.heightPixels,
+                                    editorRequest.watchFaceId.id
                                 ),
                                 activity
                             )

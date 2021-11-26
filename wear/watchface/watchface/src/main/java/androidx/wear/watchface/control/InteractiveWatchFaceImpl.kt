@@ -140,8 +140,7 @@ internal class InteractiveWatchFaceImpl(
             "InteractiveWatchFaceImpl.updateWatchfaceInstance"
         ) {
             if (instanceId != newInstanceId) {
-                // If the favorite ID has changed then the complications are probably invalid.
-                engine!!.clearComplicationData()
+                engine!!.updateInstance(newInstanceId)
                 InteractiveInstanceManager.renameInstance(instanceId, newInstanceId)
                 instanceId = newInstanceId
             }
