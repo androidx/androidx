@@ -15,6 +15,7 @@
  */
 package androidx.wear.compose.material
 
+import android.os.Build
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -49,6 +50,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import androidx.test.filters.SdkSuppress
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
@@ -569,6 +571,7 @@ class ButtonColorTest {
             { MaterialTheme.colors.onSurface },
         )
 
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun allows_button_custom_enabled_background_color_override() {
         val overrideColor = Color.Yellow
@@ -589,6 +592,7 @@ class ButtonColorTest {
             .assertContainsColor(overrideColor, 50.0f)
     }
 
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun allows_compactbutton_custom_enabled_background_color_override() {
         val overrideColor = Color.Yellow
@@ -609,6 +613,7 @@ class ButtonColorTest {
             .assertContainsColor(overrideColor, 25.0f)
     }
 
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun allows_button_custom_disabled_background_color_override() {
         val overrideColor = Color.Yellow
@@ -629,6 +634,7 @@ class ButtonColorTest {
             .assertContainsColor(overrideColor, 50.0f)
     }
 
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun allows_compactbutton_custom_disabled_background_color_override() {
         val overrideColor = Color.Yellow
@@ -770,6 +776,7 @@ class ButtonColorTest {
         }
     }
 
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     private fun verifyColors(
         status: Status,
         backgroundColor: @Composable () -> Color,
@@ -862,6 +869,7 @@ private fun ComposeContentTestRule.verifyTapSize(
         .assertWidthIsEqualTo(expected.size)
 }
 
+@SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
 private fun ComposeContentTestRule.isCircular(
     layoutDirection: LayoutDirection,
     padding: Dp = 0.dp,

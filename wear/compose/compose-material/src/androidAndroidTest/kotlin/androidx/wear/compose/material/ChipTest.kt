@@ -15,6 +15,7 @@
  */
 package androidx.wear.compose.material
 
+import android.os.Build
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -58,6 +59,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.height
+import androidx.test.filters.SdkSuppress
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
@@ -544,6 +546,7 @@ class ChipColorTest {
             compactChip = true
         )
 
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun allows_custom_primary_enabled_background_color_override() {
         val overrideColor = Color.Yellow
@@ -565,6 +568,7 @@ class ChipColorTest {
             .assertContainsColor(overrideColor, 50.0f)
     }
 
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun allows_custom_primary_disabled_background_color_override() {
         val overrideColor = Color.Yellow
@@ -715,6 +719,7 @@ class ChipColorTest {
         assertEquals(expectedContent, actualContent)
     }
 
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     private fun verifyColors(
         testChipColors: TestChipColors,
         status: ChipStatus,
@@ -761,6 +766,7 @@ class ChipColorTest {
             )
     }
 
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     private fun verifySlotColors(
         testChipColors: TestChipColors,
         status: ChipStatus,
@@ -958,6 +964,7 @@ private fun ComposeContentTestRule.verifyHeight(expected: Dp, content: @Composab
 
 // Determine whether the chip has stadium shape.
 // https://en.wikipedia.org/wiki/Stadium_(geometry)#:~:text=A%20stadium%20is%20a%20two,%2C%20obround%2C%20or%20sausage%20body.
+@SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
 private fun ComposeContentTestRule.isStadiumShape(
     layoutDirection: LayoutDirection,
     content: @Composable () -> Unit

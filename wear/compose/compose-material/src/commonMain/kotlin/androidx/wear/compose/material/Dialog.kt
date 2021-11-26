@@ -18,7 +18,6 @@ package androidx.wear.compose.material
 
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.fillMaxSize
@@ -89,7 +88,6 @@ public fun AlertDialog(
         scrollState = scrollState,
         contentPadding = contentPadding,
         backgroundColor = backgroundColor,
-        contentColor = contentColor,
     ) {
         val weightsToCenterVertically = 0.5f
 
@@ -103,7 +101,7 @@ public fun AlertDialog(
         DialogTitle(titleColor, padding = DialogDefaults.TitlePadding, title)
 
         if (content != null) {
-            DialogBody(content)
+            DialogBody(contentColor, content)
         }
 
         // Use 50:50 weights to center the title + content between icon and buttons
@@ -139,6 +137,7 @@ public fun AlertDialog(
  * @param backgroundColor [Color] representing the background color for the dialog.
  * @param contentColor [Color] representing the color for [content].
  * @param titleColor [Color] representing the color for [title].
+ * @param messageColor [Color] representing the color for [message].
  * @param iconTintColor Icon [Color] that defaults to [contentColor],
  * unless specifically overridden.
  * @param contentPadding The padding to apply around the whole of the dialog's contents.
@@ -154,6 +153,7 @@ public fun AlertDialog(
     backgroundColor: Color = MaterialTheme.colors.background,
     contentColor: Color = contentColorFor(backgroundColor),
     titleColor: Color = contentColor,
+    messageColor: Color = contentColor,
     iconTintColor: Color = contentColor,
     contentPadding: PaddingValues = DialogDefaults.ChipsContentPadding,
     content: @Composable ColumnScope.() -> Unit
@@ -163,8 +163,12 @@ public fun AlertDialog(
         scrollState = scrollState,
         contentPadding = contentPadding,
         backgroundColor = backgroundColor,
-        contentColor = contentColor,
     ) {
+        val weightsToCenterVertically = 0.5f
+
+        // Use 50:50 weights to center the title + content between icon and buttons
+        Spacer(Modifier.fillMaxWidth().weight(weightsToCenterVertically))
+
         if (icon != null) {
             DialogIconHeader(iconTintColor, content = icon)
         }
@@ -172,10 +176,15 @@ public fun AlertDialog(
         DialogTitle(titleColor, padding = DialogDefaults.TitlePadding, content = title)
 
         if (message != null) {
-            DialogBody(message)
+            DialogBody(messageColor, message)
         }
 
-        content()
+        // Use 50:50 weights to center the title + content between icon and buttons
+        Spacer(Modifier.fillMaxWidth().weight(weightsToCenterVertically))
+
+        CompositionLocalProvider(LocalContentColor provides contentColor) {
+            content()
+        }
     }
 }
 
@@ -199,7 +208,7 @@ public fun AlertDialog(
  * must be positive. Suggested values are [DialogDefaults.ShortDurationMillis],
  * [DialogDefaults.LongDurationMillis] or [DialogDefaults.IndefiniteDurationMillis].
  * @param backgroundColor [Color] representing the background color for this dialog.
- * @param contentColor [Color] representing the content color for this dialog.
+ * @param contentColor [Color] representing the color for [content].
  * @param iconTintColor Icon [Color] that defaults to the [contentColor],
  * unless specifically overridden.
  * @param contentPadding The padding to apply around the whole of the dialog's contents.
@@ -232,8 +241,12 @@ public fun ConfirmationDialog(
         scrollState = scrollState,
         contentPadding = contentPadding,
         backgroundColor = backgroundColor,
-        contentColor = contentColor,
     ) {
+        val weightsToCenterVertically = 0.5f
+
+        // Use 50:50 weights to center the icon & title
+        Spacer(Modifier.fillMaxWidth().weight(weightsToCenterVertically))
+
         if (icon != null) {
             DialogIconHeader(iconTintColor, content = icon)
         }
@@ -242,6 +255,9 @@ public fun ConfirmationDialog(
             titleColor = contentColor,
             padding = DialogDefaults.TitleBottomPadding,
             content = content)
+
+        // Use 50:50 weights to center the icon & title
+        Spacer(Modifier.fillMaxWidth().weight(weightsToCenterVertically))
     }
 }
 
@@ -350,23 +366,18 @@ private fun DialogImpl(
     modifier: Modifier = Modifier,
     scrollState: ScrollState,
     backgroundColor: Color,
-    contentColor: Color,
     contentPadding: PaddingValues,
     content: @Composable ColumnScope.() -> Unit
 ) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center,
         modifier = modifier
             .fillMaxSize()
             .background(backgroundColor)
             .verticalScroll(state = scrollState)
             .padding(contentPadding),
-    ) {
-        CompositionLocalProvider(LocalContentColor provides contentColor) {
-            content()
-        }
-    }
+        content = content
+    )
 }
 
 /**
@@ -414,9 +425,11 @@ private fun DialogTitle(
  */
 @Composable
 private fun DialogBody(
+    bodyColor: Color,
     content: @Composable () -> Unit
 ) {
     CompositionLocalProvider(
+        LocalContentColor provides bodyColor,
         LocalTextStyle provides MaterialTheme.typography.body2
     ) {
         Column(modifier = Modifier.padding(DialogDefaults.BodyPadding)) {
