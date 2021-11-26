@@ -959,6 +959,7 @@ public class WatchFaceImpl @UiThread constructor(
     internal fun onComplicationSlotDataUpdate(complicationSlotId: Int, data: ComplicationData) {
         complicationSlotsManager.onComplicationDataUpdate(complicationSlotId, data)
         watchFaceHostApi.invalidate()
+        watchFaceHostApi.scheduleWriteComplicationDataCache()
     }
 
     /**

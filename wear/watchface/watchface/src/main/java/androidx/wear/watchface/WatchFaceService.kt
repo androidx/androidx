@@ -86,9 +86,13 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import java.io.ByteArrayInputStream
+import java.io.ByteArrayOutputStream
 import java.io.FileDescriptor
 import java.io.FileNotFoundException
 import java.io.InputStreamReader
+import java.io.ObjectInputStream
+import java.io.ObjectOutputStream
 import java.io.PrintWriter
 import java.time.Instant
 import java.util.concurrent.CountDownLatch
@@ -446,7 +450,13 @@ public abstract class WatchFaceService : WallpaperService() {
                 backgroundThread = HandlerThread(
                     "WatchFaceBackground",
                     Process.THREAD_PRIORITY_FOREGROUND // The user is waiting on WF init.
-                ).apply { start() }
+                ).apply {
+                    uncaughtExceptionHandler = Thread.UncaughtExceptionHandler {
+                            _, throwable ->
+                        Log.e(TAG, "Uncaught exception on watch face background thread", throwable)
+                    }
+                    start()
+                }
             }
             return Handler(backgroundThread!!.looper)
         }
@@ -528,6 +538,92 @@ public abstract class WatchFaceService : WallpaperService() {
         val writer = directBootContext.openFileOutput(fileName, Context.MODE_PRIVATE)
         writer.use {
             ParcelUtils.toOutputStream(prefs, writer)
+        }
+    }
+
+    internal open fun readComplicationDataCacheByteArray(
+        context: Context,
+        fileName: String
+    ): ByteArray? = TraceEvent(
+        "WatchFaceService.readComplicationCache"
+    ).use {
+        try {
+            val directBootContext = context.createDeviceProtectedStorageContext()
+            val reader = directBootContext.openFileInput(fileName)
+            reader.use {
+                it.readBytes()
+            }
+        } catch (e: Exception) {
+            null
+        }
+    }
+
+    internal open fun writeComplicationDataCacheByteArray(
+        context: Context,
+        fileName: String,
+        byteArray: ByteArray
+    ) {
+        val directBootContext = context.createDeviceProtectedStorageContext()
+        val writer = directBootContext.openFileOutput(fileName, Context.MODE_PRIVATE)
+        writer.use {
+            writer.write(byteArray)
+        }
+    }
+
+    internal fun writeComplicationDataCache(
+        context: Context,
+        complicationSlotsManager: ComplicationSlotsManager,
+        fileName: String
+    ) = TraceEvent(
+        "WatchFaceService.writeComplicationCache"
+    ).use {
+        try {
+            val stream = ByteArrayOutputStream()
+            val objectOutputStream = ObjectOutputStream(stream)
+            objectOutputStream.writeInt(complicationSlotsManager.complicationSlots.size)
+            for (slot in complicationSlotsManager.complicationSlots) {
+                objectOutputStream.writeInt(slot.key)
+                objectOutputStream.writeObject(
+                    slot.value.complicationData.value.asWireComplicationData()
+                )
+            }
+            objectOutputStream.close()
+            val byteArray = stream.toByteArray()
+
+            // File IO can be slow so perform the write from a background thread.
+            getBackgroundThreadHandler().post {
+                writeComplicationDataCacheByteArray(context, fileName, byteArray)
+            }
+        } catch (e: Exception) {
+            Log.w(TAG, "Failed to write to complication cache due to exception", e)
+        }
+    }
+
+    internal fun readComplicationDataCache(
+        context: Context,
+        fileName: String
+    ): List<IdAndComplicationDataWireFormat>? = TraceEvent(
+        "WatchFaceService.readComplicationCache"
+    ).use {
+        return readComplicationDataCacheByteArray(context, fileName)?.let {
+            try {
+                val objectInputStream = ObjectInputStream(ByteArrayInputStream(it))
+                val complicationData = ArrayList<IdAndComplicationDataWireFormat>()
+                val numComplications = objectInputStream.readInt()
+                for (i in 0 until numComplications) {
+                    complicationData.add(
+                        IdAndComplicationDataWireFormat(
+                            objectInputStream.readInt(),
+                            (objectInputStream.readObject() as WireComplicationData)
+                        )
+                    )
+                }
+                objectInputStream.close()
+                complicationData
+            } catch (e: Exception) {
+                Log.w(TAG, "Failed to read to complication cache due to exception", e)
+                null
+            }
         }
     }
 
@@ -862,6 +958,7 @@ public abstract class WatchFaceService : WallpaperService() {
 
         internal var destroyed = false
         internal var surfaceDestroyed = false
+        internal var pendingComplicationDataCacheWrite = false
 
         internal lateinit var ambientUpdateWakelock: PowerManager.WakeLock
 
@@ -1072,14 +1169,17 @@ public abstract class WatchFaceService : WallpaperService() {
         }
 
         @UiThread
-        internal suspend fun setUserStyle(
-            userStyle: UserStyleWireFormat
-        ): Unit = TraceEvent("EngineWrapper.setUserStyle").use {
+        internal suspend fun setUserStyle(userStyle: UserStyleWireFormat): Unit = TraceEvent(
+            "EngineWrapper.setUserStyle"
+        ).use {
             setUserStyleImpl(deferredWatchFaceImpl.await(), userStyle)
         }
 
         @UiThread
-        private fun setUserStyleImpl(watchFaceImpl: WatchFaceImpl, userStyle: UserStyleWireFormat) {
+        private fun setUserStyleImpl(
+            watchFaceImpl: WatchFaceImpl,
+            userStyle: UserStyleWireFormat
+        ) {
             watchFaceImpl.onSetStyleInternal(
                 UserStyle(UserStyleData(userStyle), watchFaceImpl.currentUserStyleRepository.schema)
             )
@@ -1099,11 +1199,6 @@ public abstract class WatchFaceService : WallpaperService() {
             backgroundThreadCoroutineScope.launch {
                 writeDirectBootPrefs(_context, DIRECT_BOOT_PREFS, params)
             }
-        }
-
-        @UiThread
-        internal suspend fun clearComplicationData() {
-            deferredWatchFaceImpl.await().complicationSlotsManager.clearComplicationData()
         }
 
         /** This can be called on any thread. */
@@ -1149,7 +1244,7 @@ public abstract class WatchFaceService : WallpaperService() {
 
         @UiThread
         internal fun setComplicationDataList(
-            complicationDataWireFormats: MutableList<IdAndComplicationDataWireFormat>
+            complicationDataWireFormats: List<IdAndComplicationDataWireFormat>
         ): Unit = TraceEvent("EngineWrapper.setComplicationDataList").use {
             val watchFaceImpl = getWatchFaceImplOrNull()
             if (watchFaceImpl != null) {
@@ -1172,6 +1267,11 @@ public abstract class WatchFaceService : WallpaperService() {
             val watchFaceImpl = deferredWatchFaceImpl.await()
             // If the favorite ID has changed then the complications are probably invalid.
             watchFaceImpl.complicationSlotsManager.clearComplicationData()
+
+            // However we may have valid complications cached.
+            readComplicationDataCache(_context, newInstanceId)?.let {
+                this.setComplicationDataList(it)
+            }
 
             mutableWatchState.watchFaceInstanceId.value = newInstanceId
         }
@@ -1547,6 +1647,10 @@ public abstract class WatchFaceService : WallpaperService() {
             // applied.
             pendingInitialComplications = params.idAndComplicationDataWireFormats
 
+            if (pendingInitialComplications == null) {
+                pendingInitialComplications = readComplicationDataCache(_context, params.instanceId)
+            }
+
             createWatchFaceInternal(
                 watchState,
                 getWallpaperSurfaceHolderOverride(),
@@ -1888,6 +1992,30 @@ public abstract class WatchFaceService : WallpaperService() {
 
         override fun getComplicationRationaleIntent() =
             getWatchFaceImplOrNull()?.complicationRationaleDialogIntent
+
+        @UiThread
+        override fun scheduleWriteComplicationDataCache() {
+            if (mutableWatchState.isHeadless || pendingComplicationDataCacheWrite) {
+                return
+            }
+            // During start up we'll typically get half a dozen or so updates. Here we de-duplicate.
+            pendingComplicationDataCacheWrite = true
+            getUiThreadHandler().postDelayed(
+                {
+                    pendingComplicationDataCacheWrite = false
+                    mutableWatchState.watchFaceInstanceId.value?.let { watchFaceInstanceId ->
+                        getWatchFaceImplOrNull()?.let { watchFaceImpl ->
+                            writeComplicationDataCache(
+                                _context,
+                                watchFaceImpl.complicationSlotsManager,
+                                watchFaceInstanceId
+                            )
+                        }
+                    }
+                },
+                1000
+            )
+        }
 
         internal fun draw() {
             try {

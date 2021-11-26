@@ -38,6 +38,11 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 
+import java.io.IOException;
+import java.io.InvalidObjectException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.TimeZone;
@@ -58,7 +63,7 @@ import java.util.concurrent.TimeUnit;
  */
 @SuppressLint("BanParcelableUsage")
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public final class ComplicationText implements Parcelable, TimeDependentText {
+public final class ComplicationText implements Parcelable, TimeDependentText, Serializable {
 
     /** @hide */
     @IntDef({
@@ -271,6 +276,39 @@ public final class ComplicationText implements Parcelable, TimeDependentText {
             mTimeDependentText = null;
         }
         checkFields();
+    }
+
+    private static class SerializedForm implements Serializable {
+        CharSequence mSurroundingText;
+        TimeDependentText mTimeDependentText;
+
+        SerializedForm(@Nullable CharSequence surroundingText,
+                @Nullable TimeDependentText timeDependentText) {
+            mSurroundingText = surroundingText;
+            mTimeDependentText = timeDependentText;
+        }
+
+        private void writeObject(ObjectOutputStream oos) throws IOException {
+            CharSequenceSerializableHelper.writeToStream(mSurroundingText, oos);
+            oos.writeObject(mTimeDependentText);
+        }
+
+        private void readObject(ObjectInputStream ois) throws IOException, ClassNotFoundException {
+            mSurroundingText = CharSequenceSerializableHelper.readFromStream(ois);
+            mTimeDependentText = (TimeDependentText) ois.readObject();
+        }
+
+        Object readResolve() {
+            return new ComplicationText(mSurroundingText, mTimeDependentText);
+        }
+    }
+
+    Object writeReplace() {
+        return new SerializedForm(mSurroundingText, mTimeDependentText);
+    }
+
+    private void readObject(ObjectInputStream stream) throws InvalidObjectException {
+        throw new InvalidObjectException("Use SerializedForm");
     }
 
     /**
