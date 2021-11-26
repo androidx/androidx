@@ -21,6 +21,7 @@ import android.app.PendingIntent;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.Icon;
 import android.os.BadParcelableException;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -29,8 +30,14 @@ import android.util.Log;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 
+import java.io.IOException;
+import java.io.InvalidObjectException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
@@ -55,7 +62,7 @@ import java.lang.annotation.RetentionPolicy;
  */
 @SuppressLint("BanParcelableUsage")
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public final class ComplicationData implements Parcelable {
+public final class ComplicationData implements Parcelable, Serializable {
 
     private static final String TAG = "ComplicationData";
 
@@ -341,15 +348,168 @@ public final class ComplicationData implements Parcelable {
     @ComplicationType
     private final int mType;
     private final Bundle mFields;
+    private final boolean mIsCached;
 
     ComplicationData(@NonNull Builder builder) {
         mType = builder.mType;
         mFields = builder.mFields;
+        mIsCached = builder.mIsCached;
+    }
+
+    ComplicationData(int type, Bundle fields, boolean isCached) {
+        mType = type;
+        mFields = fields;
+        mIsCached = isCached;
     }
 
     private ComplicationData(@NonNull Parcel in) {
         mType = in.readInt();
         mFields = in.readBundle(getClass().getClassLoader());
+        mIsCached = false;
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.P)
+    private static class SerializedForm implements Serializable {
+        private static final int VERSION_NUMBER = 1;
+
+        @NonNull ComplicationData mComplicationData;
+
+        SerializedForm(@NonNull ComplicationData complicationData) {
+            mComplicationData = complicationData;
+        }
+
+        private void writeObject(ObjectOutputStream oos) throws IOException {
+            oos.writeInt(VERSION_NUMBER);
+            int type = mComplicationData.getType();
+            oos.writeInt(type);
+
+            if (isFieldValidForType(FIELD_LONG_TEXT, type)) {
+                oos.writeObject(mComplicationData.getLongText());
+            }
+            if (isFieldValidForType(FIELD_LONG_TITLE, type)) {
+                oos.writeObject(mComplicationData.getLongTitle());
+            }
+            if (isFieldValidForType(FIELD_SHORT_TEXT, type)) {
+                oos.writeObject(mComplicationData.getShortText());
+            }
+            if (isFieldValidForType(FIELD_SHORT_TITLE, type)) {
+                oos.writeObject(mComplicationData.getShortTitle());
+            }
+            if (isFieldValidForType(FIELD_CONTENT_DESCRIPTION, type)) {
+                oos.writeObject(mComplicationData.getContentDescription());
+            }
+            if (isFieldValidForType(FIELD_ICON, type)) {
+                oos.writeObject(IconSerializableHelper.create(mComplicationData.getIcon()));
+            }
+            if (isFieldValidForType(FIELD_ICON_BURN_IN_PROTECTION, type)) {
+                oos.writeObject(
+                        IconSerializableHelper.create(mComplicationData.getBurnInProtectionIcon()));
+            }
+            if (isFieldValidForType(FIELD_SMALL_IMAGE, type)) {
+                oos.writeObject(IconSerializableHelper.create(mComplicationData.getSmallImage()));
+
+            }
+            if (isFieldValidForType(FIELD_SMALL_IMAGE_BURN_IN_PROTECTION, type)) {
+                oos.writeObject(IconSerializableHelper.create(
+                        mComplicationData.getBurnInProtectionSmallImage()));
+            }
+            if (isFieldValidForType(FIELD_IMAGE_STYLE, type)) {
+                oos.writeInt(mComplicationData.getSmallImageStyle());
+            }
+            if (isFieldValidForType(FIELD_LARGE_IMAGE, type)) {
+                oos.writeObject(IconSerializableHelper.create(mComplicationData.getLargeImage()));
+            }
+            if (isFieldValidForType(FIELD_VALUE, type)) {
+                oos.writeFloat(mComplicationData.getRangedValue());
+            }
+            if (isFieldValidForType(FIELD_MIN_VALUE, type)) {
+                oos.writeFloat(mComplicationData.getRangedMinValue());
+            }
+            if (isFieldValidForType(FIELD_MAX_VALUE, type)) {
+                oos.writeFloat(mComplicationData.getRangedMaxValue());
+            }
+            if (isFieldValidForType(FIELD_START_TIME, type)) {
+                oos.writeLong(mComplicationData.getStartDateTimeMillis());
+            }
+            if (isFieldValidForType(FIELD_END_TIME, type)) {
+                oos.writeLong(mComplicationData.getEndDateTimeMillis());
+            }
+        }
+
+        private void readObject(ObjectInputStream ois) throws IOException, ClassNotFoundException {
+            int versionNumber = ois.readInt();
+            if (versionNumber != 1) {
+                throw new IOException("Unsupported version number " + versionNumber);
+            }
+            int type = ois.readInt();
+            Bundle fields = new Bundle();
+
+            if (isFieldValidForType(FIELD_LONG_TEXT, type)) {
+                fields.putParcelable(FIELD_LONG_TEXT, (ComplicationText) ois.readObject());
+            }
+            if (isFieldValidForType(FIELD_LONG_TITLE, type)) {
+                fields.putParcelable(FIELD_LONG_TITLE, (ComplicationText) ois.readObject());
+            }
+            if (isFieldValidForType(FIELD_SHORT_TEXT, type)) {
+                fields.putParcelable(FIELD_SHORT_TEXT, (ComplicationText) ois.readObject());
+            }
+            if (isFieldValidForType(FIELD_SHORT_TITLE, type)) {
+                fields.putParcelable(FIELD_SHORT_TITLE, (ComplicationText) ois.readObject());
+            }
+            if (isFieldValidForType(FIELD_CONTENT_DESCRIPTION, type)) {
+                fields.putParcelable(FIELD_CONTENT_DESCRIPTION,
+                        (ComplicationText) ois.readObject());
+            }
+            if (isFieldValidForType(FIELD_ICON, type)) {
+                fields.putParcelable(FIELD_ICON, IconSerializableHelper.read(ois));
+            }
+            if (isFieldValidForType(FIELD_ICON_BURN_IN_PROTECTION, type)) {
+                fields.putParcelable(FIELD_ICON_BURN_IN_PROTECTION,
+                        IconSerializableHelper.read(ois));
+            }
+            if (isFieldValidForType(FIELD_SMALL_IMAGE, type)) {
+                fields.putParcelable(FIELD_SMALL_IMAGE, IconSerializableHelper.read(ois));
+            }
+            if (isFieldValidForType(FIELD_SMALL_IMAGE_BURN_IN_PROTECTION, type)) {
+                fields.putParcelable(FIELD_SMALL_IMAGE_BURN_IN_PROTECTION,
+                        IconSerializableHelper.read(ois));
+            }
+            if (isFieldValidForType(FIELD_IMAGE_STYLE, type)) {
+                fields.putInt(FIELD_SMALL_IMAGE_BURN_IN_PROTECTION, ois.readInt());
+            }
+            if (isFieldValidForType(FIELD_LARGE_IMAGE, type)) {
+                fields.putParcelable(FIELD_LARGE_IMAGE, IconSerializableHelper.read(ois));
+            }
+            if (isFieldValidForType(FIELD_VALUE, type)) {
+                fields.putFloat(FIELD_VALUE, ois.readFloat());
+            }
+            if (isFieldValidForType(FIELD_MIN_VALUE, type)) {
+                fields.putFloat(FIELD_MIN_VALUE, ois.readFloat());
+            }
+            if (isFieldValidForType(FIELD_MAX_VALUE, type)) {
+                fields.putFloat(FIELD_MAX_VALUE, ois.readFloat());
+            }
+            if (isFieldValidForType(FIELD_START_TIME, type)) {
+                fields.putLong(FIELD_START_TIME, ois.readLong());
+            }
+            if (isFieldValidForType(FIELD_END_TIME, type)) {
+                fields.putLong(FIELD_END_TIME, ois.readLong());
+            }
+            mComplicationData = new ComplicationData(type, fields, true);
+        }
+
+        Object readResolve() {
+            return mComplicationData;
+        }
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.P)
+    Object writeReplace() {
+        return new SerializedForm(this);
+    }
+
+    private void readObject(ObjectInputStream stream) throws InvalidObjectException {
+        throw new InvalidObjectException("Use SerializedForm");
     }
 
     @Override
@@ -385,6 +545,11 @@ public final class ComplicationData implements Parcelable {
     public boolean isActiveAt(long dateTimeMillis) {
         return dateTimeMillis >= mFields.getLong(FIELD_START_TIME, 0)
                 && dateTimeMillis <= mFields.getLong(FIELD_END_TIME, Long.MAX_VALUE);
+    }
+
+    /** Returns true if this is a cached value. */
+    public boolean getIsCached() {
+        return mIsCached;
     }
 
     /**
@@ -855,7 +1020,7 @@ public final class ComplicationData implements Parcelable {
         return text != null && text.isTimeDependent();
     }
 
-    private static boolean isFieldValidForType(String field, @ComplicationType int type) {
+    static boolean isFieldValidForType(String field, @ComplicationType int type) {
         for (String requiredField : REQUIRED_FIELDS[type]) {
             if (requiredField.equals(field)) {
                 return true;
@@ -916,7 +1081,8 @@ public final class ComplicationData implements Parcelable {
     @NonNull
     @Override
     public String toString() {
-        return "ComplicationData{" + "mType=" + mType + ", mFields=" + mFields + '}';
+        return "ComplicationData{" + "mType=" + mType + ", mFields=" + mFields + " mIsCached"
+                + "=" + mIsCached + '}';
     }
 
     /** Builder class for {@link ComplicationData}. */
@@ -924,6 +1090,7 @@ public final class ComplicationData implements Parcelable {
         @ComplicationType
         final int mType;
         final Bundle mFields;
+        boolean mIsCached = false;
 
         /** Creates a builder from given {@link ComplicationData}, copying its type and data. */
         @SuppressLint("SyntheticAccessor")
@@ -1264,6 +1431,17 @@ public final class ComplicationData implements Parcelable {
         @NonNull
         public Builder setContentDescription(@Nullable ComplicationText description) {
             putOrRemoveField(FIELD_CONTENT_DESCRIPTION, description);
+            return this;
+        }
+
+        /**
+         * Sets whether or not tis ComplicationData has been serialized.
+         *
+         * <p>Returns this Builder to allow chaining.
+         */
+        @NonNull
+        public Builder setIsCached(boolean isCached) {
+            mIsCached = isCached;
             return this;
         }
 

@@ -230,4 +230,6 @@ public open class IWatchFaceInstanceServiceStub(
             result
         }
     }
+
+    override fun hasComplicationCache() = true
 }

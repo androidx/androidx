@@ -101,4 +101,15 @@ internal class TestCanvasAnalogWatchFaceService(
         fileName: String,
         prefs: WallpaperInteractiveWatchFaceInstanceParams
     ) {}
+
+    override fun readComplicationDataCacheByteArray(
+        context: Context,
+        fileName: String
+    ): ByteArray? = null
+
+    override fun writeComplicationDataCacheByteArray(
+        context: Context,
+        fileName: String,
+        byteArray: ByteArray
+    ) {}
 }

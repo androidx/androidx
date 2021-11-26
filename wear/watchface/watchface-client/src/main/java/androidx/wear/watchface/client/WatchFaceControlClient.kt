@@ -239,6 +239,13 @@ public interface WatchFaceControlClient : AutoCloseable {
     public fun getDefaultComplicationDataSourcePoliciesAndType(
         watchFaceName: ComponentName
     ): Map<Int, DefaultComplicationDataSourcePolicyAndType>
+
+    /**
+     * Whether or not the watch face has a [ComplicationData] cache. Based on this the system may
+     * wish to adopt a different strategy for sending complication data. E.g. sending initial blank
+     * complications before fetching the real ones is not necessary.
+     */
+    public fun hasComplicationDataCache(): Boolean = false
 }
 
 /**
@@ -476,5 +483,12 @@ internal class WatchFaceControlClientImpl internal constructor(
     override fun close() = TraceEvent("WatchFaceControlClientImpl.close").use {
         closed = true
         context.unbindService(serviceConnection)
+    }
+
+    override fun hasComplicationDataCache(): Boolean {
+        if (service.apiVersion < 4) {
+            return false
+        }
+        return service.hasComplicationCache()
     }
 }

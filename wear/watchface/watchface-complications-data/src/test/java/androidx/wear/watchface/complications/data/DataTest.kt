@@ -17,16 +17,25 @@
 package androidx.wear.watchface.complications.data
 
 import android.app.PendingIntent
+import android.content.Context
 import android.content.Intent
 import android.graphics.drawable.Icon
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
+import java.io.ByteArrayInputStream
+import java.io.ByteArrayOutputStream
+import java.io.ObjectInputStream
+import java.io.ObjectOutputStream
 import java.time.Instant
 
 @RunWith(SharedRobolectricTestRunner::class)
 public class AsWireComplicationDataTest {
+    val resources = ApplicationProvider.getApplicationContext<Context>().resources
+
     @Test
     public fun noDataComplicationData() {
         val data = NoDataComplicationData()
@@ -35,6 +44,7 @@ public class AsWireComplicationDataTest {
                 WireComplicationDataBuilder(WireComplicationData.TYPE_NO_DATA).build()
             )
         testRoundTripConversions(data)
+        assertThat(serializeAndDeserialize(data)).isInstanceOf(NoDataComplicationData::class.java)
     }
 
     @Test
@@ -45,6 +55,7 @@ public class AsWireComplicationDataTest {
                 WireComplicationDataBuilder(WireComplicationData.TYPE_EMPTY).build()
             )
         testRoundTripConversions(data)
+        assertThat(serializeAndDeserialize(data)).isInstanceOf(EmptyComplicationData::class.java)
     }
 
     @Test
@@ -55,6 +66,8 @@ public class AsWireComplicationDataTest {
                 WireComplicationDataBuilder(WireComplicationData.TYPE_NOT_CONFIGURED).build()
             )
         testRoundTripConversions(data)
+        assertThat(serializeAndDeserialize(data))
+            .isInstanceOf(NotConfiguredComplicationData::class.java)
     }
 
     @Test
@@ -74,6 +87,13 @@ public class AsWireComplicationDataTest {
                     .build()
             )
         testRoundTripConversions(data)
+        val deserialized = serializeAndDeserialize(data) as ShortTextComplicationData
+        assertThat(deserialized.text.getTextAt(resources, Instant.EPOCH))
+            .isEqualTo("text")
+        assertThat(deserialized.contentDescription!!.getTextAt(resources, Instant.EPOCH))
+            .isEqualTo("content description")
+        assertThat(deserialized.title!!.getTextAt(resources, Instant.EPOCH))
+            .isEqualTo("title")
     }
 
     @Test
@@ -93,6 +113,13 @@ public class AsWireComplicationDataTest {
                     .build()
             )
         testRoundTripConversions(data)
+        val deserialized = serializeAndDeserialize(data) as LongTextComplicationData
+        assertThat(deserialized.text.getTextAt(resources, Instant.EPOCH))
+            .isEqualTo("text")
+        assertThat(deserialized.contentDescription!!.getTextAt(resources, Instant.EPOCH))
+            .isEqualTo("content description")
+        assertThat(deserialized.title!!.getTextAt(resources, Instant.EPOCH))
+            .isEqualTo("title")
     }
 
     @Test
@@ -114,8 +141,17 @@ public class AsWireComplicationDataTest {
                     .build()
             )
         testRoundTripConversions(data)
+        val deserialized = serializeAndDeserialize(data) as RangedValueComplicationData
+        assertThat(deserialized.max).isEqualTo(100f)
+        assertThat(deserialized.min).isEqualTo(0f)
+        assertThat(deserialized.value).isEqualTo(95f)
+        assertThat(deserialized.contentDescription!!.getTextAt(resources, Instant.EPOCH))
+            .isEqualTo("content description")
+        assertThat(deserialized.title!!.getTextAt(resources, Instant.EPOCH))
+            .isEqualTo("battery")
     }
 
+    @RequiresApi(Build.VERSION_CODES.P)
     @Test
     public fun monochromaticImageComplicationData() {
         val icon = Icon.createWithContentUri("someuri")
@@ -131,8 +167,14 @@ public class AsWireComplicationDataTest {
                     .build()
             )
         testRoundTripConversions(data)
+        val deserialized = serializeAndDeserialize(data) as MonochromaticImageComplicationData
+        assertThat(deserialized.monochromaticImage.image.uri.toString())
+            .isEqualTo("someuri")
+        assertThat(deserialized.contentDescription!!.getTextAt(resources, Instant.EPOCH))
+            .isEqualTo("content description")
     }
 
+    @RequiresApi(Build.VERSION_CODES.P)
     @Test
     public fun smallImageComplicationData() {
         val icon = Icon.createWithContentUri("someuri")
@@ -149,8 +191,15 @@ public class AsWireComplicationDataTest {
                     .build()
             )
         testRoundTripConversions(data)
+        val deserialized = serializeAndDeserialize(data) as SmallImageComplicationData
+        assertThat(deserialized.smallImage.image.uri.toString())
+            .isEqualTo("someuri")
+        assertThat(deserialized.smallImage.type).isEqualTo(SmallImageType.PHOTO)
+        assertThat(deserialized.contentDescription!!.getTextAt(resources, Instant.EPOCH))
+            .isEqualTo("content description")
     }
 
+    @RequiresApi(Build.VERSION_CODES.P)
     @Test
     public fun backgroundImageComplicationData() {
         val photoImage = Icon.createWithContentUri("someuri")
@@ -165,6 +214,11 @@ public class AsWireComplicationDataTest {
                     .build()
             )
         testRoundTripConversions(data)
+        val deserialized = serializeAndDeserialize(data) as PhotoImageComplicationData
+        assertThat(deserialized.photoImage.uri.toString())
+            .isEqualTo("someuri")
+        assertThat(deserialized.contentDescription!!.getTextAt(resources, Instant.EPOCH))
+            .isEqualTo("content description")
     }
 
     @Test
@@ -179,6 +233,9 @@ public class AsWireComplicationDataTest {
                     .build()
             )
         testRoundTripConversions(data)
+        val deserialized = serializeAndDeserialize(data) as NoPermissionComplicationData
+        assertThat(deserialized.text!!.getTextAt(resources, Instant.EPOCH))
+            .isEqualTo("needs location")
     }
 
     private fun testRoundTripConversions(data: ComplicationData) {
@@ -186,6 +243,19 @@ public class AsWireComplicationDataTest {
             .hasSameSerializationAs(
                 data.asWireComplicationData().toApiComplicationData().asWireComplicationData()
             )
+    }
+
+    private fun serializeAndDeserialize(data: ComplicationData): ComplicationData {
+        val stream = ByteArrayOutputStream()
+        val objectOutputStream = ObjectOutputStream(stream)
+        objectOutputStream.writeObject(data.asWireComplicationData())
+        objectOutputStream.close()
+        val byteArray = stream.toByteArray()
+
+        val objectInputStream = ObjectInputStream(ByteArrayInputStream(byteArray))
+        val wireData = objectInputStream.readObject() as WireComplicationData
+        objectInputStream.close()
+        return wireData.toApiComplicationData()
     }
 }
 
