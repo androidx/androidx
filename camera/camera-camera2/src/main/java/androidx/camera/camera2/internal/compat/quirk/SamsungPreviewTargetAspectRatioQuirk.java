@@ -26,6 +26,7 @@ import androidx.camera.core.impl.Quirk;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * Quirk that produces stretched preview on certain Samsung devices.
@@ -43,8 +44,8 @@ public class SamsungPreviewTargetAspectRatioQuirk implements Quirk {
     );
 
     static boolean load() {
-        return "SAMSUNG".equals(Build.BRAND.toUpperCase())
-                && DEVICE_MODELS.contains(android.os.Build.MODEL.toUpperCase());
+        return "SAMSUNG".equalsIgnoreCase(Build.BRAND)
+                && DEVICE_MODELS.contains(android.os.Build.MODEL.toUpperCase(Locale.US));
     }
 
     /**

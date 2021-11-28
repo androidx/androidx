@@ -17,6 +17,7 @@
 package androidx.camera.camera2.internal
 
 import android.content.Context
+import android.graphics.SurfaceTexture
 import android.hardware.camera2.CameraCaptureSession
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraDevice
@@ -27,15 +28,22 @@ import android.hardware.camera2.TotalCaptureResult
 import android.os.Build
 import android.os.Handler
 import android.os.HandlerThread
+import android.view.Surface
 import androidx.camera.camera2.impl.Camera2ImplConfig
 import androidx.camera.camera2.internal.compat.CameraCharacteristicsCompat
+import androidx.camera.camera2.internal.compat.quirk.AutoFlashUnderExposedQuirk
 import androidx.camera.camera2.internal.compat.quirk.CameraQuirks
 import androidx.camera.camera2.internal.compat.quirk.UseTorchAsFlashQuirk
 import androidx.camera.core.ImageCapture
+import androidx.camera.core.ImageCapture.FLASH_MODE_AUTO
 import androidx.camera.core.ImageCapture.FLASH_TYPE_ONE_SHOT_FLASH
 import androidx.camera.core.ImageCapture.FLASH_TYPE_USE_TORCH_AS_FLASH
+import androidx.camera.core.impl.CameraCaptureCallback
+import androidx.camera.core.impl.CameraCaptureFailure
+import androidx.camera.core.impl.CameraCaptureResult
 import androidx.camera.core.impl.CameraControlInternal
 import androidx.camera.core.impl.CaptureConfig
+import androidx.camera.core.impl.ImmediateSurface
 import androidx.camera.core.impl.Quirks
 import androidx.camera.core.impl.SessionConfig
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
@@ -141,6 +149,14 @@ class Camera2CameraControlImplTest {
         verify(controlUpdateCallback, never()).onCameraControlCaptureRequests(any())
 
         // Act 2: Send the CaptureResult
+        triggerRepeatRequestResult()
+        HandlerUtil.waitForLooperToIdle(handler)
+
+        // Assert 2: AePrecapture is triggered.
+        assertAePrecaptureTrigger()
+    }
+
+    private fun triggerRepeatRequestResult() {
         val tagBundle = cameraControl.sessionConfig.repeatingCaptureConfig.tagBundle
         val mockCaptureRequest = mock(CaptureRequest::class.java)
         `when`(mockCaptureRequest.tag).thenReturn(tagBundle)
@@ -153,10 +169,6 @@ class Camera2CameraControlImplTest {
                 mockCaptureRequest, mockCaptureResult
             )
         }
-        HandlerUtil.waitForLooperToIdle(handler)
-
-        // Assert 2: AePrecapture is triggered.
-        assertAePrecaptureTrigger()
     }
 
     @Config(minSdk = 23)
@@ -366,6 +378,138 @@ class Camera2CameraControlImplTest {
         // Assert.
         val captureConfig = getIssuedCaptureConfig()
         assertThat(captureConfig.templateType).isEqualTo(CameraDevice.TEMPLATE_VIDEO_SNAPSHOT)
+    }
+
+    @Test
+    fun overrideAeModeForStillCapture_quirkAbsent_notOverride() {
+        // Arrange.
+        createCameraControl(quirks = Quirks(emptyList())) // Not have the quirk.
+        cameraControl.flashMode = FLASH_MODE_AUTO
+        triggerRepeatRequestResult() // make sures flashMode is updated.
+        val imageCaptureConfig = CaptureConfig.Builder().build()
+
+        // Act.
+        cameraControl.startFlashSequence(FLASH_TYPE_ONE_SHOT_FLASH)
+        HandlerUtil.waitForLooperToIdle(handler)
+        reset(controlUpdateCallback)
+        cameraControl.submitStillCaptureRequests(listOf(imageCaptureConfig))
+        HandlerUtil.waitForLooperToIdle(handler)
+
+        // Assert.
+        // AE mode should not be overridden
+        val captureConfig = getIssuedCaptureConfig()
+        assertThat(
+            captureConfig.toCamera2Config()
+                .getCaptureRequestOption(CaptureRequest.CONTROL_AE_MODE)
+        ).isNull()
+    }
+
+    @Test
+    fun overrideAeModeForStillCapture_aePrecaptureStarted_override() {
+        // Arrange.
+        createCameraControl(quirks = Quirks(listOf(AutoFlashUnderExposedQuirk())))
+        cameraControl.flashMode = FLASH_MODE_AUTO
+        triggerRepeatRequestResult() // make sures flashMode is updated.
+        val imageCaptureConfig = getCaptureConfigWithParameters()
+
+        // Act.
+        cameraControl.startFlashSequence(FLASH_TYPE_ONE_SHOT_FLASH)
+        HandlerUtil.waitForLooperToIdle(handler)
+        reset(controlUpdateCallback)
+        cameraControl.submitStillCaptureRequests(listOf(imageCaptureConfig))
+        HandlerUtil.waitForLooperToIdle(handler)
+
+        // Assert.
+        // AE mode should be overridden to CONTROL_AE_MODE_ON_ALWAYS_FLASH
+        val issuedCaptureConfig = getIssuedCaptureConfig()
+        assertThat(
+            issuedCaptureConfig.toCamera2Config()
+                .getCaptureRequestOption(CaptureRequest.CONTROL_AE_MODE)
+        ).isEqualTo(CaptureRequest.CONTROL_AE_MODE_ON_ALWAYS_FLASH)
+        issuedCaptureConfig.assertContainAllParametersFrom(imageCaptureConfig)
+    }
+
+    private fun getCaptureConfigWithParameters(): CaptureConfig {
+        val builder = CaptureConfig.Builder()
+        builder.addCameraCaptureCallback(object : CameraCaptureCallback() {
+            override fun onCaptureCompleted(cameraCaptureResult: CameraCaptureResult) {
+                super.onCaptureCompleted(cameraCaptureResult)
+            }
+
+            override fun onCaptureFailed(failure: CameraCaptureFailure) {
+                super.onCaptureFailed(failure)
+            }
+
+            override fun onCaptureCancelled() {
+                super.onCaptureCancelled()
+            }
+        })
+        builder.addSurface(ImmediateSurface(Surface(SurfaceTexture(0))))
+        builder.templateType = CameraDevice.TEMPLATE_STILL_CAPTURE
+        builder.addTag("test", "testValue")
+        return builder.build()
+    }
+    private fun CaptureConfig.assertContainAllParametersFrom(captureConfig: CaptureConfig) {
+        assertThat(captureConfig.surfaces).isEqualTo(surfaces)
+        for (listOption in captureConfig.implementationOptions.listOptions()) {
+            assertThat(captureConfig.implementationOptions.retrieveOption(listOption))
+                .isEqualTo(implementationOptions.retrieveOption(listOption))
+        }
+        assertThat(captureConfig.cameraCaptureCallbacks)
+            .isEqualTo(cameraCaptureCallbacks)
+        assertThat(captureConfig.isUseRepeatingSurface)
+            .isEqualTo(isUseRepeatingSurface)
+        for (key in captureConfig.tagBundle.listKeys()) {
+            assertThat(captureConfig.tagBundle.getTag(key)).isEqualTo(tagBundle.getTag(key))
+        }
+        assertThat(captureConfig.templateType).isEqualTo(templateType)
+    }
+
+    @Test
+    fun overrideAeModeForStillCapture_aePrecaptureFinish_notOverride() {
+        // Arrange.
+        createCameraControl(quirks = Quirks(listOf(AutoFlashUnderExposedQuirk())))
+        cameraControl.flashMode = FLASH_MODE_AUTO
+        triggerRepeatRequestResult() // make sures flashMode is updated.
+        val imageCaptureConfig = CaptureConfig.Builder().build()
+
+        // Act.
+        cameraControl.startFlashSequence(FLASH_TYPE_ONE_SHOT_FLASH)
+        HandlerUtil.waitForLooperToIdle(handler) // required to make sure states are changed
+        cameraControl.cancelAfAndFinishFlashSequence(false, true)
+        HandlerUtil.waitForLooperToIdle(handler)
+        reset(controlUpdateCallback)
+        cameraControl.submitStillCaptureRequests(listOf(imageCaptureConfig))
+        HandlerUtil.waitForLooperToIdle(handler)
+
+        // Assert.
+        // AE mode should not be overridden
+        val issuedCaptureConfig = getIssuedCaptureConfig()
+        assertThat(
+            issuedCaptureConfig.toCamera2Config()
+                .getCaptureRequestOption(CaptureRequest.CONTROL_AE_MODE)
+        ).isNull()
+    }
+
+    @Test
+    fun overrideAeModeForStillCapture_noAePrecaptureTriggered_notOverride() {
+        // Arrange.
+        createCameraControl(quirks = Quirks(listOf(AutoFlashUnderExposedQuirk())))
+        cameraControl.flashMode = FLASH_MODE_AUTO
+        triggerRepeatRequestResult() // make sures flashMode is updated.
+        val imageCaptureConfig = CaptureConfig.Builder().build()
+
+        // Act.
+        cameraControl.submitStillCaptureRequests(listOf(imageCaptureConfig))
+        HandlerUtil.waitForLooperToIdle(handler)
+
+        // Assert.
+        // AE mode should not be overridden
+        val issuedCaptureConfig = getIssuedCaptureConfig()
+        assertThat(
+            issuedCaptureConfig.toCamera2Config()
+                .getCaptureRequestOption(CaptureRequest.CONTROL_AE_MODE)
+        ).isNull()
     }
 
     private fun assertAfTrigger() {
