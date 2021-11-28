@@ -46,7 +46,7 @@ class SurfaceSorterTest {
     }
 
     @Test
-    fun sort_mediaCodecSurfaceIsInTheLast() {
+    fun sort_previewSurfaceIsInTheFirstAndMediaCodecSurfaceIsInTheLast() {
         // Arrange.
         val videoSurface = createSurface(containerClass = MediaCodec::class.java)
         val previewSurface = createSurface(containerClass = Preview::class.java)
@@ -70,6 +70,13 @@ class SurfaceSorterTest {
         surfaceSorter.sort(surfaces6)
 
         // Assert.
+        assertThat(surfaces1.first()).isEqualTo(previewSurface)
+        assertThat(surfaces2.first()).isEqualTo(previewSurface)
+        assertThat(surfaces3.first()).isEqualTo(previewSurface)
+        assertThat(surfaces4.first()).isEqualTo(previewSurface)
+        assertThat(surfaces5.first()).isEqualTo(previewSurface)
+        assertThat(surfaces6.first()).isEqualTo(previewSurface)
+
         assertThat(surfaces1.last()).isEqualTo(videoSurface)
         assertThat(surfaces2.last()).isEqualTo(videoSurface)
         assertThat(surfaces3.last()).isEqualTo(videoSurface)
@@ -79,7 +86,7 @@ class SurfaceSorterTest {
     }
 
     @Test
-    fun sort_videoCaptureSurfaceIsInTheLast() {
+    fun sort_previewSurfaceIsInTheFirstAndVideoCaptureSurfaceIsInTheLast() {
         // Arrange.
         val videoSurface = createSurface(containerClass = VideoCapture::class.java)
         val previewSurface = createSurface(containerClass = Preview::class.java)
@@ -103,6 +110,13 @@ class SurfaceSorterTest {
         surfaceSorter.sort(surfaces6)
 
         // Assert.
+        assertThat(surfaces1.first()).isEqualTo(previewSurface)
+        assertThat(surfaces2.first()).isEqualTo(previewSurface)
+        assertThat(surfaces3.first()).isEqualTo(previewSurface)
+        assertThat(surfaces4.first()).isEqualTo(previewSurface)
+        assertThat(surfaces5.first()).isEqualTo(previewSurface)
+        assertThat(surfaces6.first()).isEqualTo(previewSurface)
+
         assertThat(surfaces1.last()).isEqualTo(videoSurface)
         assertThat(surfaces2.last()).isEqualTo(videoSurface)
         assertThat(surfaces3.last()).isEqualTo(videoSurface)
