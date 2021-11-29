@@ -28,6 +28,7 @@ import android.os.IBinder
 import android.support.wearable.authentication.IAuthenticationRequestCallback
 import android.support.wearable.authentication.IAuthenticationRequestService
 import androidx.annotation.IntDef
+import androidx.annotation.RestrictTo
 import androidx.annotation.UiThread
 import java.util.ArrayDeque
 import java.util.Queue
@@ -61,7 +62,7 @@ import java.util.concurrent.Executor
  *          .setAuthProviderUrl(Uri.parse("https://...."))
  *          .setCodeChallenge(CodeChallenge(codeVerifier))
  *          .build(),
- *      Executors.newSingleThreadExecutor()
+ *      Executors.newSingleThreadExecutor(),
  *      new MyAuthCallback()
  *   );
  * }
@@ -77,7 +78,7 @@ import java.util.concurrent.Executor
  *     ...
  *   }
  *
- *   override public fun onAuthorizationError(request: OAuthRequest, errorCode: int) {
+ *   override fun onAuthorizationError(request: OAuthRequest, errorCode: Int) {
  *     // Compare against codes available in RemoteAuthClient.ErrorCode
  *     // You'll also want to display an error UI.
  *     ...
@@ -139,10 +140,15 @@ public class RemoteAuthClient internal constructor(
         /** Indicates no phone is connected, or the phone connected doesn't support 3p auth */
         public const val ERROR_PHONE_UNAVAILABLE: Int = 1
 
-        /** Errors returned in [Callback.onAuthorizationError].  */
-        @Retention(AnnotationRetention.SOURCE)
+        /**
+         * Errors returned in [Callback.onAuthorizationError].
+         *
+         * @hide
+         */
         @IntDef(NO_ERROR, ERROR_UNSUPPORTED, ERROR_PHONE_UNAVAILABLE)
-        internal annotation class ErrorCode
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        @Retention(AnnotationRetention.SOURCE)
+        public annotation class ErrorCode
 
         /** service connection status */
         private const val STATE_DISCONNECTED: Int = 0
