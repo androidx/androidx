@@ -89,6 +89,10 @@ internal sealed class JavacTypeElement(
         return kotlinMetadata?.isClass() ?: (element.kind == ElementKind.CLASS)
     }
 
+    override fun isNested(): Boolean {
+        return element.enclosingType(env) != null
+    }
+
     override fun isInterface(): Boolean {
         return kotlinMetadata?.isInterface() ?: (element.kind == ElementKind.INTERFACE)
     }

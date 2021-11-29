@@ -186,6 +186,10 @@ internal sealed class KspTypeElement(
         }
     }
 
+    override fun isNested(): Boolean {
+        return declaration.findEnclosingMemberContainer(env) is XTypeElement
+    }
+
     override fun isInterface(): Boolean {
         return declaration.classKind == ClassKind.INTERFACE
     }

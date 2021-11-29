@@ -60,6 +60,11 @@ interface XTypeElement : XHasModifiers, XElement, XMemberContainer {
         get() = qualifiedName
 
     /**
+     * Returns `true` if this [XTypeElement] is a nested class/interface.
+     */
+    fun isNested(): Boolean
+
+    /**
      * Returns `true` if this [XTypeElement] represents an interface
      */
     fun isInterface(): Boolean

@@ -173,12 +173,14 @@ class XTypeElementTest {
         runProcessorTest(sources = listOf(src)) { invocation ->
             invocation.processingEnv.requireTypeElement("foo.bar.Outer").let {
                 assertThat(it.className).isEqualTo(ClassName.get("foo.bar", "Outer"))
+                assertThat(it.isNested()).isFalse()
                 assertThat(it.enclosingTypeElement).isNull()
             }
             invocation.processingEnv.requireTypeElement("foo.bar.Outer.Inner").let {
                 assertThat(it.className).isEqualTo(ClassName.get("foo.bar", "Outer", "Inner"))
                 assertThat(it.packageName).isEqualTo("foo.bar")
                 assertThat(it.name).isEqualTo("Inner")
+                assertThat(it.isNested()).isTrue()
                 assertThat(it.enclosingTypeElement).isEqualTo(
                     invocation.processingEnv.requireTypeElement("foo.bar.Outer")
                 )
