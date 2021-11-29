@@ -18,6 +18,7 @@ package androidx.glance.appwidget.translators
 
 import android.app.PendingIntent
 import android.app.PendingIntent.FLAG_MUTABLE
+import android.app.PendingIntent.FLAG_UPDATE_CURRENT
 import android.content.Intent
 import android.content.Intent.FILL_IN_COMPONENT
 import android.widget.RemoteViews
@@ -65,18 +66,18 @@ private fun RemoteViews.translateEmittableLazyList(
             translationContext.context,
             0,
             Intent(),
-            FILL_IN_COMPONENT or FLAG_MUTABLE
+            FILL_IN_COMPONENT or FLAG_MUTABLE or FLAG_UPDATE_CURRENT,
         )
     )
     val items = RemoteViewsCompat.RemoteCollectionItems.Builder().apply {
-        val childContext = translationContext.copy(isLazyCollectionDescendant = true)
-        element.children.fold(false) { previous, itemEmittable ->
+        val childContext = translationContext.forLazyCollection(viewDef.mainViewId)
+        element.children.foldIndexed(false) { position, previous, itemEmittable ->
             itemEmittable as EmittableLazyListItem
             val itemId = itemEmittable.itemId
             addItem(
                 itemId,
                 translateComposition(
-                    childContext.resetViewId(LazyListItemStartingViewId),
+                    childContext.forLazyViewItem(position, LazyListItemStartingViewId),
                     listOf(itemEmittable),
                     translationContext.layoutConfiguration.addLayout(itemEmittable),
                 )

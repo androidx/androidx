@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.glance.appwidget
+package androidx.glance.appwidget.action
 
 import android.app.Activity
 import android.content.Context
@@ -24,10 +24,13 @@ import android.os.Build
 import android.widget.RemoteViews
 import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
+import androidx.glance.appwidget.TranslationContext
 
-internal enum class ListAdapterTrampolineType {
-    ACTIVITY, BROADCAST, SERVICE, FOREGROUND_SERVICE
+internal enum class ActionTrampolineType {
+    ACTIVITY, BROADCAST, SERVICE, FOREGROUND_SERVICE, CALLBACK
 }
+
+private const val ActionTrampolineScheme = "glance-action"
 
 /**
  * Wraps the "action intent" into an activity trampoline intent, where it will be invoked based on
@@ -36,25 +39,42 @@ internal enum class ListAdapterTrampolineType {
  * @see launchTrampolineAction
  */
 internal fun Intent.applyTrampolineIntent(
-    context: Context,
+    translationContext: TranslationContext,
     viewId: Int,
-    type: ListAdapterTrampolineType,
+    type: ActionTrampolineType
 ): Intent {
-    val target = if (type == ListAdapterTrampolineType.ACTIVITY) {
-        ListAdapterTrampolineActivity::class.java
+    val target = if (type == ActionTrampolineType.ACTIVITY) {
+        ActionTrampolineActivity::class.java
     } else {
-        ListAdapterInvisibleTrampolineActivity::class.java
+        InvisibleActionTrampolineActivity::class.java
     }
-    return Intent(context, target).apply {
-        data = Uri.parse(toUri(0))
-            .buildUpon()
-            .scheme(type.name)
-            .path(viewId.toString())
-            .build()
-        putExtra(ActionTypeKey, type.name)
-        putExtra(ActionIntentKey, this@applyTrampolineIntent)
+    return Intent(translationContext.context, target).also { intent ->
+        intent.data = createUniqueUri(translationContext, viewId, type)
+        intent.putExtra(ActionTypeKey, type.name)
+        intent.putExtra(ActionIntentKey, this)
     }
 }
+
+internal fun createUniqueUri(
+    translationContext: TranslationContext,
+    viewId: Int,
+    type: ActionTrampolineType,
+): Uri = Uri.Builder().apply {
+    scheme(ActionTrampolineScheme)
+    path(type.name)
+    appendQueryParameter("viewId", viewId.toString())
+    appendQueryParameter("viewSize", translationContext.layoutSize.toString())
+    if (translationContext.isLazyCollectionDescendant) {
+        appendQueryParameter(
+            "lazyCollection",
+            translationContext.layoutCollectionViewId.toString()
+        )
+        appendQueryParameter(
+            "lazeViewItem",
+            translationContext.layoutCollectionItemId.toString()
+        )
+    }
+}.build()
 
 /**
  * Unwraps and launches the action intent based on its type.
@@ -74,11 +94,11 @@ internal fun Activity.launchTrampolineAction(intent: Intent) {
     val type = requireNotNull(intent.getStringExtra(ActionTypeKey)) {
         "List adapter activity trampoline invoked without trampoline type"
     }
-    when (ListAdapterTrampolineType.valueOf(type)) {
-        ListAdapterTrampolineType.ACTIVITY -> startActivity(actionIntent)
-        ListAdapterTrampolineType.BROADCAST -> sendBroadcast(actionIntent)
-        ListAdapterTrampolineType.SERVICE -> startService(actionIntent)
-        ListAdapterTrampolineType.FOREGROUND_SERVICE -> {
+    when (ActionTrampolineType.valueOf(type)) {
+        ActionTrampolineType.ACTIVITY -> startActivity(actionIntent)
+        ActionTrampolineType.BROADCAST, ActionTrampolineType.CALLBACK -> sendBroadcast(actionIntent)
+        ActionTrampolineType.SERVICE -> startService(actionIntent)
+        ActionTrampolineType.FOREGROUND_SERVICE -> {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 ListAdapterTrampolineApi26Impl.startForegroundService(
                     context = this,

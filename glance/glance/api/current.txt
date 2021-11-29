@@ -100,6 +100,7 @@ package androidx.glance.action {
     method public abstract operator <T> boolean contains(androidx.glance.action.ActionParameters.Key<T> key);
     method public abstract operator <T> T? get(androidx.glance.action.ActionParameters.Key<T> key);
     method public abstract <T> T getOrDefault(androidx.glance.action.ActionParameters.Key<T> key, T defaultValue);
+    method public abstract boolean isEmpty();
   }
 
   public static final class ActionParameters.Key<T> {
@@ -132,6 +133,7 @@ package androidx.glance.action {
     method public operator <T> boolean contains(androidx.glance.action.ActionParameters.Key<T> key);
     method public operator <T> T? get(androidx.glance.action.ActionParameters.Key<T> key);
     method public <T> T getOrDefault(androidx.glance.action.ActionParameters.Key<T> key, T defaultValue);
+    method public boolean isEmpty();
     method public <T> T? remove(androidx.glance.action.ActionParameters.Key<T> key);
     method public operator <T> T? set(androidx.glance.action.ActionParameters.Key<T> key, T? value);
   }

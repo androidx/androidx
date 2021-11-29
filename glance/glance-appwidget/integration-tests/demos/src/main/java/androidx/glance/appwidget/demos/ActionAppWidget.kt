@@ -142,6 +142,10 @@ private fun LaunchActivityActions() {
     )
     Button(
         text = "Target class",
+        onClick = actionLaunchActivity<ActionDemoActivity>(),
+    )
+    Button(
+        text = "Target class with params",
         onClick = actionLaunchActivity<ActionDemoActivity>(
             actionParametersOf(
                 launchMessageKey to "Launch activity by target class"
@@ -152,6 +156,15 @@ private fun LaunchActivityActions() {
         text = "Component name",
         onClick = actionLaunchActivity(
             ComponentName(LocalContext.current, ActionDemoActivity::class.java)
+        )
+    )
+    Button(
+        text = "Component name with params",
+        onClick = actionLaunchActivity(
+            ComponentName(LocalContext.current, ActionDemoActivity::class.java),
+            actionParametersOf(
+                launchMessageKey to "Launch activity by component name"
+            )
         )
     )
 }

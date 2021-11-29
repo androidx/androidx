@@ -33,6 +33,7 @@ import androidx.compose.runtime.BroadcastFrameClock
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Composition
 import androidx.compose.runtime.Recomposer
+import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.TextUnit
 import androidx.core.view.children
 import androidx.glance.Applier
@@ -92,7 +93,8 @@ internal suspend fun Context.runAndTranslate(
         TestWidget::class.java,
         root,
         LayoutConfiguration.create(this, appWidgetId),
-        rootViewIndex = 0
+        rootViewIndex = 0,
+        layoutSize = DpSize.Zero,
     )
 }
 
