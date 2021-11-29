@@ -881,10 +881,12 @@ class PojoProcessor private constructor(
         val matching = candidates
             .filter {
                 // b/69164099
+                // use names in source (rather than jvmName) for matching since that is what user
+                // sees in code
                 field.type.isAssignableFromWithoutVariance(getType(it)) &&
                     (
-                        field.nameWithVariations.contains(it.element.jvmName) ||
-                            nameVariations.contains(it.element.jvmName)
+                        field.nameWithVariations.contains(it.element.name) ||
+                            nameVariations.contains(it.element.name)
                         )
             }
             .groupBy {
@@ -917,7 +919,7 @@ class PojoProcessor private constructor(
             return null
         }
         if (candidates.size > 1) {
-            reportAmbiguity(candidates.map { it.element.jvmName })
+            reportAmbiguity(candidates.map { it.element.name })
         }
         return candidates.first()
     }
