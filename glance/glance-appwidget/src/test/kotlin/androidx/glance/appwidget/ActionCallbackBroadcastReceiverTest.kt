@@ -19,15 +19,17 @@ package androidx.glance.appwidget
 import android.app.PendingIntent
 import android.content.Context
 import androidx.glance.action.ActionParameters
-import androidx.glance.appwidget.action.ActionCallback
 import androidx.glance.action.actionParametersOf
-import androidx.glance.action.mutableActionParametersOf
+import androidx.glance.appwidget.action.ActionCallback
+import androidx.glance.appwidget.action.ActionCallbackBroadcastReceiver
+import androidx.glance.appwidget.action.ActionTrampolineType
+import androidx.glance.appwidget.action.createUniqueUri
 import androidx.test.core.app.ApplicationProvider
+import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import java.io.Serializable
-import kotlin.test.assertNotEquals
 
 @RunWith(RobolectricTestRunner::class)
 class ActionCallbackBroadcastReceiverTest {
@@ -35,56 +37,48 @@ class ActionCallbackBroadcastReceiverTest {
     private val context = ApplicationProvider.getApplicationContext<Context>()
 
     @Test
-    fun createDifferentPendingIntentsWhenDifferentParameters() {
+    fun createDifferentPendingIntentsWhenDifferentViewId() {
         val key = ActionParameters.Key<Boolean>("test")
-        val firstIntent = createPendingIntent(actionParametersOf(key to false))
-        val secondIntent = createPendingIntent(actionParametersOf(key to true))
+        val firstIntent = createPendingIntent(actionParametersOf(key to false), 1)
+        val secondIntent = createPendingIntent(actionParametersOf(key to true), 2)
 
-        assertNotEquals(firstIntent, secondIntent)
+        assertThat(firstIntent).isNotEqualTo(secondIntent)
     }
 
     @Test
-    fun createDifferentPendingIntentsWithSameParameterInstanceButDifferentValue() {
+    fun createSamePendingIntentsWhenSameViewId() {
         val key = ActionParameters.Key<Boolean>("test")
-        val params = mutableActionParametersOf(key to false)
-        val firstIntent = createPendingIntent(params)
+        val firstIntent = createPendingIntent(actionParametersOf(key to false), 1)
+        val secondIntent = createPendingIntent(actionParametersOf(key to true), 1)
 
-        // Changing key value should create a different PI
-        params[key] = true
-        val secondIntent = createPendingIntent(params)
-
-        assertNotEquals(firstIntent, secondIntent)
+        assertThat(firstIntent).isEqualTo(secondIntent)
     }
 
-    @Test
-    fun createDifferentPendingIntentsWithSameMutableClassButDifferentValue() {
-        val key = ActionParameters.Key<PlaceholderMutableClass>("test")
-        val placeholder = PlaceholderMutableClass(false)
-        val firstIntent = createPendingIntent(actionParametersOf(key to placeholder))
-
-        // Changing the value of the class should create a different PI
-        placeholder.value = true
-        val secondIntent = createPendingIntent(actionParametersOf(key to placeholder))
-
-        assertNotEquals(firstIntent, secondIntent)
-    }
-
-    @Test
-    fun createDifferentPendingIntentWithSameParameters() {
-        val key = ActionParameters.Key<Boolean>("test")
-        val parameters = actionParametersOf(key to false)
-        val firstIntent = createPendingIntent(parameters)
-        val secondIntent = createPendingIntent(parameters)
-
-        assertNotEquals(firstIntent, secondIntent)
-    }
-
-    private fun createPendingIntent(parameters: ActionParameters): PendingIntent {
-        return ActionCallbackBroadcastReceiver.createPendingIntent(
-            context = context,
-            callbackClass = ActionCallback::class.java,
-            appWidgetId = 1,
-            parameters = parameters
+    private fun createPendingIntent(parameters: ActionParameters, viewId: Int): PendingIntent {
+        return PendingIntent.getBroadcast(
+            context,
+            0,
+            ActionCallbackBroadcastReceiver.createIntent(
+                context = context,
+                callbackClass = ActionCallback::class.java,
+                appWidgetId = 1,
+                parameters = parameters
+            ).apply {
+                data = createUniqueUri(
+                    TranslationContext(
+                        context,
+                        appWidgetId = 1,
+                        appWidgetClass = GlanceAppWidget::class.java,
+                        isRtl = false,
+                        layoutConfiguration = LayoutConfiguration.create(context, 1),
+                        itemPosition = -1,
+                        isLazyCollectionDescendant = false,
+                    ),
+                    viewId = viewId,
+                    type = ActionTrampolineType.CALLBACK,
+                )
+            },
+            PendingIntent.FLAG_MUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
         )
     }
 

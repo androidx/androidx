@@ -17,6 +17,7 @@
 package androidx.glance.appwidget
 
 import android.app.Activity
+import android.content.Context
 import android.graphics.Typeface
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.GradientDrawable
@@ -43,7 +44,13 @@ import androidx.glance.Image
 import androidx.glance.ImageProvider
 import androidx.glance.LocalContext
 import androidx.glance.LocalSize
+import androidx.glance.action.ActionParameters
 import androidx.glance.action.actionLaunchActivity
+import androidx.glance.action.actionParametersOf
+import androidx.glance.action.clickable
+import androidx.glance.action.toParametersKey
+import androidx.glance.appwidget.action.ActionCallback
+import androidx.glance.appwidget.action.actionRunCallback
 import androidx.glance.appwidget.state.getAppWidgetState
 import androidx.glance.appwidget.state.updateAppWidgetState
 import androidx.glance.appwidget.test.R
@@ -618,6 +625,37 @@ class GlanceAppWidgetReceiverTest {
         }
     }
 
+    @Test
+    fun actionCallback() {
+        TestGlanceAppWidget.uiDefinition = {
+            Column {
+                Text(
+                    "text1",
+                    modifier = GlanceModifier.clickable(
+                        actionRunCallback<CallbackTest>(actionParametersOf(CallbackTest.key to 1))
+                    )
+                )
+                Text(
+                    "text2",
+                    modifier = GlanceModifier.clickable(
+                        actionRunCallback<CallbackTest>(actionParametersOf(CallbackTest.key to 2))
+                    )
+                )
+            }
+        }
+
+        mHostRule.startHost()
+
+        CallbackTest.received.set(emptyList())
+        CallbackTest.latch = CountDownLatch(2)
+        mHostRule.onHostView { root ->
+            checkNotNull(root.findChild<TextView> { it.text == "text1" }).performClick()
+            checkNotNull(root.findChild<TextView> { it.text == "text2" }).performClick()
+        }
+        CallbackTest.latch.await(5, TimeUnit.SECONDS)
+        assertThat(CallbackTest.received.get()).containsExactly(1, 2)
+    }
+
     // Check there is a single span of the given type and that it passes the [check].
     private inline
     fun <reified T> SpannedString.checkHasSingleTypedSpan(check: (T) -> Unit) {
@@ -641,3 +679,26 @@ class GlanceAppWidgetReceiverTest {
 }
 
 private val testKey = intPreferencesKey("testKey")
+
+internal class CallbackTest : ActionCallback {
+    override suspend fun onRun(
+        context: Context,
+        glanceId: GlanceId,
+        parameters: ActionParameters
+    ) {
+        val value = checkNotNull(parameters[key])
+        repeat(100) {
+            if (received.get().let { received.compareAndSet(it, it + value) }) {
+                latch.countDown()
+                return
+            }
+        }
+        error("Could not set the new list")
+    }
+
+    companion object {
+        lateinit var latch: CountDownLatch
+        val received = AtomicReference<List<Int>>(emptyList())
+        val key = testKey.toParametersKey()
+    }
+}

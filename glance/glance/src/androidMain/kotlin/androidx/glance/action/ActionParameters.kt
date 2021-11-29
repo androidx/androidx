@@ -99,6 +99,11 @@ public abstract class ActionParameters internal constructor() {
      * @return a map of all parameters in this Parameters
      */
     public abstract fun asMap(): Map<Key<out Any>, Any>
+
+    /**
+     * Returns whether there are any keys stored in the parameters.
+     */
+    public abstract fun isEmpty(): Boolean
 }
 
 /**
@@ -154,6 +159,8 @@ public class MutableActionParameters internal constructor(
     override fun hashCode(): Int = map.hashCode()
 
     override fun toString(): String = map.toString()
+
+    override fun isEmpty(): Boolean = map.isEmpty()
 }
 
 /**

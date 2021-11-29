@@ -14,22 +14,19 @@
  * limitations under the License.
  */
 
-package androidx.glance.appwidget
+package androidx.glance.appwidget.action
 
-import android.app.PendingIntent
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import android.net.Uri
 import android.widget.RemoteViews
 import androidx.core.os.bundleOf
 import androidx.glance.action.ActionParameters
 import androidx.glance.action.mutableActionParametersOf
-import androidx.glance.appwidget.action.ActionCallback
-import androidx.glance.appwidget.action.RunCallbackAction
-import androidx.glance.appwidget.action.ToggleableStateKey
+import androidx.glance.appwidget.AppWidgetId
+import androidx.glance.appwidget.goAsync
+import androidx.glance.appwidget.logException
 import kotlinx.coroutines.CancellationException
-import java.util.UUID
 
 /**
  * Responds to broadcasts from [RunCallbackAction] clicks by executing the associated action.
@@ -76,19 +73,6 @@ internal class ActionCallbackBroadcastReceiver : BroadcastReceiver() {
         private const val AppWidgetId = "ActionCallbackBroadcastReceiver:appWidgetId"
         private const val ExtraCallbackClassName = "ActionCallbackBroadcastReceiver:callbackClass"
         private const val ExtraParameters = "ActionCallbackBroadcastReceiver:parameters"
-        private const val ExtraParametersUUID = "ActionCallbackBroadcastReceiver:uuid"
-
-        fun createPendingIntent(
-            context: Context,
-            callbackClass: Class<out ActionCallback>,
-            appWidgetId: Int,
-            parameters: ActionParameters
-        ): PendingIntent = PendingIntent.getBroadcast(
-            context,
-            0,
-            createIntent(context, callbackClass, appWidgetId, parameters),
-            PendingIntent.FLAG_MUTABLE
-        )
 
         internal fun createIntent(
             context: Context,
@@ -99,14 +83,8 @@ internal class ActionCallbackBroadcastReceiver : BroadcastReceiver() {
             Intent(context, ActionCallbackBroadcastReceiver::class.java)
                 .setPackage(context.packageName)
                 .putExtra(ExtraCallbackClassName, callbackClass.canonicalName)
-                .putExtra(ExtraParametersUUID, UUID.randomUUID().leastSignificantBits)
                 .putExtra(AppWidgetId, appWidgetId)
-                .putParameterExtras(parameters).apply {
-                    data = Uri.parse(toUri(0))
-                        .buildUpon()
-                        .scheme("remoteAction")
-                        .build()
-                }
+                .putParameterExtras(parameters)
 
         private fun Intent.putParameterExtras(parameters: ActionParameters): Intent {
             val parametersPairs = parameters.asMap().map { (key, value) ->

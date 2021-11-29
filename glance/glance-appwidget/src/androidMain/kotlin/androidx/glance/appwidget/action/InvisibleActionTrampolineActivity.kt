@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.glance.appwidget
+package androidx.glance.appwidget.action
 
 import android.app.Activity
 import android.os.Bundle
@@ -24,7 +24,7 @@ import android.os.Bundle
  * that don't launch an activity. Thus not showing any UI.
  */
 @Suppress("ForbiddenSuperClass")
-internal class ListAdapterInvisibleTrampolineActivity : Activity() {
+internal class InvisibleActionTrampolineActivity : Activity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
