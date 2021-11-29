@@ -42,6 +42,8 @@ import androidx.camera.core.impl.Quirk;
  * resolution 174x174 is probably incorrect for "video/mp4v-es" and doesn't make sense.
  * See b/192431846#comment3.
  *
+ * <p>Motc C, X650 and LG-X230 have the same problem as Nokia 1. See b/199582287</p>
+ *
  * <p>On Huawei Mate9, {@link CamcorderProfile} indicates it can support resolutions 3840x2160 for
  *  video codec type {@link android.media.MediaRecorder.VideoEncoder#HEVC}, but the current video
  *  codec type is default {@link android.media.MediaRecorder.VideoEncoder#H264}.
@@ -55,11 +57,24 @@ import androidx.camera.core.impl.Quirk;
 public class MediaCodecInfoReportIncorrectInfoQuirk implements Quirk {
 
     static boolean load() {
-        return isNokia1() || isHuaweiMate9();
+        return isNokia1() || isMotoC() || isX650() || isX230() || isHuaweiMate9();
     }
 
     private static boolean isNokia1() {
         return "Nokia".equalsIgnoreCase(Build.BRAND) && "Nokia 1".equalsIgnoreCase(Build.MODEL);
+    }
+
+    private static boolean isMotoC() {
+        return "motorola".equalsIgnoreCase(Build.BRAND) && "moto c".equalsIgnoreCase(Build.MODEL);
+    }
+
+    private static boolean isX650() {
+        return "infinix".equalsIgnoreCase(Build.BRAND)
+                && "infinix x650".equalsIgnoreCase(Build.MODEL);
+    }
+
+    private static boolean isX230() {
+        return "LGE".equalsIgnoreCase(Build.BRAND) && "LG-X230".equalsIgnoreCase(Build.MODEL);
     }
 
     private static boolean isHuaweiMate9() {
@@ -68,7 +83,7 @@ public class MediaCodecInfoReportIncorrectInfoQuirk implements Quirk {
 
     /** Check if problematic MediaFormat info for these candidate devices. */
     public boolean isUnSupportMediaCodecInfo(@NonNull MediaFormat mediaFormat) {
-        if (isNokia1()) {
+        if (isNokia1() || isMotoC() || isX650() || isX230()) {
             /** Checks if the given mime type is a problematic mime type. */
             String mimeType = mediaFormat.getString(MediaFormat.KEY_MIME);
             return MediaFormat.MIMETYPE_VIDEO_MPEG4.equals(mimeType);
