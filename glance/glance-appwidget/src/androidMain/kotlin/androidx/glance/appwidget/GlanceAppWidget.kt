@@ -167,7 +167,7 @@ public abstract class GlanceAppWidget(
         appWidgetManager: AppWidgetManager,
         appWidgetId: Int
     ): DpSize {
-        val info = appWidgetManager.getAppWidgetInfo(appWidgetId)
+        val info = appWidgetManager.getAppWidgetInfo(appWidgetId) ?: return DpSize.Zero
         val minWidth = min(
             info.minWidth,
             if (info.resizeMode and AppWidgetProviderInfo.RESIZE_HORIZONTAL != 0) {
@@ -396,7 +396,8 @@ public abstract class GlanceAppWidget(
             this@GlanceAppWidget.javaClass,
             root,
             layoutConfig,
-            layoutConfig.addLayout(root)
+            layoutConfig.addLayout(root),
+            size
         )
     }
 

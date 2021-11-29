@@ -90,9 +90,6 @@ package androidx.glance.appwidget {
   public final class LayoutSelectionKt {
   }
 
-  public final class ListAdapterTrampolineKt {
-  }
-
   public final class NormalizeCompositionTreeKt {
   }
 
@@ -143,6 +140,12 @@ package androidx.glance.appwidget.action {
 
   public interface ActionCallback {
     method public suspend Object? onRun(android.content.Context context, androidx.glance.GlanceId glanceId, androidx.glance.action.ActionParameters parameters, kotlin.coroutines.Continuation<? super kotlin.Unit> p);
+  }
+
+  public final class ActionTrampolineKt {
+  }
+
+  public final class ApplyActionKt {
   }
 
   public final class LaunchActivityIntentActionKt {

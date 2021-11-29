@@ -18,23 +18,31 @@
     package="androidx.glance.appwidget" >
     <application>
         <activity
-            android:name=".ListAdapterTrampolineActivity"
+            android:name=".action.ActionTrampolineActivity"
             android:exported="false"
-            android:enabled="true" />
+            android:enabled="true">
+            <intent-filter>
+                <data android:scheme="glance-action" />
+            </intent-filter>
+        </activity>
         <activity
-            android:name=".ListAdapterInvisibleTrampolineActivity"
+            android:name=".action.InvisibleActionTrampolineActivity"
             android:exported="false"
             android:taskAffinity="androidx.glance.appwidget.ListAdapterCallbackTrampoline"
             android:theme="@style/Widget.Glance.AppWidget.CallbackTrampoline"
             android:launchMode="singleInstance"
             android:noHistory="true"
-            android:enabled="true" />
+            android:enabled="true">
+            <intent-filter>
+                <data android:scheme="glance-action" />
+            </intent-filter>
+        </activity>
         <receiver
-            android:name=".ActionCallbackBroadcastReceiver"
+            android:name=".action.ActionCallbackBroadcastReceiver"
             android:exported="false"
             android:enabled="true">
             <intent-filter>
-                <data android:scheme="remoteAction" />
+                <data android:scheme="glance-action" />
             </intent-filter>
         </receiver>
 

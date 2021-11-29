@@ -26,6 +26,7 @@ import androidx.annotation.DoNotInline
 import androidx.annotation.LayoutRes
 import androidx.annotation.RequiresApi
 import androidx.annotation.VisibleForTesting
+import androidx.compose.ui.unit.DpSize
 import androidx.core.widget.RemoteViewsCompat.setLinearLayoutGravity
 import androidx.glance.Emittable
 import androidx.glance.EmittableButton
@@ -55,6 +56,7 @@ internal fun translateComposition(
     element: RemoteViewsRoot,
     layoutConfiguration: LayoutConfiguration,
     rootViewIndex: Int,
+    layoutSize: DpSize,
 ) =
     translateComposition(
         TranslationContext(
@@ -63,7 +65,8 @@ internal fun translateComposition(
             appWidgetClass,
             context.isRtl,
             layoutConfiguration,
-            itemPosition = -1
+            itemPosition = -1,
+            layoutSize = layoutSize,
         ),
         element.children,
         rootViewIndex,
@@ -103,6 +106,9 @@ internal data class TranslationContext(
     val lastViewId: AtomicInteger = AtomicInteger(0),
     val parentContext: InsertedViewInfo = InsertedViewInfo(),
     val isBackgroundSpecified: AtomicBoolean = AtomicBoolean(false),
+    val layoutSize: DpSize = DpSize.Zero,
+    val layoutCollectionViewId: Int = View.NO_ID,
+    val layoutCollectionItemId: Int = -1,
 ) {
     fun nextViewId() = lastViewId.incrementAndGet()
 
@@ -113,6 +119,12 @@ internal data class TranslationContext(
         forChild(pos = 0, parent = root.view)
 
     fun resetViewId(newViewId: Int = 0) = copy(lastViewId = AtomicInteger(newViewId))
+
+    fun forLazyCollection(viewId: Int) =
+        copy(isLazyCollectionDescendant = true, layoutCollectionViewId = viewId)
+
+    fun forLazyViewItem(itemId: Int, newViewId: Int = 0) =
+        copy(lastViewId = AtomicInteger(newViewId), layoutCollectionViewId = itemId)
 }
 
 internal fun RemoteViews.translateChild(

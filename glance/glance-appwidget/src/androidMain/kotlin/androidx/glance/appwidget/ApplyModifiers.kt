@@ -16,9 +16,7 @@
 
 package androidx.glance.appwidget
 
-import android.app.PendingIntent
 import android.content.Context
-import android.content.Intent
 import android.os.Build
 import android.util.Log
 import android.util.TypedValue.COMPLEX_UNIT_DIP
@@ -28,10 +26,8 @@ import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.widget.RemoteViews
 import androidx.annotation.DoNotInline
-import androidx.annotation.IdRes
 import androidx.annotation.RequiresApi
 import androidx.compose.ui.graphics.toArgb
-import androidx.core.os.bundleOf
 import androidx.core.widget.RemoteViewsCompat.setTextViewHeight
 import androidx.core.widget.RemoteViewsCompat.setTextViewWidth
 import androidx.core.widget.RemoteViewsCompat.setViewBackgroundColor
@@ -43,26 +39,8 @@ import androidx.glance.BackgroundModifier
 import androidx.glance.GlanceModifier
 import androidx.glance.Visibility
 import androidx.glance.VisibilityModifier
-import androidx.glance.action.Action
 import androidx.glance.action.ActionModifier
-import androidx.glance.action.ActionParameters
-import androidx.glance.action.LaunchActivityAction
-import androidx.glance.action.LaunchActivityClassAction
-import androidx.glance.action.LaunchActivityComponentAction
-import androidx.glance.action.toMutableParameters
-import androidx.glance.appwidget.action.CompoundButtonAction
-import androidx.glance.appwidget.action.LaunchActivityIntentAction
-import androidx.glance.appwidget.action.LaunchBroadcastReceiverAction
-import androidx.glance.appwidget.action.LaunchBroadcastReceiverActionAction
-import androidx.glance.appwidget.action.LaunchBroadcastReceiverClassAction
-import androidx.glance.appwidget.action.LaunchBroadcastReceiverComponentAction
-import androidx.glance.appwidget.action.LaunchBroadcastReceiverIntentAction
-import androidx.glance.appwidget.action.LaunchServiceAction
-import androidx.glance.appwidget.action.LaunchServiceClassAction
-import androidx.glance.appwidget.action.LaunchServiceComponentAction
-import androidx.glance.appwidget.action.LaunchServiceIntentAction
-import androidx.glance.appwidget.action.RunCallbackAction
-import androidx.glance.appwidget.action.ToggleableStateKey
+import androidx.glance.appwidget.action.applyAction
 import androidx.glance.appwidget.unit.DayNightColorProvider
 import androidx.glance.layout.HeightModifier
 import androidx.glance.layout.PaddingModifier
@@ -85,8 +63,9 @@ internal fun applyModifiers(
     var visibility = Visibility.Visible
     modifiers.foldIn(Unit) { _, modifier ->
         when (modifier) {
-            is ActionModifier ->
+            is ActionModifier -> {
                 applyAction(translationContext, rv, modifier.action, viewDef.mainViewId)
+            }
             is WidthModifier -> widthModifier = modifier
             is HeightModifier -> heightModifier = modifier
             is BackgroundModifier -> applyBackgroundModifier(context, rv, modifier, viewDef)
@@ -125,208 +104,6 @@ private fun Visibility.toViewVisibility() =
         Visibility.Invisible -> View.INVISIBLE
         Visibility.Gone -> View.GONE
     }
-
-private fun applyAction(
-    translationContext: TranslationContext,
-    rv: RemoteViews,
-    action: Action,
-    @IdRes viewId: Int
-) {
-    try {
-        if (translationContext.isLazyCollectionDescendant) {
-            val fillInIntent = getFillInIntentForAction(action, translationContext, viewId)
-            if (action is CompoundButtonAction && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                ApplyModifiersApi31Impl.setOnCheckedChangeResponse(rv, viewId, fillInIntent)
-            } else {
-                rv.setOnClickFillInIntent(viewId, fillInIntent)
-            }
-        } else {
-            val pendingIntent = getPendingIntentForAction(action, translationContext)
-            if (action is CompoundButtonAction && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                ApplyModifiersApi31Impl.setOnCheckedChangeResponse(rv, viewId, pendingIntent)
-            } else {
-                rv.setOnClickPendingIntent(viewId, pendingIntent)
-            }
-        }
-    } catch (t: Throwable) {
-        Log.e(GlanceAppWidgetTag, "Unrecognized Action: $action", t)
-    }
-}
-
-private fun getPendingIntentForAction(
-    action: Action,
-    translationContext: TranslationContext,
-    editParams: (ActionParameters) -> ActionParameters = { it }
-): PendingIntent {
-    when (action) {
-        is LaunchActivityAction -> {
-            return PendingIntent.getActivity(
-                translationContext.context,
-                0,
-                getLaunchActivityIntent(action, translationContext, editParams),
-                PendingIntent.FLAG_MUTABLE
-            )
-        }
-        is LaunchServiceAction -> {
-            val intent = getLaunchServiceIntent(action, translationContext)
-            return if (action.isForegroundService &&
-                Build.VERSION.SDK_INT >= Build.VERSION_CODES.O
-            ) {
-                ApplyModifiersApi26Impl.getForegroundServicePendingIntent(
-                    context = translationContext.context,
-                    intent = intent
-                )
-            } else {
-                PendingIntent.getService(
-                    translationContext.context,
-                    0,
-                    intent,
-                    PendingIntent.FLAG_MUTABLE
-                )
-            }
-        }
-        is LaunchBroadcastReceiverAction -> {
-            return PendingIntent.getBroadcast(
-                translationContext.context,
-                0,
-                getLaunchBroadcastReceiverIntent(action, translationContext),
-                PendingIntent.FLAG_MUTABLE
-            )
-        }
-        is RunCallbackAction -> {
-            return ActionCallbackBroadcastReceiver.createPendingIntent(
-                translationContext.context,
-                action.callbackClass,
-                translationContext.appWidgetId,
-                editParams(action.parameters)
-            )
-        }
-        is CompoundButtonAction -> {
-            return getPendingIntentForAction(
-                action.innerAction,
-                translationContext,
-                action.getActionParameters()
-            )
-        }
-        else -> error("Cannot create PendingIntent for action type: $action")
-    }
-}
-
-private fun getFillInIntentForAction(
-    action: Action,
-    translationContext: TranslationContext,
-    @IdRes viewId: Int,
-    editParams: (ActionParameters) -> ActionParameters = { it }
-): Intent = when (action) {
-    is LaunchActivityAction -> {
-        val launchActivityIntent = getLaunchActivityIntent(
-            action = action,
-            translationContext = translationContext,
-            editParams = editParams
-        )
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            // Fill in the pending intent template with the action intent directly, with a
-            // unique identifier to ensure unique filterEquals
-            ApplyModifiersApi29Impl.setIntentIdentifier(launchActivityIntent, viewId)
-        } else {
-            launchActivityIntent.applyTrampolineIntent(
-                context = translationContext.context,
-                viewId = viewId,
-                type = ListAdapterTrampolineType.ACTIVITY
-            )
-        }
-    }
-    is LaunchServiceAction -> getLaunchServiceIntent(
-        action = action,
-        translationContext = translationContext
-    ).applyTrampolineIntent(
-        context = translationContext.context,
-        viewId = viewId,
-        type = if (action.isForegroundService) {
-            ListAdapterTrampolineType.FOREGROUND_SERVICE
-        } else {
-            ListAdapterTrampolineType.SERVICE
-        }
-    )
-    is LaunchBroadcastReceiverAction -> getLaunchBroadcastReceiverIntent(
-        action = action,
-        translationContext = translationContext
-    ).applyTrampolineIntent(
-        context = translationContext.context,
-        viewId = viewId,
-        type = ListAdapterTrampolineType.BROADCAST
-    )
-    is RunCallbackAction -> ActionCallbackBroadcastReceiver.createIntent(
-        context = translationContext.context,
-        callbackClass = action.callbackClass,
-        appWidgetId = translationContext.appWidgetId,
-        parameters = editParams(action.parameters)
-    ).applyTrampolineIntent(
-        context = translationContext.context,
-        viewId = viewId,
-        type = ListAdapterTrampolineType.BROADCAST
-    )
-    is CompoundButtonAction -> getFillInIntentForAction(
-        action.innerAction,
-        translationContext,
-        viewId,
-        action.getActionParameters()
-    )
-    else -> error("Cannot create fill-in Intent for action type: $action")
-}
-
-private fun CompoundButtonAction.getActionParameters() = { params: ActionParameters ->
-    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
-        params.toMutableParameters().apply {
-            set(ToggleableStateKey, !checked)
-        }
-    } else {
-        params
-    }
-}
-
-private fun getLaunchBroadcastReceiverIntent(
-    action: LaunchBroadcastReceiverAction,
-    translationContext: TranslationContext
-) = when (action) {
-    is LaunchBroadcastReceiverComponentAction -> Intent().setComponent(action.componentName)
-    is LaunchBroadcastReceiverClassAction ->
-        Intent(translationContext.context, action.receiverClass)
-    is LaunchBroadcastReceiverIntentAction -> action.intent
-    is LaunchBroadcastReceiverActionAction ->
-        Intent(action.action).setComponent(action.componentName)
-}
-
-private fun getLaunchServiceIntent(
-    action: LaunchServiceAction,
-    translationContext: TranslationContext
-): Intent = when (action) {
-    is LaunchServiceComponentAction -> Intent().setComponent(action.componentName)
-    is LaunchServiceClassAction ->
-        Intent(translationContext.context, action.serviceClass)
-    is LaunchServiceIntentAction -> action.intent
-}
-
-private fun getLaunchActivityIntent(
-    action: LaunchActivityAction,
-    translationContext: TranslationContext,
-    editParams: (ActionParameters) -> ActionParameters = { it }
-): Intent {
-    val activityIntent = when (action) {
-        is LaunchActivityComponentAction -> Intent().setComponent(action.componentName)
-        is LaunchActivityClassAction ->
-            Intent(translationContext.context, action.activityClass)
-        is LaunchActivityIntentAction -> action.intent
-        else -> error("Action type not defined in app widget package: $action")
-    }
-
-    val parametersPairs = editParams(action.parameters).asMap().map { (key, value) ->
-        key.name to value
-    }.toTypedArray()
-
-    activityIntent.putExtras(bundleOf(*parametersPairs))
-    return activityIntent
-}
 
 private fun applySizeModifiers(
     translationContext: TranslationContext,
@@ -533,36 +310,5 @@ private object ApplyModifiersApi31Impl {
             }
             else -> error("Rounded corners should not be ${radius.javaClass.canonicalName}")
         }
-    }
-
-    @DoNotInline
-    fun setOnCheckedChangeResponse(rv: RemoteViews, viewId: Int, intent: PendingIntent) {
-        rv.setOnCheckedChangeResponse(viewId, RemoteViews.RemoteResponse.fromPendingIntent(intent))
-    }
-
-    @DoNotInline
-    fun setOnCheckedChangeResponse(rv: RemoteViews, viewId: Int, intent: Intent) {
-        rv.setOnCheckedChangeResponse(viewId, RemoteViews.RemoteResponse.fromFillInIntent(intent))
-    }
-}
-
-@RequiresApi(Build.VERSION_CODES.Q)
-private object ApplyModifiersApi29Impl {
-    @DoNotInline
-    fun setIntentIdentifier(intent: Intent, viewId: Int): Intent = intent.apply {
-        identifier = viewId.toString()
-    }
-}
-
-@RequiresApi(Build.VERSION_CODES.O)
-private object ApplyModifiersApi26Impl {
-    @DoNotInline
-    fun getForegroundServicePendingIntent(context: Context, intent: Intent): PendingIntent {
-        return PendingIntent.getForegroundService(
-            context,
-            0,
-            intent,
-            PendingIntent.FLAG_MUTABLE
-        )
     }
 }
