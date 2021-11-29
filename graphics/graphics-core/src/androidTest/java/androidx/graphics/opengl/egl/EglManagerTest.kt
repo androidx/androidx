@@ -16,7 +16,9 @@
 
 package androidx.graphics.opengl.egl
 
+import android.graphics.SurfaceTexture
 import android.opengl.EGL14
+import android.view.Surface
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import org.junit.Assert.assertEquals
@@ -219,6 +221,54 @@ class EglManagerTest {
             assertEquals(pBuffer, currentDrawSurface)
 
             eglSpec.eglDestroySurface(pBuffer)
+            release()
+        }
+    }
+
+    @Test
+    fun testCreateWindowSurfaceDefault() {
+        testEglManager {
+            initialize()
+
+            val config = loadConfig(EglConfigAttributes8888)
+            if (config == null) {
+                fail("Config 8888 should be supported")
+            }
+
+            createContext(config!!)
+
+            val surface = Surface(SurfaceTexture(42))
+            // Create a window surface with the default attributes
+            val eglSurface = eglSpec.eglCreateWindowSurface(config, surface, null)
+            assertNotEquals(EGL14.EGL_NO_SURFACE, eglSurface)
+            eglSpec.eglDestroySurface(eglSurface)
+
+            release()
+        }
+    }
+
+    @Test
+    fun testCreateWindowSurfaceWithFrontBuffer() {
+        testEglManager {
+            initialize()
+
+            val config = loadConfig(EglConfigAttributes8888)
+            if (config == null) {
+                fail("Config 8888 should be supported")
+            }
+
+            createContext(config!!)
+
+            val surface = Surface(SurfaceTexture(42))
+
+            val attrs = EglConfigAttributes {
+                EGL14.EGL_RENDER_BUFFER to EGL14.EGL_SINGLE_BUFFER
+            }
+            // Create a window surface with the default attributes
+            val eglSurface = eglSpec.eglCreateWindowSurface(config, surface, attrs)
+            assertNotEquals(EGL14.EGL_NO_SURFACE, eglSurface)
+            eglSpec.eglDestroySurface(eglSurface)
+
             release()
         }
     }
