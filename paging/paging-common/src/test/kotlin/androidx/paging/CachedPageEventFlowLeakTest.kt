@@ -135,6 +135,7 @@ public class CachedPageEventFlowLeakTest {
         doneInvalidating?.complete(Unit)
     }
 
+    @Ignore("b/206837348")
     @Test
     public fun dontLeakCachedPageEventFlows_finished() {
         val scope = CoroutineScope(EmptyCoroutineContext)
