@@ -82,6 +82,8 @@ internal sealed class KspSyntheticPropertyMethodElement(
 
     final override fun isSuspendFunction() = false
 
+    final override fun isExtensionFunction() = false
+
     final override val enclosingElement: XMemberContainer
         get() = this.field.enclosingElement
 

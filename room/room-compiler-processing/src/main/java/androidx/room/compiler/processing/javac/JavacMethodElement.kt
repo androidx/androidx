@@ -56,6 +56,22 @@ internal class JavacMethodElement(
         element.requireEnclosingType(env)
     }
 
+    override val parameters: List<JavacMethodParameter> by lazy {
+        element.parameters.mapIndexed { index, variable ->
+            JavacMethodParameter(
+                env = env,
+                enclosingMethodElement = this,
+                containing = containing,
+                element = variable,
+                kotlinMetadataFactory = {
+                    val metadataParamIndex = if (isExtensionFunction()) index - 1 else index
+                    kotlinMetadata?.parameters?.getOrNull(metadataParamIndex)
+                },
+                argIndex = index
+            )
+        }
+    }
+
     override val kotlinMetadata: KmFunction? by lazy {
         (enclosingElement as? JavacTypeElement)?.kotlinMetadata?.getFunctionMetadata(element)
     }
@@ -103,6 +119,8 @@ internal class JavacMethodElement(
     override fun isJavaDefault() = element.modifiers.contains(Modifier.DEFAULT)
 
     override fun isSuspendFunction() = kotlinMetadata?.isSuspend() == true
+
+    override fun isExtensionFunction() = kotlinMetadata?.isExtension() == true
 
     override fun overrides(other: XMethodElement, owner: XTypeElement): Boolean {
         check(other is JavacMethodElement)

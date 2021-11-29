@@ -98,9 +98,14 @@ interface XMethodElement : XExecutableElement {
     /**
      * Returns true if this is a suspend function.
      *
-     * @see XMethodType.getSuspendFunctionReturnType
+     * @see XSuspendMethodType
      */
     fun isSuspendFunction(): Boolean
+
+    /**
+     * Returns true if this is an extension function.
+     */
+    fun isExtensionFunction(): Boolean
 
     /**
      * Returns true if this method can be overridden without checking its enclosing [XElement].
