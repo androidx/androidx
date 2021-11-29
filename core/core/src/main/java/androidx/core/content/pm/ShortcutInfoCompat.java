@@ -27,6 +27,7 @@ import android.content.pm.ShortcutManager;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Bundle;
 import android.os.PersistableBundle;
 import android.os.UserHandle;
 import android.text.TextUtils;
@@ -41,6 +42,7 @@ import androidx.core.app.Person;
 import androidx.core.content.LocusIdCompat;
 import androidx.core.graphics.drawable.IconCompat;
 import androidx.core.net.UriCompat;
+import androidx.core.util.Preconditions;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -99,6 +101,7 @@ public class ShortcutInfoCompat {
     int mRank;
 
     PersistableBundle mExtras;
+    Bundle mTransientExtras;
 
     // Read-Only fields
     long mLastChangedTimestamp;
@@ -392,6 +395,17 @@ public class ShortcutInfoCompat {
     @Nullable
     public PersistableBundle getExtras() {
         return mExtras;
+    }
+
+    /**
+     * Get additional extras from the shortcut, which will not be persisted anywhere once the
+     * shortcut is published.
+     * @hide
+     */
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @Nullable
+    public Bundle getTransientExtras() {
+        return mTransientExtras;
     }
 
     /**
@@ -852,6 +866,16 @@ public class ShortcutInfoCompat {
         @NonNull
         public Builder setExtras(@NonNull PersistableBundle extras) {
             mInfo.mExtras = extras;
+            return this;
+        }
+
+        /**
+         * @hide
+         */
+        @RestrictTo(LIBRARY_GROUP_PREFIX)
+        @NonNull
+        public Builder setTransientExtras(@NonNull final Bundle transientExtras) {
+            mInfo.mTransientExtras = Preconditions.checkNotNull(transientExtras);
             return this;
         }
 
