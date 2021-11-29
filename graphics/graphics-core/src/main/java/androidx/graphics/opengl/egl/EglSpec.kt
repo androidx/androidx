@@ -135,6 +135,12 @@ interface EglSpec {
      */
     fun eglGetError(): Int
 
+    /**
+     * Convenience method to obtain the corresponding error string from the
+     * error code obtained from [EglSpec.eglGetError]
+     */
+    fun getErrorMessage(): String = getStatusString(eglGetError())
+
     companion object {
 
         @JvmField
@@ -265,12 +271,6 @@ interface EglSpec {
             }
     }
 }
-
-/**
- * Convenience method to obtain the corresponding error string from the
- * error code obtained from [EglSpec.eglGetError]
- */
-fun EglSpec.getErrorMessage(): String = EglSpec.getStatusString(eglGetError())
 
 /**
  * Exception class for reporting errors with EGL

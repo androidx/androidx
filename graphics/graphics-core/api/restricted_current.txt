@@ -95,6 +95,7 @@ package androidx.graphics.opengl.egl {
     method public androidx.graphics.opengl.egl.EglVersion eglInitialize();
     method public boolean eglMakeCurrent(android.opengl.EGLContext context, android.opengl.EGLSurface drawSurface, android.opengl.EGLSurface readSurface);
     method public String eglQueryString(int nameId);
+    method public default String getErrorMessage();
     method public default static String getStatusString(int error);
     method public android.opengl.EGLConfig? loadConfig(int[] configAttributes);
     field public static final androidx.graphics.opengl.egl.EglSpec.Companion Companion;
@@ -103,10 +104,6 @@ package androidx.graphics.opengl.egl {
 
   public static final class EglSpec.Companion {
     method public String getStatusString(int error);
-  }
-
-  public final class EglSpecKt {
-    method public static String getErrorMessage(androidx.graphics.opengl.egl.EglSpec);
   }
 
   public final class EglVersion {
