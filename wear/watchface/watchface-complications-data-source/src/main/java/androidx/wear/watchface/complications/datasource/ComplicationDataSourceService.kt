@@ -215,22 +215,38 @@ public abstract class ComplicationDataSourceService : Service() {
      */
     public abstract fun getPreviewData(type: ComplicationType): ComplicationData?
 
-    /** Callback for [onComplicationRequest]. */
+    /**
+     * Callback for [onComplicationRequest] where only one of [onComplicationData] or
+     * [onComplicationDataTimeline] should be called.
+     */
     public interface ComplicationRequestListener {
         /**
-         * Sends the complicationData to the system. If null is passed then any previous
+         * Sends the [ComplicationData] to the system. If null is passed then any previous
          * complication data will not be overwritten. Can be called on any thread. Should only be
-         * called once.
+         * called once. Note this is mutually exclusive with [onComplicationDataTimeline].
          */
         @Throws(RemoteException::class)
         public fun onComplicationData(complicationData: ComplicationData?)
+
+        /**
+         * Sends the [ComplicationDataTimeline] to the system. If null is passed then any previous
+         * complication data will not be overwritten. Can be called on any thread. Should only be
+         * called once. Note this is mutually exclusive with [onComplicationData].
+         * Note only [ComplicationDataTimeline.defaultComplicationData] is supported by older
+         * watch faces .
+         */
+        // TODO(alexclarke): Plumb a capability bit so the developers can know if timelines are
+        // supported by the watch face.
+        @Throws(RemoteException::class)
+        public fun onComplicationDataTimeline(complicationDataTimeline: ComplicationDataTimeline?) {
+        }
     }
 
     /**
-     * If a metadata key with [METADATA_KEY_SYNCHRONOUS_UPDATE_PERIOD_MILLISECONDS] is present in the
-     * manifest, then onStartInteractiveComplication will be called when the watch face is visible
-     * and non-ambient. A series of [onSynchronousComplicationRequest]s will follow, ending with a
-     * call to [onStopSynchronousComplicationRequests].
+     * If a metadata key with [METADATA_KEY_SYNCHRONOUS_UPDATE_PERIOD_MILLISECONDS] is present in
+     * the manifest, then onStartInteractiveComplication will be called when the watch face is
+     * visible and non-ambient. A series of [onSynchronousComplicationRequest]s will follow, ending
+     * with a call to [onStopSynchronousComplicationRequests].
      *
      * After onStopInteractiveComplication calls to [onComplicationRequest] will stop until the
      * watchface ceases to be visible and non-ambient.
@@ -259,8 +275,8 @@ public abstract class ComplicationDataSourceService : Service() {
     }
 
     /**
-     * If a metadata key with [METADATA_KEY_SYNCHRONOUS_UPDATE_PERIOD_MILLISECONDS] is present in the
-     * manifest, then [onSynchronousComplicationRequest] will be called while the watch face is
+     * If a metadata key with [METADATA_KEY_SYNCHRONOUS_UPDATE_PERIOD_MILLISECONDS] is present in
+     * the manifest, then [onSynchronousComplicationRequest] will be called while the watch face is
      * visible and non-ambient.
      *
      * In response to this request the [ComplicationData] must be returned immediately, or `null`
@@ -318,11 +334,39 @@ public abstract class ComplicationDataSourceService : Service() {
                                     "Expected $expectedDataType got $dataType."
                             }
 
-                            // When no update is needed, the complicationData is going to be
-                            // null.
+                            // When no update is needed, the complicationData is going to be null.
                             iComplicationManager.updateComplicationData(
                                 complicationInstanceId,
                                 complicationData?.asWireComplicationData()
+                            )
+                        }
+
+                        override fun onComplicationDataTimeline(
+                            complicationDataTimeline: ComplicationDataTimeline?
+                        ) {
+                            // This can be run on an arbitrary thread, but that's OK.
+                            val dataType =
+                                complicationDataTimeline?.defaultComplicationData?.type
+                                    ?: ComplicationType.NO_DATA
+                            require(
+                                dataType != ComplicationType.NOT_CONFIGURED &&
+                                    dataType != ComplicationType.EMPTY
+                            ) {
+                                "Cannot send data of TYPE_NOT_CONFIGURED or " +
+                                    "TYPE_EMPTY. Use TYPE_NO_DATA instead."
+                            }
+                            require(
+                                dataType == ComplicationType.NO_DATA ||
+                                    dataType == expectedDataType
+                            ) {
+                                "Complication data should match the requested type. " +
+                                    "Expected $expectedDataType got $dataType."
+                            }
+
+                            // When no update is needed, the complicationData is going to be null.
+                            iComplicationManager.updateComplicationData(
+                                complicationInstanceId,
+                                complicationDataTimeline?.asWireComplicationData()
                             )
                         }
                     }
