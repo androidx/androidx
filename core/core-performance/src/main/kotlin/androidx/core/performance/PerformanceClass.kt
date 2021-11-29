@@ -35,6 +35,8 @@ interface PerformanceClass {
      * {@link Build.VERSION_CODES#R}.
      * <p>
      * Defaults to {@link Build.MEDIA_PERFORMANCE_CLASS}
+     *
+     * @sample androidx.core.performance.samples.usage
      */
     val mediaPerformanceClass: Int
 
