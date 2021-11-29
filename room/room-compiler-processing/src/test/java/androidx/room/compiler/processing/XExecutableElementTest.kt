@@ -31,6 +31,7 @@ import com.google.common.truth.Truth.assertWithMessage
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.ParameterizedTypeName
 import com.squareup.javapoet.TypeName
+import com.squareup.javapoet.TypeVariableName
 import com.squareup.javapoet.WildcardTypeName
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -958,6 +959,106 @@ class XExecutableElementTest {
                             ClassName.get(IllegalArgumentException::class.java)
                         ),
                     )
+                }
+            }
+        }
+    }
+
+    @Test
+    fun extensionFun() {
+        fun buildSource(pkg: String) = Source.kotlin(
+            "Foo.kt",
+            """
+            package $pkg
+            abstract class Foo<T> {
+                fun String.ext1(): String = TODO()
+                fun String.ext2(inputParam: Int): String = TODO()
+                fun Foo<String>.ext3(): String = TODO()
+                fun Foo<T>.ext4(): String = TODO()
+                fun T.ext5(): String = TODO()
+                suspend fun String.ext6(): String = TODO()
+                abstract fun T.ext7(): String
+            }
+            class FooImpl : Foo<Int>() {
+                override fun Int.ext7(): String = TODO()
+            }
+            """.trimIndent()
+        )
+        runProcessorTest(
+            sources = listOf(buildSource(pkg = "app")),
+            classpath = compileFiles(listOf(buildSource(pkg = "lib")))
+        ) {
+            listOf("app", "lib").forEach { pkg ->
+                val element = it.processingEnv.requireTypeElement("$pkg.Foo")
+                element.getDeclaredMethodByJvmName("ext1").let { method ->
+                    assertThat(method.isExtensionFunction()).isTrue()
+                    assertThat(method.parameters.size).isEqualTo(1)
+                    assertThat(method.parameters[0].name).isEqualTo("\$this\$ext1")
+                    assertThat(method.parameters[0].type.typeName)
+                        .isEqualTo(String::class.typeName())
+                }
+                element.getDeclaredMethodByJvmName("ext2").let { method ->
+                    assertThat(method.parameters.size).isEqualTo(2)
+                    assertThat(method.parameters[0].name).isEqualTo("\$this\$ext2")
+                    assertThat(method.parameters[0].type.typeName)
+                        .isEqualTo(String::class.typeName())
+                    assertThat(method.parameters[1].name).isEqualTo("inputParam")
+                }
+                element.getDeclaredMethodByJvmName("ext3").let { method ->
+                    assertThat(method.parameters[0].type.typeName).isEqualTo(
+                        ParameterizedTypeName.get(
+                            ClassName.get(pkg, "Foo"),
+                            String::class.typeName()
+                        )
+                    )
+                }
+                element.getDeclaredMethodByJvmName("ext4").let { method ->
+                    assertThat(method.parameters[0].type.typeName).isEqualTo(
+                        ParameterizedTypeName.get(
+                            ClassName.get(pkg, "Foo"),
+                            TypeVariableName.get("T")
+                        )
+                    )
+                }
+                element.getDeclaredMethodByJvmName("ext5").let { method ->
+                    assertThat(method.parameters[0].type.typeName)
+                        .isEqualTo(TypeVariableName.get("T"))
+                }
+                element.getDeclaredMethodByJvmName("ext6").let { method ->
+                    assertThat(method.isSuspendFunction()).isTrue()
+                    assertThat(method.isExtensionFunction()).isTrue()
+                    assertThat(method.parameters.size).isEqualTo(2)
+                    assertThat(method.parameters[0].type.typeName)
+                        .isEqualTo(String::class.typeName())
+                    assertThat(method.parameters[1].type.typeName).isEqualTo(
+                        ParameterizedTypeName.get(
+                            ClassName.get("kotlin.coroutines", "Continuation"),
+                            WildcardTypeName.supertypeOf(String::class.typeName())
+                        )
+                    )
+                }
+                // Verify overridden Foo.ext7() asMemberOf FooImpl
+                element.getDeclaredMethodByJvmName("ext7").let { method ->
+                    assertThat(method.isAbstract()).isTrue()
+                    assertThat(method.isExtensionFunction()).isTrue()
+                    assertThat(method.parameters[0].type.typeName)
+                        .isEqualTo(TypeVariableName.get("T"))
+
+                    val fooImpl = it.processingEnv.requireTypeElement("$pkg.FooImpl")
+                    assertThat(method.parameters[0].asMemberOf(fooImpl.type).typeName)
+                        .isEqualTo(TypeName.INT.box())
+                }
+                // Verify non-overridden Foo.ext1() asMemberOf FooImpl
+                element.getDeclaredMethodByJvmName("ext1").let { method ->
+                    val fooImpl = it.processingEnv.requireTypeElement("$pkg.FooImpl")
+                    assertThat(method.parameters[0].asMemberOf(fooImpl.type).typeName)
+                        .isEqualTo(String::class.typeName())
+                }
+                // Verify non-overridden Foo.ext5() asMemberOf FooImpl
+                element.getDeclaredMethodByJvmName("ext5").let { method ->
+                    val fooImpl = it.processingEnv.requireTypeElement("$pkg.FooImpl")
+                    assertThat(method.parameters[0].asMemberOf(fooImpl.type).typeName)
+                        .isEqualTo(TypeName.INT.box())
                 }
             }
         }
