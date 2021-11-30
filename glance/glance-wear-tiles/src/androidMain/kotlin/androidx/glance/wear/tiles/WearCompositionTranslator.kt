@@ -49,6 +49,7 @@ import androidx.glance.layout.collectPaddingInDp
 import androidx.glance.text.EmittableText
 import androidx.glance.text.FontStyle
 import androidx.glance.text.FontWeight
+import androidx.glance.text.TextAlign
 import androidx.glance.text.TextDecoration
 import androidx.glance.text.TextStyle
 import androidx.glance.toEmittableText
@@ -80,8 +81,14 @@ import androidx.wear.tiles.LayoutElementBuilders.FONT_WEIGHT_MEDIUM
 import androidx.wear.tiles.LayoutElementBuilders.FONT_WEIGHT_NORMAL
 import androidx.wear.tiles.LayoutElementBuilders.HORIZONTAL_ALIGN_CENTER
 import androidx.wear.tiles.LayoutElementBuilders.HORIZONTAL_ALIGN_END
+import androidx.wear.tiles.LayoutElementBuilders.HORIZONTAL_ALIGN_LEFT
+import androidx.wear.tiles.LayoutElementBuilders.HORIZONTAL_ALIGN_RIGHT
 import androidx.wear.tiles.LayoutElementBuilders.HORIZONTAL_ALIGN_START
 import androidx.wear.tiles.LayoutElementBuilders.HorizontalAlignment
+import androidx.wear.tiles.LayoutElementBuilders.TEXT_ALIGN_CENTER
+import androidx.wear.tiles.LayoutElementBuilders.TEXT_ALIGN_END
+import androidx.wear.tiles.LayoutElementBuilders.TEXT_ALIGN_START
+import androidx.wear.tiles.LayoutElementBuilders.TextAlignment
 import androidx.wear.tiles.LayoutElementBuilders.VERTICAL_ALIGN_BOTTOM
 import androidx.wear.tiles.LayoutElementBuilders.VERTICAL_ALIGN_CENTER
 import androidx.wear.tiles.LayoutElementBuilders.VERTICAL_ALIGN_TOP
@@ -127,9 +134,9 @@ private fun BackgroundModifier.toProto(context: Context): ModifiersBuilders.Back
 
 private fun BorderModifier.toProto(context: Context): ModifiersBuilders.Border =
     ModifiersBuilders.Border.Builder()
-            .setWidth(dp(this.width.toDp(context.resources).value))
-            .setColor(argb(this.color.getColor(context)))
-            .build()
+        .setWidth(dp(this.width.toDp(context.resources).value))
+        .setColor(argb(this.color.getColor(context)))
+        .build()
 
 private fun ColorProvider.getColor(context: Context) = when (this) {
     is FixedColorProvider -> color.toArgb()
@@ -198,6 +205,28 @@ private fun RadialAlignment.toProto(): Int =
         RadialAlignment.Center -> VERTICAL_ALIGN_CENTER
         RadialAlignment.Inner -> VERTICAL_ALIGN_BOTTOM
         else -> throw IllegalArgumentException("Unknown radial alignment $this")
+    }
+
+@TextAlignment
+private fun TextAlign.toTextAlignment(isRtl: Boolean): Int =
+    when (this) {
+        TextAlign.Center -> TEXT_ALIGN_CENTER
+        TextAlign.End -> TEXT_ALIGN_END
+        TextAlign.Left -> if (isRtl) TEXT_ALIGN_END else TEXT_ALIGN_START
+        TextAlign.Right -> if (isRtl) TEXT_ALIGN_START else TEXT_ALIGN_END
+        TextAlign.Start -> TEXT_ALIGN_START
+        else -> throw IllegalArgumentException("Unknown text alignment $this")
+    }
+
+@HorizontalAlignment
+private fun TextAlign.toHorizontalAlignment(): Int =
+    when (this) {
+        TextAlign.Center -> HORIZONTAL_ALIGN_CENTER
+        TextAlign.End -> HORIZONTAL_ALIGN_END
+        TextAlign.Left -> HORIZONTAL_ALIGN_LEFT
+        TextAlign.Right -> HORIZONTAL_ALIGN_RIGHT
+        TextAlign.Start -> HORIZONTAL_ALIGN_START
+        else -> throw IllegalArgumentException("Unknown text alignment $this")
     }
 
 private fun Dimension.resolve(context: Context): Dimension {
@@ -374,12 +403,22 @@ private fun translateEmittableText(
 
     val textBuilder = LayoutElementBuilders.Text.Builder()
         .setText(element.text)
+        .setMaxLines(element.maxLines)
 
     element.style?.let { textBuilder.setFontStyle(translateTextStyle(context, it)) }
 
+    val textAlign: TextAlign? = element.style?.textAlign
+    if (textAlign != null) {
+        val isRtl = context.resources.configuration.layoutDirection == View.LAYOUT_DIRECTION_RTL
+        textBuilder.setMultilineAlignment(textAlign.toTextAlignment(isRtl))
+    }
+
     return if (width !is Dimension.Wrap || height !is Dimension.Wrap) {
-        LayoutElementBuilders.Box.Builder()
-            .setWidth(width.toContainerDimension())
+        val boxBuilder = LayoutElementBuilders.Box.Builder()
+        if (textAlign != null) {
+            boxBuilder.setHorizontalAlignment(textAlign.toHorizontalAlignment())
+        }
+        boxBuilder.setWidth(width.toContainerDimension())
             .setHeight(height.toContainerDimension())
             .setModifiers(translateModifiers(context, element.modifier))
             .addContent(textBuilder.build())
