@@ -137,6 +137,13 @@ abstract class SdkResourceGenerator : DefaultTask() {
             val extension = project.extensions.getByType<JavaPluginExtension>()
             val resources = extension.sourceSets.getByName("test").resources
             resources.srcDirs(setOf(resources.srcDirs, generatedDirectory))
+
+            // Ignore the sdk.prop file when generating the cache key.
+            project.normalization {
+                it.runtimeClasspath {
+                   it.ignore("sdk.prop")
+                }
+            }
         }
     }
 }
