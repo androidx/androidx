@@ -26,15 +26,17 @@ interface DevicePerformance {
 
     /**
      * The media performance class of the device or 0 if none.
-     * <p>
+     *
      * If this value is not <code>0</code>, the device conforms to the media performance class
      * definition of the SDK version of this value. This value is stable for the duration of
      * the process.
-     * <p>
-     * Possible non-zero values are defined in {@link Build.VERSION_CODES} starting with
-     * {@link Build.VERSION_CODES#R}.
-     * <p>
-     * Defaults to {@link Build.MEDIA_PERFORMANCE_CLASS}
+     *
+     * Possible non-zero values are defined in
+     * [Build.VERSION_CODES][android.os.Build.VERSION_CODES] starting with
+     * [VERSION_CODES.R][android.os.Build.VERSION_CODES.R].
+     *
+     * Defaults to
+     * [VERSION.MEDIA_PERFORMANCE_CLASS][android.os.Build.VERSION.MEDIA_PERFORMANCE_CLASS]
      *
      * @sample androidx.core.performance.samples.usage
      */
