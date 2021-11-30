@@ -257,6 +257,7 @@ public final class ComplicationData implements Parcelable, Serializable {
             "SMALL_IMAGE_BURN_IN_PROTECTION";
     private static final String FIELD_LARGE_IMAGE = "LARGE_IMAGE";
     private static final String FIELD_TAP_ACTION = "TAP_ACTION";
+    private static final String FIELD_TAP_ACTION_LOST = "FIELD_TAP_ACTION_LOST";
     private static final String FIELD_IMAGE_STYLE = "IMAGE_STYLE";
     private static final String FIELD_TIMELINE_START_TIME = "TIMELINE_START_TIME";
     private static final String FIELD_TIMELINE_END_TIME = "TIMELINE_END_TIME";
@@ -355,29 +356,25 @@ public final class ComplicationData implements Parcelable, Serializable {
     @ComplicationType
     private final int mType;
     private final Bundle mFields;
-    private final boolean mIsCached;
 
     ComplicationData(@NonNull Builder builder) {
         mType = builder.mType;
         mFields = builder.mFields;
-        mIsCached = builder.mIsCached;
     }
 
-    ComplicationData(int type, Bundle fields, boolean isCached) {
+    ComplicationData(int type, Bundle fields) {
         mType = type;
         mFields = fields;
-        mIsCached = isCached;
     }
 
     private ComplicationData(@NonNull Parcel in) {
         mType = in.readInt();
         mFields = in.readBundle(getClass().getClassLoader());
-        mIsCached = false;
     }
 
     @RequiresApi(api = Build.VERSION_CODES.P)
     private static class SerializedForm implements Serializable {
-        private static final int VERSION_NUMBER = 2;
+        private static final int VERSION_NUMBER = 3;
 
         @NonNull ComplicationData mComplicationData;
 
@@ -444,6 +441,9 @@ public final class ComplicationData implements Parcelable, Serializable {
             if (isFieldValidForType(FIELD_END_TIME, type)) {
                 oos.writeLong(mComplicationData.getEndDateTimeMillis());
             }
+            // TapAction unfortunately can't be serialized, instead we record if we've lost it.
+            oos.writeBoolean(mComplicationData.hasTapAction()
+                    || mComplicationData.getTapActionLostDueToSerialization());
             long start = mComplicationData.mFields.getLong(FIELD_TIMELINE_START_TIME, -1);
             oos.writeLong(start);
             long end = mComplicationData.mFields.getLong(FIELD_TIMELINE_END_TIME, -1);
@@ -501,7 +501,7 @@ public final class ComplicationData implements Parcelable, Serializable {
                         IconSerializableHelper.read(ois));
             }
             if (isFieldValidForType(FIELD_IMAGE_STYLE, type)) {
-                fields.putInt(FIELD_SMALL_IMAGE_BURN_IN_PROTECTION, ois.readInt());
+                fields.putInt(FIELD_IMAGE_STYLE, ois.readInt());
             }
             if (isFieldValidForType(FIELD_LARGE_IMAGE, type)) {
                 fields.putParcelable(FIELD_LARGE_IMAGE, IconSerializableHelper.read(ois));
@@ -521,6 +521,9 @@ public final class ComplicationData implements Parcelable, Serializable {
             if (isFieldValidForType(FIELD_END_TIME, type)) {
                 fields.putLong(FIELD_END_TIME, ois.readLong());
             }
+            if (ois.readBoolean()) {
+                fields.putBoolean(FIELD_TAP_ACTION_LOST, true);
+            }
             long start = ois.readLong();
             if (start != -1) {
                 fields.putLong(FIELD_TIMELINE_START_TIME, start);
@@ -539,7 +542,7 @@ public final class ComplicationData implements Parcelable, Serializable {
                 }
                 fields.putParcelableArray(FIELD_TIMELINE_ENTRIES, parcels);
             }
-            mComplicationData = new ComplicationData(type, fields, true);
+            mComplicationData = new ComplicationData(type, fields);
         }
 
         Object readResolve() {
@@ -591,9 +594,13 @@ public final class ComplicationData implements Parcelable, Serializable {
                 && dateTimeMillis <= mFields.getLong(FIELD_END_TIME, Long.MAX_VALUE);
     }
 
-    /** Returns true if this is a cached value. */
-    public boolean getIsCached() {
-        return mIsCached;
+    /**
+     * TapAction unfortunately can't be serialized. Returns true if tapAction has been lost due to
+     * serialization (e.g. due to being read from the local cache). The next complication update
+     * from the system would replace this with one with a tapAction.
+     */
+    public boolean getTapActionLostDueToSerialization() {
+        return mFields.getBoolean(FIELD_TAP_ACTION_LOST);
     }
 
     /**
@@ -657,7 +664,7 @@ public final class ComplicationData implements Parcelable, Serializable {
         }
         ArrayList<ComplicationData> entries = new ArrayList<>();
         for (Parcelable parcel : bundles) {
-            entries.add(new ComplicationData(mType, (Bundle) parcel, mIsCached));
+            entries.add(new ComplicationData(mType, (Bundle) parcel));
         }
         return entries;
     }
@@ -1202,8 +1209,7 @@ public final class ComplicationData implements Parcelable, Serializable {
     @NonNull
     @Override
     public String toString() {
-        return "ComplicationData{" + "mType=" + mType + ", mFields=" + mFields + " mIsCached"
-                + "=" + mIsCached + '}';
+        return "ComplicationData{" + "mType=" + mType + ", mFields=" + mFields + " mIsCached" + '}';
     }
 
     /** Builder class for {@link ComplicationData}. */
@@ -1211,7 +1217,6 @@ public final class ComplicationData implements Parcelable, Serializable {
         @ComplicationType
         final int mType;
         final Bundle mFields;
-        boolean mIsCached = false;
 
         /** Creates a builder from given {@link ComplicationData}, copying its type and data. */
         @SuppressLint("SyntheticAccessor")
@@ -1561,8 +1566,10 @@ public final class ComplicationData implements Parcelable, Serializable {
          * <p>Returns this Builder to allow chaining.
          */
         @NonNull
-        public Builder setIsCached(boolean isCached) {
-            mIsCached = isCached;
+        public Builder setTapActionLostDueToSerialization(boolean tapActionLostDueToSerialization) {
+            if (tapActionLostDueToSerialization) {
+                mFields.putBoolean(FIELD_TAP_ACTION_LOST, tapActionLostDueToSerialization);
+            }
             return this;
         }
 

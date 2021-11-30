@@ -42,12 +42,15 @@ public sealed class ComplicationData constructor(
     public val validTimeRange: TimeRange = TimeRange.ALWAYS
 ) {
     /**
-     * Whether or not the complication was cached. A cached complication can't be tapped since
-     * [tapAction] is not serializable. The watch face should render it differently (e.g.
-     * semi-transparent or grayed out) until an updated complication (with a tapAction where
-     * applicable) is delivered by the system.
+     * [tapAction] which is a [PendingIntent] unfortunately can't be serialized. This property is
+     * 'true' if tapAction has been lost due to serialization (typically because it has been cached
+     * locally). When 'true' the watch face should render the complication differently (e.g. as
+     * semi-transparent or grayed out) to signal to the user it can't be tapped. The system will
+     * subsequently deliver an updated complication, with a tapAction where applicable.
      */
-    public var isCached: Boolean = cachedWireComplicationData?.isCached ?: false
+    @get:JvmName("isTapActionLostDueToSerialization")
+    public var tapActionLostDueToSerialization: Boolean =
+        cachedWireComplicationData?.tapActionLostDueToSerialization ?: false
 
     /**
      * Converts this value to [WireComplicationData] object used for serialization.
@@ -215,7 +218,7 @@ public class ShortTextComplicationData internal constructor(
             monochromaticImage?.addToWireComplicationData(this)
             setTapAction(tapAction)
             setValidTimeRange(validTimeRange, this)
-            setIsCached(isCached)
+            setTapActionLostDueToSerialization(tapActionLostDueToSerialization)
         }.build().also { cachedWireComplicationData = it }
     }
 
@@ -338,7 +341,7 @@ public class LongTextComplicationData internal constructor(
                 }
             )
             setValidTimeRange(validTimeRange, this)
-            setIsCached(isCached)
+            setTapActionLostDueToSerialization(tapActionLostDueToSerialization)
         }.build().also { cachedWireComplicationData = it }
     }
 
@@ -467,7 +470,7 @@ public class RangedValueComplicationData internal constructor(
                 }
             )
             setValidTimeRange(validTimeRange, this)
-            setIsCached(isCached)
+            setTapActionLostDueToSerialization(tapActionLostDueToSerialization)
         }.build().also { cachedWireComplicationData = it }
     }
 
@@ -558,7 +561,7 @@ public class MonochromaticImageComplicationData internal constructor(
             )
             setTapAction(tapAction)
             setValidTimeRange(validTimeRange, this)
-            setIsCached(isCached)
+            setTapActionLostDueToSerialization(tapActionLostDueToSerialization)
         }.build().also { cachedWireComplicationData = it }
     }
 
@@ -649,7 +652,7 @@ public class SmallImageComplicationData internal constructor(
             )
             setTapAction(tapAction)
             setValidTimeRange(validTimeRange, this)
-            setIsCached(isCached)
+            setTapActionLostDueToSerialization(tapActionLostDueToSerialization)
         }.build().also { cachedWireComplicationData = it }
     }
 
