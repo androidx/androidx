@@ -23,7 +23,6 @@ import android.content.Context
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
-import androidx.core.os.BuildCompat
 import androidx.work.CoroutineWorker
 import androidx.work.Data
 import androidx.work.ForegroundInfo
@@ -47,7 +46,7 @@ class ForegroundWorker(context: Context, parameters: WorkerParameters) :
             delay(delayTime)
             progress = workDataOf(Progress to i * (100 / range))
             setProgress(progress)
-            if (!BuildCompat.isAtLeastS()) {
+            if (Build.VERSION.SDK_INT < 31) {
                 // No need for notifications starting S.
                 notificationManager.notify(
                     notificationId,
