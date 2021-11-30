@@ -25,8 +25,5 @@ package androidx.benchmark.junit4 {
     method public org.junit.runners.model.Statement apply(org.junit.runners.model.Statement base, org.junit.runner.Description description);
   }
 
-  public final class PerfettoRuleKt {
-  }
-
 }
 
