@@ -35,7 +35,6 @@ import android.net.NetworkRequest;
 import android.net.Uri;
 import android.os.Build;
 
-import androidx.core.os.BuildCompat;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SdkSuppress;
@@ -245,7 +244,7 @@ public class SystemJobInfoConverterTest extends WorkManagerTest {
     @Test
     @SmallTest
     public void testConvert_expedited() {
-        if (!BuildCompat.isAtLeastS()) {
+        if (Build.VERSION.SDK_INT < 31) {
             return;
         }
 
@@ -258,7 +257,7 @@ public class SystemJobInfoConverterTest extends WorkManagerTest {
     @Test
     @SmallTest
     public void testConvertExpeditedJobs_retriesAreNotExpedited() {
-        if (!BuildCompat.isAtLeastS()) {
+        if (Build.VERSION.SDK_INT < 31) {
             return;
         }
 
@@ -272,7 +271,7 @@ public class SystemJobInfoConverterTest extends WorkManagerTest {
     @Test
     @SmallTest
     public void testConvertExpeditedJobs_delaysAreNotExpedited() {
-        if (!BuildCompat.isAtLeastS()) {
+        if (Build.VERSION.SDK_INT < 31) {
             return;
         }
 

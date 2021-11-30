@@ -18,8 +18,8 @@ package androidx.work
 
 import android.app.Notification
 import android.content.Context
+import android.os.Build
 import android.util.Log
-import androidx.core.os.BuildCompat
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
@@ -85,7 +85,7 @@ public class WorkForegroundRunnableTest : DatabaseTest() {
     @Test
     @MediumTest
     public fun callGetForeground_forExpeditedWork1() {
-        if (BuildCompat.isAtLeastS()) {
+        if (Build.VERSION.SDK_INT >= 31) {
             return
         }
         val work = getExpeditedRequest<TestWorker>()
@@ -100,7 +100,7 @@ public class WorkForegroundRunnableTest : DatabaseTest() {
     @Test
     @SmallTest
     public fun callGetForeground_forExpeditedWork2() {
-        if (BuildCompat.isAtLeastS()) {
+        if (Build.VERSION.SDK_INT >= 31) {
             return
         }
 
@@ -125,7 +125,7 @@ public class WorkForegroundRunnableTest : DatabaseTest() {
 
     @SmallTest
     public fun callGetForeground_forExpeditedWork3() {
-        if (BuildCompat.isAtLeastS()) {
+        if (Build.VERSION.SDK_INT >= 31) {
             return
         }
 

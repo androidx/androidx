@@ -24,7 +24,8 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-import androidx.core.os.BuildCompat;
+import android.os.Build;
+
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 import androidx.work.impl.model.WorkSpec;
@@ -146,7 +147,7 @@ public class WorkTest extends WorkManagerTest {
 
     @Test
     public void testBuild_expedited_noConstraints() {
-        if (!BuildCompat.isAtLeastS()) {
+        if (Build.VERSION.SDK_INT < 31) {
             return;
         }
 
@@ -160,7 +161,7 @@ public class WorkTest extends WorkManagerTest {
 
     @Test
     public void testBuild_expedited_networkConstraints() {
-        if (!BuildCompat.isAtLeastS()) {
+        if (Build.VERSION.SDK_INT < 31) {
             return;
         }
 
@@ -178,7 +179,7 @@ public class WorkTest extends WorkManagerTest {
 
     @Test
     public void testBuild_expedited_networkStorageConstraints() {
-        if (!BuildCompat.isAtLeastS()) {
+        if (Build.VERSION.SDK_INT < 31) {
             return;
         }
 
@@ -197,7 +198,7 @@ public class WorkTest extends WorkManagerTest {
 
     @Test
     public void testBuild_expedited_withUnspportedConstraints() {
-        if (!BuildCompat.isAtLeastS()) {
+        if (Build.VERSION.SDK_INT < 31) {
             return;
         }
 
@@ -218,7 +219,7 @@ public class WorkTest extends WorkManagerTest {
 
     @Test
     public void testBuild_expedited_withUnspportedConstraints2() {
-        if (!BuildCompat.isAtLeastS()) {
+        if (Build.VERSION.SDK_INT < 31) {
             return;
         }
 

@@ -34,7 +34,6 @@ import androidx.appsearch.debugview.view.AppSearchDebugActivity;
 import androidx.appsearch.exceptions.AppSearchException;
 import androidx.appsearch.localstorage.LocalStorage;
 import androidx.appsearch.platformstorage.PlatformStorage;
-import androidx.core.os.BuildCompat;
 import androidx.core.util.Preconditions;
 
 import com.google.common.util.concurrent.Futures;
@@ -103,7 +102,7 @@ public class DebugAppSearchManager implements Closeable {
                                 unused -> debugAppSearchManager, executor);
                 break;
             case AppSearchDebugActivity.STORAGE_TYPE_PLATFORM:
-                if (BuildCompat.isAtLeastS()) {
+                if (Build.VERSION.SDK_INT >= 31) {
                     debugAppSearchManagerListenableFuture =
                             Futures.transform(
                                     debugAppSearchManager.initializePlatformStorage(databaseName),
