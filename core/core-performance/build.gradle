@@ -31,7 +31,7 @@ dependencies {
     testImplementation(libs.kotlinStdlib)
     testImplementation(libs.junit)
     testImplementation(libs.truth)
-    testImplementation("org.robolectric:robolectric:4.7") // TODO(b/206673076): use libs.robolectric
+    testImplementation(libs.robolectric)
 }
 
 androidx {
