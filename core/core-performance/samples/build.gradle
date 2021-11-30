@@ -31,7 +31,7 @@ dependencies {
 }
 
 androidx {
-    name = "Core Performance Samples"
+    name = "cSamples"
     type = LibraryType.SAMPLES
     mavenVersion = LibraryVersions.CORE_PERFORMANCE
     mavenGroup = LibraryGroups.CORE
