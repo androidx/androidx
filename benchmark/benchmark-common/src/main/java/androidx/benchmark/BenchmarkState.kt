@@ -26,7 +26,6 @@ import androidx.benchmark.Errors.PREFIX
 import androidx.benchmark.InstrumentationResults.ideSummaryLineWrapped
 import androidx.benchmark.InstrumentationResults.instrumentationReport
 import androidx.benchmark.InstrumentationResults.reportBundle
-import androidx.tracing.Trace
 import java.util.concurrent.TimeUnit
 
 /**
@@ -230,14 +229,14 @@ public class BenchmarkState {
                 // Note, we don't use System.gc() because it doesn't always have consistent behavior
                 Runtime.getRuntime().gc()
                 iterationsPerRepeat = 1
-                Trace.beginSection("Warmup")
+                UserspaceTracing.beginSection("Warmup")
             }
             RUNNING_TIME_STAGE -> {
                 profiler?.start(traceUniqueName)
-                Trace.beginSection("Benchmark Time")
+                UserspaceTracing.beginSection("Benchmark Time")
             }
             RUNNING_ALLOCATION_STAGE -> {
-                Trace.beginSection("Benchmark Allocations")
+                UserspaceTracing.beginSection("Benchmark Allocations")
             }
         }
         iterationsRemaining = iterationsPerRepeat
@@ -265,7 +264,7 @@ public class BenchmarkState {
             repeatCount = 0
             return false
         }
-        Trace.endSection() // paired with start in beginRunningStage()
+        UserspaceTracing.endSection() // paired with start in beginRunningStage()
         when (state) {
             RUNNING_WARMUP_STAGE -> {
                 warmupRepeats = repeatCount
@@ -484,19 +483,32 @@ public class BenchmarkState {
      * @param key Run identifier, prepended to bundle properties.
      * @param reportMetrics True if stats should be included in the output bundle.
      */
-    internal fun getFullStatusReport(key: String, reportMetrics: Boolean): Bundle {
+    internal fun getFullStatusReport(
+        key: String,
+        reportMetrics: Boolean,
+        tracePath: String?
+    ): Bundle {
         Log.i(TAG, key + metricResults.map { it.getSummary() } + "count=$iterationsPerRepeat")
         val status = Bundle()
         if (reportMetrics) {
             // these 'legacy' CI output metrics are considered output
             metricResults.forEach { it.putInBundle(status, PREFIX) }
         }
+        val nanos = getMinTimeNanos()
+        val allocations = metricResults.firstOrNull { it.name == "allocationCount" }?.median
         InstrumentationResultScope(status).ideSummaryRecord(
             summaryV1 = ideSummaryLineWrapped(
-                key,
-                getMinTimeNanos(),
-                metricResults.firstOrNull { it.name == "allocationCount" }?.median
-            )
+                key = key,
+                nanos = nanos,
+                allocations = allocations,
+                traceRelPath = null
+            ),
+            summaryV2 = ideSummaryLineWrapped(
+                key = key,
+                nanos = nanos,
+                allocations = allocations,
+                traceRelPath = tracePath?.let { Outputs.relativePathFor(it) }
+            ),
         )
         return status
     }
@@ -520,7 +532,8 @@ public class BenchmarkState {
     public fun report(
         fullClassName: String,
         simpleClassName: String,
-        methodName: String
+        methodName: String,
+        tracePath: String?
     ) {
         if (state == NOT_STARTED) {
             return; // nothing to report, BenchmarkState wasn't used
@@ -530,7 +543,8 @@ public class BenchmarkState {
         val fullTestName = "$PREFIX$simpleClassName.$methodName"
         val bundle = getFullStatusReport(
             key = fullTestName,
-            reportMetrics = !Arguments.dryRunMode
+            reportMetrics = !Arguments.dryRunMode,
+            tracePath = tracePath
         )
         reportBundle(bundle)
         ResultWriter.appendReport(
@@ -638,7 +652,8 @@ public class BenchmarkState {
                     summaryV1 = ideSummaryLineWrapped(
                         key = fullTestName,
                         nanos = report.getMetricResult("timeNs").min,
-                        allocations = null
+                        allocations = null,
+                        traceRelPath = null
                     )
                 )
             }
