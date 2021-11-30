@@ -58,13 +58,9 @@ import java.time.Instant
  * can be set via set methods.
  *
  * ```
- * public void onCreate(SurfaceHolder holder) {
- * ...
- * ComplicationDrawable complicationDrawable = new ComplicationDrawable(WatchFaceService.this);
- * complicationDrawable.setBackgroundColorActive(backgroundColor);
- * complicationDrawable.setTextColorActive(textColor);
- * ...
- * }
+ * val complicationDrawable = ComplicationDrawable(context)
+ * complicationDrawable.activeStyle.backgroundColor = backgroundColor
+ * complicationDrawable.activeStyle.textColor = textColor
  * ```
  *
  * <h3>Constructing a ComplicationDrawable from XML</h3>
