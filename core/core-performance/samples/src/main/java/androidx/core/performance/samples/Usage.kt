@@ -19,11 +19,11 @@ package androidx.core.performance.samples
 import android.content.Context
 import android.os.Build
 import androidx.annotation.Sampled
-import androidx.core.performance.PerformanceClass
+import androidx.core.performance.DevicePerformance
 
 @Sampled
 fun usage(context: Context) {
-    val pc = PerformanceClass.create(context)
+    val pc = DevicePerformance.create(context)
     if (pc.mediaPerformanceClass >= Build.VERSION_CODES.S) {
         // Use expensive UI
     } else {

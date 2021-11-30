@@ -22,7 +22,7 @@ import android.os.Build
 /**
  * Reports the media performance class of the device.
  */
-interface PerformanceClass {
+interface DevicePerformance {
 
     /**
      * The media performance class of the device or 0 if none.
@@ -45,17 +45,18 @@ interface PerformanceClass {
          * Create PerformanceClass from the context.
          * @param context The ApplicationContext.
          */
+        @JvmStatic
         fun create(
             // Other implementations will require a context
             @Suppress("UNUSED_PARAMETER") context: Context
-        ): PerformanceClass = DefaultPerformanceClassImpl()
+        ): DevicePerformance = DefaultDevicePerformanceImpl()
     }
 }
 
 /**
  * Reports the media performance class of the device.
  */
-private class DefaultPerformanceClassImpl : PerformanceClass {
+private class DefaultDevicePerformanceImpl : DevicePerformance {
 
     override val mediaPerformanceClass: Int = calculateMediaPerformanceClass()
 
