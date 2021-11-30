@@ -21,6 +21,11 @@ import android.os.Build
 
 /**
  * Reports the media performance class of the device.
+ *
+ * Create an instance of DevicePerformance in your [android.app.Application.onCreate] and use
+ * the [mediaPerformanceClass] value any time it is needed.
+ * @sample androidx.core.performance.samples.usage
+ *
  */
 interface DevicePerformance {
 
@@ -38,13 +43,15 @@ interface DevicePerformance {
      * Defaults to
      * [VERSION.MEDIA_PERFORMANCE_CLASS][android.os.Build.VERSION.MEDIA_PERFORMANCE_CLASS]
      *
-     * @sample androidx.core.performance.samples.usage
      */
     val mediaPerformanceClass: Int
 
     companion object {
         /**
          * Create PerformanceClass from the context.
+         *
+         * This should be done in [android.app.Application.onCreate].
+         *
          * @param context The ApplicationContext.
          */
         @JvmStatic

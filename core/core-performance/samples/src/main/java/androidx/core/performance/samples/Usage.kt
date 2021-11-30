@@ -16,17 +16,34 @@
 
 package androidx.core.performance.samples
 
-import android.content.Context
+import android.app.Application
 import android.os.Build
 import androidx.annotation.Sampled
 import androidx.core.performance.DevicePerformance
 
 @Sampled
-fun usage(context: Context) {
-    val pc = DevicePerformance.create(context)
-    if (pc.mediaPerformanceClass >= Build.VERSION_CODES.S) {
-        // Use expensive UI
-    } else {
-        // Use low resource UI
+fun usage() {
+
+    class MyApplication : Application() {
+
+        private lateinit var devicePerformance: DevicePerformance
+
+        override fun onCreate() {
+            devicePerformance = DevicePerformance.create(applicationContext)
+        }
+
+        fun doSomeThing() {
+            when {
+                devicePerformance.mediaPerformanceClass >= Build.VERSION_CODES.S -> {
+                    // Provide the most premium experience for highest performing devices
+                }
+                devicePerformance.mediaPerformanceClass == Build.VERSION_CODES.R -> {
+                    // Provide a high quality experience
+                }
+                else -> {
+                    // Remove extras to keep experience functional
+                }
+            }
+        }
     }
 }
