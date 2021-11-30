@@ -52,6 +52,7 @@ import androidx.glance.action.actionParametersOf
 import androidx.glance.action.clickable
 import androidx.glance.action.toParametersKey
 import androidx.glance.appwidget.action.ActionCallback
+import androidx.glance.appwidget.action.ToggleableStateKey
 import androidx.glance.appwidget.action.actionRunCallback
 import androidx.glance.appwidget.state.getAppWidgetState
 import androidx.glance.appwidget.state.updateAppWidgetState
@@ -657,7 +658,7 @@ class GlanceAppWidgetReceiverTest {
             checkNotNull(root.findChild<TextView> { it.text == "text1" }).performClick()
             checkNotNull(root.findChild<TextView> { it.text == "text2" }).performClick()
         }
-        CallbackTest.latch.await(5, TimeUnit.SECONDS)
+        assertThat(CallbackTest.latch.await(5, TimeUnit.SECONDS)).isTrue()
         assertThat(CallbackTest.received.get()).containsExactly(1, 2)
     }
 
@@ -697,6 +698,46 @@ class GlanceAppWidgetReceiverTest {
         }
     }
 
+    @Test
+    fun compoundButtonAction() {
+        val checkbox = "checkbox"
+        val switch = "switch"
+
+        TestGlanceAppWidget.uiDefinition = {
+            Column {
+                CheckBox(
+                    checked = false,
+                    onCheckedChange = actionRunCallback<CompoundButtonActionTest>(
+                        actionParametersOf(CompoundButtonActionTest.key to checkbox)
+                    ),
+                    text = checkbox
+                )
+                Switch(
+                    checked = true,
+                    onCheckedChange = actionRunCallback<CompoundButtonActionTest>(
+                        actionParametersOf(CompoundButtonActionTest.key to switch)
+                    ),
+                    text = switch
+                )
+            }
+        }
+
+        mHostRule.startHost()
+
+        CompoundButtonActionTest.received.set(emptyList())
+        CompoundButtonActionTest.latch = CountDownLatch(2)
+        mHostRule.onHostView { root ->
+            checkNotNull(root.findChild<TextView> { it.text == checkbox })
+                .performCompoundButtonClick()
+            checkNotNull(root.findChild<TextView> { it.text == switch })
+                .performCompoundButtonClick()
+        }
+        CompoundButtonActionTest.latch.await(5, TimeUnit.SECONDS)
+        assertThat(CompoundButtonActionTest.received.get()).containsExactly(
+            checkbox to true, switch to false
+        )
+    }
+
     // Check there is a single span of the given type and that it passes the [check].
     private inline
     fun <reified T> SpannedString.checkHasSingleTypedSpan(check: (T) -> Unit) {
@@ -728,13 +769,8 @@ internal class CallbackTest : ActionCallback {
         parameters: ActionParameters
     ) {
         val value = checkNotNull(parameters[key])
-        repeat(100) {
-            if (received.get().let { received.compareAndSet(it, it + value) }) {
-                latch.countDown()
-                return
-            }
-        }
-        error("Could not set the new list")
+        received.update { it + value }
+        latch.countDown()
     }
 
     companion object {
@@ -763,5 +799,24 @@ private fun BoxRowBox(modifier: GlanceModifier, text: String) {
                 Text(text)
             }
         }
+    }
+}
+
+internal class CompoundButtonActionTest : ActionCallback {
+    override suspend fun onRun(
+        context: Context,
+        glanceId: GlanceId,
+        parameters: ActionParameters
+    ) {
+        val target = checkNotNull(parameters[key])
+        val value = checkNotNull(parameters[ToggleableStateKey])
+        received.update { it + (target to value) }
+        latch.countDown()
+    }
+
+    companion object {
+        lateinit var latch: CountDownLatch
+        val received = AtomicReference<List<Pair<String, Boolean>>>(emptyList())
+        val key = ActionParameters.Key<String>("eventTarget")
     }
 }
