@@ -29,6 +29,7 @@ import android.graphics.Rect
 import android.graphics.RectF
 import android.graphics.SurfaceTexture
 import android.os.Handler
+import android.os.IBinder
 import android.os.Looper
 import android.view.Surface
 import android.view.SurfaceHolder
@@ -65,10 +66,12 @@ import androidx.wear.watchface.WatchState
 import androidx.wear.watchface.client.DeviceConfig
 import androidx.wear.watchface.client.HeadlessWatchFaceClient
 import androidx.wear.watchface.client.InteractiveWatchFaceClient
+import androidx.wear.watchface.client.InteractiveWatchFaceClientImpl
 import androidx.wear.watchface.client.WatchFaceControlClient
 import androidx.wear.watchface.client.WatchUiState
 import androidx.wear.watchface.complications.data.ComplicationData
 import androidx.wear.watchface.complications.data.NoDataComplicationData
+import androidx.wear.watchface.control.IInteractiveWatchFace
 import androidx.wear.watchface.control.WatchFaceControlService
 import androidx.wear.watchface.samples.BLUE_STYLE
 import androidx.wear.watchface.samples.COLOR_STYLE_SETTING
@@ -106,6 +109,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
 import org.mockito.Mockito
+import org.mockito.Mockito.`when`
 import org.mockito.MockitoAnnotations
 import java.time.Instant
 import java.time.ZoneId
@@ -130,6 +134,12 @@ class WatchFaceControlClientTest {
             }
         )
     }
+
+    @Mock
+    private lateinit var mockBinder: IBinder
+
+    @Mock
+    private lateinit var iInteractiveWatchFace: IInteractiveWatchFace
 
     @Mock
     private lateinit var surfaceHolder: SurfaceHolder
@@ -1427,6 +1437,22 @@ class WatchFaceControlClientTest {
         ).isNotNull()
 
         interactiveInstance.close()
+    }
+
+    @Test
+    fun supportsPendingIntentForTouchEvent_oldApi() {
+        `when`(iInteractiveWatchFace.apiVersion).thenReturn(2)
+        `when`(iInteractiveWatchFace.asBinder()).thenReturn(mockBinder)
+        val client = InteractiveWatchFaceClientImpl(iInteractiveWatchFace)
+        assertFalse(client.supportsPendingIntentForTouchEvent())
+    }
+
+    @Test
+    fun supportsPendingIntentForTouchEvent_currentApi() {
+        `when`(iInteractiveWatchFace.apiVersion).thenReturn(IInteractiveWatchFace.API_VERSION)
+        `when`(iInteractiveWatchFace.asBinder()).thenReturn(mockBinder)
+        val client = InteractiveWatchFaceClientImpl(iInteractiveWatchFace)
+        assertTrue(client.supportsPendingIntentForTouchEvent())
     }
 }
 

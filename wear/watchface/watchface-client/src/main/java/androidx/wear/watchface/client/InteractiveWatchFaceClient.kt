@@ -183,7 +183,8 @@ public interface InteractiveWatchFaceClient : AutoCloseable {
      *
      * Note older watch faces don't support this method and will always return `null`. In this case
      * the watch face will have attempted to send any intent and no further action is needed by the
-     * caller.
+     * caller. You can use [supportsPendingIntentForTouchEvent] to determine if the watch face
+     * supports getPendingIntentForTouchEvent.
      *
      * @param xPosition The x-coordinate of the tap in pixels
      * @param yPosition The y-coordinate of the tap in pixels
@@ -196,6 +197,9 @@ public interface InteractiveWatchFaceClient : AutoCloseable {
         @Px yPosition: Int,
         @TapType tapType: Int
     ): PendingIntent? = null
+
+    /** Whether or not the watch face supports [getPendingIntentForTouchEvent]. */
+    public fun supportsPendingIntentForTouchEvent(): Boolean = false
 
     /**
      * Returns the [ContentDescriptionLabel]s describing the watch face, for the use by screen
@@ -401,6 +405,9 @@ internal class InteractiveWatchFaceClientImpl internal constructor(
             null
         }
     }
+
+    override fun supportsPendingIntentForTouchEvent(): Boolean =
+        iInteractiveWatchFace.apiVersion >= 3
 
     override val contentDescriptionLabels: List<ContentDescriptionLabel>
         get() = iInteractiveWatchFace.contentDescriptionLabels.map {
