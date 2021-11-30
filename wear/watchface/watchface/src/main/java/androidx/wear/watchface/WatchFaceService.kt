@@ -194,6 +194,15 @@ internal const val SURFACE_DRAW_TIMEOUT_MS = 100L
  *
  * Multiple watch faces can be defined in the same package, requiring multiple <service> tags.
  *
+ * By default the system will only allow the user to create a single instance of the watch face. You
+ * can choose to allow the user to create multiple instances (each with their own styling and a
+ * distinct [WatchState.watchFaceInstanceId]) by adding this meta-data to your watch face's
+ * manifest:
+ *
+ *    <meta-data
+ *      android:name="androidx.wear.watchface.MULTIPLE_INSTANCES_ALLOWED"
+ *      android:value="true" />
+ *
  *
  * A watch face can declare the [UserStyleSchema] and the [ComplicationSlot]s in XML. The main
  * advantage is simplicity for the developer, however meta data queries (see
