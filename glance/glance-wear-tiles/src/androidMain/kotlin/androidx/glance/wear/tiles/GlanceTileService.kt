@@ -18,7 +18,6 @@ package androidx.glance.wear.tiles
 
 import android.content.Intent
 import android.os.IBinder
-import androidx.annotation.VisibleForTesting
 import androidx.compose.runtime.BroadcastFrameClock
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Composition
@@ -37,12 +36,14 @@ import androidx.wear.tiles.ResourceBuilders
 import androidx.wear.tiles.TileBuilders
 import androidx.wear.tiles.TileService
 import androidx.wear.tiles.TimelineBuilders
+import com.google.common.util.concurrent.Futures
 import com.google.common.util.concurrent.ListenableFuture
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.guava.future
 import kotlinx.coroutines.launch
+import java.util.Arrays
 
 /**
  * [TileService] which can consume a Glance composition, convert it to a Wear Tile, and
@@ -76,6 +77,8 @@ public abstract class GlanceTileService : TileService() {
             lifecycleOwner.lifecycleScope.coroutineContext + BroadcastFrameClock()
         )
 
+    private var resources: ResourceBuilders.Resources? = null
+
     override fun onCreate() {
         lifecycleDispatcher.onServicePreSuperOnCreate()
         super.onCreate()
@@ -88,6 +91,7 @@ public abstract class GlanceTileService : TileService() {
 
     override fun onDestroy() {
         lifecycleDispatcher.onServicePreSuperOnDestroy()
+        resources = null
         super.onDestroy()
     }
 
@@ -97,6 +101,10 @@ public abstract class GlanceTileService : TileService() {
         super.onStart(intent, startId)
     }
 
+    /**
+     * Run the composition on the given time interval
+     * When the timeline mode is singleEntry, pass in null argument
+     */
     private suspend fun runComposition(
         timeInterval: TimeInterval? = null
     ): CompositionResult =
@@ -122,6 +130,80 @@ public abstract class GlanceTileService : TileService() {
             translateTopLevelComposition(this@GlanceTileService, root)
         }
 
+    internal class GlanceTile(
+        val tile: TileBuilders.Tile?,
+        val resources: ResourceBuilders.Resources?
+    )
+
+    /**
+     * Run the composition to build the resources, and, if required, tile as well
+     */
+    private suspend fun runComposition(resourcesOnly: Boolean): GlanceTile = coroutineScope {
+        val timelineBuilders = if (resourcesOnly) null else TimelineBuilders.Timeline.Builder()
+        var resourcesBuilder: ResourceBuilders.Resources.Builder
+
+        if (timelineMode === TimelineMode.SingleEntry) {
+            val content = runComposition()
+
+            timelineBuilders?.let {
+                timelineBuilders.addTimelineEntry(
+                    TimelineBuilders.TimelineEntry.Builder()
+                        .setLayout(
+                            LayoutElementBuilders.Layout.Builder()
+                                .setRoot(content.layout)
+                                .build()
+                        ).build()
+                )
+            }
+
+            resourcesBuilder = content.resources
+        } else { // timelineMode is TimelineMode.TimeBoundEntries
+            val timeIntervals = (timelineMode as TimelineMode.TimeBoundEntries).timeIntervals
+            resourcesBuilder = ResourceBuilders.Resources.Builder()
+
+            timeIntervals.forEach { interval ->
+                val content = runComposition(interval)
+                timelineBuilders?.let {
+                    timelineBuilders
+                        .addTimelineEntry(
+                            TimelineBuilders.TimelineEntry.Builder()
+                                .setValidity(
+                                    TimelineBuilders.TimeInterval.Builder()
+                                        .setStartMillis(interval.start.toEpochMilli())
+                                        .setEndMillis(interval.end.toEpochMilli())
+                                        .build()
+                                )
+                                .setLayout(
+                                    LayoutElementBuilders.Layout.Builder()
+                                        .setRoot(content.layout)
+                                        .build()
+                                ).build()
+                        )
+                }
+
+                content.resources.build().idToImageMapping.forEach { res ->
+                    resourcesBuilder.addIdToImageMapping(res.key, res.value)
+                }
+            }
+        }
+
+        val resourcesVersion =
+            Arrays.hashCode(
+                resourcesBuilder.build().idToImageMapping.keys.toTypedArray()
+            ).toString()
+        resources = resourcesBuilder.setVersion(resourcesVersion).build()
+
+        var tile: TileBuilders.Tile? = null
+        timelineBuilders?.let {
+            tile = TileBuilders.Tile.Builder()
+                .setResourcesVersion(resourcesVersion)
+                .setTimeline(timelineBuilders.build())
+                .build()
+        }
+
+        GlanceTile(tile, resources)
+    }
+
     /**
      * Defines the handling of timeline
      */
@@ -140,46 +222,7 @@ public abstract class GlanceTileService : TileService() {
     final override fun onTileRequest(
         requestParams: RequestBuilders.TileRequest
     ): ListenableFuture<TileBuilders.Tile> = coroutineScope.future {
-        val timelineBuilders = TimelineBuilders.Timeline.Builder()
-        if (timelineMode === TimelineMode.SingleEntry) {
-            val content = runComposition().layout
-
-            timelineBuilders
-                .addTimelineEntry(
-                    TimelineBuilders.TimelineEntry.Builder()
-                        .setLayout(
-                            LayoutElementBuilders.Layout.Builder()
-                                .setRoot(content)
-                                .build()
-                        ).build()
-                )
-        } else { // timelineMode is TimelineMode.TimeBoundEntries
-            val timeIntervals = (timelineMode as TimelineMode.TimeBoundEntries).timeIntervals
-            timeIntervals.forEach {
-                val result = runComposition(it).layout
-
-                timelineBuilders
-                    .addTimelineEntry(
-                        TimelineBuilders.TimelineEntry.Builder()
-                            .setValidity(
-                                TimelineBuilders.TimeInterval.Builder()
-                                    .setStartMillis(it.start.toEpochMilli())
-                                    .setEndMillis(it.end.toEpochMilli())
-                                    .build()
-                            )
-                            .setLayout(
-                                LayoutElementBuilders.Layout.Builder()
-                                    .setRoot(result)
-                                    .build()
-                            ).build()
-                    )
-            }
-        }
-
-        TileBuilders.Tile.Builder()
-            .setResourcesVersion(ResourcesVersion)
-            .setTimeline(timelineBuilders.build())
-            .build()
+        runComposition(false).tile!!
     }
 
     /**
@@ -190,28 +233,21 @@ public abstract class GlanceTileService : TileService() {
      */
     final override fun onResourcesRequest(
         requestParams: RequestBuilders.ResourcesRequest
-    ): ListenableFuture<ResourceBuilders.Resources> = coroutineScope.future {
-        var resourceBuilder: ResourceBuilders.Resources.Builder
-        if (timelineMode === TimelineMode.SingleEntry) {
-            resourceBuilder = runComposition().resources
-        } else {
-            timelineMode is TimelineMode.TimeBoundEntries
-            resourceBuilder = ResourceBuilders.Resources.Builder()
-            val timeIntervals = (timelineMode as TimelineMode.TimeBoundEntries).timeIntervals
-            timeIntervals.forEach {
-                val result = runComposition(it).resources
-                result.build().idToImageMapping.forEach { res ->
-                    resourceBuilder.addIdToImageMapping(res.key, res.value)
-                }
+    ): ListenableFuture<ResourceBuilders.Resources> {
+        resources?.let {
+            if (requestParams.version !== resources!!.version) {
+                Futures.immediateFailedFuture<ResourceBuilders.Resources>(
+                    IllegalArgumentException(
+                        "resource version is not matched " +
+                            "between the request and the resources composed during onTileRequest"
+                    )
+                )
             }
-        }
-        resourceBuilder.setVersion(ResourcesVersion).build()
-    }
 
-    @VisibleForTesting
-    internal companion object {
-        // We're not dealing with resources for now; don't bother with resource versioning for a bit
-        @VisibleForTesting
-        internal const val ResourcesVersion = "1"
+            return Futures.immediateFuture(resources)
+        }
+        return coroutineScope.future {
+            runComposition(true).resources!!
+        }
     }
 }
