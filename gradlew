@@ -356,9 +356,10 @@ function runGradle() {
     wrapper=""
   fi
 
+  RETURN_VALUE=0
   PROJECT_CACHE_DIR_ARGUMENT="--project-cache-dir $OUT_DIR/gradle-project-cache"
   if $wrapper "$JAVACMD" "${JVM_OPTS[@]}" $TMPDIR_ARG -classpath "$CLASSPATH" org.gradle.wrapper.GradleWrapperMain $HOME_SYSTEM_PROPERTY_ARGUMENT $TMPDIR_ARG $PROJECT_CACHE_DIR_ARGUMENT "$ORG_GRADLE_JVMARGS" "$@"; then
-    return 0
+    RETURN_VALUE=0
   else
     # Print AndroidX-specific help message if build fails
     # Have to do this build-failure detection in gradlew rather than in build.gradle
@@ -366,8 +367,24 @@ function runGradle() {
     echo
     echo For help with unexpected failures, see development/diagnose-build-failure/README.md
     echo
-    return 1
+    RETURN_VALUE=1
   fi
+
+  # If the caller specified where to save data, then also save the build scan data
+  if [ "$DIST_DIR" != "" ]; then
+    if [ "$GRADLE_USER_HOME" != "" ]; then
+      if [[ " ${@} " =~ " -PdisallowExecution " ]]; then
+        zipPath="$DIST_DIR/scan-up-to-date.zip"
+      else
+        zipPath="$DIST_DIR/scan.zip"
+      fi
+      rm -f "$zipPath"
+      cd "$GRADLE_USER_HOME/build-scan-data"
+      zip -q -r "$zipPath" .
+      cd -
+    fi
+  fi
+  return $RETURN_VALUE
 }
 
 if [[ " ${@} " =~ " -PdisallowExecution " ]]; then
