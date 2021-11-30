@@ -131,12 +131,10 @@ abstract class SdkResourceGenerator : DefaultTask() {
                         it.url.toString()
                     }
             }
-            project.tasks.named("compileTestJava").configure { it.dependsOn(provider) }
-            project.tasks.named("processTestResources").configure { it.dependsOn(provider) }
 
             val extension = project.extensions.getByType<JavaPluginExtension>()
-            val resources = extension.sourceSets.getByName("test").resources
-            resources.srcDirs(setOf(resources.srcDirs, generatedDirectory))
+            val testSources = extension.sourceSets.getByName("test")
+            testSources.getOutput().dir(mapOf("builtBy" to provider), generatedDirectory)
         }
     }
 }
