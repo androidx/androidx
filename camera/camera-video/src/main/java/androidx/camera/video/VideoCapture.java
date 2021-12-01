@@ -436,11 +436,13 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
             @Override
             public void onCaptureCompleted(@NonNull CameraCaptureResult cameraCaptureResult) {
                 super.onCaptureCompleted(cameraCaptureResult);
-                Object tag = cameraCaptureResult.getTagBundle().getTag(SURFACE_UPDATE_KEY);
                 synchronized (mLock) {
-                    if (tag != null && (int) tag == mSurfaceUpdateCompleter.hashCode()) {
-                        mSurfaceUpdateCompleter.set(null);
-                        mSurfaceUpdateCompleter = null;
+                    if (mSurfaceUpdateCompleter != null) {
+                        Object tag = cameraCaptureResult.getTagBundle().getTag(SURFACE_UPDATE_KEY);
+                        if (tag != null && (int) tag == mSurfaceUpdateCompleter.hashCode()) {
+                            mSurfaceUpdateCompleter.set(null);
+                            mSurfaceUpdateCompleter = null;
+                        }
                     }
                 }
             }
