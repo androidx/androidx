@@ -33,6 +33,7 @@ android {
         consumerProguardFiles "proguard-rules.pro"
     }
     defaultConfig {
+        multiDexEnabled = true
         javaCompileOptions {
             annotationProcessorOptions {
                 arguments = [
@@ -62,7 +63,8 @@ dependencies {
     implementation("androidx.core:core:1.1.0")
     implementation("androidx.lifecycle:lifecycle-service:2.1.0")
     api(libs.kotlinStdlib)
-    androidTestImplementation(libs.kotlinStdlib)
+    androidTestImplementation(libs.multidex)
+    androidTestImplementation(libs.truth)
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)
     androidTestImplementation("androidx.arch.core:core-testing:2.1.0")

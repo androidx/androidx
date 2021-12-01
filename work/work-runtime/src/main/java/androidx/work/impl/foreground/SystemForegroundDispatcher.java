@@ -239,7 +239,7 @@ public class SystemForegroundDispatcher implements WorkConstraintsCallback, Exec
         Logger.get().info(TAG, "Started foreground service " + intent);
         final String workSpecId = intent.getStringExtra(KEY_WORKSPEC_ID);
         final WorkDatabase database = mWorkManagerImpl.getWorkDatabase();
-        mTaskExecutor.executeOnBackgroundThread(new Runnable() {
+        mTaskExecutor.executeOnTaskThread(new Runnable() {
             @Override
             public void run() {
                 WorkSpec workSpec = database.workSpecDao().getWorkSpec(workSpecId);

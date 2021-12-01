@@ -79,16 +79,24 @@ public class WorkForegroundRunnable implements Runnable {
         }
 
         final SettableFuture<ForegroundInfo> foregroundFuture = SettableFuture.create();
-        mTaskExecutor.getMainThreadExecutor().execute(new Runnable() {
-            @Override
-            public void run() {
+        mTaskExecutor.getMainThreadExecutor().execute(() -> {
+            // don't even try calling getForegroundInfoAsync if we are already cancelled
+            // TODO: cancellation should be propagated to LF returned by getForegroundInfoAsync()
+            if (!mFuture.isCancelled()) {
                 foregroundFuture.setFuture(mWorker.getForegroundInfoAsync());
+            } else {
+                foregroundFuture.cancel(true);
             }
         });
 
         foregroundFuture.addListener(new Runnable() {
             @Override
             public void run() {
+                // don't do anything if we've already cancelled
+                // TODO: cancellation should be propagated to setForegroundAsync
+                if (mFuture.isCancelled()) {
+                    return;
+                }
                 try {
                     ForegroundInfo foregroundInfo = foregroundFuture.get();
                     if (foregroundInfo == null) {

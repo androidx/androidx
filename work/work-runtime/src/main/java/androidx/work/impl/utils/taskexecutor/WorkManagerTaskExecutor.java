@@ -60,13 +60,8 @@ public class WorkManagerTaskExecutor implements TaskExecutor {
     }
 
     @Override
-    public void executeOnBackgroundThread(Runnable runnable) {
-        mBackgroundExecutor.execute(runnable);
-    }
-
-    @Override
     @NonNull
-    public SerialExecutor getBackgroundExecutor() {
+    public SerialExecutor getSerialTaskExecutor() {
         return mBackgroundExecutor;
     }
 }

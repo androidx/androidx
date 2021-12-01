@@ -76,12 +76,7 @@ class TestWorkManagerImpl extends WorkManagerImpl implements TestDriver {
                     }
 
                     @Override
-                    public void executeOnBackgroundThread(Runnable runnable) {
-                        mSerialExecutor.execute(runnable);
-                    }
-
-                    @Override
-                    public SerialExecutor getBackgroundExecutor() {
+                    public SerialExecutor getSerialTaskExecutor() {
                         return mSerialExecutor;
                     }
                 },

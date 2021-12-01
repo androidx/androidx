@@ -117,7 +117,7 @@ public class ListenableWorkerImpl extends IListenableWorkerImpl.Stub {
                         }
                     }
                 }
-            }, mTaskExecutor.getBackgroundExecutor());
+            }, mTaskExecutor.getSerialTaskExecutor());
         } catch (Throwable throwable) {
             reportFailure(callback, throwable);
         }
@@ -138,7 +138,7 @@ public class ListenableWorkerImpl extends IListenableWorkerImpl.Stub {
                 future = mFutureMap.remove(id);
             }
             if (future != null) {
-                mWorkManager.getWorkTaskExecutor().getBackgroundExecutor()
+                mWorkManager.getWorkTaskExecutor().getSerialTaskExecutor()
                         .execute(new Runnable() {
                             @Override
                             public void run() {
