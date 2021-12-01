@@ -88,7 +88,7 @@ public final class WorkQuery {
     }
 
     /**
-     * Creates a query for {@link WorkRequest}s the given ids.
+     * Creates a query for {@link WorkRequest}s with the given ids.
      *
      * @param ids list of ids of {@link WorkRequest}s
      * @return a requested WorkQuery
@@ -99,9 +99,9 @@ public final class WorkQuery {
     }
 
     /**
-     * Creates a query for {@link WorkRequest}s the given ids.
+     * Creates a query for {@link WorkRequest}s with the given ids.
      *
-     * @param id  an id of {@link WorkRequest}s
+     * @param id an id of {@link WorkRequest}s
      * @return a requested WorkQuery
      */
     @NonNull
@@ -112,7 +112,7 @@ public final class WorkQuery {
     }
 
     /**
-     * Creates a query for {@link WorkRequest}s the given ids.
+     * Creates a query for {@link WorkRequest}s with the given ids.
      *
      * @param ids ids of {@link WorkRequest}s
      * @return a requested WorkQuery
@@ -120,6 +120,111 @@ public final class WorkQuery {
     @NonNull
     public static WorkQuery fromIds(@NonNull UUID... ids) {
         return fromIds(Arrays.asList(ids));
+    }
+
+    /**
+     * Creates a query for {@link WorkRequest}s with the given tags.
+     *
+     * @param tags tags of {@link WorkRequest}s
+     * @return a requested WorkQuery
+     */
+    @NonNull
+    public static WorkQuery fromTags(@NonNull List<String> tags) {
+        return Builder.fromTags(tags).build();
+    }
+
+    /**
+     * Creates a query for {@link WorkRequest}s with the given tags.
+     *
+     * @param tags tags of {@link WorkRequest}s
+     * @return a requested WorkQuery
+     */
+    @NonNull
+    public static WorkQuery fromTags(@NonNull String... tags) {
+        return fromTags(Arrays.asList(tags));
+    }
+
+    /**
+     * Creates a query for {@link WorkRequest}s with the given tags.
+     *
+     * @param tag tag of {@link WorkRequest}s
+     * @return a requested WorkQuery
+     */
+    @NonNull
+    public static WorkQuery fromTags(@NonNull String tag) {
+        ArrayList<String> list = new ArrayList<>(1);
+        list.add(tag);
+        return fromTags(list);
+    }
+
+    /**
+     * Creates a query for {@link WorkRequest}s with the given unique names.
+     *
+     * @param uniqueWorkName The unique work name
+     * @return a requested WorkQuery
+     */
+    @NonNull
+    public static WorkQuery fromUniqueWorkNames(@NonNull String uniqueWorkName) {
+        ArrayList<String> list = new ArrayList<>(1);
+        list.add(uniqueWorkName);
+        return WorkQuery.Builder.fromUniqueWorkNames(list).build();
+    }
+
+    /**
+     * Creates a query for {@link WorkRequest}s with the given unique names.
+     *
+     * @param uniqueWorkNames unique work names
+     * @return a requested WorkQuery
+     */
+    @NonNull
+    public static WorkQuery fromUniqueWorkNames(@NonNull String... uniqueWorkNames) {
+        return WorkQuery.Builder.fromUniqueWorkNames(Arrays.asList(uniqueWorkNames)).build();
+    }
+
+    /**
+     * Creates a query for {@link WorkRequest}s with the given unique names.
+     *
+     * @param uniqueWorkNames The {@link List} of unique work names
+     * @return a requested WorkQuery
+     */
+    @NonNull
+    public static WorkQuery fromUniqueWorkNames(@NonNull List<String> uniqueWorkNames) {
+        return WorkQuery.Builder.fromUniqueWorkNames(uniqueWorkNames).build();
+    }
+
+    /**
+     * Creates a {@link WorkQuery} for the workers in the given {@link WorkInfo.State} states.
+     *
+     * @param states The {@link List} of {@link WorkInfo.State}
+     * @return a requested WorkQuery
+     */
+    @NonNull
+    public static WorkQuery fromStates(@NonNull List<WorkInfo.State> states) {
+        return WorkQuery.Builder.fromStates(states).build();
+    }
+
+    /**
+     * Creates a {@link WorkQuery} for the workers in the given {@link WorkInfo.State} states.
+     *
+     * @param states states of workers
+     * @return a requested WorkQuery
+     */
+    @NonNull
+    public static WorkQuery fromStates(@NonNull WorkInfo.State... states) {
+        return WorkQuery.Builder.fromStates(Arrays.asList(states)).build();
+    }
+
+    /**
+     * Creates a {@link WorkQuery} for the workers in the given {@link WorkInfo.State} state.
+     *
+     * @param state the state of workers
+     * @return a requested WorkQuery
+     */
+    @NonNull
+    public static WorkQuery fromStates(@NonNull WorkInfo.State state) {
+        ArrayList<WorkInfo.State> list = new ArrayList<>(1);
+        list.add(state);
+        return WorkQuery.fromStates(list);
     }
 
     /**
