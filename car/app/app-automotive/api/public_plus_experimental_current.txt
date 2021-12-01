@@ -35,7 +35,7 @@ package androidx.car.app.activity.renderer.surface {
 
 package androidx.car.app.hardware {
 
-  public final class AutomotiveCarHardwareManager implements androidx.car.app.hardware.CarHardwareManager {
+  @androidx.car.app.annotations.ExperimentalCarApi public final class AutomotiveCarHardwareManager implements androidx.car.app.hardware.CarHardwareManager {
     ctor public AutomotiveCarHardwareManager(android.content.Context);
   }
 

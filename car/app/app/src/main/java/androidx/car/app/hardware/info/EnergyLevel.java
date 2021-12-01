@@ -24,6 +24,7 @@ import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.car.app.annotations.CarProtocol;
+import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.hardware.common.CarUnit;
 import androidx.car.app.hardware.common.CarValue;
@@ -97,6 +98,8 @@ public final class EnergyLevel {
      *
      * <p>See {@link CarUnit} for possible volume values.
      */
+    // TODO(b/202303614): Remove this annotation once FuelVolumeDisplayUnit is ready.
+    @ExperimentalCarApi
     @NonNull
     public CarValue<@CarVolumeUnit Integer> getFuelVolumeDisplayUnit() {
         return requireNonNull(mFuelVolumeDisplayUnit);
@@ -234,6 +237,8 @@ public final class EnergyLevel {
          *
          * @throws NullPointerException if {@code fuelVolumeDisplayUnit} is {@code null}
          */
+        // TODO(b/202303614): Remove this annotation once FuelVolumeDisplayUnit is ready.
+        @ExperimentalCarApi
         @NonNull
         public Builder setFuelVolumeDisplayUnit(@NonNull CarValue<@CarVolumeUnit Integer>
                 fuelVolumeDisplayUnit) {
