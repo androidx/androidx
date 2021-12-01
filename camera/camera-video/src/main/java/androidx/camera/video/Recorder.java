@@ -65,6 +65,7 @@ import androidx.camera.video.internal.ResourceCreationException;
 import androidx.camera.video.internal.compat.Api26Impl;
 import androidx.camera.video.internal.compat.quirk.DeactivateEncoderSurfaceBeforeStopEncoderQuirk;
 import androidx.camera.video.internal.compat.quirk.DeviceQuirks;
+import androidx.camera.video.internal.compat.quirk.EncoderNotUsePersistentInputSurfaceQuirk;
 import androidx.camera.video.internal.config.AudioEncoderConfigCamcorderProfileResolver;
 import androidx.camera.video.internal.config.AudioEncoderConfigDefaultResolver;
 import androidx.camera.video.internal.config.AudioSourceSettingsCamcorderProfileResolver;
@@ -1839,7 +1840,8 @@ public final class Recorder implements VideoOutput {
             @Nullable Throwable errorCause) {
         // Only stop recording if recording is in-progress and it is not already stopping.
         if (mInProgressRecording == recordingToStop && !mInProgressRecordingStopping) {
-            mShouldWaitForNewSurface = Build.VERSION.SDK_INT < Build.VERSION_CODES.M;
+            mShouldWaitForNewSurface = DeviceQuirks.get(
+                    EncoderNotUsePersistentInputSurfaceQuirk.class) != null;
             mInProgressRecordingStopping = true;
             mRecordingStopError = stopError;
             mRecordingStopErrorCause = errorCause;
@@ -2067,7 +2069,8 @@ public final class Recorder implements VideoOutput {
                     // Fall-through
                 case STOPPING:
                     if (mShouldWaitForNewSurface) {
-                        // Reset the internal state to INITIALIZING to wait for a surface update.
+                        // If the encoder doesn't use persistent input surface, reset the internal
+                        // state to INITIALIZING to wait for a surface update.
                         setState(State.INITIALIZING);
                     } else {
                         setState(State.IDLING);
