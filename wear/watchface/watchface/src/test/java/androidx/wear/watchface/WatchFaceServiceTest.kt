@@ -3455,7 +3455,7 @@ public class WatchFaceServiceTest {
     }
 
     @Test
-    public fun setComplicationDataList() {
+    public fun contentDescriptionLabels_contains_ComplicationData() {
         initWallpaperInteractiveWatchFaceInstance(
             WatchFaceType.ANALOG,
             listOf(leftComplication, rightComplication),
@@ -3475,18 +3475,26 @@ public class WatchFaceServiceTest {
         )
 
         val interactiveInstance = InteractiveInstanceManager.getAndRetainInstance("TestID")
+        val leftPendingIntent = PendingIntent.getActivity(context, 0, Intent("Left"),
+            PendingIntent.FLAG_IMMUTABLE
+        )
+        val rightPendingIntent = PendingIntent.getActivity(context, 0, Intent("Left"),
+            PendingIntent.FLAG_IMMUTABLE
+        )
         interactiveInstance!!.updateComplicationData(
             mutableListOf(
                 IdAndComplicationDataWireFormat(
                     LEFT_COMPLICATION_ID,
                     ComplicationData.Builder(ComplicationData.TYPE_SHORT_TEXT)
                         .setShortText(ComplicationText.plainText("LEFT!"))
+                        .setTapAction(leftPendingIntent)
                         .build()
                 ),
                 IdAndComplicationDataWireFormat(
                     RIGHT_COMPLICATION_ID,
                     ComplicationData.Builder(ComplicationData.TYPE_SHORT_TEXT)
                         .setShortText(ComplicationText.plainText("RIGHT!"))
+                        .setTapAction(rightPendingIntent)
                         .build()
                 )
             )
@@ -3499,12 +3507,15 @@ public class WatchFaceServiceTest {
                 0
             )
         ).isEqualTo("LEFT!")
+        assertThat(engineWrapper.contentDescriptionLabels[1].tapAction).isEqualTo(leftPendingIntent)
         assertThat(
             engineWrapper.contentDescriptionLabels[2].text.getTextAt(
                 ApplicationProvider.getApplicationContext<Context>().resources,
                 0
             )
         ).isEqualTo("RIGHT!")
+        assertThat(engineWrapper.contentDescriptionLabels[2].tapAction)
+            .isEqualTo(rightPendingIntent)
     }
 
     @Test
