@@ -317,6 +317,15 @@ package androidx.work {
     method public static androidx.work.WorkQuery fromIds(java.util.List<java.util.UUID!>);
     method public static androidx.work.WorkQuery fromIds(java.util.UUID);
     method public static androidx.work.WorkQuery fromIds(java.util.UUID!...);
+    method public static androidx.work.WorkQuery fromStates(java.util.List<androidx.work.WorkInfo.State!>);
+    method public static androidx.work.WorkQuery fromStates(androidx.work.WorkInfo.State!...);
+    method public static androidx.work.WorkQuery fromStates(androidx.work.WorkInfo.State);
+    method public static androidx.work.WorkQuery fromTags(java.util.List<java.lang.String!>);
+    method public static androidx.work.WorkQuery fromTags(java.lang.String!...);
+    method public static androidx.work.WorkQuery fromTags(String);
+    method public static androidx.work.WorkQuery fromUniqueWorkNames(String);
+    method public static androidx.work.WorkQuery fromUniqueWorkNames(java.lang.String!...);
+    method public static androidx.work.WorkQuery fromUniqueWorkNames(java.util.List<java.lang.String!>);
     method public java.util.List<java.util.UUID!> getIds();
     method public java.util.List<androidx.work.WorkInfo.State!> getStates();
     method public java.util.List<java.lang.String!> getTags();
