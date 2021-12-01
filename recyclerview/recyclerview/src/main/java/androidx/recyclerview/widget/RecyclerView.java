@@ -12874,6 +12874,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
         /**
          * called by CREATOR
          */
+        @SuppressWarnings("deprecation")
         SavedState(Parcel in, ClassLoader loader) {
             super(in, loader);
             mLayoutState = in.readParcelable(

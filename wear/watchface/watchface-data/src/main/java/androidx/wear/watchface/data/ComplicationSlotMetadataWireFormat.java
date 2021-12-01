@@ -253,6 +253,7 @@ public final class ComplicationSlotMetadataWireFormat implements VersionedParcel
 
     public static final Parcelable.Creator<ComplicationSlotMetadataWireFormat> CREATOR =
             new Parcelable.Creator<ComplicationSlotMetadataWireFormat>() {
+                @SuppressWarnings("deprecation")
                 @Override
                 public ComplicationSlotMetadataWireFormat createFromParcel(Parcel source) {
                     return ParcelUtils.fromParcelable(

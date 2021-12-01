@@ -38,6 +38,7 @@ public data class ExerciseGoalRequest(val packageName: String, val exerciseGoal:
         @JvmField
         public val CREATOR: Parcelable.Creator<ExerciseGoalRequest> =
             object : Parcelable.Creator<ExerciseGoalRequest> {
+                @Suppress("deprecation")
                 override fun createFromParcel(source: Parcel): ExerciseGoalRequest? {
                     return ExerciseGoalRequest(
                         source.readString() ?: return null,

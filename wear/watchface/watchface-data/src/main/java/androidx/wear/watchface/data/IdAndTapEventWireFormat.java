@@ -97,6 +97,7 @@ public final class IdAndTapEventWireFormat implements VersionedParcelable, Parce
 
     public static final Parcelable.Creator<IdAndTapEventWireFormat> CREATOR =
             new Parcelable.Creator<IdAndTapEventWireFormat>() {
+                @SuppressWarnings("deprecation")
                 @Override
                 public IdAndTapEventWireFormat createFromParcel(Parcel source) {
                     return ParcelUtils.fromParcelable(
