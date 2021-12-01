@@ -18,6 +18,7 @@ package androidx.wear.compose.navigation
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.collectAsState
@@ -29,6 +30,8 @@ import androidx.compose.runtime.saveable.SaveableStateHolder
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavDestination
@@ -189,10 +192,24 @@ private fun BoxedStackEntryContent(
     modifier: Modifier = Modifier,
 ) {
     if (entry != null) {
-        Box(modifier, propagateMinConstraints = true) {
-            val destination = entry.destination as WearNavigator.Destination
-            entry.LocalOwnersProvider(saveableStateHolder) {
-                destination.content(entry)
+        var lifecycleState by remember {
+            mutableStateOf(entry.lifecycle.currentState)
+        }
+        DisposableEffect(entry.lifecycle) {
+            val observer = LifecycleEventObserver { _, event ->
+                lifecycleState = event.targetState
+            }
+            entry.lifecycle.addObserver(observer)
+            onDispose {
+                entry.lifecycle.removeObserver(observer)
+            }
+        }
+        if (lifecycleState.isAtLeast(Lifecycle.State.CREATED)) {
+            Box(modifier, propagateMinConstraints = true) {
+                val destination = entry.destination as WearNavigator.Destination
+                entry.LocalOwnersProvider(saveableStateHolder) {
+                    destination.content(entry)
+                }
             }
         }
     }
