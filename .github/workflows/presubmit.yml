@@ -20,6 +20,7 @@ jobs:
             -Dorg.gradle.internal.repository.max.retries=20                 \
             -Dorg.gradle.internal.repository.initial.backoff=500            \
             -Dorg.gradle.jvmargs=-XX:MaxMetaspaceSize=512m                  \
+            -Dorg.gradle.jvmargs=-Xmx8g                                     \
             --stacktrace"
           echo "::set-output name=gradlew_flags::$GRADLEW_FLAGS"
       - name: "Compute actions/checkout arguments"
