@@ -67,7 +67,7 @@ public class RemoteWorkManagerClientTest {
         }
 
         val taskExecutor = mock(TaskExecutor::class.java)
-        `when`(taskExecutor.backgroundExecutor).thenReturn(SerialExecutor(mExecutor))
+        `when`(taskExecutor.serialTaskExecutor).thenReturn(SerialExecutor(mExecutor))
         `when`(mWorkManager.workTaskExecutor).thenReturn(taskExecutor)
         mClient = spy(RemoteWorkManagerClient(mContext, mWorkManager))
     }

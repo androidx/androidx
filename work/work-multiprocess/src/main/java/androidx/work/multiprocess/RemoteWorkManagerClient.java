@@ -105,7 +105,7 @@ public class RemoteWorkManagerClient extends RemoteWorkManager {
             long sessionTimeout) {
         mContext = context.getApplicationContext();
         mWorkManager = workManager;
-        mExecutor = mWorkManager.getWorkTaskExecutor().getBackgroundExecutor();
+        mExecutor = mWorkManager.getWorkTaskExecutor().getSerialTaskExecutor();
         mLock = new Object();
         mSession = null;
         mSessionTracker = new SessionTracker(this);

@@ -223,7 +223,7 @@ public class SystemAlarmDispatcher implements ExecutionListener {
                 }
                 mCurrentIntent = null;
             }
-            SerialExecutor serialExecutor = mTaskExecutor.getBackgroundExecutor();
+            SerialExecutor serialExecutor = mTaskExecutor.getSerialTaskExecutor();
             if (!mCommandHandler.hasPendingCommands()
                     && mIntents.isEmpty()
                     && !serialExecutor.hasPendingTasks()) {
@@ -250,7 +250,7 @@ public class SystemAlarmDispatcher implements ExecutionListener {
         try {
             processCommandLock.acquire();
             // Process commands on the background thread.
-            mWorkManager.getWorkTaskExecutor().executeOnBackgroundThread(new Runnable() {
+            mWorkManager.getWorkTaskExecutor().executeOnTaskThread(new Runnable() {
                 @Override
                 public void run() {
                     synchronized (mIntents) {

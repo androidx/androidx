@@ -48,6 +48,7 @@ import androidx.work.impl.model.WorkSpec;
 import androidx.work.impl.model.WorkSpecDao;
 import androidx.work.impl.model.WorkTagDao;
 import androidx.work.impl.utils.PackageManagerHelper;
+import androidx.work.impl.utils.SynchronousExecutor;
 import androidx.work.impl.utils.WorkForegroundRunnable;
 import androidx.work.impl.utils.WorkForegroundUpdater;
 import androidx.work.impl.utils.WorkProgressUpdater;
@@ -104,7 +105,9 @@ public class WorkerWrapper implements Runnable {
     SettableFuture<Boolean> mFuture = SettableFuture.create();
 
     // Package-private for synthetic accessor.
-    @Nullable ListenableFuture<ListenableWorker.Result> mInnerFuture = null;
+    @NonNull
+    final SettableFuture<ListenableWorker.Result> mWorkerResultFuture =
+            SettableFuture.create();
 
     private volatile boolean mInterrupted;
 
@@ -269,7 +272,6 @@ public class WorkerWrapper implements Runnable {
                 return;
             }
 
-            final SettableFuture<ListenableWorker.Result> future = SettableFuture.create();
             final WorkForegroundRunnable foregroundRunnable =
                     new WorkForegroundRunnable(
                             mAppContext,
@@ -281,31 +283,42 @@ public class WorkerWrapper implements Runnable {
             mWorkTaskExecutor.getMainThreadExecutor().execute(foregroundRunnable);
 
             final ListenableFuture<Void> runExpedited = foregroundRunnable.getFuture();
+            // propagate cancellation to runExpedited
+            mWorkerResultFuture.addListener(() -> {
+                if (mWorkerResultFuture.isCancelled()) {
+                    runExpedited.cancel(true);
+                }
+            }, new SynchronousExecutor());
             runExpedited.addListener(new Runnable() {
                 @Override
                 public void run() {
+                    // if mWorkerResultFuture is already cancelled don't even try to do anything.
+                    // Naturally, the race between cancellation and mWorker.startWork() still can
+                    // happen but we try to avoid doing unnecessary work when it is possible.
+                    if (mWorkerResultFuture.isCancelled()) {
+                        return;
+                    }
                     try {
                         runExpedited.get();
                         Logger.get().debug(TAG,
                                 "Starting work for " + mWorkSpec.workerClassName);
-                        // Call mWorker.startWork() on the main thread.
-                        mInnerFuture = mWorker.startWork();
-                        future.setFuture(mInnerFuture);
+                         // Call mWorker.startWork() on the main thread.
+                        mWorkerResultFuture.setFuture(mWorker.startWork());
                     } catch (Throwable e) {
-                        future.setException(e);
+                        mWorkerResultFuture.setException(e);
                     }
                 }
             }, mWorkTaskExecutor.getMainThreadExecutor());
 
             // Avoid synthetic accessors.
             final String workDescription = mWorkDescription;
-            future.addListener(new Runnable() {
+            mWorkerResultFuture.addListener(new Runnable() {
                 @Override
                 @SuppressLint("SyntheticAccessor")
                 public void run() {
                     try {
                         // If the ListenableWorker returns a null result treat it as a failure.
-                        ListenableWorker.Result result = future.get();
+                        ListenableWorker.Result result = mWorkerResultFuture.get();
                         if (result == null) {
                             Logger.get().error(TAG, mWorkSpec.workerClassName
                                     + " returned a null result. Treating it as a failure.");
@@ -326,7 +339,7 @@ public class WorkerWrapper implements Runnable {
                         onWorkFinished();
                     }
                 }
-            }, mWorkTaskExecutor.getBackgroundExecutor());
+            }, mWorkTaskExecutor.getSerialTaskExecutor());
         } else {
             resolveIncorrectStatus();
         }
@@ -381,14 +394,11 @@ public class WorkerWrapper implements Runnable {
         // if necessary. mInterrupted is always true here, we don't really care about the return
         // value.
         tryCheckForInterruptionAndResolve();
-        boolean isDone = false;
-        if (mInnerFuture != null) {
-            // Propagate the cancellations to the inner future.
-            isDone = mInnerFuture.isDone();
-            mInnerFuture.cancel(true);
-        }
+        // Propagate the cancellations to the inner future.
+        mWorkerResultFuture.cancel(true);
         // Worker can be null if run() hasn't been called yet
-        if (mWorker != null && !isDone) {
+        // only call stop if it wasn't completed normally.
+        if (mWorker != null && mWorkerResultFuture.isCancelled()) {
             mWorker.stop();
         } else {
             String message = "WorkSpec " + mWorkSpec + " is already done. Not interrupting.";
