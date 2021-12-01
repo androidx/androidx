@@ -104,12 +104,13 @@ class PickerTest {
     }
 
     @Test
-    fun can_scroll_picker_down_on_start() {
+   fun can_scroll_picker_down_on_start() {
+        val numberOfOptions = 5
         lateinit var state: PickerState
         rule.setContent {
             WithTouchSlop(0f) {
                 Picker(
-                    5,
+                    numberOfOptions,
                     state = rememberPickerState().also { state = it },
                     modifier = Modifier.testTag(TEST_TAG)
                         .requiredSize(itemSizeDp * 3),
@@ -130,7 +131,9 @@ class PickerTest {
         }
 
         rule.waitForIdle()
-        assertThat(state.selectedOption).isEqualTo(initiallySelectedItem - 1)
+        val targetValue =
+            if (initiallySelectedItem == 0) numberOfOptions - 1 else initiallySelectedItem - 1
+        assertThat(state.selectedOption).isEqualTo(targetValue)
     }
 
     @Test
