@@ -26,6 +26,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.room.ColumnInfo;
+import androidx.work.impl.utils.DurationApi26Impl;
 
 import java.time.Duration;
 import java.util.concurrent.TimeUnit;
@@ -426,7 +427,7 @@ public final class Constraints {
         @RequiresApi(26)
         @NonNull
         public Builder setTriggerContentUpdateDelay(Duration duration) {
-            mTriggerContentUpdateDelay = duration.toMillis();
+            mTriggerContentUpdateDelay = DurationApi26Impl.toMillisCompat(duration);
             return this;
         }
 
@@ -461,7 +462,7 @@ public final class Constraints {
         @RequiresApi(26)
         @NonNull
         public Builder setTriggerContentMaxDelay(Duration duration) {
-            mTriggerContentMaxDelay = duration.toMillis();
+            mTriggerContentMaxDelay = DurationApi26Impl.toMillisCompat(duration);
             return this;
         }
 

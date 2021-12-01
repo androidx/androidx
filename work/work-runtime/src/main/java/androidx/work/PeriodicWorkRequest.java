@@ -15,6 +15,8 @@
  */
 package androidx.work;
 
+import static androidx.work.impl.utils.DurationApi26Impl.toMillisCompat;
+
 import android.annotation.SuppressLint;
 import android.os.Build;
 
@@ -115,7 +117,7 @@ public final class PeriodicWorkRequest extends WorkRequest {
                 @NonNull Class<? extends ListenableWorker> workerClass,
                 @NonNull Duration repeatInterval) {
             super(workerClass);
-            mWorkSpec.setPeriodic(repeatInterval.toMillis());
+            mWorkSpec.setPeriodic(toMillisCompat(repeatInterval));
         }
 
         /**
@@ -178,7 +180,8 @@ public final class PeriodicWorkRequest extends WorkRequest {
                 @NonNull Duration repeatInterval,
                 @NonNull Duration flexInterval) {
             super(workerClass);
-            mWorkSpec.setPeriodic(repeatInterval.toMillis(), flexInterval.toMillis());
+            mWorkSpec.setPeriodic(toMillisCompat(repeatInterval),
+                    toMillisCompat(flexInterval));
         }
 
         @Override
