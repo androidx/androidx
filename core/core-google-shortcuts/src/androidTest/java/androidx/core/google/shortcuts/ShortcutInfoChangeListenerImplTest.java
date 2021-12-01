@@ -48,10 +48,10 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RunWith(AndroidJUnit4.class)
 @SdkSuppress(minSdkVersion = 21) // This module should only be called for version 21+.
@@ -268,9 +268,6 @@ public class ShortcutInfoChangeListenerImplTest {
         mShortcutInfoChangeListener.onShortcutUsageReported(Arrays.asList("id1", "id2"));
 
         verify(mFirebaseUserActions, times(2)).end(actionCaptor.capture());
-        List<Action> actions = actionCaptor.getAllValues();
-        List<String> actionsString =
-                actions.stream().map(Object::toString).collect(Collectors.toList());
         Action expectedAction1 = new Action.Builder(Action.Builder.VIEW_ACTION)
                 .setObject("", ShortcutUtils.getIndexableUrl(mContext, "id1"))
                 .setMetadata(new Action.Metadata.Builder().setUpload(false))
@@ -280,7 +277,8 @@ public class ShortcutInfoChangeListenerImplTest {
                 .setMetadata(new Action.Metadata.Builder().setUpload(false))
                 .build();
         // Action has no equals comparator, so instead we compare their string forms.
-        assertThat(actionsString).containsExactly(expectedAction1.toString(),
+        assertThat(convertActionsToString(actionCaptor.getAllValues())).containsExactly(
+                expectedAction1.toString(),
                 expectedAction2.toString());
     }
 
@@ -336,5 +334,72 @@ public class ShortcutInfoChangeListenerImplTest {
                 .setImage("file:///data/user/0/com.example.myapp/files/ic_myicon.jpg")
                 .build();
         assertThat(allValues).containsExactly(expected);
+    }
+
+    @Test
+    @SmallTest
+    public void onShortcutAdded_withCapabilityBindingEntity_reportEntityUsage() throws Exception {
+        ArgumentCaptor<Action> actionCaptor = ArgumentCaptor.forClass(Action.class);
+
+        Intent intent = Intent.parseUri("app://shortcut", 0);
+        ShortcutInfoCompat shortcut = new ShortcutInfoCompat.Builder(mContext, "publicIntent")
+                .setShortLabel("short label")
+                .setIntent(intent)
+                .addCapabilityBinding(
+                        "actions.intent.ORDER_MENU_ITEM",
+                        "menuItem.name",
+                        ImmutableList.of(
+                                createEntityUri("item1"),
+                                createEntityUri("item2"),
+                                "item3"))
+                .addCapabilityBinding(
+                        "actions.intent.ORDER_MENU_ITEM",
+                        "menuItem.inMenuSection.inMenu.forRestaurant.name",
+                        ImmutableList.of(
+                                createEntityUri("restaurant1"),
+                                createEntityUri("restaurant2"),
+                                "restaurant3"))
+                .build();
+
+        mShortcutInfoChangeListener.onShortcutAdded(ImmutableList.of(shortcut));
+
+        verify(mFirebaseUserActions, times(4)).end(actionCaptor.capture());
+
+        Action expectedAction1 = new Action.Builder(Action.Builder.VIEW_ACTION)
+                .setObject("", ShortcutUtils.getIndexableUrl(mContext, "item1"))
+                .setMetadata(new Action.Metadata.Builder().setUpload(false))
+                .build();
+        Action expectedAction2 = new Action.Builder(Action.Builder.VIEW_ACTION)
+                .setObject("", ShortcutUtils.getIndexableUrl(mContext, "item2"))
+                .setMetadata(new Action.Metadata.Builder().setUpload(false))
+                .build();
+        Action expectedAction3 = new Action.Builder(Action.Builder.VIEW_ACTION)
+                .setObject("", ShortcutUtils.getIndexableUrl(mContext, "restaurant1"))
+                .setMetadata(new Action.Metadata.Builder().setUpload(false))
+                .build();
+        Action expectedAction4 = new Action.Builder(Action.Builder.VIEW_ACTION)
+                .setObject("", ShortcutUtils.getIndexableUrl(mContext, "restaurant2"))
+                .setMetadata(new Action.Metadata.Builder().setUpload(false))
+                .build();
+
+
+        // Action has no equals comparator, so instead we compare their string forms.
+        assertThat(convertActionsToString(actionCaptor.getAllValues())).containsExactly(
+                expectedAction1.toString(),
+                expectedAction2.toString(),
+                expectedAction3.toString(),
+                expectedAction4.toString());
+    }
+
+    private List<String> convertActionsToString(List<Action> actions) {
+        List<String> actionStrings = new ArrayList<>();
+        for (Action action : actions) {
+            actionStrings.add(action.toString());
+        }
+        return actionStrings;
+    }
+
+    private String createEntityUri(String id) {
+        return "appsearch://__shortcut_adapter_db__/__shortcut_adapter_ns__/" + id;
     }
 }
