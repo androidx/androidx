@@ -41,9 +41,11 @@ import android.util.Log;
 import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.OptIn;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
+import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.hardware.common.CarPropertyResponse;
 import androidx.car.app.hardware.common.CarValue;
 import androidx.car.app.hardware.common.GetPropertyRequest;
@@ -533,6 +535,8 @@ public class AutomotiveCarInfo implements CarInfo {
             mFuelCapacity = fuelCapacity;
         }
 
+        // TODO(b/202303614): Remove this annotation once FuelVolumeDisplayUnit is ready.
+        @OptIn(markerClass = ExperimentalCarApi.class)
         @Override
         public void onCarPropertyResponses(
                 @NonNull List<CarPropertyResponse<?>> carPropertyResponses) {
