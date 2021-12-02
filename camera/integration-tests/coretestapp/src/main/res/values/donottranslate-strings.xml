@@ -29,4 +29,6 @@
     <string name="toggle_capture_quality_off">MIN</string>
     <string name="toggle_plus_ev">+EV</string>
     <string name="toggle_dec_ev">-EV</string>
+    <string name="toggle_zoom_in_2x">2X</string>
+    <string name="toggle_zoom_reset">1X</string>
 </resources>

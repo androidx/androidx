@@ -16,8 +16,10 @@
 
 package androidx.camera.camera2.pipe.graph
 
+import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.RequestProcessor
 
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 interface GraphListener {
     /**
      * Used to indicate that the graph has been initialized and is ready to actively process

@@ -16,6 +16,7 @@
 
 package androidx.camera.camera2.internal.compat.workaround
 
+import android.graphics.SurfaceTexture
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.params.StreamConfigurationMap
 import android.os.Build
@@ -80,7 +81,13 @@ public class CamcorderProfileResolutionValidatorTest {
         val shadowCharacteristics = Shadow.extract<ShadowCameraCharacteristics>(characteristics)
 
         val mockMap = Mockito.mock(StreamConfigurationMap::class.java)
-        `when`(mockMap.getOutputSizes(ArgumentMatchers.anyInt())).thenReturn(supportedResolution)
+
+        // Before Android 23, use {@link SurfaceTexture} will finally mapped to 0x22 in
+        // StreamConfigurationMap to retrieve the output sizes information.
+        `when`(mockMap.getOutputSizes(ArgumentMatchers.any<Class<SurfaceTexture>>()))
+            .thenReturn(supportedResolution)
+        `when`(mockMap.getOutputSizes(ArgumentMatchers.anyInt()))
+            .thenReturn(supportedResolution)
 
         shadowCharacteristics.set(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP, mockMap)
 

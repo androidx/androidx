@@ -49,7 +49,8 @@ import java.util.concurrent.ScheduledExecutorService;
 
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
-@Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
+@Config(minSdk = Build.VERSION_CODES.LOLLIPOP,
+        instrumentedPackages = { "androidx.camera.camera2.internal.compat.params" })
 public class SynchronizedCaptureSessionTest {
     private static final int NUM_OUTPUTS = 3;
 

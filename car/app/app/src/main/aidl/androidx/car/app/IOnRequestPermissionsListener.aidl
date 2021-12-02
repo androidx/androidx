@@ -19,7 +19,7 @@ package androidx.car.app;
 /**
  * A listener with the results from a permissions request.
  *
- * <p>This listener is sent between the {@link CarAppService} and {@link CarAppInternalActivity}
+ * <p>This listener is sent between the {@link CarAppService} and {@link CarAppPermissionActivity}
  * and therefore runs entirely on the client process.
  *
  * @hide

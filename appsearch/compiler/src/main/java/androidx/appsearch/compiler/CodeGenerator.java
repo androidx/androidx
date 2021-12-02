@@ -17,8 +17,9 @@
 package androidx.appsearch.compiler;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.VisibleForTesting;
 
+import com.google.auto.common.GeneratedAnnotationSpecs;
+import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeName;
@@ -32,27 +33,24 @@ import javax.lang.model.element.Modifier;
 
 /**
  * Generates java code for an {@link androidx.appsearch.app.AppSearchSchema} and a translator
- * between the data class and a {@link androidx.appsearch.app.GenericDocument}.
+ * between the document class and a {@link androidx.appsearch.app.GenericDocument}.
  */
 class CodeGenerator {
-    @VisibleForTesting
-    static final String GEN_CLASS_PREFIX = "$$__AppSearch__";
-
     private final ProcessingEnvironment mEnv;
     private final IntrospectionHelper mHelper;
-    private final AppSearchDocumentModel mModel;
+    private final DocumentModel mModel;
 
     private final String mOutputPackage;
     private final TypeSpec mOutputClass;
 
     public static CodeGenerator generate(
-            @NonNull ProcessingEnvironment env, @NonNull AppSearchDocumentModel model)
+            @NonNull ProcessingEnvironment env, @NonNull DocumentModel model)
             throws ProcessingException {
         return new CodeGenerator(env, model);
     }
 
     private CodeGenerator(
-            @NonNull ProcessingEnvironment env, @NonNull AppSearchDocumentModel model)
+            @NonNull ProcessingEnvironment env, @NonNull DocumentModel model)
             throws ProcessingException {
         // Prepare constants needed for processing
         mEnv = env;
@@ -74,27 +72,23 @@ class CodeGenerator {
 
     /**
      * Creates factory class for any class annotated with
-     * {@link androidx.appsearch.annotation.AppSearchDocument}
+     * {@link androidx.appsearch.annotation.Document}
      * <p>Class Example 1:
-     *   For a class Foo annotated with @AppSearchDocument, we will generated a
+     *   For a class Foo annotated with @Document, we will generated a
      *   $$__AppSearch__Foo.class under the output package.
      * <p>Class Example 2:
-     *   For an inner class Foo.Bar annotated with @AppSearchDocument, we will generated a
+     *   For an inner class Foo.Bar annotated with @Document, we will generated a
      *   $$__AppSearch__Foo$$__Bar.class under the output package.
      */
     private TypeSpec createClass() throws ProcessingException {
         // Gets the full name of target class.
         String qualifiedName = mModel.getClassElement().getQualifiedName().toString();
-        String packageName = mOutputPackage + ".";
-
-        // Creates the name of output class. $$__AppSearch__Foo for Foo, $$__AppSearch__Foo$$__Bar
-        // for inner class Foo.Bar.
-        String genClassName = GEN_CLASS_PREFIX
-                + qualifiedName.substring(packageName.length()).replace(".", "$$__");
+        String className = qualifiedName.substring(mOutputPackage.length() + 1);
+        ClassName genClassName = mHelper.getDocumentClassFactoryForClass(mOutputPackage, className);
 
         TypeName genClassType = TypeName.get(mModel.getClassElement().asType());
         TypeName factoryType = ParameterizedTypeName.get(
-                mHelper.getAppSearchClass("DataClassFactory"),
+                mHelper.getAppSearchClass("DocumentClassFactory"),
                 genClassType);
 
         TypeSpec.Builder genClass = TypeSpec
@@ -102,6 +96,13 @@ class CodeGenerator {
                 .addOriginatingElement(mModel.getClassElement())
                 .addModifiers(Modifier.PUBLIC)
                 .addSuperinterface(factoryType);
+
+        // Add the @Generated annotation to avoid static analysis running on these files
+        GeneratedAnnotationSpecs.generatedAnnotationSpec(
+                mEnv.getElementUtils(),
+                mEnv.getSourceVersion(),
+                AppSearchCompiler.class
+        ).ifPresent(genClass::addAnnotation);
 
         SchemaCodeGenerator.generate(mEnv, mModel, genClass);
         ToGenericDocumentCodeGenerator.generate(mEnv, mModel, genClass);

@@ -23,6 +23,7 @@ import static org.junit.Assert.assertThrows;
 import android.content.ContentResolver;
 import android.net.Uri;
 
+import androidx.car.app.TestUtils;
 import androidx.car.app.model.CarIcon;
 import androidx.car.app.model.CarText;
 import androidx.core.graphics.drawable.IconCompat;
@@ -91,6 +92,30 @@ public class MessageInfoTest {
         assertThat(messageInfo.getText().getVariants().get(0).toString()).isEqualTo(
                 "Secondary");
         assertThat(messageInfo.getImage()).isEqualTo(CarIcon.APP_ICON);
+    }
+
+    @Test
+    public void title_unsupportedSpans_throws() {
+        CharSequence title = TestUtils.getCharSequenceWithColorSpan("Title");
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> new MessageInfo.Builder(title));
+
+        // DurationSpan and DistanceSpan do not throw
+        CharSequence title2 = TestUtils.getCharSequenceWithDistanceAndDurationSpans("Title");
+        new MessageInfo.Builder(title2).build();
+    }
+
+    @Test
+    public void text_unsupportedSpans_throws() {
+        CharSequence text = TestUtils.getCharSequenceWithColorSpan("Text");
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> new MessageInfo.Builder("title").setText(text));
+
+        // DurationSpan and DistanceSpan do not throw
+        CharSequence text2 = TestUtils.getCharSequenceWithDistanceAndDurationSpans("Text");
+        new MessageInfo.Builder("title").setText(text2).build();
     }
 
     @Test

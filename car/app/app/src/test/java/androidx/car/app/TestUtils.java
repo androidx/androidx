@@ -17,6 +17,7 @@
 package androidx.car.app;
 
 import static androidx.car.app.model.CarIcon.BACK;
+import static androidx.car.app.model.Distance.UNIT_METERS;
 
 import static com.google.common.truth.Truth.assertThat;
 
@@ -28,9 +29,16 @@ import androidx.annotation.DrawableRes;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.car.app.model.Action;
+import androidx.car.app.model.CarColor;
 import androidx.car.app.model.CarIcon;
+import androidx.car.app.model.CarIconSpan;
+import androidx.car.app.model.CarText;
+import androidx.car.app.model.ClickableSpan;
 import androidx.car.app.model.DateTimeWithZone;
+import androidx.car.app.model.Distance;
 import androidx.car.app.model.DistanceSpan;
+import androidx.car.app.model.DurationSpan;
+import androidx.car.app.model.ForegroundCarColorSpan;
 import androidx.car.app.model.GridItem;
 import androidx.car.app.model.ItemList;
 import androidx.car.app.model.Pane;
@@ -173,6 +181,89 @@ public class TestUtils {
             builder.addItem(new GridItem.Builder().setTitle("Title").setImage(BACK).build());
         }
         return builder.build();
+    }
+
+    /**
+     * Returns a {@link CharSequence} with both a {@link DistanceSpan} and {@link DurationSpan} set.
+     */
+    public static CharSequence getCharSequenceWithDistanceAndDurationSpans(String text) {
+        SpannableString sequence = new SpannableString(text);
+        sequence.setSpan(DurationSpan.create(100),
+                /* start= */ 0,
+                /* end= */ 1,
+                /* flags=*/ 0);
+        sequence.setSpan(DistanceSpan.create(Distance.create(1, UNIT_METERS)),
+                /* start= */ 0,
+                /* end= */ 1,
+                /* flags=*/ 0);
+        return sequence;
+    }
+
+    /**
+     * Returns a {@link CharSequence} with a {@link ForegroundCarColorSpan} set.
+     */
+    public static CharSequence getCharSequenceWithColorSpan(String text) {
+        SpannableString sequence = new SpannableString(text);
+        sequence.setSpan(ForegroundCarColorSpan.create(CarColor.BLUE),
+                /* start= */ 0,
+                /* end= */ 1,
+                /* flags=*/ 0);
+        return sequence;
+    }
+
+    /**
+     * Returns a {@link CharSequence} with a {@link androidx.car.app.model.CarIconSpan} set.
+     */
+    public static CharSequence getCharSequenceWithIconSpan(String text) {
+        SpannableString sequence = new SpannableString(text);
+        sequence.setSpan(CarIconSpan.create(BACK),
+                /* start= */ 0,
+                /* end= */ 1,
+                /* flags=*/ 0);
+        return sequence;
+    }
+
+    /**
+     * Returns a {@link CharSequence} with a {@link androidx.car.app.model.ClickableSpan} set.
+     */
+    public static CharSequence getCharSequenceWithClickableSpan(String text) {
+        SpannableString sequence = new SpannableString(text);
+        sequence.setSpan(ClickableSpan.create(() -> {
+        }),
+                /* start= */ 0,
+                /* end= */ 1,
+                /* flags=*/ 0);
+        return sequence;
+    }
+
+    /**
+     * Returns a {@link CarText} with both a {@link DistanceSpan} and {@link DurationSpan} set in
+     * its variant.
+     */
+    public static CarText getCarTextVariantsWithDistanceAndDurationSpans(String text) {
+        return new CarText.Builder(text).addVariant(
+                getCharSequenceWithDistanceAndDurationSpans(text)).build();
+    }
+
+    /**
+     * Returns a {@link CarText} with a {@link ForegroundCarColorSpan} set in its variant.
+     */
+    public static CarText getCarTextVariantsWithColorSpan(String text) {
+        return new CarText.Builder(text).addVariant(getCharSequenceWithColorSpan(text)).build();
+    }
+
+    /**
+     * Returns a {@link CarText} with a {@link ForegroundCarColorSpan} set in its variant.
+     */
+    public static CarText getCarTextVariantsWithClickableSpan(String text) {
+        return new CarText.Builder(text).addVariant(getCharSequenceWithClickableSpan(text)).build();
+    }
+
+    /**
+     * Returns a {@link CarText} with a {@link CarIconSpan} set in its variant.
+     */
+    public static CarText getCarTextVariantsWithIconSpan(String text) {
+        return new CarText.Builder(text).addVariant(getCharSequenceWithIconSpan(text)).build();
     }
 
     @RequiresApi(26)

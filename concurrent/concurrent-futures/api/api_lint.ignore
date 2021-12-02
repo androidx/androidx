@@ -1,0 +1,15 @@
+// Baseline format: 1.0
+AsyncSuffixFuture: androidx.concurrent.futures.CallbackToFutureAdapter#getFuture(androidx.concurrent.futures.CallbackToFutureAdapter.Resolver<T>):
+    Methods returning com.google.common.util.concurrent.ListenableFuture should have a suffix *Async to reserve unmodified name for a suspend function
+
+
+GenericException: androidx.concurrent.futures.CallbackToFutureAdapter.Resolver#attachCompleter(androidx.concurrent.futures.CallbackToFutureAdapter.Completer<T>):
+    Methods must not throw generic exceptions (`java.lang.Exception`)
+
+
+NotCloseable: androidx.concurrent.futures.CallbackToFutureAdapter.Completer:
+    Classes that release resources (finalize()) should implement AutoClosable and CloseGuard: class androidx.concurrent.futures.CallbackToFutureAdapter.Completer
+
+
+PairedRegistration: androidx.concurrent.futures.CallbackToFutureAdapter.Completer#addCancellationListener(Runnable, java.util.concurrent.Executor):
+    Found addCancellationListener but not removeCancellationListener in androidx.concurrent.futures.CallbackToFutureAdapter.Completer

@@ -20,6 +20,7 @@ import android.hardware.camera2.CameraCaptureSession.StateCallback;
 import android.os.Handler;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 
 import com.google.auto.value.AutoValue;
 
@@ -33,6 +34,7 @@ import java.util.List;
  * of surface configuration type and size pairs can be supported for different hardware level camera
  * devices.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 @AutoValue
 public abstract class SurfaceConfig {
     /** Prevent subclassing */

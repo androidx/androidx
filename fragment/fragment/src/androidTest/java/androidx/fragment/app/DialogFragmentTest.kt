@@ -74,6 +74,113 @@ class DialogFragmentTest {
             .isTrue()
     }
 
+    @Test
+    fun testDialogFragmentShowsInFragmentTransaction() {
+        val fragment = TestDialogFragment()
+        val ft = activityTestRule.activity.supportFragmentManager.beginTransaction()
+        fragment.show(ft, null)
+        activityTestRule.runOnUiThread {
+            activityTestRule.activity.supportFragmentManager.executePendingTransactions()
+        }
+
+        assertWithMessage("Dialog was not being shown")
+            .that(fragment.dialog?.isShowing)
+            .isTrue()
+    }
+
+    @Test
+    fun testDialogFragmentDismiss() {
+        val fragment = TestDialogFragment()
+        fragment.show(activityTestRule.activity.supportFragmentManager, null)
+        activityTestRule.runOnUiThread {
+            activityTestRule.activity.supportFragmentManager.executePendingTransactions()
+        }
+
+        val dialog = fragment.dialog
+        assertWithMessage("Dialog was not being shown")
+            .that(dialog?.isShowing)
+            .isTrue()
+
+        fragment.dismiss()
+        activityTestRule.runOnUiThread {
+            activityTestRule.activity.supportFragmentManager.executePendingTransactions()
+        }
+
+        assertWithMessage("Dialog should be removed")
+            .that(dialog?.isShowing)
+            .isFalse()
+    }
+
+    @UiThreadTest
+    @Test
+    fun testDialogFragmentDismissAllowingStateLoss() {
+        val viewModelStore = ViewModelStore()
+        val fc = activityTestRule.startupFragmentController(viewModelStore)
+        val fm = fc.supportFragmentManager
+        val fragment = TestDialogFragment()
+
+        fragment.showNow(fm, "dialog")
+
+        val dialog = fragment.dialog
+        assertWithMessage("Dialog was not being shown")
+            .that(dialog?.isShowing)
+            .isTrue()
+
+        fc.dispatchPause()
+        @Suppress("DEPRECATION")
+        fc.saveAllState()
+
+        assertWithMessage("Dialog was not being shown after saving state")
+            .that(dialog?.isShowing)
+            .isTrue()
+
+        fragment.dismissAllowingStateLoss()
+        fm.executePendingTransactions()
+
+        assertWithMessage("Dialog should be removed")
+            .that(dialog?.isShowing)
+            .isFalse()
+
+        fc.dispatchStop()
+        fc.dispatchDestroy()
+    }
+
+    @UiThreadTest
+    @Test
+    fun testDialogFragmentDismissAllowingStateLossInFragmentTransaction() {
+        val viewModelStore = ViewModelStore()
+        val fc = activityTestRule.startupFragmentController(viewModelStore)
+        val fm = fc.supportFragmentManager
+        val fragment = TestDialogFragment()
+
+        val ft = fm.beginTransaction()
+        fragment.show(ft, "dialog")
+        fm.executePendingTransactions()
+
+        val dialog = fragment.dialog
+        assertWithMessage("Dialog was not being shown")
+            .that(dialog?.isShowing)
+            .isTrue()
+
+        fc.dispatchPause()
+        @Suppress("DEPRECATION")
+        fc.saveAllState()
+
+        assertWithMessage("Dialog was not being shown after saving state")
+            .that(dialog?.isShowing)
+            .isTrue()
+
+        fragment.dismissAllowingStateLoss()
+        fm.executePendingTransactions()
+
+        assertWithMessage("Dialog should be removed")
+            .that(dialog?.isShowing)
+            .isFalse()
+
+        fc.dispatchStop()
+        fc.dispatchDestroy()
+    }
+
     @UiThreadTest
     @Test
     fun testDialogFragmentInLayout() {

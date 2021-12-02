@@ -20,6 +20,7 @@ import android.content.Context;
 import android.content.res.Resources;
 
 import androidx.annotation.NonNull;
+import androidx.wear.tiles.TileService;
 import androidx.wear.tiles.proto.ResourceProto;
 
 /** Utility class to get {@link ResourceResolvers} populated with standard options. */
@@ -32,16 +33,17 @@ public class StandardResourceResolvers {
      * <p>Use {@code setFooResolver} calls to change the pre-populated ones or add others.
      *
      * @param protoResources ProtoLayout resources for the current layout.
-     * @param appContext Context for the app that both owns the resources and displays the layout.
+     * @param uiContext UI-capable Context for the app that both owns the resources and displays
+     *                  the layout.
      */
     @NonNull
     public static ResourceResolvers.Builder forLocalApp(
-            @NonNull ResourceProto.Resources protoResources, @NonNull Context appContext) {
+            @NonNull ResourceProto.Resources protoResources, @NonNull Context uiContext) {
         DefaultAndroidImageResourceByResIdResolver androidResourceResolver =
-                new DefaultAndroidImageResourceByResIdResolver(appContext.getResources());
+                new DefaultAndroidImageResourceByResIdResolver(uiContext.getResources());
 
         DefaultInlineImageResourceResolver inlineResourceResolver =
-                new DefaultInlineImageResourceResolver(appContext);
+                new DefaultInlineImageResourceResolver(uiContext);
         return ResourceResolvers.builder(protoResources)
                 .setAndroidImageResourceByResIdResolver(androidResourceResolver)
                 .setInlineImageResourceResolver(inlineResourceResolver);
@@ -49,26 +51,27 @@ public class StandardResourceResolvers {
 
     /**
      * Get a builder pre-populated with resolvers for the resources of a {@link
-     * androidx.wear.tiles.TileProviderService}, hosted within another app on the device.
+     * TileService}, hosted within another app on the device.
      *
      * <p>Use {@code setFooAccessor} calls to change the pre-populated ones or add others.
      *
      * @param protoResources ProtoLayout resources for the current layout.
      * @param servicePackageName Package name for the service that owns the resources.
      * @param serviceAndroidResources Android resources from the service.
-     * @param hostAppContext Context for the app hosting the renderer displaying the layout.
+     * @param hostUiContext UI-capable Context for the app hosting the renderer displaying the
+     *                      layout.
      */
     @NonNull
     public static ResourceResolvers.Builder forRemoteService(
             @NonNull ResourceProto.Resources protoResources,
             @NonNull String servicePackageName,
             @NonNull Resources serviceAndroidResources,
-            @NonNull Context hostAppContext) {
+            @NonNull Context hostUiContext) {
         DefaultAndroidImageResourceByResIdResolver androidResourceResolver =
                 new DefaultAndroidImageResourceByResIdResolver(serviceAndroidResources);
 
         DefaultInlineImageResourceResolver inlineResourceResolver =
-                new DefaultInlineImageResourceResolver(hostAppContext);
+                new DefaultInlineImageResourceResolver(hostUiContext);
         return ResourceResolvers.builder(protoResources)
                 .setAndroidImageResourceByResIdResolver(androidResourceResolver)
                 .setInlineImageResourceResolver(inlineResourceResolver);

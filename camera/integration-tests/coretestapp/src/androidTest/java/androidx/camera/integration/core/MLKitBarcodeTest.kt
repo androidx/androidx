@@ -19,28 +19,26 @@ package androidx.camera.integration.core
 import android.content.Context
 import android.util.Log
 import android.util.Size
-import androidx.camera.camera2.Camera2Config
-import androidx.camera.camera2.pipe.integration.CameraPipeConfig
+import android.view.Surface
 import androidx.camera.core.CameraSelector
-import androidx.camera.core.CameraX
-import androidx.camera.core.CameraXConfig
 import androidx.camera.core.ImageAnalysis
-import androidx.camera.core.internal.CameraUseCaseAdapter
+import androidx.camera.core.impl.utils.executor.CameraXExecutors
+import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.LabTestRule
+import androidx.camera.testing.fakes.FakeLifecycleOwner
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.LargeTest
+import com.google.common.truth.Truth.assertWithMessage
 import com.google.mlkit.vision.barcode.Barcode.FORMAT_QR_CODE
 import com.google.mlkit.vision.barcode.BarcodeScanner
 import com.google.mlkit.vision.barcode.BarcodeScannerOptions
 import com.google.mlkit.vision.barcode.BarcodeScanning
 import com.google.mlkit.vision.common.InputImage
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.asExecutor
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import org.junit.After
-import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -49,12 +47,15 @@ import org.junit.runners.Parameterized
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 
-// The integration-tests for MLKit vision barcode component with CameraX ImageAnalysis use case.
+/*  The integration-test is for MLKit vision barcode component with CameraX ImageAnalysis use case.
+    The test is for lab device test. For the local test, mark the @LabTestRule.LabTestFrontCamera,
+    and @LabTestRule.LabTestRearCamera, or enable "setprop log.tag.rearCameraE2E DEBUG" or
+    "setprop log.tag.frontCameraE2E DEBUG" using 'adb shell'.
+*/
 @LargeTest
 @RunWith(Parameterized::class)
 class MLKitBarcodeTest(
-    private val resolution: Size,
-    private val cameraConfig: CameraXConfig
+    private val resolution: Size
 ) {
 
     @get:Rule
@@ -70,38 +71,40 @@ class MLKitBarcodeTest(
         private val size720p = Size(1280, 720)
         @JvmStatic
         @Parameterized.Parameters
-        fun data() = listOf(
-            arrayOf(size480p, Camera2Config.defaultConfig()),
-            arrayOf(size720p, Camera2Config.defaultConfig()),
-            arrayOf(size480p, CameraPipeConfig.defaultConfig()),
-            arrayOf(size720p, CameraPipeConfig.defaultConfig())
-        )
+        fun data() = listOf(size480p, size720p)
     }
 
     private val context: Context = ApplicationProvider.getApplicationContext()
-    private lateinit var camera: CameraUseCaseAdapter
     // For MK Kit Barcode scanner
     private lateinit var barcodeScanner: BarcodeScanner
+    private var imageResolution: Size = resolution
+    private var imageRotation: Int = Surface.ROTATION_0
+    private var targetRotation: Int = Surface.ROTATION_0
+    private lateinit var cameraProvider: ProcessCameraProvider
+    private lateinit var fakeLifecycleOwner: FakeLifecycleOwner
 
     @Before
-    fun setup() {
-        CameraX.initialize(context, cameraConfig).get(10, TimeUnit.SECONDS)
+    fun setup(): Unit = runBlocking {
+        cameraProvider = ProcessCameraProvider.getInstance(context)[10, TimeUnit.SECONDS]
 
         barcodeScanner = BarcodeScanning.getClient(
             BarcodeScannerOptions.Builder().setBarcodeFormats(FORMAT_QR_CODE).build()
         )
+
+        withContext(Dispatchers.Main) {
+            fakeLifecycleOwner = FakeLifecycleOwner()
+            fakeLifecycleOwner.startAndResume()
+        }
     }
 
     @After
     fun tearDown(): Unit = runBlocking {
-        if (::camera.isInitialized) {
-            // TODO: The removeUseCases() call might be removed after clarifying the
-            // abortCaptures() issue in b/162314023
+        if (::cameraProvider.isInitialized) {
             withContext(Dispatchers.Main) {
-                camera.removeUseCases(camera.useCases)
+                cameraProvider.unbindAll()
+                cameraProvider.shutdown()[10, TimeUnit.SECONDS]
             }
         }
-        CameraX.shutdown().get(10, TimeUnit.SECONDS)
 
         if (::barcodeScanner.isInitialized) {
             barcodeScanner.close()
@@ -110,70 +113,86 @@ class MLKitBarcodeTest(
 
     @LabTestRule.LabTestFrontCamera
     @Test
-    fun barcodeDetectViaFontCamera() {
-        val imageAnalysis = initImageAnalysis()
+    fun barcodeDetectViaFontCamera() = runBlocking {
+        val imageAnalysis = initImageAnalysis(CameraSelector.LENS_FACING_FRONT)
 
-        camera = CameraUtil.createCameraAndAttachUseCase(
-            context,
-            CameraSelector.DEFAULT_FRONT_CAMERA,
-            imageAnalysis
-        )
+        withContext(Dispatchers.Main) {
+            cameraProvider.bindToLifecycle(
+                fakeLifecycleOwner,
+                CameraSelector.DEFAULT_FRONT_CAMERA,
+                imageAnalysis
+            )
+        }
         assertBarcodeDetect(imageAnalysis)
     }
 
     @LabTestRule.LabTestRearCamera
     @Test
-    fun barcodeDetectViaRearCamera() {
-        val imageAnalysis = initImageAnalysis()
+    fun barcodeDetectViaRearCamera() = runBlocking {
+        val imageAnalysis = initImageAnalysis(CameraSelector.LENS_FACING_BACK)
 
-        camera = CameraUtil.createCameraAndAttachUseCase(
-            context,
-            CameraSelector.DEFAULT_BACK_CAMERA,
-            imageAnalysis
-        )
+        withContext(Dispatchers.Main) {
+            cameraProvider.bindToLifecycle(
+                fakeLifecycleOwner,
+                CameraSelector.DEFAULT_BACK_CAMERA,
+                imageAnalysis
+            )
+        }
         assertBarcodeDetect(imageAnalysis)
     }
 
     private fun assertBarcodeDetect(imageAnalysis: ImageAnalysis) {
-        val latchForBarcodeDetect = CountDownLatch(4)
+        val latchForBarcodeDetect = CountDownLatch(2)
 
         imageAnalysis.setAnalyzer(
-            Dispatchers.Main.asExecutor(),
-            { imageProxy ->
-                barcodeScanner.process(
-                    InputImage.fromMediaImage(
-                        imageProxy.image!!,
-                        imageProxy.imageInfo.rotationDegrees
-                    )
+            CameraXExecutors.ioExecutor()
+        ) { imageProxy ->
+            imageResolution = Size(imageProxy.image!!.width, imageProxy.image!!.height)
+            imageRotation = imageProxy.imageInfo.rotationDegrees
+            barcodeScanner.process(
+                InputImage.fromMediaImage(
+                    imageProxy.image!!,
+                    imageProxy.imageInfo.rotationDegrees
                 )
-                    .addOnSuccessListener { barcodes ->
-                        barcodes.forEach {
-                            if ("Hi, CamX!" == it.displayValue) {
-                                latchForBarcodeDetect.countDown()
-                                Log.d(TAG, "barcode display value: {${it.displayValue}} ")
-                            }
+            )
+                .addOnSuccessListener { barcodes ->
+                    barcodes.forEach {
+                        if ("Hi, CamX!" == it.displayValue) {
+                            latchForBarcodeDetect.countDown()
                         }
+                        Log.d(TAG, "barcode display value: {${it.displayValue}} ")
                     }
-                    .addOnFailureListener { exception ->
-                        Log.e(TAG, "processImage onFailure: $exception")
-                    }
-                    // When the image is from CameraX analysis use case, must call image.close() on
-                    // received images when finished using them. Otherwise, new images may not be
-                    // received or the camera may stall.
-                    .addOnCompleteListener {
-                        imageProxy.close()
-                    }
-            }
-        )
+                }
+                .addOnFailureListener { exception ->
+                    Log.e(TAG, "processImage onFailure: $exception")
+                }
+                // When the image is from CameraX analysis use case, must call image.close() on
+                // received images when finished using them. Otherwise, new images may not be
+                // received or the camera may stall.
+                .addOnCompleteListener {
+                    imageProxy.close()
+                }
+        }
 
         // Verify it is the CameraX lab test environment and can detect qr-code.
-        assertTrue(latchForBarcodeDetect.await(DETECT_TIMEOUT, TimeUnit.MILLISECONDS))
+        assertWithMessage(
+            "Fail to detect qrcode, target resolution: $resolution, " +
+                "image resolution: $imageResolution, " +
+                "target rotation: $targetRotation, " +
+                "image rotation: $imageRotation "
+        ).that(latchForBarcodeDetect.await(DETECT_TIMEOUT, TimeUnit.MILLISECONDS)).isTrue()
     }
 
-    private fun initImageAnalysis(): ImageAnalysis {
+    private fun initImageAnalysis(lensFacing: Int): ImageAnalysis {
+        val sensorOrientation = CameraUtil.getSensorOrientation(lensFacing)
+        val isRotateNeeded = sensorOrientation!! % 180 != 0
+        Log.d(TAG, "Sensor Orientation: $sensorOrientation, lensFacing: $lensFacing")
+        targetRotation = if (isRotateNeeded) Surface.ROTATION_90 else Surface.ROTATION_0
+
         return ImageAnalysis.Builder()
             .setTargetName("ImageAnalysis")
             .setTargetResolution(resolution)
+            .setTargetRotation(targetRotation)
             .build()
     }
 }

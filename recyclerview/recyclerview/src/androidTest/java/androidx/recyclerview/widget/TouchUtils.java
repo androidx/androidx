@@ -305,15 +305,15 @@ class TouchUtils {
         MotionEvent event = MotionEvent.obtain(downTime, eventTime,
                 MotionEvent.ACTION_DOWN, x, y, 0);
         inst.sendPointerSync(event);
+
         for (int i = 0; i < stepCount; ++i) {
             y += yStep;
             x += xStep;
-            eventTime = SystemClock.uptimeMillis();
+            eventTime++;
             event = MotionEvent.obtain(downTime, eventTime, MotionEvent.ACTION_MOVE, x, y, 0);
             inst.sendPointerSync(event);
         }
-
-        eventTime = SystemClock.uptimeMillis();
+        eventTime++;
         event = MotionEvent.obtain(downTime, eventTime, MotionEvent.ACTION_UP, x, y, 0);
         inst.sendPointerSync(event);
         if (waitForIdleSync) {

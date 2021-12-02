@@ -21,11 +21,16 @@ import androidx.room.ext.AndroidTypeNames
 import androidx.room.parser.ParsedQuery
 import androidx.room.processor.Context
 import androidx.room.solver.QueryResultBinderProvider
+import androidx.room.solver.TypeAdapterExtras
 import androidx.room.solver.query.result.CursorQueryResultBinder
 import androidx.room.solver.query.result.QueryResultBinder
 
 class CursorQueryResultBinderProvider(val context: Context) : QueryResultBinderProvider {
-    override fun provide(declared: XType, query: ParsedQuery): QueryResultBinder {
+    override fun provide(
+        declared: XType,
+        query: ParsedQuery,
+        extras: TypeAdapterExtras
+    ): QueryResultBinder {
         return CursorQueryResultBinder()
     }
 

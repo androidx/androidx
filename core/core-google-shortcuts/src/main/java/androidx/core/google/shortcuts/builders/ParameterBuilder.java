@@ -21,6 +21,7 @@ import static androidx.core.google.shortcuts.builders.Constants.PARAMETER_TYPE;
 import static androidx.core.google.shortcuts.builders.Constants.PARAMETER_VALUE_KEY;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 
 import com.google.firebase.appindexing.builders.IndexableBuilder;
@@ -33,6 +34,8 @@ import com.google.firebase.appindexing.builders.IndexableBuilder;
 @RestrictTo(LIBRARY)
 public class ParameterBuilder
         extends IndexableBuilder<ParameterBuilder> {
+    private String[] mValues;
+
     public ParameterBuilder() {
         super(PARAMETER_TYPE);
     }
@@ -40,6 +43,12 @@ public class ParameterBuilder
     /** Sets one or more values for given parameter. */
     @NonNull
     public ParameterBuilder setValue(@NonNull String... value) {
+        mValues = value;
         return put(PARAMETER_VALUE_KEY, value);
+    }
+
+    @Nullable
+    public String[] getValues() {
+        return mValues;
     }
 }

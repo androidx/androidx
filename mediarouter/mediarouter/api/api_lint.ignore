@@ -53,6 +53,10 @@ ActionValue: androidx.mediarouter.media.MediaItemStatus#EXTRA_HTTP_STATUS_CODE:
     Inconsistent extra value; expected `androidx.mediarouter.media.extra.HTTP_STATUS_CODE`, was `android.media.status.extra.HTTP_STATUS_CODE`
 
 
+AsyncSuffixFuture: androidx.mediarouter.media.MediaRouter.OnPrepareTransferListener#onPrepareTransfer(androidx.mediarouter.media.MediaRouter.RouteInfo, androidx.mediarouter.media.MediaRouter.RouteInfo):
+    Methods returning com.google.common.util.concurrent.ListenableFuture should have a suffix *Async to reserve unmodified name for a suspend function
+
+
 ExecutorRegistration: androidx.mediarouter.media.MediaRouteProvider#setCallback(androidx.mediarouter.media.MediaRouteProvider.Callback):
     Registration methods should have overload that accepts delivery Executor: `setCallback`
 ExecutorRegistration: androidx.mediarouter.media.MediaRouter#addCallback(androidx.mediarouter.media.MediaRouteSelector, androidx.mediarouter.media.MediaRouter.Callback, int):

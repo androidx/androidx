@@ -154,6 +154,7 @@ public final class OutputConfigurationCompat {
      *
      * <p>Two surfaces are compatible in the below cases:</p>
      *
+     * <ol>
      * <li> Surfaces with the same size, format, dataSpace, and Surface source class. In this case,
      * {@code CameraDevice.createCaptureSessionByOutputConfigurations} is guaranteed to succeed.
      *

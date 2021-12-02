@@ -17,29 +17,61 @@
 package androidx.camera.video;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
+import androidx.core.util.Consumer;
 import androidx.core.util.Preconditions;
 
 import com.google.auto.value.AutoValue;
 
+import java.util.concurrent.Executor;
+
 /**
- * RecordingStats keeps track of the current recording’s statistics. It is a snapshot of things
- * like recorded duration and recorded file size.
+ * A snapshot of statistics about an {@link Recording} at a point in time.
+ *
+ * <p>Recording stats provide information about a recording such as file size, duration and other
+ * useful statistics which may be useful for tracking the state of a recording.
+ *
+ * <p>Recording stats are generated for every {@link VideoRecordEvent} and can be retrieved via
+ * {@link VideoRecordEvent#getRecordingStats()}.
+ * @see PendingRecording#start(Executor, Consumer)
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 @AutoValue
 public abstract class RecordingStats {
 
-    public static final RecordingStats EMPTY_STATS = of(0, 0);
-
-    @NonNull
-    static RecordingStats of(long duration, long bytes) {
-        Preconditions.checkArgument(duration >= 0, "duration must be positive value.");
-        Preconditions.checkArgument(bytes >= 0, "bytes must be positive value.");
-        return new AutoValue_RecordingStats(duration, bytes);
+    // Restrict the constructor scope.
+    RecordingStats() {
     }
 
-    /** Returns current recorded duration in nano seconds. */
-    public abstract long getRecordedDurationNs();
+    @NonNull
+    static RecordingStats of(long duration, long bytes, @NonNull AudioStats audioStats) {
+        Preconditions.checkArgument(duration >= 0, "duration must be positive value.");
+        Preconditions.checkArgument(bytes >= 0, "bytes must be positive value.");
+        return new AutoValue_RecordingStats(duration, bytes, audioStats);
+    }
 
-    /** Returns current recorded bytes. */
+    /**
+     * Returns current recorded duration in nanoseconds.
+     *
+     * <p>The duration represents the realtime number of nanoseconds that have transpired since
+     * the recording started, excluding intervals where the recording was paused.
+     * @return the duration, in nanoseconds, of the recording at the time of these recording stats
+     * being generated.
+     */
+    public abstract long getRecordedDurationNanos();
+
+    /**
+     * Returns the number of bytes recorded.
+     *
+     * <p>The number of bytes recorded includes bytes stored for video and for audio, if applicable.
+     * @return the total number of bytes stored for the recording at the time of these recording
+     * stats being generated.
+     */
     public abstract long getNumBytesRecorded();
+
+    /**
+     * Returns the {@link AudioStats} that is associated with this recording stats.
+     */
+    @NonNull
+    public abstract AudioStats getAudioStats();
 }

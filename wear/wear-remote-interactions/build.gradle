@@ -27,12 +27,18 @@ plugins {
 dependencies {
     api("androidx.annotation:annotation:1.1.0")
     api(libs.kotlinStdlib)
+    api(libs.guavaListenableFuture)
+    api(libs.kotlinCoroutinesGuava)
+    implementation("androidx.concurrent:concurrent-futures:1.0.0")
+
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.testRules)
     androidTestImplementation 'junit:junit:4.12'
-    testImplementation(libs.testExtJunit)
+
+    // Needed for Assert.assertThrows
+    testImplementation("junit:junit:4.13")
     testImplementation(libs.testCore)
     testImplementation(libs.testRules)
     testImplementation(libs.testRunner)
@@ -40,7 +46,9 @@ dependencies {
     testImplementation(libs.mockitoCore)
     testImplementation(libs.mockitoKotlin)
 
+    implementation("androidx.annotation:annotation:1.2.0")
     implementation(libs.playServicesBasement)
+    implementation(libs.playServicesWearable, { exclude group: "androidx.core"})
 }
 
 android {

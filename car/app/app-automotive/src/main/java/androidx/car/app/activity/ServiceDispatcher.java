@@ -84,13 +84,24 @@ public class ServiceDispatcher {
         });
     }
 
+    /** Dispatches the given {@link OneWayCall}. Ignores any errors. This is a non-blocking call. */
+    public void dispatchNoFail(@NonNull String description, @NonNull OneWayCall call) {
+        fetchNoFail(description, null, (ReturnCall<Void>) () -> {
+            call.invoke();
+            return null;
+        });
+    }
+
     /**
-     * Retrieves a value from the service. This is a blocking call.
+     * Retrieves a value from the service handling any communication error and displaying the
+     * error to the user.
      *
-     * @param call code to execute to retrieve the value
+     * <p>This is a blocking call
+     *
+     * @param description name for logging purposes
      * @param fallbackValue value to return in case the call is unsuccessful
-     * @param <T> type of value to retrieve
-     * @return the value retrieved
+     * @param call code to execute to retrieve the value
+     * @return the value retrieved or the {@code fallbackValue} if the call failed
      */
     // TODO(b/184697399): Remove two-way calls as these are blocking.
     @Nullable
@@ -102,10 +113,7 @@ public class ServiceDispatcher {
         }
         try {
             // TODO(b/184697267): Implement ANR (application not responding) checks
-            Log.d(LogTags.TAG, "Dispatching: " + description);
-            T value = call.invoke();
-            Log.d(LogTags.TAG, "Dispatching: " + description + " finished");
-            return value;
+            return call.invoke();
         } catch (DeadObjectException e) {
             Log.e(LogTags.TAG, "Connection lost", e);
             mErrorHandler.onError(ErrorHandler.ErrorType.HOST_CONNECTION_LOST);
@@ -118,6 +126,37 @@ public class ServiceDispatcher {
         } catch (RuntimeException e) {
             Log.e(LogTags.TAG, "Runtime exception (unknown)", e);
             mErrorHandler.onError(ErrorHandler.ErrorType.UNKNOWN_ERROR);
+        }
+        return fallbackValue;
+    }
+
+    /**
+     * Retrieves a value from the service, ignoring any communication error and just returning
+     * the {@code fallbackValue} if an error is encountered in the communication.
+     *
+     * <p>This is a blocking call
+     *
+     * @param description name for logging purposes
+     * @param fallbackValue value to return in case the call is unsuccessful
+     * @param call code to execute to retrieve the value
+     * @return the value retrieved or the {@code fallbackValue} if the call failed
+     */
+    @Nullable
+    public <T> T fetchNoFail(@NonNull String description, @Nullable T fallbackValue,
+            @NonNull ReturnCall<T> call) {
+        if (!mOnBindingListener.isBound()) {
+            // Avoid dispatching messages if we are not bound to the service
+            return fallbackValue;
+        }
+        try {
+            // TODO(b/184697267): Implement ANR (application not responding) checks
+            return call.invoke();
+        } catch (RemoteException e) {
+            Log.e(LogTags.TAG, "Remote exception (host render service)", e);
+        } catch (BundlerException e) {
+            Log.e(LogTags.TAG, "Bundler exception (protocol)", e);
+        } catch (RuntimeException e) {
+            Log.e(LogTags.TAG, "Runtime exception (unknown)", e);
         }
         return fallbackValue;
     }

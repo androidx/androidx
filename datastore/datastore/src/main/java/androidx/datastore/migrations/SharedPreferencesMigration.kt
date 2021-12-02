@@ -66,7 +66,8 @@ private constructor(
      * since this may be called multiple times. See [DataMigration.migrate] for more
      * information. The lambda accepts a SharedPreferencesView which is the view of the
      * SharedPreferences to migrate from (limited to [keysToMigrate] and a T which represent
-     * the current data. The function must return the migrated data.
+     * the current data. The function must return the migrated data. If SharedPreferences is
+     * empty or does not contain any keys which you specified, this callback will not run.
      */
     @JvmOverloads // Generate constructors for default params for java users.
     public constructor(
@@ -111,7 +112,8 @@ private constructor(
      * since this may be called multiple times. See [DataMigration.migrate] for more
      * information. The lambda accepts a SharedPreferencesView which is the view of the
      * SharedPreferences to migrate from (limited to [keysToMigrate] and a T which represent
-     * the current data. The function must return the migrated data.
+     * the current data. The function must return the migrated data. If SharedPreferences is
+     * empty or does not contain any keys which you specified, this callback will not run.
      */
     @JvmOverloads // Generate constructors for default params for java users.
     public constructor(
@@ -131,20 +133,26 @@ private constructor(
 
     private val sharedPrefs: SharedPreferences by lazy(produceSharedPreferences)
 
-    private val keySet: MutableSet<String> by lazy {
+    /**
+     * keySet is null if the user specified [MIGRATE_ALL_KEYS].
+     */
+    private val keySet: MutableSet<String>? =
         if (keysToMigrate === MIGRATE_ALL_KEYS) {
-            sharedPrefs.all.keys
+            null
         } else {
-            keysToMigrate
-        }.toMutableSet()
-    }
+            keysToMigrate.toMutableSet()
+        }
 
     override suspend fun shouldMigrate(currentData: T): Boolean {
         if (!shouldRunMigration(currentData)) {
             return false
         }
 
-        return keySet.any(sharedPrefs::contains)
+        return if (keySet == null) {
+            sharedPrefs.all.isNotEmpty()
+        } else {
+            keySet.any(sharedPrefs::contains)
+        }
     }
 
     override suspend fun migrate(currentData: T): T =
@@ -160,8 +168,12 @@ private constructor(
     override suspend fun cleanUp() {
         val sharedPrefsEditor = sharedPrefs.edit()
 
-        for (key in keySet) {
-            sharedPrefsEditor.remove(key)
+        if (keySet == null) {
+            sharedPrefsEditor.clear()
+        } else {
+            keySet.forEach { key ->
+                sharedPrefsEditor.remove(key)
+            }
         }
 
         if (!sharedPrefsEditor.commit()) {
@@ -172,7 +184,7 @@ private constructor(
             deleteSharedPreferences(context, name)
         }
 
-        keySet.clear()
+        keySet?.clear()
     }
 
     private fun deleteSharedPreferences(context: Context, name: String) {
@@ -211,12 +223,11 @@ private constructor(
 }
 
 /**
- *  Read-only wrapper around SharedPreferences. This will be passed in to your migration. The
- *  constructor is public to enable easier testing of migrations.
+ *  Read-only wrapper around SharedPreferences. This will be passed in to your migration.
  */
 public class SharedPreferencesView internal constructor(
     private val prefs: SharedPreferences,
-    private val keySet: Set<String>
+    private val keySet: Set<String>?
 ) {
     /**
      * Checks whether the preferences contains a preference.
@@ -285,18 +296,22 @@ public class SharedPreferencesView internal constructor(
         prefs.getStringSet(checkKey(key), defValues)?.toMutableSet()
 
     /** Retrieve all values from the preferences that are in the specified keySet. */
-    public fun getAll(): Map<String, Any?> = prefs.all.filter { (key, _) ->
-        key in keySet
-    }.mapValues { (_, value) ->
-        if (value is Set<*>) {
-            value.toSet()
-        } else {
-            value
+    public fun getAll(): Map<String, Any?> =
+        prefs.all.filter { (key, _) ->
+            keySet?.contains(key) ?: true
+        }.mapValues { (_, value) ->
+            if (value is Set<*>) {
+                value.toSet()
+            } else {
+                value
+            }
         }
-    }
 
     private fun checkKey(key: String): String {
-        check(key in keySet) { "Can't access key outside migration: $key" }
+        keySet?.let {
+            check(key in it) { "Can't access key outside migration: $key" }
+        }
+
         return key
     }
 }

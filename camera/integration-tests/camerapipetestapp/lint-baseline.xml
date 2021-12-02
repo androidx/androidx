@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.0.0-alpha15" type="baseline" client="cli" name="Lint" variant="all" version="7.0.0-alpha15">
+<issues format="6" by="lint 7.2.0-dev" type="baseline" client="gradle" dependencies="false" name="AGP (7.2.0-dev)" variant="all" version="7.2.0-dev">
 
     <issue
         id="ClassVerificationFailure"
@@ -24,25 +24,25 @@
     </issue>
 
     <issue
-        id="PermissionImpliesUnsupportedChromeOsHardware"
-        message="Permission exists without corresponding hardware `&lt;uses-feature android:name=&quot;android.hardware.camera&quot; required=&quot;false&quot;>` tag"
-        errorLine1="    &lt;uses-permission android:name=&quot;android.permission.CAMERA&quot; />"
-        errorLine2="     ~~~~~~~~~~~~~~~">
+        id="UnknownNullness"
+        message="Should explicitly declare type here since implicit type does not specify nullness"
+        errorLine1="    val cameraPipe: CameraPipe"
+        errorLine2="        ~~~~~~~~~~">
         <location
-            file="src/main/AndroidManifest.xml"
-            line="19"
-            column="6"/>
+            file="src/main/java/androidx/camera/integration/camera2/pipe/CameraPipeApplication.kt"
+            line="39"
+            column="9"/>
     </issue>
 
     <issue
-        id="PermissionImpliesUnsupportedChromeOsHardware"
-        message="Permission exists without corresponding hardware `&lt;uses-feature android:name=&quot;android.hardware.camera.autofocus&quot; required=&quot;false&quot;>` tag"
-        errorLine1="    &lt;uses-permission android:name=&quot;android.permission.CAMERA&quot; />"
-        errorLine2="     ~~~~~~~~~~~~~~~">
+        id="UnknownNullness"
+        message="Should explicitly declare type here since implicit type does not specify nullness"
+        errorLine1="inline fun Double.formatMilliTime(decimals: Int = 4) = &quot;%.${decimals}f ms&quot;.format(Locale.ROOT, this)"
+        errorLine2="                  ~~~~~~~~~~~~~~~">
         <location
-            file="src/main/AndroidManifest.xml"
-            line="19"
-            column="6"/>
+            file="src/main/java/androidx/camera/integration/camera2/pipe/Debug.kt"
+            line="23"
+            column="19"/>
     </issue>
 
 </issues>

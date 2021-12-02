@@ -104,7 +104,7 @@ public class CameraExtensionsActivity extends AppCompatActivity
         IMAGE_CAPTURE_TYPE_HDR(0),
         IMAGE_CAPTURE_TYPE_BOKEH(1),
         IMAGE_CAPTURE_TYPE_NIGHT(2),
-        IMAGE_CAPTURE_TYPE_BEAUTY(3),
+        IMAGE_CAPTURE_TYPE_FACE_RETOUCH(3),
         IMAGE_CAPTURE_TYPE_AUTO(4),
         IMAGE_CAPTURE_TYPE_DEFAULT(5);
 
@@ -143,8 +143,8 @@ public class CameraExtensionsActivity extends AppCompatActivity
                 return ExtensionMode.BOKEH;
             case IMAGE_CAPTURE_TYPE_NIGHT:
                 return ExtensionMode.NIGHT;
-            case IMAGE_CAPTURE_TYPE_BEAUTY:
-                return ExtensionMode.BEAUTY;
+            case IMAGE_CAPTURE_TYPE_FACE_RETOUCH:
+                return ExtensionMode.FACE_RETOUCH;
             case IMAGE_CAPTURE_TYPE_AUTO:
                 return ExtensionMode.AUTO;
             case IMAGE_CAPTURE_TYPE_DEFAULT:
@@ -168,8 +168,7 @@ public class CameraExtensionsActivity extends AppCompatActivity
         @ExtensionMode.Mode
         int extensionMode = extensionModeFrom(imageCaptureType);
 
-        if (!mExtensionsManager.isExtensionAvailable(mCameraProvider, mCurrentCameraSelector,
-                extensionMode)) {
+        if (!mExtensionsManager.isExtensionAvailable(mCurrentCameraSelector, extensionMode)) {
             return false;
         }
 
@@ -183,7 +182,7 @@ public class CameraExtensionsActivity extends AppCompatActivity
         mPreview.setSurfaceProvider(mPreviewView.getSurfaceProvider());
 
         CameraSelector cameraSelector = mExtensionsManager.getExtensionEnabledCameraSelector(
-                mCameraProvider, mCurrentCameraSelector, extensionMode);
+                mCurrentCameraSelector, extensionMode);
 
         mCameraProvider.unbindAll();
         mCamera = mCameraProvider.bindToLifecycle(this, cameraSelector, mImageCapture, mPreview);
@@ -310,15 +309,13 @@ public class CameraExtensionsActivity extends AppCompatActivity
 
         mCamera = mCameraProvider.bindToLifecycle(this, mCurrentCameraSelector);
         ListenableFuture<ExtensionsManager> extensionsManagerFuture =
-                ExtensionsManager.getInstance(getApplicationContext());
+                ExtensionsManager.getInstanceAsync(getApplicationContext(), mCameraProvider);
 
         Futures.addCallback(extensionsManagerFuture,
                 new FutureCallback<ExtensionsManager>() {
                     @Override
                     public void onSuccess(@Nullable ExtensionsManager extensionsManager) {
                         mExtensionsManager = extensionsManager;
-                        ExtensionsManager.setExtensionsErrorListener((errorCode) ->
-                                Log.d(TAG, "Extensions error in error code: " + errorCode));
                         bindUseCasesWithNextExtension();
                         setupButtons();
                     }

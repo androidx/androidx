@@ -23,6 +23,7 @@ import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSDeclaration
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import com.google.devtools.ksp.symbol.KSPropertyDeclaration
+import com.google.devtools.ksp.validate
 import java.util.Locale
 
 internal abstract class KspElement(
@@ -52,17 +53,11 @@ internal abstract class KspElement(
         return declaration.toString()
     }
 
-    /**
-     * Return a reference to the containing file that implements the
-     * [javax.lang.model.element.Element] API so that we can report it to JavaPoet.
-     */
-    fun containingFileAsOriginatingElement(): KSFileAsOriginatingElement? {
-        return (declaration as? KSDeclaration)?.containingFile?.let {
-            KSFileAsOriginatingElement(it)
-        }
-    }
-
     override val docComment: String? by lazy {
         (declaration as? KSDeclaration)?.docString
+    }
+
+    override fun validate(): Boolean {
+        return declaration.validate()
     }
 }

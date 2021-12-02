@@ -76,7 +76,7 @@ public class CarResultStubMap<T, U> {
      *                              {@code null}
      */
     public void addListener(@Nullable U params,
-            @NonNull Executor executor, @NonNull OnCarDataListener<T> listener) {
+            @NonNull Executor executor, @NonNull OnCarDataAvailableListener<T> listener) {
         requireNonNull(executor);
         requireNonNull(listener);
 
@@ -103,7 +103,7 @@ public class CarResultStubMap<T, U> {
      *
      * @throws NullPointerException if {@code listener} is {@code null}
      */
-    public void removeListener(@NonNull OnCarDataListener<T> listener) {
+    public void removeListener(@NonNull OnCarDataAvailableListener<T> listener) {
         requireNonNull(listener);
         Iterator<Map.Entry<U, CarResultStub<T>>> iter = mStubMap.entrySet().iterator();
         while (iter.hasNext()) {

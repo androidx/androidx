@@ -27,11 +27,21 @@ import javax.lang.model.type.TypeMirror
 internal class DefaultJavacType private constructor(
     env: JavacProcessingEnv,
     typeMirror: TypeMirror,
-    override val nullability: XNullability,
+    nullability: XNullability?,
     override val kotlinType: KmType?
 ) : JavacType(
-    env, typeMirror
+    env, typeMirror, nullability
 ) {
+    constructor(
+        env: JavacProcessingEnv,
+        typeMirror: TypeMirror
+    ) : this(
+        env = env,
+        typeMirror = typeMirror,
+        nullability = null,
+        kotlinType = null
+    )
+
     constructor(
         env: JavacProcessingEnv,
         typeMirror: TypeMirror,

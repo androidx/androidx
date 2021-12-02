@@ -15,7 +15,6 @@
  */
 
 import androidx.build.LibraryGroups
-import androidx.build.LibraryVersions
 import androidx.build.Publish
 import androidx.build.RunApiTasks
 
@@ -47,7 +46,7 @@ dependencies {
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.testRules)
     androidTestImplementation(libs.espressoCore)
-    androidTestImplementation("androidx.appcompat:appcompat:1.0.0")
+    androidTestImplementation("androidx.appcompat:appcompat:1.1.0")
     androidTestImplementation(project(":internal-testutils-runtime"))
 }
 
@@ -55,7 +54,6 @@ androidx {
     name = "Android Lifecycle Extensions"
     publish = Publish.NONE
     runApiTasks = new RunApiTasks.Yes("Need to track API surface before moving to publish")
-    mavenVersion = LibraryVersions.LIFECYCLE_EXTENSIONS
     mavenGroup = LibraryGroups.LIFECYCLE
     inceptionYear = "2017"
     description = "Android Lifecycle Extensions"

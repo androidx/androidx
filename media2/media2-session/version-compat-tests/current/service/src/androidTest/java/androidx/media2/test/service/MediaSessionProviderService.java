@@ -43,6 +43,7 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.ParcelFileDescriptor;
@@ -136,7 +137,8 @@ public class MediaSessionProviderService extends Service {
                     PendingIntent pendingIntent = PendingIntent.getActivity(
                             MediaSessionProviderService.this,
                             0 /* requestCode */,
-                            sessionActivity, 0 /* flags */);
+                            sessionActivity,
+                            Build.VERSION.SDK_INT >= 23 ? PendingIntent.FLAG_IMMUTABLE : 0);
                     builder.setSessionActivity(pendingIntent);
                     break;
                 }

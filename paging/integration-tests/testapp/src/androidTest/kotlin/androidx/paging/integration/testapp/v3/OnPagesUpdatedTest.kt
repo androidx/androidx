@@ -22,18 +22,24 @@ import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import com.google.common.truth.Truth.assertThat
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.TimeoutCancellationException
+import kotlinx.coroutines.async
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.onStart
+import kotlinx.coroutines.flow.scan
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.test.assertTrue
 
 @LargeTest
@@ -74,13 +80,11 @@ class OnPagesUpdatedTest {
         }
 
         // Trigger page update.
-        scenario.onActivity { adapter.refresh() }
-        adapter.awaitRefreshIdle()
+        adapter.refreshAndAwaitIdle()
         onPagesUpdatedEventsCh.receiveWithTimeoutMillis(10_000)
 
         // Trigger page update while still processing previous one, this should get buffered.
-        scenario.onActivity { adapter.refresh() }
-        adapter.awaitRefreshIdle()
+        adapter.refreshAndAwaitIdle()
         // Ensure we are still waiting for processNextPageUpdateCh to emit to continue.
         assertTrue { onPagesUpdatedEventsCh.isEmpty }
 
@@ -91,8 +95,7 @@ class OnPagesUpdatedTest {
 
         // Trigger a bunch of updates without unblocking page update collector.
         repeat(66) {
-            scenario.onActivity { adapter.refresh() }
-            adapter.awaitRefreshIdle()
+            adapter.refreshAndAwaitIdle()
         }
 
         // Fully unblock collector.
@@ -119,7 +122,41 @@ class OnPagesUpdatedTest {
         withTimeout(timeoutMillis) { receive() }
     }
 
-    private suspend fun V3Adapter.awaitRefreshIdle() {
-        loadStateFlow.first { it.source.refresh !is LoadState.Loading }
+    @OptIn(ExperimentalCoroutinesApi::class)
+    private suspend fun V3Adapter.refreshAndAwaitIdle() {
+        val scenario = scenarioRule.scenario
+        val loadStateCollectorStarted = CompletableDeferred<Unit>()
+        val result = CoroutineScope(EmptyCoroutineContext).async {
+            loadStateFlow
+                .onStart { loadStateCollectorStarted.complete(Unit) }
+                .scan(RefreshState.INITIAL) { acc, next ->
+                    when (acc) {
+                        RefreshState.INITIAL -> {
+                            if (next.source.refresh is LoadState.Loading) {
+                                RefreshState.LOADING
+                            } else {
+                                RefreshState.INITIAL
+                            }
+                        }
+                        RefreshState.LOADING -> {
+                            if (next.source.refresh !is LoadState.Loading) {
+                                RefreshState.DONE
+                            } else {
+                                RefreshState.LOADING
+                            }
+                        }
+                        else -> acc
+                    }
+                }
+                .first { it == RefreshState.DONE }
+        }
+
+        loadStateCollectorStarted.await()
+        scenario.onActivity { refresh() }
+        result.await()
+    }
+
+    private enum class RefreshState {
+        INITIAL, LOADING, DONE
     }
 }

@@ -35,7 +35,16 @@ public final class Gyroscope {
     @NonNull
     private final CarValue<List<Float>> mRotations;
 
-    /** Returns the raw gyroscope data from the car sensor. */
+    /**
+     * Returns the raw gyroscope data from the car sensor.
+     *
+     * <p>Individual values can be {@code Float.Nan} if not reported. The array values consist of:
+     * <ul>
+     *     <li>[0]: X component of rotation, in rad/s
+     *     <li>[1]: Y component of rotation, in rad/s
+     *     <li>[2]: Z component of rotation, in rad/s
+     * </ul>
+     */
     @NonNull
     public CarValue<List<Float>> getRotations() {
         return mRotations;

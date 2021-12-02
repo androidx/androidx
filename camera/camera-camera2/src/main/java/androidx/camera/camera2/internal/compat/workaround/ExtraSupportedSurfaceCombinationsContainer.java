@@ -17,6 +17,7 @@
 package androidx.camera.camera2.internal.compat.workaround;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.camera.camera2.internal.compat.quirk.DeviceQuirks;
 import androidx.camera.camera2.internal.compat.quirk.ExtraSupportedSurfaceCombinationsQuirk;
 import androidx.camera.core.impl.SurfaceCombination;
@@ -28,31 +29,27 @@ import java.util.List;
  * Gets the extra supported surface combinations which are additional to the guaranteed supported
  * configurations.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class ExtraSupportedSurfaceCombinationsContainer {
-
-    @NonNull
-    private final String mCameraId;
+    private final ExtraSupportedSurfaceCombinationsQuirk mQuirk;
 
     /**
      * Constructs an instance of {@link ExtraSupportedSurfaceCombinationsContainer} to provide
      * the extra surface combinations.
      */
-    public ExtraSupportedSurfaceCombinationsContainer(@NonNull String cameraId) {
-        mCameraId = cameraId;
+    public ExtraSupportedSurfaceCombinationsContainer() {
+        mQuirk = DeviceQuirks.get(ExtraSupportedSurfaceCombinationsQuirk.class);
     }
 
     /**
      * Retrieves the extra surface combinations which can be supported on the device.
      */
     @NonNull
-    public List<SurfaceCombination> get() {
-        final ExtraSupportedSurfaceCombinationsQuirk quirk =
-                DeviceQuirks.get(ExtraSupportedSurfaceCombinationsQuirk.class);
-
-        if (quirk == null) {
+    public List<SurfaceCombination> get(@NonNull String cameraId, int hardwareLevel) {
+        if (mQuirk == null) {
             return new ArrayList<>();
         }
 
-        return quirk.getExtraSupportedSurfaceCombinations(mCameraId);
+        return mQuirk.getExtraSupportedSurfaceCombinations(cameraId, hardwareLevel);
     }
 }

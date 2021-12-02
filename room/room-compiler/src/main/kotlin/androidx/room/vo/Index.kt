@@ -19,20 +19,36 @@ package androidx.room.vo
 import androidx.room.migration.bundle.BundleUtil
 import androidx.room.migration.bundle.IndexBundle
 
+private typealias IndexOrder = androidx.room.Index.Order
+
 /**
  * Represents a processed index.
  */
-data class Index(val name: String, val unique: Boolean, override val fields: Fields) :
-    HasSchemaIdentity, HasFields {
+data class Index(
+    val name: String,
+    val unique: Boolean,
+    override val fields: Fields,
+    val orders: List<IndexOrder>
+) : HasSchemaIdentity, HasFields {
     companion object {
         // should match the value in TableInfo.Index.DEFAULT_PREFIX
         const val DEFAULT_PREFIX = "index_"
     }
 
-    constructor(name: String, unique: Boolean, fields: List<Field>) :
-        this(name, unique, Fields(fields))
+    constructor(
+        name: String,
+        unique: Boolean,
+        fields: List<Field>,
+        orders: List<IndexOrder>
+    ) : this(name, unique, Fields(fields), orders)
 
-    override fun getIdKey() = "$unique-$name-${columnNames.joinToString(",")}"
+    override fun getIdKey() = buildString {
+        append("$unique-$name-${columnNames.joinToString(",")}")
+        // orders was newly added; it should affect the ID only when declared.
+        if (orders.isNotEmpty()) {
+            append("-${orders.joinToString(",")}")
+        }
+    }
 
     fun createQuery(tableName: String): String {
         val indexSQL = if (unique) {
@@ -40,14 +56,21 @@ data class Index(val name: String, val unique: Boolean, override val fields: Fie
         } else {
             "INDEX"
         }
+
+        val columns = if (orders.isNotEmpty()) {
+            columnNames.mapIndexed { index, columnName -> "`$columnName` ${orders[index]}" }
+        } else {
+            columnNames.map { "`$it`" }
+        }.joinToString(", ")
+
         return """
             CREATE $indexSQL IF NOT EXISTS `$name`
-            ON `$tableName` (${columnNames.joinToString(", ") { "`$it`" }})
+            ON `$tableName` ($columns)
         """.trimIndent().replace("\n", " ")
     }
 
     fun toBundle(): IndexBundle = IndexBundle(
-        name, unique, columnNames,
+        name, unique, columnNames, orders.map { it.name },
         createQuery(BundleUtil.TABLE_NAME_PLACEHOLDER)
     )
 }

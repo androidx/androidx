@@ -30,9 +30,11 @@ dependencies {
     api(project(":camera:camera-core"))
     implementation("androidx.core:core:1.1.0")
     implementation(libs.autoValueAnnotations)
+    implementation("androidx.concurrent:concurrent-futures:1.0.0")
 
     annotationProcessor(libs.autoValue)
 
+    androidTestImplementation(libs.multidex)
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testRunner)
@@ -49,9 +51,8 @@ dependencies {
 
 android {
     defaultConfig {
-        minSdkVersion 21
+        multiDexEnabled = true
     }
-
     // Use Robolectric 4.+
     testOptions.unitTests.includeAndroidResources = true
 }

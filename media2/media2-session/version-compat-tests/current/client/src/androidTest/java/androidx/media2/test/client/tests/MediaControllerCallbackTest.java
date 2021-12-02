@@ -62,6 +62,7 @@ import androidx.media2.test.client.MediaTestUtils;
 import androidx.media2.test.client.RemoteMediaSession;
 import androidx.media2.test.common.TestUtils;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.FlakyTest;
 import androidx.test.filters.LargeTest;
 
 import org.junit.After;
@@ -79,6 +80,7 @@ import java.util.concurrent.atomic.AtomicReference;
 /**
  * Tests {@link MediaController.ControllerCallback}.
  */
+@FlakyTest(bugId = 202942942)
 @RunWith(AndroidJUnit4.class)
 @LargeTest
 public class MediaControllerCallbackTest extends MediaSessionTestBase {
@@ -294,11 +296,6 @@ public class MediaControllerCallbackTest extends MediaSessionTestBase {
 
     @Test
     public void onCurrentMediaItemChanged_withDuration() throws Exception {
-        if (!MediaTestUtils.isServiceToT()) {
-            // TODO(b/143999611): Remove this once the corresponding fixes are released.
-            return;
-        }
-
         final int testListSize = 5;
         final List<MediaItem> list = MediaTestUtils.createFileMediaItems(testListSize);
         mRemoteSession2.getMockPlayer().setPlayerState(SessionPlayer.PLAYER_STATE_IDLE);
@@ -342,11 +339,6 @@ public class MediaControllerCallbackTest extends MediaSessionTestBase {
 
     @Test
     public void onCurrentMediaItemChanged_notCalledWithSameValue() throws Exception {
-        if (!MediaTestUtils.isServiceToT()) {
-            // TODO(b/143999611): Remove this once the corresponding fixes are released.
-            return;
-        }
-
         final int testListSize = 5;
         final List<MediaItem> list = MediaTestUtils.createFileMediaItems(testListSize);
         mRemoteSession2.getMockPlayer().setPlayerState(SessionPlayer.PLAYER_STATE_IDLE);
@@ -391,11 +383,6 @@ public class MediaControllerCallbackTest extends MediaSessionTestBase {
 
     @Test
     public void onCurrentMediaItemChanged_withUpdatedMetadata() throws Exception {
-        if (!MediaTestUtils.isServiceToT()) {
-            // TODO(b/143999611): Remove this once the corresponding fixes are released.
-            return;
-        }
-
         final int testListSize = 5;
         final List<MediaItem> list = MediaTestUtils.createFileMediaItems(testListSize);
         mRemoteSession2.getMockPlayer().setPlayerState(SessionPlayer.PLAYER_STATE_IDLE);
@@ -564,12 +551,6 @@ public class MediaControllerCallbackTest extends MediaSessionTestBase {
 
     @Test
     public void onPlaybackInfoChanged_isCalled_byVolumeChange() throws Exception {
-        if (!MediaTestUtils.isServiceToT()) {
-            // TODO(b/156594425): Remove this condition once the version of media2-session on which
-            //  the previous module depends supports to notify remote volume changes (b/155059866).
-            return;
-        }
-
         Bundle config = new RemoteMediaSession.MockPlayerConfigBuilder()
                 .setVolumeControlType(RemoteSessionPlayer.VOLUME_CONTROL_ABSOLUTE)
                 .setMaxVolume(10)

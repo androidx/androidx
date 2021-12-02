@@ -16,6 +16,8 @@
 
 package androidx.car.app.model;
 
+import static androidx.car.app.model.Action.FLAG_PRIMARY;
+
 import static java.util.Objects.requireNonNull;
 
 import androidx.annotation.Keep;
@@ -23,6 +25,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.model.Action.ActionType;
+import androidx.car.app.model.constraints.CarTextConstraints;
 import androidx.car.app.utils.CollectionUtils;
 
 import java.util.ArrayList;
@@ -118,11 +121,14 @@ public final class ActionStrip {
          *
          * <p>Background colors are not supported on an action inside an {@link ActionStrip}.
          *
+         * <p>Primary actions are not supported.
+         *
          * <p>Spans are not supported in the title of the action and will be ignored.
          *
          * @throws IllegalArgumentException if the background color of the action is specified,
          *                                  or if {@code action} is a standard action and an
-         *                                  action of the same type has already been added
+         *                                  action of the same type has already been added, of if
+         *                                  the {@code action}'s title contains unsupported spans.
          * @throws NullPointerException     if {@code action} is {@code null}
          */
         @NonNull
@@ -133,10 +139,19 @@ public final class ActionStrip {
                 throw new IllegalArgumentException(
                         "Duplicated action types are disallowed: " + action);
             }
+            if ((action.getFlags() & FLAG_PRIMARY) != 0) {
+                throw new IllegalArgumentException(
+                        "Primary actions are disallowed: " + action);
+            }
             if (!CarColor.DEFAULT.equals(actionObj.getBackgroundColor())) {
                 throw new IllegalArgumentException(
                         "Action strip actions don't support background colors");
             }
+            CarText title = action.getTitle();
+            if (title != null) {
+                CarTextConstraints.CONSERVATIVE.validateOrThrow(title);
+            }
+
             mAddedActionTypes.add(actionType);
             mActions.add(action);
             return this;

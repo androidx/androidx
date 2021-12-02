@@ -24,18 +24,10 @@ plugins {
     id("AndroidXPlugin")
     id("com.android.application")
     id("kotlin-android")
+    // both ksp and kapt are applied. each run in their own variant.
+    id("com.google.devtools.ksp")
+    id("kotlin-kapt")
 }
-// If set to `true`, we'll use KSP instead of KAPT.
-// Note that the CI does not run tests with KSP yet so this is only for local usage.
-// Once variants are properly supported by both ksp and AndroidX, we'll add support for this.
-// (b/153917176)
-def useKsp = project.properties.getOrDefault("useKsp", "false").toBoolean()
-if (useKsp) {
-    apply plugin: "com.google.devtools.ksp"
-} else {
-    apply plugin: "kotlin-kapt"
-}
-
 android {
     buildFeatures {
         buildConfig = true
@@ -45,49 +37,39 @@ android {
         javaCompileOptions {
             annotationProcessorOptions {
                 arguments = [
-                        "room.schemaLocation"  : "$projectDir/schemas".toString(),
-                        "room.expandProjection": "true"
+                        "room.schemaLocation"  : "$projectDir/schemas".toString()
                 ]
             }
         }
-        buildConfigField("boolean", "KSP", "$useKsp")
     }
 
     sourceSets {
-        androidTest.assets.srcDirs += files("$projectDir/schemas".toString())
+        androidTestWithKapt.assets.srcDirs += files("$projectDir/schemas".toString())
+        androidTestWithKsp.assets.srcDirs += files("$projectDir/schemas-ksp".toString())
     }
 
-// TODO re-enable flavors when b/153917176 is fixed
-//    flavorDimensions "processorConfiguration"
-//    productFlavors {
-//        withExpandProjection {
-//            dimension "processorConfiguration"
-//            javaCompileOptions {
-//                annotationProcessorOptions {
-//                    arguments = [
-//                            "room.schemaLocation"  : "$projectDir/schemas".toString(),
-//                            "room.expandProjection"  : "true"
-//                    ]
-//                }
-//            }
-//        }
-//        withoutExpandProjection {
-//            dimension "processorConfiguration"
-//            javaCompileOptions {
-//                annotationProcessorOptions {
-//                    arguments = [
-//                            "room.schemaLocation"  : "$projectDir/schemas".toString(),
-//                            "room.expandProjection"  : "false"
-//                    ]
-//                }
-//            }
-//        }
-//    }
+    flavorDimensions "processorConfiguration"
+    productFlavors {
+        withKapt {
+            dimension "processorConfiguration"
+            javaCompileOptions {
+                annotationProcessorOptions {
+                    arguments = [
+                            "room.schemaLocation"  : "$projectDir/schemas".toString(),
+                    ]
+                }
+            }
+        }
+        withKsp {
+            dimension "processorConfiguration"
+        }
+    }
 }
 
 dependencies {
     implementation(project(":room:room-common"))
     implementation(project(":room:room-runtime"))
+    implementation(project(":room:room-paging"))
     implementation(projectOrArtifact(":arch:core:core-runtime"))
     implementation(projectOrArtifact(":lifecycle:lifecycle-livedata"))
     implementation(projectOrArtifact(":lifecycle:lifecycle-livedata-ktx"))
@@ -96,15 +78,12 @@ dependencies {
     implementation(libs.multidex)
     // depend on the shadowed version so that it tests with the shipped artifact
     // this is a temporary attribute until KSP and AndroidX plugin supports variants.
-    if (useKsp) {
-        kspAndroidTest(
-                project(path: ":room:room-compiler", configuration: "shadowAndImplementation")
-        )
-    } else {
-        kaptAndroidTest(
-                project(path: ":room:room-compiler", configuration: "shadowAndImplementation")
-        )
-    }
+    kspAndroidTestWithKsp(
+            project(path: ":room:room-compiler", configuration: "shadowAndImplementation")
+    )
+    kaptAndroidTestWithKapt(
+            project(path: ":room:room-compiler", configuration: "shadowAndImplementation")
+    )
     androidTestImplementation(projectOrArtifact(":lifecycle:lifecycle-livedata-ktx"))
     androidTestImplementation(projectOrArtifact(":arch:core:core-runtime")) // Added for b/155802460
     androidTestImplementation(libs.testExtJunit)
@@ -118,11 +97,14 @@ dependencies {
         exclude module: "hamcrest-core"
     })
     androidTestImplementation(libs.truth)
+    androidTestImplementation(libs.kotlinTest)
     androidTestImplementation(project(":room:room-guava"))
+    androidTestImplementation(project(":room:room-paging")) // Added for b/155802460
     androidTestImplementation(project(":room:room-testing"))
     androidTestImplementation(project(":room:room-rxjava2"))
     androidTestImplementation(project(":room:room-rxjava3"))
     androidTestImplementation(project(":room:room-ktx"))
+    androidTestImplementation(project(":internal-testutils-common"))
     androidTestImplementation("androidx.arch.core:core-testing:2.0.1")
     androidTestImplementation(projectOrArtifact(":paging:paging-runtime"))
     androidTestImplementation(libs.guavaAndroid)
@@ -130,11 +112,9 @@ dependencies {
     testImplementation(libs.mockitoCore)
 }
 
-if (useKsp) {
-    ksp {
-        arg("room.schemaLocation","$projectDir/schemas".toString())
-        arg("room.expandProjection", "true")
-    }
+// KSP does not support argument per flavor so we set it to global instead.
+ksp {
+    arg("room.schemaLocation","$projectDir/schemas-ksp".toString())
 }
 
 // Allow usage of Kotlin's @OptIn.

@@ -16,40 +16,32 @@
 
 package androidx.health.services.client.impl.request
 
-import android.os.Parcel
 import android.os.Parcelable
-import androidx.health.services.client.data.DataType
+import androidx.health.services.client.data.PassiveMonitoringConfig
+import androidx.health.services.client.data.ProtoParcelable
+import androidx.health.services.client.proto.RequestsProto
 
 /**
  * Request for background registration.
  *
  * @hide
  */
-public data class BackgroundRegistrationRequest(
-    val packageName: String,
-    val dataTypes: Set<DataType>,
-) : Parcelable {
-    override fun describeContents(): Int = 0
+public class BackgroundRegistrationRequest(
+    public val passiveMonitoringConfig: PassiveMonitoringConfig,
+) : ProtoParcelable<RequestsProto.BackgroundRegistrationRequest>() {
 
-    override fun writeToParcel(dest: Parcel, flags: Int) {
-        dest.writeString(packageName)
-        dest.writeTypedList(dataTypes.toList())
+    override val proto: RequestsProto.BackgroundRegistrationRequest by lazy {
+        RequestsProto.BackgroundRegistrationRequest.newBuilder()
+            .setConfig(passiveMonitoringConfig.proto)
+            .build()
     }
 
     public companion object {
         @JvmField
         public val CREATOR: Parcelable.Creator<BackgroundRegistrationRequest> =
-            object : Parcelable.Creator<BackgroundRegistrationRequest> {
-                override fun createFromParcel(source: Parcel): BackgroundRegistrationRequest? {
-                    val packageName = source.readString() ?: return null
-                    val list = ArrayList<DataType>()
-                    source.readTypedList(list, DataType.CREATOR)
-                    return BackgroundRegistrationRequest(packageName, list.toSet())
-                }
-
-                override fun newArray(size: Int): Array<BackgroundRegistrationRequest?> {
-                    return arrayOfNulls(size)
-                }
+            newCreator { bytes ->
+                val proto = RequestsProto.BackgroundRegistrationRequest.parseFrom(bytes)
+                BackgroundRegistrationRequest(PassiveMonitoringConfig(proto.config))
             }
     }
 }

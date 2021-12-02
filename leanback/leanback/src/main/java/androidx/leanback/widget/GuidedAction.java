@@ -903,10 +903,12 @@ public class GuidedAction extends Action {
      * Returns true if Action will be saved to instanceState and restored later, false otherwise.
      * The default value is true.  When isAutoSaveRestoreEnabled() is true and {@link #getId()} is
      * not {@link #NO_ID}:
+     * <ul>
      * <li>{@link #isEditable()} is true: save text of {@link #getTitle()}</li>
      * <li>{@link #isDescriptionEditable()} is true: save text of {@link #getDescription()}</li>
      * <li>{@link #getCheckSetId()} is not {@link #NO_CHECK_SET}: save {@link #isChecked()}}</li>
      * <li>{@link GuidedDatePickerAction} will be saved</li>
+     * </ul>
      * App may explicitly disable auto restore and handle by itself. App should override Fragment
      * onSaveInstanceState() and onCreateActions()
      * @return True if Action will be saved to instanceState and restored later, false otherwise.
@@ -917,10 +919,12 @@ public class GuidedAction extends Action {
 
     /**
      * Save action into a bundle using a given key. When isAutoRestoreEna() is true:
+     * <ul>
      * <li>{@link #isEditable()} is true: save text of {@link #getTitle()}</li>
      * <li>{@link #isDescriptionEditable()} is true: save text of {@link #getDescription()}</li>
      * <li>{@link #getCheckSetId()} is not {@link #NO_CHECK_SET}: save {@link #isChecked()}}</li>
      * <li>{@link GuidedDatePickerAction} will be saved</li>
+     * </ul>
      * Subclass may override this method.
      * @param bundle  Bundle to save the Action.
      * @param key Key used to save the Action.
@@ -937,10 +941,12 @@ public class GuidedAction extends Action {
 
     /**
      * Restore action from a bundle using a given key. When isAutoRestore() is true:
+     * <ul>
      * <li>{@link #isEditable()} is true: save text of {@link #getTitle()}</li>
      * <li>{@link #isDescriptionEditable()} is true: save text of {@link #getDescription()}</li>
      * <li>{@link #getCheckSetId()} is not {@link #NO_CHECK_SET}: save {@link #isChecked()}}</li>
      * <li>{@link GuidedDatePickerAction} will be saved</li>
+     * </ul>
      * Subclass may override this method.
      * @param bundle  Bundle to restore the Action from.
      * @param key Key used to restore the Action.

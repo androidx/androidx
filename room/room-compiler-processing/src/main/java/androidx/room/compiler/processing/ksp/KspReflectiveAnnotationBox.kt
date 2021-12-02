@@ -16,7 +16,6 @@
 
 package androidx.room.compiler.processing.ksp
 
-import androidx.annotation.VisibleForTesting
 import androidx.room.compiler.processing.XAnnotationBox
 import androidx.room.compiler.processing.XType
 
@@ -25,7 +24,7 @@ import androidx.room.compiler.processing.XType
  * handles those cases.
  * see: https://github.com/google/ksp/issues/53
  */
-internal class KspReflectiveAnnotationBox<T : Annotation> @VisibleForTesting constructor(
+internal class KspReflectiveAnnotationBox<T : Annotation> constructor(
     private val env: KspProcessingEnv,
     private val annotationClass: Class<T>,
     private val annotation: T

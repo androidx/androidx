@@ -27,4 +27,5 @@
     <string name="error_message_host_incompatible" msgid="160406216155183851">"Жүйені жаңарту қажет."</string>
     <string name="error_message_multiple_hosts" msgid="2591031904206928207">"Үйлеспейтін жүйе"</string>
     <string name="error_message_unknown_error" msgid="1918523834689044166">"Белгісіз қате"</string>
+    <string name="error_message_no_vending" msgid="5866202078252905802">"Көлік жөндеу қызметтеріне хабарласыңыз."</string>
 </resources>

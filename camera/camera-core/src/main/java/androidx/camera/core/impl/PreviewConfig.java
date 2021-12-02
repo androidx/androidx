@@ -18,12 +18,14 @@ package androidx.camera.core.impl;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.camera.core.Preview;
 import androidx.camera.core.internal.ThreadConfig;
 
 /**
  * Configuration for a {@link Preview} use case.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class PreviewConfig
         implements UseCaseConfig<Preview>,
         ImageOutputConfig,

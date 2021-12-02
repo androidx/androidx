@@ -21,7 +21,6 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.graphics.Bitmap;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 
@@ -30,6 +29,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.StringDef;
 import androidx.collection.ArrayMap;
+import androidx.core.graphics.BitmapCompat;
 import androidx.versionedparcelable.CustomVersionedParcelable;
 import androidx.versionedparcelable.NonParcelField;
 import androidx.versionedparcelable.ParcelField;
@@ -1297,11 +1297,7 @@ public final class MediaMetadata extends CustomVersionedParcelable {
         }
 
         private int getBitmapSizeInBytes(Bitmap bitmap) {
-            if (Build.VERSION.SDK_INT >= 19) {
-                return bitmap.getAllocationByteCount();
-            } else {
-                return bitmap.getByteCount();
-            }
+            return BitmapCompat.getAllocationByteCount(bitmap);
         }
     }
 }

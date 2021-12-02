@@ -17,6 +17,7 @@
 package androidx.camera.core;
 
 import androidx.annotation.IntDef;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 
 import java.lang.annotation.Retention;
@@ -27,6 +28,7 @@ import java.lang.annotation.RetentionPolicy;
  *
  * <p>Aspect ratio is the ratio of width to height.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class AspectRatio {
     /** 4:3 standard aspect ratio. */
     public static final int RATIO_4_3 = 0;

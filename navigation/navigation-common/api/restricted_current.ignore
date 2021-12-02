@@ -3,6 +3,8 @@ ChangedType: androidx.navigation.NavArgument#getType():
     Method androidx.navigation.NavArgument.getType has changed return type from androidx.navigation.NavType<?> to androidx.navigation.NavType<java.lang.Object>
 ChangedType: androidx.navigation.NavDestination#getArguments():
     Method androidx.navigation.NavDestination.getArguments has changed return type from java.util.Map<java.lang.String!,androidx.navigation.NavArgument!> to java.util.Map<java.lang.String,androidx.navigation.NavArgument>
+ChangedType: androidx.navigation.NavDestination.ClassType#value():
+    Method androidx.navigation.NavDestination.ClassType.value has changed return type from Class<?> to kotlin.reflect.KClass<?>
 ChangedType: androidx.navigation.NavGraph#iterator():
     Method androidx.navigation.NavGraph.iterator has changed return type from java.util.Iterator<androidx.navigation.NavDestination!> to java.util.Iterator<androidx.navigation.NavDestination>
 ChangedType: androidx.navigation.NavType#BoolArrayType:

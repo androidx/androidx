@@ -19,9 +19,9 @@ package androidx.room.compiler.processing
 import androidx.room.compiler.processing.ksp.ERROR_TYPE_NAME
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.className
-import androidx.room.compiler.processing.util.getDeclaredMethod
+import androidx.room.compiler.processing.util.getDeclaredMethodByJvmName
 import androidx.room.compiler.processing.util.getField
-import androidx.room.compiler.processing.util.getMethod
+import androidx.room.compiler.processing.util.getMethodByJvmName
 import androidx.room.compiler.processing.util.javaElementUtils
 import androidx.room.compiler.processing.util.kspResolver
 import androidx.room.compiler.processing.util.runKspTest
@@ -83,7 +83,7 @@ class XTypeTest {
                 )
             }
 
-            type.typeElement!!.getMethod("wildcardParam").let { method ->
+            type.typeElement!!.getMethodByJvmName("wildcardParam").let { method ->
                 val wildcardParam = method.parameters.first()
                 val extendsBoundOrSelf = wildcardParam.type.extendsBoundOrSelf()
                 assertThat(extendsBoundOrSelf.rawType)
@@ -124,7 +124,7 @@ class XTypeTest {
                 assertThat(field.type.isError()).isTrue()
                 assertThat(field.type.typeName).isEqualTo(errorTypeName)
             }
-            element.getDeclaredMethod("badMethod").let { method ->
+            element.getDeclaredMethodByJvmName("badMethod").let { method ->
                 assertThat(method.returnType.isError()).isTrue()
                 assertThat(method.returnType.typeName).isEqualTo(errorTypeName)
             }
@@ -195,7 +195,7 @@ class XTypeTest {
                 }
             }.map { (first, second) ->
                 first.name to second.name
-            }
+            }.toList()
 
             val expected = setOf(
                 "intField" to "intProp",
@@ -349,7 +349,7 @@ class XTypeTest {
         )
         runProcessorTest(sources = listOf(kotlinSubject)) { invocation ->
             invocation.processingEnv.requireTypeElement("KotlinSubject").let {
-                val continuationParam = it.getMethod("unitSuspend").parameters.last()
+                val continuationParam = it.getMethodByJvmName("unitSuspend").parameters.last()
                 val typeArg = continuationParam.type.typeArguments.first()
                 assertThat(
                     typeArg.extendsBound()?.isKotlinUnit()
@@ -364,7 +364,7 @@ class XTypeTest {
     @Test
     fun isVoidObject() {
         val javaBase = Source.java(
-            "JavaInterface.java",
+            "JavaInterface",
             """
             import java.lang.Void;
             interface JavaInterface {
@@ -383,18 +383,18 @@ class XTypeTest {
         )
         runProcessorTest(sources = listOf(javaBase, kotlinSubject)) { invocation ->
             invocation.processingEnv.requireTypeElement("KotlinSubject").let {
-                it.getMethod("voidMethod").returnType.let {
+                it.getMethodByJvmName("voidMethod").returnType.let {
                     assertThat(it.isVoidObject()).isFalse()
                     assertThat(it.isVoid()).isTrue()
                     assertThat(it.isKotlinUnit()).isFalse()
                 }
-                val method = it.getMethod("getVoid")
+                val method = it.getMethodByJvmName("getVoid")
                 method.returnType.let {
                     assertThat(it.isVoidObject()).isTrue()
                     assertThat(it.isVoid()).isFalse()
                     assertThat(it.isKotlinUnit()).isFalse()
                 }
-                it.getMethod("anotherVoid").returnType.let {
+                it.getMethodByJvmName("anotherVoid").returnType.let {
                     assertThat(it.isVoidObject()).isTrue()
                     assertThat(it.isVoid()).isFalse()
                     assertThat(it.isKotlinUnit()).isFalse()
@@ -596,6 +596,57 @@ class XTypeTest {
                 | > | > | RX
                 """.trimIndent()
             )
+        }
+    }
+
+    /**
+     * Reproduces the first bug in b/204415667
+     */
+    @Test
+    fun starVarianceInParameter() {
+        val libSource = Source.kotlin(
+            "lib.kt",
+            """
+            class MyClass<R> {
+                fun setLists(starList: List<*>, rList: List<R>) {}
+            }
+            """.trimIndent()
+        )
+        runProcessorTest(listOf(libSource)) { invocation ->
+            val actual = invocation.processingEnv.requireTypeElement("MyClass")
+                .getDeclaredMethodByJvmName("setLists").parameters.associate {
+                    it.name to it.type.typeName.toString()
+                }
+            assertThat(actual["starList"]).isEqualTo("java.util.List<?>")
+            assertThat(actual["rList"]).isEqualTo("java.util.List<? extends R>")
+        }
+    }
+
+    @Test
+    fun superTypes() {
+        val libSource = Source.kotlin(
+            "foo.kt",
+            """
+            package foo.bar;
+            class Baz : MyInterface, AbstractClass<String>() {
+            }
+            abstract class AbstractClass<T> {}
+            interface MyInterface {}
+            """.trimIndent()
+        )
+        runProcessorTest(listOf(libSource)) { invocation ->
+            invocation.processingEnv.requireType("foo.bar.Baz").let {
+                val superTypes = it.superTypes
+                assertThat(superTypes).hasSize(2)
+                val superClass = superTypes.first {
+                        type -> type.rawType.toString() == "foo.bar.AbstractClass" }
+                val superInterface = superTypes.first {
+                        type -> type.rawType.toString() == "foo.bar.MyInterface" }
+                assertThat(superClass.typeArguments).hasSize(1)
+                assertThat(superClass.typeArguments[0].typeName)
+                    .isEqualTo(ClassName.get("java.lang", "String"))
+                assertThat(superInterface.typeArguments).isEmpty()
+            }
         }
     }
 

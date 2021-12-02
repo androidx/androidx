@@ -24,7 +24,6 @@ import androidx.room.compiler.processing.util.XTestInvocation
 import androidx.room.compiler.processing.util.runProcessorTest
 import androidx.room.parser.SQLTypeAffinity
 import androidx.room.processor.ProcessorErrors.CANNOT_FIND_GETTER_FOR_FIELD
-import androidx.room.processor.ProcessorErrors.CANNOT_FIND_TYPE
 import androidx.room.processor.ProcessorErrors.MISSING_POJO_CONSTRUCTOR
 import androidx.room.processor.ProcessorErrors.POJO_FIELD_HAS_DUPLICATE_COLUMN_NAME
 import androidx.room.processor.ProcessorErrors.junctionColumnWithoutIndex
@@ -556,7 +555,9 @@ class PojoProcessorTest {
                 }
             } else {
                 invocation.assertCompilationResult {
-                    hasErrorContaining(CANNOT_FIND_TYPE)
+                    hasErrorContaining(
+                        "Element 'foo.bar.MyPojo' references a type that is not present"
+                    )
                 }
             }
         }

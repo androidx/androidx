@@ -171,8 +171,9 @@ class SampleMediaRouteProvider extends MediaRouteProvider {
         Intent settingsIntent = new Intent(Intent.ACTION_MAIN);
         settingsIntent.setClass(getContext(), SampleMediaRouteSettingsActivity.class)
                 .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        int pendingIntentFlagMutable = Build.VERSION.SDK_INT >= 31 ? PendingIntent.FLAG_MUTABLE : 0;
         IntentSender is = PendingIntent.getActivity(getContext(), 99, settingsIntent,
-                PendingIntent.FLAG_UPDATE_CURRENT).getIntentSender();
+                PendingIntent.FLAG_UPDATE_CURRENT | pendingIntentFlagMutable).getIntentSender();
 
         mVolumes.put(FIXED_VOLUME_ROUTE_ID, VOLUME_DEFAULT);
         mVolumes.put(VARIABLE_VOLUME_BASIC_ROUTE_ID, VOLUME_DEFAULT);

@@ -25,7 +25,7 @@ import androidx.car.app.hardware.ICarHardwareResultTypes;
 import androidx.car.app.hardware.common.CarHardwareHostDispatcher;
 import androidx.car.app.hardware.common.CarResultStubMap;
 import androidx.car.app.hardware.common.CarValue;
-import androidx.car.app.hardware.common.OnCarDataListener;
+import androidx.car.app.hardware.common.OnCarDataAvailableListener;
 
 import java.util.List;
 import java.util.concurrent.Executor;
@@ -73,50 +73,53 @@ public class ProjectedCarSensors implements CarSensors {
 
     @Override
     public void addAccelerometerListener(@UpdateRate int rate,
-            @NonNull Executor executor, @NonNull OnCarDataListener<Accelerometer> listener) {
+            @NonNull Executor executor,
+            @NonNull OnCarDataAvailableListener<Accelerometer> listener) {
         mAccelerometerCarResultStubMap.addListener(rate, requireNonNull(executor),
                 requireNonNull(listener));
     }
 
     @Override
-    public void removeAccelerometerListener(@NonNull OnCarDataListener<Accelerometer> listener) {
+    public void removeAccelerometerListener(
+            @NonNull OnCarDataAvailableListener<Accelerometer> listener) {
         mAccelerometerCarResultStubMap.removeListener(requireNonNull(listener));
     }
 
     @Override
     public void addGyroscopeListener(@UpdateRate int rate, @NonNull Executor executor,
-            @NonNull OnCarDataListener<Gyroscope> listener) {
+            @NonNull OnCarDataAvailableListener<Gyroscope> listener) {
         mGyroscopeCarResultStubMap.addListener(rate, requireNonNull(executor),
                 requireNonNull(listener));
     }
 
     @Override
-    public void removeGyroscopeListener(@NonNull OnCarDataListener<Gyroscope> listener) {
+    public void removeGyroscopeListener(@NonNull OnCarDataAvailableListener<Gyroscope> listener) {
         mGyroscopeCarResultStubMap.removeListener(requireNonNull(listener));
     }
 
     @Override
     public void addCompassListener(@UpdateRate int rate, @NonNull Executor executor,
-            @NonNull OnCarDataListener<Compass> listener) {
+            @NonNull OnCarDataAvailableListener<Compass> listener) {
         mCompassCarResultStubMap.addListener(rate, requireNonNull(executor),
                 requireNonNull(listener));
     }
 
     @Override
-    public void removeCompassListener(@NonNull OnCarDataListener<Compass> listener) {
+    public void removeCompassListener(@NonNull OnCarDataAvailableListener<Compass> listener) {
         mCompassCarResultStubMap.removeListener(requireNonNull(listener));
     }
 
     @Override
     public void addCarHardwareLocationListener(@UpdateRate int rate,
-            @NonNull Executor executor, @NonNull OnCarDataListener<CarHardwareLocation> listener) {
+            @NonNull Executor executor,
+            @NonNull OnCarDataAvailableListener<CarHardwareLocation> listener) {
         mCarHardwareLocationCarResultStubMap.addListener(rate, requireNonNull(executor),
                 requireNonNull(listener));
     }
 
     @Override
     public void removeCarHardwareLocationListener(
-            @NonNull OnCarDataListener<CarHardwareLocation> listener) {
+            @NonNull OnCarDataAvailableListener<CarHardwareLocation> listener) {
         mCarHardwareLocationCarResultStubMap.removeListener(requireNonNull(listener));
     }
 }

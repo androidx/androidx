@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
+
 import androidx.build.LibraryGroups
-import androidx.build.LibraryVersions
 import androidx.build.Publish
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
@@ -40,7 +40,6 @@ dependencies {
 androidx {
   name = "Android Lifecycle ReactiveStreams KTX"
   publish = Publish.SNAPSHOT_AND_RELEASE
-  mavenVersion = LibraryVersions.LIFECYCLE
   mavenGroup = LibraryGroups.LIFECYCLE
   inceptionYear = "2018"
   description = "Kotlin extensions for Lifecycle ReactiveStreams"

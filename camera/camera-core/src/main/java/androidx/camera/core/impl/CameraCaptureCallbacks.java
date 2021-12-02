@@ -17,6 +17,7 @@
 package androidx.camera.core.impl;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -25,6 +26,7 @@ import java.util.List;
 /**
  * Different implementations of {@link CameraCaptureCallback}.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class CameraCaptureCallbacks {
     private CameraCaptureCallbacks() {
     }
@@ -81,9 +83,9 @@ public final class CameraCaptureCallbacks {
         }
 
         @Override
-        public void onCaptureCompleted(@NonNull CameraCaptureResult result) {
+        public void onCaptureCompleted(@NonNull CameraCaptureResult cameraCaptureResult) {
             for (CameraCaptureCallback callback : mCallbacks) {
-                callback.onCaptureCompleted(result);
+                callback.onCaptureCompleted(cameraCaptureResult);
             }
         }
 

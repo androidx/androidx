@@ -29,10 +29,10 @@ dependencies {
     implementation(libs.kotlinStdlib)
 
     compileOnly projectOrArtifact(":annotation:annotation-sampled")
-    implementation projectOrArtifact(":compose:foundation:foundation")
+    implementation "androidx.compose.foundation:foundation:1.0.1"
     implementation projectOrArtifact(":activity:activity-compose")
     implementation projectOrArtifact(":activity:activity-ktx")
-    implementation projectOrArtifact(":compose:material:material")
+    implementation "androidx.compose.material:material:1.0.1"
 }
 
 androidx {

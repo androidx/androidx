@@ -40,7 +40,7 @@ class ViewerTileUpdateRequester implements TileUpdateRequester {
     }
 
     @Override
-    public void requestUpdate(@NonNull Class<? extends TileProviderService> tileProvider) {
+    public void requestUpdate(@NonNull Class<? extends TileService> tileService) {
         mContext.sendBroadcast(buildUpdateIntent(mContext.getPackageName()));
     }
 

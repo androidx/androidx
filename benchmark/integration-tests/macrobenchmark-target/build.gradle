@@ -33,8 +33,10 @@ android {
 dependencies {
     implementation(libs.kotlinStdlib)
     implementation(libs.constraintLayout)
-    implementation("androidx.arch.core:core-runtime:2.1.0")
-    implementation("androidx.appcompat:appcompat:1.2.0")
-    implementation("androidx.recyclerview:recyclerview:1.1.0")
+    implementation(project(":appcompat:appcompat"))
+    implementation(project(":activity:activity"))
+    implementation(project(":profileinstaller:profileinstaller"))
+    implementation(project(":recyclerview:recyclerview"))
+    implementation(project(":tracing:tracing-ktx"))
     implementation(libs.material)
 }

@@ -16,12 +16,23 @@
 
 package androidx.room.compiler.processing.util
 
-import androidx.room.compiler.processing.XElement
+import javax.tools.Diagnostic
 
 /**
  * Holder for diagnostics messages
  */
 data class DiagnosticMessage(
+    val kind: Diagnostic.Kind,
     val msg: String,
-    val element: XElement?
+    val location: DiagnosticLocation? = null,
+)
+
+/**
+ * Location of a diagnostic message.
+ * Note that, when run with KAPT this location might be on the stubs or may not exactly match the
+ * kotlin source file (KAPT's stub to source mapping is not very fine grained)
+ */
+data class DiagnosticLocation(
+    val source: Source?,
+    val line: Int,
 )

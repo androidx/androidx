@@ -17,6 +17,7 @@
 package androidx.camera.core;
 
 import android.annotation.SuppressLint;
+import android.graphics.Matrix;
 import android.graphics.Rect;
 import android.media.ImageReader;
 import android.util.Size;
@@ -27,6 +28,7 @@ import androidx.annotation.GuardedBy;
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.camera.core.impl.CameraControlInternal;
@@ -34,6 +36,7 @@ import androidx.camera.core.impl.CameraInfoInternal;
 import androidx.camera.core.impl.CameraInternal;
 import androidx.camera.core.impl.Config;
 import androidx.camera.core.impl.Config.Option;
+import androidx.camera.core.impl.DeferrableSurface;
 import androidx.camera.core.impl.ImageOutputConfig;
 import androidx.camera.core.impl.MutableOptionsBundle;
 import androidx.camera.core.impl.SessionConfig;
@@ -55,6 +58,7 @@ import java.util.Set;
  * that are usable by a camera. UseCase also will communicate of the active/inactive state to
  * the Camera.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public abstract class UseCase {
 
     ////////////////////////////////////////////////////////////////////////////////////////////
@@ -126,6 +130,7 @@ public abstract class UseCase {
     ////////////////////////////////////////////////////////////////////////////////////////////
 
     // The currently attached session config
+    @NonNull
     private SessionConfig mAttachedSessionConfig = SessionConfig.defaultEmptySessionConfig();
 
     /**
@@ -317,6 +322,11 @@ public abstract class UseCase {
     @RestrictTo(Scope.LIBRARY_GROUP)
     protected void updateSessionConfig(@NonNull SessionConfig sessionConfig) {
         mAttachedSessionConfig = sessionConfig;
+        for (DeferrableSurface surface : sessionConfig.getSurfaces()) {
+            if (surface.getContainerClass() == null) {
+                surface.setContainerClass(this.getClass());
+            }
+        }
     }
 
     /**
@@ -343,7 +353,7 @@ public abstract class UseCase {
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
-    @Nullable
+    @NonNull
     public SessionConfig getSessionConfig() {
         return mAttachedSessionConfig;
     }
@@ -668,6 +678,14 @@ public abstract class UseCase {
     public Rect getViewPortCropRect() {
         return mViewPortCropRect;
     }
+
+    /**
+     * Sets the sensor to image buffer transform matrix.
+     *
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    public void setSensorToBufferTransformMatrix(@NonNull Matrix sensorToBufferTransformMatrix) {}
 
     /**
      * Get image format for the use case.

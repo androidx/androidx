@@ -80,7 +80,6 @@ public class MediaSessionServiceNotificationTest extends MediaSessionTestBase {
     @Test
     @Ignore("Comment out this line and manually run the test.")
     public void notification() throws InterruptedException {
-        prepareLooper();
         final CountDownLatch latch = new CountDownLatch(1);
         final MediaLibrarySessionCallback sessionCallback = new MediaLibrarySessionCallback() {
             @Override
@@ -102,11 +101,10 @@ public class MediaSessionServiceNotificationTest extends MediaSessionTestBase {
                 new SessionToken(mContext, MOCK_MEDIA2_SESSION_SERVICE), true, null);
 
         // Set current media item.
-        final String mediaId = "testMediaId";
         Bitmap albumArt = BitmapFactory.decodeResource(mContext.getResources(),
                 androidx.media2.test.service.R.drawable.big_buck_bunny);
         MediaMetadata metadata = new MediaMetadata.Builder()
-                .putText(METADATA_KEY_MEDIA_ID, mediaId)
+                .putText(METADATA_KEY_MEDIA_ID, "testMediaId")
                 .putText(METADATA_KEY_DISPLAY_TITLE, "Test Song Name")
                 .putText(METADATA_KEY_ARTIST, "Test Artist Name")
                 .putBitmap(METADATA_KEY_ALBUM_ART, albumArt)
@@ -121,6 +119,65 @@ public class MediaSessionServiceNotificationTest extends MediaSessionTestBase {
         // When playing, the notification will not be removed by swiping horizontally.
         // When paused, the notification can be swiped away.
         mPlayer.notifyPlayerStateChanged(SessionPlayer.PLAYER_STATE_PLAYING);
+        Thread.sleep(NOTIFICATION_SHOW_TIME_MS);
+    }
+
+    @Test
+    @Ignore("Comment out this line and manually run the test.")
+    public void notificationUpdatedWhenCurrentMediaItemChanged() throws InterruptedException {
+        final CountDownLatch latch = new CountDownLatch(1);
+        final MediaLibrarySessionCallback sessionCallback = new MediaLibrarySessionCallback() {
+            @Override
+            public SessionCommandGroup onConnect(@NonNull MediaSession session,
+                    @NonNull ControllerInfo controller) {
+                if (CLIENT_PACKAGE_NAME.equals(controller.getPackageName())) {
+                    mSession = session;
+                    // Change the player and playlist agent with ours.
+                    session.updatePlayer(mPlayer);
+                    latch.countDown();
+                }
+                return super.onConnect(session, controller);
+            }
+        };
+        TestServiceRegistry.getInstance().setSessionCallback(sessionCallback);
+
+        // Create a controller to start the service.
+        RemoteMediaController controller = createRemoteController(
+                new SessionToken(mContext, MOCK_MEDIA2_SESSION_SERVICE), true, null);
+
+        // Set current media item.
+        Bitmap albumArt = BitmapFactory.decodeResource(mContext.getResources(),
+                androidx.media2.test.service.R.drawable.big_buck_bunny);
+        MediaMetadata metadata = new MediaMetadata.Builder()
+                .putText(METADATA_KEY_MEDIA_ID, "testMediaId")
+                .putText(METADATA_KEY_DISPLAY_TITLE, "Test Song Name")
+                .putText(METADATA_KEY_ARTIST, "Test Artist Name")
+                .putBitmap(METADATA_KEY_ALBUM_ART, albumArt)
+                .putLong(METADATA_KEY_BROWSABLE, BROWSABLE_TYPE_NONE)
+                .putLong(METADATA_KEY_PLAYABLE, 1)
+                .build();
+        mPlayer.mCurrentMediaItem = new MediaItem.Builder()
+                .setMetadata(metadata)
+                .build();
+
+        mPlayer.notifyPlayerStateChanged(SessionPlayer.PLAYER_STATE_PLAYING);
+        // At this point, the notification should be shown.
+        Thread.sleep(NOTIFICATION_SHOW_TIME_MS);
+
+        // Set a new media item. (current media item is changed)
+        MediaMetadata newMetadata = new MediaMetadata.Builder()
+                .putText(METADATA_KEY_MEDIA_ID, "New media ID")
+                .putText(METADATA_KEY_DISPLAY_TITLE, "New Song Name")
+                .putText(METADATA_KEY_ARTIST, "New Artist Name")
+                .putLong(METADATA_KEY_BROWSABLE, BROWSABLE_TYPE_NONE)
+                .putLong(METADATA_KEY_PLAYABLE, 1)
+                .build();
+
+        MediaItem newItem = new MediaItem.Builder().setMetadata(newMetadata).build();
+        mPlayer.mCurrentMediaItem = newItem;
+
+        // Calling this should update the notification with the new metadata.
+        mPlayer.notifyCurrentMediaItemChanged(newItem);
         Thread.sleep(NOTIFICATION_SHOW_TIME_MS);
     }
 }

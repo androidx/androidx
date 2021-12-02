@@ -19,6 +19,7 @@ package androidx.camera.core.impl;
 import android.util.Size;
 import android.view.Surface;
 
+import androidx.annotation.RequiresApi;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageProxy;
 import androidx.camera.core.Preview;
@@ -26,6 +27,7 @@ import androidx.camera.core.Preview;
 /**
  * A processing step of the image capture pipeline.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public interface CaptureProcessor {
     /**
      * This gets called to update where the CaptureProcessor should write the output of {@link

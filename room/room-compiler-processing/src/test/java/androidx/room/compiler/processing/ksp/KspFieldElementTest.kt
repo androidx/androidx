@@ -157,27 +157,12 @@ class KspFieldElementTest {
             val base = invocation.processingEnv.requireTypeElement("Base")
             val t = base.getField("t")
             val listOfR = base.getField("listOfR")
-            if (invocation.isKsp) {
-                // KSP replaces unspecified type parameters with Any? while javac keeps them as is.
-                // This might be an issue when detecting errors but besides that it should be OK.
-                // It other words, it shouldn't be an issue in proper code. It will only have an
-                // impact when Room wants to report `unbound generics` errors as we won't
-                // recognize them and instead assume they were set as Object.
-                // see: UNBOUND_GENERICS errors in ProcessorErrors)
-                assertThat(t.type.typeName).isEqualTo(TypeName.OBJECT)
-            } else {
-                assertThat(t.type.typeName).isEqualTo(TypeVariableName.get("T"))
-            }
-            val typeVariableName = if (invocation.isKsp) {
-                "E" // ksp reads from class declaration
-            } else {
-                "R" // javac reads from variable declaration
-            }
+            assertThat(t.type.typeName).isEqualTo(TypeVariableName.get("T"))
             assertThat(listOfR.type.typeName)
                 .isEqualTo(
                     ParameterizedTypeName.get(
                         List::class.className(),
-                        TypeVariableName.get(typeVariableName)
+                        TypeVariableName.get("R")
                     )
                 )
 
@@ -205,25 +190,9 @@ class KspFieldElementTest {
         val classpath = compileFiles(sources)
         runProcessorTest(
             sources = emptyList(),
-            classpath = listOf(classpath)
+            classpath = classpath
         ) { invocation ->
-            if (invocation.isKsp) {
-                // TODO: https://github.com/google/ksp/issues/159
-                // KSP has a bug in java package private modifier from .class files
-                // for now, revert them to make the test happy
-                assertModifiers(
-                    invocation = invocation,
-                    inputs = inputs.map {
-                        it.copy(
-                            expected = it.expected.mapValues { (_, modifier) ->
-                                modifier ?: PUBLIC
-                            }
-                        )
-                    }.toTypedArray()
-                )
-            } else {
-                assertModifiers(invocation, inputs)
-            }
+            assertModifiers(invocation, inputs)
         }
     }
 

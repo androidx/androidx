@@ -16,32 +16,56 @@
 
 package androidx.room.compiler.processing.compat
 
+import androidx.room.compiler.processing.XAnnotation
+import androidx.room.compiler.processing.XAnnotationValue
 import androidx.room.compiler.processing.XElement
 import androidx.room.compiler.processing.XExecutableElement
+import androidx.room.compiler.processing.XExecutableType
+import androidx.room.compiler.processing.XFiler
+import androidx.room.compiler.processing.XMessager
 import androidx.room.compiler.processing.XProcessingEnv
 import androidx.room.compiler.processing.XRoundEnv
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.XTypeElement
 import androidx.room.compiler.processing.XVariableElement
+import androidx.room.compiler.processing.javac.JavacAnnotation
+import androidx.room.compiler.processing.javac.JavacAnnotationValue
 import androidx.room.compiler.processing.javac.JavacElement
 import androidx.room.compiler.processing.javac.JavacExecutableElement
+import androidx.room.compiler.processing.javac.JavacExecutableType
+import androidx.room.compiler.processing.javac.JavacFiler
 import androidx.room.compiler.processing.javac.JavacProcessingEnv
+import androidx.room.compiler.processing.javac.JavacProcessingEnvMessager
 import androidx.room.compiler.processing.javac.JavacRoundEnv
 import androidx.room.compiler.processing.javac.JavacType
 import androidx.room.compiler.processing.javac.JavacTypeElement
 import androidx.room.compiler.processing.javac.JavacVariableElement
+import javax.annotation.processing.Filer
+import javax.annotation.processing.Messager
+import javax.annotation.processing.ProcessingEnvironment
 import javax.annotation.processing.RoundEnvironment
+import javax.lang.model.element.AnnotationMirror
+import javax.lang.model.element.AnnotationValue
 import javax.lang.model.element.Element
 import javax.lang.model.element.ExecutableElement
 import javax.lang.model.element.TypeElement
 import javax.lang.model.element.VariableElement
+import javax.lang.model.type.ExecutableType
 import javax.lang.model.type.TypeMirror
 
 // Migration APIs for converting between Javac and XProcessing types.
 object XConverters {
+    @JvmStatic
+    fun XProcessingEnv.toJavac(): ProcessingEnvironment = (this as JavacProcessingEnv).delegate
 
     @JvmStatic
     fun XRoundEnv.toJavac(): RoundEnvironment = (this as JavacRoundEnv).delegate
+
+    @JvmStatic
+    fun XMessager.toJavac(): Messager = (this as JavacProcessingEnvMessager).delegate
+
+    @JvmStatic
+    fun XFiler.toJavac(): Filer = (this as JavacFiler).delegate
 
     @JvmStatic
     fun XElement.toJavac(): Element = (this as JavacElement).element
@@ -56,7 +80,16 @@ object XConverters {
     fun XVariableElement.toJavac(): VariableElement = (this as JavacVariableElement).element
 
     @JvmStatic
+    fun XAnnotation.toJavac(): AnnotationMirror = (this as JavacAnnotation).mirror
+
+    @JvmStatic
+    fun XAnnotationValue.toJavac(): AnnotationValue = (this as JavacAnnotationValue).annotationValue
+
+    @JvmStatic
     fun XType.toJavac(): TypeMirror = (this as JavacType).typeMirror
+
+    @JvmStatic
+    fun XExecutableType.toJavac(): ExecutableType = (this as JavacExecutableType).executableType
 
     @JvmStatic
     fun Element.toXProcessing(env: XProcessingEnv): XElement {
@@ -82,5 +115,26 @@ object XConverters {
     fun VariableElement.toXProcessing(env: XProcessingEnv): XVariableElement =
         (env as JavacProcessingEnv).wrapVariableElement(this)
 
-    // TODO: TypeMirror to XType, this will be more complicated since location context is lost...
+    @JvmStatic
+    fun AnnotationMirror.toXProcessing(env: XProcessingEnv): XAnnotation =
+        JavacAnnotation(env as JavacProcessingEnv, this)
+
+    @JvmStatic
+    fun Filer.toXProcessing(env: XProcessingEnv): XFiler =
+        JavacFiler(env as JavacProcessingEnv, this)
+
+    @JvmStatic
+    fun Messager.toXProcessing(): XMessager =
+        JavacProcessingEnvMessager(this)
+
+    /**
+     * Returns an [XType] for the given [TypeMirror].
+     *
+     * Warning: This method should be used only for migration since the returned [XType] will be
+     * missing nullability information. Calling [XType#nullability] on these types will result in
+     * an [IllegalStateException].
+     */
+    @JvmStatic
+    fun TypeMirror.toXProcessing(env: XProcessingEnv): XType =
+        (env as JavacProcessingEnv).wrap(this, null, null)
 }

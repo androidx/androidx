@@ -121,53 +121,65 @@ class Encoding {
     ) throws IOException {
         // Read the expected compressed data size.
         Inflater inf = new Inflater();
-        byte[] result = new byte[uncompressedDataSize];
-        int totalBytesRead = 0;
-        int totalBytesInflated = 0;
-        byte[] input = new byte[2048]; // 2KB read window size;
-        while (!inf.finished() && !inf.needsDictionary() && totalBytesRead < compressedDataSize) {
-            int bytesRead = is.read(input);
-            if (bytesRead < 0) {
+        try {
+            byte[] result = new byte[uncompressedDataSize];
+            int totalBytesRead = 0;
+            int totalBytesInflated = 0;
+            byte[] input = new byte[2048]; // 2KB read window size;
+            while (
+                !inf.finished() &&
+                !inf.needsDictionary() &&
+                totalBytesRead < compressedDataSize
+            ) {
+                int bytesRead = is.read(input);
+                if (bytesRead < 0) {
+                    throw error(
+                            "Invalid zip data. Stream ended after $totalBytesRead bytes. " +
+                                    "Expected " + compressedDataSize + " bytes"
+                    );
+                }
+                inf.setInput(input, 0, bytesRead);
+                try {
+                    totalBytesInflated += inf.inflate(
+                            result,
+                            totalBytesInflated,
+                            uncompressedDataSize - totalBytesInflated
+                    );
+                } catch (DataFormatException e) {
+                    throw error(e.getMessage());
+                }
+                totalBytesRead += bytesRead;
+            }
+            if (totalBytesRead != compressedDataSize) {
                 throw error(
-                        "Invalid zip data. Stream ended after $totalBytesRead bytes. " +
-                                "Expected " + compressedDataSize + " bytes"
+                        "Didn't read enough bytes during decompression." +
+                                " expected=" + compressedDataSize +
+                                " actual=" + totalBytesRead
                 );
             }
-            inf.setInput(input, 0, bytesRead);
-            try {
-                totalBytesInflated += inf.inflate(
-                        result,
-                        totalBytesInflated,
-                        uncompressedDataSize - totalBytesInflated
-                );
-            } catch (DataFormatException e) {
-                throw error(e.getMessage());
+            if (!inf.finished()) {
+                throw error("Inflater did not finish");
             }
-            totalBytesRead += bytesRead;
+            return result;
+        } finally {
+            inf.end();
         }
-        if (totalBytesRead != compressedDataSize) {
-            throw error(
-                    "Didn't read enough bytes during decompression." +
-                            " expected=" + compressedDataSize +
-                            " actual=" + totalBytesRead
-            );
-        }
-        if (!inf.finished()) {
-            throw error("Inflater did not finish");
-        }
-        return result;
     }
 
     static void writeCompressed(@NonNull OutputStream os, byte[] data) throws IOException {
         writeUInt32(os, data.length); // uncompressed size
         Deflater deflater = new Deflater(Deflater.BEST_SPEED);
-        ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        try(DeflaterOutputStream dos = new DeflaterOutputStream(bos, deflater)) {
-            dos.write(data);
+        try {
+            ByteArrayOutputStream bos = new ByteArrayOutputStream();
+            try (DeflaterOutputStream dos = new DeflaterOutputStream(bos, deflater)) {
+                dos.write(data);
+            }
+            byte[] outputData = bos.toByteArray();
+            writeUInt32(os, outputData.length); // compressed size
+            os.write(outputData); // compressed body
+        } finally {
+            deflater.end();
         }
-        byte[] outputData = bos.toByteArray();
-        writeUInt32(os, outputData.length); // compressed size
-        os.write(outputData); // compressed body
     }
 
     static void writeAll(@NonNull InputStream is, @NonNull OutputStream os) throws IOException {

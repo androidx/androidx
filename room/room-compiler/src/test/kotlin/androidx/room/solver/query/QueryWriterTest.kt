@@ -356,7 +356,7 @@ class QueryWriterTest {
                         it,
                         it.getAllMethods().filter {
                             it.hasAnnotation(Query::class)
-                        }
+                        }.toList()
                     )
                 }.first { it.second.isNotEmpty() }
             val parser = QueryMethodProcessor(

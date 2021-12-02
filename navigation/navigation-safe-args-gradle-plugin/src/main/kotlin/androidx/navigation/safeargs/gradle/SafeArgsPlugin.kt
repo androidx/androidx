@@ -23,6 +23,7 @@ import com.android.build.gradle.BaseExtension
 import com.android.build.gradle.LibraryExtension
 import com.android.build.gradle.api.ApplicationVariant
 import com.android.build.gradle.api.BaseVariant
+import groovy.xml.XmlSlurper
 import org.gradle.api.GradleException
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -31,6 +32,7 @@ import org.gradle.api.provider.Provider
 import org.gradle.api.provider.ProviderFactory
 import org.jetbrains.kotlin.gradle.dsl.KotlinProjectExtension
 import java.io.File
+import java.util.Locale
 import javax.inject.Inject
 
 private const val PLUGIN_DIRNAME = "navigation-args"
@@ -89,7 +91,9 @@ abstract class SafeArgsPlugin protected constructor(
 
         forEachVariant(extension) { variant ->
             val task = project.tasks.create(
-                "generateSafeArgs${variant.name.capitalize()}",
+                "generateSafeArgs${variant.name.replaceFirstChar {
+                    if (it.isLowerCase()) it.titlecase(Locale.US) else it.toString()
+                }}",
                 ArgumentsGenerationTask::class.java
             ) { task ->
                 task.applicationId.set(
@@ -123,8 +127,7 @@ abstract class SafeArgsPlugin protected constructor(
         val mainSourceSet = sourceSets.find { it.name == "main" }
         val sourceSet = mainSourceSet ?: sourceSets[0]
         val manifest = sourceSet.manifestFile
-        @Suppress("DEPRECATION") // b/181913965
-        val parsed = groovy.util.XmlSlurper(false, false).parse(manifest)
+        val parsed = XmlSlurper(false, false).parse(manifest)
         parsed.getProperty("@package").toString()
     }
 

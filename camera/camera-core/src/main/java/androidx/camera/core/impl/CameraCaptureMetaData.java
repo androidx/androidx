@@ -16,10 +16,13 @@
 
 package androidx.camera.core.impl;
 
+import androidx.annotation.RequiresApi;
+
 /**
  * This class defines the enumeration constants used for querying the camera capture mode and
  * results.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class CameraCaptureMetaData {
     private CameraCaptureMetaData() {
     }
@@ -62,7 +65,10 @@ public final class CameraCaptureMetaData {
         SCANNING,
 
         /** AF currently believes it is in focus. */
-        FOCUSED,
+        PASSIVE_FOCUSED,
+
+        /** AF finished a passive scan without finding focus. */
+        PASSIVE_NOT_FOCUSED,
 
         /** AF believes it is focused correctly and has locked focus. */
         LOCKED_FOCUSED,

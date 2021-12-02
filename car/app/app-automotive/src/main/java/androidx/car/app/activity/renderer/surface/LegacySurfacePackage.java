@@ -19,6 +19,7 @@ package androidx.car.app.activity.renderer.surface;
 import static java.util.Objects.requireNonNull;
 
 import android.annotation.SuppressLint;
+import android.view.KeyEvent;
 import android.view.MotionEvent;
 
 import androidx.annotation.Keep;
@@ -72,6 +73,12 @@ public final class LegacySurfacePackage {
             public void onTouchEvent(@NonNull MotionEvent event) {
                 requireNonNull(event);
                 mCallback.onTouchEvent(event);
+            }
+
+            @Override
+            public void onKeyEvent(@NonNull KeyEvent event) {
+                requireNonNull(event);
+                mCallback.onKeyEvent(event);
             }
         };
     }

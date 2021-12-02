@@ -23,9 +23,6 @@ import android.view.View
 import androidx.activity.ComponentActivity
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.OnBackPressedDispatcher
-import androidx.compose.integration.demos.common.ActivityDemo
-import androidx.compose.integration.demos.common.Demo
-import androidx.compose.integration.demos.common.DemoCategory
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.Saver
@@ -36,11 +33,14 @@ import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalView
+import androidx.core.app.ActivityCompat
+import androidx.wear.compose.material.ExperimentalWearMaterialApi
 import androidx.wear.compose.material.MaterialTheme
 
 /**
  * Main [Activity] for Wear Compose related demos.
  */
+@ExperimentalWearMaterialApi
 class DemoActivity : ComponentActivity() {
     lateinit var hostView: View
     lateinit var focusManager: FocusManager
@@ -64,9 +64,15 @@ class DemoActivity : ComponentActivity() {
             MaterialTheme {
                 DemoApp(
                     currentDemo = navigator.currentDemo,
-                    onNavigateToDemo = { demo ->
+                    parentDemo = navigator.parentDemo,
+                    onNavigateTo = { demo ->
                         navigator.navigateTo(demo)
                     },
+                    onNavigateBack = {
+                        if (!navigator.navigateBack()) {
+                            ActivityCompat.finishAffinity(this)
+                        }
+                    }
                 )
             }
         }
@@ -88,7 +94,7 @@ private class Navigator private constructor(
 
     private val onBackPressed = object : OnBackPressedCallback(false) {
         override fun handleOnBackPressed() {
-            popBackStack()
+            navigateBack()
         }
     }.apply {
         isEnabled = !isRoot
@@ -103,11 +109,10 @@ private class Navigator private constructor(
             onBackPressed.isEnabled = !isRoot
         }
 
-    val isRoot: Boolean get() = backStack.isEmpty()
+    val parentDemo: Demo?
+        get() = backStack.lastOrNull()
 
-    val backStackTitle: String
-        get() =
-            (backStack.drop(1) + currentDemo).joinToString(separator = " > ") { it.title }
+    val isRoot: Boolean get() = backStack.isEmpty()
 
     fun navigateTo(demo: Demo) {
         if (demo is ActivityDemo<*>) {
@@ -118,15 +123,13 @@ private class Navigator private constructor(
         }
     }
 
-    fun popAll() {
-        if (!isRoot) {
-            backStack.clear()
-            currentDemo = rootDemo
+    fun navigateBack(): Boolean {
+        if (backStack.isNotEmpty()) {
+            currentDemo = backStack.removeAt(backStack.lastIndex)
+            return true
+        } else {
+            return false
         }
-    }
-
-    private fun popBackStack() {
-        currentDemo = backStack.removeAt(backStack.lastIndex)
     }
 
     companion object {

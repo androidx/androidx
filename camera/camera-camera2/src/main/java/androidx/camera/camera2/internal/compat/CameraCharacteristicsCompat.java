@@ -17,28 +17,36 @@
 package androidx.camera.camera2.internal.compat;
 
 import android.hardware.camera2.CameraCharacteristics;
+import android.os.Build;
 
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.VisibleForTesting;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * A wrapper for {@link CameraCharacteristics} which caches the retrieved values to optimize
  * the latency and might contain backward compatible fixes for certain parameters.
  */
+@RequiresApi(21)
 public class CameraCharacteristicsCompat {
     @NonNull
     @GuardedBy("this")
     private final Map<CameraCharacteristics.Key<?>, Object> mValuesCache = new HashMap<>();
     @NonNull
-    private final CameraCharacteristics mCameraCharacteristics;
+    private final CameraCharacteristicsCompatImpl mCameraCharacteristicsImpl;
 
     private CameraCharacteristicsCompat(@NonNull CameraCharacteristics cameraCharacteristics) {
-        mCameraCharacteristics = cameraCharacteristics;
+        if (Build.VERSION.SDK_INT >= 28) {
+            mCameraCharacteristicsImpl = new CameraCharacteristicsApi28Impl(cameraCharacteristics);
+        } else {
+            mCameraCharacteristicsImpl = new CameraCharacteristicsBaseImpl(cameraCharacteristics);
+        }
     }
 
     /**
@@ -53,6 +61,18 @@ public class CameraCharacteristicsCompat {
     }
 
     /**
+     * Return true if the key should be retrieved from {@link CameraCharacteristics} without
+     * caching it.
+     */
+    private boolean isKeyNonCacheable(@NonNull CameraCharacteristics.Key<?> key) {
+        // SENSOR_ORIENTATION value scould change in some circumstances.
+        if (key.equals(CameraCharacteristics.SENSOR_ORIENTATION)) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
      * Gets a camera characteristics field value and caches the value for later use.
      *
      * <p>It will cache the value once get() is called. If get() is called more than once using
@@ -63,6 +83,12 @@ public class CameraCharacteristicsCompat {
      */
     @Nullable
     public <T> T get(@NonNull CameraCharacteristics.Key<T> key) {
+        // For some keys that will have varying value and cannot be cached, we need to always
+        // retrieve the key from the CameraCharacteristics.
+        if (isKeyNonCacheable(key)) {
+            return mCameraCharacteristicsImpl.get(key);
+        }
+
         synchronized (this) {
             @SuppressWarnings("unchecked") // The value type always matches the key type.
             T value = (T) mValuesCache.get(key);
@@ -70,7 +96,7 @@ public class CameraCharacteristicsCompat {
                 return value;
             }
 
-            value = mCameraCharacteristics.get(key);
+            value = mCameraCharacteristicsImpl.get(key);
             if (value != null) {
                 mValuesCache.put(key, value);
             }
@@ -79,10 +105,42 @@ public class CameraCharacteristicsCompat {
     }
 
     /**
+     * Returns the physical camera Ids if it is a logical camera. Otherwise it would
+     * return an empty set.
+     */
+    @NonNull
+    public Set<String> getPhysicalCameraIds() {
+        return mCameraCharacteristicsImpl.getPhysicalCameraIds();
+    }
+
+    /**
      * Returns the {@link CameraCharacteristics} represented by this object.
      */
     @NonNull
     public CameraCharacteristics toCameraCharacteristics() {
-        return mCameraCharacteristics;
+        return mCameraCharacteristicsImpl.unwrap();
+    }
+
+    /**
+     * CameraCharacteristic Implementation Interface
+     */
+    public interface CameraCharacteristicsCompatImpl {
+        /**
+         * Gets the key/values from the CameraCharacteristics .
+         */
+        @Nullable
+        <T> T get(@NonNull CameraCharacteristics.Key<T> key);
+
+        /**
+         * Get physical camera ids.
+         */
+        @NonNull
+        Set<String> getPhysicalCameraIds();
+
+        /**
+         * Returns the underlying {@link CameraCharacteristics} instance.
+         */
+        @NonNull
+        CameraCharacteristics unwrap();
     }
 }

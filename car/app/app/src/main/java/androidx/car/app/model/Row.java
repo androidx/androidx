@@ -31,6 +31,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.model.constraints.CarIconConstraints;
+import androidx.car.app.model.constraints.CarTextConstraints;
 import androidx.car.app.utils.CollectionUtils;
 
 import java.lang.annotation.Retention;
@@ -300,10 +301,12 @@ public final class Row implements Item {
         /**
          * Sets the title of the row.
          *
-         * <p>Spans are not supported in the input string and will be ignored.
+         * <p>Only {@link DistanceSpan}s and {@link DurationSpan}s are supported in the input
+         * string.
          *
          * @throws NullPointerException     if {@code title} is {@code null}
-         * @throws IllegalArgumentException if {@code title} is empty
+         * @throws IllegalArgumentException if {@code title} is empty, of if it contains
+     *                                      unsupported spans
          */
         @NonNull
         public Builder setTitle(@NonNull CharSequence title) {
@@ -311,6 +314,7 @@ public final class Row implements Item {
             if (titleText.isEmpty()) {
                 throw new IllegalArgumentException("The title cannot be null or empty");
             }
+            CarTextConstraints.TEXT_ONLY.validateOrThrow(titleText);
             mTitle = titleText;
             return this;
         }
@@ -318,15 +322,19 @@ public final class Row implements Item {
         /**
          * Sets the title of the row, with support for multiple length variants.
          *
-         * <p>Spans are not supported in the input string and will be ignored.
+         * <p>Only {@link DistanceSpan}s and {@link DurationSpan}s are supported in the input
+         * string.
          *
-         * @throws IllegalArgumentException if {@code title} is {@code null} or empty
+         * @throws NullPointerException     if {@code title} is {@code null}
+         * @throws IllegalArgumentException if {@code title} is empty, of if it contains
+     *                                      unsupported spans
          */
         @NonNull
         public Builder setTitle(@NonNull CarText title) {
             if (requireNonNull(title).isEmpty()) {
                 throw new IllegalArgumentException("The title cannot be null or empty");
             }
+            CarTextConstraints.TEXT_ONLY.validateOrThrow(title);
             mTitle = title;
             return this;
         }
@@ -334,8 +342,10 @@ public final class Row implements Item {
         /**
          * Adds a text string to the row below the title.
          *
-         * <p>The text's color can be customized with {@link ForegroundCarColorSpan} instances, any
-         * other spans will be ignored by the host.
+         * <p>The text can be customized with {@link ForegroundCarColorSpan},
+         * {@link androidx.car.app.model.DistanceSpan}, and
+         * {@link androidx.car.app.model.DurationSpan} instances, any other spans will be ignored
+         * by the host.
          *
          * <p>Most templates allow up to 2 text strings, but this may vary. This limit is
          * documented in each individual template.
@@ -393,11 +403,14 @@ public final class Row implements Item {
          * of text
          * </pre>
          *
-         * @throws NullPointerException if {@code text} is {@code null}
+         * @throws NullPointerException     if {@code text} is {@code null}
+         * @throws IllegalArgumentException if {@code text} contains unsupported spans
          * @see ForegroundCarColorSpan
          */
         @NonNull
         public Builder addText(@NonNull CharSequence text) {
+            CarText carText = CarText.create(requireNonNull(text));
+            CarTextConstraints.TEXT_WITH_COLORS.validateOrThrow(carText);
             mTexts.add(CarText.create(requireNonNull(text)));
             return this;
         }
@@ -405,12 +418,14 @@ public final class Row implements Item {
         /**
          * Adds a text string to the row below the title, with support for multiple length variants.
          *
-         * @throws NullPointerException if {@code text} is {@code null}
+         * @throws NullPointerException     if {@code text} is {@code null}
+         * @throws IllegalArgumentException if {@code text} contains unsupported spans
          * @see Builder#addText(CharSequence)
          */
         @NonNull
         public Builder addText(@NonNull CarText text) {
-            mTexts.add(requireNonNull(text));
+            CarTextConstraints.TEXT_WITH_COLORS.validateOrThrow(requireNonNull(text));
+            mTexts.add(text);
             return this;
         }
 

@@ -19,6 +19,7 @@ package androidx.car.app.activity.renderer;
 import android.content.ComponentName;
 import android.content.Intent;
 import androidx.car.app.activity.renderer.ICarAppActivity;
+import androidx.car.app.serialization.Bundleable;
 
 /**
  * An interface to be used for communicating with the renderer.
@@ -56,4 +57,14 @@ interface IRendererService {
    * @param serviceName the service that is associated with the activity
    */
   void terminate(in ComponentName serviceName) = 3;
+
+  /**
+   * Performs a handshake, negotiating the api level for communication between app and host.
+   *
+   * @param serviceName       the component for the car app service that the handshake is for
+   * @param appLatestApiLevel the latest api level for the app side
+   *
+   * @return a {@link HandshakeInfo} including the negotiated api level
+   */
+   Bundleable performHandshake(in ComponentName serviceName, int appLatestApiLevel) = 4;
 }

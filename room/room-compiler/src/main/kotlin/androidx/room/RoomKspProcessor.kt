@@ -17,9 +17,12 @@
 package androidx.room
 
 import androidx.room.compiler.processing.ksp.KspBasicAnnotationProcessor
+import androidx.room.processor.Context.BooleanProcessorOptions.USE_NULL_AWARE_CONVERTER
+import androidx.room.processor.ProcessorErrors
 import com.google.devtools.ksp.processing.SymbolProcessor
 import com.google.devtools.ksp.processing.SymbolProcessorEnvironment
 import com.google.devtools.ksp.processing.SymbolProcessorProvider
+import javax.tools.Diagnostic
 
 /**
  * Entry point for processing using KSP.
@@ -27,7 +30,22 @@ import com.google.devtools.ksp.processing.SymbolProcessorProvider
 class RoomKspProcessor(
     environment: SymbolProcessorEnvironment
 ) : KspBasicAnnotationProcessor(environment) {
-
+    init {
+        // print a warning if null aware converter is disabled because we'll remove that ability
+        // soon.
+        if (USE_NULL_AWARE_CONVERTER.getInputValue(xProcessingEnv) == false) {
+            xProcessingEnv.messager.printMessage(
+                kind = Diagnostic.Kind.WARNING,
+                msg = """
+                    Disabling null-aware type analysis in KSP is a temporary flag that will be
+                    removed in a future release.
+                    If the null-aware type analysis is causing a bug in your application,
+                    please file a bug at ${ProcessorErrors.ISSUE_TRACKER_LINK} with
+                    a sample app that reproduces your problem.
+                """.trimIndent()
+            )
+        }
+    }
     override fun processingSteps() = listOf(
         DatabaseProcessingStep()
     )

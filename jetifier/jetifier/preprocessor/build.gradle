@@ -23,6 +23,6 @@ plugins {
 mainClassName = "com.android.tools.build.jetifier.preprocessor.MainKt"
 
 dependencies {
-    api(project(":jetifier-processor"))
+    api(project(":jetifier:jetifier-processor"))
     api("commons-cli:commons-cli:1.3.1")
 }

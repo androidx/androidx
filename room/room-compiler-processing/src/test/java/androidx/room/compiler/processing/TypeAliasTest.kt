@@ -21,7 +21,7 @@ import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.className
 import androidx.room.compiler.processing.util.compileFiles
 import androidx.room.compiler.processing.util.getField
-import androidx.room.compiler.processing.util.getMethod
+import androidx.room.compiler.processing.util.getMethodByJvmName
 import androidx.room.compiler.processing.util.runProcessorTest
 import com.google.common.truth.Truth.assertThat
 import com.squareup.javapoet.ParameterizedTypeName
@@ -51,7 +51,7 @@ class TypeAliasTest {
         val lib = compileFiles(listOf(produceSource("lib")))
         runProcessorTest(
             sources = listOf(produceSource("app")),
-            classpath = listOf(lib)
+            classpath = lib
         ) { invocation ->
             listOf("lib", "app").forEach { pkg ->
                 val elm = invocation.processingEnv.requireTypeElement("$pkg.Subject")
@@ -72,7 +72,7 @@ class TypeAliasTest {
                         )
                     )
                 }
-                elm.getMethod("suspendFun").parameters.last().type.let {
+                elm.getMethodByJvmName("suspendFun").parameters.last().type.let {
                     assertThat(it.typeName).isEqualTo(
                         ParameterizedTypeName.get(
                             CONTINUATION_CLASS_NAME,

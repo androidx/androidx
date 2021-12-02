@@ -30,6 +30,7 @@ import java.lang.reflect.Field;
 /**
  * Helper for accessing features in {@link LayoutInflater}.
  */
+@SuppressWarnings("deprecation")
 public final class LayoutInflaterCompat {
     private static final String TAG = "LayoutInflaterCompatHC";
 
@@ -68,6 +69,7 @@ public final class LayoutInflaterCompat {
      * that already had a Factory2 registered. We work around that bug here. If we can't we
      * log an error.
      */
+    @SuppressWarnings("JavaReflectionMemberAccess")
     private static void forceSetFactory2(LayoutInflater inflater, LayoutInflater.Factory2 factory) {
         if (!sCheckedField) {
             try {
@@ -110,10 +112,9 @@ public final class LayoutInflaterCompat {
     public static void setFactory(
             @NonNull LayoutInflater inflater, @NonNull LayoutInflaterFactory factory) {
         if (Build.VERSION.SDK_INT >= 21) {
-            inflater.setFactory2(factory != null ? new Factory2Wrapper(factory) : null);
+            inflater.setFactory2(new Factory2Wrapper(factory));
         } else {
-            final LayoutInflater.Factory2 factory2 = factory != null
-                    ? new Factory2Wrapper(factory) : null;
+            final LayoutInflater.Factory2 factory2 = new Factory2Wrapper(factory);
             inflater.setFactory2(factory2);
 
             final LayoutInflater.Factory f = inflater.getFactory();

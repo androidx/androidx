@@ -22,13 +22,14 @@ import java.nio.charset.StandardCharsets
 import java.security.SecureRandom
 import java.util.Base64
 
+/* ktlint-disable max-line-length */
 /**
  * Authorisation code verifier.
  *
- * * Related specifications:
- *      Proof Key for Code Exchange by OAuth Public Clients (RFC 7636).
- *      https://tools.ietf.org/html/rfc7636
+ * Related specifications:
+ * [Proof Key for Code Exchange by OAuth Public Clients (RFC 7636).](https://tools.ietf.org/html/rfc7636)
  */
+/* ktlint-enable max-line-length */
 @RequiresApi(Build.VERSION_CODES.O)
 public class CodeVerifier {
     private companion object {
@@ -61,14 +62,14 @@ public class CodeVerifier {
     /**
      * The verifier value.
      */
-    private var value: String? = null
+    public val value: String
 
     @JvmOverloads
     public constructor(
         /**
-         * It is RECOMMENDED that the output of a suitable random number generator be used to create a
-         * 32-octet sequence. The octet sequence is then base64url-encoded to produce a 43-octet URL
-         * safe string to use as the code verifier.
+         * It is RECOMMENDED that the output of a suitable random number generator be used to create
+         * a 32-octet sequence. The octet sequence is then base64url-encoded to produce a
+         * 43-octet URL safe string to use as the code verifier.
          */
         byteLength: Int = 32
     ) {
@@ -93,17 +94,13 @@ public class CodeVerifier {
         this.value = value
     }
 
-    public fun getValue(): String {
-        return value!!
-    }
-
     internal fun getValueBytes(): ByteArray {
-        return value!!.toByteArray(StandardCharsets.UTF_8)
+        return value.toByteArray(StandardCharsets.UTF_8)
     }
 
     override fun equals(other: Any?): Boolean {
         if (other is CodeVerifier) {
-            return other.getValue() == value
+            return other.value == value
         }
         return false
     }

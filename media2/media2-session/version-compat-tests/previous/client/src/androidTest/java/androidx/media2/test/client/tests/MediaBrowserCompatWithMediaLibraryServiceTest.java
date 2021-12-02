@@ -52,6 +52,7 @@ import android.support.v4.media.MediaBrowserCompat.MediaItem;
 import android.support.v4.media.MediaBrowserCompat.SearchCallback;
 import android.support.v4.media.MediaBrowserCompat.SubscriptionCallback;
 
+import androidx.annotation.NonNull;
 import androidx.media2.session.MediaLibraryService;
 import androidx.media2.test.common.TestUtils;
 import androidx.test.filters.LargeTest;
@@ -86,7 +87,6 @@ public class MediaBrowserCompatWithMediaLibraryServiceTest extends
 
     @Test
     public void getRoot() throws InterruptedException {
-        prepareLooper();
         // The MockMediaLibraryService gives MediaBrowserConstants.ROOT_ID as root ID, and
         // MediaBrowserConstants.ROOT_EXTRAS as extras.
         sHandler.postAndSync(new Runnable() {
@@ -106,7 +106,6 @@ public class MediaBrowserCompatWithMediaLibraryServiceTest extends
 
     @Test
     public void getItem() throws InterruptedException {
-        prepareLooper();
         final String mediaId = MEDIA_ID_GET_ITEM;
 
         connectAndWait();
@@ -124,7 +123,6 @@ public class MediaBrowserCompatWithMediaLibraryServiceTest extends
 
     @Test
     public void getItem_nullResult() throws InterruptedException {
-        prepareLooper();
         final String mediaId = "random_media_id";
 
         connectAndWait();
@@ -137,7 +135,7 @@ public class MediaBrowserCompatWithMediaLibraryServiceTest extends
             }
 
             @Override
-            public void onError(String itemId) {
+            public void onError(@NonNull String itemId) {
                 fail();
             }
         });
@@ -146,14 +144,14 @@ public class MediaBrowserCompatWithMediaLibraryServiceTest extends
 
     @Test
     public void getChildren() throws InterruptedException {
-        prepareLooper();
         final String testParentId = PARENT_ID;
 
         connectAndWait();
         final CountDownLatch latch = new CountDownLatch(1);
         mBrowserCompat.subscribe(testParentId, new SubscriptionCallback() {
             @Override
-            public void onChildrenLoaded(String parentId, List<MediaItem> children) {
+            public void onChildrenLoaded(@NonNull String parentId,
+                    @NonNull List<MediaItem> children) {
                 assertEquals(testParentId, parentId);
                 assertNotNull(children);
                 assertEquals(GET_CHILDREN_RESULT.size(), children.size());
@@ -166,7 +164,8 @@ public class MediaBrowserCompatWithMediaLibraryServiceTest extends
             }
 
             @Override
-            public void onChildrenLoaded(String parentId, List<MediaItem> children, Bundle option) {
+            public void onChildrenLoaded(@NonNull String parentId,
+                    @NonNull List<MediaItem> children, @NonNull Bundle option) {
                 fail();
             }
         });
@@ -175,14 +174,14 @@ public class MediaBrowserCompatWithMediaLibraryServiceTest extends
 
     @Test
     public void getChildren_withLongList() throws InterruptedException {
-        prepareLooper();
         final String testParentId = PARENT_ID_LONG_LIST;
 
         connectAndWait();
         final CountDownLatch latch = new CountDownLatch(1);
         mBrowserCompat.subscribe(testParentId, new SubscriptionCallback() {
             @Override
-            public void onChildrenLoaded(String parentId, List<MediaItem> children) {
+            public void onChildrenLoaded(@NonNull String parentId,
+                    @NonNull List<MediaItem> children) {
                 assertEquals(testParentId, parentId);
                 assertNotNull(children);
                 assertTrue(children.size() < LONG_LIST_COUNT);
@@ -195,7 +194,8 @@ public class MediaBrowserCompatWithMediaLibraryServiceTest extends
             }
 
             @Override
-            public void onChildrenLoaded(String parentId, List<MediaItem> children, Bundle option) {
+            public void onChildrenLoaded(@NonNull String parentId,
+                    @NonNull List<MediaItem> children, @NonNull Bundle option) {
                 fail();
             }
         });
@@ -204,7 +204,6 @@ public class MediaBrowserCompatWithMediaLibraryServiceTest extends
 
     @Test
     public void getChildren_withPagination() throws InterruptedException {
-        prepareLooper();
         final String testParentId = PARENT_ID;
         final int page = 4;
         final int pageSize = 10;
@@ -218,8 +217,8 @@ public class MediaBrowserCompatWithMediaLibraryServiceTest extends
         option.putInt(MediaBrowserCompat.EXTRA_PAGE_SIZE, pageSize);
         mBrowserCompat.subscribe(testParentId, option, new SubscriptionCallback() {
             @Override
-            public void onChildrenLoaded(String parentId, List<MediaItem> children,
-                    Bundle options) {
+            public void onChildrenLoaded(@NonNull String parentId,
+                    @NonNull List<MediaItem> children, @NonNull Bundle options) {
                 assertEquals(testParentId, parentId);
                 assertEquals(page, option.getInt(MediaBrowserCompat.EXTRA_PAGE));
                 assertEquals(pageSize, option.getInt(MediaBrowserCompat.EXTRA_PAGE_SIZE));
@@ -238,7 +237,8 @@ public class MediaBrowserCompatWithMediaLibraryServiceTest extends
             }
 
             @Override
-            public void onChildrenLoaded(String parentId, List<MediaItem> children) {
+            public void onChildrenLoaded(@NonNull String parentId,
+                    @NonNull List<MediaItem> children) {
                 fail();
             }
         });
@@ -247,14 +247,14 @@ public class MediaBrowserCompatWithMediaLibraryServiceTest extends
 
     @Test
     public void getChildren_emptyResult() throws InterruptedException {
-        prepareLooper();
         final String testParentId = PARENT_ID_NO_CHILDREN;
 
         connectAndWait();
         final CountDownLatch latch = new CountDownLatch(1);
         mBrowserCompat.subscribe(testParentId, new SubscriptionCallback() {
             @Override
-            public void onChildrenLoaded(String parentId, List<MediaItem> children) {
+            public void onChildrenLoaded(@NonNull String parentId,
+                    @NonNull List<MediaItem> children) {
                 assertNotNull(children);
                 assertEquals(0, children.size());
                 latch.countDown();
@@ -265,21 +265,20 @@ public class MediaBrowserCompatWithMediaLibraryServiceTest extends
 
     @Test
     public void getChildren_nullResult() throws InterruptedException {
-        prepareLooper();
         final String testParentId = PARENT_ID_ERROR;
 
         connectAndWait();
         final CountDownLatch latch = new CountDownLatch(1);
         mBrowserCompat.subscribe(testParentId, new SubscriptionCallback() {
             @Override
-            public void onError(String parentId) {
+            public void onError(@NonNull String parentId) {
                 assertEquals(testParentId, parentId);
                 latch.countDown();
             }
 
             @Override
-            public void onChildrenLoaded(String parentId, List<MediaItem> children,
-                    Bundle options) {
+            public void onChildrenLoaded(@NonNull String parentId,
+                    @NonNull List<MediaItem> children, @NonNull Bundle options) {
                 fail();
             }
         });
@@ -288,7 +287,6 @@ public class MediaBrowserCompatWithMediaLibraryServiceTest extends
 
     @Test
     public void search() throws InterruptedException {
-        prepareLooper();
         final String testQuery = SEARCH_QUERY;
         final int page = 4;
         final int pageSize = 10;
@@ -301,7 +299,8 @@ public class MediaBrowserCompatWithMediaLibraryServiceTest extends
         final CountDownLatch latch = new CountDownLatch(1);
         mBrowserCompat.search(testQuery, testExtras, new SearchCallback() {
             @Override
-            public void onSearchResult(String query, Bundle extras, List<MediaItem> items) {
+            public void onSearchResult(@NonNull String query, Bundle extras,
+                    @NonNull List<MediaItem> items) {
                 assertEquals(testQuery, query);
                 assertTrue(TestUtils.equals(testExtras, extras));
                 int expectedSize = Math.max(
@@ -327,7 +326,6 @@ public class MediaBrowserCompatWithMediaLibraryServiceTest extends
 
     @Test
     public void search_withLongList() throws InterruptedException {
-        prepareLooper();
         final String testQuery = SEARCH_QUERY_LONG_LIST;
         final int page = 0;
         final int pageSize = Integer.MAX_VALUE;
@@ -340,7 +338,8 @@ public class MediaBrowserCompatWithMediaLibraryServiceTest extends
         final CountDownLatch latch = new CountDownLatch(1);
         mBrowserCompat.search(testQuery, testExtras, new SearchCallback() {
             @Override
-            public void onSearchResult(String query, Bundle extras, List<MediaItem> items) {
+            public void onSearchResult(@NonNull String query, Bundle extras,
+                    @NonNull List<MediaItem> items) {
                 assertEquals(testQuery, query);
                 assertTrue(TestUtils.equals(testExtras, extras));
 
@@ -357,7 +356,6 @@ public class MediaBrowserCompatWithMediaLibraryServiceTest extends
 
     @Test
     public void search_emptyResult() throws InterruptedException {
-        prepareLooper();
         final String testQuery = SEARCH_QUERY_EMPTY_RESULT;
         final Bundle testExtras = new Bundle();
         testExtras.putString(testQuery, testQuery);
@@ -366,7 +364,8 @@ public class MediaBrowserCompatWithMediaLibraryServiceTest extends
         final CountDownLatch latch = new CountDownLatch(1);
         mBrowserCompat.search(testQuery, testExtras, new SearchCallback() {
             @Override
-            public void onSearchResult(String query, Bundle extras, List<MediaItem> items) {
+            public void onSearchResult(@NonNull String query, Bundle extras,
+                    @NonNull List<MediaItem> items) {
                 assertEquals(testQuery, query);
                 assertTrue(TestUtils.equals(testExtras, extras));
                 assertNotNull(items);
@@ -379,7 +378,6 @@ public class MediaBrowserCompatWithMediaLibraryServiceTest extends
 
     @Test
     public void search_error() throws InterruptedException {
-        prepareLooper();
         final String testQuery = SEARCH_QUERY_ERROR;
         final Bundle testExtras = new Bundle();
         testExtras.putString(testQuery, testQuery);
@@ -388,14 +386,15 @@ public class MediaBrowserCompatWithMediaLibraryServiceTest extends
         final CountDownLatch latch = new CountDownLatch(1);
         mBrowserCompat.search(testQuery, testExtras, new SearchCallback() {
             @Override
-            public void onError(String query, Bundle extras) {
+            public void onError(@NonNull String query, Bundle extras) {
                 assertEquals(testQuery, query);
                 assertTrue(TestUtils.equals(testExtras, extras));
                 latch.countDown();
             }
 
             @Override
-            public void onSearchResult(String query, Bundle extras, List<MediaItem> items) {
+            public void onSearchResult(@NonNull String query, Bundle extras,
+                    @NonNull List<MediaItem> items) {
                 fail();
             }
         });
@@ -405,7 +404,6 @@ public class MediaBrowserCompatWithMediaLibraryServiceTest extends
     @Ignore("TODO: Move this test to MediaLibrarySessionLegacyCallbackTest.")
     @Test
     public void subscribe() throws InterruptedException {
-//        prepareLooper();
 //        final String testParentId = "testSubscribeId";
 //        final List<MediaItem> testList = TestUtils.createMediaItems(3);
 //
@@ -451,7 +449,6 @@ public class MediaBrowserCompatWithMediaLibraryServiceTest extends
     @Ignore("TODO: Move this test to MediaLibrarySessionLegacyCallbackTest.")
     @Test
     public void subscribe_withExtras() throws InterruptedException {
-//        prepareLooper();
 //        final String testParentId = "testSubscribe_withExtras";
 //        final Bundle testExtras = new Bundle();
 //        testExtras.putString(testParentId, testParentId);
@@ -503,7 +500,6 @@ public class MediaBrowserCompatWithMediaLibraryServiceTest extends
     @Ignore("TODO: Move this test to MediaLibrarySessionLegacyCallbackTest.")
     @Test
     public void subscribe_withPagination() throws InterruptedException {
-//        prepareLooper();
 //        final String testParentId = "testSubscribe_pagination_ID";
 //        final List<MediaItem> testList = TestUtils.createMediaItems(3);
 //        final int testPage = 2;
@@ -570,7 +566,6 @@ public class MediaBrowserCompatWithMediaLibraryServiceTest extends
     @Ignore("TODO: Move this test to MediaLibrarySessionLegacyCallbackTest.")
     @Test
     public void subscribeAndUnsubscribe() throws InterruptedException {
-//        prepareLooper();
 //        final String testParentId = "testUnsubscribe";
 //        final Bundle testExtras = new Bundle();
 //        testExtras.putString(testParentId, testParentId);
@@ -611,7 +606,6 @@ public class MediaBrowserCompatWithMediaLibraryServiceTest extends
     @Ignore("TODO: Split this test to here and MediaLibrarySessionLegacyCallbackTest.")
     @Test
     public void notifyChildrenChanged() throws InterruptedException {
-//        prepareLooper();
 //        final String testSubscribedParentId = "testNotifyChildrenChanged";
 //        final String testUnsubscribedParentId = "testNotifyChildrenChanged22";
 //        final Bundle testExtras = new Bundle();
@@ -665,7 +659,6 @@ public class MediaBrowserCompatWithMediaLibraryServiceTest extends
     // TODO: Add test for onCustomCommand() in MediaLibrarySessionLegacyCallbackTest.
     @Test
     public void customAction() throws InterruptedException {
-        prepareLooper();
         final Bundle testArgs = new Bundle();
         testArgs.putString("args_key", "args_value");
 
@@ -686,7 +679,6 @@ public class MediaBrowserCompatWithMediaLibraryServiceTest extends
     // TODO: Add test for onCustomCommand() in MediaLibrarySessionLegacyCallbackTest.
     @Test
     public void customAction_rejected() throws InterruptedException {
-        prepareLooper();
         // This action will not be allowed by the library session.
         final String testAction = "random_custom_action";
 

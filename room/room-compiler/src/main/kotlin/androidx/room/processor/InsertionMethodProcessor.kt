@@ -95,7 +95,6 @@ class InsertionMethodProcessor(
 
         return InsertionMethod(
             element = executableElement,
-            name = executableElement.name,
             returnType = returnType,
             entities = entities,
             parameters = params,

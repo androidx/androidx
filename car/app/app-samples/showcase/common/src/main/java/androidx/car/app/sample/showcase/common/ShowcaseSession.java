@@ -30,10 +30,13 @@ import androidx.car.app.CarContext;
 import androidx.car.app.Screen;
 import androidx.car.app.ScreenManager;
 import androidx.car.app.Session;
-import androidx.car.app.sample.showcase.common.misc.PreSeedingFlowScreen;
+import androidx.car.app.sample.showcase.common.misc.RequestPermissionScreen;
+import androidx.car.app.sample.showcase.common.misc.ResultDemoScreen;
+import androidx.car.app.sample.showcase.common.navigation.NavigationNotificationService;
 import androidx.car.app.sample.showcase.common.navigation.NavigationNotificationsDemoScreen;
-import androidx.car.app.sample.showcase.common.navigation.SurfaceRenderer;
 import androidx.car.app.sample.showcase.common.navigation.routing.NavigatingDemoScreen;
+import androidx.car.app.sample.showcase.common.renderer.Renderer;
+import androidx.car.app.sample.showcase.common.renderer.SurfaceController;
 import androidx.lifecycle.DefaultLifecycleObserver;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleOwner;
@@ -44,37 +47,41 @@ public class ShowcaseSession extends Session implements DefaultLifecycleObserver
     static final String URI_HOST = "showcase";
 
     @Nullable
-    private SurfaceRenderer mRenderer;
+    private SurfaceController mSurfaceController;
 
     @NonNull
     @Override
     public Screen onCreateScreen(@NonNull Intent intent) {
         Lifecycle lifecycle = getLifecycle();
         lifecycle.addObserver(this);
-        mRenderer = new SurfaceRenderer(getCarContext(), lifecycle);
+        mSurfaceController = new SurfaceController(getCarContext(), lifecycle);
 
         if (CarContext.ACTION_NAVIGATE.equals(intent.getAction())) {
             // Handle the navigation Intent by pushing first the "home" screen onto the stack, then
             // returning the screen that we want to show a template for.
             // Doing this allows the app to go back to the previous screen when the user clicks on a
-            // back
-            // action.
+            // back action.
             getCarContext()
                     .getCarService(ScreenManager.class)
                     .push(new StartScreen(getCarContext(), this));
             return new NavigatingDemoScreen(getCarContext());
         }
 
+        if (getCarContext().getCallingComponent() != null) {
+            // Similarly, if the application has been called "for result", we push a "home"
+            // screen onto the stack and return the results demo screen.
+            getCarContext()
+                    .getCarService(ScreenManager.class)
+                    .push(new StartScreen(getCarContext(), this));
+            return new ResultDemoScreen(getCarContext());
+        }
+
         // For demo purposes this uses a shared preference setting to store whether we should
-        // pre-seed
-        // the screen back stack.  This allows the app to have a way to go back to the home/start
-        // screen
-        // making the home/start screen the 0th position.
+        // pre-seed the screen back stack. This allows the app to have a way to go back to the
+        // home/start screen making the home/start screen the 0th position.
         // For a real application, it would probably check if it has all the needed system
-        // permissions,
-        // and if any are missing, it would pre-seed the start screen and return a screen that will
-        // send
-        // the user to the phone to grant the needed permissions.
+        // permissions, and if any are missing, it would pre-seed the start screen and return a
+        // screen that will send the user to the phone to grant the needed permissions.
         boolean shouldPreSeedBackStack =
                 getCarContext()
                         .getSharedPreferences(ShowcaseService.SHARED_PREF_KEY, Context.MODE_PRIVATE)
@@ -90,7 +97,7 @@ public class ShowcaseSession extends Session implements DefaultLifecycleObserver
             getCarContext()
                     .getCarService(ScreenManager.class)
                     .push(new StartScreen(getCarContext(), this));
-            return new PreSeedingFlowScreen(getCarContext());
+            return new RequestPermissionScreen(getCarContext(), /*preSeedMode*/ true);
         }
         return new StartScreen(getCarContext(), this);
     }
@@ -98,6 +105,10 @@ public class ShowcaseSession extends Session implements DefaultLifecycleObserver
     @Override
     public void onDestroy(@NonNull LifecycleOwner owner) {
         Log.i("SHOWCASE", "onDestroy");
+
+        // Stop navigation notification service if it is running.
+        CarContext context = getCarContext();
+        context.stopService(new Intent(context, NavigationNotificationService.class));
     }
 
     @Override
@@ -112,6 +123,13 @@ public class ShowcaseSession extends Session implements DefaultLifecycleObserver
                 return;
             }
             screenManager.push(new NavigatingDemoScreen(getCarContext()));
+            return;
+        }
+
+        if (getCarContext().getCallingComponent() != null) {
+            // Remove any other instances of the results screen.
+            screenManager.popToRoot();
+            screenManager.push(new ResultDemoScreen(getCarContext()));
             return;
         }
 
@@ -132,13 +150,13 @@ public class ShowcaseSession extends Session implements DefaultLifecycleObserver
 
     @Override
     public void onCarConfigurationChanged(@NonNull Configuration configuration) {
-        if (mRenderer != null) {
-            mRenderer.onCarConfigurationChanged();
+        if (mSurfaceController != null) {
+            mSurfaceController.onCarConfigurationChanged();
         }
     }
 
-    /** Tells the session whether to update the renderer to show car hardware information. */
-    public void setCarHardwareSurfaceRendererEnabledState(boolean isEnabled) {
-        mRenderer.setCarHardwareSurfaceRendererEnabledState(isEnabled);
+    /** Tells the session whether to override the default renderer. */
+    public void overrideRenderer(@Nullable Renderer renderer) {
+        mSurfaceController.overrideRenderer(renderer);
     }
 }

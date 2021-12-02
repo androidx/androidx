@@ -40,6 +40,7 @@ import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.TextPaint;
 import android.text.TextUtils.TruncateAt;
+import android.text.method.LinkMovementMethod;
 import android.text.style.AbsoluteSizeSpan;
 import android.text.style.ClickableSpan;
 import android.text.style.ForegroundColorSpan;
@@ -59,6 +60,7 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
 import android.widget.LinearLayout;
+import android.widget.Scroller;
 import android.widget.Space;
 import android.widget.TextView;
 
@@ -66,7 +68,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.StyleRes;
 import androidx.core.content.ContextCompat;
-import androidx.wear.tiles.TileProviderService;
+import androidx.wear.tiles.TileService;
 import androidx.wear.tiles.proto.ActionProto.Action;
 import androidx.wear.tiles.proto.ActionProto.AndroidActivity;
 import androidx.wear.tiles.proto.ActionProto.AndroidExtra;
@@ -168,7 +170,7 @@ public final class TileRendererInternal {
     // White
     private static final int LINE_COLOR_DEFAULT = 0xFFFFFFFF;
 
-    final Context mAppContext;
+    final Context mUiContext;
     private final Layout mLayoutProto;
     private final ResourceResolvers mResourceResolvers;
 
@@ -195,20 +197,20 @@ public final class TileRendererInternal {
     /**
      * Default constructor.
      *
-     * @param appContext The application context.
+     * @param uiContext A {@link Context} suitable for interacting with the UI.
      * @param layout The portion of the Tile to render.
      * @param resourceResolvers Resolvers for the resources used for rendering this Prototile.
      * @param loadActionExecutor Executor to dispatch loadActionListener on.
      * @param loadActionListener Listener for clicks that will cause the contents to be reloaded.
      */
     public TileRendererInternal(
-            @NonNull Context appContext,
+            @NonNull Context uiContext,
             @NonNull Layout layout,
             @NonNull ResourceResolvers resourceResolvers,
             @NonNull Executor loadActionExecutor,
             @NonNull LoadActionListener loadActionListener) {
         this(
-                appContext,
+                uiContext,
                 layout,
                 resourceResolvers,
                 /* tilesTheme= */ 0,
@@ -219,7 +221,7 @@ public final class TileRendererInternal {
     /**
      * Default constructor.
      *
-     * @param appContext The application context.
+     * @param uiContext A {@link Context} suitable for interacting with the UI.
      * @param layout The portion of the Tile to render.
      * @param resourceResolvers Resolvers for the resources used for rendering this Prototile.
      * @param tilesTheme The theme to use for this Tiles instance. This can be used to customise
@@ -228,7 +230,7 @@ public final class TileRendererInternal {
      * @param loadActionListener Listener for clicks that will cause the contents to be reloaded.
      */
     public TileRendererInternal(
-            @NonNull Context appContext,
+            @NonNull Context uiContext,
             @NonNull Layout layout,
             @NonNull ResourceResolvers resourceResolvers,
             @StyleRes int tilesTheme,
@@ -238,15 +240,15 @@ public final class TileRendererInternal {
             tilesTheme = R.style.TilesBaseTheme;
         }
 
-        TypedArray a = appContext.obtainStyledAttributes(tilesTheme, R.styleable.TilesTheme);
+        TypedArray a = uiContext.obtainStyledAttributes(tilesTheme, R.styleable.TilesTheme);
 
         this.mTitleFontSet =
-                new FontSet(appContext, a.getResourceId(R.styleable.TilesTheme_tilesTitleFont, -1));
+                new FontSet(uiContext, a.getResourceId(R.styleable.TilesTheme_tilesTitleFont, -1));
         this.mBodyFontSet =
-                new FontSet(appContext, a.getResourceId(R.styleable.TilesTheme_tilesBodyFont, -1));
+                new FontSet(uiContext, a.getResourceId(R.styleable.TilesTheme_tilesBodyFont, -1));
         a.recycle();
 
-        this.mAppContext = new ContextThemeWrapper(appContext, tilesTheme);
+        this.mUiContext = new ContextThemeWrapper(uiContext, tilesTheme);
         this.mLayoutProto = layout;
         this.mResourceResolvers = resourceResolvers;
         this.mLoadActionExecutor = loadActionExecutor;
@@ -255,7 +257,7 @@ public final class TileRendererInternal {
 
     private int safeDpToPx(DpProp dpProp) {
         return round(
-                max(0, dpProp.getValue()) * mAppContext.getResources().getDisplayMetrics().density);
+                max(0, dpProp.getValue()) * mUiContext.getResources().getDisplayMetrics().density);
     }
 
     @Nullable
@@ -533,25 +535,17 @@ public final class TileRendererInternal {
         return TypedValue.applyDimension(
                 TypedValue.COMPLEX_UNIT_SP,
                 spField.getValue(),
-                mAppContext.getResources().getDisplayMetrics());
+                mUiContext.getResources().getDisplayMetrics());
     }
 
     private void applyFontStyle(FontStyle style, TextView textView) {
+        // Note: Underline must be applied as a Span to work correctly (as opposed to using
+        // TextPaint#setTextUnderline). This is applied in the caller instead.
+
         // Need to supply typefaceStyle when creating the typeface (will select specialist
         // bold/italic typefaces), *and* when setting the typeface (will set synthetic bold/italic
         // flags in Paint if they're not supported by the given typeface).
         textView.setTypeface(createTypeface(style), fontStyleToTypefaceStyle(style));
-
-        int currentPaintFlags = textView.getPaintFlags();
-
-        // Remove the bits we're setting
-        currentPaintFlags &= ~Paint.UNDERLINE_TEXT_FLAG;
-
-        if (style.hasUnderline() && style.getUnderline().getValue()) {
-            currentPaintFlags |= Paint.UNDERLINE_TEXT_FLAG;
-        }
-
-        textView.setPaintFlags(currentPaintFlags);
 
         if (style.hasSize()) {
             textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, style.getSize().getValue());
@@ -579,6 +573,14 @@ public final class TileRendererInternal {
         }
     }
 
+    void dispatchLaunchActionIntent(Intent i) {
+        ActivityInfo ai = i.resolveActivityInfo(mUiContext.getPackageManager(), /* flags= */ 0);
+
+        if (ai != null && ai.exported && (ai.permission == null || ai.permission.isEmpty())) {
+            mUiContext.startActivity(i);
+        }
+    }
+
     private void applyClickable(View view, Clickable clickable) {
         view.setTag(clickable.getId());
 
@@ -593,13 +595,7 @@ public final class TileRendererInternal {
                     view.setOnClickListener(
                             v -> {
                                 i.setSourceBounds(getSourceBounds(view));
-                                ActivityInfo ai =
-                                        i.resolveActivityInfo(
-                                                mAppContext.getPackageManager(), /* flags= */ 0);
-
-                                if (ai != null && ai.exported) {
-                                    mAppContext.startActivity(i);
-                                }
+                                dispatchLaunchActionIntent(i);
                             });
                 }
                 break;
@@ -623,13 +619,13 @@ public final class TileRendererInternal {
         if (hasAction) {
             // Apply ripple effect
             TypedValue outValue = new TypedValue();
-            mAppContext
+            mUiContext
                     .getTheme()
                     .resolveAttribute(
                             android.R.attr.selectableItemBackground,
                             outValue,
                             /* resolveRefs= */ true);
-            view.setForeground(mAppContext.getDrawable(outValue.resourceId));
+            view.setForeground(mUiContext.getDrawable(outValue.resourceId));
         }
     }
 
@@ -817,7 +813,7 @@ public final class TileRendererInternal {
             i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 
             if (!clickableId.isEmpty()) {
-                i.putExtra(TileProviderService.EXTRA_CLICKABLE_ID, clickableId);
+                i.putExtra(TileService.EXTRA_CLICKABLE_ID, clickableId);
             }
 
             for (Map.Entry<String, AndroidExtra> entry : activity.getKeyToExtraMap().entrySet()) {
@@ -857,7 +853,7 @@ public final class TileRendererInternal {
             return null;
         }
 
-        LinearLayout linearLayout = new LinearLayout(mAppContext);
+        LinearLayout linearLayout = new LinearLayout(mUiContext);
         linearLayout.setOrientation(LinearLayout.VERTICAL);
 
         LayoutParams layoutParams = generateDefaultLayoutParams();
@@ -884,7 +880,7 @@ public final class TileRendererInternal {
             return null;
         }
 
-        LinearLayout linearLayout = new LinearLayout(mAppContext);
+        LinearLayout linearLayout = new LinearLayout(mUiContext);
         linearLayout.setOrientation(LinearLayout.HORIZONTAL);
 
         LayoutParams layoutParams = generateDefaultLayoutParams();
@@ -911,7 +907,7 @@ public final class TileRendererInternal {
             return null;
         }
 
-        FrameLayout frame = new FrameLayout(mAppContext);
+        FrameLayout frame = new FrameLayout(mUiContext);
 
         LayoutParams layoutParams = generateDefaultLayoutParams();
 
@@ -952,7 +948,7 @@ public final class TileRendererInternal {
         }
 
         if (numMatchParentChildren == 1) {
-            Space hackSpace = new Space(mAppContext);
+            Space hackSpace = new Space(mUiContext);
             LayoutParams hackSpaceLp =
                     new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
             frame.addView(hackSpace, hackSpaceLp);
@@ -976,7 +972,7 @@ public final class TileRendererInternal {
         // modifiers.
         View view;
         if (spacer.hasModifiers()) {
-            view = applyModifiers(new View(mAppContext), spacer.getModifiers());
+            view = applyModifiers(new View(mUiContext), spacer.getModifiers());
             layoutParams =
                     updateLayoutParams(
                             parent,
@@ -984,7 +980,7 @@ public final class TileRendererInternal {
                             spacerDimensionToContainerDimension(spacer.getWidth()),
                             spacerDimensionToContainerDimension(spacer.getHeight()));
         } else {
-            view = new Space(mAppContext);
+            view = new Space(mUiContext);
             view.setMinimumWidth(widthPx);
             view.setMinimumHeight(heightPx);
         }
@@ -1003,7 +999,7 @@ public final class TileRendererInternal {
             return null;
         }
 
-        WearCurvedSpacer space = new WearCurvedSpacer(mAppContext);
+        WearCurvedSpacer space = new WearCurvedSpacer(mUiContext);
 
         LayoutParams layoutParams = generateDefaultLayoutParams();
 
@@ -1018,11 +1014,22 @@ public final class TileRendererInternal {
 
     private View inflateText(ViewGroup parent, Text text) {
         TextView textView =
-                new TextView(mAppContext, /* attrs= */ null, R.attr.tilesFallbackTextAppearance);
+                new TextView(mUiContext, /* attrs= */ null, R.attr.tilesFallbackTextAppearance);
 
         LayoutParams layoutParams = generateDefaultLayoutParams();
 
-        textView.setText(text.getText().getValue());
+        // Underlines are applied using a Spannable here, rather than setting paint bits (or using
+        // Paint#setTextUnderline). When multiple fonts are mixed on the same line (especially when
+        // mixing anything with NotoSans-CJK), multiple underlines can appear. Using UnderlineSpan
+        // instead though causes the correct behaviour to happen (only a single underline).
+        SpannableStringBuilder ssb = new SpannableStringBuilder();
+        ssb.append(text.getText().getValue());
+
+        if (text.getFontStyle().getUnderline().getValue()) {
+            ssb.setSpan(new UnderlineSpan(), 0, ssb.length(), Spanned.SPAN_MARK_MARK);
+        }
+
+        textView.setText(ssb);
 
         textView.setEllipsize(textTruncationToEllipsize(text.getOverflow()));
         textView.setGravity(textAlignToAndroidGravity(text.getMultilineAlignment()));
@@ -1065,7 +1072,7 @@ public final class TileRendererInternal {
     private View inflateArcText(ViewGroup parent, ArcText text) {
         CurvedTextView textView =
                 new CurvedTextView(
-                        mAppContext, /* attrs= */ null, R.attr.tilesFallbackTextAppearance);
+                        mUiContext, /* attrs= */ null, R.attr.tilesFallbackTextAppearance);
 
         LayoutParams layoutParams = generateDefaultLayoutParams();
         layoutParams.width = LayoutParams.MATCH_PARENT;
@@ -1177,7 +1184,7 @@ public final class TileRendererInternal {
             return null;
         }
 
-        ImageViewWithoutIntrinsicSizes imageView = new ImageViewWithoutIntrinsicSizes(mAppContext);
+        ImageViewWithoutIntrinsicSizes imageView = new ImageViewWithoutIntrinsicSizes(mUiContext);
 
         if (image.hasContentScaleMode()) {
             imageView.setScaleType(
@@ -1203,7 +1210,7 @@ public final class TileRendererInternal {
                         imageDimensionToContainerDimension(image.getWidth()),
                         imageDimensionToContainerDimension(image.getHeight()));
 
-        RatioViewWrapper ratioViewWrapper = new RatioViewWrapper(mAppContext);
+        RatioViewWrapper ratioViewWrapper = new RatioViewWrapper(mUiContext);
         ratioViewWrapper.setAspectRatio(ratio);
         ratioViewWrapper.addView(imageView);
 
@@ -1233,7 +1240,7 @@ public final class TileRendererInternal {
             // Otherwise, handle the result on the UI thread.
             drawableFuture.addListener(
                     () -> setImageDrawable(imageView, drawableFuture, protoResId),
-                    ContextCompat.getMainExecutor(mAppContext));
+                    ContextCompat.getMainExecutor(mUiContext));
         }
 
         boolean canImageBeTinted = false;
@@ -1281,7 +1288,7 @@ public final class TileRendererInternal {
             return null;
         }
 
-        WearCurvedLineView lineView = new WearCurvedLineView(mAppContext);
+        WearCurvedLineView lineView = new WearCurvedLineView(mUiContext);
 
         // A ArcLineView must always be the same width/height as its parent, so it can draw the line
         // properly inside of those bounds.
@@ -1306,7 +1313,7 @@ public final class TileRendererInternal {
 
     @Nullable
     private View inflateArc(ViewGroup parent, Arc arc) {
-        ArcLayout arcLayout = new ArcLayout(mAppContext);
+        ArcLayout arcLayout = new ArcLayout(mUiContext);
 
         LayoutParams layoutParams = generateDefaultLayoutParams();
         layoutParams.width = LayoutParams.MATCH_PARENT;
@@ -1452,7 +1459,7 @@ public final class TileRendererInternal {
                         // Update the TextView.
                         textView.setText(builder);
                     },
-                    ContextCompat.getMainExecutor(mAppContext));
+                    ContextCompat.getMainExecutor(mUiContext));
         }
 
         return builder;
@@ -1509,21 +1516,32 @@ public final class TileRendererInternal {
 
     private View inflateSpannable(ViewGroup parent, Spannable spannable) {
         TextView tv =
-                new TextView(mAppContext, /* attrs= */ null, R.attr.tilesFallbackTextAppearance);
+                new TextView(mUiContext, /* attrs= */ null, R.attr.tilesFallbackTextAppearance);
 
         LayoutParams layoutParams = generateDefaultLayoutParams();
 
         SpannableStringBuilder builder = new SpannableStringBuilder();
 
+        boolean isAnySpanClickable = false;
         for (Span element : spannable.getSpansList()) {
             switch (element.getInnerCase()) {
                 case IMAGE:
                     SpanImage protoImage = element.getImage();
                     builder = inflateImageInSpannable(builder, protoImage, tv);
+
+                    if (protoImage.getModifiers().hasClickable()) {
+                        isAnySpanClickable = true;
+                    }
+
                     break;
                 case TEXT:
                     SpanText protoText = element.getText();
                     builder = inflateTextInSpannable(builder, protoText);
+
+                    if (protoText.getModifiers().hasClickable()) {
+                        isAnySpanClickable = true;
+                    }
+
                     break;
                 default:
                     Log.w(TAG, "Unknown Span child type.");
@@ -1566,8 +1584,23 @@ public final class TileRendererInternal {
 
         tv.setText(builder);
 
+        if (isAnySpanClickable) {
+            // For any ClickableSpans to work, the MovementMethod must be set to LinkMovementMethod.
+            tv.setMovementMethod(LinkMovementMethod.getInstance());
+
+            // Disable the highlight color; if we don't do this, the clicked span will get
+            // highlighted, which will be cleared half a second later if using LoadAction as the
+            // next layout will be delivered, which recreates the elements and clears the highlight.
+            tv.setHighlightColor(Color.TRANSPARENT);
+
+            // Use InhibitingScroller to prevent the text from scrolling when tapped. Setting a
+            // MovementMethod on a TextView (e.g. for clickables in a Spannable) then cause the
+            // TextView to be scrollable, and to jump to the end when tapped.
+            tv.setScroller(new InhibitingScroller(mUiContext));
+        }
+
         View wrappedView = applyModifiers(tv, spannable.getModifiers());
-        parent.addView(applyModifiers(tv, spannable.getModifiers()), layoutParams);
+        parent.addView(wrappedView, layoutParams);
 
         return wrappedView;
     }
@@ -1838,9 +1871,7 @@ public final class TileRendererInternal {
                     Intent i =
                             buildLaunchActionIntent(action.getLaunchAction(), mClickable.getId());
                     if (i != null) {
-                        if (i.resolveActivity(mAppContext.getPackageManager()) != null) {
-                            mAppContext.startActivity(i);
-                        }
+                        dispatchLaunchActionIntent(i);
                     }
                     break;
                 case LOAD_ACTION:
@@ -1957,5 +1988,18 @@ public final class TileRendererInternal {
                 throw new IllegalArgumentException("Unknown resource value type " + resType);
             }
         }
+    }
+
+    /** Implementation of {@link Scroller} which inhibits all scrolling. */
+    private static class InhibitingScroller extends Scroller {
+        InhibitingScroller(Context context) {
+            super(context);
+        }
+
+        @Override
+        public void startScroll(int startX, int startY, int dx, int dy) {}
+
+        @Override
+        public void startScroll(int startX, int startY, int dx, int dy, int duration) {}
     }
 }

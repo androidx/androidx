@@ -16,19 +16,70 @@
 
 package androidx.health.services.client.impl
 
+import android.util.Log
+import androidx.annotation.GuardedBy
 import androidx.health.services.client.PassiveMonitoringCallback
+import androidx.health.services.client.impl.event.PassiveCallbackEvent
+import androidx.health.services.client.impl.ipc.internal.ListenerKey
 import androidx.health.services.client.impl.response.PassiveMonitoringUpdateResponse
+import androidx.health.services.client.proto.EventsProto.PassiveCallbackEvent.EventCase.EVENT_NOT_SET
+import androidx.health.services.client.proto.EventsProto.PassiveCallbackEvent.EventCase.PASSIVE_UPDATE_RESPONSE
 
 /**
  * A stub implementation for IPassiveMonitoringCallback.
  *
  * @hide
  */
-internal class PassiveMonitoringCallbackStub
-internal constructor(private val callback: PassiveMonitoringCallback) :
-    IPassiveMonitoringCallback.Stub() {
+public class PassiveMonitoringCallbackStub
+private constructor(
+    private val packageName: String,
+    private val callback: PassiveMonitoringCallback
+) : IPassiveMonitoringCallback.Stub() {
 
-    override fun onPassiveMonitoringUpdate(response: PassiveMonitoringUpdateResponse) {
-        callback.onPassiveMonitoringUpdate(response.passiveMonitoringUpdate)
+    public val listenerKey: ListenerKey = ListenerKey(packageName)
+
+    override fun onPassiveCallbackEvent(event: PassiveCallbackEvent) {
+        val proto = event.proto
+
+        when (proto.eventCase) {
+            PASSIVE_UPDATE_RESPONSE -> {
+                val response = PassiveMonitoringUpdateResponse(proto.passiveUpdateResponse)
+                callback.onPassiveMonitoringUpdate(response.passiveMonitoringUpdate)
+            }
+            null, EVENT_NOT_SET -> Log.w(TAG, "Received unknown event ${proto.eventCase}")
+        }
+    }
+
+    /**
+     * Its important to use the same stub for registration and un-registration, to ensure same
+     * binder object is passed by framework to service side of the IPC.
+     */
+    public class PassiveMonitoringCallbackCache private constructor() {
+        @GuardedBy("this")
+        private val listeners: MutableMap<String, PassiveMonitoringCallbackStub> = HashMap()
+
+        @Synchronized
+        public fun getOrCreate(
+            packageName: String,
+            callback: PassiveMonitoringCallback
+        ): PassiveMonitoringCallbackStub {
+            return listeners.getOrPut(packageName) {
+                PassiveMonitoringCallbackStub(packageName, callback)
+            }
+        }
+
+        @Synchronized
+        public fun remove(packageName: String): PassiveMonitoringCallbackStub? {
+            return listeners.remove(packageName)
+        }
+
+        public companion object {
+            @JvmField
+            public val INSTANCE: PassiveMonitoringCallbackCache = PassiveMonitoringCallbackCache()
+        }
+    }
+
+    private companion object {
+        const val TAG = "PassiveCallbackStub"
     }
 }

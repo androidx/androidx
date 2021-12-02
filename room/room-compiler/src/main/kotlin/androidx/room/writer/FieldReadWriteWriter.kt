@@ -18,6 +18,7 @@ package androidx.room.writer
 
 import androidx.room.ext.L
 import androidx.room.ext.T
+import androidx.room.ext.capitalize
 import androidx.room.ext.defaultValue
 import androidx.room.solver.CodeGenScope
 import androidx.room.vo.CallType
@@ -27,7 +28,6 @@ import androidx.room.vo.Field
 import androidx.room.vo.FieldWithIndex
 import androidx.room.vo.Pojo
 import androidx.room.vo.RelationCollector
-import capitalize
 import com.squareup.javapoet.TypeName
 import java.util.Locale
 
@@ -319,7 +319,7 @@ class FieldReadWriteWriter(fieldWithIndex: FieldWithIndex) {
             val varName = if (field.getter.callType == CallType.FIELD) {
                 "$ownerVar.${field.name}"
             } else {
-                "$ownerVar.${field.getter.name}()"
+                "$ownerVar.${field.getter.jvmName}()"
             }
             binder.bindToStmt(stmtParamVar, indexVar, varName, scope)
         }
@@ -338,7 +338,7 @@ class FieldReadWriteWriter(fieldWithIndex: FieldWithIndex) {
                     when (field.setter.callType) {
                         CallType.FIELD -> {
                             reader.readFromCursor(
-                                "$ownerVar.${field.setter.name}", cursorVar,
+                                "$ownerVar.${field.setter.jvmName}", cursorVar,
                                 indexVar, scope
                             )
                         }
@@ -348,7 +348,7 @@ class FieldReadWriteWriter(fieldWithIndex: FieldWithIndex) {
                             )
                             addStatement("final $T $L", field.setter.type.typeName, tmpField)
                             reader.readFromCursor(tmpField, cursorVar, indexVar, scope)
-                            addStatement("$L.$L($L)", ownerVar, field.setter.name, tmpField)
+                            addStatement("$L.$L($L)", ownerVar, field.setter.jvmName, tmpField)
                         }
                         CallType.CONSTRUCTOR -> {
                             // no-op

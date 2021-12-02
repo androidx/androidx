@@ -49,6 +49,19 @@ object Stubs {
     )
         .indented().within("src")
 
+    val CONTEXT_COMPAT: TestFile = LintDetectorTest.java(
+        "androidx/core/content/ContextCompat.java",
+        """
+                package androidx.core.content;
+                public class ContextCompat {
+                    protected ContextCompat() {}
+                    public static Drawable getDrawable(@NonNull Context context, @DrawableRes int id) {
+                        throw new Exception();
+                    }
+                }
+            """
+    ).indented().within("src")
+
     val COLOR_STATE_LIST: TestFile = xml(
         "color/color_state_list.xml",
         """

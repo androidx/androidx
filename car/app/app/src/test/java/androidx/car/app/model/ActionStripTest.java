@@ -16,9 +16,13 @@
 
 package androidx.car.app.model;
 
+import static androidx.car.app.model.Action.FLAG_PRIMARY;
+
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.assertThrows;
+
+import androidx.car.app.TestUtils;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -59,6 +63,35 @@ public class ActionStripTest {
 
         // Duplicated custom types will not throw.
         new ActionStrip.Builder().addAction(action1).addAction(action2).addAction(action2).build();
+    }
+
+    @Test
+    public void unsupportedPrimaryActions_throws() {
+        Action primaryAction = new Action.Builder().setTitle("primaryAction")
+                .setOnClickListener(() -> {})
+                .setFlags(FLAG_PRIMARY).build();
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> new ActionStrip.Builder()
+                              .addAction(primaryAction)
+        );
+
+    }
+
+    @Test
+    public void unsupportedSpans_throws() {
+        CharSequence title = TestUtils.getCharSequenceWithColorSpan("Title");
+        Action action1 = new Action.Builder().setTitle(title).build();
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> new ActionStrip.Builder().addAction(action1));
+
+        CarText title2 = TestUtils.getCarTextVariantsWithDistanceAndDurationSpans("Title");
+        Action action2 = new Action.Builder().setTitle(title2).build();
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> new ActionStrip.Builder().addAction(action2));
     }
 
     @Test

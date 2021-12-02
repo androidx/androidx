@@ -86,7 +86,7 @@ class NavInflaterTest {
         assertThat(graph).isNotNull()
         val expectedUri = Uri.parse(
             "android-app://" +
-                instrumentation.targetContext.packageName + "/test"
+                instrumentation.targetContext.packageName + "/test/arg2"
         )
         val expectedDeepLinkRequest = NavDeepLinkRequest.Builder.fromUri(expectedUri).build()
         val result = graph.matchDeepLink(expectedDeepLinkRequest)

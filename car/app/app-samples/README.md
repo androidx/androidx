@@ -65,20 +65,18 @@ In short:
 
 **Note**: In Android Q, there is no Android Auto app in the launcher. The way to get to the settings in that case is through Settings -> Apps & Notifications -> See all apps -> Android Auto -> Advanced -> Additional settings in the app.
 
+Run the Automotive Apps in the Automotive OS Emulator
+-------------------------------------------
+In order to use the Automotive OS emulator, download the Android Studio 4.2 or higher (currently
+only available in the Beta and Canary tracks), and do the following:
+
+1. Follow instructions to [run an Automotive OS emulator][6].
+2. Follow instructions to [update the Template Host app][7].
 
 [1]: https://developer.android.com/training/cars/testing
 [2]: https://developer.android.com/studio/debug/dev-options
 [3]: https://developer.android.com/training/cars/testing#step1
 [4]: https://developer.android.com/training/cars/testing#running-dhu
 [5]: https://android.googlesource.com/platform/frameworks/support/+/ac0c1d466abcfdcab2babb2e10eca574247e3c92/README.md#using-android-studio
-
-Run the Automotive App in the Automotive OS Emulator
--------------------------------------------
-In order to use the Automotive OS emulator, download the Android Studio 4.2 or higher (currently
- only available in the Beta and Canary tracks), and do the following:
-
- 1. Select `Tools -> AVD Manager`.
- 2. Select `Create Virtual Device...`.
- 3. Select `Automotive` in the device category, and click `Next`.
- 4. Select `X86 Images`, then download an image for Android Q.
- 5. Finish creating the emulator, and run it.
+[6]: https://developer.android.com/training/cars/testing#system-images
+[7]: https://developer.android.com/training/cars/apps/automotive-os

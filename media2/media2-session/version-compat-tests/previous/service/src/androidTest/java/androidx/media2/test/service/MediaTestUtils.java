@@ -17,10 +17,13 @@
 package androidx.media2.test.service;
 
 import static androidx.media2.test.common.CommonConstants.CLIENT_PACKAGE_NAME;
+import static androidx.media2.test.common.CommonConstants.KEY_CLIENT_VERSION;
+import static androidx.media2.test.common.CommonConstants.VERSION_TOT;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.ParcelFileDescriptor;
 import android.util.Log;
@@ -30,10 +33,12 @@ import androidx.media2.common.FileMediaItem;
 import androidx.media2.common.MediaItem;
 import androidx.media2.common.MediaMetadata;
 import androidx.media2.common.MediaParcelUtils;
+import androidx.media2.common.UriMediaItem;
 import androidx.media2.session.MediaLibraryService.LibraryParams;
 import androidx.media2.session.MediaSession;
 import androidx.media2.session.MediaSession.ControllerInfo;
 import androidx.media2.test.common.TestUtils;
+import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.versionedparcelable.ParcelImpl;
 
 import java.util.ArrayList;
@@ -133,26 +138,52 @@ public final class MediaTestUtils {
                 .build();
     }
 
-    public static List<MediaItem> convertToMediaItems(List<ParcelImpl> list,
-            boolean createItem) {
+    /**
+     * Converts the List of {@link ParcelImpl} to the list of {@link MediaItem} with the
+     * {@link #convertToMediaItem(ParcelImpl)}.
+     * <p>
+     * Use this API in the {@link MediaSessionProviderService} to handle incoming initialization
+     * requests from the RemoteMediaSession. It would help to test {@link MediaItem}'s subclass
+     * instance across the process.
+     *
+     * @param list
+     * @return
+     */
+    public static List<MediaItem> convertToMediaItems(List<ParcelImpl> list) {
         if (list == null) {
             return null;
         }
 
         List<MediaItem> result = new ArrayList<>();
-        if (createItem) {
-            for (ParcelImpl parcel : list) {
-                MediaItem item = MediaParcelUtils.fromParcelable(parcel);
-                result.add(new FileMediaItem.Builder(ParcelFileDescriptor.adoptFd(-1))
-                        .setMetadata(item.getMetadata())
-                        .build());
-            }
-        } else {
-            for (ParcelImpl parcel : list) {
-                result.add((MediaItem) MediaParcelUtils.fromParcelable(parcel));
-            }
+        for (ParcelImpl parcel : list) {
+            result.add(convertToMediaItem(parcel));
         }
         return result;
+    }
+
+    /**
+     * Converts the {@link ParcelImpl} to {@link MediaItem}, by creating {@link UriMediaItem}.
+     * <p>
+     * Use this API in the {@link MediaSessionProviderService} to handle incoming initialization
+     * requests from the RemoteMediaSession. It would help to test {@link MediaItem}'s subclass
+     * instance across the process.
+     *
+     * @param item
+     * @return
+     */
+    public static MediaItem convertToMediaItem(ParcelImpl item) {
+        if (item == null) {
+            return null;
+        }
+        MediaItem mediaItem = MediaParcelUtils.fromParcelable(item);
+        if (mediaItem == null) {
+            return null;
+        }
+        String mediaId = mediaItem.getMediaId();
+        return new UriMediaItem.Builder(Uri.parse("android://" + mediaId))
+                .setStartPosition(mediaItem.getStartPosition())
+                .setEndPosition(mediaItem.getEndPosition())
+                .setMetadata(mediaItem.getMetadata()).build();
     }
 
     public static ControllerInfo getTestControllerInfo(MediaSession session) {
@@ -209,5 +240,11 @@ public final class MediaTestUtils {
             assertEquals(params.isSuggested(), rootExtras.getBoolean(BrowserRoot.EXTRA_SUGGESTED));
             assertTrue(TestUtils.contains(rootExtras, params.getExtras()));
         }
+    }
+
+    public static boolean isClientToT() {
+        String clientVersion = InstrumentationRegistry.getArguments()
+                .getString(KEY_CLIENT_VERSION, "");
+        return VERSION_TOT.equals(clientVersion);
     }
 }

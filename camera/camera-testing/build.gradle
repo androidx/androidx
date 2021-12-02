@@ -51,8 +51,6 @@ dependencies {
 
 android {
     defaultConfig {
-        minSdkVersion 21
-
         externalNativeBuild {
             cmake {
                 cppFlags "-std=c++17"
@@ -67,7 +65,7 @@ android {
     externalNativeBuild {
         cmake {
             path "src/main/cpp/CMakeLists.txt"
-            version "3.10.2"
+            version "3.18.1"
         }
     }
 }

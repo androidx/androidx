@@ -47,12 +47,14 @@ class DatabaseTest {
                         Index(
                             name = "leIndex",
                             unique = false,
-                            fields = Fields()
+                            fields = Fields(),
+                            orders = emptyList()
                         ),
                         Index(
                             name = "leIndex2",
                             unique = true,
-                            fields = Fields()
+                            fields = Fields(),
+                            orders = emptyList()
                         )
                     ),
                     foreignKeys = emptyList(),

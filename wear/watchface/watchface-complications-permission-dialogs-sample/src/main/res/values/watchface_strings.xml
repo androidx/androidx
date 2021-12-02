@@ -1,0 +1,32 @@
+<!--
+  Copyright 2021 The Android Open Source Project
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  -->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <!-- Title of a dialog box where we explain why we need complication permission. -->
+    <string name="complication_rational_dialog_title">Access to complications</string>
+    <!-- Body of a dialog box where we explain why we need complication permission. -->
+    <string name="complication_rational_dialog_body">The watch face needs access to the complication
+        data in order to show information on the watch face.</string>
+
+    <!-- Title of a dialog box shown when complication permission has been denied. -->
+    <string name="complication_denied_title">Access to complications</string>
+    <!-- Body of a dialog box shown when complication permission has been denied. -->
+    <string name="complication_denied_text">The watch face needs permission to access the
+        complications data in order to show them on the watch face. You can grant the permission
+        from Settings.</string>
+
+    <!-- Text of a button that takes the user to the system settings activity. -->
+    <string name="settings_button_name">Settings</string>
+</resources>

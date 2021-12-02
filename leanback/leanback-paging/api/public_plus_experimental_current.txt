@@ -14,10 +14,12 @@ package androidx.leanback.paging {
     method public void addLoadStateListener(kotlin.jvm.functions.Function1<? super androidx.paging.CombinedLoadStates,kotlin.Unit> listener);
     method public T? get(int position);
     method public kotlinx.coroutines.flow.Flow<androidx.paging.CombinedLoadStates> getLoadStateFlow();
+    method public T? peek(@IntRange(from=0) int index);
     method public void refresh();
     method public void removeLoadStateListener(kotlin.jvm.functions.Function1<? super androidx.paging.CombinedLoadStates,kotlin.Unit> listener);
     method public void retry();
     method public int size();
+    method public androidx.paging.ItemSnapshotList<T> snapshot();
     method public suspend Object? submitData(androidx.paging.PagingData<T> pagingData, kotlin.coroutines.Continuation<? super kotlin.Unit> p);
     method public void submitData(androidx.lifecycle.Lifecycle lifecycle, androidx.paging.PagingData<T> pagingData);
     property public final kotlinx.coroutines.flow.Flow<androidx.paging.CombinedLoadStates> loadStateFlow;

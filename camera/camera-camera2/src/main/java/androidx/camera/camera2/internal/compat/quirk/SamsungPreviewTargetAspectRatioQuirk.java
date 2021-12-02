@@ -19,12 +19,14 @@ package androidx.camera.camera2.internal.compat.quirk;
 import android.os.Build;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.camera.core.impl.Config;
 import androidx.camera.core.impl.PreviewConfig;
 import androidx.camera.core.impl.Quirk;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * Quirk that produces stretched preview on certain Samsung devices.
@@ -32,6 +34,7 @@ import java.util.List;
  * <p> On certain Samsung devices, the HAL provides 16:9 preview even when the Surface size is
  * set to 4:3, which causes the preview to be stretched in PreviewView.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class SamsungPreviewTargetAspectRatioQuirk implements Quirk {
 
     // List of devices with the issue.
@@ -41,8 +44,8 @@ public class SamsungPreviewTargetAspectRatioQuirk implements Quirk {
     );
 
     static boolean load() {
-        return "SAMSUNG".equals(Build.BRAND.toUpperCase())
-                && DEVICE_MODELS.contains(android.os.Build.MODEL.toUpperCase());
+        return "SAMSUNG".equalsIgnoreCase(Build.BRAND)
+                && DEVICE_MODELS.contains(android.os.Build.MODEL.toUpperCase(Locale.US));
     }
 
     /**

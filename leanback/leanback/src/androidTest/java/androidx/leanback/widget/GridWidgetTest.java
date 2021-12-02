@@ -2824,6 +2824,7 @@ public class GridWidgetTest {
         testRemoveVisibleItemsInSmoothScrollingBackward(/*focusOnGridView=*/ false);
     }
 
+    @FlakyTest(bugId = 186848347)
     @Test
     public void testPendingSmoothScrollAndRemove() throws Throwable {
         Intent intent = new Intent();

@@ -791,8 +791,9 @@ class Cea708CaptionRenderer extends SubtitleController.Renderer {
                     CaptioningManager captioningManager =
                             (CaptioningManager) context.getSystemService(
                                     Context.CAPTIONING_SERVICE);
-                    mFontScale = captioningManager.getFontScale();
-                    setCaptionStyle(new CaptionStyle(captioningManager.getUserStyle()));
+                    mFontScale = CaptioningManagerHelper.Api19Impl.getFontScale(captioningManager);
+                    setCaptionStyle(new CaptionStyle(
+                            CaptioningManagerHelper.Api19Impl.getUserStyle(captioningManager)));
                 } else {
                     mFontScale = 1f;
                     setCaptionStyle(CaptionStyle.DEFAULT);

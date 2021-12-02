@@ -62,6 +62,7 @@ import androidx.media2.test.common.TestUtils;
 import androidx.media2.test.service.MediaTestUtils;
 import androidx.media2.test.service.RemoteMediaController;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.FlakyTest;
 import androidx.test.filters.SmallTest;
 
 import org.junit.After;
@@ -97,7 +98,8 @@ public class MediaSessionCompatCallbackWithMediaControllerTest extends MediaSess
         super.setUp();
         final Intent sessionActivity = new Intent(mContext, MockActivity.class);
         // Create this test specific MediaSession to use our own Handler.
-        mIntent = PendingIntent.getActivity(mContext, 0, sessionActivity, 0);
+        mIntent = PendingIntent.getActivity(mContext, 0, sessionActivity,
+                Build.VERSION.SDK_INT >= 23 ? PendingIntent.FLAG_IMMUTABLE : 0);
 
         mSessionCallback = new MediaSessionCallback();
         mSession = new MediaSessionCompat(mContext, TAG + "Compat");
@@ -461,6 +463,7 @@ public class MediaSessionCompatCallbackWithMediaControllerTest extends MediaSess
         assertEquals(true, mSessionCallback.mOnRewindCalled);
     }
 
+    @FlakyTest(bugId = 204596299)
     @Test
     public void setRating() throws Exception {
         final float ratingValue = 3.5f;
@@ -480,9 +483,6 @@ public class MediaSessionCompatCallbackWithMediaControllerTest extends MediaSess
 
     @Test
     public void setMediaUri_ignored() throws Exception {
-        if (!MediaTestUtils.isClientToT()) {
-            return;
-        }
         RemoteMediaController controller = createControllerAndWaitConnection();
         mSessionCallback.reset(1);
 
@@ -493,9 +493,6 @@ public class MediaSessionCompatCallbackWithMediaControllerTest extends MediaSess
 
     @Test
     public void setMediaUri_followedByPrepare_callsPrepareFromMediaId() throws Exception {
-        if (!MediaTestUtils.isClientToT()) {
-            return;
-        }
         String testMediaId = "anyMediaId";
         Bundle testExtras = new Bundle();
         testExtras.putString("testKey", "testValue");
@@ -523,9 +520,6 @@ public class MediaSessionCompatCallbackWithMediaControllerTest extends MediaSess
 
     @Test
     public void setMediaUri_followedByPrepare_callsPrepareFromSearch() throws Exception {
-        if (!MediaTestUtils.isClientToT()) {
-            return;
-        }
         String testSearchQuery = "anyQuery";
         Bundle testExtras = new Bundle();
         testExtras.putString("testKey", "testValue");
@@ -553,9 +547,6 @@ public class MediaSessionCompatCallbackWithMediaControllerTest extends MediaSess
 
     @Test
     public void setMediaUri_followedByPrepare_callsPrepareFromUri() throws Exception {
-        if (!MediaTestUtils.isClientToT()) {
-            return;
-        }
         Uri testMediaUri = Uri.parse("androidx://jetpack/test?query=android%20media");
         Bundle testExtras = new Bundle();
         testExtras.putString("testKey", "testValue");
@@ -584,9 +575,6 @@ public class MediaSessionCompatCallbackWithMediaControllerTest extends MediaSess
     @Test
     public void setMediaUri_withoutFormattingFollowedByPrepare_callsPrepareFromUri()
             throws Exception {
-        if (!MediaTestUtils.isClientToT()) {
-            return;
-        }
         Uri testMediaUri = Uri.parse("androidx://jetpack/test?query=android%20media");
         Bundle testExtras = new Bundle();
         testExtras.putString("testKey", "testValue");
@@ -607,9 +595,6 @@ public class MediaSessionCompatCallbackWithMediaControllerTest extends MediaSess
 
     @Test
     public void setMediaUri_followedByPlay_callsPlayFromMediaId() throws Exception {
-        if (!MediaTestUtils.isClientToT()) {
-            return;
-        }
         String testMediaId = "anyMediaId";
         Bundle testExtras = new Bundle();
         testExtras.putString("testKey", "testValue");
@@ -637,9 +622,6 @@ public class MediaSessionCompatCallbackWithMediaControllerTest extends MediaSess
 
     @Test
     public void setMediaUri_followedByPlay_callsPlayFromSearch() throws Exception {
-        if (!MediaTestUtils.isClientToT()) {
-            return;
-        }
         String testSearchQuery = "anyQuery";
         Bundle testExtras = new Bundle();
         testExtras.putString("testKey", "testValue");
@@ -667,9 +649,6 @@ public class MediaSessionCompatCallbackWithMediaControllerTest extends MediaSess
 
     @Test
     public void setMediaUri_followedByPlay_callsPlayFromUri() throws Exception {
-        if (!MediaTestUtils.isClientToT()) {
-            return;
-        }
         Uri testMediaUri = Uri.parse("androidx://jetpack/test?query=android%20media");
         Bundle testExtras = new Bundle();
         testExtras.putString("testKey", "testValue");
@@ -698,9 +677,6 @@ public class MediaSessionCompatCallbackWithMediaControllerTest extends MediaSess
     @Test
     public void setMediaUri_withoutFormattingFollowedByPlay_callsPlayFromUri()
             throws Exception {
-        if (!MediaTestUtils.isClientToT()) {
-            return;
-        }
         Uri testMediaUri = Uri.parse("androidx://jetpack/test?query=android%20media");
         Bundle testExtras = new Bundle();
         testExtras.putString("testKey", "testValue");
@@ -722,9 +698,6 @@ public class MediaSessionCompatCallbackWithMediaControllerTest extends MediaSess
     @Test
     public void setMediaUri_followedByPrepareTwice_callsPrepareFromUriAndPrepare()
             throws Exception {
-        if (!MediaTestUtils.isClientToT()) {
-            return;
-        }
         RemoteMediaController controller = createControllerAndWaitConnection();
         mSessionCallback.reset(2);
 
@@ -740,9 +713,6 @@ public class MediaSessionCompatCallbackWithMediaControllerTest extends MediaSess
 
     @Test
     public void setMediaUri_followedByPlayTwice_callsPlayFromUriAndPlay() throws Exception {
-        if (!MediaTestUtils.isClientToT()) {
-            return;
-        }
         RemoteMediaController controller = createControllerAndWaitConnection();
         mSessionCallback.reset(2);
 
@@ -758,9 +728,6 @@ public class MediaSessionCompatCallbackWithMediaControllerTest extends MediaSess
 
     @Test
     public void setMediaUri_multipleCalls_skipped() throws Exception {
-        if (!MediaTestUtils.isClientToT()) {
-            return;
-        }
         RemoteMediaController controller = createControllerAndWaitConnection();
         mSessionCallback.reset(2);
 

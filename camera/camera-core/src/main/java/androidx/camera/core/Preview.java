@@ -34,7 +34,6 @@ import static androidx.camera.core.impl.PreviewConfig.OPTION_TARGET_NAME;
 import static androidx.camera.core.impl.PreviewConfig.OPTION_TARGET_RESOLUTION;
 import static androidx.camera.core.impl.PreviewConfig.OPTION_TARGET_ROTATION;
 import static androidx.camera.core.impl.PreviewConfig.OPTION_USE_CASE_EVENT_CALLBACK;
-import static androidx.camera.core.impl.UseCaseConfig.OPTION_ATTACHED_USE_CASES_UPDATE_LISTENER;
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_CAMERA_SELECTOR;
 
 import android.graphics.ImageFormat;
@@ -54,6 +53,7 @@ import android.view.TextureView;
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.annotation.UiThread;
@@ -86,7 +86,6 @@ import androidx.camera.core.internal.ThreadConfig;
 import androidx.core.util.Consumer;
 import androidx.lifecycle.LifecycleOwner;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.Executor;
@@ -134,6 +133,7 @@ import java.util.concurrent.Executor;
  *     </code>
  * </pre>
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class Preview extends UseCase {
 
     ////////////////////////////////////////////////////////////////////////////////////////////
@@ -885,6 +885,12 @@ public final class Preview extends UseCase {
          * <p>If not set, the default selected resolution will be the best size match to the
          * device's screen resolution, or to 1080p (1920x1080), whichever is smaller.
          *
+         * <p>When using the <code>camera-camera2</code> CameraX implementation, which resolution
+         * will be finally selected will depend on the camera device's hardware level and the
+         * bound use cases combination. For more details see the guaranteed supported
+         * configurations tables in {@link android.hardware.camera2.CameraDevice}'s
+         * <a href="https://developer.android.com/reference/android/hardware/camera2/CameraDevice#regular-capture">Regular capture</a> section.
+         *
          * @param resolution The target resolution to choose from supported output sizes list.
          * @return The current Builder.
          */
@@ -1038,17 +1044,5 @@ public final class Preview extends UseCase {
             getMutableConfig().insertOption(OPTION_PREVIEW_CAPTURE_PROCESSOR, captureProcessor);
             return this;
         }
-
-        /** @hide */
-        @RestrictTo(Scope.LIBRARY_GROUP)
-        @Override
-        @NonNull
-        public Builder setAttachedUseCasesUpdateListener(
-                @NonNull Consumer<Collection<UseCase>> attachedUseCasesUpdateListener) {
-            getMutableConfig().insertOption(OPTION_ATTACHED_USE_CASES_UPDATE_LISTENER,
-                    attachedUseCasesUpdateListener);
-            return this;
-        }
-
     }
 }

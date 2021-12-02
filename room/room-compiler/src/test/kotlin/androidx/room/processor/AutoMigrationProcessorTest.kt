@@ -44,9 +44,6 @@ class AutoMigrationProcessorTest {
 
         runProcessorTest(listOf(source)) { invocation ->
             AutoMigrationProcessor(
-                element = invocation.processingEnv.requireTypeElement(
-                    "foo.bar.MyAutoMigration"
-                ),
                 context = invocation.context,
                 spec = invocation.processingEnv.requireType(
                     "foo.bar.MyAutoMigration"
@@ -55,7 +52,7 @@ class AutoMigrationProcessorTest {
                 toSchemaBundle = toSchemaBundle.database
             ).process()
             invocation.assertCompilationResult {
-                hasError(AUTOMIGRATION_SPEC_MISSING_NOARG_CONSTRUCTOR)
+                hasErrorContaining(AUTOMIGRATION_SPEC_MISSING_NOARG_CONSTRUCTOR)
             }
         }
     }
@@ -73,14 +70,13 @@ class AutoMigrationProcessorTest {
 
         runProcessorTest(listOf(source)) { invocation ->
             AutoMigrationProcessor(
-                element = invocation.processingEnv.requireTypeElement("foo.bar.MyAutoMigration"),
                 context = invocation.context,
                 spec = invocation.processingEnv.requireType("foo.bar.MyAutoMigration"),
                 fromSchemaBundle = fromSchemaBundle.database,
                 toSchemaBundle = toSchemaBundle.database
             ).process()
             invocation.assertCompilationResult {
-                hasError(ProcessorErrors.AUTOMIGRATION_SPEC_MUST_BE_CLASS)
+                hasErrorContaining(ProcessorErrors.AUTOMIGRATION_SPEC_MUST_BE_CLASS)
             }
         }
     }
@@ -100,9 +96,6 @@ class AutoMigrationProcessorTest {
 
         runProcessorTest(listOf(source)) { invocation ->
             AutoMigrationProcessor(
-                element = invocation.processingEnv.requireTypeElement(
-                    "foo.bar.MyAutoMigrationDb.MyAutoMigration"
-                ),
                 context = invocation.context,
                 spec = invocation.processingEnv.requireType(
                     "foo.bar.MyAutoMigrationDb.MyAutoMigration"
@@ -111,7 +104,7 @@ class AutoMigrationProcessorTest {
                 toSchemaBundle = toSchemaBundle.database
             ).process()
             invocation.assertCompilationResult {
-                hasError(INNER_CLASS_AUTOMIGRATION_SPEC_MUST_BE_STATIC)
+                hasErrorContaining(INNER_CLASS_AUTOMIGRATION_SPEC_MUST_BE_STATIC)
             }
         }
     }
@@ -131,14 +124,13 @@ class AutoMigrationProcessorTest {
 
         runProcessorTest(listOf(source)) { invocation ->
             AutoMigrationProcessor(
-                element = invocation.processingEnv.requireTypeElement("foo.bar.MyAutoMigration"),
                 context = invocation.context,
                 spec = invocation.processingEnv.requireType("foo.bar.MyAutoMigration"),
                 fromSchemaBundle = fromSchemaBundle.database,
                 toSchemaBundle = toSchemaBundle.database
             ).process()
             invocation.assertCompilationResult {
-                hasError(
+                hasErrorContaining(
                     ProcessorErrors.autoMigrationElementMustImplementSpec("MyAutoMigration")
                 )
             }

@@ -17,6 +17,8 @@
 package androidx.room.writer
 
 import androidx.annotation.NonNull
+import androidx.room.compiler.processing.MethodSpecHelper
+import androidx.room.compiler.processing.addOriginatingElement
 import androidx.room.ext.AndroidTypeNames
 import androidx.room.ext.CommonTypeNames
 import androidx.room.ext.L
@@ -25,10 +27,10 @@ import androidx.room.ext.RoomTypeNames
 import androidx.room.ext.S
 import androidx.room.ext.SupportDbTypeNames
 import androidx.room.ext.T
-import androidx.room.ext.typeName
-import androidx.room.compiler.processing.MethodSpecHelper
-import androidx.room.compiler.processing.addOriginatingElement
 import androidx.room.ext.W
+import androidx.room.ext.decapitalize
+import androidx.room.ext.stripNonJava
+import androidx.room.ext.typeName
 import androidx.room.solver.CodeGenScope
 import androidx.room.vo.DaoMethod
 import androidx.room.vo.Database
@@ -41,8 +43,6 @@ import com.squareup.javapoet.ParameterizedTypeName
 import com.squareup.javapoet.TypeName
 import com.squareup.javapoet.TypeSpec
 import com.squareup.javapoet.WildcardTypeName
-import decapitalize
-import stripNonJava
 import java.util.Locale
 import javax.lang.model.element.Modifier.FINAL
 import javax.lang.model.element.Modifier.PRIVATE
@@ -368,14 +368,15 @@ class DatabaseWriter(val database: Database) : ClassWriter(database.implTypeName
 
             returns(ParameterizedTypeName.get(CommonTypeNames.LIST, RoomTypeNames.MIGRATION))
             val autoMigrationsList = database.autoMigrations.map { autoMigrationResult ->
+                val implTypeName = autoMigrationResult.getImplTypeName(database.typeName)
                 if (autoMigrationResult.isSpecProvided) {
                     CodeBlock.of(
                         "new $T(autoMigrationSpecsMap.get($T.class))",
-                        autoMigrationResult.implTypeName,
+                        implTypeName,
                         autoMigrationResult.specClassName
                     )
                 } else {
-                    CodeBlock.of("new $T()", autoMigrationResult.implTypeName)
+                    CodeBlock.of("new $T()", implTypeName)
                 }
             }
             addStatement(

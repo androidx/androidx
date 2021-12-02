@@ -19,10 +19,12 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 import static androidx.annotation.RestrictTo.Scope.TESTS;
 
+import android.app.Application;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.os.Build;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.text.Editable;
@@ -56,28 +58,54 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
  * Main class to keep Android devices up to date with the newest emojis by adding {@link EmojiSpan}s
- * to a given {@link CharSequence}. It is a singleton class that can be configured using a {@link
- * EmojiCompat.Config} instance.
+ * to a given {@link CharSequence}.
  * <p/>
- * EmojiCompat has to be initialized using {@link #init(EmojiCompat.Config)} function before it can
- * process a {@link CharSequence}.
- * <pre><code>EmojiCompat.init(&#47;* a config instance *&#47;);</code></pre>
+ * By default, EmojiCompat is initialized by {@link EmojiCompatInitializer}, which performs
+ * deferred font loading to avoid potential app startup delays. The default behavior is to load
+ * the font shortly after the first Activity resumes. EmojiCompatInitializer will configure
+ * EmojiCompat to use the system emoji font provider via {@link DefaultEmojiCompatConfig} and
+ * always creates a new background thread for font loading.
  * <p/>
- * It is suggested to make the initialization as early as possible in your app. Please check {@link
- * EmojiCompat.Config} for more configuration parameters. Once {@link #init(EmojiCompat.Config)} is
- * called a singleton instance will be created. Any call after that will not create a new instance
- * and will return immediately.
+ * EmojiCompat will only allow one instance to be initialized and any calls to
+ * {@link #init(Config)} after the first one will have no effect. As a result, configuration options
+ * may not be provided when using {@link EmojiCompatInitializer}. To provide a custom configuration,
+ * disable {@link EmojiCompatInitializer} in the manifest with:
+ *
+ * <pre>
+ *     <provider
+ *         android:name="androidx.startup.InitializationProvider"
+ *         android:authorities="${applicationId}.androidx-startup"
+ *         android:exported="false"
+ *         tools:node="merge">
+ *         <meta-data android:name="androidx.emoji2.text.EmojiCompatInitializer"
+ *                   tools:node="remove" />
+ *     </provider>
+ * </pre>
+ *
+ * When not using EmojiCompatInitializer, EmojiCompat must to be initialized manually using
+ * {@link #init(EmojiCompat.Config)}. It is recommended to make the initialization as early as
+ * possible in your app, such as from {@link Application#onCreate()}.
  * <p/>
- * During initialization information about emojis is loaded on a background thread. Before the
- * EmojiCompat instance is initialized, calls to functions such as {@link
- * EmojiCompat#process(CharSequence)} will throw an exception. You can use the {@link InitCallback}
- * class to be informed about the state of initialization.
+ * {@link #init(Config)} is fast and may be called from the main thread on the path to
+ * displaying the first activity. However, loading the emoji font takes significant resources on a
+ * background thread, so it is suggested to use {@link #LOAD_STRATEGY_MANUAL} in all manual
+ * configurations to defer font loading until after the first screen displays. Font loading may
+ * be started by calling {@link #load()}}. See the implementation {@link EmojiCompatInitializer}
+ * for ideas when building a manual configuration.
  * <p/>
  * After initialization the {@link #get()} function can be used to get the configured instance and
  * the {@link #process(CharSequence)} function can be used to update a CharSequence with emoji
  * EmojiSpans.
  * <p/>
  * <pre><code>CharSequence processedSequence = EmojiCompat.get().process("some string")</pre>
+ * <p/>
+ * During loading information about emojis is not available. Before the
+ * EmojiCompat instance has finished loading, calls to functions such as {@link
+ * EmojiCompat#process(CharSequence)} will throw an exception. It is safe to call process when
+ * {@link #getLoadState()} returns {@link #LOAD_STATE_SUCCEEDED}. To register a callback when
+ * loading completes use {@link InitCallback}.
+ * <p/>
+
  */
 @AnyThread
 public class EmojiCompat {
@@ -196,6 +224,126 @@ public class EmojiCompat {
      * @hide
      */
     @RestrictTo(LIBRARY)
+    @IntDef({EMOJI_UNSUPPORTED, EMOJI_SUPPORTED,
+            EMOJI_FALLBACK})
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface CodepointSequenceMatchResult {
+    }
+
+    /**
+     * Result of {@link #getEmojiMatch(CharSequence, int)} that means no part of this codepoint
+     * sequence will ever generate an {@link EmojiSpan} at the requested metadata level.
+     *
+     * This return value implies:
+     * - EmojiCompat will always defer to system emoji font
+     * - System emoji font may or may not support this emoji
+     * - This application MAY render this emoji
+     *
+     * This can be used by keyboards to learn that EmojiCompat does not support this codepoint
+     * sequence at this metadata version. The system emoji font is not checked by this method,
+     * and this result will be returned even if the system emoji font supports the emoji. This may
+     * happen if the application is using an older version of the emoji compat font than the
+     * system emoji font.
+     *
+     * Keyboards may optionally determine that the system emoji font will support the emoji, for
+     * example by building a internal lookup table or calling
+     * {@link androidx.core.graphics.PaintCompat#hasGlyph(Paint, String)} to query the system
+     * emoji font. Keyboards may use a lookup table to optimize this check, however they should be
+     * aware that OEMs may add or remove emoji from the system emoji font.
+     *
+     * Keyboards may finally decide:
+     * - If the system emoji font DOES NOT support the emoji, then the emoji IS NOT supported by
+     * this application.
+     * - If the system emoji font DOES support the emoji, then the emoji IS supported by this
+     * application.
+     * - If system emoji font is support is UNKNOWN, then assume the emoji IS NOT supported by
+     * this application.
+     */
+    public static final int EMOJI_UNSUPPORTED = 0;
+
+    /**
+     * Result of {@link #getEmojiMatch(CharSequence, int)} that means this codepoint can be drawn
+     * by an {@link EmojiSpan} at this metadata level.
+     *
+     * No further checks are required by keyboards for this result. The emoji is always supported
+     * by this application.
+     *
+     * This return value implies:
+     * - EmojiCompat can draw this emoji
+     * - System emoji font may or may not support this emoji
+     * - This application WILL render this emoji
+     *
+     * This result implies that EmojiCompat can successfully display this emoji. The system emoji
+     * font is not checked by this method, and this result may be returned even if the platform
+     * also supports the emoji sequence.
+     *
+     * If the application passes {@link EmojiCompat#REPLACE_STRATEGY_ALL} of true, then an
+     * {@link EmojiSpan} will always be generated for this emoji.
+     *
+     * If the application passes {@link EmojiCompat#REPLACE_STRATEGY_ALL} of false, then an
+     * {@link EmojiSpan} will only be generated if
+     * {@link androidx.core.graphics.PaintCompat#hasGlyph(Paint, String)}
+     * returns false for this emoji.
+     */
+    public static final int EMOJI_SUPPORTED = 1;
+
+    /**
+     * Result of {@link #getEmojiMatch(CharSequence, int)} that means the full codepoint sequence
+     * is not known to emojicompat, but at least one subsequence is an emoji that is known at
+     * this metadata level.
+     *
+     * Keyboards may decide that this emoji is not supported by the application when this result is
+     * returned, with no further processing.
+     *
+     * This return value implies:
+     * - EmojiCompat will decompose this ZWJ sequence into multiple glyphs when replaceAll=true
+     * - EmojiCompat MAY defer to platform when replaceAll=false
+     * - System emoji font may or may not support this emoji
+     * - This application MAY render this emoji
+     *
+     * This return value is only ever returned for ZWJ sequences. To understand this result
+     * consider when it may be returned for the multi-skin-tone handshake introduced in emoji 14.
+     *
+     * <pre>
+     *     U+1FAF1 // unknown @ requested metadata level
+     *     U+1F3FB // metadata level 1
+     *     U+200D  // not displayed (ZWJ)
+     *     U+1FAF2 // unknown @ requested metadata level
+     *     U+1F3FD // metadata level 1
+     * </pre>
+     *
+     * In this codepoint sequence, U+1F3FB and U+1F3FD are known from metadata level 1. When an
+     * application is using a metadata level that doesn't understand this ZWJ and provides
+     * {@link EmojiCompat#REPLACE_STRATEGY_ALL} true, the color emoji are matched and replaced
+     * with {@link EmojiSpan}. The system emoji font, even if it supports this ZWJ sequence, is
+     * never queried and the added EmojiSpans force fallback rendering for the ZWJ sequence.
+     *
+     * The glyph will only display correctly for this application if ALL of the following
+     * requirements are met:
+     * - {@link EmojiCompat#REPLACE_STRATEGY_ALL} is false
+     * - {@link androidx.core.graphics.PaintCompat#hasGlyph(Paint, String)} returns true for each
+     * emoji subsequence known at this metadata level
+     * - {@link androidx.core.graphics.PaintCompat#hasGlyph(Paint, String)} returns true for the
+     * full sequence
+     *
+     * Given this return value for the multi-skin-tone handshake above, if
+     * {@link EmojiCompat#REPLACE_STRATEGY_ALL} is false then the emoji will display if the
+     * entire emoji sequence is matched by
+     * {@link androidx.core.graphics.PaintCompat#hasGlyph(Paint, String)} because U+1F3FB and
+     * U+1F3FD are both in the system emoji font.
+     *
+     * Keyboards that wish to determine if the glyph will display correctly by the application in
+     * response to this return value should consider building an internal lookup for new ZWJ
+     * sequences instead of repeatedly calling
+     * {@link androidx.core.graphics.PaintCompat#hasGlyph(Paint, String)} for each emoji
+     * subsequence.
+     */
+    public static final int EMOJI_FALLBACK = 2;
+
+    /**
+     * @hide
+     */
+    @RestrictTo(LIBRARY)
     static final int EMOJI_COUNT_UNLIMITED = Integer.MAX_VALUE;
 
     private static final Object INSTANCE_LOCK = new Object();
@@ -269,6 +417,39 @@ public class EmojiCompat {
      */
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     private final GlyphChecker mGlyphChecker;
+
+    private static final String NOT_INITIALIZED_ERROR_TEXT = "EmojiCompat is not initialized.\n"
+            + "\n"
+            + "You must initialize EmojiCompat prior to referencing the EmojiCompat instance.\n"
+            + "\n"
+            + "The most likely cause of this error is disabling the EmojiCompatInitializer\n"
+            + "either explicitly in AndroidManifest.xml, or by including\n"
+            + "androidx.emoji2:emoji2-bundled.\n"
+            + "\n"
+            + "Automatic initialization is typically performed by EmojiCompatInitializer. If\n"
+            + "you are not expecting to initialize EmojiCompat manually in your application,\n"
+            + "please check to ensure it has not been removed from your APK's manifest. You can\n"
+            + "do this in Android Studio using Build > Analyze APK.\n"
+            + "\n"
+            + "In the APK Analyzer, ensure that the startup entry for\n"
+            + "EmojiCompatInitializer and InitializationProvider is present in\n"
+            + " AndroidManifest.xml. If it is missing or contains tools:node=\"remove\", and you\n"
+            + "intend to use automatic configuration, verify:\n"
+            + "\n"
+            + "  1. Your application does not include emoji2-bundled\n"
+            + "  2. All modules do not contain an exclusion manifest rule for\n"
+            + "     EmojiCompatInitializer or InitializationProvider. For more information\n"
+            + "     about manifest exclusions see the documentation for the androidx startup\n"
+            + "     library.\n"
+            + "\n"
+            + "If you intend to use emoji2-bundled, please call EmojiCompat.init. You can\n"
+            + "learn more in the documentation for BundledEmojiCompatConfig.\n"
+            + "\n"
+            + "If you intended to perform manual configuration, it is recommended that you call\n"
+            + "EmojiCompat.init immediately on application startup.\n"
+            + "\n"
+            + "If you still cannot resolve this issue, please open a bug with your specific\n"
+            + "configuration to help improve error message.";
 
     /**
      * Private constructor for singleton instance.
@@ -466,8 +647,7 @@ public class EmojiCompat {
     public static EmojiCompat get() {
         synchronized (INSTANCE_LOCK) {
             EmojiCompat localInstance = sInstance;
-            Preconditions.checkState(localInstance != null,
-                    "EmojiCompat is not initialized. Please call EmojiCompat.init() first");
+            Preconditions.checkState(localInstance != null, NOT_INITIALIZED_ERROR_TEXT);
             return localInstance;
         }
     }
@@ -696,12 +876,15 @@ public class EmojiCompat {
      * Returns {@code true} if EmojiCompat is capable of rendering an emoji. When used on devices
      * running API 18 or below, always returns {@code false}.
      *
+     * @deprecated to be replaced with getEmojiMatch which returns more accurate lookup information.
+     *
      * @param sequence CharSequence representing the emoji
      *
      * @return {@code true} if EmojiCompat can render given emoji, cannot be {@code null}
      *
      * @throws IllegalStateException if not initialized yet
      */
+    @Deprecated
     public boolean hasEmojiGlyph(@NonNull final CharSequence sequence) {
         Preconditions.checkState(isInitialized(), "Not initialized yet");
         Preconditions.checkNotNull(sequence, "sequence cannot be null");
@@ -712,6 +895,8 @@ public class EmojiCompat {
      * Returns {@code true} if EmojiCompat is capable of rendering an emoji at the given metadata
      * version. When used on devices running API 18 or below, always returns {@code false}.
      *
+     * @deprecated to be replaced with getEmojiMatch which returns more accurate lookup information.
+     *
      * @param sequence CharSequence representing the emoji
      * @param metadataVersion the metadata version to check against, should be greater than or
      *                        equal to {@code 0},
@@ -720,11 +905,35 @@ public class EmojiCompat {
      *
      * @throws IllegalStateException if not initialized yet
      */
+    @Deprecated
     public boolean hasEmojiGlyph(@NonNull final CharSequence sequence,
             @IntRange(from = 0) final int metadataVersion) {
         Preconditions.checkState(isInitialized(), "Not initialized yet");
         Preconditions.checkNotNull(sequence, "sequence cannot be null");
         return mHelper.hasEmojiGlyph(sequence, metadataVersion);
+    }
+
+    /**
+     * Attempts to lookup the entire sequence at the specified metadata version and returns what
+     * the runtime match behavior would be.
+     *
+     * To be used by keyboards to show or hide emoji in response to specific metadata support.
+     *
+     * @see #EMOJI_SUPPORTED
+     * @see #EMOJI_UNSUPPORTED
+     * @see #EMOJI_FALLBACK
+     *
+     * @param sequence CharSequence representing an emoji
+     * @param metadataVersion the metada version to check against, should be greater than or
+     *                        equal to {@code 0},
+     * @return A match result, or decomposes if replaceAll would cause partial subsequence matches.
+     */
+    @CodepointSequenceMatchResult
+    public int getEmojiMatch(@NonNull CharSequence sequence,
+            @IntRange(from = 0) final int metadataVersion) {
+        Preconditions.checkState(isInitialized(), "Not initialized yet");
+        Preconditions.checkNotNull(sequence, "sequence cannot be null");
+        return mHelper.getEmojiMatch(sequence, metadataVersion);
     }
 
     /**
@@ -914,20 +1123,30 @@ public class EmojiCompat {
      * Updates the EditorInfo attributes in order to communicate information to Keyboards. When
      * used on devices running API 18 or below, does not update EditorInfo attributes.
      *
+     * This is called from EditText integrations that use EmojiEditTextHelper. Custom
+     * widgets that allow IME not subclassing EditText should call this method when creating an
+     * input connection.
+     *
+     * When EmojiCompat is not in {@link #LOAD_STATE_SUCCEEDED}, this method has no effect.
+     *
+     * Calling this method on API levels below API 19 will have no effect, as EmojiCompat may
+     * never be configured. However, it is always safe to call, even on older API levels.
+     *
      * @param outAttrs EditorInfo instance passed to
      *                 {@link android.widget.TextView#onCreateInputConnection(EditorInfo)}
      *
      * @see #EDITOR_INFO_METAVERSION_KEY
      * @see #EDITOR_INFO_REPLACE_ALL_KEY
-     *
-     * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
-    public void updateEditorInfoAttrs(@NonNull final EditorInfo outAttrs) {
+    public void updateEditorInfo(@NonNull final EditorInfo outAttrs) {
         //noinspection ConstantConditions
-        if (isInitialized() && outAttrs != null && outAttrs.extras != null) {
-            mHelper.updateEditorInfoAttrs(outAttrs);
+        if (!isInitialized() || outAttrs == null) {
+            return;
         }
+        if (outAttrs.extras == null) {
+            outAttrs.extras = new Bundle();
+        }
+        mHelper.updateEditorInfoAttrs(outAttrs);
     }
 
     /**
@@ -1377,6 +1596,11 @@ public class EmojiCompat {
         String getAssetSignature() {
             return "";
         }
+
+        @CodepointSequenceMatchResult
+        public int getEmojiMatch(CharSequence sequence, int metadataVersion) {
+            return EMOJI_UNSUPPORTED;
+        }
     }
 
     @RequiresApi(19)
@@ -1439,13 +1663,18 @@ public class EmojiCompat {
 
         @Override
         boolean hasEmojiGlyph(@NonNull CharSequence sequence) {
-            return mProcessor.getEmojiMetadata(sequence) != null;
+            return mProcessor.getEmojiMatch(sequence) == EMOJI_SUPPORTED;
         }
 
         @Override
         boolean hasEmojiGlyph(@NonNull CharSequence sequence, int metadataVersion) {
-            final EmojiMetadata emojiMetadata = mProcessor.getEmojiMetadata(sequence);
-            return emojiMetadata != null && emojiMetadata.getCompatAdded() <= metadataVersion;
+            int emojiMatch = mProcessor.getEmojiMatch(sequence, metadataVersion);
+            return emojiMatch == EMOJI_SUPPORTED;
+        }
+
+        @Override
+        public int getEmojiMatch(CharSequence sequence, int metadataVersion) {
+            return mProcessor.getEmojiMatch(sequence, metadataVersion);
         }
 
         @Override

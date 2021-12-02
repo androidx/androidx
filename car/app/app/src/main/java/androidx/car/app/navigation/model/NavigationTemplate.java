@@ -16,8 +16,8 @@
 
 package androidx.car.app.navigation.model;
 
+import static androidx.car.app.model.constraints.ActionsConstraints.ACTIONS_CONSTRAINTS_MAP;
 import static androidx.car.app.model.constraints.ActionsConstraints.ACTIONS_CONSTRAINTS_NAVIGATION;
-import static androidx.car.app.model.constraints.ActionsConstraints.ACTIONS_CONSTRAINTS_NAVIGATION_MAP;
 import static androidx.car.app.model.constraints.CarColorConstraints.UNCONSTRAINED;
 
 import static java.util.Objects.requireNonNull;
@@ -86,14 +86,14 @@ import java.util.Objects;
  * and touchpads, and calls the appropriate {@link SurfaceCallback} methods. Respond to the user
  * action to enter or exit the pan mode via {@link Builder#setPanModeListener(PanModeListener)}.
  *
- * If the app does not include this button in the map {@link ActionStrip}, the app will not
+ * <p>If the app does not include this button in the map {@link ActionStrip}, the app will not
  * receive the user input for panning gestures from {@link SurfaceCallback} methods, and the host
  * will exit any previously activated pan mode.
  *
- * The host may hide the pan button in some head units in which the user does not need it. Also, the
- * host may hide other UI components in the template while the user is in the pan mode.
+ * <p>The host may hide the pan button in some head units in which the user does not need it.
+ * Also, the host may hide other UI components in the template while the user is in the pan mode.
  *
- * Note that not all head units support touch gestures, and not all touch screens support
+ * <p>Note that not all head units support touch gestures, and not all touch screens support
  * multi-touch gestures. Therefore, some {@link SurfaceCallback} methods may not be called in
  * some cars. In order to support different head units, use the buttons in the map action strip
  * to provide necessary functionality, such as the zoom-in and zoom-out buttons.
@@ -283,7 +283,6 @@ public final class NavigationTemplate implements Template {
         @Nullable
         PanModeDelegate mPanModeDelegate;
 
-
         /**
          * Sets the navigation information to display on the template.
          *
@@ -375,7 +374,7 @@ public final class NavigationTemplate implements Template {
         @RequiresCarApi(2)
         @NonNull
         public Builder setMapActionStrip(@NonNull ActionStrip actionStrip) {
-            ACTIONS_CONSTRAINTS_NAVIGATION_MAP.validateOrThrow(
+            ACTIONS_CONSTRAINTS_MAP.validateOrThrow(
                     requireNonNull(actionStrip).getActions());
             mMapActionStrip = actionStrip;
             return this;

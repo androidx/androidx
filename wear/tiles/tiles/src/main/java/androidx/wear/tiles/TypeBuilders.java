@@ -40,12 +40,6 @@ public final class TypeBuilders {
             return mImpl.getValue();
         }
 
-        /** Returns a new {@link Builder}. */
-        @NonNull
-        public static Builder builder() {
-            return new Builder();
-        }
-
         /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -64,7 +58,7 @@ public final class TypeBuilders {
         public static final class Builder {
             private final TypesProto.Int32Prop.Builder mImpl = TypesProto.Int32Prop.newBuilder();
 
-            Builder() {}
+            public Builder() {}
 
             /** Sets the value. */
             @NonNull
@@ -95,12 +89,6 @@ public final class TypeBuilders {
             return mImpl.getValue();
         }
 
-        /** Returns a new {@link Builder}. */
-        @NonNull
-        public static Builder builder() {
-            return new Builder();
-        }
-
         /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -119,7 +107,7 @@ public final class TypeBuilders {
         public static final class Builder {
             private final TypesProto.StringProp.Builder mImpl = TypesProto.StringProp.newBuilder();
 
-            Builder() {}
+            public Builder() {}
 
             /** Sets the value. */
             @NonNull
@@ -149,12 +137,6 @@ public final class TypeBuilders {
             return mImpl.getValue();
         }
 
-        /** Returns a new {@link Builder}. */
-        @NonNull
-        public static Builder builder() {
-            return new Builder();
-        }
-
         /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -173,7 +155,7 @@ public final class TypeBuilders {
         public static final class Builder {
             private final TypesProto.FloatProp.Builder mImpl = TypesProto.FloatProp.newBuilder();
 
-            Builder() {}
+            public Builder() {}
 
             /** Sets the value. */
             @NonNull
@@ -203,12 +185,6 @@ public final class TypeBuilders {
             return mImpl.getValue();
         }
 
-        /** Returns a new {@link Builder}. */
-        @NonNull
-        public static Builder builder() {
-            return new Builder();
-        }
-
         /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -227,7 +203,7 @@ public final class TypeBuilders {
         public static final class Builder {
             private final TypesProto.BoolProp.Builder mImpl = TypesProto.BoolProp.newBuilder();
 
-            Builder() {}
+            public Builder() {}
 
             /** Sets the value. */
             @SuppressLint("MissingGetterMatchingBuilder")

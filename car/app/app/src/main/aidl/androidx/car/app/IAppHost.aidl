@@ -26,8 +26,9 @@ interface IAppHost {
   /** Shows a toast on the car screen. */
   void showToast(CharSequence text, int duration) = 2;
 
-  /**
-   * Registers the callback to get surface events.
-   */
+  /** Registers the callback to get surface events. */
   void setSurfaceCallback(@nullable ISurfaceCallback callback) = 3;
+
+  /** Sends the last known location to the host. */
+  void sendLocation(in Location location) = 4;
 }

@@ -23,7 +23,7 @@ fun verifyWithPolling(
     periodMs: Long,
     timeoutMs: Long,
     tryBlock: () -> Boolean
-) {
+): Long {
     var totalDurationMs = 0L
     while (!tryBlock()) {
         Thread.sleep(periodMs)
@@ -33,4 +33,5 @@ fun verifyWithPolling(
             Assert.fail(message)
         }
     }
+    return totalDurationMs
 }

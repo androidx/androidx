@@ -125,11 +125,25 @@ public abstract class BaseBasicsTestCase<A extends BaseTestActivity> {
 
     @UiThreadTest
     @Test
-    public void testSetActionBarTitle() {
+    public void testSetActionBarTitleByActivity() {
         final String newTitle = "hello";
         mActivityTestRule.getActivity().setTitle(newTitle);
         assertEquals("New title is set to ActionBar",
                 newTitle, mActivityTestRule.getActivity().getSupportActionBar().getTitle());
+    }
+
+    @UiThreadTest
+    @Test
+    @SdkSuppress(minSdkVersion = 19)
+    public void testSetActionBarTitleByActionBar() {
+        final String newTitle = "hello";
+        mActivityTestRule.getActivity().getSupportActionBar().setTitle(newTitle);
+        assertEquals("New title is set to ActionBar",
+                newTitle, mActivityTestRule.getActivity().getSupportActionBar().getTitle());
+        assertEquals("New title is set to root view's accessibilityPaneTitle",
+                newTitle,
+                ViewCompat.getAccessibilityPaneTitle(
+                        mActivityTestRule.getActivity().getWindow().getDecorView()));
     }
 
     @Test

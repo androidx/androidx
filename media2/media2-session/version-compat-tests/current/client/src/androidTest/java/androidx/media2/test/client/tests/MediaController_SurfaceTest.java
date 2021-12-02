@@ -35,6 +35,7 @@ import androidx.media2.session.SessionResult;
 import androidx.media2.test.client.RemoteMediaSession;
 import androidx.media2.test.client.SurfaceActivity;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.FlakyTest;
 import androidx.test.filters.LargeTest;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.ActivityTestRule;
@@ -50,6 +51,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * Tests {@link MediaController#setSurface(Surface)}.
  */
+@FlakyTest(bugId = 202942942)
 @RunWith(AndroidJUnit4.class)
 @LargeTest
 public class MediaController_SurfaceTest extends MediaSessionTestBase {

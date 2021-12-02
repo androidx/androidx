@@ -16,6 +16,9 @@
 
 package androidx.car.app.sample.showcase.common.common;
 
+import static java.lang.Math.max;
+import static java.lang.Math.min;
+
 import android.graphics.BitmapFactory;
 import android.location.Location;
 import android.text.SpannableString;
@@ -24,6 +27,7 @@ import android.text.Spanned;
 import androidx.annotation.NonNull;
 import androidx.car.app.CarContext;
 import androidx.car.app.Screen;
+import androidx.car.app.constraints.ConstraintManager;
 import androidx.car.app.model.CarColor;
 import androidx.car.app.model.CarIcon;
 import androidx.car.app.model.CarLocation;
@@ -36,6 +40,7 @@ import androidx.car.app.model.Place;
 import androidx.car.app.model.PlaceMarker;
 import androidx.car.app.model.Row;
 import androidx.car.app.sample.showcase.common.R;
+import androidx.car.app.versioning.CarAppApiLevels;
 import androidx.core.graphics.drawable.IconCompat;
 
 import java.util.ArrayList;
@@ -60,8 +65,19 @@ public class SamplePlaces {
     public ItemList getPlaceList() {
         ItemList.Builder listBuilder = new ItemList.Builder();
 
+        int listLimit = 6;
+        CarContext carContext = mDemoScreen.getCarContext();
+        if (carContext.getCarAppApiLevel() > CarAppApiLevels.LEVEL_1) {
+            // Some hosts may allow more items in the grid than others, so put more items if
+            // possible
+            listLimit =
+                    max(listLimit,
+                            carContext.getCarService(ConstraintManager.class).getContentLimit(
+                                    ConstraintManager.CONTENT_LIMIT_TYPE_LIST));
+        }
+        listLimit = min(listLimit, mPlaces.size());
 
-        for (int index = 0; index < mPlaces.size(); index++) {
+        for (int index = 0; index < listLimit; index++) {
             PlaceInfo place = mPlaces.get(index);
 
             // Build a description string that includes the required distance span.
@@ -143,7 +159,6 @@ public class SamplePlaces {
                         "Google Kirkland",
                         "747 6th St South, Kirkland, WA 98033",
                         "Tinted resource vector",
-                        "KIR",
                         "+14257395600",
                         location1,
                         new PlaceMarker.Builder()
@@ -165,7 +180,6 @@ public class SamplePlaces {
                         "Google Bellevue",
                         "1120 112th Ave NE, Bellevue, WA 98004",
                         "Image resource bitmap",
-                        "BVE",
                         "+14252301301",
                         location2,
                         new PlaceMarker.Builder()
@@ -185,7 +199,6 @@ public class SamplePlaces {
                         "Google South Lake Union",
                         "1021 Valley St, Seattle, WA 98109",
                         "Colored text marker",
-                        "SLU",
                         "+12065311800",
                         location3,
                         new PlaceMarker.Builder().setLabel("SLU").setColor(CarColor.RED).build()));
@@ -198,7 +211,6 @@ public class SamplePlaces {
                         "Google Seattle",
                         "601 N 34th St, Seattle, WA 98103",
                         "Image bitmap",
-                        "SEA",
                         "+12068761800",
                         location4,
                         new PlaceMarker.Builder()
@@ -220,10 +232,46 @@ public class SamplePlaces {
                         "Google Bothell",
                         "11831 North Creek Pkwy, Bothell, WA 98011",
                         "Text label",
-                        "BOT",
                         "n/a",
                         location5,
-                        new PlaceMarker.Builder().setLabel("BOT").build()));
+                        new PlaceMarker.Builder().build()));
+
+        // Some hosts may display more items in the list than others, so create 3 more items.
+        Location location6 = new Location(SamplePlaces.class.getSimpleName());
+        location6.setLatitude(47.5496056);
+        location6.setLongitude(-122.2571713);
+        places.add(
+                new PlaceInfo(
+                        "Seward Park",
+                        "5900 Lake Washington Blvd S, Seattle, WA 98118",
+                        "Text label",
+                        "n/a",
+                        location6,
+                        new PlaceMarker.Builder().build()));
+
+        Location location7 = new Location(SamplePlaces.class.getSimpleName());
+        location7.setLatitude(47.5911456);
+        location7.setLongitude(-122.2256602);
+        places.add(
+                new PlaceInfo(
+                        "Luther Burbank Park",
+                        "2040 84th Ave SE, Mercer Island, WA 98040",
+                        "Text label",
+                        "n/a",
+                        location7,
+                        new PlaceMarker.Builder().build()));
+
+        Location location8 = new Location(SamplePlaces.class.getSimpleName());
+        location8.setLatitude(47.6785932);
+        location8.setLongitude(-122.2113821);
+        places.add(
+                new PlaceInfo(
+                        "Heritage Park",
+                        "111 Waverly Way, Kirkland, WA 98033",
+                        "Text label",
+                        "n/a",
+                        location8,
+                        new PlaceMarker.Builder().build()));
 
         return places;
     }

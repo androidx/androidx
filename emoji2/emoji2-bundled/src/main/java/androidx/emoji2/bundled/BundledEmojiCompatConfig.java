@@ -31,6 +31,10 @@ import androidx.emoji2.text.MetadataRepo;
  * <p/>
  * <pre><code>EmojiCompat.init(new BundledEmojiCompatConfig(context));</code></pre>
  *
+ * Including the emoji2-bundled artifact disables the
+ * {@link androidx.emoji2.text.EmojiCompatInitializer}. You must manually call EmojiCompat.init
+ * when using the bundled configuration.
+ *
  * @see EmojiCompat
  */
 public class BundledEmojiCompatConfig extends EmojiCompat.Config {

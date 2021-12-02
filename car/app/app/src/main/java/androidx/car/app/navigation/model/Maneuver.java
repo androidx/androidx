@@ -477,8 +477,8 @@ public final class Maneuver {
      * #TYPE_ROUNDABOUT_ENTER_AND_EXIT_CCW_WITH_ANGLE}.
      *
      * <p>For example, if the drive is joining a counter-clockwise roundabout with equally spaced
-     * exits then the exit to the right would be at 45 degrees, the one straight ahead would be
-     * at 90 degrees, the one to the left would at 270 degrees and the one used by the driver to
+     * exits then the exit to the right would be at 90 degrees, the one straight ahead would be
+     * at 180 degrees, the one to the left would at 270 degrees and the one used by the driver to
      * join the roundabout would be at 360 degrees.
      *
      * <p>The angle can also be set for irregular roundabouts. For example a roundabout with three

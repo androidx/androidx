@@ -16,13 +16,14 @@
 
 package androidx.camera.integration.uiwidgets.rotations
 
+import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.os.Environment
 import android.view.View
 import androidx.camera.core.CameraSelector
-import androidx.camera.core.CameraX
 import androidx.camera.integration.uiwidgets.R
+import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.CoreAppTestUtil
 import androidx.test.core.app.ActivityScenario
@@ -75,18 +76,22 @@ abstract class ImageCaptureBaseTest<A : CameraActivity> {
         CoreAppTestUtil.assumeCompatibleDevice()
         assumeTrue(CameraUtil.hasCameraWithLensFacing(lensFacing))
 
+        // Ensure it's in a natural orientation. This change could delay around 1 sec, please
+        // call this earlier before launching the test activity.
+        mDevice.setOrientationNatural()
+
         // Clear the device UI and check if there is no dialog or lock screen on the top of the
         // window before start the test.
         CoreAppTestUtil.prepareDeviceUI(InstrumentationRegistry.getInstrumentation())
-        // Ensure it's in a natural orientation
-        mDevice.setOrientationNatural()
 
         // Create pictures folder if it doesn't exist on the device. If this fails, abort test.
         assumeTrue("Failed to create pictures directory", createPicturesFolder())
     }
 
     protected fun tearDown() {
-        CameraX.shutdown().get(10, TimeUnit.SECONDS)
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val cameraProvider = ProcessCameraProvider.getInstance(context)[10, TimeUnit.SECONDS]
+        cameraProvider.shutdown()[10, TimeUnit.SECONDS]
         mDevice.unfreezeRotation()
     }
 
@@ -175,7 +180,7 @@ abstract class ImageCaptureBaseTest<A : CameraActivity> {
 
     protected inline fun <reified A : CameraActivity> ActivityScenario<A>.waitOnCameraFrames() {
         val analysisRunning = withActivity { mAnalysisRunning }
-        assertWithMessage("Timed out waiting on image analysis frames")
+        assertWithMessage("Timed out waiting on image analysis frames on $analysisRunning")
             .that(analysisRunning.tryAcquire(IMAGES_COUNT, TIMEOUT, TimeUnit.SECONDS))
             .isTrue()
     }
@@ -186,7 +191,7 @@ abstract class ImageCaptureBaseTest<A : CameraActivity> {
 
     companion object {
         protected const val IMAGES_COUNT = 30
-        protected const val TIMEOUT = 10L
+        protected const val TIMEOUT = 20L
         @JvmStatic
         protected val captureModes = arrayOf(
             CameraActivity.IMAGE_CAPTURE_MODE_IN_MEMORY,

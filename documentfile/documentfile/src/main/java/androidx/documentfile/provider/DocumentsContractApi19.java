@@ -16,6 +16,8 @@
 
 package androidx.documentfile.provider;
 
+import static androidx.core.provider.DocumentsContractCompat.DocumentCompat.FLAG_VIRTUAL_DOCUMENT;
+
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
@@ -32,9 +34,6 @@ import androidx.annotation.RequiresApi;
 @RequiresApi(19)
 class DocumentsContractApi19 {
     private static final String TAG = "DocumentFile";
-
-    // DocumentsContract API level 24.
-    private static final int FLAG_VIRTUAL_DOCUMENT = 1 << 9;
 
     public static boolean isVirtual(Context context, Uri self) {
         if (!DocumentsContract.isDocumentUri(context, self)) {
@@ -142,8 +141,8 @@ class DocumentsContractApi19 {
 
         Cursor c = null;
         try {
-            c = resolver.query(self, new String[] {
-                    DocumentsContract.Document.COLUMN_DOCUMENT_ID }, null, null, null);
+            c = resolver.query(self, new String[]{
+                    DocumentsContract.Document.COLUMN_DOCUMENT_ID}, null, null, null);
             return c.getCount() > 0;
         } catch (Exception e) {
             Log.w(TAG, "Failed query: " + e);
@@ -160,7 +159,7 @@ class DocumentsContractApi19 {
 
         Cursor c = null;
         try {
-            c = resolver.query(self, new String[] { column }, null, null, null);
+            c = resolver.query(self, new String[]{column}, null, null, null);
             if (c.moveToFirst() && !c.isNull(0)) {
                 return c.getString(0);
             } else {
@@ -185,7 +184,7 @@ class DocumentsContractApi19 {
 
         Cursor c = null;
         try {
-            c = resolver.query(self, new String[] { column }, null, null, null);
+            c = resolver.query(self, new String[]{column}, null, null, null);
             if (c.moveToFirst() && !c.isNull(0)) {
                 return c.getLong(0);
             } else {

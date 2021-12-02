@@ -99,6 +99,7 @@ class OutputConfigurationCompatApi24Impl extends OutputConfigurationCompatBaseIm
         return ((OutputConfigurationParamsApi24) mObject).mOutputConfiguration;
     }
 
+    @RequiresApi(21)
     private static final class OutputConfigurationParamsApi24 {
         final OutputConfiguration mOutputConfiguration;
         @Nullable

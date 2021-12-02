@@ -16,12 +16,15 @@
 
 package androidx.camera.camera2.pipe
 
+import androidx.annotation.RequiresApi
+
 /**
  * This interface indicates that an object or interface wraps a specific Android object or type and
  * provides a way to retrieve the underlying object directly. Accessing the underlying objects can
  * be useful for compatibility and testing, but it is extremely risky if the lifetime of the object
  * is managed by Camera Pipe and the wrapped object is closed, released, or altered.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public interface UnsafeWrapper<T> {
     public fun unwrap(): T?
 }

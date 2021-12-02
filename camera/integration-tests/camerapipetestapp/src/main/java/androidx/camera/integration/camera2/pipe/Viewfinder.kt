@@ -41,6 +41,7 @@ import kotlin.math.roundToInt
  *
  * To use the viewfinder, call configure with the desired surface size, mode, and format.
  */
+@Suppress("DEPRECATION")
 class Viewfinder(
     context: Context?,
     attrs: AttributeSet?,

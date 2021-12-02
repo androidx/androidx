@@ -18,6 +18,7 @@ package androidx.camera.core.internal;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.impl.Config;
 import androidx.camera.core.impl.ReadableConfig;
@@ -25,6 +26,7 @@ import androidx.camera.core.impl.ReadableConfig;
 /**
  * Configuration containing options pertaining to EventCallback object.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public interface UseCaseEventConfig extends ReadableConfig {
 
     /**

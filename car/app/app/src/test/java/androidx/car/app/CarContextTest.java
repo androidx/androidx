@@ -35,6 +35,7 @@ import android.content.res.Configuration;
 import android.graphics.drawable.Drawable;
 import android.hardware.display.DisplayManager;
 import android.hardware.display.VirtualDisplay;
+import android.location.Location;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
@@ -43,6 +44,8 @@ import android.util.DisplayMetrics;
 import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.Nullable;
 import androidx.car.app.hardware.CarHardwareManager;
+import androidx.car.app.managers.Manager;
+import androidx.car.app.managers.ResultManager;
 import androidx.car.app.navigation.NavigationManager;
 import androidx.car.app.testing.TestLifecycleOwner;
 import androidx.lifecycle.Lifecycle.Event;
@@ -55,6 +58,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.robolectric.RobolectricTestRunner;
+import org.robolectric.annotation.Config;
 import org.robolectric.annotation.internal.DoNotInstrument;
 import org.robolectric.shadows.ShadowApplication;
 
@@ -65,6 +69,7 @@ import java.util.Locale;
 
 /** Tests for {@link CarContext}. */
 @RunWith(RobolectricTestRunner.class)
+@Config(instrumentedPackages = { "androidx.activity" })
 @DoNotInstrument
 public class CarContextTest {
     private static final String APP_SERVICE = "app";
@@ -105,6 +110,10 @@ public class CarContextTest {
 
                             @Override
                             public void setSurfaceCallback(@Nullable ISurfaceCallback callback) {
+                            }
+
+                            @Override
+                            public void sendLocation(Location location) {
                             }
                         }.asBinder());
 
@@ -160,7 +169,7 @@ public class CarContextTest {
     public void getCarService_null_throws() {
         assertThrows(NullPointerException.class, () -> mCarContext.getCarService((String) null));
         assertThrows(NullPointerException.class,
-                () -> mCarContext.getCarService((Class<Object>) null));
+                () -> mCarContext.getCarService((Class<Manager>) null));
     }
 
     @Test
@@ -187,13 +196,6 @@ public class CarContextTest {
     }
 
     @Test
-    public void getCarServiceName_unexpectedClass_throws() {
-        assertThrows(
-                IllegalArgumentException.class,
-                () -> mCarContext.getCarServiceName(CarAppService.class));
-    }
-
-    @Test
     public void getCarServiceName_null_throws() {
         assertThrows(NullPointerException.class, () -> mCarContext.getCarServiceName(null));
     }
@@ -211,6 +213,25 @@ public class CarContextTest {
         mCarContext.finishCarApp();
 
         verify(mMockCarHost).finish();
+    }
+
+    @Test
+    public void getCallingComponent_resultsManagerAvailable_returnsComponent() {
+        ComponentName mockCallingComponent = new ComponentName("foo", "bar");
+        ResultManager manager = mock(ResultManager.class);
+        when(manager.getCallingComponent()).thenReturn(mockCallingComponent);
+        mCarContext.getManagers().addFactory(ResultManager.class, null, () -> manager);
+
+        ComponentName name = mCarContext.getCallingComponent();
+
+        assertThat(name).isEqualTo(mockCallingComponent);
+    }
+
+    @Test
+    public void getCallingComponent_resultsManagerNotAvailable_returnsNull() {
+        ComponentName name = mCarContext.getCallingComponent();
+
+        assertThat(name).isNull();
     }
 
     @Test
@@ -439,7 +460,7 @@ public class CarContextTest {
         assertThat(startActivityIntent.getAction()).isEqualTo(
                 CarContext.REQUEST_PERMISSIONS_ACTION);
         assertThat(startActivityIntent.getComponent()).isEqualTo(new ComponentName(mCarContext,
-                CarAppInternalActivity.class));
+                CarAppPermissionActivity.class));
 
         Bundle extras = startActivityIntent.getExtras();
 

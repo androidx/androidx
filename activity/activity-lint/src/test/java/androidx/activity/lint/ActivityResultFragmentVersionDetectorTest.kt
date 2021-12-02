@@ -17,10 +17,10 @@
 package androidx.activity.lint
 
 import androidx.activity.lint.ActivityResultFragmentVersionDetector.Companion.FRAGMENT_VERSION
+import androidx.activity.lint.stubs.STUBS
 import com.android.tools.lint.checks.infrastructure.LintDetectorTest
 import com.android.tools.lint.detector.api.Detector
 import com.android.tools.lint.detector.api.Issue
-import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -45,6 +45,7 @@ class ActivityResultFragmentVersionDetectorTest : LintDetectorTest() {
                 val launcher = ActivityResultCaller().registerForActivityResult(ActivityResultContract())
             """
             ),
+            *STUBS,
             gradle(
                 "build.gradle",
                 """
@@ -70,6 +71,7 @@ class ActivityResultFragmentVersionDetectorTest : LintDetectorTest() {
                 val launcher = ActivityResultCaller().registerForActivityResult(ActivityResultContract())
             """
             ),
+            *STUBS,
             gradle(
                 "build.gradle",
                 """
@@ -95,6 +97,7 @@ class ActivityResultFragmentVersionDetectorTest : LintDetectorTest() {
                 val launcher = ActivityResultCaller().registerForActivityResult(ActivityResultContract())
             """
             ),
+            *STUBS,
             gradle(
                 "build.gradle",
                 """
@@ -119,6 +122,7 @@ class ActivityResultFragmentVersionDetectorTest : LintDetectorTest() {
                 val launcher = ActivityResultCaller().registerForActivityResult(ActivityResultContract())
             """
             ),
+            *STUBS,
             gradle(
                 "build.gradle",
                 """
@@ -143,6 +147,7 @@ class ActivityResultFragmentVersionDetectorTest : LintDetectorTest() {
                 val launcher = ActivityResultCaller().registerForActivityResult(ActivityResultContract())
             """
             ),
+            *STUBS,
             gradle(
                 "build.gradle",
                 """
@@ -167,6 +172,7 @@ class ActivityResultFragmentVersionDetectorTest : LintDetectorTest() {
                 val launcher = ActivityResultCaller().registerForActivityResult(ActivityResultContract())
             """
             ),
+            *STUBS,
             gradle(
                 "build.gradle",
                 """
@@ -189,6 +195,7 @@ class ActivityResultFragmentVersionDetectorTest : LintDetectorTest() {
                 }
             """
             ),
+            *STUBS,
             kotlin(
                 """
                 package com.example
@@ -221,6 +228,7 @@ class ActivityResultFragmentVersionDetectorTest : LintDetectorTest() {
                 }
             """
             ),
+            *STUBS,
             kotlin(
                 """
                 package com.example
@@ -257,6 +265,7 @@ class ActivityResultFragmentVersionDetectorTest : LintDetectorTest() {
                 }
             """
             ),
+            *STUBS,
             kotlin(
                 """
                 package com.example
@@ -288,7 +297,6 @@ class ActivityResultFragmentVersionDetectorTest : LintDetectorTest() {
             )
     }
 
-    @Ignore("b/187524979")
     @Test
     fun expectFailTransitiveDependency() {
         val projectFragment = project(
@@ -302,6 +310,7 @@ class ActivityResultFragmentVersionDetectorTest : LintDetectorTest() {
                 val launcher = ActivityResultCaller().registerForActivityResult(ActivityResultContract())
             """
             ),
+            *STUBS,
             gradle(
                 "build.gradle",
                 """

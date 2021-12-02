@@ -16,11 +16,15 @@
 
 package androidx.camera.core.impl;
 
+import android.graphics.ImageFormat;
 import android.util.Log;
+import android.util.Size;
 import android.view.Surface;
 
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.camera.core.Logger;
@@ -42,6 +46,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * <p>Resources managed by this class can be safely cleaned up upon completion of the
  * {@link ListenableFuture} returned by {@link #getTerminationFuture()}.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public abstract class DeferrableSurface {
 
     /**
@@ -80,6 +85,9 @@ public abstract class DeferrableSurface {
         }
     }
 
+    // The size of the surface is not defined.
+    public static final Size SIZE_UNDEFINED = new Size(0, 0);
+
     private static final String TAG = "DeferrableSurface";
     private static final boolean DEBUG = Logger.isDebugEnabled(TAG);
 
@@ -103,10 +111,28 @@ public abstract class DeferrableSurface {
     private CallbackToFutureAdapter.Completer<Void> mTerminationCompleter;
     private final ListenableFuture<Void> mTerminationFuture;
 
+    @NonNull
+    private final Size mPrescribedSize;
+    private final int mPrescribedStreamFormat;
+    @Nullable
+    Class<?> mContainerClass;
+
     /**
      * Creates a new DeferrableSurface which has no use count.
      */
     public DeferrableSurface() {
+        this(SIZE_UNDEFINED, ImageFormat.UNKNOWN);
+    }
+
+    /**
+     * Creates a new DeferrableSurface which has no use count.
+     *
+     * @param size  the {@link Size} of the surface
+     * @param format the stream configuration format that the provided Surface will be used on.
+     */
+    public DeferrableSurface(@NonNull Size size, int format) {
+        mPrescribedSize = size;
+        mPrescribedStreamFormat = format;
         mTerminationFuture = CallbackToFutureAdapter.getFuture(completer -> {
             synchronized (mLock) {
                 mTerminationCompleter = completer;
@@ -291,11 +317,43 @@ public abstract class DeferrableSurface {
         }
     }
 
+    /**
+     * @return the {@link Size} of the surface
+     */
+    @NonNull
+    public Size getPrescribedSize() {
+        return mPrescribedSize;
+    }
+
+    /**
+     * @return the stream configuration format that the provided Surface will be used on.
+     */
+    public int getPrescribedStreamFormat() {
+        return mPrescribedStreamFormat;
+    }
+
     /** @hide */
     @RestrictTo(Scope.TESTS)
     public int getUseCount() {
         synchronized (mLock) {
             return mUseCount;
         }
+    }
+
+    /**
+     * Returns the {@link Class} that contains this {@link DeferrableSurface} to provide more
+     * context about it.
+     */
+    @Nullable
+    public Class<?> getContainerClass() {
+        return mContainerClass;
+    }
+
+    /**
+     * Set the {@link Class} that contains this {@link DeferrableSurface} to provide more
+     * context about it.
+     */
+    public void setContainerClass(@NonNull Class<?> containerClass) {
+        mContainerClass = containerClass;
     }
 }

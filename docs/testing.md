@@ -24,6 +24,10 @@ The currently allowed test runners for on-device tests are
 and
 [`Parameterized`](https://junit.org/junit4/javadoc/4.12/org/junit/runners/Parameterized.html).
 
+NOTE All package/class/method combinations must be unique. Multiple copies of
+the same class/method can be included e.g. under different directories, but must
+be distinguishable by their packages.
+
 NOTE For best practices on writing libraries in a way that makes it easy for end
 users -- and library developers -- to write tests, see the
 [Testability](testability.md) guide.
@@ -31,11 +35,11 @@ users -- and library developers -- to write tests, see the
 ### What gets tested, and when
 
 We use the
-[AffectedModuleDetector](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:buildSrc/src/main/kotlin/androidx/build/dependencyTracker/AffectedModuleDetector.kt)
+[AffectedModuleDetector](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:buildSrc/private/src/main/kotlin/androidx/build/dependencyTracker/AffectedModuleDetector.kt)
 to determine what projects have changed since the last merge.
 
 In presubmit, "affected" modules will run all host and device tests regardless
-of size. Modules that _depend_ on affected modules will run all host tests, but
+of size. Modules that *depend* on affected modules will run all host tests, but
 will only run device tests annotated with `@SmallTest` or `@MediumTest`.
 
 When changes are made that can't be associated with a module, are in the root of
@@ -48,7 +52,7 @@ device tests are run for all modules.
 
 ### Test annotations
 
-#### Test size
+#### Test size and runners
 
 All device tests *should* be given a size annotation, which is one of:
 
@@ -56,32 +60,17 @@ All device tests *should* be given a size annotation, which is one of:
 *   [`@MediumTest`](https://developer.android.com/reference/androidx/test/filters/MediumTest)
 *   [`@LargeTest`](https://developer.android.com/reference/androidx/test/filters/LargeTest)
 
-If a device test is _not_ annotated with its size, it will be considered a
+If a device test is *not* annotated with its size, it will be run as if it were
 `@LargeTest` by default. Host tests do not need to be annotated with their size,
 as all host tests are run regardless of size.
 
 This annotation can occur at either the class level or individual test level.
-After API level 27, timeouts are enforced based on this annotation.
 
-Annotation    | Max duration | Timeout after
-------------- | ------------ | -------------
-`@SmallTest`  | 200ms        | 300ms
-`@MediumTest` | 1000ms       | 1500ms
-`@LargeTest`  | 100000ms     | 120000ms
-
-Small tests should be less than 200ms, and the timeout is set to 300ms. Medium
-tests should be less than 1000ms, and the timeout is set to 1500ms. Large tests
-have a timeout of 120000ms, which should cover any remaining tests.
-
-The exception to this rule is when using a runner other than
-[`AndroidJUnitRunner`](https://developer.android.com/training/testing/junit-runner).
-Since these runners do not enforce timeouts, tests that use them must not use a
-size annotation. They will run whenever large tests would run.
-
-Currently the only allowed alternative is the
-[`Parameterized`](https://junit.org/junit4/javadoc/4.12/org/junit/runners/Parameterized.html)
-runner. If you need to use a different runner for some reason, please reach out
-to the team and we can review/approve the use.
+Annotation    | Max duration
+------------- | ------------
+`@SmallTest`  | 200ms
+`@MediumTest` | 1000ms
+`@LargeTest`  | 100000ms
 
 #### Disabling tests
 
@@ -114,9 +103,7 @@ annotation also supports targeting a specific pre-release SDK with the
 
 You may also gate portions of test implementation code using `SDK_INT` or
 [`BuildCompat.isAtLeast`](https://developer.android.com/reference/androidx/core/os/BuildCompat)
-methods.
-
-To restrict to only phsyical devices, use
+methods. s To restrict to only physical devices, use
 [`@RequiresDevice`](https://developer.android.com/reference/androidx/test/filters/RequiresDevice).
 
 NOTE [Cuttlefish](https://source.android.com/setup/create/cuttlefish) is not
@@ -134,6 +121,27 @@ In rare cases, like testing the animations themselves, you may want to enable
 animations for a particular test or test class. For those cases, you can use the
 [`AnimationDurationScaleRule`](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:testutils/testutils-runtime/src/main/java/androidx/testutils/AnimationDurationScaleRule.kt).
 
+### Robolectric
+
+Robolectric tests are supported in AndroidX; however, if you targeting a
+pre-release version of the Android SDK then you may see an error like
+
+```
+java.lang.IllegalArgumentException: Package targetSdkVersion=31 > maxSdkVersion=30
+at org.robolectric.plugins.DefaultSdkPicker.configuredSdks(DefaultSdkPicker.java:118)
+at org.robolectric.plugins.DefaultSdkPicker.selectSdks(DefaultSdkPicker.java:69)
+```
+
+You can force Robolectric to run using an earlier version of the platform SDK by
+creating a `<project>/src/test/resources/robolectric.properties` file with the
+following contents:
+
+```
+# Robolectric currently doesn't support API 31, so we have to explicitly specify 30 as the target
+# sdk for now. Remove when no longer necessary.
+sdk=30
+```
+
 ## Using the emulator {#emulator}
 
 You can use the emulator or a real device to run tests. If you wish to use the
@@ -144,6 +152,12 @@ important part being that it points to the Android SDK where your downloaded
 emulator images reside. You will need to open a project to get the Tools menu --
 do NOT open the AndroidX project in the "normal" instance of Android Studio;
 instead, open a normal app or create a blank project using the app wizard.
+
+NOTE You can reuse the emulator and system images from a "normal" installation
+of Android Studio by linking the `emulator` and `system_images` directories to a
+standard Android SDK path and restarting Android Studio: `cd
+prebuilts/fullsdk-darwin ln -s ~/Library/Android/sdk/emulator emulator ln -s
+~/Library/Android/sdk/system-images system-images`
 
 ## Debugging with platform SDK sources {#sources}
 

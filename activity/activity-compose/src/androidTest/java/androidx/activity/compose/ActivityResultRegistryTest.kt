@@ -18,6 +18,7 @@ package androidx.activity.compose
 
 import android.app.Activity.RESULT_OK
 import android.content.Intent
+import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.ActivityResultLauncher
@@ -155,9 +156,39 @@ class ActivityResultRegistryTest {
             }
         }
 
+        val savedState = Bundle()
+        registryOwner.activityResultRegistry.onSaveInstanceState(savedState)
+
         activityScenario.recreate()
 
-        activityScenario.onActivity {
+        val restoredOwner = ActivityResultRegistryOwner {
+            object : ActivityResultRegistry() {
+                override fun <I : Any?, O : Any?> onLaunch(
+                    requestCode: Int,
+                    contract: ActivityResultContract<I, O>,
+                    input: I,
+                    options: ActivityOptionsCompat?
+                ) {
+                    launchCount++
+                }
+            }
+        }
+
+        restoredOwner.activityResultRegistry.onRestoreInstanceState(savedState)
+
+        activityScenario.onActivity { activity ->
+            (activity as ComponentActivity).setContent {
+                CompositionLocalProvider(
+                    LocalActivityResultRegistryOwner provides restoredOwner
+                ) {
+                    launcher = rememberLauncherForActivityResult(
+                        ActivityResultContracts.StartActivityForResult()
+                    ) {}
+                }
+            }
+        }
+
+        composeTestRule.runOnIdle {
             launcher?.launch(Intent()) ?: fail("launcher was not composed")
             assertWithMessage("the registry was not invoked")
                 .that(launchCount)

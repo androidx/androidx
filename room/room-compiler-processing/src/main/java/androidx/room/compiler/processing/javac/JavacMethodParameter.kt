@@ -16,6 +16,7 @@
 
 package androidx.room.compiler.processing.javac
 
+import androidx.room.compiler.processing.XExecutableParameterElement
 import androidx.room.compiler.processing.javac.kotlin.KmType
 import androidx.room.compiler.processing.javac.kotlin.KmValueParameter
 import androidx.room.compiler.processing.util.sanitizeAsJavaParameterName
@@ -23,24 +24,34 @@ import javax.lang.model.element.VariableElement
 
 internal class JavacMethodParameter(
     env: JavacProcessingEnv,
-    private val executable: JavacExecutableElement,
+    override val enclosingMethodElement: JavacExecutableElement,
     containing: JavacTypeElement,
     element: VariableElement,
-    val kotlinMetadata: KmValueParameter?,
+    kotlinMetadataFactory: () -> KmValueParameter?,
     val argIndex: Int
-) : JavacVariableElement(env, containing, element) {
+) : JavacVariableElement(env, containing, element), XExecutableParameterElement {
+
+    private val kotlinMetadata by lazy { kotlinMetadataFactory() }
+
     override val name: String
         get() = (kotlinMetadata?.name ?: super.name).sanitizeAsJavaParameterName(
             argIndex = argIndex
         )
+
     override val kotlinType: KmType?
         get() = kotlinMetadata?.type
+
+    override val hasDefaultValue: Boolean
+        get() = kotlinMetadata?.hasDefault() ?: false
+
     override val fallbackLocationText: String
-        get() = if (executable is JavacMethodElement && executable.isSuspendFunction() &&
-            this === executable.parameters.last()
+        get() = if (
+            enclosingMethodElement is JavacMethodElement &&
+            enclosingMethodElement.isSuspendFunction() &&
+            this === enclosingMethodElement.parameters.last()
         ) {
-            "return type of ${executable.fallbackLocationText}"
+            "return type of ${enclosingMethodElement.fallbackLocationText}"
         } else {
-            "$name in ${executable.fallbackLocationText}"
+            "$name in ${enclosingMethodElement.fallbackLocationText}"
         }
 }

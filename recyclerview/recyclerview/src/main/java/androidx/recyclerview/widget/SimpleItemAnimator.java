@@ -129,34 +129,35 @@ public abstract class SimpleItemAnimator extends RecyclerView.ItemAnimator {
 
     @Override
     public boolean animatePersistence(@NonNull RecyclerView.ViewHolder viewHolder,
-            @NonNull ItemHolderInfo preInfo, @NonNull ItemHolderInfo postInfo) {
-        if (preInfo.left != postInfo.left || preInfo.top != postInfo.top) {
+            @NonNull ItemHolderInfo preLayoutInfo, @NonNull ItemHolderInfo postLayoutInfo) {
+        if (preLayoutInfo.left != postLayoutInfo.left || preLayoutInfo.top != postLayoutInfo.top) {
             if (DEBUG) {
                 Log.d(TAG, "PERSISTENT: " + viewHolder
                         + " with view " + viewHolder.itemView);
             }
             return animateMove(viewHolder,
-                    preInfo.left, preInfo.top, postInfo.left, postInfo.top);
+                    preLayoutInfo.left, preLayoutInfo.top, postLayoutInfo.left, postLayoutInfo.top);
         }
         dispatchMoveFinished(viewHolder);
         return false;
     }
 
     @Override
-    public boolean animateChange(@NonNull RecyclerView.ViewHolder oldHolder, @NonNull RecyclerView.ViewHolder newHolder,
-            @NonNull ItemHolderInfo preInfo, @NonNull ItemHolderInfo postInfo) {
+    public boolean animateChange(@NonNull RecyclerView.ViewHolder oldHolder,
+            @NonNull RecyclerView.ViewHolder newHolder, @NonNull ItemHolderInfo preLayoutInfo,
+            @NonNull ItemHolderInfo postLayoutInfo) {
         if (DEBUG) {
             Log.d(TAG, "CHANGED: " + oldHolder + " with view " + oldHolder.itemView);
         }
-        final int fromLeft = preInfo.left;
-        final int fromTop = preInfo.top;
+        final int fromLeft = preLayoutInfo.left;
+        final int fromTop = preLayoutInfo.top;
         final int toLeft, toTop;
         if (newHolder.shouldIgnore()) {
-            toLeft = preInfo.left;
-            toTop = preInfo.top;
+            toLeft = preLayoutInfo.left;
+            toTop = preLayoutInfo.top;
         } else {
-            toLeft = postInfo.left;
-            toTop = postInfo.top;
+            toLeft = postLayoutInfo.left;
+            toTop = postLayoutInfo.top;
         }
         return animateChange(oldHolder, newHolder, fromLeft, fromTop, toLeft, toTop);
     }

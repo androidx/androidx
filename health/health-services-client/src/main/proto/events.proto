@@ -1,0 +1,49 @@
+/*
+ * Copyright (C) 2021 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+syntax = "proto2";
+
+package androidx.health.services.client.proto;
+
+import "responses.proto";
+
+option java_package = "androidx.health.services.client.proto";
+option java_outer_classname = "EventsProto";
+
+message ExerciseUpdateListenerEvent {
+  oneof event {
+    ExerciseUpdateResponse exercise_update_response = 1;
+    ExerciseLapSummaryResponse lap_summary_response = 2;
+    AvailabilityResponse availability_response = 3;
+  }
+  reserved 4 to max;  // Next ID
+}
+
+message MeasureCallbackEvent {
+  oneof event {
+    DataPointsResponse data_point_response = 1;
+    AvailabilityResponse availability_response = 2;
+  }
+  reserved 3 to max;  // Next ID
+}
+
+message PassiveCallbackEvent {
+  oneof event {
+    PassiveMonitoringUpdateResponse passive_update_response = 1;
+  }
+
+  reserved 2 to max;  // Next ID
+}

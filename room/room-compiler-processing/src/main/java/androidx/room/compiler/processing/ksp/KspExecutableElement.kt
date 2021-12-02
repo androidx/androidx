@@ -18,9 +18,11 @@ package androidx.room.compiler.processing.ksp
 
 import androidx.room.compiler.processing.XAnnotated
 import androidx.room.compiler.processing.XExecutableElement
-import androidx.room.compiler.processing.XExecutableParameterElement
 import androidx.room.compiler.processing.XHasModifiers
+import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.ksp.KspAnnotated.UseSiteFilter.Companion.NO_USE_SITE
+import androidx.room.compiler.processing.util.ISSUE_TRACKER_LINK
+import com.google.devtools.ksp.KspExperimental
 import com.google.devtools.ksp.isConstructor
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import com.google.devtools.ksp.symbol.Modifier
@@ -49,14 +51,14 @@ internal abstract class KspExecutableElement(
         declaration.requireEnclosingMemberContainer(env)
     }
 
-    override val parameters: List<XExecutableParameterElement> by lazy {
-        declaration.parameters.map {
-            KspExecutableParameterElement(
-                env = env,
-                method = this,
-                parameter = it
+    @OptIn(KspExperimental::class)
+    override val thrownTypes: List<XType> by lazy {
+        env.resolver.getJvmCheckedException(declaration).map {
+            env.wrap(
+                ksType = it,
+                allowPrimitives = false
             )
-        }
+        }.toList()
     }
 
     override fun isVarArgs(): Boolean {
@@ -76,8 +78,10 @@ internal abstract class KspExecutableElement(
             val enclosingContainer = declaration.findEnclosingMemberContainer(env)
 
             checkNotNull(enclosingContainer) {
-                "XProcessing does not currently support annotations on top level " +
-                    "functions with KSP. Cannot process $declaration."
+                """
+                Couldn't find the container element for $declaration.
+                Please file a bug at $ISSUE_TRACKER_LINK.
+                """
             }
 
             return when {

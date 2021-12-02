@@ -17,4 +17,7 @@ oneway interface ISurfaceControl {
 
   /** Notifies that the window focus changed. */
   void onWindowFocusChanged(boolean hasFocus, boolean isInTouchMode) = 3;
+
+  /** Notifies that the surface received a new key event. */
+  void onKeyEvent(in KeyEvent event) = 4;
 }

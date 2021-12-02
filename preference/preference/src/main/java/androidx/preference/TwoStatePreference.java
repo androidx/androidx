@@ -27,6 +27,8 @@ import android.util.AttributeSet;
 import android.view.View;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 
 /**
@@ -43,19 +45,21 @@ public abstract class TwoStatePreference extends Preference {
     private boolean mDisableDependentsState;
 
     public TwoStatePreference(
-            Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
+            @NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr,
+            int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
     }
 
-    public TwoStatePreference(Context context, AttributeSet attrs, int defStyleAttr) {
+    public TwoStatePreference(@NonNull Context context, @Nullable AttributeSet attrs,
+            int defStyleAttr) {
         this(context, attrs, defStyleAttr, 0);
     }
 
-    public TwoStatePreference(Context context, AttributeSet attrs) {
+    public TwoStatePreference(@NonNull Context context, @Nullable AttributeSet attrs) {
         this(context, attrs, 0);
     }
 
-    public TwoStatePreference(Context context) {
+    public TwoStatePreference(@NonNull Context context) {
         this(context, null);
     }
 
@@ -111,7 +115,7 @@ public abstract class TwoStatePreference extends Preference {
      *
      * @param summary The summary to be shown when checked
      */
-    public void setSummaryOn(CharSequence summary) {
+    public void setSummaryOn(@Nullable CharSequence summary) {
         mSummaryOn = summary;
         if (isChecked()) {
             notifyChanged();
@@ -123,6 +127,7 @@ public abstract class TwoStatePreference extends Preference {
      *
      * @return The summary
      */
+    @Nullable
     public CharSequence getSummaryOn() {
         return mSummaryOn;
     }
@@ -143,7 +148,7 @@ public abstract class TwoStatePreference extends Preference {
      *
      * @param summary The summary to be shown when unchecked
      */
-    public void setSummaryOff(CharSequence summary) {
+    public void setSummaryOff(@Nullable CharSequence summary) {
         mSummaryOff = summary;
         if (!isChecked()) {
             notifyChanged();
@@ -155,6 +160,7 @@ public abstract class TwoStatePreference extends Preference {
      *
      * @return The summary
      */
+    @Nullable
     public CharSequence getSummaryOff() {
         return mSummaryOff;
     }
@@ -189,7 +195,7 @@ public abstract class TwoStatePreference extends Preference {
     }
 
     @Override
-    protected Object onGetDefaultValue(TypedArray a, int index) {
+    protected @Nullable Object onGetDefaultValue(@NonNull TypedArray a, int index) {
         return a.getBoolean(index, false);
     }
 
@@ -206,7 +212,7 @@ public abstract class TwoStatePreference extends Preference {
      *
      * @param holder A {@link PreferenceViewHolder} which holds a reference to the summary view
      */
-    protected void syncSummaryView(PreferenceViewHolder holder) {
+    protected void syncSummaryView(@NonNull PreferenceViewHolder holder) {
         // Sync the summary holder
         View view = holder.findViewById(android.R.id.summary);
         syncSummaryView(view);
@@ -246,6 +252,7 @@ public abstract class TwoStatePreference extends Preference {
         }
     }
 
+    @Nullable
     @Override
     protected Parcelable onSaveInstanceState() {
         final Parcelable superState = super.onSaveInstanceState();
@@ -260,7 +267,7 @@ public abstract class TwoStatePreference extends Preference {
     }
 
     @Override
-    protected void onRestoreInstanceState(Parcelable state) {
+    protected void onRestoreInstanceState(@Nullable Parcelable state) {
         if (state == null || !state.getClass().equals(SavedState.class)) {
             // Didn't save state for us in onSaveInstanceState
             super.onRestoreInstanceState(state);

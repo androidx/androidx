@@ -61,12 +61,6 @@ public final class TimelineBuilders {
             return mImpl.getEndMillis();
         }
 
-        /** Returns a new {@link Builder}. */
-        @NonNull
-        public static Builder builder() {
-            return new Builder();
-        }
-
         /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -86,7 +80,7 @@ public final class TimelineBuilders {
             private final TimelineProto.TimeInterval.Builder mImpl =
                     TimelineProto.TimeInterval.newBuilder();
 
-            Builder() {}
+            public Builder() {}
 
             /** Sets starting point of the time interval, in milliseconds since the Unix epoch. */
             @NonNull
@@ -138,12 +132,6 @@ public final class TimelineBuilders {
             }
         }
 
-        /** Returns a new {@link Builder}. */
-        @NonNull
-        public static Builder builder() {
-            return new Builder();
-        }
-
         /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -163,7 +151,7 @@ public final class TimelineBuilders {
             private final TimelineProto.TimelineEntry.Builder mImpl =
                     TimelineProto.TimelineEntry.newBuilder();
 
-            Builder() {}
+            public Builder() {}
 
             /** Sets the validity period for this timeline entry. */
             @NonNull
@@ -172,24 +160,10 @@ public final class TimelineBuilders {
                 return this;
             }
 
-            /** Sets the validity period for this timeline entry. */
-            @NonNull
-            public Builder setValidity(@NonNull TimeInterval.Builder validityBuilder) {
-                mImpl.setValidity(validityBuilder.build().toProto());
-                return this;
-            }
-
             /** Sets the contents of this timeline entry. */
             @NonNull
             public Builder setLayout(@NonNull Layout layout) {
                 mImpl.setLayout(layout.toProto());
-                return this;
-            }
-
-            /** Sets the contents of this timeline entry. */
-            @NonNull
-            public Builder setLayout(@NonNull Layout.Builder layoutBuilder) {
-                mImpl.setLayout(layoutBuilder.build().toProto());
                 return this;
             }
 
@@ -231,12 +205,6 @@ public final class TimelineBuilders {
                             .collect(toList()));
         }
 
-        /** Returns a new {@link Builder}. */
-        @NonNull
-        public static Builder builder() {
-            return new Builder();
-        }
-
         /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -256,19 +224,12 @@ public final class TimelineBuilders {
             private final TimelineProto.Timeline.Builder mImpl =
                     TimelineProto.Timeline.newBuilder();
 
-            Builder() {}
+            public Builder() {}
 
             /** Adds one item to the entries in a timeline. */
             @NonNull
             public Builder addTimelineEntry(@NonNull TimelineEntry timelineEntry) {
                 mImpl.addTimelineEntries(timelineEntry.toProto());
-                return this;
-            }
-
-            /** Adds one item to the entries in a timeline. */
-            @NonNull
-            public Builder addTimelineEntry(@NonNull TimelineEntry.Builder timelineEntryBuilder) {
-                mImpl.addTimelineEntries(timelineEntryBuilder.build().toProto());
                 return this;
             }
 

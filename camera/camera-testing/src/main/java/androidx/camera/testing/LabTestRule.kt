@@ -17,6 +17,7 @@
 package androidx.camera.testing
 
 import android.util.Log
+import androidx.annotation.RequiresApi
 import org.junit.Assume.assumeTrue
 import org.junit.rules.TestRule
 import org.junit.runner.Description
@@ -43,6 +44,7 @@ import org.junit.runners.model.Statement
 ` *
  * <br></br><br></br>
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 class LabTestRule : TestRule {
 
     /**

@@ -19,21 +19,22 @@ package androidx.emoji2.text;
 import android.content.Context;
 import android.os.Build;
 import android.os.Handler;
-import android.os.HandlerThread;
-import android.os.Looper;
-import android.os.Process;
-import android.view.Choreographer;
 
-import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.WorkerThread;
 import androidx.core.os.TraceCompat;
+import androidx.lifecycle.DefaultLifecycleObserver;
+import androidx.lifecycle.Lifecycle;
+import androidx.lifecycle.LifecycleOwner;
+import androidx.lifecycle.ProcessLifecycleInitializer;
+import androidx.startup.AppInitializer;
 import androidx.startup.Initializer;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.ThreadPoolExecutor;
 
 /**
  * Initializer for configuring EmojiCompat with the system installed downloadable font provider.
@@ -65,6 +66,8 @@ import java.util.List;
  *     </provider>
  * </pre>
  *
+ * This initializer depends on {@link ProcessLifecycleInitializer}.
+ *
  * @see androidx.emoji2.text.DefaultEmojiCompatConfig
  */
 public class EmojiCompatInitializer implements Initializer<Boolean> {
@@ -77,12 +80,13 @@ public class EmojiCompatInitializer implements Initializer<Boolean> {
      * @param context application context
      * @return result of default init
      */
+    @SuppressWarnings("AutoBoxing")
     @NonNull
     @Override
     public Boolean create(@NonNull Context context) {
         if (Build.VERSION.SDK_INT >= 19) {
             EmojiCompat.init(new BackgroundDefaultConfig(context));
-            delayAfterFirstFrame();
+            delayUntilFirstResume(context);
             return true;
         }
         return false;
@@ -94,30 +98,34 @@ public class EmojiCompatInitializer implements Initializer<Boolean> {
      * This allows startup code to run before the delay is scheduled.
      */
     @RequiresApi(19)
-    void delayAfterFirstFrame() {
-        // schedule delay after first frame callback
-        Choreographer16Impl.postFrameCallback(this::loadEmojiCompatAfterDelay);
+    void delayUntilFirstResume(@NonNull Context context) {
+        // schedule delay after first Activity resumes
+        AppInitializer appInitializer = AppInitializer.getInstance(context);
+        LifecycleOwner lifecycleOwner = appInitializer
+                .initializeComponent(ProcessLifecycleInitializer.class);
+        Lifecycle lifecycle = lifecycleOwner.getLifecycle();
+        lifecycle.addObserver(new DefaultLifecycleObserver() {
+            @Override
+            public void onResume(@NonNull LifecycleOwner owner) {
+                loadEmojiCompatAfterDelay();
+                lifecycle.removeObserver(this);
+            }
+        });
     }
 
     @RequiresApi(19)
-    private void loadEmojiCompatAfterDelay() {
-        final Handler mainHandler;
-        if (Build.VERSION.SDK_INT >= 28) {
-            mainHandler = Handler28Impl.createAsync(Looper.getMainLooper());
-        } else {
-            mainHandler = new Handler(Looper.getMainLooper());
-        }
-        mainHandler.postDelayed(new LoadEmojiCompatRunnable(),
-                STARTUP_THREAD_CREATION_DELAY_MS);
+    void loadEmojiCompatAfterDelay() {
+        final Handler mainHandler = ConcurrencyHelpers.mainHandlerAsync();
+        mainHandler.postDelayed(new LoadEmojiCompatRunnable(), STARTUP_THREAD_CREATION_DELAY_MS);
     }
 
     /**
-     * No dependencies
+     * Dependes on ProcessLifecycleInitializer
      */
     @NonNull
     @Override
     public List<Class<? extends Initializer<?>>> dependencies() {
-        return Collections.emptyList();
+        return Collections.singletonList(ProcessLifecycleInitializer.class);
     }
 
     static class LoadEmojiCompatRunnable implements Runnable {
@@ -152,25 +160,23 @@ public class EmojiCompatInitializer implements Initializer<Boolean> {
             mContext = context.getApplicationContext();
         }
 
-        @Nullable
-        private HandlerThread mThread;
-
         @Override
         public void load(@NonNull EmojiCompat.MetadataRepoLoaderCallback loaderCallback) {
-            Handler handler = getThreadHandler();
-            handler.post(() -> doLoad(loaderCallback, handler));
+            ThreadPoolExecutor executor = ConcurrencyHelpers.createBackgroundPriorityExecutor(
+                            S_INITIALIZER_THREAD_NAME);
+            executor.execute(() -> doLoad(loaderCallback, executor));
         }
 
         @WorkerThread
         void doLoad(@NonNull EmojiCompat.MetadataRepoLoaderCallback loaderCallback,
-                @NonNull Handler handler) {
+                @NonNull ThreadPoolExecutor executor) {
             try {
                 FontRequestEmojiCompatConfig config = DefaultEmojiCompatConfig.create(mContext);
                 if (config == null) {
                     throw new RuntimeException("EmojiCompat font provider not available on this "
                             + "device.");
                 }
-                config.setHandler(handler);
+                config.setLoadingExecutor(executor);
                 config.getMetadataRepoLoader().load(new EmojiCompat.MetadataRepoLoaderCallback() {
                     @Override
                     public void onLoaded(@NonNull MetadataRepo metadataRepo) {
@@ -178,7 +184,7 @@ public class EmojiCompatInitializer implements Initializer<Boolean> {
                             // main thread is notified before returning, so we can quit now
                             loaderCallback.onLoaded(metadataRepo);
                         } finally {
-                            quitHandlerThread();
+                            executor.shutdown();
                         }
                     }
 
@@ -188,52 +194,15 @@ public class EmojiCompatInitializer implements Initializer<Boolean> {
                             // main thread is notified before returning, so we can quit now
                             loaderCallback.onFailed(throwable);
                         } finally {
-                            quitHandlerThread();
+                            executor.shutdown();
                         }
                     }
                 });
             } catch (Throwable t) {
                 loaderCallback.onFailed(t);
-                quitHandlerThread();
+                executor.shutdown();
             }
         }
-
-        void quitHandlerThread() {
-            if (mThread != null) {
-                mThread.quitSafely();
-            }
-        }
-
-        @NonNull
-        private Handler getThreadHandler() {
-            mThread = new HandlerThread(S_INITIALIZER_THREAD_NAME,
-                    Process.THREAD_PRIORITY_BACKGROUND);
-            mThread.start();
-            return new Handler(mThread.getLooper());
-        }
     }
 
-    @RequiresApi(16)
-    private static class Choreographer16Impl {
-        private Choreographer16Impl() {
-            // Non-instantiable.
-        }
-
-        @DoNotInline
-        public static void postFrameCallback(Runnable r) {
-            Choreographer.getInstance().postFrameCallback(frameTimeNanos -> r.run());
-        }
-    }
-
-    @RequiresApi(28)
-    private static class Handler28Impl {
-        private Handler28Impl() {
-            // Non-instantiable.
-        }
-
-        @DoNotInline
-        public static Handler createAsync(Looper looper) {
-            return Handler.createAsync(looper);
-        }
-    }
 }

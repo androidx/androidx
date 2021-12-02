@@ -22,6 +22,8 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import kotlin.coroutines.resume
 
@@ -41,7 +43,8 @@ import kotlin.coroutines.resume
  *         lifecycleScope.launch {
  *             lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
  *                 uiStateFlow.collect { uiState ->
- *                 updateUi(uiState)
+ *                     updateUi(uiState)
+ *                 }
  *             }
  *         }
  *     }
@@ -51,6 +54,10 @@ import kotlin.coroutines.resume
  * The best practice is to call this function when the lifecycle is initialized. For
  * example, `onCreate` in an Activity, or `onViewCreated` in a Fragment. Otherwise, multiple
  * repeating coroutines doing the same could be created and be executed at the same time.
+ *
+ * Repeated invocations of `block` will run serially, that is they will always wait for the
+ * previous invocation to fully finish before re-starting execution as the state moves in and out
+ * of the required state.
  *
  * Warning: [Lifecycle.State.INITIALIZED] is not allowed in this API. Passing it as a
  * parameter will throw an [IllegalArgumentException].
@@ -72,6 +79,7 @@ public suspend fun Lifecycle.repeatOnLifecycle(
         return
     }
 
+    // This scope is required to preserve context before we move to Dispatchers.Main
     coroutineScope {
         withContext(Dispatchers.Main.immediate) {
             // Check the current state of the lifecycle as the previous check is not guaranteed
@@ -83,19 +91,27 @@ public suspend fun Lifecycle.repeatOnLifecycle(
 
             // Registered observer
             var observer: LifecycleEventObserver? = null
-
             try {
                 // Suspend the coroutine until the lifecycle is destroyed or
                 // the coroutine is cancelled
                 suspendCancellableCoroutine<Unit> { cont ->
                     // Lifecycle observers that executes `block` when the lifecycle reaches certain state, and
-                    // cancels when it moves falls below that state.
+                    // cancels when it falls below that state.
                     val startWorkEvent = Lifecycle.Event.upTo(state)
                     val cancelWorkEvent = Lifecycle.Event.downFrom(state)
+                    val mutex = Mutex()
                     observer = LifecycleEventObserver { _, event ->
                         if (event == startWorkEvent) {
                             // Launch the repeating work preserving the calling context
-                            launchedJob = this@coroutineScope.launch(block = block)
+                            launchedJob = this@coroutineScope.launch {
+                                // Mutex makes invocations run serially,
+                                // coroutineScope ensures all child coroutines finish
+                                mutex.withLock {
+                                    coroutineScope {
+                                        block()
+                                    }
+                                }
+                            }
                             return@LifecycleEventObserver
                         }
                         if (event == cancelWorkEvent) {
@@ -132,7 +148,8 @@ public suspend fun Lifecycle.repeatOnLifecycle(
  *         lifecycleScope.launch {
  *             repeatOnLifecycle(Lifecycle.State.STARTED) {
  *                 uiStateFlow.collect { uiState ->
- *                 updateUi(uiState)
+ *                     updateUi(uiState)
+ *                 }
  *             }
  *         }
  *     }

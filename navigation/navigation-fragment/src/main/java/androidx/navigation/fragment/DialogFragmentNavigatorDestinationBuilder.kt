@@ -122,7 +122,8 @@ public class DialogFragmentNavigatorDestinationBuilder :
      * DSL for constructing a new [DialogFragmentNavigator.Destination]
      *
      * @param navigator navigator used to create the destination
-     * @param route the destination's unique route
+     * @param route the destination's unique route. This sets the [route] on the newly
+     * constructed [NavDestination]. This can be any valid non-empty String.
      * @param fragmentClass the class name of the DialogFragment to show when you navigate to this
      * destination
      */

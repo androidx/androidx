@@ -17,6 +17,7 @@
 package androidx.car.app.sample.showcase.common.templates;
 
 import static androidx.car.app.CarToast.LENGTH_SHORT;
+import static androidx.car.app.model.Action.FLAG_PRIMARY;
 
 import android.content.res.Resources;
 import android.graphics.Bitmap;
@@ -36,6 +37,7 @@ import androidx.car.app.model.PaneTemplate;
 import androidx.car.app.model.Row;
 import androidx.car.app.model.Template;
 import androidx.car.app.sample.showcase.common.R;
+import androidx.car.app.versioning.CarAppApiLevels;
 import androidx.core.graphics.drawable.IconCompat;
 import androidx.lifecycle.DefaultLifecycleObserver;
 import androidx.lifecycle.LifecycleOwner;
@@ -46,10 +48,13 @@ import androidx.lifecycle.LifecycleOwner;
  */
 public final class PaneTemplateDemoScreen extends Screen implements DefaultLifecycleObserver {
     @Nullable
-    private IconCompat mImage;
+    private IconCompat mPaneImage;
 
     @Nullable
-    private IconCompat mIcon;
+    private IconCompat mRowLargeIcon;
+
+    @Nullable
+    private IconCompat mCommuteIcon;
 
     public PaneTemplateDemoScreen(@NonNull CarContext carContext) {
         super(carContext);
@@ -59,15 +64,26 @@ public final class PaneTemplateDemoScreen extends Screen implements DefaultLifec
     @Override
     public void onCreate(@NonNull LifecycleOwner owner) {
         Resources resources = getCarContext().getResources();
-        Bitmap bitmap = BitmapFactory.decodeResource(resources, R.drawable.test_image_square);
-        mImage = IconCompat.createWithBitmap(bitmap);
-        mIcon = IconCompat.createWithResource(getCarContext(), R.drawable.ic_commute_24px);
+        Bitmap bitmap = BitmapFactory.decodeResource(resources, R.drawable.patio);
+        mPaneImage = IconCompat.createWithBitmap(bitmap);
+        mRowLargeIcon = IconCompat.createWithResource(getCarContext(),
+                R.drawable.ic_fastfood_white_48dp);
+        mCommuteIcon = IconCompat.createWithResource(getCarContext(), R.drawable.ic_commute_24px);
     }
 
     @NonNull
     @Override
     public Template onGetTemplate() {
         Pane.Builder paneBuilder = new Pane.Builder();
+
+        // Add a row with a large image.
+        paneBuilder.addRow(
+                new Row.Builder()
+                        .setTitle("Row with a large image")
+                        .addText("Text text text")
+                        .addText("Text text text")
+                        .setImage(new CarIcon.Builder(mRowLargeIcon).build())
+                        .build());
 
         // Add a non-clickable rows.
         paneBuilder.addRow(
@@ -77,26 +93,24 @@ public final class PaneTemplateDemoScreen extends Screen implements DefaultLifec
                         .addText("Row text 2")
                         .build());
 
-        // Add a row with a large image.
-        paneBuilder.addRow(
-                new Row.Builder()
-                        .setTitle("Row with a large image")
-                        .addText("Text text text")
-                        .setImage(new CarIcon.Builder(mImage).build(), Row.IMAGE_TYPE_LARGE)
-                        .build());
+        // Also set a large image outside of the rows.
+        paneBuilder.setImage(new CarIcon.Builder(mPaneImage).build());
+
+        Action.Builder primaryActionBuilder = new Action.Builder()
+                .setTitle("Search")
+                .setBackgroundColor(CarColor.BLUE)
+                .setOnClickListener(
+                        () -> CarToast.makeText(
+                                getCarContext(),
+                                "Search/Primary button pressed",
+                                LENGTH_SHORT)
+                                .show());
+        if (getCarContext().getCarAppApiLevel() >= CarAppApiLevels.LEVEL_4) {
+            primaryActionBuilder.setFlags(FLAG_PRIMARY);
+        }
 
         paneBuilder
-                .addAction(
-                        new Action.Builder()
-                                .setTitle("Search")
-                                .setBackgroundColor(CarColor.BLUE)
-                                .setOnClickListener(
-                                        () -> CarToast.makeText(
-                                                getCarContext(),
-                                                "Search button pressed",
-                                                LENGTH_SHORT)
-                                                .show())
-                                .build())
+                .addAction(primaryActionBuilder.build())
                 .addAction(
                         new Action.Builder()
                                 .setTitle("Options")
@@ -116,7 +130,7 @@ public final class PaneTemplateDemoScreen extends Screen implements DefaultLifec
                                         new Action.Builder()
                                                 .setTitle("Commute")
                                                 .setIcon(
-                                                        new CarIcon.Builder(mIcon)
+                                                        new CarIcon.Builder(mCommuteIcon)
                                                                 .setTint(CarColor.BLUE)
                                                                 .build())
                                                 .setOnClickListener(

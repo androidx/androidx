@@ -17,12 +17,14 @@
 package androidx.camera.core.impl;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 
 /**
  * A report of failed capture for a single image capture.
  *
  */
-public final class CameraCaptureFailure {
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
+public class CameraCaptureFailure {
 
     private final Reason mReason;
 

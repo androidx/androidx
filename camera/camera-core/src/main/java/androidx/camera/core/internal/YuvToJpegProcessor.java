@@ -45,7 +45,6 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 
 /**
  * A CaptureProcessor which produces JPEGs from input YUV images.
@@ -57,7 +56,7 @@ public class YuvToJpegProcessor implements CaptureProcessor {
     private static final Rect UNINITIALIZED_RECT = new Rect(0, 0, 0, 0);
 
     @IntRange(from = 0, to = 100)
-    private final int mQuality;
+    private int mQuality;
     private final int mMaxImages;
 
     private final Object mLock = new Object();
@@ -74,6 +73,13 @@ public class YuvToJpegProcessor implements CaptureProcessor {
     public YuvToJpegProcessor(@IntRange(from = 0, to = 100) int quality, int maxImages) {
         mQuality = quality;
         mMaxImages = maxImages;
+    }
+
+    /**
+     * Sets the compression quality for the output JPEG image.
+     */
+    public void setJpegQuality(@IntRange(from = 0, to = 100) int quality) {
+        mQuality = quality;
     }
 
     @Override
@@ -151,10 +157,15 @@ public class YuvToJpegProcessor implements CaptureProcessor {
             // Enqueue the completed jpeg image
             imageWriter.queueInputImage(jpegImage);
             jpegImage = null;
-        } catch (InterruptedException | ExecutionException e) {
+        } catch (Exception e) {
+            // InterruptedException, ExecutionException and EOFException might be caught here.
+            //
             // InterruptedException should not be possible here since
             // imageProxyListenableFuture.isDone() returned true, but we have to handle the
             // exception case so bundle it with ExecutionException.
+            //
+            // EOFException might happen if the compressed JPEG data size exceeds the byte buffer
+            // size of the output image reader.
             if (processing) {
                 Logger.e(TAG, "Failed to process YUV -> JPEG", e);
                 // Something went wrong attempting to retrieve ImageProxy. Enqueue an invalid buffer

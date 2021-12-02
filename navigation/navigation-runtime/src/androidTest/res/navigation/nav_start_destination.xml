@@ -21,4 +21,5 @@
     <test android:id="@+id/start_test" >
         <argument android:name="test" android:defaultValue="@null" app:argType="string"/>
     </test>
+    <test android:id="@+id/second_test" />
 </navigation>

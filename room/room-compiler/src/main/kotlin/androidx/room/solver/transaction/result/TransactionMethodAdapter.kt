@@ -56,7 +56,8 @@ class TransactionMethodAdapter(
                     append("return ")
                 }
                 when (callType) {
-                    TransactionMethod.CallType.CONCRETE -> {
+                    TransactionMethod.CallType.CONCRETE,
+                    TransactionMethod.CallType.INHERITED_DEFAULT_JAVA8 -> {
                         append("$T.super.$N(")
                         params.add(daoImplName)
                         params.add(methodName)

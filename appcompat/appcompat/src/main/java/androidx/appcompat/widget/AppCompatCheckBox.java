@@ -22,6 +22,7 @@ import android.content.Context;
 import android.content.res.ColorStateList;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
+import android.text.InputFilter;
 import android.util.AttributeSet;
 import android.view.View;
 import android.widget.CheckBox;
@@ -54,11 +55,12 @@ import androidx.resourceinspection.annotation.AppCompatShadowedAttributes;
  */
 @AppCompatShadowedAttributes
 public class AppCompatCheckBox extends CheckBox implements TintableCompoundButton,
-        TintableBackgroundView {
+        TintableBackgroundView, EmojiCompatConfigurationView {
 
     private final AppCompatCompoundButtonHelper mCompoundButtonHelper;
     private final AppCompatBackgroundHelper mBackgroundTintHelper;
     private final AppCompatTextHelper mTextHelper;
+    private AppCompatEmojiTextHelper mAppCompatEmojiTextHelper;
 
     public AppCompatCheckBox(@NonNull Context context) {
         this(context, null);
@@ -82,6 +84,20 @@ public class AppCompatCheckBox extends CheckBox implements TintableCompoundButto
 
         mTextHelper = new AppCompatTextHelper(this);
         mTextHelper.loadFromAttributes(attrs, defStyleAttr);
+
+        AppCompatEmojiTextHelper emojiTextViewHelper = getEmojiTextViewHelper();
+        emojiTextViewHelper.loadFromAttributes(attrs, defStyleAttr);
+    }
+
+    /**
+     * This may be called from super constructors.
+     */
+    @NonNull
+    private AppCompatEmojiTextHelper getEmojiTextViewHelper() {
+        if (mAppCompatEmojiTextHelper == null) {
+            mAppCompatEmojiTextHelper = new AppCompatEmojiTextHelper(this);
+        }
+        return mAppCompatEmojiTextHelper;
     }
 
     @Override
@@ -235,5 +251,26 @@ public class AppCompatCheckBox extends CheckBox implements TintableCompoundButto
         if (mTextHelper != null) {
             mTextHelper.applyCompoundDrawablesTints();
         }
+    }
+
+    @Override
+    public void setFilters(@SuppressWarnings("ArrayReturn") @NonNull InputFilter[] filters) {
+        super.setFilters(getEmojiTextViewHelper().getFilters(filters));
+    }
+
+    @Override
+    public void setAllCaps(boolean allCaps) {
+        super.setAllCaps(allCaps);
+        getEmojiTextViewHelper().setAllCaps(allCaps);
+    }
+
+    @Override
+    public void setEmojiCompatEnabled(boolean enabled) {
+        getEmojiTextViewHelper().setEnabled(enabled);
+    }
+
+    @Override
+    public boolean isEmojiCompatEnabled() {
+        return getEmojiTextViewHelper().isEnabled();
     }
 }

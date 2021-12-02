@@ -51,3 +51,7 @@ dependencies {
     androidTestImplementation(libs.hiltAndroidTesting)
     kaptAndroidTest(libs.hiltCompiler)
 }
+
+hilt {
+    enableAggregatingTask = true
+}

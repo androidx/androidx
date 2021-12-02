@@ -14,21 +14,27 @@
  * limitations under the License.
  */
 
+@file:RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
+
 package androidx.camera.camera2.pipe.integration.config
 
+import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraMetadata
 import androidx.camera.camera2.pipe.CameraPipe
 import androidx.camera.camera2.pipe.integration.adapter.CameraControlAdapter
 import androidx.camera.camera2.pipe.integration.adapter.CameraInfoAdapter
 import androidx.camera.camera2.pipe.integration.adapter.CameraInternalAdapter
+import androidx.camera.camera2.pipe.integration.compat.Camera2CameraControlCompat
 import androidx.camera.camera2.pipe.integration.compat.EvCompCompat
+import androidx.camera.camera2.pipe.integration.compat.ZoomCompat
 import androidx.camera.camera2.pipe.integration.impl.CameraPipeCameraProperties
 import androidx.camera.camera2.pipe.integration.impl.CameraProperties
-import androidx.camera.camera2.pipe.integration.compat.ZoomCompat
 import androidx.camera.camera2.pipe.integration.impl.EvCompControl
 import androidx.camera.camera2.pipe.integration.impl.UseCaseThreads
 import androidx.camera.camera2.pipe.integration.impl.ZoomControl
+import androidx.camera.camera2.pipe.integration.interop.Camera2CameraControl
+import androidx.camera.camera2.pipe.integration.interop.ExperimentalCamera2Interop
 import androidx.camera.core.impl.CameraControlInternal
 import androidx.camera.core.impl.CameraInfoInternal
 import androidx.camera.core.impl.CameraInternal
@@ -39,7 +45,7 @@ import dagger.Provides
 import dagger.Subcomponent
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.asCoroutineDispatcher
 import javax.inject.Scope
 
@@ -47,12 +53,15 @@ import javax.inject.Scope
 annotation class CameraScope
 
 /** Dependency bindings for adapting an individual [CameraInternal] instance to [CameraPipe] */
+@OptIn(ExperimentalCamera2Interop::class)
 @Module(
     includes = [
         ZoomCompat.Bindings::class,
         ZoomControl.Bindings::class,
         EvCompCompat.Bindings::class,
-        EvCompControl.Bindings::class
+        EvCompControl.Bindings::class,
+        Camera2CameraControl.Bindings::class,
+        Camera2CameraControlCompat.Bindings::class,
     ],
     subcomponents = [UseCaseCameraComponent::class]
 )
@@ -70,7 +79,7 @@ abstract class CameraModule {
             val dispatcher = cameraThreadConfig.cameraExecutor.asCoroutineDispatcher()
 
             val cameraScope = CoroutineScope(
-                Job() +
+                SupervisorJob() +
                     dispatcher +
                     CoroutineName("CXCP-UseCase-${cameraConfig.cameraId.value}")
             )

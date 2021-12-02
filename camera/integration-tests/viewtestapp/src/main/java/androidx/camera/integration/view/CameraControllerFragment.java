@@ -19,7 +19,6 @@ package androidx.camera.integration.view;
 import android.annotation.SuppressLint;
 import android.content.ContentResolver;
 import android.content.ContentValues;
-import android.content.Context;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
@@ -44,6 +43,7 @@ import androidx.camera.core.CameraSelector;
 import androidx.camera.core.ImageAnalysis;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageCaptureException;
+import androidx.camera.core.Logger;
 import androidx.camera.core.ZoomState;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.impl.utils.futures.FutureCallback;
@@ -51,7 +51,7 @@ import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.camera.view.CameraController;
 import androidx.camera.view.LifecycleCameraController;
 import androidx.camera.view.PreviewView;
-import androidx.camera.view.RotationReceiver;
+import androidx.camera.view.RotationProvider;
 import androidx.camera.view.video.ExperimentalVideo;
 import androidx.camera.view.video.OnVideoSavedCallback;
 import androidx.camera.view.video.OutputFileOptions;
@@ -95,9 +95,12 @@ public class CameraControllerFragment extends Fragment {
     private TextView mZoomStateText;
     private TextView mFocusResultText;
     private TextView mTorchStateText;
-    private SensorRotationReceiver mSensorRotationReceiver;
     private TextView mLuminance;
     private boolean mIsAnalyzerSet = true;
+    // Listen to accelerometer rotation change and pass it to tests.
+    private RotationProvider mRotationProvider;
+    private int mRotation;
+    private final RotationProvider.Listener mRotationListener = rotation -> mRotation = rotation;
 
     // Wrapped analyzer for tests to receive callbacks.
     @Nullable
@@ -129,8 +132,12 @@ public class CameraControllerFragment extends Fragment {
             @Nullable ViewGroup container,
             @Nullable Bundle savedInstanceState) {
         mExecutorService = Executors.newSingleThreadExecutor();
-        mSensorRotationReceiver = new SensorRotationReceiver(requireContext());
-        mSensorRotationReceiver.enable();
+        mRotationProvider = new RotationProvider(requireContext());
+        boolean canDetectRotation = mRotationProvider.addListener(
+                CameraXExecutors.mainThreadExecutor(), mRotationListener);
+        if (!canDetectRotation) {
+            Logger.e(TAG, "The device cannot detect rotation with motion sensor.");
+        }
         mCameraController = new LifecycleCameraController(requireContext());
         checkFailedFuture(mCameraController.getInitializationFuture());
         runSafely(() -> mCameraController.bindToLifecycle(getViewLifecycleOwner()));
@@ -333,9 +340,7 @@ public class CameraControllerFragment extends Fragment {
         if (mExecutorService != null) {
             mExecutorService.shutdown();
         }
-        if (mSensorRotationReceiver != null) {
-            mSensorRotationReceiver.disable();
-        }
+        mRotationProvider.removeListener(mRotationListener);
     }
 
     void checkFailedFuture(ListenableFuture<Void> voidFuture) {
@@ -378,10 +383,10 @@ public class CameraControllerFragment extends Fragment {
             case CameraController.TAP_TO_FOCUS_STARTED:
                 text = "started";
                 break;
-            case CameraController.TAP_TO_FOCUS_SUCCESSFUL:
+            case CameraController.TAP_TO_FOCUS_FOCUSED:
                 text = "successful";
                 break;
-            case CameraController.TAP_TO_FOCUS_UNSUCCESSFUL:
+            case CameraController.TAP_TO_FOCUS_NOT_FOCUSED:
                 text = "unsuccessful";
                 break;
             case CameraController.TAP_TO_FOCUS_FAILED:
@@ -485,27 +490,6 @@ public class CameraControllerFragment extends Fragment {
     // -----------------
 
     /**
-     * Listens to accelerometer rotation change and pass it to tests.
-     */
-    static class SensorRotationReceiver extends RotationReceiver {
-
-        private int mRotation;
-
-        SensorRotationReceiver(@NonNull Context context) {
-            super(context);
-        }
-
-        @Override
-        public void onRotationChanged(int rotation) {
-            mRotation = rotation;
-        }
-
-        int getRotation() {
-            return mRotation;
-        }
-    }
-
-    /**
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.TESTS)
@@ -534,7 +518,7 @@ public class CameraControllerFragment extends Fragment {
      */
     @RestrictTo(RestrictTo.Scope.TESTS)
     int getSensorRotation() {
-        return mSensorRotationReceiver.getRotation();
+        return mRotation;
     }
 
     @VisibleForTesting

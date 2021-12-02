@@ -23,6 +23,7 @@ import androidx.room.parser.ParsedQuery
 import androidx.room.processor.Context
 import androidx.room.processor.ProcessorErrors
 import androidx.room.solver.QueryResultBinderProvider
+import androidx.room.solver.TypeAdapterExtras
 import androidx.room.solver.query.result.CoroutineFlowResultBinder
 import androidx.room.solver.query.result.QueryResultBinder
 
@@ -47,9 +48,13 @@ private class CoroutineFlowResultBinderProviderImpl(
         )
     }
 
-    override fun provide(declared: XType, query: ParsedQuery): QueryResultBinder {
+    override fun provide(
+        declared: XType,
+        query: ParsedQuery,
+        extras: TypeAdapterExtras
+    ): QueryResultBinder {
         val typeArg = declared.typeArguments.first()
-        val adapter = context.typeAdapterStore.findQueryResultAdapter(typeArg, query)
+        val adapter = context.typeAdapterStore.findQueryResultAdapter(typeArg, query, extras)
         val tableNames = (
             (adapter?.accessedTableNames() ?: emptyList()) +
                 query.tables.map { it.name }

@@ -38,6 +38,7 @@ import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.core.impl.utils.futures.Futures
 import androidx.camera.core.internal.CameraUseCaseAdapter
 import androidx.camera.testing.CameraUtil
+import androidx.camera.testing.CameraXUtil
 import androidx.camera.testing.fakes.FakeAppConfig
 import androidx.camera.testing.fakes.FakeCamera
 import androidx.camera.testing.fakes.FakeCameraFactory
@@ -114,7 +115,7 @@ public class ImageCaptureTest {
         ).setCameraFactoryProvider(cameraFactoryProvider).build()
         val context =
             ApplicationProvider.getApplicationContext<Context>()
-        CameraX.initialize(context, cameraXConfig).get()
+        CameraXUtil.initialize(context, cameraXConfig).get()
         callbackThread = HandlerThread("Callback")
         callbackThread.start()
         // Explicitly pause callback thread since we will control execution manually in tests
@@ -126,7 +127,7 @@ public class ImageCaptureTest {
     @After
     @Throws(ExecutionException::class, InterruptedException::class)
     public fun tearDown() {
-        CameraX.shutdown().get()
+        CameraXUtil.shutdown().get()
         fakeImageReaderProxy = null
         callbackThread.quitSafely()
     }

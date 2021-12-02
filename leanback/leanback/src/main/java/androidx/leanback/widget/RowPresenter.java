@@ -467,10 +467,12 @@ public abstract class RowPresenter extends Presenter {
 
     /**
      * Sets the policy of updating row view activated status.  Can be one of:
-     * <li> Default value {@link #SYNC_ACTIVATED_TO_EXPANDED}
-     * <li> {@link #SYNC_ACTIVATED_TO_SELECTED}
-     * <li> {@link #SYNC_ACTIVATED_TO_EXPANDED_AND_SELECTED}
-     * <li> {@link #SYNC_ACTIVATED_CUSTOM}
+     * <ul>
+     * <li> Default value {@link #SYNC_ACTIVATED_TO_EXPANDED}</li>
+     * <li> {@link #SYNC_ACTIVATED_TO_SELECTED}</li>
+     * <li> {@link #SYNC_ACTIVATED_TO_EXPANDED_AND_SELECTED}</li>
+     * <li> {@link #SYNC_ACTIVATED_CUSTOM}</li>
+     * </ul>
      */
     public final void setSyncActivatePolicy(int syncActivatePolicy) {
         mSyncActivatePolicy = syncActivatePolicy;
@@ -478,10 +480,12 @@ public abstract class RowPresenter extends Presenter {
 
     /**
      * Returns the policy of updating row view activated status.  Can be one of:
-     * <li> Default value {@link #SYNC_ACTIVATED_TO_EXPANDED}
-     * <li> {@link #SYNC_ACTIVATED_TO_SELECTED}
-     * <li> {@link #SYNC_ACTIVATED_TO_EXPANDED_AND_SELECTED}
-     * <li> {@link #SYNC_ACTIVATED_CUSTOM}
+     * <ul>
+     * <li> Default value {@link #SYNC_ACTIVATED_TO_EXPANDED}</li>
+     * <li> {@link #SYNC_ACTIVATED_TO_SELECTED}</li>
+     * <li> {@link #SYNC_ACTIVATED_TO_EXPANDED_AND_SELECTED}</li>
+     * <li> {@link #SYNC_ACTIVATED_CUSTOM}</li>
+     * </ul>
      */
     public final int getSyncActivatePolicy() {
         return mSyncActivatePolicy;

@@ -306,10 +306,10 @@ public final class HostValidator {
             return false;
         }
         for (int i = 0; i < packageInfo.requestedPermissionsFlags.length; i++) {
-            if (packageInfo.requestedPermissionsFlags[i]
-                    == PackageInfo.REQUESTED_PERMISSION_GRANTED
-                    && i < packageInfo.requestedPermissions.length
-                    && permission.equals(packageInfo.requestedPermissions[i])) {
+            if (((packageInfo.requestedPermissionsFlags[i]
+                          & PackageInfo.REQUESTED_PERMISSION_GRANTED) != 0)
+                        && i < packageInfo.requestedPermissions.length
+                        && permission.equals(packageInfo.requestedPermissions[i])) {
                 return true;
             }
         }

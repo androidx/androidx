@@ -28,4 +28,7 @@
     <fragment
         android:id="@+id/child_back_stack_fragment"
         android:name="androidx.navigation.fragment.ChildBackStackFragment"/>
+    <dialog
+        android:id="@+id/dialog_fragment"
+        android:name="androidx.navigation.fragment.EmptyDialogFragment"/>
 </navigation>

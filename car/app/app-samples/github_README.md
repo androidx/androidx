@@ -33,7 +33,9 @@ In order to install and run the apps,
 
 Run From the Command Line
 ---------------------
-1. Run `./gradlew :<sample_app>:<platform>:assemble` to assemble the APKs. E.g.
+1. Open the project in Android Studio to download the gradle wrapper files.
+
+2. Run `./gradlew :<sample_app>:<platform>:assemble` to assemble the APKs. E.g.
 
 ```bash
 ./gradlew :showcase:mobile:assemble
@@ -56,7 +58,7 @@ Create `local.properties` file under the project directory, and copy the followi
     sdk.dir = <your android sdk directory path>
     ```
 
-2. Install the APK with ADB:
+3. Install the APK with ADB:
 
 ```bash
 adb install <path_to_sample_app_apk>
@@ -77,15 +79,14 @@ In short, do the following:
 Run the Automotive Apps in the Automotive OS Emulator
 -------------------------------------------
 In order to use the Automotive OS emulator, download the Android Studio 4.2 or higher (currently
- only available in the Beta and Canary tracks), and do the following:
+only available in the Beta and Canary tracks), and do the following:
 
- 1. Select `Tools -> AVD Manager`.
- 2. Select `Create Virtual Device...`.
- 3. Select `Automotive` in the device category, and click `Next`.
- 4. Select `X86 Images`, then download an image for Android Q.
- 5. Finish creating the emulator, and run it.
+1. Follow instructions to [run an Automotive OS emulator][5].
+2. Follow instructions to [update the Template Host app][6].
 
 [1]: https://developer.android.com/training/cars/testing
 [2]: https://developer.android.com/studio/debug/dev-options
 [3]: https://developer.android.com/training/cars/testing#step1
 [4]: https://developer.android.com/training/cars/testing#running-dhu
+[5]: https://developer.android.com/training/cars/testing#system-images
+[6]: https://developer.android.com/training/cars/apps/automotive-os

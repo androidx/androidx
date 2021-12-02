@@ -32,6 +32,7 @@ import android.location.GpsStatus;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.location.LocationRequest;
 import android.os.Build.VERSION;
 import android.os.Build.VERSION_CODES;
 import android.os.Bundle;
@@ -52,10 +53,16 @@ import androidx.collection.SimpleArrayMap;
 import androidx.core.os.CancellationSignal;
 import androidx.core.os.ExecutorCompat;
 import androidx.core.util.Consumer;
+import androidx.core.util.ObjectsCompat;
 import androidx.core.util.Preconditions;
 
+import java.lang.ref.WeakReference;
 import java.lang.reflect.Field;
-import java.util.concurrent.Callable;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.WeakHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.FutureTask;
@@ -65,6 +72,7 @@ import java.util.concurrent.TimeoutException;
 /**
  * Helper for accessing features in {@link LocationManager}.
  */
+@SuppressWarnings("deprecation")
 public final class LocationManagerCompat {
 
     private static final long GET_CURRENT_LOCATION_TIMEOUT_MS = 30 * 1000;
@@ -72,6 +80,8 @@ public final class LocationManagerCompat {
     private static final long PRE_N_LOOPER_TIMEOUT_S = 5;
 
     private static Field sContextField;
+    private static Method sRequestLocationUpdatesExecutorMethod;
+    private static Method sRequestLocationUpdatesLooperMethod;
 
     /**
      * Returns the current enabled/disabled state of location.
@@ -84,6 +94,7 @@ public final class LocationManagerCompat {
      *
      * @return {@code true} if location is enabled or {@code false} if location is disabled
      */
+    @SuppressWarnings("JavaReflectionMemberAccess")
     public static boolean isLocationEnabled(@NonNull LocationManager locationManager) {
         if (VERSION.SDK_INT >= 28) {
             return Api28Impl.isLocationEnabled(locationManager);
@@ -122,6 +133,33 @@ public final class LocationManagerCompat {
     }
 
     /**
+     * Returns true if the given location provider exists on this device, irrespective of whether
+     * it is currently enabled or not. If called on Android Q and below for the
+     * {@link LocationManager#FUSED_PROVIDER}, this method may return incorrect results if the
+     * client does not hold at least the {@link android.Manifest.permission#ACCESS_COARSE_LOCATION}
+     * permission.
+     */
+    public static boolean hasProvider(@NonNull LocationManager locationManager,
+            @NonNull String provider) {
+        if (VERSION.SDK_INT >= 31) {
+            return Api31Impl.hasProvider(locationManager, provider);
+        }
+
+        // will not work for the FUSED provider by default
+        if (locationManager.getAllProviders().contains(provider)) {
+            return true;
+        }
+
+        try {
+            // Q and below have pointless location permission requirements when using getProvider()
+            return locationManager.getProvider(provider) != null;
+        } catch (SecurityException ignored) {
+        }
+
+        return false;
+    }
+
+    /**
      * Asynchronously returns a single current location fix from the given provider. This may
      * activate sensors in order to compute a new location. The given callback will be invoked once
      * and only once, either with a valid location or with a null location if the provider was
@@ -146,43 +184,221 @@ public final class LocationManagerCompat {
         if (VERSION.SDK_INT >= 30) {
             Api30Impl.getCurrentLocation(locationManager, provider, cancellationSignal, executor,
                     consumer);
-        } else {
-            if (cancellationSignal != null) {
-                cancellationSignal.throwIfCanceled();
-            }
+            return;
+        }
 
-            final Location location = locationManager.getLastKnownLocation(provider);
-            if (location != null) {
-                long locationAgeMs =
-                        SystemClock.elapsedRealtime() - getElapsedRealtimeMillis(location);
-                if (locationAgeMs < MAX_CURRENT_LOCATION_AGE_MS) {
-                    executor.execute(new Runnable() {
-                        @Override
-                        public void run() {
-                            consumer.accept(location);
-                        }
-                    });
+        if (cancellationSignal != null) {
+            cancellationSignal.throwIfCanceled();
+        }
+
+        final Location location = locationManager.getLastKnownLocation(provider);
+        if (location != null) {
+            long locationAgeMs =
+                    SystemClock.elapsedRealtime() - getElapsedRealtimeMillis(location);
+            if (locationAgeMs < MAX_CURRENT_LOCATION_AGE_MS) {
+                executor.execute(() -> consumer.accept(location));
+                return;
+            }
+        }
+
+        final CancellableLocationListener listener =
+                new CancellableLocationListener(locationManager, executor, consumer);
+        locationManager.requestLocationUpdates(provider, 0, 0, listener,
+                Looper.getMainLooper());
+
+        if (cancellationSignal != null) {
+            cancellationSignal.setOnCancelListener(new CancellationSignal.OnCancelListener() {
+                @RequiresPermission(anyOf = {ACCESS_COARSE_LOCATION, ACCESS_FINE_LOCATION})
+                @Override
+                public void onCancel() {
+                    listener.cancel();
+                }
+            });
+        }
+
+        listener.startTimeout(GET_CURRENT_LOCATION_TIMEOUT_MS);
+    }
+
+    @GuardedBy("sLocationListeners")
+    static final WeakHashMap<LocationListenerKey, WeakReference<LocationListenerTransport>>
+            sLocationListeners = new WeakHashMap<>();
+
+    /**
+     * Register for location updates from the specified provider, using a
+     * {@link LocationRequestCompat}, and a callback on the specified {@link Executor}.
+     *
+     * <p>See
+     * {@link LocationManager#requestLocationUpdates(String, LocationRequest, Executor,
+     * LocationListener)} for more information.
+     */
+    @SuppressWarnings("JavaReflectionMemberAccess")
+    @RequiresPermission(anyOf = {ACCESS_COARSE_LOCATION, ACCESS_FINE_LOCATION})
+    public static void requestLocationUpdates(@NonNull LocationManager locationManager,
+            @NonNull String provider,
+            @NonNull LocationRequestCompat locationRequest,
+            @NonNull Executor executor,
+            @NonNull LocationListenerCompat listener) {
+        if (VERSION.SDK_INT >= 31) {
+            Api31Impl.requestLocationUpdates(locationManager, provider,
+                    locationRequest.toLocationRequest(), executor, listener);
+            return;
+        }
+
+        if (VERSION.SDK_INT >= 30) {
+            try {
+                if (sRequestLocationUpdatesExecutorMethod == null) {
+                    sRequestLocationUpdatesExecutorMethod = LocationManager.class.getDeclaredMethod(
+                            "requestLocationUpdates",
+                            LocationRequest.class, Executor.class, LocationListener.class);
+                    sRequestLocationUpdatesExecutorMethod.setAccessible(true);
+                }
+
+                LocationRequest request = locationRequest.toLocationRequest(provider);
+                if (request != null) {
+                    sRequestLocationUpdatesExecutorMethod.invoke(locationManager, request, executor,
+                            listener);
                     return;
                 }
+            } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
+                // ignored
+            } catch (UnsupportedOperationException e) {
+                // ignored
             }
-
-            final CancellableLocationListener listener =
-                    new CancellableLocationListener(locationManager, executor, consumer);
-            locationManager.requestLocationUpdates(provider, 0, 0, listener,
-                    Looper.getMainLooper());
-
-            if (cancellationSignal != null) {
-                cancellationSignal.setOnCancelListener(new CancellationSignal.OnCancelListener() {
-                    @RequiresPermission(anyOf = {ACCESS_COARSE_LOCATION, ACCESS_FINE_LOCATION})
-                    @Override
-                    public void onCancel() {
-                        listener.cancel();
-                    }
-                });
-            }
-
-            listener.startTimeout(GET_CURRENT_LOCATION_TIMEOUT_MS);
         }
+
+        LocationListenerTransport transport = new LocationListenerTransport(
+                new LocationListenerKey(provider, listener), executor);
+
+        if (VERSION.SDK_INT >= 19) {
+            try {
+                if (sRequestLocationUpdatesLooperMethod == null) {
+                    sRequestLocationUpdatesLooperMethod = LocationManager.class.getDeclaredMethod(
+                            "requestLocationUpdates",
+                            LocationRequest.class, LocationListener.class, Looper.class);
+                    sRequestLocationUpdatesLooperMethod.setAccessible(true);
+                }
+
+                LocationRequest request = locationRequest.toLocationRequest(provider);
+                if (request != null) {
+                    synchronized (sLocationListeners) {
+                        sRequestLocationUpdatesLooperMethod.invoke(locationManager, request,
+                                transport, Looper.getMainLooper());
+                        registerLocationListenerTransport(locationManager, transport);
+                        return;
+                    }
+                }
+            } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
+                // ignored
+            } catch (UnsupportedOperationException e) {
+                // ignored
+            }
+        }
+
+        synchronized (sLocationListeners) {
+            locationManager.requestLocationUpdates(provider, locationRequest.getIntervalMillis(),
+                    locationRequest.getMinUpdateDistanceMeters(), transport,
+                    Looper.getMainLooper());
+            registerLocationListenerTransport(locationManager, transport);
+        }
+    }
+
+    @GuardedBy("sLocationListeners")
+    @RequiresPermission(anyOf = {ACCESS_COARSE_LOCATION, ACCESS_FINE_LOCATION})
+    private static void registerLocationListenerTransport(LocationManager locationManager,
+            LocationListenerTransport transport) {
+        WeakReference<LocationListenerTransport> oldRef =
+                sLocationListeners.put(transport.getKey(), new WeakReference<>(transport));
+        LocationListenerTransport oldTransport = oldRef != null ? oldRef.get() : null;
+        if (oldTransport != null) {
+            oldTransport.unregister();
+            locationManager.removeUpdates(oldTransport);
+        }
+    }
+
+    /**
+     * Register for location updates from the specified provider, using a
+     * {@link LocationRequestCompat}, and a callback on the specified {@link Looper}.
+     *
+     * <p>See
+     * {@link LocationManager#requestLocationUpdates(String, LocationRequest, Executor,
+     * LocationListener)} for more information.
+     */
+    @SuppressWarnings("JavaReflectionMemberAccess")
+    @RequiresPermission(anyOf = {ACCESS_COARSE_LOCATION, ACCESS_FINE_LOCATION})
+    public static void requestLocationUpdates(@NonNull LocationManager locationManager,
+            @NonNull String provider,
+            @NonNull LocationRequestCompat locationRequest,
+            @NonNull LocationListenerCompat listener,
+            @NonNull Looper looper) {
+        if (VERSION.SDK_INT >= 31) {
+            Api31Impl.requestLocationUpdates(locationManager, provider,
+                    locationRequest.toLocationRequest(),
+                    ExecutorCompat.create(new Handler(looper)), listener);
+            return;
+        }
+
+        if (VERSION.SDK_INT >= 19) {
+            try {
+                if (sRequestLocationUpdatesLooperMethod == null) {
+                    sRequestLocationUpdatesLooperMethod = LocationManager.class.getDeclaredMethod(
+                            "requestLocationUpdates",
+                            LocationRequest.class, LocationListener.class, Looper.class);
+                    sRequestLocationUpdatesLooperMethod.setAccessible(true);
+                }
+
+                LocationRequest request = locationRequest.toLocationRequest(provider);
+                if (request != null) {
+                    sRequestLocationUpdatesLooperMethod.invoke(locationManager, request, listener,
+                            looper);
+                    return;
+                }
+            } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
+                // ignored
+            } catch (UnsupportedOperationException e) {
+                // ignored
+            }
+        }
+
+        locationManager.requestLocationUpdates(provider, locationRequest.getIntervalMillis(),
+                locationRequest.getMinUpdateDistanceMeters(), listener, looper);
+    }
+
+    /**
+     * Removes all location updates for the specified {@link LocationListener}.
+     *
+     * <p>See {@link LocationManager#removeUpdates(LocationListener)} for more information.
+     */
+    @RequiresPermission(anyOf = {ACCESS_COARSE_LOCATION, ACCESS_FINE_LOCATION})
+    public static void removeUpdates(@NonNull LocationManager locationManager,
+            @NonNull LocationListenerCompat listener) {
+        synchronized (sLocationListeners) {
+            ArrayList<LocationListenerKey> cleanup = null;
+            for (WeakReference<LocationListenerTransport> transportRef :
+                    sLocationListeners.values()) {
+                LocationListenerTransport transport = transportRef.get();
+                if (transport == null) {
+                    continue;
+                }
+                LocationListenerKey key = transport.getKey();
+                if (key.mListener == listener) {
+                    if (cleanup == null) {
+                        cleanup = new ArrayList<>();
+                    }
+                    cleanup.add(key);
+                    transport.unregister();
+                    locationManager.removeUpdates(transport);
+                }
+            }
+            if (cleanup != null) {
+                for (LocationListenerKey key : cleanup) {
+                    sLocationListeners.remove(key);
+                }
+            }
+        }
+
+        // a given listener could have been registered both with an executor and a looper, so we
+        // need to remove all possible cases
+        locationManager.removeUpdates(listener);
     }
 
     /**
@@ -212,9 +428,12 @@ public final class LocationManagerCompat {
         }
     }
 
-    @GuardedBy("sGnssStatusListeners")
-    private static final SimpleArrayMap<Object, Object> sGnssStatusListeners =
-            new SimpleArrayMap<>();
+    // allows lazy instantiation since most processes do not use GNSS APIs
+    private static class GnssLazyLoader {
+        @GuardedBy("sGnssStatusListeners")
+        static final SimpleArrayMap<Object, Object> sGnssStatusListeners =
+                new SimpleArrayMap<>();
+    }
 
     /**
      * Registers a platform agnostic {@link GnssStatusCompat.Callback}. See
@@ -272,14 +491,14 @@ public final class LocationManagerCompat {
     private static boolean registerGnssStatusCallback(final LocationManager locationManager,
             Handler baseHandler, Executor executor, GnssStatusCompat.Callback callback) {
         if (VERSION.SDK_INT >= VERSION_CODES.R) {
-            synchronized (sGnssStatusListeners) {
+            synchronized (GnssLazyLoader.sGnssStatusListeners) {
                 GnssStatusTransport transport =
-                        (GnssStatusTransport) sGnssStatusListeners.get(callback);
+                        (GnssStatusTransport) GnssLazyLoader.sGnssStatusListeners.get(callback);
                 if (transport == null) {
                     transport = new GnssStatusTransport(callback);
                 }
                 if (locationManager.registerGnssStatusCallback(executor, transport)) {
-                    sGnssStatusListeners.put(callback, transport);
+                    GnssLazyLoader.sGnssStatusListeners.put(callback, transport);
                     return true;
                 } else {
                     return false;
@@ -287,9 +506,9 @@ public final class LocationManagerCompat {
             }
         } else if (VERSION.SDK_INT >= VERSION_CODES.N) {
             Preconditions.checkArgument(baseHandler != null);
-            synchronized (sGnssStatusListeners) {
+            synchronized (GnssLazyLoader.sGnssStatusListeners) {
                 PreRGnssStatusTransport transport =
-                        (PreRGnssStatusTransport) sGnssStatusListeners.get(callback);
+                        (PreRGnssStatusTransport) GnssLazyLoader.sGnssStatusListeners.get(callback);
                 if (transport == null) {
                     transport = new PreRGnssStatusTransport(callback);
                 } else {
@@ -298,7 +517,7 @@ public final class LocationManagerCompat {
                 transport.register(executor);
 
                 if (locationManager.registerGnssStatusCallback(transport, baseHandler)) {
-                    sGnssStatusListeners.put(callback, transport);
+                    GnssLazyLoader.sGnssStatusListeners.put(callback, transport);
                     return true;
                 } else {
                     return false;
@@ -306,9 +525,9 @@ public final class LocationManagerCompat {
             }
         } else {
             Preconditions.checkArgument(baseHandler != null);
-            synchronized (sGnssStatusListeners) {
+            synchronized (GnssLazyLoader.sGnssStatusListeners) {
                 GpsStatusTransport transport =
-                        (GpsStatusTransport) sGnssStatusListeners.get(callback);
+                        (GpsStatusTransport) GnssLazyLoader.sGnssStatusListeners.get(callback);
                 if (transport == null) {
                     transport = new GpsStatusTransport(locationManager, callback);
                 } else {
@@ -317,13 +536,8 @@ public final class LocationManagerCompat {
                 transport.register(executor);
 
                 final GpsStatusTransport myTransport = transport;
-                FutureTask<Boolean> task = new FutureTask<>(new Callable<Boolean>() {
-                    @RequiresPermission(ACCESS_FINE_LOCATION)
-                    @Override
-                    public Boolean call() {
-                        return locationManager.addGpsStatusListener(myTransport);
-                    }
-                });
+                FutureTask<Boolean> task = new FutureTask<>(
+                        () -> locationManager.addGpsStatusListener(myTransport));
 
                 if (Looper.myLooper() == baseHandler.getLooper()) {
                     task.run();
@@ -338,7 +552,7 @@ public final class LocationManagerCompat {
                     while (true) {
                         try {
                             if (task.get(remainingNanos, NANOSECONDS)) {
-                                sGnssStatusListeners.put(callback, myTransport);
+                                GnssLazyLoader.sGnssStatusListeners.put(callback, myTransport);
                                 return true;
                             } else {
                                 return false;
@@ -378,26 +592,27 @@ public final class LocationManagerCompat {
     public static void unregisterGnssStatusCallback(@NonNull LocationManager locationManager,
             @NonNull GnssStatusCompat.Callback callback) {
         if (VERSION.SDK_INT >= VERSION_CODES.R) {
-            synchronized (sGnssStatusListeners) {
+            synchronized (GnssLazyLoader.sGnssStatusListeners) {
                 GnssStatusTransport transport =
-                        (GnssStatusTransport) sGnssStatusListeners.remove(callback);
+                        (GnssStatusTransport) GnssLazyLoader.sGnssStatusListeners.remove(callback);
                 if (transport != null) {
                     locationManager.unregisterGnssStatusCallback(transport);
                 }
             }
         } else if (VERSION.SDK_INT >= VERSION_CODES.N) {
-            synchronized (sGnssStatusListeners) {
+            synchronized (GnssLazyLoader.sGnssStatusListeners) {
                 PreRGnssStatusTransport transport =
-                        (PreRGnssStatusTransport) sGnssStatusListeners.remove(callback);
+                        (PreRGnssStatusTransport) GnssLazyLoader.sGnssStatusListeners.remove(
+                                callback);
                 if (transport != null) {
                     transport.unregister();
                     locationManager.unregisterGnssStatusCallback(transport);
                 }
             }
         } else {
-            synchronized (sGnssStatusListeners) {
+            synchronized (GnssLazyLoader.sGnssStatusListeners) {
                 GpsStatusTransport transport =
-                        (GpsStatusTransport) sGnssStatusListeners.remove(callback);
+                        (GpsStatusTransport) GnssLazyLoader.sGnssStatusListeners.remove(callback);
                 if (transport != null) {
                     transport.unregister();
                     locationManager.removeGpsStatusListener(transport);
@@ -407,6 +622,141 @@ public final class LocationManagerCompat {
     }
 
     private LocationManagerCompat() {}
+
+    private static class LocationListenerKey {
+        final String mProvider;
+        final LocationListenerCompat mListener;
+
+        LocationListenerKey(String provider,
+                LocationListenerCompat listener) {
+            mProvider = ObjectsCompat.requireNonNull(provider, "invalid null provider");
+            mListener = ObjectsCompat.requireNonNull(listener, "invalid null listener");
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (!(o instanceof LocationListenerKey)) {
+                return false;
+            }
+
+            LocationListenerKey that = (LocationListenerKey) o;
+            return mProvider.equals(that.mProvider) && mListener.equals(that.mListener);
+        }
+
+        @Override
+        public int hashCode() {
+            return ObjectsCompat.hash(mProvider, mListener);
+        }
+    }
+
+    private static class LocationListenerTransport implements LocationListener {
+
+        @Nullable volatile LocationListenerKey mKey;
+        final Executor mExecutor;
+
+        LocationListenerTransport(LocationListenerKey key, Executor executor) {
+            mKey = key;
+            mExecutor = executor;
+        }
+
+        public LocationListenerKey getKey() {
+            return ObjectsCompat.requireNonNull(mKey);
+        }
+
+        public void unregister() {
+            mKey = null;
+        }
+
+        @Override
+        public void onLocationChanged(@NonNull Location location) {
+            if (mKey == null) {
+                return;
+            }
+
+            mExecutor.execute(() -> {
+                LocationListenerKey key = mKey;
+                if (key == null) {
+                    return;
+                }
+                key.mListener.onLocationChanged(location);
+            });
+        }
+
+        @Override
+        public void onLocationChanged(@NonNull List<Location> locations) {
+            if (mKey == null) {
+                return;
+            }
+
+            mExecutor.execute(() -> {
+                LocationListenerKey key = mKey;
+                if (key == null) {
+                    return;
+                }
+                key.mListener.onLocationChanged(locations);
+            });
+        }
+
+        @Override
+        public void onFlushComplete(int requestCode) {
+            if (mKey == null) {
+                return;
+            }
+
+            mExecutor.execute(() -> {
+                LocationListenerKey key = mKey;
+                if (key == null) {
+                    return;
+                }
+                key.mListener.onFlushComplete(requestCode);
+            });
+        }
+
+        @Override
+        public void onStatusChanged(String provider, int status, Bundle extras) {
+            if (mKey == null) {
+                return;
+            }
+
+            mExecutor.execute(() -> {
+                LocationListenerKey key = mKey;
+                if (key == null) {
+                    return;
+                }
+                key.mListener.onStatusChanged(provider, status, extras);
+            });
+        }
+
+        @Override
+        public void onProviderEnabled(@NonNull String provider) {
+            if (mKey == null) {
+                return;
+            }
+
+            mExecutor.execute(() -> {
+                LocationListenerKey key = mKey;
+                if (key == null) {
+                    return;
+                }
+                key.mListener.onProviderEnabled(provider);
+            });
+        }
+
+        @Override
+        public void onProviderDisabled(@NonNull String provider) {
+            if (mKey == null) {
+                return;
+            }
+
+            mExecutor.execute(() -> {
+                LocationListenerKey key = mKey;
+                if (key == null) {
+                    return;
+                }
+                key.mListener.onProviderDisabled(provider);
+            });
+        }
+    }
 
     @RequiresApi(VERSION_CODES.R)
     private static class GnssStatusTransport extends GnssStatus.Callback {
@@ -468,14 +818,11 @@ public final class LocationManagerCompat {
                 return;
             }
 
-            executor.execute(new Runnable() {
-                @Override
-                public void run() {
-                    if (mExecutor != executor) {
-                        return;
-                    }
-                    mCallback.onStarted();
+            executor.execute(() -> {
+                if (mExecutor != executor) {
+                    return;
                 }
+                mCallback.onStarted();
             });
         }
 
@@ -486,14 +833,11 @@ public final class LocationManagerCompat {
                 return;
             }
 
-            executor.execute(new Runnable() {
-                @Override
-                public void run() {
-                    if (mExecutor != executor) {
-                        return;
-                    }
-                    mCallback.onStopped();
+            executor.execute(() -> {
+                if (mExecutor != executor) {
+                    return;
                 }
+                mCallback.onStopped();
             });
         }
 
@@ -504,14 +848,11 @@ public final class LocationManagerCompat {
                 return;
             }
 
-            executor.execute(new Runnable() {
-                @Override
-                public void run() {
-                    if (mExecutor != executor) {
-                        return;
-                    }
-                    mCallback.onFirstFix(ttffMillis);
+            executor.execute(() -> {
+                if (mExecutor != executor) {
+                    return;
                 }
+                mCallback.onFirstFix(ttffMillis);
             });
         }
 
@@ -522,14 +863,11 @@ public final class LocationManagerCompat {
                 return;
             }
 
-            executor.execute(new Runnable() {
-                @Override
-                public void run() {
-                    if (mExecutor != executor) {
-                        return;
-                    }
-                    mCallback.onSatelliteStatusChanged(GnssStatusCompat.wrap(status));
+            executor.execute(() -> {
+                if (mExecutor != executor) {
+                    return;
                 }
+                mCallback.onSatelliteStatusChanged(GnssStatusCompat.wrap(status));
             });
         }
     }
@@ -569,39 +907,30 @@ public final class LocationManagerCompat {
 
             switch (event) {
                 case GpsStatus.GPS_EVENT_STARTED:
-                    executor.execute(new Runnable() {
-                        @Override
-                        public void run() {
-                            if (mExecutor != executor) {
-                                return;
-                            }
-                            mCallback.onStarted();
+                    executor.execute(() -> {
+                        if (mExecutor != executor) {
+                            return;
                         }
+                        mCallback.onStarted();
                     });
                     break;
                 case GpsStatus.GPS_EVENT_STOPPED:
-                    executor.execute(new Runnable() {
-                        @Override
-                        public void run() {
-                            if (mExecutor != executor) {
-                                return;
-                            }
-                            mCallback.onStopped();
+                    executor.execute(() -> {
+                        if (mExecutor != executor) {
+                            return;
                         }
+                        mCallback.onStopped();
                     });
                     break;
                 case GpsStatus.GPS_EVENT_FIRST_FIX:
                     gpsStatus = mLocationManager.getGpsStatus(null);
                     if (gpsStatus != null) {
                         final int ttff = gpsStatus.getTimeToFirstFix();
-                        executor.execute(new Runnable() {
-                            @Override
-                            public void run() {
-                                if (mExecutor != executor) {
-                                    return;
-                                }
-                                mCallback.onFirstFix(ttff);
+                        executor.execute(() -> {
+                            if (mExecutor != executor) {
+                                return;
                             }
+                            mCallback.onFirstFix(ttff);
                         });
                     }
                     break;
@@ -609,18 +938,33 @@ public final class LocationManagerCompat {
                     gpsStatus = mLocationManager.getGpsStatus(null);
                     if (gpsStatus != null) {
                         final GnssStatusCompat gnssStatus = GnssStatusCompat.wrap(gpsStatus);
-                        executor.execute(new Runnable() {
-                            @Override
-                            public void run() {
-                                if (mExecutor != executor) {
-                                    return;
-                                }
-                                mCallback.onSatelliteStatusChanged(gnssStatus);
+                        executor.execute(() -> {
+                            if (mExecutor != executor) {
+                                return;
                             }
+                            mCallback.onSatelliteStatusChanged(gnssStatus);
                         });
                     }
                     break;
             }
+        }
+    }
+
+    @RequiresApi(31)
+    private static class Api31Impl {
+        private Api31Impl() {}
+
+        @DoNotInline
+        static boolean hasProvider(LocationManager locationManager, @NonNull String provider) {
+            return locationManager.hasProvider(provider);
+        }
+
+        @DoNotInline
+        @RequiresPermission(anyOf = {ACCESS_COARSE_LOCATION, ACCESS_FINE_LOCATION})
+        static void requestLocationUpdates(LocationManager locationManager,
+                @NonNull String provider, @NonNull LocationRequest locationRequest,
+                @NonNull Executor executor, @NonNull LocationListener listener) {
+            locationManager.requestLocationUpdates(provider, locationRequest, executor, listener);
         }
     }
 
@@ -639,12 +983,7 @@ public final class LocationManagerCompat {
                                 cancellationSignal.getCancellationSignalObject()
                             : null,
                     executor,
-                    new java.util.function.Consumer<Location>() {
-                        @Override
-                        public void accept(Location location) {
-                            consumer.accept(location);
-                        }
-                    });
+                    consumer::accept);
         }
     }
 
@@ -747,12 +1086,7 @@ public final class LocationManagerCompat {
             }
 
             final Consumer<Location> consumer = mConsumer;
-            mExecutor.execute(new Runnable() {
-                @Override
-                public void run() {
-                    consumer.accept(location);
-                }
-            });
+            mExecutor.execute(() -> consumer.accept(location));
 
             cleanup();
         }

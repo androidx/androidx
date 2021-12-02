@@ -18,6 +18,7 @@ package androidx.core.appdigest {
 
   public final class Checksums {
     method public static com.google.common.util.concurrent.ListenableFuture<androidx.core.appdigest.Checksum![]!> getChecksums(android.content.Context, String, boolean, int, java.util.List<java.security.cert.Certificate!>, java.util.concurrent.Executor) throws java.security.cert.CertificateEncodingException, android.content.pm.PackageManager.NameNotFoundException;
+    method public static com.google.common.util.concurrent.ListenableFuture<androidx.core.appdigest.Checksum![]!> getFileChecksums(android.content.Context, String, int, String?, java.util.List<java.security.cert.Certificate!>, java.util.concurrent.Executor);
     field public static final java.util.List<java.security.cert.Certificate!> TRUST_ALL;
     field public static final java.util.List<java.security.cert.Certificate!> TRUST_NONE;
   }

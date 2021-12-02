@@ -23,6 +23,7 @@ import android.provider.MediaStore;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 
 import com.google.auto.value.AutoValue;
@@ -30,6 +31,7 @@ import com.google.auto.value.AutoValue;
 /**
  * Info about the saved video file.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 @ExperimentalVideo
 @AutoValue
 public abstract class OutputFileResults {

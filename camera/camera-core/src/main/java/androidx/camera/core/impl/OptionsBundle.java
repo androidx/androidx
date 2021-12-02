@@ -20,6 +20,7 @@ import android.util.ArrayMap;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 
 import java.util.Collections;
 import java.util.Comparator;
@@ -33,6 +34,7 @@ import java.util.TreeMap;
  * <p>OptionsBundle is a collection of {@link Config.Option}s and their values which can be
  * queried based on exact {@link Config.Option} objects or based on Option ids.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class OptionsBundle implements Config {
     protected static final Comparator<Option<?>> ID_COMPARE =
             (o1, o2) -> {
@@ -155,11 +157,11 @@ public class OptionsBundle implements Config {
     }
 
     @Override
-    public void findOptions(@NonNull String idStem, @NonNull OptionMatcher matcher) {
-        Option<Void> query = Option.create(idStem, Void.class);
+    public void findOptions(@NonNull String idSearchString, @NonNull OptionMatcher matcher) {
+        Option<Void> query = Option.create(idSearchString, Void.class);
         for (Map.Entry<Option<?>, Map<OptionPriority, Object>> entry :
                 mOptions.tailMap(query).entrySet()) {
-            if (!entry.getKey().getId().startsWith(idStem)) {
+            if (!entry.getKey().getId().startsWith(idSearchString)) {
                 // We've reached the end of the range that contains our search stem.
                 break;
             }

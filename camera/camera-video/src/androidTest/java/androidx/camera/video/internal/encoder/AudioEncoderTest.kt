@@ -15,6 +15,7 @@
  */
 package androidx.camera.video.internal.encoder
 
+import android.media.MediaCodecInfo
 import androidx.camera.core.impl.Observable.Observer
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.video.internal.BufferProvider
@@ -22,6 +23,7 @@ import androidx.camera.video.internal.BufferProvider.State
 import androidx.concurrent.futures.await
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
+import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
@@ -52,10 +54,12 @@ import java.util.concurrent.atomic.AtomicReference
 
 @LargeTest
 @RunWith(AndroidJUnit4::class)
+@SdkSuppress(minSdkVersion = 21)
 class AudioEncoderTest {
 
     companion object {
         private const val MIME_TYPE = "audio/mp4a-latm"
+        private const val ENCODER_PROFILE = MediaCodecInfo.CodecProfileLevel.AACObjectLC
         private const val BIT_RATE = 64000
         private const val SAMPLE_RATE = 44100
         private const val CHANNEL_COUNT = 1
@@ -78,6 +82,7 @@ class AudioEncoderTest {
             CameraXExecutors.ioExecutor(),
             AudioEncoderConfig.builder()
                 .setMimeType(MIME_TYPE)
+                .setProfile(ENCODER_PROFILE)
                 .setBitrate(BIT_RATE)
                 .setSampleRate(SAMPLE_RATE)
                 .setChannelCount(CHANNEL_COUNT)
@@ -166,9 +171,7 @@ class AudioEncoderTest {
         encoder.pause()
 
         // Assert.
-        // Since there is no exact event to know the encoder is paused, wait for a while until no
-        // callback.
-        verify(encoderCallback, noInvocation(3000L, 10000L)).onEncodedData(any())
+        verify(encoderCallback, timeout(5000L)).onEncodePaused()
 
         // Arrange.
         clearInvocations(encoderCallback)
@@ -195,9 +198,7 @@ class AudioEncoderTest {
         encoder.pause()
 
         // Assert.
-        // Since there is no exact event to know the encoder is paused, wait for a while until no
-        // callback.
-        verify(encoderCallback, noInvocation(3000L, 10000L)).onEncodedData(any())
+        verify(encoderCallback, timeout(5000L)).onEncodePaused()
 
         // Act.
         encoder.stop()
@@ -213,6 +214,26 @@ class AudioEncoderTest {
 
         // Assert.
         verify(encoderCallback, timeout(15000L).atLeast(5)).onEncodedData(any())
+    }
+
+    @Test
+    fun canRestartPauseEncoder() {
+        // Arrange.
+        fakeAudioLoop.start()
+
+        // Act.
+        encoder.start()
+
+        // Assert.
+        verify(encoderCallback, timeout(15000L).atLeast(5)).onEncodedData(any())
+
+        // Act.
+        encoder.stop()
+        encoder.start()
+        encoder.pause()
+
+        // Assert.
+        verify(encoderCallback, timeout(5000L)).onEncodePaused()
     }
 
     @Test
@@ -271,7 +292,7 @@ class AudioEncoderTest {
         verify(encoderCallback, timeout(15000L).atLeast(5)).onEncodedData(any())
 
         encoder.pause()
-        verify(encoderCallback, noInvocation(2000L, 10000L)).onEncodedData(any())
+        verify(encoderCallback, timeout(5000L)).onEncodePaused()
 
         // Save all values before clear invocations
         var startCaptor = ArgumentCaptor.forClass(EncodedData::class.java)

@@ -66,7 +66,6 @@ import androidx.test.rule.ActivityTestRule;
 
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -379,11 +378,15 @@ public class AppCompatEditTextReceiveContentTest {
         // Setup: Configure the receiver to a custom impl.
         ViewCompat.setOnReceiveContentListener(mEditText, MIME_TYPES_IMAGES, mMockReceiver);
 
-        // Trigger the IME's commitContent() call and assert that the custom receiver was not
-        // executed. This is because InputConnectionCompat.commitContent() checks the supported MIME
-        // types before proceeding.
+        // Trigger the IME's commitContent() call via the support lib and assert that the custom
+        // receiver was executed. This confirms that the receiver is invoked (given a chance to
+        // handle the content via some fallback) even if the MIME type of the content is not one
+        // of the receiver's declared MIME types.
         triggerImeCommitContentViaCompat("video/mp4");
-        verifyZeroInteractions(mMockReceiver);
+        ClipData clip = ClipData.newRawUri("", SAMPLE_CONTENT_URI);
+        verify(mMockReceiver, times(1)).onReceiveContent(
+                eq(mEditText), payloadEq(clip, SOURCE_INPUT_METHOD, 0));
+        verifyNoMoreInteractions(mMockReceiver);
     }
 
     @SdkSuppress(minSdkVersion = 25) // InputConnection.commitContent() was added in SDK 25.
@@ -456,7 +459,6 @@ public class AppCompatEditTextReceiveContentTest {
     }
 
     @UiThreadTest
-    @Ignore("b/201453802")
     @Test
     public void testDragAndDrop_noReceiver() throws Exception {
         setTextAndCursor("xz", 1);
@@ -471,8 +473,10 @@ public class AppCompatEditTextReceiveContentTest {
             // after the inserted content (if no space was already present). See
             // https://cs.android.com/android/platform/superproject/+/android-4.4.4_r2:frameworks/base/core/java/android/widget/TextView.java;l=8526,8527,8528,8545,8546
             assertTextAndCursorPosition("ab xz", 2);
-        } else {
+        } else if (Build.VERSION.SDK_INT <= 30) {
             assertTextAndCursorPosition("abxz", 2);
+        } else {
+            assertTextAndCursorPosition("a\nbxz", 3);
         }
     }
 
@@ -569,7 +573,6 @@ public class AppCompatEditTextReceiveContentTest {
         assertTextAndCursorPosition(text, cursorPosition);
     }
 
-    @Ignore("b/201453802")
     private void assertTextAndCursorPosition(String expectedText, int cursorPosition) {
         assertThat(mEditText.getText().toString()).isEqualTo(expectedText);
         assertThat(mEditText.getSelectionStart()).isEqualTo(cursorPosition);
@@ -613,6 +616,13 @@ public class AppCompatEditTextReceiveContentTest {
             mExtraValue = extraValue;
         }
 
+        @NonNull
+        @Override
+        public String toString() {
+            return "[" + "clip=" + mClip + ", source=" + mSource + ", flags=" + mFlags
+                    + ", linkUri=" + mLinkUri + ", extraValue=" + mExtraValue + "]";
+        }
+
         @Override
         public boolean matches(ContentInfoCompat actual) {
             ClipData.Item expectedItem = mClip.getItemAt(0);
@@ -626,11 +636,22 @@ public class AppCompatEditTextReceiveContentTest {
         }
 
         private boolean extrasMatch(Bundle actualExtras) {
-            if (mSource == SOURCE_INPUT_METHOD && Build.VERSION.SDK_INT >= 25) {
-                assertThat(actualExtras).isNotNull();
+            if (mSource == SOURCE_INPUT_METHOD && Build.VERSION.SDK_INT >= 25
+                    && Build.VERSION.SDK_INT <= 30) {
+                // On SDK >= 25 and <= 30, when inserting from the keyboard, the InputContentInfo
+                // object passed from the IME should be set in the extras. This is needed in order
+                // to prevent premature release of URI permissions. Passing this object via the
+                // extras is not needed on other SDKs: on  SDK < 25, the IME code handles URI
+                // permissions differently (expects the IME to grant URI permissions), and on
+                // SDK > 30, this is handled by the platform implementation of the API.
+                if (actualExtras == null) {
+                    return false;
+                }
                 Parcelable actualInputContentInfoExtra = actualExtras.getParcelable(
                         "androidx.core.view.extra.INPUT_CONTENT_INFO");
-                assertThat(actualInputContentInfoExtra).isInstanceOf(InputContentInfo.class);
+                if (!(actualInputContentInfoExtra instanceof InputContentInfo)) {
+                    return false;
+                }
             } else if (mExtraValue == null) {
                 return actualExtras == null;
             }

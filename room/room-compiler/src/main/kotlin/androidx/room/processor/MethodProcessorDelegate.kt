@@ -28,6 +28,7 @@ import androidx.room.ext.N
 import androidx.room.ext.RoomCoroutinesTypeNames
 import androidx.room.ext.T
 import androidx.room.parser.ParsedQuery
+import androidx.room.solver.TypeAdapterExtras
 import androidx.room.solver.prepared.binder.CallablePreparedQueryResultBinder.Companion.createPreparedBinder
 import androidx.room.solver.prepared.binder.PreparedQueryResultBinder
 import androidx.room.solver.query.result.CoroutineResultBinder
@@ -71,7 +72,11 @@ abstract class MethodProcessorDelegate(
         }
     }
 
-    abstract fun findResultBinder(returnType: XType, query: ParsedQuery): QueryResultBinder
+    abstract fun findResultBinder(
+        returnType: XType,
+        query: ParsedQuery,
+        extrasCreator: TypeAdapterExtras.() -> Unit
+    ): QueryResultBinder
 
     abstract fun findPreparedResultBinder(
         returnType: XType,
@@ -136,8 +141,11 @@ class DefaultMethodProcessorDelegate(
 
     override fun extractParams() = executableElement.parameters
 
-    override fun findResultBinder(returnType: XType, query: ParsedQuery) =
-        context.typeAdapterStore.findQueryResultBinder(returnType, query)
+    override fun findResultBinder(
+        returnType: XType,
+        query: ParsedQuery,
+        extrasCreator: TypeAdapterExtras.() -> Unit
+    ) = context.typeAdapterStore.findQueryResultBinder(returnType, query, extrasCreator)
 
     override fun findPreparedResultBinder(
         returnType: XType,
@@ -154,7 +162,7 @@ class DefaultMethodProcessorDelegate(
 
     override fun findTransactionMethodBinder(callType: TransactionMethod.CallType) =
         InstantTransactionMethodBinder(
-            TransactionMethodAdapter(executableElement.name, callType)
+            TransactionMethodAdapter(executableElement.jvmName, callType)
         )
 }
 
@@ -185,10 +193,15 @@ class SuspendMethodProcessorDelegate(
             it == continuationParam
         }
 
-    override fun findResultBinder(returnType: XType, query: ParsedQuery) =
+    override fun findResultBinder(
+        returnType: XType,
+        query: ParsedQuery,
+        extrasCreator: TypeAdapterExtras.() -> Unit
+    ) =
         CoroutineResultBinder(
             typeArg = returnType,
-            adapter = context.typeAdapterStore.findQueryResultAdapter(returnType, query),
+            adapter =
+                context.typeAdapterStore.findQueryResultAdapter(returnType, query, extrasCreator),
             continuationParamName = continuationParam.name
         )
 
@@ -243,7 +256,7 @@ class SuspendMethodProcessorDelegate(
 
     override fun findTransactionMethodBinder(callType: TransactionMethod.CallType) =
         CoroutineTransactionMethodBinder(
-            adapter = TransactionMethodAdapter(executableElement.name, callType),
+            adapter = TransactionMethodAdapter(executableElement.jvmName, callType),
             continuationParamName = continuationParam.name
         )
 }

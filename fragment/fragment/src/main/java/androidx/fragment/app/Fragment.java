@@ -59,6 +59,7 @@ import androidx.activity.result.contract.ActivityResultContract;
 import androidx.activity.result.contract.ActivityResultContracts.RequestMultiplePermissions;
 import androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult;
 import androidx.activity.result.contract.ActivityResultContracts.StartIntentSenderForResult;
+import androidx.annotation.AnimRes;
 import androidx.annotation.CallSuper;
 import androidx.annotation.ContentView;
 import androidx.annotation.LayoutRes;
@@ -571,6 +572,12 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
         // The default factory depends on the SavedStateRegistry so it
         // needs to be reset when the SavedStateRegistry is reset
         mDefaultFactory = null;
+        registerOnPreAttachListener(new OnPreAttachedListener() {
+            @Override
+            void onPreAttached() {
+                mSavedStateRegistryController.performAttach();
+            }
+        });
     }
 
     /**
@@ -1182,14 +1189,16 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
     }
 
     /**
-     * Return true if the fragment has been hidden.  By default fragments
+     * Return true if the fragment has been hidden. This includes the case if the fragment is
+     * hidden because its parent is hidden. By default fragments
      * are shown.  You can find out about changes to this state with
      * {@link #onHiddenChanged}.  Note that the hidden state is orthogonal
      * to other states -- that is, to be visible to the user, a fragment
      * must be both started and not hidden.
      */
     final public boolean isHidden() {
-        return mHidden;
+        return mHidden || (mFragmentManager != null
+                && mFragmentManager.isParentHidden(mParentFragment));
     }
 
     /** @hide */
@@ -1208,8 +1217,8 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
 
     /**
      * Called when the hidden state (as returned by {@link #isHidden()} of
-     * the fragment has changed.  Fragments start out not hidden; this will
-     * be called whenever the fragment changes state from that.
+     * the fragment or another fragment in its hierarchy has changed.  Fragments start out not
+     * hidden; this will be called whenever the fragment changes state from that.
      * @param hidden True if the fragment is now hidden, false otherwise.
      */
     @MainThread
@@ -1398,7 +1407,12 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      *                    between 0 and 65535 to be considered valid. If given requestCode is
      *                    greater than 65535, an IllegalArgumentException would be thrown.
      *
-     * @deprecated use
+     * @deprecated This method has been deprecated in favor of using the Activity Result API
+     * which brings increased type safety via an {@link ActivityResultContract} and the prebuilt
+     * contracts for common intents available in
+     * {@link androidx.activity.result.contract.ActivityResultContracts}, provides hooks for
+     * testing, and allow receiving results in separate, testable classes independent from your
+     * fragment. Use
      * {@link #registerForActivityResult(ActivityResultContract, ActivityResultCallback)}
      * passing in a {@link StartActivityForResult} object for the {@link ActivityResultContract}.
      */
@@ -1421,7 +1435,12 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * @param options Additional options for how the Activity should be started. See
      * {@link Context#startActivity(Intent, Bundle)} for more details. This value may be null.
      *
-     * @deprecated use
+     * @deprecated This method has been deprecated in favor of using the Activity Result API
+     * which brings increased type safety via an {@link ActivityResultContract} and the prebuilt
+     * contracts for common intents available in
+     * {@link androidx.activity.result.contract.ActivityResultContracts}, provides hooks for
+     * testing, and allow receiving results in separate, testable classes independent from your
+     * fragment. Use
      * {@link #registerForActivityResult(ActivityResultContract, ActivityResultCallback)}
      * passing in a {@link StartActivityForResult} object for the {@link ActivityResultContract}.
      */
@@ -1454,7 +1473,12 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * @param options Additional options for how the Activity should be started. See
      * {@link Context#startActivity(Intent, Bundle)} for more details. This value may be null.
      *
-     * @deprecated use
+     * @deprecated This method has been deprecated in favor of using the Activity Result API
+     * which brings increased type safety via an {@link ActivityResultContract} and the prebuilt
+     * contracts for common intents available in
+     * {@link androidx.activity.result.contract.ActivityResultContracts}, provides hooks for
+     * testing, and allow receiving results in separate, testable classes independent from your
+     * fragment. Use
      * {@link #registerForActivityResult(ActivityResultContract, ActivityResultCallback)}
      * passing in a {@link StartIntentSenderForResult} object for the
      * {@link ActivityResultContract}.
@@ -1489,7 +1513,12 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * @param data An Intent, which can return result data to the caller
      *               (various data can be attached to Intent "extras").
      *
-     * @deprecated use
+     * @deprecated This method has been deprecated in favor of using the Activity Result API
+     * which brings increased type safety via an {@link ActivityResultContract} and the prebuilt
+     * contracts for common intents available in
+     * {@link androidx.activity.result.contract.ActivityResultContracts}, provides hooks for
+     * testing, and allow receiving results in separate, testable classes independent from your
+     * fragment. Use
      * {@link #registerForActivityResult(ActivityResultContract, ActivityResultCallback)}
      * with the appropriate {@link ActivityResultContract} and handling the result in the
      * {@link ActivityResultCallback#onActivityResult(Object) callback}.
@@ -1559,7 +1588,12 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      *
      * @see #onRequestPermissionsResult(int, String[], int[])
      * @see android.content.Context#checkSelfPermission(String)
-     * @deprecated use
+     * @deprecated This method has been deprecated in favor of using the Activity Result API
+     * which brings increased type safety via an {@link ActivityResultContract} and the prebuilt
+     * contracts for common intents available in
+     * {@link androidx.activity.result.contract.ActivityResultContracts}, provides hooks for
+     * testing, and allow receiving results in separate, testable classes independent from your
+     * fragment. Use
      * {@link #registerForActivityResult(ActivityResultContract, ActivityResultCallback)} passing
      * in a {@link RequestMultiplePermissions} object for the {@link ActivityResultContract} and
      * handling the result in the {@link ActivityResultCallback#onActivityResult(Object) callback}.
@@ -1589,7 +1623,12 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      *
      * @see #requestPermissions(String[], int)
      *
-     * @deprecated use
+     * @deprecated This method has been deprecated in favor of using the Activity Result API
+     * which brings increased type safety via an {@link ActivityResultContract} and the prebuilt
+     * contracts for common intents available in
+     * {@link androidx.activity.result.contract.ActivityResultContracts}, provides hooks for
+     * testing, and allow receiving results in separate, testable classes independent from your
+     * fragment. Use
      * {@link #registerForActivityResult(ActivityResultContract, ActivityResultCallback)} passing
      * in a {@link RequestMultiplePermissions} object for the {@link ActivityResultContract} and
      * handling the result in the {@link ActivityResultCallback#onActivityResult(Object) callback}.
@@ -1992,7 +2031,8 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * a previous saved state, this is the state.
      *
      * @deprecated use {@link #onViewCreated(View, Bundle)} for code touching
-     * the Fragment's view and {@link #onCreate(Bundle)} for other initialization.
+     * the view created by {@link #onCreateView} and {@link #onCreate(Bundle)} for other
+     * initialization.
      * To get a callback specifically when a Fragment activity's
      * {@link Activity#onCreate(Bundle)} is called, register a
      * {@link androidx.lifecycle.LifecycleObserver} on the Activity's
@@ -3247,7 +3287,11 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
         return mAnimationInfo;
     }
 
-    void setAnimations(int enter, int exit, int popEnter, int popExit) {
+    void setAnimations(
+            @AnimRes int enter,
+            @AnimRes int exit,
+            @AnimRes int popEnter,
+            @AnimRes int popExit) {
         if (mAnimationInfo == null && enter == 0 && exit == 0 && popEnter == 0 && popExit == 0) {
             return; // no change!
         }
@@ -3257,6 +3301,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
         ensureAnimationInfo().mPopExitAnim = popExit;
     }
 
+    @AnimRes
     int getEnterAnim() {
         if (mAnimationInfo == null) {
             return 0;
@@ -3264,6 +3309,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
         return mAnimationInfo.mEnterAnim;
     }
 
+    @AnimRes
     int getExitAnim() {
         if (mAnimationInfo == null) {
             return 0;
@@ -3271,6 +3317,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
         return mAnimationInfo.mExitAnim;
     }
 
+    @AnimRes
     int getPopEnterAnim() {
         if (mAnimationInfo == null) {
             return 0;
@@ -3278,6 +3325,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
         return mAnimationInfo.mPopEnterAnim;
     }
 
+    @AnimRes
     int getPopExitAnim() {
         if (mAnimationInfo == null) {
             return 0;
@@ -3510,10 +3558,10 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
         boolean mIsPop;
 
         // All possible animations
-        int mEnterAnim;
-        int mExitAnim;
-        int mPopEnterAnim;
-        int mPopExitAnim;
+        @AnimRes int mEnterAnim;
+        @AnimRes int mExitAnim;
+        @AnimRes int mPopEnterAnim;
+        @AnimRes int mPopExitAnim;
 
         // If app has requested a specific transition, this is the one to use.
         int mNextTransition;

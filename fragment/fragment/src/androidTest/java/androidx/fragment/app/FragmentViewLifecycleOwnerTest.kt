@@ -96,7 +96,7 @@ class FragmentViewLifecycleOwnerTest {
 
     class FakeViewModelProviderFactory : ViewModelProvider.Factory {
         private var createCalled: Boolean = false
-        override fun <T : ViewModel?> create(modelClass: Class<T>): T {
+        override fun <T : ViewModel> create(modelClass: Class<T>): T {
             require(modelClass == TestViewModel::class.java)
             createCalled = true
             @Suppress("UNCHECKED_CAST")

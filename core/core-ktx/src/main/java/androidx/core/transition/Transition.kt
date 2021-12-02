@@ -14,8 +14,11 @@
  * limitations under the License.
  */
 
+@file:SuppressLint("ClassVerificationFailure") // Entire file is RequiresApi(19)
+
 package androidx.core.transition
 
+import android.annotation.SuppressLint
 import android.transition.Transition
 import androidx.annotation.RequiresApi
 

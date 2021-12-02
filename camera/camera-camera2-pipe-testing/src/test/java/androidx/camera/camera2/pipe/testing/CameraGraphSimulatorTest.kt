@@ -36,6 +36,7 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
 import kotlinx.coroutines.withTimeoutOrNull
+import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
@@ -60,6 +61,7 @@ public class CameraGraphSimulatorTest {
     private val simulator = CameraGraphSimulator(graphConfig, metadata)
     private val stream = simulator.cameraGraph.streams[streamConfig]!!
 
+    @Ignore("b/188446185")
     @Test
     fun simulatorCanSimulateRepeatingFrames() = runBlocking {
         val listener = FakeRequestListener()
@@ -193,6 +195,7 @@ public class CameraGraphSimulatorTest {
         assertThat(lossEvent.streamId).isEqualTo(stream.id)
     }
 
+    @Ignore("b/188446185")
     @Test
     fun simulatorCanIssueMultipleFrames() = runBlocking {
         val listener = FakeRequestListener()

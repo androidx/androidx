@@ -21,6 +21,7 @@ import android.media.MediaRecorder;
 import android.util.Size;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.camera.core.impl.CamcorderProfileProxy;
 
 /**
@@ -28,6 +29,7 @@ import androidx.camera.core.impl.CamcorderProfileProxy;
  * resolutions, attributes and {@link CamcorderProfileProxy}, which can be used directly on the
  * unit tests.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class CamcorderProfileUtil {
 
     private CamcorderProfileUtil() {

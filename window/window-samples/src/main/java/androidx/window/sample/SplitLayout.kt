@@ -23,9 +23,9 @@ import android.view.View
 import android.view.View.MeasureSpec.AT_MOST
 import android.view.View.MeasureSpec.EXACTLY
 import android.widget.FrameLayout
-import androidx.window.DisplayFeature
-import androidx.window.FoldingFeature
-import androidx.window.WindowLayoutInfo
+import androidx.window.layout.DisplayFeature
+import androidx.window.layout.FoldingFeature
+import androidx.window.layout.WindowLayoutInfo
 
 /**
  * An example of split-layout for two views, separated by a display feature that goes across the

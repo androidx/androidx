@@ -17,13 +17,17 @@
 package androidx.car.app.activity.ui;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
+import static androidx.car.app.activity.ErrorHandler.ActionType.UPDATE_HOST;
+import static androidx.car.app.activity.LogTags.TAG_ERROR;
 
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.pm.ResolveInfo;
 import android.net.Uri;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
@@ -49,10 +53,14 @@ import java.util.List;
  */
 @RestrictTo(LIBRARY)
 public final class ErrorMessageView extends LinearLayout {
+
     private static final String VENDING_PACKAGE = "com.android.vending";
     private static final String VENDING_DETAIL_URL =
             "https://play.google.com/store/apps/details?id=";
     private static final String ACTION_RENDER = "android.car.template.host.RendererService";
+
+    // TODO(b/194324567): Remove the hard coded Google templates host package name
+    private static final String HOST_PACKAGE = "com.google.android.apps.automotive.templates.host";
 
     private TextView mErrorMessage;
     private Button mActionButton;
@@ -85,7 +93,9 @@ public final class ErrorMessageView extends LinearLayout {
         mActionButton.setOnClickListener(v -> onClick());
     }
 
-    /** Updates the error displayed by this view */
+    /**
+     * Updates the error displayed by this view
+     */
     public void setError(@Nullable ErrorHandler.ErrorType errorType) {
         mErrorType = errorType;
         mErrorMessage.setText(mErrorType != null
@@ -95,6 +105,13 @@ public final class ErrorMessageView extends LinearLayout {
                 ? getContext().getString(mErrorType.getActionType().getActionResId())
                 : null);
         mActionButton.setVisibility(mErrorType != null ? View.VISIBLE : View.GONE);
+
+        // If the vending app is not installed, hide the button and update the message.
+        if (mErrorType != null && mErrorType.getActionType() == UPDATE_HOST
+                && !isVendingPackageInstalled()) {
+            mActionButton.setVisibility(INVISIBLE);
+            mErrorMessage.setText(R.string.error_message_no_vending);
+        }
     }
 
     private void onClick() {
@@ -118,25 +135,44 @@ public final class ErrorMessageView extends LinearLayout {
         throw new IllegalArgumentException("Unknown action type: " + mErrorType.getActionType());
     }
 
+    private boolean isVendingPackageInstalled() {
+        try {
+            requireActivity().getPackageManager().getPackageInfo(VENDING_PACKAGE, 0);
+        } catch (NameNotFoundException e) {
+            Log.d(TAG_ERROR, "The vending app not found");
+            return false;
+        }
+        return true;
+    }
+
     private Intent getVendingIntent() {
         Intent rendererIntent = new Intent(ACTION_RENDER);
         List<ResolveInfo> resolveInfoList =
                 requireActivity().getPackageManager().queryIntentServices(
-                    rendererIntent,
-                    PackageManager.GET_META_DATA
-            );
-        // Redirect to the PlayStore package detail if only one package that handles
-        // ACTION_RENDER is found. if found multiple or none, redirect to the PlayStore main
-        // page.
+                        rendererIntent,
+                        PackageManager.GET_META_DATA
+                );
+        // Redirect to the vending app package detail if only one package that handles
+        // ACTION_RENDER is found.
+        // Redirect to GAS host page if found no package that handles ACTION_RENDER.
+        // if found multiple or none, redirect to the vending app main page.
         if (resolveInfoList.size() == 1) {
-            Intent intent = new Intent(Intent.ACTION_VIEW);
-            intent.setPackage(VENDING_PACKAGE);
-            intent.setData(Uri.parse(VENDING_DETAIL_URL
-                    + resolveInfoList.get(0).serviceInfo.packageName));
-            return intent;
+            Log.d(TAG_ERROR, "Find a host, redirect to the page for this host.");
+            return getHostPageIntent(resolveInfoList.get(0).serviceInfo.packageName);
+        } else if (resolveInfoList.size() == 0) {
+            Log.d(TAG_ERROR, "No host found on the device, redirect to GAS host page");
+            return getHostPageIntent(HOST_PACKAGE);
         } else {
+            Log.d(TAG_ERROR, "Multiple host found, redirect to the vending app main page");
             return requireActivity().getPackageManager().getLaunchIntentForPackage(VENDING_PACKAGE);
         }
+    }
+
+    private Intent getHostPageIntent(String packageName) {
+        Intent intent = new Intent(Intent.ACTION_VIEW);
+        intent.setPackage(VENDING_PACKAGE);
+        intent.setData(Uri.parse(VENDING_DETAIL_URL + packageName));
+        return intent;
     }
 
     private FragmentActivity requireActivity() {

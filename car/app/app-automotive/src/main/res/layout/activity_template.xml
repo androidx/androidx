@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/activity_container"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -11,16 +12,21 @@
         android:focusable="true"
         android:focusableInTouchMode="true" />
 
-    <include
-        android:id="@+id/error_message_view"
-        layout="@layout/error_message_view"
+    <FrameLayout
+        android:id="@+id/local_content_container"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:visibility="gone"/>
+        android:layout_height="match_parent">
+        <include
+            android:id="@+id/error_message_view"
+            layout="@layout/error_message_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="gone"/>
 
-    <include
-        android:id="@+id/loading_view"
-        layout="@layout/loading_view"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        <include
+            android:id="@+id/loading_view"
+            layout="@layout/loading_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+    </FrameLayout>
 </FrameLayout>

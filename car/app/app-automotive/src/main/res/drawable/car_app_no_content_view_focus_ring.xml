@@ -14,22 +14,22 @@
   limitations under the License.
   -->
 <inset xmlns:android="http://schemas.android.com/apk/res/android"
-    android:inset="@dimen/car_app_no_content_view_focus_ring_padding">
+    android:inset="@dimen/car_app_automotive_no_content_view_focus_ring_padding">
     <selector>
         <item android:state_hovered="true" android:state_window_focused="true">
             <shape android:shape="rectangle">
                 <stroke
-                    android:width="@dimen/car_app_focus_ring_stroke_width_hovered"
+                    android:width="@dimen/car_app_automotive_focus_ring_stroke_width_hovered"
                     android:color="@color/default_focus_no_content"/>
-                <corners android:radius="@dimen/car_app_default_no_content_focus_background_corner_radius"/>
+                <corners android:radius="@dimen/car_app_automotive_default_no_content_focus_background_corner_radius"/>
             </shape>
         </item>
         <item android:state_focused="true" android:state_window_focused="true">
             <shape android:shape="rectangle">
                 <stroke
-                    android:width="@dimen/car_app_default_focus_ring_stroke_width_focused"
+                    android:width="@dimen/car_app_automotive_default_focus_ring_stroke_width_focused"
                     android:color="@color/default_focus_no_content"/>
-                <corners android:radius="@dimen/car_app_default_no_content_focus_background_corner_radius"/>
+                <corners android:radius="@dimen/car_app_automotive_default_no_content_focus_background_corner_radius"/>
             </shape>
         </item>
     </selector>

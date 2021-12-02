@@ -26,15 +26,18 @@ import android.annotation.SuppressLint;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.pm.ResolveInfo;
+import android.graphics.Insets;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.WindowInsets;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 import androidx.car.app.CarAppService;
 import androidx.car.app.activity.renderer.ICarAppActivity;
+import androidx.car.app.activity.renderer.IInsetsListener;
 import androidx.car.app.activity.renderer.IRendererCallback;
 import androidx.car.app.activity.renderer.IRendererService;
 import androidx.car.app.activity.renderer.surface.ISurfaceListener;
@@ -48,6 +51,8 @@ import androidx.car.app.automotive.R;
 import androidx.car.app.serialization.Bundleable;
 import androidx.car.app.serialization.BundlerException;
 import androidx.car.app.utils.ThreadUtils;
+import androidx.core.view.WindowCompat;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.ViewModelProvider;
 
@@ -104,11 +109,49 @@ public final class CarAppActivity extends FragmentActivity {
     TemplateSurfaceView mSurfaceView;
     ErrorMessageView mErrorMessageView;
     LoadingView mLoadingView;
+    View mActivityContainerView;
+    View mLocalContentContainerView;
     @Nullable SurfaceHolderListener mSurfaceHolderListener;
     @Nullable ActivityLifecycleDelegate mActivityLifecycleDelegate;
     @Nullable CarAppViewModel mViewModel;
     @Nullable OnBackPressedListener mOnBackPressedListener;
     @Nullable HostUpdateReceiver mHostUpdateReceiver;
+
+    /**
+     * A listener to conditionally send insets to the host, or handle them locally if the host
+     * is not capable.
+     */
+    private final View.OnApplyWindowInsetsListener mWindowInsetsListener =
+            new View.OnApplyWindowInsetsListener() {
+                @Nullable
+                @Override
+                public WindowInsets onApplyWindowInsets(@NonNull View view,
+                        @NonNull WindowInsets windowInsets) {
+                    // IMPORTANT: The insets calculated here must match the windowing settings in
+                    // SystemUiVisibility set in CarAppActivity#onCreate(). Failing to do so would
+                    // cause a mismatch between the insets applied to the content on the hosts side
+                    // vs. the actual visible window available on the client side.
+                    Insets insets = WindowInsetsCompat.toWindowInsetsCompat(windowInsets)
+                            .getInsets(WindowInsetsCompat.Type.systemBars()
+                                    | WindowInsetsCompat.Type.ime())
+                            .toPlatformInsets();
+                    boolean insetsHandled = requireNonNull(mViewModel).updateWindowInsets(insets);
+
+                    if (insetsHandled) {
+                        // Insets are handled by the host. Only local content need padding.
+                        mActivityContainerView.setPadding(0, 0, 0, 0);
+                        mLocalContentContainerView.setPadding(insets.left, insets.top,
+                                insets.right, insets.bottom);
+                    } else {
+                        // Insets are handled locally, padding is applied at the top level.
+                        mActivityContainerView.setPadding(insets.left, insets.top,
+                                insets.right, insets.bottom);
+                        mLocalContentContainerView.setPadding(0, 0, 0, 0);
+                    }
+
+                    return WindowInsetsCompat.CONSUMED.toWindowInsets();
+                }
+            };
 
     /**
      * {@link ICarAppActivity} implementation that allows the {@link IRendererService} to
@@ -121,7 +164,6 @@ public final class CarAppActivity extends FragmentActivity {
                     requireNonNull(bundleable);
                     try {
                         Object surfacePackage = bundleable.get();
-                        Log.d(LogTags.TAG, "setSurfacePackage");
                         ThreadUtils.runOnMain(() -> mSurfaceView.setSurfacePackage(surfacePackage));
                     } catch (BundlerException e) {
                         Log.e(LogTags.TAG, "Unable to set surface package", e);
@@ -132,7 +174,6 @@ public final class CarAppActivity extends FragmentActivity {
                 @Override
                 public void registerRendererCallback(@NonNull IRendererCallback callback) {
                     requireNonNull(callback);
-                    Log.d(LogTags.TAG, "registerRendererCallback");
                     ThreadUtils.runOnMain(
                             () -> {
                                 mSurfaceView.setOnCreateInputConnectionListener(editorInfo ->
@@ -152,9 +193,20 @@ public final class CarAppActivity extends FragmentActivity {
                 }
 
                 @Override
+                public void setInsetsListener(@NonNull IInsetsListener listener) {
+                    requireNonNull(listener);
+                    ThreadUtils.runOnMain(
+                            () -> {
+                                requireNonNull(mViewModel).setInsetsListener(listener);
+                                // We need to adjust local insets now that we know the host will
+                                // take care of them.
+                                mActivityContainerView.requestApplyInsets();
+                            });
+                }
+
+                @Override
                 public void setSurfaceListener(@NonNull ISurfaceListener listener) {
                     requireNonNull(listener);
-                    Log.d(LogTags.TAG, "setSurfaceListener");
                     ThreadUtils.runOnMain(
                             () -> requireNonNull(mSurfaceHolderListener)
                                     .setSurfaceListener(listener));
@@ -162,39 +214,50 @@ public final class CarAppActivity extends FragmentActivity {
 
                 @Override
                 public void onStartInput() {
-                    Log.d(LogTags.TAG, "onStartInput");
                     ThreadUtils.runOnMain(() -> mSurfaceView.onStartInput());
                 }
 
                 @Override
                 public void onStopInput() {
-                    Log.d(LogTags.TAG, "onStopInput");
                     ThreadUtils.runOnMain(() -> mSurfaceView.onStopInput());
                 }
 
                 @Override
                 public void startCarApp(@NonNull Intent intent) {
-                    Log.d(LogTags.TAG, "startCarApp");
                     startActivity(intent);
                 }
 
                 @Override
                 public void finishCarApp() {
-                    Log.d(LogTags.TAG, "finishCarApp");
                     finish();
+                }
+
+                @Override
+                public void onUpdateSelection(int oldSelStart, int oldSelEnd, int newSelStart,
+                        int newSelEnd) {
+                    ThreadUtils.runOnMain(() -> mSurfaceView.onUpdateSelection(oldSelStart,
+                            oldSelEnd, newSelStart, newSelEnd));
                 }
             };
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
-        // Set before the onCreate() as this method sets windowing information based on the theme.
-        setTheme(android.R.style.Theme_DeviceDefault_NoActionBar);
         super.onCreate(savedInstanceState);
         setSoftInputHandling();
         setContentView(R.layout.activity_template);
+        mActivityContainerView = requireViewById(R.id.activity_container);
+        mLocalContentContainerView = requireViewById(R.id.local_content_container);
         mSurfaceView = requireViewById(R.id.template_view_surface);
         mErrorMessageView = requireViewById(R.id.error_message_view);
         mLoadingView = requireViewById(R.id.loading_view);
+
+        mActivityContainerView.setOnApplyWindowInsetsListener(mWindowInsetsListener);
+        // IMPORTANT: The SystemUiVisibility applied here must match the insets provided to the
+        // host in OnApplyWindowInsetsListener above. Failing to do so would cause a mismatch
+        // between the insets applied to the content on the hosts side vs. the actual visible
+        // window available on the client side.
+        WindowCompat.setDecorFitsSystemWindows(getWindow(), false);
+        mActivityContainerView.requestApplyInsets();
 
         ComponentName serviceComponentName = retrieveServiceComponentName();
         if (serviceComponentName == null) {
@@ -207,6 +270,7 @@ public final class CarAppActivity extends FragmentActivity {
                 serviceComponentName);
         mViewModel = new ViewModelProvider(this, factory).get(CarAppViewModel.class);
         mViewModel.setActivity(this);
+        mViewModel.resetState();
         mViewModel.getError().observe(this, this::onErrorChanged);
         mViewModel.getState().observe(this, this::onStateChanged);
 
@@ -241,43 +305,50 @@ public final class CarAppActivity extends FragmentActivity {
     }
 
     private void onErrorChanged(@Nullable ErrorHandler.ErrorType errorType) {
-        mErrorMessageView.setError(errorType);
+        ThreadUtils.runOnMain(() -> {
+            mErrorMessageView.setError(errorType);
+        });
     }
 
     private void onStateChanged(@NonNull CarAppViewModel.State state) {
-        requireNonNull(mSurfaceView);
-        requireNonNull(mSurfaceHolderListener);
+        ThreadUtils.runOnMain(() -> {
+            requireNonNull(mSurfaceView);
+            requireNonNull(mSurfaceHolderListener);
 
-        switch (state) {
-            case IDLE:
-                mSurfaceView.setVisibility(View.GONE);
-                mSurfaceHolderListener.setSurfaceListener(null);
-                mErrorMessageView.setVisibility(View.GONE);
-                mLoadingView.setVisibility(View.GONE);
-                break;
-            case ERROR:
-                mSurfaceView.setVisibility(View.GONE);
-                mSurfaceHolderListener.setSurfaceListener(null);
-                mErrorMessageView.setVisibility(View.VISIBLE);
-                mLoadingView.setVisibility(View.GONE);
-                break;
-            case CONNECTING:
-                mSurfaceView.setVisibility(View.GONE);
-                mSurfaceHolderListener.setSurfaceListener(null);
-                mErrorMessageView.setVisibility(View.GONE);
-                mLoadingView.setVisibility(View.VISIBLE);
-                break;
-            case CONNECTED:
-                mSurfaceView.setVisibility(View.VISIBLE);
-                mErrorMessageView.setVisibility(View.GONE);
-                mLoadingView.setVisibility(View.GONE);
-                break;
-        }
+            switch (state) {
+                case IDLE:
+                    mSurfaceView.setVisibility(View.GONE);
+                    mSurfaceHolderListener.setSurfaceListener(null);
+                    mErrorMessageView.setVisibility(View.GONE);
+                    mLoadingView.setVisibility(View.GONE);
+                    break;
+                case ERROR:
+                    mSurfaceView.setVisibility(View.GONE);
+                    mSurfaceHolderListener.setSurfaceListener(null);
+                    mErrorMessageView.setVisibility(View.VISIBLE);
+                    mLoadingView.setVisibility(View.GONE);
+                    break;
+                case CONNECTING:
+                    mSurfaceView.setVisibility(View.GONE);
+                    mErrorMessageView.setVisibility(View.GONE);
+                    mLoadingView.setVisibility(View.VISIBLE);
+                    break;
+                case CONNECTED:
+                    mSurfaceView.setVisibility(View.VISIBLE);
+                    mErrorMessageView.setVisibility(View.GONE);
+                    mLoadingView.setVisibility(View.GONE);
+                    break;
+            }
+        });
     }
 
     @Override
     protected void onNewIntent(@NonNull Intent intent) {
         super.onNewIntent(intent);
+
+        requireNonNull(mSurfaceHolderListener).setSurfaceListener(null);
+        requireNonNull(mActivityLifecycleDelegate).registerRendererCallback(null);
+
         requireNonNull(mViewModel).bind(intent, mCarActivity, getDisplayId());
     }
 
@@ -296,6 +367,7 @@ public final class CarAppActivity extends FragmentActivity {
     @Override
     protected void onDestroy() {
         requireNonNull(mHostUpdateReceiver).unregister(this);
+        requireNonNull(mViewModel).setActivity(null);
         super.onDestroy();
     }
 

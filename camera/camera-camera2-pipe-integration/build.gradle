@@ -46,7 +46,7 @@ dependencies {
     api(project(":camera:camera-core"))
 
     // Classes and types that are only needed at runtime
-    implementation(project(":lifecycle:lifecycle-livedata-ktx"))
+    implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.3.1")
     implementation("androidx.concurrent:concurrent-futures:1.0.0")
     implementation(libs.kotlinCoroutinesGuava)
     implementation(libs.kotlinStdlib)
@@ -55,7 +55,7 @@ dependencies {
     implementation(CAMERA_PIPE_DEPS.API)
     implementation(CAMERA_PIPE_DEPS.IMPLEMENTATION)
 
-    kapt(libs.dagger)
+    kapt(libs.daggerCompiler)
 
     testImplementation(libs.testCore)
     testImplementation(libs.testRunner)
@@ -68,6 +68,7 @@ dependencies {
     testImplementation(project(":internal-testutils-ktx"))
     testImplementation(project(":internal-testutils-truth"))
 
+    androidTestImplementation(libs.multidex)
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.kotlinCoroutinesAndroid)
@@ -75,12 +76,14 @@ dependencies {
     androidTestImplementation(libs.truth)
     androidTestImplementation(project(":annotation:annotation-experimental"))
     androidTestImplementation(project(":camera:camera-lifecycle"))
+    androidTestImplementation(project(":camera:camera-testing"))
     androidTestImplementation(project(":concurrent:concurrent-futures-ktx"))
+    androidTestImplementation(project(":internal-testutils-truth"))
 }
 
 android {
     defaultConfig {
-        minSdkVersion 21
+        multiDexEnabled = true
     }
 }
 

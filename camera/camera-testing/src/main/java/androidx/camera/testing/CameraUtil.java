@@ -26,6 +26,10 @@ import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CameraDevice;
 import android.hardware.camera2.CameraManager;
 import android.hardware.camera2.CameraMetadata;
+import android.media.CamcorderProfile;
+import android.media.MediaCodec;
+import android.media.MediaCodecInfo;
+import android.media.MediaFormat;
 import android.os.Build;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -35,6 +39,7 @@ import androidx.annotation.GuardedBy;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RequiresPermission;
 import androidx.annotation.RestrictTo;
 import androidx.camera.core.CameraSelector;
@@ -59,6 +64,7 @@ import org.junit.rules.TestRule;
 import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
 
+import java.io.IOException;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.Arrays;
@@ -70,6 +76,7 @@ import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicReference;
 
 /** Utility functions for obtaining instances of camera2 classes. */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class CameraUtil {
     private CameraUtil() {
     }
@@ -113,6 +120,29 @@ public final class CameraUtil {
     }
 
     /**
+     * Gets a new instance of a {@link CameraDevice} by given camera id.
+     *
+     * <p>This method attempts to open up a new camera. Since the camera api is asynchronous it
+     * needs to wait for camera open
+     *
+     * <p>After the camera is no longer needed {@link #releaseCameraDevice(CameraDeviceHolder)}
+     * should be called to clean up resources.
+     *
+     * @throws CameraAccessException if the device is unable to access the camera
+     * @throws InterruptedException  if a {@link CameraDevice} can not be retrieved within a set
+     *                               time
+     */
+    @RequiresPermission(Manifest.permission.CAMERA)
+    @NonNull
+    public static CameraDeviceHolder getCameraDevice(
+            @NonNull String cameraId,
+            @Nullable CameraDevice.StateCallback stateCallback)
+            throws CameraAccessException, InterruptedException, TimeoutException,
+            ExecutionException {
+        return new CameraDeviceHolder(getCameraManager(), cameraId, stateCallback);
+    }
+
+    /**
      * A container class used to hold a {@link CameraDevice}.
      *
      * <p>This class should contain a valid {@link CameraDevice} that can be retrieved with
@@ -121,6 +151,7 @@ public final class CameraUtil {
      * <p>The camera device should always be closed with
      * {@link CameraUtil#releaseCameraDevice(CameraDeviceHolder)} once finished with the device.
      */
+    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
     public static class CameraDeviceHolder {
 
         final Object mLock = new Object();
@@ -151,69 +182,86 @@ public final class CameraUtil {
                 @Nullable CameraDevice.StateCallback extraStateCallback) {
             return CallbackToFutureAdapter.getFuture(openCompleter -> {
                 mCloseFuture = CallbackToFutureAdapter.getFuture(closeCompleter -> {
-                    cameraManager.openCamera(cameraId, new CameraDevice.StateCallback() {
-
-                        @Override
-                        public void onOpened(@NonNull CameraDevice cameraDevice) {
-                            synchronized (mLock) {
-                                Preconditions.checkState(mCameraDevice == null, "CameraDevice "
-                                        + "should not have been opened yet.");
-                                mCameraDevice = cameraDevice;
-                            }
-                            if (extraStateCallback != null) {
-                                extraStateCallback.onOpened(cameraDevice);
-                            }
-                            openCompleter.set(null);
-                        }
-
-                        @Override
-                        public void onClosed(@NonNull CameraDevice cameraDevice) {
-                            if (extraStateCallback != null) {
-                                extraStateCallback.onClosed(cameraDevice);
-                            }
-                            closeCompleter.set(null);
-                            mHandlerThread.quitSafely();
-                        }
-
-                        @Override
-                        public void onDisconnected(@NonNull CameraDevice cameraDevice) {
-                            synchronized (mLock) {
-                                mCameraDevice = null;
-                            }
-                            if (extraStateCallback != null) {
-                                extraStateCallback.onDisconnected(cameraDevice);
-                            }
-                            cameraDevice.close();
-                        }
-
-                        @Override
-                        public void onError(@NonNull CameraDevice cameraDevice, int i) {
-                            boolean notifyOpenFailed = false;
-                            synchronized (mLock) {
-                                if (mCameraDevice == null) {
-                                    notifyOpenFailed = true;
-                                } else {
-                                    mCameraDevice = null;
-                                }
-                            }
-                            if (extraStateCallback != null) {
-                                extraStateCallback.onError(cameraDevice, i);
-                            }
-
-                            if (notifyOpenFailed) {
-                                openCompleter.setException(new RuntimeException("Failed to "
-                                        + "open camera device due to error code: " + i));
-                            }
-                            cameraDevice.close();
-
-                        }
-                    }, new Handler(mHandlerThread.getLooper()));
-
+                    cameraManager.openCamera(cameraId,
+                            new DeviceStateCallbackImpl(openCompleter, closeCompleter,
+                                    extraStateCallback), new Handler(mHandlerThread.getLooper()));
                     return "Close[cameraId=" + cameraId + "]";
                 });
-
                 return "Open[cameraId=" + cameraId + "]";
             });
+        }
+
+        @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info
+        final class DeviceStateCallbackImpl extends CameraDevice.StateCallback {
+
+            private final CallbackToFutureAdapter.Completer<Void> mOpenCompleter;
+            private final CallbackToFutureAdapter.Completer<Void> mCloseCompleter;
+            @Nullable
+            private final CameraDevice.StateCallback mExtraStateCallback;
+
+            DeviceStateCallbackImpl(
+                    @NonNull CallbackToFutureAdapter.Completer<Void> openCompleter,
+                    @NonNull CallbackToFutureAdapter.Completer<Void> closeCompleter,
+                    @Nullable CameraDevice.StateCallback extraStateCallback) {
+                mOpenCompleter = openCompleter;
+                mCloseCompleter = closeCompleter;
+                mExtraStateCallback = extraStateCallback;
+            }
+
+            @Override
+            public void onOpened(@NonNull CameraDevice cameraDevice) {
+                synchronized (mLock) {
+                    Preconditions.checkState(mCameraDevice == null, "CameraDevice "
+                            + "should not have been opened yet.");
+                    mCameraDevice = cameraDevice;
+                }
+                if (mExtraStateCallback != null) {
+                    mExtraStateCallback.onOpened(cameraDevice);
+                }
+                mOpenCompleter.set(null);
+            }
+
+            @Override
+            public void onClosed(@NonNull CameraDevice cameraDevice) {
+                if (mExtraStateCallback != null) {
+                    mExtraStateCallback.onClosed(cameraDevice);
+                }
+                mCloseCompleter.set(null);
+                mHandlerThread.quitSafely();
+            }
+
+            @Override
+            public void onDisconnected(@NonNull CameraDevice cameraDevice) {
+                synchronized (mLock) {
+                    mCameraDevice = null;
+                }
+                if (mExtraStateCallback != null) {
+                    mExtraStateCallback.onDisconnected(cameraDevice);
+                }
+                cameraDevice.close();
+            }
+
+            @Override
+            public void onError(@NonNull CameraDevice cameraDevice, int i) {
+                boolean notifyOpenFailed = false;
+                synchronized (mLock) {
+                    if (mCameraDevice == null) {
+                        notifyOpenFailed = true;
+                    } else {
+                        mCameraDevice = null;
+                    }
+                }
+                if (mExtraStateCallback != null) {
+                    mExtraStateCallback.onError(cameraDevice, i);
+                }
+
+                if (notifyOpenFailed) {
+                    mOpenCompleter.setException(new RuntimeException("Failed to "
+                            + "open camera device due to error code: " + i));
+                }
+                cameraDevice.close();
+
+            }
         }
 
         /**
@@ -255,6 +303,7 @@ public final class CameraUtil {
         cameraDeviceHolder.close();
     }
 
+    @NonNull
     public static CameraManager getCameraManager() {
         return (CameraManager)
                 ApplicationProvider.getApplicationContext()
@@ -265,8 +314,9 @@ public final class CameraUtil {
     /**
      * Creates the CameraUseCaseAdapter that would be created with the given CameraSelector.
      *
-     * <p> This requires that {@link CameraX#initialize(Context, CameraXConfig)} has been called
-     * to properly initialize the cameras.
+     * <p>This requires that {@link CameraXUtil#initialize(Context, CameraXConfig)} has been called
+     * to properly initialize the cameras. {@link CameraXUtil#shutdown()} also needs to be
+     * properly called by the caller class to release the created {@link CameraX} instance.
      *
      * <p>A new CameraUseCaseAdapter instance will be created every time this method is called.
      * UseCases previously attached to CameraUseCasesAdapters returned by this method or
@@ -282,7 +332,8 @@ public final class CameraUtil {
     public static CameraUseCaseAdapter createCameraUseCaseAdapter(@NonNull Context context,
             @NonNull CameraSelector cameraSelector) {
         try {
-            CameraX cameraX = CameraX.getOrCreateInstance(context).get(5000, TimeUnit.MILLISECONDS);
+            CameraX cameraX = CameraXUtil.getOrCreateInstance(context, null).get(5000,
+                    TimeUnit.MILLISECONDS);
             LinkedHashSet<CameraInternal> cameras =
                     cameraSelector.filter(cameraX.getCameraRepository().getCameras());
             return new CameraUseCaseAdapter(cameras,
@@ -296,8 +347,9 @@ public final class CameraUtil {
      * Creates the CameraUseCaseAdapter that would be created with the given CameraSelector and
      * attaches the UseCases.
      *
-     * <p> This requires that {@link CameraX#initialize(Context, CameraXConfig)} has been called
-     * to properly initialize the cameras.
+     * <p>This requires that {@link CameraXUtil#initialize(Context, CameraXConfig)} has been called
+     * to properly initialize the cameras. {@link CameraXUtil#shutdown()} also needs to be
+     * properly called by the caller class to release the created {@link CameraX} instance.
      *
      * <p>A new CameraUseCaseAdapter instance will be created every time this method is called.
      * UseCases previously attached to CameraUseCasesAdapters returned by this method or
@@ -559,6 +611,73 @@ public final class CameraUtil {
     }
 
     /**
+     * Check if the resource sufficient to recording a video.
+     */
+    @NonNull
+    public static TestRule checkVideoRecordingResource() {
+        RuleChain rule = RuleChain.outerRule((base, description) -> new Statement() {
+            @RequiresApi(api = Build.VERSION_CODES.M)
+            @Override
+            public void evaluate() throws Throwable {
+                // The default resolution in VideoCapture is 1080P.
+                assumeTrue(checkVideoRecordingResource(CamcorderProfile.QUALITY_1080P));
+                base.evaluate();
+            }
+        });
+
+        return rule;
+    }
+
+    /**
+     * Check resource for video recording.
+     *
+     * <p> Tries to configure an video encoder to ensure current resource is sufficient to
+     * recording a video.
+     */
+    @SuppressWarnings("deprecation")
+    public static boolean checkVideoRecordingResource(int quality) {
+        String videoMimeType = "video/avc";
+        // Assume the device resource is sufficient.
+        boolean checkResult = true;
+
+        if (CamcorderProfile.hasProfile(quality)) {
+            CamcorderProfile profile = CamcorderProfile.get(quality);
+            MediaFormat format =
+                    MediaFormat.createVideoFormat(
+                            videoMimeType, profile.videoFrameWidth, profile.videoFrameHeight);
+            format.setInteger(MediaFormat.KEY_COLOR_FORMAT,
+                    MediaCodecInfo.CodecCapabilities.COLOR_FormatSurface);
+            format.setInteger(MediaFormat.KEY_BIT_RATE, profile.videoBitRate);
+            format.setInteger(MediaFormat.KEY_FRAME_RATE, profile.videoFrameRate);
+            format.setInteger(MediaFormat.KEY_I_FRAME_INTERVAL, 1);
+
+            MediaCodec codec = null;
+
+            try {
+                codec = MediaCodec.createEncoderByType(videoMimeType);
+                codec.configure(
+                        format, /*surface*/
+                        null, /*crypto*/
+                        null,
+                        MediaCodec.CONFIGURE_FLAG_ENCODE);
+            } catch (MediaCodec.CodecException e) {
+                Logger.i(LOG_TAG,
+                        "Video encoder pre-test configured fail CodecException: " + e.getMessage());
+                // Skip tests if a video encoder cannot be configured successfully.
+                checkResult = false;
+            } catch (IOException | IllegalArgumentException | IllegalStateException e) {
+                Logger.i(LOG_TAG, "Video encoder pre-test configured fail: " + e.getMessage());
+                checkResult = false;
+            } finally {
+                Logger.i(LOG_TAG, "codec.release()");
+                codec.release();
+            }
+        }
+
+        return checkResult;
+    }
+
+    /**
      * Create a chained rule for the test cases that need to use the camera.
      *
      * <p>It will
@@ -603,6 +722,7 @@ public final class CameraUtil {
      * <p>Passing false into the constructor {@link #PreTestCamera(boolean)}
      * will never throw the exception when the camera is unavailable.
      */
+    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
     public static class PreTestCamera implements TestRule {
         final boolean mThrowOnError;
         final AtomicReference<Boolean> mCanOpenCamera = new AtomicReference<>();
@@ -696,6 +816,7 @@ public final class CameraUtil {
      *
      * <p>Call {@link #shutdown()} after finish the test.
      */
+    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
     public static class RetryCameraOpener {
         private static final int RETRY_DELAY_MS = 1000;
         private CameraAvailability mCameraAvailability;

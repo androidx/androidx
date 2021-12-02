@@ -20,7 +20,9 @@ import androidx.room.compiler.processing.XAnnotated
 import androidx.room.compiler.processing.XFieldElement
 import androidx.room.compiler.processing.XHasModifiers
 import androidx.room.compiler.processing.XType
+import androidx.room.compiler.processing.XTypeElement
 import androidx.room.compiler.processing.ksp.KspAnnotated.UseSiteFilter.Companion.NO_USE_SITE_OR_FIELD
+import com.google.devtools.ksp.closestClassDeclaration
 import com.google.devtools.ksp.symbol.KSPropertyDeclaration
 
 internal class KspFieldElement(
@@ -51,7 +53,24 @@ internal class KspFieldElement(
         )
     }
 
-    override fun asMemberOf(other: XType): XType {
+    /**
+     * The type of the field where it is declared. Note that this properly is null if this field
+     * is the original declaration (e.g. not inherited).
+     */
+    val declarationType: KspType? by lazy {
+        val declaredIn = declaration.closestClassDeclaration()
+        if (declaredIn == null || declaredIn == containing.declaration) {
+            null
+        } else {
+            KspFieldElement(
+                env = env,
+                declaration = declaration,
+                containing = env.wrapClassDeclaration(declaredIn)
+            ).type
+        }
+    }
+
+    override fun asMemberOf(other: XType): KspType {
         if (containing.type?.isSameType(other) != false) {
             return type
         }
@@ -63,11 +82,16 @@ internal class KspFieldElement(
         )
     }
 
-    fun copyTo(newContaining: KspTypeElement) = KspFieldElement(
-        env = env,
-        declaration = declaration,
-        containing = newContaining
-    )
+    override fun copyTo(newContainer: XTypeElement): KspFieldElement {
+        check(newContainer is KspTypeElement) {
+            "Unexpected container (${newContainer::class}), expected KspTypeElement"
+        }
+        return KspFieldElement(
+            env = env,
+            declaration = declaration,
+            containing = newContainer
+        )
+    }
 
     companion object {
         fun create(

@@ -1,0 +1,7 @@
+// Baseline format: 1.0
+AsyncSuffixFuture: androidx.work.multiprocess.RemoteCoroutineWorker#startRemoteWork():
+    Methods returning com.google.common.util.concurrent.ListenableFuture should have a suffix *Async to reserve unmodified name for a suspend function
+AsyncSuffixFuture: androidx.work.multiprocess.RemoteListenableWorker#startRemoteWork():
+    Methods returning com.google.common.util.concurrent.ListenableFuture should have a suffix *Async to reserve unmodified name for a suspend function
+AsyncSuffixFuture: androidx.work.multiprocess.RemoteListenableWorker#startWork():
+    Methods returning com.google.common.util.concurrent.ListenableFuture should have a suffix *Async to reserve unmodified name for a suspend function

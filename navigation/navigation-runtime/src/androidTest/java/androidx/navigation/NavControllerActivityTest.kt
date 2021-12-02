@@ -75,7 +75,7 @@ class NavControllerActivityTest {
         navController.setGraph(R.navigation.nav_simple)
         navController.handleDeepLink(
             Intent().apply {
-                data = Uri.parse("android-app://androidx.navigation.test/test")
+                data = Uri.parse("android-app://androidx.navigation.test/test/arg2")
             }
         )
         assertThat(navController.currentDestination?.id)
@@ -97,7 +97,7 @@ class NavControllerActivityTest {
         val activity = activityRule.activity
 
         val intent = Intent().apply {
-            data = Uri.parse("android-app://androidx.navigation.test/test")
+            data = Uri.parse("android-app://androidx.navigation.test/test/arg2")
         }
 
         activity.intent = intent

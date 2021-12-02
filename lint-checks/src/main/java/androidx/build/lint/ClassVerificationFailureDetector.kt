@@ -19,7 +19,6 @@
 package androidx.build.lint
 
 import com.android.SdkConstants.ATTR_VALUE
-import com.android.SdkConstants.DOT_JAVA
 import com.android.tools.lint.checks.ApiDetector.Companion.REQUIRES_API_ANNOTATION
 import com.android.tools.lint.client.api.UElementHandler
 import com.android.tools.lint.detector.api.JavaContext
@@ -55,11 +54,13 @@ import org.jetbrains.uast.UClass
 import org.jetbrains.uast.UElement
 import org.jetbrains.uast.UExpression
 import org.jetbrains.uast.UInstanceExpression
+import org.jetbrains.uast.UParenthesizedExpression
 import org.jetbrains.uast.USuperExpression
 import org.jetbrains.uast.UThisExpression
 import org.jetbrains.uast.getContainingUClass
 import org.jetbrains.uast.getContainingUMethod
 import org.jetbrains.uast.java.JavaUAnnotation
+import org.jetbrains.uast.java.JavaUQualifiedReferenceExpression
 import org.jetbrains.uast.java.JavaUSimpleNameReferenceExpression
 import org.jetbrains.uast.util.isConstructorCall
 import org.jetbrains.uast.util.isMethodCall
@@ -124,6 +125,12 @@ class ClassVerificationFailureDetector : Detector(), SourceCodeScanner {
         }
     }
 
+    /**
+     * Modified from ApiDetector.kt
+     *
+     * Changes:
+     * - Only `UCallExpression` is returned in the list
+     */
     override fun getApplicableUastTypes() = listOf(UCallExpression::class.java)
 
     /**
@@ -150,9 +157,8 @@ class ClassVerificationFailureDetector : Detector(), SourceCodeScanner {
          * Modified from ApiDetector.kt
          *
          * Changes:
-         * - Added early return for null call, removed null checks
-         * - Removed enforcement of @RequiresApi
          * - Removed cast checking on parameter list
+         * - Removed PsiCompiledElement check
          * - Removed special-casing of Support Library
          * - Removed SimpleDateFormat and Animator checks
          * - Removed check for suppression
@@ -162,18 +168,15 @@ class ClassVerificationFailureDetector : Detector(), SourceCodeScanner {
          */
         private fun visitCall(
             method: PsiMethod,
-            call: UCallExpression?,
+            call: UCallExpression,
             reference: UElement
         ) {
-            // Change: Added early return for null call, removed null checks
-            call ?: return
-
             val apiDatabase = apiDatabase ?: return
             val containingClass = method.containingClass ?: return
 
-            // Change: Removed enforcement of @RequiresApi
-
             // Change: Removed cast checking on parameter list
+
+            // Change: Removed PsiCompiledElement check
 
             val evaluator = context.evaluator
             val owner = evaluator.getQualifiedName(containingClass)
@@ -205,6 +208,14 @@ class ClassVerificationFailureDetector : Detector(), SourceCodeScanner {
                 return
             }
 
+            containingClass.qualifiedName
+
+            val receiver = if (call.isMethodCall()) {
+                call.receiver
+            } else {
+                null
+            }
+
             // The lint API database contains two optimizations:
             // First, all members that were available in API 1 are omitted from the database,
             // since that saves about half of the size of the database, and for API check
@@ -234,12 +245,11 @@ class ClassVerificationFailureDetector : Detector(), SourceCodeScanner {
             // then check the package prefix to see whether we know it's an API method whose
             // members should all have been inlined.
             if (call.isMethodCall()) {
-                val qualifier = call.receiver
-                if (qualifier != null &&
-                    qualifier !is UThisExpression &&
-                    qualifier !is PsiSuperExpression
+                if (receiver != null &&
+                    receiver !is UThisExpression &&
+                    receiver !is PsiSuperExpression
                 ) {
-                    val receiverType = qualifier.getExpressionType()
+                    val receiverType = receiver.getExpressionType()
                     if (receiverType is PsiClassType) {
                         val containingType = context.evaluator.getClassType(containingClass)
                         val inheritanceChain =
@@ -274,27 +284,14 @@ class ClassVerificationFailureDetector : Detector(), SourceCodeScanner {
                     }
                 } else {
                     // Unqualified call; need to search in our super hierarchy
-                    // Unfortunately, expression.getReceiverType() does not work correctly
-                    // in Java; it returns the type of the static binding of the call
-                    // instead of giving the virtual dispatch type, as described in
-                    // https://issuetracker.google.com/64528052 (and covered by
-                    // for example ApiDetectorTest#testListView). Therefore, we continue
-                    // to use the workaround method for Java (which isn't correct, and is
-                    // particularly broken in Kotlin where the dispatch needs to take into
-                    // account top level functions and extension methods), and then we use
-                    // the correct receiver type in Kotlin.
                     var cls: PsiClass? = null
-                    if (context.file.path.endsWith(DOT_JAVA)) {
-                        cls = call.getContainingUClass()?.javaPsi
-                    } else {
-                        val receiverType = call.receiverType
-                        if (receiverType is PsiClassType) {
-                            cls = receiverType.resolve()
-                        }
+                    val receiverType = call.receiverType
+                    if (receiverType is PsiClassType) {
+                        cls = receiverType.resolve()
                     }
 
-                    if (qualifier is UThisExpression || qualifier is USuperExpression) {
-                        val pte = qualifier as UInstanceExpression
+                    if (receiver is UThisExpression || receiver is USuperExpression) {
+                        val pte = receiver as UInstanceExpression
                         val resolved = pte.resolve()
                         if (resolved is PsiClass) {
                             cls = resolved
@@ -362,9 +359,7 @@ class ClassVerificationFailureDetector : Detector(), SourceCodeScanner {
 
             // Change: Removed check for suppression
 
-            if (call.isMethodCall()) {
-                val receiver = call.receiver
-
+            if (receiver != null || call.isMethodCall()) {
                 var target: PsiClass? = null
                 if (!method.isConstructor) {
                     if (receiver != null) {
@@ -468,11 +463,10 @@ class ClassVerificationFailureDetector : Detector(), SourceCodeScanner {
                 }
             }
 
-            val nameIdentifier = call.methodIdentifier
+            // Change: Removed signature generation
 
-            val location = if (call.isConstructorCall() &&
-                call.classReference != null
-            ) {
+            val nameIdentifier = call.methodIdentifier
+            val location = if (call.isConstructorCall() && call.classReference != null) {
                 context.getRangeLocation(call, 0, call.classReference!!, 0)
             } else if (nameIdentifier != null) {
                 context.getLocation(nameIdentifier)
@@ -492,28 +486,33 @@ class ClassVerificationFailureDetector : Detector(), SourceCodeScanner {
             location: Location
         ) {
             call ?: return
+            var classUnderInspection: UClass? = call.getContainingUClass() ?: return
 
-            if (call.getContainingUClass() == null) {
-                // Can't verify if containing class is annotated with @RequiresApi
-                return
-            }
-            val potentialRequiresApiVersion = getRequiresApiFromAnnotations(
-                call.getContainingUClass()!!.javaPsi
-            )
-            if (potentialRequiresApiVersion == NO_API_REQUIREMENT ||
-                api > potentialRequiresApiVersion
-            ) {
-                val containingClassName = call.getContainingUClass()!!.qualifiedName.toString()
-                val fix = createLintFix(method, call, api)
-
-                context.report(
-                    ISSUE, reference, location,
-                    "This call references a method added in API level $api; however, the " +
-                        "containing class $containingClassName is reachable from earlier API " +
-                        "levels and will fail run-time class verification.",
-                    fix,
+            // Walk up class hierarchy to find if there is any RequiresApi annotation that fulfills
+            // the API requirements
+            while (classUnderInspection != null) {
+                val potentialRequiresApiVersion = getRequiresApiFromAnnotations(
+                    classUnderInspection.javaPsi
                 )
+
+                if (potentialRequiresApiVersion >= api) {
+                    return
+                }
+
+                classUnderInspection = classUnderInspection.getContainingUClass()
             }
+
+            // call.getContainingUClass()!! refers to the direct parent class of this method
+            val containingClassName = call.getContainingUClass()!!.qualifiedName.toString()
+            val fix = createLintFix(method, call, api)
+
+            context.report(
+                ISSUE, reference, location,
+                "This call references a method added in API level $api; however, the " +
+                    "containing class $containingClassName is reachable from earlier API " +
+                    "levels and will fail run-time class verification.",
+                fix,
+            )
         }
 
         /**
@@ -653,17 +652,27 @@ class ClassVerificationFailureDetector : Detector(), SourceCodeScanner {
             wrapperClassName: String,
             wrapperMethodName: String,
         ): String? {
-            val isStatic = context.evaluator.isStatic(method)
-            val isConstructor = method.isConstructor
-            val isSimpleReference = callReceiver is JavaUSimpleNameReferenceExpression
+            var unwrappedCallReceiver = callReceiver
+            while (unwrappedCallReceiver is UParenthesizedExpression) {
+                unwrappedCallReceiver = unwrappedCallReceiver.expression
+            }
 
             val callReceiverStr = when {
-                isStatic -> null
-                isConstructor -> null
-                isSimpleReference ->
-                    (callReceiver as JavaUSimpleNameReferenceExpression).identifier
+                // Static method
+                context.evaluator.isStatic(method) ->
+                    null
+                // Constructor
+                method.isConstructor ->
+                    null
+                // Simple reference
+                unwrappedCallReceiver is JavaUSimpleNameReferenceExpression ->
+                    unwrappedCallReceiver.identifier
+                // Qualified reference
+                unwrappedCallReceiver is JavaUQualifiedReferenceExpression ->
+                    "${unwrappedCallReceiver.receiver}.${unwrappedCallReceiver.selector}"
                 else -> {
-                    // We don't know how to handle this type of receiver. This should never happen.
+                    // We don't know how to handle this type of receiver. If this happens a lot, we
+                    // might try returning `UElement.asSourceString()` by default.
                     return null
                 }
             }

@@ -1,5 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.0.0-alpha15" type="baseline" client="cli" name="Lint" variant="all" version="7.0.0-alpha15">
+<issues format="6" by="lint 7.2.0-dev" type="baseline" client="gradle" dependencies="false" name="AGP (7.2.0-dev)" variant="all" version="7.2.0-dev">
+
+    <issue
+        id="ResourceType"
+        message="Expected resource of type styleable"
+        errorLine1="    static final int[] TRANSITION_TARGET = {"
+        errorLine2="                                           ^">
+        <location
+            file="src/main/java/androidx/transition/Styleable.java"
+            line="30"
+            column="44"/>
+    </issue>
 
     <issue
         id="ResourceType"
@@ -59,6 +70,17 @@
     <issue
         id="ResourceType"
         message="Expected resource of type styleable"
+        errorLine1="    static final int[] TRANSITION_MANAGER = {"
+        errorLine2="                                            ^">
+        <location
+            file="src/main/java/androidx/transition/Styleable.java"
+            line="55"
+            column="45"/>
+    </issue>
+
+    <issue
+        id="ResourceType"
+        message="Expected resource of type styleable"
         errorLine1="        int TO_SCENE = 1;"
         errorLine2="                       ~">
         <location
@@ -76,6 +98,17 @@
             file="src/main/java/androidx/transition/Styleable.java"
             line="67"
             column="26"/>
+    </issue>
+
+    <issue
+        id="ResourceType"
+        message="Expected resource of type styleable"
+        errorLine1="    static final int[] TRANSITION = {"
+        errorLine2="                                    ^">
+        <location
+            file="src/main/java/androidx/transition/Styleable.java"
+            line="71"
+            column="37"/>
     </issue>
 
     <issue
@@ -114,11 +147,88 @@
     <issue
         id="ResourceType"
         message="Expected resource of type styleable"
+        errorLine1="    static final int[] CHANGE_BOUNDS = {"
+        errorLine2="                                       ^">
+        <location
+            file="src/main/java/androidx/transition/Styleable.java"
+            line="90"
+            column="40"/>
+    </issue>
+
+    <issue
+        id="ResourceType"
+        message="Expected resource of type styleable"
+        errorLine1="    static final int[] VISIBILITY_TRANSITION = {"
+        errorLine2="                                               ^">
+        <location
+            file="src/main/java/androidx/transition/Styleable.java"
+            line="100"
+            column="48"/>
+    </issue>
+
+    <issue
+        id="ResourceType"
+        message="Expected resource of type styleable"
+        errorLine1="    static final int[] FADE = {"
+        errorLine2="                              ^">
+        <location
+            file="src/main/java/androidx/transition/Styleable.java"
+            line="110"
+            column="31"/>
+    </issue>
+
+    <issue
+        id="ResourceType"
+        message="Expected resource of type styleable"
+        errorLine1="    static final int[] CHANGE_TRANSFORM = {"
+        errorLine2="                                          ^">
+        <location
+            file="src/main/java/androidx/transition/Styleable.java"
+            line="120"
+            column="43"/>
+    </issue>
+
+    <issue
+        id="ResourceType"
+        message="Expected resource of type styleable"
         errorLine1="        int REPARENT_WITH_OVERLAY = 1;"
         errorLine2="                                    ~">
         <location
             file="src/main/java/androidx/transition/Styleable.java"
             line="129"
+            column="37"/>
+    </issue>
+
+    <issue
+        id="ResourceType"
+        message="Expected resource of type styleable"
+        errorLine1="    static final int[] SLIDE = {"
+        errorLine2="                               ^">
+        <location
+            file="src/main/java/androidx/transition/Styleable.java"
+            line="133"
+            column="32"/>
+    </issue>
+
+    <issue
+        id="ResourceType"
+        message="Expected resource of type styleable"
+        errorLine1="    static final int[] TRANSITION_SET = {"
+        errorLine2="                                        ^">
+        <location
+            file="src/main/java/androidx/transition/Styleable.java"
+            line="143"
+            column="41"/>
+    </issue>
+
+    <issue
+        id="ResourceType"
+        message="Expected resource of type styleable"
+        errorLine1="    static final int[] ARC_MOTION = {"
+        errorLine2="                                    ^">
+        <location
+            file="src/main/java/androidx/transition/Styleable.java"
+            line="153"
             column="37"/>
     </issue>
 
@@ -145,30 +255,19 @@
     </issue>
 
     <issue
-        id="SoonBlockedPrivateApi"
-        message="Reflective access to mDrawMatrix will throw an exception when targeting API 30 and above"
-        errorLine1="                sDrawMatrixField = ImageView.class.getDeclaredField(&quot;mDrawMatrix&quot;);"
-        errorLine2="                                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        id="ResourceType"
+        message="Expected resource of type styleable"
+        errorLine1="    static final int[] PATTERN_PATH_MOTION = {"
+        errorLine2="                                             ^">
         <location
-            file="src/main/java/androidx/transition/ImageViewUtils.java"
-            line="102"
-            column="36"/>
-    </issue>
-
-    <issue
-        id="SoonBlockedPrivateApi"
-        message="Reflective access to mViewFlags will throw an exception when targeting API 30 and above"
-        errorLine1="                sViewFlagsField = View.class.getDeclaredField(&quot;mViewFlags&quot;);"
-        errorLine2="                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/transition/ViewUtilsBase.java"
-            line="157"
-            column="35"/>
+            file="src/main/java/androidx/transition/Styleable.java"
+            line="169"
+          column="46"/>
     </issue>
 
     <issue
         id="BanUncheckedReflection"
-        message="Calling Method.invoke without an SDK check"
+        message="Calling `Method.invoke` without an SDK check"
         errorLine1="                        (View) sAddGhostMethod.invoke(null, view, viewGroup, matrix));"
         errorLine2="                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -179,7 +278,7 @@
 
     <issue
         id="BanUncheckedReflection"
-        message="Calling Method.invoke without an SDK check"
+        message="Calling `Method.invoke` without an SDK check"
         errorLine1="                sRemoveGhostMethod.invoke(null, view);"
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -190,7 +289,7 @@
 
     <issue
         id="BanUncheckedReflection"
-        message="Calling Method.invoke without an SDK check"
+        message="Calling `Method.invoke` without an SDK check"
         errorLine1="                sCancelMethod.invoke(t);"
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -201,7 +300,7 @@
 
     <issue
         id="BanUncheckedReflection"
-        message="Calling Method.invoke without an SDK check"
+        message="Calling `Method.invoke` without an SDK check"
         errorLine1="                    sInvalidateChildInParentFastMethod.invoke(mHostView, left, top, dirty);"
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -212,7 +311,7 @@
 
     <issue
         id="BanUncheckedReflection"
-        message="Calling Method.invoke without an SDK check"
+        message="Calling `Method.invoke` without an SDK check"
         errorLine1="                sSetFrameMethod.invoke(v, left, top, right, bottom);"
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -1632,7 +1731,7 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void setPropagation(TransitionPropagation propagation) {"
+        errorLine1="    public void setPropagation(TransitionPropagation transitionPropagation) {"
         errorLine2="                               ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/transition/TransitionSet.java"
@@ -1841,7 +1940,7 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void captureValues(TransitionValues values) {"
+        errorLine1="    public void captureValues(TransitionValues transitionValues) {"
         errorLine2="                              ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/transition/VisibilityPropagation.java"

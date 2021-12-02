@@ -26,14 +26,17 @@ import com.squareup.javapoet.TypeName
 
 internal sealed class KspArrayType(
     env: KspProcessingEnv,
-    ksType: KSType
+    ksType: KSType,
+    jvmTypeResolver: KspJvmTypeResolver?
 ) : KspType(
-    env, ksType
+    env, ksType, jvmTypeResolver
 ),
     XArrayType {
 
-    override val typeName: TypeName by lazy {
-        ArrayTypeName.of(componentType.typeName)
+    abstract override val componentType: KspType
+
+    override fun resolveTypeName(): TypeName {
+        return ArrayTypeName.of(componentType.typeName)
     }
 
     override fun boxed() = this
@@ -46,11 +49,12 @@ internal sealed class KspArrayType(
      */
     private class BoxedArray(
         env: KspProcessingEnv,
-        ksType: KSType
+        ksType: KSType,
+        jvmTypeResolver: KspJvmTypeResolver?
     ) : KspArrayType(
-        env, ksType
+        env, ksType, jvmTypeResolver
     ) {
-        override val componentType: XType by lazy {
+        override val componentType: KspType by lazy {
             val arg = ksType.arguments.single()
             // https://kotlinlang.org/docs/reference/basic-types.html#primitive-type-arrays
             // these are always boxed
@@ -63,7 +67,16 @@ internal sealed class KspArrayType(
         override fun copyWithNullability(nullability: XNullability): BoxedArray {
             return BoxedArray(
                 env = env,
-                ksType = ksType.withNullability(nullability)
+                ksType = ksType.withNullability(nullability),
+                jvmTypeResolver = jvmTypeResolver,
+            )
+        }
+
+        override fun copyWithJvmTypeResolver(jvmTypeResolver: KspJvmTypeResolver): KspType {
+            return BoxedArray(
+                env = env,
+                ksType = ksType,
+                jvmTypeResolver = jvmTypeResolver
             )
         }
     }
@@ -74,15 +87,26 @@ internal sealed class KspArrayType(
     private class PrimitiveArray(
         env: KspProcessingEnv,
         ksType: KSType,
+        jvmTypeResolver: KspJvmTypeResolver?,
         override val componentType: KspType
     ) : KspArrayType(
-        env, ksType
+        env, ksType, jvmTypeResolver
     ) {
         override fun copyWithNullability(nullability: XNullability): PrimitiveArray {
             return PrimitiveArray(
                 env = env,
                 ksType = ksType.withNullability(nullability),
-                componentType = componentType
+                componentType = componentType,
+                jvmTypeResolver = jvmTypeResolver
+            )
+        }
+
+        override fun copyWithJvmTypeResolver(jvmTypeResolver: KspJvmTypeResolver): KspType {
+            return PrimitiveArray(
+                env = env,
+                ksType = ksType,
+                componentType = componentType,
+                jvmTypeResolver = jvmTypeResolver
             )
         }
     }
@@ -93,14 +117,14 @@ internal sealed class KspArrayType(
     internal class Factory(private val env: KspProcessingEnv) {
         // map of built in array type to its component type
         private val builtInArrays = mapOf(
-            "kotlin.BooleanArray" to KspPrimitiveType(env, env.resolver.builtIns.booleanType),
-            "kotlin.ByteArray" to KspPrimitiveType(env, env.resolver.builtIns.byteType),
-            "kotlin.CharArray" to KspPrimitiveType(env, env.resolver.builtIns.charType),
-            "kotlin.DoubleArray" to KspPrimitiveType(env, env.resolver.builtIns.doubleType),
-            "kotlin.FloatArray" to KspPrimitiveType(env, env.resolver.builtIns.floatType),
-            "kotlin.IntArray" to KspPrimitiveType(env, env.resolver.builtIns.intType),
-            "kotlin.LongArray" to KspPrimitiveType(env, env.resolver.builtIns.longType),
-            "kotlin.ShortArray" to KspPrimitiveType(env, env.resolver.builtIns.shortType),
+            "kotlin.BooleanArray" to KspPrimitiveType(env, env.resolver.builtIns.booleanType, null),
+            "kotlin.ByteArray" to KspPrimitiveType(env, env.resolver.builtIns.byteType, null),
+            "kotlin.CharArray" to KspPrimitiveType(env, env.resolver.builtIns.charType, null),
+            "kotlin.DoubleArray" to KspPrimitiveType(env, env.resolver.builtIns.doubleType, null),
+            "kotlin.FloatArray" to KspPrimitiveType(env, env.resolver.builtIns.floatType, null),
+            "kotlin.IntArray" to KspPrimitiveType(env, env.resolver.builtIns.intType, null),
+            "kotlin.LongArray" to KspPrimitiveType(env, env.resolver.builtIns.longType, null),
+            "kotlin.ShortArray" to KspPrimitiveType(env, env.resolver.builtIns.shortType, null),
         )
 
         // map from the primitive to its array
@@ -117,7 +141,8 @@ internal sealed class KspArrayType(
                         ksType = env.resolver.requireType(
                             primitiveArrayEntry.key
                         ),
-                        componentType = primitiveArrayEntry.value
+                        componentType = primitiveArrayEntry.value,
+                        jvmTypeResolver = null
                     )
                 }
             }
@@ -131,7 +156,8 @@ internal sealed class KspArrayType(
                             Variance.INVARIANT
                         )
                     )
-                )
+                ),
+                jvmTypeResolver = null
             )
         }
 
@@ -144,14 +170,16 @@ internal sealed class KspArrayType(
             if (qName == KOTLIN_ARRAY_Q_NAME) {
                 return BoxedArray(
                     env = env,
-                    ksType = ksType
+                    ksType = ksType,
+                    jvmTypeResolver = null
                 )
             }
             builtInArrays[qName]?.let { primitiveType ->
                 return PrimitiveArray(
                     env = env,
                     ksType = ksType,
-                    componentType = primitiveType
+                    componentType = primitiveType,
+                    jvmTypeResolver = null
                 )
             }
             return null
@@ -159,6 +187,6 @@ internal sealed class KspArrayType(
     }
 
     companion object {
-        private const val KOTLIN_ARRAY_Q_NAME = "kotlin.Array"
+        const val KOTLIN_ARRAY_Q_NAME = "kotlin.Array"
     }
 }

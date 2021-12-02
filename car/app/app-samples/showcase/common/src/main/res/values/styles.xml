@@ -21,5 +21,6 @@
   <item name="carColorPrimaryDark">#5904DF</item>
   <item name="carColorSecondary">#328E10</item>
   <item name="carColorSecondaryDark">#1A6004</item>
+  <item name="carPermissionActivityLayout">@layout/permission_request</item>
 </style>
 </resources>

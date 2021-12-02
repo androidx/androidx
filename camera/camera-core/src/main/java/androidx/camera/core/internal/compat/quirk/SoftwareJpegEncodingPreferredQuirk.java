@@ -17,6 +17,7 @@
 package androidx.camera.core.internal.compat.quirk;
 
 
+import androidx.annotation.RequiresApi;
 import androidx.camera.core.impl.Quirk;
 
 /**
@@ -26,5 +27,6 @@ import androidx.camera.core.impl.Quirk;
  * <p>Subclasses of this quirk may prefer CameraX produces JPEGs itself (likely from a YUV
  * format) for compatibility or performance reasons.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public interface SoftwareJpegEncodingPreferredQuirk extends Quirk {
 }

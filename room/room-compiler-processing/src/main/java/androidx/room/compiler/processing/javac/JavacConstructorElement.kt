@@ -17,8 +17,11 @@
 package androidx.room.compiler.processing.javac
 
 import androidx.room.compiler.processing.XConstructorElement
+import androidx.room.compiler.processing.XConstructorType
+import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.XTypeElement
 import androidx.room.compiler.processing.javac.kotlin.KmConstructor
+import com.google.auto.common.MoreTypes
 import javax.lang.model.element.ElementKind
 import javax.lang.model.element.ExecutableElement
 
@@ -40,6 +43,41 @@ internal class JavacConstructorElement(
 
     override val enclosingElement: XTypeElement by lazy {
         element.requireEnclosingType(env)
+    }
+
+    override val parameters: List<JavacMethodParameter> by lazy {
+        element.parameters.mapIndexed { index, variable ->
+            JavacMethodParameter(
+                env = env,
+                enclosingMethodElement = this,
+                containing = containing,
+                element = variable,
+                kotlinMetadataFactory = { kotlinMetadata?.parameters?.getOrNull(index) },
+                argIndex = index
+            )
+        }
+    }
+
+    override val executableType: XConstructorType by lazy {
+        val asMemberOf = env.typeUtils.asMemberOf(containing.type.typeMirror, element)
+        JavacConstructorType(
+            env = env,
+            element = this,
+            executableType = MoreTypes.asExecutable(asMemberOf)
+        )
+    }
+
+    override fun asMemberOf(other: XType): XConstructorType {
+        return if (other !is JavacDeclaredType || containing.type.isSameType(other)) {
+            executableType
+        } else {
+            val asMemberOf = env.typeUtils.asMemberOf(other.typeMirror, element)
+            JavacConstructorType(
+                env = env,
+                element = this,
+                executableType = MoreTypes.asExecutable(asMemberOf)
+            )
+        }
     }
 
     override val kotlinMetadata: KmConstructor? by lazy {

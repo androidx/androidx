@@ -16,6 +16,8 @@
 
 package androidx.room.compiler.processing.ksp
 
+import androidx.room.compiler.processing.ksp.synthetic.KspSyntheticFileMemberContainer
+import com.google.devtools.ksp.KspExperimental
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSDeclaration
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
@@ -42,14 +44,33 @@ internal fun KSDeclaration.requireEnclosingMemberContainer(
  * Node that this is not necessarily the parent declaration. e.g. when a property is declared in
  * a constructor, its containing type is actual two levels up.
  */
+@OptIn(KspExperimental::class)
 internal fun KSDeclaration.findEnclosingMemberContainer(
     env: KspProcessingEnv
 ): KspMemberContainer? {
-    return findEnclosingAncestorClassDeclaration()?.let {
+    val memberContainer = findEnclosingAncestorClassDeclaration()?.let {
         env.wrapClassDeclaration(it)
     } ?: this.containingFile?.let {
         env.wrapKSFile(it)
     }
+    memberContainer?.let {
+        return it
+    }
+    // in compiled files, we may not find it. Try using the binary name
+
+    val ownerJvmClassName = when (this) {
+        is KSPropertyDeclaration -> env.resolver.getOwnerJvmClassName(this)
+        is KSFunctionDeclaration -> env.resolver.getOwnerJvmClassName(this)
+        else -> null
+    } ?: return null
+    // Binary name of a top level type is its canonical name. So we just load it directly by
+    // that value
+    env.findTypeElement(ownerJvmClassName)?.let {
+        return it
+    }
+    // When a top level function/property is compiled, its containing class does not exist in KSP,
+    // neither the file. So instead, we synthesize one
+    return KspSyntheticFileMemberContainer(ownerJvmClassName)
 }
 
 private fun KSDeclaration.findEnclosingAncestorClassDeclaration(): KSClassDeclaration? {
@@ -62,6 +83,9 @@ private fun KSDeclaration.findEnclosingAncestorClassDeclaration(): KSClassDeclar
 
 internal fun KSDeclaration.isStatic(): Boolean {
     return modifiers.contains(Modifier.JAVA_STATIC) || hasJvmStaticAnnotation() ||
+        // declarations in the companion object move into the enclosing class as statics.
+        // https://kotlinlang.org/docs/java-to-kotlin-interop.html#static-fields
+        this.findEnclosingAncestorClassDeclaration()?.isCompanionObject == true ||
         when (this) {
             is KSPropertyAccessor -> this.receiver.findEnclosingAncestorClassDeclaration() == null
             is KSPropertyDeclaration -> this.findEnclosingAncestorClassDeclaration() == null

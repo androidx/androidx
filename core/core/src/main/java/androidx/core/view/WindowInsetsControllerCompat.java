@@ -18,6 +18,7 @@ package androidx.core.view;
 
 import static android.os.Build.VERSION.SDK_INT;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.inputmethodservice.InputMethodService;
 import android.os.CancellationSignal;
@@ -270,6 +271,7 @@ public final class WindowInsetsControllerCompat {
      * @return the system bar behavior controlled by this window.
      * @see #setSystemBarsBehavior(int)
      */
+    @SuppressLint("WrongConstant")
     @Behavior
     public int getSystemBarsBehavior() {
         return mImpl.getSystemBarsBehavior();
@@ -339,7 +341,7 @@ public final class WindowInsetsControllerCompat {
 
     private static class Impl {
         Impl() {
-            //privatex
+            //private
         }
 
         void show(int types) {
@@ -439,15 +441,12 @@ public final class WindowInsetsControllerCompat {
 
                     if (view != null && view.hasWindowFocus()) {
                         final View finalView = view;
-                        finalView.post(new Runnable() {
-                            @Override
-                            public void run() {
-                                InputMethodManager imm =
-                                        (InputMethodManager) finalView.getContext()
-                                                .getSystemService(Context.INPUT_METHOD_SERVICE);
-                                imm.showSoftInput(finalView, 0);
+                        finalView.post(() -> {
+                            InputMethodManager imm =
+                                    (InputMethodManager) finalView.getContext()
+                                            .getSystemService(Context.INPUT_METHOD_SERVICE);
+                            imm.showSoftInput(finalView, 0);
 
-                            }
                         });
                     }
             }
@@ -603,8 +602,11 @@ public final class WindowInsetsControllerCompat {
                 WindowInsetsController.OnControllableInsetsChangedListener>
                 mListeners = new SimpleArrayMap<>();
 
+        protected Window mWindow;
+
         Impl30(@NonNull Window window, @NonNull WindowInsetsControllerCompat compatController) {
             this(window.getInsetsController(), compatController);
+            mWindow = window;
         }
 
         Impl30(@NonNull WindowInsetsController insetsController,
@@ -632,6 +634,10 @@ public final class WindowInsetsControllerCompat {
         @Override
         public void setAppearanceLightStatusBars(boolean isLight) {
             if (isLight) {
+                if (mWindow != null) {
+                    unsetSystemUiFlag(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
+                }
+
                 mInsetsController.setSystemBarsAppearance(
                         WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS,
                         WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS);
@@ -717,6 +723,7 @@ public final class WindowInsetsControllerCompat {
          * @return the system bar behavior controlled by this window.
          * @see #setSystemBarsBehavior(int)
          */
+        @SuppressLint("WrongConstant")
         @Override
         @Behavior
         int getSystemBarsBehavior() {
@@ -733,17 +740,10 @@ public final class WindowInsetsControllerCompat {
                 return;
             }
             WindowInsetsController.OnControllableInsetsChangedListener
-                    fwListener =
-                    new WindowInsetsController.OnControllableInsetsChangedListener() {
-                        @Override
-                        public void onControllableInsetsChanged(
-                                @NonNull WindowInsetsController controller,
-                                int typeMask) {
-
-                            if (mInsetsController == controller) {
-                                listener.onControllableInsetsChanged(
-                                        mCompatController, typeMask);
-                            }
+                    fwListener = (controller, typeMask) -> {
+                        if (mInsetsController == controller) {
+                            listener.onControllableInsetsChanged(
+                                    mCompatController, typeMask);
                         }
                     };
             mListeners.put(listener, fwListener);
@@ -759,6 +759,13 @@ public final class WindowInsetsControllerCompat {
             if (fwListener != null) {
                 mInsetsController.removeOnControllableInsetsChangedListener(fwListener);
             }
+        }
+
+        protected void unsetSystemUiFlag(int systemUiFlag) {
+            View decorView = mWindow.getDecorView();
+            decorView.setSystemUiVisibility(
+                    decorView.getSystemUiVisibility()
+                            & ~systemUiFlag);
         }
     }
 }

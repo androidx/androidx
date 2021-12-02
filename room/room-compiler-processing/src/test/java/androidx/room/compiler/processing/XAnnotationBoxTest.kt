@@ -17,6 +17,8 @@
 package androidx.room.compiler.processing
 
 import androidx.room.compiler.processing.testcode.JavaAnnotationWithDefaults
+import androidx.room.compiler.processing.testcode.JavaAnnotationWithEnum
+import androidx.room.compiler.processing.testcode.JavaAnnotationWithEnumArray
 import androidx.room.compiler.processing.testcode.JavaAnnotationWithPrimitiveArray
 import androidx.room.compiler.processing.testcode.JavaAnnotationWithTypeReferences
 import androidx.room.compiler.processing.testcode.JavaEnum
@@ -28,9 +30,8 @@ import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.XTestInvocation
 import androidx.room.compiler.processing.util.compileFiles
 import androidx.room.compiler.processing.util.getField
-import androidx.room.compiler.processing.util.getMethod
+import androidx.room.compiler.processing.util.getMethodByJvmName
 import androidx.room.compiler.processing.util.getParameter
-import androidx.room.compiler.processing.util.getSystemClasspathFiles
 import androidx.room.compiler.processing.util.runProcessorTest
 import androidx.room.compiler.processing.util.runProcessorTestWithoutKsp
 import androidx.room.compiler.processing.util.typeName
@@ -70,7 +71,7 @@ class XAnnotationBoxTest(
             runProcessorTest(
                 sources = newSources,
                 handler = handler,
-                classpath = listOf(compiled) + getSystemClasspathFiles()
+                classpath = compiled
             )
         } else {
             runProcessorTest(
@@ -118,6 +119,13 @@ class XAnnotationBoxTest(
                 typeList = {String.class, Integer.class},
                 singleType = Long.class,
                 intMethod = 3,
+                doubleMethodWithDefault = 3.0,
+                floatMethodWithDefault = 3f,
+                charMethodWithDefault = '3',
+                byteMethodWithDefault = 3,
+                shortMethodWithDefault = 3,
+                longMethodWithDefault = 3L,
+                boolMethodWithDefault = false,
                 otherAnnotationArray = {
                     @OtherAnnotation(
                         value = "other list 1"
@@ -149,6 +157,13 @@ class XAnnotationBoxTest(
                 )
 
                 assertThat(annotation.value.intMethod).isEqualTo(3)
+                assertThat(annotation.value.doubleMethodWithDefault).isEqualTo(3.0)
+                assertThat(annotation.value.floatMethodWithDefault).isEqualTo(3f)
+                assertThat(annotation.value.charMethodWithDefault).isEqualTo('3')
+                assertThat(annotation.value.byteMethodWithDefault).isEqualTo(3)
+                assertThat(annotation.value.shortMethodWithDefault).isEqualTo(3)
+                assertThat(annotation.value.longMethodWithDefault).isEqualTo(3)
+                assertThat(annotation.value.boolMethodWithDefault).isEqualTo(false)
                 annotation.getAsAnnotationBox<OtherAnnotation>("singleOtherAnnotation")
                     .let { other ->
                         assertThat(other.value.value).isEqualTo("other single")
@@ -200,6 +215,13 @@ class XAnnotationBoxTest(
                 typeList = [String::class, Int::class],
                 singleType = Long::class,
                 intMethod = 3,
+                doubleMethodWithDefault = 3.0,
+                floatMethodWithDefault = 3f,
+                charMethodWithDefault = '3',
+                byteMethodWithDefault = 3,
+                shortMethodWithDefault = 3,
+                longMethodWithDefault = 3L,
+                boolMethodWithDefault = false,
                 otherAnnotationArray = [
                     OtherAnnotation(
                         value = "other list 1"
@@ -234,21 +256,23 @@ class XAnnotationBoxTest(
                 )
 
                 assertThat(annotation.value.intMethod).isEqualTo(3)
+                assertThat(annotation.value.doubleMethodWithDefault).isEqualTo(3.0)
+                assertThat(annotation.value.floatMethodWithDefault).isEqualTo(3f)
+                assertThat(annotation.value.charMethodWithDefault).isEqualTo('3')
+                assertThat(annotation.value.byteMethodWithDefault).isEqualTo(3)
+                assertThat(annotation.value.shortMethodWithDefault).isEqualTo(3)
+                assertThat(annotation.value.longMethodWithDefault).isEqualTo(3)
+                assertThat(annotation.value.boolMethodWithDefault).isEqualTo(false)
                 annotation.getAsAnnotationBox<OtherAnnotation>("singleOtherAnnotation")
                     .let { other ->
                         assertThat(other.value.value).isEqualTo("other single")
                     }
-                if (invocation.isKsp) {
-                    // TODO fix when KSP support them
-                    //  https://github.com/google/ksp/issues/356
-                } else {
-                    annotation.getAsAnnotationBoxArray<OtherAnnotation>("otherAnnotationArray")
-                        .let { boxArray ->
-                            assertThat(boxArray).hasLength(2)
-                            assertThat(boxArray[0].value.value).isEqualTo("other list 1")
-                            assertThat(boxArray[1].value.value).isEqualTo("other list 2")
-                        }
-                }
+                annotation.getAsAnnotationBoxArray<OtherAnnotation>("otherAnnotationArray")
+                    .let { boxArray ->
+                        assertThat(boxArray).hasLength(2)
+                        assertThat(boxArray[0].value.value).isEqualTo("other list 1")
+                        assertThat(boxArray[1].value.value).isEqualTo("other list 2")
+                    }
             }
         }
     }
@@ -310,31 +334,31 @@ class XAnnotationBoxTest(
             val subject = invocation.processingEnv.requireTypeElement("Subject")
 
             subject.getField("prop1").assertHasSuppressWithValue("onProp1")
-            subject.getMethod("getProp1").assertDoesNotHaveAnnotation()
-            subject.getMethod("setProp1").assertDoesNotHaveAnnotation()
-            subject.getMethod("setProp1").parameters.first().assertDoesNotHaveAnnotation()
+            subject.getMethodByJvmName("getProp1").assertDoesNotHaveAnnotation()
+            subject.getMethodByJvmName("setProp1").assertDoesNotHaveAnnotation()
+            subject.getMethodByJvmName("setProp1").parameters.first().assertDoesNotHaveAnnotation()
 
             subject.getField("prop2").assertHasSuppressWithValue("onField2")
-            subject.getMethod("getProp2").assertHasSuppressWithValue("onGetter2")
-            subject.getMethod("setProp2").assertHasSuppressWithValue("onSetter2")
-            subject.getMethod("setProp2").parameters.first().assertHasSuppressWithValue(
+            subject.getMethodByJvmName("getProp2").assertHasSuppressWithValue("onGetter2")
+            subject.getMethodByJvmName("setProp2").assertHasSuppressWithValue("onSetter2")
+            subject.getMethodByJvmName("setProp2").parameters.first().assertHasSuppressWithValue(
                 "onSetterParam2"
             )
 
-            subject.getMethod("getProp3").assertHasSuppressWithValue("onGetter3")
-            subject.getMethod("setProp3").assertHasSuppressWithValue("onSetter3")
-            subject.getMethod("setProp3").parameters.first().assertHasSuppressWithValue(
+            subject.getMethodByJvmName("getProp3").assertHasSuppressWithValue("onGetter3")
+            subject.getMethodByJvmName("setProp3").assertHasSuppressWithValue("onSetter3")
+            subject.getMethodByJvmName("setProp3").parameters.first().assertHasSuppressWithValue(
                 "onSetterParam3"
             )
 
             assertThat(
-                subject.getMethod("getProp3").getOtherAnnotationValue()
+                subject.getMethodByJvmName("getProp3").getOtherAnnotationValue()
             ).isEqualTo("_onGetter3")
             assertThat(
-                subject.getMethod("setProp3").getOtherAnnotationValue()
+                subject.getMethodByJvmName("setProp3").getOtherAnnotationValue()
             ).isEqualTo("_onSetter3")
             val otherAnnotationValue =
-                subject.getMethod("setProp3").parameters.first().getOtherAnnotationValue()
+                subject.getMethodByJvmName("setProp3").parameters.first().getOtherAnnotationValue()
             assertThat(
                 otherAnnotationValue
             ).isEqualTo("_onSetterParam3")
@@ -360,11 +384,11 @@ class XAnnotationBoxTest(
         )
         runTest(sources = listOf(src)) { invocation ->
             val subject = invocation.processingEnv.requireTypeElement("Subject")
-            subject.getMethod("noAnnotations").let { method ->
+            subject.getMethodByJvmName("noAnnotations").let { method ->
                 method.assertDoesNotHaveAnnotation()
                 method.getParameter("x").assertDoesNotHaveAnnotation()
             }
-            subject.getMethod("methodAnnotation").let { method ->
+            subject.getMethodByJvmName("methodAnnotation").let { method ->
                 method.assertHasSuppressWithValue("onMethod")
                 method.getParameter("annotated").assertHasSuppressWithValue("onParam")
                 method.getParameter("notAnnotated").assertDoesNotHaveAnnotation()
@@ -394,8 +418,8 @@ class XAnnotationBoxTest(
             assertThat(subject.getConstructors()).hasSize(1)
             val constructor = subject.getConstructors().single()
             constructor.getParameter("x").assertHasSuppressWithValue("onConstructorParam")
-            subject.getMethod("getX").assertHasSuppressWithValue("onGetter")
-            subject.getMethod("setX").assertHasSuppressWithValue("onSetter")
+            subject.getMethodByJvmName("getX").assertHasSuppressWithValue("onGetter")
+            subject.getMethodByJvmName("setX").assertHasSuppressWithValue("onSetter")
             subject.getField("x").assertHasSuppressWithValue("onField")
         }
     }
@@ -473,13 +497,21 @@ class XAnnotationBoxTest(
 
     @Test
     fun javaPrimitiveArray() {
-        // TODO: expand this test for other primitive types: 179081610
         val javaSrc = Source.java(
             "JavaSubject.java",
             """
             import androidx.room.compiler.processing.testcode.*;
             class JavaSubject {
-                @JavaAnnotationWithPrimitiveArray(intArray = {1, 2, 3})
+                @JavaAnnotationWithPrimitiveArray(
+                    intArray = {1, 2, 3},
+                    doubleArray = {1.0,2.0,3.0},
+                    floatArray = {1f,2f,3f},
+                    charArray = {'1','2','3'},
+                    byteArray = {1,2,3},
+                    shortArray = {1,2,3},
+                    longArray = {1,2,3},
+                    booleanArray = {true, false}
+                )
                 Object annotated1;
             }
             """.trimIndent()
@@ -489,7 +521,16 @@ class XAnnotationBoxTest(
             """
             import androidx.room.compiler.processing.testcode.*;
             class KotlinSubject {
-                @JavaAnnotationWithPrimitiveArray(intArray = [1, 2, 3])
+                @JavaAnnotationWithPrimitiveArray(
+                    intArray = [1, 2, 3],
+                    doubleArray = [1.0,2.0,3.0],
+                    floatArray = [1f,2f,3f],
+                    charArray = ['1','2','3'],
+                    byteArray = [1,2,3],
+                    shortArray = [1,2,3],
+                    longArray = [1,2,3],
+                    booleanArray = [true, false],
+                )
                 val annotated1:Any = TODO()
             }
             """.trimIndent()
@@ -507,6 +548,121 @@ class XAnnotationBoxTest(
                     annotation?.value?.intArray
                 ).isEqualTo(
                     intArrayOf(1, 2, 3)
+                )
+                assertThat(
+                    annotation?.value?.doubleArray
+                ).isEqualTo(
+                    doubleArrayOf(1.0, 2.0, 3.0)
+                )
+                assertThat(
+                    annotation?.value?.floatArray
+                ).isEqualTo(
+                    floatArrayOf(1f, 2f, 3f)
+                )
+                assertThat(
+                    annotation?.value?.charArray
+                ).isEqualTo(
+                    charArrayOf('1', '2', '3')
+                )
+                assertThat(
+                    annotation?.value?.byteArray
+                ).isEqualTo(
+                    byteArrayOf(1, 2, 3)
+                )
+                assertThat(
+                    annotation?.value?.shortArray
+                ).isEqualTo(
+                    shortArrayOf(1, 2, 3)
+                )
+                assertThat(
+                    annotation?.value?.longArray
+                ).isEqualTo(
+                    longArrayOf(1, 2, 3)
+                )
+                assertThat(
+                    annotation?.value?.booleanArray
+                ).isEqualTo(
+                    booleanArrayOf(true, false)
+                )
+            }
+        }
+    }
+
+    @Test
+    fun javaEnum() {
+        val javaSrc = Source.java(
+            "JavaSubject.java",
+            """
+            import androidx.room.compiler.processing.testcode.*;
+            class JavaSubject {
+                @JavaAnnotationWithEnum(JavaEnum.VAL1)
+                Object annotated1;
+            }
+            """.trimIndent()
+        )
+        val kotlinSrc = Source.kotlin(
+            "KotlinSubject.kt",
+            """
+            import androidx.room.compiler.processing.testcode.*;
+            class KotlinSubject {
+                @JavaAnnotationWithEnum(JavaEnum.VAL1)
+                val annotated1: Any = TODO()
+            }
+            """.trimIndent()
+        )
+        runTest(
+            sources = listOf(javaSrc, kotlinSrc)
+        ) { invocation ->
+            arrayOf("JavaSubject", "KotlinSubject").map {
+                invocation.processingEnv.requireTypeElement(it)
+            }.forEach { subject ->
+                val annotation = subject.getField("annotated1").getAnnotation(
+                    JavaAnnotationWithEnum::class
+                )
+                assertThat(
+                    annotation?.value?.value
+                ).isEqualTo(
+                    JavaEnum.VAL1
+                )
+            }
+        }
+    }
+
+    @Test
+    fun javaEnumArray() {
+        val javaSrc = Source.java(
+            "JavaSubject.java",
+            """
+            import androidx.room.compiler.processing.testcode.*;
+            class JavaSubject {
+                @JavaAnnotationWithEnumArray(enumArray = {JavaEnum.VAL1, JavaEnum.VAL2})
+                Object annotated1;
+            }
+            """.trimIndent()
+        )
+        val kotlinSrc = Source.kotlin(
+            "KotlinSubject.kt",
+            """
+            import androidx.room.compiler.processing.testcode.*;
+            class KotlinSubject {
+                @JavaAnnotationWithEnumArray(enumArray = [JavaEnum.VAL1, JavaEnum.VAL2])
+                val annotated1:Any = TODO()
+            }
+            """.trimIndent()
+        )
+        runTest(
+            sources = listOf(javaSrc, kotlinSrc)
+        ) { invocation ->
+            arrayOf("JavaSubject", "KotlinSubject").map {
+                invocation.processingEnv.requireTypeElement(it)
+            }.forEach { subject ->
+                val annotation = subject.getField("annotated1").getAnnotation(
+                    JavaAnnotationWithEnumArray::class
+                )
+                assertThat(
+                    annotation?.value?.enumArray
+                ).isEqualTo(
+                    arrayOf(JavaEnum.VAL1, JavaEnum.VAL2)
                 )
             }
         }
@@ -544,26 +700,21 @@ class XAnnotationBoxTest(
             listOf("JavaSubject", "KotlinSubject")
                 .map(invocation.processingEnv::requireTypeElement)
                 .forEach { subject ->
-                    if (invocation.isKsp && preCompiled) {
-                        // TODO remove once https://github.com/google/ksp/issues/356 is fixed
-                        // KSP cannot read array of annotation values in compiled code
-                    } else {
-                        val annotations = subject.getAnnotations(
+                    val annotations = subject.getAnnotations(
+                        RepeatableJavaAnnotation::class
+                    )
+                    assertThat(
+                        subject.hasAnnotation(
                             RepeatableJavaAnnotation::class
                         )
-                        assertThat(
-                            subject.hasAnnotation(
-                                RepeatableJavaAnnotation::class
-                            )
-                        ).isTrue()
-                        val values = annotations
-                            .map {
-                                it.value.value
-                            }
-                        assertWithMessage(subject.qualifiedName)
-                            .that(values)
-                            .containsExactly("x", "y", "z")
-                    }
+                    ).isTrue()
+                    val values = annotations
+                        .map {
+                            it.value.value
+                        }
+                    assertWithMessage(subject.qualifiedName)
+                        .that(values)
+                        .containsExactly("x", "y", "z")
                 }
         }
     }
@@ -592,26 +743,21 @@ class XAnnotationBoxTest(
             listOf("JavaSubject", "KotlinSubject")
                 .map(invocation.processingEnv::requireTypeElement)
                 .forEach { subject ->
-                    if (invocation.isKsp && preCompiled) {
-                        // TODO remove once https://github.com/google/ksp/issues/356 is fixed
-                        // KSP cannot read array of annotation values in compiled code
-                    } else {
-                        val annotations = subject.getAnnotations(
+                    val annotations = subject.getAnnotations(
+                        RepeatableJavaAnnotation::class
+                    )
+                    assertThat(
+                        subject.hasAnnotation(
                             RepeatableJavaAnnotation::class
                         )
-                        assertThat(
-                            subject.hasAnnotation(
-                                RepeatableJavaAnnotation::class
-                            )
-                        ).isTrue()
-                        val values = annotations
-                            .map {
-                                it.value.value
-                            }
-                        assertWithMessage(subject.qualifiedName)
-                            .that(values)
-                            .containsExactly("x")
-                    }
+                    ).isTrue()
+                    val values = annotations
+                        .map {
+                            it.value.value
+                        }
+                    assertWithMessage(subject.qualifiedName)
+                        .that(values)
+                        .containsExactly("x")
                 }
         }
     }
@@ -625,6 +771,9 @@ class XAnnotationBoxTest(
         assertWithMessage("has suppress annotation $this")
             .that(this.hasAnnotation(TestSuppressWarnings::class))
             .isTrue()
+        assertWithMessage("has suppress annotation $this")
+            .that(this.hasAnyAnnotation(TestSuppressWarnings::class))
+            .isTrue()
         assertWithMessage("$this")
             .that(this.hasAnnotationWithPackage(TestSuppressWarnings::class.java.packageName))
             .isTrue()
@@ -636,6 +785,9 @@ class XAnnotationBoxTest(
     private fun XAnnotated.assertDoesNotHaveAnnotation() {
         assertWithMessage("$this")
             .that(this.hasAnnotation(TestSuppressWarnings::class))
+            .isFalse()
+        assertWithMessage("$this")
+            .that(this.hasAnyAnnotation(TestSuppressWarnings::class))
             .isFalse()
         assertWithMessage("$this")
             .that(this.hasAnnotationWithPackage(TestSuppressWarnings::class.java.packageName))

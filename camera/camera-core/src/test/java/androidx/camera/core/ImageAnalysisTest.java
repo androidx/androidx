@@ -21,12 +21,11 @@ import static com.google.common.truth.Truth.assertThat;
 import static org.robolectric.Shadows.shadowOf;
 
 import android.content.Context;
-import android.graphics.Rect;
 import android.os.Build;
 import android.os.Handler;
 import android.os.HandlerThread;
+import android.os.SystemClock;
 import android.util.Pair;
-import android.util.Rational;
 import android.view.Surface;
 
 import androidx.camera.core.impl.CameraFactory;
@@ -35,6 +34,7 @@ import androidx.camera.core.impl.TagBundle;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.internal.CameraUseCaseAdapter;
 import androidx.camera.testing.CameraUtil;
+import androidx.camera.testing.CameraXUtil;
 import androidx.camera.testing.fakes.FakeAppConfig;
 import androidx.camera.testing.fakes.FakeCamera;
 import androidx.camera.testing.fakes.FakeCameraFactory;
@@ -54,6 +54,7 @@ import org.robolectric.annotation.internal.DoNotInstrument;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
@@ -114,44 +115,19 @@ public class ImageAnalysisTest {
                 FakeAppConfig.create()).setCameraFactoryProvider(cameraFactoryProvider).build();
 
         Context context = ApplicationProvider.getApplicationContext();
-        CameraX.initialize(context, cameraXConfig).get();
+        CameraXUtil.initialize(context, cameraXConfig).get();
     }
 
     @After
     public void tearDown() throws ExecutionException, InterruptedException, TimeoutException {
         mImageProxiesReceived.clear();
-        CameraX.shutdown().get(10000, TimeUnit.MILLISECONDS);
+        CameraXUtil.shutdown().get(10000, TimeUnit.MILLISECONDS);
         if (mBackgroundThread != null) {
             mBackgroundThread.quitSafely();
         }
         if (mCallbackThread != null) {
             mCallbackThread.quitSafely();
         }
-    }
-
-    @Test
-    public void bindViewPortWithFillStyle_returnsSameViewPortRectAndCropRect()
-            throws InterruptedException, CameraUseCaseAdapter.CameraException {
-        // Arrange.
-        setUpImageAnalysisWithStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST,
-                new ViewPort.Builder(new Rational(1, 1), Surface.ROTATION_0)
-                        .build());
-
-        // Act.
-        mFakeImageReaderProxy.triggerImageAvailable(mTagBundle, TIMESTAMP_1);
-        flushHandler(mBackgroundHandler);
-        flushHandler(mCallbackHandler);
-
-        // Assert: both
-        ImageProxy imageProxyReceived = Iterables.getOnlyElement(mImageProxiesReceived);
-        // The expected value is based on fitting the 1:1 view port into a rect with the size of
-        // the ImageReader.
-        int expectedPadding =
-                (mFakeImageReaderProxy.getWidth() - mFakeImageReaderProxy.getHeight()) / 2;
-        assertThat(imageProxyReceived.getCropRect())
-                .isEqualTo(new Rect(expectedPadding, 0,
-                        mFakeImageReaderProxy.getWidth() - expectedPadding,
-                        mFakeImageReaderProxy.getHeight()));
     }
 
     @Test
@@ -282,6 +258,64 @@ public class ImageAnalysisTest {
                 .containsExactly(TIMESTAMP_1, TIMESTAMP_2, TIMESTAMP_3);
     }
 
+    /*
+     *  Verify that ImageAnalysis#setAnalyzer won't cause any image leakage.
+     */
+    @Test
+    public void analyzerSetMultipleTimesInKeepOnlyLatestMode() throws InterruptedException,
+            CameraUseCaseAdapter.CameraException {
+        setUpImageAnalysisWithStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST);
+
+        assertCanReceiveAnalysisImage(mImageAnalysis);
+
+        List<ImageProxy> postedImageProxies = new ArrayList<>();
+        ImageAnalysis.Analyzer slowImageAnalyzer = image -> {
+            // image left as unclosed until we closed all images in postedImageProxies.
+            postedImageProxies.add(image);
+        };
+
+        mImageAnalysis.setAnalyzer(CameraXExecutors.directExecutor(), slowImageAnalyzer);
+        triggerNextImage();  // +1 unclosed image (mPostedImage)
+        triggerNextImage();  // +1 unclosed image (mCachedImage) if the image leakage happens.
+
+        // If setAnalysis does thing inappropriately(e.g, clear mCachedImage reference without
+        // closing it), previous unclosed image(mCachedImage) won't be closed.
+        mImageAnalysis.setAnalyzer(CameraXExecutors.directExecutor(), slowImageAnalyzer);
+        triggerNextImage();  //+1 unclosed image (mCachedImage) if the image leakage happens.
+
+        mImageAnalysis.setAnalyzer(CameraXExecutors.directExecutor(), slowImageAnalyzer);
+        triggerNextImage(); // +1 unclosed image (mCachedImage) if the image leakage happens.
+
+        mImageAnalysis.setAnalyzer(CameraXExecutors.directExecutor(), slowImageAnalyzer);
+        triggerNextImage(); // +1 unclosed image (mCachedImage) if the image leakage happens.
+                                  // If unclosed image reaches 5 (MaxImages == 4), it will throw
+                                  // IllegalStateException(MaxImages) and no image can be received.
+
+        // Closed all posted ImageProxies to ensure the analyzer can receive ImageProxy normally.
+        for (ImageProxy imagePendingProxy : postedImageProxies) {
+            imagePendingProxy.close();
+        }
+
+        // If image leakage happens, 4 unclosed image will never be closed. It means the analyzer
+        // won't be able to receive images anymore.
+        assertCanReceiveAnalysisImage(mImageAnalysis);
+    }
+
+    void assertCanReceiveAnalysisImage(ImageAnalysis imageAnalysis) throws InterruptedException {
+        CountDownLatch latch = new CountDownLatch(1);
+        imageAnalysis.setAnalyzer(CameraXExecutors.directExecutor(), image -> {
+            image.close();
+            latch.countDown();
+        });
+        triggerNextImage();
+        assertThat(latch.await(5, TimeUnit.SECONDS)).isTrue();
+    }
+
+    void triggerNextImage() throws InterruptedException {
+        mFakeImageReaderProxy.triggerImageAvailable(mTagBundle, SystemClock.elapsedRealtime());
+        flushHandler(mBackgroundHandler);
+    }
+
     private void setUpImageAnalysisWithStrategy(
             @ImageAnalysis.BackpressureStrategy int backpressureStrategy) throws
             CameraUseCaseAdapter.CameraException {
@@ -303,6 +337,7 @@ public class ImageAnalysisTest {
                             return mFakeImageReaderProxy;
                         })
                 .setSessionOptionUnpacker((config, builder) -> { })
+                .setOnePixelShiftEnabled(false)
                 .build();
 
         mImageAnalysis.setAnalyzer(CameraXExecutors.newHandlerExecutor(mCallbackHandler),

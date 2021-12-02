@@ -36,6 +36,8 @@ object ProcessorErrors {
         return this.trimIndent().replace("\n", " ")
     }
 
+    val ISSUE_TRACKER_LINK = "https://issuetracker.google.com/issues/new?component=413107"
+
     val MISSING_QUERY_ANNOTATION = "Query methods must be annotated with ${Query::class.java}"
     val MISSING_INSERT_ANNOTATION = "Insertion methods must be annotated with ${Insert::class.java}"
     val MISSING_DELETE_ANNOTATION = "Deletion methods must be annotated with ${Delete::class.java}"
@@ -66,6 +68,12 @@ object ProcessorErrors {
         " autoGenerate, its type must be int, Integer, long or Long."
     val AUTO_INCREMENT_EMBEDDED_HAS_MULTIPLE_FIELDS = "When @PrimaryKey annotation is used on a" +
         " field annotated with @Embedded, the embedded class should have only 1 field."
+    val INVALID_INDEX_ORDERS_SIZE = "The number of entries in @Index#orders() should be " +
+        "equal to the amount of columns defined in the @Index value."
+
+    val DO_NOT_USE_GENERIC_IMMUTABLE_MULTIMAP = "Do not use ImmutableMultimap as a type (as with" +
+        " Multimap itself). Instead use the subtypes such as ImmutableSetMultimap or " +
+        "ImmutableListMultimap."
 
     fun multiplePrimaryKeyAnnotations(primaryKeys: List<String>): String {
         return """
@@ -128,11 +136,38 @@ object ProcessorErrors {
     fun cannotFindQueryResultAdapter(returnTypeName: TypeName) = "Not sure how to convert a " +
         "Cursor to this method's return type ($returnTypeName)."
 
+    fun classMustImplementEqualsAndHashCode(keyType: String) = "The key" +
+        " of the provided method's multimap return type must implement equals() and " +
+        "hashCode(). Key type is: $keyType."
+
     val INSERTION_DOES_NOT_HAVE_ANY_PARAMETERS_TO_INSERT = "Method annotated with" +
         " @Insert but does not have any parameters to insert."
 
     val DELETION_MISSING_PARAMS = "Method annotated with" +
         " @Delete but does not have any parameters to delete."
+
+    fun cannotMapInfoSpecifiedColumn(column: String, columnsInQuery: List<String>) =
+        "Column(s) specified in the provided @MapInfo annotation must be present in the query. " +
+            "Provided: $column. Columns Found: ${columnsInQuery.joinToString(", ")}"
+
+    val MAP_INFO_MUST_HAVE_AT_LEAST_ONE_COLUMN_PROVIDED = "To use the @MapInfo annotation, you " +
+        "must provide either the key column name, value column name, or both."
+
+    fun keyMayNeedMapInfo(keyArg: TypeName): String {
+        return """
+            Looks like you may need to use @MapInfo to clarify the 'keyColumnName' needed for
+            the return type of a method. Type argument that needs
+            @MapInfo: $keyArg
+            """.trim()
+    }
+
+    fun valueMayNeedMapInfo(valueArg: TypeName): String {
+        return """
+            Looks like you may need to use @MapInfo to clarify the 'valueColumnName' needed for
+            the return type of a method. Type argument that needs
+            @MapInfo: $valueArg
+            """.trim()
+    }
 
     val CANNOT_FIND_DELETE_RESULT_ADAPTER = "Not sure how to handle delete method's " +
         "return type. Currently the supported return types are void, int or Int."
@@ -208,6 +243,10 @@ object ProcessorErrors {
         return MISSING_PARAMETER_FOR_BIND.format(bindVarName.joinToString(", "))
     }
 
+    fun valueCollectionMustBeListOrSet(mapValueTypeName: TypeName): String {
+        return "Multimap 'value' collection type must be a List or Set. Found $mapValueTypeName."
+    }
+
     private val UNUSED_QUERY_METHOD_PARAMETER = "Unused parameter%s: %s"
     fun unusedQueryMethodParameter(unusedParams: List<String>): String {
         return UNUSED_QUERY_METHOD_PARAMETER.format(
@@ -250,16 +289,20 @@ object ProcessorErrors {
     }
 
     fun cursorPojoMismatch(
-        pojoTypeName: TypeName,
+        pojoTypeNames: List<TypeName>,
         unusedColumns: List<String>,
         allColumns: List<String>,
-        unusedFields: List<Field>,
-        allFields: List<Field>
+        pojoUnusedFields: Map<TypeName, List<Field>>,
     ): String {
         val unusedColumnsWarning = if (unusedColumns.isNotEmpty()) {
+            val pojoNames = if (pojoTypeNames.size > 1) {
+                "any of [${pojoTypeNames.joinToString(", ")}]"
+            } else {
+                pojoTypeNames.single().toString()
+            }
             """
                 The query returns some columns [${unusedColumns.joinToString(", ")}] which are not
-                used by $pojoTypeName. You can use @ColumnInfo annotation on the fields to specify
+                used by $pojoNames. You can use @ColumnInfo annotation on the fields to specify
                 the mapping.
                 You can annotate the method with @RewriteQueriesToDropUnusedColumns to direct Room
                 to rewrite your query to avoid fetching unused columns.
@@ -267,24 +310,20 @@ object ProcessorErrors {
         } else {
             ""
         }
-        val unusedFieldsWarning = if (unusedFields.isNotEmpty()) {
+        val unusedFieldsWarning = pojoUnusedFields.map { (pojoName, unusedFields) ->
             """
-                $pojoTypeName has some fields
-                [${unusedFields.joinToString(", ") { it.columnName }}] which are not returned by the
-                query. If they are not supposed to be read from the result, you can mark them with
-                @Ignore annotation.
+                $pojoName has some fields
+                [${unusedFields.joinToString(", ") { it.columnName }}] which are not returned by
+                the query. If they are not supposed to be read from the result, you can mark them
+                with @Ignore annotation.
             """.trim()
-        } else {
-            ""
         }
-
         return """
             $unusedColumnsWarning
-            $unusedFieldsWarning
+            ${unusedFieldsWarning.joinToString(separator = " ")}
             You can suppress this warning by annotating the method with
             @SuppressWarnings(RoomWarnings.CURSOR_MISMATCH).
             Columns returned by the query: ${allColumns.joinToString(", ")}.
-            Fields in $pojoTypeName: ${allFields.joinToString(", ") { it.columnName }}.
             """.trim()
     }
 
@@ -414,8 +453,6 @@ object ProcessorErrors {
             "create an index that covers this column."
 
     val RELATION_IN_ENTITY = "Entities cannot have relations."
-
-    val CANNOT_FIND_TYPE = "Cannot find type."
 
     fun relationAffinityMismatch(
         parentColumn: String,
@@ -575,6 +612,9 @@ object ProcessorErrors {
     val MISSING_ROOM_RXJAVA3_ARTIFACT = "To use RxJava3 features, you must add `rxjava3`" +
         " artifact from Room as a dependency. androidx.room:room-rxjava3:<version>"
 
+    val MISSING_ROOM_PAGING_ARTIFACT = "To use PagingSource, you must add `room-paging`" +
+        " artifact from Room as a dependency. androidx.room:room-paging:<version>"
+
     val MISSING_ROOM_COROUTINE_ARTIFACT = "To use Coroutine features, you must add `ktx`" +
         " artifact from Room as a dependency. androidx.room:room-ktx:<version>"
 
@@ -610,6 +650,9 @@ object ProcessorErrors {
 
     val PAGING_SPECIFY_PAGING_SOURCE_TYPE = "For now, Room only supports PagingSource with Key of" +
         " type Int."
+
+    val PAGING_SPECIFY_PAGING_SOURCE_VALUE_TYPE = "For now, Room only supports PagingSource with" +
+        " Value that is not of Collection type."
 
     fun primaryKeyNull(field: String): String {
         return "You must annotate primary keys with @NonNull. \"$field\" is nullable. SQLite " +

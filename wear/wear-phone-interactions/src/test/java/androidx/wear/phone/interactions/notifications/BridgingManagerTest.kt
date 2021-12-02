@@ -19,14 +19,13 @@ package androidx.wear.phone.interactions.notifications
 import android.content.Context
 import android.content.pm.PackageManager
 import androidx.wear.phone.interactions.WearPhoneInteractionsTestRunner
-import org.mockito.Mockito.mock
-import org.mockito.Mockito.`when`
-import org.junit.Assert
+import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.Mockito.`when`
+import org.mockito.Mockito.mock
 import org.robolectric.annotation.internal.DoNotInstrument
 import java.util.Arrays
-import java.util.HashSet
 
 /** Unit tests for [BridgingManager].  */
 @RunWith(WearPhoneInteractionsTestRunner::class)
@@ -44,75 +43,103 @@ public class BridgingManagerTest {
 
     @Test
     public fun disableBridging() {
-        val builder = BridgingConfig.Builder(
+        val bridgingConfig = BridgingConfig.Builder(
             mContext, false
-        )
+        ).build()
 
-        Assert.assertEquals(BridgingConfig(PACKAGE_NAME, false, HashSet()), builder.build())
+        assertThat(bridgingConfig).isEqualTo(BridgingConfig(PACKAGE_NAME, false, HashSet()))
+
+        // Test that conversion to and from bundle works as expected.
+        assertThat(
+            BridgingConfig.fromBundle(bridgingConfig.toBundle(mContext))
+        ).isEqualTo(bridgingConfig)
     }
 
     @Test
     public fun enableBridging() {
-        val builder = BridgingConfig.Builder(
+        val bridgingConfig = BridgingConfig.Builder(
             mContext, true
-        )
+        ).build()
 
-        Assert.assertEquals(BridgingConfig(PACKAGE_NAME, true, HashSet()), builder.build())
+        assertThat(bridgingConfig).isEqualTo(BridgingConfig(PACKAGE_NAME, true, HashSet()))
+
+        // Test that conversion to and from bundle works as expected.
+        assertThat(
+            BridgingConfig.fromBundle(bridgingConfig.toBundle(mContext))
+        ).isEqualTo(bridgingConfig)
     }
 
     @Test
     public fun bridgingEnableByDefault() {
-        val builder = BridgingConfig.Builder(
+        val bridgingConfig = BridgingConfig.Builder(
             mContext, true
-        )
+        ).build()
 
-        Assert.assertTrue(BridgingConfig(PACKAGE_NAME, true, HashSet()).equals(builder.build()))
+        assertThat(bridgingConfig).isEqualTo(BridgingConfig(PACKAGE_NAME, true, HashSet()))
+
+        // Test that conversion to and from bundle works as expected.
+        assertThat(
+            BridgingConfig.fromBundle(bridgingConfig.toBundle(mContext))
+        ).isEqualTo(bridgingConfig)
     }
 
     @Test
     public fun addTagsWithoutSettingBridging() {
-        val builder = BridgingConfig.Builder(
+        val bridgingConfig = BridgingConfig.Builder(
             mContext, true
-        )
-        builder.addExcludedTag("foo")
+        ).addExcludedTag("foo").build()
 
-        Assert.assertEquals(
-            BridgingConfig(PACKAGE_NAME, true, HashSet(listOf("foo"))),
-            builder.build()
-        )
+        assertThat(
+            bridgingConfig
+        ).isEqualTo(BridgingConfig(PACKAGE_NAME, true, HashSet(listOf("foo"))))
+
+        // Test that conversion to and from bundle works as expected.
+        assertThat(
+            BridgingConfig.fromBundle(bridgingConfig.toBundle(mContext))
+        ).isEqualTo(bridgingConfig)
     }
 
     @Test
     public fun disableBridgingWithTagsInSeparateCalls() {
-        val builder = BridgingConfig.Builder(
+        val bridgingConfig = BridgingConfig.Builder(
             mContext, false
         )
             .addExcludedTag("foo")
             .addExcludedTag("bar")
             .addExcludedTag("foo")
+            .build()
 
-        Assert.assertEquals(
-            BridgingConfig(PACKAGE_NAME, false, HashSet(Arrays.asList("foo", "bar"))),
-            builder.build()
-        )
+        assertThat(
+            bridgingConfig
+        ).isEqualTo(BridgingConfig(PACKAGE_NAME, false, HashSet(Arrays.asList("foo", "bar"))))
+
+        // Test that conversion to and from bundle works as expected.
+        assertThat(
+            BridgingConfig.fromBundle(bridgingConfig.toBundle(mContext))
+        ).isEqualTo(bridgingConfig)
     }
 
     @Test
     public fun disableBridgingWithTagsInOneCall() {
-        val builder = BridgingConfig.Builder(
+        val bridgingConfig = BridgingConfig.Builder(
             mContext, false
         )
             .addExcludedTags(Arrays.asList("foo", "bar", "foo"))
+            .build()
 
-        Assert.assertEquals(
-            BridgingConfig(PACKAGE_NAME, false, HashSet(Arrays.asList("foo", "bar"))),
-            builder.build()
-        )
+        assertThat(
+            bridgingConfig
+        ).isEqualTo(BridgingConfig(PACKAGE_NAME, false, HashSet(Arrays.asList("foo", "bar"))))
+
+        // Test that conversion to and from bundle works as expected.
+        assertThat(
+            BridgingConfig.fromBundle(bridgingConfig.toBundle(mContext))
+        ).isEqualTo(bridgingConfig)
     }
 
     @Test
     public fun disableBridgingWithTagsInMixOfCalls() {
-        val builder = BridgingConfig.Builder(
+        val bridgingConfig = BridgingConfig.Builder(
             mContext, false
         )
             .addExcludedTag("123")
@@ -120,13 +147,20 @@ public class BridgingManagerTest {
             .addExcludedTags(Arrays.asList("foo", "bar", "abc"))
             .addExcludedTag("aaa")
             .addExcludedTag("foo")
+            .build()
 
-        Assert.assertEquals(
+        assertThat(
+            bridgingConfig
+        ).isEqualTo(
             BridgingConfig(
                 PACKAGE_NAME, false, HashSet(Arrays.asList("foo", "bar", "123", "aaa", "abc"))
-            ),
-            builder.build()
+            )
         )
+
+        // Test that conversion to and from bundle works as expected.
+        assertThat(
+            BridgingConfig.fromBundle(bridgingConfig.toBundle(mContext))
+        ).isEqualTo(bridgingConfig)
     }
 
     private companion object {

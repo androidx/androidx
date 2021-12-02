@@ -352,12 +352,6 @@ public final class LayoutElementBuilders {
             return mImpl.getValue().getNumber();
         }
 
-        /** Returns a new {@link Builder}. */
-        @NonNull
-        public static Builder builder() {
-            return new Builder();
-        }
-
         /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -378,7 +372,7 @@ public final class LayoutElementBuilders {
             private final LayoutElementProto.HorizontalAlignmentProp.Builder mImpl =
                     LayoutElementProto.HorizontalAlignmentProp.newBuilder();
 
-            Builder() {}
+            public Builder() {}
 
             /** Sets the value. */
             @NonNull
@@ -409,12 +403,6 @@ public final class LayoutElementBuilders {
             return mImpl.getValue().getNumber();
         }
 
-        /** Returns a new {@link Builder}. */
-        @NonNull
-        public static Builder builder() {
-            return new Builder();
-        }
-
         /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -435,7 +423,7 @@ public final class LayoutElementBuilders {
             private final LayoutElementProto.VerticalAlignmentProp.Builder mImpl =
                     LayoutElementProto.VerticalAlignmentProp.newBuilder();
 
-            Builder() {}
+            public Builder() {}
 
             /** Sets the value. */
             @NonNull
@@ -466,12 +454,6 @@ public final class LayoutElementBuilders {
             return mImpl.getValue().getNumber();
         }
 
-        /** Returns a new {@link Builder}. */
-        @NonNull
-        public static Builder builder() {
-            return new Builder();
-        }
-
         /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -491,7 +473,7 @@ public final class LayoutElementBuilders {
             private final LayoutElementProto.FontWeightProp.Builder mImpl =
                     LayoutElementProto.FontWeightProp.newBuilder();
 
-            Builder() {}
+            public Builder() {}
 
             /** Sets the value. */
             @NonNull
@@ -523,12 +505,6 @@ public final class LayoutElementBuilders {
             return mImpl.getValue().getNumber();
         }
 
-        /** Returns a new {@link Builder}. */
-        @NonNull
-        public static Builder builder() {
-            return new Builder();
-        }
-
         /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -548,7 +524,7 @@ public final class LayoutElementBuilders {
             private final LayoutElementProto.FontVariantProp.Builder mImpl =
                     LayoutElementProto.FontVariantProp.newBuilder();
 
-            Builder() {}
+            public Builder() {}
 
             /** Sets the value. */
             @NonNull
@@ -579,12 +555,6 @@ public final class LayoutElementBuilders {
             return mImpl.getValue().getNumber();
         }
 
-        /** Returns a new {@link Builder}. */
-        @NonNull
-        public static Builder builder() {
-            return new Builder();
-        }
-
         /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -605,7 +575,7 @@ public final class LayoutElementBuilders {
             private final LayoutElementProto.SpanVerticalAlignmentProp.Builder mImpl =
                     LayoutElementProto.SpanVerticalAlignmentProp.newBuilder();
 
-            Builder() {}
+            public Builder() {}
 
             /** Sets the value. */
             @NonNull
@@ -725,12 +695,6 @@ public final class LayoutElementBuilders {
             }
         }
 
-        /** Returns a new {@link Builder}. */
-        @NonNull
-        public static Builder builder() {
-            return new Builder();
-        }
-
         /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -750,7 +714,7 @@ public final class LayoutElementBuilders {
             private final LayoutElementProto.FontStyle.Builder mImpl =
                     LayoutElementProto.FontStyle.newBuilder();
 
-            Builder() {}
+            public Builder() {}
 
             /**
              * Sets the size of the font, in scaled pixels (sp). If not specified, defaults to the
@@ -759,16 +723,6 @@ public final class LayoutElementBuilders {
             @NonNull
             public Builder setSize(@NonNull SpProp size) {
                 mImpl.setSize(size.toProto());
-                return this;
-            }
-
-            /**
-             * Sets the size of the font, in scaled pixels (sp). If not specified, defaults to the
-             * size of the system's "body" font.
-             */
-            @NonNull
-            public Builder setSize(@NonNull SpProp.Builder sizeBuilder) {
-                mImpl.setSize(sizeBuilder.build().toProto());
                 return this;
             }
 
@@ -819,13 +773,6 @@ public final class LayoutElementBuilders {
                 return this;
             }
 
-            /** Sets the text color. If not defined, defaults to white. */
-            @NonNull
-            public Builder setColor(@NonNull ColorProp.Builder colorBuilder) {
-                mImpl.setColor(colorBuilder.build().toProto());
-                return this;
-            }
-
             /**
              * Sets the weight of the font. If the provided value is not supported on a platform,
              * the nearest supported value will be used. If not defined, or when set to an invalid
@@ -856,16 +803,6 @@ public final class LayoutElementBuilders {
             @NonNull
             public Builder setLetterSpacing(@NonNull EmProp letterSpacing) {
                 mImpl.setLetterSpacing(letterSpacing.toProto());
-                return this;
-            }
-
-            /**
-             * Sets the text letter-spacing. Positive numbers increase the space between letters
-             * while negative numbers tighten the space. If not specified, defaults to 0.
-             */
-            @NonNull
-            public Builder setLetterSpacing(@NonNull EmProp.Builder letterSpacingBuilder) {
-                mImpl.setLetterSpacing(letterSpacingBuilder.build().toProto());
                 return this;
             }
 
@@ -914,12 +851,6 @@ public final class LayoutElementBuilders {
             return mImpl.getValue().getNumber();
         }
 
-        /** Returns a new {@link Builder}. */
-        @NonNull
-        public static Builder builder() {
-            return new Builder();
-        }
-
         /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -940,7 +871,7 @@ public final class LayoutElementBuilders {
             private final LayoutElementProto.TextAlignmentProp.Builder mImpl =
                     LayoutElementProto.TextAlignmentProp.newBuilder();
 
-            Builder() {}
+            public Builder() {}
 
             /** Sets the value. */
             @NonNull
@@ -971,12 +902,6 @@ public final class LayoutElementBuilders {
             return mImpl.getValue().getNumber();
         }
 
-        /** Returns a new {@link Builder}. */
-        @NonNull
-        public static Builder builder() {
-            return new Builder();
-        }
-
         /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -997,7 +922,7 @@ public final class LayoutElementBuilders {
             private final LayoutElementProto.TextOverflowProp.Builder mImpl =
                     LayoutElementProto.TextOverflowProp.newBuilder();
 
-            Builder() {}
+            public Builder() {}
 
             /** Sets the value. */
             @NonNull
@@ -1028,12 +953,6 @@ public final class LayoutElementBuilders {
             return mImpl.getValue().getNumber();
         }
 
-        /** Returns a new {@link Builder}. */
-        @NonNull
-        public static Builder builder() {
-            return new Builder();
-        }
-
         /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -1054,7 +973,7 @@ public final class LayoutElementBuilders {
             private final LayoutElementProto.ArcAnchorTypeProp.Builder mImpl =
                     LayoutElementProto.ArcAnchorTypeProp.newBuilder();
 
-            Builder() {}
+            public Builder() {}
 
             /** Sets the value. */
             @NonNull
@@ -1175,12 +1094,6 @@ public final class LayoutElementBuilders {
             }
         }
 
-        /** Returns a new {@link Builder}. */
-        @NonNull
-        public static Builder builder() {
-            return new Builder();
-        }
-
         /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -1208,7 +1121,7 @@ public final class LayoutElementBuilders {
             private final LayoutElementProto.Text.Builder mImpl =
                     LayoutElementProto.Text.newBuilder();
 
-            Builder() {}
+            public Builder() {}
 
             /** Sets the text to render. */
             @NonNull
@@ -1233,27 +1146,10 @@ public final class LayoutElementBuilders {
                 return this;
             }
 
-            /**
-             * Sets the style of font to use (size, bold etc). If not specified, defaults to the
-             * platform's default body font.
-             */
-            @NonNull
-            public Builder setFontStyle(@NonNull FontStyle.Builder fontStyleBuilder) {
-                mImpl.setFontStyle(fontStyleBuilder.build().toProto());
-                return this;
-            }
-
             /** Sets {@link androidx.wear.tiles.ModifiersBuilders.Modifiers} for this element. */
             @NonNull
             public Builder setModifiers(@NonNull Modifiers modifiers) {
                 mImpl.setModifiers(modifiers.toProto());
-                return this;
-            }
-
-            /** Sets {@link androidx.wear.tiles.ModifiersBuilders.Modifiers} for this element. */
-            @NonNull
-            public Builder setModifiers(@NonNull Modifiers.Builder modifiersBuilder) {
-                mImpl.setModifiers(modifiersBuilder.build().toProto());
                 return this;
             }
 
@@ -1343,17 +1239,6 @@ public final class LayoutElementBuilders {
                 return this;
             }
 
-            /**
-             * Sets the explicit height between lines of text. This is equivalent to the vertical
-             * distance between subsequent baselines. If not specified, defaults the font's
-             * recommended interline spacing.
-             */
-            @NonNull
-            public Builder setLineHeight(@NonNull SpProp.Builder lineHeightBuilder) {
-                mImpl.setLineHeight(lineHeightBuilder.build().toProto());
-                return this;
-            }
-
             @Override
             @NonNull
             public Text build() {
@@ -1376,12 +1261,6 @@ public final class LayoutElementBuilders {
             return mImpl.getValue().getNumber();
         }
 
-        /** Returns a new {@link Builder}. */
-        @NonNull
-        public static Builder builder() {
-            return new Builder();
-        }
-
         /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -1402,7 +1281,7 @@ public final class LayoutElementBuilders {
             private final LayoutElementProto.ContentScaleModeProp.Builder mImpl =
                     LayoutElementProto.ContentScaleModeProp.newBuilder();
 
-            Builder() {}
+            public Builder() {}
 
             /** Sets the value. */
             @NonNull
@@ -1444,12 +1323,6 @@ public final class LayoutElementBuilders {
             }
         }
 
-        /** Returns a new {@link Builder}. */
-        @NonNull
-        public static Builder builder() {
-            return new Builder();
-        }
-
         /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -1469,7 +1342,7 @@ public final class LayoutElementBuilders {
             private final LayoutElementProto.ColorFilter.Builder mImpl =
                     LayoutElementProto.ColorFilter.newBuilder();
 
-            Builder() {}
+            public Builder() {}
 
             /**
              * Sets the tint color to use. If specified, the image will be tinted, using SRC_IN
@@ -1482,20 +1355,6 @@ public final class LayoutElementBuilders {
             @NonNull
             public Builder setTint(@NonNull ColorProp tint) {
                 mImpl.setTint(tint.toProto());
-                return this;
-            }
-
-            /**
-             * Sets the tint color to use. If specified, the image will be tinted, using SRC_IN
-             * blending (that is, all color information will be stripped from the target image, and
-             * only the alpha channel will be blended with the requested color).
-             *
-             * <p>Note that only Android image resources can be tinted; Inline images will not be
-             * tinted, and this property will have no effect.
-             */
-            @NonNull
-            public Builder setTint(@NonNull ColorProp.Builder tintBuilder) {
-                mImpl.setTint(tintBuilder.build().toProto());
                 return this;
             }
 
@@ -1601,12 +1460,6 @@ public final class LayoutElementBuilders {
             }
         }
 
-        /** Returns a new {@link Builder}. */
-        @NonNull
-        public static Builder builder() {
-            return new Builder();
-        }
-
         /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -1634,7 +1487,7 @@ public final class LayoutElementBuilders {
             private final LayoutElementProto.Image.Builder mImpl =
                     LayoutElementProto.Image.newBuilder();
 
-            Builder() {}
+            public Builder() {}
 
             /**
              * Sets the resource_id of the image to render. This must exist in the supplied resource
@@ -1662,24 +1515,10 @@ public final class LayoutElementBuilders {
                 return this;
             }
 
-            /** Sets the width of this image. If not defined, the image will not be rendered. */
-            @NonNull
-            public Builder setWidth(@NonNull ImageDimension.Builder widthBuilder) {
-                mImpl.setWidth(widthBuilder.build().toImageDimensionProto());
-                return this;
-            }
-
             /** Sets the height of this image. If not defined, the image will not be rendered. */
             @NonNull
             public Builder setHeight(@NonNull ImageDimension height) {
                 mImpl.setHeight(height.toImageDimensionProto());
-                return this;
-            }
-
-            /** Sets the height of this image. If not defined, the image will not be rendered. */
-            @NonNull
-            public Builder setHeight(@NonNull ImageDimension.Builder heightBuilder) {
-                mImpl.setHeight(heightBuilder.build().toImageDimensionProto());
                 return this;
             }
 
@@ -1713,13 +1552,6 @@ public final class LayoutElementBuilders {
                 return this;
             }
 
-            /** Sets {@link androidx.wear.tiles.ModifiersBuilders.Modifiers} for this element. */
-            @NonNull
-            public Builder setModifiers(@NonNull Modifiers.Builder modifiersBuilder) {
-                mImpl.setModifiers(modifiersBuilder.build().toProto());
-                return this;
-            }
-
             /**
              * Sets filtering parameters for this image. If not specified, defaults to no filtering.
              */
@@ -1727,16 +1559,6 @@ public final class LayoutElementBuilders {
             @NonNull
             public Builder setFilter(@NonNull ColorFilter filter) {
                 mImpl.setFilter(filter.toProto());
-                return this;
-            }
-
-            /**
-             * Sets filtering parameters for this image. If not specified, defaults to no filtering.
-             */
-            @TilesExperimental
-            @NonNull
-            public Builder setFilter(@NonNull ColorFilter.Builder filterBuilder) {
-                mImpl.setFilter(filterBuilder.build().toProto());
                 return this;
             }
 
@@ -1796,12 +1618,6 @@ public final class LayoutElementBuilders {
             }
         }
 
-        /** Returns a new {@link Builder}. */
-        @NonNull
-        public static Builder builder() {
-            return new Builder();
-        }
-
         /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -1829,7 +1645,7 @@ public final class LayoutElementBuilders {
             private final LayoutElementProto.Spacer.Builder mImpl =
                     LayoutElementProto.Spacer.newBuilder();
 
-            Builder() {}
+            public Builder() {}
 
             /**
              * Sets the width of this {@link Spacer}. When this is added as the direct child of an
@@ -1842,17 +1658,6 @@ public final class LayoutElementBuilders {
                 return this;
             }
 
-            /**
-             * Sets the width of this {@link Spacer}. When this is added as the direct child of an
-             * {@link Arc}, this must be specified as an angular dimension, otherwise a linear
-             * dimension must be used. If not defined, defaults to 0.
-             */
-            @NonNull
-            public Builder setWidth(@NonNull SpacerDimension.Builder widthBuilder) {
-                mImpl.setWidth(widthBuilder.build().toSpacerDimensionProto());
-                return this;
-            }
-
             /** Sets the height of this spacer. If not defined, defaults to 0. */
             @NonNull
             public Builder setHeight(@NonNull SpacerDimension height) {
@@ -1860,24 +1665,10 @@ public final class LayoutElementBuilders {
                 return this;
             }
 
-            /** Sets the height of this spacer. If not defined, defaults to 0. */
-            @NonNull
-            public Builder setHeight(@NonNull SpacerDimension.Builder heightBuilder) {
-                mImpl.setHeight(heightBuilder.build().toSpacerDimensionProto());
-                return this;
-            }
-
             /** Sets {@link androidx.wear.tiles.ModifiersBuilders.Modifiers} for this element. */
             @NonNull
             public Builder setModifiers(@NonNull Modifiers modifiers) {
                 mImpl.setModifiers(modifiers.toProto());
-                return this;
-            }
-
-            /** Sets {@link androidx.wear.tiles.ModifiersBuilders.Modifiers} for this element. */
-            @NonNull
-            public Builder setModifiers(@NonNull Modifiers.Builder modifiersBuilder) {
-                mImpl.setModifiers(modifiersBuilder.build().toProto());
                 return this;
             }
 
@@ -1974,12 +1765,6 @@ public final class LayoutElementBuilders {
             }
         }
 
-        /** Returns a new {@link Builder}. */
-        @NonNull
-        public static Builder builder() {
-            return new Builder();
-        }
-
         /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -2007,19 +1792,12 @@ public final class LayoutElementBuilders {
             private final LayoutElementProto.Box.Builder mImpl =
                     LayoutElementProto.Box.newBuilder();
 
-            Builder() {}
+            public Builder() {}
 
             /** Adds one item to the child element(s) to wrap. */
             @NonNull
             public Builder addContent(@NonNull LayoutElement content) {
                 mImpl.addContents(content.toLayoutElementProto());
-                return this;
-            }
-
-            /** Adds one item to the child element(s) to wrap. */
-            @NonNull
-            public Builder addContent(@NonNull LayoutElement.Builder contentBuilder) {
-                mImpl.addContents(contentBuilder.build().toLayoutElementProto());
                 return this;
             }
 
@@ -2034,32 +1812,12 @@ public final class LayoutElementBuilders {
             }
 
             /**
-             * Sets the height of this {@link Box}. If not defined, this will size itself to fit all
-             * of its children (i.e. a WrappedDimension).
-             */
-            @NonNull
-            public Builder setHeight(@NonNull ContainerDimension.Builder heightBuilder) {
-                mImpl.setHeight(heightBuilder.build().toContainerDimensionProto());
-                return this;
-            }
-
-            /**
              * Sets the width of this {@link Box}. If not defined, this will size itself to fit all
              * of its children (i.e. a WrappedDimension).
              */
             @NonNull
             public Builder setWidth(@NonNull ContainerDimension width) {
                 mImpl.setWidth(width.toContainerDimensionProto());
-                return this;
-            }
-
-            /**
-             * Sets the width of this {@link Box}. If not defined, this will size itself to fit all
-             * of its children (i.e. a WrappedDimension).
-             */
-            @NonNull
-            public Builder setWidth(@NonNull ContainerDimension.Builder widthBuilder) {
-                mImpl.setWidth(widthBuilder.build().toContainerDimensionProto());
                 return this;
             }
 
@@ -2114,13 +1872,6 @@ public final class LayoutElementBuilders {
             @NonNull
             public Builder setModifiers(@NonNull Modifiers modifiers) {
                 mImpl.setModifiers(modifiers.toProto());
-                return this;
-            }
-
-            /** Sets {@link androidx.wear.tiles.ModifiersBuilders.Modifiers} for this element. */
-            @NonNull
-            public Builder setModifiers(@NonNull Modifiers.Builder modifiersBuilder) {
-                mImpl.setModifiers(modifiersBuilder.build().toProto());
                 return this;
             }
 
@@ -2180,12 +1931,6 @@ public final class LayoutElementBuilders {
             }
         }
 
-        /** Returns a new {@link Builder}. */
-        @NonNull
-        public static Builder builder() {
-            return new Builder();
-        }
-
         /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -2213,7 +1958,7 @@ public final class LayoutElementBuilders {
             private final LayoutElementProto.SpanText.Builder mImpl =
                     LayoutElementProto.SpanText.newBuilder();
 
-            Builder() {}
+            public Builder() {}
 
             /** Sets the text to render. */
             @NonNull
@@ -2238,27 +1983,10 @@ public final class LayoutElementBuilders {
                 return this;
             }
 
-            /**
-             * Sets the style of font to use (size, bold etc). If not specified, defaults to the
-             * platform's default body font.
-             */
-            @NonNull
-            public Builder setFontStyle(@NonNull FontStyle.Builder fontStyleBuilder) {
-                mImpl.setFontStyle(fontStyleBuilder.build().toProto());
-                return this;
-            }
-
             /** Sets {@link androidx.wear.tiles.ModifiersBuilders.Modifiers} for this element. */
             @NonNull
             public Builder setModifiers(@NonNull SpanModifiers modifiers) {
                 mImpl.setModifiers(modifiers.toProto());
-                return this;
-            }
-
-            /** Sets {@link androidx.wear.tiles.ModifiersBuilders.Modifiers} for this element. */
-            @NonNull
-            public Builder setModifiers(@NonNull SpanModifiers.Builder modifiersBuilder) {
-                mImpl.setModifiers(modifiersBuilder.build().toProto());
                 return this;
             }
 
@@ -2343,12 +2071,6 @@ public final class LayoutElementBuilders {
             }
         }
 
-        /** Returns a new {@link Builder}. */
-        @NonNull
-        public static Builder builder() {
-            return new Builder();
-        }
-
         /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -2376,7 +2098,7 @@ public final class LayoutElementBuilders {
             private final LayoutElementProto.SpanImage.Builder mImpl =
                     LayoutElementProto.SpanImage.newBuilder();
 
-            Builder() {}
+            public Builder() {}
 
             /**
              * Sets the resource_id of the image to render. This must exist in the supplied resource
@@ -2404,13 +2126,6 @@ public final class LayoutElementBuilders {
                 return this;
             }
 
-            /** Sets the width of this image. If not defined, the image will not be rendered. */
-            @NonNull
-            public Builder setWidth(@NonNull DpProp.Builder widthBuilder) {
-                mImpl.setWidth(widthBuilder.build().toProto());
-                return this;
-            }
-
             /** Sets the height of this image. If not defined, the image will not be rendered. */
             @NonNull
             public Builder setHeight(@NonNull DpProp height) {
@@ -2418,24 +2133,10 @@ public final class LayoutElementBuilders {
                 return this;
             }
 
-            /** Sets the height of this image. If not defined, the image will not be rendered. */
-            @NonNull
-            public Builder setHeight(@NonNull DpProp.Builder heightBuilder) {
-                mImpl.setHeight(heightBuilder.build().toProto());
-                return this;
-            }
-
             /** Sets {@link androidx.wear.tiles.ModifiersBuilders.Modifiers} for this element. */
             @NonNull
             public Builder setModifiers(@NonNull SpanModifiers modifiers) {
                 mImpl.setModifiers(modifiers.toProto());
-                return this;
-            }
-
-            /** Sets {@link androidx.wear.tiles.ModifiersBuilders.Modifiers} for this element. */
-            @NonNull
-            public Builder setModifiers(@NonNull SpanModifiers.Builder modifiersBuilder) {
-                mImpl.setModifiers(modifiersBuilder.build().toProto());
                 return this;
             }
 
@@ -2610,12 +2311,6 @@ public final class LayoutElementBuilders {
             }
         }
 
-        /** Returns a new {@link Builder}. */
-        @NonNull
-        public static Builder builder() {
-            return new Builder();
-        }
-
         /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -2643,7 +2338,7 @@ public final class LayoutElementBuilders {
             private final LayoutElementProto.Spannable.Builder mImpl =
                     LayoutElementProto.Spannable.newBuilder();
 
-            Builder() {}
+            public Builder() {}
 
             /** Adds one item to the {@link Span} elements that form this {@link Spannable}. */
             @NonNull
@@ -2652,24 +2347,10 @@ public final class LayoutElementBuilders {
                 return this;
             }
 
-            /** Adds one item to the {@link Span} elements that form this {@link Spannable}. */
-            @NonNull
-            public Builder addSpan(@NonNull Span.Builder spanBuilder) {
-                mImpl.addSpans(spanBuilder.build().toSpanProto());
-                return this;
-            }
-
             /** Sets {@link androidx.wear.tiles.ModifiersBuilders.Modifiers} for this element. */
             @NonNull
             public Builder setModifiers(@NonNull Modifiers modifiers) {
                 mImpl.setModifiers(modifiers.toProto());
-                return this;
-            }
-
-            /** Sets {@link androidx.wear.tiles.ModifiersBuilders.Modifiers} for this element. */
-            @NonNull
-            public Builder setModifiers(@NonNull Modifiers.Builder modifiersBuilder) {
-                mImpl.setModifiers(modifiersBuilder.build().toProto());
                 return this;
             }
 
@@ -2759,17 +2440,6 @@ public final class LayoutElementBuilders {
             @NonNull
             public Builder setLineHeight(@NonNull SpProp lineHeight) {
                 mImpl.setLineHeight(lineHeight.toProto());
-                return this;
-            }
-
-            /**
-             * Sets the explicit height between lines of text. This is equivalent to the vertical
-             * distance between subsequent baselines. If not specified, defaults the font's
-             * recommended interline spacing.
-             */
-            @NonNull
-            public Builder setLineHeight(@NonNull SpProp.Builder lineHeightBuilder) {
-                mImpl.setLineHeight(lineHeightBuilder.build().toProto());
                 return this;
             }
 
@@ -2863,12 +2533,6 @@ public final class LayoutElementBuilders {
             }
         }
 
-        /** Returns a new {@link Builder}. */
-        @NonNull
-        public static Builder builder() {
-            return new Builder();
-        }
-
         /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -2896,19 +2560,12 @@ public final class LayoutElementBuilders {
             private final LayoutElementProto.Column.Builder mImpl =
                     LayoutElementProto.Column.newBuilder();
 
-            Builder() {}
+            public Builder() {}
 
             /** Adds one item to the list of child elements to place inside this {@link Column}. */
             @NonNull
             public Builder addContent(@NonNull LayoutElement content) {
                 mImpl.addContents(content.toLayoutElementProto());
-                return this;
-            }
-
-            /** Adds one item to the list of child elements to place inside this {@link Column}. */
-            @NonNull
-            public Builder addContent(@NonNull LayoutElement.Builder contentBuilder) {
-                mImpl.addContents(contentBuilder.build().toLayoutElementProto());
                 return this;
             }
 
@@ -2949,16 +2606,6 @@ public final class LayoutElementBuilders {
             }
 
             /**
-             * Sets the width of this column. If not defined, this will size itself to fit all of
-             * its children (i.e. a WrappedDimension).
-             */
-            @NonNull
-            public Builder setWidth(@NonNull ContainerDimension.Builder widthBuilder) {
-                mImpl.setWidth(widthBuilder.build().toContainerDimensionProto());
-                return this;
-            }
-
-            /**
              * Sets the height of this column. If not defined, this will size itself to fit all of
              * its children (i.e. a WrappedDimension).
              */
@@ -2968,27 +2615,10 @@ public final class LayoutElementBuilders {
                 return this;
             }
 
-            /**
-             * Sets the height of this column. If not defined, this will size itself to fit all of
-             * its children (i.e. a WrappedDimension).
-             */
-            @NonNull
-            public Builder setHeight(@NonNull ContainerDimension.Builder heightBuilder) {
-                mImpl.setHeight(heightBuilder.build().toContainerDimensionProto());
-                return this;
-            }
-
             /** Sets {@link androidx.wear.tiles.ModifiersBuilders.Modifiers} for this element. */
             @NonNull
             public Builder setModifiers(@NonNull Modifiers modifiers) {
                 mImpl.setModifiers(modifiers.toProto());
-                return this;
-            }
-
-            /** Sets {@link androidx.wear.tiles.ModifiersBuilders.Modifiers} for this element. */
-            @NonNull
-            public Builder setModifiers(@NonNull Modifiers.Builder modifiersBuilder) {
-                mImpl.setModifiers(modifiersBuilder.build().toProto());
                 return this;
             }
 
@@ -3082,12 +2712,6 @@ public final class LayoutElementBuilders {
             }
         }
 
-        /** Returns a new {@link Builder}. */
-        @NonNull
-        public static Builder builder() {
-            return new Builder();
-        }
-
         /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -3115,19 +2739,12 @@ public final class LayoutElementBuilders {
             private final LayoutElementProto.Row.Builder mImpl =
                     LayoutElementProto.Row.newBuilder();
 
-            Builder() {}
+            public Builder() {}
 
             /** Adds one item to the list of child elements to place inside this {@link Row}. */
             @NonNull
             public Builder addContent(@NonNull LayoutElement content) {
                 mImpl.addContents(content.toLayoutElementProto());
-                return this;
-            }
-
-            /** Adds one item to the list of child elements to place inside this {@link Row}. */
-            @NonNull
-            public Builder addContent(@NonNull LayoutElement.Builder contentBuilder) {
-                mImpl.addContents(contentBuilder.build().toLayoutElementProto());
                 return this;
             }
 
@@ -3165,16 +2782,6 @@ public final class LayoutElementBuilders {
             }
 
             /**
-             * Sets the width of this row. If not defined, this will size itself to fit all of its
-             * children (i.e. a WrappedDimension).
-             */
-            @NonNull
-            public Builder setWidth(@NonNull ContainerDimension.Builder widthBuilder) {
-                mImpl.setWidth(widthBuilder.build().toContainerDimensionProto());
-                return this;
-            }
-
-            /**
              * Sets the height of this row. If not defined, this will size itself to fit all of its
              * children (i.e. a WrappedDimension).
              */
@@ -3184,27 +2791,10 @@ public final class LayoutElementBuilders {
                 return this;
             }
 
-            /**
-             * Sets the height of this row. If not defined, this will size itself to fit all of its
-             * children (i.e. a WrappedDimension).
-             */
-            @NonNull
-            public Builder setHeight(@NonNull ContainerDimension.Builder heightBuilder) {
-                mImpl.setHeight(heightBuilder.build().toContainerDimensionProto());
-                return this;
-            }
-
             /** Sets {@link androidx.wear.tiles.ModifiersBuilders.Modifiers} for this element. */
             @NonNull
             public Builder setModifiers(@NonNull Modifiers modifiers) {
                 mImpl.setModifiers(modifiers.toProto());
-                return this;
-            }
-
-            /** Sets {@link androidx.wear.tiles.ModifiersBuilders.Modifiers} for this element. */
-            @NonNull
-            public Builder setModifiers(@NonNull Modifiers.Builder modifiersBuilder) {
-                mImpl.setModifiers(modifiersBuilder.build().toProto());
                 return this;
             }
 
@@ -3296,12 +2886,6 @@ public final class LayoutElementBuilders {
             }
         }
 
-        /** Returns a new {@link Builder}. */
-        @NonNull
-        public static Builder builder() {
-            return new Builder();
-        }
-
         /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -3329,19 +2913,12 @@ public final class LayoutElementBuilders {
             private final LayoutElementProto.Arc.Builder mImpl =
                     LayoutElementProto.Arc.newBuilder();
 
-            Builder() {}
+            public Builder() {}
 
             /** Adds one item to contents of this container. */
             @NonNull
             public Builder addContent(@NonNull ArcLayoutElement content) {
                 mImpl.addContents(content.toArcLayoutElementProto());
-                return this;
-            }
-
-            /** Adds one item to contents of this container. */
-            @NonNull
-            public Builder addContent(@NonNull ArcLayoutElement.Builder contentBuilder) {
-                mImpl.addContents(contentBuilder.build().toArcLayoutElementProto());
                 return this;
             }
 
@@ -3357,21 +2934,6 @@ public final class LayoutElementBuilders {
             @NonNull
             public Builder setAnchorAngle(@NonNull DegreesProp anchorAngle) {
                 mImpl.setAnchorAngle(anchorAngle.toProto());
-                return this;
-            }
-
-            /**
-             * Sets the angle for the anchor, used with anchor_type to determine where to draw
-             * children. Note that 0 degrees is the 12 o clock position on a device, and the angle
-             * sweeps clockwise. If not defined, defaults to 0 degrees.
-             *
-             * <p>Values do not have to be clamped to the range 0-360; values less than 0 degrees
-             * will sweep anti-clockwise (i.e. -90 degrees is equivalent to 270 degrees), and values
-             * >360 will be be placed at X mod 360 degrees.
-             */
-            @NonNull
-            public Builder setAnchorAngle(@NonNull DegreesProp.Builder anchorAngleBuilder) {
-                mImpl.setAnchorAngle(anchorAngleBuilder.build().toProto());
                 return this;
             }
 
@@ -3430,13 +2992,6 @@ public final class LayoutElementBuilders {
                 return this;
             }
 
-            /** Sets {@link androidx.wear.tiles.ModifiersBuilders.Modifiers} for this element. */
-            @NonNull
-            public Builder setModifiers(@NonNull Modifiers.Builder modifiersBuilder) {
-                mImpl.setModifiers(modifiersBuilder.build().toProto());
-                return this;
-            }
-
             @Override
             @NonNull
             public Arc build() {
@@ -3489,12 +3044,6 @@ public final class LayoutElementBuilders {
             }
         }
 
-        /** Returns a new {@link Builder}. */
-        @NonNull
-        public static Builder builder() {
-            return new Builder();
-        }
-
         /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -3522,7 +3071,7 @@ public final class LayoutElementBuilders {
             private final LayoutElementProto.ArcText.Builder mImpl =
                     LayoutElementProto.ArcText.newBuilder();
 
-            Builder() {}
+            public Builder() {}
 
             /** Sets the text to render. */
             @NonNull
@@ -3547,27 +3096,10 @@ public final class LayoutElementBuilders {
                 return this;
             }
 
-            /**
-             * Sets the style of font to use (size, bold etc). If not specified, defaults to the
-             * platform's default body font.
-             */
-            @NonNull
-            public Builder setFontStyle(@NonNull FontStyle.Builder fontStyleBuilder) {
-                mImpl.setFontStyle(fontStyleBuilder.build().toProto());
-                return this;
-            }
-
             /** Sets {@link androidx.wear.tiles.ModifiersBuilders.Modifiers} for this element. */
             @NonNull
             public Builder setModifiers(@NonNull ArcModifiers modifiers) {
                 mImpl.setModifiers(modifiers.toProto());
-                return this;
-            }
-
-            /** Sets {@link androidx.wear.tiles.ModifiersBuilders.Modifiers} for this element. */
-            @NonNull
-            public Builder setModifiers(@NonNull ArcModifiers.Builder modifiersBuilder) {
-                mImpl.setModifiers(modifiersBuilder.build().toProto());
                 return this;
             }
 
@@ -3636,12 +3168,6 @@ public final class LayoutElementBuilders {
             }
         }
 
-        /** Returns a new {@link Builder}. */
-        @NonNull
-        public static Builder builder() {
-            return new Builder();
-        }
-
         /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -3669,19 +3195,12 @@ public final class LayoutElementBuilders {
             private final LayoutElementProto.ArcLine.Builder mImpl =
                     LayoutElementProto.ArcLine.newBuilder();
 
-            Builder() {}
+            public Builder() {}
 
             /** Sets the length of this line, in degrees. If not defined, defaults to 0. */
             @NonNull
             public Builder setLength(@NonNull DegreesProp length) {
                 mImpl.setLength(length.toProto());
-                return this;
-            }
-
-            /** Sets the length of this line, in degrees. If not defined, defaults to 0. */
-            @NonNull
-            public Builder setLength(@NonNull DegreesProp.Builder lengthBuilder) {
-                mImpl.setLength(lengthBuilder.build().toProto());
                 return this;
             }
 
@@ -3692,13 +3211,6 @@ public final class LayoutElementBuilders {
                 return this;
             }
 
-            /** Sets the thickness of this line. If not defined, defaults to 0. */
-            @NonNull
-            public Builder setThickness(@NonNull DpProp.Builder thicknessBuilder) {
-                mImpl.setThickness(thicknessBuilder.build().toProto());
-                return this;
-            }
-
             /** Sets the color of this line. */
             @NonNull
             public Builder setColor(@NonNull ColorProp color) {
@@ -3706,24 +3218,10 @@ public final class LayoutElementBuilders {
                 return this;
             }
 
-            /** Sets the color of this line. */
-            @NonNull
-            public Builder setColor(@NonNull ColorProp.Builder colorBuilder) {
-                mImpl.setColor(colorBuilder.build().toProto());
-                return this;
-            }
-
             /** Sets {@link androidx.wear.tiles.ModifiersBuilders.Modifiers} for this element. */
             @NonNull
             public Builder setModifiers(@NonNull ArcModifiers modifiers) {
                 mImpl.setModifiers(modifiers.toProto());
-                return this;
-            }
-
-            /** Sets {@link androidx.wear.tiles.ModifiersBuilders.Modifiers} for this element. */
-            @NonNull
-            public Builder setModifiers(@NonNull ArcModifiers.Builder modifiersBuilder) {
-                mImpl.setModifiers(modifiersBuilder.build().toProto());
                 return this;
             }
 
@@ -3782,12 +3280,6 @@ public final class LayoutElementBuilders {
             }
         }
 
-        /** Returns a new {@link Builder}. */
-        @NonNull
-        public static Builder builder() {
-            return new Builder();
-        }
-
         /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -3815,19 +3307,12 @@ public final class LayoutElementBuilders {
             private final LayoutElementProto.ArcSpacer.Builder mImpl =
                     LayoutElementProto.ArcSpacer.newBuilder();
 
-            Builder() {}
+            public Builder() {}
 
             /** Sets the length of this spacer, in degrees. If not defined, defaults to 0. */
             @NonNull
             public Builder setLength(@NonNull DegreesProp length) {
                 mImpl.setLength(length.toProto());
-                return this;
-            }
-
-            /** Sets the length of this spacer, in degrees. If not defined, defaults to 0. */
-            @NonNull
-            public Builder setLength(@NonNull DegreesProp.Builder lengthBuilder) {
-                mImpl.setLength(lengthBuilder.build().toProto());
                 return this;
             }
 
@@ -3838,24 +3323,10 @@ public final class LayoutElementBuilders {
                 return this;
             }
 
-            /** Sets the thickness of this spacer, in DP. If not defined, defaults to 0. */
-            @NonNull
-            public Builder setThickness(@NonNull DpProp.Builder thicknessBuilder) {
-                mImpl.setThickness(thicknessBuilder.build().toProto());
-                return this;
-            }
-
             /** Sets {@link androidx.wear.tiles.ModifiersBuilders.Modifiers} for this element. */
             @NonNull
             public Builder setModifiers(@NonNull ArcModifiers modifiers) {
                 mImpl.setModifiers(modifiers.toProto());
-                return this;
-            }
-
-            /** Sets {@link androidx.wear.tiles.ModifiersBuilders.Modifiers} for this element. */
-            @NonNull
-            public Builder setModifiers(@NonNull ArcModifiers.Builder modifiersBuilder) {
-                mImpl.setModifiers(modifiersBuilder.build().toProto());
                 return this;
             }
 
@@ -3903,12 +3374,6 @@ public final class LayoutElementBuilders {
             }
         }
 
-        /** Returns a new {@link Builder}. */
-        @NonNull
-        public static Builder builder() {
-            return new Builder();
-        }
-
         /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -3936,19 +3401,12 @@ public final class LayoutElementBuilders {
             private final LayoutElementProto.ArcAdapter.Builder mImpl =
                     LayoutElementProto.ArcAdapter.newBuilder();
 
-            Builder() {}
+            public Builder() {}
 
             /** Sets the element to adapt to an {@link Arc}. */
             @NonNull
             public Builder setContent(@NonNull LayoutElement content) {
                 mImpl.setContent(content.toLayoutElementProto());
-                return this;
-            }
-
-            /** Sets the element to adapt to an {@link Arc}. */
-            @NonNull
-            public Builder setContent(@NonNull LayoutElement.Builder contentBuilder) {
-                mImpl.setContent(contentBuilder.build().toLayoutElementProto());
                 return this;
             }
 
@@ -4117,12 +3575,6 @@ public final class LayoutElementBuilders {
             }
         }
 
-        /** Returns a new {@link Builder}. */
-        @NonNull
-        public static Builder builder() {
-            return new Builder();
-        }
-
         /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -4142,19 +3594,12 @@ public final class LayoutElementBuilders {
             private final LayoutElementProto.Layout.Builder mImpl =
                     LayoutElementProto.Layout.newBuilder();
 
-            Builder() {}
+            public Builder() {}
 
             /** Sets the root element in the layout. */
             @NonNull
             public Builder setRoot(@NonNull LayoutElement root) {
                 mImpl.setRoot(root.toLayoutElementProto());
-                return this;
-            }
-
-            /** Sets the root element in the layout. */
-            @NonNull
-            public Builder setRoot(@NonNull LayoutElement.Builder rootBuilder) {
-                mImpl.setRoot(rootBuilder.build().toLayoutElementProto());
                 return this;
             }
 
@@ -4170,153 +3615,17 @@ public final class LayoutElementBuilders {
     public static class FontStyles {
         private static final int LARGE_SCREEN_WIDTH_DP = 210;
 
-        private final DeviceParameters mDeviceParameters;
-
-        private FontStyles(DeviceParameters deviceParameters) {
-            this.mDeviceParameters = deviceParameters;
+        private FontStyles() {
         }
 
         private static boolean isLargeScreen(@NonNull DeviceParameters deviceParameters) {
             return deviceParameters.getScreenWidthDp() >= LARGE_SCREEN_WIDTH_DP;
         }
 
-        /**
-         * Create a FontStyles instance, using the given device parameters to determine font sizes.
-         *
-         * @deprecated Use static functions, accepting a {@link DeviceParameters} instance instead
-         *     (e.g. {@link FontStyles#display1(DeviceParameters)}).
-         */
-        @Deprecated
-        @NonNull
-        public static FontStyles withDeviceParameters(@NonNull DeviceParameters deviceParameters) {
-            return new FontStyles(deviceParameters);
-        }
-
-        /**
-         * Font style for large display text.
-         *
-         * @deprecated Use {@link FontStyles#display1(DeviceParameters)} instead.
-         */
-        @Deprecated
-        @NonNull
-        public FontStyle.Builder display1() {
-            return display1(mDeviceParameters);
-        }
-
-        /**
-         * Font style for medium display text.
-         *
-         * @deprecated Use {@link FontStyles#display2(DeviceParameters)} instead.
-         */
-        @Deprecated
-        @NonNull
-        public FontStyle.Builder display2() {
-            return display2(mDeviceParameters);
-        }
-
-        /**
-         * Font style for small display text.
-         *
-         * @deprecated Use {@link FontStyles#display3(DeviceParameters)} instead.
-         */
-        @Deprecated
-        @NonNull
-        public FontStyle.Builder display3() {
-            return display3(mDeviceParameters);
-        }
-
-        /**
-         * Font style for large title text.
-         *
-         * @deprecated Use {@link FontStyles#title1(DeviceParameters)} instead.
-         */
-        @Deprecated
-        @NonNull
-        public FontStyle.Builder title1() {
-            return title1(mDeviceParameters);
-        }
-
-        /**
-         * Font style for medium title text.
-         *
-         * @deprecated Use {@link FontStyles#title2(DeviceParameters)} instead.
-         */
-        @Deprecated
-        @NonNull
-        public FontStyle.Builder title2() {
-            return title2(mDeviceParameters);
-        }
-
-        /**
-         * Font style for small title text.
-         *
-         * @deprecated Use {@link FontStyles#title3(DeviceParameters)} instead.
-         */
-        @Deprecated
-        @NonNull
-        public FontStyle.Builder title3() {
-            return title3(mDeviceParameters);
-        }
-
-        /**
-         * Font style for large body text.
-         *
-         * @deprecated Use {@link FontStyles#body1(DeviceParameters)} instead.
-         */
-        @Deprecated
-        @NonNull
-        public FontStyle.Builder body1() {
-            return body1(mDeviceParameters);
-        }
-
-        /**
-         * Font style for medium body text.
-         *
-         * @deprecated Use {@link FontStyles#body2(DeviceParameters)} instead.
-         */
-        @Deprecated
-        @NonNull
-        public FontStyle.Builder body2() {
-            return body2(mDeviceParameters);
-        }
-
-        /**
-         * Font style for button text.
-         *
-         * @deprecated Use {@link FontStyles#button(DeviceParameters)} instead.
-         */
-        @Deprecated
-        @NonNull
-        public FontStyle.Builder button() {
-            return button(mDeviceParameters);
-        }
-
-        /**
-         * Font style for large caption text.
-         *
-         * @deprecated Use {@link FontStyles#caption1(DeviceParameters)} instead.
-         */
-        @Deprecated
-        @NonNull
-        public FontStyle.Builder caption1() {
-            return caption1(mDeviceParameters);
-        }
-
-        /**
-         * Font style for medium caption text.
-         *
-         * @deprecated Use {@link FontStyles#caption2(DeviceParameters)} instead.
-         */
-        @Deprecated
-        @NonNull
-        public FontStyle.Builder caption2() {
-            return caption2(mDeviceParameters);
-        }
-
         /** Font style for large display text. */
         @NonNull
         public static FontStyle.Builder display1(@NonNull DeviceParameters deviceParameters) {
-            return FontStyle.builder()
+            return new FontStyle.Builder()
                     .setWeight(FONT_WEIGHT_BOLD)
                     .setSize(DimensionBuilders.sp(isLargeScreen(deviceParameters) ? 54 : 50));
         }
@@ -4324,7 +3633,7 @@ public final class LayoutElementBuilders {
         /** Font style for medium display text. */
         @NonNull
         public static FontStyle.Builder display2(@NonNull DeviceParameters deviceParameters) {
-            return FontStyle.builder()
+            return new FontStyle.Builder()
                     .setWeight(FONT_WEIGHT_BOLD)
                     .setSize(DimensionBuilders.sp(isLargeScreen(deviceParameters) ? 44 : 40));
         }
@@ -4332,7 +3641,7 @@ public final class LayoutElementBuilders {
         /** Font style for small display text. */
         @NonNull
         public static FontStyle.Builder display3(@NonNull DeviceParameters deviceParameters) {
-            return FontStyle.builder()
+            return new FontStyle.Builder()
                     .setWeight(FONT_WEIGHT_BOLD)
                     .setSize(DimensionBuilders.sp(isLargeScreen(deviceParameters) ? 34 : 30));
         }
@@ -4340,7 +3649,7 @@ public final class LayoutElementBuilders {
         /** Font style for large title text. */
         @NonNull
         public static FontStyle.Builder title1(@NonNull DeviceParameters deviceParameters) {
-            return FontStyle.builder()
+            return new FontStyle.Builder()
                     .setWeight(FONT_WEIGHT_BOLD)
                     .setSize(DimensionBuilders.sp(isLargeScreen(deviceParameters) ? 26 : 24));
         }
@@ -4348,7 +3657,7 @@ public final class LayoutElementBuilders {
         /** Font style for medium title text. */
         @NonNull
         public static FontStyle.Builder title2(@NonNull DeviceParameters deviceParameters) {
-            return FontStyle.builder()
+            return new FontStyle.Builder()
                     .setWeight(FONT_WEIGHT_BOLD)
                     .setSize(DimensionBuilders.sp(isLargeScreen(deviceParameters) ? 22 : 20));
         }
@@ -4356,7 +3665,7 @@ public final class LayoutElementBuilders {
         /** Font style for small title text. */
         @NonNull
         public static FontStyle.Builder title3(@NonNull DeviceParameters deviceParameters) {
-            return FontStyle.builder()
+            return new FontStyle.Builder()
                     .setWeight(FONT_WEIGHT_BOLD)
                     .setSize(DimensionBuilders.sp(isLargeScreen(deviceParameters) ? 18 : 16));
         }
@@ -4364,21 +3673,21 @@ public final class LayoutElementBuilders {
         /** Font style for large body text. */
         @NonNull
         public static FontStyle.Builder body1(@NonNull DeviceParameters deviceParameters) {
-            return FontStyle.builder()
+            return new FontStyle.Builder()
                     .setSize(DimensionBuilders.sp(isLargeScreen(deviceParameters) ? 18 : 16));
         }
 
         /** Font style for medium body text. */
         @NonNull
         public static FontStyle.Builder body2(@NonNull DeviceParameters deviceParameters) {
-            return FontStyle.builder()
+            return new FontStyle.Builder()
                     .setSize(DimensionBuilders.sp(isLargeScreen(deviceParameters) ? 16 : 14));
         }
 
         /** Font style for button text. */
         @NonNull
         public static FontStyle.Builder button(@NonNull DeviceParameters deviceParameters) {
-            return FontStyle.builder()
+            return new FontStyle.Builder()
                     .setWeight(FONT_WEIGHT_BOLD)
                     .setSize(DimensionBuilders.sp(isLargeScreen(deviceParameters) ? 16 : 14));
         }
@@ -4386,14 +3695,14 @@ public final class LayoutElementBuilders {
         /** Font style for large caption text. */
         @NonNull
         public static FontStyle.Builder caption1(@NonNull DeviceParameters deviceParameters) {
-            return FontStyle.builder()
+            return new FontStyle.Builder()
                     .setSize(DimensionBuilders.sp(isLargeScreen(deviceParameters) ? 16 : 14));
         }
 
         /** Font style for medium caption text. */
         @NonNull
         public static FontStyle.Builder caption2(@NonNull DeviceParameters deviceParameters) {
-            return FontStyle.builder()
+            return new FontStyle.Builder()
                     .setSize(DimensionBuilders.sp(isLargeScreen(deviceParameters) ? 14 : 12));
         }
     }

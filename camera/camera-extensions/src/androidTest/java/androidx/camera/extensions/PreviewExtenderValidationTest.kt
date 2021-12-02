@@ -17,74 +17,85 @@
 package androidx.camera.extensions
 
 import android.content.Context
-import android.hardware.camera2.CameraAccessException
+import android.hardware.camera2.CameraCharacteristics
 import android.os.Build
-import androidx.camera.core.CameraInfoUnavailableException
+import androidx.camera.camera2.interop.Camera2CameraInfo
 import androidx.camera.core.CameraSelector
 import androidx.camera.extensions.ExtensionMode.Mode
+import androidx.camera.extensions.impl.PreviewExtenderImpl.ProcessorType
+import androidx.camera.extensions.impl.PreviewImageProcessorImpl
+import androidx.camera.extensions.impl.RequestUpdateProcessorImpl
 import androidx.camera.extensions.internal.ExtensionVersion
 import androidx.camera.extensions.internal.Version
 import androidx.camera.extensions.util.ExtensionsTestUtil
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.testing.CameraUtil
+import androidx.camera.testing.fakes.FakeLifecycleOwner
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
-import com.google.common.truth.Truth
+import com.google.common.truth.Truth.assertThat
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import org.junit.After
-import org.junit.Assume
+import org.junit.Assume.assumeTrue
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
-import java.util.concurrent.ExecutionException
 import java.util.concurrent.TimeUnit
-import java.util.concurrent.TimeoutException
 
 @SmallTest
 @RunWith(Parameterized::class)
-@Suppress("DEPRECATION")
+@SdkSuppress(minSdkVersion = 21)
 class PreviewExtenderValidationTest(
     @field:Mode @param:Mode private val extensionMode: Int,
     @field:CameraSelector.LensFacing @param:CameraSelector.LensFacing private val lensFacing: Int
 ) {
-    private val context =
-        ApplicationProvider.getApplicationContext<Context>()
-
-    private val effectMode: ExtensionsManager.EffectMode =
-        ExtensionsTestUtil.extensionModeToEffectMode(extensionMode)
+    private val context = ApplicationProvider.getApplicationContext<Context>()
 
     private lateinit var cameraProvider: ProcessCameraProvider
-
     private lateinit var extensionsManager: ExtensionsManager
+    private lateinit var cameraId: String
+    private lateinit var cameraCharacteristics: CameraCharacteristics
 
     @Before
-    @Throws(Exception::class)
-    fun setUp() {
-        Assume.assumeTrue(CameraUtil.deviceHasCamera())
-        Assume.assumeTrue(
+    fun setUp(): Unit = runBlocking {
+        assumeTrue(CameraUtil.deviceHasCamera())
+        assumeTrue(
             CameraUtil.hasCameraWithLensFacing(
                 lensFacing
             )
         )
 
         cameraProvider = ProcessCameraProvider.getInstance(context)[10000, TimeUnit.MILLISECONDS]
-        extensionsManager = ExtensionsManager.getInstance(context)[10000, TimeUnit.MILLISECONDS]
-        Assume.assumeTrue(
+        extensionsManager = ExtensionsManager.getInstanceAsync(
+            context,
+            cameraProvider
+        )[10000, TimeUnit.MILLISECONDS]
+        assumeTrue(
             extensionsManager.isExtensionAvailable(
-                cameraProvider,
                 CameraSelector.Builder().requireLensFacing(lensFacing).build(),
                 extensionMode
             )
         )
+
+        val baseCameraSelector = CameraSelector.Builder().requireLensFacing(lensFacing).build()
+        val extensionCameraSelector = extensionsManager.getExtensionEnabledCameraSelector(
+            baseCameraSelector,
+            extensionMode
+        )
+
+        val camera = withContext(Dispatchers.Main) {
+            cameraProvider.bindToLifecycle(FakeLifecycleOwner(), extensionCameraSelector)
+        }
+
+        cameraId = Camera2CameraInfo.from(camera.cameraInfo).cameraId
+        cameraCharacteristics = Camera2CameraInfo.extractCameraCharacteristics(camera.cameraInfo)
     }
 
     @After
-    @Throws(
-        InterruptedException::class,
-        ExecutionException::class,
-        TimeoutException::class
-    )
     fun cleanUp() {
         if (::cameraProvider.isInitialized) {
             cameraProvider.shutdown()[10000, TimeUnit.MILLISECONDS]
@@ -103,18 +114,18 @@ class PreviewExtenderValidationTest(
     }
 
     @Test
-    @Throws(
-        CameraInfoUnavailableException::class,
-        CameraAccessException::class
-    )
     fun getSupportedResolutionsImplementationTest() {
         // getSupportedResolutions supported since version 1.1
         val version = ExtensionVersion.getRuntimeVersion()
-        Assume.assumeTrue(version != null && version.compareTo(Version.VERSION_1_1) >= 0)
+        assumeTrue(version != null && version.compareTo(Version.VERSION_1_1) >= 0)
 
         // Creates the ImageCaptureExtenderImpl to retrieve the target format/resolutions pair list
         // from vendor library for the target effect mode.
-        val impl = ExtensionsTestUtil.createPreviewExtenderImpl(effectMode, lensFacing)
+        val impl = ExtensionsTestUtil.createPreviewExtenderImpl(
+            extensionMode,
+            cameraId,
+            cameraCharacteristics
+        )
 
         // NoSuchMethodError will be thrown if getSupportedResolutions is not implemented in
         // vendor library, and then the test will fail.
@@ -122,15 +133,34 @@ class PreviewExtenderValidationTest(
     }
 
     @Test
-    @SdkSuppress(maxSdkVersion = Build.VERSION_CODES.O_MR1)
-    @Throws(
-        CameraInfoUnavailableException::class,
-        CameraAccessException::class
-    )
+    @SdkSuppress(minSdkVersion = 21, maxSdkVersion = Build.VERSION_CODES.O_MR1)
     fun returnsNullFromOnPresetSession_whenAPILevelOlderThan28() {
         // Creates the ImageCaptureExtenderImpl to check that onPresetSession() returns null when
         // API level is older than 28.
-        val impl = ExtensionsTestUtil.createPreviewExtenderImpl(effectMode, lensFacing)
-        Truth.assertThat(impl.onPresetSession()).isNull()
+        val impl = ExtensionsTestUtil.createPreviewExtenderImpl(
+            extensionMode,
+            cameraId,
+            cameraCharacteristics
+        )
+        assertThat(impl.onPresetSession()).isNull()
+    }
+
+    @Test
+    fun returnCorrectProcessor() {
+        val impl = ExtensionsTestUtil.createPreviewExtenderImpl(
+            extensionMode,
+            cameraId,
+            cameraCharacteristics
+        )
+
+        when (val processorType = impl.processorType) {
+            ProcessorType.PROCESSOR_TYPE_NONE -> assertThat(impl.processor).isNull()
+            ProcessorType.PROCESSOR_TYPE_REQUEST_UPDATE_ONLY ->
+                assertThat(impl.processor).isInstanceOf(RequestUpdateProcessorImpl::class.java)
+            ProcessorType.PROCESSOR_TYPE_IMAGE_PROCESSOR ->
+                assertThat(impl.processor).isInstanceOf(PreviewImageProcessorImpl::class.java)
+            else ->
+                throw IllegalArgumentException("Unexpected ProcessorType: $processorType")
+        }
     }
 }

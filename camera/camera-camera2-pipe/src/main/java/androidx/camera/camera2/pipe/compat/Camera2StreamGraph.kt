@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
+
 package androidx.camera.camera2.pipe.compat
 
 import android.hardware.camera2.CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL
@@ -24,6 +26,7 @@ import android.hardware.camera2.params.OutputConfiguration
 import android.os.Build
 import android.util.Size
 import android.view.Surface
+import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraMetadata
@@ -53,8 +56,8 @@ internal fun nextConfigId(): CameraConfigId = CameraConfigId(configIds.increment
 private val groupIds = atomic(0)
 internal fun nextGroupId(): Int = groupIds.incrementAndGet()
 
-@Suppress("INLINE_CLASS_DEPRECATED", "EXPERIMENTAL_FEATURE_WARNING")
-internal inline class CameraConfigId(val value: Int) {
+@JvmInline
+public value class CameraConfigId(val value: Int) {
     override fun toString(): String = "OutputConfig-$value"
 }
 

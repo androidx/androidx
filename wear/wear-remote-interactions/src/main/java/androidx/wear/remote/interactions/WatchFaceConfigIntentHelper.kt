@@ -29,12 +29,13 @@ import androidx.annotation.Nullable
  *
  * To register a configuration activity for a watch face, add a `<meta-data>` entry to the
  * watch face component in its Android Manifest file with an intent action to be fired to start the
- * activity. The following meta-data will register the `com.example.watchface.CONFIG_DIGITAL`
- * action to be started when configuring a watch face on the wearable device:
+ * activity. The following meta-data will register the
+ * `androidx.wear.watchface.editor.action.WATCH_FACE_EDITOR` action to be started when
+ * configuring a watch face on the wearable device:
  * ```
  * <meta-data
  * android:name="com.google.android.wearable.watchface.wearableConfigurationAction"
- * android:value="com.example.watchface.CONFIG_DIGITAL" />
+ * android:value="androidx.wear.watchface.editor.action.WATCH_FACE_EDITOR" />
  * ```
  *
  *
@@ -43,7 +44,7 @@ import androidx.annotation.Nullable
  * ```
  * <meta-data
  * android:name="com.google.android.wearable.watchface.companionConfigurationAction"
- * android:value="com.example.watchface.CONFIG_DIGITAL" />
+ * android:value="androidx.wear.watchface.editor.action.WATCH_FACE_EDITOR" />
  * ```
  *
  *
@@ -52,7 +53,7 @@ import androidx.annotation.Nullable
  * ```
  * <activity android:name=".MyWatchFaceConfigActivity">
  * <intent-filter>
- * <action android:name="com.example.watchface.CONFIG_DIGITAL" />
+ * <action android:name="androidx.wear.watchface.editor.action.WATCH_FACE_EDITOR" />
  * <category android:name=
  * "com.google.android.wearable.watchface.category.WEARABLE_CONFIGURATION" />
  * <category android:name="android.intent.category.DEFAULT" />

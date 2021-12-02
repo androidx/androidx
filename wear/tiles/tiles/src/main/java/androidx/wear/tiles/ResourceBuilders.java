@@ -77,12 +77,6 @@ public final class ResourceBuilders {
             return mImpl.getResourceId();
         }
 
-        /** Returns a new {@link Builder}. */
-        @NonNull
-        public static Builder builder() {
-            return new Builder();
-        }
-
         /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -103,7 +97,7 @@ public final class ResourceBuilders {
             private final ResourceProto.AndroidImageResourceByResId.Builder mImpl =
                     ResourceProto.AndroidImageResourceByResId.newBuilder();
 
-            Builder() {}
+            public Builder() {}
 
             /**
              * Sets the Android resource ID of this image. This must refer to a drawable under
@@ -171,12 +165,6 @@ public final class ResourceBuilders {
             return mImpl.getFormat().getNumber();
         }
 
-        /** Returns a new {@link Builder}. */
-        @NonNull
-        public static Builder builder() {
-            return new Builder();
-        }
-
         /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -197,7 +185,7 @@ public final class ResourceBuilders {
             private final ResourceProto.InlineImageResource.Builder mImpl =
                     ResourceProto.InlineImageResource.newBuilder();
 
-            Builder() {}
+            public Builder() {}
 
             /** Sets the byte array representing the image. */
             @NonNull
@@ -283,12 +271,6 @@ public final class ResourceBuilders {
             }
         }
 
-        /** Returns a new {@link Builder}. */
-        @NonNull
-        public static Builder builder() {
-            return new Builder();
-        }
-
         /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -308,7 +290,7 @@ public final class ResourceBuilders {
             private final ResourceProto.ImageResource.Builder mImpl =
                     ResourceProto.ImageResource.newBuilder();
 
-            Builder() {}
+            public Builder() {}
 
             /** Sets an image resource that maps to an Android drawable by resource ID. */
             @NonNull
@@ -318,26 +300,10 @@ public final class ResourceBuilders {
                 return this;
             }
 
-            /** Sets an image resource that maps to an Android drawable by resource ID. */
-            @NonNull
-            public Builder setAndroidResourceByResId(
-                    @NonNull AndroidImageResourceByResId.Builder androidResourceByResIdBuilder) {
-                mImpl.setAndroidResourceByResId(androidResourceByResIdBuilder.build().toProto());
-                return this;
-            }
-
             /** Sets an image resource that contains the image data inline. */
             @NonNull
             public Builder setInlineResource(@NonNull InlineImageResource inlineResource) {
                 mImpl.setInlineResource(inlineResource.toProto());
-                return this;
-            }
-
-            /** Sets an image resource that contains the image data inline. */
-            @NonNull
-            public Builder setInlineResource(
-                    @NonNull InlineImageResource.Builder inlineResourceBuilder) {
-                mImpl.setInlineResource(inlineResourceBuilder.build().toProto());
                 return this;
             }
 
@@ -388,12 +354,6 @@ public final class ResourceBuilders {
                                             f -> ImageResource.fromProto(f.getValue()))));
         }
 
-        /** Returns a new {@link Builder}. */
-        @NonNull
-        public static Builder builder() {
-            return new Builder();
-        }
-
         /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -413,7 +373,7 @@ public final class ResourceBuilders {
             private final ResourceProto.Resources.Builder mImpl =
                     ResourceProto.Resources.newBuilder();
 
-            Builder() {}
+            public Builder() {}
 
             /**
              * Sets the version of this {@link Resources} instance.
@@ -437,15 +397,6 @@ public final class ResourceBuilders {
             @NonNull
             public Builder addIdToImageMapping(@NonNull String id, @NonNull ImageResource image) {
                 mImpl.putIdToImage(id, image.toProto());
-                return this;
-            }
-
-            /** Adds an entry into a map of resource_ids to images, which can be used by layouts. */
-            @SuppressLint("MissingGetterMatchingBuilder")
-            @NonNull
-            public Builder addIdToImageMapping(
-                    @NonNull String id, @NonNull ImageResource.Builder imageBuilder) {
-                mImpl.putIdToImage(id, imageBuilder.build().toProto());
                 return this;
             }
 

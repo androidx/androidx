@@ -17,12 +17,14 @@
 package androidx.camera.extensions.internal;
 
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.camera.core.Logger;
 import androidx.camera.extensions.impl.ExtensionVersionImpl;
 
 /**
  * Provides interfaces to check the extension version.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public abstract class ExtensionVersion {
     private static final String TAG = "ExtenderVersion";
 
@@ -69,6 +71,12 @@ public abstract class ExtensionVersion {
         return getInstance().getVersionObject();
     }
 
+    public static boolean isAdvancedExtenderSupported() {
+        return getInstance().isAdvancedExtenderSupportedInternal();
+    }
+
+    abstract boolean isAdvancedExtenderSupportedInternal();
+
     /**
      * @return a Version object returned from the extension implementation.
      */
@@ -100,6 +108,15 @@ public abstract class ExtensionVersion {
         Version getVersionObject() {
             return mRuntimeVersion;
         }
+
+        @Override
+        boolean isAdvancedExtenderSupportedInternal() {
+            try {
+                return sImpl.isAdvancedExtenderImplemented();
+            } catch (NoSuchMethodError e) {
+                return false;
+            }
+        }
     }
 
     /** Empty implementation of ExtensionVersion which does nothing. */
@@ -110,6 +127,11 @@ public abstract class ExtensionVersion {
         @Override
         Version getVersionObject() {
             return null;
+        }
+
+        @Override
+        boolean isAdvancedExtenderSupportedInternal() {
+            return false;
         }
     }
 }

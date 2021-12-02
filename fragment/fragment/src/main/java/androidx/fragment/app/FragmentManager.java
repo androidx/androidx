@@ -616,6 +616,18 @@ public abstract class FragmentManager implements FragmentResultOwner {
         return parent.isMenuVisible();
     }
 
+    /**
+     * Recursively check up the FragmentManager hierarchy of Fragments to see
+     * if the fragment is hidden.
+     */
+    boolean isParentHidden(@Nullable Fragment parent) {
+        if (parent == null) {
+            return false;
+        }
+
+        return parent.isHidden();
+    }
+
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     void handleOnBackPressed() {
         // First, execute any pending actions to make sure we're in an
@@ -669,6 +681,23 @@ public abstract class FragmentManager implements FragmentResultOwner {
      */
     public void saveBackStack(@NonNull String name) {
         enqueueAction(new SaveBackStackState(name), false);
+    }
+
+    /**
+     * Clears the back stack previously saved via {@link #saveBackStack(String)}. This
+     * will result in all of the transactions that made up that back stack to be thrown away,
+     * thus destroying any fragments that were added through those transactions. All state of
+     * those fragments will be cleared as part of this process. If no state was previously
+     * saved with the given name, this operation does nothing.
+     * <p>
+     * This function is asynchronous -- it enqueues the
+     * request to clear, but the action will not be performed until the application
+     * returns to its event loop.
+     *
+     * @param name The name of the back stack previously saved by {@link #saveBackStack(String)}.
+     */
+    public void clearBackStack(@NonNull String name) {
+        enqueueAction(new ClearBackStackState(name), false);
     }
 
     /**
@@ -732,10 +761,14 @@ public abstract class FragmentManager implements FragmentResultOwner {
      * @param flags Either 0 or {@link #POP_BACK_STACK_INCLUSIVE}.
      */
     public void popBackStack(final int id, final int flags) {
+        popBackStack(id, flags, false);
+    }
+
+    void popBackStack(final int id, final int flags, boolean allowStateLoss) {
         if (id < 0) {
             throw new IllegalArgumentException("Bad id: " + id);
         }
-        enqueueAction(new PopBackStackState(null, id, flags), false);
+        enqueueAction(new PopBackStackState(null, id, flags), allowStateLoss);
     }
 
     /**
@@ -835,11 +868,18 @@ public abstract class FragmentManager implements FragmentResultOwner {
             // else, save the result for later
             mResults.put(requestKey, result);
         }
+        if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
+            Log.v(FragmentManager.TAG, "Setting fragment result with key " + requestKey + " and "
+                    + "result " + result);
+        }
     }
 
     @Override
     public final void clearFragmentResult(@NonNull String requestKey) {
         mResults.remove(requestKey);
+        if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
+            Log.v(FragmentManager.TAG, "Clearing fragment result with key " + requestKey);
+        }
     }
 
     @SuppressLint("SyntheticAccessor")
@@ -879,6 +919,10 @@ public abstract class FragmentManager implements FragmentResultOwner {
         if (storedListener != null) {
             storedListener.removeObserver();
         }
+        if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
+            Log.v(FragmentManager.TAG, "Setting FragmentResultListener with key " + requestKey
+                    + " lifecycleOwner " + lifecycle + " and listener " + listener);
+        }
     }
 
     @Override
@@ -886,6 +930,9 @@ public abstract class FragmentManager implements FragmentResultOwner {
         LifecycleAwareResultListener listener = mResultListeners.remove(requestKey);
         if (listener != null) {
             listener.removeObserver();
+        }
+        if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
+            Log.v(FragmentManager.TAG, "Clearing FragmentResultListener for key " + requestKey);
         }
     }
 
@@ -1994,12 +2041,23 @@ public abstract class FragmentManager implements FragmentResultOwner {
 
     boolean restoreBackStackState(@NonNull ArrayList<BackStackRecord> records,
             @NonNull ArrayList<Boolean> isRecordPop, @NonNull String name) {
-        BackStackState backStackState = mBackStackStates.get(name);
+        BackStackState backStackState = mBackStackStates.remove(name);
         if (backStackState == null) {
             return false;
         }
 
-        List<BackStackRecord> backStackRecords = backStackState.instantiate(this);
+        HashMap<String, Fragment> pendingSavedFragments = new HashMap<>();
+        for (BackStackRecord record : records) {
+            if (record.mBeingSaved) {
+                for (FragmentTransaction.Op op : record.mOps) {
+                    if (op.mFragment != null) {
+                        pendingSavedFragments.put(op.mFragment.mWho, op.mFragment);
+                    }
+                }
+            }
+        }
+        List<BackStackRecord> backStackRecords = backStackState.instantiate(this,
+                pendingSavedFragments);
         boolean added = false;
         for (BackStackRecord record : backStackRecords) {
             added = record.generateOps(records, isRecordPop) || added;
@@ -2116,6 +2174,32 @@ public abstract class FragmentManager implements FragmentResultOwner {
         }
         mBackStackStates.put(name, backStackState);
         return true;
+    }
+
+    /**
+     * We have to handle a number of cases here:
+     * 1. We have no back stack state at all
+     * 2. We have previously saved the back stack state and we now only have the state
+     * 3. We are in the process of handling a saveBackStack() operation (it is in
+     * the set of records to be processed prior to this)
+     * 3a. We are in the process of handling a saveBackStack() and there are other
+     * FragmentTransactions queued up between that save and this clear (maybe even
+     * including a restoreBackStack operation).
+     *
+     * This comes together to mean that we can't actually 'clear' anything at the time
+     * when this particular method is called - instead, we need to enqueue exactly what
+     * records, etc. we need to do to get the back stack and state into the right state
+     * after they're all executed. This means 'clear' really means 'restore'+'pop' - as
+     * we 'pop' instead of 'save', any saved state (and ViewModels, etc.) will be cleared
+     * no matter what pending operations are enqueued up before or after this.
+     */
+    boolean clearBackStackState(@NonNull ArrayList<BackStackRecord> records,
+            @NonNull ArrayList<Boolean> isRecordPop, @NonNull String name) {
+        boolean restoredBackStackState = restoreBackStackState(records, isRecordPop, name);
+        if (!restoredBackStackState) {
+            return false;
+        }
+        return popBackStackState(records, isRecordPop, name, -1, POP_BACK_STACK_INCLUSIVE);
     }
 
     @SuppressWarnings({"unused", "WeakerAccess"}) /* synthetic access */
@@ -3067,6 +3151,15 @@ public abstract class FragmentManager implements FragmentResultOwner {
         mOnAttachListeners.remove(listener);
     }
 
+    void dispatchOnHiddenChanged() {
+        for (Fragment fragment : mFragmentStore.getActiveFragments()) {
+            if (fragment != null) {
+                fragment.onHiddenChanged(fragment.isHidden());
+                fragment.mChildFragmentManager.dispatchOnHiddenChanged();
+            }
+        }
+    }
+
     // Checks if fragments that belong to this fragment manager (or their children) have menus,
     // and if they are visible.
     boolean checkForMenus() {
@@ -3217,6 +3310,21 @@ public abstract class FragmentManager implements FragmentResultOwner {
         public boolean generateOps(@NonNull ArrayList<BackStackRecord> records,
                 @NonNull ArrayList<Boolean> isRecordPop) {
             return saveBackStackState(records, isRecordPop, mName);
+        }
+    }
+
+    private class ClearBackStackState implements OpGenerator {
+
+        private final String mName;
+
+        ClearBackStackState(@NonNull String name) {
+            mName = name;
+        }
+
+        @Override
+        public boolean generateOps(@NonNull ArrayList<BackStackRecord> records,
+                @NonNull ArrayList<Boolean> isRecordPop) {
+            return clearBackStackState(records, isRecordPop, mName);
         }
     }
 

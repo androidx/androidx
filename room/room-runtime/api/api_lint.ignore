@@ -43,10 +43,6 @@ MissingGetterMatchingBuilder: androidx.room.RoomDatabase.Builder#addTypeConverte
     T does not declare a `getTypeConverters()` method matching method androidx.room.RoomDatabase.Builder.addTypeConverter(Object)
 MissingGetterMatchingBuilder: androidx.room.RoomDatabase.Builder#setJournalMode(androidx.room.RoomDatabase.JournalMode):
     T does not declare a `getJournalMode()` method matching method androidx.room.RoomDatabase.Builder.setJournalMode(androidx.room.RoomDatabase.JournalMode)
-MissingGetterMatchingBuilder: androidx.room.RoomDatabase.Builder#setQueryExecutor(java.util.concurrent.Executor):
-    T does not declare a `getQueryExecutor()` method matching method androidx.room.RoomDatabase.Builder.setQueryExecutor(java.util.concurrent.Executor)
-MissingGetterMatchingBuilder: androidx.room.RoomDatabase.Builder#setTransactionExecutor(java.util.concurrent.Executor):
-    T does not declare a `getTransactionExecutor()` method matching method androidx.room.RoomDatabase.Builder.setTransactionExecutor(java.util.concurrent.Executor)
 
 
 MissingNullability: androidx.room.DatabaseConfiguration#journalMode:

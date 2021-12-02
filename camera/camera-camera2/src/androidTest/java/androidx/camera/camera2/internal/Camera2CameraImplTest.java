@@ -71,6 +71,7 @@ import androidx.core.os.HandlerCompat;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
+import androidx.test.filters.SdkSuppress;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
@@ -104,6 +105,7 @@ import java.util.concurrent.atomic.AtomicReference;
  */
 @LargeTest
 @RunWith(AndroidJUnit4.class)
+@SdkSuppress(minSdkVersion = 21)
 public final class Camera2CameraImplTest {
     @CameraSelector.LensFacing
     private static final int DEFAULT_LENS_FACING = CameraSelector.LENS_FACING_BACK;
@@ -155,7 +157,7 @@ public final class Camera2CameraImplTest {
         CameraManagerCompat cameraManagerCompat =
                 CameraManagerCompat.from((Context) ApplicationProvider.getApplicationContext());
         Camera2CameraInfoImpl camera2CameraInfo = new Camera2CameraInfoImpl(
-                mCameraId, cameraManagerCompat.getCameraCharacteristicsCompat(mCameraId));
+                mCameraId, cameraManagerCompat);
         mCamera2CameraImpl = new Camera2CameraImpl(cameraManagerCompat, mCameraId,
                 camera2CameraInfo,
                 mCameraStateRegistry, sCameraExecutor, sCameraHandler);
@@ -399,7 +401,7 @@ public final class Camera2CameraImplTest {
         captureConfigBuilder.addSurface(useCase1.getSessionConfig().getSurfaces().get(0));
         captureConfigBuilder.addCameraCaptureCallback(captureCallback);
 
-        mCamera2CameraImpl.getCameraControlInternal().submitCaptureRequests(
+        mCamera2CameraImpl.getCameraControlInternal().submitStillCaptureRequests(
                 Arrays.asList(captureConfigBuilder.build()));
 
         UseCase useCase2 = createUseCase();
@@ -436,7 +438,7 @@ public final class Camera2CameraImplTest {
         captureConfigBuilder.addSurface(useCase1.getSessionConfig().getSurfaces().get(0));
         captureConfigBuilder.addCameraCaptureCallback(captureCallback);
 
-        mCamera2CameraImpl.getCameraControlInternal().submitCaptureRequests(
+        mCamera2CameraImpl.getCameraControlInternal().submitStillCaptureRequests(
                 Arrays.asList(captureConfigBuilder.build()));
         mCamera2CameraImpl.detachUseCases(Arrays.asList(useCase1));
 

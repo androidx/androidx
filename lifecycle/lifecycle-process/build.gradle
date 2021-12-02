@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
+
 import androidx.build.LibraryGroups
-import androidx.build.LibraryVersions
 import androidx.build.Publish
 
 plugins {
@@ -32,6 +32,7 @@ android {
 dependencies {
     api(project(":lifecycle:lifecycle-runtime"))
     api("androidx.startup:startup-runtime:1.0.0")
+    api("androidx.annotation:annotation:1.2.0")
 
     testImplementation(libs.junit)
     testImplementation(libs.mockitoCore)
@@ -40,7 +41,6 @@ dependencies {
 androidx {
     name = "Android Lifecycle Process"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenVersion = LibraryVersions.LIFECYCLE
     mavenGroup = LibraryGroups.LIFECYCLE
     inceptionYear = "2018"
     description = "Android Lifecycle Process"

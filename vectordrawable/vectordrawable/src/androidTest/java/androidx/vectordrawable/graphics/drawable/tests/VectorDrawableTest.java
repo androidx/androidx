@@ -49,7 +49,6 @@ import androidx.vectordrawable.graphics.drawable.VectorDrawableCompat;
 import androidx.vectordrawable.test.R;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.xmlpull.v1.XmlPullParserException;
@@ -462,7 +461,6 @@ public class VectorDrawableTest {
         assertEquals(1, constantState.getChangingConfigurations());
     }
 
-    @Ignore("b/201453802")
     @Test
     public void testMutate() {
         VectorDrawableCompat d1 =
@@ -475,23 +473,17 @@ public class VectorDrawableTest {
         // d1 will be mutated, while d2 / d3 will not.
         int originalAlpha = d2.getAlpha();
 
-        d1.setAlpha(0x80);
-        assertEquals(0x80, d1.getAlpha());
-        assertEquals(0x80, d2.getAlpha());
-        assertEquals(0x80, d3.getAlpha());
-
         d1.mutate();
         d1.setAlpha(0x40);
         assertEquals(0x40, d1.getAlpha());
-        assertEquals(0x80, d2.getAlpha());
-        assertEquals(0x80, d3.getAlpha());
+        assertEquals(originalAlpha, d2.getAlpha());
+        assertEquals(originalAlpha, d3.getAlpha());
 
+        d2.mutate();
         d2.setAlpha(0x20);
         assertEquals(0x40, d1.getAlpha());
         assertEquals(0x20, d2.getAlpha());
-        assertEquals(0x20, d3.getAlpha());
-
-        d2.setAlpha(originalAlpha);
+        assertEquals(originalAlpha, d3.getAlpha());
     }
 
     @Test

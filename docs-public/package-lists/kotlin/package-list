@@ -10,7 +10,6 @@ $dokka.location:kotlin$inc(java.math.BigInteger)kotlin/java.math.-big-integer/i
 $dokka.location:kotlin$inv(java.math.BigInteger)kotlin/java.math.-big-integer/inv.html
 $dokka.location:kotlin$minus(java.math.BigDecimal, java.math.BigDecimal)kotlin/java.math.-big-decimal/minus.html
 $dokka.location:kotlin$minus(java.math.BigInteger, java.math.BigInteger)kotlin/java.math.-big-integer/minus.html
-$dokka.location:kotlin$mod(java.math.BigDecimal, java.math.BigDecimal)kotlin/java.math.-big-decimal/mod.html
 $dokka.location:kotlin$or(java.math.BigInteger, java.math.BigInteger)kotlin/java.math.-big-integer/or.html
 $dokka.location:kotlin$plus(java.math.BigDecimal, java.math.BigDecimal)kotlin/java.math.-big-decimal/plus.html
 $dokka.location:kotlin$plus(java.math.BigInteger, java.math.BigInteger)kotlin/java.math.-big-integer/plus.html
@@ -39,9 +38,8 @@ $dokka.location:kotlin.NoSuchElementExceptionkotlin/-no-such-element-exception/
 $dokka.location:kotlin.NullPointerExceptionkotlin/-null-pointer-exception/index.html
 $dokka.location:kotlin.NumberFormatExceptionkotlin/-number-format-exception/index.html
 $dokka.location:kotlin.RuntimeExceptionkotlin/-runtime-exception/index.html
-$dokka.location:kotlin.Synchronizedkotlin/-synchronized/index.html
+$dokka.location:kotlin.Throwskotlin/-throws/index.html
 $dokka.location:kotlin.UnsupportedOperationExceptionkotlin/-unsupported-operation-exception/index.html
-$dokka.location:kotlin.Volatilekotlin/-volatile/index.html
 $dokka.location:kotlin.collections$getOrPut(java.util.concurrent.ConcurrentMap((kotlin.collections.getOrPut.K, kotlin.collections.getOrPut.V)), kotlin.collections.getOrPut.K, kotlin.Function0((kotlin.collections.getOrPut.V)))kotlin.collections/java.util.concurrent.-concurrent-map/get-or-put.html
 $dokka.location:kotlin.collections$iterator(java.util.Enumeration((kotlin.collections.iterator.T)))kotlin.collections/java.util.-enumeration/iterator.html
 $dokka.location:kotlin.collections$toList(java.util.Enumeration((kotlin.collections.toList.T)))kotlin.collections/java.util.-enumeration/to-list.html
@@ -60,6 +58,7 @@ $dokka.location:kotlin.concurrent$scheduleAtFixedRate(java.util.Timer, java.util
 $dokka.location:kotlin.concurrent$scheduleAtFixedRate(java.util.Timer, kotlin.Long, kotlin.Long, kotlin.Function1((java.util.TimerTask, kotlin.Unit)))kotlin.concurrent/java.util.-timer/schedule-at-fixed-rate.html
 $dokka.location:kotlin.concurrent$withLock(java.util.concurrent.locks.Lock, kotlin.Function0((kotlin.concurrent.withLock.T)))kotlin.concurrent/java.util.concurrent.locks.-lock/with-lock.html
 $dokka.location:kotlin.concurrent$write(java.util.concurrent.locks.ReentrantReadWriteLock, kotlin.Function0((kotlin.concurrent.write.T)))kotlin.concurrent/java.util.concurrent.locks.-reentrant-read-write-lock/write.html
+$dokka.location:kotlin.coroutines.cancellation.CancellationExceptionkotlin.coroutines.cancellation/-cancellation-exception/index.html
 $dokka.location:kotlin.io$appendBytes(java.io.File, kotlin.ByteArray)kotlin.io/java.io.-file/append-bytes.html
 $dokka.location:kotlin.io$appendText(java.io.File, kotlin.String, java.nio.charset.Charset)kotlin.io/java.io.-file/append-text.html
 $dokka.location:kotlin.io$buffered(java.io.InputStream, kotlin.Int)kotlin.io/java.io.-input-stream/buffered.html
@@ -121,7 +120,80 @@ $dokka.location:kotlin.io$writeBytes(java.io.File, kotlin.ByteArray)kotlin.io/j
 $dokka.location:kotlin.io$writeText(java.io.File, kotlin.String, java.nio.charset.Charset)kotlin.io/java.io.-file/write-text.html
 $dokka.location:kotlin.io$writer(java.io.File, java.nio.charset.Charset)kotlin.io/java.io.-file/writer.html
 $dokka.location:kotlin.io$writer(java.io.OutputStream, java.nio.charset.Charset)kotlin.io/java.io.-output-stream/writer.html
+$dokka.location:kotlin.io.path$absolute(java.nio.file.Path)kotlin.io.path/java.nio.file.-path/absolute.html
+$dokka.location:kotlin.io.path$absolutePathString(java.nio.file.Path)kotlin.io.path/java.nio.file.-path/absolute-path-string.html
+$dokka.location:kotlin.io.path$appendBytes(java.nio.file.Path, kotlin.ByteArray)kotlin.io.path/java.nio.file.-path/append-bytes.html
+$dokka.location:kotlin.io.path$appendLines(java.nio.file.Path, kotlin.collections.Iterable((kotlin.CharSequence)), java.nio.charset.Charset)kotlin.io.path/java.nio.file.-path/append-lines.html
+$dokka.location:kotlin.io.path$appendLines(java.nio.file.Path, kotlin.sequences.Sequence((kotlin.CharSequence)), java.nio.charset.Charset)kotlin.io.path/java.nio.file.-path/append-lines.html
+$dokka.location:kotlin.io.path$appendText(java.nio.file.Path, kotlin.CharSequence, java.nio.charset.Charset)kotlin.io.path/java.nio.file.-path/append-text.html
+$dokka.location:kotlin.io.path$bufferedReader(java.nio.file.Path, java.nio.charset.Charset, kotlin.Int, kotlin.Array((java.nio.file.OpenOption)))kotlin.io.path/java.nio.file.-path/buffered-reader.html
+$dokka.location:kotlin.io.path$bufferedWriter(java.nio.file.Path, java.nio.charset.Charset, kotlin.Int, kotlin.Array((java.nio.file.OpenOption)))kotlin.io.path/java.nio.file.-path/buffered-writer.html
+$dokka.location:kotlin.io.path$copyTo(java.nio.file.Path, java.nio.file.Path, kotlin.Array((java.nio.file.CopyOption)))kotlin.io.path/java.nio.file.-path/copy-to.html
+$dokka.location:kotlin.io.path$copyTo(java.nio.file.Path, java.nio.file.Path, kotlin.Boolean)kotlin.io.path/java.nio.file.-path/copy-to.html
+$dokka.location:kotlin.io.path$createDirectories(java.nio.file.Path, kotlin.Array((java.nio.file.attribute.FileAttribute((kotlin.Any)))))kotlin.io.path/java.nio.file.-path/create-directories.html
+$dokka.location:kotlin.io.path$createDirectory(java.nio.file.Path, kotlin.Array((java.nio.file.attribute.FileAttribute((kotlin.Any)))))kotlin.io.path/java.nio.file.-path/create-directory.html
+$dokka.location:kotlin.io.path$createFile(java.nio.file.Path, kotlin.Array((java.nio.file.attribute.FileAttribute((kotlin.Any)))))kotlin.io.path/java.nio.file.-path/create-file.html
+$dokka.location:kotlin.io.path$createLinkPointingTo(java.nio.file.Path, java.nio.file.Path)kotlin.io.path/java.nio.file.-path/create-link-pointing-to.html
+$dokka.location:kotlin.io.path$createSymbolicLinkPointingTo(java.nio.file.Path, java.nio.file.Path, kotlin.Array((java.nio.file.attribute.FileAttribute((kotlin.Any)))))kotlin.io.path/java.nio.file.-path/create-symbolic-link-pointing-to.html
+$dokka.location:kotlin.io.path$deleteExisting(java.nio.file.Path)kotlin.io.path/java.nio.file.-path/delete-existing.html
+$dokka.location:kotlin.io.path$deleteIfExists(java.nio.file.Path)kotlin.io.path/java.nio.file.-path/delete-if-exists.html
+$dokka.location:kotlin.io.path$div(java.nio.file.Path, java.nio.file.Path)kotlin.io.path/java.nio.file.-path/div.html
+$dokka.location:kotlin.io.path$div(java.nio.file.Path, kotlin.String)kotlin.io.path/java.nio.file.-path/div.html
+$dokka.location:kotlin.io.path$exists(java.nio.file.Path, kotlin.Array((java.nio.file.LinkOption)))kotlin.io.path/java.nio.file.-path/exists.html
+$dokka.location:kotlin.io.path$extension#java.nio.file.Pathkotlin.io.path/java.nio.file.-path/extension.html
+$dokka.location:kotlin.io.path$fileAttributesView(java.nio.file.Path, kotlin.Array((java.nio.file.LinkOption)))kotlin.io.path/java.nio.file.-path/file-attributes-view.html
+$dokka.location:kotlin.io.path$fileAttributesViewOrNull(java.nio.file.Path, kotlin.Array((java.nio.file.LinkOption)))kotlin.io.path/java.nio.file.-path/file-attributes-view-or-null.html
+$dokka.location:kotlin.io.path$fileSize(java.nio.file.Path)kotlin.io.path/java.nio.file.-path/file-size.html
+$dokka.location:kotlin.io.path$fileStore(java.nio.file.Path)kotlin.io.path/java.nio.file.-path/file-store.html
+$dokka.location:kotlin.io.path$forEachDirectoryEntry(java.nio.file.Path, kotlin.String, kotlin.Function1((java.nio.file.Path, kotlin.Unit)))kotlin.io.path/java.nio.file.-path/for-each-directory-entry.html
+$dokka.location:kotlin.io.path$forEachLine(java.nio.file.Path, java.nio.charset.Charset, kotlin.Function1((kotlin.String, kotlin.Unit)))kotlin.io.path/java.nio.file.-path/for-each-line.html
+$dokka.location:kotlin.io.path$getAttribute(java.nio.file.Path, kotlin.String, kotlin.Array((java.nio.file.LinkOption)))kotlin.io.path/java.nio.file.-path/get-attribute.html
+$dokka.location:kotlin.io.path$getLastModifiedTime(java.nio.file.Path, kotlin.Array((java.nio.file.LinkOption)))kotlin.io.path/java.nio.file.-path/get-last-modified-time.html
+$dokka.location:kotlin.io.path$getOwner(java.nio.file.Path, kotlin.Array((java.nio.file.LinkOption)))kotlin.io.path/java.nio.file.-path/get-owner.html
+$dokka.location:kotlin.io.path$getPosixFilePermissions(java.nio.file.Path, kotlin.Array((java.nio.file.LinkOption)))kotlin.io.path/java.nio.file.-path/get-posix-file-permissions.html
+$dokka.location:kotlin.io.path$inputStream(java.nio.file.Path, kotlin.Array((java.nio.file.OpenOption)))kotlin.io.path/java.nio.file.-path/input-stream.html
+$dokka.location:kotlin.io.path$invariantSeparatorsPath#java.nio.file.Pathkotlin.io.path/java.nio.file.-path/invariant-separators-path.html
+$dokka.location:kotlin.io.path$invariantSeparatorsPathString#java.nio.file.Pathkotlin.io.path/java.nio.file.-path/invariant-separators-path-string.html
+$dokka.location:kotlin.io.path$isDirectory(java.nio.file.Path, kotlin.Array((java.nio.file.LinkOption)))kotlin.io.path/java.nio.file.-path/is-directory.html
+$dokka.location:kotlin.io.path$isExecutable(java.nio.file.Path)kotlin.io.path/java.nio.file.-path/is-executable.html
+$dokka.location:kotlin.io.path$isHidden(java.nio.file.Path)kotlin.io.path/java.nio.file.-path/is-hidden.html
+$dokka.location:kotlin.io.path$isReadable(java.nio.file.Path)kotlin.io.path/java.nio.file.-path/is-readable.html
+$dokka.location:kotlin.io.path$isRegularFile(java.nio.file.Path, kotlin.Array((java.nio.file.LinkOption)))kotlin.io.path/java.nio.file.-path/is-regular-file.html
+$dokka.location:kotlin.io.path$isSameFileAs(java.nio.file.Path, java.nio.file.Path)kotlin.io.path/java.nio.file.-path/is-same-file-as.html
+$dokka.location:kotlin.io.path$isSymbolicLink(java.nio.file.Path)kotlin.io.path/java.nio.file.-path/is-symbolic-link.html
+$dokka.location:kotlin.io.path$isWritable(java.nio.file.Path)kotlin.io.path/java.nio.file.-path/is-writable.html
+$dokka.location:kotlin.io.path$listDirectoryEntries(java.nio.file.Path, kotlin.String)kotlin.io.path/java.nio.file.-path/list-directory-entries.html
+$dokka.location:kotlin.io.path$moveTo(java.nio.file.Path, java.nio.file.Path, kotlin.Array((java.nio.file.CopyOption)))kotlin.io.path/java.nio.file.-path/move-to.html
+$dokka.location:kotlin.io.path$moveTo(java.nio.file.Path, java.nio.file.Path, kotlin.Boolean)kotlin.io.path/java.nio.file.-path/move-to.html
+$dokka.location:kotlin.io.path$name#java.nio.file.Pathkotlin.io.path/java.nio.file.-path/name.html
+$dokka.location:kotlin.io.path$nameWithoutExtension#java.nio.file.Pathkotlin.io.path/java.nio.file.-path/name-without-extension.html
+$dokka.location:kotlin.io.path$notExists(java.nio.file.Path, kotlin.Array((java.nio.file.LinkOption)))kotlin.io.path/java.nio.file.-path/not-exists.html
+$dokka.location:kotlin.io.path$outputStream(java.nio.file.Path, kotlin.Array((java.nio.file.OpenOption)))kotlin.io.path/java.nio.file.-path/output-stream.html
+$dokka.location:kotlin.io.path$pathString#java.nio.file.Pathkotlin.io.path/java.nio.file.-path/path-string.html
+$dokka.location:kotlin.io.path$readAttributes(java.nio.file.Path, kotlin.Array((java.nio.file.LinkOption)))kotlin.io.path/java.nio.file.-path/read-attributes.html
+$dokka.location:kotlin.io.path$readAttributes(java.nio.file.Path, kotlin.String, kotlin.Array((java.nio.file.LinkOption)))kotlin.io.path/java.nio.file.-path/read-attributes.html
+$dokka.location:kotlin.io.path$readBytes(java.nio.file.Path)kotlin.io.path/java.nio.file.-path/read-bytes.html
+$dokka.location:kotlin.io.path$readLines(java.nio.file.Path, java.nio.charset.Charset)kotlin.io.path/java.nio.file.-path/read-lines.html
+$dokka.location:kotlin.io.path$readSymbolicLink(java.nio.file.Path)kotlin.io.path/java.nio.file.-path/read-symbolic-link.html
+$dokka.location:kotlin.io.path$readText(java.nio.file.Path, java.nio.charset.Charset)kotlin.io.path/java.nio.file.-path/read-text.html
+$dokka.location:kotlin.io.path$reader(java.nio.file.Path, java.nio.charset.Charset, kotlin.Array((java.nio.file.OpenOption)))kotlin.io.path/java.nio.file.-path/reader.html
+$dokka.location:kotlin.io.path$relativeTo(java.nio.file.Path, java.nio.file.Path)kotlin.io.path/java.nio.file.-path/relative-to.html
+$dokka.location:kotlin.io.path$relativeToOrNull(java.nio.file.Path, java.nio.file.Path)kotlin.io.path/java.nio.file.-path/relative-to-or-null.html
+$dokka.location:kotlin.io.path$relativeToOrSelf(java.nio.file.Path, java.nio.file.Path)kotlin.io.path/java.nio.file.-path/relative-to-or-self.html
+$dokka.location:kotlin.io.path$setAttribute(java.nio.file.Path, kotlin.String, kotlin.Any?, kotlin.Array((java.nio.file.LinkOption)))kotlin.io.path/java.nio.file.-path/set-attribute.html
+$dokka.location:kotlin.io.path$setLastModifiedTime(java.nio.file.Path, java.nio.file.attribute.FileTime)kotlin.io.path/java.nio.file.-path/set-last-modified-time.html
+$dokka.location:kotlin.io.path$setOwner(java.nio.file.Path, java.nio.file.attribute.UserPrincipal)kotlin.io.path/java.nio.file.-path/set-owner.html
+$dokka.location:kotlin.io.path$setPosixFilePermissions(java.nio.file.Path, kotlin.collections.Set((java.nio.file.attribute.PosixFilePermission)))kotlin.io.path/java.nio.file.-path/set-posix-file-permissions.html
+$dokka.location:kotlin.io.path$toPath(java.net.URI)kotlin.io.path/java.net.-u-r-i/to-path.html
+$dokka.location:kotlin.io.path$useDirectoryEntries(java.nio.file.Path, kotlin.String, kotlin.Function1((kotlin.sequences.Sequence((java.nio.file.Path)), kotlin.io.path.useDirectoryEntries.T)))kotlin.io.path/java.nio.file.-path/use-directory-entries.html
+$dokka.location:kotlin.io.path$useLines(java.nio.file.Path, java.nio.charset.Charset, kotlin.Function1((kotlin.sequences.Sequence((kotlin.String)), kotlin.io.path.useLines.T)))kotlin.io.path/java.nio.file.-path/use-lines.html
+$dokka.location:kotlin.io.path$writeBytes(java.nio.file.Path, kotlin.ByteArray, kotlin.Array((java.nio.file.OpenOption)))kotlin.io.path/java.nio.file.-path/write-bytes.html
+$dokka.location:kotlin.io.path$writeLines(java.nio.file.Path, kotlin.collections.Iterable((kotlin.CharSequence)), java.nio.charset.Charset, kotlin.Array((java.nio.file.OpenOption)))kotlin.io.path/java.nio.file.-path/write-lines.html
+$dokka.location:kotlin.io.path$writeLines(java.nio.file.Path, kotlin.sequences.Sequence((kotlin.CharSequence)), java.nio.charset.Charset, kotlin.Array((java.nio.file.OpenOption)))kotlin.io.path/java.nio.file.-path/write-lines.html
+$dokka.location:kotlin.io.path$writeText(java.nio.file.Path, kotlin.CharSequence, java.nio.charset.Charset, kotlin.Array((java.nio.file.OpenOption)))kotlin.io.path/java.nio.file.-path/write-text.html
+$dokka.location:kotlin.io.path$writer(java.nio.file.Path, java.nio.charset.Charset, kotlin.Array((java.nio.file.OpenOption)))kotlin.io.path/java.nio.file.-path/writer.html
 $dokka.location:kotlin.jvm$kotlin#java.lang.Class((kotlin.jvm.kotlin.T))kotlin.jvm/java.lang.-class/kotlin.html
+$dokka.location:kotlin.jvm.JvmRecordkotlin.jvm/-jvm-record/index.html
 $dokka.location:kotlin.random$asKotlinRandom(java.util.Random)kotlin.random/java.util.-random/as-kotlin-random.html
 $dokka.location:kotlin.reflect.KAnnotatedElementkotlin.reflect/-k-annotated-element/index.html
 $dokka.location:kotlin.reflect.KDeclarationContainerkotlin.reflect/-k-declaration-container/index.html
@@ -141,33 +213,48 @@ $dokka.location:kotlin.streams$toList(java.util.stream.DoubleStream)kotlin.stre
 $dokka.location:kotlin.streams$toList(java.util.stream.IntStream)kotlin.streams/java.util.stream.-int-stream/to-list.html
 $dokka.location:kotlin.streams$toList(java.util.stream.LongStream)kotlin.streams/java.util.stream.-long-stream/to-list.html
 $dokka.location:kotlin.streams$toList(java.util.stream.Stream((kotlin.streams.toList.T)))kotlin.streams/java.util.stream.-stream/to-list.html
+$dokka.location:kotlin.text$appendLine(java.lang.StringBuilder, java.lang.StringBuffer?)kotlin.text/java.lang.-string-builder/append-line.html
+$dokka.location:kotlin.text$appendLine(java.lang.StringBuilder, java.lang.StringBuilder?)kotlin.text/java.lang.-string-builder/append-line.html
+$dokka.location:kotlin.text$appendLine(java.lang.StringBuilder, kotlin.Byte)kotlin.text/java.lang.-string-builder/append-line.html
+$dokka.location:kotlin.text$appendLine(java.lang.StringBuilder, kotlin.Double)kotlin.text/java.lang.-string-builder/append-line.html
+$dokka.location:kotlin.text$appendLine(java.lang.StringBuilder, kotlin.Float)kotlin.text/java.lang.-string-builder/append-line.html
+$dokka.location:kotlin.text$appendLine(java.lang.StringBuilder, kotlin.Int)kotlin.text/java.lang.-string-builder/append-line.html
+$dokka.location:kotlin.text$appendLine(java.lang.StringBuilder, kotlin.Long)kotlin.text/java.lang.-string-builder/append-line.html
+$dokka.location:kotlin.text$appendLine(java.lang.StringBuilder, kotlin.Short)kotlin.text/java.lang.-string-builder/append-line.html
+$dokka.location:kotlin.text$appendRange(java.lang.StringBuilder, kotlin.CharArray, kotlin.Int, kotlin.Int)kotlin.text/java.lang.-string-builder/append-range.html
+$dokka.location:kotlin.text$appendRange(java.lang.StringBuilder, kotlin.CharSequence, kotlin.Int, kotlin.Int)kotlin.text/java.lang.-string-builder/append-range.html
 $dokka.location:kotlin.text$appendln(java.lang.Appendable)kotlin.text/java.lang.-appendable/appendln.html
 $dokka.location:kotlin.text$appendln(java.lang.Appendable, kotlin.Char)kotlin.text/java.lang.-appendable/appendln.html
-$dokka.location:kotlin.text$appendln(java.lang.Appendable, kotlin.CharSequence)kotlin.text/java.lang.-appendable/appendln.html
+$dokka.location:kotlin.text$appendln(java.lang.Appendable, kotlin.CharSequence?)kotlin.text/java.lang.-appendable/appendln.html
 $dokka.location:kotlin.text$appendln(java.lang.StringBuilder)kotlin.text/java.lang.-string-builder/appendln.html
-$dokka.location:kotlin.text$appendln(java.lang.StringBuilder, java.lang.StringBuffer)kotlin.text/java.lang.-string-builder/appendln.html
-$dokka.location:kotlin.text$appendln(java.lang.StringBuilder, java.lang.StringBuilder)kotlin.text/java.lang.-string-builder/appendln.html
-$dokka.location:kotlin.text$appendln(java.lang.StringBuilder, kotlin.Any)kotlin.text/java.lang.-string-builder/appendln.html
+$dokka.location:kotlin.text$appendln(java.lang.StringBuilder, java.lang.StringBuffer?)kotlin.text/java.lang.-string-builder/appendln.html
+$dokka.location:kotlin.text$appendln(java.lang.StringBuilder, java.lang.StringBuilder?)kotlin.text/java.lang.-string-builder/appendln.html
+$dokka.location:kotlin.text$appendln(java.lang.StringBuilder, kotlin.Any?)kotlin.text/java.lang.-string-builder/appendln.html
 $dokka.location:kotlin.text$appendln(java.lang.StringBuilder, kotlin.Boolean)kotlin.text/java.lang.-string-builder/appendln.html
 $dokka.location:kotlin.text$appendln(java.lang.StringBuilder, kotlin.Byte)kotlin.text/java.lang.-string-builder/appendln.html
 $dokka.location:kotlin.text$appendln(java.lang.StringBuilder, kotlin.Char)kotlin.text/java.lang.-string-builder/appendln.html
 $dokka.location:kotlin.text$appendln(java.lang.StringBuilder, kotlin.CharArray)kotlin.text/java.lang.-string-builder/appendln.html
-$dokka.location:kotlin.text$appendln(java.lang.StringBuilder, kotlin.CharSequence)kotlin.text/java.lang.-string-builder/appendln.html
+$dokka.location:kotlin.text$appendln(java.lang.StringBuilder, kotlin.CharSequence?)kotlin.text/java.lang.-string-builder/appendln.html
 $dokka.location:kotlin.text$appendln(java.lang.StringBuilder, kotlin.Double)kotlin.text/java.lang.-string-builder/appendln.html
 $dokka.location:kotlin.text$appendln(java.lang.StringBuilder, kotlin.Float)kotlin.text/java.lang.-string-builder/appendln.html
 $dokka.location:kotlin.text$appendln(java.lang.StringBuilder, kotlin.Int)kotlin.text/java.lang.-string-builder/appendln.html
 $dokka.location:kotlin.text$appendln(java.lang.StringBuilder, kotlin.Long)kotlin.text/java.lang.-string-builder/appendln.html
 $dokka.location:kotlin.text$appendln(java.lang.StringBuilder, kotlin.Short)kotlin.text/java.lang.-string-builder/appendln.html
-$dokka.location:kotlin.text$appendln(java.lang.StringBuilder, kotlin.String)kotlin.text/java.lang.-string-builder/appendln.html
+$dokka.location:kotlin.text$appendln(java.lang.StringBuilder, kotlin.String?)kotlin.text/java.lang.-string-builder/appendln.html
 $dokka.location:kotlin.text$clear(java.lang.StringBuilder)kotlin.text/java.lang.-string-builder/clear.html
+$dokka.location:kotlin.text$deleteAt(java.lang.StringBuilder, kotlin.Int)kotlin.text/java.lang.-string-builder/delete-at.html
+$dokka.location:kotlin.text$deleteRange(java.lang.StringBuilder, kotlin.Int, kotlin.Int)kotlin.text/java.lang.-string-builder/delete-range.html
+$dokka.location:kotlin.text$insertRange(java.lang.StringBuilder, kotlin.Int, kotlin.CharArray, kotlin.Int, kotlin.Int)kotlin.text/java.lang.-string-builder/insert-range.html
+$dokka.location:kotlin.text$insertRange(java.lang.StringBuilder, kotlin.Int, kotlin.CharSequence, kotlin.Int, kotlin.Int)kotlin.text/java.lang.-string-builder/insert-range.html
 $dokka.location:kotlin.text$set(java.lang.StringBuilder, kotlin.Int, kotlin.Char)kotlin.text/java.lang.-string-builder/set.html
+$dokka.location:kotlin.text$setRange(java.lang.StringBuilder, kotlin.Int, kotlin.Int, kotlin.String)kotlin.text/java.lang.-string-builder/set-range.html
+$dokka.location:kotlin.text$toCharArray(java.lang.StringBuilder, kotlin.CharArray, kotlin.Int, kotlin.Int, kotlin.Int)kotlin.text/java.lang.-string-builder/to-char-array.html
 $dokka.location:kotlin.text$toRegex(java.util.regex.Pattern)kotlin.text/java.util.regex.-pattern/to-regex.html
 $dokka.location:kotlin.text.Appendablekotlin.text/-appendable/index.html
 $dokka.location:kotlin.text.CharacterCodingExceptionkotlin.text/-character-coding-exception/index.html
 $dokka.location:kotlin.text.StringBuilderkotlin.text/-string-builder/index.html
 $dokka.location:kotlin.time$toKotlinDuration(java.time.Duration)kotlin.time/java.time.-duration/to-kotlin-duration.html
 $dokka.location:kotlin.time.DurationUnitkotlin.time/-duration-unit/index.html
-$dokka.location:kotlin.time.MonoClockkotlin.time/-mono-clock/index.html
 kotlin
 kotlin.annotation
 kotlin.browser
@@ -176,12 +263,12 @@ kotlin.comparisons
 kotlin.concurrent
 kotlin.contracts
 kotlin.coroutines
-kotlin.coroutines.experimental
-kotlin.coroutines.experimental.intrinsics
+kotlin.coroutines.cancellation
 kotlin.coroutines.intrinsics
 kotlin.dom
 kotlin.experimental
 kotlin.io
+kotlin.io.path
 kotlin.js
 kotlin.jvm
 kotlin.math
@@ -199,16 +286,20 @@ kotlin.streams
 kotlin.system
 kotlin.text
 kotlin.time
+kotlinx.browser
 kotlinx.cinterop
 kotlinx.cinterop.internal
+kotlinx.dom
 kotlinx.wasm.jsinterop
 org.khronos.webgl
 org.w3c.css.masking
 org.w3c.dom
 org.w3c.dom.clipboard
 org.w3c.dom.css
+org.w3c.dom.encryptedmedia
 org.w3c.dom.events
 org.w3c.dom.mediacapture
+org.w3c.dom.mediasource
 org.w3c.dom.parsing
 org.w3c.dom.pointerevents
 org.w3c.dom.svg

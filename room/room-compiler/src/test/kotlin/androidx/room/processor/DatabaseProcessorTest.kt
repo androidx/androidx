@@ -24,7 +24,7 @@ import androidx.room.compiler.processing.util.CompilationResultSubject
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.XTestInvocation
 import androidx.room.compiler.processing.util.compileFiles
-import androidx.room.compiler.processing.util.getSystemClasspathFiles
+import androidx.room.compiler.processing.util.compileFilesIntoJar
 import androidx.room.compiler.processing.util.runProcessorTest
 import androidx.room.parser.ParsedQuery
 import androidx.room.parser.QueryType
@@ -37,6 +37,7 @@ import androidx.room.vo.Database
 import androidx.room.vo.DatabaseView
 import androidx.room.vo.ReadQueryMethod
 import androidx.room.vo.Warning
+import com.google.auto.service.processor.AutoServiceProcessor
 import com.google.common.truth.Truth.assertThat
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.TypeName
@@ -56,6 +57,8 @@ import org.junit.runners.JUnit4
 import org.mockito.Mockito.mock
 import java.io.File
 import java.io.FileOutputStream
+import java.net.URL
+import java.net.URLClassLoader
 
 @RunWith(JUnit4::class)
 class DatabaseProcessorTest {
@@ -222,7 +225,7 @@ class DatabaseProcessorTest {
         ) { db, _ ->
             assertThat(db.daoMethods.size, `is`(2))
             assertThat(db.entities.size, `is`(2))
-            assertThat(db.daoMethods.map { it.name }, `is`(listOf("userDao", "bookDao")))
+            assertThat(db.daoMethods.map { it.element.jvmName }, `is`(listOf("userDao", "bookDao")))
             assertThat(
                 db.entities.map { it.type.typeName.toString() },
                 `is`(listOf("foo.bar.User", "foo.bar.Book"))
@@ -333,7 +336,7 @@ class DatabaseProcessorTest {
                 @Database(entities = {test.library.MissingEntityAnnotationPojo.class}, version = 1)
                 public abstract class MyDb extends RoomDatabase {}
                 """,
-            classpath = listOf(libraryClasspath) + getSystemClasspathFiles()
+            classpath = libraryClasspath
         ) { _, invocation ->
             invocation.assertCompilationResult {
                 compilationDidFail()
@@ -367,7 +370,7 @@ class DatabaseProcessorTest {
                     abstract test.library.MissingAnnotationsBaseDao getBadDao();
                 }
                 """,
-            USER, classpath = listOf(libraryClasspath) + getSystemClasspathFiles()
+            USER, classpath = libraryClasspath
         ) { _, invocation ->
             invocation.assertCompilationResult {
                 compilationDidFail()
@@ -822,13 +825,13 @@ class DatabaseProcessorTest {
             USER, USER_DAO
         ) { db, _ ->
             val userDao = db.daoMethods.first().dao
-            val insertionMethod = userDao.insertionMethods.find { it.name == "insert" }
+            val insertionMethod = userDao.insertionMethods.find { it.element.jvmName == "insert" }
             assertThat(insertionMethod, notNullValue())
             val loadOne = userDao.queryMethods
                 .filterIsInstance<ReadQueryMethod>()
-                .find { it.name == "loadOne" }
+                .find { it.element.jvmName == "loadOne" }
             assertThat(loadOne, notNullValue())
-            val adapter = loadOne?.queryResultBinder?.adapter?.rowAdapter
+            val adapter = loadOne?.queryResultBinder?.adapter?.rowAdapters?.single()
             assertThat("test sanity", adapter, instanceOf(EntityRowAdapter::class.java))
             val adapterEntity = (adapter as EntityRowAdapter).entity
             assertThat(
@@ -838,9 +841,9 @@ class DatabaseProcessorTest {
 
             val withConverter = userDao.queryMethods
                 .filterIsInstance<ReadQueryMethod>()
-                .find { it.name == "loadWithConverter" }
+                .find { it.element.jvmName == "loadWithConverter" }
             assertThat(withConverter, notNullValue())
-            val convAdapter = withConverter?.queryResultBinder?.adapter?.rowAdapter
+            val convAdapter = withConverter?.queryResultBinder?.adapter?.rowAdapters?.single()
             assertThat("test sanity", adapter, instanceOf(EntityRowAdapter::class.java))
             val convAdapterEntity = (convAdapter as EntityRowAdapter).entity
             assertThat(
@@ -867,17 +870,17 @@ class DatabaseProcessorTest {
             val userDao = db.daoMethods.first().dao
             val loadOne = userDao.queryMethods
                 .filterIsInstance<ReadQueryMethod>()
-                .find { it.name == "loadOnePojo" }
+                .find { it.element.jvmName == "loadOnePojo" }
             assertThat(loadOne, notNullValue())
-            val adapter = loadOne?.queryResultBinder?.adapter?.rowAdapter
+            val adapter = loadOne?.queryResultBinder?.adapter?.rowAdapters?.single()
             assertThat("test sanity", adapter, instanceOf(PojoRowAdapter::class.java))
             val adapterPojo = (adapter as PojoRowAdapter).pojo
 
             val loadAll = userDao.queryMethods
                 .filterIsInstance<ReadQueryMethod>()
-                .find { it.name == "loadAllPojos" }
+                .find { it.element.jvmName == "loadAllPojos" }
             assertThat(loadAll, notNullValue())
-            val loadAllAdapter = loadAll?.queryResultBinder?.adapter?.rowAdapter
+            val loadAllAdapter = loadAll?.queryResultBinder?.adapter?.rowAdapters?.single()
             assertThat("test sanity", loadAllAdapter, instanceOf(PojoRowAdapter::class.java))
             val loadAllPojo = (loadAllAdapter as PojoRowAdapter).pojo
             assertThat(adapter, not(sameInstance(loadAllAdapter)))
@@ -885,9 +888,9 @@ class DatabaseProcessorTest {
 
             val withConverter = userDao.queryMethods
                 .filterIsInstance<ReadQueryMethod>()
-                .find { it.name == "loadPojoWithConverter" }
+                .find { it.element.jvmName == "loadPojoWithConverter" }
             assertThat(withConverter, notNullValue())
-            val convAdapter = withConverter?.queryResultBinder?.adapter?.rowAdapter
+            val convAdapter = withConverter?.queryResultBinder?.adapter?.rowAdapters?.single()
             assertThat("test sanity", adapter, instanceOf(PojoRowAdapter::class.java))
             val convAdapterPojo = (convAdapter as PojoRowAdapter).pojo
             assertThat(convAdapterPojo, notNullValue())
@@ -1369,6 +1372,71 @@ class DatabaseProcessorTest {
         }
     }
 
+    @Test
+    fun differentSchemaResolver() {
+        val tempDirPath = schemaFolder.root.absolutePath
+        val serviceSource = Source.java(
+            "foo.bar.TestResolver",
+            """
+            package foo.bar;
+            import androidx.room.util.SchemaFileResolver;
+            import com.google.auto.service.AutoService;
+            import java.io.File;
+            import java.nio.file.Path;
+            @AutoService(SchemaFileResolver.class)
+            public class TestResolver implements SchemaFileResolver {
+                @Override
+                public File getFile(Path path) {
+                    return Path.of("$tempDirPath").resolve(path).toFile();
+                }
+            }
+            """.trimIndent()
+        )
+        val resolverLib = compileFilesIntoJar(
+            outputDirectory = schemaFolder.root,
+            sources = listOf(serviceSource),
+            annotationProcessors = listOf(AutoServiceProcessor()),
+        )
+        val dbSource = Source.java(
+            "foo.bar.MyDb",
+            """
+            package foo.bar;
+            import androidx.room.*;
+            @Database(entities = {User.class}, version = 1, exportSchema = true)
+            public abstract class MyDb extends RoomDatabase {}
+            """.trimIndent()
+        )
+        runProcessorTest(
+            sources = listOf(dbSource, USER),
+            options = mapOf("room.schemaLocation" to "schemas/")
+        ) { invocation ->
+            val dbAnnotationName = "androidx.room.Database"
+            val roundElements = mapOf(
+                dbAnnotationName to invocation.roundEnv.getElementsAnnotatedWith(dbAnnotationName)
+            )
+            // Temporarily change the current's thread class loader so that the ServiceLocator can
+            // find the compiled TestResolver. It is not enough to pass the compiled jar in the
+            // classpath argument when running processors because the processor classpath is
+            // different from the user classpath and specifically the processor classes are already
+            // loaded.
+            val currentClassLoader = Thread.currentThread().contextClassLoader
+            try {
+                Thread.currentThread().contextClassLoader = URLClassLoader(
+                    arrayOf(URL("file://${resolverLib.absolutePath}")),
+                    currentClassLoader,
+                )
+                DatabaseProcessingStep().process(invocation.processingEnv, roundElements)
+            } finally {
+                Thread.currentThread().contextClassLoader = currentClassLoader
+            }
+        }
+        // Assert schema file is created in a directory different from the room.schemaLocation
+        // verbatim since it was resolved by the compiled TestResolver.
+        assertThat(
+            File(schemaFolder.root, "schemas/foo.bar.MyDb/1.json").exists()
+        ).isTrue()
+    }
+
     private fun resolveDatabaseViews(
         views: Map<String, Set<String>>,
         body: (List<DatabaseView>, XTestInvocation) -> Unit
@@ -1393,7 +1461,7 @@ class DatabaseProcessorTest {
                     viewName = viewName,
                     query = ParsedQuery(
                         "", QueryType.SELECT, emptyList(),
-                        names.map { Table(it, it) }.toSet(),
+                        names.map { Table(it, it) }.toSet(), null,
                         emptyList()
                     ),
                     type = mock(XType::class.java),

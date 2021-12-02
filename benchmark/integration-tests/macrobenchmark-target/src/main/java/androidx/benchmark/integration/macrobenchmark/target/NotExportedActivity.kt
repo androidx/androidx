@@ -16,6 +16,12 @@
 
 package androidx.benchmark.integration.macrobenchmark.target
 
+import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 
-class NotExportedActivity : AppCompatActivity()
+class NotExportedActivity : AppCompatActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setTitle("NOT EXPORTED ACTIVITY")
+    }
+}

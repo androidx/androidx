@@ -17,6 +17,7 @@
 
 package androidx.core.widget;
 
+import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.content.Context;
@@ -45,9 +46,12 @@ import android.widget.FrameLayout;
 import android.widget.OverScroller;
 import android.widget.ScrollView;
 
+import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
+import androidx.annotation.VisibleForTesting;
 import androidx.core.R;
 import androidx.core.view.AccessibilityDelegateCompat;
 import androidx.core.view.InputDeviceCompat;
@@ -63,7 +67,7 @@ import androidx.core.view.accessibility.AccessibilityRecordCompat;
 import java.util.List;
 
 /**
- * NestedScrollView is just like {@link android.widget.ScrollView}, but it supports acting
+ * NestedScrollView is just like {@link ScrollView}, but it supports acting
  * as both a nested scrolling parent and child on both new and old versions of Android.
  * Nested scrolling is enabled by default.
  */
@@ -87,14 +91,13 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
     public interface OnScrollChangeListener {
         /**
          * Called when the scroll position of a view changes.
-         *
          * @param v The view whose scroll position has changed.
          * @param scrollX Current horizontal scroll origin.
          * @param scrollY Current vertical scroll origin.
          * @param oldScrollX Previous horizontal scroll origin.
          * @param oldScrollY Previous vertical scroll origin.
          */
-        void onScrollChange(NestedScrollView v, int scrollX, int scrollY,
+        void onScrollChange(@NonNull NestedScrollView v, int scrollX, int scrollY,
                 int oldScrollX, int oldScrollY);
     }
 
@@ -102,8 +105,18 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
 
     private final Rect mTempRect = new Rect();
     private OverScroller mScroller;
-    private EdgeEffect mEdgeGlowTop;
-    private EdgeEffect mEdgeGlowBottom;
+
+    /** @hide */
+    @RestrictTo(LIBRARY)
+    @VisibleForTesting
+    @NonNull
+    public EdgeEffect mEdgeGlowTop;
+
+    /** @hide */
+    @RestrictTo(LIBRARY)
+    @VisibleForTesting
+    @NonNull
+    public EdgeEffect mEdgeGlowBottom;
 
     /**
      * Position of the last motion event.
@@ -198,6 +211,9 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
     public NestedScrollView(@NonNull Context context, @Nullable AttributeSet attrs,
             int defStyleAttr) {
         super(context, attrs, defStyleAttr);
+        mEdgeGlowTop = EdgeEffectCompat.create(context, attrs);
+        mEdgeGlowBottom = EdgeEffectCompat.create(context, attrs);
+
         initScrollView();
 
         final TypedArray a = context.obtainStyledAttributes(
@@ -244,14 +260,14 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
 
     @Override
     public boolean dispatchNestedScroll(int dxConsumed, int dyConsumed, int dxUnconsumed,
-            int dyUnconsumed, int[] offsetInWindow, int type) {
+            int dyUnconsumed, @Nullable int[] offsetInWindow, int type) {
         return mChildHelper.dispatchNestedScroll(dxConsumed, dyConsumed, dxUnconsumed, dyUnconsumed,
                 offsetInWindow, type);
     }
 
     @Override
-    public boolean dispatchNestedPreScroll(int dx, int dy, int[] consumed, int[] offsetInWindow,
-            int type) {
+    public boolean dispatchNestedPreScroll(int dx, int dy, @Nullable int[] consumed,
+            @Nullable int[] offsetInWindow, int type) {
         return mChildHelper.dispatchNestedPreScroll(dx, dy, consumed, offsetInWindow, type);
     }
 
@@ -284,13 +300,14 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
 
     @Override
     public boolean dispatchNestedScroll(int dxConsumed, int dyConsumed, int dxUnconsumed,
-            int dyUnconsumed, int[] offsetInWindow) {
+            int dyUnconsumed, @Nullable int[] offsetInWindow) {
         return mChildHelper.dispatchNestedScroll(dxConsumed, dyConsumed, dxUnconsumed, dyUnconsumed,
                 offsetInWindow);
     }
 
     @Override
-    public boolean dispatchNestedPreScroll(int dx, int dy, int[] consumed, int[] offsetInWindow) {
+    public boolean dispatchNestedPreScroll(int dx, int dy, @Nullable int[] consumed,
+            @Nullable int[] offsetInWindow) {
         return dispatchNestedPreScroll(dx, dy, consumed, offsetInWindow, ViewCompat.TYPE_TOUCH);
     }
 
@@ -362,14 +379,14 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
 
     @Override
     public boolean onStartNestedScroll(
-            @NonNull View child, @NonNull View target, int nestedScrollAxes) {
-        return onStartNestedScroll(child, target, nestedScrollAxes, ViewCompat.TYPE_TOUCH);
+            @NonNull View child, @NonNull View target, int axes) {
+        return onStartNestedScroll(child, target, axes, ViewCompat.TYPE_TOUCH);
     }
 
     @Override
     public void onNestedScrollAccepted(
-            @NonNull View child, @NonNull View target, int nestedScrollAxes) {
-        onNestedScrollAccepted(child, target, nestedScrollAxes, ViewCompat.TYPE_TOUCH);
+            @NonNull View child, @NonNull View target, int axes) {
+        onNestedScrollAccepted(child, target, axes, ViewCompat.TYPE_TOUCH);
     }
 
     @Override
@@ -438,7 +455,7 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
         }
 
         View child = getChildAt(0);
-        final NestedScrollView.LayoutParams lp = (LayoutParams) child.getLayoutParams();
+        final LayoutParams lp = (LayoutParams) child.getLayoutParams();
         final int length = getVerticalFadingEdgeLength();
         final int bottomEdge = getHeight() - getPaddingBottom();
         final int span = child.getBottom() + lp.bottomMargin - getScrollY() - bottomEdge;
@@ -469,7 +486,7 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
     }
 
     @Override
-    public void addView(View child) {
+    public void addView(@NonNull View child) {
         if (getChildCount() > 0) {
             throw new IllegalStateException("ScrollView can host only one direct child");
         }
@@ -510,8 +527,8 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
      * <p>This version of the method works on all versions of Android, back to API v4.</p>
      *
      * @param l The listener to notify when the scroll X or Y position changes.
-     * @see android.view.View#getScrollX()
-     * @see android.view.View#getScrollY()
+     * @see View#getScrollX()
+     * @see View#getScrollY()
      */
     public void setOnScrollChangeListener(@Nullable OnScrollChangeListener l) {
         mOnScrollChangeListener = l;
@@ -523,7 +540,7 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
     private boolean canScroll() {
         if (getChildCount() > 0) {
             View child = getChildAt(0);
-            final NestedScrollView.LayoutParams lp = (LayoutParams) child.getLayoutParams();
+            final LayoutParams lp = (LayoutParams) child.getLayoutParams();
             int childSize = child.getHeight() + lp.topMargin + lp.bottomMargin;
             int parentSpace = getHeight() - getPaddingTop() - getPaddingBottom();
             return childSize > parentSpace;
@@ -596,7 +613,7 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
 
         if (getChildCount() > 0) {
             View child = getChildAt(0);
-            final NestedScrollView.LayoutParams lp = (LayoutParams) child.getLayoutParams();
+            final LayoutParams lp = (LayoutParams) child.getLayoutParams();
 
             int childSize = child.getMeasuredHeight();
             int parentSpace = getMeasuredHeight()
@@ -714,7 +731,7 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
     }
 
     @Override
-    public boolean onInterceptTouchEvent(MotionEvent ev) {
+    public boolean onInterceptTouchEvent(@NonNull MotionEvent ev) {
         /*
          * This method JUST determines whether we want to intercept the motion.
          * If we return true, onMotionEvent will be called and we do the actual
@@ -775,7 +792,7 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
             case MotionEvent.ACTION_DOWN: {
                 final int y = (int) ev.getY();
                 if (!inChild((int) ev.getX(), y)) {
-                    mIsBeingDragged = false;
+                    mIsBeingDragged = stopGlowAnimations(ev) || !mScroller.isFinished();
                     recycleVelocityTracker();
                     break;
                 }
@@ -792,11 +809,12 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
                 /*
                  * If being flinged and user touches the screen, initiate drag;
                  * otherwise don't. mScroller.isFinished should be false when
-                 * being flinged. We need to call computeScrollOffset() first so that
+                 * being flinged. We also want to catch the edge glow and start dragging
+                 * if one is being animated. We need to call computeScrollOffset() first so that
                  * isFinished() is correct.
                 */
                 mScroller.computeScrollOffset();
-                mIsBeingDragged = !mScroller.isFinished();
+                mIsBeingDragged = stopGlowAnimations(ev) || !mScroller.isFinished();
                 startNestedScroll(ViewCompat.SCROLL_AXIS_VERTICAL, ViewCompat.TYPE_TOUCH);
                 break;
             }
@@ -825,7 +843,7 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
     }
 
     @Override
-    public boolean onTouchEvent(MotionEvent ev) {
+    public boolean onTouchEvent(@NonNull MotionEvent ev) {
         initVelocityTrackerIfNotExists();
 
         final int actionMasked = ev.getActionMasked();
@@ -842,7 +860,7 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
                 if (getChildCount() == 0) {
                     return false;
                 }
-                if ((mIsBeingDragged = !mScroller.isFinished())) {
+                if (mIsBeingDragged) {
                     final ViewParent parent = getParent();
                     if (parent != null) {
                         parent.requestDisallowInterceptTouchEvent(true);
@@ -872,6 +890,7 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
 
                 final int y = (int) ev.getY(activePointerIndex);
                 int deltaY = mLastMotionY - y;
+                deltaY -= releaseVerticalGlow(deltaY, ev.getX(activePointerIndex));
                 if (!mIsBeingDragged && Math.abs(deltaY) > mTouchSlop) {
                     final ViewParent parent = getParent();
                     if (parent != null) {
@@ -903,11 +922,9 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
 
                     // Calling overScrollByCompat will call onOverScrolled, which
                     // calls onScrollChanged if applicable.
-                    if (overScrollByCompat(0, deltaY, 0, getScrollY(), 0, range, 0,
-                            0, true) && !hasNestedScrollingParent(ViewCompat.TYPE_TOUCH)) {
-                        // Break our velocity if we hit a scroll barrier.
-                        mVelocityTracker.clear();
-                    }
+                    boolean clearVelocityTracker =
+                            overScrollByCompat(0, deltaY, 0, getScrollY(), 0, range, 0,
+                                    0, true) && !hasNestedScrollingParent(ViewCompat.TYPE_TOUCH);
 
                     final int scrolledDeltaY = getScrollY() - oldY;
                     final int unconsumedY = deltaY - scrolledDeltaY;
@@ -922,26 +939,30 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
 
                     if (canOverscroll) {
                         deltaY -= mScrollConsumed[1];
-                        ensureGlows();
                         final int pulledToY = oldY + deltaY;
                         if (pulledToY < 0) {
-                            EdgeEffectCompat.onPull(mEdgeGlowTop, (float) deltaY / getHeight(),
+                            EdgeEffectCompat.onPullDistance(mEdgeGlowTop,
+                                    (float) -deltaY / getHeight(),
                                     ev.getX(activePointerIndex) / getWidth());
                             if (!mEdgeGlowBottom.isFinished()) {
                                 mEdgeGlowBottom.onRelease();
                             }
                         } else if (pulledToY > range) {
-                            EdgeEffectCompat.onPull(mEdgeGlowBottom, (float) deltaY / getHeight(),
-                                    1.f - ev.getX(activePointerIndex)
-                                            / getWidth());
+                            EdgeEffectCompat.onPullDistance(mEdgeGlowBottom,
+                                    (float) deltaY / getHeight(),
+                                    1.f - ev.getX(activePointerIndex) / getWidth());
                             if (!mEdgeGlowTop.isFinished()) {
                                 mEdgeGlowTop.onRelease();
                             }
                         }
-                        if (mEdgeGlowTop != null
-                                && (!mEdgeGlowTop.isFinished() || !mEdgeGlowBottom.isFinished())) {
+                        if (!mEdgeGlowTop.isFinished() || !mEdgeGlowBottom.isFinished()) {
                             ViewCompat.postInvalidateOnAnimation(this);
+                            clearVelocityTracker = false;
                         }
+                    }
+                    if (clearVelocityTracker) {
+                        // Break our velocity if we hit a scroll barrier.
+                        mVelocityTracker.clear();
                     }
                 }
                 break;
@@ -950,7 +971,8 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
                 velocityTracker.computeCurrentVelocity(1000, mMaximumVelocity);
                 int initialVelocity = (int) velocityTracker.getYVelocity(mActivePointerId);
                 if ((Math.abs(initialVelocity) >= mMinimumVelocity)) {
-                    if (!dispatchNestedPreFling(0, -initialVelocity)) {
+                    if (!edgeEffectFling(initialVelocity)
+                            && !dispatchNestedPreFling(0, -initialVelocity)) {
                         dispatchNestedFling(0, -initialVelocity, true);
                         fling(-initialVelocity);
                     }
@@ -991,6 +1013,42 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
         return true;
     }
 
+    private boolean edgeEffectFling(int velocityY) {
+        boolean consumed = true;
+        if (EdgeEffectCompat.getDistance(mEdgeGlowTop) != 0) {
+            mEdgeGlowTop.onAbsorb(velocityY);
+        } else if (EdgeEffectCompat.getDistance(mEdgeGlowBottom) != 0) {
+            mEdgeGlowBottom.onAbsorb(-velocityY);
+        } else {
+            consumed = false;
+        }
+        return consumed;
+    }
+
+    /**
+     * This stops any edge glow animation that is currently running by applying a
+     * 0 length pull at the displacement given by the provided MotionEvent. On pre-S devices,
+     * this method does nothing, allowing any animating edge effect to continue animating and
+     * returning <code>false</code> always.
+     *
+     * @param e The motion event to use to indicate the finger position for the displacement of
+     *          the current pull.
+     * @return <code>true</code> if any edge effect had an existing effect to be drawn ond the
+     * animation was stopped or <code>false</code> if no edge effect had a value to display.
+     */
+    private boolean stopGlowAnimations(MotionEvent e) {
+        boolean stopped = false;
+        if (EdgeEffectCompat.getDistance(mEdgeGlowTop) != 0) {
+            EdgeEffectCompat.onPullDistance(mEdgeGlowTop, 0, e.getY() / getHeight());
+            stopped = true;
+        }
+        if (EdgeEffectCompat.getDistance(mEdgeGlowBottom) != 0) {
+            EdgeEffectCompat.onPullDistance(mEdgeGlowBottom, 0, 1 - e.getY() / getHeight());
+            stopped = true;
+        }
+        return stopped;
+    }
+
     private void onSecondaryPointerUp(MotionEvent ev) {
         final int pointerIndex = ev.getActionIndex();
         final int pointerId = ev.getPointerId(pointerIndex);
@@ -1008,26 +1066,24 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
     }
 
     @Override
-    public boolean onGenericMotionEvent(MotionEvent event) {
+    public boolean onGenericMotionEvent(@NonNull MotionEvent event) {
         if ((event.getSource() & InputDeviceCompat.SOURCE_CLASS_POINTER) != 0) {
-            switch (event.getAction()) {
-                case MotionEvent.ACTION_SCROLL: {
-                    if (!mIsBeingDragged) {
-                        final float vscroll = event.getAxisValue(MotionEvent.AXIS_VSCROLL);
-                        if (vscroll != 0) {
-                            final int delta = (int) (vscroll * getVerticalScrollFactorCompat());
-                            final int range = getScrollRange();
-                            int oldScrollY = getScrollY();
-                            int newScrollY = oldScrollY - delta;
-                            if (newScrollY < 0) {
-                                newScrollY = 0;
-                            } else if (newScrollY > range) {
-                                newScrollY = range;
-                            }
-                            if (newScrollY != oldScrollY) {
-                                super.scrollTo(getScrollX(), newScrollY);
-                                return true;
-                            }
+            if (event.getAction() == MotionEvent.ACTION_SCROLL) {
+                if (!mIsBeingDragged) {
+                    final float vscroll = event.getAxisValue(MotionEvent.AXIS_VSCROLL);
+                    if (vscroll != 0) {
+                        final int delta = (int) (vscroll * getVerticalScrollFactorCompat());
+                        final int range = getScrollRange();
+                        int oldScrollY = getScrollY();
+                        int newScrollY = oldScrollY - delta;
+                        if (newScrollY < 0) {
+                            newScrollY = 0;
+                        } else if (newScrollY > range) {
+                            newScrollY = range;
+                        }
+                        if (newScrollY != oldScrollY) {
+                            super.scrollTo(getScrollX(), newScrollY);
+                            return true;
                         }
                     }
                 }
@@ -1057,6 +1113,7 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
         super.scrollTo(scrollX, scrollY);
     }
 
+    @SuppressWarnings({"SameParameterValue", "unused"})
     boolean overScrollByCompat(int deltaX, int deltaY,
             int scrollX, int scrollY,
             int scrollRangeX, int scrollRangeY,
@@ -1119,7 +1176,7 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
         int scrollRange = 0;
         if (getChildCount() > 0) {
             View child = getChildAt(0);
-            NestedScrollView.LayoutParams lp = (LayoutParams) child.getLayoutParams();
+            LayoutParams lp = (LayoutParams) child.getLayoutParams();
             int childSize = child.getHeight() + lp.topMargin + lp.bottomMargin;
             int parentSpace = getHeight() - getPaddingTop() - getPaddingBottom();
             scrollRange = Math.max(0, childSize - parentSpace);
@@ -1215,9 +1272,9 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
      * component is a good candidate for focus, this scrollview reclaims the
      * focus.</p>
      *
-     * @param direction the scroll direction: {@link android.view.View#FOCUS_UP}
+     * @param direction the scroll direction: {@link View#FOCUS_UP}
      *                  to go one page up or
-     *                  {@link android.view.View#FOCUS_DOWN} to go one page down
+     *                  {@link View#FOCUS_DOWN} to go one page down
      * @return true if the key event is consumed by this method, false otherwise
      */
     public boolean pageScroll(int direction) {
@@ -1229,7 +1286,7 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
             int count = getChildCount();
             if (count > 0) {
                 View view = getChildAt(count - 1);
-                NestedScrollView.LayoutParams lp = (LayoutParams) view.getLayoutParams();
+                LayoutParams lp = (LayoutParams) view.getLayoutParams();
                 int bottom = view.getBottom() + lp.bottomMargin + getPaddingBottom();
                 if (mTempRect.top + height > bottom) {
                     mTempRect.top = bottom - height;
@@ -1253,9 +1310,9 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
      * component is a good candidate for focus, this scrollview reclaims the
      * focus.</p>
      *
-     * @param direction the scroll direction: {@link android.view.View#FOCUS_UP}
+     * @param direction the scroll direction: {@link View#FOCUS_UP}
      *                  to go the top of the view or
-     *                  {@link android.view.View#FOCUS_DOWN} to go the bottom
+     *                  {@link View#FOCUS_DOWN} to go the bottom
      * @return true if the key event is consumed by this method, false otherwise
      */
     public boolean fullScroll(int direction) {
@@ -1269,7 +1326,7 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
             int count = getChildCount();
             if (count > 0) {
                 View view = getChildAt(count - 1);
-                NestedScrollView.LayoutParams lp = (LayoutParams) view.getLayoutParams();
+                LayoutParams lp = (LayoutParams) view.getLayoutParams();
                 mTempRect.bottom = view.getBottom() + lp.bottomMargin + getPaddingBottom();
                 mTempRect.top = mTempRect.bottom - height;
             }
@@ -1284,8 +1341,8 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
      * to a component visible in this area. If no component can be focused in
      * the new visible area, the focus is reclaimed by this ScrollView.</p>
      *
-     * @param direction the scroll direction: {@link android.view.View#FOCUS_UP}
-     *                  to go upward, {@link android.view.View#FOCUS_DOWN} to downward
+     * @param direction the scroll direction: {@link View#FOCUS_UP}
+     *                  to go upward, {@link View#FOCUS_DOWN} to downward
      * @param top       the top offset of the new area to be made visible
      * @param bottom    the bottom offset of the new area to be made visible
      * @return true if the key event is consumed by this method, false otherwise
@@ -1345,7 +1402,7 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
             } else if (direction == View.FOCUS_DOWN) {
                 if (getChildCount() > 0) {
                     View child = getChildAt(0);
-                    NestedScrollView.LayoutParams lp = (LayoutParams) child.getLayoutParams();
+                    LayoutParams lp = (LayoutParams) child.getLayoutParams();
                     int daBottom = child.getBottom() + lp.bottomMargin;
                     int screenBottom = getScrollY() + getHeight() - getPaddingBottom();
                     scrollDelta = Math.min(daBottom - screenBottom, maxJump);
@@ -1444,7 +1501,7 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
         long duration = AnimationUtils.currentAnimationTimeMillis() - mLastScroll;
         if (duration > ANIMATED_SCROLL_GAP) {
             View child = getChildAt(0);
-            NestedScrollView.LayoutParams lp = (LayoutParams) child.getLayoutParams();
+            LayoutParams lp = (LayoutParams) child.getLayoutParams();
             int childSize = child.getHeight() + lp.topMargin + lp.bottomMargin;
             int parentSpace = getHeight() - getPaddingTop() - getPaddingBottom();
             final int scrollY = getScrollY();
@@ -1490,6 +1547,7 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
      * @param withNestedScrolling whether to include nested scrolling operations.
      */
     // This should be considered private, it is package private to avoid a synthetic ancestor.
+    @SuppressWarnings("SameParameterValue")
     void smoothScrollTo(int x, int y, boolean withNestedScrolling) {
         smoothScrollTo(x, y, DEFAULT_SMOOTH_SCROLL_DURATION, withNestedScrolling);
     }
@@ -1522,7 +1580,7 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
         }
 
         View child = getChildAt(0);
-        NestedScrollView.LayoutParams lp = (LayoutParams) child.getLayoutParams();
+        LayoutParams lp = (LayoutParams) child.getLayoutParams();
         int scrollRange = child.getBottom() + lp.bottomMargin;
         final int scrollY = getScrollY();
         final int overscrollBottom = Math.max(0, scrollRange - parentSpace);
@@ -1571,7 +1629,7 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
     }
 
     @Override
-    protected void measureChild(View child, int parentWidthMeasureSpec,
+    protected void measureChild(@NonNull View child, int parentWidthMeasureSpec,
             int parentHeightMeasureSpec) {
         ViewGroup.LayoutParams lp = child.getLayoutParams();
 
@@ -1639,7 +1697,6 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
             final boolean canOverscroll = mode == OVER_SCROLL_ALWAYS
                     || (mode == OVER_SCROLL_IF_CONTENT_SCROLLS && range > 0);
             if (canOverscroll) {
-                ensureGlows();
                 if (unconsumed < 0) {
                     if (mEdgeGlowTop.isFinished()) {
                         mEdgeGlowTop.onAbsorb((int) mScroller.getCurrVelocity());
@@ -1658,6 +1715,40 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
         } else {
             stopNestedScroll(ViewCompat.TYPE_NON_TOUCH);
         }
+    }
+
+    /**
+     * If either of the vertical edge glows are currently active, this consumes part or all of
+     * deltaY on the edge glow.
+     *
+     * @param deltaY The pointer motion, in pixels, in the vertical direction, positive
+     *                         for moving down and negative for moving up.
+     * @param x The vertical position of the pointer.
+     * @return The amount of <code>deltaY</code> that has been consumed by the
+     * edge glow.
+     */
+    private int releaseVerticalGlow(int deltaY, float x) {
+        // First allow releasing existing overscroll effect:
+        float consumed = 0;
+        float displacement = x / getWidth();
+        float pullDistance = (float) deltaY / getHeight();
+        if (EdgeEffectCompat.getDistance(mEdgeGlowTop) != 0) {
+            consumed = -EdgeEffectCompat.onPullDistance(mEdgeGlowTop, -pullDistance, displacement);
+            if (EdgeEffectCompat.getDistance(mEdgeGlowTop) == 0) {
+                mEdgeGlowTop.onRelease();
+            }
+        } else if (EdgeEffectCompat.getDistance(mEdgeGlowBottom) != 0) {
+            consumed = EdgeEffectCompat.onPullDistance(mEdgeGlowBottom, pullDistance,
+                    1 - displacement);
+            if (EdgeEffectCompat.getDistance(mEdgeGlowBottom) == 0) {
+                mEdgeGlowBottom.onRelease();
+            }
+        }
+        int pixelsConsumed = Math.round(consumed * getHeight());
+        if (pixelsConsumed != 0) {
+            invalidate();
+        }
+        return pixelsConsumed;
     }
 
     private void runAnimatedScroll(boolean participateInNestedScrolling) {
@@ -1743,7 +1834,7 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
         // for the target scroll distance).
         // leave room for bottom fading edge as long as rect isn't at very bottom
         View child = getChildAt(0);
-        final NestedScrollView.LayoutParams lp = (LayoutParams) child.getLayoutParams();
+        final LayoutParams lp = (LayoutParams) child.getLayoutParams();
         if (rect.bottom < child.getHeight() + lp.topMargin + lp.bottomMargin) {
             screenBottom -= fadingEdge;
         }
@@ -1803,7 +1894,7 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
      * When looking for focus in children of a scroll view, need to be a little
      * more careful not to give focus to something that is scrolled off screen.
      *
-     * This is more expensive than the default {@link android.view.ViewGroup}
+     * This is more expensive than the default {@link ViewGroup}
      * implementation, otherwise this behavior might have been made the default.
      */
     @Override
@@ -1872,7 +1963,7 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
             int childSize = 0;
             if (getChildCount() > 0) {
                 View child = getChildAt(0);
-                NestedScrollView.LayoutParams lp = (LayoutParams) child.getLayoutParams();
+                LayoutParams lp = (LayoutParams) child.getLayoutParams();
                 childSize = child.getMeasuredHeight() + lp.topMargin + lp.bottomMargin;
             }
             int parentSpace = b - t - getPaddingTop() - getPaddingBottom();
@@ -1952,10 +2043,8 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
         recycleVelocityTracker();
         stopNestedScroll(ViewCompat.TYPE_TOUCH);
 
-        if (mEdgeGlowTop != null) {
-            mEdgeGlowTop.onRelease();
-            mEdgeGlowBottom.onRelease();
-        }
+        mEdgeGlowTop.onRelease();
+        mEdgeGlowBottom.onRelease();
     }
 
     /**
@@ -1968,7 +2057,7 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
         // we rely on the fact the View.scrollBy calls scrollTo.
         if (getChildCount() > 0) {
             View child = getChildAt(0);
-            final NestedScrollView.LayoutParams lp = (LayoutParams) child.getLayoutParams();
+            final LayoutParams lp = (LayoutParams) child.getLayoutParams();
             int parentSpaceHorizontal = getWidth() - getPaddingLeft() - getPaddingRight();
             int childSizeHorizontal = child.getWidth() + lp.leftMargin + lp.rightMargin;
             int parentSpaceVertical = getHeight() - getPaddingTop() - getPaddingBottom();
@@ -1981,67 +2070,56 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
         }
     }
 
-    private void ensureGlows() {
-        if (getOverScrollMode() != View.OVER_SCROLL_NEVER) {
-            if (mEdgeGlowTop == null) {
-                Context context = getContext();
-                mEdgeGlowTop = new EdgeEffect(context);
-                mEdgeGlowBottom = new EdgeEffect(context);
-            }
-        } else {
-            mEdgeGlowTop = null;
-            mEdgeGlowBottom = null;
-        }
-    }
-
     @Override
-    public void draw(Canvas canvas) {
+    public void draw(@NonNull Canvas canvas) {
         super.draw(canvas);
-        if (mEdgeGlowTop != null) {
-            final int scrollY = getScrollY();
-            if (!mEdgeGlowTop.isFinished()) {
-                final int restoreCount = canvas.save();
-                int width = getWidth();
-                int height = getHeight();
-                int xTranslation = 0;
-                int yTranslation = Math.min(0, scrollY);
-                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP || getClipToPadding()) {
-                    width -= getPaddingLeft() + getPaddingRight();
-                    xTranslation += getPaddingLeft();
-                }
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && getClipToPadding()) {
-                    height -= getPaddingTop() + getPaddingBottom();
-                    yTranslation += getPaddingTop();
-                }
-                canvas.translate(xTranslation, yTranslation);
-                mEdgeGlowTop.setSize(width, height);
-                if (mEdgeGlowTop.draw(canvas)) {
-                    ViewCompat.postInvalidateOnAnimation(this);
-                }
-                canvas.restoreToCount(restoreCount);
+        final int scrollY = getScrollY();
+        if (!mEdgeGlowTop.isFinished()) {
+            final int restoreCount = canvas.save();
+            int width = getWidth();
+            int height = getHeight();
+            int xTranslation = 0;
+            int yTranslation = Math.min(0, scrollY);
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP
+                    || Api21Impl.getClipToPadding(this)) {
+                width -= getPaddingLeft() + getPaddingRight();
+                xTranslation += getPaddingLeft();
             }
-            if (!mEdgeGlowBottom.isFinished()) {
-                final int restoreCount = canvas.save();
-                int width = getWidth();
-                int height = getHeight();
-                int xTranslation = 0;
-                int yTranslation = Math.max(getScrollRange(), scrollY) + height;
-                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP || getClipToPadding()) {
-                    width -= getPaddingLeft() + getPaddingRight();
-                    xTranslation += getPaddingLeft();
-                }
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && getClipToPadding()) {
-                    height -= getPaddingTop() + getPaddingBottom();
-                    yTranslation -= getPaddingBottom();
-                }
-                canvas.translate(xTranslation - width, yTranslation);
-                canvas.rotate(180, width, 0);
-                mEdgeGlowBottom.setSize(width, height);
-                if (mEdgeGlowBottom.draw(canvas)) {
-                    ViewCompat.postInvalidateOnAnimation(this);
-                }
-                canvas.restoreToCount(restoreCount);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP
+                    && Api21Impl.getClipToPadding(this)) {
+                height -= getPaddingTop() + getPaddingBottom();
+                yTranslation += getPaddingTop();
             }
+            canvas.translate(xTranslation, yTranslation);
+            mEdgeGlowTop.setSize(width, height);
+            if (mEdgeGlowTop.draw(canvas)) {
+                ViewCompat.postInvalidateOnAnimation(this);
+            }
+            canvas.restoreToCount(restoreCount);
+        }
+        if (!mEdgeGlowBottom.isFinished()) {
+            final int restoreCount = canvas.save();
+            int width = getWidth();
+            int height = getHeight();
+            int xTranslation = 0;
+            int yTranslation = Math.max(getScrollRange(), scrollY) + height;
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP
+                    || Api21Impl.getClipToPadding(this)) {
+                width -= getPaddingLeft() + getPaddingRight();
+                xTranslation += getPaddingLeft();
+            }
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP
+                    && Api21Impl.getClipToPadding(this)) {
+                height -= getPaddingTop() + getPaddingBottom();
+                yTranslation -= getPaddingBottom();
+            }
+            canvas.translate(xTranslation - width, yTranslation);
+            canvas.rotate(180, width, 0);
+            mEdgeGlowBottom.setSize(width, height);
+            if (mEdgeGlowBottom.draw(canvas)) {
+                ViewCompat.postInvalidateOnAnimation(this);
+            }
+            canvas.restoreToCount(restoreCount);
         }
     }
 
@@ -2088,6 +2166,7 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
         requestLayout();
     }
 
+    @NonNull
     @Override
     protected Parcelable onSaveInstanceState() {
         Parcelable superState = super.onSaveInstanceState();
@@ -2122,8 +2201,8 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
                     + " scrollPosition=" + scrollPosition + "}";
         }
 
-        public static final Parcelable.Creator<SavedState> CREATOR =
-                new Parcelable.Creator<SavedState>() {
+        public static final Creator<SavedState> CREATOR =
+                new Creator<SavedState>() {
             @Override
             public SavedState createFromParcel(Parcel in) {
                 return new SavedState(in);
@@ -2146,10 +2225,17 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
             if (!nsvHost.isEnabled()) {
                 return false;
             }
+            int height = nsvHost.getHeight();
+            Rect rect = new Rect();
+            // Gets the visible rect on the screen except for the rotation or scale cases which
+            // might affect the result.
+            if (nsvHost.getMatrix().isIdentity() && nsvHost.getGlobalVisibleRect(rect)) {
+                height = rect.height();
+            }
             switch (action) {
                 case AccessibilityNodeInfoCompat.ACTION_SCROLL_FORWARD:
                 case android.R.id.accessibilityActionScrollDown: {
-                    final int viewportHeight = nsvHost.getHeight() - nsvHost.getPaddingBottom()
+                    final int viewportHeight = height - nsvHost.getPaddingBottom()
                             - nsvHost.getPaddingTop();
                     final int targetScrollY = Math.min(nsvHost.getScrollY() + viewportHeight,
                             nsvHost.getScrollRange());
@@ -2161,7 +2247,7 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
                 return false;
                 case AccessibilityNodeInfoCompat.ACTION_SCROLL_BACKWARD:
                 case android.R.id.accessibilityActionScrollUp: {
-                    final int viewportHeight = nsvHost.getHeight() - nsvHost.getPaddingBottom()
+                    final int viewportHeight = height - nsvHost.getPaddingBottom()
                             - nsvHost.getPaddingTop();
                     final int targetScrollY = Math.max(nsvHost.getScrollY() - viewportHeight, 0);
                     if (targetScrollY != nsvHost.getScrollY()) {
@@ -2210,6 +2296,18 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
             event.setScrollY(nsvHost.getScrollY());
             AccessibilityRecordCompat.setMaxScrollX(event, nsvHost.getScrollX());
             AccessibilityRecordCompat.setMaxScrollY(event, nsvHost.getScrollRange());
+        }
+    }
+
+    @RequiresApi(21)
+    static class Api21Impl {
+        private Api21Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static boolean getClipToPadding(ViewGroup viewGroup) {
+            return viewGroup.getClipToPadding();
         }
     }
 }

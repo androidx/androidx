@@ -33,7 +33,7 @@ dependencies {
     testImplementation(libs.robolectric)
     testImplementation(libs.mockitoCore)
 
-    androidTestImplementation("androidx.appcompat:appcompat:1.0.0")
+    androidTestImplementation("androidx.appcompat:appcompat:1.1.0")
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testRunner)

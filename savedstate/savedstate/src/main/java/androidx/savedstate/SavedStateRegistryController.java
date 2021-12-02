@@ -33,6 +33,8 @@ public final class SavedStateRegistryController {
     private final SavedStateRegistryOwner mOwner;
     private final SavedStateRegistry mRegistry;
 
+    private boolean mAttached = false;
+
     private SavedStateRegistryController(SavedStateRegistryOwner owner) {
         mOwner = owner;
         mRegistry = new SavedStateRegistry();
@@ -47,19 +49,42 @@ public final class SavedStateRegistryController {
     }
 
     /**
-     * An interface for an owner of this {@link SavedStateRegistry} to restore saved state.
-     *
-     * @param savedState restored state
+     * Perform the initial, one time attachment necessary to configure this
+     * {@link SavedStateRegistry}. This must be called when the owner's {@link Lifecycle} is
+     * {@link Lifecycle.State#INITIALIZED} and before you call
+     * {@link #performRestore(Bundle)}.
      */
     @MainThread
-    public void performRestore(@Nullable Bundle savedState) {
+    public void performAttach() {
         Lifecycle lifecycle = mOwner.getLifecycle();
         if (lifecycle.getCurrentState() != Lifecycle.State.INITIALIZED) {
             throw new IllegalStateException("Restarter must be created only during "
                     + "owner's initialization stage");
         }
         lifecycle.addObserver(new Recreator(mOwner));
-        mRegistry.performRestore(lifecycle, savedState);
+        mRegistry.performAttach(lifecycle);
+
+        mAttached = true;
+    }
+
+    /**
+     * An interface for an owner of this {@link SavedStateRegistry} to restore saved state.
+     *
+     * @param savedState restored state
+     */
+    @MainThread
+    public void performRestore(@Nullable Bundle savedState) {
+        // To support backward compatibility with libraries that do not explicitly
+        // call performAttach(), we make sure that work is done here
+        if (!mAttached) {
+            performAttach();
+        }
+        Lifecycle lifecycle = mOwner.getLifecycle();
+        if (lifecycle.getCurrentState().isAtLeast(Lifecycle.State.STARTED)) {
+            throw new IllegalStateException("performRestore cannot be called when owner "
+                    + " is " + lifecycle.getCurrentState());
+        }
+        mRegistry.performRestore(savedState);
     }
 
     /**

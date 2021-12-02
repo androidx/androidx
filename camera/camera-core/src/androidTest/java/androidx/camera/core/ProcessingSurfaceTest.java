@@ -73,8 +73,6 @@ public final class ProcessingSurfaceTest {
 
     /*
      * Capture processor that simply writes out an empty image to exercise the pipeline
-     * ImageWriter unable to dequeue Image that writes into SurfaceTexture since format is PRIVATE
-     * on APIs prior to 28.
      */
     @RequiresApi(23)
     private CaptureProcessor mCaptureProcessor = new CaptureProcessor() {
@@ -193,7 +191,7 @@ public final class ProcessingSurfaceTest {
         processingSurface.getCameraCaptureCallback();
     }
 
-    @RequiresApi(28)
+    @RequiresApi(23)
     void triggerImage(ProcessingSurface processingSurface, long timestamp)
             throws ExecutionException, InterruptedException {
         Surface surface = processingSurface.getSurface().get();

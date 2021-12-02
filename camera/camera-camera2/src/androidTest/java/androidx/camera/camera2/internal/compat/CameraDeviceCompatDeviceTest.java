@@ -42,6 +42,7 @@ import androidx.core.os.HandlerCompat;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
+import androidx.test.filters.SdkSuppress;
 
 import org.junit.After;
 import org.junit.Assume;
@@ -63,6 +64,7 @@ import java.util.concurrent.Semaphore;
  */
 @MediumTest
 @RunWith(AndroidJUnit4.class)
+@SdkSuppress(minSdkVersion = 21)
 public final class CameraDeviceCompatDeviceTest {
 
     private final Semaphore mOpenCloseSemaphore = new Semaphore(0);
@@ -154,7 +156,7 @@ public final class CameraDeviceCompatDeviceTest {
 
     @Test
     @SuppressWarnings("deprecation") /* AsyncTask */
-    public void canConfigureCaptureSession() throws CameraAccessException {
+    public void canConfigureCaptureSession() throws CameraAccessExceptionCompat {
         OutputConfigurationCompat outputConfig = new OutputConfigurationCompat(mSurface);
 
         CameraCaptureSession.StateCallback stateCallback =
@@ -169,7 +171,7 @@ public final class CameraDeviceCompatDeviceTest {
                 mCompatHandler);
         try {
             deviceCompat.createCaptureSession(sessionConfig);
-        } catch (CameraAccessException e) {
+        } catch (CameraAccessExceptionCompat e) {
             // If the camera has been disconnected during the test (likely due to another process
             // stealing the camera), then we will skip the test.
             Assume.assumeTrue("Camera disconnected during test.",

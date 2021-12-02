@@ -19,9 +19,12 @@ package androidx.camera.core;
 import android.graphics.ImageFormat;
 import android.media.ImageReader;
 
+import androidx.annotation.RequiresApi;
+
 import com.google.auto.value.AutoValue;
 
 /** Recommends formats for a combination of {@link ImageReader} instances. */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 final class ImageReaderFormatRecommender {
 
     private ImageReaderFormatRecommender() {

@@ -19,6 +19,7 @@ package androidx.camera.core;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.VisibleForTesting;
 import androidx.camera.core.impl.ImageReaderProxy;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
@@ -34,6 +35,7 @@ import java.util.concurrent.Executor;
  *
  * <p> Used with {@link ImageAnalysis}.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 final class ImageAnalysisNonBlockingAnalyzer extends ImageAnalysisAbstractAnalyzer {
 
     // The executor for managing cached image.
@@ -151,18 +153,19 @@ final class ImageAnalysisNonBlockingAnalyzer extends ImageAnalysisAbstractAnalyz
         /**
          * Creates a new instance which wraps the given image.
          *
-         * @param image               to wrap
-         * @param nonBlockingAnalyzer instance of the nonblocking analyzer
+         * @param image  image proxy to wrap.
+         * @param nonBlockingAnalyzer instance of the nonblocking analyzer.
          */
-        CacheAnalyzingImageProxy(ImageProxy image,
-                ImageAnalysisNonBlockingAnalyzer nonBlockingAnalyzer) {
+        CacheAnalyzingImageProxy(@NonNull ImageProxy image,
+                @NonNull ImageAnalysisNonBlockingAnalyzer nonBlockingAnalyzer) {
             super(image);
             mNonBlockingAnalyzerWeakReference = new WeakReference<>(nonBlockingAnalyzer);
 
             addOnImageCloseListener((imageProxy) -> {
                 ImageAnalysisNonBlockingAnalyzer analyzer = mNonBlockingAnalyzerWeakReference.get();
                 if (analyzer != null) {
-                    analyzer.mBackgroundExecutor.execute(analyzer::analyzeCachedImage);
+                    analyzer.mBackgroundExecutor.execute(
+                            () -> analyzer.analyzeCachedImage());
                 }
             });
         }

@@ -119,6 +119,39 @@ class SaveRestoreBackStackTest {
     }
 
     @Test
+    fun saveBackStackAddedWithoutExecutePendingTransactions() {
+        with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+            val fm = withActivity {
+                supportFragmentManager
+            }
+            val fragmentBase = StrictViewFragment()
+            val fragmentReplacement = StateSaveFragment()
+
+            fm.beginTransaction()
+                .add(R.id.content, fragmentBase)
+                .commit()
+            executePendingTransactions()
+
+            withActivity {
+                // Now we add the new transaction and immediately do a save+restore
+                // without calling executePendingTransactions
+                fm.beginTransaction()
+                    .setReorderingAllowed(true)
+                    .replace(R.id.content, fragmentReplacement)
+                    .addToBackStack("replacement")
+                    .commit()
+                fm.saveBackStack("replacement")
+                fm.restoreBackStack("replacement")
+            }
+            executePendingTransactions()
+
+            val newFragmentReplacement = fm.findFragmentById(R.id.content)
+            assertThat(newFragmentReplacement).isInstanceOf(StateSaveFragment::class.java)
+            assertThat(fm.backStackEntryCount).isEqualTo(1)
+        }
+    }
+
+    @Test
     fun savePreviouslyReferencedFragment() {
         with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
             val fm = withActivity {
@@ -388,6 +421,43 @@ class SaveRestoreBackStackTest {
     }
 
     @Test
+    fun restoreBackStackTwice() {
+        with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+            val fm = withActivity {
+                supportFragmentManager
+            }
+            val fragmentBase = StrictViewFragment()
+            val fragmentReplacement = StateSaveFragment("saved", "unsaved")
+
+            fm.beginTransaction()
+                .add(R.id.content, fragmentBase)
+                .commit()
+            executePendingTransactions()
+
+            fm.beginTransaction()
+                .setReorderingAllowed(true)
+                .replace(R.id.content, fragmentReplacement)
+                .addToBackStack("replacement")
+                .commit()
+            executePendingTransactions()
+
+            fm.saveBackStack("replacement")
+            executePendingTransactions()
+
+            withActivity {
+                // Only the first restoreBackStack() should have state to restore
+                fm.restoreBackStack("replacement")
+                fm.restoreBackStack("replacement")
+            }
+            executePendingTransactions()
+
+            val newFragmentReplacement = fm.findFragmentById(R.id.content)
+            assertThat(newFragmentReplacement).isInstanceOf(StateSaveFragment::class.java)
+            assertThat(fm.backStackEntryCount).isEqualTo(1)
+        }
+    }
+
+    @Test
     fun restoreBackStackTwoTransactions() {
         with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
             val fm = withActivity {
@@ -585,6 +655,107 @@ class SaveRestoreBackStackTest {
             assertThat(fragmentReplacement.unsavedState).isEqualTo("unsaved")
             assertThat(fragmentReplacement.viewModel).isSameInstanceAs(originalViewModel)
             assertThat(fm.backStackEntryCount).isEqualTo(1)
+        }
+    }
+
+    @Test
+    fun clearBackStack() {
+        with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+            val fm = withActivity {
+                supportFragmentManager
+            }
+            val fragmentBase = StrictViewFragment()
+            val fragmentReplacement = StateSaveFragment()
+
+            fm.beginTransaction()
+                .add(R.id.content, fragmentBase)
+                .commit()
+            executePendingTransactions()
+
+            fm.beginTransaction()
+                .setReorderingAllowed(true)
+                .replace(R.id.content, fragmentReplacement)
+                .addToBackStack("replacement")
+                .commit()
+            executePendingTransactions()
+
+            val originalViewModel = fragmentReplacement.viewModel
+            assertWithMessage("ViewModel should not be cleared after commit()")
+                .that(originalViewModel.cleared)
+                .isFalse()
+
+            fm.saveBackStack("replacement")
+            executePendingTransactions()
+
+            assertWithMessage("Saved Fragments should have their state saved")
+                .that(fragmentReplacement.calledOnSaveInstanceState)
+                .isTrue()
+
+            // Saved Fragments should be destroyed
+            assertWithMessage("Saved Fragments should be destroyed")
+                .that(fragmentReplacement.calledOnDestroy)
+                .isTrue()
+            // But any ViewModels should not be cleared so that they're available
+            // for later restoration
+            assertWithMessage("ViewModel should not be cleared after saveBackStack()")
+                .that(originalViewModel.cleared)
+                .isFalse()
+
+            fm.clearBackStack("replacement")
+            executePendingTransactions()
+
+            assertWithMessage("ViewModel should be cleared after the back stack is cleared")
+                .that(originalViewModel.cleared)
+                .isTrue()
+        }
+    }
+
+    @Test
+    fun clearBackStackWithoutExecutePendingTransactions() {
+        with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+            val fm = withActivity {
+                supportFragmentManager
+            }
+            val fragmentBase = StrictViewFragment()
+            val fragmentReplacement = StateSaveFragment("saved", "unsaved")
+
+            fm.beginTransaction()
+                .add(R.id.content, fragmentBase)
+                .commit()
+            executePendingTransactions()
+
+            fm.beginTransaction()
+                .setReorderingAllowed(true)
+                .replace(R.id.content, fragmentReplacement)
+                .addToBackStack("replacement")
+                .commit()
+            executePendingTransactions()
+
+            val originalViewModel = fragmentReplacement.viewModel
+            assertWithMessage("ViewModel should not be cleared after commit()")
+                .that(originalViewModel.cleared)
+                .isFalse()
+            assertThat(fm.backStackEntryCount).isEqualTo(1)
+
+            withActivity {
+                fm.saveBackStack("replacement")
+                // Immediately clear the back stack without calling executePendingTransactions
+                fm.clearBackStack("replacement")
+            }
+            executePendingTransactions()
+
+            assertWithMessage("Saved Fragments should not go through onSaveInstanceState")
+                .that(fragmentReplacement.calledOnSaveInstanceState)
+                .isFalse()
+            assertWithMessage("Saved Fragments should have been destroyed when cleared")
+                .that(fragmentReplacement.calledOnDestroy)
+                .isTrue()
+            assertWithMessage("ViewModel should be cleared after the back stack is cleared")
+                .that(fragmentReplacement.viewModel.cleared)
+                .isTrue()
+
+            // Assert that cleared fragment has been removed
+            assertThat(fm.backStackEntryCount).isEqualTo(0)
         }
     }
 }

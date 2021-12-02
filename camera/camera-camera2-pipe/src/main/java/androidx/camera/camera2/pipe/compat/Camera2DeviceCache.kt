@@ -19,6 +19,7 @@ package androidx.camera.camera2.pipe.compat
 import android.hardware.camera2.CameraAccessException
 import android.hardware.camera2.CameraManager
 import androidx.annotation.GuardedBy
+import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.core.Debug
 import androidx.camera.camera2.pipe.core.Log
@@ -28,6 +29,7 @@ import javax.inject.Inject
 import javax.inject.Provider
 import javax.inject.Singleton
 
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 @Singleton
 internal class Camera2DeviceCache @Inject constructor(
     private val cameraManager: Provider<CameraManager>,
@@ -45,7 +47,7 @@ internal class Camera2DeviceCache @Inject constructor(
         }
 
         // Suspend and query the list of Cameras on the ioDispatcher
-        return withContext(threads.ioDispatcher) {
+        return withContext(threads.backgroundDispatcher) {
             Debug.trace("readCameraIds") {
                 val cameraIds = readCameraIdList()
 

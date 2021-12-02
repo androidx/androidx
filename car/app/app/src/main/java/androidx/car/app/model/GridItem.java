@@ -31,6 +31,7 @@ import androidx.annotation.RestrictTo;
 import androidx.car.app.Screen;
 import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.model.constraints.CarIconConstraints;
+import androidx.car.app.model.constraints.CarTextConstraints;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -233,10 +234,12 @@ public final class GridItem implements Item {
         /**
          * Sets the title of the {@link GridItem}.
          *
-         * <p>Spans are not supported in the input string and will be ignored.
+         * <p>Only {@link DistanceSpan}s and {@link DurationSpan}s are supported in the input
+         * string.
          *
          * @throws NullPointerException     if {@code title} is {@code null}
-         * @throws IllegalArgumentException if {@code title} is empty
+         * @throws IllegalArgumentException if {@code title} is empty, of if it contains
+         *                                  unsupported spans
          */
         @NonNull
         public Builder setTitle(@NonNull CharSequence title) {
@@ -244,6 +247,7 @@ public final class GridItem implements Item {
             if (titleText.isEmpty()) {
                 throw new IllegalArgumentException("The title cannot be null or empty");
             }
+            CarTextConstraints.TEXT_ONLY.validateOrThrow(titleText);
             mTitle = titleText;
             return this;
         }
@@ -251,16 +255,19 @@ public final class GridItem implements Item {
         /**
          * Sets the title of the {@link GridItem}, with support for multiple length variants.,
          *
-         * <p>Spans are not supported in the input string and will be ignored.
+         * <p>Only {@link DistanceSpan}s and {@link DurationSpan}s are supported in the input
+         * string.
          *
          * @throws NullPointerException     if {@code title} is {@code null}
-         * @throws IllegalArgumentException if {@code title} is empty
+         * @throws IllegalArgumentException if {@code title} is empty, of if it contains
+         *                                  unsupported spans
          */
         @NonNull
         public Builder setTitle(@NonNull CarText title) {
             if (CarText.isNullOrEmpty(title)) {
                 throw new IllegalArgumentException("The title cannot be null or empty");
             }
+            CarTextConstraints.TEXT_ONLY.validateOrThrow(title);
             mTitle = title;
             return this;
         }
@@ -268,18 +275,22 @@ public final class GridItem implements Item {
         /**
          * Sets a secondary text string to the grid item that is displayed below the title.
          *
-         * <p>The text's color can be customized with {@link ForegroundCarColorSpan} instances, any
-         * other spans will be ignored by the host.
+         * <p>The text can be customized with {@link ForegroundCarColorSpan},
+         * {@link androidx.car.app.model.DistanceSpan}, and
+         * {@link androidx.car.app.model.DurationSpan} instances, any other spans will be ignored
+         * by the host.
          *
          * <h2>Text Wrapping</h2>
          *
          * This text is truncated at the end to fit in a single line below the title
          *
-         * @throws NullPointerException if {@code text} is {@code null}
+         * @throws NullPointerException     if {@code text} is {@code null}
+         * @throws IllegalArgumentException if {@code text} contains unsupported spans
          */
         @NonNull
         public Builder setText(@NonNull CharSequence text) {
             mText = CarText.create(requireNonNull(text));
+            CarTextConstraints.TEXT_WITH_COLORS.validateOrThrow(mText);
             return this;
         }
 
@@ -287,18 +298,22 @@ public final class GridItem implements Item {
          * Sets a secondary text string to the grid item that is displayed below the title, with
          * support for multiple length variants.
          *
-         * <p>The text's color can be customized with {@link ForegroundCarColorSpan} instances, any
-         * other spans will be ignored by the host.
+         * <p>The text can be customized with {@link ForegroundCarColorSpan},
+         * {@link androidx.car.app.model.DistanceSpan}, and
+         * {@link androidx.car.app.model.DurationSpan} instances, any other spans will be ignored
+         * by the host.
          *
          * <h2>Text Wrapping</h2>
          *
          * This text is truncated at the end to fit in a single line below the title
          *
          * @throws NullPointerException if {@code text} is {@code null}
+         * @throws IllegalArgumentException if {@code text} contains unsupported spans
          */
         @NonNull
         public Builder setText(@NonNull CarText text) {
             mText = requireNonNull(text);
+            CarTextConstraints.TEXT_WITH_COLORS.validateOrThrow(mText);
             return this;
         }
 

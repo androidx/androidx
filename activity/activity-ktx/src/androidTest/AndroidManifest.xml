@@ -14,9 +14,13 @@
      limitations under the License.
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="androidx.activity.ktx">
+    package="androidx.activity.ktx">
     <application>
-        <activity android:name="androidx.activity.ActivityViewModelLazyTest$TestActivity"/>
-        <activity android:name="androidx.activity.result.EmptyContentActivity" />
+        <activity
+            android:name="androidx.activity.ActivityViewModelLazyTest$TestActivity"
+            android:exported="true" />
+        <activity
+            android:name="androidx.activity.result.EmptyContentActivity"
+            android:exported="true" />
     </application>
 </manifest>

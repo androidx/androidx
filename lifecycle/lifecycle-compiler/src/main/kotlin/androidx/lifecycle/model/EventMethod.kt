@@ -16,14 +16,14 @@
 
 package androidx.lifecycle.model
 
-import androidx.lifecycle.OnLifecycleEvent
 import androidx.lifecycle.getPackageQName
 import javax.lang.model.element.ExecutableElement
 import javax.lang.model.element.TypeElement
 
+@Suppress("DEPRECATION")
 data class EventMethod(
     val method: ExecutableElement,
-    val onLifecycleEvent: OnLifecycleEvent,
+    val onLifecycleEvent: androidx.lifecycle.OnLifecycleEvent,
     val type: TypeElement
 ) {
 

@@ -17,6 +17,7 @@
 package androidx.car.app;
 
 import android.graphics.Rect;
+import android.view.Surface;
 
 import androidx.annotation.NonNull;
 import androidx.car.app.annotations.RequiresCarApi;
@@ -31,6 +32,9 @@ public interface SurfaceCallback {
      *
      * <p>This method is guaranteed to be called before any other methods on this listener.
      *
+     * <p><b>Important:</b> every instance of {@link android.view.Surface} received through this
+     * method must be released by calling {@link Surface#release()}.
+     *
      * @param surfaceContainer the {@link SurfaceContainer} that is ready for drawing
      */
     default void onSurfaceAvailable(@NonNull SurfaceContainer surfaceContainer) {
@@ -39,10 +43,10 @@ public interface SurfaceCallback {
     /**
      * Indicates that the visible area provided by the host has changed.
      *
-     * <p>The visible area may be occluded for several reasons including status bar changes,
-     * overlays from other apps or dynamic UI within a template. The inset is the area currently
+     * <p>The surface may be occluded for several reasons including status bar changes, overlays
+     * from other apps or dynamic UI within a template. {@code visibleArea} is the area currently
      * guaranteed to not be occluded by any other UI. If the app needs to show critical data, it
-     * should be within the inset area.
+     * should be bounded by this area.
      *
      * @param visibleArea the rectangle set to the surface area guaranteed to be visible. If {@link
      *                    Rect#isEmpty()} returns {@code true} for the visible area, then it is
@@ -54,10 +58,11 @@ public interface SurfaceCallback {
     /**
      * Indicates that the stable area provided by the host has changed.
      *
-     * <p>The visible area (see {@link #onVisibleAreaChanged} can be occluded for several reasons
-     * including status bar changes, overlays from other apps or dynamic UI within the template. The
-     * stable area is the visual area which will not be occluded by known dynamic content. The area
-     * may change at any time, but every effort is made to keep it constant.
+     * <p>The surface may be occluded for several reasons including status bar changes, overlays
+     * from other apps or dynamic UI within the template (also see {@link #onVisibleAreaChanged}).
+     * The stable area is the visual area that accounts for these occlusions as if they were always
+     * present. If the app needs to show more persistent data that do not necessarily adjust
+     * based on these dynamic content changes, it should be bounded by this area.
      *
      * @param stableArea inset rectangle of the surface space designated as stable. If {@link
      *                   Rect#isEmpty()} returns {@code true} for the stable area, then it is

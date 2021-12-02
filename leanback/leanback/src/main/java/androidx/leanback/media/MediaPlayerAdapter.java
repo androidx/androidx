@@ -190,17 +190,17 @@ public class MediaPlayerAdapter extends PlayerAdapter {
      *
      * @param what    the type of error that has occurred:
      * <ul>
-     * <li>{@link MediaPlayer#MEDIA_ERROR_UNKNOWN}
-     * <li>{@link MediaPlayer#MEDIA_ERROR_SERVER_DIED}
+     * <li>{@link MediaPlayer#MEDIA_ERROR_UNKNOWN}</li>
+     * <li>{@link MediaPlayer#MEDIA_ERROR_SERVER_DIED}</li>
      * </ul>
      * @param extra an extra code, specific to the error. Typically
      * implementation dependent.
      * <ul>
-     * <li>{@link MediaPlayer#MEDIA_ERROR_IO}
-     * <li>{@link MediaPlayer#MEDIA_ERROR_MALFORMED}
-     * <li>{@link MediaPlayer#MEDIA_ERROR_UNSUPPORTED}
-     * <li>{@link MediaPlayer#MEDIA_ERROR_TIMED_OUT}
-     * <li><code>MEDIA_ERROR_SYSTEM (-2147483648)</code> - low-level system error.
+     * <li>{@link MediaPlayer#MEDIA_ERROR_IO}</li>
+     * <li>{@link MediaPlayer#MEDIA_ERROR_MALFORMED}</li>
+     * <li>{@link MediaPlayer#MEDIA_ERROR_UNSUPPORTED}</li>
+     * <li>{@link MediaPlayer#MEDIA_ERROR_TIMED_OUT}</li>
+     * <li><code>MEDIA_ERROR_SYSTEM (-2147483648)</code> - low-level system error.</li>
      * </ul>
      * @return True if the method handled the error, false if it didn't.
      * Returning false, will cause the {@link PlayerAdapter.Callback#onPlayCompleted(PlayerAdapter)}
@@ -221,18 +221,18 @@ public class MediaPlayerAdapter extends PlayerAdapter {
      *
      * @param what    the type of info or warning.
      * <ul>
-     * <li>{@link MediaPlayer#MEDIA_INFO_UNKNOWN}
-     * <li>{@link MediaPlayer#MEDIA_INFO_VIDEO_TRACK_LAGGING}
-     * <li>{@link MediaPlayer#MEDIA_INFO_VIDEO_RENDERING_START}
-     * <li>{@link MediaPlayer#MEDIA_INFO_BUFFERING_START}
-     * <li>{@link MediaPlayer#MEDIA_INFO_BUFFERING_END}
+     * <li>{@link MediaPlayer#MEDIA_INFO_UNKNOWN}</li>
+     * <li>{@link MediaPlayer#MEDIA_INFO_VIDEO_TRACK_LAGGING}</li>
+     * <li>{@link MediaPlayer#MEDIA_INFO_VIDEO_RENDERING_START}</li>
+     * <li>{@link MediaPlayer#MEDIA_INFO_BUFFERING_START}</li>
+     * <li>{@link MediaPlayer#MEDIA_INFO_BUFFERING_END}</li>
      * <li><code>MEDIA_INFO_NETWORK_BANDWIDTH (703)</code> -
-     *     bandwidth information is available (as <code>extra</code> kbps)
-     * <li>{@link MediaPlayer#MEDIA_INFO_BAD_INTERLEAVING}
-     * <li>{@link MediaPlayer#MEDIA_INFO_NOT_SEEKABLE}
-     * <li>{@link MediaPlayer#MEDIA_INFO_METADATA_UPDATE}
-     * <li>{@link MediaPlayer#MEDIA_INFO_UNSUPPORTED_SUBTITLE}
-     * <li>{@link MediaPlayer#MEDIA_INFO_SUBTITLE_TIMED_OUT}
+     *     bandwidth information is available (as <code>extra</code> kbps)</li>
+     * <li>{@link MediaPlayer#MEDIA_INFO_BAD_INTERLEAVING}</li>
+     * <li>{@link MediaPlayer#MEDIA_INFO_NOT_SEEKABLE}</li>
+     * <li>{@link MediaPlayer#MEDIA_INFO_METADATA_UPDATE}</li>
+     * <li>{@link MediaPlayer#MEDIA_INFO_UNSUPPORTED_SUBTITLE}</li>
+     * <li>{@link MediaPlayer#MEDIA_INFO_SUBTITLE_TIMED_OUT}</li>
      * </ul>
      * @param extra an extra code, specific to the info. Typically
      * implementation dependent.
@@ -266,9 +266,9 @@ public class MediaPlayerAdapter extends PlayerAdapter {
     }
 
     @Override
-    public void setProgressUpdatingEnabled(final boolean enabled) {
+    public void setProgressUpdatingEnabled(final boolean enable) {
         mHandler.removeCallbacks(mRunnable);
-        if (!enabled) {
+        if (!enable) {
             return;
         }
         mHandler.postDelayed(mRunnable, getProgressUpdatingInterval());
@@ -316,11 +316,11 @@ public class MediaPlayerAdapter extends PlayerAdapter {
     }
 
     @Override
-    public void seekTo(long newPosition) {
+    public void seekTo(long positionInMs) {
         if (!mInitialized) {
             return;
         }
-        mPlayer.seekTo((int) newPosition);
+        mPlayer.seekTo((int) positionInMs);
     }
 
     @Override

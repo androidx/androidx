@@ -20,7 +20,6 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import static java.util.Objects.requireNonNull;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 
@@ -32,10 +31,10 @@ import androidx.car.app.HostDispatcher;
 import androidx.car.app.ICarHost;
 import androidx.car.app.IStartCarApp;
 import androidx.car.app.OnRequestPermissionsListener;
+import androidx.car.app.managers.Manager;
 import androidx.car.app.testing.navigation.TestNavigationManager;
 import androidx.car.app.utils.CollectionUtils;
 
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -140,7 +139,6 @@ public class TestCarContext extends CarContext {
      *
      * @throws NullPointerException if {@code testContext} is null
      */
-    @SuppressLint("BanUncheckedReflection")
     @NonNull
     public static TestCarContext createCarContext(@NonNull Context testContext) {
         requireNonNull(testContext);
@@ -148,14 +146,7 @@ public class TestCarContext extends CarContext {
         TestCarContext carContext = new TestCarContext(new TestLifecycleOwner(),
                 new HostDispatcher());
         carContext.attachBaseContext(testContext);
-
-        try {
-            Method method = CarContext.class.getDeclaredMethod("setCarHost", ICarHost.class);
-            method.setAccessible(true);
-            method.invoke(carContext, carContext.mFakeHost.getCarHost());
-        } catch (ReflectiveOperationException e) {
-            throw new IllegalStateException("Failed to attach the base context", e);
-        }
+        carContext.setCarHost(carContext.mFakeHost.getCarHost());
 
         return carContext;
     }
@@ -207,7 +198,8 @@ public class TestCarContext extends CarContext {
      * @hide
      */
     @RestrictTo(LIBRARY_GROUP)
-    public void overrideCarService(@NonNull Class<?> serviceClass, @NonNull Object service) {
+    public void overrideCarService(@NonNull Class<? extends Manager> serviceClass,
+            @NonNull Object service) {
         requireNonNull(service);
         requireNonNull(serviceClass);
 

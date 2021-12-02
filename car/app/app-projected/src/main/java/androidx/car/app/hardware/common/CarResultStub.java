@@ -49,7 +49,7 @@ public class CarResultStub<T> extends ICarHardwareResult.Stub {
     private final int mResultType;
     @Nullable private final Bundleable mBundle;
     private final boolean mIsSingleShot;
-    private final Map<OnCarDataListener<T>, Executor> mListeners = new HashMap<>();
+    private final Map<OnCarDataAvailableListener<T>, Executor> mListeners = new HashMap<>();
     private final T mUnsupportedValue;
 
     /**
@@ -87,7 +87,7 @@ public class CarResultStub<T> extends ICarHardwareResult.Stub {
      *                              {@code null}
      */
     public void addListener(@NonNull Executor executor,
-            @NonNull OnCarDataListener<T> listener) {
+            @NonNull OnCarDataAvailableListener<T> listener) {
         boolean alreadySubscribedToHost = !mListeners.isEmpty();
         mListeners.put(requireNonNull(listener), executor);
 
@@ -107,7 +107,7 @@ public class CarResultStub<T> extends ICarHardwareResult.Stub {
      *
      * @throws NullPointerException if {@code listener} is {@code null}
      */
-    public boolean removeListener(@NonNull OnCarDataListener<T> listener) {
+    public boolean removeListener(@NonNull OnCarDataAvailableListener<T> listener) {
         mListeners.remove(requireNonNull(listener));
         if (!mListeners.isEmpty()) {
             return false;
@@ -132,8 +132,8 @@ public class CarResultStub<T> extends ICarHardwareResult.Stub {
     private void notifyResults(boolean isSupported, @NonNull Bundleable result)
             throws BundlerException {
         T data = isSupported ? convertAndRecast(result) : mUnsupportedValue;
-        for (Map.Entry<OnCarDataListener<T>, Executor> entry: mListeners.entrySet()) {
-            entry.getValue().execute(() -> entry.getKey().onCarData(data));
+        for (Map.Entry<OnCarDataAvailableListener<T>, Executor> entry: mListeners.entrySet()) {
+            entry.getValue().execute(() -> entry.getKey().onCarDataAvailable(data));
         }
         if (mIsSingleShot) {
             mListeners.clear();

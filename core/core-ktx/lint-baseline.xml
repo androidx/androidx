@@ -1,5 +1,126 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.0.0-alpha15" type="baseline" client="cli" name="Lint" variant="all" version="7.0.0-alpha15">
+<issues format="6" by="lint 7.1.0-beta02" type="baseline" client="gradle" dependencies="false" name="AGP (7.1.0-beta02)" variant="all" version="7.1.0-beta02">
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 30 (current min is 14): `android.util.SparseArray#contains`"
+        errorLine1="        assertFalse(1 in array)"
+        errorLine2="                      ~~">
+        <location
+            file="src/androidTest/java/androidx/core/util/SparseArrayTest.kt"
+            line="42"
+            column="23"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 30 (current min is 14): `android.util.SparseArray#contains`"
+        errorLine1="        assertTrue(1 in array)"
+        errorLine2="                     ~~">
+        <location
+            file="src/androidTest/java/androidx/core/util/SparseArrayTest.kt"
+            line="44"
+            column="22"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 30 (current min is 14): `android.util.SparseArray#contains`"
+        errorLine1="        assertFalse(2 in array)"
+        errorLine2="                      ~~">
+        <location
+            file="src/androidTest/java/androidx/core/util/SparseArrayTest.kt"
+            line="52"
+            column="23"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 30 (current min is 14): `android.util.SparseArray#contains`"
+        errorLine1="        assertTrue(2 in array)"
+        errorLine2="                     ~~">
+        <location
+            file="src/androidTest/java/androidx/core/util/SparseArrayTest.kt"
+            line="55"
+            column="22"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 17 (current min is 14): `updatePaddingRelative`"
+        errorLine1="        view.updatePaddingRelative(start = 10, end = 20)"
+        errorLine2="             ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/core/view/ViewTest.kt"
+            line="142"
+            column="14"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 17 (current min is 14): `android.view.View#getPaddingStart`"
+        errorLine1="        assertEquals(10, view.paddingStart)"
+        errorLine2="                              ~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/core/view/ViewTest.kt"
+            line="143"
+            column="31"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 17 (current min is 14): `android.view.View#getPaddingEnd`"
+        errorLine1="        assertEquals(20, view.paddingEnd)"
+        errorLine2="                              ~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/core/view/ViewTest.kt"
+            line="145"
+            column="31"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 17 (current min is 14): `android.view.View#setPaddingRelative`"
+        errorLine1="        view.setPaddingRelative(10, 20, 30, 40)"
+        errorLine2="             ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/core/view/ViewTest.kt"
+            line="151"
+            column="14"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 17 (current min is 14): `updatePaddingRelative`"
+        errorLine1="        view.updatePaddingRelative()"
+        errorLine2="             ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/core/view/ViewTest.kt"
+            line="152"
+            column="14"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 17 (current min is 14): `android.view.View#getPaddingStart`"
+        errorLine1="        assertEquals(10, view.paddingStart)"
+        errorLine2="                              ~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/core/view/ViewTest.kt"
+            line="153"
+            column="31"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 17 (current min is 14): `android.view.View#getPaddingEnd`"
+        errorLine1="        assertEquals(30, view.paddingEnd)"
+        errorLine2="                              ~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/core/view/ViewTest.kt"
+            line="155"
+            column="31"/>
+    </issue>
 
     <issue
         id="ClassVerificationFailure"
@@ -575,248 +696,6 @@
 
     <issue
         id="ClassVerificationFailure"
-        message="This call references a method added in API level 16; however, the containing class androidx.core.util.LongSparseArrayKt is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="public inline val &lt;T> LongSparseArray&lt;T>.size: Int get() = size()"
-        errorLine2="                                                           ~~~~">
-        <location
-            file="src/main/java/androidx/core/util/LongSparseArray.kt"
-            line="26"
-            column="60"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 16; however, the containing class androidx.core.util.LongSparseArrayKt is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="    indexOfKey(key) >= 0"
-        errorLine2="    ~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/util/LongSparseArray.kt"
-            line="31"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 16; however, the containing class androidx.core.util.LongSparseArrayKt is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="public inline operator fun &lt;T> LongSparseArray&lt;T>.set(key: Long, value: T): Unit = put(key, value)"
-        errorLine2="                                                                                   ~~~">
-        <location
-            file="src/main/java/androidx/core/util/LongSparseArray.kt"
-            line="35"
-            column="84"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 16; however, the containing class androidx.core.util.LongSparseArrayKt is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="    val new = LongSparseArray&lt;T>(size() + other.size())"
-        errorLine2="              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/util/LongSparseArray.kt"
-            line="40"
-            column="15"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 16; however, the containing class androidx.core.util.LongSparseArrayKt is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="    val new = LongSparseArray&lt;T>(size() + other.size())"
-        errorLine2="                                 ~~~~">
-        <location
-            file="src/main/java/androidx/core/util/LongSparseArray.kt"
-            line="40"
-            column="34"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 16; however, the containing class androidx.core.util.LongSparseArrayKt is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="    val new = LongSparseArray&lt;T>(size() + other.size())"
-        errorLine2="                                                ~~~~">
-        <location
-            file="src/main/java/androidx/core/util/LongSparseArray.kt"
-            line="40"
-            column="49"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 16; however, the containing class androidx.core.util.LongSparseArrayKt is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="public inline fun &lt;T> LongSparseArray&lt;T>.containsKey(key: Long): Boolean = indexOfKey(key) >= 0"
-        errorLine2="                                                                           ~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/util/LongSparseArray.kt"
-            line="48"
-            column="76"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 16; however, the containing class androidx.core.util.LongSparseArrayKt is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="    indexOfValue(value) >= 0"
-        errorLine2="    ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/util/LongSparseArray.kt"
-            line="53"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 16; however, the containing class androidx.core.util.LongSparseArrayKt is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="    get(key) ?: defaultValue"
-        errorLine2="    ~~~">
-        <location
-            file="src/main/java/androidx/core/util/LongSparseArray.kt"
-            line="58"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 16; however, the containing class androidx.core.util.LongSparseArrayKt is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="    get(key) ?: defaultValue()"
-        errorLine2="    ~~~">
-        <location
-            file="src/main/java/androidx/core/util/LongSparseArray.kt"
-            line="63"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 16; however, the containing class androidx.core.util.LongSparseArrayKt is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="public inline fun &lt;T> LongSparseArray&lt;T>.isEmpty(): Boolean = size() == 0"
-        errorLine2="                                                              ~~~~">
-        <location
-            file="src/main/java/androidx/core/util/LongSparseArray.kt"
-            line="67"
-            column="63"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 16; however, the containing class androidx.core.util.LongSparseArrayKt is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="public inline fun &lt;T> LongSparseArray&lt;T>.isNotEmpty(): Boolean = size() != 0"
-        errorLine2="                                                                 ~~~~">
-        <location
-            file="src/main/java/androidx/core/util/LongSparseArray.kt"
-            line="71"
-            column="66"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 16; however, the containing class androidx.core.util.LongSparseArrayKt is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="    val index = indexOfKey(key)"
-        errorLine2="                ~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/util/LongSparseArray.kt"
-            line="76"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 16; however, the containing class androidx.core.util.LongSparseArrayKt is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="    if (index >= 0 &amp;&amp; value == valueAt(index)) {"
-        errorLine2="                               ~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/util/LongSparseArray.kt"
-            line="77"
-            column="32"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 16; however, the containing class androidx.core.util.LongSparseArrayKt is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="        removeAt(index)"
-        errorLine2="        ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/util/LongSparseArray.kt"
-            line="78"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 16; however, the containing class androidx.core.util.LongSparseArrayKt is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="    for (index in 0 until size()) {"
-        errorLine2="                          ~~~~">
-        <location
-            file="src/main/java/androidx/core/util/LongSparseArray.kt"
-            line="91"
-            column="27"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 16; however, the containing class androidx.core.util.LongSparseArrayKt is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="        action(keyAt(index), valueAt(index))"
-        errorLine2="               ~~~~~">
-        <location
-            file="src/main/java/androidx/core/util/LongSparseArray.kt"
-            line="92"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 16; however, the containing class androidx.core.util.LongSparseArrayKt is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="        action(keyAt(index), valueAt(index))"
-        errorLine2="                             ~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/util/LongSparseArray.kt"
-            line="92"
-            column="30"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 16; however, the containing class null is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="    override fun hasNext() = index &lt; size()"
-        errorLine2="                                     ~~~~">
-        <location
-            file="src/main/java/androidx/core/util/LongSparseArray.kt"
-            line="100"
-            column="38"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 16; however, the containing class null is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="    override fun nextLong() = keyAt(index++)"
-        errorLine2="                              ~~~~~">
-        <location
-            file="src/main/java/androidx/core/util/LongSparseArray.kt"
-            line="101"
-            column="31"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 16; however, the containing class null is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="    override fun hasNext() = index &lt; size()"
-        errorLine2="                                     ~~~~">
-        <location
-            file="src/main/java/androidx/core/util/LongSparseArray.kt"
-            line="108"
-            column="38"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 16; however, the containing class null is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="    override fun next() = valueAt(index++)"
-        errorLine2="                          ~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/util/LongSparseArray.kt"
-            line="109"
-            column="27"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
         message="This call references a method added in API level 19; however, the containing class androidx.core.graphics.PathKt is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="        op(p, Path.Op.UNION)"
         errorLine2="        ~~">
@@ -857,138 +736,6 @@
             file="src/main/java/androidx/core/graphics/Path.kt"
             line="80"
             column="9"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class androidx.core.os.PersistableBundleKt is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="): PersistableBundle = PersistableBundle(pairs.size).apply {"
-        errorLine2="                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/os/PersistableBundle.kt"
-            line="31"
-            column="24"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class androidx.core.os.PersistableBundleKt is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            null -> putString(key, null) // Any nullable type will suffice."
-        errorLine2="                    ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/os/PersistableBundle.kt"
-            line="34"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 22; however, the containing class androidx.core.os.PersistableBundleKt is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                    putBoolean(key, value)"
-        errorLine2="                    ~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/os/PersistableBundle.kt"
-            line="39"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class androidx.core.os.PersistableBundleKt is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            is Double -> putDouble(key, value)"
-        errorLine2="                         ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/os/PersistableBundle.kt"
-            line="44"
-            column="26"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class androidx.core.os.PersistableBundleKt is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            is Int -> putInt(key, value)"
-        errorLine2="                      ~~~~~~">
-        <location
-            file="src/main/java/androidx/core/os/PersistableBundle.kt"
-            line="45"
-            column="23"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class androidx.core.os.PersistableBundleKt is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            is Long -> putLong(key, value)"
-        errorLine2="                       ~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/os/PersistableBundle.kt"
-            line="46"
-            column="24"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class androidx.core.os.PersistableBundleKt is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            is String -> putString(key, value)"
-        errorLine2="                         ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/os/PersistableBundle.kt"
-            line="49"
-            column="26"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 22; however, the containing class androidx.core.os.PersistableBundleKt is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                    putBooleanArray(key, value)"
-        errorLine2="                    ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/os/PersistableBundle.kt"
-            line="54"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class androidx.core.os.PersistableBundleKt is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            is DoubleArray -> putDoubleArray(key, value)"
-        errorLine2="                              ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/os/PersistableBundle.kt"
-            line="59"
-            column="31"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class androidx.core.os.PersistableBundleKt is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            is IntArray -> putIntArray(key, value)"
-        errorLine2="                           ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/os/PersistableBundle.kt"
-            line="60"
-            column="28"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class androidx.core.os.PersistableBundleKt is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            is LongArray -> putLongArray(key, value)"
-        errorLine2="                            ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/os/PersistableBundle.kt"
-            line="61"
-            column="29"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class androidx.core.os.PersistableBundleKt is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                        putStringArray(key, value as Array&lt;String>)"
-        errorLine2="                        ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/os/PersistableBundle.kt"
-            line="69"
-            column="25"/>
     </issue>
 
     <issue

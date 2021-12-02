@@ -32,6 +32,6 @@ interface TestItemDao {
     @Delete
     fun deleteTestItem(testItem: TestItem): Int
 
-    @Query("DELETE FROM TestItem WHERE id < 30")
-    fun deleteTestItems(): Int
+    @Query("DELETE FROM TestItem WHERE id >= :start AND id <= :end")
+    fun deleteTestItems(start: Int, end: Int): Int
 }

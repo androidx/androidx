@@ -21,7 +21,7 @@ import androidx.room.parser.ParsedQuery
 import androidx.room.parser.SqlParser
 import androidx.room.processor.QueryRewriter
 import androidx.room.solver.query.result.PojoRowAdapter
-import androidx.room.solver.query.result.RowAdapter
+import androidx.room.solver.query.result.QueryResultAdapter
 import androidx.room.verifier.QueryResultInfo
 import androidx.room.vo.EmbeddedField
 import androidx.room.vo.Entity
@@ -68,21 +68,31 @@ class ProjectionExpander(
 
     override fun rewrite(
         query: ParsedQuery,
-        rowAdapter: RowAdapter
-    ) = if (rowAdapter is PojoRowAdapter) {
-        interpret(
-            query = ExpandableSqlParser.parse(query.original),
-            pojo = rowAdapter.pojo
-        ).let {
-            val reParsed = SqlParser.parse(it)
-            if (reParsed.errors.isEmpty()) {
-                reParsed
-            } else {
-                query // return original, expansion somewhat failed
-            }
+        resultAdapter: QueryResultAdapter
+    ): ParsedQuery {
+        if (resultAdapter.rowAdapters.isEmpty()) {
+            return query
         }
-    } else {
-        query
+        // Don't know how to expand when multiple POJO types are created from the same row.
+        if (resultAdapter.rowAdapters.size > 1) {
+            return query
+        }
+        val rowAdapter = resultAdapter.rowAdapters.single()
+        return if (rowAdapter is PojoRowAdapter) {
+            interpret(
+                query = ExpandableSqlParser.parse(query.original),
+                pojo = rowAdapter.pojo
+            ).let {
+                val reParsed = SqlParser.parse(it)
+                if (reParsed.errors.isEmpty()) {
+                    reParsed
+                } else {
+                    query // return original, expansion somewhat failed
+                }
+            }
+        } else {
+            query
+        }
     }
 
     private fun interpret(
