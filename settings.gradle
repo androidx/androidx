@@ -223,7 +223,7 @@ includeProject(":activity:activity-compose:integration-tests:activity-demos", "a
 includeProject(":activity:activity-compose-lint", "activity/activity-compose-lint", [BuildType.COMPOSE])
 includeProject(":activity:activity-ktx", "activity/activity-ktx", [BuildType.MAIN, BuildType.FLAN, BuildType.COMPOSE])
 includeProject(":activity:activity-lint", "activity/activity-lint", [BuildType.MAIN, BuildType.FLAN, BuildType.COMPOSE, BuildType.WEAR])
-includeProject(":activity:integration-tests:testapp", "activity/integration-tests/testapp", [BuildType.MAIN])
+includeProject(":activity:integration-tests:testapp", "activity/integration-tests/testapp", [BuildType.MAIN, BuildType.FLAN])
 includeProject(":ads:ads-identifier", "ads/ads-identifier", [BuildType.MAIN])
 includeProject(":ads:ads-identifier-benchmark", "ads/ads-identifier-benchmark", [BuildType.MAIN])
 includeProject(":ads:ads-identifier-common", "ads/ads-identifier-common", [BuildType.MAIN])
