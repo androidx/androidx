@@ -21,7 +21,9 @@ import org.gradle.api.Plugin
 import org.gradle.api.initialization.Settings
 import org.gradle.caching.http.HttpBuildCache
 import org.gradle.kotlin.dsl.gradleEnterprise
+import java.net.InetAddress
 import java.net.URI
+import java.util.function.Function
 
 class GradleEnterpriseConventionsPlugin : Plugin<Settings> {
     override fun apply(settings: Settings) {
@@ -40,7 +42,8 @@ class GradleEnterpriseConventionsPlugin : Plugin<Settings> {
                 isUploadInBackground = !isCI
                 capture.isTaskInputFiles = true
 
-                GradleWorkaround.obfuscate(obfuscation)
+                obfuscation.hostname(HostnameHider())
+                obfuscation.ipAddresses(IpAddressHider())
             }
         }
 
@@ -56,6 +59,26 @@ class GradleEnterpriseConventionsPlugin : Plugin<Settings> {
             } else {
                 remote.isPush = false
             }
+        }
+    }
+
+    /**
+     * This class needs to be a concrete class and not a lambda due to
+     * https://github.com/gradle/gradle/issues/19047
+     */
+    private class HostnameHider : Function<String?, String> {
+        override fun apply(originalHostName: String?): String {
+            return "unset"
+        }
+    }
+
+    /**
+     * This class needs to be a concrete class and not a lambda due to
+     * https://github.com/gradle/gradle/issues/19047
+     */
+    private class IpAddressHider : Function<List<InetAddress>, List<String>> {
+        override fun apply(list: List<InetAddress>): List<String> {
+            return listOf("0.0.0.0")
         }
     }
 }
