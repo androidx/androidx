@@ -50,6 +50,7 @@ import androidx.camera.testing.fakes.FakeLifecycleOwner;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.filters.MediumTest;
 import androidx.test.platform.app.InstrumentationRegistry;
+import androidx.test.rule.GrantPermissionRule;
 
 import org.junit.After;
 import org.junit.Before;
@@ -78,6 +79,9 @@ public class PreviewProcessorTimestampTest {
 
     @Rule
     public TestRule mUseCamera = CameraUtil.grantCameraPermissionAndPreTest();
+    @Rule
+    public GrantPermissionRule mStoragePermissionRule =
+            GrantPermissionRule.grant(android.Manifest.permission.WRITE_EXTERNAL_STORAGE);
 
     private final Instrumentation mInstrumentation = InstrumentationRegistry.getInstrumentation();
     private final Context mContext = ApplicationProvider.getApplicationContext();
@@ -103,7 +107,7 @@ public class PreviewProcessorTimestampTest {
 
     private CameraSelector mCameraSelector;
 
-    private FakeLifecycleOwner mFakeLifecycleOwner = new FakeLifecycleOwner();
+    private FakeLifecycleOwner mFakeLifecycleOwner;
 
     @Parameterized.Parameters(name = "effect = {0}, facing = {1}")
     public static Collection<Object[]> getParameters() {
@@ -144,7 +148,11 @@ public class PreviewProcessorTimestampTest {
                 mProcessCameraProvider).get(10000, TimeUnit.MILLISECONDS);
 
         mCameraSelector = new CameraSelector.Builder().requireLensFacing(mLensFacing).build();
-        mFakeLifecycleOwner.startAndResume();
+
+        mInstrumentation.runOnMainSync(() -> {
+            mFakeLifecycleOwner = new FakeLifecycleOwner();
+            mFakeLifecycleOwner.startAndResume();
+        });
         mImageCaptureBuilder = new ImageCapture.Builder();
         mPreviewBuilder = new Preview.Builder();
         mInputTimestampsLatch = new CountDownLatch(1);

@@ -28,6 +28,9 @@ import android.os.Environment;
 import android.os.StrictMode;
 import android.provider.MediaStore;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.widget.Button;
@@ -48,6 +51,7 @@ import androidx.camera.core.MeteringPoint;
 import androidx.camera.core.Preview;
 import androidx.camera.extensions.ExtensionMode;
 import androidx.camera.extensions.ExtensionsManager;
+import androidx.camera.integration.extensions.validation.CameraValidationResultActivity;
 import androidx.camera.lifecycle.ProcessCameraProvider;
 import androidx.camera.view.PreviewView;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
@@ -261,7 +265,7 @@ public class CameraExtensionsActivity extends AppCompatActivity
 
     @SuppressWarnings("UnstableApiUsage")
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_camera_extensions);
 
@@ -270,13 +274,22 @@ public class CameraExtensionsActivity extends AppCompatActivity
         StrictMode.setVmPolicy(policy);
         mPreviewView = findViewById(R.id.previewView);
         setupPinchToZoomAndTapToFocus(mPreviewView);
-
-        ListenableFuture<ProcessCameraProvider> cameraProviderFuture =
-                ProcessCameraProvider.getInstance(this);
         Futures.addCallback(setupPermissions(), new FutureCallback<Boolean>() {
             @Override
             public void onSuccess(@Nullable Boolean result) {
                 mPermissionsGranted = Preconditions.checkNotNull(result);
+
+                if (!mPermissionsGranted) {
+                    Log.d(TAG, "Required permissions are not all granted!");
+                    Toast.makeText(CameraExtensionsActivity.this, "Required permissions are not "
+                            + "all granted!", Toast.LENGTH_LONG).show();
+                    finish();
+                    return;
+                }
+
+                ListenableFuture<ProcessCameraProvider> cameraProviderFuture =
+                        ProcessCameraProvider.getInstance(CameraExtensionsActivity.this);
+
                 Futures.addCallback(cameraProviderFuture,
                         new FutureCallback<ProcessCameraProvider>() {
                             @Override
@@ -297,6 +310,26 @@ public class CameraExtensionsActivity extends AppCompatActivity
                 throw new RuntimeException("Failed to get permissions", t);
             }
         }, ContextCompat.getMainExecutor(this));
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(@Nullable Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.main_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        if (item.getItemId() == R.id.menu_validation_tool) {
+            Intent intent = new Intent(this, CameraValidationResultActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(intent);
+            finish();
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 
     // TODO(b/162875208) Suppress until new extensions API made public
@@ -443,21 +476,28 @@ public class CameraExtensionsActivity extends AppCompatActivity
     @Override
     public void onRequestPermissionsResult(
             int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        switch (requestCode) {
-            case PERMISSIONS_REQUEST_CODE: {
-                // If request is cancelled, the result arrays are empty.
-                if (grantResults.length > 0
-                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    Log.d(TAG, "Permissions Granted.");
-                    mPermissionCompleter.set(true);
-                } else {
-                    Log.d(TAG, "Permissions Denied.");
-                    mPermissionCompleter.set(false);
-                }
-                return;
-            }
-            default:
-                // No-op
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        if (requestCode != PERMISSIONS_REQUEST_CODE) {
+            return;
         }
+
+        // If request is cancelled, the result arrays are empty.
+        if (grantResults.length == 0) {
+            mPermissionCompleter.set(false);
+            return;
+        }
+
+        boolean allPermissionGranted = true;
+
+        for (int grantResult : grantResults) {
+            if (grantResult != PackageManager.PERMISSION_GRANTED) {
+                allPermissionGranted = false;
+                break;
+            }
+        }
+
+        Log.d(TAG, "All permissions granted: " + allPermissionGranted);
+        mPermissionCompleter.set(allPermissionGranted);
     }
 }
