@@ -32,6 +32,8 @@ import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
@@ -56,6 +58,7 @@ import androidx.glance.appwidget.state.updateAppWidgetState
 import androidx.glance.appwidget.test.R
 import androidx.glance.background
 import androidx.glance.currentState
+import androidx.glance.layout.Alignment
 import androidx.glance.layout.Box
 import androidx.glance.layout.Column
 import androidx.glance.layout.ContentScale
@@ -64,6 +67,7 @@ import androidx.glance.layout.fillMaxHeight
 import androidx.glance.layout.fillMaxSize
 import androidx.glance.layout.fillMaxWidth
 import androidx.glance.layout.height
+import androidx.glance.layout.padding
 import androidx.glance.layout.width
 import androidx.glance.layout.wrapContentHeight
 import androidx.glance.state.PreferencesGlanceStateDefinition
@@ -72,6 +76,7 @@ import androidx.glance.text.FontWeight
 import androidx.glance.text.Text
 import androidx.glance.text.TextDecoration
 import androidx.glance.text.TextStyle
+import androidx.glance.unit.ColorProvider
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
@@ -656,6 +661,42 @@ class GlanceAppWidgetReceiverTest {
         assertThat(CallbackTest.received.get()).containsExactly(1, 2)
     }
 
+    @Test
+    fun wrapAroundFillMaxSize() {
+        TestGlanceAppWidget.uiDefinition = {
+            val wrapperModifier = GlanceModifier
+                .background(ColorProvider(Color.LightGray))
+                .fillMaxSize()
+                .padding(8.dp)
+            Column(modifier = wrapperModifier) {
+                val boxModifier = GlanceModifier
+                    .defaultWeight()
+                    .fillMaxWidth()
+                BoxRowBox(modifier = boxModifier, text = "Text 1")
+                BoxRowBox(modifier = boxModifier, text = "Text 2")
+            }
+        }
+
+        mHostRule.startHost()
+
+        mHostRule.onUnboxedHostView<LinearLayout> { column ->
+            val displayMetrics = column.context.resources.displayMetrics
+            val targetHeight = (column.height.pixelsToDp(displayMetrics) - 16.dp) / 2
+            val targetWidth = column.width.pixelsToDp(displayMetrics) - 16.dp
+
+            val text1 = checkNotNull(column.findChild<TextView> { it.text == "Text 1" })
+            val row1 = text1.getParentView<FrameLayout>().getParentView<LinearLayout>()
+            assertThat(row1.orientation).isEqualTo(LinearLayout.HORIZONTAL)
+            assertViewSize(row1, DpSize(targetWidth, targetHeight))
+
+            val text2 = checkNotNull(column.findChild<TextView> { it.text == "Text 2" })
+            val row2 = text2.getParentView<FrameLayout>().getParentView<LinearLayout>()
+            assertThat(row2.orientation).isEqualTo(LinearLayout.HORIZONTAL)
+            assertThat(row2.height).isGreaterThan(20.dp.toPixels(context))
+            assertViewSize(row2, DpSize(targetWidth, targetHeight))
+        }
+    }
+
     // Check there is a single span of the given type and that it passes the [check].
     private inline
     fun <reified T> SpannedString.checkHasSingleTypedSpan(check: (T) -> Unit) {
@@ -700,5 +741,27 @@ internal class CallbackTest : ActionCallback {
         lateinit var latch: CountDownLatch
         val received = AtomicReference<List<Int>>(emptyList())
         val key = testKey.toParametersKey()
+    }
+}
+
+@Composable
+private fun BoxRowBox(modifier: GlanceModifier, text: String) {
+    Box(modifier) {
+        val rowModifier = GlanceModifier
+            .background(ColorProvider(Color.Gray))
+            .fillMaxWidth()
+            .padding(8.dp)
+        Row(modifier = rowModifier) {
+            val boxModifier = GlanceModifier
+                .background(ColorProvider(Color.DarkGray))
+                .width(64.dp)
+                .fillMaxHeight()
+            Box(
+                modifier = boxModifier,
+                contentAlignment = Alignment.Center
+            ) {
+                Text(text)
+            }
+        }
     }
 }

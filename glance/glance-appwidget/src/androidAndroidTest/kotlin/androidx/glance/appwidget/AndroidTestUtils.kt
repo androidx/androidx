@@ -106,3 +106,12 @@ inline fun <reified T : View> View.getTargetView(): T {
         }
     )
 }
+
+// Get the parent view, even if the current view is in a complex layout.
+inline fun <reified T : View> View.getParentView(): T {
+    val parent = assertIs<ViewGroup>(this.parent)
+    if ((parent.tag as? String) != "glanceComplexLayout") {
+        return assertIs(parent)
+    }
+    return assertIs(parent.parent)
+}
