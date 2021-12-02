@@ -28,9 +28,9 @@ import org.robolectric.annotation.Config
 import org.robolectric.shadows.ShadowBuild
 import org.robolectric.shadows.ShadowSystemProperties
 
-/** Unit tests for [PerformanceClass]. */
+/** Unit tests for [DevicePerformance]. */
 @RunWith(RobolectricTestRunner::class)
-class PerformanceClassTest {
+class DevicePerformanceTest {
 
     @Test
     @Config(maxSdk = R)
@@ -58,7 +58,7 @@ class PerformanceClassTest {
         assertThat(pc.mediaPerformanceClass).isEqualTo(0)
     }
 
-    private fun createPerformanceClass(): PerformanceClass {
-        return PerformanceClass.create(ApplicationProvider.getApplicationContext<Application>())
+    private fun createPerformanceClass(): DevicePerformance {
+        return DevicePerformance.create(ApplicationProvider.getApplicationContext<Application>())
     }
 }
