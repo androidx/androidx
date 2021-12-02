@@ -36,6 +36,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.content.pm.PackageManager;
+import android.content.res.Configuration;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -67,6 +68,7 @@ import androidx.annotation.RequiresApi;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.ActivityOptionsCompat;
 import androidx.core.content.ContextCompat;
+import androidx.core.content.OnConfigurationChangedProvider;
 import androidx.core.content.OnTrimMemoryProvider;
 import androidx.core.util.Consumer;
 import androidx.core.view.MenuHost;
@@ -109,6 +111,7 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
         OnBackPressedDispatcherOwner,
         ActivityResultRegistryOwner,
         ActivityResultCaller,
+        OnConfigurationChangedProvider,
         OnTrimMemoryProvider,
         MenuHost {
 
@@ -224,6 +227,8 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
         }
     };
 
+    private final CopyOnWriteArrayList<Consumer<Configuration>> mOnConfigurationChangedListeners =
+            new CopyOnWriteArrayList<>();
     private final CopyOnWriteArrayList<Consumer<Integer>> mOnTrimMemoryListeners =
             new CopyOnWriteArrayList<>();
 
@@ -779,6 +784,35 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
     @Override
     public final ActivityResultRegistry getActivityResultRegistry() {
         return mActivityResultRegistry;
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * Dispatches this call to all listeners added via
+     * {@link #addOnConfigurationChangedListener(Consumer)}.
+     */
+    @CallSuper
+    @Override
+    public void onConfigurationChanged(@NonNull Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        for (Consumer<Configuration> listener : mOnConfigurationChangedListeners) {
+            listener.accept(newConfig);
+        }
+    }
+
+    @Override
+    public final void addOnConfigurationChangedListener(
+            @NonNull Consumer<Configuration> listener
+    ) {
+        mOnConfigurationChangedListeners.add(listener);
+    }
+
+    @Override
+    public final void removeOnConfigurationChangedListener(
+            @NonNull Consumer<Configuration> listener
+    ) {
+        mOnConfigurationChangedListeners.remove(listener);
     }
 
     /**

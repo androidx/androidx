@@ -17,6 +17,7 @@
 package androidx.activity
 
 import android.content.ComponentCallbacks2
+import android.content.res.Configuration
 import androidx.core.util.Consumer
 import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -29,6 +30,92 @@ import org.junit.runner.RunWith
 @LargeTest
 @RunWith(AndroidJUnit4::class)
 class ComponentActivityCallbacksTest {
+    @Test
+    fun onConfigurationChanged() {
+        with(ActivityScenario.launch(ComponentActivity::class.java)) {
+            var receivedFontScale = withActivity {
+                resources.configuration.fontScale
+            }
+            val expectedFontScale = receivedFontScale * 2
+
+            val listener = Consumer<Configuration> { newConfig ->
+                receivedFontScale = newConfig.fontScale
+            }
+            withActivity {
+                addOnConfigurationChangedListener(listener)
+                val newConfig = Configuration(resources.configuration)
+                newConfig.fontScale *= 2
+                onConfigurationChanged(newConfig)
+            }
+
+            assertThat(receivedFontScale).isEqualTo(expectedFontScale)
+        }
+    }
+
+    @Test
+    fun onConfigurationChangedRemove() {
+        with(ActivityScenario.launch(ComponentActivity::class.java)) {
+            var receivedFontScale = withActivity {
+                resources.configuration.fontScale
+            }
+            val expectedFontScale = receivedFontScale * 2
+
+            val listener = Consumer<Configuration> { newConfig ->
+                receivedFontScale = newConfig.fontScale
+            }
+            withActivity {
+                addOnConfigurationChangedListener(listener)
+                val newConfig = Configuration(resources.configuration)
+                newConfig.fontScale *= 2
+                onConfigurationChanged(newConfig)
+            }
+
+            assertThat(receivedFontScale).isEqualTo(expectedFontScale)
+
+            withActivity {
+                removeOnConfigurationChangedListener(listener)
+                val newConfig = Configuration(resources.configuration)
+                newConfig.fontScale *= 2
+                onConfigurationChanged(newConfig)
+            }
+
+            assertThat(receivedFontScale).isEqualTo(expectedFontScale)
+        }
+    }
+
+    @Test
+    fun onConfigurationChangedReentrant() {
+        with(ActivityScenario.launch(ComponentActivity::class.java)) {
+            val activity = withActivity { this }
+            var receivedFontScale = withActivity {
+                resources.configuration.fontScale
+            }
+            val expectedFontScale = receivedFontScale * 2
+
+            val listener = object : Consumer<Configuration> {
+                override fun accept(newConfig: Configuration) {
+                    receivedFontScale = newConfig.fontScale
+                    activity.removeOnConfigurationChangedListener(this)
+                }
+            }
+            withActivity {
+                addOnConfigurationChangedListener(listener)
+                // Add a second listener to force a ConcurrentModificationException
+                // if not properly handled by ComponentActivity
+                addOnConfigurationChangedListener { }
+                val newConfig = Configuration(resources.configuration)
+                newConfig.fontScale *= 2
+                onConfigurationChanged(newConfig)
+                val secondConfig = Configuration(newConfig)
+                secondConfig.fontScale *= 2
+                onConfigurationChanged(secondConfig)
+            }
+
+            // Only the first trim level should be received
+            assertThat(receivedFontScale).isEqualTo(expectedFontScale)
+        }
+    }
+
     @Test
     fun onTrimMemory() {
         with(ActivityScenario.launch(ComponentActivity::class.java)) {
