@@ -32,13 +32,12 @@ import androidx.camera.integration.extensions.validation.CameraValidationResultA
 import androidx.camera.integration.extensions.validation.CameraValidationResultActivity.Companion.INTENT_EXTRA_KEY_REQUEST_CODE
 import androidx.camera.integration.extensions.validation.CameraValidationResultActivity.Companion.INTENT_EXTRA_KEY_RESULT_MAP
 import androidx.camera.integration.extensions.validation.CameraValidationResultActivity.Companion.INTENT_EXTRA_KEY_TEST_RESULT
-import androidx.camera.integration.extensions.validation.CameraValidationResultActivity.Companion.getLensFacingStringFromId
+import androidx.camera.integration.extensions.validation.CameraValidationResultActivity.Companion.INVALID_LENS_FACING
+import androidx.camera.integration.extensions.validation.CameraValidationResultActivity.Companion.getLensFacingStringFromInt
 import androidx.camera.integration.extensions.validation.TestResults.Companion.INVALID_EXTENSION_MODE
 import androidx.camera.integration.extensions.validation.TestResults.Companion.TEST_RESULT_NOT_SUPPORTED
 import androidx.camera.integration.extensions.validation.TestResults.Companion.TEST_RESULT_NOT_TESTED
 import androidx.core.app.ActivityCompat
-
-private const val INVALID_LENS_FACING = -1
 
 class ExtensionValidationResultActivity : AppCompatActivity() {
     private val extensionTestResultMap = linkedMapOf<Int, Int>()
@@ -69,7 +68,7 @@ class ExtensionValidationResultActivity : AppCompatActivity() {
         setResult(requestCode, result)
 
         supportActionBar?.title = "${resources.getString(R.string.extensions_validator)}"
-        supportActionBar!!.subtitle = "Camera $cameraId [${getLensFacingStringFromId(lensFacing)}]"
+        supportActionBar!!.subtitle = "Camera $cameraId [${getLensFacingStringFromInt(lensFacing)}]"
 
         val layoutInflater = getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
         adapter = ExtensionValidationResultAdapter(layoutInflater, extensionTestResultMap)
@@ -113,6 +112,7 @@ class ExtensionValidationResultActivity : AppCompatActivity() {
     private fun startCaptureValidationActivity(cameraId: String, mode: Int) {
         val intent = Intent(this, ImageValidationActivity::class.java)
         intent.putExtra(INTENT_EXTRA_KEY_CAMERA_ID, cameraId)
+        intent.putExtra(INTENT_EXTRA_KEY_LENS_FACING, lensFacing)
         intent.putExtra(INTENT_EXTRA_KEY_EXTENSION_MODE, mode)
         intent.putExtra(INTENT_EXTRA_KEY_REQUEST_CODE, imageValidationActivityRequestCode)
 

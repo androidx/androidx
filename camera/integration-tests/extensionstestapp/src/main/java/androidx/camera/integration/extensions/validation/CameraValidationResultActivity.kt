@@ -193,12 +193,14 @@ class CameraValidationResultActivity : AppCompatActivity() {
 
     companion object {
 
-        fun getLensFacingStringFromId(lensFacing: Int): String = when (lensFacing) {
+        fun getLensFacingStringFromInt(lensFacing: Int): String = when (lensFacing) {
             CameraMetadata.LENS_FACING_BACK -> "BACK"
             CameraMetadata.LENS_FACING_FRONT -> "FRONT"
             CameraMetadata.LENS_FACING_EXTERNAL -> "EXTERNAL"
             else -> throw IllegalArgumentException("Invalid lens facing!!")
         }
+
+        const val INVALID_LENS_FACING = -1
 
         const val INTENT_EXTRA_KEY_CAMERA_ID = "CameraId"
         const val INTENT_EXTRA_KEY_LENS_FACING = "LensFacing"

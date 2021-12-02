@@ -54,7 +54,10 @@ import androidx.camera.integration.extensions.validation.CameraValidationResultA
 import androidx.camera.integration.extensions.validation.CameraValidationResultActivity.Companion.INTENT_EXTRA_KEY_EXTENSION_MODE
 import androidx.camera.integration.extensions.validation.CameraValidationResultActivity.Companion.INTENT_EXTRA_KEY_IMAGE_ROTATION_DEGREES
 import androidx.camera.integration.extensions.validation.CameraValidationResultActivity.Companion.INTENT_EXTRA_KEY_IMAGE_URI
+import androidx.camera.integration.extensions.validation.CameraValidationResultActivity.Companion.INTENT_EXTRA_KEY_LENS_FACING
 import androidx.camera.integration.extensions.validation.CameraValidationResultActivity.Companion.INTENT_EXTRA_KEY_REQUEST_CODE
+import androidx.camera.integration.extensions.validation.CameraValidationResultActivity.Companion.INVALID_LENS_FACING
+import androidx.camera.integration.extensions.validation.CameraValidationResultActivity.Companion.getLensFacingStringFromInt
 import androidx.camera.integration.extensions.validation.TestResults.Companion.INVALID_EXTENSION_MODE
 import androidx.camera.integration.extensions.validation.TestResults.Companion.createCameraSelectorById
 import androidx.camera.integration.extensions.validation.TestResults.Companion.getExtensionModeStringFromId
@@ -79,6 +82,7 @@ class ImageCaptureActivity : AppCompatActivity() {
     private var extensionMode = INVALID_EXTENSION_MODE
     private var extensionEnabled = true
     private val result = Intent()
+    private var lensFacing = INVALID_LENS_FACING
     private lateinit var cameraProvider: ProcessCameraProvider
     private lateinit var extensionsManager: ExtensionsManager
     private lateinit var cameraId: String
@@ -105,6 +109,7 @@ class ImageCaptureActivity : AppCompatActivity() {
         setContentView(R.layout.image_capture_activity)
 
         cameraId = intent?.getStringExtra(INTENT_EXTRA_KEY_CAMERA_ID)!!
+        lensFacing = intent.getIntExtra(INTENT_EXTRA_KEY_LENS_FACING, INVALID_LENS_FACING)
         extensionMode = intent.getIntExtra(INTENT_EXTRA_KEY_EXTENSION_MODE, INVALID_EXTENSION_MODE)
 
         result.putExtra(INTENT_EXTRA_KEY_EXTENSION_MODE, extensionMode)
@@ -114,7 +119,8 @@ class ImageCaptureActivity : AppCompatActivity() {
 
         supportActionBar?.title = "${resources.getString(R.string.extensions_validator)}"
         supportActionBar!!.subtitle =
-            "Camera $cameraId [${getExtensionModeStringFromId(extensionMode)}]"
+            "Camera $cameraId [${getLensFacingStringFromInt(lensFacing)}]" +
+                "[${getExtensionModeStringFromId(extensionMode)}]"
 
         viewFinder = findViewById(R.id.view_finder)
 
@@ -213,9 +219,17 @@ class ImageCaptureActivity : AppCompatActivity() {
                 ContextCompat.getMainExecutor(this),
                 object : ImageCapture.OnImageCapturedCallback() {
                     override fun onCaptureSuccess(image: ImageProxy) {
+                        val filenamePrefix =
+                            "[Camera-$cameraId][${getLensFacingStringFromInt(lensFacing)}]" +
+                                "[${getExtensionModeStringFromId(extensionMode)}]"
+                        val filename = if (extensionEnabled) {
+                            "$filenamePrefix[Enabled]"
+                        } else {
+                            "$filenamePrefix[Disabled]"
+                        }
                         val tempFile = File.createTempFile(
-                            getExtensionModeStringFromId(extensionMode),
-                            ".jpg",
+                            filename,
+                            "",
                             codeCacheDir
                         )
                         val outputStream = FileOutputStream(tempFile)
