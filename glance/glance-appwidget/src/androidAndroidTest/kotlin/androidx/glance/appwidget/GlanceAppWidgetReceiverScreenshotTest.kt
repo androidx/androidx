@@ -259,8 +259,6 @@ class GlanceAppWidgetReceiverScreenshotTest {
         mHostRule.setSizes(DpSize(300.dp, 400.dp))
         mHostRule.startHost()
 
-        Thread.sleep(5000)
-
         mScreenshotRule.checkScreenshot(mHostRule.mHostView, "button_text_align")
     }
 
