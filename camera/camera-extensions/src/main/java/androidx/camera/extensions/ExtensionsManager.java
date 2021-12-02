@@ -16,21 +16,23 @@
 package androidx.camera.extensions;
 
 import android.content.Context;
-import android.os.Handler;
-import android.os.Looper;
+import android.hardware.camera2.CameraMetadata;
+import android.hardware.camera2.params.StreamConfigurationMap;
 import android.util.Range;
-import android.util.Size;
 
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.camera.core.CameraProvider;
 import androidx.camera.core.CameraSelector;
+import androidx.camera.core.ImageAnalysis;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.Logger;
 import androidx.camera.core.Preview;
+import androidx.camera.core.impl.utils.ContextUtil;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.camera.extensions.impl.InitializerImpl;
@@ -47,46 +49,94 @@ import java.util.concurrent.ExecutionException;
 /**
  * Provides interfaces for third party app developers to get capabilities info of extension
  * functions.
+ *
+ * <p>Many Android devices contain powerful cameras, with manufacturers devoting a lot of effort
+ * to build many cutting-edge features, or special effects, into these camera devices.
+ * <code>CameraX Extensions</code> allows third party apps to enable the available extension
+ * modes on the supported devices. The extension modes which might be supported via <code>CameraX
+ * Extensions</code> are {@link ExtensionMode#BOKEH}, {@link ExtensionMode#HDR},
+ * {@link ExtensionMode#NIGHT}, {@link ExtensionMode#FACE_RETOUCH} and {@link ExtensionMode#AUTO}
+ * . The known supported devices are listed in the
+ * <a href="https://developer.android.com/training/camerax/devices">CameraX devices</a>
+ * page.  Please see the ones that the <code>Extensions support</code> column is checked.
+ *
+ * <p><code>CameraX Extensions</code> are built on the top of <code>CameraX Core</code> libraries
+ * . To enable an extension mode, an {@link ExtensionsManager} instance needs to be retrieved
+ * first with {@link #getInstanceAsync(Context, CameraProvider)}. Only a single
+ * {@link ExtensionsManager} instance can exist within a process. After retrieving the
+ * {@link ExtensionsManager} instance, the availability of a specific extension mode can be
+ * checked by {@link #isExtensionAvailable(CameraSelector, int)}. For an available extension
+ * mode, an extension enabled {@link CameraSelector} can be obtained by calling
+ * {@link #getExtensionEnabledCameraSelector(CameraSelector, int)}. After binding use cases by
+ * the extension enabled {@link CameraSelector}, the extension mode will be applied to the bound
+ * {@link Preview} and {@link ImageCapture}. The following sample code describes how to enable an
+ * extension mode for use cases.
+ * </p>
+ * <pre>
+ * void bindUseCasesWithBokehMode() {
+ *     // Create a camera provider
+ *     ProcessCameraProvider cameraProvider = ... // Get the provider instance
+ *     // Call the getInstance function to retrieve a ListenableFuture object
+ *     ListenableFuture future = ExtensionsManager.getInstance(context, cameraProvider);
+ *
+ *     // Obtain the ExtensionsManager instance from the returned ListenableFuture object
+ *     future.addListener(() -> {
+ *         try {
+ *             ExtensionsManager extensionsManager = future.get()
+ *
+ *             // Query if extension is available.
+ *             if (mExtensionsManager.isExtensionAvailable(DEFAULT_BACK_CAMERA,
+ *                        ExtensionMode.BOKEH)) {
+ *                 // Needs to unbind all use cases before enabling different extension mode.
+ *                 cameraProvider.unbindAll();
+ *
+ *                 // Retrieve extension enabled camera selector
+ *                 CameraSelector extensionCameraSelector;
+ *                 extensionCameraSelector = extensionsManager.getExtensionEnabledCameraSelector(
+ *                         DEFAULT_BACK_CAMERA, ExtensionMode.BOKEH);
+ *
+ *                 // Bind image capture and preview use cases with the extension enabled camera
+ *                 // selector.
+ *                 ImageCapture imageCapture = new ImageCapture.Builder().build();
+ *                 Preview preview = new Preview.Builder().build();
+ *                 cameraProvider.bindToLifecycle(lifecycleOwner, extensionCameraSelector,
+ *                         imageCapture, preview);
+ *             }
+ *         } catch (ExecutionException | InterruptedException e) {
+ *             // This should not happen unless the future is cancelled or the thread is
+ *             // interrupted by applications.
+ *         }
+ *     }, ContextCompact.getMainExecutor(context));
+ * }
+ * </pre>
+ *
+ * <p>Without enabling <code>CameraX Extensions</code>, any device should be able to support the
+ * use cases combination of {@link ImageCapture}, {@link Preview} and {@link ImageAnalysis}. To
+ * support the <code>CameraX Extensions</code> functionality, the {@link ImageCapture} or
+ * {@link Preview} might need to occupy a different format of stream. This might restrict the app
+ * to not be able to bind {@link ImageCapture}, {@link Preview} and {@link ImageAnalysis} at the
+ * same time if the device's hardware level is not
+ * {@link CameraMetadata#INFO_SUPPORTED_HARDWARE_LEVEL_FULL} or above. If enabling an extension
+ * mode is more important and the {@link ImageAnalysis} could be optional to the app design, the
+ * extension mode can be enabled successfully when only binding {@link ImageCapture},
+ * {@link Preview} even if the device's hardware level is
+ * {@link CameraMetadata#INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED}.
+ *
+ * <p><code>CameraX Extensions</code> currently can only support {@link ImageCapture} and
+ * {@link Preview}. The {@linkplain androidx.camera.video.VideoCapture} can't be supported yet.
+ * If the app binds {@linkplain androidx.camera.video.VideoCapture} and
+ * enables any extension mode, an {@link IllegalArgumentException} will be thrown.
+ *
+ * <p>For some devices, the vendor library implementation might only support a subset of the all
+ * supported sizes retrieved by {@link StreamConfigurationMap#getOutputSizes(int)}. <code>CameraX
+ * </code> will select the supported sizes for the use cases according to the use cases'
+ * configuration and combination.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class ExtensionsManager {
     private static final String TAG = "ExtensionsManager";
 
-    /**
-     * The effect mode options applied on the bound use cases
-     *
-     * @deprecated Use {@link ExtensionMode} to call the new
-     * {@link #isExtensionAvailable(CameraProvider, CameraSelector, int)} and
-     * {@link #getExtensionEnabledCameraSelector(CameraProvider, CameraSelector, int)} APIs.
-     */
-    @Deprecated
-    public enum EffectMode {
-        /** Normal mode without any specific effect applied. */
-        NORMAL,
-        /** Bokeh mode that is often applied as portrait mode for people pictures. */
-        BOKEH,
-        /**
-         * HDR mode that may get source pictures with different AE settings to generate a best
-         * result.
-         */
-        HDR,
-        /**
-         * Night mode is used for taking better still capture images under low-light situations,
-         * typically at night time.
-         */
-        NIGHT,
-        /**
-         * Beauty mode is used for taking still capture images that incorporate facial changes
-         * like skin tone, geometry, or retouching.
-         */
-        BEAUTY,
-        /**
-         * Auto mode is used for taking still capture images that automatically adjust to the
-         * surrounding scenery.
-         */
-        AUTO
-    }
-
-    public enum ExtensionsAvailability {
+    enum ExtensionsAvailability {
         /**
          * The device extensions library exists and has been correctly loaded.
          */
@@ -105,25 +155,8 @@ public final class ExtensionsManager {
         NONE
     }
 
-    private static final Object ERROR_LOCK = new Object();
-
-    @GuardedBy("ERROR_LOCK")
-    private static final Handler DEFAULT_HANDLER = new Handler(Looper.getMainLooper());
-    @SuppressWarnings("deprecation")
-    @GuardedBy("ERROR_LOCK")
-    private static volatile ExtensionsErrorListener sExtensionsErrorListener = null;
-
     // Singleton instance of the Extensions object
     private static final Object EXTENSIONS_LOCK = new Object();
-
-    @GuardedBy("EXTENSIONS_LOCK")
-    static boolean sInitialized = false;
-
-    @GuardedBy("EXTENSIONS_LOCK")
-    private static ListenableFuture<ExtensionsAvailability> sAvailabilityFuture;
-
-    @GuardedBy("EXTENSIONS_LOCK")
-    private static ListenableFuture<Void> sDeinitFuture;
 
     @GuardedBy("EXTENSIONS_LOCK")
     private static ListenableFuture<ExtensionsManager> sInitializeFuture;
@@ -136,201 +169,7 @@ public final class ExtensionsManager {
 
     private final ExtensionsAvailability mExtensionsAvailability;
 
-    /**
-     * Initialize the extensions asynchronously.
-     *
-     * <p>This should be the first call to the extensions module. An application must wait until the
-     * {@link ListenableFuture} completes before making any other calls to the extensions module.
-     *
-     * @deprecated Use {@link #getInstance(Context)} to obtain an {@link ExtensionsManager}
-     * instance to access the extensions functions.
-     */
-    @Deprecated
-    @NonNull
-    public static ListenableFuture<ExtensionsAvailability> init(@NonNull Context context) {
-        synchronized (EXTENSIONS_LOCK) {
-            if (sDeinitFuture != null && !sDeinitFuture.isDone()) {
-                throw new IllegalStateException("Not yet done deinitializing extensions");
-            }
-            sDeinitFuture = null;
-
-            // Will be initialized, with an empty implementation which will report all extensions
-            // as unavailable
-            if (ExtensionVersion.getRuntimeVersion() == null) {
-                setInitialized(true);
-                return Futures.immediateFuture(ExtensionsAvailability.NONE);
-            }
-
-            // Prior to 1.1 no additional initialization logic required
-            if (ExtensionVersion.getRuntimeVersion().compareTo(Version.VERSION_1_1) < 0) {
-                setInitialized(true);
-                return Futures.immediateFuture(
-                        ExtensionsAvailability.LIBRARY_AVAILABLE);
-            }
-
-            if (sAvailabilityFuture == null) {
-                sAvailabilityFuture = CallbackToFutureAdapter.getFuture(completer -> {
-                    try {
-                        InitializerImpl.init(VersionName.getCurrentVersion().toVersionString(),
-                                context,
-                                new InitializerImpl.OnExtensionsInitializedCallback() {
-                                @Override
-                                public void onSuccess() {
-                                    Logger.d(TAG, "Successfully initialized extensions");
-                                    setInitialized(true);
-                                    completer.set(ExtensionsAvailability.LIBRARY_AVAILABLE);
-                                }
-
-                                @Override
-                                public void onFailure(int error) {
-                                    Logger.d(TAG, "Failed to initialize extensions");
-                                    completer.set(ExtensionsAvailability
-                                            .LIBRARY_UNAVAILABLE_ERROR_LOADING);
-                                }
-                                },
-                                CameraXExecutors.mainThreadExecutor());
-                    } catch (NoSuchMethodError | NoClassDefFoundError e) {
-                        completer.set(
-                                ExtensionsAvailability.LIBRARY_UNAVAILABLE_MISSING_IMPLEMENTATION);
-                    }
-
-                    return "Initialize extensions";
-                });
-            }
-
-            return sAvailabilityFuture;
-        }
-    }
-
-    // protected method so that EXTENSIONS_LOCK can be kept private
-    static void setInitialized(boolean initialized) {
-        synchronized (EXTENSIONS_LOCK) {
-            sInitialized = initialized;
-        }
-    }
-
-    /**
-     * Deinitialize the extensions.
-     *
-     * <p> For the moment only used for testing to deinitialize the extensions. Immediately after
-     * this has been called, the extensions functions will no longer work. Calling the extensions
-     * functions in the situation will cause IllegalStateExceptions. The deinitialization process
-     * is asynchronous. Tests should wait until the returned future is complete..
-     *
-     * @hide
-     */
-    // TODO: Will need to be rewritten to be threadsafe with use in conjunction with
-    //  ExtensionsManager.init(...) if this is to be released for use outside of testing.
-    @RestrictTo(RestrictTo.Scope.TESTS)
-    @NonNull
-    public static ListenableFuture<Void> deinit() {
-        synchronized (EXTENSIONS_LOCK) {
-            setInitialized(false);
-            if (ExtensionVersion.getRuntimeVersion() == null) {
-                return Futures.immediateFuture(null);
-            }
-
-            // If initialization not yet attempted then deinit should succeed immediately.
-            if (sAvailabilityFuture == null) {
-                return Futures.immediateFuture(null);
-            }
-
-            // If already in progress of deinit then return the future
-            if (sDeinitFuture != null) {
-                return sDeinitFuture;
-            }
-
-            // Wait for the extension to be initialized before deinitializing. Block since
-            // this is only used for testing.
-            ExtensionsAvailability availability;
-            try {
-                availability = sAvailabilityFuture.get();
-            } catch (ExecutionException | InterruptedException e) {
-                sDeinitFuture = Futures.immediateFailedFuture(e);
-                return sDeinitFuture;
-            }
-
-            sAvailabilityFuture = null;
-
-            // Once extension has been initialized start the deinit call
-            if (availability == ExtensionsAvailability.LIBRARY_AVAILABLE) {
-                sDeinitFuture = CallbackToFutureAdapter.getFuture(completer -> {
-                    try {
-                        InitializerImpl.deinit(
-                                new InitializerImpl.OnExtensionsDeinitializedCallback() {
-                                    @Override
-                                    public void onSuccess() {
-                                        completer.set(null);
-                                    }
-
-                                    @Override
-                                    public void onFailure(int error) {
-                                        completer.setException(new Exception("Failed to "
-                                                + "deinitialize extensions."));
-                                    }
-                                },
-                                CameraXExecutors.mainThreadExecutor());
-                    } catch (NoSuchMethodError | NoClassDefFoundError e) {
-                        completer.setException(e);
-                    }
-                    return null;
-                });
-            } else {
-                sDeinitFuture = Futures.immediateFuture(null);
-            }
-            return sDeinitFuture;
-        }
-    }
-
-    /**
-     * Indicates whether the camera device with the lensFacing can support the specific
-     * extension function.
-     *
-     * @param effectMode The extension function to be checked.
-     * @param lensFacing The lensFacing of the camera device to be checked.
-     * @return True if the specific extension function is supported for the camera device.
-     * @deprecated Use {@link #isExtensionAvailable(CameraProvider, CameraSelector, int)} to
-     * check whether extension function can support with the given {@link CameraSelector}.
-     */
-    @Deprecated
-    public static boolean isExtensionAvailable(@NonNull EffectMode effectMode,
-            @CameraSelector.LensFacing int lensFacing) {
-        boolean isImageCaptureAvailable = checkImageCaptureExtensionCapability(effectMode,
-                lensFacing);
-        boolean isPreviewAvailable = checkPreviewExtensionCapability(effectMode, lensFacing);
-
-        if (isImageCaptureAvailable != isPreviewAvailable) {
-            Logger.e(TAG, "ImageCapture and Preview are not available simultaneously for "
-                    + effectMode.name());
-        }
-
-        return isImageCaptureAvailable && isPreviewAvailable;
-    }
-
-    /**
-     * Indicates whether the camera device with the lensFacing can support the specific
-     * extension function for specific use case.
-     *
-     * @param klass      The {@link ImageCapture} or {@link Preview} class to be checked.
-     * @param effectMode The extension function to be checked.
-     * @param lensFacing The lensFacing of the camera device to be checked.
-     * @return True if the specific extension function is supported for the camera device.
-     * @deprecated Use {@link #isExtensionAvailable(CameraProvider, CameraSelector, int)} to
-     * check whether extension function can support with the given {@link CameraSelector}.
-     */
-    @Deprecated
-    public static boolean isExtensionAvailable(@NonNull Class<?> klass,
-            @NonNull EffectMode effectMode, @CameraSelector.LensFacing int lensFacing) {
-        boolean isAvailable = false;
-
-        if (klass == ImageCapture.class) {
-            isAvailable = checkImageCaptureExtensionCapability(effectMode, lensFacing);
-        } else if (klass.equals(Preview.class)) {
-            isAvailable = checkPreviewExtensionCapability(effectMode, lensFacing);
-        }
-
-        return isAvailable;
-    }
+    private final ExtensionsInfo mExtensionsInfo;
 
     /**
      * Retrieves the {@link ExtensionsManager} associated with the current process.
@@ -338,14 +177,22 @@ public final class ExtensionsManager {
      * <p>An application must wait until the {@link ListenableFuture} completes to get an
      * {@link ExtensionsManager} instance. The {@link ExtensionsManager} instance can be used to
      * access the extensions related functions.
+     *
+     * @param context The context to initialize the extensions library.
+     * @param cameraProvider     A {@link CameraProvider} will be used to query the information
+     *                           of cameras on the device. The {@link CameraProvider} can be the
+     *                           {@link androidx.camera.lifecycle.ProcessCameraProvider}
+     *                           which is obtained by
+     *                 {@link androidx.camera.lifecycle.ProcessCameraProvider#getInstance(Context)}.
      */
     @NonNull
-    public static ListenableFuture<ExtensionsManager> getInstance(@NonNull Context context) {
-        return getInstance(context, VersionName.getCurrentVersion());
+    public static ListenableFuture<ExtensionsManager> getInstanceAsync(@NonNull Context context,
+            @NonNull CameraProvider cameraProvider) {
+        return getInstanceAsync(context, cameraProvider, VersionName.getCurrentVersion());
     }
 
-    static ListenableFuture<ExtensionsManager> getInstance(@NonNull Context context,
-            @NonNull VersionName versionName) {
+    static ListenableFuture<ExtensionsManager> getInstanceAsync(@NonNull Context context,
+            @NonNull CameraProvider cameraProvider, @NonNull VersionName versionName) {
         synchronized (EXTENSIONS_LOCK) {
             if (sDeinitializeFuture != null && !sDeinitializeFuture.isDone()) {
                 throw new IllegalStateException("Not yet done deinitializing extensions");
@@ -356,26 +203,28 @@ public final class ExtensionsManager {
             // as unavailable
             if (ExtensionVersion.getRuntimeVersion() == null) {
                 return Futures.immediateFuture(
-                        getOrCreateExtensionsManager(ExtensionsAvailability.NONE));
+                        getOrCreateExtensionsManager(ExtensionsAvailability.NONE, cameraProvider));
             }
 
             // Prior to 1.1 no additional initialization logic required
             if (ExtensionVersion.getRuntimeVersion().compareTo(Version.VERSION_1_1) < 0) {
                 return Futures.immediateFuture(
-                        getOrCreateExtensionsManager(ExtensionsAvailability.LIBRARY_AVAILABLE));
+                        getOrCreateExtensionsManager(ExtensionsAvailability.LIBRARY_AVAILABLE,
+                                cameraProvider));
             }
 
             if (sInitializeFuture == null) {
                 sInitializeFuture = CallbackToFutureAdapter.getFuture(completer -> {
                     try {
                         InitializerImpl.init(versionName.toVersionString(),
-                                context,
+                                ContextUtil.getApplicationContext(context),
                                 new InitializerImpl.OnExtensionsInitializedCallback() {
                                     @Override
                                     public void onSuccess() {
                                         Logger.d(TAG, "Successfully initialized extensions");
                                         completer.set(getOrCreateExtensionsManager(
-                                                ExtensionsAvailability.LIBRARY_AVAILABLE));
+                                                ExtensionsAvailability.LIBRARY_AVAILABLE,
+                                                cameraProvider));
                                     }
 
                                     @Override
@@ -383,15 +232,27 @@ public final class ExtensionsManager {
                                         Logger.e(TAG, "Failed to initialize extensions");
                                         completer.set(getOrCreateExtensionsManager(
                                                 ExtensionsAvailability
-                                                        .LIBRARY_UNAVAILABLE_ERROR_LOADING));
+                                                        .LIBRARY_UNAVAILABLE_ERROR_LOADING,
+                                                cameraProvider));
                                     }
                                 },
                                 CameraXExecutors.directExecutor());
-                    } catch (NoSuchMethodError | NoClassDefFoundError e) {
+                    } catch (NoSuchMethodError | NoClassDefFoundError | AbstractMethodError e) {
                         Logger.e(TAG, "Failed to initialize extensions. Some classes or methods "
                                 + "are missed in the vendor library. " + e);
                         completer.set(getOrCreateExtensionsManager(
-                                ExtensionsAvailability.LIBRARY_UNAVAILABLE_MISSING_IMPLEMENTATION));
+                                ExtensionsAvailability.LIBRARY_UNAVAILABLE_MISSING_IMPLEMENTATION,
+                                cameraProvider));
+                    } catch (RuntimeException e) {
+                        // Catches all unexpected runtime exceptions and still returns an
+                        // ExtensionsManager instance which performs default behavior.
+                        Logger.e(TAG,
+                                "Failed to initialize extensions. Something wents wrong when "
+                                        + "initializing the vendor library. "
+                                        + e);
+                        completer.set(getOrCreateExtensionsManager(
+                                ExtensionsAvailability.LIBRARY_UNAVAILABLE_ERROR_LOADING,
+                                cameraProvider));
                     }
 
                     return "Initialize extensions";
@@ -408,8 +269,9 @@ public final class ExtensionsManager {
      * <p> For the moment only used for testing to shutdown the extensions. Calling this function
      * can deinitialize the extensions vendor library and release the created
      * {@link ExtensionsManager} instance. Tests should wait until the returned future is
-     * complete. Then, tests can call the {@link ExtensionsManager#getInstance(Context)} function
-     * again to initialize a new {@link ExtensionsManager} instance.
+     * complete. Then, tests can call the
+     * {@link ExtensionsManager#getInstanceAsync(Context, CameraProvider)} function again to
+     * initialize a new {@link ExtensionsManager} instance.
      *
      * @hide
      */
@@ -480,13 +342,14 @@ public final class ExtensionsManager {
     }
 
     static ExtensionsManager getOrCreateExtensionsManager(
-            ExtensionsAvailability extensionsAvailability) {
+            @NonNull ExtensionsAvailability extensionsAvailability,
+            @NonNull CameraProvider cameraProvider) {
         synchronized (EXTENSIONS_LOCK) {
             if (sExtensionsManager != null) {
                 return sExtensionsManager;
             }
 
-            sExtensionsManager = new ExtensionsManager(extensionsAvailability);
+            sExtensionsManager = new ExtensionsManager(extensionsAvailability, cameraProvider);
 
             return sExtensionsManager;
         }
@@ -499,20 +362,20 @@ public final class ExtensionsManager {
      * desired {@link LifecycleOwner} and then the specified extension mode will be enabled on
      * the camera.
      *
-     * @param cameraProvider The {@link CameraProvider} which will be used to bind use cases.
      * @param baseCameraSelector The base {@link CameraSelector} on top of which the extension
      *                           config is applied.
-     *                           {@link #isExtensionAvailable(CameraProvider, CameraSelector, int)}
-     *                           can be used to check whether any camera can support the specified
-     *                           extension mode for the base camera selector.
-     * @param mode The target extension mode.
+     *                           {@link #isExtensionAvailable(CameraSelector, int)} can be used
+     *                           to check whether any camera can support the specified extension
+     *                           mode for the base camera selector.
+     * @param mode               The target extension mode.
      * @return a {@link CameraSelector} for the specified Extensions mode.
      * @throws IllegalArgumentException If this device doesn't support extensions function, no
-     * camera can be found to support the specified extension mode, or the base
-     * {@link CameraSelector} has contained extension related configuration in it.
+     *                                  camera can be found to support the specified extension
+     *                                  mode, or the base {@link CameraSelector} has contained
+     *                                  extension related configuration in it.
      */
     @NonNull
-    public CameraSelector getExtensionEnabledCameraSelector(@NonNull CameraProvider cameraProvider,
+    public CameraSelector getExtensionEnabledCameraSelector(
             @NonNull CameraSelector baseCameraSelector, @ExtensionMode.Mode int mode) {
         // Directly return the input baseCameraSelector if the target extension mode is NONE.
         if (mode == ExtensionMode.NONE) {
@@ -525,20 +388,19 @@ public final class ExtensionsManager {
                     + "getExtensionEnabledCameraSelector.");
         }
 
-        return ExtensionsInfo.getExtensionCameraSelectorAndInjectCameraConfig(cameraProvider,
-                baseCameraSelector, mode);
+        return mExtensionsInfo.getExtensionCameraSelectorAndInjectCameraConfig(baseCameraSelector,
+                mode);
     }
 
     /**
      * Returns true if the particular extension mode is available for the specified
      * {@link CameraSelector}.
      *
-     * @param cameraProvider The {@link CameraProvider} which will be used to bind use cases.
      * @param baseCameraSelector The base {@link CameraSelector} to find a camera to use.
-     * @param mode The target extension mode to support.
+     * @param mode               The target extension mode to support.
      */
-    public boolean isExtensionAvailable(@NonNull CameraProvider cameraProvider,
-            @NonNull CameraSelector baseCameraSelector, @ExtensionMode.Mode int mode) {
+    public boolean isExtensionAvailable(@NonNull CameraSelector baseCameraSelector,
+            @ExtensionMode.Mode int mode) {
         if (mode == ExtensionMode.NONE) {
             return true;
         }
@@ -548,34 +410,27 @@ public final class ExtensionsManager {
             return false;
         }
 
-        return ExtensionsInfo.isExtensionAvailable(cameraProvider, baseCameraSelector, mode);
+        return mExtensionsInfo.isExtensionAvailable(baseCameraSelector, mode);
     }
 
     /**
-     * Returns the estimated capture latency range in milliseconds for the target capture
-     * resolution.
+     * Returns the estimated capture latency range in milliseconds for the target camera and
+     * extension mode.
      *
      * <p>This includes the time spent processing the multi-frame capture request along with any
      * additional time for encoding of the processed buffer in the framework if necessary.
      *
-     * @param cameraProvider The {@link CameraProvider} which will be used to bind use cases.
-     * @param cameraSelector The {@link CameraSelector} to find a camera which supports the
-     *                       specified extension mode.
+     * @param cameraSelector    The {@link CameraSelector} to find a camera which supports the
+     *                          specified extension mode.
      * @param mode              The extension mode to check.
-     * @param surfaceResolution the surface resolution of the {@link ImageCapture} which will be
-     *                          used to take a picture. If the input value of this parameter is
-     *                          null or it is not included in the supported output sizes, the
-     *                          maximum capture output size is used to get the estimated range
-     *                          information.
      * @return the range of estimated minimal and maximal capture latency in milliseconds.
      * Returns null if no capture latency info can be provided.
      * @throws IllegalArgumentException If this device doesn't support extensions function, or no
-     * camera can be found to support the specified extension mode.
+     *                                  camera can be found to support the specified extension mode.
      */
     @Nullable
-    public Range<Long> getEstimatedCaptureLatencyRange(@NonNull CameraProvider cameraProvider,
-            @NonNull CameraSelector cameraSelector, @ExtensionMode.Mode int mode,
-            @Nullable Size surfaceResolution) {
+    public Range<Long> getEstimatedCaptureLatencyRange(@NonNull CameraSelector cameraSelector,
+            @ExtensionMode.Mode int mode) {
         if (mode == ExtensionMode.NONE
                 || mExtensionsAvailability != ExtensionsAvailability.LIBRARY_AVAILABLE) {
             throw new IllegalArgumentException(
@@ -584,8 +439,7 @@ public final class ExtensionsManager {
                             + "getEstimatedCaptureLatencyRange.");
         }
 
-        return ExtensionsInfo.getEstimatedCaptureLatencyRange(cameraProvider, cameraSelector, mode,
-                surfaceResolution);
+        return mExtensionsInfo.getEstimatedCaptureLatencyRange(cameraSelector, mode, null);
     }
 
     @VisibleForTesting
@@ -594,113 +448,9 @@ public final class ExtensionsManager {
         return mExtensionsAvailability;
     }
 
-    @SuppressWarnings("deprecation")
-    private static boolean checkImageCaptureExtensionCapability(EffectMode effectMode,
-            @CameraSelector.LensFacing int lensFacing) {
-        ImageCapture.Builder builder = new ImageCapture.Builder();
-        CameraSelector selector =
-                new CameraSelector.Builder().requireLensFacing(lensFacing).build();
-        ImageCaptureExtender extender;
-
-        switch (effectMode) {
-            case BOKEH:
-                extender = BokehImageCaptureExtender.create(builder);
-                break;
-            case HDR:
-                extender = HdrImageCaptureExtender.create(builder);
-                break;
-            case NIGHT:
-                extender = NightImageCaptureExtender.create(builder);
-                break;
-            case BEAUTY:
-                extender = BeautyImageCaptureExtender.create(builder);
-                break;
-            case AUTO:
-                extender = AutoImageCaptureExtender.create(builder);
-                break;
-            case NORMAL:
-                return true;
-            default:
-                return false;
-        }
-
-        return extender.isExtensionAvailable(selector);
-    }
-
-    /**
-     * Sets an {@link ExtensionsErrorListener} which will get called any time an
-     * extensions error is encountered.
-     *
-     * @param listener The {@link ExtensionsErrorListener} listener that will be run.
-     *
-     * @deprecated Currently, this is only used to monitor whether a {@link Preview} or
-     * {@link ImageCapture} is lacking when enabling extension modes. CameraX will automatically
-     * add an extra {@link Preview} or {@link ImageCapture} to make the extension functions work
-     *  well. After that, no error will be reported via this interface.
-     */
-    @Deprecated
-    public static void setExtensionsErrorListener(@Nullable ExtensionsErrorListener listener) {
-        synchronized (ERROR_LOCK) {
-            sExtensionsErrorListener = listener;
-        }
-    }
-
-    /**
-     * Posts extension error to the listener.
-     *
-     * @hide
-     */
-    @SuppressWarnings("deprecation")
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public static void postExtensionsError(
-            @NonNull ExtensionsErrorListener.ExtensionsErrorCode errorCode) {
-        synchronized (ERROR_LOCK) {
-            final ExtensionsErrorListener listenerReference = sExtensionsErrorListener;
-            if (listenerReference != null) {
-                DEFAULT_HANDLER.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        listenerReference.onError(errorCode);
-                    }
-                });
-            }
-        }
-    }
-
-    @SuppressWarnings("deprecation")
-    private static boolean checkPreviewExtensionCapability(EffectMode effectMode,
-            @CameraSelector.LensFacing int lensFacing) {
-        Preview.Builder builder = new Preview.Builder();
-        CameraSelector cameraSelector =
-                new CameraSelector.Builder().requireLensFacing(lensFacing).build();
-        PreviewExtender extender;
-
-        switch (effectMode) {
-            case BOKEH:
-                extender = BokehPreviewExtender.create(builder);
-                break;
-            case HDR:
-                extender = HdrPreviewExtender.create(builder);
-                break;
-            case NIGHT:
-                extender = NightPreviewExtender.create(builder);
-                break;
-            case BEAUTY:
-                extender = BeautyPreviewExtender.create(builder);
-                break;
-            case AUTO:
-                extender = AutoPreviewExtender.create(builder);
-                break;
-            case NORMAL:
-                return true;
-            default:
-                return false;
-        }
-
-        return extender.isExtensionAvailable(cameraSelector);
-    }
-
-    private ExtensionsManager(@NonNull ExtensionsAvailability extensionsAvailability) {
+    private ExtensionsManager(@NonNull ExtensionsAvailability extensionsAvailability,
+            @NonNull CameraProvider cameraProvider) {
         mExtensionsAvailability = extensionsAvailability;
+        mExtensionsInfo = new ExtensionsInfo(cameraProvider);
     }
 }

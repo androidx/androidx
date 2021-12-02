@@ -133,7 +133,7 @@ class NavigationSession extends Session implements NavigationScreen.Listener {
             new ServiceConnection() {
                 @Override
                 public void onServiceConnected(ComponentName name, IBinder service) {
-                    Log.i(TAG, String.format("In onServiceConnected() component:%s", name));
+                    Log.i(TAG, "In onServiceConnected() component:" + name);
                     NavigationService.LocalBinder binder = (NavigationService.LocalBinder) service;
                     mService = binder.getService();
                     mService.setCarContext(getCarContext(), mServiceListener);
@@ -141,7 +141,7 @@ class NavigationSession extends Session implements NavigationScreen.Listener {
 
                 @Override
                 public void onServiceDisconnected(ComponentName name) {
-                    Log.i(TAG, String.format("In onServiceDisconnected() component:%s", name));
+                    Log.i(TAG, "In onServiceDisconnected() component:" + name);
                     // Unhook map models here
                     mService.clearCarContext();
                     mService = null;

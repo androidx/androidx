@@ -63,6 +63,7 @@ import androidx.media2.test.client.RemoteMediaSessionCompat;
 import androidx.media2.test.common.MockActivity;
 import androidx.media2.test.common.PollingCheck;
 import androidx.media2.test.common.TestUtils;
+import androidx.test.filters.FlakyTest;
 import androidx.test.filters.MediumTest;
 
 import com.google.common.util.concurrent.ListenableFuture;
@@ -82,6 +83,7 @@ import java.util.concurrent.atomic.AtomicReference;
  *
  * TODO: Pull out callback tests to a separate file (i.e. MediaControllerLegacyCallbackTest).
  */
+@FlakyTest(bugId = 202942942)
 @MediumTest
 public class MediaControllerLegacyTest extends MediaSessionTestBase {
     private static final String TAG = "MediaControllerLegacyTest";
@@ -158,7 +160,8 @@ public class MediaControllerLegacyTest extends MediaSessionTestBase {
     @Test
     public void getSessionActivity() throws Exception {
         final Intent sessionActivity = new Intent(mContext, MockActivity.class);
-        PendingIntent pi = PendingIntent.getActivity(mContext, 0, sessionActivity, 0);
+        PendingIntent pi = PendingIntent.getActivity(mContext, 0, sessionActivity,
+                Build.VERSION.SDK_INT >= 23 ? PendingIntent.FLAG_IMMUTABLE : 0);
         mSession.setSessionActivity(pi);
 
         mController = createController(mSession.getSessionToken());

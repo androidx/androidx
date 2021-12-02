@@ -37,6 +37,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
+@SuppressWarnings("deprecation")
 @RunWith(JUnit4.class)
 public class LifecyclingTest {
 
@@ -117,6 +118,7 @@ public class LifecyclingTest {
     @Test
     public void fullLifecycleObserverAndAnnotations() {
         class AnnotatedFullLifecycleObserver implements FullLifecycleObserver {
+            @SuppressWarnings("deprecation")
             @OnLifecycleEvent(ON_ANY)
             public void onAny() {
                 throw new IllegalStateException("Annotations in FullLifecycleObserver "
@@ -168,6 +170,7 @@ public class LifecyclingTest {
     @Test
     public void lifecycleEventObserverAndAnnotations() {
         class AnnotatedLifecycleEventObserver implements LifecycleEventObserver {
+            @SuppressWarnings("deprecation")
             @OnLifecycleEvent(ON_ANY)
             public void onAny() {
                 throw new IllegalStateException("Annotations in FullLifecycleObserver "

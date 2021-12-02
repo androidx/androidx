@@ -111,8 +111,6 @@ MissingBuildMethod: androidx.navigation.PopUpToBuilder:
 
 MissingGetterMatchingBuilder: androidx.navigation.NavArgument.Builder#setIsNullable(boolean):
     androidx.navigation.NavArgument does not declare a `isIsNullable()` method matching method androidx.navigation.NavArgument.Builder.setIsNullable(boolean)
-MissingGetterMatchingBuilder: androidx.navigation.NavDestinationBuilder#setLabel(CharSequence):
-    D does not declare a `getLabel()` method matching method androidx.navigation.NavDestinationBuilder.setLabel(CharSequence)
 MissingGetterMatchingBuilder: androidx.navigation.NavOptions.Builder#setLaunchSingleTop(boolean):
     androidx.navigation.NavOptions does not declare a `isLaunchSingleTop()` method matching method androidx.navigation.NavOptions.Builder.setLaunchSingleTop(boolean)
 

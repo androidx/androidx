@@ -3,12 +3,6 @@ set -e
 
 # This script runs frameworks/support/gradlew
 
-function showDiskStats() {
-  echo "df -h"
-  df -h
-}
-showDiskStats
-
 # find script
 SCRIPT_DIR="$(cd $(dirname $0) && pwd)"
 
@@ -24,6 +18,10 @@ if [ "$DIST_DIR" == "" ]; then
 fi
 mkdir -p "$DIST_DIR"
 export DIST_DIR="$DIST_DIR"
+
+if [ "$CHANGE_INFO" != "" ]; then
+  cp "$CHANGE_INFO" "$DIST_DIR/"
+fi
 
 # parse arguments
 if [ "$1" == "--diagnose" ]; then
@@ -56,7 +54,6 @@ function run() {
     # Put each argument on its own line because some arguments may be long.
     # Also put "\" at the end of non-final lines so the command can be copy-pasted
     echo "$*" | sed 's/ / \\\n/g' | sed 's/^/    /' >&2
-    showDiskStats
     return 1
   fi
 }
@@ -74,7 +71,20 @@ else
   if [ "$DIAGNOSE" == "true" ]; then
     # see if diagnose-build-failure.sh can identify the root cauase
     echo "running diagnose-build-failure.sh, see build.log" >&2
-    ./development/diagnose-build-failure/diagnose-build-failure.sh "--ci saveSystemStats $*"
+    # Specify a short timeout in case we're running on a remote server, so we don't take too long.
+    # We probably won't have enough time to fully diagnose the problem given this timeout, but
+    # we might be able to determine whether this problem is reproducible enough for a developer to
+    # more easily investigate further
+    ./development/diagnose-build-failure/diagnose-build-failure.sh --timeout 600 "--ci saveSystemStats $*"
+  fi
+  if grep "/prefab" "$DIST_DIR/logs/gradle.log" >/dev/null 2>/dev/null; then
+    # error looks like it might have involved prefab, copy the prefab dir to DIST where we can find it
+    if [ -e "$OUT_DIR/androidx/external/libyuv/build" ]; then
+      cd "$OUT_DIR/androidx/external/libyuv/build"
+      echo "Zipping $PWD into $DIST_DIR/libyuv-build.zip"
+      zip -qr "$DIST_DIR/libyuv-build.zip" .
+      cd -
+    fi
   fi
   exit 1
 fi

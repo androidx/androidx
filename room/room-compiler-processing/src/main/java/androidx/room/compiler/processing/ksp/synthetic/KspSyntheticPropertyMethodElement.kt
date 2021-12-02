@@ -25,14 +25,18 @@ import androidx.room.compiler.processing.XMethodElement
 import androidx.room.compiler.processing.XMethodType
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.XTypeElement
+import androidx.room.compiler.processing.javac.kotlin.computeGetterName
+import androidx.room.compiler.processing.javac.kotlin.computeSetterName
 import androidx.room.compiler.processing.ksp.KspAnnotated
 import androidx.room.compiler.processing.ksp.KspAnnotated.UseSiteFilter.Companion.NO_USE_SITE_OR_GETTER
 import androidx.room.compiler.processing.ksp.KspAnnotated.UseSiteFilter.Companion.NO_USE_SITE_OR_SETTER
 import androidx.room.compiler.processing.ksp.KspAnnotated.UseSiteFilter.Companion.NO_USE_SITE_OR_SET_PARAM
 import androidx.room.compiler.processing.ksp.KspFieldElement
 import androidx.room.compiler.processing.ksp.KspHasModifiers
+import androidx.room.compiler.processing.ksp.KspJvmTypeResolutionScope
 import androidx.room.compiler.processing.ksp.KspProcessingEnv
 import androidx.room.compiler.processing.ksp.KspTypeElement
+import androidx.room.compiler.processing.ksp.KspType
 import androidx.room.compiler.processing.ksp.findEnclosingMemberContainer
 import androidx.room.compiler.processing.ksp.overrides
 import androidx.room.compiler.processing.util.sanitizeAsJavaParameterName
@@ -40,7 +44,6 @@ import com.google.devtools.ksp.KspExperimental
 import com.google.devtools.ksp.symbol.KSPropertyAccessor
 import com.google.devtools.ksp.symbol.KSPropertyGetter
 import com.google.devtools.ksp.symbol.KSPropertySetter
-import java.util.Locale
 
 /**
  * Kotlin properties don't have getters/setters in KSP. As Room expects Java code, we synthesize
@@ -53,13 +56,23 @@ import java.util.Locale
 internal sealed class KspSyntheticPropertyMethodElement(
     val env: KspProcessingEnv,
     val field: KspFieldElement,
-    accessor: KSPropertyAccessor?
+    open val accessor: KSPropertyAccessor
 ) : XMethodElement,
     XEquality,
     XHasModifiers by KspHasModifiers.createForSyntheticAccessor(
         field.declaration,
         accessor
     ) {
+
+    @OptIn(KspExperimental::class)
+    override val jvmName: String by lazy {
+        env.resolver.getJvmName(accessor) ?: error("Cannot find the name for accessor $accessor")
+    }
+
+    override val equalityItems: Array<out Any?> by lazy {
+        arrayOf(field, accessor)
+    }
+
     // NOTE: modifiers of the property are not necessarily my modifiers.
     //  that being said, it only matters if it is private in which case KAPT does not generate the
     //  synthetic hence we don't either.
@@ -68,6 +81,8 @@ internal sealed class KspSyntheticPropertyMethodElement(
     final override fun hasKotlinDefaultImpl() = false
 
     final override fun isSuspendFunction() = false
+
+    final override fun isExtensionFunction() = false
 
     final override val enclosingElement: XMemberContainer
         get() = this.field.enclosingElement
@@ -83,6 +98,20 @@ internal sealed class KspSyntheticPropertyMethodElement(
 
     override val docComment: String?
         get() = null
+
+    override fun validate(): Boolean {
+        return true
+    }
+
+    @OptIn(KspExperimental::class)
+    override val thrownTypes: List<XType> by lazy {
+        env.resolver.getJvmCheckedException(accessor).map {
+            env.wrap(
+                ksType = it,
+                allowPrimitives = false
+            )
+        }.toList()
+    }
 
     final override fun asMemberOf(other: XType): XMethodType {
         return KspSyntheticPropertyMethodType.create(
@@ -103,30 +132,33 @@ internal sealed class KspSyntheticPropertyMethodElement(
         return env.resolver.overrides(this, other)
     }
 
-    internal class Getter(
+    override fun copyTo(newContainer: XTypeElement): XMethodElement {
+        check(newContainer is KspTypeElement)
+        return create(
+            env = env,
+            field = field.copyTo(newContainer),
+            accessor = accessor
+        )
+    }
+
+    private class Getter(
         env: KspProcessingEnv,
-        field: KspFieldElement
+        field: KspFieldElement,
+        override val accessor: KSPropertyGetter
     ) : KspSyntheticPropertyMethodElement(
         env = env,
         field = field,
-        accessor = field.declaration.getter
+        accessor = accessor
     ),
         XAnnotated by KspAnnotated.create(
             env = env,
-            delegate = field.declaration.getter,
+            delegate = accessor,
             filter = NO_USE_SITE_OR_GETTER
         ) {
-        override val equalityItems: Array<out Any?> by lazy {
-            arrayOf(field, "getter")
-        }
 
-        @OptIn(KspExperimental::class)
         override val name: String by lazy {
-            field.declaration.getter?.let {
-                env.resolver.getJvmName(it)
-            } ?: computeGetterName(field.name)
+            computeGetterName(field.declaration.simpleName.asString())
         }
-
         override val returnType: XType by lazy {
             field.type
         }
@@ -137,56 +169,26 @@ internal sealed class KspSyntheticPropertyMethodElement(
         override fun kindName(): String {
             return "synthetic property getter"
         }
-
-        override fun copyTo(newContainer: XTypeElement): XMethodElement {
-            check(newContainer is KspTypeElement)
-            return Getter(
-                env = env,
-                field = field.copyTo(newContainer)
-            )
-        }
-
-        companion object {
-            private fun computeGetterName(propName: String): String {
-                // see https://kotlinlang.org/docs/reference/java-to-kotlin-interop.html#properties
-                return if (propName.startsWith("is")) {
-                    propName
-                } else {
-                    val capitalizedName = propName.replaceFirstChar {
-                        if (it.isLowerCase()) it.titlecase(
-                            Locale.US
-                        ) else it.toString()
-                    }
-                    "get$capitalizedName"
-                }
-            }
-        }
     }
 
-    internal class Setter(
+    private class Setter(
         env: KspProcessingEnv,
-        field: KspFieldElement
+        field: KspFieldElement,
+        override val accessor: KSPropertySetter
     ) : KspSyntheticPropertyMethodElement(
         env = env,
         field = field,
-        accessor = field.declaration.setter
+        accessor = accessor
     ),
         XAnnotated by KspAnnotated.create(
             env = env,
             delegate = field.declaration.setter,
             filter = NO_USE_SITE_OR_SETTER
         ) {
-        override val equalityItems: Array<out Any?> by lazy {
-            arrayOf(field, "setter")
-        }
 
-        @OptIn(KspExperimental::class)
-        override val name: String by lazy {
-            field.declaration.setter?.let {
-                env.resolver.getJvmName(it)
-            } ?: computeSetterName(field.name)
+        override val name by lazy {
+            computeSetterName(field.declaration.simpleName.asString())
         }
-
         override val returnType: XType by lazy {
             env.voidType
         }
@@ -195,7 +197,7 @@ internal sealed class KspSyntheticPropertyMethodElement(
             listOf(
                 SyntheticExecutableParameterElement(
                     env = env,
-                    origin = this
+                    enclosingMethodElement = this
                 )
             )
         }
@@ -204,36 +206,40 @@ internal sealed class KspSyntheticPropertyMethodElement(
             return "synthetic property getter"
         }
 
-        override fun copyTo(newContainer: XTypeElement): XMethodElement {
-            check(newContainer is KspTypeElement)
-            return Setter(
-                env = env,
-                field = field.copyTo(newContainer)
-            )
-        }
-
         private class SyntheticExecutableParameterElement(
-            env: KspProcessingEnv,
-            private val origin: Setter
+            private val env: KspProcessingEnv,
+            override val enclosingMethodElement: Setter
         ) : XExecutableParameterElement,
             XAnnotated by KspAnnotated.create(
                 env = env,
-                delegate = origin.field.declaration.setter?.parameter,
+                delegate = enclosingMethodElement.field.declaration.setter?.parameter,
                 filter = NO_USE_SITE_OR_SET_PARAM
             ) {
 
+            private val jvmTypeResolutionScope = KspJvmTypeResolutionScope.PropertyAccessor(
+                declaration = enclosingMethodElement
+            )
+
             override val name: String by lazy {
-                val originalName = origin.field.declaration.setter?.parameter?.name?.asString()
+                val originalName = enclosingMethodElement.accessor.parameter.name?.asString()
                 originalName.sanitizeAsJavaParameterName(0)
             }
-            override val type: XType
-                get() = origin.field.type
+
+            override val type: KspType by lazy {
+                enclosingMethodElement.field.type.withJvmTypeResolver(
+                    jvmTypeResolutionScope
+                )
+            }
 
             override val fallbackLocationText: String
-                get() = "$name in ${origin.fallbackLocationText}"
+                get() = "$name in ${enclosingMethodElement.fallbackLocationText}"
 
-            override fun asMemberOf(other: XType): XType {
-                return origin.field.asMemberOf(other)
+            override val hasDefaultValue: Boolean
+                get() = false
+
+            override fun asMemberOf(other: XType): KspType {
+                return enclosingMethodElement.field.asMemberOf(other)
+                    .withJvmTypeResolver(jvmTypeResolutionScope)
             }
 
             override val docComment: String?
@@ -242,52 +248,58 @@ internal sealed class KspSyntheticPropertyMethodElement(
             override fun kindName(): String {
                 return "method parameter"
             }
-        }
 
-        companion object {
-            private fun computeSetterName(propName: String): String {
-                // see https://kotlinlang.org/docs/reference/java-to-kotlin-interop.html#properties
-                return if (propName.startsWith("is")) {
-                    "set${propName.substring(2)}"
-                } else {
-                    val capitalizedName = propName.replaceFirstChar {
-                        if (it.isLowerCase()) it.titlecase(
-                            Locale.US
-                        ) else it.toString()
-                    }
-                    "set$capitalizedName"
-                }
+            override fun validate(): Boolean {
+                return true
             }
         }
     }
 
     companion object {
-
         fun create(
             env: KspProcessingEnv,
-            propertyAccessor: KSPropertyAccessor
+            accessor: KSPropertyAccessor
         ): KspSyntheticPropertyMethodElement {
-            val enclosingType = propertyAccessor.receiver.findEnclosingMemberContainer(env)
+            val enclosingType = accessor.receiver.findEnclosingMemberContainer(env)
 
             checkNotNull(enclosingType) {
                 "XProcessing does not currently support annotations on top level " +
-                    "properties with KSP. Cannot process $propertyAccessor."
+                    "properties with KSP. Cannot process $accessor."
             }
 
             val field = KspFieldElement(
                 env,
-                propertyAccessor.receiver,
+                accessor.receiver,
                 enclosingType
             )
+            return create(
+                env = env,
+                field = field,
+                accessor = accessor
+            )
+        }
 
-            return when (propertyAccessor) {
+        fun create(
+            env: KspProcessingEnv,
+            field: KspFieldElement,
+            accessor: KSPropertyAccessor
+        ): KspSyntheticPropertyMethodElement {
+            return when (accessor) {
                 is KSPropertyGetter -> {
-                    Getter(env, field)
+                    Getter(
+                        env = env,
+                        field = field,
+                        accessor = accessor
+                    )
                 }
                 is KSPropertySetter -> {
-                    Setter(env, field)
+                    Setter(
+                        env = env,
+                        field = field,
+                        accessor = accessor
+                    )
                 }
-                else -> error("Unsupported property accessor $propertyAccessor")
+                else -> error("Unsupported property accessor $accessor")
             }
         }
     }

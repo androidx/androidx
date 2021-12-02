@@ -29,6 +29,7 @@ import com.android.tools.lint.detector.api.Severity
 import com.android.tools.lint.detector.api.SourceCodeScanner
 import com.android.tools.lint.detector.api.isKotlin
 import com.intellij.psi.PsiMethod
+import com.intellij.psi.PsiType
 import org.jetbrains.uast.UCallExpression
 import org.jetbrains.uast.getContainingUClass
 
@@ -90,8 +91,12 @@ class UseGetLayoutInflater : Detector(), SourceCodeScanner {
     }
 
     private fun startLintForKotlin(context: JavaContext, node: UCallExpression) {
-        if (node.getContainingUClass()?.javaPsi?.text?.contains
-            ("$DIALOG_FRAGMENT_CLASS()") == false
+        val classType = node.getContainingUClass()?.superClassType as? PsiType
+        if (
+            !(
+                classType?.presentableText == DIALOG_FRAGMENT_CLASS ||
+                    classType.extends(context, (DIALOG_FRAGMENT_CLASS))
+                )
         ) {
             return
         }

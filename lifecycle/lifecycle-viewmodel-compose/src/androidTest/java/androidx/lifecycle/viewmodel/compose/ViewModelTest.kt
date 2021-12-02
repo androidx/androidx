@@ -202,7 +202,7 @@ private class TestViewModel : ViewModel()
 
 private class FakeViewModelProviderFactory : ViewModelProvider.Factory {
     var createCalled = false
-    override fun <T : ViewModel?> create(modelClass: Class<T>): T {
+    override fun <T : ViewModel> create(modelClass: Class<T>): T {
         require(modelClass == TestViewModel::class.java)
         createCalled = true
         @Suppress("UNCHECKED_CAST")

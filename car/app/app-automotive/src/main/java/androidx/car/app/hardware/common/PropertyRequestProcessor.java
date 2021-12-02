@@ -23,6 +23,7 @@ import android.car.hardware.CarPropertyConfig;
 import android.car.hardware.CarPropertyValue;
 import android.car.hardware.property.CarPropertyManager;
 import android.content.Context;
+import android.util.ArraySet;
 import android.util.Pair;
 
 import androidx.annotation.NonNull;
@@ -30,6 +31,8 @@ import androidx.annotation.RestrictTo;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.annotation.Nullable;
 
 /**
  * A class for interacting with the {@link CarPropertyManager} for getting any vehicle property.
@@ -39,6 +42,7 @@ import java.util.List;
 @RestrictTo(LIBRARY)
 final class PropertyRequestProcessor {
     private final CarPropertyManager mCarPropertyManager;
+    private PropertyEventCallback mPropertyEventCallback;
 
     /**
      *  Registers this listener to get results from
@@ -56,6 +60,54 @@ final class PropertyRequestProcessor {
     }
 
     /**
+     * Registers this callback to receive property updates from cars.
+     */
+    abstract static class PropertyEventCallback implements
+            CarPropertyManager.CarPropertyEventCallback {
+        /**
+         * Called when a property is updated.
+         *
+         * @param carPropertyValue property that has been updated
+         */
+        @Override
+        public abstract void onChangeEvent(CarPropertyValue carPropertyValue);
+
+        /**
+         * Called when a property error detected in the car.
+         *
+         * @param carInternalError {@link CarInternalError} in the car
+         */
+        public abstract void onErrorEvent(CarInternalError carInternalError);
+
+        /**
+         * Create a {@link CarInternalError} with default status {@link CarValue#STATUS_UNKNOWN}.
+         *
+         * @param propertyId    in {@link android.car.VehiclePropertyIds}
+         * @param areaId        in {@link CarPropertyValue#getAreaId()}
+         */
+        @Override
+        public final void onErrorEvent(int propertyId, int areaId) {
+            CarInternalError error = CarInternalError.create(propertyId, areaId,
+                    CarValue.STATUS_UNKNOWN);
+            onErrorEvent(error);
+        }
+
+        /**
+         * Create a {@link CarInternalError} based on different status code from cars.
+         *
+         * @param propertyId    in {@link android.car.VehiclePropertyIds}
+         * @param areaId        in {@link CarPropertyValue#getAreaId()}
+         * @param statusCode    in {@link CarPropertyValue.PropertyStatus}
+         */
+        @Override
+        public final void onErrorEvent(int propertyId, int areaId, int statusCode) {
+            CarInternalError error = CarInternalError.create(propertyId, areaId,
+                    PropertyUtils.mapToStatusCodeInCarValue(statusCode));
+            onErrorEvent(error);
+        }
+    }
+
+    /**
      * Gets {@link CarPropertyValue} and returns results by
      * {@link OnGetPropertiesListener#onGetProperties(List, List)}.
      *
@@ -70,8 +122,7 @@ final class PropertyRequestProcessor {
         List<CarInternalError> errors = new ArrayList<>();
         for (Pair<Integer, Integer> request : requests) {
             try {
-                CarPropertyConfig<?> propertyConfig =
-                        mCarPropertyManager.getCarPropertyConfig(request.first);
+                CarPropertyConfig<?> propertyConfig = getPropertyConfig(request.first);
                 if (propertyConfig == null) {
                     errors.add(CarInternalError.create(request.first, request.second,
                             CarValue.STATUS_UNIMPLEMENTED));
@@ -82,7 +133,6 @@ final class PropertyRequestProcessor {
                     values.add(propertyValue);
                 }
             } catch (IllegalArgumentException e) {
-                // TODO(b/191084385): consider using exception inside CarValue
                 errors.add(CarInternalError.create(request.first, request.second,
                         CarValue.STATUS_UNIMPLEMENTED));
             } catch (Exception e) {
@@ -93,8 +143,47 @@ final class PropertyRequestProcessor {
         listener.onGetProperties(values, errors);
     }
 
-    PropertyRequestProcessor(Context context) {
+    /**
+     * Registers for the property updates at the input sampling rate.
+     *
+     * @param propertyId    property id in {@link android.car.VehiclePropertyIds}
+     * @param sampleRate    float value in hertz
+     * @throws IllegalArgumentException if a property is not implemented in the car
+     */
+    public void registerProperty(int propertyId, float sampleRate) {
+        if (getPropertyConfig(propertyId) == null) {
+            throw new IllegalArgumentException("Property is not implemented in the car: "
+                    + propertyId);
+        }
+        mCarPropertyManager.registerCallback(mPropertyEventCallback, propertyId, sampleRate);
+    }
+
+    /**
+     * Unregisters from the property updates.
+     *
+     * @param propertyId    property id in {@link android.car.VehiclePropertyIds}
+     * @throws IllegalArgumentException if a property is not implemented in the car
+     */
+    public void unregisterProperty(int propertyId) {
+        if (getPropertyConfig(propertyId) == null) {
+            throw new IllegalArgumentException("Property is not implemented in the car: "
+                    + propertyId);
+        }
+        mCarPropertyManager.unregisterCallback(mPropertyEventCallback, propertyId);
+    }
+
+    PropertyRequestProcessor(Context context, PropertyEventCallback callback) {
         Car car = Car.createCar(context);
         mCarPropertyManager = (CarPropertyManager) car.getCarManager(Car.PROPERTY_SERVICE);
+        mPropertyEventCallback = callback;
+    }
+
+    @SuppressWarnings("rawtypes")
+    @Nullable
+    private CarPropertyConfig<?> getPropertyConfig(int propertyId) {
+        ArraySet<Integer> propertySet = new ArraySet<>(1);
+        propertySet.add(propertyId);
+        List<CarPropertyConfig> configs = mCarPropertyManager.getPropertyList(propertySet);
+        return configs.size() == 0 ? null : configs.get(0);
     }
 }

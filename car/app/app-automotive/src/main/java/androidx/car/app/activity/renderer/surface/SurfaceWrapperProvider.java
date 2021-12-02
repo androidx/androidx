@@ -51,6 +51,7 @@ public final class SurfaceWrapperProvider {
         return new SurfaceWrapper(hostToken, width, height, displayId, densityDpi, surface);
     }
 
+    @SuppressWarnings("deprecation")
     private int densityDpi() {
         DisplayMetrics displayMetrics = new DisplayMetrics();
         mSurfaceView.getDisplay().getRealMetrics(displayMetrics);

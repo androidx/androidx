@@ -19,6 +19,7 @@ package androidx.car.app.model.signin;
 import static androidx.car.app.model.constraints.ActionsConstraints.ACTIONS_CONSTRAINTS_BODY;
 import static androidx.car.app.model.constraints.ActionsConstraints.ACTIONS_CONSTRAINTS_HEADER;
 import static androidx.car.app.model.constraints.ActionsConstraints.ACTIONS_CONSTRAINTS_SIMPLE;
+import static androidx.car.app.model.constraints.CarTextConstraints.CLICKABLE_TEXT_ONLY;
 
 import static java.util.Objects.requireNonNull;
 
@@ -30,8 +31,11 @@ import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.model.Action;
 import androidx.car.app.model.ActionStrip;
 import androidx.car.app.model.CarText;
+import androidx.car.app.model.DistanceSpan;
+import androidx.car.app.model.DurationSpan;
 import androidx.car.app.model.ForegroundCarColorSpan;
 import androidx.car.app.model.Template;
+import androidx.car.app.model.constraints.CarTextConstraints;
 import androidx.car.app.utils.CollectionUtils;
 
 import java.util.ArrayList;
@@ -301,18 +305,15 @@ public final class SignInTemplate implements Template {
         /**
          * Adds an {@link Action} to display alongside the sign-in content.
          *
-         * <p>The action's title color can be customized with {@link ForegroundCarColorSpan}
-         * instances, any other spans will be ignored by the host.
-         *
          * <h4>Requirements</h4>
          *
          * This template allows up to 2 {@link Action}s in its body, and they must use a
          * {@link androidx.car.app.model.ParkedOnlyOnClickListener}.
          *
          * <p>Each action's title color can be customized with {@link ForegroundCarColorSpan}
-         * instances, any other spans will be ignored by the host.
+         * instances. Any other span is not supported.
          *
-         * @throws NullPointerException  if {@code action} is {@code null}
+         * @throws NullPointerException     if {@code action} is {@code null}
          * @throws IllegalArgumentException if {@code action} does not meet the requirements
          */
         @NonNull
@@ -333,13 +334,16 @@ public final class SignInTemplate implements Template {
          *
          * <p>Unless set with this method, the template will not have a title.
          *
-         * <p>Spans are not supported in the input string and will be ignored.
+         * <p>Only {@link DistanceSpan}s and {@link DurationSpan}s are supported in the input
+         * string.
          *
-         * @throws NullPointerException if {@code title} is {@code null}
+         * @throws NullPointerException     if {@code title} is {@code null}
+         * @throws IllegalArgumentException if {@code title} contains unsupported spans
          */
         @NonNull
         public Builder setTitle(@NonNull CharSequence title) {
             mTitle = CarText.create(requireNonNull(title));
+            CarTextConstraints.TEXT_ONLY.validateOrThrow(mTitle);
             return this;
         }
 
@@ -348,15 +352,19 @@ public final class SignInTemplate implements Template {
          *
          * <p>Unless set with this method, the template will not have instructions.
          *
-         * <p>Spans are supported in the input string.
+         * <p>{@link androidx.car.app.model.DistanceSpan},
+         * {@link androidx.car.app.model.DurationSpan}, and
+         * {@link androidx.car.app.model.ForegroundCarColorSpan} are
+         * supported in the input string.
          *
-         * @throws NullPointerException if {@code instructions} is {@code null}
+         * @throws NullPointerException     if {@code instructions} is {@code null}
+         * @throws IllegalArgumentException if {@code instructions} contains unsupported spans
          * @see CarText for details on text handling and span support.
          */
-        // TODO(b/181569051): document supported span types.
         @NonNull
         public Builder setInstructions(@NonNull CharSequence instructions) {
             mInstructions = CarText.create(requireNonNull(instructions));
+            CarTextConstraints.TEXT_WITH_COLORS.validateOrThrow(mInstructions);
             return this;
         }
 
@@ -366,15 +374,18 @@ public final class SignInTemplate implements Template {
          *
          * <p>Unless set with this method, the template will not have additional text.
          *
-         * <p>Spans are supported in the input string.
+         * <p>{@link androidx.car.app.model.ClickableSpan},
+         * {@link androidx.car.app.model.DistanceSpan}, and
+         * {@link androidx.car.app.model.DurationSpan} are supported in the input string.
          *
-         * @throws NullPointerException if {@code additionalText} is {@code null}
+         * @throws NullPointerException     if {@code additionalText} is {@code null}
+         * @throws IllegalArgumentException if {@code additionalText} contains unsupported spans
          * @see CarText
          */
-        // TODO(b/181569051): document supported span types.
         @NonNull
         public Builder setAdditionalText(@NonNull CharSequence additionalText) {
             mAdditionalText = CarText.create(requireNonNull(additionalText));
+            CLICKABLE_TEXT_ONLY.validateOrThrow(mAdditionalText);
             return this;
         }
 

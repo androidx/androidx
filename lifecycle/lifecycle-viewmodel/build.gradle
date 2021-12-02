@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
+
 import androidx.build.LibraryGroups
-import androidx.build.LibraryVersions
 import androidx.build.Publish
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("AndroidXPlugin")
@@ -32,9 +33,14 @@ android {
 
 dependencies {
     api("androidx.annotation:annotation:1.1.0")
-
+    api(libs.kotlinStdlib)
     testImplementation(libs.junit)
     testImplementation(libs.mockitoCore)
+    testImplementation(libs.truth)
+
+    constraints {
+        implementation(project(":lifecycle:lifecycle-viewmodel-savedstate"))
+    }
 
     androidTestImplementation(libs.truth)
     androidTestImplementation(libs.kotlinStdlib)
@@ -47,8 +53,15 @@ dependencies {
 androidx {
     name = "Android Lifecycle ViewModel"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenVersion = LibraryVersions.LIFECYCLE
     mavenGroup = LibraryGroups.LIFECYCLE
     inceptionYear = "2017"
     description = "Android Lifecycle ViewModel"
+}
+
+tasks.withType(KotlinCompile).configureEach {
+    kotlinOptions {
+        freeCompilerArgs += [
+                "-Xjvm-default=all",
+        ]
     }
+}

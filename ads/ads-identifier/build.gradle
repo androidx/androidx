@@ -31,9 +31,9 @@ dependencies {
     api(libs.guavaListenableFuture)
     implementation("androidx.concurrent:concurrent-futures:1.0.0")
 
-    implementation(project(":ads-identifier-common"))
+    implementation(project(":ads:ads-identifier-common"))
 
-    androidTestImplementation(project(":ads-identifier-testing"))
+    androidTestImplementation(project(":ads:ads-identifier-testing"))
     androidTestImplementation(libs.junit)
     androidTestImplementation(libs.truth)
     androidTestImplementation(libs.testExtJunit)

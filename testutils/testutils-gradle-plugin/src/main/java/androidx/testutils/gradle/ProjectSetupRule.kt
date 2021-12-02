@@ -53,10 +53,15 @@ class ProjectSetupRule : ExternalResource() {
     private val repositories: String
         get() = buildString {
             appendLine("repositories {")
+            append(defaultRepoLines)
+            appendLine("}")
+        }
+
+    val defaultRepoLines
+        get() = buildString {
             props.repositoryUrls.forEach {
                 appendLine("    maven { url '$it' }")
             }
-            appendLine("}")
         }
 
     val androidProject: String
@@ -97,12 +102,52 @@ class ProjectSetupRule : ExternalResource() {
         writeGradleProperties()
     }
 
+    fun getSdkDirectory(): String {
+        val localProperties = File(props.rootProjectPath, "local.properties")
+        when {
+            localProperties.exists() -> {
+                val stream = localProperties.inputStream()
+                val properties = Properties()
+                properties.load(stream)
+                return properties.getProperty("sdk.dir")
+            }
+            System.getenv("ANDROID_HOME") != null -> {
+                return System.getenv("ANDROID_HOME")
+            }
+            System.getenv("ANDROID_SDK_ROOT") != null -> {
+                return System.getenv("ANDROID_SDK_ROOT")
+            }
+            else -> {
+                throw IllegalStateException(
+                    "ProjectSetupRule did find local.properties at: $localProperties and " +
+                        "neither ANDROID_HOME or ANDROID_SDK_ROOT was set."
+                )
+            }
+        }
+    }
+
     private fun copyLocalProperties() {
+        var foundSdk = false
+
         val localProperties = File(props.rootProjectPath, "local.properties")
         if (localProperties.exists()) {
             localProperties.copyTo(File(rootDir, "local.properties"), overwrite = true)
-        } else {
-            throw IllegalStateException("local.properties doesn't exist at: $localProperties")
+            foundSdk = true
+        }
+
+        if (System.getenv("ANDROID_HOME") != null) {
+            foundSdk = true
+        }
+
+        if (System.getenv("ANDROID_SDK_ROOT") != null) {
+            foundSdk = true
+        }
+
+        if (!foundSdk) {
+            throw IllegalStateException(
+                "ProjectSetupRule was unable to copy local.properties at: $localProperties and " +
+                    "neither ANDROID_HOME or ANDROID_SDK_ROOT was set."
+            )
         }
     }
 

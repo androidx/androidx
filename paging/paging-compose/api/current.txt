@@ -2,21 +2,22 @@
 package androidx.paging.compose {
 
   public final class LazyPagingItems<T> {
-    method @androidx.compose.runtime.Composable public androidx.compose.runtime.State<T> getAsState(int index);
+    method public operator T? get(int index);
     method public int getItemCount();
+    method public androidx.paging.ItemSnapshotList<T> getItemSnapshotList();
     method public androidx.paging.CombinedLoadStates getLoadState();
     method public T? peek(int index);
     method public void refresh();
     method public void retry();
-    method public androidx.paging.ItemSnapshotList<T> snapshot();
     property public final int itemCount;
+    property public final androidx.paging.ItemSnapshotList<T> itemSnapshotList;
     property public final androidx.paging.CombinedLoadStates loadState;
   }
 
   public final class LazyPagingItemsKt {
     method @androidx.compose.runtime.Composable public static <T> androidx.paging.compose.LazyPagingItems<T> collectAsLazyPagingItems(kotlinx.coroutines.flow.Flow<androidx.paging.PagingData<T>>);
-    method public static <T> void items(androidx.compose.foundation.lazy.LazyListScope, androidx.paging.compose.LazyPagingItems<T> lazyPagingItems, kotlin.jvm.functions.Function2<? super androidx.compose.foundation.lazy.LazyItemScope,? super T,kotlin.Unit> itemContent);
-    method public static <T> void itemsIndexed(androidx.compose.foundation.lazy.LazyListScope, androidx.paging.compose.LazyPagingItems<T> lazyPagingItems, kotlin.jvm.functions.Function3<? super androidx.compose.foundation.lazy.LazyItemScope,? super java.lang.Integer,? super T,kotlin.Unit> itemContent);
+    method public static <T> void items(androidx.compose.foundation.lazy.LazyListScope, androidx.paging.compose.LazyPagingItems<T> items, optional kotlin.jvm.functions.Function1<? super T,?>? key, kotlin.jvm.functions.Function2<? super androidx.compose.foundation.lazy.LazyItemScope,? super T,kotlin.Unit> itemContent);
+    method public static <T> void itemsIndexed(androidx.compose.foundation.lazy.LazyListScope, androidx.paging.compose.LazyPagingItems<T> items, optional kotlin.jvm.functions.Function2<? super java.lang.Integer,? super T,?>? key, kotlin.jvm.functions.Function3<? super androidx.compose.foundation.lazy.LazyItemScope,? super java.lang.Integer,? super T,kotlin.Unit> itemContent);
   }
 
 }

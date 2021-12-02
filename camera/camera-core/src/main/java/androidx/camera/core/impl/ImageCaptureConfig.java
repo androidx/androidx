@@ -18,8 +18,10 @@ package androidx.camera.core.impl;
 
 import android.graphics.ImageFormat;
 
+import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageCapture.CaptureMode;
@@ -31,6 +33,7 @@ import java.util.concurrent.Executor;
 /**
  * Configuration for an image capture use case.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class ImageCaptureConfig implements UseCaseConfig<ImageCapture>, ImageOutputConfig,
         IoConfig {
 
@@ -55,6 +58,10 @@ public final class ImageCaptureConfig implements UseCaseConfig<ImageCapture>, Im
                     ImageReaderProxyProvider.class);
     public static final Option<Boolean> OPTION_USE_SOFTWARE_JPEG_ENCODER =
             Option.create("camerax.core.imageCapture.useSoftwareJpegEncoder", boolean.class);
+    public static final Option<Integer> OPTION_FLASH_TYPE =
+            Option.create("camerax.core.imageCapture.flashType", int.class);
+    public static final Option<Integer> OPTION_JPEG_COMPRESSION_QUALITY =
+            Option.create("camerax.core.imageCapture.jpegCompressionQuality", int.class);
 
     // *********************************************************************************************
 
@@ -233,6 +240,52 @@ public final class ImageCaptureConfig implements UseCaseConfig<ImageCapture>, Im
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public boolean isSoftwareJpegEncoderRequested() {
         return retrieveOption(OPTION_USE_SOFTWARE_JPEG_ENCODER, false);
+    }
+
+    /**
+     * Returns the {@link ImageCapture.FlashType}.
+     *
+     * @param valueIfMissing The value to return if this configuration option has not been set.
+     * @return The stored value, if it exists in this configuration.
+     */
+    @ImageCapture.FlashType
+    public int getFlashType(@ImageCapture.FlashType int valueIfMissing) {
+        return retrieveOption(OPTION_FLASH_TYPE, valueIfMissing);
+    }
+
+    /**
+     * Returns the {@link ImageCapture.FlashType}.
+     *
+     * @return The stored value, if it exists in this configuration.
+     * @throws IllegalArgumentException if the option does not exist in this configuration.
+     */
+    @ImageCapture.FlashType
+    public int getFlashType() {
+        return retrieveOption(OPTION_FLASH_TYPE);
+    }
+
+    /**
+     * Returns the JPEG compression quality setting.
+     *
+     * @param valueIfMissing The value to return if this configuration option has not been set.
+     * @return The stored value or <code>valueIfMissing</code> if the value does not exist in this
+     * configuration.
+     */
+    @IntRange(from = 1, to = 100)
+    public int getJpegQuality(@IntRange(from = 1, to = 100) int valueIfMissing) {
+        return retrieveOption(OPTION_JPEG_COMPRESSION_QUALITY, valueIfMissing);
+    }
+
+
+    /**
+     * Returns the JPEG compression quality setting.
+     *
+     * @return The stored value, if it exists in this configuration.
+     * @throws IllegalArgumentException if the option does not exist in this configuration.
+     */
+    @IntRange(from = 1, to = 100)
+    public int getJpegQuality() {
+        return retrieveOption(OPTION_JPEG_COMPRESSION_QUALITY);
     }
 
     // Implementations of IO default methods

@@ -23,6 +23,7 @@ import android.view.Surface;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -37,7 +38,11 @@ import java.util.Set;
  * <p>The CaptureConfig contains all the {@link android.hardware.camera2} parameters that are
  * required to issue a {@link CaptureRequest}.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class CaptureConfig {
+    /** Indicates template type is not set. */
+    public static final int TEMPLATE_TYPE_NONE = -1;
+
     /**
      * Request that the implementation rotate the image.
      *
@@ -125,6 +130,11 @@ public final class CaptureConfig {
         return mImplementationOptions;
     }
 
+    /**
+     * Gets the template type.
+     *
+     * <p>If not set, returns {@link #TEMPLATE_TYPE_NONE}.
+     */
     public int getTemplateType() {
         return mTemplateType;
     }
@@ -164,7 +174,7 @@ public final class CaptureConfig {
     public static final class Builder {
         private final Set<DeferrableSurface> mSurfaces = new HashSet<>();
         private MutableConfig mImplementationOptions = MutableOptionsBundle.create();
-        private int mTemplateType = -1;
+        private int mTemplateType = TEMPLATE_TYPE_NONE;
         private List<CameraCaptureCallback> mCameraCaptureCallbacks = new ArrayList<>();
         private boolean mUseRepeatingSurface = false;
         private MutableTagBundle mMutableTagBundle = MutableTagBundle.create();
@@ -299,7 +309,7 @@ public final class CaptureConfig {
             return mImplementationOptions;
         }
 
-        boolean isUseRepeatingSurface() {
+        public boolean isUseRepeatingSurface() {
             return mUseRepeatingSurface;
         }
 

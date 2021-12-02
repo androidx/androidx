@@ -27,6 +27,7 @@ import android.support.v4.media.MediaBrowserCompat;
 import android.support.v4.media.session.MediaControllerCompat;
 
 import androidx.media2.session.MediaSessionService;
+import androidx.test.filters.FlakyTest;
 import androidx.test.filters.LargeTest;
 
 import org.junit.After;
@@ -40,6 +41,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * Tests whether {@link MediaBrowserCompat} works well with {@link MediaSessionService}.
  */
+@FlakyTest(bugId = 202942942)
 @LargeTest
 public class MediaBrowserCompatWithMediaSessionServiceTest extends MediaSessionTestBase {
     MediaBrowserCompat mBrowserCompat;

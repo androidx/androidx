@@ -18,6 +18,7 @@
 
 package androidx.build.lint
 
+import com.android.tools.lint.checks.infrastructure.TestMode
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -44,5 +45,30 @@ import java.util.concurrent.ConcurrentHashMap;
         /* ktlint-enable max-line-length */
 
         check(*input).expect(expected)
+    }
+
+    @Test
+    fun `Detection of ConcurrentHashMap usage in Kotlin sources`() {
+        val input = arrayOf(
+            ktSample("androidx.ConcurrentHashMapUsageKotlin"),
+        )
+
+        /* ktlint-disable max-line-length */
+        val expected = """
+src/androidx/ConcurrentHashMapUsageKotlin.kt:19: Error: Detected ConcurrentHashMap usage. [BanConcurrentHashMap]
+import java.util.concurrent.ConcurrentHashMap
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+1 errors, 0 warnings
+        """.trimIndent()
+        /* ktlint-enable max-line-length */
+
+        lint()
+            .files(
+                *stubs,
+                *input
+            )
+            .skipTestModes(TestMode.IMPORT_ALIAS) // b/203124716
+            .run()
+            .expect(expected)
     }
 }

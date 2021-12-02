@@ -16,12 +16,298 @@
 
 package androidx.wear.compose.integration.demos
 
-import androidx.compose.integration.demos.common.ComposableDemo
-import androidx.compose.integration.demos.common.DemoCategory
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.wear.compose.material.ExperimentalWearMaterialApi
+import androidx.wear.compose.material.samples.AlertDialogWithButtons
+import androidx.wear.compose.material.samples.AlertDialogWithChips
+import androidx.wear.compose.material.samples.AppCardWithIcon
+import androidx.wear.compose.material.samples.ButtonWithIcon
+import androidx.wear.compose.material.samples.ButtonWithText
+import androidx.wear.compose.material.samples.ChipWithIconAndLabels
+import androidx.wear.compose.material.samples.CompactButtonWithIcon
+import androidx.wear.compose.material.samples.CompactChipWithIconAndLabel
+import androidx.wear.compose.material.samples.ConfirmationDialogWithAnimation
+import androidx.wear.compose.material.samples.CurvedTextDemo
+import androidx.wear.compose.material.samples.InlineSliderSample
+import androidx.wear.compose.material.samples.InlineSliderSegmentedSample
+import androidx.wear.compose.material.samples.ScalingLazyColumnWithHeaders
+import androidx.wear.compose.material.samples.ScalingLazyColumnWithHeadersReversed
+import androidx.wear.compose.material.samples.SimplePicker
+import androidx.wear.compose.material.samples.SimpleScaffoldWithScrollIndicator
+import androidx.wear.compose.material.samples.SimpleScalingLazyColumn
+import androidx.wear.compose.material.samples.SimpleScalingLazyColumnWithContentPadding
+import androidx.wear.compose.material.samples.SimpleSwipeToDismissBox
+import androidx.wear.compose.material.samples.SplitToggleChipWithCheckbox
+import androidx.wear.compose.material.samples.StatefulSwipeToDismissBox
+import androidx.wear.compose.material.samples.StepperSample
+import androidx.wear.compose.material.samples.TimeTextWithCustomSeparator
+import androidx.wear.compose.material.samples.TimeTextWithFullDateAndTimeFormat
+import androidx.wear.compose.material.samples.TitleCardStandard
+import androidx.wear.compose.material.samples.TitleCardWithImage
+import androidx.wear.compose.material.samples.ToggleButtonWithIcon
+import androidx.wear.compose.material.samples.ToggleChipWithIcon
 
+// Declare the swipe to dismiss demos so that we can use this variable as the background composable
+// for the SwipeToDismissDemo itself.
+@ExperimentalWearMaterialApi
+internal val SwipeToDismissDemos =
+    DemoCategory(
+        "Swipe to Dismiss",
+        listOf(
+            DemoCategory(
+                "Samples",
+                listOf(
+                    ComposableDemo("Simple") { navBack ->
+                        SimpleSwipeToDismissBox(navBack)
+                    },
+                    ComposableDemo("Stateful") { StatefulSwipeToDismissBox() },
+                )
+            ),
+            DemoCategory(
+                "Demos",
+                listOf(
+                    ComposableDemo("Demo") { navigateBack ->
+                        val state = remember { mutableStateOf(SwipeDismissDemoState.List) }
+                        SwipeToDismissDemo(navigateBack = navigateBack, demoState = state)
+                    },
+                    ComposableDemo("Stateful Demo") { navigateBack ->
+                        SwipeToDismissBoxWithState(navigateBack)
+                    },
+                )
+            )
+        )
+    )
+
+@ExperimentalWearMaterialApi
 val WearMaterialDemos = DemoCategory(
     "Material",
     listOf(
-        ComposableDemo("Button") { ButtonDemo() },
+        DemoCategory(
+            "Slider",
+            listOf(
+                DemoCategory(
+                    "Samples",
+                    listOf(
+                        ComposableDemo("Inline slider") { Centralize { InlineSliderSample() } },
+                        ComposableDemo("Segmented inline slider") {
+                            Centralize { InlineSliderSegmentedSample() }
+                        },
+                    )
+                ),
+                DemoCategory(
+                    "Demos",
+                    listOf(
+                        ComposableDemo("Inline slider") { InlineSliderDemo() },
+                        ComposableDemo("RTL Inline slider") { InlineSliderRTLDemo() },
+                        ComposableDemo("Inline slider segmented") { InlineSliderSegmented() },
+                    )
+                )
+            )
+        ),
+        DemoCategory(
+            "Stepper",
+            listOf(
+                DemoCategory(
+                    "Samples",
+                    listOf(
+                        ComposableDemo("Stepper") {
+                            Centralize({ StepperSample() })
+                        },
+                    )
+                ),
+                DemoCategory(
+                    "Demos",
+                    listOf(
+                        ComposableDemo("Simple stepper") { StepperDemo() },
+                        ComposableDemo("With scrollbar") {
+                            StepperWithScrollBarDemo()
+                        },
+                        ComposableDemo("With custom colors") {
+                            StepperWithCustomColors()
+                        },
+                    )
+                )
+            )
+        ),
+        DemoCategory(
+            "TimeText",
+            listOf(
+                DemoCategory(
+                    "Samples",
+                    listOf(
+                        ComposableDemo("Clock with custom separator") {
+                            TimeTextWithCustomSeparator()
+                        },
+                        ComposableDemo("Clock with full date and time format") {
+                            TimeTextWithFullDateAndTimeFormat()
+                        },
+                    )
+                ),
+                DemoCategory(
+                    "Demos",
+                    listOf(
+                        ComposableDemo("Clock only") {
+                            TimeTextClockOnly()
+                        },
+                        ComposableDemo("Clock with leading text") {
+                            TimeTextWithLeadingText()
+                        },
+                        ComposableDemo("Clock with trailing text") {
+                            TimeTextWithTrailingText()
+                        },
+                        ComposableDemo("Clock with leading and trailing text") {
+                            TimeTextWithLeadingAndTrailingText()
+                        },
+                        ComposableDemo("Clock with padding") {
+                            TimeTextWithPadding()
+                        },
+                        ComposableDemo("Clock with yyyy.MM.dd HH:mm:ss format") {
+                            TimeTextWithLongDateTime()
+                        },
+                        ComposableDemo("Clock with custom format and color") {
+                            TimeTextWithCustomFormatAndColor()
+                        },
+                        ComposableDemo("Clock with localised format") {
+                            TimeTextWithLocalisedFormat()
+                        },
+                    )
+                ),
+            )
+        ),
+        DemoCategory(
+            "Dialogs",
+            listOf(
+                ComposableDemo("AlertDialog - Buttons") { AlertDialogWithButtons() },
+                ComposableDemo("AlertDialog - Chips") { AlertDialogWithChips() },
+                ComposableDemo("ConfirmationDialog") { ConfirmationDialogWithAnimation() },
+            )
+        ),
+        DemoCategory(
+            "Button",
+            listOf(
+                DemoCategory(
+                    "Samples",
+                    listOf(
+                        ComposableDemo("ButtonWithIcon") { Centralize({ ButtonWithIcon() }) },
+                        ComposableDemo("ButtonWithText") { Centralize({ ButtonWithText() }) },
+                        ComposableDemo("CompactButtonWithIcon") {
+                            Centralize({ CompactButtonWithIcon() })
+                        },
+                    )
+                ),
+                DemoCategory(
+                    "Demos",
+                    listOf(
+                        ComposableDemo("Button Sizes") { ButtonSizes() },
+                        ComposableDemo("Button Styles") { ButtonStyles() },
+                    )
+                )
+            )
+        ),
+        DemoCategory(
+            "ToggleButton",
+            listOf(
+                ComposableDemo("Sample") { Centralize({ ToggleButtonWithIcon() }) },
+                ComposableDemo("Demos") { ToggleButtons() },
+            )
+        ),
+        DemoCategory(
+            "Chips",
+            listOf(
+                DemoCategory(
+                    "Samples",
+                    listOf(
+                        ComposableDemo("ChipWithIconAndLabels") {
+                            Centralize({ ChipWithIconAndLabels() })
+                        },
+                        ComposableDemo("CompactChipWithIconAndLabel") {
+                            Centralize({ CompactChipWithIconAndLabel() })
+                        },
+                    )
+                ),
+                DemoCategory(
+                    "Demos",
+                    listOf(
+                        ComposableDemo("Chip") { StandardChips() },
+                        ComposableDemo("Compact chip") { SmallChips() },
+                        ComposableDemo("Avatar chip") { AvatarChips() },
+                        ComposableDemo("Rtl chips") { RtlChips() },
+                        ComposableDemo("Custom chips") { CustomChips() },
+                        ComposableDemo("Image background chips") { ImageBackgroundChips() },
+                    )
+                )
+            )
+        ),
+        DemoCategory(
+            "Toggle Chip",
+            listOf(
+                DemoCategory("Samples",
+                    listOf(
+                        ComposableDemo("ToggleChipWithIcon") {
+                            Centralize({ ToggleChipWithIcon() })
+                        },
+                        ComposableDemo("SplitToggleChipWithCheckbox") {
+                            Centralize({ SplitToggleChipWithCheckbox() })
+                        }
+                    )
+                ),
+                DemoCategory(
+                    "Demos",
+                    listOf(
+                        ComposableDemo("Toggle chip") { ToggleChips() },
+                        ComposableDemo("RTL Toggle chip") { RtlToggleChips() },
+                    )
+                )
+            )
+        ),
+        DemoCategory(
+            "Card",
+            listOf(
+                DemoCategory(
+                    "Samples",
+                    listOf(
+                        ComposableDemo("AppCard") { Centralize({ AppCardWithIcon() }) },
+                        ComposableDemo("TitleCard") { Centralize({ TitleCardStandard() }) },
+                        ComposableDemo("TitleCardWithImage") {
+                            Centralize({ TitleCardWithImage() })
+                        },
+                    )
+                ),
+                ComposableDemo("Demos") { CardDemo() },
+            )
+        ),
+        SwipeToDismissDemos,
+        DemoCategory(
+            "List",
+            listOf(
+                ComposableDemo("Scaling Lazy Column") { SimpleScalingLazyColumn() },
+                ComposableDemo("SLC with Content Padding") {
+                    SimpleScalingLazyColumnWithContentPadding()
+                },
+                ComposableDemo("List Headers") { ScalingLazyColumnWithHeaders() },
+                ComposableDemo("Reverse Layout") { ScalingLazyColumnWithHeadersReversed() },
+            )
+        ),
+        DemoCategory(
+            "Scaffold",
+            listOf(
+                ComposableDemo("Scaffold with Scrollbar") {
+                    SimpleScaffoldWithScrollIndicator()
+                },
+            )
+        ),
+        ComposableDemo("Curved Text") { CurvedTextDemo() },
+        DemoCategory(
+            "Picker",
+            listOf(
+                ComposableDemo("Simple Picker") {
+                    SimplePicker()
+                },
+                ComposableDemo("Time Picker") {
+                    PickerTimeDemo()
+                }
+            )
+        )
     ),
 )

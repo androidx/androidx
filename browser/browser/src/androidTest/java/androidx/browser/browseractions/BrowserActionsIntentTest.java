@@ -105,6 +105,6 @@ public final class BrowserActionsIntentTest {
     static PendingIntent createCustomItemAction(String url) {
         Context context = ApplicationProvider.getApplicationContext();
         Intent customIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
-        return PendingIntent.getActivity(context, 0, customIntent, 0);
+        return PendingIntent.getActivity(context, 0, customIntent, PendingIntent.FLAG_IMMUTABLE);
     }
 }

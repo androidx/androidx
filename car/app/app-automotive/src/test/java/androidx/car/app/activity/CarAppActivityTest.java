@@ -24,6 +24,7 @@ import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
@@ -43,11 +44,14 @@ import android.os.SystemClock;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
+import android.view.View;
+import android.view.WindowInsets;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputConnection;
 
 import androidx.car.app.CarAppService;
 import androidx.car.app.activity.renderer.ICarAppActivity;
+import androidx.car.app.activity.renderer.IInsetsListener;
 import androidx.car.app.activity.renderer.IProxyInputConnection;
 import androidx.car.app.activity.renderer.IRendererCallback;
 import androidx.car.app.activity.renderer.IRendererService;
@@ -55,6 +59,8 @@ import androidx.car.app.activity.renderer.surface.LegacySurfacePackage;
 import androidx.car.app.activity.renderer.surface.SurfaceControlCallback;
 import androidx.car.app.serialization.Bundleable;
 import androidx.car.app.serialization.BundlerException;
+import androidx.core.graphics.Insets;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.test.core.app.ActivityScenario;
@@ -262,10 +268,10 @@ public class CarAppActivityTest {
                     verify(rendererCallback, times(1)).onBackPressed();
 
                     // Verify focus request sent to host.
-                    activity.mSurfaceView.requestFocus();
-                    verify(callback, times(1)).onWindowFocusChanged(true, false);
                     activity.mSurfaceView.clearFocus();
                     verify(callback, times(1)).onWindowFocusChanged(false, false);
+                    activity.mSurfaceView.requestFocus();
+                    verify(callback, times(1)).onWindowFocusChanged(true, false);
 
                     long downTime = SystemClock.uptimeMillis();
                     long eventTime = SystemClock.uptimeMillis();
@@ -346,36 +352,67 @@ public class CarAppActivityTest {
         }
     }
 
-    // Use delegate to forward events to a mock. Mockito interceptor is not maintained on
-    // top-level IBinder after call to IRenderService.Stub.asInterface() in CarAppActivity.
-    private static class RenderServiceDelegate extends IRendererService.Stub {
-        private final IRendererService mService;
-        private ICarAppActivity mCarAppActivity;
+    @Test
+    public void testWindowInsetsHandledLocallyWhenHostIsNotCapable() {
+        setupCarAppActivityForTesting();
+        try (ActivityScenario<CarAppActivity> scenario = ActivityScenario.launch(
+                CarAppActivity.class)) {
+            scenario.onActivity(activity -> {
+                View activityContainer = activity.mActivityContainerView;
+                View localContentContainer = activity.mLocalContentContainerView;
+                Insets systemWindowInsets = Insets.of(10, 20, 30, 40);
+                WindowInsets windowInsets = new WindowInsetsCompat.Builder()
+                        .setInsets(WindowInsetsCompat.Type.systemBars(), systemWindowInsets)
+                        .build()
+                        .toWindowInsets();
+                activityContainer.onApplyWindowInsets(windowInsets);
 
-        RenderServiceDelegate(IRendererService service) {
-            mService = service;
+                // Verify that the insets are handled locally
+                assertThat(activityContainer.getPaddingBottom()).isEqualTo(40);
+                assertThat(activityContainer.getPaddingTop()).isEqualTo(20);
+                assertThat(activityContainer.getPaddingLeft()).isEqualTo(10);
+                assertThat(activityContainer.getPaddingRight()).isEqualTo(30);
+                assertThat(localContentContainer.getPaddingBottom()).isEqualTo(0);
+                assertThat(localContentContainer.getPaddingTop()).isEqualTo(0);
+                assertThat(localContentContainer.getPaddingLeft()).isEqualTo(0);
+                assertThat(localContentContainer.getPaddingRight()).isEqualTo(0);
+            });
         }
+    }
 
-        @Override
-        public boolean initialize(ICarAppActivity carActivity, ComponentName serviceName,
-                int displayId) throws RemoteException {
-            mCarAppActivity = carActivity;
-            return mService.initialize(carActivity, serviceName, displayId);
-        }
+    @Test
+    public void testWindowInsetsHandledRemotelyWhenHostIsCapable() {
+        setupCarAppActivityForTesting();
+        try (ActivityScenario<CarAppActivity> scenario = ActivityScenario.launch(
+                CarAppActivity.class)) {
+            scenario.onActivity(activity -> {
+                try {
+                    IInsetsListener insetsListener = mock(IInsetsListener.class);
+                    mRenderServiceDelegate.getCarAppActivity().setInsetsListener(insetsListener);
+                    View activityContainer = activity.mActivityContainerView;
+                    View localContentContainer = activity.mLocalContentContainerView;
+                    Insets systemWindowInsets = Insets.of(10, 20, 30, 40);
+                    WindowInsets windowInsets = new WindowInsetsCompat.Builder()
+                            .setInsets(WindowInsetsCompat.Type.systemBars(), systemWindowInsets)
+                            .build()
+                            .toWindowInsets();
+                    activityContainer.onApplyWindowInsets(windowInsets);
 
-        @Override
-        public boolean onNewIntent(Intent intent, ComponentName serviceName, int displayId)
-                throws RemoteException {
-            return mService.onNewIntent(intent, serviceName, displayId);
-        }
-
-        @Override
-        public void terminate(ComponentName serviceName) throws RemoteException {
-            mService.terminate(serviceName);
-        }
-
-        public ICarAppActivity getCarAppActivity() {
-            return mCarAppActivity;
+                    // Verify that the host is notified and insets are not handled locally
+                    verify(insetsListener).onInsetsChanged(
+                            eq(systemWindowInsets.toPlatformInsets()));
+                    assertThat(activityContainer.getPaddingBottom()).isEqualTo(0);
+                    assertThat(activityContainer.getPaddingTop()).isEqualTo(0);
+                    assertThat(activityContainer.getPaddingLeft()).isEqualTo(0);
+                    assertThat(activityContainer.getPaddingRight()).isEqualTo(0);
+                    assertThat(localContentContainer.getPaddingBottom()).isEqualTo(40);
+                    assertThat(localContentContainer.getPaddingTop()).isEqualTo(20);
+                    assertThat(localContentContainer.getPaddingLeft()).isEqualTo(10);
+                    assertThat(localContentContainer.getPaddingRight()).isEqualTo(30);
+                } catch (RemoteException ex) {
+                    fail(Log.getStackTraceString(ex));
+                }
+            });
         }
     }
 }

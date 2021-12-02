@@ -64,9 +64,9 @@ class SysUiTileUpdateRequester implements TileUpdateRequester {
     }
 
     @Override
-    public void requestUpdate(@NonNull Class<? extends TileProviderService> tileProvider) {
+    public void requestUpdate(@NonNull Class<? extends TileService> tileService) {
         synchronized (mLock) {
-            mPendingServices.add(tileProvider);
+            mPendingServices.add(tileService);
 
             if (mBindInProgress) {
                 // Something else kicked off the bind; let that carry on binding.
@@ -143,7 +143,8 @@ class SysUiTileUpdateRequester implements TileUpdateRequester {
                         // we'll unbind, then immediately rebind. That said, this class should be
                         // used pretty rarely
                         // (and it'll be rare to have two in-flight update requests at once
-                        // regardless), so it's probably fine.
+                        // regardless), so
+                        // it's probably fine.
                         TileUpdateRequesterService updateRequesterService =
                                 TileUpdateRequesterService.Stub.asInterface(service);
 

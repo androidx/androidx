@@ -7,3 +7,5 @@ AddedAbstractMethod: androidx.camera.core.CameraInfo#getCameraState():
     Added method androidx.camera.core.CameraInfo.getCameraState()
 AddedAbstractMethod: androidx.camera.core.CameraInfo#getExposureState():
     Added method androidx.camera.core.CameraInfo.getExposureState()
+AddedAbstractMethod: androidx.camera.core.ImageInfo#getSensorToBufferTransformMatrix():
+    Added method androidx.camera.core.ImageInfo.getSensorToBufferTransformMatrix()

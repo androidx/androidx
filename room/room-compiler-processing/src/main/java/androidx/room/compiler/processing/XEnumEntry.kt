@@ -33,7 +33,7 @@ interface XEnumEntry : XElement {
     val enumTypeElement: XEnumTypeElement
 }
 
-fun XTypeElement.isEnumEntry(): Boolean {
+fun XElement.isEnumEntry(): Boolean {
     contract {
         returns(true) implies (this@isEnumEntry is XEnumEntry)
     }

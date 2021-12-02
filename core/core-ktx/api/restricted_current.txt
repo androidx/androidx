@@ -123,19 +123,19 @@ package androidx.core.graphics {
     method @ColorLong @RequiresApi(26) public static inline infix long convertTo(@ColorLong long, android.graphics.ColorSpace colorSpace);
     method @RequiresApi(26) public static inline infix android.graphics.Color convertTo(android.graphics.Color, android.graphics.ColorSpace.Named colorSpace);
     method @RequiresApi(26) public static inline infix android.graphics.Color convertTo(android.graphics.Color, android.graphics.ColorSpace colorSpace);
-    method public static inline int getAlpha(int);
-    method @RequiresApi(26) public static inline float getAlpha(long);
-    method public static inline int getBlue(int);
-    method @RequiresApi(26) public static inline float getBlue(long);
-    method @RequiresApi(26) public static inline android.graphics.ColorSpace getColorSpace(long);
-    method public static inline int getGreen(int);
-    method @RequiresApi(26) public static inline float getGreen(long);
-    method @RequiresApi(26) public static inline float getLuminance(int);
-    method @RequiresApi(26) public static inline float getLuminance(long);
-    method public static inline int getRed(int);
-    method @RequiresApi(26) public static inline float getRed(long);
-    method @RequiresApi(26) public static inline boolean isSrgb(long);
-    method @RequiresApi(26) public static inline boolean isWideGamut(long);
+    method public static inline int getAlpha(@ColorInt int);
+    method @RequiresApi(26) public static inline float getAlpha(@ColorLong long);
+    method public static inline int getBlue(@ColorInt int);
+    method @RequiresApi(26) public static inline float getBlue(@ColorLong long);
+    method @RequiresApi(26) public static inline android.graphics.ColorSpace getColorSpace(@ColorLong long);
+    method public static inline int getGreen(@ColorInt int);
+    method @RequiresApi(26) public static inline float getGreen(@ColorLong long);
+    method @RequiresApi(26) public static inline float getLuminance(@ColorInt int);
+    method @RequiresApi(26) public static inline float getLuminance(@ColorLong long);
+    method public static inline int getRed(@ColorInt int);
+    method @RequiresApi(26) public static inline float getRed(@ColorLong long);
+    method @RequiresApi(26) public static inline boolean isSrgb(@ColorLong long);
+    method @RequiresApi(26) public static inline boolean isWideGamut(@ColorLong long);
     method @RequiresApi(26) public static operator android.graphics.Color plus(android.graphics.Color, android.graphics.Color c);
     method @RequiresApi(26) public static inline android.graphics.Color toColor(@ColorInt int);
     method @RequiresApi(26) public static inline android.graphics.Color toColor(@ColorLong long);
@@ -318,6 +318,7 @@ package androidx.core.os {
 
   public final class PersistableBundleKt {
     method @RequiresApi(21) public static android.os.PersistableBundle persistableBundleOf(kotlin.Pair<java.lang.String,?>... pairs);
+    method @RequiresApi(21) public static android.os.PersistableBundle toPersistableBundle(java.util.Map<java.lang.String,?>);
   }
 
   public final class TraceKt {
@@ -450,8 +451,10 @@ package androidx.core.util {
   public final class SizeKt {
     method @RequiresApi(21) public static inline operator int component1(android.util.Size);
     method @RequiresApi(21) public static inline operator float component1(android.util.SizeF);
+    method public static inline operator float component1(androidx.core.util.SizeFCompat);
     method @RequiresApi(21) public static inline operator int component2(android.util.Size);
     method @RequiresApi(21) public static inline operator float component2(android.util.SizeF);
+    method public static inline operator float component2(androidx.core.util.SizeFCompat);
   }
 
   public final class SparseArrayKt {

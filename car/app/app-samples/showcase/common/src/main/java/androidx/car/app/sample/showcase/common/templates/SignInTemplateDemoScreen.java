@@ -19,6 +19,7 @@ package androidx.car.app.sample.showcase.common.templates;
 import static androidx.car.app.CarToast.LENGTH_LONG;
 
 import android.graphics.Color;
+import android.net.Uri;
 
 import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
@@ -26,7 +27,6 @@ import androidx.car.app.CarContext;
 import androidx.car.app.CarToast;
 import androidx.car.app.Screen;
 import androidx.car.app.model.Action;
-import androidx.car.app.model.ActionStrip;
 import androidx.car.app.model.CarColor;
 import androidx.car.app.model.CarIcon;
 import androidx.car.app.model.InputCallback;
@@ -36,6 +36,7 @@ import androidx.car.app.model.Template;
 import androidx.car.app.model.signin.InputSignInMethod;
 import androidx.car.app.model.signin.PinSignInMethod;
 import androidx.car.app.model.signin.ProviderSignInMethod;
+import androidx.car.app.model.signin.QRCodeSignInMethod;
 import androidx.car.app.model.signin.SignInTemplate;
 import androidx.car.app.sample.showcase.common.R;
 import androidx.car.app.sample.showcase.common.common.Utils;
@@ -49,15 +50,17 @@ public class SignInTemplateDemoScreen extends Screen {
         PASSWORD,
         PIN,
         PROVIDER,
+        QR_CODE,
         SIGNED_IN,
     }
 
     private static final String EMAIL_REGEXP = "^(.+)@(.+)$";
     private static final String EXPECTED_PASSWORD = "password";
-    private static final int MAX_USERNAME_LENGTH = 5;
+    private static final int MIN_USERNAME_LENGTH = 5;
 
     // package private to avoid synthetic accessor
     State mState = State.USERNAME;
+    String mLastErrorMessage = ""; // last displayed error message
     String mErrorMessage = "";
     String mUsername = null;
 
@@ -66,7 +69,7 @@ public class SignInTemplateDemoScreen extends Screen {
             () -> getScreenManager().push(new LongMessageTemplateDemoScreen(getCarContext())));
 
     private final Action mProviderSignInAction = new Action.Builder()
-            .setTitle("Google Sign-In")
+            .setTitle("Google sign-in")
             .setOnClickListener(ParkedOnlyOnClickListener.create(() -> {
                 mState = State.PROVIDER;
                 invalidate();
@@ -77,6 +80,14 @@ public class SignInTemplateDemoScreen extends Screen {
             .setTitle("Use PIN")
             .setOnClickListener(ParkedOnlyOnClickListener.create(() -> {
                 mState = State.PIN;
+                invalidate();
+            }))
+            .build();
+
+    private final Action mQRCodeSignInAction = new Action.Builder()
+            .setTitle("QR Code")
+            .setOnClickListener(ParkedOnlyOnClickListener.create(() -> {
+                mState = State.QR_CODE;
                 invalidate();
             }))
             .build();
@@ -119,6 +130,8 @@ public class SignInTemplateDemoScreen extends Screen {
                 return getPinSignInTemplate();
             case PROVIDER:
                 return getProviderSignInTemplate();
+            case QR_CODE:
+                return getQRCodeSignInTemplate();
             case SIGNED_IN:
                 return getSignInCompletedMessageTemplate();
         }
@@ -129,16 +142,10 @@ public class SignInTemplateDemoScreen extends Screen {
         InputCallback listener = new InputCallback() {
             @Override
             public void onInputSubmitted(@NonNull String text) {
-                // Mocked username validation
-                if (!text.matches(EMAIL_REGEXP)) {
-                    mErrorMessage = "Invalid user name";
+                if (mState == State.USERNAME) {
                     mUsername = text;
-                } else {
-                    mErrorMessage = "";
-                    mUsername = text;
-                    mState = State.PASSWORD;
+                    submitUsername();
                 }
-                invalidate();
             }
 
             @Override
@@ -146,28 +153,26 @@ public class SignInTemplateDemoScreen extends Screen {
                 // This callback demonstrates how to use handle the text changed event.
                 // In this case, we check that the user name doesn't exceed a certain length.
                 if (mState == State.USERNAME) {
-                    String previousErrorMessage = mErrorMessage;
-                    if (text.length() > MAX_USERNAME_LENGTH) {
-                        mErrorMessage = "User name is too long";
-                    } else {
-                        mErrorMessage = "";
-                    }
+                    mUsername = text;
+                    mErrorMessage = validateUsername();
 
-                    // If the error message changed, invalidatee the template.
-                    if (!mErrorMessage.equals(previousErrorMessage)) {
-                        // Make sure to keep the user name so that the template preserves it
-                        // after invalidation.
-                        mUsername = text;
+                    // Invalidate the template (and hence possibly update the error message) only
+                    // if clearing up the error string, or if the error is changing.
+                    if (!mLastErrorMessage.isEmpty()
+                            && (mErrorMessage.isEmpty()
+                            || !mLastErrorMessage.equals(mErrorMessage))) {
                         invalidate();
                     }
                 }
             }
         };
+
         InputSignInMethod.Builder builder = new InputSignInMethod.Builder(listener)
                 .setHint("Email")
                 .setKeyboardType(InputSignInMethod.KEYBOARD_EMAIL);
         if (mErrorMessage != null) {
             builder.setErrorMessage(mErrorMessage);
+            mLastErrorMessage = mErrorMessage;
         }
         if (mUsername != null) {
             builder.setDefaultValue(mUsername);
@@ -176,26 +181,45 @@ public class SignInTemplateDemoScreen extends Screen {
 
         return new SignInTemplate.Builder(signInMethod)
                 .addAction(mProviderSignInAction)
-                .addAction(mPinSignInAction)
-                .setTitle("Sign in with username and password")
+                .addAction(getCarContext().getCarAppApiLevel() > CarAppApiLevels.LEVEL_3
+                        ? mQRCodeSignInAction : mPinSignInAction)
+                .setTitle("Sign in")
                 .setInstructions("Enter your credentials")
                 .setHeaderAction(Action.BACK)
                 .setAdditionalText(mAdditionalText)
-                .setActionStrip(
-                        new ActionStrip.Builder()
-                                .addAction(
-                                        new Action.Builder()
-                                                .setTitle("Settings")
-                                                .setOnClickListener(
-                                                        () ->
-                                                                CarToast.makeText(
-                                                                        getCarContext(),
-                                                                        "Clicked Settings",
-                                                                        LENGTH_LONG)
-                                                                        .show())
-                                                .build())
-                                .build())
                 .build();
+    }
+
+    /**
+     * Validates the currently entered user name and returns an error message string if invalid,
+     * or an empty string otherwise.
+     */
+    String validateUsername() {
+        if (mUsername == null || mUsername.length() < MIN_USERNAME_LENGTH) {
+            return "User name must be at least " + MIN_USERNAME_LENGTH + " characters "
+                    + "long";
+        } else if (!mUsername.matches(EMAIL_REGEXP)) {
+            return "User name must be a valid email address";
+        } else {
+            return "";
+        }
+    }
+
+    /**
+     * Moves to the password screen if the user name currently entered is valid, or displays
+     * an error message otherwise.
+     */
+    void submitUsername() {
+        mErrorMessage = validateUsername();
+
+        boolean isError = !mErrorMessage.isEmpty();
+        if (!isError) {
+            // If there's no error, go to the password screen.
+            mState = State.PASSWORD;
+        }
+
+        // Invalidate the template so that we either display an error, or go to the password screen.
+        invalidate();
     }
 
     private Template getPasswordSignInTemplate() {
@@ -222,24 +246,34 @@ public class SignInTemplateDemoScreen extends Screen {
 
         return new SignInTemplate.Builder(signInMethod)
                 .addAction(mProviderSignInAction)
-                .addAction(mPinSignInAction)
-                .setTitle("Sign in with username and password")
-                .setInstructions("Enter your credentials")
+                .addAction(getCarContext().getCarAppApiLevel() > CarAppApiLevels.LEVEL_3
+                        ? mQRCodeSignInAction : mPinSignInAction)
+                .setTitle("Sign in")
+                .setInstructions("Username: " + mUsername)
                 .setHeaderAction(Action.BACK)
                 .setAdditionalText(mAdditionalText)
                 .build();
     }
 
     private Template getPinSignInTemplate() {
-        PinSignInMethod pinSignInMethod = new PinSignInMethod.Builder("123456789abc"
-                .toString().toUpperCase())
-                .build();
-
+        PinSignInMethod pinSignInMethod = new PinSignInMethod("123456789ABC");
         return new SignInTemplate.Builder(pinSignInMethod)
-                .setTitle("Sign in with PIN")
+                .setTitle("Sign in")
                 .setInstructions("Type this PIN in your phone")
                 .setHeaderAction(Action.BACK)
                 .setAdditionalText(mAdditionalText)
+                .build();
+    }
+
+    private Template getQRCodeSignInTemplate() {
+        QRCodeSignInMethod qrCodeSignInMethod = new QRCodeSignInMethod(Uri.parse("https://www"
+                + ".youtube.com/watch?v=dQw4w9WgXcQ"));
+        return new SignInTemplate.Builder(qrCodeSignInMethod)
+                .setTitle("Scan QR Code to sign in")
+                .setHeaderAction(Action.BACK)
+                .setAdditionalText(mAdditionalText)
+                .addAction(mPinSignInAction)
+                .addAction(mProviderSignInAction)
                 .build();
     }
 
@@ -248,7 +282,7 @@ public class SignInTemplateDemoScreen extends Screen {
                 R.drawable.ic_googleg);
         CarColor noTint = CarColor.createCustom(Color.TRANSPARENT, Color.TRANSPARENT);
 
-        ProviderSignInMethod providerSignInMethod = new ProviderSignInMethod.Builder(
+        ProviderSignInMethod providerSignInMethod = new ProviderSignInMethod(
                 new Action.Builder()
                         .setTitle(Utils.colorize("Sign in with Google",
                                 CarColor.createCustom(Color.BLACK, Color.BLACK), 0, 19))
@@ -257,11 +291,10 @@ public class SignInTemplateDemoScreen extends Screen {
                                 .setTint(noTint)
                                 .build())
                         .setOnClickListener(ParkedOnlyOnClickListener.create(
-                                this::performSignInWithGoogleFlow)).build()
-        ).build();
+                                this::performSignInWithGoogleFlow)).build());
 
         return new SignInTemplate.Builder(providerSignInMethod)
-                .setTitle("Sign in with Google")
+                .setTitle("Sign in")
                 .setInstructions("Use this button to complete your Google sign-in")
                 .setHeaderAction(Action.BACK)
                 .setAdditionalText(mAdditionalText)

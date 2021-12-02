@@ -25,6 +25,7 @@
         <activity android:name=".sherlockholmes.AnalyzeSherlockHolmesActivity" />
         <activity
             android:name="androidx.work.integration.testapp.MainActivity"
+            android:exported="true"
             android:windowSoftInputMode="stateHidden">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -32,8 +33,9 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".imageprocessing.ImageProcessingActivity" />
-        <activity android:name=".RetryActivity">
+        <activity android:name=".imageprocessing.ImageProcessingActivity"
+            android:exported="false" />
+        <activity android:name=".RetryActivity" android:exported="false">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
             </intent-filter>

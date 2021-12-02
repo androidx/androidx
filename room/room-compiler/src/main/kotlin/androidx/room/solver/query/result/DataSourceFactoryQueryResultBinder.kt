@@ -17,9 +17,71 @@
 package androidx.room.solver.query.result
 
 import androidx.room.ext.L
+import androidx.room.ext.PagingTypeNames
+import androidx.room.solver.CodeGenScope
+import com.squareup.javapoet.FieldSpec
+import com.squareup.javapoet.MethodSpec
+import com.squareup.javapoet.ParameterizedTypeName
+import com.squareup.javapoet.TypeSpec
+import javax.lang.model.element.Modifier
+import androidx.room.ext.typeName
+import com.squareup.javapoet.TypeName
 
 class DataSourceFactoryQueryResultBinder(
-    positionalDataSourceQueryResultBinder: PositionalDataSourceQueryResultBinder
-) : PagingQueryResultBinder(positionalDataSourceQueryResultBinder) {
-    override fun returnStatementTemplate() = "return $L"
+    val positionalDataSourceQueryResultBinder: PositionalDataSourceQueryResultBinder
+) : QueryResultBinder(positionalDataSourceQueryResultBinder.listAdapter) {
+
+    val typeName: TypeName = positionalDataSourceQueryResultBinder.itemTypeName
+
+    override fun convertAndReturn(
+        roomSQLiteQueryVar: String,
+        canReleaseQuery: Boolean,
+        dbField: FieldSpec,
+        inTransaction: Boolean,
+        scope: CodeGenScope
+    ) {
+        scope.builder().apply {
+            val pagedListProvider = TypeSpec.anonymousClassBuilder("")
+                .apply {
+                    superclass(
+                        ParameterizedTypeName.get(
+                            PagingTypeNames.DATA_SOURCE_FACTORY,
+                            Integer::class.typeName,
+                            typeName
+                        )
+                    )
+
+                    addMethod(
+                        createCreateMethod(
+                            roomSQLiteQueryVar = roomSQLiteQueryVar,
+                            dbField = dbField,
+                            inTransaction = inTransaction,
+                            scope = scope
+                        )
+                    )
+                }
+                .build()
+            addStatement("return $L", pagedListProvider)
+        }
+    }
+
+    private fun createCreateMethod(
+        roomSQLiteQueryVar: String,
+        dbField: FieldSpec,
+        inTransaction: Boolean,
+        scope: CodeGenScope
+    ): MethodSpec = MethodSpec.methodBuilder("create").apply {
+        addAnnotation(Override::class.java)
+        addModifiers(Modifier.PUBLIC)
+        returns(positionalDataSourceQueryResultBinder.typeName)
+        val countedBinderScope = scope.fork()
+        positionalDataSourceQueryResultBinder.convertAndReturn(
+            roomSQLiteQueryVar = roomSQLiteQueryVar,
+            canReleaseQuery = true,
+            dbField = dbField,
+            inTransaction = inTransaction,
+            scope = countedBinderScope
+        )
+        addCode(countedBinderScope.builder().build())
+    }.build()
 }

@@ -19,6 +19,7 @@ package androidx.room;
 import android.annotation.SuppressLint;
 import android.app.ActivityManager;
 import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
 import android.os.Build;
 import android.os.CancellationSignal;
@@ -263,9 +264,9 @@ public abstract class RoomDatabase {
         mTransactionExecutor = new TransactionExecutor(configuration.transactionExecutor);
         mAllowMainThreadQueries = configuration.allowMainThreadQueries;
         mWriteAheadLoggingEnabled = wal;
-        if (configuration.multiInstanceInvalidation) {
+        if (configuration.multiInstanceInvalidationServiceIntent != null) {
             mInvalidationTracker.startMultiInstanceInvalidation(configuration.context,
-                    configuration.name);
+                    configuration.name, configuration.multiInstanceInvalidationServiceIntent);
         }
 
         Map<Class<?>, List<Class<?>>> requiredFactories = getRequiredTypeConverters();
@@ -781,7 +782,7 @@ public abstract class RoomDatabase {
         private SupportSQLiteOpenHelper.Factory mFactory;
         private boolean mAllowMainThreadQueries;
         private JournalMode mJournalMode;
-        private boolean mMultiInstanceInvalidation;
+        private Intent mMultiInstanceInvalidationIntent;
         private boolean mRequireMigration;
         private boolean mAllowDestructiveMigrationOnDowngrade;
 
@@ -1167,7 +1168,33 @@ public abstract class RoomDatabase {
          */
         @NonNull
         public Builder<T> enableMultiInstanceInvalidation() {
-            mMultiInstanceInvalidation = mName != null;
+            mMultiInstanceInvalidationIntent = mName != null ? new Intent(mContext,
+                    MultiInstanceInvalidationService.class) : null;
+            return this;
+        }
+
+        /**
+         * Sets whether table invalidation in this instance of {@link RoomDatabase} should be
+         * broadcast and synchronized with other instances of the same {@link RoomDatabase},
+         * including those in a separate process. In order to enable multi-instance invalidation,
+         * this has to be turned on both ends and need to point to the same
+         * {@link MultiInstanceInvalidationService}.
+         * <p>
+         * This is not enabled by default.
+         * <p>
+         * This does not work for in-memory databases. This does not work between database instances
+         * targeting different database files.
+         *
+         * @return This {@link Builder} instance.
+         * @param invalidationServiceIntent Intent to bind to the
+         * {@link MultiInstanceInvalidationService}.
+         */
+        @SuppressWarnings("MissingGetterMatchingBuilder")
+        @NonNull
+        @ExperimentalRoomApi
+        public Builder<T> setMultiInstanceInvalidationServiceIntent(
+                @NonNull Intent invalidationServiceIntent) {
+            mMultiInstanceInvalidationIntent = mName != null ? invalidationServiceIntent : null;
             return this;
         }
 
@@ -1446,7 +1473,7 @@ public abstract class RoomDatabase {
                             mJournalMode.resolve(mContext),
                             mQueryExecutor,
                             mTransactionExecutor,
-                            mMultiInstanceInvalidation,
+                            mMultiInstanceInvalidationIntent,
                             mRequireMigration,
                             mAllowDestructiveMigrationOnDowngrade,
                             mMigrationsNotRequiredFrom,

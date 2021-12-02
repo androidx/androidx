@@ -38,11 +38,11 @@ import java.nio.ByteBuffer;
 public class DefaultInlineImageResourceResolver implements InlineImageResourceResolver {
     private static final int RGB565_BYTES_PER_PX = 2;
 
-    private final Context mAppContext;
+    private final Context mUiContext;
 
     /** Constructor. */
-    public DefaultInlineImageResourceResolver(@NonNull Context appContext) {
-        this.mAppContext = appContext;
+    public DefaultInlineImageResourceResolver(@NonNull Context uiContext) {
+        this.mUiContext = uiContext;
     }
 
     @NonNull
@@ -61,9 +61,9 @@ public class DefaultInlineImageResourceResolver implements InlineImageResourceRe
             throw new ResourceAccessException("Unsupported image format in image resource.");
         }
 
-        // The app Context is correct here, as it's just used for display density, so it doesn't
+        // The UI Context is correct here, as it's just used for display density, so it doesn't
         // depend on anything from the provider app.
-        return new BitmapDrawable(mAppContext.getResources(), bitmap);
+        return new BitmapDrawable(mUiContext.getResources(), bitmap);
     }
 
     @Override

@@ -589,7 +589,7 @@ public final class TransformFragment extends Fragment {
             @NonNull RectF imageProxyTile) {
         CoordinateTransform transform = new CoordinateTransform(source, target);
         Matrix matrix = new Matrix();
-        transform.getTransform(matrix);
+        transform.transform(matrix);
         matrix.mapRect(imageProxyTile);
         return imageProxyTile;
     }

@@ -22,6 +22,8 @@ import static androidx.test.platform.app.InstrumentationRegistry.getInstrumentat
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
@@ -31,6 +33,7 @@ import android.os.Bundle;
 import android.support.v4.media.session.MediaControllerCompat;
 import android.support.v4.media.session.MediaSessionCompat;
 
+import androidx.mediarouter.testing.MediaRouterTestHelper;
 import androidx.test.annotation.UiThreadTest;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
@@ -83,6 +86,12 @@ public class MediaRouterTest {
     @After
     public void tearDown() throws Exception {
         mSession.release();
+        getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                MediaRouterTestHelper.resetMediaRouter();
+            }
+        });
     }
 
     /**
@@ -121,6 +130,7 @@ public class MediaRouterTest {
         final int dialogType = MediaRouterParams.DIALOG_TYPE_DYNAMIC_GROUP;
         final boolean isOutputSwitcherEnabled = true;
         final boolean transferToLocalEnabled = true;
+        final boolean transferReceiverEnabled = false;
         final Bundle extras = new Bundle();
         extras.putString(TEST_KEY, TEST_VALUE);
 
@@ -128,6 +138,7 @@ public class MediaRouterTest {
                 .setDialogType(dialogType)
                 .setOutputSwitcherEnabled(isOutputSwitcherEnabled)
                 .setTransferToLocalEnabled(transferToLocalEnabled)
+                .setMediaTransferReceiverEnabled(transferReceiverEnabled)
                 .setExtras(extras)
                 .build();
 
@@ -136,11 +147,13 @@ public class MediaRouterTest {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             assertEquals(isOutputSwitcherEnabled, params.isOutputSwitcherEnabled());
             assertEquals(transferToLocalEnabled, params.isTransferToLocalEnabled());
+            assertEquals(transferReceiverEnabled, params.isMediaTransferReceiverEnabled());
         } else {
             // Earlier than Android R, output switcher cannot be enabled.
             // Same for transfer to local.
             assertFalse(params.isOutputSwitcherEnabled());
             assertFalse(params.isTransferToLocalEnabled());
+            assertFalse(params.isMediaTransferReceiverEnabled());
         }
 
         extras.remove(TEST_KEY);
@@ -151,6 +164,8 @@ public class MediaRouterTest {
         assertEquals(params.getDialogType(), copiedParams.getDialogType());
         assertEquals(params.isOutputSwitcherEnabled(), copiedParams.isOutputSwitcherEnabled());
         assertEquals(params.isTransferToLocalEnabled(), copiedParams.isTransferToLocalEnabled());
+        assertEquals(params.isMediaTransferReceiverEnabled(),
+                copiedParams.isMediaTransferReceiverEnabled());
         assertBundleEquals(params.getExtras(), copiedParams.getExtras());
     }
 
@@ -161,6 +176,7 @@ public class MediaRouterTest {
         final int dialogType = MediaRouterParams.DIALOG_TYPE_DYNAMIC_GROUP;
         final boolean isOutputSwitcherEnabled = true;
         final boolean transferToLocalEnabled = true;
+        final boolean transferReceiverEnabled = false;
         final Bundle paramExtras = new Bundle();
         paramExtras.putString(TEST_KEY, TEST_VALUE);
 
@@ -168,6 +184,7 @@ public class MediaRouterTest {
                 .setDialogType(dialogType)
                 .setOutputSwitcherEnabled(isOutputSwitcherEnabled)
                 .setTransferToLocalEnabled(transferToLocalEnabled)
+                .setMediaTransferReceiverEnabled(transferReceiverEnabled)
                 .setExtras(paramExtras)
                 .build();
 
@@ -263,6 +280,20 @@ public class MediaRouterTest {
         assertTrue(mPassiveScanCountDownLatch.await(1000 + TIME_OUT_MS, TimeUnit.MILLISECONDS));
     }
 
+    @Test
+    @UiThreadTest
+    public void testReset() {
+        assertNotNull(mRouter);
+        assertNotNull(MediaRouter.getGlobalRouter());
+
+        MediaRouterTestHelper.resetMediaRouter();
+        assertNull(MediaRouter.getGlobalRouter());
+
+        MediaRouter newInstance = MediaRouter.getInstance(mContext);
+        assertNotNull(MediaRouter.getGlobalRouter());
+        assertFalse(newInstance.getRoutes().isEmpty());
+    }
+
     /**
      * Asserts that two Bundles are equal.
      */
@@ -311,8 +342,9 @@ public class MediaRouterTest {
 
         @Override
         public void onDiscoveryRequestChanged(MediaRouteDiscoveryRequest discoveryRequest) {
-            if (mIsActiveScan != discoveryRequest.isActiveScan()) {
-                mIsActiveScan = discoveryRequest.isActiveScan();
+            boolean isActiveScan = discoveryRequest != null && discoveryRequest.isActiveScan();
+            if (mIsActiveScan != isActiveScan) {
+                mIsActiveScan = isActiveScan;
                 if (mIsActiveScan) {
                     mActiveScanCountDownLatch.countDown();
                 } else {

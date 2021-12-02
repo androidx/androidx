@@ -88,6 +88,42 @@ public class RowTest {
     }
 
     @Test
+    public void title_unsupportedSpans_throws() {
+        CharSequence title = TestUtils.getCharSequenceWithColorSpan("Title");
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> new Row.Builder().setTitle(title).build());
+        CarText title2 = TestUtils.getCarTextVariantsWithColorSpan("Title");
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> new Row.Builder().setTitle(title2).build());
+
+        // DurationSpan and DistanceSpan do not throw
+        CharSequence title3 = TestUtils.getCharSequenceWithDistanceAndDurationSpans("Title");
+        new Row.Builder().setTitle(title3).build();
+        CarText title4 = TestUtils.getCarTextVariantsWithDistanceAndDurationSpans("Title");
+        new Row.Builder().setTitle(title4).build();
+    }
+
+    @Test
+    public void text_unsupportedSpans_throws() {
+        CharSequence text = TestUtils.getCharSequenceWithClickableSpan("Text");
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> new Row.Builder().setTitle("Title").addText(text).build());
+        CarText text2 = TestUtils.getCarTextVariantsWithClickableSpan("Text");
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> new Row.Builder().setTitle("Title").addText(text2).build());
+
+        // DurationSpan and DistanceSpan do not throw
+        CharSequence text3 = TestUtils.getCharSequenceWithColorSpan("Text");
+        new Row.Builder().setTitle("Title").addText(text3).build();
+        CarText text4 = TestUtils.getCarTextVariantsWithColorSpan("Text");
+        new Row.Builder().setTitle("Title").addText(text4).build();
+    }
+
+    @Test
     public void setImage() {
         CarIcon image1 = BACK;
         Row row = new Row.Builder().setTitle("Title").setImage(image1).build();

@@ -23,6 +23,10 @@ import kotlin.contracts.contract
  */
 interface XEnumTypeElement : XTypeElement {
     val entries: Set<XEnumEntry>
+
+    override fun getEnclosedElements(): List<XElement> {
+        return super.getEnclosedElements() + entries
+    }
 }
 
 fun XTypeElement.isEnum(): Boolean {

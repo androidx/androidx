@@ -16,6 +16,7 @@
 
 package androidx.car.app.model;
 
+import static androidx.car.app.model.Action.FLAG_PRIMARY;
 import static androidx.car.app.model.CarIcon.BACK;
 
 import static com.google.common.truth.Truth.assertThat;
@@ -26,6 +27,7 @@ import android.content.ContentResolver;
 import android.net.Uri;
 import android.util.Log;
 
+import androidx.car.app.TestUtils;
 import androidx.core.graphics.drawable.IconCompat;
 
 import org.junit.Test;
@@ -86,12 +88,56 @@ public class MessageTemplateTest {
     }
 
     @Test
+    public void header_unsupportedSpans_throws() {
+        CharSequence title = TestUtils.getCharSequenceWithColorSpan("Title");
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> new MessageTemplate.Builder(mMessage).setTitle(title));
+
+        // DurationSpan and DistanceSpan do not throw
+        CharSequence title2 = TestUtils.getCharSequenceWithDistanceAndDurationSpans("Title");
+        new MessageTemplate.Builder(mMessage).setTitle(title2).build();
+    }
+
+    @Test
     public void moreThanTwoActions_throws() {
         assertThrows(IllegalArgumentException.class,
                 () -> new MessageTemplate.Builder(mMessage)
                         .addAction(mAction)
                         .addAction(mAction)
                         .addAction(mAction));
+    }
+
+    @Test
+    public void twoPrimaryActions_throws() {
+        Action primaryAction = new Action.Builder().setTitle("primaryAction")
+                .setOnClickListener(() -> {})
+                .setFlags(FLAG_PRIMARY).build();
+        assertThrows(IllegalArgumentException.class,
+                () -> new MessageTemplate.Builder(mMessage)
+                        .addAction(primaryAction)
+                        .addAction(primaryAction)
+                .build());
+    }
+
+    @Test
+    public void action_unsupportedSpans_throws() {
+        CharSequence title1 = TestUtils.getCharSequenceWithClickableSpan("Title");
+        Action action1 = new Action.Builder().setTitle(title1).build();
+        assertThrows(IllegalArgumentException.class,
+                () -> new MessageTemplate.Builder(mMessage).setTitle("Title").addAction(action1));
+        CarText title2 = TestUtils.getCarTextVariantsWithDistanceAndDurationSpans("Title");
+        Action action2 = new Action.Builder().setTitle(title2).build();
+        assertThrows(IllegalArgumentException.class,
+                () -> new MessageTemplate.Builder(mMessage).setTitle("Title").addAction(action2));
+
+        // DurationSpan and DistanceSpan do not throw
+        CharSequence title3 = TestUtils.getCharSequenceWithColorSpan("Title");
+        Action action3 = new Action.Builder().setTitle(title3).build();
+        new MessageTemplate.Builder(mMessage).setTitle("Title").addAction(action3).build();
+        CarText title4 = TestUtils.getCarTextVariantsWithColorSpan("Title");
+        Action action4 = new Action.Builder().setTitle(title4).build();
+        new MessageTemplate.Builder(mMessage).setTitle("Title").addAction(action4).build();
     }
 
     @Test

@@ -24,6 +24,7 @@ import android.view.Surface;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.camera.core.AspectRatio;
 
 import java.lang.annotation.Retention;
@@ -33,6 +34,7 @@ import java.util.List;
 /**
  * Configuration containing options for configuring the output image data of a pipeline.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public interface ImageOutputConfig extends ReadableConfig {
     /**
      * Invalid integer rotation.

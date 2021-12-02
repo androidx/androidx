@@ -43,7 +43,6 @@ dependencies {
 androidx {
     name = "WindowManager Java Support"
     type = LibraryType.PUBLISHED_LIBRARY
-    mavenVersion = LibraryVersions.WINDOW
     mavenGroup = LibraryGroups.WINDOW
     inceptionYear = "2021"
     description = "WindowManager Java Support"

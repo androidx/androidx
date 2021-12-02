@@ -160,7 +160,7 @@ public abstract class AppCompatBaseTextViewEmojiTest<ActivityType extends BaseTe
             defaultEmoji.setFilters(defaultEmoji.getFilters());
             defaultEmoji.setText("Some text");
             // this is allowed, but all other interactions should not happen
-            verify(mEmojiCompatMock, atLeast(0)).updateEditorInfoAttrs(
+            verify(mEmojiCompatMock, atLeast(0)).updateEditorInfo(
                     any(EditorInfo.class));
             verifyNoMoreInteractions(mEmojiCompatMock);
         });

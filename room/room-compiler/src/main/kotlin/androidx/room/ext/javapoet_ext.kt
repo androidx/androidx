@@ -97,6 +97,8 @@ object RoomTypeNames {
         "$ROOM_PACKAGE.migration",
         "AutoMigrationSpec"
     )
+    val UUID_UTIL: ClassName =
+        ClassName.get("$ROOM_PACKAGE.util", "UUIDUtil")
 }
 
 object PagingTypeNames {
@@ -127,6 +129,7 @@ object AndroidTypeNames {
 object CollectionTypeNames {
     val ARRAY_MAP: ClassName = ClassName.get(COLLECTION_PACKAGE, "ArrayMap")
     val LONG_SPARSE_ARRAY: ClassName = ClassName.get(COLLECTION_PACKAGE, "LongSparseArray")
+    val INT_SPARSE_ARRAY: ClassName = ClassName.get(COLLECTION_PACKAGE, "SparseArrayCompat")
 }
 
 object CommonTypeNames {
@@ -140,6 +143,7 @@ object CommonTypeNames {
     val ILLEGAL_ARG_EXCEPTION = ClassName.get(
         "java.lang", "IllegalArgumentException"
     )
+    val UUID = ClassName.get("java.util", "UUID")
 }
 
 object GuavaBaseTypeNames {
@@ -187,6 +191,11 @@ object RoomRxJava3TypeNames {
     val RX_ROOM_CREATE_OBSERVABLE = "createObservable"
     val RX_EMPTY_RESULT_SET_EXCEPTION =
         ClassName.get("$ROOM_PACKAGE.rxjava3", "EmptyResultSetException")
+}
+
+object RoomPagingTypeNames {
+    val LIMIT_OFFSET_PAGING_SOURCE: ClassName =
+        ClassName.get("$ROOM_PACKAGE.paging", "LimitOffsetPagingSource")
 }
 
 object RoomCoroutinesTypeNames {

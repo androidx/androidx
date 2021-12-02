@@ -175,10 +175,10 @@ class SelectableTest {
      * as its background.
      */
     private class TestPreference(context: Context) : Preference(context) {
-        override fun onBindViewHolder(holder: PreferenceViewHolder?) {
+        override fun onBindViewHolder(holder: PreferenceViewHolder) {
             super.onBindViewHolder(holder)
             // If there's no background, no ripple effect will play regardless.
-            if (holder!!.itemView.background != null) {
+            if (holder.itemView.background != null) {
                 ViewCompat.setBackground(holder.itemView, TestDrawable())
             }
         }

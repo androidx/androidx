@@ -91,7 +91,6 @@ public class SessionTokenTest extends MediaTestBase {
 
     @Test
     public void getters_whenCreatedBySession() {
-        prepareLooper();
         Bundle testTokenExtras = TestUtils.createTestBundle();
         MediaSession session = new MediaSession.Builder(mContext, new MockPlayer(0))
                 .setId("testGetters_whenCreatedBySession")

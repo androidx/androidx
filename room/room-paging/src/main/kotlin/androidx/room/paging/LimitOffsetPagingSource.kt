@@ -21,15 +21,14 @@ import androidx.annotation.NonNull
 import androidx.annotation.RestrictTo
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
-import androidx.room.withTransaction
 import androidx.room.InvalidationTracker
 import androidx.room.RoomDatabase
 import androidx.room.RoomSQLiteQuery
+import androidx.room.getQueryDispatcher
 import androidx.room.util.CursorUtil
+import androidx.room.withTransaction
 import androidx.sqlite.db.SupportSQLiteQuery
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import java.lang.IllegalArgumentException
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger
 
@@ -40,6 +39,9 @@ import java.util.concurrent.atomic.AtomicInteger
  * for Pager's consumption. Registers observers on tables lazily and automatically invalidates
  * itself when data changes.
  */
+
+private val INVALID = PagingSource.LoadResult.Invalid<Any, Any>()
+
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 abstract class LimitOffsetPagingSource<Value : Any>(
     private val sourceQuery: RoomSQLiteQuery,
@@ -67,7 +69,7 @@ abstract class LimitOffsetPagingSource<Value : Any>(
     private val registeredObserver: AtomicBoolean = AtomicBoolean(false)
 
     override suspend fun load(params: LoadParams<Int>): LoadResult<Int, Value> {
-        return withContext(Dispatchers.IO) {
+        return withContext(db.getQueryDispatcher()) {
             registerObserverIfNecessary()
             val tempCount = itemCount.get()
             // if itemCount is < 0, then it is initial load
@@ -75,7 +77,12 @@ abstract class LimitOffsetPagingSource<Value : Any>(
                 initialLoad(params)
             } else {
                 // otherwise, it is a subsequent load
-                loadFromDb(params, tempCount)
+                val loadResult = loadFromDb(params, tempCount)
+                // manually check if database has been updated. If so, the observers's
+                // invalidation callback will invalidate this paging source
+                db.invalidationTracker.refreshVersionsSync()
+                @Suppress("UNCHECKED_CAST")
+                if (invalid) INVALID as LoadResult.Invalid<Int, Value> else loadResult
             }
         }
     }

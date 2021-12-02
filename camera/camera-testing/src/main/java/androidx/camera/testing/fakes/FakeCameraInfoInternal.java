@@ -22,6 +22,7 @@ import android.view.Surface;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraState;
 import androidx.camera.core.ExposureState;
@@ -49,6 +50,7 @@ import java.util.concurrent.Executor;
  *
  * <p>This camera info can be constructed with fake values.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class FakeCameraInfoInternal implements CameraInfoInternal {
     private final String mCameraId;
     private final int mSensorRotation;
@@ -139,29 +141,7 @@ public final class FakeCameraInfoInternal implements CameraInfoInternal {
     @NonNull
     @Override
     public ExposureState getExposureState() {
-        return new ExposureState() {
-            @Override
-            public int getExposureCompensationIndex() {
-                return 0;
-            }
-
-            @NonNull
-            @Override
-            public Range<Integer> getExposureCompensationRange() {
-                return Range.create(0, 0);
-            }
-
-            @NonNull
-            @Override
-            public Rational getExposureCompensationStep() {
-                return Rational.ZERO;
-            }
-
-            @Override
-            public boolean isExposureCompensationSupported() {
-                return true;
-            }
-        };
+        return new FakeExposureState();
     }
 
     @NonNull
@@ -225,5 +205,30 @@ public final class FakeCameraInfoInternal implements CameraInfoInternal {
     public void setCamcorderProfileProvider(
             @NonNull CamcorderProfileProvider camcorderProfileProvider) {
         mCamcorderProfileProvider = Preconditions.checkNotNull(camcorderProfileProvider);
+    }
+
+    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
+    static final class FakeExposureState implements ExposureState {
+        @Override
+        public int getExposureCompensationIndex() {
+            return 0;
+        }
+
+        @NonNull
+        @Override
+        public Range<Integer> getExposureCompensationRange() {
+            return Range.create(0, 0);
+        }
+
+        @NonNull
+        @Override
+        public Rational getExposureCompensationStep() {
+            return Rational.ZERO;
+        }
+
+        @Override
+        public boolean isExposureCompensationSupported() {
+            return true;
+        }
     }
 }

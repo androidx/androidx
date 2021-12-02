@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
+
 import androidx.build.LibraryGroups
-import androidx.build.LibraryVersions
 import androidx.build.Publish
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("AndroidXPlugin")
@@ -35,21 +36,12 @@ dependencies {
     api("androidx.savedstate:savedstate:1.0.0")
     api(projectOrArtifact(":lifecycle:lifecycle-livedata-core"))
     api(projectOrArtifact(":lifecycle:lifecycle-viewmodel"))
+    api(libs.kotlinStdlib)
 
     androidTestImplementation projectOrArtifact(":lifecycle:lifecycle-runtime")
     androidTestImplementation projectOrArtifact(":lifecycle:lifecycle-livedata-core")
-    androidTestImplementation ("androidx.fragment:fragment:1.3.0") {
-        exclude group: "androidx.lifecycle", module: "lifecycle-runtime"
-        exclude group: "androidx.lifecycle", module: "lifecycle-livedata-core"
-        exclude group: "androidx.lifecycle", module: "lifecycle-viewmodel-savedstate"
-        exclude group: "androidx.lifecycle", module: "lifecycle-viewmodel"
-    }
-    androidTestImplementation project(":internal-testutils-runtime"), {
-        exclude group: "androidx.lifecycle", module: "lifecycle-runtime"
-        exclude group: "androidx.lifecycle", module: "lifecycle-livedata-core"
-        exclude group: "androidx.lifecycle", module: "lifecycle-viewmodel-savedstate"
-        exclude group: "androidx.lifecycle", module: "lifecycle-viewmodel"
-    }
+    androidTestImplementation ("androidx.fragment:fragment:1.3.0")
+    androidTestImplementation project(":internal-testutils-runtime")
     androidTestImplementation(libs.truth)
     androidTestImplementation(libs.kotlinStdlib)
     androidTestImplementation(libs.testExtJunit)
@@ -74,8 +66,15 @@ android.libraryVariants.all { variant ->
 androidx {
     name = "Android Lifecycle ViewModel with SavedState"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenVersion = LibraryVersions.LIFECYCLE
     mavenGroup = LibraryGroups.LIFECYCLE
     inceptionYear = "2018"
     description = "Android Lifecycle ViewModel"
+}
+
+tasks.withType(KotlinCompile).configureEach {
+    kotlinOptions {
+        freeCompilerArgs += [
+                "-Xjvm-default=all",
+        ]
+    }
 }

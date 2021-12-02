@@ -34,6 +34,18 @@ public @interface MainAnnotation {
 
     int intMethod();
 
+    double doubleMethodWithDefault() default 0;
+
+    float floatMethodWithDefault() default 0;
+
+    char charMethodWithDefault() default 0;
+
+    byte byteMethodWithDefault() default 0;
+
+    short shortMethodWithDefault() default 0;
+
+    long longMethodWithDefault() default 0;
+
     boolean boolMethodWithDefault() default true;
 
     OtherAnnotation[] otherAnnotationArray() default {};

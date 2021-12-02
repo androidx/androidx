@@ -17,8 +17,8 @@
 
 <resources>
     <!-- Definitions of dimens to be exposed as public -->
-    <public type="dimen" name="mr_chooser_list_item_padding_start" />
-    <public type="dimen" name="mr_chooser_list_item_padding_end" />
-    <public type="dimen" name="mr_chooser_list_item_padding_top" />
-    <public type="dimen" name="mr_chooser_list_item_padding_bottom" />
+    <public type="dimen" name="mediarouter_chooser_list_item_padding_start" />
+    <public type="dimen" name="mediarouter_chooser_list_item_padding_end" />
+    <public type="dimen" name="mediarouter_chooser_list_item_padding_top" />
+    <public type="dimen" name="mediarouter_chooser_list_item_padding_bottom" />
 </resources>

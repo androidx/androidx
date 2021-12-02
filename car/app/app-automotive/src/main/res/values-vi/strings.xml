@@ -27,4 +27,5 @@
     <string name="error_message_host_incompatible" msgid="160406216155183851">"Bạn cần cập nhật hệ thống"</string>
     <string name="error_message_multiple_hosts" msgid="2591031904206928207">"Hệ thống không tương thích"</string>
     <string name="error_message_unknown_error" msgid="1918523834689044166">"Lỗi không xác định"</string>
+    <string name="error_message_no_vending" msgid="5866202078252905802">"Vui lòng liên hệ với các dịch vụ hỗ trợ dành cho ô tô"</string>
 </resources>

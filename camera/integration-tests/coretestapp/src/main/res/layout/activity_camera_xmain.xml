@@ -276,6 +276,21 @@ limitations under the License.
         app:layout_constraintLeft_toRightOf="@id/plus_ev_toggle"
         app:layout_constraintTop_toBottomOf="@id/VideoToggle" />
 
+    <Button
+        android:id="@+id/video_quality"
+        android:layout_width="46dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="1dp"
+        android:layout_marginRight="5dp"
+        android:background="@drawable/round_button"
+        android:scaleType="fitXY"
+        android:textColor="#EEEEEE"
+        android:textSize="14dp"
+        android:visibility="invisible"
+        app:layout_constraintTop_toBottomOf="@id/direction_toggle"
+        app:layout_constraintRight_toRightOf="parent"
+        />
+
     <SeekBar
         android:id="@+id/seekBar"
         android:layout_width="250dp"
@@ -286,6 +301,30 @@ limitations under the License.
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.612"
         app:layout_constraintStart_toStartOf="parent" />
+
+    <Button
+        android:id="@+id/zoom_reset_toggle"
+        android:layout_width="46dp"
+        android:layout_height="wrap_content"
+        android:background="@android:drawable/btn_default"
+        android:scaleType="fitXY"
+        android:text="@string/toggle_zoom_reset"
+        android:textSize="10sp"
+        android:translationZ="1dp"
+        app:layout_constraintStart_toStartOf="@+id/Picture"
+        app:layout_constraintBottom_toTopOf="@+id/Picture" />
+
+    <Button
+        android:id="@+id/zoom_in_2x_toggle"
+        android:layout_width="46dp"
+        android:layout_height="wrap_content"
+        android:background="@android:drawable/btn_default"
+        android:scaleType="fitXY"
+        android:text="@string/toggle_zoom_in_2x"
+        android:textSize="10sp"
+        android:translationZ="1dp"
+        app:layout_constraintLeft_toRightOf="@+id/zoom_reset_toggle"
+        app:layout_constraintBottom_toTopOf="@+id/Picture" />
 
     <TextView
         android:id="@+id/zoomRatio"

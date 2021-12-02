@@ -18,6 +18,8 @@ package androidx.core.view;
 
 import android.view.View;
 
+import androidx.annotation.NonNull;
+
 /**
  * <p>An animation listener receives notifications from an animation.
  * Notifications indicate animation related events, such as the end or the
@@ -29,7 +31,7 @@ public interface ViewPropertyAnimatorListener {
      *
      * @param view The view associated with the ViewPropertyAnimator
      */
-    void onAnimationStart(View view);
+    void onAnimationStart(@NonNull View view);
 
     /**
      * <p>Notifies the end of the animation. This callback is not invoked
@@ -37,7 +39,7 @@ public interface ViewPropertyAnimatorListener {
      *
      * @param view The view associated with the ViewPropertyAnimator
      */
-    void onAnimationEnd(View view);
+    void onAnimationEnd(@NonNull View view);
 
     /**
      * <p>Notifies the cancellation of the animation. This callback is not invoked
@@ -45,5 +47,5 @@ public interface ViewPropertyAnimatorListener {
      *
      * @param view The view associated with the ViewPropertyAnimator
      */
-    void onAnimationCancel(View view);
+    void onAnimationCancel(@NonNull View view);
 }

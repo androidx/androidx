@@ -207,12 +207,12 @@ public class AnimatedRecyclerView extends Activity {
 
             @Override
             public boolean animateChange(@NonNull RecyclerView.ViewHolder oldHolder,
-                    @NonNull RecyclerView.ViewHolder newHolder, @NonNull ItemHolderInfo preInfo,
-                    @NonNull ItemHolderInfo postInfo) {
+                    @NonNull RecyclerView.ViewHolder newHolder,
+                    @NonNull ItemHolderInfo preLayoutInfo, @NonNull ItemHolderInfo postLayoutInfo) {
                 if (oldHolder != newHolder) {
-                    return super.animateChange(oldHolder, newHolder, preInfo, postInfo);
+                    return super.animateChange(oldHolder, newHolder, preLayoutInfo, postLayoutInfo);
                 }
-                return animateChangeApiHoneycombMr1(oldHolder, preInfo, postInfo);
+                return animateChangeApiHoneycombMr1(oldHolder, preLayoutInfo, postLayoutInfo);
             }
 
             private boolean animateChangeApiHoneycombMr1(RecyclerView.ViewHolder oldHolder,

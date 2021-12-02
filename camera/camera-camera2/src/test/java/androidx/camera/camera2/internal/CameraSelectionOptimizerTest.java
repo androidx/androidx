@@ -51,7 +51,8 @@ import java.util.List;
 
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
-@Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
+@Config(minSdk = Build.VERSION_CODES.LOLLIPOP,
+        instrumentedPackages = { "androidx.camera.camera2.internal" })
 public class CameraSelectionOptimizerTest {
     private Camera2CameraFactory mCamera2CameraFactory;
 

@@ -1,0 +1,3 @@
+// Baseline format: 1.0
+ExecutorRegistration: androidx.draganddrop.DropHelper#configureView(android.app.Activity, android.view.View, String[], androidx.draganddrop.DropHelper.Options, androidx.core.view.OnReceiveContentListener):
+    Registration methods should have overload that accepts delivery Executor: `configureView`

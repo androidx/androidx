@@ -26,6 +26,7 @@ import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.car.app.annotations.CarProtocol;
+import androidx.car.app.model.constraints.CarTextConstraints;
 
 import java.util.Collections;
 import java.util.List;
@@ -207,11 +208,11 @@ public final class PlaceListMapTemplate implements Template {
         /**
          * Sets whether to show the current location in the map.
          *
-         * <p>The map template will show the user's current location on the map, which is normally
-         * indicated by a blue dot.
+         * <p>The map template will show the user's current location on the map.
          *
          * <p>This functionality requires the app to have the {@code ACCESS_FINE_LOCATION}
-         * permission.
+         * permission. When {@code isEnabled} is {@code true}, the host may receive location
+         * updates from the app in order to show the user's current location.
          */
         @NonNull
         public Builder setCurrentLocationEnabled(boolean isEnabled) {
@@ -259,28 +260,34 @@ public final class PlaceListMapTemplate implements Template {
         /**
          * Sets the title of the template.
          *
-         * <p>Spans are not supported in the input string and will be ignored.
+         * <p>Only {@link DistanceSpan}s and {@link DurationSpan}s are supported in the input
+         * string.
          *
-         * @throws NullPointerException if {@code title} is {@code null}
+         * @throws NullPointerException     if {@code title} is null
+         * @throws IllegalArgumentException if {@code title} contains unsupported spans
          * @see CarText
          */
         @NonNull
         public Builder setTitle(@NonNull CharSequence title) {
             mTitle = CarText.create(requireNonNull(title));
+            CarTextConstraints.TEXT_ONLY.validateOrThrow(mTitle);
             return this;
         }
 
         /**
          * Sets the title of the template, with support for multiple length variants.
          *
-         * <p>Spans are not supported in the input string and will be ignored.
+         * <p>Only {@link DistanceSpan}s and {@link DurationSpan}s are supported in the input
+         * string.
          *
-         * @throws NullPointerException if {@code title} is {@code null}
+         * @throws NullPointerException     if {@code title} is null
+         * @throws IllegalArgumentException if {@code title} contains unsupported spans
          * @see CarText
          */
         @NonNull
         public Builder setTitle(@NonNull CarText title) {
             mTitle = requireNonNull(title);
+            CarTextConstraints.TEXT_ONLY.validateOrThrow(mTitle);
             return this;
         }
 

@@ -52,4 +52,19 @@ public class SavedStateHandleParcelingTest {
         assertThat(newHandle.<Integer>get("notlive"), is(261));
         assertThat(Arrays.equals(newHandle.<int[]>get("array"), new int[]{2, 3, 9}), is(true));
     }
+
+    @UiThreadTest
+    @Test
+    public void testRemoveFromDefault() {
+        Bundle defaultState = new Bundle();
+        defaultState.putString("string", "default");
+        SavedStateHandle handle = SavedStateHandle.createHandle(null, defaultState);
+        assertThat(handle.contains("string"), is(true));
+        handle.remove("string");
+        assertThat(handle.contains("string"), is(false));
+
+        Bundle savedState = handle.savedStateProvider().saveState();
+        SavedStateHandle newHandle = SavedStateHandle.createHandle(savedState, defaultState);
+        assertThat(newHandle.contains("string"), is(false));
+    }
 }

@@ -28,4 +28,8 @@
         android:id="@+id/transform"
         android:title="@string/transform"
         app:showAsAction="never" />
+    <item
+        android:id="@+id/compose_ui"
+        android:title="@string/compose_ui"
+        app:showAsAction="never" />
 </menu>

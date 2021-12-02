@@ -62,7 +62,6 @@ public @interface ExperimentalJavaAnnotationWrongRetention {}
     @Test
     fun experimentalAnnotationsKotlin() {
         val input = arrayOf(
-            RequiresOptInDetectorTest.OPT_IN_KT,
             ktSample("sample.optin.ExperimentalKotlinAnnotation"),
             ktSample("sample.optin.ExperimentalKotlinAnnotation2"),
             ktSample("sample.optin.ExperimentalKotlinAnnotationWrongRetention"),

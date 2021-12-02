@@ -23,6 +23,7 @@ import android.content.pm.Signature;
 import android.content.pm.SigningInfo;
 import android.os.Build;
 
+import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -48,7 +49,7 @@ public final class PackageInfoCompat {
     @SuppressWarnings("deprecation")
     public static long getLongVersionCode(@NonNull PackageInfo info) {
         if (Build.VERSION.SDK_INT >= 28) {
-            return info.getLongVersionCode();
+            return Api28Impl.getLongVersionCode(info);
         }
         return info.versionCode;
     }
@@ -83,7 +84,7 @@ public final class PackageInfoCompat {
     public static List<Signature> getSignatures(@NonNull PackageManager packageManager,
             @NonNull String packageName) throws PackageManager.NameNotFoundException {
         Signature[] array;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+        if (Build.VERSION.SDK_INT >= 28) {
             PackageInfo pkgInfo = packageManager.getPackageInfo(packageName,
                     PackageManager.GET_SIGNING_CERTIFICATES);
             SigningInfo signingInfo = pkgInfo.signingInfo;
@@ -261,28 +262,38 @@ public final class PackageInfoCompat {
     private PackageInfoCompat() {
     }
 
-    @RequiresApi(Build.VERSION_CODES.P)
+    @RequiresApi(28)
     private static class Api28Impl {
         private Api28Impl() {
+            // This class is not instantiable.
         }
 
+        @DoNotInline
         static boolean hasSigningCertificate(@NonNull PackageManager packageManager,
                 @NonNull String packageName, @NonNull byte[] bytes, int type) {
             return packageManager.hasSigningCertificate(packageName, bytes, type);
         }
 
+        @DoNotInline
         static boolean hasMultipleSigners(@NonNull SigningInfo signingInfo) {
             return signingInfo.hasMultipleSigners();
         }
 
+        @DoNotInline
         @Nullable
         static Signature[] getApkContentsSigners(@NonNull SigningInfo signingInfo) {
             return signingInfo.getApkContentsSigners();
         }
 
+        @DoNotInline
         @Nullable
         static Signature[] getSigningCertificateHistory(@NonNull SigningInfo signingInfo) {
             return signingInfo.getSigningCertificateHistory();
+        }
+
+        @DoNotInline
+        static long getLongVersionCode(PackageInfo packageInfo) {
+            return packageInfo.getLongVersionCode();
         }
     }
 }

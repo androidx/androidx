@@ -21,13 +21,13 @@ import android.graphics.Rect;
 import android.hardware.camera2.CameraDevice;
 import android.hardware.camera2.CaptureRequest;
 import android.hardware.camera2.CaptureResult;
-import android.hardware.camera2.TotalCaptureResult;
 import android.hardware.camera2.params.MeteringRectangle;
 import android.os.Build;
 import android.util.Rational;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.VisibleForTesting;
 import androidx.camera.camera2.impl.Camera2ImplConfig;
 import androidx.camera.camera2.internal.annotation.CameraExecutor;
@@ -40,7 +40,6 @@ import androidx.camera.core.impl.CameraCaptureFailure;
 import androidx.camera.core.impl.CameraCaptureResult;
 import androidx.camera.core.impl.CameraControlInternal;
 import androidx.camera.core.impl.CaptureConfig;
-import androidx.camera.core.impl.TagBundle;
 import androidx.camera.core.impl.annotation.ExecutedBy;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
 import androidx.concurrent.futures.CallbackToFutureAdapter.Completer;
@@ -75,6 +74,7 @@ import java.util.concurrent.TimeUnit;
  * {@link FocusMeteringControl#addFocusMeteringOptions} to construct the 3A regions and append
  * them to all repeating requests and single requests.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 class FocusMeteringControl {
     private static final String TAG = "FocusMeteringControl";
     private final Camera2CameraControlImpl mCameraControl;
@@ -351,9 +351,11 @@ class FocusMeteringControl {
      *
      * @param completer used to complete the associated {@link ListenableFuture} when the
      *                  operation succeeds or fails. Passing null to simply ignore the result.
+     * @param overrideAeMode true for overriding AE_MODE to CONTROL_AE_MODE_ON
+     *
      */
     @ExecutedBy("mExecutor")
-    void triggerAf(@Nullable Completer<CameraCaptureResult> completer) {
+    void triggerAf(@Nullable Completer<CameraCaptureResult> completer, boolean overrideAeMode) {
         if (!mIsActive) {
             if (completer != null) {
                 completer.setException(
@@ -368,6 +370,15 @@ class FocusMeteringControl {
         Camera2ImplConfig.Builder configBuilder = new Camera2ImplConfig.Builder();
         configBuilder.setCaptureRequestOption(CaptureRequest.CONTROL_AF_TRIGGER,
                 CaptureRequest.CONTROL_AF_TRIGGER_START);
+
+        if (overrideAeMode) {
+            // This option will override the AE_MODE option in repeating request.
+            // On many devices, triggering Af with CONTROL_AE_MODE_ON_ALWAYS_FLASH or
+            // CONTROL_AE_MODE_ON_AUTO_FLASH will fire the flash when it's low light.
+            // Override it to AE_MODE_ON to prevent from this issue.
+            configBuilder.setCaptureRequestOption(CaptureRequest.CONTROL_AE_MODE,
+                    mCameraControl.getSupportedAeMode(CaptureRequest.CONTROL_AE_MODE_ON));
+        }
         builder.addImplementationOptions(configBuilder.build());
         builder.addCameraCaptureCallback(new CameraCaptureCallback() {
             @Override
@@ -404,7 +415,7 @@ class FocusMeteringControl {
      *                  operation succeeds or fails. Passing null to simply ignore the result.
      */
     @ExecutedBy("mExecutor")
-    void triggerAePrecapture(@Nullable Completer<CameraCaptureResult> completer) {
+    void triggerAePrecapture(@Nullable Completer<Void> completer) {
         if (!mIsActive) {
             if (completer != null) {
                 completer.setException(
@@ -424,7 +435,7 @@ class FocusMeteringControl {
             @Override
             public void onCaptureCompleted(@NonNull CameraCaptureResult cameraCaptureResult) {
                 if (completer != null) {
-                    completer.set(cameraCaptureResult);
+                    completer.set(null);
                 }
             }
 
@@ -554,7 +565,7 @@ class FocusMeteringControl {
             mIsAutoFocusCompleted = false;
             mIsFocusSuccessful = false;
             sessionUpdateId = mCameraControl.updateSessionConfigSynchronous();
-            triggerAf(null);
+            triggerAf(null, /* overrideAeMode */ true);
         } else {
             mIsInAfAutoMode = false;
             mIsAutoFocusCompleted = true; // Don't need to wait for auto-focus
@@ -588,7 +599,7 @@ class FocusMeteringControl {
 
                     // Check 3A regions
                     if (mIsAutoFocusCompleted) {
-                        if (isSessionUpdated(result, sessionUpdateId)) {
+                        if (Camera2CameraControlImpl.isSessionUpdated(result, sessionUpdateId)) {
                             completeActionFuture(mIsFocusSuccessful);
                             return true; // remove this listener
                         }
@@ -658,7 +669,8 @@ class FocusMeteringControl {
                     captureResult -> {
                         Integer afMode = captureResult.get(CaptureResult.CONTROL_AF_MODE);
                         if (afMode == targetAfMode
-                                && isSessionUpdated(captureResult, sessionUpdateId)) {
+                                && Camera2CameraControlImpl.isSessionUpdated(captureResult,
+                                sessionUpdateId)) {
                             completeCancelFuture();
                             return true; // remove this listener
                         }
@@ -667,28 +679,6 @@ class FocusMeteringControl {
 
             mCameraControl.addCaptureResultListener(mSessionListenerForCancel);
         }
-    }
-
-    private static boolean isSessionUpdated(@NonNull TotalCaptureResult captureResult,
-            long sessionUpdateId) {
-        if (captureResult.getRequest() == null) {
-            return false;
-        }
-        Object tag = captureResult.getRequest().getTag();
-        if (tag instanceof TagBundle) {
-            Long tagLong =
-                    (Long) ((TagBundle) tag).getTag(Camera2CameraControlImpl.TAG_SESSION_UPDATE_ID);
-            if (tagLong == null) {
-                return false;
-            }
-            long sessionUpdateIdInCaptureResult = tagLong.longValue();
-            // Check if session update is already done.
-            if (sessionUpdateIdInCaptureResult >= sessionUpdateId) {
-                return true;
-            }
-        }
-
-        return false;
     }
 
     boolean isFocusMeteringSupported(@NonNull FocusMeteringAction action) {

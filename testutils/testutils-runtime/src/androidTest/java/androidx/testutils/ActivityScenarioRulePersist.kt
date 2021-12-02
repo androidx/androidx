@@ -18,7 +18,7 @@ package androidx.testutils
 
 import android.widget.TextView
 import androidx.test.filters.LargeTest
-import androidx.testutils.test.R
+import androidx.testutils.runtime.R
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.BeforeClass

@@ -93,15 +93,15 @@ AndroidX project. See existing Compose benchmark projects:
 
 ### Command Line
 
-The benchmark library supports capturing profiling information - sampled and
-method - from the command line. Here's an example which runs the
-`androidx.ui.benchmark.test.CheckboxesInRowsBenchmark#draw` method with
-`MethodSampling` profiling:
+The benchmark library supports capturing profiling information - stack sampling
+and method tracing - from the command line. Here's an example which runs the
+`androidx.compose.material.benchmark.CheckboxesInRowsBenchmark#draw` method with
+`StackSampling` profiling:
 
 ```
-./gradlew compose:integ:bench:cC \
-    -P android.testInstrumentationRunnerArguments.androidx.benchmark.profiling.mode=MethodSampling \
-    -P android.testInstrumentationRunnerArguments.class=androidx.ui.benchmark.test.CheckboxesInRowsBenchmark#draw
+./gradlew compose:material:material-benchmark:cC \
+    -P android.testInstrumentationRunnerArguments.androidx.benchmark.profiling.mode=StackSampling \
+    -P android.testInstrumentationRunnerArguments.class=androidx.compose.material.benchmark.CheckboxesInRowsBenchmark#draw
 ```
 
 The command output will tell you where to look for the file on your host
@@ -115,123 +115,24 @@ machine:
 To inspect the captured trace, open the appropriate `*.trace` file in that
 directory with Android Studio, using `File > Open`.
 
-For more information on the `MethodSampling` and `MethodTracing` profiling
-modes, see the
+NOTE For stack sampling, it's recommended to profile on Android Q(API 29) or
+higher, as this enables the benchmark library to use
+[Simpleperf](https://android.googlesource.com/platform/system/extras/+/master/simpleperf/doc/).
+Simpleperf previously required a
+[more complex setup process](https://issuetracker.google.com/issues/158303822) -
+this has been fixed!
+
+For more information on the `StackSampling` and `MethodTracing` profiling modes,
+see the
 [Studio Profiler configuration docs](https://developer.android.com/studio/profile/cpu-profiler#configurations),
-specifically Java Sampled Profiling, and Java Method Tracing.
+specifically "Sample C/C++ Functions" (a confusing name for Simpleperf), and
+Java Method Tracing.
 
 ![Sample flame chart](benchmarking_images/profiling_flame_chart.png "Sample flame chart")
 
-### Advanced: Simpleperf Method Sampling
-
-[Simpleperf](https://android.googlesource.com/platform/system/extras/+/master/simpleperf/doc/)
-offers more accurate profiling for apps than standard method sampling, due to
-lower overhead (as well as C++ profiling support). Simpleperf support will be
-simplified and improved over time.
-
-[Simpleperf app profiling docs](https://android.googlesource.com/platform/system/extras/+/master/simpleperf/doc/android_application_profiling.md).
-
-#### Device
-
-Get an API 29+ device. The rest of this section is about *why* those constraints
-exist, skip if not interested.
-
-Simpleperf has restrictions about where it can be used - Jetpack Benchmark will
-only support API 29+ for now, due to
-[platform/simpleperf constraints](https://android.googlesource.com/platform/system/extras/+/master/simpleperf/doc/android_application_profiling.md#prepare-an-android-application)
-(see last subsection titled "If you want to profile Java code"). Summary is:
-
--   <=23 (M): Unsupported for Java code.
-
--   24-25 (N): Requires compiled Java code. We haven't investigated support.
-
--   26 (O): Requires compiled Java code, and wrapper script. We haven't
-    investigated support.
-
--   27 (O.1): Can profile all Java code, but requires `userdebug`/rooted device
-
--   28 (P): Can profile all Java code, requires debuggable (or
-    `userdebug`/rooted device, but this appears to not be supported by scripts
-    currently)
-
--   \>=29 (Q): Can profile all Java code, requires profileable or debuggable (or
-    `userdebug`/rooted device)
-
-We aren't planning to support profiling debuggable APK builds, since they're
-misleading for profiling.
-
-#### Initial setup
-
-Currently, we rely on Python scripts built by the simpleperf team. We can
-eventually build this into the benchmark library / gradle plugin. Download the
-scripts from AOSP:
-
-```
-# copying to somewhere outside of the androidx repo
-git clone https://android.googlesource.com/platform/system/extras ~/simpleperf
-```
-
-Next configure your path to ensure the ADB that the scripts will use matches the
-androidx tools:
-
-```
-export PATH=$PATH:<path/to/androidx>/prebuilts/fullsdk-<linux or darwin>/platform-tools
-```
-
-Now, setup your device for simpleperf:
-
-```
-~/simpleperf/simpleperf/scripts/api_profiler.py prepare --max-sample-rate 10000000
-```
-
-#### Build and Run, Option 1: Studio (slightly recommended)
-
-Running from Studio is simpler, since you don't have to manually install and run
-the APKs, avoiding Gradle.
-
-Add the following to the benchmark module's build.gradle:
-
-```
-android {
-    defaultConfig {
-        // DO NOT COMMIT!!
-        testInstrumentationRunnerArgument 'androidx.benchmark.profiling.mode', 'MethodSamplingSimpleperf'
-        // Optional: Control freq / duration.
-        testInstrumentationRunnerArgument 'androidx.benchmark.profiler.sampleFrequency', '1000000'
-        testInstrumentationRunnerArgument 'androidx.benchmark.profiler.sampleDurationSeconds', '5'
-    }
-}
-```
-
-And run the test or tests you'd like to measure from within Studio.
-
-#### Build and Run, Option 2: Command Line
-
-**Note - this will be significantly simplified in the future**
-
-Since we're not using AGP to pull the files yet, we can't invoke the benchmark
-through Gradle, because Gradle uninstalls after each test run. Instead, let's
-just build and run manually:
-
-```
-./gradlew compose:integration-tests:benchmark:assembleReleaseAndroidTest
-
-adb install -r ../../../out/ui/compose/integration-tests/benchmark/build/outputs/apk/androidTest/release/benchmark-release-androidTest.apk
-
-# run the test (can copy this line from Studio console, when running a benchmark)
-adb shell am instrument -w -m --no-window-animation -e androidx.benchmark.profiling.mode MethodSamplingSimpleperf -e debug false -e class 'androidx.ui.benchmark.test.CheckboxesInRowsBenchmark#toggleCheckbox_draw' androidx.ui.benchmark.test/androidx.benchmark.junit4.AndroidBenchmarkRunner
-```
-
-#### Pull and open the trace
-
-```
-# move the files to host
-# (Note: removes files from device)
-~/simpleperf/simpleperf/scripts/api_profiler.py collect -p androidx.ui.benchmark.test -o ~/simpleperf/results
-
-# create/open the HTML report
-~/simpleperf/simpleperf/scripts/report_html.py -i ~/simpleperf/results/CheckboxesInRowsBenchmark_toggleCheckbox_draw\[1\].data
-```
+NOTE Simpleperf captures stack traces from all threads, so click the test thread
+in the left profiler panel, and select flame chart on the right to see just
+samples from the test.
 
 ### Advanced: Studio Profiling
 

@@ -18,20 +18,24 @@
     package="androidx.media2.widget.test">
 
     <application>
-        <activity android:name="androidx.media2.widget.VideoViewTestActivity"
-            android:theme="@style/Theme.AppCompat"
+        <activity
+            android:name="androidx.media2.widget.VideoViewTestActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
-            android:label="VideoViewTestActivity">
+            android:exported="false"
+            android:label="VideoViewTestActivity"
+            android:theme="@style/Theme.AppCompat">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.FRAMEWORK_INSTRUMENTATION_TEST" />
             </intent-filter>
         </activity>
 
-        <activity android:name="androidx.media2.widget.MediaControlViewTestActivity"
-                  android:theme="@style/Theme.AppCompat"
-                  android:configChanges="keyboardHidden|orientation|screenSize"
-                  android:label="MediaControlViewTestActivity">
+        <activity
+            android:name="androidx.media2.widget.MediaControlViewTestActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize"
+            android:exported="false"
+            android:label="MediaControlViewTestActivity"
+            android:theme="@style/Theme.AppCompat">
             <intent-filter>
                 <category android:name="android.intent.category.FRAMEWORK_INSTRUMENTATION_TEST" />
             </intent-filter>

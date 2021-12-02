@@ -110,7 +110,8 @@ public object RobolectricCameras {
             false,
             characteristics,
             FakeCameraMetadataProvider(),
-            emptyMap()
+            emptyMap(),
+            emptySet()
         )
 
         @Suppress("SyntheticAccessor")

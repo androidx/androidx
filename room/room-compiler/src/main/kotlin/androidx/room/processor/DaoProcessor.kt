@@ -48,6 +48,22 @@ class DaoProcessor(
     }
 
     fun process(): Dao {
+        if (!element.validate()) {
+            context.reportMissingTypeReference(element.qualifiedName)
+            return Dao(
+                element = element,
+                type = element.type,
+                queryMethods = emptyList(),
+                rawQueryMethods = emptyList(),
+                insertionMethods = emptyList(),
+                deletionMethods = emptyList(),
+                updateMethods = emptyList(),
+                transactionMethods = emptyList(),
+                delegatingMethods = emptyList(),
+                kotlinDefaultMethodDelegates = emptyList(),
+                constructorParamType = null
+            )
+        }
         context.checker.hasAnnotation(
             element, androidx.room.Dao::class,
             ProcessorErrors.DAO_MUST_BE_ANNOTATED_WITH_DAO
@@ -137,7 +153,8 @@ class DaoProcessor(
         }.map {
             TransactionMethodProcessor(
                 baseContext = context,
-                containing = declaredType,
+                containingElement = element,
+                containingType = declaredType,
                 executableElement = it
             ).process()
         }
@@ -173,7 +190,7 @@ class DaoProcessor(
                 }
             }
         } else {
-            emptyList()
+            emptySequence()
         }
 
         val constructors = element.getConstructors()
@@ -206,9 +223,9 @@ class DaoProcessor(
             insertionMethods = insertionMethods,
             deletionMethods = deletionMethods,
             updateMethods = updateMethods,
-            transactionMethods = transactionMethods,
+            transactionMethods = transactionMethods.toList(),
             delegatingMethods = delegatingMethods,
-            kotlinDefaultMethodDelegates = kotlinDefaultMethodDelegates,
+            kotlinDefaultMethodDelegates = kotlinDefaultMethodDelegates.toList(),
             constructorParamType = constructorParamType
         )
     }
@@ -229,7 +246,7 @@ class DaoProcessor(
         annotatedMethods: List<XMethodElement>
     ) = unannotatedMethods.mapNotNull { unannotated ->
         annotatedMethods.firstOrNull {
-            if (it.name != unannotated.name) {
+            if (it.jvmName != unannotated.jvmName) {
                 return@firstOrNull false
             }
             if (!it.returnType.boxed().isSameType(unannotated.returnType.boxed())) {

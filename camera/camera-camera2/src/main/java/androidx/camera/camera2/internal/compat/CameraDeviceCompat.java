@@ -16,7 +16,6 @@
 
 package androidx.camera.camera2.internal.compat;
 
-import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraDevice;
 import android.os.Build;
 import android.os.Handler;
@@ -119,25 +118,26 @@ public final class CameraDeviceCompat {
      * helper object that aggregates all supported parameters.
      *
      * @param config A session configuration (see {@link SessionConfigurationCompat}).
-     * @throws IllegalArgumentException In case the session configuration
-     *                                  is invalid; or the output configurations are empty; or
-     *                                  the session configuration executor is invalid.
-     * @throws CameraAccessException    In case the camera device is no longer connected or has
-     *                                  encountered a fatal error.
+     * @throws IllegalArgumentException    In case the session configuration
+     *                                     is invalid; or the output configurations are empty; or
+     *                                     the session configuration executor is invalid.
+     * @throws CameraAccessExceptionCompat In case the camera device is no longer connected or
+     *                                     has encountered a fatal error.
      */
     public void createCaptureSession(@NonNull SessionConfigurationCompat config)
-            throws CameraAccessException {
+            throws CameraAccessExceptionCompat {
         mImpl.createCaptureSession(config);
     }
 
     interface CameraDeviceCompatImpl {
         void createCaptureSession(@NonNull SessionConfigurationCompat config)
-                throws CameraAccessException;
+                throws CameraAccessExceptionCompat;
 
         @NonNull
         CameraDevice unwrap();
     }
 
+    @RequiresApi(21)
     static final class StateCallbackExecutorWrapper extends CameraDevice.StateCallback {
 
         final CameraDevice.StateCallback mWrappedCallback;
@@ -151,42 +151,22 @@ public final class CameraDeviceCompat {
 
         @Override
         public void onOpened(@NonNull final CameraDevice camera) {
-            mExecutor.execute(new Runnable() {
-                @Override
-                public void run() {
-                    mWrappedCallback.onOpened(camera);
-                }
-            });
+            mExecutor.execute(() -> mWrappedCallback.onOpened(camera));
         }
 
         @Override
         public void onDisconnected(@NonNull final CameraDevice camera) {
-            mExecutor.execute(new Runnable() {
-                @Override
-                public void run() {
-                    mWrappedCallback.onDisconnected(camera);
-                }
-            });
+            mExecutor.execute(() -> mWrappedCallback.onDisconnected(camera));
         }
 
         @Override
         public void onError(@NonNull final CameraDevice camera, final int error) {
-            mExecutor.execute(new Runnable() {
-                @Override
-                public void run() {
-                    mWrappedCallback.onError(camera, error);
-                }
-            });
+            mExecutor.execute(() -> mWrappedCallback.onError(camera, error));
         }
 
         @Override
         public void onClosed(@NonNull final CameraDevice camera) {
-            mExecutor.execute(new Runnable() {
-                @Override
-                public void run() {
-                    mWrappedCallback.onClosed(camera);
-                }
-            });
+            mExecutor.execute(() -> mWrappedCallback.onClosed(camera));
         }
     }
 

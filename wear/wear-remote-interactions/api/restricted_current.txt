@@ -1,16 +1,25 @@
 // Signature format: 4.0
 package androidx.wear.remote.interactions {
 
-  @RequiresApi(android.os.Build.VERSION_CODES.N) public final class PlayStoreAvailability {
-    method public static int getPlayStoreAvailabilityOnPhone(android.content.Context context);
-    field public static final androidx.wear.remote.interactions.PlayStoreAvailability.Companion Companion;
-    field public static final int PLAY_STORE_AVAILABLE = 1; // 0x1
-    field public static final int PLAY_STORE_ERROR_UNKNOWN = 0; // 0x0
-    field public static final int PLAY_STORE_UNAVAILABLE = 2; // 0x2
+  public final class RemoteActivityHelper {
+    ctor public RemoteActivityHelper(android.content.Context context, optional java.util.concurrent.Executor executor);
+    method public static android.content.Intent? getTargetIntent(android.content.Intent intent);
+    method public static String? getTargetNodeId(android.content.Intent intent);
+    method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void> startRemoteActivity(android.content.Intent targetIntent, optional String? targetNodeId);
+    method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void> startRemoteActivity(android.content.Intent targetIntent);
+    field public static final String ACTION_REMOTE_INTENT = "com.google.android.wearable.intent.action.REMOTE_INTENT";
+    field public static final androidx.wear.remote.interactions.RemoteActivityHelper.Companion Companion;
+    field public static final int RESULT_FAILED = 1; // 0x1
+    field public static final int RESULT_OK = 0; // 0x0
   }
 
-  public static final class PlayStoreAvailability.Companion {
-    method public int getPlayStoreAvailabilityOnPhone(android.content.Context context);
+  public static final class RemoteActivityHelper.Companion {
+    method public android.content.Intent? getTargetIntent(android.content.Intent intent);
+    method public String? getTargetNodeId(android.content.Intent intent);
+  }
+
+  public static final class RemoteActivityHelper.RemoteIntentException extends java.lang.Exception {
+    ctor public RemoteActivityHelper.RemoteIntentException(String message);
   }
 
   public final class WatchFaceConfigIntentHelper {

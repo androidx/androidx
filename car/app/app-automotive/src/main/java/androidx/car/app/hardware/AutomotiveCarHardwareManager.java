@@ -15,29 +15,45 @@
  */
 package androidx.car.app.hardware;
 
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY;
+import static java.util.Objects.requireNonNull;
 
 import android.content.Context;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
+import androidx.car.app.CarContext;
+import androidx.car.app.HostDispatcher;
+import androidx.car.app.annotations.ExperimentalCarApi;
+import androidx.car.app.hardware.common.PropertyManager;
 import androidx.car.app.hardware.info.AutomotiveCarInfo;
 import androidx.car.app.hardware.info.AutomotiveCarSensors;
 import androidx.car.app.hardware.info.CarInfo;
 import androidx.car.app.hardware.info.CarSensors;
 
 /**
- * {@link CarHardwareManager} which connects to Android Automotive OS to access properties, sensors,
+ * {@link CarHardwareManager} which uses Android Automotive OS APIs to access properties, sensors,
  * and actions.
- *
- * @hide
  */
-@RestrictTo(LIBRARY)
+@ExperimentalCarApi
 public final class AutomotiveCarHardwareManager implements CarHardwareManager {
 
     private final AutomotiveCarInfo mCarInfo;
     private final AutomotiveCarSensors mCarSensors;
+
+    public AutomotiveCarHardwareManager(@NonNull Context context) {
+        requireNonNull(context);
+        mCarInfo = new AutomotiveCarInfo(new PropertyManager(context));
+        mCarSensors = new AutomotiveCarSensors();
+    }
+
+    /** @hide */
+    @RestrictTo(LIBRARY_GROUP)
+    public AutomotiveCarHardwareManager(@NonNull CarContext context,
+            @NonNull HostDispatcher dispatcher) {
+        this(context);
+    }
 
     @NonNull
     @Override
@@ -49,10 +65,5 @@ public final class AutomotiveCarHardwareManager implements CarHardwareManager {
     @Override
     public CarSensors getCarSensors() {
         return mCarSensors;
-    }
-
-    public AutomotiveCarHardwareManager(@NonNull Context context) {
-        mCarInfo = new AutomotiveCarInfo();
-        mCarSensors = new AutomotiveCarSensors();
     }
 }

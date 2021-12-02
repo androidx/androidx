@@ -25,6 +25,7 @@ import org.junit.runner.RunWith
 
 @MediumTest
 @RunWith(AndroidJUnit4::class)
+@Suppress("deprecation")
 class LaunchWhenTest {
     private val expectations = Expectations()
 

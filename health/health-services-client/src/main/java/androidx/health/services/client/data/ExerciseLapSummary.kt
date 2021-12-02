@@ -16,81 +16,85 @@
 
 package androidx.health.services.client.data
 
-import android.os.Parcel
 import android.os.Parcelable
+import androidx.health.services.client.proto.DataProto
+import androidx.health.services.client.proto.DataProto.ExerciseLapSummary.LapMetricsEntry
 import java.time.Duration
 import java.time.Instant
 
 /** Describes a completed exercise lap. */
-public data class ExerciseLapSummary(
+@Suppress("ParcelCreator")
+public class ExerciseLapSummary(
     /** Returns the lap count of this summary. Lap count starts at 1 for the first lap. */
-    val lapCount: Int,
+    public val lapCount: Int,
 
     /** Returns the time at which the lap has started. */
-    val startTime: Instant,
+    public val startTime: Instant,
 
     /** Returns the time at which the lap has ended. */
-    val endTime: Instant,
+    public val endTime: Instant,
 
     /**
      * Returns the total elapsed time for which the exercise has been active during this lap, i.e.
      * started but not paused.
      */
-    val activeDuration: Duration,
+    public val activeDuration: Duration,
 
     /**
      * Returns the [DataPoint] s for each metric keyed by [DataType] tracked between [startTime] and
      * [endTime] i.e. during the duration of this lap. This will only contain aggregated [DataType]
      * s calculated over the duration of the lap.
      */
-    val lapMetrics: Map<DataType, DataPoint>,
-) : Parcelable {
-    override fun describeContents(): Int = 0
+    public val lapMetrics: Map<DataType, AggregateDataPoint>,
+) : ProtoParcelable<DataProto.ExerciseLapSummary>() {
 
-    override fun writeToParcel(dest: Parcel, flags: Int) {
-        dest.writeInt(lapCount)
-        dest.writeLong(startTime.toEpochMilli())
-        dest.writeLong(endTime.toEpochMilli())
-        dest.writeLong(activeDuration.toMillis())
+    /** @hide */
+    public constructor(
+        proto: DataProto.ExerciseLapSummary
+    ) : this(
+        proto.lapCount,
+        Instant.ofEpochMilli(proto.startTimeEpochMs),
+        Instant.ofEpochMilli(proto.endTimeEpochMs),
+        Duration.ofMillis(proto.activeDurationMs),
+        proto
+            .lapMetricsList
+            .map { DataType(it.dataType) to AggregateDataPoint.fromProto(it.aggregateDataPoint) }
+            .toMap()
+    )
 
-        dest.writeInt(lapMetrics.size)
-        for ((dataType, dataPoint) in lapMetrics) {
-            dest.writeParcelable(dataType, flags)
-            dest.writeParcelable(dataPoint, flags)
-        }
+    /** @hide */
+    override val proto: DataProto.ExerciseLapSummary by lazy {
+        DataProto.ExerciseLapSummary.newBuilder()
+            .setLapCount(lapCount)
+            .setStartTimeEpochMs(startTime.toEpochMilli())
+            .setEndTimeEpochMs(endTime.toEpochMilli())
+            .setActiveDurationMs(activeDuration.toMillis())
+            .addAllLapMetrics(
+                lapMetrics
+                    .map {
+                        LapMetricsEntry.newBuilder()
+                            .setDataType(it.key.proto)
+                            .setAggregateDataPoint(it.value.proto)
+                            .build()
+                    }
+                    .sortedBy { it.dataType.name } // Required to ensure equals() works
+            )
+            .build()
     }
+
+    override fun toString(): String =
+        "ExerciseLapSummary(" +
+            "lapCount=$lapCount, " +
+            "startTime=$startTime, " +
+            "endTime=$endTime, " +
+            "activeDuration=$activeDuration, " +
+            "lapMetrics=$lapMetrics)"
 
     public companion object {
         @JvmField
-        public val CREATOR: Parcelable.Creator<ExerciseLapSummary> =
-            object : Parcelable.Creator<ExerciseLapSummary> {
-                override fun createFromParcel(source: Parcel): ExerciseLapSummary? {
-                    val lapCount = source.readInt()
-                    val startTime = Instant.ofEpochMilli(source.readLong())
-                    val endTime = Instant.ofEpochMilli(source.readLong())
-                    val activeDuration = Duration.ofMillis(source.readLong())
-
-                    val lapMetrics = HashMap<DataType, DataPoint>()
-                    val numMetrics = source.readInt()
-                    repeat(numMetrics) {
-                        val dataType: DataType =
-                            source.readParcelable(DataType::class.java.classLoader) ?: return null
-                        lapMetrics[dataType] =
-                            source.readParcelable(DataPoint::class.java.classLoader) ?: return null
-                    }
-
-                    return ExerciseLapSummary(
-                        lapCount,
-                        startTime,
-                        endTime,
-                        activeDuration,
-                        lapMetrics
-                    )
-                }
-
-                override fun newArray(size: Int): Array<ExerciseLapSummary?> {
-                    return arrayOfNulls(size)
-                }
-            }
+        public val CREATOR: Parcelable.Creator<ExerciseLapSummary> = newCreator { bytes ->
+            val proto = DataProto.ExerciseLapSummary.parseFrom(bytes)
+            ExerciseLapSummary(proto)
+        }
     }
 }

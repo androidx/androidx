@@ -53,6 +53,15 @@ public final class StartupLogger {
     }
 
     /**
+     * Warning level logging.
+     *
+     * @param message The message being logged
+     */
+    public static void w(@NonNull String message) {
+        Log.w(TAG, message);
+    }
+
+    /**
      * Error level logging
      *
      * @param message   The message being logged

@@ -18,6 +18,7 @@
 import androidx.build.LibraryGroups
 import androidx.build.LibraryVersions
 import androidx.build.Publish
+import androidx.build.RunApiTasks
 
 plugins {
     id("AndroidXPlugin")
@@ -44,10 +45,12 @@ dependencies {
     testImplementation(libs.truth)
     testImplementation(libs.robolectric)
     testImplementation(libs.mockitoCore)
+    testImplementation("androidx.core:core-ktx:1.1.0")
     testImplementation(project(":camera:camera-testing"), {
         exclude group: "androidx.camera", module: "camera-core"
     })
 
+    androidTestImplementation(libs.multidex)
     androidTestImplementation(project(path: ":camera:camera-camera2"))
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)
@@ -56,6 +59,7 @@ dependencies {
     androidTestImplementation(libs.truth)
     androidTestImplementation(libs.mockitoCore, excludes.bytebuddy) // DexMaker has it's own MockMaker
     androidTestImplementation(libs.dexmakerMockito, excludes.bytebuddy) // DexMaker has it's own MockMaker
+    androidTestImplementation(project(":camera:camera-lifecycle"))
     androidTestImplementation(project(":camera:camera-testing"))
     androidTestImplementation(libs.kotlinStdlib)
     androidTestImplementation(libs.kotlinCoroutinesAndroid)
@@ -68,7 +72,7 @@ dependencies {
 
 android {
     defaultConfig {
-        minSdkVersion 21
+        multiDexEnabled = true
     }
 
     // Use Robolectric 4.+
@@ -79,8 +83,8 @@ android {
 
 androidx {
     name = "Jetpack Camera Video Library"
-    publish = Publish.NONE
-    mavenVersion = LibraryVersions.CAMERA_VIDEO
+    publish = Publish.SNAPSHOT_AND_RELEASE
+    runApiTasks = new RunApiTasks.Yes("Need to track API surface before moving to publish")
     mavenGroup = LibraryGroups.CAMERA
     inceptionYear = "2020"
     description = "Video components for the Jetpack Camera Library, a library providing a " +

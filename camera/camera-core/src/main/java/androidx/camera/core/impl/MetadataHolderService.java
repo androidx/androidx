@@ -22,11 +22,13 @@ import android.os.IBinder;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 
 /**
  * A placeholder service to avoid adding application-level metadata. The service is only used to
  * expose metadata defined in the library's manifest. It is never invoked.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class MetadataHolderService extends Service {
     @Nullable
     @Override

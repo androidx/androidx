@@ -41,8 +41,7 @@ public class ProviderSignInMethodTest {
                 .setTitle("Signin")
                 .setOnClickListener(ParkedOnlyOnClickListener.create(clickListener))
                 .build();
-        ProviderSignInMethod signIn = new ProviderSignInMethod.Builder(action).build();
-
+        ProviderSignInMethod signIn = new ProviderSignInMethod(action);
         assertThat(signIn.getAction()).isEqualTo(action);
     }
 
@@ -50,7 +49,7 @@ public class ProviderSignInMethodTest {
     public void create_standardAction_throws() {
         assertThrows(
                 IllegalArgumentException.class,
-                () -> new ProviderSignInMethod.Builder(Action.APP_ICON));
+                () -> new ProviderSignInMethod(Action.APP_ICON));
     }
 
     @Test
@@ -62,7 +61,7 @@ public class ProviderSignInMethodTest {
                 .build();
         assertThrows(
                 IllegalArgumentException.class,
-                () -> new ProviderSignInMethod.Builder(action));
+                () -> new ProviderSignInMethod(action));
     }
 
     @Test
@@ -72,9 +71,9 @@ public class ProviderSignInMethodTest {
                 .setTitle("Signin")
                 .setOnClickListener(ParkedOnlyOnClickListener.create(clickListener))
                 .build();
-        ProviderSignInMethod signIn = new ProviderSignInMethod.Builder(action).build();
+        ProviderSignInMethod signIn = new ProviderSignInMethod(action);
 
-        assertThat(signIn).isEqualTo(new ProviderSignInMethod.Builder(action).build());
+        assertThat(signIn).isEqualTo(new ProviderSignInMethod(action));
     }
 
     @Test
@@ -84,12 +83,12 @@ public class ProviderSignInMethodTest {
                 .setTitle("Signin")
                 .setOnClickListener(ParkedOnlyOnClickListener.create(clickListener))
                 .build();
-        ProviderSignInMethod signIn = new ProviderSignInMethod.Builder(action).build();
+        ProviderSignInMethod signIn = new ProviderSignInMethod(action);
 
         Action action2 = new Action.Builder()
                 .setTitle("Signin2")
                 .setOnClickListener(ParkedOnlyOnClickListener.create(clickListener))
                 .build();
-        assertThat(signIn).isNotEqualTo(new ProviderSignInMethod.Builder(action2).build());
+        assertThat(signIn).isNotEqualTo(new ProviderSignInMethod(action2));
     }
 }

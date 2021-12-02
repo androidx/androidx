@@ -29,7 +29,7 @@ public final class ColorBuilders {
     /** Shortcut for building a {@link ColorProp} using an ARGB value. */
     @NonNull
     public static ColorProp argb(@ColorInt int colorArgb) {
-        return ColorProp.builder().setArgb(colorArgb).build();
+        return new ColorProp.Builder().setArgb(colorArgb).build();
     }
 
     /** A property defining a color. */
@@ -44,12 +44,6 @@ public final class ColorBuilders {
         @ColorInt
         public int getArgb() {
             return mImpl.getArgb();
-        }
-
-        /** Returns a new {@link Builder}. */
-        @NonNull
-        public static Builder builder() {
-            return new Builder();
         }
 
         /** @hide */
@@ -70,7 +64,7 @@ public final class ColorBuilders {
         public static final class Builder {
             private final ColorProto.ColorProp.Builder mImpl = ColorProto.ColorProp.newBuilder();
 
-            Builder() {}
+            public Builder() {}
 
             /** Sets the color value, in ARGB format. */
             @NonNull

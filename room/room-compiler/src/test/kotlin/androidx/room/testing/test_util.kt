@@ -28,6 +28,7 @@ import androidx.room.ext.LifecyclesTypeNames
 import androidx.room.ext.PagingTypeNames
 import androidx.room.ext.ReactiveStreamsTypeNames
 import androidx.room.ext.RoomGuavaTypeNames
+import androidx.room.ext.RoomPagingTypeNames
 import androidx.room.ext.RoomRxJava2TypeNames
 import androidx.room.ext.RoomRxJava3TypeNames
 import androidx.room.ext.RxJava2TypeNames
@@ -44,6 +45,26 @@ import org.mockito.Mockito.mock
 import java.io.File
 
 object COMMON {
+    val ARTIST by lazy {
+        loadJavaCode("common/input/Artist.java", "foo.bar.Artist")
+    }
+
+    val CONVERTER by lazy {
+        loadJavaCode("common/input/DateConverter.java", "foo.bar.DateConverter")
+    }
+
+    val IMAGE_FORMAT by lazy {
+        loadJavaCode("common/input/ImageFormat.java", "foo.bar.ImageFormat")
+    }
+
+    val IMAGE by lazy {
+        loadJavaCode("common/input/Image.java", "foo.bar.Image")
+    }
+
+    val SONG by lazy {
+        loadJavaCode("common/input/Song.java", "foo.bar.Song")
+    }
+
     val USER by lazy {
         loadJavaCode("common/input/User.java", "foo.bar.User")
     }
@@ -78,7 +99,7 @@ object COMMON {
     }
 
     val MULTI_PKEY_ENTITY by lazy {
-        loadJavaCode("common/input/MultiPKeyEntity.java", "MultiPKeyEntity")
+        loadJavaCode("common/input/MultiPKeyEntity.java", "foo.bar.MultiPKeyEntity")
     }
 
     val FLOW by lazy {
@@ -178,6 +199,20 @@ object COMMON {
         loadJavaCode(
             "common/input/PositionalDataSource.java",
             PagingTypeNames.POSITIONAL_DATA_SOURCE.toString()
+        )
+    }
+
+    val PAGING_SOURCE by lazy {
+        loadJavaCode(
+            "common/input/PagingSource.java",
+            PagingTypeNames.PAGING_SOURCE.toString()
+        )
+    }
+
+    val LIMIT_OFFSET_PAGING_SOURCE by lazy {
+        loadJavaCode(
+            "common/input/LimitOffsetPagingSource.java",
+            RoomPagingTypeNames.LIMIT_OFFSET_PAGING_SOURCE.toString()
         )
     }
 

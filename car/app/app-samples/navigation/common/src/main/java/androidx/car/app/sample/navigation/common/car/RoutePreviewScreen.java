@@ -105,11 +105,8 @@ public final class RoutePreviewScreen extends Screen {
 
     private void onRoutesVisible(int startIndex, int endIndex) {
         if (Log.isLoggable(TAG, Log.INFO)) {
-            Log.i(
-                    TAG,
-                    String.format(
-                            "In RoutePreviewScreen.onRoutesVisible start:%d end:%d",
-                            startIndex, endIndex));
+            Log.i(TAG, "In RoutePreviewScreen.onRoutesVisible start:" + startIndex + " end:"
+                    + endIndex);
         }
     }
 

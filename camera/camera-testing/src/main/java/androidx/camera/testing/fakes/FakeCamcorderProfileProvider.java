@@ -21,12 +21,14 @@ import android.util.SparseArray;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.camera.core.impl.CamcorderProfileProvider;
 import androidx.camera.core.impl.CamcorderProfileProxy;
 
 /**
  * A fake implementation of the {@link CamcorderProfileProvider} and used for test.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class FakeCamcorderProfileProvider implements CamcorderProfileProvider {
 
     private final SparseArray<CamcorderProfileProxy> mQualityToProfileMap;
@@ -51,6 +53,7 @@ public class FakeCamcorderProfileProvider implements CamcorderProfileProvider {
     /**
      * The builder to create a FakeCamcorderProfileProvider instance.
      */
+    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
     public static class Builder {
         private final SparseArray<CamcorderProfileProxy> mQualityToProfileMap = new SparseArray<>();
 
@@ -62,8 +65,10 @@ public class FakeCamcorderProfileProvider implements CamcorderProfileProvider {
          * CamcorderProfile.
          */
         @NonNull
-        public Builder addProfile(@NonNull CamcorderProfileProxy camcorderProfile) {
-            mQualityToProfileMap.put(camcorderProfile.getQuality(), camcorderProfile);
+        public Builder addProfile(@NonNull CamcorderProfileProxy ...camcorderProfiles) {
+            for (CamcorderProfileProxy camcorderProfile : camcorderProfiles) {
+                mQualityToProfileMap.put(camcorderProfile.getQuality(), camcorderProfile);
+            }
             return this;
         }
 

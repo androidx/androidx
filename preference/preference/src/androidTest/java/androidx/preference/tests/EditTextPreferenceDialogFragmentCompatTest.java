@@ -92,6 +92,7 @@ public class EditTextPreferenceDialogFragmentCompatTest {
 
         mActivityRule.getScenario().onActivity(
                 new ActivityScenario.ActivityAction<PreferenceTestHelperActivity>() {
+                    @SuppressWarnings("deprecation")
                     @Override
                     public void perform(PreferenceTestHelperActivity activity) {
                         mTargetPreference = activity.setupPreferenceHierarchy(

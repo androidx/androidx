@@ -36,6 +36,7 @@ import com.intellij.psi.PsiField
 import org.jetbrains.kotlin.name.Name
 import org.jetbrains.uast.UAnnotated
 import org.jetbrains.uast.UAnnotation
+import org.jetbrains.uast.UResolvable
 
 class AnnotationRetentionDetector : Detector(), Detector.UastScanner {
 
@@ -130,14 +131,19 @@ class AnnotationRetentionDetector : Detector(), Detector.UastScanner {
 
 /**
  * Attempts to extract the name of the constant used for an attribute value, returning
- * `null` if it couldn't understand the value representation.
+ * [fallbackValue] if the attribute could not be found or `null` if it couldn't understand the
+ * value representation.
  */
 @Suppress("SameParameterValue")
 fun UAnnotation.extractAttribute(
     context: JavaContext,
-    name: String
+    attrName: String,
+    fallbackValue: String? = null,
 ): String? {
-    val value = ConstantEvaluator.evaluate(context, findAttributeValue(name))
+    val attrValue = findAttributeValue(attrName) ?: return fallbackValue
+    val value = attrValue.let {
+        ConstantEvaluator.evaluate(context, it)
+    } ?: (attrValue as? UResolvable)?.resolve()
     return when (value) {
         is PsiField -> value.name
         is Pair<*, *> -> (value.second as? Name)?.identifier

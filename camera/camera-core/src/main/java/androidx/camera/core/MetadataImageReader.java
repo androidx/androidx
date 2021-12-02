@@ -23,6 +23,7 @@ import android.view.Surface;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.camera.core.impl.CameraCaptureCallback;
 import androidx.camera.core.impl.CameraCaptureResult;
 import androidx.camera.core.impl.ImageReaderProxy;
@@ -45,6 +46,7 @@ import java.util.concurrent.Executor;
  * acquired at one time as defined by <code>maxImages</code> in the constructor. Any ImageProxy
  * produced after that will be dropped unless one of the ImageProxy currently acquired is closed.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 class MetadataImageReader implements ImageReaderProxy, ForwardingImageProxy.OnImageCloseListener {
     private static final String TAG = "MetadataImageReader";
     private final Object mLock = new Object();

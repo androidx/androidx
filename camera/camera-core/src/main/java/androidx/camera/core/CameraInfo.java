@@ -19,6 +19,7 @@ package androidx.camera.core;
 import android.view.Surface;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.annotation.StringDef;
@@ -35,6 +36,7 @@ import java.lang.annotation.RetentionPolicy;
  *
  * <p>Applications can retrieve an instance via {@link Camera#getCameraInfo()}.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public interface CameraInfo {
 
     /**

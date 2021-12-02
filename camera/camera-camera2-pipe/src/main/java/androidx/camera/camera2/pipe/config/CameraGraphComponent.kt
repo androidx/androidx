@@ -14,8 +14,11 @@
  * limitations under the License.
  */
 
+@file:RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
+
 package androidx.camera.camera2.pipe.config
 
+import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CameraMetadata
 import androidx.camera.camera2.pipe.Request
@@ -86,7 +89,7 @@ internal abstract class CameraGraphModules {
         @Provides
         @ForCameraGraph
         fun provideCameraGraphCoroutineScope(threads: Threads): CoroutineScope {
-            return CoroutineScope(threads.defaultDispatcher.plus(CoroutineName("CXCP-Graph")))
+            return CoroutineScope(threads.lightweightDispatcher.plus(CoroutineName("CXCP-Graph")))
         }
 
         @CameraGraphScope

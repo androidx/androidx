@@ -15,31 +15,54 @@
      limitations under the License.
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.android.support.wear" >
-    <uses-feature android:name="android.hardware.type.watch" />
+    package="com.example.android.support.wear">
 
-    <!-- Required for ambient mode support. -->
-    <uses-permission android:name="android.permission.WAKE_LOCK" />
-
-    <application android:icon="@drawable/app_sample_code" android:label="SupportWearDemos"
-            android:theme="@android:style/Theme.DeviceDefault">
-        <activity android:name=".app.SimpleWearableRecyclerViewDemo" />
-        <activity android:name=".app.WearableSwitchDemo" />
-        <activity android:name=".app.ConfirmationOverlayDemo" />
-        <activity android:name=".app.CircularProgressLayoutDemo" />
-        <activity android:name=".app.RoundedDrawableDemo" />
-        <activity android:name=".app.drawers.WearableDrawersDemo" android:exported="true" />
-        <activity android:name=".app.AmbientModeDemo" />
-        <activity android:name=".app.AlertDialogDemo"
+    <application
+        android:icon="@drawable/app_sample_code"
+        android:label="SupportWearDemos"
+        android:theme="@android:style/Theme.DeviceDefault">
+        <activity
+            android:name=".app.SimpleWearableRecyclerViewDemo"
+            android:exported="true" />
+        <activity
+            android:name=".app.WearableSwitchDemo"
+            android:exported="true" />
+        <activity
+            android:name=".app.ConfirmationOverlayDemo"
+            android:exported="true" />
+        <activity
+            android:name=".app.CircularProgressLayoutDemo"
+            android:exported="true" />
+        <activity
+            android:name=".app.RoundedDrawableDemo"
+            android:exported="true" />
+        <activity
+            android:name=".app.drawers.WearableDrawersDemo"
+            android:exported="true" />
+        <activity
+            android:name=".app.AmbientModeDemo"
+            android:exported="true" />
+        <activity
+            android:name=".app.AlertDialogDemo"
+            android:exported="true"
             android:theme="@style/Theme.AppCompat.Light" />
-        <activity android:name=".app.MainDemoActivity">
+        <activity
+            android:name=".app.MainDemoActivity"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
 
-        <uses-library android:name="com.google.android.wearable" android:required="true" />
+        <uses-library
+            android:name="com.google.android.wearable"
+            android:required="true" />
     </application>
+
+    <!-- Required for ambient mode support. -->
+    <uses-feature android:name="android.hardware.type.watch" />
+
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
 
 </manifest>

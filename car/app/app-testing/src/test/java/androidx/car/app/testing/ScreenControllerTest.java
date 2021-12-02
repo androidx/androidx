@@ -25,6 +25,7 @@ import androidx.annotation.NonNull;
 import androidx.car.app.Screen;
 import androidx.car.app.model.Template;
 import androidx.lifecycle.DefaultLifecycleObserver;
+import androidx.lifecycle.Lifecycle;
 import androidx.test.core.app.ApplicationProvider;
 
 import org.junit.Before;
@@ -46,16 +47,7 @@ public class ScreenControllerTest {
     private final Template mTemplate = new Template() {
     };
 
-    private final Screen mTestScreen =
-            new Screen(
-                    TestCarContext.createCarContext(ApplicationProvider.getApplicationContext())) {
-                @NonNull
-                @Override
-                public Template onGetTemplate() {
-                    return mTemplate;
-                }
-            };
-
+    private Screen mTestScreen;
     private ScreenController mScreenController;
     private TestCarContext mCarContext;
 
@@ -64,14 +56,21 @@ public class ScreenControllerTest {
         MockitoAnnotations.initMocks(this);
 
         mCarContext = TestCarContext.createCarContext(ApplicationProvider.getApplicationContext());
-        mScreenController = ScreenController.of(mCarContext, mTestScreen);
+        mTestScreen = new Screen(mCarContext) {
+            @NonNull
+            @Override
+            public Template onGetTemplate() {
+                return mTemplate;
+            }
+        };
+        mScreenController = new ScreenController(mTestScreen);
 
         mTestScreen.getLifecycle().addObserver(mMockObserver);
     }
 
     @Test
     public void create_movesLifecycleAndAddsToStack() {
-        mScreenController.create();
+        mScreenController.moveToState(Lifecycle.State.CREATED);
 
         verify(mMockObserver).onCreate(any());
         assertThat(mCarContext.getCarService(TestScreenManager.class).getScreensPushed())
@@ -82,7 +81,7 @@ public class ScreenControllerTest {
     public void create_wasInStack_movesLifecycle() {
         mCarContext.getCarService(TestScreenManager.class).push(mTestScreen);
 
-        mScreenController.create();
+        mScreenController.moveToState(Lifecycle.State.CREATED);
 
         verify(mMockObserver).onCreate(any());
         assertThat(mCarContext.getCarService(TestScreenManager.class).getScreensPushed())
@@ -91,7 +90,7 @@ public class ScreenControllerTest {
 
     @Test
     public void start_movesLifecycle() {
-        mScreenController.start();
+        mScreenController.moveToState(Lifecycle.State.STARTED);
 
         verify(mMockObserver).onCreate(any());
         verify(mMockObserver).onStart(any());
@@ -99,7 +98,7 @@ public class ScreenControllerTest {
 
     @Test
     public void resume_movesLifecycle() {
-        mScreenController.resume();
+        mScreenController.moveToState(Lifecycle.State.RESUMED);
 
         verify(mMockObserver).onCreate(any());
         verify(mMockObserver).onStart(any());
@@ -108,8 +107,8 @@ public class ScreenControllerTest {
 
     @Test
     public void pause_movesLifecycle() {
-        mScreenController.resume();
-        mScreenController.pause();
+        mScreenController.moveToState(Lifecycle.State.RESUMED);
+        mScreenController.moveToState(Lifecycle.State.STARTED);
 
         verify(mMockObserver).onCreate(any());
         verify(mMockObserver).onStart(any());
@@ -119,8 +118,8 @@ public class ScreenControllerTest {
 
     @Test
     public void stop_movesLifecycle() {
-        mScreenController.resume();
-        mScreenController.stop();
+        mScreenController.moveToState(Lifecycle.State.RESUMED);
+        mScreenController.moveToState(Lifecycle.State.CREATED);
 
         verify(mMockObserver).onCreate(any());
         verify(mMockObserver).onStart(any());
@@ -131,8 +130,8 @@ public class ScreenControllerTest {
 
     @Test
     public void destroy_movesLifecycle() {
-        mScreenController.resume();
-        mScreenController.destroy();
+        mScreenController.moveToState(Lifecycle.State.RESUMED);
+        mScreenController.moveToState(Lifecycle.State.DESTROYED);
 
         verify(mMockObserver).onCreate(any());
         verify(mMockObserver).onStart(any());
@@ -144,7 +143,7 @@ public class ScreenControllerTest {
 
     @Test
     public void getReturnedTemplates() {
-        mScreenController.start();
+        mScreenController.moveToState(Lifecycle.State.STARTED);
         mScreenController.reset();
 
         mTestScreen.invalidate();
@@ -159,18 +158,8 @@ public class ScreenControllerTest {
     }
 
     @Test
-    public void getScreenResult() {
-        Screen screen = mScreenController.get();
-        String result = "this is the result";
-
-        screen.setResult(result);
-
-        assertThat(mScreenController.getScreenResult()).isEqualTo(result);
-    }
-
-    @Test
     public void reset() {
-        mScreenController.start();
+        mScreenController.moveToState(Lifecycle.State.STARTED);
         mScreenController.reset();
 
         mTestScreen.invalidate();

@@ -80,12 +80,6 @@ public final class TileBuilders {
             return mImpl.getFreshnessIntervalMillis();
         }
 
-        /** Returns a new {@link Builder}. */
-        @NonNull
-        public static Builder builder() {
-            return new Builder();
-        }
-
         /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -104,7 +98,7 @@ public final class TileBuilders {
         public static final class Builder {
             private final TileProto.Tile.Builder mImpl = TileProto.Tile.newBuilder();
 
-            Builder() {}
+            public Builder() {}
 
             /**
              * Sets the resource version required for these tiles. This can be any developer-defined
@@ -122,13 +116,6 @@ public final class TileBuilders {
             @NonNull
             public Builder setTimeline(@NonNull Timeline timeline) {
                 mImpl.setTimeline(timeline.toProto());
-                return this;
-            }
-
-            /** Sets the tiles to show in the carousel, along with their validity periods. */
-            @NonNull
-            public Builder setTimeline(@NonNull Timeline.Builder timelineBuilder) {
-                mImpl.setTimeline(timelineBuilder.build().toProto());
                 return this;
             }
 

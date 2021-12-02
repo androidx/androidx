@@ -18,8 +18,10 @@ package androidx.room.compiler.processing.ksp
 
 import androidx.room.compiler.processing.XFiler
 import androidx.room.compiler.processing.XMessager
+import androidx.room.compiler.processing.util.ISSUE_TRACKER_LINK
 import com.google.devtools.ksp.processing.CodeGenerator
 import com.google.devtools.ksp.processing.Dependencies
+import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSFile
 import com.squareup.javapoet.JavaFile
 import com.squareup.kotlinpoet.FileSpec
@@ -33,11 +35,11 @@ internal class KspFiler(
     private val messager: XMessager,
 ) : XFiler {
     override fun write(javaFile: JavaFile, mode: XFiler.Mode) {
-        val originatingFiles = javaFile.typeSpec.originatingElements
-            .map(::originatingFileFor)
+        val originatingElements = javaFile.typeSpec.originatingElements
+            .toOriginatingElements()
 
         createNewFile(
-            originatingFiles = originatingFiles,
+            originatingElements = originatingElements,
             packageName = javaFile.packageName,
             fileName = javaFile.typeSpec.name,
             extensionName = "java",
@@ -50,13 +52,13 @@ internal class KspFiler(
     }
 
     override fun write(fileSpec: FileSpec, mode: XFiler.Mode) {
-        val originatingFiles = fileSpec.members
+        val originatingElements = fileSpec.members
             .filterIsInstance<OriginatingElementsHolder>()
             .flatMap { it.originatingElements }
-            .map(::originatingFileFor)
+            .toOriginatingElements()
 
         createNewFile(
-            originatingFiles = originatingFiles,
+            originatingElements = originatingElements,
             packageName = fileSpec.packageName,
             fileName = fileSpec.name,
             extensionName = "kt",
@@ -68,34 +70,36 @@ internal class KspFiler(
         }
     }
 
-    private fun originatingFileFor(element: Element): KSFile {
-        check(element is KSFileAsOriginatingElement) {
-            "Unexpected element type in originating elements. $element"
-        }
-        return element.ksFile
-    }
-
     private fun createNewFile(
-        originatingFiles: List<KSFile>,
+        originatingElements: OriginatingElements,
         packageName: String,
         fileName: String,
         extensionName: String,
         aggregating: Boolean
     ): OutputStream {
-        val dependencies = if (originatingFiles.isEmpty()) {
+        val dependencies = if (originatingElements.isEmpty()) {
             messager.printMessage(
                 Diagnostic.Kind.WARNING,
                 """
                     No dependencies are reported for $fileName which will prevent
-                    incremental compilation. Please file a bug at:
-                    https://issuetracker.google.com/issues/new?component=413107
+                    incremental compilation.
+                    Please file a bug at $ISSUE_TRACKER_LINK.
                 """.trimIndent()
             )
             Dependencies.ALL_FILES
         } else {
             Dependencies(
                 aggregating = aggregating,
-                sources = originatingFiles.distinct().toTypedArray()
+                sources = originatingElements.files.distinct().toTypedArray()
+            )
+        }
+
+        if (originatingElements.classes.isNotEmpty()) {
+            delegate.associateWithClasses(
+                classes = originatingElements.classes,
+                packageName = packageName,
+                fileName = fileName,
+                extensionName = extensionName
             )
         }
 
@@ -105,5 +109,27 @@ internal class KspFiler(
             fileName = fileName,
             extensionName = extensionName
         )
+    }
+
+    private data class OriginatingElements(
+        val files: List<KSFile>,
+        val classes: List<KSClassDeclaration>,
+    ) {
+        fun isEmpty(): Boolean = files.isEmpty() && classes.isEmpty()
+    }
+
+    private fun List<Element>.toOriginatingElements(): OriginatingElements {
+        val files = mutableListOf<KSFile>()
+        val classes = mutableListOf<KSClassDeclaration>()
+
+        forEach { element ->
+            when (element) {
+                is KSFileAsOriginatingElement -> files.add(element.ksFile)
+                is KSClassDeclarationAsOriginatingElement -> classes.add(element.ksClassDeclaration)
+                else -> error("Unexpected element type in originating elements. $element")
+            }
+        }
+
+        return OriginatingElements(files, classes)
     }
 }

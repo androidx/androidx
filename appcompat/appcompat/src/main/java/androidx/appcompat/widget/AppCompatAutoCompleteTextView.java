@@ -22,6 +22,7 @@ import android.content.Context;
 import android.content.res.ColorStateList;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
+import android.text.method.KeyListener;
 import android.util.AttributeSet;
 import android.view.ActionMode;
 import android.view.inputmethod.EditorInfo;
@@ -56,7 +57,7 @@ import androidx.resourceinspection.annotation.AppCompatShadowedAttributes;
  */
 @AppCompatShadowedAttributes
 public class AppCompatAutoCompleteTextView extends AutoCompleteTextView implements
-        TintableBackgroundView {
+        TintableBackgroundView, EmojiCompatConfigurationView {
 
     private static final int[] TINT_ATTRS = {
             android.R.attr.popupBackground
@@ -64,6 +65,8 @@ public class AppCompatAutoCompleteTextView extends AutoCompleteTextView implemen
 
     private final AppCompatBackgroundHelper mBackgroundTintHelper;
     private final AppCompatTextHelper mTextHelper;
+    @NonNull
+    private final AppCompatEmojiEditTextHelper mAppCompatEmojiEditTextHelper;
 
     public AppCompatAutoCompleteTextView(@NonNull Context context) {
         this(context, null);
@@ -92,6 +95,10 @@ public class AppCompatAutoCompleteTextView extends AutoCompleteTextView implemen
         mTextHelper = new AppCompatTextHelper(this);
         mTextHelper.loadFromAttributes(attrs, defStyleAttr);
         mTextHelper.applyCompoundDrawablesTints();
+
+        mAppCompatEmojiEditTextHelper = new AppCompatEmojiEditTextHelper(this);
+        mAppCompatEmojiEditTextHelper.loadFromAttributes(attrs, defStyleAttr);
+        mAppCompatEmojiEditTextHelper.initKeyListener();
     }
 
     @Override
@@ -192,8 +199,9 @@ public class AppCompatAutoCompleteTextView extends AutoCompleteTextView implemen
 
     @Override
     public InputConnection onCreateInputConnection(EditorInfo outAttrs) {
-        return AppCompatHintHelper.onCreateInputConnection(super.onCreateInputConnection(outAttrs),
-                outAttrs, this);
+        InputConnection inputConnection = AppCompatHintHelper.onCreateInputConnection(
+                super.onCreateInputConnection(outAttrs), outAttrs, this);
+        return mAppCompatEmojiEditTextHelper.onCreateInputConnection(inputConnection, outAttrs);
     }
 
     /**
@@ -212,5 +220,26 @@ public class AppCompatAutoCompleteTextView extends AutoCompleteTextView implemen
     public ActionMode.Callback getCustomSelectionActionModeCallback() {
         return TextViewCompat.unwrapCustomSelectionActionModeCallback(
                 super.getCustomSelectionActionModeCallback());
+    }
+
+    /**
+     * Adds EmojiCompat KeyListener to correctly edit multi-codepoint emoji when they've been
+     * converted to spans.
+     *
+     * {@inheritDoc}
+     */
+    @Override
+    public void setKeyListener(@Nullable KeyListener keyListener) {
+        super.setKeyListener(mAppCompatEmojiEditTextHelper.getKeyListener(keyListener));
+    }
+
+    @Override
+    public void setEmojiCompatEnabled(boolean enabled) {
+        mAppCompatEmojiEditTextHelper.setEnabled(enabled);
+    }
+
+    @Override
+    public boolean isEmojiCompatEnabled() {
+        return mAppCompatEmojiEditTextHelper.isEnabled();
     }
 }

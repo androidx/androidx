@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
+
 import androidx.build.LibraryGroups
-import androidx.build.LibraryVersions
 import androidx.build.Publish
 
 plugins {
@@ -37,7 +37,6 @@ dependencies {
 androidx {
     name = "LiveData Core Truth Extensions"
     publish = Publish.NONE
-    mavenVersion = LibraryVersions.LIFECYCLE
     mavenGroup = LibraryGroups.LIFECYCLE
     inceptionYear = "2019"
     description = "Truth extensions for 'livedata-core' artifact"

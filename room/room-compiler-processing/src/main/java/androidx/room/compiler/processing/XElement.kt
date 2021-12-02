@@ -19,6 +19,9 @@ package androidx.room.compiler.processing
 import androidx.room.compiler.processing.javac.JavacElement
 import androidx.room.compiler.processing.ksp.KSFileAsOriginatingElement
 import androidx.room.compiler.processing.ksp.KspElement
+import androidx.room.compiler.processing.ksp.KspMemberContainer
+import androidx.room.compiler.processing.ksp.wrapAsOriginatingElement
+import androidx.room.compiler.processing.ksp.synthetic.KspSyntheticPropertyMethodElement
 import javax.lang.model.element.Element
 import kotlin.contracts.contract
 
@@ -35,6 +38,7 @@ interface XElement : XAnnotated {
      * Returns the string representation of the Element's kind.
      */
     fun kindName(): String
+
     /**
      * When the location of an element is unknown, this String is appended to the diagnostic
      * message. Without this information, developer gets no clue on where the error is.
@@ -45,6 +49,11 @@ interface XElement : XAnnotated {
      * The documentation comment of the element, or null if there is none.
      */
     val docComment: String?
+
+    /**
+     * Returns true if all types referenced by this element are valid, i.e. resolvable.
+     */
+    fun validate(): Boolean
 }
 
 /**
@@ -69,6 +78,16 @@ fun XElement.isVariableElement(): Boolean {
 }
 
 /**
+ * Checks whether this element represents an [XFieldElement].
+ */
+fun XElement.isField(): Boolean {
+    contract {
+        returns(true) implies (this@isField is XFieldElement)
+    }
+    return this is XFieldElement
+}
+
+/**
  * Checks whether this element represents an [XMethodElement].
  */
 fun XElement.isMethod(): Boolean {
@@ -78,6 +97,19 @@ fun XElement.isMethod(): Boolean {
     return this is XMethodElement
 }
 
+/**
+ * Checks whether this element represents an [XExecutableParameterElement].
+ */
+fun XElement.isMethodParameter(): Boolean {
+    contract {
+        returns(true) implies (this@isMethodParameter is XExecutableParameterElement)
+    }
+    return this is XExecutableParameterElement
+}
+
+/**
+ * Checks whether this element represents an [XConstructorElement].
+ */
 fun XElement.isConstructor(): Boolean {
     contract {
         returns(true) implies (this@isConstructor is XConstructorElement)
@@ -96,7 +128,15 @@ fun XElement.isConstructor(): Boolean {
 internal fun XElement.originatingElementForPoet(): Element? {
     return when (this) {
         is JavacElement -> element
-        is KspElement -> containingFileAsOriginatingElement()
+        is KspElement -> {
+            declaration.wrapAsOriginatingElement()
+        }
+        is KspSyntheticPropertyMethodElement -> {
+            field.declaration.wrapAsOriginatingElement()
+        }
+        is KspMemberContainer -> {
+            declaration?.wrapAsOriginatingElement()
+        }
         else -> error("Originating element is not implemented for ${this.javaClass}")
     }
 }

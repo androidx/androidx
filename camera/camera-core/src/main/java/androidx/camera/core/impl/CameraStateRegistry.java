@@ -19,6 +19,7 @@ package androidx.camera.core.impl;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.WorkerThread;
 import androidx.camera.core.Camera;
 import androidx.camera.core.Logger;
@@ -37,6 +38,7 @@ import java.util.concurrent.RejectedExecutionException;
  * Cameras that are in a {@link CameraInternal.State#PENDING_OPEN} state can be notified when
  * there is a slot available to open a camera.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class CameraStateRegistry {
     private static final String TAG = "CameraStateRegistry";
     private final StringBuilder mDebugString = new StringBuilder();

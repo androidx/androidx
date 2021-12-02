@@ -27,7 +27,8 @@ limitations under the License.
         android:theme="@style/AppTheme">
         <activity
             android:name=".CameraXActivity"
-            android:label="Camera Core Test App">
+            android:label="Camera Core Test App"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -37,7 +38,8 @@ limitations under the License.
         <activity
             android:name=".OpenGLActivity"
             android:label="Camera Core Test App (OpenGL Activity)"
-            android:theme="@style/NoTitleTheme">
+            android:theme="@style/NoTitleTheme"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />

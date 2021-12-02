@@ -16,7 +16,9 @@
 
 package androidx.fragment.lint
 
+import androidx.fragment.lint.stubs.DIALOG_FRAGMENT
 import com.android.tools.lint.checks.infrastructure.LintDetectorTest
+import com.android.tools.lint.checks.infrastructure.TestMode
 import com.android.tools.lint.detector.api.Detector
 import com.android.tools.lint.detector.api.Issue
 import org.junit.Test
@@ -158,6 +160,8 @@ class UseGetLayoutInflaterTest : LintDetectorTest() {
     @Test
     fun `java expect fail dialog fragment with fix`() {
         lint().files(dialogFragmentStubJava)
+            .allowCompilationErrors(true) // b/193540422
+            .skipTestModes(TestMode.WHITESPACE) // b/203246909
             .run()
             .expect(
                 """
@@ -180,21 +184,21 @@ src/foo/TestFragment.java:16: Warning: Use of LayoutInflater.from(requireContext
 
     @Test
     fun `java expect clean non dialog fragment`() {
-        lint().files(fragmentStubJava)
+        lint().files(fragmentStubJava, DIALOG_FRAGMENT)
             .run()
             .expectClean()
     }
 
     @Test
     fun `java expect clean dialog fragment`() {
-        lint().files(dialogFragmentCorrectImplementationStubJava)
+        lint().files(dialogFragmentCorrectImplementationStubJava, DIALOG_FRAGMENT)
             .run()
             .expectClean()
     }
 
     @Test
     fun `kotlin expect fail dialog fragment`() {
-        lint().files(dialogFragmentStubKotlin)
+        lint().files(dialogFragmentStubKotlin, DIALOG_FRAGMENT)
             .run()
             .expect(
                 """
@@ -209,14 +213,14 @@ src/foo/TestFragment.kt:13: Warning: Use of LayoutInflater.from(Context) detecte
 
     @Test
     fun `kotlin expect clean non dialog fragment`() {
-        lint().files(fragmentStubKotlin)
+        lint().files(fragmentStubKotlin, DIALOG_FRAGMENT)
             .run()
             .expectClean()
     }
 
     @Test
     fun `kotlin expect clean dialog fragment`() {
-        lint().files(dialogFragmentCorrectImplementationStubKotlin)
+        lint().files(dialogFragmentCorrectImplementationStubKotlin, DIALOG_FRAGMENT)
             .run()
             .expectClean()
     }

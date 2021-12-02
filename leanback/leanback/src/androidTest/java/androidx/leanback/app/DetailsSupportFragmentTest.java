@@ -15,12 +15,15 @@
  */
 package androidx.leanback.app;
 
+import static android.os.Build.VERSION.SDK_INT;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import android.animation.PropertyValuesHolder;
+import android.app.UiAutomation;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -58,14 +61,14 @@ import androidx.test.filters.LargeTest;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.platform.app.InstrumentationRegistry;
 
-import org.junit.Ignore;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 /**
  * Unit tests for {@link DetailsSupportFragment}.
  */
-@Ignore("b/201453802")
 @RunWith(AndroidJUnit4.class)
 @LargeTest
 public class DetailsSupportFragmentTest extends SingleSupportFragmentTestBase {
@@ -125,7 +128,29 @@ public class DetailsSupportFragmentTest extends SingleSupportFragmentTestBase {
         }
     }
 
-    @Ignore("b/201453802")
+    @BeforeClass
+    public static void setUp() {
+        if (SDK_INT >= 31) {
+            UiAutomation uiAutomation =
+                    InstrumentationRegistry.getInstrumentation().getUiAutomation();
+            uiAutomation.adoptShellPermissionIdentity("android.permission.WRITE_SECURE_SETTINGS");
+            uiAutomation.executeShellCommand("settings put secure immersive_mode_confirmations "
+                    + "confirmed");
+            uiAutomation.dropShellPermissionIdentity();
+        }
+    }
+
+    @AfterClass
+    public static void tearDown() {
+        if (SDK_INT >= 31) {
+            UiAutomation uiAutomation =
+                    InstrumentationRegistry.getInstrumentation().getUiAutomation();
+            uiAutomation.adoptShellPermissionIdentity("android.permission.WRITE_SECURE_SETTINGS");
+            uiAutomation.executeShellCommand("settings delete secure immersive_mode_confirmations");
+            uiAutomation.dropShellPermissionIdentity();
+        }
+    }
+
     @Test
     public void parallaxSetupTest() {
         SingleSupportFragmentTestActivity activity =
@@ -148,7 +173,6 @@ public class DetailsSupportFragmentTest extends SingleSupportFragmentTestBase {
         assertEquals(0f, frameBottom.getAdapterPosition(), delta);
     }
 
-    @Ignore("b/201453802")
     @Test
     public void parallaxTest() throws Throwable {
         SingleSupportFragmentTestActivity activity = launchAndWaitActivity(DetailsSupportFragmentParallax.class,
@@ -336,13 +360,11 @@ public class DetailsSupportFragmentTest extends SingleSupportFragmentTestBase {
         assertTrue(detailsFragment.isShowingTitle());
     }
 
-    @Ignore("b/201453802")
     @Test
     public void navigateBetweenRowsAndVideoUsingRequestFocus1() throws Throwable {
         navigateBetweenRowsAndVideoUsingRequestFocusInternal(DetailsSupportFragmentWithVideo1.class);
     }
 
-    @Ignore("b/201453802")
     @Test
     public void navigateBetweenRowsAndVideoUsingRequestFocus2() throws Throwable {
         navigateBetweenRowsAndVideoUsingRequestFocusInternal(DetailsSupportFragmentWithVideo2.class);
@@ -401,13 +423,11 @@ public class DetailsSupportFragmentTest extends SingleSupportFragmentTestBase {
         assertTrue(detailsFragment.isShowingTitle());
     }
 
-    @Ignore("b/201453802")
     @Test
     public void navigateBetweenRowsAndVideoUsingDPAD1() throws Throwable {
         navigateBetweenRowsAndVideoUsingDPADInternal(DetailsSupportFragmentWithVideo1.class);
     }
 
-    @Ignore("b/201453802")
     @Test
     public void navigateBetweenRowsAndVideoUsingDPAD2() throws Throwable {
         navigateBetweenRowsAndVideoUsingDPADInternal(DetailsSupportFragmentWithVideo2.class);
@@ -476,19 +496,16 @@ public class DetailsSupportFragmentTest extends SingleSupportFragmentTestBase {
         assertTrue(detailsFragment.mVideoSupportFragment.getView().hasFocus());
     }
 
-    @Ignore("b/201453802")
     @Test
     public void fragmentOnStartWithVideo1() throws Throwable {
         fragmentOnStartWithVideoInternal(DetailsSupportFragmentWithVideo1.class);
     }
 
-    @Ignore("b/201453802")
     @Test
     public void fragmentOnStartWithVideo2() throws Throwable {
         fragmentOnStartWithVideoInternal(DetailsSupportFragmentWithVideo2.class);
     }
 
-    @Ignore("b/201453802")
     @Test
     public void navigateBetweenRowsAndTitle() throws Throwable {
         SingleSupportFragmentTestActivity activity =
@@ -572,7 +589,6 @@ public class DetailsSupportFragmentTest extends SingleSupportFragmentTestBase {
         }
     }
 
-    @Ignore("b/201453802")
     @Test
     public void lateSetupVideo() {
         final SingleSupportFragmentTestActivity activity =
@@ -678,7 +694,6 @@ public class DetailsSupportFragmentTest extends SingleSupportFragmentTestBase {
         PollingCheck.waitFor(new PollingCheck.ViewStableOnScreen(firstRow));
     }
 
-    @Ignore("b/201453802")
     @Test
     public void sharedGlueHost() {
         final SingleSupportFragmentTestActivity activity =
@@ -752,7 +767,6 @@ public class DetailsSupportFragmentTest extends SingleSupportFragmentTestBase {
         assertTrue(glue2.getHost() == playbackGlueHost);
     }
 
-    @Ignore("b/201453802")
     @Test
     public void clearVideo() {
         final SingleSupportFragmentTestActivity activity =
@@ -854,7 +868,6 @@ public class DetailsSupportFragmentTest extends SingleSupportFragmentTestBase {
         }
     }
 
-    @Ignore("b/201453802")
     @Test
     public void noInitialItem() {
         SingleSupportFragmentTestActivity activity =
@@ -907,7 +920,6 @@ public class DetailsSupportFragmentTest extends SingleSupportFragmentTestBase {
         }
     }
 
-    @Ignore("b/201453802")
     @Test
     public void switchToVideoInOnCreate() {
         final SingleSupportFragmentTestActivity activity =
@@ -1002,7 +1014,6 @@ public class DetailsSupportFragmentTest extends SingleSupportFragmentTestBase {
         assertTrue(detailsFragment.getVerticalGridView().getChildAt(0).hasFocus());
     }
 
-    @Ignore("b/201453802")
     @Test
     public void switchToVideoBackToQuit() {
         final SingleSupportFragmentTestActivity activity =
@@ -1096,7 +1107,6 @@ public class DetailsSupportFragmentTest extends SingleSupportFragmentTestBase {
         }
     }
 
-    @Ignore("b/201453802")
     @Test
     public void switchToVideoInOnCreateAndPrepareEntranceTransition() {
         SingleSupportFragmentTestActivity activity = launchAndWaitActivity(
@@ -1143,7 +1153,6 @@ public class DetailsSupportFragmentTest extends SingleSupportFragmentTestBase {
         }
     }
 
-    @Ignore("b/201453802")
     @Test
     public void entranceTransitionBlocksSwitchToVideo() {
         SingleSupportFragmentTestActivity activity =
@@ -1212,7 +1221,6 @@ public class DetailsSupportFragmentTest extends SingleSupportFragmentTestBase {
 
     }
 
-    @Ignore("b/201453802")
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP)
     public void startEntranceTransitionAfterDestroyed() {
@@ -1271,7 +1279,6 @@ public class DetailsSupportFragmentTest extends SingleSupportFragmentTestBase {
     }
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP) // API 17 retains local Variable
-    @Ignore("b/201453802")
     @Test
     public void viewLeakTest() throws Throwable {
         SingleSupportFragmentTestActivity activity = launchAndWaitActivity(

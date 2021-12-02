@@ -16,15 +16,37 @@
 
 package androidx.room.compiler.processing.util
 
+import androidx.room.compiler.processing.ExperimentalProcessingApi
+import org.junit.AssumptionViolatedException
 import org.junit.runners.Parameterized
 
+@OptIn(ExperimentalProcessingApi::class)
 class TestRunner(
     private val name: String,
-    private val runner: (List<(XTestInvocation) -> Unit>) -> Unit
+    private val runner: (
+        sources: List<Source>,
+        options: Map<String, String>,
+        handlers: List<(XTestInvocation) -> Unit>
+    ) -> Unit
 ) {
-    operator fun invoke(handlers: List<(XTestInvocation) -> Unit>) = runner(handlers)
-    operator fun invoke(handler: (XTestInvocation) -> Unit) = runner(listOf(handler))
+    operator fun invoke(handlers: List<(XTestInvocation) -> Unit>) =
+        runner(emptyList(), emptyMap(), handlers)
+
+    operator fun invoke(handler: (XTestInvocation) -> Unit) =
+        runner(emptyList(), emptyMap(), listOf(handler))
+
+    operator fun invoke(
+        sources: List<Source>,
+        options: Map<String, String> = emptyMap(),
+        handler: (XTestInvocation) -> Unit
+    ) = runner(sources, options, listOf(handler))
+
     override fun toString() = name
+    fun assumeCanCompileKotlin() {
+        if (name == "java") {
+            throw AssumptionViolatedException("cannot compile kotlin sources")
+        }
+    }
 }
 
 /**
@@ -32,18 +54,19 @@ class TestRunner(
  */
 abstract class MultiBackendTest {
     companion object {
+        @OptIn(ExperimentalProcessingApi::class)
         @JvmStatic
         @Parameterized.Parameters(name = "{0}")
         fun runners(): List<TestRunner> = listOfNotNull(
-            TestRunner("java") {
-                runJavaProcessorTest(sources = emptyList(), handlers = it)
+            TestRunner("java") { sources, options, handlers ->
+                runJavaProcessorTest(sources = sources, options = options, handlers = handlers)
             },
-            TestRunner("kapt") {
-                runKaptTest(sources = emptyList(), handlers = it)
+            TestRunner("kapt") { sources, options, handlers ->
+                runKaptTest(sources = sources, options = options, handlers = handlers)
             },
             if (CompilationTestCapabilities.canTestWithKsp) {
-                TestRunner("ksp") {
-                    runKspTest(sources = emptyList(), handlers = it)
+                TestRunner("ksp") { sources, options, handlers ->
+                    runKspTest(sources = sources, options = options, handlers = handlers)
                 }
             } else {
                 null

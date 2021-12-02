@@ -27,6 +27,7 @@ import android.view.Surface;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.camera.camera2.internal.compat.CameraCharacteristicsCompat;
 import androidx.camera.core.Logger;
 import androidx.camera.core.UseCase;
@@ -51,6 +52,7 @@ import java.util.Collections;
  * wait for 3A converged.
  *
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 class MeteringRepeatingSession {
     private static final String TAG = "MeteringRepeating";
     private DeferrableSurface mDeferrableSurface;

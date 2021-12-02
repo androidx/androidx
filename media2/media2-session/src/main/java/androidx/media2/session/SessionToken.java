@@ -38,6 +38,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.media.MediaBrowserServiceCompat;
 import androidx.media.MediaSessionManager;
+import androidx.media2.common.ClassVerificationHelper;
 import androidx.versionedparcelable.ParcelField;
 import androidx.versionedparcelable.VersionedParcelable;
 import androidx.versionedparcelable.VersionedParcelize;
@@ -346,7 +347,7 @@ public final class SessionToken implements VersionedParcelable {
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     static void quitHandlerThread(HandlerThread thread) {
         if (Build.VERSION.SDK_INT >= 18) {
-            thread.quitSafely();
+            ClassVerificationHelper.HandlerThread.Api18.quitSafely(thread);
         } else {
             thread.quit();
         }

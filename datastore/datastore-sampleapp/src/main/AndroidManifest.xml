@@ -22,25 +22,33 @@
         android:allowBackup="true"
         android:supportsRtl="true"
         android:theme="@style/Theme.null">
-        <activity android:name=".PreferencesDataStoreActivity">
+        <activity
+            android:name=".PreferencesDataStoreActivity"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".ProtoDataStoreActivity">
+        <activity
+            android:name=".ProtoDataStoreActivity"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".SettingsFragmentActivity">
+        <activity
+            android:name=".SettingsFragmentActivity"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".KotlinSerializationActivity">
+        <activity
+            android:name=".KotlinSerializationActivity"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />

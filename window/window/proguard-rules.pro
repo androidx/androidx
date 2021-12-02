@@ -18,10 +18,12 @@
 # be tracked in b/165268619.
 -keep class androidx.window.extensions.** { *; }
 -dontwarn androidx.window.extensions.**
+-keep class androidx.window.extensions.embedding.** { *; }
+-dontwarn androidx.window.extensions.embedding.**
 
 # Keep the whole library for now since there is a crash with a missing method.
 # TODO(b/165268619) Make a narrow rule
--keep class androidx.window.window.** { *; }
+-keep class androidx.window.** { *; }
 
 # We also neep to keep sidecar.** for the same reason.
 -keep class androidx.window.sidecar.** { *; }

@@ -17,6 +17,7 @@
 package androidx.navigation.fragment
 
 import android.os.Bundle
+import androidx.fragment.app.DialogFragment
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.test.EmptyFragment
 import androidx.navigation.fragment.test.NavigationActivity
@@ -26,6 +27,7 @@ import androidx.navigation.fragment.test.R
 import androidx.test.core.app.ActivityScenario
 import androidx.test.filters.MediumTest
 import androidx.testutils.withActivity
+import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -93,6 +95,61 @@ class NavHostFragmentTest(
             assertWithMessage("NavController graph should be non-null")
                 .that(restoredNavController.graph)
                 .isNotNull()
+        }
+    }
+
+    @Test
+    fun testDismissDialogAfterRecreate() {
+        with(ActivityScenario.launch(activityClass)) {
+            val navController = withActivity {
+                findNavController(R.id.nav_host).also {
+                    it.navigate(R.id.dialog_fragment)
+                }
+            }
+
+            assertThat(navController.currentDestination?.id)
+                .isEqualTo(R.id.dialog_fragment)
+
+            val dialogFragment = withActivity {
+                val navHostFragment = supportFragmentManager.findFragmentById(R.id.nav_host)!!
+                navHostFragment.childFragmentManager.fragments.first {
+                    it is DialogFragment
+                }
+            } as DialogFragment
+
+            assertThat(dialogFragment.dialog).isNotNull()
+
+            recreate()
+
+            val restoredNavController = withActivity {
+                findNavController(R.id.nav_host)
+            }
+
+            assertThat(restoredNavController.currentDestination?.id)
+                .isEqualTo(R.id.dialog_fragment)
+
+            val restoredDialogFragment = withActivity {
+                val navHostFragment = supportFragmentManager.findFragmentById(R.id.nav_host)!!
+                navHostFragment.childFragmentManager.fragments.first {
+                    it is DialogFragment
+                }
+            } as DialogFragment
+
+            assertThat(restoredDialogFragment.dialog).isNotNull()
+
+            restoredDialogFragment.dismiss()
+
+            val foundDialogFragment = withActivity {
+                val navHostFragment = supportFragmentManager.findFragmentById(R.id.nav_host)!!
+                navHostFragment.childFragmentManager.fragments.any { it is DialogFragment }
+            }
+
+            assertWithMessage("No DialogFragment should be found after dismissal")
+                .that(foundDialogFragment)
+                .isFalse()
+
+            assertThat(restoredNavController.currentDestination?.id)
+                .isEqualTo(R.id.start_fragment)
         }
     }
 }

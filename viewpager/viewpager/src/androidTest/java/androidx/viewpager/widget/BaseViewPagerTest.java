@@ -53,7 +53,9 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import android.app.Activity;
+import android.content.Context;
 import android.graphics.Color;
+import android.os.Build;
 import android.support.v4.testutils.TestUtilsMatchers;
 import android.text.TextUtils;
 import android.util.Pair;
@@ -61,6 +63,7 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EdgeEffect;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -69,6 +72,7 @@ import androidx.test.espresso.action.EspressoKey;
 import androidx.test.filters.FlakyTest;
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.MediumTest;
+import androidx.test.filters.SdkSuppress;
 import androidx.test.rule.ActivityTestRule;
 import androidx.viewpager.test.R;
 
@@ -93,6 +97,13 @@ import java.util.List;
 public abstract class BaseViewPagerTest<T extends Activity> {
     @Rule
     public final ActivityTestRule<T> mActivityTestRule;
+
+    /**
+     * The distance of a swipe's start position from the view's edge, in terms of the view's length.
+     * We do not start the swipe exactly on the view's edge, but somewhat more inward, since swiping
+     * from the exact edge may behave in an unexpected way (e.g. may open a navigation drawer).
+     */
+    private static final float EDGE_FUZZ_FACTOR = 0.083f;
 
     private static final int DIRECTION_LEFT = -1;
     private static final int DIRECTION_RIGHT = 1;
@@ -336,7 +347,8 @@ public abstract class BaseViewPagerTest<T extends Activity> {
         verifyPageSelections(true);
     }
 
-    private void verifyPageChangeViewActions(ViewAction next, ViewAction previous) {
+    private void verifyPageChangeViewActions(ViewAction next, ViewAction previous)
+            throws Throwable {
         assertEquals("Initial state", 0, mViewPager.getCurrentItem());
         assertFalse(mViewPager.canScrollHorizontally(DIRECTION_LEFT));
         assertTrue(mViewPager.canScrollHorizontally(DIRECTION_RIGHT));
@@ -361,6 +373,8 @@ public abstract class BaseViewPagerTest<T extends Activity> {
         onView(withId(R.id.pager)).perform(next);
         assertEquals("Attempt to move to next page beyond last page", 2,
                 mViewPager.getCurrentItem());
+
+        waitForEdgeAnimations();
         // We're still on this page, so we shouldn't have been called again with index 2
         verify(mockPageChangeListener, times(1)).onPageSelected(2);
         assertTrue(mViewPager.canScrollHorizontally(DIRECTION_LEFT));
@@ -388,6 +402,7 @@ public abstract class BaseViewPagerTest<T extends Activity> {
         verify(mockPageChangeListener, times(1)).onPageSelected(0);
         assertFalse(mViewPager.canScrollHorizontally(DIRECTION_LEFT));
         assertTrue(mViewPager.canScrollHorizontally(DIRECTION_RIGHT));
+        waitForEdgeAnimations();
 
         mViewPager.removeOnPageChangeListener(mockPageChangeListener);
 
@@ -397,38 +412,86 @@ public abstract class BaseViewPagerTest<T extends Activity> {
         assertThat(pageSelectedCaptor.getAllValues(), TestUtilsMatchers.matches(1, 2, 1, 0));
     }
 
+    private void waitForEdgeAnimations() throws Throwable {
+        while (!mViewPager.mLeftEdge.isFinished() || !mViewPager.mRightEdge.isFinished()) {
+            mActivityTestRule.runOnUiThread(() -> {});
+        }
+    }
+
     @Test
     @LargeTest
-    public void testPageSwipes() {
+    public void testPageSwipes() throws Throwable {
         verifyPageChangeViewActions(ViewPagerActions.wrap(swipeLeft()), ViewPagerActions.wrap(swipeRight()));
     }
 
     @Test
     @LargeTest
-    public void testArrowPageChanges() {
+    public void testArrowPageChanges() throws Throwable {
         verifyPageChangeViewActions(
                 ViewPagerActions.arrowScroll(View.FOCUS_RIGHT), ViewPagerActions.arrowScroll(View.FOCUS_LEFT));
     }
 
     @Test
     @LargeTest
-    public void testPageSwipesComposite() {
+    public void testPageSwipesComposite() throws Throwable {
         assertEquals("Initial state", 0, mViewPager.getCurrentItem());
 
         onView(withId(R.id.pager)).perform(ViewPagerActions.wrap(swipeLeft()), ViewPagerActions.wrap(swipeLeft()));
         assertEquals("Swipe twice left", 2, mViewPager.getCurrentItem());
 
-        onView(withId(R.id.pager)).perform(ViewPagerActions.wrap(swipeLeft()), ViewPagerActions.wrap(swipeRight()));
-        assertEquals("Swipe left beyond last page and then right", 1, mViewPager.getCurrentItem());
+        onView(withId(R.id.pager)).perform(ViewPagerActions.wrap(swipeLeft()));
+
+        waitForEdgeAnimations();
+
+        onView(withId(R.id.pager)).perform(ViewPagerActions.wrap(swipeRight()));
+        assertEquals("Swipe left beyond last page and then right", 1,
+                mViewPager.getCurrentItem());
 
         onView(withId(R.id.pager)).perform(
                 ViewPagerActions.wrap(swipeRight()), ViewPagerActions.wrap(swipeRight()));
         assertEquals("Swipe right and then right beyond first page", 0,
                 mViewPager.getCurrentItem());
 
-        onView(withId(R.id.pager)).perform(
-                ViewPagerActions.wrap(swipeRight()), ViewPagerActions.wrap(swipeLeft()));
-        assertEquals("Swipe right beyond first page and then left", 1, mViewPager.getCurrentItem());
+        waitForEdgeAnimations();
+
+        onView(withId(R.id.pager)).perform(ViewPagerActions.wrap(swipeRight()));
+
+        waitForEdgeAnimations();
+
+        onView(withId(R.id.pager)).perform(ViewPagerActions.wrap(swipeLeft()));
+
+        assertEquals("Swipe right beyond first page and then left", 1,
+                mViewPager.getCurrentItem());
+    }
+
+    @SdkSuppress(maxSdkVersion = 30) // b/202408966
+    @Test
+    @MediumTest
+    public void testFlingAfterStretchAtLeft() {
+        if (Build.VERSION.SDK_INT >= 31) {
+            CaptureOnAbsorb edgeEffect = new CaptureOnAbsorb(mViewPager.getContext());
+            mViewPager.mLeftEdge = edgeEffect;
+            onView(withId(R.id.pager)).perform(ViewPagerActions.wrap(swipeRight()));
+            assertTrue(edgeEffect.pullDistance > 0f);
+            assertTrue(edgeEffect.absorbedVelocity > 0);
+        }
+    }
+
+    @SdkSuppress(maxSdkVersion = 30) // b/202408966
+    @Test
+    @MediumTest
+    public void testFlingAfterStretchAtRight() throws Throwable {
+        if (Build.VERSION.SDK_INT >= 31) {
+            CaptureOnAbsorb edgeEffect = new CaptureOnAbsorb(mViewPager.getContext());
+            mViewPager.mRightEdge = edgeEffect;
+            mActivityTestRule.runOnUiThread(() -> {
+                mViewPager.setCurrentItem(2);
+            });
+
+            onView(withId(R.id.pager)).perform(ViewPagerActions.wrap(swipeLeft()));
+            assertTrue(edgeEffect.pullDistance > 0f);
+            assertTrue(edgeEffect.absorbedVelocity > 0);
+        }
     }
 
     private void verifyPageContent(boolean smoothScroll) {
@@ -1109,5 +1172,26 @@ public abstract class BaseViewPagerTest<T extends Activity> {
         // Normal arrows should change page if there are no more focusables in that direction
         onView(is(adapter.getButton(1, 0))).perform(pressKey(KeyEvent.KEYCODE_DPAD_LEFT));
         assertEquals(0, mViewPager.getCurrentItem());
+    }
+
+    private static class CaptureOnAbsorb extends EdgeEffect {
+        public int absorbedVelocity;
+        public float pullDistance;
+
+        CaptureOnAbsorb(Context context) {
+            super(context);
+        }
+
+        @Override
+        public float onPullDistance(float deltaDistance, float displacement) {
+            pullDistance += deltaDistance;
+            return super.onPullDistance(deltaDistance, displacement);
+        }
+
+        @Override
+        public void onAbsorb(int velocity) {
+            absorbedVelocity = velocity;
+            super.onAbsorb(velocity);
+        }
     }
 }

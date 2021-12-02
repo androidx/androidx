@@ -17,6 +17,7 @@
 package androidx.camera.camera2.internal.compat;
 
 import android.hardware.camera2.CameraCaptureSession;
+import android.hardware.camera2.CameraDevice;
 import android.hardware.camera2.CameraManager;
 import android.hardware.camera2.CaptureRequest;
 import android.hardware.camera2.params.OutputConfiguration;
@@ -35,6 +36,24 @@ import androidx.annotation.RequiresApi;
 public final class ApiCompat {
 
     private ApiCompat() {
+    }
+
+    /**
+     * Nested class to avoid verification errors for methods introduced in Android 5.0 (API 21).
+     */
+    @RequiresApi(21)
+    public static class Api21Impl {
+
+        private Api21Impl() {
+        }
+
+        /**
+         * @see CameraDevice#close()
+         */
+        @DoNotInline
+        public static void close(@NonNull CameraDevice cameraDevice) {
+            cameraDevice.close();
+        }
     }
 
     /**

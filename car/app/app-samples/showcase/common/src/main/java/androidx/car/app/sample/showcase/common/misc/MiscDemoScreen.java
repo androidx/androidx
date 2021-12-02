@@ -21,6 +21,8 @@ import static androidx.car.app.model.Action.BACK;
 import androidx.annotation.NonNull;
 import androidx.car.app.CarContext;
 import androidx.car.app.Screen;
+import androidx.car.app.model.Action;
+import androidx.car.app.model.ActionStrip;
 import androidx.car.app.model.ItemList;
 import androidx.car.app.model.ListTemplate;
 import androidx.car.app.model.Row;
@@ -30,13 +32,24 @@ import androidx.car.app.sample.showcase.common.ShowcaseSession;
 /** Creates a screen that has an assortment of API demos. */
 public final class MiscDemoScreen extends Screen {
     static final String MARKER = "MiscDemoScreen";
-    @NonNull private final ShowcaseSession mShowcaseSession;
+    private static final int MAX_PAGES = 2;
+
+    private final int mPage;
+
+    @NonNull
+    private final ShowcaseSession mShowcaseSession;
 
     public MiscDemoScreen(@NonNull CarContext carContext,
             @NonNull ShowcaseSession showcaseSession) {
+        this(carContext, showcaseSession, 0);
+    }
+
+    public MiscDemoScreen(@NonNull CarContext carContext,
+            @NonNull ShowcaseSession showcaseSession, int page) {
         super(carContext);
         setMarker(MARKER);
         mShowcaseSession = showcaseSession;
+        mPage = page;
     }
 
     @NonNull
@@ -44,72 +57,53 @@ public final class MiscDemoScreen extends Screen {
     public Template onGetTemplate() {
         ItemList.Builder listBuilder = new ItemList.Builder();
 
-        listBuilder.addItem(
-                new Row.Builder()
-                        .setTitle("Notification Demo")
-                        .setOnClickListener(() -> getScreenManager().push(
-                                new NotificationDemoScreen(getCarContext())))
-                        .setBrowsable(true)
-                        .build());
+        switch (mPage) {
+            case 0:
+                listBuilder.addItem(createRow("Notification Demo",
+                        new NotificationDemoScreen(getCarContext())));
+                listBuilder.addItem(createRow("PopTo Demo",
+                        new PopToDemoScreen(getCarContext())));
+                listBuilder.addItem(createRow("Loading Demo",
+                        new LoadingDemoScreen(getCarContext())));
+                listBuilder.addItem(createRow("Request Permission Demo",
+                        new RequestPermissionScreen(getCarContext())));
+                listBuilder.addItem(createRow("Pre-seed the Screen backstack on next run Demo",
+                        new FinishAppScreen(getCarContext())));
+                listBuilder.addItem(createRow("Car Hardware Demo",
+                        new CarHardwareDemoScreen(getCarContext(), mShowcaseSession)));
+                break;
+            case 1:
+                listBuilder.addItem(createRow("Content Limits Demo",
+                        new ContentLimitsDemoScreen(getCarContext())));
+                break;
 
-        listBuilder.addItem(
-                new Row.Builder()
-                        .setTitle("PopTo Demo")
-                        .setOnClickListener(
-                                () ->
-                                        getScreenManager()
-                                                .push(new PopToDemoScreen(getCarContext(), 0)))
-                        .setBrowsable(true)
-                        .build());
+        }
 
-        listBuilder.addItem(
-                new Row.Builder()
-                        .setTitle("Loading Demo")
-                        .setOnClickListener(
-                                () ->
-                                        getScreenManager()
-                                                .push(new LoadingDemoScreen(getCarContext())))
-                        .setBrowsable(true)
-                        .build());
-
-        listBuilder.addItem(
-                new Row.Builder()
-                        .setTitle("Request Permission Demo")
-                        .setOnClickListener(() ->
-                                getScreenManager().push(
-                                        new RequestPermissionScreen(getCarContext())))
-                        .setBrowsable(true)
-                        .build());
-
-
-        listBuilder.addItem(
-                new Row.Builder()
-                        .setTitle("Pre-seed the Screen backstack on next run Demo")
-                        .setOnClickListener(
-                                () ->
-                                        getScreenManager()
-                                                .push(
-                                                        new FinishAppScreen(
-                                                                getCarContext())))
-                        .setBrowsable(true)
-                        .build());
-
-        listBuilder.addItem(
-                new Row.Builder()
-                        .setTitle("Car Hardware Demo")
-                        .setOnClickListener(
-                                () ->
-                                        getScreenManager()
-                                                .push(
-                                                        new CarHardwareDemoScreen(
-                                                                getCarContext(), mShowcaseSession)))
-                        .setBrowsable(true)
-                        .build());
-
-        return new ListTemplate.Builder()
+        ListTemplate.Builder builder = new ListTemplate.Builder()
                 .setSingleList(listBuilder.build())
                 .setTitle("Misc Demos")
-                .setHeaderAction(BACK)
+                .setHeaderAction(BACK);
+
+        if (mPage + 1 < MAX_PAGES) {
+            builder.setActionStrip(new ActionStrip.Builder()
+                    .addAction(new Action.Builder()
+                            .setTitle("More")
+                            .setOnClickListener(() -> {
+                                getScreenManager().push(
+                                        new MiscDemoScreen(getCarContext(), mShowcaseSession,
+                                                mPage + 1));
+                            })
+                            .build())
+                    .build());
+        }
+
+        return builder.build();
+    }
+
+    private Row createRow(String title, Screen screen) {
+        return new Row.Builder()
+                .setTitle(title)
+                .setOnClickListener(() -> getScreenManager().push(screen))
                 .build();
     }
 }

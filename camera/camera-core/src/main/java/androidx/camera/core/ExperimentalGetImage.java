@@ -20,6 +20,7 @@ import static java.lang.annotation.RetentionPolicy.CLASS;
 
 import android.media.Image;
 
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RequiresOptIn;
 
 import java.lang.annotation.Retention;
@@ -36,6 +37,7 @@ import java.lang.annotation.Retention;
  * {@link Image#close()}. Instead when the Image needs to be closed, {@link ImageProxy#close()}
  * should be called on the ImageProxy from which the Image was retrieved.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 @Retention(CLASS)
 @RequiresOptIn
 public @interface ExperimentalGetImage {

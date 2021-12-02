@@ -247,6 +247,11 @@ class NotificationCompatBuilder implements NotificationBuilderWithBuilderAccesso
                 mBuilder.setLocusId(b.mLocusId.toLocusId());
             }
         }
+        if (Build.VERSION.SDK_INT >= 31) {
+            if (b.mFgsDeferBehavior != NotificationCompat.FOREGROUND_SERVICE_DEFAULT) {
+                mBuilder.setForegroundServiceBehavior(b.mFgsDeferBehavior);
+            }
+        }
 
         if (b.mSilent) {
             if (mBuilderCompat.mGroupSummary) {
@@ -386,6 +391,10 @@ class NotificationCompatBuilder implements NotificationBuilderWithBuilderAccesso
 
             if (Build.VERSION.SDK_INT >= 29) {
                 actionBuilder.setContextual(action.isContextual());
+            }
+
+            if (Build.VERSION.SDK_INT >= 31) {
+                actionBuilder.setAuthenticationRequired(action.isAuthenticationRequired());
             }
 
             actionExtras.putBoolean(NotificationCompat.Action.EXTRA_SHOWS_USER_INTERFACE,

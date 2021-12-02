@@ -13,11 +13,11 @@ import kotlin.Suppress
 private data class Next(
   public val main: String,
   public val mainInt: Int,
+  public val parcelable: ActivityInfo,
+  public val innerData: ActivityInfo.WindowLayout,
   public val optional: String = "bla",
   public val optionalInt: Int = 239,
-  public val optionalParcelable: ActivityInfo? = null,
-  public val parcelable: ActivityInfo,
-  public val innerData: ActivityInfo.WindowLayout
+  public val optionalParcelable: ActivityInfo? = null
 ) : NavDirections {
   public override val actionId: Int = R.id.next
 

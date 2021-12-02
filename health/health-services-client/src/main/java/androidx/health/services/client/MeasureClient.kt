@@ -43,7 +43,10 @@ public interface MeasureClient {
      *
      * Registering a [DataType] for live measurement capture is expected to increase the sample rate
      * on the associated sensor(s); this is typically used for one-off measurements. Do not use this
-     * method for background capture or workout tracking.
+     * method for background capture or workout tracking. The client is responsible for ensuring
+     * that their requested [DataType] is supported on this device by checking the
+     * [MeasureCapabilities]. The returned future will fail if the request is not supported on a
+     * given device.
      *
      * The callback will continue to be called until the app is killed or [unregisterCallback] is
      * called.

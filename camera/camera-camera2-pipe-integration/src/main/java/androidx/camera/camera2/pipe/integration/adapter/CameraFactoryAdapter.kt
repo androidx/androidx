@@ -16,6 +16,7 @@
 package androidx.camera.camera2.pipe.integration.adapter
 
 import android.content.Context
+import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.core.Debug
 import androidx.camera.camera2.pipe.core.Log.debug
@@ -35,6 +36,7 @@ import androidx.camera.core.impl.CameraThreadConfig
  * The [CameraFactoryAdapter] is responsible for creating the root dagger component that is used
  * to share resources across Camera instances.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 class CameraFactoryAdapter(
     context: Context,
     threadConfig: CameraThreadConfig,

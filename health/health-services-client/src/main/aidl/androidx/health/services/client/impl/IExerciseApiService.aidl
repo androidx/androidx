@@ -21,14 +21,16 @@ import androidx.health.services.client.impl.internal.IExerciseInfoCallback;
 import androidx.health.services.client.impl.internal.IStatusCallback;
 import androidx.health.services.client.impl.request.AutoPauseAndResumeConfigRequest;
 import androidx.health.services.client.impl.request.CapabilitiesRequest;
+import androidx.health.services.client.impl.request.FlushRequest;
 import androidx.health.services.client.impl.request.ExerciseGoalRequest;
+import androidx.health.services.client.impl.request.PrepareExerciseRequest;
 import androidx.health.services.client.impl.request.StartExerciseRequest;
 import androidx.health.services.client.impl.response.ExerciseCapabilitiesResponse;
 
 /**
  * Interface to make ipc calls for health services exercise api.
  *
- * The next method added to the interface should use ID: 12
+ * The next method added to the interface should use ID: 15
  * (this id needs to be incremented for each added method)
  *
  * @hide
@@ -48,6 +50,11 @@ interface IExerciseApiService {
      * side. Returned version should be always > 0.
      */
     int getApiVersion() = 0;
+
+    /**
+     * Handles a given request to prepare an exercise.
+     */
+    void prepareExercise(in PrepareExerciseRequest prepareExerciseRequest, IStatusCallback statusCallback) = 14;
 
     /**
      * Handles a given request to start an exercise.
@@ -100,6 +107,15 @@ interface IExerciseApiService {
     void addGoalToActiveExercise(in ExerciseGoalRequest request, IStatusCallback statusCallback) = 9;
 
     /**
+     * Removes an exercise goal for an active exercise.
+     *
+     * <p>Takes into account equivalent milestones (i.e. milestones which are not equal but are
+     * different representation of a common milestone. e.g. milestone A for every 2kms, currently
+     * at threshold of 10kms, and milestone B for every 2kms, currently at threshold of 8kms).
+     */
+    void removeGoalFromActiveExercise(in ExerciseGoalRequest request, IStatusCallback statusCallback) = 13;
+
+    /**
      * Sets whether auto-pause should be enabled
      */
     void overrideAutoPauseAndResumeForActiveExercise(in AutoPauseAndResumeConfigRequest request, IStatusCallback statusCallback) = 10;
@@ -108,4 +124,7 @@ interface IExerciseApiService {
      * Method to get capabilities.
      */
     ExerciseCapabilitiesResponse getCapabilities(in CapabilitiesRequest request) = 11;
+
+    /** Method to flush data metrics. */
+    void flushExercise(in FlushRequest request, in IStatusCallback statusCallback) = 12;
 }

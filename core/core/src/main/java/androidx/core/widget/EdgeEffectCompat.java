@@ -15,23 +15,31 @@
  */
 package androidx.core.widget;
 
+import static android.os.Build.VERSION.SDK_INT;
+
 import android.content.Context;
 import android.graphics.Canvas;
-import android.os.Build;
+import android.util.AttributeSet;
+import android.view.View;
 import android.widget.EdgeEffect;
+import android.widget.OverScroller;
+import android.widget.Scroller;
 
+import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 
 /**
- * Helper for accessing {@link android.widget.EdgeEffect}.
+ * Helper for accessing {@link EdgeEffect}.
  *
- * This class is used to access {@link android.widget.EdgeEffect} on platform versions
+ * This class is used to access {@link EdgeEffect} on platform versions
  * that support it. When running on older platforms it will result in no-ops. It should
  * be used by views that wish to use the standard Android visual effects at the edges
  * of scrolling containers.
  */
 public final class EdgeEffectCompat {
-    private EdgeEffect mEdgeEffect;
+    private final EdgeEffect mEdgeEffect;
 
     /**
      * Construct a new EdgeEffect themed using the given context.
@@ -41,11 +49,48 @@ public final class EdgeEffectCompat {
      *
      * @param context Context to use for theming the effect
      *
-     * @deprecated Use {@link EdgeEffect} constructor directly.
+     * @deprecated Use {@link EdgeEffect} constructor directly or
+     * {@link EdgeEffectCompat#create(Context, AttributeSet)}.
      */
     @Deprecated
     public EdgeEffectCompat(Context context) {
         mEdgeEffect = new EdgeEffect(context);
+    }
+
+    /**
+     * Constructs and returns a new EdgeEffect themed using the given context, allowing support
+     * for the view attributes.
+     *
+     * @param context Context to use for theming the effect
+     * @param attrs The attributes of the XML tag that is inflating the view
+     */
+    @NonNull
+    public static EdgeEffect create(@NonNull Context context, @Nullable AttributeSet attrs) {
+        if (SDK_INT >= 31) {
+            return Api31Impl.create(context, attrs);
+        }
+
+        return new EdgeEffect(context);
+    }
+
+    /**
+     * Returns the pull distance needed to be released to remove the showing effect.
+     * It is determined by the {@link #onPull(float, float)} <code>deltaDistance</code> and
+     * any animating values, including from {@link #onAbsorb(int)} and {@link #onRelease()}.
+     *
+     * This can be used in conjunction with {@link #onPullDistance(EdgeEffect, float, float)} to
+     * release the currently showing effect.
+     *
+     * On API level 30 and earlier, this will return 0.
+     *
+     * @return The pull distance that must be released to remove the showing effect or 0 for
+     * API level 30 and earlier.
+     */
+    public static float getDistance(@NonNull EdgeEffect edgeEffect) {
+        if (SDK_INT >= 31) {
+            return Api31Impl.getDistance(edgeEffect);
+        }
+        return 0;
     }
 
     /**
@@ -89,7 +134,7 @@ public final class EdgeEffectCompat {
     /**
      * A view should call this when content is pulled away from an edge by the user.
      * This will update the state of the current visual effect and its associated animation.
-     * The host view should always {@link android.view.View#invalidate()} if this method
+     * The host view should always {@link View#invalidate()} if this method
      * returns true and draw the results accordingly.
      *
      * @param deltaDistance Change in distance since the last call. Values may be 0 (no change) to
@@ -108,7 +153,7 @@ public final class EdgeEffectCompat {
     /**
      * A view should call this when content is pulled away from an edge by the user.
      * This will update the state of the current visual effect and its associated animation.
-     * The host view should always {@link android.view.View#invalidate()} if this method
+     * The host view should always {@link View#invalidate()} if this method
      * returns true and draw the results accordingly.
      *
      * Views using {@link EdgeEffect} should favor {@link EdgeEffect#onPull(float, float)} when
@@ -133,7 +178,7 @@ public final class EdgeEffectCompat {
     /**
      * A view should call this when content is pulled away from an edge by the user.
      * This will update the state of the current visual effect and its associated animation.
-     * The host view should always {@link android.view.View#invalidate()} after call this method
+     * The host view should always {@link View#invalidate()} after call this method
      * and draw the results accordingly.
      *
      * @param edgeEffect The EdgeEffect that is attached to the view that is getting pulled away
@@ -149,17 +194,65 @@ public final class EdgeEffectCompat {
      */
     public static void onPull(@NonNull EdgeEffect edgeEffect, float deltaDistance,
             float displacement) {
-        if (Build.VERSION.SDK_INT >= 21) {
-            edgeEffect.onPull(deltaDistance, displacement);
+        if (SDK_INT >= 21) {
+            Api21Impl.onPull(edgeEffect, deltaDistance, displacement);
         } else {
             edgeEffect.onPull(deltaDistance);
         }
     }
 
     /**
+     * A view should call this when content is pulled away from an edge by the user.
+     * This will update the state of the current visual effect and its associated animation.
+     * The host view should always {@link View#invalidate()} after this
+     * and draw the results accordingly. This works similarly to {@link #onPull(float, float)},
+     * but returns the amount of <code>deltaDistance</code> that has been consumed.
+     *
+     * For API level 31 and above, if the {@link #getDistance(EdgeEffect)} is currently 0 and
+     * <code>deltaDistance</code> is negative, this function will return 0 and the drawn value
+     * will remain unchanged.
+     *
+     * For API level 30 and below, this will consume all of the provided value and return
+     * <code>deltaDistance</code>.
+     *
+     * This method can be used to reverse the effect from a pull or absorb and partially consume
+     * some of a motion:
+     *
+     * <pre class="prettyprint">
+     *     if (deltaY < 0 && EdgeEffectCompat.getDistance(edgeEffect) != 0) {
+     *         float displacement = x / getWidth();
+     *         float dist = deltaY / getHeight();
+     *         float consumed = EdgeEffectCompat.onPullDistance(edgeEffect, dist, displacement);
+     *         deltaY -= consumed * getHeight();
+     *         if (edgeEffect.getDistance() == 0f) edgeEffect.onRelease();
+     *     }
+     * </pre>
+     *
+     * @param deltaDistance Change in distance since the last call. Values may be 0 (no change) to
+     *                      1.f (full length of the view) or negative values to express change
+     *                      back toward the edge reached to initiate the effect.
+     * @param displacement The displacement from the starting side of the effect of the point
+     *                     initiating the pull. In the case of touch this is the finger position.
+     *                     Values may be from 0-1.
+     * @return The amount of <code>deltaDistance</code> that was consumed, a number between
+     * 0 and <code>deltaDistance</code>.
+     */
+    public static float onPullDistance(
+            @NonNull EdgeEffect edgeEffect,
+            float deltaDistance,
+            float displacement
+    ) {
+        if (SDK_INT >= 31) {
+            return Api31Impl.onPullDistance(edgeEffect, deltaDistance, displacement);
+        }
+        onPull(edgeEffect, deltaDistance, displacement);
+        return deltaDistance;
+    }
+
+    /**
      * Call when the object is released after being pulled.
      * This will begin the "decay" phase of the effect. After calling this method
-     * the host view should {@link android.view.View#invalidate()} if this method
+     * the host view should {@link View#invalidate()} if this method
      * returns true and thereby draw the results accordingly.
      *
      * @return true if the host view should invalidate, false if it should not.
@@ -176,7 +269,7 @@ public final class EdgeEffectCompat {
      * Call when the effect absorbs an impact at the given velocity.
      * Used when a fling reaches the scroll boundary.
      *
-     * <p>When using a {@link android.widget.Scroller} or {@link android.widget.OverScroller},
+     * <p>When using a {@link Scroller} or {@link OverScroller},
      * the method <code>getCurrVelocity</code> will provide a reasonable approximation
      * to use here.</p>
      *
@@ -206,5 +299,54 @@ public final class EdgeEffectCompat {
     @Deprecated
     public boolean draw(Canvas canvas) {
         return mEdgeEffect.draw(canvas);
+    }
+
+    @RequiresApi(31)
+    private static class Api31Impl {
+        private Api31Impl() {}
+
+        @DoNotInline
+        public static EdgeEffect create(Context context, AttributeSet attrs) {
+            try {
+                return new EdgeEffect(context, attrs);
+            } catch (Throwable t) {
+                return new EdgeEffect(context); // Old preview release
+            }
+        }
+
+        @DoNotInline
+        public static float onPullDistance(
+                EdgeEffect edgeEffect,
+                float deltaDistance,
+                float displacement
+        ) {
+            try {
+                return edgeEffect.onPullDistance(deltaDistance, displacement);
+            } catch (Throwable t) {
+                edgeEffect.onPull(deltaDistance, displacement); // Old preview release
+                return 0;
+            }
+        }
+
+        @DoNotInline
+        public static float getDistance(EdgeEffect edgeEffect) {
+            try {
+                return edgeEffect.getDistance();
+            } catch (Throwable t) {
+                return 0; // Old preview release
+            }
+        }
+    }
+
+    @RequiresApi(21)
+    static class Api21Impl {
+        private Api21Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static void onPull(EdgeEffect edgeEffect, float deltaDistance, float displacement) {
+            edgeEffect.onPull(deltaDistance, displacement);
+        }
     }
 }

@@ -18,29 +18,33 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="androidx.activity.integration.testapp">
 
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-
     <application tools:ignore="AllowBackup,GoogleAppIndexingWarning,MissingApplicationIcon">
-        <activity android:name="androidx.activity.integration.testapp.MainActivity">
+        <activity
+            android:name="androidx.activity.integration.testapp.MainActivity"
+            android:exported="true">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
-                <category android:name="android.intent.category.LAUNCHER"/>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
         <activity
             android:name="androidx.activity.integration.testapp.PipActivity"
+            android:configChanges="screenSize|smallestScreenSize|screenLayout|orientation"
             android:exported="true"
-            android:supportsPictureInPicture="true"
-            android:configChanges="screenSize|smallestScreenSize|screenLayout|orientation"/>
+            android:supportsPictureInPicture="true" />
+
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="androidx.activity.integration.testapp"
             android:exported="false"
             android:grantUriPermissions="true">
-        <meta-data
-            android:name="android.support.FILE_PROVIDER_PATHS"
-            android:resource="@xml/file_paths" />
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
         </provider>
     </application>
+
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 
 </manifest>

@@ -26,6 +26,7 @@ import androidx.camera.camera2.pipe.testing.awaitEvent
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.runBlocking
+import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
@@ -71,6 +72,7 @@ internal class CameraPipeTest {
         assertThat(cameraList).contains(fakeCameraId)
     }
 
+    @Ignore("b/180539013")
     @Test
     fun createExternalCameraGraph() {
         val fakeRequestProcessor = FakeRequestProcessor()

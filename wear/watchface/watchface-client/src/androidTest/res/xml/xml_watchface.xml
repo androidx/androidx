@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+  Copyright 2021 The Android Open Source Project
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  -->
+<XmlWatchFace xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <UserStyleSchema>
+        <ListUserStyleSetting
+            app:affectedWatchFaceLayers="BASE|COMPLICATIONS|COMPLICATIONS_OVERLAY"
+            app:defaultOptionIndex="1"
+            app:description="description"
+            app:displayName="displayName"
+            app:id="TimeStyle">
+            <ListOption
+                app:displayName="Minimal"
+                app:id="minimal" />
+            <ListOption
+                app:displayName="Seconds"
+                app:id="seconds" />
+        </ListUserStyleSetting>
+    </UserStyleSchema>
+    <ComplicationSlot
+        app:slotId="10"
+        app:boundsType="ROUND_RECT"
+        app:supportedTypes="SHORT_TEXT|RANGED_VALUE|SMALL_IMAGE"
+        app:primaryDataSource="com.app.example1/com.app.example1.Class"
+        app:primaryDataSourceDefaultType="SHORT_TEXT"
+        app:secondaryDataSource="com.app.example2/com.app.example2.Class"
+        app:secondaryDataSourceDefaultType="SMALL_IMAGE"
+        app:systemDataSourceFallback="DATA_SOURCE_WATCH_BATTERY"
+        app:systemDataSourceFallbackDefaultType="RANGED_VALUE">
+        <ComplicationSlotBounds app:left="0.3" app:top="0.7" app:right="0.7" app:bottom="0.9"/>
+    </ComplicationSlot>
+    <ComplicationSlot
+        app:slotId="20"
+        app:boundsType="BACKGROUND"
+        app:supportedTypes="PHOTO_IMAGE"
+        app:primaryDataSource="com.package/com.app"
+        app:primaryDataSourceDefaultType="PHOTO_IMAGE"
+        app:systemDataSourceFallback="DATA_SOURCE_SUNRISE_SUNSET"
+        app:systemDataSourceFallbackDefaultType="PHOTO_IMAGE">
+        <ComplicationSlotBounds app:left="0.1" app:top="0.2" app:right="0.3" app:bottom="0.4"/>
+    </ComplicationSlot>
+</XmlWatchFace>

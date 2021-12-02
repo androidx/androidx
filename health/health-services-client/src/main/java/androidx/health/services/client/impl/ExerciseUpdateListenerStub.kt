@@ -16,11 +16,17 @@
 
 package androidx.health.services.client.impl
 
+import android.util.Log
 import androidx.annotation.GuardedBy
 import androidx.health.services.client.ExerciseUpdateListener
+import androidx.health.services.client.data.Availability
+import androidx.health.services.client.data.DataType
+import androidx.health.services.client.data.ExerciseLapSummary
+import androidx.health.services.client.data.ExerciseUpdate
+import androidx.health.services.client.impl.event.ExerciseUpdateListenerEvent
 import androidx.health.services.client.impl.ipc.internal.ListenerKey
-import androidx.health.services.client.impl.response.ExerciseLapSummaryResponse
-import androidx.health.services.client.impl.response.ExerciseUpdateResponse
+import androidx.health.services.client.proto.EventsProto
+import androidx.health.services.client.proto.EventsProto.ExerciseUpdateListenerEvent.EventCase
 import java.util.HashMap
 import java.util.concurrent.Executor
 
@@ -35,12 +41,25 @@ private constructor(private val listener: ExerciseUpdateListener, private val ex
 
     public val listenerKey: ListenerKey = ListenerKey(listener)
 
-    override fun onExerciseUpdate(response: ExerciseUpdateResponse) {
-        executor.execute { listener.onExerciseUpdate(response.exerciseUpdate) }
+    override fun onExerciseUpdateListenerEvent(event: ExerciseUpdateListenerEvent) {
+        executor.execute { triggerListener(event.proto) }
     }
 
-    override fun onLapSummary(response: ExerciseLapSummaryResponse) {
-        executor.execute { listener.onLapSummary(response.exerciseLapSummary) }
+    private fun triggerListener(proto: EventsProto.ExerciseUpdateListenerEvent) {
+        when (proto.eventCase) {
+            EventCase.EXERCISE_UPDATE_RESPONSE ->
+                listener.onExerciseUpdate(
+                    ExerciseUpdate(proto.exerciseUpdateResponse.exerciseUpdate)
+                )
+            EventCase.LAP_SUMMARY_RESPONSE ->
+                listener.onLapSummary(ExerciseLapSummary(proto.lapSummaryResponse.lapSummary))
+            EventCase.AVAILABILITY_RESPONSE ->
+                listener.onAvailabilityChanged(
+                    DataType(proto.availabilityResponse.dataType),
+                    Availability.fromProto(proto.availabilityResponse.availability)
+                )
+            null, EventCase.EVENT_NOT_SET -> Log.w(TAG, "Received unknown event ${proto.eventCase}")
+        }
     }
 
     /**
@@ -71,5 +90,9 @@ private constructor(private val listener: ExerciseUpdateListener, private val ex
             @JvmField
             public val INSTANCE: ExerciseUpdateListenerCache = ExerciseUpdateListenerCache()
         }
+    }
+
+    private companion object {
+        val TAG = "ExerciseUpdateListener"
     }
 }

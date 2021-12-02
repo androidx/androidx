@@ -28,4 +28,8 @@
     <string name="toggle_off">Off %s</string>
     <string name="switch_compat">SwitchCompat %s</string>
     <string name="checked_text_view">AppCompatCheckedTextView %s</string>
+    <string name="check_box">AppCompatCheckBox %s</string>
+    <string name="radio_button">AppCompatRadioButton %s</string>
+    <string name="autocomplete_hint">AppCompatAutoCompleteTextView %s</string>
+    <string name="multiautocomplete_hint">AppCompatMultiAutoCompleteTextView %s</string>
 </resources>

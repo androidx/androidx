@@ -40,8 +40,26 @@ interface XExecutableElement : XHasModifiers, XElement {
      * @see [isVarArgs]
      */
     val parameters: List<XExecutableParameterElement>
+
+    /**
+     * The list of `Throwable`s that are declared in this executable's signature.
+     */
+    val thrownTypes: List<XType>
     /**
      * Returns true if this method receives a vararg parameter.
      */
     fun isVarArgs(): Boolean
+
+    /**
+     * The type representation of the method where more type parameters might be resolved.
+     */
+    val executableType: XExecutableType
+
+    /**
+     * Returns the method as if it is declared in [other].
+     *
+     * This is specifically useful if you have a method that has type arguments and there is a
+     * subclass ([other]) where type arguments are specified to actual types.
+     */
+    fun asMemberOf(other: XType): XExecutableType
 }

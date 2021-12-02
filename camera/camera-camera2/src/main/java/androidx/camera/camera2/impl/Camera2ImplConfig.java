@@ -23,6 +23,7 @@ import android.hardware.camera2.CaptureRequest;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.OptIn;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.camera.camera2.interop.CaptureRequestOptions;
@@ -37,6 +38,7 @@ import androidx.camera.core.impl.OptionsBundle;
  * Internal shared implementation details for camera 2 interop.
  */
 @OptIn(markerClass = ExperimentalCamera2Interop.class)
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class Camera2ImplConfig extends CaptureRequestOptions {
 
     /** @hide */

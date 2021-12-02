@@ -20,9 +20,12 @@ import static android.os.Build.VERSION.SDK_INT;
 
 import android.app.AppOpsManager;
 import android.content.Context;
+import android.os.Binder;
 
+import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 
 /**
  * Helper for accessing features in {@link android.app.AppOpsManager}.
@@ -177,6 +180,78 @@ public final class AppOpsManagerCompat {
             return appOpsManager.noteProxyOpNoThrow(op, proxiedPackageName);
         } else {
             return MODE_IGNORED;
+        }
+    }
+
+    /**
+     * Check op for both proxy and proxied packages. Do a quick check for whether an application
+     * might be able to perform an operation. This is not a security check.
+     * On API 23-28, fallback to {@link #noteProxyOpNoThrow(Context, String, String)}
+     * On API 22 and lower, this method always returns {@link #MODE_IGNORED}
+     * @param context Your context.
+     * @param proxyUid The uid of the proxy application.
+     * @param op The operation to note.  One of the OPSTR_* constants.
+     * @param proxiedPackageName The name of the application calling into the proxy application.
+     * @return Returns {@link #MODE_ALLOWED} if the operation is allowed, or
+     * @link #MODE_IGNORED} if it is not allowed and should be silently ignored (without
+     * causing the app to crash).
+     */
+    public static int checkOrNoteProxyOp(@NonNull Context context, int proxyUid,
+            @NonNull String op, @NonNull String proxiedPackageName) {
+        if (SDK_INT >= 29) {
+            AppOpsManager appOpsManager = Api29Impl.getSystemService(context);
+            // Check proxied op
+            int proxiedUid = Binder.getCallingUid();
+            int checkProxiedOpResult = Api29Impl.checkOpNoThrow(appOpsManager, op, proxiedUid,
+                    proxiedPackageName);
+            if (checkProxiedOpResult != MODE_ALLOWED) {
+                return checkProxiedOpResult;
+            }
+
+            // Check proxy op
+            String proxyPackageName = Api29Impl.getOpPackageName(context);
+            return Api29Impl.checkOpNoThrow(appOpsManager, op, proxyUid, proxyPackageName);
+        } else {
+            // For API level 23-28 we want to fallback to noteProxyOpNoThrow()
+            return noteProxyOpNoThrow(context, op, proxiedPackageName);
+        }
+    }
+
+    /**
+     * Nested class to avoid verification errors for methods introduced in Android 10 (API 29).
+     */
+    @RequiresApi(29)
+    static class Api29Impl {
+        private Api29Impl() {
+        }
+
+        /**
+         * Return the AppOpsManager system service.
+         */
+        @DoNotInline
+        static @Nullable AppOpsManager getSystemService(@NonNull Context context) {
+            return context.getSystemService(AppOpsManager.class);
+        }
+
+        /**
+         * Use the AppOpsManager to perform checkOp().
+         */
+        @DoNotInline
+        static int checkOpNoThrow(@Nullable AppOpsManager appOpsManager,
+                @NonNull String op, int uid, @NonNull String packageName) {
+            if (appOpsManager == null) {
+                return MODE_IGNORED;
+            }
+
+            return appOpsManager.checkOpNoThrow(op, uid, packageName);
+        }
+
+        /**
+         * Return the packageName from the context.
+         */
+        @DoNotInline
+        static @NonNull String getOpPackageName(@NonNull Context context) {
+            return context.getOpPackageName();
         }
     }
 }

@@ -23,8 +23,8 @@ import android.os.RemoteCallbackList;
 import android.os.RemoteException;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RestrictTo;
 
 import java.util.HashMap;
 
@@ -33,9 +33,12 @@ import java.util.HashMap;
  * This service runs in the main app process. All the instances of {@link InvalidationTracker}
  * (potentially in other processes) has to connect to this service.
  *
- * @hide
+ * <p>The intent to launch it can be specified by
+ * {@link RoomDatabase.Builder#setMultiInstanceInvalidationServiceIntent}, although the service is
+ * defined in the manifest by default so there should be no need to override it in a normal
+ * situation.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@ExperimentalRoomApi
 public class MultiInstanceInvalidationService extends Service {
 
     // synthetic access
@@ -128,7 +131,7 @@ public class MultiInstanceInvalidationService extends Service {
 
     @Nullable
     @Override
-    public IBinder onBind(Intent intent) {
+    public IBinder onBind(@NonNull Intent intent) {
         return mBinder;
     }
 }

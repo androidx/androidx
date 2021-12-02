@@ -17,13 +17,15 @@ package androidx.camera.integration.core
 
 import android.Manifest
 import android.app.Instrumentation
+import android.content.Context
 import androidx.camera.core.CameraSelector
-import androidx.camera.core.CameraX
+import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.CoreAppTestUtil
 import androidx.lifecycle.Lifecycle.State.CREATED
 import androidx.lifecycle.Lifecycle.State.RESUMED
 import androidx.test.core.app.ActivityScenario
+import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.Espresso
 import androidx.test.espresso.action.ViewActions
 import androidx.test.espresso.matcher.ViewMatchers
@@ -69,7 +71,9 @@ class ExistingActivityLifecycleTest {
         @AfterClass
         @JvmStatic
         fun shutdownCameraX() {
-            CameraX.shutdown().get(10, TimeUnit.SECONDS)
+            val context = ApplicationProvider.getApplicationContext<Context>()
+            val cameraProvider = ProcessCameraProvider.getInstance(context)[10, TimeUnit.SECONDS]
+            cameraProvider.shutdown()[10, TimeUnit.SECONDS]
         }
     }
 

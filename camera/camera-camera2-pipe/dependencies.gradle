@@ -14,16 +14,14 @@
  * limitations under the License.
  */
 
-import static androidx.build.dependencies.DependenciesKt.*
-
 ext {
     CAMERA_PIPE_DEPS = [
         API : [
                 "androidx.annotation:annotation:1.2.0",
-                KOTLIN_STDLIB,
-                KOTLIN_COROUTINES_ANDROID,
+                libs.kotlinStdlib,
+                libs.kotlinCoroutinesAndroid,
                 "org.jetbrains.kotlinx:atomicfu:0.13.1"
         ],
-        IMPLEMENTATION : [DAGGER]
+        IMPLEMENTATION : [libs.dagger]
     ]
 }

@@ -22,11 +22,11 @@ import android.graphics.Rect;
 import android.os.Build;
 import android.view.DisplayCutout;
 
+import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.core.graphics.Insets;
-import androidx.core.os.BuildCompat;
 import androidx.core.util.ObjectsCompat;
 
 import java.util.ArrayList;
@@ -41,7 +41,7 @@ import java.util.List;
  */
 public final class DisplayCutoutCompat {
 
-    private final Object mDisplayCutout;
+    private final DisplayCutout mDisplayCutout;
 
     /**
      * Creates a DisplayCutout instance.
@@ -52,8 +52,8 @@ public final class DisplayCutoutCompat {
      *               {@link #getBoundingRects()} ()}.
      */
     // TODO(b/73953958): @VisibleForTesting(visibility = PRIVATE)
-    public DisplayCutoutCompat(Rect safeInsets, List<Rect> boundingRects) {
-        this(SDK_INT >= 28 ? new DisplayCutout(safeInsets, boundingRects) : null);
+    public DisplayCutoutCompat(@Nullable Rect safeInsets, @Nullable List<Rect> boundingRects) {
+        this(SDK_INT >= 28 ? Api28Impl.createDisplayCutout(safeInsets, boundingRects) : null);
     }
 
     /**
@@ -81,12 +81,12 @@ public final class DisplayCutoutCompat {
     private static DisplayCutout constructDisplayCutout(@NonNull Insets safeInsets,
             @Nullable Rect boundLeft, @Nullable Rect boundTop, @Nullable Rect boundRight,
             @Nullable Rect boundBottom, @NonNull Insets waterfallInsets) {
-        if (BuildCompat.isAtLeastR()) {
-            return new DisplayCutout(safeInsets.toPlatformInsets(), boundLeft,
-                    boundTop, boundRight, boundBottom, waterfallInsets.toPlatformInsets());
+        if (SDK_INT >= 30) {
+            return Api30Impl.createDisplayCutout(safeInsets.toPlatformInsets(), boundLeft, boundTop,
+                    boundRight, boundBottom, waterfallInsets.toPlatformInsets());
         } else if (SDK_INT >= Build.VERSION_CODES.Q) {
-            return new DisplayCutout(safeInsets.toPlatformInsets(), boundLeft,
-                    boundTop, boundRight, boundBottom);
+            return Api29Impl.createDisplayCutout(safeInsets.toPlatformInsets(), boundLeft, boundTop,
+                    boundRight, boundBottom);
         } else if (SDK_INT >= Build.VERSION_CODES.P) {
             final Rect safeInsetRect = new Rect(safeInsets.left, safeInsets.top, safeInsets.right,
                     safeInsets.bottom);
@@ -103,20 +103,20 @@ public final class DisplayCutoutCompat {
             if (boundBottom != null) {
                 boundingRects.add(boundBottom);
             }
-            return new DisplayCutout(safeInsetRect, boundingRects);
+            return Api28Impl.createDisplayCutout(safeInsetRect, boundingRects);
         } else {
             return null;
         }
     }
 
-    private DisplayCutoutCompat(Object displayCutout) {
+    private DisplayCutoutCompat(DisplayCutout displayCutout) {
         mDisplayCutout = displayCutout;
     }
 
     /** Returns the inset from the top which avoids the display cutout in pixels. */
     public int getSafeInsetTop() {
         if (SDK_INT >= 28) {
-            return ((DisplayCutout) mDisplayCutout).getSafeInsetTop();
+            return Api28Impl.getSafeInsetTop(mDisplayCutout);
         } else {
             return 0;
         }
@@ -125,7 +125,7 @@ public final class DisplayCutoutCompat {
     /** Returns the inset from the bottom which avoids the display cutout in pixels. */
     public int getSafeInsetBottom() {
         if (SDK_INT >= 28) {
-            return ((DisplayCutout) mDisplayCutout).getSafeInsetBottom();
+            return Api28Impl.getSafeInsetBottom(mDisplayCutout);
         } else {
             return 0;
         }
@@ -134,7 +134,7 @@ public final class DisplayCutoutCompat {
     /** Returns the inset from the left which avoids the display cutout in pixels. */
     public int getSafeInsetLeft() {
         if (SDK_INT >= 28) {
-            return ((DisplayCutout) mDisplayCutout).getSafeInsetLeft();
+            return Api28Impl.getSafeInsetLeft(mDisplayCutout);
         } else {
             return 0;
         }
@@ -143,7 +143,7 @@ public final class DisplayCutoutCompat {
     /** Returns the inset from the right which avoids the display cutout in pixels. */
     public int getSafeInsetRight() {
         if (SDK_INT >= 28) {
-            return ((DisplayCutout) mDisplayCutout).getSafeInsetRight();
+            return Api28Impl.getSafeInsetRight(mDisplayCutout);
         } else {
             return 0;
         }
@@ -161,7 +161,7 @@ public final class DisplayCutoutCompat {
     @NonNull
     public List<Rect> getBoundingRects() {
         if (SDK_INT >= 28) {
-            return ((DisplayCutout) mDisplayCutout).getBoundingRects();
+            return Api28Impl.getBoundingRects(mDisplayCutout);
         } else {
             return Collections.emptyList();
         }
@@ -179,8 +179,8 @@ public final class DisplayCutoutCompat {
      */
     @NonNull
     public Insets getWaterfallInsets() {
-        if (BuildCompat.isAtLeastR()) {
-            return Insets.toCompatInsets(((DisplayCutout) mDisplayCutout).getWaterfallInsets());
+        if (SDK_INT >= 30) {
+            return Insets.toCompatInsets(Api30Impl.getWaterfallInsets(mDisplayCutout));
         } else {
             return Insets.NONE;
         }
@@ -203,17 +203,88 @@ public final class DisplayCutoutCompat {
         return mDisplayCutout == null ? 0 : mDisplayCutout.hashCode();
     }
 
+    @NonNull
     @Override
     public String toString() {
         return "DisplayCutoutCompat{" + mDisplayCutout + "}";
     }
 
-    static DisplayCutoutCompat wrap(Object displayCutout) {
+    static DisplayCutoutCompat wrap(DisplayCutout displayCutout) {
         return displayCutout == null ? null : new DisplayCutoutCompat(displayCutout);
     }
 
-    @RequiresApi(api = 28)
+    @RequiresApi(28)
     DisplayCutout unwrap() {
-        return (DisplayCutout) mDisplayCutout;
+        return mDisplayCutout;
+    }
+
+    @RequiresApi(28)
+    static class Api28Impl {
+        private Api28Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static DisplayCutout createDisplayCutout(Rect safeInsets, List<Rect> boundingRects) {
+            return new DisplayCutout(safeInsets, boundingRects);
+        }
+
+        @DoNotInline
+        static int getSafeInsetTop(DisplayCutout displayCutout) {
+            return displayCutout.getSafeInsetTop();
+        }
+
+        @DoNotInline
+        static int getSafeInsetBottom(DisplayCutout displayCutout) {
+            return displayCutout.getSafeInsetBottom();
+        }
+
+        @DoNotInline
+        static int getSafeInsetLeft(DisplayCutout displayCutout) {
+            return displayCutout.getSafeInsetLeft();
+        }
+
+        @DoNotInline
+        static int getSafeInsetRight(DisplayCutout displayCutout) {
+            return displayCutout.getSafeInsetRight();
+        }
+
+        @DoNotInline
+        static List<Rect> getBoundingRects(DisplayCutout displayCutout) {
+            return displayCutout.getBoundingRects();
+        }
+    }
+
+    @RequiresApi(30)
+    static class Api30Impl {
+        private Api30Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static DisplayCutout createDisplayCutout(android.graphics.Insets safeInsets, Rect boundLeft,
+                Rect boundTop, Rect boundRight, Rect boundBottom,
+                android.graphics.Insets waterfallInsets) {
+            return new DisplayCutout(safeInsets, boundLeft, boundTop, boundRight, boundBottom,
+                    waterfallInsets);
+        }
+
+        @DoNotInline
+        static android.graphics.Insets getWaterfallInsets(DisplayCutout displayCutout) {
+            return displayCutout.getWaterfallInsets();
+        }
+    }
+
+    @RequiresApi(29)
+    static class Api29Impl {
+        private Api29Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static DisplayCutout createDisplayCutout(android.graphics.Insets safeInsets, Rect boundLeft,
+                Rect boundTop, Rect boundRight, Rect boundBottom) {
+            return new DisplayCutout(safeInsets, boundLeft, boundTop, boundRight, boundBottom);
+        }
     }
 }

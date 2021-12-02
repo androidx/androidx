@@ -366,7 +366,7 @@ final class LegacyTextClassifier extends TextClassifier {
         @Nullable
         private PendingIntent createPendingIntent(Intent intent, int requestCode) {
             final ResolveInfo resolveInfo = mPackageManager.resolveActivity(intent, 0);
-            final int flags = PendingIntent.FLAG_UPDATE_CURRENT;
+            final int flags = PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE;
             if (resolveInfo != null && resolveInfo.activityInfo != null
                     && mPermissionsChecker.hasPermission(resolveInfo.activityInfo)) {
                 return PendingIntent.getActivity(mContext, requestCode, intent, flags);

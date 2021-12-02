@@ -39,6 +39,31 @@ class BackStackStateTest {
     }
 
     @Test
+    fun testRestoreFromPending() {
+        val fragment = StrictFragment()
+        val backStackRecord = BackStackRecord(fragmentManager).apply {
+            add(fragment, "tag")
+            addToBackStack("back_stack")
+            setReorderingAllowed(true)
+            setMaxLifecycle(fragment, Lifecycle.State.STARTED)
+        }
+
+        val backStackState = BackStackState(
+            listOf(fragment.mWho),
+            listOf(BackStackRecordState(backStackRecord))
+        )
+
+        val restoredBackStackRecords = backStackState.instantiate(
+            fragmentManager,
+            mapOf(fragment.mWho to fragment)
+        )
+        assertThat(restoredBackStackRecords)
+            .hasSize(1)
+        assertThat(restoredBackStackRecords[0].mOps[0].mFragment)
+            .isSameInstanceAs(fragment)
+    }
+
+    @Test
     fun testParcel() {
         val fragment = StrictFragment()
         val backStackRecord = BackStackRecord(fragmentManager).apply {
@@ -64,7 +89,10 @@ class BackStackStateTest {
         assertThat(restoredBackStackState.mTransactions)
             .hasSize(1)
 
-        val restoredBackStackRecords = restoredBackStackState.instantiate(fragmentManager)
+        val restoredBackStackRecords = restoredBackStackState.instantiate(
+            fragmentManager,
+            emptyMap()
+        )
         assertThat(restoredBackStackRecords)
             .hasSize(1)
         assertThat(restoredBackStackRecords[0].mOps[0].mFragment)

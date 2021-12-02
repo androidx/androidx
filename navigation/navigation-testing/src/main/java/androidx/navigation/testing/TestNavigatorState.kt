@@ -19,15 +19,12 @@ package androidx.navigation.testing
 import android.content.Context
 import android.os.Bundle
 import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModelStore
-import androidx.lifecycle.testing.TestLifecycleOwner
 import androidx.navigation.FloatingWindow
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavDestination
 import androidx.navigation.NavViewModelStoreProvider
 import androidx.navigation.NavigatorState
-import androidx.navigation.NavigatorState.OnTransitionCompleteListener
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
@@ -51,11 +48,6 @@ public class TestNavigatorState @JvmOverloads constructor(
     private val coroutineDispatcher: CoroutineDispatcher = Dispatchers.Main.immediate
 ) : NavigatorState() {
 
-    private val lifecycleOwner: LifecycleOwner = TestLifecycleOwner(
-        Lifecycle.State.RESUMED,
-        coroutineDispatcher
-    )
-
     private val viewModelStoreProvider = object : NavViewModelStoreProvider {
         private val viewModelStores = mutableMapOf<String, ViewModelStore>()
         override fun getViewModelStore(
@@ -66,12 +58,13 @@ public class TestNavigatorState @JvmOverloads constructor(
     }
 
     private val savedStates = mutableMapOf<String, Bundle>()
+    private val entrySavedState = mutableMapOf<NavBackStackEntry, Boolean>()
 
     override fun createBackStackEntry(
         destination: NavDestination,
         arguments: Bundle?
     ): NavBackStackEntry = NavBackStackEntry.create(
-        context, destination, arguments, lifecycleOwner, viewModelStoreProvider
+        context, destination, arguments, Lifecycle.State.RESUMED, viewModelStoreProvider
     )
 
     /**
@@ -86,7 +79,7 @@ public class TestNavigatorState @JvmOverloads constructor(
         return NavBackStackEntry.create(
             context,
             previouslySavedEntry.destination, previouslySavedEntry.arguments,
-            lifecycleOwner, viewModelStoreProvider,
+            Lifecycle.State.RESUMED, viewModelStoreProvider,
             previouslySavedEntry.id, savedState
         )
     }
@@ -96,19 +89,6 @@ public class TestNavigatorState @JvmOverloads constructor(
         updateMaxLifecycle()
     }
 
-    override fun pushWithTransition(
-        backStackEntry: NavBackStackEntry
-    ): OnTransitionCompleteListener {
-        val innerListener = super.pushWithTransition(backStackEntry)
-        val listener = OnTransitionCompleteListener {
-            innerListener.onTransitionComplete()
-            updateMaxLifecycle()
-        }
-        addInProgressTransition(backStackEntry, listener)
-        updateMaxLifecycle()
-        return listener
-    }
-
     override fun pop(popUpTo: NavBackStackEntry, saveState: Boolean) {
         val beforePopList = backStack.value
         val poppedList = beforePopList.subList(beforePopList.indexOf(popUpTo), beforePopList.size)
@@ -116,18 +96,20 @@ public class TestNavigatorState @JvmOverloads constructor(
         updateMaxLifecycle(poppedList, saveState)
     }
 
-    override fun popWithTransition(
-        popUpTo: NavBackStackEntry,
-        saveState: Boolean
-    ): OnTransitionCompleteListener {
-        val innerListener = super.popWithTransition(popUpTo, saveState)
-        val listener = OnTransitionCompleteListener {
-            innerListener.onTransitionComplete()
+    override fun popWithTransition(popUpTo: NavBackStackEntry, saveState: Boolean) {
+        super.popWithTransition(popUpTo, saveState)
+        entrySavedState[popUpTo] = saveState
+    }
+
+    override fun markTransitionComplete(entry: NavBackStackEntry) {
+        val savedState = entrySavedState[entry] == true
+        super.markTransitionComplete(entry)
+        entrySavedState.remove(entry)
+        if (!backStack.value.contains(entry)) {
+            updateMaxLifecycle(listOf(entry), savedState)
+        } else {
             updateMaxLifecycle()
         }
-        addInProgressTransition(popUpTo, listener)
-        updateMaxLifecycle()
-        return listener
     }
 
     private fun updateMaxLifecycle(
@@ -141,16 +123,23 @@ public class TestNavigatorState @JvmOverloads constructor(
             withContext(Dispatchers.Main.immediate) {
                 // Mark all removed NavBackStackEntries as DESTROYED
                 for (entry in poppedList.reversed()) {
-                    if (saveState) {
+                    if (
+                        saveState &&
+                        entry.lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)
+                    ) {
                         // Move the NavBackStackEntry to the stopped state, then save its state
                         entry.maxLifecycle = Lifecycle.State.CREATED
                         val savedState = Bundle()
                         entry.saveState(savedState)
                         savedStates[entry.id] = savedState
                     }
-                    val transitioning = transitionsInProgress.value.containsKey(entry)
+                    val transitioning = transitionsInProgress.value.contains(entry)
                     if (!transitioning) {
                         entry.maxLifecycle = Lifecycle.State.DESTROYED
+                        if (!saveState) {
+                            savedStates.remove(entry.id)
+                            viewModelStoreProvider.getViewModelStore(entry.id).clear()
+                        }
                     } else {
                         entry.maxLifecycle = Lifecycle.State.CREATED
                     }
@@ -159,7 +148,7 @@ public class TestNavigatorState @JvmOverloads constructor(
                 val currentList = backStack.value
                 var previousEntry: NavBackStackEntry? = null
                 for (entry in currentList.reversed()) {
-                    val transitioning = transitionsInProgress.value.containsKey(entry)
+                    val transitioning = transitionsInProgress.value.contains(entry)
                     entry.maxLifecycle = when {
                         previousEntry == null ->
                             if (!transitioning) {

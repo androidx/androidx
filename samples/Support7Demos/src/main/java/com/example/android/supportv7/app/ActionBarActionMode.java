@@ -55,6 +55,7 @@ public class ActionBarActionMode extends AppCompatActivity {
 
             @Override
             public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+                mode.setTitle(R.string.action_mode_title);
                 return false;
             }
 

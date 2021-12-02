@@ -29,10 +29,10 @@ dependencies {
     kotlinPlugin(projectOrArtifact(":compose:compiler:compiler"))
 
     implementation(libs.kotlinStdlib)
-    api(projectOrArtifact(":compose:runtime:runtime"))
-    api(projectOrArtifact(":compose:runtime:runtime-saveable"))
+    api("androidx.compose.runtime:runtime:1.0.1")
+    api("androidx.compose.runtime:runtime-saveable:1.0.1")
     api(projectOrArtifact(":activity:activity-ktx"))
-    api(projectOrArtifact(":compose:ui:ui"))
+    api("androidx.compose.ui:ui:1.0.1")
 
     androidTestImplementation projectOrArtifact(":compose:ui:ui-test-junit4")
     androidTestImplementation projectOrArtifact(":compose:material:material")
@@ -42,6 +42,11 @@ dependencies {
     androidTestImplementation(libs.testExtJunitKtx)
     androidTestImplementation(libs.junit)
     androidTestImplementation(libs.truth)
+
+    lintChecks(projectOrArtifact(":activity:activity-compose-lint"))
+    lintPublish(projectOrArtifact(":activity:activity-compose-lint"))
+
+    samples(projectOrArtifact(":activity:activity-compose:activity-compose-samples"))
 }
 
 androidx {

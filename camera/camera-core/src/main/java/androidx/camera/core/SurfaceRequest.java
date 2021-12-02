@@ -30,9 +30,11 @@ import android.view.TextureView;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.camera.core.impl.CameraInternal;
 import androidx.camera.core.impl.DeferrableSurface;
+import androidx.camera.core.impl.ImageFormatConstants;
 import androidx.camera.core.impl.ImageOutputConfig;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.impl.utils.futures.FutureCallback;
@@ -59,6 +61,7 @@ import java.util.concurrent.atomic.AtomicReference;
  *
  * @see Preview.SurfaceProvider#onSurfaceRequested(SurfaceRequest)
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class SurfaceRequest {
 
     private final Size mResolution;
@@ -173,7 +176,8 @@ public final class SurfaceRequest {
         // an implicit reference to the SurfaceRequest. This is by design, and ensures the
         // SurfaceRequest and all contained future completers will not be garbage collected as
         // long as the DeferrableSurface is referenced externally (via getDeferrableSurface()).
-        mInternalDeferrableSurface = new DeferrableSurface() {
+        mInternalDeferrableSurface = new DeferrableSurface(resolution,
+                ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE) {
             @NonNull
             @Override
             protected ListenableFuture<Surface> provideSurface() {

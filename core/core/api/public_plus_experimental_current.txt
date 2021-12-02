@@ -30,6 +30,7 @@ package androidx.core.app {
     method public static void finishAfterTransition(android.app.Activity);
     method public static android.net.Uri? getReferrer(android.app.Activity);
     method @Deprecated public static boolean invalidateOptionsMenu(android.app.Activity!);
+    method public static boolean isLaunchedFromBubble(android.app.Activity);
     method public static void postponeEnterTransition(android.app.Activity);
     method public static void recreate(android.app.Activity);
     method public static androidx.core.view.DragAndDropPermissionsCompat? requestDragAndDropPermissions(android.app.Activity!, android.view.DragEvent!);
@@ -105,6 +106,7 @@ package androidx.core.app {
   }
 
   public final class AppOpsManagerCompat {
+    method public static int checkOrNoteProxyOp(android.content.Context, int, String, String);
     method public static int noteOp(android.content.Context, String, int, String);
     method public static int noteOpNoThrow(android.content.Context, String, int, String);
     method public static int noteProxyOp(android.content.Context, String, String);
@@ -317,11 +319,13 @@ package androidx.core.app {
     field @Deprecated public static final String EXTRA_PEOPLE = "android.people";
     field public static final String EXTRA_PEOPLE_LIST = "android.people.list";
     field public static final String EXTRA_PICTURE = "android.picture";
+    field public static final String EXTRA_PICTURE_CONTENT_DESCRIPTION = "android.pictureContentDescription";
     field public static final String EXTRA_PROGRESS = "android.progress";
     field public static final String EXTRA_PROGRESS_INDETERMINATE = "android.progressIndeterminate";
     field public static final String EXTRA_PROGRESS_MAX = "android.progressMax";
     field public static final String EXTRA_REMOTE_INPUT_HISTORY = "android.remoteInputHistory";
     field public static final String EXTRA_SELF_DISPLAY_NAME = "android.selfDisplayName";
+    field public static final String EXTRA_SHOW_BIG_PICTURE_WHEN_COLLAPSED = "android.showBigPictureWhenCollapsed";
     field public static final String EXTRA_SHOW_CHRONOMETER = "android.showChronometer";
     field public static final String EXTRA_SHOW_WHEN = "android.showWhen";
     field public static final String EXTRA_SMALL_ICON = "android.icon";
@@ -343,6 +347,9 @@ package androidx.core.app {
     field public static final int FLAG_ONGOING_EVENT = 2; // 0x2
     field public static final int FLAG_ONLY_ALERT_ONCE = 8; // 0x8
     field public static final int FLAG_SHOW_LIGHTS = 1; // 0x1
+    field public static final int FOREGROUND_SERVICE_DEFAULT = 0; // 0x0
+    field public static final int FOREGROUND_SERVICE_DEFERRED = 2; // 0x2
+    field public static final int FOREGROUND_SERVICE_IMMEDIATE = 1; // 0x1
     field public static final int GROUP_ALERT_ALL = 0; // 0x0
     field public static final int GROUP_ALERT_CHILDREN = 2; // 0x2
     field public static final int GROUP_ALERT_SUMMARY = 1; // 0x1
@@ -372,6 +379,7 @@ package androidx.core.app {
     method @androidx.core.app.NotificationCompat.Action.SemanticAction public int getSemanticAction();
     method public boolean getShowsUserInterface();
     method public CharSequence? getTitle();
+    method public boolean isAuthenticationRequired();
     method public boolean isContextual();
     field public static final int SEMANTIC_ACTION_ARCHIVE = 5; // 0x5
     field public static final int SEMANTIC_ACTION_CALL = 10; // 0xa
@@ -399,6 +407,7 @@ package androidx.core.app {
     method public androidx.core.app.NotificationCompat.Action.Builder extend(androidx.core.app.NotificationCompat.Action.Extender);
     method public android.os.Bundle getExtras();
     method public androidx.core.app.NotificationCompat.Action.Builder setAllowGeneratedReplies(boolean);
+    method public androidx.core.app.NotificationCompat.Action.Builder setAuthenticationRequired(boolean);
     method public androidx.core.app.NotificationCompat.Action.Builder setContextual(boolean);
     method public androidx.core.app.NotificationCompat.Action.Builder setSemanticAction(@androidx.core.app.NotificationCompat.Action.SemanticAction int);
     method public androidx.core.app.NotificationCompat.Action.Builder setShowsUserInterface(boolean);
@@ -436,7 +445,9 @@ package androidx.core.app {
     method public androidx.core.app.NotificationCompat.BigPictureStyle bigLargeIcon(android.graphics.Bitmap?);
     method public androidx.core.app.NotificationCompat.BigPictureStyle bigPicture(android.graphics.Bitmap?);
     method public androidx.core.app.NotificationCompat.BigPictureStyle setBigContentTitle(CharSequence?);
+    method @RequiresApi(31) public androidx.core.app.NotificationCompat.BigPictureStyle setContentDescription(CharSequence?);
     method public androidx.core.app.NotificationCompat.BigPictureStyle setSummaryText(CharSequence?);
+    method @RequiresApi(31) public androidx.core.app.NotificationCompat.BigPictureStyle showBigPictureWhenCollapsed(boolean);
   }
 
   public static class NotificationCompat.BigTextStyle extends androidx.core.app.NotificationCompat.Style {
@@ -516,6 +527,7 @@ package androidx.core.app {
     method public androidx.core.app.NotificationCompat.Builder setDefaults(int);
     method public androidx.core.app.NotificationCompat.Builder setDeleteIntent(android.app.PendingIntent?);
     method public androidx.core.app.NotificationCompat.Builder setExtras(android.os.Bundle?);
+    method public androidx.core.app.NotificationCompat.Builder setForegroundServiceBehavior(int);
     method public androidx.core.app.NotificationCompat.Builder setFullScreenIntent(android.app.PendingIntent?, boolean);
     method public androidx.core.app.NotificationCompat.Builder setGroup(String?);
     method public androidx.core.app.NotificationCompat.Builder setGroupAlertBehavior(int);
@@ -948,7 +960,7 @@ package androidx.core.content {
   }
 
   public final class ContentResolverCompat {
-    method public static android.database.Cursor! query(android.content.ContentResolver!, android.net.Uri!, String![]!, String!, String![]!, String!, androidx.core.os.CancellationSignal!);
+    method public static android.database.Cursor? query(android.content.ContentResolver, android.net.Uri, String![]?, String?, String![]?, String?, androidx.core.os.CancellationSignal?);
   }
 
   public class ContextCompat {
@@ -978,22 +990,19 @@ package androidx.core.content {
   public class FileProvider extends android.content.ContentProvider {
     ctor public FileProvider();
     method public int delete(android.net.Uri, String?, String![]?);
-    method public String! getType(android.net.Uri);
+    method public String? getType(android.net.Uri);
     method public static android.net.Uri! getUriForFile(android.content.Context, String, java.io.File);
     method public static android.net.Uri getUriForFile(android.content.Context, String, java.io.File, String);
-    method public android.net.Uri! insert(android.net.Uri, android.content.ContentValues!);
+    method public android.net.Uri! insert(android.net.Uri, android.content.ContentValues);
     method public boolean onCreate();
-    method public android.database.Cursor! query(android.net.Uri, String![]?, String?, String![]?, String?);
-    method public int update(android.net.Uri, android.content.ContentValues!, String?, String![]?);
+    method public android.database.Cursor query(android.net.Uri, String![]?, String?, String![]?, String?);
+    method public int update(android.net.Uri, android.content.ContentValues, String?, String![]?);
   }
 
   public final class IntentCompat {
-    method public static boolean areUnusedAppRestrictionsAllowlisted(android.content.Context);
-    method public static boolean areUnusedAppRestrictionsAvailable(android.content.Context);
     method public static android.content.Intent createManageUnusedAppRestrictionsIntent(android.content.Context, String);
     method public static android.content.Intent makeMainSelectorActivity(String, String);
     field public static final String ACTION_CREATE_REMINDER = "android.intent.action.CREATE_REMINDER";
-    field public static final String ACTION_UNUSED_APP_RESTRICTIONS = "android.intent.action.AUTO_REVOKE_PERMISSIONS";
     field public static final String CATEGORY_LEANBACK_LAUNCHER = "android.intent.category.LEANBACK_LAUNCHER";
     field public static final String EXTRA_HTML_TEXT = "android.intent.extra.HTML_TEXT";
     field public static final String EXTRA_START_PLAYBACK = "android.intent.extra.START_PLAYBACK";
@@ -1014,6 +1023,11 @@ package androidx.core.content {
     method public static String![] matchesMany(String![]?, String);
   }
 
+  public final class PackageManagerCompat {
+    method public static com.google.common.util.concurrent.ListenableFuture<java.lang.Integer!> getUnusedAppRestrictionsStatus(android.content.Context);
+    field public static final String ACTION_PERMISSION_REVOCATION_SETTINGS = "android.intent.action.AUTO_REVOKE_PERMISSIONS";
+  }
+
   public final class PermissionChecker {
     method public static int checkCallingOrSelfPermission(android.content.Context, String);
     method public static int checkCallingPermission(android.content.Context, String, String?);
@@ -1030,6 +1044,26 @@ package androidx.core.content {
   @Deprecated public static final class SharedPreferencesCompat.EditorCompat {
     method @Deprecated public void apply(android.content.SharedPreferences.Editor);
     method @Deprecated public static androidx.core.content.SharedPreferencesCompat.EditorCompat! getInstance();
+  }
+
+  public class UnusedAppRestrictionsBackportCallback {
+    method public void onResult(boolean, boolean) throws android.os.RemoteException;
+  }
+
+  public abstract class UnusedAppRestrictionsBackportService extends android.app.Service {
+    ctor public UnusedAppRestrictionsBackportService();
+    method protected abstract void isPermissionRevocationEnabled(androidx.core.content.UnusedAppRestrictionsBackportCallback);
+    method public android.os.IBinder? onBind(android.content.Intent?);
+    field public static final String ACTION_UNUSED_APP_RESTRICTIONS_BACKPORT_CONNECTION = "android.support.unusedapprestrictions.action.CustomUnusedAppRestrictionsBackportService";
+  }
+
+  public final class UnusedAppRestrictionsConstants {
+    field public static final int API_30 = 4; // 0x4
+    field public static final int API_30_BACKPORT = 3; // 0x3
+    field public static final int API_31 = 5; // 0x5
+    field public static final int DISABLED = 2; // 0x2
+    field public static final int ERROR = 0; // 0x0
+    field public static final int FEATURE_NOT_AVAILABLE = 1; // 0x1
   }
 
 }
@@ -1072,9 +1106,11 @@ package androidx.core.content.pm {
     method public boolean isDeclaredInManifest();
     method public boolean isDynamic();
     method public boolean isEnabled();
+    method public boolean isExcludedFrom(int);
     method public boolean isImmutable();
     method public boolean isPinned();
     method @RequiresApi(25) public android.content.pm.ShortcutInfo! toShortcutInfo();
+    field public static final int SURFACE_LAUNCHER = 1; // 0x1
   }
 
   public static class ShortcutInfoCompat.Builder {
@@ -1086,6 +1122,7 @@ package androidx.core.content.pm {
     method public androidx.core.content.pm.ShortcutInfoCompat.Builder setAlwaysBadged();
     method public androidx.core.content.pm.ShortcutInfoCompat.Builder setCategories(java.util.Set<java.lang.String!>);
     method public androidx.core.content.pm.ShortcutInfoCompat.Builder setDisabledMessage(CharSequence);
+    method public androidx.core.content.pm.ShortcutInfoCompat.Builder setExcludedSurfaces(int);
     method public androidx.core.content.pm.ShortcutInfoCompat.Builder setExtras(android.os.PersistableBundle);
     method public androidx.core.content.pm.ShortcutInfoCompat.Builder setIcon(androidx.core.graphics.drawable.IconCompat!);
     method public androidx.core.content.pm.ShortcutInfoCompat.Builder setIntent(android.content.Intent);
@@ -1233,8 +1270,8 @@ package androidx.core.graphics {
     method public static void RGBToHSL(@IntRange(from=0, to=255) int, @IntRange(from=0, to=255) int, @IntRange(from=0, to=255) int, float[]);
     method public static void RGBToLAB(@IntRange(from=0, to=255) int, @IntRange(from=0, to=255) int, @IntRange(from=0, to=255) int, double[]);
     method public static void RGBToXYZ(@IntRange(from=0, to=255) int, @IntRange(from=0, to=255) int, @IntRange(from=0, to=255) int, double[]);
-    method @ColorInt public static int XYZToColor(@FloatRange(from=0.0f, to=androidx.core.graphics.ColorUtils.XYZ_WHITE_REFERENCE_X) double, @FloatRange(from=0.0f, to=androidx.core.graphics.ColorUtils.XYZ_WHITE_REFERENCE_Y) double, @FloatRange(from=0.0f, to=androidx.core.graphics.ColorUtils.XYZ_WHITE_REFERENCE_Z) double);
-    method public static void XYZToLAB(@FloatRange(from=0.0f, to=androidx.core.graphics.ColorUtils.XYZ_WHITE_REFERENCE_X) double, @FloatRange(from=0.0f, to=androidx.core.graphics.ColorUtils.XYZ_WHITE_REFERENCE_Y) double, @FloatRange(from=0.0f, to=androidx.core.graphics.ColorUtils.XYZ_WHITE_REFERENCE_Z) double, double[]);
+    method @ColorInt public static int XYZToColor(@FloatRange(from=0.0f, to=95.047) double, @FloatRange(from=0.0f, to=0x64) double, @FloatRange(from=0.0f, to=108.883) double);
+    method public static void XYZToLAB(@FloatRange(from=0.0f, to=95.047) double, @FloatRange(from=0.0f, to=0x64) double, @FloatRange(from=0.0f, to=108.883) double, double[]);
     method @ColorInt public static int blendARGB(@ColorInt int, @ColorInt int, @FloatRange(from=0.0, to=1.0) float);
     method public static void blendHSL(float[], float[], @FloatRange(from=0.0, to=1.0) float, float[]);
     method public static void blendLAB(double[], double[], @FloatRange(from=0.0, to=1.0) double, double[]);
@@ -1459,20 +1496,71 @@ package androidx.core.location {
   }
 
   public final class LocationCompat {
+    method public static float getBearingAccuracyDegrees(android.location.Location);
     method public static long getElapsedRealtimeMillis(android.location.Location);
     method public static long getElapsedRealtimeNanos(android.location.Location);
+    method public static float getSpeedAccuracyMetersPerSecond(android.location.Location);
+    method public static float getVerticalAccuracyMeters(android.location.Location);
+    method public static boolean hasBearingAccuracy(android.location.Location);
+    method public static boolean hasSpeedAccuracy(android.location.Location);
+    method public static boolean hasVerticalAccuracy(android.location.Location);
     method public static boolean isMock(android.location.Location);
+    method public static void setBearingAccuracyDegrees(android.location.Location, float);
     method public static void setMock(android.location.Location, boolean);
+    method public static void setSpeedAccuracyMetersPerSecond(android.location.Location, float);
+    method public static void setVerticalAccuracyMeters(android.location.Location, float);
+    field public static final String EXTRA_BEARING_ACCURACY = "bearingAccuracy";
+    field public static final String EXTRA_IS_MOCK = "mockLocation";
+    field public static final String EXTRA_SPEED_ACCURACY = "speedAccuracy";
+    field public static final String EXTRA_VERTICAL_ACCURACY = "verticalAccuracy";
+  }
+
+  public interface LocationListenerCompat extends android.location.LocationListener {
+    method public default void onStatusChanged(String, int, android.os.Bundle?);
   }
 
   public final class LocationManagerCompat {
     method @RequiresPermission(anyOf={android.Manifest.permission.ACCESS_COARSE_LOCATION, android.Manifest.permission.ACCESS_FINE_LOCATION}) public static void getCurrentLocation(android.location.LocationManager, String, androidx.core.os.CancellationSignal?, java.util.concurrent.Executor, androidx.core.util.Consumer<android.location.Location!>);
     method public static String? getGnssHardwareModelName(android.location.LocationManager);
     method public static int getGnssYearOfHardware(android.location.LocationManager);
+    method public static boolean hasProvider(android.location.LocationManager, String);
     method public static boolean isLocationEnabled(android.location.LocationManager);
     method @RequiresPermission(android.Manifest.permission.ACCESS_FINE_LOCATION) public static boolean registerGnssStatusCallback(android.location.LocationManager, androidx.core.location.GnssStatusCompat.Callback, android.os.Handler);
     method @RequiresPermission(android.Manifest.permission.ACCESS_FINE_LOCATION) public static boolean registerGnssStatusCallback(android.location.LocationManager, java.util.concurrent.Executor, androidx.core.location.GnssStatusCompat.Callback);
+    method @RequiresPermission(anyOf={android.Manifest.permission.ACCESS_COARSE_LOCATION, android.Manifest.permission.ACCESS_FINE_LOCATION}) public static void removeUpdates(android.location.LocationManager, androidx.core.location.LocationListenerCompat);
+    method @RequiresPermission(anyOf={android.Manifest.permission.ACCESS_COARSE_LOCATION, android.Manifest.permission.ACCESS_FINE_LOCATION}) public static void requestLocationUpdates(android.location.LocationManager, String, androidx.core.location.LocationRequestCompat, java.util.concurrent.Executor, androidx.core.location.LocationListenerCompat);
+    method @RequiresPermission(anyOf={android.Manifest.permission.ACCESS_COARSE_LOCATION, android.Manifest.permission.ACCESS_FINE_LOCATION}) public static void requestLocationUpdates(android.location.LocationManager, String, androidx.core.location.LocationRequestCompat, androidx.core.location.LocationListenerCompat, android.os.Looper);
     method public static void unregisterGnssStatusCallback(android.location.LocationManager, androidx.core.location.GnssStatusCompat.Callback);
+  }
+
+  public final class LocationRequestCompat {
+    method @IntRange(from=1) public long getDurationMillis();
+    method @IntRange(from=0) public long getIntervalMillis();
+    method @IntRange(from=0) public long getMaxUpdateDelayMillis();
+    method @IntRange(from=1, to=java.lang.Integer.MAX_VALUE) public int getMaxUpdates();
+    method @FloatRange(from=0, to=java.lang.Float.MAX_VALUE) public float getMinUpdateDistanceMeters();
+    method @IntRange(from=0) public long getMinUpdateIntervalMillis();
+    method public int getQuality();
+    method @RequiresApi(31) public android.location.LocationRequest toLocationRequest();
+    method @RequiresApi(19) public android.location.LocationRequest? toLocationRequest(String);
+    field public static final long PASSIVE_INTERVAL = 9223372036854775807L; // 0x7fffffffffffffffL
+    field public static final int QUALITY_BALANCED_POWER_ACCURACY = 102; // 0x66
+    field public static final int QUALITY_HIGH_ACCURACY = 100; // 0x64
+    field public static final int QUALITY_LOW_POWER = 104; // 0x68
+  }
+
+  public static final class LocationRequestCompat.Builder {
+    ctor public LocationRequestCompat.Builder(long);
+    ctor public LocationRequestCompat.Builder(androidx.core.location.LocationRequestCompat);
+    method public androidx.core.location.LocationRequestCompat build();
+    method public androidx.core.location.LocationRequestCompat.Builder clearMinUpdateIntervalMillis();
+    method public androidx.core.location.LocationRequestCompat.Builder setDurationMillis(@IntRange(from=1) long);
+    method public androidx.core.location.LocationRequestCompat.Builder setIntervalMillis(@IntRange(from=0) long);
+    method public androidx.core.location.LocationRequestCompat.Builder setMaxUpdateDelayMillis(@IntRange(from=0) long);
+    method public androidx.core.location.LocationRequestCompat.Builder setMaxUpdates(@IntRange(from=1, to=java.lang.Integer.MAX_VALUE) int);
+    method public androidx.core.location.LocationRequestCompat.Builder setMinUpdateDistanceMeters(@FloatRange(from=0, to=java.lang.Float.MAX_VALUE) float);
+    method public androidx.core.location.LocationRequestCompat.Builder setMinUpdateIntervalMillis(@IntRange(from=0) long);
+    method public androidx.core.location.LocationRequestCompat.Builder setQuality(int);
   }
 
 }
@@ -1480,10 +1568,23 @@ package androidx.core.location {
 package androidx.core.math {
 
   public class MathUtils {
+    method public static int addExact(int, int);
+    method public static long addExact(long, long);
     method public static float clamp(float, float, float);
     method public static double clamp(double, double, double);
     method public static int clamp(int, int, int);
     method public static long clamp(long, long, long);
+    method public static int decrementExact(int);
+    method public static long decrementExact(long);
+    method public static int incrementExact(int);
+    method public static long incrementExact(long);
+    method public static int multiplyExact(int, int);
+    method public static long multiplyExact(long, long);
+    method public static int negateExact(int);
+    method public static long negateExact(long);
+    method public static int subtractExact(int, int);
+    method public static long subtractExact(long, long);
+    method public static int toIntExact(long);
   }
 
 }
@@ -1545,8 +1646,9 @@ package androidx.core.os {
     method @Deprecated @ChecksSdkIntAtLeast(api=android.os.Build.VERSION_CODES.P) public static boolean isAtLeastP();
     method @Deprecated @ChecksSdkIntAtLeast(api=android.os.Build.VERSION_CODES.Q) public static boolean isAtLeastQ();
     method @Deprecated @ChecksSdkIntAtLeast(api=android.os.Build.VERSION_CODES.R) public static boolean isAtLeastR();
-    method @ChecksSdkIntAtLeast(api=31, codename="S") public static boolean isAtLeastS();
-    method @ChecksSdkIntAtLeast(codename="T") @androidx.core.os.BuildCompat.PrereleaseSdkCheck public static boolean isAtLeastT();
+    method @Deprecated @ChecksSdkIntAtLeast(api=31, codename="S") public static boolean isAtLeastS();
+    method @ChecksSdkIntAtLeast(api=32, codename="Sv2") @androidx.core.os.BuildCompat.PrereleaseSdkCheck public static boolean isAtLeastSv2();
+    method @ChecksSdkIntAtLeast(codename="Tiramisu") @androidx.core.os.BuildCompat.PrereleaseSdkCheck public static boolean isAtLeastT();
   }
 
   @RequiresOptIn @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) public static @interface BuildCompat.PrereleaseSdkCheck {
@@ -1650,6 +1752,25 @@ package androidx.core.os {
 }
 
 package androidx.core.provider {
+
+  public final class DocumentsContractCompat {
+    method public static android.net.Uri? buildChildDocumentsUri(String, String?);
+    method public static android.net.Uri? buildChildDocumentsUriUsingTree(android.net.Uri, String);
+    method public static android.net.Uri? buildDocumentUri(String, String);
+    method public static android.net.Uri? buildDocumentUriUsingTree(android.net.Uri, String);
+    method public static android.net.Uri? buildTreeDocumentUri(String, String);
+    method public static android.net.Uri? createDocument(android.content.ContentResolver, android.net.Uri, String, String) throws java.io.FileNotFoundException;
+    method public static String? getDocumentId(android.net.Uri);
+    method public static String? getTreeDocumentId(android.net.Uri);
+    method public static boolean isDocumentUri(android.content.Context, android.net.Uri?);
+    method public static boolean isTreeUri(android.net.Uri);
+    method public static boolean removeDocument(android.content.ContentResolver, android.net.Uri, android.net.Uri) throws java.io.FileNotFoundException;
+    method public static android.net.Uri? renameDocument(android.content.ContentResolver, android.net.Uri, String) throws java.io.FileNotFoundException;
+  }
+
+  public static final class DocumentsContractCompat.DocumentCompat {
+    field public static final int FLAG_VIRTUAL_DOCUMENT = 512; // 0x200
+  }
 
   public final class FontRequest {
     ctor public FontRequest(String, String, String, java.util.List<java.util.List<byte[]!>!>);
@@ -1916,6 +2037,14 @@ package androidx.core.util {
     method public boolean test(T!);
   }
 
+  public final class SizeFCompat {
+    ctor public SizeFCompat(float, float);
+    method public float getHeight();
+    method public float getWidth();
+    method @RequiresApi(21) public android.util.SizeF toSizeF();
+    method @RequiresApi(21) public static androidx.core.util.SizeFCompat toSizeFCompat(android.util.SizeF);
+  }
+
   public interface Supplier<T> {
     method public T! get();
   }
@@ -1926,29 +2055,29 @@ package androidx.core.view {
 
   public class AccessibilityDelegateCompat {
     ctor public AccessibilityDelegateCompat();
-    method public boolean dispatchPopulateAccessibilityEvent(android.view.View!, android.view.accessibility.AccessibilityEvent!);
-    method public androidx.core.view.accessibility.AccessibilityNodeProviderCompat! getAccessibilityNodeProvider(android.view.View!);
-    method public void onInitializeAccessibilityEvent(android.view.View!, android.view.accessibility.AccessibilityEvent!);
-    method public void onInitializeAccessibilityNodeInfo(android.view.View!, androidx.core.view.accessibility.AccessibilityNodeInfoCompat!);
-    method public void onPopulateAccessibilityEvent(android.view.View!, android.view.accessibility.AccessibilityEvent!);
-    method public boolean onRequestSendAccessibilityEvent(android.view.ViewGroup!, android.view.View!, android.view.accessibility.AccessibilityEvent!);
-    method public boolean performAccessibilityAction(android.view.View!, int, android.os.Bundle!);
-    method public void sendAccessibilityEvent(android.view.View!, int);
-    method public void sendAccessibilityEventUnchecked(android.view.View!, android.view.accessibility.AccessibilityEvent!);
+    method public boolean dispatchPopulateAccessibilityEvent(android.view.View, android.view.accessibility.AccessibilityEvent);
+    method public androidx.core.view.accessibility.AccessibilityNodeProviderCompat? getAccessibilityNodeProvider(android.view.View);
+    method public void onInitializeAccessibilityEvent(android.view.View, android.view.accessibility.AccessibilityEvent);
+    method public void onInitializeAccessibilityNodeInfo(android.view.View, androidx.core.view.accessibility.AccessibilityNodeInfoCompat);
+    method public void onPopulateAccessibilityEvent(android.view.View, android.view.accessibility.AccessibilityEvent);
+    method public boolean onRequestSendAccessibilityEvent(android.view.ViewGroup, android.view.View, android.view.accessibility.AccessibilityEvent);
+    method public boolean performAccessibilityAction(android.view.View, int, android.os.Bundle);
+    method public void sendAccessibilityEvent(android.view.View, int);
+    method public void sendAccessibilityEventUnchecked(android.view.View, android.view.accessibility.AccessibilityEvent);
   }
 
   public abstract class ActionProvider {
-    ctor public ActionProvider(android.content.Context!);
-    method public android.content.Context! getContext();
+    ctor public ActionProvider(android.content.Context);
+    method public android.content.Context getContext();
     method public boolean hasSubMenu();
     method public boolean isVisible();
-    method public abstract android.view.View! onCreateActionView();
-    method public android.view.View! onCreateActionView(android.view.MenuItem!);
+    method public abstract android.view.View onCreateActionView();
+    method public android.view.View onCreateActionView(android.view.MenuItem);
     method public boolean onPerformDefaultAction();
-    method public void onPrepareSubMenu(android.view.SubMenu!);
+    method public void onPrepareSubMenu(android.view.SubMenu);
     method public boolean overridesItemVisibility();
     method public void refreshVisibility();
-    method public void setVisibilityListener(androidx.core.view.ActionProvider.VisibilityListener!);
+    method public void setVisibilityListener(androidx.core.view.ActionProvider.VisibilityListener?);
   }
 
   public static interface ActionProvider.VisibilityListener {
@@ -1962,11 +2091,16 @@ package androidx.core.view {
     method public android.net.Uri? getLinkUri();
     method public int getSource();
     method public android.util.Pair<androidx.core.view.ContentInfoCompat!,androidx.core.view.ContentInfoCompat!> partition(androidx.core.util.Predicate<android.content.ClipData.Item!>);
+    method @RequiresApi(31) public static android.util.Pair<android.view.ContentInfo!,android.view.ContentInfo!> partition(android.view.ContentInfo, java.util.function.Predicate<android.content.ClipData.Item!>);
+    method @RequiresApi(31) public android.view.ContentInfo toContentInfo();
+    method @RequiresApi(31) public static androidx.core.view.ContentInfoCompat toContentInfoCompat(android.view.ContentInfo);
     field public static final int FLAG_CONVERT_TO_PLAIN_TEXT = 1; // 0x1
     field public static final int SOURCE_APP = 0; // 0x0
+    field public static final int SOURCE_AUTOFILL = 4; // 0x4
     field public static final int SOURCE_CLIPBOARD = 1; // 0x1
     field public static final int SOURCE_DRAG_AND_DROP = 3; // 0x3
     field public static final int SOURCE_INPUT_METHOD = 2; // 0x2
+    field public static final int SOURCE_PROCESS_TEXT = 5; // 0x5
   }
 
   public static final class ContentInfoCompat.Builder {
@@ -1993,7 +2127,7 @@ package androidx.core.view {
   }
 
   public final class DisplayCutoutCompat {
-    ctor public DisplayCutoutCompat(android.graphics.Rect!, java.util.List<android.graphics.Rect!>!);
+    ctor public DisplayCutoutCompat(android.graphics.Rect?, java.util.List<android.graphics.Rect!>?);
     ctor public DisplayCutoutCompat(androidx.core.graphics.Insets, android.graphics.Rect?, android.graphics.Rect?, android.graphics.Rect?, android.graphics.Rect?, androidx.core.graphics.Insets);
     method public java.util.List<android.graphics.Rect!> getBoundingRects();
     method public int getSafeInsetBottom();
@@ -2008,31 +2142,31 @@ package androidx.core.view {
   }
 
   public class DragStartHelper {
-    ctor public DragStartHelper(android.view.View!, androidx.core.view.DragStartHelper.OnDragStartListener!);
+    ctor public DragStartHelper(android.view.View, androidx.core.view.DragStartHelper.OnDragStartListener);
     method public void attach();
     method public void detach();
-    method public void getTouchPosition(android.graphics.Point!);
-    method public boolean onLongClick(android.view.View!);
-    method public boolean onTouch(android.view.View!, android.view.MotionEvent!);
+    method public void getTouchPosition(android.graphics.Point);
+    method public boolean onLongClick(android.view.View);
+    method public boolean onTouch(android.view.View, android.view.MotionEvent);
   }
 
   public static interface DragStartHelper.OnDragStartListener {
-    method public boolean onDragStart(android.view.View!, androidx.core.view.DragStartHelper!);
+    method public boolean onDragStart(android.view.View, androidx.core.view.DragStartHelper);
   }
 
   public final class GestureDetectorCompat {
-    ctor public GestureDetectorCompat(android.content.Context!, android.view.GestureDetector.OnGestureListener!);
-    ctor public GestureDetectorCompat(android.content.Context!, android.view.GestureDetector.OnGestureListener!, android.os.Handler!);
+    ctor public GestureDetectorCompat(android.content.Context, android.view.GestureDetector.OnGestureListener);
+    ctor public GestureDetectorCompat(android.content.Context, android.view.GestureDetector.OnGestureListener, android.os.Handler?);
     method public boolean isLongpressEnabled();
-    method public boolean onTouchEvent(android.view.MotionEvent!);
+    method public boolean onTouchEvent(android.view.MotionEvent);
     method public void setIsLongpressEnabled(boolean);
-    method public void setOnDoubleTapListener(android.view.GestureDetector.OnDoubleTapListener!);
+    method public void setOnDoubleTapListener(android.view.GestureDetector.OnDoubleTapListener?);
   }
 
   public final class GravityCompat {
-    method public static void apply(int, int, int, android.graphics.Rect!, android.graphics.Rect!, int);
-    method public static void apply(int, int, int, android.graphics.Rect!, int, int, android.graphics.Rect!, int);
-    method public static void applyDisplay(int, android.graphics.Rect!, android.graphics.Rect!, int);
+    method public static void apply(int, int, int, android.graphics.Rect, android.graphics.Rect, int);
+    method public static void apply(int, int, int, android.graphics.Rect, int, int, android.graphics.Rect, int);
+    method public static void applyDisplay(int, android.graphics.Rect, android.graphics.Rect, int);
     method public static int getAbsoluteGravity(int, int);
     field public static final int END = 8388613; // 0x800005
     field public static final int RELATIVE_HORIZONTAL_GRAVITY_MASK = 8388615; // 0x800007
@@ -2075,45 +2209,63 @@ package androidx.core.view {
   }
 
   public final class MarginLayoutParamsCompat {
-    method public static int getLayoutDirection(android.view.ViewGroup.MarginLayoutParams!);
-    method public static int getMarginEnd(android.view.ViewGroup.MarginLayoutParams!);
-    method public static int getMarginStart(android.view.ViewGroup.MarginLayoutParams!);
-    method public static boolean isMarginRelative(android.view.ViewGroup.MarginLayoutParams!);
-    method public static void resolveLayoutDirection(android.view.ViewGroup.MarginLayoutParams!, int);
-    method public static void setLayoutDirection(android.view.ViewGroup.MarginLayoutParams!, int);
-    method public static void setMarginEnd(android.view.ViewGroup.MarginLayoutParams!, int);
-    method public static void setMarginStart(android.view.ViewGroup.MarginLayoutParams!, int);
+    method public static int getLayoutDirection(android.view.ViewGroup.MarginLayoutParams);
+    method public static int getMarginEnd(android.view.ViewGroup.MarginLayoutParams);
+    method public static int getMarginStart(android.view.ViewGroup.MarginLayoutParams);
+    method public static boolean isMarginRelative(android.view.ViewGroup.MarginLayoutParams);
+    method public static void resolveLayoutDirection(android.view.ViewGroup.MarginLayoutParams, int);
+    method public static void setLayoutDirection(android.view.ViewGroup.MarginLayoutParams, int);
+    method public static void setMarginEnd(android.view.ViewGroup.MarginLayoutParams, int);
+    method public static void setMarginStart(android.view.ViewGroup.MarginLayoutParams, int);
   }
 
   public final class MenuCompat {
-    method public static void setGroupDividerEnabled(android.view.Menu!, boolean);
+    method public static void setGroupDividerEnabled(android.view.Menu, boolean);
     method @Deprecated public static void setShowAsAction(android.view.MenuItem!, int);
+  }
+
+  public interface MenuHost {
+    method public void addMenuProvider(androidx.core.view.MenuProvider);
+    method public void addMenuProvider(androidx.core.view.MenuProvider, androidx.lifecycle.LifecycleOwner);
+    method public void addMenuProvider(androidx.core.view.MenuProvider, androidx.lifecycle.LifecycleOwner, androidx.lifecycle.Lifecycle.State);
+    method public void invalidateMenu();
+    method public void removeMenuProvider(androidx.core.view.MenuProvider);
+  }
+
+  public class MenuHostHelper {
+    ctor public MenuHostHelper(Runnable);
+    method public void addMenuProvider(androidx.core.view.MenuProvider);
+    method public void addMenuProvider(androidx.core.view.MenuProvider, androidx.lifecycle.LifecycleOwner);
+    method public void addMenuProvider(androidx.core.view.MenuProvider, androidx.lifecycle.LifecycleOwner, androidx.lifecycle.Lifecycle.State);
+    method public void onCreateMenu(android.view.Menu, android.view.MenuInflater);
+    method public boolean onMenuItemSelected(android.view.MenuItem);
+    method public void removeMenuProvider(androidx.core.view.MenuProvider);
   }
 
   public final class MenuItemCompat {
     method @Deprecated public static boolean collapseActionView(android.view.MenuItem!);
     method @Deprecated public static boolean expandActionView(android.view.MenuItem!);
-    method public static androidx.core.view.ActionProvider! getActionProvider(android.view.MenuItem!);
+    method public static androidx.core.view.ActionProvider? getActionProvider(android.view.MenuItem);
     method @Deprecated public static android.view.View! getActionView(android.view.MenuItem!);
-    method public static int getAlphabeticModifiers(android.view.MenuItem!);
-    method public static CharSequence! getContentDescription(android.view.MenuItem!);
-    method public static android.content.res.ColorStateList! getIconTintList(android.view.MenuItem!);
-    method public static android.graphics.PorterDuff.Mode! getIconTintMode(android.view.MenuItem!);
-    method public static int getNumericModifiers(android.view.MenuItem!);
-    method public static CharSequence! getTooltipText(android.view.MenuItem!);
+    method public static int getAlphabeticModifiers(android.view.MenuItem);
+    method public static CharSequence? getContentDescription(android.view.MenuItem);
+    method public static android.content.res.ColorStateList? getIconTintList(android.view.MenuItem);
+    method public static android.graphics.PorterDuff.Mode? getIconTintMode(android.view.MenuItem);
+    method public static int getNumericModifiers(android.view.MenuItem);
+    method public static CharSequence? getTooltipText(android.view.MenuItem);
     method @Deprecated public static boolean isActionViewExpanded(android.view.MenuItem!);
-    method public static android.view.MenuItem! setActionProvider(android.view.MenuItem!, androidx.core.view.ActionProvider!);
+    method public static android.view.MenuItem? setActionProvider(android.view.MenuItem, androidx.core.view.ActionProvider?);
     method @Deprecated public static android.view.MenuItem! setActionView(android.view.MenuItem!, android.view.View!);
     method @Deprecated public static android.view.MenuItem! setActionView(android.view.MenuItem!, int);
-    method public static void setAlphabeticShortcut(android.view.MenuItem!, char, int);
-    method public static void setContentDescription(android.view.MenuItem!, CharSequence!);
-    method public static void setIconTintList(android.view.MenuItem!, android.content.res.ColorStateList!);
-    method public static void setIconTintMode(android.view.MenuItem!, android.graphics.PorterDuff.Mode!);
-    method public static void setNumericShortcut(android.view.MenuItem!, char, int);
+    method public static void setAlphabeticShortcut(android.view.MenuItem, char, int);
+    method public static void setContentDescription(android.view.MenuItem, CharSequence?);
+    method public static void setIconTintList(android.view.MenuItem, android.content.res.ColorStateList?);
+    method public static void setIconTintMode(android.view.MenuItem, android.graphics.PorterDuff.Mode?);
+    method public static void setNumericShortcut(android.view.MenuItem, char, int);
     method @Deprecated public static android.view.MenuItem! setOnActionExpandListener(android.view.MenuItem!, androidx.core.view.MenuItemCompat.OnActionExpandListener!);
-    method public static void setShortcut(android.view.MenuItem!, char, char, int, int);
+    method public static void setShortcut(android.view.MenuItem, char, char, int, int);
     method @Deprecated public static void setShowAsAction(android.view.MenuItem!, int);
-    method public static void setTooltipText(android.view.MenuItem!, CharSequence!);
+    method public static void setTooltipText(android.view.MenuItem, CharSequence?);
     field @Deprecated public static final int SHOW_AS_ACTION_ALWAYS = 2; // 0x2
     field @Deprecated public static final int SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW = 8; // 0x8
     field @Deprecated public static final int SHOW_AS_ACTION_IF_ROOM = 1; // 0x1
@@ -2124,6 +2276,11 @@ package androidx.core.view {
   @Deprecated public static interface MenuItemCompat.OnActionExpandListener {
     method @Deprecated public boolean onMenuItemActionCollapse(android.view.MenuItem!);
     method @Deprecated public boolean onMenuItemActionExpand(android.view.MenuItem!);
+  }
+
+  public interface MenuProvider {
+    method public void onCreateMenu(android.view.Menu, android.view.MenuInflater);
+    method public boolean onMenuItemSelected(android.view.MenuItem);
   }
 
   public final class MotionEventCompat {
@@ -2138,7 +2295,7 @@ package androidx.core.view {
     method @Deprecated public static int getSource(android.view.MotionEvent!);
     method @Deprecated public static float getX(android.view.MotionEvent!, int);
     method @Deprecated public static float getY(android.view.MotionEvent!, int);
-    method public static boolean isFromSource(android.view.MotionEvent!, int);
+    method public static boolean isFromSource(android.view.MotionEvent, int);
     field @Deprecated public static final int ACTION_HOVER_ENTER = 9; // 0x9
     field @Deprecated public static final int ACTION_HOVER_EXIT = 10; // 0xa
     field @Deprecated public static final int ACTION_HOVER_MOVE = 7; // 0x7
@@ -2274,7 +2431,7 @@ package androidx.core.view {
   }
 
   public interface OnApplyWindowInsetsListener {
-    method public androidx.core.view.WindowInsetsCompat! onApplyWindowInsets(android.view.View!, androidx.core.view.WindowInsetsCompat!);
+    method public androidx.core.view.WindowInsetsCompat onApplyWindowInsets(android.view.View, androidx.core.view.WindowInsetsCompat);
   }
 
   public interface OnReceiveContentListener {
@@ -2288,15 +2445,15 @@ package androidx.core.view {
   public final class OneShotPreDrawListener implements android.view.View.OnAttachStateChangeListener android.view.ViewTreeObserver.OnPreDrawListener {
     method public static androidx.core.view.OneShotPreDrawListener add(android.view.View, Runnable);
     method public boolean onPreDraw();
-    method public void onViewAttachedToWindow(android.view.View!);
-    method public void onViewDetachedFromWindow(android.view.View!);
+    method public void onViewAttachedToWindow(android.view.View);
+    method public void onViewDetachedFromWindow(android.view.View);
     method public void removeListener();
   }
 
   public final class PointerIconCompat {
-    method public static androidx.core.view.PointerIconCompat! create(android.graphics.Bitmap!, float, float);
-    method public static androidx.core.view.PointerIconCompat! getSystemIcon(android.content.Context!, int);
-    method public static androidx.core.view.PointerIconCompat! load(android.content.res.Resources!, int);
+    method public static androidx.core.view.PointerIconCompat create(android.graphics.Bitmap, float, float);
+    method public static androidx.core.view.PointerIconCompat getSystemIcon(android.content.Context, int);
+    method public static androidx.core.view.PointerIconCompat load(android.content.res.Resources, int);
     field public static final int TYPE_ALIAS = 1010; // 0x3f2
     field public static final int TYPE_ALL_SCROLL = 1013; // 0x3f5
     field public static final int TYPE_ARROW = 1000; // 0x3e8
@@ -2324,9 +2481,9 @@ package androidx.core.view {
 
   public final class ScaleGestureDetectorCompat {
     method @Deprecated public static boolean isQuickScaleEnabled(Object!);
-    method public static boolean isQuickScaleEnabled(android.view.ScaleGestureDetector!);
+    method public static boolean isQuickScaleEnabled(android.view.ScaleGestureDetector);
     method @Deprecated public static void setQuickScaleEnabled(Object!, boolean);
-    method public static void setQuickScaleEnabled(android.view.ScaleGestureDetector!, boolean);
+    method public static void setQuickScaleEnabled(android.view.ScaleGestureDetector, boolean);
   }
 
   public interface ScrollingView {
@@ -2479,7 +2636,7 @@ package androidx.core.view {
     method @Deprecated public static void setFitsSystemWindows(android.view.View!, boolean);
     method public static void setFocusedByDefault(android.view.View, boolean);
     method public static void setHasTransientState(android.view.View, boolean);
-    method public static void setImportantForAccessibility(android.view.View, int);
+    method @UiThread public static void setImportantForAccessibility(android.view.View, int);
     method public static void setImportantForAutofill(android.view.View, int);
     method public static void setKeyboardNavigationCluster(android.view.View, boolean);
     method public static void setLabelFor(android.view.View, @IdRes int);
@@ -2561,11 +2718,11 @@ package androidx.core.view {
 
   public final class ViewConfigurationCompat {
     method public static float getScaledHorizontalScrollFactor(android.view.ViewConfiguration, android.content.Context);
-    method public static int getScaledHoverSlop(android.view.ViewConfiguration!);
+    method public static int getScaledHoverSlop(android.view.ViewConfiguration);
     method @Deprecated public static int getScaledPagingTouchSlop(android.view.ViewConfiguration!);
     method public static float getScaledVerticalScrollFactor(android.view.ViewConfiguration, android.content.Context);
     method @Deprecated public static boolean hasPermanentMenuKey(android.view.ViewConfiguration!);
-    method public static boolean shouldShowMenuShortcutsWhenKeyboardPresent(android.view.ViewConfiguration!, android.content.Context);
+    method public static boolean shouldShowMenuShortcutsWhenKeyboardPresent(android.view.ViewConfiguration, android.content.Context);
   }
 
   public final class ViewGroupCompat {
@@ -2581,78 +2738,78 @@ package androidx.core.view {
   }
 
   public final class ViewParentCompat {
-    method public static void notifySubtreeAccessibilityStateChanged(android.view.ViewParent!, android.view.View!, android.view.View!, int);
-    method public static boolean onNestedFling(android.view.ViewParent!, android.view.View!, float, float, boolean);
-    method public static boolean onNestedPreFling(android.view.ViewParent!, android.view.View!, float, float);
-    method public static void onNestedPreScroll(android.view.ViewParent!, android.view.View!, int, int, int[]!);
-    method public static void onNestedPreScroll(android.view.ViewParent!, android.view.View!, int, int, int[]!, int);
-    method public static void onNestedScroll(android.view.ViewParent!, android.view.View!, int, int, int, int);
-    method public static void onNestedScroll(android.view.ViewParent!, android.view.View!, int, int, int, int, int);
-    method public static void onNestedScroll(android.view.ViewParent!, android.view.View!, int, int, int, int, int, int[]);
-    method public static void onNestedScrollAccepted(android.view.ViewParent!, android.view.View!, android.view.View!, int);
-    method public static void onNestedScrollAccepted(android.view.ViewParent!, android.view.View!, android.view.View!, int, int);
-    method public static boolean onStartNestedScroll(android.view.ViewParent!, android.view.View!, android.view.View!, int);
-    method public static boolean onStartNestedScroll(android.view.ViewParent!, android.view.View!, android.view.View!, int, int);
-    method public static void onStopNestedScroll(android.view.ViewParent!, android.view.View!);
-    method public static void onStopNestedScroll(android.view.ViewParent!, android.view.View!, int);
+    method public static void notifySubtreeAccessibilityStateChanged(android.view.ViewParent, android.view.View, android.view.View, int);
+    method public static boolean onNestedFling(android.view.ViewParent, android.view.View, float, float, boolean);
+    method public static boolean onNestedPreFling(android.view.ViewParent, android.view.View, float, float);
+    method public static void onNestedPreScroll(android.view.ViewParent, android.view.View, int, int, int[]);
+    method public static void onNestedPreScroll(android.view.ViewParent, android.view.View, int, int, int[], int);
+    method public static void onNestedScroll(android.view.ViewParent, android.view.View, int, int, int, int);
+    method public static void onNestedScroll(android.view.ViewParent, android.view.View, int, int, int, int, int);
+    method public static void onNestedScroll(android.view.ViewParent, android.view.View, int, int, int, int, int, int[]);
+    method public static void onNestedScrollAccepted(android.view.ViewParent, android.view.View, android.view.View, int);
+    method public static void onNestedScrollAccepted(android.view.ViewParent, android.view.View, android.view.View, int, int);
+    method public static boolean onStartNestedScroll(android.view.ViewParent, android.view.View, android.view.View, int);
+    method public static boolean onStartNestedScroll(android.view.ViewParent, android.view.View, android.view.View, int, int);
+    method public static void onStopNestedScroll(android.view.ViewParent, android.view.View);
+    method public static void onStopNestedScroll(android.view.ViewParent, android.view.View, int);
     method @Deprecated public static boolean requestSendAccessibilityEvent(android.view.ViewParent!, android.view.View!, android.view.accessibility.AccessibilityEvent!);
   }
 
   public final class ViewPropertyAnimatorCompat {
-    method public androidx.core.view.ViewPropertyAnimatorCompat! alpha(float);
-    method public androidx.core.view.ViewPropertyAnimatorCompat! alphaBy(float);
+    method public androidx.core.view.ViewPropertyAnimatorCompat alpha(float);
+    method public androidx.core.view.ViewPropertyAnimatorCompat alphaBy(float);
     method public void cancel();
     method public long getDuration();
-    method public android.view.animation.Interpolator! getInterpolator();
+    method public android.view.animation.Interpolator? getInterpolator();
     method public long getStartDelay();
-    method public androidx.core.view.ViewPropertyAnimatorCompat! rotation(float);
-    method public androidx.core.view.ViewPropertyAnimatorCompat! rotationBy(float);
-    method public androidx.core.view.ViewPropertyAnimatorCompat! rotationX(float);
-    method public androidx.core.view.ViewPropertyAnimatorCompat! rotationXBy(float);
-    method public androidx.core.view.ViewPropertyAnimatorCompat! rotationY(float);
-    method public androidx.core.view.ViewPropertyAnimatorCompat! rotationYBy(float);
-    method public androidx.core.view.ViewPropertyAnimatorCompat! scaleX(float);
-    method public androidx.core.view.ViewPropertyAnimatorCompat! scaleXBy(float);
-    method public androidx.core.view.ViewPropertyAnimatorCompat! scaleY(float);
-    method public androidx.core.view.ViewPropertyAnimatorCompat! scaleYBy(float);
-    method public androidx.core.view.ViewPropertyAnimatorCompat! setDuration(long);
-    method public androidx.core.view.ViewPropertyAnimatorCompat! setInterpolator(android.view.animation.Interpolator!);
-    method public androidx.core.view.ViewPropertyAnimatorCompat! setListener(androidx.core.view.ViewPropertyAnimatorListener!);
-    method public androidx.core.view.ViewPropertyAnimatorCompat! setStartDelay(long);
-    method public androidx.core.view.ViewPropertyAnimatorCompat! setUpdateListener(androidx.core.view.ViewPropertyAnimatorUpdateListener!);
+    method public androidx.core.view.ViewPropertyAnimatorCompat rotation(float);
+    method public androidx.core.view.ViewPropertyAnimatorCompat rotationBy(float);
+    method public androidx.core.view.ViewPropertyAnimatorCompat rotationX(float);
+    method public androidx.core.view.ViewPropertyAnimatorCompat rotationXBy(float);
+    method public androidx.core.view.ViewPropertyAnimatorCompat rotationY(float);
+    method public androidx.core.view.ViewPropertyAnimatorCompat rotationYBy(float);
+    method public androidx.core.view.ViewPropertyAnimatorCompat scaleX(float);
+    method public androidx.core.view.ViewPropertyAnimatorCompat scaleXBy(float);
+    method public androidx.core.view.ViewPropertyAnimatorCompat scaleY(float);
+    method public androidx.core.view.ViewPropertyAnimatorCompat scaleYBy(float);
+    method public androidx.core.view.ViewPropertyAnimatorCompat setDuration(long);
+    method public androidx.core.view.ViewPropertyAnimatorCompat setInterpolator(android.view.animation.Interpolator?);
+    method public androidx.core.view.ViewPropertyAnimatorCompat setListener(androidx.core.view.ViewPropertyAnimatorListener?);
+    method public androidx.core.view.ViewPropertyAnimatorCompat setStartDelay(long);
+    method public androidx.core.view.ViewPropertyAnimatorCompat setUpdateListener(androidx.core.view.ViewPropertyAnimatorUpdateListener?);
     method public void start();
-    method public androidx.core.view.ViewPropertyAnimatorCompat! translationX(float);
-    method public androidx.core.view.ViewPropertyAnimatorCompat! translationXBy(float);
-    method public androidx.core.view.ViewPropertyAnimatorCompat! translationY(float);
-    method public androidx.core.view.ViewPropertyAnimatorCompat! translationYBy(float);
-    method public androidx.core.view.ViewPropertyAnimatorCompat! translationZ(float);
-    method public androidx.core.view.ViewPropertyAnimatorCompat! translationZBy(float);
-    method public androidx.core.view.ViewPropertyAnimatorCompat! withEndAction(Runnable!);
-    method public androidx.core.view.ViewPropertyAnimatorCompat! withLayer();
-    method public androidx.core.view.ViewPropertyAnimatorCompat! withStartAction(Runnable!);
-    method public androidx.core.view.ViewPropertyAnimatorCompat! x(float);
-    method public androidx.core.view.ViewPropertyAnimatorCompat! xBy(float);
-    method public androidx.core.view.ViewPropertyAnimatorCompat! y(float);
-    method public androidx.core.view.ViewPropertyAnimatorCompat! yBy(float);
-    method public androidx.core.view.ViewPropertyAnimatorCompat! z(float);
-    method public androidx.core.view.ViewPropertyAnimatorCompat! zBy(float);
+    method public androidx.core.view.ViewPropertyAnimatorCompat translationX(float);
+    method public androidx.core.view.ViewPropertyAnimatorCompat translationXBy(float);
+    method public androidx.core.view.ViewPropertyAnimatorCompat translationY(float);
+    method public androidx.core.view.ViewPropertyAnimatorCompat translationYBy(float);
+    method public androidx.core.view.ViewPropertyAnimatorCompat translationZ(float);
+    method public androidx.core.view.ViewPropertyAnimatorCompat translationZBy(float);
+    method public androidx.core.view.ViewPropertyAnimatorCompat withEndAction(Runnable);
+    method public androidx.core.view.ViewPropertyAnimatorCompat withLayer();
+    method public androidx.core.view.ViewPropertyAnimatorCompat withStartAction(Runnable);
+    method public androidx.core.view.ViewPropertyAnimatorCompat x(float);
+    method public androidx.core.view.ViewPropertyAnimatorCompat xBy(float);
+    method public androidx.core.view.ViewPropertyAnimatorCompat y(float);
+    method public androidx.core.view.ViewPropertyAnimatorCompat yBy(float);
+    method public androidx.core.view.ViewPropertyAnimatorCompat z(float);
+    method public androidx.core.view.ViewPropertyAnimatorCompat zBy(float);
   }
 
   public interface ViewPropertyAnimatorListener {
-    method public void onAnimationCancel(android.view.View!);
-    method public void onAnimationEnd(android.view.View!);
-    method public void onAnimationStart(android.view.View!);
+    method public void onAnimationCancel(android.view.View);
+    method public void onAnimationEnd(android.view.View);
+    method public void onAnimationStart(android.view.View);
   }
 
   public class ViewPropertyAnimatorListenerAdapter implements androidx.core.view.ViewPropertyAnimatorListener {
     ctor public ViewPropertyAnimatorListenerAdapter();
-    method public void onAnimationCancel(android.view.View!);
-    method public void onAnimationEnd(android.view.View!);
-    method public void onAnimationStart(android.view.View!);
+    method public void onAnimationCancel(android.view.View);
+    method public void onAnimationEnd(android.view.View);
+    method public void onAnimationStart(android.view.View);
   }
 
   public interface ViewPropertyAnimatorUpdateListener {
-    method public void onAnimationUpdate(android.view.View!);
+    method public void onAnimationUpdate(android.view.View);
   }
 
   public final class WindowCompat {
@@ -2814,14 +2971,14 @@ package androidx.core.view.accessibility {
   public final class AccessibilityEventCompat {
     method @Deprecated public static void appendRecord(android.view.accessibility.AccessibilityEvent!, androidx.core.view.accessibility.AccessibilityRecordCompat!);
     method @Deprecated public static androidx.core.view.accessibility.AccessibilityRecordCompat! asRecord(android.view.accessibility.AccessibilityEvent!);
-    method public static int getAction(android.view.accessibility.AccessibilityEvent!);
-    method public static int getContentChangeTypes(android.view.accessibility.AccessibilityEvent!);
-    method public static int getMovementGranularity(android.view.accessibility.AccessibilityEvent!);
+    method public static int getAction(android.view.accessibility.AccessibilityEvent);
+    method public static int getContentChangeTypes(android.view.accessibility.AccessibilityEvent);
+    method public static int getMovementGranularity(android.view.accessibility.AccessibilityEvent);
     method @Deprecated public static androidx.core.view.accessibility.AccessibilityRecordCompat! getRecord(android.view.accessibility.AccessibilityEvent!, int);
     method @Deprecated public static int getRecordCount(android.view.accessibility.AccessibilityEvent!);
-    method public static void setAction(android.view.accessibility.AccessibilityEvent!, int);
-    method public static void setContentChangeTypes(android.view.accessibility.AccessibilityEvent!, int);
-    method public static void setMovementGranularity(android.view.accessibility.AccessibilityEvent!, int);
+    method public static void setAction(android.view.accessibility.AccessibilityEvent, int);
+    method public static void setContentChangeTypes(android.view.accessibility.AccessibilityEvent, int);
+    method public static void setMovementGranularity(android.view.accessibility.AccessibilityEvent, int);
     field public static final int CONTENT_CHANGE_TYPE_CONTENT_DESCRIPTION = 4; // 0x4
     field public static final int CONTENT_CHANGE_TYPE_PANE_APPEARED = 16; // 0x10
     field public static final int CONTENT_CHANGE_TYPE_PANE_DISAPPEARED = 32; // 0x20
@@ -2853,12 +3010,12 @@ package androidx.core.view.accessibility {
 
   public final class AccessibilityManagerCompat {
     method @Deprecated public static boolean addAccessibilityStateChangeListener(android.view.accessibility.AccessibilityManager!, androidx.core.view.accessibility.AccessibilityManagerCompat.AccessibilityStateChangeListener!);
-    method public static boolean addTouchExplorationStateChangeListener(android.view.accessibility.AccessibilityManager!, androidx.core.view.accessibility.AccessibilityManagerCompat.TouchExplorationStateChangeListener!);
+    method public static boolean addTouchExplorationStateChangeListener(android.view.accessibility.AccessibilityManager, androidx.core.view.accessibility.AccessibilityManagerCompat.TouchExplorationStateChangeListener);
     method @Deprecated public static java.util.List<android.accessibilityservice.AccessibilityServiceInfo!>! getEnabledAccessibilityServiceList(android.view.accessibility.AccessibilityManager!, int);
     method @Deprecated public static java.util.List<android.accessibilityservice.AccessibilityServiceInfo!>! getInstalledAccessibilityServiceList(android.view.accessibility.AccessibilityManager!);
     method @Deprecated public static boolean isTouchExplorationEnabled(android.view.accessibility.AccessibilityManager!);
     method @Deprecated public static boolean removeAccessibilityStateChangeListener(android.view.accessibility.AccessibilityManager!, androidx.core.view.accessibility.AccessibilityManagerCompat.AccessibilityStateChangeListener!);
-    method public static boolean removeTouchExplorationStateChangeListener(android.view.accessibility.AccessibilityManager!, androidx.core.view.accessibility.AccessibilityManagerCompat.TouchExplorationStateChangeListener!);
+    method public static boolean removeTouchExplorationStateChangeListener(android.view.accessibility.AccessibilityManager, androidx.core.view.accessibility.AccessibilityManagerCompat.TouchExplorationStateChangeListener);
   }
 
   @Deprecated public static interface AccessibilityManagerCompat.AccessibilityStateChangeListener {
@@ -3145,13 +3302,13 @@ package androidx.core.view.accessibility {
 
   public class AccessibilityNodeProviderCompat {
     ctor public AccessibilityNodeProviderCompat();
-    ctor public AccessibilityNodeProviderCompat(Object!);
+    ctor public AccessibilityNodeProviderCompat(Object?);
     method public void addExtraDataToAccessibilityNodeInfo(int, androidx.core.view.accessibility.AccessibilityNodeInfoCompat, String, android.os.Bundle?);
     method public androidx.core.view.accessibility.AccessibilityNodeInfoCompat? createAccessibilityNodeInfo(int);
-    method public java.util.List<androidx.core.view.accessibility.AccessibilityNodeInfoCompat!>? findAccessibilityNodeInfosByText(String!, int);
+    method public java.util.List<androidx.core.view.accessibility.AccessibilityNodeInfoCompat!>? findAccessibilityNodeInfosByText(String, int);
     method public androidx.core.view.accessibility.AccessibilityNodeInfoCompat? findFocus(int);
-    method public Object! getProvider();
-    method public boolean performAction(int, int, android.os.Bundle!);
+    method public Object? getProvider();
+    method public boolean performAction(int, int, android.os.Bundle?);
     field public static final int HOST_VIEW_ID = -1; // 0xffffffff
   }
 
@@ -3167,9 +3324,9 @@ package androidx.core.view.accessibility {
     method @Deprecated public Object! getImpl();
     method @Deprecated public int getItemCount();
     method @Deprecated public int getMaxScrollX();
-    method public static int getMaxScrollX(android.view.accessibility.AccessibilityRecord!);
+    method public static int getMaxScrollX(android.view.accessibility.AccessibilityRecord);
     method @Deprecated public int getMaxScrollY();
-    method public static int getMaxScrollY(android.view.accessibility.AccessibilityRecord!);
+    method public static int getMaxScrollY(android.view.accessibility.AccessibilityRecord);
     method @Deprecated public android.os.Parcelable! getParcelableData();
     method @Deprecated public int getRemovedCount();
     method @Deprecated public int getScrollX();
@@ -3198,9 +3355,9 @@ package androidx.core.view.accessibility {
     method @Deprecated public void setFullScreen(boolean);
     method @Deprecated public void setItemCount(int);
     method @Deprecated public void setMaxScrollX(int);
-    method public static void setMaxScrollX(android.view.accessibility.AccessibilityRecord!, int);
+    method public static void setMaxScrollX(android.view.accessibility.AccessibilityRecord, int);
     method @Deprecated public void setMaxScrollY(int);
-    method public static void setMaxScrollY(android.view.accessibility.AccessibilityRecord!, int);
+    method public static void setMaxScrollY(android.view.accessibility.AccessibilityRecord, int);
     method @Deprecated public void setParcelableData(android.os.Parcelable!);
     method @Deprecated public void setPassword(boolean);
     method @Deprecated public void setRemovedCount(int);
@@ -3209,7 +3366,7 @@ package androidx.core.view.accessibility {
     method @Deprecated public void setScrollable(boolean);
     method @Deprecated public void setSource(android.view.View!);
     method @Deprecated public void setSource(android.view.View!, int);
-    method public static void setSource(android.view.accessibility.AccessibilityRecord, android.view.View!, int);
+    method public static void setSource(android.view.accessibility.AccessibilityRecord, android.view.View?, int);
     method @Deprecated public void setToIndex(int);
   }
 
@@ -3229,7 +3386,7 @@ package androidx.core.view.accessibility {
 
   public static final class AccessibilityViewCommand.MoveHtmlArguments extends androidx.core.view.accessibility.AccessibilityViewCommand.CommandArguments {
     ctor public AccessibilityViewCommand.MoveHtmlArguments();
-    method public String! getHTMLElement();
+    method public String? getHTMLElement();
   }
 
   public static final class AccessibilityViewCommand.MoveWindowArguments extends androidx.core.view.accessibility.AccessibilityViewCommand.CommandArguments {
@@ -3257,25 +3414,25 @@ package androidx.core.view.accessibility {
 
   public static final class AccessibilityViewCommand.SetTextArguments extends androidx.core.view.accessibility.AccessibilityViewCommand.CommandArguments {
     ctor public AccessibilityViewCommand.SetTextArguments();
-    method public CharSequence! getText();
+    method public CharSequence? getText();
   }
 
   public class AccessibilityWindowInfoCompat {
-    method public androidx.core.view.accessibility.AccessibilityNodeInfoCompat! getAnchor();
-    method public void getBoundsInScreen(android.graphics.Rect!);
-    method public androidx.core.view.accessibility.AccessibilityWindowInfoCompat! getChild(int);
+    method public androidx.core.view.accessibility.AccessibilityNodeInfoCompat? getAnchor();
+    method public void getBoundsInScreen(android.graphics.Rect);
+    method public androidx.core.view.accessibility.AccessibilityWindowInfoCompat? getChild(int);
     method public int getChildCount();
     method public int getId();
     method public int getLayer();
-    method public androidx.core.view.accessibility.AccessibilityWindowInfoCompat! getParent();
-    method public androidx.core.view.accessibility.AccessibilityNodeInfoCompat! getRoot();
-    method public CharSequence! getTitle();
+    method public androidx.core.view.accessibility.AccessibilityWindowInfoCompat? getParent();
+    method public androidx.core.view.accessibility.AccessibilityNodeInfoCompat? getRoot();
+    method public CharSequence? getTitle();
     method public int getType();
     method public boolean isAccessibilityFocused();
     method public boolean isActive();
     method public boolean isFocused();
-    method public static androidx.core.view.accessibility.AccessibilityWindowInfoCompat! obtain();
-    method public static androidx.core.view.accessibility.AccessibilityWindowInfoCompat! obtain(androidx.core.view.accessibility.AccessibilityWindowInfoCompat!);
+    method public static androidx.core.view.accessibility.AccessibilityWindowInfoCompat? obtain();
+    method public static androidx.core.view.accessibility.AccessibilityWindowInfoCompat? obtain(androidx.core.view.accessibility.AccessibilityWindowInfoCompat?);
     method public void recycle();
     field public static final int TYPE_ACCESSIBILITY_OVERLAY = 4; // 0x4
     field public static final int TYPE_APPLICATION = 1; // 0x1
@@ -3289,9 +3446,9 @@ package androidx.core.view.accessibility {
 package androidx.core.view.animation {
 
   public final class PathInterpolatorCompat {
-    method public static android.view.animation.Interpolator! create(android.graphics.Path!);
-    method public static android.view.animation.Interpolator! create(float, float);
-    method public static android.view.animation.Interpolator! create(float, float, float, float);
+    method public static android.view.animation.Interpolator create(android.graphics.Path);
+    method public static android.view.animation.Interpolator create(float, float);
+    method public static android.view.animation.Interpolator create(float, float, float, float);
   }
 
 }
@@ -3314,7 +3471,8 @@ package androidx.core.view.inputmethod {
   public final class InputConnectionCompat {
     ctor @Deprecated public InputConnectionCompat();
     method public static boolean commitContent(android.view.inputmethod.InputConnection, android.view.inputmethod.EditorInfo, androidx.core.view.inputmethod.InputContentInfoCompat, int, android.os.Bundle?);
-    method public static android.view.inputmethod.InputConnection createWrapper(android.view.inputmethod.InputConnection, android.view.inputmethod.EditorInfo, androidx.core.view.inputmethod.InputConnectionCompat.OnCommitContentListener);
+    method @Deprecated public static android.view.inputmethod.InputConnection createWrapper(android.view.inputmethod.InputConnection, android.view.inputmethod.EditorInfo, androidx.core.view.inputmethod.InputConnectionCompat.OnCommitContentListener);
+    method public static android.view.inputmethod.InputConnection createWrapper(android.view.View, android.view.inputmethod.InputConnection, android.view.inputmethod.EditorInfo);
     field public static final int INPUT_CONTENT_GRANT_READ_URI_PERMISSION = 1; // 0x1
   }
 
@@ -3391,13 +3549,16 @@ package androidx.core.widget {
 
   public final class EdgeEffectCompat {
     ctor @Deprecated public EdgeEffectCompat(android.content.Context!);
+    method public static android.widget.EdgeEffect create(android.content.Context, android.util.AttributeSet?);
     method @Deprecated public boolean draw(android.graphics.Canvas!);
     method @Deprecated public void finish();
+    method public static float getDistance(android.widget.EdgeEffect);
     method @Deprecated public boolean isFinished();
     method @Deprecated public boolean onAbsorb(int);
     method @Deprecated public boolean onPull(float);
     method @Deprecated public boolean onPull(float, float);
     method public static void onPull(android.widget.EdgeEffect, float, float);
+    method public static float onPullDistance(android.widget.EdgeEffect, float, float);
     method @Deprecated public boolean onRelease();
     method @Deprecated public void setSize(int, int);
   }
@@ -3438,9 +3599,9 @@ package androidx.core.widget {
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public int computeVerticalScrollExtent();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public int computeVerticalScrollOffset();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public int computeVerticalScrollRange();
-    method public boolean dispatchNestedPreScroll(int, int, int[]!, int[]!, int);
+    method public boolean dispatchNestedPreScroll(int, int, int[]?, int[]?, int);
     method public void dispatchNestedScroll(int, int, int, int, int[]?, int, int[]);
-    method public boolean dispatchNestedScroll(int, int, int, int, int[]!, int);
+    method public boolean dispatchNestedScroll(int, int, int, int, int[]?, int);
     method public boolean executeKeyEvent(android.view.KeyEvent);
     method public void fling(int);
     method public boolean fullScroll(int);
@@ -3468,7 +3629,7 @@ package androidx.core.widget {
   }
 
   public static interface NestedScrollView.OnScrollChangeListener {
-    method public void onScrollChange(androidx.core.widget.NestedScrollView!, int, int, int, int);
+    method public void onScrollChange(androidx.core.widget.NestedScrollView, int, int, int, int);
   }
 
   public final class PopupMenuCompat {

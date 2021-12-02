@@ -22,10 +22,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 
 import androidx.annotation.NonNull;
-import androidx.camera.camera2.Camera2Config;
 import androidx.camera.core.CameraSelector;
-import androidx.camera.core.CameraX;
-import androidx.camera.core.CameraXConfig;
 import androidx.camera.core.Preview;
 import androidx.camera.lifecycle.ProcessCameraProvider;
 import androidx.camera.testing.CameraUtil;
@@ -38,6 +35,7 @@ import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
+import androidx.test.filters.SdkSuppress;
 import androidx.test.platform.app.InstrumentationRegistry;
 
 import org.junit.After;
@@ -56,6 +54,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 @LargeTest
 @RunWith(AndroidJUnit4.class)
+@SdkSuppress(minSdkVersion = 21)
 public class PreviewViewBitmapTest {
 
     @Rule
@@ -78,8 +77,6 @@ public class PreviewViewBitmapTest {
         Assume.assumeTrue(CameraUtil.hasCameraWithLensFacing(CAMERA_LENS));
 
         final Context context = ApplicationProvider.getApplicationContext();
-        final CameraXConfig config = Camera2Config.defaultConfig();
-        CameraX.initialize(context, config);
         mCameraProvider = ProcessCameraProvider.getInstance(context).get();
     }
 

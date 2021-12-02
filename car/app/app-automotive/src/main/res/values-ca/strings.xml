@@ -27,4 +27,5 @@
     <string name="error_message_host_incompatible" msgid="160406216155183851">"Cal actualitzar el sistema"</string>
     <string name="error_message_multiple_hosts" msgid="2591031904206928207">"Sistema incompatible"</string>
     <string name="error_message_unknown_error" msgid="1918523834689044166">"Error desconegut"</string>
+    <string name="error_message_no_vending" msgid="5866202078252905802">"Contacta amb el servei d\'assistència per a cotxes"</string>
 </resources>

@@ -22,22 +22,10 @@ import androidx.room.compiler.processing.XType
 import com.squareup.javapoet.TypeVariableName
 
 internal sealed class KspMethodType(
-    val env: KspProcessingEnv,
-    val origin: KspMethodElement,
-    val containing: KspType?
-) : XMethodType {
-    override val parameterTypes: List<XType> by lazy {
-        if (containing == null) {
-            origin.parameters.map {
-                it.type
-            }
-        } else {
-            origin.parameters.map {
-                it.asMemberOf(containing)
-            }
-        }
-    }
-
+    env: KspProcessingEnv,
+    override val origin: KspMethodElement,
+    containing: KspType?
+) : KspExecutableType(env, origin, containing), XMethodType {
     override val typeVariableNames: List<TypeVariableName> by lazy {
         origin.declaration.typeParameters.map {
             val typeParameterBounds = it.bounds.map {
@@ -50,22 +38,13 @@ internal sealed class KspMethodType(
         }
     }
 
-    /**
-     * Creates a MethodType where variance is inherited for java code generation.
-     *
-     * see [OverrideVarianceResolver] for details.
-     */
-    fun inheritVarianceForOverride(): XMethodType {
-        return OverrideVarianceResolver(env, this).resolve()
-    }
-
     private class KspNormalMethodType(
         env: KspProcessingEnv,
         origin: KspMethodElement,
         containing: KspType?
     ) : KspMethodType(env, origin, containing) {
         override val returnType: XType by lazy {
-            origin.declaration.returnXType(
+            origin.declaration.returnKspType(
                 env = env,
                 containing = containing
             )

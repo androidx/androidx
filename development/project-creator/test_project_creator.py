@@ -58,19 +58,57 @@ class TestNewDirectory(unittest.TestCase):
         full_fp = get_full_artifact_path("androidx.foo.bar", "bar-qux")
         self.assertTrue(full_fp.endswith("frameworks/support/foo/bar/bar-qux"))
 
-    def test_get_package_info_file_dir(self):
-        package_info_dir_fp = get_package_info_file_dir("androidx.foo", "foo")
+    def test_get_package_documentation_file_dir(self):
+        package_info_dir_fp = get_package_documentation_file_dir("androidx.foo", "foo")
         frameworks_support_fp = os.path.abspath(os.path.join(os.getcwd(), '..', '..'))
         self.assertEqual(frameworks_support_fp + "/foo/foo/src/main/androidx/foo", package_info_dir_fp)
 
-        package_info_dir_fp = get_package_info_file_dir("androidx.foo", "foo-bar")
+        package_info_dir_fp = get_package_documentation_file_dir("androidx.foo", "foo-bar")
         self.assertEqual(frameworks_support_fp + "/foo/foo-bar/src/main/androidx/foo", package_info_dir_fp)
 
-        package_info_dir_fp = get_package_info_file_dir("androidx.foo.bar", "bar")
+        package_info_dir_fp = get_package_documentation_file_dir("androidx.foo.bar", "bar")
         self.assertEqual(frameworks_support_fp + "/foo/bar/bar/src/main/androidx/foo/bar", package_info_dir_fp)
 
-        package_info_dir_fp = get_package_info_file_dir("androidx.foo.bar", "bar-qux")
+        package_info_dir_fp = get_package_documentation_file_dir("androidx.foo.bar", "bar-qux")
         self.assertEqual(frameworks_support_fp + "/foo/bar/bar-qux/src/main/androidx/foo/bar", package_info_dir_fp)
+
+        package_info_dir_fp = get_package_documentation_file_dir("androidx.compose.bar", "bar-qux")
+        self.assertEqual(frameworks_support_fp + "/compose/bar/bar-qux/src/commonMain/kotlin/androidx/compose/bar",
+                         package_info_dir_fp)
+
+        package_info_dir_fp = get_package_documentation_file_dir("androidx.foo.compose", "compose-qux")
+        self.assertEqual(frameworks_support_fp + "/foo/compose/compose-qux/src/commonMain/kotlin/androidx/foo/compose",
+                         package_info_dir_fp)
+
+    def test_get_package_documentation_filename(self):
+        frameworks_support_fp = os.path.abspath(os.path.join(os.getcwd(), '..', '..'))
+
+        package_info_dir_filename = get_package_documentation_filename("androidx.foo", "foo", ProjectType.KOTLIN)
+        self.assertEqual("androidx-foo-foo-documentation.md", package_info_dir_filename)
+
+        package_info_dir_filename = get_package_documentation_filename("androidx.foo", "foo", ProjectType.NATIVE)
+        self.assertEqual("androidx-foo-foo-documentation.md", package_info_dir_filename)
+
+        package_info_dir_filename = get_package_documentation_filename("androidx.foo", "foo-bar", ProjectType.KOTLIN)
+        self.assertEqual("androidx-foo-foo-bar-documentation.md", package_info_dir_filename)
+
+        package_info_dir_filename = get_package_documentation_filename("androidx.foo.bar", "bar", ProjectType.KOTLIN)
+        self.assertEqual("androidx-foo-bar-bar-documentation.md", package_info_dir_filename)
+
+        package_info_dir_filename = get_package_documentation_filename("androidx.foo.bar", "bar-qux", ProjectType.KOTLIN)
+        self.assertEqual("androidx-foo-bar-bar-qux-documentation.md", package_info_dir_filename)
+
+        package_info_dir_filename = get_package_documentation_filename("androidx.foo", "foo", ProjectType.JAVA)
+        self.assertEqual("package-info.java", package_info_dir_filename)
+
+        package_info_dir_filename = get_package_documentation_filename("androidx.foo", "foo-bar", ProjectType.JAVA)
+        self.assertEqual("package-info.java", package_info_dir_filename)
+
+        package_info_dir_filename = get_package_documentation_filename("androidx.foo.bar", "bar", ProjectType.JAVA)
+        self.assertEqual("package-info.java", package_info_dir_filename)
+
+        package_info_dir_filename = get_package_documentation_filename("androidx.foo.bar", "bar-qux", ProjectType.JAVA)
+        self.assertEqual("package-info.java", package_info_dir_filename)
 
     def test_group_id_directory_name(self):
         full_fp = get_group_id_path("androidx.foo")
@@ -248,6 +286,20 @@ class TestReplacements(unittest.TestCase):
         self.assertEqual("a\nb\nc", file_contents)
         rm(src_out_dir)
         rm(dst_out_dir_parent)
+
+    def test_rename_file_within_same_dir(self):
+        test_src_file = "./temp.txt"
+        test_file_contents = "a\nb\nc"
+        with open(test_src_file,"w") as f:
+           f.write("a\nb\nc")
+
+        test_dst_file = "./temp_out.txt"
+        rename_file(test_src_file, test_dst_file)
+        # read back the file
+        with open(test_dst_file) as f:
+           file_contents = f.read()
+        self.assertEqual("a\nb\nc", file_contents)
+        rm(test_dst_file)
 
     def test_remove_line(self):
         out_dir = "./out"

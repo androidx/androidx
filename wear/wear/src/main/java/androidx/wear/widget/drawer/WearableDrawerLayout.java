@@ -98,6 +98,7 @@ import androidx.wear.widget.drawer.WearableDrawerView.DrawerState;
  *     &lt;/androidx.wear.widget.drawer.WearableDrawerView&gt;
  * &lt;/androidx.wear.widget.drawer.WearableDrawerLayout&gt;</pre>
  */
+@SuppressWarnings("HiddenSuperclass")
 public class WearableDrawerLayout extends FrameLayout
         implements View.OnLayoutChangeListener, NestedScrollingParent, FlingListener {
 
@@ -883,8 +884,8 @@ public class WearableDrawerLayout extends FrameLayout
 
     @Override // NestedScrollingParent
     public void onNestedScrollAccepted(@NonNull View child, @NonNull View target,
-            int nestedScrollAxes) {
-        mNestedScrollingParentHelper.onNestedScrollAccepted(child, target, nestedScrollAxes);
+            int axes) {
+        mNestedScrollingParentHelper.onNestedScrollAccepted(child, target, axes);
     }
 
     @Override // NestedScrollingParent

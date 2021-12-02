@@ -27,5 +27,5 @@ internal fun String?.sanitizeAsJavaParameterName(
 ): String = if (this != null && SourceVersion.isName(this)) {
     this
 } else {
-    "arg$argIndex"
+    "p$argIndex"
 }

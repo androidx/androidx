@@ -17,10 +17,12 @@
 package androidx.camera.integration.core
 
 import android.Manifest
-import androidx.camera.core.CameraX
+import android.content.Context
+import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.CoreAppTestUtil
 import androidx.test.core.app.ActivityScenario
+import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.matcher.ViewMatchers.withId
@@ -54,7 +56,9 @@ class TakePictureTest {
         @AfterClass
         @JvmStatic
         fun tearDown() {
-            CameraX.shutdown().get(10, TimeUnit.SECONDS)
+            val context = ApplicationProvider.getApplicationContext<Context>()
+            val cameraProvider = ProcessCameraProvider.getInstance(context)[10, TimeUnit.SECONDS]
+            cameraProvider.shutdown()[10, TimeUnit.SECONDS]
         }
     }
 

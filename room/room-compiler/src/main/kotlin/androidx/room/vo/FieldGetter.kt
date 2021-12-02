@@ -21,7 +21,7 @@ import androidx.room.ext.T
 import androidx.room.compiler.processing.XType
 import com.squareup.javapoet.CodeBlock
 
-data class FieldGetter(val name: String, val type: XType, val callType: CallType) {
+data class FieldGetter(val jvmName: String, val type: XType, val callType: CallType) {
     fun writeGet(ownerVar: String, outVar: String, builder: CodeBlock.Builder) {
         val stmt = when (callType) {
             CallType.FIELD -> "final $T $L = $L.$L"
@@ -29,7 +29,7 @@ data class FieldGetter(val name: String, val type: XType, val callType: CallType
             CallType.CONSTRUCTOR -> null
         }
         stmt?.let {
-            builder.addStatement(stmt, type.typeName, outVar, ownerVar, name)
+            builder.addStatement(stmt, type.typeName, outVar, ownerVar, jvmName)
         }
     }
 }

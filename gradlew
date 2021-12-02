@@ -45,6 +45,14 @@ unset ANDROID_BUILD_TOP
 
 # Add default JVM options here. You can also use JAVA_OPTS and GRADLE_OPTS to pass JVM options to this script.
 
+JAVA_OPTS="$JAVA_OPTS -Dkotlin.incremental.compilation=true" # b/188565660
+
+if [[ " ${@} " =~ " -PupdateLintBaseline " ]]; then
+  # remove when b/188666845 is complete
+  # Inform lint to not fail even when creating a baseline file
+  JAVA_OPTS="$JAVA_OPTS -Dlint.baselines.continue=true"
+fi
+
 APP_NAME="Gradle"
 APP_BASE_NAME=`basename "$0"`
 
@@ -228,14 +236,28 @@ else
   cleanCaches=false
 fi
 
+if [[ " ${@} " =~ " --no-ci " ]]; then
+  disableCi=true
+else
+  disableCi=false
+fi
+
+# workaround for https://github.com/gradle/gradle/issues/18386
+if [[ " ${@} " =~ " --profile " ]]; then
+  mkdir -p reports
+fi
+
 # Expand some arguments
-for compact in "--ci" "--strict" "--clean"; do
+for compact in "--ci" "--strict" "--clean" "--no-ci"; do
+  expanded=""
   if [ "$compact" == "--ci" ]; then
-    expanded="--strict\
-     --stacktrace\
-     -Pandroidx.summarizeStderr\
-     -Pandroidx.enableAffectedModuleDetection\
-     --no-watch-fs"
+    if [ "$disableCi" == "false" ]; then
+      expanded="--strict\
+       --stacktrace\
+       -Pandroidx.summarizeStderr\
+       -Pandroidx.enableAffectedModuleDetection\
+       --no-watch-fs"
+    fi
   fi
   if [ "$compact" == "--strict" ]; then
     expanded="-Pandroidx.allWarningsAsErrors\
@@ -245,9 +267,8 @@ for compact in "--ci" "--strict" "--clean"; do
      --no-daemon\
      --offline"
   fi
-  if [ "$compact" == "--clean" ]; then
-    expanded="" # we parsed the argument above but we still have to remove it to avoid confusing Gradle
-  fi
+  # if compact is something else then we parsed the argument above but
+  # still have to remove it (expanded == "") to avoid confusing Gradle
 
   # check whether this particular compat argument was passed (and therefore needs expansion)
   if [[ " ${@} " =~ " $compact " ]]; then
@@ -279,6 +300,14 @@ for compact in "--ci" "--strict" "--clean"; do
   fi
 done
 
+if [[ " ${@} " =~ " --scan " ]]; then
+  if [[ " ${@} " =~ " --offline " ]]; then
+    echo "--scan incompatible with --offline"
+    echo "you could try --no-ci"
+    exit 1
+  fi
+fi
+
 function removeCaches() {
   rm -rf $SCRIPT_PATH/.gradle
   rm -rf $SCRIPT_PATH/buildSrc/.gradle
@@ -288,10 +317,9 @@ function removeCaches() {
   else
     rm -rf ~/.gradle
   fi
-  # AGP should (also) do this automatically (b/170640263)
-  rm -rf $SCRIPT_PATH/appsearch/appsearch/.cxx
-  rm -rf $SCRIPT_PATH/appsearch/local-backend/.cxx
-  rm -rf $SCRIPT_PATH/appsearch/local-storage/.cxx
+  # https://github.com/gradle/gradle/issues/18386
+  rm -rf $SCRIPT_PATH/reports
+  rm -rf $SCRIPT_PATH/build
   rm -rf $OUT_DIR
 }
 
@@ -328,9 +356,10 @@ function runGradle() {
     wrapper=""
   fi
 
+  RETURN_VALUE=0
   PROJECT_CACHE_DIR_ARGUMENT="--project-cache-dir $OUT_DIR/gradle-project-cache"
   if $wrapper "$JAVACMD" "${JVM_OPTS[@]}" $TMPDIR_ARG -classpath "$CLASSPATH" org.gradle.wrapper.GradleWrapperMain $HOME_SYSTEM_PROPERTY_ARGUMENT $TMPDIR_ARG $PROJECT_CACHE_DIR_ARGUMENT "$ORG_GRADLE_JVMARGS" "$@"; then
-    return 0
+    RETURN_VALUE=0
   else
     # Print AndroidX-specific help message if build fails
     # Have to do this build-failure detection in gradlew rather than in build.gradle
@@ -338,8 +367,24 @@ function runGradle() {
     echo
     echo For help with unexpected failures, see development/diagnose-build-failure/README.md
     echo
-    return 1
+    RETURN_VALUE=1
   fi
+
+  # If the caller specified where to save data, then also save the build scan data
+  if [ "$DIST_DIR" != "" ]; then
+    if [ "$GRADLE_USER_HOME" != "" ]; then
+      if [[ " ${@} " =~ " -PdisallowExecution " ]]; then
+        zipPath="$DIST_DIR/scan-up-to-date.zip"
+      else
+        zipPath="$DIST_DIR/scan.zip"
+      fi
+      rm -f "$zipPath"
+      cd "$GRADLE_USER_HOME/build-scan-data"
+      zip -q -r "$zipPath" .
+      cd -
+    fi
+  fi
+  return $RETURN_VALUE
 }
 
 if [[ " ${@} " =~ " -PdisallowExecution " ]]; then

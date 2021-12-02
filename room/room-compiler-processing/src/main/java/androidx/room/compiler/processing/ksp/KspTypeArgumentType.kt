@@ -30,10 +30,12 @@ import com.squareup.javapoet.TypeName
 internal class KspTypeArgumentType(
     env: KspProcessingEnv,
     val typeParam: KSTypeParameter,
-    val typeArg: KSTypeArgument
+    val typeArg: KSTypeArgument,
+    jvmTypeResolver: KspJvmTypeResolver?
 ) : KspType(
     env = env,
-    ksType = typeArg.requireType()
+    ksType = typeArg.requireType(),
+    jvmTypeResolver = jvmTypeResolver
 ) {
     /**
      * When KSP resolves classes, it always resolves to the upper bound. Hence, the ksType we
@@ -46,8 +48,8 @@ internal class KspTypeArgumentType(
         )
     }
 
-    override val typeName: TypeName by lazy {
-        typeArg.typeName(typeParam, env.resolver)
+    override fun resolveTypeName(): TypeName {
+        return typeArg.typeName(env.resolver)
     }
 
     override fun boxed(): KspTypeArgumentType {
@@ -65,7 +67,17 @@ internal class KspTypeArgumentType(
             typeArg = DelegatingTypeArg(
                 original = typeArg,
                 type = ksType.withNullability(nullability).createTypeReference()
-            )
+            ),
+            jvmTypeResolver = jvmTypeResolver
+        )
+    }
+
+    override fun copyWithJvmTypeResolver(jvmTypeResolver: KspJvmTypeResolver): KspType {
+        return KspTypeArgumentType(
+            env = env,
+            typeParam = typeParam,
+            typeArg = typeArg,
+            jvmTypeResolver = jvmTypeResolver
         )
     }
 

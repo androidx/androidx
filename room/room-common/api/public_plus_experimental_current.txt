@@ -7,6 +7,17 @@ package androidx.room {
     method public abstract int to();
   }
 
+  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target({}) public @interface BuiltInTypeConverters {
+    method public abstract androidx.room.BuiltInTypeConverters.State enums() default androidx.room.BuiltInTypeConverters.State.INHERITED;
+    method public abstract androidx.room.BuiltInTypeConverters.State uuid() default androidx.room.BuiltInTypeConverters.State.INHERITED;
+  }
+
+  public enum BuiltInTypeConverters.State {
+    enum_constant public static final androidx.room.BuiltInTypeConverters.State DISABLED;
+    enum_constant public static final androidx.room.BuiltInTypeConverters.State ENABLED;
+    enum_constant public static final androidx.room.BuiltInTypeConverters.State INHERITED;
+  }
+
   @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target({java.lang.annotation.ElementType.FIELD, java.lang.annotation.ElementType.METHOD}) public @interface ColumnInfo {
     method @androidx.room.ColumnInfo.Collate public abstract int collate() default androidx.room.ColumnInfo.UNSPECIFIED;
     method public abstract String defaultValue() default androidx.room.ColumnInfo.VALUE_UNSPECIFIED;
@@ -139,8 +150,14 @@ package androidx.room {
 
   @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target({}) public @interface Index {
     method public abstract String name() default "";
+    method public abstract androidx.room.Index.Order[] orders() default {};
     method public abstract boolean unique() default false;
     method public abstract String[] value();
+  }
+
+  public enum Index.Order {
+    enum_constant public static final androidx.room.Index.Order ASC;
+    enum_constant public static final androidx.room.Index.Order DESC;
   }
 
   @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target({java.lang.annotation.ElementType.METHOD}) public @interface Insert {
@@ -152,6 +169,11 @@ package androidx.room {
     method public abstract String entityColumn() default "";
     method public abstract String parentColumn() default "";
     method public abstract Class<?> value();
+  }
+
+  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target(java.lang.annotation.ElementType.METHOD) public @interface MapInfo {
+    method public abstract String keyColumn() default "";
+    method public abstract String valueColumn() default "";
   }
 
   @IntDef({androidx.room.OnConflictStrategy.REPLACE, androidx.room.OnConflictStrategy.ROLLBACK, androidx.room.OnConflictStrategy.ABORT, androidx.room.OnConflictStrategy.FAIL, androidx.room.OnConflictStrategy.IGNORE}) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) public @interface OnConflictStrategy {
@@ -215,6 +237,7 @@ package androidx.room {
     field public static final String CANNOT_CREATE_VERIFICATION_DATABASE = "ROOM_CANNOT_CREATE_VERIFICATION_DATABASE";
     field public static final String CURSOR_MISMATCH = "ROOM_CURSOR_MISMATCH";
     field public static final String DEFAULT_CONSTRUCTOR = "ROOM_DEFAULT_CONSTRUCTOR";
+    field public static final String DOES_NOT_IMPLEMENT_EQUALS_HASHCODE = "ROOM_TYPE_DOES_NOT_IMPLEMENT_EQUALS_HASHCODE";
     field public static final String INDEX_FROM_EMBEDDED_ENTITY_IS_DROPPED = "ROOM_EMBEDDED_ENTITY_INDEX_IS_DROPPED";
     field public static final String INDEX_FROM_EMBEDDED_FIELD_IS_DROPPED = "ROOM_EMBEDDED_INDEX_IS_DROPPED";
     field public static final String INDEX_FROM_PARENT_FIELD_IS_DROPPED = "ROOM_PARENT_FIELD_INDEX_IS_DROPPED";
@@ -240,7 +263,8 @@ package androidx.room {
   }
 
   @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target({java.lang.annotation.ElementType.METHOD, java.lang.annotation.ElementType.PARAMETER, java.lang.annotation.ElementType.TYPE, java.lang.annotation.ElementType.FIELD}) public @interface TypeConverters {
-    method public abstract Class<?>[] value();
+    method public abstract androidx.room.BuiltInTypeConverters builtInTypeConverters() default @androidx.room.BuiltInTypeConverters;
+    method public abstract Class<?>[] value() default {};
   }
 
   @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) public @interface Update {

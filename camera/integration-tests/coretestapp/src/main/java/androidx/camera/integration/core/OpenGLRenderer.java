@@ -58,6 +58,7 @@ final class OpenGLRenderer {
 
     private SurfaceTexture mPreviewTexture;
     private RectF mPreviewCropRect;
+    private boolean mIsPreviewCropRectPrecalculated = false;
     private Size mPreviewSize;
     private int mTextureRotationDegrees;
     // Transform retrieved by SurfaceTexture.getTransformMatrix
@@ -131,9 +132,11 @@ final class OpenGLRenderer {
                                         // Crop rect is pre-calculated. Use it directly.
                                         mPreviewCropRect = new RectF(
                                                 transformationInfo.getCropRect());
+                                        mIsPreviewCropRectPrecalculated = true;
                                     } else {
                                         // Crop rect needs to be calculated before drawing.
                                         mPreviewCropRect = null;
+                                        mIsPreviewCropRectPrecalculated = false;
                                     }
                                 });
 
@@ -633,7 +636,7 @@ final class OpenGLRenderer {
      */
     @WorkerThread
     private void updateMvpTransform() {
-        if (mPreviewCropRect == null) {
+        if (!mIsPreviewCropRectPrecalculated) {
             extractPreviewCropFromPreviewSizeAndSurface();
         }
 

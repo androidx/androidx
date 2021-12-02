@@ -40,6 +40,7 @@ dependencies {
     testImplementation(project(":lifecycle:lifecycle-runtime-testing"))
 
     androidTestImplementation(project(":lifecycle:lifecycle-runtime-testing"))
+    androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.kotlinCoroutinesTest)
     androidTestImplementation(libs.kotlinCoroutinesAndroid)
     androidTestImplementation(libs.testExtJunitKtx)

@@ -23,10 +23,13 @@ import androidx.annotation.Nullable;
  * Interface for widgets to implement default behavior for receiving content. Content may be both
  * text and non-text (plain/styled text, HTML, images, videos, audio files, etc).
  *
- * <p>Widgets should implement this interface to define the default behavior for receiving content.
- * Apps wishing to provide custom behavior for receiving content should set a listener via
- * {@link ViewCompat#setOnReceiveContentListener}. See {@link ViewCompat#performReceiveContent} for
- * more info.
+ * <p>Widgets should implement this interface to define the default behavior for receiving content
+ * when the SDK is <= 30. When doing so, widgets should also override
+ * {@link android.view.View#onReceiveContent} for SDK > 30.
+ *
+ * <p>Apps wishing to provide custom behavior for receiving content should not implement this
+ * interface but rather set a listener via {@link ViewCompat#setOnReceiveContentListener}. See
+ * {@link ViewCompat#performReceiveContent} for more info.
  */
 public interface OnReceiveContentViewBehavior {
     /**

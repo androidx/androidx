@@ -89,8 +89,8 @@ public class TilesTimelineManagerTest {
     public void timelineManager_singleTileImmediatelySet() {
         List<Layout> returnedLayouts = new ArrayList<>();
         Layout layout = buildTextLayout("Hello World");
-        TimelineEntry entry = TimelineEntry.builder().setLayout(layout).build();
-        Timeline timeline = Timeline.builder().addTimelineEntry(entry).build();
+        TimelineEntry entry = new TimelineEntry.Builder().setLayout(layout).build();
+        Timeline timeline = new Timeline.Builder().addTimelineEntry(entry).build();
 
         mTimelineManager =
                 new TilesTimelineManager(
@@ -116,36 +116,39 @@ public class TilesTimelineManagerTest {
 
         Layout layout1 = buildTextLayout("Tile1");
         TimelineEntry entry1 =
-                TimelineEntry.builder()
+                new TimelineEntry.Builder()
                         .setLayout(layout1)
                         .setValidity(
-                                TimeInterval.builder()
+                                new TimeInterval.Builder()
                                         .setStartMillis(0)
-                                        .setEndMillis(cutover1Millis))
+                                        .setEndMillis(cutover1Millis)
+                                        .build())
                         .build();
 
         Layout layout2 = buildTextLayout("Tile2");
         TimelineEntry entry2 =
-                TimelineEntry.builder()
+                new TimelineEntry.Builder()
                         .setLayout(layout2)
                         .setValidity(
-                                TimeInterval.builder()
+                                new TimeInterval.Builder()
                                         .setStartMillis(cutover1Millis)
-                                        .setEndMillis(cutover2Millis))
+                                        .setEndMillis(cutover2Millis)
+                                        .build())
                         .build();
 
         Layout layout3 = buildTextLayout("Tile3");
         TimelineEntry entry3 =
-                TimelineEntry.builder()
+                new TimelineEntry.Builder()
                         .setLayout(layout3)
                         .setValidity(
-                                TimeInterval.builder()
+                                new TimeInterval.Builder()
                                         .setStartMillis(cutover2Millis)
-                                        .setEndMillis(Long.MAX_VALUE))
+                                        .setEndMillis(Long.MAX_VALUE)
+                                        .build())
                         .build();
 
         Timeline timeline =
-                Timeline.builder()
+                new Timeline.Builder()
                         .addTimelineEntry(entry1)
                         .addTimelineEntry(entry2)
                         .addTimelineEntry(entry3)
@@ -186,25 +189,27 @@ public class TilesTimelineManagerTest {
         final long cutover1Millis = mCurrentTime + Duration.ofMinutes(10).toMillis();
 
         TimelineEntry entry1 =
-                TimelineEntry.builder()
+                new TimelineEntry.Builder()
                         .setLayout(buildTextLayout("Tile1"))
                         .setValidity(
-                                TimeInterval.builder()
+                                new TimeInterval.Builder()
                                         .setStartMillis(0)
-                                        .setEndMillis(cutover1Millis))
+                                        .setEndMillis(cutover1Millis)
+                                        .build())
                         .build();
 
         TimelineEntry entry2 =
-                TimelineEntry.builder()
+                new TimelineEntry.Builder()
                         .setLayout(buildTextLayout("Tile2"))
                         .setValidity(
-                                TimeInterval.builder()
+                                new TimeInterval.Builder()
                                         .setStartMillis(cutover1Millis)
-                                        .setEndMillis(Long.MAX_VALUE))
+                                        .setEndMillis(Long.MAX_VALUE)
+                                        .build())
                         .build();
 
         Timeline timeline =
-                Timeline.builder().addTimelineEntry(entry1).addTimelineEntry(entry2).build();
+                new Timeline.Builder().addTimelineEntry(entry1).addTimelineEntry(entry2).build();
 
         mTimelineManager =
                 new TilesTimelineManager(
@@ -232,26 +237,28 @@ public class TilesTimelineManagerTest {
 
         Layout layout1 = buildTextLayout("Tile1");
         TimelineEntry entry1 =
-                TimelineEntry.builder()
+                new TimelineEntry.Builder()
                         .setLayout(layout1)
                         .setValidity(
-                                TimeInterval.builder()
+                                new TimeInterval.Builder()
                                         .setStartMillis(0)
-                                        .setEndMillis(cutover1Millis))
+                                        .setEndMillis(cutover1Millis)
+                                        .build())
                         .build();
 
         Layout layout2 = buildTextLayout("Tile2");
         TimelineEntry entry2 =
-                TimelineEntry.builder()
+                new TimelineEntry.Builder()
                         .setLayout(layout2)
                         .setValidity(
-                                TimeInterval.builder()
+                                new TimeInterval.Builder()
                                         .setStartMillis(cutover1Millis)
-                                        .setEndMillis(Long.MAX_VALUE))
+                                        .setEndMillis(Long.MAX_VALUE)
+                                        .build())
                         .build();
 
         Timeline timeline =
-                Timeline.builder().addTimelineEntry(entry1).addTimelineEntry(entry2).build();
+                new Timeline.Builder().addTimelineEntry(entry1).addTimelineEntry(entry2).build();
 
         mTimelineManager =
                 new TilesTimelineManager(
@@ -290,36 +297,39 @@ public class TilesTimelineManagerTest {
 
         Layout layout1 = buildTextLayout("Tile1");
         TimelineEntry entry1 =
-                TimelineEntry.builder()
+                new TimelineEntry.Builder()
                         .setLayout(layout1)
                         .setValidity(
-                                TimeInterval.builder()
+                                new TimeInterval.Builder()
                                         .setStartMillis(0)
-                                        .setEndMillis(cutover1Millis))
+                                        .setEndMillis(cutover1Millis)
+                                        .build())
                         .build();
 
         Layout layout2 = buildTextLayout("Tile2");
         TimelineEntry entry2 =
-                TimelineEntry.builder()
+                new TimelineEntry.Builder()
                         .setLayout(layout2)
                         .setValidity(
-                                TimeInterval.builder()
+                                new TimeInterval.Builder()
                                         .setStartMillis(cutover1Millis)
-                                        .setEndMillis(cutover2Millis))
+                                        .setEndMillis(cutover2Millis)
+                                        .build())
                         .build();
 
         Layout layout3 = buildTextLayout("Tile3");
         TimelineEntry entry3 =
-                TimelineEntry.builder()
+                new TimelineEntry.Builder()
                         .setLayout(layout3)
                         .setValidity(
-                                TimeInterval.builder()
+                                new TimeInterval.Builder()
                                         .setStartMillis(cutover2Millis)
-                                        .setEndMillis(Long.MAX_VALUE))
+                                        .setEndMillis(Long.MAX_VALUE)
+                                        .build())
                         .build();
 
         Timeline timeline =
-                Timeline.builder()
+                new Timeline.Builder()
                         .addTimelineEntry(entry1)
                         .addTimelineEntry(entry2)
                         .addTimelineEntry(entry3)
@@ -345,7 +355,7 @@ public class TilesTimelineManagerTest {
     }
 
     private static Layout buildTextLayout(String text) {
-        return Layout.builder().setRoot(Text.builder().setText(text)).build();
+        return new Layout.Builder().setRoot(new Text.Builder().setText(text).build()).build();
     }
 
     private void seekToTime(long timeMillis) {

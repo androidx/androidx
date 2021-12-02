@@ -16,13 +16,11 @@
 
 package androidx.navigation.safeargs.gradle
 
-import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
 // Does not work in the Android Studio
-@Ignore // b/186177309
 @RunWith(JUnit4::class)
 class JavaPluginTest : BasePluginTest() {
 

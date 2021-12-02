@@ -31,9 +31,9 @@ import java.lang.annotation.Target;
  * in the array represents a color integer.
  * <p>
  * Example:
- * <pre>{@code
+ * <pre>
  *  public abstract void setTextColor(@ColorInt int color);
- * }</pre>
+ * </pre>
  */
 @Documented
 @Retention(CLASS)

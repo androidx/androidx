@@ -90,8 +90,8 @@ class DatabaseViewProcessorTest {
             val resultInfo = view.query.resultInfo!!
             assertThat(resultInfo.columns).hasSize(2)
             assertThat(resultInfo.columns).containsAtLeast(
-                ColumnInfo("id", SQLTypeAffinity.INTEGER),
-                ColumnInfo("name", SQLTypeAffinity.TEXT)
+                ColumnInfo("id", SQLTypeAffinity.INTEGER, "Team"),
+                ColumnInfo("name", SQLTypeAffinity.TEXT, "Team")
             )
             assertThat(view.viewName).isEqualTo("MyView")
         }

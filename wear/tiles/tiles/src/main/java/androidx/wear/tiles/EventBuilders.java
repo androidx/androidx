@@ -33,12 +33,6 @@ public final class EventBuilders {
             this.mImpl = impl;
         }
 
-        /** Returns a new {@link Builder}. */
-        @NonNull
-        public static Builder builder() {
-            return new Builder();
-        }
-
         /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -58,7 +52,7 @@ public final class EventBuilders {
             private final EventProto.TileAddEvent.Builder mImpl =
                     EventProto.TileAddEvent.newBuilder();
 
-            Builder() {}
+            public Builder() {}
 
             /** Builds an instance from accumulated values. */
             @NonNull
@@ -74,12 +68,6 @@ public final class EventBuilders {
 
         private TileRemoveEvent(EventProto.TileRemoveEvent impl) {
             this.mImpl = impl;
-        }
-
-        /** Returns a new {@link Builder}. */
-        @NonNull
-        public static Builder builder() {
-            return new Builder();
         }
 
         /** @hide */
@@ -101,7 +89,7 @@ public final class EventBuilders {
             private final EventProto.TileRemoveEvent.Builder mImpl =
                     EventProto.TileRemoveEvent.newBuilder();
 
-            Builder() {}
+            public Builder() {}
 
             /** Builds an instance from accumulated values. */
             @NonNull
@@ -117,12 +105,6 @@ public final class EventBuilders {
 
         private TileEnterEvent(EventProto.TileEnterEvent impl) {
             this.mImpl = impl;
-        }
-
-        /** Returns a new {@link Builder}. */
-        @NonNull
-        public static Builder builder() {
-            return new Builder();
         }
 
         /** @hide */
@@ -144,7 +126,7 @@ public final class EventBuilders {
             private final EventProto.TileEnterEvent.Builder mImpl =
                     EventProto.TileEnterEvent.newBuilder();
 
-            Builder() {}
+            public Builder() {}
 
             /** Builds an instance from accumulated values. */
             @NonNull
@@ -163,12 +145,6 @@ public final class EventBuilders {
 
         private TileLeaveEvent(EventProto.TileLeaveEvent impl) {
             this.mImpl = impl;
-        }
-
-        /** Returns a new {@link Builder}. */
-        @NonNull
-        public static Builder builder() {
-            return new Builder();
         }
 
         /** @hide */
@@ -190,7 +166,7 @@ public final class EventBuilders {
             private final EventProto.TileLeaveEvent.Builder mImpl =
                     EventProto.TileLeaveEvent.newBuilder();
 
-            Builder() {}
+            public Builder() {}
 
             /** Builds an instance from accumulated values. */
             @NonNull

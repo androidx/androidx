@@ -447,6 +447,24 @@ class ActivityResultRegistryTest {
     }
 
     @Test
+    fun testLaunchUnregistered() {
+        val contract = StartActivityForResult()
+        val activityResult = registry.register("key", contract) { }
+
+        activityResult.unregister()
+
+        try {
+            activityResult.launch(null)
+        } catch (e: IllegalStateException) {
+            assertThat(e).hasMessageThat().contains(
+                "Attempting to launch an unregistered ActivityResultLauncher with contract " +
+                    contract + " and input null. You must ensure the ActivityResultLauncher is " +
+                    "registered before calling launch()."
+            )
+        }
+    }
+
+    @Test
     fun testSavePendingOnRestore() {
         var code = 0
         val noDispatchRegistry = object : ActivityResultRegistry() {

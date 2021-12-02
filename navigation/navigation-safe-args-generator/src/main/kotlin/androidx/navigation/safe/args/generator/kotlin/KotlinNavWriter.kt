@@ -58,7 +58,7 @@ class KotlinNavWriter(private val useAndroidX: Boolean = true) : NavWriter<Kotli
                         defaultValue(it.write())
                     }
                 }.build()
-            }
+            }.sortedBy { it.defaultValue != null }
             FunSpec.builder(action.id.javaIdentifier.toCamelCaseAsVar()).apply {
                 returns(NAV_DIRECTION_CLASSNAME)
                 addParameters(parameters)
@@ -163,7 +163,7 @@ class KotlinNavWriter(private val useAndroidX: Boolean = true) : NavWriter<Kotli
                             defaultValue(it.write())
                         }
                     }.build()
-                }
+                }.sortedBy { it.defaultValue != null }
             )
             .build()
 
@@ -200,7 +200,7 @@ class KotlinNavWriter(private val useAndroidX: Boolean = true) : NavWriter<Kotli
                         name = arg.sanitizedName,
                         type = arg.type.typeName().copy(nullable = arg.isNullable)
                     ).apply { arg.defaultValue?.let { defaultValue(it.write()) } }.build()
-                }
+                }.sortedBy { it.defaultValue != null }
             )
             .build()
 
@@ -267,9 +267,27 @@ class KotlinNavWriter(private val useAndroidX: Boolean = true) : NavWriter<Kotli
                     )
                 }
                 endControlFlow()
-                return@map tempVal
+                arg
+            }.sortedBy { it.defaultValue != null }
+            addStatement(
+                "return·%T(${tempVariables.joinToString(", ") { "__${it.sanitizedName}" }})",
+                className
+            )
+        }.build()
+
+        val toSavedStateHandleFunSpec = FunSpec.builder("toSavedStateHandle").apply {
+            if (destination.args.any { it.type is ObjectType }) {
+                addAnnotation(CAST_NEVER_SUCCEEDS)
             }
-            addStatement("return·%T(${tempVariables.joinToString(", ") { it }})", className)
+            returns(SAVED_STATE_HANDLE_CLASSNAME)
+            val resultVal = "result"
+            addStatement("val %L = %T()", resultVal, SAVED_STATE_HANDLE_CLASSNAME)
+            destination.args.forEach { arg ->
+                arg.type.addSavedStateSetStatement(
+                    this, arg, resultVal, "this.${arg.sanitizedName}"
+                )
+            }
+            addStatement("return %L", resultVal)
         }.build()
 
         val fromSavedStateHandleFunSpec = FunSpec.builder("fromSavedStateHandle").apply {
@@ -313,9 +331,12 @@ class KotlinNavWriter(private val useAndroidX: Boolean = true) : NavWriter<Kotli
                     )
                 }
                 endControlFlow()
-                return@map tempVal
-            }
-            addStatement("return·%T(${tempVariables.joinToString(", ") { it }})", className)
+                arg
+            }.sortedBy { it.defaultValue != null }
+            addStatement(
+                "return·%T(${tempVariables.joinToString(", ") { "__${it.sanitizedName}" }})",
+                className
+            )
         }.build()
 
         val typeSpec = TypeSpec.classBuilder(className)
@@ -331,6 +352,7 @@ class KotlinNavWriter(private val useAndroidX: Boolean = true) : NavWriter<Kotli
                 }
             )
             .addFunction(toBundleFunSpec)
+            .addFunction(toSavedStateHandleFunSpec)
             .addType(
                 TypeSpec.companionObjectBuilder()
                     .addFunction(fromBundleFunSpec)

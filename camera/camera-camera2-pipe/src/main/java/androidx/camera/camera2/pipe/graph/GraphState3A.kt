@@ -18,6 +18,7 @@ package androidx.camera.camera2.pipe.graph
 
 import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.params.MeteringRectangle
+import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.AeMode
 import androidx.camera.camera2.pipe.AfMode
 import androidx.camera.camera2.pipe.AwbMode
@@ -37,6 +38,7 @@ import javax.inject.Inject
  * the af state. However for ae and awb, the lock type is boolean and should be explicitly set to
  * 'true' in the subsequent requests once we have locked ae/awb and want them to stay locked.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 @CameraGraphScope
 internal class GraphState3A @Inject constructor() {
     var aeMode: AeMode? = null

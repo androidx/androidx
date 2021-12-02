@@ -1,7 +1,7 @@
 package com.example.appsearch;
 
 import androidx.appsearch.app.AppSearchSchema;
-import androidx.appsearch.app.DataClassFactory;
+import androidx.appsearch.app.DocumentClassFactory;
 import androidx.appsearch.app.GenericDocument;
 import androidx.appsearch.exceptions.AppSearchException;
 import java.lang.Integer;
@@ -11,55 +11,47 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import javax.annotation.processing.Generated;
 
-public class $$__AppSearch__Gift implements DataClassFactory<Gift> {
-  private static final String SCHEMA_TYPE = "Gift";
+@Generated("androidx.appsearch.compiler.AppSearchCompiler")
+public class $$__AppSearch__Gift implements DocumentClassFactory<Gift> {
+  public static final String SCHEMA_NAME = "Gift";
 
   @Override
-  public String getSchemaType() {
-    return SCHEMA_TYPE;
+  public String getSchemaName() {
+    return SCHEMA_NAME;
   }
 
   @Override
   public AppSearchSchema getSchema() throws AppSearchException {
-    return new AppSearchSchema.Builder(SCHEMA_TYPE)
-          .addProperty(new AppSearchSchema.PropertyConfig.Builder("listOfString")
-            .setDataType(AppSearchSchema.PropertyConfig.DATA_TYPE_STRING)
+    return new AppSearchSchema.Builder(SCHEMA_NAME)
+          .addProperty(new AppSearchSchema.StringPropertyConfig.Builder("listOfString")
             .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_REPEATED)
-            .setTokenizerType(AppSearchSchema.PropertyConfig.TOKENIZER_TYPE_NONE)
-            .setIndexingType(AppSearchSchema.PropertyConfig.INDEXING_TYPE_NONE)
+            .setTokenizerType(AppSearchSchema.StringPropertyConfig.TOKENIZER_TYPE_NONE)
+            .setIndexingType(AppSearchSchema.StringPropertyConfig.INDEXING_TYPE_NONE)
             .build())
-          .addProperty(new AppSearchSchema.PropertyConfig.Builder("setOfInt")
-            .setDataType(AppSearchSchema.PropertyConfig.DATA_TYPE_INT64)
+          .addProperty(new AppSearchSchema.LongPropertyConfig.Builder("setOfInt")
             .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_REPEATED)
-            .setTokenizerType(AppSearchSchema.PropertyConfig.TOKENIZER_TYPE_NONE)
-            .setIndexingType(AppSearchSchema.PropertyConfig.INDEXING_TYPE_NONE)
             .build())
-          .addProperty(new AppSearchSchema.PropertyConfig.Builder("repeatedByteArray")
-            .setDataType(AppSearchSchema.PropertyConfig.DATA_TYPE_BYTES)
+          .addProperty(new AppSearchSchema.BytesPropertyConfig.Builder("repeatedByteArray")
             .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_REPEATED)
-            .setTokenizerType(AppSearchSchema.PropertyConfig.TOKENIZER_TYPE_NONE)
-            .setIndexingType(AppSearchSchema.PropertyConfig.INDEXING_TYPE_NONE)
             .build())
-          .addProperty(new AppSearchSchema.PropertyConfig.Builder("byteArray")
-            .setDataType(AppSearchSchema.PropertyConfig.DATA_TYPE_BYTES)
+          .addProperty(new AppSearchSchema.BytesPropertyConfig.Builder("byteArray")
             .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
-            .setTokenizerType(AppSearchSchema.PropertyConfig.TOKENIZER_TYPE_NONE)
-            .setIndexingType(AppSearchSchema.PropertyConfig.INDEXING_TYPE_NONE)
             .build())
           .build();
   }
 
   @Override
-  public GenericDocument toGenericDocument(Gift dataClass) throws AppSearchException {
+  public GenericDocument toGenericDocument(Gift document) throws AppSearchException {
     GenericDocument.Builder<?> builder =
-        new GenericDocument.Builder<>(dataClass.uri, SCHEMA_TYPE);
-    List<String> listOfStringCopy = dataClass.listOfString;
+        new GenericDocument.Builder<>(document.namespace, document.id, SCHEMA_NAME);
+    List<String> listOfStringCopy = document.listOfString;
     if (listOfStringCopy != null) {
       String[] listOfStringConv = listOfStringCopy.toArray(new String[0]);
       builder.setPropertyString("listOfString", listOfStringConv);
     }
-    Collection<Integer> setOfIntCopy = dataClass.setOfInt;
+    Collection<Integer> setOfIntCopy = document.setOfInt;
     if (setOfIntCopy != null) {
       long[] setOfIntConv = new long[setOfIntCopy.size()];
       int i = 0;
@@ -68,11 +60,11 @@ public class $$__AppSearch__Gift implements DataClassFactory<Gift> {
       }
       builder.setPropertyLong("setOfInt", setOfIntConv);
     }
-    byte[][] repeatedByteArrayCopy = dataClass.repeatedByteArray;
+    byte[][] repeatedByteArrayCopy = document.repeatedByteArray;
     if (repeatedByteArrayCopy != null) {
       builder.setPropertyBytes("repeatedByteArray", repeatedByteArrayCopy);
     }
-    byte[] byteArrayCopy = dataClass.byteArray;
+    byte[] byteArrayCopy = document.byteArray;
     if (byteArrayCopy != null) {
       builder.setPropertyBytes("byteArray", byteArrayCopy);
     }
@@ -81,7 +73,8 @@ public class $$__AppSearch__Gift implements DataClassFactory<Gift> {
 
   @Override
   public Gift fromGenericDocument(GenericDocument genericDoc) throws AppSearchException {
-    String uriConv = genericDoc.getUri();
+    String idConv = genericDoc.getId();
+    String namespaceConv = genericDoc.getNamespace();
     String[] listOfStringCopy = genericDoc.getPropertyStringArray("listOfString");
     List<String> listOfStringConv = null;
     if (listOfStringCopy != null) {
@@ -101,12 +94,13 @@ public class $$__AppSearch__Gift implements DataClassFactory<Gift> {
     if (byteArrayCopy != null && byteArrayCopy.length != 0) {
       byteArrayConv = byteArrayCopy[0];
     }
-    Gift dataClass = new Gift();
-    dataClass.uri = uriConv;
-    dataClass.listOfString = listOfStringConv;
-    dataClass.setOfInt = setOfIntConv;
-    dataClass.repeatedByteArray = repeatedByteArrayConv;
-    dataClass.byteArray = byteArrayConv;
-    return dataClass;
+    Gift document = new Gift();
+    document.namespace = namespaceConv;
+    document.id = idConv;
+    document.listOfString = listOfStringConv;
+    document.setOfInt = setOfIntConv;
+    document.repeatedByteArray = repeatedByteArrayConv;
+    document.byteArray = byteArrayConv;
+    return document;
   }
 }

@@ -16,58 +16,55 @@
 
 package androidx.room.compiler.processing.javac
 
+import androidx.room.compiler.processing.CommonProcessorDelegate
 import androidx.room.compiler.processing.XBasicAnnotationProcessor
-import androidx.room.compiler.processing.XElement
-import androidx.room.compiler.processing.XRoundEnv
-import com.google.auto.common.BasicAnnotationProcessor
-import com.google.common.collect.ImmutableSetMultimap
+import androidx.room.compiler.processing.XProcessingEnv
+import javax.annotation.processing.AbstractProcessor
+import javax.annotation.processing.ProcessingEnvironment
 import javax.annotation.processing.RoundEnvironment
-import javax.lang.model.element.Element
+import javax.lang.model.element.TypeElement
 
 /**
  * Javac implementation of a [XBasicAnnotationProcessor] with built-in support for validating and
- * deferring elements via auto-common's [BasicAnnotationProcessor].
+ * deferring elements.
  */
 abstract class JavacBasicAnnotationProcessor :
-    BasicAnnotationProcessor(), XBasicAnnotationProcessor {
+    AbstractProcessor(), XBasicAnnotationProcessor {
 
-    final override fun steps(): Iterable<Step> {
-        // Execute all processing steps in a single auto-common Step. This is done to share the
-        // XProcessingEnv and its cached across steps in the same round.
-        val steps = processingSteps()
-        val parentStep = object : Step {
-            override fun annotations() = steps.flatMap { it.annotations() }.toSet()
+    private val xEnv: JavacProcessingEnv by lazy { JavacProcessingEnv(processingEnv) }
 
-            override fun process(
-                elementsByAnnotation: ImmutableSetMultimap<String, Element>
-            ): Set<Element> {
-                val xEnv = JavacProcessingEnv(processingEnv)
-                val convertedElementsByAnnotation = mutableMapOf<String, Set<XElement>>()
-                annotations().forEach { annotation ->
-                    convertedElementsByAnnotation[annotation] =
-                        elementsByAnnotation[annotation].mapNotNull { element ->
-                            xEnv.wrapAnnotatedElement(element, annotation)
-                        }.toSet()
-                }
-                val results = steps.flatMap { step ->
-                    step.process(
-                        env = xEnv,
-                        elementsByAnnotation = step.annotations().associateWith {
-                            convertedElementsByAnnotation[it] ?: emptySet()
-                        }
-                    )
-                }
-                return results.map { (it as JavacElement).element }.toSet()
-            }
-        }
-        return listOf(parentStep)
+    // Cache and lazily get steps during the initial process() so steps initialization is done once.
+    private val steps by lazy { processingSteps().toList() }
+
+    private val commonDelegate by lazy { CommonProcessorDelegate(this.javaClass, xEnv, steps) }
+
+    final override val xProcessingEnv: XProcessingEnv get() = xEnv
+
+    final override fun init(processingEnv: ProcessingEnvironment?) {
+        super.init(processingEnv)
+        initialize(xEnv)
     }
 
-    final override fun postRound(roundEnv: RoundEnvironment) {
-        // Due to BasicAnnotationProcessor taking over AbstractProcessor#process() we can't
-        // share the same XProcessingEnv from the steps, but that might be ok...
-        val xEnv = JavacProcessingEnv(processingEnv)
-        val xRound = XRoundEnv.create(xEnv, roundEnv)
-        postRound(xEnv, xRound)
+    final override fun getSupportedAnnotationTypes() = steps.flatMap { it.annotations() }.toSet()
+
+    final override fun process(
+        annotations: MutableSet<out TypeElement>,
+        roundEnv: RoundEnvironment
+    ): Boolean {
+        val xRoundEnv = JavacRoundEnv(xEnv, roundEnv)
+        if (roundEnv.processingOver()) {
+            val missingElements = commonDelegate.processLastRound()
+            postRound(xEnv, xRoundEnv)
+            if (!roundEnv.errorRaised()) {
+                // Report missing elements if no error was raised to avoid being noisy.
+                commonDelegate.reportMissingElements(missingElements)
+            }
+        } else {
+            commonDelegate.processRound(xRoundEnv)
+            postRound(xEnv, xRoundEnv)
+            xEnv.clearCache()
+        }
+
+        return false
     }
 }

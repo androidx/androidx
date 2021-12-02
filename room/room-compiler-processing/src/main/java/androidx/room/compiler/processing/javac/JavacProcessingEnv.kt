@@ -61,10 +61,10 @@ internal class JavacProcessingEnv(
         )
 
     override val messager: XMessager by lazy {
-        JavacProcessingEnvMessager(delegate)
+        JavacProcessingEnvMessager(delegate.messager)
     }
 
-    override val filer = JavacFiler(delegate)
+    override val filer = JavacFiler(this, delegate.filer)
 
     override val options: Map<String, String>
         get() = delegate.options
@@ -77,6 +77,7 @@ internal class JavacProcessingEnv(
         // Note, to support Java Modules we would need to use "getAllPackageElements",
         // but that is only available in Java 9+.
         val packageElement = delegate.elementUtils.getPackageElement(packageName)
+            ?: return emptyList()
 
         return packageElement.enclosedElements
             .filterIsInstance<TypeElement>()
@@ -149,51 +150,78 @@ internal class JavacProcessingEnv(
     inline fun <reified T : JavacType> wrap(
         typeMirror: TypeMirror,
         kotlinType: KmType?,
-        elementNullability: XNullability
+        elementNullability: XNullability?
     ): T {
         return when (typeMirror.kind) {
             TypeKind.ARRAY ->
-                if (kotlinType == null) {
-                    JavacArrayType(
-                        env = this,
-                        typeMirror = MoreTypes.asArray(typeMirror),
-                        nullability = elementNullability,
-                        knownComponentNullability = null
-                    )
-                } else {
-                    JavacArrayType(
-                        env = this,
-                        typeMirror = MoreTypes.asArray(typeMirror),
-                        kotlinType = kotlinType
-                    )
+                when {
+                    kotlinType != null -> {
+                        JavacArrayType(
+                            env = this,
+                            typeMirror = MoreTypes.asArray(typeMirror),
+                            kotlinType = kotlinType
+                        )
+                    }
+                    elementNullability != null -> {
+                        JavacArrayType(
+                            env = this,
+                            typeMirror = MoreTypes.asArray(typeMirror),
+                            nullability = elementNullability,
+                            knownComponentNullability = null
+                        )
+                    }
+                    else -> {
+                        JavacArrayType(
+                            env = this,
+                            typeMirror = MoreTypes.asArray(typeMirror),
+                        )
+                    }
                 }
             TypeKind.DECLARED ->
-                if (kotlinType == null) {
-                    JavacDeclaredType(
-                        env = this,
-                        typeMirror = MoreTypes.asDeclared(typeMirror),
-                        nullability = elementNullability
-                    )
-                } else {
-                    JavacDeclaredType(
-                        env = this,
-                        typeMirror = MoreTypes.asDeclared(typeMirror),
-                        kotlinType = kotlinType
-                    )
+                when {
+                    kotlinType != null -> {
+                        JavacDeclaredType(
+                            env = this,
+                            typeMirror = MoreTypes.asDeclared(typeMirror),
+                            kotlinType = kotlinType
+                        )
+                    }
+                    elementNullability != null -> {
+                        JavacDeclaredType(
+                            env = this,
+                            typeMirror = MoreTypes.asDeclared(typeMirror),
+                            nullability = elementNullability
+                        )
+                    }
+                    else -> {
+                        JavacDeclaredType(
+                            env = this,
+                            typeMirror = MoreTypes.asDeclared(typeMirror)
+                        )
+                    }
                 }
             else ->
-                if (kotlinType == null) {
-                    DefaultJavacType(
-                        env = this,
-                        typeMirror = typeMirror,
-                        nullability = elementNullability
-                    )
-                } else {
-                    DefaultJavacType(
-                        env = this,
-                        typeMirror = typeMirror,
-                        kotlinType = kotlinType
-                    )
+                when {
+                    kotlinType != null -> {
+                        DefaultJavacType(
+                            env = this,
+                            typeMirror = typeMirror,
+                            kotlinType = kotlinType
+                        )
+                    }
+                    elementNullability != null -> {
+                        DefaultJavacType(
+                            env = this,
+                            typeMirror = typeMirror,
+                            nullability = elementNullability
+                        )
+                    }
+                    else -> {
+                        DefaultJavacType(
+                            env = this,
+                            typeMirror = typeMirror
+                        )
+                    }
                 }
         } as T
     }
@@ -258,6 +286,10 @@ internal class JavacProcessingEnv(
             }
             else -> error("Unsupported enclosing type $enclosingElement for $element")
         }
+    }
+
+    internal fun clearCache() {
+        typeElementStore.clear()
     }
 
     companion object {

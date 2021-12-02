@@ -77,7 +77,6 @@ public final class CameraManagerCompatTest {
         mShadowCameraManager.addCallback(mInteractionCallback);
     }
 
-
     @Test
     public void getCameraCharacteristicsCompat_callUnderlyingMethod()
             throws CameraAccessExceptionCompat {
@@ -214,6 +213,16 @@ public final class CameraManagerCompatTest {
         assertThat(unregisterCaptor.getValue()).isSameInstanceAs(originalCallback);
     }
 
+    @Test(expected = CameraAccessExceptionCompat.class)
+    public void throwCameraAccessExceptionCompat_whenCallingGetCharacteristicsThrowAssertionError()
+            throws CameraAccessExceptionCompat {
+        when(mInteractionCallback.getCameraCharacteristics(any(String.class))).thenThrow(
+                new AssertionError("CameraManager#getCameraCharacteristics AssertionError!"));
+
+        CameraManagerCompat manager = CameraManagerCompat.from(mContext);
+        manager.getCameraCharacteristicsCompat(CAMERA_ID);
+    }
+
     /**
      * A Shadow of {@link CameraManager} which forwards invocations to callbacks to record
      * interactions.
@@ -222,7 +231,7 @@ public final class CameraManagerCompatTest {
             value = CameraManager.class,
             minSdk = 21
     )
-    static final class ShadowInteractionCameraManager {
+    public static final class ShadowInteractionCameraManager {
 
         private static final String[] EMPTY_ID_LIST = new String[]{};
         private final List<Callback> mCallbacks = new ArrayList<>();

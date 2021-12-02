@@ -19,6 +19,7 @@ import androidx.room.compiler.processing.XType
 import androidx.room.parser.ParsedQuery
 import androidx.room.processor.Context
 import androidx.room.solver.QueryResultBinderProvider
+import androidx.room.solver.TypeAdapterExtras
 import androidx.room.solver.query.result.QueryResultBinder
 import com.squareup.javapoet.TypeName
 
@@ -46,8 +47,12 @@ private class QueryResultBinderProviderWithRequiredArtifact(
         context.processingEnv.findTypeElement(requiredType) != null
     }
 
-    override fun provide(declared: XType, query: ParsedQuery): QueryResultBinder {
-        return delegate.provide(declared, query)
+    override fun provide(
+        declared: XType,
+        query: ParsedQuery,
+        extras: TypeAdapterExtras
+    ): QueryResultBinder {
+        return delegate.provide(declared, query, extras)
     }
 
     override fun matches(declared: XType): Boolean {

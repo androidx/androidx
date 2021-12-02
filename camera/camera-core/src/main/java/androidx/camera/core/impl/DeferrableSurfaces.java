@@ -20,6 +20,7 @@ import android.view.Surface;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.camera.core.impl.utils.futures.FutureCallback;
 import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
@@ -39,6 +40,7 @@ import java.util.concurrent.TimeoutException;
 /**
  * Utility functions for manipulating {@link DeferrableSurface}.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class DeferrableSurfaces {
 
     private DeferrableSurfaces() {

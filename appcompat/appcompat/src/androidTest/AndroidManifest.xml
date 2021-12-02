@@ -103,6 +103,17 @@
             android:theme="@style/Theme.TextColors"/>
 
         <activity
+            android:name="androidx.appcompat.widget.AppCompatAutoCompleteTextViewEmojiActivity"
+            android:label="@string/app_compat_auto_complete_text_view_activity"
+            android:theme="@style/Theme.TextColors"/>
+
+
+        <activity
+            android:name="androidx.appcompat.widget.AppCompatMultiAutoCompleteTextViewEmojiActivity"
+            android:label="@string/app_compat_multi_auto_complete_text_view_activity"
+            android:theme="@style/Theme.TextColors"/>
+
+        <activity
             android:name="androidx.appcompat.widget.AppCompatTextViewActivity"
             android:label="@string/app_compat_text_view_activity"
             android:theme="@style/Theme.TextColors"/>
@@ -168,9 +179,19 @@
             android:theme="@style/Theme.AppCompat.Light"/>
 
         <activity
+            android:name="androidx.appcompat.widget.AppCompatRadioButtonEmojiActivity"
+            android:label="@string/app_compat_text_view_emoji_activity"
+            android:theme="@style/Theme.AppCompat.Light" />
+
+        <activity
             android:name="androidx.appcompat.widget.AppCompatCheckBoxActivity"
             android:label="@string/app_compat_checkbox_activity"
             android:theme="@style/Theme.AppCompat.Light"/>
+
+        <activity
+            android:name="androidx.appcompat.widget.AppCompatCheckBoxEmojiActivity"
+            android:label="@string/app_compat_text_view_emoji_activity"
+            android:theme="@style/Theme.AppCompat.Light" />
 
         <activity
             android:name="androidx.appcompat.widget.AppCompatCheckedTextViewActivity"
@@ -290,6 +311,9 @@
         <activity
             android:name="androidx.appcompat.app.EmptyOptionsPanelActivity"
             android:theme="@style/Theme.AppCompat.NoActionBar" />
+
+        <activity
+            android:name="androidx.appcompat.widget.ButtonBarLayoutActivity"/>
 
     </application>
 

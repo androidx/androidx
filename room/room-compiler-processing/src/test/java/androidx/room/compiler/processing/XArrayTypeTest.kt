@@ -146,7 +146,7 @@ class XArrayTypeTest {
             val types = subject.getAllFieldsIncludingPrivateSupers().map {
                 assertWithMessage(it.name).that(it.type.isArray()).isTrue()
                 it.name to it.type.typeName
-            }
+            }.toList()
             assertThat(types).containsExactly(
                 "primitiveBooleanArray" to ArrayTypeName.of(TypeName.BOOLEAN),
                 "primitiveByteArray" to ArrayTypeName.of(TypeName.BYTE),

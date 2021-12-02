@@ -24,6 +24,7 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import android.location.Location;
 import android.os.RemoteException;
 
 import androidx.annotation.Nullable;
@@ -75,6 +76,11 @@ public class HostDispatcherTest {
                     public void setSurfaceCallback(@Nullable ISurfaceCallback surfaceCallback)
                             throws RemoteException {
                         mMockAppHost.setSurfaceCallback(surfaceCallback);
+                    }
+
+                    @Override
+                    public void sendLocation(Location location) throws RemoteException {
+                        mMockAppHost.sendLocation(location);
                     }
                 };
 

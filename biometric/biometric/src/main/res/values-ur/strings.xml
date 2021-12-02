@@ -30,4 +30,18 @@
     <string name="generic_error_no_device_credential" msgid="3791785319221634505">"کوئی پن، پیٹرن، یا پاس ورڈ سیٹ نہیں ہے۔"</string>
     <string name="generic_error_no_keyguard" msgid="1807436368654974044">"‏یہ آلہ PIN، پیٹرن یا پاس ورڈ کو سپورٹ نہیں کرتا ہے۔"</string>
     <string name="fingerprint_dialog_icon_description" msgid="5462024216548165325">"فنگر پرنٹ آئیکن"</string>
+    <string name="use_fingerprint_label" msgid="6961788485681412417">"فنگر پرنٹ استعمال کریں"</string>
+    <string name="use_face_label" msgid="6533512708069459542">"چہرے کا استعمال کریں"</string>
+    <string name="use_biometric_label" msgid="6524145989441579428">"بایو میٹرکس استعمال کریں"</string>
+    <string name="use_screen_lock_label" msgid="5459869335976243512">"اسکرین لاک استعمال کریں"</string>
+    <string name="use_fingerprint_or_screen_lock_label" msgid="7577690399303139443">"فنگر پرنٹ یا اسکرین لاک استعمال کریں"</string>
+    <string name="use_face_or_screen_lock_label" msgid="2116180187159450292">"چہرہ یا اسکرین لاک استعمال کریں"</string>
+    <string name="use_biometric_or_screen_lock_label" msgid="5385448280139639016">"بایو میٹرکس یا اسکرین لاک استعمال کریں"</string>
+    <string name="fingerprint_prompt_message" msgid="7449360011861769080">"جاری رکھنے کے لیے اپنا فنگر پرنٹ استعمال کریں"</string>
+    <string name="face_prompt_message" msgid="2282389249605674226">"جاری رکھنے کے لیے اپنے چہرے کا استعمال کریں"</string>
+    <string name="biometric_prompt_message" msgid="1160635338192065472">"جاری رکھنے کے لیے اپنا بایو میٹرک استعمال کریں"</string>
+    <string name="screen_lock_prompt_message" msgid="5659570757430909869">"جاری رکھنے کے لیے اپنا اسکرین لاک درج کریں"</string>
+    <string name="fingerprint_or_screen_lock_prompt_message" msgid="8382576858490514495">"جاری رکھنے کے لیے اپنے فنگر پرنٹ یا اسکرین لاک کا استعمال کریں"</string>
+    <string name="face_or_screen_lock_prompt_message" msgid="4562557128765735254">"جاری رکھنے کے لیے اپنے چہرے یا اسکرین لاک کا استعمال کریں"</string>
+    <string name="biometric_or_screen_lock_prompt_message" msgid="2102429900219199821">"جاری رکھنے کے لیے اپنے بایو میٹرک یا اسکرین لاک کا استعمال کریں"</string>
 </resources>

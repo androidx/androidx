@@ -173,6 +173,7 @@ public class FullLifecycleObserverTest {
     }
 
     public void fullLifecycleObserverAndAnnotations() {
+        @SuppressWarnings("deprecation")
         class AnnotatedFullLifecycleObserver implements FullLifecycleObserver {
             @OnLifecycleEvent(ON_ANY)
             public void onAny() {

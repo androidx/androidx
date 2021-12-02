@@ -18,4 +18,8 @@
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="ws_navigation_drawer_content_description" msgid="777117228299084604">"নেভিগেশন ড্রয়ার"</string>
     <string name="ws_action_drawer_content_description" msgid="8863821639144537553">"অ্যাকশন ড্রয়ার"</string>
+    <string name="confirmation_overlay_a11y_description_success" msgid="2936753235333429892">"কাজটি সম্পূর্ণ হয়েছে"</string>
+    <string name="confirmation_overlay_a11y_description_fail" msgid="6412144553299494336">"কাজটি করা যায়নি"</string>
+    <string name="confirmation_overlay_a11y_description_phone" msgid="8809042819843332546">"আপনার ফোনে খোলা হয়েছে"</string>
+    <string name="confirmation_overlay_a11y_type_image" msgid="4327971892987955014">"ছবি"</string>
 </resources>

@@ -45,8 +45,8 @@ limitations under the License.
     <string name="lb_playback_controls_shuffle_disable" msgid="6793109999253893369">"Atspējot atskaņošanu jauktā secībā"</string>
     <string name="lb_playback_controls_high_quality_enable" msgid="3057698527166674705">"Iespējot augstas kvalitātes vienumu atskaņošanu"</string>
     <string name="lb_playback_controls_high_quality_disable" msgid="1209119371486219736">"Atspējot augstas kvalitātes vienumu atskaņošanu"</string>
-    <string name="lb_playback_controls_closed_captioning_enable" msgid="2346334170216706076">"Iespējot slēgtos parakstus"</string>
-    <string name="lb_playback_controls_closed_captioning_disable" msgid="8691966842977635128">"Atspējot slēgtos parakstus"</string>
+    <string name="lb_playback_controls_closed_captioning_enable" msgid="2346334170216706076">"Iespējot subtitrus"</string>
+    <string name="lb_playback_controls_closed_captioning_disable" msgid="8691966842977635128">"Atspējot subtitrus"</string>
     <string name="lb_playback_controls_picture_in_picture" msgid="5770668162543767702">"Aktivizēt funkciju Attēls attēlā"</string>
     <string name="lb_playback_time_separator" msgid="1471121602610716654">"/"</string>
     <string name="lb_playback_controls_shown" msgid="8690223891515602822">"Multivides vadīklas ir redzamas."</string>

@@ -18,6 +18,7 @@
 
 package androidx.build.lint
 
+import androidx.build.lint.Stubs.Companion.RestrictTo
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -33,6 +34,7 @@ class BanUncheckedReflectionTest : AbstractLintDetectorTest(
     fun `Detection of unchecked reflection in real-world Java sources`() {
         val input = arrayOf(
             javaSample("androidx.sample.core.app.ActivityRecreator"),
+            RestrictTo
         )
 
         /* ktlint-disable max-line-length */
@@ -54,9 +56,51 @@ src/androidx/sample/core/app/ActivityRecreator.java:265: Error: Calling Method.i
     }
 
     @Test
+    fun `Detection of unchecked reflection in real-world Kotlin sources`() {
+        val input = arrayOf(
+            ktSample("androidx.sample.core.app.ActivityRecreatorKt"),
+            RestrictTo
+        )
+
+        /* ktlint-disable max-line-length */
+        val expected = """
+src/androidx/sample/core/app/ActivityRecreatorKt.kt:130: Error: Calling Method.invoke without an SDK check [BanUncheckedReflection]
+                    requestRelaunchActivityMethod!!.invoke(
+                    ^
+src/androidx/sample/core/app/ActivityRecreatorKt.kt:177: Error: Calling Method.invoke without an SDK check [BanUncheckedReflection]
+                        performStopActivity3ParamsMethod!!.invoke(
+                        ^
+src/androidx/sample/core/app/ActivityRecreatorKt.kt:182: Error: Calling Method.invoke without an SDK check [BanUncheckedReflection]
+                        performStopActivity2ParamsMethod!!.invoke(
+                        ^
+3 errors, 0 warnings
+        """.trimIndent()
+        /* ktlint-enable max-line-length */
+
+        check(*input).expect(expected)
+    }
+
+    @Test
     fun `Checked reflection in real-world Java sources`() {
         val input = arrayOf(
             javaSample("androidx.sample.core.app.ActivityRecreatorChecked"),
+            RestrictTo
+        )
+
+        /* ktlint-disable max-line-length */
+        val expected = """
+No warnings.
+        """.trimIndent()
+        /* ktlint-enable max-line-length */
+
+        check(*input).expect(expected)
+    }
+
+    @Test
+    fun `Checked reflection in real-world Kotlin sources`() {
+        val input = arrayOf(
+            ktSample("androidx.sample.core.app.ActivityRecreatorKtChecked"),
+            RestrictTo
         )
 
         /* ktlint-disable max-line-length */

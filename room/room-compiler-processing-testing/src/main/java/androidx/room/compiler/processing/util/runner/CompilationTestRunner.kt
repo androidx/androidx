@@ -32,7 +32,7 @@ internal interface CompilationTestRunner {
 
     fun canRun(params: TestCompilationParameters): Boolean
 
-    fun compile(params: TestCompilationParameters): CompilationResult
+    fun compile(workingDir: File, params: TestCompilationParameters): CompilationResult
 }
 
 @ExperimentalProcessingApi
@@ -40,5 +40,7 @@ internal data class TestCompilationParameters(
     val sources: List<Source> = emptyList(),
     val classpath: List<File> = emptyList(),
     val options: Map<String, String> = emptyMap(),
+    val javacArguments: List<String> = emptyList(),
+    val kotlincArguments: List<String> = emptyList(),
     val handlers: List<(XTestInvocation) -> Unit>
 )

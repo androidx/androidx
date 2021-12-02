@@ -120,7 +120,7 @@ class MediaRoute2Provider extends MediaRouteProvider {
         String originalRouteId = mRouteIdToOriginalRouteIdMap.get(routeId);
 
         for (GroupRouteController groupRouteController : mControllerMap.values()) {
-            if (TextUtils.equals(routeGroupId, groupRouteController.mRoutingController.getId())) {
+            if (TextUtils.equals(routeGroupId, groupRouteController.getGroupRouteId())) {
                 return new MemberRouteController(originalRouteId, groupRouteController);
             }
         }
@@ -314,6 +314,7 @@ class MediaRoute2Provider extends MediaRouteProvider {
             }
         }
 
+        controller.setGroupRouteDescriptor(groupDescriptor);
         controller.notifyDynamicRoutesChanged(groupDescriptor, dynamicRouteDescriptors);
     }
 
@@ -388,7 +389,7 @@ class MediaRoute2Provider extends MediaRouteProvider {
                     Log.w(TAG, "Selected routes are empty. This shouldn't happen.");
                     return;
                 }
-                // TODO: Select a group route when dynamic grouping.
+                // TODO: Handle the case that the initial member is a group
                 String routeId = selectedRoutes.get(0).getId();
                 GroupRouteController controller = new GroupRouteController(newController, routeId);
                 mControllerMap.put(newController, controller);
@@ -469,6 +470,8 @@ class MediaRoute2Provider extends MediaRouteProvider {
         private final Runnable mClearOptimisticVolumeRunnable = () -> mOptimisticVolume = -1;
         // The possible current volume set by the user recently or -1 if not.
         int mOptimisticVolume = -1;
+        @Nullable
+        MediaRouteDescriptor mGroupRouteDescriptor;
 
         GroupRouteController(@NonNull MediaRouter2.RoutingController routingController,
                 @NonNull String initialMemberRouteId) {
@@ -478,6 +481,11 @@ class MediaRoute2Provider extends MediaRouteProvider {
             mReceiveMessenger = mServiceMessenger == null ? null :
                     new Messenger(new ReceiveHandler());
             mControllerHandler = new Handler(Looper.getMainLooper());
+        }
+
+        public String getGroupRouteId() {
+            return (mGroupRouteDescriptor != null) ? mGroupRouteDescriptor.getId()
+                    : mRoutingController.getId();
         }
 
         @Override
@@ -593,6 +601,11 @@ class MediaRoute2Provider extends MediaRouteProvider {
         }
 
         void setMemberRouteVolume(@NonNull String memberRouteOriginalId, int volume) {
+            if (mRoutingController == null || mRoutingController.isReleased()
+                    || mServiceMessenger == null) {
+                return;
+            }
+
             int requestId = mNextRequestId.getAndIncrement();
             Message msg = Message.obtain();
             msg.what = CLIENT_MSG_SET_ROUTE_VOLUME;
@@ -614,6 +627,11 @@ class MediaRoute2Provider extends MediaRouteProvider {
         }
 
         void updateMemberRouteVolume(@NonNull String memberRouteOriginalId, int delta) {
+            if (mRoutingController == null || mRoutingController.isReleased()
+                    || mServiceMessenger == null) {
+                return;
+            }
+
             int requestId = mNextRequestId.getAndIncrement();
             Message msg = Message.obtain();
             msg.what = CLIENT_MSG_UPDATE_ROUTE_VOLUME;
@@ -632,6 +650,10 @@ class MediaRoute2Provider extends MediaRouteProvider {
             } catch (RemoteException ex) {
                 Log.e(TAG, "Could not send control request to service.", ex);
             }
+        }
+
+        void setGroupRouteDescriptor(@NonNull MediaRouteDescriptor descriptor) {
+            mGroupRouteDescriptor = descriptor;
         }
 
         class ReceiveHandler extends Handler {

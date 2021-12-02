@@ -108,6 +108,8 @@ public final class NotificationDemoScreen extends Screen implements DefaultLifec
 
     @Override
     public void onDestroy(@NonNull LifecycleOwner owner) {
+        mHandler.removeMessages(MSG_SEND_NOTIFICATION);
+        CarNotificationManager.from(getCarContext()).cancelAll();
         unregisterBroadcastReceiver();
     }
 

@@ -45,4 +45,22 @@ src/androidx/IdeaSuppressionJava.java:29: Error: Uses IntelliJ-specific suppress
 
         check(*input).expect(expected)
     }
+
+    @Test
+    fun `Detection of IDEA-specific suppression in Kotlin sources`() {
+        val input = arrayOf(
+            ktSample("androidx.IdeaSuppressionKotlin")
+        )
+
+        /* ktlint-disable max-line-length */
+        val expected = """
+src/androidx/IdeaSuppressionKotlin.kt:27: Error: Uses IntelliJ-specific suppression, should use @SuppressWarnings("deprecation") [IdeaSuppression]
+        //noinspection deprecation
+        ~~~~~~~~~~~~~~~~~~~~~~~~~~
+1 errors, 0 warnings
+        """.trimIndent()
+        /* ktlint-enable max-line-length */
+
+        check(*input).expect(expected)
+    }
 }

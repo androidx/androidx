@@ -24,6 +24,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RequiresOptIn;
 import androidx.annotation.RestrictTo;
 
+import java.util.Locale;
+
 /**
  * This class contains additional platform version checking methods for targeting pre-release
  * versions of Android.
@@ -54,7 +56,7 @@ public class BuildCompat {
 
         // Otherwise lexically compare them.  Return true if the build codename is equal to or
         // greater than the requested codename.
-        return buildCodename.compareTo(codename) >= 0;
+        return buildCodename.toUpperCase(Locale.ROOT).compareTo(codename) >= 0;
     }
 
     /**
@@ -160,26 +162,48 @@ public class BuildCompat {
      * Android S or newer.
      *
      * @return {@code true} if S APIs are available for use, {@code false} otherwise
+     * @deprecated Android S is a finalized release and this method is no longer necessary. It
+     *             will be removed in a future release of this library. Instead, use
+     *             {@code Build.VERSION.SDK_INT >= 31}.
      */
     @ChecksSdkIntAtLeast(api = 31, codename = "S")
+    @Deprecated
     public static boolean isAtLeastS() {
-        return VERSION.SDK_INT >= 31 || isAtLeastPreReleaseCodename("S", VERSION.CODENAME);
+        return VERSION.SDK_INT >= 31
+                || (VERSION.SDK_INT >= 30 && isAtLeastPreReleaseCodename("S", VERSION.CODENAME));
     }
 
     /**
-     * Checks if the device is running on a pre-release version of Android T or a release version of
-     * Android T or newer.
+     * Checks if the device is running on a pre-release version of Android Sv2 or a release
+     * version of Android Sv2 or newer.
      * <p>
-     * <strong>Note:</strong> When Android T is finalized for release, this method will be
+     * <strong>Note:</strong> When Android Sv2 is finalized for release, this method will be
      * removed and all calls must be replaced with {@code Build.VERSION.SDK_INT >=
-     * Build.VERSION_CODES.T}.
+     * Build.VERSION_CODES.S_V2}.
+     *
+     * @return {@code true} if Sv2 APIs are available for use, {@code false} otherwise
+     */
+    @PrereleaseSdkCheck
+    @ChecksSdkIntAtLeast(api = 32, codename = "Sv2")
+    public static boolean isAtLeastSv2() {
+        return VERSION.SDK_INT >= 32
+                || (VERSION.SDK_INT >= 31 && isAtLeastPreReleaseCodename("Sv2", VERSION.CODENAME));
+    }
+
+    /**
+     * Checks if the device is running on a pre-release version of Android Tiramisu or a release
+     * version of Android Tiramisu or newer.
+     * <p>
+     * <strong>Note:</strong> When Android Tiramisu is finalized for release, this method will be
+     * removed and all calls must be replaced with {@code Build.VERSION.SDK_INT >=
+     * Build.VERSION_CODES.TIRAMISU}.
      *
      * @return {@code true} if T APIs are available for use, {@code false} otherwise
      */
     @PrereleaseSdkCheck
-    @ChecksSdkIntAtLeast(codename = "T")
+    @ChecksSdkIntAtLeast(codename = "Tiramisu")
     public static boolean isAtLeastT() {
-        return isAtLeastPreReleaseCodename("T", VERSION.CODENAME);
+        return VERSION.SDK_INT >= 32 && isAtLeastPreReleaseCodename("Tiramisu", VERSION.CODENAME);
     }
 
     /**

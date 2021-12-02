@@ -43,9 +43,9 @@ public interface RxDataMigration<T> {
      *
      * Note that this will always be called before each call to [migrate].
      *
-     * @param currentData the current data (which might already populated from previous runs of this
-     *                    or other migrations). Only Nullable if the type used with DataStore is
-     *                    Nullable.
+     * @param currentData the current data (which might already be populated from previous runs of
+     *                    this or other migrations). Only Nullable if the type used with DataStore
+     *                    is Nullable.
      */
     @NonNull
     Single<Boolean> shouldMigrate(@Nullable T currentData);

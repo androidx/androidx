@@ -17,36 +17,52 @@
 package androidx.camera.video;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 
 /**
- * Options for configuring output destination.
+ * Options for configuring output destination for generating a recording.
+ *
+ * <p>A {@link PendingRecording} can be generated with {@link Recorder#prepareRecording} for
+ * different types of output destination, such as {@link FileOutputOptions},
+ * {@link FileDescriptorOutputOptions} and {@link MediaStoreOutputOptions}.
+ *
+ * @see FileOutputOptions
+ * @see FileDescriptorOutputOptions
+ * @see MediaStoreOutputOptions
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public abstract class OutputOptions {
 
+    /** Represents an unbound file size. */
     public static final int FILE_SIZE_UNLIMITED = 0;
 
-    Type mType;
-
-    public OutputOptions(@NonNull Type type) {
-        mType = type;
+    OutputOptions() {
     }
 
     /**
-     * To be used to cast OutputOptions to subtype.
+     * Gets the limit for the file size in bytes.
+     *
+     * @return the file size limit in bytes.
      */
-    Type getType() {
-        return mType;
-    }
+    public abstract long getFileSizeLimit();
 
     /**
-     * Gets the limit for the file length in bytes.
+     * The builder of the {@link OutputOptions}.
      */
-    public abstract int getFileSizeLimit();
+    interface Builder<T extends OutputOptions, B> {
 
-    /**
-     * Types of the output options.
-     */
-    enum Type {
-        FILE, FILE_DESCRIPTOR, MEDIA_STORE
+        /**
+         * Sets the limit for the file length in bytes.
+         *
+         * <p>If not set, defaults to {@link #FILE_SIZE_UNLIMITED}.
+         */
+        @NonNull
+        B setFileSizeLimit(long bytes);
+
+        /**
+         * Builds the {@link OutputOptions} instance.
+         */
+        @NonNull
+        T build();
     }
 }

@@ -41,7 +41,10 @@ import java.lang.reflect.Field;
 
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
-@Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
+@Config(
+        minSdk = Build.VERSION_CODES.LOLLIPOP,
+        instrumentedPackages = {"androidx.camera.extensions.internal"} // to override CURRENT
+)
 public class ExtensionVersionTest {
 
     @Before

@@ -23,6 +23,7 @@ import android.hardware.camera2.CameraConstrainedHighSpeedCaptureSession
 import android.hardware.camera2.params.SessionConfiguration
 import android.hardware.camera2.params.MeteringRectangle
 import android.view.Surface
+import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraGraph.Constants3A.DEFAULT_FRAME_LIMIT
 import androidx.camera.camera2.pipe.CameraGraph.Constants3A.DEFAULT_TIME_LIMIT_NS
 import kotlinx.coroutines.Deferred
@@ -31,6 +32,7 @@ import java.io.Closeable
 /**
  * A [CameraGraph] represents the combined configuration and state of a camera.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public interface CameraGraph : Closeable {
     public val streams: StreamGraph
 
@@ -122,6 +124,7 @@ public interface CameraGraph : Closeable {
         HIGH_SPEED,
     }
 
+    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
     public object Constants3A {
         // Constants related to controlling the time or frame budget a 3A operation should get.
         public const val DEFAULT_FRAME_LIMIT: Int = 60
@@ -276,9 +279,13 @@ public interface CameraGraph : Closeable {
          * is provided or the parameter is not specified then it will have no effect on the lock of
          * that component, i.e if it was locked earlier it will stay locked and if it was already
          * unlocked, it will stay unlocked.
+         *
+         * @return [Result3A], which will contain the latest frame number at which the auto-focus,
+         * auto-exposure, auto-white balance were unlocked as per the method arguments.
+         *
          */
-        public fun unlock3A(ae: Boolean? = null, af: Boolean? = null, awb: Boolean? = null):
-            Deferred<FrameNumber>
+        public suspend fun unlock3A(ae: Boolean? = null, af: Boolean? = null, awb: Boolean? = null):
+            Deferred<Result3A>
 
         /**
          * This methods does pre-capture metering sequence and locks auto-focus. Once the

@@ -26,5 +26,9 @@
         <meta-data
             android:name="androidx.car.app.theme"
             android:resource= "@style/CarAppTheme" />
+
+        <meta-data
+            android:name="androidx.car.app.minCarApiLevel"
+            android:value="1" />
     </application>
 </manifest>

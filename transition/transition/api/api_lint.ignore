@@ -114,7 +114,7 @@ MissingNullability: androidx.transition.TransitionSet#setEpicenterCallback(andro
 MissingNullability: androidx.transition.TransitionSet#setPathMotion(androidx.transition.PathMotion) parameter #0:
     Missing nullability on parameter `pathMotion` in method `setPathMotion`
 MissingNullability: androidx.transition.TransitionSet#setPropagation(androidx.transition.TransitionPropagation) parameter #0:
-    Missing nullability on parameter `propagation` in method `setPropagation`
+    Missing nullability on parameter `transitionPropagation` in method `setPropagation`
 MissingNullability: androidx.transition.TransitionValues#values:
     Missing nullability on field `values` in class `class androidx.transition.TransitionValues`
 MissingNullability: androidx.transition.TransitionValues#view:
@@ -150,7 +150,7 @@ MissingNullability: androidx.transition.Visibility#onDisappear(android.view.View
 MissingNullability: androidx.transition.Visibility#onDisappear(android.view.ViewGroup, androidx.transition.TransitionValues, int, androidx.transition.TransitionValues, int) parameter #3:
     Missing nullability on parameter `endValues` in method `onDisappear`
 MissingNullability: androidx.transition.VisibilityPropagation#captureValues(androidx.transition.TransitionValues) parameter #0:
-    Missing nullability on parameter `values` in method `captureValues`
+    Missing nullability on parameter `transitionValues` in method `captureValues`
 MissingNullability: androidx.transition.VisibilityPropagation#getPropagationProperties():
     Missing nullability on method `getPropagationProperties` return
 MissingNullability: androidx.transition.VisibilityPropagation#getViewVisibility(androidx.transition.TransitionValues) parameter #0:

@@ -22,8 +22,6 @@ import android.database.ContentObserver;
 import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.Handler;
-import android.os.HandlerThread;
-import android.os.Process;
 import android.os.SystemClock;
 
 import androidx.annotation.GuardedBy;
@@ -31,6 +29,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
+import androidx.annotation.WorkerThread;
 import androidx.core.graphics.TypefaceCompatUtil;
 import androidx.core.os.TraceCompat;
 import androidx.core.provider.FontRequest;
@@ -39,6 +38,8 @@ import androidx.core.provider.FontsContractCompat.FontFamilyResult;
 import androidx.core.util.Preconditions;
 
 import java.nio.ByteBuffer;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ThreadPoolExecutor;
 
 /**
  * {@link EmojiCompat.Config} implementation that asynchronously fetches the required font and the
@@ -52,7 +53,7 @@ public class FontRequestEmojiCompatConfig extends EmojiCompat.Config {
      * Retry policy used when the font provider is not ready to give the font file.
      *
      * To control the thread the retries are handled on, see
-     * {@link FontRequestEmojiCompatConfig#setHandler}.
+     * {@link FontRequestEmojiCompatConfig#setLoadingExecutor}.
      */
     public abstract static class RetryPolicy {
         /**
@@ -111,7 +112,7 @@ public class FontRequestEmojiCompatConfig extends EmojiCompat.Config {
                 return Math.min(Math.max(elapsedMillis, 1000), mTotalMs - elapsedMillis);
             }
         }
-    };
+    }
 
     /**
      * @param context Context instance, cannot be {@code null}
@@ -131,19 +132,49 @@ public class FontRequestEmojiCompatConfig extends EmojiCompat.Config {
     }
 
     /**
-     * Sets the custom handler to be used for initialization.
+     * Sets the custom executor to be used for initialization.
      *
-     * Since font fetch take longer time, the metadata loader will fetch the fonts on the background
-     * thread. You can pass your own handler for this background fetching. This handler is also used
-     * for retrying.
+     * Since font loading is too slow for the main thread, the metadata loader will fetch the fonts
+     * on a background thread. By default, FontRequestEmojiCompatConfig will create its own
+     * single threaded Executor, which causes a thread to be created.
      *
-     * @param handler A {@link Handler} to be used for initialization. Can be {@code null}. In case
-     *               of {@code null}, the metadata loader creates own {@link HandlerThread} for
-     *               initialization.
+     * You can pass your own executor to control which thread the font is loaded on, and avoid an
+     * extra thread creation.
+     *
+     * @param executor background executor for performing font load
      */
     @NonNull
+    public FontRequestEmojiCompatConfig setLoadingExecutor(@NonNull Executor executor) {
+        ((FontRequestMetadataLoader) getMetadataRepoLoader()).setExecutor(executor);
+        return this;
+    }
+
+    /**
+     * Please us {@link #setLoadingExecutor(Executor)} instead to set background loading thread.
+     *
+     * This was deprecated in emoji2 1.0.0-alpha04.
+     *
+     * If migrating from androidx.emoji please prefer to use an existing background executor for
+     * setLoadingExecutor.
+     *
+     * Note: This method will no longer have any effect if passed null, which is a breaking
+     * change from androidx.emoji.
+     *
+     * @deprecated please call setLoadingExecutor instead
+     *
+     * @param handler background thread handler to wrap in an Executor, if null this method will
+     *                do nothing
+     */
+    @Deprecated
+    @NonNull
+    @SuppressWarnings("deprecation")
     public FontRequestEmojiCompatConfig setHandler(@Nullable Handler handler) {
-        ((FontRequestMetadataLoader) getMetadataRepoLoader()).setHandler(handler);
+        if (handler == null) {
+            // this is a breaking behavior change from androidx.emoji, we no longer support
+            // clearing executors
+            return this;
+        }
+        setLoadingExecutor(ConcurrencyHelpers.convertHandlerToExecutor(handler));
         return this;
     }
 
@@ -168,25 +199,37 @@ public class FontRequestEmojiCompatConfig extends EmojiCompat.Config {
     private static class FontRequestMetadataLoader implements EmojiCompat.MetadataRepoLoader {
         private static final String S_TRACE_BUILD_TYPEFACE =
                 "EmojiCompat.FontRequestEmojiCompatConfig.buildTypeface";
-        private static final String S_TRACE_THREAD_CREATION =
-                "EmojiCompat.FontRequestEmojiCompatConfig.threadCreation";
-        private final @NonNull Context mContext;
-        private final @NonNull FontRequest mRequest;
-        private final @NonNull FontProviderHelper mFontProviderHelper;
+        @NonNull
+        private final Context mContext;
+        @NonNull
+        private final FontRequest mRequest;
+        @NonNull
+        private final FontProviderHelper mFontProviderHelper;
+        @NonNull
+        private final Object mLock = new Object();
 
-        private final @NonNull Object mLock = new Object();
         @GuardedBy("mLock")
-        private @Nullable Handler mHandler;
+        @Nullable
+        private Handler mMainHandler;
         @GuardedBy("mLock")
-        private @Nullable HandlerThread mThread;
+        @Nullable
+        private Executor mExecutor;
         @GuardedBy("mLock")
-        private @Nullable RetryPolicy mRetryPolicy;
+        @Nullable
+        private ThreadPoolExecutor mMyThreadPoolExecutor;
+        @GuardedBy("mLock")
+        @Nullable
+        private RetryPolicy mRetryPolicy;
 
-        // Following three variables must be touched only on the thread associated with mHandler.
-        @SuppressWarnings("WeakerAccess") /* synthetic access */
+        @GuardedBy("mLock")
+        @Nullable
         EmojiCompat.MetadataRepoLoaderCallback mCallback;
-        private @Nullable ContentObserver mObserver;
-        private @Nullable Runnable mHandleMetadataCreationRunner;
+        @GuardedBy("mLock")
+        @Nullable
+        private ContentObserver mObserver;
+        @GuardedBy("mLock")
+        @Nullable
+        private Runnable mMainHandlerLoadCallback;
 
         FontRequestMetadataLoader(@NonNull Context context, @NonNull FontRequest request,
                 @NonNull FontProviderHelper fontProviderHelper) {
@@ -197,9 +240,9 @@ public class FontRequestEmojiCompatConfig extends EmojiCompat.Config {
             mFontProviderHelper = fontProviderHelper;
         }
 
-        public void setHandler(@Nullable Handler handler) {
+        public void setExecutor(@NonNull Executor executor) {
             synchronized (mLock) {
-                mHandler = handler;
+                mExecutor = executor;
             }
         }
 
@@ -214,28 +257,28 @@ public class FontRequestEmojiCompatConfig extends EmojiCompat.Config {
         public void load(@NonNull final EmojiCompat.MetadataRepoLoaderCallback loaderCallback) {
             Preconditions.checkNotNull(loaderCallback, "LoaderCallback cannot be null");
             synchronized (mLock) {
-                try {
-                    TraceCompat.beginSection(S_TRACE_THREAD_CREATION);
-                    if (mHandler == null) {
-                        // Developer didn't give a thread for fetching. Create our own one.
-                        mThread = new HandlerThread("emojiCompat",
-                                Process.THREAD_PRIORITY_BACKGROUND);
-                        mThread.start();
-                        mHandler = new Handler(mThread.getLooper());
-                    }
-                } finally {
-                    TraceCompat.endSection();
+                mCallback = loaderCallback;
+            }
+            loadInternal();
+        }
+
+        @RequiresApi(19)
+        void loadInternal() {
+            synchronized (mLock) {
+                if (mCallback == null) {
+                    // do nothing; loading is already complete
+                    return;
                 }
-                mHandler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        mCallback = loaderCallback;
-                        createMetadata();
-                    }
-                });
+                if (mExecutor == null) {
+                    mMyThreadPoolExecutor = ConcurrencyHelpers.createBackgroundPriorityExecutor(
+                            "emojiCompat");
+                    mExecutor = mMyThreadPoolExecutor;
+                }
+                mExecutor.execute(this::createMetadata);
             }
         }
 
+        @WorkerThread
         private FontsContractCompat.FontInfo retrieveFontInfo() {
             final FontsContractCompat.FontFamilyResult result;
             try {
@@ -253,54 +296,61 @@ public class FontRequestEmojiCompatConfig extends EmojiCompat.Config {
             return fonts[0];  // Assuming the GMS Core provides only one font file.
         }
 
-        // Must be called on the mHandler.
         @RequiresApi(19)
+        @WorkerThread
         private void scheduleRetry(Uri uri, long waitMs) {
             synchronized (mLock) {
+                Handler handler = mMainHandler;
+                if (handler == null) {
+                    handler = ConcurrencyHelpers.mainHandlerAsync();
+                    mMainHandler = handler;
+                }
                 if (mObserver == null) {
-                    mObserver = new ContentObserver(mHandler) {
+                    mObserver = new ContentObserver(handler) {
                         @Override
                         public void onChange(boolean selfChange, Uri uri) {
-                            createMetadata();
+                            loadInternal();
                         }
                     };
                     mFontProviderHelper.registerObserver(mContext, uri, mObserver);
                 }
-                if (mHandleMetadataCreationRunner == null) {
-                    mHandleMetadataCreationRunner = new Runnable() {
-                        @Override
-                        public void run() {
-                            createMetadata();
-                        }
-                    };
+                if (mMainHandlerLoadCallback == null) {
+                    mMainHandlerLoadCallback = this::loadInternal;
                 }
-                mHandler.postDelayed(mHandleMetadataCreationRunner, waitMs);
+                handler.postDelayed(mMainHandlerLoadCallback, waitMs);
             }
         }
 
         // Must be called on the mHandler.
         private void cleanUp() {
-            mCallback = null;
-            if (mObserver != null) {
-                mFontProviderHelper.unregisterObserver(mContext, mObserver);
-                mObserver = null;
-            }
             synchronized (mLock) {
-                mHandler.removeCallbacks(mHandleMetadataCreationRunner);
-                if (mThread != null) {
-                    mThread.quit();
+                mCallback = null;
+                if (mObserver != null) {
+                    mFontProviderHelper.unregisterObserver(mContext, mObserver);
+                    mObserver = null;
                 }
-                mHandler = null;
-                mThread = null;
+                if (mMainHandler != null) {
+                    mMainHandler.removeCallbacks(mMainHandlerLoadCallback);
+                }
+                mMainHandler = null;
+                if (mMyThreadPoolExecutor != null) {
+                    // if we made the executor, shut it down
+                    mMyThreadPoolExecutor.shutdown();
+                }
+                mExecutor = null;
+                mMyThreadPoolExecutor = null;
             }
         }
 
         // Must be called on the mHandler.
         @RequiresApi(19)
         @SuppressWarnings("WeakerAccess") /* synthetic access */
+        @WorkerThread
         void createMetadata() {
-            if (mCallback == null) {
-                return;  // Already handled or cancelled. Do nothing.
+            synchronized (mLock) {
+                if (mCallback == null) {
+                    return;  // Already handled or cancelled. Do nothing.
+                }
             }
             try {
                 final FontsContractCompat.FontInfo font = retrieveFontInfo();
@@ -330,17 +380,25 @@ public class FontRequestEmojiCompatConfig extends EmojiCompat.Config {
                     final Typeface typeface = mFontProviderHelper.buildTypeface(mContext, font);
                     final ByteBuffer buffer = TypefaceCompatUtil.mmap(mContext, null,
                             font.getUri());
-                    if (buffer == null) {
+                    if (buffer == null || typeface == null) {
                         throw new RuntimeException("Unable to open file.");
                     }
                     metadataRepo = MetadataRepo.create(typeface, buffer);
                 } finally {
                     TraceCompat.endSection();
                 }
-                mCallback.onLoaded(metadataRepo);
+                synchronized (mLock) {
+                    if (mCallback != null) {
+                        mCallback.onLoaded(metadataRepo);
+                    }
+                }
                 cleanUp();
             } catch (Throwable t) {
-                mCallback.onFailed(t);
+                synchronized (mLock) {
+                    if (mCallback != null) {
+                        mCallback.onFailed(t);
+                    }
+                }
                 cleanUp();
             }
         }
@@ -379,7 +437,7 @@ public class FontRequestEmojiCompatConfig extends EmojiCompat.Config {
                 @NonNull ContentObserver observer) {
             context.getContentResolver().unregisterContentObserver(observer);
         }
-    };
+    }
 
     private static final FontProviderHelper DEFAULT_FONTS_CONTRACT = new FontProviderHelper();
 

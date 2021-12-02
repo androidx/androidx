@@ -19,7 +19,7 @@ limitations under the License.
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="lb_navigation_menu_contentDescription" msgid="8084428500709675515">"নেভিগেশ্বন মেনু"</string>
     <string name="orb_search_action" msgid="1301877238242752863">"সন্ধান সম্পৰ্কীয় কাৰ্য"</string>
-    <string name="lb_search_bar_hint" msgid="5700349211583074131">"Search"</string>
+    <string name="lb_search_bar_hint" msgid="5700349211583074131">"সন্ধান"</string>
     <string name="lb_search_bar_hint_speech" msgid="5926531297066387462">"সন্ধান কৰিবলৈ কথা কওক"</string>
     <string name="lb_search_bar_hint_with_title" msgid="4826526877249029043">"<xliff:g id="SEARCH_CONTEXT">%1$s</xliff:g> সন্ধান কৰক"</string>
     <string name="lb_search_bar_hint_with_title_speech" msgid="6032250334706920550">"<xliff:g id="SEARCH_CONTEXT">%1$s</xliff:g> সন্ধান কৰিবলৈ কথা কওক"</string>
@@ -39,7 +39,7 @@ limitations under the License.
     <string name="lb_playback_controls_thumb_down" msgid="3544533410444618518">"থাম্ব ডাউন বাছনি নাইকিয়া কৰক"</string>
     <string name="lb_playback_controls_thumb_down_outline" msgid="8475278766138652105">"থাম্ব ডাউন বাছনি কৰক"</string>
     <string name="lb_playback_controls_repeat_none" msgid="1614290959784265209">"একো পুনৰাই প্লে নকৰিব"</string>
-    <string name="lb_playback_controls_repeat_all" msgid="8429099206716245199">"সকলো পুনৰাই প্লে কৰক"</string>
+    <string name="lb_playback_controls_repeat_all" msgid="8429099206716245199">"আটাইবোৰ পুনৰাই প্লে\' কৰক"</string>
     <string name="lb_playback_controls_repeat_one" msgid="676658705837320560">"এটা পুনৰাই প্লে’ কৰক"</string>
     <string name="lb_playback_controls_shuffle_enable" msgid="5151681938752704485">"সান-মিহলি সক্ষম কৰক"</string>
     <string name="lb_playback_controls_shuffle_disable" msgid="6793109999253893369">"সান-মিহলি অক্ষম কৰক"</string>

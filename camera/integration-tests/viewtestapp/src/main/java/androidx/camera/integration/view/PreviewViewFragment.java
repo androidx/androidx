@@ -16,6 +16,9 @@
 
 package androidx.camera.integration.view;
 
+import static androidx.camera.integration.view.MainActivity.CAMERA_DIRECTION_BACK;
+import static androidx.camera.integration.view.MainActivity.CAMERA_DIRECTION_FRONT;
+import static androidx.camera.integration.view.MainActivity.INTENT_EXTRA_CAMERA_DIRECTION;
 import static androidx.camera.view.PreviewView.StreamState.IDLE;
 import static androidx.camera.view.PreviewView.StreamState.STREAMING;
 
@@ -37,12 +40,10 @@ import android.widget.Spinner;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.OptIn;
 import androidx.annotation.VisibleForTesting;
 import androidx.camera.core.Camera;
 import androidx.camera.core.CameraInfoUnavailableException;
 import androidx.camera.core.CameraSelector;
-import androidx.camera.core.ExperimentalUseCaseGroup;
 import androidx.camera.core.FocusMeteringAction;
 import androidx.camera.core.FocusMeteringResult;
 import androidx.camera.core.MeteringPoint;
@@ -50,7 +51,6 @@ import androidx.camera.core.MeteringPointFactory;
 import androidx.camera.core.Preview;
 import androidx.camera.core.UseCaseGroup;
 import androidx.camera.core.ViewPort;
-import androidx.camera.lifecycle.ExperimentalUseCaseGroupLifecycle;
 import androidx.camera.lifecycle.ProcessCameraProvider;
 import androidx.camera.view.PreviewView;
 import androidx.core.content.ContextCompat;
@@ -76,12 +76,6 @@ public class PreviewViewFragment extends Fragment {
                     ImageView.ScaleType.FIT_CENTER, ImageView.ScaleType.FIT_END};
 
     private static final String TAG = "PreviewViewFragment";
-
-    // Possible values for this intent key are the name values of LensFacing encoded as
-    // strings (case-insensitive): "back", "front".
-    private static final String INTENT_EXTRA_CAMERA_DIRECTION = "camera_direction";
-    private static final String CAMERA_DIRECTION_BACK = "back";
-    private static final String CAMERA_DIRECTION_FRONT = "front";
 
     private ListenableFuture<ProcessCameraProvider> mCameraProviderFuture;
     @SuppressWarnings("WeakerAccess")
@@ -167,7 +161,8 @@ public class PreviewViewFragment extends Fragment {
         }
     }
 
-    @OptIn(markerClass = ExperimentalUseCaseGroup.class)
+    // TODO(b/185869869) Remove the UnsafeOptInUsageError once view's version matches core's.
+    @SuppressLint("UnsafeOptInUsageError")
     void setUpTargetRotationButton(@NonNull final ProcessCameraProvider cameraProvider,
             @NonNull final View rootView) {
         Button button = rootView.findViewById(R.id.target_rotation);
@@ -329,10 +324,8 @@ public class PreviewViewFragment extends Fragment {
     }
 
     @SuppressWarnings("WeakerAccess")
-    // ExperimentalUseCaseGroupLifecycle is removed and has to be replaced with
-    // ExperimentalUseCaseGroup when the dependency to camera-lifecycle is updated to alpha
-    // versions.
-    @OptIn(markerClass = {ExperimentalUseCaseGroup.class, ExperimentalUseCaseGroupLifecycle.class})
+    // TODO(b/185869869) Remove the UnsafeOptInUsageError once view's version matches core's.
+    @SuppressLint("UnsafeOptInUsageError")
     void bindPreview(@NonNull ProcessCameraProvider cameraProvider) {
         if (mPreview == null) {
             return;

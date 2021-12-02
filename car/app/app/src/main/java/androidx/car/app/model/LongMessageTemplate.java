@@ -16,7 +16,7 @@
 
 package androidx.car.app.model;
 
-import static androidx.car.app.model.constraints.ActionsConstraints.ACTIONS_CONSTRAINTS_BODY;
+import static androidx.car.app.model.constraints.ActionsConstraints.ACTIONS_CONSTRAINTS_BODY_WITH_PRIMARY_ACTION;
 import static androidx.car.app.model.constraints.ActionsConstraints.ACTIONS_CONSTRAINTS_HEADER;
 import static androidx.car.app.model.constraints.ActionsConstraints.ACTIONS_CONSTRAINTS_SIMPLE;
 
@@ -27,6 +27,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.car.app.Screen;
 import androidx.car.app.annotations.RequiresCarApi;
+import androidx.car.app.model.constraints.CarTextConstraints;
 import androidx.car.app.utils.CollectionUtils;
 
 import java.util.ArrayList;
@@ -175,14 +176,17 @@ public final class LongMessageTemplate implements Template {
          *
          * <p>Unless set with this method, the template will not have a title.
          *
-         * <p>Spans are not supported in the input string and will be ignored.
+         * <p>Only {@link DistanceSpan}s and {@link DurationSpan}s are supported in the input
+         * string.
          *
-         * @throws NullPointerException if {@code title} is {@code null}
+         * @throws NullPointerException     if {@code title} is {@code null}
+         * @throws IllegalArgumentException if {@code title} contains unsupported spans
          * @see CarText
          */
         @NonNull
         public Builder setTitle(@NonNull CharSequence title) {
             mTitle = CarText.create(requireNonNull(title));
+            CarTextConstraints.TEXT_ONLY.validateOrThrow(mTitle);
             return this;
         }
 
@@ -236,10 +240,11 @@ public final class LongMessageTemplate implements Template {
          * <h4>Requirements</h4>
          *
          * This template allows up to 2 {@link Action}s in its body, and they must use a
-         * {@link androidx.car.app.model.ParkedOnlyOnClickListener}.
+         * {@link androidx.car.app.model.ParkedOnlyOnClickListener}. One of these actions can be
+         * declared as primary via {@link Action.Builder#setFlags}.
          *
-         * <p>Each action's title color can be customized with {@link ForegroundCarColorSpan}
-         * instances, any other spans will be ignored by the host.
+         * Each action's title color can be customized with {@link ForegroundCarColorSpan}
+         * instances. Any other span is not supported.
          *
          * @throws IllegalArgumentException if {@code action} does not meet the requirements
          * @throws NullPointerException     if {@code action} is {@code null}
@@ -253,7 +258,7 @@ public final class LongMessageTemplate implements Template {
             }
 
             mActionList.add(action);
-            ACTIONS_CONSTRAINTS_BODY.validateOrThrow(mActionList);
+            ACTIONS_CONSTRAINTS_BODY_WITH_PRIMARY_ACTION.validateOrThrow(mActionList);
             return this;
         }
 

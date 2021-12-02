@@ -56,7 +56,7 @@ public class TilesConnectionBinderTest {
     }
 
     private lateinit var appContext: Context
-    private lateinit var fakeTileProvider: FakeTileProviderService
+    private lateinit var fakeTileService: FakeTileService
     private lateinit var fakeCoroutineDispatcher: TestCoroutineDispatcher
     private lateinit var fakeCoroutineScope: TestCoroutineScope
     private lateinit var connectionBinderUnderTest: TilesConnectionBinder
@@ -64,12 +64,12 @@ public class TilesConnectionBinderTest {
     @Before
     public fun setUp() {
         appContext = getApplicationContext()
-        fakeTileProvider = FakeTileProviderService()
+        fakeTileService = FakeTileService()
         fakeCoroutineDispatcher = TestCoroutineDispatcher()
         fakeCoroutineScope = TestCoroutineScope()
 
         shadowOf(appContext as Application)
-            .setComponentNameAndServiceForBindService(TILE_PROVIDER, fakeTileProvider.asBinder())
+            .setComponentNameAndServiceForBindService(TILE_PROVIDER, fakeTileService.asBinder())
 
         connectionBinderUnderTest = TilesConnectionBinder(
             appContext, TILE_PROVIDER,
@@ -286,7 +286,7 @@ public class TilesConnectionBinderTest {
         result1.await()
     }
 
-    private class FakeTileProviderService : TileProvider.Stub() {
+    private class FakeTileService : TileProvider.Stub() {
         override fun getApiVersion(): Int {
             return 5
         }

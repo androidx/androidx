@@ -40,9 +40,10 @@ import androidx.fragment.app.FragmentTransaction;
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
 
-    // Possible values for this intent key (case-insensitive): "PreviewView"
-    private static final String INTENT_EXTRA_VIEW_TYPE = "view_type";
-    private static final String VIEW_TYPE_PREVIEW_VIEW = "PreviewView";
+    // Possible values for this intent key (case-insensitive): "PreviewView", "ComposeUi".
+    private static final String INTENT_FRAGMENT_TYPE = "fragment_type";
+    private static final String PREVIEW_VIEW_FRAGMENT = "PreviewView";
+    private static final String COMPOSE_UI_FRAGMENT = "ComposeUi";
 
     private static final String[] REQUIRED_PERMISSIONS =
             new String[]{
@@ -52,8 +53,14 @@ public class MainActivity extends AppCompatActivity {
             };
     private static final int REQUEST_CODE_PERMISSIONS = 10;
 
+    // Possible values for this intent key are the name values of LensFacing encoded as
+    // strings (case-insensitive): "back", "front".
+    public static final String INTENT_EXTRA_CAMERA_DIRECTION = "camera_direction";
+    public static final String CAMERA_DIRECTION_BACK = "back";
+    public static final String CAMERA_DIRECTION_FRONT = "front";
+
     private boolean mCheckedPermissions = false;
-    private Mode mMode = Mode.CAMERA_CONTROLLER;
+    private FragmentType mFragmentType = FragmentType.CAMERA_CONTROLLER;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -62,9 +69,11 @@ public class MainActivity extends AppCompatActivity {
         // Get extra option for checking whether it needs to be implemented with PreviewView
         Bundle bundle = getIntent().getExtras();
         if (bundle != null) {
-            final String viewTypeString = bundle.getString(INTENT_EXTRA_VIEW_TYPE);
-            if (VIEW_TYPE_PREVIEW_VIEW.equalsIgnoreCase(viewTypeString)) {
-                mMode = Mode.PREVIEW_VIEW;
+            final String viewTypeString = bundle.getString(INTENT_FRAGMENT_TYPE);
+            if (PREVIEW_VIEW_FRAGMENT.equalsIgnoreCase(viewTypeString)) {
+                mFragmentType = FragmentType.PREVIEW_VIEW;
+            } else if (COMPOSE_UI_FRAGMENT.equalsIgnoreCase(viewTypeString)) {
+                mFragmentType = FragmentType.COMPOSE_UI;
             }
         }
         // TODO(b/173019455): make this penaltyDeath after we fix the IO in test apps.
@@ -89,6 +98,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onRequestPermissionsResult(
             int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (requestCode == REQUEST_CODE_PERMISSIONS) {
             if (allPermissionsGranted()) {
                 startFragment();
@@ -110,13 +120,16 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()) {
             case R.id.preview_view:
-                mMode = Mode.PREVIEW_VIEW;
+                mFragmentType = FragmentType.PREVIEW_VIEW;
                 break;
             case R.id.camera_controller:
-                mMode = Mode.CAMERA_CONTROLLER;
+                mFragmentType = FragmentType.CAMERA_CONTROLLER;
                 break;
             case R.id.transform:
-                mMode = Mode.TRANSFORM;
+                mFragmentType = FragmentType.TRANSFORM;
+                break;
+            case R.id.compose_ui:
+                mFragmentType = FragmentType.COMPOSE_UI;
                 break;
         }
         startFragment();
@@ -134,7 +147,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void startFragment() {
-        switch (mMode) {
+        switch (mFragmentType) {
             case PREVIEW_VIEW:
                 startFragment(R.string.preview_view, new PreviewViewFragment());
                 break;
@@ -143,6 +156,9 @@ public class MainActivity extends AppCompatActivity {
                 break;
             case TRANSFORM:
                 startFragment(R.string.transform, new TransformFragment());
+                break;
+            case COMPOSE_UI:
+                startFragment(R.string.compose_ui, new ComposeUiFragment());
         }
     }
 
@@ -163,7 +179,7 @@ public class MainActivity extends AppCompatActivity {
         Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
     }
 
-    private enum Mode {
-        PREVIEW_VIEW, CAMERA_CONTROLLER, TRANSFORM
+    private enum FragmentType {
+        PREVIEW_VIEW, CAMERA_CONTROLLER, TRANSFORM, COMPOSE_UI
     }
 }

@@ -39,7 +39,12 @@ public final class Accelerometer {
     /**
      * Returns the raw accelerometer force data from the car sensor.
      *
-     * <p>Follows the same format as {@link android.hardware.SensorEvent#values}.
+     * <p>Individual values can be {@code Float.Nan} if not reported. The array values consist of:
+     * <ul>
+     *     <li>[0]: Acceleration including gravity on the x-axis
+     *     <li>[1]: Acceleration including gravity on the y-axis
+     *     <li>[2]: Acceleration including gravity on the z-axis
+     * </ul>
      */
     @NonNull
     public CarValue<List<Float>> getForces() {

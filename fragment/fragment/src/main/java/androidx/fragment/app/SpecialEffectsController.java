@@ -251,6 +251,11 @@ abstract class SpecialEffectsController {
 
     void forcePostponedExecutePendingOperations() {
         if (mIsContainerPostponed) {
+            if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
+                Log.v(FragmentManager.TAG,
+                        "SpecialEffectsController: Forcing postponed operations"
+                );
+            }
             mIsContainerPostponed = false;
             executePendingOperations();
         }
@@ -291,16 +296,29 @@ abstract class SpecialEffectsController {
                 ArrayList<Operation> newPendingOperations = new ArrayList<>(mPendingOperations);
                 mPendingOperations.clear();
                 mRunningOperations.addAll(newPendingOperations);
+                if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
+                    Log.v(FragmentManager.TAG,
+                            "SpecialEffectsController: Executing pending operations");
+                }
                 for (Operation operation : newPendingOperations) {
                     operation.onStart();
                 }
                 executeOperations(newPendingOperations, mOperationDirectionIsPop);
                 mOperationDirectionIsPop = false;
+                if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
+                    Log.v(FragmentManager.TAG,
+                            "SpecialEffectsController: Finished executing pending operations");
+                }
             }
         }
     }
 
     void forceCompleteAllOperations() {
+        if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
+            Log.v(FragmentManager.TAG,
+                    "SpecialEffectsController: Forcing all operations to complete"
+            );
+        }
         boolean attachedToWindow = ViewCompat.isAttachedToWindow(mContainer);
         synchronized (mPendingOperations) {
             updateFinalState();
@@ -736,6 +754,14 @@ abstract class SpecialEffectsController {
                     view.setVisibility(View.INVISIBLE);
                 }
                 view.setAlpha(fragment.getPostOnViewCreatedAlpha());
+            } else if (getLifecycleImpact() == LifecycleImpact.REMOVING) {
+                Fragment fragment = mFragmentStateManager.getFragment();
+                View view = fragment.requireView();
+                if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
+                    Log.v(FragmentManager.TAG, "Clearing focus " + view.findFocus() + " on view "
+                            + view + " for Fragment " + fragment);
+                }
+                view.clearFocus();
             }
         }
 

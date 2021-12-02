@@ -12,6 +12,8 @@ You can start contributing to any of the following library groups from GitHub:
   - [Activity](https://developer.android.com/guide/components/activities/intro-activities)
   - [Biometric](https://developer.android.com/training/sign-in/biometric-auth)
   - [Compose Compiler](https://developer.android.com/jetpack/androidx/releases/compose-compiler)
+  - [Compose Runtime](https://developer.android.com/jetpack/androidx/releases/compose-runtime)
+  - [DataStore](https://developer.android.com/topic/libraries/architecture/datastore)
   - [Fragment](https://developer.android.com/guide/components/fragments)
   - [Lifecycle](https://developer.android.com/topic/libraries/architecture/lifecycle)
   - [Navigation](https://developer.android.com/guide/navigation)
@@ -33,12 +35,19 @@ We have tried to make contributing to androidx a lot easier with this new setup.
 
 - Download and install JDK 11, if you don’t have it already.
 
+- Download and install the NDK
+
+  ```bash
+  sdkmanager --install "ndk;23.1.7779620"
+  ```
+
   Next, you need to set up the following environment variables:
 
   ```bash
   # You could also add this to your .{bash|zsh}rc file.
   export JAVA_HOME="location of JDK 11 folder"
   export ANDROID_SDK_ROOT="location of the Android SDK folder"
+  export ANDROID_NDK_ROOT="location of the Android NDK folder containing version 23.1.7779620"
   ```
 
 ### Checkout & Importing a Project
@@ -50,6 +59,8 @@ androidx
   -- activity
   -- biometric
   -- compose/compiler
+  -- compose/runtime
+  -- datastore
   -- fragment
   -- lifecycle
   -- navigation

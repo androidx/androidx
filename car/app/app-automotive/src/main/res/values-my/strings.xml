@@ -27,4 +27,5 @@
     <string name="error_message_host_incompatible" msgid="160406216155183851">"စနစ်ကို အပ်ဒိတ်လုပ်ရန် လိုအပ်ပါသည်"</string>
     <string name="error_message_multiple_hosts" msgid="2591031904206928207">"ကိုက်ညီမှုမရှိသော စနစ်"</string>
     <string name="error_message_unknown_error" msgid="1918523834689044166">"အမျိုးအမည်မသိ အမှား"</string>
+    <string name="error_message_no_vending" msgid="5866202078252905802">"ကားပြုပြင်ရေးဆိုင်များကို ဆက်သွယ်ပါ"</string>
 </resources>

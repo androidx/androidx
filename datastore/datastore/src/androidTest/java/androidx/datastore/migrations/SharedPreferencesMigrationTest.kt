@@ -154,6 +154,21 @@ class SharedPreferencesMigrationTest {
     }
 
     @Test
+    fun testSharedPrefsViewWithAllKeysSpecified_doesntThrowErrorWhenKeyDoesntExist() =
+        runBlockingTest {
+            assertThat(sharedPrefs.edit().putInt("unrelated_key", -123).commit()).isTrue()
+
+            val migration = SharedPreferencesMigration(
+                produceSharedPreferences = { sharedPrefs },
+            ) { prefs: SharedPreferencesView, _: Byte ->
+                prefs.getInt("this_key_doesnt_exist_yet", 123).toByte()
+            }
+
+            val dataStore = getDataStoreWithMigrations(listOf(migration))
+            assertThat(dataStore.data.first()).isEqualTo(123)
+        }
+
+    @Test
     fun producedSharedPreferencesIsUsed() = runBlockingTest {
         assertThat(sharedPrefs.edit().putInt("integer_key", 123).commit()).isTrue()
 

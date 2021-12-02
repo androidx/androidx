@@ -198,6 +198,35 @@ public class WindowInsetsControllerCompatActivityTest {
         assertThat(windowInsetsController.isAppearanceLightStatusBars(), `is`(true))
     }
 
+    /**
+     * Tests that after calling setAppearanceLightStatusBars in API 30
+     * isAppearanceLightStatusBars is true and SYSTEM_UI_FLAG_LIGHT_STATUS_BAR flag is unset.
+     *
+     * Currently this works only with Impl30(Window window, WindowInsetsControllerCompat
+     * compatController) constructor (b/180881870).
+     */
+    @SdkSuppress(minSdkVersion = 30, maxSdkVersion = 30)
+    @Test
+    public fun systemBar_light_theme() {
+        val decorView = scenario.withActivity { window.decorView }
+
+        scenario.onActivity { activity ->
+            windowInsetsController = WindowInsetsControllerCompat(
+                activity.window, activity.findViewById(R.id.container)
+            )
+
+            decorView.systemUiVisibility = decorView.systemUiVisibility or
+                View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
+            windowInsetsController.setAppearanceLightStatusBars(true)
+        }
+
+        assertThat(
+            decorView.systemUiVisibility and View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR,
+            equalTo(0)
+        )
+        assertThat(windowInsetsController.isAppearanceLightStatusBars(), `is`(true))
+    }
+
     @SdkSuppress(minSdkVersion = 26)
     @Test
     public fun navigationBar_light() {

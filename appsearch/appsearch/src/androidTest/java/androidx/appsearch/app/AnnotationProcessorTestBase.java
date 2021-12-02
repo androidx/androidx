@@ -16,16 +16,16 @@
 // @exportToFramework:skipFile()
 package androidx.appsearch.app;
 
-import static androidx.appsearch.app.AppSearchSchema.PropertyConfig.INDEXING_TYPE_PREFIXES;
-import static androidx.appsearch.app.AppSearchSchema.PropertyConfig.TOKENIZER_TYPE_PLAIN;
-import static androidx.appsearch.app.util.AppSearchTestUtils.checkIsBatchResultSuccess;
-import static androidx.appsearch.app.util.AppSearchTestUtils.convertSearchResultsToDocuments;
+import static androidx.appsearch.app.AppSearchSchema.StringPropertyConfig.INDEXING_TYPE_PREFIXES;
+import static androidx.appsearch.app.AppSearchSchema.StringPropertyConfig.TOKENIZER_TYPE_PLAIN;
+import static androidx.appsearch.testutil.AppSearchTestUtils.checkIsBatchResultSuccess;
+import static androidx.appsearch.testutil.AppSearchTestUtils.convertSearchResultsToDocuments;
 
 import static com.google.common.truth.Truth.assertThat;
 
 import androidx.annotation.NonNull;
-import androidx.appsearch.annotation.AppSearchDocument;
-import androidx.appsearch.localstorage.LocalStorage;
+import androidx.appsearch.annotation.Document;
+import androidx.appsearch.testutil.AppSearchEmail;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
@@ -39,7 +39,7 @@ import java.util.List;
 
 public abstract class AnnotationProcessorTestBase {
     private AppSearchSession mSession;
-    private static final String DB_NAME_1 = LocalStorage.DEFAULT_DATABASE_NAME;
+    private static final String DB_NAME_1 = "";
 
     protected abstract ListenableFuture<AppSearchSession> createSearchSession(
             @NonNull String dbName);
@@ -63,11 +63,18 @@ public abstract class AnnotationProcessorTestBase {
         mSession.setSchema(new SetSchemaRequest.Builder().setForceOverride(true).build()).get();
     }
 
-    @AppSearchDocument
+    @Document
     static class Card {
-        @AppSearchDocument.Uri
-        String mUri;
-        @AppSearchDocument.Property
+        @Document.Namespace
+        String mNamespace;
+
+        @Document.Id
+        String mId;
+
+        @Document.CreationTimestampMillis
+        long mCreationTimestampMillis;
+
+        @Document.StringProperty
                 (indexingType = INDEXING_TYPE_PREFIXES, tokenizerType = TOKENIZER_TYPE_PLAIN)
         String mString;        // 3a
 
@@ -80,90 +87,96 @@ public abstract class AnnotationProcessorTestBase {
                 return false;
             }
             Card otherCard = (Card) other;
-            assertThat(otherCard.mUri).isEqualTo(this.mUri);
+            assertThat(otherCard.mId).isEqualTo(this.mId);
             return true;
         }
     }
 
-    @AppSearchDocument
+    @Document
     static class Gift {
-        @AppSearchDocument.Uri
-        String mUri;
+        @Document.Namespace
+        String mNamespace;
+
+        @Document.Id
+        String mId;
+
+        @Document.CreationTimestampMillis
+        long mCreationTimestampMillis;
 
         // Collections
-        @AppSearchDocument.Property
+        @Document.LongProperty
         Collection<Long> mCollectLong;         // 1a
-        @AppSearchDocument.Property
+        @Document.LongProperty
         Collection<Integer> mCollectInteger;   // 1a
-        @AppSearchDocument.Property
+        @Document.DoubleProperty
         Collection<Double> mCollectDouble;     // 1a
-        @AppSearchDocument.Property
+        @Document.DoubleProperty
         Collection<Float> mCollectFloat;       // 1a
-        @AppSearchDocument.Property
+        @Document.BooleanProperty
         Collection<Boolean> mCollectBoolean;   // 1a
-        @AppSearchDocument.Property
+        @Document.BytesProperty
         Collection<byte[]> mCollectByteArr;    // 1a
-        @AppSearchDocument.Property
+        @Document.StringProperty
         Collection<String> mCollectString;     // 1b
-        @AppSearchDocument.Property
+        @Document.DocumentProperty
         Collection<Card> mCollectCard;         // 1c
 
         // Arrays
-        @AppSearchDocument.Property
+        @Document.LongProperty
         Long[] mArrBoxLong;         // 2a
-        @AppSearchDocument.Property
+        @Document.LongProperty
         long[] mArrUnboxLong;       // 2b
-        @AppSearchDocument.Property
+        @Document.LongProperty
         Integer[] mArrBoxInteger;   // 2a
-        @AppSearchDocument.Property
+        @Document.LongProperty
         int[] mArrUnboxInt;         // 2a
-        @AppSearchDocument.Property
+        @Document.DoubleProperty
         Double[] mArrBoxDouble;     // 2a
-        @AppSearchDocument.Property
+        @Document.DoubleProperty
         double[] mArrUnboxDouble;   // 2b
-        @AppSearchDocument.Property
+        @Document.DoubleProperty
         Float[] mArrBoxFloat;       // 2a
-        @AppSearchDocument.Property
+        @Document.DoubleProperty
         float[] mArrUnboxFloat;     // 2a
-        @AppSearchDocument.Property
+        @Document.BooleanProperty
         Boolean[] mArrBoxBoolean;   // 2a
-        @AppSearchDocument.Property
+        @Document.BooleanProperty
         boolean[] mArrUnboxBoolean; // 2b
-        @AppSearchDocument.Property
+        @Document.BytesProperty
         byte[][] mArrUnboxByteArr;  // 2b
-        @AppSearchDocument.Property
+        @Document.BytesProperty
         Byte[] mBoxByteArr;         // 2a
-        @AppSearchDocument.Property
+        @Document.StringProperty
         String[] mArrString;        // 2b
-        @AppSearchDocument.Property
+        @Document.DocumentProperty
         Card[] mArrCard;            // 2c
 
         // Single values
-        @AppSearchDocument.Property
+        @Document.StringProperty
         String mString;        // 3a
-        @AppSearchDocument.Property
+        @Document.LongProperty
         Long mBoxLong;         // 3a
-        @AppSearchDocument.Property
+        @Document.LongProperty
         long mUnboxLong;       // 3b
-        @AppSearchDocument.Property
+        @Document.LongProperty
         Integer mBoxInteger;   // 3a
-        @AppSearchDocument.Property
+        @Document.LongProperty
         int mUnboxInt;         // 3b
-        @AppSearchDocument.Property
+        @Document.DoubleProperty
         Double mBoxDouble;     // 3a
-        @AppSearchDocument.Property
+        @Document.DoubleProperty
         double mUnboxDouble;   // 3b
-        @AppSearchDocument.Property
+        @Document.DoubleProperty
         Float mBoxFloat;       // 3a
-        @AppSearchDocument.Property
+        @Document.DoubleProperty
         float mUnboxFloat;     // 3b
-        @AppSearchDocument.Property
+        @Document.BooleanProperty
         Boolean mBoxBoolean;   // 3a
-        @AppSearchDocument.Property
+        @Document.BooleanProperty
         boolean mUnboxBoolean; // 3b
-        @AppSearchDocument.Property
+        @Document.BytesProperty
         byte[] mUnboxByteArr;  // 3a
-        @AppSearchDocument.Property
+        @Document.DocumentProperty
         Card mCard;            // 3c
 
         @Override
@@ -175,7 +188,8 @@ public abstract class AnnotationProcessorTestBase {
                 return false;
             }
             Gift otherGift = (Gift) other;
-            assertThat(otherGift.mUri).isEqualTo(this.mUri);
+            assertThat(otherGift.mNamespace).isEqualTo(this.mNamespace);
+            assertThat(otherGift.mId).isEqualTo(this.mId);
             assertThat(otherGift.mArrBoxBoolean).isEqualTo(this.mArrBoxBoolean);
             assertThat(otherGift.mArrBoxDouble).isEqualTo(this.mArrBoxDouble);
             assertThat(otherGift.mArrBoxFloat).isEqualTo(this.mArrBoxFloat);
@@ -224,132 +238,152 @@ public abstract class AnnotationProcessorTestBase {
             assertThat(second).isNotNull();
             assertThat(first.toArray()).isEqualTo(second.toArray());
         }
+
+        public static Gift createPopulatedGift() {
+            Gift gift = new Gift();
+            gift.mNamespace = "gift.namespace";
+            gift.mId = "gift.id";
+
+            gift.mArrBoxBoolean = new Boolean[]{true, false};
+            gift.mArrBoxDouble = new Double[]{0.0, 1.0};
+            gift.mArrBoxFloat = new Float[]{2.0F, 3.0F};
+            gift.mArrBoxInteger = new Integer[]{4, 5};
+            gift.mArrBoxLong = new Long[]{6L, 7L};
+            gift.mArrString = new String[]{"cat", "dog"};
+            gift.mBoxByteArr = new Byte[]{8, 9};
+            gift.mArrUnboxBoolean = new boolean[]{false, true};
+            gift.mArrUnboxByteArr = new byte[][]{{0, 1}, {2, 3}};
+            gift.mArrUnboxDouble = new double[]{1.0, 0.0};
+            gift.mArrUnboxFloat = new float[]{3.0f, 2.0f};
+            gift.mArrUnboxInt = new int[]{5, 4};
+            gift.mArrUnboxLong = new long[]{7, 6};
+
+            Card card1 = new Card();
+            card1.mNamespace = "card.namespace";
+            card1.mId = "card.id1";
+            Card card2 = new Card();
+            card2.mNamespace = "card.namespace";
+            card2.mId = "card.id2";
+            gift.mArrCard = new Card[]{card2, card2};
+
+            gift.mCollectLong = Arrays.asList(gift.mArrBoxLong);
+            gift.mCollectInteger = Arrays.asList(gift.mArrBoxInteger);
+            gift.mCollectBoolean = Arrays.asList(gift.mArrBoxBoolean);
+            gift.mCollectString = Arrays.asList(gift.mArrString);
+            gift.mCollectDouble = Arrays.asList(gift.mArrBoxDouble);
+            gift.mCollectFloat = Arrays.asList(gift.mArrBoxFloat);
+            gift.mCollectByteArr = Arrays.asList(gift.mArrUnboxByteArr);
+            gift.mCollectCard = Arrays.asList(card2, card2);
+
+            gift.mString = "String";
+            gift.mBoxLong = 1L;
+            gift.mUnboxLong = 2L;
+            gift.mBoxInteger = 3;
+            gift.mUnboxInt = 4;
+            gift.mBoxDouble = 5.0;
+            gift.mUnboxDouble = 6.0;
+            gift.mBoxFloat = 7.0F;
+            gift.mUnboxFloat = 8.0f;
+            gift.mBoxBoolean = true;
+            gift.mUnboxBoolean = false;
+            gift.mUnboxByteArr = new byte[]{1, 2, 3};
+            gift.mCard = card1;
+
+            return gift;
+        }
     }
 
     @Test
     public void testAnnotationProcessor() throws Exception {
         //TODO(b/156296904) add test for int, float, GenericDocument, and class with
-        // @AppSearchDocument annotation
+        // @Document annotation
         mSession.setSchema(
-                new SetSchemaRequest.Builder().addDataClass(Card.class, Gift.class).build()).get();
+                new SetSchemaRequest.Builder().addDocumentClasses(Card.class, Gift.class).build())
+                .get();
 
         // Create a Gift object and assign values.
-        Gift inputDataClass = new Gift();
-        inputDataClass.mUri = "gift.uri";
-
-        inputDataClass.mArrBoxBoolean = new Boolean[]{true, false};
-        inputDataClass.mArrBoxDouble = new Double[]{0.0, 1.0};
-        inputDataClass.mArrBoxFloat = new Float[]{2.0F, 3.0F};
-        inputDataClass.mArrBoxInteger = new Integer[]{4, 5};
-        inputDataClass.mArrBoxLong = new Long[]{6L, 7L};
-        inputDataClass.mArrString = new String[]{"cat", "dog"};
-        inputDataClass.mBoxByteArr = new Byte[]{8, 9};
-        inputDataClass.mArrUnboxBoolean = new boolean[]{false, true};
-        inputDataClass.mArrUnboxByteArr = new byte[][]{{0, 1}, {2, 3}};
-        inputDataClass.mArrUnboxDouble = new double[]{1.0, 0.0};
-        inputDataClass.mArrUnboxFloat = new float[]{3.0f, 2.0f};
-        inputDataClass.mArrUnboxInt = new int[]{5, 4};
-        inputDataClass.mArrUnboxLong = new long[]{7, 6};
-
-        Card card1 = new Card();
-        card1.mUri = "card.uri1";
-        Card card2 = new Card();
-        card2.mUri = "card.uri2";
-        inputDataClass.mArrCard = new Card[]{card2, card2};
-
-        inputDataClass.mCollectLong = Arrays.asList(inputDataClass.mArrBoxLong);
-        inputDataClass.mCollectInteger = Arrays.asList(inputDataClass.mArrBoxInteger);
-        inputDataClass.mCollectBoolean = Arrays.asList(inputDataClass.mArrBoxBoolean);
-        inputDataClass.mCollectString = Arrays.asList(inputDataClass.mArrString);
-        inputDataClass.mCollectDouble = Arrays.asList(inputDataClass.mArrBoxDouble);
-        inputDataClass.mCollectFloat = Arrays.asList(inputDataClass.mArrBoxFloat);
-        inputDataClass.mCollectByteArr = Arrays.asList(inputDataClass.mArrUnboxByteArr);
-        inputDataClass.mCollectCard = Arrays.asList(card2, card2);
-
-        inputDataClass.mString = "String";
-        inputDataClass.mBoxLong = 1L;
-        inputDataClass.mUnboxLong = 2L;
-        inputDataClass.mBoxInteger = 3;
-        inputDataClass.mUnboxInt = 4;
-        inputDataClass.mBoxDouble = 5.0;
-        inputDataClass.mUnboxDouble = 6.0;
-        inputDataClass.mBoxFloat = 7.0F;
-        inputDataClass.mUnboxFloat = 8.0f;
-        inputDataClass.mBoxBoolean = true;
-        inputDataClass.mUnboxBoolean = false;
-        inputDataClass.mUnboxByteArr = new byte[]{1, 2, 3};
-        inputDataClass.mCard = card1;
+        Gift inputDocument = Gift.createPopulatedGift();
 
         // Index the Gift document and query it.
-        checkIsBatchResultSuccess(mSession.putDocuments(
-                new PutDocumentsRequest.Builder().addDataClass(inputDataClass).build()));
-        SearchResults searchResults = mSession.query("", new SearchSpec.Builder()
+        checkIsBatchResultSuccess(mSession.put(
+                new PutDocumentsRequest.Builder().addDocuments(inputDocument).build()));
+        SearchResults searchResults = mSession.search("", new SearchSpec.Builder()
                 .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
                 .build());
         List<GenericDocument> documents = convertSearchResultsToDocuments(searchResults);
         assertThat(documents).hasSize(1);
 
-        // Create DataClassFactory for Gift.
-        DataClassFactoryRegistry registry = DataClassFactoryRegistry.getInstance();
-        DataClassFactory<Gift> factory = registry.getOrCreateFactory(Gift.class);
-
         // Convert GenericDocument to Gift and check values.
-        Gift outputDataClass = factory.fromGenericDocument(documents.get((0)));
-        assertThat(outputDataClass).isEqualTo(inputDataClass);
+        Gift outputDocument = documents.get(0).toDocumentClass(Gift.class);
+        assertThat(outputDocument).isEqualTo(inputDocument);
     }
 
     @Test
     public void testAnnotationProcessor_queryByType() throws Exception {
         mSession.setSchema(
                 new SetSchemaRequest.Builder()
-                        .addDataClass(Card.class, Gift.class)
-                        .addSchema(AppSearchEmail.SCHEMA).build())
+                        .addDocumentClasses(Card.class, Gift.class)
+                        .addSchemas(AppSearchEmail.SCHEMA).build())
                 .get();
 
         // Create documents and index them
-        Gift inputDataClass1 = new Gift();
-        inputDataClass1.mUri = "gift.uri1";
-        Gift inputDataClass2 = new Gift();
-        inputDataClass2.mUri = "gift.uri2";
+        Gift inputDocument1 = new Gift();
+        inputDocument1.mNamespace = "gift.namespace";
+        inputDocument1.mId = "gift.id1";
+        Gift inputDocument2 = new Gift();
+        inputDocument2.mNamespace = "gift.namespace";
+        inputDocument2.mId = "gift.id2";
         AppSearchEmail email1 =
-                new AppSearchEmail.Builder("uri3")
-                        .setNamespace("namespace")
+                new AppSearchEmail.Builder("namespace", "id3")
                         .setFrom("from@example.com")
                         .setTo("to1@example.com", "to2@example.com")
                         .setSubject("testPut example")
                         .setBody("This is the body of the testPut email")
                         .build();
-        checkIsBatchResultSuccess(mSession.putDocuments(
+        checkIsBatchResultSuccess(mSession.put(
                 new PutDocumentsRequest.Builder()
-                        .addDataClass(inputDataClass1, inputDataClass2)
-                        .addGenericDocument(email1).build()));
+                        .addDocuments(inputDocument1, inputDocument2)
+                        .addGenericDocuments(email1).build()));
 
         // Query the documents by it's schema type.
-        SearchResults searchResults = mSession.query("",
+        SearchResults searchResults = mSession.search("",
                 new SearchSpec.Builder()
                         .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
-                        .addSchemaType("Gift", AppSearchEmail.SCHEMA_TYPE)
+                        .addFilterSchemas("Gift", AppSearchEmail.SCHEMA_TYPE)
                         .build());
         List<GenericDocument> documents = convertSearchResultsToDocuments(searchResults);
         assertThat(documents).hasSize(3);
 
         // Query the documents by it's class.
-        searchResults = mSession.query("",
+        searchResults = mSession.search("",
                 new SearchSpec.Builder()
                         .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
-                        .addSchemaByDataClass(Gift.class)
+                        .addFilterDocumentClasses(Gift.class)
                         .build());
         documents = convertSearchResultsToDocuments(searchResults);
         assertThat(documents).hasSize(2);
 
         // Query the documents by schema type and class mix.
-        searchResults = mSession.query("",
+        searchResults = mSession.search("",
                 new SearchSpec.Builder()
                         .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
-                        .addSchemaType(AppSearchEmail.SCHEMA_TYPE)
-                        .addSchemaByDataClass(Gift.class)
+                        .addFilterSchemas(AppSearchEmail.SCHEMA_TYPE)
+                        .addFilterDocumentClasses(Gift.class)
                         .build());
         documents = convertSearchResultsToDocuments(searchResults);
         assertThat(documents).hasSize(3);
+    }
+
+    @Test
+    public void testGenericDocumentConversion() throws Exception {
+        Gift inGift = Gift.createPopulatedGift();
+        GenericDocument genericDocument1 = GenericDocument.fromDocumentClass(inGift);
+        GenericDocument genericDocument2 = GenericDocument.fromDocumentClass(inGift);
+        Gift outGift = genericDocument2.toDocumentClass(Gift.class);
+
+        assertThat(inGift).isNotSameInstanceAs(outGift);
+        assertThat(inGift).isEqualTo(outGift);
+        assertThat(genericDocument1).isNotSameInstanceAs(genericDocument2);
+        assertThat(genericDocument1).isEqualTo(genericDocument2);
     }
 }

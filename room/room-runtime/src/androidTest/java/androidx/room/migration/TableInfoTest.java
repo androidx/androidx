@@ -327,11 +327,11 @@ public class TableInfoTest {
                                 TableInfo.CREATED_FROM_ENTITY)),
                 Collections.<TableInfo.ForeignKey>emptySet(),
                 toSet(new TableInfo.Index("index_foo_blahblah", false,
-                        Arrays.asList("a", "b")),
+                        Arrays.asList("a", "b"), Collections.emptyList()),
                         new TableInfo.Index("foo_unique_indexed", true,
-                                Arrays.asList("unique_indexed")),
+                                Arrays.asList("unique_indexed"), Arrays.asList("DESC")),
                         new TableInfo.Index("foo_indexed", false,
-                                Arrays.asList("indexed"))));
+                                Arrays.asList("indexed"), Arrays.asList("ASC"))));
         assertThat(expectedInfo, is(dbInfo));
     }
 

@@ -17,6 +17,7 @@
 package androidx.room.compiler.processing.ksp
 
 import androidx.room.compiler.processing.XType
+import androidx.room.compiler.processing.util.ISSUE_TRACKER_LINK
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import com.google.devtools.ksp.symbol.KSPropertyDeclaration
 
@@ -24,10 +25,10 @@ import com.google.devtools.ksp.symbol.KSPropertyDeclaration
  * A custom ReturnType that return an [XType] while also resolving boxing if necessary (might happen
  * due to overrides).
  */
-internal fun KSFunctionDeclaration.returnXType(
+internal fun KSFunctionDeclaration.returnKspType(
     env: KspProcessingEnv,
     containing: KspType?
-): XType {
+): KspType {
     // b/160258066
     // we may need to box the return type if it is overriding a generic, hence, we should
     // use the declaration of the overridee if available when deciding nullability
@@ -43,8 +44,7 @@ internal fun KSFunctionDeclaration.returnXType(
         else -> error(
             """
             Unexpected overridee type for $this ($overridee).
-            Please file a bug with steps to reproduce.
-            https://issuetracker.google.com/issues/new?component=413107
+            Please file a bug at $ISSUE_TRACKER_LINK.
             """.trimIndent()
         )
     } ?: returnType

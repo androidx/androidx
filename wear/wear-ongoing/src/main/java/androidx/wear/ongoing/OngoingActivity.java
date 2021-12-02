@@ -42,15 +42,17 @@ import java.util.function.Predicate;
  * called:
  *
  * <pre>{@code
- * NotificationCompat.Builder builder = new NotificationCompat.Builder(context)....
- *
+ * NotificationCompat.Builder builder = new NotificationCompat.Builder(context)
+ * ....
  * OngoingActivity ongoingActivity = new OngoingActivity.Builder(context, notificationId, builder);
  * ....
  * ongoingActivity.apply(context);
- *
  * notificationManager.notify(notificationId, builder.build());
  * }</pre>
  *
+ * Note that the notification passed to the {@link Builder} is also usen to take defaults if they
+ * are not explicitly set on it (see the {@link Builder} for details).
+ * <p>
  * Note that if a Notification with that id was previously posted it will be replaced. If you
  * need more than one Notification with the same ID you can use a String tag to differentiate
  * them in both the {@link Builder#Builder(Context, String, int, NotificationCompat.Builder)} and
@@ -61,6 +63,9 @@ import java.util.function.Predicate;
  * <p>
  * If saving the {@link OngoingActivity} instance is not convenient, it can be recovered (after the
  * notification is posted) with {@link OngoingActivity#recoverOngoingActivity(Context)}
+ * <p>
+ * It's worth mentioning that the information provided may be used/redered differently on different
+ * SysUIs, so we can only provide a general expectation.
  */
 @RequiresApi(24)
 public final class OngoingActivity {
@@ -91,6 +96,14 @@ public final class OngoingActivity {
 
     /**
      * Builder used to build an {@link OngoingActivity}
+     * <p>
+     * Note that many fields take a default value from the provided notification if not
+     * explicitly set. If set explicitly and in the notification, the value set through the
+     * {@link Builder} will be used.
+     * <p>
+     * The only required fields (set through the builder or the notification) are static icon and
+     * pending intent.
+     *
      */
     public static final class Builder {
         private final Context mContext;
@@ -149,9 +162,11 @@ public final class OngoingActivity {
          * Set the animated icon that can be used on some surfaces to represent this
          * {@link OngoingActivity}. For example, in the WatchFace.
          * Should be white with a transparent background, preferably an AnimatedVectorDrawable.
+         * <p>
+         * If not provided, or set to null, the static icon will be used.
          */
         @NonNull
-        public Builder setAnimatedIcon(@NonNull Icon animatedIcon) {
+        public Builder setAnimatedIcon(@Nullable Icon animatedIcon) {
             mAnimatedIcon = animatedIcon;
             return this;
         }
@@ -160,6 +175,8 @@ public final class OngoingActivity {
          * Set the animated icon that can be used on some surfaces to represent this
          * {@link OngoingActivity}. For example, in the WatchFace.
          * Should be white with a transparent background, preferably an AnimatedVectorDrawable.
+         * <p>
+         * If not provided, the static icon will be used.
          */
         @NonNull
         public Builder setAnimatedIcon(@DrawableRes int animatedIcon) {
@@ -168,9 +185,12 @@ public final class OngoingActivity {
         }
 
         /**
-         * Set the animated icon that can be used on some surfaces to represent this
+         * Set the static icon that can be used on some surfaces to represent this
          * {@link OngoingActivity}, for example in the WatchFace in ambient mode.
-         * Should be white with a transparent background, preferably an VectorDrawable.
+         * Should be white with a transparent background, preferably a VectorDrawable.
+         * <p>
+         * If not set, the smallIcon of the notification will be used. If neither is set,
+         * {@link Builder#build()} will throw an exception.
          */
         @NonNull
         public Builder setStaticIcon(@NonNull Icon staticIcon) {
@@ -179,9 +199,12 @@ public final class OngoingActivity {
         }
 
         /**
-         * Set the animated icon that can be used on some surfaces to represent this
+         * Set the static icon that can be used on some surfaces to represent this
          * {@link OngoingActivity}, for example in the WatchFace in ambient mode.
-         * Should be white with a transparent background, preferably an VectorDrawable.
+         * Should be white with a transparent background, preferably a VectorDrawable.
+         * <p>
+         * If not set, the smallIcon of the notification will be used. If neither is set,
+         * {@link Builder#build()} will throw an exception.
          */
         @NonNull
         public Builder setStaticIcon(@DrawableRes int staticIcon) {
@@ -192,6 +215,8 @@ public final class OngoingActivity {
         /**
          * Set the initial status of this ongoing activity, the status may be displayed on the UI to
          * show progress of the Ongoing Activity.
+         * <p>
+         * If not provided, the contentText of the notification will be used.
          */
         @NonNull
         public Builder setStatus(@NonNull Status status) {
@@ -201,7 +226,10 @@ public final class OngoingActivity {
 
         /**
          * Set the intent to be used to go back to the activity when the user interacts with the
-         * Ongoing Activity in other surfaces (for example, taps the Icon on the WatchFace)
+         * Ongoing Activity in other surfaces (for example, taps the Icon on the WatchFace).
+         * <p>
+         * If not set, the contentIntent of the notification will be used. If neither is set,
+         * {@link Builder#build()} will throw an exception.
          */
         @NonNull
         public Builder setTouchIntent(@NonNull PendingIntent touchIntent) {
@@ -212,9 +240,11 @@ public final class OngoingActivity {
         /**
          * Set the corresponding LocusId of this {@link OngoingActivity}, this will be used by the
          * launcher to identify the corresponding launcher item and display it accordingly.
+         * <p>
+         * If set to null or not set, the launcher will use heuristics to do the matching.
          */
         @NonNull
-        public Builder setLocusId(@NonNull LocusIdCompat locusId) {
+        public Builder setLocusId(@Nullable LocusIdCompat locusId) {
             mLocusId = locusId;
             return this;
         }
@@ -230,31 +260,37 @@ public final class OngoingActivity {
         }
 
         /**
-         * Set the category of this {@link OngoingActivity}.
+         * Set the category of this {@link OngoingActivity}. It may be used by the system to
+         * prioritize displaying the {@link OngoingActivity}.
          * <p>
-         * Must be one of the predefined notification categories (see the {@code CATEGORY_*}
-         * constants in {@link NotificationCompat}) that best describes this
-         * {@link OngoingActivity}. This may be used by the system to prioritize it.
+         * If set, it Must be one of the predefined notification categories (see the
+         * {@code CATEGORY_*} constants in {@link NotificationCompat}) that best describes this
+         * {@link OngoingActivity}.
+         * <p>
+         * If this is not set (or null), the notification's category is used if present.
          */
         @NonNull
-        public Builder setCategory(@NonNull String category) {
+        public Builder setCategory(@Nullable String category) {
             mCategory = category;
             return this;
         }
 
         /**
-         * Sets the Title of this {@link OngoingActivity}, this could be used by the launcher to
-         * override the app's title.
+         * Sets the Title of this {@link OngoingActivity}. If this is set to a non-null value, it
+         * could be used by the launcher to override the app's title.
+         * <p>
+         * No defaults from the notification are used for this field.
          */
         @NonNull
-        public Builder setTitle(@NonNull String title) {
+        public Builder setTitle(@Nullable String title) {
             mTitle = title;
             return this;
         }
 
         /**
          * Combine all options provided and the information in the notification if needed,
-         * return a new {@link OngoingActivity} object.
+         * return a new {@link OngoingActivity} object. See particular setters for information on
+         * what defaults from the notification are used.
          *
          * @throws IllegalArgumentException if the static icon or the touch intent are not provided.
          */

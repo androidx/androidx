@@ -24,7 +24,6 @@ import org.gradle.api.Project
 import org.gradle.api.artifacts.type.ArtifactTypeDefinition
 import org.gradle.api.attributes.Attribute
 import org.gradle.api.file.FileTreeElement
-import org.gradle.api.tasks.Copy
 import org.gradle.api.tasks.TaskProvider
 import org.gradle.api.tasks.bundling.Jar
 import shadow.org.apache.tools.zip.ZipEntry
@@ -37,7 +36,8 @@ import java.util.jar.JarFile
 @Suppress("DEPRECATION") // BaseVariant
 fun Project.registerShadowDependenciesTask(
     variant: com.android.build.gradle.api.BaseVariant,
-    zipTask: TaskProvider<Copy>
+    jarName: String?,
+    zipTask: TaskProvider<CopyFixed>
 ): TaskProvider<ShadowJar> {
     val uberJar = registerUberJarTask(variant)
     val versionTask = project.registerGenerateInspectionPlatformVersionTask(variant)
@@ -47,7 +47,7 @@ fun Project.registerShadowDependenciesTask(
     ) {
         it.dependsOn(uberJar)
         it.dependsOn(versionTask)
-        val fileTree = project.fileTree(zipTask.get().destinationDir)
+        val fileTree = project.fileTree(zipTask.get().outputDir)
         fileTree.include("**/*.jar", "**/*.so")
         it.from(fileTree)
         it.from(versionTask.get().outputDir)
@@ -60,14 +60,15 @@ fun Project.registerShadowDependenciesTask(
         it.transform(RenameServicesTransformer::class.java)
         it.from(versionTask.get().outputDir)
         it.destinationDirectory.set(taskWorkingDir(variant, "shadowedJar"))
-        it.archiveBaseName.set("${project.name}-shadowed")
+        it.archiveBaseName.set("${jarName ?: project.name}-nondexed")
+        it.archiveVersion.set("")
         it.dependsOn(zipTask)
         val prefix = "deps.${project.name.replace('-', '.')}"
+        val inputProvider = uberJar.get().archiveFile
+        it.from(inputProvider)
         it.doFirst {
             val task = it as ShadowJar
-            val input = uberJar.get().outputs.files
-            task.from(input)
-            input.extractPackageNames().forEach { packageName ->
+            inputProvider.get().asFile.extractPackageNames().forEach { packageName ->
                 task.relocate(packageName, "$prefix.$packageName")
             }
         }
@@ -86,6 +87,7 @@ private fun Project.registerUberJarTask(
         it.dependsOn(variant.assembleProvider)
         it.archiveClassifier.set("uberRuntimeDepsJar")
         it.exclude("**/module-info.class")
+        it.exclude("**/*.proto")
         it.exclude("META-INF/versions/9/**/*.class")
         it.from({
             variant.runtimeConfiguration.incoming.artifactView {
@@ -98,8 +100,8 @@ private fun Project.registerUberJarTask(
     }
 }
 
-private fun Iterable<File>.extractPackageNames(): Set<String> = map(::JarFile)
-    .map { jar -> jar.use { it.entries().toList() } }.flatten()
+private fun File.extractPackageNames(): Set<String> = JarFile(this)
+    .use { it.entries().toList() }
     .filter { jarEntry -> jarEntry.name.endsWith(".class") }
     .map { jarEntry -> jarEntry.name.substringBeforeLast("/").replace('/', '.') }
     .toSet()
@@ -113,6 +115,10 @@ private fun Iterable<File>.extractPackageNames(): Set<String> = map(::JarFile)
  */
 class RenameServicesTransformer : Transformer {
     private val renamed = mutableMapOf<String, String>()
+
+    override fun getName(): String {
+        return "RenameServicesTransformer"
+    }
 
     override fun canTransformResource(element: FileTreeElement?): Boolean {
         return element?.relativePath?.startsWith("META-INF/services") ?: false

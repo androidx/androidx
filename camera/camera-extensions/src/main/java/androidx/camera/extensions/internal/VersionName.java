@@ -17,14 +17,16 @@
 package androidx.camera.extensions.internal;
 
 import androidx.annotation.NonNull;
-import androidx.camera.extensions.BuildConfig;
+import androidx.annotation.RequiresApi;
 
 /**
  * The version of CameraX extension releases.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class VersionName {
-    /* The current version of the CameraX extension. */
-    private static final VersionName CURRENT = new VersionName(BuildConfig.CAMERA_VERSION);
+    // Current version of vendor library implementation that the CameraX extension supports. This
+    // needs to be increased along with the version of vendor library interface.
+    private static final VersionName CURRENT = new VersionName("1.1.0");
 
     @NonNull
     public static VersionName getCurrentVersion() {

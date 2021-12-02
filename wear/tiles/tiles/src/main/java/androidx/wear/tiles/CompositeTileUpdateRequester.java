@@ -34,9 +34,9 @@ class CompositeTileUpdateRequester implements TileUpdateRequester {
     }
 
     @Override
-    public void requestUpdate(@NonNull Class<? extends TileProviderService> tileProvider) {
+    public void requestUpdate(@NonNull Class<? extends TileService> tileService) {
         for (TileUpdateRequester requester : mUpdateRequesters) {
-            requester.requestUpdate(tileProvider);
+            requester.requestUpdate(tileService);
         }
     }
 }

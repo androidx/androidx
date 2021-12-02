@@ -31,6 +31,7 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ObsoleteCoroutinesApi
 import kotlinx.coroutines.async
@@ -874,5 +875,101 @@ class SuspendingQueryTest : TestDatabaseTest() {
                 }
             }
         }
+    }
+
+    @Test
+    fun transactionFunctionWithSuspendFunctionalParamCommits() = runBlocking {
+        // GIVEN a database with a book
+        val bookPublisher = TestUtil.PUBLISHER
+        val addedBook = TestUtil.BOOK_1.copy(bookPublisherId = bookPublisher.publisherId)
+        booksDao.addPublishers(bookPublisher)
+        booksDao.addBooks(addedBook)
+
+        // WHEN a transaction is run
+        val output = kotlin.runCatching {
+            booksDao.functionWithSuspendFunctionalParam(addedBook) { book ->
+                booksDao.deleteBookSuspend(book)
+                return@functionWithSuspendFunctionalParam book
+            }
+        }
+
+        // THEN the change has been committed
+        assertWithMessage("The higher-order fun ran successfully")
+            .that(output.isSuccess)
+            .isEqualTo(true)
+        assertThat(booksDao.getBooksSuspend())
+            .doesNotContain(addedBook)
+    }
+
+    @Test
+    fun transactionFunctionWithSuspendFunctionalParamDoesntCommitWhenError() = runBlocking {
+        // GIVEN a database with a book
+        val bookPublisher = TestUtil.PUBLISHER
+        val addedBook = TestUtil.BOOK_1.copy(bookPublisherId = bookPublisher.publisherId)
+        booksDao.addPublishers(bookPublisher)
+        booksDao.addBooks(addedBook)
+
+        // WHEN a transaction is started and then fails before completing
+        val output = kotlin.runCatching {
+            booksDao.functionWithSuspendFunctionalParam(addedBook) { book ->
+                booksDao.deleteBookSuspend(book)
+                error("Fake error in transaction")
+            }
+        }
+
+        // THEN the change hasn't been committed
+        assertWithMessage("RunCatching caught the thrown error")
+            .that(output.isFailure)
+            .isEqualTo(true)
+        assertThat(booksDao.getBooksSuspend())
+            .contains(addedBook)
+    }
+
+    @Test
+    fun suspendTransactionFunctionWithSuspendFunctionalParamCommits() = runBlocking {
+        // GIVEN a database with a book
+        val bookPublisher = TestUtil.PUBLISHER
+        val addedBook = TestUtil.BOOK_1.copy(bookPublisherId = bookPublisher.publisherId)
+        booksDao.addPublishers(bookPublisher)
+        booksDao.addBooks(addedBook)
+
+        // WHEN a transaction is run
+        val output = kotlin.runCatching {
+            booksDao.functionWithSuspendFunctionalParam(addedBook) { book ->
+                booksDao.deleteBookSuspend(book)
+                return@functionWithSuspendFunctionalParam book
+            }
+        }
+
+        // THEN the change has been committed
+        assertWithMessage("The higher-order fun ran successfully")
+            .that(output.isSuccess)
+            .isEqualTo(true)
+        assertThat(booksDao.getBooksSuspend())
+            .doesNotContain(addedBook)
+    }
+
+    @Test
+    fun suspendTransactionFunctionWithSuspendFunctionalParamDoesntCommitWhenError() = runBlocking {
+        // GIVEN a database with a book
+        val bookPublisher = TestUtil.PUBLISHER
+        val addedBook = TestUtil.BOOK_1.copy(bookPublisherId = bookPublisher.publisherId)
+        booksDao.addPublishers(bookPublisher)
+        booksDao.addBooks(addedBook)
+
+        // WHEN a transaction is started and then fails before completing
+        val output = runCatching {
+            booksDao.suspendFunctionWithSuspendFunctionalParam(addedBook) { book ->
+                booksDao.deleteBookSuspend(book)
+                error("Fake error in transaction")
+            }
+        }
+
+        // THEN the change hasn't been committed
+        assertWithMessage("RunCatching caught the thrown error")
+            .that(output.isFailure)
+            .isEqualTo(true)
+        assertThat(booksDao.getBooksSuspend())
+            .contains(addedBook)
     }
 }

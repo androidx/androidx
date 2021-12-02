@@ -24,17 +24,26 @@ import android.app.Activity;
 import android.app.Application;
 import android.content.ComponentName;
 import android.content.Intent;
+import android.graphics.Insets;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.OptIn;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
+import androidx.car.app.HandshakeInfo;
 import androidx.car.app.activity.renderer.ICarAppActivity;
+import androidx.car.app.activity.renderer.IInsetsListener;
 import androidx.car.app.activity.renderer.IRendererCallback;
+import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.utils.ThreadUtils;
+import androidx.car.app.versioning.CarAppApiLevels;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
+
+import java.lang.ref.WeakReference;
+import java.util.Objects;
 
 /**
  * The view model to keep track of the CarAppActivity data.
@@ -52,7 +61,9 @@ public class CarAppViewModel extends AndroidViewModel implements
     private final MutableLiveData<State> mState = new MutableLiveData<>(State.IDLE);
     private ServiceConnectionManager mServiceConnectionManager;
     @Nullable private IRendererCallback mIRendererCallback;
-    @Nullable private Activity mActivity;
+    @Nullable private IInsetsListener mIInsetsListener;
+    @Nullable private Insets mInsets = Insets.NONE;
+    private static WeakReference<Activity> sActivity = new WeakReference<>(null);
 
     /** Possible view states */
     public enum State {
@@ -91,9 +102,16 @@ public class CarAppViewModel extends AndroidViewModel implements
         mIRendererCallback = rendererCallback;
     }
 
-    /** Updates the activity hosting this view model */
-    void setActivity(@NonNull Activity activity) {
-        mActivity = activity;
+    /** Updates the activity hosting this view model. */
+    void setActivity(@Nullable Activity activity) {
+        sActivity = new WeakReference<>(activity);
+    }
+
+    /** Resets the internal state of this view model. */
+    @SuppressWarnings("NullAway")
+    void resetState() {
+        mState.setValue(State.IDLE);
+        mError.setValue(null);
     }
 
     /**
@@ -105,14 +123,15 @@ public class CarAppViewModel extends AndroidViewModel implements
     @SuppressWarnings("NullAway")
     void bind(@NonNull Intent intent, @NonNull ICarAppActivity iCarAppActivity,
             int displayId) {
-        mState.postValue(State.CONNECTING);
-        mError.postValue(null);
+        mState.setValue(State.CONNECTING);
+        mError.setValue(null);
         mServiceConnectionManager.bind(intent, iCarAppActivity, displayId);
     }
 
     /** Closes the connection to the renderer service if any. */
     void unbind() {
         mServiceConnectionManager.unbind();
+        mIInsetsListener = null;
     }
 
     @Override
@@ -121,7 +140,7 @@ public class CarAppViewModel extends AndroidViewModel implements
         if (mIRendererCallback != null) {
             getServiceDispatcher().dispatch("onDestroyed", mIRendererCallback::onDestroyed);
         }
-        mState.postValue(State.IDLE);
+        mState.setValue(State.IDLE);
         unbind();
     }
 
@@ -156,9 +175,9 @@ public class CarAppViewModel extends AndroidViewModel implements
                 // displayed to the user.
                 return;
             }
+            mState.setValue(State.ERROR);
             mError.setValue(errorCode);
         });
-        mState.postValue(State.ERROR);
         unbind();
     }
 
@@ -168,17 +187,16 @@ public class CarAppViewModel extends AndroidViewModel implements
     @SuppressWarnings("NullAway")
     @Override
     public void onConnect() {
-        mState.postValue(State.CONNECTED);
-        mError.postValue(null);
+        mState.setValue(State.CONNECTED);
+        mError.setValue(null);
     }
 
     /** Attempts to rebind to the host service */
     @SuppressWarnings("NullAway")
     public void retryBinding() {
-        requireNonNull(mActivity);
-        mState.postValue(State.CONNECTING);
-        mError.postValue(null);
-        mActivity.recreate();
+        Activity activity = requireNonNull(sActivity.get());
+        mError.setValue(null);
+        activity.recreate();
     }
 
     /** Host update detected */
@@ -186,5 +204,74 @@ public class CarAppViewModel extends AndroidViewModel implements
         if (mError.getValue() != null) {
             retryBinding();
         }
+    }
+
+    /**
+     * Update the result of the {@link androidx.car.app.activity.CarAppActivity} associated with
+     * this view model.
+     *
+     * @see Activity#setResult(int, Intent)
+     */
+    public static void setActivityResult(int resultCode, @Nullable Intent data) {
+        Activity activity = sActivity.get();
+        if (activity != null) {
+            activity.setResult(resultCode, data);
+        }
+    }
+
+    /**
+     * Returns the activity calling this {@link CarAppActivity}
+     *
+     * @see Activity#getCallingActivity()
+     */
+    @Nullable
+    public static ComponentName getCallingActivity() {
+        Activity activity = sActivity.get();
+        if (activity != null) {
+            return activity.getCallingActivity();
+        }
+        return null;
+    }
+
+    /**
+     * Updates the insets for this {@link CarAppActivity}
+     *
+     * @param insets latest received {@link Insets}
+     * @return true if this insets will be consumed by the host. Otherwise, the insets should be
+     * consumed by the client.
+     */
+    public boolean updateWindowInsets(@NonNull Insets insets) {
+        if (!Objects.equals(mInsets, insets)) {
+            mInsets = insets;
+            dispatchInsetsUpdates();
+        }
+        return isHostHandlingInsets();
+    }
+
+    @OptIn(markerClass = ExperimentalCarApi.class)
+    private boolean isHostHandlingInsets() {
+        HandshakeInfo handshakeInfo = mServiceConnectionManager.getHandshakeInfo();
+        return mIInsetsListener != null
+                && handshakeInfo != null
+                && handshakeInfo.getHostCarAppApiLevel() >= CarAppApiLevels.LEVEL_4;
+    }
+
+    @SuppressWarnings("NullAway")
+    private void dispatchInsetsUpdates() {
+        if (isHostHandlingInsets()) {
+            getServiceDispatcher().dispatch("onInsetsChanged",
+                    () -> requireNonNull(mIInsetsListener).onInsetsChanged(mInsets)
+            );
+        }
+    }
+
+    /**
+     * Updates the listener that will handle insets changes. If a non-null listener is set, it will
+     * be assumed that inset changes are handled by the host, and
+     * {@link #updateWindowInsets(Insets)} will return <code>false</code>
+     */
+    public void setInsetsListener(@Nullable IInsetsListener listener) {
+        mIInsetsListener = listener;
+        dispatchInsetsUpdates();
     }
 }

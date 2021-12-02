@@ -24,6 +24,9 @@ import androidx.annotation.Nullable;
 import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.model.CarIcon;
 import androidx.car.app.model.CarText;
+import androidx.car.app.model.DistanceSpan;
+import androidx.car.app.model.DurationSpan;
+import androidx.car.app.model.constraints.CarTextConstraints;
 import androidx.car.app.utils.CollectionUtils;
 
 import java.util.ArrayList;
@@ -194,11 +197,13 @@ public final class Step {
          *
          * <p>See {@link Builder#setCue} for details on span support in the input string.
          *
-         * @throws NullPointerException if {@code cue} is {@code null}
+         * @throws NullPointerException     if {@code cue} is {@code null}
+         * @throws IllegalArgumentException if {@code cue} contains unsupported spans
          * @see Builder#setCue(CharSequence)
          */
         public Builder(@NonNull CharSequence cue) {
             mCue = CarText.create(requireNonNull(cue));
+            CarTextConstraints.TEXT_AND_ICON.validateOrThrow(mCue);
         }
 
         /**
@@ -207,11 +212,13 @@ public final class Step {
          *
          * <p>See {@link Builder#setCue} for details on span support in the input string.
          *
-         * @throws NullPointerException if {@code cue} is {@code null}
+         * @throws NullPointerException     if {@code cue} is {@code null}
+         * @throws IllegalArgumentException if {@code cue} contains unsupported spans
          * @see Builder#Builder(CharSequence)
          */
         public Builder(@NonNull CarText cue) {
             mCue = requireNonNull(cue);
+            CarTextConstraints.TEXT_AND_ICON.validateOrThrow(mCue);
         }
 
         /**
@@ -279,9 +286,9 @@ public final class Step {
          * <p>For example "Turn left", "Make a U-Turn", "Sharp Right", or "Take the exit using
          * the left lane"
          *
-         * <p>The {@code cue} string can contain images that replace spans of text by using {@link
-         * androidx.car.app.model.CarIconSpan}. All other spans types are not supported and will be
-         * ignored.
+         * <p>The {@code cue} string can contain {@link androidx.car.app.model.CarIconSpan}s,
+         * {@link androidx.car.app.model.DistanceSpan}s, and
+         * {@link androidx.car.app.model.DurationSpan}s.
          *
          * <p>In the following example, the "520" text is replaced with an icon:
          *
@@ -306,12 +313,14 @@ public final class Step {
          * <p>See {@link CarIcon} for more details related to providing icon and image resources
          * that work with different car screen pixel densities.
          *
-         * @throws NullPointerException if {@code cue} is {@code null}
+         * @throws NullPointerException     if {@code cue} is {@code null}
+         * @throws IllegalArgumentException if {@code cue} contains unsupported spans
          * @see CarText
          */
         @NonNull
         public Builder setCue(@NonNull CharSequence cue) {
             mCue = CarText.create(requireNonNull(cue));
+            CarTextConstraints.TEXT_AND_ICON.validateOrThrow(mCue);
             return this;
         }
 
@@ -323,14 +332,17 @@ public final class Step {
          *
          * <p>For example, a {@link Step} for a left turn might provide "State Street" for the road.
          *
-         * <p>Spans are not supported in the input string and will be ignored.
+         * <p>Only {@link DistanceSpan}s and {@link DurationSpan}s are supported in the input
+         * string.
          *
-         * @throws NullPointerException if {@code destinations} is {@code null}
+         * @throws NullPointerException     if {@code road} is {@code null}
+         * @throws IllegalArgumentException if {@code road} contains unsupported spans
          * @see CarText
          */
         @NonNull
         public Builder setRoad(@NonNull CharSequence road) {
             mRoad = CarText.create(requireNonNull(road));
+            CarTextConstraints.TEXT_ONLY.validateOrThrow(mRoad);
             return this;
         }
 

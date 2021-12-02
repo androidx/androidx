@@ -20,6 +20,7 @@ import static androidx.car.app.activity.LogTags.TAG;
 
 import android.annotation.SuppressLint;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.MotionEvent;
 
 import androidx.annotation.NonNull;
@@ -35,6 +36,9 @@ public interface SurfaceControlCallback {
 
     /** Notifies when {@link android.view.SurfaceView} receives a new touch event. */
     void onTouchEvent(@NonNull MotionEvent event);
+
+    /** Notifies when {@link android.view.SurfaceView} receives a new key event. */
+    void onKeyEvent(@NonNull KeyEvent event);
 
     /** Notifies when the window focus changes. */
     void onWindowFocusChanged(boolean hasFocus, boolean isInTouchMode);

@@ -25,6 +25,7 @@ import androidx.annotation.NonNull;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @SuppressLint("BanParcelableUsage")
 class BackStackState implements Parcelable {
@@ -43,12 +44,13 @@ class BackStackState implements Parcelable {
     }
 
     @NonNull
-    List<BackStackRecord> instantiate(@NonNull FragmentManager fm) {
+    List<BackStackRecord> instantiate(@NonNull FragmentManager fm,
+            Map<String, Fragment> pendingSavedFragments) {
         // First instantiate the saved Fragments from state.
         // These will populate the transactions we instantiate.
         HashMap<String, Fragment> fragments = new HashMap<>(mFragments.size());
         for (String fWho : mFragments) {
-            Fragment existingFragment = fm.getFragmentStore().findFragmentByWho(fWho);
+            Fragment existingFragment = pendingSavedFragments.get(fWho);
             if (existingFragment != null) {
                 // If the Fragment still exists, this means the saveBackStack()
                 // hasn't executed yet, so we can use the existing Fragment directly

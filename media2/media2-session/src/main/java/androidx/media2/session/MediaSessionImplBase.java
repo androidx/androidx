@@ -66,6 +66,7 @@ import androidx.media.AudioAttributesCompat;
 import androidx.media.MediaBrowserServiceCompat;
 import androidx.media.VolumeProviderCompat;
 import androidx.media2.common.BaseResult;
+import androidx.media2.common.ClassVerificationHelper;
 import androidx.media2.common.MediaItem;
 import androidx.media2.common.MediaMetadata;
 import androidx.media2.common.SessionPlayer;
@@ -183,13 +184,14 @@ class MediaSessionImplBase implements MediaSession.MediaSessionImpl {
             }
             mbrComponent = sServiceComponentName;
         }
+        int pendingIntentFlagMutable = Build.VERSION.SDK_INT >= 31 ? PendingIntent.FLAG_MUTABLE : 0;
         if (mbrComponent == null) {
             // No service to revive playback after it's dead.
             // Create a PendingIntent that points to the runtime broadcast receiver.
             Intent intent = new Intent(Intent.ACTION_MEDIA_BUTTON, mSessionUri);
             intent.setPackage(context.getPackageName());
             mMediaButtonIntent = PendingIntent.getBroadcast(
-                    context, 0 /* requestCode */, intent, 0 /* flags */);
+                    context, 0 /* requestCode */, intent, pendingIntentFlagMutable);
 
             // Creates a fake ComponentName for MediaSessionCompat in pre-L.
             // TODO: Replace this with the MediaButtonReceiver class.
@@ -207,9 +209,12 @@ class MediaSessionImplBase implements MediaSession.MediaSessionImpl {
             Intent intent = new Intent(Intent.ACTION_MEDIA_BUTTON, mSessionUri);
             intent.setComponent(mbrComponent);
             if (Build.VERSION.SDK_INT >= 26) {
-                mMediaButtonIntent = PendingIntent.getForegroundService(mContext, 0, intent, 0);
+                mMediaButtonIntent =
+                        ClassVerificationHelper.PendingIntent.Api26.getForegroundService(
+                                mContext, 0, intent, pendingIntentFlagMutable);
             } else {
-                mMediaButtonIntent = PendingIntent.getService(mContext, 0, intent, 0);
+                mMediaButtonIntent = PendingIntent.getService(
+                        mContext, 0, intent, pendingIntentFlagMutable);
             }
             mBroadcastReceiver = null;
         }
@@ -259,7 +264,8 @@ class MediaSessionImplBase implements MediaSession.MediaSessionImpl {
         if (!(player instanceof RemoteSessionPlayer)) {
             int stream = MediaUtils.getLegacyStreamType(attrs);
             int controlType = VolumeProviderCompat.VOLUME_CONTROL_ABSOLUTE;
-            if (Build.VERSION.SDK_INT >= 21 && mAudioManager.isVolumeFixed()) {
+            if (Build.VERSION.SDK_INT >= 21
+                    && ClassVerificationHelper.AudioManager.Api21.isVolumeFixed(mAudioManager)) {
                 controlType = VolumeProviderCompat.VOLUME_CONTROL_FIXED;
             }
             return MediaController.PlaybackInfo.createPlaybackInfo(
@@ -310,7 +316,7 @@ class MediaSessionImplBase implements MediaSession.MediaSessionImpl {
         mHandler.removeCallbacksAndMessages(null);
         if (mHandlerThread.isAlive()) {
             if (Build.VERSION.SDK_INT >= 18) {
-                mHandlerThread.quitSafely();
+                ClassVerificationHelper.HandlerThread.Api18.quitSafely(mHandlerThread);
             } else {
                 mHandlerThread.quit();
             }

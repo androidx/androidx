@@ -23,6 +23,7 @@ import android.graphics.PointF;
 import android.graphics.RectF;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.camera.core.ImageAnalysis;
 import androidx.camera.core.Logger;
 import androidx.camera.core.UseCase;
@@ -56,6 +57,7 @@ import androidx.core.util.Preconditions;
  *
  * </code></pre>
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 @TransformExperimental
 public final class CoordinateTransform {
 
@@ -97,13 +99,12 @@ public final class CoordinateTransform {
     }
 
     /**
-     * Gets the transform matrix.
+     * Copies the current transform to the specified {@link Matrix}.
      *
-     * @param matrix a {@link android.graphics.Matrix} that represents the transform from source
-     *               to target.
+     * @param outMatrix a {@link android.graphics.Matrix} in which to copy the current transform.
      */
-    public void getTransform(@NonNull Matrix matrix) {
-        matrix.set(mMatrix);
+    public void transform(@NonNull Matrix outMatrix) {
+        outMatrix.set(mMatrix);
     }
 
     /**

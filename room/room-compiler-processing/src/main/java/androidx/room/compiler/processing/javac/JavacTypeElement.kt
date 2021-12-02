@@ -20,7 +20,6 @@ import androidx.room.compiler.processing.XEnumEntry
 import androidx.room.compiler.processing.XEnumTypeElement
 import androidx.room.compiler.processing.XFieldElement
 import androidx.room.compiler.processing.XHasModifiers
-import androidx.room.compiler.processing.XMethodElement
 import androidx.room.compiler.processing.XTypeElement
 import androidx.room.compiler.processing.javac.kotlin.KotlinMetadataElement
 import com.google.auto.common.MoreElements
@@ -59,33 +58,19 @@ internal sealed class JavacTypeElement(
     }
 
     private val _declaredFields by lazy {
-        ElementFilter.fieldsIn(element.enclosedElements).map {
-            JavacFieldElement(
-                env = env,
-                element = it,
-                containing = this
-            )
-        }
+        ElementFilter.fieldsIn(element.enclosedElements)
+            .filterNot { it.kind == ElementKind.ENUM_CONSTANT }
+            .map {
+                JavacFieldElement(
+                    env = env,
+                    element = it,
+                    containing = this
+                )
+            }
     }
 
     override fun getDeclaredFields(): List<XFieldElement> {
         return _declaredFields
-    }
-
-    private val _allFieldsIncludingPrivateSupers by lazy {
-        element.getAllFieldsIncludingPrivateSupers(
-            env.elementUtils
-        ).map {
-            JavacFieldElement(
-                env = env,
-                element = it,
-                containing = this
-            )
-        }
-    }
-
-    override fun getAllFieldsIncludingPrivateSupers(): List<XFieldElement> {
-        return _allFieldsIncludingPrivateSupers
     }
 
     override fun isKotlinObject() = kotlinMetadata?.isObject() == true
@@ -102,6 +87,10 @@ internal sealed class JavacTypeElement(
 
     override fun isClass(): Boolean {
         return kotlinMetadata?.isClass() ?: (element.kind == ElementKind.CLASS)
+    }
+
+    override fun isNested(): Boolean {
+        return element.enclosingType(env) != null
     }
 
     override fun isInterface(): Boolean {
@@ -125,7 +114,7 @@ internal sealed class JavacTypeElement(
         }
     }
 
-    override fun getDeclaredMethods(): List<XMethodElement> {
+    override fun getDeclaredMethods(): List<JavacMethodElement> {
         return _declaredMethods
     }
 

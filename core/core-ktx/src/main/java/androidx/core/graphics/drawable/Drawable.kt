@@ -48,7 +48,7 @@ public fun Drawable.toBitmap(
         if (config == null || bitmap.config == config) {
             // Fast-path to return original. Bitmap.createScaledBitmap will do this check, but it
             // involves allocation and two jumps into native code so we perform the check ourselves.
-            if (width == intrinsicWidth && height == intrinsicHeight) {
+            if (width == bitmap.width && height == bitmap.height) {
                 return bitmap
             }
             return Bitmap.createScaledBitmap(bitmap, width, height, true)

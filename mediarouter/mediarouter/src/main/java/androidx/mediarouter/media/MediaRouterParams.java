@@ -56,6 +56,15 @@ public class MediaRouterParams {
     public @interface DialogType {}
 
     /**
+     * Bundle key used for enabling group volume UX. The default value is {@code true}.
+     * To disable the group volume UX, set the value {@code false}.
+     *
+     * <p>TYPE: boolean
+     */
+    public static final String ENABLE_GROUP_VOLUME_UX =
+            "androidx.mediarouter.media.MediaRouterParams.ENABLE_GROUP_VOLUME_UX";
+
+    /**
      * Bundle key used for setting the cast icon fixed regardless of its connection state.
      *
      * <p>TYPE: boolean
@@ -65,21 +74,16 @@ public class MediaRouterParams {
     public static final String EXTRAS_KEY_FIXED_CAST_ICON =
             "androidx.mediarouter.media.MediaRouterParams.FIXED_CAST_ICON";
 
-    /**
-     * @hide
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
-    public static final String EXTRAS_KEY_TEST_PRIVATE_UI =
-            "androidx.mediarouter.media.MediaRouterParams.TEST_PRIVATE_UI";
-
     @DialogType
     final int mDialogType;
+    final boolean mMediaTransferReceiverEnabled;
     final boolean mOutputSwitcherEnabled;
     final boolean mTransferToLocalEnabled;
     final Bundle mExtras;
 
     MediaRouterParams(@NonNull Builder builder) {
         mDialogType = builder.mDialogType;
+        mMediaTransferReceiverEnabled = builder.mMediaTransferEnabled;
         mOutputSwitcherEnabled = builder.mOutputSwitcherEnabled;
         mTransferToLocalEnabled = builder.mTransferToLocalEnabled;
 
@@ -94,6 +98,15 @@ public class MediaRouterParams {
      */
     public @DialogType int getDialogType() {
         return mDialogType;
+    }
+
+    /**
+     * Gets whether declared {@link MediaTransferReceiver} is enabled.
+     *
+     * @see Builder#setMediaTransferReceiverEnabled(boolean)
+     */
+    public boolean isMediaTransferReceiverEnabled() {
+        return mMediaTransferReceiverEnabled;
     }
 
     /**
@@ -133,6 +146,7 @@ public class MediaRouterParams {
     public static final class Builder {
         @DialogType
         int mDialogType = DIALOG_TYPE_DEFAULT;
+        boolean mMediaTransferEnabled = Build.VERSION.SDK_INT >= Build.VERSION_CODES.R;
         boolean mOutputSwitcherEnabled;
         boolean mTransferToLocalEnabled;
         Bundle mExtras;
@@ -156,9 +170,9 @@ public class MediaRouterParams {
             mDialogType = params.mDialogType;
             mOutputSwitcherEnabled = params.mOutputSwitcherEnabled;
             mTransferToLocalEnabled = params.mTransferToLocalEnabled;
+            mMediaTransferEnabled = params.mMediaTransferReceiverEnabled;
             mExtras = params.mExtras == null ? null : new Bundle(params.mExtras);
         }
-
 
         /**
          * Sets the media route controller dialog type. Default value is
@@ -176,6 +190,28 @@ public class MediaRouterParams {
         @NonNull
         public Builder setDialogType(@DialogType int dialogType) {
             mDialogType = dialogType;
+            return this;
+        }
+
+        /**
+         * Sets whether declared {@link MediaTransferReceiver} is enabled. The default value is
+         * {@code true}. This method will be no-op for Android versions earlier than Android R and
+         * it stays {@code false} on devices earlier than Android R.
+         * <p>
+         * It can be used to disable media transfer feature when {@link MediaTransferReceiver} is
+         * declared.
+         * If set to {@code false}, media transfer feature will be disabled
+         * even when {@link MediaTransferReceiver} is declared.
+         * <p>
+         * It is not recommended to change this value at runtime.
+         * It could result in getting invalid routes.
+         * @see MediaTransferReceiver
+         */
+        @NonNull
+        public Builder setMediaTransferReceiverEnabled(boolean enabled) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                mMediaTransferEnabled = enabled;
+            }
             return this;
         }
 

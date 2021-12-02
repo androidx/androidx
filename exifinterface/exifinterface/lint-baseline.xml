@@ -1,5 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.0.0-alpha15" type="baseline" client="cli" name="Lint" variant="all" version="7.0.0-alpha15">
+<issues format="6" by="lint 7.1.0-beta02" type="baseline" client="gradle" dependencies="false" name="AGP (7.1.0-beta02)" variant="all" version="7.1.0-beta02">
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 21 (current min is 14): `android.system.Os#close`"
+        errorLine1="                Os.close(fd);"
+        errorLine2="                   ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/exifinterface/media/ExifInterfaceTest.java"
+            line="1369"
+            column="20"/>
+    </issue>
 
     <issue
         id="UnknownNullness"
@@ -8,7 +19,7 @@
         errorLine2="                              ~~~~~">
         <location
             file="src/main/java/androidx/exifinterface/media/ExifInterface.java"
-            line="5015"
+            line="5024"
             column="31"/>
     </issue>
 
@@ -19,7 +30,7 @@
         errorLine2="                           ~~~~~~~~">
         <location
             file="src/main/java/androidx/exifinterface/media/ExifInterface.java"
-            line="5060"
+            line="5069"
             column="28"/>
     </issue>
 

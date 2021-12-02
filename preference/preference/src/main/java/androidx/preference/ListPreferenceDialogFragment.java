@@ -21,6 +21,7 @@ import android.content.DialogInterface;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 /**
  * @deprecated Use {@link ListPreferenceDialogFragmentCompat} instead
@@ -46,6 +47,7 @@ public class ListPreferenceDialogFragment extends PreferenceDialogFragment {
     /**
      * @deprecated Use {@link ListPreferenceDialogFragmentCompat} instead
      */
+    @NonNull
     @Deprecated
     public static ListPreferenceDialogFragment newInstance(String key) {
         final ListPreferenceDialogFragment fragment = new ListPreferenceDialogFragment();
@@ -56,7 +58,7 @@ public class ListPreferenceDialogFragment extends PreferenceDialogFragment {
     }
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (savedInstanceState == null) {
             final ListPreference preference = getListPreference();
@@ -89,7 +91,7 @@ public class ListPreferenceDialogFragment extends PreferenceDialogFragment {
     }
 
     @Override
-    protected void onPrepareDialogBuilder(AlertDialog.Builder builder) {
+    protected void onPrepareDialogBuilder(@NonNull AlertDialog.Builder builder) {
         super.onPrepareDialogBuilder(builder);
 
         builder.setSingleChoiceItems(mEntries, mClickedDialogEntryIndex,

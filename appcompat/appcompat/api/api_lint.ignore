@@ -613,8 +613,6 @@ MissingNullability: androidx.appcompat.widget.AppCompatAutoCompleteTextView#onCr
     Missing nullability on method `onCreateInputConnection` return
 MissingNullability: androidx.appcompat.widget.AppCompatAutoCompleteTextView#onCreateInputConnection(android.view.inputmethod.EditorInfo) parameter #0:
     Missing nullability on parameter `outAttrs` in method `onCreateInputConnection`
-MissingNullability: androidx.appcompat.widget.AppCompatAutoCompleteTextView#setCustomSelectionActionModeCallback(android.view.ActionMode.Callback) parameter #0:
-    Missing nullability on parameter `actionModeCallback` in method `setCustomSelectionActionModeCallback`
 MissingNullability: androidx.appcompat.widget.AppCompatAutoCompleteTextView#setTextAppearance(android.content.Context, int) parameter #0:
     Missing nullability on parameter `context` in method `setTextAppearance`
 MissingNullability: androidx.appcompat.widget.AppCompatButton#onInitializeAccessibilityEvent(android.view.accessibility.AccessibilityEvent) parameter #0:
@@ -623,24 +621,10 @@ MissingNullability: androidx.appcompat.widget.AppCompatButton#onInitializeAccess
     Missing nullability on parameter `info` in method `onInitializeAccessibilityNodeInfo`
 MissingNullability: androidx.appcompat.widget.AppCompatButton#onTextChanged(CharSequence, int, int, int) parameter #0:
     Missing nullability on parameter `text` in method `onTextChanged`
-MissingNullability: androidx.appcompat.widget.AppCompatButton#setCustomSelectionActionModeCallback(android.view.ActionMode.Callback) parameter #0:
-    Missing nullability on parameter `actionModeCallback` in method `setCustomSelectionActionModeCallback`
 MissingNullability: androidx.appcompat.widget.AppCompatButton#setTextAppearance(android.content.Context, int) parameter #0:
     Missing nullability on parameter `context` in method `setTextAppearance`
 MissingNullability: androidx.appcompat.widget.AppCompatCheckBox#setButtonDrawable(android.graphics.drawable.Drawable) parameter #0:
     Missing nullability on parameter `buttonDrawable` in method `setButtonDrawable`
-MissingNullability: androidx.appcompat.widget.AppCompatCheckedTextView#onCreateInputConnection(android.view.inputmethod.EditorInfo):
-    Missing nullability on method `onCreateInputConnection` return
-MissingNullability: androidx.appcompat.widget.AppCompatCheckedTextView#onCreateInputConnection(android.view.inputmethod.EditorInfo) parameter #0:
-    Missing nullability on parameter `outAttrs` in method `onCreateInputConnection`
-MissingNullability: androidx.appcompat.widget.AppCompatCheckedTextView#setCustomSelectionActionModeCallback(android.view.ActionMode.Callback) parameter #0:
-    Missing nullability on parameter `actionModeCallback` in method `setCustomSelectionActionModeCallback`
-MissingNullability: androidx.appcompat.widget.AppCompatCheckedTextView#setTextAppearance(android.content.Context, int) parameter #0:
-    Missing nullability on parameter `context` in method `setTextAppearance`
-MissingNullability: androidx.appcompat.widget.AppCompatEditText#onCreateInputConnection(android.view.inputmethod.EditorInfo) parameter #0:
-    Missing nullability on parameter `outAttrs` in method `onCreateInputConnection`
-MissingNullability: androidx.appcompat.widget.AppCompatEditText#setCustomSelectionActionModeCallback(android.view.ActionMode.Callback) parameter #0:
-    Missing nullability on parameter `actionModeCallback` in method `setCustomSelectionActionModeCallback`
 MissingNullability: androidx.appcompat.widget.AppCompatEditText#setTextAppearance(android.content.Context, int) parameter #0:
     Missing nullability on parameter `context` in method `setTextAppearance`
 MissingNullability: androidx.appcompat.widget.AppCompatImageButton#setImageBitmap(android.graphics.Bitmap) parameter #0:
@@ -691,8 +675,6 @@ MissingNullability: androidx.appcompat.widget.AppCompatTextView#onCreateInputCon
     Missing nullability on parameter `outAttrs` in method `onCreateInputConnection`
 MissingNullability: androidx.appcompat.widget.AppCompatTextView#onTextChanged(CharSequence, int, int, int) parameter #0:
     Missing nullability on parameter `text` in method `onTextChanged`
-MissingNullability: androidx.appcompat.widget.AppCompatTextView#setCustomSelectionActionModeCallback(android.view.ActionMode.Callback) parameter #0:
-    Missing nullability on parameter `actionModeCallback` in method `setCustomSelectionActionModeCallback`
 MissingNullability: androidx.appcompat.widget.AppCompatTextView#setTextAppearance(android.content.Context, int) parameter #0:
     Missing nullability on parameter `context` in method `setTextAppearance`
 MissingNullability: androidx.appcompat.widget.LinearLayoutCompat#checkLayoutParams(android.view.ViewGroup.LayoutParams) parameter #0:
@@ -803,8 +785,6 @@ MissingNullability: androidx.appcompat.widget.SwitchCompat#onPopulateAccessibili
     Missing nullability on parameter `event` in method `onPopulateAccessibilityEvent`
 MissingNullability: androidx.appcompat.widget.SwitchCompat#onTouchEvent(android.view.MotionEvent) parameter #0:
     Missing nullability on parameter `ev` in method `onTouchEvent`
-MissingNullability: androidx.appcompat.widget.SwitchCompat#setCustomSelectionActionModeCallback(android.view.ActionMode.Callback) parameter #0:
-    Missing nullability on parameter `actionModeCallback` in method `setCustomSelectionActionModeCallback`
 MissingNullability: androidx.appcompat.widget.SwitchCompat#setSwitchTextAppearance(android.content.Context, int) parameter #0:
     Missing nullability on parameter `context` in method `setSwitchTextAppearance`
 MissingNullability: androidx.appcompat.widget.SwitchCompat#setSwitchTypeface(android.graphics.Typeface) parameter #0:

@@ -9,10 +9,12 @@ dependencies {
     implementation(project(":leanback:leanback-paging"))
     implementation(project(":leanback:leanback-tab"))
     implementation("com.google.code.gson:gson:2.6.2")
-    implementation("androidx.room:room-runtime:2.3.0-alpha01")
     implementation("androidx.lifecycle:lifecycle-extensions:2.2.0")
     implementation(libs.constraintLayout)
-    annotationProcessor("androidx.room:room-compiler:2.3.0-alpha01")
+
+    implementation(projectOrArtifact(":room:room-paging"))
+    implementation(projectOrArtifact(":room:room-runtime"))
+    annotationProcessor(projectOrArtifact(":room:room-compiler"))
 }
 
 android {

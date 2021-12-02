@@ -33,7 +33,7 @@ public interface ActivityResultCaller {
      * Register a request to {@link Activity#startActivityForResult start an activity for result},
      * designated by the given {@link ActivityResultContract contract}.
      *
-     * This creates a record in the {@link ActivityResultRegistry registry} associated wit this
+     * This creates a record in the {@link ActivityResultRegistry registry} associated with this
      * caller, managing request code, as well as conversions to/from {@link Intent} under the hood.
      *
      * This *must* be called unconditionally, as part of initialization path, typically as a field

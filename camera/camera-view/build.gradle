@@ -55,12 +55,14 @@ dependencies {
         // override pinned dependency.
         exclude(group:"androidx.camera", module:"camera-core")
     }
+    testImplementation("androidx.camera:camera-camera2:${VIEW_ATOMIC_GROUP_PINNED_VER}")
 
     androidTestImplementation(project(":camera:camera-testing"))  {
         // Ensure camera-testing does not pull in camera-core project dependency which will
         // override pinned dependency.
         exclude(group:"androidx.camera", module:"camera-core")
     }
+    androidTestImplementation(libs.multidex)
     androidTestImplementation(libs.mockitoCore)
     androidTestImplementation(libs.espressoCore)
     androidTestImplementation(libs.testExtJunit)
@@ -76,8 +78,9 @@ dependencies {
 }
 android {
     defaultConfig {
-        minSdkVersion 21
+        multiDexEnabled = true
     }
+
     testOptions.unitTests.includeAndroidResources = true
 }
 androidx {

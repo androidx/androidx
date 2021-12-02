@@ -16,8 +16,14 @@
 
 package androidx.car.app.versioning;
 
+import static java.util.Objects.requireNonNull;
+
 import androidx.annotation.RestrictTo;
-import androidx.car.app.CarContext;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 
 /**
  * API levels supported by this library.
@@ -25,9 +31,15 @@ import androidx.car.app.CarContext;
  * <p>Each level denotes a set of elements (classes, fields and methods) known to both clients and
  * hosts.
  *
- * @see CarContext#getCarAppApiLevel()
+ * @see androidx.car.app.CarContext#getCarAppApiLevel()
  */
 public final class CarAppApiLevels {
+    /**
+     * API level 4.
+     */
+    @CarAppApiLevel
+    public static final int LEVEL_4 = 4;
+
     /**
      * API level 3.
      *
@@ -65,6 +77,8 @@ public final class CarAppApiLevels {
     @CarAppApiLevel
     public static final int UNKNOWN = 0;
 
+    private static final String CAR_API_LEVEL_FILE = "car-app-api.level";
+
     /**
      * Returns whether the given integer is a valid {@link CarAppApiLevel}
      *
@@ -80,7 +94,31 @@ public final class CarAppApiLevels {
      */
     @CarAppApiLevel
     public static int getLatest() {
-        return LEVEL_3;
+        // The latest Car API level is defined as java resource, generated via build.gradle. This
+        // has to be read through the class loader because we do not have access to the context
+        // to retrieve an Android resource.
+        ClassLoader classLoader = requireNonNull(CarAppApiLevels.class.getClassLoader());
+        InputStream inputStream = classLoader.getResourceAsStream(CAR_API_LEVEL_FILE);
+
+        if (inputStream == null) {
+            throw new IllegalStateException(String.format("Car API level file %s not found",
+                    CAR_API_LEVEL_FILE));
+        }
+
+        try {
+            InputStreamReader streamReader = new InputStreamReader(inputStream);
+            BufferedReader reader = new BufferedReader(streamReader);
+            String line = reader.readLine();
+
+
+            int apiLevel = Integer.parseInt(line);
+            if (apiLevel < LEVEL_1 || apiLevel > LEVEL_4) {
+                throw new IllegalStateException("Unrecognized Car API level: " + line);
+            }
+            return apiLevel;
+        } catch (IOException e) {
+            throw new IllegalStateException("Unable to read Car API level file");
+        }
     }
 
     /**

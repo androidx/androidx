@@ -89,7 +89,7 @@ class AppCompatEmojiEditTextHelper {
         int inputType = mView.getInputType();
         mView.setKeyListener(mView.getKeyListener());
         // reset the input type and focusable attributes after calling setKeyListener
-        mView.setInputType(inputType);
+        mView.setRawInputType(inputType);
         mView.setFocusable(wasFocusable);
     }
 

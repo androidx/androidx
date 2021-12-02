@@ -52,7 +52,6 @@ dependencies {
 androidx {
     name = "UI Text utilities"
     publish = Publish.NONE
-    mavenVersion = LibraryVersions.TEXT
     mavenGroup = LibraryGroups.TEXT
     inceptionYear = "2020"
     description = "Text primitives and utilities"

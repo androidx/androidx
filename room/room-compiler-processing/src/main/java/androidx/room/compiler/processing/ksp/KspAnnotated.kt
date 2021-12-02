@@ -24,6 +24,7 @@ import com.google.devtools.ksp.KspExperimental
 import com.google.devtools.ksp.symbol.AnnotationUseSiteTarget
 import com.google.devtools.ksp.symbol.KSAnnotated
 import com.google.devtools.ksp.symbol.KSAnnotation
+import com.google.devtools.ksp.symbol.KSTypeAlias
 import kotlin.reflect.KClass
 
 @OptIn(KspExperimental::class)
@@ -90,7 +91,10 @@ internal sealed class KspAnnotated(
         ksAnnotation: KSAnnotation,
         annotationClass: KClass<out Annotation>
     ): Boolean {
-        val declaration = ksAnnotation.annotationType.resolve().declaration
+        var declaration = ksAnnotation.annotationType.resolve().declaration
+        while (declaration is KSTypeAlias) {
+            declaration = declaration.type.resolve().declaration
+        }
         val qualifiedName = declaration.qualifiedName?.asString() ?: return false
         return qualifiedName == annotationClass.qualifiedName
     }

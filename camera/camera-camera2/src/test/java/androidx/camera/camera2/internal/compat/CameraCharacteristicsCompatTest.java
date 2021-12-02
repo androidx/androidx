@@ -18,8 +18,15 @@ package androidx.camera.camera2.internal.compat;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+
 import android.hardware.camera2.CameraCharacteristics;
 import android.os.Build;
+
+import androidx.annotation.RequiresApi;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -34,18 +41,20 @@ import org.robolectric.shadows.ShadowCameraCharacteristics;
 @DoNotInstrument
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
 public class CameraCharacteristicsCompatTest {
-    CameraCharacteristics mCharacteristics;
+    private CameraCharacteristics mCharacteristics;
+    private static final int SENSOR_ORIENTATION_VAL = 270;
 
     @Before
     public void setUp() {
         mCharacteristics = ShadowCameraCharacteristics.newCameraCharacteristics();
-
         ShadowCameraCharacteristics shadowCharacteristics0 = Shadow.extract(mCharacteristics);
         shadowCharacteristics0.set(CameraCharacteristics.CONTROL_MAX_REGIONS_AE, 1);
         shadowCharacteristics0.set(CameraCharacteristics.CONTROL_MAX_REGIONS_AF, 2);
         shadowCharacteristics0.set(CameraCharacteristics.CONTROL_MAX_REGIONS_AWB, 3);
 
         shadowCharacteristics0.set(CameraCharacteristics.CONTROL_AE_AVAILABLE_MODES, null);
+        shadowCharacteristics0.set(
+                CameraCharacteristics.SENSOR_ORIENTATION, SENSOR_ORIENTATION_VAL);
     }
 
     @Test
@@ -81,8 +90,42 @@ public class CameraCharacteristicsCompatTest {
         // CONTROL_AE_AVAILABLE_MODES is set to null in setUp
         assertThat(characteristicsCompat.get(CameraCharacteristics.CONTROL_AE_AVAILABLE_MODES))
                 .isNull();
-        // SENSOR_ORIENTATION is not set.
-        assertThat(characteristicsCompat.get(CameraCharacteristics.SENSOR_ORIENTATION))
+        // INFO_SUPPORTED_HARDWARE_LEVEL is not set.
+        assertThat(characteristicsCompat.get(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL))
                 .isNull();
+    }
+
+    @Config(minSdk = 28)
+    @RequiresApi(28)
+    @Test
+    public void getPhysicalCameraIds_invokeCameraCharacteristics_api28() {
+        CameraCharacteristics cameraCharacteristics = mock(CameraCharacteristics.class);
+        CameraCharacteristicsCompat characteristicsCompat =
+                CameraCharacteristicsCompat.toCameraCharacteristicsCompat(cameraCharacteristics);
+
+        characteristicsCompat.getPhysicalCameraIds();
+        verify(cameraCharacteristics).getPhysicalCameraIds();
+    }
+
+    @Config(maxSdk = 27)
+    @Test
+    public void getPhysicalCameraIds_returnEmptyList_below28() {
+        CameraCharacteristicsCompat characteristicsCompat =
+                CameraCharacteristicsCompat.toCameraCharacteristicsCompat(mCharacteristics);
+        assertThat(characteristicsCompat.getPhysicalCameraIds()).isEmpty();
+    }
+
+    @Test
+    public void getSensorOrientation_shouldNotCache() {
+        CameraCharacteristics cameraCharacteristics = spy(mCharacteristics);
+        CameraCharacteristicsCompat characteristicsCompat =
+                CameraCharacteristicsCompat.toCameraCharacteristicsCompat(cameraCharacteristics);
+        assertThat(characteristicsCompat.get(CameraCharacteristics.SENSOR_ORIENTATION))
+                .isEqualTo(SENSOR_ORIENTATION_VAL);
+
+        // Call get() twice, cameraCharacteristics.get() should be called twice as well.
+        assertThat(characteristicsCompat.get(CameraCharacteristics.SENSOR_ORIENTATION))
+                .isEqualTo(SENSOR_ORIENTATION_VAL);
+        verify(cameraCharacteristics, times(2)).get(CameraCharacteristics.SENSOR_ORIENTATION);
     }
 }

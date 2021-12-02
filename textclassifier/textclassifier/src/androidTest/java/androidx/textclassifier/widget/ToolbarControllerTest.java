@@ -102,7 +102,8 @@ public final class ToolbarControllerTest {
         mController = ToolbarController.getInstance(mTextView);
         mAction = new RemoteActionCompat(
                 ICON, SMART_ACTION, "description",
-                PendingIntent.getActivity(mTextView.getContext(), 0, new Intent(), 0));
+                PendingIntent.getActivity(mTextView.getContext(), 0, new Intent(),
+                        PendingIntent.FLAG_IMMUTABLE));
         mAction.setShouldShowIcon(false);
         mMockActionMode = mock(ActionMode.class);
         when(mMockActionMode.getType()).thenReturn(ActionMode.TYPE_FLOATING);

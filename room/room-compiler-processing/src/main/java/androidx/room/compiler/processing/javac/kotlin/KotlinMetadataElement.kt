@@ -71,7 +71,23 @@ internal class KotlinMetadataElement(
             "must pass an element type of method"
         }
         val methodSignature = method.descriptor
-        return functionList.firstOrNull { it.descriptor == methodSignature }
+        functionList.firstOrNull { it.descriptor == methodSignature }?.let {
+            return it
+        }
+        // might be a property getter or setter
+        return propertyList.firstNotNullOfOrNull { property ->
+            when {
+                property.getter?.descriptor == methodSignature -> {
+                    property.getter
+                }
+                property.setter?.descriptor == methodSignature -> {
+                    property.setter
+                }
+                else -> {
+                    null
+                }
+            }
+        }
     }
 
     fun getConstructorMetadata(method: ExecutableElement): KmConstructor? {

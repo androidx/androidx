@@ -1,0 +1,88 @@
+// Signature format: 4.0
+package androidx.window.layout {
+
+  public interface DisplayFeature {
+    method public android.graphics.Rect getBounds();
+    property public abstract android.graphics.Rect bounds;
+  }
+
+  public interface FoldingFeature extends androidx.window.layout.DisplayFeature {
+    method public androidx.window.layout.FoldingFeature.OcclusionType getOcclusionType();
+    method public androidx.window.layout.FoldingFeature.Orientation getOrientation();
+    method public androidx.window.layout.FoldingFeature.State getState();
+    method public boolean isSeparating();
+    property public abstract boolean isSeparating;
+    property public abstract androidx.window.layout.FoldingFeature.OcclusionType occlusionType;
+    property public abstract androidx.window.layout.FoldingFeature.Orientation orientation;
+    property public abstract androidx.window.layout.FoldingFeature.State state;
+  }
+
+  public static final class FoldingFeature.OcclusionType {
+    field public static final androidx.window.layout.FoldingFeature.OcclusionType.Companion Companion;
+    field public static final androidx.window.layout.FoldingFeature.OcclusionType FULL;
+    field public static final androidx.window.layout.FoldingFeature.OcclusionType NONE;
+  }
+
+  public static final class FoldingFeature.OcclusionType.Companion {
+  }
+
+  public static final class FoldingFeature.Orientation {
+    field public static final androidx.window.layout.FoldingFeature.Orientation.Companion Companion;
+    field public static final androidx.window.layout.FoldingFeature.Orientation HORIZONTAL;
+    field public static final androidx.window.layout.FoldingFeature.Orientation VERTICAL;
+  }
+
+  public static final class FoldingFeature.Orientation.Companion {
+  }
+
+  public static final class FoldingFeature.State {
+    field public static final androidx.window.layout.FoldingFeature.State.Companion Companion;
+    field public static final androidx.window.layout.FoldingFeature.State FLAT;
+    field public static final androidx.window.layout.FoldingFeature.State HALF_OPENED;
+  }
+
+  public static final class FoldingFeature.State.Companion {
+  }
+
+  public interface WindowInfoRepository {
+    method public default static androidx.window.layout.WindowInfoRepository getOrCreate(android.app.Activity);
+    method public kotlinx.coroutines.flow.Flow<androidx.window.layout.WindowLayoutInfo> getWindowLayoutInfo();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public default static void overrideDecorator(androidx.window.layout.WindowInfoRepositoryDecorator overridingDecorator);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public default static void reset();
+    property public abstract kotlinx.coroutines.flow.Flow<androidx.window.layout.WindowLayoutInfo> windowLayoutInfo;
+    field public static final androidx.window.layout.WindowInfoRepository.Companion Companion;
+  }
+
+  public static final class WindowInfoRepository.Companion {
+    method public androidx.window.layout.WindowInfoRepository getOrCreate(android.app.Activity);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void overrideDecorator(androidx.window.layout.WindowInfoRepositoryDecorator overridingDecorator);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void reset();
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public interface WindowInfoRepositoryDecorator {
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.window.layout.WindowInfoRepository decorate(androidx.window.layout.WindowInfoRepository repository);
+  }
+
+  public final class WindowLayoutInfo {
+    method public java.util.List<androidx.window.layout.DisplayFeature> getDisplayFeatures();
+    property public final java.util.List<androidx.window.layout.DisplayFeature> displayFeatures;
+  }
+
+  public final class WindowMetrics {
+    method public android.graphics.Rect getBounds();
+    property public final android.graphics.Rect bounds;
+  }
+
+  public interface WindowMetricsCalculator {
+    method public androidx.window.layout.WindowMetrics computeCurrentWindowMetrics(android.app.Activity activity);
+    method public androidx.window.layout.WindowMetrics computeMaximumWindowMetrics(android.app.Activity activity);
+    method public default static androidx.window.layout.WindowMetricsCalculator getOrCreate();
+    field public static final androidx.window.layout.WindowMetricsCalculator.Companion Companion;
+  }
+
+  public static final class WindowMetricsCalculator.Companion {
+    method public androidx.window.layout.WindowMetricsCalculator getOrCreate();
+  }
+
+}
+
