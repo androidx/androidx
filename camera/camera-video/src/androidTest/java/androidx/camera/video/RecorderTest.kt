@@ -72,6 +72,7 @@ import org.mockito.Mockito.atLeastOnce
 import org.mockito.Mockito.clearInvocations
 import org.mockito.Mockito.inOrder
 import org.mockito.Mockito.mock
+import org.mockito.Mockito.never
 import org.mockito.Mockito.timeout
 import org.mockito.Mockito.verify
 import org.mockito.Mockito.verifyNoMoreInteractions
@@ -737,15 +738,20 @@ class RecorderTest {
         inOrder.verify(videoRecordEventListener, timeout(15000L).atLeast(5))
             .accept(any(VideoRecordEvent.Status::class.java))
 
+        // Calling resume shouldn't affect the stream of status events finally followed
+        // by a finalize event. There shouldn't be another resume event generated.
         recording.resume()
 
-        // Shouldn't receive an Resume event.
-        inOrder.verifyNoMoreInteractions()
+        inOrder.verify(videoRecordEventListener, timeout(15000L).atLeast(5))
+            .accept(any(VideoRecordEvent.Status::class.java))
 
         recording.stopSafely()
 
         inOrder.verify(videoRecordEventListener, timeout(FINALIZE_TIMEOUT))
             .accept(any(VideoRecordEvent.Finalize::class.java))
+
+        // Ensure no resume events were ever sent.
+        verify(videoRecordEventListener, never()).accept(any(VideoRecordEvent.Resume::class.java))
 
         file.delete()
     }
