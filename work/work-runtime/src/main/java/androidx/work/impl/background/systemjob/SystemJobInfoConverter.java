@@ -31,7 +31,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
-import androidx.core.os.BuildCompat;
 import androidx.work.BackoffPolicy;
 import androidx.work.Constraints;
 import androidx.work.ContentUriTriggers;
@@ -128,7 +127,7 @@ class SystemJobInfoConverter {
         // Retries cannot be expedited jobs, given they will occur at some point in the future.
         boolean isRetry = workSpec.runAttemptCount > 0;
         boolean isDelayed = offset > 0;
-        if (BuildCompat.isAtLeastS() && workSpec.expedited && !isRetry && !isDelayed) {
+        if (Build.VERSION.SDK_INT >= 31 && workSpec.expedited && !isRetry && !isDelayed) {
             //noinspection NewApi
             builder.setExpedited(true);
         }

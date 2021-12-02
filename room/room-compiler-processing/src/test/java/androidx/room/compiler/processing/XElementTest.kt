@@ -20,7 +20,7 @@ import androidx.room.compiler.processing.testcode.OtherAnnotation
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.className
 import androidx.room.compiler.processing.util.getField
-import androidx.room.compiler.processing.util.getMethod
+import androidx.room.compiler.processing.util.getMethodByJvmName
 import androidx.room.compiler.processing.util.getParameter
 import androidx.room.compiler.processing.util.runProcessorTestWithoutKsp
 import androidx.room.compiler.processing.util.runProcessorTest
@@ -112,30 +112,34 @@ class XElementTest {
             element.getField("transientField").assertModifiers("transient")
             element.getField("staticField").assertModifiers("static")
 
-            element.getMethod("privateMethod").assertModifiers("private")
-            element.getMethod("packagePrivateMethod").assertModifiers()
-            element.getMethod("publicMethod").assertModifiers("public")
-            element.getMethod("protectedMethod").assertModifiers("protected")
-            element.getMethod("finalMethod").assertModifiers("final")
-            element.getMethod("abstractMethod").assertModifiers("abstract")
-            element.getMethod("staticMethod").assertModifiers("static")
+            element.getMethodByJvmName("privateMethod").assertModifiers("private")
+            element.getMethodByJvmName("packagePrivateMethod").assertModifiers()
+            element.getMethodByJvmName("publicMethod").assertModifiers("public")
+            element.getMethodByJvmName("protectedMethod").assertModifiers("protected")
+            element.getMethodByJvmName("finalMethod").assertModifiers("final")
+            element.getMethodByJvmName("abstractMethod").assertModifiers("abstract")
+            element.getMethodByJvmName("staticMethod").assertModifiers("static")
 
             assertThat(
-                element.getMethod("privateMethod").isOverrideableIgnoringContainer()
+                element.getMethodByJvmName("privateMethod").isOverrideableIgnoringContainer()
             ).isFalse()
             assertThat(
-                element.getMethod("packagePrivateMethod").isOverrideableIgnoringContainer()
-            ).isTrue()
-            assertThat(element.getMethod("publicMethod").isOverrideableIgnoringContainer()).isTrue()
-            assertThat(
-                element.getMethod("protectedMethod").isOverrideableIgnoringContainer()
-            ).isTrue()
-            assertThat(element.getMethod("finalMethod").isOverrideableIgnoringContainer()).isFalse()
-            assertThat(
-                element.getMethod("abstractMethod").isOverrideableIgnoringContainer()
+                element.getMethodByJvmName("packagePrivateMethod").isOverrideableIgnoringContainer()
             ).isTrue()
             assertThat(
-                element.getMethod("staticMethod").isOverrideableIgnoringContainer()
+                element.getMethodByJvmName("publicMethod").isOverrideableIgnoringContainer()
+            ).isTrue()
+            assertThat(
+                element.getMethodByJvmName("protectedMethod").isOverrideableIgnoringContainer()
+            ).isTrue()
+            assertThat(
+                element.getMethodByJvmName("finalMethod").isOverrideableIgnoringContainer()
+            ).isFalse()
+            assertThat(
+                element.getMethodByJvmName("abstractMethod").isOverrideableIgnoringContainer()
+            ).isTrue()
+            assertThat(
+                element.getMethodByJvmName("staticMethod").isOverrideableIgnoringContainer()
             ).isFalse()
         }
     }
@@ -174,23 +178,23 @@ class XElementTest {
             listOf(genericBase, boundedChild)
         ) {
             fun validateElement(element: XTypeElement, tTypeName: TypeName, rTypeName: TypeName) {
-                element.getMethod("returnT").let { method ->
+                element.getMethodByJvmName("returnT").let { method ->
                     assertThat(method.parameters).isEmpty()
                     assertThat(method.returnType.typeName).isEqualTo(tTypeName)
                 }
-                element.getMethod("receiveT").let { method ->
+                element.getMethodByJvmName("receiveT").let { method ->
                     method.getParameter("param1").let { param ->
                         assertThat(param.type.typeName).isEqualTo(tTypeName)
                     }
                     assertThat(method.returnType.typeName).isEqualTo(TypeName.INT)
                 }
-                element.getMethod("receiveR").let { method ->
+                element.getMethodByJvmName("receiveR").let { method ->
                     method.getParameter("param1").let { param ->
                         assertThat(param.type.typeName).isEqualTo(rTypeName)
                     }
                     assertThat(method.returnType.typeName).isEqualTo(TypeName.INT)
                 }
-                element.getMethod("returnR").let { method ->
+                element.getMethodByJvmName("returnR").let { method ->
                     assertThat(method.parameters).isEmpty()
                     assertThat(method.returnType.typeName).isEqualTo(rTypeName)
                 }
@@ -235,7 +239,7 @@ class XElementTest {
             val element = it.processingEnv.requireTypeElement("foo.bar.Baz")
             assertThat(element.hasAnnotation(RunWith::class)).isTrue()
             assertThat(element.hasAnnotation(Test::class)).isFalse()
-            element.getMethod("testMethod").let { method ->
+            element.getMethodByJvmName("testMethod").let { method ->
                 assertThat(method.hasAnnotation(Test::class)).isTrue()
                 assertThat(method.hasAnnotation(Override::class)).isFalse()
                 assertThat(
@@ -296,12 +300,36 @@ class XElementTest {
             assertThat(element.hasAllAnnotations(RunWith::class)).isTrue()
             assertThat(element.hasAllAnnotations(RunWith::class, Test::class)).isFalse()
 
-            element.getMethod("testMethod").let { method ->
+            assertThat(element.hasAllAnnotations(*arrayOf<ClassName>())).isTrue()
+            assertThat(element.hasAllAnnotations(RunWith::class.className())).isTrue()
+            assertThat(element.hasAllAnnotations(RunWith::class.className(),
+                Test::class.className())).isFalse()
+
+            assertThat(element.hasAllAnnotations(emptyList<ClassName>())).isTrue()
+            assertThat(element.hasAllAnnotations(listOf(RunWith::class.className()))).isTrue()
+            assertThat(element.hasAllAnnotations(listOf(RunWith::class.className(),
+                Test::class.className()))).isFalse()
+
+            element.getMethodByJvmName("testMethod").let { method ->
                 assertThat(method.hasAllAnnotations(*arrayOf<KClass<Annotation>>())).isTrue()
                 assertThat(method.hasAllAnnotations(Test::class)).isTrue()
                 assertThat(method.hasAllAnnotations(Test::class, OtherAnnotation::class)).isTrue()
                 assertThat(method.hasAllAnnotations(Test::class, OtherAnnotation::class,
                     RunWith::class)).isFalse()
+
+                assertThat(method.hasAllAnnotations(*arrayOf<ClassName>())).isTrue()
+                assertThat(method.hasAllAnnotations(Test::class.className())).isTrue()
+                assertThat(method.hasAllAnnotations(Test::class.className(),
+                    OtherAnnotation::class.className())).isTrue()
+                assertThat(method.hasAllAnnotations(Test::class.className(),
+                    OtherAnnotation::class.className(), RunWith::class.className())).isFalse()
+
+                assertThat(method.hasAllAnnotations(emptyList<ClassName>())).isTrue()
+                assertThat(method.hasAllAnnotations(listOf(Test::class.className()))).isTrue()
+                assertThat(method.hasAllAnnotations(
+                    listOf(Test::class.className(), OtherAnnotation::class.className()))).isTrue()
+                assertThat(method.hasAllAnnotations(listOf(Test::class.className(),
+                    OtherAnnotation::class.className(), RunWith::class.className()))).isFalse()
             }
             element.getField("testField").let { field ->
                 assertThat(field.hasAllAnnotations(*arrayOf<KClass<Annotation>>())).isTrue()
@@ -309,6 +337,107 @@ class XElementTest {
                 assertThat(field.hasAllAnnotations(OtherAnnotation::class, Test::class)).isFalse()
                 assertThat(field.hasAllAnnotations(OtherAnnotation::class, OtherAnnotation::class))
                     .isTrue()
+
+                assertThat(field.hasAllAnnotations(*arrayOf<ClassName>())).isTrue()
+                assertThat(field.hasAllAnnotations(OtherAnnotation::class.className())).isTrue()
+                assertThat(field.hasAllAnnotations(OtherAnnotation::class.className(),
+                    Test::class.className())).isFalse()
+                assertThat(field.hasAllAnnotations(OtherAnnotation::class.className(),
+                    OtherAnnotation::class.className())).isTrue()
+
+                assertThat(field.hasAllAnnotations(listOf<ClassName>())).isTrue()
+                assertThat(field.hasAllAnnotations(listOf(OtherAnnotation::class.className())))
+                    .isTrue()
+                assertThat(field.hasAllAnnotations(listOf(OtherAnnotation::class.className(),
+                    Test::class.className()))).isFalse()
+                assertThat(field.hasAllAnnotations(listOf(OtherAnnotation::class.className(),
+                    OtherAnnotation::class.className()))).isTrue()
+            }
+        }
+    }
+
+    @Test
+    fun hasAnyAnnotations() {
+        val source = Source.java(
+            "foo.bar.Baz",
+            """
+            package foo.bar;
+            import org.junit.*;
+            import org.junit.runner.*;
+            import org.junit.runners.*;
+            import androidx.room.compiler.processing.testcode.OtherAnnotation;
+
+            @RunWith(JUnit4.class)
+            class Baz {
+                @OtherAnnotation(value="xx")
+                String testField;
+
+                @org.junit.Test
+                @OtherAnnotation(value="yy")
+                void testMethod() {}
+            }
+            """.trimIndent()
+        )
+        runProcessorTest(
+            listOf(source)
+        ) { it ->
+            val element = it.processingEnv.requireTypeElement("foo.bar.Baz")
+            assertThat(element.hasAnyAnnotation(*arrayOf<KClass<Annotation>>())).isFalse()
+            assertThat(element.hasAnyAnnotation(RunWith::class)).isTrue()
+            assertThat(element.hasAnyAnnotation(RunWith::class, Test::class)).isTrue()
+
+            assertThat(element.hasAnyAnnotation(*arrayOf<ClassName>())).isFalse()
+            assertThat(element.hasAnyAnnotation(RunWith::class.className())).isTrue()
+            assertThat(element.hasAnyAnnotation(RunWith::class.className(),
+                Test::class.className())).isTrue()
+
+            assertThat(element.hasAnyAnnotation(emptyList<ClassName>())).isFalse()
+            assertThat(element.hasAnyAnnotation(listOf(RunWith::class.className()))).isTrue()
+            assertThat(element.hasAnyAnnotation(listOf(RunWith::class.className(),
+                Test::class.className()))).isTrue()
+
+            element.getMethodByJvmName("testMethod").let { method ->
+                assertThat(method.hasAnyAnnotation(*arrayOf<KClass<Annotation>>())).isFalse()
+                assertThat(method.hasAnyAnnotation(Test::class)).isTrue()
+                assertThat(method.hasAnyAnnotation(Test::class, OtherAnnotation::class)).isTrue()
+                assertThat(method.hasAnyAnnotation(Test::class, OtherAnnotation::class,
+                    RunWith::class)).isTrue()
+
+                assertThat(method.hasAnyAnnotation(*arrayOf<ClassName>())).isFalse()
+                assertThat(method.hasAnyAnnotation(Test::class.className())).isTrue()
+                assertThat(method.hasAnyAnnotation(Test::class.className(),
+                    OtherAnnotation::class.className())).isTrue()
+                assertThat(method.hasAnyAnnotation(Test::class.className(),
+                    OtherAnnotation::class.className(), RunWith::class.className())).isTrue()
+
+                assertThat(method.hasAnyAnnotation(emptyList<ClassName>())).isFalse()
+                assertThat(method.hasAnyAnnotation(listOf(Test::class.className()))).isTrue()
+                assertThat(method.hasAnyAnnotation(
+                    listOf(Test::class.className(), OtherAnnotation::class.className()))).isTrue()
+                assertThat(method.hasAnyAnnotation(listOf(Test::class.className(),
+                    OtherAnnotation::class.className(), RunWith::class.className()))).isTrue()
+            }
+            element.getField("testField").let { field ->
+                assertThat(field.hasAnyAnnotation(*arrayOf<KClass<Annotation>>())).isFalse()
+                assertThat(field.hasAnyAnnotation(OtherAnnotation::class)).isTrue()
+                assertThat(field.hasAnyAnnotation(OtherAnnotation::class, Test::class)).isTrue()
+                assertThat(field.hasAnyAnnotation(OtherAnnotation::class, OtherAnnotation::class))
+                    .isTrue()
+
+                assertThat(field.hasAnyAnnotation(*arrayOf<ClassName>())).isFalse()
+                assertThat(field.hasAnyAnnotation(OtherAnnotation::class.className())).isTrue()
+                assertThat(field.hasAnyAnnotation(OtherAnnotation::class.className(),
+                    Test::class.className())).isTrue()
+                assertThat(field.hasAnyAnnotation(OtherAnnotation::class.className(),
+                    OtherAnnotation::class.className())).isTrue()
+
+                assertThat(field.hasAnyAnnotation(listOf<ClassName>())).isFalse()
+                assertThat(field.hasAnyAnnotation(listOf(OtherAnnotation::class.className())))
+                    .isTrue()
+                assertThat(field.hasAnyAnnotation(listOf(OtherAnnotation::class.className(),
+                    Test::class.className()))).isTrue()
+                assertThat(field.hasAnyAnnotation(listOf(OtherAnnotation::class.className(),
+                    OtherAnnotation::class.className()))).isTrue()
             }
         }
     }
@@ -363,7 +492,7 @@ class XElementTest {
                 assertThat(field.isVariableElement()).isTrue()
                 assertThat(field.isMethod()).isFalse()
             }
-            element.getMethod("method").let { method ->
+            element.getMethodByJvmName("method").let { method ->
                 assertThat(method.isTypeElement()).isFalse()
                 assertThat(method.isAbstract()).isFalse()
                 assertThat(method.isVariableElement()).isFalse()

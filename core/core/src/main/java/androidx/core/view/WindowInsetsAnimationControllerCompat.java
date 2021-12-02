@@ -16,7 +16,7 @@
 
 package androidx.core.view;
 
-import android.os.Build;
+import android.annotation.SuppressLint;
 import android.view.View;
 import android.view.WindowInsetsAnimationController;
 
@@ -27,7 +27,6 @@ import androidx.annotation.RequiresApi;
 import androidx.core.graphics.Insets;
 import androidx.core.view.WindowInsetsCompat.Type;
 import androidx.core.view.WindowInsetsCompat.Type.InsetsType;
-
 
 /**
  * Controller for app-driven animation of system windows.
@@ -42,15 +41,6 @@ import androidx.core.view.WindowInsetsCompat.Type.InsetsType;
 public final class WindowInsetsAnimationControllerCompat {
 
     private final Impl mImpl;
-
-    WindowInsetsAnimationControllerCompat() {
-        if (Build.VERSION.SDK_INT < 30) {
-            mImpl = new Impl();
-        } else {
-            throw new UnsupportedOperationException("On API 30+, the constructor taking a "
-                    + WindowInsetsAnimationController.class.getSimpleName() + " as parameter");
-        }
-    }
 
     @RequiresApi(30)
     WindowInsetsAnimationControllerCompat(
@@ -327,6 +317,7 @@ public final class WindowInsetsAnimationControllerCompat {
             return mController.getCurrentAlpha();
         }
 
+        @SuppressLint("WrongConstant")
         @Override
         public int getTypes() {
             return mController.getTypes();

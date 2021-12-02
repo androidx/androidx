@@ -756,7 +756,7 @@ public class SampleMediaRouterActivity extends AppCompatActivity {
         @Override
         public MediaRouterParams getRouterParams() {
             return new MediaRouterParams.Builder(super.getRouterParams())
-                    .setMediaTransferReceiverDisabled(true)
+                    .setMediaTransferReceiverEnabled(false)
                     .build();
         }
     }

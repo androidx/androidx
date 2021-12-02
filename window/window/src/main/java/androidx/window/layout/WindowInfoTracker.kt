@@ -21,7 +21,6 @@ import android.content.Context
 import android.util.Log
 import androidx.annotation.RestrictTo
 import androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP
-import androidx.window.extensions.WindowExtensionsProvider
 import kotlinx.coroutines.flow.Flow
 
 /**
@@ -75,7 +74,7 @@ public interface WindowInfoTracker {
         @Suppress("MemberVisibilityCanBePrivate") // Avoid synthetic accessor
         internal fun windowBackend(context: Context): WindowBackend {
             val extensionBackend = try {
-                WindowExtensionsProvider.getWindowExtensions().windowLayoutComponent
+                SafeWindowLayoutComponentProvider.windowLayoutComponent
                     ?.let(::ExtensionWindowLayoutInfoBackend)
             } catch (t: Throwable) {
                 if (DEBUG) {

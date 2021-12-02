@@ -24,13 +24,14 @@ import android.view.accessibility.AccessibilityWindowInfo;
 
 import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 
 /**
  * Helper for accessing {@link android.view.accessibility.AccessibilityWindowInfo}.
  */
 public class AccessibilityWindowInfoCompat {
-    private Object mInfo;
+    private final Object mInfo;
 
     private static final int UNDEFINED = -1;
 
@@ -124,6 +125,7 @@ public class AccessibilityWindowInfoCompat {
      *
      * @return The root node.
      */
+    @Nullable
     public AccessibilityNodeInfoCompat getRoot() {
         if (SDK_INT >= 21) {
             return AccessibilityNodeInfoCompat.wrapNonNullInstance(
@@ -138,6 +140,7 @@ public class AccessibilityWindowInfoCompat {
      *
      * @return The parent window.
      */
+    @Nullable
     public AccessibilityWindowInfoCompat getParent() {
         if (SDK_INT >= 21) {
             return wrapNonNullInstance(Api21Impl.getParent((AccessibilityWindowInfo) mInfo));
@@ -164,7 +167,7 @@ public class AccessibilityWindowInfoCompat {
      *
      * @param outBounds The out window bounds.
      */
-    public void getBoundsInScreen(Rect outBounds) {
+    public void getBoundsInScreen(@NonNull Rect outBounds) {
         if (SDK_INT >= 21) {
             Api21Impl.getBoundsInScreen((AccessibilityWindowInfo) mInfo, outBounds);
         }
@@ -230,6 +233,7 @@ public class AccessibilityWindowInfoCompat {
      * @param index The index.
      * @return The child.
      */
+    @Nullable
     public AccessibilityWindowInfoCompat getChild(int index) {
         if (SDK_INT >= 21) {
             return wrapNonNullInstance(Api21Impl.getChild((AccessibilityWindowInfo) mInfo, index));
@@ -244,6 +248,7 @@ public class AccessibilityWindowInfoCompat {
      * @return The title of the window, or the application label for the window if no title was
      * explicitly set, or {@code null} if neither is available.
      */
+    @Nullable
     public CharSequence getTitle() {
         if (SDK_INT >= 24) {
             return Api24Impl.getTitle((AccessibilityWindowInfo) mInfo);
@@ -257,6 +262,7 @@ public class AccessibilityWindowInfoCompat {
      *
      * @return The anchor node, or {@code null} if none exists.
      */
+    @Nullable
     public AccessibilityNodeInfoCompat getAnchor() {
         if (SDK_INT >= 24) {
             return AccessibilityNodeInfoCompat.wrapNonNullInstance(
@@ -272,6 +278,7 @@ public class AccessibilityWindowInfoCompat {
      *
      * @return An instance.
      */
+    @Nullable
     public static AccessibilityWindowInfoCompat obtain() {
         if (SDK_INT >= 21) {
             return wrapNonNullInstance(Api21Impl.obtain());
@@ -288,7 +295,9 @@ public class AccessibilityWindowInfoCompat {
      * @param info The other info.
      * @return An instance.
      */
-    public static AccessibilityWindowInfoCompat obtain(AccessibilityWindowInfoCompat info) {
+    @Nullable
+    public static AccessibilityWindowInfoCompat obtain(
+            @Nullable AccessibilityWindowInfoCompat info) {
         if (SDK_INT >= 21) {
             return info == null
                     ? null
@@ -331,13 +340,9 @@ public class AccessibilityWindowInfoCompat {
         }
         AccessibilityWindowInfoCompat other = (AccessibilityWindowInfoCompat) obj;
         if (mInfo == null) {
-            if (other.mInfo != null) {
-                return false;
-            }
-        } else if (!mInfo.equals(other.mInfo)) {
-            return false;
+            return other.mInfo == null;
         }
-        return true;
+        return mInfo.equals(other.mInfo);
     }
 
     @NonNull

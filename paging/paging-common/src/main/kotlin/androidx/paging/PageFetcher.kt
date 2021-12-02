@@ -22,6 +22,7 @@ import androidx.paging.PageEvent.Drop
 import androidx.paging.PageEvent.Insert
 import androidx.paging.PageEvent.LoadStateUpdate
 import androidx.paging.RemoteMediator.InitializeAction.LAUNCH_INITIAL_REFRESH
+import androidx.paging.internal.BUGANIZER_URL
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collect
@@ -173,6 +174,17 @@ internal class PageFetcher<Key : Any, Value : Any>(
                                 LoadStateUpdate(
                                     source = sourceEvent.source,
                                     mediator = remoteState,
+                                )
+                            }
+                            is PageEvent.StaticList -> {
+
+                                throw IllegalStateException(
+                                    """Paging generated an event to display a static list that
+                                        | originated from a paginated source. If you see this
+                                        | exception, it is most likely a bug in the library.
+                                        | Please file a bug so we can fix it at:
+                                        | $BUGANIZER_URL"""
+                                        .trimMargin()
                                 )
                             }
                         }

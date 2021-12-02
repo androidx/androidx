@@ -191,7 +191,6 @@ private class InternalQueryProcessor(
         return WriteQueryMethod(
             element = executableElement,
             query = query,
-            name = executableElement.name,
             returnType = returnType,
             parameters = parameters,
             preparedQueryResultBinder = resultBinder
@@ -280,7 +279,6 @@ private class InternalQueryProcessor(
         return ReadQueryMethod(
             element = executableElement,
             query = query,
-            name = executableElement.name,
             returnType = returnType,
             parameters = parameters,
             inTransaction = inTransaction,

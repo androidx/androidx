@@ -28,7 +28,9 @@ import android.car.hardware.CarPropertyValue;
 import android.util.Pair;
 import android.util.SparseArray;
 
+import androidx.annotation.OptIn;
 import androidx.annotation.RestrictTo;
+import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.hardware.info.AutomotiveCarInfo;
 import androidx.car.app.hardware.info.EnergyProfile;
 
@@ -185,6 +187,8 @@ public final class PropertyUtils {
     /**
      * Maps volume units in car service to volume units in {@link CarUnit}.
      */
+    // TODO(b/202303614): Remove this annotation once FuelVolumeDisplayUnit is ready.
+    @OptIn(markerClass = ExperimentalCarApi.class)
     public static @CarUnit.CarVolumeUnit int covertVolumeUnit(int vehicleUnit) {
         switch (vehicleUnit) {
             case VEHICLE_UNIT_MILLILITER:

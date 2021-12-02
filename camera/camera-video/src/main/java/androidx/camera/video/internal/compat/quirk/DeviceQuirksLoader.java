@@ -56,6 +56,9 @@ public class DeviceQuirksLoader {
         if (VideoQualityNotSupportQuirk.load()) {
             quirks.add(new VideoQualityNotSupportQuirk());
         }
+        if (EncoderNotUsePersistentInputSurfaceQuirk.load()) {
+            quirks.add(new EncoderNotUsePersistentInputSurfaceQuirk());
+        }
 
         return quirks;
     }

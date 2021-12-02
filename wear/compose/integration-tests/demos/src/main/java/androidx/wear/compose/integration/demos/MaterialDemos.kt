@@ -19,12 +19,15 @@ package androidx.wear.compose.integration.demos
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.wear.compose.material.ExperimentalWearMaterialApi
+import androidx.wear.compose.material.samples.AlertDialogWithButtons
+import androidx.wear.compose.material.samples.AlertDialogWithChips
 import androidx.wear.compose.material.samples.AppCardWithIcon
 import androidx.wear.compose.material.samples.ButtonWithIcon
 import androidx.wear.compose.material.samples.ButtonWithText
 import androidx.wear.compose.material.samples.ChipWithIconAndLabels
 import androidx.wear.compose.material.samples.CompactButtonWithIcon
 import androidx.wear.compose.material.samples.CompactChipWithIconAndLabel
+import androidx.wear.compose.material.samples.ConfirmationDialogWithAnimation
 import androidx.wear.compose.material.samples.CurvedTextDemo
 import androidx.wear.compose.material.samples.InlineSliderSample
 import androidx.wear.compose.material.samples.InlineSliderSegmentedSample
@@ -37,6 +40,7 @@ import androidx.wear.compose.material.samples.SimpleScalingLazyColumnWithContent
 import androidx.wear.compose.material.samples.SimpleSwipeToDismissBox
 import androidx.wear.compose.material.samples.SplitToggleChipWithCheckbox
 import androidx.wear.compose.material.samples.StatefulSwipeToDismissBox
+import androidx.wear.compose.material.samples.StepperSample
 import androidx.wear.compose.material.samples.TimeTextWithCustomSeparator
 import androidx.wear.compose.material.samples.TimeTextWithFullDateAndTimeFormat
 import androidx.wear.compose.material.samples.TitleCardStandard
@@ -102,6 +106,31 @@ val WearMaterialDemos = DemoCategory(
             )
         ),
         DemoCategory(
+            "Stepper",
+            listOf(
+                DemoCategory(
+                    "Samples",
+                    listOf(
+                        ComposableDemo("Stepper") {
+                            Centralize({ StepperSample() })
+                        },
+                    )
+                ),
+                DemoCategory(
+                    "Demos",
+                    listOf(
+                        ComposableDemo("Simple stepper") { StepperDemo() },
+                        ComposableDemo("With scrollbar") {
+                            StepperWithScrollBarDemo()
+                        },
+                        ComposableDemo("With custom colors") {
+                            StepperWithCustomColors()
+                        },
+                    )
+                )
+            )
+        ),
+        DemoCategory(
             "TimeText",
             listOf(
                 DemoCategory(
@@ -144,6 +173,14 @@ val WearMaterialDemos = DemoCategory(
                         },
                     )
                 ),
+            )
+        ),
+        DemoCategory(
+            "Dialogs",
+            listOf(
+                ComposableDemo("AlertDialog - Buttons") { AlertDialogWithButtons() },
+                ComposableDemo("AlertDialog - Chips") { AlertDialogWithChips() },
+                ComposableDemo("ConfirmationDialog") { ConfirmationDialogWithAnimation() },
             )
         ),
         DemoCategory(

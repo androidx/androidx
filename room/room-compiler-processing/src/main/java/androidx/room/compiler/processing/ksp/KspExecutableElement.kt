@@ -18,7 +18,6 @@ package androidx.room.compiler.processing.ksp
 
 import androidx.room.compiler.processing.XAnnotated
 import androidx.room.compiler.processing.XExecutableElement
-import androidx.room.compiler.processing.XExecutableParameterElement
 import androidx.room.compiler.processing.XHasModifiers
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.ksp.KspAnnotated.UseSiteFilter.Companion.NO_USE_SITE
@@ -50,16 +49,6 @@ internal abstract class KspExecutableElement(
 
     override val enclosingElement: KspMemberContainer by lazy {
         declaration.requireEnclosingMemberContainer(env)
-    }
-
-    override val parameters: List<XExecutableParameterElement> by lazy {
-        declaration.parameters.map {
-            KspExecutableParameterElement(
-                env = env,
-                enclosingMethodElement = this,
-                parameter = it
-            )
-        }
     }
 
     @OptIn(KspExperimental::class)

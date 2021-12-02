@@ -16,12 +16,12 @@
 
 package androidx.glance.action
 
-import android.content.Context
-import com.google.common.truth.Truth.assertThat
 import android.content.ComponentName
+import android.content.Context
 import androidx.glance.GlanceModifier
 import androidx.glance.findModifier
 import androidx.test.core.app.ApplicationProvider
+import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.TestCoroutineScope
 import kotlinx.coroutines.test.runBlockingTest
@@ -52,13 +52,6 @@ class ActionTest {
     }
 
     @Test
-    fun testUpdate() {
-        val modifiers = GlanceModifier.clickable(actionUpdateContent<TestRunnable>())
-        val modifier = checkNotNull(modifiers.findModifier<ActionModifier>())
-        assertIs<UpdateContentAction>(modifier.action)
-    }
-
-    @Test
     fun testLaunchFromComponent() = fakeCoroutineScope.runBlockingTest {
         val c = ComponentName("androidx.glance.action", "androidx.glance.action.TestActivity")
 
@@ -81,8 +74,4 @@ class ActionTest {
 
         assertThat(component).isEqualTo(c)
     }
-}
-
-class TestRunnable : ActionRunnable {
-    override suspend fun run(context: Context, parameters: ActionParameters) { }
 }

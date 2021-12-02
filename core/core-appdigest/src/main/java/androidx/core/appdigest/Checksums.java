@@ -34,7 +34,6 @@ import android.util.SparseArray;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.concurrent.futures.ResolvableFuture;
-import androidx.core.os.BuildCompat;
 import androidx.core.util.Preconditions;
 
 import com.google.common.util.concurrent.ListenableFuture;
@@ -116,7 +115,7 @@ public final class Checksums {
         Preconditions.checkNotNull(trustedInstallers);
         Preconditions.checkNotNull(executor);
 
-        if (BuildCompat.isAtLeastS()) {
+        if (Build.VERSION.SDK_INT >= 31) {
             return ChecksumsApiSImpl.getChecksums(context, packageName, includeSplits, required,
                     trustedInstallers, executor);
         }
@@ -156,7 +155,7 @@ public final class Checksums {
         }
 
         final String installerPackageName;
-        if (BuildCompat.isAtLeastS()) {
+        if (Build.VERSION.SDK_INT >= 31) {
             installerPackageName = ChecksumsApiSImpl.getInstallerPackageName(context, packageName);
         } else {
             installerPackageName = null;
@@ -239,7 +238,7 @@ public final class Checksums {
             try {
                 final SparseArray<Checksum> checksums = new SparseArray<>();
 
-                if (BuildCompat.isAtLeastS()) {
+                if (Build.VERSION.SDK_INT >= 31) {
                     try {
                         ChecksumsApiSImpl.getInstallerChecksums(context, split, file, required,
                                 installerPackageName, trustedInstallers, checksums);

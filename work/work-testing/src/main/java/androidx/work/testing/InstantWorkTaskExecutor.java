@@ -47,12 +47,7 @@ class InstantWorkTaskExecutor implements TaskExecutor {
     }
 
     @Override
-    public void executeOnBackgroundThread(Runnable runnable) {
-        mSerialExecutor.execute(runnable);
-    }
-
-    @Override
-    public SerialExecutor getBackgroundExecutor() {
+    public SerialExecutor getSerialTaskExecutor() {
         return mSerialExecutor;
     }
 }

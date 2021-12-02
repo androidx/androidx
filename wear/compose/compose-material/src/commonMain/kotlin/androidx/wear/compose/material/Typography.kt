@@ -68,7 +68,7 @@ import androidx.compose.ui.unit.sp
  * imagery or to introduce a headline.
  */
 @Immutable
-public class Typography internal constructor (
+public class Typography internal constructor(
     public val display1: TextStyle,
     public val display2: TextStyle,
     public val display3: TextStyle,

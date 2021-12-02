@@ -26,14 +26,19 @@ plugins {
 
 dependencies {
     api(libs.kotlinStdlib)
-    // Add dependencies here
+
+    testImplementation(libs.testCore)
+    testImplementation(libs.kotlinStdlib)
+    testImplementation(libs.junit)
+    testImplementation(libs.truth)
+    testImplementation(libs.robolectric)
 }
 
 androidx {
-    name = "androidx.core:core-performance"
+    name = "Core Performance"
     type = LibraryType.PUBLISHED_LIBRARY
-    mavenVersion = LibraryVersions.CORE
+    mavenVersion = LibraryVersions.CORE_PERFORMANCE
     mavenGroup = LibraryGroups.CORE
     inceptionYear = "2021"
-    description = "This libraray makes it easy for developers to make UI and feature choices based on Android Performance Class level for GMS devices."
+    description = "This library makes it easy for developers to make UI and feature choices based on Android Performance Class level for GMS devices."
 }

@@ -21,6 +21,7 @@ import android.app.Activity
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
 import android.view.View
@@ -63,17 +64,21 @@ class MainActivity : ComponentActivity() {
         toast("Got picture: $success")
     }
 
-    val captureVideo = registerForActivityResult(CaptureVideo()) { success ->
+    val captureVideo: ActivityResultLauncher<Uri> = registerForActivityResult(
+        CaptureVideo()
+    ) { success ->
         toast("Got video: $success")
     }
 
-    val getContent = registerForActivityResult(GetContent()) { uri ->
+    val getContent: ActivityResultLauncher<String> = registerForActivityResult(
+        GetContent()
+    ) { uri ->
         toast("Got image: $uri")
     }
 
     lateinit var openDocuments: ActivityResultLauncher<Array<String>>
 
-    val intentSender = registerForActivityResult(
+    private val intentSender = registerForActivityResult(
         ActivityResultContracts
             .StartIntentSenderForResult()
     ) {

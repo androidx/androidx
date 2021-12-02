@@ -20,6 +20,7 @@ import static org.junit.Assert.assertEquals;
 
 import android.app.Activity;
 import android.content.Context;
+import android.os.Build;
 import android.support.v4.BaseInstrumentationTestCase;
 import android.support.v4.BaseTestActivity;
 import android.util.AttributeSet;
@@ -29,7 +30,6 @@ import android.widget.EdgeEffect;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
-import androidx.core.os.BuildCompat;
 import androidx.core.test.R;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
@@ -58,7 +58,7 @@ public class EdgeEffectCompatTest extends
 
     @Test
     public void distanceApi() {
-        if (BuildCompat.isAtLeastS()) {
+        if (Build.VERSION.SDK_INT >= 31) {
             assertEquals(0, EdgeEffectCompat.getDistance(mEdgeEffect), 0f);
             assertEquals(1f, EdgeEffectCompat.onPullDistance(mEdgeEffect, 1, 0.5f), 0f);
             assertEquals(1, EdgeEffectCompat.getDistance(mEdgeEffect), 0f);

@@ -25,6 +25,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.CarContext;
 import androidx.car.app.HostDispatcher;
+import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.hardware.common.PropertyManager;
 import androidx.car.app.hardware.info.AutomotiveCarInfo;
 import androidx.car.app.hardware.info.AutomotiveCarSensors;
@@ -35,6 +36,7 @@ import androidx.car.app.hardware.info.CarSensors;
  * {@link CarHardwareManager} which uses Android Automotive OS APIs to access properties, sensors,
  * and actions.
  */
+@ExperimentalCarApi
 public final class AutomotiveCarHardwareManager implements CarHardwareManager {
 
     private final AutomotiveCarInfo mCarInfo;

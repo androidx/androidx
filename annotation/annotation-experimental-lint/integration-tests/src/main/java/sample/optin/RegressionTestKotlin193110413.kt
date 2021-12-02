@@ -38,7 +38,7 @@ class RegressionTestKotlin193110413 {
      */
     @OptIn(ExperimentalKotlinAnnotation::class)
     internal class Foo : ExperimentalInterface {
-        @Suppress("EXPERIMENTAL_ANNOTATION_ON_OVERRIDE_WARNING")
+        @Suppress("EXPERIMENTAL_ANNOTATION_ON_OVERRIDE")
         @ExperimentalKotlinAnnotation
         override fun experimentalMethod() {
             // Stub!

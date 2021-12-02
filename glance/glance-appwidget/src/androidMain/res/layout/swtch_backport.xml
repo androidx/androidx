@@ -25,7 +25,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
-        android:layout="@layout/swtch_text" />
+        android:layout="@layout/switch_text" />
     <FrameLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -35,12 +35,12 @@
             android:id="@id/switchTrack"
             android:layout_width="42dp"
             android:layout_height="28dp"
-            android:layout="@layout/swtch_track" />
+            android:layout="@layout/switch_track" />
 
         <ViewStub
             android:id="@id/switchThumb"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout="@layout/swtch_thumb" />
+            android:layout_width="42dp"
+            android:layout_height="28dp"
+            android:layout="@layout/switch_thumb" />
     </FrameLayout>
 </LinearLayout>

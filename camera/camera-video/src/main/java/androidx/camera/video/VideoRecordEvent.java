@@ -34,8 +34,9 @@ import java.util.concurrent.Executor;
 /**
  * VideoRecordEvent is used to report video recording events and status.
  *
- * <p>Upon starting a recording by {@link PendingRecording#start()}, recording events will start to
- * be sent to the listener set in {@link PendingRecording#withEventListener(Executor, Consumer)}.
+ * <p>Upon starting a recording by {@link PendingRecording#start(Executor, Consumer)}, recording
+ * events will start to be sent to the listener passed to
+ * {@link PendingRecording#start(Executor, Consumer)}.
  *
  * <p>There are {@link Start}, {@link Finalize}, {@link Status}, {@link Pause} and {@link Resume}
  * events.
@@ -45,8 +46,8 @@ import java.util.concurrent.Executor;
  *
  * <pre>{@code
  *
- * ActiveRecording activeRecording = recorder.prepareRecording(context, outputOptions)
- *     .withEventListener(ContextCompat.getMainExecutor(context), videoRecordEvent -> {
+ * Recording recording = recorder.prepareRecording(context, outputOptions)
+ *     .start(ContextCompat.getMainExecutor(context), videoRecordEvent -> {
  *         if (videoRecordEvent instanceof VideoRecordEvent.Start) {
  *             // Handle the start of a new active recording
  *             ...
@@ -70,7 +71,7 @@ import java.util.concurrent.Executor;
  *         // This can be used to update the UI or track the recording duration.
  *         RecordingStats recordingStats = videoRecordEvent.getRecordingStats();
  *         ...
- *     }).start();
+ *     });
  *
  * }</pre>
  *
@@ -129,8 +130,9 @@ public abstract class VideoRecordEvent {
     /**
      * Indicates the start of recording.
      *
-     * <p>When a video recording is successfully requested by {@link PendingRecording#start()},
-     * a {@code Start} event will be the first event.
+     * <p>When a video recording is successfully requested by
+     * {@link PendingRecording#start(Executor, Consumer)}, a {@code Start} event will be the
+     * first event.
      */
     @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
     public static final class Start extends VideoRecordEvent {
@@ -421,7 +423,7 @@ public abstract class VideoRecordEvent {
     /**
      * Indicates the pause event of recording.
      *
-     * <p>A {@code Pause} event will be triggered after calling {@link ActiveRecording#pause()}.
+     * <p>A {@code Pause} event will be triggered after calling {@link Recording#pause()}.
      */
     @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
     public static final class Pause extends VideoRecordEvent {
@@ -441,7 +443,7 @@ public abstract class VideoRecordEvent {
     /**
      * Indicates the resume event of recording.
      *
-     * <p>A {@code Resume} event will be triggered after calling {@link ActiveRecording#resume()}.
+     * <p>A {@code Resume} event will be triggered after calling {@link Recording#resume()}.
      */
     @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
     public static final class Resume extends VideoRecordEvent {

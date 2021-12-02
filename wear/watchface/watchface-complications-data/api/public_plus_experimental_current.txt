@@ -5,6 +5,9 @@ package androidx.wear.watchface.complications.data {
     method public final android.app.PendingIntent? getTapAction();
     method public final androidx.wear.watchface.complications.data.ComplicationType getType();
     method public final androidx.wear.watchface.complications.data.TimeRange getValidTimeRange();
+    method public final boolean isCached();
+    method public final void setCached(boolean isCached);
+    property public final boolean isCached;
     property public final android.app.PendingIntent? tapAction;
     property public final androidx.wear.watchface.complications.data.ComplicationType type;
     property public final androidx.wear.watchface.complications.data.TimeRange validTimeRange;

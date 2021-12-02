@@ -16,7 +16,6 @@
 
 package androidx.wear.compose.material
 
-import androidx.compose.ui.geometry.lerp
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -28,24 +27,24 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Stable
-import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.geometry.lerp
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.ContentDrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import kotlin.math.asin
-import kotlin.math.max
 import kotlinx.coroutines.delay
 import kotlin.math.PI
 import kotlin.math.abs
+import kotlin.math.asin
+import kotlin.math.max
 
 /**
  * An object representing the relative position of a scrollbar or rolling side button or rotating
@@ -92,8 +91,9 @@ interface PositionIndicatorState {
  * [Scroll indicators](https://developer.android.com/training/wearables/components/scroll)
  * guide.
  *
- * @param scrollState the scrollState to use as the basis for the PositionIndicatorState.
+ * @param scrollState The scrollState to use as the basis for the PositionIndicatorState.
  * @param modifier The modifier to be applied to the component
+ * @param reverseDirection Reverses direction of PositionIndicator if true
  */
 @Composable
 public fun PositionIndicator(
@@ -120,6 +120,7 @@ public fun PositionIndicator(
  * @param scalingLazyListState the [ScalingLazyListState] to use as the basis for the
  * PositionIndicatorState.
  * @param modifier The modifier to be applied to the component
+ * @param reverseDirection Reverses direction of PositionIndicator if true
  */
 @Composable
 public fun PositionIndicator(
@@ -148,6 +149,7 @@ public fun PositionIndicator(
  * @param lazyListState the [LazyListState] to use as the basis for the
  * PositionIndicatorState.
  * @param modifier The modifier to be applied to the component
+ * @param reverseDirection Reverses direction of PositionIndicator if true
  */
 @Composable
 public fun PositionIndicator(
@@ -166,26 +168,31 @@ public fun PositionIndicator(
 )
 
 /**
- * Creates an [PositionIndicator] for a rotating side button or rotating bezel style indicator.
+ * Creates a [PositionIndicator] for controls like rotating side button, rotating bezel or slider.
  *
  * For more information, see the
  * [Scroll indicators](https://developer.android.com/training/wearables/components/scroll)
  * guide.
  *
- * @param rsbRatio the value of the rsb/bezel indicator in the range 0..1 where 1 represents the
- * maximum value. E.g. If displaying a volume value say from 0..11 then the rsbRatio would be
+ * @param value Value of the indicator in the [range] where 1 represents the
+ * maximum value. E.g. If displaying a volume value from 0..11 then the [value] will be
  * volume/11.
- * @param modifier The modifier to be applied to the component
- * @param color the color to draw the indicator on.
+ * @param range range of values that [value] can take
+ * @param modifier Modifier to be applied to the component
+ * @param color Color to draw the indicator on.
+ * @param reverseDirection Reverses direction of PositionIndicator if true
  */
 @Composable
 public fun PositionIndicator(
-    rsbRatio: Float,
+    value: () -> Float,
     modifier: Modifier = Modifier,
+    range: ClosedFloatingPointRange<Float> = 0f..1f,
     color: Color = MaterialTheme.colors.onBackground,
     reverseDirection: Boolean = false
 ) = PositionIndicator(
-    state = RsbPositionIndicatorState(remember { mutableStateOf(rsbRatio) }),
+    state = FractionPositionIndicatorState {
+        (value() - range.start) / (range.endInclusive - range.start)
+    },
     indicatorHeight = 76.dp,
     indicatorWidth = 6.dp,
     paddingRight = 5.dp,
@@ -223,6 +230,7 @@ public fun PositionIndicator(
  * @param color the color to draw the active part of the indicator in
  * @param background the color to draw the non-active part of the position indicator.
  * @param autoHide whether the indicator should be automatically hidden after showing the change in
+ * @param reverseDirection Reverses direction of PositionIndicator if true
  */
 @Composable
 public fun PositionIndicator(
@@ -305,27 +313,26 @@ public fun PositionIndicator(
 }
 
 /**
- * An implementation of [PositionIndicatorState] to display the a value that is being incremented or
- * decremented with a rolling side button or rotating bezel, e.g. A volume control.
+ * An implementation of [PositionIndicatorState] to display a value that is being incremented or
+ * decremented with a rolling side button, rotating bezel or a slider e.g. a volume control.
  *
- * @param rsbRatio the value of the rsb/bezel indicator in the range 0..1 where 1 represents the
- * maximum value. E.g. If displaying a volume value say from 0..11 then the rsbRatio would be
+ * @param fraction Value of the indicator in the range 0..1 where 1 represents the
+ * maximum value. E.g. If displaying a volume value from 0..11 then the [fraction] will be
  * volume/11.
  *
  * @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
  */
-internal class RsbPositionIndicatorState(
-    private val rsbRatio: State<Float>
+internal class FractionPositionIndicatorState(
+    private val fraction: () -> Float
 ) : PositionIndicatorState {
-    override val positionFraction = 1f
+    override val positionFraction = 1f // Position indicator always starts at the bottom|end
 
-    override fun sizeFraction(scrollableContainerSizePx: Float) = rsbRatio.value
+    override fun sizeFraction(scrollableContainerSizePx: Float) = fraction()
 
-    override fun equals(other: Any?) = (other as? RsbPositionIndicatorState)?.rsbRatio == rsbRatio
+    override fun equals(other: Any?) =
+        (other as? FractionPositionIndicatorState)?.fraction?.invoke() == fraction()
 
-    override fun hashCode(): Int {
-        return rsbRatio.hashCode()
-    }
+    override fun hashCode(): Int = fraction().hashCode()
 }
 
 /**

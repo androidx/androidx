@@ -27,6 +27,35 @@ import androidx.benchmark.macro.isSupportedWithVmSettings
 import androidx.benchmark.macro.junit4.MacrobenchmarkRule
 
 /**
+ * Basic, always-usable compilation modes, when baseline profiles aren't available.
+ *
+ * Over time, it's expected very few macrobenchmarks will reference this directly, as more libraries
+ * gain baseline profiles.
+ */
+val BASIC_COMPILATION_MODES = if (Build.VERSION.SDK_INT < 24) {
+    // other modes aren't supported
+    listOf(CompilationMode.None)
+} else {
+    listOf(
+        CompilationMode.None,
+        CompilationMode.Interpreted,
+        CompilationMode.SpeedProfile()
+    )
+}
+
+/**
+ * Default compilation modes to test for all AndroidX macrobenchmarks.
+ *
+ * Baseline profiles are only supported from Nougat (API 24),
+ * currently through Android 11 (API 30)
+ */
+val COMPILATION_MODES = if (Build.VERSION.SDK_INT in 24..30) {
+    listOf(CompilationMode.BaselineProfile)
+} else {
+    emptyList()
+} + BASIC_COMPILATION_MODES
+
+/**
  * Temporary, while transitioning to new metrics
  */
 @RequiresApi(23)
@@ -63,12 +92,12 @@ fun createStartupCompilationParams(
         StartupMode.HOT,
         StartupMode.WARM,
         StartupMode.COLD
-    ),
-    compilationModes: List<CompilationMode> = listOf(
-        CompilationMode.None,
-        CompilationMode.Interpreted,
-        CompilationMode.SpeedProfile()
-    )
+    ).filter {
+        // skip StartupMode.HOT on Angler, API 23 - it works locally with same build on Bullhead,
+        // but not in Jetpack CI (b/204572406)
+        !(Build.VERSION.SDK_INT == 23 && it == StartupMode.HOT && Build.DEVICE == "angler")
+    },
+    compilationModes: List<CompilationMode> = COMPILATION_MODES
 ): List<Array<Any>> = mutableListOf<Array<Any>>().apply {
     for (startupMode in startupModes) {
         for (compilationMode in compilationModes) {
@@ -83,11 +112,7 @@ fun createStartupCompilationParams(
 
 @RequiresApi(21)
 fun createCompilationParams(
-    compilationModes: List<CompilationMode> = listOf(
-        CompilationMode.None,
-        CompilationMode.Interpreted,
-        CompilationMode.SpeedProfile()
-    )
+    compilationModes: List<CompilationMode> = COMPILATION_MODES
 ): List<Array<Any>> = mutableListOf<Array<Any>>().apply {
     for (compilationMode in compilationModes) {
         // Skip configs that can't run, so they don't clutter Studio benchmark

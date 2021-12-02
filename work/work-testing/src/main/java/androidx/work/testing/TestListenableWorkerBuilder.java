@@ -73,7 +73,7 @@ public class TestListenableWorkerBuilder<W extends ListenableWorker> {
         mRuntimeExtras = new WorkerParameters.RuntimeExtras();
         mWorkerFactory = WorkerFactory.getDefaultWorkerFactory();
         mTaskExecutor = new InstantWorkTaskExecutor();
-        mExecutor = mTaskExecutor.getBackgroundExecutor();
+        mExecutor = mTaskExecutor.getSerialTaskExecutor();
         mProgressUpdater = new TestProgressUpdater();
         mForegroundUpdater = new TestForegroundUpdater();
     }

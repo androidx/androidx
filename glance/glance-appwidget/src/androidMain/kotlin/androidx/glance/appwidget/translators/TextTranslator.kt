@@ -34,9 +34,9 @@ import android.widget.RemoteViews
 import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 import androidx.compose.ui.graphics.toArgb
-import androidx.core.widget.setTextViewGravity
-import androidx.core.widget.setTextViewTextColor
-import androidx.core.widget.setTextViewTextColorResource
+import androidx.core.widget.RemoteViewsCompat.setTextViewGravity
+import androidx.core.widget.RemoteViewsCompat.setTextViewTextColor
+import androidx.core.widget.RemoteViewsCompat.setTextViewTextColorResource
 import androidx.glance.appwidget.GlanceAppWidgetTag
 import androidx.glance.appwidget.LayoutType
 import androidx.glance.appwidget.R

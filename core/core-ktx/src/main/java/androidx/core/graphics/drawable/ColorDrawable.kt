@@ -18,6 +18,7 @@
 
 package androidx.core.graphics.drawable
 
+import android.annotation.SuppressLint
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import androidx.annotation.ColorInt
@@ -27,5 +28,6 @@ import androidx.annotation.RequiresApi
 public inline fun @receiver:ColorInt Int.toDrawable(): ColorDrawable = ColorDrawable(this)
 
 /** Create a [ColorDrawable] from this [Color] (via [Color.toArgb]). */
+@SuppressLint("ClassVerificationFailure") // Inline fun
 @RequiresApi(26)
 public inline fun Color.toDrawable(): ColorDrawable = ColorDrawable(toArgb())

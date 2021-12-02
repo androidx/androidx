@@ -44,8 +44,11 @@ internal class EmbeddingCompat constructor(
     }
 
     override fun setEmbeddingCallback(embeddingCallback: EmbeddingCallbackInterface) {
-        val translatingCallback = EmbeddingTranslatingCallback(embeddingCallback, adapter)
-        embeddingExtension.setSplitInfoCallback(translatingCallback)
+        embeddingExtension.setSplitInfoCallback { splitInfoList ->
+            embeddingCallback.onSplitInfoChanged(
+                adapter.translate(splitInfoList)
+            )
+        }
     }
 
     companion object {

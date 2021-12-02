@@ -23,6 +23,9 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 
+import java.io.InvalidObjectException;
+import java.io.ObjectInputStream;
+import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TimeZone;
@@ -79,6 +82,45 @@ public final class TimeFormatText implements TimeDependentText {
             mTimeZone = mDateFormat.getTimeZone();
         }
         mDate = new Date();
+    }
+
+    TimeFormatText(SimpleDateFormat dateFormat,
+            @ComplicationText.TimeFormatStyle  int style,
+            TimeZone timeZone,
+            long timePrecision) {
+        mDateFormat = dateFormat;
+        mStyle = style;
+        mTimeZone = timeZone;
+        mDate = new Date();
+        mTimePrecision = timePrecision;
+    }
+
+    private static class SerializedForm implements Serializable {
+        SimpleDateFormat mDateFormat;
+        @ComplicationText.TimeFormatStyle int mStyle;
+        TimeZone mTimeZone;
+        long mTimePrecision;
+
+        SerializedForm(@NonNull SimpleDateFormat dateFormat,
+                @ComplicationText.TimeFormatStyle int style, @Nullable TimeZone timeZone,
+                long timePrecision) {
+            mDateFormat = dateFormat;
+            mStyle = style;
+            mTimeZone = timeZone;
+            mTimePrecision = timePrecision;
+        }
+
+        Object readResolve() {
+            return new TimeFormatText(mDateFormat, mStyle, mTimeZone, mTimePrecision);
+        }
+    }
+
+    Object writeReplace() {
+        return new SerializedForm(mDateFormat, mStyle, mTimeZone, mTimePrecision);
+    }
+
+    private void readObject(ObjectInputStream stream) throws InvalidObjectException {
+        throw new InvalidObjectException("Use SerializedForm");
     }
 
     @Override

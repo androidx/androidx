@@ -78,7 +78,7 @@ public class WorkForegroundUpdater implements ForegroundUpdater {
             @NonNull final ForegroundInfo foregroundInfo) {
 
         final SettableFuture<Void> future = SettableFuture.create();
-        mTaskExecutor.executeOnBackgroundThread(new Runnable() {
+        mTaskExecutor.executeOnTaskThread(new Runnable() {
             @Override
             public void run() {
                 try {

@@ -25,12 +25,12 @@ import static org.junit.Assert.assertTrue;
 import android.content.Context;
 import android.graphics.Rect;
 import android.graphics.drawable.GradientDrawable;
+import android.os.Build;
 import android.os.Parcelable;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
 
-import androidx.core.os.BuildCompat;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
@@ -317,7 +317,7 @@ public class NestedScrollViewTest {
         swipeDown(false);
         assertEquals(0, mNestedScrollView.getScrollY());
         swipeUp(true);
-        if (BuildCompat.isAtLeastS()) {
+        if (Build.VERSION.SDK_INT >= 31) {
             // This should just reverse the overscroll effect
             assertEquals(0, mNestedScrollView.getScrollY());
         } else {
@@ -339,7 +339,7 @@ public class NestedScrollViewTest {
         swipeUp(false);
         assertEquals(scrollRange, mNestedScrollView.getScrollY());
         swipeDown(true);
-        if (BuildCompat.isAtLeastS()) {
+        if (Build.VERSION.SDK_INT >= 31) {
             // This should just reverse the overscroll effect
             assertEquals(scrollRange, mNestedScrollView.getScrollY());
         } else {
@@ -358,7 +358,7 @@ public class NestedScrollViewTest {
         flingDown();
         assertTrue(edgeEffect.getDistance() > 0);
 
-        if (BuildCompat.isAtLeastS()) {
+        if (Build.VERSION.SDK_INT >= 31) {
             assertTrue(edgeEffect.getAbsorbed() > 0);
         } else {
             assertEquals(0, edgeEffect.getAbsorbed());
@@ -382,7 +382,7 @@ public class NestedScrollViewTest {
         assertTrue(edgeEffect.getDistance() > 0);
         assertEquals(scrollRange, mNestedScrollView.getScrollY());
 
-        if (BuildCompat.isAtLeastS()) {
+        if (Build.VERSION.SDK_INT >= 31) {
             assertTrue(edgeEffect.getAbsorbed() > 0);
         } else {
             assertEquals(0, edgeEffect.getAbsorbed());

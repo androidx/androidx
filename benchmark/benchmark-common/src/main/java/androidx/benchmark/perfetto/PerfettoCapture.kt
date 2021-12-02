@@ -49,7 +49,7 @@ public class PerfettoCapture(
         val configProtoFile = File(Outputs.dirUsableByAppAndShell, "trace_config.pb")
         try {
             userspaceTrace("write config") {
-                val atraceApps = if (Build.VERSION.SDK_INT <= 28) {
+                val atraceApps = if (Build.VERSION.SDK_INT <= 28 || packages.isEmpty()) {
                     packages
                 } else {
                     listOf("*")

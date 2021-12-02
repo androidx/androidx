@@ -347,6 +347,7 @@ class ComplicationRenderer {
         }
         // Choose the correct paint set to use
         PaintSet currentPaintSet = inAmbientMode ? mAmbientPaintSet : mActivePaintSet;
+        currentPaintSet.setAlpha(mComplicationData.getIsCached() ? 128 : 255);
         // Update complication texts
         updateComplicationTexts(currentTime.toEpochMilli());
         canvas.save();
@@ -524,7 +525,7 @@ class ComplicationRenderer {
                 icon = mBurnInProtectionIcon;
             }
             icon.setColorFilter(paintSet.mIconColorFilter);
-            drawIconOnCanvas(canvas, mIconBounds, icon);
+            drawIconOnCanvas(canvas, mIconBounds, icon, paintSet.getAlpha());
         }
     }
 
@@ -582,10 +583,11 @@ class ComplicationRenderer {
         }
     }
 
-    private static void drawIconOnCanvas(Canvas canvas, Rect bounds, Drawable icon) {
+    private static void drawIconOnCanvas(Canvas canvas, Rect bounds, Drawable icon, int alpha) {
         icon.setBounds(0, 0, bounds.width(), bounds.height());
         canvas.save();
         canvas.translate(bounds.left, bounds.top);
+        icon.setAlpha(alpha);
         icon.draw(canvas);
         canvas.restore();
     }
@@ -935,6 +937,9 @@ class ComplicationRenderer {
         /** Icon tint color filter */
         final ColorFilter mIconColorFilter;
 
+        /** The alpha value to render with */
+        int mAlpha;
+
         @SuppressLint("SyntheticAccessor")
         PaintSet(
                 ComplicationStyle style,
@@ -1006,6 +1011,19 @@ class ComplicationRenderer {
             mHighlightPaint = new Paint();
             mHighlightPaint.setColor(style.getHighlightColor());
             mHighlightPaint.setAntiAlias(antiAlias);
+        }
+
+        void setAlpha(int alpha) {
+            mPrimaryTextPaint.setAlpha(alpha);
+            mSecondaryTextPaint.setAlpha(alpha);
+            mInProgressPaint.setAlpha(alpha);
+            mRemainingPaint.setAlpha(alpha);
+            mBorderPaint.setAlpha(alpha);
+            mAlpha = alpha;
+        }
+
+        int getAlpha() {
+            return mAlpha;
         }
 
         boolean isInBurnInProtectionMode() {

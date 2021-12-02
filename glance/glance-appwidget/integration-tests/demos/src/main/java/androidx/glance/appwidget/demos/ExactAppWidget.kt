@@ -25,7 +25,7 @@ import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.GlanceAppWidgetReceiver
 import androidx.glance.appwidget.SizeMode
 import androidx.glance.appwidget.background
-import androidx.glance.appwidget.layout.cornerRadius
+import androidx.glance.appwidget.cornerRadius
 import androidx.glance.appwidget.unit.ColorProvider
 import androidx.glance.layout.Column
 import androidx.glance.layout.fillMaxSize

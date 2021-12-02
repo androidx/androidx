@@ -98,8 +98,8 @@ public fun Vignette(
         if (vignettePosition.drawTop()) {
             Image(
                 painter = imageResource(
-                    if (isRoundDevice()) "circular_vignette_top"
-                    else "rectangular_vignette_top"
+                    if (isRoundDevice()) ImageResources.CircularVignetteTop
+                    else ImageResources.RectangularVignetteTop
                 ),
                 contentScale = ContentScale.FillWidth,
                 contentDescription = null,
@@ -109,8 +109,8 @@ public fun Vignette(
         if (vignettePosition.drawBottom()) {
             Image(
                 painter = imageResource(
-                    if (isRoundDevice()) "circular_vignette_bottom"
-                    else "rectangular_vignette_bottom"
+                    if (isRoundDevice()) ImageResources.CircularVignetteBottom
+                    else ImageResources.RectangularVignetteBottom
                 ),
                 contentScale = ContentScale.FillWidth,
                 contentDescription = null,

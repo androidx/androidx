@@ -23,6 +23,7 @@ import android.graphics.ImageFormat;
 import android.media.Image;
 import android.media.ImageWriter;
 import android.os.Build;
+import android.util.Log;
 import android.view.Surface;
 
 import androidx.annotation.IntRange;
@@ -34,12 +35,14 @@ import androidx.camera.core.impl.ImageReaderProxy;
 import androidx.camera.core.internal.compat.ImageWriterCompat;
 
 import java.nio.ByteBuffer;
+import java.util.Locale;
 
 /** Utility class to convert an {@link Image} from YUV to RGB. */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 final class ImageProcessingUtil {
 
     private static final String TAG = "ImageProcessingUtil";
+    private static int sImageCount = 0;
 
     static {
         System.loadLibrary("image_processing_util_jni");
@@ -79,6 +82,7 @@ final class ImageProcessingUtil {
             Logger.e(TAG, "Unsupported format for YUV to RGB");
             return null;
         }
+        long startTimeMillis = System.currentTimeMillis();
 
         if (!isSupportedRotationDegrees(rotationDegrees)) {
             Logger.e(TAG, "Unsupported rotation degrees for rotate RGB");
@@ -96,6 +100,14 @@ final class ImageProcessingUtil {
         if (result == ERROR_CONVERSION) {
             Logger.e(TAG, "YUV to RGB conversion failure");
             return null;
+        }
+        if (Log.isLoggable("MH", Log.DEBUG)) {
+            // The log is used to profile the ImageProcessing performance and only shows in the
+            // mobile harness tests.
+            Logger.d(TAG, String.format(Locale.US,
+                    "Image processing performance profiling, duration: [%d], image count: %d",
+                    (System.currentTimeMillis() - startTimeMillis), sImageCount));
+            sImageCount++;
         }
 
         // Retrieve ImageProxy in RGB

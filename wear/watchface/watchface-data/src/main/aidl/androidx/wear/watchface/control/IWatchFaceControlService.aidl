@@ -37,12 +37,12 @@ import androidx.wear.watchface.editor.IEditorService;
 interface IWatchFaceControlService {
     // IMPORTANT NOTE: All methods must be given an explicit transaction id that must never change
     // in the future to remain binary backwards compatible.
-    // Next Id: 7
+    // Next Id: 10
 
     /**
      * API version number. This should be incremented every time a new method is added.
      */
-    const int API_VERSION = 3;
+    const int API_VERSION = 4;
 
     /**
      * Returns the version number for this API which the client can use to determine which methods
@@ -122,4 +122,11 @@ interface IWatchFaceControlService {
      */
     ComplicationSlotMetadataWireFormat[] getComplicationSlotMetadata(
             in GetComplicationSlotMetadataParams params) = 8;
+
+    /**
+     * Returns whetehr or not the watch face has a complication cache.
+     *
+     * @since API version 4.
+     */
+    boolean hasComplicationCache() = 9;
 }

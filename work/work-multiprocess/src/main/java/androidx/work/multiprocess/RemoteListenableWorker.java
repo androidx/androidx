@@ -101,7 +101,7 @@ public abstract class RemoteListenableWorker extends ListenableWorker {
         super(appContext, workerParams);
         mWorkerParameters = workerParams;
         mWorkManager = WorkManagerImpl.getInstance(appContext);
-        mExecutor = mWorkManager.getWorkTaskExecutor().getBackgroundExecutor();
+        mExecutor = mWorkManager.getWorkTaskExecutor().getSerialTaskExecutor();
         mClient = new ListenableWorkerImplClient(getApplicationContext(), mExecutor);
     }
 

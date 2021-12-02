@@ -71,7 +71,7 @@ class RawQueryMethodProcessor(
         val inTransaction = executableElement.hasAnnotation(Transaction::class)
         val rawQueryMethod = RawQueryMethod(
             element = executableElement,
-            name = executableElement.name,
+            name = executableElement.jvmName,
             observedTableNames = observedTableNames,
             returnType = returnType,
             runtimeQueryParam = runtimeQueryParam,

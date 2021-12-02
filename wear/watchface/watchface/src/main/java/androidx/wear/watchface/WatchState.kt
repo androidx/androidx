@@ -56,11 +56,11 @@ import kotlinx.coroutines.flow.StateFlow
  * chin. A chin is a section at the bottom of a circular display that is visible due to hardware
  * limitations.
  * @param isHeadless Whether or not this is a headless watchface.
+ * @param watchFaceInstanceId The system's watch face instance ID where available or `null`.
  */
 public class WatchState(
     public val interruptionFilter: StateFlow<Int?>,
     public val isAmbient: StateFlow<Boolean?>,
-    /** @hide */
     public val isBatteryLowAndNotCharging: StateFlow<Boolean?>,
     public val isVisible: StateFlow<Boolean?>,
     @get:JvmName("hasLowBitAmbient")
@@ -70,8 +70,35 @@ public class WatchState(
     public val analogPreviewReferenceTimeMillis: Long,
     public val digitalPreviewReferenceTimeMillis: Long,
     @Px @get:Px public val chinHeight: Int,
-    public val isHeadless: Boolean
+    public val isHeadless: Boolean,
+    public val watchFaceInstanceId: StateFlow<String?>
 ) {
+    @Deprecated("WatchState constructors without watchFaceInstanceId are deprecated")
+    constructor(
+        interruptionFilter: StateFlow<Int?>,
+        isAmbient: StateFlow<Boolean?>,
+        isBatteryLowAndNotCharging: StateFlow<Boolean?>,
+        isVisible: StateFlow<Boolean?>,
+        hasLowBitAmbient: Boolean,
+        hasBurnInProtection: Boolean,
+        analogPreviewReferenceTimeMillis: Long,
+        digitalPreviewReferenceTimeMillis: Long,
+        chinHeight: Int,
+        isHeadless: Boolean
+    ) : this(
+        interruptionFilter,
+        isAmbient,
+        isBatteryLowAndNotCharging,
+        isVisible,
+        hasLowBitAmbient,
+        hasBurnInProtection,
+        analogPreviewReferenceTimeMillis,
+        digitalPreviewReferenceTimeMillis,
+        chinHeight,
+        isHeadless,
+        watchFaceInstanceId = MutableStateFlow(null)
+    )
+
     @UiThread
     internal fun dump(writer: IndentingPrintWriter) {
         writer.println("WatchState:")
@@ -93,7 +120,7 @@ public class WatchState(
 /** @hide */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class MutableWatchState {
-    public var interruptionFilter: MutableStateFlow<Int> = MutableStateFlow(
+    public val interruptionFilter: MutableStateFlow<Int> = MutableStateFlow(
         NotificationManager.INTERRUPTION_FILTER_UNKNOWN
     )
     public val isAmbient: MutableStateFlow<Boolean?> = MutableStateFlow(null)
@@ -103,6 +130,7 @@ public class MutableWatchState {
     public var hasBurnInProtection: Boolean = false
     public var analogPreviewReferenceTimeMillis: Long = 0
     public var digitalPreviewReferenceTimeMillis: Long = 0
+    public val watchFaceInstanceId: MutableStateFlow<String?> = MutableStateFlow(null)
 
     @Px
     public var chinHeight: Int = 0
@@ -122,6 +150,7 @@ public class MutableWatchState {
         analogPreviewReferenceTimeMillis = analogPreviewReferenceTimeMillis,
         digitalPreviewReferenceTimeMillis = digitalPreviewReferenceTimeMillis,
         chinHeight = chinHeight,
-        isHeadless = isHeadless
+        isHeadless = isHeadless,
+        watchFaceInstanceId = watchFaceInstanceId
     )
 }

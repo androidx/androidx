@@ -303,13 +303,21 @@ package androidx.paging {
 
   public final class PagingData<T> {
     method public static <T> androidx.paging.PagingData<T> empty();
+    method public static <T> androidx.paging.PagingData<T> empty(androidx.paging.LoadStates sourceLoadStates, optional androidx.paging.LoadStates? mediatorLoadStates);
+    method public static <T> androidx.paging.PagingData<T> empty(androidx.paging.LoadStates sourceLoadStates);
     method public static <T> androidx.paging.PagingData<T> from(java.util.List<? extends T> data);
+    method public static <T> androidx.paging.PagingData<T> from(java.util.List<? extends T> data, androidx.paging.LoadStates sourceLoadStates, optional androidx.paging.LoadStates? mediatorLoadStates);
+    method public static <T> androidx.paging.PagingData<T> from(java.util.List<? extends T> data, androidx.paging.LoadStates sourceLoadStates);
     field public static final androidx.paging.PagingData.Companion Companion;
   }
 
   public static final class PagingData.Companion {
     method public <T> androidx.paging.PagingData<T> empty();
+    method public <T> androidx.paging.PagingData<T> empty(androidx.paging.LoadStates sourceLoadStates, optional androidx.paging.LoadStates? mediatorLoadStates);
+    method public <T> androidx.paging.PagingData<T> empty(androidx.paging.LoadStates sourceLoadStates);
     method public <T> androidx.paging.PagingData<T> from(java.util.List<? extends T> data);
+    method public <T> androidx.paging.PagingData<T> from(java.util.List<? extends T> data, androidx.paging.LoadStates sourceLoadStates, optional androidx.paging.LoadStates? mediatorLoadStates);
+    method public <T> androidx.paging.PagingData<T> from(java.util.List<? extends T> data, androidx.paging.LoadStates sourceLoadStates);
   }
 
   public final class PagingDataTransforms {
@@ -504,6 +512,13 @@ package androidx.paging {
   public enum TerminalSeparatorType {
     enum_constant public static final androidx.paging.TerminalSeparatorType FULLY_COMPLETE;
     enum_constant public static final androidx.paging.TerminalSeparatorType SOURCE_COMPLETE;
+  }
+
+}
+
+package androidx.paging.internal {
+
+  public final class ConstantsKt {
   }
 
 }

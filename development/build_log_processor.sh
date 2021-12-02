@@ -46,7 +46,7 @@ if [[ " ${@} " =~ " ${validateArgument}=false " ]]; then
   validateNoUnrecognizedMessagesOnSuccess=false
 fi
 
-# run Gradle and save stdout and stderr into $logFile
+# identify some filepaths
 SCRIPT_PATH="$(cd $(dirname $0) && pwd)"
 CHECKOUT="$(cd "$SCRIPT_PATH/../../.." && pwd)"
 if [ -n "$DIST_DIR" ]; then
@@ -68,8 +68,8 @@ function rotateLogs() {
   done
   mv $logFile "$LOG_DIR/gradle.1.log" 2>/dev/null || true
 }
+rotateLogs
 
-rm -f "$logFile"
 # Save OUT_DIR and some other variables into the log file so build_log_simplifier.py can
 # identify them later
 echo "OUT_DIR=$OUT_DIR" | tee -a $logFile
@@ -84,6 +84,7 @@ fi
 echo "GRADLE_USER_HOME=$GRADLE_USER_HOME" | tee -a $logFile
 programName="$1"
 shift
+
 if "$programName" "$@" > >(tee -a "$logFile") 2>&1; then
   if [ "$validateNoUnrecognizedMessagesOnSuccess" == "true" ]; then
     if $SCRIPT_PATH/build_log_simplifier.py --validate $logFile >&2; then
@@ -108,12 +109,4 @@ else
     $SCRIPT_PATH/build_log_simplifier.py $logFile | tee "$summaryLog" >&2
   fi
   exit 1
-fi
-
-if [ "$validateNoUnrecognizedMessagesOnSuccess" == "true" ]; then
-  # If we've been asked to validate that no unrecognized messages exist, then this output may be
-  # interesting to the caller and we'll try to avoid overwriting it
-  # This mostly matters on the build server so we can download all of the logs and do garbage
-  # collection of the build output message exemptions
-  rotateLogs
 fi

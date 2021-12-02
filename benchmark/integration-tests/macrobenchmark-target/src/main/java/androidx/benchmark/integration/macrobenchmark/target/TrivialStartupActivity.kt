@@ -16,9 +16,13 @@
 
 package androidx.benchmark.integration.macrobenchmark.target
 
+import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.tracing.trace
+import kotlin.concurrent.thread
 
 class TrivialStartupActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -27,5 +31,26 @@ class TrivialStartupActivity : AppCompatActivity() {
 
         val notice = findViewById<TextView>(R.id.txtNotice)
         notice.setText(R.string.app_notice)
+    }
+
+    override fun onResume() {
+        super.onResume()
+
+        if (Build.VERSION.SDK_INT <= 23) {
+            // temporary logging/tracing to debug b/204572406
+            Log.d("Benchmark", "onResume")
+            trace("onResume") {}
+        }
+    }
+
+    init {
+        if (Build.VERSION.SDK_INT <= 23) {
+            // temporary tracing to debug b/204572406
+            thread {
+                while (true) {
+                    trace("tracing") { Thread.sleep(50) }
+                }
+            }
+        }
     }
 }

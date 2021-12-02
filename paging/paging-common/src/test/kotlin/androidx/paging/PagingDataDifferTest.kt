@@ -37,6 +37,7 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.consumeAsFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.test.TestCoroutineScope
@@ -701,7 +702,14 @@ class PagingDataDifferTest {
         assertThat(combinedLoadStates).isEmpty()
 
         // Add a real value and now we should emit to collector.
-        differ.collectFrom(PagingData.empty())
+        differ.collectFrom(
+            PagingData.empty(
+                sourceLoadStates = loadStates(
+                    prepend = NotLoading.Complete,
+                    append = NotLoading.Complete
+                )
+            )
+        )
         assertThat(combinedLoadStates).containsExactly(
             localLoadStatesOf(
                 prependLocal = NotLoading.Complete,
@@ -720,6 +728,158 @@ class PagingDataDifferTest {
             localLoadStatesOf(
                 prependLocal = NotLoading.Complete,
                 appendLocal = NotLoading.Complete,
+            )
+        )
+
+        loadStateJob.cancel()
+        newLoadStateJob.cancel()
+    }
+
+    @Test
+    fun loadStateFlow_preservesLoadStatesOnEmptyList() = testScope.runBlockingTest {
+        val differ = SimpleDiffer(dummyDifferCallback)
+
+        // Should not immediately emit without a real value to a new collector.
+        val combinedLoadStates = mutableListOf<CombinedLoadStates>()
+        val loadStateJob = launch {
+            differ.loadStateFlow.collect {
+                combinedLoadStates.add(it)
+            }
+        }
+        assertThat(combinedLoadStates.getAllAndClear()).isEmpty()
+
+        // Send a static list without load states, which should not send anything.
+        differ.collectFrom(PagingData.empty())
+        assertThat(combinedLoadStates.getAllAndClear()).isEmpty()
+
+        // Send a real LoadStateUpdate.
+        differ.collectFrom(
+            PagingData(
+                flow = flowOf(
+                    remoteLoadStateUpdate(
+                        refreshLocal = Loading,
+                        prependLocal = Loading,
+                        appendLocal = Loading,
+                        refreshRemote = Loading,
+                        prependRemote = Loading,
+                        appendRemote = Loading,
+                    )
+                ),
+                receiver = PagingData.NOOP_RECEIVER,
+            )
+        )
+        assertThat(combinedLoadStates.getAllAndClear()).containsExactly(
+            remoteLoadStatesOf(
+                refresh = Loading,
+                prepend = Loading,
+                append = Loading,
+                refreshLocal = Loading,
+                prependLocal = Loading,
+                appendLocal = Loading,
+                refreshRemote = Loading,
+                prependRemote = Loading,
+                appendRemote = Loading,
+            )
+        )
+
+        // Send a static list without load states, which should preserve the previous state.
+        differ.collectFrom(PagingData.empty())
+        // Existing observers should not receive any updates
+        assertThat(combinedLoadStates.getAllAndClear()).isEmpty()
+        // New observers should receive the previous state.
+        val newCombinedLoadStates = mutableListOf<CombinedLoadStates>()
+        val newLoadStateJob = launch {
+            differ.loadStateFlow.collect {
+                newCombinedLoadStates.add(it)
+            }
+        }
+        assertThat(newCombinedLoadStates.getAllAndClear()).containsExactly(
+            remoteLoadStatesOf(
+                refresh = Loading,
+                prepend = Loading,
+                append = Loading,
+                refreshLocal = Loading,
+                prependLocal = Loading,
+                appendLocal = Loading,
+                refreshRemote = Loading,
+                prependRemote = Loading,
+                appendRemote = Loading,
+            )
+        )
+
+        loadStateJob.cancel()
+        newLoadStateJob.cancel()
+    }
+
+    @Test
+    fun loadStateFlow_preservesLoadStatesOnStaticList() = testScope.runBlockingTest {
+        val differ = SimpleDiffer(dummyDifferCallback)
+
+        // Should not immediately emit without a real value to a new collector.
+        val combinedLoadStates = mutableListOf<CombinedLoadStates>()
+        val loadStateJob = launch {
+            differ.loadStateFlow.collect {
+                combinedLoadStates.add(it)
+            }
+        }
+        assertThat(combinedLoadStates.getAllAndClear()).isEmpty()
+
+        // Send a static list without load states, which should not send anything.
+        differ.collectFrom(PagingData.from(listOf(1)))
+        assertThat(combinedLoadStates.getAllAndClear()).isEmpty()
+
+        // Send a real LoadStateUpdate.
+        differ.collectFrom(
+            PagingData(
+                flow = flowOf(
+                    remoteLoadStateUpdate(
+                        refreshLocal = Loading,
+                        prependLocal = Loading,
+                        appendLocal = Loading,
+                        refreshRemote = Loading,
+                        prependRemote = Loading,
+                        appendRemote = Loading,
+                    )
+                ),
+                receiver = PagingData.NOOP_RECEIVER,
+            )
+        )
+        assertThat(combinedLoadStates.getAllAndClear()).containsExactly(
+            remoteLoadStatesOf(
+                refresh = Loading,
+                prepend = Loading,
+                append = Loading,
+                refreshLocal = Loading,
+                prependLocal = Loading,
+                appendLocal = Loading,
+                refreshRemote = Loading,
+                prependRemote = Loading,
+                appendRemote = Loading,
+            )
+        )
+
+        // Send a static list without load states, which should preserve the previous state.
+        differ.collectFrom(PagingData.from(listOf(1)))
+        // Existing observers should not receive any updates
+        assertThat(combinedLoadStates.getAllAndClear()).isEmpty()
+        // New observers should receive the previous state.
+        val newCombinedLoadStates = mutableListOf<CombinedLoadStates>()
+        val newLoadStateJob = launch {
+            differ.loadStateFlow.collect {
+                newCombinedLoadStates.add(it)
+            }
+        }
+        assertThat(newCombinedLoadStates.getAllAndClear()).containsExactly(
+            remoteLoadStatesOf(
+                refresh = Loading,
+                prepend = Loading,
+                append = Loading,
+                refreshLocal = Loading,
+                prependLocal = Loading,
+                appendLocal = Loading,
+                refreshRemote = Loading,
+                prependRemote = Loading,
+                appendRemote = Loading,
             )
         )
 
@@ -785,7 +945,14 @@ class PagingDataDifferTest {
         assertThat(combinedLoadStateCapture.newEvents()).isEmpty()
 
         // Add a real value and now the listener should trigger.
-        differ.collectFrom(PagingData.empty())
+        differ.collectFrom(
+            PagingData.empty(
+                sourceLoadStates = loadStates(
+                    prepend = NotLoading.Complete,
+                    append = NotLoading.Complete,
+                )
+            )
+        )
         assertThat(combinedLoadStateCapture.newEvents()).containsExactly(
             localLoadStatesOf(
                 prependLocal = NotLoading.Complete,

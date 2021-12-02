@@ -158,5 +158,13 @@ public class Constants {
          * indicates whether or not the keyguard is locked.
          */
         public const val STATUS_KEYGUARD_LOCKED: String = "keyguard_locked"
+
+        /**
+         * Metadata flag specifying that the watch face is OK for the system to have multiple
+         * instances of the watch face. Without this by default the system will only allow a single
+         * instance.
+         */
+        public const val META_DATA_MULTIPLE_INSTANCES_ALLOWED: String =
+            "androidx.wear.watchface.MULTIPLE_INSTANCES_ALLOWED"
     }
 }

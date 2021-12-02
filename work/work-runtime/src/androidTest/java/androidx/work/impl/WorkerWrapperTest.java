@@ -263,7 +263,7 @@ public class WorkerWrapperTest extends DatabaseTest {
     @SmallTest
     public void testPermanentErrorWithInvalidWorkerClass() {
         OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class).build();
-        getWorkSpec(work).workerClassName = "INVALID_CLASS_NAME";
+        work.getWorkSpec().workerClassName = "INVALID_CLASS_NAME";
         insertWork(work);
         WorkerWrapper workerWrapper = createBuilder(work.getStringId()).build();
         FutureListener listener = createAndAddFutureListener(workerWrapper);
@@ -276,7 +276,7 @@ public class WorkerWrapperTest extends DatabaseTest {
     @SmallTest
     public void testPermanentErrorWithInvalidInputMergerClass() {
         OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class).build();
-        getWorkSpec(work).inputMergerClassName = "INVALID_CLASS_NAME";
+        work.getWorkSpec().inputMergerClassName = "INVALID_CLASS_NAME";
         insertWork(work);
         WorkerWrapper workerWrapper = createBuilder(work.getStringId())
                 .withSchedulers(Collections.singletonList(mMockScheduler))
@@ -608,7 +608,7 @@ public class WorkerWrapperTest extends DatabaseTest {
         PeriodicWorkRequest periodicWork = new PeriodicWorkRequest.Builder(
                 TestWorker.class, intervalDuration, TimeUnit.MILLISECONDS).build();
 
-        getWorkSpec(periodicWork).periodStartTime = periodStartTime;
+        periodicWork.getWorkSpec().periodStartTime = periodStartTime;
         insertWork(periodicWork);
 
         createBuilder(periodicWork.getStringId())
@@ -628,7 +628,7 @@ public class WorkerWrapperTest extends DatabaseTest {
         PeriodicWorkRequest periodicWork = new PeriodicWorkRequest.Builder(
                 FailureWorker.class, intervalDuration, TimeUnit.MILLISECONDS).build();
 
-        getWorkSpec(periodicWork).periodStartTime = periodStartTime;
+        periodicWork.getWorkSpec().periodStartTime = periodStartTime;
         insertWork(periodicWork);
 
         createBuilder(periodicWork.getStringId())

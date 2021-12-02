@@ -62,7 +62,7 @@ public class LiveDataUtils {
 
             @Override
             public void onChanged(@Nullable final In input) {
-                workTaskExecutor.executeOnBackgroundThread(new Runnable() {
+                workTaskExecutor.executeOnTaskThread(new Runnable() {
                     @Override
                     public void run() {
                         synchronized (lock) {

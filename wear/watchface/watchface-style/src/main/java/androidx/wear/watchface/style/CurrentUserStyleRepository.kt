@@ -437,6 +437,9 @@ public class UserStyleSchema(
 
                 is UserStyleSetting.CustomValueUserStyleSetting ->
                     customValueUserStyleSettingCount++
+                else -> {
+                    // Nothing
+                }
             }
         }
 

@@ -132,6 +132,7 @@ public final class ToggleButtonUITest {
         cameraProvider.shutdown().get(10, TimeUnit.SECONDS);
     }
 
+
     @Test
     public void testFlashToggleButton() {
         waitFor(new WaitForViewToShow(R.id.constraintLayout));

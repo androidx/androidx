@@ -60,6 +60,7 @@ import androidx.media2.test.common.CustomParcelable;
 import androidx.media2.test.common.PollingCheck;
 import androidx.media2.test.common.TestUtils;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.FlakyTest;
 import androidx.test.filters.LargeTest;
 
 import org.junit.After;
@@ -77,6 +78,7 @@ import java.util.concurrent.atomic.AtomicReference;
 /**
  * Tests {@link MediaController}.
  */
+@FlakyTest(bugId = 202942942)
 @RunWith(AndroidJUnit4.class)
 @LargeTest
 public class MediaControllerTest extends MediaSessionTestBase {
