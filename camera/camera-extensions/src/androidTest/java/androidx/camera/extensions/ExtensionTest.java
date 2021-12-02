@@ -115,7 +115,7 @@ public class ExtensionTest {
                 TimeUnit.MILLISECONDS);
         mExtensionsManager = ExtensionsManager.getInstanceAsync(mContext,
                 mProcessCameraProvider).get(10000, TimeUnit.MILLISECONDS);
-        assumeTrue(isTargetDeviceAvailableForExtensions(mLensFacing));
+        assumeTrue(isTargetDeviceAvailableForExtensions());
         mBaseCameraSelector = new CameraSelector.Builder().requireLensFacing(mLensFacing).build();
         assumeTrue(mExtensionsManager.isExtensionAvailable(mBaseCameraSelector, mExtensionMode));
 
@@ -213,6 +213,13 @@ public class ExtensionTest {
 
     /**
      * Returns whether the target camera device can support the test cases.
+     */
+    private boolean isTargetDeviceAvailableForExtensions() {
+        return isLimitedAboveDevice() && !isSpecificSkippedDevice();
+    }
+
+    /**
+     * Returns whether the device is LIMITED hardware level above.
      *
      * <p>The test cases bind both ImageCapture and Preview. In the test lib implementation for
      * HDR mode, both use cases will occupy YUV_420_888 format of stream. Therefore, the testing
@@ -221,27 +228,36 @@ public class ExtensionTest {
      *
      * @return true if the testing target camera device is LIMITED hardware level at least.
      * @throws IllegalArgumentException if unable to retrieve {@link CameraCharacteristics} for
-     *                                  given lens facing.
+     * given lens facing.
      */
-    private boolean isTargetDeviceAvailableForExtensions(
-            @CameraSelector.LensFacing int lensFacing) {
-        boolean isAvailable = false;
+    private boolean isLimitedAboveDevice() {
         CameraCharacteristics cameraCharacteristics = CameraUtil.getCameraCharacteristics(
-                lensFacing);
+                mLensFacing);
 
         if (cameraCharacteristics != null) {
             Integer keyValue = cameraCharacteristics.get(
                     CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL);
 
             if (keyValue != null) {
-                isAvailable =
-                        keyValue != CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY;
+                return keyValue != CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY;
             }
         } else {
             throw new IllegalArgumentException(
-                    "Unable to retrieve info for " + lensFacing + " camera.");
+                    "Unable to retrieve info for " + mLensFacing + " camera.");
         }
 
-        return isAvailable;
+        return false;
+    }
+
+    /**
+     * Returns that whether the device should be skipped for the test.
+     */
+    private boolean isSpecificSkippedDevice() {
+        if (Build.BRAND.equalsIgnoreCase("SONY") && (Build.MODEL.equalsIgnoreCase("G8142")
+                || Build.MODEL.equalsIgnoreCase("G8342"))) {
+            return true;
+        }
+
+        return false;
     }
 }
