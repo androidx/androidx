@@ -2034,7 +2034,7 @@ public class SearchView extends LinearLayoutCompat implements CollapsibleActionV
 
         void ensureImeVisible() {
             if (Build.VERSION.SDK_INT >= 29) {
-                setInputMethodMode(INPUT_METHOD_NEEDED);
+                Api29Impl.setInputMethodMode(this, INPUT_METHOD_NEEDED);
                 if (enoughToFilter()) {
                     showDropDown();
                 }
@@ -2119,6 +2119,11 @@ public class SearchView extends LinearLayoutCompat implements CollapsibleActionV
     static class Api29Impl {
         private Api29Impl() {
             // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static void setInputMethodMode(SearchAutoComplete searchAutoComplete, int mode) {
+            searchAutoComplete.setInputMethodMode(mode);
         }
 
         @DoNotInline

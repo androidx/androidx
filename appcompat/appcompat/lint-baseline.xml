@@ -409,39 +409,6 @@
     </issue>
 
     <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 17; however, the containing class androidx.appcompat.view.ContextThemeWrapper is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                final Context resContext = createConfigurationContext(mOverrideConfiguration);"
-        errorLine2="                                           ~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/view/ContextThemeWrapper.java"
-            line="117"
-            column="44"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class androidx.appcompat.widget.DropDownListView is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            drawableHotspotChanged(x, y);"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/DropDownListView.java"
-            line="652"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 29; however, the containing class androidx.appcompat.widget.SearchView.SearchAutoComplete is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                setInputMethodMode(INPUT_METHOD_NEEDED);"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/SearchView.java"
-            line="2037"
-            column="17"/>
-    </issue>
-
-    <issue
         id="MissingTestSizeAnnotation"
         message="Missing test size annotation"
         errorLine1="    fun testTileifyLayerDrawable() {"
