@@ -16,6 +16,7 @@
 
 package androidx.wear.watchface.samples
 
+import android.content.Intent
 import android.graphics.Color
 import android.graphics.RectF
 import android.graphics.drawable.Icon
@@ -38,6 +39,8 @@ import androidx.wear.watchface.WatchFace
 import androidx.wear.watchface.WatchFaceService
 import androidx.wear.watchface.WatchFaceType
 import androidx.wear.watchface.WatchState
+import androidx.wear.watchface.complications.permission.dialogs.sample.ComplicationDeniedActivity
+import androidx.wear.watchface.complications.permission.dialogs.sample.ComplicationRationalActivity
 import androidx.wear.watchface.complications.rendering.CanvasComplicationDrawable
 import androidx.wear.watchface.complications.rendering.GlesTextureComplication
 import androidx.wear.watchface.style.CurrentUserStyleRepository
@@ -124,10 +127,12 @@ open class ExampleOpenGLWatchFaceService : WatchFaceService() {
             ComplicationType.MONOCHROMATIC_IMAGE,
             ComplicationType.SMALL_IMAGE
         ),
-        DefaultComplicationDataSourcePolicy(SystemDataSources.DATA_SOURCE_DAY_OF_WEEK),
+        DefaultComplicationDataSourcePolicy(
+            SystemDataSources.DATA_SOURCE_DAY_OF_WEEK,
+            ComplicationType.SHORT_TEXT
+        ),
         ComplicationSlotBounds(RectF(0.2f, 0.7f, 0.4f, 0.9f))
-    ).setDefaultDataSourceType(ComplicationType.SHORT_TEXT)
-        .build()
+    ).build()
 
     public override fun createUserStyleSchema() = UserStyleSchema(listOf(colorStyleSetting))
 
@@ -149,13 +154,20 @@ open class ExampleOpenGLWatchFaceService : WatchFaceService() {
             colorStyleSetting,
             complication
         )
-    ).setLegacyWatchFaceStyle(
-        WatchFace.LegacyWatchFaceOverlayStyle(
-            0,
-            Gravity.RIGHT or Gravity.TOP,
-            true
-        )
     )
+        .setLegacyWatchFaceStyle(
+            WatchFace.LegacyWatchFaceOverlayStyle(
+                0,
+                Gravity.RIGHT or Gravity.TOP,
+                true
+            )
+        )
+        .setComplicationDeniedDialogIntent(
+            Intent(this, ComplicationDeniedActivity::class.java)
+        )
+        .setComplicationRationaleDialogIntent(
+            Intent(this, ComplicationRationalActivity::class.java)
+        )
 }
 
 class ExampleOpenGLRenderer(

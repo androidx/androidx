@@ -83,7 +83,7 @@ class BoringLayoutFactoryTest {
 
         assertThat(boringLayout.text).isEqualTo(text)
         assertThat(boringLayout.paint).isEqualTo(paint)
-        // The width and height of the boringLayout is the same in metrics, indicating metrics is 
+        // The width and height of the boringLayout is the same in metrics, indicating metrics is
         // passed correctly.
         assertThat(boringLayout.getLineWidth(0).toInt()).isEqualTo(metrics.width)
         assertThat(boringLayout.getLineBottom(0) - boringLayout.getLineTop(0))

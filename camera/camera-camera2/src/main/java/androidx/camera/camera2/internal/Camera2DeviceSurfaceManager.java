@@ -32,7 +32,6 @@ import androidx.camera.core.impl.SurfaceConfig;
 import androidx.camera.core.impl.UseCaseConfig;
 import androidx.core.util.Preconditions;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -186,31 +185,12 @@ public final class Camera2DeviceSurfaceManager implements CameraDeviceSurfaceMan
             @NonNull List<UseCaseConfig<?>> newUseCaseConfigs) {
         Preconditions.checkArgument(!newUseCaseConfigs.isEmpty(), "No new use cases to be bound.");
 
-        // Use the small size (640x480) for new use cases to check whether there is any possible
-        // supported combination first
-        List<SurfaceConfig> surfaceConfigs = new ArrayList<>(existingSurfaces);
-
-        for (UseCaseConfig<?> useCaseConfig : newUseCaseConfigs) {
-            surfaceConfigs.add(
-                    transformSurfaceConfig(cameraId,
-                            useCaseConfig.getInputFormat(),
-                            new Size(640, 480)));
-        }
-
         SupportedSurfaceCombination supportedSurfaceCombination =
                 mCameraSupportedSurfaceCombinationMap.get(cameraId);
 
         if (supportedSurfaceCombination == null) {
             throw new IllegalArgumentException("No such camera id in supported combination list: "
                     + cameraId);
-        }
-
-        if (!supportedSurfaceCombination.checkSupported(surfaceConfigs)) {
-            throw new IllegalArgumentException(
-                    "No supported surface combination is found for camera device - Id : "
-                            + cameraId + ".  May be attempting to bind too many use cases. "
-                            + "Existing surfaces: " + existingSurfaces + " New configs: "
-                            + newUseCaseConfigs);
         }
 
         return supportedSurfaceCombination.getSuggestedResolutions(existingSurfaces,

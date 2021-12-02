@@ -25,7 +25,6 @@ import static androidx.camera.core.impl.UseCaseConfig.OPTION_SESSION_CONFIG_UNPA
 
 import android.content.Context;
 import android.hardware.camera2.CameraDevice;
-import android.hardware.display.DisplayManager;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
@@ -43,10 +42,10 @@ import androidx.camera.core.impl.UseCaseConfigFactory;
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class Camera2UseCaseConfigFactory implements UseCaseConfigFactory {
-    final DisplayManager mDisplayManager;
+    final DisplayInfoManager mDisplayInfoManager;
 
     public Camera2UseCaseConfigFactory(@NonNull Context context) {
-        mDisplayManager = DisplayUtil.getDisplayManager(context);
+        mDisplayInfoManager = DisplayInfoManager.getInstance(context);
     }
 
     /**
@@ -104,10 +103,10 @@ public final class Camera2UseCaseConfigFactory implements UseCaseConfigFactory {
 
         if (captureType == CaptureType.PREVIEW) {
             mutableConfig.insertOption(OPTION_MAX_RESOLUTION,
-                    SupportedSurfaceCombination.getPreviewSize(mDisplayManager));
+                    mDisplayInfoManager.getPreviewSize());
         }
 
-        int targetRotation = DisplayUtil.getMaxSizeDisplay(mDisplayManager).getRotation();
+        int targetRotation = mDisplayInfoManager.getMaxSizeDisplay().getRotation();
         mutableConfig.insertOption(OPTION_TARGET_ROTATION, targetRotation);
 
         return OptionsBundle.from(mutableConfig);

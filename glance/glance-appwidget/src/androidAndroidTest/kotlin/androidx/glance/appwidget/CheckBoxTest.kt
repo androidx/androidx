@@ -17,9 +17,9 @@
 package androidx.glance.appwidget
 
 import android.content.Context
+import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.LinearLayout
-import android.widget.RelativeLayout
 import android.widget.TextView
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.Dp
@@ -47,13 +47,13 @@ class CheckBoxTest {
 
     private val checkedCheckBox: @Composable () -> Unit = {
         Box {
-            CheckBox(checked = true, text = "Hello world")
+            CheckBox(checked = true, onCheckedChange = null, text = "Hello world")
         }
     }
 
     private val uncheckedCheckBox: @Composable () -> Unit = {
         Box {
-            CheckBox(checked = false, text = "Hola mundo")
+            CheckBox(checked = false, onCheckedChange = null, text = "Hola mundo")
         }
     }
 
@@ -80,7 +80,7 @@ class CheckBoxTest {
 
         mHostRule.startHost()
 
-        mHostRule.onUnboxedHostView<RelativeLayout> { box ->
+        mHostRule.onUnboxedHostView<FrameLayout> { box ->
             val row = assertIs<LinearLayout>(box.notGoneChildren.single())
             val textView = assertIs<TextView>(row.getChildAt(1))
             assertThat(textView.text.toString()).isEqualTo("Hello world")
@@ -113,7 +113,7 @@ class CheckBoxTest {
 
         mHostRule.startHost()
 
-        mHostRule.onUnboxedHostView<RelativeLayout> { box ->
+        mHostRule.onUnboxedHostView<FrameLayout> { box ->
             val row = assertIs<LinearLayout>(box.notGoneChildren.single())
             val textView = assertIs<TextView>(row.getChildAt(1))
             assertThat(textView.text.toString()).isEqualTo("Hola mundo")
@@ -127,13 +127,16 @@ class CheckBoxTest {
     fun check_box_modifiers() {
         TestGlanceAppWidget.uiDefinition = {
             Box {
-                CheckBox(checked = true, modifier = GlanceModifier.padding(5.dp, 6.dp, 7.dp, 8.dp))
+                CheckBox(
+                    checked = true,
+                    onCheckedChange = null,
+                    modifier = GlanceModifier.padding(5.dp, 6.dp, 7.dp, 8.dp))
             }
         }
 
         mHostRule.startHost()
 
-        mHostRule.onUnboxedHostView<RelativeLayout> { hostView ->
+        mHostRule.onUnboxedHostView<FrameLayout> { hostView ->
             assertThat(hostView.notGoneChildCount).isEqualTo(1)
 
             val checkboxRoot = hostView.notGoneChildren.single()

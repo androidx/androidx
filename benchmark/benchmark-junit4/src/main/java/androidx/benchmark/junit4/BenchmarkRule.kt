@@ -20,6 +20,11 @@ import android.Manifest
 import android.util.Log
 import androidx.annotation.RestrictTo
 import androidx.benchmark.BenchmarkState
+import androidx.benchmark.UserspaceTracing
+import androidx.benchmark.perfetto.PerfettoCaptureWrapper
+import androidx.benchmark.perfetto.UiState
+import androidx.benchmark.perfetto.appendUiState
+import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.rule.GrantPermissionRule
 import androidx.tracing.Trace
 import androidx.tracing.trace
@@ -28,6 +33,7 @@ import org.junit.rules.RuleChain
 import org.junit.rules.TestRule
 import org.junit.runner.Description
 import org.junit.runners.model.Statement
+import java.io.File
 
 /**
  * JUnit rule for benchmarking code on an Android device.
@@ -195,18 +201,44 @@ public class BenchmarkRule internal constructor(
                 invokeMethodName = invokeMethodName.substring(4, 5).lowercase() +
                     invokeMethodName.substring(5)
             }
-            internalState.traceUniqueName = description.testClass.simpleName + "_" +
-                invokeMethodName
+            val uniqueName = description.testClass.simpleName + "_" + invokeMethodName
+            internalState.traceUniqueName = uniqueName
 
-            trace(description.displayName) {
-                base.evaluate()
+            var userspaceTrace: perfetto.protos.Trace? = null
+
+            val tracePath = PerfettoCaptureWrapper().record(
+                benchmarkName = uniqueName,
+                packages = emptyList(), // NOTE: intentionally don't pass app package!
+                unbundledPerfettoAvailable = false // unbundled not included in microbench
+            ) {
+                UserspaceTracing.commitToTrace() // clear buffer
+
+                trace(description.displayName) { base.evaluate() }
+
+                // To avoid b/174007010, userspace tracing is cleared and saved *during* trace, so
+                // that events won't lie outside the bounds of the trace content.
+                userspaceTrace = UserspaceTracing.commitToTrace()
+            }?.apply {
+                // trace completed, and copied into app writeable dir
+                val file = File(this)
+
+                file.appendBytes(userspaceTrace!!.encode())
+                file.appendUiState(
+                    UiState(
+                        timelineStart = null,
+                        timelineEnd = null,
+                        highlightPackage = InstrumentationRegistry.getInstrumentation()
+                            .context.packageName
+                    )
+                )
             }
 
             if (enableReport) {
                 internalState.report(
                     fullClassName = description.className,
                     simpleClassName = description.testClass.simpleName,
-                    methodName = invokeMethodName
+                    methodName = invokeMethodName,
+                    tracePath = tracePath
                 )
             }
         }

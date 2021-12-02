@@ -40,5 +40,6 @@ dependencies {
     implementation projectOrArtifact(":activity:activity-ktx")
     implementation 'androidx.core:core-ktx'
     implementation(libs.material)
+    implementation(project(":profileinstaller:profileinstaller"))
     implementation 'androidx.wear:wear:1.1.0'
 }

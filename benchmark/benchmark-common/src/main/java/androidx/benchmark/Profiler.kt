@@ -95,7 +95,7 @@ internal sealed class Profiler {
 internal fun startRuntimeMethodTracing(traceFileName: String, sampled: Boolean) {
     val path = Outputs.testOutputFile(traceFileName).absolutePath
 
-    Log.d(BenchmarkState.TAG, "Profiling output file: $path")
+    Log.d(TAG, "Profiling output file: $path")
     InstrumentationResults.reportAdditionalFileToCopy("profiling_trace", path)
 
     val bufferSize = 16 * 1024 * 1024

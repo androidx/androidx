@@ -16,6 +16,9 @@
 
 package androidx.camera.integration.view;
 
+import static androidx.camera.integration.view.MainActivity.CAMERA_DIRECTION_BACK;
+import static androidx.camera.integration.view.MainActivity.CAMERA_DIRECTION_FRONT;
+import static androidx.camera.integration.view.MainActivity.INTENT_EXTRA_CAMERA_DIRECTION;
 import static androidx.camera.view.PreviewView.StreamState.IDLE;
 import static androidx.camera.view.PreviewView.StreamState.STREAMING;
 
@@ -73,12 +76,6 @@ public class PreviewViewFragment extends Fragment {
                     ImageView.ScaleType.FIT_CENTER, ImageView.ScaleType.FIT_END};
 
     private static final String TAG = "PreviewViewFragment";
-
-    // Possible values for this intent key are the name values of LensFacing encoded as
-    // strings (case-insensitive): "back", "front".
-    private static final String INTENT_EXTRA_CAMERA_DIRECTION = "camera_direction";
-    private static final String CAMERA_DIRECTION_BACK = "back";
-    private static final String CAMERA_DIRECTION_FRONT = "front";
 
     private ListenableFuture<ProcessCameraProvider> mCameraProviderFuture;
     @SuppressWarnings("WeakerAccess")

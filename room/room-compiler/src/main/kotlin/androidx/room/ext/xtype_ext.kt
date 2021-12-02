@@ -79,13 +79,13 @@ fun XType.implementsEqualsAndHashcode(): Boolean {
     }
 
     val hasEquals = typeElement.getDeclaredMethods().any {
-        it.name == "equals" &&
+        it.jvmName == "equals" &&
             it.returnType.typeName == TypeName.BOOLEAN &&
             it.parameters.count() == 1 &&
             it.parameters[0].type.typeName == TypeName.OBJECT
     }
     val hasHashCode = typeElement.getDeclaredMethods().any {
-        it.name == "hashCode" &&
+        it.jvmName == "hashCode" &&
             it.returnType.typeName == TypeName.INT &&
             it.parameters.count() == 0
     }

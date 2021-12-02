@@ -167,7 +167,7 @@ public class ConstraintTrackingWorkerTest extends DatabaseTest {
         builder.withWorker(mWorker).withSchedulers(Collections.singletonList(mScheduler));
 
         mWorkerWrapper = builder.build();
-        mWorkTaskExecutor.getBackgroundExecutor().execute(mWorkerWrapper);
+        mWorkTaskExecutor.getSerialTaskExecutor().execute(mWorkerWrapper);
 
         WorkSpec workSpec = mDatabase.workSpecDao().getWorkSpec(mWork.getStringId());
         assertThat(workSpec.state, is(WorkInfo.State.SUCCEEDED));
@@ -184,7 +184,7 @@ public class ConstraintTrackingWorkerTest extends DatabaseTest {
         builder.withWorker(mWorker).withSchedulers(Collections.singletonList(mScheduler));
 
         mWorkerWrapper = builder.build();
-        mWorkTaskExecutor.getBackgroundExecutor().execute(mWorkerWrapper);
+        mWorkTaskExecutor.getSerialTaskExecutor().execute(mWorkerWrapper);
 
         WorkSpec workSpec = mDatabase.workSpecDao().getWorkSpec(mWork.getStringId());
         assertThat(workSpec.state, is(WorkInfo.State.ENQUEUED));

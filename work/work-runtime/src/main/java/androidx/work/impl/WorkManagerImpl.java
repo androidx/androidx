@@ -32,7 +32,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.arch.core.util.Function;
-import androidx.core.os.BuildCompat;
 import androidx.lifecycle.LiveData;
 import androidx.work.Configuration;
 import androidx.work.ExistingPeriodicWorkPolicy;
@@ -243,7 +242,7 @@ public class WorkManagerImpl extends WorkManager {
                 workTaskExecutor,
                 WorkDatabase.create(
                         context.getApplicationContext(),
-                        workTaskExecutor.getBackgroundExecutor(),
+                        workTaskExecutor.getSerialTaskExecutor(),
                         useTestDatabase)
         );
     }
@@ -447,14 +446,14 @@ public class WorkManagerImpl extends WorkManager {
     @Override
     public @NonNull Operation cancelWorkById(@NonNull UUID id) {
         CancelWorkRunnable runnable = CancelWorkRunnable.forId(id, this);
-        mWorkTaskExecutor.executeOnBackgroundThread(runnable);
+        mWorkTaskExecutor.executeOnTaskThread(runnable);
         return runnable.getOperation();
     }
 
     @Override
     public @NonNull Operation cancelAllWorkByTag(@NonNull final String tag) {
         CancelWorkRunnable runnable = CancelWorkRunnable.forTag(tag, this);
-        mWorkTaskExecutor.executeOnBackgroundThread(runnable);
+        mWorkTaskExecutor.executeOnTaskThread(runnable);
         return runnable.getOperation();
     }
 
@@ -462,14 +461,14 @@ public class WorkManagerImpl extends WorkManager {
     @NonNull
     public Operation cancelUniqueWork(@NonNull String uniqueWorkName) {
         CancelWorkRunnable runnable = CancelWorkRunnable.forName(uniqueWorkName, this, true);
-        mWorkTaskExecutor.executeOnBackgroundThread(runnable);
+        mWorkTaskExecutor.executeOnTaskThread(runnable);
         return runnable.getOperation();
     }
 
     @Override
     public @NonNull Operation cancelAllWork() {
         CancelWorkRunnable runnable = CancelWorkRunnable.forAll(this);
-        mWorkTaskExecutor.executeOnBackgroundThread(runnable);
+        mWorkTaskExecutor.executeOnTaskThread(runnable);
         return runnable.getOperation();
     }
 
@@ -478,7 +477,7 @@ public class WorkManagerImpl extends WorkManager {
     public PendingIntent createCancelPendingIntent(@NonNull UUID id) {
         Intent intent = createCancelWorkIntent(mContext, id.toString());
         int flags = FLAG_UPDATE_CURRENT;
-        if (BuildCompat.isAtLeastS()) {
+        if (Build.VERSION.SDK_INT >= 31) {
             flags |= FLAG_MUTABLE;
         }
         return PendingIntent.getService(mContext, 0, intent, flags);
@@ -494,7 +493,7 @@ public class WorkManagerImpl extends WorkManager {
         final SettableFuture<Long> future = SettableFuture.create();
         // Avoiding synthetic accessors.
         final PreferenceUtils preferenceUtils = mPreferenceUtils;
-        mWorkTaskExecutor.executeOnBackgroundThread(new Runnable() {
+        mWorkTaskExecutor.executeOnTaskThread(new Runnable() {
             @Override
             public void run() {
                 try {
@@ -510,7 +509,7 @@ public class WorkManagerImpl extends WorkManager {
     @Override
     public @NonNull Operation pruneWork() {
         PruneWorkRunnable runnable = new PruneWorkRunnable(this);
-        mWorkTaskExecutor.executeOnBackgroundThread(runnable);
+        mWorkTaskExecutor.executeOnTaskThread(runnable);
         return runnable.getOperation();
     }
 
@@ -536,7 +535,7 @@ public class WorkManagerImpl extends WorkManager {
     @Override
     public @NonNull ListenableFuture<WorkInfo> getWorkInfoById(@NonNull UUID id) {
         StatusRunnable<WorkInfo> runnable = StatusRunnable.forUUID(this, id);
-        mWorkTaskExecutor.getBackgroundExecutor().execute(runnable);
+        mWorkTaskExecutor.getSerialTaskExecutor().execute(runnable);
         return runnable.getFuture();
     }
 
@@ -554,7 +553,7 @@ public class WorkManagerImpl extends WorkManager {
     @Override
     public @NonNull ListenableFuture<List<WorkInfo>> getWorkInfosByTag(@NonNull String tag) {
         StatusRunnable<List<WorkInfo>> runnable = StatusRunnable.forTag(this, tag);
-        mWorkTaskExecutor.getBackgroundExecutor().execute(runnable);
+        mWorkTaskExecutor.getSerialTaskExecutor().execute(runnable);
         return runnable.getFuture();
     }
 
@@ -577,7 +576,7 @@ public class WorkManagerImpl extends WorkManager {
             @NonNull String uniqueWorkName) {
         StatusRunnable<List<WorkInfo>> runnable =
                 StatusRunnable.forUniqueWork(this, uniqueWorkName);
-        mWorkTaskExecutor.getBackgroundExecutor().execute(runnable);
+        mWorkTaskExecutor.getSerialTaskExecutor().execute(runnable);
         return runnable.getFuture();
     }
 
@@ -601,7 +600,7 @@ public class WorkManagerImpl extends WorkManager {
             @NonNull WorkQuery workQuery) {
         StatusRunnable<List<WorkInfo>> runnable =
                 StatusRunnable.forWorkQuerySpec(this, workQuery);
-        mWorkTaskExecutor.getBackgroundExecutor().execute(runnable);
+        mWorkTaskExecutor.getSerialTaskExecutor().execute(runnable);
         return runnable.getFuture();
     }
 
@@ -657,7 +656,7 @@ public class WorkManagerImpl extends WorkManager {
             @NonNull String workSpecId,
             @Nullable WorkerParameters.RuntimeExtras runtimeExtras) {
         mWorkTaskExecutor
-                .executeOnBackgroundThread(
+                .executeOnTaskThread(
                         new StartWorkRunnable(this, workSpecId, runtimeExtras));
     }
 
@@ -667,7 +666,7 @@ public class WorkManagerImpl extends WorkManager {
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public void stopWork(@NonNull String workSpecId) {
-        mWorkTaskExecutor.executeOnBackgroundThread(new StopWorkRunnable(this, workSpecId, false));
+        mWorkTaskExecutor.executeOnTaskThread(new StopWorkRunnable(this, workSpecId, false));
     }
 
     /**
@@ -677,7 +676,7 @@ public class WorkManagerImpl extends WorkManager {
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public void stopForegroundWork(@NonNull String workSpecId) {
-        mWorkTaskExecutor.executeOnBackgroundThread(new StopWorkRunnable(this, workSpecId, true));
+        mWorkTaskExecutor.executeOnTaskThread(new StopWorkRunnable(this, workSpecId, true));
     }
 
     /**
@@ -769,7 +768,7 @@ public class WorkManagerImpl extends WorkManager {
         }
 
         // Checks for app force stops.
-        mWorkTaskExecutor.executeOnBackgroundThread(new ForceStopRunnable(context, this));
+        mWorkTaskExecutor.executeOnTaskThread(new ForceStopRunnable(context, this));
     }
 
     /**

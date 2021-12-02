@@ -19,7 +19,6 @@ package androidx.glance.appwidget
 import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProviderInfo
 import android.content.Context
-import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.util.DisplayMetrics
@@ -27,6 +26,7 @@ import android.util.Log
 import android.util.SizeF
 import android.widget.RemoteViews
 import androidx.annotation.DoNotInline
+import androidx.annotation.LayoutRes
 import androidx.annotation.RequiresApi
 import androidx.annotation.VisibleForTesting
 import androidx.compose.runtime.BroadcastFrameClock
@@ -37,9 +37,12 @@ import androidx.compose.runtime.Recomposer
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.glance.Applier
+import androidx.glance.GlanceId
 import androidx.glance.LocalContext
+import androidx.glance.LocalGlanceId
 import androidx.glance.LocalSize
 import androidx.glance.LocalState
+import androidx.glance.appwidget.state.getAppWidgetState
 import kotlinx.coroutines.CancellationException
 import androidx.glance.state.GlanceState
 import androidx.glance.state.GlanceStateDefinition
@@ -58,11 +61,12 @@ import kotlin.math.min
  * the composition and translate [Content] into a [RemoteViews] which is then sent to the
  * [AppWidgetManager].
  *
- * @param enableErrorUi If true and an error occurs within this GlanceAppWidget, the App Widget is
- * updated with an error Ui.
+ * @param errorUiLayout If different from 0 and an error occurs within this GlanceAppWidget,
+ * the App Widget is updated with an error UI using this layout resource ID.
  */
 public abstract class GlanceAppWidget(
-    private val enableErrorUi: Boolean = true
+    @LayoutRes
+    private val errorUiLayout: Int = R.layout.glance_error_layout
 ) {
     /**
      * Definition of the UI.
@@ -81,6 +85,13 @@ public abstract class GlanceAppWidget(
     public open val stateDefinition: GlanceStateDefinition<*>? = null
 
     /**
+     * Method called by the framework when an App Widget has been removed from its host.
+     *
+     * When the method returns, the state associated with the [glanceId] will be deleted.
+     */
+    public open suspend fun onDelete(glanceId: GlanceId) { }
+
+    /**
      * Triggers the composition of [Content] and sends the result to the [AppWidgetManager].
      */
     public suspend fun update(context: Context, glanceId: GlanceId) {
@@ -88,6 +99,26 @@ public abstract class GlanceAppWidget(
             "The glanceId '$glanceId' is not a valid App Widget glance id"
         }
         update(context, AppWidgetManager.getInstance(context), glanceId.appWidgetId)
+    }
+
+    /**
+     * Calls [onDelete], then clear local data associated with the [appWidgetId].
+     *
+     * This is meant to be called when the App Widget instance has been deleted from the host.
+     */
+    internal suspend fun deleted(context: Context, appWidgetId: Int) {
+        val glanceId = AppWidgetId(appWidgetId)
+        try {
+            onDelete(glanceId)
+        } catch (cancelled: CancellationException) {
+            // Nothing to do here
+        } catch (t: Throwable) {
+            Log.e(GlanceAppWidgetTag, "Error in user-provided deletion callback", t)
+        } finally {
+            stateDefinition?.let {
+                GlanceState.deleteStore(context, it, createUniqueRemoteUiName(appWidgetId))
+            }
+        }
     }
 
     /**
@@ -136,7 +167,7 @@ public abstract class GlanceAppWidget(
         appWidgetManager: AppWidgetManager,
         appWidgetId: Int
     ): DpSize {
-        val info = appWidgetManager.getAppWidgetInfo(appWidgetId)
+        val info = appWidgetManager.getAppWidgetInfo(appWidgetId) ?: return DpSize.Zero
         val minWidth = min(
             info.minWidth,
             if (info.resizeMode and AppWidgetProviderInfo.RESIZE_HORIZONTAL != 0) {
@@ -164,6 +195,23 @@ public abstract class GlanceAppWidget(
         appWidgetId: Int,
         state: Any?,
         options: Bundle
+    ): RemoteViews {
+        val layoutConfig = LayoutConfiguration.load(context, appWidgetId)
+        return try {
+            compose(context, appWidgetManager, appWidgetId, state, options, layoutConfig)
+        } finally {
+            layoutConfig.save()
+        }
+    }
+
+    @VisibleForTesting
+    internal suspend fun compose(
+        context: Context,
+        appWidgetManager: AppWidgetManager,
+        appWidgetId: Int,
+        state: Any?,
+        options: Bundle,
+        layoutConfig: LayoutConfiguration,
     ): RemoteViews =
         when (val localSizeMode = this.sizeMode) {
             is SizeMode.Single -> {
@@ -177,7 +225,7 @@ public abstract class GlanceAppWidget(
                         appWidgetManager,
                         appWidgetId
                     ),
-                    rootViewIndex = 0,
+                    layoutConfig,
                 )
             }
             is SizeMode.Exact -> {
@@ -194,10 +242,18 @@ public abstract class GlanceAppWidget(
                                 appWidgetManager,
                                 appWidgetId
                             )
-                        }
+                        },
+                        layoutConfig,
                     )
                 } else {
-                    composeExactMode(context, appWidgetManager, appWidgetId, state, options)
+                    composeExactMode(
+                        context,
+                        appWidgetManager,
+                        appWidgetId,
+                        state,
+                        options,
+                        layoutConfig,
+                    )
                 }
             }
             is SizeMode.Responsive -> {
@@ -209,9 +265,17 @@ public abstract class GlanceAppWidget(
                         state,
                         options,
                         localSizeMode.sizes,
+                        layoutConfig,
                     )
                 } else {
-                    composeResponsiveMode(context, appWidgetId, state, options, localSizeMode.sizes)
+                    composeResponsiveMode(
+                        context,
+                        appWidgetId,
+                        state,
+                        options,
+                        localSizeMode.sizes,
+                        layoutConfig,
+                    )
                 }
             }
         }
@@ -222,10 +286,11 @@ public abstract class GlanceAppWidget(
         appWidgetId: Int,
         state: Any?,
         options: Bundle,
+        layoutConfig: LayoutConfiguration,
     ) = coroutineScope {
         val views =
             options.extractOrientationSizes()
-                .mapIndexed { index, size ->
+                .map { size ->
                     async {
                         composeForSize(
                             context,
@@ -233,7 +298,7 @@ public abstract class GlanceAppWidget(
                             state,
                             options,
                             size,
-                            rootViewIndex = index
+                            layoutConfig,
                         )
                     }
                 }.awaitAll()
@@ -243,7 +308,7 @@ public abstract class GlanceAppWidget(
             state,
             options,
             appWidgetMinSize(context.resources.displayMetrics, appWidgetManager, appWidgetId),
-            rootViewIndex = 0,
+            layoutConfig,
         )
     }
 
@@ -262,7 +327,8 @@ public abstract class GlanceAppWidget(
         appWidgetId: Int,
         state: Any?,
         options: Bundle,
-        sizes: Set<DpSize>
+        sizes: Set<DpSize>,
+        layoutConfig: LayoutConfiguration,
     ) = coroutineScope {
         // Find the best view, emulating what Android S+ would do.
         val orderedSizes = sizes.sortedBySize()
@@ -270,10 +336,9 @@ public abstract class GlanceAppWidget(
         val views =
             options.extractOrientationSizes()
                 .map { size ->
-                    findBestSize(size, sizes)?.let { orderedSizes.indexOf(it) to it }
-                        ?: 0 to smallestSize
+                    findBestSize(size, sizes) ?: smallestSize
                 }
-                .map { (index, size) ->
+                .map { size ->
                     async {
                         composeForSize(
                             context,
@@ -281,7 +346,7 @@ public abstract class GlanceAppWidget(
                             state,
                             options,
                             size,
-                            rootViewIndex = index,
+                            layoutConfig,
                         )
                     }
                 }.awaitAll()
@@ -291,7 +356,7 @@ public abstract class GlanceAppWidget(
             state,
             options,
             smallestSize,
-            rootViewIndex = 0,
+            layoutConfig,
         )
     }
 
@@ -302,7 +367,7 @@ public abstract class GlanceAppWidget(
         state: Any?,
         options: Bundle,
         size: DpSize,
-        rootViewIndex: Int,
+        layoutConfig: LayoutConfiguration,
     ): RemoteViews = withContext(BroadcastFrameClock()) {
         // The maximum depth must be reduced if the compositions are combined
         val root = RemoteViewsRoot(maxDepth = MaxComposeTreeDepth)
@@ -310,13 +375,11 @@ public abstract class GlanceAppWidget(
         val recomposer = Recomposer(coroutineContext)
         val composition = Composition(applier, recomposer)
         val glanceId = AppWidgetId(appWidgetId)
-        val uiKey = createUniqueRemoteUiName(appWidgetId)
         composition.setContent {
             CompositionLocalProvider(
                 LocalContext provides context,
                 LocalGlanceId provides glanceId,
                 LocalAppWidgetOptions provides options,
-                LocalUiKey provides uiKey,
                 LocalState provides state,
                 LocalSize provides size,
             ) { Content() }
@@ -327,13 +390,14 @@ public abstract class GlanceAppWidget(
 
         normalizeCompositionTree(root)
 
-        // TODO: Traverse the tree before translation and store the layout state, to detect changes
         translateComposition(
             context,
             appWidgetId,
             this@GlanceAppWidget.javaClass,
             root,
-            rootViewIndex
+            layoutConfig,
+            layoutConfig.addLayout(root),
+            size
         )
     }
 
@@ -355,9 +419,10 @@ public abstract class GlanceAppWidget(
             state: Any?,
             options: Bundle,
             allSizes: Collection<DpSize>,
+            layoutConfig: LayoutConfiguration
         ): RemoteViews = coroutineScope {
             val allViews =
-                allSizes.sortedBySize().mapIndexed { index, size ->
+                allSizes.map { size ->
                     async {
                         size.toSizeF() to glance.composeForSize(
                             context,
@@ -365,7 +430,7 @@ public abstract class GlanceAppWidget(
                             state,
                             options,
                             size,
-                            rootViewIndex = index
+                            layoutConfig,
                         )
                     }
                 }.awaitAll()
@@ -384,11 +449,11 @@ public abstract class GlanceAppWidget(
         } catch (ex: CancellationException) {
             // Nothing to do
         } catch (throwable: Throwable) {
-            if (!enableErrorUi) {
+            if (errorUiLayout == 0) {
                 throw throwable
             }
             logException(throwable)
-            val rv = RemoteViews(context.packageName, R.layout.error_layout)
+            val rv = RemoteViews(context.packageName, errorUiLayout)
             appWidgetManager.updateAppWidget(appWidgetId, rv)
         }
     }
@@ -399,7 +464,7 @@ internal fun createUniqueRemoteUiName(appWidgetId: Int) = "appWidget-$appWidgetI
 internal data class AppWidgetId(val appWidgetId: Int) : GlanceId
 
 // Extract the sizes from the bundle
-private fun Bundle.extractAllSizes(minSize: () -> DpSize): List<DpSize> =
+internal fun Bundle.extractAllSizes(minSize: () -> DpSize): List<DpSize> =
     getParcelableArrayList<SizeF>(AppWidgetManager.OPTION_APPWIDGET_SIZES)
         ?.map { DpSize(it.width.dp, it.height.dp) } ?: estimateSizes(minSize)
 
@@ -468,14 +533,24 @@ internal fun logException(throwable: Throwable) {
     Log.e(GlanceAppWidgetTag, "Error in Glance App Widget", throwable)
 }
 
-private fun Intent.extractAppWidgetIds() =
-    getIntArrayExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS)
-        ?: intArrayOf(
-            getIntExtra(
-                AppWidgetManager.EXTRA_APPWIDGET_ID,
-                AppWidgetManager.INVALID_APPWIDGET_ID
-            ).also {
-                check(it != AppWidgetManager.INVALID_APPWIDGET_ID) {
-                    "Cannot determine the app widget id"
-                }
-            })
+/** Update all App Widgets managed by the [GlanceAppWidget] class. */
+public suspend fun GlanceAppWidget.updateAll(@Suppress("ContextFirst") context: Context) {
+    val manager = GlanceAppWidgetManager(context)
+    manager.getGlanceIds(javaClass).forEach { update(context, it) }
+}
+
+/**
+ * Update all App Widgets managed by the [GlanceAppWidget] class, if they fulfill some condition.
+ */
+public suspend inline fun <reified State> GlanceAppWidget.updateIf(
+    @Suppress("ContextFirst") context: Context,
+    predicate: (State) -> Boolean
+) {
+    val stateDef = stateDefinition
+    requireNotNull(stateDef) { "GlanceAppWidget.updateIf cannot be used if no state is defined." }
+    val manager = GlanceAppWidgetManager(context)
+    manager.getGlanceIds(javaClass).forEach { glanceId ->
+        val state = getAppWidgetState(context, stateDef, glanceId) as State
+        if (predicate(state)) update(context, glanceId)
+    }
+}

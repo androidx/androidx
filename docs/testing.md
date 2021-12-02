@@ -35,7 +35,7 @@ users -- and library developers -- to write tests, see the
 ### What gets tested, and when
 
 We use the
-[AffectedModuleDetector](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:buildSrc/src/main/kotlin/androidx/build/dependencyTracker/AffectedModuleDetector.kt)
+[AffectedModuleDetector](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:buildSrc/private/src/main/kotlin/androidx/build/dependencyTracker/AffectedModuleDetector.kt)
 to determine what projects have changed since the last merge.
 
 In presubmit, "affected" modules will run all host and device tests regardless
@@ -152,6 +152,12 @@ important part being that it points to the Android SDK where your downloaded
 emulator images reside. You will need to open a project to get the Tools menu --
 do NOT open the AndroidX project in the "normal" instance of Android Studio;
 instead, open a normal app or create a blank project using the app wizard.
+
+NOTE You can reuse the emulator and system images from a "normal" installation
+of Android Studio by linking the `emulator` and `system_images` directories to a
+standard Android SDK path and restarting Android Studio: `cd
+prebuilts/fullsdk-darwin ln -s ~/Library/Android/sdk/emulator emulator ln -s
+~/Library/Android/sdk/system-images system-images`
 
 ## Debugging with platform SDK sources {#sources}
 

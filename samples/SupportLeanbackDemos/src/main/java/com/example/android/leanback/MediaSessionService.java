@@ -230,6 +230,7 @@ public class MediaSessionService extends Service {
         initializePlayer();
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public void onDestroy() {
         super.onDestroy();

@@ -24,7 +24,7 @@ import androidx.camera.core.impl.Quirk;
 /**
  * A quirk where SurfaceView is stretched.
  *
- * <p> On Samsung Galaxy Z Fold2, transform APIs (e.g. View#setScaleX) do not work as intended.
+ * <p> On certain Samsung devices, transform APIs (e.g. View#setScaleX) do not work as intended.
  * b/129403806
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
@@ -33,9 +33,14 @@ public class SurfaceViewStretchedQuirk implements Quirk {
     // Samsung Galaxy Z Fold2 b/129403806
     private static final String SAMSUNG = "SAMSUNG";
     private static final String GALAXY_Z_FOLD_2 = "F2Q";
+    private static final String GALAXY_Z_FOLD_3 = "Q2Q";
 
     static boolean load() {
-        return SAMSUNG.equals(Build.MANUFACTURER.toUpperCase()) && GALAXY_Z_FOLD_2.equals(
-                Build.DEVICE.toUpperCase());
+        return SAMSUNG.equalsIgnoreCase(Build.MANUFACTURER) && isFold2OrFold3();
+    }
+
+    static boolean isFold2OrFold3() {
+        return GALAXY_Z_FOLD_2.equalsIgnoreCase(Build.DEVICE)
+                || GALAXY_Z_FOLD_3.equalsIgnoreCase(Build.DEVICE);
     }
 }

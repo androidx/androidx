@@ -344,32 +344,16 @@ public class ConfirmationOverlay {
                 overlayView.findViewById(R.id.wearable_support_confirmation_overlay_message);
 
         int screenWidthPx = ResourcesUtil.getScreenWidthPx(context);
-        int screenHeightPx = ResourcesUtil.getScreenHeightPx(context);
-        int topMarginPx = ResourcesUtil.getFractionOfScreenPx(
-                context, screenWidthPx, R.fraction.confirmation_overlay_margin_above_text);
         int insetMarginPx = ResourcesUtil.getFractionOfScreenPx(
                 context, screenWidthPx, R.fraction.confirmation_overlay_text_inset_margin);
 
         MarginLayoutParams layoutParams = (MarginLayoutParams) messageView.getLayoutParams();
-        layoutParams.topMargin = topMarginPx;
         layoutParams.leftMargin = insetMarginPx;
         layoutParams.rightMargin = insetMarginPx;
-        layoutParams.bottomMargin = insetMarginPx;
 
         messageView.setLayoutParams(layoutParams);
         messageView.setText(mMessage);
         messageView.setVisibility(View.VISIBLE);
-
-        // The icon should be centered in the screen where possible. If there's too much text
-        // though (which would overflow off the screen), it should push the icon up to make
-        // more space. We can do this by setting the minHeight of the text element such that it
-        // places the icon in the correct location. Since the LinearLayout has the gravity set
-        // to "bottom", this will cause the TextView to push the icon up to the correct place on
-        // screen.
-        int iconHeightPx = context.getResources().getDimensionPixelSize(
-                R.dimen.confirmation_overlay_image_size);
-        messageView.setMinHeight(
-                screenHeightPx / 2 - (iconHeightPx / 2) - insetMarginPx - topMarginPx);
     }
 
     @MainThread
@@ -377,14 +361,14 @@ public class ConfirmationOverlay {
         switch (mType) {
             case SUCCESS_ANIMATION:
                 mOverlayDrawable = ContextCompat.getDrawable(context,
-                        R.drawable.generic_confirmation_animation);
+                        R.drawable.confirmation_animation);
                 break;
             case FAILURE_ANIMATION:
-                mOverlayDrawable = ContextCompat.getDrawable(context, R.drawable.ws_full_sad);
+                mOverlayDrawable = ContextCompat.getDrawable(context, R.drawable.failure_animation);
                 break;
             case OPEN_ON_PHONE_ANIMATION:
                 mOverlayDrawable =
-                        ContextCompat.getDrawable(context, R.drawable.ws_open_on_phone_animation);
+                        ContextCompat.getDrawable(context, R.drawable.open_on_phone_animation);
                 break;
             default:
                 String errorMessage =

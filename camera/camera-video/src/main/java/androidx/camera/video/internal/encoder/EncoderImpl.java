@@ -26,10 +26,10 @@ import static androidx.camera.video.internal.encoder.EncoderImpl.InternalState.R
 import static androidx.camera.video.internal.encoder.EncoderImpl.InternalState.STARTED;
 import static androidx.camera.video.internal.encoder.EncoderImpl.InternalState.STOPPING;
 
+import android.annotation.SuppressLint;
 import android.media.MediaCodec;
 import android.media.MediaCodecList;
 import android.media.MediaFormat;
-import android.os.Build;
 import android.os.Bundle;
 import android.util.Range;
 import android.view.Surface;
@@ -47,6 +47,7 @@ import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.camera.video.internal.DebugUtils;
 import androidx.camera.video.internal.compat.quirk.CameraUseInconsistentTimebaseQuirk;
 import androidx.camera.video.internal.compat.quirk.DeviceQuirks;
+import androidx.camera.video.internal.compat.quirk.EncoderNotUsePersistentInputSurfaceQuirk;
 import androidx.camera.video.internal.workaround.CorrectVideoTimeByTimebase;
 import androidx.camera.video.internal.workaround.EncoderFinder;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
@@ -1140,12 +1141,15 @@ public class EncoderImpl implements Encoder {
             }
         }
 
+        @SuppressLint("NewApi")
         void resetSurface() {
             Surface surface;
             Executor executor;
             OnSurfaceUpdateListener listener;
+            EncoderNotUsePersistentInputSurfaceQuirk quirk = DeviceQuirks.get(
+                    EncoderNotUsePersistentInputSurfaceQuirk.class);
             synchronized (mLock) {
-                if (Build.VERSION.SDK_INT >= 23) {
+                if (quirk == null) {
                     if (mSurface == null) {
                         mSurface = Api23Impl.createPersistentInputSurface();
                         surface = mSurface;

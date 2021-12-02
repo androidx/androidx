@@ -24,12 +24,34 @@ import androidx.annotation.RequiresApi
 /**
  * Returns a new [PersistableBundle] with the given key/value pairs as elements.
  *
+ * Supported value types are [Int], [Long], [Double], and [String] and arrays of these types. On
+ * API 22 and later [Boolean] and [BooleanArray] are also supported.
+ *
  * @throws IllegalArgumentException When a value is not a supported type of [PersistableBundle].
  */
 @RequiresApi(21)
 fun persistableBundleOf(vararg pairs: Pair<String, Any?>): PersistableBundle {
     val persistableBundle = Api21Impl.createPersistableBundle(pairs.size)
     pairs.forEach { (key, value) -> Api21Impl.putValue(persistableBundle, key, value) }
+    return persistableBundle
+}
+
+/**
+ * Covert this map to a [PersistableBundle] with the key/value pairs as elements.
+ *
+ * Supported value types are [Int], [Long], [Double], and [String] and arrays of these types. On
+ * API 22 and later [Boolean] and [BooleanArray] are also supported.
+ *
+ * @throws IllegalArgumentException When a value is not a supported type of [PersistableBundle].
+ */
+@RequiresApi(21)
+fun Map<String, Any?>.toPersistableBundle(): PersistableBundle {
+    val persistableBundle = Api21Impl.createPersistableBundle(this.size)
+
+    for ((key, value) in this) {
+        Api21Impl.putValue(persistableBundle, key, value)
+    }
+
     return persistableBundle
 }
 

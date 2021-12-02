@@ -18,6 +18,7 @@ package androidx.wear.watchface
 
 import android.content.ComponentName
 import android.content.Context
+import android.content.Intent
 import android.os.Handler
 import android.support.wearable.complications.ComplicationData
 import androidx.annotation.RestrictTo
@@ -77,6 +78,8 @@ public interface WatchFaceHostApi {
     public fun setActiveComplicationSlots(complicationSlotIds: IntArray)
 
     /**
+     * For WSL flow, not used in androidx flow.
+     *
      * Accepts a list of custom complication data sources to attempt to set as the default
      * complication data source for the specified watch face [ComplicationSlot] id. The custom
      * complication data sources are tried in turn, if the first doesn't exist then the next one
@@ -117,4 +120,14 @@ public interface WatchFaceHostApi {
     /** Schedules a call to [Renderer.renderInternal] to draw the next frame. */
     @UiThread
     public fun invalidate()
+
+    /** Intent to launch the complication permission denied activity. */
+    public fun getComplicationDeniedIntent(): Intent?
+
+    /** Intent to launch the complication permission rationale activity. */
+    public fun getComplicationRationaleIntent(): Intent?
+
+    /** Schedules a call to serialize [ComplicationSlotsManager]'s [ComplicationData]. */
+    @UiThread
+    public fun scheduleWriteComplicationDataCache()
 }

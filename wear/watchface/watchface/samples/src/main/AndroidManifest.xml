@@ -63,6 +63,9 @@
                 android:name="android.service.wallpaper"
                 android:resource="@xml/watch_face" />
             <meta-data
+                android:name="androidx.wear.watchface.MULTIPLE_INSTANCES_ALLOWED"
+                android:value="true" />
+            <meta-data
                 android:name=
                     "com.google.android.wearable.watchface.companionBuiltinConfigurationEnabled"
                 android:value="true" />
@@ -93,6 +96,9 @@
                 android:name="android.service.wallpaper"
                 android:resource="@xml/watch_face" />
             <meta-data
+                android:name="androidx.wear.watchface.MULTIPLE_INSTANCES_ALLOWED"
+                android:value="true" />
+            <meta-data
                 android:name=
                     "com.google.android.wearable.watchface.companionBuiltinConfigurationEnabled"
                 android:value="true" />
@@ -122,6 +128,9 @@
             <meta-data
                 android:name="android.service.wallpaper"
                 android:resource="@xml/watch_face" />
+            <meta-data
+                android:name="androidx.wear.watchface.MULTIPLE_INSTANCES_ALLOWED"
+                android:value="true" />
             <meta-data
                 android:name=
                     "com.google.android.wearable.watchface.companionBuiltinConfigurationEnabled"

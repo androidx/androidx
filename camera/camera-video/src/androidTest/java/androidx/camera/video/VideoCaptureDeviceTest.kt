@@ -30,8 +30,6 @@ import androidx.camera.core.internal.CameraUseCaseAdapter
 import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.CameraXUtil
 import androidx.camera.testing.GLUtil
-import androidx.camera.video.QualitySelector.QUALITY_LOWEST
-import androidx.camera.video.VideoOutput.StreamState
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
@@ -112,7 +110,13 @@ class VideoCaptureDeviceTest {
     @Test
     fun changeStreamState_canReceiveFrame() = runBlocking {
         // Arrange.
-        val videoOutput = TestVideoOutput(streamState = StreamState.INACTIVE)
+        val videoOutput =
+            TestVideoOutput(
+                streamInfo = StreamInfo.of(
+                    StreamInfo.STREAM_ID_ANY,
+                    StreamInfo.StreamState.INACTIVE
+                )
+            )
         val videoCapture = VideoCapture.withOutput(videoOutput)
 
         // Act.
@@ -127,7 +131,12 @@ class VideoCaptureDeviceTest {
         assertThat(frameUpdateSemaphore.tryAcquire(1, 2, TimeUnit.SECONDS)).isFalse()
 
         // Act.
-        videoOutput.setStreamState(StreamState.ACTIVE)
+        videoOutput.setStreamInfo(
+            StreamInfo.of(
+                StreamInfo.STREAM_ID_ANY,
+                StreamInfo.StreamState.ACTIVE
+            )
+        )
 
         // Assert.
         assertThat(frameUpdateSemaphore.tryAcquire(5, 10, TimeUnit.SECONDS)).isTrue()
@@ -145,7 +154,7 @@ class VideoCaptureDeviceTest {
             val targetResolution = QualitySelector.getResolution(cameraInfo, quality)
             val videoOutput = TestVideoOutput(
                 mediaSpec = MediaSpec.builder().configureVideo {
-                    it.setQualitySelector(QualitySelector.of(quality))
+                    it.setQualitySelector(QualitySelector.from(quality))
                 }.build()
             )
             val videoCapture = VideoCapture.withOutput(videoOutput)
@@ -178,7 +187,7 @@ class VideoCaptureDeviceTest {
         // Cuttlefish API 29 has inconsistent resolution issue. See b/184015059.
         assumeFalse(Build.MODEL.contains("Cuttlefish") && Build.VERSION.SDK_INT == 29)
 
-        val targetResolution = QualitySelector.getResolution(cameraInfo, QUALITY_LOWEST)
+        val targetResolution = QualitySelector.getResolution(cameraInfo, Quality.LOWEST)
 
         arrayOf(
             Surface.ROTATION_0, Surface.ROTATION_90, Surface.ROTATION_180, Surface.ROTATION_270
@@ -186,7 +195,7 @@ class VideoCaptureDeviceTest {
             // Arrange.
             val videoOutput = TestVideoOutput(
                 mediaSpec = MediaSpec.builder().configureVideo {
-                    it.setQualitySelector(QualitySelector.of(QUALITY_LOWEST))
+                    it.setQualitySelector(QualitySelector.from(Quality.LOWEST))
                 }.build()
             )
             val videoCapture = VideoCapture.withOutput(videoOutput)
@@ -242,13 +251,16 @@ class VideoCaptureDeviceTest {
     }
 
     private class TestVideoOutput(
-        streamState: StreamState = StreamState.ACTIVE,
+        streamInfo: StreamInfo = StreamInfo.of(
+            StreamInfo.STREAM_ID_ANY,
+            StreamInfo.StreamState.ACTIVE
+        ),
         mediaSpec: MediaSpec = MediaSpec.builder().build()
     ) : VideoOutput {
         private val surfaceRequests = ArrayBlockingQueue<SurfaceRequest>(10)
 
-        private val streamStateObservable: MutableStateObservable<StreamState> =
-            MutableStateObservable.withInitialState(streamState)
+        private val streamInfoObservable: MutableStateObservable<StreamInfo> =
+            MutableStateObservable.withInitialState(streamInfo)
 
         private val mediaSpecObservable: MutableStateObservable<MediaSpec> =
             MutableStateObservable.withInitialState(mediaSpec)
@@ -257,7 +269,7 @@ class VideoCaptureDeviceTest {
             surfaceRequests.put(surfaceRequest)
         }
 
-        override fun getStreamState(): Observable<StreamState> = streamStateObservable
+        override fun getStreamInfo(): Observable<StreamInfo> = streamInfoObservable
 
         override fun getMediaSpec(): Observable<MediaSpec> = mediaSpecObservable
 
@@ -265,7 +277,7 @@ class VideoCaptureDeviceTest {
             return surfaceRequests.poll(timeout, timeUnit)
         }
 
-        fun setStreamState(streamState: StreamState) = streamStateObservable.setState(streamState)
+        fun setStreamInfo(streamInfo: StreamInfo) = streamInfoObservable.setState(streamInfo)
 
         fun setMediaSpec(mediaSpec: MediaSpec) = mediaSpecObservable.setState(mediaSpec)
     }

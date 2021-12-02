@@ -79,6 +79,22 @@ internal class InteractiveWatchFaceImpl(
             )
         }
 
+    override fun getPendingIntentForTouchEvent(xPos: Int, yPos: Int, tapType: Int) =
+        awaitDeferredWatchFaceImplThenRunOnUiThreadBlocking(
+            "InteractiveWatchFaceImpl.sendTouchEvent"
+        ) { watchFaceImpl ->
+            watchFaceImpl.getPendingIntentForTapCommand(
+                tapType,
+                TapEvent(
+                    xPos,
+                    yPos,
+                    Instant.ofEpochMilli(
+                        watchFaceImpl.systemTimeProvider.getSystemTimeMillis()
+                    )
+                )
+            )
+        }
+
     override fun getContentDescriptionLabels() =
         awaitDeferredWatchFaceImplThenRunOnUiThreadBlocking(
             "InteractiveWatchFaceImpl.getContentDescriptionLabels"
@@ -140,8 +156,7 @@ internal class InteractiveWatchFaceImpl(
             "InteractiveWatchFaceImpl.updateWatchfaceInstance"
         ) {
             if (instanceId != newInstanceId) {
-                // If the favorite ID has changed then the complications are probably invalid.
-                engine!!.clearComplicationData()
+                engine!!.updateInstance(newInstanceId)
                 InteractiveInstanceManager.renameInstance(instanceId, newInstanceId)
                 instanceId = newInstanceId
             }
@@ -170,6 +185,8 @@ internal class InteractiveWatchFaceImpl(
     }
 
     fun onDestroy() {
-        engine = null
+        uiThreadCoroutineScope.launch {
+            engine = null
+        }
     }
 }

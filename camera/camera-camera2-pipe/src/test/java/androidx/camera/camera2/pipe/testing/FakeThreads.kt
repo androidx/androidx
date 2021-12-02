@@ -22,6 +22,7 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.asExecutor
 import java.util.concurrent.Executor
@@ -30,13 +31,15 @@ internal object FakeThreads {
     @Suppress("deprecation")
     val fakeHandler = { Handler() }
     val forTests = Threads(
-        CoroutineScope(Dispatchers.Default.plus(CoroutineName("CXCP-TestScope"))),
-        Dispatchers.Default.asExecutor(),
-        Dispatchers.Default,
-        Dispatchers.IO.asExecutor(),
-        Dispatchers.IO,
-        fakeHandler,
-        { Dispatchers.IO.asExecutor() }
+        CoroutineScope(SupervisorJob() + CoroutineName("CXCP-TestScope") + Dispatchers.Default),
+        blockingExecutor = Dispatchers.IO.asExecutor(),
+        blockingDispatcher = Dispatchers.IO,
+        backgroundExecutor = Dispatchers.Default.asExecutor(),
+        backgroundDispatcher = Dispatchers.Default,
+        lightweightExecutor = Dispatchers.Default.asExecutor(),
+        lightweightDispatcher = Dispatchers.Default,
+        camera2Handler = fakeHandler,
+        camera2Executor = { Dispatchers.IO.asExecutor() }
     )
 
     fun fromExecutor(executor: Executor): Threads {
@@ -50,12 +53,14 @@ internal object FakeThreads {
 
         return Threads(
             CoroutineScope(dispatcher.plus(CoroutineName("CXCP-TestScope"))),
-            defaultExecutor = executor,
-            defaultDispatcher = dispatcher,
-            ioExecutor = executor,
-            ioDispatcher = dispatcher,
-            fakeHandler,
-            { dispatcher.asExecutor() }
+            blockingExecutor = executor,
+            blockingDispatcher = dispatcher,
+            backgroundExecutor = executor,
+            backgroundDispatcher = dispatcher,
+            lightweightExecutor = executor,
+            lightweightDispatcher = dispatcher,
+            camera2Handler = fakeHandler,
+            camera2Executor = { dispatcher.asExecutor() }
         )
     }
 }

@@ -154,7 +154,7 @@ class DaoProcessorTest(private val enableVerification: Boolean) {
         ) { dao, _ ->
             assertThat(dao.queryMethods.size, `is`(1))
             val method = dao.queryMethods.first()
-            assertThat(method.name, `is`("getIds"))
+            assertThat(method.element.jvmName, `is`("getIds"))
         }
     }
 
@@ -170,7 +170,7 @@ class DaoProcessorTest(private val enableVerification: Boolean) {
         ) { dao, _ ->
             assertThat(dao.queryMethods.size, `is`(1))
             val method = dao.queryMethods.first()
-            assertThat(method.name, `is`("getIds"))
+            assertThat(method.element.jvmName, `is`("getIds"))
         }
     }
 
@@ -188,10 +188,10 @@ class DaoProcessorTest(private val enableVerification: Boolean) {
         ) { dao, _ ->
             assertThat(dao.queryMethods.size, `is`(1))
             val method = dao.queryMethods.first()
-            assertThat(method.name, `is`("getIds"))
+            assertThat(method.element.jvmName, `is`("getIds"))
             assertThat(dao.insertionMethods.size, `is`(1))
             val insertMethod = dao.insertionMethods.first()
-            assertThat(insertMethod.name, `is`("insert"))
+            assertThat(insertMethod.element.jvmName, `is`("insert"))
         }
     }
 
@@ -207,7 +207,7 @@ class DaoProcessorTest(private val enableVerification: Boolean) {
         ) { dao, _ ->
             assertThat(dao.queryMethods.size, `is`(1))
             val method = dao.queryMethods.first()
-            assertThat(method.name, `is`("getIds"))
+            assertThat(method.element.jvmName, `is`("getIds"))
         }
     }
 
@@ -385,7 +385,7 @@ class DaoProcessorTest(private val enableVerification: Boolean) {
         ) { dao, _ ->
             assertThat(dao.queryMethods.size, `is`(1))
             val method = dao.queryMethods.first()
-            assertThat(method.name, `is`("deleteAllIds"))
+            assertThat(method.element.jvmName, `is`("deleteAllIds"))
         }
     }
 
@@ -401,7 +401,7 @@ class DaoProcessorTest(private val enableVerification: Boolean) {
         ) { dao, invocation ->
             assertThat(dao.queryMethods.size, `is`(1))
             val method = dao.queryMethods.first()
-            assertThat(method.name, `is`("getAllIds"))
+            assertThat(method.element.jvmName, `is`("getAllIds"))
             invocation.assertCompilationResult {
                 hasErrorContaining(
                     ProcessorErrors.cannotFindQueryResultAdapter(TypeName.VOID)

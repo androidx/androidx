@@ -68,11 +68,7 @@ class ProcessorTests : DatabaseTest() {
                 return mainExecutor
             }
 
-            override fun executeOnBackgroundThread(runnable: Runnable) {
-                backgroundExecutor.execute(runnable)
-            }
-
-            override fun getBackgroundExecutor(): SerialExecutor {
+            override fun getSerialTaskExecutor(): SerialExecutor {
                 return serialExecutor
             }
         }

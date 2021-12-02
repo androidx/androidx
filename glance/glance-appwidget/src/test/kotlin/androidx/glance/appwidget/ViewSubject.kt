@@ -18,16 +18,23 @@ package androidx.glance.appwidget
 
 import android.graphics.PorterDuffColorFilter
 import android.graphics.drawable.ColorDrawable
+import android.os.Build
+import android.view.Gravity
 import android.view.View
+import android.widget.FrameLayout
 import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.annotation.ColorInt
 import androidx.annotation.Px
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.unit.Dp
+import androidx.core.view.children
+import androidx.glance.layout.Alignment
 import com.google.common.truth.FailureMetadata
 import com.google.common.truth.Subject
+import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertAbout
 import org.robolectric.Shadows.shadowOf
 import kotlin.test.assertIs
@@ -137,5 +144,129 @@ internal open class ImageViewSubject(
 
         fun assertThat(view: ImageView?): ImageViewSubject =
             assertAbout(imageViews()).that(view)
+    }
+}
+
+internal open class FrameLayoutSubject(
+    metaData: FailureMetadata,
+    private val actual: FrameLayout?,
+) : ViewSubject(metaData, actual) {
+    fun hasContentAlignment(alignment: Alignment) {
+        assertNotNull(actual)
+        if (actual.childCount == 0) {
+            return
+        }
+        check("children.getLayoutParams().gravity").that(actual.children.map { view ->
+            assertIs<FrameLayout.LayoutParams>(
+                view.layoutParams
+            ).gravity
+        }.toSet()).containsExactly(alignment.toGravity())
+    }
+
+    companion object {
+        fun frameLayouts(): Factory<FrameLayoutSubject, FrameLayout> {
+            return Factory<FrameLayoutSubject, FrameLayout> { metadata, actual ->
+                FrameLayoutSubject(metadata, actual)
+            }
+        }
+
+        fun assertThat(view: FrameLayout?): FrameLayoutSubject =
+            assertAbout(frameLayouts()).that(view)
+    }
+}
+
+internal open class LinearLayoutSubject(
+    metaData: FailureMetadata,
+    private val actual: LinearLayout?,
+) : ViewSubject(metaData, actual) {
+    fun hasContentAlignment(alignment: Alignment.Vertical) {
+        assertNotNull(actual)
+        if (actual.orientation == LinearLayout.VERTICAL) {
+            // LinearLayout.getGravity was introduced on Android N, prior to that, you could set the
+            // gravity, but not read it back.
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                check("getGravity()").that(actual.gravity and Gravity.VERTICAL_GRAVITY_MASK)
+                    .isEqualTo(alignment.toGravity())
+            }
+            return
+        }
+        if (actual.childCount == 0) {
+            return
+        }
+        check("children.getLayoutParams().gravity").that(actual.children.map { view ->
+            assertIs<LinearLayout.LayoutParams>(view.layoutParams).gravity
+        }.toSet()).containsExactly(alignment.toGravity())
+    }
+
+    fun hasContentAlignment(alignment: Alignment.Horizontal) {
+        assertNotNull(actual)
+        if (actual.orientation == LinearLayout.HORIZONTAL) {
+            // LinearLayout.getGravity was introduced on Android N, prior to that, you could set the
+            // gravity, but not read it back.
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                check("getGravity()")
+                    .that(actual.gravity and Gravity.RELATIVE_HORIZONTAL_GRAVITY_MASK)
+                    .isEqualTo(alignment.toGravity())
+            }
+            return
+        }
+        if (actual.childCount == 0) {
+            return
+        }
+        check("children.getLayoutParams().gravity").that(actual.children.map { view ->
+            assertIs<LinearLayout.LayoutParams>(view.layoutParams).gravity
+        }.toSet()).containsExactly(alignment.toGravity())
+    }
+
+    fun hasContentAlignment(alignment: Alignment) {
+        hasContentAlignment(alignment.horizontal)
+        hasContentAlignment(alignment.vertical)
+    }
+
+    companion object {
+        fun linearLayouts(): Factory<LinearLayoutSubject, LinearLayout> {
+            return Factory<LinearLayoutSubject, LinearLayout> { metadata, actual ->
+                LinearLayoutSubject(metadata, actual)
+            }
+        }
+
+        fun assertThat(view: LinearLayout?): LinearLayoutSubject =
+            assertAbout(linearLayouts()).that(view)
+    }
+}
+
+internal class ColorSubject(
+    metaData: FailureMetadata,
+    private val actual: Color?
+) : Subject(metaData, actual) {
+    fun isSameColorAs(string: String) {
+        isEqualTo(Color(android.graphics.Color.parseColor(string)))
+    }
+
+    fun isSameColorAs(color: Color) {
+        isEqualTo(color)
+    }
+
+    override fun isEqualTo(expected: Any?) {
+        assertThat(actual.toHexString()).isEqualTo(expected.toHexString())
+    }
+
+    override fun isNotEqualTo(unexpected: Any?) {
+        assertThat(actual.toHexString()).isNotEqualTo(unexpected.toHexString())
+    }
+
+    private fun Any?.toHexString(): Any? = if (this is Color?) this.toHexString() else this
+
+    private fun Color?.toHexString(): String? = this?.let { Integer.toHexString(it.toArgb()) }
+
+    companion object {
+        fun colors(): Factory<ColorSubject, Color> {
+            return Factory<ColorSubject, Color> { metadata, actual ->
+                ColorSubject(metadata, actual)
+            }
+        }
+
+        fun assertThat(color: Color?): ColorSubject =
+            assertAbout(colors()).that(color)
     }
 }

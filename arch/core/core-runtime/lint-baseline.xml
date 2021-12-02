@@ -2,17 +2,6 @@
 <issues format="6" by="lint 7.1.0-beta02" type="baseline" client="gradle" dependencies="false" name="AGP (7.1.0-beta02)" variant="all" version="7.1.0-beta02">
 
     <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 28; however, the containing class androidx.arch.core.executor.DefaultTaskExecutor is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            return Handler.createAsync(looper);"
-        errorLine2="                           ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/arch/core/executor/DefaultTaskExecutor.java"
-            line="82"
-            column="28"/>
-    </issue>
-
-    <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="    public void executeOnDiskIO(Runnable runnable) {"
@@ -41,7 +30,7 @@
         errorLine2="                                ~~~~~~~~">
         <location
             file="src/main/java/androidx/arch/core/executor/DefaultTaskExecutor.java"
-            line="58"
+            line="59"
             column="33"/>
     </issue>
 
@@ -52,7 +41,7 @@
         errorLine2="                                 ~~~~~~~~">
         <location
             file="src/main/java/androidx/arch/core/executor/DefaultTaskExecutor.java"
-            line="63"
+            line="64"
             column="34"/>
     </issue>
 

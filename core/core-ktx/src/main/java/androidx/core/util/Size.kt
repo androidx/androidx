@@ -14,10 +14,12 @@
  * limitations under the License.
  */
 
+@file:SuppressLint("ClassVerificationFailure") // Entire file is RequiresApi(21)
 @file:Suppress("NOTHING_TO_INLINE")
 
 package androidx.core.util
 
+import android.annotation.SuppressLint
 import android.util.Size
 import android.util.SizeF
 import androidx.annotation.RequiresApi
@@ -69,3 +71,25 @@ public inline operator fun SizeF.component1(): Float = width
  */
 @RequiresApi(21)
 public inline operator fun SizeF.component2(): Float = height
+
+/**
+ * Returns "width", the first component of this [SizeFCompat].
+ *
+ * This method allows to use destructuring declarations when working with
+ * sizes, for example:
+ * ```
+ * val (w, h) = mySize
+ * ```
+ */
+public inline operator fun SizeFCompat.component1(): Float = width
+
+/**
+ * Returns "height", the second component of this [SizeFCompat].
+ *
+ * This method allows to use destructuring declarations when working with
+ * sizes, for example:
+ * ```
+ * val (w, h) = mySize
+ * ```
+ */
+public inline operator fun SizeFCompat.component2(): Float = height

@@ -23,6 +23,7 @@ import androidx.camera.core.impl.Quirk;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * Quirk caused by a device bug that occurs on certain devices, like the Samsung A3 devices. It
@@ -57,6 +58,6 @@ public class CrashWhenTakingPhotoWithAutoFlashAEModeQuirk implements Quirk {
     );
 
     static boolean load() {
-        return AFFECTED_MODELS.contains(Build.MODEL.toUpperCase());
+        return AFFECTED_MODELS.contains(Build.MODEL.toUpperCase(Locale.US));
     }
 }

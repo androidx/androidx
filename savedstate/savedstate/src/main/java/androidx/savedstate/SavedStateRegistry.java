@@ -23,9 +23,8 @@ import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.arch.core.internal.SafeIterableMap;
-import androidx.lifecycle.GenericLifecycleObserver;
 import androidx.lifecycle.Lifecycle;
-import androidx.lifecycle.LifecycleOwner;
+import androidx.lifecycle.LifecycleEventObserver;
 
 import java.util.Iterator;
 import java.util.Map;
@@ -41,8 +40,9 @@ public final class SavedStateRegistry {
     private static final String SAVED_COMPONENTS_KEY =
             "androidx.lifecycle.BundlableSavedStateRegistry.key";
 
-    private SafeIterableMap<String, SavedStateProvider> mComponents =
+    private final SafeIterableMap<String, SavedStateProvider> mComponents =
             new SafeIterableMap<>();
+    private boolean mAttached;
     @Nullable
     private Bundle mRestoredState;
     private boolean mRestored;
@@ -181,29 +181,42 @@ public final class SavedStateRegistry {
     }
 
     /**
+     * An interface for an owner of this @{code {@link SavedStateRegistry} to attach this
+     * to a {@link Lifecycle}.
+     */
+    @MainThread
+    void performAttach(@NonNull Lifecycle lifecycle) {
+        if (mAttached) {
+            throw new IllegalStateException("SavedStateRegistry was already attached.");
+        }
+
+        lifecycle.addObserver((LifecycleEventObserver) (source, event) -> {
+            if (event == Lifecycle.Event.ON_START) {
+                mAllowingSavingState = true;
+            } else if (event == Lifecycle.Event.ON_STOP) {
+                mAllowingSavingState = false;
+            }
+        });
+
+        mAttached = true;
+    }
+
+    /**
      * An interface for an owner of this @{code {@link SavedStateRegistry} to restore saved state.
      *
      */
-    @SuppressWarnings("WeakerAccess")
     @MainThread
-    void performRestore(@NonNull Lifecycle lifecycle, @Nullable Bundle savedState) {
+    void performRestore(@Nullable Bundle savedState) {
+        if (!mAttached) {
+            throw new IllegalStateException("You must call performAttach() before calling "
+                    + "performRestore(Bundle).");
+        }
         if (mRestored) {
             throw new IllegalStateException("SavedStateRegistry was already restored.");
         }
         if (savedState != null) {
             mRestoredState = savedState.getBundle(SAVED_COMPONENTS_KEY);
         }
-
-        lifecycle.addObserver(new GenericLifecycleObserver() {
-            @Override
-            public void onStateChanged(LifecycleOwner source, Lifecycle.Event event) {
-                if (event == Lifecycle.Event.ON_START) {
-                    mAllowingSavingState = true;
-                } else if (event == Lifecycle.Event.ON_STOP) {
-                    mAllowingSavingState = false;
-                }
-            }
-        });
 
         mRestored = true;
     }
@@ -226,7 +239,9 @@ public final class SavedStateRegistry {
             Map.Entry<String, SavedStateProvider> entry1 = it.next();
             components.putBundle(entry1.getKey(), entry1.getValue().saveState());
         }
-        outBundle.putBundle(SAVED_COMPONENTS_KEY, components);
+        if (!components.isEmpty()) {
+            outBundle.putBundle(SAVED_COMPONENTS_KEY, components);
+        }
     }
 
     /**

@@ -18,6 +18,11 @@
     package="androidx.wear.watchface.test">
     <application android:requestLegacyExternalStorage="true">
         <activity android:name=".ComplicationTapActivity" android:exported="false"/>
+        <activity
+            android:name="androidx.wear.watchface.ComplicationHelperActivity"
+            android:exported="false"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar"/>
+
     </application>
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>

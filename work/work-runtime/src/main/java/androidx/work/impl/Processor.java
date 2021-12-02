@@ -136,7 +136,7 @@ public class Processor implements ExecutionListener, ForegroundProcessor {
                     mWorkTaskExecutor.getMainThreadExecutor());
             mEnqueuedWorkMap.put(id, workWrapper);
         }
-        mWorkTaskExecutor.getBackgroundExecutor().execute(workWrapper);
+        mWorkTaskExecutor.getSerialTaskExecutor().execute(workWrapper);
         Logger.get().debug(TAG, getClass().getSimpleName() + ": processing " + id);
         return true;
     }

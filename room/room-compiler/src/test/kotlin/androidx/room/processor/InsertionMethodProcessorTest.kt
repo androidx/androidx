@@ -67,7 +67,7 @@ class InsertionMethodProcessorTest {
                 abstract public void foo();
                 """
         ) { insertion, invocation ->
-            assertThat(insertion.name, `is`("foo"))
+            assertThat(insertion.element.jvmName, `is`("foo"))
             assertThat(insertion.parameters.size, `is`(0))
             assertThat(insertion.returnType.typeName, `is`(TypeName.VOID))
             assertThat(insertion.entities.size, `is`(0))
@@ -87,7 +87,7 @@ class InsertionMethodProcessorTest {
                 abstract public long foo(User user);
                 """
         ) { insertion, _ ->
-            assertThat(insertion.name, `is`("foo"))
+            assertThat(insertion.element.jvmName, `is`("foo"))
             assertThat(insertion.parameters.size, `is`(1))
             val param = insertion.parameters.first()
             assertThat(param.type.typeName, `is`(USER_TYPE_NAME))
@@ -109,7 +109,7 @@ class InsertionMethodProcessorTest {
                 abstract public void foo(NotAnEntity notValid);
                 """
         ) { insertion, invocation ->
-            assertThat(insertion.name, `is`("foo"))
+            assertThat(insertion.element.jvmName, `is`("foo"))
             assertThat(insertion.parameters.size, `is`(1))
             assertThat(insertion.entities.size, `is`(0))
             invocation.assertCompilationResult {
@@ -128,7 +128,7 @@ class InsertionMethodProcessorTest {
                 abstract public void foo(User u1, User u2);
                 """
         ) { insertion, _ ->
-            assertThat(insertion.name, `is`("foo"))
+            assertThat(insertion.element.jvmName, `is`("foo"))
 
             assertThat(insertion.parameters.size, `is`(2))
             insertion.parameters.forEach {
@@ -151,7 +151,7 @@ class InsertionMethodProcessorTest {
                 abstract public List<Long> insertUsers(List<User> users);
                 """
         ) { insertion, _ ->
-            assertThat(insertion.name, `is`("insertUsers"))
+            assertThat(insertion.element.jvmName, `is`("insertUsers"))
             assertThat(insertion.parameters.size, `is`(1))
             val param = insertion.parameters.first()
             assertThat(
@@ -186,7 +186,7 @@ class InsertionMethodProcessorTest {
                 abstract public void insertUsers(User[] users);
                 """
         ) { insertion, _ ->
-            assertThat(insertion.name, `is`("insertUsers"))
+            assertThat(insertion.element.jvmName, `is`("insertUsers"))
             assertThat(insertion.parameters.size, `is`(1))
             val param = insertion.parameters.first()
             assertThat(
@@ -209,7 +209,7 @@ class InsertionMethodProcessorTest {
                 abstract public void insertUsers(Set<User> users);
                 """
         ) { insertion, _ ->
-            assertThat(insertion.name, `is`("insertUsers"))
+            assertThat(insertion.element.jvmName, `is`("insertUsers"))
             assertThat(insertion.parameters.size, `is`(1))
             val param = insertion.parameters.first()
             assertThat(
@@ -235,7 +235,7 @@ class InsertionMethodProcessorTest {
                 abstract public void insertUsers(Queue<User> users);
                 """
         ) { insertion, _ ->
-            assertThat(insertion.name, `is`("insertUsers"))
+            assertThat(insertion.element.jvmName, `is`("insertUsers"))
             assertThat(insertion.parameters.size, `is`(1))
             val param = insertion.parameters.first()
             assertThat(
@@ -261,7 +261,7 @@ class InsertionMethodProcessorTest {
                 abstract public void insert(Iterable<User> users);
                 """
         ) { insertion, _ ->
-            assertThat(insertion.name, `is`("insert"))
+            assertThat(insertion.element.jvmName, `is`("insert"))
             assertThat(insertion.parameters.size, `is`(1))
             val param = insertion.parameters.first()
             assertThat(
@@ -288,7 +288,7 @@ class InsertionMethodProcessorTest {
                 abstract public void insert(MyList<String, User> users);
                 """
         ) { insertion, _ ->
-            assertThat(insertion.name, `is`("insert"))
+            assertThat(insertion.element.jvmName, `is`("insert"))
             assertThat(insertion.parameters.size, `is`(1))
             val param = insertion.parameters.first()
             assertThat(
@@ -572,7 +572,7 @@ class InsertionMethodProcessorTest {
             """,
             additionalSources = listOf(usernameSource)
         ) { insertion, _ ->
-            assertThat(insertion.name, `is`("foo"))
+            assertThat(insertion.element.jvmName, `is`("foo"))
             assertThat(insertion.parameters.size, `is`(1))
             val param = insertion.parameters.first()
             assertThat(param.type.typeName, `is`(USERNAME_TYPE_NAME))

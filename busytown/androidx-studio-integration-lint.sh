@@ -6,8 +6,7 @@ $SCRIPT_PATH/impl/build-studio-and-androidx.sh \
   -Pandroidx.summarizeStderr \
   -Pandroidx.verifyUpToDate \
   -x verifyDependencyVersions \
-  lint \
-  lintDebug \
-  lintReport \
+  lintAnalyze \
+  lintAnalyzeDebug \
   --no-daemon \
   --stacktrace

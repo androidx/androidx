@@ -17,6 +17,8 @@
 package androidx.wear.watchface.client.test
 
 import android.annotation.SuppressLint
+import android.app.PendingIntent
+import android.app.PendingIntent.FLAG_IMMUTABLE
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
@@ -27,14 +29,17 @@ import android.graphics.Rect
 import android.graphics.RectF
 import android.graphics.SurfaceTexture
 import android.os.Handler
+import android.os.IBinder
 import android.os.Looper
 import android.view.Surface
 import android.view.SurfaceHolder
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.FlakyTest
 import androidx.test.filters.MediumTest
 import androidx.test.screenshot.AndroidXScreenshotTestRule
 import androidx.test.screenshot.assertAgainstGolden
+import androidx.wear.watchface.CanvasComplication
 import androidx.wear.watchface.complications.ComplicationSlotBounds
 import androidx.wear.watchface.complications.DefaultComplicationDataSourcePolicy
 import androidx.wear.watchface.complications.SystemDataSources
@@ -52,16 +57,21 @@ import androidx.wear.watchface.ContentDescriptionLabel
 import androidx.wear.watchface.DrawMode
 import androidx.wear.watchface.RenderParameters
 import androidx.wear.watchface.Renderer
+import androidx.wear.watchface.TapEvent
+import androidx.wear.watchface.TapType
 import androidx.wear.watchface.WatchFace
 import androidx.wear.watchface.WatchFaceService
 import androidx.wear.watchface.WatchFaceType
 import androidx.wear.watchface.WatchState
-import androidx.wear.watchface.client.DefaultComplicationDataSourcePolicyAndType
 import androidx.wear.watchface.client.DeviceConfig
 import androidx.wear.watchface.client.HeadlessWatchFaceClient
 import androidx.wear.watchface.client.InteractiveWatchFaceClient
+import androidx.wear.watchface.client.InteractiveWatchFaceClientImpl
 import androidx.wear.watchface.client.WatchFaceControlClient
 import androidx.wear.watchface.client.WatchUiState
+import androidx.wear.watchface.complications.data.ComplicationData
+import androidx.wear.watchface.complications.data.NoDataComplicationData
+import androidx.wear.watchface.control.IInteractiveWatchFace
 import androidx.wear.watchface.control.WatchFaceControlService
 import androidx.wear.watchface.samples.BLUE_STYLE
 import androidx.wear.watchface.samples.COLOR_STYLE_SETTING
@@ -89,6 +99,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
@@ -98,6 +109,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
 import org.mockito.Mockito
+import org.mockito.Mockito.`when`
 import org.mockito.MockitoAnnotations
 import java.time.Instant
 import java.time.ZoneId
@@ -122,6 +134,12 @@ class WatchFaceControlClientTest {
             }
         )
     }
+
+    @Mock
+    private lateinit var mockBinder: IBinder
+
+    @Mock
+    private lateinit var iInteractiveWatchFace: IInteractiveWatchFace
 
     @Mock
     private lateinit var surfaceHolder: SurfaceHolder
@@ -188,12 +206,18 @@ class WatchFaceControlClientTest {
                 PlainComplicationText.Builder("ID").build(),
                 ComplicationText.EMPTY
             ).setTitle(PlainComplicationText.Builder("Left").build())
+                .setTapAction(
+                    PendingIntent.getActivity(context, 0, Intent("left"), FLAG_IMMUTABLE)
+                )
                 .build(),
         EXAMPLE_CANVAS_WATCHFACE_RIGHT_COMPLICATION_ID to
             ShortTextComplicationData.Builder(
                 PlainComplicationText.Builder("ID").build(),
                 ComplicationText.EMPTY
             ).setTitle(PlainComplicationText.Builder("Right").build())
+                .setTapAction(
+                    PendingIntent.getActivity(context, 0, Intent("right"), FLAG_IMMUTABLE)
+                )
                 .build()
     )
 
@@ -225,6 +249,7 @@ class WatchFaceControlClientTest {
     @Test
     fun headlessScreenshot() {
         val headlessInstance = service.createHeadlessWatchFaceClient(
+            "id",
             exampleWatchFaceComponentName,
             DeviceConfig(
                 false,
@@ -255,6 +280,7 @@ class WatchFaceControlClientTest {
     @Test
     fun yellowComplicationHighlights() {
         val headlessInstance = service.createHeadlessWatchFaceClient(
+            "id",
             exampleWatchFaceComponentName,
             DeviceConfig(
                 false,
@@ -289,6 +315,7 @@ class WatchFaceControlClientTest {
     @Test
     fun highlightOnlyLayer() {
         val headlessInstance = service.createHeadlessWatchFaceClient(
+            "id",
             exampleWatchFaceComponentName,
             DeviceConfig(
                 false,
@@ -319,9 +346,11 @@ class WatchFaceControlClientTest {
         headlessInstance.close()
     }
 
+    @Suppress("DEPRECATION") // defaultDataSourceType
     @Test
     fun headlessComplicationDetails() {
         val headlessInstance = service.createHeadlessWatchFaceClient(
+            "id",
             exampleWatchFaceComponentName,
             deviceConfig,
             400,
@@ -380,8 +409,55 @@ class WatchFaceControlClientTest {
     }
 
     @Test
+    fun complicationProviderDefaults() {
+        val wallpaperService = TestComplicationProviderDefaultsWatchFaceService(
+            context,
+            surfaceHolder
+        )
+        val deferredInteractiveInstance = handlerCoroutineScope.async {
+            service.getOrCreateInteractiveWatchFaceClient(
+                "testId",
+                deviceConfig,
+                systemState,
+                null,
+                complications
+            )
+        }
+        // Create the engine which triggers the crashing watchface.
+        handler.post {
+            engine = wallpaperService.onCreateEngine() as WatchFaceService.EngineWrapper
+        }
+
+        // Wait for the instance to be created.
+        val interactiveInstance = awaitWithTimeout(deferredInteractiveInstance)
+
+        try {
+            assertThat(interactiveInstance.complicationSlotsState.keys).containsExactly(123)
+
+            val slot = interactiveInstance.complicationSlotsState[123]!!
+            assertThat(slot.defaultDataSourcePolicy.primaryDataSource)
+                .isEqualTo(ComponentName("com.package1", "com.app1"))
+            assertThat(slot.defaultDataSourcePolicy.primaryDataSourceDefaultType)
+                .isEqualTo(ComplicationType.PHOTO_IMAGE)
+
+            assertThat(slot.defaultDataSourcePolicy.secondaryDataSource)
+                .isEqualTo(ComponentName("com.package2", "com.app2"))
+            assertThat(slot.defaultDataSourcePolicy.secondaryDataSourceDefaultType)
+                .isEqualTo(ComplicationType.LONG_TEXT)
+
+            assertThat(slot.defaultDataSourcePolicy.systemDataSourceFallback)
+                .isEqualTo(SystemDataSources.DATA_SOURCE_STEP_COUNT)
+            assertThat(slot.defaultDataSourcePolicy.systemDataSourceFallbackDefaultType)
+                .isEqualTo(ComplicationType.SHORT_TEXT)
+        } finally {
+            interactiveInstance.close()
+        }
+    }
+
+    @Test
     fun headlessUserStyleSchema() {
         val headlessInstance = service.createHeadlessWatchFaceClient(
+            "id",
             exampleWatchFaceComponentName,
             deviceConfig,
             400,
@@ -409,6 +485,7 @@ class WatchFaceControlClientTest {
     fun headlessToBundleAndCreateFromBundle() {
         val headlessInstance = HeadlessWatchFaceClient.createFromBundle(
             service.createHeadlessWatchFaceClient(
+                "id",
                 exampleWatchFaceComponentName,
                 deviceConfig,
                 400,
@@ -498,6 +575,7 @@ class WatchFaceControlClientTest {
         }
     }
 
+    @Suppress("DEPRECATION") // defaultDataSourceType
     @Test
     fun interactiveWatchFaceClient_ComplicationDetails() {
         val deferredInteractiveInstance = handlerCoroutineScope.async {
@@ -676,6 +754,7 @@ class WatchFaceControlClientTest {
         assertThat(awaitWithTimeout(deferredInteractiveInstance2).instanceId).isEqualTo("testId")
     }
 
+    @FlakyTest(bugId = 206646906)
     @SuppressLint("NewApi") // renderWatchFaceToBitmap
     @Test
     fun getOrCreateInteractiveWatchFaceClient_existingOpenInstance_styleChange() {
@@ -1024,6 +1103,7 @@ class WatchFaceControlClientTest {
         }
     }
 
+    @Suppress("DEPRECATION") // DefaultComplicationDataSourcePolicyAndType
     @Test
     fun getDefaultProviderPolicies() {
         assertThat(
@@ -1031,14 +1111,14 @@ class WatchFaceControlClientTest {
         ).containsExactlyEntriesIn(
             mapOf(
                 EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID to
-                    DefaultComplicationDataSourcePolicyAndType(
+                    androidx.wear.watchface.client.DefaultComplicationDataSourcePolicyAndType(
                         DefaultComplicationDataSourcePolicy(
                             SystemDataSources.DATA_SOURCE_DAY_OF_WEEK
                         ),
                         ComplicationType.SHORT_TEXT
                     ),
                 EXAMPLE_CANVAS_WATCHFACE_RIGHT_COMPLICATION_ID to
-                    DefaultComplicationDataSourcePolicyAndType(
+                    androidx.wear.watchface.client.DefaultComplicationDataSourcePolicyAndType(
                         DefaultComplicationDataSourcePolicy(
                             SystemDataSources.DATA_SOURCE_STEP_COUNT
                         ),
@@ -1048,6 +1128,7 @@ class WatchFaceControlClientTest {
         )
     }
 
+    @Suppress("DEPRECATION") // DefaultComplicationDataSourcePolicyAndType
     @Test
     fun getDefaultProviderPoliciesOldApi() {
         WatchFaceControlTestService.apiVersionOverride = 1
@@ -1056,14 +1137,14 @@ class WatchFaceControlClientTest {
         ).containsExactlyEntriesIn(
             mapOf(
                 EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID to
-                    DefaultComplicationDataSourcePolicyAndType(
+                    androidx.wear.watchface.client.DefaultComplicationDataSourcePolicyAndType(
                         DefaultComplicationDataSourcePolicy(
                             SystemDataSources.DATA_SOURCE_DAY_OF_WEEK
                         ),
                         ComplicationType.SHORT_TEXT
                     ),
                 EXAMPLE_CANVAS_WATCHFACE_RIGHT_COMPLICATION_ID to
-                    DefaultComplicationDataSourcePolicyAndType(
+                    androidx.wear.watchface.client.DefaultComplicationDataSourcePolicyAndType(
                         DefaultComplicationDataSourcePolicy(
                             SystemDataSources.DATA_SOURCE_STEP_COUNT
                         ),
@@ -1073,6 +1154,7 @@ class WatchFaceControlClientTest {
         )
     }
 
+    @Suppress("DEPRECATION") // DefaultComplicationDataSourcePolicyAndType
     @Test
     fun getDefaultProviderPolicies_with_TestCrashingWatchFaceService() {
         // Tests that we can retrieve the DefaultComplicationDataSourcePolicy without invoking any
@@ -1088,7 +1170,7 @@ class WatchFaceControlClientTest {
         ).containsExactlyEntriesIn(
             mapOf(
                 TestCrashingWatchFaceService.COMPLICATION_ID to
-                    DefaultComplicationDataSourcePolicyAndType(
+                    androidx.wear.watchface.client.DefaultComplicationDataSourcePolicyAndType(
                         DefaultComplicationDataSourcePolicy(
                             SystemDataSources.DATA_SOURCE_SUNRISE_SUNSET
                         ),
@@ -1273,6 +1355,105 @@ class WatchFaceControlClientTest {
         interactiveInstance.close()
         assertThat(interactiveInstance.isConnectionAlive()).isFalse()
     }
+
+    @Test
+    fun hasComplicationCache_oldApi() {
+        WatchFaceControlTestService.apiVersionOverride = 3
+        assertFalse(service.hasComplicationDataCache())
+    }
+
+    @Test
+    fun hasComplicationCache_currentApi() {
+        assertTrue(service.hasComplicationDataCache())
+    }
+
+    @Test
+    fun getPendingIntentForTouchEvent() {
+        val deferredInteractiveInstance = handlerCoroutineScope.async {
+            service.getOrCreateInteractiveWatchFaceClient(
+                "testId",
+                deviceConfig,
+                systemState,
+                null,
+                complications
+            )
+        }
+
+        // Create the engine which triggers creation of InteractiveWatchFaceClient.
+        createEngine()
+
+        val interactiveInstance = awaitWithTimeout(deferredInteractiveInstance)
+
+        assertNull(interactiveInstance.getPendingIntentForTouchEvent(0, 0, TapType.DOWN))
+        assertNull(interactiveInstance.getPendingIntentForTouchEvent(0, 0, TapType.UP))
+
+        assertNull(interactiveInstance.getPendingIntentForTouchEvent(85, 165, TapType.DOWN))
+        // Due to PendingIntent's opaque nature we can't really assert much else.
+        assertNotNull(
+            interactiveInstance.getPendingIntentForTouchEvent(85, 165, TapType.UP)
+        )
+
+        assertNull(interactiveInstance.getPendingIntentForTouchEvent(255, 165, TapType.DOWN))
+        assertNotNull(
+            interactiveInstance.getPendingIntentForTouchEvent(255, 165, TapType.UP)
+        )
+        interactiveInstance.close()
+    }
+
+    @Test
+    fun getPendingIntentForTouchEvent_pendingIntentTapListener() {
+        val wallpaperService = TestPendingIntentTapListenerWatchFaceService(
+            context,
+            surfaceHolder
+        )
+        val deferredInteractiveInstance = handlerCoroutineScope.async {
+            service.getOrCreateInteractiveWatchFaceClient(
+                "testId",
+                deviceConfig,
+                systemState,
+                null,
+                complications
+            )
+        }
+
+        val bitmap = Bitmap.createBitmap(10, 10, Bitmap.Config.ARGB_8888)
+        val canvas = Canvas(bitmap)
+        Mockito.`when`(surfaceHolder.lockHardwareCanvas()).thenReturn(canvas)
+
+        // Create the engine which triggers the crashing watchface.
+        handler.post {
+            engine = wallpaperService.onCreateEngine() as WatchFaceService.EngineWrapper
+        }
+
+        // Wait for the instance to be created.
+        val interactiveInstance = awaitWithTimeout(deferredInteractiveInstance)
+
+        assertThat(
+            interactiveInstance.getPendingIntentForTouchEvent(0, 0, TapType.DOWN)
+        ).isNull()
+
+        assertThat(
+            interactiveInstance.getPendingIntentForTouchEvent(20, 50, TapType.UP)
+        ).isNotNull()
+
+        interactiveInstance.close()
+    }
+
+    @Test
+    fun supportsPendingIntentForTouchEvent_oldApi() {
+        `when`(iInteractiveWatchFace.apiVersion).thenReturn(2)
+        `when`(iInteractiveWatchFace.asBinder()).thenReturn(mockBinder)
+        val client = InteractiveWatchFaceClientImpl(iInteractiveWatchFace)
+        assertFalse(client.supportsPendingIntentForTouchEvent())
+    }
+
+    @Test
+    fun supportsPendingIntentForTouchEvent_currentApi() {
+        `when`(iInteractiveWatchFace.apiVersion).thenReturn(IInteractiveWatchFace.API_VERSION)
+        `when`(iInteractiveWatchFace.asBinder()).thenReturn(mockBinder)
+        val client = InteractiveWatchFaceClientImpl(iInteractiveWatchFace)
+        assertTrue(client.supportsPendingIntentForTouchEvent())
+    }
 }
 
 internal class TestExampleCanvasAnalogWatchFaceService(
@@ -1303,6 +1484,62 @@ internal class TestExampleCanvasAnalogWatchFaceService(
     }
 }
 
+internal class TestPendingIntentTapListenerWatchFaceService(
+    testContext: Context,
+    private var surfaceHolderOverride: SurfaceHolder
+) : ExampleCanvasAnalogWatchFaceService() {
+
+    init {
+        attachBaseContext(testContext)
+    }
+
+    override fun getWallpaperSurfaceHolderOverride() = surfaceHolderOverride
+
+    override suspend fun createWatchFace(
+        surfaceHolder: SurfaceHolder,
+        watchState: WatchState,
+        complicationSlotsManager: ComplicationSlotsManager,
+        currentUserStyleRepository: CurrentUserStyleRepository
+    ) = WatchFace(
+        WatchFaceType.DIGITAL,
+        object : Renderer.CanvasRenderer(
+            surfaceHolder,
+            currentUserStyleRepository,
+            watchState,
+            CanvasType.HARDWARE,
+            16
+        ) {
+            override fun render(canvas: Canvas, bounds: Rect, zonedDateTime: ZonedDateTime) {}
+
+            override fun renderHighlightLayer(
+                canvas: Canvas,
+                bounds: Rect,
+                zonedDateTime: ZonedDateTime
+            ) {
+            }
+        }
+    ).setPendingIntentTapListener(
+        object : WatchFace.PendingIntentTapListener {
+            override fun onTapEvent(
+                tapType: Int,
+                tapEvent: TapEvent,
+                complicationSlot: ComplicationSlot?
+            ) = if (tapType == TapType.UP && tapEvent.xPos >= 20 && tapEvent.xPos < 40 &&
+                tapEvent.yPos >= 50 && tapEvent.yPos < 90
+            ) {
+                PendingIntent.getActivity(
+                    this@TestPendingIntentTapListenerWatchFaceService,
+                    0,
+                    Intent("Test"),
+                    FLAG_IMMUTABLE
+                )
+            } else {
+                null
+            }
+        }
+    )
+}
+
 internal open class TestCrashingWatchFaceService : WatchFaceService() {
 
     companion object {
@@ -1319,10 +1556,11 @@ internal open class TestCrashingWatchFaceService : WatchFaceService() {
                     { _, _ -> throw Exception("Deliberately crashing") },
                     listOf(ComplicationType.LONG_TEXT),
                     DefaultComplicationDataSourcePolicy(
-                        SystemDataSources.DATA_SOURCE_SUNRISE_SUNSET
+                        SystemDataSources.DATA_SOURCE_SUNRISE_SUNSET,
+                        ComplicationType.LONG_TEXT
                     ),
                     ComplicationSlotBounds(RectF(0.1f, 0.1f, 0.4f, 0.4f))
-                ).setDefaultDataSourceType(ComplicationType.LONG_TEXT).build()
+                ).build()
             ),
             currentUserStyleRepository
         )
@@ -1438,6 +1676,103 @@ internal class TestAsyncGlesRenderInitWatchFaceService(
 
             override fun renderHighlightLayer(zonedDateTime: ZonedDateTime) {
                 TODO("Not yet implemented")
+            }
+        }
+    )
+}
+
+internal class TestComplicationProviderDefaultsWatchFaceService(
+    testContext: Context,
+    private var surfaceHolderOverride: SurfaceHolder
+) : WatchFaceService() {
+    internal lateinit var watchFace: WatchFace
+
+    init {
+        attachBaseContext(testContext)
+    }
+
+    override fun getWallpaperSurfaceHolderOverride() = surfaceHolderOverride
+
+    override fun createComplicationSlotsManager(
+        currentUserStyleRepository: CurrentUserStyleRepository
+    ): ComplicationSlotsManager {
+        return ComplicationSlotsManager(
+            listOf(
+                ComplicationSlot.createRoundRectComplicationSlotBuilder(
+                    123,
+                    { _, _ ->
+                        object : CanvasComplication {
+                            override fun render(
+                                canvas: Canvas,
+                                bounds: Rect,
+                                zonedDateTime: ZonedDateTime,
+                                renderParameters: RenderParameters,
+                                slotId: Int
+                            ) {
+                            }
+
+                            override fun drawHighlight(
+                                canvas: Canvas,
+                                bounds: Rect,
+                                boundsType: Int,
+                                zonedDateTime: ZonedDateTime,
+                                color: Int
+                            ) {
+                            }
+
+                            override fun getData() = NoDataComplicationData()
+
+                            override fun loadData(
+                                complicationData: ComplicationData,
+                                loadDrawablesAsynchronous: Boolean
+                            ) {
+                            }
+                        }
+                    },
+                    listOf(
+                        ComplicationType.PHOTO_IMAGE,
+                        ComplicationType.LONG_TEXT,
+                        ComplicationType.SHORT_TEXT
+                    ),
+                    DefaultComplicationDataSourcePolicy(
+                        ComponentName("com.package1", "com.app1"),
+                        ComplicationType.PHOTO_IMAGE,
+                        ComponentName("com.package2", "com.app2"),
+                        ComplicationType.LONG_TEXT,
+                        SystemDataSources.DATA_SOURCE_STEP_COUNT,
+                        ComplicationType.SHORT_TEXT
+                    ),
+                    ComplicationSlotBounds(
+                        RectF(0.1f, 0.2f, 0.3f, 0.4f)
+                    )
+                )
+                    .build()
+            ),
+            currentUserStyleRepository
+        )
+    }
+
+    override suspend fun createWatchFace(
+        surfaceHolder: SurfaceHolder,
+        watchState: WatchState,
+        complicationSlotsManager: ComplicationSlotsManager,
+        currentUserStyleRepository: CurrentUserStyleRepository
+    ) = WatchFace(
+        WatchFaceType.DIGITAL,
+        object : Renderer.CanvasRenderer(
+            surfaceHolder,
+            currentUserStyleRepository,
+            watchState,
+            CanvasType.HARDWARE,
+            16
+        ) {
+            override fun render(canvas: Canvas, bounds: Rect, zonedDateTime: ZonedDateTime) {}
+
+            override fun renderHighlightLayer(
+                canvas: Canvas,
+                bounds: Rect,
+                zonedDateTime: ZonedDateTime
+            ) {
             }
         }
     )

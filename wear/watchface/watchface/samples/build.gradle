@@ -28,6 +28,7 @@ dependencies {
     compileOnly(project(":annotation:annotation-sampled"))
     api(project(":wear:watchface:watchface"))
     implementation(project(":wear:watchface:watchface-complications-rendering"))
+    implementation(project(":wear:watchface:watchface-complications-permission-dialogs-sample"))
     implementation(project(":wear:watchface:watchface-editor-samples"))
     api(libs.kotlinStdlib)
 }

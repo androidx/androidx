@@ -70,6 +70,9 @@ public class CameraQuirks {
         if (YuvImageOnePixelShiftQuirk.load(cameraCharacteristicsCompat)) {
             quirks.add(new YuvImageOnePixelShiftQuirk());
         }
+        if (AutoFlashUnderExposedQuirk.load(cameraCharacteristicsCompat)) {
+            quirks.add(new AutoFlashUnderExposedQuirk());
+        }
 
         return new Quirks(quirks);
     }

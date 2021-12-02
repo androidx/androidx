@@ -20,7 +20,7 @@ import androidx.room.compiler.processing.javac.JavacElement
 import androidx.room.compiler.processing.ksp.KSFileAsOriginatingElement
 import androidx.room.compiler.processing.ksp.KspElement
 import androidx.room.compiler.processing.ksp.KspMemberContainer
-import androidx.room.compiler.processing.ksp.containingFileAsOriginatingElement
+import androidx.room.compiler.processing.ksp.wrapAsOriginatingElement
 import androidx.room.compiler.processing.ksp.synthetic.KspSyntheticPropertyMethodElement
 import javax.lang.model.element.Element
 import kotlin.contracts.contract
@@ -129,13 +129,13 @@ internal fun XElement.originatingElementForPoet(): Element? {
     return when (this) {
         is JavacElement -> element
         is KspElement -> {
-            declaration.containingFileAsOriginatingElement()
+            declaration.wrapAsOriginatingElement()
         }
         is KspSyntheticPropertyMethodElement -> {
-            field.declaration.containingFileAsOriginatingElement()
+            field.declaration.wrapAsOriginatingElement()
         }
         is KspMemberContainer -> {
-            declaration?.containingFileAsOriginatingElement()
+            declaration?.wrapAsOriginatingElement()
         }
         else -> error("Originating element is not implemented for ${this.javaClass}")
     }

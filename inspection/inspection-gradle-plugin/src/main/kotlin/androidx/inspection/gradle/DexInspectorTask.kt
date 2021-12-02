@@ -25,6 +25,8 @@ import org.gradle.api.file.ArchiveOperations
 import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.file.RegularFileProperty
+import org.gradle.api.tasks.CacheableTask
+import org.gradle.api.tasks.Classpath
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.InputFiles
@@ -41,20 +43,21 @@ import java.io.ByteArrayOutputStream
 import java.io.File
 import java.nio.charset.Charset
 
+@CacheableTask
 abstract class DexInspectorTask : DefaultTask() {
     @get:PathSensitive(PathSensitivity.NONE)
     @get:InputFile
     abstract val d8Executable: RegularFileProperty
 
-    @get:PathSensitive(PathSensitivity.NONE)
+    @get:Classpath
     @get:InputFile
     abstract val androidJar: RegularFileProperty
 
-    @get:PathSensitive(PathSensitivity.NONE)
+    @get:Classpath
     @get:InputFiles
     abstract val compileClasspath: ConfigurableFileCollection
 
-    @get:PathSensitive(PathSensitivity.NONE)
+    @get:Classpath
     @get:InputFiles
     abstract val jars: ConfigurableFileCollection
 

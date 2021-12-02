@@ -26,7 +26,7 @@ import androidx.room.compiler.processing.isVoid
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.className
 import androidx.room.compiler.processing.util.getField
-import androidx.room.compiler.processing.util.getMethod
+import androidx.room.compiler.processing.util.getMethodByJvmName
 import androidx.room.compiler.processing.util.runKspTest
 import androidx.room.compiler.processing.util.runProcessorTest
 import androidx.room.compiler.processing.util.typeName
@@ -273,7 +273,7 @@ class KspTypeTest {
         )
         runProcessorTest(sources = listOf(src)) { invocation ->
             val voidMethod = invocation.processingEnv.requireTypeElement("foo.bar.Baz")
-                .getMethod("voidMethod")
+                .getMethodByJvmName("voidMethod")
             val returnType = voidMethod.returnType
             assertThat(
                 returnType.typeName
@@ -517,7 +517,7 @@ class KspTypeTest {
         ) { invocation ->
 
             val typeElement = invocation.processingEnv.requireTypeElement("foo.bar.Baz")
-            val method = typeElement.getMethod("wildcardMethod")
+            val method = typeElement.getMethodByJvmName("wildcardMethod")
             val asMember = method.asMemberOf(typeElement.type)
             fun assertParamType(paramType: XType) {
                 val arg1 = paramType.typeArguments.single()

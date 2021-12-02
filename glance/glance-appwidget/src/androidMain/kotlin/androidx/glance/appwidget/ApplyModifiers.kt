@@ -16,9 +16,7 @@
 
 package androidx.glance.appwidget
 
-import android.app.PendingIntent
 import android.content.Context
-import android.content.Intent
 import android.os.Build
 import android.util.Log
 import android.util.TypedValue.COMPLEX_UNIT_DIP
@@ -28,28 +26,21 @@ import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.widget.RemoteViews
 import androidx.annotation.DoNotInline
-import androidx.annotation.IdRes
 import androidx.annotation.RequiresApi
 import androidx.compose.ui.graphics.toArgb
-import androidx.core.widget.setTextViewHeight
-import androidx.core.widget.setTextViewWidth
-import androidx.core.widget.setViewBackgroundColor
-import androidx.core.widget.setViewBackgroundColorResource
-import androidx.core.widget.setViewBackgroundResource
-import androidx.core.widget.setViewClipToOutline
+import androidx.core.widget.RemoteViewsCompat.setTextViewHeight
+import androidx.core.widget.RemoteViewsCompat.setTextViewWidth
+import androidx.core.widget.RemoteViewsCompat.setViewBackgroundColor
+import androidx.core.widget.RemoteViewsCompat.setViewBackgroundColorResource
+import androidx.core.widget.RemoteViewsCompat.setViewBackgroundResource
+import androidx.core.widget.RemoteViewsCompat.setViewClipToOutline
 import androidx.glance.AndroidResourceImageProvider
 import androidx.glance.BackgroundModifier
 import androidx.glance.GlanceModifier
 import androidx.glance.Visibility
 import androidx.glance.VisibilityModifier
-import androidx.glance.action.Action
 import androidx.glance.action.ActionModifier
-import androidx.glance.action.LaunchActivityAction
-import androidx.glance.action.LaunchActivityClassAction
-import androidx.glance.action.LaunchActivityComponentAction
-import androidx.glance.action.UpdateContentAction
-import androidx.glance.appwidget.action.LaunchActivityIntentAction
-import androidx.glance.appwidget.layout.CornerRadiusModifier
+import androidx.glance.appwidget.action.applyAction
 import androidx.glance.appwidget.unit.DayNightColorProvider
 import androidx.glance.layout.HeightModifier
 import androidx.glance.layout.PaddingModifier
@@ -72,8 +63,9 @@ internal fun applyModifiers(
     var visibility = Visibility.Visible
     modifiers.foldIn(Unit) { _, modifier ->
         when (modifier) {
-            is ActionModifier ->
+            is ActionModifier -> {
                 applyAction(translationContext, rv, modifier.action, viewDef.mainViewId)
+            }
             is WidthModifier -> widthModifier = modifier
             is HeightModifier -> heightModifier = modifier
             is BackgroundModifier -> applyBackgroundModifier(context, rv, modifier, viewDef)
@@ -82,6 +74,9 @@ internal fun applyModifiers(
             }
             is VisibilityModifier -> visibility = modifier.visibility
             is CornerRadiusModifier -> cornerRadius = modifier.radius
+            is AppWidgetBackgroundModifier -> {
+                // This modifier is handled somewhere else.
+            }
             else -> {
                 Log.w(GlanceAppWidgetTag, "Unknown modifier '$modifier', nothing done.")
             }
@@ -109,51 +104,6 @@ private fun Visibility.toViewVisibility() =
         Visibility.Invisible -> View.INVISIBLE
         Visibility.Gone -> View.GONE
     }
-
-private fun applyAction(
-    translationContext: TranslationContext,
-    rv: RemoteViews,
-    action: Action,
-    @IdRes viewId: Int
-) {
-    when (action) {
-        is LaunchActivityAction -> {
-            val intent = when (action) {
-                is LaunchActivityComponentAction -> Intent().setComponent(action.componentName)
-                is LaunchActivityClassAction ->
-                    Intent(translationContext.context, action.activityClass)
-                is LaunchActivityIntentAction -> action.intent
-                else -> error("Action type not defined in app widget package: $action")
-            }
-
-            val pendingIntent: PendingIntent =
-                PendingIntent.getActivity(
-                    translationContext.context,
-                    0,
-                    intent,
-                    PendingIntent.FLAG_MUTABLE
-                )
-            rv.setOnClickPendingIntent(viewId, pendingIntent)
-        }
-        is UpdateContentAction -> {
-            val pendingIntent =
-                ActionRunnableBroadcastReceiver.createPendingIntent(
-                    translationContext.context,
-                    action.runnableClass,
-                    translationContext.appWidgetClass,
-                    translationContext.appWidgetId,
-                    action.parameters
-                )
-            rv.setOnClickPendingIntent(viewId, pendingIntent)
-        }
-        else -> {
-            Log.e(
-                GlanceAppWidgetTag,
-                "Unrecognized action type: ${action.javaClass.canonicalName}."
-            )
-        }
-    }
-}
 
 private fun applySizeModifiers(
     translationContext: TranslationContext,

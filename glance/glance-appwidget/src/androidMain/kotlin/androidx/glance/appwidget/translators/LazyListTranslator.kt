@@ -16,6 +16,11 @@
 
 package androidx.glance.appwidget.translators
 
+import android.app.PendingIntent
+import android.app.PendingIntent.FLAG_MUTABLE
+import android.app.PendingIntent.FLAG_UPDATE_CURRENT
+import android.content.Intent
+import android.content.Intent.FILL_IN_COMPONENT
 import android.widget.RemoteViews
 import androidx.core.widget.RemoteViewsCompat
 import androidx.glance.appwidget.InsertedViewInfo
@@ -49,20 +54,32 @@ private fun RemoteViews.translateEmittableLazyList(
     element: EmittableLazyList,
     viewDef: InsertedViewInfo,
 ) {
-    check(translationContext.areLazyCollectionsAllowed) {
+    check(!translationContext.isLazyCollectionDescendant) {
         "Glance does not support nested list views."
     }
+    // TODO(b/205868100): Remove [FILL_IN_COMPONENT] flag and set target component here when all
+    // click actions on descendants are exclusively [LaunchActivityAction] or exclusively not
+    // [LaunchActivityAction].
+    setPendingIntentTemplate(
+        viewDef.mainViewId,
+        PendingIntent.getActivity(
+            translationContext.context,
+            0,
+            Intent(),
+            FILL_IN_COMPONENT or FLAG_MUTABLE or FLAG_UPDATE_CURRENT,
+        )
+    )
     val items = RemoteViewsCompat.RemoteCollectionItems.Builder().apply {
-        val childContext = translationContext.copy(areLazyCollectionsAllowed = false)
-        element.children.foldIndexed(false) { index, previous, itemEmittable ->
+        val childContext = translationContext.forLazyCollection(viewDef.mainViewId)
+        element.children.foldIndexed(false) { position, previous, itemEmittable ->
             itemEmittable as EmittableLazyListItem
             val itemId = itemEmittable.itemId
             addItem(
                 itemId,
                 translateComposition(
-                    childContext.resetViewId(LazyListItemStartingViewId),
+                    childContext.forLazyViewItem(position, LazyListItemStartingViewId),
                     listOf(itemEmittable),
-                    index,
+                    translationContext.layoutConfiguration.addLayout(itemEmittable),
                 )
             )
             // If the user specifies any explicit ids, we assume the list to be stable
@@ -99,4 +116,4 @@ internal fun RemoteViews.translateEmittableLazyListItem(
 
 // All the lazy list items should use the same ids, to ensure the layouts can be re-used.
 // Using a very high number to avoid collision with the main app widget ids.
-private val LazyListItemStartingViewId: Int = 0x00100000
+private const val LazyListItemStartingViewId: Int = 0x00100000

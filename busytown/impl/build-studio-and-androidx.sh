@@ -45,11 +45,14 @@ function buildStudio() {
     echo failed to build studio
     return 1
   fi
+
+  # stop any remaining Gradle daemons, b/205883835
+  JAVA_HOME="$STUDIO_DIR/prebuilts/studio/jdk/jdk11/$STUDIO_JDK" $gw -p $TOOLS_DIR --stop
 }
 
 function zipStudio() {
   cd "$STUDIO_DIR/out/"
-  zip -r "$DIST_DIR/tools.zip" repo
+  zip -qr "$DIST_DIR/tools.zip" repo
   cd -
 }
 
@@ -58,8 +61,17 @@ zipStudio
 
 # list java processes to check for any running kotlin daemons, b/201504768
 function listJavaProcesses() {
+  echo "All java processes:"
   ps -ef | grep /java || true
 }
+listJavaProcesses
+
+# kill kotlin compile daemons in hopes of addressing memory problems, b/201504768
+function killKotlinDaemons() {
+  ps -ef | grep -i java.*kotlin-daemon-embeddable.*org.jetbrains.kotlin.daemon.KotlinCompileDaemon | grep -v grep | awk '{print $2}' | xargs --no-run-if-empty kill || true
+}
+killKotlinDaemons
+
 listJavaProcesses
 
 # Mac grep doesn't support -P, so use perl version of `grep -oP "(?<=buildVersion = ).*"`

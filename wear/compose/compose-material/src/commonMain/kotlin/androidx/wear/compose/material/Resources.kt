@@ -19,8 +19,15 @@ package androidx.wear.compose.material
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.painter.Painter
 
+internal enum class ImageResources {
+    CircularVignetteBottom,
+    CircularVignetteTop,
+    RectangularVignetteBottom,
+    RectangularVignetteTop,
+}
+
 @Composable
-internal expect fun imageResource(res: String): Painter
+internal expect fun imageResource(image: ImageResources): Painter
 
 @Composable
 internal expect fun isRoundDevice(): Boolean

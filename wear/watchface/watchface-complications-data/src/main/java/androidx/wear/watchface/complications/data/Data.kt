@@ -42,6 +42,14 @@ public sealed class ComplicationData constructor(
     public val validTimeRange: TimeRange = TimeRange.ALWAYS
 ) {
     /**
+     * Whether or not the complication was cached. A cached complication can't be tapped since
+     * [tapAction] is not serializable. The watch face should render it differently (e.g.
+     * semi-transparent or grayed out) until an updated complication (with a tapAction where
+     * applicable) is delivered by the system.
+     */
+    public var isCached: Boolean = cachedWireComplicationData?.isCached ?: false
+
+    /**
      * Converts this value to [WireComplicationData] object used for serialization.
      *
      * This is only needed internally to convert to the underlying communication protocol.
@@ -204,6 +212,7 @@ public class ShortTextComplicationData internal constructor(
             monochromaticImage?.addToWireComplicationData(this)
             setTapAction(tapAction)
             setValidTimeRange(validTimeRange, this)
+            setIsCached(isCached)
         }.build().also { cachedWireComplicationData = it }
 
     /** @hide */
@@ -322,6 +331,7 @@ public class LongTextComplicationData internal constructor(
                 }
             )
             setValidTimeRange(validTimeRange, this)
+            setIsCached(isCached)
         }.build().also { cachedWireComplicationData = it }
 
     /** @hide */
@@ -446,6 +456,7 @@ public class RangedValueComplicationData internal constructor(
                 }
             )
             setValidTimeRange(validTimeRange, this)
+            setIsCached(isCached)
         }.build().also { cachedWireComplicationData = it }
 
     /** @hide */
@@ -532,6 +543,7 @@ public class MonochromaticImageComplicationData internal constructor(
             )
             setTapAction(tapAction)
             setValidTimeRange(validTimeRange, this)
+            setIsCached(isCached)
         }.build().also { cachedWireComplicationData = it }
 
     /** @hide */
@@ -618,6 +630,7 @@ public class SmallImageComplicationData internal constructor(
             )
             setTapAction(tapAction)
             setValidTimeRange(validTimeRange, this)
+            setIsCached(isCached)
         }.build().also { cachedWireComplicationData = it }
 
     /** @hide */

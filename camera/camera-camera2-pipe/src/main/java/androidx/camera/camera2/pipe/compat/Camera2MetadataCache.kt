@@ -61,7 +61,7 @@ internal class Camera2MetadataCache @Inject constructor(
         }
 
         // Suspend and query CameraMetadata on a background thread.
-        return withContext(threads.ioDispatcher) {
+        return withContext(threads.backgroundDispatcher) {
             awaitMetadata(cameraId)
         }
     }

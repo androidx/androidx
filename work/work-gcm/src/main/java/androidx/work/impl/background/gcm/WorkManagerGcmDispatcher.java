@@ -72,7 +72,7 @@ public class WorkManagerGcmDispatcher {
     public void onInitializeTasks() {
         // Reschedule all eligible work, as all tasks have been cleared in GCMNetworkManager.
         // This typically happens after an upgrade.
-        mWorkManagerImpl.getWorkTaskExecutor().executeOnBackgroundThread(new Runnable() {
+        mWorkManagerImpl.getWorkTaskExecutor().executeOnTaskThread(new Runnable() {
             @Override
             public void run() {
                 Logger.get().debug(TAG, "onInitializeTasks(): Rescheduling work");

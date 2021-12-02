@@ -154,15 +154,11 @@ public final class FakeCameraFactory implements CameraFactory {
             }
             try {
                 final CameraInternal camera = callable.call();
-                try {
-                    LinkedHashSet<CameraInternal> filteredCameraInternals =
-                            mAvailableCamerasSelector.filter(
-                                    new LinkedHashSet<>(Collections.singleton(camera)));
-                    if (!filteredCameraInternals.isEmpty()) {
-                        filteredCameraIds.add(entry.getKey());
-                    }
-                } catch (IllegalArgumentException exception) {
-                    // No op. The camera was not selected by the selector
+                LinkedHashSet<CameraInternal> filteredCameraInternals =
+                        mAvailableCamerasSelector.filter(
+                                new LinkedHashSet<>(Collections.singleton(camera)));
+                if (!filteredCameraInternals.isEmpty()) {
+                    filteredCameraIds.add(entry.getKey());
                 }
             } catch (Exception exception) {
                 Logger.e(TAG, "Failed to get access to the camera instance.", exception);

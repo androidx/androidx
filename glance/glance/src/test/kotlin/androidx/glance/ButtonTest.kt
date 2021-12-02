@@ -17,8 +17,10 @@ package androidx.glance
 
 import android.app.Activity
 import androidx.glance.action.ActionModifier
+import androidx.glance.action.ActionParameters
 import androidx.glance.action.LaunchActivityAction
 import androidx.glance.action.actionLaunchActivity
+import androidx.glance.action.actionParametersOf
 import androidx.glance.layout.runTestingComposition
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -39,15 +41,26 @@ class ButtonTest {
 
     @Test
     fun createComposableButton() = fakeCoroutineScope.runBlockingTest {
+        val stringKey = ActionParameters.Key<String>("test")
+        val intKey = ActionParameters.Key<Int>("test2")
+        val string = "testString"
+        val int = 12
+
         val root = runTestingComposition {
-            Button(text = "button", onClick = actionLaunchActivity<Activity>(), enabled = true)
+            Button(text = "button", onClick = actionLaunchActivity<Activity>(
+                actionParametersOf(stringKey to string, intKey to int)
+            ), enabled = true)
         }
 
         assertThat(root.children).hasSize(1)
         val child = assertIs<EmittableButton>(root.children[0])
         assertThat(child.text).isEqualTo("button")
-        assertIs<LaunchActivityAction>(child.modifier.findModifier<ActionModifier>()?.action)
+        val action =
+            assertIs<LaunchActivityAction>(child.modifier.findModifier<ActionModifier>()?.action)
         assertThat(child.enabled).isTrue()
+        assertThat(action.parameters.asMap()).hasSize(2)
+        assertThat(action.parameters[stringKey]).isEqualTo(string)
+        assertThat(action.parameters[intKey]).isEqualTo(int)
     }
 
     @Test

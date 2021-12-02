@@ -88,7 +88,7 @@ The maximum version this Lint check will will work with is defined by `api =
 `CURRENT_API` is defined by the Lint API version against which your project is
 compiled, as defined in the module's `build.gradle` file. Jetpack Lint modules
 should compile using the Lint API version referenced in
-[Dependencies.kt](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:buildSrc/src/main/kotlin/androidx/build/dependencies/Dependencies.kt;l=176).
+[Dependencies.kt](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:buildSrc/public/src/main/kotlin/androidx/build/dependencies/Dependencies.kt;l=176).
 
 We guarantee that our Lint checks work with the versions referenced by `minApi`
 and `api` by running our tests with both versions. For newer versions of Android

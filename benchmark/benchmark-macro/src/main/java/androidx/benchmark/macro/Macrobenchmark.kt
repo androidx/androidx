@@ -109,7 +109,7 @@ private fun macrobenchmark(
     iterations: Int,
     launchWithClearTask: Boolean,
     startupModeMetricHint: StartupMode?,
-    setupBlock: MacrobenchmarkScope.(Boolean) -> Unit,
+    setupBlock: MacrobenchmarkScope.() -> Unit,
     measureBlock: MacrobenchmarkScope.() -> Unit
 ) {
     require(iterations > 0) {
@@ -135,7 +135,7 @@ private fun macrobenchmark(
 
     userspaceTrace("compile $packageName") {
         compilationMode.compile(packageName) {
-            setupBlock(scope, false)
+            setupBlock(scope)
             measureBlock(scope)
         }
     }
@@ -151,17 +151,16 @@ private fun macrobenchmark(
         metrics.forEach {
             it.configure(packageName)
         }
-        var isFirstRun = true
         val measurements = List(iterations) { iteration ->
             // Wake the device to ensure it stays awake with large iteration count
             userspaceTrace("wake device") {
                 scope.device.wakeUp()
             }
 
+            scope.iteration = iteration
             userspaceTrace("setupBlock") {
-                setupBlock(scope, isFirstRun)
+                setupBlock(scope)
             }
-            isFirstRun = false
 
             val tracePath = perfettoCollector.record(
                 benchmarkName = uniqueName,
@@ -307,7 +306,7 @@ public fun macrobenchmarkWithStartupMode(
         compilationMode = compilationMode,
         iterations = iterations,
         startupModeMetricHint = startupMode,
-        setupBlock = { firstIterationAfterCompile ->
+        setupBlock = {
             if (startupMode == StartupMode.COLD) {
                 killProcess()
                 // drop app pages from page cache to ensure it is loaded from disk, from scratch
@@ -329,13 +328,19 @@ public fun macrobenchmarkWithStartupMode(
                 if (compilationMode == CompilationMode.None) {
                     compilationMode.compile(packageName) {
                         // This is only compiling for Compilation.None
-                        // So passing an empty block as a measureBlock is inconsequential.
                         throw IllegalStateException("block never used for CompilationMode.None")
                     }
                 }
-            } else if (startupMode != null && firstIterationAfterCompile) {
-                // warmup process by running the measure block once unmeasured
-                measureBlock()
+            } else if (iteration == 0 && startupMode != null) {
+                try {
+                    iteration = null // override to null for warmup, before starting measurements
+
+                    // warmup process by running the measure block once unmeasured
+                    setupBlock(this)
+                    measureBlock()
+                } finally {
+                    iteration = 0
+                }
             }
             setupBlock(this)
         },

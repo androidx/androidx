@@ -70,10 +70,12 @@ class PreviewExtenderValidationTest(
         )
 
         cameraProvider = ProcessCameraProvider.getInstance(context)[10000, TimeUnit.MILLISECONDS]
-        extensionsManager = ExtensionsManager.getInstance(context)[10000, TimeUnit.MILLISECONDS]
+        extensionsManager = ExtensionsManager.getInstanceAsync(
+            context,
+            cameraProvider
+        )[10000, TimeUnit.MILLISECONDS]
         assumeTrue(
             extensionsManager.isExtensionAvailable(
-                cameraProvider,
                 CameraSelector.Builder().requireLensFacing(lensFacing).build(),
                 extensionMode
             )
@@ -81,7 +83,6 @@ class PreviewExtenderValidationTest(
 
         val baseCameraSelector = CameraSelector.Builder().requireLensFacing(lensFacing).build()
         val extensionCameraSelector = extensionsManager.getExtensionEnabledCameraSelector(
-            cameraProvider,
             baseCameraSelector,
             extensionMode
         )

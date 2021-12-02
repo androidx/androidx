@@ -23,8 +23,8 @@
     <id name="sizeView" />
     <id name="sizeViewStub" />
     <id name="switchText" />
-    <id name="switchTrack" />
     <id name="switchThumb" />
+    <id name="switchTrack" />
     <id name="rootView" />
     <id name="rootStubId" />
     <id name="deletedViewId" />

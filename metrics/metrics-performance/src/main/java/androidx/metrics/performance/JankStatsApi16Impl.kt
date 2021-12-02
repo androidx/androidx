@@ -24,6 +24,7 @@ import android.view.View
 import android.view.ViewTreeObserver
 import androidx.annotation.RequiresApi
 import java.lang.ref.WeakReference
+import java.lang.reflect.Field
 
 /**
  * Subclass of JankStatsBaseImpl records frame timing data for API 16 and later,
@@ -38,14 +39,14 @@ internal open class JankStatsApi16Impl(
 
     // TODO: decorView may change in Window, think about how to handle that
     // e.g., should we cache Window instead?
-    internal val decorViewRef = WeakReference(view)
+    internal val decorViewRef: WeakReference<View> = WeakReference(view)
 
     lateinit var viewTreeObserver: ViewTreeObserver
 
     // Must cache this at init time, from view, since some subclasses will not receive callbacks
     // on the UI thread, so they will not have access to the appropriate Choreographer for
     // frame timing values
-    val choreographer = Choreographer.getInstance()
+    val choreographer: Choreographer = Choreographer.getInstance()
 
     private val onPreDrawListener: ViewTreeObserver.OnPreDrawListener =
         object : ViewTreeObserver.OnPreDrawListener {
@@ -113,7 +114,7 @@ internal open class JankStatsApi16Impl(
     }
 
     companion object {
-        val choreographerLastFrameTimeField =
+        val choreographerLastFrameTimeField: Field =
             Choreographer::class.java.getDeclaredField("mLastFrameTimeNanos")
 
         init {

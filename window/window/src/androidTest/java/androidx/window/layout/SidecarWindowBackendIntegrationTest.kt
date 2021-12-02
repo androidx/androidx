@@ -194,9 +194,10 @@ public class SidecarWindowBackendIntegrationTest : WindowTestBase() {
     @Test
     public fun testVersionSupport() {
         // Only versions 1.0 and 0.1 are supported for now
-        var version = SidecarCompat.sidecarVersion
+        val version = SidecarCompat.sidecarVersion
         if (version != null) {
-            assertEquals(Version.VERSION_0_1, version)
+            val validVersion = Version.VERSION_0_1 == version || Version.VERSION_1_0 == version
+            assertTrue("Version must be either 1.0 or 0.1", validVersion)
         }
     }
 

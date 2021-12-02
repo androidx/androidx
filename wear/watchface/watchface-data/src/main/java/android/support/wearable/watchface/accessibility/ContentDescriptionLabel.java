@@ -97,6 +97,7 @@ public final class ContentDescriptionLabel implements Parcelable {
     public ContentDescriptionLabel(
             @NonNull Context context, @NonNull Rect bounds, @NonNull ComplicationData data) {
         this(bounds, AccessibilityUtils.generateContentDescription(context, data));
+        mTapAction = data.getTapAction();
     }
 
     private ContentDescriptionLabel(@NonNull Rect bounds, @NonNull TimeDependentText text) {

@@ -125,27 +125,42 @@ dependencies {
 }
 
 def generateAntlrTask = task("generateAntlrGrammar", type: GenerateAntlrGrammar) {
-    def outFolder = file(antlrOut)
-    outputDirectory = outFolder
     sqliteFile = file("$projectDir/SQLite.g4")
-    classpath configurations.compileClasspath
-    args "SQLite.g4", "-visitor", "-o", new File(outFolder, "androidx/room/parser").path,
-            "-package", "androidx.room.parser"
+    antlrClasspath = configurations.compileClasspath
+    outputDirectory = file(antlrOut)
 }
 
 @CacheableTask
-abstract class GenerateAntlrGrammar extends JavaExec {
+abstract class GenerateAntlrGrammar extends DefaultTask {
     @PathSensitive(PathSensitivity.NONE)
     @InputFile
     File sqliteFile
 
+    @Classpath
+    FileCollection antlrClasspath
+
     @OutputDirectory
     File outputDirectory
 
+    @Inject
+    abstract ExecOperations getExecOperations()
+
+    @Inject
     public GenerateAntlrGrammar() {
         description("Generates Antlr Grammar used by room")
         group("build")
-        mainClass.set("org.antlr.v4.Tool")
+    }
+
+    @TaskAction
+    void generateAntlrGrammar() {
+        execOperations.javaexec {
+            mainClass.set("org.antlr.v4.Tool")
+            classpath = antlrClasspath
+            args "SQLite.g4",
+                 "-visitor",
+                 "-o", new File(outputDirectory, "androidx/room/parser").path,
+                 "-package", "androidx.room.parser"
+        }
     }
 }
 

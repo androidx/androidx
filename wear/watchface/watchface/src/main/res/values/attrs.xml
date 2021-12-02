@@ -49,8 +49,32 @@
         <!-- Optional. First of two non-system data source ComponentNames to be tried in turn. -->
         <attr name="primaryDataSource" format="string" />
 
+        <!-- Optional unless primaryDataSource is specified. The default [ComplicationType] for the
+        primaryDataSource. This is a subset of
+        androidx.wear.watchface.complications.data.ComplicationType. -->
+        <attr name="primaryDataSourceDefaultType" format="enum">
+            <enum name="SHORT_TEXT" value="3" />
+            <enum name="LONG_TEXT" value="4" />
+            <enum name="RANGED_VALUE" value="5" />
+            <enum name="MONOCHROMATIC_IMAGE" value="6" />
+            <enum name="SMALL_IMAGE" value="7" />
+            <enum name="PHOTO_IMAGE" value="8" />
+        </attr>
+
         <!-- Optional. Second of two non-system data source ComponentNames to be tried in turn. -->
         <attr name="secondaryDataSource" format="string" />
+
+        <!-- Optional unless secondaryDataSource is specified. The default [ComplicationType] for
+        the secondaryDataSource.  This is a subset of
+        androidx.wear.watchface.complications.data.ComplicationType. -->
+        <attr name="secondaryDataSourceDefaultType" format="enum">
+            <enum name="SHORT_TEXT" value="3" />
+            <enum name="LONG_TEXT" value="4" />
+            <enum name="RANGED_VALUE" value="5" />
+            <enum name="MONOCHROMATIC_IMAGE" value="6" />
+            <enum name="SMALL_IMAGE" value="7" />
+            <enum name="PHOTO_IMAGE" value="8" />
+        </attr>
 
         <!-- Required. Fallback in case none of the non-system data sources could be used.
         These definitions match androidx.wear.watchface.complications.SystemDataSources. -->
@@ -72,7 +96,7 @@
 
         <!-- Required. The default [ComplicationType] for the default complication data source.
         This is a subset of androidx.wear.watchface.complications.data.ComplicationType. -->
-        <attr name="defaultDataSourceType" format="enum">
+        <attr name="systemDataSourceFallbackDefaultType" format="enum">
             <enum name="SHORT_TEXT" value="3" />
             <enum name="LONG_TEXT" value="4" />
             <enum name="RANGED_VALUE" value="5" />

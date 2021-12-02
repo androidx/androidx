@@ -16,6 +16,7 @@
 
 package androidx.glance.action
 
+import androidx.datastore.preferences.core.Preferences
 import java.util.Collections
 
 /**
@@ -98,6 +99,11 @@ public abstract class ActionParameters internal constructor() {
      * @return a map of all parameters in this Parameters
      */
     public abstract fun asMap(): Map<Key<out Any>, Any>
+
+    /**
+     * Returns whether there are any keys stored in the parameters.
+     */
+    public abstract fun isEmpty(): Boolean
 }
 
 /**
@@ -153,6 +159,8 @@ public class MutableActionParameters internal constructor(
     override fun hashCode(): Int = map.hashCode()
 
     override fun toString(): String = map.toString()
+
+    override fun isEmpty(): Boolean = map.isEmpty()
 }
 
 /**
@@ -197,3 +205,7 @@ public fun ActionParameters.toMutableParameters(): MutableActionParameters =
  * @return a copy of this Parameters
  */
 public fun ActionParameters.toParameters(): ActionParameters = toMutableParameters()
+
+/** Creates an action key from a preferences key. */
+public fun <T : Any> Preferences.Key<T>.toParametersKey(): ActionParameters.Key<T> =
+    ActionParameters.Key(name)
