@@ -20,6 +20,7 @@ import android.opengl.EGL14
 import android.opengl.EGLConfig
 import android.opengl.EGLContext
 import android.opengl.EGLSurface
+import android.opengl.GLES20
 
 /**
  * Class responsible for configuration of EGL related resources. This includes
@@ -40,6 +41,8 @@ class EglManager(val eglSpec: EglSpec = EglSpec.Egl14) {
     private var mWideColorGamutSupport = false
     private var mEglVersion = EglVersion.Unknown
     private var mEglExtensions: EglExtensions? = null
+    private var mIsSingleBuffered: Boolean = false
+    private var mQueryResult: IntArray? = null
 
     /**
      * Initialize the EGLManager. This initializes the default display as well
@@ -174,8 +177,24 @@ class EglManager(val eglSpec: EglSpec = EglSpec.Egl14) {
      * is the same as [drawSurface]
      */
     @JvmOverloads
-    fun makeCurrent(drawSurface: EGLSurface, readSurface: EGLSurface = drawSurface): Boolean =
-        eglSpec.eglMakeCurrent(mEglContext, drawSurface, readSurface)
+    fun makeCurrent(drawSurface: EGLSurface, readSurface: EGLSurface = drawSurface): Boolean {
+        val result = eglSpec.eglMakeCurrent(mEglContext, drawSurface, readSurface)
+        if (result) {
+            querySurface(drawSurface)
+        }
+        return result
+    }
+
+    /**
+     * Post EGL surface color buffer to a native window. If the current drawing surface
+     * is single buffered this will flush the buffer
+     */
+    fun swapAndFlushBuffers() {
+        if (mIsSingleBuffered) {
+            GLES20.glFlush()
+        }
+        eglSpec.eglSwapBuffers(currentDrawSurface)
+    }
 
     /**
      * Returns the default surface. This can be an offscreen pixel buffer surface or
@@ -195,4 +214,14 @@ class EglManager(val eglSpec: EglSpec = EglSpec.Egl14) {
      */
     val currentReadSurface: EGLSurface
         get() = eglSpec.eglGetCurrentReadSurface()
+
+    /**
+     * Helper method to query properties of the given surface
+     */
+    private fun querySurface(surface: EGLSurface) {
+        val resultArray = mQueryResult ?: IntArray(1).also { mQueryResult = it }
+        if (eglSpec.eglQuerySurface(surface, EGL14.EGL_RENDER_BUFFER, resultArray, 0)) {
+            mIsSingleBuffered = resultArray[0] == EGL14.EGL_SINGLE_BUFFER
+        }
+    }
 }

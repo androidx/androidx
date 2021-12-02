@@ -17,4 +17,17 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="androidx.graphics.core.test">
 
+    <uses-feature android:glEsVersion="0x00020000" android:required="true" />
+    <supports-gl-texture android:name="GL_OES_compressed_ETC1_RGB8_texture" />
+    <supports-gl-texture android:name="GL_OES_compressed_paletted_texture" />
+    <application>
+        <activity android:name="androidx.graphics.opengl.egl.EglTestActivity"
+            android:label="Graphics Core Test"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+    </application>
 </manifest>

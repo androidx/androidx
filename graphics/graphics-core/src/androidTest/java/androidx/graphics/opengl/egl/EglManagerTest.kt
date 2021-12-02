@@ -16,10 +16,14 @@
 
 package androidx.graphics.opengl.egl
 
+import android.graphics.Color
 import android.graphics.SurfaceTexture
 import android.opengl.EGL14
+import android.opengl.GLES20
+import android.os.Build
 import android.view.Surface
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -29,10 +33,14 @@ import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
 import org.junit.Test
 import org.junit.runner.RunWith
+import java.nio.ByteBuffer
+import kotlin.concurrent.thread
 
 @RunWith(AndroidJUnit4::class)
 @SmallTest
 class EglManagerTest {
+
+    val GL_TEXTURE_EXTERNAL_OES = 0x8D65
 
     @Test
     fun testInitializeAndRelease() {
@@ -247,6 +255,10 @@ class EglManagerTest {
         }
     }
 
+    // Requires single buffered SurfaceTexture
+    // Attempts to create an EGLSurface that is single buffered
+    // always will return a double buffered EGLSurface instead
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
     @Test
     fun testCreateWindowSurfaceWithFrontBuffer() {
         testEglManager {
@@ -259,7 +271,7 @@ class EglManagerTest {
 
             createContext(config!!)
 
-            val surface = Surface(SurfaceTexture(42))
+            val surface = Surface(SurfaceTexture(42, true))
 
             val attrs = EglConfigAttributes {
                 EGL14.EGL_RENDER_BUFFER to EGL14.EGL_SINGLE_BUFFER
@@ -267,8 +279,133 @@ class EglManagerTest {
             // Create a window surface with the default attributes
             val eglSurface = eglSpec.eglCreateWindowSurface(config, surface, attrs)
             assertNotEquals(EGL14.EGL_NO_SURFACE, eglSurface)
+            val result = IntArray(1)
+            val queryResult = eglSpec.eglQuerySurface(
+                eglSurface, EGL14.EGL_RENDER_BUFFER, result, 0)
+
+            assertTrue(queryResult)
+            assertEquals(EGL14.EGL_SINGLE_BUFFER, result[0])
+
             eglSpec.eglDestroySurface(eglSurface)
 
+            release()
+        }
+    }
+
+    @Test
+    fun testSurfaceContentsWithBackBuffer() {
+        verifySurfaceContentsWithWindowConfig()
+    }
+
+    @Test
+    fun testSurfaceContentsWithFrontBuffer() {
+        verifySurfaceContentsWithWindowConfig(
+            EglConfigAttributes {
+                EGL14.EGL_RENDER_BUFFER to EGL14.EGL_SINGLE_BUFFER
+            }
+        )
+    }
+
+    private fun verifySurfaceContentsWithWindowConfig(
+        eglConfigAttributes: EglConfigAttributes? = null
+    ) {
+        testEglManager {
+            initialize()
+            val config = loadConfig(EglConfigAttributes8888)
+            if (config == null) {
+                fail("Config 8888 should be supported")
+            }
+            createContext(config!!)
+            val srcTexName = IntArray(1).let {
+                GLES20.glGenTextures(1, it, 0)
+                it[0]
+            }
+
+            val fboName = IntArray(1).let {
+                GLES20.glGenFramebuffers(1, it, 0)
+                it[0]
+            }
+
+            val width = 8
+            val height = 5
+            val targetColor = Color.RED
+            val surfaceTexture = SurfaceTexture(srcTexName).apply {
+                setDefaultBufferSize(width, height)
+            }
+            val surface = Surface(surfaceTexture)
+            thread {
+                drawSurface(surface, targetColor, eglConfigAttributes)
+            }.join()
+
+            surfaceTexture.updateTexImage()
+
+            // Android API level 17 emulators do not support GL_TEXTURE_EXTERNAL_OES
+            // so fall back on GL_TEXTURE_2D instead
+            val extensionSupported = Build.VERSION.SDK_INT > Build.VERSION_CODES.JELLY_BEAN_MR1
+            val texType = if (extensionSupported) GL_TEXTURE_EXTERNAL_OES else GLES20.GL_TEXTURE_2D
+
+            createFbo(srcTexName, fboName, texType)
+            verifyPixels(width, height, targetColor)
+            GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, 0)
+            release()
+        }
+    }
+
+    private fun createFbo(texName: Int, fboName: Int, texType: Int) {
+        GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, fboName)
+        verify("glBindFrame buffer success")
+        GLES20.glFramebufferTexture2D(GLES20.GL_FRAMEBUFFER, GLES20.GL_COLOR_ATTACHMENT0,
+            texType, texName, 0)
+        verify("glFrameBufferTexture2d success")
+        val frameBufferResult = GLES20.glCheckFramebufferStatus(GLES20.GL_FRAMEBUFFER)
+        assertEquals(GLES20.GL_FRAMEBUFFER_COMPLETE, frameBufferResult)
+    }
+
+    private fun verify(msg: String) {
+        val error = GLES20.glGetError()
+        assertEquals("$msg error: $error", GLES20.GL_NO_ERROR, GLES20.glGetError())
+    }
+
+    private fun verifyPixels(width: Int, height: Int, targetColor: Int) {
+        val capacity = width * height * 4
+
+        val buffer = ByteBuffer.allocateDirect(capacity)
+        GLES20.glReadPixels(0, 0, width, height, GLES20.GL_RGBA, GLES20.GL_UNSIGNED_BYTE, buffer)
+
+        for (i in 0 until width * height step 4) {
+            val red = buffer[i].toInt() and 0xff
+            val green = buffer[i + 1].toInt() and 0xff
+            val blue = buffer[i + 2].toInt() and 0xff
+            val alpha = buffer[i + 3].toInt() and 0xff
+            assertEquals(targetColor, Color.argb(alpha, red, green, blue))
+        }
+    }
+
+    private fun drawSurface(
+        surface: Surface,
+        color: Int,
+        configAttributes: EglConfigAttributes? = null
+    ) {
+        testEglManager {
+            initialize()
+            val config = loadConfig(EglConfigAttributes8888)
+            if (config == null) {
+                fail("Config 8888 should be supported")
+            }
+            createContext(config!!)
+
+            val eglSurface = eglSpec.eglCreateWindowSurface(config, surface, configAttributes)
+            makeCurrent(eglSurface)
+            GLES20.glClearColor(
+                Color.red(color) / 255f,
+                Color.green(color) / 255f,
+                Color.blue(color) / 255f,
+                Color.alpha(color) / 255f
+            )
+            GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT)
+            swapAndFlushBuffers()
+
+            eglSpec.eglDestroySurface(eglSurface)
             release()
         }
     }
