@@ -347,7 +347,8 @@ class ComplicationRenderer {
         }
         // Choose the correct paint set to use
         PaintSet currentPaintSet = inAmbientMode ? mAmbientPaintSet : mActivePaintSet;
-        currentPaintSet.setAlpha(mComplicationData.getIsCached() ? 128 : 255);
+        currentPaintSet.setAlpha(
+                mComplicationData.getTapActionLostDueToSerialization() ? 128 : 255);
         // Update complication texts
         updateComplicationTexts(currentTime.toEpochMilli());
         canvas.save();

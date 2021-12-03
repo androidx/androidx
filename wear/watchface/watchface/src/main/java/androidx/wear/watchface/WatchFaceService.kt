@@ -1656,7 +1656,7 @@ public abstract class WatchFaceService : WallpaperService() {
             // applied.
             pendingInitialComplications = params.idAndComplicationDataWireFormats
 
-            if (pendingInitialComplications == null) {
+            if (pendingInitialComplications == null || pendingInitialComplications!!.isEmpty()) {
                 pendingInitialComplications = readComplicationDataCache(_context, params.instanceId)
             }
 
