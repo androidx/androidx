@@ -66,6 +66,18 @@ dependencies {
     androidTestImplementation(project(":internal-testutils-truth"))
 }
 
+// Added in hopes of ensuring prefab artifacts are available by the time CMake runs and preventing
+// flakes like b/209000511 and b/206464070
+afterEvaluate {
+    tasks.named("configureCMakeDebug").configure {
+        dependsOn(":external:libyuv:prefabDebugPackage")
+    }
+
+    tasks.named("configureCMakeRelWithDebInfo").configure {
+        dependsOn(":external:libyuv:prefabReleasePackage")
+    }
+}
+
 android {
     defaultConfig {
         multiDexEnabled = true
