@@ -18,10 +18,12 @@ package androidx.appcompat.widget;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import android.text.method.DigitsKeyListener;
 import android.text.method.KeyListener;
 import android.text.method.NumberKeyListener;
 import android.view.KeyEvent;
 
+import androidx.appcompat.test.R;
 import androidx.test.annotation.UiThreadTest;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
@@ -47,7 +49,7 @@ public class AppCompatEditTextEmojiTest
     public void respectsFocusableAndEditableAttribute() {
         AppCompatEditText notFocusable =
                 mActivityTestRule.getActivity()
-                        .findViewById(androidx.appcompat.test.R.id.not_focusable);
+                        .findViewById(R.id.not_focusable);
 
         assertThat(notFocusable.isEnabled()).isFalse();
         assertThat(notFocusable.isFocusable()).isFalse();
@@ -57,7 +59,7 @@ public class AppCompatEditTextEmojiTest
     @UiThreadTest
     public void respectsDigits() {
         AppCompatEditText textWithDigits = mActivityTestRule.getActivity()
-                        .findViewById(androidx.appcompat.test.R.id.text_with_digits);
+                        .findViewById(R.id.text_with_digits);
 
         int[] acceptedKeyCodes = {KeyEvent.KEYCODE_0, KeyEvent.KEYCODE_1, KeyEvent.KEYCODE_2,
                 KeyEvent.KEYCODE_3, KeyEvent.KEYCODE_4};
@@ -82,7 +84,7 @@ public class AppCompatEditTextEmojiTest
     @UiThreadTest
     public void respectsDigitsAndComma() {
         AppCompatEditText textWithDigitsAndComma = mActivityTestRule.getActivity()
-                .findViewById(androidx.appcompat.test.R.id.text_with_digits_and_comma);
+                .findViewById(R.id.text_with_digits_and_comma);
 
         int[] acceptedKeyCodes = {KeyEvent.KEYCODE_0, KeyEvent.KEYCODE_1, KeyEvent.KEYCODE_2,
                 KeyEvent.KEYCODE_3, KeyEvent.KEYCODE_4, KeyEvent.KEYCODE_NUMPAD_COMMA};
@@ -102,6 +104,18 @@ public class AppCompatEditTextEmojiTest
         }
 
         assertThat(textWithDigitsAndComma.getKeyListener()).isInstanceOf(NumberKeyListener.class);
+    }
+
+    @Test
+    @UiThreadTest
+    public void setKeyListener_doesNotWrap_numberKeyListener() {
+        KeyListener digitsKeyListener = DigitsKeyListener.getInstance("123456");
+        AppCompatEditText textWithDigits = mActivityTestRule.getActivity()
+                .findViewById(R.id.text_with_digits);
+
+        textWithDigits.setKeyListener(digitsKeyListener);
+        assertThat(textWithDigits.getKeyListener()).isSameInstanceAs(digitsKeyListener);
+        assertThat(textWithDigits.getKeyListener()).isInstanceOf(DigitsKeyListener.class);
     }
 
 
