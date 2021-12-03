@@ -19,6 +19,7 @@ package androidx.appcompat.widget;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.text.method.KeyListener;
+import android.text.method.NumberKeyListener;
 import android.util.AttributeSet;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputConnection;
@@ -87,10 +88,25 @@ class AppCompatEmojiEditTextHelper {
         // EditText would provide.
         boolean wasFocusable = mView.isFocusable();
         int inputType = mView.getInputType();
-        mView.setKeyListener(mView.getKeyListener());
-        // reset the input type and focusable attributes after calling setKeyListener
-        mView.setRawInputType(inputType);
-        mView.setFocusable(wasFocusable);
+        KeyListener currentKeyListener = mView.getKeyListener();
+        if (isEmojiCapableKeyListener(currentKeyListener)) {
+            mView.setKeyListener(currentKeyListener);
+            // reset the input type and focusable attributes after calling setKeyListener
+            mView.setRawInputType(inputType);
+            mView.setFocusable(wasFocusable);
+        }
+    }
+
+    /**
+     * All subtypes of NumberKeyListener do not allow inputting emoji, so we don't need to wrap
+     * them
+     *
+     * Practically, this allows us to avoid calling setKeyListener in TextView which has
+     * unintended side-effects of breaking filtering for number key listeners (see b/207119921)
+     * due to the call to locale behavior inside TextView.
+     */
+    private boolean isEmojiCapableKeyListener(KeyListener currentKeyListener) {
+        return !(currentKeyListener instanceof NumberKeyListener);
     }
 
     /**
