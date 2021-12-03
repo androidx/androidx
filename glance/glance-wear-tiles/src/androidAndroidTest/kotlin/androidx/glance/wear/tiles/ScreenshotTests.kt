@@ -52,6 +52,7 @@ import androidx.glance.layout.width
 import androidx.glance.text.FontStyle
 import androidx.glance.text.FontWeight
 import androidx.glance.text.Text
+import androidx.glance.text.TextAlign
 import androidx.glance.text.TextDecoration
 import androidx.glance.text.TextStyle
 import androidx.glance.unit.ColorProvider
@@ -162,11 +163,51 @@ class ScreenshotTests {
     }
 
     @Test
-    fun textWithSize() = runSingleGoldenTest("text-with-size") {
-        Text(
-            text = "Hello World! This is a test",
-            modifier = GlanceModifier.size(200.dp).background(Color.Red)
-        )
+    fun textWithSizeAndAlignment() = runSingleGoldenTest("text-with-size-alignment") {
+        Row {
+            Column {
+                Text(
+                    text = "Hello World",
+                    modifier = GlanceModifier.width(95.dp).height(60.dp).background(Color.Green)
+                )
+                Text(
+                    text = "Hello World",
+                    style = TextStyle(textAlign = TextAlign.Start),
+                    modifier = GlanceModifier.width(95.dp).height(60.dp).background(Color.Blue)
+                )
+
+                Text(
+                    text = "Hello World",
+                    style = TextStyle(textAlign = TextAlign.End),
+                    modifier = GlanceModifier.width(95.dp).height(60.dp).background(Color.Red)
+                )
+            }
+            Column {
+                Text(
+                    text = "Hello World! This is a multiline test",
+                    maxLines = 3,
+                    modifier = GlanceModifier.width(100.dp).height(60.dp).background(Color.Red)
+                )
+
+                Text(
+                    text = "Hello World! This is a multiline test",
+                    maxLines = 3,
+                    style = TextStyle(
+                        textAlign = TextAlign.Start
+                    ),
+                    modifier = GlanceModifier.width(100.dp).height(60.dp).background(Color.Green)
+                )
+
+                Text(
+                    text = "Hello World! This is a multiline test",
+                    maxLines = 3,
+                    style = TextStyle(
+                        textAlign = TextAlign.End
+                    ),
+                    modifier = GlanceModifier.width(100.dp).height(60.dp).background(Color.Blue)
+                )
+            }
+        }
     }
 
     @Test
