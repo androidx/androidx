@@ -75,29 +75,6 @@ class AppCompatEmojiEditTextHelper {
     }
 
     /**
-     * Call from constructor to initialize key listener correctly.
-     */
-    void initKeyListener() {
-        // setKeyListener will cause a reset both focusable and the inputType to the most basic
-        // style for the key listener. Since we're calling this from the View constructor, this
-        // will cause both focusable and inputType to reset from the XML attributes.
-        // See: b/191061070 and b/188049943 for details
-        //
-        // We will only reset this during initKeyListener, and default to the platform behavior
-        // for later calls to setKeyListener, to emulate the exact behavior that a regular
-        // EditText would provide.
-        boolean wasFocusable = mView.isFocusable();
-        int inputType = mView.getInputType();
-        KeyListener currentKeyListener = mView.getKeyListener();
-        if (isEmojiCapableKeyListener(currentKeyListener)) {
-            mView.setKeyListener(currentKeyListener);
-            // reset the input type and focusable attributes after calling setKeyListener
-            mView.setRawInputType(inputType);
-            mView.setFocusable(wasFocusable);
-        }
-    }
-
-    /**
      * All subtypes of NumberKeyListener do not allow inputting emoji, so we don't need to wrap
      * them
      *
@@ -105,7 +82,7 @@ class AppCompatEmojiEditTextHelper {
      * unintended side-effects of breaking filtering for number key listeners (see b/207119921)
      * due to the call to locale behavior inside TextView.
      */
-    private boolean isEmojiCapableKeyListener(KeyListener currentKeyListener) {
+    boolean isEmojiCapableKeyListener(KeyListener currentKeyListener) {
         return !(currentKeyListener instanceof NumberKeyListener);
     }
 
