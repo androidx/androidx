@@ -38,6 +38,7 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.result.contract.ActivityResultContracts.CaptureVideo
+import androidx.activity.result.contract.ActivityResultContracts.CreateDocument
 import androidx.activity.result.contract.ActivityResultContracts.GetContent
 import androidx.activity.result.contract.ActivityResultContracts.OpenMultipleDocuments
 import androidx.activity.result.contract.ActivityResultContracts.RequestPermission
@@ -76,6 +77,8 @@ class MainActivity : ComponentActivity() {
         toast("Got image: $uri")
     }
 
+    lateinit var createDocument: ActivityResultLauncher<String>
+
     lateinit var openDocuments: ActivityResultLauncher<Array<String>>
 
     private val intentSender = registerForActivityResult(
@@ -89,6 +92,9 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         if (android.os.Build.VERSION.SDK_INT >= 19) {
+            createDocument = registerForActivityResult(CreateDocument("image/png")) { uri ->
+                toast("Created document: $uri")
+            }
             openDocuments = registerForActivityResult(OpenMultipleDocuments()) { uris ->
                 var docs = ""
                 uris.forEach {
@@ -122,6 +128,9 @@ class MainActivity : ComponentActivity() {
                     getContent.launch("image/*")
                 }
                 if (android.os.Build.VERSION.SDK_INT >= 19) {
+                    button("Create document") {
+                        createDocument.launch("Temp")
+                    }
                     button("Open documents") {
                         openDocuments.launch(arrayOf("*/*"))
                     }

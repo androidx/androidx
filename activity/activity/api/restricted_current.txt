@@ -178,7 +178,8 @@ package androidx.activity.result.contract {
   }
 
   @RequiresApi(19) public static class ActivityResultContracts.CreateDocument extends androidx.activity.result.contract.ActivityResultContract<java.lang.String,android.net.Uri> {
-    ctor public ActivityResultContracts.CreateDocument();
+    ctor public ActivityResultContracts.CreateDocument(String mimeType);
+    ctor @Deprecated public ActivityResultContracts.CreateDocument();
     method @CallSuper public android.content.Intent createIntent(android.content.Context context, String input);
     method public final androidx.activity.result.contract.ActivityResultContract.SynchronousResult<android.net.Uri>? getSynchronousResult(android.content.Context context, String input);
     method public final android.net.Uri? parseResult(int resultCode, android.content.Intent? intent);
