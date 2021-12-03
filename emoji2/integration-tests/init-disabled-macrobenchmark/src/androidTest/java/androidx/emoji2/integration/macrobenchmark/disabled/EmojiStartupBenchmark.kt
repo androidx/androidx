@@ -16,6 +16,7 @@
 
 package androidx.emoji2.integration.macrobenchmark.disabled
 
+import android.os.Build
 import androidx.benchmark.macro.CompilationMode
 import androidx.benchmark.macro.StartupMode
 import androidx.benchmark.macro.junit4.MacrobenchmarkRule
@@ -35,7 +36,11 @@ class EmojiStartupBenchmark {
     @Test
     fun emojiCompatInitDisabledStartup() {
         benchmarkRule.measureStartup(
-            compilationMode = CompilationMode.None,
+            compilationMode = if (Build.VERSION.SDK_INT >= 24) {
+                CompilationMode.None()
+            } else {
+                CompilationMode.Full()
+            },
             startupMode = StartupMode.COLD,
             packageName = "androidx.emoji2.integration.macrobenchmark.disabled.target"
         ) {
