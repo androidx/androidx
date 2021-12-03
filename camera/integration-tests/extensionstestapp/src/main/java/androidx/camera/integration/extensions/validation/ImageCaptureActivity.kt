@@ -22,12 +22,31 @@ import android.content.res.Configuration
 import android.graphics.ImageFormat
 import android.os.Bundle
 import android.util.Log
+import android.view.GestureDetector
+import android.view.GestureDetector.SimpleOnGestureListener
+import android.view.MotionEvent
+import android.view.ScaleGestureDetector
+import android.view.ScaleGestureDetector.SimpleOnScaleGestureListener
+import android.widget.Button
 import android.widget.ImageButton
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.camera.core.Camera
+import androidx.camera.core.CameraControl
+import androidx.camera.core.CameraInfo
+import androidx.camera.core.DisplayOrientedMeteringPointFactory
+import androidx.camera.core.FocusMeteringAction
+import androidx.camera.core.FocusMeteringResult
 import androidx.camera.core.ImageCapture
+import androidx.camera.core.ImageCapture.FLASH_MODE_AUTO
+import androidx.camera.core.ImageCapture.FLASH_MODE_OFF
+import androidx.camera.core.ImageCapture.FLASH_MODE_ON
 import androidx.camera.core.ImageCaptureException
 import androidx.camera.core.ImageProxy
+import androidx.camera.core.MeteringPointFactory
 import androidx.camera.core.Preview
+import androidx.camera.core.impl.utils.executor.CameraXExecutors
+import androidx.camera.extensions.ExtensionMode
 import androidx.camera.extensions.ExtensionsManager
 import androidx.camera.integration.extensions.R
 import androidx.camera.integration.extensions.validation.CameraValidationResultActivity.Companion.INTENT_EXTRA_KEY_CAMERA_ID
@@ -43,8 +62,12 @@ import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
 import androidx.concurrent.futures.await
 import androidx.core.content.ContextCompat
+import androidx.core.math.MathUtils
 import androidx.core.net.toUri
 import androidx.lifecycle.lifecycleScope
+import com.google.common.util.concurrent.FutureCallback
+import com.google.common.util.concurrent.Futures
+import com.google.common.util.concurrent.ListenableFuture
 import kotlinx.coroutines.launch
 import java.io.File
 import java.io.FileOutputStream
@@ -54,12 +77,28 @@ private const val TAG = "ImageCaptureActivity"
 class ImageCaptureActivity : AppCompatActivity() {
 
     private var extensionMode = INVALID_EXTENSION_MODE
+    private var extensionEnabled = true
     private val result = Intent()
     private lateinit var cameraProvider: ProcessCameraProvider
     private lateinit var extensionsManager: ExtensionsManager
     private lateinit var cameraId: String
     private lateinit var viewFinder: PreviewView
-    private lateinit var captureButton: ImageButton
+    private lateinit var imageCapture: ImageCapture
+    private lateinit var camera: Camera
+    private var flashMode = FLASH_MODE_OFF
+    private var evToast: Toast? = null
+
+    private val evFutureCallback: FutureCallback<Int?> = object : FutureCallback<Int?> {
+        override fun onSuccess(result: Int?) {
+            val ev = result!! * camera.cameraInfo.exposureState.exposureCompensationStep.toFloat()
+            Log.d(TAG, "success new EV: $ev")
+            showEVToast(String.format("EV: %.2f", ev))
+        }
+
+        override fun onFailure(t: Throwable) {
+            Log.d(TAG, "failed $t")
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -78,11 +117,11 @@ class ImageCaptureActivity : AppCompatActivity() {
             "Camera $cameraId [${getExtensionModeStringFromId(extensionMode)}]"
 
         viewFinder = findViewById(R.id.view_finder)
-        captureButton = findViewById(R.id.camera_capture_button)
 
         lifecycleScope.launch {
             initialize()
             bindUseCases()
+            setupUiControls()
         }
     }
 
@@ -126,18 +165,20 @@ class ImageCaptureActivity : AppCompatActivity() {
             extensionMode
         )
 
-        val imageCapture = ImageCapture.Builder().build()
+        imageCapture = ImageCapture.Builder().setFlashMode(flashMode).build()
         val preview = Preview.Builder().build()
         preview.setSurfaceProvider(viewFinder.surfaceProvider)
 
         try {
             cameraProvider.unbindAll()
-            cameraProvider.bindToLifecycle(
+            camera = cameraProvider.bindToLifecycle(
                 this,
-                extensionCameraSelector,
+                if (extensionEnabled) extensionCameraSelector else cameraSelectorById,
                 imageCapture,
                 preview
             )
+
+            Log.d(TAG, "Extension mode is $extensionMode (enabled: $extensionEnabled)")
         } catch (e: IllegalArgumentException) {
             result.putExtra(INTENT_EXTRA_KEY_ERROR_CODE, ERROR_CODE_BIND_FAIL)
             Log.e(
@@ -147,6 +188,23 @@ class ImageCaptureActivity : AppCompatActivity() {
             finish()
             return
         }
+    }
+
+    private fun setupUiControls() {
+        // Sets up the flash toggle button
+        setUpFlashButton()
+
+        // Sets up the EV +/- buttons
+        setUpEvButtons()
+
+        // Sets up the tap-to-focus functions and zoom in/out by GestureDetector
+        setupViewFinderGestureControls()
+
+        // Sets up the extension mode enabled/disabled toggle button
+        setUpExtensionToggleButton()
+
+        // Sets up the capture button
+        val captureButton: ImageButton = findViewById(R.id.camera_capture_button)
 
         captureButton.setOnClickListener {
             captureButton.isEnabled = false
@@ -179,6 +237,209 @@ class ImageCaptureActivity : AppCompatActivity() {
                     }
                 })
         }
+    }
+
+    private fun setUpFlashButton() {
+        setFlashButtonResource()
+
+        val flashToggleButton: ImageButton = findViewById(R.id.flash_toggle)
+
+        flashToggleButton.setOnClickListener {
+            flashMode = when (flashMode) {
+                FLASH_MODE_ON -> FLASH_MODE_OFF
+                FLASH_MODE_OFF -> FLASH_MODE_AUTO
+                FLASH_MODE_AUTO -> FLASH_MODE_ON
+                else -> throw IllegalArgumentException("Invalid flash mode!")
+            }
+
+            imageCapture.flashMode = flashMode
+            setFlashButtonResource()
+        }
+    }
+
+    private fun setFlashButtonResource() {
+        val flashToggleButton: ImageButton = findViewById(R.id.flash_toggle)
+
+        flashToggleButton.setImageResource(
+            when (flashMode) {
+                FLASH_MODE_ON -> R.drawable.ic_flash_on
+                FLASH_MODE_OFF -> R.drawable.ic_flash_off
+                FLASH_MODE_AUTO -> R.drawable.ic_flash_auto
+                else -> throw IllegalArgumentException("Invalid flash mode!")
+            }
+        )
+    }
+
+    private fun setUpEvButtons() {
+        val plusEvButton: Button = findViewById(R.id.plus_ev_button)
+        plusEvButton.setOnClickListener {
+            plusEv()
+        }
+
+        val decEvButton: Button = findViewById(R.id.dec_ev_button)
+        decEvButton.setOnClickListener {
+            decEv()
+        }
+    }
+
+    private fun plusEv() {
+        val range = camera.cameraInfo.exposureState.exposureCompensationRange
+        val ec = camera.cameraInfo.exposureState.exposureCompensationIndex
+
+        if (range.contains(ec + 1)) {
+            val future: ListenableFuture<Int> =
+                camera.cameraControl.setExposureCompensationIndex(ec + 1)
+            Futures.addCallback(
+                future, evFutureCallback,
+                CameraXExecutors.mainThreadExecutor()
+            )
+        } else {
+            showEVToast(
+                String.format(
+                    "EV: %.2f",
+                    range.upper * camera.cameraInfo.exposureState.exposureCompensationStep.toFloat()
+                )
+            )
+        }
+    }
+
+    private fun decEv() {
+        val range = camera.cameraInfo.exposureState.exposureCompensationRange
+        val ec = camera.cameraInfo.exposureState.exposureCompensationIndex
+
+        if (range.contains(ec - 1)) {
+            val future: ListenableFuture<Int> =
+                camera.cameraControl.setExposureCompensationIndex(ec - 1)
+            Futures.addCallback(
+                future, evFutureCallback,
+                CameraXExecutors.mainThreadExecutor()
+            )
+        } else {
+            showEVToast(
+                String.format(
+                    "EV: %.2f",
+                    range.lower * camera.cameraInfo.exposureState.exposureCompensationStep.toFloat()
+                )
+            )
+        }
+    }
+
+    internal fun showEVToast(message: String?) {
+        evToast?.cancel()
+        evToast = Toast.makeText(applicationContext, message, Toast.LENGTH_SHORT)
+        evToast?.show()
+    }
+
+    private fun setupViewFinderGestureControls() {
+        val onTapGestureListener: GestureDetector.OnGestureListener =
+            object : SimpleOnGestureListener() {
+                override fun onSingleTapUp(e: MotionEvent): Boolean {
+                    val factory: MeteringPointFactory = DisplayOrientedMeteringPointFactory(
+                        viewFinder.getDisplay(),
+                        camera.getCameraInfo(),
+                        viewFinder.getWidth().toFloat(),
+                        viewFinder.getHeight().toFloat()
+                    )
+                    val action = FocusMeteringAction.Builder(
+                        factory.createPoint(e.x, e.y)
+                    ).build()
+                    Futures.addCallback(
+                        camera.getCameraControl().startFocusAndMetering(action),
+                        object : FutureCallback<FocusMeteringResult?> {
+                            override fun onSuccess(result: FocusMeteringResult?) {
+                                Log.d(TAG, "Focus and metering succeeded.")
+                            }
+
+                            override fun onFailure(t: Throwable) {
+                                Log.e(TAG, "Focus and metering failed.", t)
+                            }
+                        },
+                        CameraXExecutors.mainThreadExecutor()
+                    )
+                    return true
+                }
+            }
+
+        val scaleGestureListener: SimpleOnScaleGestureListener =
+            object : SimpleOnScaleGestureListener() {
+                override fun onScale(detector: ScaleGestureDetector): Boolean {
+                    val cameraInfo: CameraInfo = camera.getCameraInfo()
+                    val newZoom = (cameraInfo.zoomState.value!!.zoomRatio
+                        * detector.scaleFactor)
+                    setZoomRatio(newZoom)
+                    return true
+                }
+            }
+
+        val tapGestureDetector = GestureDetector(this, onTapGestureListener)
+        val scaleDetector = ScaleGestureDetector(this, scaleGestureListener)
+        viewFinder.setOnTouchListener { _, e: MotionEvent? ->
+            val tapEventProcessed = tapGestureDetector.onTouchEvent(e)
+            val scaleEventProcessed = scaleDetector.onTouchEvent(e)
+            tapEventProcessed || scaleEventProcessed
+        }
+    }
+
+    internal fun setZoomRatio(newZoom: Float) {
+        val cameraInfo: CameraInfo = camera.getCameraInfo()
+        val cameraControl: CameraControl = camera.getCameraControl()
+        val clampedNewZoom = MathUtils.clamp(
+            newZoom,
+            cameraInfo.zoomState.value!!.minZoomRatio,
+            cameraInfo.zoomState.value!!.maxZoomRatio
+        )
+        Log.d(TAG, "setZoomRatio ratio: $clampedNewZoom")
+        val listenableFuture = cameraControl.setZoomRatio(
+            clampedNewZoom
+        )
+        Futures.addCallback(listenableFuture, object : FutureCallback<Void?> {
+            override fun onSuccess(result: Void?) {
+                Log.d(TAG, "setZoomRatio onSuccess: $clampedNewZoom")
+            }
+
+            override fun onFailure(t: Throwable) {
+                Log.d(TAG, "setZoomRatio failed, $t")
+            }
+        }, ContextCompat.getMainExecutor(this))
+    }
+
+    private fun setUpExtensionToggleButton() {
+        val extensionToggleButton: ImageButton = findViewById(R.id.extension_toggle)
+        setExtensionToggleButtonResource()
+
+        extensionToggleButton.setOnClickListener {
+            extensionEnabled = !extensionEnabled
+            setExtensionToggleButtonResource()
+            bindUseCases()
+            setupUiControls()
+
+            if (extensionEnabled) {
+                Toast.makeText(this, "Effect is enabled!", Toast.LENGTH_SHORT).show()
+            } else {
+
+                Toast.makeText(this, "Effect is disabled!", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    private fun setExtensionToggleButtonResource() {
+        val extensionToggleButton: ImageButton = findViewById(R.id.extension_toggle)
+
+        if (!extensionEnabled) {
+            extensionToggleButton.setImageResource(R.drawable.outline_block)
+            return
+        }
+
+        val resourceId = when (extensionMode) {
+            ExtensionMode.HDR -> R.drawable.outline_hdr_on
+            ExtensionMode.BOKEH -> R.drawable.outline_portrait
+            ExtensionMode.NIGHT -> R.drawable.outline_bedtime
+            ExtensionMode.FACE_RETOUCH -> R.drawable.outline_face_retouching_natural
+            ExtensionMode.AUTO -> R.drawable.outline_auto_awesome
+            else -> throw IllegalArgumentException("Invalid extension mode!")
+        }
+
+        extensionToggleButton.setImageResource(resourceId)
     }
 
     /**
