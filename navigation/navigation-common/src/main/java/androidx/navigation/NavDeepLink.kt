@@ -194,7 +194,10 @@ public class NavDeepLink internal constructor(
                     }
                     val argName = storedParam.getArgumentName(index)
                     val argument = arguments[argName]
-                    if (value != null && value.replace("[{}]".toRegex(), "") != argName &&
+                    // Passing in a value the exact same as the placeholder will be treated the
+                    // as if no value was passed, being replaced if it is optional or throwing an
+                    // error if it is required.
+                    if (value != null && value != "{$argName}" &&
                         parseArgument(bundle, argName, value, argument)
                     ) {
                         return null
