@@ -1648,7 +1648,7 @@ package androidx.core.os {
     method @Deprecated @ChecksSdkIntAtLeast(api=android.os.Build.VERSION_CODES.R) public static boolean isAtLeastR();
     method @Deprecated @ChecksSdkIntAtLeast(api=31, codename="S") public static boolean isAtLeastS();
     method @ChecksSdkIntAtLeast(api=32, codename="Sv2") @androidx.core.os.BuildCompat.PrereleaseSdkCheck public static boolean isAtLeastSv2();
-    method @ChecksSdkIntAtLeast(codename="Tiramisu") @androidx.core.os.BuildCompat.PrereleaseSdkCheck public static boolean isAtLeastT();
+    method @ChecksSdkIntAtLeast(api=33) @androidx.core.os.BuildCompat.PrereleaseSdkCheck public static boolean isAtLeastT();
   }
 
   @RequiresOptIn @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) public static @interface BuildCompat.PrereleaseSdkCheck {
@@ -1716,6 +1716,8 @@ package androidx.core.os {
 
   public final class ParcelCompat {
     method public static boolean readBoolean(android.os.Parcel);
+    method public static <T extends android.os.Parcelable> T? readParcelable(android.os.Parcel, ClassLoader?, Class<T!>);
+    method public static <T extends java.io.Serializable> T? readSerializable(android.os.Parcel, ClassLoader?, Class<T!>);
     method public static void writeBoolean(android.os.Parcel, boolean);
   }
 
