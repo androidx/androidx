@@ -23,6 +23,7 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.content.ComponentCallbacks2;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.Intent;
@@ -59,6 +60,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.StringRes;
+import androidx.core.content.OnTrimMemoryProvider;
+import androidx.core.util.Consumer;
 import androidx.fragment.R;
 import androidx.fragment.app.strictmode.FragmentStrictMode;
 import androidx.lifecycle.Lifecycle;
@@ -431,6 +434,12 @@ public abstract class FragmentManager implements FragmentResultOwner {
             new FragmentLifecycleCallbacksDispatcher(this);
     private final CopyOnWriteArrayList<FragmentOnAttachListener> mOnAttachListeners =
             new CopyOnWriteArrayList<>();
+
+    private final Consumer<Integer> mOnTrimMemoryListener = level -> {
+        if (level == ComponentCallbacks2.TRIM_MEMORY_COMPLETE) {
+            dispatchLowMemory();
+        }
+    };
 
     int mCurState = Fragment.INITIALIZING;
     private FragmentHostCallback<?> mHost;
@@ -2681,6 +2690,11 @@ public abstract class FragmentManager implements FragmentResultOwner {
                         }
                     });
         }
+
+        if (mHost instanceof OnTrimMemoryProvider) {
+            OnTrimMemoryProvider onTrimMemoryProvider = (OnTrimMemoryProvider) mHost;
+            onTrimMemoryProvider.addOnTrimMemoryListener(mOnTrimMemoryListener);
+        }
     }
 
     void noteStateNotSaved() {
@@ -2818,6 +2832,10 @@ public abstract class FragmentManager implements FragmentResultOwner {
         endAnimatingAwayFragments();
         clearBackStackStateViewModels();
         dispatchStateChange(Fragment.INITIALIZING);
+        if (mHost instanceof OnTrimMemoryProvider) {
+            OnTrimMemoryProvider onTrimMemoryProvider = (OnTrimMemoryProvider) mHost;
+            onTrimMemoryProvider.removeOnTrimMemoryListener(mOnTrimMemoryListener);
+        }
         mHost = null;
         mContainer = null;
         mParent = null;
