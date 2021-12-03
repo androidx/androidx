@@ -190,61 +190,6 @@
 
     <issue
         id="ClassVerificationFailure"
-        message="This call references a method added in API level 24; however, the containing class androidx.work.impl.constraints.trackers.NetworkStateTracker is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                mConnectivityManager.registerDefaultNetworkCallback(mNetworkCallback);"
-        errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/constraints/trackers/NetworkStateTracker.java"
-            line="89"
-            column="38"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class androidx.work.impl.constraints.trackers.NetworkStateTracker is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                mConnectivityManager.unregisterNetworkCallback(mNetworkCallback);"
-        errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/constraints/trackers/NetworkStateTracker.java"
-            line="112"
-            column="38"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 23; however, the containing class androidx.work.impl.constraints.trackers.NetworkStateTracker is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            Network network = mConnectivityManager.getActiveNetwork();"
-        errorLine2="                                                   ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/constraints/trackers/NetworkStateTracker.java"
-            line="151"
-            column="52"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class androidx.work.impl.constraints.trackers.NetworkStateTracker is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            NetworkCapabilities capabilities = mConnectivityManager.getNetworkCapabilities(network);"
-        errorLine2="                                                                    ~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/constraints/trackers/NetworkStateTracker.java"
-            line="152"
-            column="69"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class androidx.work.impl.constraints.trackers.NetworkStateTracker is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                    &amp;&amp; capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED);"
-        errorLine2="                                    ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/constraints/trackers/NetworkStateTracker.java"
-            line="154"
-            column="37"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
         message="This call references a method added in API level 28; however, the containing class androidx.work.impl.utils.ProcessUtils is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            return Application.getProcessName();"
         errorLine2="                               ~~~~~~~~~~~~~~">
