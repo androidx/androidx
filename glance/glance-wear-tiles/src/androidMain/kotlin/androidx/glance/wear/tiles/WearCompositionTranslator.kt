@@ -18,8 +18,10 @@ package androidx.glance.wear.tiles
 
 import android.content.Context
 import android.graphics.Bitmap
+import android.util.Log
 import android.view.View
 import android.view.ViewGroup
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.unit.dp
 import androidx.glance.AndroidResourceImageProvider
@@ -98,13 +100,21 @@ import androidx.wear.tiles.ResourceBuilders
 import java.io.ByteArrayOutputStream
 import java.util.Arrays
 
+internal const val GlanceWearTileTag = "GlanceWearTile"
+
 @VerticalAlignment
 private fun Alignment.Vertical.toProto(): Int =
     when (this) {
         Alignment.Vertical.Top -> VERTICAL_ALIGN_TOP
         Alignment.Vertical.CenterVertically -> VERTICAL_ALIGN_CENTER
         Alignment.Vertical.Bottom -> VERTICAL_ALIGN_BOTTOM
-        else -> throw IllegalArgumentException("Unknown vertical alignment type $this")
+        else -> {
+            Log.w(
+                GlanceWearTileTag,
+                "Unknown vertical alignment type $this, align to Top instead"
+            )
+            VERTICAL_ALIGN_TOP
+        }
     }
 
 @HorizontalAlignment
@@ -113,7 +123,13 @@ private fun Alignment.Horizontal.toProto(): Int =
         Alignment.Horizontal.Start -> HORIZONTAL_ALIGN_START
         Alignment.Horizontal.CenterHorizontally -> HORIZONTAL_ALIGN_CENTER
         Alignment.Horizontal.End -> HORIZONTAL_ALIGN_END
-        else -> throw IllegalArgumentException("Unknown horizontal alignment type $this")
+        else -> {
+            Log.w(
+                GlanceWearTileTag,
+                "Unknown horizontal alignment type $this, align to Start instead"
+            )
+            HORIZONTAL_ALIGN_START
+        }
     }
 
 private fun PaddingInDp.toProto(): ModifiersBuilders.Padding =
@@ -141,7 +157,10 @@ private fun BorderModifier.toProto(context: Context): ModifiersBuilders.Border =
 private fun ColorProvider.getColor(context: Context) = when (this) {
     is FixedColorProvider -> color.toArgb()
     is ResourceColorProvider -> resolve(context).toArgb()
-    else -> error("Unsupported color provider: $this")
+    else -> {
+        Log.e(GlanceWearTileTag, "Unsupported color provider: $this, set color to transparent")
+        Color.Transparent.toArgb()
+    }
 }
 
 // TODO: handle parameters
@@ -170,12 +189,13 @@ private fun LaunchActivityAction.toProto(context: Context): ActionBuilders.Launc
 private fun ActionModifier.toProto(context: Context): ModifiersBuilders.Clickable {
     val builder = ModifiersBuilders.Clickable.Builder()
 
-    val onClick = when (val action = this.action) {
-        is LaunchActivityAction -> action.toProto(context)
-        else -> throw IllegalArgumentException("Unknown Action $this")
+    when (val action = this.action) {
+        is LaunchActivityAction -> {
+            builder.setOnClick(action.toProto(context))
+        } else -> {
+            Log.e(GlanceWearTileTag, "Unknown Action $this, skipped")
+        }
     }
-
-    builder.setOnClick(onClick)
 
     return builder.build()
 }
@@ -195,7 +215,10 @@ private fun AnchorType.toProto(): Int =
         AnchorType.Start -> ARC_ANCHOR_START
         AnchorType.Center -> ARC_ANCHOR_CENTER
         AnchorType.End -> ARC_ANCHOR_END
-        else -> throw IllegalArgumentException("Unknown arc anchor type $this")
+        else -> {
+            Log.w(GlanceWearTileTag, "Unknown arc anchor type $this, anchor to center instead")
+            ARC_ANCHOR_CENTER
+        }
     }
 
 @VerticalAlignment
@@ -204,7 +227,13 @@ private fun RadialAlignment.toProto(): Int =
         RadialAlignment.Outer -> VERTICAL_ALIGN_TOP
         RadialAlignment.Center -> VERTICAL_ALIGN_CENTER
         RadialAlignment.Inner -> VERTICAL_ALIGN_BOTTOM
-        else -> throw IllegalArgumentException("Unknown radial alignment $this")
+        else -> {
+            Log.w(
+                GlanceWearTileTag,
+                "Unknown radial alignment $this, align to center instead"
+            )
+            VERTICAL_ALIGN_CENTER
+        }
     }
 
 @TextAlignment
@@ -215,7 +244,10 @@ private fun TextAlign.toTextAlignment(isRtl: Boolean): Int =
         TextAlign.Left -> if (isRtl) TEXT_ALIGN_END else TEXT_ALIGN_START
         TextAlign.Right -> if (isRtl) TEXT_ALIGN_START else TEXT_ALIGN_END
         TextAlign.Start -> TEXT_ALIGN_START
-        else -> throw IllegalArgumentException("Unknown text alignment $this")
+        else -> {
+            Log.w(GlanceWearTileTag, "Unknown text alignment $this, align to Start instead")
+            TEXT_ALIGN_START
+        }
     }
 
 @HorizontalAlignment
@@ -226,7 +258,10 @@ private fun TextAlign.toHorizontalAlignment(): Int =
         TextAlign.Left -> HORIZONTAL_ALIGN_LEFT
         TextAlign.Right -> HORIZONTAL_ALIGN_RIGHT
         TextAlign.Start -> HORIZONTAL_ALIGN_START
-        else -> throw IllegalArgumentException("Unknown text alignment $this")
+        else -> {
+            Log.w(GlanceWearTileTag, "Unknown text alignment $this, align to Start instead")
+            HORIZONTAL_ALIGN_START
+        }
     }
 
 private fun Dimension.resolve(context: Context): Dimension {
@@ -359,7 +394,13 @@ private fun translateTextStyle(
                 FontWeight.Normal -> FONT_WEIGHT_NORMAL
                 FontWeight.Medium -> FONT_WEIGHT_MEDIUM
                 FontWeight.Bold -> FONT_WEIGHT_BOLD
-                else -> throw IllegalArgumentException("Unknown font weight $it")
+                else -> {
+                    Log.w(
+                        GlanceWearTileTag,
+                        "Unknown font weight $it, use Normal weight instead"
+                    )
+                    FONT_WEIGHT_NORMAL
+                }
             }
         )
     }
@@ -385,7 +426,13 @@ private fun translateTextStyle(
                 FontWeight.Normal -> FONT_WEIGHT_NORMAL
                 FontWeight.Medium -> FONT_WEIGHT_MEDIUM
                 FontWeight.Bold -> FONT_WEIGHT_BOLD
-                else -> throw IllegalArgumentException("Unknown font weight $it")
+                else -> {
+                    Log.w(
+                        GlanceWearTileTag,
+                        "Unknown font weight $it, use Normal weight instead"
+                    )
+                    FONT_WEIGHT_NORMAL
+                }
             }
         )
     }

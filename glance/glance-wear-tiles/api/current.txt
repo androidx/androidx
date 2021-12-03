@@ -15,8 +15,11 @@ package androidx.glance.wear.tiles {
     property public static final androidx.compose.runtime.ProvidableCompositionLocal<androidx.glance.wear.tiles.TimeInterval> LocalTimeInterval;
   }
 
+  public final class ErrorUiLayoutKt {
+  }
+
   public abstract class GlanceTileService extends androidx.wear.tiles.TileService {
-    ctor public GlanceTileService();
+    ctor public GlanceTileService(optional androidx.wear.tiles.LayoutElementBuilders.LayoutElement? errorUiLayout);
     method @androidx.compose.runtime.Composable public abstract void Content();
     method public androidx.glance.wear.tiles.TimelineMode getTimelineMode();
     method protected final com.google.common.util.concurrent.ListenableFuture<androidx.wear.tiles.ResourceBuilders.Resources> onResourcesRequest(androidx.wear.tiles.RequestBuilders.ResourcesRequest requestParams);
