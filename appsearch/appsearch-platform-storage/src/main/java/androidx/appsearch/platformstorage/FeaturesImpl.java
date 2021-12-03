@@ -15,18 +15,22 @@
  */
 package androidx.appsearch.platformstorage;
 
-import androidx.appsearch.app.Capabilities;
+import androidx.annotation.NonNull;
+import androidx.appsearch.app.Features;
 
 /**
- * An implementation of {@link Capabilities}. Feature availability is dependent on Android API
+ * An implementation of {@link Features}. Feature availability is dependent on Android API
  * level.
  */
-final class CapabilitiesImpl implements Capabilities {
+final class FeaturesImpl implements Features {
 
     @Override
-    public boolean isSubmatchSupported() {
-        // TODO(b/201316758) : Update to reflect support in Android T+ once this feature is synced
-        // over into service-appsearch.
+    public boolean isFeatureSupported(@NonNull String feature) {
+        if (Features.SEARCH_RESULT_MATCH_INFO_SUBMATCH.equals(feature)) {
+            // TODO(b/201316758) : Update to reflect support in Android T+ once this feature is
+            // synced over into service-appsearch.
+            return false;
+        }
         return false;
     }
 }

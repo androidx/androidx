@@ -36,6 +36,7 @@ import androidx.appsearch.app.AppSearchSchema;
 import androidx.appsearch.app.AppSearchSchema.PropertyConfig;
 import androidx.appsearch.app.AppSearchSchema.StringPropertyConfig;
 import androidx.appsearch.app.AppSearchSession;
+import androidx.appsearch.app.Features;
 import androidx.appsearch.app.GenericDocument;
 import androidx.appsearch.app.GetByDocumentIdRequest;
 import androidx.appsearch.app.GetSchemaResponse;
@@ -1901,7 +1902,8 @@ public abstract class AppSearchSessionCtsTestBase {
                 new SearchResult.MatchRange(/*lower=*/26,  /*upper=*/33));
         assertThat(matchInfo.getSnippet()).isEqualTo("is foo.");
 
-        if (!mDb1.getCapabilities().isSubmatchSupported()) {
+        if (!mDb1.getFeatures().isFeatureSupported(
+                Features.SEARCH_RESULT_MATCH_INFO_SUBMATCH)) {
             assertThrows(
                     UnsupportedOperationException.class,
                     () -> matchInfo.getSubmatchRange());
@@ -2005,9 +2007,9 @@ public abstract class AppSearchSessionCtsTestBase {
 
         String japanese =
                 "差し出されたのが今日ランドセルでした普通の子であれば満面の笑みで俺を言うでしょうしかし私は赤いランド"
-                + "セルを見て笑うことができませんでしたどうしたのと心配そうな仕事ガラスながら渋い顔する私書いたこと言"
-                + "うんじゃないのカードとなる声を聞きたい私は目から涙をこぼしながらおじいちゃんの近くにかけおり頭をポ"
-                + "ンポンと叩きピンクが良かったんだもん";
+                        + "セルを見て笑うことができませんでしたどうしたのと心配そうな仕事ガラスながら渋い顔する私書いたこと言"
+                        + "うんじゃないのカードとなる声を聞きたい私は目から涙をこぼしながらおじいちゃんの近くにかけおり頭をポ"
+                        + "ンポンと叩きピンクが良かったんだもん";
         // Index a document
         GenericDocument document =
                 new GenericDocument.Builder<>("namespace", "id", "Generic")
@@ -2036,7 +2038,8 @@ public abstract class AppSearchSessionCtsTestBase {
                 new SearchResult.MatchRange(/*lower=*/44,  /*upper=*/45));
         assertThat(matchInfo.getExactMatch()).isEqualTo("は");
 
-        if (!mDb1.getCapabilities().isSubmatchSupported()) {
+        if (!mDb1.getFeatures().isFeatureSupported(
+                Features.SEARCH_RESULT_MATCH_INFO_SUBMATCH)) {
             assertThrows(
                     UnsupportedOperationException.class,
                     () -> matchInfo.getSubmatchRange());
