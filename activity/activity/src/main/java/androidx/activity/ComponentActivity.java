@@ -67,6 +67,8 @@ import androidx.annotation.RequiresApi;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.ActivityOptionsCompat;
 import androidx.core.content.ContextCompat;
+import androidx.core.content.OnTrimMemoryProvider;
+import androidx.core.util.Consumer;
 import androidx.core.view.MenuHost;
 import androidx.core.view.MenuHostHelper;
 import androidx.core.view.MenuProvider;
@@ -88,6 +90,7 @@ import androidx.savedstate.SavedStateRegistryOwner;
 import androidx.savedstate.ViewTreeSavedStateRegistryOwner;
 import androidx.tracing.Trace;
 
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -106,6 +109,7 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
         OnBackPressedDispatcherOwner,
         ActivityResultRegistryOwner,
         ActivityResultCaller,
+        OnTrimMemoryProvider,
         MenuHost {
 
     static final class NonConfigurationInstances {
@@ -219,6 +223,9 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
             }
         }
     };
+
+    private final CopyOnWriteArrayList<Consumer<Integer>> mOnTrimMemoryListeners =
+            new CopyOnWriteArrayList<>();
 
     /**
      * Default constructor for ComponentActivity. All Activities must have a default constructor
@@ -772,6 +779,30 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
     @Override
     public final ActivityResultRegistry getActivityResultRegistry() {
         return mActivityResultRegistry;
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * Dispatches this call to all listeners added via {@link #addOnTrimMemoryListener(Consumer)}.
+     */
+    @CallSuper
+    @Override
+    public void onTrimMemory(int level) {
+        super.onTrimMemory(level);
+        for (Consumer<Integer> listener : mOnTrimMemoryListeners) {
+            listener.accept(level);
+        }
+    }
+
+    @Override
+    public final void addOnTrimMemoryListener(@NonNull Consumer<Integer> listener) {
+        mOnTrimMemoryListeners.add(listener);
+    }
+
+    @Override
+    public final void removeOnTrimMemoryListener(@NonNull Consumer<Integer> listener) {
+        mOnTrimMemoryListeners.remove(listener);
     }
 
     @Override
