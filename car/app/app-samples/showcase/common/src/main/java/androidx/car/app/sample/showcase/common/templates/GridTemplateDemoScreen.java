@@ -46,6 +46,7 @@ import androidx.lifecycle.LifecycleOwner;
 
 /** Creates a screen that demonstrates usage of the full screen {@link GridTemplate}. */
 public final class GridTemplateDemoScreen extends Screen implements DefaultLifecycleObserver {
+    private static final int MAX_GRID_ITEMS = 100;
     private static final int LOADING_TIME_MILLIS = 2000;
     private final Handler mHandler = new Handler(Looper.getMainLooper());
 
@@ -183,8 +184,9 @@ public final class GridTemplateDemoScreen extends Screen implements DefaultLifec
         // Some hosts may allow more items in the grid than others, so create more.
         if (getCarContext().getCarAppApiLevel() > CarAppApiLevels.LEVEL_1) {
             int itemLimit =
-                    7 + getCarContext().getCarService(ConstraintManager.class).getContentLimit(
-                            ConstraintManager.CONTENT_LIMIT_TYPE_GRID);
+                    Math.min(MAX_GRID_ITEMS,
+                            getCarContext().getCarService(ConstraintManager.class).getContentLimit(
+                                    ConstraintManager.CONTENT_LIMIT_TYPE_GRID));
 
             for (int i = 7; i <= itemLimit; i++) {
                 String titleText = "Item: " + i;
