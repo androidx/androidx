@@ -356,7 +356,7 @@ package androidx.glance.text {
   }
 
   public final class TextKt {
-    method @androidx.compose.runtime.Composable public static void Text(String text, optional androidx.glance.GlanceModifier modifier, optional androidx.glance.text.TextStyle? style);
+    method @androidx.compose.runtime.Composable public static void Text(String text, optional androidx.glance.GlanceModifier modifier, optional androidx.glance.text.TextStyle? style, optional int maxLines);
   }
 
   @androidx.compose.runtime.Immutable public final class TextStyle {
