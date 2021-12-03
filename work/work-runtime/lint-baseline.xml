@@ -190,28 +190,6 @@
 
     <issue
         id="ClassVerificationFailure"
-        message="This call references a method added in API level 26; however, the containing class androidx.work.Constraints.Builder is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            mTriggerContentUpdateDelay = duration.toMillis();"
-        errorLine2="                                                  ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/Constraints.java"
-            line="429"
-            column="51"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 26; however, the containing class androidx.work.Constraints.Builder is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            mTriggerContentMaxDelay = duration.toMillis();"
-        errorLine2="                                               ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/Constraints.java"
-            line="464"
-            column="48"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
         message="This call references a method added in API level 24; however, the containing class androidx.work.impl.constraints.trackers.NetworkStateTracker is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                mConnectivityManager.registerDefaultNetworkCallback(mNetworkCallback);"
         errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
@@ -263,39 +241,6 @@
             file="src/main/java/androidx/work/impl/constraints/trackers/NetworkStateTracker.java"
             line="154"
             column="37"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 26; however, the containing class androidx.work.PeriodicWorkRequest.Builder is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            mWorkSpec.setPeriodic(repeatInterval.toMillis());"
-        errorLine2="                                                 ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/PeriodicWorkRequest.java"
-            line="118"
-            column="50"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 26; however, the containing class androidx.work.PeriodicWorkRequest.Builder is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            mWorkSpec.setPeriodic(repeatInterval.toMillis(), flexInterval.toMillis());"
-        errorLine2="                                                 ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/PeriodicWorkRequest.java"
-            line="181"
-            column="50"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 26; however, the containing class androidx.work.PeriodicWorkRequest.Builder is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            mWorkSpec.setPeriodic(repeatInterval.toMillis(), flexInterval.toMillis());"
-        errorLine2="                                                                          ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/PeriodicWorkRequest.java"
-            line="181"
-            column="75"/>
     </issue>
 
     <issue
@@ -395,39 +340,6 @@
             file="src/main/java/androidx/work/impl/WorkManagerImpl.java"
             line="767"
             column="71"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 26; however, the containing class androidx.work.WorkRequest.Builder is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            mWorkSpec.setBackoffDelayDuration(duration.toMillis());"
-        errorLine2="                                                       ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/WorkRequest.java"
-            line="175"
-            column="56"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 26; however, the containing class androidx.work.WorkRequest.Builder is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            mWorkSpec.minimumRetentionDuration = duration.toMillis();"
-        errorLine2="                                                          ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/WorkRequest.java"
-            line="252"
-            column="59"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 26; however, the containing class androidx.work.WorkRequest.Builder is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            mWorkSpec.initialDelay = duration.toMillis();"
-        errorLine2="                                              ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/WorkRequest.java"
-            line="284"
-            column="47"/>
     </issue>
 
     <issue

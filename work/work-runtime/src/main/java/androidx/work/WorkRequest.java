@@ -23,6 +23,7 @@ import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.work.impl.model.WorkSpec;
+import androidx.work.impl.utils.DurationApi26Impl;
 
 import java.time.Duration;
 import java.util.HashSet;
@@ -172,7 +173,7 @@ public abstract class WorkRequest {
                 @NonNull Duration duration) {
             mBackoffCriteriaSet = true;
             mWorkSpec.backoffPolicy = backoffPolicy;
-            mWorkSpec.setBackoffDelayDuration(duration.toMillis());
+            mWorkSpec.setBackoffDelayDuration(DurationApi26Impl.toMillisCompat(duration));
             return getThis();
         }
 
@@ -249,7 +250,7 @@ public abstract class WorkRequest {
          */
         @RequiresApi(26)
         public final @NonNull B keepResultsForAtLeast(@NonNull Duration duration) {
-            mWorkSpec.minimumRetentionDuration = duration.toMillis();
+            mWorkSpec.minimumRetentionDuration = DurationApi26Impl.toMillisCompat(duration);
             return getThis();
         }
 
@@ -281,7 +282,7 @@ public abstract class WorkRequest {
          */
         @RequiresApi(26)
         public @NonNull B setInitialDelay(@NonNull Duration duration) {
-            mWorkSpec.initialDelay = duration.toMillis();
+            mWorkSpec.initialDelay = DurationApi26Impl.toMillisCompat(duration);
             if (Long.MAX_VALUE - System.currentTimeMillis() <= mWorkSpec.initialDelay) {
                 throw new IllegalArgumentException("The given initial delay is too large and will"
                         + " cause an overflow!");
