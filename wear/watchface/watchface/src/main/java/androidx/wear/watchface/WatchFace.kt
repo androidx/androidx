@@ -831,16 +831,25 @@ public class WatchFaceImpl @UiThread constructor(
 
             slotIdToComplicationData?.let {
                 for ((id, complicationData) in it) {
-                    complicationSlotsManager.setComplicationDataUpdateSync(id, complicationData)
+                    complicationSlotsManager.setComplicationDataUpdateSync(
+                        id,
+                        complicationData,
+                        instant
+                    )
                 }
             }
             val screenShot = renderer.takeScreenshot(
                 ZonedDateTime.ofInstant(instant, ZoneId.of("UTC")),
                 renderParameters
             )
-            if (slotIdToComplicationData != null) {
+            slotIdToComplicationData?.let {
+                val now = getNow()
                 for ((id, complicationData) in oldComplicationData) {
-                    complicationSlotsManager.setComplicationDataUpdateSync(id, complicationData)
+                    complicationSlotsManager.setComplicationDataUpdateSync(
+                        id,
+                        complicationData,
+                        now
+                    )
                 }
             }
             return screenShot
@@ -916,10 +925,12 @@ public class WatchFaceImpl @UiThread constructor(
 
     /** Gets the [ZonedDateTime] from [systemTimeProvider] adjusted by the mock time controls. */
     @UiThread
-    private fun getZonedDateTime() = ZonedDateTime.ofInstant(
-        Instant.ofEpochMilli(mockTime.applyMockTime(systemTimeProvider.getSystemTimeMillis())),
-        systemTimeProvider.getSystemTimeZoneId()
-    )
+    private fun getZonedDateTime() =
+        ZonedDateTime.ofInstant(getNow(), systemTimeProvider.getSystemTimeZoneId())
+
+    /** Returns the current system time as provied by [systemTimeProvider] as an [Instant]. */
+    private fun getNow() =
+        Instant.ofEpochMilli(mockTime.applyMockTime(systemTimeProvider.getSystemTimeMillis()))
 
     /** @hide */
     @UiThread
@@ -946,8 +957,10 @@ public class WatchFaceImpl @UiThread constructor(
     @UiThread
     internal fun onDraw() {
         val startTime = getZonedDateTime()
-        val startTimeMillis = startTime.toInstant().toEpochMilli()
+        val startInstant = startTime.toInstant()
+        val startTimeMillis = startInstant.toEpochMilli()
         maybeUpdateDrawMode()
+        complicationSlotsManager.selectComplicationDataForInstant(startInstant)
         renderer.renderInternal(startTime)
         lastDrawTimeMillis = startTimeMillis
 
@@ -1029,7 +1042,7 @@ public class WatchFaceImpl @UiThread constructor(
      */
     @UiThread
     internal fun onComplicationSlotDataUpdate(complicationSlotId: Int, data: ComplicationData) {
-        complicationSlotsManager.onComplicationDataUpdate(complicationSlotId, data)
+        complicationSlotsManager.onComplicationDataUpdate(complicationSlotId, data, getNow())
         watchFaceHostApi.invalidate()
         watchFaceHostApi.scheduleWriteComplicationDataCache()
     }
@@ -1153,6 +1166,7 @@ public class WatchFaceImpl @UiThread constructor(
         params: WatchFaceRenderParams
     ): Bundle = TraceEvent("WatchFaceImpl.renderWatchFaceToBitmap").use {
         val oldStyle = currentUserStyleRepository.userStyle.value
+        val instant = Instant.ofEpochMilli(params.calendarTimeMillis)
 
         params.userStyle?.let {
             onSetStyleInternal(UserStyle(UserStyleData(it), currentUserStyleRepository.schema))
@@ -1167,16 +1181,13 @@ public class WatchFaceImpl @UiThread constructor(
         params.idAndComplicationDatumWireFormats?.let {
             for (idAndData in it) {
                 complicationSlotsManager.setComplicationDataUpdateSync(
-                    idAndData.id, idAndData.complicationData.toApiComplicationData()
+                    idAndData.id, idAndData.complicationData.toApiComplicationData(), instant
                 )
             }
         }
 
         val bitmap = renderer.takeScreenshot(
-            ZonedDateTime.ofInstant(
-                Instant.ofEpochMilli(params.calendarTimeMillis),
-                ZoneId.of("UTC")
-            ),
+            ZonedDateTime.ofInstant(instant, ZoneId.of("UTC")),
             RenderParameters(params.renderParametersWireFormat)
         )
 
@@ -1186,8 +1197,9 @@ public class WatchFaceImpl @UiThread constructor(
         }
 
         if (params.idAndComplicationDatumWireFormats != null) {
+            val now = getNow()
             for ((id, complicationData) in oldComplicationData) {
-                complicationSlotsManager.setComplicationDataUpdateSync(id, complicationData)
+                complicationSlotsManager.setComplicationDataUpdateSync(id, complicationData, now)
             }
         }
 
@@ -1205,6 +1217,7 @@ public class WatchFaceImpl @UiThread constructor(
         )
         return complicationSlotsManager[params.complicationSlotId]?.let {
             val oldStyle = currentUserStyleRepository.userStyle.value
+            val instant = Instant.ofEpochMilli(params.calendarTimeMillis)
 
             val newStyle = params.userStyle
             if (newStyle != null) {
@@ -1223,7 +1236,8 @@ public class WatchFaceImpl @UiThread constructor(
                 prevData = it.renderer.getData()
                 complicationSlotsManager.setComplicationDataUpdateSync(
                     params.complicationSlotId,
-                    screenshotComplicationData.toApiComplicationData()
+                    screenshotComplicationData.toApiComplicationData(),
+                    instant
                 )
             }
 
@@ -1237,9 +1251,11 @@ public class WatchFaceImpl @UiThread constructor(
 
             // Restore previous ComplicationData & style if required.
             if (prevData != null) {
+                val now = getNow()
                 complicationSlotsManager.setComplicationDataUpdateSync(
                     params.complicationSlotId,
-                    prevData
+                    prevData,
+                    now
                 )
             }
 

@@ -199,8 +199,11 @@ public class ShortTextComplicationData internal constructor(
 
     /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    override fun asWireComplicationData(): WireComplicationData =
-        createWireComplicationDataBuilder().apply {
+    override fun asWireComplicationData(): WireComplicationData {
+        cachedWireComplicationData?.let {
+            return it
+        }
+        return createWireComplicationDataBuilder().apply {
             setShortText(text.toWireComplicationText())
             setShortTitle(title?.toWireComplicationText())
             setContentDescription(
@@ -214,6 +217,7 @@ public class ShortTextComplicationData internal constructor(
             setValidTimeRange(validTimeRange, this)
             setIsCached(isCached)
         }.build().also { cachedWireComplicationData = it }
+    }
 
     /** @hide */
     public companion object {
@@ -317,8 +321,11 @@ public class LongTextComplicationData internal constructor(
 
     /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    override fun asWireComplicationData(): WireComplicationData =
-        createWireComplicationDataBuilder().apply {
+    override fun asWireComplicationData(): WireComplicationData {
+        cachedWireComplicationData?.let {
+            return it
+        }
+        return createWireComplicationDataBuilder().apply {
             setLongText(text.toWireComplicationText())
             setLongTitle(title?.toWireComplicationText())
             monochromaticImage?.addToWireComplicationData(this)
@@ -333,6 +340,7 @@ public class LongTextComplicationData internal constructor(
             setValidTimeRange(validTimeRange, this)
             setIsCached(isCached)
         }.build().also { cachedWireComplicationData = it }
+    }
 
     /** @hide */
     public companion object {
@@ -440,8 +448,11 @@ public class RangedValueComplicationData internal constructor(
 
     /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public override fun asWireComplicationData(): WireComplicationData =
-        createWireComplicationDataBuilder().apply {
+    public override fun asWireComplicationData(): WireComplicationData {
+        cachedWireComplicationData?.let {
+            return it
+        }
+        return createWireComplicationDataBuilder().apply {
             setRangedValue(value)
             setRangedMinValue(min)
             setRangedMaxValue(max)
@@ -458,6 +469,7 @@ public class RangedValueComplicationData internal constructor(
             setValidTimeRange(validTimeRange, this)
             setIsCached(isCached)
         }.build().also { cachedWireComplicationData = it }
+    }
 
     /** @hide */
     public companion object {
@@ -532,8 +544,11 @@ public class MonochromaticImageComplicationData internal constructor(
 
     /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    override fun asWireComplicationData(): WireComplicationData =
-        createWireComplicationDataBuilder().apply {
+    override fun asWireComplicationData(): WireComplicationData {
+        cachedWireComplicationData?.let {
+            return it
+        }
+        return createWireComplicationDataBuilder().apply {
             monochromaticImage.addToWireComplicationData(this)
             setContentDescription(
                 when (contentDescription) {
@@ -545,6 +560,7 @@ public class MonochromaticImageComplicationData internal constructor(
             setValidTimeRange(validTimeRange, this)
             setIsCached(isCached)
         }.build().also { cachedWireComplicationData = it }
+    }
 
     /** @hide */
     public companion object {
@@ -619,8 +635,11 @@ public class SmallImageComplicationData internal constructor(
 
     /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    override fun asWireComplicationData(): WireComplicationData =
-        createWireComplicationDataBuilder().apply {
+    override fun asWireComplicationData(): WireComplicationData {
+        cachedWireComplicationData?.let {
+            return it
+        }
+        return createWireComplicationDataBuilder().apply {
             smallImage.addToWireComplicationData(this)
             setContentDescription(
                 when (contentDescription) {
@@ -632,6 +651,7 @@ public class SmallImageComplicationData internal constructor(
             setValidTimeRange(validTimeRange, this)
             setIsCached(isCached)
         }.build().also { cachedWireComplicationData = it }
+    }
 
     /** @hide */
     public companion object {
@@ -711,8 +731,11 @@ public class PhotoImageComplicationData internal constructor(
 
     /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    override fun asWireComplicationData(): WireComplicationData =
-        createWireComplicationDataBuilder().apply {
+    override fun asWireComplicationData(): WireComplicationData {
+        cachedWireComplicationData?.let {
+            return it
+        }
+        return createWireComplicationDataBuilder().apply {
             setLargeImage(photoImage)
             setContentDescription(
                 when (contentDescription) {
@@ -722,6 +745,7 @@ public class PhotoImageComplicationData internal constructor(
             )
             setValidTimeRange(validTimeRange, this)
         }.build().also { cachedWireComplicationData = it }
+    }
 
     /** @hide */
     public companion object {
@@ -791,12 +815,16 @@ public class NoPermissionComplicationData internal constructor(
 
     /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    override fun asWireComplicationData(): WireComplicationData =
-        createWireComplicationDataBuilder().apply {
+    override fun asWireComplicationData(): WireComplicationData {
+        cachedWireComplicationData?.let {
+            return it
+        }
+        return createWireComplicationDataBuilder().apply {
             setShortText(text?.toWireComplicationText())
             setShortTitle(title?.toWireComplicationText())
             monochromaticImage?.addToWireComplicationData(this)
         }.build().also { cachedWireComplicationData = it }
+    }
 
     /** @hide */
     public companion object {
