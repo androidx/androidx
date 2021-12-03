@@ -2452,13 +2452,19 @@ public class WatchFaceServiceTest {
         assertThat(complicationSlotsManager[RIGHT_COMPLICATION_ID]!!.complicationData.value.type)
             .isEqualTo(ComplicationType.NO_DATA)
 
-        // Set some ComplicationData.
+        // Set some ComplicationData. The TapAction can't be serialized.
         interactiveWatchFaceInstance.updateComplicationData(
             listOf(
                 IdAndComplicationDataWireFormat(
                     LEFT_COMPLICATION_ID,
                     ComplicationData.Builder(ComplicationData.TYPE_LONG_TEXT)
-                        .setLongText(ComplicationText.plainText("TYPE_LONG_TEXT")).build()
+                        .setLongText(ComplicationText.plainText("TYPE_LONG_TEXT"))
+                        .setTapAction(
+                            PendingIntent.getActivity(context, 0, Intent("LongText"),
+                                PendingIntent.FLAG_IMMUTABLE
+                            )
+                        )
+                        .build()
                 ),
                 IdAndComplicationDataWireFormat(
                     RIGHT_COMPLICATION_ID,
@@ -2538,9 +2544,11 @@ public class WatchFaceServiceTest {
             assertThat(leftComplicationData.type).isEqualTo(ComplicationData.TYPE_LONG_TEXT)
             assertThat(leftComplicationData.longText?.getTextAt(context.resources, 0))
                 .isEqualTo("TYPE_LONG_TEXT")
+            assertThat(leftComplicationData.tapActionLostDueToSerialization).isTrue()
             assertThat(rightComplicationData.type).isEqualTo(ComplicationData.TYPE_SHORT_TEXT)
             assertThat(rightComplicationData.shortText?.getTextAt(context.resources, 0))
                 .isEqualTo("TYPE_SHORT_TEXT")
+            assertThat(rightComplicationData.tapActionLostDueToSerialization).isFalse()
         }
 
         engineWrapper2.onDestroy()
