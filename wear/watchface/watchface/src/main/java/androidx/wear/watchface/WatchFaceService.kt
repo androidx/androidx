@@ -1796,7 +1796,8 @@ public abstract class WatchFaceService : WallpaperService() {
                 for (idAndData in it) {
                     complicationSlotsManager.onComplicationDataUpdate(
                         idAndData.id,
-                        idAndData.complicationData.toApiComplicationData()
+                        idAndData.complicationData.toApiComplicationData(),
+                        Instant.EPOCH // The value here doesn't matter, will be corrected when drawn
                     )
                 }
             }

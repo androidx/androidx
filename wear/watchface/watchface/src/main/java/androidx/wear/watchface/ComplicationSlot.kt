@@ -34,6 +34,7 @@ import androidx.wear.watchface.complications.data.ComplicationType
 import androidx.wear.watchface.complications.data.EmptyComplicationData
 import androidx.wear.watchface.complications.data.NoDataComplicationData
 import androidx.wear.watchface.RenderParameters.HighlightedElement
+import androidx.wear.watchface.complications.data.toApiComplicationData
 import androidx.wear.watchface.style.UserStyleSetting
 import androidx.wear.watchface.style.UserStyleSetting.ComplicationSlotsUserStyleSetting
 import androidx.wear.watchface.style.UserStyleSetting.ComplicationSlotsUserStyleSetting.ComplicationSlotOverlay
@@ -648,6 +649,64 @@ public class ComplicationSlot internal constructor(
         MutableStateFlow(NoDataComplicationData())
 
     /**
+     * The complication data sent by the system. This may contain a timeline out of which
+     * [complicationData] is selected.
+     */
+    private var timelineComplicationData: ComplicationData = NoDataComplicationData()
+    private var timelineEntries: List<ComplicationData>? = null
+
+    /**
+     * Sets the current [ComplicationData] and if it's a timeline, the correct override for
+     * [instant] is chosen.
+     */
+    internal fun setComplicationData(
+        complicationData: ComplicationData,
+        loadDrawablesAsynchronous: Boolean,
+        instant: Instant
+    ) {
+        timelineComplicationData = complicationData
+        timelineEntries = complicationData.asWireComplicationData().timelineEntries?.map {
+            it.toApiComplicationData()
+        }
+        selectComplicationDataForInstant(instant, loadDrawablesAsynchronous, true)
+    }
+
+    /**
+     * If the current [ComplicationData] is a timeline, the correct override for [instant] is
+     * chosen.
+     */
+    internal fun selectComplicationDataForInstant(
+        instant: Instant,
+        loadDrawablesAsynchronous: Boolean,
+        forceUpdate: Boolean
+    ) {
+        var previousShortest = Long.MAX_VALUE
+        val time = instant.epochSecond
+        var best = timelineComplicationData
+
+        // Select the shortest valid timeline entry.
+        timelineEntries?.let {
+            for (entry in it) {
+                val wireEntry = entry.asWireComplicationData()
+                val start = wireEntry.timelineStartInstant?.epochSecond
+                val end = wireEntry.timelineEndInstant?.epochSecond
+                if (start != null && end != null && time >= start && time < end) {
+                    val duration = end - start
+                    if (duration < previousShortest) {
+                        previousShortest = duration
+                        best = entry
+                    }
+                }
+            }
+        }
+
+        if (forceUpdate || complicationData.value != best) {
+            (complicationData as MutableStateFlow).value = best
+            renderer.loadData(best, loadDrawablesAsynchronous)
+        }
+    }
+
+    /**
      * Whether or not the complication should be considered active and should be rendered at the
      * specified time.
      */
@@ -735,6 +794,7 @@ public class ComplicationSlot internal constructor(
         this.invalidateListener = invalidateListener
 
         if (isHeadless) {
+            timelineComplicationData = EmptyComplicationData()
             (complicationData as MutableStateFlow).value = EmptyComplicationData()
         }
     }
