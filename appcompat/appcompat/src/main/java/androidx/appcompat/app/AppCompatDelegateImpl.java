@@ -2384,6 +2384,11 @@ class AppCompatDelegateImpl extends AppCompatDelegate
     }
 
     @Override
+    public Context getContextForDelegate() {
+        return mContext;
+    }
+
+    @Override
     public boolean applyDayNight() {
         return applyApplicationSpecificConfig(true);
     }

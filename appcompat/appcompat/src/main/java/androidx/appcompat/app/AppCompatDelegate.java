@@ -24,6 +24,7 @@ import static java.util.Objects.requireNonNull;
 
 import android.app.Activity;
 import android.app.Dialog;
+import android.app.LocaleManager;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.content.pm.ServiceInfo;
@@ -38,11 +39,13 @@ import android.view.ViewGroup;
 import android.view.Window;
 
 import androidx.annotation.CallSuper;
+import androidx.annotation.DoNotInline;
 import androidx.annotation.IdRes;
 import androidx.annotation.IntDef;
 import androidx.annotation.LayoutRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.OptIn;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.StyleRes;
@@ -50,6 +53,7 @@ import androidx.appcompat.view.ActionMode;
 import androidx.appcompat.widget.Toolbar;
 import androidx.appcompat.widget.VectorEnabledTintResources;
 import androidx.collection.ArraySet;
+import androidx.core.os.BuildCompat;
 import androidx.core.os.LocaleListCompat;
 import androidx.core.view.WindowCompat;
 import androidx.fragment.app.FragmentActivity;
@@ -180,6 +184,7 @@ public abstract class AppCompatDelegate {
     private static LocaleListCompat sRequestedAppLocales = null;
     private static LocaleListCompat sStoredAppLocales = null;
     private static Boolean sIsAutoStoreLocalesOptedIn = null;
+    private static Object sLocaleManager = null;
 
     /**
      * All AppCompatDelegate instances associated with a "live" Activity, e.g. lifecycle state is
@@ -555,6 +560,14 @@ public abstract class AppCompatDelegate {
     }
 
     /**
+     * Returns the context for the current delegate.
+     */
+    @Nullable
+    public Context getContextForDelegate() {
+        return null;
+    }
+
+    /**
      * Override the night mode used for this delegate's host component.
      *
      * <p>When setting a mode to be used across an entire app, the
@@ -666,24 +679,60 @@ public abstract class AppCompatDelegate {
      *
      * @param locales a list of locales.
      */
+    @OptIn(markerClass = androidx.core.os.BuildCompat.PrereleaseSdkCheck.class)
     public static void setApplicationLocales(@NonNull LocaleListCompat locales) {
         // TODO(b/200245468): Integrate LocaleManager#SetApplicationLocales &
         // #getApplicationLocales in AppCompatDelegate
         requireNonNull(locales);
-        if (DEBUG) {
-            Log.d(TAG, String.format("sRequestedAppLocales. New:%s, Current:%s",
-                    locales, sRequestedAppLocales));
-        }
-        if (!locales.equals(sRequestedAppLocales)) {
-            synchronized (sActivityDelegatesLock) {
-                sRequestedAppLocales = locales;
-                applyLocalesToActiveDelegates();
+        if (BuildCompat.isAtLeastT()) {
+            // If the API version is 33 (version for T) or above we want to redirect the call to
+            // the framework API.
+            Object localeManager = getLocaleManagerForApplication();
+            if (localeManager != null) {
+                Api33Impl.localeManagerSetApplicationLocales(localeManager,
+                        Api24Impl.localeListForLanguageTags(locales.toLanguageTags()));
             }
-        } else if (DEBUG) {
-            Log.d(TAG, String.format("Not applying changes, sRequestedAppLocales is already %s",
-                    locales));
+        } else {
+            if (DEBUG) {
+                Log.d(TAG, String.format("sRequestedAppLocales. New:%s, Current:%s",
+                        locales, sRequestedAppLocales));
+            }
+            if (!locales.equals(sRequestedAppLocales)) {
+                synchronized (sActivityDelegatesLock) {
+                    sRequestedAppLocales = locales;
+                    applyLocalesToActiveDelegates();
+                }
+            } else if (DEBUG) {
+                Log.d(TAG, String.format("Not applying changes, sRequestedAppLocales is already %s",
+                        locales));
+            }
         }
+    }
 
+    /**
+     * Returns application locales for the calling app as a {@link LocaleListCompat}.
+     *
+     * <p>Returns a {@link LocaleListCompat#getEmptyLocaleList()} if no app-specific locales are
+     * set.
+     */
+    @NonNull
+    @OptIn(markerClass = androidx.core.os.BuildCompat.PrereleaseSdkCheck.class)
+    public static LocaleListCompat getApplicationLocales() {
+        if (BuildCompat.isAtLeastT()) {
+            // If the API version is 33 or above we want to redirect the call to the framework API.
+            Object localeManager = getLocaleManagerForApplication();
+            if (localeManager != null) {
+                return LocaleListCompat.wrap(Api33Impl.localeManagerGetApplicationLocales(
+                        localeManager));
+            }
+        } else {
+            if (sRequestedAppLocales != null) {
+                // If app-specific locales exists then sRequestedApplicationLocales contains the
+                // latest locales.
+                return sRequestedAppLocales;
+            }
+        }
+        return LocaleListCompat.getEmptyLocaleList();
     }
 
     /**
@@ -717,8 +766,36 @@ public abstract class AppCompatDelegate {
     }
 
     /**
-     * Returns true if the "autoStoreLocales" metaData is marked true in the app manifest, else
-     * returns false.
+     * Returns the localeManager for the current application using active delegates to fetch
+     * context, returns null if no active delegates present.
+     */
+    @RequiresApi(33)
+    static Object getLocaleManagerForApplication() {
+        if (sLocaleManager != null) {
+            return sLocaleManager;
+        }
+        // Traversing through the active delegates to retrieve context for any one non null
+        // delegate.
+        // This context is used to create a localeManager which is saved as a static variable to
+        // reduce multiple object creation for different activities.
+        for (WeakReference<AppCompatDelegate> activeDelegate : sActivityDelegates) {
+            final AppCompatDelegate delegate = activeDelegate.get();
+            if (delegate != null) {
+                if (DEBUG) {
+                    Log.d(TAG, "applyLocalesToActiveDelegates. Applying to " + delegate);
+                }
+                Context context = delegate.getContextForDelegate();
+                if (context != null) {
+                    sLocaleManager = context.getSystemService(Context.LOCALE_SERVICE);
+                    return sLocaleManager;
+                }
+            }
+        }
+        return sLocaleManager;
+    }
+
+    /**
+     * Returns true is the "autoStoreLocales" metaData is marked true in the app manifest.
      */
     static boolean isAutoStorageOptedIn(Context context) {
         if (sIsAutoStoreLocalesOptedIn == null) {
@@ -894,6 +971,38 @@ public abstract class AppCompatDelegate {
                 }
                 delegate.applyAppLocales();
             }
+        }
+    }
+
+    @RequiresApi(24)
+    static class Api24Impl {
+        private Api24Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static LocaleList localeListForLanguageTags(String list) {
+            return LocaleList.forLanguageTags(list);
+        }
+    }
+
+    @RequiresApi(33)
+    static class Api33Impl {
+        private Api33Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static void localeManagerSetApplicationLocales(Object localeManager,
+                LocaleList locales) {
+            LocaleManager mLocaleManager = (LocaleManager) localeManager;
+            mLocaleManager.setApplicationLocales(locales);
+        }
+
+        @DoNotInline
+        static LocaleList localeManagerGetApplicationLocales(Object localeManager) {
+            LocaleManager mLocaleManager = (LocaleManager) localeManager;
+            return mLocaleManager.getApplicationLocales();
         }
     }
 }

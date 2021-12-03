@@ -283,6 +283,8 @@ package androidx.appcompat.app {
     method public static androidx.appcompat.app.AppCompatDelegate create(android.content.Context, android.app.Activity, androidx.appcompat.app.AppCompatCallback?);
     method public abstract android.view.View! createView(android.view.View?, String!, android.content.Context, android.util.AttributeSet);
     method public abstract <T extends android.view.View> T! findViewById(@IdRes int);
+    method public static androidx.core.os.LocaleListCompat getApplicationLocales();
+    method public android.content.Context? getContextForDelegate();
     method @androidx.appcompat.app.AppCompatDelegate.NightMode public static int getDefaultNightMode();
     method public abstract androidx.appcompat.app.ActionBarDrawerToggle.Delegate? getDrawerToggleDelegate();
     method @androidx.appcompat.app.AppCompatDelegate.NightMode public int getLocalNightMode();
