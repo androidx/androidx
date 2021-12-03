@@ -19,6 +19,7 @@ package androidx.appcompat.widget;
 import static com.google.common.truth.Truth.assertThat;
 
 import android.text.method.KeyListener;
+import android.text.method.NumberKeyListener;
 import android.view.KeyEvent;
 
 import androidx.test.annotation.UiThreadTest;
@@ -61,7 +62,8 @@ public class AppCompatEditTextEmojiTest
         int[] acceptedKeyCodes = {KeyEvent.KEYCODE_0, KeyEvent.KEYCODE_1, KeyEvent.KEYCODE_2,
                 KeyEvent.KEYCODE_3, KeyEvent.KEYCODE_4};
         int[] disallowedKeyCodes = {KeyEvent.KEYCODE_5, KeyEvent.KEYCODE_6, KeyEvent.KEYCODE_7,
-                KeyEvent.KEYCODE_8, KeyEvent.KEYCODE_9};
+                KeyEvent.KEYCODE_8, KeyEvent.KEYCODE_9, KeyEvent.KEYCODE_NUMPAD_COMMA,
+                KeyEvent.KEYCODE_NUMPAD_DOT};
         int[] actions = {KeyEvent.ACTION_DOWN, KeyEvent.ACTION_UP};
 
         for (int action : actions) {
@@ -72,7 +74,36 @@ public class AppCompatEditTextEmojiTest
                 assertThat(listenerHandlesKeyEvent(textWithDigits, action, keycode)).isFalse();
             }
         }
+
+        assertThat(textWithDigits.getKeyListener()).isInstanceOf(NumberKeyListener.class);
     }
+
+    @Test
+    @UiThreadTest
+    public void respectsDigitsAndComma() {
+        AppCompatEditText textWithDigitsAndComma = mActivityTestRule.getActivity()
+                .findViewById(androidx.appcompat.test.R.id.text_with_digits_and_comma);
+
+        int[] acceptedKeyCodes = {KeyEvent.KEYCODE_0, KeyEvent.KEYCODE_1, KeyEvent.KEYCODE_2,
+                KeyEvent.KEYCODE_3, KeyEvent.KEYCODE_4, KeyEvent.KEYCODE_NUMPAD_COMMA};
+        int[] disallowedKeyCodes = {KeyEvent.KEYCODE_5, KeyEvent.KEYCODE_6, KeyEvent.KEYCODE_7,
+                KeyEvent.KEYCODE_8, KeyEvent.KEYCODE_9, KeyEvent.KEYCODE_NUMPAD_DOT};
+        int[] actions = {KeyEvent.ACTION_DOWN, KeyEvent.ACTION_UP};
+
+        for (int action : actions) {
+            for (int keycode : acceptedKeyCodes) {
+                assertThat(listenerHandlesKeyEvent(textWithDigitsAndComma, action, keycode))
+                        .isTrue();
+            }
+            for (int keycode : disallowedKeyCodes) {
+                assertThat(listenerHandlesKeyEvent(textWithDigitsAndComma, action, keycode))
+                        .isFalse();
+            }
+        }
+
+        assertThat(textWithDigitsAndComma.getKeyListener()).isInstanceOf(NumberKeyListener.class);
+    }
+
 
     private boolean listenerHandlesKeyEvent(AppCompatEditText textWithDigits, int action,
             int keycode) {
