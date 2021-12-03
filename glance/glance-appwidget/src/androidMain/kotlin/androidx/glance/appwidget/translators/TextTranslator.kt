@@ -35,6 +35,7 @@ import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 import androidx.compose.ui.graphics.toArgb
 import androidx.core.widget.RemoteViewsCompat.setTextViewGravity
+import androidx.core.widget.RemoteViewsCompat.setTextViewMaxLines
 import androidx.core.widget.RemoteViewsCompat.setTextViewTextColor
 import androidx.core.widget.RemoteViewsCompat.setTextViewTextColorResource
 import androidx.glance.appwidget.GlanceAppWidgetTag
@@ -64,6 +65,7 @@ internal fun RemoteViews.translateEmittableText(
         viewDef.mainViewId,
         element.text,
         element.style,
+        maxLines = element.maxLines,
     )
     applyModifiers(translationContext, this, element.modifier, viewDef)
 }
@@ -73,8 +75,13 @@ internal fun RemoteViews.setText(
     resId: Int,
     text: String,
     style: TextStyle?,
+    maxLines: Int,
     verticalTextGravity: Int = Gravity.TOP,
 ) {
+    if (maxLines != Int.MAX_VALUE) {
+        setTextViewMaxLines(resId, maxLines)
+    }
+
     if (style == null) {
         setTextViewText(resId, text)
         return

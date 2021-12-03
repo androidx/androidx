@@ -111,6 +111,8 @@ public object CheckBoxDefaults {
  * @param text the text to display to the end of the check box
  * @param style the style to apply to [text]
  * @param colors the color tint to apply to the check box
+ * @param maxLines An optional maximum number of lines for the text to span, wrapping if
+ * necessary. If the text exceeds the given number of lines, it will be truncated.
  */
 @Composable
 public fun CheckBox(
@@ -119,7 +121,8 @@ public fun CheckBox(
     modifier: GlanceModifier = GlanceModifier,
     text: String = "",
     style: TextStyle? = null,
-    colors: CheckBoxColors = CheckBoxDefaults.colors
+    colors: CheckBoxColors = CheckBoxDefaults.colors,
+    maxLines: Int = Int.MAX_VALUE,
 ) {
     val finalModifier = if (onCheckedChange != null) {
         modifier.then(ActionModifier(CompoundButtonAction(onCheckedChange, checked)))
@@ -134,6 +137,7 @@ public fun CheckBox(
             this.set(finalModifier) { this.modifier = it }
             this.set(style) { this.style = it }
             this.set(colors) { this.colors = it }
+            this.set(maxLines) { this.maxLines = it }
         }
     )
 }
@@ -144,12 +148,14 @@ internal class EmittableCheckBox : Emittable {
     var text: String = ""
     var style: TextStyle? = null
     var colors: CheckBoxColors = CheckBoxDefaults.colors
+    var maxLines: Int = Int.MAX_VALUE
 
     override fun toString(): String = "EmittableCheckBox(" +
-        "modifier=$modifier" +
+        "modifier=$modifier, " +
         "checked=$checked, " +
         "text=$text, " +
         "style=$style, " +
-        "colors=$colors" +
+        "colors=$colors, " +
+        "maxLines=$maxLines" +
         ")"
 }
