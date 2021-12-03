@@ -141,7 +141,13 @@ class AppCompatEmojiEditTextHelper {
      */
     @Nullable
     KeyListener getKeyListener(@Nullable KeyListener keyListener) {
-        return mEmojiEditTextHelper.getKeyListener(keyListener);
+        // add a guard for NumberkeyListener both here and in emoji2 to avoid release dependency.
+        // this allows appcompat 1.4.1 to ship without a dependency on emoji2 1.1.
+        if (isEmojiCapableKeyListener(keyListener)) {
+            return mEmojiEditTextHelper.getKeyListener(keyListener);
+        } else {
+            return keyListener;
+        }
     }
 
     /**
