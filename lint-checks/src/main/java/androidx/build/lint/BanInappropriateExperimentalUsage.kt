@@ -18,6 +18,7 @@
 
 package androidx.build.lint
 
+import com.android.tools.lint.client.api.Configuration
 import com.android.tools.lint.client.api.UElementHandler
 import com.android.tools.lint.detector.api.Category
 import com.android.tools.lint.detector.api.Detector
@@ -27,6 +28,8 @@ import com.android.tools.lint.detector.api.Issue
 import com.android.tools.lint.detector.api.JavaContext
 import com.android.tools.lint.detector.api.Scope
 import com.android.tools.lint.detector.api.Severity
+import java.io.File
+import java.io.FileNotFoundException
 import org.jetbrains.uast.UAnnotated
 import org.jetbrains.uast.UAnnotation
 import org.jetbrains.uast.UClass
@@ -45,6 +48,10 @@ class BanInappropriateExperimentalUsage : Detector(), Detector.UastScanner {
     }
 
     private inner class AnnotationChecker(val context: JavaContext) : UElementHandler() {
+        val atomicGroupList: List<String> by lazy {
+            loadAtomicLibraryGroupData(context.configuration, ISSUE)
+        }
+
         override fun visitAnnotation(node: UAnnotation) {
             if (DEBUG) {
                 if (APPLICABLE_ANNOTATIONS.contains(node.qualifiedName) && node.sourcePsi != null) {
@@ -68,17 +75,55 @@ class BanInappropriateExperimentalUsage : Detector(), Detector.UastScanner {
                                 "${context.project}"
                         )
                     }
-                    verifyUsageOfElementIsWithinSameGroup(context, node, annotation, ISSUE)
+
+                    verifyUsageOfElementIsWithinSameGroup(
+                        context,
+                        node,
+                        annotation,
+                        ISSUE,
+                        atomicGroupList
+                    )
                 }
             }
         }
+
+        private fun loadAtomicLibraryGroupData(
+            configuration: Configuration,
+            issue: Issue
+        ): List<String> {
+            val filename = configuration.getOption(issue, ATOMIC_LIBGROUP_FILE_PROPERTY, null)
+                ?: throw RuntimeException(
+                    "Property $ATOMIC_LIBGROUP_FILE_PROPERTY is not set in lint.xml.")
+
+            val libGroupFile = if (filename.contains(OUT_DIR_PLACEHOLDER)) {
+                val fileLocation = filename.replace(OUT_DIR_PLACEHOLDER, System.getenv("OUT_DIR"))
+                val file = File(fileLocation)
+                if (!file.exists()) {
+                    throw FileNotFoundException("Couldn't find atomic library group file $filename")
+                }
+                file
+            } else {
+                configuration.getOptionAsFile(issue, ATOMIC_LIBGROUP_FILE_PROPERTY, null)
+                    ?: throw FileNotFoundException(
+                        "Couldn't find atomic library group file $filename")
+            }
+
+            val atomicLibraryGroups = libGroupFile.readLines()
+            if (atomicLibraryGroups.isEmpty()) {
+                throw RuntimeException("Atomic library group file should not be empty")
+            }
+
+            return atomicLibraryGroups
+        }
     }
 
+    @Suppress("UNUSED_PARAMETER") // TODO: write logic + tests in future CL that uses groupList
     fun verifyUsageOfElementIsWithinSameGroup(
         context: JavaContext,
         usage: UElement,
         annotation: UElement,
         issue: Issue,
+        atomicGroupList: List<String>,
     ) {
         val evaluator = context.evaluator
         val usageCoordinates = evaluator.getLibrary(usage) ?: context.project.mavenCoordinate
@@ -103,6 +148,17 @@ class BanInappropriateExperimentalUsage : Detector(), Detector.UastScanner {
 
     companion object {
         private const val DEBUG = false
+
+        /**
+         * This string must match the value defined in buildSrc/lint.xml
+         *
+         * This is needed as we need to define the location of the atomic library group file for
+         * non-test usage.  For tests, we can directly use the value defined in test lint.xml files.
+         */
+        private const val OUT_DIR_PLACEHOLDER = "USE_SYSTEM_OUT_DIR"
+
+        // This must match the setting in buildSrc/lint.xml
+        private const val ATOMIC_LIBGROUP_FILE_PROPERTY = "atomicLibraryGroupFilename"
 
         /**
          * Even though Kotlin's [Experimental] annotation is deprecated in favor of [RequiresOptIn],
