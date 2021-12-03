@@ -66,7 +66,6 @@ interface UseCaseCamera {
     ): Deferred<Unit>
 
     // 3A
-    suspend fun setTorchAsync(enabled: Boolean): Deferred<Result3A>
     suspend fun startFocusAndMeteringAsync(
         aeRegions: List<MeteringRectangle>,
         afRegions: List<MeteringRectangle>,
@@ -116,9 +115,6 @@ class UseCaseCameraImpl(
         debug { "Closing $this" }
         cameraGraph.close()
     }
-
-    override suspend fun setTorchAsync(enabled: Boolean): Deferred<Result3A> =
-        requestControl.setTorchAsync(enabled)
 
     override suspend fun startFocusAndMeteringAsync(
         aeRegions: List<MeteringRectangle>,

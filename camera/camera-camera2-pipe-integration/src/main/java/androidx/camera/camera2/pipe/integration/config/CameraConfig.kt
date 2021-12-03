@@ -31,6 +31,7 @@ import androidx.camera.camera2.pipe.integration.compat.ZoomCompat
 import androidx.camera.camera2.pipe.integration.impl.CameraPipeCameraProperties
 import androidx.camera.camera2.pipe.integration.impl.CameraProperties
 import androidx.camera.camera2.pipe.integration.impl.EvCompControl
+import androidx.camera.camera2.pipe.integration.impl.TorchControl
 import androidx.camera.camera2.pipe.integration.impl.UseCaseThreads
 import androidx.camera.camera2.pipe.integration.impl.ZoomControl
 import androidx.camera.camera2.pipe.integration.interop.Camera2CameraControl
@@ -60,6 +61,7 @@ annotation class CameraScope
         ZoomControl.Bindings::class,
         EvCompCompat.Bindings::class,
         EvCompControl.Bindings::class,
+        TorchControl.Bindings::class,
         Camera2CameraControl.Bindings::class,
         Camera2CameraControlCompat.Bindings::class,
     ],
