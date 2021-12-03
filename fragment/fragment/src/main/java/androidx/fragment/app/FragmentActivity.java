@@ -131,6 +131,9 @@ public class FragmentActivity extends ComponentActivity implements
         // Ensure that the first OnConfigurationChangedListener
         // marks the FragmentManager's state as not saved
         addOnConfigurationChangedListener(newConfig -> mFragments.noteStateNotSaved());
+        // Ensure that the first OnNewIntentListener
+        // marks the FragmentManager's state as not saved
+        addOnNewIntentListener(newConfig -> mFragments.noteStateNotSaved());
         addOnContextAvailableListener(context -> mFragments.attachHost(null /*parent*/));
     }
 
@@ -348,25 +351,6 @@ public class FragmentActivity extends ComponentActivity implements
         mResumed = false;
         mFragments.dispatchPause();
         mFragmentLifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_PAUSE);
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * Handle onNewIntent() to inform the fragment manager that the
-     * state is not saved.  If you are handling new intents and may be
-     * making changes to the fragment state, you want to be sure to call
-     * through to the super-class here first.  Otherwise, if your state
-     * is saved but the activity is not stopped, you could get an
-     * onNewIntent() call which happens before onResume() and trying to
-     * perform fragment operations at that point will throw IllegalStateException
-     * because the fragment manager thinks the state is still saved.
-     */
-    @Override
-    @CallSuper
-    protected void onNewIntent(@SuppressLint("UnknownNullness") Intent intent) {
-        mFragments.noteStateNotSaved();
-        super.onNewIntent(intent);
     }
 
     /**
