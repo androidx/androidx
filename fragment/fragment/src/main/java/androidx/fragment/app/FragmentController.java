@@ -373,7 +373,11 @@ public class FragmentController {
      * <p>Call when there is a configuration change.
      *
      * @see Fragment#onConfigurationChanged(Configuration)
+     * @deprecated Have your {@link FragmentHostCallback} implement
+     * {@link androidx.core.content.OnConfigurationChangedProvider}
+     * to automatically dispatch configuration changes to fragments.
      */
+    @Deprecated
     public void dispatchConfigurationChanged(@NonNull Configuration newConfig) {
         mHost.mFragmentManager.dispatchConfigurationChanged(newConfig);
     }

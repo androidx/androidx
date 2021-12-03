@@ -60,6 +60,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.StringRes;
+import androidx.core.content.OnConfigurationChangedProvider;
 import androidx.core.content.OnTrimMemoryProvider;
 import androidx.core.util.Consumer;
 import androidx.fragment.R;
@@ -435,6 +436,9 @@ public abstract class FragmentManager implements FragmentResultOwner {
     private final CopyOnWriteArrayList<FragmentOnAttachListener> mOnAttachListeners =
             new CopyOnWriteArrayList<>();
 
+    private final Consumer<Configuration> mOnConfigurationChangedListener = newConfig -> {
+        dispatchConfigurationChanged(newConfig);
+    };
     private final Consumer<Integer> mOnTrimMemoryListener = level -> {
         if (level == ComponentCallbacks2.TRIM_MEMORY_COMPLETE) {
             dispatchLowMemory();
@@ -2691,6 +2695,13 @@ public abstract class FragmentManager implements FragmentResultOwner {
                     });
         }
 
+        if (mHost instanceof OnConfigurationChangedProvider) {
+            OnConfigurationChangedProvider onConfigurationChangedProvider =
+                    (OnConfigurationChangedProvider) mHost;
+            onConfigurationChangedProvider.addOnConfigurationChangedListener(
+                    mOnConfigurationChangedListener);
+        }
+
         if (mHost instanceof OnTrimMemoryProvider) {
             OnTrimMemoryProvider onTrimMemoryProvider = (OnTrimMemoryProvider) mHost;
             onTrimMemoryProvider.addOnTrimMemoryListener(mOnTrimMemoryListener);
@@ -2835,6 +2846,12 @@ public abstract class FragmentManager implements FragmentResultOwner {
         if (mHost instanceof OnTrimMemoryProvider) {
             OnTrimMemoryProvider onTrimMemoryProvider = (OnTrimMemoryProvider) mHost;
             onTrimMemoryProvider.removeOnTrimMemoryListener(mOnTrimMemoryListener);
+        }
+        if (mHost instanceof OnConfigurationChangedProvider) {
+            OnConfigurationChangedProvider onConfigurationChangedProvider =
+                    (OnConfigurationChangedProvider) mHost;
+            onConfigurationChangedProvider.removeOnConfigurationChangedListener(
+                    mOnConfigurationChangedListener);
         }
         mHost = null;
         mContainer = null;

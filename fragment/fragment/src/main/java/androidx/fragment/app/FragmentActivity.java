@@ -50,6 +50,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.SharedElementCallback;
+import androidx.core.content.OnConfigurationChangedProvider;
 import androidx.core.content.OnTrimMemoryProvider;
 import androidx.core.util.Consumer;
 import androidx.lifecycle.Lifecycle;
@@ -127,6 +128,9 @@ public class FragmentActivity extends ComponentActivity implements
             mFragmentLifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_STOP);
             return new Bundle();
         });
+        // Ensure that the first OnConfigurationChangedListener
+        // marks the FragmentManager's state as not saved
+        addOnConfigurationChangedListener(newConfig -> mFragments.noteStateNotSaved());
         addOnContextAvailableListener(context -> mFragments.attachHost(null /*parent*/));
     }
 
@@ -227,18 +231,6 @@ public class FragmentActivity extends ComponentActivity implements
     @CallSuper
     public void onPictureInPictureModeChanged(boolean isInPictureInPictureMode) {
         mFragments.dispatchPictureInPictureModeChanged(isInPictureInPictureMode);
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * Dispatch configuration change to all fragments.
-     */
-    @Override
-    public void onConfigurationChanged(@NonNull Configuration newConfig) {
-        mFragments.noteStateNotSaved();
-        super.onConfigurationChanged(newConfig);
-        mFragments.dispatchConfigurationChanged(newConfig);
     }
 
     /**
@@ -684,6 +676,7 @@ public class FragmentActivity extends ComponentActivity implements
     }
 
     class HostCallbacks extends FragmentHostCallback<FragmentActivity> implements
+            OnConfigurationChangedProvider,
             OnTrimMemoryProvider,
             ViewModelStoreOwner,
             OnBackPressedDispatcherOwner,
@@ -789,6 +782,20 @@ public class FragmentActivity extends ComponentActivity implements
         @Override
         public SavedStateRegistry getSavedStateRegistry() {
             return FragmentActivity.this.getSavedStateRegistry();
+        }
+
+        @Override
+        public void addOnConfigurationChangedListener(
+                @NonNull Consumer<Configuration> listener
+        ) {
+            FragmentActivity.this.addOnConfigurationChangedListener(listener);
+        }
+
+        @Override
+        public void removeOnConfigurationChangedListener(
+                @NonNull Consumer<Configuration> listener
+        ) {
+            FragmentActivity.this.removeOnConfigurationChangedListener(listener);
         }
 
         @Override
