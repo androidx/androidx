@@ -28,8 +28,8 @@ plugins {
 dependencies {
     kotlinPlugin(project(":compose:compiler:compiler"))
 
-    api(project(":compose:ui:ui"))
-    api(project(":compose:runtime:runtime"))
+    api("androidx.compose.ui:ui:1.1.0-rc01")
+    api("androidx.compose.runtime:runtime:1.1.0-rc01")
     api("androidx.navigation:navigation-runtime:2.4.0-rc01")
     api(project(":wear:compose:compose-material"))
 
