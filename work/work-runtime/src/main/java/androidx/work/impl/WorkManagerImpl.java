@@ -28,8 +28,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 
+import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.arch.core.util.Function;
 import androidx.lifecycle.LiveData;
@@ -48,6 +50,7 @@ import androidx.work.WorkQuery;
 import androidx.work.WorkRequest;
 import androidx.work.WorkerParameters;
 import androidx.work.impl.background.greedy.GreedyScheduler;
+import androidx.work.impl.background.systemalarm.RescheduleReceiver;
 import androidx.work.impl.background.systemjob.SystemJobScheduler;
 import androidx.work.impl.model.RawWorkInfoDao;
 import androidx.work.impl.model.WorkSpec;
@@ -718,7 +721,7 @@ public class WorkManagerImpl extends WorkManager {
 
     /**
      * This method is invoked by
-     * {@link androidx.work.impl.background.systemalarm.RescheduleReceiver}
+     * {@link RescheduleReceiver}
      * after a call to {@link BroadcastReceiver#goAsync()}. Once {@link ForceStopRunnable} is done,
      * we can safely call {@link BroadcastReceiver.PendingResult#finish()}.
      *
@@ -763,7 +766,8 @@ public class WorkManagerImpl extends WorkManager {
         mForceStopRunnableCompleted = false;
 
         // Check for direct boot mode
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N && context.isDeviceProtectedStorage()) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N && Api24Impl.isDeviceProtectedStorage(
+                context)) {
             throw new IllegalStateException("Cannot initialize WorkManager in direct boot mode");
         }
 
@@ -799,6 +803,18 @@ public class WorkManagerImpl extends WorkManager {
             ).newInstance(mContext, this);
         } catch (Throwable throwable) {
             Logger.get().debug(TAG, "Unable to initialize multi-process support", throwable);
+        }
+    }
+
+    @RequiresApi(24)
+    static class Api24Impl {
+        private Api24Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static boolean isDeviceProtectedStorage(Context context) {
+            return context.isDeviceProtectedStorage();
         }
     }
 }
