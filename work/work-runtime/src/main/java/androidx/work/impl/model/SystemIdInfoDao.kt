@@ -13,52 +13,44 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package androidx.work.impl.model
 
-package androidx.work.impl.model;
-
-import static androidx.room.OnConflictStrategy.REPLACE;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.room.Dao;
-import androidx.room.Insert;
-import androidx.room.Query;
-
-import java.util.List;
+import androidx.room.Dao
+import androidx.room.Insert
+import androidx.room.OnConflictStrategy
+import androidx.room.Query
 
 /**
- * A Data Access Object for {@link SystemIdInfo}.
+ * A Data Access Object for [SystemIdInfo].
  */
 @Dao
-public interface SystemIdInfoDao {
+interface SystemIdInfoDao {
     /**
-     * Inserts a {@link SystemIdInfo} into the database.
+     * Inserts a [SystemIdInfo] into the database.
      *
-     * @param systemIdInfo The {@link SystemIdInfo} to be inserted into the database.
+     * @param systemIdInfo The [SystemIdInfo] to be inserted into the database.
      */
-    @Insert(onConflict = REPLACE)
-    void insertSystemIdInfo(@NonNull SystemIdInfo systemIdInfo);
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun insertSystemIdInfo(systemIdInfo: SystemIdInfo)
 
     /**
-     * @param workSpecId The {@link WorkSpec} identifier.
-     * @return The instance of {@link SystemIdInfo} if exists.
+     * @param workSpecId The [WorkSpec] identifier.
+     * @return The instance of [SystemIdInfo] if exists.
      */
-    @Nullable
     @Query("SELECT * FROM SystemIdInfo WHERE work_spec_id=:workSpecId")
-    SystemIdInfo getSystemIdInfo(@NonNull String workSpecId);
+    fun getSystemIdInfo(workSpecId: String): SystemIdInfo?
 
     /**
-     * Removes {@link SystemIdInfo} corresponding to the {@link WorkSpec} identifier.
+     * Removes [SystemIdInfo] corresponding to the [WorkSpec] identifier.
      *
-     * @param workSpecId The {@link WorkSpec} identifier.
+     * @param workSpecId The [WorkSpec] identifier.
      */
     @Query("DELETE FROM SystemIdInfo where work_spec_id=:workSpecId")
-    void removeSystemIdInfo(@NonNull String workSpecId);
+    fun removeSystemIdInfo(workSpecId: String)
 
     /**
-     * @return The {@link List} of {@link WorkSpec} ids.
+     * @return The [List] of [WorkSpec] ids.
      */
-    @NonNull
     @Query("SELECT DISTINCT work_spec_id FROM SystemIdInfo")
-    List<String> getWorkSpecIds();
+    fun getWorkSpecIds(): List<String>
 }

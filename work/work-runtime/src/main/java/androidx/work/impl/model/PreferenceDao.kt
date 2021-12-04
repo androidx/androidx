@@ -13,49 +13,43 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package androidx.work.impl.model
 
-package androidx.work.impl.model;
-
-import static androidx.room.OnConflictStrategy.REPLACE;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.lifecycle.LiveData;
-import androidx.room.Dao;
-import androidx.room.Insert;
-import androidx.room.Query;
+import androidx.lifecycle.LiveData
+import androidx.room.Dao
+import androidx.room.Insert
+import androidx.room.OnConflictStrategy
+import androidx.room.Query
 
 /**
- * A Data Access Object for accessing {@link Preference}s.
+ * A Data Access Object for accessing [Preference]s.
  */
 @Dao
-public interface PreferenceDao {
+interface PreferenceDao {
     /**
-     * Inserts a {@link Preference} into the database.
+     * Inserts a [Preference] into the database.
      *
-     * @param preference The {@link Preference} entity to be inserted into the database
+     * @param preference The [Preference] entity to be inserted into the database
      */
-    @Insert(onConflict = REPLACE)
-    void insertPreference(@NonNull Preference preference);
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun insertPreference(preference: Preference)
 
     /**
-     * Fetches the value for the given {@link String} key.
+     * Fetches the value for the given [String] key.
      *
-     * @param key The {@link String} key
-     * @return The value if present for the given {@link String} key
+     * @param key The [String] key
+     * @return The value if present for the given [String] key
      */
-    @Nullable
     @Query("SELECT long_value FROM Preference where `key`=:key")
-    Long getLongValue(@NonNull String key);
+    fun getLongValue(key: String): Long?
 
     /**
-     * Fetches a {@link LiveData} of {@link Long} for the given {@link String} key.
+     * Fetches a [LiveData] of [Long] for the given [String] key.
      *
-     * @param key The {@link String} key
-     * @return The {@link LiveData} of  {@link Long} if present for the given
-     * {@link String} key
+     * @param key The [String] key
+     * @return The [LiveData] of  [Long] if present for the given
+     * [String] key
      */
-    @NonNull
     @Query("SELECT long_value FROM Preference where `key`=:key")
-    LiveData<Long> getObservableLongValue(@NonNull String key);
+    fun getObservableLongValue(key: String): LiveData<Long?>
 }

@@ -108,7 +108,7 @@ public class RemoteListenableWorkerTest {
         val wrapper = buildWrapper(request)
         wrapper.run()
         wrapper.future.get()
-        val workSpec = mDatabase.workSpecDao().getWorkSpec(request.stringId)
+        val workSpec = mDatabase.workSpecDao().getWorkSpec(request.stringId)!!
         assertEquals(workSpec.state, WorkInfo.State.SUCCEEDED)
         assertEquals(workSpec.output, RemoteSuccessWorker.outputData())
     }
@@ -125,7 +125,7 @@ public class RemoteListenableWorkerTest {
         val wrapper = buildWrapper(request)
         wrapper.run()
         wrapper.future.get()
-        val workSpec = mDatabase.workSpecDao().getWorkSpec(request.stringId)
+        val workSpec = mDatabase.workSpecDao().getWorkSpec(request.stringId)!!
         assertEquals(workSpec.state, WorkInfo.State.FAILED)
         assertEquals(workSpec.output, RemoteFailureWorker.outputData())
     }
@@ -142,7 +142,7 @@ public class RemoteListenableWorkerTest {
         val wrapper = buildWrapper(request)
         wrapper.run()
         wrapper.future.get()
-        val workSpec = mDatabase.workSpecDao().getWorkSpec(request.stringId)
+        val workSpec = mDatabase.workSpecDao().getWorkSpec(request.stringId)!!
         assertEquals(workSpec.state, WorkInfo.State.ENQUEUED)
     }
 

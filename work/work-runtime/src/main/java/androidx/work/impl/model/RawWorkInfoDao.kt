@@ -13,38 +13,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package androidx.work.impl.model
 
-package androidx.work.impl.model;
-
-import androidx.annotation.NonNull;
-import androidx.lifecycle.LiveData;
-import androidx.room.Dao;
-import androidx.room.RawQuery;
-import androidx.sqlite.db.SupportSQLiteQuery;
-import androidx.work.WorkQuery;
-
-import java.util.List;
+import androidx.lifecycle.LiveData
+import androidx.room.Dao
+import androidx.room.RawQuery
+import androidx.sqlite.db.SupportSQLiteQuery
 
 /**
- * A Data Access Object for accessing {@link androidx.work.WorkInfo}s that uses raw SQL queries.
+ * A Data Access Object for accessing [androidx.work.WorkInfo]s that uses raw SQL queries.
  */
 @Dao
-public interface RawWorkInfoDao {
+interface RawWorkInfoDao {
     /**
-     * @param query The raw query obtained using {@link WorkQuery}
-     * @return A {@link List} of {@link WorkSpec.WorkInfoPojo}s using the raw query.
+     * @param query The raw query obtained using [androidx.work.WorkQuery]
+     * @return A [List] of [WorkSpec.WorkInfoPojo]s using the raw query.
      */
-    @RawQuery(observedEntities = WorkSpec.class)
-    @NonNull
-    List<WorkSpec.WorkInfoPojo> getWorkInfoPojos(@NonNull SupportSQLiteQuery query);
+    @RawQuery(observedEntities = [WorkSpec::class])
+    fun getWorkInfoPojos(query: SupportSQLiteQuery): List<WorkSpec.WorkInfoPojo>
 
     /**
-     * @param query The raw query obtained using {@link WorkQuery}
-     * @return A {@link LiveData} of a {@link List} of {@link WorkSpec.WorkInfoPojo}s using the
+     * @param query The raw query obtained using [androidx.work.WorkQuery]
+     * @return A [LiveData] of a [List] of [WorkSpec.WorkInfoPojo]s using the
      * raw query.
      */
-    @RawQuery(observedEntities = WorkSpec.class)
-    @NonNull
-    LiveData<List<WorkSpec.WorkInfoPojo>> getWorkInfoPojosLiveData(
-            @NonNull SupportSQLiteQuery query);
+    @RawQuery(observedEntities = [WorkSpec::class])
+    fun getWorkInfoPojosLiveData(
+        query: SupportSQLiteQuery
+    ): LiveData<List<WorkSpec.WorkInfoPojo>>
 }

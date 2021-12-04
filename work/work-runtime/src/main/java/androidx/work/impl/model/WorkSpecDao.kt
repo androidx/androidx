@@ -13,228 +13,225 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package androidx.work.impl.model
 
-package androidx.work.impl.model;
-
-import static androidx.room.OnConflictStrategy.IGNORE;
-import static androidx.work.impl.model.WorkTypeConverters.StateIds.COMPLETED_STATES;
-
-import android.annotation.SuppressLint;
-
-import androidx.annotation.NonNull;
-import androidx.lifecycle.LiveData;
-import androidx.room.Dao;
-import androidx.room.Insert;
-import androidx.room.Query;
-import androidx.room.Transaction;
-import androidx.work.Data;
-import androidx.work.WorkInfo;
-
-import java.util.List;
+import android.annotation.SuppressLint
+import androidx.lifecycle.LiveData
+import androidx.room.Dao
+import androidx.room.Insert
+import androidx.room.OnConflictStrategy
+import androidx.room.Query
+import androidx.room.Transaction
+import androidx.work.Data
+import androidx.work.WorkInfo
+import androidx.work.impl.model.WorkTypeConverters.StateIds.COMPLETED_STATES
+import androidx.work.impl.model.WorkTypeConverters.StateIds.ENQUEUED
 
 /**
- * The Data Access Object for {@link WorkSpec}s.
+ * The Data Access Object for [WorkSpec]s.
  */
 @Dao
 @SuppressLint("UnknownNullness")
-public interface WorkSpecDao {
+interface WorkSpecDao {
     /**
-     * Attempts to insert a {@link WorkSpec} into the database.
+     * Attempts to insert a [WorkSpec] into the database.
      *
      * @param workSpec The WorkSpec to insert.
      */
-    @Insert(onConflict = IGNORE)
-    void insertWorkSpec(WorkSpec workSpec);
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    fun insertWorkSpec(workSpec: WorkSpec)
 
     /**
-     * Deletes {@link WorkSpec}s from the database.
+     * Deletes [WorkSpec]s from the database.
      *
      * @param id The WorkSpec id to delete.
      */
     @Query("DELETE FROM workspec WHERE id=:id")
-    void delete(String id);
+    fun delete(id: String)
 
     /**
      * @param id The identifier
      * @return The WorkSpec associated with that id
      */
     @Query("SELECT * FROM workspec WHERE id=:id")
-    WorkSpec getWorkSpec(String id);
-
-    /**
-     * Retrieves {@link WorkSpec}s with the identifiers.
-     *
-     * @param ids The identifiers of desired {@link WorkSpec}s
-     * @return The {@link WorkSpec}s with the requested IDs
-     */
-    @Query("SELECT * FROM workspec WHERE id IN (:ids)")
-    WorkSpec[] getWorkSpecs(List<String> ids);
+    fun getWorkSpec(id: String): WorkSpec?
 
     /**
      *
      * @param name The work graph name
-     * @return The {@link WorkSpec}s labelled with the given name
+     * @return The [WorkSpec]s labelled with the given name
      */
-    @Query("SELECT id, state FROM workspec WHERE id IN "
-            + "(SELECT work_spec_id FROM workname WHERE name=:name)")
-    List<WorkSpec.IdAndState> getWorkSpecIdAndStatesForName(String name);
+    @Query(
+        "SELECT id, state FROM workspec WHERE id IN " +
+            "(SELECT work_spec_id FROM workname WHERE name=:name)"
+    )
+    fun getWorkSpecIdAndStatesForName(name: String): List<WorkSpec.IdAndState>
 
     /**
      * @return All WorkSpec ids in the database.
      */
     @Query("SELECT id FROM workspec")
-    List<String> getAllWorkSpecIds();
+    fun getAllWorkSpecIds(): List<String>
 
     /**
-     * @return A {@link LiveData} list of all WorkSpec ids in the database.
+     * @return A [LiveData] list of all WorkSpec ids in the database.
      */
     @Transaction
     @Query("SELECT id FROM workspec")
-    LiveData<List<String>> getAllWorkSpecIdsLiveData();
-
+    fun getAllWorkSpecIdsLiveData(): LiveData<List<String>>
     /**
-     * Updates the state of at least one {@link WorkSpec} by ID.
+     * Updates the state of at least one [WorkSpec] by ID.
      *
      * @param state The new state
-     * @param ids The IDs for the {@link WorkSpec}s to update
+     * @param ids The IDs for the [WorkSpec]s to update
      * @return The number of rows that were updated
      */
     @Query("UPDATE workspec SET state=:state WHERE id IN (:ids)")
-    int setState(WorkInfo.State state, String... ids);
+    fun setState(state: WorkInfo.State, vararg ids: String): Int
 
     /**
-     * Updates the output of a {@link WorkSpec}.
+     * Updates the output of a [WorkSpec].
      *
-     * @param id The {@link WorkSpec} identifier to update
-     * @param output The {@link Data} to set as the output
+     * @param id The [WorkSpec] identifier to update
+     * @param output The [Data] to set as the output
      */
     @Query("UPDATE workspec SET output=:output WHERE id=:id")
-    void setOutput(String id, Data output);
+    fun setOutput(id: String, output: Data)
 
     /**
-     * Updates the period start time of a {@link WorkSpec}.
+     * Updates the period start time of a [WorkSpec].
      *
-     * @param id The {@link WorkSpec} identifier to update
+     * @param id The [WorkSpec] identifier to update
      * @param periodStartTime The time when the period started.
      */
     @Query("UPDATE workspec SET period_start_time=:periodStartTime WHERE id=:id")
-    void setPeriodStartTime(String id, long periodStartTime);
+    fun setPeriodStartTime(id: String, periodStartTime: Long)
 
     /**
-     * Increment run attempt count of a {@link WorkSpec}.
+     * Increment run attempt count of a [WorkSpec].
      *
-     * @param id The identifier for the {@link WorkSpec}
+     * @param id The identifier for the [WorkSpec]
      * @return The number of rows that were updated (should be 0 or 1)
      */
     @Query("UPDATE workspec SET run_attempt_count=run_attempt_count+1 WHERE id=:id")
-    int incrementWorkSpecRunAttemptCount(String id);
+    fun incrementWorkSpecRunAttemptCount(id: String): Int
 
     /**
-     * Reset run attempt count of a {@link WorkSpec}.
+     * Reset run attempt count of a [WorkSpec].
      *
-     * @param id The identifier for the {@link WorkSpec}
+     * @param id The identifier for the [WorkSpec]
      * @return The number of rows that were updated (should be 0 or 1)
      */
     @Query("UPDATE workspec SET run_attempt_count=0 WHERE id=:id")
-    int resetWorkSpecRunAttemptCount(String id);
+    fun resetWorkSpecRunAttemptCount(id: String): Int
 
     /**
-     * Retrieves the state of a {@link WorkSpec}.
+     * Retrieves the state of a [WorkSpec].
      *
-     * @param id The identifier for the {@link WorkSpec}
-     * @return The state of the {@link WorkSpec}
+     * @param id The identifier for the [WorkSpec]
+     * @return The state of the [WorkSpec]
      */
     @Query("SELECT state FROM workspec WHERE id=:id")
-    WorkInfo.State getState(String id);
+    fun getState(id: String): WorkInfo.State?
 
     /**
-     * For a {@link WorkSpec} identifier, retrieves its {@link WorkSpec.WorkInfoPojo}.
+     * For a [WorkSpec] identifier, retrieves its [WorkSpec.WorkInfoPojo].
      *
-     * @param id The identifier of the {@link WorkSpec}
-     * @return A list of {@link WorkSpec.WorkInfoPojo}
+     * @param id The identifier of the [WorkSpec]
+     * @return A list of [WorkSpec.WorkInfoPojo]
      */
     @Transaction
     @Query("SELECT id, state, output, run_attempt_count FROM workspec WHERE id=:id")
-    WorkSpec.WorkInfoPojo getWorkStatusPojoForId(String id);
+    fun getWorkStatusPojoForId(id: String): WorkSpec.WorkInfoPojo?
 
     /**
-     * For a list of {@link WorkSpec} identifiers, retrieves a {@link List} of their
-     * {@link WorkSpec.WorkInfoPojo}.
+     * For a list of [WorkSpec] identifiers, retrieves a [List] of their
+     * [WorkSpec.WorkInfoPojo].
      *
-     * @param ids The identifier of the {@link WorkSpec}s
-     * @return A {@link List} of {@link WorkSpec.WorkInfoPojo}
+     * @param ids The identifier of the [WorkSpec]s
+     * @return A [List] of [WorkSpec.WorkInfoPojo]
      */
     @Transaction
     @Query("SELECT id, state, output, run_attempt_count FROM workspec WHERE id IN (:ids)")
-    List<WorkSpec.WorkInfoPojo> getWorkStatusPojoForIds(List<String> ids);
+    fun getWorkStatusPojoForIds(ids: List<String>): List<WorkSpec.WorkInfoPojo>
 
     /**
-     * For a list of {@link WorkSpec} identifiers, retrieves a {@link LiveData} list of their
-     * {@link WorkSpec.WorkInfoPojo}.
+     * For a list of [WorkSpec] identifiers, retrieves a [LiveData] list of their
+     * [WorkSpec.WorkInfoPojo].
      *
-     * @param ids The identifier of the {@link WorkSpec}s
-     * @return A {@link LiveData} list of {@link WorkSpec.WorkInfoPojo}
+     * @param ids The identifier of the [WorkSpec]s
+     * @return A [LiveData] list of [WorkSpec.WorkInfoPojo]
      */
     @Transaction
     @Query("SELECT id, state, output, run_attempt_count FROM workspec WHERE id IN (:ids)")
-    LiveData<List<WorkSpec.WorkInfoPojo>> getWorkStatusPojoLiveDataForIds(List<String> ids);
+    fun getWorkStatusPojoLiveDataForIds(ids: List<String>): LiveData<List<WorkSpec.WorkInfoPojo>>
 
     /**
-     * Retrieves a list of {@link WorkSpec.WorkInfoPojo} for all work with a given tag.
+     * Retrieves a list of [WorkSpec.WorkInfoPojo] for all work with a given tag.
      *
-     * @param tag The tag for the {@link WorkSpec}s
-     * @return A list of {@link WorkSpec.WorkInfoPojo}
+     * @param tag The tag for the [WorkSpec]s
+     * @return A list of [WorkSpec.WorkInfoPojo]
      */
     @Transaction
-    @Query("SELECT id, state, output, run_attempt_count FROM workspec WHERE id IN "
-            + "(SELECT work_spec_id FROM worktag WHERE tag=:tag)")
-    List<WorkSpec.WorkInfoPojo> getWorkStatusPojoForTag(String tag);
+    @Query(
+        """SELECT id, state, output, run_attempt_count FROM workspec WHERE id IN
+            (SELECT work_spec_id FROM worktag WHERE tag=:tag)"""
+    )
+    fun getWorkStatusPojoForTag(tag: String): List<WorkSpec.WorkInfoPojo>
 
     /**
-     * Retrieves a {@link LiveData} list of {@link WorkSpec.WorkInfoPojo} for all work with a
+     * Retrieves a [LiveData] list of [WorkSpec.WorkInfoPojo] for all work with a
      * given tag.
      *
-     * @param tag The tag for the {@link WorkSpec}s
-     * @return A {@link LiveData} list of {@link WorkSpec.WorkInfoPojo}
+     * @param tag The tag for the [WorkSpec]s
+     * @return A [LiveData] list of [WorkSpec.WorkInfoPojo]
      */
     @Transaction
-    @Query("SELECT id, state, output, run_attempt_count FROM workspec WHERE id IN "
-            + "(SELECT work_spec_id FROM worktag WHERE tag=:tag)")
-    LiveData<List<WorkSpec.WorkInfoPojo>> getWorkStatusPojoLiveDataForTag(String tag);
+    @Query(
+        """SELECT id, state, output, run_attempt_count FROM workspec WHERE id IN
+            (SELECT work_spec_id FROM worktag WHERE tag=:tag)"""
+    )
+    fun getWorkStatusPojoLiveDataForTag(tag: String): LiveData<List<WorkSpec.WorkInfoPojo>>
 
     /**
-     * Retrieves a list of {@link WorkSpec.WorkInfoPojo} for all work with a given name.
+     * Retrieves a list of [WorkSpec.WorkInfoPojo] for all work with a given name.
      *
-     * @param name The name of the {@link WorkSpec}s
-     * @return A list of {@link WorkSpec.WorkInfoPojo}
+     * @param name The name of the [WorkSpec]s
+     * @return A list of [WorkSpec.WorkInfoPojo]
      */
     @Transaction
-    @Query("SELECT id, state, output, run_attempt_count FROM workspec WHERE id IN "
-            + "(SELECT work_spec_id FROM workname WHERE name=:name)")
-    List<WorkSpec.WorkInfoPojo> getWorkStatusPojoForName(String name);
+    @Query(
+        "SELECT id, state, output, run_attempt_count FROM workspec WHERE id IN " +
+            "(SELECT work_spec_id FROM workname WHERE name=:name)"
+    )
+    fun getWorkStatusPojoForName(name: String): List<WorkSpec.WorkInfoPojo>
 
     /**
-     * Retrieves a {@link LiveData} list of {@link WorkSpec.WorkInfoPojo} for all work with a
+     * Retrieves a [LiveData] list of [WorkSpec.WorkInfoPojo] for all work with a
      * given name.
      *
-     * @param name The name for the {@link WorkSpec}s
-     * @return A {@link LiveData} list of {@link WorkSpec.WorkInfoPojo}
+     * @param name The name for the [WorkSpec]s
+     * @return A [LiveData] list of [WorkSpec.WorkInfoPojo]
      */
     @Transaction
-    @Query("SELECT id, state, output, run_attempt_count FROM workspec WHERE id IN "
-            + "(SELECT work_spec_id FROM workname WHERE name=:name)")
-    LiveData<List<WorkSpec.WorkInfoPojo>> getWorkStatusPojoLiveDataForName(String name);
+    @Query(
+        "SELECT id, state, output, run_attempt_count FROM workspec WHERE id IN " +
+            "(SELECT work_spec_id FROM workname WHERE name=:name)"
+    )
+    fun getWorkStatusPojoLiveDataForName(name: String): LiveData<List<WorkSpec.WorkInfoPojo>>
 
     /**
-     * Gets all inputs coming from prerequisites for a particular {@link WorkSpec}.  These are
-     * {@link Data} set via {@code Worker#setOutputData()}.
+     * Gets all inputs coming from prerequisites for a particular [WorkSpec].  These are
+     * [Data] set via `Worker#setOutputData()`.
      *
-     * @param id The {@link WorkSpec} identifier
-     * @return A list of all inputs coming from prerequisites for {@code id}
+     * @param id The [WorkSpec] identifier
+     * @return A list of all inputs coming from prerequisites for `id`
      */
-    @Query("SELECT output FROM workspec WHERE id IN "
-            + "(SELECT prerequisite_id FROM dependency WHERE work_spec_id=:id)")
-    List<Data> getInputsFromPrerequisites(String id);
+    @Query(
+        """SELECT output FROM workspec WHERE id IN
+             (SELECT prerequisite_id FROM dependency WHERE work_spec_id=:id)"""
+    )
+    fun getInputsFromPrerequisites(id: String): List<Data>
 
     /**
      * Retrieves work ids for unfinished work with a given tag.
@@ -242,9 +239,11 @@ public interface WorkSpecDao {
      * @param tag The tag used to identify the work
      * @return A list of work ids
      */
-    @Query("SELECT id FROM workspec WHERE state NOT IN " + COMPLETED_STATES
-            + " AND id IN (SELECT work_spec_id FROM worktag WHERE tag=:tag)")
-    List<String> getUnfinishedWorkWithTag(@NonNull String tag);
+    @Query(
+        "SELECT id FROM workspec WHERE state NOT IN " + COMPLETED_STATES +
+        " AND id IN (SELECT work_spec_id FROM worktag WHERE tag=:tag)"
+    )
+    fun getUnfinishedWorkWithTag(tag: String): List<String>
 
     /**
      * Retrieves work ids for unfinished work with a given name.
@@ -252,9 +251,11 @@ public interface WorkSpecDao {
      * @param name THe tag used to identify the work
      * @return A list of work ids
      */
-    @Query("SELECT id FROM workspec WHERE state NOT IN " + COMPLETED_STATES
-            + " AND id IN (SELECT work_spec_id FROM workname WHERE name=:name)")
-    List<String> getUnfinishedWorkWithName(@NonNull String name);
+    @Query(
+        "SELECT id FROM workspec WHERE state NOT IN " + COMPLETED_STATES +
+            " AND id IN (SELECT work_spec_id FROM workname WHERE name=:name)"
+    )
+    fun getUnfinishedWorkWithName(name: String): List<String>
 
     /**
      * Retrieves work ids for all unfinished work.
@@ -262,107 +263,113 @@ public interface WorkSpecDao {
      * @return A list of work ids
      */
     @Query("SELECT id FROM workspec WHERE state NOT IN " + COMPLETED_STATES)
-    List<String> getAllUnfinishedWork();
+    fun getAllUnfinishedWork(): List<String>
 
     /**
-     * @return {@code true} if there is pending work.
+     * @return `true` if there is pending work.
      */
-    @Query("SELECT COUNT(*) > 0 FROM workspec WHERE state NOT IN " + COMPLETED_STATES + " LIMIT 1")
-    boolean hasUnfinishedWork();
+    @Query("SELECT COUNT(*) > 0 FROM workspec WHERE state NOT IN $COMPLETED_STATES LIMIT 1")
+    fun hasUnfinishedWork(): Boolean
 
     /**
-     * Marks a {@link WorkSpec} as scheduled.
+     * Marks a [WorkSpec] as scheduled.
      *
-     * @param id        The identifier for the {@link WorkSpec}
-     * @param startTime The time at which the {@link WorkSpec} was scheduled.
+     * @param id        The identifier for the [WorkSpec]
+     * @param startTime The time at which the [WorkSpec] was scheduled.
      * @return The number of rows that were updated (should be 0 or 1)
      */
     @Query("UPDATE workspec SET schedule_requested_at=:startTime WHERE id=:id")
-    int markWorkSpecScheduled(@NonNull String id, long startTime);
+    fun markWorkSpecScheduled(id: String, startTime: Long): Int
 
     /**
-     * @return The time at which the {@link WorkSpec} was scheduled.
+     * @return The time at which the [WorkSpec] was scheduled.
      */
     @Query("SELECT schedule_requested_at FROM workspec WHERE id=:id")
-    LiveData<Long> getScheduleRequestedAtLiveData(@NonNull String id);
+    fun getScheduleRequestedAtLiveData(id: String): LiveData<Long>
 
     /**
-     * Resets the scheduled state on the {@link WorkSpec}s that are not in a a completed state.
+     * Resets the scheduled state on the [WorkSpec]s that are not in a a completed state.
      * @return The number of rows that were updated
      */
-    @Query("UPDATE workspec SET schedule_requested_at=" + WorkSpec.SCHEDULE_NOT_REQUESTED_YET
-            + " WHERE state NOT IN " + COMPLETED_STATES)
-    int resetScheduledState();
-
-    /**
-     * @return The List of {@link WorkSpec}s that are eligible to be scheduled.
-     */
-    @Query("SELECT * FROM workspec WHERE "
-            + "state=" + WorkTypeConverters.StateIds.ENQUEUED
-            // We only want WorkSpecs which have not been previously scheduled.
-            + " AND schedule_requested_at=" + WorkSpec.SCHEDULE_NOT_REQUESTED_YET
-            // Order by period start time so we execute scheduled WorkSpecs in FIFO order
-            + " ORDER BY period_start_time"
-            + " LIMIT "
-                + "(SELECT MAX(:schedulerLimit" + "-COUNT(*), 0) FROM workspec WHERE"
-                    + " schedule_requested_at<>" + WorkSpec.SCHEDULE_NOT_REQUESTED_YET
-                    + " AND state NOT IN " + COMPLETED_STATES
-                + ")"
+    @Query(
+        "UPDATE workspec SET schedule_requested_at=" + WorkSpec.SCHEDULE_NOT_REQUESTED_YET +
+            " WHERE state NOT IN " + COMPLETED_STATES
     )
-    List<WorkSpec> getEligibleWorkForScheduling(int schedulerLimit);
+    fun resetScheduledState(): Int
 
     /**
-     * @return The List of {@link WorkSpec}s that can be scheduled irrespective of scheduling
+     * @return The List of [WorkSpec]s that are eligible to be scheduled.
+     */
+    @Query(
+        "SELECT * FROM workspec WHERE " +
+            "state=" + ENQUEUED +
+            // We only want WorkSpecs which have not been previously scheduled.
+            " AND schedule_requested_at=" + WorkSpec.SCHEDULE_NOT_REQUESTED_YET +
+            // Order by period start time so we execute scheduled WorkSpecs in FIFO order
+            " ORDER BY period_start_time" +
+            " LIMIT " +
+            "(SELECT MAX(:schedulerLimit" + "-COUNT(*), 0) FROM workspec WHERE" +
+            " schedule_requested_at<>" + WorkSpec.SCHEDULE_NOT_REQUESTED_YET +
+            " AND state NOT IN " + COMPLETED_STATES +
+            ")"
+    )
+    fun getEligibleWorkForScheduling(schedulerLimit: Int): List<WorkSpec>
+
+    /**
+     * @return The List of [WorkSpec]s that can be scheduled irrespective of scheduling
      * limits.
      */
-    @Query("SELECT * FROM workspec WHERE "
-            + "state=" + WorkTypeConverters.StateIds.ENQUEUED
+    @Query(
+        "SELECT * FROM workspec WHERE " +
+            "state=$ENQUEUED" +
             // Order by period start time so we execute scheduled WorkSpecs in FIFO order
-            + " ORDER BY period_start_time"
-            + " LIMIT :maxLimit"
+            " ORDER BY period_start_time" +
+            " LIMIT :maxLimit"
     )
-    List<WorkSpec> getAllEligibleWorkSpecsForScheduling(int maxLimit);
+    fun getAllEligibleWorkSpecsForScheduling(maxLimit: Int): List<WorkSpec> // Unfinished work
+    // We only want WorkSpecs which have been scheduled.
+    /**
+     * @return The List of [WorkSpec]s that are unfinished and scheduled.
+     */
+    @Query(
+        "SELECT * FROM workspec WHERE " + // Unfinished work
+            "state=" + ENQUEUED + // We only want WorkSpecs which have been scheduled.
+            " AND schedule_requested_at<>" + WorkSpec.SCHEDULE_NOT_REQUESTED_YET
+    )
+    fun getScheduledWork(): List<WorkSpec>
 
     /**
-     * @return The List of {@link WorkSpec}s that are unfinished and scheduled.
+     * @return The List of [WorkSpec]s that are running.
      */
-    @Query("SELECT * FROM workspec WHERE "
-            // Unfinished work
-            + "state=" + WorkTypeConverters.StateIds.ENQUEUED
-            // We only want WorkSpecs which have been scheduled.
-            + " AND schedule_requested_at<>" + WorkSpec.SCHEDULE_NOT_REQUESTED_YET
+    @Query(
+        "SELECT * FROM workspec WHERE " + // Unfinished work
+            "state=" + WorkTypeConverters.StateIds.RUNNING
     )
-    List<WorkSpec> getScheduledWork();
+    fun getRunningWork(): List<WorkSpec>
 
     /**
-     * @return The List of {@link WorkSpec}s that are running.
+     * @return The List of [WorkSpec] which completed recently.
      */
-    @Query("SELECT * FROM workspec WHERE "
-            // Unfinished work
-            + "state=" + WorkTypeConverters.StateIds.RUNNING
+    @Query(
+        "SELECT * FROM workspec WHERE " +
+            "period_start_time >= :startingAt" +
+            " AND state IN " + COMPLETED_STATES +
+            " ORDER BY period_start_time DESC"
     )
-    List<WorkSpec> getRunningWork();
-
-    /**
-     * @return The List of {@link WorkSpec} which completed recently.
-     */
-    @Query("SELECT * FROM workspec WHERE "
-            + "period_start_time >= :startingAt"
-            + " AND state IN " + COMPLETED_STATES
-            + " ORDER BY period_start_time DESC"
-    )
-    List<WorkSpec> getRecentlyCompletedWork(long startingAt);
+    fun getRecentlyCompletedWork(startingAt: Long): List<WorkSpec>
 
     /**
      * Immediately prunes eligible work from the database meeting the following criteria:
      * - Is finished (succeeded, failed, or cancelled)
      * - Has zero unfinished dependents
      */
-    @Query("DELETE FROM workspec WHERE "
-            + "state IN " + COMPLETED_STATES
-            + " AND (SELECT COUNT(*)=0 FROM dependency WHERE "
-            + "    prerequisite_id=id AND "
-            + "    work_spec_id NOT IN "
-            + "        (SELECT id FROM workspec WHERE state IN " + COMPLETED_STATES + "))")
-    void pruneFinishedWorkWithZeroDependentsIgnoringKeepForAtLeast();
+    @Query(
+        "DELETE FROM workspec WHERE " +
+            "state IN " + COMPLETED_STATES +
+            " AND (SELECT COUNT(*)=0 FROM dependency WHERE " +
+            "    prerequisite_id=id AND " +
+            "    work_spec_id NOT IN " +
+            "        (SELECT id FROM workspec WHERE state IN " + COMPLETED_STATES + "))"
+    )
+    fun pruneFinishedWorkWithZeroDependentsIgnoringKeepForAtLeast()
 }

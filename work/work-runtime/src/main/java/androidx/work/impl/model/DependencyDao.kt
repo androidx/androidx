@@ -13,65 +13,63 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package androidx.work.impl.model
 
-package androidx.work.impl.model;
-
-import static androidx.room.OnConflictStrategy.IGNORE;
-
-import androidx.room.Dao;
-import androidx.room.Insert;
-import androidx.room.Query;
-
-import java.util.List;
+import androidx.room.Dao
+import androidx.room.Insert
+import androidx.room.OnConflictStrategy
+import androidx.room.Query
 
 /**
- * The Data Access Object for {@link Dependency}.
+ * The Data Access Object for [Dependency].
  */
 @Dao
-public interface DependencyDao {
+interface DependencyDao {
     /**
-     * Attempts to insert a {@link Dependency} into the database.
+     * Attempts to insert a [Dependency] into the database.
      *
-     * @param dependency The {@link Dependency}s to insert
+     * @param dependency The [Dependency]s to insert
      */
-    @Insert(onConflict = IGNORE)
-    void insertDependency(Dependency dependency);
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    fun insertDependency(dependency: Dependency)
 
     /**
-     * Determines if a {@link WorkSpec} has completed all prerequisites.
+     * Determines if a [WorkSpec] has completed all prerequisites.
      *
-     * @param id The identifier for the {@link WorkSpec}
-     * @return {@code true} if the {@link WorkSpec} has no pending prerequisites.
+     * @param id The identifier for the [WorkSpec]
+     * @return `true` if the [WorkSpec] has no pending prerequisites.
      */
-    @Query("SELECT COUNT(*)=0 FROM dependency WHERE work_spec_id=:id AND prerequisite_id IN "
-            + "(SELECT id FROM workspec WHERE state!="
-            + WorkTypeConverters.StateIds.SUCCEEDED + ")")
-    boolean hasCompletedAllPrerequisites(String id);
+    @Query(
+        "SELECT COUNT(*)=0 FROM dependency WHERE work_spec_id=:id AND prerequisite_id IN " +
+            "(SELECT id FROM workspec WHERE state!=" +
+            WorkTypeConverters.StateIds.SUCCEEDED + ")"
+    )
+    fun hasCompletedAllPrerequisites(id: String): Boolean
 
     /**
-     * Gets all the direct prerequisites for a particular {@link WorkSpec}.
+     * Gets all the direct prerequisites for a particular [WorkSpec].
      *
-     * @param id The {@link WorkSpec} identifier
-     * @return A list of all prerequisites for {@code id}
+     * @param id The [WorkSpec] identifier
+     * @return A list of all prerequisites for `id`
      */
     @Query("SELECT prerequisite_id FROM dependency WHERE work_spec_id=:id")
-    List<String> getPrerequisites(String id);
+    fun getPrerequisites(id: String): List<String>
 
     /**
-     * Gets all {@link WorkSpec} id's dependent on a given id
+     * Gets all [WorkSpec] id's dependent on a given id
      *
-     * @param id A {@link WorkSpec} identifier
+     * @param id A [WorkSpec] identifier
      * @return A list of all identifiers that depend on the input
      */
     @Query("SELECT work_spec_id FROM dependency WHERE prerequisite_id=:id")
-    List<String> getDependentWorkIds(String id);
+    fun getDependentWorkIds(id: String): List<String>
 
     /**
-     * Determines if a {@link WorkSpec} has any dependents.
+     * Determines if a [WorkSpec] has any dependents.
      *
-     * @param id A {@link WorkSpec} identifier
-     * @return {@code true} if the {@link WorkSpec} has WorkSpecs that depend on it
+     * @param id A [WorkSpec] identifier
+     * @return `true` if the [WorkSpec] has WorkSpecs that depend on it
      */
     @Query("SELECT COUNT(*)>0 FROM dependency WHERE prerequisite_id=:id")
-    boolean hasDependents(String id);
+    fun hasDependents(id: String): Boolean
 }

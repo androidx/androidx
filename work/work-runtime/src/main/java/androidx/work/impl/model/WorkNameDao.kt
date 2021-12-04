@@ -13,46 +13,39 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package androidx.work.impl.model
 
-package androidx.work.impl.model;
-
-import static androidx.room.OnConflictStrategy.IGNORE;
-
-import androidx.annotation.NonNull;
-import androidx.room.Dao;
-import androidx.room.Insert;
-import androidx.room.Query;
-
-import java.util.List;
+import androidx.room.Dao
+import androidx.room.Insert
+import androidx.room.OnConflictStrategy
+import androidx.room.Query
 
 /**
- * The Data Access Object for {@link WorkName}s.
+ * The Data Access Object for [WorkName]s.
  */
 @Dao
-public interface WorkNameDao {
-
+interface WorkNameDao {
     /**
-     * Inserts a {@link WorkName} into the table.
+     * Inserts a [WorkName] into the table.
      *
-     * @param workName The {@link WorkName} to insert
+     * @param workName The [WorkName] to insert
      */
-    @Insert(onConflict = IGNORE)
-    void insert(WorkName workName);
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    fun insert(workName: WorkName)
 
     /**
-     * Retrieves all {@link WorkSpec} ids in the given named graph.
+     * Retrieves all [WorkSpec] ids in the given named graph.
      *
      * @param name The matching name
-     * @return All {@link WorkSpec} ids in the given named graph
+     * @return All [WorkSpec] ids in the given named graph
      */
     @Query("SELECT work_spec_id FROM workname WHERE name=:name")
-    List<String> getWorkSpecIdsWithName(String name);
+    fun getWorkSpecIdsWithName(name: String): List<String>
 
     /**
-     * @param workSpecId The {@link WorkSpec} id
-     * @return All the names associated to the {@link WorkSpec} id
+     * @param workSpecId The [WorkSpec] id
+     * @return All the names associated to the [WorkSpec] id
      */
     @Query("SELECT name FROM workname WHERE work_spec_id=:workSpecId")
-    @NonNull
-    List<String> getNamesForWorkSpecId(@NonNull String workSpecId);
+    fun getNamesForWorkSpecId(workSpecId: String): List<String>
 }

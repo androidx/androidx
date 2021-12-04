@@ -13,64 +13,49 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package androidx.work.impl.model
 
-package androidx.work.impl.model;
-
-import static androidx.room.OnConflictStrategy.REPLACE;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.annotation.RestrictTo;
-import androidx.room.Dao;
-import androidx.room.Insert;
-import androidx.room.Query;
-import androidx.work.Data;
-
-import java.util.List;
+import androidx.annotation.RestrictTo
+import androidx.room.Dao
+import androidx.room.Insert
+import androidx.room.OnConflictStrategy
+import androidx.room.Query
+import androidx.work.Data
 
 /**
- * A DAO for {@link WorkProgress}.
+ * A DAO for [WorkProgress].
  *
  * @hide
  */
 @Dao
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public interface WorkProgressDao {
+interface WorkProgressDao {
     /**
-     * Inserts a {@link WorkProgress} into the database.
+     * Inserts a [WorkProgress] into the database.
      *
-     * @param progress The {@link WorkProgress}
+     * @param progress The [WorkProgress]
      */
-    @Insert(onConflict = REPLACE)
-    void insert(@NonNull WorkProgress progress);
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun insert(progress: WorkProgress)
 
     /**
-     * Deletes a {@link WorkProgress} from the database.
+     * Deletes a [WorkProgress] from the database.
      *
-     * @param workSpecId The {@link WorkSpec} id
+     * @param workSpecId The [WorkSpec] id
      */
     @Query("DELETE from WorkProgress where work_spec_id=:workSpecId")
-    void delete(@NonNull String workSpecId);
+    fun delete(workSpecId: String)
 
     /**
-     * Removes all {@link WorkProgress} entries from the {@link WorkProgress} table.
+     * Removes all [WorkProgress] entries from the [WorkProgress] table.
      */
     @Query("DELETE FROM WorkProgress")
-    void deleteAll();
+    fun deleteAll()
 
     /**
-     * @param workSpecId The {@link String} workSpec id
-     * @return The progress {@link Data} associated with the given {@link String} workSpec id.
+     * @param workSpecId The [String] workSpec id
+     * @return The progress [Data] associated with the given [String] workSpec id.
      */
-    @Nullable
     @Query("SELECT progress FROM WorkProgress WHERE work_spec_id=:workSpecId")
-    Data getProgressForWorkSpecId(@NonNull String workSpecId);
-
-    /**
-     * @param workSpecIds The {@link List} of workSpec ids
-     * @return The {@link List} of progress {@link Data} associated with the given workSpec ids.
-     */
-    @NonNull
-    @Query("SELECT progress FROM WorkProgress WHERE work_spec_id IN (:workSpecIds)")
-    List<Data> getProgressForWorkSpecIds(@NonNull List<String> workSpecIds);
+    fun getProgressForWorkSpecId(workSpecId: String): Data?
 }
