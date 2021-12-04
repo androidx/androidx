@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+import androidx.build.LibraryType
+
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
@@ -31,4 +33,8 @@ android {
     defaultConfig {
         minSdkVersion 23
     }
+}
+
+androidx {
+    type = LibraryType.INTERNAL_TEST_LIBRARY
 }
