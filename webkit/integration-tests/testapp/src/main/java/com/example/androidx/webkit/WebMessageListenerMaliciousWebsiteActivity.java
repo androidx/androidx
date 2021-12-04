@@ -76,9 +76,9 @@ public class WebMessageListenerMaliciousWebsiteActivity extends AppCompatActivit
 
         @Override
         @SuppressWarnings("deprecation") // use the old one for compatibility with all API levels.
-        public WebResourceResponse shouldInterceptRequest(WebView view, String request) {
+        public WebResourceResponse shouldInterceptRequest(WebView view, String url) {
             for (WebViewAssetLoader loader : mAssetLoaders) {
-                WebResourceResponse response = loader.shouldInterceptRequest(Uri.parse(request));
+                WebResourceResponse response = loader.shouldInterceptRequest(Uri.parse(url));
                 if (response != null) {
                     return response;
                 }

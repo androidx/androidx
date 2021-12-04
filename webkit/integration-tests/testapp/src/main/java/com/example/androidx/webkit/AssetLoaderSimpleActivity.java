@@ -51,8 +51,8 @@ public class AssetLoaderSimpleActivity extends AppCompatActivity {
 
         @Override
         @SuppressWarnings("deprecation") // use the old one for compatibility with all API levels.
-        public WebResourceResponse shouldInterceptRequest(WebView view, String request) {
-            return mAssetLoader.shouldInterceptRequest(Uri.parse(request));
+        public WebResourceResponse shouldInterceptRequest(WebView view, String url) {
+            return mAssetLoader.shouldInterceptRequest(Uri.parse(url));
         }
     }
 
