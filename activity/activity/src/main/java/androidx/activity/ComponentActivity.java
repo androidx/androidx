@@ -67,6 +67,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.ActivityOptionsCompat;
+import androidx.core.app.OnNewIntentProvider;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.OnConfigurationChangedProvider;
 import androidx.core.content.OnTrimMemoryProvider;
@@ -113,6 +114,7 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
         ActivityResultCaller,
         OnConfigurationChangedProvider,
         OnTrimMemoryProvider,
+        OnNewIntentProvider,
         MenuHost {
 
     static final class NonConfigurationInstances {
@@ -230,6 +232,8 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
     private final CopyOnWriteArrayList<Consumer<Configuration>> mOnConfigurationChangedListeners =
             new CopyOnWriteArrayList<>();
     private final CopyOnWriteArrayList<Consumer<Integer>> mOnTrimMemoryListeners =
+            new CopyOnWriteArrayList<>();
+    private final CopyOnWriteArrayList<Consumer<Intent>> mOnNewIntentListeners =
             new CopyOnWriteArrayList<>();
 
     /**
@@ -837,6 +841,37 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
     @Override
     public final void removeOnTrimMemoryListener(@NonNull Consumer<Integer> listener) {
         mOnTrimMemoryListeners.remove(listener);
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * Dispatches this call to all listeners added via
+     * {@link #addOnNewIntentListener(Consumer)}.
+     */
+    @CallSuper
+    @Override
+    protected void onNewIntent(
+            @SuppressLint({"UnknownNullness", "MissingNullability"}) Intent intent
+    ) {
+        super.onNewIntent(intent);
+        for (Consumer<Intent> listener : mOnNewIntentListeners) {
+            listener.accept(intent);
+        }
+    }
+
+    @Override
+    public final void addOnNewIntentListener(
+            @NonNull Consumer<Intent> listener
+    ) {
+        mOnNewIntentListeners.add(listener);
+    }
+
+    @Override
+    public final void removeOnNewIntentListener(
+            @NonNull Consumer<Intent> listener
+    ) {
+        mOnNewIntentListeners.remove(listener);
     }
 
     @Override

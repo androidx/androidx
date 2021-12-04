@@ -858,6 +858,11 @@ package androidx.core.app {
     field public static final int IMPORTANCE_UNSPECIFIED = -1000; // 0xfffffc18
   }
 
+  public interface OnNewIntentProvider {
+    method public void addOnNewIntentListener(androidx.core.util.Consumer<android.content.Intent!>);
+    method public void removeOnNewIntentListener(androidx.core.util.Consumer<android.content.Intent!>);
+  }
+
   public class Person {
     method @RequiresApi(28) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static androidx.core.app.Person fromAndroidPerson(android.app.Person);
     method public static androidx.core.app.Person fromBundle(android.os.Bundle);

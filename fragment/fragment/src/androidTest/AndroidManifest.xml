@@ -35,6 +35,8 @@
 
         <activity android:name="androidx.fragment.app.test.NewIntentActivity"
                   android:launchMode="singleInstance"/>
+        <activity android:name="androidx.fragment.app.test.NewIntentProviderActivity"
+            android:launchMode="singleInstance"/>
 
         <activity android:name="androidx.fragment.app.test.NonConfigOnStopActivity"/>
         <activity android:name="androidx.fragment.app.test.HangingFragmentActivity"/>
