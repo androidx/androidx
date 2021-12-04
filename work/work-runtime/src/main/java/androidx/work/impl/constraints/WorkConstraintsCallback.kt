@@ -13,29 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.work.impl.constraints;
+package androidx.work.impl.constraints
 
-import androidx.annotation.NonNull;
-import androidx.work.impl.model.WorkSpec;
-
-import java.util.List;
+import androidx.work.impl.model.WorkSpec
 
 /**
  * A callback for when constraints change.
  */
-
-public interface WorkConstraintsCallback {
+interface WorkConstraintsCallback {
     /**
      * Called when all constraints are met.
      *
-     * @param workSpecIds A list of {@link WorkSpec} IDs that may be eligible to run
+     * @param workSpecIds A list of [WorkSpec] IDs that may be eligible to run
      */
-    void onAllConstraintsMet(@NonNull List<String> workSpecIds);
+    fun onAllConstraintsMet(workSpecIds: List<String>)
 
     /**
      * Called when all constraints are not met.
      *
-     * @param workSpecIds A list of {@link WorkSpec} IDs that are not eligible to run
+     * @param workSpecIds A list of [WorkSpec] IDs that are not eligible to run
      */
-    void onAllConstraintsNotMet(@NonNull List<String> workSpecIds);
+    fun onAllConstraintsNotMet(workSpecIds: List<String>)
 }

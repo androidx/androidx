@@ -13,22 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.work.impl.constraints;
+package androidx.work.impl.constraints
 
-import androidx.annotation.MainThread;
+import androidx.annotation.MainThread
 
 /**
  * The listener for constraint changes.
  *
  * @param <T> the constraint data type for this listener
  */
-
-public interface ConstraintListener<T> {
-
+interface ConstraintListener<T> {
     /**
      * Called when the value of a constraint has changed.
      * @param newValue the new value of the constraint
      */
     @MainThread
-    void onConstraintChanged(T newValue);
+    fun onConstraintChanged(newValue: T)
 }

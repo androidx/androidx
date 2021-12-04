@@ -13,96 +13,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-package androidx.work.impl.constraints;
-
-import androidx.annotation.NonNull;
+package androidx.work.impl.constraints
 
 /**
  * Stores information about network state.
  */
-public class NetworkState {
-
-    private boolean mIsConnected;
-    private boolean mIsValidated;
-    private boolean mIsMetered;
-    private boolean mIsNotRoaming;
-
-    public NetworkState(boolean isConnected, boolean isValidated, boolean isMetered,
-                        boolean isNotRoaming) {
-        mIsConnected = isConnected;
-        mIsValidated = isValidated;
-        mIsMetered = isMetered;
-        mIsNotRoaming = isNotRoaming;
-    }
-
+data class NetworkState(
     /**
      * Determines if the network is connected.
-     *
-     * @return {@code true} if the network is connected.
      */
-    public boolean isConnected() {
-        return mIsConnected;
-    }
+    val isConnected: Boolean,
 
     /**
      * Determines if the network is validated - has a working Internet connection.
-     *
-     * @return {@code true} if the network is validated.
      */
-    public boolean isValidated() {
-        return mIsValidated;
-    }
+    val isValidated: Boolean,
 
     /**
      * Determines if the network is metered.
-     *
-     * @return {@code true} if the network is metered.
      */
-    public boolean isMetered() {
-        return mIsMetered;
-    }
+    val isMetered: Boolean,
 
     /**
      * Determines if the network is not roaming.
-     *
-     * @return {@code true} if the network is not roaming.
      */
-    public boolean isNotRoaming() {
-        return mIsNotRoaming;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (!(o instanceof NetworkState)) {
-            return false;
-        }
-        NetworkState other = (NetworkState) o;
-        return this.mIsConnected == other.mIsConnected
-                && this.mIsValidated == other.mIsValidated
-                && this.mIsMetered == other.mIsMetered
-                && this.mIsNotRoaming == other.mIsNotRoaming;
-    }
-
-    @Override
-    public int hashCode() {
-        int result = 0x0000;
-        if (mIsConnected) result += 0x0001;
-        if (mIsValidated) result += 0x0010;
-        if (mIsMetered) result += 0x0100;
-        if (mIsNotRoaming) result += 0x1000;
-        return result;
-    }
-
-    @NonNull
-    @Override
-    public String toString() {
-        return "Connected : " + mIsConnected
-                + " Validated : " + mIsValidated
-                + " Metered : " + mIsMetered
-                + " NotRoaming : " + mIsNotRoaming;
-    }
-}
+    val isNotRoaming: Boolean
+)

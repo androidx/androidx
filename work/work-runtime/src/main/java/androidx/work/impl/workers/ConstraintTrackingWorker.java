@@ -30,7 +30,7 @@ import androidx.work.WorkerParameters;
 import androidx.work.impl.WorkDatabase;
 import androidx.work.impl.WorkManagerImpl;
 import androidx.work.impl.constraints.WorkConstraintsCallback;
-import androidx.work.impl.constraints.WorkConstraintsTracker;
+import androidx.work.impl.constraints.WorkConstraintsTrackerImpl;
 import androidx.work.impl.model.WorkSpec;
 import androidx.work.impl.utils.futures.SettableFuture;
 import androidx.work.impl.utils.taskexecutor.TaskExecutor;
@@ -116,8 +116,8 @@ public class ConstraintTrackingWorker extends ListenableWorker implements WorkCo
             setFutureFailed();
             return;
         }
-        WorkConstraintsTracker workConstraintsTracker =
-                new WorkConstraintsTracker(getApplicationContext(), getTaskExecutor(), this);
+        WorkConstraintsTrackerImpl workConstraintsTracker =
+                new WorkConstraintsTrackerImpl(getApplicationContext(), getTaskExecutor(), this);
 
         // Start tracking
         workConstraintsTracker.replace(Collections.singletonList(workSpec));

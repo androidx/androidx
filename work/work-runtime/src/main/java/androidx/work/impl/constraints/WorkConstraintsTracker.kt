@@ -13,157 +13,138 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.work.impl.constraints;
+package androidx.work.impl.constraints
 
-import android.content.Context;
+import android.content.Context
+import androidx.annotation.VisibleForTesting
+import androidx.work.Logger
+import androidx.work.impl.constraints.controllers.BatteryChargingController
+import androidx.work.impl.constraints.controllers.BatteryNotLowController
+import androidx.work.impl.constraints.controllers.ConstraintController
+import androidx.work.impl.constraints.controllers.NetworkConnectedController
+import androidx.work.impl.constraints.controllers.NetworkMeteredController
+import androidx.work.impl.constraints.controllers.NetworkNotRoamingController
+import androidx.work.impl.constraints.controllers.NetworkUnmeteredController
+import androidx.work.impl.constraints.controllers.StorageNotLowController
+import androidx.work.impl.model.WorkSpec
+import androidx.work.impl.utils.taskexecutor.TaskExecutor
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.annotation.VisibleForTesting;
-import androidx.work.Constraints;
-import androidx.work.Logger;
-import androidx.work.impl.constraints.controllers.BatteryChargingController;
-import androidx.work.impl.constraints.controllers.BatteryNotLowController;
-import androidx.work.impl.constraints.controllers.ConstraintController;
-import androidx.work.impl.constraints.controllers.NetworkConnectedController;
-import androidx.work.impl.constraints.controllers.NetworkMeteredController;
-import androidx.work.impl.constraints.controllers.NetworkNotRoamingController;
-import androidx.work.impl.constraints.controllers.NetworkUnmeteredController;
-import androidx.work.impl.constraints.controllers.StorageNotLowController;
-import androidx.work.impl.model.WorkSpec;
-import androidx.work.impl.utils.taskexecutor.TaskExecutor;
+interface WorkConstraintsTracker {
+    /**
+     * Replaces the list of tracked [WorkSpec]s to monitor if their constraints are met.
+     *
+     * @param workSpecs A list of [WorkSpec]s to monitor constraints for
+     */
+    fun replace(workSpecs: Iterable<WorkSpec>)
 
-import java.util.ArrayList;
-import java.util.List;
+    /**
+     * Resets and clears all tracked [WorkSpec]s.
+     */
+    fun reset()
+}
 
 /**
- * Tracks {@link WorkSpec}s and their {@link Constraints}, and notifies an optional
- * {@link WorkConstraintsCallback} when all of their constraints are met or not met.
+ * Tracks [WorkSpec]s and their [androidx.work.Constraints], and notifies an optional
+ * [WorkConstraintsCallback] when all of their constraints are met or not met.
  */
-
-public class WorkConstraintsTracker implements ConstraintController.OnConstraintUpdatedCallback {
-
-    private static final String TAG = Logger.tagWithPrefix("WorkConstraintsTracker");
-
-    @Nullable private final WorkConstraintsCallback mCallback;
-    private final ConstraintController<?>[] mConstraintControllers;
-
+class WorkConstraintsTrackerImpl @VisibleForTesting internal constructor(
+    private val callback: WorkConstraintsCallback?,
+    private val constraintControllers: Array<ConstraintController<*>>,
+) : WorkConstraintsTracker, ConstraintController.OnConstraintUpdatedCallback {
     // We need to keep hold a lock here for the cases where there is 1 WCT tracking a list of
     // WorkSpecs. Changes in constraints are notified on the main thread. Enqueues / Cancellations
     // occur on the task executor thread pool. So there is a chance of
     // ConcurrentModificationExceptions.
-    private final Object mLock;
+    private val lock: Any = Any()
 
     /**
-     * @param context      The application {@link Context}
-     * @param taskExecutor The {@link TaskExecutor} being used by WorkManager.
+     * @param context      The application [Context]
+     * @param taskExecutor The [TaskExecutor] being used by WorkManager.
      * @param callback     The callback is only necessary when you need
-     *                     {@link WorkConstraintsTracker} to notify you about changes in
-     *                     constraints for the list of {@link WorkSpec}'s that it is tracking.
+     * [WorkConstraintsTrackerImpl] to notify you about changes in
+     * constraints for the list of [WorkSpec]'s that it is tracking.
      */
-    public WorkConstraintsTracker(
-            @NonNull Context context,
-            @NonNull TaskExecutor taskExecutor,
-            @Nullable WorkConstraintsCallback callback) {
-
-        Context appContext = context.getApplicationContext();
-        mCallback = callback;
-        mConstraintControllers = new ConstraintController[] {
-                new BatteryChargingController(appContext, taskExecutor),
-                new BatteryNotLowController(appContext, taskExecutor),
-                new StorageNotLowController(appContext, taskExecutor),
-                new NetworkConnectedController(appContext, taskExecutor),
-                new NetworkUnmeteredController(appContext, taskExecutor),
-                new NetworkNotRoamingController(appContext, taskExecutor),
-                new NetworkMeteredController(appContext, taskExecutor)
-        };
-        mLock = new Object();
-    }
-
-    @VisibleForTesting
-    WorkConstraintsTracker(
-            @Nullable WorkConstraintsCallback callback,
-            ConstraintController<?>[] controllers) {
-
-        mCallback = callback;
-        mConstraintControllers = controllers;
-        mLock = new Object();
-    }
+    constructor(
+        context: Context,
+        taskExecutor: TaskExecutor,
+        callback: WorkConstraintsCallback?
+    ) : this(
+        callback,
+        arrayOf(
+            BatteryChargingController(context.applicationContext, taskExecutor),
+            BatteryNotLowController(context.applicationContext, taskExecutor),
+            StorageNotLowController(context.applicationContext, taskExecutor),
+            NetworkConnectedController(context.applicationContext, taskExecutor),
+            NetworkUnmeteredController(context.applicationContext, taskExecutor),
+            NetworkNotRoamingController(context.applicationContext, taskExecutor),
+            NetworkMeteredController(context.applicationContext, taskExecutor)
+        )
+    )
 
     /**
-     * Replaces the list of tracked {@link WorkSpec}s to monitor if their constraints are met.
+     * Replaces the list of tracked [WorkSpec]s to monitor if their constraints are met.
      *
-     * @param workSpecs A list of {@link WorkSpec}s to monitor constraints for
+     * @param workSpecs A list of [WorkSpec]s to monitor constraints for
      */
-    @SuppressWarnings("unchecked")
-    public void replace(@NonNull Iterable<WorkSpec> workSpecs) {
-        synchronized (mLock) {
-            for (ConstraintController<?> controller : mConstraintControllers) {
-                controller.setCallback(null);
+    override fun replace(workSpecs: Iterable<WorkSpec>) {
+        synchronized(lock) {
+            for (controller in constraintControllers) {
+                controller.setCallback(null)
             }
-
-            for (ConstraintController<?> controller : mConstraintControllers) {
-                controller.replace(workSpecs);
+            for (controller in constraintControllers) {
+                controller.replace(workSpecs)
             }
-
-            for (ConstraintController<?> controller : mConstraintControllers) {
-                controller.setCallback(this);
+            for (controller in constraintControllers) {
+                controller.setCallback(this)
             }
         }
     }
 
     /**
-     * Resets and clears all tracked {@link WorkSpec}s.
+     * Resets and clears all tracked [WorkSpec]s.
      */
-    public void reset() {
-        synchronized (mLock) {
-            for (ConstraintController<?> controller : mConstraintControllers) {
-                controller.reset();
+    override fun reset() {
+        synchronized(lock) {
+            for (controller in constraintControllers) {
+                controller.reset()
             }
         }
     }
 
     /**
-     * Returns <code>true</code> if all the underlying constraints for a given WorkSpec are met.
+     * Returns `true` if all the underlying constraints for a given WorkSpec are met.
      *
-     * @param workSpecId The {@link WorkSpec} id
-     * @return <code>true</code> if all the underlying constraints for a given {@link WorkSpec} are
+     * @param workSpecId The [WorkSpec] id
+     * @return `true` if all the underlying constraints for a given [WorkSpec] are
      * met.
      */
-    public boolean areAllConstraintsMet(@NonNull String workSpecId) {
-        synchronized (mLock) {
-            for (ConstraintController<?> constraintController : mConstraintControllers) {
-                if (constraintController.isWorkSpecConstrained(workSpecId)) {
-                    Logger.get().debug(TAG, "Work " + workSpecId + "constrained by " + constraintController.getClass().getSimpleName());
-                    return false;
-                }
+    fun areAllConstraintsMet(workSpecId: String): Boolean {
+        synchronized(lock) {
+            val controller = constraintControllers.firstOrNull {
+                it.isWorkSpecConstrained(workSpecId)
             }
-            return true;
+            if (controller != null) {
+                Logger.get().debug(
+                    TAG, "Work $workSpecId constrained by ${controller.javaClass.simpleName}"
+                )
+            }
+            return controller == null
         }
     }
 
-    @Override
-    public void onConstraintMet(@NonNull List<String> workSpecIds) {
-        synchronized (mLock) {
-            List<String> unconstrainedWorkSpecIds = new ArrayList<>();
-            for (String workSpecId : workSpecIds) {
-                if (areAllConstraintsMet(workSpecId)) {
-                    Logger.get().debug(TAG, "Constraints met for " + workSpecId);
-                    unconstrainedWorkSpecIds.add(workSpecId);
-                }
+    override fun onConstraintMet(workSpecIds: List<String>) {
+        synchronized(lock) {
+            val unconstrainedWorkSpecIds = workSpecIds.filter { areAllConstraintsMet(it) }
+            unconstrainedWorkSpecIds.forEach {
+                Logger.get().debug(TAG, "Constraints met for $it")
             }
-            if (mCallback != null) {
-                mCallback.onAllConstraintsMet(unconstrainedWorkSpecIds);
-            }
+            callback?.onAllConstraintsMet(unconstrainedWorkSpecIds)
         }
     }
 
-    @Override
-    public void onConstraintNotMet(@NonNull List<String> workSpecIds) {
-        synchronized (mLock) {
-            if (mCallback != null) {
-                mCallback.onAllConstraintsNotMet(workSpecIds);
-            }
-        }
+    override fun onConstraintNotMet(workSpecIds: List<String>) {
+        synchronized(lock) { callback?.onAllConstraintsNotMet(workSpecIds) }
     }
 }
+
+private val TAG = Logger.tagWithPrefix("WorkConstraintsTracker")
