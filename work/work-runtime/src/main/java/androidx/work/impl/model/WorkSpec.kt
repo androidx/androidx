@@ -13,197 +13,194 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package androidx.work.impl.model
 
-package androidx.work.impl.model;
+import androidx.annotation.IntRange
+import androidx.annotation.RestrictTo
+import androidx.arch.core.util.Function
+import androidx.room.ColumnInfo
+import androidx.room.Embedded
+import androidx.room.Entity
+import androidx.room.Index
+import androidx.room.PrimaryKey
+import androidx.room.Relation
+import androidx.work.BackoffPolicy
+import androidx.work.Constraints
+import androidx.work.Data
+import androidx.work.Logger
+import androidx.work.OutOfQuotaPolicy
+import androidx.work.PeriodicWorkRequest.MIN_PERIODIC_FLEX_MILLIS
+import androidx.work.PeriodicWorkRequest.MIN_PERIODIC_INTERVAL_MILLIS
+import androidx.work.WorkInfo
+import androidx.work.WorkRequest
+import java.util.UUID
 
-import static androidx.work.PeriodicWorkRequest.MIN_PERIODIC_FLEX_MILLIS;
-import static androidx.work.PeriodicWorkRequest.MIN_PERIODIC_INTERVAL_MILLIS;
-import static androidx.work.WorkInfo.State.ENQUEUED;
-import static androidx.work.WorkRequest.MAX_BACKOFF_MILLIS;
-import static androidx.work.WorkRequest.MIN_BACKOFF_MILLIS;
-
-import androidx.annotation.IntRange;
-import androidx.annotation.NonNull;
-import androidx.annotation.RestrictTo;
-import androidx.arch.core.util.Function;
-import androidx.room.ColumnInfo;
-import androidx.room.Embedded;
-import androidx.room.Entity;
-import androidx.room.Index;
-import androidx.room.PrimaryKey;
-import androidx.room.Relation;
-import androidx.work.BackoffPolicy;
-import androidx.work.Constraints;
-import androidx.work.Data;
-import androidx.work.Logger;
-import androidx.work.OutOfQuotaPolicy;
-import androidx.work.WorkInfo;
-import androidx.work.WorkRequest;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
-
+// TODO: make a immutable
 /**
  * Stores information about a logical unit of work.
  *
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-@Entity(
-        indices = {
-                @Index(value = {"schedule_requested_at"}),
-                @Index(value = {"period_start_time"})
-        }
-)
-public final class WorkSpec {
-    private static final String TAG = Logger.tagWithPrefix("WorkSpec");
-    public static final long SCHEDULE_NOT_REQUESTED_YET = -1;
-
+@Entity(indices = [Index(value = ["schedule_requested_at"]), Index(value = ["period_start_time"])])
+data class WorkSpec(
+    @JvmField
     @ColumnInfo(name = "id")
     @PrimaryKey
-    @NonNull
-    public String id;
+    val id: String,
 
+    @JvmField
     @ColumnInfo(name = "state")
-    @NonNull
-    public WorkInfo.State state = ENQUEUED;
+    var state: WorkInfo.State = WorkInfo.State.ENQUEUED,
 
+    @JvmField
     @ColumnInfo(name = "worker_class_name")
-    @NonNull
-    public String workerClassName;
+    var workerClassName: String,
 
+    @JvmField
     @ColumnInfo(name = "input_merger_class_name")
-    public String inputMergerClassName;
+    var inputMergerClassName: String? = null,
 
+    @JvmField
     @ColumnInfo(name = "input")
-    @NonNull
-    public Data input = Data.EMPTY;
+    var input: Data = Data.EMPTY,
 
+    @JvmField
     @ColumnInfo(name = "output")
-    @NonNull
-    public Data output = Data.EMPTY;
+    var output: Data = Data.EMPTY,
 
+    @JvmField
     @ColumnInfo(name = "initial_delay")
-    public long initialDelay;
+    var initialDelay: Long = 0,
 
+    @JvmField
     @ColumnInfo(name = "interval_duration")
-    public long intervalDuration;
+    var intervalDuration: Long = 0,
 
+    @JvmField
     @ColumnInfo(name = "flex_duration")
-    public long flexDuration;
+    var flexDuration: Long = 0,
 
+    @JvmField
     @Embedded
-    @NonNull
-    public Constraints constraints = Constraints.NONE;
+    var constraints: Constraints = Constraints.NONE,
 
+    @JvmField
     @ColumnInfo(name = "run_attempt_count")
     @IntRange(from = 0)
-    public int runAttemptCount;
+    var runAttemptCount: Int = 0,
 
+    @JvmField
     @ColumnInfo(name = "backoff_policy")
-    @NonNull
-    public BackoffPolicy backoffPolicy = BackoffPolicy.EXPONENTIAL;
+    var backoffPolicy: BackoffPolicy = BackoffPolicy.EXPONENTIAL,
 
+    @JvmField
     @ColumnInfo(name = "backoff_delay_duration")
-    public long backoffDelayDuration = WorkRequest.DEFAULT_BACKOFF_DELAY_MILLIS;
+    var backoffDelayDuration: Long = WorkRequest.DEFAULT_BACKOFF_DELAY_MILLIS,
 
     /**
      * For one-off work, this is the time that the work was unblocked by prerequisites.
      * For periodic work, this is the time that the period started.
      */
+    @JvmField
     @ColumnInfo(name = "period_start_time")
-    public long periodStartTime;
+    var periodStartTime: Long = 0,
 
+    @JvmField
     @ColumnInfo(name = "minimum_retention_duration")
-    public long minimumRetentionDuration;
+    var minimumRetentionDuration: Long = 0,
 
     /**
-     * This field tells us if this {@link WorkSpec} instance, is actually currently scheduled and
-     * being counted against the {@code SCHEDULER_LIMIT}. This bit is reset for PeriodicWorkRequests
+     * This field tells us if this [WorkSpec] instance, is actually currently scheduled and
+     * being counted against the `SCHEDULER_LIMIT`. This bit is reset for PeriodicWorkRequests
      * in API < 23, because AlarmManager does not know of PeriodicWorkRequests. So for the next
-     * request to be rescheduled this field has to be reset to {@code SCHEDULE_NOT_REQUESTED_AT}.
+     * request to be rescheduled this field has to be reset to `SCHEDULE_NOT_REQUESTED_AT`.
      * For the JobScheduler implementation, we don't reset this field because JobScheduler natively
      * supports PeriodicWorkRequests.
      */
+    @JvmField
     @ColumnInfo(name = "schedule_requested_at")
-    public long scheduleRequestedAt = SCHEDULE_NOT_REQUESTED_YET;
+    var scheduleRequestedAt: Long = SCHEDULE_NOT_REQUESTED_YET,
 
     /**
-     * This is {@code true} when the WorkSpec needs to be hosted by a foreground service or a
+     * This is `true` when the WorkSpec needs to be hosted by a foreground service or a
      * high priority job.
      */
+    @JvmField
     @ColumnInfo(name = "run_in_foreground")
-    public boolean expedited;
+    var expedited: Boolean = false,
 
     /**
-     * When set to <code>true</code> this {@link WorkSpec} falls back to a regular job when
+     * When set to `true` this [WorkSpec] falls back to a regular job when
      * an application runs out of expedited job quota.
      */
-    @NonNull
+    @JvmField
     @ColumnInfo(name = "out_of_quota_policy")
-    public OutOfQuotaPolicy outOfQuotaPolicy = OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST;
+    var outOfQuotaPolicy: OutOfQuotaPolicy = OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST
+) {
+    constructor(
+        id: String,
+        workerClassName_: String
+    ) : this(id = id, workerClassName = workerClassName_)
 
-    public WorkSpec(@NonNull String id, @NonNull String workerClassName) {
-        this.id = id;
-        this.workerClassName = workerClassName;
-    }
-
-    public WorkSpec(@NonNull WorkSpec other) {
-        id = other.id;
-        workerClassName = other.workerClassName;
-        state = other.state;
-        inputMergerClassName = other.inputMergerClassName;
-        input = new Data(other.input);
-        output = new Data(other.output);
-        initialDelay = other.initialDelay;
-        intervalDuration = other.intervalDuration;
-        flexDuration = other.flexDuration;
-        constraints = new Constraints(other.constraints);
-        runAttemptCount = other.runAttemptCount;
-        backoffPolicy = other.backoffPolicy;
-        backoffDelayDuration = other.backoffDelayDuration;
-        periodStartTime = other.periodStartTime;
-        minimumRetentionDuration = other.minimumRetentionDuration;
-        scheduleRequestedAt = other.scheduleRequestedAt;
-        expedited = other.expedited;
-        outOfQuotaPolicy = other.outOfQuotaPolicy;
-    }
+    constructor(newId: String, other: WorkSpec) : this(
+        id = newId,
+        workerClassName = other.workerClassName,
+        state = other.state,
+        inputMergerClassName = other.inputMergerClassName,
+        input = Data(other.input),
+        output = Data(other.output),
+        initialDelay = other.initialDelay,
+        intervalDuration = other.intervalDuration,
+        flexDuration = other.flexDuration,
+        constraints = Constraints(other.constraints),
+        runAttemptCount = other.runAttemptCount,
+        backoffPolicy = other.backoffPolicy,
+        backoffDelayDuration = other.backoffDelayDuration,
+        periodStartTime = other.periodStartTime,
+        minimumRetentionDuration = other.minimumRetentionDuration,
+        scheduleRequestedAt = other.scheduleRequestedAt,
+        expedited = other.expedited,
+        outOfQuotaPolicy = other.outOfQuotaPolicy,
+    )
 
     /**
      * @param backoffDelayDuration The backoff delay duration in milliseconds
      */
-    public void setBackoffDelayDuration(long backoffDelayDuration) {
-        if (backoffDelayDuration > MAX_BACKOFF_MILLIS) {
-            Logger.get().warning(TAG, "Backoff delay duration exceeds maximum value");
-            backoffDelayDuration = MAX_BACKOFF_MILLIS;
+    fun setBackoffDelayDuration(backoffDelayDuration: Long) {
+        if (backoffDelayDuration > WorkRequest.MAX_BACKOFF_MILLIS) {
+            Logger.get().warning(TAG, "Backoff delay duration exceeds maximum value")
         }
-        if (backoffDelayDuration < MIN_BACKOFF_MILLIS) {
-            Logger.get().warning(TAG, "Backoff delay duration less than minimum value");
-            backoffDelayDuration = MIN_BACKOFF_MILLIS;
+        if (backoffDelayDuration < WorkRequest.MIN_BACKOFF_MILLIS) {
+            Logger.get().warning(TAG, "Backoff delay duration less than minimum value")
         }
-        this.backoffDelayDuration = backoffDelayDuration;
+
+        this.backoffDelayDuration = backoffDelayDuration
+            .coerceIn(WorkRequest.MIN_BACKOFF_MILLIS, WorkRequest.MAX_BACKOFF_MILLIS)
     }
 
-    public boolean isPeriodic() {
-        return intervalDuration != 0L;
-    }
-
-    public boolean isBackedOff() {
-        return state == ENQUEUED && runAttemptCount > 0;
-    }
+    val isPeriodic: Boolean
+        get() = intervalDuration != 0L
+    val isBackedOff: Boolean
+        get() = state == WorkInfo.State.ENQUEUED && runAttemptCount > 0
 
     /**
      * Sets the periodic interval for this unit of work.
      *
      * @param intervalDuration The interval in milliseconds
      */
-    public void setPeriodic(long intervalDuration) {
+    fun setPeriodic(intervalDuration: Long) {
         if (intervalDuration < MIN_PERIODIC_INTERVAL_MILLIS) {
-            Logger.get().warning(TAG, "Interval duration lesser than minimum allowed value; Changed to " + MIN_PERIODIC_INTERVAL_MILLIS);
-            intervalDuration = MIN_PERIODIC_INTERVAL_MILLIS;
+            Logger.get().warning(
+                TAG,
+                "Interval duration lesser than minimum allowed value; " +
+                    "Changed to $MIN_PERIODIC_INTERVAL_MILLIS"
+            )
         }
-        setPeriodic(intervalDuration, intervalDuration);
+        setPeriodic(
+            intervalDuration.coerceAtLeast(MIN_PERIODIC_INTERVAL_MILLIS),
+            intervalDuration.coerceAtLeast(MIN_PERIODIC_INTERVAL_MILLIS)
+        )
     }
 
     /**
@@ -212,36 +209,44 @@ public final class WorkSpec {
      * @param intervalDuration The interval in milliseconds
      * @param flexDuration The flex duration in milliseconds
      */
-    public void setPeriodic(long intervalDuration, long flexDuration) {
+    fun setPeriodic(intervalDuration: Long, flexDuration: Long) {
         if (intervalDuration < MIN_PERIODIC_INTERVAL_MILLIS) {
-            Logger.get().warning(TAG, "Interval duration lesser than minimum allowed value; Changed to " + MIN_PERIODIC_INTERVAL_MILLIS);
-            intervalDuration = MIN_PERIODIC_INTERVAL_MILLIS;
+            Logger.get().warning(
+                TAG,
+                "Interval duration lesser than minimum allowed value; " +
+                    "Changed to $MIN_PERIODIC_INTERVAL_MILLIS"
+            )
         }
+
+        this.intervalDuration = intervalDuration.coerceAtLeast(MIN_PERIODIC_INTERVAL_MILLIS)
+
         if (flexDuration < MIN_PERIODIC_FLEX_MILLIS) {
-            Logger.get().warning(TAG,
-                    "Flex duration lesser than minimum allowed value; Changed to " + MIN_PERIODIC_FLEX_MILLIS);
-            flexDuration = MIN_PERIODIC_FLEX_MILLIS;
+            Logger.get().warning(
+                TAG,
+                "Flex duration lesser than minimum allowed value; " +
+                    "Changed to $MIN_PERIODIC_FLEX_MILLIS"
+            )
         }
-        if (flexDuration > intervalDuration) {
-            Logger.get().warning(TAG,
-                    "Flex duration greater than interval duration; Changed to " + intervalDuration);
-            flexDuration = intervalDuration;
+        if (flexDuration > this.intervalDuration) {
+            Logger.get().warning(
+                TAG,
+                "Flex duration greater than interval duration; Changed to $intervalDuration"
+            )
         }
-        this.intervalDuration = intervalDuration;
-        this.flexDuration = flexDuration;
+        this.flexDuration = flexDuration.coerceIn(MIN_PERIODIC_FLEX_MILLIS, this.intervalDuration)
     }
 
     /**
-     * Calculates the UTC time at which this {@link WorkSpec} should be allowed to run.
+     * Calculates the UTC time at which this [WorkSpec] should be allowed to run.
      * This method accounts for work that is backed off or periodic.
      *
-     * If Backoff Policy is set to {@link BackoffPolicy#EXPONENTIAL}, then delay
+     * If Backoff Policy is set to [BackoffPolicy.EXPONENTIAL], then delay
      * increases at an exponential rate with respect to the run attempt count and is capped at
-     * {@link WorkRequest#MAX_BACKOFF_MILLIS}.
+     * [WorkRequest.MAX_BACKOFF_MILLIS].
      *
-     * If Backoff Policy is set to {@link BackoffPolicy#LINEAR}, then delay
+     * If Backoff Policy is set to [BackoffPolicy.LINEAR], then delay
      * increases at an linear rate with respect to the run attempt count and is capped at
-     * {@link WorkRequest#MAX_BACKOFF_MILLIS}.
+     * [WorkRequest.MAX_BACKOFF_MILLIS].
      *
      * Based on {@see https://android.googlesource.com/platform/frameworks/base/+/master/services/core/java/com/android/server/job/JobSchedulerService.java#1125}
      *
@@ -254,18 +259,21 @@ public final class WorkSpec {
      * For jobs without constraints, this represents the earliest time at which this work is
      * allowed to run.
      *
-     * @return UTC time at which this {@link WorkSpec} should be allowed to run.
+     * @return UTC time at which this [WorkSpec] should be allowed to run.
      */
-    public long calculateNextRunTime() {
-        if (isBackedOff()) {
-            boolean isLinearBackoff = (backoffPolicy == BackoffPolicy.LINEAR);
-            long delay = isLinearBackoff ? (backoffDelayDuration * runAttemptCount)
-                    : (long) Math.scalb(backoffDelayDuration, runAttemptCount - 1);
-            return periodStartTime + Math.min(WorkRequest.MAX_BACKOFF_MILLIS, delay);
-        } else if (isPeriodic()) {
-            long now = System.currentTimeMillis();
-            long start = periodStartTime == 0 ? (now + initialDelay) : periodStartTime;
-            boolean isFlexApplicable = flexDuration != intervalDuration;
+    fun calculateNextRunTime(): Long {
+        return if (isBackedOff) {
+            val isLinearBackoff = backoffPolicy == BackoffPolicy.LINEAR
+            val delay = if (isLinearBackoff) backoffDelayDuration * runAttemptCount else Math.scalb(
+                backoffDelayDuration.toFloat(),
+                runAttemptCount - 1
+            )
+                .toLong()
+            periodStartTime + delay.coerceAtMost(WorkRequest.MAX_BACKOFF_MILLIS)
+        } else if (isPeriodic) {
+            val now = System.currentTimeMillis()
+            val start = if (periodStartTime == 0L) now + initialDelay else periodStartTime
+            val isFlexApplicable = flexDuration != intervalDuration
             if (isFlexApplicable) {
                 // To correctly emulate flex, we need to set it
                 // to now, so the PeriodicWorkRequest has an initial delay of
@@ -276,214 +284,107 @@ public final class WorkSpec {
                 // 1 => now + (interval - flex) + initialDelay = firstRunTime
                 // 2 => firstRunTime + 2 * interval - flex
                 // 3 => firstRunTime + 3 * interval - flex
-                long offset = periodStartTime == 0 ? (-1 * flexDuration) : 0;
-                return start + intervalDuration + offset;
+                val offset = if (periodStartTime == 0L) -1 * flexDuration else 0
+                start + intervalDuration + offset
             } else {
                 // Don't use flexDuration for determining next run time for PeriodicWork
                 // This is because intervalDuration could equal flexDuration.
 
                 // The first run of a periodic work request is immediate in JobScheduler, and we
                 // need to emulate this behavior.
-                long offset = periodStartTime == 0 ? 0 : intervalDuration;
-                return start + offset;
+                val offset = if (periodStartTime == 0L) 0 else intervalDuration
+                start + offset
             }
         } else {
             // We are checking for (periodStartTime == 0) to support our testing use case.
             // For newly created WorkSpecs periodStartTime will always be 0.
-            long start = (periodStartTime == 0) ? System.currentTimeMillis() : periodStartTime;
-            return start + initialDelay;
+            val start = if (periodStartTime == 0L) System.currentTimeMillis() else periodStartTime
+            start + initialDelay
         }
     }
 
     /**
-     * @return <code>true</code> if the {@link WorkSpec} has constraints.
+     * @return `true` if the [WorkSpec] has constraints.
      */
-    public boolean hasConstraints() {
-        return !Constraints.NONE.equals(constraints);
+    fun hasConstraints(): Boolean {
+        return Constraints.NONE != constraints
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        WorkSpec workSpec = (WorkSpec) o;
-
-        if (initialDelay != workSpec.initialDelay) return false;
-        if (intervalDuration != workSpec.intervalDuration) return false;
-        if (flexDuration != workSpec.flexDuration) return false;
-        if (runAttemptCount != workSpec.runAttemptCount) return false;
-        if (backoffDelayDuration != workSpec.backoffDelayDuration) return false;
-        if (periodStartTime != workSpec.periodStartTime) return false;
-        if (minimumRetentionDuration != workSpec.minimumRetentionDuration) return false;
-        if (scheduleRequestedAt != workSpec.scheduleRequestedAt) return false;
-        if (expedited != workSpec.expedited) return false;
-        if (!id.equals(workSpec.id)) return false;
-        if (state != workSpec.state) return false;
-        if (!workerClassName.equals(workSpec.workerClassName)) return false;
-        if (inputMergerClassName != null ? !inputMergerClassName.equals(
-                workSpec.inputMergerClassName)
-                : workSpec.inputMergerClassName != null) {
-            return false;
-        }
-        if (!input.equals(workSpec.input)) return false;
-        if (!output.equals(workSpec.output)) return false;
-        if (!constraints.equals(workSpec.constraints)) return false;
-        if (backoffPolicy != workSpec.backoffPolicy) return false;
-        return outOfQuotaPolicy == workSpec.outOfQuotaPolicy;
-    }
-
-    @Override
-    public int hashCode() {
-        int result = id.hashCode();
-        result = 31 * result + state.hashCode();
-        result = 31 * result + workerClassName.hashCode();
-        result = 31 * result + (inputMergerClassName != null ? inputMergerClassName.hashCode() : 0);
-        result = 31 * result + input.hashCode();
-        result = 31 * result + output.hashCode();
-        result = 31 * result + (int) (initialDelay ^ (initialDelay >>> 32));
-        result = 31 * result + (int) (intervalDuration ^ (intervalDuration >>> 32));
-        result = 31 * result + (int) (flexDuration ^ (flexDuration >>> 32));
-        result = 31 * result + constraints.hashCode();
-        result = 31 * result + runAttemptCount;
-        result = 31 * result + backoffPolicy.hashCode();
-        result = 31 * result + (int) (backoffDelayDuration ^ (backoffDelayDuration >>> 32));
-        result = 31 * result + (int) (periodStartTime ^ (periodStartTime >>> 32));
-        result = 31 * result + (int) (minimumRetentionDuration ^ (minimumRetentionDuration >>> 32));
-        result = 31 * result + (int) (scheduleRequestedAt ^ (scheduleRequestedAt >>> 32));
-        result = 31 * result + (expedited ? 1 : 0);
-        result = 31 * result + outOfQuotaPolicy.hashCode();
-        return result;
-    }
-
-    @NonNull
-    @Override
-    public String toString() {
-        return "{WorkSpec: " + id + "}";
+    override fun toString(): String {
+        return "{WorkSpec: $id}"
     }
 
     /**
      * A POJO containing the ID and state of a WorkSpec.
      */
-    public static class IdAndState {
-
+    data class IdAndState(
+        @JvmField
         @ColumnInfo(name = "id")
-        public String id;
-
+        var id: String,
+        @JvmField
         @ColumnInfo(name = "state")
-        public WorkInfo.State state;
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (!(o instanceof IdAndState)) return false;
-
-            IdAndState that = (IdAndState) o;
-
-            if (state != that.state) return false;
-            return id.equals(that.id);
-        }
-
-        @Override
-        public int hashCode() {
-            int result = id.hashCode();
-            result = 31 * result + state.hashCode();
-            return result;
-        }
-    }
+        var state: WorkInfo.State,
+    )
 
     /**
      * A POJO containing the ID, state, output, tags, and run attempt count of a WorkSpec.
      */
-    public static class WorkInfoPojo {
-
+    data class WorkInfoPojo(
         @ColumnInfo(name = "id")
-        public String id;
+        var id: String,
 
         @ColumnInfo(name = "state")
-        public WorkInfo.State state;
+        var state: WorkInfo.State,
 
         @ColumnInfo(name = "output")
-        public Data output;
+        var output: Data,
 
         @ColumnInfo(name = "run_attempt_count")
-        public int runAttemptCount;
+        var runAttemptCount: Int,
 
         @Relation(
-                parentColumn = "id",
-                entityColumn = "work_spec_id",
-                entity = WorkTag.class,
-                projection = {"tag"})
-        public List<String> tags;
+            parentColumn = "id",
+            entityColumn = "work_spec_id",
+            entity = WorkTag::class,
+            projection = ["tag"]
+        )
+        var tags: List<String>,
 
         // This is actually a 1-1 relationship. However Room 2.1 models the type as a List.
         // This will change in Room 2.2
         @Relation(
-                parentColumn = "id",
-                entityColumn = "work_spec_id",
-                entity = WorkProgress.class,
-                projection = {"progress"})
-        public List<Data> progress;
-
+            parentColumn = "id",
+            entityColumn = "work_spec_id",
+            entity = WorkProgress::class,
+            projection = ["progress"]
+        )
+        var progress: List<Data>,
+    ) {
         /**
-         * Converts this POJO to a {@link WorkInfo}.
+         * Converts this POJO to a [WorkInfo].
          *
-         * @return The {@link WorkInfo} represented by this POJO
+         * @return The [WorkInfo] represented by this POJO
          */
-        @NonNull
-        public WorkInfo toWorkInfo() {
-            Data progress = this.progress != null && !this.progress.isEmpty()
-                    ? this.progress.get(0)
-                    : Data.EMPTY;
-
-            return new WorkInfo(
-                    UUID.fromString(id),
-                    state,
-                    output,
-                    tags,
-                    progress,
-                    runAttemptCount);
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (!(o instanceof WorkInfoPojo)) return false;
-
-            WorkInfoPojo that = (WorkInfoPojo) o;
-
-            if (runAttemptCount != that.runAttemptCount) return false;
-            if (id != null ? !id.equals(that.id) : that.id != null) return false;
-            if (state != that.state) return false;
-            if (output != null ? !output.equals(that.output) : that.output != null) return false;
-            if (tags != null ? !tags.equals(that.tags) : that.tags != null) return false;
-            return progress != null ? progress.equals(that.progress) : that.progress == null;
-        }
-
-        @Override
-        public int hashCode() {
-            int result = id != null ? id.hashCode() : 0;
-            result = 31 * result + (state != null ? state.hashCode() : 0);
-            result = 31 * result + (output != null ? output.hashCode() : 0);
-            result = 31 * result + runAttemptCount;
-            result = 31 * result + (tags != null ? tags.hashCode() : 0);
-            result = 31 * result + (progress != null ? progress.hashCode() : 0);
-            return result;
+        fun toWorkInfo(): WorkInfo {
+            val progress = if (progress.isNotEmpty()) progress[0] else Data.EMPTY
+            return WorkInfo(
+                UUID.fromString(id),
+                state,
+                output,
+                tags,
+                progress,
+                runAttemptCount
+            )
         }
     }
 
-    public static final Function<List<WorkInfoPojo>, List<WorkInfo>> WORK_INFO_MAPPER =
-            new Function<List<WorkInfoPojo>, List<WorkInfo>>() {
-                @Override
-                public List<WorkInfo> apply(List<WorkInfoPojo> input) {
-                    if (input == null) {
-                        return null;
-                    }
-                    List<WorkInfo> output = new ArrayList<>(input.size());
-                    for (WorkInfoPojo in : input) {
-                        output.add(in.toWorkInfo());
-                    }
-                    return output;
-                }
-            };
+    companion object {
+        private val TAG = Logger.tagWithPrefix("WorkSpec")
+        const val SCHEDULE_NOT_REQUESTED_YET: Long = -1
+
+        @JvmField
+        val WORK_INFO_MAPPER: Function<List<WorkInfoPojo>, List<WorkInfo>> = Function { input ->
+            input?.map { it.toWorkInfo() }
+        }
+    }
 }

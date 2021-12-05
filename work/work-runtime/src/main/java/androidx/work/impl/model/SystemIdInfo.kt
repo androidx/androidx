@@ -13,58 +13,35 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package androidx.work.impl.model
 
-package androidx.work.impl.model;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.RestrictTo;
-import androidx.room.ColumnInfo;
-import androidx.room.Entity;
-import androidx.room.ForeignKey;
-import androidx.room.PrimaryKey;
+import androidx.annotation.RestrictTo
+import androidx.room.ColumnInfo
+import androidx.room.Entity
+import androidx.room.ForeignKey
+import androidx.room.PrimaryKey
 
 /**
- * Stores system ids for a {@link WorkSpec} id.
+ * Stores system ids for a [WorkSpec] id.
  *
  * @hide
  */
-@Entity(foreignKeys = {
-                @ForeignKey(
-                        entity = WorkSpec.class,
-                        parentColumns = "id",
-                        childColumns = "work_spec_id",
-                        onDelete = ForeignKey.CASCADE,
-                        onUpdate = ForeignKey.CASCADE)})
+@Entity(
+    foreignKeys = [ForeignKey(
+        entity = WorkSpec::class,
+        parentColumns = ["id"],
+        childColumns = ["work_spec_id"],
+        onDelete = ForeignKey.CASCADE,
+        onUpdate = ForeignKey.CASCADE
+    )]
+)
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class SystemIdInfo {
-    @NonNull
-    @PrimaryKey
+data class SystemIdInfo(
+    @JvmField
     @ColumnInfo(name = "work_spec_id")
-    public final String workSpecId;
-
+    @PrimaryKey
+    val workSpecId: String,
+    @JvmField
     @ColumnInfo(name = "system_id")
-    public final int systemId;
-
-    public SystemIdInfo(@NonNull String workSpecId, int systemId) {
-        this.workSpecId = workSpecId;
-        this.systemId = systemId;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof SystemIdInfo)) return false;
-
-        SystemIdInfo that = (SystemIdInfo) o;
-
-        if (systemId != that.systemId) return false;
-        return workSpecId.equals(that.workSpecId);
-    }
-
-    @Override
-    public int hashCode() {
-        int result = workSpecId.hashCode();
-        result = 31 * result + systemId;
-        return result;
-    }
-}
+    val systemId: Int
+)

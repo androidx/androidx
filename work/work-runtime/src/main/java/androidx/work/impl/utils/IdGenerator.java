@@ -101,7 +101,7 @@ public class IdGenerator {
     }
 
     private void update(String key, int value) {
-        mWorkDatabase.preferenceDao().insertPreference(new Preference(key, value));
+        mWorkDatabase.preferenceDao().insertPreference(new Preference(key, Long.valueOf(value)));
     }
 
     /**

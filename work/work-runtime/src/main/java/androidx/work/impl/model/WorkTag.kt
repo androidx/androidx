@@ -13,44 +13,34 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package androidx.work.impl.model
 
-package androidx.work.impl.model;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.RestrictTo;
-import androidx.room.ColumnInfo;
-import androidx.room.Entity;
-import androidx.room.ForeignKey;
-import androidx.room.Index;
+import androidx.annotation.RestrictTo
+import androidx.room.ColumnInfo
+import androidx.room.Entity
+import androidx.room.ForeignKey
+import androidx.room.Index
 
 /**
- * Database entity that defines a mapping from a tag to a {@link WorkSpec} id.
+ * Database entity that defines a mapping from a tag to a [WorkSpec] id.
  *
  * @hide
  */
-
-@Entity(foreignKeys = {
-        @ForeignKey(
-                entity = WorkSpec.class,
-                parentColumns = "id",
-                childColumns = "work_spec_id",
-                onDelete = ForeignKey.CASCADE,
-                onUpdate = ForeignKey.CASCADE)},
-        primaryKeys = {"tag", "work_spec_id"},
-        indices = {@Index(value = {"work_spec_id"})})
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class WorkTag {
-
-    @NonNull
+@Entity(
+    foreignKeys = [ForeignKey(
+        entity = WorkSpec::class,
+        parentColumns = ["id"],
+        childColumns = ["work_spec_id"],
+        onDelete = ForeignKey.CASCADE,
+        onUpdate = ForeignKey.CASCADE
+    )], primaryKeys = ["tag", "work_spec_id"], indices = [Index(value = ["work_spec_id"])]
+)
+@RestrictTo(
+    RestrictTo.Scope.LIBRARY_GROUP
+)
+class WorkTag(
     @ColumnInfo(name = "tag")
-    public final String tag;
-
-    @NonNull
+    val tag: String,
     @ColumnInfo(name = "work_spec_id")
-    public final String workSpecId;
-
-    public WorkTag(@NonNull String tag, @NonNull String workSpecId) {
-        this.tag = tag;
-        this.workSpecId = workSpecId;
-    }
-}
+    val workSpecId: String
+)

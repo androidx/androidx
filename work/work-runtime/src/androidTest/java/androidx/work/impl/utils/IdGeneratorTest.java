@@ -104,6 +104,6 @@ public class IdGeneratorTest extends DatabaseTest {
      */
     private void storeNextId(int nextId) {
         mDatabase.preferenceDao()
-                .insertPreference(new Preference(NEXT_JOB_SCHEDULER_ID_KEY, nextId));
+                .insertPreference(new Preference(NEXT_JOB_SCHEDULER_ID_KEY, Long.valueOf(nextId)));
     }
 }

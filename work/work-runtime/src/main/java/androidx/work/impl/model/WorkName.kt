@@ -13,44 +13,34 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package androidx.work.impl.model
 
-package androidx.work.impl.model;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.RestrictTo;
-import androidx.room.ColumnInfo;
-import androidx.room.Entity;
-import androidx.room.ForeignKey;
-import androidx.room.Index;
+import androidx.annotation.RestrictTo
+import androidx.room.ColumnInfo
+import androidx.room.Entity
+import androidx.room.ForeignKey
+import androidx.room.Index
 
 /**
- * Database entity that defines a mapping from a name to a {@link WorkSpec} id.
+ * Database entity that defines a mapping from a name to a [WorkSpec] id.
  *
  * @hide
  */
-
-@Entity(foreignKeys = {
-        @ForeignKey(
-                entity = WorkSpec.class,
-                parentColumns = "id",
-                childColumns = "work_spec_id",
-                onDelete = ForeignKey.CASCADE,
-                onUpdate = ForeignKey.CASCADE)},
-        primaryKeys = {"name", "work_spec_id"},
-        indices = {@Index(value = {"work_spec_id"})})
+@Entity(
+    foreignKeys = [ForeignKey(
+        entity = WorkSpec::class,
+        parentColumns = ["id"],
+        childColumns = ["work_spec_id"],
+        onDelete = ForeignKey.CASCADE,
+        onUpdate = ForeignKey.CASCADE
+    )],
+    primaryKeys = ["name", "work_spec_id"],
+    indices = [Index(value = ["work_spec_id"])]
+)
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class WorkName {
-
-    @NonNull
+class WorkName(
     @ColumnInfo(name = "name")
-    public final String name;
-
-    @NonNull
+    val name: String,
     @ColumnInfo(name = "work_spec_id")
-    public final String workSpecId;
-
-    public WorkName(@NonNull String name, @NonNull String workSpecId) {
-        this.name = name;
-        this.workSpecId = workSpecId;
-    }
-}
+    val workSpecId: String
+)

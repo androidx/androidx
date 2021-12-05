@@ -13,42 +13,34 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package androidx.work.impl.model
 
-package androidx.work.impl.model;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.RestrictTo;
-import androidx.room.ColumnInfo;
-import androidx.room.Entity;
-import androidx.room.ForeignKey;
-import androidx.room.PrimaryKey;
-import androidx.work.Data;
+import androidx.annotation.RestrictTo
+import androidx.room.ColumnInfo
+import androidx.room.Entity
+import androidx.room.ForeignKey
+import androidx.room.PrimaryKey
+import androidx.work.Data
 
 /**
- * A Database entity which stores progress of a given {@link WorkSpec} id.
+ * A Database entity which stores progress of a given [WorkSpec] id.
  *
  * @hide
  */
-@Entity(foreignKeys = {
-        @ForeignKey(
-                entity = WorkSpec.class,
-                parentColumns = "id",
-                childColumns = "work_spec_id",
-                onDelete = ForeignKey.CASCADE,
-                onUpdate = ForeignKey.CASCADE)})
+@Entity(
+    foreignKeys = [ForeignKey(
+        entity = WorkSpec::class,
+        parentColumns = ["id"],
+        childColumns = ["work_spec_id"],
+        onDelete = ForeignKey.CASCADE,
+        onUpdate = ForeignKey.CASCADE
+    )]
+)
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class WorkProgress {
-    @NonNull
-    @PrimaryKey
+class WorkProgress(
     @ColumnInfo(name = "work_spec_id")
-    public final String mWorkSpecId;
-
-    @NonNull
+    @PrimaryKey
+    val workSpecId: String,
     @ColumnInfo(name = "progress")
-    public final Data mProgress;
-
-    public WorkProgress(@NonNull String workSpecId, @NonNull Data progress) {
-        mWorkSpecId = workSpecId;
-        mProgress = progress;
-    }
-}
+    val progress: Data
+)

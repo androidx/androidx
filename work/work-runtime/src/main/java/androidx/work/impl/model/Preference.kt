@@ -13,55 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package androidx.work.impl.model
 
-package androidx.work.impl.model;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.annotation.RestrictTo;
-import androidx.room.ColumnInfo;
-import androidx.room.Entity;
-import androidx.room.PrimaryKey;
+import androidx.annotation.RestrictTo
+import androidx.room.ColumnInfo
+import androidx.room.Entity
+import androidx.room.PrimaryKey
 
 /**
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Entity
-public class Preference {
-    @NonNull
-    @PrimaryKey
+data class Preference(
     @ColumnInfo(name = "key")
-    public String mKey;
-
-    @Nullable
+    @PrimaryKey
+    val key: String,
     @ColumnInfo(name = "long_value")
-    public Long mValue;
-
-    public Preference(@NonNull String key, boolean value) {
-        this(key, value ? 1L : 0L);
-    }
-
-    public Preference(@NonNull String key, long value) {
-        mKey = key;
-        mValue = value;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Preference)) return false;
-
-        Preference that = (Preference) o;
-
-        if (!mKey.equals(that.mKey)) return false;
-        return mValue != null ? mValue.equals(that.mValue) : that.mValue == null;
-    }
-
-    @Override
-    public int hashCode() {
-        int result = mKey.hashCode();
-        result = 31 * result + (mValue != null ? mValue.hashCode() : 0);
-        return result;
-    }
+    val value: Long?
+) {
+    constructor(key: String, value: Boolean) : this(key, if (value) 1L else 0L)
 }

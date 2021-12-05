@@ -13,51 +13,40 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package androidx.work.impl.model
 
-package androidx.work.impl.model;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.RestrictTo;
-import androidx.room.ColumnInfo;
-import androidx.room.Entity;
-import androidx.room.ForeignKey;
-import androidx.room.Index;
+import androidx.annotation.RestrictTo
+import androidx.room.ColumnInfo
+import androidx.room.Entity
+import androidx.room.ForeignKey
+import androidx.room.Index
 
 /**
- * Database entity that defines a dependency between two {@link WorkSpec}s.
+ * Database entity that defines a dependency between two [WorkSpec]s.
  *
  * @hide
  */
-
-@Entity(foreignKeys = {
-        @ForeignKey(
-                entity = WorkSpec.class,
-                parentColumns = "id",
-                childColumns = "work_spec_id",
-                onDelete = ForeignKey.CASCADE,
-                onUpdate = ForeignKey.CASCADE),
-        @ForeignKey(
-                entity = WorkSpec.class,
-                parentColumns = "id",
-                childColumns = "prerequisite_id",
-                onDelete = ForeignKey.CASCADE,
-                onUpdate = ForeignKey.CASCADE)},
-        primaryKeys = {"work_spec_id", "prerequisite_id"},
-        indices = {
-                @Index(value = {"work_spec_id"}),
-                @Index(value = {"prerequisite_id"})})
+@Entity(
+    foreignKeys = [ForeignKey(
+        entity = WorkSpec::class,
+        parentColumns = ["id"],
+        childColumns = ["work_spec_id"],
+        onDelete = ForeignKey.CASCADE,
+        onUpdate = ForeignKey.CASCADE
+    ), ForeignKey(
+        entity = WorkSpec::class,
+        parentColumns = ["id"],
+        childColumns = ["prerequisite_id"],
+        onDelete = ForeignKey.CASCADE,
+        onUpdate = ForeignKey.CASCADE
+    )],
+    primaryKeys = ["work_spec_id", "prerequisite_id"],
+    indices = [Index(value = ["work_spec_id"]), Index(value = ["prerequisite_id"])]
+)
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class Dependency {
-    @NonNull
+class Dependency(
     @ColumnInfo(name = "work_spec_id")
-    public final String workSpecId;
-
-    @NonNull
+    val workSpecId: String,
     @ColumnInfo(name = "prerequisite_id")
-    public final String prerequisiteId;
-
-    public Dependency(@NonNull String workSpecId, @NonNull String prerequisiteId) {
-        this.workSpecId = workSpecId;
-        this.prerequisiteId = prerequisiteId;
-    }
-}
+    val prerequisiteId: String
+)
