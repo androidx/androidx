@@ -111,7 +111,6 @@ public final class HdrPreviewExtenderImpl implements PreviewExtenderImpl {
         return null;
     }
 
-    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
     final class HdrPreviewExtenderPreviewImageProcessorImpl implements PreviewImageProcessorImpl {
         Surface mSurface;
         Size mSize;

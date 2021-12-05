@@ -21,6 +21,7 @@ import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.fail;
 
 import android.app.Activity;
+import android.os.Build;
 import android.view.View;
 
 import androidx.annotation.NonNull;
@@ -29,7 +30,6 @@ import androidx.core.R;
 import androidx.test.annotation.UiThreadTest;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
-import androidx.test.filters.SdkSuppress;
 import androidx.test.rule.ActivityTestRule;
 
 import org.junit.Before;
@@ -56,7 +56,6 @@ public class ViewCompatReceiveContentTest {
         mMockReceiver = Mockito.mock(OnReceiveContentListener.class);
     }
 
-    @SdkSuppress(maxSdkVersion = 30) // b/202524605
     @UiThreadTest
     @Test
     public void testSetOnReceiveContentListener() throws Exception {
@@ -68,7 +67,12 @@ public class ViewCompatReceiveContentTest {
         String[] mimeTypes = new String[] {"image/*", "video/mp4"};
         ViewCompat.setOnReceiveContentListener(mView, mimeTypes, mMockReceiver);
         assertThat(ViewCompat.getOnReceiveContentMimeTypes(mView)).isSameInstanceAs(mimeTypes);
-        assertThat(getListener(mView)).isSameInstanceAs(mMockReceiver);
+        if (Build.VERSION.SDK_INT < 31) {
+            // When the SDK version is below Android S, the compat listener will be configured
+            // via a tag on the view. On Android S and above, we use the platform listener so
+            // the tag will not be set.
+            assertThat(getListener(mView)).isSameInstanceAs(mMockReceiver);
+        }
 
         // Verify that setting null MIME types and a null receiver works.
         ViewCompat.setOnReceiveContentListener(mView, null, null);

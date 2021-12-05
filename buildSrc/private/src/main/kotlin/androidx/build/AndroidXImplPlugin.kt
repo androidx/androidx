@@ -113,6 +113,7 @@ class AndroidXImplPlugin : Plugin<Project> {
 
         project.configureTaskTimeouts()
         project.configureMavenArtifactUpload(extension)
+        project.configureExportAtomicLibraryGroupsToText()
         project.configureExternalDependencyLicenseCheck()
         project.configureProjectStructureValidation(extension)
         project.configureProjectVersionValidation(extension)
@@ -135,6 +136,9 @@ class AndroidXImplPlugin : Plugin<Project> {
 
     private fun configureTestTask(project: Project, task: Test) {
         AffectedModuleDetector.configureTaskGuard(task)
+
+        // Robolectric 1.7 increased heap size requirements, see b/207169653.
+        task.maxHeapSize = "2g"
 
         val xmlReportDestDir = project.getHostTestResultDirectory()
         val archiveName = "${project.path.asFilenamePrefix()}_${task.name}.zip"
@@ -170,6 +174,7 @@ class AndroidXImplPlugin : Plugin<Project> {
                 val destinationDirectory = File("$xmlReportDestDir-html")
                 it.destinationDirectory.set(destinationDirectory)
                 it.archiveFileName.set(archiveName)
+                it.from(project.file(task.reports.html.outputLocation))
                 it.doLast { zip ->
                     // If the test itself didn't display output, then the report task should
                     // remind the user where to find its output
@@ -180,11 +185,6 @@ class AndroidXImplPlugin : Plugin<Project> {
                 }
             }
             task.finalizedBy(zipHtmlTask)
-            task.doFirst {
-                zipHtmlTask.configure {
-                    it.from(task.reports.html.outputLocation)
-                }
-            }
             val xmlReport = task.reports.junitXml
             if (xmlReport.required.get()) {
                 val zipXmlTask = project.tasks.register(
@@ -193,28 +193,29 @@ class AndroidXImplPlugin : Plugin<Project> {
                 ) {
                     it.destinationDirectory.set(xmlReportDestDir)
                     it.archiveFileName.set(archiveName)
+                    it.from(project.file(xmlReport.outputLocation))
                 }
-                if (project.hasProperty(TEST_FAILURES_DO_NOT_FAIL_TEST_TASK)) {
+                val ignoreFailuresProperty = project.providers.gradleProperty(
+                    TEST_FAILURES_DO_NOT_FAIL_TEST_TASK
+                ).forUseAtConfigurationTime()
+                if (ignoreFailuresProperty.isPresent) {
                     task.ignoreFailures = true
                 }
                 task.finalizedBy(zipXmlTask)
-                task.doFirst {
-                    zipXmlTask.configure {
-                        it.from(xmlReport.outputLocation)
-                    }
-                }
             }
         }
-        task.systemProperty("robolectric.offline", "true")
-        val robolectricDependencies =
-            File(
-                project.getPrebuiltsRoot(),
-                "androidx/external/org/robolectric/android-all-instrumented"
+        if (!StudioType.isPlayground(project)) { // For non-playground setup use robolectric offline
+            task.systemProperty("robolectric.offline", "true")
+            val robolectricDependencies =
+                File(
+                    project.getPrebuiltsRoot(),
+                    "androidx/external/org/robolectric/android-all-instrumented"
+                )
+            task.systemProperty(
+                "robolectric.dependency.dir",
+                robolectricDependencies.absolutePath
             )
-        task.systemProperty(
-            "robolectric.dependency.dir",
-            robolectricDependencies.absolutePath
-        )
+        }
     }
 
     private fun configureWithKotlinPlugin(
@@ -257,14 +258,6 @@ class AndroidXImplPlugin : Plugin<Project> {
             onVariants { it.configureLicensePackaging() }
             finalizeDsl {
                 project.configureAndroidProjectForLint(it.lint, androidXExtension)
-                it.lint {
-                    abortOnError = true
-
-                    val baselineFile = project.lintBaseline
-                    if (baselineFile.exists()) {
-                        baseline = baselineFile
-                    }
-                }
             }
         }
     }
@@ -398,6 +391,17 @@ class AndroidXImplPlugin : Plugin<Project> {
         }
 
         project.addToProjectMap(extension)
+    }
+
+    private fun Project.configureExportAtomicLibraryGroupsToText() {
+        project.tasks.register(
+            "exportAtomicLibraryGroupsToText",
+            ExportAtomicLibraryGroupsToTextTask::class.java
+        ) { task ->
+            task.libraryGroupFile = project.file("${project.getSupportRootFolder()}" +
+                "/buildSrc/public/src/main/kotlin/androidx/build/LibraryGroups.kt")
+            task.textOutputFile = project.file("${project.buildDir}/lint/atomic-library-groups.txt")
+        }
     }
 
     private fun Project.configureProjectStructureValidation(

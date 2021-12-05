@@ -122,7 +122,15 @@ class AsyncPagingDataDifferTest {
 
         job.cancel()
 
-        differ.submitData(TestLifecycleOwner().lifecycle, PagingData.empty())
+        differ.submitData(
+            TestLifecycleOwner().lifecycle, PagingData.empty(
+                sourceLoadStates = loadStates(
+                    refresh = NotLoading(endOfPaginationReached = false),
+                    prepend = NotLoading(endOfPaginationReached = true),
+                    append = NotLoading(endOfPaginationReached = true),
+                )
+            )
+        )
         advanceUntilIdle()
 
         // Assert that all load state updates are sent, even when differ enters fast path for
@@ -180,7 +188,15 @@ class AsyncPagingDataDifferTest {
 
         job.cancel()
 
-        differ.submitData(TestLifecycleOwner().lifecycle, PagingData.empty())
+        differ.submitData(
+            TestLifecycleOwner().lifecycle, PagingData.empty(
+                sourceLoadStates = loadStates(
+                    refresh = NotLoading(endOfPaginationReached = false),
+                    prepend = NotLoading(endOfPaginationReached = true),
+                    append = NotLoading(endOfPaginationReached = true),
+                )
+            )
+        )
         advanceUntilIdle()
 
         // Assert that all load state updates are sent, even when differ enters fast path for

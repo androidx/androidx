@@ -20,9 +20,9 @@ import androidx.room.compiler.processing.XAnnotation
 import androidx.room.compiler.processing.XAnnotationValue
 import androidx.room.compiler.processing.XElement
 import androidx.room.compiler.processing.XExecutableElement
+import androidx.room.compiler.processing.XExecutableType
 import androidx.room.compiler.processing.XFiler
 import androidx.room.compiler.processing.XMessager
-import androidx.room.compiler.processing.XMethodType
 import androidx.room.compiler.processing.XProcessingEnv
 import androidx.room.compiler.processing.XRoundEnv
 import androidx.room.compiler.processing.XType
@@ -32,8 +32,8 @@ import androidx.room.compiler.processing.javac.JavacAnnotation
 import androidx.room.compiler.processing.javac.JavacAnnotationValue
 import androidx.room.compiler.processing.javac.JavacElement
 import androidx.room.compiler.processing.javac.JavacExecutableElement
+import androidx.room.compiler.processing.javac.JavacExecutableType
 import androidx.room.compiler.processing.javac.JavacFiler
-import androidx.room.compiler.processing.javac.JavacMethodType
 import androidx.room.compiler.processing.javac.JavacProcessingEnv
 import androidx.room.compiler.processing.javac.JavacProcessingEnvMessager
 import androidx.room.compiler.processing.javac.JavacRoundEnv
@@ -89,7 +89,7 @@ object XConverters {
     fun XType.toJavac(): TypeMirror = (this as JavacType).typeMirror
 
     @JvmStatic
-    fun XMethodType.toJavac(): ExecutableType = (this as JavacMethodType).executableType
+    fun XExecutableType.toJavac(): ExecutableType = (this as JavacExecutableType).executableType
 
     @JvmStatic
     fun Element.toXProcessing(env: XProcessingEnv): XElement {

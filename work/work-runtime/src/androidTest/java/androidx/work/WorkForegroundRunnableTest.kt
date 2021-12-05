@@ -18,8 +18,8 @@ package androidx.work
 
 import android.app.Notification
 import android.content.Context
+import android.os.Build
 import android.util.Log
-import androidx.core.os.BuildCompat
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
@@ -27,17 +27,17 @@ import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.work.impl.utils.SynchronousExecutor
 import androidx.work.impl.utils.WorkForegroundRunnable
-import androidx.work.impl.utils.futures.SettableFuture
 import androidx.work.impl.utils.taskexecutor.InstantWorkTaskExecutor
 import androidx.work.impl.utils.taskexecutor.TaskExecutor
 import androidx.work.worker.TestWorker
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.MatcherAssert.assertThat
+import org.junit.Assert.fail
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.Mockito.`when`
+import org.mockito.Mockito.doReturn
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.spy
 import org.mockito.Mockito.verify
@@ -75,20 +75,8 @@ public class WorkForegroundRunnableTest : DatabaseTest() {
             .build()
 
         insertWork(work)
-        val worker = spy(
-            configuration.mWorkerFactory.createWorkerWithDefaultFallback(
-                context,
-                work.workSpec.workerClassName,
-                newWorkerParams(work)
-            )!!
-        )
-        val runnable = WorkForegroundRunnable(
-            context,
-            work.workSpec,
-            worker,
-            foregroundUpdater,
-            taskExecutor
-        )
+        val worker = getWorkerSpy(work)
+        val runnable = getWorkForegroundRunnable(work, worker)
         runnable.run()
         assertThat(runnable.future.isDone, `is`(equalTo(true)))
         verifyNoMoreInteractions(foregroundUpdater)
@@ -97,29 +85,13 @@ public class WorkForegroundRunnableTest : DatabaseTest() {
     @Test
     @MediumTest
     public fun callGetForeground_forExpeditedWork1() {
-        if (BuildCompat.isAtLeastS()) {
+        if (Build.VERSION.SDK_INT >= 31) {
             return
         }
-
-        val work = OneTimeWorkRequest.Builder(TestWorker::class.java)
-            .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
-            .build()
-
+        val work = getExpeditedRequest<TestWorker>()
         insertWork(work)
-        val worker = spy(
-            configuration.mWorkerFactory.createWorkerWithDefaultFallback(
-                context,
-                work.workSpec.workerClassName,
-                newWorkerParams(work)
-            )!!
-        )
-        val runnable = WorkForegroundRunnable(
-            context,
-            work.workSpec,
-            worker,
-            foregroundUpdater,
-            taskExecutor
-        )
+        val worker = getWorkerSpy(work)
+        val runnable = getWorkForegroundRunnable(work, worker)
         runnable.run()
         verify(worker).foregroundInfoAsync
         assertThat(runnable.future.isDone, `is`(equalTo(true)))
@@ -128,41 +100,72 @@ public class WorkForegroundRunnableTest : DatabaseTest() {
     @Test
     @SmallTest
     public fun callGetForeground_forExpeditedWork2() {
-        if (BuildCompat.isAtLeastS()) {
+        if (Build.VERSION.SDK_INT >= 31) {
             return
         }
 
-        val work = OneTimeWorkRequest.Builder(TestWorker::class.java)
-            .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
-            .build()
-
+        val work = getExpeditedRequest<TestWorker>()
         insertWork(work)
-        val worker = spy(
-            configuration.mWorkerFactory.createWorkerWithDefaultFallback(
-                context,
-                work.workSpec.workerClassName,
-                newWorkerParams(work)
-            )!!
-        )
-
-        val notification = mock(Notification::class.java)
-        val id = 10
-        val foregroundInfo = ForegroundInfo(id, notification)
-        val foregroundFuture = SettableFuture.create<ForegroundInfo>()
-        foregroundFuture.set(foregroundInfo)
-        `when`(worker.foregroundInfoAsync).thenReturn(foregroundFuture)
-        val runnable = WorkForegroundRunnable(
-            context,
-            work.workSpec,
-            worker,
-            foregroundUpdater,
-            taskExecutor
-        )
+        val worker = getWorkerSpy(work)
+        val foregroundInfo = getForegroundInfo()
+        doReturn(foregroundInfo).`when`(worker).foregroundInfo
+        val runnable = getWorkForegroundRunnable(work, worker)
         runnable.run()
+        verify(worker).foregroundInfo
         verify(worker).foregroundInfoAsync
         verify(foregroundUpdater).setForegroundAsync(context, work.id, foregroundInfo)
         assertThat(runnable.future.isDone, `is`(equalTo(true)))
     }
+
+    private fun getForegroundInfo(): ForegroundInfo {
+        val notification = mock(Notification::class.java)
+        val id = 10
+        return ForegroundInfo(id, notification)
+    }
+
+    @SmallTest
+    public fun callGetForeground_forExpeditedWork3() {
+        if (Build.VERSION.SDK_INT >= 31) {
+            return
+        }
+
+        val work = getExpeditedRequest<TestWorker>()
+        insertWork(work)
+        val worker = getWorkerSpy(work)
+
+        try {
+         worker.foregroundInfo // should throw expected exception here
+        } catch (ise: IllegalStateException) {
+            // Nothing to do here. Test succeeded.
+            return
+        }
+        fail("Worker should have thrown an IllegalStateException at the `foregroundInfo` call.")
+    }
+
+    private inline fun <reified T : ListenableWorker> getExpeditedRequest(): OneTimeWorkRequest {
+        return OneTimeWorkRequest.Builder(T::class.java)
+            .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
+            .build()
+    }
+
+    private fun getWorkerSpy(work: OneTimeWorkRequest) = spy(
+        configuration.mWorkerFactory.createWorkerWithDefaultFallback(
+            context,
+            work.workSpec.workerClassName,
+            newWorkerParams(work)
+        ) as Worker
+    )
+
+    private fun getWorkForegroundRunnable(
+        work: OneTimeWorkRequest,
+        worker: Worker
+    ) = WorkForegroundRunnable(
+        context,
+        work.workSpec,
+        worker,
+        foregroundUpdater,
+        taskExecutor
+    )
 
     private fun newWorkerParams(workRequest: WorkRequest) = WorkerParameters(
         UUID.fromString(workRequest.stringId),

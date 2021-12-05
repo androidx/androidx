@@ -66,6 +66,7 @@ public class ListenableWatchFaceControlClientTest {
         ).get(TIMEOUT_MS, TimeUnit.MILLISECONDS)
 
         val headlessInstance = client.createHeadlessWatchFaceClient(
+            "id",
             ComponentName(context, ExampleCanvasAnalogWatchFaceService::class.java),
             DeviceConfig(
                 false,
@@ -99,6 +100,7 @@ public class ListenableWatchFaceControlClientTest {
 
         assertNull(
             client.createHeadlessWatchFaceClient(
+                "id",
                 ComponentName("?", "i.do.not.exist"),
                 DeviceConfig(
                     false,
@@ -169,6 +171,7 @@ public class ListenableWatchFaceControlClientTest {
         ).get(TIMEOUT_MS, TimeUnit.MILLISECONDS)
 
         val headlessInstance1 = client.createHeadlessWatchFaceClient(
+            "id1",
             ComponentName(context, ExampleCanvasAnalogWatchFaceService::class.java),
             DeviceConfig(
                 false,
@@ -181,6 +184,7 @@ public class ListenableWatchFaceControlClientTest {
         )!!
 
         val headlessInstance2 = client.createHeadlessWatchFaceClient(
+            "id2",
             ComponentName(context, ExampleCanvasAnalogWatchFaceService::class.java),
             DeviceConfig(
                 false,
@@ -193,6 +197,7 @@ public class ListenableWatchFaceControlClientTest {
         )!!
 
         val headlessInstance3 = client.createHeadlessWatchFaceClient(
+            "id3",
             ComponentName(context, ExampleCanvasAnalogWatchFaceService::class.java),
             DeviceConfig(
                 false,
@@ -246,6 +251,7 @@ public class ListenableWatchFaceControlClientTest {
 
         val interactiveInstance = interactiveInstanceFuture.get(TIMEOUT_MS, TimeUnit.MILLISECONDS)
         val headlessInstance1 = client.createHeadlessWatchFaceClient(
+            "id",
             ComponentName(context, ExampleCanvasAnalogWatchFaceService::class.java),
             DeviceConfig(
                 false,

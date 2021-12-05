@@ -1132,8 +1132,8 @@ class XProcessingStepTest {
                     val methods = elements.filterIsInstance<XMethodElement>()
                     val params = elements.filterIsInstance<XExecutableParameterElement>()
                     assertThat(methods).hasSize(2)
-                    assertThat(methods.firstOrNull { it.name == "mainMethod" }).isNotNull()
-                    assertThat(methods.firstOrNull { it.name == "innerMethod" }).isNotNull()
+                    assertThat(methods.firstOrNull { it.jvmName == "mainMethod" }).isNotNull()
+                    assertThat(methods.firstOrNull { it.jvmName == "innerMethod" }).isNotNull()
                     assertThat(params).hasSize(1)
                     assertThat(params.firstOrNull { it.name == "param" }).isNotNull()
                 }
@@ -1223,8 +1223,8 @@ class XProcessingStepTest {
                     val methods = elements.filterIsInstance<XMethodElement>()
                     val params = elements.filterIsInstance<XExecutableParameterElement>()
                     assertThat(methods).hasSize(2)
-                    assertThat(methods.firstOrNull { it.name == "mainMethod" }).isNotNull()
-                    assertThat(methods.firstOrNull { it.name == "innerMethod" }).isNotNull()
+                    assertThat(methods.firstOrNull { it.jvmName == "mainMethod" }).isNotNull()
+                    assertThat(methods.firstOrNull { it.jvmName == "innerMethod" }).isNotNull()
                     assertThat(params).hasSize(1)
                     assertThat(params.firstOrNull { it.name == "param" }).isNotNull()
                 }

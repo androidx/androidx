@@ -19,14 +19,17 @@ package androidx.glance.appwidget.translators
 import android.os.Build
 import android.view.Gravity
 import android.widget.RemoteViews
+import androidx.core.widget.RemoteViewsCompat.setCompoundButtonTintList
+import androidx.glance.appwidget.EmittableCheckBox
 import androidx.glance.appwidget.LayoutType
 import androidx.glance.appwidget.R
 import androidx.glance.appwidget.TranslationContext
 import androidx.glance.appwidget.applyModifiers
 import androidx.glance.appwidget.inflateViewStub
 import androidx.glance.appwidget.insertView
-import androidx.glance.appwidget.layout.EmittableCheckBox
 import androidx.glance.appwidget.setViewEnabled
+import androidx.glance.appwidget.unit.CheckedUncheckedColorProvider
+import androidx.glance.appwidget.unit.ResourceCheckableColorProvider
 
 internal fun RemoteViews.translateEmittableCheckBox(
     translationContext: TranslationContext,
@@ -49,10 +52,23 @@ internal fun RemoteViews.translateEmittableCheckBox(
             viewDef.mainViewId,
             element.checked
         )
+        when (val colors = element.colors.checkBox) {
+            is CheckedUncheckedColorProvider -> {
+                val (day, night) = colors.toDayNightColorStateList(translationContext.context)
+                setCompoundButtonTintList(viewDef.mainViewId, notNight = day, night = night)
+            }
+            is ResourceCheckableColorProvider -> {
+                setCompoundButtonTintList(viewDef.mainViewId, colors.resId)
+            }
+        }.let {}
     } else {
         val iconId = inflateViewStub(translationContext, R.id.checkBoxIcon)
         textViewId = inflateViewStub(translationContext, R.id.checkBoxText)
         setViewEnabled(iconId, element.checked)
+        setImageViewColorFilter(
+            iconId,
+            element.colors.checkBox.resolve(translationContext.context, element.checked)
+        )
     }
 
     setText(

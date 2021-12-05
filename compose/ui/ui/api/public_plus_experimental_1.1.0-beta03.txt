@@ -1697,10 +1697,12 @@ package androidx.compose.ui.input.pointer {
   public abstract class PointerInputFilter {
     ctor public PointerInputFilter();
     method public boolean getInterceptOutOfBoundsChildEvents();
+    method @androidx.compose.ui.ExperimentalComposeUiApi public boolean getShareWithSiblings();
     method public final long getSize();
     method public abstract void onCancel();
     method public abstract void onPointerEvent(androidx.compose.ui.input.pointer.PointerEvent pointerEvent, androidx.compose.ui.input.pointer.PointerEventPass pass, long bounds);
     property public boolean interceptOutOfBoundsChildEvents;
+    property @androidx.compose.ui.ExperimentalComposeUiApi public boolean shareWithSiblings;
     property public final long size;
   }
 
@@ -1995,6 +1997,14 @@ package androidx.compose.ui.layout {
     method @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier onGloballyPositioned(androidx.compose.ui.Modifier, kotlin.jvm.functions.Function1<? super androidx.compose.ui.layout.LayoutCoordinates,kotlin.Unit> onGloballyPositioned);
   }
 
+  @androidx.compose.ui.ExperimentalComposeUiApi public interface OnPlacedModifier extends androidx.compose.ui.Modifier.Element {
+    method public void onPlaced(androidx.compose.ui.layout.LayoutCoordinates coordinates);
+  }
+
+  public final class OnPlacedModifierKt {
+    method @androidx.compose.runtime.Stable @androidx.compose.ui.ExperimentalComposeUiApi public static androidx.compose.ui.Modifier onPlaced(androidx.compose.ui.Modifier, kotlin.jvm.functions.Function1<? super androidx.compose.ui.layout.LayoutCoordinates,kotlin.Unit> onPlaced);
+  }
+
   public interface OnRemeasuredModifier extends androidx.compose.ui.Modifier.Element {
     method public void onRemeasured(long size);
   }
@@ -2164,6 +2174,9 @@ package androidx.compose.ui.modifier {
 }
 
 package androidx.compose.ui.node {
+
+  public final class HitTestResultKt {
+  }
 
   @kotlin.RequiresOptIn(message="This API is internal to library.") @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.CLASS, kotlin.annotation.AnnotationTarget.FUNCTION, kotlin.annotation.AnnotationTarget.PROPERTY, kotlin.annotation.AnnotationTarget.PROPERTY_GETTER, kotlin.annotation.AnnotationTarget.PROPERTY_SETTER}) public @interface InternalCoreApi {
   }

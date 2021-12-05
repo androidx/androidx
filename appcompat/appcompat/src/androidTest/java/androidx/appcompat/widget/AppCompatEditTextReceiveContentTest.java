@@ -66,7 +66,6 @@ import androidx.test.rule.ActivityTestRule;
 
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -371,7 +370,6 @@ public class AppCompatEditTextReceiveContentTest {
         }
     }
 
-    @Ignore("b/204580823")
     @UiThreadTest
     @Test
     public void testImeCommitContent_withReceiver_unsupportedMimeType() throws Exception {
@@ -381,7 +379,7 @@ public class AppCompatEditTextReceiveContentTest {
         ViewCompat.setOnReceiveContentListener(mEditText, MIME_TYPES_IMAGES, mMockReceiver);
 
         // Trigger the IME's commitContent() call via the support lib and assert that the custom
-        // receiver was executed. This confirms that the receiver is invoked (give a chance to
+        // receiver was executed. This confirms that the receiver is invoked (given a chance to
         // handle the content via some fallback) even if the MIME type of the content is not one
         // of the receiver's declared MIME types.
         triggerImeCommitContentViaCompat("video/mp4");

@@ -97,10 +97,10 @@ public class NavDeepLink internal constructor(
             uriRegex.append(Pattern.quote(uri.substring(appendPos)))
         }
         // Match either the end of string if all params are optional or match the
-        // question mark and 0 or more characters after it
+        // question mark (or pound symbol) and 0 or more characters after it
         // We do not use '.*' here because the finalregex would replace it with a quoted
         // version below.
-        uriRegex.append("($|(\\?(.)*))")
+        uriRegex.append("($|(\\?(.)*)|(\\#(.)*))")
         return exactDeepLink
     }
 
@@ -194,7 +194,10 @@ public class NavDeepLink internal constructor(
                     }
                     val argName = storedParam.getArgumentName(index)
                     val argument = arguments[argName]
-                    if (value != null && value.replace("[{}]".toRegex(), "") != argName &&
+                    // Passing in a value the exact same as the placeholder will be treated the
+                    // as if no value was passed, being replaced if it is optional or throwing an
+                    // error if it is required.
+                    if (value != null && value != "{$argName}" &&
                         parseArgument(bundle, argName, value, argument)
                     ) {
                         return null

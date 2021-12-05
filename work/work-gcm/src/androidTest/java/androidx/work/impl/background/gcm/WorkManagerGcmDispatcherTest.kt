@@ -83,11 +83,7 @@ class WorkManagerGcmDispatcherTest {
                     return mExecutor
                 }
 
-                override fun executeOnBackgroundThread(runnable: Runnable) {
-                    mSerialExecutor.execute(runnable)
-                }
-
-                override fun getBackgroundExecutor(): SerialExecutor {
+                override fun getSerialTaskExecutor(): SerialExecutor {
                     return mSerialExecutor
                 }
             }

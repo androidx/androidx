@@ -1222,6 +1222,12 @@ class PageChangeCallbackTest(private val config: TestConfig) : BaseTest() {
                     )
                     prevScrollPosition = currScrollPosition
                 }
+                is MarkerEvent -> {
+                    // Nothing
+                }
+                is OnPageScrollStateChangedEvent -> {
+                    // Nothing
+                }
             }
         }
     }

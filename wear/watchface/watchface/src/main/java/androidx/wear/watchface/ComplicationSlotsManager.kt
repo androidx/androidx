@@ -17,7 +17,9 @@
 package androidx.wear.watchface
 
 import android.annotation.SuppressLint
+import android.app.PendingIntent
 import android.app.PendingIntent.CanceledException
+import android.app.PendingIntent.FLAG_IMMUTABLE
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
@@ -36,9 +38,9 @@ import androidx.wear.watchface.style.CurrentUserStyleRepository
 import androidx.wear.watchface.style.UserStyleSetting.ComplicationSlotsUserStyleSetting
 import androidx.wear.watchface.style.UserStyleSetting.ComplicationSlotsUserStyleSetting.ComplicationSlotsOption
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
+import java.time.Instant
 
 private fun getComponentName(context: Context) = ComponentName(
     context.packageName,
@@ -117,6 +119,11 @@ public class ComplicationSlotsManager(
         )
 
     private val complicationListeners = HashSet<TapCallback>()
+
+    /** @hide */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public var configExtrasChangeCallback: WatchFace.ComplicationSlotConfigExtrasChangeCallback? =
+        null
 
     @VisibleForTesting
     internal constructor(
@@ -234,11 +241,13 @@ public class ComplicationSlotsManager(
                 if (complication.defaultDataSourcePolicyDirty ||
                     complication.defaultDataSourceTypeDirty
                 ) {
+                    // Note this is a NOP in the androidx flow.
                     watchFaceHostApi.setDefaultComplicationDataSourceWithFallbacks(
                         complication.id,
                         complication.defaultDataSourcePolicy.dataSourcesAsList(),
                         complication.defaultDataSourcePolicy.systemDataSourceFallback,
-                        complication.defaultDataSourceType.toWireComplicationType()
+                        complication.defaultDataSourcePolicy
+                            .systemDataSourceFallbackDefaultType.toWireComplicationType()
                     )
                 }
 
@@ -270,28 +279,49 @@ public class ComplicationSlotsManager(
      * @param data The [ComplicationData] that should be displayed in the complication.
      */
     @UiThread
-    internal fun onComplicationDataUpdate(complicationSlotId: Int, data: ComplicationData) {
+    internal fun onComplicationDataUpdate(
+        complicationSlotId: Int,
+        data: ComplicationData,
+        instant: Instant
+    ) {
         val complication = complicationSlots[complicationSlotId] ?: return
         complication.dataDirty = complication.dataDirty ||
             (complication.renderer.getData() != data)
-        complication.renderer.loadData(data, true)
-        (complication.complicationData as MutableStateFlow<ComplicationData>).value = data
+        complication.setComplicationData(data, true, instant)
     }
 
     /**
      * For use by screen shot code which will reset the data afterwards, hence dirty bit not set.
      */
-    internal fun setComplicationDataUpdateSync(complicationSlotId: Int, data: ComplicationData) {
+    @UiThread
+    internal fun setComplicationDataUpdateSync(
+        complicationSlotId: Int,
+        data: ComplicationData,
+        instant: Instant
+    ) {
         val complication = complicationSlots[complicationSlotId] ?: return
-        complication.renderer.loadData(data, false)
-        (complication.complicationData as MutableStateFlow<ComplicationData>).value = data
+        complication.setComplicationData(data, false, instant)
     }
 
     @UiThread
     internal fun clearComplicationData() {
         for ((_, complication) in complicationSlots) {
-            complication.renderer.loadData(NoDataComplicationData(), false)
-            (complication.complicationData as MutableStateFlow).value = NoDataComplicationData()
+            complication.setComplicationData(NoDataComplicationData(), false, Instant.EPOCH)
+        }
+    }
+
+    /**
+     * For each slot, if the ComplicationData is timeline complication data then the correct
+     * override is selected for [instant].
+     */
+    @UiThread
+    internal fun selectComplicationDataForInstant(instant: Instant) {
+        for ((_, complication) in complicationSlots) {
+            complication.selectComplicationDataForInstant(
+                instant,
+                loadDrawablesAsynchronous = true,
+                forceUpdate = false
+            )
         }
     }
 
@@ -324,7 +354,7 @@ public class ComplicationSlotsManager(
 
     /**
      * Called when the user single taps on a [ComplicationSlot], invokes the permission request
-     * helper if needed, otherwise s the tap action.
+     * helper if needed, otherwise returns the tap action.
      *
      * @param complicationSlotId The ID for the [ComplicationSlot] that was single tapped
      */
@@ -337,7 +367,9 @@ public class ComplicationSlotsManager(
             watchFaceHostApi.getContext().startActivity(
                 ComplicationHelperActivity.createPermissionRequestHelperIntent(
                     watchFaceHostApi.getContext(),
-                    getComponentName(watchFaceHostApi.getContext())
+                    getComponentName(watchFaceHostApi.getContext()),
+                    watchFaceHostApi.getComplicationDeniedIntent(),
+                    watchFaceHostApi.getComplicationRationaleIntent()
                 ).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             )
             return
@@ -352,6 +384,39 @@ public class ComplicationSlotsManager(
         for (complicationListener in complicationListeners) {
             complicationListener.onComplicationSlotTapped(complicationSlotId)
         }
+    }
+
+    /**
+     * Called when the user single taps on a [ComplicationSlot], and returns a [PendingIntent] for
+     * the permission request helper if needed, otherwise returns the tap action PendingIntent.
+     *
+     * @param complicationSlotId The ID for the [ComplicationSlot] that was single tapped
+     */
+    @SuppressWarnings("SyntheticAccessor")
+    @UiThread
+    internal fun getPendingIntentForSingleTappedComplication(
+        complicationSlotId: Int
+    ): PendingIntent? {
+        // Check if the complication is missing permissions.
+        val data = complicationSlots[complicationSlotId]?.renderer?.getData() ?: return null
+        if (data.type == ComplicationType.NO_PERMISSION) {
+            return PendingIntent.getActivity(
+                watchFaceHostApi.getContext(),
+                0,
+                ComplicationHelperActivity.createPermissionRequestHelperIntent(
+                    watchFaceHostApi.getContext(),
+                    getComponentName(watchFaceHostApi.getContext()),
+                    watchFaceHostApi.getComplicationDeniedIntent(),
+                    watchFaceHostApi.getComplicationRationaleIntent()
+                ).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
+                FLAG_IMMUTABLE
+            )
+        }
+
+        for (complicationListener in complicationListeners) {
+            complicationListener.onComplicationSlotTapped(complicationSlotId)
+        }
+        return data.tapAction
     }
 
     @UiThread
@@ -403,7 +468,8 @@ public class ComplicationSlotsManager(
                 it.key,
                 it.value.defaultDataSourcePolicy.dataSourcesAsList(),
                 it.value.defaultDataSourcePolicy.systemDataSourceFallback,
-                it.value.defaultDataSourceType.toWireComplicationType()
+                it.value.defaultDataSourcePolicy
+                    .systemDataSourceFallbackDefaultType.toWireComplicationType()
             )
         }.toTypedArray()
 }

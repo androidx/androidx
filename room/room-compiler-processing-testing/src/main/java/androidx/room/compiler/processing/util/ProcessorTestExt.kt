@@ -373,7 +373,15 @@ fun compileFiles(
             kotlincArguments = kotlincArguments
         )
     )
-    assertThat(result.success).isTrue()
+    if (!result.success) {
+        throw AssertionError(
+            """
+            Compilation failed:
+            $result
+            """.trimIndent()
+        )
+    }
+
     return result.outputClasspath.let {
         if (includeSystemClasspath) {
             it + getSystemClasspathFiles()

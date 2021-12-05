@@ -147,18 +147,21 @@ private class PointerInputChangeEventProducer {
                     previousDown,
                     ConsumedData(),
                     it.type,
-                    it.historical
+                    it.historical,
+                    it.scrollDelta
                 )
             if (it.down) {
                 previousPointerInputData[it.id] = PointerInputData(
                     it.uptime,
                     it.positionOnScreen,
-                    it.down
+                    it.down,
+                    it.type
                 )
             } else {
                 previousPointerInputData.remove(it.id)
             }
         }
+
         return InternalPointerEvent(changes, pointerInputEvent)
     }
 
@@ -172,7 +175,8 @@ private class PointerInputChangeEventProducer {
     private class PointerInputData(
         val uptime: Long,
         val positionOnScreen: Offset,
-        val down: Boolean
+        val down: Boolean,
+        val type: PointerType
     )
 }
 

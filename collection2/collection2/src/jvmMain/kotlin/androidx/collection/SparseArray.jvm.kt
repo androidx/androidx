@@ -61,6 +61,7 @@ actual open class SparseArray<E>
     actual fun isEmpty(): Boolean = commonIsEmpty()
 
     actual operator fun get(key: Int): E? = commonGet(key, null)
+    @Suppress("KotlinOperator")
     actual fun get(key: Int, default: E): E = commonGet(key, default)
 
     actual fun put(key: Int, value: E): Unit = commonPut(key, value)

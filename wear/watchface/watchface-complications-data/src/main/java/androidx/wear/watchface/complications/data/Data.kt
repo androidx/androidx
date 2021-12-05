@@ -42,6 +42,17 @@ public sealed class ComplicationData constructor(
     public val validTimeRange: TimeRange = TimeRange.ALWAYS
 ) {
     /**
+     * [tapAction] which is a [PendingIntent] unfortunately can't be serialized. This property is
+     * 'true' if tapAction has been lost due to serialization (typically because it has been cached
+     * locally). When 'true' the watch face should render the complication differently (e.g. as
+     * semi-transparent or grayed out) to signal to the user it can't be tapped. The system will
+     * subsequently deliver an updated complication, with a tapAction where applicable.
+     */
+    @get:JvmName("isTapActionLostDueToSerialization")
+    public var tapActionLostDueToSerialization: Boolean =
+        cachedWireComplicationData?.tapActionLostDueToSerialization ?: false
+
+    /**
      * Converts this value to [WireComplicationData] object used for serialization.
      *
      * This is only needed internally to convert to the underlying communication protocol.
@@ -191,8 +202,11 @@ public class ShortTextComplicationData internal constructor(
 
     /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    override fun asWireComplicationData(): WireComplicationData =
-        createWireComplicationDataBuilder().apply {
+    override fun asWireComplicationData(): WireComplicationData {
+        cachedWireComplicationData?.let {
+            return it
+        }
+        return createWireComplicationDataBuilder().apply {
             setShortText(text.toWireComplicationText())
             setShortTitle(title?.toWireComplicationText())
             setContentDescription(
@@ -204,7 +218,9 @@ public class ShortTextComplicationData internal constructor(
             monochromaticImage?.addToWireComplicationData(this)
             setTapAction(tapAction)
             setValidTimeRange(validTimeRange, this)
+            setTapActionLostDueToSerialization(tapActionLostDueToSerialization)
         }.build().also { cachedWireComplicationData = it }
+    }
 
     /** @hide */
     public companion object {
@@ -308,8 +324,11 @@ public class LongTextComplicationData internal constructor(
 
     /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    override fun asWireComplicationData(): WireComplicationData =
-        createWireComplicationDataBuilder().apply {
+    override fun asWireComplicationData(): WireComplicationData {
+        cachedWireComplicationData?.let {
+            return it
+        }
+        return createWireComplicationDataBuilder().apply {
             setLongText(text.toWireComplicationText())
             setLongTitle(title?.toWireComplicationText())
             monochromaticImage?.addToWireComplicationData(this)
@@ -322,7 +341,9 @@ public class LongTextComplicationData internal constructor(
                 }
             )
             setValidTimeRange(validTimeRange, this)
+            setTapActionLostDueToSerialization(tapActionLostDueToSerialization)
         }.build().also { cachedWireComplicationData = it }
+    }
 
     /** @hide */
     public companion object {
@@ -430,8 +451,11 @@ public class RangedValueComplicationData internal constructor(
 
     /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public override fun asWireComplicationData(): WireComplicationData =
-        createWireComplicationDataBuilder().apply {
+    public override fun asWireComplicationData(): WireComplicationData {
+        cachedWireComplicationData?.let {
+            return it
+        }
+        return createWireComplicationDataBuilder().apply {
             setRangedValue(value)
             setRangedMinValue(min)
             setRangedMaxValue(max)
@@ -446,7 +470,9 @@ public class RangedValueComplicationData internal constructor(
                 }
             )
             setValidTimeRange(validTimeRange, this)
+            setTapActionLostDueToSerialization(tapActionLostDueToSerialization)
         }.build().also { cachedWireComplicationData = it }
+    }
 
     /** @hide */
     public companion object {
@@ -521,8 +547,11 @@ public class MonochromaticImageComplicationData internal constructor(
 
     /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    override fun asWireComplicationData(): WireComplicationData =
-        createWireComplicationDataBuilder().apply {
+    override fun asWireComplicationData(): WireComplicationData {
+        cachedWireComplicationData?.let {
+            return it
+        }
+        return createWireComplicationDataBuilder().apply {
             monochromaticImage.addToWireComplicationData(this)
             setContentDescription(
                 when (contentDescription) {
@@ -532,7 +561,9 @@ public class MonochromaticImageComplicationData internal constructor(
             )
             setTapAction(tapAction)
             setValidTimeRange(validTimeRange, this)
+            setTapActionLostDueToSerialization(tapActionLostDueToSerialization)
         }.build().also { cachedWireComplicationData = it }
+    }
 
     /** @hide */
     public companion object {
@@ -607,8 +638,11 @@ public class SmallImageComplicationData internal constructor(
 
     /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    override fun asWireComplicationData(): WireComplicationData =
-        createWireComplicationDataBuilder().apply {
+    override fun asWireComplicationData(): WireComplicationData {
+        cachedWireComplicationData?.let {
+            return it
+        }
+        return createWireComplicationDataBuilder().apply {
             smallImage.addToWireComplicationData(this)
             setContentDescription(
                 when (contentDescription) {
@@ -618,7 +652,9 @@ public class SmallImageComplicationData internal constructor(
             )
             setTapAction(tapAction)
             setValidTimeRange(validTimeRange, this)
+            setTapActionLostDueToSerialization(tapActionLostDueToSerialization)
         }.build().also { cachedWireComplicationData = it }
+    }
 
     /** @hide */
     public companion object {
@@ -698,8 +734,11 @@ public class PhotoImageComplicationData internal constructor(
 
     /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    override fun asWireComplicationData(): WireComplicationData =
-        createWireComplicationDataBuilder().apply {
+    override fun asWireComplicationData(): WireComplicationData {
+        cachedWireComplicationData?.let {
+            return it
+        }
+        return createWireComplicationDataBuilder().apply {
             setLargeImage(photoImage)
             setContentDescription(
                 when (contentDescription) {
@@ -709,6 +748,7 @@ public class PhotoImageComplicationData internal constructor(
             )
             setValidTimeRange(validTimeRange, this)
         }.build().also { cachedWireComplicationData = it }
+    }
 
     /** @hide */
     public companion object {
@@ -778,12 +818,16 @@ public class NoPermissionComplicationData internal constructor(
 
     /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    override fun asWireComplicationData(): WireComplicationData =
-        createWireComplicationDataBuilder().apply {
+    override fun asWireComplicationData(): WireComplicationData {
+        cachedWireComplicationData?.let {
+            return it
+        }
+        return createWireComplicationDataBuilder().apply {
             setShortText(text?.toWireComplicationText())
             setShortTitle(title?.toWireComplicationText())
             monochromaticImage?.addToWireComplicationData(this)
         }.build().also { cachedWireComplicationData = it }
+    }
 
     /** @hide */
     public companion object {

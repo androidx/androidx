@@ -32,27 +32,46 @@ import org.gradle.kotlin.dsl.extra
 import org.gradle.kotlin.dsl.named
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.dsl.KotlinProjectExtension
+import java.util.Locale
 
 /**
  * Sets up a source jar task for an Android library project.
  */
 fun Project.configureSourceJarForAndroid(extension: LibraryExtension) {
-    val sourceJar = tasks.register("sourceJar", Jar::class.java) {
-        it.archiveClassifier.set("sources")
-        it.from(extension.sourceSets.getByName("main").java.srcDirs)
-        // Do not allow source files with duplicate names, information would be lost otherwise.
-        it.duplicatesStrategy = DuplicatesStrategy.FAIL
+    extension.defaultPublishVariant { variant ->
+        val sourceJar = tasks.register(
+            "sourceJar${variant.name.replaceFirstChar {
+                if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString()
+            }}",
+            Jar::class.java
+        ) {
+            it.archiveClassifier.set("sources")
+            it.from(extension.sourceSets.getByName("main").java.srcDirs)
+            // Do not allow source files with duplicate names, information would be lost otherwise.
+            it.duplicatesStrategy = DuplicatesStrategy.FAIL
+        }
+        registerSourcesVariant(sourceJar)
     }
-    registerSourcesVariant(sourceJar)
     project.afterEvaluate {
         // we can only tell if a project is multiplatform after it is configured
         if (it.multiplatformExtension != null && it.extra.has("publish")) {
-            val kotlinExt = project.extensions.getByName("kotlin") as KotlinProjectExtension
-            // multiplatform projects use different source sets, so we need to modify the task
-            sourceJar.configure { sourceJarTask ->
-                // use an inclusion list of source sets, because that is the preferred policy
-                sourceJarTask.from(kotlinExt.sourceSets.getByName("commonMain").kotlin.srcDirs)
-                sourceJarTask.from(kotlinExt.sourceSets.getByName("androidMain").kotlin.srcDirs)
+            extension.defaultPublishVariant { variant ->
+                val kotlinExt = project.extensions.getByName("kotlin") as KotlinProjectExtension
+                val sourceJar =
+                    project.tasks.named(
+                        "sourceJar${variant.name.replaceFirstChar {
+                            if (it.isLowerCase()) {
+                                it.titlecase(Locale.getDefault())
+                            } else it.toString()
+                        }}",
+                        Jar::class.java
+                    )
+                // multiplatform projects use different source sets, so we need to modify the task
+                sourceJar.configure { sourceJarTask ->
+                    // use an inclusion list of source sets, because that is the preferred policy
+                    sourceJarTask.from(kotlinExt.sourceSets.getByName("commonMain").kotlin.srcDirs)
+                    sourceJarTask.from(kotlinExt.sourceSets.getByName("androidMain").kotlin.srcDirs)
+                }
             }
         }
     }
@@ -90,19 +109,19 @@ private fun Project.registerSourcesVariant(sourceJar: TaskProvider<Jar>) {
         gradleVariant.isCanBeResolved = false
         gradleVariant.attributes.attribute(
             Usage.USAGE_ATTRIBUTE,
-            objects.named(Usage.JAVA_RUNTIME)
+            objects.named<Usage>(Usage.JAVA_RUNTIME)
         )
         gradleVariant.attributes.attribute(
             Category.CATEGORY_ATTRIBUTE,
-            objects.named(Category.DOCUMENTATION)
+            objects.named<Category>(Category.DOCUMENTATION)
         )
         gradleVariant.attributes.attribute(
             Bundling.BUNDLING_ATTRIBUTE,
-            objects.named(Bundling.EXTERNAL)
+            objects.named<Bundling>(Bundling.EXTERNAL)
         )
         gradleVariant.attributes.attribute(
             DocsType.DOCS_TYPE_ATTRIBUTE,
-            objects.named(DocsType.SOURCES)
+            objects.named<DocsType>(DocsType.SOURCES)
         )
         gradleVariant.outgoing.artifact(sourceJar)
 

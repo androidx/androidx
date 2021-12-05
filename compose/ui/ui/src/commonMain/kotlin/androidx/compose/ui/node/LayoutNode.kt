@@ -17,6 +17,7 @@ package androidx.compose.ui.node
 
 import androidx.compose.runtime.collection.MutableVector
 import androidx.compose.runtime.collection.mutableVectorOf
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.DrawModifier
 import androidx.compose.ui.focus.FocusEventModifier
@@ -42,6 +43,7 @@ import androidx.compose.ui.layout.MeasureResult
 import androidx.compose.ui.layout.MeasureScope
 import androidx.compose.ui.layout.ModifierInfo
 import androidx.compose.ui.layout.OnGloballyPositionedModifier
+import androidx.compose.ui.layout.OnPlacedModifier
 import androidx.compose.ui.layout.OnRemeasuredModifier
 import androidx.compose.ui.layout.ParentDataModifier
 import androidx.compose.ui.layout.Placeable
@@ -629,6 +631,7 @@ internal class LayoutNode(
     /**
      * The [Modifier] currently applied to this node.
      */
+    @OptIn(ExperimentalComposeUiApi::class)
     override var modifier: Modifier = Modifier
         set(value) {
             if (value == field) return
@@ -650,11 +653,20 @@ internal class LayoutNode(
             val addedCallback = hasNewPositioningCallback()
             onPositionedCallbacks?.clear()
 
+            innerLayoutNodeWrapper.onInitialize()
+
             // Create a new chain of LayoutNodeWrappers, reusing existing ones from wrappers
             // when possible.
             val outerWrapper = modifier.foldOut(innerLayoutNodeWrapper) { mod, toWrap ->
                 if (mod is RemeasurementModifier) {
                     mod.onRemeasurementAvailable(this)
+                }
+
+                if (mod is DrawModifier) {
+                    val drawEntity = DrawEntity(toWrap, mod)
+                    drawEntity.next = toWrap.drawEntityHead
+                    toWrap.drawEntityHead = drawEntity
+                    drawEntity.onInitialize()
                 }
 
                 // Re-use the layoutNodeWrapper if possible.
@@ -682,10 +694,6 @@ internal class LayoutNode(
                     wrapper = ModifierLocalConsumerNode(wrapper, mod)
                         .initialize()
                         .assignChained(toWrap)
-                }
-                if (mod is DrawModifier) {
-                    wrapper = ModifiedDrawNode(wrapper, mod)
-                        .initialize()
                 }
                 if (mod is FocusModifier) {
                     wrapper = ModifiedFocusNode(wrapper, mod)
@@ -739,6 +747,11 @@ internal class LayoutNode(
                 }
                 if (mod is OnRemeasuredModifier) {
                     wrapper = RemeasureModifierWrapper(wrapper, mod)
+                        .initialize()
+                        .assignChained(toWrap)
+                }
+                if (mod is OnPlacedModifier) {
+                    wrapper = OnPlacedModifierWrapper(wrapper, mod)
                         .initialize()
                         .assignChained(toWrap)
                 }
@@ -861,13 +874,15 @@ internal class LayoutNode(
     internal fun hitTest(
         pointerPosition: Offset,
         hitTestResult: HitTestResult<PointerInputFilter>,
-        isTouchEvent: Boolean = false
+        isTouchEvent: Boolean = false,
+        isInLayer: Boolean = true
     ) {
         val positionInWrapped = outerLayoutNodeWrapper.fromParentPosition(pointerPosition)
         outerLayoutNodeWrapper.hitTest(
             positionInWrapped,
             hitTestResult,
-            isTouchEvent
+            isTouchEvent,
+            isInLayer
         )
     }
 
@@ -875,12 +890,14 @@ internal class LayoutNode(
     internal fun hitTestSemantics(
         pointerPosition: Offset,
         hitSemanticsWrappers: HitTestResult<SemanticsWrapper>,
-        isTouchEvent: Boolean = true
+        isTouchEvent: Boolean = true,
+        isInLayer: Boolean = true
     ) {
         val positionInWrapped = outerLayoutNodeWrapper.fromParentPosition(pointerPosition)
         outerLayoutNodeWrapper.hitTestSemantics(
             positionInWrapped,
-            hitSemanticsWrappers
+            hitSemanticsWrappers,
+            isInLayer
         )
     }
 
@@ -1164,8 +1181,23 @@ internal class LayoutNode(
         val infoList = mutableVectorOf<ModifierInfo>()
         forEachDelegate { wrapper ->
             wrapper as DelegatingLayoutNodeWrapper<*>
-            val info = ModifierInfo(wrapper.modifier, wrapper, wrapper.layer)
+            val layer = wrapper.layer
+            val info = ModifierInfo(wrapper.modifier, wrapper, layer)
             infoList += info
+            var node = wrapper.drawEntityHead // head
+            while (node != null) {
+                infoList += ModifierInfo(node.modifier, wrapper, layer)
+                node = node.next
+            }
+        }
+        var innerNode = innerLayoutNodeWrapper.drawEntityHead
+        while (innerNode != null) {
+            infoList += ModifierInfo(
+                innerNode.modifier,
+                innerLayoutNodeWrapper,
+                innerLayoutNodeWrapper.layer
+            )
+            innerNode = innerNode.next
         }
         return infoList.asMutableList()
     }
@@ -1231,7 +1263,9 @@ internal class LayoutNode(
     private fun copyWrappersToCache() {
         forEachDelegate {
             wrapperCache += it as DelegatingLayoutNodeWrapper<*>
+            it.drawEntityHead = null
         }
+        innerLayoutNodeWrapper.drawEntityHead = null
     }
 
     private fun markReusedModifiers(modifier: Modifier) {
@@ -1318,7 +1352,7 @@ internal class LayoutNode(
         forEachDelegateIncludingInner {
             if (it.layer != null) {
                 return false
-            } else if (it is ModifiedDrawNode) {
+            } else if (it.drawEntityHead != null) {
                 return true
             }
         }

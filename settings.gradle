@@ -23,11 +23,25 @@ buildscript {
     }
 
     dependencies {
-        classpath("com.gradle:gradle-enterprise-gradle-plugin:3.6.3")
+        classpath("com.gradle:gradle-enterprise-gradle-plugin:3.7.2")
     }
 }
 
 apply(plugin: "com.gradle.enterprise")
+
+gradleEnterprise {
+    server = "https://ge.androidx.dev"
+
+    buildScan {
+        capture {
+            taskInputFiles = true
+        }
+        obfuscation {
+            hostname { host -> "unset" }
+            ipAddresses { addresses -> addresses.collect { address -> "0.0.0.0"} }
+        }
+    }
+}
 
 rootProject.name = "androidx"
 
@@ -88,11 +102,14 @@ enum BuildType {
 }
 
 private String getRequestedProjectSubsetName() {
-    if (startParameter.projectProperties.containsKey("androidx.projects")) {
-        return startParameter.projectProperties["androidx.projects"].toUpperCase()
+    def prop = providers.gradleProperty("androidx.projects").forUseAtConfigurationTime()
+    if (prop.isPresent()) {
+        return prop.get().toUpperCase()
     }
-    if (System.getenv().containsKey("ANDROIDX_PROJECTS")) {
-        return System.getenv()["ANDROIDX_PROJECTS"].toUpperCase()
+
+    def envProp = providers.environmentVariable("ANDROIDX_PROJECTS").forUseAtConfigurationTime()
+    if (envProp.isPresent()) {
+        return envProp.get().toUpperCase()
     }
     return null
 }
@@ -206,7 +223,7 @@ includeProject(":activity:activity-compose:integration-tests:activity-demos", "a
 includeProject(":activity:activity-compose-lint", "activity/activity-compose-lint", [BuildType.COMPOSE])
 includeProject(":activity:activity-ktx", "activity/activity-ktx", [BuildType.MAIN, BuildType.FLAN, BuildType.COMPOSE])
 includeProject(":activity:activity-lint", "activity/activity-lint", [BuildType.MAIN, BuildType.FLAN, BuildType.COMPOSE, BuildType.WEAR])
-includeProject(":activity:integration-tests:testapp", "activity/integration-tests/testapp", [BuildType.MAIN])
+includeProject(":activity:integration-tests:testapp", "activity/integration-tests/testapp", [BuildType.MAIN, BuildType.FLAN])
 includeProject(":ads:ads-identifier", "ads/ads-identifier", [BuildType.MAIN])
 includeProject(":ads:ads-identifier-benchmark", "ads/ads-identifier-benchmark", [BuildType.MAIN])
 includeProject(":ads:ads-identifier-common", "ads/ads-identifier-common", [BuildType.MAIN])
@@ -225,6 +242,7 @@ includeProject(":appcompat:appcompat-lint", "appcompat/appcompat-lint", [BuildTy
 includeProject(":appcompat:appcompat-resources", "appcompat/appcompat-resources", [BuildType.MAIN])
 includeProject(":appcompat:integration-tests:receive-content-testapp", "appcompat/integration-tests/receive-content-testapp", [BuildType.MAIN])
 includeProject(":appsearch:appsearch", "appsearch/appsearch", [BuildType.MAIN])
+includeProject(":appsearch:appsearch-builtin-types", "appsearch/appsearch-builtin-types", [BuildType.MAIN])
 includeProject(":appsearch:appsearch-compiler", "appsearch/compiler", [BuildType.MAIN])
 includeProject(":appsearch:appsearch-debug-view", "appsearch/appsearch-debug-view", [BuildType.MAIN])
 includeProject(":appsearch:appsearch-debug-view:samples", "appsearch/appsearch-debug-view/samples",
@@ -425,6 +443,8 @@ includeProject(":core:core-animation-testing", "core/core-animation-testing", [B
 includeProject(":core:core-appdigest", "core/core-appdigest", [BuildType.MAIN])
 includeProject(":core:core-google-shortcuts", "core/core-google-shortcuts", [BuildType.MAIN])
 includeProject(":core:core-ktx", "core/core-ktx", [BuildType.MAIN])
+includeProject(":core:core-performance", "core/core-performance", [BuildType.MAIN])
+includeProject(":core:core-performance:core-performance-samples", "core/core-performance/samples", [BuildType.MAIN])
 includeProject(":core:core-remoteviews", "core/core-remoteviews", [BuildType.MAIN])
 includeProject(":core:core-remoteviews:integration-tests:demos", "core/core-remoteviews/integration-tests/demos", [BuildType.MAIN])
 includeProject(":core:core-splashscreen", "core/core-splashscreen", [BuildType.MAIN])
@@ -479,9 +499,10 @@ includeProject(":fragment:fragment-truth", "fragment/fragment-truth", [BuildType
 includeProject(":fragment:integration-tests:testapp", "fragment/integration-tests/testapp", [BuildType.MAIN, BuildType.FLAN])
 includeProject(":glance:glance", "glance/glance", [BuildType.MAIN])
 includeProject(":glance:glance-appwidget", "glance/glance-appwidget", [BuildType.MAIN])
+includeProject(":glance:glance-appwidget-proto", "glance/glance-appwidget-proto", [BuildType.MAIN])
 includeProject(":glance:glance-appwidget:integration-tests:demos", "glance/glance-appwidget/integration-tests/demos", [BuildType.MAIN])
 includeProject(":glance:glance-appwidget:glance-layout-generator", "glance/glance-appwidget/glance-layout-generator", [BuildType.MAIN])
-includeProject(":glance:glance-wear", "glance/glance-wear", [BuildType.MAIN])
+includeProject(":glance:glance-wear-tiles", "glance/glance-wear-tiles", [BuildType.MAIN])
 includeProject(":gridlayout:gridlayout", "gridlayout/gridlayout", [BuildType.MAIN])
 includeProject(":health:health-services-client", "health/health-services-client", [BuildType.MAIN])
 includeProject(":heifwriter:heifwriter", "heifwriter/heifwriter", [BuildType.MAIN])
@@ -623,8 +644,8 @@ includeProject(":room:room-runtime", "room/room-runtime", [BuildType.MAIN, Build
 includeProject(":room:room-rxjava2", "room/room-rxjava2", [BuildType.MAIN])
 includeProject(":room:room-rxjava3", "room/room-rxjava3", [BuildType.MAIN])
 includeProject(":room:room-testing", "room/room-testing", [BuildType.MAIN])
-includeProject(":savedstate:savedstate", "savedstate/savedstate", [BuildType.MAIN, BuildType.FLAN, BuildType.WEAR])
-includeProject(":savedstate:savedstate-ktx", "savedstate/savedstate-ktx", [BuildType.MAIN, BuildType.FLAN])
+includeProject(":savedstate:savedstate", "savedstate/savedstate", [BuildType.MAIN, BuildType.COMPOSE, BuildType.FLAN, BuildType.WEAR])
+includeProject(":savedstate:savedstate-ktx", "savedstate/savedstate-ktx", [BuildType.MAIN, BuildType.COMPOSE, BuildType.FLAN])
 includeProject(":security:security-app-authenticator", "security/security-app-authenticator", [BuildType.MAIN])
 includeProject(":security:security-app-authenticator-testing", "security/security-app-authenticator-testing", [BuildType.MAIN])
 includeProject(":security:security-biometric", "security/security-biometric", [BuildType.MAIN])
@@ -670,6 +691,7 @@ includeProject(":vectordrawable:vectordrawable-seekable", "vectordrawable/vector
 includeProject(":versionedparcelable:versionedparcelable", "versionedparcelable/versionedparcelable", [BuildType.MAIN])
 includeProject(":versionedparcelable:versionedparcelable-compiler", "versionedparcelable/versionedparcelable-compiler", [BuildType.MAIN, BuildType.MEDIA, BuildType.FLAN, BuildType.COMPOSE, BuildType.WEAR])
 includeProject(":viewpager2:integration-tests:testapp", "viewpager2/integration-tests/testapp", [BuildType.MAIN])
+includeProject(":viewpager2:integration-tests:targetsdk-tests", "viewpager2/integration-tests/targetsdk-tests", [BuildType.MAIN])
 includeProject(":viewpager2:viewpager2", "viewpager2/viewpager2", [BuildType.MAIN])
 includeProject(":viewpager:viewpager", "viewpager/viewpager", [BuildType.MAIN])
 includeProject(":wear:wear", "wear/wear", [BuildType.MAIN, BuildType.WEAR])
@@ -693,11 +715,13 @@ includeProject(":wear:wear-phone-interactions", "wear/wear-phone-interactions", 
 includeProject(":wear:wear-remote-interactions", "wear/wear-remote-interactions", [BuildType.MAIN, BuildType.WEAR])
 includeProject(":wear:wear-samples-ambient", "wear/wear-samples-ambient", [BuildType.MAIN, BuildType.WEAR])
 includeProject(":wear:tiles:tiles", "wear/tiles/tiles", [BuildType.MAIN, BuildType.WEAR])
+includeProject(":wear:tiles:tiles-material", "wear/tiles/tiles-material", [BuildType.MAIN, BuildType.WEAR])
 includeProject(":wear:tiles:tiles-proto", "wear/tiles/tiles-proto", [BuildType.MAIN, BuildType.WEAR])
 includeProject(":wear:tiles:tiles-renderer", "wear/tiles/tiles-renderer", [BuildType.MAIN, BuildType.WEAR])
 includeProject(":wear:tiles:tiles-testing", "wear/tiles/tiles-testing", [BuildType.MAIN, BuildType.WEAR])
 includeProject(":wear:watchface:watchface", "wear/watchface/watchface", [BuildType.MAIN, BuildType.WEAR])
 includeProject(":wear:watchface:watchface-complications", "wear/watchface/watchface-complications", [BuildType.MAIN, BuildType.WEAR])
+includeProject(":wear:watchface:watchface-complications-permission-dialogs-sample", "wear/watchface/watchface-complications-permission-dialogs-sample", [BuildType.MAIN, BuildType.WEAR])
 includeProject(":wear:watchface:watchface-complications-data", "wear/watchface/watchface-complications-data", [BuildType.MAIN, BuildType.WEAR])
 includeProject(":wear:watchface:watchface-complications-data-source", "wear/watchface/watchface-complications-data-source", [BuildType.MAIN, BuildType.WEAR])
 includeProject(":wear:watchface:watchface-complications-data-source-ktx", "wear/watchface/watchface-complications-data-source-ktx", [BuildType.MAIN, BuildType.WEAR])
@@ -719,12 +743,12 @@ includeProject(":wear:watchface:watchface-style", "wear/watchface/watchface-styl
 includeProject(":webkit:integration-tests:testapp", "webkit/integration-tests/testapp", [BuildType.MAIN])
 includeProject(":webkit:webkit", "webkit/webkit", [BuildType.MAIN])
 includeProject(":window:window", "window/window", [BuildType.MAIN, BuildType.FLAN])
-includeProject(":window:window-extensions", "window/window-extensions", [BuildType.MAIN, BuildType.FLAN])
+includeProject(":window:extensions:extensions", "window/extensions/extensions", [BuildType.MAIN, BuildType.FLAN])
+includeProject(":window:sidecar:sidecar", "window/sidecar/sidecar", [BuildType.MAIN, BuildType.FLAN])
 includeProject(":window:window-java", "window/window-java", [BuildType.MAIN])
 includeProject(":window:window-rxjava2", "window/window-rxjava2", [BuildType.MAIN])
 includeProject(":window:window-rxjava3", "window/window-rxjava3", [BuildType.MAIN])
 includeProject(":window:window-samples", "window/window-samples", [BuildType.MAIN, BuildType.FLAN])
-includeProject(":window:window-sidecar", "window/window-sidecar", [BuildType.MAIN, BuildType.FLAN])
 includeProject(":window:window-testing", "window/window-testing", [BuildType.MAIN, BuildType.FLAN])
 includeProject(":work:integration-tests:testapp", "work/integration-tests/testapp", [BuildType.MAIN])
 includeProject(":work:work-benchmark", "work/work-benchmark", [BuildType.MAIN])

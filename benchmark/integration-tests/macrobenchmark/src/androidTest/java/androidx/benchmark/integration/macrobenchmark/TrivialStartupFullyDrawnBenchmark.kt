@@ -44,7 +44,7 @@ class TrivialStartupFullyDrawnBenchmark {
     @get:Rule
     val benchmarkRule = MacrobenchmarkRule()
 
-    fun startup(startupMode: StartupMode) = benchmarkRule.measureRepeated(
+    private fun startup(startupMode: StartupMode) = benchmarkRule.measureRepeated(
         compilationMode = CompilationMode.None,
         packageName = TARGET_PACKAGE_NAME,
         metrics = getStartupMetrics(),

@@ -185,12 +185,9 @@ internal fun CompilationMode.compile(packageName: String, block: () -> Unit) {
                 )
             }
         }
-        // Kill Process
+        // Kill process before compiling
         Log.d(TAG, "Killing process $packageName")
         Shell.executeCommand("am force-stop $packageName")
-        // Compile
-        compilePackage(packageName)
-        Log.d(TAG, "$packageName is compiled.")
     } else if (this is SpeedProfile) {
         repeat(this.warmupIterations) {
             block()
@@ -204,8 +201,8 @@ internal fun CompilationMode.compile(packageName: String, block: () -> Unit) {
             Log.d(TAG, "Received dump profile response $response")
             throw RuntimeException("Failed to dump profile for $packageName ($response)")
         }
-        compilePackage(packageName)
     }
+    compilePackage(packageName)
 }
 
 /**

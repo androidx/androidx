@@ -15,6 +15,8 @@
  */
 package androidx.work.impl.constraints.trackers;
 
+import static android.net.NetworkCapabilities.NET_CAPABILITY_VALIDATED;
+
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -33,6 +35,9 @@ import androidx.annotation.VisibleForTesting;
 import androidx.core.net.ConnectivityManagerCompat;
 import androidx.work.Logger;
 import androidx.work.impl.constraints.NetworkState;
+import androidx.work.impl.utils.NetworkApi21;
+import androidx.work.impl.utils.NetworkApi23;
+import androidx.work.impl.utils.NetworkApi24;
 import androidx.work.impl.utils.taskexecutor.TaskExecutor;
 
 /**
@@ -86,7 +91,8 @@ public class NetworkStateTracker extends ConstraintTracker<NetworkState> {
         if (isNetworkCallbackSupported()) {
             try {
                 Logger.get().debug(TAG, "Registering network callback");
-                mConnectivityManager.registerDefaultNetworkCallback(mNetworkCallback);
+                NetworkApi24.registerDefaultNetworkCallbackCompat(mConnectivityManager,
+                        mNetworkCallback);
             } catch (IllegalArgumentException | SecurityException e) {
                 // Catching the exceptions since and moving on - this tracker is only used for
                 // GreedyScheduler and there is nothing to be done about device-specific bugs.
@@ -109,7 +115,8 @@ public class NetworkStateTracker extends ConstraintTracker<NetworkState> {
         if (isNetworkCallbackSupported()) {
             try {
                 Logger.get().debug(TAG, "Unregistering network callback");
-                mConnectivityManager.unregisterNetworkCallback(mNetworkCallback);
+                NetworkApi21.unregisterNetworkCallbackCompat(mConnectivityManager,
+                        mNetworkCallback);
             } catch (IllegalArgumentException | SecurityException e) {
                 // Catching the exceptions since and moving on - this tracker is only used for
                 // GreedyScheduler and there is nothing to be done about device-specific bugs.
@@ -148,10 +155,11 @@ public class NetworkStateTracker extends ConstraintTracker<NetworkState> {
             return false; // NET_CAPABILITY_VALIDATED not available until API 23. Used on API 26+.
         }
         try {
-            Network network = mConnectivityManager.getActiveNetwork();
-            NetworkCapabilities capabilities = mConnectivityManager.getNetworkCapabilities(network);
+            Network network = NetworkApi23.getActiveNetworkCompat(mConnectivityManager);
+            NetworkCapabilities capabilities =
+                    NetworkApi21.getNetworkCapabilitiesCompat(mConnectivityManager, network);
             return capabilities != null
-                    && capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED);
+                    && NetworkApi21.hasCapabilityCompat(capabilities, NET_CAPABILITY_VALIDATED);
         } catch (SecurityException exception) {
             // b/163342798
             Logger.get().error(TAG, "Unable to validate active network", exception);

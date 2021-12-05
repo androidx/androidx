@@ -65,6 +65,7 @@ object LibraryGroups {
     val JETIFIER = LibraryGroup("com.android.tools.build.jetifier", null)
     val LEANBACK = LibraryGroup("androidx.leanback", null)
     val LEGACY = LibraryGroup("androidx.legacy", null)
+    val LIBYUV = LibraryGroup("libyuv", LibraryVersions.LIBYUV)
     val LIFECYCLE = LibraryGroup("androidx.lifecycle", LibraryVersions.LIFECYCLE)
     val LOADER = LibraryGroup("androidx.loader", LibraryVersions.LOADER)
     val LOCALBROADCASTMANAGER = LibraryGroup("androidx.localbroadcastmanager", LibraryVersions.LOCALBROADCASTMANAGER)
@@ -107,7 +108,9 @@ object LibraryGroups {
     val WEAR_TILES = LibraryGroup("androidx.wear.tiles", LibraryVersions.WEAR_TILES)
     val WEAR_WATCHFACE = LibraryGroup("androidx.wear.watchface", LibraryVersions.WEAR_WATCHFACE)
     val WEBKIT = LibraryGroup("androidx.webkit", LibraryVersions.WEBKIT)
-    val WINDOW = LibraryGroup("androidx.window", null)
+    val WINDOW = LibraryGroup("androidx.window", LibraryVersions.WINDOW)
+    val WINDOW_EXTENSIONS = LibraryGroup("androidx.window.extensions", LibraryVersions.WINDOW_EXTENSIONS)
+    val WINDOW_SIDECAR = LibraryGroup("androidx.window.sidecar", LibraryVersions.WINDOW_SIDECAR)
     val WORK = LibraryGroup("androidx.work", LibraryVersions.WORK)
 
     object Compose {
@@ -131,6 +134,8 @@ data class LibraryGroup(
     val group: String = "unspecified",
     val forcedVersion: Version?,
 ) : java.io.Serializable {
+
+    // Denotes if the LibraryGroup is atomic
     val requireSameVersion = (forcedVersion != null)
 
     companion object {

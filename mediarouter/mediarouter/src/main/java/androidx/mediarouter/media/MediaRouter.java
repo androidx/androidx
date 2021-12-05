@@ -2654,6 +2654,8 @@ public final class MediaRouter {
                     mMr2Provider = new MediaRoute2Provider(
                             mApplicationContext, new Mr2ProviderCallback());
                     addProvider(mMr2Provider);
+                    // Make sure mDiscoveryRequestForMr2Provider is updated
+                    updateDiscoveryRequest();
                     mRegisteredProviderWatcher.rescan();
                 }
 
@@ -2938,8 +2940,9 @@ public final class MediaRouter {
         }
 
         boolean isMediaTransferEnabled() {
+            // The default value for isMediaTransferReceiverEnabled() is {@code true}.
             return mTransferReceiverDeclared
-                    && (mRouterParams == null || !mRouterParams.isMediaTransferReceiverDisabled());
+                    && (mRouterParams == null || mRouterParams.isMediaTransferReceiverEnabled());
         }
 
         boolean isTransferToLocalEnabled() {

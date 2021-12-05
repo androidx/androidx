@@ -184,6 +184,7 @@ public class BroadcastsReceiver constructor(
         context.unregisterReceiver(actionBatteryLowReceiver)
         context.unregisterReceiver(actionBatteryOkayReceiver)
         context.unregisterReceiver(actionPowerConnectedReceiver)
+        context.unregisterReceiver(actionPowerDisconnectedReceiver)
         context.unregisterReceiver(mockTimeReceiver)
     }
 }

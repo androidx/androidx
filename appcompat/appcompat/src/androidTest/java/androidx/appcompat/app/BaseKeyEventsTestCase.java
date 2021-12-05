@@ -45,6 +45,7 @@ import androidx.test.filters.LargeTest;
 import androidx.test.filters.MediumTest;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.ActivityTestRule;
+import androidx.testutils.PollingCheck;
 
 import org.hamcrest.Matchers;
 import org.junit.Before;
@@ -70,6 +71,9 @@ public abstract class BaseKeyEventsTestCase<A extends BaseTestActivity> {
     public void setup() {
         mInstrumentation = InstrumentationRegistry.getInstrumentation();
         mActivity = mActivityTestRule.getActivity();
+
+        // Wait for activity to have window focus.
+        PollingCheck.waitFor(2000, () -> mActivity.hasWindowFocus());
     }
 
     @Test

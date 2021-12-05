@@ -154,6 +154,7 @@ internal abstract class LayoutNodeWrapper(
         }
         layoutNode.owner?.onLayoutChange(layoutNode)
         measuredSize = IntSize(width, height)
+        drawEntityHead?.onMeasureResultChanged(width, height)
     }
 
     var position: IntOffset = IntOffset.Zero
@@ -190,6 +191,11 @@ internal abstract class LayoutNodeWrapper(
 
     private val snapshotObserver get() = layoutNode.requireOwner().snapshotObserver
 
+    /**
+     * The head of the DrawEntity linked list
+     */
+    var drawEntityHead: DrawEntity? = null
+
     protected inline fun performingMeasure(
         constraints: Constraints,
         block: () -> Placeable
@@ -211,6 +217,14 @@ internal abstract class LayoutNodeWrapper(
         } else {
             apparentToRealOffset.y
         }
+    }
+
+    /**
+     * An initialization function that is called when the [LayoutNodeWrapper] is initially created,
+     * and also called when the [LayoutNodeWrapper] is re-used.
+     */
+    open fun onInitialize() {
+        layer?.invalidate()
     }
 
     /**
@@ -252,19 +266,32 @@ internal abstract class LayoutNodeWrapper(
             val x = position.x.toFloat()
             val y = position.y.toFloat()
             canvas.translate(x, y)
-            performDraw(canvas)
+            drawContainedDrawModifiers(canvas)
             canvas.translate(-x, -y)
         }
     }
 
-    protected abstract fun performDraw(canvas: Canvas)
+    private fun drawContainedDrawModifiers(canvas: Canvas) {
+        val head = drawEntityHead
+        if (head == null) {
+            performDraw(canvas)
+        } else {
+            head.draw(canvas)
+        }
+    }
+
+    open fun performDraw(canvas: Canvas) {
+        wrapped?.draw(canvas)
+    }
+
+    open fun onPlaced() {}
 
     // implementation of draw block passed to the OwnedLayer
     @Suppress("LiftReturnOrAssignment")
     override fun invoke(canvas: Canvas) {
         if (layoutNode.isPlaced) {
             snapshotObserver.observeReads(this, onCommitAffectingLayer) {
-                performDraw(canvas)
+                drawContainedDrawModifiers(canvas)
             }
             lastLayerDrawingWasSkipped = false
         } else {
@@ -378,12 +405,14 @@ internal abstract class LayoutNodeWrapper(
     abstract fun hitTest(
         pointerPosition: Offset,
         hitTestResult: HitTestResult<PointerInputFilter>,
-        isTouchEvent: Boolean
+        isTouchEvent: Boolean,
+        isInLayer: Boolean
     )
 
     abstract fun hitTestSemantics(
         pointerPosition: Offset,
-        hitSemanticsWrappers: HitTestResult<SemanticsWrapper>
+        hitSemanticsWrappers: HitTestResult<SemanticsWrapper>,
+        isInLayer: Boolean
     )
 
     override fun windowToLocal(relativeToWindow: Offset): Offset {
@@ -620,28 +649,12 @@ internal abstract class LayoutNodeWrapper(
         }
     }
 
-    protected fun withinLayerBounds(pointerPosition: Offset, isTouchEvent: Boolean): Boolean {
+    protected fun withinLayerBounds(pointerPosition: Offset): Boolean {
         if (!pointerPosition.isFinite) {
             return false
         }
         val layer = layer
-        if (layer != null && isClipping) {
-            if (isTouchEvent) {
-                val minimumTouchTargetSize = minimumTouchTargetSize
-                if (!minimumTouchTargetSize.isEmpty()) {
-                    val offsetFromEdge = offsetFromEdge(pointerPosition)
-                    val minTouchTargetSize = with(layerDensity) {
-                        layoutNode.viewConfiguration.minimumTouchTargetSize.toSize()
-                    }
-                    return offsetFromEdge.x <= minTouchTargetSize.width / 2f &&
-                        offsetFromEdge.y <= minTouchTargetSize.height / 2f
-                }
-            }
-            return layer.isInLayer(pointerPosition)
-        }
-
-        // If we are here, we aren't clipping or there is no layer
-        return true
+        return layer == null || !isClipping || layer.isInLayer(pointerPosition)
     }
 
     /**
@@ -895,13 +908,53 @@ internal abstract class LayoutNodeWrapper(
         return focusableChildren
     }
 
-    protected fun offsetFromEdge(pointerPosition: Offset): Offset {
+    open fun shouldSharePointerInputWithSiblings(): Boolean = false
+
+    private fun offsetFromEdge(pointerPosition: Offset): Offset {
         val x = pointerPosition.x
         val horizontal = maxOf(0f, if (x < 0) -x else x - measuredWidth)
         val y = pointerPosition.y
         val vertical = maxOf(0f, if (y < 0) -y else y - measuredHeight)
 
         return Offset(horizontal, vertical)
+    }
+
+    /**
+     * Returns the additional amount on the horizontal and vertical dimensions that
+     * this extends beyond [width] and [height] on all sides. This takes into account
+     * [minimumTouchTargetSize] and [measuredSize] vs. [width] and [height].
+     */
+    protected fun calculateMinimumTouchTargetPadding(minimumTouchTargetSize: Size): Size {
+        val widthDiff = minimumTouchTargetSize.width - measuredWidth.toFloat()
+        val heightDiff = minimumTouchTargetSize.height - measuredHeight.toFloat()
+        return Size(maxOf(0f, widthDiff / 2f), maxOf(0f, heightDiff / 2f))
+    }
+
+    /**
+     * The distance within the [minimumTouchTargetSize] of [pointerPosition] to the layout
+     * size. If [pointerPosition] isn't within [minimumTouchTargetSize], then
+     * [Float.POSITIVE_INFINITY] is returned.
+     */
+    protected fun distanceInMinimumTouchTarget(
+        pointerPosition: Offset,
+        minimumTouchTargetSize: Size
+    ): Float {
+        if (measuredWidth >= minimumTouchTargetSize.width &&
+            measuredHeight >= minimumTouchTargetSize.height
+        ) {
+            // this layout is big enough that it doesn't qualify for minimum touch targets
+            return Float.POSITIVE_INFINITY
+        }
+
+        val (width, height) = calculateMinimumTouchTargetPadding(minimumTouchTargetSize)
+        val offsetFromEdge = offsetFromEdge(pointerPosition)
+
+        return if ((width > 0f || height > 0f) &&
+            offsetFromEdge.x <= width && offsetFromEdge.y <= height) {
+            maxOf(offsetFromEdge.x, offsetFromEdge.y)
+        } else {
+            Float.POSITIVE_INFINITY // miss
+        }
     }
 
     internal companion object {

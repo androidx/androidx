@@ -18,20 +18,20 @@ package androidx.glance.appwidget.demos
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.unit.dp
 import androidx.glance.GlanceModifier
 import androidx.glance.LocalContext
 import androidx.glance.LocalSize
-import androidx.glance.appwidget.unit.ColorProvider
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.GlanceAppWidgetReceiver
 import androidx.glance.appwidget.SizeMode
 import androidx.glance.appwidget.background
+import androidx.glance.appwidget.cornerRadius
+import androidx.glance.appwidget.unit.ColorProvider
 import androidx.glance.layout.Column
-import androidx.glance.layout.Text
 import androidx.glance.layout.fillMaxSize
 import androidx.glance.layout.padding
 import androidx.glance.text.FontWeight
+import androidx.glance.text.Text
 import androidx.glance.text.TextDecoration
 import androidx.glance.text.TextStyle
 import java.text.DecimalFormat
@@ -46,7 +46,8 @@ class ExactAppWidget : GlanceAppWidget() {
             modifier = GlanceModifier
                 .fillMaxSize()
                 .background(day = Color.LightGray, night = Color.DarkGray)
-                .padding(8.dp)
+                .padding(R.dimen.external_padding)
+                .cornerRadius(R.dimen.corner_radius)
         ) {
             Text(
                 context.getString(R.string.exact_widget_title),

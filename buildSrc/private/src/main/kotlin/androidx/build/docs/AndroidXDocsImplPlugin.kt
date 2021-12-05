@@ -169,10 +169,13 @@ abstract class AndroidXDocsImplPlugin : Plugin<Project> {
             Sync::class.java
         ) { task ->
             val sources = docsConfiguration.incoming.artifactView { }.files
+            // Store archiveOperations into a local variable to prevent access to the plugin
+            // during the task execution, as that breaks configuration caching.
+            val localVar = archiveOperations
             task.from(
                 sources.elements.map { jars ->
                     jars.map {
-                        archiveOperations.zipTree(it).matching {
+                        localVar.zipTree(it).matching {
                             // Filter out files that documentation tools cannot process.
                             it.exclude("**/*.MF")
                             it.exclude("**/*.aidl")
@@ -206,13 +209,15 @@ abstract class AndroidXDocsImplPlugin : Plugin<Project> {
         docsConfiguration: Configuration
     ): TaskProvider<Sync> {
         return project.tasks.register("unzipSourcesForDackka", Sync::class.java) { task ->
-
             val sources = docsConfiguration.incoming.artifactView { }.files
 
+            // Store archiveOperations into a local variable to prevent access to the plugin
+            // during the task execution, as that breaks configuration caching.
+            val localVar = archiveOperations
             task.from(
                 sources.elements.map { jars ->
                     jars.map {
-                        archiveOperations.zipTree(it)
+                        localVar.zipTree(it)
                     }
                 }
             )
@@ -248,11 +253,18 @@ abstract class AndroidXDocsImplPlugin : Plugin<Project> {
             isTransitive = false
             isCanBeConsumed = false
             attributes {
-                it.attribute(Usage.USAGE_ATTRIBUTE, project.objects.named(Usage.JAVA_RUNTIME))
                 it.attribute(
-                    Category.CATEGORY_ATTRIBUTE, project.objects.named(Category.DOCUMENTATION)
+                    Usage.USAGE_ATTRIBUTE,
+                    project.objects.named<Usage>(Usage.JAVA_RUNTIME)
                 )
-                it.attribute(DocsType.DOCS_TYPE_ATTRIBUTE, project.objects.named(DocsType.SOURCES))
+                it.attribute(
+                    Category.CATEGORY_ATTRIBUTE,
+                    project.objects.named<Category>(Category.DOCUMENTATION)
+                )
+                it.attribute(
+                    DocsType.DOCS_TYPE_ATTRIBUTE,
+                    project.objects.named<DocsType>(DocsType.SOURCES)
+                )
             }
         }
         docsSourcesConfiguration = project.configurations.create("docs-sources") {
@@ -267,11 +279,18 @@ abstract class AndroidXDocsImplPlugin : Plugin<Project> {
         fun Configuration.setResolveClasspathForUsage(usage: String) {
             isCanBeConsumed = false
             attributes {
-                it.attribute(Usage.USAGE_ATTRIBUTE, project.objects.named(usage))
                 it.attribute(
-                    Category.CATEGORY_ATTRIBUTE, project.objects.named(Category.LIBRARY)
+                    Usage.USAGE_ATTRIBUTE,
+                    project.objects.named<Usage>(usage)
                 )
-                it.attribute(BuildTypeAttr.ATTRIBUTE, project.objects.named("release"))
+                it.attribute(
+                    Category.CATEGORY_ATTRIBUTE,
+                    project.objects.named<Category>(Category.LIBRARY)
+                )
+                it.attribute(
+                    BuildTypeAttr.ATTRIBUTE,
+                    project.objects.named<BuildTypeAttr>("release")
+                )
             }
             extendsFrom(docsConfiguration, samplesConfiguration, stubsConfiguration)
         }
@@ -622,118 +641,23 @@ abstract class SourcesVariantRule : ComponentMetadataRule {
     }
 }
 
-private const val DACKKA_DEPENDENCY = "com.google.devsite:dackka:0.0.12"
+private const val DACKKA_DEPENDENCY = "com.google.devsite:dackka:0.0.13"
 private const val DOCLAVA_DEPENDENCY = "com.android:doclava:1.0.6"
 
 // List of packages to exclude from both Java and Kotlin refdoc generation
 private val hiddenPackages = listOf(
     "androidx.camera.camera2.impl",
-    "androidx.camera.camera2.internal",
-    "androidx.camera.camera2.internal.compat",
-    "androidx.camera.camera2.internal.compat.params",
-    "androidx.camera.core.impl",
-    "androidx.camera.core.impl.annotation",
-    "androidx.camera.core.impl.utils",
-    "androidx.camera.core.impl.utils.executor",
-    "androidx.camera.core.impl.utils.futures",
-    "androidx.camera.core.internal",
-    "androidx.camera.core.internal.utils",
+    "androidx.camera.camera2.internal.*",
+    "androidx.camera.core.impl.*",
+    "androidx.camera.core.internal.*",
     "androidx.core.internal",
     "androidx.preference.internal",
     "androidx.wear.internal.widget.drawer",
     "androidx.webkit.internal",
-    "androidx.work.impl",
-    "androidx.work.impl.background",
-    "androidx.work.impl.background.gcm",
-    "androidx.work.impl.background.systemalarm",
-    "androidx.work.impl.background.systemjob",
-    "androidx.work.impl.constraints",
-    "androidx.work.impl.constraints.controllers",
-    "androidx.work.impl.constraints.trackers",
-    "androidx.work.impl.model",
-    "androidx.work.impl.utils",
-    "androidx.work.impl.utils.futures",
-    "androidx.work.impl.utils.taskexecutor"
+    "androidx.work.impl.*"
 )
 
 // Set of packages to exclude from Java refdoc generation
 private val hiddenPackagesJava = setOf(
-    "androidx.compose.animation",
-    "androidx.compose.animation.core",
-    "androidx.compose.animation.graphics",
-    "androidx.compose.animation.graphics.res",
-    "androidx.compose.animation.graphics.vector",
-    "androidx.compose.animation.graphics.vector.compat",
-    "androidx.compose.foundation",
-    "androidx.compose.foundation.gestures",
-    "androidx.compose.foundation.interaction",
-    "androidx.compose.foundation.layout",
-    "androidx.compose.foundation.lazy",
-    "androidx.compose.foundation.selection",
-    "androidx.compose.foundation.shape",
-    "androidx.compose.foundation.text",
-    "androidx.compose.foundation.text.selection",
-    "androidx.compose.material",
-    "androidx.compose.material.icons",
-    "androidx.compose.material.icons.filled",
-    "androidx.compose.material.icons.outlined",
-    "androidx.compose.material.icons.rounded",
-    "androidx.compose.material.icons.sharp",
-    "androidx.compose.material.icons.twotone",
-    "androidx.compose.material.ripple",
-    "androidx.compose.runtime",
-    "androidx.compose.runtime.collection",
-    "androidx.compose.runtime.internal",
-    "androidx.compose.runtime.livedata",
-    "androidx.compose.runtime.rxjava2",
-    "androidx.compose.runtime.rxjava3",
-    "androidx.compose.runtime.saveable",
-    "androidx.compose.runtime.snapshots",
-    "androidx.compose.runtime.tooling",
-    "androidx.compose.ui",
-    "androidx.compose.ui.autofill",
-    "androidx.compose.ui.draw",
-    "androidx.compose.ui.focus",
-    "androidx.compose.ui.geometry",
-    "androidx.compose.ui.graphics",
-    "androidx.compose.ui.graphics.colorspace",
-    "androidx.compose.ui.graphics.drawscope",
-    "androidx.compose.ui.graphics.painter",
-    "androidx.compose.ui.graphics.vector",
-    "androidx.compose.ui.hapticfeedback",
-    "androidx.compose.ui.input.key",
-    "androidx.compose.ui.input.nestedscroll",
-    "androidx.compose.ui.input.pointer",
-    "androidx.compose.ui.input.pointer.util",
-    "androidx.compose.ui.layout",
-    "androidx.compose.ui.node",
-    "androidx.compose.ui.platform",
-    "androidx.compose.ui.res",
-    "androidx.compose.ui.semantics",
-    "androidx.compose.ui.state",
-    "androidx.compose.ui.test",
-    "androidx.compose.ui.test.junit4",
-    "androidx.compose.ui.test.junit4.android",
-    "androidx.compose.ui.text",
-    "androidx.compose.ui.text.android",
-    "androidx.compose.ui.text.font",
-    "androidx.compose.ui.text.input",
-    "androidx.compose.ui.text.intl",
-    "androidx.compose.ui.text.platform.extensions",
-    "androidx.compose.ui.text.style",
-    "androidx.compose.ui.tooling",
-    "androidx.compose.ui.tooling.data",
-    "androidx.compose.ui.tooling.preview",
-    "androidx.compose.ui.tooling.preview.datasource",
-    "androidx.compose.ui.unit",
-    "androidx.compose.ui.util",
-    "androidx.compose.ui.viewinterop",
-    "androidx.compose.ui.window",
-    "androidx.activity.compose",
-    "androidx.hilt.navigation.compose",
-    "androidx.navigation.compose",
-    "androidx.paging.compose",
-    "androidx.wear.compose",
-    "androidx.wear.compose.foundation",
-    "androidx.wear.compose.material",
+    "androidx.*compose.*"
 )

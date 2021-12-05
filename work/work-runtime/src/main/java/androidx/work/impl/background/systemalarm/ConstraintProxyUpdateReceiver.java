@@ -87,7 +87,7 @@ public class ConstraintProxyUpdateReceiver extends BroadcastReceiver {
             final PendingResult pendingResult = goAsync();
             WorkManagerImpl workManager = WorkManagerImpl.getInstance(context);
             TaskExecutor taskExecutor = workManager.getWorkTaskExecutor();
-            taskExecutor.executeOnBackgroundThread(new Runnable() {
+            taskExecutor.executeOnTaskThread(new Runnable() {
                 @Override
                 public void run() {
                     try {

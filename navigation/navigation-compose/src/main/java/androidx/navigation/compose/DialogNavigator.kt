@@ -61,7 +61,11 @@ public class DialogNavigator : Navigator<Destination>() {
     }
 
     override fun popBackStack(popUpTo: NavBackStackEntry, savedState: Boolean) {
-        state.pop(popUpTo, savedState)
+        state.popWithTransition(popUpTo, savedState)
+    }
+
+    internal fun onTransitionComplete(entry: NavBackStackEntry) {
+        state.markTransitionComplete(entry)
     }
 
     /**

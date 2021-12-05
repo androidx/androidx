@@ -47,7 +47,7 @@ internal class Camera2DeviceCache @Inject constructor(
         }
 
         // Suspend and query the list of Cameras on the ioDispatcher
-        return withContext(threads.ioDispatcher) {
+        return withContext(threads.backgroundDispatcher) {
             Debug.trace("readCameraIds") {
                 val cameraIds = readCameraIdList()
 

@@ -727,7 +727,6 @@ public final class ImageAnalysis extends UseCase {
      * to receive images and perform custom processing by implementing the
      * {@link ImageAnalysis.Analyzer#analyze(ImageProxy)} function.
      */
-    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
     public interface Analyzer {
         /**
          * Analyzes an image to produce a result.
@@ -775,7 +774,6 @@ public final class ImageAnalysis extends UseCase {
      *
      * @hide
      */
-    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
     @RestrictTo(Scope.LIBRARY_GROUP)
     public static final class Defaults implements ConfigProvider<ImageAnalysisConfig> {
         private static final Size DEFAULT_TARGET_RESOLUTION = new Size(640, 480);
@@ -802,7 +800,6 @@ public final class ImageAnalysis extends UseCase {
 
     /** Builder for a {@link ImageAnalysis}. */
     @SuppressWarnings("ObjectToString")
-    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
     public static final class Builder
             implements ImageOutputConfig.Builder<Builder>,
             ThreadConfig.Builder<Builder>,

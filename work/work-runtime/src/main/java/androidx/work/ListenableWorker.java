@@ -16,13 +16,11 @@
 
 package androidx.work;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.net.Network;
 import android.net.Uri;
 
 import androidx.annotation.IntRange;
-import androidx.annotation.Keep;
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -74,8 +72,6 @@ public abstract class ListenableWorker {
      * @param appContext The application {@link Context}
      * @param workerParams Parameters to setup the internal state of this worker
      */
-    @Keep
-    @SuppressLint("BanKeepAnnotation")
     public ListenableWorker(@NonNull Context appContext, @NonNull WorkerParameters workerParams) {
         // Actually make sure we don't get nulls.
         if (appContext == null) {
@@ -187,7 +183,7 @@ public abstract class ListenableWorker {
      * The future will also be cancelled if this worker is stopped for any reason
      * (see {@link #onStopped()}).
      *
-     * @return A {@link ListenableFuture} with the {@link Result} of the computation.  If you
+     * @return A {@code ListenableFuture} with the {@link Result} of the computation.  If you
      * cancel this Future, WorkManager will treat this unit of work as failed.
      */
     @MainThread

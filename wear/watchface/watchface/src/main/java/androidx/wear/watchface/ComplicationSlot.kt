@@ -34,6 +34,7 @@ import androidx.wear.watchface.complications.data.ComplicationType
 import androidx.wear.watchface.complications.data.EmptyComplicationData
 import androidx.wear.watchface.complications.data.NoDataComplicationData
 import androidx.wear.watchface.RenderParameters.HighlightedElement
+import androidx.wear.watchface.complications.data.toApiComplicationData
 import androidx.wear.watchface.style.UserStyleSetting
 import androidx.wear.watchface.style.UserStyleSetting.ComplicationSlotsUserStyleSetting
 import androidx.wear.watchface.style.UserStyleSetting.ComplicationSlotsUserStyleSetting.ComplicationSlotOverlay
@@ -208,7 +209,8 @@ public annotation class ComplicationSlotBoundsType {
  * Editors need to know the initial state of a complication slot to predict the effects of making a
  * style change.
  * @param configExtras Extras to be merged into the Intent sent when invoking the complication data
- * source chooser activity.
+ * source chooser activity. This features is intended for OEM watch faces where they have elements
+ * that behave like a complication but are in fact entirely watch face specific.
  * @param fixedComplicationDataSource  Whether or not the complication data source is fixed (i.e.
  * can't be changed by the user).  This is useful for watch faces built around specific
  * complications.
@@ -226,7 +228,7 @@ public class ComplicationSlot internal constructor(
     defaultDataSourceType: ComplicationType,
     @get:JvmName("isInitiallyEnabled")
     public val initiallyEnabled: Boolean,
-    public val configExtras: Bundle,
+    configExtras: Bundle,
     @get:JvmName("isFixedComplicationDataSource")
     public val fixedComplicationDataSource: Boolean,
     public val tapFilter: ComplicationTapFilter
@@ -236,6 +238,17 @@ public class ComplicationSlot internal constructor(
      * [ComplicationSlotsManager] has been created.
      */
     internal lateinit var complicationSlotsManager: ComplicationSlotsManager
+
+    /**
+     * Extras to be merged into the Intent sent when invoking the complication data source chooser
+     * activity.
+     */
+    public var configExtras: Bundle = configExtras
+        set(value) {
+            field = value
+            complicationSlotsManager.configExtrasChangeCallback
+                ?.onComplicationSlotConfigExtrasChanged()
+        }
 
     /**
      * The [CanvasComplication] used to render the complication. This can't be used until after
@@ -395,7 +408,7 @@ public class ComplicationSlot internal constructor(
         private val id: Int,
         private val canvasComplicationFactory: CanvasComplicationFactory,
         private val supportedTypes: List<ComplicationType>,
-        private val defaultDataSourcePolicy: DefaultComplicationDataSourcePolicy,
+        private var defaultDataSourcePolicy: DefaultComplicationDataSourcePolicy,
         @ComplicationSlotBoundsType private val boundsType: Int,
         private val bounds: ComplicationSlotBounds,
         private val complicationTapFilter: ComplicationTapFilter
@@ -427,9 +440,38 @@ public class ComplicationSlot internal constructor(
          * Note care should be taken to ensure [defaultDataSourceType] is compatible with the
          * [DefaultComplicationDataSourcePolicy].
          */
+        @Deprecated("Instead set DefaultComplicationDataSourcePolicy" +
+            ".systemDataSourceFallbackDefaultType.")
         public fun setDefaultDataSourceType(
             defaultDataSourceType: ComplicationType
         ): Builder {
+            defaultDataSourcePolicy = when {
+                defaultDataSourcePolicy.secondaryDataSource != null ->
+                    DefaultComplicationDataSourcePolicy(
+                        defaultDataSourcePolicy.primaryDataSource!!,
+                        defaultDataSourcePolicy.primaryDataSourceDefaultType
+                            ?: defaultDataSourceType,
+                        defaultDataSourcePolicy.secondaryDataSource!!,
+                        defaultDataSourcePolicy.secondaryDataSourceDefaultType
+                            ?: defaultDataSourceType,
+                        defaultDataSourcePolicy.systemDataSourceFallback,
+                        defaultDataSourceType
+                    )
+
+                defaultDataSourcePolicy.primaryDataSource != null ->
+                    DefaultComplicationDataSourcePolicy(
+                        defaultDataSourcePolicy.primaryDataSource!!,
+                        defaultDataSourcePolicy.primaryDataSourceDefaultType
+                            ?: defaultDataSourceType,
+                        defaultDataSourcePolicy.systemDataSourceFallback,
+                        defaultDataSourceType
+                    )
+
+                else -> DefaultComplicationDataSourcePolicy(
+                    defaultDataSourcePolicy.systemDataSourceFallback,
+                    defaultDataSourceType
+                )
+            }
             this.defaultDataSourceType = defaultDataSourceType
             return this
         }
@@ -561,6 +603,8 @@ public class ComplicationSlot internal constructor(
     /**
      * The default [ComplicationType] to use alongside [defaultDataSourcePolicy].
      */
+    @Deprecated("Use DefaultComplicationDataSourcePolicy." +
+        "systemDataSourceFallbackDefaultType instead")
     public var defaultDataSourceType: ComplicationType = defaultDataSourceType
         @UiThread
         get
@@ -603,6 +647,64 @@ public class ComplicationSlot internal constructor(
      */
     public val complicationData: StateFlow<ComplicationData> =
         MutableStateFlow(NoDataComplicationData())
+
+    /**
+     * The complication data sent by the system. This may contain a timeline out of which
+     * [complicationData] is selected.
+     */
+    private var timelineComplicationData: ComplicationData = NoDataComplicationData()
+    private var timelineEntries: List<ComplicationData>? = null
+
+    /**
+     * Sets the current [ComplicationData] and if it's a timeline, the correct override for
+     * [instant] is chosen.
+     */
+    internal fun setComplicationData(
+        complicationData: ComplicationData,
+        loadDrawablesAsynchronous: Boolean,
+        instant: Instant
+    ) {
+        timelineComplicationData = complicationData
+        timelineEntries = complicationData.asWireComplicationData().timelineEntries?.map {
+            it.toApiComplicationData()
+        }
+        selectComplicationDataForInstant(instant, loadDrawablesAsynchronous, true)
+    }
+
+    /**
+     * If the current [ComplicationData] is a timeline, the correct override for [instant] is
+     * chosen.
+     */
+    internal fun selectComplicationDataForInstant(
+        instant: Instant,
+        loadDrawablesAsynchronous: Boolean,
+        forceUpdate: Boolean
+    ) {
+        var previousShortest = Long.MAX_VALUE
+        val time = instant.epochSecond
+        var best = timelineComplicationData
+
+        // Select the shortest valid timeline entry.
+        timelineEntries?.let {
+            for (entry in it) {
+                val wireEntry = entry.asWireComplicationData()
+                val start = wireEntry.timelineStartInstant?.epochSecond
+                val end = wireEntry.timelineEndInstant?.epochSecond
+                if (start != null && end != null && time >= start && time < end) {
+                    val duration = end - start
+                    if (duration < previousShortest) {
+                        previousShortest = duration
+                        best = entry
+                    }
+                }
+            }
+        }
+
+        if (forceUpdate || complicationData.value != best) {
+            (complicationData as MutableStateFlow).value = best
+            renderer.loadData(best, loadDrawablesAsynchronous)
+        }
+    }
 
     /**
      * Whether or not the complication should be considered active and should be rendered at the
@@ -677,6 +779,14 @@ public class ComplicationSlot internal constructor(
                     )
                 }
             }
+
+            is HighlightedElement.UserStyle -> {
+                // Nothing
+            }
+
+            null -> {
+                // Nothing
+            }
         }
     }
 
@@ -684,6 +794,7 @@ public class ComplicationSlot internal constructor(
         this.invalidateListener = invalidateListener
 
         if (isHeadless) {
+            timelineComplicationData = EmptyComplicationData()
             (complicationData as MutableStateFlow).value = EmptyComplicationData()
         }
     }
@@ -732,14 +843,20 @@ public class ComplicationSlot internal constructor(
         writer.println(
             "defaultDataSourcePolicy.primaryDataSource=${defaultDataSourcePolicy.primaryDataSource}"
         )
+        writer.println("defaultDataSourcePolicy.primaryDataSourceDefaultDataSourceType=" +
+            defaultDataSourcePolicy.primaryDataSourceDefaultType)
         writer.println(
             "defaultDataSourcePolicy.secondaryDataSource=" +
                 defaultDataSourcePolicy.secondaryDataSource
         )
+        writer.println("defaultDataSourcePolicy.secondaryDataSourceDefaultDataSourceType=" +
+            defaultDataSourcePolicy.secondaryDataSourceDefaultType)
         writer.println(
             "defaultDataSourcePolicy.systemDataSourceFallback=" +
                 defaultDataSourcePolicy.systemDataSourceFallback
         )
+        writer.println("defaultDataSourcePolicy.systemDataSourceFallbackDefaultType=" +
+            defaultDataSourcePolicy.systemDataSourceFallbackDefaultType)
         writer.println("data=${renderer.getData()}")
         val bounds = complicationSlotBounds.perComplicationTypeBounds.map {
             "${it.key} -> ${it.value}"

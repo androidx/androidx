@@ -16,6 +16,8 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
  * limitations under the License.
  */
 
+import androidx.build.LibraryType
+
 plugins {
     id("AndroidXPlugin")
     id("kotlin")
@@ -31,4 +33,8 @@ tasks.withType(KotlinCompile).configureEach {
     kotlinOptions {
         freeCompilerArgs += ["-Xopt-in=kotlin.RequiresOptIn"]
     }
+}
+
+androidx {
+    type = LibraryType.INTERNAL_TEST_LIBRARY
 }

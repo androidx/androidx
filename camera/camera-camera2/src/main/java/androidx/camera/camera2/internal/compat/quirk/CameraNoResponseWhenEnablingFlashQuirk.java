@@ -68,7 +68,7 @@ public class CameraNoResponseWhenEnablingFlashQuirk implements UseTorchAsFlashQu
 
     static boolean load(@NonNull CameraCharacteristicsCompat characteristics) {
         return BUILD_BRAND.equals(Build.BRAND.toUpperCase(Locale.US))
-                && AFFECTED_MODELS.contains(Build.MODEL.toUpperCase())
+                && AFFECTED_MODELS.contains(Build.MODEL.toUpperCase(Locale.US))
                 && characteristics.get(CameraCharacteristics.LENS_FACING) == LENS_FACING_BACK;
     }
 }

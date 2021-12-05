@@ -38,6 +38,7 @@ import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.CameraXUtil
 import androidx.camera.testing.SurfaceTextureProvider
 import androidx.camera.testing.SurfaceTextureProvider.SurfaceTextureCallback
+import androidx.camera.video.Quality
 import androidx.camera.video.QualitySelector
 import androidx.camera.video.internal.compat.quirk.DeactivateEncoderSurfaceBeforeStopEncoderQuirk
 import androidx.camera.video.internal.compat.quirk.DeviceQuirks
@@ -319,7 +320,7 @@ class VideoEncoderTest {
 
     private fun initVideoEncoder() {
         val cameraInfo = camera.cameraInfo as CameraInfoInternal
-        val resolution = QualitySelector.getResolution(cameraInfo, QualitySelector.QUALITY_LOWEST)
+        val resolution = QualitySelector.getResolution(cameraInfo, Quality.LOWEST)
         assumeTrue(resolution != null)
 
         videoEncoderConfig = VideoEncoderConfig.builder()

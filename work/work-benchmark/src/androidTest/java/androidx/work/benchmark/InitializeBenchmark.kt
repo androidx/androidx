@@ -68,11 +68,7 @@ class InitializeBenchmark {
                 return serialExecutor
             }
 
-            override fun executeOnBackgroundThread(runnable: Runnable) {
-                serialExecutor.execute(runnable)
-            }
-
-            override fun getBackgroundExecutor(): SerialExecutor {
+            override fun getSerialTaskExecutor(): SerialExecutor {
                 return serialExecutor
             }
         }

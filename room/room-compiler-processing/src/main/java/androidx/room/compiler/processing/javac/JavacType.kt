@@ -21,6 +21,7 @@ import androidx.room.compiler.processing.XNullability
 import androidx.room.compiler.processing.XRawType
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.javac.kotlin.KmType
+import androidx.room.compiler.processing.javac.kotlin.KotlinMetadataElement
 import androidx.room.compiler.processing.ksp.ERROR_TYPE_NAME
 import androidx.room.compiler.processing.safeTypeName
 import com.google.auto.common.MoreTypes
@@ -39,6 +40,18 @@ internal abstract class JavacType(
 
     override val rawType: XRawType by lazy {
         JavacRawType(env, this)
+    }
+
+    override val superTypes by lazy {
+        val superTypes = env.typeUtils.directSupertypes(typeMirror)
+        superTypes.map {
+            val element = MoreTypes.asTypeElement(it)
+            env.wrap<JavacType>(
+                typeMirror = it,
+                kotlinType = KotlinMetadataElement.createFor(element)?.kmType,
+                elementNullability = element.nullability
+            )
+        }
     }
 
     override val typeElement by lazy {

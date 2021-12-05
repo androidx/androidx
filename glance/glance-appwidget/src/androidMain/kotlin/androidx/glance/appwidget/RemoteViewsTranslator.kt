@@ -26,14 +26,13 @@ import androidx.annotation.DoNotInline
 import androidx.annotation.LayoutRes
 import androidx.annotation.RequiresApi
 import androidx.annotation.VisibleForTesting
-import androidx.core.widget.setLinearLayoutGravity
-import androidx.core.widget.setRelativeLayoutGravity
+import androidx.compose.ui.unit.DpSize
+import androidx.core.widget.RemoteViewsCompat.setLinearLayoutGravity
 import androidx.glance.Emittable
-import androidx.glance.appwidget.layout.EmittableAndroidRemoteViews
-import androidx.glance.appwidget.layout.EmittableCheckBox
-import androidx.glance.appwidget.layout.EmittableLazyColumn
-import androidx.glance.appwidget.layout.EmittableLazyListItem
-import androidx.glance.appwidget.layout.EmittableSwitch
+import androidx.glance.EmittableButton
+import androidx.glance.EmittableImage
+import androidx.glance.appwidget.lazy.EmittableLazyColumn
+import androidx.glance.appwidget.lazy.EmittableLazyListItem
 import androidx.glance.appwidget.translators.setText
 import androidx.glance.appwidget.translators.translateEmittableCheckBox
 import androidx.glance.appwidget.translators.translateEmittableImage
@@ -43,12 +42,11 @@ import androidx.glance.appwidget.translators.translateEmittableSwitch
 import androidx.glance.appwidget.translators.translateEmittableText
 import androidx.glance.layout.Alignment
 import androidx.glance.layout.EmittableBox
-import androidx.glance.layout.EmittableButton
 import androidx.glance.layout.EmittableColumn
-import androidx.glance.layout.EmittableImage
 import androidx.glance.layout.EmittableRow
 import androidx.glance.layout.EmittableSpacer
-import androidx.glance.layout.EmittableText
+import androidx.glance.text.EmittableText
+import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger
 
 internal fun translateComposition(
@@ -56,10 +54,20 @@ internal fun translateComposition(
     appWidgetId: Int,
     appWidgetClass: Class<out GlanceAppWidget>,
     element: RemoteViewsRoot,
+    layoutConfiguration: LayoutConfiguration,
     rootViewIndex: Int,
+    layoutSize: DpSize,
 ) =
     translateComposition(
-        TranslationContext(context, appWidgetId, appWidgetClass, context.isRtl, itemPosition = -1),
+        TranslationContext(
+            context,
+            appWidgetId,
+            appWidgetClass,
+            context.isRtl,
+            layoutConfiguration,
+            itemPosition = -1,
+            layoutSize = layoutSize,
+        ),
         element.children,
         rootViewIndex,
     )
@@ -92,10 +100,15 @@ internal data class TranslationContext(
     val appWidgetId: Int,
     val appWidgetClass: Class<out GlanceAppWidget>,
     val isRtl: Boolean,
+    val layoutConfiguration: LayoutConfiguration,
     val itemPosition: Int,
-    val areLazyCollectionsAllowed: Boolean = true,
+    val isLazyCollectionDescendant: Boolean = false,
     val lastViewId: AtomicInteger = AtomicInteger(0),
     val parentContext: InsertedViewInfo = InsertedViewInfo(),
+    val isBackgroundSpecified: AtomicBoolean = AtomicBoolean(false),
+    val layoutSize: DpSize = DpSize.Zero,
+    val layoutCollectionViewId: Int = View.NO_ID,
+    val layoutCollectionItemId: Int = -1,
 ) {
     fun nextViewId() = lastViewId.incrementAndGet()
 
@@ -106,6 +119,12 @@ internal data class TranslationContext(
         forChild(pos = 0, parent = root.view)
 
     fun resetViewId(newViewId: Int = 0) = copy(lastViewId = AtomicInteger(newViewId))
+
+    fun forLazyCollection(viewId: Int) =
+        copy(isLazyCollectionDescendant = true, layoutCollectionViewId = viewId)
+
+    fun forLazyViewItem(itemId: Int, newViewId: Int = 0) =
+        copy(lastViewId = AtomicInteger(newViewId), layoutCollectionViewId = itemId)
 }
 
 internal fun RemoteViews.translateChild(
@@ -138,7 +157,7 @@ internal fun RemoteViews.translateChild(
 internal fun remoteViews(translationContext: TranslationContext, @LayoutRes layoutId: Int) =
     RemoteViews(translationContext.context.packageName, layoutId)
 
-private fun Alignment.Horizontal.toGravity(): Int =
+internal fun Alignment.Horizontal.toGravity(): Int =
     when (this) {
         Alignment.Horizontal.Start -> Gravity.START
         Alignment.Horizontal.End -> Gravity.END
@@ -149,7 +168,7 @@ private fun Alignment.Horizontal.toGravity(): Int =
         }
     }
 
-private fun Alignment.Vertical.toGravity(): Int =
+internal fun Alignment.Vertical.toGravity(): Int =
     when (this) {
         Alignment.Vertical.Top -> Gravity.TOP
         Alignment.Vertical.Bottom -> Gravity.BOTTOM
@@ -170,9 +189,10 @@ private fun RemoteViews.translateEmittableBox(
         translationContext,
         LayoutType.Box,
         element.children.size,
-        element.modifier
+        element.modifier,
+        element.contentAlignment.horizontal,
+        element.contentAlignment.vertical,
     )
-    setRelativeLayoutGravity(viewDef.mainViewId, element.contentAlignment.toGravity())
     applyModifiers(
         translationContext,
         this,
@@ -194,11 +214,13 @@ private fun RemoteViews.translateEmittableRow(
         translationContext,
         LayoutType.Row,
         element.children.size,
-        element.modifier
+        element.modifier,
+        horizontalAlignment = null,
+        verticalAlignment = element.verticalAlignment,
     )
     setLinearLayoutGravity(
         viewDef.mainViewId,
-        element.horizontalAlignment.toGravity() or element.verticalAlignment.toGravity()
+        element.horizontalAlignment.toGravity()
     )
     applyModifiers(
         translationContext,
@@ -221,11 +243,13 @@ private fun RemoteViews.translateEmittableColumn(
         translationContext,
         LayoutType.Column,
         element.children.size,
-        element.modifier
+        element.modifier,
+        horizontalAlignment = element.horizontalAlignment,
+        verticalAlignment = null,
     )
     setLinearLayoutGravity(
         viewDef.mainViewId,
-        element.horizontalAlignment.toGravity() or element.verticalAlignment.toGravity()
+        element.verticalAlignment.toGravity()
     )
     applyModifiers(
         translationContext,

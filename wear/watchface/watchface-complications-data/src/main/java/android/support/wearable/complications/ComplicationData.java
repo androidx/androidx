@@ -21,6 +21,7 @@ import android.app.PendingIntent;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.Icon;
 import android.os.BadParcelableException;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -29,10 +30,20 @@ import android.util.Log;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 
+import java.io.IOException;
+import java.io.InvalidObjectException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 /**
  * Container for complication data of all types.
@@ -55,7 +66,7 @@ import java.lang.annotation.RetentionPolicy;
  */
 @SuppressLint("BanParcelableUsage")
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public final class ComplicationData implements Parcelable {
+public final class ComplicationData implements Parcelable, Serializable {
 
     private static final String TAG = "ComplicationData";
 
@@ -246,7 +257,11 @@ public final class ComplicationData implements Parcelable {
             "SMALL_IMAGE_BURN_IN_PROTECTION";
     private static final String FIELD_LARGE_IMAGE = "LARGE_IMAGE";
     private static final String FIELD_TAP_ACTION = "TAP_ACTION";
+    private static final String FIELD_TAP_ACTION_LOST = "FIELD_TAP_ACTION_LOST";
     private static final String FIELD_IMAGE_STYLE = "IMAGE_STYLE";
+    private static final String FIELD_TIMELINE_START_TIME = "TIMELINE_START_TIME";
+    private static final String FIELD_TIMELINE_END_TIME = "TIMELINE_END_TIME";
+    private static final String FIELD_TIMELINE_ENTRIES = "TIMELINE";
 
     // Originally it was planned to support both content and image content descriptions.
     private static final String FIELD_CONTENT_DESCRIPTION = "IMAGE_CONTENT_DESCRIPTION";
@@ -347,9 +362,201 @@ public final class ComplicationData implements Parcelable {
         mFields = builder.mFields;
     }
 
+    ComplicationData(int type, Bundle fields) {
+        mType = type;
+        mFields = fields;
+    }
+
     private ComplicationData(@NonNull Parcel in) {
         mType = in.readInt();
         mFields = in.readBundle(getClass().getClassLoader());
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.P)
+    private static class SerializedForm implements Serializable {
+        private static final int VERSION_NUMBER = 3;
+
+        @NonNull ComplicationData mComplicationData;
+
+        SerializedForm() {}
+
+        SerializedForm(@NonNull ComplicationData complicationData) {
+            mComplicationData = complicationData;
+        }
+
+        @SuppressLint("SyntheticAccessor") // For mComplicationData.mFields
+        private void writeObject(ObjectOutputStream oos) throws IOException {
+            oos.writeInt(VERSION_NUMBER);
+            int type = mComplicationData.getType();
+            oos.writeInt(type);
+
+            if (isFieldValidForType(FIELD_LONG_TEXT, type)) {
+                oos.writeObject(mComplicationData.getLongText());
+            }
+            if (isFieldValidForType(FIELD_LONG_TITLE, type)) {
+                oos.writeObject(mComplicationData.getLongTitle());
+            }
+            if (isFieldValidForType(FIELD_SHORT_TEXT, type)) {
+                oos.writeObject(mComplicationData.getShortText());
+            }
+            if (isFieldValidForType(FIELD_SHORT_TITLE, type)) {
+                oos.writeObject(mComplicationData.getShortTitle());
+            }
+            if (isFieldValidForType(FIELD_CONTENT_DESCRIPTION, type)) {
+                oos.writeObject(mComplicationData.getContentDescription());
+            }
+            if (isFieldValidForType(FIELD_ICON, type)) {
+                oos.writeObject(IconSerializableHelper.create(mComplicationData.getIcon()));
+            }
+            if (isFieldValidForType(FIELD_ICON_BURN_IN_PROTECTION, type)) {
+                oos.writeObject(
+                        IconSerializableHelper.create(mComplicationData.getBurnInProtectionIcon()));
+            }
+            if (isFieldValidForType(FIELD_SMALL_IMAGE, type)) {
+                oos.writeObject(IconSerializableHelper.create(mComplicationData.getSmallImage()));
+
+            }
+            if (isFieldValidForType(FIELD_SMALL_IMAGE_BURN_IN_PROTECTION, type)) {
+                oos.writeObject(IconSerializableHelper.create(
+                        mComplicationData.getBurnInProtectionSmallImage()));
+            }
+            if (isFieldValidForType(FIELD_IMAGE_STYLE, type)) {
+                oos.writeInt(mComplicationData.getSmallImageStyle());
+            }
+            if (isFieldValidForType(FIELD_LARGE_IMAGE, type)) {
+                oos.writeObject(IconSerializableHelper.create(mComplicationData.getLargeImage()));
+            }
+            if (isFieldValidForType(FIELD_VALUE, type)) {
+                oos.writeFloat(mComplicationData.getRangedValue());
+            }
+            if (isFieldValidForType(FIELD_MIN_VALUE, type)) {
+                oos.writeFloat(mComplicationData.getRangedMinValue());
+            }
+            if (isFieldValidForType(FIELD_MAX_VALUE, type)) {
+                oos.writeFloat(mComplicationData.getRangedMaxValue());
+            }
+            if (isFieldValidForType(FIELD_START_TIME, type)) {
+                oos.writeLong(mComplicationData.getStartDateTimeMillis());
+            }
+            if (isFieldValidForType(FIELD_END_TIME, type)) {
+                oos.writeLong(mComplicationData.getEndDateTimeMillis());
+            }
+            // TapAction unfortunately can't be serialized, instead we record if we've lost it.
+            oos.writeBoolean(mComplicationData.hasTapAction()
+                    || mComplicationData.getTapActionLostDueToSerialization());
+            long start = mComplicationData.mFields.getLong(FIELD_TIMELINE_START_TIME, -1);
+            oos.writeLong(start);
+            long end = mComplicationData.mFields.getLong(FIELD_TIMELINE_END_TIME, -1);
+            oos.writeLong(end);
+
+            // This has to be last, since it's recursive.
+            List<ComplicationData> timeline = mComplicationData.getTimelineEntries();
+            int timelineLength = (timeline != null) ? timeline.size() : 0;
+            oos.writeInt(timelineLength);
+            if (timeline != null) {
+                for (ComplicationData data : timeline) {
+                    new SerializedForm(data).writeObject(oos);
+                }
+            }
+        }
+
+        @SuppressLint("SyntheticAccessor") // For mComplicationData.mFields
+        private void readObject(ObjectInputStream ois) throws IOException, ClassNotFoundException {
+            int versionNumber = ois.readInt();
+            if (versionNumber != VERSION_NUMBER) {
+                // Give up if there's a version skew.
+                throw new IOException("Unsupported serialization version number " + versionNumber);
+            }
+            int type = ois.readInt();
+            Bundle fields = new Bundle();
+
+            if (isFieldValidForType(FIELD_LONG_TEXT, type)) {
+                fields.putParcelable(FIELD_LONG_TEXT, (ComplicationText) ois.readObject());
+            }
+            if (isFieldValidForType(FIELD_LONG_TITLE, type)) {
+                fields.putParcelable(FIELD_LONG_TITLE, (ComplicationText) ois.readObject());
+            }
+            if (isFieldValidForType(FIELD_SHORT_TEXT, type)) {
+                fields.putParcelable(FIELD_SHORT_TEXT, (ComplicationText) ois.readObject());
+            }
+            if (isFieldValidForType(FIELD_SHORT_TITLE, type)) {
+                fields.putParcelable(FIELD_SHORT_TITLE, (ComplicationText) ois.readObject());
+            }
+            if (isFieldValidForType(FIELD_CONTENT_DESCRIPTION, type)) {
+                fields.putParcelable(FIELD_CONTENT_DESCRIPTION,
+                        (ComplicationText) ois.readObject());
+            }
+            if (isFieldValidForType(FIELD_ICON, type)) {
+                fields.putParcelable(FIELD_ICON, IconSerializableHelper.read(ois));
+            }
+            if (isFieldValidForType(FIELD_ICON_BURN_IN_PROTECTION, type)) {
+                fields.putParcelable(FIELD_ICON_BURN_IN_PROTECTION,
+                        IconSerializableHelper.read(ois));
+            }
+            if (isFieldValidForType(FIELD_SMALL_IMAGE, type)) {
+                fields.putParcelable(FIELD_SMALL_IMAGE, IconSerializableHelper.read(ois));
+            }
+            if (isFieldValidForType(FIELD_SMALL_IMAGE_BURN_IN_PROTECTION, type)) {
+                fields.putParcelable(FIELD_SMALL_IMAGE_BURN_IN_PROTECTION,
+                        IconSerializableHelper.read(ois));
+            }
+            if (isFieldValidForType(FIELD_IMAGE_STYLE, type)) {
+                fields.putInt(FIELD_IMAGE_STYLE, ois.readInt());
+            }
+            if (isFieldValidForType(FIELD_LARGE_IMAGE, type)) {
+                fields.putParcelable(FIELD_LARGE_IMAGE, IconSerializableHelper.read(ois));
+            }
+            if (isFieldValidForType(FIELD_VALUE, type)) {
+                fields.putFloat(FIELD_VALUE, ois.readFloat());
+            }
+            if (isFieldValidForType(FIELD_MIN_VALUE, type)) {
+                fields.putFloat(FIELD_MIN_VALUE, ois.readFloat());
+            }
+            if (isFieldValidForType(FIELD_MAX_VALUE, type)) {
+                fields.putFloat(FIELD_MAX_VALUE, ois.readFloat());
+            }
+            if (isFieldValidForType(FIELD_START_TIME, type)) {
+                fields.putLong(FIELD_START_TIME, ois.readLong());
+            }
+            if (isFieldValidForType(FIELD_END_TIME, type)) {
+                fields.putLong(FIELD_END_TIME, ois.readLong());
+            }
+            if (ois.readBoolean()) {
+                fields.putBoolean(FIELD_TAP_ACTION_LOST, true);
+            }
+            long start = ois.readLong();
+            if (start != -1) {
+                fields.putLong(FIELD_TIMELINE_START_TIME, start);
+            }
+            long end = ois.readLong();
+            if (end != -1) {
+                fields.putLong(FIELD_TIMELINE_END_TIME, end);
+            }
+            int timelineLength = ois.readInt();
+            if (timelineLength != 0) {
+                Parcelable[] parcels = new Parcelable[timelineLength];
+                for (int i = 0; i < timelineLength; i++) {
+                    SerializedForm entry = new SerializedForm();
+                    entry.readObject(ois);
+                    parcels[i] = entry.mComplicationData.mFields;
+                }
+                fields.putParcelableArray(FIELD_TIMELINE_ENTRIES, parcels);
+            }
+            mComplicationData = new ComplicationData(type, fields);
+        }
+
+        Object readResolve() {
+            return mComplicationData;
+        }
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.P)
+    Object writeReplace() {
+        return new SerializedForm(this);
+    }
+
+    private void readObject(ObjectInputStream stream) throws InvalidObjectException {
+        throw new InvalidObjectException("Use SerializedForm");
     }
 
     @Override
@@ -385,6 +592,92 @@ public final class ComplicationData implements Parcelable {
     public boolean isActiveAt(long dateTimeMillis) {
         return dateTimeMillis >= mFields.getLong(FIELD_START_TIME, 0)
                 && dateTimeMillis <= mFields.getLong(FIELD_END_TIME, Long.MAX_VALUE);
+    }
+
+    /**
+     * TapAction unfortunately can't be serialized. Returns true if tapAction has been lost due to
+     * serialization (e.g. due to being read from the local cache). The next complication update
+     * from the system would replace this with one with a tapAction.
+     */
+    public boolean getTapActionLostDueToSerialization() {
+        return mFields.getBoolean(FIELD_TAP_ACTION_LOST);
+    }
+
+    /**
+     * For timeline entries. Returns the {@link Instant} at which this timeline entry becomes
+     * valid or `null` if it's not set.
+     */
+    @Nullable
+    public Instant getTimelineStartInstant() {
+        long expiresAt = mFields.getLong(FIELD_TIMELINE_START_TIME, -1);
+        if (expiresAt == -1) {
+            return null;
+        } else {
+            return Instant.ofEpochSecond(expiresAt);
+        }
+    }
+
+    /**
+     * For timeline entries. Sets the {@link Instant} at which this timeline entry becomes invalid
+     * or clears the field if instant is `null`.
+     */
+    public void setTimelineStartInstant(@Nullable Instant instant) {
+        if (instant == null) {
+            mFields.remove(FIELD_TIMELINE_START_TIME);
+        } else {
+            mFields.putLong(FIELD_TIMELINE_START_TIME, instant.getEpochSecond());
+        }
+    }
+
+    /**
+     * For timeline entries. Returns the {@link Instant} at which this timeline entry becomes
+     * invalid or `null` if it's not set.
+     */
+    @Nullable
+    public Instant getTimelineEndInstant() {
+        long expiresAt = mFields.getLong(FIELD_TIMELINE_END_TIME, -1);
+        if (expiresAt == -1) {
+            return null;
+        } else {
+            return Instant.ofEpochSecond(expiresAt);
+        }
+    }
+
+    /**
+     * For timeline entries. Sets the {@link Instant} at which this timeline entry becomes invalid,
+     * or clears the field if instant is `null`.
+     */
+    public void setTimelineEndInstant(@Nullable Instant instant) {
+        if (instant == null) {
+            mFields.remove(FIELD_TIMELINE_END_TIME);
+        } else {
+            mFields.putLong(FIELD_TIMELINE_END_TIME, instant.getEpochSecond());
+        }
+    }
+
+    /** Returns the list of {@link ComplicationData} timeline entries. */
+    @Nullable
+    public List<ComplicationData> getTimelineEntries() {
+        Parcelable[] bundles = mFields.getParcelableArray(FIELD_TIMELINE_ENTRIES);
+        if (bundles == null) {
+            return null;
+        }
+        ArrayList<ComplicationData> entries = new ArrayList<>();
+        for (Parcelable parcel : bundles) {
+            entries.add(new ComplicationData(mType, (Bundle) parcel));
+        }
+        return entries;
+    }
+
+    /** Sets the list of {@link ComplicationData} timeline entries. */
+    public void setTimelineEntryCollection(@Nullable Collection<ComplicationData> timelineEntries) {
+        if (timelineEntries == null) {
+            mFields.remove(FIELD_TIMELINE_ENTRIES);
+        } else {
+            mFields.putParcelableArray(
+                    FIELD_TIMELINE_ENTRIES,
+                    timelineEntries.stream().map(e-> e.mFields).toArray(Parcelable[]::new));
+        }
     }
 
     /**
@@ -855,7 +1148,7 @@ public final class ComplicationData implements Parcelable {
         return text != null && text.isTimeDependent();
     }
 
-    private static boolean isFieldValidForType(String field, @ComplicationType int type) {
+    static boolean isFieldValidForType(String field, @ComplicationType int type) {
         for (String requiredField : REQUIRED_FIELDS[type]) {
             if (requiredField.equals(field)) {
                 return true;
@@ -916,7 +1209,7 @@ public final class ComplicationData implements Parcelable {
     @NonNull
     @Override
     public String toString() {
-        return "ComplicationData{" + "mType=" + mType + ", mFields=" + mFields + '}';
+        return "ComplicationData{" + "mType=" + mType + ", mFields=" + mFields + " mIsCached" + '}';
     }
 
     /** Builder class for {@link ComplicationData}. */
@@ -1264,6 +1557,19 @@ public final class ComplicationData implements Parcelable {
         @NonNull
         public Builder setContentDescription(@Nullable ComplicationText description) {
             putOrRemoveField(FIELD_CONTENT_DESCRIPTION, description);
+            return this;
+        }
+
+        /**
+         * Sets whether or not tis ComplicationData has been serialized.
+         *
+         * <p>Returns this Builder to allow chaining.
+         */
+        @NonNull
+        public Builder setTapActionLostDueToSerialization(boolean tapActionLostDueToSerialization) {
+            if (tapActionLostDueToSerialization) {
+                mFields.putBoolean(FIELD_TAP_ACTION_LOST, tapActionLostDueToSerialization);
+            }
             return this;
         }
 

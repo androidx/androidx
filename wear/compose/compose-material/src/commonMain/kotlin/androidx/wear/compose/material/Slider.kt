@@ -28,11 +28,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.progressSemantics
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.materialIcon
-import androidx.compose.material.icons.materialPath
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Immutable
@@ -48,13 +45,10 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalLayoutDirection
-import androidx.compose.ui.semantics.disabled
-import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.semantics.setProgress
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.util.lerp
-import kotlin.math.roundToInt
+import androidx.wear.compose.material.RangeDefaults.calculateCurrentStepValue
+import androidx.wear.compose.material.RangeDefaults.snapValueToStep
 
 /**
  * [InlineSlider] allows users to make a selection from a range of values. The range of selections
@@ -66,9 +60,9 @@ import kotlin.math.roundToInt
  * accordingly to the start and end of the control. Buttons can have custom icons -
  * [decreaseIcon] and [increaseIcon].
  *
- * The selection bar in the middle of control can have separators if [segmented] flag is set to true.
+ * The bar in the middle of control can have separators if [segmented] flag is set to true.
  * A single step value is calculated as the difference between min and max values of [valueRange]
- * divided by [steps] value.
+ * divided by [steps] + 1 value.
  *
  * A continuous non-segmented slider sample:
  * @sample androidx.wear.compose.material.samples.InlineSliderSample
@@ -112,7 +106,7 @@ fun InlineSlider(
     },
     increaseIcon: @Composable () -> Unit = {
         Icon(
-            imageVector = Icons.Filled.Add,
+            imageVector = InlineSliderDefaults.IncreaseIcon,
             contentDescription = "Increase" // TODO(b/204187777) i18n
         )
     },
@@ -124,7 +118,7 @@ fun InlineSlider(
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .inlineSliderSemantics(
+            .rangeSemantics(
                 currentStep,
                 enabled,
                 onValueChange,
@@ -150,7 +144,7 @@ fun InlineSlider(
             horizontalArrangement = Arrangement.Start,
             modifier = Modifier.fillMaxWidth().background(backgroundColor.value)
         ) {
-            ActionButton(
+            InlineSliderButton(
                 enabled = enabled,
                 onClick = { updateValue(-1) },
                 contentAlignment = Alignment.CenterStart,
@@ -189,7 +183,7 @@ fun InlineSlider(
                     .background(colors.spacerColor(enabled).value)
             )
 
-            ActionButton(
+            InlineSliderButton(
                 enabled = enabled,
                 onClick = { updateValue(1) },
                 contentAlignment = Alignment.CenterEnd,
@@ -233,7 +227,7 @@ public interface InlineSliderColors {
 }
 
 /**
- * Defaults used by [InlineSlider]
+ * Defaults used by slider
  */
 object InlineSliderDefaults {
 
@@ -291,25 +285,16 @@ object InlineSliderDefaults {
     )
 
     /**
-     * An [Icon] with a minus sign.
+     * A decrease [Icon].
      */
     val DecreaseIcon: ImageVector
-        get() = if (_decreaseIcon != null) _decreaseIcon!!
-        else {
-            _decreaseIcon = materialIcon(name = "DecreaseIcon") {
-                materialPath {
-                    moveTo(19.0f, 13.0f)
-                    horizontalLineTo(5.0f)
-                    verticalLineToRelative(-2.0f)
-                    horizontalLineToRelative(14.0f)
-                    verticalLineToRelative(2.0f)
-                    close()
-                }
-            }
-            _decreaseIcon!!
-        }
+        get() = RangeIcons.MinusIcon
 
-    private var _decreaseIcon: ImageVector? = null
+    /**
+     * An increase [Icon].
+     */
+    val IncreaseIcon: ImageVector
+        get() = Icons.Filled.Add
 }
 
 @Immutable
@@ -375,7 +360,7 @@ private class DefaultInlineSliderColors(
 }
 
 @Composable
-private fun ActionButton(
+private fun InlineSliderButton(
     enabled: Boolean,
     onClick: () -> Unit,
     contentAlignment: Alignment,
@@ -396,43 +381,6 @@ private fun ActionButton(
         )
     }
 }
-
-private fun calculateCurrentStepValue(
-    currentStep: Int,
-    steps: Int,
-    valueRange: ClosedFloatingPointRange<Float>
-): Float = lerp(
-    valueRange.start, valueRange.endInclusive,
-    currentStep.toFloat() / (steps + 1).toFloat()
-).coerceIn(valueRange)
-
-private fun snapValueToStep(
-    value: Float,
-    valueRange: ClosedFloatingPointRange<Float>,
-    steps: Int
-): Int = ((value - valueRange.start) / (valueRange.endInclusive - valueRange.start) * (steps + 1))
-    .roundToInt().coerceIn(0, steps + 1)
-
-private fun Modifier.inlineSliderSemantics(
-    step: Int,
-    enabled: Boolean,
-    onValueChange: (Float) -> Unit,
-    valueRange: ClosedFloatingPointRange<Float>,
-    steps: Int
-): Modifier = semantics(mergeDescendants = true) {
-    if (!enabled) disabled()
-    setProgress(
-        action = { targetValue ->
-            val newStepIndex = snapValueToStep(targetValue, valueRange, steps)
-            if (step == newStepIndex) {
-                false
-            } else {
-                onValueChange(targetValue)
-                true
-            }
-        }
-    )
-}.progressSemantics(calculateCurrentStepValue(step, steps, valueRange), valueRange, steps)
 
 private fun Modifier.drawProgressBar(
     selectedBarColor: State<Color>,

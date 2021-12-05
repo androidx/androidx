@@ -61,6 +61,7 @@ import androidx.camera.core.impl.SurfaceConfig.ConfigSize;
 import androidx.camera.core.impl.SurfaceConfig.ConfigType;
 import androidx.camera.core.impl.UseCaseConfig;
 import androidx.camera.core.impl.UseCaseConfigFactory;
+import androidx.camera.core.impl.utils.CompareSizesByArea;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.internal.CameraUseCaseAdapter;
 import androidx.camera.testing.CameraUtil;
@@ -169,6 +170,7 @@ public final class SupportedSurfaceCombinationTest {
     @Before
     @SuppressWarnings("deprecation") /* defaultDisplay */
     public void setUp() throws IllegalAccessException {
+        DisplayInfoManager.releaseInstance();
         WindowManager windowManager =
                 (WindowManager) mContext.getSystemService(Context.WINDOW_SERVICE);
         Shadows.shadowOf(windowManager.getDefaultDisplay()).setRealWidth(mDisplaySize.getWidth());
@@ -1204,7 +1206,7 @@ public final class SupportedSurfaceCombinationTest {
         }
 
         // The testing sizes array will be equal to mSupportedSizes after sorting.
-        Arrays.sort(sizes, new SupportedSurfaceCombination.CompareSizesByArea(true));
+        Arrays.sort(sizes, new CompareSizesByArea(true));
         assertThat(Arrays.asList(sizes)).isEqualTo(Arrays.asList(mSupportedSizes));
     }
 

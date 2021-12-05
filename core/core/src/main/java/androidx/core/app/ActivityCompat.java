@@ -42,7 +42,6 @@ import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.LocusIdCompat;
-import androidx.core.os.BuildCompat;
 import androidx.core.view.DragAndDropPermissionsCompat;
 
 import java.util.Arrays;
@@ -580,7 +579,7 @@ public class ActivityCompat extends ContextCompat {
      * </ul>
      */
     public static boolean isLaunchedFromBubble(@NonNull Activity activity) {
-        if (BuildCompat.isAtLeastS()) {
+        if (Build.VERSION.SDK_INT >= 31) {
             return Api31Impl.isLaunchedFromBubble(activity);
         } else if (Build.VERSION.SDK_INT == 30) {
             return activity.getDisplay() != null

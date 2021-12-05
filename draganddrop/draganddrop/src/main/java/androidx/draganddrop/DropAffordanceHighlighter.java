@@ -59,7 +59,7 @@ final class DropAffordanceHighlighter {
     private static final int STROKE_WIDTH_DP = 3;
 
     static final int DEFAULT_CORNER_RADIUS_DP = 16;
-    private static final @ColorInt int DEFAULT_COLOR = 0xFF1A73E8;
+    private static final @ColorInt int DEFAULT_COLOR = 0xFF009688;
 
     private static final int DEFAULT_GRAVITY = Gravity.FILL;
 

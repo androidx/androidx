@@ -72,7 +72,7 @@ internal sealed class KspTypeElement(
 
     override val type: KspType by lazy {
         env.wrap(
-            ksType = declaration.asStarProjectedType(),
+            ksType = declaration.asType(emptyList()),
             allowPrimitives = false
         )
     }
@@ -184,6 +184,10 @@ internal sealed class KspTypeElement(
                         }.toList()
             }
         }
+    }
+
+    override fun isNested(): Boolean {
+        return declaration.findEnclosingMemberContainer(env) is XTypeElement
     }
 
     override fun isInterface(): Boolean {

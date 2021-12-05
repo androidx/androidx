@@ -54,7 +54,7 @@ android {
 
 androidx {
     name = "androidx.car.app:app-testing"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = LibraryType.PUBLISHED_TEST_LIBRARY
     mavenGroup = LibraryGroups.CAR_APP
     inceptionYear = "2021"
     description = "androidx.car.app:app-testing"

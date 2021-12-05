@@ -93,6 +93,24 @@ public class ComplicationDataSourceChooserIntent {
             "androidx.wear.watchface.complications.EXTRA_WATCHFACE_INSTANCE_ID";
 
     /**
+     * Key for an extra that holds the intent to launch the complication permission rational dialog.
+     *
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public static final String EXTRA_COMPLICATION_RATIONALE =
+            "androidx.wear.watchface.complications.EXTRA_COMPLICATION_RATIONALE";
+
+    /**
+     * Key for an extra that holds the intent to launch the complication permission denied dialog.
+     *
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public static final String EXTRA_COMPLICATION_DENIED =
+            "androidx.wear.watchface.complications.EXTRA_COMPLICATION_DENIED";
+
+    /**
      * Key for an extra used to include details of the chosen complication data source in the
      * activity result returned by the complication data source chooser.
      *

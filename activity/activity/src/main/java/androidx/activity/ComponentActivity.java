@@ -36,6 +36,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.content.pm.PackageManager;
+import android.content.res.Configuration;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -66,7 +67,11 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.ActivityOptionsCompat;
+import androidx.core.app.OnNewIntentProvider;
 import androidx.core.content.ContextCompat;
+import androidx.core.content.OnConfigurationChangedProvider;
+import androidx.core.content.OnTrimMemoryProvider;
+import androidx.core.util.Consumer;
 import androidx.core.view.MenuHost;
 import androidx.core.view.MenuHostHelper;
 import androidx.core.view.MenuProvider;
@@ -88,6 +93,7 @@ import androidx.savedstate.SavedStateRegistryOwner;
 import androidx.savedstate.ViewTreeSavedStateRegistryOwner;
 import androidx.tracing.Trace;
 
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -106,6 +112,9 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
         OnBackPressedDispatcherOwner,
         ActivityResultRegistryOwner,
         ActivityResultCaller,
+        OnConfigurationChangedProvider,
+        OnTrimMemoryProvider,
+        OnNewIntentProvider,
         MenuHost {
 
     static final class NonConfigurationInstances {
@@ -220,6 +229,13 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
         }
     };
 
+    private final CopyOnWriteArrayList<Consumer<Configuration>> mOnConfigurationChangedListeners =
+            new CopyOnWriteArrayList<>();
+    private final CopyOnWriteArrayList<Consumer<Integer>> mOnTrimMemoryListeners =
+            new CopyOnWriteArrayList<>();
+    private final CopyOnWriteArrayList<Consumer<Intent>> mOnNewIntentListeners =
+            new CopyOnWriteArrayList<>();
+
     /**
      * Default constructor for ComponentActivity. All Activities must have a default constructor
      * for API 27 and lower devices or when using the default
@@ -271,6 +287,7 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
                 getLifecycle().removeObserver(this);
             }
         });
+        mSavedStateRegistryController.performAttach();
 
         if (19 <= SDK_INT && SDK_INT <= 23) {
             getLifecycle().addObserver(new ImmLeaksCleaner(this));
@@ -429,6 +446,7 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
         ViewTreeLifecycleOwner.set(getWindow().getDecorView(), this);
         ViewTreeViewModelStoreOwner.set(getWindow().getDecorView(), this);
         ViewTreeSavedStateRegistryOwner.set(getWindow().getDecorView(), this);
+        ViewTreeOnBackPressedDispatcherOwner.set(getWindow().getDecorView(), this);
     }
 
     @Nullable
@@ -770,6 +788,90 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
     @Override
     public final ActivityResultRegistry getActivityResultRegistry() {
         return mActivityResultRegistry;
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * Dispatches this call to all listeners added via
+     * {@link #addOnConfigurationChangedListener(Consumer)}.
+     */
+    @CallSuper
+    @Override
+    public void onConfigurationChanged(@NonNull Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        for (Consumer<Configuration> listener : mOnConfigurationChangedListeners) {
+            listener.accept(newConfig);
+        }
+    }
+
+    @Override
+    public final void addOnConfigurationChangedListener(
+            @NonNull Consumer<Configuration> listener
+    ) {
+        mOnConfigurationChangedListeners.add(listener);
+    }
+
+    @Override
+    public final void removeOnConfigurationChangedListener(
+            @NonNull Consumer<Configuration> listener
+    ) {
+        mOnConfigurationChangedListeners.remove(listener);
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * Dispatches this call to all listeners added via {@link #addOnTrimMemoryListener(Consumer)}.
+     */
+    @CallSuper
+    @Override
+    public void onTrimMemory(int level) {
+        super.onTrimMemory(level);
+        for (Consumer<Integer> listener : mOnTrimMemoryListeners) {
+            listener.accept(level);
+        }
+    }
+
+    @Override
+    public final void addOnTrimMemoryListener(@NonNull Consumer<Integer> listener) {
+        mOnTrimMemoryListeners.add(listener);
+    }
+
+    @Override
+    public final void removeOnTrimMemoryListener(@NonNull Consumer<Integer> listener) {
+        mOnTrimMemoryListeners.remove(listener);
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * Dispatches this call to all listeners added via
+     * {@link #addOnNewIntentListener(Consumer)}.
+     */
+    @CallSuper
+    @Override
+    protected void onNewIntent(
+            @SuppressLint({"UnknownNullness", "MissingNullability"}) Intent intent
+    ) {
+        super.onNewIntent(intent);
+        for (Consumer<Intent> listener : mOnNewIntentListeners) {
+            listener.accept(intent);
+        }
+    }
+
+    @Override
+    public final void addOnNewIntentListener(
+            @NonNull Consumer<Intent> listener
+    ) {
+        mOnNewIntentListeners.add(listener);
+    }
+
+    @Override
+    public final void removeOnNewIntentListener(
+            @NonNull Consumer<Intent> listener
+    ) {
+        mOnNewIntentListeners.remove(listener);
     }
 
     @Override

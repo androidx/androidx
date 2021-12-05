@@ -37,8 +37,7 @@ internal object ThrottleDetector {
         // Have observed this to give more consistent performance when clocks are unlocked.
         copySomeData()
 
-        val state = BenchmarkState()
-        state.simplifiedTimingOnlyMode = true
+        val state = BenchmarkState(simplifiedTimingOnlyMode = true)
         val sourceMatrix = FloatArray(16) { System.nanoTime().toFloat() }
         val resultMatrix = FloatArray(16)
 

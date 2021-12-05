@@ -25,6 +25,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.os.Build
 import android.os.Parcel
 import android.view.View
 import android.view.ViewGroup
@@ -33,7 +34,6 @@ import android.widget.Adapter
 import android.widget.ListView
 import android.widget.RemoteViews
 import android.widget.TextView
-import androidx.core.os.BuildCompat
 import androidx.core.remoteviews.test.R
 import androidx.core.widget.RemoteViewsCompat.RemoteCollectionItems
 import androidx.test.core.app.ApplicationProvider
@@ -54,7 +54,7 @@ import kotlin.test.fail
 @SdkSuppress(minSdkVersion = 29)
 @MediumTest
 public class RemoteViewsCompatTest {
-    private val mUsingBackport = !BuildCompat.isAtLeastS()
+    private val mUsingBackport = Build.VERSION.SDK_INT <= Build.VERSION_CODES.S
     private val mContext = ApplicationProvider.getApplicationContext<Context>()
     private val mPackageName = mContext.packageName
     private val mAppWidgetManager = AppWidgetManager.getInstance(mContext)
@@ -297,7 +297,8 @@ public class RemoteViewsCompatTest {
             .setHasStableIds(true)
             .addItem(id = 10, createTextRow("Hello"))
             .addItem(id = 11, createTextRow("World"))
-            .addItem(id = 12, item2)
+            .addItem(id = 12, createTextRow("Mundo"))
+            .addItem(id = 13, item2)
             .build()
         RemoteViewsCompat.setRemoteAdapter(
             mContext,
@@ -307,21 +308,24 @@ public class RemoteViewsCompatTest {
             items
         )
         mAppWidgetManager.updateAppWidget(mAppWidgetId, mRemoteViews)
-        observeDrawUntil { mListView.adapter != null && mListView.childCount == 3 }
+        observeDrawUntil { mListView.adapter != null && mListView.childCount == 4 }
 
         val adapter: Adapter = mListView.adapter
-        assertThat(adapter.count).isEqualTo(3)
+        assertThat(adapter.count).isEqualTo(4)
         assertThat(adapter.getItemViewType(0)).isEqualTo(adapter.getItemViewType(1))
-        assertThat(adapter.getItemViewType(0)).isNotEqualTo(adapter.getItemViewType(2))
+        assertThat(adapter.getItemViewType(0)).isEqualTo(adapter.getItemViewType(2))
+        assertThat(adapter.getItemViewType(0)).isNotEqualTo(adapter.getItemViewType(3))
         assertThat(adapter.getItemId(0)).isEqualTo(10)
         assertThat(adapter.getItemId(1)).isEqualTo(11)
         assertThat(adapter.getItemId(2)).isEqualTo(12)
+        assertThat(adapter.getItemId(3)).isEqualTo(13)
         assertThat(adapter.hasStableIds()).isTrue()
 
-        assertThat(mListView.childCount).isEqualTo(3)
-        val textView2 = getListChildAt<ViewGroup>(2).getChildAt(0) as TextView
+        assertThat(mListView.childCount).isEqualTo(4)
+        val textView2 = getListChildAt<ViewGroup>(3).getChildAt(0) as TextView
         assertThat(getListChildAt<TextView>(0).text.toString()).isEqualTo("Hello")
         assertThat(getListChildAt<TextView>(1).text.toString()).isEqualTo("World")
+        assertThat(getListChildAt<TextView>(2).text.toString()).isEqualTo("Mundo")
         assertThat(textView2.text.toString()).isEqualTo("Clickable")
 
         // View being clicked should launch the intent.

@@ -80,11 +80,6 @@ internal class SkiaLayer(
     private var renderEffect: RenderEffect? = null
     private var shadowElevation: Float = 0f
 
-    override val layerId = lastId++
-
-    override val ownerViewId: Long
-        get() = 0
-
     override fun destroy() {
         picture?.close()
         pictureRecorder.close()
@@ -242,6 +237,9 @@ internal class SkiaLayer(
                     is Outline.Rectangle -> canvas.clipRect(outline.rect)
                     is Outline.Rounded -> canvas.clipRoundRect(outline.roundRect)
                     is Outline.Generic -> canvas.clipPath(outline.path)
+                    null -> {
+                        // Nothing
+                    }
                 }
             }
 
@@ -305,9 +303,5 @@ internal class SkiaLayer(
             ambientColor.toArgb(),
             spotColor.toArgb(), alpha < 1f, false
         )
-    }
-
-    companion object {
-        private var lastId = 0L
     }
 }

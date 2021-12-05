@@ -3,7 +3,7 @@ package androidx.work {
 
   public final class ArrayCreatingInputMerger extends androidx.work.InputMerger {
     ctor public ArrayCreatingInputMerger();
-    method public androidx.work.Data merge(java.util.List<androidx.work.Data!>);
+    method public androidx.work.Data merge(java.util.List<androidx.work.Data> inputs);
   }
 
   public enum BackoffPolicy {
@@ -152,7 +152,7 @@ package androidx.work {
   }
 
   public abstract class ListenableWorker {
-    ctor @Keep public ListenableWorker(android.content.Context, androidx.work.WorkerParameters);
+    ctor public ListenableWorker(android.content.Context, androidx.work.WorkerParameters);
     method public final android.content.Context getApplicationContext();
     method public com.google.common.util.concurrent.ListenableFuture<androidx.work.ForegroundInfo!> getForegroundInfoAsync();
     method public final java.util.UUID getId();
@@ -317,6 +317,15 @@ package androidx.work {
     method public static androidx.work.WorkQuery fromIds(java.util.List<java.util.UUID!>);
     method public static androidx.work.WorkQuery fromIds(java.util.UUID);
     method public static androidx.work.WorkQuery fromIds(java.util.UUID!...);
+    method public static androidx.work.WorkQuery fromStates(java.util.List<androidx.work.WorkInfo.State!>);
+    method public static androidx.work.WorkQuery fromStates(androidx.work.WorkInfo.State!...);
+    method public static androidx.work.WorkQuery fromStates(androidx.work.WorkInfo.State);
+    method public static androidx.work.WorkQuery fromTags(java.util.List<java.lang.String!>);
+    method public static androidx.work.WorkQuery fromTags(java.lang.String!...);
+    method public static androidx.work.WorkQuery fromTags(String);
+    method public static androidx.work.WorkQuery fromUniqueWorkNames(String);
+    method public static androidx.work.WorkQuery fromUniqueWorkNames(java.lang.String!...);
+    method public static androidx.work.WorkQuery fromUniqueWorkNames(java.util.List<java.lang.String!>);
     method public java.util.List<java.util.UUID!> getIds();
     method public java.util.List<androidx.work.WorkInfo.State!> getStates();
     method public java.util.List<java.lang.String!> getTags();
@@ -357,8 +366,9 @@ package androidx.work {
   }
 
   public abstract class Worker extends androidx.work.ListenableWorker {
-    ctor @Keep public Worker(android.content.Context, androidx.work.WorkerParameters);
+    ctor public Worker(android.content.Context, androidx.work.WorkerParameters);
     method @WorkerThread public abstract androidx.work.ListenableWorker.Result doWork();
+    method @WorkerThread public androidx.work.ForegroundInfo getForegroundInfo();
     method public final com.google.common.util.concurrent.ListenableFuture<androidx.work.ListenableWorker.Result!> startWork();
   }
 

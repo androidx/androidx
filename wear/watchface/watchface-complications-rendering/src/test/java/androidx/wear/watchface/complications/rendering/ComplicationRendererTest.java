@@ -610,7 +610,7 @@ public class ComplicationRendererTest {
         style.setHighlightColor(14);
         // WHEN a paint set is initialized using that style
         PaintSet paintSet = new PaintSet(style, false, false, false);
-        // THEN values from style are used when constructing paints
+        // THEN xml from style are used when constructing paints
         assertThat(paintSet.mBackgroundPaint.getColor()).isEqualTo(style.getBackgroundColor());
         assertThat(paintSet.mPrimaryTextPaint.getColor()).isEqualTo(style.getTextColor());
         assertThat(paintSet.mPrimaryTextPaint.getTypeface()).isEqualTo(style.getTextTypeface());

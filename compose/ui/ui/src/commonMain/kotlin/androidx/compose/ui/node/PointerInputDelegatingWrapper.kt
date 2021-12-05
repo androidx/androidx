@@ -16,6 +16,7 @@
 
 package androidx.compose.ui.node
 
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.PointerInputFilter
 import androidx.compose.ui.input.pointer.PointerInputModifier
@@ -33,27 +34,35 @@ internal class PointerInputDelegatingWrapper(
     override fun hitTest(
         pointerPosition: Offset,
         hitTestResult: HitTestResult<PointerInputFilter>,
-        isTouchEvent: Boolean
+        isTouchEvent: Boolean,
+        isInLayer: Boolean
     ) {
         hitTestInMinimumTouchTarget(
             pointerPosition,
             hitTestResult,
             modifier.pointerInputFilter.interceptOutOfBoundsChildEvents,
             isTouchEvent,
+            isInLayer,
             modifier.pointerInputFilter
-        ) {
-            hitTestChild(pointerPosition, hitTestResult, isTouchEvent)
+        ) { inLayer ->
+            hitTestChild(pointerPosition, hitTestResult, isTouchEvent, inLayer)
         }
     }
 
     private fun hitTestChild(
         pointerPosition: Offset,
         hitTestResult: HitTestResult<PointerInputFilter>,
-        isTouchEvent: Boolean
+        isTouchEvent: Boolean,
+        isInLayer: Boolean
     ) {
         // Also, keep looking to see if we also might hit any children.
         // This avoids checking layer bounds twice as when we call super.hitTest()
         val positionInWrapped = wrapped.fromParentPosition(pointerPosition)
-        wrapped.hitTest(positionInWrapped, hitTestResult, isTouchEvent)
+        wrapped.hitTest(positionInWrapped, hitTestResult, isTouchEvent, isInLayer)
     }
+
+    @OptIn(ExperimentalComposeUiApi::class)
+    override fun shouldSharePointerInputWithSiblings(): Boolean =
+        modifier.pointerInputFilter.shareWithSiblings ||
+            wrapped.shouldSharePointerInputWithSiblings()
 }

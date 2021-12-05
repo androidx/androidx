@@ -20,7 +20,6 @@ import androidx.annotation.ColorRes
 import androidx.annotation.RestrictTo
 import androidx.compose.ui.graphics.Color
 import androidx.glance.layout.ContentScale
-import androidx.glance.layout.ImageProvider
 import androidx.glance.unit.ColorProvider
 
 /** @suppress */

@@ -283,12 +283,8 @@ public class ViewCompatTest extends BaseInstrumentationTestCase<ViewCompatActivi
         final View view = mActivityTestRule.getActivity().findViewById(R.id.container);
 
         // Set an OnApplyWindowInsetsListener which returns consumed insets
-        ViewCompat.setOnApplyWindowInsetsListener(view, new OnApplyWindowInsetsListener() {
-            @Override
-            public WindowInsetsCompat onApplyWindowInsets(View v, WindowInsetsCompat insets) {
-                return insets.consumeSystemWindowInsets();
-            }
-        });
+        ViewCompat.setOnApplyWindowInsetsListener(view,
+                (v, insets) -> insets.consumeSystemWindowInsets());
 
         // Now create an inset instance and dispatch it to the view
         final WindowInsetsCompat insets = new WindowInsetsCompat.Builder()

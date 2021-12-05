@@ -25,13 +25,17 @@ import androidx.benchmark.Shell
 import androidx.benchmark.macro.perfetto.forceTrace
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiDevice
+import androidx.tracing.trace
 
 /**
  * Provides access to common operations in app automation, such as killing the app,
  * or navigating home.
  */
 public class MacrobenchmarkScope(
-    private val packageName: String,
+    /**
+     * Package name of the app being tested.
+     */
+    val packageName: String,
     /**
      * Controls whether launches will automatically set [Intent.FLAG_ACTIVITY_CLEAR_TASK].
      *
@@ -42,7 +46,25 @@ public class MacrobenchmarkScope(
 ) {
     private val instrumentation = InstrumentationRegistry.getInstrumentation()
     private val context = instrumentation.context
-    private val device = UiDevice.getInstance(instrumentation)
+
+    /**
+     * Current Macrobenchmark measurement iteration, or null if measurement is not yet enabled.
+     *
+     * Non-measurement iterations can occur due to warmup a [CompilationMode], or prior to the first
+     * iteration for [StartupMode.WARM] or [StartupMode.HOT], to create the Process or Activity
+     * ahead of time.
+     */
+    @get:Suppress("AutoBoxing") // low frequency, non-perf-relevant part of test
+    var iteration: Int? = null
+        internal set
+
+    /**
+     * Get the [UiDevice] instance, to use in reading target app UI state, or interacting with the
+     * UI via touches, scrolls, or other inputs.
+     *
+     * Convenience for `UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())`
+     */
+    val device: UiDevice = UiDevice.getInstance(instrumentation)
 
     /**
      * Start an activity, by default the default launch of the package, and wait until
@@ -107,6 +129,14 @@ public class MacrobenchmarkScope(
         }
         if (result.stderr.isNotEmpty()) {
             throw IllegalStateException(result.stderr)
+        }
+
+        // because `am start -W` doesn't wait for renderthread pre API 29, we stick a conservative
+        // extra wait in to ensure the launch has fully rendered.
+        if (Build.VERSION.SDK_INT < 29) {
+            trace("sleeping to ensure am start completed") {
+                Thread.sleep(250) // conservative number, determined empirically
+            }
         }
     }
 

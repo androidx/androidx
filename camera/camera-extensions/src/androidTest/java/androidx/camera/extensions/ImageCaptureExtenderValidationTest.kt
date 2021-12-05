@@ -73,10 +73,12 @@ class ImageCaptureExtenderValidationTest(
         )
 
         cameraProvider = ProcessCameraProvider.getInstance(context)[10000, TimeUnit.MILLISECONDS]
-        extensionsManager = ExtensionsManager.getInstance(context)[10000, TimeUnit.MILLISECONDS]
+        extensionsManager = ExtensionsManager.getInstanceAsync(
+            context,
+            cameraProvider
+        )[10000, TimeUnit.MILLISECONDS]
         assumeTrue(
             extensionsManager.isExtensionAvailable(
-                cameraProvider,
                 CameraSelector.Builder().requireLensFacing(lensFacing).build(),
                 extensionMode
             )
@@ -84,7 +86,6 @@ class ImageCaptureExtenderValidationTest(
 
         val baseCameraSelector = CameraSelector.Builder().requireLensFacing(lensFacing).build()
         val extensionCameraSelector = extensionsManager.getExtensionEnabledCameraSelector(
-            cameraProvider,
             baseCameraSelector,
             extensionMode
         )
@@ -187,7 +188,6 @@ class ImageCaptureExtenderValidationTest(
 
         val cameraSelector = CameraSelector.Builder().requireLensFacing(lensFacing).build()
         val extensionsCameraSelector = extensionsManager.getExtensionEnabledCameraSelector(
-            cameraProvider,
             cameraSelector,
             extensionMode
         )

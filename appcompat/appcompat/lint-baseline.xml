@@ -1,5 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.1.0-beta02" type="baseline" client="gradle" dependencies="false" name="AGP (7.1.0-beta02)" variant="all" version="7.1.0-beta02">
+<issues format="6" by="lint 7.2.0-dev" type="baseline" client="gradle" dependencies="false" name="AGP (7.2.0-dev)" variant="all" version="7.2.0-dev">
+
+    <issue
+        id="ResourceType"
+        message="Expected resource of type styleable"
+        errorLine1="                aa = context.obtainStyledAttributes(attrs, ATTRS_ANDROID_SPINNERMODE,"
+        errorLine2="                                                           ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appcompat/widget/AppCompatSpinner.java"
+            line="236"
+            column="60"/>
+    </issue>
 
     <issue
         id="NewApi"
@@ -294,7 +305,7 @@
         errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/AppCompatTextViewAutoSizeHelper.java"
-            line="675"
+            line="677"
             column="25"/>
     </issue>
 
@@ -305,7 +316,7 @@
         errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/AppCompatTextViewAutoSizeHelper.java"
-            line="847"
+            line="814"
             column="26"/>
     </issue>
 
@@ -398,633 +409,6 @@
     </issue>
 
     <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class androidx.appcompat.widget.ActionBarBackgroundDrawable is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                mContainer.mSplitBackground.getOutline(outline);"
-        errorLine2="                                            ~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/ActionBarBackgroundDrawable.java"
-            line="70"
-            column="45"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class androidx.appcompat.widget.ActionBarBackgroundDrawable is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                mContainer.mBackground.getOutline(outline);"
-        errorLine2="                                       ~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/ActionBarBackgroundDrawable.java"
-            line="75"
-            column="40"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class androidx.appcompat.widget.ActionBarContainer is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            invalidateOutline();"
-        errorLine2="            ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/ActionBarContainer.java"
-            line="106"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class androidx.appcompat.widget.ActionBarContainer is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            invalidateOutline();"
-        errorLine2="            ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/ActionBarContainer.java"
-            line="127"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class androidx.appcompat.widget.ActionBarContainer is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            invalidateOutline();"
-        errorLine2="            ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/ActionBarContainer.java"
-            line="147"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 18; however, the containing class androidx.appcompat.app.ActionBarDrawerToggle.FrameworkActionBarDelegate is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                    actionBar.setHomeAsUpIndicator(themeImage);"
-        errorLine2="                              ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/app/ActionBarDrawerToggle.java"
-            line="557"
-            column="31"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 18; however, the containing class androidx.appcompat.app.ActionBarDrawerToggle.FrameworkActionBarDelegate is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                    actionBar.setHomeActionContentDescription(contentDescRes);"
-        errorLine2="                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/app/ActionBarDrawerToggle.java"
-            line="558"
-            column="31"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 18; however, the containing class androidx.appcompat.app.ActionBarDrawerToggle.FrameworkActionBarDelegate is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                    actionBar.setHomeActionContentDescription(contentDescRes);"
-        errorLine2="                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/app/ActionBarDrawerToggle.java"
-            line="573"
-            column="31"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 17; however, the containing class androidx.appcompat.widget.AppCompatSpinner is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            mPopup.show(getTextDirection(), getTextAlignment());"
-        errorLine2="                        ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/AppCompatSpinner.java"
-            line="610"
-            column="25"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 17; however, the containing class androidx.appcompat.widget.AppCompatSpinner is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            mPopup.show(getTextDirection(), getTextAlignment());"
-        errorLine2="                                            ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/AppCompatSpinner.java"
-            line="610"
-            column="45"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 16; however, the containing class null is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                                vto.removeOnGlobalLayoutListener(this);"
-        errorLine2="                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/AppCompatSpinner.java"
-            line="643"
-            column="37"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 23; however, the containing class androidx.appcompat.widget.AppCompatSpinner.DropDownAdapter is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                    if (themedAdapter.getDropDownViewTheme() != dropDownTheme) {"
-        errorLine2="                                      ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/AppCompatSpinner.java"
-            line="717"
-            column="39"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 23; however, the containing class androidx.appcompat.widget.AppCompatSpinner.DropDownAdapter is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                        themedAdapter.setDropDownViewTheme(dropDownTheme);"
-        errorLine2="                                      ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/AppCompatSpinner.java"
-            line="718"
-            column="39"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 17; however, the containing class androidx.appcompat.widget.AppCompatSpinner.DialogPopup is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                listView.setTextDirection(textDirection);"
-        errorLine2="                         ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/AppCompatSpinner.java"
-            line="907"
-            column="26"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 17; however, the containing class androidx.appcompat.widget.AppCompatSpinner.DialogPopup is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                listView.setTextAlignment(textAlignment);"
-        errorLine2="                         ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/AppCompatSpinner.java"
-            line="908"
-            column="26"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 17; however, the containing class androidx.appcompat.widget.AppCompatSpinner.DropdownPopup is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                listView.setTextDirection(textDirection);"
-        errorLine2="                         ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/AppCompatSpinner.java"
-            line="1056"
-            column="26"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 17; however, the containing class androidx.appcompat.widget.AppCompatSpinner.DropdownPopup is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                listView.setTextAlignment(textAlignment);"
-        errorLine2="                         ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/AppCompatSpinner.java"
-            line="1057"
-            column="26"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 23; however, the containing class androidx.appcompat.widget.AppCompatTextClassifierHelper is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                    mTextView.getContext().getSystemService(TextClassificationManager.class);"
-        errorLine2="                                           ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/AppCompatTextClassifierHelper.java"
-            line="64"
-            column="44"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 26; however, the containing class androidx.appcompat.widget.AppCompatTextClassifierHelper is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                return tcm.getTextClassifier();"
-        errorLine2="                           ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/AppCompatTextClassifierHelper.java"
-            line="66"
-            column="28"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 26; however, the containing class androidx.appcompat.widget.AppCompatTextHelper is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            mView.setFontVariationSettings(fontVariation);"
-        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/AppCompatTextHelper.java"
-            line="235"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 24; however, the containing class androidx.appcompat.widget.AppCompatTextHelper is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                mView.setTextLocales(LocaleList.forLanguageTags(localeListString));"
-        errorLine2="                      ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/AppCompatTextHelper.java"
-            line="239"
-            column="23"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 24; however, the containing class androidx.appcompat.widget.AppCompatTextHelper is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                mView.setTextLocales(LocaleList.forLanguageTags(localeListString));"
-        errorLine2="                                                ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/AppCompatTextHelper.java"
-            line="239"
-            column="49"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 17; however, the containing class androidx.appcompat.widget.AppCompatTextHelper is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                mView.setTextLocale(Locale.forLanguageTag(firstLanTag));"
-        errorLine2="                      ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/AppCompatTextHelper.java"
-            line="243"
-            column="23"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class androidx.appcompat.widget.AppCompatTextHelper is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                mView.setTextLocale(Locale.forLanguageTag(firstLanTag));"
-        errorLine2="                                           ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/AppCompatTextHelper.java"
-            line="243"
-            column="44"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 26; however, the containing class androidx.appcompat.widget.AppCompatTextHelper is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                    if (mView.getAutoSizeStepGranularity() != AppCompatTextViewAutoSizeHelper"
-        errorLine2="                              ~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/AppCompatTextHelper.java"
-            line="256"
-            column="31"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 26; however, the containing class androidx.appcompat.widget.AppCompatTextHelper is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                        mView.setAutoSizeTextTypeUniformWithConfiguration("
-        errorLine2="                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/AppCompatTextHelper.java"
-            line="259"
-            column="31"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 26; however, the containing class androidx.appcompat.widget.AppCompatTextHelper is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                        mView.setAutoSizeTextTypeUniformWithPresetSizes("
-        errorLine2="                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/AppCompatTextHelper.java"
-            line="265"
-            column="31"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 28; however, the containing class null is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                                typeface = Typeface.create(typeface, fontWeight,"
-        errorLine2="                                                    ~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/AppCompatTextHelper.java"
-            line="367"
-            column="53"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 28; however, the containing class androidx.appcompat.widget.AppCompatTextHelper is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                            mFontTypeface = Typeface.create("
-        errorLine2="                                                     ~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/AppCompatTextHelper.java"
-            line="385"
-            column="54"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 28; however, the containing class androidx.appcompat.widget.AppCompatTextHelper is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                        mFontTypeface = Typeface.create("
-        errorLine2="                                                 ~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/AppCompatTextHelper.java"
-            line="404"
-            column="50"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 26; however, the containing class androidx.appcompat.widget.AppCompatTextHelper is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                mView.setFontVariationSettings(fontVariation);"
-        errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/AppCompatTextHelper.java"
-            line="505"
-            column="23"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 17; however, the containing class androidx.appcompat.widget.AppCompatTextHelper is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                final Drawable[] compoundDrawables = mView.getCompoundDrawablesRelative();"
-        errorLine2="                                                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/AppCompatTextHelper.java"
-            line="533"
-            column="60"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 17; however, the containing class androidx.appcompat.widget.AppCompatTextHelper is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            final Drawable[] existingRel = mView.getCompoundDrawablesRelative();"
-        errorLine2="                                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/AppCompatTextHelper.java"
-            line="673"
-            column="50"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 17; however, the containing class androidx.appcompat.widget.AppCompatTextHelper is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            mView.setCompoundDrawablesRelativeWithIntrinsicBounds("
-        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/AppCompatTextHelper.java"
-            line="674"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 17; however, the containing class androidx.appcompat.widget.AppCompatTextHelper is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                final Drawable[] existingRel = mView.getCompoundDrawablesRelative();"
-        errorLine2="                                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/AppCompatTextHelper.java"
-            line="684"
-            column="54"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 17; however, the containing class androidx.appcompat.widget.AppCompatTextHelper is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                    mView.setCompoundDrawablesRelativeWithIntrinsicBounds("
-        errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/AppCompatTextHelper.java"
-            line="686"
-            column="27"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 18; however, the containing class androidx.appcompat.widget.AppCompatTextViewAutoSizeHelper is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                isInLayout = mTextView.isInLayout();"
-        errorLine2="                                       ~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/AppCompatTextViewAutoSizeHelper.java"
-            line="664"
-            column="40"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 16; however, the containing class androidx.appcompat.widget.AppCompatTextViewAutoSizeHelper is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="        final int maxLines = Build.VERSION.SDK_INT >= 16 ? mTextView.getMaxLines() : -1;"
-        errorLine2="                                                                     ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/AppCompatTextViewAutoSizeHelper.java"
-            line="753"
-            column="70"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 23; however, the containing class androidx.appcompat.widget.AppCompatTextViewAutoSizeHelper is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="        final StaticLayout.Builder layoutBuilder = StaticLayout.Builder.obtain("
-        errorLine2="                                                                        ~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/AppCompatTextViewAutoSizeHelper.java"
-            line="779"
-            column="73"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 23; however, the containing class androidx.appcompat.widget.AppCompatTextViewAutoSizeHelper is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="        layoutBuilder.setAlignment(alignment)"
-        errorLine2="                      ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/AppCompatTextViewAutoSizeHelper.java"
-            line="782"
-            column="23"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 23; however, the containing class androidx.appcompat.widget.AppCompatTextViewAutoSizeHelper is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                .setLineSpacing("
-        errorLine2="                 ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/AppCompatTextViewAutoSizeHelper.java"
-            line="783"
-            column="18"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 16; however, the containing class androidx.appcompat.widget.AppCompatTextViewAutoSizeHelper is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                        mTextView.getLineSpacingExtra(),"
-        errorLine2="                                  ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/AppCompatTextViewAutoSizeHelper.java"
-            line="784"
-            column="35"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 16; however, the containing class androidx.appcompat.widget.AppCompatTextViewAutoSizeHelper is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                        mTextView.getLineSpacingMultiplier())"
-        errorLine2="                                  ~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/AppCompatTextViewAutoSizeHelper.java"
-            line="785"
-            column="35"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 16; however, the containing class androidx.appcompat.widget.AppCompatTextViewAutoSizeHelper is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                .setIncludePad(mTextView.getIncludeFontPadding())"
-        errorLine2="                                         ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/AppCompatTextViewAutoSizeHelper.java"
-            line="786"
-            column="42"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 23; however, the containing class androidx.appcompat.widget.AppCompatTextViewAutoSizeHelper is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                .setIncludePad(mTextView.getIncludeFontPadding())"
-        errorLine2="                 ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/AppCompatTextViewAutoSizeHelper.java"
-            line="786"
-            column="18"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 23; however, the containing class androidx.appcompat.widget.AppCompatTextViewAutoSizeHelper is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                .setBreakStrategy(mTextView.getBreakStrategy())"
-        errorLine2="                 ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/AppCompatTextViewAutoSizeHelper.java"
-            line="787"
-            column="18"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 23; however, the containing class androidx.appcompat.widget.AppCompatTextViewAutoSizeHelper is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                .setBreakStrategy(mTextView.getBreakStrategy())"
-        errorLine2="                                            ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/AppCompatTextViewAutoSizeHelper.java"
-            line="787"
-            column="45"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 23; however, the containing class androidx.appcompat.widget.AppCompatTextViewAutoSizeHelper is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                .setHyphenationFrequency(mTextView.getHyphenationFrequency())"
-        errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/AppCompatTextViewAutoSizeHelper.java"
-            line="788"
-            column="18"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 23; however, the containing class androidx.appcompat.widget.AppCompatTextViewAutoSizeHelper is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                .setHyphenationFrequency(mTextView.getHyphenationFrequency())"
-        errorLine2="                                                   ~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/AppCompatTextViewAutoSizeHelper.java"
-            line="788"
-            column="52"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 23; however, the containing class androidx.appcompat.widget.AppCompatTextViewAutoSizeHelper is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                .setMaxLines(maxLines == -1 ? Integer.MAX_VALUE : maxLines);"
-        errorLine2="                 ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/AppCompatTextViewAutoSizeHelper.java"
-            line="789"
-            column="18"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 23; however, the containing class androidx.appcompat.widget.AppCompatTextViewAutoSizeHelper is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="        return layoutBuilder.build();"
-        errorLine2="                             ~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/AppCompatTextViewAutoSizeHelper.java"
-            line="799"
-            column="30"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 16; however, the containing class androidx.appcompat.widget.AppCompatTextViewAutoSizeHelper is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="        final float lineSpacingMultiplier = mTextView.getLineSpacingMultiplier();"
-        errorLine2="                                                      ~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/AppCompatTextViewAutoSizeHelper.java"
-            line="805"
-            column="55"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 16; however, the containing class androidx.appcompat.widget.AppCompatTextViewAutoSizeHelper is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="        final float lineSpacingAdd = mTextView.getLineSpacingExtra();"
-        errorLine2="                                               ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/AppCompatTextViewAutoSizeHelper.java"
-            line="806"
-            column="48"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 16; however, the containing class androidx.appcompat.widget.AppCompatTextViewAutoSizeHelper is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="        final boolean includePad = mTextView.getIncludeFontPadding();"
-        errorLine2="                                             ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/AppCompatTextViewAutoSizeHelper.java"
-            line="807"
-            column="46"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 17; however, the containing class androidx.appcompat.view.ContextThemeWrapper is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                final Context resContext = createConfigurationContext(mOverrideConfiguration);"
-        errorLine2="                                           ~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/view/ContextThemeWrapper.java"
-            line="117"
-            column="44"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class androidx.appcompat.widget.DropDownListView is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            drawableHotspotChanged(x, y);"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/DropDownListView.java"
-            line="652"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 29; however, the containing class androidx.appcompat.widget.SearchView.SearchAutoComplete is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                setInputMethodMode(INPUT_METHOD_NEEDED);"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/SearchView.java"
-            line="2037"
-            column="17"/>
-    </issue>
-
-    <issue
         id="MissingTestSizeAnnotation"
         message="Missing test size annotation"
         errorLine1="    fun testTileifyLayerDrawable() {"
@@ -1042,11 +426,11 @@
         errorLine2="                ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/ActionBarContainer.java"
-            line="242"
+            line="243"
             column="17"/>
         <location
             file="src/main/java/androidx/appcompat/widget/ActionBarContainer.java"
-            line="228"
+            line="229"
             column="17"
             message="Setter here"/>
     </issue>
@@ -1870,7 +1254,7 @@
         errorLine2="                              ~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/ActionBarContainer.java"
-            line="54"
+            line="55"
             column="31"/>
     </issue>
 
@@ -1881,7 +1265,7 @@
         errorLine2="                              ~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/ActionBarContainer.java"
-            line="58"
+            line="59"
             column="31"/>
     </issue>
 
@@ -1892,7 +1276,7 @@
         errorLine2="                                               ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/ActionBarContainer.java"
-            line="58"
+            line="59"
             column="48"/>
     </issue>
 
@@ -1903,7 +1287,7 @@
         errorLine2="                                     ~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/ActionBarContainer.java"
-            line="89"
+            line="90"
             column="38"/>
     </issue>
 
@@ -1914,7 +1298,7 @@
         errorLine2="                                     ~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/ActionBarContainer.java"
-            line="110"
+            line="111"
             column="38"/>
     </issue>
 
@@ -1925,7 +1309,7 @@
         errorLine2="                                   ~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/ActionBarContainer.java"
-            line="131"
+            line="132"
             column="36"/>
     </issue>
 
@@ -1936,7 +1320,7 @@
         errorLine2="                                     ~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/ActionBarContainer.java"
-            line="161"
+            line="162"
             column="38"/>
     </issue>
 
@@ -1947,7 +1331,7 @@
         errorLine2="                                         ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/ActionBarContainer.java"
-            line="208"
+            line="209"
             column="42"/>
     </issue>
 
@@ -1958,7 +1342,7 @@
         errorLine2="                                ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/ActionBarContainer.java"
-            line="213"
+            line="214"
             column="33"/>
     </issue>
 
@@ -1969,7 +1353,7 @@
         errorLine2="                                ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/ActionBarContainer.java"
-            line="221"
+            line="222"
             column="33"/>
     </issue>
 
@@ -1980,7 +1364,7 @@
         errorLine2="                                ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/ActionBarContainer.java"
-            line="228"
+            line="229"
             column="33"/>
     </issue>
 
@@ -1991,7 +1375,7 @@
         errorLine2="           ~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/ActionBarContainer.java"
-            line="242"
+            line="243"
             column="12"/>
     </issue>
 
@@ -2002,7 +1386,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/ActionBarContainer.java"
-            line="247"
+            line="248"
             column="12"/>
     </issue>
 
@@ -2013,7 +1397,7 @@
         errorLine2="                                                           ~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/ActionBarContainer.java"
-            line="247"
+            line="248"
             column="60"/>
     </issue>
 
@@ -2024,7 +1408,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/ActionBarContainer.java"
-            line="248"
+            line="249"
             column="13"/>
     </issue>
 
@@ -2035,7 +1419,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/ActionBarContainer.java"
-            line="254"
+            line="255"
             column="12"/>
     </issue>
 
@@ -2046,7 +1430,7 @@
         errorLine2="                                                           ~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/ActionBarContainer.java"
-            line="254"
+            line="255"
             column="60"/>
     </issue>
 
@@ -2057,7 +1441,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/ActionBarContainer.java"
-            line="255"
+            line="256"
             column="13"/>
     </issue>
 
@@ -2167,7 +1551,7 @@
         errorLine2="                                     ~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/ActionBarDrawerToggle.java"
-            line="90"
+            line="92"
             column="38"/>
     </issue>
 
@@ -2178,7 +1562,7 @@
         errorLine2="        ~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/ActionBarDrawerToggle.java"
-            line="102"
+            line="104"
             column="9"/>
     </issue>
 
@@ -2189,7 +1573,7 @@
         errorLine2="        ~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/ActionBarDrawerToggle.java"
-            line="107"
+            line="109"
             column="9"/>
     </issue>
 
@@ -2200,7 +1584,7 @@
         errorLine2="                                 ~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/ActionBarDrawerToggle.java"
-            line="150"
+            line="152"
             column="34"/>
     </issue>
 
@@ -2211,7 +1595,7 @@
         errorLine2="                                                    ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/ActionBarDrawerToggle.java"
-            line="150"
+            line="152"
             column="53"/>
     </issue>
 
@@ -2222,7 +1606,7 @@
         errorLine2="                                 ~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/ActionBarDrawerToggle.java"
-            line="181"
+            line="183"
             column="34"/>
     </issue>
 
@@ -2233,7 +1617,7 @@
         errorLine2="                                                    ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/ActionBarDrawerToggle.java"
-            line="181"
+            line="183"
             column="53"/>
     </issue>
 
@@ -2244,7 +1628,7 @@
         errorLine2="            ~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/ActionBarDrawerToggle.java"
-            line="182"
+            line="184"
             column="13"/>
     </issue>
 
@@ -2255,7 +1639,7 @@
         errorLine2="                                       ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/ActionBarDrawerToggle.java"
-            line="256"
+            line="258"
             column="40"/>
     </issue>
 
@@ -2266,7 +1650,7 @@
         errorLine2="                                         ~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/ActionBarDrawerToggle.java"
-            line="273"
+            line="275"
             column="42"/>
     </issue>
 
@@ -2277,7 +1661,7 @@
         errorLine2="                                     ~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/ActionBarDrawerToggle.java"
-            line="302"
+            line="304"
             column="38"/>
     </issue>
 
@@ -2288,7 +1672,7 @@
         errorLine2="                              ~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/ActionBarDrawerToggle.java"
-            line="412"
+            line="414"
             column="31"/>
     </issue>
 
@@ -2299,7 +1683,7 @@
         errorLine2="                               ~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/ActionBarDrawerToggle.java"
-            line="428"
+            line="430"
             column="32"/>
     </issue>
 
@@ -2310,7 +1694,7 @@
         errorLine2="                               ~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/ActionBarDrawerToggle.java"
-            line="443"
+            line="445"
             column="32"/>
     </issue>
 
@@ -2321,7 +1705,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/ActionBarDrawerToggle.java"
-            line="470"
+            line="472"
             column="12"/>
     </issue>
 
@@ -2332,7 +1716,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/ActionBarDrawerToggle.java"
-            line="484"
+            line="486"
             column="13"/>
     </issue>
 
@@ -6072,7 +5456,7 @@
         errorLine2="                                        ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/AppCompatSpinner.java"
-            line="210"
+            line="212"
             column="41"/>
     </issue>
 
@@ -6083,7 +5467,7 @@
         errorLine2="           ~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/AppCompatSpinner.java"
-            line="310"
+            line="312"
             column="12"/>
     </issue>
 
@@ -6094,7 +5478,7 @@
         errorLine2="                                           ~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/AppCompatSpinner.java"
-            line="315"
+            line="317"
             column="44"/>
     </issue>
 
@@ -6105,7 +5489,7 @@
         errorLine2="           ~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/AppCompatSpinner.java"
-            line="329"
+            line="331"
             column="12"/>
     </issue>
 
@@ -6116,7 +5500,7 @@
         errorLine2="                           ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/AppCompatSpinner.java"
-            line="403"
+            line="405"
             column="28"/>
     </issue>
 
@@ -6127,7 +5511,7 @@
         errorLine2="                                ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/AppCompatSpinner.java"
-            line="429"
+            line="431"
             column="33"/>
     </issue>
 
@@ -6138,7 +5522,7 @@
         errorLine2="                          ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/AppCompatSpinner.java"
-            line="464"
+            line="466"
             column="27"/>
     </issue>
 
@@ -6149,7 +5533,7 @@
         errorLine2="           ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/AppCompatSpinner.java"
-            line="473"
+            line="475"
             column="12"/>
     </issue>
 
@@ -6160,7 +5544,7 @@
         errorLine2="           ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/AppCompatSpinner.java"
-            line="618"
+            line="620"
             column="12"/>
     </issue>
 
@@ -6171,7 +5555,7 @@
         errorLine2="                                       ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/AppCompatSpinner.java"
-            line="626"
+            line="628"
             column="40"/>
     </issue>
 

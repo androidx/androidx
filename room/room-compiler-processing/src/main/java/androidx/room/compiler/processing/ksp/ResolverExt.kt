@@ -33,7 +33,7 @@ internal fun Resolver.requireClass(qName: String) = checkNotNull(findClass(qName
     "cannot find class $qName"
 }
 
-internal fun Resolver.requireType(qName: String) = requireClass(qName).asStarProjectedType()
+internal fun Resolver.requireType(qName: String) = requireClass(qName).asType(emptyList())
 
 internal fun Resolver.requireContinuationClass() = requireClass("kotlin.coroutines.Continuation")
 
@@ -58,7 +58,7 @@ internal fun Resolver.overrides(
         return false
     }
     // do a quick check on name before doing the more expensive operations
-    if (overriderElement.name != overrideeElement.name) {
+    if (overriderElement.jvmName != overrideeElement.jvmName) {
         return false
     }
     val ksOverrider = overriderElement.getDeclarationForOverride()

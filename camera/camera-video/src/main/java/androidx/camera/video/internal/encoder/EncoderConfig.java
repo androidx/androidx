@@ -20,6 +20,7 @@ import android.media.MediaFormat;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
+import androidx.camera.core.impl.CamcorderProfileProxy;
 
 /**
  * The configuration represents the required parameters to configure an encoder.
@@ -28,6 +29,10 @@ import androidx.annotation.RequiresApi;
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public interface EncoderConfig {
+
+    /** Constant corresponding to no profile for the encoder */
+    int CODEC_PROFILE_NONE = CamcorderProfileProxy.CODEC_PROFILE_NONE;
+
     /**
      * The mime type of the encoder.
      *
@@ -37,6 +42,17 @@ public interface EncoderConfig {
      */
     @NonNull
     String getMimeType();
+
+    /**
+     * The (optional) profile for the mime type returned by {@link #getMimeType()}.
+     *
+     * <p>For example, for AAC-ELD (enhanced low delay) audio encoder, the mime type is
+     * "audio/mp4a-latm" and the profile needs to be
+     * {@link android.media.MediaCodecInfo.CodecProfileLevel#AACObjectELD}.
+     *
+     * <p>Not all mime types require a profile, so this is optional.
+     */
+    int getProfile();
 
     /**
      * Transfers the config to a {@link MediaFormat}.

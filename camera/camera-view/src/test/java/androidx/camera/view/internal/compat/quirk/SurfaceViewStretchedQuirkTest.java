@@ -37,8 +37,17 @@ public class SurfaceViewStretchedQuirkTest {
 
     @Test
     public void quirkExistsOnSamsungGalaxyZFold2() {
+        quirkExistsOnDevice("f2q");
+    }
+
+    @Test
+    public void quirkExistsOnSamsungGalaxyZFold3() {
+        quirkExistsOnDevice("q2q");
+    }
+
+    public void quirkExistsOnDevice(String device) {
         // Arrange.
-        ReflectionHelpers.setStaticField(Build.class, "DEVICE", "F2Q");
+        ReflectionHelpers.setStaticField(Build.class, "DEVICE", device);
         ReflectionHelpers.setStaticField(Build.class, "MANUFACTURER", "SAMSUNG");
 
         // Act.

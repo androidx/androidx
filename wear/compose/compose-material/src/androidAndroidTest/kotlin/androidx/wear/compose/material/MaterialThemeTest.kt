@@ -16,6 +16,7 @@
 
 package androidx.wear.compose.material
 
+import android.os.Build
 import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
@@ -32,6 +33,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
+import androidx.test.filters.SdkSuppress
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
@@ -40,6 +42,7 @@ class MaterialThemeTest {
     @get:Rule
     val rule = createComposeRule()
 
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun sets_default_color() {
         var expectedBackground = Color.Transparent
@@ -57,6 +60,7 @@ class MaterialThemeTest {
             .assertContainsColor(expectedBackground, 50.0f)
     }
 
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun overrides_color_when_nested() {
         // MaterialTheme in 'setWearContent' sets the primary background
@@ -76,6 +80,7 @@ class MaterialThemeTest {
             .assertContainsColor(Color.Cyan, 50.0f)
     }
 
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun can_be_overridden_by_component_color_explicitly() {
         rule.setContentWithTheme {
@@ -183,6 +188,7 @@ class MaterialThemeTest {
             updateThemeColors = { colors, error -> colors.copy(error = error) }
         )
 
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun sets_colors_dynamically() {
         var initialBackground = Color.Transparent
@@ -339,6 +345,7 @@ class MaterialThemeTest {
         assertTextTypographyEquals(overrideTextStyle, rule.textStyleOf("Test"))
     }
 
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     private fun verifyBackgroundColorIsDynamic(
         initial: @Composable () -> Color,
         selectChipColors: @Composable () -> ChipColors,

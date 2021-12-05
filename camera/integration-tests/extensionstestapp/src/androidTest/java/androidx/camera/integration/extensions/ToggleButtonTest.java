@@ -64,9 +64,6 @@ public final class ToggleButtonTest {
     @Rule
     public GrantPermissionRule mStoragePermissionRule =
             GrantPermissionRule.grant(android.Manifest.permission.WRITE_EXTERNAL_STORAGE);
-    @Rule
-    public GrantPermissionRule mAudioPermissionRule =
-            GrantPermissionRule.grant(android.Manifest.permission.RECORD_AUDIO);
 
     public static void waitFor(IdlingResource idlingResource) {
         IdlingRegistry.getInstance().register(idlingResource);

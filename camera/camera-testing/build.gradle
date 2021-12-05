@@ -16,6 +16,7 @@
 
 
 import androidx.build.LibraryGroups
+import androidx.build.LibraryType
 import androidx.build.Publish
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
@@ -79,6 +80,7 @@ tasks.withType(KotlinCompile).configureEach {
 
 androidx {
     name = "Jetpack Camera Testing Library"
+    type = LibraryType.INTERNAL_TEST_LIBRARY
     publish = Publish.NONE
     mavenGroup = LibraryGroups.CAMERA
     inceptionYear = "2019"

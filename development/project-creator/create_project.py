@@ -745,6 +745,10 @@ def main(args):
         project_type = ProjectType.KOTLIN
     else:
         project_type = ask_project_type()
+    insert_new_group_id_into_library_versions_kt(
+        args.group_id,
+        args.artifact_id
+    )
     create_directories(
         args.group_id,
         args.artifact_id,
@@ -752,8 +756,6 @@ def main(args):
         is_compose_project(args.group_id, args.artifact_id)
     )
     update_settings_gradle(args.group_id, args.artifact_id)
-    insert_new_group_id_into_library_versions_kt(args.group_id,
-                                                 args.artifact_id)
     update_docs_tip_of_tree_build_grade(args.group_id, args.artifact_id)
     print("Created directories. \nRunning updateApi for the new "
           "library, this may take a minute...", end='')

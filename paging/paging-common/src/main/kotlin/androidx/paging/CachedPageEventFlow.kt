@@ -167,6 +167,7 @@ internal class FlattenedPageEventStorage<T : Any> {
             is PageEvent.Insert<T> -> handleInsert(event)
             is PageEvent.Drop<T> -> handlePageDrop(event)
             is PageEvent.LoadStateUpdate<T> -> handleLoadStateUpdate(event)
+            is PageEvent.StaticList -> handleStaticList(event)
         }
     }
 
@@ -216,6 +217,21 @@ internal class FlattenedPageEventStorage<T : Any> {
     private fun handleLoadStateUpdate(event: PageEvent.LoadStateUpdate<T>) {
         sourceStates.set(event.source)
         mediatorStates = event.mediator
+    }
+
+    private fun handleStaticList(event: PageEvent.StaticList<T>) {
+        if (event.sourceLoadStates != null) {
+            sourceStates.set(event.sourceLoadStates)
+        }
+
+        if (event.mediatorLoadStates != null) {
+            mediatorStates = event.mediatorLoadStates
+        }
+
+        pages.clear()
+        placeholdersAfter = 0
+        placeholdersBefore = 0
+        pages.add(TransformablePage(originalPageOffset = 0, data = event.data))
     }
 
     fun getAsEvents(): List<PageEvent<T>> {

@@ -48,4 +48,10 @@ interface ScalingLazyListLayoutInfo {
      * The total count of items passed to [ScalingLazyColumn].
      */
     val totalItemsCount: Int
+
+    /**
+     * The index of the item on to the center of the view, if there are two items around the center
+     * line, the second one (higher index) is used. It's -1 if the list is empty.
+     */
+    val centralItemIndex: Int
 }

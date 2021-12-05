@@ -141,7 +141,6 @@ public final class MediaStoreOutputOptions extends OutputOptions {
     }
 
     /** The builder of the {@link MediaStoreOutputOptions} object. */
-    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
     public static final class Builder implements
             OutputOptions.Builder<MediaStoreOutputOptions, Builder> {
         private final MediaStoreOutputOptionsInternal.Builder mInternalBuilder =

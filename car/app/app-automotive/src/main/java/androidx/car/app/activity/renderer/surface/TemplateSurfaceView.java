@@ -216,6 +216,9 @@ public final class TemplateSurfaceView extends SurfaceView {
         if (mIsInInputMode) {
             mIsInInputMode = false;
             mInputMethodManager.hideSoftInputFromWindow(getWindowToken(), 0);
+            // Signal the input method manager to reevaluate its active input connection.
+            // Otherwise, the input method manager assumes the input connection is still valid.
+            mInputMethodManager.restartInput(this);
         }
     }
 

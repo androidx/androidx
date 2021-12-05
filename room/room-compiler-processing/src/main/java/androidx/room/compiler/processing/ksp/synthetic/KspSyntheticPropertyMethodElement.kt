@@ -25,14 +25,18 @@ import androidx.room.compiler.processing.XMethodElement
 import androidx.room.compiler.processing.XMethodType
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.XTypeElement
+import androidx.room.compiler.processing.javac.kotlin.computeGetterName
+import androidx.room.compiler.processing.javac.kotlin.computeSetterName
 import androidx.room.compiler.processing.ksp.KspAnnotated
 import androidx.room.compiler.processing.ksp.KspAnnotated.UseSiteFilter.Companion.NO_USE_SITE_OR_GETTER
 import androidx.room.compiler.processing.ksp.KspAnnotated.UseSiteFilter.Companion.NO_USE_SITE_OR_SETTER
 import androidx.room.compiler.processing.ksp.KspAnnotated.UseSiteFilter.Companion.NO_USE_SITE_OR_SET_PARAM
 import androidx.room.compiler.processing.ksp.KspFieldElement
 import androidx.room.compiler.processing.ksp.KspHasModifiers
+import androidx.room.compiler.processing.ksp.KspJvmTypeResolutionScope
 import androidx.room.compiler.processing.ksp.KspProcessingEnv
 import androidx.room.compiler.processing.ksp.KspTypeElement
+import androidx.room.compiler.processing.ksp.KspType
 import androidx.room.compiler.processing.ksp.findEnclosingMemberContainer
 import androidx.room.compiler.processing.ksp.overrides
 import androidx.room.compiler.processing.util.sanitizeAsJavaParameterName
@@ -61,7 +65,7 @@ internal sealed class KspSyntheticPropertyMethodElement(
     ) {
 
     @OptIn(KspExperimental::class)
-    override val name: String by lazy {
+    override val jvmName: String by lazy {
         env.resolver.getJvmName(accessor) ?: error("Cannot find the name for accessor $accessor")
     }
 
@@ -77,6 +81,8 @@ internal sealed class KspSyntheticPropertyMethodElement(
     final override fun hasKotlinDefaultImpl() = false
 
     final override fun isSuspendFunction() = false
+
+    final override fun isExtensionFunction() = false
 
     final override val enclosingElement: XMemberContainer
         get() = this.field.enclosingElement
@@ -150,6 +156,9 @@ internal sealed class KspSyntheticPropertyMethodElement(
             filter = NO_USE_SITE_OR_GETTER
         ) {
 
+        override val name: String by lazy {
+            computeGetterName(field.declaration.simpleName.asString())
+        }
         override val returnType: XType by lazy {
             field.type
         }
@@ -177,6 +186,9 @@ internal sealed class KspSyntheticPropertyMethodElement(
             filter = NO_USE_SITE_OR_SETTER
         ) {
 
+        override val name by lazy {
+            computeSetterName(field.declaration.simpleName.asString())
+        }
         override val returnType: XType by lazy {
             env.voidType
         }
@@ -195,7 +207,7 @@ internal sealed class KspSyntheticPropertyMethodElement(
         }
 
         private class SyntheticExecutableParameterElement(
-            env: KspProcessingEnv,
+            private val env: KspProcessingEnv,
             override val enclosingMethodElement: Setter
         ) : XExecutableParameterElement,
             XAnnotated by KspAnnotated.create(
@@ -204,12 +216,20 @@ internal sealed class KspSyntheticPropertyMethodElement(
                 filter = NO_USE_SITE_OR_SET_PARAM
             ) {
 
+            private val jvmTypeResolutionScope = KspJvmTypeResolutionScope.PropertyAccessor(
+                declaration = enclosingMethodElement
+            )
+
             override val name: String by lazy {
                 val originalName = enclosingMethodElement.accessor.parameter.name?.asString()
                 originalName.sanitizeAsJavaParameterName(0)
             }
-            override val type: XType
-                get() = enclosingMethodElement.field.type
+
+            override val type: KspType by lazy {
+                enclosingMethodElement.field.type.withJvmTypeResolver(
+                    jvmTypeResolutionScope
+                )
+            }
 
             override val fallbackLocationText: String
                 get() = "$name in ${enclosingMethodElement.fallbackLocationText}"
@@ -217,8 +237,9 @@ internal sealed class KspSyntheticPropertyMethodElement(
             override val hasDefaultValue: Boolean
                 get() = false
 
-            override fun asMemberOf(other: XType): XType {
+            override fun asMemberOf(other: XType): KspType {
                 return enclosingMethodElement.field.asMemberOf(other)
+                    .withJvmTypeResolver(jvmTypeResolutionScope)
             }
 
             override val docComment: String?

@@ -41,7 +41,7 @@ improvement.
 To get started with sample code, see
 [Sample code in Kotlin modules](api_guidelines.md#sample-code-in-kotlin-modules)
 for information on writing samples that can be referenced from API reference
-documentation or [Project directory structure](policies.md#directory-structure)
+documentation or [Project directory structure](api_guidelines.md#module-structure)
 for module naming guidelines if you'd like to create a basic test app.
 
 ### Avoiding side-effects {#side-effects}

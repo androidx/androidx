@@ -31,7 +31,7 @@ import java.lang.annotation.Target;
  * primary key. If both an {@link Entity} and its super class defines a {@code PrimaryKey}, the
  * child's {@code PrimaryKey} definition will override the parent's {@code PrimaryKey}.
  * <p>
- * If {@code PrimaryKey} annotation is used on a {@link Embedded}d field, all columns inherited
+ * If {@code PrimaryKey} annotation is used on a {@link Embedded} field, all columns inherited
  * from that embedded field becomes the composite primary key (including its grand children
  * fields).
  */

@@ -48,14 +48,20 @@ dependencies {
     implementation("androidx.startup:startup-runtime:1.1.0")
 
     implementation(project(":window:window"))
-    debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.7'
+    debugImplementation(libs.leakcanary)
+
+    androidTestImplementation(libs.testCore)
+    androidTestImplementation(libs.testExtJunit)
+    androidTestImplementation(libs.testRunner)
+    androidTestImplementation(libs.testRules)
+    androidTestImplementation(libs.espressoCore, excludes.espresso)
+    androidTestImplementation(project(":window:window-testing"))
 }
 
 androidx {
     name = "Jetpack WindowManager library samples"
     publish = Publish.NONE
     mavenGroup = LibraryGroups.WINDOW
-    mavenVersion = LibraryVersions.WINDOW
     inceptionYear = "2020"
     description = "Demo of Jetpack WindowManager library APIs"
 }

@@ -35,6 +35,8 @@ dependencies {
     implementation(libs.constraintLayout)
     implementation(project(":appcompat:appcompat"))
     implementation(project(":activity:activity"))
+    implementation(project(":profileinstaller:profileinstaller"))
     implementation(project(":recyclerview:recyclerview"))
+    implementation(project(":tracing:tracing-ktx"))
     implementation(libs.material)
 }

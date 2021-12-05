@@ -20,6 +20,8 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
+import android.content.pm.PackageManager
+import android.content.res.XmlResourceParser
 import android.graphics.RectF
 import android.os.Bundle
 import android.os.IBinder
@@ -37,6 +39,8 @@ import androidx.wear.watchface.control.data.GetComplicationSlotMetadataParams
 import androidx.wear.watchface.control.data.GetUserStyleSchemaParams
 import androidx.wear.watchface.control.data.HeadlessWatchFaceInstanceParams
 import androidx.wear.watchface.ComplicationSlotBoundsType
+import androidx.wear.watchface.WatchFaceService
+import androidx.wear.watchface.XmlSchemaAndComplicationSlotsDefinition
 import androidx.wear.watchface.style.UserStyleSchema
 import androidx.wear.watchface.style.UserStyleSetting.ComplicationSlotsUserStyleSetting
 import androidx.wear.watchface.style.UserStyleSetting.ComplicationSlotsUserStyleSetting.ComplicationSlotOverlay
@@ -44,9 +48,8 @@ import kotlinx.coroutines.CompletableDeferred
 
 /**
  * Interface for fetching watch face metadata. E.g. the [UserStyleSchema] and
- * [ComplicationSlotMetadata].
+ * [ComplicationSlotMetadata]. This must be [close]d after use to release resources.
  */
-@WatchFaceClientExperimental
 public interface WatchFaceMetadataClient : AutoCloseable {
 
     public companion object {
@@ -58,30 +61,69 @@ public interface WatchFaceMetadataClient : AutoCloseable {
          * @param watchFaceName The [ComponentName] of the watch face to fetch meta data from.
          * @return The [WatchFaceMetadataClient] if there is one.
          * @throws [ServiceNotBoundException] if the underlying watch face control service can not
-         * be bound or a [ServiceStartFailureException] if the watch face dies during startup.
+         * be bound or a [ServiceStartFailureException] if the watch face dies during startup. If
+         * the service's manifest contains an
+         * androidx.wear.watchface.XmlSchemaAndComplicationSlotsDefinition meta data node then
+         * [PackageManager.NameNotFoundException] is thrown if [watchFaceName] is invalid.
          */
-        @JvmStatic
-        @Throws(ServiceNotBoundException::class, ServiceStartFailureException::class)
-        public suspend fun createWatchFaceMetadataClient(
+        @Throws(
+            ServiceNotBoundException::class,
+            ServiceStartFailureException::class,
+            PackageManager.NameNotFoundException::class
+        )
+        @SuppressWarnings("MissingJvmstatic") // Can't really call a suspend fun from java.
+        public suspend fun create(
             context: Context,
             watchFaceName: ComponentName
-        ): WatchFaceMetadataClient = createWatchFaceMetadataClientImpl(
-            context,
-            Intent(WatchFaceControlService.ACTION_WATCHFACE_CONTROL_SERVICE).apply {
-                setPackage(watchFaceName.packageName)
-            },
-            watchFaceName
-        )
+        ): WatchFaceMetadataClient {
+            // Fallback to binding the service (slow).
+            return createImpl(
+                context,
+                Intent(WatchFaceControlService.ACTION_WATCHFACE_CONTROL_SERVICE).apply {
+                    setPackage(watchFaceName.packageName)
+                },
+                watchFaceName,
+                ParserProvider()
+            )
+        }
+
+        /** @hide */
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        open class ParserProvider {
+            // Open to allow testing without having to install the sample app.
+            open fun getParser(context: Context, watchFaceName: ComponentName): XmlResourceParser? {
+                return context.packageManager.getServiceInfo(
+                    watchFaceName,
+                    PackageManager.GET_META_DATA
+                ).loadXmlMetaData(
+                    context.packageManager,
+                    WatchFaceService.XML_WATCH_FACE_METADATA
+                )
+            }
+        }
 
         /** @hide */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @Suppress("ShowingMemberInHiddenClass") // Spurious warning about exposing the
         // 'hidden' companion object, which _isn't_ hidden.
-        public suspend fun createWatchFaceMetadataClientImpl(
+        public suspend fun createImpl(
             context: Context,
             intent: Intent,
-            watchFaceName: ComponentName
+            watchFaceName: ComponentName,
+            parserProvider: ParserProvider
         ): WatchFaceMetadataClient {
+            // Check if there's static metadata we can read (fast).
+            parserProvider.getParser(context, watchFaceName)?.let {
+                return XmlWatchFaceMetadataClientImpl(
+                    XmlSchemaAndComplicationSlotsDefinition.inflate(
+                        context.packageManager.getResourcesForApplication(
+                            watchFaceName.packageName
+                        ),
+                        it
+                    )
+                )
+            }
+
             val deferredService = CompletableDeferred<IWatchFaceControlService>()
             val traceEvent = AsyncTraceEvent("WatchFaceMetadataClientImpl.bindService")
             val serviceConnection = object : ServiceConnection {
@@ -121,14 +163,12 @@ public interface WatchFaceMetadataClient : AutoCloseable {
     /**
      * Returns the watch face's [UserStyleSchema].
      */
-    @Throws(RemoteException::class)
     public fun getUserStyleSchema(): UserStyleSchema
 
     /**
      * Returns a map of [androidx.wear.watchface.ComplicationSlot] ID to [ComplicationSlotMetadata]
      * for each slot in the watch face's [androidx.wear.watchface.ComplicationSlotsManager].
      */
-    @Throws(RemoteException::class)
     public fun getComplicationSlotMetadataMap(): Map<Int, ComplicationSlotMetadata>
 }
 
@@ -142,8 +182,6 @@ public interface WatchFaceMetadataClient : AutoCloseable {
  * during complication data source selection, this list should be non-empty.
  * @param defaultDataSourcePolicy The [DefaultComplicationDataSourcePolicy] which controls the
  * initial complication data source when the watch face is first installed.
- * @param defaultDataSourceType The default [ComplicationType] for the default  complication data
- * source.
  * @param isInitiallyEnabled At creation a complication slot is either enabled or disabled. This
  * can be overridden by a [ComplicationSlotsUserStyleSetting] (see
  * [ComplicationSlotOverlay.enabled]).
@@ -153,22 +191,19 @@ public interface WatchFaceMetadataClient : AutoCloseable {
  * source is fixed (i.e. can't be changed by the user). This is useful for watch faces built
  * around specific complication  complication data sources.
  * @param complicationConfigExtras Extras to be merged into the Intent sent when invoking the
- *  complication data source chooser activity.
+ * complication data source chooser activity.
  */
-@WatchFaceClientExperimental
 public class ComplicationSlotMetadata(
     public val bounds: ComplicationSlotBounds?,
     @ComplicationSlotBoundsType public val boundsType: Int,
     public val supportedTypes: List<ComplicationType>,
     public val defaultDataSourcePolicy: DefaultComplicationDataSourcePolicy,
-    public val defaultDataSourceType: ComplicationType,
     @get:JvmName("isInitiallyEnabled")
     public val isInitiallyEnabled: Boolean,
     public val fixedComplicationDataSource: Boolean,
     public val complicationConfigExtras: Bundle
 )
 
-@OptIn(WatchFaceClientExperimental::class)
 internal class WatchFaceMetadataClientImpl internal constructor(
     private val context: Context,
     private val service: IWatchFaceControlService,
@@ -196,7 +231,8 @@ internal class WatchFaceMetadataClientImpl internal constructor(
                 watchFaceName,
                 androidx.wear.watchface.data.DeviceConfig(false, false, 0, 0),
                 1,
-                1
+                1,
+                null
             )
         )?.let {
             HeadlessWatchFaceClientImpl(it)
@@ -211,55 +247,69 @@ internal class WatchFaceMetadataClientImpl internal constructor(
 
     override fun getUserStyleSchema(): UserStyleSchema {
         requireNotClosed()
-        return if (service.apiVersion >= 3) {
-            UserStyleSchema(service.getUserStyleSchema(GetUserStyleSchemaParams(watchFaceName)))
-        } else {
-            headlessClient.userStyleSchema
+        try {
+            return if (service.apiVersion >= 3) {
+                UserStyleSchema(service.getUserStyleSchema(GetUserStyleSchemaParams(watchFaceName)))
+            } else {
+                headlessClient.userStyleSchema
+            }
+        } catch (e: RemoteException) {
+            throw RuntimeException(e)
         }
     }
 
     override fun getComplicationSlotMetadataMap(): Map<Int, ComplicationSlotMetadata> {
         requireNotClosed()
-        return if (service.apiVersion >= 3) {
-            val wireFormat = service.getComplicationSlotMetadata(
-                GetComplicationSlotMetadataParams(watchFaceName)
-            )
-            wireFormat.associateBy(
-                { it.id },
-                {
-                    val perSlotBounds = HashMap<ComplicationType, RectF>()
-                    for (i in it.complicationBoundsType.indices) {
-                        perSlotBounds[ComplicationType.fromWireType(it.complicationBoundsType[i])] =
-                            it.complicationBounds[i]
+        try {
+            return if (service.apiVersion >= 3) {
+                val wireFormat = service.getComplicationSlotMetadata(
+                    GetComplicationSlotMetadataParams(watchFaceName)
+                )
+                wireFormat.associateBy(
+                    { it.id },
+                    {
+                        val perSlotBounds = HashMap<ComplicationType, RectF>()
+                        for (i in it.complicationBoundsType.indices) {
+                            perSlotBounds[
+                                ComplicationType.fromWireType(it.complicationBoundsType[i])
+                            ] = it.complicationBounds[i]
+                        }
+                        ComplicationSlotMetadata(
+                            ComplicationSlotBounds(perSlotBounds),
+                            it.boundsType,
+                            it.supportedTypes.map { ComplicationType.fromWireType(it) },
+                            DefaultComplicationDataSourcePolicy(
+                                it.defaultDataSourcesToTry ?: emptyList(),
+                                it.fallbackSystemDataSource,
+                                ComplicationType.fromWireType(
+                                    it.primaryDataSourceDefaultType
+                                ),
+                                ComplicationType.fromWireType(
+                                    it.secondaryDataSourceDefaultType
+                                ),
+                                ComplicationType.fromWireType(it.defaultDataSourceType)
+                            ),
+                            it.isInitiallyEnabled,
+                            it.isFixedComplicationDataSource,
+                            it.complicationConfigExtras
+                        )
                     }
+                )
+            } else {
+                headlessClient.complicationSlotsState.mapValues {
                     ComplicationSlotMetadata(
-                        ComplicationSlotBounds(perSlotBounds),
-                        it.boundsType,
-                        it.supportedTypes.map { ComplicationType.fromWireType(it) },
-                        DefaultComplicationDataSourcePolicy(
-                            it.defaultDataSourcesToTry ?: emptyList(),
-                            it.fallbackSystemDataSource
-                        ),
-                        ComplicationType.fromWireType(it.defaultDataSourceType),
-                        it.isInitiallyEnabled,
-                        it.isFixedComplicationDataSource,
-                        it.complicationConfigExtras
+                        null,
+                        it.value.boundsType,
+                        it.value.supportedTypes,
+                        it.value.defaultDataSourcePolicy,
+                        it.value.isInitiallyEnabled,
+                        it.value.fixedComplicationDataSource,
+                        it.value.complicationConfigExtras
                     )
                 }
-            )
-        } else {
-            headlessClient.complicationSlotsState.mapValues {
-                ComplicationSlotMetadata(
-                    null,
-                    it.value.boundsType,
-                    it.value.supportedTypes,
-                    it.value.defaultDataSourcePolicy,
-                    it.value.defaultDataSourceType,
-                    it.value.isInitiallyEnabled,
-                    it.value.fixedComplicationDataSource,
-                    it.value.complicationConfigExtras
-                )
             }
+        } catch (e: RemoteException) {
+            throw RuntimeException(e)
         }
     }
 
@@ -270,4 +320,29 @@ internal class WatchFaceMetadataClientImpl internal constructor(
         }
         context.unbindService(serviceConnection)
     }
+}
+
+internal class XmlWatchFaceMetadataClientImpl(
+    private val xmlSchemaAndComplicationSlotsDefinition: XmlSchemaAndComplicationSlotsDefinition
+) : WatchFaceMetadataClient {
+    override fun getUserStyleSchema() =
+        xmlSchemaAndComplicationSlotsDefinition.schema ?: UserStyleSchema(emptyList())
+
+    override fun getComplicationSlotMetadataMap() =
+        xmlSchemaAndComplicationSlotsDefinition.complicationSlots.associateBy(
+            { it.slotId },
+            {
+                ComplicationSlotMetadata(
+                    it.bounds,
+                    it.boundsType,
+                    it.supportedTypes,
+                    it.defaultDataSourcePolicy,
+                    it.initiallyEnabled,
+                    it.fixedComplicationDataSource,
+                    Bundle()
+                )
+            }
+        )
+
+    override fun close() {}
 }

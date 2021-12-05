@@ -64,6 +64,7 @@ import java.util.concurrent.atomic.AtomicReference;
 /**
  * Tests for {@link MediaControllerCompat.Callback} with {@link MediaSession}.
  */
+@FlakyTest(bugId = 202942942)
 @RunWith(AndroidJUnit4.class)
 @LargeTest
 public class MediaControllerCompatCallbackWithMediaSessionTest extends MediaSessionTestBase {

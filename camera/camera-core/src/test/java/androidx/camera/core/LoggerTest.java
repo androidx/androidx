@@ -25,6 +25,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.ParameterizedRobolectricTestRunner;
@@ -135,6 +136,7 @@ public class LoggerTest {
                 .hasNoMoreMessages();
     }
 
+    @Ignore("b/208252595")
     @Config(maxSdk = 23)
     @Test
     public void log_truncateLongTag() {

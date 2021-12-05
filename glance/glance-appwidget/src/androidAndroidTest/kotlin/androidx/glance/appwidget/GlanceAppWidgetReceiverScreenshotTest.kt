@@ -22,22 +22,21 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.glance.Button
 import androidx.glance.GlanceModifier
+import androidx.glance.Image
+import androidx.glance.ImageProvider
 import androidx.glance.LocalContext
 import androidx.glance.action.actionLaunchActivity
-import androidx.glance.appwidget.layout.CheckBox
-import androidx.glance.appwidget.layout.Switch
 import androidx.glance.appwidget.test.R
 import androidx.glance.appwidget.unit.ColorProvider
 import androidx.glance.background
 import androidx.glance.layout.Alignment
 import androidx.glance.layout.Box
-import androidx.glance.layout.Button
 import androidx.glance.layout.Column
 import androidx.glance.layout.ContentScale
-import androidx.glance.layout.ImageProvider
 import androidx.glance.layout.Row
-import androidx.glance.layout.Text
 import androidx.glance.layout.fillMaxHeight
 import androidx.glance.layout.fillMaxSize
 import androidx.glance.layout.fillMaxWidth
@@ -48,6 +47,7 @@ import androidx.glance.layout.width
 import androidx.glance.layout.wrapContentSize
 import androidx.glance.text.FontStyle
 import androidx.glance.text.FontWeight
+import androidx.glance.text.Text
 import androidx.glance.text.TextAlign
 import androidx.glance.text.TextDecoration
 import androidx.glance.text.TextStyle
@@ -91,62 +91,40 @@ class GlanceAppWidgetReceiverScreenshotTest {
 
     @Test
     fun createCheckBoxAppWidget() {
-        TestGlanceAppWidget.uiDefinition = {
-            Column {
-                CheckBox(
-                    checked = true,
-                    text = "Hello Checked Checkbox",
-                    style = TextStyle(
-                        fontWeight = FontWeight.Bold,
-                        fontStyle = FontStyle.Normal,
-                    )
-                )
-
-                CheckBox(
-                    checked = false,
-                    text = "Hello Unchecked Checkbox",
-                    style = TextStyle(
-                        textDecoration = TextDecoration.Underline,
-                        fontWeight = FontWeight.Medium,
-                        fontStyle = FontStyle.Italic,
-                    )
-                )
-            }
-        }
+        TestGlanceAppWidget.uiDefinition = { CheckBoxScreenshotTest() }
 
         mHostRule.startHost()
 
         mScreenshotRule.checkScreenshot(mHostRule.mHostView, "checkBoxWidget")
     }
 
+    @WithNightMode
+    @Test
+    fun createCheckBoxAppWidget_dark() {
+        TestGlanceAppWidget.uiDefinition = { CheckBoxScreenshotTest() }
+
+        mHostRule.startHost()
+
+        mScreenshotRule.checkScreenshot(mHostRule.mHostView, "checkBoxWidget_dark")
+    }
+
     @Test
     fun createCheckSwitchAppWidget() {
-        TestGlanceAppWidget.uiDefinition = {
-            Column {
-                Switch(
-                    checked = true,
-                    text = "Hello Checked Switch",
-                    style = TextStyle(
-                        fontWeight = FontWeight.Bold,
-                        fontStyle = FontStyle.Normal,
-                    )
-                )
-
-                Switch(
-                    checked = false,
-                    text = "Hello Unchecked Switch",
-                    style = TextStyle(
-                        textDecoration = TextDecoration.Underline,
-                        fontWeight = FontWeight.Medium,
-                        fontStyle = FontStyle.Italic,
-                    )
-                )
-            }
-        }
+        TestGlanceAppWidget.uiDefinition = { SwitchTest() }
 
         mHostRule.startHost()
 
         mScreenshotRule.checkScreenshot(mHostRule.mHostView, "switchWidget")
+    }
+
+    @WithNightMode
+    @Test
+    fun createCheckSwitchAppWidget_dark() {
+        TestGlanceAppWidget.uiDefinition = { SwitchTest() }
+
+        mHostRule.startHost()
+
+        mScreenshotRule.checkScreenshot(mHostRule.mHostView, "switchWidget_dark")
     }
 
     @Test
@@ -246,12 +224,14 @@ class GlanceAppWidgetReceiverScreenshotTest {
                 Row(modifier = GlanceModifier.defaultWeight().fillMaxWidth()) {
                     CheckBox(
                         checked = false,
+                        onCheckedChange = null,
                         text = "Start",
                         modifier = GlanceModifier.defaultWeight().fillMaxHeight(),
                         style = TextStyle(textAlign = TextAlign.Start)
                     )
                     CheckBox(
                         checked = true,
+                        onCheckedChange = null,
                         text = "End",
                         modifier = GlanceModifier.defaultWeight().fillMaxHeight(),
                         style = TextStyle(textAlign = TextAlign.End)
@@ -260,12 +240,14 @@ class GlanceAppWidgetReceiverScreenshotTest {
                 Row(modifier = GlanceModifier.defaultWeight().fillMaxWidth()) {
                     Switch(
                         checked = false,
+                        onCheckedChange = null,
                         text = "Start",
                         modifier = GlanceModifier.defaultWeight().fillMaxHeight(),
                         style = TextStyle(textAlign = TextAlign.Start)
                     )
                     Switch(
                         checked = true,
+                        onCheckedChange = null,
                         text = "End",
                         modifier = GlanceModifier.defaultWeight().fillMaxHeight(),
                         style = TextStyle(textAlign = TextAlign.End)
@@ -276,8 +258,6 @@ class GlanceAppWidgetReceiverScreenshotTest {
 
         mHostRule.setSizes(DpSize(300.dp, 400.dp))
         mHostRule.startHost()
-
-        Thread.sleep(5000)
 
         mScreenshotRule.checkScreenshot(mHostRule.mHostView, "button_text_align")
     }
@@ -422,6 +402,77 @@ class GlanceAppWidgetReceiverScreenshotTest {
 
         mScreenshotRule.checkScreenshot(mHostRule.mHostView, "bitmap_background")
     }
+
+    @Test
+    fun alignment() {
+        TestGlanceAppWidget.uiDefinition = {
+            Row(
+                modifier = GlanceModifier.fillMaxSize(),
+                horizontalAlignment = Alignment.End,
+                verticalAlignment = Alignment.Bottom,
+            ) {
+                Text("##")
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = GlanceModifier.fillMaxHeight(),
+                ) {
+                    Box(
+                        contentAlignment = Alignment.Center,
+                        modifier = GlanceModifier.height(80.dp),
+                    ) {
+                        Text("Center")
+                    }
+                    Box(
+                        contentAlignment = Alignment.Center,
+                        modifier = GlanceModifier.height(80.dp),
+                    ) {
+                        Text("BottomCenter")
+                    }
+                    Box(
+                        contentAlignment = Alignment.Center,
+                        modifier = GlanceModifier.height(80.dp),
+                    ) {
+                        Text("CenterStart")
+                    }
+                }
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = GlanceModifier.fillMaxHeight(),
+                ) {
+                    Box(contentAlignment = Alignment.Center) {
+                        Image(
+                            ImageProvider(R.drawable.compose),
+                            "Compose",
+                            modifier = GlanceModifier.size(80.dp),
+                        )
+                        Text("OXO", style = TextStyle(fontSize = 18.sp))
+                    }
+                    Box(contentAlignment = Alignment.BottomCenter) {
+                        Image(
+                            ImageProvider(R.drawable.compose),
+                            "Compose",
+                            modifier = GlanceModifier.size(80.dp),
+                        )
+                        Text("OXO", style = TextStyle(fontSize = 18.sp))
+                    }
+                    Box(contentAlignment = Alignment.CenterStart) {
+                        Image(
+                            ImageProvider(R.drawable.compose),
+                            "Compose",
+                            modifier = GlanceModifier.size(80.dp),
+                        )
+                        Text("OXO", style = TextStyle(fontSize = 18.sp))
+                    }
+                }
+            }
+        }
+
+        mHostRule.startHost()
+
+        mScreenshotRule.checkScreenshot(mHostRule.mHostView, "alignment")
+    }
 }
 
 @Composable
@@ -524,6 +575,71 @@ private fun TextColorTest() {
         Text(
             "Resource (inverse of background color)",
             style = TextStyle(color = ColorProvider(R.color.text_color))
+        )
+    }
+}
+
+@Composable
+private fun CheckBoxScreenshotTest() {
+    Column(modifier = GlanceModifier.background(day = Color.White, night = Color.Black)) {
+        CheckBox(
+            checked = true,
+            onCheckedChange = null,
+            text = "Hello Checked Checkbox (text: day=black, night=white| box: day=magenta, " +
+                "night=yellow)",
+            style = TextStyle(
+                color = ColorProvider(day = Color.Black, night = Color.White),
+                fontWeight = FontWeight.Bold,
+                fontStyle = FontStyle.Normal,
+            ),
+            colors = CheckBoxColors(
+                checkedColor = ColorProvider(day = Color.Magenta, night = Color.Yellow)
+            )
+        )
+
+        CheckBox(
+            checked = false,
+            onCheckedChange = null,
+            text = "Hello Unchecked Checkbox (text: day=dark gray, night=light gray, green box)",
+            style = TextStyle(
+                color = ColorProvider(day = Color.DarkGray, night = Color.LightGray),
+                textDecoration = TextDecoration.Underline,
+                fontWeight = FontWeight.Medium,
+                fontStyle = FontStyle.Italic,
+            ),
+            colors = CheckBoxColors(checkedColor = Color.Red, uncheckedColor = Color.Green)
+        )
+    }
+}
+
+@Composable
+private fun SwitchTest() {
+    Column(modifier = GlanceModifier.background(day = Color.White, night = Color.Black)) {
+        Switch(
+            checked = true,
+            onCheckedChange = null,
+            text = "Hello Checked Switch (day: Blue/Green, night: Red/Yellow)",
+            style = TextStyle(
+                color = ColorProvider(day = Color.Black, night = Color.White),
+                fontWeight = FontWeight.Bold,
+                fontStyle = FontStyle.Normal,
+            ),
+            colors = SwitchColors(
+                checkedThumbColor = ColorProvider(day = Color.Blue, night = Color.Red),
+                checkedTrackColor = ColorProvider(day = Color.Green, night = Color.Yellow),
+            )
+        )
+
+        Switch(
+            checked = false,
+            onCheckedChange = null,
+            text = "Hello Unchecked Switch",
+            style = TextStyle(
+                color = ColorProvider(day = Color.Black, night = Color.White),
+                textDecoration = TextDecoration.Underline,
+                fontWeight = FontWeight.Medium,
+                fontStyle = FontStyle.Italic,
+            )
         )
     }
 }

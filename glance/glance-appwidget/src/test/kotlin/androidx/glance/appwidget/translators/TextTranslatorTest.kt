@@ -44,10 +44,10 @@ import androidx.glance.appwidget.test.R
 import androidx.glance.appwidget.toPixels
 import androidx.glance.appwidget.unit.ColorProvider
 import androidx.glance.layout.Column
-import androidx.glance.layout.Text
 import androidx.glance.layout.fillMaxWidth
 import androidx.glance.text.FontStyle
 import androidx.glance.text.FontWeight
+import androidx.glance.text.Text
 import androidx.glance.text.TextAlign
 import androidx.glance.text.TextDecoration
 import androidx.glance.text.TextStyle

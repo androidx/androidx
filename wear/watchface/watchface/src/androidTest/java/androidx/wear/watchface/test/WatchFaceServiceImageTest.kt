@@ -37,6 +37,7 @@ import android.view.SurfaceHolder
 import androidx.annotation.RequiresApi
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.FlakyTest
 import androidx.test.filters.MediumTest
 import androidx.test.screenshot.AndroidXScreenshotTestRule
 import androidx.test.screenshot.assertAgainstGolden
@@ -562,6 +563,7 @@ public class WatchFaceServiceImageTest {
         )
     }
 
+    @FlakyTest(bugId = 206648285)
     @SuppressLint("NewApi")
     @Test
     public fun testCommandTakeOpenGLScreenShot() {
@@ -599,8 +601,13 @@ public class WatchFaceServiceImageTest {
 
     @Test
     public fun testSetGreenStyle() {
-        handler.post(this::initCanvasWatchFace)
+        handler.post {
+            initCanvasWatchFace()
+            assertThat(engineWrapper.mutableWatchState.watchFaceInstanceId.value)
+                .isEqualTo(INTERACTIVE_INSTANCE_ID)
+        }
         assertThat(initLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS)).isTrue()
+
         // Note this will clear complicationSlots.
         interactiveWatchFaceInstance.updateWatchfaceInstance(
             "newId",
@@ -609,6 +616,7 @@ public class WatchFaceServiceImageTest {
         sendComplications()
 
         handler.post {
+            assertThat(engineWrapper.mutableWatchState.watchFaceInstanceId.value).isEqualTo("newId")
             engineWrapper.draw()
         }
 
@@ -634,6 +642,7 @@ public class WatchFaceServiceImageTest {
         bitmap.assertAgainstGolden(screenshotRule, "green_screenshot_no_complication_data")
     }
 
+    @FlakyTest(bugId = 206484052)
     @SuppressLint("NewApi")
     @Test
     public fun testHighlightAllComplicationsInScreenshot() {
@@ -675,6 +684,7 @@ public class WatchFaceServiceImageTest {
 
     @SuppressLint("NewApi")
     @Test
+    @FlakyTest(bugId = 206485794)
     public fun testRenderLeftComplicationPressed() {
         val latch = CountDownLatch(1)
 
@@ -712,6 +722,7 @@ public class WatchFaceServiceImageTest {
         )
     }
 
+    @FlakyTest(bugId = 206647510)
     @SuppressLint("NewApi")
     @Test
     public fun testHighlightRightComplicationInScreenshot() {

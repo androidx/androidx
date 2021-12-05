@@ -16,22 +16,29 @@
 
 package androidx.room.compiler.processing.javac.kotlin
 
+import androidx.room.compiler.processing.XNullability
 import androidx.room.compiler.processing.javac.JavacProcessingEnv
+import androidx.room.compiler.processing.javac.nullability
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.compileFiles
 import androidx.room.compiler.processing.util.runJavaProcessorTest
 import androidx.room.compiler.processing.util.runKaptTest
+import androidx.room.compiler.processing.util.sanitizeAsJavaParameterName
 import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
 import org.junit.AssumptionViolatedException
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.junit.runners.JUnit4
+import org.junit.runners.Parameterized
 import javax.annotation.processing.ProcessingEnvironment
+import javax.lang.model.element.ExecutableElement
 import javax.lang.model.element.TypeElement
 import javax.lang.model.util.ElementFilter
 
-@RunWith(JUnit4::class)
-class KotlinMetadataElementTest {
+@RunWith(Parameterized::class)
+class KotlinMetadataElementTest(
+    private val preCompiled: Boolean
+) {
 
     @Test
     fun constructorParameters() {
@@ -197,7 +204,7 @@ class KotlinMetadataElementTest {
                 "suspendFunction" to true,
                 "functionWithParams" to false,
                 "suspendFunctionWithParams" to false,
-                "getConstructorParam" to null // synthetic getter for constructor property
+                "getConstructorParam" to false // synthetic getter for constructor property
             )
         }
     }
@@ -302,6 +309,250 @@ class KotlinMetadataElementTest {
                 assertThat(property?.typeParameters).hasSize(2)
                 assertThat(property?.typeParameters?.get(0)?.isNullable()).isFalse()
                 assertThat(property?.typeParameters?.get(1)?.isNullable()).isTrue()
+            }
+        }
+    }
+
+    @Test
+    fun accessors() {
+        val src = Source.kotlin(
+            "Kotlin.kt",
+            """
+            @JvmInline
+            value class ValueClass(val value: String)
+            class Subject {
+                val immutableProperty: String = ""
+                var mutableProperty: String = ""
+                var isProperty: String? = ""
+                var customSetter: String=  ""
+                    get(): String = ""
+                    set(myValue) { field = myValue }
+                var privateSetter: String = ""
+                    private set
+                internal var internalProp: String? = ""
+                internal var isInternalProp2: String = ""
+                // these won't show up in KAPT stubs since they don't have a valid JVM name but
+                // we are still testing them for consistency as they'll show up in metadata
+                var valueProp: ValueClass? = null
+                // these won't show up in KAPT stubs since they don't have a valid JVM name but
+                // we are still testing them for consistency as they'll show up in metadata
+                internal var internalValueProp: ValueClass = ValueClass("?")
+            }
+        """.trimIndent()
+        )
+        simpleRun(listOf(src)) { invocation ->
+            val (element, metadata) = getMetadataElement(
+                invocation,
+                "Subject"
+            )
+
+            fun assertSetter(
+                kmFunction: KmFunction?,
+                name: String,
+                jvmName: String,
+                paramNullable: Boolean
+            ) {
+                checkNotNull(kmFunction)
+                assertWithMessage(kmFunction.toString()).apply {
+                    that(kmFunction.name).isEqualTo(name)
+                    that(kmFunction.jvmName).isEqualTo(jvmName)
+                    // void is non null
+                    that(kmFunction.returnType.nullability).isEqualTo(XNullability.NONNULL)
+                    that(kmFunction.parameters).hasSize(1)
+                    that(
+                        kmFunction.parameters.single().isNullable()
+                    ).isEqualTo(paramNullable)
+                }
+            }
+
+            fun assertSetter(
+                metadata: KotlinMetadataElement,
+                method: ExecutableElement,
+                name: String,
+                jvmName: String,
+                paramNullable: Boolean
+            ) {
+                val kmFunction = metadata.getFunctionMetadata(method)
+                assertSetter(
+                    kmFunction = kmFunction,
+                    name = name,
+                    jvmName = jvmName,
+                    paramNullable = paramNullable
+                )
+                val paramName = kmFunction!!.parameters.single().name
+                val javacElementName = method.parameters.single().simpleName.toString()
+                assertWithMessage(
+                    kmFunction.toString()
+                ).that(
+                    paramName
+                ).isEqualTo(
+                    javacElementName.sanitizeAsJavaParameterName(0)
+                )
+            }
+
+            fun assertGetter(
+                kmFunction: KmFunction?,
+                name: String,
+                jvmName: String,
+                returnsNullable: Boolean
+            ) {
+                checkNotNull(kmFunction)
+                assertWithMessage(kmFunction.toString()).apply {
+                    that(kmFunction.name).isEqualTo(name)
+                    that(kmFunction.jvmName).isEqualTo(jvmName)
+                    that(kmFunction.returnType.isNullable()).isEqualTo(returnsNullable)
+                    that(kmFunction.parameters).isEmpty()
+                }
+            }
+            assertGetter(
+                kmFunction = metadata.getFunctionMetadata(
+                    element.getDeclaredMethod("getImmutableProperty")
+                ),
+                name = "getImmutableProperty",
+                jvmName = "getImmutableProperty",
+                returnsNullable = false
+            )
+            assertGetter(
+                kmFunction = metadata.getFunctionMetadata(
+                    element.getDeclaredMethod("getMutableProperty")
+                ),
+                name = "getMutableProperty",
+                jvmName = "getMutableProperty",
+                returnsNullable = false
+            )
+            assertSetter(
+                metadata = metadata,
+                method = element.getDeclaredMethod("setMutableProperty"),
+                name = "setMutableProperty",
+                jvmName = "setMutableProperty",
+                paramNullable = false
+            )
+            assertSetter(
+                metadata = metadata,
+                method = element.getDeclaredMethod("setProperty"),
+                name = "setProperty",
+                jvmName = "setProperty",
+                paramNullable = true
+            )
+            assertGetter(
+                kmFunction = metadata.getFunctionMetadata(
+                    element.getDeclaredMethod("isProperty")
+                ),
+                name = "isProperty",
+                jvmName = "isProperty",
+                returnsNullable = true
+            )
+            assertGetter(
+                kmFunction = metadata.getFunctionMetadata(
+                    element.getDeclaredMethod("getInternalProp\$main")
+                ),
+                name = "getInternalProp",
+                jvmName = "getInternalProp\$main",
+                returnsNullable = true
+            )
+            assertSetter(
+                metadata = metadata,
+                method = element.getDeclaredMethod("setInternalProp\$main"),
+                name = "setInternalProp",
+                jvmName = "setInternalProp\$main",
+                paramNullable = true
+            )
+            assertGetter(
+                kmFunction = metadata.getFunctionMetadata(
+                    element.getDeclaredMethod("isInternalProp2\$main")
+                ),
+                name = "isInternalProp2",
+                jvmName = "isInternalProp2\$main",
+                returnsNullable = false
+            )
+            assertSetter(
+                metadata = metadata,
+                method = element.getDeclaredMethod("setInternalProp2\$main"),
+                name = "setInternalProp2",
+                jvmName = "setInternalProp2\$main",
+                paramNullable = false
+            )
+            // read custom setter name properly
+            metadata.getFunctionMetadata(
+                element.getDeclaredMethod("setCustomSetter")
+            ).let { kmFunction ->
+                checkNotNull(kmFunction)
+                assertThat(
+                    kmFunction.parameters.single().name
+                ).isEqualTo("myValue")
+            }
+            // tests value class properties. They won't show up in KAPT stubs since they don't have
+            // valid java source names but we still validate them here for consistency. Maybe one
+            // day we'll change Javac element to include these if we support Kotlin codegen in KAPT
+            metadata.getPropertyMetadata("valueProp").let { valueProp ->
+                assertGetter(
+                    kmFunction = valueProp?.getter,
+                    name = "getValueProp",
+                    jvmName = "getValueProp-4LjoGxk",
+                    returnsNullable = true
+                )
+                assertSetter(
+                    kmFunction = valueProp?.setter,
+                    name = "setValueProp",
+                    jvmName = "setValueProp-d8IPsTA",
+                    paramNullable = true
+                )
+            }
+            metadata.getPropertyMetadata("internalValueProp").let { valueProp ->
+                assertGetter(
+                    kmFunction = valueProp?.getter,
+                    name = "getInternalValueProp",
+                    jvmName = "getInternalValueProp-NMFyIOA\$main",
+                    returnsNullable = false
+                )
+                assertSetter(
+                    kmFunction = valueProp?.setter,
+                    name = "setInternalValueProp",
+                    jvmName = "setInternalValueProp-FVOWAsA\$main",
+                    paramNullable = false
+                )
+            }
+        }
+    }
+
+    @Test
+    fun internalMethodName() {
+        val src = Source.kotlin(
+            "Kotlin.kt",
+            """
+            class Subject {
+                internal fun internalFun() {}
+                fun normalFun() {}
+                // there is no test case for functions receiving/returning value classes because
+                // they are not visible through KAPT
+            }
+        """.trimIndent()
+        )
+        simpleRun(listOf(src)) { invocation ->
+            val (element, metadata) = getMetadataElement(
+                invocation,
+                "Subject"
+            )
+            metadata.getFunctionMetadata(
+                element.getDeclaredMethod("internalFun\$main")
+            ).let { functionMetadata ->
+                assertThat(
+                    functionMetadata?.jvmName
+                ).isEqualTo("internalFun\$main")
+                assertThat(
+                    functionMetadata?.name
+                ).isEqualTo("internalFun")
+            }
+
+            metadata.getFunctionMetadata(
+                element.getDeclaredMethod("normalFun")
+            ).let { functionMetadata ->
+                assertThat(
+                    functionMetadata?.jvmName
+                ).isEqualTo("normalFun")
+                assertThat(
+                    functionMetadata?.name
+                ).isEqualTo("normalFun")
             }
         }
     }
@@ -470,6 +721,9 @@ class KotlinMetadataElementTest {
 
     @Test
     fun withoutKotlinInClasspath() {
+        if (preCompiled) {
+            throw AssumptionViolatedException("this test doesn't care for precompiled code")
+        }
         val libSource = Source.kotlin(
             "lib.kt",
             """
@@ -505,11 +759,17 @@ class KotlinMetadataElementTest {
 
     private fun TypeElement.getConstructors() = ElementFilter.constructorsIn(enclosedElements)
 
+    @Suppress("NAME_SHADOWING") // intentional
     private fun simpleRun(
         sources: List<Source> = emptyList(),
         handler: (ProcessingEnvironment) -> Unit
     ) {
-        runKaptTest(sources) {
+        val (sources, classpath) = if (preCompiled) {
+            emptyList<Source>() to compileFiles(sources)
+        } else {
+            sources to emptyList()
+        }
+        runKaptTest(sources = sources, classpath = classpath) {
             val processingEnv = it.processingEnv
             if (processingEnv !is JavacProcessingEnv) {
                 throw AssumptionViolatedException("This test only works for java/kapt compilation")
@@ -522,4 +782,10 @@ class KotlinMetadataElementTest {
         processingEnv.elementUtils.getTypeElement(qName).let {
             it to KotlinMetadataElement.createFor(it)!!
         }
+
+    companion object {
+        @JvmStatic
+        @Parameterized.Parameters(name = "preCompiled_{0}")
+        fun params() = arrayOf(false, true)
+    }
 }

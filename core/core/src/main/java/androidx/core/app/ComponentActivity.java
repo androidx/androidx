@@ -115,10 +115,11 @@ public class ComponentActivity extends Activity implements
 
     /**
      * @hide
+     * @param event
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Override
-    public boolean superDispatchKeyEvent(KeyEvent event) {
+    public boolean superDispatchKeyEvent(@NonNull KeyEvent event) {
         return super.dispatchKeyEvent(event);
     }
 

@@ -21,7 +21,7 @@ import android.content.Context;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appsearch.app.AppSearchResult;
-import androidx.appsearch.app.Capabilities;
+import androidx.appsearch.app.Features;
 import androidx.appsearch.app.GlobalSearchSession;
 import androidx.appsearch.app.ReportSystemUsageRequest;
 import androidx.appsearch.app.SearchResults;
@@ -44,7 +44,7 @@ import java.util.concurrent.Executor;
 class GlobalSearchSessionImpl implements GlobalSearchSession {
     private final AppSearchImpl mAppSearchImpl;
     private final Executor mExecutor;
-    private final Capabilities mCapabilities;
+    private final Features mFeatures;
     private final Context mContext;
 
     private boolean mIsClosed = false;
@@ -55,12 +55,12 @@ class GlobalSearchSessionImpl implements GlobalSearchSession {
     GlobalSearchSessionImpl(
             @NonNull AppSearchImpl appSearchImpl,
             @NonNull Executor executor,
-            @NonNull Capabilities capabilities,
+            @NonNull Features features,
             @NonNull Context context,
             @Nullable AppSearchLogger logger) {
         mAppSearchImpl = Preconditions.checkNotNull(appSearchImpl);
         mExecutor = Preconditions.checkNotNull(executor);
-        mCapabilities = Preconditions.checkNotNull(capabilities);
+        mFeatures = Preconditions.checkNotNull(features);
         mContext = Preconditions.checkNotNull(context);
         mLogger = logger;
     }
@@ -102,8 +102,8 @@ class GlobalSearchSessionImpl implements GlobalSearchSession {
 
     @NonNull
     @Override
-    public Capabilities getCapabilities() {
-        return mCapabilities;
+    public Features getFeatures() {
+        return mFeatures;
     }
 
     @Override

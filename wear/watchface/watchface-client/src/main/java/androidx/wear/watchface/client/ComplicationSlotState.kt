@@ -28,39 +28,163 @@ import androidx.wear.watchface.data.ComplicationStateWireFormat
 import androidx.wear.watchface.style.UserStyleSetting.ComplicationSlotsUserStyleSetting.ComplicationSlotsOption
 import androidx.wear.watchface.style.UserStyleSetting.ComplicationSlotsUserStyleSetting.ComplicationSlotOverlay
 
-/**
- * State of the [ComplicationSlot].
- *
- * @param bounds Screen space bounds of the [ComplicationSlot] in pixels.
- * @param boundsType The type of the complication's bounds.
- * @param supportedTypes The [ComplicationType]s supported by this complication.
- * @param defaultDataSourcePolicy The [DefaultComplicationDataSourcePolicy] for this complication.
- * @param defaultDataSourceType The default [ComplicationType] for this complication.
- * @param isEnabled Whether or not the complication is currently enabled (i.e. it should be drawn).
- * @param isInitiallyEnabled Whether or not the complication was initially enabled before
- * considering any [ComplicationSlotsOption] whose [ComplicationSlotOverlay]s may enable or disable
- * complicationSlots.
- * @param currentType The [ComplicationType] of the complication's current [ComplicationData].
- * @param fixedComplicationDataSource Whether or not the complication data source is fixed (i.e the
- * user can't configure it).
- * @param complicationConfigExtras Extras to be merged into the Intent sent when invoking the
- * complication data source chooser activity.
- */
-public class ComplicationSlotState(
-    public val bounds: Rect,
-    @ComplicationSlotBoundsType public val boundsType: Int,
-    public val supportedTypes: List<ComplicationType>,
-    public val defaultDataSourcePolicy: DefaultComplicationDataSourcePolicy,
-    public val defaultDataSourceType: ComplicationType,
+/** A snapshot of the state of a watch face [ComplicationSlot]. */
+public class ComplicationSlotState {
+    /** Screen space bounds of the [ComplicationSlot] in pixels. */
+    public val bounds: Rect
+
+    /** The type of the complication's bounds. */
+    @ComplicationSlotBoundsType
+    public val boundsType: Int
+
+    /** The [ComplicationType]s supported by this complication. */
+    public val supportedTypes: List<ComplicationType>
+
+    /** The [DefaultComplicationDataSourcePolicy] for this complication slot. */
+    public val defaultDataSourcePolicy: DefaultComplicationDataSourcePolicy
+
+    /** The default [ComplicationType] for this complication. */
+    @Deprecated("Use defaultDataSourcePolicy.systemDataSourceFallbackDefaultType instead")
+    public val defaultDataSourceType: ComplicationType
+        get() = defaultDataSourcePolicy.systemDataSourceFallbackDefaultType
+
+    /** Whether or not the complication is currently enabled (i.e. it should be drawn. */
     @get:JvmName("isEnabled")
-    public val isEnabled: Boolean,
+    public val isEnabled: Boolean
+
+    /**
+     * Whether or not the complication was initially enabled before considering any
+     * [ComplicationSlotsOption] whose [ComplicationSlotOverlay]s may enable or disable
+     * complicationSlots.
+     */
     @get:JvmName("isInitiallyEnabled")
-    public val isInitiallyEnabled: Boolean,
-    public val currentType: ComplicationType,
-    @get:JvmName("isFixedComplicationDataSource")
-    public val fixedComplicationDataSource: Boolean,
+    public val isInitiallyEnabled: Boolean
+
+    /** The [ComplicationType] of the complication's current [ComplicationData]. */
+    public val currentType: ComplicationType
+
+    /** Whether or not the complication data source is fixed (i.e the user can't configure it). */
+    public val fixedComplicationDataSource: Boolean
+
+    /**
+     * Extras to be merged into the Intent sent when invoking the complication data source chooser
+     * activity.
+     */
     public val complicationConfigExtras: Bundle
-) {
+
+    /**
+     * @param bounds Screen space bounds of the [ComplicationSlot] in pixels.
+     * @param boundsType The type of the complication's bounds.
+     * @param supportedTypes The [ComplicationType]s supported by this complication.
+     * @param defaultDataSourcePolicy The [DefaultComplicationDataSourcePolicy] for this
+     * complication slot.
+     * @param isEnabled Whether or not the complication is currently enabled (i.e. it should be
+     * drawn).
+     * @param isInitiallyEnabled Whether or not the complication was initially enabled before
+     * considering any [ComplicationSlotsOption] whose [ComplicationSlotOverlay]s may enable or
+     * disable complicationSlots.
+     * @param currentType The [ComplicationType] of the complication's current [ComplicationData].
+     * @param fixedComplicationDataSource Whether or not the complication data source is fixed (i.e
+     * the user can't configure it).
+     * @param complicationConfigExtras Extras to be merged into the Intent sent when invoking the
+     * complication data source chooser activity.
+     */
+    public constructor(
+        bounds: Rect,
+        @ComplicationSlotBoundsType boundsType: Int,
+        supportedTypes: List<ComplicationType>,
+        defaultDataSourcePolicy: DefaultComplicationDataSourcePolicy,
+        isEnabled: Boolean,
+        isInitiallyEnabled: Boolean,
+        currentType: ComplicationType,
+        fixedComplicationDataSource: Boolean,
+        complicationConfigExtras: Bundle
+    ) {
+        this.bounds = bounds
+        this.boundsType = boundsType
+        this.supportedTypes = supportedTypes
+        this.defaultDataSourcePolicy = defaultDataSourcePolicy
+        this.isEnabled = isEnabled
+        this.isInitiallyEnabled = isInitiallyEnabled
+        this.currentType = currentType
+        this.fixedComplicationDataSource = fixedComplicationDataSource
+        this.complicationConfigExtras = complicationConfigExtras
+    }
+
+    /**
+     * @param bounds Screen space bounds of the [ComplicationSlot] in pixels.
+     * @param boundsType The type of the complication's bounds.
+     * @param supportedTypes The [ComplicationType]s supported by this complication.
+     * @param defaultDataSourcePolicy The [DefaultComplicationDataSourcePolicy] for this
+     * complication slot.
+     * @param defaultDataSourceType The default [ComplicationType] for this complication.
+     * @param isEnabled Whether or not the complication is currently enabled (i.e. it should be
+     * drawn).
+     * @param isInitiallyEnabled Whether or not the complication was initially enabled before
+     * considering any [ComplicationSlotsOption] whose [ComplicationSlotOverlay]s may enable or
+     * disable complicationSlots.
+     * @param currentType The [ComplicationType] of the complication's current [ComplicationData].
+     * @param fixedComplicationDataSource Whether or not the complication data source is fixed (i.e
+     * the user can't configure it).
+     * @param complicationConfigExtras Extras to be merged into the Intent sent when invoking the
+     * complication data source chooser activity.
+     */
+    @Deprecated(
+        "defaultDataSourceType is depreciated", ReplaceWith(
+            "ComplicationSlotState(Rect, Int, List<ComplicationType>, " +
+                "DefaultComplicationDataSourcePolicy, Boolean, Boolean, ComplicationType, Boolean" +
+                ", Bundle)"
+        )
+    )
+    public constructor(
+        bounds: Rect,
+        @ComplicationSlotBoundsType boundsType: Int,
+        supportedTypes: List<ComplicationType>,
+        defaultDataSourcePolicy: DefaultComplicationDataSourcePolicy,
+        defaultDataSourceType: ComplicationType,
+        isEnabled: Boolean,
+        isInitiallyEnabled: Boolean,
+        currentType: ComplicationType,
+        fixedComplicationDataSource: Boolean,
+        complicationConfigExtras: Bundle
+    ) {
+        this.bounds = bounds
+        this.boundsType = boundsType
+        this.supportedTypes = supportedTypes
+        this.defaultDataSourcePolicy = when {
+            defaultDataSourcePolicy.secondaryDataSource != null ->
+                DefaultComplicationDataSourcePolicy(
+                    defaultDataSourcePolicy.primaryDataSource!!,
+                    defaultDataSourcePolicy.primaryDataSourceDefaultType
+                        ?: defaultDataSourceType,
+                    defaultDataSourcePolicy.secondaryDataSource!!,
+                    defaultDataSourcePolicy.secondaryDataSourceDefaultType
+                        ?: defaultDataSourceType,
+                    defaultDataSourcePolicy.systemDataSourceFallback,
+                    defaultDataSourceType
+                )
+
+            defaultDataSourcePolicy.primaryDataSource != null ->
+                DefaultComplicationDataSourcePolicy(
+                    defaultDataSourcePolicy.primaryDataSource!!,
+                    defaultDataSourcePolicy.primaryDataSourceDefaultType
+                        ?: defaultDataSourceType,
+                    defaultDataSourcePolicy.systemDataSourceFallback,
+                    defaultDataSourceType
+                )
+
+            else -> DefaultComplicationDataSourcePolicy(
+                defaultDataSourcePolicy.systemDataSourceFallback,
+                defaultDataSourceType
+            )
+        }
+        this.isEnabled = isEnabled
+        this.isInitiallyEnabled = isInitiallyEnabled
+        this.currentType = currentType
+        this.fixedComplicationDataSource = fixedComplicationDataSource
+        this.complicationConfigExtras = complicationConfigExtras
+    }
+
     /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public constructor(
@@ -70,10 +194,16 @@ public class ComplicationSlotState(
         complicationStateWireFormat.boundsType,
         complicationStateWireFormat.supportedTypes.map { ComplicationType.fromWireType(it) },
         DefaultComplicationDataSourcePolicy(
-            complicationStateWireFormat.defaultProvidersToTry ?: emptyList(),
-            complicationStateWireFormat.fallbackSystemProvider
+            complicationStateWireFormat.defaultDataSourcesToTry ?: emptyList(),
+            complicationStateWireFormat.fallbackSystemProvider,
+            ComplicationType.fromWireType(
+                complicationStateWireFormat.primaryDataSourceDefaultType
+            ),
+            ComplicationType.fromWireType(
+                complicationStateWireFormat.secondaryDataSourceDefaultType
+            ),
+            ComplicationType.fromWireType(complicationStateWireFormat.defaultDataSourceType)
         ),
-        ComplicationType.fromWireType(complicationStateWireFormat.defaultProviderType),
         complicationStateWireFormat.isEnabled,
         complicationStateWireFormat.isInitiallyEnabled,
         ComplicationType.fromWireType(complicationStateWireFormat.currentType),

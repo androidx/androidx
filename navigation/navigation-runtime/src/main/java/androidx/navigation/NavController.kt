@@ -1134,6 +1134,10 @@ public open class NavController(
                 }
                 backQueue.add(entry)
                 navigatorBackStack.addInternal(entry)
+                val parent = entry.destination.parent
+                if (parent != null) {
+                    linkChildToParent(entry, getBackStackEntry(parent.id))
+                }
             }
             updateOnBackPressedCallbackEnabled()
             this.backStackToRestore = null

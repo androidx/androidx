@@ -53,7 +53,7 @@ Library groups should organize their projects into directories and project names
 ```
 <feature-name>/
   <feature-name>-<sub-feature>/ [<feature-name>:<feature-name>-<sub-feature>]
-    samples/ [<feature-name>:<feature-name>-<sub-feature>:samples]
+    samples/ [<feature-name>:<feature-name>-<sub-feature>-samples]
   integration-tests/
     testapp/ [<feature-name>:testapp]
     testlib/ [<feature-name>:testlib]
@@ -101,6 +101,8 @@ cd development/project-creator && \
 *   `-ktx` for an Kotlin artifact that exposes idiomatic Kotlin APIs as an
     extension to a Java-only library (see
     [additional -ktx guidance](#module-ktx))
+*   `-samples` for sample code which can be inlined in documentation (see
+    [Sample code in Kotlin modules](#sample-code-in-kotlin-modules)
 *   `-<third-party>` for an artifact that integrates an optional third-party API
     surface, e.g. `-proto` or `-rxjava2`. Note that a major version is included
     in the sub-feature name for third-party API surfaces where the major version
@@ -151,7 +153,7 @@ on libraries within the group. Such groups must increment the version of every
 library at the same time and release all libraries at the same time.
 
 Atomic groups are specified in
-[`LibraryGroups.kt`](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:buildSrc/src/main/kotlin/androidx/build/LibraryGroups.kt):
+[`LibraryGroups.kt`](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:buildSrc/public/src/main/kotlin/androidx/build/LibraryGroups.kt):
 
 ```kotlin
 // Non-atomic library group
@@ -275,13 +277,14 @@ Implementation requirements
 *   Superclass **must** be `Object`
 *   Class **must** be non-instantiable, i.e. constructor is private no-op
 *   Static fields and static methods **must** match match signatures with
-    `PlatformClass`
+    `<PlatformClass>`
     *   Static fields that can be inlined, ex. integer constants, **must not**
         be shimmed
 *   Public method names **must** match platform method names
-*   Public methods **must** be static and take `PlatformClass` as first
-    parameter
-*   Implementation *may* delegate to `PlatformClass` methods when available
+*   Public methods **must** be static and take `<PlatformClass>` as first
+    parameter (except in the case of static methods on the platform class, as
+    shown below)
+*   Implementation *may* delegate to `<PlatformClass>` methods when available
 
 #### Sample {#static-shim-sample}
 
@@ -457,12 +460,14 @@ public final class ModemInfoCompat {
   // loading and prevent optimization.
   @RequiresApi(23)
   private static class Api23Impl {
+    @DoNotInline
     @NonNull
     static ModemInfo create() {
       return new ModemInfo();
     }
 
-    static boolean isLteSupported(PlatformClass obj) {
+    @DoNotInline
+    static boolean isLteSupported(ModemInfo obj) {
       return obj.isLteSupported();
     }
   }
@@ -2152,7 +2157,8 @@ unmaintained and outdated.
 
 The follow demonstrates how to reference sample functions from public API. It is
 also recommended to reuse these samples in unit tests / integration tests / test
-apps / library demos where possible.
+apps / library demos where possible to help ensure that the samples work as
+intended.
 
 **Public API:**
 
@@ -2178,7 +2184,7 @@ fun fancySample() {
 }
 ```
 
-**Generated documentation visible on d.android.com\***
+**Generated documentation visible on d.android.com / within Android Studio**
 
 ```
 fun fancyPrint(str: String)
@@ -2192,16 +2198,37 @@ Fancy prints the given [string]
 <code>
 ```
 
-\**still some improvements to be made to DAC side, such as syntax highlighting*
+Warning: Only the body of the function is used in generated documentation, so
+any other references to elements defined outside the body of the function (such
+as variables defined within the sample file) will not be visible. To ensure that
+samples can be easily copy and pasted without errors, make sure that any
+references are defined within the body of the function.
 
 ### Module configuration
 
-The following module setups should be used for sample functions, and are
-enforced by lint:
+The following module setups should be used for sample functions:
+
+**Per-module samples**
+
+For library groups with relatively independent sub-libraries. This is the
+recommended project setup, and should be used in most cases.
+
+Gradle project name: `:foo-library:foo-module:foo-module-samples`
+
+```
+foo-library/
+  foo-module/
+    samples/
+```
 
 **Group-level samples**
 
-For library groups with strongly related samples that want to share code.
+For library groups with strongly related samples that want to share code and be
+reused across a library group, a singular shared samples library can be created.
+In most cases this is discouraged - samples should be small and show the usage
+of a particular API / small set of APIs, instead of more complicated usage
+combining multiple APIs from across libraries. For these cases a sample
+application is more appropriate.
 
 Gradle project name: `:foo-library:foo-library-samples`
 
@@ -2212,22 +2239,10 @@ foo-library/
   samples/
 ```
 
-**Per-module samples**
-
-For library groups with complex, relatively independent sub-libraries
-
-Gradle project name: `:foo-library:foo-module:foo-module-samples`
-
-```
-foo-library/
-  foo-module/
-    samples/
-```
-
 **Samples module configuration**
 
 Samples modules are published to GMaven so that they are available to Android
-Studio, which displays code in @Sample annotations as hover-over pop-ups.
+Studio, which displays referenced samples as hover-over pop-ups.
 
 To achieve this, samples modules must declare the same MavenGroup and `publish`
 as the library(s) they are samples for.
