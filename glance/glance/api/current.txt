@@ -9,7 +9,7 @@ package androidx.glance {
   }
 
   public final class ButtonKt {
-    method @androidx.compose.runtime.Composable public static void Button(String text, androidx.glance.action.Action onClick, optional androidx.glance.GlanceModifier modifier, optional boolean enabled, optional androidx.glance.text.TextStyle? style);
+    method @androidx.compose.runtime.Composable public static void Button(String text, androidx.glance.action.Action onClick, optional androidx.glance.GlanceModifier modifier, optional boolean enabled, optional androidx.glance.text.TextStyle? style, optional int maxLines);
   }
 
   public final class CombinedGlanceModifier implements androidx.glance.GlanceModifier {

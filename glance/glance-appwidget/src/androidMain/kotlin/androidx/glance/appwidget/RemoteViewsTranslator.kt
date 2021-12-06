@@ -300,6 +300,7 @@ private fun RemoteViews.translateEmittableButton(
         viewDef.mainViewId,
         element.text,
         element.style,
+        maxLines = element.maxLines,
         verticalTextGravity = Gravity.CENTER_VERTICAL,
     )
     setBoolean(viewDef.mainViewId, "setEnabled", element.enabled)
