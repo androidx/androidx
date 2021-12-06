@@ -1027,7 +1027,7 @@ public class WatchFaceImpl @UiThread constructor(
 
         // If updateRateMillis is a multiple of 1 minute then align rendering to the beginning of
         // the minute.
-        if ((updateRateMillis % 60000) == 60L) {
+        if ((updateRateMillis % 60000) == 0L) {
             nextFrameTimeMillis += (60000 - (nextFrameTimeMillis % 60000)) % 60000
         }
 
