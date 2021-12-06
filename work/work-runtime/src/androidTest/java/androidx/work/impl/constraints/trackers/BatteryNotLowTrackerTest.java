@@ -17,7 +17,6 @@ package androidx.work.impl.constraints.trackers;
 
 
 import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.isNull;
@@ -89,7 +88,7 @@ public class BatteryNotLowTrackerTest {
     @SmallTest
     public void testGetInitialState_nullIntent() {
         mockContextReturns(null);
-        assertThat(mTracker.getInitialState(), is(nullValue()));
+        assertThat(mTracker.getInitialState(), is(false));
     }
 
     @Test
