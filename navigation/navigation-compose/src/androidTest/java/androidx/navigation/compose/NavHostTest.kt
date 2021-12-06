@@ -43,6 +43,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.platform.LocalSavedStateRegistryOwner
+import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -247,6 +248,24 @@ class NavHostTest {
             assertWithMessage("First destination should be current")
                 .that(navController.currentDestination?.route).isEqualTo("first")
         }
+    }
+
+    @Test
+    fun testDialogSavedAfterConfigChange() {
+        lateinit var navController: NavHostController
+        val defaultText = "dialogText"
+        composeTestRule.setContent {
+            navController = rememberNavController()
+            NavHost(navController, startDestination = "dialog") {
+                dialog("dialog") {
+                    Text(defaultText)
+                }
+            }
+        }
+
+        composeTestRule.waitForIdle()
+
+        composeTestRule.onNodeWithText(defaultText).assertIsDisplayed()
     }
 
     @Test
