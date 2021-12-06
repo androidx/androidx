@@ -176,7 +176,7 @@ public fun NavHost(
 }
 
 @Composable
-private fun MutableList<NavBackStackEntry>.PopulateVisibleList(
+internal fun MutableList<NavBackStackEntry>.PopulateVisibleList(
     transitionsInProgress: Collection<NavBackStackEntry>
 ) {
     transitionsInProgress.forEach { entry ->
@@ -204,7 +204,7 @@ private fun MutableList<NavBackStackEntry>.PopulateVisibleList(
 }
 
 @Composable
-private fun rememberVisibleList(transitionsInProgress: Collection<NavBackStackEntry>) =
+internal fun rememberVisibleList(transitionsInProgress: Collection<NavBackStackEntry>) =
     remember(transitionsInProgress) {
         mutableStateListOf<NavBackStackEntry>().also {
             it.addAll(
