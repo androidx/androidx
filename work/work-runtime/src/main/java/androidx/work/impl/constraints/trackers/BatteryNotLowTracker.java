@@ -60,7 +60,7 @@ public class BatteryNotLowTracker extends BroadcastReceiverConstraintTracker<Boo
         Intent intent = mAppContext.registerReceiver(null, intentFilter);
         if (intent == null) {
             Logger.get().error(TAG, "getInitialState - null intent received");
-            return null;
+            return false;
         }
 
         int status = intent.getIntExtra(BatteryManager.EXTRA_STATUS, -1);

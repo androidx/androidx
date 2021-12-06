@@ -61,7 +61,7 @@ public class StorageNotLowTracker extends BroadcastReceiverConstraintTracker<Boo
                 default:
                     // This should never happen because the intent filter is configured
                     // correctly.
-                    return null;
+                    return false;
             }
         }
     }

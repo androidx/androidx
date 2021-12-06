@@ -16,7 +16,6 @@
 package androidx.work.impl.constraints;
 
 import androidx.annotation.MainThread;
-import androidx.annotation.Nullable;
 
 /**
  * The listener for constraint changes.
@@ -31,5 +30,5 @@ public interface ConstraintListener<T> {
      * @param newValue the new value of the constraint
      */
     @MainThread
-    void onConstraintChanged(@Nullable T newValue);
+    void onConstraintChanged(T newValue);
 }
