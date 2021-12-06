@@ -582,7 +582,7 @@ internal data class GenerationalViewportHint(val generationId: Int, val hint: Vi
 
 /**
  * Helper for [GenerationalViewportHint] prioritization in cases where item accesses are being sent
- * to PageFetcherSnapshot] faster than they can be processed. A [GenerationalViewportHint] is
+ * to [PageFetcherSnapshot] faster than they can be processed. A [GenerationalViewportHint] is
  * prioritized if it represents an update to presenter state or if it would cause
  * [PageFetcherSnapshot] to load more items.
  *
