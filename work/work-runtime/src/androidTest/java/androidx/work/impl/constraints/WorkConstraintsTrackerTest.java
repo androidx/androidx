@@ -66,12 +66,12 @@ public class WorkConstraintsTrackerTest {
     private ConstraintController mMockController = mock(ConstraintController.class);
     private List<String> mUnconstrainedWorkSpecIds;
     private List<String> mConstrainedWorkSpecIds;
-    private WorkConstraintsTracker mWorkConstraintsTracker;
+    private WorkConstraintsTrackerImpl mWorkConstraintsTracker;
 
     @Before
     public void setUp() {
         ConstraintController[] controllers = new ConstraintController[] {mMockController};
-        mWorkConstraintsTracker = new WorkConstraintsTracker(mCallback, controllers);
+        mWorkConstraintsTracker = new WorkConstraintsTrackerImpl(mCallback, controllers);
     }
 
     @SuppressWarnings("unchecked")
