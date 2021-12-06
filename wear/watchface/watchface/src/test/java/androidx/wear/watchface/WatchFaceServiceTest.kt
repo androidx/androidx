@@ -1325,6 +1325,26 @@ public class WatchFaceServiceTest {
     }
 
     @Test
+    public fun computeDelayTillNextFrame_60000ms_update_atTopOfMinute() {
+        initEngine(
+            WatchFaceType.ANALOG,
+            listOf(leftComplication, rightComplication),
+            UserStyleSchema(emptyList())
+        )
+
+        renderer.interactiveDrawModeUpdateDelayMillis = 60000
+
+        // Simulate rendering 2s into a minute, after which we should delay till the next minute.
+        watchFaceImpl.nextDrawTimeMillis = 60000 + (120)
+        assertThat(
+            watchFaceImpl.computeDelayTillNextFrame(
+                startTimeMillis = watchFaceImpl.nextDrawTimeMillis,
+                currentTimeMillis = watchFaceImpl.nextDrawTimeMillis
+            )
+        ).isEqualTo(59880) // NB 59880 + 120 == 60000
+    }
+
+    @Test
     public fun getComplicationSlotIdAt_returnsCorrectComplications() {
         initEngine(
             WatchFaceType.ANALOG,
