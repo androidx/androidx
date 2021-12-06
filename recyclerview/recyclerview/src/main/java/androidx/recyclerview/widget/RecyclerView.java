@@ -3542,13 +3542,13 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
             EdgeEffectCompat.onPullDistance(mRightGlow, 0, e.getY() / getHeight());
             stopped = true;
         }
-        if (mTopGlow != null && EdgeEffectCompat.getDistance(mTopGlow) != 0 && !canScrollVertically(
-                -1)) {
+        if (mTopGlow != null && EdgeEffectCompat.getDistance(mTopGlow) != 0
+                && !canScrollVertically(-1)) {
             EdgeEffectCompat.onPullDistance(mTopGlow, 0, e.getX() / getWidth());
             stopped = true;
         }
         if (mBottomGlow != null && EdgeEffectCompat.getDistance(mBottomGlow) != 0
-                && !canScrollHorizontally(1)) {
+                && !canScrollVertically(1)) {
             EdgeEffectCompat.onPullDistance(mBottomGlow, 0, 1 - e.getX() / getWidth());
             stopped = true;
         }
