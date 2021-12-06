@@ -114,7 +114,7 @@ public class WorkManagerImplLargeExecutorTest {
                 new WorkManagerImpl(context, configuration, taskExecutor, true));
 
         TrackingScheduler trackingScheduler =
-                new TrackingScheduler(context, configuration, taskExecutor, mWorkManagerImplSpy);
+                new TrackingScheduler(context, configuration, mWorkManagerImplSpy);
 
         Processor processor = new Processor(context,
                 configuration,
@@ -189,9 +189,8 @@ public class WorkManagerImplLargeExecutorTest {
         TrackingScheduler(
                 Context context,
                 Configuration configuration,
-                TaskExecutor taskExecutor,
                 WorkManagerImpl workManagerImpl) {
-            super(context, configuration, taskExecutor, workManagerImpl);
+            super(context, configuration, workManagerImpl.getTrackers(), workManagerImpl);
             mScheduledWorkSpecIds = new HashSet<>();
         }
 
