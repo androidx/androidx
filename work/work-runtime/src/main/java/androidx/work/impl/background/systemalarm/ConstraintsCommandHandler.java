@@ -23,7 +23,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.WorkerThread;
 import androidx.work.Logger;
-import androidx.work.impl.constraints.WorkConstraintsTracker;
+import androidx.work.impl.constraints.WorkConstraintsTrackerImpl;
 import androidx.work.impl.model.WorkSpec;
 import androidx.work.impl.utils.taskexecutor.TaskExecutor;
 
@@ -44,7 +44,7 @@ class ConstraintsCommandHandler {
     private final Context mContext;
     private final int mStartId;
     private final SystemAlarmDispatcher mDispatcher;
-    private final WorkConstraintsTracker mWorkConstraintsTracker;
+    private final WorkConstraintsTrackerImpl mWorkConstraintsTracker;
 
     ConstraintsCommandHandler(
             @NonNull Context context,
@@ -55,7 +55,7 @@ class ConstraintsCommandHandler {
         mStartId = startId;
         mDispatcher = dispatcher;
         TaskExecutor taskExecutor = mDispatcher.getTaskExecutor();
-        mWorkConstraintsTracker = new WorkConstraintsTracker(mContext, taskExecutor, null);
+        mWorkConstraintsTracker = new WorkConstraintsTrackerImpl(mContext, taskExecutor, null);
     }
 
     @WorkerThread
