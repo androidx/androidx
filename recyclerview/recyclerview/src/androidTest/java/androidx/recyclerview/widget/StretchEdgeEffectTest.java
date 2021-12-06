@@ -400,9 +400,23 @@ public class StretchEdgeEffectTest extends BaseRecyclerViewInstrumentationTest {
     }
 
     @Test
+    public void doubleStretchBottom() throws Throwable {
+        if (BuildCompat.isAtLeastS()) {
+            stretchAndStretchMore(() -> mFactory.mBottom, true, true);
+        }
+    }
+
+    @Test
     public void stretchAndAddContentToTop() throws Throwable {
         if (BuildCompat.isAtLeastS()) {
             stretchAndAddContent(() -> mFactory.mTop, false, true);
+        }
+    }
+
+    @Test
+    public void doubleStretchTop() throws Throwable {
+        if (BuildCompat.isAtLeastS()) {
+            stretchAndStretchMore(() -> mFactory.mTop, false, true);
         }
     }
 
@@ -414,9 +428,23 @@ public class StretchEdgeEffectTest extends BaseRecyclerViewInstrumentationTest {
     }
 
     @Test
+    public void doubleStretchRight() throws Throwable {
+        if (BuildCompat.isAtLeastS()) {
+            stretchAndStretchMore(() -> mFactory.mRight, true, false);
+        }
+    }
+
+    @Test
     public void stretchAndAddContentToLeft() throws Throwable {
         if (BuildCompat.isAtLeastS()) {
             stretchAndAddContent(() -> mFactory.mLeft, false, false);
+        }
+    }
+
+    @Test
+    public void doubleStretchLeft() throws Throwable {
+        if (BuildCompat.isAtLeastS()) {
+            stretchAndStretchMore(() -> mFactory.mLeft, false, false);
         }
     }
 
@@ -450,6 +478,7 @@ public class StretchEdgeEffectTest extends BaseRecyclerViewInstrumentationTest {
         dragAndExecute(
                 dragX,
                 dragY,
+                null,
                 () -> {
                     assertFalse(edgeEffect.invoke().mOnReleaseCalled);
                     try {
@@ -468,10 +497,52 @@ public class StretchEdgeEffectTest extends BaseRecyclerViewInstrumentationTest {
         // There is no animation from the onRelease, so the stretch is still active.
         // Additional drag should not change the stretch distance and should scroll instead.
 
-        drag(dragX, dragY);
+        dragAndExecute(dragX, dragY, () -> assertFalse(edgeEffect.invoke().mIsHeld), null, null);
 
         assertEquals(oldDistance, edgeEffect.invoke().mDistance, 0.01f);
         assertNotEquals(firstVisible, mLayoutManager.findFirstVisibleItemPosition());
+    }
+
+    /**
+     * When stretching and releasing, then drag to stretch again, it should
+     * increase the stretch.
+     */
+    private void stretchAndStretchMore(
+            @NonNull EdgeFactoryReference edgeEffect,
+            boolean increase,
+            boolean vertical
+    ) throws Throwable {
+        if (!vertical) {
+            mActivityRule.runOnUiThread(
+                    () -> mLayoutManager.setOrientation(LinearLayoutManager.HORIZONTAL));
+        }
+        if (increase) {
+            scrollToPosition(NUM_ITEMS - 1);
+        }
+        waitForIdleScroll(mRecyclerView);
+
+        float density =
+                mActivityRule.getActivity().getResources().getDisplayMetrics().densityDpi / 160f;
+
+        int distance = (int) (50 * density) * (increase ? -1 : 1);
+        int start = increase ? NUM_ITEMS : 0;
+
+        int dragX = vertical ? 0 : distance;
+        int dragY = vertical ? distance : 0;
+
+        drag(dragX, dragY);
+
+        float oldDistance = edgeEffect.invoke().mDistance;
+        assertTrue(oldDistance > 0f);
+        int firstVisible = mLayoutManager.findFirstVisibleItemPosition();
+
+        // There is no animation from the onRelease, so the stretch is still active.
+        // Additional drag should continue the stretch.
+
+        dragAndExecute(dragX, dragY, () -> assertTrue(edgeEffect.invoke().mIsHeld), null, null);
+
+        assertTrue(oldDistance < edgeEffect.invoke().mDistance);
+        assertEquals(firstVisible, mLayoutManager.findFirstVisibleItemPosition());
     }
 
     private void scrollVerticalBy(final int value) throws Throwable {
@@ -493,12 +564,13 @@ public class StretchEdgeEffectTest extends BaseRecyclerViewInstrumentationTest {
     }
 
     private void drag(int deltaX, int deltaY) {
-        dragAndExecute(deltaX, deltaY, null, null);
+        dragAndExecute(deltaX, deltaY, null, null, null);
     }
 
     private void dragAndExecute(
             int deltaX,
             int deltaY,
+            @Nullable Runnable afterDown,
             @Nullable Runnable middleDrag,
             @Nullable Runnable endDrag
     ) {
@@ -507,6 +579,11 @@ public class StretchEdgeEffectTest extends BaseRecyclerViewInstrumentationTest {
         MotionEvent down = MotionEvent.obtain(0, 0, MotionEvent.ACTION_DOWN,
                 centerX, centerY, 0);
         mActivityRule.runOnUiThread(() -> mRecyclerView.dispatchTouchEvent(down));
+
+        if (afterDown != null) {
+            afterDown.run();
+        }
+
         for (int i = 0; i < 10; i++) {
             float x = centerX + (deltaX * (i + 1) / 10f);
             float y = centerY + (deltaY * (i + 1) / 10f);
@@ -555,6 +632,7 @@ public class StretchEdgeEffectTest extends BaseRecyclerViewInstrumentationTest {
         private float mDistance;
         public int mAbsorbVelocity;
         public boolean mOnReleaseCalled;
+        public boolean mIsHeld;
 
         TestEdgeEffect(Context context) {
             super(context);
@@ -568,6 +646,7 @@ public class StretchEdgeEffectTest extends BaseRecyclerViewInstrumentationTest {
         @Override
         public void onPull(float deltaDistance) {
             mDistance += deltaDistance;
+            mIsHeld = true;
         }
 
         @Override
@@ -587,6 +666,7 @@ public class StretchEdgeEffectTest extends BaseRecyclerViewInstrumentationTest {
             super.finish();
             mDistance = 0;
             mOnReleaseCalled = false;
+            mIsHeld = false;
         }
 
         @Override
@@ -597,11 +677,13 @@ public class StretchEdgeEffectTest extends BaseRecyclerViewInstrumentationTest {
         @Override
         public void onAbsorb(int velocity) {
             mAbsorbVelocity = velocity;
+            mIsHeld = false;
         }
 
         @Override
         public void onRelease() {
             mOnReleaseCalled = true;
+            mIsHeld = false;
         }
     }
 
