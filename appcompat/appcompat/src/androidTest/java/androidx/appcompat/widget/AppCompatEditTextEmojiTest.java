@@ -18,11 +18,14 @@ package androidx.appcompat.widget;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import android.content.Context;
 import android.text.method.DigitsKeyListener;
 import android.text.method.KeyListener;
 import android.text.method.NumberKeyListener;
 import android.view.KeyEvent;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.test.R;
 import androidx.test.annotation.UiThreadTest;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -125,4 +128,29 @@ public class AppCompatEditTextEmojiTest
         return listener.onKeyDown(textWithDigits, textWithDigits.getText(),
                 keycode, new KeyEvent(action, keycode));
     }
+
+    @Test
+    @UiThreadTest
+    public void whenSubclassing_setKeyListener_notCalledDuringConstructor() {
+        class MyEditText extends AppCompatEditText {
+            private boolean mSetKeyListenerCalled = false;
+
+            MyEditText(@NonNull Context context) {
+                super(context);
+            }
+
+            @Override
+            public void setKeyListener(@Nullable KeyListener keyListener) {
+                super.setKeyListener(keyListener);
+                mSetKeyListenerCalled = true;
+            }
+        }
+
+        MyEditText myEditText = new MyEditText(mActivityTestRule.getActivity());
+        assertThat(myEditText.mSetKeyListenerCalled).isFalse();
+
+        myEditText.setKeyListener(DigitsKeyListener.getInstance("1234"));
+        assertThat(myEditText.mSetKeyListenerCalled).isTrue();
+    }
 }
+

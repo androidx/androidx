@@ -98,7 +98,43 @@ public class AppCompatAutoCompleteTextView extends AutoCompleteTextView implemen
 
         mAppCompatEmojiEditTextHelper = new AppCompatEmojiEditTextHelper(this);
         mAppCompatEmojiEditTextHelper.loadFromAttributes(attrs, defStyleAttr);
-        mAppCompatEmojiEditTextHelper.initKeyListener();
+        initEmojiKeyListener(mAppCompatEmojiEditTextHelper);
+    }
+
+    /**
+     * Call from the constructor to safely add KeyListener for emoji2.
+     *
+     * This will always call super methods to avoid leaking a partially constructed this to
+     * overrides of non-final methods.
+     *
+     * @param appCompatEmojiEditTextHelper emojicompat helper
+     */
+    void initEmojiKeyListener(AppCompatEmojiEditTextHelper appCompatEmojiEditTextHelper) {
+        // setKeyListener will cause a reset both focusable and the inputType to the most basic
+        // style for the key listener. Since we're calling this from the View constructor, this
+        // will cause both focusable and inputType to reset from the XML attributes.
+        // See: b/191061070 and b/188049943 for details
+        //
+        // We will only reset this during ctor invocation, and default to the platform behavior
+        // for later calls to setKeyListener, to emulate the exact behavior that a regular
+        // EditText would provide.
+        //
+        // Since we're calling non-final methods from a ctor (setKeyListener, setRawInputType,
+        // setFocusable) move this out of AppCompatEmojiEditTextHelper and into the respective
+        // views to ensure we only call the super methods during construction (b/208480173).
+        KeyListener currentKeyListener = getKeyListener();
+        if (appCompatEmojiEditTextHelper.isEmojiCapableKeyListener(currentKeyListener)) {
+            boolean wasFocusable = super.isFocusable();
+            int inputType = super.getInputType();
+            KeyListener wrappedKeyListener = appCompatEmojiEditTextHelper.getKeyListener(
+                    currentKeyListener);
+            // don't call parent setKeyListener if it's not wrapped
+            if (wrappedKeyListener == currentKeyListener) return;
+            super.setKeyListener(wrappedKeyListener);
+            // reset the input type and focusable attributes after calling setKeyListener
+            super.setRawInputType(inputType);
+            super.setFocusable(wasFocusable);
+        }
     }
 
     @Override
