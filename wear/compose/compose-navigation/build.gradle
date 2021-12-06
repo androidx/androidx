@@ -41,7 +41,10 @@ dependencies {
     androidTestImplementation(project(":compose:test-utils"))
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(project(":wear:compose:compose-material"))
+    androidTestImplementation(project(":wear:compose:compose-navigation-samples"))
     androidTestImplementation(libs.truth)
+
+    samples(project(":wear:compose:compose-navigation-samples"))
 }
 
 android {
