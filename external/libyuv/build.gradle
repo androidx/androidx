@@ -78,4 +78,20 @@ afterEvaluate {
     tasks.named("reportLibraryMetrics").configure {
         it.dependsOn("prefabReleaseConfigurePackage")
     }
+    tasks.named("prefabReleasePackage").configure {
+        def releaseAbiJson = project.file("$buildDir/intermediates/prefab_package/release/prefab/modules/yuv/libs/android.armeabi-v7a/abi.json")
+        it.doLast {
+            if (!releaseAbiJson.exists()) {
+                throw new GradleException("$releaseAbiJson does not exist")
+            }
+        }
+    }
+    tasks.named("prefabDebugPackage").configure {
+        def debugAbiJson = project.file("$buildDir/intermediates/prefab_package/debug/prefab/modules/yuv/libs/android.armeabi-v7a/abi.json")
+        it.doLast {
+            if (!debugAbiJson.exists()) {
+                throw new GradleException("$debugAbiJson does not exist")
+            }
+        }
+    }
 }
