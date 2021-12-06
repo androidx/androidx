@@ -125,7 +125,7 @@ public abstract class ConstraintController<T> implements ConstraintListener<T> {
 
     private void updateCallback(
             @Nullable OnConstraintUpdatedCallback callback,
-            @Nullable T currentValue) {
+            T currentValue) {
 
         // We pass copies of references (callback, currentValue) to updateCallback because public
         // APIs on ConstraintController may be called from any thread, and onConstraintChanged() is
@@ -142,7 +142,7 @@ public abstract class ConstraintController<T> implements ConstraintListener<T> {
     }
 
     @Override
-    public void onConstraintChanged(@Nullable T newValue) {
+    public void onConstraintChanged(T newValue) {
         mCurrentValue = newValue;
         updateCallback(mCallback, mCurrentValue);
     }
