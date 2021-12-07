@@ -61,4 +61,10 @@ public class GlobalSearchSessionPlatformCtsTest extends GlobalSearchSessionCtsTe
         // TODO(b/193494000): Remove this no-op override once the change observer API is implemented
         //  in platform.
     }
+
+    @Override
+    public void testRegisterObserver_removeByQuery() {
+        // TODO(b/193494000): Remove this no-op override once the change observer API is implemented
+        //  in platform.
+    }
 }

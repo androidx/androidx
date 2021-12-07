@@ -163,6 +163,12 @@ public final class AppSearchImpl implements Closeable {
                     TypePropertyMask.newBuilder().setSchemaType(
                             GetByDocumentIdRequest.PROJECTION_SCHEMA_TYPE_WILDCARD)).build();
 
+    /** A ResultSpec that uses projection to skip all properties. */
+    private static final ResultSpecProto RESULT_SPEC_NO_PROPERTIES =
+            ResultSpecProto.newBuilder().addTypePropertyMasks(
+                    TypePropertyMask.newBuilder().setSchemaType(
+                            GetByDocumentIdRequest.PROJECTION_SCHEMA_TYPE_WILDCARD)).build();
+
     private final ReadWriteLock mReadWriteLock = new ReentrantReadWriteLock();
     private final LogUtil mLogUtil = new LogUtil(TAG);
     private final OptimizeStrategy mOptimizeStrategy;
@@ -1267,7 +1273,7 @@ public final class AppSearchImpl implements Closeable {
 
             String prefixedNamespace = createPrefix(packageName, databaseName) + namespace;
             String schemaType = null;
-            if (mObserverManagerLocked.isObserved(packageName)) {
+            if (mObserverManagerLocked.isPackageObserved(packageName)) {
                 // Someone might be observing the type this document is under, but we have no way to
                 // know its type without retrieving it. Do so now.
                 // TODO(b/193494000): If Icing Lib can return information about the deleted
@@ -1362,29 +1368,28 @@ public final class AppSearchImpl implements Closeable {
                 return;
             }
             SearchSpecProto finalSearchSpec = searchSpecBuilder.build();
-            mLogUtil.piiTrace("removeByQuery, request", finalSearchSpec);
-            DeleteByQueryResultProto deleteResultProto = mIcingSearchEngineLocked.deleteByQuery(
-                    finalSearchSpec);
-            mLogUtil.piiTrace(
-                    "removeByQuery, response", deleteResultProto.getStatus(), deleteResultProto);
 
-            if (removeStatsBuilder != null) {
-                removeStatsBuilder.setStatusCode(statusProtoToResultCode(
-                        deleteResultProto.getStatus()));
-                // TODO(b/187206766) also log query stats here once IcingLib returns it
-                AppSearchLoggerHelper.copyNativeStats(deleteResultProto.getDeleteByQueryStats(),
-                        removeStatsBuilder);
+            Set<String> prefixedObservedSchemas = null;
+            if (mObserverManagerLocked.isPackageObserved(packageName)) {
+                for (String prefixedType : allowedPrefixedSchemas) {
+                    String shortTypeName = PrefixUtil.removePrefix(prefixedType);
+                    if (mObserverManagerLocked.isSchemaTypeObserved(packageName, shortTypeName)) {
+                        if (prefixedObservedSchemas == null) {
+                            prefixedObservedSchemas = new ArraySet<>();
+                        }
+                        prefixedObservedSchemas.add(prefixedType);
+                    }
+                }
             }
 
-            // It seems that the caller wants to get success if the data matching the query is
-            // not in the DB because it was not there or was successfully deleted.
-            checkCodeOneOf(deleteResultProto.getStatus(),
-                    StatusProto.Code.OK, StatusProto.Code.NOT_FOUND);
+            if (prefixedObservedSchemas != null && !prefixedObservedSchemas.isEmpty()) {
+                doRemoveByQueryWithChangeNotificationLocked(
+                        packageName, finalSearchSpec, prefixedObservedSchemas, removeStatsBuilder);
+            } else {
+                doRemoveByQueryNoChangeNotificationLocked(
+                        packageName, finalSearchSpec, removeStatsBuilder);
+            }
 
-            // Update derived maps
-            int numDocumentsDeleted =
-                    deleteResultProto.getDeleteByQueryStats().getNumDocumentsDeleted();
-            updateDocumentCountAfterRemovalLocked(packageName, numDocumentsDeleted);
         } finally {
             mReadWriteLock.writeLock().unlock();
             if (removeStatsBuilder != null) {
@@ -1392,6 +1397,142 @@ public final class AppSearchImpl implements Closeable {
                         (int) (SystemClock.elapsedRealtime() - totalLatencyStartTimeMillis));
             }
         }
+    }
+
+    /**
+     * Executes removeByQuery, creating change notifications for removal.
+     *
+     * @param packageName         The package name that owns the documents.
+     * @param rewrittenSearchSpec A search spec that has been run through
+     *                            {@link #rewriteSearchSpecForPrefixesLocked}.
+     * @param prefixedObservedSchemas The set of prefixed schemas that have valid registered
+     *                                observers. Only changes to schemas in this set will be queued.
+     */
+    // TODO(b/193494000): Have Icing Lib return the URIs and types that were actually
+    //  deleted instead of querying in two passes like this.
+    @GuardedBy("mReadWriteLock")
+    private void doRemoveByQueryWithChangeNotificationLocked(
+            @NonNull String packageName,
+            @NonNull SearchSpecProto rewrittenSearchSpec,
+            @NonNull Set<String> prefixedObservedSchemas,
+            @Nullable RemoveStats.Builder removeStatsBuilder) throws AppSearchException {
+        mLogUtil.piiTrace(
+                "removeByQuery.withChangeNotification, query request", rewrittenSearchSpec);
+        SearchResultProto searchResultProto = mIcingSearchEngineLocked.search(
+                rewrittenSearchSpec,
+                ScoringSpecProto.getDefaultInstance(),
+                RESULT_SPEC_NO_PROPERTIES);
+        mLogUtil.piiTrace(
+                "removeByQuery.withChangeNotification, query response",
+                searchResultProto.getStatus(),
+                searchResultProto);
+
+        // TODO(b/187206766) also log query stats here once it's added to RemoveStats.Builder
+        checkSuccess(searchResultProto.getStatus());
+
+        long nextPageToken = searchResultProto.getNextPageToken();
+        int numDocumentsDeleted = 0;
+        while (true) {
+            for (int i = 0; i < searchResultProto.getResultsCount(); i++) {
+                DocumentProto document = searchResultProto.getResults(i).getDocument();
+
+                if (mLogUtil.isPiiTraceEnabled()) {
+                    mLogUtil.piiTrace(
+                            "removeByQuery.withChangeNotification, removeById request",
+                            document.getNamespace() + ", " + document.getUri());
+                }
+                DeleteResultProto deleteResultProto =
+                        mIcingSearchEngineLocked.delete(document.getNamespace(), document.getUri());
+                mLogUtil.piiTrace(
+                        "removeByQuery.withChangeNotification, removeById response",
+                        deleteResultProto.getStatus(),
+                        deleteResultProto);
+
+                if (removeStatsBuilder != null) {
+                    removeStatsBuilder.setStatusCode(statusProtoToResultCode(
+                            deleteResultProto.getStatus()));
+                    // TODO(b/187206766): This will keep overwriting the remove stats. This whole
+                    //  method should be replaced with native handling within icinglib for returning
+                    //  namespaces, types and URIs. That should populate the same proto as the
+                    //  non-observed case and remove the need for this hacky implementation and log.
+                    AppSearchLoggerHelper.copyNativeStats(
+                            deleteResultProto.getDeleteStats(), removeStatsBuilder);
+                }
+
+                // It shouldn't be possible for this to fail; we have the write lock!
+                checkSuccess(deleteResultProto.getStatus());
+                numDocumentsDeleted++;
+
+                // Prepare change notifications
+                if (prefixedObservedSchemas.contains(document.getSchema())) {
+                    mObserverManagerLocked.onDocumentChange(
+                            packageName,
+                            /*databaseName=*/ PrefixUtil.getDatabaseName(document.getNamespace()),
+                            /*namespace=*/ PrefixUtil.removePrefix(document.getNamespace()),
+                            /*schemaType=*/ PrefixUtil.removePrefix(document.getSchema()));
+                }
+            }
+
+            // Fetch next page
+            if (nextPageToken == EMPTY_PAGE_TOKEN) {
+                break;
+            }
+            mLogUtil.piiTrace(
+                    "removeByQuery.withChangeNotification, getNextPage request",
+                    nextPageToken);
+            searchResultProto = mIcingSearchEngineLocked.getNextPage(nextPageToken);
+            mLogUtil.piiTrace(
+                    "removeByQuery.withChangeNotification, getNextPage response",
+                    searchResultProto.getResultsCount(),
+                    searchResultProto);
+
+            // TODO(b/187206766) also log query stats here once it's added to RemoveStats.Builder
+            checkSuccess(searchResultProto.getStatus());
+
+            nextPageToken = searchResultProto.getNextPageToken();
+        }
+
+        // Update derived maps
+        updateDocumentCountAfterRemovalLocked(packageName, numDocumentsDeleted);
+    }
+
+    /**
+     * Executes removeByQuery without dispatching any change notifications.
+     *
+     * This is faster than {@link #doRemoveByQueryWithChangeNotificationLocked}.
+     *
+     * @param packageName         The package name that owns the documents.
+     * @param rewrittenSearchSpec A search spec that has been run through
+     *                            {@link #rewriteSearchSpecForPrefixesLocked}.
+     */
+    @GuardedBy("mReadWriteLock")
+    private void doRemoveByQueryNoChangeNotificationLocked(
+            @NonNull String packageName,
+            @NonNull SearchSpecProto rewrittenSearchSpec,
+            @Nullable RemoveStats.Builder removeStatsBuilder) throws AppSearchException {
+        mLogUtil.piiTrace("removeByQuery, request", rewrittenSearchSpec);
+        DeleteByQueryResultProto deleteResultProto =
+                mIcingSearchEngineLocked.deleteByQuery(rewrittenSearchSpec);
+        mLogUtil.piiTrace(
+                "removeByQuery, response", deleteResultProto.getStatus(), deleteResultProto);
+
+        if (removeStatsBuilder != null) {
+            removeStatsBuilder.setStatusCode(statusProtoToResultCode(
+                    deleteResultProto.getStatus()));
+            // TODO(b/187206766) also log query stats here once IcingLib returns it
+            AppSearchLoggerHelper.copyNativeStats(deleteResultProto.getDeleteByQueryStats(),
+                    removeStatsBuilder);
+        }
+
+        // It seems that the caller wants to get success if the data matching the query is
+        // not in the DB because it was not there or was successfully deleted.
+        checkCodeOneOf(deleteResultProto.getStatus(),
+                StatusProto.Code.OK, StatusProto.Code.NOT_FOUND);
+
+        // Update derived maps
+        int numDocumentsDeleted =
+                deleteResultProto.getDeleteByQueryStats().getNumDocumentsDeleted();
+        updateDocumentCountAfterRemovalLocked(packageName, numDocumentsDeleted);
     }
 
     @GuardedBy("mReadWriteLock")
