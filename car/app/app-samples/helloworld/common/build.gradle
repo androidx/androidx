@@ -27,6 +27,10 @@ android {
 
 dependencies {
     implementation(project(":car:app:app"))
+    implementation(project(":annotation:annotation-experimental"))
+    // There is an implicit compile-only dep due to :annotation-experimental
+    // Build will complain without this manual declaration.
+    compileOnly libs.kotlinStdlib
 
     testImplementation(libs.robolectric)
     testImplementation(libs.testCore)
