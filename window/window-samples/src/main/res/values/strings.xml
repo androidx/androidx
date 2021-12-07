@@ -51,4 +51,6 @@
     <string name="occlusion_is_none">Occlusion is none</string>
     <string name="window_metrics">Window metrics</string>
     <string name="window_metrics_description">Demo of using WindowMetrics API with activity handling rotations.</string>
+    <string name="rear_display">Rear Display Mode</string>
+    <string name="rear_display_description">Demo of observing to WindowAreaStatus and enabling/disabling RearDisplay mode</string>
 </resources>
