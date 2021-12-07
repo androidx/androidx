@@ -651,6 +651,7 @@ public class EditorSessionTest {
 
     @After
     public fun tearDown() {
+        OnWatchFaceEditingTestActivity.complicationDataSourceInfoRetrieverProvider = null
         ComplicationDataSourceChooserContract.useTestComplicationHelperActivity = false
         ComplicationHelperActivity.useTestComplicationDataSourceChooserActivity = false
         ComplicationHelperActivity.skipPermissionCheck = false
@@ -2004,6 +2005,8 @@ public class EditorSessionTest {
     @Test
     public fun closeEditorSessionBeforeInitCompleted() {
         val testComponentName = ComponentName("test.package", "test.class")
+        OnWatchFaceEditingTestActivity.complicationDataSourceInfoRetrieverProvider =
+            TestComplicationDataSourceInfoRetrieverProvider()
         val session: ActivityScenario<OnWatchFaceEditingTestActivity> = ActivityScenario.launch(
             WatchFaceEditorContract().createIntent(
                 ApplicationProvider.getApplicationContext<Context>(),
@@ -2183,6 +2186,10 @@ public class EditorSessionTest {
     public fun testComponentNameMismatch() {
         val testComponentName = ComponentName("test.package", "test.class")
         val watchFaceId = WatchFaceId("ID-1")
+
+        OnWatchFaceEditingTestActivity.complicationDataSourceInfoRetrieverProvider =
+            TestComplicationDataSourceInfoRetrieverProvider()
+
         val scenario: ActivityScenario<OnWatchFaceEditingTestActivity> = ActivityScenario.launch(
             WatchFaceEditorContract().createIntent(
                 ApplicationProvider.getApplicationContext<Context>(),
