@@ -66,8 +66,7 @@ public class WorkTest extends WorkManagerTest {
 
         // Because of the previous test (testBuild_GetsUniqueIdsOnBuild), we know the id's are
         // different, so just set them to be the same for now so we can use an equality check.
-        firstWorkSpec.id = secondWorkSpec.id;
-        assertThat(firstWorkSpec, is(equalTo(secondWorkSpec)));
+        assertThat(new WorkSpec(secondWorkSpec.id, firstWorkSpec), is(equalTo(secondWorkSpec)));
     }
 
     @Test
