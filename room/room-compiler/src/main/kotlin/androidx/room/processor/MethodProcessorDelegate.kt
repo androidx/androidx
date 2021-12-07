@@ -22,7 +22,6 @@ import androidx.room.compiler.processing.XSuspendMethodType
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.XVariableElement
 import androidx.room.compiler.processing.isSuspendFunction
-import androidx.room.ext.CommonTypeNames
 import androidx.room.ext.GuavaUtilConcurrentTypeNames
 import androidx.room.ext.KotlinTypeNames
 import androidx.room.ext.L

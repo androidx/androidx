@@ -20,7 +20,6 @@ import androidx.room.compiler.processing.XAnnotationBox
 import androidx.room.compiler.processing.XMethodElement
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.XTypeElement
-import androidx.room.ext.isEntityElement
 import androidx.room.vo.Entity
 import androidx.room.vo.Pojo
 import androidx.room.vo.ShortcutEntity
