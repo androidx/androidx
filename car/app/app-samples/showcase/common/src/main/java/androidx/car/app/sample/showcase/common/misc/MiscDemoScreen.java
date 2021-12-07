@@ -75,6 +75,8 @@ public final class MiscDemoScreen extends Screen {
             case 1:
                 listBuilder.addItem(createRow("Content Limits Demo",
                         new ContentLimitsDemoScreen(getCarContext())));
+                listBuilder.addItem(createRow("Color Demo",
+                        new ColorDemoScreen(getCarContext())));
                 break;
 
         }
