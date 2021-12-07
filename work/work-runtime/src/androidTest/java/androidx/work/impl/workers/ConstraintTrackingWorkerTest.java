@@ -135,6 +135,7 @@ public class ConstraintTrackingWorkerTest extends DatabaseTest {
         when(mWorkManagerImpl.getWorkDatabase()).thenReturn(mDatabase);
         when(mWorkManagerImpl.getWorkTaskExecutor()).thenReturn(mWorkTaskExecutor);
         when(mWorkManagerImpl.getConfiguration()).thenReturn(mConfiguration);
+        when(mWorkManagerImpl.getTrackers()).thenReturn(mTracker);
 
         mBatteryChargingTracker = spy(new BatteryChargingTracker(mContext, mWorkTaskExecutor));
         mBatteryNotLowTracker = spy(new BatteryNotLowTracker(mContext, mWorkTaskExecutor));
@@ -147,9 +148,6 @@ public class ConstraintTrackingWorkerTest extends DatabaseTest {
         when(mTracker.getBatteryNotLowTracker()).thenReturn(mBatteryNotLowTracker);
         when(mTracker.getNetworkStateTracker()).thenReturn(mNetworkStateTracker);
         when(mTracker.getStorageNotLowTracker()).thenReturn(mStorageNotLowTracker);
-
-        // Override Trackers being used by WorkConstraintsProxy
-        Trackers.setInstance(mTracker);
     }
 
     @After

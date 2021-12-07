@@ -19,7 +19,6 @@ import android.content.Context;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
-import androidx.annotation.VisibleForTesting;
 import androidx.work.impl.utils.taskexecutor.TaskExecutor;
 
 /**
@@ -28,37 +27,12 @@ import androidx.work.impl.utils.taskexecutor.TaskExecutor;
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class Trackers {
-
-    private static Trackers sInstance;
-
-    /**
-     * Gets the singleton instance of {@link Trackers}.
-     *
-     * @param context The initializing context (we only use the application context)
-     * @return The singleton instance of {@link Trackers}.
-     */
-    @NonNull
-    public static synchronized Trackers getInstance(Context context, TaskExecutor taskExecutor) {
-        if (sInstance == null) {
-            sInstance = new Trackers(context, taskExecutor);
-        }
-        return sInstance;
-    }
-
-    /**
-     * Sets an instance of the {@link Trackers} for testing.
-     */
-    @VisibleForTesting
-    public static synchronized void setInstance(@NonNull Trackers trackers) {
-        sInstance = trackers;
-    }
-
     private BatteryChargingTracker mBatteryChargingTracker;
     private BatteryNotLowTracker mBatteryNotLowTracker;
     private NetworkStateTracker mNetworkStateTracker;
     private StorageNotLowTracker mStorageNotLowTracker;
 
-    private Trackers(@NonNull Context context, @NonNull TaskExecutor taskExecutor) {
+    public Trackers(@NonNull Context context, @NonNull TaskExecutor taskExecutor) {
         Context appContext = context.getApplicationContext();
         mBatteryChargingTracker = new BatteryChargingTracker(appContext, taskExecutor);
         mBatteryNotLowTracker = new BatteryNotLowTracker(appContext, taskExecutor);

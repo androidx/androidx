@@ -52,6 +52,7 @@ import androidx.work.WorkerParameters;
 import androidx.work.impl.background.greedy.GreedyScheduler;
 import androidx.work.impl.background.systemalarm.RescheduleReceiver;
 import androidx.work.impl.background.systemjob.SystemJobScheduler;
+import androidx.work.impl.constraints.trackers.Trackers;
 import androidx.work.impl.model.RawWorkInfoDao;
 import androidx.work.impl.model.WorkSpec;
 import androidx.work.impl.model.WorkSpecDao;
@@ -100,7 +101,7 @@ public class WorkManagerImpl extends WorkManager {
     private boolean mForceStopRunnableCompleted;
     private BroadcastReceiver.PendingResult mRescheduleReceiverResult;
     private volatile RemoteWorkManager mRemoteWorkManager;
-
+    private final Trackers mTrackers;
     private static WorkManagerImpl sDelegatedInstance = null;
     private static WorkManagerImpl sDefaultInstance = null;
     private static final Object sLock = new Object();
@@ -268,8 +269,9 @@ public class WorkManagerImpl extends WorkManager {
             @NonNull WorkDatabase database) {
         Context applicationContext = context.getApplicationContext();
         Logger.setLogger(new Logger.LogcatLogger(configuration.getMinimumLoggingLevel()));
+        mTrackers = new Trackers(applicationContext, mWorkTaskExecutor);
         List<Scheduler> schedulers =
-                createSchedulers(applicationContext, configuration, workTaskExecutor);
+                createSchedulers(applicationContext, configuration, mTrackers);
         Processor processor = new Processor(
                 context,
                 configuration,
@@ -298,6 +300,7 @@ public class WorkManagerImpl extends WorkManager {
             @NonNull WorkDatabase workDatabase,
             @NonNull List<Scheduler> schedulers,
             @NonNull Processor processor) {
+        mTrackers = new Trackers(context.getApplicationContext(), mWorkTaskExecutor);
         internalInit(context, configuration, workTaskExecutor, workDatabase, schedulers, processor);
     }
 
@@ -366,6 +369,16 @@ public class WorkManagerImpl extends WorkManager {
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public @NonNull PreferenceUtils getPreferenceUtils() {
         return mPreferenceUtils;
+    }
+
+    /**
+     * @return the {@link Trackers} used by {@link WorkManager}
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @NonNull
+    public Trackers getTrackers() {
+        return mTrackers;
     }
 
     @Override
@@ -783,13 +796,14 @@ public class WorkManagerImpl extends WorkManager {
     public List<Scheduler> createSchedulers(
             @NonNull Context context,
             @NonNull Configuration configuration,
-            @NonNull TaskExecutor taskExecutor) {
+            @NonNull Trackers trackers
+    ) {
 
         return Arrays.asList(
                 Schedulers.createBestAvailableBackgroundScheduler(context, this),
                 // Specify the task executor directly here as this happens before internalInit.
                 // GreedyScheduler creates ConstraintTrackers and controllers eagerly.
-                new GreedyScheduler(context, configuration, taskExecutor, this));
+                new GreedyScheduler(context, configuration, trackers, this));
     }
 
     /**
