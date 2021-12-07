@@ -28,8 +28,10 @@ android {
 dependencies {
     implementation(project(":car:app:app"))
 
-    api(libs.kotlinStdlib) // Due to :annotation-experimental
     implementation("androidx.core:core:1.7.0")
     implementation(project(":annotation:annotation-experimental"))
+    // There is an implicit compile-only dep due to :annotation-experimental
+    // Build will complain without this manual declaration.
+    compileOnly libs.kotlinStdlib
 }
 
