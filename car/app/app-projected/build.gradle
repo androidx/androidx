@@ -27,10 +27,6 @@ dependencies {
     annotationProcessor(libs.nullaway)
 
     implementation("androidx.annotation:annotation:1.2.0")
-    implementation("androidx.annotation:annotation-experimental:1.1.0")
-    // There is an implicit compile-only dep due to :annotation-experimental
-    // Build will complain without this manual declaration.
-    compileOnly libs.kotlinStdlib
 
     testImplementation("junit:junit:4.13")
     testImplementation(libs.testCore)
