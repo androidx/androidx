@@ -51,7 +51,7 @@ jar {
 shadowJar {
     archiveClassifier = ''
     configurations = [project.configurations.shadowed]
-    relocate "com.google.protobuf", "glance.appwidget.proto.relocated"
+    relocate "com.google.protobuf", "androidx.glance.appwidget.proto"
 
     // libs.protobufLite ships with a standard set of proto files in the JAR, which clash if this
     // library is included from two different downstream libraries. exclude("*.proto") (or
