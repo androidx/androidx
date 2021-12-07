@@ -31,6 +31,7 @@ import androidx.car.app.model.ItemList;
 import androidx.car.app.model.Row;
 import androidx.car.app.model.Template;
 import androidx.car.app.navigation.model.RoutePreviewNavigationTemplate;
+import androidx.car.app.sample.showcase.common.navigation.routing.RoutingDemoModels;
 
 import java.util.concurrent.TimeUnit;
 
@@ -90,6 +91,7 @@ public final class RoutePreviewDemoScreen extends Screen {
                                 .setOnClickListener(this::onNavigate)
                                 .build())
                 .setTitle("Routes")
+                .setMapActionStrip(RoutingDemoModels.getMapActionStrip(getCarContext()))
                 .setHeaderAction(Action.BACK)
                 .build();
     }
