@@ -383,10 +383,13 @@ public class ConfirmationOverlay {
 
     /**
      * Returns text to be read out if accessibility is turned on.
-     * @return Text from the {@link #mMessage} followed by predefined string for given animation
-     * type.
+     * @return Text from the {@link #mMessage} if not empty or predefined string for given
+     * animation type.
      */
     private CharSequence getAccessibilityText() {
+        if (!mMessage.toString().isEmpty()) {
+            return mMessage;
+        }
         Context context = mOverlayView.getContext();
         CharSequence imageDescription = "";
         switch (mType) {
@@ -407,7 +410,6 @@ public class ConfirmationOverlay {
                         String.format(Locale.US, "Invalid ConfirmationOverlay type [%d]", mType);
                 throw new IllegalStateException(errorMessage);
         }
-        return mMessage + "\n" + context.getString(R.string.confirmation_overlay_a11y_type_image)
-                + " " + imageDescription;
+        return imageDescription;
     }
 }
