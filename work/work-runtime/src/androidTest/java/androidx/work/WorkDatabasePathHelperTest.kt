@@ -37,13 +37,12 @@ import java.io.File
 
 @RunWith(AndroidJUnit4::class)
 @LargeTest
-@Suppress("DEPRECATION")
-// TODO: (b/189268580) Update this test to use the new constructors in MigrationTestHelper.
 class WorkDatabasePathHelperTest {
     @get:Rule
     val migrationTestHelper = MigrationTestHelper(
         InstrumentationRegistry.getInstrumentation(),
-        WorkDatabase::class.java.canonicalName,
+        WorkDatabase::class.java,
+        emptyList(),
         FrameworkSQLiteOpenHelperFactory()
     )
 

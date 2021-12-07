@@ -78,6 +78,7 @@ import org.junit.runner.RunWith;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.UUID;
 
 @RunWith(AndroidJUnit4.class)
@@ -119,7 +120,8 @@ public class WorkDatabaseMigrationTest {
     @Rule
     public MigrationTestHelper mMigrationTestHelper = new MigrationTestHelper(
             InstrumentationRegistry.getInstrumentation(),
-            WorkDatabase.class.getCanonicalName(),
+            WorkDatabase.class,
+            new ArrayList<>(),
             new FrameworkSQLiteOpenHelperFactory());
 
     @Before
