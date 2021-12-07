@@ -240,5 +240,5 @@ jobs:
         if: failure()
         uses: actions/upload-artifact@v2
         with:
-          name: gradle-daemon-logs
+          name: gradle-daemon-logs_${{ env.artifact-id }}
           path: ~/.gradle/daemon
