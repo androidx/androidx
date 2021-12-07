@@ -235,3 +235,10 @@ jobs:
         with:
           name: artifacts_${{ env.artifact-id }}
           path: ~/dist
+      - name: "Upload daemon logs"
+        continue-on-error: true
+        if: failure()
+        uses: actions/upload-artifact@v2
+        with:
+          name: gradle-daemon-logs
+          path: ~/.gradle/daemon
