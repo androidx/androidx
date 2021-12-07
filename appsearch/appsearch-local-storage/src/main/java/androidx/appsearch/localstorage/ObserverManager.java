@@ -18,6 +18,7 @@ package androidx.appsearch.localstorage;
 
 import android.util.Log;
 
+import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
@@ -39,7 +40,7 @@ import java.util.concurrent.Executor;
  * Manages {@link AppSearchObserverCallback} instances and queues notifications to them for later
  * dispatch.
  *
- * <p>This class is not thread-safe.
+ * <p>This class is thread-safe.
  *
  * @hide
  */
@@ -98,8 +99,12 @@ public class ObserverManager {
         }
     }
 
+    private final Object mLock = new Object();
+
     /** Maps observed package to observer infos watching something in that package. */
-    private final Map<String, List<ObserverInfo>> mObservers = new ArrayMap<>();
+    @GuardedBy("mLock")
+    private final Map<String, List<ObserverInfo>> mObserversLocked = new ArrayMap<>();
+
     private volatile boolean mHasNotifications = false;
 
     /**
@@ -120,47 +125,53 @@ public class ObserverManager {
             @NonNull ObserverSpec spec,
             @NonNull Executor executor,
             @NonNull AppSearchObserverCallback observer) {
-        List<ObserverInfo> infos = mObservers.get(observedPackage);
-        if (infos == null) {
-            infos = new ArrayList<>();
-            mObservers.put(observedPackage, infos);
+        synchronized (mLock) {
+            List<ObserverInfo> infos = mObserversLocked.get(observedPackage);
+            if (infos == null) {
+                infos = new ArrayList<>();
+                mObserversLocked.put(observedPackage, infos);
+            }
+            infos.add(new ObserverInfo(spec, executor, observer));
         }
-        infos.add(new ObserverInfo(spec, executor, observer));
     }
 
     /**
      * Should be called when a change occurs to a document.
      *
      * <p>The notification will be queued in memory for later dispatch. You must call
-     * {@link #dispatchPendingNotifications} to dispatch all such pending notifications.
+     * {@link #dispatchAndClearPendingNotifications} to dispatch all such pending notifications.
      */
     public void onDocumentChange(
             @NonNull String packageName,
             @NonNull String databaseName,
             @NonNull String namespace,
             @NonNull String schemaType) {
-        List<ObserverInfo> allObserverInfosForPackage = mObservers.get(packageName);
-        if (allObserverInfosForPackage == null || allObserverInfosForPackage.isEmpty()) {
-            return; // No observers for this type
-        }
-        // Enqueue changes for later dispatch once the call returns
-        DocumentChangeGroupKey key = null;
-        for (int i = 0; i < allObserverInfosForPackage.size(); i++) {
-            ObserverInfo observerInfo = allObserverInfosForPackage.get(i);
-            if (matchesSpec(schemaType, observerInfo.mObserverSpec)) {
-                if (key == null) {
-                    key = new DocumentChangeGroupKey(
-                            packageName, databaseName, namespace, schemaType);
-                }
-                observerInfo.mDocumentChanges.add(key);
+        synchronized (mLock) {
+            List<ObserverInfo> allObserverInfosForPackage = mObserversLocked.get(packageName);
+            if (allObserverInfosForPackage == null || allObserverInfosForPackage.isEmpty()) {
+                return; // No observers for this type
             }
+            // Enqueue changes for later dispatch once the call returns
+            DocumentChangeGroupKey key = null;
+            for (int i = 0; i < allObserverInfosForPackage.size(); i++) {
+                ObserverInfo observerInfo = allObserverInfosForPackage.get(i);
+                if (matchesSpec(schemaType, observerInfo.mObserverSpec)) {
+                    if (key == null) {
+                        key = new DocumentChangeGroupKey(
+                                packageName, databaseName, namespace, schemaType);
+                    }
+                    observerInfo.mDocumentChanges.add(key);
+                }
+            }
+            mHasNotifications = true;
         }
-        mHasNotifications = true;
     }
 
     /** Returns whether there are any observers registered to watch the given package. */
     public boolean isPackageObserved(@NonNull String packageName) {
-        return mObservers.containsKey(packageName);
+        synchronized (mLock) {
+            return mObserversLocked.containsKey(packageName);
+        }
     }
 
     /**
@@ -168,39 +179,47 @@ public class ObserverManager {
      * unprefixed schema type.
      */
     public boolean isSchemaTypeObserved(@NonNull String packageName, @NonNull String schemaType) {
-        List<ObserverInfo> allObserverInfosForPackage = mObservers.get(packageName);
-        if (allObserverInfosForPackage == null) {
+        synchronized (mLock) {
+            List<ObserverInfo> allObserverInfosForPackage = mObserversLocked.get(packageName);
+            if (allObserverInfosForPackage == null) {
+                return false;
+            }
+            for (int i = 0; i < allObserverInfosForPackage.size(); i++) {
+                ObserverInfo observerInfo = allObserverInfosForPackage.get(i);
+                if (matchesSpec(schemaType, observerInfo.mObserverSpec)) {
+                    return true;
+                }
+            }
             return false;
         }
-        for (int i = 0; i < allObserverInfosForPackage.size(); i++) {
-            ObserverInfo observerInfo = allObserverInfosForPackage.get(i);
-            if (matchesSpec(schemaType, observerInfo.mObserverSpec)) {
-                return true;
-            }
-        }
-        return false;
     }
 
-    /** This method is thread safe. */
+    /** Returns whether any notifications have been queued for dispatch. */
     public boolean hasNotifications() {
         return mHasNotifications;
     }
 
     /** Dispatches notifications on their corresponding executors. */
-    public void dispatchPendingNotifications() {
-        if (mObservers.isEmpty() || !mHasNotifications) {
+    public void dispatchAndClearPendingNotifications() {
+        if (!mHasNotifications) {
             return;
         }
-        for (List<ObserverInfo> observerInfos : mObservers.values()) {
-            for (int i = 0; i < observerInfos.size(); i++) {
-                dispatchPendingNotifications(observerInfos.get(i));
+        synchronized (mLock) {
+            if (mObserversLocked.isEmpty() || !mHasNotifications) {
+                return;
             }
+            for (List<ObserverInfo> observerInfos : mObserversLocked.values()) {
+                for (int i = 0; i < observerInfos.size(); i++) {
+                    dispatchAndClearPendingNotificationsLocked(observerInfos.get(i));
+                }
+            }
+            mHasNotifications = false;
         }
-        mHasNotifications = false;
     }
 
     /** Dispatches pending notifications for the given observerInfo and clears the pending list. */
-    private void dispatchPendingNotifications(@NonNull ObserverInfo observerInfo) {
+    @GuardedBy("mLock")
+    private void dispatchAndClearPendingNotificationsLocked(@NonNull ObserverInfo observerInfo) {
         // Get and clear the pending changes
         Set<DocumentChangeGroupKey> documentChanges = observerInfo.mDocumentChanges;
         if (documentChanges.isEmpty()) {
@@ -236,13 +255,15 @@ public class ObserverManager {
      * <p>Note that this method does not check packageName; you must only use it to check
      * observerSpecs which you know are observing the same package as the change.
      */
-    private boolean matchesSpec(@NonNull String schemaType, @NonNull ObserverSpec observerSpec) {
+    private static boolean matchesSpec(
+            @NonNull String schemaType, @NonNull ObserverSpec observerSpec) {
         Set<String> schemaFilters = observerSpec.getFilterSchemas();
         if (!schemaFilters.isEmpty() && !schemaFilters.contains(schemaType)) {
             return false;
         }
         // TODO(b/193494000): We also need to check VisibilityStore to see if the observer is
-        //  allowed to access this type before granting access.
+        //  allowed to access this type before granting access. Note if fixing this TODO makes the
+        //  method non-static we need to handle locking.
         return true;
     }
 }

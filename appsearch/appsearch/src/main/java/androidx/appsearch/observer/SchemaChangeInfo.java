@@ -17,6 +17,8 @@
 package androidx.appsearch.observer;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.core.util.ObjectsCompat;
 import androidx.core.util.Preconditions;
 
 /**
@@ -57,5 +59,27 @@ public final class SchemaChangeInfo {
     @NonNull
     public String getDatabaseName() {
         return mDatabaseName;
+    }
+
+    @Override
+    public boolean equals(@Nullable Object o) {
+        if (this == o) return true;
+        if (!(o instanceof SchemaChangeInfo)) return false;
+        SchemaChangeInfo that = (SchemaChangeInfo) o;
+        return mPackageName.equals(that.mPackageName) && mDatabaseName.equals(that.mDatabaseName);
+    }
+
+    @Override
+    public int hashCode() {
+        return ObjectsCompat.hash(mPackageName, mDatabaseName);
+    }
+
+    @NonNull
+    @Override
+    public String toString() {
+        return "SchemaChangeInfo{"
+                + "packageName='" + mPackageName + '\''
+                + ", databaseName='" + mDatabaseName + '\''
+                + '}';
     }
 }
