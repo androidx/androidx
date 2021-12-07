@@ -165,7 +165,7 @@ public class WorkManagerImplTest {
                 spy(new GreedyScheduler(
                         mContext,
                         mWorkManagerImpl.getConfiguration(),
-                        mWorkManagerImpl.getWorkTaskExecutor(),
+                        mWorkManagerImpl.getTrackers(),
                         mWorkManagerImpl));
         // Don't return any scheduler. We don't need to actually execute work for most of our tests.
         when(mWorkManagerImpl.getSchedulers()).thenReturn(Collections.<Scheduler>emptyList());
@@ -1689,7 +1689,7 @@ public class WorkManagerImplTest {
                 new GreedyScheduler(
                         mContext,
                         mWorkManagerImpl.getConfiguration(),
-                        mWorkManagerImpl.getWorkTaskExecutor(),
+                        mWorkManagerImpl.getTrackers(),
                         mWorkManagerImpl);
         // Return GreedyScheduler alone, because real jobs gets scheduled which slow down tests.
         when(mWorkManagerImpl.getSchedulers()).thenReturn(Collections.singletonList(scheduler));

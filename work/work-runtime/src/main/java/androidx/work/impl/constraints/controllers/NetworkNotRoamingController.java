@@ -18,15 +18,13 @@ package androidx.work.impl.constraints.controllers;
 
 import static androidx.work.NetworkType.NOT_ROAMING;
 
-import android.content.Context;
 import android.os.Build;
 
 import androidx.annotation.NonNull;
 import androidx.work.Logger;
 import androidx.work.impl.constraints.NetworkState;
-import androidx.work.impl.constraints.trackers.Trackers;
+import androidx.work.impl.constraints.trackers.NetworkStateTracker;
 import androidx.work.impl.model.WorkSpec;
-import androidx.work.impl.utils.taskexecutor.TaskExecutor;
 
 /**
  * A {@link ConstraintController} for monitoring that the network connection is not roaming.
@@ -35,8 +33,8 @@ import androidx.work.impl.utils.taskexecutor.TaskExecutor;
 public class NetworkNotRoamingController extends ConstraintController<NetworkState> {
     private static final String TAG = Logger.tagWithPrefix("NetworkNotRoamingCtrlr");
 
-    public NetworkNotRoamingController(Context context, TaskExecutor taskExecutor) {
-        super(Trackers.getInstance(context, taskExecutor).getNetworkStateTracker());
+    public NetworkNotRoamingController(@NonNull NetworkStateTracker tracker) {
+        super(tracker);
     }
 
     @Override

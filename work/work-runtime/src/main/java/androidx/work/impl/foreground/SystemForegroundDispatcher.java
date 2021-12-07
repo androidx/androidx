@@ -109,7 +109,7 @@ public class SystemForegroundDispatcher implements WorkConstraintsCallback, Exec
         mForegroundInfoById = new LinkedHashMap<>();
         mTrackedWorkSpecs = new HashSet<>();
         mWorkSpecById = new HashMap<>();
-        mConstraintsTracker = new WorkConstraintsTrackerImpl(mContext, mTaskExecutor, this);
+        mConstraintsTracker = new WorkConstraintsTrackerImpl(mWorkManagerImpl.getTrackers(), this);
         mWorkManagerImpl.getProcessor().addExecutionListener(this);
     }
 
@@ -204,10 +204,6 @@ public class SystemForegroundDispatcher implements WorkConstraintsCallback, Exec
             return;
         }
         mCallback = callback;
-    }
-
-    WorkManagerImpl getWorkManager() {
-        return mWorkManagerImpl;
     }
 
     void onStartCommand(@NonNull Intent intent) {

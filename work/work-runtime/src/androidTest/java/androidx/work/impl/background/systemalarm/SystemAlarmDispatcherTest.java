@@ -121,6 +121,7 @@ public class SystemAlarmDispatcherTest extends DatabaseTest {
                 mLatch.countDown();
             }
         };
+        mTracker = mock(Trackers.class);
         Logger.setLogger(new Logger.LogcatLogger(Log.DEBUG));
         mConfiguration = new Configuration.Builder()
                 .setExecutor(new SynchronousExecutor())
@@ -129,6 +130,7 @@ public class SystemAlarmDispatcherTest extends DatabaseTest {
         when(mWorkManager.getConfiguration()).thenReturn(mConfiguration);
         TaskExecutor instantTaskExecutor = new InstantWorkTaskExecutor();
         when(mWorkManager.getWorkTaskExecutor()).thenReturn(instantTaskExecutor);
+        when(mWorkManager.getTrackers()).thenReturn(mTracker);
         mProcessor = new Processor(
                 mContext,
                 mConfiguration,
@@ -147,15 +149,11 @@ public class SystemAlarmDispatcherTest extends DatabaseTest {
         // Requires API 24+ types.
         mNetworkStateTracker = mock(NetworkStateTracker.class);
         mStorageNotLowTracker = spy(new StorageNotLowTracker(mContext, instantTaskExecutor));
-        mTracker = mock(Trackers.class);
 
         when(mTracker.getBatteryChargingTracker()).thenReturn(mBatteryChargingTracker);
         when(mTracker.getBatteryNotLowTracker()).thenReturn(mBatteryNotLowTracker);
         when(mTracker.getNetworkStateTracker()).thenReturn(mNetworkStateTracker);
         when(mTracker.getStorageNotLowTracker()).thenReturn(mStorageNotLowTracker);
-
-        // Override Trackers being used by WorkConstraintsProxy
-        Trackers.setInstance(mTracker);
     }
 
     @After

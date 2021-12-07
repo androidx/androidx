@@ -15,7 +15,6 @@
  */
 package androidx.work.impl.constraints
 
-import android.content.Context
 import androidx.annotation.VisibleForTesting
 import androidx.work.Logger
 import androidx.work.impl.constraints.controllers.BatteryChargingController
@@ -26,8 +25,8 @@ import androidx.work.impl.constraints.controllers.NetworkMeteredController
 import androidx.work.impl.constraints.controllers.NetworkNotRoamingController
 import androidx.work.impl.constraints.controllers.NetworkUnmeteredController
 import androidx.work.impl.constraints.controllers.StorageNotLowController
+import androidx.work.impl.constraints.trackers.Trackers
 import androidx.work.impl.model.WorkSpec
-import androidx.work.impl.utils.taskexecutor.TaskExecutor
 
 interface WorkConstraintsTracker {
     /**
@@ -58,26 +57,24 @@ class WorkConstraintsTrackerImpl @VisibleForTesting internal constructor(
     private val lock: Any = Any()
 
     /**
-     * @param context      The application [Context]
-     * @param taskExecutor The [TaskExecutor] being used by WorkManager.
+     * @param trackers Constraints trackers
      * @param callback     The callback is only necessary when you need
      * [WorkConstraintsTrackerImpl] to notify you about changes in
      * constraints for the list of [WorkSpec]'s that it is tracking.
      */
     constructor(
-        context: Context,
-        taskExecutor: TaskExecutor,
+        trackers: Trackers,
         callback: WorkConstraintsCallback?
     ) : this(
         callback,
         arrayOf(
-            BatteryChargingController(context.applicationContext, taskExecutor),
-            BatteryNotLowController(context.applicationContext, taskExecutor),
-            StorageNotLowController(context.applicationContext, taskExecutor),
-            NetworkConnectedController(context.applicationContext, taskExecutor),
-            NetworkUnmeteredController(context.applicationContext, taskExecutor),
-            NetworkNotRoamingController(context.applicationContext, taskExecutor),
-            NetworkMeteredController(context.applicationContext, taskExecutor)
+            BatteryChargingController(trackers.batteryChargingTracker),
+            BatteryNotLowController(trackers.batteryNotLowTracker),
+            StorageNotLowController(trackers.storageNotLowTracker),
+            NetworkConnectedController(trackers.networkStateTracker),
+            NetworkUnmeteredController(trackers.networkStateTracker),
+            NetworkNotRoamingController(trackers.networkStateTracker),
+            NetworkMeteredController(trackers.networkStateTracker)
         )
     )
 
