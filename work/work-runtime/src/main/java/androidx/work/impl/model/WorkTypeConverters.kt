@@ -13,81 +13,66 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package androidx.work.impl.model
 
-package androidx.work.impl.model;
-
-import static androidx.work.BackoffPolicy.EXPONENTIAL;
-import static androidx.work.BackoffPolicy.LINEAR;
-import static androidx.work.WorkInfo.State.BLOCKED;
-import static androidx.work.WorkInfo.State.CANCELLED;
-import static androidx.work.WorkInfo.State.ENQUEUED;
-import static androidx.work.WorkInfo.State.FAILED;
-import static androidx.work.WorkInfo.State.RUNNING;
-import static androidx.work.WorkInfo.State.SUCCEEDED;
-
-import android.net.Uri;
-import android.os.Build;
-
-import androidx.annotation.NonNull;
-import androidx.room.TypeConverter;
-import androidx.work.BackoffPolicy;
-import androidx.work.ContentUriTriggers;
-import androidx.work.NetworkType;
-import androidx.work.OutOfQuotaPolicy;
-import androidx.work.WorkInfo;
-
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import android.net.Uri
+import android.os.Build
+import androidx.room.TypeConverter
+import androidx.work.BackoffPolicy
+import androidx.work.ContentUriTriggers
+import androidx.work.NetworkType
+import androidx.work.OutOfQuotaPolicy
+import androidx.work.WorkInfo
+import java.io.ByteArrayInputStream
+import java.io.ByteArrayOutputStream
+import java.io.IOException
+import java.io.ObjectInputStream
+import java.io.ObjectOutputStream
+import java.lang.IllegalArgumentException
 
 /**
  * TypeConverters for WorkManager enums and classes.
  */
-
-public class WorkTypeConverters {
-
+object WorkTypeConverters {
     /**
-     * Integer identifiers that map to {@link WorkInfo.State}.
+     * Integer identifiers that map to [WorkInfo.State].
      */
-    public interface StateIds {
-        int ENQUEUED = 0;
-        int RUNNING = 1;
-        int SUCCEEDED = 2;
-        int FAILED = 3;
-        int BLOCKED = 4;
-        int CANCELLED = 5;
-
-        String COMPLETED_STATES = "(" + SUCCEEDED + ", " + FAILED + ", " + CANCELLED + ")";
+    object StateIds {
+        const val ENQUEUED = 0
+        const val RUNNING = 1
+        const val SUCCEEDED = 2
+        const val FAILED = 3
+        const val BLOCKED = 4
+        const val CANCELLED = 5
+        const val COMPLETED_STATES = "($SUCCEEDED, $FAILED, $CANCELLED)"
     }
 
     /**
-     * Integer identifiers that map to {@link BackoffPolicy}.
+     * Integer identifiers that map to [BackoffPolicy].
      */
-    public interface BackoffPolicyIds {
-        int EXPONENTIAL = 0;
-        int LINEAR = 1;
+    private object BackoffPolicyIds {
+        const val EXPONENTIAL = 0
+        const val LINEAR = 1
     }
 
     /**
-     * Integer identifiers that map to {@link NetworkType}.
+     * Integer identifiers that map to [NetworkType].
      */
-    public interface NetworkTypeIds {
-        int NOT_REQUIRED = 0;
-        int CONNECTED = 1;
-        int UNMETERED = 2;
-        int NOT_ROAMING = 3;
-        int METERED = 4;
-        int TEMPORARILY_UNMETERED = 5;
+    private object NetworkTypeIds {
+        const val NOT_REQUIRED = 0
+        const val CONNECTED = 1
+        const val UNMETERED = 2
+        const val NOT_ROAMING = 3
+        const val METERED = 4
+        const val TEMPORARILY_UNMETERED = 5
     }
 
     /**
-     * Integer identifiers that map to {@link OutOfQuotaPolicy}.
+     * Integer identifiers that map to [OutOfQuotaPolicy].
      */
-    public interface OutOfPolicyIds {
-        int RUN_AS_NON_EXPEDITED_WORK_REQUEST = 0;
-        int DROP_WORK_REQUEST = 1;
+    private object OutOfPolicyIds {
+        const val RUN_AS_NON_EXPEDITED_WORK_REQUEST = 0
+        const val DROP_WORK_REQUEST = 1
     }
 
     /**
@@ -96,30 +81,16 @@ public class WorkTypeConverters {
      * @param state The input State
      * @return The associated int constant
      */
+    @JvmStatic
     @TypeConverter
-    public static int stateToInt(WorkInfo.State state) {
-        switch (state) {
-            case ENQUEUED:
-                return StateIds.ENQUEUED;
-
-            case RUNNING:
-                return StateIds.RUNNING;
-
-            case SUCCEEDED:
-                return StateIds.SUCCEEDED;
-
-            case FAILED:
-                return StateIds.FAILED;
-
-            case BLOCKED:
-                return StateIds.BLOCKED;
-
-            case CANCELLED:
-                return StateIds.CANCELLED;
-
-            default:
-                throw new IllegalArgumentException(
-                        "Could not convert " + state + " to int");
+    fun stateToInt(state: WorkInfo.State): Int {
+        return when (state) {
+            WorkInfo.State.ENQUEUED -> StateIds.ENQUEUED
+            WorkInfo.State.RUNNING -> StateIds.RUNNING
+            WorkInfo.State.SUCCEEDED -> StateIds.SUCCEEDED
+            WorkInfo.State.FAILED -> StateIds.FAILED
+            WorkInfo.State.BLOCKED -> StateIds.BLOCKED
+            WorkInfo.State.CANCELLED -> StateIds.CANCELLED
         }
     }
 
@@ -129,30 +100,17 @@ public class WorkTypeConverters {
      * @param value The input integer
      * @return The associated State enum value
      */
+    @JvmStatic
     @TypeConverter
-    public static WorkInfo.State intToState(int value) {
-        switch (value) {
-            case StateIds.ENQUEUED:
-                return ENQUEUED;
-
-            case StateIds.RUNNING:
-                return RUNNING;
-
-            case StateIds.SUCCEEDED:
-                return SUCCEEDED;
-
-            case StateIds.FAILED:
-                return FAILED;
-
-            case StateIds.BLOCKED:
-                return BLOCKED;
-
-            case StateIds.CANCELLED:
-                return CANCELLED;
-
-            default:
-                throw new IllegalArgumentException(
-                        "Could not convert " + value + " to State");
+    fun intToState(value: Int): WorkInfo.State {
+        return when (value) {
+            StateIds.ENQUEUED -> WorkInfo.State.ENQUEUED
+            StateIds.RUNNING -> WorkInfo.State.RUNNING
+            StateIds.SUCCEEDED -> WorkInfo.State.SUCCEEDED
+            StateIds.FAILED -> WorkInfo.State.FAILED
+            StateIds.BLOCKED -> WorkInfo.State.BLOCKED
+            StateIds.CANCELLED -> WorkInfo.State.CANCELLED
+            else -> throw IllegalArgumentException("Could not convert $value to State")
         }
     }
 
@@ -162,18 +120,12 @@ public class WorkTypeConverters {
      * @param backoffPolicy The input BackoffPolicy
      * @return The associated int constant
      */
+    @JvmStatic
     @TypeConverter
-    public static int backoffPolicyToInt(BackoffPolicy backoffPolicy) {
-        switch (backoffPolicy) {
-            case EXPONENTIAL:
-                return BackoffPolicyIds.EXPONENTIAL;
-
-            case LINEAR:
-                return BackoffPolicyIds.LINEAR;
-
-            default:
-                throw new IllegalArgumentException(
-                        "Could not convert " + backoffPolicy + " to int");
+    fun backoffPolicyToInt(backoffPolicy: BackoffPolicy): Int {
+        return when (backoffPolicy) {
+            BackoffPolicy.EXPONENTIAL -> BackoffPolicyIds.EXPONENTIAL
+            BackoffPolicy.LINEAR -> BackoffPolicyIds.LINEAR
         }
     }
 
@@ -183,18 +135,13 @@ public class WorkTypeConverters {
      * @param value The input integer
      * @return The associated BackoffPolicy enum value
      */
+    @JvmStatic
     @TypeConverter
-    public static BackoffPolicy intToBackoffPolicy(int value) {
-        switch (value) {
-            case BackoffPolicyIds.EXPONENTIAL:
-                return EXPONENTIAL;
-
-            case BackoffPolicyIds.LINEAR:
-                return LINEAR;
-
-            default:
-                throw new IllegalArgumentException(
-                        "Could not convert " + value + " to BackoffPolicy");
+    fun intToBackoffPolicy(value: Int): BackoffPolicy {
+        return when (value) {
+            BackoffPolicyIds.EXPONENTIAL -> BackoffPolicy.EXPONENTIAL
+            BackoffPolicyIds.LINEAR -> BackoffPolicy.LINEAR
+            else -> throw IllegalArgumentException("Could not convert $value to BackoffPolicy")
         }
     }
 
@@ -204,32 +151,21 @@ public class WorkTypeConverters {
      * @param networkType The input NetworkType
      * @return The associated int constant
      */
+    @JvmStatic
     @TypeConverter
-    public static int networkTypeToInt(NetworkType networkType) {
-        switch (networkType) {
-            case NOT_REQUIRED:
-                return NetworkTypeIds.NOT_REQUIRED;
-
-            case CONNECTED:
-                return NetworkTypeIds.CONNECTED;
-
-            case UNMETERED:
-                return NetworkTypeIds.UNMETERED;
-
-            case NOT_ROAMING:
-                return NetworkTypeIds.NOT_ROAMING;
-
-            case METERED:
-                return NetworkTypeIds.METERED;
-
-            default:
-                if (Build.VERSION.SDK_INT >= 30
-                        && networkType == NetworkType.TEMPORARILY_UNMETERED) {
-                    return NetworkTypeIds.TEMPORARILY_UNMETERED;
-                }
-                throw new IllegalArgumentException(
-                        "Could not convert " + networkType + " to int");
-
+    fun networkTypeToInt(networkType: NetworkType): Int {
+        return when (networkType) {
+            NetworkType.NOT_REQUIRED -> NetworkTypeIds.NOT_REQUIRED
+            NetworkType.CONNECTED -> NetworkTypeIds.CONNECTED
+            NetworkType.UNMETERED -> NetworkTypeIds.UNMETERED
+            NetworkType.NOT_ROAMING -> NetworkTypeIds.NOT_ROAMING
+            NetworkType.METERED -> NetworkTypeIds.METERED
+            else -> {
+                if (Build.VERSION.SDK_INT >= 30 && networkType == NetworkType.TEMPORARILY_UNMETERED)
+                    NetworkTypeIds.TEMPORARILY_UNMETERED
+                else
+                    throw IllegalArgumentException("Could not convert $networkType to int")
+            }
         }
     }
 
@@ -239,152 +175,108 @@ public class WorkTypeConverters {
      * @param value The input integer
      * @return The associated NetworkType enum value
      */
+    @JvmStatic
     @TypeConverter
-    public static NetworkType intToNetworkType(int value) {
-        switch (value) {
-            case NetworkTypeIds.NOT_REQUIRED:
-                return NetworkType.NOT_REQUIRED;
-
-            case NetworkTypeIds.CONNECTED:
-                return NetworkType.CONNECTED;
-
-            case NetworkTypeIds.UNMETERED:
-                return NetworkType.UNMETERED;
-
-            case NetworkTypeIds.NOT_ROAMING:
-                return NetworkType.NOT_ROAMING;
-
-            case NetworkTypeIds.METERED:
-                return NetworkType.METERED;
-
-            default:
+    fun intToNetworkType(value: Int): NetworkType {
+        return when (value) {
+            NetworkTypeIds.NOT_REQUIRED -> NetworkType.NOT_REQUIRED
+            NetworkTypeIds.CONNECTED -> NetworkType.CONNECTED
+            NetworkTypeIds.UNMETERED -> NetworkType.UNMETERED
+            NetworkTypeIds.NOT_ROAMING -> NetworkType.NOT_ROAMING
+            NetworkTypeIds.METERED -> NetworkType.METERED
+            else -> {
                 if (Build.VERSION.SDK_INT >= 30 && value == NetworkTypeIds.TEMPORARILY_UNMETERED) {
-                    return NetworkType.TEMPORARILY_UNMETERED;
-                }
-                throw new IllegalArgumentException(
-                        "Could not convert " + value + " to NetworkType");
+                    return NetworkType.TEMPORARILY_UNMETERED
+                } else throw IllegalArgumentException("Could not convert $value to NetworkType")
+            }
         }
     }
 
     /**
-     * Converts a {@link OutOfQuotaPolicy} to an int.
+     * Converts a [OutOfQuotaPolicy] to an int.
      *
-     * @param policy The {@link OutOfQuotaPolicy} policy being used
+     * @param policy The [OutOfQuotaPolicy] policy being used
      * @return the corresponding int representation.
      */
+    @JvmStatic
     @TypeConverter
-    public static int outOfQuotaPolicyToInt(@NonNull OutOfQuotaPolicy policy) {
-        switch (policy) {
-            case RUN_AS_NON_EXPEDITED_WORK_REQUEST:
-                return OutOfPolicyIds.RUN_AS_NON_EXPEDITED_WORK_REQUEST;
-            case DROP_WORK_REQUEST:
-                return OutOfPolicyIds.DROP_WORK_REQUEST;
-            default:
-                throw new IllegalArgumentException(
-                        "Could not convert " + policy + " to int");
+    fun outOfQuotaPolicyToInt(policy: OutOfQuotaPolicy): Int {
+        return when (policy) {
+            OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST ->
+                OutOfPolicyIds.RUN_AS_NON_EXPEDITED_WORK_REQUEST
+            OutOfQuotaPolicy.DROP_WORK_REQUEST -> OutOfPolicyIds.DROP_WORK_REQUEST
         }
     }
 
     /**
-     * Converter from an int to a {@link OutOfQuotaPolicy}.
+     * Converter from an int to a [OutOfQuotaPolicy].
      *
      * @param value The input integer
-     * @return An {@link OutOfQuotaPolicy}
+     * @return An [OutOfQuotaPolicy]
      */
+    @JvmStatic
     @TypeConverter
-    @NonNull
-    public static OutOfQuotaPolicy intToOutOfQuotaPolicy(int value) {
-        switch (value) {
-            case OutOfPolicyIds.RUN_AS_NON_EXPEDITED_WORK_REQUEST:
-                return OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST;
-            case OutOfPolicyIds.DROP_WORK_REQUEST:
-                return OutOfQuotaPolicy.DROP_WORK_REQUEST;
-            default:
-                throw new IllegalArgumentException(
-                        "Could not convert " + value + " to OutOfQuotaPolicy");
+    fun intToOutOfQuotaPolicy(value: Int): OutOfQuotaPolicy {
+        return when (value) {
+            OutOfPolicyIds.RUN_AS_NON_EXPEDITED_WORK_REQUEST ->
+                OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST
+            OutOfPolicyIds.DROP_WORK_REQUEST -> OutOfQuotaPolicy.DROP_WORK_REQUEST
+            else -> throw IllegalArgumentException("Could not convert $value to OutOfQuotaPolicy")
         }
     }
 
     /**
-     * Converts a list of {@link ContentUriTriggers.Trigger}s to byte array representation
-     * @param triggers the list of {@link ContentUriTriggers.Trigger}s to convert
+     * Converts a list of [ContentUriTriggers.Trigger]s to byte array representation
+     * @param triggers the list of [ContentUriTriggers.Trigger]s to convert
      * @return corresponding byte array representation
      */
+    @JvmStatic
     @TypeConverter
-    @SuppressWarnings("CatchAndPrintStackTrace")
-    public static byte[] contentUriTriggersToByteArray(ContentUriTriggers triggers) {
+    fun contentUriTriggersToByteArray(triggers: ContentUriTriggers): ByteArray? {
         if (triggers.size() == 0) {
-            return null;
+            return null
         }
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        ObjectOutputStream objectOutputStream = null;
-        try {
-            objectOutputStream = new ObjectOutputStream(outputStream);
-            objectOutputStream.writeInt(triggers.size());
-            for (ContentUriTriggers.Trigger trigger : triggers.getTriggers()) {
-                objectOutputStream.writeUTF(trigger.getUri().toString());
-                objectOutputStream.writeBoolean(trigger.shouldTriggerForDescendants());
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            if (objectOutputStream != null) {
-                try {
-                    objectOutputStream.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
+        val outputStream = ByteArrayOutputStream()
+        outputStream.use {
+            ObjectOutputStream(outputStream).use { objectOutputStream ->
+                objectOutputStream.writeInt(triggers.size())
+                for (trigger in triggers.triggers) {
+                    objectOutputStream.writeUTF(trigger.uri.toString())
+                    objectOutputStream.writeBoolean(trigger.shouldTriggerForDescendants())
                 }
             }
-            try {
-                outputStream.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
         }
-        return outputStream.toByteArray();
+
+        return outputStream.toByteArray()
     }
 
     /**
-     * Converts a byte array to list of {@link ContentUriTriggers.Trigger}s
+     * Converts a byte array to list of [ContentUriTriggers.Trigger]s
      * @param bytes byte array representation to convert
-     * @return list of {@link ContentUriTriggers.Trigger}s
+     * @return list of [ContentUriTriggers.Trigger]s
      */
+    @JvmStatic
     @TypeConverter
-    @SuppressWarnings("CatchAndPrintStackTrace")
-    public static ContentUriTriggers byteArrayToContentUriTriggers(byte[] bytes) {
-        ContentUriTriggers triggers = new ContentUriTriggers();
+    fun byteArrayToContentUriTriggers(bytes: ByteArray?): ContentUriTriggers {
+        val triggers = ContentUriTriggers()
         if (bytes == null) {
             // bytes will be null if there are no Content Uri Triggers
-            return triggers;
+            return triggers
         }
-        ByteArrayInputStream inputStream = new ByteArrayInputStream(bytes);
-        ObjectInputStream objectInputStream = null;
-        try {
-            objectInputStream = new ObjectInputStream(inputStream);
-            for (int i = objectInputStream.readInt(); i > 0; i--) {
-                Uri uri = Uri.parse(objectInputStream.readUTF());
-                boolean triggersForDescendants = objectInputStream.readBoolean();
-                triggers.add(uri, triggersForDescendants);
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            if (objectInputStream != null) {
-                try {
-                    objectInputStream.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
+        val inputStream = ByteArrayInputStream(bytes)
+        inputStream.use {
             try {
-                inputStream.close();
-            } catch (IOException e) {
-                e.printStackTrace();
+                ObjectInputStream(inputStream).use { objectInputStream ->
+                    repeat(objectInputStream.readInt()) {
+                        val uri = Uri.parse(objectInputStream.readUTF())
+                        val triggersForDescendants = objectInputStream.readBoolean()
+                        triggers.add(uri, triggersForDescendants)
+                    }
+                }
+            } catch (e: IOException) {
+                e.printStackTrace()
             }
         }
-        return triggers;
-    }
-
-    private WorkTypeConverters() {
+        return triggers
     }
 }

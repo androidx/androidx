@@ -13,148 +13,114 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package androidx.work.impl
 
-package androidx.work.impl;
+import android.content.Context
+import android.os.Build
+import androidx.annotation.DoNotInline
+import androidx.annotation.RequiresApi
+import androidx.annotation.RestrictTo
+import androidx.work.Logger
+import java.io.File
 
-import android.content.Context;
-import android.os.Build;
+private val TAG = Logger.tagWithPrefix("WrkDbPathHelper")
 
-import androidx.annotation.DoNotInline;
-import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
-import androidx.annotation.RestrictTo;
-import androidx.annotation.VisibleForTesting;
-import androidx.work.Logger;
+/**
+ * @return The name of the database.
+ */
+internal const val WORK_DATABASE_NAME = "androidx.work.workdb"
 
-import java.io.File;
-import java.util.HashMap;
-import java.util.Map;
+// Supporting files for a SQLite database
+private val DATABASE_EXTRA_FILES = arrayOf("-journal", "-shm", "-wal")
 
 /**
  * Keeps track of {@link WorkDatabase} paths.
- *
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class WorkDatabasePathHelper {
-    private WorkDatabasePathHelper() {
-    }
-
-    private static final String TAG = Logger.tagWithPrefix("WrkDbPathHelper");
-
-    private static final String WORK_DATABASE_NAME = "androidx.work.workdb";
-
-    // Supporting files for a SQLite database
-    private static final String[] DATABASE_EXTRA_FILES = new String[]{"-journal", "-shm", "-wal"};
-
+object WorkDatabasePathHelper {
     /**
-     * @return The name of the database.
-     */
-    @NonNull
-    public static String getWorkDatabaseName() {
-        return WORK_DATABASE_NAME;
-    }
-
-    /**
-     * Migrates {@link WorkDatabase} to the no-backup directory.
+     * Migrates [WorkDatabase] to the no-backup directory.
      *
      * @param context The application context.
      */
-    public static void migrateDatabase(@NonNull Context context) {
-        File defaultDatabasePath = getDefaultDatabasePath(context);
+    @JvmStatic
+    fun migrateDatabase(context: Context) {
+        val defaultDatabasePath = getDefaultDatabasePath(context)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && defaultDatabasePath.exists()) {
-            Logger.get().debug(TAG, "Migrating WorkDatabase to the no-backup directory");
-            Map<File, File> paths = migrationPaths(context);
-            for (File source : paths.keySet()) {
-                File destination = paths.get(source);
-                if (source.exists() && destination != null) {
+            Logger.get().debug(TAG, "Migrating WorkDatabase to the no-backup directory")
+            migrationPaths(context).forEach { (source, destination) ->
+                if (source.exists()) {
                     if (destination.exists()) {
-                        String message = "Over-writing contents of " + destination;
-                        Logger.get().warning(TAG, message);
+                        Logger.get().warning(TAG, "Over-writing contents of $destination")
                     }
-                    boolean renamed = source.renameTo(destination);
-                    String message;
-                    if (renamed) {
-                        message = "Migrated " + source + "to " + destination;
+                    val renamed = source.renameTo(destination)
+                    val message = if (renamed) {
+                        "Migrated ${source}to $destination"
                     } else {
-                        message = "Renaming " + source + " to " + destination + " failed";
+                        "Renaming $source to $destination failed"
                     }
-                    Logger.get().debug(TAG, message);
+                    Logger.get().debug(TAG, message)
                 }
             }
         }
     }
 
     /**
-     * Returns a {@link Map} of all paths which need to be migrated to the no-backup directory.
+     * Returns a [Map] of all paths which need to be migrated to the no-backup directory.
      *
-     * @param context The application {@link Context}
-     * @return a {@link Map} of paths to be migrated from source -> destination
+     * @param context The application [Context]
+     * @return a [Map] of paths to be migrated from source -> destination
      */
-    @NonNull
-    @VisibleForTesting
-    public static Map<File, File> migrationPaths(@NonNull Context context) {
-        Map<File, File> paths = new HashMap<>();
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            File databasePath = getDefaultDatabasePath(context);
-            File migratedPath = getDatabasePath(context);
-            paths.put(databasePath, migratedPath);
-            for (String extra : DATABASE_EXTRA_FILES) {
-                File source = new File(databasePath.getPath() + extra);
-                File destination = new File(migratedPath.getPath() + extra);
-                paths.put(source, destination);
+    fun migrationPaths(context: Context): Map<File, File> {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            val databasePath = getDefaultDatabasePath(context)
+            val migratedPath = getDatabasePath(context)
+            val map = DATABASE_EXTRA_FILES.associate { extra ->
+                File(databasePath.path + extra) to File(migratedPath.path + extra)
             }
-        }
-        return paths;
+            map + (databasePath to migratedPath)
+        } else emptyMap()
     }
 
     /**
-     * @param context The application {@link Context}
+     * @param context The application [Context]
      * @return The database path before migration to the no-backup directory.
      */
-    @NonNull
-    @VisibleForTesting
-    public static File getDefaultDatabasePath(@NonNull Context context) {
-        return context.getDatabasePath(WORK_DATABASE_NAME);
+    fun getDefaultDatabasePath(context: Context): File {
+        return context.getDatabasePath(WORK_DATABASE_NAME)
     }
 
     /**
-     * @param context The application {@link Context}
+     * @param context The application [Context]
      * @return The the migrated database path.
      */
-    @NonNull
-    @VisibleForTesting
-    public static File getDatabasePath(@NonNull Context context) {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+    fun getDatabasePath(context: Context): File {
+        return if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
             // No notion of a backup directory exists.
-            return getDefaultDatabasePath(context);
+            getDefaultDatabasePath(context)
         } else {
-            return getNoBackupPath(context, WORK_DATABASE_NAME);
+            getNoBackupPath(context)
         }
     }
 
     /**
-     * Return the path for a {@link File} path in the {@link Context#getNoBackupFilesDir()}
-     * identified by the {@link String} fragment.
+     * Return the path for a [File] path in the [Context.getNoBackupFilesDir]
+     * identified by the [String] fragment.
      *
-     * @param context  The application {@link Context}
-     * @param filePath The {@link String} file path
-     * @return the {@link File}
+     * @param context  The application [Context]
+     * @return the [File]
      */
     @RequiresApi(23)
-    private static File getNoBackupPath(@NonNull Context context, @NonNull String filePath) {
-        return new File(Api21Impl.getNoBackupFilesDir(context), filePath);
+    private fun getNoBackupPath(context: Context): File {
+        return File(Api21Impl.getNoBackupFilesDir(context), WORK_DATABASE_NAME)
     }
+}
 
-    @RequiresApi(21)
-    static class Api21Impl {
-        private Api21Impl() {
-            // This class is not instantiable.
-        }
-
-        @DoNotInline
-        static File getNoBackupFilesDir(Context context) {
-            return context.getNoBackupFilesDir();
-        }
+@RequiresApi(21)
+internal object Api21Impl {
+    @DoNotInline
+    fun getNoBackupFilesDir(context: Context): File {
+        return context.noBackupFilesDir
     }
 }

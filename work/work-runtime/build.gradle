@@ -23,6 +23,7 @@ plugins {
     id("AndroidXPlugin")
     id("com.android.library")
     id("kotlin-android")
+    id("com.google.devtools.ksp")
 }
 
 android {
@@ -51,7 +52,7 @@ android {
 
 dependencies {
     implementation("androidx.core:core:1.6.0")
-    annotationProcessor("androidx.room:room-compiler:2.4.0-rc01")
+    ksp("androidx.room:room-compiler:2.4.0-rc01")
     implementation("androidx.room:room-runtime:2.4.0-rc01")
     androidTestImplementation("androidx.room:room-testing:2.4.0-rc01")
     implementation("androidx.sqlite:sqlite:2.1.0")
@@ -79,6 +80,11 @@ dependencies {
 }
 
 packageInspector(project, project(":work:work-inspection"))
+
+// KSP does not support argument per flavor so we set it to global instead.
+ksp {
+    arg("room.schemaLocation","$projectDir/src/schemas".toString())
+}
 
 androidx {
     name = "Android WorkManager Runtime"
