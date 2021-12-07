@@ -124,8 +124,7 @@ class GlobalSearchSessionImpl implements GlobalSearchSession {
                     "Local storage implementation does not support receiving change notifications "
                             + "from other packages.");
         }
-        // TODO(b/193494000): Implement change notifications
-        throw new UnsupportedOperationException("addObserver not supported yet");
+        mAppSearchImpl.addObserver(observedPackage, spec, executor, observer);
     }
 
     @Override

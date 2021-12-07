@@ -39,11 +39,15 @@ import androidx.appsearch.app.SearchResults;
 import androidx.appsearch.app.SearchSpec;
 import androidx.appsearch.app.SetSchemaRequest;
 import androidx.appsearch.exceptions.AppSearchException;
+import androidx.appsearch.observer.DocumentChangeInfo;
+import androidx.appsearch.observer.ObserverSpec;
 import androidx.appsearch.testutil.AppSearchEmail;
+import androidx.appsearch.testutil.SimpleTestObserverCallback;
 import androidx.test.core.app.ApplicationProvider;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.MoreExecutors;
 
 import org.junit.After;
 import org.junit.Before;
@@ -58,10 +62,12 @@ public abstract class GlobalSearchSessionCtsTestBase {
     static final String DB_NAME_1 = "";
     static final String DB_NAME_2 = "testDb2";
 
+    private final Context mContext = ApplicationProvider.getApplicationContext();
+
     private AppSearchSession mDb1;
     private AppSearchSession mDb2;
 
-    private GlobalSearchSession mGlobalAppSearchManager;
+    private GlobalSearchSession mGlobalSearchSession;
 
     protected abstract ListenableFuture<AppSearchSession> createSearchSession(
             @NonNull String dbName);
@@ -70,8 +76,6 @@ public abstract class GlobalSearchSessionCtsTestBase {
 
     @Before
     public void setUp() throws Exception {
-        Context context = ApplicationProvider.getApplicationContext();
-
         mDb1 = createSearchSession(DB_NAME_1).get();
         mDb2 = createSearchSession(DB_NAME_2).get();
 
@@ -79,7 +83,7 @@ public abstract class GlobalSearchSessionCtsTestBase {
         // addition to tearDown in case a test exited without completing properly.
         cleanup();
 
-        mGlobalAppSearchManager = createGlobalSearchSession().get();
+        mGlobalSearchSession = createGlobalSearchSession().get();
     }
 
     @After
@@ -97,7 +101,7 @@ public abstract class GlobalSearchSessionCtsTestBase {
 
     private List<GenericDocument> snapshotResults(String queryExpression, SearchSpec spec)
             throws Exception {
-        SearchResults searchResults = mGlobalAppSearchManager.search(queryExpression, spec);
+        SearchResults searchResults = mGlobalSearchSession.search(queryExpression, spec);
         return convertSearchResultsToDocuments(searchResults);
     }
 
@@ -226,7 +230,7 @@ public abstract class GlobalSearchSessionCtsTestBase {
 
         // Set number of results per page is 7.
         int pageSize = 7;
-        SearchResults searchResults = mGlobalAppSearchManager.search("body",
+        SearchResults searchResults = mGlobalSearchSession.search("body",
                 new SearchSpec.Builder()
                         .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
                         .setResultCountPerPage(pageSize)
@@ -394,8 +398,7 @@ public abstract class GlobalSearchSessionCtsTestBase {
         SearchSpec testPackageSearchSpec =
                 new SearchSpec.Builder()
                         .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
-                        .addFilterPackageNames(
-                                ApplicationProvider.getApplicationContext().getPackageName())
+                        .addFilterPackageNames(mContext.getPackageName())
                         .build();
         List<GenericDocument> beforeTestPackageDocuments = snapshotResults("body",
                 testPackageSearchSpec);
@@ -722,7 +725,7 @@ public abstract class GlobalSearchSessionCtsTestBase {
 
         // Query
         List<SearchResult> page;
-        try (SearchResults results = mGlobalAppSearchManager.search("", new SearchSpec.Builder()
+        try (SearchResults results = mGlobalSearchSession.search("", new SearchSpec.Builder()
                 .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
                 .addFilterSchemas(AppSearchEmail.SCHEMA_TYPE)
                 .build())) {
@@ -732,7 +735,7 @@ public abstract class GlobalSearchSessionCtsTestBase {
         SearchResult firstResult = page.get(0);
 
         ExecutionException exception = assertThrows(
-                ExecutionException.class, () -> mGlobalAppSearchManager.reportSystemUsage(
+                ExecutionException.class, () -> mGlobalSearchSession.reportSystemUsage(
                         new ReportSystemUsageRequest.Builder(
                                 firstResult.getPackageName(),
                                 firstResult.getDatabaseName(),
@@ -744,5 +747,140 @@ public abstract class GlobalSearchSessionCtsTestBase {
         assertThat(ase.getResultCode()).isEqualTo(AppSearchResult.RESULT_SECURITY_ERROR);
         assertThat(ase).hasMessageThat().contains(
                 "androidx.appsearch.test does not have access to report system usage");
+    }
+
+    @Test
+    public void testRegisterObserver() throws Exception {
+        SimpleTestObserverCallback observer = new SimpleTestObserverCallback();
+
+        // Register observer. Note: the type does NOT exist yet!
+        mGlobalSearchSession.addObserver(
+                mContext.getPackageName(),
+                new ObserverSpec.Builder().addFilterSchemas(AppSearchEmail.SCHEMA_TYPE).build(),
+                MoreExecutors.directExecutor(),
+                observer);
+
+        // Index a document
+        mDb1.setSchema(
+                new SetSchemaRequest.Builder().addSchemas(AppSearchEmail.SCHEMA).build()).get();
+        AppSearchEmail email1 = new AppSearchEmail.Builder("namespace", "id1").build();
+        checkIsBatchResultSuccess(
+                mDb1.put(new PutDocumentsRequest.Builder().addGenericDocuments(email1).build()));
+
+        // Make sure the notification was received. This is race-free only because of our use of
+        // DirectExecutor as the dispatch executor for change notifications.
+        assertThat(observer.mSchemaChanges).isEmpty();
+        assertThat(observer.mDocumentChanges).hasSize(1);
+        assertThat(observer.mDocumentChanges.get(0).getPackageName())
+                .isEqualTo(mContext.getPackageName());
+        assertThat(observer.mDocumentChanges.get(0).getDatabaseName()).isEqualTo(DB_NAME_1);
+        assertThat(observer.mDocumentChanges.get(0).getNamespace()).isEqualTo("namespace");
+        assertThat(observer.mDocumentChanges.get(0).getSchemaName())
+                .isEqualTo(AppSearchEmail.SCHEMA_TYPE);
+    }
+
+    @Test
+    public void testRegisterObserver_MultiType() throws Exception {
+        SimpleTestObserverCallback unfilteredObserver = new SimpleTestObserverCallback();
+        SimpleTestObserverCallback emailObserver = new SimpleTestObserverCallback();
+
+        // Set up the email type in both databases, and the gift type in db1
+        AppSearchSchema giftSchema = new AppSearchSchema.Builder("Gift")
+                .addProperty(new AppSearchSchema.DoublePropertyConfig.Builder("price").build())
+                .build();
+        mDb1.setSchema(new SetSchemaRequest.Builder()
+                .addSchemas(AppSearchEmail.SCHEMA, giftSchema).build()).get();
+        mDb2.setSchema(new SetSchemaRequest.Builder()
+                .addSchemas(AppSearchEmail.SCHEMA).build()).get();
+
+        // Register two observers. One has no filters, the other filters on email.
+        mGlobalSearchSession.addObserver(
+                mContext.getPackageName(),
+                new ObserverSpec.Builder().build(),
+                MoreExecutors.directExecutor(),
+                unfilteredObserver);
+        mGlobalSearchSession.addObserver(
+                mContext.getPackageName(),
+                new ObserverSpec.Builder().addFilterSchemas(AppSearchEmail.SCHEMA_TYPE).build(),
+                MoreExecutors.directExecutor(),
+                emailObserver);
+
+        // Make sure everything is empty
+        assertThat(unfilteredObserver.mSchemaChanges).isEmpty();
+        assertThat(unfilteredObserver.mDocumentChanges).isEmpty();
+        assertThat(emailObserver.mSchemaChanges).isEmpty();
+        assertThat(emailObserver.mDocumentChanges).isEmpty();
+
+        // Index some documents
+        AppSearchEmail email1 = new AppSearchEmail.Builder("namespace", "id1").build();
+        GenericDocument gift1 = new GenericDocument.Builder<GenericDocument.Builder<?>>(
+                "namespace2", "id2", "Gift").build();
+
+        checkIsBatchResultSuccess(
+                mDb1.put(new PutDocumentsRequest.Builder().addGenericDocuments(email1).build()));
+        checkIsBatchResultSuccess(
+                mDb1.put(new PutDocumentsRequest.Builder()
+                        .addGenericDocuments(email1, gift1).build()));
+        checkIsBatchResultSuccess(
+                mDb2.put(new PutDocumentsRequest.Builder().addGenericDocuments(email1).build()));
+        checkIsBatchResultSuccess(
+                mDb1.put(new PutDocumentsRequest.Builder().addGenericDocuments(gift1).build()));
+
+        // Make sure the notification was received. This is race-free only because of our use of
+        // DirectExecutor as the dispatch executor for change notifications.
+        assertThat(unfilteredObserver.mSchemaChanges).isEmpty();
+        assertThat(unfilteredObserver.mDocumentChanges).hasSize(5);
+        for (DocumentChangeInfo changeInfo : unfilteredObserver.mDocumentChanges) {
+            assertThat(changeInfo.getPackageName()).isEqualTo(mContext.getPackageName());
+        }
+
+        assertThat(unfilteredObserver.mDocumentChanges.get(0).getDatabaseName())
+                .isEqualTo(DB_NAME_1);
+        assertThat(unfilteredObserver.mDocumentChanges.get(1).getDatabaseName())
+                .isEqualTo(DB_NAME_1);
+        assertThat(unfilteredObserver.mDocumentChanges.get(2).getDatabaseName())
+                .isEqualTo(DB_NAME_1);
+        assertThat(unfilteredObserver.mDocumentChanges.get(3).getDatabaseName())
+                .isEqualTo(DB_NAME_2);
+        assertThat(unfilteredObserver.mDocumentChanges.get(4).getDatabaseName())
+                .isEqualTo(DB_NAME_1);
+
+        assertThat(unfilteredObserver.mDocumentChanges.get(0).getNamespace())
+                .isEqualTo("namespace");
+        assertThat(unfilteredObserver.mDocumentChanges.get(1).getNamespace())
+                .isEqualTo("namespace");
+        assertThat(unfilteredObserver.mDocumentChanges.get(2).getNamespace())
+                .isEqualTo("namespace2");
+        assertThat(unfilteredObserver.mDocumentChanges.get(3).getNamespace())
+                .isEqualTo("namespace");
+        assertThat(unfilteredObserver.mDocumentChanges.get(4).getNamespace())
+                .isEqualTo("namespace2");
+
+        assertThat(unfilteredObserver.mDocumentChanges.get(0).getSchemaName())
+                .isEqualTo(AppSearchEmail.SCHEMA_TYPE);
+        assertThat(unfilteredObserver.mDocumentChanges.get(1).getSchemaName())
+                .isEqualTo(AppSearchEmail.SCHEMA_TYPE);
+        assertThat(unfilteredObserver.mDocumentChanges.get(2).getSchemaName())
+                .isEqualTo("Gift");
+        assertThat(unfilteredObserver.mDocumentChanges.get(3).getSchemaName())
+                .isEqualTo(AppSearchEmail.SCHEMA_TYPE);
+        assertThat(unfilteredObserver.mDocumentChanges.get(4).getSchemaName())
+                .isEqualTo("Gift");
+
+        // Check the filtered observer
+        assertThat(emailObserver.mSchemaChanges).isEmpty();
+        assertThat(emailObserver.mDocumentChanges).hasSize(3);
+        for (DocumentChangeInfo changeInfo : emailObserver.mDocumentChanges) {
+            assertThat(changeInfo.getPackageName()).isEqualTo(mContext.getPackageName());
+            assertThat(changeInfo.getSchemaName()).isEqualTo(AppSearchEmail.SCHEMA_TYPE);
+        }
+
+        assertThat(emailObserver.mDocumentChanges.get(0).getDatabaseName()).isEqualTo(DB_NAME_1);
+        assertThat(emailObserver.mDocumentChanges.get(1).getDatabaseName()).isEqualTo(DB_NAME_1);
+        assertThat(emailObserver.mDocumentChanges.get(2).getDatabaseName()).isEqualTo(DB_NAME_2);
+
+        assertThat(emailObserver.mDocumentChanges.get(0).getNamespace()).isEqualTo("namespace");
+        assertThat(emailObserver.mDocumentChanges.get(1).getNamespace()).isEqualTo("namespace");
+        assertThat(emailObserver.mDocumentChanges.get(2).getNamespace()).isEqualTo("namespace");
     }
 }
