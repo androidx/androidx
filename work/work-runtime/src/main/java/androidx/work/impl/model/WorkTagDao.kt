@@ -13,46 +13,41 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package androidx.work.impl.model
 
-package androidx.work.impl.model;
-
-import static androidx.room.OnConflictStrategy.IGNORE;
-
-import androidx.room.Dao;
-import androidx.room.Insert;
-import androidx.room.Query;
-
-import java.util.List;
+import androidx.room.Dao
+import androidx.room.Insert
+import androidx.room.OnConflictStrategy
+import androidx.room.Query
 
 /**
- * The Data Access Object for {@link WorkTag}s.
+ * The Data Access Object for [WorkTag]s.
  */
 @Dao
-public interface WorkTagDao {
-
+interface WorkTagDao {
     /**
-     * Inserts a {@link WorkTag} into the table.
+     * Inserts a [WorkTag] into the table.
      *
-     * @param workTag The {@link WorkTag} to insert
+     * @param workTag The [WorkTag] to insert
      */
-    @Insert(onConflict = IGNORE)
-    void insert(WorkTag workTag);
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    fun insert(workTag: WorkTag)
 
     /**
-     * Retrieves all {@link WorkSpec} ids with the given tag.
+     * Retrieves all [WorkSpec] ids with the given tag.
      *
      * @param tag The matching tag
-     * @return All {@link WorkSpec} ids with the given tag
+     * @return All [WorkSpec] ids with the given tag
      */
     @Query("SELECT work_spec_id FROM worktag WHERE tag=:tag")
-    List<String> getWorkSpecIdsWithTag(String tag);
+    fun getWorkSpecIdsWithTag(tag: String): List<String>
 
     /**
-     * Retrieves all tags for a given {@link WorkSpec} id.
+     * Retrieves all tags for a given [WorkSpec] id.
      *
-     * @param id The id of the {@link WorkSpec}
-     * @return A list of tags for that {@link WorkSpec}
+     * @param id The id of the [WorkSpec]
+     * @return A list of tags for that [WorkSpec]
      */
     @Query("SELECT DISTINCT tag FROM worktag WHERE work_spec_id=:id")
-    List<String> getTagsForWorkSpecId(String id);
+    fun getTagsForWorkSpecId(id: String): List<String>
 }

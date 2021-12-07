@@ -329,8 +329,7 @@ public abstract class WorkRequest {
             }
             // Create a new id and WorkSpec so this WorkRequest.Builder can be used multiple times.
             mId = UUID.randomUUID();
-            mWorkSpec = new WorkSpec(mWorkSpec);
-            mWorkSpec.id = mId.toString();
+            mWorkSpec = new WorkSpec(mId.toString(), mWorkSpec);
             return returnValue;
         }
 
