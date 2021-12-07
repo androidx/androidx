@@ -32,7 +32,9 @@ dependencies {
     implementation("androidx.core:core:1.7.0")
     implementation(libs.autoValueAnnotations)
     implementation("androidx.annotation:annotation-experimental:1.1.0")
-    implementation libs.kotlinStdlib // Due to :annotation-experimental
+    // There is an implicit compile-only dep due to :annotation-experimental
+    // Build will complain without this manual declaration.
+    compileOnly libs.kotlinStdlib
 
     annotationProcessor(libs.nullaway)
     annotationProcessor(libs.autoValue)
