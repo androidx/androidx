@@ -17,7 +17,11 @@
 package androidx.camera.camera2.pipe.integration
 
 import android.content.Context
-import android.hardware.camera2.CaptureRequest
+import android.hardware.camera2.CaptureRequest.CONTROL_AE_EXPOSURE_COMPENSATION
+import android.hardware.camera2.CaptureRequest.CONTROL_CAPTURE_INTENT
+import android.hardware.camera2.CaptureRequest.CONTROL_CAPTURE_INTENT_CUSTOM
+import android.hardware.camera2.CaptureRequest.CONTROL_ZOOM_RATIO
+import android.hardware.camera2.CaptureRequest.SCALER_CROP_REGION
 import android.os.Build
 import androidx.camera.camera2.pipe.RequestMetadata
 import androidx.camera.camera2.pipe.integration.adapter.CameraControlAdapter
@@ -37,12 +41,12 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
-import com.google.common.truth.Truth
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.asExecutor
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
-import org.hamcrest.CoreMatchers
+import org.hamcrest.CoreMatchers.equalTo
+import org.hamcrest.CoreMatchers.notNullValue
 import org.junit.After
 import org.junit.Assume
 import org.junit.Assume.assumeThat
@@ -147,46 +151,43 @@ class CameraControlAdapterDeviceTest {
         cameraControl.setZoomRatio(1.0f)
         cameraControl.camera2cameraControl.setCaptureRequestOptions(
             CaptureRequestOptions.Builder().setCaptureRequestOption(
-                CaptureRequest.CONTROL_CAPTURE_INTENT,
-                CaptureRequest.CONTROL_CAPTURE_INTENT_CUSTOM
+                CONTROL_CAPTURE_INTENT,
+                CONTROL_CAPTURE_INTENT_CUSTOM
             ).build()
         ).await()
 
         // Ensure the requests are already set to the CaptureRequest.
-        waitForResult(captureCount = 10).verify(
-            { captureRequests: List<RequestMetadata>, _ ->
-                run {
-                    captureRequests.last().let { lastRequest ->
-                        // Ensure the EV working before testing
-                        assumeThat(
-                            "EV Request doesn't set to CaptureRequest, ignore the test",
-                            lastRequest.request[CaptureRequest.CONTROL_AE_EXPOSURE_COMPENSATION],
-                            CoreMatchers.equalTo(1)
-                        )
+        waitForResult().verify(
+            { captureRequest: RequestMetadata, _ ->
+                // Ensure the EV working before testing
+                assumeThat(
+                    "EV Request doesn't set to CaptureRequest, ignore the test",
+                    captureRequest.request[CONTROL_AE_EXPOSURE_COMPENSATION],
+                    equalTo(1)
+                )
 
-                        // Ensure the Camera2Interop working before testing
-                        assumeThat(
-                            "Camera2Interop Request doesn't set to CaptureRequest, ignore the test",
-                            lastRequest.request[CaptureRequest.CONTROL_CAPTURE_INTENT],
-                            CoreMatchers.equalTo(CaptureRequest.CONTROL_CAPTURE_INTENT_CUSTOM)
-                        )
+                // Ensure the Camera2Interop working before testing
+                assumeThat(
+                    "Camera2Interop Request doesn't set to CaptureRequest, ignore the test",
+                    captureRequest.request[CONTROL_CAPTURE_INTENT],
+                    equalTo(CONTROL_CAPTURE_INTENT_CUSTOM)
+                )
 
-                        // Ensure the Zoom working before testing
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                            assumeThat(
-                                "Zoom Request doesn't set to CaptureRequest, ignore the test",
-                                lastRequest.request[CaptureRequest.CONTROL_ZOOM_RATIO],
-                                CoreMatchers.notNullValue()
-                            )
-                        } else {
-                            assumeThat(
-                                "Zoom Request doesn't set to CaptureRequest, ignore the test",
-                                lastRequest.request[CaptureRequest.SCALER_CROP_REGION],
-                                CoreMatchers.notNullValue()
-                            )
-                        }
-                    }
+                // Ensure the Zoom working before testing
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                    assumeThat(
+                        "Zoom Request doesn't set to CaptureRequest, ignore the test",
+                        captureRequest.request[CONTROL_ZOOM_RATIO],
+                        notNullValue()
+                    )
+                } else {
+                    assumeThat(
+                        "Zoom Request doesn't set to CaptureRequest, ignore the test",
+                        captureRequest.request[SCALER_CROP_REGION],
+                        notNullValue()
+                    )
                 }
+                return@verify true
             },
             TIMEOUT
         )
@@ -194,27 +195,17 @@ class CameraControlAdapterDeviceTest {
 
     private suspend fun verifyRequestOptions() {
         waitForResult(captureCount = 30).verify(
-            { captureRequests: List<RequestMetadata>, _ ->
-                run {
-                    captureRequests.last().let { lastRequest ->
-                        Truth.assertThat(
-                            lastRequest.request[CaptureRequest.CONTROL_AE_EXPOSURE_COMPENSATION]
-                        ).isEqualTo(1)
-                        Truth.assertThat(
-                            lastRequest.request[CaptureRequest.CONTROL_CAPTURE_INTENT]
-                        ).isEqualTo(CaptureRequest.CONTROL_CAPTURE_INTENT_CUSTOM)
-
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                            Truth.assertThat(
-                                lastRequest.request[CaptureRequest.CONTROL_ZOOM_RATIO]
-                            ).isNotNull()
-                        } else {
-                            Truth.assertThat(
-                                lastRequest.request[CaptureRequest.SCALER_CROP_REGION]
-                            ).isNotNull()
-                        }
-                    }
+            { metadata: RequestMetadata, _ ->
+                val checkEV = metadata.request[CONTROL_AE_EXPOSURE_COMPENSATION] == 1
+                val checkCaptureIntent =
+                    metadata.request[CONTROL_CAPTURE_INTENT] == CONTROL_CAPTURE_INTENT_CUSTOM
+                val checkZoom = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                    metadata.request[CONTROL_ZOOM_RATIO] != null
+                } else {
+                    metadata.request[SCALER_CROP_REGION] != null
                 }
+
+                checkEV && checkCaptureIntent && checkZoom
             },
             TIMEOUT
         )

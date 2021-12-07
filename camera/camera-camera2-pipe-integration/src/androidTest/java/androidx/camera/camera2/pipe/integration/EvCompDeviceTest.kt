@@ -242,9 +242,7 @@ class EvCompDeviceTest {
         value: T,
         timeout: Long = TimeUnit.SECONDS.toMillis(5),
     ) = verify(
-        { _, captureResults: List<FrameInfo> ->
-            Truth.assertThat(captureResults.last().metadata[key]).isEqualTo(value)
-        },
+        { _, captureResult: FrameInfo -> captureResult.metadata[key] == value },
         timeout
     )
 
