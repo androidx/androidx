@@ -37,7 +37,9 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @SmallTest
@@ -254,5 +256,16 @@ public class AccessibilityNodeInfoCompatTest {
 
     private int getExpectedActionId(int id) {
         return Build.VERSION.SDK_INT >= 21 ? id : 0;
+    }
+
+    @SdkSuppress(minSdkVersion = 26)
+    @SmallTest
+    @Test
+    public void testGetSetAvailableExtraData() {
+        AccessibilityNodeInfoCompat accessibilityNodeInfoCompat = obtainedWrappedNodeCompat();
+        final List<String> testData = Arrays.asList(new String[]{"A", "B"});
+
+        accessibilityNodeInfoCompat.setAvailableExtraData(testData);
+        assertThat(accessibilityNodeInfoCompat.getAvailableExtraData(), equalTo(testData));
     }
 }
