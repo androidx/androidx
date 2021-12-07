@@ -27,6 +27,7 @@ import androidx.camera.camera2.pipe.core.Log.warn
 import androidx.camera.camera2.pipe.integration.config.CameraScope
 import androidx.camera.camera2.pipe.integration.impl.CameraProperties
 import androidx.camera.camera2.pipe.integration.impl.EvCompControl
+import androidx.camera.camera2.pipe.integration.impl.FlashControl
 import androidx.camera.camera2.pipe.integration.impl.FocusMeteringControl
 import androidx.camera.camera2.pipe.integration.impl.TorchControl
 import androidx.camera.camera2.pipe.integration.impl.UseCaseCamera
@@ -38,7 +39,6 @@ import androidx.camera.camera2.pipe.integration.interop.CaptureRequestOptions
 import androidx.camera.camera2.pipe.integration.interop.ExperimentalCamera2Interop
 import androidx.camera.core.FocusMeteringAction
 import androidx.camera.core.FocusMeteringResult
-import androidx.camera.core.ImageCapture
 import androidx.camera.core.impl.CameraControlInternal
 import androidx.camera.core.impl.CaptureConfig
 import androidx.camera.core.impl.Config
@@ -67,16 +67,15 @@ import javax.inject.Inject
 @OptIn(ExperimentalCoroutinesApi::class, ExperimentalCamera2Interop::class)
 class CameraControlAdapter @Inject constructor(
     private val cameraProperties: CameraProperties,
+    private val cameraStateAdapter: CameraStateAdapter,
+    private val evCompControl: EvCompControl,
+    private val flashControl: FlashControl,
+    private val torchControl: TorchControl,
     private val threads: UseCaseThreads,
     private val useCaseManager: UseCaseManager,
-    private val cameraStateAdapter: CameraStateAdapter,
     private val zoomControl: ZoomControl,
-    private val evCompControl: EvCompControl,
-    private val torchControl: TorchControl,
     val camera2cameraControl: Camera2CameraControl,
 ) : CameraControlInternal {
-    private var imageCaptureFlashMode: Int = ImageCapture.FLASH_MODE_OFF
-
     private val focusMeteringControl = FocusMeteringControl(
         cameraProperties,
         useCaseManager,
@@ -143,12 +142,11 @@ class CameraControlAdapter @Inject constructor(
     }
 
     override fun getFlashMode(): Int {
-        return imageCaptureFlashMode
+        return flashControl.flashMode
     }
 
     override fun setFlashMode(flashMode: Int) {
-        warn { "TODO: setFlashMode is not yet supported" }
-        this.imageCaptureFlashMode = flashMode
+        flashControl.setFlashAsync(flashMode)
     }
 
     override fun setExposureCompensationIndex(exposure: Int): ListenableFuture<Int> =

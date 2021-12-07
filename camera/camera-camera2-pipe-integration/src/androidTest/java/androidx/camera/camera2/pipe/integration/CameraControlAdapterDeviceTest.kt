@@ -18,10 +18,11 @@ package androidx.camera.camera2.pipe.integration
 
 import android.content.Context
 import android.hardware.camera2.CameraCharacteristics
+import android.hardware.camera2.CameraMetadata.CONTROL_AE_MODE_ON
+import android.hardware.camera2.CameraMetadata.CONTROL_AE_MODE_ON_ALWAYS_FLASH
 import android.hardware.camera2.CameraMetadata.CONTROL_AE_MODE_ON_AUTO_FLASH
 import android.hardware.camera2.CaptureRequest.CONTROL_AE_EXPOSURE_COMPENSATION
 import android.hardware.camera2.CaptureRequest.CONTROL_AE_MODE
-import android.hardware.camera2.CaptureRequest.CONTROL_AE_MODE_ON
 import android.hardware.camera2.CaptureRequest.CONTROL_CAPTURE_INTENT
 import android.hardware.camera2.CaptureRequest.CONTROL_CAPTURE_INTENT_CUSTOM
 import android.hardware.camera2.CaptureRequest.CONTROL_ZOOM_RATIO
@@ -48,6 +49,7 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
+import com.google.common.truth.Truth
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.asExecutor
 import kotlinx.coroutines.runBlocking
@@ -161,6 +163,51 @@ class CameraControlAdapterDeviceTest {
         // removal should have the same RequestOptions as before. The verify block will verify
         // the CaptureRequest has the same RequestOptions as we arranged.
         verifyRequestOptions()
+    }
+
+    @Test
+    fun setFlashModeAuto_aeModeSetAndRequestUpdated(): Unit = runBlocking {
+        Assume.assumeTrue(hasFlashUnit)
+        bindUseCase(imageAnalysis)
+        cameraControl.flashMode = ImageCapture.FLASH_MODE_AUTO
+
+        waitForResult(captureCount = 60).verify(
+            { requestMeta: RequestMetadata, _ ->
+                requestMeta.request[CONTROL_AE_MODE] == CONTROL_AE_MODE_ON_AUTO_FLASH
+            },
+            TIMEOUT
+        )
+        Truth.assertThat(cameraControl.flashMode).isEqualTo(ImageCapture.FLASH_MODE_AUTO)
+    }
+
+    @Test
+    fun setFlashModeOff_aeModeSetAndRequestUpdated(): Unit = runBlocking {
+        Assume.assumeTrue(hasFlashUnit)
+        bindUseCase(imageAnalysis)
+        cameraControl.flashMode = ImageCapture.FLASH_MODE_OFF
+
+        waitForResult(captureCount = 60).verify(
+            { requestMeta: RequestMetadata, _ ->
+                requestMeta[CONTROL_AE_MODE] == CONTROL_AE_MODE_ON
+            },
+            TIMEOUT
+        )
+        Truth.assertThat(cameraControl.flashMode).isEqualTo(ImageCapture.FLASH_MODE_OFF)
+    }
+
+    @Test
+    fun setFlashModeOn_aeModeSetAndRequestUpdated(): Unit = runBlocking {
+        Assume.assumeTrue(hasFlashUnit)
+        bindUseCase(imageAnalysis)
+        cameraControl.flashMode = ImageCapture.FLASH_MODE_ON
+
+        waitForResult(captureCount = 60).verify(
+            { requestMeta: RequestMetadata, _ ->
+                requestMeta[CONTROL_AE_MODE] == CONTROL_AE_MODE_ON_ALWAYS_FLASH
+            },
+            TIMEOUT
+        )
+        Truth.assertThat(cameraControl.flashMode).isEqualTo(ImageCapture.FLASH_MODE_ON)
     }
 
     @Test
