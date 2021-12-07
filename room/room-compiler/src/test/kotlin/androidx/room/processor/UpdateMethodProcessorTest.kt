@@ -20,6 +20,11 @@ import androidx.room.Update
 import androidx.room.compiler.processing.XMethodElement
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.util.Source
+import androidx.room.ext.GuavaUtilConcurrentTypeNames
+import androidx.room.ext.LifecyclesTypeNames
+import androidx.room.ext.ReactiveStreamsTypeNames
+import androidx.room.ext.RxJava2TypeNames
+import androidx.room.ext.RxJava3TypeNames
 import androidx.room.processor.ProcessorErrors.CANNOT_FIND_UPDATE_RESULT_ADAPTER
 import androidx.room.processor.ProcessorErrors.UPDATE_MISSING_PARAMS
 import androidx.room.vo.UpdateMethod
@@ -66,6 +71,37 @@ class UpdateMethodProcessorTest : ShortcutMethodProcessorTest<UpdateMethod>(Upda
         ) { _, invocation ->
             invocation.assertCompilationResult {
                 hasErrorContaining(ProcessorErrors.INVALID_ON_CONFLICT_VALUE)
+            }
+        }
+    }
+
+    @Test
+    fun badUsingMultipleConcurrencyPatterns() {
+        listOf(
+            "${RxJava2TypeNames.FLOWABLE}<Int>",
+            "${RxJava2TypeNames.OBSERVABLE}<Int>",
+            "${RxJava2TypeNames.MAYBE}<Int>",
+            "${RxJava2TypeNames.SINGLE}<Int>",
+            "${RxJava2TypeNames.COMPLETABLE}",
+            "${RxJava3TypeNames.FLOWABLE}<Int>",
+            "${RxJava3TypeNames.OBSERVABLE}<Int>",
+            "${RxJava3TypeNames.MAYBE}<Int>",
+            "${RxJava3TypeNames.SINGLE}<Int>",
+            "${RxJava3TypeNames.COMPLETABLE}",
+            "${LifecyclesTypeNames.LIVE_DATA}<Int>",
+            "${LifecyclesTypeNames.COMPUTABLE_LIVE_DATA}<Int>",
+            "${GuavaUtilConcurrentTypeNames.LISTENABLE_FUTURE}<Int>",
+            "${ReactiveStreamsTypeNames.PUBLISHER}<Int>"
+        ).forEach { type ->
+            singleShortcutMethodKotlin(
+                """
+                @Update
+                abstract suspend fun foo(user: User): $type
+                """
+            ) { _, invocation ->
+                invocation.assertCompilationResult {
+                    hasErrorContaining(ProcessorErrors.USING_MULTIPLE_CONCURRENCY_PATTERNS)
+                }
             }
         }
     }

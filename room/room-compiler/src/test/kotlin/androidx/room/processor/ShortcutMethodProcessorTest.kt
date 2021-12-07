@@ -53,6 +53,20 @@ abstract class ShortcutMethodProcessorTest<out T : ShortcutMethod>(
                 @Dao
                 abstract class MyClass {
                 """
+        const val DAO_PREFIX_KT = """
+                package foo.bar
+                import androidx.room.*
+                import java.util.*
+                import io.reactivex.*         
+                io.reactivex.rxjava3.core.*
+                androidx.lifecycle.*
+                com.google.common.util.concurrent.*
+                org.reactivestreams.*
+            
+                @Dao
+                abstract class MyClass {
+                """
+
         const val DAO_SUFFIX = "}"
         val USER_TYPE_NAME: TypeName = COMMON.USER_TYPE_NAME
         val USERNAME_TYPE_NAME: TypeName = ClassName.get("foo.bar", "Username")
@@ -613,6 +627,48 @@ abstract class ShortcutMethodProcessorTest<out T : ShortcutMethod>(
                         }.toList()
                     )
                 }.first { it.second.isNotEmpty() }
+            val processed = process(
+                baseContext = invocation.context,
+                containing = owner.type,
+                executableElement = methods.first()
+            )
+            handler(processed, invocation)
+        }
+    }
+
+    fun singleShortcutMethodKotlin(
+        vararg input: String,
+        additionalSources: List<Source> = emptyList(),
+        handler: (T, XTestInvocation) -> Unit
+    ) {
+        val inputSource = Source.kotlin(
+            "MyClass.kt",
+            DAO_PREFIX_KT + input.joinToString("\n") + DAO_SUFFIX
+        )
+
+        val commonSources = listOf(
+            COMMON.USER, COMMON.BOOK, COMMON.NOT_AN_ENTITY, COMMON.RX2_COMPLETABLE,
+            COMMON.RX2_MAYBE, COMMON.RX2_SINGLE, COMMON.RX2_FLOWABLE, COMMON.RX2_OBSERVABLE,
+            COMMON.RX3_COMPLETABLE, COMMON.RX3_MAYBE, COMMON.RX3_SINGLE, COMMON.RX3_FLOWABLE,
+            COMMON.RX3_OBSERVABLE, COMMON.LISTENABLE_FUTURE, COMMON.LIVE_DATA,
+            COMMON.COMPUTABLE_LIVE_DATA, COMMON.PUBLISHER, COMMON.GUAVA_ROOM
+        )
+
+        runProcessorTest(
+            sources = commonSources + additionalSources + inputSource
+        ) { invocation ->
+            val (owner, methods) = invocation.roundEnv
+                .getElementsAnnotatedWith(Dao::class.qualifiedName!!)
+                .filterIsInstance<XTypeElement>()
+                .map {
+                    Pair(
+                        it,
+                        it.getAllMethods().filter {
+                            it.hasAnnotation(annotation)
+                        }.toList()
+                    )
+                }.first { it.second.isNotEmpty() }
+
             val processed = process(
                 baseContext = invocation.context,
                 containing = owner.type,

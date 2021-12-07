@@ -85,6 +85,12 @@ class InsertionMethodProcessor(
             }
         )
 
+        context.checker.check(
+            !delegate.isUsingMultipleConcurrencyPatterns(),
+            executableElement,
+            ProcessorErrors.USING_MULTIPLE_CONCURRENCY_PATTERNS
+        )
+
         val methodBinder = delegate.findInsertMethodBinder(returnType, params)
 
         context.checker.check(

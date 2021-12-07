@@ -180,6 +180,13 @@ private class InternalQueryProcessor(
         returnType: XType,
         query: ParsedQuery
     ): WriteQueryMethod {
+
+        context.checker.check(
+            !delegate.isUsingMultipleConcurrencyPatterns(),
+            executableElement,
+            ProcessorErrors.USING_MULTIPLE_CONCURRENCY_PATTERNS
+        )
+
         val resultBinder = delegate.findPreparedResultBinder(returnType, query)
         context.checker.check(
             resultBinder.adapter != null,

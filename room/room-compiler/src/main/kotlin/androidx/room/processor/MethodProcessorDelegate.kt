@@ -22,10 +22,16 @@ import androidx.room.compiler.processing.XSuspendMethodType
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.XVariableElement
 import androidx.room.compiler.processing.isSuspendFunction
+import androidx.room.ext.CommonTypeNames
+import androidx.room.ext.GuavaUtilConcurrentTypeNames
 import androidx.room.ext.KotlinTypeNames
 import androidx.room.ext.L
+import androidx.room.ext.LifecyclesTypeNames
 import androidx.room.ext.N
+import androidx.room.ext.ReactiveStreamsTypeNames
 import androidx.room.ext.RoomCoroutinesTypeNames
+import androidx.room.ext.RxJava2TypeNames
+import androidx.room.ext.RxJava3TypeNames
 import androidx.room.ext.T
 import androidx.room.parser.ParsedQuery
 import androidx.room.solver.TypeAdapterExtras
@@ -70,6 +76,31 @@ abstract class MethodProcessorDelegate(
                 }
             ).process()
         }
+    }
+    fun isUsingMultipleConcurrencyPatterns(): Boolean {
+        val concurrencyTypes = listOf(
+            RxJava2TypeNames.FLOWABLE,
+            RxJava2TypeNames.OBSERVABLE,
+            RxJava2TypeNames.MAYBE,
+            RxJava2TypeNames.SINGLE,
+            RxJava2TypeNames.COMPLETABLE,
+            RxJava3TypeNames.FLOWABLE,
+            RxJava3TypeNames.OBSERVABLE,
+            RxJava3TypeNames.MAYBE,
+            RxJava3TypeNames.SINGLE,
+            RxJava3TypeNames.COMPLETABLE,
+            LifecyclesTypeNames.LIVE_DATA,
+            LifecyclesTypeNames.COMPUTABLE_LIVE_DATA,
+            GuavaUtilConcurrentTypeNames.LISTENABLE_FUTURE,
+            ReactiveStreamsTypeNames.PUBLISHER
+        ).mapNotNull { context.processingEnv.findType(it) }
+
+        val returnType = extractReturnType()
+        val hasConcurrentReturnType = concurrencyTypes.any {
+            it.rawType.isAssignableFrom(returnType.rawType)
+        }
+
+        return executableElement.isSuspendFunction() && hasConcurrentReturnType
     }
 
     abstract fun findResultBinder(
