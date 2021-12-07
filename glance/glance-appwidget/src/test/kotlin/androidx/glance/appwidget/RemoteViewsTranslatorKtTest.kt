@@ -18,11 +18,13 @@ package androidx.glance.appwidget
 
 import android.annotation.TargetApi
 import android.app.Activity
+import android.content.ComponentName
 import android.content.Context
 import android.content.res.Configuration
 import android.text.SpannedString
 import android.text.style.StrikethroughSpan
 import android.text.style.UnderlineSpan
+import android.util.Log
 import android.view.View
 import android.widget.FrameLayout
 import android.widget.ImageView
@@ -38,6 +40,7 @@ import androidx.glance.Button
 import androidx.glance.GlanceModifier
 import androidx.glance.Visibility
 import androidx.glance.action.actionLaunchActivity
+import androidx.glance.action.clickable
 import androidx.glance.appwidget.FrameLayoutSubject.Companion.assertThat
 import androidx.glance.appwidget.LinearLayoutSubject.Companion.assertThat
 import androidx.glance.appwidget.TextViewSubject.Companion.assertThat
@@ -62,6 +65,7 @@ import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.TestCoroutineScope
 import kotlinx.coroutines.test.runBlockingTest
+import org.junit.Assert.fail
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -69,6 +73,7 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import kotlin.test.assertFailsWith
 import kotlin.test.assertIs
+import org.robolectric.shadows.ShadowLog
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(RobolectricTestRunner::class)
@@ -833,6 +838,34 @@ class RemoteViewsTranslatorKtTest {
                 }
             }
         }
+    }
+
+    @Test
+    fun multipleClickable_shouldLogWarning() = fakeCoroutineScope.runBlockingTest {
+        context.runAndTranslate {
+            Text(
+                "text1",
+                modifier = GlanceModifier.clickable(
+                    actionLaunchActivity(ComponentName("package", "class"))
+                ).clickable(
+                    actionLaunchActivity(ComponentName("package", "class2"))
+                )
+            )
+        }
+
+        expectGlanceLog(
+            Log.WARN,
+            "More than one clickable defined on the same GlanceModifier, " +
+                "only the last one will be used."
+        )
+    }
+
+    private fun expectGlanceLog(type: Int, message: String) {
+        ShadowLog.getLogsForTag(GlanceAppWidgetTag).forEach { logItem ->
+            if (logItem.type == type && logItem.msg == message)
+                return
+        }
+        fail("No warning message found")
     }
 
     // Check there is a single span, that it's of the correct type and passes the [check].

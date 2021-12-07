@@ -663,6 +663,30 @@ class GlanceAppWidgetReceiverTest {
     }
 
     @Test
+    fun multipleActionCallback() {
+        TestGlanceAppWidget.uiDefinition = {
+            Text(
+                "text1",
+                modifier = GlanceModifier.clickable(
+                    actionRunCallback<CallbackTest>(actionParametersOf(CallbackTest.key to 1))
+                ).clickable(
+                    actionRunCallback<CallbackTest>(actionParametersOf(CallbackTest.key to 2))
+                )
+            )
+        }
+
+        mHostRule.startHost()
+
+        CallbackTest.received.set(emptyList())
+        CallbackTest.latch = CountDownLatch(1)
+        mHostRule.onHostView { root ->
+            checkNotNull(root.findChild<TextView> { it.text == "text1" }).performClick()
+        }
+        assertThat(CallbackTest.latch.await(5, TimeUnit.SECONDS)).isTrue()
+        assertThat(CallbackTest.received.get()).containsExactly(2)
+    }
+
+    @Test
     fun wrapAroundFillMaxSize() {
         TestGlanceAppWidget.uiDefinition = {
             val wrapperModifier = GlanceModifier
