@@ -56,10 +56,10 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-viewmodel:2.2.0")
     // Session and Screen both implement LifeCycleOwner so this needs to be exposed.
     api("androidx.lifecycle:lifecycle-common-java8:2.2.0")
-    implementation("androidx.annotation:annotation-experimental:1.1.0")
+    api("androidx.annotation:annotation-experimental:1.1.0")
     // There is an implicit compile-only dep due to :annotation-experimental
     // Build will complain without this manual declaration.
-    compileOnly libs.kotlinStdlib
+    api(libs.kotlinStdlib) // Added for annotation-experimental
 
     annotationProcessor(libs.nullaway)
 
