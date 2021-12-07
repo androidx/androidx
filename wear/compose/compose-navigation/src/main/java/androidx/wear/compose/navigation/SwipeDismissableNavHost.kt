@@ -62,6 +62,12 @@ import androidx.wear.compose.material.rememberSwipeToDismissBoxState
  * During a swipe-to-dismiss gesture, the previous navigation level (if any) is shown in
  * the background.
  *
+ * Example of a [SwipeDismissableNavHost] alternating between 2 screens:
+ * @sample androidx.wear.compose.navigation.samples.SimpleNavHost
+ *
+ * Example of a [SwipeDismissableNavHost] for which a destination has a named argument:
+ * @sample androidx.wear.compose.navigation.samples.NavHostWithNamedArgument
+ *
  * @param navController The navController for this host
  * @param startDestination The route for the start destination
  * @param modifier The modifier to be applied to the layout
@@ -98,6 +104,12 @@ public fun SwipeDismissableNavHost(
  * Content is displayed within a [SwipeToDismissBox], showing the current navigation level.
  * During a swipe-to-dismiss gesture, the previous navigation level (if any) is shown in
  * the background.
+ *
+ * Example of a [SwipeDismissableNavHost] alternating between 2 screens:
+ * @sample androidx.wear.compose.navigation.samples.SimpleNavHost
+ *
+ * Example of a [SwipeDismissableNavHost] for which a destination has a named argument:
+ * @sample androidx.wear.compose.navigation.samples.NavHostWithNamedArgument
  *
  * @param navController [NavHostController] for this host
  * @param graph Graph for this host
