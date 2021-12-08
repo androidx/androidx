@@ -28,6 +28,8 @@ import androidx.appsearch.app.SearchResults;
 import androidx.appsearch.app.SearchSpec;
 import androidx.appsearch.exceptions.AppSearchException;
 import androidx.appsearch.localstorage.util.FutureUtil;
+import androidx.appsearch.observer.AppSearchObserverCallback;
+import androidx.appsearch.observer.ObserverSpec;
 import androidx.core.util.Preconditions;
 
 import com.google.common.util.concurrent.ListenableFuture;
@@ -104,6 +106,41 @@ class GlobalSearchSessionImpl implements GlobalSearchSession {
     @Override
     public Features getFeatures() {
         return mFeatures;
+    }
+
+    @Override
+    public void addObserver(
+            @NonNull String observedPackage,
+            @NonNull ObserverSpec spec,
+            @NonNull Executor executor,
+            @NonNull AppSearchObserverCallback observer) {
+        Preconditions.checkNotNull(observedPackage);
+        Preconditions.checkNotNull(spec);
+        Preconditions.checkNotNull(executor);
+        Preconditions.checkNotNull(observer);
+        // LocalStorage does not support observing data from other packages.
+        if (!observedPackage.equals(mContext.getPackageName())) {
+            throw new UnsupportedOperationException(
+                    "Local storage implementation does not support receiving change notifications "
+                            + "from other packages.");
+        }
+        // TODO(b/193494000): Implement change notifications
+        throw new UnsupportedOperationException("addObserver not supported yet");
+    }
+
+    @Override
+    public void removeObserver(
+            @NonNull String observedPackage, @NonNull AppSearchObserverCallback observer) {
+        Preconditions.checkNotNull(observedPackage);
+        Preconditions.checkNotNull(observer);
+        // LocalStorage does not support observing data from other packages.
+        if (!observedPackage.equals(mContext.getPackageName())) {
+            throw new UnsupportedOperationException(
+                    "Local storage implementation does not support receiving change notifications "
+                            + "from other packages.");
+        }
+        // TODO(b/193494000): Implement removeObserver
+        throw new UnsupportedOperationException("removeObserver not supported yet");
     }
 
     @Override
