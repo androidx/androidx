@@ -159,8 +159,26 @@ public class ObserverManager {
     }
 
     /** Returns whether there are any observers registered to watch the given package. */
-    public boolean isObserved(@NonNull String packageName) {
+    public boolean isPackageObserved(@NonNull String packageName) {
         return mObservers.containsKey(packageName);
+    }
+
+    /**
+     * Returns whether there are any observers registered to watch the given package and
+     * unprefixed schema type.
+     */
+    public boolean isSchemaTypeObserved(@NonNull String packageName, @NonNull String schemaType) {
+        List<ObserverInfo> allObserverInfosForPackage = mObservers.get(packageName);
+        if (allObserverInfosForPackage == null) {
+            return false;
+        }
+        for (int i = 0; i < allObserverInfosForPackage.size(); i++) {
+            ObserverInfo observerInfo = allObserverInfosForPackage.get(i);
+            if (matchesSpec(schemaType, observerInfo.mObserverSpec)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /** This method is thread safe. */
