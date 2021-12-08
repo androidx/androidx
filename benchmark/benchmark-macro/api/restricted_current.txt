@@ -5,30 +5,49 @@ package androidx.benchmark.macro {
   }
 
   public final class BaselineProfilesKt {
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static void collectBaselineProfile(String uniqueName, String packageName, kotlin.jvm.functions.Function1<? super androidx.benchmark.macro.MacrobenchmarkScope,kotlin.Unit> setupBlock, kotlin.jvm.functions.Function1<? super androidx.benchmark.macro.MacrobenchmarkScope,kotlin.Unit> profileBlock);
+    method @RequiresApi(28) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static void collectBaselineProfile(String uniqueName, String packageName, kotlin.jvm.functions.Function1<? super androidx.benchmark.macro.MacrobenchmarkScope,kotlin.Unit> setupBlock, kotlin.jvm.functions.Function1<? super androidx.benchmark.macro.MacrobenchmarkScope,kotlin.Unit> profileBlock);
   }
 
   public abstract sealed class CompilationMode {
+    field public static final androidx.benchmark.macro.CompilationMode.Companion Companion;
+    field public static final androidx.benchmark.macro.CompilationMode DEFAULT;
   }
 
-  public static final class CompilationMode.BaselineProfile extends androidx.benchmark.macro.CompilationMode {
-    field public static final androidx.benchmark.macro.CompilationMode.BaselineProfile INSTANCE;
+  @Deprecated public static final class CompilationMode.BaselineProfile extends androidx.benchmark.macro.CompilationMode {
+    field @Deprecated public static final androidx.benchmark.macro.CompilationMode.BaselineProfile INSTANCE;
+  }
+
+  public static final class CompilationMode.Companion {
+  }
+
+  public static final class CompilationMode.Full extends androidx.benchmark.macro.CompilationMode {
+    ctor public CompilationMode.Full();
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static final class CompilationMode.Interpreted extends androidx.benchmark.macro.CompilationMode {
   }
 
-  public static final class CompilationMode.None extends androidx.benchmark.macro.CompilationMode {
-    field public static final androidx.benchmark.macro.CompilationMode.None INSTANCE;
+  @RequiresApi(24) public static final class CompilationMode.None extends androidx.benchmark.macro.CompilationMode {
+    ctor public CompilationMode.None();
   }
 
-  public static final class CompilationMode.Speed extends androidx.benchmark.macro.CompilationMode {
-    field public static final androidx.benchmark.macro.CompilationMode.Speed INSTANCE;
-  }
-
-  public static final class CompilationMode.SpeedProfile extends androidx.benchmark.macro.CompilationMode {
-    ctor public CompilationMode.SpeedProfile(optional int warmupIterations);
+  @RequiresApi(24) public static final class CompilationMode.Partial extends androidx.benchmark.macro.CompilationMode {
+    ctor public CompilationMode.Partial(optional Boolean? baselineProfile, optional @IntRange(from=0) int warmupIterations);
+    ctor public CompilationMode.Partial(optional Boolean? baselineProfile);
+    ctor public CompilationMode.Partial();
+    method public Boolean? getBaselineProfile();
     method public int getWarmupIterations();
+    property public final Boolean? baselineProfile;
+    property public final int warmupIterations;
+  }
+
+  @Deprecated public static final class CompilationMode.Speed extends androidx.benchmark.macro.CompilationMode {
+    field @Deprecated public static final androidx.benchmark.macro.CompilationMode.Speed INSTANCE;
+  }
+
+  @Deprecated public static final class CompilationMode.SpeedProfile extends androidx.benchmark.macro.CompilationMode {
+    ctor @Deprecated public CompilationMode.SpeedProfile(optional int warmupIterations);
+    method @Deprecated public int getWarmupIterations();
     property public final int warmupIterations;
   }
 

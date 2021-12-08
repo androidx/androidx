@@ -19,6 +19,7 @@ package androidx.benchmark.macro
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.benchmark.Shell
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
@@ -40,7 +41,6 @@ import kotlin.test.assertTrue
 @LargeTest
 class MacrobenchmarkScopeTest {
     private val instrumentation = InstrumentationRegistry.getInstrumentation()
-    private val device = UiDevice.getInstance(instrumentation)
 
     @Before
     fun setup() {
@@ -66,14 +66,17 @@ class MacrobenchmarkScopeTest {
         assertFalse(Shell.isPackageAlive(Packages.TARGET))
     }
 
-    @SdkSuppress(minSdkVersion = 24) // TODO: define behavior for older platforms
+    @SdkSuppress(minSdkVersion = 24)
     @Test
     fun compile_speedProfile() {
         val scope = MacrobenchmarkScope(Packages.TARGET, launchWithClearTask = true)
         val iterations = 1
         var executions = 0
-        val compilation = CompilationMode.SpeedProfile(warmupIterations = iterations)
-        compilation.compile(Packages.TARGET) {
+        val compilation = CompilationMode.Partial(
+            baselineProfile = false,
+            warmupIterations = iterations
+        )
+        compilation.resetAndCompile(Packages.TARGET) {
             executions += 1
             scope.pressHome()
             scope.startActivityAndWait()
@@ -81,11 +84,10 @@ class MacrobenchmarkScopeTest {
         assertEquals(iterations, executions)
     }
 
-    @SdkSuppress(minSdkVersion = 24) // TODO: define behavior for older platforms
     @Test
-    fun compile_speed() {
-        val compilation = CompilationMode.Speed
-        compilation.compile(Packages.TARGET) {
+    fun compile_full() {
+        val compilation = CompilationMode.Full()
+        compilation.resetAndCompile(Packages.TARGET) {
             fail("Should never be called for $compilation")
         }
     }
@@ -119,6 +121,7 @@ class MacrobenchmarkScopeTest {
         }
     }
 
+    @RequiresApi(24) // Test flakes locally on API 23, appears to be UiAutomation issue
     @Test
     fun startActivityAndWait_invalidActivity() {
         val scope = MacrobenchmarkScope(Packages.TARGET, launchWithClearTask = true)

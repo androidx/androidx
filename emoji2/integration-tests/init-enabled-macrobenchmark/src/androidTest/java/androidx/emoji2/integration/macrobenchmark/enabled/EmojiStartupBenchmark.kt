@@ -16,6 +16,7 @@
 
 package androidx.emoji2.integration.macrobenchmark.enabled
 
+import android.os.Build
 import androidx.benchmark.macro.CompilationMode
 import androidx.benchmark.macro.StartupMode
 import androidx.benchmark.macro.junit4.MacrobenchmarkRule
@@ -40,7 +41,11 @@ class EmojiStartupBenchmark {
         // only run this test if the device can configure emoji2
         assumeTrue(hasDiscoverableFontProviderOnDevice())
         benchmarkRule.measureStartup(
-            compilationMode = CompilationMode.None,
+            compilationMode = if (Build.VERSION.SDK_INT >= 24) {
+                CompilationMode.None()
+            } else {
+                CompilationMode.Full()
+            },
             startupMode = StartupMode.COLD,
             packageName = "androidx.emoji2.integration.macrobenchmark.enabled.target"
         ) {

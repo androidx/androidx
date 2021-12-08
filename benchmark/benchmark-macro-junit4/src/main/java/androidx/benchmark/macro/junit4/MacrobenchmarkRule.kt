@@ -53,7 +53,7 @@ public class MacrobenchmarkRule : TestRule {
      * @param packageName Package name of the app being measured.
      * @param metrics List of metrics to measure.
      * @param compilationMode Mode of compilation used before capturing measurement, such as
-     * [CompilationMode.SpeedProfile].
+     * [CompilationMode.Partial], defaults to [CompilationMode.DEFAULT].
      * @param startupMode Optional mode to force app launches performed with
      * [MacrobenchmarkScope.startActivityAndWait] (and similar variants) to be of the assigned
      * type. For example, `COLD` launches kill the process before the measureBlock, to ensure
@@ -70,7 +70,7 @@ public class MacrobenchmarkRule : TestRule {
     public fun measureRepeated(
         packageName: String,
         metrics: List<Metric>,
-        compilationMode: CompilationMode = CompilationMode.SpeedProfile(),
+        compilationMode: CompilationMode = CompilationMode.DEFAULT,
         startupMode: StartupMode? = null,
         @IntRange(from = 1)
         iterations: Int,
