@@ -392,6 +392,9 @@ class SearchSessionImpl implements AppSearchSession {
             // Now that the batch has been written. Persist the newly written data.
             mAppSearchImpl.persistToDisk(PersistType.Code.LITE);
             mIsMutated = true;
+            // Schedule a task to dispatch change notifications. See requirements for where the
+            // method is called documented in the method description.
+            dispatchChangeNotifications();
             return resultBuilder.build();
         });
         checkForOptimize(/*mutateBatchSize=*/ request.getIds().size());
