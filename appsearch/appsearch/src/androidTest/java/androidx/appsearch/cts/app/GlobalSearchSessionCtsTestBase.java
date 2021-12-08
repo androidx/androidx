@@ -22,6 +22,8 @@ import static androidx.appsearch.testutil.AppSearchTestUtils.convertSearchResult
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.assertThrows;
+import static org.junit.Assume.assumeFalse;
+import static org.junit.Assume.assumeTrue;
 
 import android.content.Context;
 
@@ -30,6 +32,7 @@ import androidx.appsearch.app.AppSearchResult;
 import androidx.appsearch.app.AppSearchSchema;
 import androidx.appsearch.app.AppSearchSchema.PropertyConfig;
 import androidx.appsearch.app.AppSearchSession;
+import androidx.appsearch.app.Features;
 import androidx.appsearch.app.GenericDocument;
 import androidx.appsearch.app.GlobalSearchSession;
 import androidx.appsearch.app.PutDocumentsRequest;
@@ -67,10 +70,10 @@ public abstract class GlobalSearchSessionCtsTestBase {
     private static final Executor EXECUTOR = Executors.newCachedThreadPool();
     private final Context mContext = ApplicationProvider.getApplicationContext();
 
-    private AppSearchSession mDb1;
-    private AppSearchSession mDb2;
+    protected AppSearchSession mDb1;
+    protected AppSearchSession mDb2;
 
-    private GlobalSearchSession mGlobalSearchSession;
+    protected GlobalSearchSession mGlobalSearchSession;
 
     protected abstract ListenableFuture<AppSearchSession> createSearchSession(
             @NonNull String dbName);
@@ -753,7 +756,27 @@ public abstract class GlobalSearchSessionCtsTestBase {
     }
 
     @Test
-    public void testRegisterObserver() throws Exception {
+    public void testAddObserver_notSupported() {
+        assumeFalse(mGlobalSearchSession.getFeatures()
+                .isFeatureSupported(Features.GLOBAL_SEARCH_SESSION_ADD_REMOVE_OBSERVER));
+        assertThrows(
+                UnsupportedOperationException.class,
+                () -> mGlobalSearchSession.addObserver(
+                        mContext.getPackageName(),
+                        new ObserverSpec.Builder().build(),
+                        EXECUTOR,
+                        new TestObserverCallback()));
+        assertThrows(
+                UnsupportedOperationException.class,
+                () -> mGlobalSearchSession.removeObserver(
+                        mContext.getPackageName(), new TestObserverCallback()));
+    }
+
+    @Test
+    public void testAddObserver() throws Exception {
+        assumeTrue(mGlobalSearchSession.getFeatures()
+                .isFeatureSupported(Features.GLOBAL_SEARCH_SESSION_ADD_REMOVE_OBSERVER));
+
         TestObserverCallback observer = new TestObserverCallback();
 
         // Register observer. Note: the type does NOT exist yet!
@@ -783,6 +806,9 @@ public abstract class GlobalSearchSessionCtsTestBase {
 
     @Test
     public void testRegisterObserver_MultiType() throws Exception {
+        assumeTrue(mGlobalSearchSession.getFeatures()
+                .isFeatureSupported(Features.GLOBAL_SEARCH_SESSION_ADD_REMOVE_OBSERVER));
+
         TestObserverCallback unfilteredObserver = new TestObserverCallback();
         TestObserverCallback emailObserver = new TestObserverCallback();
 
@@ -884,6 +910,9 @@ public abstract class GlobalSearchSessionCtsTestBase {
 
     @Test
     public void testRegisterObserver_removeById() throws Exception {
+        assumeTrue(mGlobalSearchSession.getFeatures()
+                .isFeatureSupported(Features.GLOBAL_SEARCH_SESSION_ADD_REMOVE_OBSERVER));
+
         TestObserverCallback unfilteredObserver = new TestObserverCallback();
         TestObserverCallback emailObserver = new TestObserverCallback();
 
@@ -988,6 +1017,9 @@ public abstract class GlobalSearchSessionCtsTestBase {
 
     @Test
     public void testRegisterObserver_removeByQuery() throws Exception {
+        assumeTrue(mGlobalSearchSession.getFeatures()
+                .isFeatureSupported(Features.GLOBAL_SEARCH_SESSION_ADD_REMOVE_OBSERVER));
+
         TestObserverCallback unfilteredObserver = new TestObserverCallback();
         TestObserverCallback emailObserver = new TestObserverCallback();
 
@@ -1087,6 +1119,9 @@ public abstract class GlobalSearchSessionCtsTestBase {
 
     @Test
     public void testRegisterObserver_sameCallback_differentSpecs() throws Exception {
+        assumeTrue(mGlobalSearchSession.getFeatures()
+                .isFeatureSupported(Features.GLOBAL_SEARCH_SESSION_ADD_REMOVE_OBSERVER));
+
         TestObserverCallback observer = new TestObserverCallback();
 
         // Set up the email and gift types
@@ -1136,6 +1171,9 @@ public abstract class GlobalSearchSessionCtsTestBase {
 
     @Test
     public void testRemoveObserver() throws Exception {
+        assumeTrue(mGlobalSearchSession.getFeatures()
+                .isFeatureSupported(Features.GLOBAL_SEARCH_SESSION_ADD_REMOVE_OBSERVER));
+
         TestObserverCallback temporaryObserver = new TestObserverCallback();
         TestObserverCallback permanentObserver = new TestObserverCallback();
 
