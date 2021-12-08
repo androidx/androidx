@@ -13,125 +13,161 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.work.impl.constraints;
+package androidx.work.impl.constraints
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.nullValue;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.hamcrest.Matchers.empty;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-import androidx.annotation.NonNull;
-import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.filters.SmallTest;
-import androidx.work.impl.constraints.controllers.ConstraintController;
-import androidx.work.impl.model.WorkSpec;
-
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import android.content.Context
+import androidx.test.core.app.ApplicationProvider
+import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.SmallTest
+import androidx.work.impl.constraints.controllers.ConstraintController
+import androidx.work.impl.constraints.trackers.ConstraintTracker
+import androidx.work.impl.model.WorkSpec
+import androidx.work.impl.utils.taskexecutor.InstantWorkTaskExecutor
+import androidx.work.impl.utils.taskexecutor.TaskExecutor
+import com.google.common.truth.Truth.assertThat
+import org.junit.Test
+import org.junit.runner.RunWith
 
 @SmallTest
-@RunWith(AndroidJUnit4.class)
-public class WorkConstraintsTrackerTest {
-    private static final List<String> TEST_WORKSPEC_IDS = new ArrayList<>();
-    static {
-        TEST_WORKSPEC_IDS.add("A");
-        TEST_WORKSPEC_IDS.add("B");
-        TEST_WORKSPEC_IDS.add("C");
-    }
+@RunWith(AndroidJUnit4::class)
+class WorkConstraintsTrackerTest {
 
-    private WorkConstraintsCallback mCallback = new WorkConstraintsCallback() {
-        @Override
-        public void onAllConstraintsMet(@NonNull List<String> workSpecIds) {
-            mUnconstrainedWorkSpecIds = workSpecIds;
-        }
+    private val capturingCallback = CapturingWorkConstraintsCallback()
 
-        @Override
-        public void onAllConstraintsNotMet(@NonNull List<String> workSpecIds) {
-            mConstrainedWorkSpecIds = workSpecIds;
-        }
-    };
-
-    private ConstraintController mMockController = mock(ConstraintController.class);
-    private List<String> mUnconstrainedWorkSpecIds;
-    private List<String> mConstrainedWorkSpecIds;
-    private WorkConstraintsTrackerImpl mWorkConstraintsTracker;
-
-    @Before
-    public void setUp() {
-        ConstraintController[] controllers = new ConstraintController[] {mMockController};
-        mWorkConstraintsTracker = new WorkConstraintsTrackerImpl(mCallback, controllers);
-    }
-
-    @SuppressWarnings("unchecked")
     @Test
-    public void testReplace() {
-        List<WorkSpec> emptyList = Collections.emptyList();
-
-        ArgumentCaptor<ConstraintController.OnConstraintUpdatedCallback> captor =
-                ArgumentCaptor.forClass(ConstraintController.OnConstraintUpdatedCallback.class);
-
-        mWorkConstraintsTracker.replace(emptyList);
-        verify(mMockController).replace(emptyList);
-        verify(mMockController, times(2)).setCallback(captor.capture());
-        assertThat(captor.getAllValues().size(), is(2));
-        assertThat(captor.getAllValues().get(0), is(nullValue()));
-        assertThat(captor.getAllValues().get(1),
-                is((ConstraintController.OnConstraintUpdatedCallback) mWorkConstraintsTracker));
+    fun testReplace() {
+        val tracker = TestConstraintTracker(true)
+        val workConstraintsTracker = WorkConstraintsTracker(capturingCallback, tracker)
+        workConstraintsTracker.replace(TEST_WORKSPECS.subList(0, 2))
+        val (unconstrained1, _) = capturingCallback.consumeCurrent()
+        assertThat(unconstrained1).containsExactly(TEST_WORKSPEC_IDS[0], TEST_WORKSPEC_IDS[1])
+        workConstraintsTracker.replace(TEST_WORKSPECS.subList(1, 3))
+        val (unconstrained2, _) = capturingCallback.consumeCurrent()
+        assertThat(unconstrained2).containsExactly(TEST_WORKSPEC_IDS[1], TEST_WORKSPEC_IDS[2])
     }
 
     @Test
-    public void testReset() {
-        mWorkConstraintsTracker.reset();
-        verify(mMockController).reset();
+    fun testReset() {
+        val tracker = TestConstraintTracker(true)
+        val workConstraintsTracker = WorkConstraintsTracker(capturingCallback, tracker)
+        workConstraintsTracker.replace(TEST_WORKSPECS)
+        assertThat(tracker.isTracking).isTrue()
+        workConstraintsTracker.reset()
+        assertThat(tracker.isTracking).isFalse()
     }
 
     @Test
-    public void testOnConstraintMet_controllerInvoked() {
-        mWorkConstraintsTracker.onConstraintMet(TEST_WORKSPEC_IDS);
-        for (String id : TEST_WORKSPEC_IDS) {
-            verify(mMockController).isWorkSpecConstrained(id);
-        }
+    fun testOnConstraintMet_allConstraintsMet() {
+        val tracker = TestConstraintTracker()
+        val workConstraintsTracker = WorkConstraintsTracker(capturingCallback, tracker)
+        workConstraintsTracker.replace(TEST_WORKSPECS)
+        val (_, constrained) = capturingCallback.consumeCurrent()
+        assertThat(constrained).isEqualTo(TEST_WORKSPEC_IDS)
+        tracker.setState(true)
+        val (unconstrained, _) = capturingCallback.consumeCurrent()
+        assertThat(unconstrained).isEqualTo(TEST_WORKSPEC_IDS)
     }
 
     @Test
-    public void testOnConstraintMet_allConstraintsMet() {
-        when(mMockController.isWorkSpecConstrained(any(String.class))).thenReturn(false);
-        mWorkConstraintsTracker.onConstraintMet(TEST_WORKSPEC_IDS);
-        assertThat(mUnconstrainedWorkSpecIds, is(TEST_WORKSPEC_IDS));
+    fun testOnConstraintMet_allConstraintsMet_subList() {
+        val tracker1 = TestConstraintTracker()
+        val tracker2 = TestConstraintTracker()
+        val controller1 = TestConstraintController(tracker1, TEST_WORKSPEC_IDS.subList(0, 2))
+        val controller2 = TestConstraintController(tracker2, TEST_WORKSPEC_IDS.subList(2, 3))
+        val workConstraintsTracker = WorkConstraintsTrackerImpl(
+            capturingCallback,
+            arrayOf(controller1, controller2)
+        )
+        workConstraintsTracker.replace(TEST_WORKSPECS)
+        capturingCallback.consumeCurrent()
+        tracker1.setState(true)
+        val (unconstrained, _) = capturingCallback.consumeCurrent()
+        assertThat(unconstrained).containsExactly(TEST_WORKSPEC_IDS[0], TEST_WORKSPEC_IDS[1])
     }
 
     @Test
-    public void testOnConstraintMet_allConstraintsMet_subList() {
-        when(mMockController.isWorkSpecConstrained(TEST_WORKSPEC_IDS.get(0))).thenReturn(true);
-        when(mMockController.isWorkSpecConstrained(TEST_WORKSPEC_IDS.get(1))).thenReturn(false);
-        when(mMockController.isWorkSpecConstrained(TEST_WORKSPEC_IDS.get(2))).thenReturn(false);
-        mWorkConstraintsTracker.onConstraintMet(TEST_WORKSPEC_IDS);
-        assertThat(mUnconstrainedWorkSpecIds,
-                containsInAnyOrder(TEST_WORKSPEC_IDS.get(1), TEST_WORKSPEC_IDS.get(2)));
+    fun testOnConstraintMet_allConstraintsNotMet() {
+        val tracker1 = TestConstraintTracker()
+        val tracker2 = TestConstraintTracker()
+        val workConstraintsTracker = WorkConstraintsTracker(capturingCallback, tracker1, tracker2)
+        workConstraintsTracker.replace(TEST_WORKSPECS)
+        capturingCallback.consumeCurrent()
+        tracker1.setState(true)
+        val (unconstrained, _) = capturingCallback.consumeCurrent()
+        // only one constraint is resolved, so unconstrained is empty list
+        assertThat(unconstrained).isEqualTo(emptyList<String>())
     }
 
     @Test
-    public void testOnConstraintMet_allConstraintsNotMet() {
-        when(mMockController.isWorkSpecConstrained(any(String.class))).thenReturn(true);
-        mWorkConstraintsTracker.onConstraintMet(TEST_WORKSPEC_IDS);
-        assertThat(mUnconstrainedWorkSpecIds, is(empty()));
+    fun testOnConstraintNotMet() {
+        val tracker1 = TestConstraintTracker(true)
+        val tracker2 = TestConstraintTracker(true)
+        val workConstraintsTracker = WorkConstraintsTracker(capturingCallback, tracker1, tracker2)
+        workConstraintsTracker.replace(TEST_WORKSPECS)
+        val (unconstrained, _) = capturingCallback.consumeCurrent()
+        assertThat(unconstrained).isEqualTo(TEST_WORKSPEC_IDS)
+        tracker1.setState(false)
+        val (_, constrained) = capturingCallback.consumeCurrent()
+        assertThat(constrained).isEqualTo(TEST_WORKSPEC_IDS)
+    }
+}
+
+private val TEST_WORKSPECS = listOf(
+    WorkSpec("A", "Worker1"),
+    WorkSpec("B", "Worker2"),
+    WorkSpec("C", "Worker3"),
+)
+private val TEST_WORKSPEC_IDS = TEST_WORKSPECS.map { it.id }
+
+private fun WorkConstraintsTracker(
+    callback: WorkConstraintsCallback,
+    vararg trackers: ConstraintTracker<Boolean>
+): WorkConstraintsTrackerImpl {
+    val controllers = trackers.map { TestConstraintController(it) }
+    return WorkConstraintsTrackerImpl(callback, controllers.toTypedArray())
+}
+
+private class TestConstraintTracker(
+    val initialState: Boolean = false,
+    context: Context = ApplicationProvider.getApplicationContext(),
+    taskExecutor: TaskExecutor = InstantWorkTaskExecutor(),
+) : ConstraintTracker<Boolean>(context, taskExecutor) {
+    var isTracking = false
+    override fun getInitialState() = initialState
+
+    override fun startTracking() {
+        isTracking = true
     }
 
-    @Test
-    public void testOnConstraintNotMet() {
-        mWorkConstraintsTracker.onConstraintNotMet(TEST_WORKSPEC_IDS);
-        assertThat(mConstrainedWorkSpecIds, is(TEST_WORKSPEC_IDS));
+    override fun stopTracking() {
+        isTracking = false
+    }
+}
+
+private class TestConstraintController(
+    tracker: ConstraintTracker<Boolean>,
+    private val constrainedIds: List<String> = TEST_WORKSPEC_IDS
+) : ConstraintController<Boolean>(tracker) {
+    override fun hasConstraint(workSpec: WorkSpec) = workSpec.id in constrainedIds
+    override fun isConstrained(value: Boolean) = !value
+}
+
+private class CapturingWorkConstraintsCallback(
+    var unconstrainedWorkSpecIds: List<String>? = null,
+    var constrainedWorkSpecIds: List<String>? = null,
+) : WorkConstraintsCallback {
+    override fun onAllConstraintsMet(workSpecIds: List<String>) {
+        unconstrainedWorkSpecIds = workSpecIds
+    }
+
+    override fun onAllConstraintsNotMet(workSpecIds: List<String>) {
+        constrainedWorkSpecIds = workSpecIds
+    }
+
+    fun consumeCurrent(): Pair<List<String>?, List<String>?> {
+        val result = unconstrainedWorkSpecIds to constrainedWorkSpecIds
+        unconstrainedWorkSpecIds = null
+        constrainedWorkSpecIds = null
+        return result
     }
 }

@@ -250,12 +250,12 @@ public class ConstraintControllerTest extends WorkManagerTest {
         }
 
         @Override
-        boolean hasConstraint(@NonNull WorkSpec workSpec) {
+        public boolean hasConstraint(@NonNull WorkSpec workSpec) {
             return workSpec.constraints.requiresDeviceIdle();
         }
 
         @Override
-        boolean isConstrained(@NonNull Boolean isDeviceIdle) {
+        public boolean isConstrained(@NonNull Boolean isDeviceIdle) {
             return !isDeviceIdle;
         }
 
