@@ -176,7 +176,7 @@ object ProcessorErrors {
         "return type. Currently the supported return types are void, int or Int."
 
     fun suspendReturnsDeferredType(returnTypeName: String) = "Dao functions that have a suspend " +
-        "modifier must not return deferred/async return type $returnTypeName. Most probably this " +
+        "modifier must not return a deferred/async type ($returnTypeName). Most probably this " +
         "is an error. Consider changing the return type or removing the suspend modifier."
 
     val CANNOT_FIND_INSERT_RESULT_ADAPTER = "Not sure how to handle insert method's return type."
