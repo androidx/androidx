@@ -20,13 +20,13 @@ import android.app.Activity
 import android.content.Intent
 import androidx.glance.action.Action
 import androidx.glance.action.ActionParameters
-import androidx.glance.action.LaunchActivityAction
+import androidx.glance.action.StartActivityAction
 import androidx.glance.action.actionParametersOf
 
-internal class LaunchActivityIntentAction(
+internal class StartActivityIntentAction(
     val intent: Intent,
     override val parameters: ActionParameters = actionParametersOf()
-) : LaunchActivityAction
+) : StartActivityAction
 
 /**
  * Creates an [Action] that launches an [Activity] from the given [Intent] when triggered. The
@@ -38,7 +38,7 @@ internal class LaunchActivityIntentAction(
  * @param parameters the parameters associated with the action. Parameter values will be added to
  * the activity intent, keyed by the parameter key name string.
  */
-public fun actionLaunchActivity(
+public fun actionStartActivity(
     intent: Intent,
     parameters: ActionParameters = actionParametersOf()
-): Action = LaunchActivityIntentAction(intent, parameters)
+): Action = StartActivityIntentAction(intent, parameters)

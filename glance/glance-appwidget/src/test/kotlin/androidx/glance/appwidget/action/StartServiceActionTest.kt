@@ -35,15 +35,15 @@ import kotlin.test.assertIs
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(RobolectricTestRunner::class)
-class LaunchServiceActionTest {
+class StartServiceActionTest {
 
     private val context = ApplicationProvider.getApplicationContext<Context>()
 
     @Test
     fun testLaunchClass() {
-        val modifiers = GlanceModifier.clickable(actionLaunchService<TestService>())
+        val modifiers = GlanceModifier.clickable(actionStartService<TestService>())
         val modifier = checkNotNull(modifiers.findModifier<ActionModifier>())
-        val action = assertIs<LaunchServiceClassAction>(modifier.action)
+        val action = assertIs<StartServiceClassAction>(modifier.action)
         assertThat(action.serviceClass).isEqualTo(TestService::class.java)
         assertThat(action.isForegroundService).isEqualTo(false)
     }
@@ -51,12 +51,12 @@ class LaunchServiceActionTest {
     @Test
     fun testLaunchClassWithForeground() {
         val modifiers = GlanceModifier.clickable(
-            actionLaunchService<TestService>(
+            actionStartService<TestService>(
                 isForegroundService = true
             )
         )
         val modifier = checkNotNull(modifiers.findModifier<ActionModifier>())
-        val action = assertIs<LaunchServiceClassAction>(modifier.action)
+        val action = assertIs<StartServiceClassAction>(modifier.action)
         assertThat(action.serviceClass).isEqualTo(TestService::class.java)
         assertThat(action.isForegroundService).isEqualTo(true)
     }
@@ -65,9 +65,9 @@ class LaunchServiceActionTest {
     fun testLaunchIntent() {
         val intentActionString = "test_action"
         val intent = Intent(context, TestService::class.java).setAction(intentActionString)
-        val modifiers = GlanceModifier.clickable(actionLaunchService(intent))
+        val modifiers = GlanceModifier.clickable(actionStartService(intent))
         val modifier = checkNotNull(modifiers.findModifier<ActionModifier>())
-        val action = assertIs<LaunchServiceIntentAction>(modifier.action)
+        val action = assertIs<StartServiceIntentAction>(modifier.action)
         assertThat(action.intent).isEqualTo(intent)
         assertThat(action.intent.action).isEqualTo(intentActionString)
         assertThat(action.isForegroundService).isEqualTo(false)
@@ -79,9 +79,9 @@ class LaunchServiceActionTest {
             "androidx.glance.appwidget.action",
             "androidx.glance.appwidget.action.TestService"
         )
-        val modifiers = GlanceModifier.clickable(actionLaunchService(componentName))
+        val modifiers = GlanceModifier.clickable(actionStartService(componentName))
         val modifier = checkNotNull(modifiers.findModifier<ActionModifier>())
-        val action = assertIs<LaunchServiceComponentAction>(modifier.action)
+        val action = assertIs<StartServiceComponentAction>(modifier.action)
         assertThat(action.componentName).isEqualTo(componentName)
         assertThat(action.isForegroundService).isEqualTo(false)
     }

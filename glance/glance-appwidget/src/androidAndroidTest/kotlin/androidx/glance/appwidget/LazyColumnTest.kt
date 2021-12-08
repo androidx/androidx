@@ -20,17 +20,17 @@ import android.app.Activity
 import android.os.Build
 import android.view.Gravity
 import android.view.View
-import android.widget.Button
 import android.view.ViewGroup
+import android.widget.Button
 import android.widget.FrameLayout
 import android.widget.ListView
 import android.widget.TextView
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.glance.Button
 import androidx.core.view.children
+import androidx.glance.Button
 import androidx.glance.GlanceModifier
-import androidx.glance.action.actionLaunchActivity
+import androidx.glance.action.actionStartActivity
 import androidx.glance.action.clickable
 import androidx.glance.appwidget.lazy.LazyColumn
 import androidx.glance.appwidget.lazy.ReservedItemIdRangeEnd
@@ -323,11 +323,11 @@ class LazyColumnTest {
                 item {
                     Text(
                         "Text",
-                        modifier = GlanceModifier.clickable(actionLaunchActivity<Activity>())
+                        modifier = GlanceModifier.clickable(actionStartActivity<Activity>())
                     )
                     Button(
                         "Button",
-                        onClick = actionLaunchActivity<Activity>()
+                        onClick = actionStartActivity<Activity>()
                     )
                 }
             }

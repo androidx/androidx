@@ -43,9 +43,9 @@ import androidx.glance.LocalGlanceId
 import androidx.glance.LocalSize
 import androidx.glance.LocalState
 import androidx.glance.appwidget.state.getAppWidgetState
-import kotlinx.coroutines.CancellationException
 import androidx.glance.state.GlanceState
 import androidx.glance.state.GlanceStateDefinition
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
