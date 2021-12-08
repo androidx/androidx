@@ -18,8 +18,13 @@ package androidx.appsearch.app;
 import androidx.annotation.NonNull;
 
 /**
- * A class that encapsulates all features that are only supported with certain combinations of
- * backend and Android API Level.
+ * A class that encapsulates all features that are only supported in certain cases (e.g. only on
+ * certain implementations or only at a certain Android API Level).
+ *
+ * <p>Features do not depend on any runtime state, and features will never be removed. Once
+ * {@link #isFeatureSupported} returns {@code true} for a certain feature, it is safe to assume that
+ * the feature will be available forever on that AppSearch storage implementation, at that
+ * Android API level, on that device form factor.
  * <!--@exportToFramework:hide-->
  */
 public interface Features {
@@ -30,6 +35,13 @@ public interface Features {
      * {@link SearchResult.MatchInfo#getSubmatch}.
      */
     String SEARCH_RESULT_MATCH_INFO_SUBMATCH = "SEARCH_RESULT_MATCH_INFO_SUBMATCH";
+
+    /**
+     * Feature for {@link #isFeatureSupported(String)}. This feature covers
+     * {@link GlobalSearchSession#addObserver} and
+     * {@link GlobalSearchSession#removeObserver}.
+     */
+    String GLOBAL_SEARCH_SESSION_ADD_REMOVE_OBSERVER = "GLOBAL_SEARCH_SESSION_ADD_REMOVE_OBSERVER";
 
     /**
      * Returns whether a feature is supported at run-time. Feature support depends on the
