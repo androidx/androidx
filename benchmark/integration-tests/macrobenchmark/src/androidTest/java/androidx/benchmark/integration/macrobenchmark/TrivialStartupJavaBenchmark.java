@@ -39,7 +39,7 @@ public class TrivialStartupJavaBenchmark {
         mBenchmarkRule.measureRepeated(
                 "androidx.benchmark.integration.macrobenchmark.target",
                 Collections.singletonList(new StartupTimingMetric()),
-                new CompilationMode.SpeedProfile(),
+                new CompilationMode.Partial(),
                 StartupMode.COLD,
                 3,
                 scope -> {

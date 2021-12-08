@@ -18,6 +18,7 @@ package androidx.benchmark.macro
 
 import android.os.Build
 import android.util.Log
+import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.benchmark.InstrumentationResults
 import androidx.benchmark.Outputs
@@ -30,6 +31,7 @@ import androidx.benchmark.userspaceTrace
  * @suppress
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RequiresApi(28)
 fun collectBaselineProfile(
     uniqueName: String,
     packageName: String,
@@ -46,14 +48,18 @@ fun collectBaselineProfile(
     }
 
     val startTime = System.nanoTime()
-    val scope = MacrobenchmarkScope(packageName, /* launchWithClearTask */ true)
-    val speedProfile = CompilationMode.SpeedProfile(warmupIterations = 3)
+    val scope = MacrobenchmarkScope(packageName, launchWithClearTask = true)
+
+    // useBaselineProfile = false because we're *creating* a baseline profile, not using it yet
+    val compilationMode = CompilationMode.Partial(baselineProfile = false, warmupIterations = 3)
 
     // always kill the process at beginning of a collection.
     scope.killProcess()
     try {
         userspaceTrace("compile $packageName") {
-            speedProfile.compile(packageName) {
+            compilationMode.resetAndCompile(
+                packageName = packageName
+            ) {
                 setupBlock(scope)
                 profileBlock(scope)
             }
