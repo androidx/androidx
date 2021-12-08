@@ -17,6 +17,8 @@
 package androidx.appsearch.observer;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.core.util.ObjectsCompat;
 import androidx.core.util.Preconditions;
 
 /**
@@ -81,5 +83,32 @@ public final class DocumentChangeInfo {
     @NonNull
     public String getSchemaName() {
         return mSchemaName;
+    }
+
+    @Override
+    public boolean equals(@Nullable Object o) {
+        if (this == o) return true;
+        if (!(o instanceof DocumentChangeInfo)) return false;
+        DocumentChangeInfo that = (DocumentChangeInfo) o;
+        return mPackageName.equals(that.mPackageName)
+                && mDatabase.equals(that.mDatabase)
+                && mNamespace.equals(that.mNamespace)
+                && mSchemaName.equals(that.mSchemaName);
+    }
+
+    @Override
+    public int hashCode() {
+        return ObjectsCompat.hash(mPackageName, mDatabase, mNamespace, mSchemaName);
+    }
+
+    @NonNull
+    @Override
+    public String toString() {
+        return "DocumentChangeInfo{"
+                + "packageName='" + mPackageName + '\''
+                + ", database='" + mDatabase + '\''
+                + ", namespace='" + mNamespace + '\''
+                + ", schemaName='" + mSchemaName + '\''
+                + '}';
     }
 }
