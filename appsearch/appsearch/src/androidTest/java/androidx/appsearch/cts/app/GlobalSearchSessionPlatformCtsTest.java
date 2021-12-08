@@ -43,4 +43,16 @@ public class GlobalSearchSessionPlatformCtsTest extends GlobalSearchSessionCtsTe
         return PlatformStorage.createGlobalSearchSession(
                 new PlatformStorage.GlobalSearchContext.Builder(context).build());
     }
+
+    @Override
+    public void testRegisterObserver() {
+        // TODO(b/193494000): Remove this no-op override once the change observer API is implemented
+        //  in platform.
+    }
+
+    @Override
+    public void testRegisterObserver_MultiType() {
+        // TODO(b/193494000): Remove this no-op override once the change observer API is implemented
+        //  in platform.
+    }
 }

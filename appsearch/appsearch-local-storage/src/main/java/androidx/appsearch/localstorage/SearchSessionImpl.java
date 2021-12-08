@@ -23,6 +23,7 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.WorkerThread;
 import androidx.appsearch.app.AppSearchBatchResult;
 import androidx.appsearch.app.AppSearchSession;
 import androidx.appsearch.app.Features;
@@ -286,6 +287,11 @@ class SearchSessionImpl implements AppSearchSession {
             // Now that the batch has been written. Persist the newly written data.
             mAppSearchImpl.persistToDisk(PersistType.Code.LITE);
             mIsMutated = true;
+
+            // Schedule a task to dispatch change notifications. See requirements for where the
+            // method is called documented in the method description.
+            dispatchChangeNotifications();
+
             return resultBuilder.build();
         });
 
@@ -488,6 +494,20 @@ class SearchSessionImpl implements AppSearchSession {
         }
         mIsMutated = true;
         return setSchemaResponse;
+    }
+
+    /**
+     * Dispatches change notifications if there are any to dispatch.
+     *
+     * <p>This method is async; notifications are dispatched onto their own registered executors.
+     *
+     * <p>IMPORTANT: You must always call this within the background task that contains the
+     * operation that mutated the index. If you called it outside of that task, it could start
+     * before the task completes, causing notifications to be missed.
+     */
+    @WorkerThread
+    private void dispatchChangeNotifications() {
+        mAppSearchImpl.dispatchAndClearChangeNotifications();
     }
 
     private void checkForOptimize(int mutateBatchSize) {
