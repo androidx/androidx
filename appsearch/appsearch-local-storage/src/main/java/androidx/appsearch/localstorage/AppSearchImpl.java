@@ -58,6 +58,7 @@ import androidx.appsearch.localstorage.stats.PutDocumentStats;
 import androidx.appsearch.localstorage.stats.RemoveStats;
 import androidx.appsearch.localstorage.stats.SearchStats;
 import androidx.appsearch.localstorage.stats.SetSchemaStats;
+import androidx.appsearch.localstorage.util.PrefixUtil;
 import androidx.appsearch.localstorage.visibilitystore.VisibilityStore;
 import androidx.appsearch.observer.AppSearchObserverCallback;
 import androidx.appsearch.observer.ObserverSpec;
@@ -155,6 +156,12 @@ public final class AppSearchImpl implements Closeable {
     private static final long EMPTY_PAGE_TOKEN = 0;
     @VisibleForTesting
     static final int CHECK_OPTIMIZE_INTERVAL = 100;
+
+    /** A GetResultSpec that uses projection to skip all properties. */
+    private static final GetResultSpecProto GET_RESULT_SPEC_NO_PROPERTIES =
+            GetResultSpecProto.newBuilder().addTypePropertyMasks(
+                    TypePropertyMask.newBuilder().setSchemaType(
+                            GetByDocumentIdRequest.PROJECTION_SCHEMA_TYPE_WILDCARD)).build();
 
     private final ReadWriteLock mReadWriteLock = new ReentrantReadWriteLock();
     private final LogUtil mLogUtil = new LogUtil(TAG);
@@ -1243,7 +1250,7 @@ public final class AppSearchImpl implements Closeable {
      * @param packageName        The package name that owns the document.
      * @param databaseName       The databaseName the document is in.
      * @param namespace          Namespace of the document to remove.
-     * @param id                 ID of the document to remove.
+     * @param documentId         ID of the document to remove.
      * @param removeStatsBuilder builder for {@link RemoveStats} to hold stats for remove
      * @throws AppSearchException on IcingSearchEngine error.
      */
@@ -1251,7 +1258,7 @@ public final class AppSearchImpl implements Closeable {
             @NonNull String packageName,
             @NonNull String databaseName,
             @NonNull String namespace,
-            @NonNull String id,
+            @NonNull String documentId,
             @Nullable RemoveStats.Builder removeStatsBuilder) throws AppSearchException {
         long totalLatencyStartTimeMillis = SystemClock.elapsedRealtime();
         mReadWriteLock.writeLock().lock();
@@ -1259,11 +1266,28 @@ public final class AppSearchImpl implements Closeable {
             throwIfClosedLocked();
 
             String prefixedNamespace = createPrefix(packageName, databaseName) + namespace;
+            String schemaType = null;
+            if (mObserverManagerLocked.isObserved(packageName)) {
+                // Someone might be observing the type this document is under, but we have no way to
+                // know its type without retrieving it. Do so now.
+                // TODO(b/193494000): If Icing Lib can return information about the deleted
+                //  document's type we can remove this code.
+                if (mLogUtil.isPiiTraceEnabled()) {
+                    mLogUtil.piiTrace(
+                            "removeById, getRequest", prefixedNamespace + ", " + documentId);
+                }
+                GetResultProto getResult = mIcingSearchEngineLocked.get(
+                        prefixedNamespace, documentId, GET_RESULT_SPEC_NO_PROPERTIES);
+                mLogUtil.piiTrace("removeById, getResponse", getResult.getStatus(), getResult);
+                checkSuccess(getResult.getStatus());
+                schemaType = PrefixUtil.removePrefix(getResult.getDocument().getSchema());
+            }
+
             if (mLogUtil.isPiiTraceEnabled()) {
-                mLogUtil.piiTrace("removeById, request", prefixedNamespace + ", " + id);
+                mLogUtil.piiTrace("removeById, request", prefixedNamespace + ", " + documentId);
             }
             DeleteResultProto deleteResultProto =
-                    mIcingSearchEngineLocked.delete(prefixedNamespace, id);
+                    mIcingSearchEngineLocked.delete(prefixedNamespace, documentId);
             mLogUtil.piiTrace(
                     "removeById, response", deleteResultProto.getStatus(), deleteResultProto);
 
@@ -1277,6 +1301,12 @@ public final class AppSearchImpl implements Closeable {
 
             // Update derived maps
             updateDocumentCountAfterRemovalLocked(packageName, /*numDocumentsDeleted=*/ 1);
+
+            // Prepare notifications
+            if (schemaType != null) {
+                mObserverManagerLocked.onDocumentChange(
+                        packageName, databaseName, namespace, schemaType);
+            }
         } finally {
             mReadWriteLock.writeLock().unlock();
             if (removeStatsBuilder != null) {

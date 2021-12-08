@@ -158,6 +158,11 @@ public class ObserverManager {
         mHasNotifications = true;
     }
 
+    /** Returns whether there are any observers registered to watch the given package. */
+    public boolean isObserved(@NonNull String packageName) {
+        return mObservers.containsKey(packageName);
+    }
+
     /** This method is thread safe. */
     public boolean hasNotifications() {
         return mHasNotifications;
