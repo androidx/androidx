@@ -59,6 +59,8 @@ import androidx.appsearch.localstorage.stats.RemoveStats;
 import androidx.appsearch.localstorage.stats.SearchStats;
 import androidx.appsearch.localstorage.stats.SetSchemaStats;
 import androidx.appsearch.localstorage.visibilitystore.VisibilityStore;
+import androidx.appsearch.observer.AppSearchObserverCallback;
+import androidx.appsearch.observer.ObserverSpec;
 import androidx.appsearch.util.LogUtil;
 import androidx.collection.ArrayMap;
 import androidx.collection.ArraySet;
@@ -107,6 +109,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.Executor;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
@@ -148,7 +151,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 public final class AppSearchImpl implements Closeable {
     private static final String TAG = "AppSearchImpl";
 
-    /**  A value 0 means that there're no more pages in the search results. */
+    /** A value 0 means that there're no more pages in the search results. */
     private static final long EMPTY_PAGE_TOKEN = 0;
     @VisibleForTesting
     static final int CHECK_OPTIMIZE_INTERVAL = 100;
@@ -193,6 +196,9 @@ public final class AppSearchImpl implements Closeable {
     // to any functions that grab the lock.
     @GuardedBy("mNextPageTokensLocked")
     private final Map<String, Set<Long>> mNextPageTokensLocked = new ArrayMap<>();
+
+    @GuardedBy("mReadWriteLock")
+    private final ObserverManager mObserverManagerLocked = new ObserverManager();
 
     /**
      * The counter to check when to call {@link #checkForOptimize}. The
@@ -670,6 +676,10 @@ public final class AppSearchImpl implements Closeable {
             }
 
             checkSuccess(putResultProto.getStatus());
+
+            // Prepare notifications
+            mObserverManagerLocked.onDocumentChange(
+                    packageName, databaseName, document.getNamespace(), document.getSchemaType());
         } finally {
             mReadWriteLock.writeLock().unlock();
 
@@ -1561,6 +1571,11 @@ public final class AppSearchImpl implements Closeable {
         mReadWriteLock.writeLock().lock();
         try {
             throwIfClosedLocked();
+            // TODO(b/193494000): We are calling getPackageToDatabases here and in several other
+            //  places within AppSearchImpl. This method is not efficient and does a lot of string
+            //  manipulation. We should find a way to cache the package to database map so it can
+            //  just be obtained from a local variable instead of being parsed out of the prefixed
+            //  map.
             Set<String> existingPackages = getPackageToDatabases().keySet();
             if (existingPackages.contains(packageName)) {
                 existingPackages.remove(packageName);
@@ -2107,6 +2122,61 @@ public final class AppSearchImpl implements Closeable {
                         "Package \"" + packageName + "\" cannot use nextPageToken: "
                                 + nextPageToken);
             }
+        }
+    }
+
+    /**
+     * Adds an {@link AppSearchObserverCallback} to monitor changes within the
+     * databases owned by {@code observedPackage} if they match the given
+     * {@link androidx.appsearch.observer.ObserverSpec}.
+     *
+     * <p>If the data owned by {@code observedPackage} is not visible to you, the registration call
+     * will succeed but no notifications will be dispatched. Notifications could start flowing later
+     * if {@code observedPackage} changes its schema visibility settings.
+     *
+     * <p>If no package matching {@code observedPackage} exists on the system, the registration call
+     * will succeed but no notifications will be dispatched. Notifications could start flowing later
+     * if {@code observedPackage} is installed and starts indexing data.
+     */
+    public void addObserver(
+            @NonNull String observedPackage,
+            @NonNull ObserverSpec spec,
+            @NonNull Executor executor,
+            @NonNull AppSearchObserverCallback observer) {
+        mReadWriteLock.writeLock().lock();
+        try {
+            throwIfClosedLocked();
+            // This method doesn't consult mSchemaMap or mNamespaceMap, and it will register
+            // observers for types that don't exist. This is intentional because we notify for types
+            // being created or removed. If we only registered observer for existing types, it would
+            // be impossible to ever dispatch a notification of a type being added.
+            mObserverManagerLocked.registerObserver(observedPackage, spec, executor, observer);
+        } finally {
+            mReadWriteLock.writeLock().unlock();
+        }
+    }
+
+    /**
+     * Dispatches the pending change notifications one at a time.
+     *
+     * <p>The notifications are dispatched on the respective executors that were provided at the
+     * time of observer registration. However, you should still call this method on a background
+     * thread because it could wait for the write lock and therefore wait for I/O.
+     *
+     * <p>Exceptions thrown from notification dispatch are logged but otherwise suppressed.
+     */
+    public void dispatchAndClearChangeNotifications() {
+        // hasNotifications is safe to call without a lock
+        if (!mObserverManagerLocked.hasNotifications()) {
+            return;
+        }
+
+        mReadWriteLock.writeLock().lock();
+        try {
+            throwIfClosedLocked();
+            mObserverManagerLocked.dispatchPendingNotifications();
+        } finally {
+            mReadWriteLock.writeLock().unlock();
         }
     }
 
