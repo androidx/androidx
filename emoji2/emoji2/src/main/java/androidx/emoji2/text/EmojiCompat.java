@@ -876,7 +876,7 @@ public class EmojiCompat {
      * Returns {@code true} if EmojiCompat is capable of rendering an emoji. When used on devices
      * running API 18 or below, always returns {@code false}.
      *
-     * @deprecated to be replaced with getEmojiMatch which returns more accurate lookup information.
+     * @deprecated use getEmojiMatch which returns more accurate lookup information.
      *
      * @param sequence CharSequence representing the emoji
      *
@@ -895,7 +895,7 @@ public class EmojiCompat {
      * Returns {@code true} if EmojiCompat is capable of rendering an emoji at the given metadata
      * version. When used on devices running API 18 or below, always returns {@code false}.
      *
-     * @deprecated to be replaced with getEmojiMatch which returns more accurate lookup information.
+     * @deprecated use getEmojiMatch which returns more accurate lookup information.
      *
      * @param sequence CharSequence representing the emoji
      * @param metadataVersion the metadata version to check against, should be greater than or
