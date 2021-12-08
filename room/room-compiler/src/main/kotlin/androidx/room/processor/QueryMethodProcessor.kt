@@ -107,6 +107,12 @@ private class InternalQueryProcessor(
         val delegate = MethodProcessorDelegate.createFor(context, containing, executableElement)
         val returnType = delegate.extractReturnType()
 
+        context.checker.check(
+            !delegate.isSuspendAndReturnsDeferredType(),
+            executableElement,
+            ProcessorErrors.suspendReturnsDeferredType(returnType.rawType.typeName.toString())
+        )
+
         val query = if (input != null) {
             val query = SqlParser.parse(input)
             context.checker.check(
@@ -180,13 +186,6 @@ private class InternalQueryProcessor(
         returnType: XType,
         query: ParsedQuery
     ): WriteQueryMethod {
-
-        context.checker.check(
-            !delegate.isUsingMultipleConcurrencyPatterns(),
-            executableElement,
-            ProcessorErrors.USING_MULTIPLE_CONCURRENCY_PATTERNS
-        )
-
         val resultBinder = delegate.findPreparedResultBinder(returnType, query)
         context.checker.check(
             resultBinder.adapter != null,

@@ -34,12 +34,6 @@ class DeletionMethodProcessor(
 
         val returnType = delegate.extractReturnType()
 
-        context.checker.check(
-            !delegate.isUsingMultipleConcurrencyPatterns(),
-            executableElement,
-            ProcessorErrors.USING_MULTIPLE_CONCURRENCY_PATTERNS
-        )
-
         val methodBinder = delegate.findDeleteOrUpdateMethodBinder(returnType)
 
         context.checker.check(

@@ -95,6 +95,7 @@ class QueryMethodProcessorTest(private val enableVerification: Boolean) {
                 androidx.lifecycle.*
                 com.google.common.util.concurrent.*
                 org.reactivestreams.*
+                kotlinx.coroutines.flow.*
             
                 @Dao
                 abstract class MyClass {
@@ -1376,7 +1377,7 @@ class QueryMethodProcessorTest(private val enableVerification: Boolean) {
             COMMON.RX2_MAYBE, COMMON.RX2_SINGLE, COMMON.RX2_FLOWABLE, COMMON.RX2_OBSERVABLE,
             COMMON.RX3_COMPLETABLE, COMMON.RX3_MAYBE, COMMON.RX3_SINGLE, COMMON.RX3_FLOWABLE,
             COMMON.RX3_OBSERVABLE, COMMON.LISTENABLE_FUTURE, COMMON.LIVE_DATA,
-            COMMON.COMPUTABLE_LIVE_DATA, COMMON.PUBLISHER, COMMON.GUAVA_ROOM
+            COMMON.COMPUTABLE_LIVE_DATA, COMMON.PUBLISHER, COMMON.FLOW, COMMON.GUAVA_ROOM
         )
 
         runProcessorTest(
@@ -1682,7 +1683,7 @@ class QueryMethodProcessorTest(private val enableVerification: Boolean) {
     }
 
     @Test
-    fun testMultipleConcurrencyPatterns() {
+    fun suspendReturnsDeferredType() {
         listOf(
             "${RxJava2TypeNames.FLOWABLE}<Int>",
             "${RxJava2TypeNames.OBSERVABLE}<Int>",
@@ -1697,7 +1698,8 @@ class QueryMethodProcessorTest(private val enableVerification: Boolean) {
             "${LifecyclesTypeNames.LIVE_DATA}<Int>",
             "${LifecyclesTypeNames.COMPUTABLE_LIVE_DATA}<Int>",
             "${GuavaUtilConcurrentTypeNames.LISTENABLE_FUTURE}<Int>",
-            "${ReactiveStreamsTypeNames.PUBLISHER}<Int>"
+            "${ReactiveStreamsTypeNames.PUBLISHER}<Int>",
+            "${KotlinTypeNames.FLOW}<Int>"
         ).forEach { type ->
             singleQueryMethodKotlin<WriteQueryMethod>(
                 """
@@ -1706,7 +1708,8 @@ class QueryMethodProcessorTest(private val enableVerification: Boolean) {
                 """
             ) { _, invocation ->
                 invocation.assertCompilationResult {
-                    hasErrorContaining(ProcessorErrors.USING_MULTIPLE_CONCURRENCY_PATTERNS)
+                    val rawTypeName = type.substringBefore("<")
+                    hasErrorContaining(ProcessorErrors.suspendReturnsDeferredType(rawTypeName))
                 }
             }
         }

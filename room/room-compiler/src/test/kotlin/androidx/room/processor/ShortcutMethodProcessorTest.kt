@@ -26,6 +26,9 @@ import androidx.room.compiler.processing.util.XTestInvocation
 import androidx.room.compiler.processing.util.runProcessorTest
 import androidx.room.ext.CommonTypeNames
 import androidx.room.ext.GuavaUtilConcurrentTypeNames
+import androidx.room.ext.KotlinTypeNames
+import androidx.room.ext.LifecyclesTypeNames
+import androidx.room.ext.ReactiveStreamsTypeNames
 import androidx.room.ext.RxJava2TypeNames
 import androidx.room.ext.RxJava3TypeNames
 import androidx.room.testing.context
@@ -62,6 +65,7 @@ abstract class ShortcutMethodProcessorTest<out T : ShortcutMethod>(
                 androidx.lifecycle.*
                 com.google.common.util.concurrent.*
                 org.reactivestreams.*
+                kotlinx.coroutines.flow.*
             
                 @Dao
                 abstract class MyClass {
@@ -350,6 +354,39 @@ abstract class ShortcutMethodProcessorTest<out T : ShortcutMethod>(
             ) { _, invocation ->
                 invocation.assertCompilationResult {
                     hasErrorContaining(invalidReturnTypeError())
+                }
+            }
+        }
+    }
+
+    @Test
+    fun suspendReturnsDeferredType() {
+        listOf(
+            "${RxJava2TypeNames.FLOWABLE}<Int>",
+            "${RxJava2TypeNames.OBSERVABLE}<Int>",
+            "${RxJava2TypeNames.MAYBE}<Int>",
+            "${RxJava2TypeNames.SINGLE}<Int>",
+            "${RxJava2TypeNames.COMPLETABLE}",
+            "${RxJava3TypeNames.FLOWABLE}<Int>",
+            "${RxJava3TypeNames.OBSERVABLE}<Int>",
+            "${RxJava3TypeNames.MAYBE}<Int>",
+            "${RxJava3TypeNames.SINGLE}<Int>",
+            "${RxJava3TypeNames.COMPLETABLE}",
+            "${LifecyclesTypeNames.LIVE_DATA}<Int>",
+            "${LifecyclesTypeNames.COMPUTABLE_LIVE_DATA}<Int>",
+            "${GuavaUtilConcurrentTypeNames.LISTENABLE_FUTURE}<Int>",
+            "${ReactiveStreamsTypeNames.PUBLISHER}<Int>",
+            "${KotlinTypeNames.FLOW}<Int>"
+        ).forEach { type ->
+            singleShortcutMethodKotlin(
+                """
+                @${annotation.java.canonicalName}
+                abstract suspend fun foo(user: User): $type
+                """
+            ) { _, invocation ->
+                invocation.assertCompilationResult {
+                    val rawTypeName = type.substringBefore("<")
+                    hasErrorContaining(ProcessorErrors.suspendReturnsDeferredType(rawTypeName))
                 }
             }
         }
@@ -651,7 +688,7 @@ abstract class ShortcutMethodProcessorTest<out T : ShortcutMethod>(
             COMMON.RX2_MAYBE, COMMON.RX2_SINGLE, COMMON.RX2_FLOWABLE, COMMON.RX2_OBSERVABLE,
             COMMON.RX3_COMPLETABLE, COMMON.RX3_MAYBE, COMMON.RX3_SINGLE, COMMON.RX3_FLOWABLE,
             COMMON.RX3_OBSERVABLE, COMMON.LISTENABLE_FUTURE, COMMON.LIVE_DATA,
-            COMMON.COMPUTABLE_LIVE_DATA, COMMON.PUBLISHER, COMMON.GUAVA_ROOM
+            COMMON.COMPUTABLE_LIVE_DATA, COMMON.PUBLISHER, COMMON.FLOW, COMMON.GUAVA_ROOM
         )
 
         runProcessorTest(
