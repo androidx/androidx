@@ -141,8 +141,36 @@ interface EglSpec {
 
     /**
      * Destroy the given EGLContext generated in [eglCreateContext]
+     *
+     * See https://khronos.org/registry/EGL/sdk/docs/man/html/eglDestroyContext.xhtml
+     *
+     * @param eglContext EGL rendering context to be destroyed
      */
     fun eglDestroyContext(eglContext: EGLContext)
+
+    /**
+     * Post EGL surface color buffer to a native window
+     *
+     * See https://khronos.org/registry/EGL/sdk/docs/man/html/eglSwapBuffers.xhtml
+     *
+     * @param surface Specifies the EGL drawing surface whose buffers are to be swapped
+     *
+     * @return True if swapping of buffers succeeds, false otherwise
+     */
+    fun eglSwapBuffers(surface: EGLSurface): Boolean
+
+    /**
+     * Query the EGL attributes of the provided surface
+     *
+     * @param surface EGLSurface to be queried
+     * @param attribute EGL attribute to query on the given EGL Surface
+     * @param result Int array to store the result of the query
+     * @param offset Index within [result] to store the value of the queried attribute
+     *
+     * @return True if the query was completed successfully, false otherwise. If the query
+     * fails, [result] is unmodified
+     */
+    fun eglQuerySurface(surface: EGLSurface, attribute: Int, result: IntArray, offset: Int): Boolean
 
     /**
      * Returns the error of the last called EGL function in the current thread. Initially,
@@ -220,9 +248,20 @@ interface EglSpec {
                     getDefaultDisplay(),
                     config,
                     surface,
-                    configAttributes?.attrs,
+                    configAttributes?.attrs ?: DefaultWindowSurfaceConfig.attrs,
                     0
                 )
+
+            override fun eglSwapBuffers(surface: EGLSurface): Boolean =
+                EGL14.eglSwapBuffers(getDefaultDisplay(), surface)
+
+            override fun eglQuerySurface(
+                surface: EGLSurface,
+                attribute: Int,
+                result: IntArray,
+                offset: Int
+            ): Boolean =
+                EGL14.eglQuerySurface(getDefaultDisplay(), surface, attribute, result, offset)
 
             override fun eglDestroySurface(surface: EGLSurface) =
                 EGL14.eglDestroySurface(getDefaultDisplay(), surface)
@@ -276,6 +315,11 @@ interface EglSpec {
             override fun eglGetError(): Int = EGL14.eglGetError()
 
             private fun getDefaultDisplay() = EGL14.eglGetDisplay(EGL14.EGL_DEFAULT_DISPLAY)
+
+            /**
+             * EglConfigAttribute that provides the default attributes for an EGL window surface
+             */
+            private val DefaultWindowSurfaceConfig = EglConfigAttributes {}
         }
 
         /**

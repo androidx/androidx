@@ -73,6 +73,7 @@ package androidx.graphics.opengl.egl {
     method public boolean makeCurrent(android.opengl.EGLSurface drawSurface, optional android.opengl.EGLSurface readSurface);
     method public boolean makeCurrent(android.opengl.EGLSurface drawSurface);
     method public void release();
+    method public void swapAndFlushBuffers();
     property public final android.opengl.EGLSurface currentDrawSurface;
     property public final android.opengl.EGLSurface currentReadSurface;
     property public final android.opengl.EGLSurface defaultSurface;
@@ -94,6 +95,8 @@ package androidx.graphics.opengl.egl {
     method public androidx.graphics.opengl.egl.EglVersion eglInitialize();
     method public boolean eglMakeCurrent(android.opengl.EGLContext context, android.opengl.EGLSurface drawSurface, android.opengl.EGLSurface readSurface);
     method public String eglQueryString(int nameId);
+    method public boolean eglQuerySurface(android.opengl.EGLSurface surface, int attribute, int[] result, int offset);
+    method public boolean eglSwapBuffers(android.opengl.EGLSurface surface);
     method public default String getErrorMessage();
     method public default static String getStatusString(int error);
     method public android.opengl.EGLConfig? loadConfig(int[] configAttributes);
