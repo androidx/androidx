@@ -39,7 +39,7 @@ import androidx.core.view.children
 import androidx.glance.Button
 import androidx.glance.GlanceModifier
 import androidx.glance.Visibility
-import androidx.glance.action.actionLaunchActivity
+import androidx.glance.action.actionStartActivity
 import androidx.glance.action.clickable
 import androidx.glance.appwidget.FrameLayoutSubject.Companion.assertThat
 import androidx.glance.appwidget.LinearLayoutSubject.Companion.assertThat
@@ -71,9 +71,9 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
+import org.robolectric.shadows.ShadowLog
 import kotlin.test.assertFailsWith
 import kotlin.test.assertIs
-import org.robolectric.shadows.ShadowLog
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(RobolectricTestRunner::class)
@@ -694,7 +694,7 @@ class RemoteViewsTranslatorKtTest {
         val rv = context.runAndTranslate {
             Button(
                 "Button",
-                onClick = actionLaunchActivity<Activity>(),
+                onClick = actionStartActivity<Activity>(),
                 enabled = true
             )
         }
@@ -710,7 +710,7 @@ class RemoteViewsTranslatorKtTest {
         val rv = context.runAndTranslate {
             Button(
                 "Button",
-                onClick = actionLaunchActivity<Activity>(),
+                onClick = actionStartActivity<Activity>(),
                 enabled = false
             )
         }
@@ -846,9 +846,9 @@ class RemoteViewsTranslatorKtTest {
             Text(
                 "text1",
                 modifier = GlanceModifier.clickable(
-                    actionLaunchActivity(ComponentName("package", "class"))
+                    actionStartActivity(ComponentName("package", "class"))
                 ).clickable(
-                    actionLaunchActivity(ComponentName("package", "class2"))
+                    actionStartActivity(ComponentName("package", "class2"))
                 )
             )
         }

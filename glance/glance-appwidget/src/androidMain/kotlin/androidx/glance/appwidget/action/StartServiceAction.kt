@@ -21,24 +21,24 @@ import android.content.ComponentName
 import android.content.Intent
 import androidx.glance.action.Action
 
-internal sealed interface LaunchServiceAction : Action {
+internal sealed interface StartServiceAction : Action {
     val isForegroundService: Boolean
 }
 
-internal class LaunchServiceComponentAction(
+internal class StartServiceComponentAction(
     val componentName: ComponentName,
     override val isForegroundService: Boolean
-) : LaunchServiceAction
+) : StartServiceAction
 
-internal class LaunchServiceClassAction(
+internal class StartServiceClassAction(
     val serviceClass: Class<out Service>,
     override val isForegroundService: Boolean
-) : LaunchServiceAction
+) : StartServiceAction
 
-internal class LaunchServiceIntentAction(
+internal class StartServiceIntentAction(
     val intent: Intent,
     override val isForegroundService: Boolean
-) : LaunchServiceAction
+) : StartServiceAction
 
 /**
  * Creates an [Action] that launches a [Service] from the given [Intent] when triggered. The
@@ -49,8 +49,8 @@ internal class LaunchServiceIntentAction(
  * is only used for device versions after [android.os.Build.VERSION_CODES.O] that requires
  * foreground service to be launched differently
  */
-public fun actionLaunchService(intent: Intent, isForegroundService: Boolean = false): Action =
-    LaunchServiceIntentAction(intent, isForegroundService)
+public fun actionStartService(intent: Intent, isForegroundService: Boolean = false): Action =
+    StartServiceIntentAction(intent, isForegroundService)
 
 /**
  * Creates an [Action] that launches the [Service] specified by the given [ComponentName].
@@ -60,10 +60,10 @@ public fun actionLaunchService(intent: Intent, isForegroundService: Boolean = fa
  * is only used for device versions after [android.os.Build.VERSION_CODES.O] that requires
  * foreground service to be launched differently
  */
-public fun actionLaunchService(
+public fun actionStartService(
     componentName: ComponentName,
     isForegroundService: Boolean = false
-): Action = LaunchServiceComponentAction(componentName, isForegroundService)
+): Action = StartServiceComponentAction(componentName, isForegroundService)
 
 /**
  * Creates an [Action] that launches the specified [Service] when triggered.
@@ -73,11 +73,11 @@ public fun actionLaunchService(
  * is only used for device versions after [android.os.Build.VERSION_CODES.O] that requires
  * foreground service to be launched differently
  */
-public fun <T : Service> actionLaunchService(
+public fun <T : Service> actionStartService(
     service: Class<T>,
     isForegroundService: Boolean = false
 ): Action =
-    LaunchServiceClassAction(service, isForegroundService)
+    StartServiceClassAction(service, isForegroundService)
 
 /**
  * Creates an [Action] that launches the specified [Service] when triggered.
@@ -86,7 +86,8 @@ public fun <T : Service> actionLaunchService(
  * is only used for device versions after [android.os.Build.VERSION_CODES.O] that requires
  * foreground service to be launched differently.
  */
-@Suppress("MissingNullability") /* Shouldn't need to specify @NonNull. b/199284086 */
-public inline fun <reified T : Service> actionLaunchService(
+@Suppress("MissingNullability")
+/* Shouldn't need to specify @NonNull. b/199284086 */
+public inline fun <reified T : Service> actionStartService(
     isForegroundService: Boolean = false
-): Action = actionLaunchService(T::class.java, isForegroundService)
+): Action = actionStartService(T::class.java, isForegroundService)

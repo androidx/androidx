@@ -33,9 +33,9 @@ import androidx.glance.EmittableImage
 import androidx.glance.GlanceModifier
 import androidx.glance.VisibilityModifier
 import androidx.glance.action.ActionModifier
-import androidx.glance.action.LaunchActivityAction
-import androidx.glance.action.LaunchActivityClassAction
-import androidx.glance.action.LaunchActivityComponentAction
+import androidx.glance.action.StartActivityAction
+import androidx.glance.action.StartActivityClassAction
+import androidx.glance.action.StartActivityComponentAction
 import androidx.glance.findModifier
 import androidx.glance.layout.Alignment
 import androidx.glance.layout.ContentScale
@@ -164,21 +164,21 @@ private fun ColorProvider.getColor(context: Context) = when (this) {
 }
 
 // TODO: handle parameters
-private fun LaunchActivityAction.toProto(context: Context): ActionBuilders.LaunchAction =
+private fun StartActivityAction.toProto(context: Context): ActionBuilders.LaunchAction =
     ActionBuilders.LaunchAction.Builder()
         .setAndroidActivity(
             ActionBuilders.AndroidActivity.Builder()
                 .setPackageName(
                     when (this) {
-                        is LaunchActivityComponentAction -> componentName.packageName
-                        is LaunchActivityClassAction -> context.packageName
+                        is StartActivityComponentAction -> componentName.packageName
+                        is StartActivityClassAction -> context.packageName
                         else -> error("Action type not defined in wear package: $this")
                     }
                 )
                 .setClassName(
                     when (this) {
-                        is LaunchActivityComponentAction -> componentName.className
-                        is LaunchActivityClassAction -> activityClass.name
+                        is StartActivityComponentAction -> componentName.className
+                        is StartActivityClassAction -> activityClass.name
                         else -> error("Action type not defined in wear package: $this")
                     }
                 )
@@ -190,7 +190,7 @@ private fun ActionModifier.toProto(context: Context): ModifiersBuilders.Clickabl
     val builder = ModifiersBuilders.Clickable.Builder()
 
     when (val action = this.action) {
-        is LaunchActivityAction -> {
+        is StartActivityAction -> {
             builder.setOnClick(action.toProto(context))
         } else -> {
             Log.e(GlanceWearTileTag, "Unknown Action $this, skipped")

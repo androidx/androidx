@@ -121,12 +121,6 @@ package androidx.glance.action {
     method public static <T> androidx.glance.action.ActionParameters.Key<T> toParametersKey(androidx.datastore.preferences.core.Preferences.Key<T>);
   }
 
-  public final class LaunchActivityActionKt {
-    method public static androidx.glance.action.Action actionLaunchActivity(android.content.ComponentName componentName, optional androidx.glance.action.ActionParameters parameters);
-    method public static <T extends android.app.Activity> androidx.glance.action.Action actionLaunchActivity(Class<T> activity, optional androidx.glance.action.ActionParameters parameters);
-    method public static inline <reified T extends android.app.Activity> androidx.glance.action.Action! actionLaunchActivity(optional androidx.glance.action.ActionParameters parameters);
-  }
-
   public final class MutableActionParameters extends androidx.glance.action.ActionParameters {
     method public java.util.Map<androidx.glance.action.ActionParameters.Key<?>,java.lang.Object> asMap();
     method public void clear();
@@ -136,6 +130,12 @@ package androidx.glance.action {
     method public boolean isEmpty();
     method public <T> T? remove(androidx.glance.action.ActionParameters.Key<T> key);
     method public operator <T> T? set(androidx.glance.action.ActionParameters.Key<T> key, T? value);
+  }
+
+  public final class StartActivityActionKt {
+    method public static androidx.glance.action.Action actionStartActivity(android.content.ComponentName componentName, optional androidx.glance.action.ActionParameters parameters);
+    method public static <T extends android.app.Activity> androidx.glance.action.Action actionStartActivity(Class<T> activity, optional androidx.glance.action.ActionParameters parameters);
+    method public static inline <reified T extends android.app.Activity> androidx.glance.action.Action! actionStartActivity(optional androidx.glance.action.ActionParameters parameters);
   }
 
 }

@@ -28,9 +28,9 @@ import androidx.annotation.RequiresApi
 import androidx.core.os.bundleOf
 import androidx.glance.action.Action
 import androidx.glance.action.ActionParameters
-import androidx.glance.action.LaunchActivityAction
-import androidx.glance.action.LaunchActivityClassAction
-import androidx.glance.action.LaunchActivityComponentAction
+import androidx.glance.action.StartActivityAction
+import androidx.glance.action.StartActivityClassAction
+import androidx.glance.action.StartActivityComponentAction
 import androidx.glance.action.toMutableParameters
 import androidx.glance.appwidget.GlanceAppWidgetTag
 import androidx.glance.appwidget.TranslationContext
@@ -71,10 +71,10 @@ private fun getPendingIntentForAction(
     editParams: (ActionParameters) -> ActionParameters = { it },
 ): PendingIntent {
     when (action) {
-        is LaunchActivityAction -> {
+        is StartActivityAction -> {
             val params = editParams(action.parameters)
-            val intent = getLaunchActivityIntent(action, translationContext, params)
-            val finalIntent = if (action !is LaunchActivityIntentAction && !params.isEmpty()) {
+            val intent = getStartActivityIntent(action, translationContext, params)
+            val finalIntent = if (action !is StartActivityIntentAction && !params.isEmpty()) {
                 intent.applyTrampolineIntent(
                     translationContext,
                     viewId,
@@ -90,8 +90,8 @@ private fun getPendingIntentForAction(
                 PendingIntent.FLAG_MUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
             )
         }
-        is LaunchServiceAction -> {
-            val intent = getLaunchServiceIntent(action, translationContext)
+        is StartServiceAction -> {
+            val intent = getServiceIntent(action, translationContext)
             return if (action.isForegroundService &&
                 Build.VERSION.SDK_INT >= Build.VERSION_CODES.O
             ) {
@@ -108,11 +108,11 @@ private fun getPendingIntentForAction(
                 )
             }
         }
-        is LaunchBroadcastReceiverAction -> {
+        is StartBroadcastReceiverAction -> {
             return PendingIntent.getBroadcast(
                 translationContext.context,
                 0,
-                getLaunchBroadcastReceiverIntent(action, translationContext),
+                getBroadcastReceiverIntent(action, translationContext),
                 PendingIntent.FLAG_MUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
             )
         }
@@ -154,8 +154,8 @@ private fun getFillInIntentForAction(
     @IdRes viewId: Int,
     editParams: (ActionParameters) -> ActionParameters = { it }
 ): Intent = when (action) {
-    is LaunchActivityAction -> {
-        getLaunchActivityIntent(
+    is StartActivityAction -> {
+        getStartActivityIntent(
             action = action,
             translationContext = translationContext,
             params = editParams(action.parameters)
@@ -165,8 +165,8 @@ private fun getFillInIntentForAction(
             type = ActionTrampolineType.ACTIVITY,
         )
     }
-    is LaunchServiceAction -> {
-        getLaunchServiceIntent(
+    is StartServiceAction -> {
+        getServiceIntent(
             action = action,
             translationContext = translationContext
         ).applyTrampolineIntent(
@@ -179,8 +179,8 @@ private fun getFillInIntentForAction(
             },
         )
     }
-    is LaunchBroadcastReceiverAction -> {
-        getLaunchBroadcastReceiverIntent(
+    is StartBroadcastReceiverAction -> {
+        getBroadcastReceiverIntent(
             action = action,
             translationContext = translationContext
         ).applyTrampolineIntent(
@@ -223,37 +223,37 @@ private fun CompoundButtonAction.getActionParameters(): (ActionParameters) -> Ac
         }
     }
 
-private fun getLaunchBroadcastReceiverIntent(
-    action: LaunchBroadcastReceiverAction,
+private fun getBroadcastReceiverIntent(
+    action: StartBroadcastReceiverAction,
     translationContext: TranslationContext,
 ): Intent = when (action) {
-    is LaunchBroadcastReceiverComponentAction -> Intent().setComponent(action.componentName)
-    is LaunchBroadcastReceiverClassAction ->
+    is StartBroadcastReceiverComponentAction -> Intent().setComponent(action.componentName)
+    is StartBroadcastReceiverClassAction ->
         Intent(translationContext.context, action.receiverClass)
-    is LaunchBroadcastReceiverIntentAction -> action.intent
-    is LaunchBroadcastReceiverActionAction ->
+    is StartBroadcastReceiverIntentAction -> action.intent
+    is StartBroadcastReceiverActionAction ->
         Intent(action.action).setComponent(action.componentName)
 }
 
-private fun getLaunchServiceIntent(
-    action: LaunchServiceAction,
+private fun getServiceIntent(
+    action: StartServiceAction,
     translationContext: TranslationContext,
 ): Intent = when (action) {
-    is LaunchServiceComponentAction -> Intent().setComponent(action.componentName)
-    is LaunchServiceClassAction ->
+    is StartServiceComponentAction -> Intent().setComponent(action.componentName)
+    is StartServiceClassAction ->
         Intent(translationContext.context, action.serviceClass)
-    is LaunchServiceIntentAction -> action.intent
+    is StartServiceIntentAction -> action.intent
 }
 
-private fun getLaunchActivityIntent(
-    action: LaunchActivityAction,
+private fun getStartActivityIntent(
+    action: StartActivityAction,
     translationContext: TranslationContext,
     params: ActionParameters,
 ): Intent {
     val activityIntent = when (action) {
-        is LaunchActivityComponentAction -> Intent().setComponent(action.componentName)
-        is LaunchActivityClassAction -> Intent(translationContext.context, action.activityClass)
-        is LaunchActivityIntentAction -> action.intent
+        is StartActivityComponentAction -> Intent().setComponent(action.componentName)
+        is StartActivityClassAction -> Intent(translationContext.context, action.activityClass)
+        is StartActivityIntentAction -> action.intent
         else -> error("Action type not defined in app widget package: $action")
     }
 

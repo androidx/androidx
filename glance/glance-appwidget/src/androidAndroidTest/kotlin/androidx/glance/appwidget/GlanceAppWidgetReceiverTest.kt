@@ -47,8 +47,8 @@ import androidx.glance.ImageProvider
 import androidx.glance.LocalContext
 import androidx.glance.LocalSize
 import androidx.glance.action.ActionParameters
-import androidx.glance.action.actionLaunchActivity
 import androidx.glance.action.actionParametersOf
+import androidx.glance.action.actionStartActivity
 import androidx.glance.action.clickable
 import androidx.glance.action.toParametersKey
 import androidx.glance.appwidget.action.ActionCallback
@@ -393,7 +393,7 @@ class GlanceAppWidgetReceiverTest {
     @Test
     fun createButton() {
         TestGlanceAppWidget.uiDefinition = {
-            Button("Button", onClick = actionLaunchActivity<Activity>(), enabled = false)
+            Button("Button", onClick = actionStartActivity<Activity>(), enabled = false)
         }
 
         mHostRule.startHost()
