@@ -210,8 +210,7 @@ public final class AppSearchImpl implements Closeable {
     @GuardedBy("mNextPageTokensLocked")
     private final Map<String, Set<Long>> mNextPageTokensLocked = new ArrayMap<>();
 
-    @GuardedBy("mReadWriteLock")
-    private final ObserverManager mObserverManagerLocked = new ObserverManager();
+    private final ObserverManager mObserverManager = new ObserverManager();
 
     /**
      * The counter to check when to call {@link #checkForOptimize}. The
@@ -691,7 +690,7 @@ public final class AppSearchImpl implements Closeable {
             checkSuccess(putResultProto.getStatus());
 
             // Prepare notifications
-            mObserverManagerLocked.onDocumentChange(
+            mObserverManager.onDocumentChange(
                     packageName, databaseName, document.getNamespace(), document.getSchemaType());
         } finally {
             mReadWriteLock.writeLock().unlock();
@@ -1273,7 +1272,7 @@ public final class AppSearchImpl implements Closeable {
 
             String prefixedNamespace = createPrefix(packageName, databaseName) + namespace;
             String schemaType = null;
-            if (mObserverManagerLocked.isPackageObserved(packageName)) {
+            if (mObserverManager.isPackageObserved(packageName)) {
                 // Someone might be observing the type this document is under, but we have no way to
                 // know its type without retrieving it. Do so now.
                 // TODO(b/193494000): If Icing Lib can return information about the deleted
@@ -1310,8 +1309,7 @@ public final class AppSearchImpl implements Closeable {
 
             // Prepare notifications
             if (schemaType != null) {
-                mObserverManagerLocked.onDocumentChange(
-                        packageName, databaseName, namespace, schemaType);
+                mObserverManager.onDocumentChange(packageName, databaseName, namespace, schemaType);
             }
         } finally {
             mReadWriteLock.writeLock().unlock();
@@ -1370,13 +1368,11 @@ public final class AppSearchImpl implements Closeable {
             SearchSpecProto finalSearchSpec = searchSpecBuilder.build();
 
             Set<String> prefixedObservedSchemas = null;
-            if (mObserverManagerLocked.isPackageObserved(packageName)) {
+            if (mObserverManager.isPackageObserved(packageName)) {
+                prefixedObservedSchemas = new ArraySet<>();
                 for (String prefixedType : allowedPrefixedSchemas) {
                     String shortTypeName = PrefixUtil.removePrefix(prefixedType);
-                    if (mObserverManagerLocked.isSchemaTypeObserved(packageName, shortTypeName)) {
-                        if (prefixedObservedSchemas == null) {
-                            prefixedObservedSchemas = new ArraySet<>();
-                        }
+                    if (mObserverManager.isSchemaTypeObserved(packageName, shortTypeName)) {
                         prefixedObservedSchemas.add(prefixedType);
                     }
                 }
@@ -1465,7 +1461,7 @@ public final class AppSearchImpl implements Closeable {
 
                 // Prepare change notifications
                 if (prefixedObservedSchemas.contains(document.getSchema())) {
-                    mObserverManagerLocked.onDocumentChange(
+                    mObserverManager.onDocumentChange(
                             packageName,
                             /*databaseName=*/ PrefixUtil.getDatabaseName(document.getNamespace()),
                             /*namespace=*/ PrefixUtil.removePrefix(document.getNamespace()),
@@ -2308,47 +2304,34 @@ public final class AppSearchImpl implements Closeable {
      * <p>If no package matching {@code observedPackage} exists on the system, the registration call
      * will succeed but no notifications will be dispatched. Notifications could start flowing later
      * if {@code observedPackage} is installed and starts indexing data.
+     *
+     * <p>Note that this method does not take the standard read/write lock that guards I/O, so it
+     * will not queue behind I/O. Therefore it is safe to call from any thread including UI or
+     * binder threads.
      */
     public void addObserver(
             @NonNull String observedPackage,
             @NonNull ObserverSpec spec,
             @NonNull Executor executor,
             @NonNull AppSearchObserverCallback observer) {
-        mReadWriteLock.writeLock().lock();
-        try {
-            throwIfClosedLocked();
-            // This method doesn't consult mSchemaMap or mNamespaceMap, and it will register
-            // observers for types that don't exist. This is intentional because we notify for types
-            // being created or removed. If we only registered observer for existing types, it would
-            // be impossible to ever dispatch a notification of a type being added.
-            mObserverManagerLocked.registerObserver(observedPackage, spec, executor, observer);
-        } finally {
-            mReadWriteLock.writeLock().unlock();
-        }
+        // This method doesn't consult mSchemaMap or mNamespaceMap, and it will register
+        // observers for types that don't exist. This is intentional because we notify for types
+        // being created or removed. If we only registered observer for existing types, it would
+        // be impossible to ever dispatch a notification of a type being added.
+        mObserverManager.registerObserver(observedPackage, spec, executor, observer);
     }
 
     /**
      * Dispatches the pending change notifications one at a time.
      *
      * <p>The notifications are dispatched on the respective executors that were provided at the
-     * time of observer registration. However, you should still call this method on a background
-     * thread because it could wait for the write lock and therefore wait for I/O.
+     * time of observer registration. This method does not take the standard read/write lock that
+     * guards I/O, so it is safe to call from any thread including UI or binder threads.
      *
      * <p>Exceptions thrown from notification dispatch are logged but otherwise suppressed.
      */
     public void dispatchAndClearChangeNotifications() {
-        // hasNotifications is safe to call without a lock
-        if (!mObserverManagerLocked.hasNotifications()) {
-            return;
-        }
-
-        mReadWriteLock.writeLock().lock();
-        try {
-            throwIfClosedLocked();
-            mObserverManagerLocked.dispatchPendingNotifications();
-        } finally {
-            mReadWriteLock.writeLock().unlock();
-        }
+        mObserverManager.dispatchAndClearPendingNotifications();
     }
 
     private static void addToMap(Map<String, Set<String>> map, String prefix,
