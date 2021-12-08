@@ -44,10 +44,14 @@ internal class EmbeddingCompat constructor(
     }
 
     override fun setEmbeddingCallback(embeddingCallback: EmbeddingCallbackInterface) {
-        embeddingExtension.setSplitInfoCallback { splitInfoList ->
-            embeddingCallback.onSplitInfoChanged(
-                adapter.translate(splitInfoList)
-            )
+        try {
+            embeddingExtension.setSplitInfoCallback { splitInfoList ->
+                embeddingCallback.onSplitInfoChanged(
+                    adapter.translate(splitInfoList)
+                )
+            }
+        } catch (e: NoSuchMethodError) {
+            // TODO(b/203472665): Remove the try-catch wrapper after the issue is resolved
         }
     }
 
