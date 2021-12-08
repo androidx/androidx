@@ -28,7 +28,7 @@ import androidx.glance.GlanceModifier
 import androidx.glance.Image
 import androidx.glance.ImageProvider
 import androidx.glance.LocalContext
-import androidx.glance.action.actionLaunchActivity
+import androidx.glance.action.actionStartActivity
 import androidx.glance.appwidget.test.R
 import androidx.glance.appwidget.unit.ColorProvider
 import androidx.glance.background
@@ -210,13 +210,13 @@ class GlanceAppWidgetReceiverScreenshotTest {
                 Row(modifier = GlanceModifier.defaultWeight().fillMaxWidth()) {
                     Button(
                         "Start",
-                        onClick = actionLaunchActivity<Activity>(),
+                        onClick = actionStartActivity<Activity>(),
                         modifier = GlanceModifier.defaultWeight().fillMaxHeight(),
                         style = TextStyle(textAlign = TextAlign.Start)
                     )
                     Button(
                         "End",
-                        onClick = actionLaunchActivity<Activity>(),
+                        onClick = actionStartActivity<Activity>(),
                         modifier = GlanceModifier.defaultWeight().fillMaxHeight(),
                         style = TextStyle(textAlign = TextAlign.End)
                     )

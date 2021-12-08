@@ -19,9 +19,9 @@ import android.app.Activity
 import androidx.compose.ui.unit.sp
 import androidx.glance.action.ActionModifier
 import androidx.glance.action.ActionParameters
-import androidx.glance.action.LaunchActivityAction
-import androidx.glance.action.actionLaunchActivity
+import androidx.glance.action.StartActivityAction
 import androidx.glance.action.actionParametersOf
+import androidx.glance.action.actionStartActivity
 import androidx.glance.layout.fillMaxSize
 import androidx.glance.layout.runTestingComposition
 import androidx.glance.text.TextStyle
@@ -51,7 +51,7 @@ class ButtonTest {
 
         val root = runTestingComposition {
             Button(
-                text = "button", onClick = actionLaunchActivity<Activity>(
+                text = "button", onClick = actionStartActivity<Activity>(
                     actionParametersOf(stringKey to string, intKey to int)
                 ), enabled = true
             )
@@ -61,7 +61,7 @@ class ButtonTest {
         val child = assertIs<EmittableButton>(root.children[0])
         assertThat(child.text).isEqualTo("button")
         val action =
-            assertIs<LaunchActivityAction>(child.modifier.findModifier<ActionModifier>()?.action)
+            assertIs<StartActivityAction>(child.modifier.findModifier<ActionModifier>()?.action)
         assertThat(child.enabled).isTrue()
         assertThat(action.parameters.asMap()).hasSize(2)
         assertThat(action.parameters[stringKey]).isEqualTo(string)
@@ -71,7 +71,7 @@ class ButtonTest {
     @Test
     fun createDisabledButton() = fakeCoroutineScope.runBlockingTest {
         val root = runTestingComposition {
-            Button(text = "button", onClick = actionLaunchActivity<Activity>(), enabled = false)
+            Button(text = "button", onClick = actionStartActivity<Activity>(), enabled = false)
         }
 
         assertThat(root.children).hasSize(1)
@@ -86,7 +86,7 @@ class ButtonTest {
         val root = runTestingComposition {
             Button(
                 text = "button",
-                onClick = actionLaunchActivity<Activity>(),
+                onClick = actionStartActivity<Activity>(),
                 modifier = GlanceModifier.fillMaxSize(),
                 maxLines = 3,
                 style = TextStyle(fontSize = 12.sp)

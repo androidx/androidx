@@ -17,28 +17,28 @@
 package androidx.glance.action
 
 import android.app.Activity
-import androidx.annotation.RestrictTo
 import android.content.ComponentName
+import androidx.annotation.RestrictTo
 
 /** @suppress */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public interface LaunchActivityAction : Action {
+public interface StartActivityAction : Action {
     abstract val parameters: ActionParameters
 }
 
 /** @suppress */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class LaunchActivityComponentAction(
+public class StartActivityComponentAction(
     public val componentName: ComponentName,
     public override val parameters: ActionParameters
-) : LaunchActivityAction
+) : StartActivityAction
 
 /** @suppress */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class LaunchActivityClassAction(
+public class StartActivityClassAction(
     public val activityClass: Class<out Activity>,
     public override val parameters: ActionParameters
-) : LaunchActivityAction
+) : StartActivityAction
 
 /**
  * Creates an [Action] that launches the [Activity] specified by the given [ComponentName].
@@ -47,10 +47,10 @@ public class LaunchActivityClassAction(
  * @param parameters the parameters associated with the action. Parameter values will be added to
  * the activity intent, keyed by the parameter key name string.
  */
-public fun actionLaunchActivity(
+public fun actionStartActivity(
     componentName: ComponentName,
     parameters: ActionParameters = actionParametersOf()
-): Action = LaunchActivityComponentAction(componentName, parameters)
+): Action = StartActivityComponentAction(componentName, parameters)
 
 /**
  * Creates an [Action] that launches the specified [Activity] when triggered.
@@ -59,18 +59,19 @@ public fun actionLaunchActivity(
  * @param parameters the parameters associated with the action. Parameter values will be added to
  * the activity intent, keyed by the parameter key name string.
  */
-public fun <T : Activity> actionLaunchActivity(
+public fun <T : Activity> actionStartActivity(
     activity: Class<T>,
     parameters: ActionParameters = actionParametersOf()
-): Action = LaunchActivityClassAction(activity, parameters)
+): Action = StartActivityClassAction(activity, parameters)
 
-@Suppress("MissingNullability") /* Shouldn't need to specify @NonNull. b/199284086 */
+@Suppress("MissingNullability")
+/* Shouldn't need to specify @NonNull. b/199284086 */
 /**
  * Creates an [Action] that launches the specified [Activity] when triggered.
  *
  * @param parameters the parameters associated with the action. Parameter values will be added to
  * the activity intent, keyed by the parameter key name string.
  */
-public inline fun <reified T : Activity> actionLaunchActivity(
+public inline fun <reified T : Activity> actionStartActivity(
     parameters: ActionParameters = actionParametersOf()
-): Action = actionLaunchActivity(T::class.java, parameters)
+): Action = actionStartActivity(T::class.java, parameters)

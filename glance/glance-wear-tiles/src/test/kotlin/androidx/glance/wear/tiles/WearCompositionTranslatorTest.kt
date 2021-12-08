@@ -29,7 +29,7 @@ import androidx.glance.Button
 import androidx.glance.GlanceModifier
 import androidx.glance.Image
 import androidx.glance.ImageProvider
-import androidx.glance.action.actionLaunchActivity
+import androidx.glance.action.actionStartActivity
 import androidx.glance.action.clickable
 import androidx.glance.background
 import androidx.glance.layout.Alignment
@@ -500,7 +500,7 @@ class WearCompositionTranslatorTest {
     fun canInflateLaunchAction() = fakeCoroutineScope.runBlockingTest {
         val content = runAndTranslate {
             Text(
-                modifier = GlanceModifier.clickable(actionLaunchActivity(TestActivity::class.java)),
+                modifier = GlanceModifier.clickable(actionStartActivity(TestActivity::class.java)),
                 text = "Hello World"
             )
         }.layout
@@ -533,7 +533,7 @@ class WearCompositionTranslatorTest {
             )
             Button(
                 "Hello World",
-                onClick = actionLaunchActivity(TestActivity::class.java),
+                onClick = actionStartActivity(TestActivity::class.java),
                 modifier = GlanceModifier.padding(1.dp),
                 style = style
             )
