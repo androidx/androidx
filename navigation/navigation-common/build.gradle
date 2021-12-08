@@ -31,10 +31,10 @@ android {
 
 dependencies {
     api("androidx.annotation:annotation:1.1.0")
-    api("androidx.lifecycle:lifecycle-runtime-ktx:2.3.1")
-    api("androidx.lifecycle:lifecycle-viewmodel-ktx:2.3.1")
+    api(projectOrArtifact(":lifecycle:lifecycle-runtime-ktx"))
+    api(projectOrArtifact(":lifecycle:lifecycle-viewmodel-ktx"))
     api("androidx.savedstate:savedstate:1.0.0")
-    api("androidx.lifecycle:lifecycle-viewmodel-savedstate:2.3.1")
+    api(projectOrArtifact(":lifecycle:lifecycle-viewmodel-savedstate"))
     implementation("androidx.core:core-ktx:1.1.0")
     implementation("androidx.collection:collection-ktx:1.1.0")
 
