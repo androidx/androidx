@@ -2318,7 +2318,23 @@ public final class AppSearchImpl implements Closeable {
         // observers for types that don't exist. This is intentional because we notify for types
         // being created or removed. If we only registered observer for existing types, it would
         // be impossible to ever dispatch a notification of a type being added.
-        mObserverManager.registerObserver(observedPackage, spec, executor, observer);
+        mObserverManager.addObserver(observedPackage, spec, executor, observer);
+    }
+
+    /**
+     * Removes an {@link AppSearchObserverCallback} from watching the databases owned by
+     * {@code observedPackage}.
+     *
+     * <p>All observers which compare equal to the given observer via
+     * {@link AppSearchObserverCallback#equals} are removed. This may be 0, 1, or many observers.
+     *
+     * <p>Note that this method does not take the standard read/write lock that guards I/O, so it
+     * will not queue behind I/O. Therefore it is safe to call from any thread including UI or
+     * binder threads.
+     */
+    public void removeObserver(
+            @NonNull String observedPackage, @NonNull AppSearchObserverCallback observer) {
+        mObserverManager.removeObserver(observedPackage, observer);
     }
 
     /**
