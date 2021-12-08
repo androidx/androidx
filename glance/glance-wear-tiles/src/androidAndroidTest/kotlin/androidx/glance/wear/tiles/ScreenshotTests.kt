@@ -66,6 +66,7 @@ import androidx.test.core.app.ApplicationProvider.getApplicationContext
 import androidx.test.screenshot.AndroidXScreenshotTestRule
 import androidx.test.screenshot.matchers.MSSIMMatcher
 import androidx.wear.tiles.LayoutElementBuilders
+import androidx.wear.tiles.ResourceBuilders
 import androidx.wear.tiles.renderer.TileRenderer
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.coroutineScope
@@ -310,6 +311,11 @@ class ScreenshotTests {
         }
     }
 
+    @Test
+    fun displayErrorUi() = runSingleGoldenTest("errorUi") {
+        Box(modifier = UnSupportedModifier()) { }
+    }
+
     private suspend fun runComposition(content: @Composable () -> Unit) = coroutineScope {
         val root = EmittableBox()
         root.modifier = GlanceModifier.fillMaxWidth().fillMaxHeight()
@@ -337,7 +343,12 @@ class ScreenshotTests {
         val context = getApplicationContext<Context>()
         val composition = runComposition(content)
         normalizeCompositionTree(context, composition)
-        val translatedComposition = translateTopLevelComposition(context, composition)
+        val translatedComposition =
+            try {
+                translateTopLevelComposition(context, composition)
+            } catch (throwable: Throwable) {
+                CompositionResult(errorUiLayout(), ResourceBuilders.Resources.Builder())
+            }
 
         val renderer = TileRenderer(
             context,
@@ -384,4 +395,6 @@ class ScreenshotTests {
         private const val SCREEN_WIDTH = 390
         private const val SCREEN_HEIGHT = 390
     }
+
+    internal class UnSupportedModifier() : GlanceModifier.Element
 }
