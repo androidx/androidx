@@ -13,86 +13,65 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.work.impl.constraints.trackers;
+package androidx.work.impl.constraints.trackers
 
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.RestrictTo;
-import androidx.work.Logger;
-import androidx.work.impl.utils.taskexecutor.TaskExecutor;
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
+import androidx.annotation.RestrictTo
+import androidx.work.Logger
+import androidx.work.impl.utils.taskexecutor.TaskExecutor
 
 /**
  * Tracks whether or not the device's storage is low.
  * @hide
  */
+@Suppress("DEPRECATION")
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class StorageNotLowTracker extends BroadcastReceiverConstraintTracker<Boolean> {
+class StorageNotLowTracker(context: Context, taskExecutor: TaskExecutor) :
+    BroadcastReceiverConstraintTracker<Boolean>(context, taskExecutor) {
 
-    private static final String TAG = Logger.tagWithPrefix("StorageNotLowTracker");
-
-    /**
-     * Create an instance of {@link StorageNotLowTracker}.
-     * @param context The application {@link Context}
-     * @param taskExecutor The internal {@link TaskExecutor} being used by WorkManager.
-     */
-    public StorageNotLowTracker(@NonNull Context context, @NonNull TaskExecutor taskExecutor) {
-        super(context, taskExecutor);
-    }
-
-    @Override
-    public Boolean getInitialState() {
-        Intent intent = mAppContext.registerReceiver(null, getIntentFilter());
-        if (intent == null || intent.getAction() == null) {
-            // ACTION_DEVICE_STORAGE_LOW is a sticky broadcast that is removed when sufficient
-            // storage is available again.  ACTION_DEVICE_STORAGE_OK is not sticky.  So if we
-            // don't receive anything here, we can assume that the storage state is okay.
-            return true;
-        } else {
-            switch (intent.getAction()) {
-                case Intent.ACTION_DEVICE_STORAGE_OK:
-                    return true;
-
-                case Intent.ACTION_DEVICE_STORAGE_LOW:
-                    return false;
-
-                default:
-                    // This should never happen because the intent filter is configured
-                    // correctly.
-                    return false;
+    override val initialState: Boolean
+        get() {
+            val intent = appContext.registerReceiver(null, intentFilter)
+            return if (intent == null || intent.action == null) {
+                // ACTION_DEVICE_STORAGE_LOW is a sticky broadcast that is removed when sufficient
+                // storage is available again. ACTION_DEVICE_STORAGE_OK is not sticky. So if we
+                // don't receive anything here, we can assume that the storage state is okay.
+                true
+            } else {
+                when (intent.action) {
+                    Intent.ACTION_DEVICE_STORAGE_OK -> true
+                    Intent.ACTION_DEVICE_STORAGE_LOW -> false
+                    else ->
+                        // This should never happen because the intent filter is configured
+                        // correctly.
+                        false
+                }
             }
         }
-    }
 
-    @Override
-    public IntentFilter getIntentFilter() {
-        // In API 26+, DEVICE_STORAGE_OK/LOW are deprecated and are no longer sent to
-        // manifest-defined BroadcastReceivers. Since we are registering our receiver manually, this
-        // is currently okay. This may change in future versions, so this will need to be monitored.
-        IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction(Intent.ACTION_DEVICE_STORAGE_OK);
-        intentFilter.addAction(Intent.ACTION_DEVICE_STORAGE_LOW);
-        return intentFilter;
-    }
-
-    @Override
-    public void onBroadcastReceive(Context context, @NonNull Intent intent) {
-        if (intent.getAction() == null) {
-            return; // Should never happen since the IntentFilter was configured.
+    override val intentFilter: IntentFilter
+        get() {
+            // In API 26+, DEVICE_STORAGE_OK/LOW are deprecated and are no longer sent to
+            // manifest-defined BroadcastReceivers. Since we are registering our receiver manually, this
+            // is currently okay. This may change in future versions, so this will need to be monitored.
+            val intentFilter = IntentFilter()
+            intentFilter.addAction(Intent.ACTION_DEVICE_STORAGE_OK)
+            intentFilter.addAction(Intent.ACTION_DEVICE_STORAGE_LOW)
+            return intentFilter
         }
 
-        Logger.get().debug(TAG, "Received " + intent.getAction());
-
-        switch (intent.getAction()) {
-            case Intent.ACTION_DEVICE_STORAGE_OK:
-                setState(true);
-                break;
-
-            case Intent.ACTION_DEVICE_STORAGE_LOW:
-                setState(false);
-                break;
+    override fun onBroadcastReceive(intent: Intent) {
+        if (intent.action == null) {
+            return // Should never happen since the IntentFilter was configured.
+        }
+        Logger.get().debug(TAG, "Received " + intent.action)
+        when (intent.action) {
+            Intent.ACTION_DEVICE_STORAGE_OK -> state = true
+            Intent.ACTION_DEVICE_STORAGE_LOW -> state = false
         }
     }
 }
+
+private val TAG = Logger.tagWithPrefix("StorageNotLowTracker")

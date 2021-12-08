@@ -98,7 +98,7 @@ public class StorageNotLowTrackerTest {
         mTracker.addListener(mListener);
         verify(mListener).onConstraintChanged(true);
 
-        mTracker.onBroadcastReceive(mMockContext, new Intent("INVALID"));
+        mTracker.onBroadcastReceive(new Intent("INVALID"));
         verifyNoMoreInteractions(mListener);
     }
 
@@ -109,9 +109,9 @@ public class StorageNotLowTrackerTest {
         mTracker.addListener(mListener);
         verify(mListener).onConstraintChanged(false);
 
-        mTracker.onBroadcastReceive(mMockContext, new Intent(Intent.ACTION_DEVICE_STORAGE_OK));
+        mTracker.onBroadcastReceive(new Intent(Intent.ACTION_DEVICE_STORAGE_OK));
         verify(mListener).onConstraintChanged(true);
-        mTracker.onBroadcastReceive(mMockContext, new Intent(Intent.ACTION_DEVICE_STORAGE_LOW));
+        mTracker.onBroadcastReceive(new Intent(Intent.ACTION_DEVICE_STORAGE_LOW));
         // onConstraintChanged was called once more, in total, twice
         verify(mListener, times(2)).onConstraintChanged(false);
     }

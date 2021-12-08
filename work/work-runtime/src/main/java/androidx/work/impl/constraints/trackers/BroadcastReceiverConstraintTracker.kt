@@ -13,69 +13,54 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package androidx.work.impl.constraints.trackers
 
-package androidx.work.impl.constraints.trackers;
-
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.RestrictTo;
-import androidx.work.Logger;
-import androidx.work.impl.utils.taskexecutor.TaskExecutor;
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
+import androidx.annotation.RestrictTo
+import androidx.work.Logger
+import androidx.work.impl.utils.taskexecutor.TaskExecutor
 
 /**
- * A {@link ConstraintTracker} with a {@link BroadcastReceiver} for monitoring constraint changes.
+ * A [ConstraintTracker] with a [BroadcastReceiver] for monitoring constraint changes.
  *
  * @param <T> the constraint data type observed by this tracker
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public abstract class BroadcastReceiverConstraintTracker<T> extends ConstraintTracker<T> {
-    private static final String TAG = Logger.tagWithPrefix("BrdcstRcvrCnstrntTrckr");
-
-    private final BroadcastReceiver mBroadcastReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            if (intent != null) {
-                onBroadcastReceive(context, intent);
-            }
+abstract class BroadcastReceiverConstraintTracker<T>(
+    context: Context,
+    taskExecutor: TaskExecutor
+) : ConstraintTracker<T>(context, taskExecutor) {
+    private val broadcastReceiver: BroadcastReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context, intent: Intent) {
+            onBroadcastReceive(intent)
         }
-    };
-
-    public BroadcastReceiverConstraintTracker(
-            @NonNull Context context,
-            @NonNull TaskExecutor taskExecutor) {
-        super(context, taskExecutor);
     }
 
     /**
-     * Called when the {@link BroadcastReceiver} is receiving an {@link Intent} broadcast and should
-     * handle the received {@link Intent}.
+     * Called when the [BroadcastReceiver] is receiving an [Intent] broadcast and should
+     * handle the received [Intent].
      *
-     * @param context The {@link Context} in which the receiver is running.
-     * @param intent  The {@link Intent} being received.
+     * @param intent  The [Intent] being received.
      */
-    public abstract void onBroadcastReceive(Context context, @NonNull Intent intent);
+    abstract fun onBroadcastReceive(intent: Intent)
 
     /**
-     * @return The {@link IntentFilter} associated with this tracker.
+     * @return The [IntentFilter] associated with this tracker.
      */
-    public abstract IntentFilter getIntentFilter();
+    abstract val intentFilter: IntentFilter
 
-    @Override
-    public void startTracking() {
-        Logger.get().debug(TAG, getClass().getSimpleName() + ": registering receiver");
-        mAppContext.registerReceiver(mBroadcastReceiver, getIntentFilter());
+    override fun startTracking() {
+        Logger.get().debug(TAG, "${javaClass.simpleName}: registering receiver")
+        appContext.registerReceiver(broadcastReceiver, intentFilter)
     }
 
-    @Override
-    public void stopTracking() {
-        Logger.get().debug(
-                TAG,
-                getClass().getSimpleName() + ": unregistering receiver");
-        mAppContext.unregisterReceiver(mBroadcastReceiver);
+    override fun stopTracking() {
+        Logger.get().debug(TAG, "${javaClass.simpleName}: unregistering receiver")
+        appContext.unregisterReceiver(broadcastReceiver)
     }
 }
+private val TAG = Logger.tagWithPrefix("BrdcstRcvrCnstrntTrckr")

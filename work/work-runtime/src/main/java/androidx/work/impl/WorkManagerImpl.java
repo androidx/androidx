@@ -269,7 +269,7 @@ public class WorkManagerImpl extends WorkManager {
             @NonNull WorkDatabase database) {
         Context applicationContext = context.getApplicationContext();
         Logger.setLogger(new Logger.LogcatLogger(configuration.getMinimumLoggingLevel()));
-        mTrackers = new Trackers(applicationContext, mWorkTaskExecutor);
+        mTrackers = new Trackers(applicationContext, workTaskExecutor);
         List<Scheduler> schedulers =
                 createSchedulers(applicationContext, configuration, mTrackers);
         Processor processor = new Processor(
@@ -300,7 +300,7 @@ public class WorkManagerImpl extends WorkManager {
             @NonNull WorkDatabase workDatabase,
             @NonNull List<Scheduler> schedulers,
             @NonNull Processor processor) {
-        mTrackers = new Trackers(context.getApplicationContext(), mWorkTaskExecutor);
+        mTrackers = new Trackers(context.getApplicationContext(), workTaskExecutor);
         internalInit(context, configuration, workTaskExecutor, workDatabase, schedulers, processor);
     }
 

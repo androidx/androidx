@@ -13,100 +13,72 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.work.impl.constraints.trackers;
+package androidx.work.impl.constraints.trackers
 
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
-import android.os.BatteryManager;
-import android.os.Build;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.RestrictTo;
-import androidx.work.Logger;
-import androidx.work.impl.utils.taskexecutor.TaskExecutor;
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
+import android.os.BatteryManager
+import android.os.BatteryManager.BATTERY_STATUS_CHARGING
+import android.os.BatteryManager.BATTERY_STATUS_FULL
+import android.os.Build
+import androidx.annotation.RestrictTo
+import androidx.work.Logger
+import androidx.work.impl.utils.taskexecutor.TaskExecutor
 
 /**
  * Tracks whether or not the device's battery is charging.
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class BatteryChargingTracker extends BroadcastReceiverConstraintTracker<Boolean> {
+class BatteryChargingTracker(context: Context, taskExecutor: TaskExecutor) :
+    BroadcastReceiverConstraintTracker<Boolean>(context, taskExecutor) {
 
-    private static final String TAG = Logger.tagWithPrefix("BatteryChrgTracker");
-
-    /**
-     * Create an instance of {@link BatteryChargingTracker}.
-     * @param context The application {@link Context}
-     * @param taskExecutor The internal {@link TaskExecutor} being used by WorkManager.
-     */
-    public BatteryChargingTracker(@NonNull Context context, @NonNull TaskExecutor taskExecutor) {
-        super(context, taskExecutor);
-    }
-
-    @Override
-    public Boolean getInitialState() {
-        // {@link ACTION_CHARGING} and {@link ACTION_DISCHARGING} are not sticky broadcasts, so
-        // we use {@link ACTION_BATTERY_CHANGED} on all APIs to get the initial state.
-        IntentFilter intentFilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
-        Intent intent = mAppContext.registerReceiver(null, intentFilter);
-        if (intent == null) {
-            Logger.get().error(TAG, "getInitialState - null intent received");
-            return false;
+    override val initialState: Boolean
+        get() {
+            // {@link ACTION_CHARGING} and {@link ACTION_DISCHARGING} are not sticky broadcasts, so
+            // we use {@link ACTION_BATTERY_CHANGED} on all APIs to get the initial state.
+            val intentFilter = IntentFilter(Intent.ACTION_BATTERY_CHANGED)
+            val intent = appContext.registerReceiver(null, intentFilter)
+            if (intent == null) {
+                Logger.get().error(TAG, "getInitialState - null intent received")
+                return false
+            }
+            return isBatteryChangedIntentCharging(intent)
         }
-        return isBatteryChangedIntentCharging(intent);
+
+    override val intentFilter: IntentFilter
+        get() {
+            val intentFilter = IntentFilter()
+            if (Build.VERSION.SDK_INT >= 23) {
+                intentFilter.addAction(BatteryManager.ACTION_CHARGING)
+                intentFilter.addAction(BatteryManager.ACTION_DISCHARGING)
+            } else {
+                intentFilter.addAction(Intent.ACTION_POWER_CONNECTED)
+                intentFilter.addAction(Intent.ACTION_POWER_DISCONNECTED)
+            }
+            return intentFilter
+        }
+
+    override fun onBroadcastReceive(intent: Intent) {
+        val action = intent.action ?: return
+        Logger.get().debug(TAG, "Received $action")
+        when (action) {
+            BatteryManager.ACTION_CHARGING -> state = true
+            BatteryManager.ACTION_DISCHARGING -> state = false
+            Intent.ACTION_POWER_CONNECTED -> state = true
+            Intent.ACTION_POWER_DISCONNECTED -> state = false
+        }
     }
 
-    @Override
-    public IntentFilter getIntentFilter() {
-        IntentFilter intentFilter = new IntentFilter();
-        if (Build.VERSION.SDK_INT >= 23) {
-            intentFilter.addAction(BatteryManager.ACTION_CHARGING);
-            intentFilter.addAction(BatteryManager.ACTION_DISCHARGING);
+    private fun isBatteryChangedIntentCharging(intent: Intent): Boolean {
+        return if (Build.VERSION.SDK_INT >= 23) {
+            val status = intent.getIntExtra(BatteryManager.EXTRA_STATUS, -1)
+            (status == BATTERY_STATUS_CHARGING || status == BATTERY_STATUS_FULL)
         } else {
-            intentFilter.addAction(Intent.ACTION_POWER_CONNECTED);
-            intentFilter.addAction(Intent.ACTION_POWER_DISCONNECTED);
+            intent.getIntExtra(BatteryManager.EXTRA_PLUGGED, 0) != 0
         }
-        return intentFilter;
-    }
-
-    @Override
-    public void onBroadcastReceive(Context context, @NonNull Intent intent) {
-        String action = intent.getAction();
-        if (action == null) {
-            return;
-        }
-
-        Logger.get().debug(TAG, "Received " + action);
-        switch (action) {
-            case BatteryManager.ACTION_CHARGING:
-                setState(true);
-                break;
-
-            case BatteryManager.ACTION_DISCHARGING:
-                setState(false);
-                break;
-
-            case Intent.ACTION_POWER_CONNECTED:
-                setState(true);
-                break;
-
-            case Intent.ACTION_POWER_DISCONNECTED:
-                setState(false);
-                break;
-        }
-    }
-
-    private boolean isBatteryChangedIntentCharging(Intent intent) {
-        boolean charging;
-        if (Build.VERSION.SDK_INT >= 23) {
-            int status = intent.getIntExtra(BatteryManager.EXTRA_STATUS, -1);
-            charging = (status == BatteryManager.BATTERY_STATUS_CHARGING
-                    || status == BatteryManager.BATTERY_STATUS_FULL);
-        } else {
-            int chargePlug = intent.getIntExtra(BatteryManager.EXTRA_PLUGGED, 0);
-            charging = (chargePlug != 0);
-        }
-        return charging;
     }
 }
+
+private val TAG = Logger.tagWithPrefix("BatteryChrgTracker")

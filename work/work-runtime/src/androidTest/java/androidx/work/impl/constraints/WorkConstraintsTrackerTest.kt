@@ -63,7 +63,7 @@ class WorkConstraintsTrackerTest {
         workConstraintsTracker.replace(TEST_WORKSPECS)
         val (_, constrained) = capturingCallback.consumeCurrent()
         assertThat(constrained).isEqualTo(TEST_WORKSPEC_IDS)
-        tracker.setState(true)
+        tracker.state = true
         val (unconstrained, _) = capturingCallback.consumeCurrent()
         assertThat(unconstrained).isEqualTo(TEST_WORKSPEC_IDS)
     }
@@ -80,7 +80,7 @@ class WorkConstraintsTrackerTest {
         )
         workConstraintsTracker.replace(TEST_WORKSPECS)
         capturingCallback.consumeCurrent()
-        tracker1.setState(true)
+        tracker1.state = true
         val (unconstrained, _) = capturingCallback.consumeCurrent()
         assertThat(unconstrained).containsExactly(TEST_WORKSPEC_IDS[0], TEST_WORKSPEC_IDS[1])
     }
@@ -92,7 +92,7 @@ class WorkConstraintsTrackerTest {
         val workConstraintsTracker = WorkConstraintsTracker(capturingCallback, tracker1, tracker2)
         workConstraintsTracker.replace(TEST_WORKSPECS)
         capturingCallback.consumeCurrent()
-        tracker1.setState(true)
+        tracker1.state = true
         val (unconstrained, _) = capturingCallback.consumeCurrent()
         // only one constraint is resolved, so unconstrained is empty list
         assertThat(unconstrained).isEqualTo(emptyList<String>())
@@ -106,7 +106,7 @@ class WorkConstraintsTrackerTest {
         workConstraintsTracker.replace(TEST_WORKSPECS)
         val (unconstrained, _) = capturingCallback.consumeCurrent()
         assertThat(unconstrained).isEqualTo(TEST_WORKSPEC_IDS)
-        tracker1.setState(false)
+        tracker1.state = false
         val (_, constrained) = capturingCallback.consumeCurrent()
         assertThat(constrained).isEqualTo(TEST_WORKSPEC_IDS)
     }
@@ -128,12 +128,11 @@ private fun WorkConstraintsTracker(
 }
 
 private class TestConstraintTracker(
-    val initialState: Boolean = false,
+    override val initialState: Boolean = false,
     context: Context = ApplicationProvider.getApplicationContext(),
     taskExecutor: TaskExecutor = InstantWorkTaskExecutor(),
 ) : ConstraintTracker<Boolean>(context, taskExecutor) {
     var isTracking = false
-    override fun getInitialState() = initialState
 
     override fun startTracking() {
         isTracking = true

@@ -52,9 +52,10 @@ import androidx.work.WorkerParameters;
 import androidx.work.impl.Scheduler;
 import androidx.work.impl.WorkManagerImpl;
 import androidx.work.impl.WorkerWrapper;
+import androidx.work.impl.constraints.NetworkState;
 import androidx.work.impl.constraints.trackers.BatteryChargingTracker;
 import androidx.work.impl.constraints.trackers.BatteryNotLowTracker;
-import androidx.work.impl.constraints.trackers.NetworkStateTracker;
+import androidx.work.impl.constraints.trackers.ConstraintTracker;
 import androidx.work.impl.constraints.trackers.StorageNotLowTracker;
 import androidx.work.impl.constraints.trackers.Trackers;
 import androidx.work.impl.foreground.ForegroundProcessor;
@@ -108,13 +109,14 @@ public class ConstraintTrackingWorkerTest extends DatabaseTest {
     private Trackers mTracker;
     private BatteryChargingTracker mBatteryChargingTracker;
     private BatteryNotLowTracker mBatteryNotLowTracker;
-    private NetworkStateTracker mNetworkStateTracker;
+    private ConstraintTracker<NetworkState> mNetworkStateTracker;
     private StorageNotLowTracker mStorageNotLowTracker;
 
     @Rule
     public final RepeatRule mRepeatRule = new RepeatRule();
 
     @Before
+    @SuppressWarnings("unchecked")
     public void setUp() {
         mContext = ApplicationProvider.getApplicationContext().getApplicationContext();
         mHandlerThread = new HandlerThread("ConstraintTrackingHandler");
@@ -140,7 +142,7 @@ public class ConstraintTrackingWorkerTest extends DatabaseTest {
         mBatteryChargingTracker = spy(new BatteryChargingTracker(mContext, mWorkTaskExecutor));
         mBatteryNotLowTracker = spy(new BatteryNotLowTracker(mContext, mWorkTaskExecutor));
         // Requires API 24+ types.
-        mNetworkStateTracker = mock(NetworkStateTracker.class);
+        mNetworkStateTracker = mock(ConstraintTracker.class);
         mStorageNotLowTracker = spy(new StorageNotLowTracker(mContext, mWorkTaskExecutor));
         mTracker = mock(Trackers.class);
 

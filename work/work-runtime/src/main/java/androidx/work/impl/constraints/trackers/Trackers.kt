@@ -13,70 +13,44 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.work.impl.constraints.trackers;
+package androidx.work.impl.constraints.trackers
 
-import android.content.Context;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.RestrictTo;
-import androidx.work.impl.utils.taskexecutor.TaskExecutor;
+import android.content.Context
+import androidx.annotation.RestrictTo
+import androidx.work.impl.constraints.NetworkState
+import androidx.work.impl.utils.taskexecutor.TaskExecutor
 
 /**
- * A singleton class to hold an instance of each {@link ConstraintTracker}.
+ * A singleton class to hold an instance of each [ConstraintTracker].
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class Trackers {
-    private BatteryChargingTracker mBatteryChargingTracker;
-    private BatteryNotLowTracker mBatteryNotLowTracker;
-    private NetworkStateTracker mNetworkStateTracker;
-    private StorageNotLowTracker mStorageNotLowTracker;
-
-    public Trackers(@NonNull Context context, @NonNull TaskExecutor taskExecutor) {
-        Context appContext = context.getApplicationContext();
-        mBatteryChargingTracker = new BatteryChargingTracker(appContext, taskExecutor);
-        mBatteryNotLowTracker = new BatteryNotLowTracker(appContext, taskExecutor);
-        mNetworkStateTracker = new NetworkStateTracker(appContext, taskExecutor);
-        mStorageNotLowTracker = new StorageNotLowTracker(appContext, taskExecutor);
-    }
+class Trackers
+@JvmOverloads
+constructor(
+    context: Context,
+    taskExecutor: TaskExecutor,
+    /**
+     * The tracker used to track the battery charging status.
+     */
+    val batteryChargingTracker: ConstraintTracker<Boolean> =
+        BatteryChargingTracker(context.applicationContext, taskExecutor),
 
     /**
-     * Gets the tracker used to track the battery charging status.
-     *
-     * @return The tracker used to track battery charging status
+     * The tracker used to track if the battery is okay or low.
      */
-    @NonNull
-    public BatteryChargingTracker getBatteryChargingTracker() {
-        return mBatteryChargingTracker;
-    }
+    val batteryNotLowTracker: BatteryNotLowTracker =
+        BatteryNotLowTracker(context.applicationContext, taskExecutor),
 
     /**
-     * Gets the tracker used to track if the battery is okay or low.
-     *
-     * @return The tracker used to track if the battery is okay or low
+     * The tracker used to track network state changes.
      */
-    @NonNull
-    public BatteryNotLowTracker getBatteryNotLowTracker() {
-        return mBatteryNotLowTracker;
-    }
+    val networkStateTracker: ConstraintTracker<NetworkState> =
+        NetworkStateTracker(context.applicationContext, taskExecutor),
 
     /**
-     * Gets the tracker used to track network state changes.
-     *
-     * @return The tracker used to track state of the network
+     * The tracker used to track if device storage is okay or low.
      */
-    @NonNull
-    public NetworkStateTracker getNetworkStateTracker() {
-        return mNetworkStateTracker;
-    }
-
-    /**
-     * Gets the tracker used to track if device storage is okay or low.
-     *
-     * @return The tracker used to track if device storage is okay or low.
-     */
-    @NonNull
-    public StorageNotLowTracker getStorageNotLowTracker() {
-        return mStorageNotLowTracker;
-    }
-}
+    val storageNotLowTracker: ConstraintTracker<Boolean> =
+        StorageNotLowTracker(context.applicationContext, taskExecutor),
+)
