@@ -50,8 +50,11 @@ fun collectBaselineProfile(
     val startTime = System.nanoTime()
     val scope = MacrobenchmarkScope(packageName, launchWithClearTask = true)
 
-    // useBaselineProfile = false because we're *creating* a baseline profile, not using it yet
-    val compilationMode = CompilationMode.Partial(baselineProfile = false, warmupIterations = 3)
+    // Ignore because we're *creating* a baseline profile, not using it yet
+    val compilationMode = CompilationMode.Partial(
+        baselineProfileMode = BaselineProfileMode.Disable,
+        warmupIterations = 3
+    )
 
     // always kill the process at beginning of a collection.
     scope.killProcess()

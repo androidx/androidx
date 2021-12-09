@@ -73,7 +73,7 @@ class MacrobenchmarkScopeTest {
         val iterations = 1
         var executions = 0
         val compilation = CompilationMode.Partial(
-            baselineProfile = false,
+            baselineProfileMode = BaselineProfileMode.Disable,
             warmupIterations = iterations
         )
         compilation.resetAndCompile(Packages.TARGET) {
