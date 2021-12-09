@@ -261,10 +261,6 @@ class CoroutineWorkerTest {
         private val mSynchronousExecutor = SynchronousExecutor()
         private val mSerialExecutor = SerialExecutor(mSynchronousExecutor)
 
-        override fun postToMainThread(runnable: Runnable) {
-            runnable.run()
-        }
-
         override fun getMainThreadExecutor(): Executor {
             return mSynchronousExecutor
         }
