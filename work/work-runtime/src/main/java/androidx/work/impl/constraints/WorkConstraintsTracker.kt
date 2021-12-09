@@ -86,13 +86,13 @@ class WorkConstraintsTrackerImpl @VisibleForTesting internal constructor(
     override fun replace(workSpecs: Iterable<WorkSpec>) {
         synchronized(lock) {
             for (controller in constraintControllers) {
-                controller.setCallback(null)
+                controller.callback = null
             }
             for (controller in constraintControllers) {
                 controller.replace(workSpecs)
             }
             for (controller in constraintControllers) {
-                controller.setCallback(this)
+                controller.callback = this
             }
         }
     }
