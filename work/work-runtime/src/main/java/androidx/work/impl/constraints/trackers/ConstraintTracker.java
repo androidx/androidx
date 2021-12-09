@@ -48,7 +48,7 @@ public abstract class ConstraintTracker<T> {
     // Synthetic access
     T mCurrentState;
 
-    ConstraintTracker(@NonNull Context context, @NonNull TaskExecutor taskExecutor) {
+    protected ConstraintTracker(@NonNull Context context, @NonNull TaskExecutor taskExecutor) {
         mAppContext = context.getApplicationContext();
         mTaskExecutor = taskExecutor;
     }
