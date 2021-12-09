@@ -196,21 +196,17 @@ class ComponentActivityCallbacksTest {
             }
             withActivity {
                 addOnNewIntentListener(listener)
-                startActivity(
-                    Intent(this, SingleTopActivity::class.java).apply {
-                        putExtra("newExtra", 5)
-                    }
-                )
+                onNewIntent(Intent(this, SingleTopActivity::class.java).apply {
+                    putExtra("newExtra", 5)
+                })
             }
 
-            withActivity {
-                assertWithMessage("Should have received one intent")
-                    .that(receivedIntents)
-                    .hasSize(1)
-                val receivedIntent = receivedIntents.first()
-                assertThat(receivedIntent.getIntExtra("newExtra", -1))
-                    .isEqualTo(5)
-            }
+            assertWithMessage("Should have received one intent")
+                .that(receivedIntents)
+                .hasSize(1)
+            val receivedIntent = receivedIntents.first()
+            assertThat(receivedIntent.getIntExtra("newExtra", -1))
+                .isEqualTo(5)
         }
     }
 
@@ -224,36 +220,28 @@ class ComponentActivityCallbacksTest {
             }
             withActivity {
                 addOnNewIntentListener(listener)
-                startActivity(
-                    Intent(this, SingleTopActivity::class.java).apply {
-                        putExtra("newExtra", 5)
-                    }
-                )
+                onNewIntent(Intent(this, SingleTopActivity::class.java).apply {
+                    putExtra("newExtra", 5)
+                })
             }
 
-            withActivity {
-                assertWithMessage("Should have received one intent")
-                    .that(receivedIntents)
-                    .hasSize(1)
-                val receivedIntent = receivedIntents.first()
-                assertThat(receivedIntent.getIntExtra("newExtra", -1))
-                    .isEqualTo(5)
-            }
+            assertWithMessage("Should have received one intent")
+                .that(receivedIntents)
+                .hasSize(1)
+            val receivedIntent = receivedIntents.first()
+            assertThat(receivedIntent.getIntExtra("newExtra", -1))
+                .isEqualTo(5)
 
             withActivity {
                 removeOnNewIntentListener(listener)
-                startActivity(
-                    Intent(this, SingleTopActivity::class.java).apply {
-                        putExtra("newExtra", 10)
-                    }
-                )
+                onNewIntent(Intent(this, SingleTopActivity::class.java).apply {
+                    putExtra("newExtra", 5)
+                })
             }
 
-            withActivity {
-                assertWithMessage("Should have received only one intent")
-                    .that(receivedIntents)
-                    .hasSize(1)
-            }
+            assertWithMessage("Should have received only one intent")
+                .that(receivedIntents)
+                .hasSize(1)
         }
     }
 
@@ -274,32 +262,27 @@ class ComponentActivityCallbacksTest {
                 // Add a second listener to force a ConcurrentModificationException
                 // if not properly handled by ComponentActivity
                 addOnNewIntentListener { }
-                startActivity(
-                    Intent(this, SingleTopActivity::class.java).apply {
-                        putExtra("newExtra", 5)
-                    }
-                )
+                onNewIntent(Intent(this, SingleTopActivity::class.java).apply {
+                    putExtra("newExtra", 5)
+                })
+                onNewIntent(Intent(this, SingleTopActivity::class.java).apply {
+                    putExtra("newExtra", 10)
+                })
             }
 
-            withActivity {
-                startActivity(
-                    Intent(this, SingleTopActivity::class.java).apply {
-                        putExtra("newExtra", 10)
-                    }
-                )
-            }
-
-            withActivity {
-                // Only the first Intent should be received
-                assertWithMessage("Should have received only one intent")
-                    .that(receivedIntents)
-                    .hasSize(1)
-                val receivedIntent = receivedIntents.first()
-                assertThat(receivedIntent.getIntExtra("newExtra", -1))
-                    .isEqualTo(5)
-            }
+            // Only the first Intent should be received
+            assertWithMessage("Should have received only one intent")
+                .that(receivedIntents)
+                .hasSize(1)
+            val receivedIntent = receivedIntents.first()
+            assertThat(receivedIntent.getIntExtra("newExtra", -1))
+                .isEqualTo(5)
         }
     }
 }
 
-class SingleTopActivity : ComponentActivity()
+class SingleTopActivity : ComponentActivity() {
+    public override fun onNewIntent(intent: Intent?) {
+        super.onNewIntent(intent)
+    }
+}
