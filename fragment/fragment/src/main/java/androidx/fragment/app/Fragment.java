@@ -309,6 +309,13 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
         abstract void onPreAttached();
     }
 
+    private final OnPreAttachedListener mSavedStateAttachListener = new OnPreAttachedListener() {
+        @Override
+        void onPreAttached() {
+            mSavedStateRegistryController.performAttach();
+        }
+    };
+
     /**
      * {@inheritDoc}
      * <p>
@@ -572,12 +579,9 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
         // The default factory depends on the SavedStateRegistry so it
         // needs to be reset when the SavedStateRegistry is reset
         mDefaultFactory = null;
-        registerOnPreAttachListener(new OnPreAttachedListener() {
-            @Override
-            void onPreAttached() {
-                mSavedStateRegistryController.performAttach();
-            }
-        });
+        if (!mOnPreAttachedListeners.contains(mSavedStateAttachListener)) {
+            registerOnPreAttachListener(mSavedStateAttachListener);
+        }
     }
 
     /**
