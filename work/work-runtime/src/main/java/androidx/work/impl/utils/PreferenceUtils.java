@@ -18,7 +18,6 @@ package androidx.work.impl.utils;
 
 import static android.content.Context.MODE_PRIVATE;
 
-import static androidx.work.impl.WorkDatabaseMigrations.INSERT_PREFERENCE;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -39,6 +38,14 @@ import androidx.work.impl.model.Preference;
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class PreferenceUtils {
+    public static final String INSERT_PREFERENCE =
+            "INSERT OR REPLACE INTO `Preference`"
+                    + " (`key`, `long_value`) VALUES"
+                    + " (@key, @long_value)";
+
+    public static final String CREATE_PREFERENCE =
+            "CREATE TABLE IF NOT EXISTS `Preference` (`key` TEXT NOT NULL, `long_value` INTEGER, "
+                    + "PRIMARY KEY(`key`))";
 
     // For migration
     public static final String PREFERENCES_FILE_NAME = "androidx.work.util.preferences";

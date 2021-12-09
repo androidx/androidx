@@ -16,53 +16,49 @@
 
 package androidx.work.impl
 
-import android.content.Context
+import android.content.ContextWrapper
+import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import androidx.work.Configuration
-import androidx.work.impl.utils.taskexecutor.TaskExecutor
+import androidx.work.impl.utils.SynchronousExecutor
+import androidx.work.impl.utils.taskexecutor.InstantWorkTaskExecutor
 import org.junit.Assert.assertNotNull
-import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.Mockito.`when`
-import org.mockito.Mockito.mock
-import java.util.concurrent.Executor
 
 @RunWith(AndroidJUnit4::class)
 class WorkManagerInitializationTest {
-    private lateinit var mContext: Context
-    private lateinit var mConfiguration: Configuration
-    private lateinit var mExecutor: Executor
-    private lateinit var mTaskExecutor: TaskExecutor
-
-    @Before
-    fun setUp() {
-        mContext = mock(Context::class.java)
-        `when`(mContext.applicationContext).thenReturn(mContext)
-        mExecutor = mock(Executor::class.java)
-        mConfiguration = Configuration.Builder()
-            .setExecutor(mExecutor)
-            .setTaskExecutor(mExecutor)
-            .build()
-        mTaskExecutor = mock(TaskExecutor::class.java)
-    }
+    private val executor = SynchronousExecutor()
+    private val configuration = Configuration.Builder()
+        .setExecutor(executor)
+        .setTaskExecutor(executor)
+        .build()
+    private val taskExecutor = InstantWorkTaskExecutor()
 
     @Test(expected = IllegalStateException::class)
     @SmallTest
     @SdkSuppress(minSdkVersion = 24)
     fun directBootTest() {
-        `when`(mContext.isDeviceProtectedStorage).thenReturn(true)
-        WorkManagerImpl(mContext, mConfiguration, mTaskExecutor, true)
+        val context = DeviceProtectedStoreContext(true)
+        WorkManagerImpl(context, configuration, taskExecutor, true)
     }
 
     @Test
     @SmallTest
     @SdkSuppress(minSdkVersion = 24)
     fun credentialBackedStorageTest() {
-        `when`(mContext.isDeviceProtectedStorage).thenReturn(false)
-        val workManager = WorkManagerImpl(mContext, mConfiguration, mTaskExecutor, true)
+        val context = DeviceProtectedStoreContext(false)
+        val workManager = WorkManagerImpl(context, configuration, taskExecutor, true)
         assertNotNull(workManager)
     }
+}
+
+private class DeviceProtectedStoreContext(
+    val deviceProtectedStorage: Boolean
+) : ContextWrapper(ApplicationProvider.getApplicationContext()) {
+    override fun isDeviceProtectedStorage() = deviceProtectedStorage
+
+    override fun getApplicationContext() = this
 }
