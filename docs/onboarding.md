@@ -618,7 +618,7 @@ Make sure to upload this change before or concurrently (ex. in the same Gerrit
 topic) with the dependent library code.
 
 Libraries typically reference dependencies using constants defined in
-[`Dependencies.kt`](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:buildSrc/public/src/main/kotlin/androidx/build/dependencies/Dependencies.kt),
+[`libs.versions.toml`](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:gradle/libs.versions.toml),
 so please update this file to include a constant for the version of the library
 that you have checked in. You will reference this constant in your library's
 `build.gradle` dependencies.
