@@ -23,6 +23,7 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
+import androidx.annotation.VisibleForTesting;
 import androidx.appsearch.app.GenericDocument;
 import androidx.appsearch.builtintypes.Timer;
 import androidx.core.google.shortcuts.utils.ConverterUtils;
@@ -49,15 +50,20 @@ public class TimerConverter implements AppSearchDocumentConverter {
     private static final String DURATION_MILLIS_KEY = "durationMillis";
     private static final String REMAINING_TIME_MILLIS_KEY = "remainingTimeMillis";
     private static final String RINGTONE_KEY = "ringtone";
+    private static final String STATUS_KEY = "status";
     private static final String VIBRATE_KEY = "vibrate";
-    private static final String TIMER_STATUS_KEY = "timerStatus";
-    private static final String EXPIRE_TIME_MILLIS_KEY = "expireTimeMillis";
+    private static final String START_TIME_MILLIS_KEY = "startTimeMillis";
+    private static final String START_TIME_MILLIS_IN_ELAPSED_REALTIME_KEY =
+            "startTimeMillisInElapsedRealtime";
 
     // Keys for Indexables
     private static final String MESSAGE_KEY = "message";
     private static final String LENGTH_KEY = "length";
     private static final String REMAINING_TIME_KEY = "remainingTime";
     private static final String EXPIRE_TIME_KEY = "expireTime";
+    private static final String EXPIRE_TIME_CORRECTED_BY_START_TIME_IN_ELAPSED_REALTIME_KEY =
+            "expireTimeCorrectedByStartTimeInElapsedRealtime";
+    private static final String TIMER_STATUS_KEY = "timerStatus";
 
     // Enums for TimerStatus
     private static final String STARTED = "Started";
@@ -67,6 +73,8 @@ public class TimerConverter implements AppSearchDocumentConverter {
     private static final String RESET = "Reset";
     private static final String UNKNOWN = "Unknown";
 
+    private static final String TIMER_INDEXABLE_TYPE = "Timer";
+
     private static final ThreadLocal<DateFormat> ISO8601_DATE_TIME_FORMAT =
             new ThreadLocal<DateFormat>() {
         @Override
@@ -74,6 +82,17 @@ public class TimerConverter implements AppSearchDocumentConverter {
             return new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ", Locale.US);
         }
     };
+
+    private final TimeModel mTimeModel;
+
+    public TimerConverter() {
+        this(new TimeModel());
+    }
+
+    @VisibleForTesting
+    TimerConverter(TimeModel timeModel) {
+        mTimeModel = timeModel;
+    }
 
     @Override
     @NonNull
@@ -83,7 +102,7 @@ public class TimerConverter implements AppSearchDocumentConverter {
         Preconditions.checkNotNull(timer);
 
         Indexable.Builder indexableBuilder = ConverterUtils.buildBaseIndexableFromGenericDocument(
-                    context, timer);
+                    context, TIMER_INDEXABLE_TYPE, timer);
 
         indexableBuilder
                 .put(MESSAGE_KEY, timer.getPropertyString(NAME_KEY))
@@ -92,7 +111,7 @@ public class TimerConverter implements AppSearchDocumentConverter {
                 .put(RINGTONE_KEY, timer.getPropertyString(RINGTONE_KEY))
                 .put(VIBRATE_KEY, timer.getPropertyBoolean(VIBRATE_KEY));
 
-        int timerStatus = (int) timer.getPropertyLong(TIMER_STATUS_KEY);
+        int timerStatus = (int) timer.getPropertyLong(STATUS_KEY);
         switch (timerStatus) {
             case Timer.STATUS_UNKNOWN:
                 indexableBuilder.put(TIMER_STATUS_KEY, UNKNOWN);
@@ -114,17 +133,35 @@ public class TimerConverter implements AppSearchDocumentConverter {
                 break;
             default:
                 indexableBuilder.put(TIMER_STATUS_KEY, UNKNOWN);
-                Log.w(TAG, "Invalud time status: " + timerStatus + ", defaulting to "
+                Log.w(TAG, "Invalid time status: " + timerStatus + ", defaulting to "
                         + "Timer.STATUS_UNKNOWN");
         }
 
-        // 0 means never expire.
-        long expireTime = timer.getPropertyLong(EXPIRE_TIME_MILLIS_KEY);
-        if (expireTime > 0) {
-            Date date = new Date(expireTime);
-            indexableBuilder.put(EXPIRE_TIME_KEY,
-                    Preconditions.checkNotNull(ISO8601_DATE_TIME_FORMAT.get()).format(date));
+        if (timerStatus == Timer.STATUS_STARTED) {
+            long startTime = timer.getPropertyLong(START_TIME_MILLIS_KEY);
+            long remainingTime = timer.getPropertyLong(REMAINING_TIME_MILLIS_KEY);
+
+            long expireTime = remainingTime + startTime;
+            indexableBuilder.put(EXPIRE_TIME_KEY, convertTimeToISOFormat(expireTime));
+
+            long startTimeInElapsedRealtime =
+                    timer.getPropertyLong(START_TIME_MILLIS_IN_ELAPSED_REALTIME_KEY);
+            if (startTimeInElapsedRealtime >= 0) {
+                // If startTime in elapsed realtime is set, use that to calculate expire time as
+                // well.
+                long elapsedTime = mTimeModel.getSystemClockElapsedRealtime()
+                        - startTimeInElapsedRealtime;
+                long expireTimeFromElapsedRealtime =
+                        mTimeModel.getSystemCurrentTimeMillis() - elapsedTime + remainingTime;
+                indexableBuilder.put(EXPIRE_TIME_CORRECTED_BY_START_TIME_IN_ELAPSED_REALTIME_KEY,
+                        convertTimeToISOFormat(expireTimeFromElapsedRealtime));
+            }
         }
         return indexableBuilder;
+    }
+
+    private String convertTimeToISOFormat(long time) {
+        Date date = new Date(time);
+        return Preconditions.checkNotNull(ISO8601_DATE_TIME_FORMAT.get()).format(date);
     }
 }

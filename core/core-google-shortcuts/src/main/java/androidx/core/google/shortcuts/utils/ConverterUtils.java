@@ -40,11 +40,12 @@ public class ConverterUtils {
     @NonNull
     public static Indexable.Builder buildBaseIndexableFromGenericDocument(
             @NonNull Context context,
+            @NonNull String indexableType,
             @NonNull GenericDocument genericDocument) {
         Preconditions.checkNotNull(context);
         Preconditions.checkNotNull(genericDocument);
 
-        return new Indexable.Builder(genericDocument.getSchemaType())
+        return new Indexable.Builder(indexableType)
                 .setId(genericDocument.getId())
                 // TODO (b/206020715): remove name when it's no longer a required field.
                 .setName(genericDocument.getNamespace())
