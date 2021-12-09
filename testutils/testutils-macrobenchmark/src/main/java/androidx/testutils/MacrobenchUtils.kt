@@ -19,6 +19,7 @@ package androidx.testutils
 import android.content.Intent
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.benchmark.macro.BaselineProfileMode
 import androidx.benchmark.macro.CompilationMode
 import androidx.benchmark.macro.StartupMode
 import androidx.benchmark.macro.StartupTimingLegacyMetric
@@ -39,7 +40,10 @@ val BASIC_COMPILATION_MODES = if (Build.VERSION.SDK_INT < 24) {
     listOf(
         CompilationMode.None(),
         CompilationMode.Interpreted,
-        CompilationMode.Partial(baselineProfile = false, warmupIterations = 3),
+        CompilationMode.Partial(
+            baselineProfileMode = BaselineProfileMode.Disable,
+            warmupIterations = 3
+        ),
         CompilationMode.Full()
     )
 }
