@@ -196,8 +196,8 @@ package androidx.wear.watchface.client {
   }
 
   public interface WatchFaceMetadataClient extends java.lang.AutoCloseable {
-    method public java.util.Map<java.lang.Integer,androidx.wear.watchface.client.ComplicationSlotMetadata> getComplicationSlotMetadataMap();
-    method public androidx.wear.watchface.style.UserStyleSchema getUserStyleSchema();
+    method @kotlin.jvm.Throws(exceptionClasses=RemoteException::class) public java.util.Map<java.lang.Integer,androidx.wear.watchface.client.ComplicationSlotMetadata> getComplicationSlotMetadataMap() throws android.os.RemoteException;
+    method @kotlin.jvm.Throws(exceptionClasses=RemoteException::class) public androidx.wear.watchface.style.UserStyleSchema getUserStyleSchema() throws android.os.RemoteException;
     field public static final androidx.wear.watchface.client.WatchFaceMetadataClient.Companion Companion;
   }
 
