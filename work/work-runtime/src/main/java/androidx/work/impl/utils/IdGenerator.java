@@ -18,7 +18,7 @@ package androidx.work.impl.utils;
 
 import static android.content.Context.MODE_PRIVATE;
 
-import static androidx.work.impl.WorkDatabaseMigrations.INSERT_PREFERENCE;
+import static androidx.work.impl.utils.PreferenceUtils.INSERT_PREFERENCE;
 
 import android.content.Context;
 import android.content.SharedPreferences;
