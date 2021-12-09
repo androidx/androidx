@@ -44,11 +44,11 @@ class CompilationModeTest {
     @SdkSuppress(minSdkVersion = 24)
     @Test
     fun partial() {
-        assertFailsWith<IllegalArgumentException> {
-            CompilationMode.Partial(false, warmupIterations = 0)
+        assertFailsWith<IllegalArgumentException> { // can't ignore with 0 iters
+            CompilationMode.Partial(BaselineProfileMode.Disable, warmupIterations = 0)
         }
-        assertFailsWith<java.lang.IllegalArgumentException> {
-            CompilationMode.Partial(true, warmupIterations = -1)
+        assertFailsWith<java.lang.IllegalArgumentException> { // can't set negative iters
+            CompilationMode.Partial(BaselineProfileMode.Require, warmupIterations = -1)
         }
     }
 
@@ -61,10 +61,13 @@ class CompilationModeTest {
             assertEquals("BaselineProfile", CompilationMode.Partial().toString())
             assertEquals(
                 "WarmupProfile(iterations=3)",
-                CompilationMode.Partial(baselineProfile = false, warmupIterations = 3).toString()
+                CompilationMode.Partial(
+                    BaselineProfileMode.Disable,
+                    warmupIterations = 3
+                ).toString()
             )
             assertEquals(
-                "Partial(baselineProfile=true,iterations=3)",
+                "Partial(baselineProfile=Require,iterations=3)",
                 CompilationMode.Partial(warmupIterations = 3).toString()
             )
             assertEquals("Full", CompilationMode.Full().toString())
@@ -72,7 +75,10 @@ class CompilationModeTest {
         assertEquals("Interpreted", CompilationMode.Interpreted.toString())
 
         // deprecated
-        assertEquals("SpeedProfile(iterations=123)", CompilationMode.SpeedProfile(123).toString())
+        assertEquals(
+            "SpeedProfile(iterations=123)",
+            CompilationMode.SpeedProfile(123).toString()
+        )
         assertEquals("Speed", CompilationMode.Speed.toString())
     }
 
