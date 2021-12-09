@@ -18,14 +18,11 @@ package androidx.appcompat.app;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
-import static java.util.Objects.requireNonNull;
-
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.os.Bundle;
-import android.os.LocaleList;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MenuInflater;
@@ -46,7 +43,6 @@ import androidx.appcompat.view.ActionMode;
 import androidx.appcompat.widget.Toolbar;
 import androidx.appcompat.widget.VectorEnabledTintResources;
 import androidx.collection.ArraySet;
-import androidx.core.os.LocaleListCompat;
 import androidx.core.view.WindowCompat;
 import androidx.fragment.app.FragmentActivity;
 
@@ -168,9 +164,6 @@ public abstract class AppCompatDelegate {
 
     @NightMode
     private static int sDefaultNightMode = MODE_NIGHT_UNSPECIFIED;
-
-    private static LocaleListCompat sRequestedAppLocales = null;
-    private static LocaleListCompat sStoredApplicationLocales = null;
 
     /**
      * All AppCompatDelegate instances associated with a "live" Activity, e.g. lifecycle state is
@@ -528,23 +521,6 @@ public abstract class AppCompatDelegate {
     public abstract boolean applyDayNight();
 
     /**
-     * Applies the current locales to this delegate's host component.
-     *
-     * <p>Apps can be notified when the locales are changed by overriding the
-     * {@link AppCompatActivity#onLocalesChanged(LocaleListCompat)} method.</p>
-     *
-     * <p>This is a default implementation and it is overridden in
-     * {@link AppCompatDelegateImpl#applyAppLocales()} </p>
-     *
-     * @see #setApplicationLocales(LocaleListCompat)
-     *
-     * @return true if requested app-specific locales were applied, false if not.
-     */
-    boolean applyAppLocales() {
-        return false;
-    }
-
-    /**
      * Override the night mode used for this delegate's host component.
      *
      * <p>When setting a mode to be used across an entire app, the
@@ -619,66 +595,6 @@ public abstract class AppCompatDelegate {
     }
 
     /**
-     * Sets the current locales for the calling app.
-     *
-     * <p>If this method is called after any host components with attached
-     * {@link AppCompatDelegate}s have been 'created', a {@link LocaleList} configuration
-     * change will occur in each. This may result in those components being recreated, depending
-     * on their manifest configuration.</p>
-     *
-     * <p>This method accepts {@link LocaleList} as an input parameter, therefore this method
-     * is only accessible for API>=24.</p>
-     *
-     * <p>Apps should continue to read Locales via their in-process {@link LocaleList}s.</p>
-     *
-     * @param locales a list of locales.
-     */
-    @RequiresApi(24)
-    public static void setApplicationLocales(@NonNull LocaleList locales) {
-        // TODO(b/200245468): Integrate LocaleManager#SetApplicationLocales &
-        // #getApplicationLocales in AppCompatDelegate
-
-        requireNonNull(locales);
-        LocaleListCompat newLocales = LocaleListCompat.wrap(locales);
-        setApplicationLocales(newLocales);
-    }
-
-    /**
-     * Sets the current locales for the calling app.
-     *
-     * <p>If this method is called after any host components with attached
-     * {@link AppCompatDelegate}s have been 'created', a {@link LocaleList} configuration
-     * change will occur in each. This may result in those components being recreated, depending
-     * on their manifest configuration.</p>
-     *
-     * <p>This method accepts {@link LocaleListCompat} as an input parameter.</p>
-     *
-     * <p>Apps should continue to read Locales via their in-process {@link LocaleList}s.</p>
-     *
-     * <p>This is for developers wishing to also support app-specific locales for API<24.</p>
-     *
-     * @param locales a list of locales.
-     */
-    public static void setApplicationLocales(@NonNull LocaleListCompat locales) {
-        // TODO(b/200245468): Integrate LocaleManager#SetApplicationLocales &
-        // #getApplicationLocales in AppCompatDelegate
-        synchronized (sActivityDelegatesLock) {
-            requireNonNull(locales);
-            if (DEBUG) {
-                Log.d(TAG, String.format("sRequestedAppLocales. New:%s, Current:%s",
-                        locales, sRequestedAppLocales));
-            }
-            if (!locales.equals(sRequestedAppLocales)) {
-                sRequestedAppLocales = locales;
-                applyLocalesToActiveDelegates();
-            } else if (DEBUG) {
-                Log.d(TAG, String.format("Not applying changes, sRequestedAppLocales is already %s",
-                        locales));
-            }
-        }
-    }
-
-    /**
      * Returns the default night mode.
      *
      * @see #setDefaultNightMode(int)
@@ -686,43 +602,6 @@ public abstract class AppCompatDelegate {
     @NightMode
     public static int getDefaultNightMode() {
         return sDefaultNightMode;
-    }
-
-    /**
-     * Returns the requested app locales.
-     *
-     * @see #setApplicationLocales(LocaleListCompat)
-     */
-    @Nullable
-    static LocaleListCompat getRequestedAppLocales() {
-        return sRequestedAppLocales;
-    }
-
-    /**
-     * Updates the requested app locales based on the persisted app-specific configuration.
-     * @param locales
-     */
-    static void updateRequestedAppLocales(LocaleListCompat locales) {
-        synchronized (sActivityDelegatesLock) {
-            sRequestedAppLocales = locales;
-        }
-    }
-
-    /**
-     * Returns the stored app locales.
-     */
-    @Nullable
-    static LocaleListCompat getStoredAppLocales() {
-        return sStoredApplicationLocales;
-    }
-
-    /**
-     * Updates the stored app locales based on the persisted app-specific configuration.
-     */
-    static void updateStoredAppLocales(LocaleListCompat locales) {
-        synchronized (sActivityDelegatesLock) {
-            sStoredApplicationLocales = locales;
-        }
     }
 
     /**
@@ -812,20 +691,6 @@ public abstract class AppCompatDelegate {
                         Log.d(TAG, "applyDayNightToActiveDelegates. Applying to " + delegate);
                     }
                     delegate.applyDayNight();
-                }
-            }
-        }
-    }
-
-    private static void applyLocalesToActiveDelegates() {
-        synchronized (sActivityDelegatesLock) {
-            for (WeakReference<AppCompatDelegate> activeDelegate : sActivityDelegates) {
-                final AppCompatDelegate delegate = activeDelegate.get();
-                if (delegate != null) {
-                    if (DEBUG) {
-                        Log.d(TAG, "applyLocalesToActiveDelegates. Applying to " + delegate);
-                    }
-                    delegate.applyAppLocales();
                 }
             }
         }
