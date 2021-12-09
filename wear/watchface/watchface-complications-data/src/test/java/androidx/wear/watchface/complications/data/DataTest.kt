@@ -45,6 +45,10 @@ public class AsWireComplicationDataTest {
             )
         testRoundTripConversions(data)
         assertThat(serializeAndDeserialize(data)).isInstanceOf(NoDataComplicationData::class.java)
+
+        assertThat(data).isEqualTo(NoDataComplicationData())
+        assertThat(data.hashCode()).isEqualTo(NoDataComplicationData().hashCode())
+        assertThat(data.toString()).isEqualTo("NoDataComplicationData()")
     }
 
     @Test
@@ -56,6 +60,10 @@ public class AsWireComplicationDataTest {
             )
         testRoundTripConversions(data)
         assertThat(serializeAndDeserialize(data)).isInstanceOf(EmptyComplicationData::class.java)
+
+        assertThat(data).isEqualTo(EmptyComplicationData())
+        assertThat(data.hashCode()).isEqualTo(EmptyComplicationData().hashCode())
+        assertThat(data.toString()).isEqualTo("EmptyComplicationData()")
     }
 
     @Test
@@ -68,6 +76,10 @@ public class AsWireComplicationDataTest {
         testRoundTripConversions(data)
         assertThat(serializeAndDeserialize(data))
             .isInstanceOf(NotConfiguredComplicationData::class.java)
+
+        assertThat(data).isEqualTo(NotConfiguredComplicationData())
+        assertThat(data.hashCode()).isEqualTo(NotConfiguredComplicationData().hashCode())
+        assertThat(data.toString()).isEqualTo("NotConfiguredComplicationData()")
     }
 
     @Test
@@ -94,6 +106,33 @@ public class AsWireComplicationDataTest {
             .isEqualTo("content description")
         assertThat(deserialized.title!!.getTextAt(resources, Instant.EPOCH))
             .isEqualTo("title")
+
+        val data2 = ShortTextComplicationData.Builder(
+            "text".complicationText,
+            "content description".complicationText
+        )
+            .setTitle("title".complicationText)
+            .build()
+        val data3 = ShortTextComplicationData.Builder(
+            "text3".complicationText,
+            "content description3".complicationText
+        )
+            .setTitle("title3".complicationText)
+            .build()
+
+        assertThat(data).isEqualTo(data2)
+        assertThat(data).isNotEqualTo(data3)
+        assertThat(data.hashCode()).isEqualTo(data2.hashCode())
+        assertThat(data.hashCode()).isNotEqualTo(data3.hashCode())
+        assertThat(data.toString()).isEqualTo(
+            "ShortTextComplicationData(text=ComplicationText{mSurroundingText=text, " +
+                "mTimeDependentText=null}, title=ComplicationText{mSurroundingText=title, " +
+                "mTimeDependentText=null}, monochromaticImage=null, contentDescription=" +
+                "ComplicationText{mSurroundingText=content description, mTimeDependentText=null}," +
+                " tapActionLostDueToSerialization=false, tapAction=null, validTimeRange=" +
+                "TimeRange(startDateTimeMillis=-1000000000-01-01T00:00:00Z, " +
+                "endDateTimeMillis=+1000000000-12-31T23:59:59.999999999Z))"
+        )
     }
 
     @Test
@@ -120,6 +159,34 @@ public class AsWireComplicationDataTest {
             .isEqualTo("content description")
         assertThat(deserialized.title!!.getTextAt(resources, Instant.EPOCH))
             .isEqualTo("title")
+
+        val data2 = LongTextComplicationData.Builder(
+            "text".complicationText,
+            "content description".complicationText
+        )
+            .setTitle("title".complicationText)
+            .build()
+        val data3 = LongTextComplicationData.Builder(
+            "text3".complicationText,
+            "content description3".complicationText
+        )
+            .setTitle("title3".complicationText)
+            .build()
+
+        assertThat(data).isEqualTo(data2)
+        assertThat(data).isNotEqualTo(data3)
+        assertThat(data.hashCode()).isEqualTo(data2.hashCode())
+        assertThat(data.hashCode()).isNotEqualTo(data3.hashCode())
+        assertThat(data.toString()).isEqualTo(
+            "LongTextComplicationData(text=ComplicationText{mSurroundingText=text, " +
+                "mTimeDependentText=null}, title=ComplicationText{mSurroundingText=title, " +
+                "mTimeDependentText=null}, monochromaticImage=null, smallImage=null, " +
+                "contentDescription=ComplicationText{mSurroundingText=content description, " +
+                "mTimeDependentText=null}), tapActionLostDueToSerialization=false, " +
+                "tapAction=null, validTimeRange=TimeRange(startDateTimeMillis=" +
+                "-1000000000-01-01T00:00:00Z, endDateTimeMillis=" +
+                "+1000000000-12-31T23:59:59.999999999Z))"
+        )
     }
 
     @Test
@@ -149,6 +216,34 @@ public class AsWireComplicationDataTest {
             .isEqualTo("content description")
         assertThat(deserialized.title!!.getTextAt(resources, Instant.EPOCH))
             .isEqualTo("battery")
+
+        val data2 = RangedValueComplicationData.Builder(
+            value = 95f, min = 0f, max = 100f,
+            contentDescription = "content description".complicationText
+        )
+            .setTitle("battery".complicationText)
+            .build()
+
+        val data3 = RangedValueComplicationData.Builder(
+            value = 95f, min = 0f, max = 100f,
+            contentDescription = "content description2".complicationText
+        )
+            .setTitle("battery2".complicationText)
+            .build()
+
+        assertThat(data).isEqualTo(data2)
+        assertThat(data).isNotEqualTo(data3)
+        assertThat(data.hashCode()).isEqualTo(data2.hashCode())
+        assertThat(data.hashCode()).isNotEqualTo(data3.hashCode())
+        assertThat(data.toString()).isEqualTo(
+            "RangedValueComplicationData(value=95.0, min=0.0, max=100.0, " +
+                "monochromaticImage=null, title=ComplicationText{mSurroundingText=battery, " +
+                "mTimeDependentText=null}, text=null, contentDescription=ComplicationText" +
+                "{mSurroundingText=content description, mTimeDependentText=null}), " +
+                "tapActionLostDueToSerialization=false, tapAction=null, validTimeRange=" +
+                "TimeRange(startDateTimeMillis=-1000000000-01-01T00:00:00Z, endDateTimeMillis=" +
+                "+1000000000-12-31T23:59:59.999999999Z))"
+        )
     }
 
     @RequiresApi(Build.VERSION_CODES.P)
@@ -172,6 +267,31 @@ public class AsWireComplicationDataTest {
             .isEqualTo("someuri")
         assertThat(deserialized.contentDescription!!.getTextAt(resources, Instant.EPOCH))
             .isEqualTo("content description")
+
+        val icon2 = Icon.createWithContentUri("someuri")
+        val image2 = MonochromaticImage.Builder(icon2).build()
+        val data2 = MonochromaticImageComplicationData.Builder(
+            image2, "content description".complicationText
+        ).build()
+
+        val icon3 = Icon.createWithContentUri("someuri3")
+        val image3 = MonochromaticImage.Builder(icon3).build()
+        val data3 = MonochromaticImageComplicationData.Builder(
+            image3, "content description".complicationText
+        ).build()
+
+        assertThat(data).isEqualTo(data2)
+        assertThat(data).isNotEqualTo(data3)
+        assertThat(data.hashCode()).isEqualTo(data2.hashCode())
+        assertThat(data.hashCode()).isNotEqualTo(data3.hashCode())
+        assertThat(data.toString()).isEqualTo(
+            "MonochromaticImageComplicationData(monochromaticImage=MonochromaticImage(image=" +
+                "Icon(typ=URI uri=someuri), ambientImage=null), contentDescription=" +
+                "ComplicationText{mSurroundingText=content description, mTimeDependentText=null})" +
+                ", tapActionLostDueToSerialization=false, tapAction=null, validTimeRange=" +
+                "TimeRange(startDateTimeMillis=-1000000000-01-01T00:00:00Z, endDateTimeMillis=" +
+                "+1000000000-12-31T23:59:59.999999999Z))"
+        )
     }
 
     @RequiresApi(Build.VERSION_CODES.P)
@@ -197,6 +317,31 @@ public class AsWireComplicationDataTest {
         assertThat(deserialized.smallImage.type).isEqualTo(SmallImageType.PHOTO)
         assertThat(deserialized.contentDescription!!.getTextAt(resources, Instant.EPOCH))
             .isEqualTo("content description")
+
+        val icon2 = Icon.createWithContentUri("someuri")
+        val image2 = SmallImage.Builder(icon2, SmallImageType.PHOTO).build()
+        val data2 = SmallImageComplicationData.Builder(
+            image2, "content description".complicationText
+        ).build()
+
+        val icon3 = Icon.createWithContentUri("someuri3")
+        val image3 = SmallImage.Builder(icon3, SmallImageType.PHOTO).build()
+        val data3 = SmallImageComplicationData.Builder(
+            image3, "content description".complicationText
+        ).build()
+
+        assertThat(data).isEqualTo(data2)
+        assertThat(data).isNotEqualTo(data3)
+        assertThat(data.hashCode()).isEqualTo(data2.hashCode())
+        assertThat(data.hashCode()).isNotEqualTo(data3.hashCode())
+        assertThat(data.toString()).isEqualTo(
+            "SmallImageComplicationData(smallImage=SmallImage(image=Icon(typ=URI uri=someuri)" +
+                ", type=PHOTO, ambientImage=null), contentDescription=ComplicationText{" +
+                "mSurroundingText=content description, mTimeDependentText=null}), " +
+                "tapActionLostDueToSerialization=false, tapAction=null, validTimeRange=" +
+                "TimeRange(startDateTimeMillis=-1000000000-01-01T00:00:00Z, endDateTimeMillis=" +
+                "+1000000000-12-31T23:59:59.999999999Z))"
+        )
     }
 
     @RequiresApi(Build.VERSION_CODES.P)
@@ -219,6 +364,28 @@ public class AsWireComplicationDataTest {
             .isEqualTo("someuri")
         assertThat(deserialized.contentDescription!!.getTextAt(resources, Instant.EPOCH))
             .isEqualTo("content description")
+
+        val photoImage2 = Icon.createWithContentUri("someuri")
+        val data2 = PhotoImageComplicationData.Builder(
+            photoImage2, "content description".complicationText
+        ).build()
+
+        val photoImage3 = Icon.createWithContentUri("someuri3")
+        val data3 = PhotoImageComplicationData.Builder(
+            photoImage3, "content description".complicationText
+        ).build()
+
+        assertThat(data).isEqualTo(data2)
+        assertThat(data).isNotEqualTo(data3)
+        assertThat(data.hashCode()).isEqualTo(data2.hashCode())
+        assertThat(data.hashCode()).isNotEqualTo(data3.hashCode())
+        assertThat(data.toString()).isEqualTo(
+            "PhotoImageComplicationData(photoImage=Icon(typ=URI uri=someuri), contentDescription=" +
+                "ComplicationText{mSurroundingText=content description, mTimeDependentText=null})" +
+                ", tapActionLostDueToSerialization=false, tapAction=null, validTimeRange=" +
+                "TimeRange(startDateTimeMillis=-1000000000-01-01T00:00:00Z, endDateTimeMillis=" +
+                "+1000000000-12-31T23:59:59.999999999Z))"
+        )
     }
 
     @Test
@@ -236,6 +403,26 @@ public class AsWireComplicationDataTest {
         val deserialized = serializeAndDeserialize(data) as NoPermissionComplicationData
         assertThat(deserialized.text!!.getTextAt(resources, Instant.EPOCH))
             .isEqualTo("needs location")
+
+        val data2 = NoPermissionComplicationData.Builder()
+            .setText("needs location".complicationText)
+            .build()
+
+        val data3 = NoPermissionComplicationData.Builder()
+            .setText("needs location3".complicationText)
+            .build()
+
+        assertThat(data).isEqualTo(data2)
+        assertThat(data).isNotEqualTo(data3)
+        assertThat(data.hashCode()).isEqualTo(data2.hashCode())
+        assertThat(data.hashCode()).isNotEqualTo(data3.hashCode())
+        assertThat(data.toString()).isEqualTo(
+            "NoPermissionComplicationData(text=ComplicationText{mSurroundingText=needs location," +
+                " mTimeDependentText=null}, title=null, monochromaticImage=null, " +
+                "tapActionLostDueToSerialization=false, tapAction=null, validTimeRange=" +
+                "TimeRange(startDateTimeMillis=-1000000000-01-01T00:00:00Z, endDateTimeMillis=" +
+                "+1000000000-12-31T23:59:59.999999999Z))"
+        )
     }
 
     private fun testRoundTripConversions(data: ComplicationData) {

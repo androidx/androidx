@@ -33,6 +33,28 @@ public class TimeInterval(
     public var end: Instant
 ) {
     init { require(start < end) { "start must be before end" } }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as TimeInterval
+
+        if (start != other.start) return false
+        if (end != other.end) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = start.hashCode()
+        result = 31 * result + end.hashCode()
+        return result
+    }
+
+    override fun toString(): String {
+        return "TimeInterval(start=$start, end=$end)"
+    }
 }
 
 /**
@@ -44,7 +66,29 @@ public class TimeInterval(
 public class TimelineEntry(
     public var validity: TimeInterval,
     public var complicationData: ComplicationData
-)
+) {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as TimelineEntry
+
+        if (validity != other.validity) return false
+        if (complicationData != other.complicationData) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = validity.hashCode()
+        result = 31 * result + complicationData.hashCode()
+        return result
+    }
+
+    override fun toString(): String {
+        return "TimelineEntry(validity=$validity, complicationData=$complicationData)"
+    }
+}
 
 /**
  * A collection of TimelineEntry items.
@@ -86,12 +130,35 @@ public class ComplicationDataTimeline(
     internal fun asWireComplicationData(): WireComplicationData {
         val wireTimelineEntries = timelineEntries.map { timelineEntry ->
             timelineEntry.complicationData.asWireComplicationData().apply {
-                setTimelineStartInstant(timelineEntry.validity.start)
-                setTimelineEndInstant(timelineEntry.validity.end)
+                timelineStartInstant = timelineEntry.validity.start
+                timelineEndInstant = timelineEntry.validity.end
             }
         }
         return defaultComplicationData.asWireComplicationData().apply {
             setTimelineEntryCollection(wireTimelineEntries)
         }
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as ComplicationDataTimeline
+
+        if (defaultComplicationData != other.defaultComplicationData) return false
+        if (timelineEntries != other.timelineEntries) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = defaultComplicationData.hashCode()
+        result = 31 * result + timelineEntries.hashCode()
+        return result
+    }
+
+    override fun toString(): String {
+        return "ComplicationDataTimeline(defaultComplicationData=$defaultComplicationData, " +
+            "timelineEntries=$timelineEntries)"
     }
 }
