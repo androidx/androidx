@@ -153,16 +153,16 @@ package androidx.glance.appwidget.action {
     method public static inline <reified T extends androidx.glance.appwidget.action.ActionCallback> androidx.glance.action.Action! actionRunCallback(optional androidx.glance.action.ActionParameters parameters);
   }
 
-  public final class StartActivityIntentActionKt {
-    method public static androidx.glance.action.Action actionStartActivity(android.content.Intent intent, optional androidx.glance.action.ActionParameters parameters);
+  public final class SendBroadcastActionKt {
+    method public static androidx.glance.action.Action actionSendBroadcast(String action, optional android.content.ComponentName? componentName);
+    method public static androidx.glance.action.Action actionSendBroadcast(android.content.Intent intent);
+    method public static androidx.glance.action.Action actionSendBroadcast(android.content.ComponentName componentName);
+    method public static <T extends android.content.BroadcastReceiver> androidx.glance.action.Action actionSendBroadcast(Class<T> receiver);
+    method public static inline <reified T extends android.content.BroadcastReceiver> androidx.glance.action.Action! actionSendBroadcast();
   }
 
-  public final class StartBroadcastActionKt {
-    method public static androidx.glance.action.Action actionStartBroadcastReceiver(String action, optional android.content.ComponentName? componentName);
-    method public static androidx.glance.action.Action actionStartBroadcastReceiver(android.content.Intent intent);
-    method public static androidx.glance.action.Action actionStartBroadcastReceiver(android.content.ComponentName componentName);
-    method public static <T extends android.content.BroadcastReceiver> androidx.glance.action.Action actionStartBroadcastReceiver(Class<T> receiver);
-    method public static inline <reified T extends android.content.BroadcastReceiver> androidx.glance.action.Action! actionStartBroadcastReceiver();
+  public final class StartActivityIntentActionKt {
+    method public static androidx.glance.action.Action actionStartActivity(android.content.Intent intent, optional androidx.glance.action.ActionParameters parameters);
   }
 
   public final class StartServiceActionKt {

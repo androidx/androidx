@@ -34,25 +34,25 @@ import kotlin.test.assertIs
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(RobolectricTestRunner::class)
-class StartBroadcastReceiverActionTest {
+class SendBroadcastActionTest {
 
     private val context = ApplicationProvider.getApplicationContext<Context>()
 
     @Test
     fun testLaunchClass() {
         val modifiers =
-            GlanceModifier.clickable(actionStartBroadcastReceiver<TestBroadcastReceiver>())
+            GlanceModifier.clickable(actionSendBroadcast<TestBroadcastReceiver>())
         val modifier = checkNotNull(modifiers.findModifier<ActionModifier>())
-        val action = assertIs<StartBroadcastReceiverClassAction>(modifier.action)
+        val action = assertIs<SendBroadcastClassAction>(modifier.action)
         assertThat(action.receiverClass).isEqualTo(TestBroadcastReceiver::class.java)
     }
 
     @Test
     fun testLaunchAction() {
         val intentActionString = "test_action"
-        val modifiers = GlanceModifier.clickable(actionStartBroadcastReceiver(intentActionString))
+        val modifiers = GlanceModifier.clickable(actionSendBroadcast(intentActionString))
         val modifier = checkNotNull(modifiers.findModifier<ActionModifier>())
-        val action = assertIs<StartBroadcastReceiverActionAction>(modifier.action)
+        val action = assertIs<SendBroadcastActionAction>(modifier.action)
         assertThat(action.action).isEqualTo(intentActionString)
         assertThat(action.componentName).isNull()
     }
@@ -65,13 +65,13 @@ class StartBroadcastReceiverActionTest {
             "androidx.glance.appwidget.action.TestBroadcastReceiver"
         )
         val modifiers = GlanceModifier.clickable(
-            actionStartBroadcastReceiver(
+            actionSendBroadcast(
                 intentActionString,
                 componentName
             )
         )
         val modifier = checkNotNull(modifiers.findModifier<ActionModifier>())
-        val action = assertIs<StartBroadcastReceiverActionAction>(modifier.action)
+        val action = assertIs<SendBroadcastActionAction>(modifier.action)
         assertThat(action.action).isEqualTo(intentActionString)
         assertThat(action.componentName).isEqualTo(componentName)
     }
@@ -81,9 +81,9 @@ class StartBroadcastReceiverActionTest {
         val intentActionString = "test_action"
         val intent =
             Intent(context, TestBroadcastReceiver::class.java).setAction(intentActionString)
-        val modifiers = GlanceModifier.clickable(actionStartBroadcastReceiver(intent))
+        val modifiers = GlanceModifier.clickable(actionSendBroadcast(intent))
         val modifier = checkNotNull(modifiers.findModifier<ActionModifier>())
-        val action = assertIs<StartBroadcastReceiverIntentAction>(modifier.action)
+        val action = assertIs<SendBroadcastIntentAction>(modifier.action)
         assertThat(action.intent).isEqualTo(intent)
         assertThat(action.intent.action).isEqualTo(intentActionString)
     }
@@ -94,9 +94,9 @@ class StartBroadcastReceiverActionTest {
             "androidx.glance.appwidget.action",
             "androidx.glance.appwidget.action.TestBroadcastReceiver"
         )
-        val modifiers = GlanceModifier.clickable(actionStartBroadcastReceiver(componentName))
+        val modifiers = GlanceModifier.clickable(actionSendBroadcast(componentName))
         val modifier = checkNotNull(modifiers.findModifier<ActionModifier>())
-        val action = assertIs<StartBroadcastReceiverComponentAction>(modifier.action)
+        val action = assertIs<SendBroadcastComponentAction>(modifier.action)
         assertThat(action.componentName).isEqualTo(componentName)
     }
 }
