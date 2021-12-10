@@ -38,7 +38,6 @@ import androidx.camera.core.FocusMeteringAction
 import androidx.camera.core.FocusMeteringResult
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.TorchState
-import androidx.camera.core.impl.CameraCaptureResult
 import androidx.camera.core.impl.CameraControlInternal
 import androidx.camera.core.impl.CaptureConfig
 import androidx.camera.core.impl.Config
@@ -48,6 +47,7 @@ import com.google.common.util.concurrent.ListenableFuture
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
+import java.util.Collections
 import javax.inject.Inject
 
 /**
@@ -158,34 +158,22 @@ class CameraControlAdapter @Inject constructor(
         this.imageCaptureFlashMode = flashMode
     }
 
-    override fun triggerAf(): ListenableFuture<CameraCaptureResult> {
-        warn { "TODO: triggerAf is not yet supported" }
-        return Futures.immediateFuture(CameraCaptureResult.EmptyCameraCaptureResult.create())
-    }
-
-    override fun startFlashSequence(
-        @ImageCapture.FlashType flashType: Int
-    ): ListenableFuture<Void> {
-        warn { "TODO: startFlashSequence is not yet supported" }
-        return Futures.immediateFuture(null)
-    }
-
-    override fun cancelAfAndFinishFlashSequence(
-        cancelAfTrigger: Boolean,
-        finishFlashSequence: Boolean
-    ) {
-        warn { "TODO: cancelAfAndFinishFlashSequence is not yet supported" }
-    }
-
     override fun setExposureCompensationIndex(exposure: Int): ListenableFuture<Int> =
         Futures.nonCancellationPropagating(
             evCompControl.updateAsync(exposure).asListenableFuture()
         )
 
-    override fun submitStillCaptureRequests(captureConfigs: List<CaptureConfig>) {
+    override fun submitStillCaptureRequests(
+        captureConfigs: List<CaptureConfig>,
+        captureMode: Int,
+        flashType: Int,
+    ): ListenableFuture<List<Void>> {
         val camera = useCaseManager.camera
         checkNotNull(camera) { "Attempted to issue capture requests while the camera isn't ready." }
         camera.capture(captureConfigs)
+
+        // TODO(b/199813515) : implement the preCapture
+        return Futures.immediateFuture(Collections.emptyList())
     }
 
     override fun getSessionConfig(): SessionConfig {

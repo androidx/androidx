@@ -26,11 +26,14 @@ import androidx.camera.core.CameraControl;
 import androidx.camera.core.FocusMeteringAction;
 import androidx.camera.core.FocusMeteringResult;
 import androidx.camera.core.ImageCapture;
+import androidx.camera.core.ImageCapture.CaptureMode;
 import androidx.camera.core.ImageCapture.FlashMode;
+import androidx.camera.core.ImageCapture.FlashType;
 import androidx.camera.core.impl.utils.futures.Futures;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -55,42 +58,23 @@ public interface CameraControlInternal extends CameraControl {
     void setFlashMode(@FlashMode int flashMode);
 
     /**
-     * Performs a AF trigger.
+     * Performs still capture requests with the desired capture mode.
      *
-     * @return a {@link ListenableFuture} which completes when the request is completed.
-     * Cancelling the ListenableFuture is a no-op.
+     * @param captureConfigs capture configuration used for creating CaptureRequest
+     * @param captureMode the mode to capture the image, possible value is
+     * {@link ImageCapture#CAPTURE_MODE_MINIMIZE_LATENCY} or
+     * {@link ImageCapture#CAPTURE_MODE_MAXIMIZE_QUALITY}
+     * @param flashType the options when flash is required for taking a picture.
+     * @return ListenableFuture that would be completed while all the captures are completed. It
+     * would fail with a {@link androidx.camera.core.ImageCapture#ERROR_CAMERA_CLOSED} when the
+     * capture was canceled, or a {@link androidx.camera.core.ImageCapture#ERROR_CAPTURE_FAILED}
+     * when the capture was failed.
      */
     @NonNull
-    ListenableFuture<CameraCaptureResult> triggerAf();
-
-    /**
-     * Starts a flash sequence.
-     *
-     * @param flashType Uses one shot flash or use torch as flash when taking a picture.
-     * @return a {@link ListenableFuture} which completes when the request is completed.
-     * Cancelling the ListenableFuture is a no-op.
-     */
-    @NonNull
-    ListenableFuture<Void> startFlashSequence(@ImageCapture.FlashType int flashType);
-
-    /** Cancels AF trigger AND/OR finishes flash sequence.* */
-    void cancelAfAndFinishFlashSequence(boolean cancelAfTrigger, boolean finishFlashSequence);
-
-    /**
-     * Set a exposure compensation to the camera
-     *
-     * @param exposure the exposure compensation value to set
-     * @return a ListenableFuture which is completed when the new exposure compensation reach the
-     * target.
-     */
-    @NonNull
-    @Override
-    ListenableFuture<Integer> setExposureCompensationIndex(int exposure);
-
-    /**
-     * Performs still capture requests.
-     */
-    void submitStillCaptureRequests(@NonNull List<CaptureConfig> captureConfigs);
+    ListenableFuture<List<Void>> submitStillCaptureRequests(
+            @NonNull List<CaptureConfig> captureConfigs,
+            @CaptureMode int captureMode,
+            @FlashType int flashType);
 
     /**
      * Gets the current SessionConfig.
@@ -141,31 +125,19 @@ public interface CameraControlInternal extends CameraControl {
             return Futures.immediateFuture(null);
         }
 
-        @Override
-        @NonNull
-        public ListenableFuture<CameraCaptureResult> triggerAf() {
-            return Futures.immediateFuture(CameraCaptureResult.EmptyCameraCaptureResult.create());
-        }
-
-        @Override
-        @NonNull
-        public ListenableFuture<Void> startFlashSequence(@ImageCapture.FlashType int flashType) {
-            return Futures.immediateFuture(null);
-        }
-
-        @Override
-        public void cancelAfAndFinishFlashSequence(boolean cancelAfTrigger,
-                boolean finishFlashSequence) {
-        }
-
         @NonNull
         @Override
         public ListenableFuture<Integer> setExposureCompensationIndex(int exposure) {
             return Futures.immediateFuture(0);
         }
 
+        @NonNull
         @Override
-        public void submitStillCaptureRequests(@NonNull List<CaptureConfig> captureConfigs) {
+        public ListenableFuture<List<Void>> submitStillCaptureRequests(
+                @NonNull List<CaptureConfig> captureConfigs,
+                @CaptureMode int captureMode,
+                @FlashType int flashType) {
+            return Futures.immediateFuture(Collections.emptyList());
         }
 
         @NonNull
