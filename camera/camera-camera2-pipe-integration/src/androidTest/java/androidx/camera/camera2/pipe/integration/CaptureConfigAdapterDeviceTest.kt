@@ -23,6 +23,7 @@ import android.view.Surface
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.integration.adapter.CameraControlAdapter
 import androidx.camera.core.CameraSelector
+import androidx.camera.core.ImageCapture
 import androidx.camera.core.impl.CameraCaptureCallback
 import androidx.camera.core.impl.CameraCaptureFailure
 import androidx.camera.core.impl.CameraCaptureResult
@@ -138,7 +139,11 @@ class CaptureConfigAdapterDeviceTest {
             }.build()
 
         // Act
-        cameraControl!!.submitStillCaptureRequests(listOf(captureConfig))
+        cameraControl!!.submitStillCaptureRequests(
+            listOf(captureConfig),
+            ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY,
+            ImageCapture.FLASH_TYPE_ONE_SHOT_FLASH,
+        )
 
         // Assert
         Truth.assertThat(
