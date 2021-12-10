@@ -23,6 +23,7 @@ import androidx.appsearch.app.GenericDocument;
 import androidx.core.util.Preconditions;
 
 import com.google.android.icing.proto.DocumentProto;
+import com.google.android.icing.proto.DocumentProtoOrBuilder;
 import com.google.android.icing.proto.PropertyProto;
 import com.google.android.icing.proto.SchemaTypeConfigProto;
 import com.google.android.icing.protobuf.ByteString;
@@ -129,7 +130,7 @@ public final class GenericDocumentToProtoConverter {
      *                      that has all empty values.
      */
     @NonNull
-    public static GenericDocument toGenericDocument(@NonNull DocumentProto proto,
+    public static GenericDocument toGenericDocument(@NonNull DocumentProtoOrBuilder proto,
             @NonNull String prefix,
             @NonNull Map<String, SchemaTypeConfigProto> schemaTypeMap) {
         Preconditions.checkNotNull(proto);
