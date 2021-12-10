@@ -17,7 +17,6 @@
 package androidx.appsearch.localstorage.converter;
 
 import static androidx.appsearch.localstorage.util.PrefixUtil.createPrefix;
-import static androidx.appsearch.localstorage.util.PrefixUtil.getDatabaseName;
 import static androidx.appsearch.localstorage.util.PrefixUtil.getPackageName;
 import static androidx.appsearch.localstorage.util.PrefixUtil.removePrefix;
 
@@ -177,8 +176,7 @@ public final class SearchSpecToProtoConverter {
                 // If there's no visibility store, there's no extra access
                 allow = false;
             } else {
-                String databaseName = getDatabaseName(targetPrefixedSchemaFilter);
-                allow = visibilityStore.isSchemaSearchableByCaller(packageName, databaseName,
+                allow = visibilityStore.isSchemaSearchableByCaller(packageName,
                         targetPrefixedSchemaFilter, callerUid, callerHasSystemAccess);
             }
             if (!allow) {

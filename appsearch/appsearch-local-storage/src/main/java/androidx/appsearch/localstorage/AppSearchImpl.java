@@ -39,11 +39,11 @@ import androidx.appsearch.app.AppSearchSchema;
 import androidx.appsearch.app.GenericDocument;
 import androidx.appsearch.app.GetByDocumentIdRequest;
 import androidx.appsearch.app.GetSchemaResponse;
-import androidx.appsearch.app.PackageIdentifier;
 import androidx.appsearch.app.SearchResultPage;
 import androidx.appsearch.app.SearchSpec;
 import androidx.appsearch.app.SetSchemaResponse;
 import androidx.appsearch.app.StorageInfo;
+import androidx.appsearch.app.VisibilityDocument;
 import androidx.appsearch.exceptions.AppSearchException;
 import androidx.appsearch.localstorage.converter.GenericDocumentToProtoConverter;
 import androidx.appsearch.localstorage.converter.ResultCodeToProtoConverter;
@@ -404,9 +404,12 @@ public final class AppSearchImpl implements Closeable {
      * @param visibilityStore             If set, {@code schemasNotDisplayedBySystem} and {@code
      *                                    schemasVisibleToPackages} will be saved here if the
      *                                    schema is successfully applied.
-     * @param schemasNotDisplayedBySystem Schema types that should not be surfaced on platform
-     *                                    surfaces.
-     * @param schemasVisibleToPackages    Schema types that are visible to the specified packages.
+     * @param visibilityDocuments         {@link VisibilityDocument}s that contain all
+     *                                    visibility setting information for those schemas
+     *                                    has user custom settings. Other schemas in the list
+     *                                    that don't has a {@link VisibilityDocument}
+     *                                    will be treated as having the default visibility,
+     *                                    which is accessible by the system and no other packages.
      * @param forceOverride               Whether to force-apply the schema even if it is
      *                                    incompatible. Documents
      *                                    which do not comply with the new schema will be deleted.
@@ -425,8 +428,7 @@ public final class AppSearchImpl implements Closeable {
             @NonNull String databaseName,
             @NonNull List<AppSearchSchema> schemas,
             @Nullable VisibilityStore visibilityStore,
-            @NonNull List<String> schemasNotDisplayedBySystem,
-            @NonNull Map<String, List<PackageIdentifier>> schemasVisibleToPackages,
+            @NonNull List<VisibilityDocument> visibilityDocuments,
             boolean forceOverride,
             int version,
             @Nullable SetSchemaStats.Builder setSchemaStatsBuilder) throws AppSearchException {
@@ -495,25 +497,34 @@ public final class AppSearchImpl implements Closeable {
             }
 
             if (visibilityStore != null) {
-                Set<String> prefixedSchemasNotDisplayedBySystem =
-                        new ArraySet<>(schemasNotDisplayedBySystem.size());
-                for (int i = 0; i < schemasNotDisplayedBySystem.size(); i++) {
-                    prefixedSchemasNotDisplayedBySystem.add(
-                            prefix + schemasNotDisplayedBySystem.get(i));
+                // Add prefix to all visibility documents.
+                List<VisibilityDocument> prefixedVisibilityDocuments =
+                        new ArrayList<>(visibilityDocuments.size());
+                // Find out which Visibility document is deleted or changed to all-default settings.
+                // We need to remove them from Visibility Store.
+                Set<String> deprecatedVisibilityDocuments =
+                        new ArraySet<>(rewrittenSchemaResults.mRewrittenPrefixedTypes.keySet());
+                for (int i = 0; i < visibilityDocuments.size(); i++) {
+                    VisibilityDocument unPrefixedDocument = visibilityDocuments.get(i);
+                    // The VisibilityDocument is controlled by the client and it's untrusted but we
+                    // make it safe by appending a prefix.
+                    // We must control the package-database prefix. Therefore even if the client
+                    // fake the id, they can only mess their own app. That's totally allowed and
+                    // they can do this via the public API too.
+                    String prefixedSchemaType = prefix + unPrefixedDocument.getId();
+                    prefixedVisibilityDocuments.add(new VisibilityDocument(
+                            unPrefixedDocument.toBuilder()
+                                    .setId(prefixedSchemaType)
+                                    .build()));
+                    // This schema is not all-default settings. We should keep it.
+                    deprecatedVisibilityDocuments.remove(prefixedSchemaType);
                 }
-
-                Map<String, List<PackageIdentifier>> prefixedSchemasVisibleToPackages =
-                        new ArrayMap<>(schemasVisibleToPackages.size());
-                for (Map.Entry<String, List<PackageIdentifier>> entry
-                        : schemasVisibleToPackages.entrySet()) {
-                    prefixedSchemasVisibleToPackages.put(prefix + entry.getKey(), entry.getValue());
-                }
-
-                visibilityStore.setVisibility(
-                        packageName,
-                        databaseName,
-                        prefixedSchemasNotDisplayedBySystem,
-                        prefixedSchemasVisibleToPackages);
+                // Now deprecatedVisibilityDocuments contains those existing schemas that has
+                // all-default visibility settings, add deleted schemas. That's all we need to
+                // remove.
+                deprecatedVisibilityDocuments.addAll(rewrittenSchemaResults.mDeletedPrefixedTypes);
+                visibilityStore.removeVisibility(deprecatedVisibilityDocuments);
+                visibilityStore.setVisibility(prefixedVisibilityDocuments);
             }
 
             return SetSchemaResponseToProtoConverter
