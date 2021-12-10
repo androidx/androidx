@@ -22,7 +22,7 @@ import android.view.ViewGroup
 import android.widget.BaseAdapter
 import android.widget.TextView
 import androidx.camera.integration.extensions.R
-import androidx.camera.integration.extensions.validation.CameraValidationResultActivity.Companion.getLensFacingStringFromId
+import androidx.camera.integration.extensions.validation.CameraValidationResultActivity.Companion.getLensFacingStringFromInt
 import androidx.camera.integration.extensions.validation.TestResults.Companion.TEST_RESULT_FAILED
 import androidx.camera.integration.extensions.validation.TestResults.Companion.TEST_RESULT_NOT_SUPPORTED
 import androidx.camera.integration.extensions.validation.TestResults.Companion.TEST_RESULT_NOT_TESTED
@@ -72,7 +72,7 @@ class CameraValidationResultAdapter constructor(
         }
 
         val padding = 10
-        val lensFacingName = cameraLensFacingMap[item.key]?.let { getLensFacingStringFromId(it) }
+        val lensFacingName = cameraLensFacingMap[item.key]?.let { getLensFacingStringFromInt(it) }
         textView.text = "Camera ${item.key} [$lensFacingName]"
         textView.setPadding(padding, 0, padding, 0)
         textView.compoundDrawablePadding = padding
