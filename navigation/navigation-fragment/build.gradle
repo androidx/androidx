@@ -24,7 +24,7 @@ plugins {
 }
 
 dependencies {
-    api("androidx.fragment:fragment-ktx:1.4.0")
+    api(projectOrArtifact(":fragment:fragment-ktx"))
     api(project(":navigation:navigation-runtime"))
     api(projectOrArtifact(":slidingpanelayout:slidingpanelayout"))
     api(libs.kotlinStdlib)
