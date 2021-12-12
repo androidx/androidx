@@ -178,11 +178,14 @@ public class EncoderImpl implements Encoder {
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     long mTotalPausedDurationUs = 0L;
 
+    private boolean mIsFlushedAfterEndOfStream = false;
+
     final EncoderFinder mEncoderFinder = new EncoderFinder();
+
     /**
      * Creates the encoder with a {@link EncoderConfig}
      *
-     * @param executor the executor suitable for background task
+     * @param executor      the executor suitable for background task
      * @param encoderConfig the encoder config
      * @throws InvalidConfigException when the encoder cannot be configured.
      */
@@ -234,6 +237,7 @@ public class EncoderImpl implements Encoder {
         mAcquisitionQueue.clear();
 
         mMediaCodec.reset();
+        mIsFlushedAfterEndOfStream = false;
         mMediaCodec.setCallback(new MediaCodecCallback());
         mMediaCodec.configure(mMediaFormat, null, null, MediaCodec.CONFIGURE_FLAG_ENCODE);
 
@@ -265,8 +269,13 @@ public class EncoderImpl implements Encoder {
                 case CONFIGURED:
                     final long startTimeUs = generatePresentationTimeUs();
                     Logger.d(mTag, "Start on " + DebugUtils.readableUs(startTimeUs));
-                    mStartStopTimeRangeUs = Range.create(startTimeUs, NO_LIMIT_LONG);
                     try {
+                        if (mIsFlushedAfterEndOfStream) {
+                            // If the codec is flushed after an end-of-stream, we need to reset it
+                            // before starting the codec again.
+                            reset();
+                        }
+                        mStartStopTimeRangeUs = Range.create(startTimeUs, NO_LIMIT_LONG);
                         mMediaCodec.start();
                     } catch (MediaCodec.CodecException e) {
                         handleEncodeError(e);
@@ -382,7 +391,7 @@ public class EncoderImpl implements Encoder {
     /**
      * Pauses the encoder.
      *
-     * <p>{@link #pause} only work between {@link #start} and {@link #stop}. Once the encoder is
+     * <p>{@code pause} only work between {@link #start} and {@link #stop}. Once the encoder is
      * paused, it will drop the input data until {@link #start} is invoked again.
      */
     @Override
@@ -420,8 +429,8 @@ public class EncoderImpl implements Encoder {
      *
      * <p>Once the encoder is released, it cannot be used anymore. Any other method call after
      * the encoder is released will get {@link IllegalStateException}. If it is in encoding, make
-     * sure call {@link #stop} before {@link #release} to normally end the stream, or it may get
-     * uncertain result if call {@link #release} while encoding.
+     * sure call {@link #stop} before {@code release} to normally end the stream, or it may get
+     * uncertain result if call {@code release} while encoding.
      */
     @Override
     public void release() {
@@ -450,6 +459,11 @@ public class EncoderImpl implements Encoder {
 
     @ExecutedBy("mEncoderExecutor")
     private void releaseInternal() {
+        if (mIsFlushedAfterEndOfStream) {
+            mMediaCodec.stop();
+            mIsFlushedAfterEndOfStream = false;
+        }
+
         mMediaCodec.release();
 
         if (mEncoderInput instanceof SurfaceInput) {
@@ -632,7 +646,26 @@ public class EncoderImpl implements Encoder {
             futures.add(inputBuffer.getTerminationFuture());
         }
         Futures.successfulAsList(futures).addListener(() -> {
-            mMediaCodec.stop();
+            if (mEncoderInput instanceof SurfaceInput) {
+                // For a SurfaceInput, the codec is in control of dequeuing buffers from the
+                // underlying BufferQueue. If we stop the codec, then it will stop dequeuing buffers
+                // and the BufferQueue may run out of input buffers, causing the camera pipeline
+                // to stall. Instead of stopping, we will flush the codec. Since the codec is
+                // operating in asynchronous mode, this will cause the codec to continue to
+                // discard buffers. We should have already received the end-of-stream signal on
+                // an output buffer at this point, so those buffers are not needed anyways. We will
+                // defer resetting the codec until just before starting the codec again.
+                // TODO: If we can get an external signal that no more buffers are being
+                //  enqueued, we can reset when that signal comes. This could save on some of the
+                //  latency of restarting the codec since it could already be reset before the
+                //  signal to restart comes.
+                mMediaCodec.flush();
+                mIsFlushedAfterEndOfStream = true;
+            } else {
+                // Non-SurfaceInputs give us more control over input buffers. We can directly
+                // stop the codec instead of flushing.
+                mMediaCodec.stop();
+            }
             if (afterStop != null) {
                 afterStop.run();
             }
@@ -647,7 +680,12 @@ public class EncoderImpl implements Encoder {
             releaseInternal();
         } else {
             InternalState oldState = mState;
-            reset();
+            if (!mIsFlushedAfterEndOfStream) {
+                // Only reset if the codec is stopped (no flushed). If the codec is flushed, we
+                // want it to continue to discard buffers. We will reset before starting the
+                // codec again.
+                reset();
+            }
             setState(CONFIGURED);
             if (oldState == PENDING_START || oldState == PENDING_START_PAUSED) {
                 start();
@@ -866,7 +904,6 @@ public class EncoderImpl implements Encoder {
                             }
 
                             mLastSentPresentationTimeUs = bufferInfo.presentationTimeUs;
-
                             try {
                                 EncodedDataImpl encodedData = new EncodedDataImpl(mediaCodec, index,
                                         bufferInfo);
