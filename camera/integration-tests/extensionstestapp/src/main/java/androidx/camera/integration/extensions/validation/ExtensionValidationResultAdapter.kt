@@ -22,10 +22,10 @@ import android.view.ViewGroup
 import android.widget.BaseAdapter
 import android.widget.TextView
 import androidx.camera.integration.extensions.R
+import androidx.camera.integration.extensions.utils.ExtensionModeUtil.getExtensionModeStringFromId
 import androidx.camera.integration.extensions.validation.TestResults.Companion.TEST_RESULT_FAILED
 import androidx.camera.integration.extensions.validation.TestResults.Companion.TEST_RESULT_NOT_SUPPORTED
 import androidx.camera.integration.extensions.validation.TestResults.Companion.TEST_RESULT_PASSED
-import androidx.camera.integration.extensions.validation.TestResults.Companion.getExtensionModeStringFromId
 
 class ExtensionValidationResultAdapter constructor(
     private val layoutInflater: LayoutInflater,

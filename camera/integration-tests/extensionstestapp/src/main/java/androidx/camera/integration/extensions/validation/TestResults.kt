@@ -31,8 +31,10 @@ import androidx.camera.camera2.interop.ExperimentalCamera2Interop
 import androidx.camera.core.CameraFilter
 import androidx.camera.core.CameraInfo
 import androidx.camera.core.CameraSelector
-import androidx.camera.extensions.ExtensionMode
 import androidx.camera.extensions.ExtensionsManager
+import androidx.camera.integration.extensions.utils.ExtensionModeUtil.AVAILABLE_EXTENSION_MODES
+import androidx.camera.integration.extensions.utils.ExtensionModeUtil.getExtensionModeIdFromString
+import androidx.camera.integration.extensions.utils.ExtensionModeUtil.getExtensionModeStringFromId
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.net.toUri
 import java.io.BufferedReader
@@ -159,7 +161,7 @@ class TestResults constructor(private val context: Context) {
             val cameraId = Camera2CameraInfo.from(it).cameraId
             val testResultMap = linkedMapOf<Int, Int>()
 
-            EXTENSION_MODES.forEach { mode ->
+            AVAILABLE_EXTENSION_MODES.forEach { mode ->
                 val isSupported = extensionsManager.isExtensionAvailable(
                     createCameraSelectorById(cameraId),
                     mode
@@ -253,24 +255,6 @@ class TestResults constructor(private val context: Context) {
                 throw IllegalArgumentException("No camera can be find for id: $cameraId")
             }).build()
 
-        fun getExtensionModeStringFromId(mode: Int): String = when (mode) {
-            ExtensionMode.BOKEH -> EXTENSION_MODE_STRING_BOKEH
-            ExtensionMode.HDR -> EXTENSION_MODE_STRING_HDR
-            ExtensionMode.NIGHT -> EXTENSION_MODE_STRING_NIGHT
-            ExtensionMode.FACE_RETOUCH -> EXTENSION_MODE_STRING_FACE_RETOUCH
-            ExtensionMode.AUTO -> EXTENSION_MODE_STRING_AUTO
-            else -> throw IllegalArgumentException("Invalid extension mode!!")
-        }
-
-        fun getExtensionModeIdFromString(mode: String): Int = when (mode) {
-            EXTENSION_MODE_STRING_BOKEH -> ExtensionMode.BOKEH
-            EXTENSION_MODE_STRING_HDR -> ExtensionMode.HDR
-            EXTENSION_MODE_STRING_NIGHT -> ExtensionMode.NIGHT
-            EXTENSION_MODE_STRING_FACE_RETOUCH -> ExtensionMode.FACE_RETOUCH
-            EXTENSION_MODE_STRING_AUTO -> ExtensionMode.AUTO
-            else -> throw IllegalArgumentException("Invalid extension mode!!")
-        }
-
         /**
          * Copies temp file to the destination location.
          *
@@ -337,20 +321,6 @@ class TestResults constructor(private val context: Context) {
         }
 
         const val INVALID_EXTENSION_MODE = -1
-
-        val EXTENSION_MODES = arrayOf(
-            ExtensionMode.BOKEH,
-            ExtensionMode.HDR,
-            ExtensionMode.NIGHT,
-            ExtensionMode.FACE_RETOUCH,
-            ExtensionMode.AUTO
-        )
-
-        private const val EXTENSION_MODE_STRING_BOKEH = "BOKEH"
-        private const val EXTENSION_MODE_STRING_HDR = "HDR"
-        private const val EXTENSION_MODE_STRING_NIGHT = "NIGHT"
-        private const val EXTENSION_MODE_STRING_FACE_RETOUCH = "FACE RETOUCH"
-        private const val EXTENSION_MODE_STRING_AUTO = "AUTO"
 
         const val TEST_RESULT_NOT_SUPPORTED = -1
         const val TEST_RESULT_NOT_TESTED = 0

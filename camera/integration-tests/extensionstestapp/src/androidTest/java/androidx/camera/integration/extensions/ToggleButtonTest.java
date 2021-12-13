@@ -27,6 +27,7 @@ import static org.junit.Assume.assumeTrue;
 import android.content.Intent;
 
 import androidx.camera.integration.extensions.idlingresource.WaitForViewToShow;
+import androidx.camera.integration.extensions.utils.ExtensionModeUtil;
 import androidx.camera.testing.CameraUtil;
 import androidx.camera.testing.CoreAppTestUtil;
 import androidx.test.core.app.ApplicationProvider;
@@ -93,7 +94,7 @@ public final class ToggleButtonTest {
     @Test
     public void testSwitchAllExtensionsAndTakePicture() throws InterruptedException {
         // To switch all extensions.
-        for (int i = 0; i < CameraExtensionsActivity.ImageCaptureType.values().length; i++) {
+        for (int i = 0; i < ExtensionModeUtil.getAVAILABLE_EXTENSION_MODES().length; i++) {
             // Wait for the take picture button show.
             waitFor(new WaitForViewToShow(R.id.Picture));
 
