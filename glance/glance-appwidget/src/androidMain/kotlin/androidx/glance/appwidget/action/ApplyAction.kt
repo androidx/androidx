@@ -108,7 +108,7 @@ private fun getPendingIntentForAction(
                 )
             }
         }
-        is StartBroadcastReceiverAction -> {
+        is SendBroadcastAction -> {
             return PendingIntent.getBroadcast(
                 translationContext.context,
                 0,
@@ -179,7 +179,7 @@ private fun getFillInIntentForAction(
             },
         )
     }
-    is StartBroadcastReceiverAction -> {
+    is SendBroadcastAction -> {
         getBroadcastReceiverIntent(
             action = action,
             translationContext = translationContext
@@ -224,14 +224,14 @@ private fun CompoundButtonAction.getActionParameters(): (ActionParameters) -> Ac
     }
 
 private fun getBroadcastReceiverIntent(
-    action: StartBroadcastReceiverAction,
+    action: SendBroadcastAction,
     translationContext: TranslationContext,
 ): Intent = when (action) {
-    is StartBroadcastReceiverComponentAction -> Intent().setComponent(action.componentName)
-    is StartBroadcastReceiverClassAction ->
+    is SendBroadcastComponentAction -> Intent().setComponent(action.componentName)
+    is SendBroadcastClassAction ->
         Intent(translationContext.context, action.receiverClass)
-    is StartBroadcastReceiverIntentAction -> action.intent
-    is StartBroadcastReceiverActionAction ->
+    is SendBroadcastIntentAction -> action.intent
+    is SendBroadcastActionAction ->
         Intent(action.action).setComponent(action.componentName)
 }
 
