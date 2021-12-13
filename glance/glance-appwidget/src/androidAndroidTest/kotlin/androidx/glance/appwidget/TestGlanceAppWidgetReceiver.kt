@@ -16,6 +16,7 @@
 
 package androidx.glance.appwidget
 
+import android.content.Context
 import androidx.compose.runtime.Composable
 import androidx.glance.GlanceId
 import androidx.glance.state.GlanceStateDefinition
@@ -45,7 +46,7 @@ object TestGlanceAppWidget : GlanceAppWidget(errorUiLayout = 0) {
         onDeleteBlock = null
     }
 
-    override suspend fun onDelete(glanceId: GlanceId) {
+    override suspend fun onDelete(context: Context, glanceId: GlanceId) {
         onDeleteBlock?.apply { this(glanceId) }
     }
 

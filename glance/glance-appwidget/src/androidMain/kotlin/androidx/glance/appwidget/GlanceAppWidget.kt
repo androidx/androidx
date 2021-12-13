@@ -89,7 +89,7 @@ public abstract class GlanceAppWidget(
      *
      * When the method returns, the state associated with the [glanceId] will be deleted.
      */
-    public open suspend fun onDelete(glanceId: GlanceId) { }
+    public open suspend fun onDelete(context: Context, glanceId: GlanceId) {}
 
     /**
      * Triggers the composition of [Content] and sends the result to the [AppWidgetManager].
@@ -109,7 +109,7 @@ public abstract class GlanceAppWidget(
     internal suspend fun deleted(context: Context, appWidgetId: Int) {
         val glanceId = AppWidgetId(appWidgetId)
         try {
-            onDelete(glanceId)
+            onDelete(context, glanceId)
         } catch (cancelled: CancellationException) {
             // Nothing to do here
         } catch (t: Throwable) {
