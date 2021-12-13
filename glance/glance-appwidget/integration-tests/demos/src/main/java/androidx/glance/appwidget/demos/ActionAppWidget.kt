@@ -47,8 +47,8 @@ import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.GlanceAppWidgetReceiver
 import androidx.glance.appwidget.action.ActionCallback
 import androidx.glance.appwidget.action.actionRunCallback
+import androidx.glance.appwidget.action.actionSendBroadcast
 import androidx.glance.appwidget.action.actionStartActivity
-import androidx.glance.appwidget.action.actionStartBroadcastReceiver
 import androidx.glance.appwidget.action.actionStartService
 import androidx.glance.appwidget.appWidgetBackground
 import androidx.glance.appwidget.cornerRadius
@@ -88,7 +88,7 @@ class ActionAppWidget : GlanceAppWidget() {
             when (currentState<Preferences>()[selectedItemKey] ?: 0) {
                 0 -> StartActivityActions()
                 1 -> StartServiceActions()
-                2 -> StartBroadcastReceiverActions()
+                2 -> SendBroadcastActions()
                 else -> throw IllegalArgumentException("Wrong index selected")
             }
         }
@@ -194,26 +194,26 @@ private fun StartServiceActions() {
 }
 
 @Composable
-private fun StartBroadcastReceiverActions() {
+private fun SendBroadcastActions() {
     Button(
         text = "Intent",
-        onClick = actionStartBroadcastReceiver(
+        onClick = actionSendBroadcast(
             Intent(LocalContext.current, ActionAppWidgetReceiver::class.java)
         )
     )
     Button(
         text = "Action",
-        onClick = actionStartBroadcastReceiver(
+        onClick = actionSendBroadcast(
             AppWidgetManager.ACTION_APPWIDGET_UPDATE
         )
     )
     Button(
         text = "Target class",
-        onClick = actionStartBroadcastReceiver<ActionAppWidgetReceiver>()
+        onClick = actionSendBroadcast<ActionAppWidgetReceiver>()
     )
     Button(
         text = "Component name",
-        onClick = actionStartBroadcastReceiver(
+        onClick = actionSendBroadcast(
             ComponentName(LocalContext.current, ActionAppWidgetReceiver::class.java)
         )
     )

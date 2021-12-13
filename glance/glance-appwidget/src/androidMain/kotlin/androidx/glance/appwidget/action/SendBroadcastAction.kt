@@ -21,24 +21,24 @@ import android.content.ComponentName
 import android.content.Intent
 import androidx.glance.action.Action
 
-internal sealed interface StartBroadcastReceiverAction : Action
+internal sealed interface SendBroadcastAction : Action
 
-internal class StartBroadcastReceiverActionAction(
+internal class SendBroadcastActionAction(
     val action: String,
     val componentName: ComponentName? = null,
-) : StartBroadcastReceiverAction
+) : SendBroadcastAction
 
-internal class StartBroadcastReceiverComponentAction(
+internal class SendBroadcastComponentAction(
     val componentName: ComponentName,
-) : StartBroadcastReceiverAction
+) : SendBroadcastAction
 
-internal class StartBroadcastReceiverClassAction(
+internal class SendBroadcastClassAction(
     val receiverClass: Class<out BroadcastReceiver>,
-) : StartBroadcastReceiverAction
+) : SendBroadcastAction
 
-internal class StartBroadcastReceiverIntentAction(
+internal class SendBroadcastIntentAction(
     val intent: Intent,
-) : StartBroadcastReceiverAction
+) : SendBroadcastAction
 
 /**
  * Creates an [Action] that launches the [BroadcastReceiver] specified by the given action.
@@ -46,10 +46,10 @@ internal class StartBroadcastReceiverIntentAction(
  * @param action of the BroadcastReceiver to launch
  * @param componentName optional [ComponentName] of the target BroadcastReceiver
  */
-public fun actionStartBroadcastReceiver(
+public fun actionSendBroadcast(
     action: String,
     componentName: ComponentName? = null
-): Action = StartBroadcastReceiverActionAction(action, componentName)
+): Action = SendBroadcastActionAction(action, componentName)
 
 /**
  * Creates an [Action] that launches a [BroadcastReceiver] from the given [Intent] when triggered.
@@ -57,28 +57,28 @@ public fun actionStartBroadcastReceiver(
  *
  * @param intent the [Intent] used to launch the [BroadcastReceiver]
  */
-public fun actionStartBroadcastReceiver(intent: Intent): Action =
-    StartBroadcastReceiverIntentAction(intent)
+public fun actionSendBroadcast(intent: Intent): Action =
+    SendBroadcastIntentAction(intent)
 
 /**
  * Creates an [Action] that launches the [BroadcastReceiver] specified by the given [ComponentName].
  *
  * @param componentName component of the [BroadcastReceiver] to launch
  */
-public fun actionStartBroadcastReceiver(componentName: ComponentName): Action =
-    StartBroadcastReceiverComponentAction(componentName)
+public fun actionSendBroadcast(componentName: ComponentName): Action =
+    SendBroadcastComponentAction(componentName)
 
 /**
  * Creates an [Action] that launches the specified [BroadcastReceiver] when triggered.
  *
  * @param receiver class of the [BroadcastReceiver] to launch
  */
-public fun <T : BroadcastReceiver> actionStartBroadcastReceiver(receiver: Class<T>): Action =
-    StartBroadcastReceiverClassAction(receiver)
+public fun <T : BroadcastReceiver> actionSendBroadcast(receiver: Class<T>): Action =
+    SendBroadcastClassAction(receiver)
 
 /**
  * Creates an [Action] that launches the specified [BroadcastReceiver] when triggered.
  */
 @Suppress("MissingNullability") // Shouldn't need to specify @NonNull. b/199284086
-public inline fun <reified T : BroadcastReceiver> actionStartBroadcastReceiver(): Action =
-    actionStartBroadcastReceiver(T::class.java)
+public inline fun <reified T : BroadcastReceiver> actionSendBroadcast(): Action =
+    actionSendBroadcast(T::class.java)
