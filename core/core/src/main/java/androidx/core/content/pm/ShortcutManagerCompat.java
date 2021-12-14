@@ -189,7 +189,7 @@ public class ShortcutManagerCompat {
     public static boolean requestPinShortcut(@NonNull final Context context,
             @NonNull ShortcutInfoCompat shortcut, @Nullable final IntentSender callback) {
         if (Build.VERSION.SDK_INT <= 31
-                && shortcut.isExcludedFrom(ShortcutInfoCompat.SURFACE_LAUNCHER)) {
+                && !shortcut.isIncludedIn(ShortcutInfoCompat.SURFACE_LAUNCHER)) {
             // A shortcut that is not frequently used cannot be pinned to WorkSpace.
             return false;
         }
@@ -749,7 +749,7 @@ public class ShortcutManagerCompat {
         Preconditions.checkNotNull(shortcut);
 
         if (Build.VERSION.SDK_INT <= 31
-                && shortcut.isExcludedFrom(ShortcutInfoCompat.SURFACE_LAUNCHER)) {
+                && !shortcut.isIncludedIn(ShortcutInfoCompat.SURFACE_LAUNCHER)) {
             for (ShortcutInfoChangeListener listener : getShortcutInfoListeners(context)) {
                 listener.onShortcutAdded(Collections.singletonList(shortcut));
             }
@@ -910,7 +910,7 @@ public class ShortcutManagerCompat {
         if (Build.VERSION.SDK_INT > 31) return shortcuts;
         final List<ShortcutInfoCompat> clone = new ArrayList<>(shortcuts);
         for (ShortcutInfoCompat si: shortcuts) {
-            if (si.isExcludedFrom(surfaces)) {
+            if (!si.isIncludedIn(surfaces)) {
                 clone.remove(si);
             }
         }
