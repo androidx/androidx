@@ -20,8 +20,6 @@ import static androidx.camera.testing.SurfaceTextureProvider.createSurfaceTextur
 
 import static com.google.common.truth.Truth.assertThat;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assume.assumeFalse;
 import static org.junit.Assume.assumeTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
@@ -37,16 +35,12 @@ import android.view.Surface;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.camera.camera2.internal.compat.quirk.DeviceQuirks;
-import androidx.camera.camera2.internal.compat.quirk.SamsungPreviewTargetAspectRatioQuirk;
 import androidx.camera.core.AspectRatio;
-import androidx.camera.core.CameraInfoUnavailableException;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraXConfig;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.Preview;
 import androidx.camera.core.SurfaceRequest;
-import androidx.camera.core.impl.Config;
 import androidx.camera.core.impl.ImageOutputConfig;
 import androidx.camera.core.impl.UseCaseConfig;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
@@ -88,7 +82,7 @@ public final class PreviewTest {
     public TestRule mCameraRule = CameraUtil.grantCameraPermissionAndPreTest();
 
     private static final String ANY_THREAD_NAME = "any-thread-name";
-    private static final Size GUARANTEED_RESOLUTION = new Size(640, 480);
+    private static final Size DEFAULT_RESOLUTION = new Size(640, 480);
 
     private final Instrumentation mInstrumentation = InstrumentationRegistry.getInstrumentation();
     private final CameraSelector mCameraSelector = CameraSelector.DEFAULT_BACK_CAMERA;
@@ -250,85 +244,6 @@ public final class PreviewTest {
     }
 
     @Test
-    public void canSupportGuaranteedSizeFront()
-            throws InterruptedException, CameraInfoUnavailableException {
-        // CameraSelector.LENS_FACING_FRONT/LENS_FACING_BACK are defined as constant int 0 and 1.
-        // Using for-loop to check both front and back device cameras can support the guaranteed
-        // 640x480 size.
-        assumeTrue(CameraUtil.hasCameraWithLensFacing(CameraSelector.LENS_FACING_FRONT));
-        assumeTrue(!CameraUtil.requiresCorrectedAspectRatio(CameraSelector.LENS_FACING_FRONT));
-
-        // Checks camera device sensor degrees to set correct target rotation value to make sure
-        // the exactly matching result size 640x480 can be selected if the device supports it.
-        Integer sensorOrientation = CameraUtil.getSensorOrientation(
-                CameraSelector.LENS_FACING_FRONT);
-        boolean isRotateNeeded = (sensorOrientation % 180) != 0;
-        Preview preview = new Preview.Builder().setTargetResolution(
-                GUARANTEED_RESOLUTION).setTargetRotation(
-                isRotateNeeded ? Surface.ROTATION_90 : Surface.ROTATION_0).build();
-
-        // Skips the test if the SamsungPreviewTargetAspectRatioQuirk is applied on the device.
-        assumeFalse(isSamsungPreviewTargetAspectRatioQuirkApplied(preview.getCurrentConfig()));
-
-        // TODO(b/160261462) move off of main thread when setSurfaceProvider does not need to be
-        //  done on the main thread
-        mInstrumentation.runOnMainSync(() -> preview.setSurfaceProvider(getSurfaceProvider(null)));
-        mCamera = CameraUtil.createCameraAndAttachUseCase(mContext,
-                CameraSelector.DEFAULT_FRONT_CAMERA, preview);
-
-        // Assert.
-        assertThat(mSurfaceFutureSemaphore.tryAcquire(10, TimeUnit.SECONDS)).isTrue();
-
-        // Check whether 640x480 is selected for the preview use case. This test can also check
-        // whether the guaranteed resolution 640x480 is really supported for SurfaceTexture
-        // format on the devices when running the test.
-        assertEquals(GUARANTEED_RESOLUTION, mPreviewResolution);
-    }
-
-    @Test
-    public void canSupportGuaranteedSizeBack()
-            throws InterruptedException, CameraInfoUnavailableException {
-        // CameraSelector.LENS_FACING_FRONT/LENS_FACING_BACK are defined as constant int 0 and 1.
-        // Using for-loop to check both front and back device cameras can support the guaranteed
-        // 640x480 size.
-        assumeTrue(CameraUtil.hasCameraWithLensFacing(CameraSelector.LENS_FACING_BACK));
-        assumeTrue(!CameraUtil.requiresCorrectedAspectRatio(CameraSelector.LENS_FACING_BACK));
-
-        // Checks camera device sensor degrees to set correct target rotation value to make sure
-        // the exactly matching result size 640x480 can be selected if the device supports it.
-        Integer sensorOrientation = CameraUtil.getSensorOrientation(
-                CameraSelector.LENS_FACING_BACK);
-        boolean isRotateNeeded = (sensorOrientation % 180) != 0;
-        Preview preview = new Preview.Builder().setTargetResolution(
-                GUARANTEED_RESOLUTION).setTargetRotation(
-                isRotateNeeded ? Surface.ROTATION_90 : Surface.ROTATION_0).build();
-
-        // Skips the test if the SamsungPreviewTargetAspectRatioQuirk is applied on the device.
-        assumeFalse(isSamsungPreviewTargetAspectRatioQuirkApplied(preview.getCurrentConfig()));
-
-        // TODO(b/160261462) move off of main thread when setSurfaceProvider does not need to be
-        //  done on the main thread
-        mInstrumentation.runOnMainSync(() -> preview.setSurfaceProvider(getSurfaceProvider(null)));
-        mCamera = CameraUtil.createCameraAndAttachUseCase(mContext,
-                CameraSelector.DEFAULT_BACK_CAMERA, preview);
-
-        // Assert.
-        assertThat(mSurfaceFutureSemaphore.tryAcquire(10, TimeUnit.SECONDS)).isTrue();
-
-        // Check whether 640x480 is selected for the preview use case. This test can also check
-        // whether the guaranteed resolution 640x480 is really supported for SurfaceTexture
-        // format on the devices when running the test.
-        assertEquals(GUARANTEED_RESOLUTION, mPreviewResolution);
-    }
-
-    private boolean isSamsungPreviewTargetAspectRatioQuirkApplied(@NonNull Config config) {
-        SamsungPreviewTargetAspectRatioQuirk samsungQuirk =
-                DeviceQuirks.get(SamsungPreviewTargetAspectRatioQuirk.class);
-
-        return samsungQuirk != null && samsungQuirk.require16_9(config);
-    }
-
-    @Test
     public void setMultipleNonNullSurfaceProviders_getsFrame() throws InterruptedException {
         final Preview preview = mDefaultBuilder.build();
 
@@ -392,7 +307,7 @@ public final class PreviewTest {
     @Test
     public void defaultAspectRatioWontBeSet_whenTargetResolutionIsSet() {
         assumeTrue(CameraUtil.hasCameraWithLensFacing(CameraSelector.LENS_FACING_BACK));
-        Preview useCase = new Preview.Builder().setTargetResolution(GUARANTEED_RESOLUTION).build();
+        Preview useCase = new Preview.Builder().setTargetResolution(DEFAULT_RESOLUTION).build();
 
         assertThat(useCase.getCurrentConfig().containsOption(
                 ImageOutputConfig.OPTION_TARGET_ASPECT_RATIO)).isFalse();
