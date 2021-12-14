@@ -6,6 +6,7 @@
 (logging: loading modules: \[java\.se.*)|(.*No file found when processing Java @sample.*)
 .*\.kotlin_module: error: module was compiled with an incompatible version of Kotlin\. The binary version of its metadata is [0-9]+\.[0-9]+\.[0-9]+, expected version is [0-9]+\.[0-9]+\.[0-9]+\.
 WARN: The registry key 'java\.correct\.class\.type\.by\.place\.resolve\.scope' accessed, but not loaded yet
+WARN: Attempt to load key 'java\.correct\.class\.type\.by\.place\.resolve\.scope' for not yet loaded registry
 PROGRESS: Rendering
 No docs found on supertype with \{@inheritDoc\} method .*
 Can't find node by signature .*
