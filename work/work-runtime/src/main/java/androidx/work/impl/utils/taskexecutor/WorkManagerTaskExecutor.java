@@ -40,19 +40,14 @@ public class WorkManagerTaskExecutor implements TaskExecutor {
         mBackgroundExecutor = new SerialExecutor(backgroundExecutor);
     }
 
-    private final Handler mMainThreadHandler = new Handler(Looper.getMainLooper());
+    final Handler mMainThreadHandler = new Handler(Looper.getMainLooper());
 
     private final Executor mMainThreadExecutor = new Executor() {
         @Override
         public void execute(@NonNull Runnable command) {
-            postToMainThread(command);
+            mMainThreadHandler.post(command);
         }
     };
-
-    @Override
-    public void postToMainThread(Runnable runnable) {
-        mMainThreadHandler.post(runnable);
-    }
 
     @Override
     public Executor getMainThreadExecutor() {

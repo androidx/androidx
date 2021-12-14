@@ -60,10 +60,6 @@ class ProcessorTests : DatabaseTest() {
                 runnable.run()
             }
 
-            override fun postToMainThread(runnable: Runnable) {
-                mainExecutor.execute(runnable)
-            }
-
             override fun getMainThreadExecutor(): Executor {
                 return mainExecutor
             }

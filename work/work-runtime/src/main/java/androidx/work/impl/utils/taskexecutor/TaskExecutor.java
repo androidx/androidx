@@ -30,12 +30,6 @@ import java.util.concurrent.Executor;
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface TaskExecutor {
-
-    /**
-     * @param runnable {@link Runnable} to post to the main thread
-     */
-    void postToMainThread(Runnable runnable);
-
     /**
      * @return The {@link Executor} for main thread task processing
      */
