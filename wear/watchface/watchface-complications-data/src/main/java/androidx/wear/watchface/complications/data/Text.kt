@@ -96,7 +96,45 @@ public interface ComplicationText {
 /** A [ComplicationText] that contains plain text. */
 public class PlainComplicationText internal constructor(
     delegate: WireComplicationText
-) : ComplicationText by DelegatingComplicationText(delegate) {
+) : ComplicationText {
+    private val delegate = DelegatingComplicationText(delegate)
+
+    override fun getTextAt(resources: Resources, instant: Instant) =
+        delegate.getTextAt(resources, instant)
+
+    override fun returnsSameText(firstInstant: Instant, secondInstant: Instant) =
+        delegate.returnsSameText(firstInstant, secondInstant)
+
+    override fun getNextChangeTime(afterInstant: Instant): Instant =
+        delegate.getNextChangeTime(afterInstant)
+
+    override fun isAlwaysEmpty() = delegate.isAlwaysEmpty()
+
+    /** @hide */
+    @RestrictTo(RestrictTo.Scope.SUBCLASSES)
+    override fun getTimeDependentText() = delegate.getTimeDependentText()
+
+    /** @hide */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    override fun toWireComplicationText() = delegate.toWireComplicationText()
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as PlainComplicationText
+
+        if (delegate != other.delegate) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        return delegate.hashCode()
+    }
+
+    override fun toString() = delegate.toString()
+
     /**
      * A builder for [PlainComplicationText].
      *
@@ -207,6 +245,8 @@ public enum class TimeDifferenceStyle(internal val wireStyle: Int) {
 public class TimeDifferenceComplicationText internal constructor(
     delegate: WireComplicationText
 ) : ComplicationText by DelegatingComplicationText(delegate) {
+    private val delegate = DelegatingComplicationText(delegate)
+
     /**
      * Gets the smallest unit that may be shown in the time difference text. If specified, units
      * smaller than this minimum will not be included.
@@ -215,6 +255,42 @@ public class TimeDifferenceComplicationText internal constructor(
         if (getTimeDependentText() is TimeDifferenceText)
             (getTimeDependentText() as TimeDifferenceText).minimumUnit
         else null
+
+    override fun getTextAt(resources: Resources, instant: Instant) =
+        delegate.getTextAt(resources, instant)
+
+    override fun returnsSameText(firstInstant: Instant, secondInstant: Instant) =
+        delegate.returnsSameText(firstInstant, secondInstant)
+
+    override fun getNextChangeTime(afterInstant: Instant): Instant =
+        delegate.getNextChangeTime(afterInstant)
+
+    override fun isAlwaysEmpty() = delegate.isAlwaysEmpty()
+
+    /** @hide */
+    @RestrictTo(RestrictTo.Scope.SUBCLASSES)
+    override fun getTimeDependentText() = delegate.getTimeDependentText()
+
+    /** @hide */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    override fun toWireComplicationText() = delegate.toWireComplicationText()
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as TimeDifferenceComplicationText
+
+        if (delegate != other.delegate) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        return delegate.hashCode()
+    }
+
+    override fun toString() = delegate.toString()
 
     /**
      * Builder for [ComplicationText] representing a time difference.
@@ -326,6 +402,44 @@ public enum class TimeFormatStyle(internal val wireStyle: Int) {
 public class TimeFormatComplicationText internal constructor(
     delegate: WireComplicationText
 ) : ComplicationText by DelegatingComplicationText(delegate) {
+    private val delegate = DelegatingComplicationText(delegate)
+
+    override fun getTextAt(resources: Resources, instant: Instant) =
+        delegate.getTextAt(resources, instant)
+
+    override fun returnsSameText(firstInstant: Instant, secondInstant: Instant) =
+        delegate.returnsSameText(firstInstant, secondInstant)
+
+    override fun getNextChangeTime(afterInstant: Instant): Instant =
+        delegate.getNextChangeTime(afterInstant)
+
+    override fun isAlwaysEmpty() = delegate.isAlwaysEmpty()
+
+    /** @hide */
+    @RestrictTo(RestrictTo.Scope.SUBCLASSES)
+    override fun getTimeDependentText() = delegate.getTimeDependentText()
+
+    /** @hide */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    override fun toWireComplicationText() = delegate.toWireComplicationText()
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as TimeFormatComplicationText
+
+        if (delegate != other.delegate) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        return delegate.hashCode()
+    }
+
+    override fun toString() = delegate.toString()
+
     /**
      * A builder for [TimeFormatComplicationText].
      *
@@ -397,6 +511,25 @@ private class DelegatingComplicationText(
     /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     override fun toWireComplicationText() = delegate
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as DelegatingComplicationText
+
+        if (delegate != other.delegate) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        return delegate.hashCode()
+    }
+
+    override fun toString(): String {
+        return delegate.toString()
+    }
 }
 
 /** Converts a [WireComplicationText] into an equivalent [ComplicationText] instead. */
@@ -430,6 +563,25 @@ private class DelegatingTimeDependentText(
         throw UnsupportedOperationException(
             "DelegatingTimeDependentText doesn't support asWireComplicationText"
         )
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as DelegatingTimeDependentText
+
+        if (delegate != other.delegate) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        return delegate.hashCode()
+    }
+
+    override fun toString(): String {
+        return delegate.toString()
     }
 }
 

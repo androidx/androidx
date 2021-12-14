@@ -161,6 +161,12 @@ package androidx.wear.watchface.complications.data {
   }
 
   public final class PlainComplicationText implements androidx.wear.watchface.complications.data.ComplicationText {
+    method public java.time.Instant getNextChangeTime(java.time.Instant afterInstant);
+    method public CharSequence getTextAt(android.content.res.Resources resources, java.time.Instant instant);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.SUBCLASSES) public android.support.wearable.complications.TimeDependentText getTimeDependentText();
+    method public boolean isAlwaysEmpty();
+    method public boolean returnsSameText(java.time.Instant firstInstant, java.time.Instant secondInstant);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public android.support.wearable.complications.ComplicationText toWireComplicationText();
   }
 
   public static final class PlainComplicationText.Builder {
@@ -261,6 +267,12 @@ package androidx.wear.watchface.complications.data {
 
   public final class TimeDifferenceComplicationText implements androidx.wear.watchface.complications.data.ComplicationText {
     method public java.util.concurrent.TimeUnit? getMinimumTimeUnit();
+    method public java.time.Instant getNextChangeTime(java.time.Instant afterInstant);
+    method public CharSequence getTextAt(android.content.res.Resources resources, java.time.Instant instant);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.SUBCLASSES) public android.support.wearable.complications.TimeDependentText getTimeDependentText();
+    method public boolean isAlwaysEmpty();
+    method public boolean returnsSameText(java.time.Instant firstInstant, java.time.Instant secondInstant);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public android.support.wearable.complications.ComplicationText toWireComplicationText();
   }
 
   public static final class TimeDifferenceComplicationText.Builder {
@@ -281,6 +293,12 @@ package androidx.wear.watchface.complications.data {
   }
 
   public final class TimeFormatComplicationText implements androidx.wear.watchface.complications.data.ComplicationText {
+    method public java.time.Instant getNextChangeTime(java.time.Instant afterInstant);
+    method public CharSequence getTextAt(android.content.res.Resources resources, java.time.Instant instant);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.SUBCLASSES) public android.support.wearable.complications.TimeDependentText getTimeDependentText();
+    method public boolean isAlwaysEmpty();
+    method public boolean returnsSameText(java.time.Instant firstInstant, java.time.Instant secondInstant);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public android.support.wearable.complications.ComplicationText toWireComplicationText();
   }
 
   public static final class TimeFormatComplicationText.Builder {

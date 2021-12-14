@@ -1209,7 +1209,7 @@ public final class ComplicationData implements Parcelable, Serializable {
     @NonNull
     @Override
     public String toString() {
-        return "ComplicationData{" + "mType=" + mType + ", mFields=" + mFields + " mIsCached" + '}';
+        return "ComplicationData{" + "mType=" + mType + ", mFields=" + mFields + '}';
     }
 
     /** Builder class for {@link ComplicationData}. */
