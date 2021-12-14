@@ -3546,6 +3546,10 @@ public class WatchFaceServiceTest {
 
     @Test
     public fun additionalContentDescriptionLabelsSetBeforeWatchFaceInitComplete() {
+        val pendingIntent = PendingIntent.getActivity(context, 0, Intent("Example"),
+            PendingIntent.FLAG_IMMUTABLE
+        )
+
         testWatchFaceService = TestWatchFaceService(
             WatchFaceType.ANALOG,
             emptyList(),
@@ -3564,7 +3568,7 @@ public class WatchFaceServiceTest {
                         ContentDescriptionLabel(
                             PlainComplicationText.Builder("Example").build(),
                             Rect(10, 10, 20, 20),
-                            null
+                            pendingIntent
                         )
                     )
                 )
@@ -3624,6 +3628,8 @@ public class WatchFaceServiceTest {
                 0
             )
         ).isEqualTo("Example")
+
+        assertThat(engineWrapper.contentDescriptionLabels[1].tapAction).isEqualTo(pendingIntent)
     }
 
     @Test
