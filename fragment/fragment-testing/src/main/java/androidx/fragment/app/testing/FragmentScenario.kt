@@ -22,7 +22,6 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.activity.viewModels
 import androidx.annotation.IdRes
-import androidx.annotation.RestrictTo
 import androidx.annotation.StyleRes
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
@@ -242,10 +241,7 @@ public class FragmentScenario<F : Fragment> private constructor(
     /**
      * An empty activity inheriting FragmentActivity. This Activity is used to host Fragment in
      * FragmentScenario.
-     *
-     * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
     internal class EmptyFragmentActivity : FragmentActivity() {
         @SuppressLint("RestrictedApi")
         override fun onCreate(savedInstanceState: Bundle?) {
@@ -276,10 +272,7 @@ public class FragmentScenario<F : Fragment> private constructor(
 
     /**
      * A view-model to hold a fragment factory.
-     *
-     * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
     internal class FragmentFactoryHolderViewModel : ViewModel() {
         var fragmentFactory: FragmentFactory? = null
 
