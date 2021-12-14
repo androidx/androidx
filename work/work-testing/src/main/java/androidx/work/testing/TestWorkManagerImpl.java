@@ -67,11 +67,6 @@ class TestWorkManagerImpl extends WorkManagerImpl implements TestDriver {
                             new SerialExecutor(configuration.getTaskExecutor());
 
                     @Override
-                    public void postToMainThread(Runnable runnable) {
-                        runnable.run();
-                    }
-
-                    @Override
                     public Executor getMainThreadExecutor() {
                         return mSynchronousExecutor;
                     }

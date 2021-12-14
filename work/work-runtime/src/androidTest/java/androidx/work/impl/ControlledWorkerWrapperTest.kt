@@ -193,8 +193,6 @@ class ManualTaskExecutor : TaskExecutor {
     val serialTaskExecutor = ManualExecutor()
     private val serialBackgroundExecutor = SerialExecutor(serialTaskExecutor)
 
-    override fun postToMainThread(runnable: Runnable) = mainExecutor.execute(runnable)
-
     override fun getMainThreadExecutor() = mainExecutor
 
     override fun getSerialTaskExecutor(): SerialExecutor = serialBackgroundExecutor
