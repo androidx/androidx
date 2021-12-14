@@ -737,7 +737,9 @@ public class WatchFaceImpl @UiThread constructor(
     init {
         renderer.watchFaceHostApi = watchFaceHostApi
 
-        if (renderer.additionalContentDescriptionLabels.isNotEmpty()) {
+        if (renderer.additionalContentDescriptionLabels.isNotEmpty() ||
+            complicationSlotsManager.complicationSlots.isEmpty()
+        ) {
             watchFaceHostApi.updateContentDescriptionLabels()
         }
 

@@ -1658,6 +1658,24 @@ public class WatchFaceServiceTest {
     }
 
     @Test
+    public fun onCreate_calls_setContentDescriptionLabels_withCorrectArgs_noComplications() {
+        initEngine(
+            WatchFaceType.ANALOG,
+            emptyList(),
+            UserStyleSchema(emptyList())
+        )
+
+        runPostedTasksFor(0)
+
+        val arguments = ArgumentCaptor.forClass(Array<ContentDescriptionLabel>::class.java)
+        verify(iWatchFaceService).setContentDescriptionLabels(arguments.capture())
+
+        val argument = arguments.value
+        assertThat(argument.size).isEqualTo(1)
+        assertThat(argument[0].bounds).isEqualTo(Rect(25, 25, 75, 75)) // Clock element.
+    }
+
+    @Test
     public fun ContentDescriptionLabels_notMadeForEmptyComplication() {
         initEngine(
             WatchFaceType.ANALOG,
