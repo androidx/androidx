@@ -28,10 +28,8 @@ import android.util.Log
 import androidx.annotation.OptIn
 import androidx.camera.camera2.interop.Camera2CameraInfo
 import androidx.camera.camera2.interop.ExperimentalCamera2Interop
-import androidx.camera.core.CameraFilter
-import androidx.camera.core.CameraInfo
-import androidx.camera.core.CameraSelector
 import androidx.camera.extensions.ExtensionsManager
+import androidx.camera.integration.extensions.utils.CameraSelectorUtil.createCameraSelectorById
 import androidx.camera.integration.extensions.utils.ExtensionModeUtil.AVAILABLE_EXTENSION_MODES
 import androidx.camera.integration.extensions.utils.ExtensionModeUtil.getExtensionModeIdFromString
 import androidx.camera.integration.extensions.utils.ExtensionModeUtil.getExtensionModeStringFromId
@@ -242,18 +240,6 @@ class TestResults constructor(private val context: Context) {
     }
 
     companion object {
-
-        @OptIn(ExperimentalCamera2Interop::class)
-        fun createCameraSelectorById(cameraId: String) =
-            CameraSelector.Builder().addCameraFilter(CameraFilter { cameraInfos ->
-                cameraInfos.forEach {
-                    if (Camera2CameraInfo.from(it).cameraId.equals(cameraId)) {
-                        return@CameraFilter listOf<CameraInfo>(it)
-                    }
-                }
-
-                throw IllegalArgumentException("No camera can be find for id: $cameraId")
-            }).build()
 
         /**
          * Copies temp file to the destination location.

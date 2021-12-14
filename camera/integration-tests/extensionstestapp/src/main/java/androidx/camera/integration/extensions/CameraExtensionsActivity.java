@@ -50,6 +50,7 @@ import androidx.camera.core.MeteringPoint;
 import androidx.camera.core.Preview;
 import androidx.camera.extensions.ExtensionMode;
 import androidx.camera.extensions.ExtensionsManager;
+import androidx.camera.integration.extensions.utils.CameraSelectorUtil;
 import androidx.camera.integration.extensions.utils.ExtensionModeUtil;
 import androidx.camera.integration.extensions.validation.CameraValidationResultActivity;
 import androidx.camera.lifecycle.ProcessCameraProvider;
@@ -74,6 +75,26 @@ import java.util.Locale;
 /** An activity that shows off how extensions can be applied */
 public class CameraExtensionsActivity extends AppCompatActivity
         implements ActivityCompat.OnRequestPermissionsResultCallback {
+
+    /**
+     * The camera with the specified camera id will be opened if the intent used to launch the
+     * activity includes the information.
+     */
+    @VisibleForTesting
+    static final String INTENT_EXTRA_CAMERA_ID = "camera_id";
+    /**
+     * The specified extension mode will be tried to be enabled if the intent used to launch the
+     * activity includes the information.
+     */
+    @VisibleForTesting
+    static final String INTENT_EXTRA_EXTENSION_MODE = "extension_mode";
+    /**
+     * The captured image will be deleted automatically if the intent used to launch the activity
+     * includes the setting as true.
+     */
+    @VisibleForTesting
+    static final String INTENT_EXTRA_DELETE_CAPTURED_IMAGE = "delete_captured_image";
+
     private static final String TAG = "CameraExtensionActivity";
     private static final int PERMISSIONS_REQUEST_CODE = 42;
 
@@ -93,7 +114,14 @@ public class CameraExtensionsActivity extends AppCompatActivity
 
     // Espresso testing variables
     @VisibleForTesting
+    CountingIdlingResource mInitializationIdlingResource = new CountingIdlingResource(
+            "Initialization");
+
+    @VisibleForTesting
     CountingIdlingResource mTakePictureIdlingResource = new CountingIdlingResource("TakePicture");
+
+    @VisibleForTesting
+    CountingIdlingResource mPreviewViewIdlingResource = new CountingIdlingResource("PreviewView");
 
     private PreviewView mPreviewView;
 
@@ -102,6 +130,8 @@ public class CameraExtensionsActivity extends AppCompatActivity
     Camera mCamera;
 
     ExtensionsManager mExtensionsManager;
+
+    boolean mDeleteCapturedImage = false;
 
     void setupButtons() {
         Button btnToggleMode = findViewById(R.id.PhotoToggle);
@@ -129,6 +159,8 @@ public class CameraExtensionsActivity extends AppCompatActivity
             return false;
         }
 
+        mPreviewViewIdlingResource.increment();
+
         ImageCapture.Builder imageCaptureBuilder = new ImageCapture.Builder().setTargetName(
                 "ImageCapture");
         mImageCapture = imageCaptureBuilder.build();
@@ -137,6 +169,15 @@ public class CameraExtensionsActivity extends AppCompatActivity
 
         mPreview = previewBuilder.build();
         mPreview.setSurfaceProvider(mPreviewView.getSurfaceProvider());
+
+        // Observes the stream state for the unit tests to know the preview status.
+        mPreviewView.getPreviewStreamState().removeObservers(this);
+        mPreviewView.getPreviewStreamState().observe(this, streamState -> {
+            if (streamState == PreviewView.StreamState.STREAMING
+                    && !mPreviewViewIdlingResource.isIdleNow()) {
+                mPreviewViewIdlingResource.decrement();
+            }
+        });
 
         CameraSelector cameraSelector = mExtensionsManager.getExtensionEnabledCameraSelector(
                 mCurrentCameraSelector, mCurrentExtensionMode);
@@ -194,17 +235,27 @@ public class CameraExtensionsActivity extends AppCompatActivity
                                 mTakePictureIdlingResource.decrement();
                             }
 
-                            // Trigger MediaScanner to scan the file
-                            if (outputFileResults.getSavedUri() == null) {
-                                Intent intent = new Intent(
-                                        Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
-                                intent.setData(Uri.fromFile(saveFile));
-                                sendBroadcast(intent);
-                            }
+                            Uri outputUri = outputFileResults.getSavedUri();
 
-                            Toast.makeText(getApplicationContext(),
-                                    "Saved image to " + saveFile,
-                                    Toast.LENGTH_SHORT).show();
+                            if (mDeleteCapturedImage) {
+                                if (outputUri != null) {
+                                    getContentResolver().delete(outputUri, null, null);
+                                } else {
+                                    saveFile.deleteOnExit();
+                                }
+                            } else {
+                                // Trigger MediaScanner to scan the file
+                                if (outputUri == null) {
+                                    Intent intent = new Intent(
+                                            Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
+                                    intent.setData(Uri.fromFile(saveFile));
+                                    sendBroadcast(intent);
+                                }
+
+                                Toast.makeText(getApplicationContext(),
+                                        "Saved image to " + saveFile,
+                                        Toast.LENGTH_SHORT).show();
+                            }
                         }
 
                         @Override
@@ -223,6 +274,19 @@ public class CameraExtensionsActivity extends AppCompatActivity
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_camera_extensions);
+
+        mInitializationIdlingResource.increment();
+
+        String cameraId = getIntent().getStringExtra(INTENT_EXTRA_CAMERA_ID);
+        if (cameraId != null) {
+            mCurrentCameraSelector = CameraSelectorUtil.createCameraSelectorById(cameraId);
+        }
+
+        mCurrentExtensionMode = getIntent().getIntExtra(INTENT_EXTRA_EXTENSION_MODE,
+                mCurrentExtensionMode);
+
+        mDeleteCapturedImage = getIntent().getBooleanExtra(INTENT_EXTRA_DELETE_CAPTURED_IMAGE,
+                mDeleteCapturedImage);
 
         StrictMode.VmPolicy policy =
                 new StrictMode.VmPolicy.Builder().detectAll().penaltyLog().build();
@@ -306,6 +370,7 @@ public class CameraExtensionsActivity extends AppCompatActivity
                             bindUseCasesWithNextExtensionMode();
                         }
                         setupButtons();
+                        mInitializationIdlingResource.decrement();
                     }
 
                     @Override
@@ -474,5 +539,18 @@ public class CameraExtensionsActivity extends AppCompatActivity
             default:
                 throw new IllegalStateException("Unexpected value: " + extensionMode);
         }
+    }
+
+    @VisibleForTesting
+    boolean isExtensionModeSupported(@NonNull String cameraId, @ExtensionMode.Mode int mode) {
+        CameraSelector cameraSelector = CameraSelectorUtil.createCameraSelectorById(cameraId);
+
+        return mExtensionsManager.isExtensionAvailable(cameraSelector, mode);
+    }
+
+    @VisibleForTesting
+    @ExtensionMode.Mode
+    int getCurrentExtensionMode() {
+        return mCurrentExtensionMode;
     }
 }
