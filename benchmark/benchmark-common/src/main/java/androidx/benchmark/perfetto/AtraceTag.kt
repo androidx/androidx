@@ -44,7 +44,11 @@ internal enum class AtraceTag(
     HardwareModules("hal"),
     Idle("idle"),
     Input("input"),
-    MemReclaim("memreclaim"),
+    MemReclaim("memreclaim") {
+        override fun supported(api: Int, rooted: Boolean): Boolean {
+            return rooted || api >= 24
+        }
+    },
     Resources("res"),
     Scheduling("sched"),
     Synchronization("sync") {
