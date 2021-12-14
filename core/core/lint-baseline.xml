@@ -1163,30 +1163,8 @@
         errorLine2="                                                ~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompatBuilder.java"
-            line="390"
+            line="389"
             column="49"/>
-    </issue>
-
-    <issue
-        id="WrongConstant"
-        message="Must be one of: LineBreaker.BREAK_STRATEGY_SIMPLE, LineBreaker.BREAK_STRATEGY_HIGH_QUALITY, LineBreaker.BREAK_STRATEGY_BALANCED"
-        errorLine1="                        .setBreakStrategy(params.getBreakStrategy())"
-        errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/text/PrecomputedTextCompat.java"
-            line="467"
-            column="43"/>
-    </issue>
-
-    <issue
-        id="WrongConstant"
-        message="Must be one of: Layout.HYPHENATION_FREQUENCY_NORMAL, Layout.HYPHENATION_FREQUENCY_FULL, Layout.HYPHENATION_FREQUENCY_NONE"
-        errorLine1="                        .setHyphenationFrequency(params.getHyphenationFrequency())"
-        errorLine2="                                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/text/PrecomputedTextCompat.java"
-            line="468"
-            column="50"/>
     </issue>
 
     <issue
@@ -3000,7 +2978,7 @@
         errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/ActivityCompat.java"
-            line="239"
+            line="238"
             column="22"/>
     </issue>
 
@@ -3011,7 +2989,7 @@
         errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/ActivityCompat.java"
-            line="276"
+            line="275"
             column="22"/>
     </issue>
 
@@ -3022,7 +3000,7 @@
         errorLine2="                     ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/ActivityCompat.java"
-            line="293"
+            line="292"
             column="22"/>
     </issue>
 
@@ -3033,7 +3011,7 @@
         errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/ActivityCompat.java"
-            line="310"
+            line="309"
             column="22"/>
     </issue>
 
@@ -3044,7 +3022,7 @@
         errorLine2="                            ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/ActivityCompat.java"
-            line="335"
+            line="334"
             column="29"/>
     </issue>
 
@@ -3055,7 +3033,7 @@
         errorLine2="                            ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/ActivityCompat.java"
-            line="368"
+            line="367"
             column="29"/>
     </issue>
 
@@ -3066,7 +3044,7 @@
         errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/ActivityCompat.java"
-            line="392"
+            line="391"
             column="22"/>
     </issue>
 
@@ -3077,7 +3055,7 @@
         errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/ActivityCompat.java"
-            line="411"
+            line="410"
             column="22"/>
     </issue>
 
@@ -3088,7 +3066,7 @@
         errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/ActivityCompat.java"
-            line="417"
+            line="416"
             column="22"/>
     </issue>
 
@@ -3099,7 +3077,7 @@
         errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/ActivityCompat.java"
-            line="423"
+            line="422"
             column="22"/>
     </issue>
 
@@ -3110,7 +3088,7 @@
         errorLine2="                     ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/ActivityCompat.java"
-            line="518"
+            line="517"
             column="22"/>
     </issue>
 
@@ -3121,7 +3099,7 @@
         errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/ActivityCompat.java"
-            line="555"
+            line="554"
             column="29"/>
     </issue>
 
@@ -3132,7 +3110,7 @@
         errorLine2="                            ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/ActivityCompat.java"
-            line="586"
+            line="585"
             column="29"/>
     </issue>
 
@@ -3143,7 +3121,7 @@
         errorLine2="                                ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/ActivityCompat.java"
-            line="587"
+            line="586"
             column="33"/>
     </issue>
 
@@ -3154,7 +3132,7 @@
         errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/ActivityCompat.java"
-            line="735"
+            line="734"
             column="38"/>
     </issue>
 
@@ -6267,7 +6245,7 @@
         errorLine2="                       ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompatBuilder.java"
-            line="73"
+            line="72"
             column="24"/>
     </issue>
 
@@ -6278,7 +6256,7 @@
         errorLine2="                     ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompatBuilder.java"
-            line="102"
+            line="101"
             column="22"/>
     </issue>
 
@@ -6289,7 +6267,7 @@
         errorLine2="                     ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompatBuilder.java"
-            line="103"
+            line="102"
             column="22"/>
     </issue>
 
@@ -6300,7 +6278,7 @@
         errorLine2="                     ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompatBuilder.java"
-            line="104"
+            line="103"
             column="22"/>
     </issue>
 
@@ -6311,7 +6289,7 @@
         errorLine2="                     ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompatBuilder.java"
-            line="134"
+            line="133"
             column="22"/>
     </issue>
 
@@ -6322,7 +6300,7 @@
         errorLine2="                     ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompatBuilder.java"
-            line="146"
+            line="145"
             column="22"/>
     </issue>
 
@@ -6333,7 +6311,7 @@
         errorLine2="                     ~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompatBuilder.java"
-            line="147"
+            line="146"
             column="22"/>
     </issue>
 
@@ -6344,7 +6322,7 @@
         errorLine2="                     ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompatBuilder.java"
-            line="148"
+            line="147"
             column="22"/>
     </issue>
 
@@ -6355,7 +6333,7 @@
         errorLine2="                     ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompatBuilder.java"
-            line="149"
+            line="148"
             column="22"/>
     </issue>
 
@@ -6366,7 +6344,7 @@
         errorLine2="                     ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompatBuilder.java"
-            line="154"
+            line="153"
             column="22"/>
     </issue>
 
@@ -6377,7 +6355,7 @@
         errorLine2="                     ~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompatBuilder.java"
-            line="155"
+            line="154"
             column="22"/>
     </issue>
 
@@ -6388,7 +6366,7 @@
         errorLine2="                     ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompatBuilder.java"
-            line="156"
+            line="155"
             column="22"/>
     </issue>
 
@@ -6399,7 +6377,7 @@
         errorLine2="                     ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompatBuilder.java"
-            line="157"
+            line="156"
             column="22"/>
     </issue>
 
@@ -6410,7 +6388,7 @@
         errorLine2="                     ~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompatBuilder.java"
-            line="158"
+            line="157"
             column="22"/>
     </issue>
 
@@ -6421,7 +6399,7 @@
         errorLine2="                             ~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompatBuilder.java"
-            line="169"
+            line="168"
             column="30"/>
     </issue>
 
@@ -6432,7 +6410,7 @@
         errorLine2="                         ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompatBuilder.java"
-            line="203"
+            line="202"
             column="26"/>
     </issue>
 
@@ -6443,7 +6421,7 @@
         errorLine2="                     ~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompatBuilder.java"
-            line="207"
+            line="206"
             column="22"/>
     </issue>
 
@@ -6454,7 +6432,7 @@
         errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompatBuilder.java"
-            line="208"
+            line="207"
             column="22"/>
     </issue>
 
@@ -6465,7 +6443,7 @@
         errorLine2="                         ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompatBuilder.java"
-            line="210"
+            line="209"
             column="26"/>
     </issue>
 
@@ -6476,7 +6454,7 @@
         errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompatBuilder.java"
-            line="213"
+            line="212"
             column="26"/>
     </issue>
 
@@ -6487,7 +6465,7 @@
         errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompatBuilder.java"
-            line="216"
+            line="215"
             column="26"/>
     </issue>
 
@@ -6498,7 +6476,7 @@
         errorLine2="                     ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompatBuilder.java"
-            line="220"
+            line="219"
             column="22"/>
     </issue>
 
@@ -6509,7 +6487,7 @@
         errorLine2="                     ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompatBuilder.java"
-            line="221"
+            line="220"
             column="22"/>
     </issue>
 
@@ -6520,7 +6498,7 @@
         errorLine2="                     ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompatBuilder.java"
-            line="222"
+            line="221"
             column="22"/>
     </issue>
 
@@ -6531,7 +6509,7 @@
         errorLine2="                     ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompatBuilder.java"
-            line="223"
+            line="222"
             column="22"/>
     </issue>
 
@@ -6542,7 +6520,7 @@
         errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompatBuilder.java"
-            line="224"
+            line="223"
             column="22"/>
     </issue>
 
@@ -6553,7 +6531,7 @@
         errorLine2="                         ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompatBuilder.java"
-            line="226"
+            line="225"
             column="26"/>
     </issue>
 
@@ -6564,7 +6542,7 @@
         errorLine2="                         ~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompatBuilder.java"
-            line="238"
+            line="237"
             column="26"/>
     </issue>
 
@@ -6575,7 +6553,7 @@
         errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompatBuilder.java"
-            line="242"
+            line="241"
             column="22"/>
     </issue>
 
@@ -6586,7 +6564,7 @@
         errorLine2="                     ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompatBuilder.java"
-            line="245"
+            line="244"
             column="22"/>
     </issue>
 
@@ -6597,7 +6575,7 @@
         errorLine2="                         ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompatBuilder.java"
-            line="248"
+            line="247"
             column="26"/>
     </issue>
 
@@ -6608,7 +6586,7 @@
         errorLine2="                             ~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompatBuilder.java"
-            line="272"
+            line="271"
             column="30"/>
     </issue>
 
@@ -6619,7 +6597,7 @@
         errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompatBuilder.java"
-            line="274"
+            line="273"
             column="26"/>
     </issue>
 
@@ -6630,7 +6608,7 @@
         errorLine2="                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompatBuilder.java"
-            line="359"
+            line="358"
             column="33"/>
     </issue>
 
@@ -6641,7 +6619,7 @@
         errorLine2="                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompatBuilder.java"
-            line="364"
+            line="363"
             column="33"/>
     </issue>
 
@@ -6652,7 +6630,7 @@
         errorLine2="                                  ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompatBuilder.java"
-            line="372"
+            line="371"
             column="35"/>
     </issue>
 
@@ -6663,7 +6641,7 @@
         errorLine2="                              ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompatBuilder.java"
-            line="384"
+            line="383"
             column="31"/>
     </issue>
 
@@ -6674,7 +6652,7 @@
         errorLine2="                              ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompatBuilder.java"
-            line="390"
+            line="389"
             column="31"/>
     </issue>
 
@@ -6685,7 +6663,7 @@
         errorLine2="                              ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompatBuilder.java"
-            line="394"
+            line="393"
             column="31"/>
     </issue>
 
@@ -6696,7 +6674,7 @@
         errorLine2="                          ~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompatBuilder.java"
-            line="403"
+            line="402"
             column="27"/>
     </issue>
 
@@ -6707,7 +6685,7 @@
         errorLine2="                     ~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompatBuilder.java"
-            line="404"
+            line="403"
             column="22"/>
     </issue>
 
@@ -6718,7 +6696,7 @@
         errorLine2="                                             ~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompatBuilder.java"
-            line="404"
+            line="403"
             column="46"/>
     </issue>
 
@@ -6729,7 +6707,7 @@
         errorLine2="                            ~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompatBuilder.java"
-            line="414"
+            line="413"
             column="29"/>
     </issue>
 
@@ -6740,7 +6718,7 @@
         errorLine2="                                                  ~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompatBuilder.java"
-            line="416"
+            line="415"
             column="51"/>
     </issue>
 
@@ -6751,7 +6729,7 @@
         errorLine2="                                 ~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompatBuilder.java"
-            line="420"
+            line="419"
             column="34"/>
     </issue>
 
@@ -6762,7 +6740,7 @@
         errorLine2="                                 ~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompatBuilder.java"
-            line="426"
+            line="425"
             column="34"/>
     </issue>
 
@@ -6771,20 +6749,20 @@
         message="This call references a method added in API level 19; however, the containing class androidx.core.app.NotificationCompatBuilder is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            mBuilder.setExtras(mExtras);"
         errorLine2="                     ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/app/NotificationCompatBuilder.java"
+            line="434"
+            column="22"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 16; however, the containing class androidx.core.app.NotificationCompatBuilder is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            Notification notification = mBuilder.build();"
+        errorLine2="                                                 ~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompatBuilder.java"
             line="435"
-            column="22"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 16; however, the containing class androidx.core.app.NotificationCompatBuilder is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            Notification notification = mBuilder.build();"
-        errorLine2="                                                 ~~~~~">
-        <location
-            file="src/main/java/androidx/core/app/NotificationCompatBuilder.java"
-            line="436"
             column="50"/>
     </issue>
 
@@ -6795,7 +6773,7 @@
         errorLine2="                                 ~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompatBuilder.java"
-            line="449"
+            line="448"
             column="34"/>
     </issue>
 
@@ -6806,7 +6784,7 @@
         errorLine2="                                 ~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompatBuilder.java"
-            line="455"
+            line="454"
             column="34"/>
     </issue>
 
@@ -6815,20 +6793,20 @@
         message="This call references a method added in API level 19; however, the containing class androidx.core.app.NotificationCompatBuilder is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            mBuilder.setExtras(mExtras);"
         errorLine2="                     ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/app/NotificationCompatBuilder.java"
+            line="462"
+            column="22"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 16; however, the containing class androidx.core.app.NotificationCompatBuilder is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            Notification notification = mBuilder.build();"
+        errorLine2="                                                 ~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompatBuilder.java"
             line="463"
-            column="22"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 16; however, the containing class androidx.core.app.NotificationCompatBuilder is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            Notification notification = mBuilder.build();"
-        errorLine2="                                                 ~~~~~">
-        <location
-            file="src/main/java/androidx/core/app/NotificationCompatBuilder.java"
-            line="464"
             column="50"/>
     </issue>
 
@@ -6839,7 +6817,7 @@
         errorLine2="                                 ~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompatBuilder.java"
-            line="474"
+            line="473"
             column="34"/>
     </issue>
 
@@ -6850,7 +6828,7 @@
         errorLine2="                                 ~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompatBuilder.java"
-            line="480"
+            line="479"
             column="34"/>
     </issue>
 
@@ -6861,7 +6839,7 @@
         errorLine2="                     ~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompatBuilder.java"
-            line="496"
+            line="495"
             column="22"/>
     </issue>
 
@@ -6872,7 +6850,7 @@
         errorLine2="                                                 ~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompatBuilder.java"
-            line="497"
+            line="496"
             column="50"/>
     </issue>
 
@@ -6883,7 +6861,7 @@
         errorLine2="                                                 ~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompatBuilder.java"
-            line="506"
+            line="505"
             column="50"/>
     </issue>
 
@@ -7444,7 +7422,7 @@
         errorLine2="                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/text/PrecomputedTextCompat.java"
-            line="197"
+            line="198"
             column="28"/>
     </issue>
 
@@ -7455,7 +7433,7 @@
         errorLine2="                         ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/text/PrecomputedTextCompat.java"
-            line="198"
+            line="199"
             column="26"/>
     </issue>
 
@@ -7466,7 +7444,7 @@
         errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/text/PrecomputedTextCompat.java"
-            line="199"
+            line="200"
             column="26"/>
     </issue>
 
@@ -7477,7 +7455,7 @@
         errorLine2="                         ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/text/PrecomputedTextCompat.java"
-            line="200"
+            line="201"
             column="26"/>
     </issue>
 
@@ -7488,7 +7466,7 @@
         errorLine2="                         ~~~~~">
         <location
             file="src/main/java/androidx/core/text/PrecomputedTextCompat.java"
-            line="201"
+            line="202"
             column="26"/>
     </issue>
 
@@ -7499,7 +7477,7 @@
         errorLine2="                             ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/text/PrecomputedTextCompat.java"
-            line="213"
+            line="214"
             column="30"/>
     </issue>
 
@@ -7510,7 +7488,7 @@
         errorLine2="                               ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/text/PrecomputedTextCompat.java"
-            line="214"
+            line="215"
             column="32"/>
     </issue>
 
@@ -7521,7 +7499,7 @@
         errorLine2="                                     ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/text/PrecomputedTextCompat.java"
-            line="215"
+            line="216"
             column="38"/>
     </issue>
 
@@ -7532,7 +7510,7 @@
         errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/text/PrecomputedTextCompat.java"
-            line="216"
+            line="217"
             column="45"/>
     </issue>
 
@@ -7543,7 +7521,7 @@
         errorLine2="                           ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/text/PrecomputedTextCompat.java"
-            line="292"
+            line="293"
             column="28"/>
     </issue>
 
@@ -7554,7 +7532,7 @@
         errorLine2="                                                                      ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/text/PrecomputedTextCompat.java"
-            line="292"
+            line="293"
             column="71"/>
     </issue>
 
@@ -7565,7 +7543,7 @@
         errorLine2="                                             ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/text/PrecomputedTextCompat.java"
-            line="295"
+            line="296"
             column="46"/>
     </issue>
 
@@ -7576,7 +7554,7 @@
         errorLine2="                                             ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/text/PrecomputedTextCompat.java"
-            line="296"
+            line="297"
             column="46"/>
     </issue>
 
@@ -7587,7 +7565,7 @@
         errorLine2="                            ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/text/PrecomputedTextCompat.java"
-            line="304"
+            line="305"
             column="29"/>
     </issue>
 
@@ -7598,7 +7576,7 @@
         errorLine2="                                                                         ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/text/PrecomputedTextCompat.java"
-            line="304"
+            line="305"
             column="74"/>
     </issue>
 
@@ -7609,7 +7587,7 @@
         errorLine2="                            ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/text/PrecomputedTextCompat.java"
-            line="308"
+            line="309"
             column="29"/>
     </issue>
 
@@ -7620,7 +7598,7 @@
         errorLine2="                                                                        ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/text/PrecomputedTextCompat.java"
-            line="308"
+            line="309"
             column="73"/>
     </issue>
 
@@ -7631,7 +7609,7 @@
         errorLine2="                                                      ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/text/PrecomputedTextCompat.java"
-            line="352"
+            line="353"
             column="55"/>
     </issue>
 
@@ -7642,7 +7620,7 @@
         errorLine2="                                                                              ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/text/PrecomputedTextCompat.java"
-            line="353"
+            line="354"
             column="79"/>
     </issue>
 
@@ -7653,7 +7631,7 @@
         errorLine2="                               ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/text/PrecomputedTextCompat.java"
-            line="353"
+            line="354"
             column="32"/>
     </issue>
 
@@ -7664,7 +7642,7 @@
         errorLine2="                                                      ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/text/PrecomputedTextCompat.java"
-            line="357"
+            line="358"
             column="55"/>
     </issue>
 
@@ -7675,7 +7653,7 @@
         errorLine2="                               ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/text/PrecomputedTextCompat.java"
-            line="358"
+            line="359"
             column="32"/>
     </issue>
 
@@ -7686,7 +7664,7 @@
         errorLine2="                                                                             ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/text/PrecomputedTextCompat.java"
-            line="358"
+            line="359"
             column="78"/>
     </issue>
 
@@ -7697,7 +7675,7 @@
         errorLine2="                                                                         ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/text/PrecomputedTextCompat.java"
-            line="362"
+            line="363"
             column="74"/>
     </issue>
 
@@ -7708,7 +7686,7 @@
         errorLine2="                                                                         ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/text/PrecomputedTextCompat.java"
-            line="366"
+            line="367"
             column="74"/>
     </issue>
 
@@ -7719,7 +7697,7 @@
         errorLine2="                                                      ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/text/PrecomputedTextCompat.java"
-            line="382"
+            line="383"
             column="55"/>
     </issue>
 
@@ -7730,7 +7708,7 @@
         errorLine2="                                                          ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/text/PrecomputedTextCompat.java"
-            line="383"
+            line="384"
             column="59"/>
     </issue>
 
@@ -7741,7 +7719,7 @@
         errorLine2="                                                   ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/text/PrecomputedTextCompat.java"
-            line="386"
+            line="387"
             column="52"/>
     </issue>
 
@@ -7752,7 +7730,7 @@
         errorLine2="                                                   ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/text/PrecomputedTextCompat.java"
-            line="388"
+            line="389"
             column="52"/>
     </issue>
 
@@ -7763,7 +7741,7 @@
         errorLine2="                                                          ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/text/PrecomputedTextCompat.java"
-            line="392"
+            line="393"
             column="59"/>
     </issue>
 
@@ -7774,7 +7752,7 @@
         errorLine2="                                        ~~~~~~">
         <location
             file="src/main/java/androidx/core/text/PrecomputedTextCompat.java"
-            line="437"
+            line="439"
             column="41"/>
     </issue>
 
@@ -7785,7 +7763,7 @@
         errorLine2="                                     ~~~~~~">
         <location
             file="src/main/java/androidx/core/text/PrecomputedTextCompat.java"
-            line="465"
+            line="467"
             column="38"/>
     </issue>
 
@@ -7796,7 +7774,7 @@
         errorLine2="                         ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/text/PrecomputedTextCompat.java"
-            line="467"
+            line="469"
             column="26"/>
     </issue>
 
@@ -7807,7 +7785,7 @@
         errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/text/PrecomputedTextCompat.java"
-            line="468"
+            line="470"
             column="26"/>
     </issue>
 
@@ -7818,7 +7796,7 @@
         errorLine2="                         ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/text/PrecomputedTextCompat.java"
-            line="469"
+            line="471"
             column="26"/>
     </issue>
 
@@ -7829,7 +7807,7 @@
         errorLine2="                         ~~~~~">
         <location
             file="src/main/java/androidx/core/text/PrecomputedTextCompat.java"
-            line="470"
+            line="472"
             column="26"/>
     </issue>
 
@@ -7840,7 +7818,7 @@
         errorLine2="                            ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/text/PrecomputedTextCompat.java"
-            line="528"
+            line="530"
             column="29"/>
     </issue>
 
@@ -7851,7 +7829,7 @@
         errorLine2="                            ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/text/PrecomputedTextCompat.java"
-            line="540"
+            line="542"
             column="29"/>
     </issue>
 
@@ -7862,7 +7840,7 @@
         errorLine2="                            ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/text/PrecomputedTextCompat.java"
-            line="552"
+            line="554"
             column="29"/>
     </issue>
 
@@ -9763,182 +9741,6 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static int getRecordCount(AccessibilityEvent event) {"
-        errorLine2="                                     ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/accessibility/AccessibilityEventCompat.java"
-            line="262"
-            column="38"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static void appendRecord(AccessibilityEvent event, AccessibilityRecordCompat record) {"
-        errorLine2="                                    ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/accessibility/AccessibilityEventCompat.java"
-            line="278"
-            column="37"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static void appendRecord(AccessibilityEvent event, AccessibilityRecordCompat record) {"
-        errorLine2="                                                              ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/accessibility/AccessibilityEventCompat.java"
-            line="278"
-            column="63"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static AccessibilityRecordCompat getRecord(AccessibilityEvent event, int index) {"
-        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/accessibility/AccessibilityEventCompat.java"
-            line="292"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static AccessibilityRecordCompat getRecord(AccessibilityEvent event, int index) {"
-        errorLine2="                                                      ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/accessibility/AccessibilityEventCompat.java"
-            line="292"
-            column="55"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static AccessibilityRecordCompat asRecord(AccessibilityEvent event) {"
-        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/accessibility/AccessibilityEventCompat.java"
-            line="313"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static AccessibilityRecordCompat asRecord(AccessibilityEvent event) {"
-        errorLine2="                                                     ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/accessibility/AccessibilityEventCompat.java"
-            line="313"
-            column="54"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static boolean addAccessibilityStateChangeListener(AccessibilityManager manager,"
-        errorLine2="                                                              ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/accessibility/AccessibilityManagerCompat.java"
-            line="46"
-            column="63"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="            AccessibilityStateChangeListener listener) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/accessibility/AccessibilityManagerCompat.java"
-            line="47"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static boolean removeAccessibilityStateChangeListener(AccessibilityManager manager,"
-        errorLine2="                                                                 ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/accessibility/AccessibilityManagerCompat.java"
-            line="67"
-            column="66"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="            AccessibilityStateChangeListener listener) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/accessibility/AccessibilityManagerCompat.java"
-            line="68"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static List&lt;AccessibilityServiceInfo> getInstalledAccessibilityServiceList("
-        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/accessibility/AccessibilityManagerCompat.java"
-            line="119"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="            AccessibilityManager manager) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/accessibility/AccessibilityManagerCompat.java"
-            line="120"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static List&lt;AccessibilityServiceInfo> getEnabledAccessibilityServiceList("
-        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/accessibility/AccessibilityManagerCompat.java"
-            line="142"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="            AccessibilityManager manager, int feedbackTypeFlags) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/accessibility/AccessibilityManagerCompat.java"
-            line="143"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static boolean isTouchExplorationEnabled(AccessibilityManager manager) {"
-        errorLine2="                                                    ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/accessibility/AccessibilityManagerCompat.java"
-            line="156"
-            column="53"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="        public AccessibilityActionCompat(int actionId, CharSequence label) {"
         errorLine2="                                                       ~~~~~~~~~~~~">
         <location
@@ -10093,17 +9895,6 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public AccessibilityNodeInfoCompat(Object info) {"
-        errorLine2="                                       ~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="1696"
-            column="40"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="    public static AccessibilityNodeInfoCompat wrap(@NonNull AccessibilityNodeInfo info) {"
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -10120,17 +9911,6 @@
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
             line="1717"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public Object getInfo() {"
-        errorLine2="           ~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="1727"
             column="12"/>
     </issue>
 
@@ -10396,28 +10176,6 @@
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
             line="2205"
             column="27"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void getBoundsInParent(Rect outBounds) {"
-        errorLine2="                                  ~~~~">
-        <location
-            file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="2226"
-            column="35"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void setBoundsInParent(Rect bounds) {"
-        errorLine2="                                  ~~~~">
-        <location
-            file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="2249"
-            column="35"/>
     </issue>
 
     <issue
@@ -10874,210 +10632,12 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public AccessibilityRecordCompat(Object record) {"
-        errorLine2="                                     ~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/accessibility/AccessibilityRecordCompat.java"
-            line="48"
-            column="38"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public Object getImpl() {"
-        errorLine2="           ~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/accessibility/AccessibilityRecordCompat.java"
-            line="59"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static AccessibilityRecordCompat obtain(AccessibilityRecordCompat record) {"
-        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/accessibility/AccessibilityRecordCompat.java"
-            line="74"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static AccessibilityRecordCompat obtain(AccessibilityRecordCompat record) {"
-        errorLine2="                                                   ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/accessibility/AccessibilityRecordCompat.java"
-            line="74"
-            column="52"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static AccessibilityRecordCompat obtain() {"
-        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/accessibility/AccessibilityRecordCompat.java"
-            line="88"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void setSource(View source) {"
-        errorLine2="                          ~~~~">
-        <location
-            file="src/main/java/androidx/core/view/accessibility/AccessibilityRecordCompat.java"
-            line="103"
-            column="27"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void setSource(View root, int virtualDescendantId) {"
-        errorLine2="                          ~~~~">
-        <location
-            file="src/main/java/androidx/core/view/accessibility/AccessibilityRecordCompat.java"
-            line="124"
-            column="27"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public AccessibilityNodeInfoCompat getSource() {"
-        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/accessibility/AccessibilityRecordCompat.java"
-            line="166"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public CharSequence getClassName() {"
-        errorLine2="           ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/accessibility/AccessibilityRecordCompat.java"
-            line="630"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void setClassName(CharSequence className) {"
-        errorLine2="                             ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/accessibility/AccessibilityRecordCompat.java"
-            line="644"
-            column="30"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public List&lt;CharSequence> getText() {"
-        errorLine2="           ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/accessibility/AccessibilityRecordCompat.java"
-            line="657"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public CharSequence getBeforeText() {"
-        errorLine2="           ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/accessibility/AccessibilityRecordCompat.java"
-            line="669"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void setBeforeText(CharSequence beforeText) {"
-        errorLine2="                              ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/accessibility/AccessibilityRecordCompat.java"
-            line="683"
-            column="31"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public CharSequence getContentDescription() {"
-        errorLine2="           ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/accessibility/AccessibilityRecordCompat.java"
-            line="695"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void setContentDescription(CharSequence contentDescription) {"
-        errorLine2="                                      ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/accessibility/AccessibilityRecordCompat.java"
-            line="709"
-            column="39"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public Parcelable getParcelableData() {"
-        errorLine2="           ~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/accessibility/AccessibilityRecordCompat.java"
-            line="721"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void setParcelableData(Parcelable parcelableData) {"
-        errorLine2="                                  ~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/accessibility/AccessibilityRecordCompat.java"
-            line="735"
-            column="35"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="    public static PermissionCompatDelegate getPermissionCompatDelegate() {"
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/ActivityCompat.java"
-            line="173"
+            line="172"
             column="19"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static boolean invalidateOptionsMenu(Activity activity) {"
-        errorLine2="                                                ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/app/ActivityCompat.java"
-            line="211"
-            column="49"/>
     </issue>
 
     <issue
@@ -11087,7 +10647,7 @@
         errorLine2="                                                                             ~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/ActivityCompat.java"
-            line="605"
+            line="604"
             column="78"/>
     </issue>
 
@@ -11098,7 +10658,7 @@
         errorLine2="            ~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/ActivityCompat.java"
-            line="606"
+            line="605"
             column="13"/>
     </issue>
 
@@ -11523,28 +11083,6 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void putExtraData(ExtraData extraData) {"
-        errorLine2="                             ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/app/ComponentActivity.java"
-            line="78"
-            column="30"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public &lt;T extends ExtraData> T getExtraData(Class&lt;T> extraDataClass) {"
-        errorLine2="                                                ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/app/ComponentActivity.java"
-            line="106"
-            column="49"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="    public boolean dispatchKeyShortcutEvent(KeyEvent event) {"
         errorLine2="                                            ~~~~~~~~">
         <location
@@ -11573,72 +11111,6 @@
             file="src/main/java/androidx/core/app/CoreComponentFactory.java"
             line="118"
             column="9"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static String concatenateWhere(String a, String b) {"
-        errorLine2="                  ~~~~~~">
-        <location
-            file="src/main/java/androidx/core/database/DatabaseUtilsCompat.java"
-            line="40"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static String concatenateWhere(String a, String b) {"
-        errorLine2="                                          ~~~~~~">
-        <location
-            file="src/main/java/androidx/core/database/DatabaseUtilsCompat.java"
-            line="40"
-            column="43"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static String concatenateWhere(String a, String b) {"
-        errorLine2="                                                    ~~~~~~">
-        <location
-            file="src/main/java/androidx/core/database/DatabaseUtilsCompat.java"
-            line="40"
-            column="53"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static String[] appendSelectionArgs(String[] originalValues, String[] newValues) {"
-        errorLine2="                  ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/database/DatabaseUtilsCompat.java"
-            line="59"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static String[] appendSelectionArgs(String[] originalValues, String[] newValues) {"
-        errorLine2="                                               ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/database/DatabaseUtilsCompat.java"
-            line="59"
-            column="48"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static String[] appendSelectionArgs(String[] originalValues, String[] newValues) {"
-        errorLine2="                                                                        ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/database/DatabaseUtilsCompat.java"
-            line="59"
-            column="73"/>
     </issue>
 
     <issue
@@ -11688,28 +11160,6 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public EdgeEffectCompat(Context context) {"
-        errorLine2="                            ~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/widget/EdgeEffectCompat.java"
-            line="56"
-            column="29"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public boolean draw(Canvas canvas) {"
-        errorLine2="                        ~~~~~~">
-        <location
-            file="src/main/java/androidx/core/widget/EdgeEffectCompat.java"
-            line="300"
-            column="25"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="    public static Uri getUriForFile(@NonNull Context context, @NonNull String authority,"
         errorLine2="                  ~~~">
         <location
@@ -11726,72 +11176,6 @@
         <location
             file="src/main/java/androidx/core/content/FileProvider.java"
             line="575"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public AuthenticationResult(CryptoObject crypto) {"
-        errorLine2="                                    ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/hardware/fingerprint/FingerprintManagerCompat.java"
-            line="251"
-            column="37"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public CryptoObject getCryptoObject() { return mCryptoObject; }"
-        errorLine2="               ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/hardware/fingerprint/FingerprintManagerCompat.java"
-            line="260"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public void onAuthenticationError(int errMsgId, CharSequence errString) { }"
-        errorLine2="                                                        ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/hardware/fingerprint/FingerprintManagerCompat.java"
-            line="277"
-            column="57"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public void onAuthenticationHelp(int helpMsgId, CharSequence helpString) { }"
-        errorLine2="                                                        ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/hardware/fingerprint/FingerprintManagerCompat.java"
-            line="286"
-            column="57"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public void onAuthenticationSucceeded(AuthenticationResult result) { }"
-        errorLine2="                                              ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/hardware/fingerprint/FingerprintManagerCompat.java"
-            line="292"
-            column="47"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public String getIdentifier() {"
-        errorLine2="           ~~~~~~">
-        <location
-            file="src/main/java/androidx/core/provider/FontRequest.java"
-            line="156"
             column="12"/>
     </issue>
 
@@ -11815,83 +11199,6 @@
             file="src/main/java/androidx/core/provider/FontsContractCompat.java"
             line="486"
             column="41"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static Typeface getFontSync("
-        errorLine2="                  ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/provider/FontsContractCompat.java"
-            line="543"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="            final Context context,"
-        errorLine2="                  ~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/provider/FontsContractCompat.java"
-            line="544"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="            final FontRequest request,"
-        errorLine2="                  ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/provider/FontsContractCompat.java"
-            line="545"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static Map&lt;Uri, ByteBuffer> prepareFontData("
-        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/provider/FontsContractCompat.java"
-            line="588"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="            Context context,"
-        errorLine2="            ~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/provider/FontsContractCompat.java"
-            line="589"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="            FontInfo[] fonts,"
-        errorLine2="            ~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/provider/FontsContractCompat.java"
-            line="590"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="            CancellationSignal cancellationSignal"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/provider/FontsContractCompat.java"
-            line="591"
-            column="13"/>
     </issue>
 
     <issue
@@ -12183,149 +11490,6 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public IBinder onBind(@NonNull Intent intent) {"
-        errorLine2="           ~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/app/JobIntentService.java"
-            line="468"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static LayoutInflaterFactory getFactory(LayoutInflater inflater) {"
-        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/LayoutInflaterCompat.java"
-            line="170"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static LayoutInflaterFactory getFactory(LayoutInflater inflater) {"
-        errorLine2="                                                   ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/LayoutInflaterCompat.java"
-            line="170"
-            column="52"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    View onCreateView(View parent, String name, Context context, AttributeSet attrs);"
-        errorLine2="    ~~~~">
-        <location
-            file="src/main/java/androidx/core/view/LayoutInflaterFactory.java"
-            line="46"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    View onCreateView(View parent, String name, Context context, AttributeSet attrs);"
-        errorLine2="                      ~~~~">
-        <location
-            file="src/main/java/androidx/core/view/LayoutInflaterFactory.java"
-            line="46"
-            column="23"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    View onCreateView(View parent, String name, Context context, AttributeSet attrs);"
-        errorLine2="                                   ~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/LayoutInflaterFactory.java"
-            line="46"
-            column="36"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    View onCreateView(View parent, String name, Context context, AttributeSet attrs);"
-        errorLine2="                                                ~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/LayoutInflaterFactory.java"
-            line="46"
-            column="49"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    View onCreateView(View parent, String name, Context context, AttributeSet attrs);"
-        errorLine2="                                                                 ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/LayoutInflaterFactory.java"
-            line="46"
-            column="66"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static OnTouchListener createDragToOpenListener(Object listPopupWindow, View src) {"
-        errorLine2="                  ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/widget/ListPopupWindowCompat.java"
-            line="66"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static OnTouchListener createDragToOpenListener(Object listPopupWindow, View src) {"
-        errorLine2="                                                           ~~~~~~">
-        <location
-            file="src/main/java/androidx/core/widget/ListPopupWindowCompat.java"
-            line="66"
-            column="60"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static OnTouchListener createDragToOpenListener(Object listPopupWindow, View src) {"
-        errorLine2="                                                                                   ~~~~">
-        <location
-            file="src/main/java/androidx/core/widget/ListPopupWindowCompat.java"
-            line="66"
-            column="84"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static LocaleListCompat wrap(Object localeList) {"
-        errorLine2="                  ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/os/LocaleListCompat.java"
-            line="45"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static LocaleListCompat wrap(Object localeList) {"
-        errorLine2="                                        ~~~~~~">
-        <location
-            file="src/main/java/androidx/core/os/LocaleListCompat.java"
-            line="45"
-            column="41"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="    public Locale get(int index) {"
         errorLine2="           ~~~~~~">
         <location
@@ -12343,336 +11507,6 @@
             file="src/main/java/androidx/core/os/LocaleListCompat.java"
             line="116"
             column="24"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public LogWriter(String tag) {"
-        errorLine2="                     ~~~~~~">
-        <location
-            file="src/main/java/androidx/core/util/LogWriter.java"
-            line="43"
-            column="22"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    @Override public void write(char[] buf, int offset, int count) {"
-        errorLine2="                                ~~~~~~">
-        <location
-            file="src/main/java/androidx/core/util/LogWriter.java"
-            line="55"
-            column="33"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static void setShowAsAction(MenuItem item, int actionEnum) {"
-        errorLine2="                                       ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/MenuCompat.java"
-            line="38"
-            column="40"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        boolean onMenuItemActionExpand(MenuItem item);"
-        errorLine2="                                       ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/MenuItemCompat.java"
-            line="114"
-            column="40"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        boolean onMenuItemActionCollapse(MenuItem item);"
-        errorLine2="                                         ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/MenuItemCompat.java"
-            line="123"
-            column="42"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static void setShowAsAction(MenuItem item, int actionEnum) {"
-        errorLine2="                                       ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/MenuItemCompat.java"
-            line="139"
-            column="40"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static MenuItem setActionView(MenuItem item, View view) {"
-        errorLine2="                  ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/MenuItemCompat.java"
-            line="157"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static MenuItem setActionView(MenuItem item, View view) {"
-        errorLine2="                                         ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/MenuItemCompat.java"
-            line="157"
-            column="42"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static MenuItem setActionView(MenuItem item, View view) {"
-        errorLine2="                                                        ~~~~">
-        <location
-            file="src/main/java/androidx/core/view/MenuItemCompat.java"
-            line="157"
-            column="57"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static MenuItem setActionView(MenuItem item, int resId) {"
-        errorLine2="                  ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/MenuItemCompat.java"
-            line="179"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static MenuItem setActionView(MenuItem item, int resId) {"
-        errorLine2="                                         ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/MenuItemCompat.java"
-            line="179"
-            column="42"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static View getActionView(MenuItem item) {"
-        errorLine2="                  ~~~~">
-        <location
-            file="src/main/java/androidx/core/view/MenuItemCompat.java"
-            line="192"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static View getActionView(MenuItem item) {"
-        errorLine2="                                     ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/MenuItemCompat.java"
-            line="192"
-            column="38"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static boolean expandActionView(MenuItem item) {"
-        errorLine2="                                           ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/MenuItemCompat.java"
-            line="256"
-            column="44"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static boolean collapseActionView(MenuItem item) {"
-        errorLine2="                                             ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/MenuItemCompat.java"
-            line="275"
-            column="46"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static boolean isActionViewExpanded(MenuItem item) {"
-        errorLine2="                                               ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/MenuItemCompat.java"
-            line="291"
-            column="48"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static MenuItem setOnActionExpandListener(MenuItem item,"
-        errorLine2="                  ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/MenuItemCompat.java"
-            line="308"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static MenuItem setOnActionExpandListener(MenuItem item,"
-        errorLine2="                                                     ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/MenuItemCompat.java"
-            line="308"
-            column="54"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="            final OnActionExpandListener listener) {"
-        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/MenuItemCompat.java"
-            line="309"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static int getActionMasked(MotionEvent event) {"
-        errorLine2="                                      ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/MotionEventCompat.java"
-            line="466"
-            column="39"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static int getActionIndex(MotionEvent event) {"
-        errorLine2="                                     ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/MotionEventCompat.java"
-            line="478"
-            column="38"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static int findPointerIndex(MotionEvent event, int pointerId) {"
-        errorLine2="                                       ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/MotionEventCompat.java"
-            line="489"
-            column="40"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static int getPointerId(MotionEvent event, int pointerIndex) {"
-        errorLine2="                                   ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/MotionEventCompat.java"
-            line="500"
-            column="36"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static float getX(MotionEvent event, int pointerIndex) {"
-        errorLine2="                             ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/MotionEventCompat.java"
-            line="511"
-            column="30"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static float getY(MotionEvent event, int pointerIndex) {"
-        errorLine2="                             ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/MotionEventCompat.java"
-            line="522"
-            column="30"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static int getPointerCount(MotionEvent event) {"
-        errorLine2="                                      ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/MotionEventCompat.java"
-            line="533"
-            column="39"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static int getSource(MotionEvent event) {"
-        errorLine2="                                ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/MotionEventCompat.java"
-            line="545"
-            column="33"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static float getAxisValue(MotionEvent event, int axis) {"
-        errorLine2="                                     ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/MotionEventCompat.java"
-            line="571"
-            column="38"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static float getAxisValue(MotionEvent event, int axis, int pointerIndex) {"
-        errorLine2="                                     ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/MotionEventCompat.java"
-            line="591"
-            column="38"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static int getButtonState(MotionEvent event) {"
-        errorLine2="                                     ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/MotionEventCompat.java"
-            line="600"
-            column="38"/>
     </issue>
 
     <issue
@@ -12859,17 +11693,6 @@
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
             line="905"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public ArrayList&lt;String> mPeople;"
-        errorLine2="               ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="967"
             column="16"/>
     </issue>
 
@@ -13261,61 +12084,6 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static &lt;T> Parcelable.Creator&lt;T> newCreator("
-        errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/os/ParcelableCompat.java"
-            line="39"
-            column="23"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="            ParcelableCompatCreatorCallbacks&lt;T> callbacks) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/os/ParcelableCompat.java"
-            line="40"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    T createFromParcel(Parcel in, ClassLoader loader);"
-        errorLine2="                       ~~~~~~">
-        <location
-            file="src/main/java/androidx/core/os/ParcelableCompatCreatorCallbacks.java"
-            line="40"
-            column="24"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    T createFromParcel(Parcel in, ClassLoader loader);"
-        errorLine2="                                  ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/os/ParcelableCompatCreatorCallbacks.java"
-            line="40"
-            column="35"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    T[] newArray(int size);"
-        errorLine2="    ~~~">
-        <location
-            file="src/main/java/androidx/core/os/ParcelableCompatCreatorCallbacks.java"
-            line="49"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="    public static Path createPathFromPathData(String pathData) {"
         errorLine2="                  ~~~~">
         <location
@@ -13496,7 +12264,7 @@
         errorLine2="                   ~~~~~~~">
         <location
             file="src/main/java/androidx/core/text/PrecomputedTextCompat.java"
-            line="143"
+            line="144"
             column="20"/>
     </issue>
 
@@ -13507,7 +12275,7 @@
         errorLine2="                   ~~~~~~~">
         <location
             file="src/main/java/androidx/core/text/PrecomputedTextCompat.java"
-            line="161"
+            line="162"
             column="20"/>
     </issue>
 
@@ -13518,7 +12286,7 @@
         errorLine2="                   ~~~~~~~">
         <location
             file="src/main/java/androidx/core/text/PrecomputedTextCompat.java"
-            line="179"
+            line="180"
             column="20"/>
     </issue>
 
@@ -13529,7 +12297,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/text/PrecomputedTextCompat.java"
-            line="428"
+            line="430"
             column="19"/>
     </issue>
 
@@ -13540,7 +12308,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/text/PrecomputedTextCompat.java"
-            line="644"
+            line="646"
             column="19"/>
     </issue>
 
@@ -13551,7 +12319,7 @@
         errorLine2="                        ~~~~~~">
         <location
             file="src/main/java/androidx/core/text/PrecomputedTextCompat.java"
-            line="670"
+            line="672"
             column="25"/>
     </issue>
 
@@ -13562,7 +12330,7 @@
         errorLine2="                           ~~~~~~">
         <location
             file="src/main/java/androidx/core/text/PrecomputedTextCompat.java"
-            line="686"
+            line="688"
             column="28"/>
     </issue>
 
@@ -13573,7 +12341,7 @@
         errorLine2="               ~~~">
         <location
             file="src/main/java/androidx/core/text/PrecomputedTextCompat.java"
-            line="704"
+            line="706"
             column="16"/>
     </issue>
 
@@ -13584,7 +12352,7 @@
         errorLine2="                                                ~~~~~~~~">
         <location
             file="src/main/java/androidx/core/text/PrecomputedTextCompat.java"
-            line="704"
+            line="706"
             column="49"/>
     </issue>
 
@@ -13595,7 +12363,7 @@
         errorLine2="                            ~~~~~~">
         <location
             file="src/main/java/androidx/core/text/PrecomputedTextCompat.java"
-            line="714"
+            line="716"
             column="29"/>
     </issue>
 
@@ -13606,7 +12374,7 @@
         errorLine2="                          ~~~~~~">
         <location
             file="src/main/java/androidx/core/text/PrecomputedTextCompat.java"
-            line="719"
+            line="721"
             column="27"/>
     </issue>
 
@@ -13617,7 +12385,7 @@
         errorLine2="                            ~~~~~~">
         <location
             file="src/main/java/androidx/core/text/PrecomputedTextCompat.java"
-            line="724"
+            line="726"
             column="29"/>
     </issue>
 
@@ -13628,7 +12396,7 @@
         errorLine2="                                                        ~~~~~">
         <location
             file="src/main/java/androidx/core/text/PrecomputedTextCompat.java"
-            line="729"
+            line="731"
             column="57"/>
     </issue>
 
@@ -13639,7 +12407,7 @@
         errorLine2="           ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/text/PrecomputedTextCompat.java"
-            line="749"
+            line="751"
             column="12"/>
     </issue>
 
@@ -13943,127 +12711,6 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static void setQuickScaleEnabled(Object scaleGestureDetector, boolean enabled) {"
-        errorLine2="                                            ~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ScaleGestureDetectorCompat.java"
-            line="43"
-            column="45"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static boolean isQuickScaleEnabled(Object scaleGestureDetector) {"
-        errorLine2="                                              ~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ScaleGestureDetectorCompat.java"
-            line="71"
-            column="47"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static ScrollerCompat create(Context context) {"
-        errorLine2="                  ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/widget/ScrollerCompat.java"
-            line="40"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static ScrollerCompat create(Context context) {"
-        errorLine2="                                        ~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/widget/ScrollerCompat.java"
-            line="40"
-            column="41"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static ScrollerCompat create(Context context, Interpolator interpolator) {"
-        errorLine2="                  ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/widget/ScrollerCompat.java"
-            line="48"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static ScrollerCompat create(Context context, Interpolator interpolator) {"
-        errorLine2="                                        ~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/widget/ScrollerCompat.java"
-            line="48"
-            column="41"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static ScrollerCompat create(Context context, Interpolator interpolator) {"
-        errorLine2="                                                         ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/widget/ScrollerCompat.java"
-            line="48"
-            column="58"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="            String threadName, int priority, int destructAfterMillisec) {"
-        errorLine2="            ~~~~~~">
-        <location
-            file="src/main/java/androidx/core/provider/SelfDestructiveThread.java"
-            line="83"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public &lt;T> void postAndReply(final Callable&lt;T> callable, final ReplyCallback&lt;T> reply) {"
-        errorLine2="                                       ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/provider/SelfDestructiveThread.java"
-            line="140"
-            column="40"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public &lt;T> void postAndReply(final Callable&lt;T> callable, final ReplyCallback&lt;T> reply) {"
-        errorLine2="                                                                   ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/provider/SelfDestructiveThread.java"
-            line="140"
-            column="68"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public &lt;T> T postAndWait(final Callable&lt;T> callable, int timeoutMillis)"
-        errorLine2="                                   ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/provider/SelfDestructiveThread.java"
-            line="169"
-            column="36"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="    public void onSharedElementStart(List&lt;String> sharedElementNames,"
         errorLine2="                                     ~~~~~~~~~~~~">
         <location
@@ -14268,17 +12915,6 @@
             file="src/main/java/androidx/core/app/SharedElementCallback.java"
             line="300"
             column="40"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public static EditorCompat getInstance() {"
-        errorLine2="                      ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/content/SharedPreferencesCompat.java"
-            line="65"
-            column="23"/>
     </issue>
 
     <issue
@@ -14658,28 +13294,6 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static TaskStackBuilder from(Context context) {"
-        errorLine2="                  ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/app/TaskStackBuilder.java"
-            line="108"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static TaskStackBuilder from(Context context) {"
-        errorLine2="                                        ~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/app/TaskStackBuilder.java"
-            line="108"
-            column="41"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="    public TaskStackBuilder addParentStack(ComponentName sourceActivityName) {"
         errorLine2="           ~~~~~~~~~~~~~~~~">
         <location
@@ -14697,28 +13311,6 @@
             file="src/main/java/androidx/core/app/TaskStackBuilder.java"
             line="200"
             column="44"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public Intent getIntent(int index) {"
-        errorLine2="           ~~~~~~">
-        <location
-            file="src/main/java/androidx/core/app/TaskStackBuilder.java"
-            line="233"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public Iterator&lt;Intent> iterator() {"
-        errorLine2="           ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/app/TaskStackBuilder.java"
-            line="255"
-            column="12"/>
     </issue>
 
     <issue
@@ -14807,28 +13399,6 @@
             file="src/main/java/androidx/core/graphics/drawable/TintAwareDrawable.java"
             line="37"
             column="22"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static void tagSocket(Socket socket) throws SocketException {"
-        errorLine2="                                 ~~~~~~">
-        <location
-            file="src/main/java/androidx/core/net/TrafficStatsCompat.java"
-            line="113"
-            column="34"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static void untagSocket(Socket socket) throws SocketException {"
-        errorLine2="                                   ~~~~~~">
-        <location
-            file="src/main/java/androidx/core/net/TrafficStatsCompat.java"
-            line="123"
-            column="36"/>
     </issue>
 
     <issue
@@ -15379,622 +13949,6 @@
             file="src/main/java/androidx/core/graphics/TypefaceCompatUtil.java"
             line="180"
             column="37"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static float getXVelocity(VelocityTracker tracker, int pointerId) {"
-        errorLine2="                                     ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/VelocityTrackerCompat.java"
-            line="36"
-            column="38"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static float getYVelocity(VelocityTracker tracker, int pointerId) {"
-        errorLine2="                                     ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/VelocityTrackerCompat.java"
-            line="48"
-            column="38"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static boolean canScrollHorizontally(View view, int direction) {"
-        errorLine2="                                                ~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="543"
-            column="49"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static boolean canScrollVertically(View view, int direction) {"
-        errorLine2="                                              ~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="556"
-            column="47"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static int getOverScrollMode(View v) {"
-        errorLine2="                                        ~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="573"
-            column="41"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static void setOverScrollMode(View v, @OverScroll int overScrollMode) {"
-        errorLine2="                                         ~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="593"
-            column="42"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static void onPopulateAccessibilityEvent(View v, AccessibilityEvent event) {"
-        errorLine2="                                                    ~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="633"
-            column="53"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static void onPopulateAccessibilityEvent(View v, AccessibilityEvent event) {"
-        errorLine2="                                                            ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="633"
-            column="61"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static void onInitializeAccessibilityEvent(View v, AccessibilityEvent event) {"
-        errorLine2="                                                      ~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="665"
-            column="55"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static void onInitializeAccessibilityEvent(View v, AccessibilityEvent event) {"
-        errorLine2="                                                              ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="665"
-            column="63"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static float getAlpha(View view) {"
-        errorLine2="                                 ~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="1469"
-            column="34"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static void setLayerType(View view, @LayerType int layerType, Paint paint) {"
-        errorLine2="                                    ~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="1508"
-            column="37"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static void setLayerType(View view, @LayerType int layerType, Paint paint) {"
-        errorLine2="                                                                         ~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="1508"
-            column="74"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static int getLayerType(View view) {"
-        errorLine2="                                   ~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="1532"
-            column="36"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static boolean isOpaque(View view) {"
-        errorLine2="                                   ~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="1700"
-            column="36"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static int getMeasuredWidthAndState(View view) {"
-        errorLine2="                                               ~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="1737"
-            column="48"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static int getMeasuredHeightAndState(View view) {"
-        errorLine2="                                                ~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="1754"
-            column="49"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static int getMeasuredState(View view) {"
-        errorLine2="                                       ~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="1768"
-            column="40"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static float getTranslationX(View view) {"
-        errorLine2="                                        ~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="1960"
-            column="41"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static float getTranslationY(View view) {"
-        errorLine2="                                        ~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="1974"
-            column="41"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static Matrix getMatrix(View view) {"
-        errorLine2="                                   ~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="1996"
-            column="36"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static void setTranslationX(View view, float value) {"
-        errorLine2="                                       ~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2102"
-            column="40"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static void setTranslationY(View view, float value) {"
-        errorLine2="                                       ~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2119"
-            column="40"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static void setAlpha(View view, @FloatRange(from = 0.0, to = 1.0) float value) {"
-        errorLine2="                                ~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2136"
-            column="33"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static void setX(View view, float value) {"
-        errorLine2="                            ~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2151"
-            column="29"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static void setY(View view, float value) {"
-        errorLine2="                            ~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2166"
-            column="29"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static void setRotation(View view, float value) {"
-        errorLine2="                                   ~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2179"
-            column="36"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static void setRotationX(View view, float value) {"
-        errorLine2="                                    ~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2193"
-            column="37"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static void setRotationY(View view, float value) {"
-        errorLine2="                                    ~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2207"
-            column="37"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static void setScaleX(View view, float value) {"
-        errorLine2="                                 ~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2220"
-            column="34"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static void setScaleY(View view, float value) {"
-        errorLine2="                                 ~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2233"
-            column="34"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static float getPivotX(View view) {"
-        errorLine2="                                  ~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2244"
-            column="35"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static void setPivotX(View view, float value) {"
-        errorLine2="                                 ~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2260"
-            column="34"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static float getPivotY(View view) {"
-        errorLine2="                                  ~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2273"
-            column="35"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static void setPivotY(View view, float value) {"
-        errorLine2="                                 ~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2289"
-            column="34"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static float getRotation(View view) {"
-        errorLine2="                                    ~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2297"
-            column="37"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static float getRotationX(View view) {"
-        errorLine2="                                     ~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2305"
-            column="38"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static float getRotationY(View view) {"
-        errorLine2="                                     ~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2313"
-            column="38"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static float getScaleX(View view) {"
-        errorLine2="                                  ~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2321"
-            column="35"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static float getScaleY(View view) {"
-        errorLine2="                                  ~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2329"
-            column="35"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static float getX(View view) {"
-        errorLine2="                             ~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2337"
-            column="30"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static float getY(View view) {"
-        errorLine2="                             ~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2345"
-            column="30"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static void setChildrenDrawingOrderEnabled(ViewGroup viewGroup, boolean enabled) {"
-        errorLine2="                                                      ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2469"
-            column="55"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static void setFitsSystemWindows(View view, boolean fitSystemWindows) {"
-        errorLine2="                                            ~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2510"
-            column="45"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static void jumpDrawablesToCurrentState(View v) {"
-        errorLine2="                                                   ~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2524"
-            column="52"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static void setSaveFromParentEnabled(View v, boolean enabled) {"
-        errorLine2="                                                ~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2930"
-            column="49"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static void setActivated(View view, boolean activated) {"
-        errorLine2="                                    ~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2946"
-            column="37"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static int getScaledPagingTouchSlop(ViewConfiguration config) {"
-        errorLine2="                                               ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewConfigurationCompat.java"
-            line="59"
-            column="48"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static boolean hasPermanentMenuKey(ViewConfiguration config) {"
-        errorLine2="                                              ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewConfigurationCompat.java"
-            line="70"
-            column="47"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static boolean onRequestSendAccessibilityEvent(ViewGroup group, View child,"
-        errorLine2="                                                          ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewGroupCompat.java"
-            line="75"
-            column="59"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static boolean onRequestSendAccessibilityEvent(ViewGroup group, View child,"
-        errorLine2="                                                                           ~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewGroupCompat.java"
-            line="75"
-            column="76"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="            AccessibilityEvent event) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewGroupCompat.java"
-            line="76"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static void setMotionEventSplittingEnabled(ViewGroup group, boolean split) {"
-        errorLine2="                                                      ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewGroupCompat.java"
-            line="99"
-            column="55"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="            ViewParent parent, View child, AccessibilityEvent event) {"
-        errorLine2="            ~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewParentCompat.java"
-            line="67"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="            ViewParent parent, View child, AccessibilityEvent event) {"
-        errorLine2="                               ~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewParentCompat.java"
-            line="67"
-            column="32"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="            ViewParent parent, View child, AccessibilityEvent event) {"
-        errorLine2="                                           ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewParentCompat.java"
-            line="67"
-            column="44"/>
     </issue>
 
     <issue
