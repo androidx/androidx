@@ -17,6 +17,8 @@
 package androidx.wear.watchface.complications.data
 
 import android.graphics.drawable.Icon
+import android.os.Build
+import androidx.annotation.RequiresApi
 
 /**
  * A simple, monochromatic image that can be tinted by the watch face.
@@ -57,6 +59,45 @@ public class MonochromaticImage internal constructor(
     internal fun addToWireComplicationData(builder: WireComplicationDataBuilder) = builder.apply {
         setIcon(image)
         setBurnInProtectionIcon(ambientImage)
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as MonochromaticImage
+
+        if (!if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                IconHelperP.equals(image, other.image)
+            } else {
+                IconHelperBeforeP.equals(image, other.image)
+            }
+        ) return false
+
+        if (!if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                IconHelperP.equals(ambientImage, other.ambientImage)
+            } else {
+                IconHelperBeforeP.equals(ambientImage, other.ambientImage)
+            }
+        ) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            var result = IconHelperP.hashCode(image)
+            result = 31 * result + IconHelperP.hashCode(ambientImage)
+            result
+        } else {
+            var result = IconHelperBeforeP.hashCode(image)
+            result = 31 * result + IconHelperBeforeP.hashCode(ambientImage)
+            result
+        }
+    }
+
+    override fun toString(): String {
+        return "MonochromaticImage(image=$image, ambientImage=$ambientImage)"
     }
 }
 
@@ -131,5 +172,103 @@ public class SmallImage internal constructor(
             }
         )
         setBurnInProtectionSmallImage(ambientImage)
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as SmallImage
+
+        if (type != other.type) return false
+
+        if (!if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                IconHelperP.equals(image, other.image)
+            } else {
+                IconHelperBeforeP.equals(image, other.image)
+            }
+        ) return false
+
+        if (!if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                IconHelperP.equals(ambientImage, other.ambientImage)
+            } else {
+                IconHelperBeforeP.equals(ambientImage, other.ambientImage)
+            }
+        ) return false
+        return true
+    }
+
+    override fun hashCode(): Int {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            var result = IconHelperP.hashCode(image)
+            result = 31 * result + type.hashCode()
+            result = 31 * result + IconHelperP.hashCode(ambientImage)
+            result
+        } else {
+            var result = IconHelperBeforeP.hashCode(image)
+            result = 31 * result + type.hashCode()
+            result = 31 * result + IconHelperBeforeP.hashCode(ambientImage)
+            result
+        }
+    }
+
+    override fun toString(): String {
+        return "SmallImage(image=$image, type=$type, ambientImage=$ambientImage)"
+    }
+}
+
+@RequiresApi(Build.VERSION_CODES.P)
+internal class IconHelperP {
+    companion object {
+        fun equals(a: Icon?, b: Icon?): Boolean {
+            if (a == null) {
+                return b == null
+            }
+            if (b == null) {
+                return false
+            }
+            if (a.type != b.type) return false
+            when (a.type) {
+                Icon.TYPE_RESOURCE -> {
+                    if (a.resId != b.resId) return false
+                    if (a.resPackage != b.resPackage) return false
+                }
+                Icon.TYPE_URI -> {
+                    if (a.uri.toString() != b.uri.toString()) return false
+                }
+                else -> {
+                    if (a != b) return false
+                }
+            }
+            return true
+        }
+
+        fun hashCode(a: Icon?): Int {
+            if (a == null) return 0
+            when (a.type) {
+                Icon.TYPE_RESOURCE -> {
+                    var result = a.type.hashCode()
+                    result = 31 * result + a.resId.hashCode()
+                    result = 31 * result + a.resPackage.hashCode()
+                    return result
+                }
+
+                Icon.TYPE_URI -> {
+                    var result = a.type.hashCode()
+                    result = 31 * result + a.uri.toString().hashCode()
+                    return result
+                }
+
+                else -> return a.hashCode()
+            }
+        }
+    }
+}
+
+internal class IconHelperBeforeP {
+    companion object {
+        fun equals(a: Icon?, b: Icon?): Boolean = (a == b)
+
+        fun hashCode(a: Icon?): Int = a?.hashCode() ?: 0
     }
 }
