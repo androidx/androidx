@@ -25,6 +25,7 @@ import android.content.Context;
 import androidx.annotation.NonNull;
 import androidx.appsearch.app.AppSearchResult;
 import androidx.appsearch.app.AppSearchSession;
+import androidx.appsearch.app.Features;
 import androidx.appsearch.app.GlobalSearchSession;
 import androidx.appsearch.app.PutDocumentsRequest;
 import androidx.appsearch.app.SearchResult;
@@ -56,6 +57,14 @@ public class GlobalSearchSessionLocalCtsTest extends GlobalSearchSessionCtsTestB
         Context context = ApplicationProvider.getApplicationContext();
         return LocalStorage.createGlobalSearchSession(
                 new LocalStorage.GlobalSearchContext.Builder(context).build());
+    }
+
+    @Test
+    public void testFeaturesSupported() {
+        assertThat(mDb1.getFeatures().isFeatureSupported(
+                Features.SEARCH_RESULT_MATCH_INFO_SUBMATCH)).isTrue();
+        assertThat(mDb1.getFeatures().isFeatureSupported(
+                Features.GLOBAL_SEARCH_SESSION_ADD_REMOVE_OBSERVER)).isTrue();
     }
 
     // TODO(b/194207451) This test can be moved to CtsTestBase if customized logger is

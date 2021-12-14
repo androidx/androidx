@@ -120,7 +120,7 @@ public class ObserverManager {
      * will succeed but no notifications will be dispatched. Notifications could start flowing later
      * if {@code observedPackage} is installed and starts indexing data.
      */
-    public void registerObserver(
+    public void addObserver(
             @NonNull String observedPackage,
             @NonNull ObserverSpec spec,
             @NonNull Executor executor,
@@ -132,6 +132,28 @@ public class ObserverManager {
                 mObserversLocked.put(observedPackage, infos);
             }
             infos.add(new ObserverInfo(spec, executor, observer));
+        }
+    }
+
+    /**
+     * Removes all observers that match via {@link AppSearchObserverCallback#equals} to the given
+     * observer from watching the observedPackage.
+     *
+     * <p>Pending notifications queued for this observer, if any, are discarded.
+     */
+    public void removeObserver(
+            @NonNull String observedPackage, @NonNull AppSearchObserverCallback observer) {
+        synchronized (mLock) {
+            List<ObserverInfo> infos = mObserversLocked.get(observedPackage);
+            if (infos == null) {
+                return;
+            }
+            for (int i = 0; i < infos.size(); i++) {
+                if (infos.get(i).mObserver.equals(observer)) {
+                    infos.remove(i);
+                    i--;
+                }
+            }
         }
     }
 
