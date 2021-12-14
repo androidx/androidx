@@ -73,7 +73,6 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
 import org.junit.After
-import org.junit.Assert
 import org.junit.Assume.assumeFalse
 import org.junit.Assume.assumeNotNull
 import org.junit.Assume.assumeTrue
@@ -91,7 +90,6 @@ import java.util.concurrent.atomic.AtomicInteger
 import kotlin.math.abs
 
 private val DEFAULT_RESOLUTION = Size(640, 480)
-private val GUARANTEED_RESOLUTION = Size(640, 480)
 private val BACK_SELECTOR = CameraSelector.DEFAULT_BACK_CAMERA
 private const val BACK_LENS_FACING = CameraSelector.LENS_FACING_BACK
 private const val CAPTURE_TIMEOUT = 10_000.toLong() //  10 seconds
@@ -166,10 +164,9 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
         val imageProperties = callback.results.first()
         var sizeEnvelope = imageProperties.size
 
-        // Some devices may not be able to fit the requested resolution within the image
-        // boundaries. In this case, they should always fall back to a guaranteed resolution of
-        // 640 x 480.
-        if (sizeEnvelope != GUARANTEED_RESOLUTION) {
+        // Some devices may not be able to fit the requested resolution. In this case, the returned
+        // size should be able to enclose 640 x 480.
+        if (sizeEnvelope != DEFAULT_RESOLUTION) {
             val rotationDegrees = imageProperties.rotationDegrees
 
             // If the image data is rotated by 90 or 270, we need to ensure our desired width fits
@@ -182,57 +179,6 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
             assertThat(sizeEnvelope!!.width).isAtLeast(DEFAULT_RESOLUTION.width)
             assertThat(sizeEnvelope.height).isAtLeast(DEFAULT_RESOLUTION.height)
         }
-    }
-
-    @Test
-    fun canSupportGuaranteedSizeFront() {
-        skipTestOnCameraPipeConfig()
-
-        canSupportGuaranteedSize(
-            CameraSelector.LENS_FACING_FRONT,
-            CameraSelector.DEFAULT_FRONT_CAMERA
-        )
-    }
-
-    @Test
-    fun canSupportGuaranteedSizeBack() {
-        skipTestOnCameraPipeConfig()
-
-        canSupportGuaranteedSize(
-            CameraSelector.LENS_FACING_BACK,
-            CameraSelector.DEFAULT_BACK_CAMERA
-        )
-    }
-
-    /** check both front and back device cameras can support the guaranteed 640x480 size. */
-    private fun canSupportGuaranteedSize(lensFacing: Int, selector: CameraSelector) = runBlocking {
-        assumeTrue(CameraUtil.hasCameraWithLensFacing(lensFacing))
-        assumeTrue(!CameraUtil.requiresCorrectedAspectRatio(lensFacing))
-
-        // Checks camera device sensor degrees to set correct target rotation value to make sure
-        // the exactly matching result size 640x480 can be selected if the device supports it.
-        val sensorOrientation = CameraUtil.getSensorOrientation(lensFacing)
-        val isRotateNeeded = sensorOrientation!! % 180 != 0
-        val useCase = ImageCapture.Builder()
-            .setTargetResolution(GUARANTEED_RESOLUTION)
-            .setTargetRotation(if (isRotateNeeded) Surface.ROTATION_90 else Surface.ROTATION_0)
-            .build()
-
-        withContext(Dispatchers.Main) {
-            cameraProvider.bindToLifecycle(fakeLifecycleOwner, selector, useCase)
-        }
-
-        val callback = FakeImageCaptureCallback(capturesCount = 1)
-        useCase.takePicture(mainExecutor, callback)
-
-        // Wait for the signal that the image has been captured.
-        callback.awaitCapturesAndAssert(capturedImagesCount = 1)
-
-        // Check the captured image exactly matches 640x480 size. This test can also check
-        // whether the guaranteed resolution 640x480 is really supported for JPEG format on the
-        // devices when running the test.
-        val imageProperties = callback.results.first()
-        Assert.assertEquals(GUARANTEED_RESOLUTION, imageProperties.size)
     }
 
     @Test
