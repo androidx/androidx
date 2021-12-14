@@ -1121,8 +1121,8 @@ package androidx.core.content.pm {
     method public boolean isDeclaredInManifest();
     method public boolean isDynamic();
     method public boolean isEnabled();
-    method public boolean isExcludedFrom(int);
     method public boolean isImmutable();
+    method public boolean isIncludedIn(int);
     method public boolean isPinned();
     method @RequiresApi(25) public android.content.pm.ShortcutInfo! toShortcutInfo();
     field public static final int SURFACE_LAUNCHER = 1; // 0x1

@@ -1242,8 +1242,8 @@ package androidx.core.content.pm {
     method public boolean isDeclaredInManifest();
     method public boolean isDynamic();
     method public boolean isEnabled();
-    method public boolean isExcludedFrom(@androidx.core.content.pm.ShortcutInfoCompat.Surface int);
     method public boolean isImmutable();
+    method public boolean isIncludedIn(@androidx.core.content.pm.ShortcutInfoCompat.Surface int);
     method public boolean isPinned();
     method @RequiresApi(25) public android.content.pm.ShortcutInfo! toShortcutInfo();
     field public static final int SURFACE_LAUNCHER = 1; // 0x1
@@ -1278,7 +1278,7 @@ package androidx.core.content.pm {
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public androidx.core.content.pm.ShortcutInfoCompat.Builder setTransientExtras(android.os.Bundle);
   }
 
-  @IntDef({androidx.core.content.pm.ShortcutInfoCompat.SURFACE_LAUNCHER}) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface ShortcutInfoCompat.Surface {
+  @IntDef(flag=true, value={androidx.core.content.pm.ShortcutInfoCompat.SURFACE_LAUNCHER}) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface ShortcutInfoCompat.Surface {
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public abstract class ShortcutInfoCompatSaver<T> {
