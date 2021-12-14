@@ -111,6 +111,7 @@ public final class IdTypeAndDefaultProviderPolicyWireFormat implements Versioned
 
     public static final Parcelable.Creator<IdTypeAndDefaultProviderPolicyWireFormat> CREATOR =
             new Parcelable.Creator<IdTypeAndDefaultProviderPolicyWireFormat>() {
+                @SuppressWarnings("deprecation")
                 @Override
                 public IdTypeAndDefaultProviderPolicyWireFormat createFromParcel(Parcel source) {
                     return ParcelUtils.fromParcelable(

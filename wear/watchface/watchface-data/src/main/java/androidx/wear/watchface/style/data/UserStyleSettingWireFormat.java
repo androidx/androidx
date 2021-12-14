@@ -119,6 +119,7 @@ public class UserStyleSettingWireFormat implements VersionedParcelable, Parcelab
 
     public static final Parcelable.Creator<UserStyleSettingWireFormat> CREATOR =
             new Parcelable.Creator<UserStyleSettingWireFormat>() {
+                @SuppressWarnings("deprecation")
                 @Override
                 public UserStyleSettingWireFormat createFromParcel(Parcel source) {
                     return ParcelUtils.fromParcelable(

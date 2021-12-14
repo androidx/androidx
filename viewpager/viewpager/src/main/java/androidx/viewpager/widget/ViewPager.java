@@ -1426,6 +1426,7 @@ public class ViewPager extends ViewGroup {
             }
         };
 
+        @SuppressWarnings("deprecation")
         SavedState(Parcel in, ClassLoader loader) {
             super(in, loader);
             if (loader == null) {

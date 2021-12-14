@@ -138,6 +138,7 @@ public class WallpaperInteractiveWatchFaceInstanceParams
 
     public static final Parcelable.Creator<WallpaperInteractiveWatchFaceInstanceParams> CREATOR =
             new Parcelable.Creator<WallpaperInteractiveWatchFaceInstanceParams>() {
+                @SuppressWarnings("deprecation")
                 @Override
                 public WallpaperInteractiveWatchFaceInstanceParams createFromParcel(Parcel source) {
                     return ParcelUtils.fromParcelable(

@@ -68,6 +68,7 @@ public class DefaultProviderPoliciesParams implements VersionedParcelable, Parce
 
     public static final Parcelable.Creator<DefaultProviderPoliciesParams> CREATOR =
             new Parcelable.Creator<DefaultProviderPoliciesParams>() {
+                @SuppressWarnings("deprecation")
                 @Override
                 public DefaultProviderPoliciesParams createFromParcel(Parcel source) {
                     return ParcelUtils.fromParcelable(

@@ -69,6 +69,7 @@ public class VersionedParcelDefaultsTest {
         mUseStream = useStream;
     }
 
+    @SuppressWarnings("deprecation")
     private DefaultParcelImpl parcelCopy(DefaultParcelImpl obj) {
         if (mUseStream) {
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
