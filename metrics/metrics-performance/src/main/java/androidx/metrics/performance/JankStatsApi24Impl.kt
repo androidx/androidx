@@ -15,7 +15,6 @@
  */
 package androidx.metrics.performance
 
-import android.app.Activity
 import android.os.Handler
 import android.os.HandlerThread
 import android.view.FrameMetrics
@@ -32,16 +31,22 @@ import androidx.annotation.RequiresApi
 @RequiresApi(24)
 internal open class JankStatsApi24Impl(
     jankStats: JankStats,
-    view: View
+    view: View,
+    private val window: Window
 ) : JankStatsApi22Impl(jankStats, view) {
 
     var frameMetricsHandler: Handler? = null
+
+    // Workaround for situation like b/206956036, where platform would sometimes send completely
+    // duplicate events through FrameMetrics. When that occurs, simply ignore the latest event
+    // that has the exact same start time.
+    var prevStart = 0L
 
     private val frameMetricsAvailableListener: Window.OnFrameMetricsAvailableListener =
         Window.OnFrameMetricsAvailableListener { _, frameMetrics, _ ->
             val startTime = getFrameStartTime(frameMetrics)
             // ignore historical data gathered before we started listening
-            if (startTime >= listenerAddedTime) {
+            if (startTime >= listenerAddedTime && startTime != prevStart) {
                 val expectedDuration = getExpectedFrameDuration(frameMetrics) *
                     jankStats.jankHeuristicMultiplier
                 jankStats.logFrameData(
@@ -49,6 +54,7 @@ internal open class JankStatsApi24Impl(
                     getFrameDuration(frameMetrics),
                     expectedDuration.toLong()
                 )
+                prevStart = startTime
             }
         }
 
@@ -67,9 +73,7 @@ internal open class JankStatsApi24Impl(
     var listenerAddedTime: Long = 0
 
     override fun setupFrameTimer(enable: Boolean) {
-        val view = decorViewRef.get()
-        val window = if (view?.context is Activity) (view.context as Activity).window else null
-        window?.let {
+        window.let {
             if (enable) {
                 if (frameMetricsHandler == null) {
                     val thread = HandlerThread("FrameMetricsAggregator")
