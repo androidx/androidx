@@ -20,7 +20,6 @@ import android.content.ContentValues
 import android.content.Intent
 import android.content.res.Configuration
 import android.net.Uri
-import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
 import android.util.Log
@@ -54,15 +53,13 @@ import androidx.camera.integration.extensions.validation.TestResults.Companion.I
 import androidx.camera.integration.extensions.validation.TestResults.Companion.TEST_RESULT_FAILED
 import androidx.camera.integration.extensions.validation.TestResults.Companion.TEST_RESULT_NOT_TESTED
 import androidx.camera.integration.extensions.validation.TestResults.Companion.TEST_RESULT_PASSED
+import androidx.camera.integration.extensions.validation.TestResults.Companion.copyTempFileToOutputLocation
 import androidx.camera.integration.extensions.validation.TestResults.Companion.getExtensionModeStringFromId
 import androidx.core.app.ActivityCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
-import java.io.File
-import java.io.FileInputStream
-import java.io.OutputStream
 import java.text.Format
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -193,66 +190,26 @@ class ImageValidationActivity : AppCompatActivity() {
             "${imageUris[viewPager.currentItem].first.lastPathSegment}" +
                 "[${formatter.format(Calendar.getInstance().time)}].jpg"
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            val contentValues = ContentValues()
-            contentValues.put(MediaStore.MediaColumns.DISPLAY_NAME, savedFileName)
-            contentValues.put(MediaStore.MediaColumns.MIME_TYPE, "image/jpeg")
-            contentValues.put(
-                MediaStore.MediaColumns.RELATIVE_PATH,
-                "Pictures/ExtensionsValidation"
+        val contentValues = ContentValues().apply {
+            put(MediaStore.MediaColumns.DISPLAY_NAME, savedFileName)
+            put(MediaStore.MediaColumns.MIME_TYPE, "image/jpeg")
+            put(MediaStore.MediaColumns.RELATIVE_PATH, "Pictures/ExtensionsValidation")
+        }
+
+        if (copyTempFileToOutputLocation(
+                contentResolver,
+                imageUris[viewPager.currentItem].first,
+                MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                contentValues
             )
-            contentValues.put(MediaStore.Images.Media.IS_PENDING, 1)
-
-            val outputUri =
-                contentResolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues)
-            val resultToastMsg: String
-
-            if (outputUri == null) {
-                resultToastMsg = "Failed to export image - $savedFileName!"
-            } else {
-                if (copyTempFileToOutputUri(imageUris[viewPager.currentItem].first, outputUri)) {
-                    resultToastMsg =
-                        "Image is saved as Pictures/ExtensionsValidation/$savedFileName."
-                } else {
-                    resultToastMsg = "Failed to export image - $savedFileName!"
-                }
-                contentValues.put(MediaStore.Images.Media.IS_PENDING, 0)
-                contentResolver.update(outputUri, contentValues, null, null)
-            }
-            Toast.makeText(this, resultToastMsg, Toast.LENGTH_LONG).show()
+        ) {
+            Toast.makeText(
+                this,
+                "Image is saved as Pictures/ExtensionsValidation/$savedFileName.",
+                Toast.LENGTH_LONG
+            ).show()
         } else {
-            Log.e(TAG, "The known devices which support Extensions should be at least" +
-                " Android Q!")
-        }
-    }
-
-    /**
-     * Copies temp file to output [Uri].
-     *
-     * @return false if the [Uri] is not writable.
-     */
-    private fun copyTempFileToOutputUri(tempFileUri: Uri, uri: Uri): Boolean {
-        contentResolver.openOutputStream(uri).use { outputStream ->
-            if (tempFileUri.path == null || outputStream == null) {
-                return false
-            }
-
-            val tempFile = File(tempFileUri.path!!)
-            copyTempFileToOutputStream(tempFile, outputStream)
-        }
-        return true
-    }
-
-    private fun copyTempFileToOutputStream(
-        tempFile: File,
-        outputStream: OutputStream
-    ) {
-        FileInputStream(tempFile).use { `in` ->
-            val buf = ByteArray(1024)
-            var len: Int
-            while (`in`.read(buf).also { len = it } > 0) {
-                outputStream.write(buf, 0, len)
-            }
+            Toast.makeText(this, "Failed to export the CSV file!", Toast.LENGTH_LONG).show()
         }
     }
 

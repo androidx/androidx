@@ -175,16 +175,30 @@ class CameraValidationResultActivity : AppCompatActivity() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
-            R.id.menu_extensions_app -> {
-                val intent = Intent(this, CameraExtensionsActivity::class.java)
-                intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
-                startActivity(intent)
-                finish()
+            R.id.menu_export -> {
+                val outputFilePath = testResults.exportTestResults(contentResolver)
+                if (outputFilePath != null) {
+                    Toast.makeText(
+                        this,
+                        "Test results have been saved in $outputFilePath!",
+                        Toast.LENGTH_LONG
+                    ).show()
+                } else {
+                    Toast.makeText(this, "Failed to export the test results!", Toast.LENGTH_LONG)
+                        .show()
+                }
                 true
             }
             R.id.menu_reset -> {
                 testResults.resetTestResults(cameraProvider, extensionsManager)
                 adapter.notifyDataSetChanged()
+                true
+            }
+            R.id.menu_extensions_app -> {
+                val intent = Intent(this, CameraExtensionsActivity::class.java)
+                intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
+                startActivity(intent)
+                finish()
                 true
             }
             else -> super.onOptionsItemSelected(item)
