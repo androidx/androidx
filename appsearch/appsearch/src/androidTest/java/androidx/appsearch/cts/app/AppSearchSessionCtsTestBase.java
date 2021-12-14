@@ -1904,12 +1904,8 @@ public abstract class AppSearchSessionCtsTestBase {
 
         if (!mDb1.getFeatures().isFeatureSupported(
                 Features.SEARCH_RESULT_MATCH_INFO_SUBMATCH)) {
-            assertThrows(
-                    UnsupportedOperationException.class,
-                    () -> matchInfo.getSubmatchRange());
-            assertThrows(
-                    UnsupportedOperationException.class,
-                    () -> matchInfo.getSubmatch());
+            assertThrows(UnsupportedOperationException.class, matchInfo::getSubmatchRange);
+            assertThrows(UnsupportedOperationException.class, matchInfo::getSubmatch);
         } else {
             assertThat(matchInfo.getSubmatchRange()).isEqualTo(
                     new SearchResult.MatchRange(/*lower=*/29,  /*upper=*/31));
@@ -2040,12 +2036,8 @@ public abstract class AppSearchSessionCtsTestBase {
 
         if (!mDb1.getFeatures().isFeatureSupported(
                 Features.SEARCH_RESULT_MATCH_INFO_SUBMATCH)) {
-            assertThrows(
-                    UnsupportedOperationException.class,
-                    () -> matchInfo.getSubmatchRange());
-            assertThrows(
-                    UnsupportedOperationException.class,
-                    () -> matchInfo.getSubmatch());
+            assertThrows(UnsupportedOperationException.class, matchInfo::getSubmatchRange);
+            assertThrows(UnsupportedOperationException.class, matchInfo::getSubmatch);
         } else {
             assertThat(matchInfo.getSubmatchRange()).isEqualTo(
                     new SearchResult.MatchRange(/*lower=*/44,  /*upper=*/45));
