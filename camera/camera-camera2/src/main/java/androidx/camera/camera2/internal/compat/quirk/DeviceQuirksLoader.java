@@ -44,8 +44,8 @@ public class DeviceQuirksLoader {
         if (ImageCapturePixelHDRPlusQuirk.load()) {
             quirks.add(new ImageCapturePixelHDRPlusQuirk());
         }
-        if (SamsungPreviewTargetAspectRatioQuirk.load()) {
-            quirks.add(new SamsungPreviewTargetAspectRatioQuirk());
+        if (SelectResolutionQuirk.load()) {
+            quirks.add(new SelectResolutionQuirk());
         }
         if (Nexus4AndroidLTargetAspectRatioQuirk.load()) {
             quirks.add(new Nexus4AndroidLTargetAspectRatioQuirk());
