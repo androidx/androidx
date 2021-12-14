@@ -61,7 +61,7 @@ public class BenchmarkState {
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     constructor() {
         simplifiedTimingOnlyMode = false
-        profiler = null
+        profiler = Arguments.profiler
     }
 
     private var stages = listOf(
