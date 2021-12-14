@@ -18,13 +18,15 @@ package androidx.metrics.performance
 
 import android.view.FrameMetrics
 import android.view.View
+import android.view.Window
 import androidx.annotation.RequiresApi
 
 @RequiresApi(31)
 internal class JankStatsApi31Impl(
     jankStats: JankStats,
-    view: View
-) : JankStatsApi26Impl(jankStats, view) {
+    view: View,
+    window: Window
+) : JankStatsApi26Impl(jankStats, view, window) {
 
     override fun getExpectedFrameDuration(metrics: FrameMetrics): Long {
         return metrics.getMetric(FrameMetrics.DEADLINE)
