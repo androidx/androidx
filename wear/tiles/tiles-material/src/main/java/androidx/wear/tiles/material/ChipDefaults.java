@@ -31,7 +31,7 @@ public class ChipDefaults {
     /** The default height for standard {@link CompactChip} */
     @NonNull static final DpProp COMPACT_HEIGHT = dp(32);
 
-    /** The default height for standard {@link LargeChip} */
+    /** The default height for standard {@link TitleChip} */
     @NonNull public static final DpProp LARGE_HEIGHT = dp(60);
 
     /** The recommended horizontal margin used for width for standard {@link Chip} */
@@ -43,7 +43,7 @@ public class ChipDefaults {
     /** The recommended horizontal padding for standard {@link CompactChip} */
     @NonNull public static final DpProp COMPACT_HORIZONTAL_PADDING = dp(12);
 
-    /** The recommended horizontal padding for standard {@link LargeChip} */
+    /** The recommended horizontal padding for standard {@link TitleChip} */
     @NonNull public static final DpProp LARGE_HORIZONTAL_PADDING = dp(16);
 
     /** The recommended vertical padding for standard {@link Chip} */
@@ -70,12 +70,12 @@ public class ChipDefaults {
     public static final ChipColors COMPACT_SECONDARY =
             new ChipColors(Colors.SURFACE, Colors.ON_SURFACE);
 
-    /** The recommended colors for a primary {@link LargeChip}. */
+    /** The recommended colors for a primary {@link TitleChip}. */
     @NonNull
     public static final ChipColors LARGE_PRIMARY =
             new ChipColors(Colors.PRIMARY, Colors.ON_PRIMARY);
 
-    /** The recommended colors for a secondary {@link LargeChip}. */
+    /** The recommended colors for a secondary {@link TitleChip}. */
     @NonNull
     public static final ChipColors LARGE_SECONDARY =
             new ChipColors(Colors.SURFACE, Colors.ON_SURFACE);
