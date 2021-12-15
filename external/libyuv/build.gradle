@@ -92,6 +92,11 @@ afterEvaluate {
             if (!releasePrefabJson.exists()) {
                 throw new GradleException("$releasePrefabJson does not exist")
             }
+
+            def releaseConvertArgb = new File("$buildDir/intermediates/prefab_package/release/prefab/modules/yuv/include/libyuv/convert_argb.h")
+            if (!releaseConvertArgb.exists()) {
+                throw new GradleException("$releaseConvertArgb does not exist")
+            }
         }
     }
     tasks.named("prefabDebugConfigurePackage").configure {
@@ -106,6 +111,11 @@ afterEvaluate {
             def debugPrefabJson = new File("$buildDir/intermediates/prefab_package/debug/prefab/prefab.json")
             if (!debugPrefabJson.exists()) {
                 throw new GradleException("$debugPrefabJson does not exist")
+            }
+
+            def debugConvertArgb = new File("$buildDir/intermediates/prefab_package/debug/prefab/modules/yuv/include/libyuv/convert_argb.h")
+            if (!debugConvertArgb.exists()) {
+                throw new GradleException("$debugConvertArgb does not exist")
             }
         }
     }
