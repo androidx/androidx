@@ -17,4 +17,5 @@
 <resources>
     <string name="app_notice">Macrobenchmark Integration Test App.</string>
     <string name="recyclerDescription">A list of items</string>
+    <string name="audio_notice">Repeatedly plays beeps</string>
 </resources>

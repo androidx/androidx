@@ -21,6 +21,7 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.benchmark.Shell
+import androidx.benchmark.macro.perfetto.AudioUnderrunQuery
 import androidx.benchmark.macro.perfetto.FrameTimingQuery
 import androidx.benchmark.macro.perfetto.FrameTimingQuery.SubMetric
 import androidx.benchmark.macro.perfetto.PerfettoResultsParser.parseStartupResult
@@ -54,6 +55,50 @@ public sealed class Metric {
 }
 
 private fun Long.nsToDoubleMs(): Double = this / 1_000_000.0
+
+/**
+ * Metric which captures information about playing audio.
+ *
+ * Each time an instance of [android.media.AudioTrack] is started, the systems repeatedly
+ * logs the number of audio frames available for output. This doesn't work when audio offload is
+ * enabled. No logs are generated while there is no active track.
+ *
+ * Test fails in case of multiple active tracks during a single iteration.
+ *
+ * This outputs the following measurements:
+ *
+ * * `totalMs` - Total duration of played audio captured during the iteration.
+ * The test fails if no counters are detected.
+ *
+ * * `zeroMs` - Duration of played audio when zero audio frames were available for output. Each
+ * counter with zero frames indicates a gap in audio playing.
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@Suppress("CanSealedSubClassBeObject")
+@RequiresApi(23)
+public class AudioUnderrunMetric : Metric() {
+    internal override fun configure(packageName: String) {
+    }
+
+    internal override fun start() {
+    }
+
+    internal override fun stop() {
+    }
+
+    internal override fun getMetrics(captureInfo: CaptureInfo, tracePath: String): IterationResult {
+        val subMetrics = AudioUnderrunQuery.getSubMetrics(tracePath)
+
+        return IterationResult(
+            singleMetrics = mapOf(
+                "totalMs" to subMetrics.totalMs.toDouble(),
+                "zeroMs" to subMetrics.zeroMs.toDouble()
+            ),
+            sampledMetrics = emptyMap(),
+            timelineRangeNs = null
+        )
+    }
+}
 
 /**
  * Legacy version of FrameTimingMetric, based on 'dumpsys gfxinfo' instead of trace data.

@@ -32,6 +32,11 @@ internal enum class AtraceTag(
     val tag: String
 ) {
     ActivityManager("am"),
+    Audio("audio") {
+        override fun supported(api: Int, rooted: Boolean): Boolean {
+            return api >= 23
+        }
+    },
     BinderDriver("binder_driver") {
         override fun supported(api: Int, rooted: Boolean): Boolean {
             return api >= 24
