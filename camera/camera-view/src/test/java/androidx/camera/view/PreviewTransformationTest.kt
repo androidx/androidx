@@ -25,8 +25,6 @@ import android.view.View
 import androidx.camera.core.SurfaceRequest
 import androidx.camera.core.impl.ImageOutputConfig.RotationValue
 import androidx.camera.view.TransformUtils.sizeToVertices
-import androidx.camera.view.internal.compat.quirk.PreviewOneThirdWiderQuirk
-import androidx.camera.view.internal.compat.quirk.QuirkInjector
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
 import org.junit.Before
@@ -81,23 +79,6 @@ class PreviewTransformationTest {
     fun setUp() {
         mPreviewTransform = PreviewTransformation()
         mView = View(ApplicationProvider.getApplicationContext())
-    }
-
-    @Test
-    fun withPreviewStretchedQuirk_cropRectIsAdjusted() {
-        // Arrange.
-        QuirkInjector.inject(PreviewOneThirdWiderQuirk())
-
-        // Act.
-        mPreviewTransform.setTransformationInfo(
-            SurfaceRequest.TransformationInfo.of(FULL_CROP_RECT, 0, 0),
-            Size(FULL_CROP_RECT.width(), FULL_CROP_RECT.height()),
-            /*isFrontCamera=*/false
-        )
-
-        // Assert: the crop rect is corrected.
-        assertThat(mPreviewTransform.surfaceCropRect).isEqualTo(Rect(8, 0, 53, 40))
-        QuirkInjector.clear()
     }
 
     @Test

@@ -38,6 +38,7 @@ import androidx.camera.camera2.internal.compat.CameraCharacteristicsCompat;
 import androidx.camera.camera2.internal.compat.CameraManagerCompat;
 import androidx.camera.camera2.internal.compat.workaround.ExcludedSupportedSizesContainer;
 import androidx.camera.camera2.internal.compat.workaround.ExtraSupportedSurfaceCombinationsContainer;
+import androidx.camera.camera2.internal.compat.workaround.ResolutionSelector;
 import androidx.camera.camera2.internal.compat.workaround.TargetAspectRatio;
 import androidx.camera.core.AspectRatio;
 import androidx.camera.core.CameraUnavailableException;
@@ -100,6 +101,7 @@ final class SupportedSurfaceCombination {
     private Map<Integer, Size[]> mOutputSizesCache = new HashMap<>();
     @NonNull
     private final DisplayInfoManager mDisplayInfoManager;
+    private final ResolutionSelector mResolutionSelector = new ResolutionSelector();
 
     SupportedSurfaceCombination(@NonNull Context context, @NonNull String cameraId,
             @NonNull CameraManagerCompat cameraManagerCompat,
@@ -168,24 +170,8 @@ final class SupportedSurfaceCombination {
      * @return new {@link SurfaceConfig} object
      */
     SurfaceConfig transformSurfaceConfig(int imageFormat, Size size) {
-        ConfigType configType;
+        ConfigType configType = getConfigType(imageFormat);
         ConfigSize configSize = ConfigSize.NOT_SUPPORT;
-
-        /*
-         * PRIV refers to any target whose available sizes are found using
-         * StreamConfigurationMap.getOutputSizes(Class) with no direct application-visible format,
-         * YUV refers to a target Surface using the ImageFormat.YUV_420_888 format, JPEG refers to
-         * the ImageFormat.JPEG format, and RAW refers to the ImageFormat.RAW_SENSOR format.
-         */
-        if (imageFormat == ImageFormat.YUV_420_888) {
-            configType = ConfigType.YUV;
-        } else if (imageFormat == ImageFormat.JPEG) {
-            configType = ConfigType.JPEG;
-        } else if (imageFormat == ImageFormat.RAW_SENSOR) {
-            configType = ConfigType.RAW;
-        } else {
-            configType = ConfigType.PRIV;
-        }
 
         Size maxSize = fetchMaxSize(imageFormat);
 
@@ -301,7 +287,7 @@ final class SupportedSurfaceCombination {
         // Gets the corrected aspect ratio due to device constraints or null if no correction is
         // needed.
         @TargetAspectRatio.Ratio int targetAspectRatio =
-                new TargetAspectRatio().get(imageOutputConfig, mCameraId, mCharacteristics);
+                new TargetAspectRatio().get(mCameraId, mCharacteristics);
         switch (targetAspectRatio) {
             case TargetAspectRatio.RATIO_4_3:
                 outputRatio = mIsSensorLandscapeResolution ? ASPECT_RATIO_4_3 : ASPECT_RATIO_3_4;
@@ -492,7 +478,34 @@ final class SupportedSurfaceCombination {
             }
         }
 
+        supportedResolutions = mResolutionSelector.insertOrPrioritize(
+                getConfigType(config.getInputFormat()),
+                supportedResolutions);
+
         return supportedResolutions;
+    }
+
+
+    /**
+     * Gets {@link ConfigType} from image format.
+     *
+     * <p> PRIV refers to any target whose available sizes are found using
+     * StreamConfigurationMap.getOutputSizes(Class) with no direct application-visible format,
+     * YUV refers to a target Surface using the ImageFormat.YUV_420_888 format, JPEG refers to
+     * the ImageFormat.JPEG format, and RAW refers to the ImageFormat.RAW_SENSOR format.
+     */
+    @NonNull
+    private SurfaceConfig.ConfigType getConfigType(int imageFormat) {
+
+        if (imageFormat == ImageFormat.YUV_420_888) {
+            return SurfaceConfig.ConfigType.YUV;
+        } else if (imageFormat == ImageFormat.JPEG) {
+            return SurfaceConfig.ConfigType.JPEG;
+        } else if (imageFormat == ImageFormat.RAW_SENSOR) {
+            return SurfaceConfig.ConfigType.RAW;
+        } else {
+            return SurfaceConfig.ConfigType.PRIV;
+        }
     }
 
     @Nullable
