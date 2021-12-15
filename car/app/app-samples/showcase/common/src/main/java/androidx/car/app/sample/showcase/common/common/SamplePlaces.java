@@ -30,6 +30,7 @@ import androidx.car.app.Screen;
 import androidx.car.app.constraints.ConstraintManager;
 import androidx.car.app.model.CarColor;
 import androidx.car.app.model.CarIcon;
+import androidx.car.app.model.CarIconSpan;
 import androidx.car.app.model.CarLocation;
 import androidx.car.app.model.Distance;
 import androidx.car.app.model.DistanceSpan;
@@ -93,6 +94,17 @@ public class SamplePlaces {
                     0,
                     1,
                     Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            if (index == 4) {
+                description.setSpan(CarIconSpan.create(new CarIcon.Builder(
+                                IconCompat.createWithBitmap(
+                                        BitmapFactory.decodeResource(
+                                                carContext.getResources(),
+                                                R.drawable.ic_hi)))
+                                .build(), CarIconSpan.ALIGN_BOTTOM),
+                        5,
+                        6,
+                        Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
+            }
 
             boolean isBrowsable = index > mPlaces.size() / 2;
 
@@ -225,52 +237,84 @@ public class SamplePlaces {
                                 .build()));
 
         Location location5 = new Location(SamplePlaces.class.getSimpleName());
-        location5.setLatitude(47.6490374);
-        location5.setLongitude(-122.3527127);
+        location5.setLatitude(37.422014);
+        location5.setLongitude(-122.084776);
+        SpannableString title5 = new SpannableString(" ");
+        title5.setSpan(CarIconSpan.create(new CarIcon.Builder(
+                IconCompat.createWithBitmap(
+                        BitmapFactory.decodeResource(
+                                carContext.getResources(),
+                                R.drawable.ic_hi)))
+                .build(), CarIconSpan.ALIGN_BOTTOM),
+                0,
+                1,
+                Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
+        SpannableString description5 = new SpannableString(" ");
+        places.add(
+                new PlaceInfo(
+                        title5,
+                        "1600 Amphitheatre Pkwy, Mountain View, CA 94043",
+                        description5,
+                        "+16502530000",
+                        location5,
+                        new PlaceMarker.Builder()
+                                .setIcon(
+                                        new CarIcon.Builder(
+                                                IconCompat.createWithBitmap(
+                                                        BitmapFactory.decodeResource(
+                                                                carContext.getResources(),
+                                                                R.drawable.test_image_square)))
+                                                .build(),
+                                        PlaceMarker.TYPE_IMAGE)
+                                .build()));
+
+        Location location6 = new Location(SamplePlaces.class.getSimpleName());
+        location6.setLatitude(47.6490374);
+        location6.setLongitude(-122.3527127);
         places.add(
                 new PlaceInfo(
                         "Google Bothell",
                         "11831 North Creek Pkwy, Bothell, WA 98011",
                         "Text label",
                         "n/a",
-                        location5,
+                        location6,
                         new PlaceMarker.Builder().build()));
 
         // Some hosts may display more items in the list than others, so create 3 more items.
-        Location location6 = new Location(SamplePlaces.class.getSimpleName());
-        location6.setLatitude(47.5496056);
-        location6.setLongitude(-122.2571713);
+        Location location7 = new Location(SamplePlaces.class.getSimpleName());
+        location7.setLatitude(47.5496056);
+        location7.setLongitude(-122.2571713);
         places.add(
                 new PlaceInfo(
                         "Seward Park",
                         "5900 Lake Washington Blvd S, Seattle, WA 98118",
                         "Text label",
                         "n/a",
-                        location6,
+                        location7,
                         new PlaceMarker.Builder().build()));
 
-        Location location7 = new Location(SamplePlaces.class.getSimpleName());
-        location7.setLatitude(47.5911456);
-        location7.setLongitude(-122.2256602);
+        Location location8 = new Location(SamplePlaces.class.getSimpleName());
+        location8.setLatitude(47.5911456);
+        location8.setLongitude(-122.2256602);
         places.add(
                 new PlaceInfo(
                         "Luther Burbank Park",
                         "2040 84th Ave SE, Mercer Island, WA 98040",
                         "Text label",
                         "n/a",
-                        location7,
+                        location8,
                         new PlaceMarker.Builder().build()));
 
-        Location location8 = new Location(SamplePlaces.class.getSimpleName());
-        location8.setLatitude(47.6785932);
-        location8.setLongitude(-122.2113821);
+        Location location9 = new Location(SamplePlaces.class.getSimpleName());
+        location9.setLatitude(47.6785932);
+        location9.setLongitude(-122.2113821);
         places.add(
                 new PlaceInfo(
                         "Heritage Park",
                         "111 Waverly Way, Kirkland, WA 98033",
                         "Text label",
                         "n/a",
-                        location8,
+                        location9,
                         new PlaceMarker.Builder().build()));
 
         return places;
