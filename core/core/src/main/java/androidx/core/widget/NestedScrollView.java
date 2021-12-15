@@ -32,6 +32,7 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.FocusFinder;
+import android.view.InputDevice;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.VelocityTracker;
@@ -54,7 +55,7 @@ import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.core.R;
 import androidx.core.view.AccessibilityDelegateCompat;
-import androidx.core.view.InputDeviceCompat;
+import androidx.core.view.MotionEventCompat;
 import androidx.core.view.NestedScrollingChild3;
 import androidx.core.view.NestedScrollingChildHelper;
 import androidx.core.view.NestedScrollingParent3;
@@ -1039,11 +1040,11 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
     private boolean stopGlowAnimations(MotionEvent e) {
         boolean stopped = false;
         if (EdgeEffectCompat.getDistance(mEdgeGlowTop) != 0) {
-            EdgeEffectCompat.onPullDistance(mEdgeGlowTop, 0, e.getY() / getHeight());
+            EdgeEffectCompat.onPullDistance(mEdgeGlowTop, 0, e.getX() / getWidth());
             stopped = true;
         }
         if (EdgeEffectCompat.getDistance(mEdgeGlowBottom) != 0) {
-            EdgeEffectCompat.onPullDistance(mEdgeGlowBottom, 0, 1 - e.getY() / getHeight());
+            EdgeEffectCompat.onPullDistance(mEdgeGlowBottom, 0, 1 - e.getX() / getWidth());
             stopped = true;
         }
         return stopped;
@@ -1067,29 +1068,65 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
 
     @Override
     public boolean onGenericMotionEvent(@NonNull MotionEvent event) {
-        if ((event.getSource() & InputDeviceCompat.SOURCE_CLASS_POINTER) != 0) {
-            if (event.getAction() == MotionEvent.ACTION_SCROLL) {
-                if (!mIsBeingDragged) {
-                    final float vscroll = event.getAxisValue(MotionEvent.AXIS_VSCROLL);
-                    if (vscroll != 0) {
-                        final int delta = (int) (vscroll * getVerticalScrollFactorCompat());
-                        final int range = getScrollRange();
-                        int oldScrollY = getScrollY();
-                        int newScrollY = oldScrollY - delta;
-                        if (newScrollY < 0) {
-                            newScrollY = 0;
-                        } else if (newScrollY > range) {
-                            newScrollY = range;
-                        }
-                        if (newScrollY != oldScrollY) {
-                            super.scrollTo(getScrollX(), newScrollY);
-                            return true;
-                        }
+        if (event.getAction() == MotionEvent.ACTION_SCROLL && !mIsBeingDragged) {
+            final float vscroll;
+            if (MotionEventCompat.isFromSource(event, InputDevice.SOURCE_CLASS_POINTER)) {
+                vscroll = event.getAxisValue(MotionEvent.AXIS_VSCROLL);
+            } else if (MotionEventCompat.isFromSource(event, InputDevice.SOURCE_ROTARY_ENCODER)) {
+                vscroll = event.getAxisValue(MotionEvent.AXIS_SCROLL);
+            } else {
+                vscroll = 0;
+            }
+            if (vscroll != 0) {
+                final int delta = (int) (vscroll * getVerticalScrollFactorCompat());
+                final int range = getScrollRange();
+                int oldScrollY = getScrollY();
+                int newScrollY = oldScrollY - delta;
+                boolean absorbed = false;
+                if (newScrollY < 0) {
+                    // We don't want an EdgeEffect for mouse wheel operations
+                    final boolean canOverScroll = canOverScroll()
+                            && !MotionEventCompat.isFromSource(event, InputDevice.SOURCE_MOUSE);
+                    if (canOverScroll) {
+                        EdgeEffectCompat.onPullDistance(mEdgeGlowTop,
+                                -((float) newScrollY) / getHeight(),
+                                0.5f);
+                        mEdgeGlowTop.onRelease();
+                        invalidate();
+                        absorbed = true;
                     }
+                    newScrollY = 0;
+                } else if (newScrollY > range) {
+                    // We don't want an EdgeEffect for mouse wheel operations
+                    final boolean canOverScroll = canOverScroll()
+                            && !MotionEventCompat.isFromSource(event, InputDevice.SOURCE_MOUSE);
+                    if (canOverScroll) {
+                        EdgeEffectCompat.onPullDistance(mEdgeGlowBottom,
+                                ((float) (newScrollY - range)) / getHeight(),
+                                0.5f);
+                        mEdgeGlowBottom.onRelease();
+                        invalidate();
+                        absorbed = true;
+                    }
+                    newScrollY = range;
                 }
+                if (newScrollY != oldScrollY) {
+                    super.scrollTo(getScrollX(), newScrollY);
+                    return true;
+                }
+                return absorbed;
             }
         }
         return false;
+    }
+
+    /**
+     * Returns true if the NestedScrollView supports over scroll.
+     */
+    private boolean canOverScroll() {
+        final int mode = getOverScrollMode();
+        return mode == OVER_SCROLL_ALWAYS
+                || (mode == OVER_SCROLL_IF_CONTENT_SCROLLS && getScrollRange() > 0);
     }
 
     private float getVerticalScrollFactorCompat() {
