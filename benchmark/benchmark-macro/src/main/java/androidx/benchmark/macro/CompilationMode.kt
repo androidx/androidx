@@ -353,15 +353,15 @@ sealed class CompilationMode {
          * Represents the default compilation mode for the platform, on an end user's device.
          *
          * This is a post-store-install app configuration for this device's SDK
-         * version - [`Partial(BaselineProfileMode.IncludeIfAvailable)`][Partial] on
-         * API 24+, and [Full] prior to API 24 (where all apps are fully AOT compiled).
+         * version - [`Partial(BaselineProfileMode.UseIfAvailable)`][Partial] on API 24+, and
+         * [Full] prior to API 24 (where all apps are fully AOT compiled).
          *
          * On API 24+, Baseline Profile pre-compilation is used if possible, but no error will be
          * thrown if installation fails.
          *
          * Generally, it is preferable to explicitly pass a compilation mode, such as
-         * [Partial(BaselineProfileMode.Include)][Partial] to avoid ambiguity, and e.g. validate an
-         * app's BaselineProfile can be correctly used.
+         * [`Partial(BaselineProfileMode.Required)`][Partial] to avoid ambiguity, and e.g. validate
+         * an app's BaselineProfile can be correctly used.
          */
         @JvmField
         val DEFAULT: CompilationMode = if (Build.VERSION.SDK_INT >= 24) {
