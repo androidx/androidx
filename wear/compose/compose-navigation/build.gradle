@@ -38,11 +38,11 @@ dependencies {
 
     androidTestImplementation(project(":compose:test-utils"))
     androidTestImplementation(project(":compose:ui:ui-test-junit4"))
-    androidTestImplementation(project(":compose:test-utils"))
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(project(":wear:compose:compose-material"))
     androidTestImplementation(project(":wear:compose:compose-navigation-samples"))
     androidTestImplementation(libs.truth)
+    androidTestImplementation("androidx.lifecycle:lifecycle-runtime-testing:2.3.1")
 
     samples(project(":wear:compose:compose-navigation-samples"))
 }

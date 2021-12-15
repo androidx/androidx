@@ -15,8 +15,12 @@
  */
 package androidx.wear.compose.navigation
 
+import androidx.activity.OnBackPressedDispatcher
+import androidx.activity.OnBackPressedDispatcherOwner
+import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
 import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -35,6 +39,7 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeRight
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.testing.TestLifecycleOwner
 import androidx.navigation.NavHostController
 import androidx.wear.compose.material.Button
 import androidx.wear.compose.material.CompactChip
@@ -85,6 +90,36 @@ class SwipeDismissableNavHostTest {
 
         // Should now display "start".
         rule.onNodeWithText(START).assertExists()
+    }
+
+    @Test
+    fun navigates_back_to_previous_level_with_back_button() {
+        val lifecycleOwner = TestLifecycleOwner()
+        val onBackPressedDispatcher = OnBackPressedDispatcher()
+        val dispatcherOwner = object : OnBackPressedDispatcherOwner {
+            override fun getLifecycle() = lifecycleOwner.lifecycle
+            override fun getOnBackPressedDispatcher() = onBackPressedDispatcher
+        }
+        lateinit var navController: NavHostController
+
+        rule.setContentWithTheme {
+            CompositionLocalProvider(LocalOnBackPressedDispatcherOwner provides dispatcherOwner) {
+                navController = rememberSwipeDismissableNavController()
+                SwipeDismissWithNavigation(navController)
+            }
+        }
+        // Move to next destination.
+        rule.onNodeWithText(START).performClick()
+
+        // Now trigger the back button
+        rule.runOnIdle {
+            onBackPressedDispatcher.onBackPressed()
+        }
+        rule.waitForIdle()
+
+        // Should now display "start".
+        rule.onNodeWithText(START).assertExists()
+        assertThat(navController.currentDestination?.route).isEqualTo(START)
     }
 
     @Test
