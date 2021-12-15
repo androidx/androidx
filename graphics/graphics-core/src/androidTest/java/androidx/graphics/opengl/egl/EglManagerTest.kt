@@ -17,11 +17,15 @@
 package androidx.graphics.opengl.egl
 
 import android.graphics.Color
+import android.graphics.PixelFormat
 import android.graphics.SurfaceTexture
+import android.media.ImageReader
 import android.opengl.EGL14
+import android.opengl.EGLSurface
 import android.opengl.GLES20
 import android.os.Build
 import android.view.Surface
+import androidx.annotation.RequiresApi
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
@@ -33,14 +37,11 @@ import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
 import org.junit.Test
 import org.junit.runner.RunWith
-import java.nio.ByteBuffer
 import kotlin.concurrent.thread
 
 @RunWith(AndroidJUnit4::class)
 @SmallTest
 class EglManagerTest {
-
-    val GL_TEXTURE_EXTERNAL_OES = 0x8D65
 
     @Test
     fun testInitializeAndRelease() {
@@ -255,59 +256,32 @@ class EglManagerTest {
         }
     }
 
-    // Requires single buffered SurfaceTexture
-    // Attempts to create an EGLSurface that is single buffered
-    // always will return a double buffered EGLSurface instead
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
-    @Test
-    fun testCreateWindowSurfaceWithFrontBuffer() {
-        testEglManager {
-            initialize()
-
-            val config = loadConfig(EglConfigAttributes8888)
-            if (config == null) {
-                fail("Config 8888 should be supported")
-            }
-
-            createContext(config!!)
-
-            val surface = Surface(SurfaceTexture(42, true))
-
-            val attrs = EglConfigAttributes {
-                EGL14.EGL_RENDER_BUFFER to EGL14.EGL_SINGLE_BUFFER
-            }
-            // Create a window surface with the default attributes
-            val eglSurface = eglSpec.eglCreateWindowSurface(config, surface, attrs)
-            assertNotEquals(EGL14.EGL_NO_SURFACE, eglSurface)
+    private fun EglSpec.isSingleBufferedSurface(surface: EGLSurface): Boolean {
+        return if (surface == EGL14.EGL_NO_SURFACE) {
+            false
+        } else {
             val result = IntArray(1)
-            val queryResult = eglSpec.eglQuerySurface(
-                eglSurface, EGL14.EGL_RENDER_BUFFER, result, 0)
-
-            assertTrue(queryResult)
-            assertEquals(EGL14.EGL_SINGLE_BUFFER, result[0])
-
-            eglSpec.eglDestroySurface(eglSurface)
-
-            release()
+            val queryResult = eglQuerySurface(
+                surface, EGL14.EGL_RENDER_BUFFER, result, 0)
+            queryResult && result[0] == EGL14.EGL_SINGLE_BUFFER
         }
     }
 
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
     @Test
     fun testSurfaceContentsWithBackBuffer() {
         verifySurfaceContentsWithWindowConfig()
     }
 
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
     @Test
     fun testSurfaceContentsWithFrontBuffer() {
-        verifySurfaceContentsWithWindowConfig(
-            EglConfigAttributes {
-                EGL14.EGL_RENDER_BUFFER to EGL14.EGL_SINGLE_BUFFER
-            }
-        )
+        verifySurfaceContentsWithWindowConfig(true)
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     private fun verifySurfaceContentsWithWindowConfig(
-        eglConfigAttributes: EglConfigAttributes? = null
+        singleBuffered: Boolean = false
     ) {
         testEglManager {
             initialize()
@@ -316,76 +290,53 @@ class EglManagerTest {
                 fail("Config 8888 should be supported")
             }
             createContext(config!!)
-            val srcTexName = IntArray(1).let {
-                GLES20.glGenTextures(1, it, 0)
-                it[0]
-            }
-
-            val fboName = IntArray(1).let {
-                GLES20.glGenFramebuffers(1, it, 0)
-                it[0]
-            }
 
             val width = 8
             val height = 5
             val targetColor = Color.RED
-            val surfaceTexture = SurfaceTexture(srcTexName).apply {
-                setDefaultBufferSize(width, height)
-            }
-            val surface = Surface(surfaceTexture)
+            val imageReader = ImageReader.newInstance(width, height, PixelFormat.RGBA_8888, 1)
+            var canRender = false
+
             thread {
-                drawSurface(surface, targetColor, eglConfigAttributes)
+                canRender = drawSurface(imageReader.surface, targetColor, singleBuffered)
             }.join()
 
-            surfaceTexture.updateTexImage()
+            try {
+                if (canRender) {
+                    val image = imageReader.acquireLatestImage()
+                    val plane = image.planes[0]
+                    assertEquals(4, plane.pixelStride)
 
-            // Android API level 17 emulators do not support GL_TEXTURE_EXTERNAL_OES
-            // so fall back on GL_TEXTURE_2D instead
-            val extensionSupported = Build.VERSION.SDK_INT > Build.VERSION_CODES.JELLY_BEAN_MR1
-            val texType = if (extensionSupported) GL_TEXTURE_EXTERNAL_OES else GLES20.GL_TEXTURE_2D
-
-            createFbo(srcTexName, fboName, texType)
-            verifyPixels(width, height, targetColor)
-            GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, 0)
-            release()
-        }
-    }
-
-    private fun createFbo(texName: Int, fboName: Int, texType: Int) {
-        GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, fboName)
-        verify("glBindFrame buffer success")
-        GLES20.glFramebufferTexture2D(GLES20.GL_FRAMEBUFFER, GLES20.GL_COLOR_ATTACHMENT0,
-            texType, texName, 0)
-        verify("glFrameBufferTexture2d success")
-        val frameBufferResult = GLES20.glCheckFramebufferStatus(GLES20.GL_FRAMEBUFFER)
-        assertEquals(GLES20.GL_FRAMEBUFFER_COMPLETE, frameBufferResult)
-    }
-
-    private fun verify(msg: String) {
-        val error = GLES20.glGetError()
-        assertEquals("$msg error: $error", GLES20.GL_NO_ERROR, GLES20.glGetError())
-    }
-
-    private fun verifyPixels(width: Int, height: Int, targetColor: Int) {
-        val capacity = width * height * 4
-
-        val buffer = ByteBuffer.allocateDirect(capacity)
-        GLES20.glReadPixels(0, 0, width, height, GLES20.GL_RGBA, GLES20.GL_UNSIGNED_BYTE, buffer)
-
-        for (i in 0 until width * height step 4) {
-            val red = buffer[i].toInt() and 0xff
-            val green = buffer[i + 1].toInt() and 0xff
-            val blue = buffer[i + 2].toInt() and 0xff
-            val alpha = buffer[i + 3].toInt() and 0xff
-            assertEquals(targetColor, Color.argb(alpha, red, green, blue))
+                    val pixelStride = plane.pixelStride
+                    val rowStride = plane.rowStride
+                    val rowPadding = rowStride - pixelStride * width
+                    var offset = 0
+                    for (y in 0 until height) {
+                        for (x in 0 until width) {
+                            val red = plane.buffer[offset].toInt() and 0xff
+                            val green = plane.buffer[offset + 1].toInt() and 0xff
+                            val blue = plane.buffer[offset + 2].toInt() and 0xff
+                            val alpha = plane.buffer[offset + 3].toInt() and 0xff
+                            val packedColor = Color.argb(alpha, red, green, blue)
+                            assertEquals("Index: " + x + ", " + y, targetColor, packedColor)
+                            offset += pixelStride
+                        }
+                        offset += rowPadding
+                    }
+                }
+            } finally {
+                imageReader.close()
+                release()
+            }
         }
     }
 
     private fun drawSurface(
         surface: Surface,
         color: Int,
-        configAttributes: EglConfigAttributes? = null
-    ) {
+        singleBuffered: Boolean
+    ): Boolean {
+        var canRender = false
         testEglManager {
             initialize()
             val config = loadConfig(EglConfigAttributes8888)
@@ -393,21 +344,34 @@ class EglManagerTest {
                 fail("Config 8888 should be supported")
             }
             createContext(config!!)
-
+            val configAttributes = if (singleBuffered) {
+                EglConfigAttributes {
+                    EGL14.EGL_RENDER_BUFFER to EGL14.EGL_SINGLE_BUFFER
+                }
+            } else {
+                null
+            }
             val eglSurface = eglSpec.eglCreateWindowSurface(config, surface, configAttributes)
-            makeCurrent(eglSurface)
-            GLES20.glClearColor(
-                Color.red(color) / 255f,
-                Color.green(color) / 255f,
-                Color.blue(color) / 255f,
-                Color.alpha(color) / 255f
-            )
-            GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT)
-            swapAndFlushBuffers()
+            // Skip tests of the device does not support EGL_SINGLE_BUFFER
+            canRender = !singleBuffered || eglSpec.isSingleBufferedSurface(eglSurface)
+            if (canRender) {
+                makeCurrent(eglSurface)
+                assertEquals("Make current failed", EGL14.EGL_SUCCESS, eglSpec.eglGetError())
+                GLES20.glClearColor(
+                    Color.red(color) / 255f,
+                    Color.green(color) / 255f,
+                    Color.blue(color) / 255f,
+                    Color.alpha(color) / 255f
+                )
+                GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT)
+                swapAndFlushBuffers()
+                assertEquals("Swapbuffers failed", EGL14.EGL_SUCCESS, eglSpec.eglGetError())
+            }
 
             eglSpec.eglDestroySurface(eglSurface)
             release()
         }
+        return canRender
     }
 
     /**
