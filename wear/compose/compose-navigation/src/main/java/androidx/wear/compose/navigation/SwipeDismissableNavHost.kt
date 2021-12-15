@@ -16,6 +16,7 @@
 
 package androidx.wear.compose.navigation
 
+import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
 import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -129,10 +130,23 @@ public fun SwipeDismissableNavHost(
         "SwipeDismissableNavHost requires a ViewModelStoreOwner to be provided " +
             "via LocalViewModelStoreOwner"
     }
+    val onBackPressedDispatcherOwner = LocalOnBackPressedDispatcherOwner.current
+    val onBackPressedDispatcher = onBackPressedDispatcherOwner?.onBackPressedDispatcher
 
     // Setup the navController with proper owners
     navController.setLifecycleOwner(lifecycleOwner)
     navController.setViewModelStore(viewModelStoreOwner.viewModelStore)
+    if (onBackPressedDispatcher != null) {
+        navController.setOnBackPressedDispatcher(onBackPressedDispatcher)
+    }
+    // Ensure that the NavController only receives back events while
+    // the NavHost is in composition
+    DisposableEffect(navController) {
+        navController.enableOnBackPressed(true)
+        onDispose {
+            navController.enableOnBackPressed(false)
+        }
+    }
 
     // Then set the graph
     navController.graph = graph
