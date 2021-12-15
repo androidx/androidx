@@ -25,7 +25,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.ParameterizedRobolectricTestRunner;
@@ -136,7 +135,6 @@ public class LoggerTest {
                 .hasNoMoreMessages();
     }
 
-    @Ignore("b/208252595")
     @Config(maxSdk = 23)
     @Test
     public void log_truncateLongTag() {
@@ -232,15 +230,51 @@ public class LoggerTest {
         LogAssert hasMessage(int priority, String tag, String message,
                 @Nullable Throwable throwable) {
             final LogItem item = mLogItems.get(mIndex++);
-            assertThat(item.type).isEqualTo(priority);
-            assertThat(item.tag).isEqualTo(tag);
-            assertThat(item.msg).isEqualTo(message);
-            assertThat(item.throwable).isEqualTo(throwable);
+
+            try {
+                assertThat(item.type).isEqualTo(priority);
+                assertThat(item.tag).isEqualTo(tag);
+                assertThat(item.msg).isEqualTo(message);
+                assertThat(item.throwable).isEqualTo(throwable);
+            } catch (Throwable e) {
+                // TODO(b/208252595): Dump the log info for the issue clarification.
+                throw new RuntimeException(collectLogItemsInfo() + "\n" + e);
+            }
             return this;
         }
 
         void hasNoMoreMessages() {
-            assertThat(mIndex).isEqualTo(mLogItems.size());
+            try {
+                assertThat(mIndex).isEqualTo(mLogItems.size());
+            } catch (Throwable e) {
+                // TODO(b/207674161): Dump the log info for the issue clarification.
+                throw new RuntimeException(collectLogItemsInfo() + "\n" + e);
+            }
+        }
+
+        private String collectLogItemsInfo() {
+            int counter = 0;
+            String logItemsInfo =
+                    "Log items count is " + mLogItems.size() + ", mIndex is " + mIndex + "\n";
+
+            for (int i = mIndex; i >= 0; i--) {
+                if (i >= mLogItems.size()) {
+                    continue;
+                }
+
+                LogItem item = mLogItems.get(i);
+                logItemsInfo +=
+                        "index: " + i + ", item.type: " + item.type + ", item.tag: " + item.tag
+                                + ", item.msg: " + item.msg + ", item.throwable: "
+                                + item.throwable + "\n";
+
+                // Prints five items at most in case too many items exist to cause problem.
+                if (counter++ > 5) {
+                    break;
+                }
+            }
+
+            return logItemsInfo;
         }
     }
 }
