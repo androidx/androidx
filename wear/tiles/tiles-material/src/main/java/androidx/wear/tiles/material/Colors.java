@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 The Android Open Source Project
+ * Copyright 2021 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,3 +15,15 @@
  */
 
 package androidx.wear.tiles.material;
+
+import androidx.annotation.ColorInt;
+
+/** Contains the default color values used by all Tiles Components. */
+public class Colors {
+    private Colors() {}
+
+    @ColorInt public static final int PRIMARY = 0xFFAECBFA;
+    @ColorInt public static final int ON_PRIMARY = 0xFF202124;
+    @ColorInt public static final int SURFACE = 0xFF202124;
+    @ColorInt public static final int ON_SURFACE = 0xFFFFFFFF;
+}
