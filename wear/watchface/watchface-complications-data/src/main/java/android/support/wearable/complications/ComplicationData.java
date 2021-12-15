@@ -40,7 +40,6 @@ import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -604,54 +603,54 @@ public final class ComplicationData implements Parcelable, Serializable {
     }
 
     /**
-     * For timeline entries. Returns the {@link Instant} at which this timeline entry becomes
+     * For timeline entries. Returns the epoch second at which this timeline entry becomes
      * valid or `null` if it's not set.
      */
     @Nullable
-    public Instant getTimelineStartInstant() {
+    public Long getTimelineStartEpochSecond() {
         long expiresAt = mFields.getLong(FIELD_TIMELINE_START_TIME, -1);
         if (expiresAt == -1) {
             return null;
         } else {
-            return Instant.ofEpochSecond(expiresAt);
+            return expiresAt;
         }
     }
 
     /**
-     * For timeline entries. Sets the {@link Instant} at which this timeline entry becomes invalid
+     * For timeline entries. Sets the epoch second at which this timeline entry becomes invalid
      * or clears the field if instant is `null`.
      */
-    public void setTimelineStartInstant(@Nullable Instant instant) {
-        if (instant == null) {
+    public void setTimelineStartEpochSecond(@Nullable Long epochSecond) {
+        if (epochSecond == null) {
             mFields.remove(FIELD_TIMELINE_START_TIME);
         } else {
-            mFields.putLong(FIELD_TIMELINE_START_TIME, instant.getEpochSecond());
+            mFields.putLong(FIELD_TIMELINE_START_TIME, epochSecond);
         }
     }
 
     /**
-     * For timeline entries. Returns the {@link Instant} at which this timeline entry becomes
-     * invalid or `null` if it's not set.
+     * For timeline entries. Returns the epoch second at which this timeline entry becomes invalid
+     * or `null` if it's not set.
      */
     @Nullable
-    public Instant getTimelineEndInstant() {
+    public Long getTimelineEndEpochSecond() {
         long expiresAt = mFields.getLong(FIELD_TIMELINE_END_TIME, -1);
         if (expiresAt == -1) {
             return null;
         } else {
-            return Instant.ofEpochSecond(expiresAt);
+            return expiresAt;
         }
     }
 
     /**
-     * For timeline entries. Sets the {@link Instant} at which this timeline entry becomes invalid,
+     * For timeline entries. Sets the epoch second at which this timeline entry becomes invalid,
      * or clears the field if instant is `null`.
      */
-    public void setTimelineEndInstant(@Nullable Instant instant) {
-        if (instant == null) {
+    public void setTimelineEndEpochSecond(@Nullable Long epochSecond) {
+        if (epochSecond == null) {
             mFields.remove(FIELD_TIMELINE_END_TIME);
         } else {
-            mFields.putLong(FIELD_TIMELINE_END_TIME, instant.getEpochSecond());
+            mFields.putLong(FIELD_TIMELINE_END_TIME, epochSecond);
         }
     }
 

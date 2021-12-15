@@ -688,8 +688,8 @@ public class ComplicationSlot internal constructor(
         timelineEntries?.let {
             for (entry in it) {
                 val wireEntry = entry.asWireComplicationData()
-                val start = wireEntry.timelineStartInstant?.epochSecond
-                val end = wireEntry.timelineEndInstant?.epochSecond
+                val start = wireEntry.timelineStartEpochSecond
+                val end = wireEntry.timelineEndEpochSecond
                 if (start != null && end != null && time >= start && time < end) {
                     val duration = end - start
                     if (duration < previousShortest) {

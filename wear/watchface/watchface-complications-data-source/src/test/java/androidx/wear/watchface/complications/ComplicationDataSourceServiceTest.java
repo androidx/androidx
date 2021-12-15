@@ -331,22 +331,14 @@ public class ComplicationDataSourceServiceTest {
                 data.getValue().getTimelineEntries();
         assertThat(timeLineEntries).isNotNull();
         assertThat(timeLineEntries.size()).isEqualTo(2);
-        assertThat(timeLineEntries.get(0).getTimelineStartInstant()).isEqualTo(
-                Instant.ofEpochSecond(1000)
-        );
-        assertThat(timeLineEntries.get(0).getTimelineEndInstant()).isEqualTo(
-                Instant.ofEpochSecond(4000)
-        );
+        assertThat(timeLineEntries.get(0).getTimelineStartEpochSecond()).isEqualTo(1000);
+        assertThat(timeLineEntries.get(0).getTimelineEndEpochSecond()).isEqualTo(4000);
         assertThat(timeLineEntries.get(0).getLongText().getTextAt(null, 0)).isEqualTo(
                 "A"
         );
 
-        assertThat(timeLineEntries.get(1).getTimelineStartInstant()).isEqualTo(
-                Instant.ofEpochSecond(6000)
-        );
-        assertThat(timeLineEntries.get(1).getTimelineEndInstant()).isEqualTo(
-                Instant.ofEpochSecond(8000)
-        );
+        assertThat(timeLineEntries.get(1).getTimelineStartEpochSecond()).isEqualTo(6000);
+        assertThat(timeLineEntries.get(1).getTimelineEndEpochSecond()).isEqualTo(8000);
         assertThat(timeLineEntries.get(1).getLongText().getTextAt(null, 0)).isEqualTo(
                 "B"
         );

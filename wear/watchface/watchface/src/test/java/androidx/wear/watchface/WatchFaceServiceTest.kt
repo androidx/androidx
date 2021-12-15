@@ -2620,8 +2620,8 @@ public class WatchFaceServiceTest {
         val b = ComplicationData.Builder(ComplicationData.TYPE_SHORT_TEXT)
             .setShortText(ComplicationText.plainText("B"))
             .build()
-        b.timelineStartInstant = Instant.ofEpochSecond(1000)
-        b.timelineEndInstant = Instant.MAX
+        b.timelineStartEpochSecond = 1000
+        b.timelineEndEpochSecond = Long.MAX_VALUE
         a.setTimelineEntryCollection(listOf(b))
 
         // Set the ComplicationData.
@@ -4170,14 +4170,14 @@ public class WatchFaceServiceTest {
         val b = ComplicationData.Builder(ComplicationData.TYPE_SHORT_TEXT)
             .setShortText(ComplicationText.plainText("B"))
             .build()
-        b.timelineStartInstant = Instant.ofEpochSecond(1000)
-        b.timelineEndInstant = Instant.ofEpochSecond(4000)
+        b.timelineStartEpochSecond = 1000
+        b.timelineEndEpochSecond = 4000
 
         val c = ComplicationData.Builder(ComplicationData.TYPE_SHORT_TEXT)
             .setShortText(ComplicationText.plainText("C"))
             .build()
-        c.timelineStartInstant = Instant.ofEpochSecond(2000)
-        c.timelineEndInstant = Instant.ofEpochSecond(3000)
+        c.timelineStartEpochSecond = 2000
+        c.timelineEndEpochSecond = 3000
 
         a.setTimelineEntryCollection(listOf(b, c))
 
@@ -4222,14 +4222,14 @@ public class WatchFaceServiceTest {
         val b = ComplicationData.Builder(ComplicationData.TYPE_SHORT_TEXT)
             .setShortText(ComplicationText.plainText("B"))
             .build()
-        b.setTimelineStartInstant(Instant.ofEpochSecond(1000))
-        b.setTimelineEndInstant(Instant.ofEpochSecond(2000))
+        b.timelineStartEpochSecond = 1000
+        b.timelineEndEpochSecond = 2000
 
         val c = ComplicationData.Builder(ComplicationData.TYPE_SHORT_TEXT)
             .setShortText(ComplicationText.plainText("C"))
             .build()
-        c.setTimelineStartInstant(Instant.ofEpochSecond(3000))
-        c.setTimelineEndInstant(Instant.ofEpochSecond(4000))
+        c.timelineStartEpochSecond = 3000
+        c.timelineEndEpochSecond = 4000
 
         a.setTimelineEntryCollection(listOf(b, c))
 
