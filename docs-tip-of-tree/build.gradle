@@ -265,6 +265,8 @@ dependencies {
     samples(project(":wear:compose:compose-foundation-samples"))
     docs(project(":wear:compose:compose-material"))
     samples(project(":wear:compose:compose-material-samples"))
+    docs(project(":wear:compose:compose-navigation"))
+    samples(project(":wear:compose:compose-navigation-samples"))
     docs(project(":wear:wear-input"))
     docs(project(":wear:wear-input-testing"))
     samples(project(":wear:wear-input-samples"))
