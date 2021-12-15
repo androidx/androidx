@@ -130,8 +130,8 @@ public class ComplicationDataTimeline(
     internal fun asWireComplicationData(): WireComplicationData {
         val wireTimelineEntries = timelineEntries.map { timelineEntry ->
             timelineEntry.complicationData.asWireComplicationData().apply {
-                timelineStartInstant = timelineEntry.validity.start
-                timelineEndInstant = timelineEntry.validity.end
+                timelineStartEpochSecond = timelineEntry.validity.start.epochSecond
+                timelineEndEpochSecond = timelineEntry.validity.end.epochSecond
             }
         }
         return defaultComplicationData.asWireComplicationData().apply {
