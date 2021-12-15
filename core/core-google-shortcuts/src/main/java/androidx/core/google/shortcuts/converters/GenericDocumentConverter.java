@@ -50,7 +50,7 @@ public class GenericDocumentConverter implements AppSearchDocumentConverter {
         Preconditions.checkNotNull(genericDocument);
 
         Indexable.Builder indexableBuilder = ConverterUtils.buildBaseIndexableFromGenericDocument(
-                context, genericDocument);
+                context, genericDocument.getSchemaType(), genericDocument);
 
         for (String property : genericDocument.getPropertyNames()) {
             Object rawProperty = genericDocument.getProperty(property);

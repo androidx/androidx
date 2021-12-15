@@ -35,6 +35,8 @@ import androidx.core.util.Preconditions;
 public class AppSearchDocumentConverterFactory {
     private static final String TAG = "AppSearchDocumentConver"; // NOTYPO
 
+    private static final String TIMER_SCHEMA_TYPE = "builtin:Timer";
+
     /**
      * Returns a {@link AppSearchDocumentConverter} given a schema type. If the schema type is not
      * supported, then the {@link GenericDocumentConverter} will be returned.
@@ -43,7 +45,7 @@ public class AppSearchDocumentConverterFactory {
     public static AppSearchDocumentConverter getConverter(@NonNull String schemaType) {
         Preconditions.checkNotNull(schemaType);
 
-        if ("Timer".equals(schemaType)) {
+        if (TIMER_SCHEMA_TYPE.equals(schemaType)) {
             return new TimerConverter();
         }
 
