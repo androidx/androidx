@@ -923,13 +923,19 @@ class WatchFaceControlClientTest {
         interactiveInstance.complicationSlotsState
 
         // Add some additional ContentDescriptionLabels
+        val pendingIntent1 = PendingIntent.getActivity(context, 0, Intent("One"),
+            PendingIntent.FLAG_IMMUTABLE
+        )
+        val pendingIntent2 = PendingIntent.getActivity(context, 0, Intent("Two"),
+            PendingIntent.FLAG_IMMUTABLE
+        )
         wallpaperService.watchFace.renderer.additionalContentDescriptionLabels = listOf(
             Pair(
                 0,
                 ContentDescriptionLabel(
                     PlainComplicationText.Builder("Before").build(),
                     Rect(10, 10, 20, 20),
-                    null
+                    pendingIntent1
                 )
             ),
             Pair(
@@ -937,7 +943,7 @@ class WatchFaceControlClientTest {
                 ContentDescriptionLabel(
                     PlainComplicationText.Builder("After").build(),
                     Rect(30, 30, 40, 40),
-                    null
+                    pendingIntent2
                 )
             )
         )
@@ -960,6 +966,7 @@ class WatchFaceControlClientTest {
         assertThat(
             contentDescriptionLabels[1].getTextAt(context.resources, Instant.EPOCH)
         ).isEqualTo("Before")
+        assertThat(contentDescriptionLabels[1].tapAction).isEqualTo(pendingIntent1)
 
         // Left complication.
         assertThat(contentDescriptionLabels[2].bounds).isEqualTo(Rect(80, 160, 160, 240))
@@ -978,6 +985,7 @@ class WatchFaceControlClientTest {
         assertThat(
             contentDescriptionLabels[4].getTextAt(context.resources, Instant.EPOCH)
         ).isEqualTo("After")
+        assertThat(contentDescriptionLabels[4].tapAction).isEqualTo(pendingIntent2)
     }
 
     @SuppressLint("NewApi") // renderWatchFaceToBitmap
