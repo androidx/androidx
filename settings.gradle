@@ -341,6 +341,9 @@ includeProject(":compose:compiler:compiler:integration-tests", "compose/compiler
 includeProject(":compose:compiler:compiler-hosted", "compose/compiler/compiler-hosted", [BuildType.COMPOSE, BuildType.MAIN])
 includeProject(":compose:compiler:compiler-hosted:integration-tests", "compose/compiler/compiler-hosted/integration-tests", [BuildType.COMPOSE])
 includeProject(":compose:compiler:compiler-hosted:integration-tests:kotlin-compiler-repackaged", "compose/compiler/compiler-hosted/integration-tests/kotlin-compiler-repackaged", [BuildType.COMPOSE])
+includeProject(":compose:compiler:compiler-daemon", "compose/compiler/compiler-daemon", [BuildType.COMPOSE])
+includeProject(":compose:compiler:compiler-daemon:integration-tests", "compose/compiler/compiler-daemon/integration-tests", [BuildType.COMPOSE])
+
 if (isMultiplatformEnabled()) {
     includeProject(":compose:desktop", "compose/desktop", [BuildType.COMPOSE])
     includeProject(":compose:desktop:desktop", "compose/desktop/desktop", [BuildType.COMPOSE])
