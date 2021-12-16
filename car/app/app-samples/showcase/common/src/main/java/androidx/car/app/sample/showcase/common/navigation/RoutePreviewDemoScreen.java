@@ -24,6 +24,7 @@ import androidx.annotation.NonNull;
 import androidx.car.app.CarContext;
 import androidx.car.app.CarToast;
 import androidx.car.app.Screen;
+import androidx.car.app.constraints.ConstraintManager;
 import androidx.car.app.model.Action;
 import androidx.car.app.model.CarText;
 import androidx.car.app.model.DurationSpan;
@@ -32,6 +33,7 @@ import androidx.car.app.model.Row;
 import androidx.car.app.model.Template;
 import androidx.car.app.navigation.model.RoutePreviewNavigationTemplate;
 import androidx.car.app.sample.showcase.common.navigation.routing.RoutingDemoModels;
+import androidx.car.app.versioning.CarAppApiLevels;
 
 import java.util.concurrent.TimeUnit;
 
@@ -41,23 +43,65 @@ public final class RoutePreviewDemoScreen extends Screen {
         super(carContext);
     }
 
+    private CarText createRouteText(int index) {
+        switch (index) {
+            case 0:
+                // Set text variants for the first route.
+                SpannableString shortRouteLongText = new SpannableString(
+                        "   \u00b7 ---------------- Short" + "  " + "route "
+                                + "-------------------");
+                shortRouteLongText.setSpan(DurationSpan.create(TimeUnit.HOURS.toSeconds(26)), 0, 1,
+                        0);
+                SpannableString firstRouteShortText = new SpannableString("   \u00b7 Short route");
+                firstRouteShortText.setSpan(DurationSpan.create(TimeUnit.HOURS.toSeconds(26)), 0, 1,
+                        0);
+                return new CarText.Builder(shortRouteLongText)
+                        .addVariant(firstRouteShortText)
+                        .build();
+            case 1:
+                SpannableString lessBusyRouteText = new SpannableString("   \u00b7 Less busy");
+                lessBusyRouteText.setSpan(DurationSpan.create(TimeUnit.HOURS.toSeconds(24)), 0, 1,
+                        0);
+                return new CarText.Builder(lessBusyRouteText).build();
+            case 2:
+                SpannableString hovRouteText = new SpannableString("   \u00b7 HOV friendly");
+                hovRouteText.setSpan(DurationSpan.create(TimeUnit.MINUTES.toSeconds(867)), 0, 1, 0);
+                return new CarText.Builder(hovRouteText).build();
+            default:
+                SpannableString routeText = new SpannableString("   \u00b7 Long route");
+                routeText.setSpan(DurationSpan.create(TimeUnit.MINUTES.toSeconds(867L + index)),
+                        0, 1, 0);
+                return new CarText.Builder(routeText).build();
+        }
+    }
+
+    private Row createRow(int index) {
+        CarText route = createRouteText(index);
+        String titleText = "Via NE " + (index + 4) + "th Street";
+
+        return new Row.Builder()
+                .setTitle(route)
+                .addText(titleText)
+                .build();
+    }
+
     @NonNull
     @Override
     public Template onGetTemplate() {
-        // Set text variants for the first route.
-        SpannableString firstRouteLongText = new SpannableString(
-                "   \u00b7 ---------------- Short" + "  " + "route " + "-------------------");
-        firstRouteLongText.setSpan(DurationSpan.create(TimeUnit.HOURS.toSeconds(26)), 0, 1, 0);
-        SpannableString firstRouteShortText = new SpannableString("   \u00b7 Short Route");
-        firstRouteShortText.setSpan(DurationSpan.create(TimeUnit.HOURS.toSeconds(26)), 0, 1, 0);
-        CarText firstRoute = new CarText.Builder(firstRouteLongText)
-                .addVariant(firstRouteShortText)
-                .build();
+        int itemLimit = 3;
+        // Adjust the item limit according to the car constrains.
+        if (getCarContext().getCarAppApiLevel() > CarAppApiLevels.LEVEL_1) {
+            itemLimit = getCarContext().getCarService(ConstraintManager.class).getContentLimit(
+                    ConstraintManager.CONTENT_LIMIT_TYPE_ROUTE_LIST);
+        }
 
-        SpannableString secondRoute = new SpannableString("   \u00b7 Less busy");
-        secondRoute.setSpan(DurationSpan.create(TimeUnit.HOURS.toSeconds(24)), 0, 1, 0);
-        SpannableString thirdRoute = new SpannableString("   \u00b7 HOV friendly");
-        thirdRoute.setSpan(DurationSpan.create(TimeUnit.MINUTES.toSeconds(867)), 0, 1, 0);
+        ItemList.Builder itemListBuilder = new ItemList.Builder()
+                .setOnSelectedListener(this::onRouteSelected)
+                .setOnItemsVisibilityChangedListener(this::onRoutesVisible);
+
+        for (int i = 0; i < itemLimit; i++) {
+            itemListBuilder.addItem(createRow(i));
+        }
 
         // Set text variants for the navigate action text.
         CarText navigateActionText =
@@ -65,26 +109,7 @@ public final class RoutePreviewDemoScreen extends Screen {
                         + "route").build();
 
         return new RoutePreviewNavigationTemplate.Builder()
-                .setItemList(
-                        new ItemList.Builder()
-                                .setOnSelectedListener(this::onRouteSelected)
-                                .addItem(
-                                        new Row.Builder()
-                                                .setTitle(firstRoute)
-                                                .addText("Via NE 8th Street")
-                                                .build())
-                                .addItem(
-                                        new Row.Builder()
-                                                .setTitle(secondRoute)
-                                                .addText("Via NE 1st Ave")
-                                                .build())
-                                .addItem(
-                                        new Row.Builder()
-                                                .setTitle(thirdRoute)
-                                                .addText("Via NE 4th Street")
-                                                .build())
-                                .setOnItemsVisibilityChangedListener(this::onRoutesVisible)
-                                .build())
+                .setItemList(itemListBuilder.build())
                 .setNavigateAction(
                         new Action.Builder()
                                 .setTitle(navigateActionText)
