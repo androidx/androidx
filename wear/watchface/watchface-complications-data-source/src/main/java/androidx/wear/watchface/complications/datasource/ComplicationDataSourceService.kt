@@ -27,7 +27,6 @@ import android.os.RemoteException
 import android.support.wearable.complications.ComplicationProviderInfo
 import android.support.wearable.complications.IComplicationManager
 import android.support.wearable.complications.IComplicationProvider
-import androidx.annotation.RestrictTo
 import androidx.annotation.UiThread
 import androidx.wear.watchface.complications.data.ComplicationData
 import androidx.wear.watchface.complications.data.ComplicationType
@@ -573,12 +572,9 @@ public abstract class ComplicationDataSourceService : Service() {
          * complication data source chooser interface. If set to "true", users will not be able
          * to select this complication data source. The complication data source may still be
          * specified as a default complication data source by watch faces.
-         *
-         * @hide
          */
         // TODO(b/192233205): Migrate value to androidx.
-        @RestrictTo(RestrictTo.Scope.LIBRARY)
-        public const val METADATA_KEY_HIDDEN: String =
+        internal const val METADATA_KEY_HIDDEN: String =
             "android.support.wearable.complications.HIDDEN"
 
         /**
