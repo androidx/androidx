@@ -25,6 +25,7 @@ import com.google.devtools.ksp.symbol.KSType
 import com.google.devtools.ksp.symbol.KSTypeArgument
 import com.google.devtools.ksp.symbol.KSTypeParameter
 import com.google.devtools.ksp.symbol.KSTypeReference
+import com.google.devtools.ksp.symbol.Modifier
 import com.google.devtools.ksp.symbol.Variance
 
 /**
@@ -133,7 +134,8 @@ internal class KSTypeVarianceResolver(
                     param.variance == Variance.CONTRAVARIANT ||
                         when (val decl = myType.declaration) {
                             is KSClassDeclaration -> {
-                                decl.isOpen() || decl.classKind == ClassKind.ENUM_CLASS
+                                decl.isOpen() || decl.classKind == ClassKind.ENUM_CLASS ||
+                                    decl.modifiers.contains(Modifier.SEALED)
                             }
                             else -> true
                         }
