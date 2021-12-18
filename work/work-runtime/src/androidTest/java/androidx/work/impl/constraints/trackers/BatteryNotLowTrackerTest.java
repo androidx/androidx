@@ -46,7 +46,7 @@ public class BatteryNotLowTrackerTest {
 
     private static final int STATUS_CHARGING = BatteryManager.BATTERY_STATUS_CHARGING;
     private static final int UNKNOWN_STATUS = BatteryManager.BATTERY_STATUS_UNKNOWN;
-    private static final float BELOW_THRESHOLD = BatteryNotLowTracker.BATTERY_LOW_THRESHOLD;
+    private static final float BELOW_THRESHOLD = BatteryNotLowTrackerKt.BATTERY_LOW_THRESHOLD;
     private static final float ABOVE_THRESHOLD = BELOW_THRESHOLD + 0.01f;
 
     private Context mMockContext;
@@ -132,7 +132,7 @@ public class BatteryNotLowTrackerTest {
         mTracker.addListener(mListener);
         verify(mListener).onConstraintChanged(true);
 
-        mTracker.onBroadcastReceive(mMockContext, new Intent("INVALID"));
+        mTracker.onBroadcastReceive(new Intent("INVALID"));
         verifyNoMoreInteractions(mListener);
     }
 
@@ -144,9 +144,9 @@ public class BatteryNotLowTrackerTest {
         mTracker.addListener(mListener);
         verify(mListener).onConstraintChanged(false);
 
-        mTracker.onBroadcastReceive(mMockContext, new Intent(Intent.ACTION_BATTERY_OKAY));
+        mTracker.onBroadcastReceive(new Intent(Intent.ACTION_BATTERY_OKAY));
         verify(mListener).onConstraintChanged(true);
-        mTracker.onBroadcastReceive(mMockContext, new Intent(Intent.ACTION_BATTERY_LOW));
+        mTracker.onBroadcastReceive(new Intent(Intent.ACTION_BATTERY_LOW));
         verify(mListener, times(2)).onConstraintChanged(false);
     }
 }

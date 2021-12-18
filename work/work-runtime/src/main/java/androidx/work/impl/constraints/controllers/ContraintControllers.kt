@@ -22,16 +22,14 @@ import androidx.work.NetworkType
 import androidx.work.NetworkType.TEMPORARILY_UNMETERED
 import androidx.work.NetworkType.UNMETERED
 import androidx.work.impl.constraints.NetworkState
-import androidx.work.impl.constraints.trackers.BatteryChargingTracker
 import androidx.work.impl.constraints.trackers.BatteryNotLowTracker
-import androidx.work.impl.constraints.trackers.NetworkStateTracker
-import androidx.work.impl.constraints.trackers.StorageNotLowTracker
+import androidx.work.impl.constraints.trackers.ConstraintTracker
 import androidx.work.impl.model.WorkSpec
 
 /**
  * A [ConstraintController] for battery charging events.
  */
-class BatteryChargingController(tracker: BatteryChargingTracker) :
+class BatteryChargingController(tracker: ConstraintTracker<Boolean>) :
     ConstraintController<Boolean>(tracker) {
     override fun hasConstraint(workSpec: WorkSpec) = workSpec.constraints.requiresCharging()
 
@@ -51,7 +49,7 @@ class BatteryNotLowController(tracker: BatteryNotLowTracker) :
 /**
  * A [ConstraintController] for monitoring that the network connection is unmetered.
  */
-class NetworkUnmeteredController(tracker: NetworkStateTracker) :
+class NetworkUnmeteredController(tracker: ConstraintTracker<NetworkState>) :
     ConstraintController<NetworkState>(tracker) {
     override fun hasConstraint(workSpec: WorkSpec): Boolean {
         val requiredNetworkType = workSpec.constraints.requiredNetworkType
@@ -65,7 +63,7 @@ class NetworkUnmeteredController(tracker: NetworkStateTracker) :
 /**
  * A [ConstraintController] for storage not low events.
  */
-class StorageNotLowController(tracker: StorageNotLowTracker) :
+class StorageNotLowController(tracker: ConstraintTracker<Boolean>) :
     ConstraintController<Boolean>(tracker) {
 
     override fun hasConstraint(workSpec: WorkSpec) = workSpec.constraints.requiresStorageNotLow()
@@ -76,7 +74,7 @@ class StorageNotLowController(tracker: StorageNotLowTracker) :
 /**
  * A [ConstraintController] for monitoring that the network connection is not roaming.
  */
-class NetworkNotRoamingController(tracker: NetworkStateTracker) :
+class NetworkNotRoamingController(tracker: ConstraintTracker<NetworkState>) :
     ConstraintController<NetworkState>(tracker) {
     override fun hasConstraint(workSpec: WorkSpec): Boolean {
         return workSpec.constraints.requiredNetworkType == NetworkType.NOT_ROAMING
@@ -111,7 +109,7 @@ class NetworkNotRoamingController(tracker: NetworkStateTracker) :
  *
  * For API 25 and below, usable simply means that [NetworkState] is connected.
  */
-class NetworkConnectedController(tracker: NetworkStateTracker) :
+class NetworkConnectedController(tracker: ConstraintTracker<NetworkState>) :
     ConstraintController<NetworkState>(tracker) {
     override fun hasConstraint(workSpec: WorkSpec) =
         workSpec.constraints.requiredNetworkType == NetworkType.CONNECTED
@@ -127,7 +125,7 @@ class NetworkConnectedController(tracker: NetworkStateTracker) :
 /**
  * A [ConstraintController] for monitoring that the network connection is metered.
  */
-class NetworkMeteredController(tracker: NetworkStateTracker) :
+class NetworkMeteredController(tracker: ConstraintTracker<NetworkState>) :
     ConstraintController<NetworkState>(tracker) {
     override fun hasConstraint(workSpec: WorkSpec) =
         workSpec.constraints.requiredNetworkType == NetworkType.METERED

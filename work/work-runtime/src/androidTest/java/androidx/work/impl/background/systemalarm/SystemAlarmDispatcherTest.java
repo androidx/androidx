@@ -49,10 +49,9 @@ import androidx.work.WorkInfo;
 import androidx.work.impl.Processor;
 import androidx.work.impl.Scheduler;
 import androidx.work.impl.WorkManagerImpl;
-import androidx.work.impl.constraints.trackers.BatteryChargingTracker;
+import androidx.work.impl.constraints.NetworkState;
 import androidx.work.impl.constraints.trackers.BatteryNotLowTracker;
-import androidx.work.impl.constraints.trackers.NetworkStateTracker;
-import androidx.work.impl.constraints.trackers.StorageNotLowTracker;
+import androidx.work.impl.constraints.trackers.ConstraintTracker;
 import androidx.work.impl.constraints.trackers.Trackers;
 import androidx.work.impl.model.WorkSpec;
 import androidx.work.impl.model.WorkSpecDao;
@@ -93,67 +92,74 @@ public class SystemAlarmDispatcherTest extends DatabaseTest {
     private static final int TEST_TIMEOUT = 6;
 
     private Context mContext;
-    private Scheduler mScheduler;
     private WorkManagerImpl mWorkManager;
-    private Configuration mConfiguration;
-    private Processor mProcessor;
     private Processor mSpyProcessor;
     private CommandInterceptingSystemDispatcher mDispatcher;
     private CommandInterceptingSystemDispatcher mSpyDispatcher;
-    private SystemAlarmDispatcher.CommandsCompletedListener mCompletedListener;
     private CountDownLatch mLatch;
 
-    private Trackers mTracker;
-    private BatteryChargingTracker mBatteryChargingTracker;
-    private BatteryNotLowTracker mBatteryNotLowTracker;
-    private NetworkStateTracker mNetworkStateTracker;
-    private StorageNotLowTracker mStorageNotLowTracker;
+    private FakeConstraintTracker mBatteryChargingTracker;
+    private FakeConstraintTracker mStorageNotLowTracker;
 
     @Before
+    @SuppressWarnings("unchecked")
     public void setUp() {
         mContext = ApplicationProvider.getApplicationContext().getApplicationContext();
-        mScheduler = mock(Scheduler.class);
+        Scheduler scheduler = mock(Scheduler.class);
         mWorkManager = mock(WorkManagerImpl.class);
         mLatch = new CountDownLatch(1);
-        mCompletedListener = new SystemAlarmDispatcher.CommandsCompletedListener() {
-            @Override
-            public void onAllCommandsCompleted() {
-                mLatch.countDown();
-            }
-        };
-        mTracker = mock(Trackers.class);
+        SystemAlarmDispatcher.CommandsCompletedListener completedListener =
+                new SystemAlarmDispatcher.CommandsCompletedListener() {
+                    @Override
+                    public void onAllCommandsCompleted() {
+                        mLatch.countDown();
+                    }
+                };
+
+        TaskExecutor instantTaskExecutor = new InstantWorkTaskExecutor();
+        mBatteryChargingTracker = new FakeConstraintTracker(mContext, instantTaskExecutor);
+        BatteryNotLowTracker batteryNotLowTracker =
+                new BatteryNotLowTracker(mContext, instantTaskExecutor);
+        // Requires API 24+ types.
+        ConstraintTracker<NetworkState> networkStateTracker =
+                new ConstraintTracker<NetworkState>(mContext, instantTaskExecutor) {
+                    @Override
+                    public NetworkState getInitialState() {
+                        return new NetworkState(true, true, true, true);
+                    }
+
+                    @Override
+                    public void startTracking() {
+                    }
+
+                    @Override
+                    public void stopTracking() {
+                    }
+                };
+        mStorageNotLowTracker = new FakeConstraintTracker(mContext, instantTaskExecutor);
+        Trackers trackers = new Trackers(mContext, instantTaskExecutor,
+                mBatteryChargingTracker, batteryNotLowTracker, networkStateTracker,
+                mStorageNotLowTracker);
         Logger.setLogger(new Logger.LogcatLogger(Log.DEBUG));
-        mConfiguration = new Configuration.Builder()
+        Configuration configuration = new Configuration.Builder()
                 .setExecutor(new SynchronousExecutor())
                 .build();
         when(mWorkManager.getWorkDatabase()).thenReturn(mDatabase);
-        when(mWorkManager.getConfiguration()).thenReturn(mConfiguration);
-        TaskExecutor instantTaskExecutor = new InstantWorkTaskExecutor();
+        when(mWorkManager.getConfiguration()).thenReturn(configuration);
         when(mWorkManager.getWorkTaskExecutor()).thenReturn(instantTaskExecutor);
-        when(mWorkManager.getTrackers()).thenReturn(mTracker);
-        mProcessor = new Processor(
+        when(mWorkManager.getTrackers()).thenReturn(trackers);
+        Processor processor = new Processor(
                 mContext,
-                mConfiguration,
+                configuration,
                 instantTaskExecutor,
                 mDatabase,
-                Collections.singletonList(mScheduler));
-        mSpyProcessor = spy(mProcessor);
+                Collections.singletonList(scheduler));
+        mSpyProcessor = spy(processor);
 
         mDispatcher =
                 new CommandInterceptingSystemDispatcher(mContext, mSpyProcessor, mWorkManager);
-        mDispatcher.setCompletedListener(mCompletedListener);
+        mDispatcher.setCompletedListener(completedListener);
         mSpyDispatcher = spy(mDispatcher);
-
-        mBatteryChargingTracker = spy(new BatteryChargingTracker(mContext, instantTaskExecutor));
-        mBatteryNotLowTracker = spy(new BatteryNotLowTracker(mContext, instantTaskExecutor));
-        // Requires API 24+ types.
-        mNetworkStateTracker = mock(NetworkStateTracker.class);
-        mStorageNotLowTracker = spy(new StorageNotLowTracker(mContext, instantTaskExecutor));
-
-        when(mTracker.getBatteryChargingTracker()).thenReturn(mBatteryChargingTracker);
-        when(mTracker.getBatteryNotLowTracker()).thenReturn(mBatteryNotLowTracker);
-        when(mTracker.getNetworkStateTracker()).thenReturn(mNetworkStateTracker);
-        when(mTracker.getStorageNotLowTracker()).thenReturn(mStorageNotLowTracker);
     }
 
     @After
@@ -319,7 +325,7 @@ public class SystemAlarmDispatcherTest extends DatabaseTest {
 
     @Test
     public void testSchedule_withConstraints() throws InterruptedException {
-        when(mBatteryChargingTracker.getInitialState()).thenReturn(true);
+        mBatteryChargingTracker.setInitialState(true);
         OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class)
                 .setPeriodStartTime(
                         System.currentTimeMillis() + TimeUnit.HOURS.toMillis(1),
@@ -383,7 +389,7 @@ public class SystemAlarmDispatcherTest extends DatabaseTest {
     @LargeTest
     @RepeatRule.Repeat(times = 1)
     public void testDelayMet_withUnMetConstraint() throws InterruptedException {
-        when(mBatteryChargingTracker.getInitialState()).thenReturn(false);
+        // fake BatteryCharging tracker says by default that it is not charging
         OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class)
                 .setPeriodStartTime(System.currentTimeMillis(), TimeUnit.MILLISECONDS)
                 .setConstraints(new Constraints.Builder()
@@ -420,12 +426,12 @@ public class SystemAlarmDispatcherTest extends DatabaseTest {
     @LargeTest
     @RepeatRule.Repeat(times = 1)
     public void testDelayMet_withPartiallyMetConstraint() throws InterruptedException {
-        when(mStorageNotLowTracker.getInitialState()).thenReturn(true);
-        when(mBatteryChargingTracker.getInitialState()).thenReturn(false);
+        mStorageNotLowTracker.setInitialState(true);
         OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class)
                 .setPeriodStartTime(System.currentTimeMillis(), TimeUnit.MILLISECONDS)
                 .setConstraints(new Constraints.Builder()
                         .setRequiresStorageNotLow(true)
+                        // fake BatteryCharging tracker says by default that it is not charging
                         .setRequiresCharging(true)
                         .build())
                 .build();
@@ -457,7 +463,7 @@ public class SystemAlarmDispatcherTest extends DatabaseTest {
 
     @Test
     public void testConstraintsChanged_withConstraint() throws InterruptedException {
-        when(mBatteryChargingTracker.getInitialState()).thenReturn(true);
+        mBatteryChargingTracker.setInitialState(true);
         OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class)
                 .setPeriodStartTime(System.currentTimeMillis(), TimeUnit.MILLISECONDS)
                 .setConstraints(new Constraints.Builder()
@@ -475,7 +481,7 @@ public class SystemAlarmDispatcherTest extends DatabaseTest {
 
     @Test
     public void testDelayMet_withMetConstraint() throws InterruptedException {
-        when(mBatteryChargingTracker.getInitialState()).thenReturn(true);
+        mBatteryChargingTracker.setInitialState(true);
         OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class)
                 .setPeriodStartTime(System.currentTimeMillis(), TimeUnit.MILLISECONDS)
                 .setConstraints(new Constraints.Builder()
@@ -565,7 +571,7 @@ public class SystemAlarmDispatcherTest extends DatabaseTest {
 
     @Test
     public void testConstraintsChanged_withFutureWork() throws InterruptedException {
-        when(mBatteryChargingTracker.getInitialState()).thenReturn(true);
+        mBatteryChargingTracker.setInitialState(true);
         // Use a mocked scheduler in this test.
         Scheduler scheduler = mock(Scheduler.class);
         doCallRealMethod().when(mWorkManager).rescheduleEligibleWork();
@@ -654,10 +660,10 @@ public class SystemAlarmDispatcherTest extends DatabaseTest {
     @RepeatRule.Repeat(times = 1)
     public void testDelayMet_withUnMetConstraintShouldNotCrashOnDestroy()
             throws InterruptedException {
-        when(mBatteryChargingTracker.getInitialState()).thenReturn(false);
         OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class)
                 .setPeriodStartTime(System.currentTimeMillis(), TimeUnit.MILLISECONDS)
                 .setConstraints(new Constraints.Builder()
+                        // fake BatteryCharging tracker says by default that it is not charging
                         .setRequiresCharging(true)
                         .build())
                 .build();
@@ -718,6 +724,32 @@ public class SystemAlarmDispatcherTest extends DatabaseTest {
             int incremented = count != null ? count + 1 : 1;
             mActionCount.put(action, incremented);
             mCommands.add(intent);
+        }
+    }
+
+    private static final class FakeConstraintTracker extends ConstraintTracker<Boolean> {
+        private boolean mInitialState = false;
+
+        FakeConstraintTracker(@NonNull Context context,
+                @NonNull TaskExecutor taskExecutor) {
+            super(context, taskExecutor);
+        }
+
+        private void setInitialState(boolean initialState) {
+            mInitialState = initialState;
+        }
+
+        @Override
+        public Boolean getInitialState() {
+            return mInitialState;
+        }
+
+        @Override
+        public void startTracking() {
+        }
+
+        @Override
+        public void stopTracking() {
         }
     }
 }
