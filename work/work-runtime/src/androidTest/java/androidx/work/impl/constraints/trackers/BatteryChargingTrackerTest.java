@@ -33,7 +33,6 @@ import android.os.BatteryManager;
 import android.os.Build;
 
 import androidx.annotation.RequiresApi;
-import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
@@ -137,9 +136,7 @@ public class BatteryChargingTrackerTest {
         mTracker.addListener(mListener);
         verify(mListener).onConstraintChanged(true);
 
-        mTracker.onBroadcastReceive(
-                ApplicationProvider.getApplicationContext(),
-                new Intent("INVALID"));
+        mTracker.onBroadcastReceive(new Intent("INVALID"));
         verifyNoMoreInteractions(mListener);
     }
 
@@ -151,9 +148,9 @@ public class BatteryChargingTrackerTest {
         mTracker.addListener(mListener);
         verify(mListener).onConstraintChanged(false);
 
-        mTracker.onBroadcastReceive(mMockContext, createChargingIntent(true));
+        mTracker.onBroadcastReceive(createChargingIntent(true));
         verify(mListener).onConstraintChanged(true);
-        mTracker.onBroadcastReceive(mMockContext, createChargingIntent(false));
+        mTracker.onBroadcastReceive(createChargingIntent(false));
         verify(mListener, times(2)).onConstraintChanged(false);
     }
 
@@ -165,9 +162,9 @@ public class BatteryChargingTrackerTest {
         mTracker.addListener(mListener);
         verify(mListener).onConstraintChanged(false);
 
-        mTracker.onBroadcastReceive(mMockContext, createChargingIntent_afterApi23(true));
+        mTracker.onBroadcastReceive(createChargingIntent_afterApi23(true));
         verify(mListener).onConstraintChanged(true);
-        mTracker.onBroadcastReceive(mMockContext, createChargingIntent_afterApi23(false));
+        mTracker.onBroadcastReceive(createChargingIntent_afterApi23(false));
         // onConstraintChanged was called once more, in total, twice
         verify(mListener, times(2)).onConstraintChanged(false);
     }
