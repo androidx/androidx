@@ -16,9 +16,12 @@
 
 package androidx.glance.wear.tiles
 
+import android.content.ComponentName
+import android.content.Context
 import android.content.Intent
 import android.os.IBinder
 import android.util.Log
+import androidx.annotation.CallSuper
 import androidx.compose.runtime.BroadcastFrameClock
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Composition
@@ -26,11 +29,15 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Recomposer
 import androidx.glance.Applier
 import androidx.glance.layout.EmittableBox
+import androidx.glance.LocalState
+import androidx.glance.state.GlanceState
+import androidx.glance.state.GlanceStateDefinition
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LifecycleRegistry
 import androidx.lifecycle.ServiceLifecycleDispatcher
 import androidx.lifecycle.lifecycleScope
+import androidx.wear.tiles.EventBuilders.TileRemoveEvent
 import androidx.wear.tiles.LayoutElementBuilders
 import androidx.wear.tiles.RequestBuilders
 import androidx.wear.tiles.ResourceBuilders
@@ -108,11 +115,40 @@ public abstract class GlanceTileService(
         super.onStart(intent, startId)
     }
 
+    private fun getStateIdentifier(): String =
+        ComponentName(this, javaClass).flattenToString()
+
+    /**
+     * Retrieve the state of the wear tile provided by this service
+     */
+    @Suppress("UNCHECKED_CAST")
+    public suspend fun <T> getTileState(): T =
+        GlanceState.getValue(
+            this,
+            checkNotNull(stateDefinition) { "No state defined in this service" },
+            getStateIdentifier()
+        ) as T
+
+    /**
+     * Update the state of the wear tile provided by this service
+     */
+    @Suppress("UNCHECKED_CAST")
+    public suspend fun <T> updateTileState(updateState: suspend (T) -> T): T =
+        GlanceState.updateValue(
+            this,
+            checkNotNull(stateDefinition as GlanceStateDefinition<T>?) {
+                "No state defined in this service"
+            },
+            getStateIdentifier(),
+            updateState
+        )
+
     /**
      * Run the composition on the given time interval
      * When the timeline mode is singleEntry, pass in null argument
      */
     private suspend fun runComposition(
+        state: Any?,
         timeInterval: TimeInterval? = null
     ): CompositionResult =
         coroutineScope {
@@ -123,6 +159,7 @@ public abstract class GlanceTileService(
 
             composition.setContent {
                 CompositionLocalProvider(
+                    LocalState provides state,
                     LocalTimeInterval provides timeInterval
                 ) { Content() }
             }
@@ -159,8 +196,9 @@ public abstract class GlanceTileService(
         val timelineBuilders = if (resourcesOnly) null else TimelineBuilders.Timeline.Builder()
         var resourcesBuilder: ResourceBuilders.Resources.Builder
 
+        val state = if (stateDefinition != null) getTileState<Any>() else null
         if (timelineMode === TimelineMode.SingleEntry) {
-            val content = runComposition()
+            val content = runComposition(state)
 
             timelineBuilders?.let {
                 timelineBuilders.addTimelineEntry(
@@ -179,7 +217,7 @@ public abstract class GlanceTileService(
             resourcesBuilder = ResourceBuilders.Resources.Builder()
 
             timeIntervals.forEach { interval ->
-                val content = runComposition(interval)
+                val content = runComposition(state, interval)
                 timelineBuilders?.let {
                     timelineBuilders
                         .addTimelineEntry(
@@ -220,6 +258,11 @@ public abstract class GlanceTileService(
 
         GlanceTile(tile, resources)
     }
+
+    /**
+     * Data store for tile data specific to this service
+     */
+    public open val stateDefinition: GlanceStateDefinition<*>? = null
 
     /**
      * Defines the handling of timeline
@@ -267,4 +310,13 @@ public abstract class GlanceTileService(
             runComposition(true).resources!!
         }
     }
+
+    @CallSuper
+    override fun onTileRemoveEvent(requestParams: TileRemoveEvent) {
+          coroutineScope.launch {
+             stateDefinition?.let {
+                 GlanceState.deleteStore(this as Context, it, getStateIdentifier())
+             }
+         }
+     }
 }
