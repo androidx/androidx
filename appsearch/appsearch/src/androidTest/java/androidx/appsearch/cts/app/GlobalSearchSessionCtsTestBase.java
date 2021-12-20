@@ -752,7 +752,7 @@ public abstract class GlobalSearchSessionCtsTestBase {
         AppSearchException ase = (AppSearchException) exception.getCause();
         assertThat(ase.getResultCode()).isEqualTo(AppSearchResult.RESULT_SECURITY_ERROR);
         assertThat(ase).hasMessageThat().contains(
-                "androidx.appsearch.test does not have access to report system usage");
+                mContext.getPackageName() + " does not have access to report system usage");
     }
 
     @Test

@@ -73,6 +73,8 @@ public abstract class AppSearchSessionCtsTestBase {
     static final String DB_NAME_1 = "";
     static final String DB_NAME_2 = "testDb2";
 
+    private final Context mContext = ApplicationProvider.getApplicationContext();
+
     private AppSearchSession mDb1;
     private AppSearchSession mDb2;
 
@@ -84,8 +86,6 @@ public abstract class AppSearchSessionCtsTestBase {
 
     @Before
     public void setUp() throws Exception {
-        Context context = ApplicationProvider.getApplicationContext();
-
         mDb1 = createSearchSession(DB_NAME_1).get();
         mDb2 = createSearchSession(DB_NAME_2).get();
 
@@ -585,7 +585,7 @@ public abstract class AppSearchSessionCtsTestBase {
                 new PutDocumentsRequest.Builder().addGenericDocuments(email2).build()).get();
         assertThat(failResult2.isSuccess()).isFalse();
         assertThat(failResult2.getFailures().get("email2").getErrorMessage())
-                .isEqualTo("Schema type config 'androidx.appsearch.test$" + DB_NAME_1
+                .isEqualTo("Schema type config '" + mContext.getPackageName() + "$" + DB_NAME_1
                         + "/builtin:Email' not found");
     }
 
@@ -657,7 +657,7 @@ public abstract class AppSearchSessionCtsTestBase {
                 new PutDocumentsRequest.Builder().addGenericDocuments(email3).build()).get();
         assertThat(failResult2.isSuccess()).isFalse();
         assertThat(failResult2.getFailures().get("email3").getErrorMessage())
-                .isEqualTo("Schema type config 'androidx.appsearch.test$" + DB_NAME_1
+                .isEqualTo("Schema type config '" + mContext.getPackageName() + "$" + DB_NAME_1
                         + "/builtin:Email' not found");
 
         // Make sure email in database 2 still present.
