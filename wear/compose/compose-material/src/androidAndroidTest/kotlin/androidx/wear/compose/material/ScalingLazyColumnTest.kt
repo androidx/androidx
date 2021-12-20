@@ -136,7 +136,8 @@ public class ScalingLazyColumnTest {
                     modifier = Modifier.testTag(TEST_TAG).requiredSize(
                         itemSizeDp * 3.5f + defaultItemSpacingDp * 2.5f
                     ),
-                    scalingParams = ScalingLazyColumnDefaults.scalingParams(1.0f, 1.0f)
+                    scalingParams = ScalingLazyColumnDefaults.scalingParams(1.0f, 1.0f),
+                    contentPadding = PaddingValues(vertical = 100.dp)
                 ) {
                     items(5) {
                         Box(Modifier.requiredSize(itemSizeDp).testTag("Item:" + it))
@@ -154,8 +155,8 @@ public class ScalingLazyColumnTest {
             )
         }
         rule.waitForIdle()
-        state.layoutInfo.assertVisibleItems(count = 4, startIndex = 1)
-        assertThat(state.layoutInfo.visibleItemsInfo.first().offset).isEqualTo(0)
+        state.layoutInfo.assertVisibleItems(count = 4, startIndex = 0)
+        assertThat(state.centerItemIndex).isEqualTo(1)
     }
 
     @Test
@@ -164,14 +165,14 @@ public class ScalingLazyColumnTest {
         rule.setContent {
             WithTouchSlop(0f) {
                 ScalingLazyColumn(
-                    state = rememberScalingLazyListState().also { state = it },
+                    state = rememberScalingLazyListState(8).also { state = it },
                     modifier = Modifier.testTag(TEST_TAG).requiredSize(
-                        itemSizeDp * 3.5f + defaultItemSpacingDp * 2.5f
+                        itemSizeDp * 4f + defaultItemSpacingDp * 3f
                     ),
                     scalingParams = ScalingLazyColumnDefaults.scalingParams(1.0f, 1.0f),
                     reverseLayout = true
                 ) {
-                    items(5) {
+                    items(15) {
                         Box(Modifier.requiredSize(itemSizeDp).testTag("Item:" + it))
                     }
                 }
@@ -187,8 +188,9 @@ public class ScalingLazyColumnTest {
             )
         }
         rule.waitForIdle()
-        state.layoutInfo.assertVisibleItems(count = 4, startIndex = 1)
-        assertThat(state.layoutInfo.visibleItemsInfo.first().offset).isEqualTo(0)
+        state.layoutInfo.assertVisibleItems(count = 5, startIndex = 7)
+        assertThat(state.centerItemIndex).isEqualTo(9)
+        assertThat(state.centerItemScrollOffset).isEqualTo(0)
     }
 
     @Composable

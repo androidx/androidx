@@ -72,10 +72,11 @@ fun Picker(
     }
 
     val repeatTarget = if (repeatItems) 100_000_000 / numberOfOptions else 1
-    if (repeatItems) {
+    // TODO: Remove this and pass into the initial position when creating the LazyListState.
+    if (repeatItems && state.scalingLazyListState.initialized.value) {
         LaunchedEffect(state, numberOfOptions) {
             // Scroll to the middle block.
-            state.scalingLazyListState.lazyListState.scrollToItem(
+            state.scalingLazyListState.scrollToItem(
                 numberOfOptions * (repeatTarget / 2),
                 0
             )
@@ -123,7 +124,7 @@ class PickerState internal constructor(internal val scalingLazyListState: Scalin
         get() = if (itemCount == 0) {
             0
         } else {
-            scalingLazyListState.layoutInfo.centralItemIndex % itemCount
+            scalingLazyListState.centerItemIndex % itemCount
         }
 
     /**
