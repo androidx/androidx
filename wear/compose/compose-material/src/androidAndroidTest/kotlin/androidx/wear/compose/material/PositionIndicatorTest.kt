@@ -929,16 +929,12 @@ public class PositionIndicatorTest {
 
     private fun ScalingLazyListLayoutInfo.assertWhollyVisibleItems(
         firstItemIndex: Int,
-        firstItemNotVisible: Int = 0,
         lastItemIndex: Int,
-        lastItemNotVisible: Int = 0,
         viewPortHeight: Int
     ) {
         assertThat(visibleItemsInfo.first().index).isEqualTo(firstItemIndex)
-        assertThat(visibleItemsInfo.first().offset).isEqualTo(firstItemNotVisible)
         assertThat(visibleItemsInfo.last().index).isEqualTo(lastItemIndex)
-        assertThat(
-            viewPortHeight - (visibleItemsInfo.last().offset + visibleItemsInfo.last().size)
-        ).isEqualTo(lastItemNotVisible)
+        assertThat((viewPortHeight / 2f) >=
+            (visibleItemsInfo.last().offset + (visibleItemsInfo.last().size / 2)))
     }
 }

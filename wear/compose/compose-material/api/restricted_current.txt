@@ -261,7 +261,7 @@ package androidx.wear.compose.material {
   }
 
   public final class ScalingLazyColumnKt {
-    method @androidx.compose.runtime.Composable public static void ScalingLazyColumn(optional androidx.compose.ui.Modifier modifier, optional androidx.wear.compose.material.ScalingParams scalingParams, optional boolean reverseLayout, optional androidx.compose.foundation.layout.Arrangement.Vertical verticalArrangement, optional androidx.compose.ui.Alignment.Horizontal horizontalAlignment, optional androidx.compose.foundation.layout.PaddingValues contentPadding, optional androidx.wear.compose.material.ScalingLazyListState state, kotlin.jvm.functions.Function1<? super androidx.wear.compose.material.ScalingLazyListScope,kotlin.Unit> content);
+    method @androidx.compose.runtime.Composable public static void ScalingLazyColumn(optional androidx.compose.ui.Modifier modifier, optional androidx.wear.compose.material.ScalingParams scalingParams, optional boolean reverseLayout, optional androidx.compose.foundation.layout.Arrangement.Vertical verticalArrangement, optional androidx.compose.ui.Alignment.Horizontal horizontalAlignment, optional androidx.compose.foundation.layout.PaddingValues contentPadding, optional androidx.wear.compose.material.ScalingLazyListState state, optional int anchorType, kotlin.jvm.functions.Function1<? super androidx.wear.compose.material.ScalingLazyListScope,kotlin.Unit> content);
     method public static inline <T> void items(androidx.wear.compose.material.ScalingLazyListScope, java.util.List<? extends T> items, optional kotlin.jvm.functions.Function1<? super T,?>? key, kotlin.jvm.functions.Function2<? super androidx.wear.compose.material.ScalingLazyListItemScope,? super T,kotlin.Unit> itemContent);
     method public static inline <T> void items(androidx.wear.compose.material.ScalingLazyListScope, T![] items, optional kotlin.jvm.functions.Function1<? super T,?>? key, kotlin.jvm.functions.Function2<? super androidx.wear.compose.material.ScalingLazyListItemScope,? super T,kotlin.Unit> itemContent);
     method public static inline <T> void itemsIndexed(androidx.wear.compose.material.ScalingLazyListScope, java.util.List<? extends T> items, optional kotlin.jvm.functions.Function2<? super java.lang.Integer,? super T,?>? key, kotlin.jvm.functions.Function3<? super androidx.wear.compose.material.ScalingLazyListItemScope,? super java.lang.Integer,? super T,kotlin.Unit> itemContent);
@@ -269,6 +269,17 @@ package androidx.wear.compose.material {
   }
 
   public final class ScalingLazyColumnMeasureKt {
+  }
+
+  @androidx.compose.runtime.Immutable public final inline class ScalingLazyListAnchorType {
+    ctor public ScalingLazyListAnchorType();
+  }
+
+  public static final class ScalingLazyListAnchorType.Companion {
+    method public int getItemCenter();
+    method public int getItemStart();
+    property public final int ItemCenter;
+    property public final int ItemStart;
   }
 
   public interface ScalingLazyListItemInfo {
@@ -295,12 +306,10 @@ package androidx.wear.compose.material {
   }
 
   public interface ScalingLazyListLayoutInfo {
-    method public int getCentralItemIndex();
     method public int getTotalItemsCount();
     method public int getViewportEndOffset();
     method public int getViewportStartOffset();
     method public java.util.List<androidx.wear.compose.material.ScalingLazyListItemInfo> getVisibleItemsInfo();
-    property public abstract int centralItemIndex;
     property public abstract int totalItemsCount;
     property public abstract int viewportEndOffset;
     property public abstract int viewportStartOffset;
@@ -313,11 +322,17 @@ package androidx.wear.compose.material {
   }
 
   @androidx.compose.runtime.Stable public final class ScalingLazyListState implements androidx.compose.foundation.gestures.ScrollableState {
-    ctor public ScalingLazyListState();
+    ctor public ScalingLazyListState(optional int initialCenterItemIndex, optional int initialCenterItemScrollOffset);
+    method public suspend Object? animateScrollToItem(int index, optional int scrollOffset, optional kotlin.coroutines.Continuation<? super kotlin.Unit> p);
     method public float dispatchRawDelta(float delta);
+    method public int getCenterItemIndex();
+    method public int getCenterItemScrollOffset();
     method public androidx.wear.compose.material.ScalingLazyListLayoutInfo getLayoutInfo();
     method public boolean isScrollInProgress();
     method public suspend Object? scroll(androidx.compose.foundation.MutatePriority scrollPriority, kotlin.jvm.functions.Function2<? super androidx.compose.foundation.gestures.ScrollScope,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,?> block, kotlin.coroutines.Continuation<? super kotlin.Unit> p);
+    method public suspend Object? scrollToItem(int index, optional int scrollOffset, optional kotlin.coroutines.Continuation<? super kotlin.Unit> p);
+    property public final int centerItemIndex;
+    property public final int centerItemScrollOffset;
     property public boolean isScrollInProgress;
     property public final androidx.wear.compose.material.ScalingLazyListLayoutInfo layoutInfo;
     field public static final androidx.wear.compose.material.ScalingLazyListState.Companion Companion;
@@ -329,7 +344,7 @@ package androidx.wear.compose.material {
   }
 
   public final class ScalingLazyListStateKt {
-    method @androidx.compose.runtime.Composable public static androidx.wear.compose.material.ScalingLazyListState rememberScalingLazyListState();
+    method @androidx.compose.runtime.Composable public static androidx.wear.compose.material.ScalingLazyListState rememberScalingLazyListState(optional int initialCenterItemIndex, optional int initialCenterItemScrollOffset);
   }
 
   @kotlin.DslMarker public @interface ScalingLazyScopeMarker {
