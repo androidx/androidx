@@ -293,43 +293,6 @@ class ExtensionsManagerTest(
     }
 
     @Test
-    fun getEstimatedCaptureLatencyRangeSameAsImplClass_aboveVersion1_2(): Unit = runBlocking {
-        assumeTrue(
-            ExtensionVersion.getRuntimeVersion()!!.compareTo(Version.VERSION_1_2) >= 0
-        )
-
-        val extensionCameraSelector = checkExtensionAvailabilityAndInit()
-
-        // This call should not cause any exception even if the vendor library doesn't implement
-        // the getEstimatedCaptureLatencyRange function.
-        val latencyInfo = extensionsManager.getEstimatedCaptureLatencyRange(
-            baseCameraSelector,
-            extensionMode
-        )
-
-        // Calls bind to lifecycle to get the selected camera
-        lateinit var camera: Camera
-        withContext(Dispatchers.Main) {
-            camera = cameraProvider.bindToLifecycle(FakeLifecycleOwner(), extensionCameraSelector)
-        }
-
-        val cameraId = Camera2CameraInfo.from(camera.cameraInfo).cameraId
-        val characteristics = Camera2CameraInfo.extractCameraCharacteristics(camera.cameraInfo)
-
-        // Creates ImageCaptureExtenderImpl directly to retrieve the capture latency range info
-        val impl = ExtensionsTestUtil.createImageCaptureExtenderImpl(
-            extensionMode,
-            cameraId,
-            characteristics
-        )
-        val expectedLatencyInfo = impl.getEstimatedCaptureLatencyRange(null)
-
-        // Compares the values obtained from ExtensionsManager and ImageCaptureExtenderImpl are
-        // the same.
-        assertThat(latencyInfo).isEqualTo(expectedLatencyInfo)
-    }
-
-    @Test
     fun getEstimatedCaptureLatencyRangeThrowsException_whenNoCameraCanBeFound() {
         checkExtensionAvailabilityAndInit()
 

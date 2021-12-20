@@ -22,7 +22,7 @@ import android.content.Intent
 import androidx.camera.integration.extensions.CameraExtensionsActivity.INTENT_EXTRA_CAMERA_ID
 import androidx.camera.integration.extensions.CameraExtensionsActivity.INTENT_EXTRA_DELETE_CAPTURED_IMAGE
 import androidx.camera.integration.extensions.CameraExtensionsActivity.INTENT_EXTRA_EXTENSION_MODE
-import androidx.camera.integration.extensions.utils.ExtensionModeUtil
+import androidx.camera.integration.extensions.util.ExtensionsTestUtil
 import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.CoreAppTestUtil
 import androidx.camera.testing.waitForIdle
@@ -64,13 +64,7 @@ class ImageCaptureTest(private val cameraId: String, private val extensionMode: 
     companion object {
         @Parameterized.Parameters(name = "cameraId = {0}, extensionMode = {1}")
         @JvmStatic
-        fun parameters() = mutableListOf<Array<Any>>().apply {
-            CameraUtil.getBackwardCompatibleCameraIdListOrThrow().forEach { cameraId ->
-                ExtensionModeUtil.AVAILABLE_EXTENSION_MODES.forEach { mode ->
-                    add(arrayOf(cameraId, mode))
-                }
-            }
-        }
+        fun parameters() = ExtensionsTestUtil.getAllCameraIdExtensionModeCombinations()
     }
 
     @Before
