@@ -181,6 +181,7 @@ class KspTypeNamesGoldenTest {
                 suppressWildcards = true
             ),
             createOverrideSubjects(pkg),
+            createSelfReferencingType(pkg),
             createOverridesWithGenericArguments(pkg),
             createKotlinOverridesJavaSubjects(pkg),
             createKotlinOverridesJavaSubjectsWithGenerics(pkg),
@@ -222,6 +223,34 @@ class KspTypeNamesGoldenTest {
                     }
                 """.trimIndent()
             ), listOf("Subject")
+        )
+    }
+
+    private fun createSelfReferencingType(pkg: String): TestInput {
+        return TestInput(
+            sources = listOf(
+                Source.java("$pkg.SelfReferencingJava", """
+                    package $pkg;
+                    public interface SelfReferencingJava<T extends SelfReferencingJava<T>> {
+                        void method1(SelfReferencingJava sr);
+                        void method2(SelfReferencingJava<?> sr);
+                    }
+                """.trimIndent()),
+                Source.java("$pkg.SubSelfReferencingJava", """
+                    package $pkg;
+                    public interface SubSelfReferencingJava extends SelfReferencingJava<SubSelfReferencingJava> {}
+                """.trimIndent()),
+                Source.kotlin("SelfReferencing.kt",
+                    """
+                    package $pkg
+                    interface SelfReferencingKotlin<T : SelfReferencingKotlin<T>> {
+                        fun method1(sr: SelfReferencingKotlin<*>)
+                    }
+                    interface SubSelfReferencingKotlin : SelfReferencingKotlin<SubSelfReferencingKotlin>
+                    """.trimIndent()),
+            ),
+            subjects = listOf("SubSelfReferencingJava", "SelfReferencingJava",
+                "SelfReferencingKotlin", "SubSelfReferencingKotlin")
         )
     }
 
