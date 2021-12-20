@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 The Android Open Source Project
+ * Copyright 2021 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,12 +25,16 @@ plugins {
 
 dependencies {
     api("androidx.annotation:annotation:1.1.0")
-    api(libs.kotlinStdlib)
-    api(libs.kotlinCoroutinesAndroid)
-    api(project(":wear:watchface:watchface-complications-data-core"))
     implementation("androidx.core:core:1.1.0")
     implementation("androidx.preference:preference:1.1.0")
     implementation("androidx.annotation:annotation:1.2.0")
+
+    constraints {
+        implementation(project(":wear:watchface:watchface-complications-data"))
+    }
+
+    testImplementation(libs.kotlinStdlib)
+    testImplementation(libs.kotlinCoroutinesAndroid)
     testImplementation(libs.testCore)
     testImplementation(libs.testRunner)
     testImplementation(libs.testRules)
@@ -41,8 +45,14 @@ dependencies {
 }
 
 android {
+    buildFeatures {
+        aidl = true
+    }
     defaultConfig {
         minSdkVersion 26
+    }
+    buildTypes.all {
+        consumerProguardFiles "proguard-rules.pro"
     }
 
     // Use Robolectric 4.+
@@ -50,9 +60,9 @@ android {
 }
 
 androidx {
-    name = "Android Wear Complications Data"
+    name = "Android Wear Complications Data Internal"
     publish = Publish.SNAPSHOT_AND_RELEASE
     mavenGroup = LibraryGroups.WEAR_WATCHFACE
-    inceptionYear = "2020"
-    description = "Android Wear Complications Data"
+    inceptionYear = "2021"
+    description = "Android Wear Complications Data Internal"
 }

@@ -727,6 +727,7 @@ includeProject(":wear:watchface:watchface", "wear/watchface/watchface", [BuildTy
 includeProject(":wear:watchface:watchface-complications", "wear/watchface/watchface-complications", [BuildType.MAIN, BuildType.WEAR])
 includeProject(":wear:watchface:watchface-complications-permission-dialogs-sample", "wear/watchface/watchface-complications-permission-dialogs-sample", [BuildType.MAIN, BuildType.WEAR])
 includeProject(":wear:watchface:watchface-complications-data", "wear/watchface/watchface-complications-data", [BuildType.MAIN, BuildType.WEAR])
+includeProject(":wear:watchface:watchface-complications-data-core", "wear/watchface/watchface-complications-data-core", [BuildType.MAIN, BuildType.WEAR])
 includeProject(":wear:watchface:watchface-complications-data-source", "wear/watchface/watchface-complications-data-source", [BuildType.MAIN, BuildType.WEAR])
 includeProject(":wear:watchface:watchface-complications-data-source-ktx", "wear/watchface/watchface-complications-data-source-ktx", [BuildType.MAIN, BuildType.WEAR])
 includeProject(":wear:watchface:watchface-complications-data-source-samples", "wear/watchface/watchface-complications-data-source-samples", [BuildType.MAIN, BuildType.WEAR])
