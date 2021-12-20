@@ -613,3 +613,14 @@ Information in locals\-table is invalid with respect to the stack map table\. Lo
 Info: Some warnings are typically a sign of using an outdated Java toolchain\. To fix, recompile the source with an updated toolchain\.
 # > Task :compose:ui:ui-inspection:buildCMakeRelWithDebInfo[arm64-v8a]
 C/C\+\+: ninja: warning: bad deps log signature or version; starting over
+# > Task :textclassifier:integration-tests:testapp:compileReleaseJavaWithJavac
+warning: unknown enum constant AnnotationTarget.CLASS
+warning: unknown enum constant AnnotationTarget.PROPERTY
+warning: unknown enum constant AnnotationTarget.LOCAL_VARIABLE
+warning: unknown enum constant AnnotationTarget.VALUE_PARAMETER
+warning: unknown enum constant AnnotationTarget.CONSTRUCTOR
+warning: unknown enum constant AnnotationTarget.FUNCTION
+warning: unknown enum constant AnnotationTarget.PROPERTY_GETTER
+warning: unknown enum constant AnnotationTarget.PROPERTY_SETTER
+warning: unknown enum constant AnnotationTarget.FILE
+warning: unknown enum constant AnnotationTarget.TYPEALIAS
