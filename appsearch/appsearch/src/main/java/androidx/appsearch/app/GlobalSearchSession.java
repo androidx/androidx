@@ -111,9 +111,11 @@ public interface GlobalSearchSession extends Closeable {
      * @throws UnsupportedOperationException if this feature is not available on this
      *                                       AppSearch implementation.
      */
+    // @exportToFramework:startStrip()
     @RequiresFeature(
             enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
             name = Features.GLOBAL_SEARCH_SESSION_ADD_REMOVE_OBSERVER)
+    // @exportToFramework:endStrip()
     void addObserver(
             @NonNull String observedPackage,
             @NonNull ObserverSpec spec,
@@ -137,9 +139,11 @@ public interface GlobalSearchSession extends Closeable {
      * @throws UnsupportedOperationException if this feature is not available on this
      *                                       AppSearch implementation.
      */
+    // @exportToFramework:startStrip()
     @RequiresFeature(
             enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
             name = Features.GLOBAL_SEARCH_SESSION_ADD_REMOVE_OBSERVER)
+    // @exportToFramework:endStrip()
     void removeObserver(
             @NonNull String observedPackage, @NonNull AppSearchObserverCallback observer);
 
