@@ -29,21 +29,29 @@ import androidx.work.WorkerParameters
 import androidx.work.impl.utils.SerialExecutor
 import androidx.work.impl.utils.taskexecutor.TaskExecutor
 import androidx.work.worker.StopLatchWorker
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mockito.mock
+import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Executor
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit
 
 @RunWith(AndroidJUnit4::class)
 class ProcessorTests : DatabaseTest() {
     lateinit var scheduler: Scheduler
     lateinit var factory: WorkerFactory
-    lateinit var workerMap: MutableMap<String, ListenableWorker?>
+    val lastCreatedWorker = MutableStateFlow<ListenableWorker?>(null)
     lateinit var processor: Processor
     lateinit var defaultExecutor: ExecutorService
     lateinit var backgroundExecutor: ExecutorService
@@ -52,7 +60,9 @@ class ProcessorTests : DatabaseTest() {
     @Before
     fun setUp() {
         val context = ApplicationProvider.getApplicationContext<Context>().applicationContext
-        defaultExecutor = Executors.newSingleThreadExecutor()
+        // first worker will take over the first thread with its doWork
+        // second worker will execute on the second thread
+        defaultExecutor = Executors.newFixedThreadPool(2)
         backgroundExecutor = Executors.newSingleThreadExecutor()
         serialExecutor = SerialExecutor(backgroundExecutor)
         val taskExecutor = object : TaskExecutor {
@@ -68,20 +78,19 @@ class ProcessorTests : DatabaseTest() {
                 return serialExecutor
             }
         }
-        workerMap = mutableMapOf()
         factory = object : WorkerFactory() {
             override fun createWorker(
                 appContext: Context,
                 workerClassName: String,
                 workerParameters: WorkerParameters
-            ): ListenableWorker? {
+            ): ListenableWorker {
                 val worker = getDefaultWorkerFactory()
                     .createWorkerWithDefaultFallback(
                         appContext,
                         workerClassName,
                         workerParameters
-                    )
-                workerMap[workerParameters.id.toString()] = worker
+                    )!!
+                lastCreatedWorker.value = worker
                 return worker
             }
         }
@@ -108,19 +117,37 @@ class ProcessorTests : DatabaseTest() {
         }
         processor.addExecutionListener(listener)
         processor.startWork(request.workSpec.id)
-        processor.stopWork(request.workSpec.id)
+
+        val firstWorker = runBlocking { lastCreatedWorker.filterNotNull().first() }
+        val blockedThread = Executors.newSingleThreadExecutor()
+        blockedThread.execute {
+            // gonna stall for 10 seconds
+            processor.stopWork(request.workSpec.id)
+        }
+        assertTrue((firstWorker as StopLatchWorker).awaitOnStopCall())
+        // onStop call results in onExecuted. It happens on "main thread", which is instant
+        // in this case.
+        assertTrue(listenerCalled)
+        processor.removeExecutionListener(listener)
+        listenerCalled = false
+        val executionFinished = CountDownLatch(1)
+        processor.addExecutionListener { _, _ -> executionFinished.countDown() }
         // This would have previously failed trying to acquire a lock
         processor.startWork(request.workSpec.id)
-        (workerMap[request.workSpec.id] as? StopLatchWorker)?.countDown()
-        while (serialExecutor.hasPendingTasks()) {
-            // Wait until we are done
-        }
-        assertEquals(listenerCalled, true)
+        val secondWorker =
+            runBlocking { lastCreatedWorker.filterNotNull().filter { it != firstWorker }.first() }
+        (secondWorker as StopLatchWorker).countDown()
+        assertTrue(executionFinished.await(3, TimeUnit.SECONDS))
+        firstWorker.countDown()
+        blockedThread.shutdown()
+        assertTrue(blockedThread.awaitTermination(3, TimeUnit.SECONDS))
     }
 
     @After
     fun tearDown() {
         defaultExecutor.shutdownNow()
         backgroundExecutor.shutdownNow()
+        assertTrue(defaultExecutor.awaitTermination(3, TimeUnit.SECONDS))
+        assertTrue(backgroundExecutor.awaitTermination(3, TimeUnit.SECONDS))
     }
 }
