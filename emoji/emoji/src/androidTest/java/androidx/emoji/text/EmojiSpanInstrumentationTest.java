@@ -19,9 +19,9 @@ package androidx.emoji.text;
 import static androidx.emoji.util.Emoji.EMOJI_SINGLE_CODEPOINT;
 import static androidx.emoji.util.EmojiMatcher.hasEmojiCount;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThat;
 
 import android.app.Instrumentation;
 import android.text.Spannable;

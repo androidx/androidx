@@ -39,7 +39,7 @@ dependencies {
     annotationProcessor(libs.nullaway)
     annotationProcessor(libs.autoValue)
 
-    testImplementation("junit:junit:4.13")
+    testImplementation(libs.junit)
     testImplementation(libs.testCore)
     testImplementation(libs.testRunner)
     testImplementation(libs.junit)

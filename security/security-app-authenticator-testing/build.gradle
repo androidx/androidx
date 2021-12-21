@@ -27,7 +27,7 @@ dependencies {
     implementation (project(":security:security-app-authenticator"))
     implementation("androidx.collection:collection:1.1.0")
 
-    androidTestImplementation("junit:junit:4.13")
+    androidTestImplementation(libs.junit)
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testRunner)

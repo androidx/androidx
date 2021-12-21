@@ -32,7 +32,7 @@ dependencies {
     testImplementation(libs.testRules)
     testImplementation(libs.robolectric)
     testImplementation(libs.truth)
-    testImplementation("junit:junit:4.13")
+    testImplementation(libs.junit)
 }
 
 android {

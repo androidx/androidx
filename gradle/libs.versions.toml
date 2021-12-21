@@ -85,7 +85,7 @@ japicmpPluginz = { module = "me.champeau.gradle:japicmp-gradle-plugin", version 
 javapoet = { module = "com.squareup:javapoet", version = "1.13.0" }
 jsqlparser = { module = "com.github.jsqlparser:jsqlparser", version = "3.1" }
 jsr250 = { module = "javax.annotation:javax.annotation-api", version = "1.2" }
-junit = { module = "junit:junit", version = "4.12" }
+junit = { module = "junit:junit", version = "4.13.2" }
 gcmNetworkManager = { module = "com.google.android.gms:play-services-gcm", version = "17.0.0" }
 googleCompileTesting = { module = "com.google.testing.compile:compile-testing", version = "0.18" }
 gson = { module = "com.google.code.gson:gson", version = "2.8.0" }
