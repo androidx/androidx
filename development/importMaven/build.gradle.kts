@@ -80,36 +80,14 @@ repositories {
     google()
     gradlePluginPortal()
 
-    val allowBintray: String? = findProperty("allowBintray") as String?
-    if (allowBintray != null) {
+    val allowJetbrainsDev: String? = findProperty("allowJetbrainsDev") as String?
+    if (allowJetbrainsDev != null) {
         maven {
             url = uri("https://maven.pkg.jetbrains.space/kotlin/p/dokka/dev/")
             metadataSources {
                 artifact()
             }
         }
-        maven {
-            url = uri("https://dl.bintray.com/kotlin/kotlin-dev/")
-            metadataSources {
-                artifact()
-            }
-        }
-        maven {
-            url = uri("https://dl.bintray.com/kotlin/kotlin-eap/")
-            metadataSources {
-                artifact()
-            }
-        }
-        maven {
-            url = uri("https://dl.bintray.com/kotlin/kotlinx/")
-            metadataSources {
-                artifact()
-            }
-        }
-    }
-
-    val allowJetbrainsDev: String? = findProperty("allowJetbrainsDev") as String?
-    if (allowJetbrainsDev != null) {
         maven {
             url = uri("https://maven.pkg.jetbrains.space/kotlin/p/kotlin/dev")
             metadataSources {
@@ -123,7 +101,6 @@ repositories {
             }
         }
     }
-
 
     listOf("macos", "macos-x86_64", "linux", "linux-x86_64").forEach { platstring ->
         ivy {
