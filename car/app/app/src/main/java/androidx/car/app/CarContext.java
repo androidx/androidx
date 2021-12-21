@@ -291,7 +291,8 @@ public class CarContext extends ContextWrapper {
      * @param intent the {@link Intent} to send to the target application
      * @throws SecurityException    if the app attempts to start a different app explicitly or
      *                              does not have permissions for the requested action
-     * @throws HostException        if the remote call fails
+     * @throws HostException        if the remote call fails. For example, if the intent cannot be
+     *                              handled by the car host.
      * @throws NullPointerException if {@code intent} is {@code null}
      */
     public void startCarApp(@NonNull Intent intent) {
