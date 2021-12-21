@@ -464,9 +464,14 @@ internal fun createUniqueRemoteUiName(appWidgetId: Int) = "appWidget-$appWidgetI
 internal data class AppWidgetId(val appWidgetId: Int) : GlanceId
 
 // Extract the sizes from the bundle
-internal fun Bundle.extractAllSizes(minSize: () -> DpSize): List<DpSize> =
-    getParcelableArrayList<SizeF>(AppWidgetManager.OPTION_APPWIDGET_SIZES)
-        ?.map { DpSize(it.width.dp, it.height.dp) } ?: estimateSizes(minSize)
+internal fun Bundle.extractAllSizes(minSize: () -> DpSize): List<DpSize> {
+    val sizes = getParcelableArrayList<SizeF>(AppWidgetManager.OPTION_APPWIDGET_SIZES)
+    return if (sizes.isNullOrEmpty()) {
+        estimateSizes(minSize)
+    } else {
+        sizes.map { DpSize(it.width.dp, it.height.dp) }
+    }
+}
 
 // If the list of sizes is not available, estimate it from the min/max width and height.
 // We can assume that the min width and max height correspond to the portrait mode and the max
