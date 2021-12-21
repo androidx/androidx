@@ -122,6 +122,7 @@ dependencies {
             dir: "${new File(project(":sqlite:sqlite").buildDir, "libJar")}",
             include : "*.jar"
     ))
+    testImplementation(project(":internal-testutils-common"))
 }
 
 def generateAntlrTask = task("generateAntlrGrammar", type: GenerateAntlrGrammar) {

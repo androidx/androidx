@@ -26,6 +26,9 @@ plugins {
 dependencies {
     implementation(libs.kotlinStdlib)
     implementation(libs.kotlinCoroutinesAndroid)
+
+    testImplementation(libs.junit)
+    testImplementation(libs.truth)
 }
 
 // Allow usage of Kotlin's @OptIn.
