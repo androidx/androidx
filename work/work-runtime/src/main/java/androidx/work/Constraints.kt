@@ -13,282 +13,144 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package androidx.work
 
-package androidx.work;
-
-import static androidx.work.NetworkType.NOT_REQUIRED;
-
-import android.net.Uri;
-import android.os.Build;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
-import androidx.annotation.RestrictTo;
-import androidx.room.ColumnInfo;
-import androidx.work.impl.utils.DurationApi26Impl;
-
-import java.time.Duration;
-import java.util.concurrent.TimeUnit;
+import android.net.Uri
+import android.os.Build
+import androidx.annotation.RequiresApi
+import androidx.annotation.RestrictTo
+import androidx.room.ColumnInfo
+import androidx.work.impl.utils.toMillisCompat
+import java.time.Duration
+import java.util.concurrent.TimeUnit
 
 /**
- * A specification of the requirements that need to be met before a {@link WorkRequest} can run.  By
+ * A specification of the requirements that need to be met before a [WorkRequest] can run.  By
  * default, WorkRequests do not have any requirements and can run immediately.  By adding
  * requirements, you can make sure that work only runs in certain situations - for example, when you
  * have an unmetered network and are charging.
  */
-
-public final class Constraints {
-
-    /**
-     * Represents a Constraints object with no requirements.
-     */
-    public static final Constraints NONE = new Constraints.Builder().build();
-
+class Constraints
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+constructor(
     @ColumnInfo(name = "required_network_type")
-    @NonNull
-    private NetworkType mRequiredNetworkType = NOT_REQUIRED;
-
+    val requiredNetworkType: NetworkType = NetworkType.NOT_REQUIRED,
     @ColumnInfo(name = "requires_charging")
-    private boolean mRequiresCharging;
-
+    private val requiresCharging: Boolean = false,
     @ColumnInfo(name = "requires_device_idle")
-    private boolean mRequiresDeviceIdle;
-
+    private val requiresDeviceIdle: Boolean = false,
     @ColumnInfo(name = "requires_battery_not_low")
-    private boolean mRequiresBatteryNotLow;
-
+    private val requiresBatteryNotLow: Boolean = false,
     @ColumnInfo(name = "requires_storage_not_low")
-    private boolean mRequiresStorageNotLow;
-
+    private val requiresStorageNotLow: Boolean,
+    /**
+     * Needed by Room.
+     * @hide
+     */
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @ColumnInfo(name = "trigger_content_update_delay")
-    private long mTriggerContentUpdateDelay = -1;
-
+    val triggerContentUpdateDelay: Long = -1,
+    /**
+     * Needed by Room.
+     * @hide
+     */
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @ColumnInfo(name = "trigger_max_content_delay")
-    private long  mTriggerMaxContentDelay = -1;
-
-    @NonNull
+    val triggerMaxContentDelay: Long = -1,
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @ColumnInfo(name = "content_uri_triggers")
-    private ContentUriTriggers mContentUriTriggers = new ContentUriTriggers();
+    val contentUriTriggers: ContentUriTriggers = ContentUriTriggers(),
+) {
+    constructor(other: Constraints) : this(
+        requiresCharging = other.requiresCharging,
+        requiresDeviceIdle = other.requiresDeviceIdle,
+        requiredNetworkType = other.requiredNetworkType,
+        requiresBatteryNotLow = other.requiresBatteryNotLow,
+        requiresStorageNotLow = other.requiresStorageNotLow,
+        contentUriTriggers = other.contentUriTriggers,
+        triggerContentUpdateDelay = other.triggerContentUpdateDelay,
+        triggerMaxContentDelay = other.triggerMaxContentDelay,
+    )
 
     /**
-     * @hide
+     * @return `true` if the work should only execute while the device is charging
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public Constraints() { // stub required for room
+    fun requiresCharging(): Boolean {
+        return requiresCharging
     }
-
-    Constraints(Builder builder) {
-        mRequiresCharging = builder.mRequiresCharging;
-        mRequiresDeviceIdle = Build.VERSION.SDK_INT >= 23 && builder.mRequiresDeviceIdle;
-        mRequiredNetworkType = builder.mRequiredNetworkType;
-        mRequiresBatteryNotLow = builder.mRequiresBatteryNotLow;
-        mRequiresStorageNotLow = builder.mRequiresStorageNotLow;
-        if (Build.VERSION.SDK_INT >= 24) {
-            mContentUriTriggers = builder.mContentUriTriggers;
-            mTriggerContentUpdateDelay = builder.mTriggerContentUpdateDelay;
-            mTriggerMaxContentDelay = builder.mTriggerContentMaxDelay;
-        }
-    }
-
-    public Constraints(@NonNull Constraints other) {
-        mRequiresCharging = other.mRequiresCharging;
-        mRequiresDeviceIdle = other.mRequiresDeviceIdle;
-        mRequiredNetworkType = other.mRequiredNetworkType;
-        mRequiresBatteryNotLow = other.mRequiresBatteryNotLow;
-        mRequiresStorageNotLow = other.mRequiresStorageNotLow;
-        mContentUriTriggers = other.mContentUriTriggers;
-    }
-
-    public @NonNull NetworkType getRequiredNetworkType() {
-        return mRequiredNetworkType;
-    }
-
     /**
-     * Needed by Room.
-     * @hide
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public void setRequiredNetworkType(@NonNull NetworkType requiredNetworkType) {
-        mRequiredNetworkType = requiredNetworkType;
-    }
-
-    /**
-     * @return {@code true} if the work should only execute while the device is charging
-     */
-    public boolean requiresCharging() {
-        return mRequiresCharging;
-    }
-
-    /**
-     * Needed by Room.
-     * @hide
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public void setRequiresCharging(boolean requiresCharging) {
-        mRequiresCharging = requiresCharging;
-    }
-
-    /**
-     * @return {@code true} if the work should only execute while the device is idle
+     * @return `true` if the work should only execute while the device is idle
      */
     @RequiresApi(23)
-    public boolean requiresDeviceIdle() {
-        return mRequiresDeviceIdle;
+    fun requiresDeviceIdle(): Boolean {
+        return requiresDeviceIdle
     }
 
     /**
-     * Needed by Room.
+     * @return `true` if the work should only execute when the battery isn't low
+     */
+    fun requiresBatteryNotLow(): Boolean {
+        return requiresBatteryNotLow
+    }
+
+    /**
+     * @return `true` if the work should only execute when the storage isn't low
+     */
+    fun requiresStorageNotLow(): Boolean {
+        return requiresStorageNotLow
+    }
+
+    /**
+     * @return `true` if [ContentUriTriggers] is not empty
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    @RequiresApi(23)
-    public void setRequiresDeviceIdle(boolean requiresDeviceIdle) {
-        mRequiresDeviceIdle = requiresDeviceIdle;
+    fun hasContentUriTriggers(): Boolean {
+        return contentUriTriggers.size() > 0
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || javaClass != other.javaClass) return false
+        val that = other as Constraints
+        if (requiresCharging != that.requiresCharging) return false
+        if (requiresDeviceIdle != that.requiresDeviceIdle) return false
+        if (requiresBatteryNotLow != that.requiresBatteryNotLow) return false
+        if (requiresStorageNotLow != that.requiresStorageNotLow) return false
+        if (triggerContentUpdateDelay != that.triggerContentUpdateDelay) return false
+        if (triggerMaxContentDelay != that.triggerMaxContentDelay) return false
+        return if (requiredNetworkType != that.requiredNetworkType) false
+        else contentUriTriggers == that.contentUriTriggers
+    }
+
+    override fun hashCode(): Int {
+        var result = requiredNetworkType.hashCode()
+        result = 31 * result + if (requiresCharging) 1 else 0
+        result = 31 * result + if (requiresDeviceIdle) 1 else 0
+        result = 31 * result + if (requiresBatteryNotLow) 1 else 0
+        result = 31 * result + if (requiresStorageNotLow) 1 else 0
+        result = 31 * result + (triggerContentUpdateDelay xor (triggerContentUpdateDelay
+            ushr 32)).toInt()
+        result = 31 * result + (triggerMaxContentDelay xor (triggerMaxContentDelay ushr 32)).toInt()
+        result = 31 * result + contentUriTriggers.hashCode()
+        return result
     }
 
     /**
-     * @return {@code true} if the work should only execute when the battery isn't low
+     * A Builder for a [Constraints] object.
      */
-    public boolean requiresBatteryNotLow() {
-        return mRequiresBatteryNotLow;
-    }
-
-    /**
-     * Needed by Room.
-     * @hide
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public void setRequiresBatteryNotLow(boolean requiresBatteryNotLow) {
-        mRequiresBatteryNotLow = requiresBatteryNotLow;
-    }
-
-    /**
-     * @return {@code true} if the work should only execute when the storage isn't low
-     */
-    public boolean requiresStorageNotLow() {
-        return mRequiresStorageNotLow;
-    }
-
-    /**
-     * Needed by Room.
-     * @hide
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public void setRequiresStorageNotLow(boolean requiresStorageNotLow) {
-        mRequiresStorageNotLow = requiresStorageNotLow;
-    }
-
-    /**
-     * Needed by Room.
-     * @hide
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public long getTriggerContentUpdateDelay() {
-        return mTriggerContentUpdateDelay;
-    }
-
-    /**
-     * Needed by Room.
-     * @hide
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public void setTriggerContentUpdateDelay(long triggerContentUpdateDelay) {
-        mTriggerContentUpdateDelay = triggerContentUpdateDelay;
-    }
-
-    /**
-     * Needed by Room.
-     * @hide
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public long getTriggerMaxContentDelay() {
-        return mTriggerMaxContentDelay;
-    }
-
-    /**
-     * Needed by Room.
-     * @hide
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public void setTriggerMaxContentDelay(long triggerMaxContentDelay) {
-        mTriggerMaxContentDelay = triggerMaxContentDelay;
-    }
-
-    /**
-     * Needed by Room.
-     * @hide
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    @RequiresApi(24)
-    public void setContentUriTriggers(@NonNull ContentUriTriggers mContentUriTriggers) {
-        this.mContentUriTriggers = mContentUriTriggers;
-    }
-
-    /**
-     * @hide
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    @RequiresApi(24)
-    public @NonNull ContentUriTriggers getContentUriTriggers() {
-        return mContentUriTriggers;
-    }
-
-    /**
-     * @return {@code true} if {@link ContentUriTriggers} is not empty
-     * @hide
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    @RequiresApi(24)
-    public boolean hasContentUriTriggers() {
-        return mContentUriTriggers.size() > 0;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        Constraints that = (Constraints) o;
-
-        if (mRequiresCharging != that.mRequiresCharging) return false;
-        if (mRequiresDeviceIdle != that.mRequiresDeviceIdle) return false;
-        if (mRequiresBatteryNotLow != that.mRequiresBatteryNotLow) return false;
-        if (mRequiresStorageNotLow != that.mRequiresStorageNotLow) return false;
-        if (mTriggerContentUpdateDelay != that.mTriggerContentUpdateDelay) return false;
-        if (mTriggerMaxContentDelay != that.mTriggerMaxContentDelay) return false;
-        if (mRequiredNetworkType != that.mRequiredNetworkType) return false;
-        return mContentUriTriggers.equals(that.mContentUriTriggers);
-    }
-
-    @Override
-    public int hashCode() {
-        int result = mRequiredNetworkType.hashCode();
-        result = 31 * result + (mRequiresCharging ? 1 : 0);
-        result = 31 * result + (mRequiresDeviceIdle ? 1 : 0);
-        result = 31 * result + (mRequiresBatteryNotLow ? 1 : 0);
-        result = 31 * result + (mRequiresStorageNotLow ? 1 : 0);
-        result = 31 * result + (int) (mTriggerContentUpdateDelay ^ (mTriggerContentUpdateDelay
-                >>> 32));
-        result = 31 * result + (int) (mTriggerMaxContentDelay ^ (mTriggerMaxContentDelay >>> 32));
-        result = 31 * result + mContentUriTriggers.hashCode();
-        return result;
-    }
-
-    /**
-     * A Builder for a {@link Constraints} object.
-     */
-    public static final class Builder {
-        boolean mRequiresCharging = false;
-        boolean mRequiresDeviceIdle = false;
-        NetworkType mRequiredNetworkType = NOT_REQUIRED;
-        boolean mRequiresBatteryNotLow = false;
-        boolean mRequiresStorageNotLow = false;
+    class Builder {
+        private var requiresCharging = false
+        private var requiresDeviceIdle = false
+        private var requiredNetworkType = NetworkType.NOT_REQUIRED
+        private var requiresBatteryNotLow = false
+        private var requiresStorageNotLow = false
         // Same defaults as JobInfo
-        long mTriggerContentUpdateDelay = -1;
-        long mTriggerContentMaxDelay = -1;
-        ContentUriTriggers mContentUriTriggers = new ContentUriTriggers();
+        private var triggerContentUpdateDelay: Long = -1
+        private var triggerContentMaxDelay: Long = -1
+        private var contentUriTriggers = ContentUriTriggers()
 
-        public Builder() {
+        constructor() {
             // default public constructor
         }
 
@@ -296,180 +158,200 @@ public final class Constraints {
          * @hide
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        public Builder(@NonNull Constraints constraints) {
-            mRequiresCharging = constraints.requiresCharging();
-            mRequiresDeviceIdle = Build.VERSION.SDK_INT >= 23 && constraints.requiresDeviceIdle();
-            mRequiredNetworkType = constraints.getRequiredNetworkType();
-            mRequiresBatteryNotLow = constraints.requiresBatteryNotLow();
-            mRequiresStorageNotLow = constraints.requiresStorageNotLow();
+        constructor(constraints: Constraints) {
+            requiresCharging = constraints.requiresCharging()
+            requiresDeviceIdle = Build.VERSION.SDK_INT >= 23 && constraints.requiresDeviceIdle()
+            requiredNetworkType = constraints.requiredNetworkType
+            requiresBatteryNotLow = constraints.requiresBatteryNotLow()
+            requiresStorageNotLow = constraints.requiresStorageNotLow()
             if (Build.VERSION.SDK_INT >= 24) {
-                mTriggerContentUpdateDelay = constraints.getTriggerContentUpdateDelay();
-                mTriggerContentMaxDelay = constraints.getTriggerMaxContentDelay();
-                mContentUriTriggers = constraints.getContentUriTriggers();
+                triggerContentUpdateDelay = constraints.triggerContentUpdateDelay
+                triggerContentMaxDelay = constraints.triggerMaxContentDelay
+                contentUriTriggers = constraints.contentUriTriggers
             }
         }
 
         /**
-         * Sets whether device should be charging for the {@link WorkRequest} to run.  The
-         * default value is {@code false}.
+         * Sets whether device should be charging for the [WorkRequest] to run.  The
+         * default value is `false`.
          *
-         * @param requiresCharging {@code true} if device must be charging for the work to run
-         * @return The current {@link Builder}
+         * @param requiresCharging `true` if device must be charging for the work to run
+         * @return The current [Builder]
          */
-        public @NonNull Builder setRequiresCharging(boolean requiresCharging) {
-            this.mRequiresCharging = requiresCharging;
-            return this;
+        fun setRequiresCharging(requiresCharging: Boolean): Builder {
+            this.requiresCharging = requiresCharging
+            return this
         }
 
         /**
-         * Sets whether device should be idle for the {@link WorkRequest} to run.  The default
-         * value is {@code false}.
+         * Sets whether device should be idle for the [WorkRequest] to run. The default
+         * value is `false`.
          *
-         * @param requiresDeviceIdle {@code true} if device must be idle for the work to run
-         * @return The current {@link Builder}
+         * @param requiresDeviceIdle `true` if device must be idle for the work to run
+         * @return The current [Builder]
          */
         @RequiresApi(23)
-        public @NonNull Builder setRequiresDeviceIdle(boolean requiresDeviceIdle) {
-            this.mRequiresDeviceIdle = requiresDeviceIdle;
-            return this;
+        fun setRequiresDeviceIdle(requiresDeviceIdle: Boolean): Builder {
+            this.requiresDeviceIdle = requiresDeviceIdle
+            return this
         }
 
         /**
-         * Sets whether device should have a particular {@link NetworkType} for the
-         * {@link WorkRequest} to run.  The default value is {@link NetworkType#NOT_REQUIRED}.
+         * Sets whether device should have a particular [NetworkType] for the
+         * [WorkRequest] to run. The default value is [NetworkType.NOT_REQUIRED].
          *
          * @param networkType The type of network required for the work to run
-         * @return The current {@link Builder}
+         * @return The current [Builder]
          */
-        public @NonNull Builder setRequiredNetworkType(@NonNull NetworkType networkType) {
-            this.mRequiredNetworkType = networkType;
-            return this;
+        fun setRequiredNetworkType(networkType: NetworkType): Builder {
+            requiredNetworkType = networkType
+            return this
         }
 
         /**
          * Sets whether device battery should be at an acceptable level for the
-         * {@link WorkRequest} to run.  The default value is {@code false}.
+         * [WorkRequest] to run. The default value is `false`.
          *
-         * @param requiresBatteryNotLow {@code true} if the battery should be at an acceptable level
-         *                              for the work to run
-         * @return The current {@link Builder}
+         * @param requiresBatteryNotLow `true` if the battery should be at an acceptable level
+         * for the work to run
+         * @return The current [Builder]
          */
-        public @NonNull Builder setRequiresBatteryNotLow(boolean requiresBatteryNotLow) {
-            this.mRequiresBatteryNotLow = requiresBatteryNotLow;
-            return this;
+        fun setRequiresBatteryNotLow(requiresBatteryNotLow: Boolean): Builder {
+            this.requiresBatteryNotLow = requiresBatteryNotLow
+            return this
         }
 
         /**
          * Sets whether the device's available storage should be at an acceptable level for the
-         * {@link WorkRequest} to run.  The default value is {@code false}.
+         * [WorkRequest] to run. The default value is `false`.
          *
-         * @param requiresStorageNotLow {@code true} if the available storage should not be below a
-         *                              a critical threshold for the work to run
-         * @return The current {@link Builder}
+         * @param requiresStorageNotLow `true` if the available storage should not be below a
+         * a critical threshold for the work to run
+         * @return The current [Builder]
          */
-        public @NonNull Builder setRequiresStorageNotLow(boolean requiresStorageNotLow) {
-            this.mRequiresStorageNotLow = requiresStorageNotLow;
-            return this;
+        fun setRequiresStorageNotLow(requiresStorageNotLow: Boolean): Builder {
+            this.requiresStorageNotLow = requiresStorageNotLow
+            return this
         }
 
         /**
-         * Sets whether the {@link WorkRequest} should run when a local {@code content:} {@link Uri}
-         * is updated.  This functionality is identical to the one found in {@code JobScheduler} and
+         * Sets whether the [WorkRequest] should run when a local `content:` [Uri]
+         * is updated.  This functionality is identical to the one found in `JobScheduler` and
          * is described in
-         * {@code JobInfo.Builder#addTriggerContentUri(android.app.job.JobInfo.TriggerContentUri)}.
+         * `JobInfo.Builder#addTriggerContentUri(android.app.job.JobInfo.TriggerContentUri)`.
          *
-         * @param uri The local {@code content:} Uri to observe
-         * @param triggerForDescendants {@code true} if any changes in descendants cause this
-         *                              {@link WorkRequest} to run
-         * @return The current {@link Builder}
+         * @param uri The local `content:` Uri to observe
+         * @param triggerForDescendants `true` if any changes in descendants cause this
+         * [WorkRequest] to run
+         * @return The current [Builder]
          */
         @RequiresApi(24)
-        public @NonNull Builder addContentUriTrigger(
-                @NonNull Uri uri,
-                boolean triggerForDescendants) {
-            mContentUriTriggers.add(uri, triggerForDescendants);
-            return this;
+        fun addContentUriTrigger(uri: Uri, triggerForDescendants: Boolean): Builder {
+            contentUriTriggers.add(uri, triggerForDescendants)
+            return this
         }
 
         /**
-         * Sets the delay that is allowed from the time a {@code content:} {@link Uri}
-         * change is detected to the time when the {@link WorkRequest} is scheduled.  If there are
+         * Sets the delay that is allowed from the time a `content:` [Uri]
+         * change is detected to the time when the [WorkRequest] is scheduled.  If there are
          * more changes during this time, the delay will be reset to the start of the most recent
-         * change. This functionality is identical to the one found in {@code JobScheduler} and
-         * is described in {@code JobInfo.Builder#setTriggerContentUpdateDelay(long)}.
+         * change. This functionality is identical to the one found in `JobScheduler` and
+         * is described in `JobInfo.Builder#setTriggerContentUpdateDelay(long)`.
          *
-         * @param duration The length of the delay in {@code timeUnit} units
-         * @param timeUnit The units of time for {@code duration}
-         * @return The current {@link Builder}
+         * @param duration The length of the delay in `timeUnit` units
+         * @param timeUnit The units of time for `duration`
+         * @return The current [Builder]
          */
         @RequiresApi(24)
-        @NonNull
-        public Builder setTriggerContentUpdateDelay(
-                long duration,
-                @NonNull TimeUnit timeUnit) {
-            mTriggerContentUpdateDelay = timeUnit.toMillis(duration);
-            return this;
+        fun setTriggerContentUpdateDelay(duration: Long, timeUnit: TimeUnit): Builder {
+            triggerContentUpdateDelay = timeUnit.toMillis(duration)
+            return this
         }
 
         /**
-         * Sets the delay that is allowed from the time a {@code content:} {@link Uri} change
-         * is detected to the time when the {@link WorkRequest} is scheduled.  If there are more
+         * Sets the delay that is allowed from the time a `content:` [Uri] change
+         * is detected to the time when the [WorkRequest] is scheduled.  If there are more
          * changes during this time, the delay will be reset to the start of the most recent change.
-         * This functionality is identical to the one found in {@code JobScheduler} and
-         * is described in {@code JobInfo.Builder#setTriggerContentUpdateDelay(long)}.
+         * This functionality is identical to the one found in `JobScheduler` and
+         * is described in `JobInfo.Builder#setTriggerContentUpdateDelay(long)`.
          *
          * @param duration The length of the delay
-         * @return The current {@link Builder}
+         * @return The current [Builder]
          */
         @RequiresApi(26)
-        @NonNull
-        public Builder setTriggerContentUpdateDelay(Duration duration) {
-            mTriggerContentUpdateDelay = DurationApi26Impl.toMillisCompat(duration);
-            return this;
+        fun setTriggerContentUpdateDelay(duration: Duration): Builder {
+            triggerContentUpdateDelay = duration.toMillisCompat()
+            return this
         }
 
         /**
-         * Sets the maximum delay that is allowed from the first time a {@code content:}
-         * {@link Uri} change is detected to the time when the {@link WorkRequest} is scheduled.
-         * This functionality is identical to the one found in {@code JobScheduler} and
-         * is described in {@code JobInfo.Builder#setTriggerContentMaxDelay(long)}.
+         * Sets the maximum delay that is allowed from the first time a `content:`
+         * [Uri] change is detected to the time when the [WorkRequest] is scheduled.
+         * This functionality is identical to the one found in `JobScheduler` and
+         * is described in `JobInfo.Builder#setTriggerContentMaxDelay(long)`.
          *
-         * @param duration The length of the delay in {@code timeUnit} units
-         * @param timeUnit The units of time for {@code duration}
-         * @return The current {@link Builder}
+         * @param duration The length of the delay in `timeUnit` units
+         * @param timeUnit The units of time for `duration`
+         * @return The current [Builder]
          */
         @RequiresApi(24)
-        @NonNull
-        public Builder setTriggerContentMaxDelay(
-                long duration,
-                @NonNull TimeUnit timeUnit) {
-            mTriggerContentMaxDelay = timeUnit.toMillis(duration);
-            return this;
+        fun setTriggerContentMaxDelay(duration: Long, timeUnit: TimeUnit): Builder {
+            triggerContentMaxDelay = timeUnit.toMillis(duration)
+            return this
         }
 
         /**
-         * Sets the maximum delay that is allowed from the first time a {@code content:} {@link Uri}
-         * change is detected to the time when the {@link WorkRequest} is scheduled. This
-         * functionality is identical to the one found in {@code JobScheduler} and is described
-         * in {@code JobInfo.Builder#setTriggerContentMaxDelay(long)}.
+         * Sets the maximum delay that is allowed from the first time a `content:` [Uri]
+         * change is detected to the time when the [WorkRequest] is scheduled. This
+         * functionality is identical to the one found in `JobScheduler` and is described
+         * in `JobInfo.Builder#setTriggerContentMaxDelay(long)`.
          *
          * @param duration The length of the delay
-         * @return The current {@link Builder}
+         * @return The current [Builder]
          */
         @RequiresApi(26)
-        @NonNull
-        public Builder setTriggerContentMaxDelay(Duration duration) {
-            mTriggerContentMaxDelay = DurationApi26Impl.toMillisCompat(duration);
-            return this;
+        fun setTriggerContentMaxDelay(duration: Duration): Builder {
+            triggerContentMaxDelay = duration.toMillisCompat()
+            return this
         }
 
         /**
-         * Generates the {@link Constraints} from this Builder.
+         * Generates the [Constraints] from this Builder.
          *
-         * @return The {@link Constraints} specified by this Builder
+         * @return The [Constraints] specified by this Builder
          */
-        public @NonNull Constraints build() {
-            return new Constraints(this);
+        fun build(): Constraints {
+            val contentUriTriggers: ContentUriTriggers
+            val triggerContentUpdateDelay: Long
+            val triggerMaxContentDelay: Long
+            if (Build.VERSION.SDK_INT >= 24) {
+                contentUriTriggers = this.contentUriTriggers
+                triggerContentUpdateDelay = this.triggerContentUpdateDelay
+                triggerMaxContentDelay = triggerContentMaxDelay
+            } else {
+                contentUriTriggers = ContentUriTriggers()
+                triggerContentUpdateDelay = -1
+                triggerMaxContentDelay = -1
+            }
+
+            return Constraints(
+                requiresCharging = requiresCharging,
+                requiresDeviceIdle = Build.VERSION.SDK_INT >= 23 && requiresDeviceIdle,
+                requiredNetworkType = requiredNetworkType,
+                requiresBatteryNotLow = requiresBatteryNotLow,
+                requiresStorageNotLow = requiresStorageNotLow,
+                triggerMaxContentDelay = triggerMaxContentDelay,
+                triggerContentUpdateDelay = triggerContentUpdateDelay,
+                contentUriTriggers = contentUriTriggers,
+            )
         }
+    }
+
+    companion object {
+        /**
+         * Represents a Constraints object with no requirements.
+         */
+        @JvmField
+        val NONE = Builder().build()
     }
 }
