@@ -22,6 +22,7 @@ import static org.junit.Assume.assumeTrue;
 
 import android.content.Context;
 import android.util.Rational;
+import android.util.Size;
 
 import androidx.camera.core.AspectRatio;
 import androidx.camera.core.CameraSelector;
@@ -114,7 +115,6 @@ public final class SurfaceOrientedMeteringPointFactoryTest {
         assumeTrue(CameraUtil.hasCameraWithLensFacing(CameraSelector.LENS_FACING_BACK));
 
         ImageAnalysis imageAnalysis = new ImageAnalysis.Builder()
-                .setTargetAspectRatio(AspectRatio.RATIO_4_3)
                 .setTargetName("ImageAnalysis")
                 .build();
         CameraSelector cameraSelector =
@@ -123,10 +123,13 @@ public final class SurfaceOrientedMeteringPointFactoryTest {
         CameraUseCaseAdapter camera = CameraUtil.createCameraAndAttachUseCase(mContext,
                 cameraSelector, imageAnalysis);
 
+        Size surfaceResolution = imageAnalysis.getAttachedSurfaceResolution();
+
         SurfaceOrientedMeteringPointFactory factory = new SurfaceOrientedMeteringPointFactory(
                 WIDTH, HEIGHT, imageAnalysis);
         MeteringPoint point = factory.createPoint(0f, 0f);
-        assertThat(point.getSurfaceAspectRatio()).isEqualTo(new Rational(4, 3));
+        assertThat(point.getSurfaceAspectRatio()).isEqualTo(
+                new Rational(surfaceResolution.getWidth(), surfaceResolution.getHeight()));
 
         InstrumentationRegistry.getInstrumentation().runOnMainSync(() ->
                 //TODO: The removeUseCases() call might be removed after clarifying the
