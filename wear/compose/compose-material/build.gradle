@@ -42,6 +42,7 @@ dependencies {
         implementation("androidx.compose.material:material-ripple:1.1.0-rc01")
         implementation("androidx.compose.ui:ui-util:1.1.0-rc01")
         implementation(project(":wear:compose:compose-foundation"))
+        implementation(project(":profileinstaller:profileinstaller"))
 
         androidTestImplementation(project(":compose:ui:ui-test"))
         androidTestImplementation(project(":compose:ui:ui-test-junit4"))
