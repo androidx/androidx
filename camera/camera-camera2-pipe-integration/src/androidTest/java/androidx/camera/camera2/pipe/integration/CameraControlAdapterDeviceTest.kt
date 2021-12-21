@@ -172,7 +172,7 @@ class CameraControlAdapterDeviceTest {
         waitForResult(captureCount = 30).verify(
             { requestMeta: RequestMetadata, frameInfo: FrameInfo ->
                 frameInfo.requestMetadata[FLASH_MODE] == FLASH_MODE_TORCH &&
-                    requestMeta.request[CONTROL_AE_MODE] == CONTROL_AE_MODE_ON
+                    requestMeta[CONTROL_AE_MODE] == CONTROL_AE_MODE_ON
             },
             TIMEOUT
         )
@@ -188,7 +188,7 @@ class CameraControlAdapterDeviceTest {
         waitForResult(captureCount = 30).verify(
             { requestMeta: RequestMetadata, frameInfo: FrameInfo ->
                 frameInfo.requestMetadata[FLASH_MODE] != FLASH_MODE_TORCH &&
-                    requestMeta.request[CONTROL_AE_MODE] == CONTROL_AE_MODE_ON_AUTO_FLASH
+                    requestMeta[CONTROL_AE_MODE] == CONTROL_AE_MODE_ON_AUTO_FLASH
             },
             TIMEOUT
         )

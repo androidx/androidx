@@ -91,8 +91,11 @@ class TorchControl @Inject constructor(
                 stopRunningTaskInternal()
                 _updateSignal = signal
 
+                // TODO(b/209757083), handle the failed result of the setTorchAsync().
+                useCaseCamera.requestControl.setTorchAsync(torch).join()
+
                 if (torch) {
-                    // For torch ON, we should set AE_MODE to ON and FLASH_MODE to TORCH.
+                    // Hold the internal AE mode to ON while the torch is turned ON.
                     useCaseCamera.requestControl.appendParametersAsync(
                         type = UseCaseCameraRequestControl.Type.TORCH,
                         values = mapOf(
@@ -100,15 +103,11 @@ class TorchControl @Inject constructor(
                         )
                     )
                 } else {
-                    // Clean up the config for torch OFF
+                    // Restore the AE mode after the torch control has been used.
                     useCaseCamera.requestControl.setConfigAsync(
                         type = UseCaseCameraRequestControl.Type.TORCH,
-                        config = Camera2ImplConfig.Builder().build()
                     )
                 }.join()
-
-                // TODO(b/209757083), handle the failed result of the setTorchAsync().
-                useCaseCamera.requestControl.setTorchAsync(torch).join()
 
                 signal.complete(Unit)
             }
