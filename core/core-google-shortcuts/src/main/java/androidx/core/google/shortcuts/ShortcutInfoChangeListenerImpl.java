@@ -29,11 +29,15 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
+import androidx.appsearch.app.GenericDocument;
+import androidx.appsearch.app.ShortcutAdapter;
 import androidx.core.content.pm.ShortcutInfoChangeListener;
 import androidx.core.content.pm.ShortcutInfoCompat;
 import androidx.core.google.shortcuts.builders.CapabilityBuilder;
 import androidx.core.google.shortcuts.builders.ParameterBuilder;
 import androidx.core.google.shortcuts.builders.ShortcutBuilder;
+import androidx.core.google.shortcuts.converters.AppSearchDocumentConverter;
+import androidx.core.google.shortcuts.converters.AppSearchDocumentConverterFactory;
 import androidx.core.google.shortcuts.utils.EntityUriUtils;
 import androidx.core.google.shortcuts.utils.ShortcutUtils;
 import androidx.core.graphics.drawable.IconCompat;
@@ -93,14 +97,30 @@ public class ShortcutInfoChangeListenerImpl extends ShortcutInfoChangeListener {
         // shortcuts will be indexed under their respective schema type, and capability-instance
         // shortcuts will be indexed in the general shortcut corpus.
         for (ShortcutInfoCompat shortcut : shortcuts) {
-            ShortcutBuilder shortcutBuilder = buildShortcutIndexable(shortcut);
+            GenericDocument entity = null;
+            // ShortcutAdapter is only available for Lollipop and above.
+            if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                entity = ShortcutAdapter.extractDocument(shortcut);
+            }
 
-            // Capability-instance shortcuts may contain references to entity shortcuts. If
-            // that's the case, report usage for those entity shortcuts.
-            // TODO (b/207161241): use capability binding api directly from shortcut once it's
-            //  available.
-            maybeReportEntityUsage(shortcutBuilder);
-            indexables.add(shortcutBuilder.build());
+            if (entity == null) {
+                // API level < Lollipop, or Shortcut might be a capability-instance shortcut.
+                ShortcutBuilder shortcutBuilder = buildShortcutIndexable(shortcut);
+
+                // Capability-instance shortcuts may contain references to entity shortcuts. If
+                // that's the case, report usage for those entity shortcuts.
+                // TODO (b/207161241): use capability binding api directly from shortcut once it's
+                //  available.
+                maybeReportEntityUsage(shortcutBuilder);
+                indexables.add(shortcutBuilder.build());
+            } else {
+                // Shortcut is an entity shortcut.
+                AppSearchDocumentConverter converter =
+                        AppSearchDocumentConverterFactory.getConverter(entity.getSchemaType());
+                Indexable.Builder entityIndexableBuilder =
+                        converter.convertGenericDocument(mContext, entity);
+                indexables.add(entityIndexableBuilder.build());
+            }
         }
         mFirebaseAppIndex.update(indexables.toArray(new Indexable[0]));
     }
