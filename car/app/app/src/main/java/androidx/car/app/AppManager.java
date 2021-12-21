@@ -25,7 +25,6 @@ import static java.util.Objects.requireNonNull;
 
 import android.annotation.SuppressLint;
 import android.content.pm.PackageManager;
-import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.HandlerThread;
 import android.os.Looper;
@@ -37,6 +36,7 @@ import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.car.app.managers.Manager;
 import androidx.car.app.utils.RemoteUtils;
+import androidx.core.location.LocationListenerCompat;
 import androidx.lifecycle.Lifecycle;
 
 /** Manages the communication between the app and the host. */
@@ -54,13 +54,12 @@ public class AppManager implements Manager {
     private final Lifecycle mLifecycle;
 
     /**
-     * {@link LocationListener} for getting location updates within the app and sends them over to
-     * the car host.
+     * Listener for getting location updates within the app and sends them over to the car host.
      *
      * <p>This should only be enabled when the car host explicitly calls {@code IAppManager
      * .startLocationUpdates}.
      */
-    private final LocationListener mLocationListener;
+    private final LocationListenerCompat mLocationListener;
     @VisibleForTesting
     final HandlerThread mLocationUpdateHandlerThread;
 
@@ -230,14 +229,12 @@ public class AppManager implements Manager {
         };
 
         mLocationUpdateHandlerThread = new HandlerThread("LocationUpdateThread");
-        mLocationListener = location -> {
-            mHostDispatcher.dispatch(
-                    CarContext.APP_SERVICE,
-                    "sendLocation", (IAppHost host) -> {
-                        host.sendLocation(location);
-                        return null;
-                    }
-            );
-        };
+        mLocationListener = location -> mHostDispatcher.dispatch(
+                CarContext.APP_SERVICE,
+                "sendLocation", (IAppHost host) -> {
+                    host.sendLocation(location);
+                    return null;
+                }
+        );
     }
 }
