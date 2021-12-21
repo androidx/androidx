@@ -28,7 +28,7 @@ android {
 dependencies {
     implementation(project(":car:app:app"))
 
-    implementation 'androidx.core:core:1.5.0-alpha01'
+    implementation 'androidx.core:core:1.7.0'
     implementation project(path: ':annotation:annotation-experimental')
     // There is an implicit compile-only dep due to :annotation-experimental
     // Build will complain without this manual declaration.

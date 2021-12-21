@@ -21,7 +21,6 @@ import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 
 import android.content.pm.PackageManager;
 import android.location.Location;
-import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.HandlerThread;
 
@@ -37,6 +36,7 @@ import androidx.car.app.model.Place;
 import androidx.car.app.model.PlaceListMapTemplate;
 import androidx.car.app.model.Row;
 import androidx.car.app.model.Template;
+import androidx.core.location.LocationListenerCompat;
 import androidx.lifecycle.DefaultLifecycleObserver;
 import androidx.lifecycle.LifecycleOwner;
 
@@ -50,7 +50,7 @@ public final class PlaceListTemplateBrowseDemoScreen extends Screen {
     private static final int LOCATION_UPDATE_MIN_INTERVAL_MILLIS = 1000;
     private static final int LOCATION_UPDATE_MIN_DISTANCE_METER = 1;
 
-    final LocationListener mLocationListener;
+    final LocationListenerCompat mLocationListener;
     final HandlerThread mLocationUpdateHandlerThread;
 
     @Nullable
