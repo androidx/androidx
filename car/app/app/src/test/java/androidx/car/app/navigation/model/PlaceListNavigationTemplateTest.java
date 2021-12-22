@@ -19,10 +19,13 @@ package androidx.car.app.navigation.model;
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.assertThrows;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 import android.content.Context;
 import android.text.SpannableString;
 
+import androidx.car.app.OnDoneCallback;
 import androidx.car.app.TestUtils;
 import androidx.car.app.model.Action;
 import androidx.car.app.model.ActionStrip;
@@ -33,6 +36,7 @@ import androidx.car.app.model.Distance;
 import androidx.car.app.model.DistanceSpan;
 import androidx.car.app.model.ItemList;
 import androidx.car.app.model.Metadata;
+import androidx.car.app.model.OnContentRefreshListener;
 import androidx.car.app.model.Place;
 import androidx.car.app.model.PlaceMarker;
 import androidx.car.app.model.Row;
@@ -206,6 +210,7 @@ public class PlaceListNavigationTemplateTest {
         assertThat(template.getItemList().getItems()).isEmpty();
         assertThat(template.getTitle().toString()).isEqualTo("Title");
         assertThat(template.getActionStrip()).isNull();
+        assertThat(template.getOnContentRefreshDelegate()).isNull();
     }
 
     @Test
@@ -332,7 +337,24 @@ public class PlaceListNavigationTemplateTest {
     }
 
     @Test
+    public void setOnContentRefreshListener_triggersListener() {
+        OnContentRefreshListener listener = mock(OnContentRefreshListener.class);
+        PlaceListNavigationTemplate template =
+                new PlaceListNavigationTemplate.Builder()
+                        .setTitle("title")
+                        .setItemList(new ItemList.Builder().build())
+                        .setOnContentRefreshListener(listener)
+                        .build();
+
+        OnDoneCallback onDoneCallback = mock(OnDoneCallback.class);
+        template.getOnContentRefreshDelegate().sendContentRefreshRequested(onDoneCallback);
+        verify(listener).onContentRefreshRequested();
+        verify(onDoneCallback).onSuccess(null);
+    }
+
+    @Test
     public void equals() {
+        OnContentRefreshListener listener = mock(OnContentRefreshListener.class);
         PlaceListNavigationTemplate template =
                 new PlaceListNavigationTemplate.Builder()
                         .setItemList(
@@ -340,8 +362,10 @@ public class PlaceListNavigationTemplateTest {
                         .setHeaderAction(Action.BACK)
                         .setActionStrip(new ActionStrip.Builder().addAction(Action.BACK).build())
                         .setMapActionStrip(mMapActionStrip)
-                        .setPanModeListener((panModechanged) -> {})
+                        .setPanModeListener((panModechanged) -> {
+                        })
                         .setTitle("title")
+                        .setOnContentRefreshListener(listener)
                         .build();
 
         assertThat(template)
@@ -353,8 +377,10 @@ public class PlaceListNavigationTemplateTest {
                                 .setActionStrip(
                                         new ActionStrip.Builder().addAction(Action.BACK).build())
                                 .setMapActionStrip(mMapActionStrip)
-                                .setPanModeListener((panModechanged) -> {})
+                                .setPanModeListener((panModechanged) -> {
+                                })
                                 .setTitle("title")
+                                .setOnContentRefreshListener(listener)
                                 .build());
     }
 
@@ -475,6 +501,26 @@ public class PlaceListNavigationTemplateTest {
                         .setItemList(
                                 TestUtils.createItemListWithDistanceSpan(6, false, mDistanceSpan))
                         .setTitle("title")
+                        .build();
+
+        assertThat(template)
+                .isNotEqualTo(
+                        new PlaceListNavigationTemplate.Builder()
+                                .setItemList(TestUtils.createItemListWithDistanceSpan(6, false,
+                                        mDistanceSpan))
+                                .setTitle("other")
+                                .build());
+    }
+
+    @Test
+    public void notEquals_nonAndNonNullOnContentRefreshListeners() {
+        OnContentRefreshListener listener = mock(OnContentRefreshListener.class);
+        PlaceListNavigationTemplate template =
+                new PlaceListNavigationTemplate.Builder()
+                        .setItemList(
+                                TestUtils.createItemListWithDistanceSpan(6, false, mDistanceSpan))
+                        .setTitle("title")
+                        .setOnContentRefreshListener(listener)
                         .build();
 
         assertThat(template)
