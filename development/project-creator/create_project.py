@@ -420,6 +420,8 @@ def create_directories(group_id, artifact_id, project_type, is_compose_project):
 
     # Populate the library type
     library_type = get_library_type(artifact_id)
+    if project_type == ProjectType.NATIVE and library_type == "PUBLISHED_LIBRARY":
+        library_type = "PUBLISHED_NATIVE_LIBRARY"
     sed("<LIBRARY_TYPE>", library_type, full_artifact_path + "/build.gradle")
 
     # Populate the YEAR
