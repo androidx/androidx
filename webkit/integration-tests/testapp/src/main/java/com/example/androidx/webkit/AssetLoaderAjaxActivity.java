@@ -53,36 +53,30 @@ public class AssetLoaderAjaxActivity extends AppCompatActivity {
         @RequiresApi(21)
         public WebResourceResponse shouldInterceptRequest(WebView view,
                                                           WebResourceRequest request) {
-            if (mUriIdlingResource != null) {
-                mUriIdlingResource.beginLoad(request.getUrl().toString());
-            }
+            mUriIdlingResource.beginLoad(request.getUrl().toString());
             WebResourceResponse response = mAssetLoader.shouldInterceptRequest(request.getUrl());
-            if (mUriIdlingResource != null) {
-                mUriIdlingResource.endLoad(request.getUrl().toString());
-            }
+            mUriIdlingResource.endLoad(request.getUrl().toString());
             return response;
         }
 
         @Override
         @SuppressWarnings("deprecation") // use the old one for compatibility with all API levels.
         public WebResourceResponse shouldInterceptRequest(WebView view, String url) {
-            if (mUriIdlingResource != null) {
-                mUriIdlingResource.beginLoad(url);
-            }
+            mUriIdlingResource.beginLoad(url);
             WebResourceResponse response = mAssetLoader.shouldInterceptRequest(Uri.parse(url));
-            if (mUriIdlingResource != null) {
-                mUriIdlingResource.endLoad(url);
-            }
+            mUriIdlingResource.endLoad(url);
             return response;
         }
     }
 
     private WebViewAssetLoader mAssetLoader;
     private WebView mWebView;
+
     // IdlingResource that indicates that WebView has finished loading all WebResourceRequests
     // by waiting until there are no requests made for 5000ms.
     @NonNull
-    private UriIdlingResource mUriIdlingResource;
+    private final UriIdlingResource mUriIdlingResource =
+                    new UriIdlingResource("AssetLoaderWebViewUriIdlingResource", MAX_IDLE_TIME_MS);
 
     @SuppressLint("SetJavaScriptEnabled")
     @Override
@@ -135,10 +129,6 @@ public class AssetLoaderAjaxActivity extends AppCompatActivity {
     @VisibleForTesting
     @NonNull
     public UriIdlingResource getUriIdlingResource() {
-        if (mUriIdlingResource == null) {
-            mUriIdlingResource =
-                    new UriIdlingResource("AssetLoaderWebViewUriIdlingResource", MAX_IDLE_TIME_MS);
-        }
         return mUriIdlingResource;
     }
 }
