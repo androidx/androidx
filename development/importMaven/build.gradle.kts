@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import okhttp3.MediaType
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -29,10 +28,10 @@ import javax.xml.transform.dom.DOMSource
 import javax.xml.transform.stream.StreamResult
 
 buildscript {
+    // Set of repositories only used for this build.gradle.kts itself. These are not used
+    // for fetching artifacts
     repositories {
-        jcenter()
         mavenCentral()
-        google()
     }
 
     dependencies {
@@ -47,7 +46,10 @@ buildscript {
 val prebuiltsLocation = file("../../../../prebuilts/androidx")
 val internalFolder = "internal"
 val externalFolder = "external"
-// Passed in as a project property
+/**
+ * The coordinates of the desired artifact to be fetched with all of its dependencies, specified
+ * to the script via -PartifactName="foo:bar:1.0"
+ */
 val artifactName = project.findProperty("artifactName")
 val mediaType = "application/json; charset=utf-8".toMediaType()
 val licenseEndpoint = "https://fetch-licenses.appspot.com/convert/licenses"
@@ -66,16 +68,20 @@ val forceExternal = setOf(
     ".databinding"
 )
 
+// Apply java plugin so we have a base project set up with runtime configuration and ability to
+// add our requested dependency passed it through the gradle property -PartifactName="foo:bar:1.0"
 plugins {
     java
 }
 
 val metalavaBuildId: String? = findProperty("metalavaBuildId") as String?
+// Set up repositories from this to fetch the artifacts
 repositories {
+    // Metalava has to be first on the list because it is also published on google() and we
+    // sometimes re-use versions
     if (metalavaBuildId != null) {
         maven(url="https://androidx.dev/metalava/builds/${metalavaBuildId}/artifacts/repo/m2repository")
     }
-    jcenter()
     mavenCentral()
     google()
     gradlePluginPortal()
@@ -118,33 +124,51 @@ repositories {
     }
 }
 
-val gradleModuleMetadata: Configuration by configurations.creating {
+/**
+ * Configuration used to fetch the requested dependency's Java Runtime dependencies.
+ */
+val javaRuntimeConfiguration: Configuration by configurations.creating {
     attributes {
-        // We define this attribute in DirectMetadataAccessVariantRule
-        attribute(Category.CATEGORY_ATTRIBUTE, objects.named(Category.DOCUMENTATION) )
-        attribute(DocsType.DOCS_TYPE_ATTRIBUTE, objects.named("gradle-module-metadata"))
+        attribute(
+            LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE,
+            objects.named(LibraryElements.JAR)
+        )
+        attribute(Usage.USAGE_ATTRIBUTE, objects.named(Usage.JAVA_RUNTIME))
+
     }
     extendsFrom(configurations.runtimeClasspath.get())
 }
 
-val allFilesWithDependencies: Configuration by configurations.creating {
+/**
+ * Configuration used to fetch the requested dependency's Java API dependencies.
+ */
+val javaApiConfiguration: Configuration by configurations.creating {
     attributes {
-        // We define this attribute in DirectMetadataAccessVariantRule
-        attribute(DocsType.DOCS_TYPE_ATTRIBUTE, objects.named("all-files-with-dependencies"))
+        attribute(
+            LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE,
+            objects.named(LibraryElements.JAR)
+        )
+        attribute(Usage.USAGE_ATTRIBUTE, objects.named(Usage.JAVA_API))
+
     }
     extendsFrom(configurations.runtimeClasspath.get())
 }
 
 if (artifactName != null) {
     dependencies {
-        // This is the configuration container that we use to lookup the
-        // transitive closure of all dependencies.
+        // We reuse the runtimeClasspath configuration provided by the java gradle plugin by
+        // extending it in our directDependencyConfiguration and allDependenciesConfiguration,
+        // so we can look up transitive closure of all the dependencies.
         implementation(artifactName)
 
-        // For metadata access
+        // Specify to use our custom variant rule that sets up to fetch exactly the files
+        // we care about
         components {
             all<DirectMetadataAccessVariantRule>()
         }
+        // Specify that both AARs and Jars are compatible
+        attributesSchema.attribute(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE)
+            .compatibilityRules.add(JarAndAarAreCompatible::class.java)
     }
 }
 
@@ -391,16 +415,35 @@ fun copyPomFile(
  * Given a groupId, returns a relative filepath telling where to place that group
  */
 fun groupToPath(group: String): String {
-    if (group != "") {
-        return group.split(".").joinToString("/")
+    return if (group != "") {
+        group.split(".").joinToString("/")
     } else {
-        return "no-group"
+        "no-group"
     }
 }
 
 /**
- * This rule runs in a sandbox, and does not have access ot things in scope which it should usually
- * have access to. This is why the constant `all-files-with-dependencies` is being duplicated.
+ * A [AttributeCompatibilityRule] that makes Gradle consider both aar and jar as compatible
+ * artifacts (by default it would only want `jar` as this build.gradle.kts project is `java`)
+ */
+@CacheableRule
+abstract class JarAndAarAreCompatible : AttributeCompatibilityRule<LibraryElements> {
+    override fun execute(t: CompatibilityCheckDetails<LibraryElements>) {
+        val consumer = t.consumerValue ?: return
+        val producer = t.producerValue ?: return
+
+        if (consumer.name.compareTo("jar", ignoreCase = true) == 0 &&
+                producer.name.compareTo("aar", ignoreCase = true) == 0
+            ) {
+                t.compatible()
+            } else if (consumer.name == producer.name) {
+                t.compatible()
+            }
+    }
+}
+
+/**
+ * A [ComponentMetadataRule] that allows us to pick which files we want to download.
  */
 @CacheableRule
 open class DirectMetadataAccessVariantRule : ComponentMetadataRule {
@@ -409,81 +452,60 @@ open class DirectMetadataAccessVariantRule : ComponentMetadataRule {
 
     override fun execute(ctx: ComponentMetadataContext) {
         val id = ctx.details.id
-        ctx.details.addVariant("moduleMetadata") {
-            attributes {
-                attribute(Usage.USAGE_ATTRIBUTE, getObjects().named(Usage.JAVA_RUNTIME))
-                attribute(Category.CATEGORY_ATTRIBUTE, getObjects().named(Category.DOCUMENTATION))
-                attribute(DocsType.DOCS_TYPE_ATTRIBUTE, getObjects().named("gradle-module-metadata"))
-            }
+        ctx.details.allVariants {
+            // With files lambda is executed for every dependency in the Gradle dependency graph
+            // that was resolved using the specified attributes.
             withFiles {
+                addFile("${id.name}-${id.version}.pom")
+                addFile("${id.name}-${id.version}.pom.asc")
                 addFile("${id.name}-${id.version}.module")
-            }
-        }
-        val variantNames = listOf(
-            "runtimeElements",
-            "releaseRuntimePublication",
-            "metadata-api",
-            "metadataApiElements-published",
-            "runtime"
-        )
-        variantNames.forEach { name ->
-            ctx.details.maybeAddVariant("allFilesWithDependencies${name.capitalize()}", name) {
-                attributes {
-                    attribute(Usage.USAGE_ATTRIBUTE, getObjects().named(Usage.JAVA_RUNTIME))
-                    attribute(Category.CATEGORY_ATTRIBUTE, getObjects().named(Category.DOCUMENTATION))
-                    attribute(
-                        DocsType.DOCS_TYPE_ATTRIBUTE,
-                        getObjects().named("all-files-with-dependencies")
-                    )
-                }
-                withFiles {
-                    addFile("${id.name}-${id.version}.pom")
-                    addFile("${id.name}-${id.version}.pom.asc")
-                    addFile("${id.name}-${id.version}.module")
-                    addFile("${id.name}-${id.version}.module.asc")
-                    addFile("${id.name}-${id.version}.jar")
-                    addFile("${id.name}-${id.version}.jar.asc")
-                    addFile("${id.name}-${id.version}.aar")
-                    addFile("${id.name}-${id.version}.aar.asc")
-                    addFile("${id.name}-${id.version}-sources.jar")
-                    addFile("${id.name}-${id.version}.klib")
-                    addFile("${id.name}-${id.version}.klib.asc")
-                    addFile("${id.name}-${id.version}-cinterop-interop.klib")
-                    addFile("${id.name}-${id.version}-cinterop-interop.klib.asc")
-                }
+                addFile("${id.name}-${id.version}.module.asc")
+                addFile("${id.name}-${id.version}.jar")
+                addFile("${id.name}-${id.version}.jar.asc")
+                addFile("${id.name}-${id.version}.aar")
+                addFile("${id.name}-${id.version}.aar.asc")
+                addFile("${id.name}-${id.version}-sources.jar")
+                addFile("${id.name}-${id.version}.klib")
+                addFile("${id.name}-${id.version}.klib.asc")
+                addFile("${id.name}-${id.version}-cinterop-interop.klib")
+                addFile("${id.name}-${id.version}-cinterop-interop.klib.asc")
             }
         }
     }
 }
-
-tasks {
-    val fetchArtifacts by creating {
-        doLast {
-            var numArtifactsFound = 0
-            println("\r\nAll Files with Dependencies")
-            allFilesWithDependencies.incoming.artifactView {
-                lenient(true)
-            }.artifacts.forEach {
-                copyArtifact(it, internal = isInternalArtifact(it))
-                numArtifactsFound++
-            }
-            gradleModuleMetadata.incoming.artifactView {
-                lenient(true)
-            }.artifacts.forEach {
-                copyArtifact(it, internal = isInternalArtifact(it))
-                numArtifactsFound++
-            }
-            if (numArtifactsFound < 1) {
-                var message = "Artifact $artifactName not found!"
-                if (metalavaBuildId != null) {
-                    message += "\nMake sure that ab/$metalavaBuildId contains the `metalava` "
-                    message += "target and that it has finished building, or see "
-                    message += "ab/metalava-master for available build ids"
-                }
-                throw GradleException(message)
-            }
-	    println("\r\nResolved $numArtifactsFound artifacts for $artifactName.")
+tasks.register("fetchArtifacts") {
+    doLast {
+        var numArtifactsFound = 0
+        println("\r\nAll Files with Dependencies")
+        val copiedArtifacts = mutableSetOf<File>()
+        javaRuntimeConfiguration.incoming.artifactView {
+            // We need to be lenient because we are requesting files that might not exist.
+            // For example source.jar or .asc.
+            lenient(true)
+        }.artifacts.forEach {
+            copiedArtifacts.add(it.file)
+            copyArtifact(it, internal = isInternalArtifact(it))
+            numArtifactsFound++
         }
+        javaApiConfiguration.incoming.artifactView {
+            // We need to be lenient because we are requesting files that might not exist.
+            // For example source.jar or .asc.
+            lenient(true)
+        }.artifacts.forEach {
+            if (copiedArtifacts.contains(it.file)) return@forEach
+            copyArtifact(it, internal = isInternalArtifact(it))
+            numArtifactsFound++
+        }
+        if (numArtifactsFound < 1) {
+            var message = "Artifact $artifactName not found!"
+            if (metalavaBuildId != null) {
+                message += "\nMake sure that ab/$metalavaBuildId contains the `metalava` "
+                message += "target and that it has finished building, or see "
+                message += "ab/metalava-master for available build ids"
+            }
+            throw GradleException(message)
+        }
+        println("\r\nResolved $numArtifactsFound artifacts for $artifactName.")
     }
 }
 
