@@ -35,9 +35,10 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * An {@link AppInitializer} can be used to initialize all discovered [ComponentInitializer]s.
- * <br/>
- * The discovery mechanism is via `<meta-data>` entries in the merged `AndroidManifest.xml`.
+ * An {@link AppInitializer} can be used to initialize all discovered
+ * <code>ComponentInitializer</code>s. The discovery mechanism is via
+ * <code>&lt;meta-data&gt;</code> entries in the merged
+ * <code>AndroidManifest.xml</code>.
  */
 @SuppressWarnings("WeakerAccess")
 public final class AppInitializer {
