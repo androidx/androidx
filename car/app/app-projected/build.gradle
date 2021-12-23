@@ -28,7 +28,7 @@ dependencies {
 
     implementation("androidx.annotation:annotation:1.2.0")
 
-    testImplementation("junit:junit:4.13")
+    testImplementation(libs.junit)
     testImplementation(libs.testCore)
     testImplementation(libs.testRunner)
     testImplementation(libs.junit)

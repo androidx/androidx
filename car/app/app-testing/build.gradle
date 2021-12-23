@@ -33,7 +33,7 @@ dependencies {
     // Build will complain without this manual declaration.
     compileOnly libs.kotlinStdlib
 
-    testImplementation("junit:junit:4.13")
+    testImplementation(libs.junit)
     testImplementation(libs.testCore)
     testImplementation(libs.testRunner)
     testImplementation(libs.junit)

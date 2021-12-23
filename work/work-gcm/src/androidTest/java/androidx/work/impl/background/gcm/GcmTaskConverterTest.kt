@@ -29,7 +29,7 @@ import com.google.android.gms.gcm.Task
 import org.hamcrest.Matchers.greaterThan
 import org.hamcrest.Matchers.lessThanOrEqualTo
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertThat
+import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith

@@ -58,13 +58,13 @@ import com.google.common.collect.ImmutableList
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import org.junit.After
+import org.junit.Assert
 import org.junit.Assume
 import org.junit.Assume.assumeTrue
 import org.junit.Before
 import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
-import org.junit.rules.ExpectedException
 import org.junit.rules.TestRule
 import org.junit.runner.RunWith
 import java.util.concurrent.Semaphore
@@ -91,9 +91,6 @@ class CameraControllerFragmentTest {
 
         const val TIMEOUT_SECONDS = 10L
     }
-
-    @get:Rule
-    val thrown: ExpectedException = ExpectedException.none()
 
     @get:Rule
     val useCamera: TestRule = CameraUtil.grantCameraPermissionAndPreTest(testCameraRule)
@@ -379,13 +376,13 @@ class CameraControllerFragmentTest {
     @Test
     fun captureDisabled_cannotTakePicture() {
         // Arrange.
-        thrown.expectMessage("ImageCapture disabled")
-
-        // Act.
         onView(withId(R.id.capture_enabled)).perform(click())
 
-        // Assert.
-        fragment.assertCanTakePicture()
+        // Act and assert.
+        val exception = Assert.assertThrows(IllegalStateException::class.java) {
+            fragment.assertCanTakePicture()
+        }
+        assertThat(exception).hasMessageThat().isEqualTo("ImageCapture disabled.")
     }
 
     @Test

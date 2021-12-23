@@ -19,7 +19,6 @@ import android.app.Notification
 import android.os.Build
 import android.os.Bundle
 import org.junit.Assert.assertEquals
-import java.util.ArrayList
 import java.util.TreeSet
 
 internal object NotificationTester {
