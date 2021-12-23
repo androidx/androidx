@@ -33,7 +33,6 @@ import androidx.camera.camera2.pipe.integration.adapter.SessionConfigAdapter
 import androidx.camera.camera2.pipe.integration.config.CameraConfig
 import androidx.camera.camera2.pipe.integration.config.UseCaseCameraScope
 import androidx.camera.core.UseCase
-import androidx.camera.core.impl.CaptureConfig
 import androidx.camera.core.impl.Config
 import androidx.camera.core.impl.DeferrableSurface
 import androidx.camera.core.impl.SessionConfig
@@ -71,9 +70,6 @@ interface UseCaseCamera {
         afRegions: List<MeteringRectangle>,
         awbRegions: List<MeteringRectangle>
     ): Deferred<Result3A>
-
-    // Capture
-    fun capture(captureSequence: List<CaptureConfig>)
 
     // Lifecycle
     fun close()
@@ -132,13 +128,10 @@ class UseCaseCameraImpl(
     override fun setParametersAsync(
         values: Map<CaptureRequest.Key<*>, Any>,
         priority: Config.OptionPriority,
-    ): Deferred<Unit> = requestControl.appendParametersAsync(
+    ): Deferred<Unit> = requestControl.addParametersAsync(
         values = values,
         optionPriority = priority
     )
-
-    override fun capture(captureSequence: List<CaptureConfig>) =
-        requestControl.issueSingleCapture(captureSequence)
 
     override fun toString(): String = "UseCaseCamera-$debugId"
 

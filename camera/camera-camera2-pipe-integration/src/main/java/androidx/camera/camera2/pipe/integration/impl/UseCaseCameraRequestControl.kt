@@ -40,6 +40,7 @@ import androidx.camera.core.impl.DeferrableSurface
 import androidx.camera.core.impl.MutableTagBundle
 import androidx.camera.core.impl.SessionConfig
 import androidx.camera.core.impl.TagBundle
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.async
 import javax.inject.Inject
@@ -92,7 +93,7 @@ interface UseCaseCameraRequestControl {
      *  empty will use the [RequestTemplate] that is previously specified.
      *  @param listeners to receive the capture results.
      */
-    fun appendParametersAsync(
+    fun addParametersAsync(
         type: Type = Type.DEFAULT,
         values: Map<CaptureRequest.Key<*>, Any> = emptyMap(),
         optionPriority: Config.OptionPriority = defaultOptionPriority,
@@ -151,7 +152,11 @@ interface UseCaseCameraRequestControl {
     ): Deferred<Result3A>
 
     // Capture
-    fun issueSingleCapture(captureSequence: List<CaptureConfig>)
+    fun issueSingleCaptureAsync(
+        captureSequence: List<CaptureConfig>,
+        captureMode: Int,
+        flashType: Int,
+    ): List<Deferred<Void?>>
 }
 
 class UseCaseCameraRequestControlImpl @Inject constructor(
@@ -173,7 +178,7 @@ class UseCaseCameraRequestControlImpl @Inject constructor(
     private val state = UseCaseCameraState(graph, threads)
     private val configAdapter = CaptureConfigAdapter(surfaceToStreamMap, threads.backgroundExecutor)
 
-    override fun appendParametersAsync(
+    override fun addParametersAsync(
         type: UseCaseCameraRequestControl.Type,
         values: Map<CaptureRequest.Key<*>, Any>,
         optionPriority: Config.OptionPriority,
@@ -266,12 +271,17 @@ class UseCaseCameraRequestControlImpl @Inject constructor(
         )
     }
 
-    override fun issueSingleCapture(captureSequence: List<CaptureConfig>) {
+    override fun issueSingleCaptureAsync(
+        captureSequence: List<CaptureConfig>,
+        captureMode: Int,
+        flashType: Int,
+    ): List<Deferred<Void?>> {
         val sessionConfigOptions = synchronized(lock) {
             infoBundleMap.merge()
         }.options.build()
 
         state.capture(captureSequence.map { configAdapter.mapToRequest(it, sessionConfigOptions) })
+        return listOf(CompletableDeferred(null))
     }
 
     /**

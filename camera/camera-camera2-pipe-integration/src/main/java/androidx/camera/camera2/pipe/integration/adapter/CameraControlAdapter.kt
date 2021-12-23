@@ -51,7 +51,6 @@ import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.guava.asListenableFuture
 import kotlinx.coroutines.launch
-import java.util.Collections
 import javax.inject.Inject
 
 /**
@@ -158,13 +157,18 @@ class CameraControlAdapter @Inject constructor(
         captureConfigs: List<CaptureConfig>,
         captureMode: Int,
         flashType: Int,
-    ): ListenableFuture<List<Void>> {
+    ): ListenableFuture<List<Void?>> {
         val camera = useCaseManager.camera
         checkNotNull(camera) { "Attempted to issue capture requests while the camera isn't ready." }
-        camera.capture(captureConfigs)
 
         // TODO(b/199813515) : implement the preCapture
-        return Futures.immediateFuture(Collections.emptyList())
+        return Futures.allAsList(
+            camera.requestControl.issueSingleCaptureAsync(
+                captureConfigs, captureMode, flashType
+            ).map {
+                it.asListenableFuture()
+            }
+        )
     }
 
     override fun getSessionConfig(): SessionConfig {

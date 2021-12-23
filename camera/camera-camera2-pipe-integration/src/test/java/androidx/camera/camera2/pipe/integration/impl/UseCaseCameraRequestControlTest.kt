@@ -90,7 +90,7 @@ class UseCaseCameraRequestControlTest {
         requestControl.setSessionConfigAsync(
             sessionConfigBuilder.build()
         ).await()
-        requestControl.appendParametersAsync(
+        requestControl.addParametersAsync(
             values = mapOf(CaptureRequest.CONTROL_AE_EXPOSURE_COMPENSATION to 5)
         ).await()
         requestControl.setConfigAsync(
@@ -157,7 +157,7 @@ class UseCaseCameraRequestControlTest {
             type = UseCaseCameraRequestControl.Type.CAMERA2_CAMERA_CONTROL,
             config = camera2CameraControlConfig
         )
-        requestControl.appendParametersAsync(
+        requestControl.addParametersAsync(
             values = mapOf(CaptureRequest.CONTROL_AE_MODE to CaptureRequest.CONTROL_AE_MODE_OFF)
         )
         requestControl.setSessionConfigAsync(
@@ -199,7 +199,7 @@ class UseCaseCameraRequestControlTest {
             ).build(),
             tags = mapOf(testCamera2InteropTagKey to testCamera2InteropTagValue)
         )
-        requestControl.appendParametersAsync(
+        requestControl.addParametersAsync(
             values = mapOf(CaptureRequest.CONTROL_AE_MODE to CaptureRequest.CONTROL_AE_MODE_OFF),
             tags = mapOf(testTagKey to testTagValue)
         )
@@ -241,7 +241,7 @@ class UseCaseCameraRequestControlTest {
             ).build(),
             listeners = setOf(testRequestListener)
         )
-        requestControl.appendParametersAsync(
+        requestControl.addParametersAsync(
             values = mapOf(CaptureRequest.CONTROL_AE_MODE to CaptureRequest.CONTROL_AE_MODE_OFF),
             listeners = setOf(testRequestListener1)
         )

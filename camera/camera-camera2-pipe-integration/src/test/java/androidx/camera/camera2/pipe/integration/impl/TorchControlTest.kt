@@ -86,8 +86,8 @@ class TorchControlTest {
         ),
     )
 
-    private val neverCompleteRequestControl = object : UseCaseCameraRequestControl {
-        override fun appendParametersAsync(
+    private val neverCompleteTorchRequestControl = object : UseCaseCameraRequestControl {
+        override fun addParametersAsync(
             type: UseCaseCameraRequestControl.Type,
             values: Map<CaptureRequest.Key<*>, Any>,
             optionPriority: androidx.camera.core.impl.Config.OptionPriority,
@@ -127,7 +127,12 @@ class TorchControlTest {
             return CompletableDeferred(Result3A(status = Result3A.Status.OK))
         }
 
-        override fun issueSingleCapture(captureSequence: List<CaptureConfig>) {
+        override fun issueSingleCaptureAsync(
+            captureSequence: List<CaptureConfig>,
+            captureMode: Int,
+            flashType: Int,
+        ): List<Deferred<Void?>> {
+            return listOf(CompletableDeferred(null))
         }
     }
 
@@ -214,7 +219,7 @@ class TorchControlTest {
     @Test
     fun enableTorchTwice_cancelPreviousFuture(): Unit = runBlocking {
         val deferred = torchControl.also {
-            it.useCaseCamera = FakeUseCaseCamera(requestControl = neverCompleteRequestControl)
+            it.useCaseCamera = FakeUseCaseCamera(requestControl = neverCompleteTorchRequestControl)
         }.setTorchAsync(true)
 
         torchControl.setTorchAsync(true)
@@ -227,7 +232,7 @@ class TorchControlTest {
     @Test
     fun setInActive_cancelPreviousFuture(): Unit = runBlocking {
         val deferred = torchControl.also {
-            it.useCaseCamera = FakeUseCaseCamera(requestControl = neverCompleteRequestControl)
+            it.useCaseCamera = FakeUseCaseCamera(requestControl = neverCompleteTorchRequestControl)
         }.setTorchAsync(true)
 
         // reset() will be called after all the UseCases are detached.

@@ -96,7 +96,7 @@ class TorchControl @Inject constructor(
 
                 if (torch) {
                     // Hold the internal AE mode to ON while the torch is turned ON.
-                    useCaseCamera.requestControl.appendParametersAsync(
+                    useCaseCamera.requestControl.addParametersAsync(
                         type = UseCaseCameraRequestControl.Type.TORCH,
                         values = mapOf(
                             CaptureRequest.CONTROL_AE_MODE to CaptureRequest.CONTROL_AE_MODE_ON,
