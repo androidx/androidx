@@ -21,12 +21,15 @@ import android.graphics.Rect
 import android.hardware.camera2.CameraCharacteristics
 import android.util.Rational
 import androidx.annotation.RequiresApi
+import androidx.arch.core.util.Function
 import androidx.camera.camera2.pipe.CameraPipe
 import androidx.camera.camera2.pipe.core.Log.warn
 import androidx.camera.camera2.pipe.integration.config.CameraScope
 import androidx.camera.camera2.pipe.integration.impl.CameraProperties
 import androidx.camera.camera2.pipe.integration.impl.EvCompControl
+import androidx.camera.camera2.pipe.integration.impl.FlashControl
 import androidx.camera.camera2.pipe.integration.impl.FocusMeteringControl
+import androidx.camera.camera2.pipe.integration.impl.TorchControl
 import androidx.camera.camera2.pipe.integration.impl.UseCaseCamera
 import androidx.camera.camera2.pipe.integration.impl.UseCaseManager
 import androidx.camera.camera2.pipe.integration.impl.UseCaseThreads
@@ -36,16 +39,17 @@ import androidx.camera.camera2.pipe.integration.interop.CaptureRequestOptions
 import androidx.camera.camera2.pipe.integration.interop.ExperimentalCamera2Interop
 import androidx.camera.core.FocusMeteringAction
 import androidx.camera.core.FocusMeteringResult
-import androidx.camera.core.ImageCapture
-import androidx.camera.core.TorchState
 import androidx.camera.core.impl.CameraControlInternal
 import androidx.camera.core.impl.CaptureConfig
 import androidx.camera.core.impl.Config
 import androidx.camera.core.impl.SessionConfig
+import androidx.camera.core.impl.utils.executor.CameraXExecutors
+import androidx.camera.core.impl.utils.futures.FutureChain
 import androidx.camera.core.impl.utils.futures.Futures
 import com.google.common.util.concurrent.ListenableFuture
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.guava.asListenableFuture
 import kotlinx.coroutines.launch
 import java.util.Collections
 import javax.inject.Inject
@@ -63,15 +67,15 @@ import javax.inject.Inject
 @OptIn(ExperimentalCoroutinesApi::class, ExperimentalCamera2Interop::class)
 class CameraControlAdapter @Inject constructor(
     private val cameraProperties: CameraProperties,
+    private val cameraStateAdapter: CameraStateAdapter,
+    private val evCompControl: EvCompControl,
+    private val flashControl: FlashControl,
+    private val torchControl: TorchControl,
     private val threads: UseCaseThreads,
     private val useCaseManager: UseCaseManager,
-    private val cameraStateAdapter: CameraStateAdapter,
     private val zoomControl: ZoomControl,
-    private val evCompControl: EvCompControl,
     val camera2cameraControl: Camera2CameraControl,
 ) : CameraControlInternal {
-    private var imageCaptureFlashMode: Int = ImageCapture.FLASH_MODE_OFF
-
     private val focusMeteringControl = FocusMeteringControl(
         cameraProperties,
         useCaseManager,
@@ -96,26 +100,14 @@ class CameraControlAdapter @Inject constructor(
         return camera2cameraControl.getCaptureRequestOptions()
     }
 
-    override fun enableTorch(torch: Boolean): ListenableFuture<Void> {
-        // Launch UNDISPATCHED to preserve interaction order with the camera.
-        return threads.scope.launch(start = CoroutineStart.UNDISPATCHED) {
-            useCaseManager.camera?.let {
-                // Tell the camera to turn the torch on / off.
-                val result = it.setTorchAsync(torch)
-
-                // Update the torch state
-                cameraStateAdapter.setTorchState(
-                    when (torch) {
-                        true -> TorchState.ON
-                        false -> TorchState.OFF
-                    }
-                )
-
-                // Wait until the command is received by the camera.
-                result.await()
-            }
-        }.asListenableFuture()
-    }
+    override fun enableTorch(torch: Boolean): ListenableFuture<Void> =
+        Futures.nonCancellationPropagating(
+            FutureChain.from(
+                torchControl.setTorchAsync(torch).asListenableFuture()
+            ).transform(
+                Function { return@Function null }, CameraXExecutors.directExecutor()
+            )
+        )
 
     override fun startFocusAndMetering(
         action: FocusMeteringAction
@@ -150,12 +142,11 @@ class CameraControlAdapter @Inject constructor(
     }
 
     override fun getFlashMode(): Int {
-        return imageCaptureFlashMode
+        return flashControl.flashMode
     }
 
     override fun setFlashMode(flashMode: Int) {
-        warn { "TODO: setFlashMode is not yet supported" }
-        this.imageCaptureFlashMode = flashMode
+        flashControl.setFlashAsync(flashMode)
     }
 
     override fun setExposureCompensationIndex(exposure: Int): ListenableFuture<Int> =
