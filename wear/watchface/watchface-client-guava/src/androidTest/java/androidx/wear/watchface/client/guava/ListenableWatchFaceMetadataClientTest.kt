@@ -88,7 +88,7 @@ public class ListenableWatchFaceMetadataClientTest {
         val watchFaceMetadataClient = listenableFuture.get(TIMEOUT_MS, TimeUnit.MILLISECONDS)
         val schema = watchFaceMetadataClient.getUserStyleSchema()
 
-        Truth.assertThat(schema.userStyleSettings.size).isEqualTo(4)
+        Truth.assertThat(schema.userStyleSettings.size).isEqualTo(5)
         Truth.assertThat(schema.userStyleSettings[0].id.value).isEqualTo(
             "color_style_setting"
         )
@@ -100,6 +100,9 @@ public class ListenableWatchFaceMetadataClientTest {
         )
         Truth.assertThat(schema.userStyleSettings[3].id.value).isEqualTo(
             "complications_style_setting"
+        )
+        Truth.assertThat(schema.userStyleSettings[4].id.value).isEqualTo(
+            "hours_draw_freq_style_setting"
         )
     }
 }
