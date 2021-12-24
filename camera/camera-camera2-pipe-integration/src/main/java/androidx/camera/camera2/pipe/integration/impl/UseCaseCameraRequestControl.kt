@@ -22,6 +22,9 @@ import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.params.MeteringRectangle
 import androidx.annotation.GuardedBy
 import androidx.annotation.RequiresApi
+import androidx.camera.camera2.pipe.AeMode
+import androidx.camera.camera2.pipe.AfMode
+import androidx.camera.camera2.pipe.AwbMode
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.Lock3ABehavior
 import androidx.camera.camera2.pipe.Request
@@ -38,6 +41,7 @@ import androidx.camera.core.impl.MutableTagBundle
 import androidx.camera.core.impl.SessionConfig
 import androidx.camera.core.impl.TagBundle
 import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.async
 import javax.inject.Inject
 
 /**
@@ -57,6 +61,8 @@ interface UseCaseCameraRequestControl {
     enum class Type {
         SESSION_CONFIG,
         DEFAULT,
+        FLASH,
+        TORCH,
         CAMERA2_CAMERA_CONTROL,
     }
 
@@ -305,13 +311,42 @@ class UseCaseCameraRequestControlImpl @Inject constructor(
     private fun InfoBundle.updateCameraStateAsync(
         streams: Set<StreamId>? = null,
         template: RequestTemplate? = null,
-    ) = state.updateAsync(
-        parameters = options.build().toParameters(),
-        appendParameters = false,
-        internalParameters = mapOf(CAMERAX_TAG_BUNDLE to toTagBundle()),
-        appendInternalParameters = false,
-        streams = streams,
-        template = template,
-        listeners = listeners,
-    )
+    ): Deferred<Unit> {
+        return threads.sequentialScope.async {
+            val implConfig = options.build().apply {
+                // TODO(wenhungteng@): Camera-pipe will provide a way to let clients override some
+                // of the 3A parameters, we may need to use that way instead of using
+                // CameraGraph.Session#update3A to control the 3A state.
+                update3A()
+            }
+
+            state.updateAsync(
+                parameters = implConfig.toParameters(),
+                appendParameters = false,
+                internalParameters = mapOf(CAMERAX_TAG_BUNDLE to toTagBundle()),
+                appendInternalParameters = false,
+                streams = streams,
+                template = template,
+                listeners = listeners,
+            ).join()
+        }
+    }
+
+    private suspend fun Camera2ImplConfig.update3A() {
+        val aeMode = getCaptureRequestOption(CaptureRequest.CONTROL_AE_MODE)?.let {
+            AeMode.fromIntOrNull(it)
+        }
+        val afMode = getCaptureRequestOption(CaptureRequest.CONTROL_AF_MODE)?.let {
+            AfMode.fromIntOrNull(it)
+        }
+        val awbMode = getCaptureRequestOption(CaptureRequest.CONTROL_AWB_MODE)?.let {
+            AwbMode.fromIntOrNull(it)
+        }
+
+        if (aeMode != null || afMode != null || awbMode != null) {
+            graph.acquireSession().use {
+                it.update3A(aeMode = aeMode, afMode = afMode, awbMode = awbMode)
+            }.join()
+        }
+    }
 }
