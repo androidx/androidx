@@ -29,11 +29,13 @@ android {
         multiDexEnabled true
     }
 
-    buildTypes.all {
-        minifyEnabled true
-        shrinkResources true
-        proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-        testProguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+    buildTypes {
+        release {
+            minifyEnabled true
+            shrinkResources true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            testProguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
     }
 }
 
@@ -65,6 +67,7 @@ dependencies {
     androidTestImplementation(libs.testRules)
     androidTestImplementation(libs.testUiautomator)
     androidTestImplementation(libs.espressoCore)
+    androidTestImplementation(libs.truth)
     androidTestImplementation(project(":camera:camera-testing"))
     androidTestCompileOnly(project(":camera:camera-extensions-stub"))
 

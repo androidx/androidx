@@ -14,20 +14,21 @@
  * limitations under the License.
  */
 
-package androidx.camera.extensions
+package androidx.camera.integration.extensions
 
 import android.content.Context
 import android.hardware.camera2.CameraCharacteristics
 import android.os.Build
 import androidx.camera.camera2.interop.Camera2CameraInfo
 import androidx.camera.core.CameraSelector
-import androidx.camera.extensions.ExtensionMode.Mode
+import androidx.camera.extensions.ExtensionsManager
 import androidx.camera.extensions.impl.PreviewExtenderImpl.ProcessorType
 import androidx.camera.extensions.impl.PreviewImageProcessorImpl
 import androidx.camera.extensions.impl.RequestUpdateProcessorImpl
 import androidx.camera.extensions.internal.ExtensionVersion
 import androidx.camera.extensions.internal.Version
-import androidx.camera.extensions.util.ExtensionsTestUtil
+import androidx.camera.integration.extensions.util.ExtensionsTestUtil
+import androidx.camera.integration.extensions.utils.CameraSelectorUtil
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.fakes.FakeLifecycleOwner
@@ -41,6 +42,7 @@ import kotlinx.coroutines.withContext
 import org.junit.After
 import org.junit.Assume.assumeTrue
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
@@ -50,39 +52,32 @@ import java.util.concurrent.TimeUnit
 @RunWith(Parameterized::class)
 @SdkSuppress(minSdkVersion = 21)
 class PreviewExtenderValidationTest(
-    @field:Mode @param:Mode private val extensionMode: Int,
-    @field:CameraSelector.LensFacing @param:CameraSelector.LensFacing private val lensFacing: Int
+    private val cameraId: String,
+    private val extensionMode: Int
 ) {
+    @get:Rule
+    val useCamera = CameraUtil.grantCameraPermissionAndPreTest()
+
     private val context = ApplicationProvider.getApplicationContext<Context>()
 
     private lateinit var cameraProvider: ProcessCameraProvider
     private lateinit var extensionsManager: ExtensionsManager
-    private lateinit var cameraId: String
     private lateinit var cameraCharacteristics: CameraCharacteristics
+    private lateinit var baseCameraSelector: CameraSelector
+    private lateinit var extensionCameraSelector: CameraSelector
 
     @Before
     fun setUp(): Unit = runBlocking {
-        assumeTrue(CameraUtil.deviceHasCamera())
-        assumeTrue(
-            CameraUtil.hasCameraWithLensFacing(
-                lensFacing
-            )
-        )
-
         cameraProvider = ProcessCameraProvider.getInstance(context)[10000, TimeUnit.MILLISECONDS]
         extensionsManager = ExtensionsManager.getInstanceAsync(
             context,
             cameraProvider
         )[10000, TimeUnit.MILLISECONDS]
-        assumeTrue(
-            extensionsManager.isExtensionAvailable(
-                CameraSelector.Builder().requireLensFacing(lensFacing).build(),
-                extensionMode
-            )
-        )
 
-        val baseCameraSelector = CameraSelector.Builder().requireLensFacing(lensFacing).build()
-        val extensionCameraSelector = extensionsManager.getExtensionEnabledCameraSelector(
+        baseCameraSelector = CameraSelectorUtil.createCameraSelectorById(cameraId)
+        assumeTrue(extensionsManager.isExtensionAvailable(baseCameraSelector, extensionMode))
+
+        extensionCameraSelector = extensionsManager.getExtensionEnabledCameraSelector(
             baseCameraSelector,
             extensionMode
         )
@@ -91,14 +86,16 @@ class PreviewExtenderValidationTest(
             cameraProvider.bindToLifecycle(FakeLifecycleOwner(), extensionCameraSelector)
         }
 
-        cameraId = Camera2CameraInfo.from(camera.cameraInfo).cameraId
         cameraCharacteristics = Camera2CameraInfo.extractCameraCharacteristics(camera.cameraInfo)
     }
 
     @After
-    fun cleanUp() {
+    fun cleanUp(): Unit = runBlocking {
         if (::cameraProvider.isInitialized) {
-            cameraProvider.shutdown()[10000, TimeUnit.MILLISECONDS]
+            withContext(Dispatchers.Main) {
+                cameraProvider.unbindAll()
+                cameraProvider.shutdown()[10000, TimeUnit.MILLISECONDS]
+            }
         }
 
         if (::extensionsManager.isInitialized) {
@@ -108,9 +105,9 @@ class PreviewExtenderValidationTest(
 
     companion object {
         @JvmStatic
-        @Parameterized.Parameters(name = "extension = {0}, facing = {1}")
-        fun initParameters(): Collection<Array<Any>> =
-            ExtensionsTestUtil.getAllExtensionsLensFacingCombinations()
+        @get:Parameterized.Parameters(name = "cameraId = {0}, extensionMode = {1}")
+        val parameters: Collection<Array<Any>>
+            get() = ExtensionsTestUtil.getAllCameraIdExtensionModeCombinations()
     }
 
     @Test

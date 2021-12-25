@@ -14,21 +14,21 @@
  * limitations under the License.
  */
 
-package androidx.camera.extensions
+package androidx.camera.integration.extensions
 
 import android.content.Context
 import android.hardware.camera2.CameraCharacteristics
 import android.os.Build
 import androidx.camera.camera2.interop.Camera2CameraInfo
-import androidx.camera.core.Camera
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraState
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.impl.ImageCaptureConfig
-import androidx.camera.extensions.ExtensionMode.Mode
+import androidx.camera.extensions.ExtensionsManager
 import androidx.camera.extensions.internal.ExtensionVersion
 import androidx.camera.extensions.internal.Version
-import androidx.camera.extensions.util.ExtensionsTestUtil
+import androidx.camera.integration.extensions.util.ExtensionsTestUtil
+import androidx.camera.integration.extensions.utils.CameraSelectorUtil
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.fakes.FakeLifecycleOwner
@@ -43,6 +43,7 @@ import kotlinx.coroutines.withContext
 import org.junit.After
 import org.junit.Assume.assumeTrue
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
@@ -53,48 +54,40 @@ import java.util.concurrent.TimeUnit
 @RunWith(Parameterized::class)
 @SdkSuppress(minSdkVersion = 21)
 class ImageCaptureExtenderValidationTest(
-    @field:Mode @param:Mode private val extensionMode: Int,
-    @field:CameraSelector.LensFacing @param:CameraSelector.LensFacing private val lensFacing: Int
+    private val cameraId: String,
+    private val extensionMode: Int
 ) {
+    @get:Rule
+    val useCamera = CameraUtil.grantCameraPermissionAndPreTest()
+
     private val context = ApplicationProvider.getApplicationContext<Context>()
 
     private lateinit var cameraProvider: ProcessCameraProvider
     private lateinit var extensionsManager: ExtensionsManager
-    private lateinit var cameraId: String
     private lateinit var cameraCharacteristics: CameraCharacteristics
+    private lateinit var baseCameraSelector: CameraSelector
+    private lateinit var extensionCameraSelector: CameraSelector
 
     @Before
     fun setUp(): Unit = runBlocking {
-        assumeTrue(CameraUtil.deviceHasCamera())
-        assumeTrue(
-            CameraUtil.hasCameraWithLensFacing(
-                lensFacing
-            )
-        )
-
         cameraProvider = ProcessCameraProvider.getInstance(context)[10000, TimeUnit.MILLISECONDS]
         extensionsManager = ExtensionsManager.getInstanceAsync(
             context,
             cameraProvider
         )[10000, TimeUnit.MILLISECONDS]
-        assumeTrue(
-            extensionsManager.isExtensionAvailable(
-                CameraSelector.Builder().requireLensFacing(lensFacing).build(),
-                extensionMode
-            )
-        )
 
-        val baseCameraSelector = CameraSelector.Builder().requireLensFacing(lensFacing).build()
-        val extensionCameraSelector = extensionsManager.getExtensionEnabledCameraSelector(
+        baseCameraSelector = CameraSelectorUtil.createCameraSelectorById(cameraId)
+        assumeTrue(extensionsManager.isExtensionAvailable(baseCameraSelector, extensionMode))
+
+        extensionCameraSelector = extensionsManager.getExtensionEnabledCameraSelector(
             baseCameraSelector,
             extensionMode
         )
-        lateinit var camera: Camera
-        withContext(Dispatchers.Main) {
-            camera = cameraProvider.bindToLifecycle(FakeLifecycleOwner(), extensionCameraSelector)
+
+        val camera = withContext(Dispatchers.Main) {
+            cameraProvider.bindToLifecycle(FakeLifecycleOwner(), extensionCameraSelector)
         }
 
-        cameraId = Camera2CameraInfo.from(camera.cameraInfo).cameraId
         cameraCharacteristics = Camera2CameraInfo.extractCameraCharacteristics(camera.cameraInfo)
     }
 
@@ -103,8 +96,8 @@ class ImageCaptureExtenderValidationTest(
         if (::cameraProvider.isInitialized) {
             withContext(Dispatchers.Main) {
                 cameraProvider.unbindAll()
+                cameraProvider.shutdown()[10000, TimeUnit.MILLISECONDS]
             }
-            cameraProvider.shutdown()[10000, TimeUnit.MILLISECONDS]
         }
 
         if (::extensionsManager.isInitialized) {
@@ -114,9 +107,9 @@ class ImageCaptureExtenderValidationTest(
 
     companion object {
         @JvmStatic
-        @Parameterized.Parameters(name = "extension = {0}, facing = {1}")
-        fun initParameters(): Collection<Array<Any>> =
-            ExtensionsTestUtil.getAllExtensionsLensFacingCombinations()
+        @get:Parameterized.Parameters(name = "cameraId = {0}, extensionMode = {1}")
+        val parameters: Collection<Array<Any>>
+            get() = ExtensionsTestUtil.getAllCameraIdExtensionModeCombinations()
     }
 
     @Test
@@ -152,23 +145,37 @@ class ImageCaptureExtenderValidationTest(
     }
 
     @Test
-    fun getEstimatedCaptureLatencyRangeTest() {
-        // getEstimatedCaptureLatencyRange supported since version 1.2
+    fun getEstimatedCaptureLatencyRangeSameAsImplClass_aboveVersion1_2(): Unit = runBlocking {
         assumeTrue(
             ExtensionVersion.getRuntimeVersion()!!.compareTo(Version.VERSION_1_2) >= 0
         )
 
-        // Creates the ImageCaptureExtenderImpl to retrieve the estimated capture latency range
-        // from vendor library for the target effect mode.
+        // This call should not cause any exception even if the vendor library doesn't implement
+        // the getEstimatedCaptureLatencyRange function.
+        val latencyInfo = extensionsManager.getEstimatedCaptureLatencyRange(
+            baseCameraSelector,
+            extensionMode
+        )
+
+        // Calls bind to lifecycle to get the selected camera
+        var camera = withContext(Dispatchers.Main) {
+            cameraProvider.bindToLifecycle(FakeLifecycleOwner(), extensionCameraSelector)
+        }
+
+        val cameraId = Camera2CameraInfo.from(camera.cameraInfo).cameraId
+        val characteristics = Camera2CameraInfo.extractCameraCharacteristics(camera.cameraInfo)
+
+        // Creates ImageCaptureExtenderImpl directly to retrieve the capture latency range info
         val impl = ExtensionsTestUtil.createImageCaptureExtenderImpl(
             extensionMode,
             cameraId,
-            cameraCharacteristics
+            characteristics
         )
+        val expectedLatencyInfo = impl.getEstimatedCaptureLatencyRange(null)
 
-        // NoSuchMethodError will be thrown if getEstimatedCaptureLatencyRange is not implemented
-        // in vendor library, and then the test will fail.
-        impl.getEstimatedCaptureLatencyRange(null)
+        // Compares the values obtained from ExtensionsManager and ImageCaptureExtenderImpl are
+        // the same.
+        assertThat(latencyInfo).isEqualTo(expectedLatencyInfo)
     }
 
     @LargeTest
@@ -183,14 +190,11 @@ class ImageCaptureExtenderValidationTest(
         // Only runs the test when CaptureProcessor is not null
         assumeTrue(impl.captureProcessor != null)
 
-        val lifecycleOwner = FakeLifecycleOwner()
-        lifecycleOwner.startAndResume()
-
-        val cameraSelector = CameraSelector.Builder().requireLensFacing(lensFacing).build()
-        val extensionsCameraSelector = extensionsManager.getExtensionEnabledCameraSelector(
-            cameraSelector,
-            extensionMode
-        )
+        val lifecycleOwner: FakeLifecycleOwner
+        withContext(Dispatchers.Main) {
+            lifecycleOwner = FakeLifecycleOwner()
+            lifecycleOwner.startAndResume()
+        }
 
         val imageCapture = ImageCapture.Builder().build()
 
@@ -198,7 +202,7 @@ class ImageCaptureExtenderValidationTest(
 
         withContext(Dispatchers.Main) {
             val camera = cameraProvider.bindToLifecycle(
-                lifecycleOwner, extensionsCameraSelector, imageCapture
+                lifecycleOwner, extensionCameraSelector, imageCapture
             )
 
             camera.cameraInfo.cameraState.observeForever { cameraState ->

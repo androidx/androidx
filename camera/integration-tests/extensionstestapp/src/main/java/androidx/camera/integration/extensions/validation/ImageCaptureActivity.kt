@@ -49,6 +49,8 @@ import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.extensions.ExtensionMode
 import androidx.camera.extensions.ExtensionsManager
 import androidx.camera.integration.extensions.R
+import androidx.camera.integration.extensions.utils.CameraSelectorUtil.createCameraSelectorById
+import androidx.camera.integration.extensions.utils.ExtensionModeUtil.getExtensionModeStringFromId
 import androidx.camera.integration.extensions.validation.CameraValidationResultActivity.Companion.INTENT_EXTRA_KEY_CAMERA_ID
 import androidx.camera.integration.extensions.validation.CameraValidationResultActivity.Companion.INTENT_EXTRA_KEY_ERROR_CODE
 import androidx.camera.integration.extensions.validation.CameraValidationResultActivity.Companion.INTENT_EXTRA_KEY_EXTENSION_MODE
@@ -59,8 +61,6 @@ import androidx.camera.integration.extensions.validation.CameraValidationResultA
 import androidx.camera.integration.extensions.validation.CameraValidationResultActivity.Companion.INVALID_LENS_FACING
 import androidx.camera.integration.extensions.validation.CameraValidationResultActivity.Companion.getLensFacingStringFromInt
 import androidx.camera.integration.extensions.validation.TestResults.Companion.INVALID_EXTENSION_MODE
-import androidx.camera.integration.extensions.validation.TestResults.Companion.createCameraSelectorById
-import androidx.camera.integration.extensions.validation.TestResults.Companion.getExtensionModeStringFromId
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
 import androidx.concurrent.futures.await

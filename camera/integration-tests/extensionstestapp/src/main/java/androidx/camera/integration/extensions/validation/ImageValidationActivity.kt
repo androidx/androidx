@@ -34,6 +34,7 @@ import android.widget.ImageView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.camera.integration.extensions.R
+import androidx.camera.integration.extensions.utils.ExtensionModeUtil.getExtensionModeStringFromId
 import androidx.camera.integration.extensions.validation.CameraValidationResultActivity.Companion.INTENT_EXTRA_KEY_CAMERA_ID
 import androidx.camera.integration.extensions.validation.CameraValidationResultActivity.Companion.INTENT_EXTRA_KEY_ERROR_CODE
 import androidx.camera.integration.extensions.validation.CameraValidationResultActivity.Companion.INTENT_EXTRA_KEY_EXTENSION_MODE
@@ -54,7 +55,6 @@ import androidx.camera.integration.extensions.validation.TestResults.Companion.T
 import androidx.camera.integration.extensions.validation.TestResults.Companion.TEST_RESULT_NOT_TESTED
 import androidx.camera.integration.extensions.validation.TestResults.Companion.TEST_RESULT_PASSED
 import androidx.camera.integration.extensions.validation.TestResults.Companion.copyTempFileToOutputLocation
-import androidx.camera.integration.extensions.validation.TestResults.Companion.getExtensionModeStringFromId
 import androidx.core.app.ActivityCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
