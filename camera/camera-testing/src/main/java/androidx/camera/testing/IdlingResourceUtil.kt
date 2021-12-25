@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 The Android Open Source Project
+ * Copyright 2021 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,19 +14,16 @@
  * limitations under the License.
  */
 
-package androidx.camera.integration.extensions.idlingresource;
+package androidx.camera.testing
 
-import android.view.View;
+import androidx.test.espresso.Espresso
+import androidx.test.espresso.IdlingRegistry
+import androidx.test.espresso.IdlingResource
 
-/** Idling resource which waits for a view to be shown. */
-public class WaitForViewToShow extends ViewIdlingResource {
-
-    public WaitForViewToShow(int viewId) {
-        super(viewId);
-    }
-
-    @Override
-    protected boolean isViewIdle(View view) {
-        return view.isShown();
+fun IdlingResource?.waitForIdle() {
+    if (this != null) {
+        IdlingRegistry.getInstance().register(this)
+        Espresso.onIdle()
+        IdlingRegistry.getInstance().unregister(this)
     }
 }
