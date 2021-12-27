@@ -18,6 +18,7 @@
 
 package androidx.camera.camera2.pipe.integration.impl
 
+import android.hardware.camera2.CameraDevice
 import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.params.MeteringRectangle
 import androidx.annotation.GuardedBy
@@ -45,6 +46,8 @@ import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.async
 import javax.inject.Inject
+
+private const val DEFAULT_REQUEST_TEMPLATE = CameraDevice.TEMPLATE_PREVIEW
 
 /**
  * The RequestControl provides a couple of APIs to update the config of the camera, it also stores
@@ -171,7 +174,8 @@ class UseCaseCameraRequestControlImpl @Inject constructor(
     private data class InfoBundle(
         val options: Camera2ImplConfig.Builder = Camera2ImplConfig.Builder(),
         val tags: MutableMap<String, Any> = mutableMapOf(),
-        val listeners: MutableSet<Request.Listener> = mutableSetOf()
+        val listeners: MutableSet<Request.Listener> = mutableSetOf(),
+        var template: RequestTemplate? = null,
     )
 
     @GuardedBy("lock")
@@ -191,11 +195,13 @@ class UseCaseCameraRequestControlImpl @Inject constructor(
             it.options.addAllCaptureRequestOptionsWithPriority(values, optionPriority)
             it.tags.putAll(tags)
             it.listeners.addAll(listeners)
+            template?.let { template ->
+                it.template = template
+            }
         }
         infoBundleMap.merge()
     }.updateCameraStateAsync(
         streams = streams,
-        template = template,
     )
 
     override fun setConfigAsync(
@@ -213,12 +219,12 @@ class UseCaseCameraRequestControlImpl @Inject constructor(
                 }
             },
             tags.toMutableMap(),
-            listeners.toMutableSet()
+            listeners.toMutableSet(),
+            template,
         )
         infoBundleMap.merge()
     }.updateCameraStateAsync(
         streams = streams,
-        template = template,
     )
 
     override fun setSessionConfigAsync(sessionConfig: SessionConfig): Deferred<Unit> {
@@ -276,11 +282,19 @@ class UseCaseCameraRequestControlImpl @Inject constructor(
         captureMode: Int,
         flashType: Int,
     ): List<Deferred<Void?>> {
-        val sessionConfigOptions = synchronized(lock) {
+        val infoBundle = synchronized(lock) {
             infoBundleMap.merge()
-        }.options.build()
+        }
 
-        state.capture(captureSequence.map { configAdapter.mapToRequest(it, sessionConfigOptions) })
+        state.capture(captureSequence.map {
+            configAdapter.mapToRequest(
+                captureConfig = it,
+                requestTemplate = infoBundle.template!!,
+                sessionConfigOptions = infoBundle.options.build()
+            )
+        })
+
+        // TODO(b/199813515): Complete the CompletableDeferred when the capture is completed.
         return listOf(CompletableDeferred(null))
     }
 
@@ -295,11 +309,16 @@ class UseCaseCameraRequestControlImpl @Inject constructor(
      */
     private fun Map<UseCaseCameraRequestControl.Type, InfoBundle>.merge(): InfoBundle =
         InfoBundle().also {
+            it.template = RequestTemplate(DEFAULT_REQUEST_TEMPLATE)
+        }.also {
             UseCaseCameraRequestControl.Type.values().forEach { type ->
                 getOrElse(type) { InfoBundle() }.also { infoBundleInType ->
                     it.options.insertAllOptions(infoBundleInType.options.mutableConfig)
                     it.tags.putAll(infoBundleInType.tags)
                     it.listeners.addAll(infoBundleInType.listeners)
+                    infoBundleInType.template?.let { template ->
+                        it.template = template
+                    }
                 }
             }
         }
@@ -320,7 +339,6 @@ class UseCaseCameraRequestControlImpl @Inject constructor(
 
     private fun InfoBundle.updateCameraStateAsync(
         streams: Set<StreamId>? = null,
-        template: RequestTemplate? = null,
     ): Deferred<Unit> {
         return threads.sequentialScope.async {
             val implConfig = options.build().apply {

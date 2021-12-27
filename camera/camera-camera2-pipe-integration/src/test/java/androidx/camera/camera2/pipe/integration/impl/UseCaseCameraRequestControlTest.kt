@@ -28,6 +28,7 @@ import androidx.camera.camera2.pipe.integration.adapter.CaptureConfigAdapter
 import androidx.camera.camera2.pipe.integration.adapter.RobolectricCameraPipeTestRunner
 import androidx.camera.camera2.pipe.integration.config.UseCaseGraphConfig
 import androidx.camera.camera2.pipe.integration.testing.FakeCameraGraph
+import androidx.camera.camera2.pipe.integration.testing.FakeCameraProperties
 import androidx.camera.camera2.pipe.integration.testing.FakeSurface
 import androidx.camera.camera2.pipe.testing.FakeFrameInfo
 import androidx.camera.camera2.pipe.testing.FakeRequestMetadata
@@ -65,6 +66,7 @@ class UseCaseCameraRequestControlTest {
             dispatcher
         )
     }
+    private val fakeCameraProperties = FakeCameraProperties()
     private val fakeCameraGraph = FakeCameraGraph()
     private val fakeUseCaseGraphConfig = UseCaseGraphConfig(
         graph = fakeCameraGraph,
@@ -72,6 +74,7 @@ class UseCaseCameraRequestControlTest {
     )
     private val fakeConfigAdapter = CaptureConfigAdapter(
         useCaseGraphConfig = fakeUseCaseGraphConfig,
+        cameraProperties = fakeCameraProperties,
         threads = useCaseThreads,
     )
     private val fakeUseCaseCameraState = UseCaseCameraState(
