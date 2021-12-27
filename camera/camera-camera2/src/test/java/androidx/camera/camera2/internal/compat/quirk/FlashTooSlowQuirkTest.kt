@@ -33,7 +33,7 @@ import org.robolectric.shadows.ShadowCameraCharacteristics
 @RunWith(ParameterizedRobolectricTestRunner::class)
 @DoNotInstrument
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
-class AutoFlashUnderExposedQuirkTest(
+class FlashTooSlowQuirkTest(
     private val model: String,
     private val lensFacing: Int,
     private val enabled: Boolean
@@ -75,6 +75,6 @@ class AutoFlashUnderExposedQuirkTest(
         val cameraQuirks = getCameraQuirks(lensFacing)
 
         // Verify
-        assertThat(cameraQuirks.contains(AutoFlashUnderExposedQuirk::class.java)).isEqualTo(enabled)
+        assertThat(cameraQuirks.contains(FlashTooSlowQuirk::class.java)).isEqualTo(enabled)
     }
 }
