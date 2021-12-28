@@ -923,7 +923,7 @@ class ProfileTranscoder {
             long typeIdCount = readUInt32(is);
             // Class Index Size
             int classIdSetSize = readUInt16(is);
-            DexProfileData data = findByName(profile, profileKey);
+            DexProfileData data = findByDexName(profile, profileKey);
             if (data == null) {
                 throw error("Missing profile key: " + profileKey);
             }
@@ -944,18 +944,18 @@ class ProfileTranscoder {
     }
 
     @Nullable
-    private static DexProfileData findByName(
+    private static DexProfileData findByDexName(
             @NonNull DexProfileData[] profile,
-            @NonNull String name) {
+            @NonNull String profileKey) {
 
         if (profile.length <= 0) return null;
+        // Searching by using dexName here given the apkName is somewhat irrelevant.
+        // This is because we are essentially installing the profile bundled as part of the APK
+        // itself. This is more forgiving when the apkName does not align with the one used when
+        // generating a profile with profgen.
+        String dexName = extractKey(profileKey);
         for (int i = 0; i < profile.length; i++) {
-            String profileKey = generateDexKey(
-                    profile[i].apkName,
-                    profile[i].dexName,
-                    ProfileVersion.V015_S
-            );
-            if (name.equals(profileKey)) {
+            if (profile[i].dexName.equals(dexName)) {
                 return profile[i];
             }
         }
@@ -1046,6 +1046,19 @@ class ProfileTranscoder {
         } else {
             return value;
         }
+    }
+
+    @NonNull
+    private static String extractKey(@NonNull String profileKey) {
+        int index = profileKey.indexOf("!");
+        if (index < 0) {
+            index = profileKey.indexOf(":");
+        }
+        if (index > 0) {
+            // We need the string after the separator
+            return profileKey.substring(index + 1);
+        }
+        return profileKey;
     }
 
     /**
