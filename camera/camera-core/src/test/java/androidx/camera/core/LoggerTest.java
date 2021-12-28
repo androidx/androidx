@@ -42,8 +42,8 @@ import java.util.List;
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
 public class LoggerTest {
 
-    private static final String TAG = "aTag";
-    private static final String LONG_TAG = "thisIsAnExcessivelyLongTag";
+    private static final String TAG = "LoggerTestTag";
+    private static final String LONG_TAG = "LoggerTestExcessivelyLongTag";
     private static final String LOG_MESSAGE = "this is a log message!";
     private static final String ANOTHER_LOG_MESSAGE = "this is another log message!";
     private static final String YET_ANOTHER_LOG_MESSAGE = "this is yet another log message!";
@@ -104,7 +104,7 @@ public class LoggerTest {
 
         assertLog()
                 .hasMessage(mLevel, TAG, LOG_MESSAGE)
-                .hasNoMoreMessages();
+                .hasNoMoreMessages(TAG);
     }
 
     @Test
@@ -120,7 +120,7 @@ public class LoggerTest {
                 .hasMessage(mLevel, TAG, LOG_MESSAGE)
                 .hasMessage(mLevel, TAG, ANOTHER_LOG_MESSAGE)
                 .hasMessage(mLevel, TAG, YET_ANOTHER_LOG_MESSAGE)
-                .hasNoMoreMessages();
+                .hasNoMoreMessages(TAG);
     }
 
     @Test
@@ -132,7 +132,7 @@ public class LoggerTest {
 
         assertLog()
                 .hasMessage(mLevel, TAG, LOG_MESSAGE, ANY_THROWABLE)
-                .hasNoMoreMessages();
+                .hasNoMoreMessages(TAG);
     }
 
     @Config(maxSdk = 23)
@@ -145,7 +145,7 @@ public class LoggerTest {
 
         assertLog()
                 .hasMessage(mLevel, LONG_TAG.substring(0, 23), LOG_MESSAGE)
-                .hasNoMoreMessages();
+                .hasNoMoreMessages(LONG_TAG);
     }
 
     @Config(minSdk = 24)
@@ -158,7 +158,7 @@ public class LoggerTest {
 
         assertLog()
                 .hasMessage(mLevel, LONG_TAG, LOG_MESSAGE)
-                .hasNoMoreMessages();
+                .hasNoMoreMessages(LONG_TAG);
     }
 
     @Test
@@ -168,7 +168,7 @@ public class LoggerTest {
 
         log(mLevel, TAG, LOG_MESSAGE);
 
-        assertLog().hasNoMoreMessages();
+        assertLog().hasNoMoreMessages(TAG);
     }
 
     private boolean isLoggable(int level, String tag) {
@@ -223,13 +223,14 @@ public class LoggerTest {
             mLogItems = new ArrayList<>(logItems);
         }
 
-        LogAssert hasMessage(int priority, String tag, String message) {
+        LogAssert hasMessage(int priority, @NonNull String tag, @NonNull String message) {
             return hasMessage(priority, tag, message, null);
         }
 
-        LogAssert hasMessage(int priority, String tag, String message,
+        LogAssert hasMessage(int priority, @NonNull String tag, @NonNull String message,
                 @Nullable Throwable throwable) {
-            final LogItem item = mLogItems.get(mIndex++);
+            int index = findLogItemIndexByTag(tag, mIndex);
+            final LogItem item = mLogItems.get(index);
 
             try {
                 assertThat(item.type).isEqualTo(priority);
@@ -240,16 +241,36 @@ public class LoggerTest {
                 // TODO(b/208252595): Dump the log info for the issue clarification.
                 throw new RuntimeException(collectLogItemsInfo() + "\n" + e);
             }
+
+            mIndex = index + 1;
+
             return this;
         }
 
-        void hasNoMoreMessages() {
+        /**
+         * Checks no more messages with the specified tag.
+         */
+        void hasNoMoreMessages(@NonNull String tag) {
             try {
-                assertThat(mIndex).isEqualTo(mLogItems.size());
+                assertThat(findLogItemIndexByTag(tag, mIndex)).isEqualTo(mLogItems.size());
             } catch (Throwable e) {
                 // TODO(b/207674161): Dump the log info for the issue clarification.
                 throw new RuntimeException(collectLogItemsInfo() + "\n" + e);
             }
+        }
+
+        /**
+         * Returns the log item index with the specified tag. Returns mLogItems.size() if no item
+         * can be found.
+         */
+        private int findLogItemIndexByTag(@NonNull String tag, int startIndex) {
+            for (int i = startIndex; i < mLogItems.size(); i++) {
+                if (tag.equals(mLogItems.get(i).tag)) {
+                    return i;
+                }
+            }
+
+            return mLogItems.size();
         }
 
         private String collectLogItemsInfo() {
