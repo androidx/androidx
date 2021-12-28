@@ -18,6 +18,7 @@ package androidx.camera.view.internal.compat.quirk;
 
 import android.os.Build;
 
+import androidx.annotation.RequiresApi;
 import androidx.camera.core.impl.Quirk;
 
 /**
@@ -27,6 +28,7 @@ import androidx.camera.core.impl.Quirk;
  * to be larger than its parent, the SurfaceView is not cropped by its parent. As the result, the
  * preview incorrectly covers the neighboring UI elements. b/211370840
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class SurfaceViewNotCroppedByParentQuirk implements Quirk {
 
     private static final String XIAOMI = "XIAOMI";
