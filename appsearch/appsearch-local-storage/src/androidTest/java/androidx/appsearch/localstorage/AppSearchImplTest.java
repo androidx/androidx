@@ -924,6 +924,46 @@ public class AppSearchImplTest {
     }
 
     @Test
+    public void testInvalidateNextPageToken_zeroNextPageToken() throws Exception {
+        // Insert package1 schema
+        List<AppSearchSchema> schema1 =
+                ImmutableList.of(new AppSearchSchema.Builder("schema1").build());
+        mAppSearchImpl.setSchema(
+                "package1",
+                "database1",
+                schema1,
+                /*visibilityStore=*/ null,
+                /*schemasNotDisplayedBySystem=*/ Collections.emptyList(),
+                /*schemasVisibleToPackages=*/ Collections.emptyMap(),
+                /*forceOverride=*/ false,
+                /*version=*/ 0,
+                /* setSchemaStatsBuilder= */ null);
+
+        // Insert one package1 documents
+        GenericDocument document1 = new GenericDocument.Builder<>("namespace", "id1",
+                "schema1").build();
+        mAppSearchImpl.putDocument("package1", "database1", document1, /*logger=*/ null);
+
+        // Query for 2 results per page, so all the results can fit in one page.
+        SearchSpec searchSpec = new SearchSpec.Builder()
+                .setTermMatch(TermMatchType.Code.PREFIX_VALUE)
+                .setResultCountPerPage(2) // make sure all the results can be returned in one page.
+                .build();
+        SearchResultPage searchResultPage = mAppSearchImpl.query("package1", "database1", "",
+                searchSpec, /*logger=*/ null);
+
+        // We only have one document indexed
+        assertThat(searchResultPage.getResults()).hasSize(1);
+
+        // nextPageToken should be 0 since there is no more results
+        long nextPageToken = searchResultPage.getNextPageToken();
+        assertThat(nextPageToken).isEqualTo(0);
+
+        // Invalidate the token, no exception should be thrown
+        mAppSearchImpl.invalidateNextPageToken("package1", nextPageToken);
+    }
+
+    @Test
     public void testInvalidateNextPageTokenWithDifferentPackage_query() throws Exception {
         // Insert package1 schema
         List<AppSearchSchema> schema1 =

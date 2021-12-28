@@ -1145,6 +1145,12 @@ public final class AppSearchImpl implements Closeable {
      */
     public void invalidateNextPageToken(@NonNull String packageName, long nextPageToken)
             throws AppSearchException {
+        if (nextPageToken == EMPTY_PAGE_TOKEN) {
+            // (b/208305352) Directly return here since we are no longer caching EMPTY_PAGE_TOKEN
+            // in the cached token set. So no need to remove it anymore.
+            return;
+        }
+
         mReadWriteLock.readLock().lock();
         try {
             throwIfClosedLocked();
@@ -1154,9 +1160,13 @@ public final class AppSearchImpl implements Closeable {
             mIcingSearchEngineLocked.invalidateNextPageToken(nextPageToken);
 
             synchronized (mNextPageTokensLocked) {
-                // At this point, we're guaranteed that this nextPageToken exists for this package,
-                // otherwise checkNextPageToken would've thrown an exception.
-                mNextPageTokensLocked.get(packageName).remove(nextPageToken);
+                Set<Long> tokens = mNextPageTokensLocked.get(packageName);
+                if (tokens != null) {
+                    tokens.remove(nextPageToken);
+                } else {
+                    Log.wtf(TAG, "Failed to invalidate token " + nextPageToken + ": tokens are not "
+                            + "cached.");
+                }
             }
         } finally {
             mReadWriteLock.readLock().unlock();
