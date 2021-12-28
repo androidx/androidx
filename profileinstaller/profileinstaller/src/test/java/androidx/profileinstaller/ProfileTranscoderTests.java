@@ -45,6 +45,7 @@ import java.util.Arrays;
 @RunWith(JUnit4.class)
 public class ProfileTranscoderTests {
     private static final String APK_NAME = "base.apk";
+
     @Test
     public void testReadProfile() throws IOException {
         byte[] version = ProfileVersion.V010_P;
@@ -157,6 +158,17 @@ public class ProfileTranscoderTests {
                 testFile("jetcaster/baseline-multidex-n.prof"),
                 ProfileVersion.V001_N,
                 ""
+        );
+    }
+
+    @Test
+    public void testTranscodeForS_Finsky() throws IOException {
+        assertGoldenTranscodeWithMeta(
+                testFile("finsky/baseline-multidex-s.prof"),
+                testFile("finsky/baseline-multidex.profm"),
+                testFile("finsky/baseline-multidex-golden.prof"),
+                ProfileVersion.V015_S,
+                "" /* apkName */
         );
     }
 
