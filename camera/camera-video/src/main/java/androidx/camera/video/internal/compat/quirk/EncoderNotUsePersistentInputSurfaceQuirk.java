@@ -41,7 +41,8 @@ import java.util.List;
 public class EncoderNotUsePersistentInputSurfaceQuirk implements Quirk {
 
     private static final List<String> DEVICE_MODELS = Arrays.asList(
-            "SM-N9208"
+            "SM-N9208",
+            "SM-G920V"
     );
 
     static boolean load() {
