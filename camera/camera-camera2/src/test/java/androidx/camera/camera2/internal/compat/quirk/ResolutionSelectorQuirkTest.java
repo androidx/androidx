@@ -51,5 +51,7 @@ public class ResolutionSelectorQuirkTest {
         assertThat(SelectResolutionQuirk.load()).isTrue();
         ReflectionHelpers.setStaticField(Build.class, "MODEL", "SM-G570M");
         assertThat(SelectResolutionQuirk.load()).isTrue();
+        ReflectionHelpers.setStaticField(Build.class, "MODEL", "SM-G610M");
+        assertThat(SelectResolutionQuirk.load()).isTrue();
     }
 }
