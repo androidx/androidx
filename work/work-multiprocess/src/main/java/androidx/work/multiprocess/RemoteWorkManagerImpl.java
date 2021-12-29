@@ -30,9 +30,11 @@ import androidx.work.WorkRequest;
 import androidx.work.impl.WorkContinuationImpl;
 import androidx.work.impl.WorkDatabase;
 import androidx.work.impl.WorkManagerImpl;
+import androidx.work.impl.utils.WorkForegroundUpdater;
 import androidx.work.impl.utils.WorkProgressUpdater;
 import androidx.work.impl.utils.taskexecutor.TaskExecutor;
 import androidx.work.multiprocess.parcelable.ParcelConverters;
+import androidx.work.multiprocess.parcelable.ParcelableForegroundRequestInfo;
 import androidx.work.multiprocess.parcelable.ParcelableUpdateRequest;
 import androidx.work.multiprocess.parcelable.ParcelableWorkContinuationImpl;
 import androidx.work.multiprocess.parcelable.ParcelableWorkInfos;
@@ -237,6 +239,39 @@ public class RemoteWorkManagerImpl extends IWorkManagerImpl.Stub {
                     context,
                     UUID.fromString(parcelled.getId()),
                     parcelled.getData()
+            );
+            final ListenableCallback<Void> listenableCallback =
+                    new ListenableCallback<Void>(executor, callback, future) {
+                        @NonNull
+                        @Override
+                        public byte[] toByteArray(@NonNull Void result) {
+                            return sEMPTY;
+                        }
+                    };
+            listenableCallback.dispatchCallbackSafely();
+        } catch (Throwable throwable) {
+            reportFailure(callback, throwable);
+        }
+    }
+
+    @Override
+    public void setForegroundAsync(
+            @NonNull byte[] request,
+            @NonNull IWorkManagerImplCallback callback) {
+        try {
+            ParcelableForegroundRequestInfo parcelled =
+                    ParcelConverters.unmarshall(request, ParcelableForegroundRequestInfo.CREATOR);
+            TaskExecutor taskExecutor = mWorkManager.getWorkTaskExecutor();
+            Executor executor = taskExecutor.getSerialTaskExecutor();
+            WorkForegroundUpdater foregroundUpdater = new WorkForegroundUpdater(
+                    mWorkManager.getWorkDatabase(),
+                    mWorkManager.getProcessor(),
+                    taskExecutor
+            );
+            final ListenableFuture<Void> future = foregroundUpdater.setForegroundAsync(
+                    mWorkManager.getApplicationContext(),
+                    UUID.fromString(parcelled.getId()),
+                    parcelled.getForegroundInfo()
             );
             final ListenableCallback<Void> listenableCallback =
                     new ListenableCallback<Void>(executor, callback, future) {
