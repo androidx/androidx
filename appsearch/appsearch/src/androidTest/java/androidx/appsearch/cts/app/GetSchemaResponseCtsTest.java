@@ -60,13 +60,16 @@ public class GetSchemaResponseCtsTest {
                 new GetSchemaResponse.Builder().setVersion(42).addSchema(schema1)
                         .addSchemaTypeNotDisplayedBySystem("Email1")
                         .setSchemaTypeVisibleToPackages("Email1",
-                                ImmutableSet.of(packageIdentifier1));
+                                ImmutableSet.of(packageIdentifier1))
+                        .setAllowedRolesForSchemaTypeVisibility("Email1",
+                                ImmutableSet.of("Home", "Assistant"));
 
         GetSchemaResponse original = builder.build();
         GetSchemaResponse rebuild = builder.setVersion(37).addSchema(schema2)
                 .addSchemaTypeNotDisplayedBySystem("Email2")
                 .setSchemaTypeVisibleToPackages("Email2",
                         ImmutableSet.of(packageIdentifier2))
+                .setAllowedRolesForSchemaTypeVisibility("Email2", ImmutableSet.of("Home"))
                 .build();
 
         // rebuild won't effect the original object
@@ -77,6 +80,9 @@ public class GetSchemaResponseCtsTest {
         assertThat(original.getSchemaTypesVisibleToPackages()).hasSize(1);
         assertThat(original.getSchemaTypesVisibleToPackages().get("Email1"))
                 .containsExactly(packageIdentifier1);
+        assertThat(original.getAllowedRolesForSchemaTypeVisibility()).hasSize(1);
+        assertThat(original.getAllowedRolesForSchemaTypeVisibility().get("Email1"))
+                .containsExactly("Home", "Assistant");
 
         assertThat(rebuild.getVersion()).isEqualTo(37);
         assertThat(rebuild.getSchemas()).containsExactly(schema1, schema2);
@@ -87,6 +93,11 @@ public class GetSchemaResponseCtsTest {
                 .containsExactly(packageIdentifier1);
         assertThat(rebuild.getSchemaTypesVisibleToPackages().get("Email2"))
                 .containsExactly(packageIdentifier2);
+        assertThat(rebuild.getAllowedRolesForSchemaTypeVisibility()).hasSize(2);
+        assertThat(rebuild.getAllowedRolesForSchemaTypeVisibility().get("Email1"))
+                .containsExactly("Home", "Assistant");
+        assertThat(rebuild.getAllowedRolesForSchemaTypeVisibility().get("Email2"))
+                .containsExactly("Home");
     }
 
     @Test
@@ -111,6 +122,9 @@ public class GetSchemaResponseCtsTest {
         assertThrows(
                 UnsupportedOperationException.class,
                 () -> original.getSchemaTypesVisibleToPackages());
+        assertThrows(
+                UnsupportedOperationException.class,
+                () -> original.getAllowedRolesForSchemaTypeVisibility());
 
         // rebuild will throw same exception
         GetSchemaResponse rebuild = builder.setVersion(42).build();
@@ -120,6 +134,9 @@ public class GetSchemaResponseCtsTest {
         assertThrows(
                 UnsupportedOperationException.class,
                 () -> rebuild.getSchemaTypesVisibleToPackages());
+        assertThrows(
+                UnsupportedOperationException.class,
+                () -> original.getAllowedRolesForSchemaTypeVisibility());
     }
 
     @Test
@@ -137,6 +154,8 @@ public class GetSchemaResponseCtsTest {
                         .addSchemaTypeNotDisplayedBySystem("Text")
                         .setSchemaTypeVisibleToPackages("Email",
                                 ImmutableSet.of(packageIdentifier1, packageIdentifier2))
+                        .setAllowedRolesForSchemaTypeVisibility("Email",
+                                ImmutableSet.of("Home", "Assistant"))
                         .build();
 
         assertThat(getSchemaResponse.getSchemaTypesNotDisplayedBySystem())
@@ -144,5 +163,7 @@ public class GetSchemaResponseCtsTest {
         assertThat(getSchemaResponse.getSchemaTypesVisibleToPackages()).hasSize(1);
         assertThat(getSchemaResponse.getSchemaTypesVisibleToPackages().get("Email"))
                 .containsExactly(packageIdentifier1, packageIdentifier2);
+        assertThat(getSchemaResponse.getAllowedRolesForSchemaTypeVisibility().get("Email"))
+                .containsExactly("Home", "Assistant");
     }
 }

@@ -70,6 +70,13 @@ public final class SetSchemaRequestToPlatformConverter {
                                 jetpackPackageIdentifier.getSha256Certificate()));
             }
         }
+        if (!jetpackRequest.getAllowedRolesForSchemaTypeVisibility().isEmpty()) {
+            // TODO(b/202194495) set getAllowedRolesForSchemaTypeVisibilities when we support it
+            //  in framework.
+            throw new UnsupportedOperationException(
+                    "Set allowed roles for schema type visibility are not supported with this "
+                            + "backend/Android API level combination.");
+        }
         for (Map.Entry<String, Migrator> entry : jetpackRequest.getMigrators().entrySet()) {
             Migrator jetpackMigrator = entry.getValue();
             android.app.appsearch.Migrator platformMigrator = new android.app.appsearch.Migrator() {

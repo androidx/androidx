@@ -20,6 +20,7 @@ import android.annotation.SuppressLint;
 
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresFeature;
 import androidx.annotation.RestrictTo;
 import androidx.appsearch.exceptions.AppSearchException;
 import androidx.collection.ArrayMap;
@@ -83,6 +84,7 @@ public final class SetSchemaRequest {
     private final Set<AppSearchSchema> mSchemas;
     private final Set<String> mSchemasNotDisplayedBySystem;
     private final Map<String, Set<PackageIdentifier>> mSchemasVisibleToPackages;
+    private final Map<String, Set<String>> mSchemasVisibleToRoles;
     private final Map<String, Migrator> mMigrators;
     private final boolean mForceOverride;
     private final int mVersion;
@@ -90,12 +92,14 @@ public final class SetSchemaRequest {
     SetSchemaRequest(@NonNull Set<AppSearchSchema> schemas,
             @NonNull Set<String> schemasNotDisplayedBySystem,
             @NonNull Map<String, Set<PackageIdentifier>> schemasVisibleToPackages,
+            @NonNull Map<String, Set<String>> schemasVisibleToRoles,
             @NonNull Map<String, Migrator> migrators,
             boolean forceOverride,
             int version) {
         mSchemas = Preconditions.checkNotNull(schemas);
         mSchemasNotDisplayedBySystem = Preconditions.checkNotNull(schemasNotDisplayedBySystem);
         mSchemasVisibleToPackages = Preconditions.checkNotNull(schemasVisibleToPackages);
+        mSchemasVisibleToRoles = Preconditions.checkNotNull(schemasVisibleToRoles);
         mMigrators = Preconditions.checkNotNull(migrators);
         mForceOverride = forceOverride;
         mVersion = version;
@@ -125,8 +129,25 @@ public final class SetSchemaRequest {
     @NonNull
     public Map<String, Set<PackageIdentifier>> getSchemasVisibleToPackages() {
         Map<String, Set<PackageIdentifier>> copy = new ArrayMap<>();
-        for (String key : mSchemasVisibleToPackages.keySet()) {
-            copy.put(key, new ArraySet<>(mSchemasVisibleToPackages.get(key)));
+        for (Map.Entry<String, Set<PackageIdentifier>> entry :
+                mSchemasVisibleToPackages.entrySet()) {
+            copy.put(entry.getKey(), new ArraySet<>(entry.getValue()));
+        }
+        return copy;
+    }
+
+    /**
+     * Returns the map of schema types to the set of Roles that have access to that schema type.
+     *
+     * <p>The querier will have access to the schema type if they hold ANY of allowed Roles.
+     *
+     * <p>It’s inefficient to call this method repeatedly.
+     */
+    @NonNull
+    public Map<String, Set<String>> getAllowedRolesForSchemaTypeVisibility() {
+        Map<String, Set<String>> copy = new ArrayMap<>();
+        for (Map.Entry<String, Set<String>> entry : mSchemasVisibleToRoles.entrySet()) {
+            copy.put(entry.getKey(), new ArraySet<>(entry.getValue()));
         }
         return copy;
     }
@@ -174,6 +195,7 @@ public final class SetSchemaRequest {
         private ArraySet<String> mSchemasNotDisplayedBySystem = new ArraySet<>();
         private ArrayMap<String, Set<PackageIdentifier>> mSchemasVisibleToPackages =
                 new ArrayMap<>();
+        private ArrayMap<String, Set<String>> mSchemasVisibleToRoles = new ArrayMap<>();
         private ArrayMap<String, Migrator> mMigrators = new ArrayMap<>();
         private boolean mForceOverride = false;
         private int mVersion = DEFAULT_VERSION;
@@ -276,6 +298,62 @@ public final class SetSchemaRequest {
             } else {
                 mSchemasNotDisplayedBySystem.add(schemaType);
             }
+            return this;
+        }
+
+        /**
+         * Add an Android Role who can read documents from the provided {@code schemaType}.
+         *
+         * <p>The querier could read documents from the provided {@code schemaType} if they hold
+         * ANY of allowed Roles.
+         *
+         * @see android.app.role.RoleManager
+         *
+         * @param schemaType        The schema type to set visibility on.
+         * @param role              The Android role who can access the {@link GenericDocument}
+         *                          objects that under the given schema. The allowed values are
+         *                          {@link android.app.role.RoleManager#ROLE_HOME} and
+         *                          {@link android.app.role.RoleManager#ROLE_ASSISTANT}.
+         *
+         */
+        // Merged map available from getAllowedRolesForSchemaTypeVisibility
+        @SuppressLint("MissingGetterMatchingBuilder")
+        @NonNull
+        // @exportToFramework:startStrip()
+        @RequiresFeature(
+                enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
+                name = Features.ROLE_AND_PERMISSION_WITH_GET_VISIBILITY)
+        // @exportToFramework:endStrip()
+        public Builder addAllowedRoleForSchemaTypeVisibility(@NonNull String schemaType,
+                @NonNull String role) {
+            Preconditions.checkNotNull(schemaType);
+            Preconditions.checkNotNull(role);
+            //TODO(b/202194495) check the input role are in the allowed list.
+            resetIfBuilt();
+            Set<String> allowedRole = mSchemasVisibleToRoles.get(schemaType);
+            if (allowedRole == null) {
+                allowedRole = new ArraySet<>();
+                mSchemasVisibleToRoles.put(schemaType, allowedRole);
+            }
+            allowedRole.add(role);
+            return this;
+        }
+
+        /**
+         * Clears all allowed roles for the given schema type.
+         *
+         * @param schemaType        The schema type to set visibility on.
+         */
+        @NonNull
+        // @exportToFramework:startStrip()
+        @RequiresFeature(
+                enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
+                name = Features.ROLE_AND_PERMISSION_WITH_GET_VISIBILITY)
+        // @exportToFramework:endStrip()
+        public Builder clearAllowedRolesForSchemaTypeVisibility(@NonNull String schemaType) {
+            Preconditions.checkNotNull(schemaType);
+            resetIfBuilt();
+            mSchemasVisibleToRoles.remove(schemaType);
             return this;
         }
 
@@ -469,6 +547,53 @@ public final class SetSchemaRequest {
             return setSchemaTypeVisibilityForPackage(factory.getSchemaName(), visible,
                     packageIdentifier);
         }
+
+        /**
+         * Add an Android Role who can read documents from the provided
+         * {@link androidx.appsearch.annotation.Document} annotated class.
+         *
+         * <p>The querier could read documents from the provided {@code schemaType} if they hold
+         * ANY of allowed Roles.
+         *
+         * @param documentClass     The {@link androidx.appsearch.annotation.Document} class to set
+         *                          visibility on.
+         * @param role              The Android role who can access the {@link GenericDocument}
+         *                          objects that under the given schema.
+         */
+        // Merged map available from getAllowedRolesForSchemaTypeVisibility
+        @SuppressLint("MissingGetterMatchingBuilder")
+        @RequiresFeature(
+                enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
+                name = Features.ROLE_AND_PERMISSION_WITH_GET_VISIBILITY)
+        @NonNull
+        public Builder addAllowedRoleForDocumentClassVisibility(@NonNull Class<?> documentClass,
+                @NonNull String role) throws AppSearchException {
+            Preconditions.checkNotNull(documentClass);
+            resetIfBuilt();
+            DocumentClassFactoryRegistry registry = DocumentClassFactoryRegistry.getInstance();
+            DocumentClassFactory<?> factory = registry.getOrCreateFactory(documentClass);
+            return addAllowedRoleForSchemaTypeVisibility(factory.getSchemaName(), role);
+        }
+
+        /**
+         * Clears all allowed roles for the given
+         * {@link androidx.appsearch.annotation.Document} annotated class.
+         *
+         * @param documentClass     The {@link androidx.appsearch.annotation.Document} class to set
+         *                          visibility on.
+         */
+        @RequiresFeature(
+                enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
+                name = Features.ROLE_AND_PERMISSION_WITH_GET_VISIBILITY)
+        @NonNull
+        public Builder clearAllowedRolesForDocumentClassVisibility(
+                @NonNull Class<?> documentClass) throws AppSearchException {
+            Preconditions.checkNotNull(documentClass);
+            resetIfBuilt();
+            DocumentClassFactoryRegistry registry = DocumentClassFactoryRegistry.getInstance();
+            DocumentClassFactory<?> factory = registry.getOrCreateFactory(documentClass);
+            return clearAllowedRolesForSchemaTypeVisibility(factory.getSchemaName());
+        }
 // @exportToFramework:endStrip()
 
         /**
@@ -539,6 +664,7 @@ public final class SetSchemaRequest {
             // Create a copy because we're going to remove from the set for verification purposes.
             Set<String> referencedSchemas = new ArraySet<>(mSchemasNotDisplayedBySystem);
             referencedSchemas.addAll(mSchemasVisibleToPackages.keySet());
+            referencedSchemas.addAll(mSchemasVisibleToRoles.keySet());
 
             for (AppSearchSchema schema : mSchemas) {
                 referencedSchemas.remove(schema.getSchemaType());
@@ -558,6 +684,7 @@ public final class SetSchemaRequest {
                     mSchemas,
                     mSchemasNotDisplayedBySystem,
                     mSchemasVisibleToPackages,
+                    mSchemasVisibleToRoles,
                     mMigrators,
                     mForceOverride,
                     mVersion);
@@ -572,6 +699,13 @@ public final class SetSchemaRequest {
                     schemasVisibleToPackages.put(entry.getKey(), new ArraySet<>(entry.getValue()));
                 }
                 mSchemasVisibleToPackages = schemasVisibleToPackages;
+
+                ArrayMap<String, Set<String>> schemasVisibleToRoles =
+                        new ArrayMap<>(mSchemasVisibleToRoles.size());
+                for (Map.Entry<String, Set<String>> entry : mSchemasVisibleToRoles.entrySet()) {
+                    schemasVisibleToRoles.put(entry.getKey(), new ArraySet<>(entry.getValue()));
+                }
+                mSchemasVisibleToRoles = schemasVisibleToRoles;
 
                 mSchemas = new ArraySet<>(mSchemas);
                 mSchemasNotDisplayedBySystem = new ArraySet<>(mSchemasNotDisplayedBySystem);

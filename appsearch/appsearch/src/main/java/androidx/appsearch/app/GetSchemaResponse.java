@@ -41,18 +41,29 @@ public final class GetSchemaResponse {
     private static final String SCHEMAS_NOT_DISPLAYED_BY_SYSTEM_FIELD =
             "schemasNotDisplayedBySystem";
     private static final String SCHEMAS_VISIBLE_TO_PACKAGES_FIELD = "schemasVisibleToPackages";
+    private static final String SCHEMAS_VISIBLE_TO_ROLES_FIELD = "schemasVisibleToRoles";
     /**
-     * This Set contains all schemas that are not displayed by the system. all values in the set are
+     * This Set contains all schemas that are not displayed by the system. All values in the set are
      * prefixed with the package-database prefix. We do lazy fetch, the object will be created
      * when the user first time fetch it.
      */
     @Nullable
     private Set<String> mSchemasNotDisplayedBySystem;
-    // This map contains all schemas that are not displayed by the system. all keys in the map are
-    // prefixed with the package-database prefix. We do lazy fetch, the object will be created
-    // when the user first time fetch it.
+    /**
+     * This map contains all schemas and {@link PackageIdentifier} that has access to the schema.
+     * All keys in the map are prefixed with the package-database prefix. We do lazy fetch, the
+     * object will be created when the user first time fetch it.
+     */
     @Nullable
     private Map<String, Set<PackageIdentifier>> mSchemasVisibleToPackages;
+    /**
+     * This map contains all schemas and Android Roles that has access to the schema. All keys
+     * in the map are prefixed with the package-database prefix. We do lazy fetch, the object
+     * will be created when the user first time fetch it.
+     * The querier will have access to the schema type if they hold ANY of allowed Roles.
+     */
+    @Nullable
+    private Map<String, Set<String>> mSchemasVisibleToRoles;
 
     private final Bundle mBundle;
 
@@ -103,7 +114,7 @@ public final class GetSchemaResponse {
     // @exportToFramework:startStrip()
     @RequiresFeature(
             enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
-            name = Features.GET_SCHEMA_RESPONSE_VISIBILITY)
+            name = Features.ROLE_AND_PERMISSION_WITH_GET_VISIBILITY)
     // @exportToFramework:endStrip()
     @NonNull
     public Set<String> getSchemaTypesNotDisplayedBySystem() {
@@ -124,7 +135,7 @@ public final class GetSchemaResponse {
     // @exportToFramework:startStrip()
     @RequiresFeature(
             enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
-            name = Features.GET_SCHEMA_RESPONSE_VISIBILITY)
+            name = Features.ROLE_AND_PERMISSION_WITH_GET_VISIBILITY)
     // @exportToFramework:endStrip()
     @NonNull
     public Map<String, Set<PackageIdentifier>> getSchemaTypesVisibleToPackages() {
@@ -148,6 +159,32 @@ public final class GetSchemaResponse {
         return mSchemasVisibleToPackages;
     }
 
+    /**
+     * Returns a mapping of schema types to the set of Android roles that have access
+     * to that schema type.
+     *
+     * <p>The querier will have access to the schema type if they hold ANY of allowed Roles.
+     */
+    // @exportToFramework:startStrip()
+    @RequiresFeature(
+            enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
+            name = Features.ROLE_AND_PERMISSION_WITH_GET_VISIBILITY)
+    // @exportToFramework:endStrip()
+    @NonNull
+    public Map<String, Set<String>> getAllowedRolesForSchemaTypeVisibility() {
+        checkGetVisibilitySettingSupported();
+        if (mSchemasVisibleToRoles == null) {
+            Bundle schemaVisibleToRolesBundle =
+                    mBundle.getBundle(SCHEMAS_VISIBLE_TO_ROLES_FIELD);
+            Map<String, Set<String>> copy = new ArrayMap<>();
+            for (String key : schemaVisibleToRolesBundle.keySet()) {
+                copy.put(key, new ArraySet<>(schemaVisibleToRolesBundle.getStringArrayList(key)));
+            }
+            mSchemasVisibleToRoles = Collections.unmodifiableMap(copy);
+        }
+        return mSchemasVisibleToRoles;
+    }
+
     private void checkGetVisibilitySettingSupported() {
         if (!mBundle.containsKey(SCHEMAS_VISIBLE_TO_PACKAGES_FIELD)) {
             throw new UnsupportedOperationException("Get visibility setting is not supported with"
@@ -166,6 +203,7 @@ public final class GetSchemaResponse {
         @Nullable
         private ArrayList<String> mSchemasNotDisplayedBySystem;
         private Bundle mSchemasVisibleToPackages;
+        private Bundle mSchemasVisibleToRoles;
         private boolean mBuilt = false;
 
         /** Create a {@link Builder} object} */
@@ -179,7 +217,8 @@ public final class GetSchemaResponse {
          * <p>This constructor should only be used in Android API below than T.
          *
          * @param getVisibilitySettingSupported whether supported
-         * {@link Features#GET_SCHEMA_RESPONSE_VISIBILITY} by this backend/Android API level.
+         * {@link Features#ROLE_AND_PERMISSION_WITH_GET_VISIBILITY} by this backend/Android API
+         * level.
          * @hide
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -187,6 +226,7 @@ public final class GetSchemaResponse {
             if (getVisibilitySettingSupported) {
                 mSchemasNotDisplayedBySystem = new ArrayList<>();
                 mSchemasVisibleToPackages = new Bundle();
+                mSchemasVisibleToRoles = new Bundle();
             }
         }
 
@@ -266,6 +306,29 @@ public final class GetSchemaResponse {
             return this;
         }
 
+        /**
+         * Sets whether or not {@link GenericDocument} objects from the provided {@code schemaType}
+         * can be read by the specified Android role.
+         *
+         * <p>The querier could read {@link GenericDocument} objects under the provided
+         * {@code schemaType} if they hold ANY of allowed Roles.
+         *
+         * @param schemaType             The schema type to set visibility on.
+         * @param visibleToRoles         The Android role that will be granted visibility.
+         */
+        // Getter getAllowedRolesForSchemaTypeVisibility returns a map for all schemaTypes.
+        @SuppressLint("MissingGetterMatchingBuilder")
+        @NonNull
+        public Builder setAllowedRolesForSchemaTypeVisibility(
+                @NonNull String schemaType,
+                @NonNull Set<String> visibleToRoles) {
+            Preconditions.checkNotNull(schemaType);
+            Preconditions.checkNotNull(visibleToRoles);
+            resetIfBuilt();
+            mSchemasVisibleToRoles.putStringArrayList(schemaType, new ArrayList<>(visibleToRoles));
+            return this;
+        }
+
         /** Builds a {@link GetSchemaResponse} object. */
         @NonNull
         public GetSchemaResponse build() {
@@ -277,6 +340,7 @@ public final class GetSchemaResponse {
                 bundle.putStringArrayList(SCHEMAS_NOT_DISPLAYED_BY_SYSTEM_FIELD,
                         mSchemasNotDisplayedBySystem);
                 bundle.putBundle(SCHEMAS_VISIBLE_TO_PACKAGES_FIELD, mSchemasVisibleToPackages);
+                bundle.putBundle(SCHEMAS_VISIBLE_TO_ROLES_FIELD, mSchemasVisibleToRoles);
             }
             mBuilt = true;
             return new GetSchemaResponse(bundle);
@@ -291,6 +355,9 @@ public final class GetSchemaResponse {
                     Bundle copyVisibleToPackages = new Bundle();
                     copyVisibleToPackages.putAll(mSchemasVisibleToPackages);
                     mSchemasVisibleToPackages = copyVisibleToPackages;
+                    Bundle copyVisibleToRoles = new Bundle();
+                    copyVisibleToRoles.putAll(mSchemasVisibleToRoles);
+                    mSchemasVisibleToRoles = copyVisibleToRoles;
                 }
                 mBuilt = false;
             }

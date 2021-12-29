@@ -220,6 +220,33 @@ public class SetSchemaRequestCtsTest {
     }
 
     @Test
+    public void testSetSchemaTypeVisibleForRole() {
+        AppSearchSchema schema = new AppSearchSchema.Builder("Schema").build();
+
+        // By default, the schema is displayed.
+        SetSchemaRequest request =
+                new SetSchemaRequest.Builder().addSchemas(schema).build();
+        assertThat(request.getAllowedRolesForSchemaTypeVisibility()).isEmpty();
+
+        SetSchemaRequest.Builder setSchemaRequestBuilder = new SetSchemaRequest.Builder()
+                .addSchemas(schema)
+                .addAllowedRoleForSchemaTypeVisibility("Schema", "Home")
+                .addAllowedRoleForSchemaTypeVisibility("Schema", "Assistant");
+        SetSchemaRequest original = setSchemaRequestBuilder.build();
+
+        assertThat(original.getAllowedRolesForSchemaTypeVisibility())
+                .containsExactly("Schema", ImmutableSet.of("Home", "Assistant"));
+
+        SetSchemaRequest rebuild =
+                setSchemaRequestBuilder.clearAllowedRolesForSchemaTypeVisibility("Schema")
+                .build();
+        assertThat(rebuild.getAllowedRolesForSchemaTypeVisibility()).isEmpty();
+        // The original request hasn't changed.
+        assertThat(original.getAllowedRolesForSchemaTypeVisibility())
+                .containsExactly("Schema", ImmutableSet.of("Home", "Assistant"));
+    }
+
+    @Test
     public void testSchemaTypeVisibilityForPackage_visible() {
         AppSearchSchema schema = new AppSearchSchema.Builder("Schema").build();
 
@@ -380,6 +407,27 @@ public class SetSchemaRequestCtsTest {
     }
 
     @Test
+    public void testSetDocumentClassVisibleForRole() throws Exception {
+        // By default, the schema is displayed.
+        SetSchemaRequest request =
+                new SetSchemaRequest.Builder().addDocumentClasses(Card.class).build();
+        assertThat(request.getAllowedRolesForSchemaTypeVisibility()).isEmpty();
+
+        SetSchemaRequest.Builder setSchemaRequestBuilder = new SetSchemaRequest.Builder()
+                .addDocumentClasses(Card.class)
+                .addAllowedRoleForDocumentClassVisibility(Card.class, "Home")
+                .addAllowedRoleForDocumentClassVisibility(Card.class, "Assistant");
+        request = setSchemaRequestBuilder.build();
+
+        assertThat(request.getAllowedRolesForSchemaTypeVisibility())
+                .containsExactly("Card", ImmutableSet.of("Home", "Assistant"));
+
+        request = setSchemaRequestBuilder.clearAllowedRolesForDocumentClassVisibility(Card.class)
+                .build();
+        assertThat(request.getAllowedRolesForSchemaTypeVisibility()).isEmpty();
+    }
+
+    @Test
     public void testSetDocumentClassVisibilityForPackage_visible() throws Exception {
         // By default, the schema is not visible.
         SetSchemaRequest request =
@@ -497,5 +545,105 @@ public class SetSchemaRequestCtsTest {
                 () -> new SetSchemaRequest.Builder().setVersion(135).build());
         assertThat(exception).hasMessageThat().contains(
                 "Cannot set version to the request if schema is empty.");
+    }
+
+    @Test
+    public void testRebuild() {
+        byte[] sha256cert1 = new byte[32];
+        byte[] sha256cert2 = new byte[32];
+        Arrays.fill(sha256cert1, (byte) 1);
+        Arrays.fill(sha256cert2, (byte) 2);
+        PackageIdentifier packageIdentifier1 = new PackageIdentifier("Email", sha256cert1);
+        PackageIdentifier packageIdentifier2 = new PackageIdentifier("Email", sha256cert2);
+        AppSearchSchema schema1 = new AppSearchSchema.Builder("Email1")
+                .addProperty(new AppSearchSchema.StringPropertyConfig.Builder("subject")
+                        .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
+                        .setIndexingType(
+                                AppSearchSchema.StringPropertyConfig.INDEXING_TYPE_PREFIXES)
+                        .setTokenizerType(AppSearchSchema.StringPropertyConfig.TOKENIZER_TYPE_PLAIN)
+                        .build()
+                ).build();
+        AppSearchSchema schema2 = new AppSearchSchema.Builder("Email2")
+                .addProperty(new AppSearchSchema.StringPropertyConfig.Builder("subject")
+                        .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
+                        .setIndexingType(
+                                AppSearchSchema.StringPropertyConfig.INDEXING_TYPE_PREFIXES)
+                        .setTokenizerType(AppSearchSchema.StringPropertyConfig.TOKENIZER_TYPE_PLAIN)
+                        .build()
+                ).build();
+
+        SetSchemaRequest.Builder builder = new SetSchemaRequest.Builder()
+                .addSchemas(schema1)
+                .setVersion(37)
+                .setSchemaTypeDisplayedBySystem("Email1", /*displayed=*/false)
+                .setSchemaTypeVisibilityForPackage(
+                        "Email1", /*visible=*/true, packageIdentifier1)
+                .addAllowedRoleForSchemaTypeVisibility("Email1", "Home");
+
+        SetSchemaRequest original = builder.build();
+        SetSchemaRequest rebuild = builder.addSchemas(schema2)
+                .setVersion(42)
+                .setSchemaTypeDisplayedBySystem("Email2", /*displayed=*/false)
+                .setSchemaTypeVisibilityForPackage(
+                        "Email2", /*visible=*/true, packageIdentifier2)
+                .addAllowedRoleForSchemaTypeVisibility("Email2", "Assistant")
+                .build();
+
+        assertThat(original.getSchemas()).containsExactly(schema1);
+        assertThat(original.getVersion()).isEqualTo(37);
+        assertThat(original.getSchemasNotDisplayedBySystem()).containsExactly("Email1");
+        assertThat(original.getSchemasVisibleToPackages()).containsExactly(
+                "Email1", ImmutableSet.of(packageIdentifier1));
+        assertThat(original.getAllowedRolesForSchemaTypeVisibility()).containsExactly(
+                "Email1", ImmutableSet.of("Home"));
+
+        assertThat(rebuild.getSchemas()).containsExactly(schema1, schema2);
+        assertThat(rebuild.getVersion()).isEqualTo(42);
+        assertThat(rebuild.getSchemasNotDisplayedBySystem()).containsExactly("Email1", "Email2");
+        assertThat(rebuild.getSchemasVisibleToPackages()).containsExactly(
+                "Email1", ImmutableSet.of(packageIdentifier1),
+                "Email2", ImmutableSet.of(packageIdentifier2));
+        assertThat(rebuild.getAllowedRolesForSchemaTypeVisibility()).containsExactly(
+                "Email1", ImmutableSet.of("Home"),
+                "Email2", ImmutableSet.of("Assistant"));
+    }
+
+    @Test
+    public void getAndModify() {
+        byte[] sha256cert1 = new byte[32];
+        byte[] sha256cert2 = new byte[32];
+        Arrays.fill(sha256cert1, (byte) 1);
+        Arrays.fill(sha256cert2, (byte) 2);
+        PackageIdentifier packageIdentifier1 = new PackageIdentifier("Email", sha256cert1);
+        PackageIdentifier packageIdentifier2 = new PackageIdentifier("Email", sha256cert2);
+        AppSearchSchema schema1 = new AppSearchSchema.Builder("Email1")
+                .addProperty(new AppSearchSchema.StringPropertyConfig.Builder("subject")
+                        .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
+                        .setIndexingType(
+                                AppSearchSchema.StringPropertyConfig.INDEXING_TYPE_PREFIXES)
+                        .setTokenizerType(AppSearchSchema.StringPropertyConfig.TOKENIZER_TYPE_PLAIN)
+                        .build()
+                ).build();
+
+        SetSchemaRequest request = new SetSchemaRequest.Builder()
+                .addSchemas(schema1)
+                .setVersion(37)
+                .setSchemaTypeDisplayedBySystem("Email1", /*displayed=*/false)
+                .setSchemaTypeVisibilityForPackage(
+                        "Email1", /*visible=*/true, packageIdentifier1)
+                .addAllowedRoleForSchemaTypeVisibility("Email1", "Home")
+                .build();
+
+        // get the visibility setting and modify the output object.
+        // skip getSchemasNotDisplayedBySystem since it returns an unmodifiable object.
+        request.getSchemasVisibleToPackages().put("Email2", ImmutableSet.of(packageIdentifier2));
+        request.getAllowedRolesForSchemaTypeVisibility().put("Email2",
+                ImmutableSet.of("Assistant"));
+
+        // verify we still get the original object.
+        assertThat(request.getSchemasVisibleToPackages()).containsExactly("Email1",
+                ImmutableSet.of(packageIdentifier1));
+        assertThat(request.getAllowedRolesForSchemaTypeVisibility()).containsExactly("Email1",
+                ImmutableSet.of("Home"));
     }
 }
