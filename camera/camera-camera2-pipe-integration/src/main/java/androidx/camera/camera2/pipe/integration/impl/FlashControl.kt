@@ -95,7 +95,7 @@ class FlashControl @Inject constructor(
                     else -> CaptureRequest.CONTROL_AE_MODE_ON
                 }.let { aeMode ->
                     // TODO: check the AE mode is supported before set it.
-                    useCaseCamera.requestControl.appendParametersAsync(
+                    useCaseCamera.requestControl.addParametersAsync(
                         type = UseCaseCameraRequestControl.Type.FLASH,
                         values = mapOf(
                             CaptureRequest.CONTROL_AE_MODE to aeMode,

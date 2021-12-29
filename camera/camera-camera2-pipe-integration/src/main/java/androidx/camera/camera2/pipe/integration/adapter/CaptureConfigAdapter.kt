@@ -20,24 +20,26 @@ import android.hardware.camera2.CaptureRequest
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.RequestTemplate
-import androidx.camera.camera2.pipe.StreamId
+import androidx.camera.camera2.pipe.integration.config.UseCaseCameraScope
+import androidx.camera.camera2.pipe.integration.config.UseCaseGraphConfig
 import androidx.camera.camera2.pipe.integration.impl.CAMERAX_TAG_BUNDLE
 import androidx.camera.camera2.pipe.integration.impl.Camera2ImplConfig
 import androidx.camera.camera2.pipe.integration.impl.CameraCallbackMap
+import androidx.camera.camera2.pipe.integration.impl.UseCaseThreads
 import androidx.camera.camera2.pipe.integration.impl.toParameters
 import androidx.camera.core.impl.CaptureConfig
 import androidx.camera.core.impl.Config
-import androidx.camera.core.impl.DeferrableSurface
-import java.util.concurrent.Executor
+import javax.inject.Inject
 
 /**
  * Maps a [CaptureConfig] issued by CameraX (e.g. by the image capture use case) to a [Request]
  * that CameraPipe can submit to the camera.
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
-class CaptureConfigAdapter(
-    private val surfaceToStreamMap: Map<DeferrableSurface, StreamId>,
-    private val callbackExecutor: Executor,
+@UseCaseCameraScope
+class CaptureConfigAdapter @Inject constructor(
+    private val useCaseGraphConfig: UseCaseGraphConfig,
+    private val threads: UseCaseThreads,
 ) {
 
     fun mapToRequest(
@@ -50,14 +52,14 @@ class CaptureConfigAdapter(
         }
 
         val streamIdList = surfaces.map {
-            checkNotNull(surfaceToStreamMap[it]) {
+            checkNotNull(useCaseGraphConfig.surfaceToStreamMap[it]) {
                 "Attempted to issue a capture with an unrecognized surface."
             }
         }
 
         val callbacks = CameraCallbackMap().apply {
             captureConfig.cameraCaptureCallbacks.forEach { callback ->
-                addCaptureCallback(callback, callbackExecutor)
+                addCaptureCallback(callback, threads.sequentialExecutor)
             }
         }
 
