@@ -25,7 +25,6 @@ import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.AeMode
 import androidx.camera.camera2.pipe.AfMode
 import androidx.camera.camera2.pipe.AwbMode
-import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.Lock3ABehavior
 import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.RequestTemplate
@@ -34,12 +33,15 @@ import androidx.camera.camera2.pipe.StreamId
 import androidx.camera.camera2.pipe.TorchState
 import androidx.camera.camera2.pipe.integration.adapter.CaptureConfigAdapter
 import androidx.camera.camera2.pipe.integration.config.UseCaseCameraScope
+import androidx.camera.camera2.pipe.integration.config.UseCaseGraphConfig
 import androidx.camera.core.impl.CaptureConfig
 import androidx.camera.core.impl.Config
-import androidx.camera.core.impl.DeferrableSurface
 import androidx.camera.core.impl.MutableTagBundle
 import androidx.camera.core.impl.SessionConfig
 import androidx.camera.core.impl.TagBundle
+import dagger.Binds
+import dagger.Module
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.async
 import javax.inject.Inject
@@ -53,7 +55,6 @@ import javax.inject.Inject
  * type of the config can be removed or overridden respectively without interfering with the
  * other types.
  */
-@UseCaseCameraScope
 interface UseCaseCameraRequestControl {
     /**
      * The declaration order is the ordering to merge.
@@ -92,7 +93,7 @@ interface UseCaseCameraRequestControl {
      *  empty will use the [RequestTemplate] that is previously specified.
      *  @param listeners to receive the capture results.
      */
-    fun appendParametersAsync(
+    fun addParametersAsync(
         type: Type = Type.DEFAULT,
         values: Map<CaptureRequest.Key<*>, Any> = emptyMap(),
         optionPriority: Config.OptionPriority = defaultOptionPriority,
@@ -151,14 +152,21 @@ interface UseCaseCameraRequestControl {
     ): Deferred<Result3A>
 
     // Capture
-    fun issueSingleCapture(captureSequence: List<CaptureConfig>)
+    fun issueSingleCaptureAsync(
+        captureSequence: List<CaptureConfig>,
+        captureMode: Int,
+        flashType: Int,
+    ): List<Deferred<Void?>>
 }
 
+@UseCaseCameraScope
 class UseCaseCameraRequestControlImpl @Inject constructor(
-    private val graph: CameraGraph,
-    private val surfaceToStreamMap: Map<DeferrableSurface, StreamId>,
+    private val configAdapter: CaptureConfigAdapter,
+    private val state: UseCaseCameraState,
     private val threads: UseCaseThreads,
+    private val useCaseGraphConfig: UseCaseGraphConfig,
 ) : UseCaseCameraRequestControl {
+    private val graph = useCaseGraphConfig.graph
 
     private data class InfoBundle(
         val options: Camera2ImplConfig.Builder = Camera2ImplConfig.Builder(),
@@ -170,10 +178,7 @@ class UseCaseCameraRequestControlImpl @Inject constructor(
     private val infoBundleMap = mutableMapOf<UseCaseCameraRequestControl.Type, InfoBundle>()
     private val lock = Any()
 
-    private val state = UseCaseCameraState(graph, threads)
-    private val configAdapter = CaptureConfigAdapter(surfaceToStreamMap, threads.backgroundExecutor)
-
-    override fun appendParametersAsync(
+    override fun addParametersAsync(
         type: UseCaseCameraRequestControl.Type,
         values: Map<CaptureRequest.Key<*>, Any>,
         optionPriority: Config.OptionPriority,
@@ -221,7 +226,7 @@ class UseCaseCameraRequestControlImpl @Inject constructor(
         val repeatingListeners = CameraCallbackMap()
 
         sessionConfig.repeatingCaptureConfig.surfaces.forEach {
-            surfaceToStreamMap[it]?.let { streamId ->
+            useCaseGraphConfig.surfaceToStreamMap[it]?.let { streamId ->
                 repeatingStreamIds.add(streamId)
             }
         }
@@ -266,12 +271,17 @@ class UseCaseCameraRequestControlImpl @Inject constructor(
         )
     }
 
-    override fun issueSingleCapture(captureSequence: List<CaptureConfig>) {
+    override fun issueSingleCaptureAsync(
+        captureSequence: List<CaptureConfig>,
+        captureMode: Int,
+        flashType: Int,
+    ): List<Deferred<Void?>> {
         val sessionConfigOptions = synchronized(lock) {
             infoBundleMap.merge()
         }.options.build()
 
         state.capture(captureSequence.map { configAdapter.mapToRequest(it, sessionConfigOptions) })
+        return listOf(CompletableDeferred(null))
     }
 
     /**
@@ -348,5 +358,14 @@ class UseCaseCameraRequestControlImpl @Inject constructor(
                 it.update3A(aeMode = aeMode, afMode = afMode, awbMode = awbMode)
             }.join()
         }
+    }
+
+    @Module
+    abstract class Bindings {
+        @UseCaseCameraScope
+        @Binds
+        abstract fun provideRequestControls(
+            requestControl: UseCaseCameraRequestControlImpl
+        ): UseCaseCameraRequestControl
     }
 }

@@ -24,8 +24,8 @@ import androidx.camera.camera2.pipe.Result3A
 import androidx.camera.camera2.pipe.StreamId
 import androidx.camera.camera2.pipe.integration.config.UseCaseCameraComponent
 import androidx.camera.camera2.pipe.integration.config.UseCaseCameraConfig
-import androidx.camera.camera2.pipe.integration.impl.UseCaseCameraRequestControl
 import androidx.camera.camera2.pipe.integration.impl.UseCaseCamera
+import androidx.camera.camera2.pipe.integration.impl.UseCaseCameraRequestControl
 import androidx.camera.core.UseCase
 import androidx.camera.core.impl.CaptureConfig
 import androidx.camera.core.impl.Config
@@ -56,7 +56,7 @@ class FakeUseCaseCameraComponent(useCases: List<UseCase>) : UseCaseCameraCompone
 
 // TODO: Further implement the methods in this class as needed
 class FakeUseCaseCameraRequestControl : UseCaseCameraRequestControl {
-    override fun appendParametersAsync(
+    override fun addParametersAsync(
         type: UseCaseCameraRequestControl.Type,
         values: Map<CaptureRequest.Key<*>, Any>,
         optionPriority: Config.OptionPriority,
@@ -95,7 +95,12 @@ class FakeUseCaseCameraRequestControl : UseCaseCameraRequestControl {
         return CompletableDeferred(Result3A(status = Result3A.Status.OK))
     }
 
-    override fun issueSingleCapture(captureSequence: List<CaptureConfig>) {
+    override fun issueSingleCaptureAsync(
+        captureSequence: List<CaptureConfig>,
+        captureMode: Int,
+        flashType: Int,
+    ): List<Deferred<Void?>> {
+        return listOf(CompletableDeferred(null))
     }
 }
 
@@ -126,9 +131,6 @@ class FakeUseCaseCamera(
         awbRegions: List<MeteringRectangle>
     ): Deferred<Result3A> {
         return CompletableDeferred(Result3A(status = Result3A.Status.OK))
-    }
-
-    override fun capture(captureSequence: List<CaptureConfig>) {
     }
 
     override fun close() {
