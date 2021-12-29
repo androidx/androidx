@@ -295,6 +295,9 @@ class XTypeTest {
             assertThat(
                 it.processingEnv.requireType("char").defaultValue()
             ).isEqualTo("0")
+            assertThat(
+                it.processingEnv.requireType("long").defaultValue()
+            ).isEqualTo("0L")
         }
     }
 

@@ -86,7 +86,8 @@ internal abstract class JavacType(
     override fun defaultValue(): String {
         return when (typeMirror.kind) {
             TypeKind.BOOLEAN -> "false"
-            TypeKind.BYTE, TypeKind.SHORT, TypeKind.INT, TypeKind.LONG, TypeKind.CHAR -> "0"
+            TypeKind.BYTE, TypeKind.SHORT, TypeKind.INT, TypeKind.CHAR -> "0"
+            TypeKind.LONG -> "0L"
             TypeKind.FLOAT -> "0f"
             TypeKind.DOUBLE -> "0.0"
             else -> "null"
