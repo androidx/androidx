@@ -66,8 +66,8 @@ import androidx.glance.visibility
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.test.TestCoroutineScope
-import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.test.runTest
 import org.junit.Assert.fail
 import org.junit.Before
 import org.junit.Test
@@ -82,7 +82,7 @@ import kotlin.test.assertIs
 @RunWith(RobolectricTestRunner::class)
 class RemoteViewsTranslatorKtTest {
 
-    private lateinit var fakeCoroutineScope: TestCoroutineScope
+    private lateinit var fakeCoroutineScope: TestScope
     private val context = ApplicationProvider.getApplicationContext<Context>()
     private val lightContext = configurationContext { uiMode = Configuration.UI_MODE_NIGHT_NO }
     private val darkContext = configurationContext { uiMode = Configuration.UI_MODE_NIGHT_YES }
@@ -90,7 +90,7 @@ class RemoteViewsTranslatorKtTest {
 
     @Before
     fun setUp() {
-        fakeCoroutineScope = TestCoroutineScope()
+        fakeCoroutineScope = TestScope()
     }
 
     @Test
@@ -99,7 +99,7 @@ class RemoteViewsTranslatorKtTest {
     }
 
     @Test
-    fun canTranslateBox() = fakeCoroutineScope.runBlockingTest {
+    fun canTranslateBox() = fakeCoroutineScope.runTest {
         val rv = context.runAndTranslate { Box {} }
         val view = context.applyRemoteViews(rv)
 
@@ -108,7 +108,7 @@ class RemoteViewsTranslatorKtTest {
     }
 
     @Test
-    fun canTranslateBoxWithAlignment() = fakeCoroutineScope.runBlockingTest {
+    fun canTranslateBoxWithAlignment() = fakeCoroutineScope.runTest {
         val rv = context.runAndTranslate {
             Box(contentAlignment = Alignment.BottomEnd) { Text("text") }
         }
@@ -119,7 +119,7 @@ class RemoteViewsTranslatorKtTest {
     }
 
     @Test
-    fun canTranslateBoxWithChildren() = fakeCoroutineScope.runBlockingTest {
+    fun canTranslateBoxWithChildren() = fakeCoroutineScope.runTest {
         val rv = context.runAndTranslate {
             Box {
                 Box(contentAlignment = Alignment.Center) { Text("text1") }
@@ -138,7 +138,7 @@ class RemoteViewsTranslatorKtTest {
     }
 
     @Test
-    fun canReapplyTranslateBox() = fakeCoroutineScope.runBlockingTest {
+    fun canReapplyTranslateBox() = fakeCoroutineScope.runTest {
         val rv = context.runAndTranslate {
             Box {
                 Box(contentAlignment = Alignment.Center) { Text("tex1") }
@@ -166,7 +166,7 @@ class RemoteViewsTranslatorKtTest {
     }
 
     @Test
-    fun canTranslateMultipleNodes() = fakeCoroutineScope.runBlockingTest {
+    fun canTranslateMultipleNodes() = fakeCoroutineScope.runTest {
         val rv = context.runAndTranslate {
             Box(contentAlignment = Alignment.Center) { Text("text1") }
             Box(contentAlignment = Alignment.BottomEnd) { Text("text2") }
@@ -183,7 +183,7 @@ class RemoteViewsTranslatorKtTest {
     }
 
     @Test
-    fun canTranslatePaddingModifier() = fakeCoroutineScope.runBlockingTest {
+    fun canTranslatePaddingModifier() = fakeCoroutineScope.runTest {
         val rv = context.runAndTranslate {
             Box(
                 modifier = GlanceModifier.padding(
@@ -204,7 +204,7 @@ class RemoteViewsTranslatorKtTest {
     }
 
     @Test
-    fun canTranslatePaddingRTL() = fakeCoroutineScope.runBlockingTest {
+    fun canTranslatePaddingRTL() = fakeCoroutineScope.runTest {
         val rv = context.runAndTranslateInRtl {
             Box(
                 modifier = GlanceModifier.padding(
@@ -225,7 +225,7 @@ class RemoteViewsTranslatorKtTest {
     }
 
     @Test
-    fun canTranslateAbsolutePaddingRTL() = fakeCoroutineScope.runBlockingTest {
+    fun canTranslateAbsolutePaddingRTL() = fakeCoroutineScope.runTest {
         val rv = context.runAndTranslateInRtl {
             Box(
                 modifier = GlanceModifier.absolutePadding(
@@ -246,7 +246,7 @@ class RemoteViewsTranslatorKtTest {
     }
 
     @Test
-    fun canTranslateRow() = fakeCoroutineScope.runBlockingTest {
+    fun canTranslateRow() = fakeCoroutineScope.runTest {
         val rv = context.runAndTranslate { Row { } }
         val view = context.applyRemoteViews(rv)
 
@@ -255,7 +255,7 @@ class RemoteViewsTranslatorKtTest {
     }
 
     @Test
-    fun canTranslateColumn() = fakeCoroutineScope.runBlockingTest {
+    fun canTranslateColumn() = fakeCoroutineScope.runTest {
         val rv = context.runAndTranslate { Column { } }
         val view = context.applyRemoteViews(rv)
 
@@ -265,7 +265,7 @@ class RemoteViewsTranslatorKtTest {
 
     @Test
     @TargetApi(24)
-    fun canTranslateRowWithAlignment() = fakeCoroutineScope.runBlockingTest {
+    fun canTranslateRowWithAlignment() = fakeCoroutineScope.runTest {
         val rv = context.runAndTranslate {
             Row(
                 horizontalAlignment = Alignment.End,
@@ -281,7 +281,7 @@ class RemoteViewsTranslatorKtTest {
 
     @Test
     @TargetApi(24)
-    fun canTranslateColumnWithAlignment() = fakeCoroutineScope.runBlockingTest {
+    fun canTranslateColumnWithAlignment() = fakeCoroutineScope.runTest {
         val rv = context.runAndTranslate {
             Column(
                 horizontalAlignment = Alignment.Start,
@@ -297,7 +297,7 @@ class RemoteViewsTranslatorKtTest {
 
     @Test
     @TargetApi(24)
-    fun canTranslateRowWithChildren() = fakeCoroutineScope.runBlockingTest {
+    fun canTranslateRowWithChildren() = fakeCoroutineScope.runTest {
         val rv = context.runAndTranslate {
             Row {
                 Row(
@@ -329,7 +329,7 @@ class RemoteViewsTranslatorKtTest {
 
     @Test
     @TargetApi(24)
-    fun canTranslateColumnWithChildren() = fakeCoroutineScope.runBlockingTest {
+    fun canTranslateColumnWithChildren() = fakeCoroutineScope.runTest {
         val rv = context.runAndTranslate {
             Column {
                 Column(
@@ -360,7 +360,7 @@ class RemoteViewsTranslatorKtTest {
     }
 
     @Test
-    fun canTranslateRowPaddingModifier() = fakeCoroutineScope.runBlockingTest {
+    fun canTranslateRowPaddingModifier() = fakeCoroutineScope.runTest {
         val rv = context.runAndTranslate {
             Row(
                 modifier = GlanceModifier.padding(
@@ -381,7 +381,7 @@ class RemoteViewsTranslatorKtTest {
     }
 
     @Test
-    fun canTranslateColumnPaddingModifier() = fakeCoroutineScope.runBlockingTest {
+    fun canTranslateColumnPaddingModifier() = fakeCoroutineScope.runTest {
         val rv = context.runAndTranslate {
             Column(
                 modifier = GlanceModifier.padding(
@@ -401,7 +401,7 @@ class RemoteViewsTranslatorKtTest {
     }
 
     @Test
-    fun canTranslateRowPaddingRTL() = fakeCoroutineScope.runBlockingTest {
+    fun canTranslateRowPaddingRTL() = fakeCoroutineScope.runTest {
         val rv = context.runAndTranslateInRtl {
             Row(
                 modifier = GlanceModifier.padding(
@@ -422,7 +422,7 @@ class RemoteViewsTranslatorKtTest {
     }
 
     @Test
-    fun canTranslateColumnPaddingRTL() = fakeCoroutineScope.runBlockingTest {
+    fun canTranslateColumnPaddingRTL() = fakeCoroutineScope.runTest {
         val rv = context.runAndTranslateInRtl {
             Column(
                 modifier = GlanceModifier.padding(
@@ -443,7 +443,7 @@ class RemoteViewsTranslatorKtTest {
     }
 
     @Test
-    fun canTranslateRowAbsolutePaddingRTL() = fakeCoroutineScope.runBlockingTest {
+    fun canTranslateRowAbsolutePaddingRTL() = fakeCoroutineScope.runTest {
         val rv = context.runAndTranslateInRtl {
             Row(
                 modifier = GlanceModifier.absolutePadding(
@@ -464,7 +464,7 @@ class RemoteViewsTranslatorKtTest {
     }
 
     @Test
-    fun canTranslateColumnAbsolutePaddingRTL() = fakeCoroutineScope.runBlockingTest {
+    fun canTranslateColumnAbsolutePaddingRTL() = fakeCoroutineScope.runTest {
         val rv = context.runAndTranslateInRtl {
             Column(
                 modifier = GlanceModifier.absolutePadding(
@@ -485,7 +485,7 @@ class RemoteViewsTranslatorKtTest {
     }
 
     @Test
-    fun canTranslateLazyColumn_emptyList() = fakeCoroutineScope.runBlockingTest {
+    fun canTranslateLazyColumn_emptyList() = fakeCoroutineScope.runTest {
         val rv = context.runAndTranslate {
             LazyColumn { }
         }
@@ -494,7 +494,7 @@ class RemoteViewsTranslatorKtTest {
     }
 
     @Test
-    fun canTranslateLazyColumn_withItem() = fakeCoroutineScope.runBlockingTest {
+    fun canTranslateLazyColumn_withItem() = fakeCoroutineScope.runTest {
         val rv = context.runAndTranslate {
             LazyColumn {
                 item { Text("First") }
@@ -506,7 +506,7 @@ class RemoteViewsTranslatorKtTest {
     }
 
     @Test
-    fun canTranslateLazyColumn_withMultiChildItem() = fakeCoroutineScope.runBlockingTest {
+    fun canTranslateLazyColumn_withMultiChildItem() = fakeCoroutineScope.runTest {
         val rv = context.runAndTranslate {
             LazyColumn {
                 item {
@@ -520,7 +520,7 @@ class RemoteViewsTranslatorKtTest {
     }
 
     @Test
-    fun canTranslateLazyColumn_withMaximumUnreservedItemId() = fakeCoroutineScope.runBlockingTest {
+    fun canTranslateLazyColumn_withMaximumUnreservedItemId() = fakeCoroutineScope.runTest {
         context.runAndTranslate {
             LazyColumn {
                 item(ReservedItemIdRangeEnd + 1) { Text("First") }
@@ -529,7 +529,7 @@ class RemoteViewsTranslatorKtTest {
     }
 
     @Test
-    fun cannotTranslateLazyColumn_failsWithReservedItemId() = fakeCoroutineScope.runBlockingTest {
+    fun cannotTranslateLazyColumn_failsWithReservedItemId() = fakeCoroutineScope.runTest {
         assertFailsWith<IllegalArgumentException> {
             context.runAndTranslate {
                 LazyColumn {
@@ -541,7 +541,7 @@ class RemoteViewsTranslatorKtTest {
 
     /* TODO(b/202868171): Restore after viewStub are implemented
     @Test
-    fun canTranslateLazyColumn_maximumLists() = fakeCoroutineScope.runBlockingTest {
+    fun canTranslateLazyColumn_maximumLists() = fakeCoroutineScope.runTest {
         val rv = runAndTranslate {
             LazyColumn { }
             LazyColumn { }
@@ -556,7 +556,7 @@ class RemoteViewsTranslatorKtTest {
     }
 
     @Test
-    fun cannotTranslateLazyColumn_tooManyLists() = fakeCoroutineScope.runBlockingTest {
+    fun cannotTranslateLazyColumn_tooManyLists() = fakeCoroutineScope.runTest {
         assertFailsWith<IllegalArgumentException> {
             runAndTranslate {
                 LazyColumn { }
@@ -569,7 +569,7 @@ class RemoteViewsTranslatorKtTest {
      */
 
     @Test
-    fun cannotTranslateNestedLists() = fakeCoroutineScope.runBlockingTest {
+    fun cannotTranslateNestedLists() = fakeCoroutineScope.runTest {
         assertFailsWith<IllegalStateException> {
             context.runAndTranslate {
                 LazyColumn {
@@ -586,7 +586,7 @@ class RemoteViewsTranslatorKtTest {
     }
 
     @Test
-    fun canTranslateLazyVerticalGrid_emptyList() = fakeCoroutineScope.runBlockingTest {
+    fun canTranslateLazyVerticalGrid_emptyList() = fakeCoroutineScope.runTest {
         val rv = context.runAndTranslate {
             LazyVerticalGrid(gridCells = GridCells.Fixed(3)) { }
         }
@@ -595,7 +595,7 @@ class RemoteViewsTranslatorKtTest {
     }
 
     @Test
-    fun canTranslateLazyVerticalGrid_withItem() = fakeCoroutineScope.runBlockingTest {
+    fun canTranslateLazyVerticalGrid_withItem() = fakeCoroutineScope.runTest {
         val rv = context.runAndTranslate {
             LazyVerticalGrid(gridCells = GridCells.Fixed(3)) {
                 item { Text("First") }
@@ -607,7 +607,7 @@ class RemoteViewsTranslatorKtTest {
     }
 
     @Test
-    fun canTranslateLazyVerticalGrid_withItems() = fakeCoroutineScope.runBlockingTest {
+    fun canTranslateLazyVerticalGrid_withItems() = fakeCoroutineScope.runTest {
         val rv = context.runAndTranslate {
             LazyVerticalGrid(gridCells = GridCells.Fixed(3)) {
                 items(2, { it * 2L }) { index -> Text("Item $index") }
@@ -618,7 +618,7 @@ class RemoteViewsTranslatorKtTest {
     }
 
     @Test
-    fun canTranslateAndroidRemoteViews() = fakeCoroutineScope.runBlockingTest {
+    fun canTranslateAndroidRemoteViews() = fakeCoroutineScope.runTest {
         val result = context.runAndTranslate {
             val providedViews = RemoteViews(context.packageName, R.layout.text_sample).also {
                 it.setTextViewText(R.id.text_view, "Android Remote Views")
@@ -633,7 +633,7 @@ class RemoteViewsTranslatorKtTest {
     }
 
     @Test
-    fun canTranslateAndroidRemoteViews_Container() = fakeCoroutineScope.runBlockingTest {
+    fun canTranslateAndroidRemoteViews_Container() = fakeCoroutineScope.runTest {
         val result = context.runAndTranslate {
             val providedViews = RemoteViews(context.packageName, R.layout.raw_container)
             AndroidRemoteViews(
@@ -660,7 +660,7 @@ class RemoteViewsTranslatorKtTest {
 
     @Test
     fun canTranslateAndroidRemoteViews_Container_BadSetupShouldFail() =
-        fakeCoroutineScope.runBlockingTest {
+        fakeCoroutineScope.runTest {
             assertFailsWith<IllegalStateException> {
                 context.runAndTranslate {
                     val providedViews = RemoteViews(context.packageName, R.layout.raw_container)
@@ -674,7 +674,7 @@ class RemoteViewsTranslatorKtTest {
 
     @Test
     @Config(maxSdk = 30)
-    fun canTranslateCheckbox_pre31_unchecked() = fakeCoroutineScope.runBlockingTest {
+    fun canTranslateCheckbox_pre31_unchecked() = fakeCoroutineScope.runTest {
         val rv = context.runAndTranslate {
             CheckBox(
                 checked = false,
@@ -702,7 +702,7 @@ class RemoteViewsTranslatorKtTest {
 
     @Test
     @Config(maxSdk = 30)
-    fun canTranslateCheckbox_pre31_checked() = fakeCoroutineScope.runBlockingTest {
+    fun canTranslateCheckbox_pre31_checked() = fakeCoroutineScope.runTest {
         val rv = context.runAndTranslate {
             CheckBox(
                 checked = true,
@@ -725,7 +725,7 @@ class RemoteViewsTranslatorKtTest {
     }
 
     @Test
-    fun canTranslateButton() = fakeCoroutineScope.runBlockingTest {
+    fun canTranslateButton() = fakeCoroutineScope.runTest {
         val rv = context.runAndTranslate {
             Button(
                 "Button",
@@ -741,7 +741,7 @@ class RemoteViewsTranslatorKtTest {
     }
 
     @Test
-    fun canTranslateButton_disabled() = fakeCoroutineScope.runBlockingTest {
+    fun canTranslateButton_disabled() = fakeCoroutineScope.runTest {
         val rv = context.runAndTranslate {
             Button(
                 "Button",
@@ -757,7 +757,7 @@ class RemoteViewsTranslatorKtTest {
     }
 
     @Test
-    fun canTranslateCircularProgressIndicator() = fakeCoroutineScope.runBlockingTest {
+    fun canTranslateCircularProgressIndicator() = fakeCoroutineScope.runTest {
         val rv = context.runAndTranslate {
             CircularProgressIndicator()
         }
@@ -767,7 +767,7 @@ class RemoteViewsTranslatorKtTest {
     }
 
     @Test
-    fun canTranslateLinearProgressIndicator_determinate() = fakeCoroutineScope.runBlockingTest {
+    fun canTranslateLinearProgressIndicator_determinate() = fakeCoroutineScope.runTest {
         val rv = context.runAndTranslate {
             LinearProgressIndicator(
                 progress = 0.5f,
@@ -781,7 +781,7 @@ class RemoteViewsTranslatorKtTest {
     }
 
     @Test
-    fun canTranslateLinearProgressIndicator_indeterminate() = fakeCoroutineScope.runBlockingTest {
+    fun canTranslateLinearProgressIndicator_indeterminate() = fakeCoroutineScope.runTest {
         val rv = context.runAndTranslate {
             LinearProgressIndicator()
         }
@@ -791,7 +791,7 @@ class RemoteViewsTranslatorKtTest {
     }
 
     @Test
-    fun canTranslateBackground_red() = fakeCoroutineScope.runBlockingTest {
+    fun canTranslateBackground_red() = fakeCoroutineScope.runTest {
         val rv = context.runAndTranslate {
             Box(modifier = GlanceModifier.background(Color.Red)) {}
         }
@@ -802,7 +802,7 @@ class RemoteViewsTranslatorKtTest {
     }
 
     @Test
-    fun canTranslateBackground_partialColor() = fakeCoroutineScope.runBlockingTest {
+    fun canTranslateBackground_partialColor() = fakeCoroutineScope.runTest {
         val rv = context.runAndTranslate {
             Box(
                 modifier = GlanceModifier.background(Color(red = 0.4f, green = 0.5f, blue = 0.6f))
@@ -815,7 +815,7 @@ class RemoteViewsTranslatorKtTest {
     }
 
     @Test
-    fun canTranslateBackground_transparent() = fakeCoroutineScope.runBlockingTest {
+    fun canTranslateBackground_transparent() = fakeCoroutineScope.runTest {
         val rv = context.runAndTranslate {
             Box(modifier = GlanceModifier.background(Color.Transparent)) {}
         }
@@ -827,7 +827,7 @@ class RemoteViewsTranslatorKtTest {
 
     @Config(minSdk = 29)
     @Test
-    fun canTranslateBackground_resId() = fakeCoroutineScope.runBlockingTest {
+    fun canTranslateBackground_resId() = fakeCoroutineScope.runTest {
         val rv = context.runAndTranslate {
             Box(modifier = GlanceModifier.background(R.color.my_color)) {}
         }
@@ -838,7 +838,7 @@ class RemoteViewsTranslatorKtTest {
 
     @Config(sdk = [30])
     @Test
-    fun canTranslateBackground_dayNight_light() = fakeCoroutineScope.runBlockingTest {
+    fun canTranslateBackground_dayNight_light() = fakeCoroutineScope.runTest {
         val rv = lightContext.runAndTranslate() {
             Box(modifier = GlanceModifier.background(day = Color.Red, night = Color.Blue)) {}
         }
@@ -850,7 +850,7 @@ class RemoteViewsTranslatorKtTest {
 
     @Config(sdk = [30])
     @Test
-    fun canTranslateBackground_dayNight_dark() = fakeCoroutineScope.runBlockingTest {
+    fun canTranslateBackground_dayNight_dark() = fakeCoroutineScope.runTest {
         val rv = darkContext.runAndTranslate() {
             Box(modifier = GlanceModifier.background(day = Color.Red, night = Color.Blue)) {}
         }
@@ -861,7 +861,7 @@ class RemoteViewsTranslatorKtTest {
     }
 
     @Test
-    fun visibility() = fakeCoroutineScope.runBlockingTest {
+    fun visibility() = fakeCoroutineScope.runTest {
         val rv = context.runAndTranslate {
             Column {
                 Text("first", modifier = GlanceModifier.visibility(Visibility.Invisible))
@@ -882,7 +882,7 @@ class RemoteViewsTranslatorKtTest {
     }
 
     @Test
-    fun setAsAppWidgetBackground() = fakeCoroutineScope.runBlockingTest {
+    fun setAsAppWidgetBackground() = fakeCoroutineScope.runTest {
         val rv = context.runAndTranslate {
             Column(modifier = GlanceModifier.appWidgetBackground()) {
                 Text("text1")
@@ -899,7 +899,7 @@ class RemoteViewsTranslatorKtTest {
     }
 
     @Test
-    fun setAsAppWidgetBackground_multipleTimes_shouldFail() = fakeCoroutineScope.runBlockingTest {
+    fun setAsAppWidgetBackground_multipleTimes_shouldFail() = fakeCoroutineScope.runTest {
         assertFailsWith<IllegalStateException> {
             context.runAndTranslate {
                 Column(modifier = GlanceModifier.appWidgetBackground()) {
@@ -910,7 +910,7 @@ class RemoteViewsTranslatorKtTest {
     }
 
     @Test
-    fun multipleClickable_shouldLogWarning() = fakeCoroutineScope.runBlockingTest {
+    fun multipleClickable_shouldLogWarning() = fakeCoroutineScope.runTest {
         context.runAndTranslate {
             Text(
                 "text1",

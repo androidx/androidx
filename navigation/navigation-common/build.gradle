@@ -15,6 +15,7 @@
  */
 
 import androidx.build.Publish
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("AndroidXPlugin")
@@ -44,6 +45,7 @@ dependencies {
     testImplementation(libs.mockitoCore)
     testImplementation(libs.truth)
     testImplementation(libs.kotlinStdlib)
+    testImplementation(libs.kotlinCoroutinesTest)
 
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)
@@ -74,4 +76,10 @@ androidx {
     mavenGroup = LibraryGroups.NAVIGATION
     inceptionYear = "2017"
     description = "Android Navigation-Common"
+}
+
+tasks.withType(KotlinCompile).configureEach {
+    kotlinOptions {
+        freeCompilerArgs += "-opt-in=kotlin.RequiresOptIn"
+    }
 }

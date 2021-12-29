@@ -15,6 +15,7 @@
  */
 
 import androidx.build.LibraryType
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("AndroidXPlugin")
@@ -30,6 +31,7 @@ dependencies {
     testImplementation(libs.junit)
     testImplementation(libs.mockitoCore)
     testImplementation(libs.truth)
+    testImplementation(libs.kotlinCoroutinesTest)
 
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)
@@ -40,4 +42,10 @@ dependencies {
 
 androidx {
     type = LibraryType.INTERNAL_TEST_LIBRARY
+}
+
+tasks.withType(KotlinCompile).configureEach {
+    kotlinOptions {
+        freeCompilerArgs += "-opt-in=kotlin.RequiresOptIn"
+    }
 }

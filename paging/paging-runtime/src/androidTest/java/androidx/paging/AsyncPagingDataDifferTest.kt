@@ -34,12 +34,13 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Runnable
 import kotlinx.coroutines.cancelAndJoin
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.test.TestCoroutineScope
-import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.test.advanceUntilIdle
+import kotlinx.coroutines.test.runTest
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -47,6 +48,7 @@ import kotlin.coroutines.ContinuationInterceptor
 import kotlin.coroutines.CoroutineContext
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
+import kotlinx.coroutines.withContext
 
 sealed class ListUpdateEvent {
     data class Changed(val position: Int, val count: Int, val payload: Any?) : ListUpdateEvent()
@@ -62,7 +64,7 @@ sealed class ListUpdateEvent {
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 class AsyncPagingDataDifferTest {
-    private val testScope = TestCoroutineScope()
+    private val testScope = TestScope(StandardTestDispatcher())
 
     @get:Rule
     val dispatcherRule = MainDispatcherRule(
@@ -86,7 +88,7 @@ class AsyncPagingDataDifferTest {
 
     @SdkSuppress(minSdkVersion = 21) // b/189492631
     @Test
-    fun performDiff_fastPathLoadStates() = testScope.runBlockingTest {
+    fun performDiff_fastPathLoadStates() = testScope.runTest {
         val loadEvents = mutableListOf<CombinedLoadStates>()
         differ.addLoadStateListener { loadEvents.add(it) }
 
@@ -150,7 +152,7 @@ class AsyncPagingDataDifferTest {
 
     @SdkSuppress(minSdkVersion = 21) // b/189492631
     @Test
-    fun performDiff_fastPathLoadStatesFlow() = testScope.runBlockingTest {
+    fun performDiff_fastPathLoadStatesFlow() = testScope.runTest {
         val loadEvents = mutableListOf<CombinedLoadStates>()
         val loadEventJob = launch {
             differ.loadStateFlow.collect { loadEvents.add(it) }
@@ -217,8 +219,8 @@ class AsyncPagingDataDifferTest {
     }
 
     @Test
-    fun lastAccessedIndex() = testScope.runBlockingTest {
-        pauseDispatcher {
+    fun lastAccessedIndex() = testScope.runTest {
+        withContext(coroutineContext) {
             var currentPagedSource: TestPagingSource? = null
             val pager = Pager(
                 config = PagingConfig(
@@ -278,8 +280,8 @@ class AsyncPagingDataDifferTest {
     }
 
     @Test
-    fun presentData_cancelsLastSubmit() = testScope.runBlockingTest {
-        pauseDispatcher {
+    fun presentData_cancelsLastSubmit() = testScope.runTest {
+        withContext(coroutineContext) {
             val pager = Pager(
                 config = PagingConfig(2),
                 initialKey = 50
@@ -316,8 +318,8 @@ class AsyncPagingDataDifferTest {
     }
 
     @Test
-    fun submitData_cancelsLast() = testScope.runBlockingTest {
-        pauseDispatcher {
+    fun submitData_cancelsLast() = testScope.runTest {
+        withContext(coroutineContext) {
             val pager = Pager(
                 config = PagingConfig(2),
                 initialKey = 50
@@ -358,7 +360,7 @@ class AsyncPagingDataDifferTest {
 
     @SdkSuppress(minSdkVersion = 21) // b/189492631
     @Test
-    fun submitData_guaranteesOrder() = testScope.runBlockingTest {
+    fun submitData_guaranteesOrder() = testScope.runTest {
         val pager = Pager(config = PagingConfig(2, enablePlaceholders = false), initialKey = 50) {
             TestPagingSource()
         }
@@ -396,8 +398,8 @@ class AsyncPagingDataDifferTest {
     }
 
     @Test
-    fun submitData_cancelsLastSuspendSubmit() = testScope.runBlockingTest {
-        pauseDispatcher {
+    fun submitData_cancelsLastSuspendSubmit() = testScope.runTest {
+        withContext(coroutineContext) {
             val pager = Pager(
                 config = PagingConfig(2),
                 initialKey = 50
@@ -438,7 +440,7 @@ class AsyncPagingDataDifferTest {
 
     @SdkSuppress(minSdkVersion = 21) // b/189492631
     @Test
-    fun submitData_doesNotCancelCollectionsCoroutine() = testScope.runBlockingTest {
+    fun submitData_doesNotCancelCollectionsCoroutine() = testScope.runTest {
         lateinit var source1: TestPagingSource
         lateinit var source2: TestPagingSource
         val pager = Pager(
@@ -506,7 +508,7 @@ class AsyncPagingDataDifferTest {
      */
     @SdkSuppress(minSdkVersion = 21) // b/189492631
     @Test
-    fun refreshEventsAreImmediate_cached() = testScope.runBlockingTest {
+    fun refreshEventsAreImmediate_cached() = testScope.runTest {
         val loadStates = mutableListOf<CombinedLoadStates>()
         differ.addLoadStateListener { loadStates.add(it) }
         val pager = Pager(
@@ -539,7 +541,7 @@ class AsyncPagingDataDifferTest {
 
     @SdkSuppress(minSdkVersion = 21) // b/189492631
     @Test
-    fun loadStateFlowSynchronouslyUpdates() = testScope.runBlockingTest {
+    fun loadStateFlowSynchronouslyUpdates() = testScope.runTest {
         var combinedLoadStates: CombinedLoadStates? = null
         var itemCount = -1
         val loadStateJob = launch {
@@ -587,8 +589,8 @@ class AsyncPagingDataDifferTest {
     }
 
     @Test
-    fun loadStateListenerSynchronouslyUpdates() = testScope.runBlockingTest {
-        pauseDispatcher {
+    fun loadStateListenerSynchronouslyUpdates() = testScope.runTest {
+        withContext(coroutineContext) {
             var combinedLoadStates: CombinedLoadStates? = null
             var itemCount = -1
             differ.addLoadStateListener {
@@ -634,8 +636,8 @@ class AsyncPagingDataDifferTest {
     }
 
     @Test
-    fun listUpdateCallbackSynchronouslyUpdates() = testScope.runBlockingTest {
-        pauseDispatcher {
+    fun listUpdateCallbackSynchronouslyUpdates() = testScope.runTest {
+        withContext(coroutineContext) {
             // Keep track of .snapshot() result within each ListUpdateCallback
             val initialSnapshot: ItemSnapshotList<Int> = ItemSnapshotList(0, 0, emptyList())
             var onInsertedSnapshot = initialSnapshot

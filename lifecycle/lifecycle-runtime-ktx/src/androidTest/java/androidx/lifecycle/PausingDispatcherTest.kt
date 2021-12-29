@@ -50,6 +50,7 @@ import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import kotlin.coroutines.CoroutineContext
+import kotlinx.coroutines.Delay
 
 @InternalCoroutinesApi
 @SmallTest
@@ -102,7 +103,7 @@ class PausingDispatcherTest {
      * refactoring of these tests so for now this is a good trade-off.
      */
     private fun CoroutineDispatcher.asMain(immediate: Boolean = false): MainCoroutineDispatcher {
-        return object : MainCoroutineDispatcher() {
+        return object : MainCoroutineDispatcher(), Delay by (this@asMain as Delay) {
             override val immediate: MainCoroutineDispatcher =
                 if (immediate) this else asMain(immediate = true)
 

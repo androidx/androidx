@@ -1992,6 +1992,7 @@ public class EditorSessionTest {
         scenario.onActivity { activity ->
             activity.immediateCoroutineScope.launch {
                 activity.editorSession.complicationsPreviewData.collect {}
+                @Suppress("UNREACHABLE_CODE")
                 fail("We shouldn't get here due to the editor closing")
             }
         }

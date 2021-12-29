@@ -72,8 +72,8 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.test.TestCoroutineScope
-import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -83,12 +83,12 @@ class ScreenshotTests {
     @get:Rule
     var screenshotRule = AndroidXScreenshotTestRule("glance/glance-wear-tiles")
 
-    private lateinit var fakeCoroutineScope: TestCoroutineScope
+    private lateinit var fakeCoroutineScope: TestScope
     private lateinit var testBitmap: Bitmap
 
     @Before
     fun setUp() {
-        fakeCoroutineScope = TestCoroutineScope()
+        fakeCoroutineScope = TestScope()
         testBitmap = getApplicationContext<Context>().getDrawable(R.drawable.oval)!!.toBitmap()
     }
 
@@ -339,7 +339,7 @@ class ScreenshotTests {
     private fun runSingleGoldenTest(
         expectedGolden: String,
         content: @Composable () -> Unit
-    ) = fakeCoroutineScope.runBlockingTest {
+    ) = fakeCoroutineScope.runTest {
         val context = getApplicationContext<Context>()
         val composition = runComposition(content)
         normalizeCompositionTree(context, composition)

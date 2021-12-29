@@ -28,8 +28,13 @@ import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.test.TestCoroutineScope
-import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.advanceTimeBy
+import kotlinx.coroutines.test.advanceUntilIdle
+import kotlinx.coroutines.test.runCurrent
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -40,7 +45,7 @@ import kotlin.test.fail
 @OptIn(ExperimentalCoroutinesApi::class, ExperimentalPagingApi::class)
 @RunWith(JUnit4::class)
 class RemoteMediatorAccessorTest {
-    private val testScope = TestCoroutineScope()
+    private val testScope = TestScope(UnconfinedTestDispatcher())
     private var mockStateId = 0
 
     // creates a unique state using the anchor position to be able to do equals check in assertions
@@ -56,7 +61,7 @@ class RemoteMediatorAccessorTest {
     }
 
     @Test
-    fun requestLoadIfRefreshAllowed_noop() = testScope.runBlockingTest {
+    fun requestLoadIfRefreshAllowed_noop() = testScope.runTest {
         val remoteMediator = RemoteMediatorMock(loadDelay = 100).apply {
             initializeResult = SKIP_INITIAL_REFRESH
         }
@@ -69,7 +74,7 @@ class RemoteMediatorAccessorTest {
     }
 
     @Test
-    fun requestLoadIfRefreshAllowed_simple() = testScope.runBlockingTest {
+    fun requestLoadIfRefreshAllowed_simple() = testScope.runTest {
         val remoteMediator = RemoteMediatorMock(loadDelay = 100).apply {
             initializeResult = LAUNCH_INITIAL_REFRESH
         }
@@ -90,7 +95,7 @@ class RemoteMediatorAccessorTest {
     }
 
     @Test
-    fun requestLoadIfRefreshAllowed_retry() = testScope.runBlockingTest {
+    fun requestLoadIfRefreshAllowed_retry() = testScope.runTest {
         val remoteMediator = RemoteMediatorMock(loadDelay = 100).apply {
             initializeResult = LAUNCH_INITIAL_REFRESH
         }
@@ -120,7 +125,7 @@ class RemoteMediatorAccessorTest {
     }
 
     @Test
-    fun requestLoad_queuesBoundaryBehindRefresh() = testScope.runBlockingTest {
+    fun requestLoad_queuesBoundaryBehindRefresh() = testScope.runTest {
         val remoteMediator = RemoteMediatorMock(loadDelay = 100)
         val remoteMediatorAccessor = createAccessor(remoteMediator)
         val firstState = createMockState()
@@ -179,7 +184,7 @@ class RemoteMediatorAccessorTest {
     }
 
     @Test
-    fun requestLoad_cancelledBoundaryRetriesAfterRefresh() = testScope.runBlockingTest {
+    fun requestLoad_cancelledBoundaryRetriesAfterRefresh() = testScope.runTest {
         val remoteMediator = RemoteMediatorMock(loadDelay = 100).apply {
             initializeResult = SKIP_INITIAL_REFRESH
         }
@@ -211,7 +216,7 @@ class RemoteMediatorAccessorTest {
     }
 
     @Test
-    fun requestLoad_queuesBoundaryAfterRefreshFails() = testScope.runBlockingTest {
+    fun requestLoad_queuesBoundaryAfterRefreshFails() = testScope.runTest {
         val firstState = createMockState()
         val secondState = createMockState()
         val remoteMediator = RemoteMediatorMock(loadDelay = 100).apply {
@@ -267,7 +272,7 @@ class RemoteMediatorAccessorTest {
     }
 
     @Test
-    fun requestLoad_refreshEndOfPaginationReachedClearsBoundaryCalls() = testScope.runBlockingTest {
+    fun requestLoad_refreshEndOfPaginationReachedClearsBoundaryCalls() = testScope.runTest {
         val remoteMediator = RemoteMediatorMock(loadDelay = 100).apply {
             initializeResult = RemoteMediator.InitializeAction.LAUNCH_INITIAL_REFRESH
             loadCallback = { _, _ ->
@@ -303,7 +308,7 @@ class RemoteMediatorAccessorTest {
     }
 
     @Test
-    fun load_reportsPrependLoadState() = testScope.runBlockingTest {
+    fun load_reportsPrependLoadState() = testScope.runTest {
         val emptyState = PagingState<Int, Int>(listOf(), null, PagingConfig(10), COUNT_UNDEFINED)
         val remoteMediator = RemoteMediatorMock(loadDelay = 1000)
         val remoteMediatorAccessor = createAccessor(remoteMediator)
@@ -355,7 +360,7 @@ class RemoteMediatorAccessorTest {
     }
 
     @Test
-    fun load_reportsAppendLoadState() = testScope.runBlockingTest {
+    fun load_reportsAppendLoadState() = testScope.runTest {
         val emptyState = PagingState<Int, Int>(listOf(), null, PagingConfig(10), COUNT_UNDEFINED)
         val remoteMediator = RemoteMediatorMock(loadDelay = 1000)
         val remoteMediatorAccessor = createAccessor(remoteMediator)
@@ -407,7 +412,7 @@ class RemoteMediatorAccessorTest {
     }
 
     @Test
-    fun load_conflatesPrepend() = testScope.runBlockingTest {
+    fun load_conflatesPrepend() = testScope.runTest {
         val remoteMediator = RemoteMediatorMock(loadDelay = 1000)
         val remoteMediatorAccessor = createAccessor(remoteMediator)
 
@@ -433,7 +438,7 @@ class RemoteMediatorAccessorTest {
     }
 
     @Test
-    fun load_conflatesAppend() = testScope.runBlockingTest {
+    fun load_conflatesAppend() = testScope.runTest {
         val remoteMediator = RemoteMediatorMock(loadDelay = 1000)
         val remoteMediatorAccessor = createAccessor(remoteMediator)
 
@@ -459,7 +464,7 @@ class RemoteMediatorAccessorTest {
     }
 
     @Test
-    fun load_conflatesRefresh() = testScope.runBlockingTest {
+    fun load_conflatesRefresh() = testScope.runTest {
         val remoteMediator = RemoteMediatorMock(loadDelay = 1000)
         val remoteMediatorAccessor = createAccessor(remoteMediator)
 
@@ -485,7 +490,7 @@ class RemoteMediatorAccessorTest {
     }
 
     @Test
-    fun load_concurrentInitializeJobCancelsBoundaryJobs() = testScope.runBlockingTest {
+    fun load_concurrentInitializeJobCancelsBoundaryJobs() = testScope.runTest {
         val emptyState = PagingState<Int, Int>(listOf(), null, PagingConfig(10), COUNT_UNDEFINED)
         val remoteMediator = object : RemoteMediatorMock(loadDelay = 1000) {
             var loading = AtomicBoolean(false)
@@ -568,7 +573,7 @@ class RemoteMediatorAccessorTest {
     }
 
     @Test
-    fun load_concurrentBoundaryJobsRunsSerially() = testScope.runBlockingTest {
+    fun load_concurrentBoundaryJobsRunsSerially() = testScope.runTest {
         val emptyState = PagingState<Int, Int>(listOf(), null, PagingConfig(10), COUNT_UNDEFINED)
         val remoteMediator = object : RemoteMediatorMock(loadDelay = 1000) {
             var loading = AtomicBoolean(false)
@@ -601,6 +606,7 @@ class RemoteMediatorAccessorTest {
 
         // Assert that second job starts after first finishes.
         advanceTimeBy(500)
+        runCurrent()
         assertEquals(1, remoteMediator.newLoadEvents.size)
 
         // Allow second job to finish.
@@ -646,8 +652,8 @@ class RemoteMediatorAccessorTest {
         val remoteMediatorMock = RemoteMediatorMock(loadDelay = 100).apply {
             initializeResult = RemoteMediator.InitializeAction.LAUNCH_INITIAL_REFRESH
         }
+        val testScope = TestScope(StandardTestDispatcher())
         val accessor = testScope.createAccessor(remoteMediatorMock)
-        testScope.pauseDispatcher()
 
         val refreshState = createMockState()
         accessor.requestLoad(REFRESH, refreshState)
@@ -718,7 +724,6 @@ class RemoteMediatorAccessorTest {
             initializeResult = SKIP_INITIAL_REFRESH
         }
         val accessor = testScope.createAccessor(remoteMediatorMock)
-        testScope.pauseDispatcher()
         val initialAppend = createMockState()
         accessor.requestLoad(APPEND, initialAppend)
         testScope.advanceTimeBy(50)
@@ -750,7 +755,6 @@ class RemoteMediatorAccessorTest {
             initializeResult = SKIP_INITIAL_REFRESH
         }
         val accessor = testScope.createAccessor(remoteMediatorMock)
-        testScope.pauseDispatcher()
 
         // Initial state
         assertThat(accessor.state.value).isEqualTo(LoadStates.IDLE)
@@ -1089,7 +1093,6 @@ class RemoteMediatorAccessorTest {
             RemoteMediator.MediatorResult.Error(exception)
         }
         val accessor = testScope.createAccessor(remoteMediator)
-        testScope.pauseDispatcher()
         accessor.requestLoad(REFRESH, createMockState())
         accessor.requestLoad(APPEND, createMockState())
         accessor.requestLoad(PREPEND, createMockState())
@@ -1147,7 +1150,6 @@ class RemoteMediatorAccessorTest {
             }
         }
         val accessor = testScope.createAccessor(remoteMediator)
-        testScope.pauseDispatcher()
         accessor.requestLoad(REFRESH, createMockState())
         accessor.requestLoad(APPEND, createMockState())
         accessor.requestLoad(PREPEND, createMockState())
@@ -1370,7 +1372,6 @@ class RemoteMediatorAccessorTest {
             RemoteMediator.MediatorResult.Error(exception)
         }
         val accessor = testScope.createAccessor(remoteMediator)
-        testScope.pauseDispatcher()
         val state1 = createMockState()
         accessor.requestLoad(loadType, state1)
         assertThat(
@@ -1426,14 +1427,14 @@ class RemoteMediatorAccessorTest {
         )
     }
 
-    private fun TestCoroutineScope.createAccessor(
+    private fun TestScope.createAccessor(
         mediator: RemoteMediatorMock
     ): RemoteMediatorAccessor<Int, Int> {
         val accessor = RemoteMediatorAccessor(
             scope = this,
             delegate = mediator
         )
-        TestCoroutineScope().launch {
+        TestScope().launch(coroutineContext) {
             accessor.initialize()
         }
         return accessor

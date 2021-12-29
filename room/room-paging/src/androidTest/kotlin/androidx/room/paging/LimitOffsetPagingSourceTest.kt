@@ -39,7 +39,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.test.advanceUntilIdle
+import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
@@ -50,6 +51,7 @@ import java.util.concurrent.TimeUnit
 import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
+import kotlinx.coroutines.Job
 
 private const val tableName: String = "TestItem"
 
@@ -83,7 +85,7 @@ class LimitOffsetPagingSourceTest {
 
     @OptIn(ExperimentalCoroutinesApi::class)
     @Test
-    fun load_usesQueryExecutor() = runBlockingTest {
+    fun load_usesQueryExecutor() = runTest {
         val queryExecutor = TestExecutor()
         val transactionExecutor = TestExecutor()
         database = Room.inMemoryDatabaseBuilder(
@@ -97,7 +99,8 @@ class LimitOffsetPagingSourceTest {
         assertThat(queryExecutor.executeAll()).isFalse()
         assertThat(transactionExecutor.executeAll()).isFalse()
 
-        val job = launch {
+        val job = Job()
+        launch(job) {
             LimitOffsetPagingSourceImpl(database).load(
                 PagingSource.LoadParams.Refresh(
                     key = null,

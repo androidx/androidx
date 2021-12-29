@@ -30,8 +30,9 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.toCollection
-import kotlinx.coroutines.test.TestCoroutineScope
-import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Rule
@@ -49,7 +50,7 @@ public class WindowLayoutInfoPublisherRuleTest {
     private val activityRule = ActivityScenarioRule(TestActivity::class.java)
     private val publisherRule = WindowLayoutInfoPublisherRule()
     @OptIn(ExperimentalCoroutinesApi::class)
-    private val testScope = TestCoroutineScope()
+    private val testScope = TestScope(UnconfinedTestDispatcher())
 
     @get:Rule
     public val testRule: TestRule
@@ -60,14 +61,14 @@ public class WindowLayoutInfoPublisherRuleTest {
 
     @OptIn(ExperimentalCoroutinesApi::class)
     @Test
-    public fun testWindowLayoutInfo_relayValue(): Unit = testScope.runBlockingTest {
+    public fun testWindowLayoutInfo_relayValue(): Unit = testScope.runTest {
         val expected = WindowLayoutInfo(emptyList())
         activityRule.scenario.onActivity { activity ->
             val value = testScope.async {
                 WindowInfoTracker.getOrCreate(activity).windowLayoutInfo(activity).first()
             }
             publisherRule.overrideWindowLayoutInfo(expected)
-            runBlockingTest {
+            runTest(UnconfinedTestDispatcher(testScheduler)) {
                 val actual = value.await()
                 assertEquals(expected, actual)
             }
@@ -97,7 +98,7 @@ public class WindowLayoutInfoPublisherRuleTest {
 
     @OptIn(ExperimentalCoroutinesApi::class)
     @Test
-    public fun testWindowLayoutInfo_multipleValues(): Unit = testScope.runBlockingTest {
+    public fun testWindowLayoutInfo_multipleValues(): Unit = testScope.runTest {
         val feature1 = object : DisplayFeature {
             override val bounds: Rect
                 get() = Rect()
@@ -118,7 +119,7 @@ public class WindowLayoutInfoPublisherRuleTest {
             publisherRule.overrideWindowLayoutInfo(expected2)
             publisherRule.overrideWindowLayoutInfo(expected1)
             publisherRule.overrideWindowLayoutInfo(expected2)
-            runBlockingTest {
+            runTest(UnconfinedTestDispatcher(testScheduler)) {
                 assertEquals(
                     listOf(expected1, expected2, expected1, expected2),
                     value.await().toList()

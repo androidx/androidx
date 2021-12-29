@@ -29,6 +29,10 @@ import androidx.camera.camera2.pipe.testing.RobolectricCameraPipeTestRunner
 import androidx.camera.camera2.pipe.testing.awaitEvent
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
@@ -38,6 +42,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(RobolectricCameraPipeTestRunner::class)
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
 internal class GraphProcessorTest {
@@ -304,7 +309,7 @@ internal class GraphProcessorTest {
 
     @Test
     fun graphProcessorSubmitsRepeatingRequestAndQueuedRequests() {
-        runBlocking(Dispatchers.Default) {
+        runTest(UnconfinedTestDispatcher()) {
             val graphProcessor = GraphProcessorImpl(
                 FakeThreads.forTests,
                 graphConfig,
@@ -323,19 +328,21 @@ internal class GraphProcessorTest {
             var hasRequest2Event = false
 
             // Loop until we see at least one repeating request, and one submit event.
-            while (!hasRequest1Event && !hasRequest2Event) {
-                val event = fakeProcessor1.nextEvent()
-                hasRequest1Event = hasRequest1Event ||
-                    event.requestSequence?.requests?.contains(request1) ?: false
-                hasRequest2Event = hasRequest2Event ||
-                    event.requestSequence?.requests?.contains(request2) ?: false
-            }
+            launch {
+                while (!hasRequest1Event && !hasRequest2Event) {
+                    val event = fakeProcessor1.nextEvent()
+                    hasRequest1Event = hasRequest1Event ||
+                        event.requestSequence?.requests?.contains(request1) ?: false
+                    hasRequest2Event = hasRequest2Event ||
+                        event.requestSequence?.requests?.contains(request2) ?: false
+                }
+            }.join()
         }
     }
 
     @Test
     fun graphProcessorAbortsQueuedRequests() {
-        runBlocking(Dispatchers.Default) {
+        runTest(UnconfinedTestDispatcher()) {
             val graphProcessor = GraphProcessorImpl(
                 FakeThreads.forTests,
                 graphConfig,
@@ -369,7 +376,7 @@ internal class GraphProcessorTest {
 
     @Test
     fun closingGraphProcessorAbortsSubsequentRequests() {
-        runBlocking(Dispatchers.Default) {
+        runTest(UnconfinedTestDispatcher()) {
             val graphProcessor = GraphProcessorImpl(
                 FakeThreads.forTests,
                 graphConfig,

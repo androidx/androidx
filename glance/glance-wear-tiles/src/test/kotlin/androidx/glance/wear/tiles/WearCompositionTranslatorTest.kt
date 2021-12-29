@@ -69,8 +69,8 @@ import androidx.wear.tiles.LayoutElementBuilders.VERTICAL_ALIGN_CENTER
 import androidx.wear.tiles.LayoutElementBuilders.VERTICAL_ALIGN_TOP
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.test.TestCoroutineScope
-import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -82,15 +82,15 @@ import kotlin.test.assertIs
 @OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(RobolectricTestRunner::class)
 class WearCompositionTranslatorTest {
-    private lateinit var fakeCoroutineScope: TestCoroutineScope
+    private lateinit var fakeCoroutineScope: TestScope
 
     @Before
     fun setUp() {
-        fakeCoroutineScope = TestCoroutineScope()
+        fakeCoroutineScope = TestScope()
     }
 
     @Test
-    fun canTranslateBox() = fakeCoroutineScope.runBlockingTest {
+    fun canTranslateBox() = fakeCoroutineScope.runTest {
         val content = runAndTranslate {
             Box {}
         }.layout
@@ -103,7 +103,7 @@ class WearCompositionTranslatorTest {
     }
 
     @Test
-    fun canTranslateBoxWithAlignment() = fakeCoroutineScope.runBlockingTest {
+    fun canTranslateBoxWithAlignment() = fakeCoroutineScope.runTest {
         val content = runAndTranslate {
             Box(contentAlignment = Alignment.Center) {}
         }.layout
@@ -116,7 +116,7 @@ class WearCompositionTranslatorTest {
     }
 
     @Test
-    fun canTranslateBoxWithChildren() = fakeCoroutineScope.runBlockingTest {
+    fun canTranslateBoxWithChildren() = fakeCoroutineScope.runTest {
         val content = runAndTranslate {
             Box {
                 Box(contentAlignment = Alignment.TopCenter) {}
@@ -137,7 +137,7 @@ class WearCompositionTranslatorTest {
     }
 
     @Test
-    fun canTranslatePaddingModifier() = fakeCoroutineScope.runBlockingTest {
+    fun canTranslatePaddingModifier() = fakeCoroutineScope.runTest {
         val content = runAndTranslate {
             Box(
                 modifier =
@@ -156,7 +156,7 @@ class WearCompositionTranslatorTest {
     }
 
     @Test
-    fun canTranslateBorderModifier() = fakeCoroutineScope.runBlockingTest {
+    fun canTranslateBorderModifier() = fakeCoroutineScope.runTest {
         val content = runAndTranslate {
             Box(
                 modifier = GlanceModifier.border(
@@ -189,7 +189,7 @@ class WearCompositionTranslatorTest {
     }
 
     @Test
-    fun canTranslateBackgroundModifier() = fakeCoroutineScope.runBlockingTest {
+    fun canTranslateBackgroundModifier() = fakeCoroutineScope.runTest {
         val content = runAndTranslate {
             Box(modifier = GlanceModifier.background(Color(0x11223344))) {}
         }.layout
@@ -202,7 +202,7 @@ class WearCompositionTranslatorTest {
     }
 
     @Test
-    fun canTranslateBackgroundModifier_resId() = fakeCoroutineScope.runBlockingTest {
+    fun canTranslateBackgroundModifier_resId() = fakeCoroutineScope.runTest {
         val content = runAndTranslate {
             Box(modifier = GlanceModifier.background(R.color.color1)) {}
         }.layout
@@ -216,7 +216,7 @@ class WearCompositionTranslatorTest {
     }
 
     @Test
-    fun canTranslateRow() = fakeCoroutineScope.runBlockingTest {
+    fun canTranslateRow() = fakeCoroutineScope.runTest {
         val content = runAndTranslate {
             Row(verticalAlignment = Alignment.Vertical.CenterVertically) {
                 Box(contentAlignment = Alignment.TopCenter) {}
@@ -240,7 +240,7 @@ class WearCompositionTranslatorTest {
     }
 
     @Test
-    fun rowWithHorizontalAlignmentInflatesInColumn() = fakeCoroutineScope.runBlockingTest {
+    fun rowWithHorizontalAlignmentInflatesInColumn() = fakeCoroutineScope.runTest {
         val content = runAndTranslate {
             Row(
                 verticalAlignment = Alignment.Vertical.CenterVertically,
@@ -277,7 +277,7 @@ class WearCompositionTranslatorTest {
     }
 
     @Test
-    fun canTranslateColumn() = fakeCoroutineScope.runBlockingTest {
+    fun canTranslateColumn() = fakeCoroutineScope.runTest {
         val content = runAndTranslate {
             Column(horizontalAlignment = Alignment.Horizontal.CenterHorizontally) {
                 Box(contentAlignment = Alignment.TopCenter) {}
@@ -301,7 +301,7 @@ class WearCompositionTranslatorTest {
     }
 
     @Test
-    fun columnWithVerticalAlignmentInflatesInRow() = fakeCoroutineScope.runBlockingTest {
+    fun columnWithVerticalAlignmentInflatesInRow() = fakeCoroutineScope.runTest {
         val content = runAndTranslate {
             Column(
                 verticalAlignment = Alignment.Vertical.CenterVertically,
@@ -338,7 +338,7 @@ class WearCompositionTranslatorTest {
     }
 
     @Test
-    fun canInflateText() = fakeCoroutineScope.runBlockingTest {
+    fun canInflateText() = fakeCoroutineScope.runTest {
         val content = runAndTranslate {
             val style = TextStyle(
                 color = ColorProvider(Color.Gray),
@@ -365,7 +365,7 @@ class WearCompositionTranslatorTest {
     }
 
     @Test
-    fun textWithSizeInflatesInBox() = fakeCoroutineScope.runBlockingTest {
+    fun textWithSizeInflatesInBox() = fakeCoroutineScope.runTest {
         val content = runAndTranslate {
             Text(
                 "Hello World",
@@ -394,7 +394,7 @@ class WearCompositionTranslatorTest {
     }
 
     @Test
-    fun canTranslateCurvedRow() = fakeCoroutineScope.runBlockingTest {
+    fun canTranslateCurvedRow() = fakeCoroutineScope.runTest {
         val content = runAndTranslate {
             CurvedRow(
                 anchorDegrees = 20f,
@@ -415,7 +415,7 @@ class WearCompositionTranslatorTest {
     }
 
     @Test
-    fun curvedRowWithSizeInflatesInBox() = fakeCoroutineScope.runBlockingTest {
+    fun curvedRowWithSizeInflatesInBox() = fakeCoroutineScope.runTest {
         val content = runAndTranslate {
             CurvedRow(
                 anchorDegrees = 20f,
@@ -442,7 +442,7 @@ class WearCompositionTranslatorTest {
     }
 
     @Test
-    fun canTranslateCurvedText() = fakeCoroutineScope.runBlockingTest {
+    fun canTranslateCurvedText() = fakeCoroutineScope.runTest {
         val content = runAndTranslate {
             val style = CurvedTextStyle(
                 color = ColorProvider(R.color.color1),
@@ -469,7 +469,7 @@ class WearCompositionTranslatorTest {
     }
 
     @Test
-    fun canTranslateAndroidLayoutElement() = fakeCoroutineScope.runBlockingTest {
+    fun canTranslateAndroidLayoutElement() = fakeCoroutineScope.runTest {
         val providedLayoutElement =
             LayoutElementBuilders.Text.Builder().setText("Android Layout Element").build()
 
@@ -483,7 +483,7 @@ class WearCompositionTranslatorTest {
     }
 
     @Test
-    fun otherElementInArcInflatesInArcAdapter() = fakeCoroutineScope.runBlockingTest {
+    fun otherElementInArcInflatesInArcAdapter() = fakeCoroutineScope.runTest {
         val content = runAndTranslate {
             CurvedRow {
                 Box {}
@@ -497,7 +497,7 @@ class WearCompositionTranslatorTest {
     }
 
     @Test
-    fun canInflateLaunchAction() = fakeCoroutineScope.runBlockingTest {
+    fun canInflateLaunchAction() = fakeCoroutineScope.runTest {
         val content = runAndTranslate {
             Text(
                 modifier = GlanceModifier.clickable(actionStartActivity(TestActivity::class.java)),
@@ -522,7 +522,7 @@ class WearCompositionTranslatorTest {
     }
 
     @Test
-    fun canTranslateButton() = fakeCoroutineScope.runBlockingTest {
+    fun canTranslateButton() = fakeCoroutineScope.runTest {
         val content = runAndTranslate {
             val style = TextStyle(
                 color = ColorProvider(Color.Magenta),
@@ -556,7 +556,7 @@ class WearCompositionTranslatorTest {
     }
 
     @Test
-    fun canTranslateSpacer() = fakeCoroutineScope.runBlockingTest {
+    fun canTranslateSpacer() = fakeCoroutineScope.runTest {
         val content = runAndTranslate {
             Spacer(GlanceModifier.width(10.dp))
             Spacer(GlanceModifier.height(15.dp))
@@ -576,7 +576,7 @@ class WearCompositionTranslatorTest {
     }
 
     @Test
-    fun canTranslateImage() = fakeCoroutineScope.runBlockingTest {
+    fun canTranslateImage() = fakeCoroutineScope.runTest {
         val context = getApplicationContext<Context>()
         val bitmap = context.getDrawable(R.drawable.oval)!!.toBitmap()
         val compositionResult = runAndTranslate {
@@ -635,7 +635,7 @@ class WearCompositionTranslatorTest {
     }
 
     @Test
-    fun setSizeFromResource() = fakeCoroutineScope.runBlockingTest {
+    fun setSizeFromResource() = fakeCoroutineScope.runTest {
         val content = runAndTranslate {
             Column(
                 modifier = GlanceModifier.width(R.dimen.dimension1)

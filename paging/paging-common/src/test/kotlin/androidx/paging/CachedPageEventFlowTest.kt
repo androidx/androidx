@@ -23,12 +23,15 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.consumeAsFlow
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.test.TestCoroutineScope
-import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.advanceTimeBy
+import kotlinx.coroutines.test.advanceUntilIdle
+import kotlinx.coroutines.test.runCurrent
+import kotlinx.coroutines.test.runTest
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
@@ -38,10 +41,10 @@ import org.junit.runners.Parameterized
 class CachedPageEventFlowTest(
     private val terminationType: TerminationType
 ) {
-    private val testScope = TestCoroutineScope()
+    private val testScope = TestScope(UnconfinedTestDispatcher())
 
     @Test
-    fun slowFastCollectors() = testScope.runBlockingTest {
+    fun slowFastCollectors() = testScope.runTest {
         val upstream = Channel<PageEvent<String>>(Channel.UNLIMITED)
         val subject = CachedPageEventFlow(
             src = upstream.consumeAsFlow(),
@@ -141,7 +144,7 @@ class CachedPageEventFlowTest(
     }
 
     @Test
-    fun ensureSharing() = testScope.runBlockingTest {
+    fun ensureSharing() = testScope.runTest {
         val refreshEvent = localRefresh(
             listOf(
                 TransformablePage(
@@ -245,7 +248,7 @@ class CachedPageEventFlowTest(
     }
 
     @Test
-    fun emptyPage_singlelocalLoadStateUpdate() = testScope.runBlockingTest {
+    fun emptyPage_singlelocalLoadStateUpdate() = testScope.runTest {
         val upstream = Channel<PageEvent<String>>(Channel.UNLIMITED)
         val subject = CachedPageEventFlow(
             src = upstream.consumeAsFlow(),
@@ -288,7 +291,7 @@ class CachedPageEventFlowTest(
     }
 
     @Test
-    fun idleStateUpdate_collectedBySingleCollector() = testScope.runBlockingTest {
+    fun idleStateUpdate_collectedBySingleCollector() = testScope.runTest {
         val upstream = Channel<PageEvent<String>>(Channel.UNLIMITED)
         val subject = CachedPageEventFlow(
             src = upstream.consumeAsFlow(),

@@ -21,8 +21,9 @@ import androidx.datastore.core.handlers.ReplaceFileCorruptionHandler
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.ObsoleteCoroutinesApi
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.test.TestCoroutineScope
-import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -40,7 +41,7 @@ class PreferenceDataStoreFactoryTest {
     val tmp = TemporaryFolder()
 
     private lateinit var testFile: File
-    private lateinit var dataStoreScope: TestCoroutineScope
+    private lateinit var dataStoreScope: TestScope
 
     val stringKey = stringPreferencesKey("key")
     val booleanKey = booleanPreferencesKey("key")
@@ -48,11 +49,11 @@ class PreferenceDataStoreFactoryTest {
     @Before
     fun setUp() {
         testFile = tmp.newFile("test_file." + PreferencesSerializer.fileExtension)
-        dataStoreScope = TestCoroutineScope()
+        dataStoreScope = TestScope(UnconfinedTestDispatcher())
     }
 
     @Test
-    fun testNewInstance() = runBlockingTest {
+    fun testNewInstance() = runTest {
         val store = PreferenceDataStoreFactory.create(
             scope = dataStoreScope
         ) { testFile }
@@ -70,7 +71,7 @@ class PreferenceDataStoreFactoryTest {
     }
 
     @Test
-    fun testCorruptionHandlerInstalled() = runBlockingTest {
+    fun testCorruptionHandlerInstalled() = runTest {
         testFile.writeBytes(byteArrayOf(0x00, 0x00, 0x00, 0x03)) // Protos can not start with 0x00.
 
         val valueToReplace = preferencesOf(booleanKey to true)
@@ -85,7 +86,7 @@ class PreferenceDataStoreFactoryTest {
     }
 
     @Test
-    fun testMigrationsInstalled() = runBlockingTest {
+    fun testMigrationsInstalled() = runTest {
 
         val expectedPreferences = preferencesOf(
             stringKey to "value",
@@ -119,7 +120,7 @@ class PreferenceDataStoreFactoryTest {
     }
 
     @Test
-    fun testCantMutateInternalState() = runBlockingTest {
+    fun testCantMutateInternalState() = runTest {
         val store =
             PreferenceDataStoreFactory.create(scope = dataStoreScope) { testFile }
 
