@@ -45,6 +45,16 @@ fun StepperDemo() {
 }
 
 @Composable
+fun StepperWithIntegerDemo() {
+    var value by remember { mutableStateOf(2) }
+    Stepper(
+        value = value,
+        onValueChange = { value = it },
+        valueProgression = 1..10
+    ) { Text("Value: $value") }
+}
+
+@Composable
 fun StepperWithScrollBarDemo() {
     val valueState = remember { mutableStateOf(4f) }
     val range = 0f..10f
