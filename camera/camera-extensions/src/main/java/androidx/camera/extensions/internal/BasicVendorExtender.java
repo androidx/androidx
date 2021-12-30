@@ -40,12 +40,15 @@ import androidx.camera.extensions.impl.BeautyImageCaptureExtenderImpl;
 import androidx.camera.extensions.impl.BeautyPreviewExtenderImpl;
 import androidx.camera.extensions.impl.BokehImageCaptureExtenderImpl;
 import androidx.camera.extensions.impl.BokehPreviewExtenderImpl;
+import androidx.camera.extensions.impl.CaptureProcessorImpl;
+import androidx.camera.extensions.impl.CaptureStageImpl;
 import androidx.camera.extensions.impl.HdrImageCaptureExtenderImpl;
 import androidx.camera.extensions.impl.HdrPreviewExtenderImpl;
 import androidx.camera.extensions.impl.ImageCaptureExtenderImpl;
 import androidx.camera.extensions.impl.NightImageCaptureExtenderImpl;
 import androidx.camera.extensions.impl.NightPreviewExtenderImpl;
 import androidx.camera.extensions.impl.PreviewExtenderImpl;
+import androidx.camera.extensions.impl.ProcessorImpl;
 import androidx.core.util.Preconditions;
 
 import java.util.Arrays;
@@ -59,8 +62,8 @@ import java.util.Map;
 public class BasicVendorExtender implements VendorExtender {
     private static final String TAG = "BasicVendorExtender";
     private final @ExtensionMode.Mode int mMode;
-    private final PreviewExtenderImpl mPreviewExtenderImpl;
-    private final ImageCaptureExtenderImpl mImageCaptureExtenderImpl;
+    private PreviewExtenderImpl mPreviewExtenderImpl;
+    private ImageCaptureExtenderImpl mImageCaptureExtenderImpl;
     private CameraInfo mCameraInfo;
 
     public BasicVendorExtender(@ExtensionMode.Mode int mode) {
@@ -92,7 +95,9 @@ public class BasicVendorExtender implements VendorExtender {
                     throw new IllegalArgumentException("Should not activate ExtensionMode.NONE");
             }
         } catch (NoClassDefFoundError e) {
-            throw new IllegalArgumentException("Extension mode does not exist: " + mode);
+            mPreviewExtenderImpl = createDefaultPreviewExtenderImpl();
+            mImageCaptureExtenderImpl = createDefaultImageCaptureExtenderImpl();
+            Logger.e(TAG, "OEM implementation for extension mode " + mode + "does not exist!");
         }
     }
 
@@ -237,5 +242,135 @@ public class BasicVendorExtender implements VendorExtender {
          * now. We will switch to SessionProcessor implementation once compatibility is ensured.
          */
         return null;
+    }
+
+    private PreviewExtenderImpl createDefaultPreviewExtenderImpl() {
+        return new PreviewExtenderImpl() {
+            @Override
+            public boolean isExtensionAvailable(String cameraId,
+                    CameraCharacteristics cameraCharacteristics) {
+                return false;
+            }
+
+            @Override
+            public void init(String cameraId, CameraCharacteristics cameraCharacteristics) {
+
+            }
+
+            @Override
+            public CaptureStageImpl getCaptureStage() {
+                return null;
+            }
+
+            @Override
+            public ProcessorType getProcessorType() {
+                return ProcessorType.PROCESSOR_TYPE_NONE;
+            }
+
+            @Override
+            public ProcessorImpl getProcessor() {
+                return null;
+            }
+
+            @Nullable
+            @Override
+            public List<Pair<Integer, Size[]>> getSupportedResolutions() {
+                return null;
+            }
+
+            @Override
+            public void onInit(String cameraId, CameraCharacteristics cameraCharacteristics,
+                    Context context) {
+
+            }
+
+            @Override
+            public void onDeInit() {
+
+            }
+
+            @Override
+            public CaptureStageImpl onPresetSession() {
+                return null;
+            }
+
+            @Override
+            public CaptureStageImpl onEnableSession() {
+                return null;
+            }
+
+            @Override
+            public CaptureStageImpl onDisableSession() {
+                return null;
+            }
+        };
+    }
+
+    private ImageCaptureExtenderImpl createDefaultImageCaptureExtenderImpl() {
+        return new ImageCaptureExtenderImpl() {
+            @Override
+            public boolean isExtensionAvailable(String cameraId,
+                    CameraCharacteristics cameraCharacteristics) {
+                return false;
+            }
+
+            @Override
+            public void init(String cameraId, CameraCharacteristics cameraCharacteristics) {
+
+            }
+
+            @Override
+            public CaptureProcessorImpl getCaptureProcessor() {
+                return null;
+            }
+
+            @Override
+            public List<CaptureStageImpl> getCaptureStages() {
+                return null;
+            }
+
+            @Override
+            public int getMaxCaptureStage() {
+                return 0;
+            }
+
+            @Nullable
+            @Override
+            public List<Pair<Integer, Size[]>> getSupportedResolutions() {
+                return null;
+            }
+
+            @Nullable
+            @Override
+            public Range<Long> getEstimatedCaptureLatencyRange(@Nullable Size captureOutputSize) {
+                return null;
+            }
+
+            @Override
+            public void onInit(String cameraId, CameraCharacteristics cameraCharacteristics,
+                    Context context) {
+
+            }
+
+            @Override
+            public void onDeInit() {
+
+            }
+
+            @Override
+            public CaptureStageImpl onPresetSession() {
+                return null;
+            }
+
+            @Override
+            public CaptureStageImpl onEnableSession() {
+                return null;
+            }
+
+            @Override
+            public CaptureStageImpl onDisableSession() {
+                return null;
+            }
+        };
     }
 }
