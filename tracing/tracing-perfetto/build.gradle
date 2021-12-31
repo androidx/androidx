@@ -27,11 +27,12 @@ plugins {
 
 dependencies {
     implementation("androidx.annotation:annotation:1.3.0")
-    androidTestImplementation(libs.kotlinStdlib)
+    implementation(libs.kotlinStdlib)
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.truth)
+    androidTestImplementation(project(":tracing:tracing-perfetto-native"))
     testImplementation(libs.junit)
 }
 
