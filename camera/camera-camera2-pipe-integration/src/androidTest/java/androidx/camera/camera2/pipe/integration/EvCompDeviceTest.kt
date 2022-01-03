@@ -32,6 +32,7 @@ import androidx.camera.core.ImageCapture
 import androidx.camera.core.internal.CameraUseCaseAdapter
 import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.CameraXUtil
+import androidx.camera.testing.LabTestRule
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
@@ -62,6 +63,10 @@ class EvCompDeviceTest {
 
     @get:Rule
     val useCamera = CameraUtil.grantCameraPermissionAndPreTest()
+
+    // TODO(b/187015621): Remove the rule after the surface can be safely closed.
+    @get:Rule
+    val labTest: LabTestRule = LabTestRule()
 
     @Before
     fun setUp() {
@@ -107,6 +112,7 @@ class EvCompDeviceTest {
     }
 
     @Test
+    @LabTestRule.LabTestOnly
     fun setExposure_futureResultTest() {
         val exposureState = camera.cameraInfo.exposureState
         Assume.assumeTrue(exposureState.isExposureCompensationSupported)
@@ -127,6 +133,7 @@ class EvCompDeviceTest {
     }
 
     @Test
+    @LabTestRule.LabTestOnly
     fun setExposureTest() = runBlocking {
         val exposureState = camera.cameraInfo.exposureState
         Assume.assumeTrue(exposureState.isExposureCompensationSupported)
@@ -142,6 +149,7 @@ class EvCompDeviceTest {
     }
 
     @Test
+    @LabTestRule.LabTestOnly
     fun setExposureTest_runTwice() = runBlocking {
         val exposureState = camera.cameraInfo.exposureState
         Assume.assumeTrue(exposureState.isExposureCompensationSupported)
@@ -161,6 +169,7 @@ class EvCompDeviceTest {
     }
 
     @Test
+    @LabTestRule.LabTestOnly
     fun setExposureAndZoomRatio_theExposureSettingShouldApply() = runBlocking {
         val exposureState = camera.cameraInfo.exposureState
         Assume.assumeTrue(exposureState.isExposureCompensationSupported)
@@ -183,6 +192,7 @@ class EvCompDeviceTest {
     }
 
     @Test
+    @LabTestRule.LabTestOnly
     fun setExposureAndLinearZoom_theExposureSettingShouldApply() = runBlocking {
         val exposureState = camera.cameraInfo.exposureState
         Assume.assumeTrue(exposureState.isExposureCompensationSupported)
@@ -200,6 +210,7 @@ class EvCompDeviceTest {
     }
 
     @Test
+    @LabTestRule.LabTestOnly
     fun setExposureAndFlash_theExposureSettingShouldApply() = runBlocking {
         val exposureState = camera.cameraInfo.exposureState
         Assume.assumeTrue(exposureState.isExposureCompensationSupported)
@@ -217,6 +228,7 @@ class EvCompDeviceTest {
     }
 
     @Test
+    @LabTestRule.LabTestOnly
     fun setExposureTimeout_theNextCallShouldWork() = runBlocking {
         val exposureState = camera.cameraInfo.exposureState
         Assume.assumeTrue(exposureState.isExposureCompensationSupported)

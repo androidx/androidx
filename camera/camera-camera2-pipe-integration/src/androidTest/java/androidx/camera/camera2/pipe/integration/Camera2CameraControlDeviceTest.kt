@@ -51,6 +51,7 @@ import androidx.camera.core.impl.CameraInfoInternal
 import androidx.camera.core.internal.CameraUseCaseAdapter
 import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.CameraXUtil
+import androidx.camera.testing.LabTestRule
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
@@ -86,6 +87,10 @@ class Camera2CameraControlDeviceTest {
     @get:Rule
     val useCamera = CameraUtil.grantCameraPermissionAndPreTest()
 
+    // TODO(b/187015621): Remove the rule after the surface can be safely closed.
+    @get:Rule
+    val labTest: LabTestRule = LabTestRule()
+
     @Before
     fun setUp() {
         Assume.assumeTrue(CameraUtil.hasCameraWithLensFacing(CameraSelector.LENS_FACING_BACK))
@@ -114,6 +119,7 @@ class Camera2CameraControlDeviceTest {
     }
 
     @Test
+    @LabTestRule.LabTestOnly
     fun canGetInteropApi() {
         Truth.assertThat(
             Camera2CameraControl.from(cameraControl)
@@ -121,6 +127,7 @@ class Camera2CameraControlDeviceTest {
     }
 
     @Test
+    @LabTestRule.LabTestOnly
     fun canSetAndRetrieveCaptureRequestOptions() {
         // Arrange.
         bindUseCase()
@@ -155,6 +162,7 @@ class Camera2CameraControlDeviceTest {
     }
 
     @Test
+    @LabTestRule.LabTestOnly
     fun canSubmitCaptureRequestOptions_beforeBinding() = runBlocking {
         val future = updateCamera2Option<Int>(
             CONTROL_CAPTURE_INTENT,
@@ -172,6 +180,7 @@ class Camera2CameraControlDeviceTest {
     }
 
     @Test
+    @LabTestRule.LabTestOnly
     fun canSubmitCaptureRequestOptions_afterBinding() = runBlocking {
         // Arrange.
         bindUseCase()
@@ -192,6 +201,7 @@ class Camera2CameraControlDeviceTest {
     }
 
     @Test
+    @LabTestRule.LabTestOnly
     fun canClearCaptureRequestOptions() = runBlocking {
         // Arrange.
         bindUseCase()
@@ -234,6 +244,7 @@ class Camera2CameraControlDeviceTest {
     }
 
     @Test
+    @LabTestRule.LabTestOnly
     fun canOverrideAfMode() = runBlocking {
         updateCamera2Option(
             CONTROL_AF_MODE,
@@ -250,6 +261,7 @@ class Camera2CameraControlDeviceTest {
     }
 
     @Test
+    @LabTestRule.LabTestOnly
     fun canOverrideAeMode() = runBlocking {
         updateCamera2Option(
             CONTROL_AE_MODE,
@@ -266,6 +278,7 @@ class Camera2CameraControlDeviceTest {
     }
 
     @Test
+    @LabTestRule.LabTestOnly
     fun canOverrideAwbMode() = runBlocking {
         updateCamera2Option(
             CONTROL_AWB_MODE,
@@ -282,6 +295,7 @@ class Camera2CameraControlDeviceTest {
     }
 
     @Test
+    @LabTestRule.LabTestOnly
     fun canOverrideScalarCropRegion() = runBlocking {
         // scalar crop region must be larger than the region defined
         // by SCALER_AVAILABLE_MAX_DIGITAL_ZOOM otherwise it could cause a crash on some devices.
@@ -303,6 +317,7 @@ class Camera2CameraControlDeviceTest {
     }
 
     @Test
+    @LabTestRule.LabTestOnly
     fun canOverrideAfRegion() = runBlocking {
         // Arrange.
         val meteringRectangles = arrayOf(
@@ -322,6 +337,7 @@ class Camera2CameraControlDeviceTest {
     }
 
     @Test
+    @LabTestRule.LabTestOnly
     fun canOverrideAeRegion() = runBlocking {
         // Arrange.
         val meteringRectangles = arrayOf(
@@ -341,6 +357,7 @@ class Camera2CameraControlDeviceTest {
     }
 
     @Test
+    @LabTestRule.LabTestOnly
     fun canOverrideAwbRegion() = runBlocking {
         // Arrange.
         val meteringRectangles = arrayOf(
@@ -360,6 +377,7 @@ class Camera2CameraControlDeviceTest {
     }
 
     @Test
+    @LabTestRule.LabTestOnly
     fun cancelPendingFuture_whenInactive() {
         // Arrange.
         val future = updateCamera2Option(
