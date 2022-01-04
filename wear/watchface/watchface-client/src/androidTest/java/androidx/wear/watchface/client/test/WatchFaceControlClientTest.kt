@@ -464,7 +464,7 @@ class WatchFaceControlClientTest {
             400
         )!!
 
-        assertThat(headlessInstance.userStyleSchema.userStyleSettings.size).isEqualTo(4)
+        assertThat(headlessInstance.userStyleSchema.userStyleSettings.size).isEqualTo(5)
         assertThat(headlessInstance.userStyleSchema.userStyleSettings[0].id.value).isEqualTo(
             "color_style_setting"
         )
@@ -476,6 +476,9 @@ class WatchFaceControlClientTest {
         )
         assertThat(headlessInstance.userStyleSchema.userStyleSettings[3].id.value).isEqualTo(
             "complications_style_setting"
+        )
+        assertThat(headlessInstance.userStyleSchema.userStyleSettings[4].id.value).isEqualTo(
+            "hours_draw_freq_style_setting"
         )
 
         headlessInstance.close()
@@ -493,7 +496,7 @@ class WatchFaceControlClientTest {
             )!!.toBundle()
         )
 
-        assertThat(headlessInstance.userStyleSchema.userStyleSettings.size).isEqualTo(4)
+        assertThat(headlessInstance.userStyleSchema.userStyleSettings.size).isEqualTo(5)
     }
 
     @SuppressLint("NewApi") // renderWatchFaceToBitmap

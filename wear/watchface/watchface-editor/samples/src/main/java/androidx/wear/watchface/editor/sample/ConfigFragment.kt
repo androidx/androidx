@@ -126,6 +126,7 @@ internal class ConfigFragment : Fragment() {
         )
         view.findViewById<WearableRecyclerView>(R.id.configOptionsList).apply {
             adapter = configViewAdapter
+            isEdgeItemsCenteringEnabled = true
             layoutManager = WearableLinearLayoutManager(context)
         }
 
