@@ -135,13 +135,9 @@ public class WindowInsetsControllerCompatActivityTest {
 
         scenario.onActivity {
             editText.requestFocus()
+            controller.show(type)
         }
         assertThat(editText.isFocused, `is`(true))
-        if (Build.VERSION.SDK_INT >= 30) {
-            // Dirty hack until we figure out why the IME is not showing if we don't wait before
-            Thread.sleep(100)
-        }
-        controller.show(type)
         container.assertInsetsVisibility(type, true)
     }
 
