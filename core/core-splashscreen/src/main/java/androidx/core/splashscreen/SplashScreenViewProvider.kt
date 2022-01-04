@@ -132,6 +132,12 @@ public class SplashScreenViewProvider internal constructor(ctx: Activity) {
         override val iconAnimationDurationMillis: Long
             get() = platformView.iconAnimationDuration?.toMillis() ?: 0
 
-        override fun remove() = platformView.remove()
+        override fun remove() {
+            platformView.remove()
+            ThemeUtils.Api31.applyThemesSystemBarAppearance(
+                activity.theme,
+                activity.window.decorView
+            )
+        }
     }
 }

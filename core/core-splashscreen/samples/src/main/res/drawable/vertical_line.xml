@@ -13,14 +13,12 @@
   See the License for the specific language governing permissions and
   limitations under the License.
   -->
-
-<resources>
-    <style name="Base.Theme.SplashScreen" parent="android:Theme.DeviceDefault.DayNight">
-        <item name="android:windowLayoutInDisplayCutoutMode">shortEdges</item>
-        <item name="android:enforceStatusBarContrast">false</item>
-        <item name="android:enforceNavigationBarContrast">false</item>
-    </style>
-
-    <style name="Base.Theme.SplashScreen.Light" parent="Base.Theme.SplashScreen">
-    </style>
-</resources>
+<!-- Debug drawable to identify the top and bottom of the content view without coloring
+the whole background -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:width="40dp"
+        android:left="40dp">
+        <color android:color="#0000FF" />
+    </item>
+</layer-list>
