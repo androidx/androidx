@@ -43,6 +43,7 @@ import androidx.wear.watchface.style.UserStyleSetting.DoubleRangeUserStyleSettin
 import androidx.wear.watchface.style.UserStyleSetting.DoubleRangeUserStyleSetting.DoubleRangeOption
 import androidx.wear.watchface.style.UserStyleSetting.ListUserStyleSetting
 import androidx.wear.watchface.style.UserStyleSetting.LongRangeUserStyleSetting
+import androidx.wear.watchface.style.UserStyleSetting.LongRangeUserStyleSetting.LongRangeOption
 import androidx.wear.watchface.style.data.UserStyleSchemaWireFormat
 import androidx.wear.watchface.style.data.UserStyleWireFormat
 import androidx.wear.widget.SwipeDismissFrameLayout
@@ -102,38 +103,31 @@ internal class StyleConfigFragment : Fragment(), ClickListener {
                 booleanStyle.setOnCheckedChangeListener { _, isChecked ->
                     setUserStyleOption(BooleanOption.from(isChecked))
                 }
-                styleOptionsList.visibility = View.GONE
-                styleOptionsList.isEnabled = false
-                rangedStyle.visibility = View.GONE
-                rangedStyle.isEnabled = false
+                booleanStyle.visibility = View.VISIBLE
             }
 
             is ListUserStyleSetting -> {
-                booleanStyle.isEnabled = false
-                booleanStyle.visibility = View.GONE
                 styleOptionsList.adapter =
                     ListStyleSettingViewAdapter(
                         requireContext(),
                         styleSetting.options.filterIsInstance<ListUserStyleSetting.ListOption>(),
                         this@StyleConfigFragment
                     )
+                styleOptionsList.isEdgeItemsCenteringEnabled = true
                 styleOptionsList.layoutManager = WearableLinearLayoutManager(context)
-                rangedStyle.isEnabled = false
-                rangedStyle.visibility = View.GONE
+                styleOptionsList.visibility = View.VISIBLE
             }
 
             is ComplicationSlotsUserStyleSetting -> {
-                booleanStyle.isEnabled = false
-                booleanStyle.visibility = View.GONE
                 styleOptionsList.adapter =
                     ComplicationsStyleSettingViewAdapter(
                         requireContext(),
                         styleSetting.options.filterIsInstance<ComplicationSlotsOption>(),
                         this@StyleConfigFragment
                     )
+                styleOptionsList.isEdgeItemsCenteringEnabled = true
                 styleOptionsList.layoutManager = WearableLinearLayoutManager(context)
-                rangedStyle.isEnabled = false
-                rangedStyle.visibility = View.GONE
+                styleOptionsList.visibility = View.VISIBLE
             }
 
             is CustomValueUserStyleSetting -> {
@@ -149,34 +143,19 @@ internal class StyleConfigFragment : Fragment(), ClickListener {
                 val delta = (maxValue - minValue) / 100.0f
                 val value = (userStyleOption as DoubleRangeOption).value.toFloat()
                 rangedStyle.progress = ((value - minValue) / delta).toInt()
-                rangedStyle.setOnSeekBarChangeListener(
-                    object : SeekBar.OnSeekBarChangeListener {
-                        override fun onProgressChanged(
-                            seekBar: SeekBar,
-                            progress: Int,
-                            fromUser: Boolean
-                        ) {
-                            setUserStyleOption(
-                                rangedStyleSetting.getOptionForId(
-                                    DoubleRangeOption(minValue + delta * progress.toFloat())
-                                        .id
-                                )
-                            )
-                        }
-
-                        override fun onStartTrackingTouch(seekBar: SeekBar) {}
-
-                        override fun onStopTrackingTouch(seekBar: SeekBar) {}
-                    }
-                )
-                booleanStyle.isEnabled = false
-                booleanStyle.visibility = View.GONE
-                styleOptionsList.isEnabled = false
-                styleOptionsList.visibility = View.GONE
+                setupRangedStyle(rangedStyle) {
+                    setUserStyleOption(DoubleRangeOption(minValue + delta * it.toFloat()))
+                }
             }
 
             is LongRangeUserStyleSetting -> {
-                // TODO(alexclarke): Implement.
+                val longRangeStyleSetting = styleSetting as LongRangeUserStyleSetting
+                rangedStyle.min = longRangeStyleSetting.minimumValue.toInt()
+                rangedStyle.max = longRangeStyleSetting.maximumValue.toInt()
+                rangedStyle.progress = (userStyleOption as LongRangeOption).value.toInt()
+                setupRangedStyle(rangedStyle) {
+                    setUserStyleOption(LongRangeOption(it.toLong()))
+                }
             }
         }
 
@@ -187,6 +166,24 @@ internal class StyleConfigFragment : Fragment(), ClickListener {
         })
 
         return view
+    }
+
+    private fun setupRangedStyle(rangedStyle: SeekBar, onProgressChanged: (progress: Int) -> Unit) {
+        rangedStyle.setOnSeekBarChangeListener(
+            object : SeekBar.OnSeekBarChangeListener {
+                override fun onProgressChanged(
+                    seekBar: SeekBar,
+                    progress: Int,
+                    fromUser: Boolean
+                ) = onProgressChanged(progress)
+
+                override fun onStartTrackingTouch(seekBar: SeekBar) {}
+
+                override fun onStopTrackingTouch(seekBar: SeekBar) {}
+            }
+        )
+
+        rangedStyle.visibility = View.VISIBLE
     }
 
     private fun readOptionsFromArguments() {
