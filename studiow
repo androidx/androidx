@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 function usage() {
-  echo "Usage: studiow [--clean] [--reinstall] [<project subset>]"
+  echo "Usage: studiow [--clean] [--reinstall] [--profile] <project subset>"
   echo
   echo "OPTIONS"
   echo " --clean"
@@ -9,6 +9,8 @@ function usage() {
   echo
   echo " --reinstall"
   echo "   Remove and re-download Studio itself. Also implies --clean"
+  echo " --profile"
+  echo "   Enables profiling of Studio"
   echo
   echo "Project subsets:"
   echo " m, main"
@@ -38,6 +40,7 @@ subsetArg=""
 clean=false
 reinstall=false
 projectSubset=""
+profile=false
 while [ "$1" != "" ]; do
   arg="$1"
   shift
@@ -49,6 +52,10 @@ while [ "$1" != "" ]; do
   if [ "$arg" == "--reinstall" ]; then
     clean=true
     reinstall=true
+    continue
+  fi
+  if [ "$arg" == "--profile" ]; then
+    profile=true
     continue
   fi
   # parse arguments
@@ -107,6 +114,19 @@ if [ "$reinstall" == "true" ]; then
   rm -rf studio
 fi
 
+if [ "$profile" == "true" ]; then
+  PROFILE_FILE=/tmp/report.json
+  traceConfig="$(cd development/studio && pwd)/profile.config"
+  rm -f "$PROFILE_FILE"
+  echo "Profile file will be $PROFILE_FILE , which will be able to be loaded into chrome://tracing"
+  echo
+  echo "If you find that too many or too few function calls are included in the trace, modify $traceConfig"
+  echo
+  tracerJar="$(cd ../../prebuilts/androidx/external/com/android/tools/tracer/agent && pwd)/trace_agent.jar"
+  # Make sure to set _JAVA_OPTIONS before starting Gradle
+  export _JAVA_OPTIONS="$_JAVA_OPTIONS -javaagent:${tracerJar}=${traceConfig}"
+fi
+
 if [ "$clean" == "true" ]; then
   # remove studio-specific caches
 
@@ -116,9 +136,17 @@ if [ "$clean" == "true" ]; then
   remove ~/.android
   # delete (without backup) files that users won't have customized
   git clean -fdX .idea/
+
   # remove gradle caches too and build
   ./cleanBuild.sh -y studio
 else
+  # If not a clean launch, then a Gradle daemon might be running.
+  # If profiling, we need to stop the Gradle daemon to make sure any changes to the
+  # profiling properties will be used.
+  if [ "$profile" == "true" ]; then
+    ./gradlew --stop
+  fi
+
   # ask gradle to launch studio
   ./gradlew :studio
 fi
