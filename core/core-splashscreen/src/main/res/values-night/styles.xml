@@ -15,17 +15,5 @@
   -->
 
 <resources>
-    <style name="Theme.SplashScreen" parent="Base.Theme.SplashScreen.DayNight">
-        <item name="android:windowSplashScreenAnimatedIcon">?windowSplashScreenAnimatedIcon</item>
-        <item name="android:windowSplashScreenBackground">?windowSplashScreenBackground</item>
-        <item name="android:windowSplashScreenAnimationDuration">
-            ?windowSplashScreenAnimationDuration
-        </item>
-    </style>
-
-    <style name="Theme.SplashScreen.IconBackground" parent="Theme.SplashScreen">
-        <item name="android:windowSplashScreenIconBackgroundColor">
-            ?windowSplashScreenIconBackgroundColor
-        </item>
-    </style>
+    <style name="Base.Theme.SplashScreen.DayNight" parent="Base.Theme.SplashScreen"/>
 </resources>
