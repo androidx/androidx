@@ -44,7 +44,7 @@ dependencies {
     androidTestImplementation(project(":appcompat:appcompat"))
     androidTestImplementation(project(":test:screenshot:screenshot"))
 
-    samples(project(":core:core-splashscreen:core-splashscreen-samples"))
+    samples("androidx.core.core-splashscreen:core-splashscreen-samples:1.0.0-beta01")
 }
 
 androidx {
