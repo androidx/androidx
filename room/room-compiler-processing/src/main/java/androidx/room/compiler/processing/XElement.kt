@@ -68,6 +68,16 @@ fun XElement.isTypeElement(): Boolean {
 }
 
 /**
+ * Checks whether this element represents an [XEnumTypeElement].
+ */
+fun XElement.isEnum(): Boolean {
+    contract {
+        returns(true) implies (this@isEnum is XEnumTypeElement)
+    }
+    return this is XEnumTypeElement
+}
+
+/**
  * Checks whether this element represents an [XVariableElement].
  */
 fun XElement.isVariableElement(): Boolean {
