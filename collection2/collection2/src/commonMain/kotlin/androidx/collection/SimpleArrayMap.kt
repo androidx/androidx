@@ -532,9 +532,7 @@ open class SimpleArrayMap<K, V> {
     }
 
     /**
-     * {@inheritDoc}
-     *
-     * <p>This implementation returns false if the object is not a Map or
+     * This implementation returns false if the object is not a Map or
      * SimpleArrayMap, or if the maps have different sizes. Otherwise, for each
      * key in this map, values of both maps are compared. If the values for any
      * key are not equal, the method returns false, otherwise it returns true.
@@ -591,9 +589,6 @@ open class SimpleArrayMap<K, V> {
         return false
     }
 
-    /**
-     * {@inheritDoc}
-     */
     open override fun hashCode(): Int {
         val hashes = hashes
         val array: Array<Any?> = keyValues
@@ -611,9 +606,7 @@ open class SimpleArrayMap<K, V> {
     }
 
     /**
-     * {@inheritDoc}
-     *
-     * <p>This implementation composes a string by iterating over its mappings. If
+     * This implementation composes a string by iterating over its mappings. If
      * this map contains itself as a key or a value, the string "(this Map)"
      * will appear in its place.
      */
