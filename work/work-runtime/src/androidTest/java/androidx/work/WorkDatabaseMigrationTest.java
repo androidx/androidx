@@ -23,6 +23,7 @@ import static androidx.work.impl.WorkDatabaseVersions.VERSION_1;
 import static androidx.work.impl.WorkDatabaseVersions.VERSION_10;
 import static androidx.work.impl.WorkDatabaseVersions.VERSION_11;
 import static androidx.work.impl.WorkDatabaseVersions.VERSION_12;
+import static androidx.work.impl.WorkDatabaseVersions.VERSION_14;
 import static androidx.work.impl.WorkDatabaseVersions.VERSION_2;
 import static androidx.work.impl.WorkDatabaseVersions.VERSION_3;
 import static androidx.work.impl.WorkDatabaseVersions.VERSION_4;
@@ -46,17 +47,18 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteException;
+import android.net.Uri;
 import android.os.Build;
 
 import androidx.annotation.NonNull;
 import androidx.room.testing.MigrationTestHelper;
 import androidx.sqlite.db.SupportSQLiteDatabase;
-import androidx.sqlite.db.framework.FrameworkSQLiteOpenHelperFactory;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.work.impl.Migration_11_12;
+import androidx.work.impl.Migration_12_13;
 import androidx.work.impl.Migration_1_2;
 import androidx.work.impl.Migration_3_4;
 import androidx.work.impl.Migration_4_5;
@@ -78,7 +80,6 @@ import org.junit.runner.RunWith;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.UUID;
 
 @RunWith(AndroidJUnit4.class)
@@ -113,16 +114,14 @@ public class WorkDatabaseMigrationTest {
     private static final String NAME = "name";
     private static final String TRIGGER_CONTENT_UPDATE_DELAY = "trigger_content_update_delay";
     private static final String TRIGGER_MAX_CONTENT_DELAY = "trigger_max_content_delay";
-
+    private static final String REQUIRED_NETWORK_TYPE = "required_network_type";
+    private static final String CONTENT_URI_TRIGGERS = "content_uri_triggers";
     private Context mContext;
     private File mDatabasePath;
 
     @Rule
     public MigrationTestHelper mMigrationTestHelper = new MigrationTestHelper(
-            InstrumentationRegistry.getInstrumentation(),
-            WorkDatabase.class,
-            new ArrayList<>(),
-            new FrameworkSQLiteOpenHelperFactory());
+            InstrumentationRegistry.getInstrumentation(), WorkDatabase.class);
 
     @Before
     public void setUp() {
@@ -145,7 +144,7 @@ public class WorkDatabaseMigrationTest {
                 UUID.randomUUID().toString()
         };
         for (String workSpecId : prepopulatedWorkSpecIds) {
-            ContentValues contentValues = contentValues(workSpecId);
+            ContentValues contentValues = contentValuesPre8(workSpecId);
             database.insert("workspec", CONFLICT_FAIL, contentValues);
 
             if (workSpecId.equals(prepopulatedWorkSpecIds[0])) {
@@ -236,11 +235,11 @@ public class WorkDatabaseMigrationTest {
 
         String oneTimeWorkSpecId = UUID.randomUUID().toString();
         long scheduleRequestedAt = System.currentTimeMillis();
-        ContentValues oneTimeWorkSpecContentValues = contentValues(oneTimeWorkSpecId);
+        ContentValues oneTimeWorkSpecContentValues = contentValuesPre8(oneTimeWorkSpecId);
         oneTimeWorkSpecContentValues.put("schedule_requested_at", scheduleRequestedAt);
 
         String periodicWorkSpecId = UUID.randomUUID().toString();
-        ContentValues periodicWorkSpecContentValues = contentValues(periodicWorkSpecId);
+        ContentValues periodicWorkSpecContentValues = contentValuesPre8(periodicWorkSpecId);
         periodicWorkSpecContentValues.put("interval_duration", 15 * 60 * 1000L);
 
         database.insert("workspec", CONFLICT_FAIL, oneTimeWorkSpecContentValues);
@@ -458,8 +457,61 @@ public class WorkDatabaseMigrationTest {
         database.close();
     }
 
+    @Test
+    @MediumTest
+    public void testMigrationVersion12To14Network() throws IOException {
+        SupportSQLiteDatabase database =
+                mMigrationTestHelper.createDatabase(TEST_DATABASE, VERSION_12);
+        String nullNetworkTypeRequestId = UUID.randomUUID().toString();
+        ContentValues nullRequiredNetworkTypeRequest = contentValues(nullNetworkTypeRequestId);
+        nullRequiredNetworkTypeRequest.put(REQUIRED_NETWORK_TYPE, (String) null);
+
+        String connectedRequestId = UUID.randomUUID().toString();
+        ContentValues connectedRequest = contentValues(connectedRequestId);
+        connectedRequest.put(REQUIRED_NETWORK_TYPE, 1);
+
+        database.insert("workspec", CONFLICT_FAIL, nullRequiredNetworkTypeRequest);
+        database.insert("workspec", CONFLICT_FAIL, connectedRequest);
+
+        mMigrationTestHelper.runMigrationsAndValidate(TEST_DATABASE, VERSION_14,
+                true, Migration_12_13.INSTANCE);
+
+        assertThat(queryRequiredNetworkType(database, nullNetworkTypeRequestId), is(0));
+        assertThat(queryRequiredNetworkType(database, connectedRequestId), is(1));
+        database.close();
+    }
+
+
+    @Test
+    @MediumTest
+    public void testMigrationVersion12To14NetworkContentUris() throws IOException {
+        SupportSQLiteDatabase database =
+                mMigrationTestHelper.createDatabase(TEST_DATABASE, VERSION_12);
+        String nullContentUrisId = UUID.randomUUID().toString();
+        ContentValues nullContentUris = contentValues(nullContentUrisId);
+        nullContentUris.put(CONTENT_URI_TRIGGERS, (String) null);
+
+        String contentUrisId = UUID.randomUUID().toString();
+        ContentUriTriggers triggers = new ContentUriTriggers();
+        triggers.add(Uri.parse("http://cs.android.com"), false);
+        ContentValues contentUrisRequest = contentValues(contentUrisId);
+        contentUrisRequest.put(CONTENT_URI_TRIGGERS,
+                WorkTypeConverters.contentUriTriggersToByteArray(triggers));
+
+        database.insert("workspec", CONFLICT_FAIL, nullContentUris);
+        database.insert("workspec", CONFLICT_FAIL, contentUrisRequest);
+
+        mMigrationTestHelper.runMigrationsAndValidate(TEST_DATABASE, VERSION_14,
+                true, Migration_12_13.INSTANCE);
+
+        assertThat(queryContentUris(database, nullContentUrisId).size(), is(0));
+        assertThat(queryContentUris(database, contentUrisId), is(triggers));
+        database.close();
+    }
+
+    // doesn't have COLUMN_RUN_IN_FOREGROUND
     @NonNull
-    private ContentValues contentValues(String workSpecId) {
+    private ContentValues contentValuesPre8(String workSpecId) {
         ContentValues contentValues = new ContentValues();
         contentValues.put("id", workSpecId);
         contentValues.put("state", WorkTypeConverters.StateIds.ENQUEUED);
@@ -484,6 +536,16 @@ public class WorkDatabaseMigrationTest {
         contentValues.put("period_start_time", 0L);
         contentValues.put("minimum_retention_duration", 0L);
         contentValues.put("schedule_requested_at", WorkSpec.SCHEDULE_NOT_REQUESTED_YET);
+        return contentValues;
+    }
+
+    private ContentValues contentValues(String workSpecId) {
+        ContentValues contentValues = contentValuesPre8(workSpecId);
+        contentValues.put(REQUIRED_NETWORK_TYPE, 0);
+        contentValues.put(COLUMN_RUN_IN_FOREGROUND, false);
+        contentValues.put(COLUMN_OUT_OF_QUOTA_POLICY, 0);
+        contentValues.put(TRIGGER_CONTENT_UPDATE_DELAY, -1);
+        contentValues.put(TRIGGER_MAX_CONTENT_DELAY, -1);
         return contentValues;
     }
 
@@ -552,5 +614,26 @@ public class WorkDatabaseMigrationTest {
                 cursor.close();
             }
         }
+    }
+
+    private static int queryRequiredNetworkType(SupportSQLiteDatabase db, String workSpecId) {
+        Cursor migratedNull = db.query(
+                "SELECT required_network_type FROM workspec where id = ?",
+                new Object[]{workSpecId});
+        migratedNull.moveToFirst();
+        int networkType = migratedNull.getInt(migratedNull.getColumnIndex(REQUIRED_NETWORK_TYPE));
+        migratedNull.close();
+        return networkType;
+    }
+
+    private static ContentUriTriggers queryContentUris(
+            SupportSQLiteDatabase db, String workSpecId) {
+        Cursor migratedNull = db.query(
+                "SELECT content_uri_triggers FROM workspec where id = ?",
+                new Object[]{workSpecId});
+        migratedNull.moveToFirst();
+        byte[] blob = migratedNull.getBlob(migratedNull.getColumnIndex(CONTENT_URI_TRIGGERS));
+        migratedNull.close();
+        return WorkTypeConverters.byteArrayToContentUriTriggers(blob);
     }
 }

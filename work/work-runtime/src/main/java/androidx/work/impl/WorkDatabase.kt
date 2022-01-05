@@ -17,6 +17,7 @@ package androidx.work.impl
 
 import android.content.Context
 import androidx.annotation.RestrictTo
+import androidx.room.AutoMigration
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
@@ -60,7 +61,8 @@ import java.util.concurrent.TimeUnit
 @Database(
     entities = [Dependency::class, WorkSpec::class, WorkTag::class, SystemIdInfo::class,
         WorkName::class, WorkProgress::class, Preference::class],
-    version = 12
+    autoMigrations = [AutoMigration(from = 13, to = 14)],
+    version = 14
 )
 @TypeConverters(value = [Data::class, WorkTypeConverters::class])
 abstract class WorkDatabase : RoomDatabase() {
@@ -147,6 +149,7 @@ abstract class WorkDatabase : RoomDatabase() {
                 .addMigrations(WorkMigration9To10(context))
                 .addMigrations(RescheduleMigration(context, VERSION_10, VERSION_11))
                 .addMigrations(Migration_11_12)
+                .addMigrations(Migration_12_13)
                 .fallbackToDestructiveMigration()
                 .build()
         }
