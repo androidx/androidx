@@ -18,6 +18,7 @@ package android.support.wearable.complications
 
 import android.content.Context
 import androidx.test.core.app.ApplicationProvider
+import androidx.wear.watchface.complications.data.SharedRobolectricTestRunner
 import com.google.common.truth.Truth
 import org.junit.Assert
 import org.junit.Test

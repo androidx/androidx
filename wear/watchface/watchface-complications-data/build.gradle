@@ -14,7 +14,10 @@
  * limitations under the License.
  */
 
+import androidx.build.RunApiTasks
+
 import androidx.build.LibraryGroups
+import androidx.build.LibraryVersions
 import androidx.build.Publish
 
 plugins {
@@ -27,7 +30,6 @@ dependencies {
     api("androidx.annotation:annotation:1.1.0")
     api(libs.kotlinStdlib)
     api(libs.kotlinCoroutinesAndroid)
-    api(project(":wear:watchface:watchface-complications-data-core"))
     implementation("androidx.core:core:1.1.0")
     implementation("androidx.preference:preference:1.1.0")
     implementation("androidx.annotation:annotation:1.2.0")
@@ -41,8 +43,14 @@ dependencies {
 }
 
 android {
+    buildFeatures {
+        aidl = true
+    }
     defaultConfig {
         minSdkVersion 26
+    }
+    buildTypes.all {
+        consumerProguardFiles "proguard-rules.pro"
     }
 
     // Use Robolectric 4.+
