@@ -111,15 +111,19 @@ public class AssetLoaderAjaxActivity extends AppCompatActivity {
         // if your app is not using file:// or content:// URLs.
         webViewSettings.setAllowFileAccess(false);
         webViewSettings.setAllowContentAccess(false);
+    }
 
-        Uri path = new Uri.Builder()
+    /**
+     * Load the url https://example.com/androidx_webkit/example/assets/www/ajax_requests.html.
+     */
+    public void loadUrl() {
+        String mainPageUrl = new Uri.Builder()
                 .scheme("https")
                 .authority("example.com")
                 .appendPath("androidx_webkit").appendPath("example").appendPath("assets")
                 .appendPath("www").appendPath("ajax_requests.html")
-                .build();
-        // Load the url https://example.com/androidx_webkit/example/assets/www/ajax_requests.html
-        mWebView.loadUrl(path.toString());
+                .build().toString();
+        mWebView.loadUrl(mainPageUrl);
     }
 
     /**
