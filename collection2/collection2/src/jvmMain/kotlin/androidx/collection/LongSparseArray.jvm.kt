@@ -102,5 +102,5 @@ actual open class LongSparseArray<E>
         return clone
     }
 
-    override fun toString(): String = commonToString()
+    actual override fun toString(): String = commonToString()
 }

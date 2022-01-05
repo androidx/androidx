@@ -75,5 +75,5 @@ actual class LongSparseArray<E> actual constructor(initialCapacity: Int) {
     actual fun replace(key: Long, oldValue: E?, newValue: E): Boolean =
         commonReplace(key, oldValue, newValue)
 
-    override fun toString(): String = commonToString()
+    actual override fun toString(): String = commonToString()
 }
