@@ -36,6 +36,7 @@ DEFINE_string dateStr "<insert date here>" "Date string used for CL message. Enc
 DEFINE_string db "$defaultDb" "The database used for staging. Omitting this value will stage changes to the staging DB."
 DEFINE_string sourceDir "" "Local directory to fetch doc artifacts from. Directory must be absolute (can't contain ~)."
 DEFINE_bool useToT false "Stage docs from tip-of-tree docs build rather than public docs build"
+DEFINE_bool buildNativeDocs false "Build and stage native docs generated with doxygen"
 
 gbash::init_google "$@"
 
@@ -84,11 +85,13 @@ scriptDirectory=$(pwd)
 outDir="$scriptDirectory/out"
 readonly newDir="reference-docs"
 readonly dackkaNewDir="reference-docs-dackka"
+readonly doxygenNewDir="reference-docs-doxygen"
 
 # Remove and recreate the existing out directory to avoid conflicts from previous runs
 rm -rf $outDir
 mkdir -p $outDir/$newDir
 mkdir -p $outDir/$dackkaNewDir
+mkdir -p $outDir/$doxygenNewDir
 cd $outDir
 
 if [ "$FLAGS_sourceDir" == "" ]; then
@@ -173,6 +176,15 @@ do
   cp -r $dackkaNewDir/reference/kotlin/androidx/$dir $newDir/reference/kotlin/androidx/
 done
 
+if (( FLAGS_buildNativeDocs )); then
+  printf "\n"
+  printf "=================================================================== \n"
+  printf "== Generate Doxygen docs \n"
+  printf "=================================================================== \n"
+
+  ../generateDoxygenDocs.sh
+fi
+
 printf "Copying over Table of Contents and package lists"
 cp $dackkaNewDir/reference/androidx/_toc.yaml $newDir/reference/androidx/
 cp $dackkaNewDir/reference/androidx/package-list $newDir/reference/androidx/
@@ -193,6 +205,16 @@ printf "=================================================================== \n"
 cd $newDir/reference
 python3 ./../../../switcher.py --work androidx
 python3 ./../../../switcher.py --work support
+
+if (( FLAGS_buildNativeDocs )); then
+  cd $outDir
+  # Copy over doxygen generated refdocs after switcher is added
+  rsync -avh --ignore-existing $doxygenNewDir/reference/ $newDir/reference/
+
+  # Include doxygen toc files in main toc
+  cd $newDir
+  find reference -name _doxygen.yaml  -exec python3 $scriptDirectory/helpers/insert_include_into_toc.py {}  \;
+fi
 
 printf "\n"
 printf "=================================================================== \n"
