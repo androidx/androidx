@@ -314,7 +314,7 @@ public final class Row implements Item {
             if (titleText.isEmpty()) {
                 throw new IllegalArgumentException("The title cannot be null or empty");
             }
-            CarTextConstraints.TEXT_ONLY.validateOrThrow(titleText);
+            CarTextConstraints.TEXT_AND_ICON.validateOrThrow(titleText);
             mTitle = titleText;
             return this;
         }
@@ -334,7 +334,7 @@ public final class Row implements Item {
             if (requireNonNull(title).isEmpty()) {
                 throw new IllegalArgumentException("The title cannot be null or empty");
             }
-            CarTextConstraints.TEXT_ONLY.validateOrThrow(title);
+            CarTextConstraints.TEXT_AND_ICON.validateOrThrow(title);
             mTitle = title;
             return this;
         }
@@ -410,7 +410,7 @@ public final class Row implements Item {
         @NonNull
         public Builder addText(@NonNull CharSequence text) {
             CarText carText = CarText.create(requireNonNull(text));
-            CarTextConstraints.TEXT_WITH_COLORS.validateOrThrow(carText);
+            CarTextConstraints.TEXT_WITH_COLORS_AND_ICON.validateOrThrow(carText);
             mTexts.add(CarText.create(requireNonNull(text)));
             return this;
         }
@@ -424,7 +424,7 @@ public final class Row implements Item {
          */
         @NonNull
         public Builder addText(@NonNull CarText text) {
-            CarTextConstraints.TEXT_WITH_COLORS.validateOrThrow(requireNonNull(text));
+            CarTextConstraints.TEXT_WITH_COLORS_AND_ICON.validateOrThrow(requireNonNull(text));
             mTexts.add(text);
             return this;
         }
