@@ -19,10 +19,13 @@ package androidx.car.app.model;
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.assertThrows;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 import android.content.Context;
 import android.text.SpannableString;
 
+import androidx.car.app.OnDoneCallback;
 import androidx.car.app.TestUtils;
 import androidx.test.core.app.ApplicationProvider;
 
@@ -138,6 +141,7 @@ public class PlaceListMapTemplateTest {
         assertThat(template.getHeaderAction()).isNull();
         assertThat(template.getActionStrip()).isNull();
         assertThat(template.isCurrentLocationEnabled()).isFalse();
+        assertThat(template.getOnContentRefreshDelegate()).isNull();
     }
 
     @Test
@@ -322,7 +326,26 @@ public class PlaceListMapTemplateTest {
     }
 
     @Test
+    public void setOnContentRefreshListener_triggersListener() {
+        OnContentRefreshListener listener = mock(OnContentRefreshListener.class);
+        ItemList itemList = TestUtils.createItemListWithDistanceSpan(6, false, mDistanceSpan);
+        String title = "title";
+        PlaceListMapTemplate template =
+                new PlaceListMapTemplate.Builder()
+                        .setItemList(itemList)
+                        .setTitle(title)
+                        .setOnContentRefreshListener(listener)
+                        .build();
+
+        OnDoneCallback onDoneCallback = mock(OnDoneCallback.class);
+        template.getOnContentRefreshDelegate().sendContentRefreshRequested(onDoneCallback);
+        verify(listener).onContentRefreshRequested();
+        verify(onDoneCallback).onSuccess(null);
+    }
+
+    @Test
     public void equals() {
+        OnContentRefreshListener listener = mock(OnContentRefreshListener.class);
         ActionStrip actionStrip = new ActionStrip.Builder().addAction(Action.BACK).build();
         String title = "foo";
         Place place =
@@ -339,6 +362,7 @@ public class PlaceListMapTemplateTest {
                         .setTitle(title)
                         .setAnchor(place)
                         .setCurrentLocationEnabled(true)
+                        .setOnContentRefreshListener(listener)
                         .build();
 
         assertThat(template)
@@ -351,6 +375,7 @@ public class PlaceListMapTemplateTest {
                                 .setTitle(title)
                                 .setAnchor(place)
                                 .setCurrentLocationEnabled(true)
+                                .setOnContentRefreshListener(listener)
                                 .build());
     }
 
@@ -478,6 +503,26 @@ public class PlaceListMapTemplateTest {
                                 .setItemList(TestUtils.createItemListWithDistanceSpan(6, false,
                                         mDistanceSpan))
                                 .setCurrentLocationEnabled(false)
+                                .build());
+    }
+
+    @Test
+    public void notEquals_nonAndNonNullOnContentRefreshListeners() {
+        OnContentRefreshListener listener = mock(OnContentRefreshListener.class);
+        PlaceListMapTemplate template =
+                new PlaceListMapTemplate.Builder()
+                        .setTitle("Title")
+                        .setItemList(
+                                TestUtils.createItemListWithDistanceSpan(6, false, mDistanceSpan))
+                        .setOnContentRefreshListener(listener)
+                        .build();
+
+        assertThat(template)
+                .isNotEqualTo(
+                        new PlaceListMapTemplate.Builder()
+                                .setTitle("Title")
+                                .setItemList(TestUtils.createItemListWithDistanceSpan(6, false,
+                                        mDistanceSpan))
                                 .build());
     }
 }

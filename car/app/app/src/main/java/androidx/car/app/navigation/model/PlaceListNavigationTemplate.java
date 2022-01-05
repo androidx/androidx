@@ -28,9 +28,11 @@ import android.annotation.SuppressLint;
 import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.OptIn;
 import androidx.car.app.Screen;
 import androidx.car.app.SurfaceCallback;
 import androidx.car.app.annotations.CarProtocol;
+import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.model.Action;
 import androidx.car.app.model.ActionStrip;
@@ -40,7 +42,11 @@ import androidx.car.app.model.DurationSpan;
 import androidx.car.app.model.Item;
 import androidx.car.app.model.ItemList;
 import androidx.car.app.model.ModelUtils;
+import androidx.car.app.model.OnContentRefreshDelegate;
+import androidx.car.app.model.OnContentRefreshDelegateImpl;
+import androidx.car.app.model.OnContentRefreshListener;
 import androidx.car.app.model.Place;
+import androidx.car.app.model.PlaceListMapTemplate;
 import androidx.car.app.model.PlaceMarker;
 import androidx.car.app.model.Row;
 import androidx.car.app.model.Template;
@@ -67,6 +73,8 @@ import java.util.Objects;
  *   <li>The template title has not changed, and the number of rows and the title (not
  *       counting spans) of each row between the previous and new {@link ItemList}s have not
  *       changed.
+ *   <li>The template is sent in response to a user-initiated content refresh request. (see
+ *       {@link PlaceListMapTemplate.Builder#setOnContentRefreshListener}.
  * </ul>
  *
  * <p>In order to use this template your car app <b>MUST</b> declare that it uses the {@code
@@ -94,6 +102,10 @@ public final class PlaceListNavigationTemplate implements Template {
     @Keep
     @Nullable
     private final PanModeDelegate mPanModeDelegate;
+    @Keep
+    @Nullable
+    @ExperimentalCarApi
+    private final OnContentRefreshDelegate mOnContentRefreshDelegate;
 
     /**
      * Returns the title of the template or {@code null} if not set.
@@ -167,18 +179,32 @@ public final class PlaceListNavigationTemplate implements Template {
         return mItemList;
     }
 
+    /**
+     * Returns the {@link OnContentRefreshDelegate} to be called when the user requests for content
+     * refresh for this template.
+     *
+     * @see PlaceListMapTemplate.Builder#setOnContentRefreshListener
+     */
+    @Nullable
+    @ExperimentalCarApi
+    public OnContentRefreshDelegate getOnContentRefreshDelegate() {
+        return mOnContentRefreshDelegate;
+    }
+
     @NonNull
     @Override
     public String toString() {
         return "PlaceListNavigationTemplate";
     }
 
+    @OptIn(markerClass = ExperimentalCarApi.class) // OnContentRefreshDelegate
     @Override
     public int hashCode() {
         return Objects.hash(mTitle, mIsLoading, mItemList, mHeaderAction, mActionStrip,
-                mMapActionStrip, mPanModeDelegate == null);
+                mMapActionStrip, mPanModeDelegate == null, mOnContentRefreshDelegate == null);
     }
 
+    @OptIn(markerClass = ExperimentalCarApi.class) // OnContentRefreshDelegate
     @Override
     public boolean equals(@Nullable Object other) {
         if (this == other) {
@@ -195,9 +221,12 @@ public final class PlaceListNavigationTemplate implements Template {
                 && Objects.equals(mHeaderAction, otherTemplate.mHeaderAction)
                 && Objects.equals(mActionStrip, otherTemplate.mActionStrip)
                 && Objects.equals(mMapActionStrip, otherTemplate.mMapActionStrip)
-                && Objects.equals(mPanModeDelegate == null, otherTemplate.mPanModeDelegate == null);
+                && Objects.equals(mPanModeDelegate == null, otherTemplate.mPanModeDelegate == null)
+                && Objects.equals(mOnContentRefreshDelegate == null,
+                otherTemplate.mOnContentRefreshDelegate == null);
     }
 
+    @OptIn(markerClass = ExperimentalCarApi.class) // OnContentRefreshDelegate
     PlaceListNavigationTemplate(Builder builder) {
         mTitle = builder.mTitle;
         mIsLoading = builder.mIsLoading;
@@ -206,9 +235,11 @@ public final class PlaceListNavigationTemplate implements Template {
         mActionStrip = builder.mActionStrip;
         mMapActionStrip = builder.mMapActionStrip;
         mPanModeDelegate = builder.mPanModeDelegate;
+        mOnContentRefreshDelegate = builder.mOnContentRefreshDelegate;
     }
 
     /** Constructs an empty instance, used by serialization code. */
+    @OptIn(markerClass = ExperimentalCarApi.class) // OnContentRefreshDelegate
     private PlaceListNavigationTemplate() {
         mTitle = null;
         mIsLoading = false;
@@ -217,6 +248,7 @@ public final class PlaceListNavigationTemplate implements Template {
         mActionStrip = null;
         mMapActionStrip = null;
         mPanModeDelegate = null;
+        mOnContentRefreshDelegate = null;
     }
 
     /** A builder of {@link PlaceListNavigationTemplate}. */
@@ -234,6 +266,9 @@ public final class PlaceListNavigationTemplate implements Template {
         ActionStrip mMapActionStrip;
         @Nullable
         PanModeDelegate mPanModeDelegate;
+        @Nullable
+        @ExperimentalCarApi
+        OnContentRefreshDelegate mOnContentRefreshDelegate;
 
         /**
          * Sets the title of the template.
@@ -415,6 +450,27 @@ public final class PlaceListNavigationTemplate implements Template {
         public Builder setPanModeListener(@NonNull PanModeListener panModeListener) {
             requireNonNull(panModeListener);
             mPanModeDelegate = PanModeDelegateImpl.create(panModeListener);
+            return this;
+        }
+
+        /**
+         * Sets the {@link OnContentRefreshListener} to call when the user requests for the list
+         * contents to be refreshed in this template.
+         *
+         * <p>When the listener is triggered, an app can send a new {@link PlaceListMapTemplate},
+         * for example, to show a new set of point-of-interests based on the current user
+         * location, without the car host counting it against the template quota described in
+         * {@link Screen#onGetTemplate()}.
+         *
+         * @throws NullPointerException if {@code itemVisibilityChangedListener} is {@code null}
+         */
+        @NonNull
+        @SuppressLint({"MissingGetterMatchingBuilder", "ExecutorRegistration"})
+        @ExperimentalCarApi
+        public Builder setOnContentRefreshListener(
+                @NonNull OnContentRefreshListener onContentRefreshListener) {
+            mOnContentRefreshDelegate =
+                    OnContentRefreshDelegateImpl.create(onContentRefreshListener);
             return this;
         }
 
