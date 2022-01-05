@@ -236,6 +236,7 @@ internal fun convertToCenterOffset(
  * of them to fill the whole minimum size
  * @param horizontalAlignment the horizontal alignment applied to the items
  * @param contentPadding The padding to apply around the contents
+ * @param anchorType How to anchor list items to the center-line of the viewport
  * @param state The state of the component
  */
 @Composable
