@@ -218,6 +218,13 @@ expect class LongSparseArray<E>(initialCapacity: Int = 10) {
      * @return Returns true if the value was replaced.
      */
     fun replace(key: Long, oldValue: E?, newValue: E): Boolean
+
+    /**
+     * This implementation composes a string by iterating over its mappings. If
+     * this map contains itself as a value, the string "(this Map)"
+     * will appear in its place.
+     */
+    override fun toString(): String
 }
 
 internal inline fun <E> LongSparseArray<E>.commonSize(): Int {
