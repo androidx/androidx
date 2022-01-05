@@ -356,7 +356,7 @@ class UseCaseCameraRequestControlImpl @Inject constructor(
         if (aeMode != null || afMode != null || awbMode != null) {
             graph.acquireSession().use {
                 it.update3A(aeMode = aeMode, afMode = afMode, awbMode = awbMode)
-            }.join()
+            }
         }
     }
 
