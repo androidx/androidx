@@ -22,10 +22,15 @@ import static androidx.car.app.model.constraints.RowListConstraints.ROW_LIST_CON
 
 import static java.util.Objects.requireNonNull;
 
+import android.annotation.SuppressLint;
+
 import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.OptIn;
+import androidx.car.app.Screen;
 import androidx.car.app.annotations.CarProtocol;
+import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.model.constraints.CarTextConstraints;
 
 import java.util.Collections;
@@ -48,6 +53,8 @@ import java.util.Objects;
  *   <li>The previous template is in a loading state (see {@link Builder#setLoading}, or
  *   <li>The template title has not changed, and the number of rows and the title (not counting
  *       spans) of each row between the previous and new {@link ItemList}s have not changed.
+ *   <li>The template is sent in response to a user-initiated content refresh request. (see
+ *       {@link Builder#setOnContentRefreshListener}.
  * </ul>
  */
 @CarProtocol
@@ -71,6 +78,10 @@ public final class PlaceListMapTemplate implements Template {
     @Keep
     @Nullable
     private final Place mAnchor;
+    @Keep
+    @Nullable
+    @ExperimentalCarApi
+    private final OnContentRefreshDelegate mOnContentRefreshDelegate;
 
     public boolean isCurrentLocationEnabled() {
         return mShowCurrentLocation;
@@ -137,19 +148,33 @@ public final class PlaceListMapTemplate implements Template {
         return mAnchor;
     }
 
+    /**
+     * Returns the {@link OnContentRefreshDelegate} to be called when the user requests for content
+     * refresh for this template.
+     *
+     * @see Builder#setOnContentRefreshListener
+     */
+    @Nullable
+    @ExperimentalCarApi
+    public OnContentRefreshDelegate getOnContentRefreshDelegate() {
+        return mOnContentRefreshDelegate;
+    }
+
     @NonNull
     @Override
     public String toString() {
         return "PlaceListMapTemplate";
     }
 
+    @OptIn(markerClass = ExperimentalCarApi.class) // OnContentRefreshDelegate
     @Override
     public int hashCode() {
         return Objects.hash(
                 mShowCurrentLocation, mIsLoading, mTitle, mItemList, mHeaderAction, mActionStrip,
-                mAnchor);
+                    mAnchor, mOnContentRefreshDelegate == null);
     }
 
+    @OptIn(markerClass = ExperimentalCarApi.class) // OnContentRefreshDelegate
     @Override
     public boolean equals(@Nullable Object other) {
         if (this == other) {
@@ -166,9 +191,12 @@ public final class PlaceListMapTemplate implements Template {
                 && Objects.equals(mItemList, otherTemplate.mItemList)
                 && Objects.equals(mHeaderAction, otherTemplate.mHeaderAction)
                 && Objects.equals(mActionStrip, otherTemplate.mActionStrip)
-                && Objects.equals(mAnchor, otherTemplate.mAnchor);
+                && Objects.equals(mAnchor, otherTemplate.mAnchor)
+                && Objects.equals(mOnContentRefreshDelegate == null,
+                otherTemplate.mOnContentRefreshDelegate == null);
     }
 
+    @OptIn(markerClass = ExperimentalCarApi.class) // OnContentRefreshDelegate
     PlaceListMapTemplate(Builder builder) {
         mShowCurrentLocation = builder.mShowCurrentLocation;
         mIsLoading = builder.mIsLoading;
@@ -177,9 +205,11 @@ public final class PlaceListMapTemplate implements Template {
         mHeaderAction = builder.mHeaderAction;
         mActionStrip = builder.mActionStrip;
         mAnchor = builder.mAnchor;
+        mOnContentRefreshDelegate = builder.mOnContentRefreshDelegate;
     }
 
     /** Constructs an empty instance, used by serialization code. */
+    @OptIn(markerClass = ExperimentalCarApi.class) // OnContentRefreshDelegate
     private PlaceListMapTemplate() {
         mShowCurrentLocation = false;
         mIsLoading = false;
@@ -188,6 +218,7 @@ public final class PlaceListMapTemplate implements Template {
         mHeaderAction = null;
         mActionStrip = null;
         mAnchor = null;
+        mOnContentRefreshDelegate = null;
     }
 
     /** A builder of {@link PlaceListMapTemplate}. */
@@ -204,6 +235,9 @@ public final class PlaceListMapTemplate implements Template {
         ActionStrip mActionStrip;
         @Nullable
         Place mAnchor;
+        @Nullable
+        @ExperimentalCarApi
+        OnContentRefreshDelegate mOnContentRefreshDelegate;
 
         /**
          * Sets whether to show the current location in the map.
@@ -374,6 +408,27 @@ public final class PlaceListMapTemplate implements Template {
         @NonNull
         public Builder setAnchor(@NonNull Place anchor) {
             mAnchor = requireNonNull(anchor);
+            return this;
+        }
+
+        /**
+         * Sets the {@link OnContentRefreshListener} to call when the user requests for the list
+         * contents to be refreshed in this template.
+         *
+         * <p>When the listener is triggered, an app can send a new {@link PlaceListMapTemplate},
+         * for example, to show a new set of point-of-interests based on the current user
+         * location, without the car host counting it against the template quota described in
+         * {@link Screen#onGetTemplate()}.
+         *
+         * @throws NullPointerException if {@code itemVisibilityChangedListener} is {@code null}
+         */
+        @NonNull
+        @SuppressLint({"MissingGetterMatchingBuilder", "ExecutorRegistration"})
+        @ExperimentalCarApi
+        public Builder setOnContentRefreshListener(
+                @NonNull OnContentRefreshListener onContentRefreshListener) {
+            mOnContentRefreshDelegate =
+                    OnContentRefreshDelegateImpl.create(onContentRefreshListener);
             return this;
         }
 

@@ -762,6 +762,14 @@ package androidx.car.app.model {
     method public void onClick();
   }
 
+  @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.ExperimentalCarApi public interface OnContentRefreshDelegate {
+    method public void sendContentRefreshRequested(androidx.car.app.OnDoneCallback);
+  }
+
+  @androidx.car.app.annotations.ExperimentalCarApi public interface OnContentRefreshListener {
+    method public void onContentRefreshRequested();
+  }
+
   @androidx.car.app.annotations.CarProtocol public interface OnItemVisibilityChangedDelegate {
     method public void sendItemVisibilityChanged(int, int, androidx.car.app.OnDoneCallback);
   }
@@ -823,6 +831,7 @@ package androidx.car.app.model {
     method public androidx.car.app.model.Place? getAnchor();
     method public androidx.car.app.model.Action? getHeaderAction();
     method public androidx.car.app.model.ItemList? getItemList();
+    method @androidx.car.app.annotations.ExperimentalCarApi public androidx.car.app.model.OnContentRefreshDelegate? getOnContentRefreshDelegate();
     method public androidx.car.app.model.CarText? getTitle();
     method public boolean isCurrentLocationEnabled();
     method public boolean isLoading();
@@ -837,6 +846,7 @@ package androidx.car.app.model {
     method public androidx.car.app.model.PlaceListMapTemplate.Builder setHeaderAction(androidx.car.app.model.Action);
     method public androidx.car.app.model.PlaceListMapTemplate.Builder setItemList(androidx.car.app.model.ItemList);
     method public androidx.car.app.model.PlaceListMapTemplate.Builder setLoading(boolean);
+    method @androidx.car.app.annotations.ExperimentalCarApi public androidx.car.app.model.PlaceListMapTemplate.Builder setOnContentRefreshListener(androidx.car.app.model.OnContentRefreshListener);
     method public androidx.car.app.model.PlaceListMapTemplate.Builder setTitle(CharSequence);
     method public androidx.car.app.model.PlaceListMapTemplate.Builder setTitle(androidx.car.app.model.CarText);
   }
@@ -1218,6 +1228,7 @@ package androidx.car.app.navigation.model {
     method public androidx.car.app.model.Action? getHeaderAction();
     method public androidx.car.app.model.ItemList? getItemList();
     method @androidx.car.app.annotations.RequiresCarApi(4) public androidx.car.app.model.ActionStrip? getMapActionStrip();
+    method @androidx.car.app.annotations.ExperimentalCarApi public androidx.car.app.model.OnContentRefreshDelegate? getOnContentRefreshDelegate();
     method @androidx.car.app.annotations.RequiresCarApi(4) public androidx.car.app.navigation.model.PanModeDelegate? getPanModeDelegate();
     method public androidx.car.app.model.CarText? getTitle();
     method public boolean isLoading();
@@ -1231,6 +1242,7 @@ package androidx.car.app.navigation.model {
     method public androidx.car.app.navigation.model.PlaceListNavigationTemplate.Builder setItemList(androidx.car.app.model.ItemList);
     method public androidx.car.app.navigation.model.PlaceListNavigationTemplate.Builder setLoading(boolean);
     method @androidx.car.app.annotations.RequiresCarApi(4) public androidx.car.app.navigation.model.PlaceListNavigationTemplate.Builder setMapActionStrip(androidx.car.app.model.ActionStrip);
+    method @androidx.car.app.annotations.ExperimentalCarApi public androidx.car.app.navigation.model.PlaceListNavigationTemplate.Builder setOnContentRefreshListener(androidx.car.app.model.OnContentRefreshListener);
     method @androidx.car.app.annotations.RequiresCarApi(4) public androidx.car.app.navigation.model.PlaceListNavigationTemplate.Builder setPanModeListener(androidx.car.app.navigation.model.PanModeListener);
     method public androidx.car.app.navigation.model.PlaceListNavigationTemplate.Builder setTitle(CharSequence);
     method public androidx.car.app.navigation.model.PlaceListNavigationTemplate.Builder setTitle(androidx.car.app.model.CarText);
