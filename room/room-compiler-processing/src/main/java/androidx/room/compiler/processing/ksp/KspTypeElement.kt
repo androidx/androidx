@@ -89,6 +89,21 @@ internal sealed class KspTypeElement(
         }
     }
 
+    override val superInterfaces by lazy {
+        declaration.superTypes.asSequence().map {
+            it.resolve()
+        }
+        .filter {
+            it.declaration is KSClassDeclaration &&
+                (it.declaration as KSClassDeclaration).classKind == ClassKind.INTERFACE
+        }.mapTo(mutableListOf()) {
+            env.wrap(
+                ksType = it,
+                allowPrimitives = false
+            )
+        }
+    }
+
     override val className: ClassName by lazy {
         declaration.typeName(env.resolver).tryBox().also { typeName ->
             check(typeName is ClassName) {

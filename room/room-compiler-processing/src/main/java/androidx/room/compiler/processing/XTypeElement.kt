@@ -47,6 +47,11 @@ interface XTypeElement : XHasModifiers, XElement, XMemberContainer {
     val superType: XType?
 
     /**
+     * The super interfaces implemented by this class.
+     */
+    val superInterfaces: List<XType>
+
+    /**
      * Javapoet [ClassName] of the type.
      */
     override val className: ClassName
