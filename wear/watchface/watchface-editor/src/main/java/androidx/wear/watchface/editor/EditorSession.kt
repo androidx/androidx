@@ -793,7 +793,9 @@ internal class OnWatchFaceEditorSessionImpl(
                 it.value.initiallyEnabled,
                 it.value.renderer.getData().type,
                 it.value.fixedComplicationDataSource,
-                it.value.configExtras
+                it.value.configExtras,
+                it.value.nameResourceId,
+                it.value.screenReaderNameResourceId
             )
         }
     }

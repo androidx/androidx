@@ -92,7 +92,9 @@ public class XmlSchemaAndComplicationSlotsDefinition(
         val supportedTypes: List<ComplicationType>,
         val defaultDataSourcePolicy: DefaultComplicationDataSourcePolicy,
         val initiallyEnabled: Boolean,
-        val fixedComplicationDataSource: Boolean
+        val fixedComplicationDataSource: Boolean,
+        val nameResourceId: Int?,
+        val screenReaderNameResourceId: Int?
     ) {
         companion object {
             fun inflate(
@@ -278,6 +280,19 @@ public class XmlSchemaAndComplicationSlotsDefinition(
                         "one per ComplicationType."
                 }
 
+                val nameResourceId =
+                    if (attributes.hasValue(R.styleable.ComplicationSlot_name)) {
+                        attributes.getResourceId(R.styleable.ComplicationSlot_name, 0)
+                    } else {
+                        null
+                    }
+                val screenReaderNameResourceId =
+                    if (attributes.hasValue(R.styleable.ComplicationSlot_screenReaderName)) {
+                        attributes.getResourceId(R.styleable.ComplicationSlot_screenReaderName, 0)
+                    } else {
+                        null
+                    }
+
                 attributes.recycle()
 
                 return ComplicationSlotStaticData(
@@ -288,7 +303,9 @@ public class XmlSchemaAndComplicationSlotsDefinition(
                     supportedTypesList,
                     defaultComplicationDataSourcePolicy,
                     initiallyEnabled,
-                    fixedComplicationDataSource
+                    fixedComplicationDataSource,
+                    nameResourceId,
+                    screenReaderNameResourceId
                 )
             }
         }
@@ -329,7 +346,9 @@ public class XmlSchemaAndComplicationSlotsDefinition(
                         else -> throw UnsupportedOperationException(
                             "Unknown boundsType ${it.boundsType}"
                         )
-                    }
+                    },
+                    it.nameResourceId,
+                    it.screenReaderNameResourceId
                 )
             },
             currentUserStyleRepository

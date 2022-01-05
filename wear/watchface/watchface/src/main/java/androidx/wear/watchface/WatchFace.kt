@@ -1157,7 +1157,9 @@ public class WatchFaceImpl @UiThread constructor(
                 it.value.initiallyEnabled,
                 it.value.renderer.getData().type.toWireComplicationType(),
                 it.value.fixedComplicationDataSource,
-                it.value.configExtras
+                it.value.configExtras,
+                it.value.nameResourceId,
+                it.value.screenReaderNameResourceId
             )
         )
     }

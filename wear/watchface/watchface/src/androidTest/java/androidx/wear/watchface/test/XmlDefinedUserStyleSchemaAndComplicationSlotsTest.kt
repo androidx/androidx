@@ -255,6 +255,9 @@ public class XmlDefinedUserStyleSchemaAndComplicationSlotsTest {
             ).isEqualTo(
                 RectF(0.3f, 0.7f, 0.7f, 0.9f)
             )
+            assertThat(slotA.nameResourceId).isEqualTo(R.string.complication_name_one)
+            assertThat(slotA.screenReaderNameResourceId)
+                .isEqualTo(R.string.complication_screen_reader_name_one)
 
             val slotB = watchFaceImpl.complicationSlotsManager.complicationSlots[20]!!
             assertThat(slotB.boundsType).isEqualTo(ComplicationSlotBoundsType.BACKGROUND)
@@ -281,6 +284,9 @@ public class XmlDefinedUserStyleSchemaAndComplicationSlotsTest {
             ).isEqualTo(
                 RectF(0.1f, 0.2f, 0.3f, 0.4f)
             )
+            assertThat(slotB.nameResourceId).isEqualTo(R.string.complication_name_two)
+            assertThat(slotB.screenReaderNameResourceId)
+                .isEqualTo(R.string.complication_screen_reader_name_two)
         }
 
         interactiveWatchFaceInstance.release()
