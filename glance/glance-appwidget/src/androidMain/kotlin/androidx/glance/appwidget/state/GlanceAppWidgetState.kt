@@ -79,7 +79,7 @@ public suspend fun <T> GlanceAppWidget.updateAppWidgetState(
 ): T =
     updateAppWidgetState(
         context,
-        checkNotNull(stateDefinition as GlanceStateDefinition<T>) {
+        checkNotNull(stateDefinition as GlanceStateDefinition<T>?) {
             "No state defined in this provider"
         },
         glanceId,
