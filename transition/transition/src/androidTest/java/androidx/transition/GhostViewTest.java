@@ -324,6 +324,7 @@ public class GhostViewTest extends BaseTest {
         int height = view.getHeight();
         final Bitmap dest = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
         final CountDownLatch latch = new CountDownLatch(1);
+        int[] pixelCopyResult = new int[1];
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             int[] offset = new int[2];
             view.getLocationInWindow(offset);
@@ -333,7 +334,7 @@ public class GhostViewTest extends BaseTest {
                     new PixelCopy.OnPixelCopyFinishedListener() {
                         @Override
                         public void onPixelCopyFinished(int copyResult) {
-                            assertEquals(PixelCopy.SUCCESS, copyResult);
+                            pixelCopyResult[0] = copyResult;
                             latch.countDown();
                         }
 
@@ -345,11 +346,13 @@ public class GhostViewTest extends BaseTest {
                 @Override
                 public void run() {
                     view.draw(new Canvas(dest));
+                    pixelCopyResult[0] = PixelCopy.SUCCESS;
                     latch.countDown();
                 }
             });
         }
         assertTrue(latch.await(1, TimeUnit.SECONDS));
+        assertEquals(PixelCopy.SUCCESS, pixelCopyResult[0]);
         return dest;
     }
 
