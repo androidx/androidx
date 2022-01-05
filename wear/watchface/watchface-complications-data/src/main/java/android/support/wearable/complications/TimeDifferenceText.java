@@ -23,7 +23,7 @@ import android.os.Parcel;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
-import androidx.wear.watchface.complications.data.internal.R;
+import androidx.wear.watchface.complications.data.R;
 
 import java.io.InvalidObjectException;
 import java.io.ObjectInputStream;

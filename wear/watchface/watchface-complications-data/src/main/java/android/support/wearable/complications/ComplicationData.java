@@ -673,12 +673,9 @@ public final class ComplicationData implements Parcelable, Serializable {
         if (timelineEntries == null) {
             mFields.remove(FIELD_TIMELINE_ENTRIES);
         } else {
-            Parcelable[] array = new Parcelable[timelineEntries.size()];
-            int index = 0;
-            for (ComplicationData timelineEntry : timelineEntries) {
-                array[index++] = timelineEntry.mFields;
-            }
-            mFields.putParcelableArray(FIELD_TIMELINE_ENTRIES, array);
+            mFields.putParcelableArray(
+                    FIELD_TIMELINE_ENTRIES,
+                    timelineEntries.stream().map(e-> e.mFields).toArray(Parcelable[]::new));
         }
     }
 

@@ -282,7 +282,6 @@ dependencies {
     docs(project(":wear:watchface:watchface"))
     docs(project(":wear:watchface:watchface-complications"))
     docs(project(":wear:watchface:watchface-complications-data"))
-    docs(project(":wear:watchface:watchface-complications-data-core"))
     docs(project(":wear:watchface:watchface-complications-data-source"))
     samples(project(":wear:watchface:watchface-complications-data-source-samples"))
     docs(project(":wear:watchface:watchface-complications-rendering"))
