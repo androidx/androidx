@@ -19,19 +19,29 @@ package androidx.tracing.perfetto.test
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import androidx.tracing.perfetto.Tracing
-import com.google.common.truth.Truth
+import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
-import androidx.tracing.perfetto.jni.NativeCalls
 
 @SmallTest
 @RunWith(AndroidJUnit4::class)
 class TracingTest {
     @Test
-    fun test_isEnabled() {
-        val tracing = Tracing()
-        NativeCalls.loadLib()
-        NativeCalls.nativeRegisterWithPerfetto()
-        Truth.assertThat(tracing.isEnabled).isEqualTo(false)
+    fun test_endToEnd_noCrash() {
+        assertThat(Tracing.isTraceInProgress).isEqualTo(false)
+
+        Tracing.enable()
+        assertThat(Tracing.isTraceInProgress).isEqualTo(false)
+
+        Tracing.setTraceInProgress(true)
+        assertThat(Tracing.isTraceInProgress).isEqualTo(true)
+
+        Tracing.traceEventStart(123, "foo")
+        Tracing.traceEventStart(321, "bar")
+        Tracing.traceEventEnd()
+        Tracing.traceEventEnd()
+
+        Tracing.setTraceInProgress(false)
+        assertThat(Tracing.isTraceInProgress).isEqualTo(false)
     }
 }
