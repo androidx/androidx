@@ -16,8 +16,12 @@
 
 package androidx.wear.compose.navigation
 
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.State
+import androidx.navigation.NavBackStackEntry
+import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import androidx.wear.compose.material.ExperimentalWearMaterialApi
@@ -30,4 +34,16 @@ import androidx.wear.compose.material.ExperimentalWearMaterialApi
 @ExperimentalWearMaterialApi
 public fun rememberSwipeDismissableNavController(): NavHostController {
     return rememberNavController(remember { WearNavigator() })
+}
+
+/**
+ * Gets the current navigation back stack entry as a [State]. When the given navController
+ * changes the back stack due to a [NavController.navigate] or [NavController.popBackStack] this
+ * will trigger a recompose and return the top entry on the back stack.
+ *
+ * @return state of the current back stack entry
+ */
+@Composable
+public fun NavController.currentBackStackEntryAsState(): State<NavBackStackEntry?> {
+    return currentBackStackEntryFlow.collectAsState(null)
 }
