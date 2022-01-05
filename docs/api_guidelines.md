@@ -1318,8 +1318,9 @@ classes, e.g. the Java `Builder` pattern.
 
 ### Open-source compatibility {#dependencies-aosp}
 
-[Jetpack Principles](principles.md) require that libraries consider the
-open-source compatibility implications of their dependencies, including:
+Jetpack's [open-source](open_source.md) principle requires that libraries
+consider the open-source compatibility implications of their dependencies,
+including:
 
 -   Closed-source or proprietary libraries or services that may not be available
     on AOSP devices

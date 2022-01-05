@@ -23,12 +23,17 @@ library.
 
 ### Exceptions
 
-The only exception to this definition is the Android platform SDK, which does
-not release sources until well after its API surface has been finalized.
+The only unconditional exception to this definition is the Android platform SDK,
+which does not release sources until well after its API surface has been
+finalized.
 
 Libraries which are developed against the pre-release Android platform SDK _may_
 remain closed-source until the platform SDK's API surface is finalized, at which
 they **must** move to open-source.
+
+In specific cases, libraries *may* include closed-source dependencies. See the
+[Open-source compatibility](api_guidelines.md#dependencies-aosp) section of the
+API Guidelines for implementation details.
 
 ### Examples of products that are _not_ open-source
 
