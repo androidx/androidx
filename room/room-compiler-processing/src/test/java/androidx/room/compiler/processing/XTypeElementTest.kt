@@ -160,6 +160,30 @@ class XTypeElementTest {
     }
 
     @Test
+    fun superInterfaces() {
+        val src = Source.kotlin(
+            "foo.kt",
+            """
+            package foo.bar;
+            class Baz : MyInterface<String>, AbstractClass() {
+            }
+            abstract class AbstractClass {}
+            interface MyInterface<E> {}
+            """.trimIndent()
+        )
+        runProcessorTest(sources = listOf(src)) { invocation ->
+            invocation.processingEnv.requireTypeElement("foo.bar.Baz").let {
+                assertThat(it.superInterfaces).hasSize(1)
+                val superInterface = it.superInterfaces.first {
+                        type -> type.rawType.toString() == "foo.bar.MyInterface" }
+                assertThat(superInterface.typeArguments).hasSize(1)
+                assertThat(superInterface.typeArguments[0].typeName)
+                    .isEqualTo(ClassName.get("java.lang", "String"))
+            }
+        }
+    }
+
+    @Test
     fun nestedClassName() {
         val src = Source.kotlin(
             "Foo.kt",

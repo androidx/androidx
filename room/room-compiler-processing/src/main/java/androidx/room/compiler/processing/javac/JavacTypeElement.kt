@@ -166,6 +166,17 @@ internal sealed class JavacTypeElement(
         }
     }
 
+    override val superInterfaces by lazy {
+        element.interfaces.map {
+            val element = MoreTypes.asTypeElement(it)
+            env.wrap<JavacType>(
+                typeMirror = it,
+                kotlinType = KotlinMetadataElement.createFor(element)?.kmType,
+                elementNullability = element.nullability
+            )
+        }
+    }
+
     override val equalityItems: Array<out Any?> by lazy {
         arrayOf(element)
     }
