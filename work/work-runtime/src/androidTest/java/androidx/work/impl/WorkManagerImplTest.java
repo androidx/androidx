@@ -81,7 +81,7 @@ import androidx.testutils.RepeatRule;
 import androidx.work.BackoffPolicy;
 import androidx.work.Configuration;
 import androidx.work.Constraints;
-import androidx.work.ContentUriTriggers;
+import androidx.work.Constraints.ContentUriTrigger;
 import androidx.work.Data;
 import androidx.work.ExistingPeriodicWorkPolicy;
 import androidx.work.OneTimeWorkRequest;
@@ -116,7 +116,9 @@ import org.mockito.ArgumentCaptor;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
@@ -375,9 +377,9 @@ public class WorkManagerImplTest {
         WorkSpec workSpec0 = mDatabase.workSpecDao().getWorkSpec(work0.getStringId());
         WorkSpec workSpec1 = mDatabase.workSpecDao().getWorkSpec(work1.getStringId());
 
-        ContentUriTriggers expectedTriggers = new ContentUriTriggers();
-        expectedTriggers.add(testUri1, true);
-        expectedTriggers.add(testUri2, false);
+        Set<ContentUriTrigger> expectedTriggers = new HashSet<>();
+        expectedTriggers.add(new ContentUriTrigger(testUri1, true));
+        expectedTriggers.add(new ContentUriTrigger(testUri2, false));
 
         Constraints constraints = workSpec0.constraints;
         assertThat(constraints, is(notNullValue()));
@@ -389,7 +391,7 @@ public class WorkManagerImplTest {
         if (Build.VERSION.SDK_INT >= 24) {
             assertThat(constraints.getContentUriTriggers(), is(expectedTriggers));
         } else {
-            assertThat(constraints.getContentUriTriggers(), is(new ContentUriTriggers()));
+            assertThat(constraints.getContentUriTriggers(), is(new HashSet<ContentUriTrigger>()));
         }
 
         constraints = workSpec1.constraints;

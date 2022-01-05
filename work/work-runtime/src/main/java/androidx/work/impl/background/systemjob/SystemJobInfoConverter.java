@@ -33,7 +33,6 @@ import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.work.BackoffPolicy;
 import androidx.work.Constraints;
-import androidx.work.ContentUriTriggers;
 import androidx.work.Logger;
 import androidx.work.NetworkType;
 import androidx.work.impl.WorkManagerImpl;
@@ -109,8 +108,8 @@ class SystemJobInfoConverter {
         }
 
         if (Build.VERSION.SDK_INT >= 24 && constraints.hasContentUriTriggers()) {
-            ContentUriTriggers contentUriTriggers = constraints.getContentUriTriggers();
-            for (ContentUriTriggers.Trigger trigger : contentUriTriggers.getTriggers()) {
+            //noinspection ConstantConditions
+            for (Constraints.ContentUriTrigger trigger : constraints.getContentUriTriggers()) {
                 builder.addTriggerContentUri(convertContentUriTrigger(trigger));
             }
             builder.setTriggerContentUpdateDelay(constraints.getTriggerContentUpdateDelay());
@@ -136,8 +135,8 @@ class SystemJobInfoConverter {
 
     @RequiresApi(24)
     private static JobInfo.TriggerContentUri convertContentUriTrigger(
-            ContentUriTriggers.Trigger trigger) {
-        int flag = trigger.shouldTriggerForDescendants()
+            Constraints.ContentUriTrigger trigger) {
+        int flag = trigger.getTriggerForDescendants()
                 ? JobInfo.TriggerContentUri.FLAG_NOTIFY_FOR_DESCENDANTS : 0;
         return new JobInfo.TriggerContentUri(trigger.getUri(), flag);
     }
