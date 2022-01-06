@@ -1,0 +1,57 @@
+// Signature format: 4.0
+package androidx.benchmark {
+
+  @RequiresApi(21) public final class Api21Kt {
+  }
+
+  @RequiresApi(24) public final class Api24Kt {
+  }
+
+  @RequiresApi(27) public final class Api27Kt {
+  }
+
+  @RequiresApi(29) public final class Api29Kt {
+  }
+
+  public final class ArgumentsKt {
+  }
+
+  public final class BenchmarkState {
+    method public boolean keepRunning();
+    method public void pauseTiming();
+    method @androidx.benchmark.BenchmarkState.Companion.ExperimentalExternalReport public static void reportData(String className, String testName, @IntRange(from=0) long totalRunTimeNs, java.util.List<java.lang.Long> dataNs, @IntRange(from=0) int warmupIterations, @IntRange(from=0) long thermalThrottleSleepSeconds, @IntRange(from=1) int repeatIterations);
+    method public void resumeTiming();
+    field public static final androidx.benchmark.BenchmarkState.Companion Companion;
+  }
+
+  public static final class BenchmarkState.Companion {
+    method @androidx.benchmark.BenchmarkState.Companion.ExperimentalExternalReport public void reportData(String className, String testName, @IntRange(from=0) long totalRunTimeNs, java.util.List<java.lang.Long> dataNs, @IntRange(from=0) int warmupIterations, @IntRange(from=0) long thermalThrottleSleepSeconds, @IntRange(from=1) int repeatIterations);
+  }
+
+  @kotlin.Experimental @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets=kotlin.annotation.AnnotationTarget.FUNCTION) public static @interface BenchmarkState.Companion.ExperimentalExternalReport {
+  }
+
+  public final class ConfigurationErrorKt {
+  }
+
+  public final class MetricNameUtilsKt {
+  }
+
+  public final class ProfilerKt {
+  }
+
+  public final class UserspaceTracingKt {
+  }
+
+}
+
+package androidx.benchmark.perfetto {
+
+  public final class PerfettoConfigKt {
+  }
+
+  public final class UiStateKt {
+  }
+
+}
+
