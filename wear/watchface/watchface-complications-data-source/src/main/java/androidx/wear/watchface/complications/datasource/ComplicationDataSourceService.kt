@@ -102,7 +102,7 @@ public class ComplicationRequest(
  * ```
  * <meta-data android:name=
  * "androidx.wear.watchface.complications.data.source.SYNCHRONOUS_UPDATE_PERIOD_MILLISECONDS"
- * android:value="1"/>
+ * android:value="1000"/>
  * ```
  *
  * - A ComplicationDataSourceService can include a `meta-data` tag with
@@ -243,12 +243,12 @@ public abstract class ComplicationDataSourceService : Service() {
 
     /**
      * If a metadata key with [METADATA_KEY_SYNCHRONOUS_UPDATE_PERIOD_MILLISECONDS] is present in
-     * the manifest, then onStartInteractiveComplication will be called when the watch face is
-     * visible and non-ambient. A series of [onSynchronousComplicationRequest]s will follow, ending
-     * with a call to [onStopSynchronousComplicationRequests].
+     * the manifest, then [onStartSynchronousComplicationRequests] will be called when the watch
+     * face is visible and non-ambient. A series of [onSynchronousComplicationRequest]s will follow,
+     * ending with a call to [onStopSynchronousComplicationRequests].
      *
-     * After onStopInteractiveComplication calls to [onComplicationRequest] will stop until the
-     * watchface ceases to be visible and non-ambient.
+     * After [onStopSynchronousComplicationRequests] calls to [onSynchronousComplicationRequest]
+     * will stop until the watchface ceases to be visible and non-ambient.
      *
      * @param complicationInstanceId The system's ID for the complication. Note this ID is distinct
      * from the complication slot used by the watch face itself.
@@ -259,12 +259,13 @@ public abstract class ComplicationDataSourceService : Service() {
 
     /**
      * If a metadata key with [METADATA_KEY_SYNCHRONOUS_UPDATE_PERIOD_MILLISECONDS] is present in the
-     * manifest, then onStartInteractiveComplication will be called when the watch face ceases to be
-     * visible and non-ambient. No subsequent calls to [onSynchronousComplicationRequest] will me
-     * made unless the complication becomes visible and non-ambient again.
+     * manifest, then [onStartSynchronousComplicationRequests] will be called when the watch face
+     * ceases to be visible and non-ambient. No subsequent calls to
+     * [onSynchronousComplicationRequest] will be made unless the complication becomes visible and
+     * non-ambient again.
      *
-     * After onStopInteractiveComplication calls to [onComplicationRequest] may resume (depending on
-     * the value of METADATA_KEY_UPDATE_PERIOD_SECONDS).
+     * After [onStopSynchronousComplicationRequests] calls to [onComplicationRequest] may resume
+     * (depending on the value of [METADATA_KEY_UPDATE_PERIOD_SECONDS]).
      *
      * @param complicationInstanceId The system's ID for the complication. Note this ID is distinct
      * from the complication slot used by the watch face itself.
@@ -534,8 +535,8 @@ public abstract class ComplicationDataSourceService : Service() {
          * [onSynchronousComplicationRequest]s when the watch face is visible and non-ambient.
          *
          * A ComplicationDataSourceService should include a `meta-data` tag with this name in its
-         * manifest entry. The value of this tag is the number of seconds the complication data
-         * source would like to elapse between [onSynchronousComplicationRequest]s requests.
+         * manifest entry. The value of this tag is the number of milliseconds the complication
+         * data source would like to elapse between [onSynchronousComplicationRequest]s requests.
          *
          * Note that update requests are not guaranteed to be sent with this frequency and a lower
          * limit exists (initially 1 second).
