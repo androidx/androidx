@@ -57,6 +57,7 @@ import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
 import androidx.test.platform.app.InstrumentationRegistry;
+import androidx.work.Constraints.ContentUriTrigger;
 import androidx.work.impl.Migration_11_12;
 import androidx.work.impl.Migration_12_13;
 import androidx.work.impl.Migration_1_2;
@@ -80,6 +81,8 @@ import org.junit.runner.RunWith;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 
 @RunWith(AndroidJUnit4.class)
@@ -492,11 +495,11 @@ public class WorkDatabaseMigrationTest {
         nullContentUris.put(CONTENT_URI_TRIGGERS, (String) null);
 
         String contentUrisId = UUID.randomUUID().toString();
-        ContentUriTriggers triggers = new ContentUriTriggers();
-        triggers.add(Uri.parse("http://cs.android.com"), false);
+        Set<ContentUriTrigger> triggers = new HashSet<>();
+        triggers.add(new ContentUriTrigger(Uri.parse("http://cs.android.com"), false));
         ContentValues contentUrisRequest = contentValues(contentUrisId);
         contentUrisRequest.put(CONTENT_URI_TRIGGERS,
-                WorkTypeConverters.contentUriTriggersToByteArray(triggers));
+                WorkTypeConverters.setOfTriggersToByteArray(triggers));
 
         database.insert("workspec", CONFLICT_FAIL, nullContentUris);
         database.insert("workspec", CONFLICT_FAIL, contentUrisRequest);
@@ -527,8 +530,7 @@ public class WorkDatabaseMigrationTest {
         contentValues.put("requires_device_idle", false);
         contentValues.put("requires_battery_not_low", false);
         contentValues.put("requires_storage_not_low", false);
-        contentValues.put("content_uri_triggers",
-                WorkTypeConverters.contentUriTriggersToByteArray(new ContentUriTriggers()));
+        contentValues.put("content_uri_triggers", new byte[0]);
         contentValues.put("run_attempt_count", 0);
         contentValues.put("backoff_policy",
                 WorkTypeConverters.backoffPolicyToInt(BackoffPolicy.EXPONENTIAL));
@@ -626,7 +628,7 @@ public class WorkDatabaseMigrationTest {
         return networkType;
     }
 
-    private static ContentUriTriggers queryContentUris(
+    private static Set<ContentUriTrigger> queryContentUris(
             SupportSQLiteDatabase db, String workSpecId) {
         Cursor migratedNull = db.query(
                 "SELECT content_uri_triggers FROM workspec where id = ?",
@@ -634,6 +636,6 @@ public class WorkDatabaseMigrationTest {
         migratedNull.moveToFirst();
         byte[] blob = migratedNull.getBlob(migratedNull.getColumnIndex(CONTENT_URI_TRIGGERS));
         migratedNull.close();
-        return WorkTypeConverters.byteArrayToContentUriTriggers(blob);
+        return WorkTypeConverters.byteArrayToSetOfTriggers(blob);
     }
 }
