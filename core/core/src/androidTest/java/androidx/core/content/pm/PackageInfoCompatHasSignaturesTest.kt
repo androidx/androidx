@@ -333,6 +333,7 @@ class PackageInfoCompatHasSignaturesTest {
         }
     }
 
+    @Suppress("DEPRECATION")
     private fun mockPackageManager() = mockThrowOnUnmocked<PackageManager> {
         val mockCerts = params.mockCerts
         whenever(getPackageInfo(TEST_PKG_NAME, params.mockCerts.flag)) {

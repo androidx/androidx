@@ -794,6 +794,7 @@ public final class NotificationManagerCompat {
          * Check the current list of enabled listener packages and update the records map
          * accordingly.
          */
+        @SuppressWarnings("deprecation")
         private void updateListenerMap() {
             Set<String> enabledPackages = getEnabledListenerPackages(mContext);
             if (enabledPackages.equals(mCachedEnabledPackages)) {

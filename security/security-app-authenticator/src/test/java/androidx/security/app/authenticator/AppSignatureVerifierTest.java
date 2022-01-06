@@ -173,6 +173,7 @@ public class AppSignatureVerifierTest {
     }
 
     @Test
+    @SuppressWarnings("deprecation")
     public void verifySigningIdentity_unknownPackageName() throws Exception {
         // When a package name is specified that is not on the device the #getPackageInfo call
         // should result in a NameNotFoundException; when this is caught the verifier should
@@ -553,6 +554,7 @@ public class AppSignatureVerifierTest {
             return this;
         }
 
+        @SuppressWarnings("deprecation")
         private AppSignatureVerifier build() throws Exception {
             if (mCurrentSigners.isEmpty()) {
                 throw new IllegalArgumentException("At least one current signer must be specified");

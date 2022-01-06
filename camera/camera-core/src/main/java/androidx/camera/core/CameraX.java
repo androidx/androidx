@@ -152,6 +152,7 @@ public final class CameraX {
     }
 
     @Nullable
+    @SuppressWarnings("deprecation")
     private static CameraXConfig.Provider getConfigProvider(@NonNull Context context) {
         CameraXConfig.Provider configProvider = null;
         Application application = ContextUtil.getApplicationFromContext(context);

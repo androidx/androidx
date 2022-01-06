@@ -900,6 +900,7 @@ public class SearchView extends LinearLayoutCompat implements CollapsibleActionV
         updateSubmitArea();
     }
 
+    @SuppressWarnings("deprecation")
     private boolean hasVoiceSearch() {
         if (mSearchable != null && mSearchable.getVoiceSearchEnabled()) {
             Intent testIntent = null;

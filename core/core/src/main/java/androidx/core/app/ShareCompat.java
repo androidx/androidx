@@ -1064,6 +1064,7 @@ public final class ShareCompat {
          *
          * @return The calling application's label or null if unknown
          */
+        @SuppressWarnings("deprecation")
         @Nullable
         public CharSequence getCallingApplicationLabel() {
             if (mCallingPackage == null) return null;

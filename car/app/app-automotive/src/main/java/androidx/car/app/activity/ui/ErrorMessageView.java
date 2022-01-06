@@ -135,6 +135,7 @@ public final class ErrorMessageView extends LinearLayout {
         throw new IllegalArgumentException("Unknown action type: " + mErrorType.getActionType());
     }
 
+    @SuppressWarnings("deprecation")
     private boolean isVendingPackageInstalled() {
         try {
             requireActivity().getPackageManager().getPackageInfo(VENDING_PACKAGE, 0);
@@ -145,6 +146,7 @@ public final class ErrorMessageView extends LinearLayout {
         return true;
     }
 
+    @SuppressWarnings("deprecation")
     private Intent getVendingIntent() {
         Intent rendererIntent = new Intent(ACTION_RENDER);
         List<ResolveInfo> resolveInfoList =

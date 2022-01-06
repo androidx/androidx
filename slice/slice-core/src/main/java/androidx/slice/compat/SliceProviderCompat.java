@@ -377,6 +377,7 @@ public class SliceProviderCompat {
      * Compat version of {@link Slice#bindSlice}.
      */
     @Nullable
+    @SuppressWarnings("deprecation")
     public static Slice bindSlice(@NonNull Context context, @NonNull Intent intent,
             @NonNull Set<SliceSpec> supportedSpecs) {
         Preconditions.checkNotNull(intent, "intent");
@@ -540,6 +541,7 @@ public class SliceProviderCompat {
      * Compat version of {@link android.app.slice.SliceManager#mapIntentToUri}.
      */
     @Nullable
+    @SuppressWarnings("deprecation")
     public static Uri mapIntentToUri(@NonNull Context context, @NonNull Intent intent) {
         Preconditions.checkNotNull(intent, "intent");
         Preconditions.checkArgument(intent.getComponent() != null || intent.getPackage() != null

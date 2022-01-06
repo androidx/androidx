@@ -220,6 +220,7 @@ final class DefaultKeyedAppStatesReporter extends KeyedAppStatesReporter {
         return false;
     }
 
+    @SuppressWarnings("deprecation")
     private Collection<ServiceInfo> getServiceInfoInPackages(
             Intent intent, Collection<String> acceptablePackageNames) {
         PackageManager packageManager = mContext.getPackageManager();

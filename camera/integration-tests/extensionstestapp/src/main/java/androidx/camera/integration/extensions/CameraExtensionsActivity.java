@@ -466,6 +466,7 @@ public class CameraExtensionsActivity extends AppCompatActivity
     }
 
     /** Tries to acquire all the necessary permissions through a dialog. */
+    @SuppressWarnings("deprecation")
     private String[] getRequiredPermissions() {
         PackageInfo info;
         try {

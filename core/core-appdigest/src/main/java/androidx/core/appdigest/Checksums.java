@@ -106,6 +106,7 @@ public final class Checksums {
      * @throws PackageManager.NameNotFoundException if a package with the given name cannot be
      *                                              found on the system.
      */
+    @SuppressWarnings("deprecation")
     public static @NonNull ListenableFuture<Checksum[]> getChecksums(@NonNull Context context,
             @NonNull String packageName, boolean includeSplits, final @Checksum.Type int required,
             @NonNull List<Certificate> trustedInstallers, @NonNull Executor executor)

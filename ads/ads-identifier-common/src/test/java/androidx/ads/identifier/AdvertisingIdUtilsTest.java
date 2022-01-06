@@ -128,6 +128,7 @@ public class AdvertisingIdUtilsTest {
         assertThat(serviceInfo).isNull();
     }
 
+    @SuppressWarnings("deprecation")
     private ServiceInfo createServiceInfo(String packageName, boolean requestHighPriority,
             long firstInstallTime) throws Exception {
         PackageInfo packageInfo = new PackageInfo();

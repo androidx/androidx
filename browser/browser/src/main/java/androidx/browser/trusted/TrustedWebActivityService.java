@@ -339,6 +339,7 @@ public abstract class TrustedWebActivityService extends Service {
      * @return A resource id for the small icon, or {@link #SMALL_ICON_NOT_SET} if not found.
      */
     @BinderThread
+    @SuppressWarnings("deprecation")
     public int onGetSmallIconId() {
         try {
             ServiceInfo info = getPackageManager().getServiceInfo(
