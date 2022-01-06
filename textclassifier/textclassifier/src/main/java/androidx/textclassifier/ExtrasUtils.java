@@ -28,7 +28,10 @@ import java.util.Locale;
 
 /**
  * Utilities for inserting/retrieving data into/from textclassifier related results and intents.
+ *
+ * @deprecated Please consider copying this function to your app instead.
  */
+@Deprecated
 public final class ExtrasUtils {
 
     private static final String TAG = "ExtrasUtils";

@@ -39,7 +39,10 @@ import java.lang.annotation.Retention;
  *
  * @see TextClassifier#suggestConversationActions(ConversationActions.Request)
  * @see ConversationActions
+ *
+ * @deprecated Use {@link ConversationAction} instead.
  */
+@Deprecated
 public final class ConversationAction {
 
     private static final String EXTRA_TYPE = "type";
@@ -263,7 +266,10 @@ public final class ConversationAction {
                 .build();
     }
 
-    /** Builder class to construct {@link ConversationAction}. */
+    /** Builder class to construct {@link ConversationAction}.
+     * @deprecated Use {@link android.view.textclassifier.ConversationAction.Builder} instead.
+     */
+    @Deprecated
     public static final class Builder {
         @Nullable
         @ActionType

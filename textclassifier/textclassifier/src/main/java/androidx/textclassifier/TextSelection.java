@@ -36,7 +36,9 @@ import java.util.Map;
 
 /**
  * Information about where text selection should be.
+ * @deprecated Use {@link android.view.textclassifier.TextSelection} instead.
  */
+@Deprecated
 public final class TextSelection {
 
     private static final String EXTRA_START_INDEX = "start";
@@ -221,7 +223,10 @@ public final class TextSelection {
 
     /**
      * Builder used to build {@link TextSelection} objects.
+     *
+     * @deprecated Use {@link android.view.textclassifier.TextSelection.Builder} instead.
      */
+    @Deprecated
     public static final class Builder {
 
         private final int mStartIndex;

@@ -43,7 +43,10 @@ import java.util.stream.Collectors;
  * This is an object to store the result of {@link TextClassifier#suggestConversationActions(Request)}.
  *
  * @see TextClassifier#suggestConversationActions(Request)
+ *
+ * @deprecated Use {@link android.view.textclassifier.ConversationActions} instead.
  */
+@Deprecated
 public final class ConversationActions {
     private static final String EXTRA_CONVERSATION_ACTIONS = "conversation_actions";
     private static final String EXTRA_ID = "id";
@@ -263,7 +266,11 @@ public final class ConversationActions {
                     .build();
         }
 
-        /** Builder class to construct a {@link Message} */
+        /**
+         * Builder class to construct a {@link Message}
+         * @deprecated Use {@link android.view.textclassifier.ConversationAction.Builder} instead.
+         */
+        @Deprecated
         public static final class Builder {
             @Nullable
             Person mAuthor;
@@ -328,7 +335,10 @@ public final class ConversationActions {
      * A request object for generating conversation action suggestions.
      *
      * @see TextClassifier#suggestConversationActions(Request)
+     *
+     * @deprecated Use {@link android.view.textclassifier.ConversationActions.Request} instead.
      */
+    @Deprecated
     public static final class Request {
         private static final String EXTRA_MESSAGES = "messages";
         private static final String EXTRA_ENTITY_CONFIG = "entity_config";
@@ -489,7 +499,13 @@ public final class ConversationActions {
                     .build();
         }
 
-        /** Builder object to construct the {@link Request} object. */
+        /**
+         * Builder object to construct the {@link Request} object.
+         *
+         * @deprecated Use {@link android.view.textclassifier.ConversationActions.Request.Builder}
+         * instead.
+         */
+        @Deprecated
         public static final class Builder {
             @NonNull
             private List<Message> mConversation;

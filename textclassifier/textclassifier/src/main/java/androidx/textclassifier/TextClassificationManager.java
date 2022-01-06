@@ -32,7 +32,10 @@ import java.util.WeakHashMap;
 
 /**
  * Class to handle the creation of {@link TextClassifier}.
+ *
+ * @deprecated Use {@link android.view.textclassifier.TextClassificationManager} instead.
  */
+@Deprecated
 public final class TextClassificationManager {
     private static final Object sLock = new Object();
     // The value has to be wrapped by a WeakReference as it is holding a reference to the key.

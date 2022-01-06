@@ -69,7 +69,10 @@ import java.util.Map;
  *       }
  *   }
  * }</pre>
+ *
+ * @deprecated Use {@link android.view.textclassifier.TextClassification} instead.
  */
+@Deprecated
 public final class TextClassification {
 
     private static final String LOG_TAG = "TextClassification";
@@ -418,7 +421,10 @@ public final class TextClassification {
 
     /**
      * A request object for generating TextClassification.
+     *
+     * @deprecated Use {@link android.view.textclassifier.TextClassification.Request} instead.
      */
+    @Deprecated
     public static final class Request {
         private static final String EXTRA_TEXT = "text";
         private static final String EXTRA_START_INDEX = "start";
@@ -528,7 +534,10 @@ public final class TextClassification {
 
         /**
          * A builder for building TextClassification requests.
+         *
+         * @deprecated Use {@link android.view.textclassifier.TextClassification.Builder} instead.
          */
+        @Deprecated
         public static final class Builder {
 
             private final CharSequence mText;
