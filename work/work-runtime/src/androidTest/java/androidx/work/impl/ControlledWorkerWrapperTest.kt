@@ -169,6 +169,10 @@ object NoOpForegroundProcessor : ForegroundProcessor {
 
     override fun stopForeground(workSpecId: String) {
     }
+
+    override fun isEnqueuedInForeground(workSpecId: String): Boolean {
+        return false
+    }
 }
 
 class ManualExecutor : Executor {

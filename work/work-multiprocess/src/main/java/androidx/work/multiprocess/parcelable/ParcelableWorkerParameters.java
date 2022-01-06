@@ -24,10 +24,12 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.work.Configuration;
 import androidx.work.Data;
+import androidx.work.ForegroundUpdater;
+import androidx.work.ProgressUpdater;
 import androidx.work.WorkerParameters;
+import androidx.work.impl.Processor;
 import androidx.work.impl.WorkDatabase;
 import androidx.work.impl.WorkManagerImpl;
-import androidx.work.impl.foreground.ForegroundProcessor;
 import androidx.work.impl.utils.WorkForegroundUpdater;
 import androidx.work.impl.utils.WorkProgressUpdater;
 import androidx.work.impl.utils.taskexecutor.TaskExecutor;
@@ -145,7 +147,31 @@ public class ParcelableWorkerParameters implements Parcelable {
         Configuration configuration = workManager.getConfiguration();
         WorkDatabase workDatabase = workManager.getWorkDatabase();
         TaskExecutor taskExecutor = workManager.getWorkTaskExecutor();
-        ForegroundProcessor foregroundProcessor = workManager.getProcessor();
+        Processor processor = workManager.getProcessor();
+        WorkProgressUpdater progressUpdater = new WorkProgressUpdater(workDatabase, taskExecutor);
+        WorkForegroundUpdater foregroundUpdater = new WorkForegroundUpdater(
+                workDatabase,
+                processor,
+                taskExecutor
+        );
+        return toWorkerParameters(
+                configuration,
+                taskExecutor,
+                progressUpdater,
+                foregroundUpdater
+        );
+    }
+
+    /**
+     * Converts {@link ParcelableWorkerParameters} to an instance of {@link WorkerParameters}
+     * lazily.
+     */
+    @NonNull
+    public WorkerParameters toWorkerParameters(
+            @NonNull Configuration configuration,
+            @NonNull TaskExecutor taskExecutor,
+            @NonNull ProgressUpdater progressUpdater,
+            @NonNull ForegroundUpdater foregroundUpdater) {
         return new WorkerParameters(
                 mId,
                 mData,
@@ -155,8 +181,8 @@ public class ParcelableWorkerParameters implements Parcelable {
                 configuration.getExecutor(),
                 taskExecutor,
                 configuration.getWorkerFactory(),
-                new WorkProgressUpdater(workDatabase, taskExecutor),
-                new WorkForegroundUpdater(workDatabase, foregroundProcessor, taskExecutor)
+                progressUpdater,
+                foregroundUpdater
         );
     }
 }

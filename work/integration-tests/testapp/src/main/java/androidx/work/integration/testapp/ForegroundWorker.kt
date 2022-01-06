@@ -16,6 +16,7 @@
 
 package androidx.work.integration.testapp
 
+import android.annotation.SuppressLint
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -83,6 +84,7 @@ class ForegroundWorker(context: Context, parameters: WorkerParameters) :
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
+    @SuppressLint("ClassVerificationFailure")
     private fun createChannel() {
         val id = applicationContext.getString(R.string.channel_id)
         val name = applicationContext.getString(R.string.channel_name)

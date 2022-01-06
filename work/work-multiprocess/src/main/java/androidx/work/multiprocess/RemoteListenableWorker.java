@@ -38,8 +38,6 @@ import androidx.work.multiprocess.parcelable.ParcelableWorkerParameters;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
-import java.util.concurrent.Executor;
-
 
 /**
  * Is an implementation of a {@link ListenableWorker} that can bind to a remote process.
@@ -76,12 +74,6 @@ public abstract class RemoteListenableWorker extends ListenableWorker {
     final WorkerParameters mWorkerParameters;
 
     // Synthetic access
-    final WorkManagerImpl mWorkManager;
-
-    // Synthetic access
-    final Executor mExecutor;
-
-    // Synthetic access
     final ListenableWorkerImplClient mClient;
 
     // Synthetic access
@@ -100,9 +92,7 @@ public abstract class RemoteListenableWorker extends ListenableWorker {
             @NonNull WorkerParameters workerParams) {
         super(appContext, workerParams);
         mWorkerParameters = workerParams;
-        mWorkManager = WorkManagerImpl.getInstance(appContext);
-        mExecutor = mWorkManager.getWorkTaskExecutor().getSerialTaskExecutor();
-        mClient = new ListenableWorkerImplClient(getApplicationContext(), mExecutor);
+        mClient = new ListenableWorkerImplClient(appContext, getBackgroundExecutor());
     }
 
     @Override
@@ -130,6 +120,9 @@ public abstract class RemoteListenableWorker extends ListenableWorker {
 
         mComponentName = new ComponentName(packageName, serviceClassName);
 
+        // This bit is safe, because we only run startWork() in the designated process.
+        final WorkManagerImpl workManager = WorkManagerImpl.getInstance(getApplicationContext());
+
         ListenableFuture<byte[]> result = mClient.execute(
                 mComponentName,
                 new RemoteDispatcher<IListenableWorkerImpl>() {
@@ -138,7 +131,7 @@ public abstract class RemoteListenableWorker extends ListenableWorker {
                             @NonNull IListenableWorkerImpl listenableWorkerImpl,
                             @NonNull IWorkManagerImplCallback callback) throws RemoteException {
 
-                        WorkSpec workSpec = mWorkManager.getWorkDatabase()
+                        WorkSpec workSpec = workManager.getWorkDatabase()
                                 .workSpecDao()
                                 .getWorkSpec(id);
 
@@ -161,7 +154,7 @@ public abstract class RemoteListenableWorker extends ListenableWorker {
                 mClient.unbindService();
                 return parcelableResult.getResult();
             }
-        }, mExecutor);
+        }, getBackgroundExecutor());
     }
 
     /**
@@ -207,17 +200,5 @@ public abstract class RemoteListenableWorker extends ListenableWorker {
                         }
                     });
         }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @NonNull
-    @Override
-    public ListenableFuture<Void> setProgressAsync(@NonNull Data data) {
-        // Delegate progress updates to the designated process.
-        RemoteWorkManager remoteWorkManager =
-                RemoteWorkManager.getInstance(getApplicationContext());
-        return remoteWorkManager.setProgress(getId(), data);
     }
 }
