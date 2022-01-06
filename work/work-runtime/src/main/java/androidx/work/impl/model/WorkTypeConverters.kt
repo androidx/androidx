@@ -232,9 +232,9 @@ object WorkTypeConverters {
      */
     @JvmStatic
     @TypeConverter
-    fun contentUriTriggersToByteArray(triggers: ContentUriTriggers): ByteArray? {
+    fun contentUriTriggersToByteArray(triggers: ContentUriTriggers): ByteArray {
         if (triggers.size() == 0) {
-            return null
+            return ByteArray(0)
         }
         val outputStream = ByteArrayOutputStream()
         outputStream.use {
@@ -257,9 +257,9 @@ object WorkTypeConverters {
      */
     @JvmStatic
     @TypeConverter
-    fun byteArrayToContentUriTriggers(bytes: ByteArray?): ContentUriTriggers {
+    fun byteArrayToContentUriTriggers(bytes: ByteArray): ContentUriTriggers {
         val triggers = ContentUriTriggers()
-        if (bytes == null) {
+        if (bytes.isEmpty()) {
             // bytes will be null if there are no Content Uri Triggers
             return triggers
         }
