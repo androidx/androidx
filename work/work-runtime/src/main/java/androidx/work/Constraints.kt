@@ -59,7 +59,7 @@ constructor(
     val triggerMaxContentDelay: Long = -1,
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @ColumnInfo(name = "content_uri_triggers")
-    val contentUriTriggers: ContentUriTriggers = ContentUriTriggers(),
+    val contentUriTriggers: Set<ContentUriTrigger> = setOf(),
 ) {
     constructor(other: Constraints) : this(
         requiresCharging = other.requiresCharging,
@@ -101,12 +101,12 @@ constructor(
     }
 
     /**
-     * @return `true` if [ContentUriTriggers] is not empty
+     * @return `true` if [ContentUriTrigger] is not empty
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     fun hasContentUriTriggers(): Boolean {
-        return contentUriTriggers.size() > 0
+        return contentUriTriggers.isNotEmpty()
     }
 
     override fun equals(other: Any?): Boolean {
@@ -148,7 +148,7 @@ constructor(
         // Same defaults as JobInfo
         private var triggerContentUpdateDelay: Long = -1
         private var triggerContentMaxDelay: Long = -1
-        private var contentUriTriggers = ContentUriTriggers()
+        private var contentUriTriggers = mutableSetOf<ContentUriTrigger>()
 
         constructor() {
             // default public constructor
@@ -167,7 +167,7 @@ constructor(
             if (Build.VERSION.SDK_INT >= 24) {
                 triggerContentUpdateDelay = constraints.triggerContentUpdateDelay
                 triggerContentMaxDelay = constraints.triggerMaxContentDelay
-                contentUriTriggers = constraints.contentUriTriggers
+                contentUriTriggers = constraints.contentUriTriggers.toMutableSet()
             }
         }
 
@@ -247,7 +247,7 @@ constructor(
          */
         @RequiresApi(24)
         fun addContentUriTrigger(uri: Uri, triggerForDescendants: Boolean): Builder {
-            contentUriTriggers.add(uri, triggerForDescendants)
+            contentUriTriggers.add(ContentUriTrigger(uri, triggerForDescendants))
             return this
         }
 
@@ -321,15 +321,15 @@ constructor(
          * @return The [Constraints] specified by this Builder
          */
         fun build(): Constraints {
-            val contentUriTriggers: ContentUriTriggers
+            val contentUriTriggers: Set<ContentUriTrigger>
             val triggerContentUpdateDelay: Long
             val triggerMaxContentDelay: Long
             if (Build.VERSION.SDK_INT >= 24) {
-                contentUriTriggers = this.contentUriTriggers
+                contentUriTriggers = this.contentUriTriggers.toSet()
                 triggerContentUpdateDelay = this.triggerContentUpdateDelay
                 triggerMaxContentDelay = triggerContentMaxDelay
             } else {
-                contentUriTriggers = ContentUriTriggers()
+                contentUriTriggers = emptySet()
                 triggerContentUpdateDelay = -1
                 triggerMaxContentDelay = -1
             }
@@ -344,6 +344,36 @@ constructor(
                 triggerContentUpdateDelay = triggerContentUpdateDelay,
                 contentUriTriggers = contentUriTriggers,
             )
+        }
+    }
+
+    /**
+     * This class describes a content uri trigger on the [WorkRequest]: it should run when a local
+     * `content:` [Uri] is updated.  This functionality is identical to the one found
+     * in `JobScheduler` and is described in
+     * `JobInfo.Builder#addTriggerContentUri(android.app.job.JobInfo.TriggerContentUri)`.
+     *
+     * @property uri The local `content:` Uri to observe
+     * @property triggerForDescendants `true` if trigger also applies to descendants of the [Uri]
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    class ContentUriTrigger(val uri: Uri, val triggerForDescendants: Boolean) {
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (javaClass != other?.javaClass) return false
+
+            other as ContentUriTrigger
+
+            if (uri != other.uri) return false
+            if (triggerForDescendants != other.triggerForDescendants) return false
+
+            return true
+        }
+
+        override fun hashCode(): Int {
+            var result = uri.hashCode()
+            result = 31 * result + triggerForDescendants.hashCode()
+            return result
         }
     }
 
