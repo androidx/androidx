@@ -99,7 +99,7 @@ actual open class SparseArray<E>
         return clone
     }
 
-    override fun toString(): String = commonToString()
+    actual override fun toString(): String = commonToString()
 
     @Deprecated("Use remove(key)", level = HIDDEN) // For Java binary compatibility.
     fun delete(key: Int): Unit = remove(key)
