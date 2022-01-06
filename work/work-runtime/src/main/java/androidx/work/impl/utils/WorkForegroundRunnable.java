@@ -107,8 +107,6 @@ public class WorkForegroundRunnable implements Runnable {
                     }
                     Logger.get().debug(TAG,
                             "Updating notification for " + mWorkSpec.workerClassName);
-                    // Mark as running in the foreground
-                    mWorker.setRunInForeground(true);
                     mFuture.setFuture(
                             mForegroundUpdater.setForegroundAsync(
                                     mContext, mWorker.getId(), foregroundInfo));

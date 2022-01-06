@@ -306,7 +306,7 @@ public class ConstraintTrackingWorkerTest extends DatabaseTest {
 
         mWorkerWrapper.interrupt();
         executorService.shutdown();
-        assertThat(mWorker.isRunInForeground(), is(true));
+        verify(mForegroundProcessor).isEnqueuedInForeground(mWork.getStringId());
         assertThat(mWorker.isStopped(), is(true));
         assertThat(mWorker.getDelegate(), is(notNullValue()));
         assertThat(mWorker.getDelegate().isStopped(), is(true));
