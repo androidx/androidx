@@ -205,19 +205,6 @@ cd "$client"
 g4 revert ...
 g4 sync
 
-# Temporarily skipping due to o/128063951. b/186655027 tracks adding this back.
-# TODO: check this logic when uncommenting
-#
-# Provision database if the target DB is not the default staging DB.
-# if [ "${FLAGS_db}" != "$defaultDb" ]; then
-#   printf "\n"
-#   printf "=================================================================== \n"
-#   printf "== Provision staging database ${FLAGS_db} \n"
-#   printf "=================================================================== \n"
-#
-#   /google/data/ro/projects/devsite/devsite2 provision --db="${FLAGS_db}"
-# fi
-
 printf "\n"
 printf "=================================================================== \n"
 printf "== Prep directories and copy refdocs to CitC client \n"
