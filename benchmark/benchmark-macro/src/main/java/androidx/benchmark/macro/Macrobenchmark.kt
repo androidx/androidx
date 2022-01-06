@@ -258,8 +258,7 @@ private fun macrobenchmark(
             }
         }
 
-        val warmupIterations = @Suppress("DEPRECATION") when (compilationMode) {
-            is CompilationMode.SpeedProfile -> compilationMode.warmupIterations
+        val warmupIterations = when (compilationMode) {
             is CompilationMode.Partial -> compilationMode.warmupIterations
             else -> 0
         }
