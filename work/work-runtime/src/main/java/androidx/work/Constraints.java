@@ -22,7 +22,6 @@ import android.net.Uri;
 import android.os.Build;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.room.ColumnInfo;
@@ -45,9 +44,8 @@ public final class Constraints {
      */
     public static final Constraints NONE = new Constraints.Builder().build();
 
-    // NOTE: this is effectively a @NonNull, but changing the annotation would result in a really
-    // annoying database migration that we can deal with later.
     @ColumnInfo(name = "required_network_type")
+    @NonNull
     private NetworkType mRequiredNetworkType = NOT_REQUIRED;
 
     @ColumnInfo(name = "requires_charging")
@@ -68,8 +66,7 @@ public final class Constraints {
     @ColumnInfo(name = "trigger_max_content_delay")
     private long  mTriggerMaxContentDelay = -1;
 
-    // NOTE: this is effectively a @NonNull, but changing the annotation would result in a really
-    // annoying database migration that we can deal with later.
+    @NonNull
     @ColumnInfo(name = "content_uri_triggers")
     private ContentUriTriggers mContentUriTriggers = new ContentUriTriggers();
 
@@ -223,7 +220,7 @@ public final class Constraints {
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @RequiresApi(24)
-    public void setContentUriTriggers(@Nullable ContentUriTriggers mContentUriTriggers) {
+    public void setContentUriTriggers(@NonNull ContentUriTriggers mContentUriTriggers) {
         this.mContentUriTriggers = mContentUriTriggers;
     }
 

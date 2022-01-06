@@ -23,6 +23,7 @@ import androidx.work.impl.WorkDatabaseVersions.VERSION_1
 import androidx.work.impl.WorkDatabaseVersions.VERSION_10
 import androidx.work.impl.WorkDatabaseVersions.VERSION_11
 import androidx.work.impl.WorkDatabaseVersions.VERSION_12
+import androidx.work.impl.WorkDatabaseVersions.VERSION_13
 import androidx.work.impl.WorkDatabaseVersions.VERSION_2
 import androidx.work.impl.WorkDatabaseVersions.VERSION_3
 import androidx.work.impl.WorkDatabaseVersions.VERSION_4
@@ -53,6 +54,8 @@ internal object WorkDatabaseVersions {
     const val VERSION_10 = 10
     const val VERSION_11 = 11
     const val VERSION_12 = 12
+    const val VERSION_13 = 13
+    const val VERSION_14 = 14
 }
 
 private const val CREATE_SYSTEM_ID_INFO =
@@ -92,6 +95,12 @@ private const val CREATE_RUN_IN_FOREGROUND =
     "ALTER TABLE workspec ADD COLUMN `run_in_foreground` INTEGER NOT NULL DEFAULT 0"
 private const val CREATE_OUT_OF_QUOTA_POLICY =
     "ALTER TABLE workspec ADD COLUMN `out_of_quota_policy` INTEGER NOT NULL DEFAULT 0"
+
+private const val SET_DEFAULT_NETWORK_TYPE =
+    "UPDATE workspec SET required_network_type = 0 WHERE required_network_type IS NULL "
+
+private const val SET_DEFAULT_CONTENT_URI_TRIGGERS =
+    "UPDATE workspec SET content_uri_triggers = x'' WHERE content_uri_triggers is NULL"
 
 /**
  * Removes the `alarmInfo` table and substitutes it for a more general
@@ -167,6 +176,13 @@ object Migration_8_9 : Migration(VERSION_8, VERSION_9) {
 object Migration_11_12 : Migration(VERSION_11, VERSION_12) {
     override fun migrate(database: SupportSQLiteDatabase) {
         database.execSQL(CREATE_OUT_OF_QUOTA_POLICY)
+    }
+}
+
+object Migration_12_13 : Migration(VERSION_12, VERSION_13) {
+    override fun migrate(database: SupportSQLiteDatabase) {
+        database.execSQL(SET_DEFAULT_NETWORK_TYPE)
+        database.execSQL(SET_DEFAULT_CONTENT_URI_TRIGGERS)
     }
 }
 
