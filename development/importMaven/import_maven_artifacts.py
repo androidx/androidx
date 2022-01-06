@@ -28,11 +28,6 @@ METALAVA_BUILD_ID_HELP = '''
   to use for metalava prebuilt fetching.
 '''
 
-ALLOW_BINTRAY_HELP = '''
-  Whether or not to allow artifacts to be fetched from bintray in addition to jcenter, mavenCentral, etc
-  E.g. https://dl.bintray.com/kotlin/kotlin-dev/ and https://dl.bintray.com/kotlin/kotlinx/
-'''
-
 ALLOW_JETBRAINS_DEV_HELP = '''
   Whether or not to allow artifacts to be fetched from Jetbrains' dev repository
   E.g. https://maven.pkg.jetbrains.space/kotlin/p/kotlin/dev
@@ -51,8 +46,6 @@ def main():
                         required=True, dest='name')
     parser.add_argument('-mb', '--metalava-build-id', help=METALAVA_BUILD_ID_HELP,
                         required=False, dest='metalava_build_id')
-    parser.add_argument('-ab', '--allow-bintray', help=ALLOW_BINTRAY_HELP,
-                        required=False, action='store_true')
     parser.add_argument('-ajd', '--allow-jetbrains-dev', help=ALLOW_JETBRAINS_DEV_HELP,
                         required=False, action='store_true')
     parse_result = parser.parse_args()
@@ -65,8 +58,6 @@ def main():
     metalava_build_id = parse_result.metalava_build_id
     if (metalava_build_id):
       command = command + ' -PmetalavaBuildId=%s' % (metalava_build_id)
-    if (parse_result.allow_bintray):
-      command = command + ' -PallowBintray'
     if (parse_result.allow_jetbrains_dev):
       command = command + ' -PallowJetbrainsDev'
 

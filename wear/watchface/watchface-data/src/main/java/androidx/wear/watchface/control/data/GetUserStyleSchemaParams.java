@@ -68,6 +68,7 @@ public class GetUserStyleSchemaParams implements VersionedParcelable, Parcelable
 
     public static final Parcelable.Creator<GetUserStyleSchemaParams> CREATOR =
             new Parcelable.Creator<GetUserStyleSchemaParams>() {
+                @SuppressWarnings("deprecation")
                 @Override
                 public GetUserStyleSchemaParams createFromParcel(Parcel source) {
                     return ParcelUtils.fromParcelable(

@@ -44,8 +44,8 @@ import androidx.glance.appwidget.GlanceAppWidgetReceiver
 import androidx.glance.appwidget.SizeMode
 import androidx.glance.appwidget.action.ActionCallback
 import androidx.glance.appwidget.action.ToggleableStateKey
-import androidx.glance.appwidget.action.actionLaunchActivity
 import androidx.glance.appwidget.action.actionRunCallback
+import androidx.glance.appwidget.action.actionStartActivity
 import androidx.glance.appwidget.demos.ScrollableAppWidget.Companion.checkboxKey
 import androidx.glance.appwidget.lazy.LazyColumn
 import androidx.glance.appwidget.lazy.itemsIndexed
@@ -139,7 +139,7 @@ private fun ScrollColumn(modifier: GlanceModifier) {
             ) {
                 Button(
                     text = "Activity ${index + 1}",
-                    onClick = actionLaunchActivity(
+                    onClick = actionStartActivity(
                         Intent(
                             LocalContext.current,
                             activityClass

@@ -29,26 +29,23 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.assertIsDisplayed
-import androidx.compose.ui.test.assertTopPositionInRootIsEqualTo
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
-import org.junit.runner.RunWith
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import org.junit.Before
+import org.junit.Rule
+import org.junit.Test
+import org.junit.runner.RunWith
 import kotlin.math.roundToInt
-import kotlin.properties.Delegates
 
 @MediumTest
 @RunWith(AndroidJUnit4::class)
@@ -166,13 +163,13 @@ public class ScalingLazyListLayoutInfoTest {
     @Test
     fun itemStraddlingCenterLineDoesNotGetScaled() {
         lateinit var state: ScalingLazyListState
-        var viewPortHeight by Delegates.notNull<Int>()
+        val centerItemIndex = 2
         rule.setContent {
             ScalingLazyColumn(
-                state = rememberScalingLazyListState().also { state = it },
+                state = rememberScalingLazyListState(centerItemIndex).also { state = it },
                 modifier = Modifier.requiredSize(
                     itemSizeDp * 3
-                ).onSizeChanged { viewPortHeight = it.height },
+                ),
             ) {
                 items(5) {
                     Box(Modifier.requiredSize(itemSizeDp))
@@ -182,14 +179,12 @@ public class ScalingLazyListLayoutInfoTest {
 
         rule.runOnIdle {
             // Get the middle item on the screen
-            val secondItem = state.layoutInfo.visibleItemsInfo[1]
-            // Confirm it's the second item in the list
-            assertThat(secondItem.index).isEqualTo(1)
-            // And that it is located either side of the center line
-            assertThat(secondItem.offset).isLessThan(viewPortHeight / 2)
-            assertThat(secondItem.offset + secondItem.size).isGreaterThan(viewPortHeight / 2)
+            val centerScreenItem =
+                state.layoutInfo.visibleItemsInfo.find { it.index == centerItemIndex }
+            // and confirm its offset is 0
+            assertThat(centerScreenItem!!.offset).isEqualTo(0)
             // And that it is not scaled
-            assertThat(secondItem.scale).isEqualTo(1.0f)
+            assertThat(centerScreenItem.scale).isEqualTo(1.0f)
         }
     }
 
@@ -219,13 +214,13 @@ public class ScalingLazyListLayoutInfoTest {
     }
 
     @Test
-    fun visibleItemsAreCorrectNoScaling() {
+    fun visibleItemsAreCorrectCenterPivotNoOffset() {
         lateinit var state: ScalingLazyListState
         rule.setContent {
             ScalingLazyColumn(
-                state = rememberScalingLazyListState().also { state = it },
+                state = rememberScalingLazyListState(2).also { state = it },
                 modifier = Modifier.requiredSize(
-                    itemSizeDp * 3.5f + defaultItemSpacingDp * 2.5f
+                    itemSizeDp * 2f + defaultItemSpacingDp * 1f
                 ),
                 scalingParams = ScalingLazyColumnDefaults.scalingParams(1.0f, 1.0f)
             ) {
@@ -236,8 +231,83 @@ public class ScalingLazyListLayoutInfoTest {
         }
 
         rule.runOnIdle {
-            state.layoutInfo.assertVisibleItems(count = 4)
-            assertThat(state.layoutInfo.visibleItemsInfo.first().offset).isEqualTo(0)
+            state.layoutInfo.assertVisibleItems(count = 3, startIndex = 1)
+            assertThat(state.centerItemIndex).isEqualTo(2)
+            assertThat(state.centerItemScrollOffset).isEqualTo(0)
+        }
+    }
+
+    @Test
+    fun visibleItemsAreCorrectCenterPivotWithOffset() {
+        lateinit var state: ScalingLazyListState
+        rule.setContent {
+            ScalingLazyColumn(
+                state = rememberScalingLazyListState(2, -5).also { state = it },
+                modifier = Modifier.requiredSize(
+                    itemSizeDp * 2f + defaultItemSpacingDp * 1f
+                ),
+                scalingParams = ScalingLazyColumnDefaults.scalingParams(1.0f, 1.0f)
+            ) {
+                items(5) {
+                    Box(Modifier.requiredSize(itemSizeDp))
+                }
+            }
+        }
+
+        rule.runOnIdle {
+            state.layoutInfo.assertVisibleItems(count = 3, startIndex = 1)
+            assertThat(state.centerItemIndex).isEqualTo(2)
+            assertThat(state.centerItemScrollOffset).isEqualTo(-5)
+        }
+    }
+
+    @Test
+    fun visibleItemsAreCorrectCenterPivotNoOffsetReverseLayout() {
+        lateinit var state: ScalingLazyListState
+        rule.setContent {
+            ScalingLazyColumn(
+                state = rememberScalingLazyListState(2).also { state = it },
+                modifier = Modifier.requiredSize(
+                    itemSizeDp * 2f + defaultItemSpacingDp * 1f
+                ),
+                scalingParams = ScalingLazyColumnDefaults.scalingParams(1.0f, 1.0f),
+                reverseLayout = true
+            ) {
+                items(5) {
+                    Box(Modifier.requiredSize(itemSizeDp))
+                }
+            }
+        }
+
+        rule.runOnIdle {
+            state.layoutInfo.assertVisibleItems(count = 3, startIndex = 1)
+            assertThat(state.centerItemIndex).isEqualTo(2)
+            assertThat(state.centerItemScrollOffset).isEqualTo(0)
+        }
+    }
+
+    @Test
+    fun visibleItemsAreCorrectCenterPivotWithOffsetReverseLayout() {
+        lateinit var state: ScalingLazyListState
+        rule.setContent {
+            ScalingLazyColumn(
+                state = rememberScalingLazyListState(2, -5).also { state = it },
+                modifier = Modifier.requiredSize(
+                    itemSizeDp * 2f + defaultItemSpacingDp * 1f
+                ),
+                scalingParams = ScalingLazyColumnDefaults.scalingParams(1.0f, 1.0f),
+                reverseLayout = true
+            ) {
+                items(5) {
+                    Box(Modifier.requiredSize(itemSizeDp))
+                }
+            }
+        }
+
+        rule.runOnIdle {
+            state.layoutInfo.assertVisibleItems(count = 3, startIndex = 1)
+            assertThat(state.centerItemIndex).isEqualTo(2)
+            assertThat(state.centerItemScrollOffset).isEqualTo(-5)
         }
     }
 
@@ -246,15 +316,15 @@ public class ScalingLazyListLayoutInfoTest {
         lateinit var state: ScalingLazyListState
         rule.setContent {
             ScalingLazyColumn(
-                state = rememberScalingLazyListState().also { state = it },
+                state = rememberScalingLazyListState(8).also { state = it },
                 modifier = Modifier.requiredSize(
-                    itemSizeDp * 3.5f + defaultItemSpacingDp * 2.5f
+                    itemSizeDp * 4f + defaultItemSpacingDp * 3f
                 ),
                 scalingParams = ScalingLazyColumnDefaults.scalingParams(1.0f, 1.0f),
                 reverseLayout = true
             ) {
-                items(5) {
-                    Box(Modifier.requiredSize(itemSizeDp).testTag("Item:" + it))
+                items(15) {
+                    Box(Modifier.requiredSize(itemSizeDp).testTag("Item:$it"))
                 }
             }
         }
@@ -262,13 +332,10 @@ public class ScalingLazyListLayoutInfoTest {
         rule.waitForIdle()
 
         // Assert that items are being shown at the end of the parent as this is reverseLayout
-        rule.onNodeWithTag(testTag = "Item:0").assertIsDisplayed()
-        rule.onNodeWithTag(testTag = "Item:0")
-            .assertTopPositionInRootIsEqualTo(itemSizeDp * 2.5f + defaultItemSpacingDp * 2.5f)
+        rule.onNodeWithTag(testTag = "Item:8").assertIsDisplayed()
 
         rule.runOnIdle {
-            state.layoutInfo.assertVisibleItems(count = 4)
-            assertThat(state.layoutInfo.visibleItemsInfo.first().offset).isEqualTo(0)
+            state.layoutInfo.assertVisibleItems(count = 5, startIndex = 6)
         }
     }
 
@@ -281,10 +348,14 @@ public class ScalingLazyListLayoutInfoTest {
                 modifier = Modifier.requiredSize(
                     itemSizeDp * 3.5f + defaultItemSpacingDp * 2.5f
                 ),
-                scalingParams = ScalingLazyColumnDefaults.scalingParams(1.0f, 1.0f)
+                scalingParams = ScalingLazyColumnDefaults.scalingParams(1.0f, 1.0f),
+                contentPadding = PaddingValues(vertical = 100.dp),
             ) {
                 items(5) {
-                    Box(Modifier.requiredSize(itemSizeDp).testTag("Item:" + it))
+                    Box(
+                        Modifier
+                            .requiredSize(itemSizeDp)
+                            .testTag("Item:$it"))
                 }
             }
         }
@@ -292,22 +363,24 @@ public class ScalingLazyListLayoutInfoTest {
         rule.waitForIdle()
 
         rule.onNodeWithTag(testTag = "Item:0").assertIsDisplayed()
-        // Assert that the 0th item is displayed at the end of the parent for reversedLayout
-        rule.onNodeWithTag(testTag = "Item:0").assertTopPositionInRootIsEqualTo(0.dp)
 
+        val scrollAmount = (itemSizePx.toFloat() + defaultItemSpacingPx.toFloat()).roundToInt()
         rule.runOnIdle {
+            assertThat(state.centerItemIndex).isEqualTo(0)
+            assertThat(state.centerItemScrollOffset).isEqualTo(0)
+
             runBlocking {
-                state.scrollBy(itemSizePx.toFloat() + defaultItemSpacingPx.toFloat())
+                state.scrollBy(scrollAmount.toFloat())
             }
-            state.layoutInfo.assertVisibleItems(count = 4, startIndex = 1)
-            assertThat(state.layoutInfo.visibleItemsInfo.first().offset).isEqualTo(0)
+            state.layoutInfo.assertVisibleItems(count = 4)
+            assertThat(state.layoutInfo.visibleItemsInfo.first().offset).isEqualTo(-scrollAmount)
         }
 
         rule.runOnIdle {
             runBlocking {
-                state.scrollBy(-(itemSizePx.toFloat() + defaultItemSpacingPx.toFloat()))
+                state.scrollBy(-scrollAmount.toFloat())
             }
-            state.layoutInfo.assertVisibleItems(count = 4, startIndex = 0)
+            state.layoutInfo.assertVisibleItems(count = 3)
             assertThat(state.layoutInfo.visibleItemsInfo.first().offset).isEqualTo(0)
         }
     }
@@ -317,40 +390,40 @@ public class ScalingLazyListLayoutInfoTest {
         lateinit var state: ScalingLazyListState
         rule.setContent {
             ScalingLazyColumn(
-                state = rememberScalingLazyListState().also { state = it },
+                state = rememberScalingLazyListState(8).also { state = it },
                 modifier = Modifier.requiredSize(
-                    itemSizeDp * 3.5f + defaultItemSpacingDp * 2.5f
+                    itemSizeDp * 4f + defaultItemSpacingDp * 3f
                 ),
                 scalingParams = ScalingLazyColumnDefaults.scalingParams(1.0f, 1.0f),
                 reverseLayout = true
             ) {
-                items(5) {
-                    Box(Modifier.requiredSize(itemSizeDp).testTag("Item:" + it))
+                items(15) {
+                    Box(Modifier.requiredSize(itemSizeDp).testTag("Item:$it"))
                 }
             }
         }
 
         rule.waitForIdle()
 
-        rule.onNodeWithTag(testTag = "Item:0").assertIsDisplayed()
-        // Assert that the 0th item is displayed at the end of the parent for reversedLayout
-        rule.onNodeWithTag(testTag = "Item:0")
-            .assertTopPositionInRootIsEqualTo(itemSizeDp * 2.5f + defaultItemSpacingDp * 2.5f)
+        rule.onNodeWithTag(testTag = "Item:8").assertIsDisplayed()
 
+        val scrollAmount = (itemSizePx.toFloat() + defaultItemSpacingPx.toFloat()).roundToInt()
         rule.runOnIdle {
+            state.layoutInfo.assertVisibleItems(count = 5, startIndex = 6)
+            assertThat(state.centerItemIndex).isEqualTo(8)
+            assertThat(state.centerItemScrollOffset).isEqualTo(0)
+
             runBlocking {
-                state.scrollBy(itemSizePx.toFloat() + defaultItemSpacingPx.toFloat())
+                state.scrollBy(scrollAmount.toFloat())
             }
-            state.layoutInfo.assertVisibleItems(count = 4, startIndex = 1)
-            assertThat(state.layoutInfo.visibleItemsInfo.first().offset).isEqualTo(0)
+            state.layoutInfo.assertVisibleItems(count = 5, startIndex = 7)
         }
 
         rule.runOnIdle {
             runBlocking {
-                state.scrollBy(-(itemSizePx.toFloat() + defaultItemSpacingPx.toFloat()))
+                state.scrollBy(-scrollAmount.toFloat())
             }
-            state.layoutInfo.assertVisibleItems(count = 4, startIndex = 0)
-            assertThat(state.layoutInfo.visibleItemsInfo.first().offset).isEqualTo(0)
+            state.layoutInfo.assertVisibleItems(count = 5, startIndex = 6)
         }
     }
 
@@ -363,7 +436,8 @@ public class ScalingLazyListLayoutInfoTest {
                 modifier = Modifier.requiredSize(
                     itemSizeDp * 3.5f + defaultItemSpacingDp * 2.5f
                 ),
-                scalingParams = ScalingLazyColumnDefaults.scalingParams(1.0f, 1.0f)
+                scalingParams = ScalingLazyColumnDefaults.scalingParams(1.0f, 1.0f),
+                contentPadding = PaddingValues(vertical = 100.dp)
             ) {
                 items(5) {
                     Box(Modifier.requiredSize(itemSizeDp))
@@ -371,19 +445,21 @@ public class ScalingLazyListLayoutInfoTest {
             }
         }
 
+        val scrollAmount = itemSizePx.toFloat() + defaultItemSpacingPx.toFloat()
         rule.runOnIdle {
             runBlocking {
-                state.dispatchRawDelta(itemSizePx.toFloat() + defaultItemSpacingPx.toFloat())
+                state.dispatchRawDelta(scrollAmount)
             }
-            state.layoutInfo.assertVisibleItems(count = 4, startIndex = 1)
-            assertThat(state.layoutInfo.visibleItemsInfo.first().offset).isEqualTo(0)
+            state.layoutInfo.assertVisibleItems(count = 4, startIndex = 0)
+            assertThat(state.layoutInfo.visibleItemsInfo.first().offset)
+                .isEqualTo(-scrollAmount.roundToInt())
         }
 
         rule.runOnIdle {
             runBlocking {
-                state.dispatchRawDelta(-(itemSizePx.toFloat() + defaultItemSpacingPx.toFloat()))
+                state.dispatchRawDelta(-scrollAmount)
             }
-            state.layoutInfo.assertVisibleItems(count = 4, startIndex = 0)
+            state.layoutInfo.assertVisibleItems(count = 3, startIndex = 0)
             assertThat(state.layoutInfo.visibleItemsInfo.first().offset).isEqualTo(0)
         }
     }
@@ -405,13 +481,13 @@ public class ScalingLazyListLayoutInfoTest {
                 }
             }
         }
-
+        val firstItemOffset = state.layoutInfo.visibleItemsInfo.first().offset
         rule.runOnIdle {
             runBlocking {
                 state.dispatchRawDelta(itemSizePx.toFloat() + defaultItemSpacingPx.toFloat())
             }
             state.layoutInfo.assertVisibleItems(count = 4, startIndex = 1)
-            assertThat(state.layoutInfo.visibleItemsInfo.first().offset).isEqualTo(0)
+            assertThat(state.layoutInfo.visibleItemsInfo.first().offset).isEqualTo(firstItemOffset)
         }
 
         rule.runOnIdle {
@@ -419,7 +495,7 @@ public class ScalingLazyListLayoutInfoTest {
                 state.dispatchRawDelta(-(itemSizePx.toFloat() + defaultItemSpacingPx.toFloat()))
             }
             state.layoutInfo.assertVisibleItems(count = 4, startIndex = 0)
-            assertThat(state.layoutInfo.visibleItemsInfo.first().offset).isEqualTo(0)
+            assertThat(state.layoutInfo.visibleItemsInfo.first().offset).isEqualTo(firstItemOffset)
         }
     }
 
@@ -559,6 +635,44 @@ public class ScalingLazyListLayoutInfoTest {
         }
     }
 
+    @Composable
+    fun ObservingCentralItemIndexFun(
+        state: ScalingLazyListState,
+        currentInfo: StableRef<Int?>
+    ) {
+        currentInfo.value = state.centerItemIndex
+    }
+
+    @Test
+    fun isCentralListItemIndexObservableWhenWeScroll() {
+        lateinit var state: ScalingLazyListState
+        var scope: CoroutineScope? = null
+        val currentInfo = StableRef<Int?>(null)
+        rule.setContent {
+            scope = rememberCoroutineScope()
+            ScalingLazyColumn(
+                state = rememberScalingLazyListState().also { state = it },
+                modifier = Modifier.requiredSize(itemSizeDp * 3.5f + defaultItemSpacingDp * 2.5f)
+            ) {
+                items(6) {
+                    Box(Modifier.requiredSize(itemSizeDp))
+                }
+            }
+            ObservingCentralItemIndexFun(state, currentInfo)
+        }
+
+        scope!!.launch {
+            // empty it here and scrolling should invoke observingFun again
+            currentInfo.value = null
+            state.animateScrollBy(itemSizePx.toFloat() + defaultItemSpacingPx.toFloat())
+        }
+
+        rule.runOnIdle {
+            assertThat(currentInfo.value).isNotNull()
+            assertThat(currentInfo.value).isEqualTo(2)
+        }
+    }
+
     @Test
     fun visibleItemsAreObservableWhenResize() {
         lateinit var state: ScalingLazyListState
@@ -665,7 +779,7 @@ public class ScalingLazyListLayoutInfoTest {
         }
     }
 
-    fun ScalingLazyListLayoutInfo.assertVisibleItems(
+    private fun ScalingLazyListLayoutInfo.assertVisibleItems(
         count: Int,
         startIndex: Int = 0,
         unscaledSize: Int = itemSizePx,

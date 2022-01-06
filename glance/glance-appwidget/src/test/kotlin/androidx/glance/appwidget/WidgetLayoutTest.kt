@@ -23,19 +23,19 @@ import androidx.glance.Button
 import androidx.glance.GlanceModifier
 import androidx.glance.Image
 import androidx.glance.ImageProvider
-import androidx.glance.action.actionLaunchActivity
+import androidx.glance.action.actionStartActivity
 import androidx.glance.appwidget.lazy.LazyColumn
+import androidx.glance.appwidget.proto.LayoutProto
 import androidx.glance.appwidget.test.R
 import androidx.glance.layout.Alignment
+import androidx.glance.layout.Box
 import androidx.glance.layout.Column
 import androidx.glance.layout.ContentScale
+import androidx.glance.layout.Row
 import androidx.glance.layout.fillMaxHeight
 import androidx.glance.layout.fillMaxSize
 import androidx.glance.layout.width
 import androidx.glance.layout.wrapContentWidth
-import androidx.glance.appwidget.proto.LayoutProto
-import androidx.glance.layout.Box
-import androidx.glance.layout.Row
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -67,7 +67,7 @@ class WidgetLayoutTest {
                     onCheckedChange = null,
                     modifier = GlanceModifier.fillMaxSize()
                 )
-                Button(text = "test", onClick = actionLaunchActivity<Activity>())
+                Button(text = "test", onClick = actionStartActivity<Activity>())
                 Image(
                     ImageProvider(R.drawable.oval),
                     "description",
@@ -108,10 +108,10 @@ class WidgetLayoutTest {
             Column {
                 CheckBox(
                     checked = true,
-onCheckedChange = null,
+                    onCheckedChange = null,
                     modifier = GlanceModifier.fillMaxSize()
                 )
-                Button(text = "test", onClick = actionLaunchActivity<Activity>())
+                Button(text = "test", onClick = actionStartActivity<Activity>())
             }
         }
         val root2 = runTestingComposition {
@@ -121,7 +121,7 @@ onCheckedChange = null,
                     onCheckedChange = null,
                     modifier = GlanceModifier.wrapContentWidth().fillMaxHeight()
                 )
-                Button(text = "test", onClick = actionLaunchActivity<Activity>())
+                Button(text = "test", onClick = actionStartActivity<Activity>())
             }
         }
 
@@ -338,7 +338,7 @@ onCheckedChange = null,
                     onCheckedChange = null,
                     modifier = GlanceModifier.fillMaxSize()
                 )
-                Button(text = "test", onClick = actionLaunchActivity<Activity>())
+                Button(text = "test", onClick = actionStartActivity<Activity>())
             }
         }
         val root2 = runTestingComposition {
@@ -348,7 +348,7 @@ onCheckedChange = null,
                     onCheckedChange = null,
                     modifier = GlanceModifier.fillMaxSize()
                 )
-                Button(text = "testtesttest", onClick = actionLaunchActivity<Activity>())
+                Button(text = "testtesttest", onClick = actionStartActivity<Activity>())
             }
         }
 

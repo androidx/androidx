@@ -101,7 +101,7 @@ class SystemForegroundDispatcherTest {
         workDatabase = workManager.workDatabase
         // Initialize WorkConstraintsTracker
         constraintsCallback = mock(WorkConstraintsCallback::class.java)
-        tracker = spy(WorkConstraintsTracker(context, taskExecutor, constraintsCallback))
+        tracker = mock(WorkConstraintsTracker::class.java)
         // Initialize dispatcher
         dispatcherCallback = mock(SystemForegroundDispatcher.Callback::class.java)
         dispatcher = spy(SystemForegroundDispatcher(context, workManager, tracker))

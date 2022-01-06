@@ -37,6 +37,7 @@ import androidx.work.impl.WorkDatabase;
 import androidx.work.impl.WorkManagerImpl;
 import androidx.work.impl.constraints.WorkConstraintsCallback;
 import androidx.work.impl.constraints.WorkConstraintsTracker;
+import androidx.work.impl.constraints.WorkConstraintsTrackerImpl;
 import androidx.work.impl.model.WorkSpec;
 import androidx.work.impl.utils.taskexecutor.TaskExecutor;
 
@@ -108,7 +109,7 @@ public class SystemForegroundDispatcher implements WorkConstraintsCallback, Exec
         mForegroundInfoById = new LinkedHashMap<>();
         mTrackedWorkSpecs = new HashSet<>();
         mWorkSpecById = new HashMap<>();
-        mConstraintsTracker = new WorkConstraintsTracker(mContext, mTaskExecutor, this);
+        mConstraintsTracker = new WorkConstraintsTrackerImpl(mWorkManagerImpl.getTrackers(), this);
         mWorkManagerImpl.getProcessor().addExecutionListener(this);
     }
 
@@ -203,10 +204,6 @@ public class SystemForegroundDispatcher implements WorkConstraintsCallback, Exec
             return;
         }
         mCallback = callback;
-    }
-
-    WorkManagerImpl getWorkManager() {
-        return mWorkManagerImpl;
     }
 
     void onStartCommand(@NonNull Intent intent) {

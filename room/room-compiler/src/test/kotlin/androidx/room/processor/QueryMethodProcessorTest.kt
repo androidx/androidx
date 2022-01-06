@@ -25,9 +25,13 @@ import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.XTestInvocation
 import androidx.room.compiler.processing.util.runProcessorTest
 import androidx.room.ext.CommonTypeNames
+import androidx.room.ext.GuavaUtilConcurrentTypeNames
 import androidx.room.ext.KotlinTypeNames
 import androidx.room.ext.LifecyclesTypeNames
 import androidx.room.ext.PagingTypeNames
+import androidx.room.ext.ReactiveStreamsTypeNames
+import androidx.room.ext.RxJava2TypeNames
+import androidx.room.ext.RxJava3TypeNames
 import androidx.room.ext.typeName
 import androidx.room.parser.QueryType
 import androidx.room.parser.Table
@@ -79,6 +83,20 @@ class QueryMethodProcessorTest(private val enableVerification: Boolean) {
                 import androidx.room.*;
                 import java.util.*;
                 import com.google.common.collect.*;
+                @Dao
+                abstract class MyClass {
+                """
+        const val DAO_PREFIX_KT = """
+                package foo.bar
+                import androidx.room.*
+                import java.util.*
+                import io.reactivex.*         
+                io.reactivex.rxjava3.core.*
+                androidx.lifecycle.*
+                com.google.common.util.concurrent.*
+                org.reactivestreams.*
+                kotlinx.coroutines.flow.*
+            
                 @Dao
                 abstract class MyClass {
                 """
@@ -1344,6 +1362,58 @@ class QueryMethodProcessorTest(private val enableVerification: Boolean) {
         }
     }
 
+    private fun <T : QueryMethod> singleQueryMethodKotlin(
+        vararg input: String,
+        additionalSources: Iterable<Source> = emptyList(),
+        options: Map<String, String> = emptyMap(),
+        handler: (T, XTestInvocation) -> Unit
+    ) {
+        val inputSource = Source.kotlin(
+            "MyClass.kt",
+            DAO_PREFIX_KT + input.joinToString("\n") + DAO_SUFFIX
+        )
+        val commonSources = listOf(
+            COMMON.USER, COMMON.BOOK, COMMON.NOT_AN_ENTITY, COMMON.RX2_COMPLETABLE,
+            COMMON.RX2_MAYBE, COMMON.RX2_SINGLE, COMMON.RX2_FLOWABLE, COMMON.RX2_OBSERVABLE,
+            COMMON.RX3_COMPLETABLE, COMMON.RX3_MAYBE, COMMON.RX3_SINGLE, COMMON.RX3_FLOWABLE,
+            COMMON.RX3_OBSERVABLE, COMMON.LISTENABLE_FUTURE, COMMON.LIVE_DATA,
+            COMMON.COMPUTABLE_LIVE_DATA, COMMON.PUBLISHER, COMMON.FLOW, COMMON.GUAVA_ROOM
+        )
+
+        runProcessorTest(
+            sources = additionalSources + commonSources + inputSource,
+            options = options
+        ) { invocation ->
+            val (owner, methods) = invocation.roundEnv
+                .getElementsAnnotatedWith(Dao::class.qualifiedName!!)
+                .filterIsInstance<XTypeElement>()
+                .map { typeElement ->
+                    Pair(
+                        typeElement,
+                        typeElement.getAllMethods().filter { method ->
+                            method.hasAnnotation(Query::class)
+                        }.toList()
+                    )
+                }.first { it.second.isNotEmpty() }
+            val verifier = if (enableVerification) {
+                createVerifierFromEntitiesAndViews(invocation).also(
+                    invocation.context::attachDatabaseVerifier
+                )
+            } else {
+                null
+            }
+            val parser = QueryMethodProcessor(
+                baseContext = invocation.context,
+                containing = owner.type,
+                executableElement = methods.first(),
+                dbVerifier = verifier
+            )
+            val parsedQuery = parser.process()
+            @Suppress("UNCHECKED_CAST")
+            handler(parsedQuery as T, invocation)
+        }
+    }
+
     @Test
     fun testInvalidLinkedListCollectionInMultimapJoin() {
         singleQueryMethod<ReadQueryMethod>(
@@ -1608,6 +1678,39 @@ class QueryMethodProcessorTest(private val enableVerification: Boolean) {
                     "Column(s) specified in the provided @MapInfo annotation must " +
                         "be present in the query. Provided: dog."
                 )
+            }
+        }
+    }
+
+    @Test
+    fun suspendReturnsDeferredType() {
+        listOf(
+            "${RxJava2TypeNames.FLOWABLE}<Int>",
+            "${RxJava2TypeNames.OBSERVABLE}<Int>",
+            "${RxJava2TypeNames.MAYBE}<Int>",
+            "${RxJava2TypeNames.SINGLE}<Int>",
+            "${RxJava2TypeNames.COMPLETABLE}",
+            "${RxJava3TypeNames.FLOWABLE}<Int>",
+            "${RxJava3TypeNames.OBSERVABLE}<Int>",
+            "${RxJava3TypeNames.MAYBE}<Int>",
+            "${RxJava3TypeNames.SINGLE}<Int>",
+            "${RxJava3TypeNames.COMPLETABLE}",
+            "${LifecyclesTypeNames.LIVE_DATA}<Int>",
+            "${LifecyclesTypeNames.COMPUTABLE_LIVE_DATA}<Int>",
+            "${GuavaUtilConcurrentTypeNames.LISTENABLE_FUTURE}<Int>",
+            "${ReactiveStreamsTypeNames.PUBLISHER}<Int>",
+            "${KotlinTypeNames.FLOW}<Int>"
+        ).forEach { type ->
+            singleQueryMethodKotlin<WriteQueryMethod>(
+                """
+                @Query("DELETE from User where uid = :id")
+                abstract suspend fun foo(id: Int): $type
+                """
+            ) { _, invocation ->
+                invocation.assertCompilationResult {
+                    val rawTypeName = type.substringBefore("<")
+                    hasErrorContaining(ProcessorErrors.suspendReturnsDeferredType(rawTypeName))
+                }
             }
         }
     }

@@ -25,6 +25,7 @@ import android.view.Display;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.VisibleForTesting;
+import androidx.camera.camera2.internal.compat.workaround.MaxPreviewSize;
 
 /**
  * A singleton class to retrieve display related information.
@@ -37,6 +38,8 @@ class DisplayInfoManager {
     @NonNull
     private final DisplayManager mDisplayManager;
     private volatile Size mPreviewSize = null;
+    private final MaxPreviewSize mMaxPreviewSize = new MaxPreviewSize();
+
     private DisplayInfoManager(@NonNull Context context) {
         mDisplayManager = (DisplayManager) context.getSystemService(Context.DISPLAY_SERVICE);
     }
@@ -125,9 +128,8 @@ class DisplayInfoManager {
 
         if (displayViewSize.getWidth() * displayViewSize.getHeight()
                 > MAX_PREVIEW_SIZE.getWidth() * MAX_PREVIEW_SIZE.getHeight()) {
-            return MAX_PREVIEW_SIZE;
-        } else {
-            return displayViewSize;
+            displayViewSize = MAX_PREVIEW_SIZE;
         }
+        return mMaxPreviewSize.getMaxPreviewResolution(displayViewSize);
     }
 }

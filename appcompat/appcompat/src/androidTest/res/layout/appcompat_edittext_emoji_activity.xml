@@ -65,5 +65,13 @@
             android:digits="01234"
             />
 
+        <androidx.appcompat.widget.AppCompatEditText
+            android:id="@+id/text_with_digits_and_comma"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="numberDecimal"
+            android:digits="01234,"
+            />
+
     </LinearLayout>
 </ScrollView>

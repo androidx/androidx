@@ -32,9 +32,10 @@ import androidx.work.impl.Scheduler;
 import androidx.work.impl.WorkManagerImpl;
 import androidx.work.impl.constraints.WorkConstraintsCallback;
 import androidx.work.impl.constraints.WorkConstraintsTracker;
+import androidx.work.impl.constraints.WorkConstraintsTrackerImpl;
+import androidx.work.impl.constraints.trackers.Trackers;
 import androidx.work.impl.model.WorkSpec;
 import androidx.work.impl.utils.ProcessUtils;
-import androidx.work.impl.utils.taskexecutor.TaskExecutor;
 
 import java.util.HashSet;
 import java.util.List;
@@ -66,11 +67,11 @@ public class GreedyScheduler implements Scheduler, WorkConstraintsCallback, Exec
     public GreedyScheduler(
             @NonNull Context context,
             @NonNull Configuration configuration,
-            @NonNull TaskExecutor taskExecutor,
+            @NonNull Trackers trackers,
             @NonNull WorkManagerImpl workManagerImpl) {
         mContext = context;
         mWorkManagerImpl = workManagerImpl;
-        mWorkConstraintsTracker = new WorkConstraintsTracker(context, taskExecutor, this);
+        mWorkConstraintsTracker = new WorkConstraintsTrackerImpl(trackers, this);
         mDelayedWorkTracker = new DelayedWorkTracker(this, configuration.getRunnableScheduler());
         mLock = new Object();
     }

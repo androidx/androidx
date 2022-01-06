@@ -16,7 +16,9 @@
 
 package androidx.appsearch.localstorage.converter;
 
-import static androidx.appsearch.localstorage.util.PrefixUtil.createPrefix;
+import static androidx.appsearch.localstorage.util.PrefixUtil.getDatabaseName;
+import static androidx.appsearch.localstorage.util.PrefixUtil.getPackageName;
+import static androidx.appsearch.localstorage.util.PrefixUtil.removePrefixesFromDocument;
 
 import android.os.Bundle;
 
@@ -25,16 +27,15 @@ import androidx.annotation.RestrictTo;
 import androidx.appsearch.app.GenericDocument;
 import androidx.appsearch.app.SearchResult;
 import androidx.appsearch.app.SearchResultPage;
-import androidx.core.util.Preconditions;
+import androidx.appsearch.exceptions.AppSearchException;
 
+import com.google.android.icing.proto.DocumentProto;
 import com.google.android.icing.proto.SchemaTypeConfigProto;
 import com.google.android.icing.proto.SearchResultProto;
-import com.google.android.icing.proto.SearchResultProtoOrBuilder;
 import com.google.android.icing.proto.SnippetMatchProto;
 import com.google.android.icing.proto.SnippetProto;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -51,32 +52,19 @@ public class SearchResultToProtoConverter {
      * Translate a {@link SearchResultProto} into {@link SearchResultPage}.
      *
      * @param proto         The {@link SearchResultProto} containing results.
-     * @param packageNames  A parallel array of package names. The package name at index 'i' of
-     *                      this list should be the package that indexed the document at index 'i'
-     *                      of proto.getResults(i).
-     * @param databaseNames A parallel array of database names. The database name at index 'i' of
-     *                      this list shold be the database that indexed the document at index 'i'
-     *                      of proto.getResults(i).
-     * @param schemaMap     A map of prefixes to an inner-map of prefixed schema type to
-     *                      SchemaTypeConfigProtos, used for setting a default value for results
-     *                      with DocumentProtos that have empty values.
+     * @param schemaMap     The cached Map of <Prefix, Map<PrefixedSchemaType, schemaProto>>
+     *                      stores all existing prefixed schema type.
      * @return {@link SearchResultPage} of results.
      */
     @NonNull
-    public static SearchResultPage toSearchResultPage(@NonNull SearchResultProtoOrBuilder proto,
-            @NonNull List<String> packageNames, @NonNull List<String> databaseNames,
-            @NonNull Map<String, Map<String, SchemaTypeConfigProto>> schemaMap) {
-        Preconditions.checkArgument(
-                proto.getResultsCount() == packageNames.size(),
-                "Size of results does not match the number of package names.");
+    public static SearchResultPage toSearchResultPage(@NonNull SearchResultProto proto,
+            @NonNull Map<String, Map<String, SchemaTypeConfigProto>> schemaMap)
+            throws AppSearchException {
         Bundle bundle = new Bundle();
         bundle.putLong(SearchResultPage.NEXT_PAGE_TOKEN_FIELD, proto.getNextPageToken());
         ArrayList<Bundle> resultBundles = new ArrayList<>(proto.getResultsCount());
         for (int i = 0; i < proto.getResultsCount(); i++) {
-            String prefix = createPrefix(packageNames.get(i), databaseNames.get(i));
-            Map<String, SchemaTypeConfigProto> schemaTypeMap = schemaMap.get(prefix);
-            SearchResult result = toSearchResult(
-                    proto.getResults(i), packageNames.get(i), databaseNames.get(i), schemaTypeMap);
+            SearchResult result = toUnprefixedSearchResult(proto.getResults(i), schemaMap);
             resultBundles.add(result.getBundle());
         }
         bundle.putParcelableArrayList(SearchResultPage.RESULTS_FIELD, resultBundles);
@@ -84,28 +72,28 @@ public class SearchResultToProtoConverter {
     }
 
     /**
-     * Translate a {@link SearchResultProto.ResultProto} into {@link SearchResult}.
+     * Translate a {@link SearchResultProto.ResultProto} into {@link SearchResult}. The package and
+     * database prefix will be removed from {@link GenericDocument}.
      *
-     * @param proto                The proto to be converted.
-     * @param packageName          The package name associated with the document in {@code proto}.
-     * @param databaseName         The database name associated with the document in {@code proto}.
-     * @param schemaTypeToProtoMap A map of prefixed schema types to their corresponding
-     *                             SchemaTypeConfigProto, used for setting a default value for
-     *                             results with DocumentProtos that have empty values.
-     * @return A {@link SearchResult} bundle.
+     * @param proto          The proto to be converted.
+     * @param schemaMap      The cached Map of <Prefix, Map<PrefixedSchemaType, schemaProto>>
+     *                       stores all existing prefixed schema type.
+     * @return A {@link SearchResult}.
      */
     @NonNull
-    private static SearchResult toSearchResult(
-            @NonNull SearchResultProto.ResultProtoOrBuilder proto,
-            @NonNull String packageName,
-            @NonNull String databaseName,
-            @NonNull Map<String, SchemaTypeConfigProto> schemaTypeToProtoMap) {
-        String prefix = createPrefix(packageName, databaseName);
+    private static SearchResult toUnprefixedSearchResult(
+            @NonNull SearchResultProto.ResultProto proto,
+            @NonNull Map<String, Map<String, SchemaTypeConfigProto>> schemaMap)
+            throws AppSearchException {
+
+        DocumentProto.Builder documentBuilder = proto.getDocument().toBuilder();
+        String prefix = removePrefixesFromDocument(documentBuilder);
+        Map<String, SchemaTypeConfigProto> schemaTypeMap = schemaMap.get(prefix);
         GenericDocument document =
-                GenericDocumentToProtoConverter.toGenericDocument(proto.getDocument(), prefix,
-                        schemaTypeToProtoMap);
+                GenericDocumentToProtoConverter.toGenericDocument(documentBuilder, prefix,
+                        schemaTypeMap);
         SearchResult.Builder builder =
-                new SearchResult.Builder(packageName, databaseName)
+                new SearchResult.Builder(getPackageName(prefix), getDatabaseName(prefix))
                         .setGenericDocument(document).setRankingSignal(proto.getScore());
         if (proto.hasSnippet()) {
             for (int i = 0; i < proto.getSnippet().getEntriesCount(); i++) {

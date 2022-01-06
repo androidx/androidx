@@ -25,10 +25,8 @@ import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.location.Location;
-import android.location.LocationListener;
 import android.location.LocationManager;
 import android.net.Uri;
-import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
 
@@ -49,6 +47,7 @@ import androidx.car.app.sample.navigation.common.R;
 import androidx.car.app.sample.navigation.common.model.Instruction;
 import androidx.car.app.sample.navigation.common.nav.NavigationService;
 import androidx.core.graphics.drawable.IconCompat;
+import androidx.core.location.LocationListenerCompat;
 import androidx.lifecycle.DefaultLifecycleObserver;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleObserver;
@@ -106,27 +105,8 @@ class NavigationSession extends Session implements NavigationScreen.Listener {
             };
 
     // A listener to periodically update the surface with the location coordinates
-    LocationListener mLocationListener =
-            new LocationListener() {
-                @Override
-                public void onLocationChanged(Location location) {
-                    mNavigationCarSurface.updateLocationString(getLocationString(location));
-                }
-
-                /** @deprecated This callback will never be invoked on Android Q and above. */
-                @Override
-                @Deprecated
-                public void onStatusChanged(String provider, int status, Bundle extras) {
-                }
-
-                @Override
-                public void onProviderEnabled(String provider) {
-                }
-
-                @Override
-                public void onProviderDisabled(String provider) {
-                }
-            };
+    LocationListenerCompat mLocationListener =
+            location -> mNavigationCarSurface.updateLocationString(getLocationString(location));
 
     // Monitors the state of the connection to the Navigation service.
     final ServiceConnection mServiceConnection =

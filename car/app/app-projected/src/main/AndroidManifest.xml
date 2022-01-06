@@ -23,6 +23,7 @@
             android:name="androidx.car.app.CarAppMetadataHolderService"
             android:exported="false"
             android:enabled="false"
+            android:process=""
             tools:ignore="Instantiatable"
             tools:node="merge">
             <meta-data

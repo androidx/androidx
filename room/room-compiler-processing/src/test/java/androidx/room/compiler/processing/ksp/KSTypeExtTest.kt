@@ -131,11 +131,7 @@ class KSTypeExtTest {
                     .that(
                         typeName
                     ).isEqualTo(
-                        // kotlin does not have raw types hence it becomes List<Object>
-                        ParameterizedTypeName.get(
-                            List::class.java,
-                            Object::class.java
-                        )
+                        ClassName.get(List::class.java)
                     )
                 val nestedTypeName = subject.propertyType("nested").typeName(invocation.kspResolver)
                 assertWithMessage(subject.qualifiedName!!.asString())

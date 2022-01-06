@@ -26,7 +26,7 @@ plugins {
 
 dependencies {
     api(project(":fragment:fragment"))
-    api("androidx.activity:activity-ktx:1.2.3") {
+    api(projectOrArtifact(":activity:activity-ktx")) {
         because "Mirror fragment dependency graph for -ktx artifacts"
     }
     api("androidx.core:core-ktx:1.2.0") {
@@ -35,10 +35,10 @@ dependencies {
     api("androidx.collection:collection-ktx:1.1.0") {
         because "Mirror fragment dependency graph for -ktx artifacts"
     }
-    api("androidx.lifecycle:lifecycle-livedata-core-ktx:2.3.1") {
+    api(projectOrArtifact(":lifecycle:lifecycle-livedata-core-ktx")) {
         because 'Mirror fragment dependency graph for -ktx artifacts'
     }
-    api("androidx.lifecycle:lifecycle-viewmodel-ktx:2.3.1")
+    api(projectOrArtifact(":lifecycle:lifecycle-viewmodel-ktx"))
     api(projectOrArtifact(":savedstate:savedstate-ktx")) {
         because 'Mirror fragment dependency graph for -ktx artifacts'
     }
@@ -64,12 +64,10 @@ androidx {
 
 // needed only while https://youtrack.jetbrains.com/issue/KT-47000 isn't resolved which is
 // targeted to 1.6
-if (project.hasProperty("androidx.useMaxDepVersions")){
-    tasks.withType(KotlinCompile).configureEach {
-        kotlinOptions {
-            freeCompilerArgs += [
-                    "-Xjvm-default=enable",
-            ]
-        }
+tasks.withType(KotlinCompile).configureEach {
+    kotlinOptions {
+        freeCompilerArgs += [
+                "-Xjvm-default=enable",
+        ]
     }
 }

@@ -75,9 +75,6 @@ class WorkManagerGcmDispatcherTest {
         val workTaskExecutor: androidx.work.impl.utils.taskexecutor.TaskExecutor =
             object : androidx.work.impl.utils.taskexecutor.TaskExecutor {
                 private val mSerialExecutor = SerialExecutor(mExecutor)
-                override fun postToMainThread(runnable: Runnable) {
-                    mExecutor.execute(runnable)
-                }
 
                 override fun getMainThreadExecutor(): Executor {
                     return mExecutor

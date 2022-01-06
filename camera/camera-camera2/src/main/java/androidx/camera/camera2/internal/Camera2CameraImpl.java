@@ -182,6 +182,7 @@ final class Camera2CameraImpl implements CameraInternal {
     @GuardedBy("mLock")
     @Nullable
     private SessionProcessor mSessionProcessor;
+    boolean mIsActiveResumingMode = false;
 
     /**
      * Constructor for a camera.
@@ -263,7 +264,7 @@ final class Camera2CameraImpl implements CameraInternal {
         switch (mState) {
             case INITIALIZED:
             case PENDING_OPEN:
-                tryForceOpenCameraDevice();
+                tryForceOpenCameraDevice(/*fromScheduledCameraReopen*/false);
                 break;
             case CLOSING:
                 setState(InternalState.REOPENING);
@@ -951,10 +952,14 @@ final class Camera2CameraImpl implements CameraInternal {
      * Attempts to force open the camera device, which may result in stealing it from a lower
      * priority client. This should only happen if another client doesn't close the camera when
      * it should, e.g. when its process is moved to the background.
+     *
+     * @param fromScheduledCameraReopen True if the attempt to open the camera originated from a
+     *                                  {@linkplain StateCallback.ScheduledReopen scheduled
+     *                                  reopen of the camera}. False otherwise.
      */
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     @ExecutedBy("mExecutor")
-    void tryForceOpenCameraDevice() {
+    void tryForceOpenCameraDevice(boolean fromScheduledCameraReopen) {
         debugLog("Attempting to force open the camera.");
         final boolean shouldTryOpenCamera = mCameraStateRegistry.tryOpenCamera(this);
         if (!shouldTryOpenCamera) {
@@ -962,12 +967,12 @@ final class Camera2CameraImpl implements CameraInternal {
             setState(InternalState.PENDING_OPEN);
             return;
         }
-        openCameraDevice(false);
+        openCameraDevice(fromScheduledCameraReopen);
     }
 
     /**
-     * Attempts to open the camera device. Unlike {@link #tryForceOpenCameraDevice()}, this method
-     * does not steal the camera away from other clients.
+     * Attempts to open the camera device. Unlike {@link #tryForceOpenCameraDevice(boolean)},
+     * this method does not steal the camera away from other clients.
      *
      * @param fromScheduledCameraReopen True if the attempt to open the camera originated from a
      *                                  {@linkplain StateCallback.ScheduledReopen scheduled
@@ -986,6 +991,23 @@ final class Camera2CameraImpl implements CameraInternal {
         }
         openCameraDevice(fromScheduledCameraReopen);
     }
+
+    @Override
+    public void setActiveResumingMode(boolean enabled) {
+        mExecutor.execute(() -> {
+            // Enables/Disables active resuming mode which will reopen the camera regardless of the
+            // availability when camera is interrupted.
+            mIsActiveResumingMode = enabled;
+
+            // If camera is interrupted currently, force open the camera right now regardless of the
+            // camera availability.
+            if (enabled && (mState == InternalState.PENDING_OPEN
+                    || mState == InternalState.REOPENING)) {
+                tryForceOpenCameraDevice(/*fromScheduledCameraReopen*/false);
+            }
+        });
+    }
+
 
     /**
      * Opens the camera device.
@@ -1469,11 +1491,6 @@ final class Camera2CameraImpl implements CameraInternal {
 
     @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
     final class StateCallback extends CameraDevice.StateCallback {
-
-        // Delay long enough to guarantee the app could have been backgrounded.
-        // See ProcessLifecycleProvider for where this delay comes from.
-        static final int REOPEN_DELAY_MS = 700;
-
         @CameraExecutor
         private final Executor mExecutor;
         private final ScheduledExecutorService mScheduler;
@@ -1495,6 +1512,7 @@ final class Camera2CameraImpl implements CameraInternal {
             debugLog("CameraDevice.onOpened()");
             mCameraDevice = cameraDevice;
             mCameraDeviceError = ERROR_NONE;
+            resetReopenMonitor();
             switch (mState) {
                 case CLOSING:
                 case RELEASING:
@@ -1654,15 +1672,16 @@ final class Camera2CameraImpl implements CameraInternal {
 
             if (mCameraReopenMonitor.canScheduleCameraReopen()) {
                 mScheduledReopenRunnable = new ScheduledReopen(mExecutor);
-                debugLog("Attempting camera re-open in " + REOPEN_DELAY_MS + "ms: "
-                        + mScheduledReopenRunnable);
+                debugLog("Attempting camera re-open in "
+                        + mCameraReopenMonitor.getReopenDelayMs() + "ms: "
+                        + mScheduledReopenRunnable + " activeResuming = " + mIsActiveResumingMode);
                 mScheduledReopenHandle = mScheduler.schedule(mScheduledReopenRunnable,
-                        REOPEN_DELAY_MS, TimeUnit.MILLISECONDS);
+                        mCameraReopenMonitor.getReopenDelayMs(), TimeUnit.MILLISECONDS);
             } else {
                 // TODO(b/174685338): Report camera opening error to the user
                 Logger.e(TAG,
                         "Camera reopening attempted for "
-                                + CameraReopenMonitor.REOPEN_LIMIT_MS
+                                + mCameraReopenMonitor.getReopenLimitMs()
                                 + "ms without success.");
 
                 // Set the state to PENDING_OPEN, so that an attempt to reopen the camera is made if
@@ -1737,30 +1756,86 @@ final class Camera2CameraImpl implements CameraInternal {
                     // this is still the scheduled reopen.
                     if (!mCancelled) {
                         Preconditions.checkState(mState == InternalState.REOPENING);
-                        tryOpenCameraDevice(/*fromScheduledCameraReopen=*/true);
+                        if (shouldActiveResume()) {
+                            // Ignore the camera availability when in active resuming mode.
+                            tryForceOpenCameraDevice(/*fromScheduledCameraReopen*/true);
+                        } else {
+                            tryOpenCameraDevice(/*fromScheduledCameraReopen=*/true);
+                        }
                     }
                 });
             }
         }
 
-        /** Keeps track of camera reopen attempts in order to limit them. */
+        /**
+         * Enables active resume only when camera is stolen by other apps.
+         */
+        boolean shouldActiveResume() {
+            return mIsActiveResumingMode && (mCameraDeviceError != ERROR_CAMERA_DEVICE
+                    && mCameraDeviceError != ERROR_MAX_CAMERAS_IN_USE);
+        }
+
+        /**
+         * Keeps track of camera reopen attempts in order to limit them.
+         *
+         * When in active resuming mode, it will periodically retry opening the camera regardless
+         * of the camera availability.
+         * Elapsed time <= 2 minutes -> retry once per 1 second.
+         * Elapsed time 2 to 5 minutes -> retry once per 2 seconds.
+         * Elapsed time > 5 minutes -> retry once per 4 seconds.
+         * Retry will stop after 30 minutes.
+         *
+         * When not in active resuming mode, it will reopen in every 700ms within the 10 seconds
+         * limit. However, if the camera is unavailable the retry will stop immediately until it
+         * becomes available.
+         */
         class CameraReopenMonitor {
+            // Delay long enough to guarantee the app could have been backgrounded.
+            // See ProcessLifecycleOwner for where this delay comes from.
+            static final int REOPEN_DELAY_MS = 700;
             // Time limit since the first camera reopen attempt after which reopening the camera
             // should no longer be attempted.
             static final int REOPEN_LIMIT_MS = 10_000;
+            static final int ACTIVE_REOPEN_DELAY_BASE_MS = 1000;
+            static final int ACTIVE_REOPEN_LIMIT_MS = 30 * 60 * 1000; // 30 minutes
             static final int INVALID_TIME = -1;
             private long mFirstReopenTime = INVALID_TIME;
 
-            boolean canScheduleCameraReopen() {
-                final long now = SystemClock.uptimeMillis();
+            int getReopenDelayMs() {
+                if (!shouldActiveResume()) {
+                    return REOPEN_DELAY_MS;
+                } else {
+                    long elapsedTime = getElapsedTime();
+                    if (elapsedTime <= 2 * 60 * 1000) { // <= 2 minutes
+                        return ACTIVE_REOPEN_DELAY_BASE_MS;
+                    } else if (elapsedTime <= 5 * 60 * 1000) { // <= 5 minutes
+                        return ACTIVE_REOPEN_DELAY_BASE_MS * 2;
+                    } else { // > 5 minutes
+                        return ACTIVE_REOPEN_DELAY_BASE_MS * 4;
+                    }
+                }
+            }
 
+            int getReopenLimitMs() {
+                if (!shouldActiveResume()) {
+                    return REOPEN_LIMIT_MS;
+                } else {
+                    return ACTIVE_REOPEN_LIMIT_MS;
+                }
+            }
+
+            long getElapsedTime() {
+                final long now = SystemClock.uptimeMillis();
                 // If it's the first attempt to reopen the camera
                 if (mFirstReopenTime == INVALID_TIME) {
                     mFirstReopenTime = now;
-                    return true;
                 }
 
-                final boolean hasReachedLimit = now - mFirstReopenTime >= REOPEN_LIMIT_MS;
+                return now - mFirstReopenTime;
+            }
+
+            boolean canScheduleCameraReopen() {
+                final boolean hasReachedLimit = getElapsedTime() >= getReopenLimitMs();
 
                 // If the limit has been reached, prevent further attempts to reopen the camera,
                 // and reset [firstReopenTime].

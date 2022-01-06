@@ -38,9 +38,9 @@ import androidx.wear.watchface.style.CurrentUserStyleRepository
 import androidx.wear.watchface.style.UserStyleSetting.ComplicationSlotsUserStyleSetting
 import androidx.wear.watchface.style.UserStyleSetting.ComplicationSlotsUserStyleSetting.ComplicationSlotsOption
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
+import java.time.Instant
 
 private fun getComponentName(context: Context) = ComponentName(
     context.packageName,
@@ -279,28 +279,49 @@ public class ComplicationSlotsManager(
      * @param data The [ComplicationData] that should be displayed in the complication.
      */
     @UiThread
-    internal fun onComplicationDataUpdate(complicationSlotId: Int, data: ComplicationData) {
+    internal fun onComplicationDataUpdate(
+        complicationSlotId: Int,
+        data: ComplicationData,
+        instant: Instant
+    ) {
         val complication = complicationSlots[complicationSlotId] ?: return
         complication.dataDirty = complication.dataDirty ||
             (complication.renderer.getData() != data)
-        complication.renderer.loadData(data, true)
-        (complication.complicationData as MutableStateFlow<ComplicationData>).value = data
+        complication.setComplicationData(data, true, instant)
     }
 
     /**
      * For use by screen shot code which will reset the data afterwards, hence dirty bit not set.
      */
-    internal fun setComplicationDataUpdateSync(complicationSlotId: Int, data: ComplicationData) {
+    @UiThread
+    internal fun setComplicationDataUpdateSync(
+        complicationSlotId: Int,
+        data: ComplicationData,
+        instant: Instant
+    ) {
         val complication = complicationSlots[complicationSlotId] ?: return
-        complication.renderer.loadData(data, false)
-        (complication.complicationData as MutableStateFlow<ComplicationData>).value = data
+        complication.setComplicationData(data, false, instant)
     }
 
     @UiThread
     internal fun clearComplicationData() {
         for ((_, complication) in complicationSlots) {
-            complication.renderer.loadData(NoDataComplicationData(), false)
-            (complication.complicationData as MutableStateFlow).value = NoDataComplicationData()
+            complication.setComplicationData(NoDataComplicationData(), false, Instant.EPOCH)
+        }
+    }
+
+    /**
+     * For each slot, if the ComplicationData is timeline complication data then the correct
+     * override is selected for [instant].
+     */
+    @UiThread
+    internal fun selectComplicationDataForInstant(instant: Instant) {
+        for ((_, complication) in complicationSlots) {
+            complication.selectComplicationDataForInstant(
+                instant,
+                loadDrawablesAsynchronous = true,
+                forceUpdate = false
+            )
         }
     }
 

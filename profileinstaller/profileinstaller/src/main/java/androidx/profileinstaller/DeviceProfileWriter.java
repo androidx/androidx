@@ -180,6 +180,7 @@ public class DeviceProfileWriter {
                     mProfile = ProfileTranscoder.readMeta(
                             is,
                             metaVersion,
+                            mDesiredVersion,
                             profile
                     );
                     return this;
@@ -304,6 +305,9 @@ public class DeviceProfileWriter {
             case Build.VERSION_CODES.R:
                 return ProfileVersion.V010_P;
 
+            case Build.VERSION_CODES.S:
+                return ProfileVersion.V015_S;
+
             default:
                 return null;
         }
@@ -330,6 +334,12 @@ public class DeviceProfileWriter {
             case Build.VERSION_CODES.P:
             case Build.VERSION_CODES.Q:
             case Build.VERSION_CODES.R:
+                return false;
+
+            // The profiles for S require a typeIdCount. Therefore metadata is required.
+            case Build.VERSION_CODES.S:
+                return true;
+
             default:
                 return false;
         }

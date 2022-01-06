@@ -34,6 +34,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import java.util.concurrent.TimeUnit
 import kotlin.test.assertFailsWith
+import kotlin.test.assertTrue
 
 @LargeTest
 @RunWith(AndroidJUnit4::class)
@@ -284,4 +285,49 @@ public class BenchmarkStateTest {
         )
         assertEquals(expectedReport, ResultWriter.reports.last())
     }
+
+    private fun validateProfilerUsage(simplifiedTimingOnlyMode: Boolean?) {
+        try {
+            profilerOverride = StackSamplingLegacy
+
+            val benchmarkState = if (simplifiedTimingOnlyMode != null) {
+                BenchmarkState(simplifiedTimingOnlyMode)
+            } else {
+                BenchmarkState()
+            }
+
+            // count iters with profiler enabled vs disabled
+            var profilerDisabledIterations = 0
+            var profilerEnabledIterations = 0
+            while (benchmarkState.keepRunning()) {
+                if (StackSamplingLegacy.isRunning) {
+                    profilerEnabledIterations++
+                } else {
+                    profilerDisabledIterations++
+
+                    // after profiler has been enabled, no further disabled expected
+                    assertTrue(
+                        profilerEnabledIterations == 0,
+                        "Profiler should not be reenabled after being disabled"
+                    )
+                }
+            }
+
+            if (simplifiedTimingOnlyMode == true) {
+                // profiler should be always disabled
+                assertNotEquals(0, profilerDisabledIterations)
+                assertEquals(0, profilerEnabledIterations)
+            } else {
+                // first, profiler disabled, then enabled until end
+                assertNotEquals(0, profilerDisabledIterations)
+                assertNotEquals(0, profilerEnabledIterations)
+            }
+        } finally {
+            profilerOverride = null
+        }
+    }
+
+    @Test public fun profiler_default() = validateProfilerUsage(null)
+    @Test public fun profiler_false() = validateProfilerUsage(false)
+    @Test public fun profiler_true() = validateProfilerUsage(true)
 }

@@ -52,9 +52,9 @@ public object Outputs {
         @Suppress("DEPRECATION")
         @SuppressLint("NewApi")
         dirUsableByAppAndShell = when {
-            Build.VERSION.SDK_INT in 30..31 -> {
-                // On Android R, S we are using the media directory because that is the directory
-                // that the shell has access to. Context: b/181601156
+            Build.VERSION.SDK_INT in 29..32 -> {
+                // On Android Q, R and S we are using the media directory because that is
+                // the directory that the shell has access to. Context: b/181601156
                 InstrumentationRegistry.getInstrumentation().context.getFirstMountedMediaDir()
             }
             Build.VERSION.SDK_INT <= 22 -> {

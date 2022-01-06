@@ -16,12 +16,15 @@
 package androidx.glance
 
 import android.app.Activity
+import androidx.compose.ui.unit.sp
 import androidx.glance.action.ActionModifier
 import androidx.glance.action.ActionParameters
-import androidx.glance.action.LaunchActivityAction
-import androidx.glance.action.actionLaunchActivity
+import androidx.glance.action.StartActivityAction
 import androidx.glance.action.actionParametersOf
+import androidx.glance.action.actionStartActivity
+import androidx.glance.layout.fillMaxSize
 import androidx.glance.layout.runTestingComposition
+import androidx.glance.text.TextStyle
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.TestCoroutineScope
@@ -47,16 +50,18 @@ class ButtonTest {
         val int = 12
 
         val root = runTestingComposition {
-            Button(text = "button", onClick = actionLaunchActivity<Activity>(
-                actionParametersOf(stringKey to string, intKey to int)
-            ), enabled = true)
+            Button(
+                text = "button", onClick = actionStartActivity<Activity>(
+                    actionParametersOf(stringKey to string, intKey to int)
+                ), enabled = true
+            )
         }
 
         assertThat(root.children).hasSize(1)
         val child = assertIs<EmittableButton>(root.children[0])
         assertThat(child.text).isEqualTo("button")
         val action =
-            assertIs<LaunchActivityAction>(child.modifier.findModifier<ActionModifier>()?.action)
+            assertIs<StartActivityAction>(child.modifier.findModifier<ActionModifier>()?.action)
         assertThat(child.enabled).isTrue()
         assertThat(action.parameters.asMap()).hasSize(2)
         assertThat(action.parameters[stringKey]).isEqualTo(string)
@@ -66,7 +71,7 @@ class ButtonTest {
     @Test
     fun createDisabledButton() = fakeCoroutineScope.runBlockingTest {
         val root = runTestingComposition {
-            Button(text = "button", onClick = actionLaunchActivity<Activity>(), enabled = false)
+            Button(text = "button", onClick = actionStartActivity<Activity>(), enabled = false)
         }
 
         assertThat(root.children).hasSize(1)
@@ -74,5 +79,26 @@ class ButtonTest {
         assertThat(child.text).isEqualTo("button")
         assertThat(child.modifier.findModifier<ActionModifier>()).isNull()
         assertThat(child.enabled).isFalse()
+    }
+
+    @Test
+    fun toEmittableText() = fakeCoroutineScope.runBlockingTest {
+        val root = runTestingComposition {
+            Button(
+                text = "button",
+                onClick = actionStartActivity<Activity>(),
+                modifier = GlanceModifier.fillMaxSize(),
+                maxLines = 3,
+                style = TextStyle(fontSize = 12.sp)
+            )
+        }
+
+        val child = assertIs<EmittableButton>(root.children.single())
+        val asText = child.toEmittableText()
+
+        assertThat(asText.text).isEqualTo("button")
+        assertThat(asText.modifier).isEqualTo(child.modifier)
+        assertThat(asText.style).isEqualTo(TextStyle(fontSize = 12.sp))
+        assertThat(asText.maxLines).isEqualTo(3)
     }
 }

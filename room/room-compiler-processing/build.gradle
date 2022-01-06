@@ -42,6 +42,7 @@ dependencies {
     testImplementation(libs.jsr250)
     testImplementation(libs.ksp)
     testImplementation(project(":room:room-compiler-processing-testing"))
+    testImplementation(project(":internal-testutils-common"))
 }
 
 tasks.withType(KotlinCompile).configureEach {

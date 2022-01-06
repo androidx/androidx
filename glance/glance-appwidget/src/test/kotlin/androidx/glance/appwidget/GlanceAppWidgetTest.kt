@@ -22,6 +22,7 @@ import android.content.Context
 import android.content.res.Configuration
 import android.os.Build
 import android.os.Bundle
+import android.util.SizeF
 import android.widget.FrameLayout
 import android.widget.TextView
 import androidx.compose.runtime.Composable
@@ -428,6 +429,27 @@ class GlanceAppWidgetTest {
             .isEqualTo(DpSize(90.dp, 90.dp))
         assertThat(findBestSize(DpSize(200.dp, 200.dp), sizes))
             .isEqualTo(DpSize(180.dp, 180.dp))
+    }
+
+    // Testing on pre-S and post-S to test both when OPTION_APPWIDGET_SIZES is present or not.
+    @Test
+    @Config(sdk = [Build.VERSION_CODES.Q, Build.VERSION_CODES.S])
+    fun extractAllSizes_shouldExtractSizesWhenPresent() {
+        val bundle = optionsBundleOf(listOf(DpSize(140.dp, 110.dp), DpSize(100.dp, 150.dp)))
+        assertThat(bundle.extractAllSizes { DpSize.Zero }).containsExactly(
+            DpSize(140.dp, 110.dp),
+            DpSize(100.dp, 150.dp)
+        )
+    }
+
+    @Test
+    fun extractAllSizes_emptyAppWidgetSizes_shouldExtractFromMinMax() {
+        val bundle = optionsBundleOf(listOf(DpSize(140.dp, 110.dp), DpSize(100.dp, 150.dp)))
+        bundle.putParcelableArrayList(AppWidgetManager.OPTION_APPWIDGET_SIZES, ArrayList<SizeF>())
+        assertThat(bundle.extractAllSizes { DpSize.Zero }).containsExactly(
+            DpSize(140.dp, 110.dp),
+            DpSize(100.dp, 150.dp)
+        )
     }
 
     private fun optionsBundleOf(sizes: List<DpSize>): Bundle {

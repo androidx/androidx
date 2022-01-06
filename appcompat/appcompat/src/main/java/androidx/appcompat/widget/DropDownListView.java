@@ -649,7 +649,7 @@ class DropDownListView extends ListView {
 
         // Ordering is essential. First, update the container's pressed state.
         if (Build.VERSION.SDK_INT >= 21) {
-            drawableHotspotChanged(x, y);
+            Api21Impl.drawableHotspotChanged(this, x, y);
         }
         if (!isPressed()) {
             setPressed(true);

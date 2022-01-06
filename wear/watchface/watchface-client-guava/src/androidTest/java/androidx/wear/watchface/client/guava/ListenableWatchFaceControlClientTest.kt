@@ -83,7 +83,8 @@ public class ListenableWatchFaceControlClientTest {
                 "color_style_setting",
                 "draw_hour_pips_style_setting",
                 "watch_hand_length_style_setting",
-                "complications_style_setting"
+                "complications_style_setting",
+                "hours_draw_freq_style_setting"
             )
 
         headlessInstance.close()
@@ -155,7 +156,8 @@ public class ListenableWatchFaceControlClientTest {
                 "color_style_setting",
                 "draw_hour_pips_style_setting",
                 "watch_hand_length_style_setting",
-                "complications_style_setting"
+                "complications_style_setting",
+                "hours_draw_freq_style_setting"
             )
 
         interactiveInstance.close()

@@ -31,7 +31,7 @@ dependencies {
     api("org.jdom:jdom2:2.0.6")
     api(libs.kotlinStdlib)
     api(libs.kotlinMetadataJvm)
-    testImplementation("junit:junit:4.12")
+    testImplementation(libs.junit)
     testImplementation(libs.truth)
     testImplementation(libs.kotlinReflect)
     testImplementation(libs.kotlinCompileTesting)

@@ -23,9 +23,10 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.WorkerThread;
 import androidx.appsearch.app.AppSearchBatchResult;
 import androidx.appsearch.app.AppSearchSession;
-import androidx.appsearch.app.Capabilities;
+import androidx.appsearch.app.Features;
 import androidx.appsearch.app.GenericDocument;
 import androidx.appsearch.app.GetByDocumentIdRequest;
 import androidx.appsearch.app.GetSchemaResponse;
@@ -71,7 +72,7 @@ class SearchSessionImpl implements AppSearchSession {
     private static final String TAG = "AppSearchSessionImpl";
     private final AppSearchImpl mAppSearchImpl;
     private final Executor mExecutor;
-    private final Capabilities mCapabilities;
+    private final Features mFeatures;
     private final String mPackageName;
     private final String mDatabaseName;
     private volatile boolean mIsMutated = false;
@@ -81,13 +82,13 @@ class SearchSessionImpl implements AppSearchSession {
     SearchSessionImpl(
             @NonNull AppSearchImpl appSearchImpl,
             @NonNull Executor executor,
-            @NonNull Capabilities capabilities,
+            @NonNull Features features,
             @NonNull String packageName,
             @NonNull String databaseName,
             @Nullable AppSearchLogger logger) {
         mAppSearchImpl = Preconditions.checkNotNull(appSearchImpl);
         mExecutor = Preconditions.checkNotNull(executor);
-        mCapabilities = Preconditions.checkNotNull(capabilities);
+        mFeatures = Preconditions.checkNotNull(features);
         mPackageName = packageName;
         mDatabaseName = Preconditions.checkNotNull(databaseName);
         mLogger = logger;
@@ -286,6 +287,11 @@ class SearchSessionImpl implements AppSearchSession {
             // Now that the batch has been written. Persist the newly written data.
             mAppSearchImpl.persistToDisk(PersistType.Code.LITE);
             mIsMutated = true;
+
+            // Schedule a task to dispatch change notifications. See requirements for where the
+            // method is called documented in the method description.
+            dispatchChangeNotifications();
+
             return resultBuilder.build();
         });
 
@@ -386,6 +392,9 @@ class SearchSessionImpl implements AppSearchSession {
             // Now that the batch has been written. Persist the newly written data.
             mAppSearchImpl.persistToDisk(PersistType.Code.LITE);
             mIsMutated = true;
+            // Schedule a task to dispatch change notifications. See requirements for where the
+            // method is called documented in the method description.
+            dispatchChangeNotifications();
             return resultBuilder.build();
         });
         checkForOptimize(/*mutateBatchSize=*/ request.getIds().size());
@@ -404,17 +413,17 @@ class SearchSessionImpl implements AppSearchSession {
             if (mLogger != null) {
                 removeStatsBuilder = new RemoveStats.Builder(mPackageName, mDatabaseName);
             }
-
             mAppSearchImpl.removeByQuery(mPackageName, mDatabaseName, queryExpression,
                     searchSpec, removeStatsBuilder);
             // Now that the batch has been written. Persist the newly written data.
             mAppSearchImpl.persistToDisk(PersistType.Code.LITE);
             mIsMutated = true;
-
+            // Schedule a task to dispatch change notifications. See requirements for where the
+            // method is called documented in the method description.
+            dispatchChangeNotifications();
             if (mLogger != null) {
                 mLogger.logStats(removeStatsBuilder.build());
             }
-
             return null;
         });
         checkForOptimize();
@@ -439,8 +448,8 @@ class SearchSessionImpl implements AppSearchSession {
 
     @NonNull
     @Override
-    public Capabilities getCapabilities() {
-        return mCapabilities;
+    public Features getFeatures() {
+        return mFeatures;
     }
 
     @Override
@@ -488,6 +497,20 @@ class SearchSessionImpl implements AppSearchSession {
         }
         mIsMutated = true;
         return setSchemaResponse;
+    }
+
+    /**
+     * Dispatches change notifications if there are any to dispatch.
+     *
+     * <p>This method is async; notifications are dispatched onto their own registered executors.
+     *
+     * <p>IMPORTANT: You must always call this within the background task that contains the
+     * operation that mutated the index. If you called it outside of that task, it could start
+     * before the task completes, causing notifications to be missed.
+     */
+    @WorkerThread
+    private void dispatchChangeNotifications() {
+        mAppSearchImpl.dispatchAndClearChangeNotifications();
     }
 
     private void checkForOptimize(int mutateBatchSize) {

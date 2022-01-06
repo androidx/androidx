@@ -89,9 +89,6 @@ class WorkerWrapperForegroundTest {
                 handler.post(runnable)
             }
             val serialExecutor = SerialExecutor(internalExecutor)
-            override fun postToMainThread(runnable: Runnable) {
-                handler.post(runnable)
-            }
 
             override fun getMainThreadExecutor(): Executor {
                 return main

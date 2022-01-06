@@ -40,6 +40,9 @@ import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 /**
  * Container for complication data of all types.
@@ -253,7 +256,11 @@ public final class ComplicationData implements Parcelable, Serializable {
             "SMALL_IMAGE_BURN_IN_PROTECTION";
     private static final String FIELD_LARGE_IMAGE = "LARGE_IMAGE";
     private static final String FIELD_TAP_ACTION = "TAP_ACTION";
+    private static final String FIELD_TAP_ACTION_LOST = "FIELD_TAP_ACTION_LOST";
     private static final String FIELD_IMAGE_STYLE = "IMAGE_STYLE";
+    private static final String FIELD_TIMELINE_START_TIME = "TIMELINE_START_TIME";
+    private static final String FIELD_TIMELINE_END_TIME = "TIMELINE_END_TIME";
+    private static final String FIELD_TIMELINE_ENTRIES = "TIMELINE";
 
     // Originally it was planned to support both content and image content descriptions.
     private static final String FIELD_CONTENT_DESCRIPTION = "IMAGE_CONTENT_DESCRIPTION";
@@ -348,36 +355,35 @@ public final class ComplicationData implements Parcelable, Serializable {
     @ComplicationType
     private final int mType;
     private final Bundle mFields;
-    private final boolean mIsCached;
 
     ComplicationData(@NonNull Builder builder) {
         mType = builder.mType;
         mFields = builder.mFields;
-        mIsCached = builder.mIsCached;
     }
 
-    ComplicationData(int type, Bundle fields, boolean isCached) {
+    ComplicationData(int type, Bundle fields) {
         mType = type;
         mFields = fields;
-        mIsCached = isCached;
     }
 
     private ComplicationData(@NonNull Parcel in) {
         mType = in.readInt();
         mFields = in.readBundle(getClass().getClassLoader());
-        mIsCached = false;
     }
 
     @RequiresApi(api = Build.VERSION_CODES.P)
     private static class SerializedForm implements Serializable {
-        private static final int VERSION_NUMBER = 1;
+        private static final int VERSION_NUMBER = 3;
 
         @NonNull ComplicationData mComplicationData;
+
+        SerializedForm() {}
 
         SerializedForm(@NonNull ComplicationData complicationData) {
             mComplicationData = complicationData;
         }
 
+        @SuppressLint("SyntheticAccessor") // For mComplicationData.mFields
         private void writeObject(ObjectOutputStream oos) throws IOException {
             oos.writeInt(VERSION_NUMBER);
             int type = mComplicationData.getType();
@@ -434,12 +440,31 @@ public final class ComplicationData implements Parcelable, Serializable {
             if (isFieldValidForType(FIELD_END_TIME, type)) {
                 oos.writeLong(mComplicationData.getEndDateTimeMillis());
             }
+            // TapAction unfortunately can't be serialized, instead we record if we've lost it.
+            oos.writeBoolean(mComplicationData.hasTapAction()
+                    || mComplicationData.getTapActionLostDueToSerialization());
+            long start = mComplicationData.mFields.getLong(FIELD_TIMELINE_START_TIME, -1);
+            oos.writeLong(start);
+            long end = mComplicationData.mFields.getLong(FIELD_TIMELINE_END_TIME, -1);
+            oos.writeLong(end);
+
+            // This has to be last, since it's recursive.
+            List<ComplicationData> timeline = mComplicationData.getTimelineEntries();
+            int timelineLength = (timeline != null) ? timeline.size() : 0;
+            oos.writeInt(timelineLength);
+            if (timeline != null) {
+                for (ComplicationData data : timeline) {
+                    new SerializedForm(data).writeObject(oos);
+                }
+            }
         }
 
+        @SuppressLint("SyntheticAccessor") // For mComplicationData.mFields
         private void readObject(ObjectInputStream ois) throws IOException, ClassNotFoundException {
             int versionNumber = ois.readInt();
-            if (versionNumber != 1) {
-                throw new IOException("Unsupported version number " + versionNumber);
+            if (versionNumber != VERSION_NUMBER) {
+                // Give up if there's a version skew.
+                throw new IOException("Unsupported serialization version number " + versionNumber);
             }
             int type = ois.readInt();
             Bundle fields = new Bundle();
@@ -475,7 +500,7 @@ public final class ComplicationData implements Parcelable, Serializable {
                         IconSerializableHelper.read(ois));
             }
             if (isFieldValidForType(FIELD_IMAGE_STYLE, type)) {
-                fields.putInt(FIELD_SMALL_IMAGE_BURN_IN_PROTECTION, ois.readInt());
+                fields.putInt(FIELD_IMAGE_STYLE, ois.readInt());
             }
             if (isFieldValidForType(FIELD_LARGE_IMAGE, type)) {
                 fields.putParcelable(FIELD_LARGE_IMAGE, IconSerializableHelper.read(ois));
@@ -495,7 +520,28 @@ public final class ComplicationData implements Parcelable, Serializable {
             if (isFieldValidForType(FIELD_END_TIME, type)) {
                 fields.putLong(FIELD_END_TIME, ois.readLong());
             }
-            mComplicationData = new ComplicationData(type, fields, true);
+            if (ois.readBoolean()) {
+                fields.putBoolean(FIELD_TAP_ACTION_LOST, true);
+            }
+            long start = ois.readLong();
+            if (start != -1) {
+                fields.putLong(FIELD_TIMELINE_START_TIME, start);
+            }
+            long end = ois.readLong();
+            if (end != -1) {
+                fields.putLong(FIELD_TIMELINE_END_TIME, end);
+            }
+            int timelineLength = ois.readInt();
+            if (timelineLength != 0) {
+                Parcelable[] parcels = new Parcelable[timelineLength];
+                for (int i = 0; i < timelineLength; i++) {
+                    SerializedForm entry = new SerializedForm();
+                    entry.readObject(ois);
+                    parcels[i] = entry.mComplicationData.mFields;
+                }
+                fields.putParcelableArray(FIELD_TIMELINE_ENTRIES, parcels);
+            }
+            mComplicationData = new ComplicationData(type, fields);
         }
 
         Object readResolve() {
@@ -547,9 +593,90 @@ public final class ComplicationData implements Parcelable, Serializable {
                 && dateTimeMillis <= mFields.getLong(FIELD_END_TIME, Long.MAX_VALUE);
     }
 
-    /** Returns true if this is a cached value. */
-    public boolean getIsCached() {
-        return mIsCached;
+    /**
+     * TapAction unfortunately can't be serialized. Returns true if tapAction has been lost due to
+     * serialization (e.g. due to being read from the local cache). The next complication update
+     * from the system would replace this with one with a tapAction.
+     */
+    public boolean getTapActionLostDueToSerialization() {
+        return mFields.getBoolean(FIELD_TAP_ACTION_LOST);
+    }
+
+    /**
+     * For timeline entries. Returns the epoch second at which this timeline entry becomes
+     * valid or `null` if it's not set.
+     */
+    @Nullable
+    public Long getTimelineStartEpochSecond() {
+        long expiresAt = mFields.getLong(FIELD_TIMELINE_START_TIME, -1);
+        if (expiresAt == -1) {
+            return null;
+        } else {
+            return expiresAt;
+        }
+    }
+
+    /**
+     * For timeline entries. Sets the epoch second at which this timeline entry becomes invalid
+     * or clears the field if instant is `null`.
+     */
+    public void setTimelineStartEpochSecond(@Nullable Long epochSecond) {
+        if (epochSecond == null) {
+            mFields.remove(FIELD_TIMELINE_START_TIME);
+        } else {
+            mFields.putLong(FIELD_TIMELINE_START_TIME, epochSecond);
+        }
+    }
+
+    /**
+     * For timeline entries. Returns the epoch second at which this timeline entry becomes invalid
+     * or `null` if it's not set.
+     */
+    @Nullable
+    public Long getTimelineEndEpochSecond() {
+        long expiresAt = mFields.getLong(FIELD_TIMELINE_END_TIME, -1);
+        if (expiresAt == -1) {
+            return null;
+        } else {
+            return expiresAt;
+        }
+    }
+
+    /**
+     * For timeline entries. Sets the epoch second at which this timeline entry becomes invalid,
+     * or clears the field if instant is `null`.
+     */
+    public void setTimelineEndEpochSecond(@Nullable Long epochSecond) {
+        if (epochSecond == null) {
+            mFields.remove(FIELD_TIMELINE_END_TIME);
+        } else {
+            mFields.putLong(FIELD_TIMELINE_END_TIME, epochSecond);
+        }
+    }
+
+    /** Returns the list of {@link ComplicationData} timeline entries. */
+    @Nullable
+    public List<ComplicationData> getTimelineEntries() {
+        Parcelable[] bundles = mFields.getParcelableArray(FIELD_TIMELINE_ENTRIES);
+        if (bundles == null) {
+            return null;
+        }
+        ArrayList<ComplicationData> entries = new ArrayList<>();
+        for (Parcelable parcel : bundles) {
+            entries.add(new ComplicationData(mType, (Bundle) parcel));
+        }
+        return entries;
+    }
+
+    /** Sets the list of {@link ComplicationData} timeline entries. */
+    public void setTimelineEntryCollection(@Nullable Collection<ComplicationData> timelineEntries) {
+        if (timelineEntries == null) {
+            mFields.remove(FIELD_TIMELINE_ENTRIES);
+        } else {
+            mFields.putParcelableArray(
+                    FIELD_TIMELINE_ENTRIES,
+                    timelineEntries.stream().map(e-> e.mFields).toArray(Parcelable[]::new));
+        }
     }
 
     /**
@@ -1081,8 +1208,7 @@ public final class ComplicationData implements Parcelable, Serializable {
     @NonNull
     @Override
     public String toString() {
-        return "ComplicationData{" + "mType=" + mType + ", mFields=" + mFields + " mIsCached"
-                + "=" + mIsCached + '}';
+        return "ComplicationData{" + "mType=" + mType + ", mFields=" + mFields + '}';
     }
 
     /** Builder class for {@link ComplicationData}. */
@@ -1090,7 +1216,6 @@ public final class ComplicationData implements Parcelable, Serializable {
         @ComplicationType
         final int mType;
         final Bundle mFields;
-        boolean mIsCached = false;
 
         /** Creates a builder from given {@link ComplicationData}, copying its type and data. */
         @SuppressLint("SyntheticAccessor")
@@ -1440,8 +1565,10 @@ public final class ComplicationData implements Parcelable, Serializable {
          * <p>Returns this Builder to allow chaining.
          */
         @NonNull
-        public Builder setIsCached(boolean isCached) {
-            mIsCached = isCached;
+        public Builder setTapActionLostDueToSerialization(boolean tapActionLostDueToSerialization) {
+            if (tapActionLostDueToSerialization) {
+                mFields.putBoolean(FIELD_TAP_ACTION_LOST, tapActionLostDueToSerialization);
+            }
             return this;
         }
 

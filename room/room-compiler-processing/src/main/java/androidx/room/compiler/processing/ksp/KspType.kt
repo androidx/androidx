@@ -108,8 +108,9 @@ internal abstract class KspType(
         val builtIns = env.resolver.builtIns
         return when (ksType) {
             builtIns.booleanType -> "false"
-            builtIns.byteType, builtIns.shortType, builtIns.intType, builtIns.longType, builtIns
+            builtIns.byteType, builtIns.shortType, builtIns.intType, builtIns
                 .charType -> "0"
+            builtIns.longType -> "0L"
             builtIns.floatType -> "0f"
             builtIns.doubleType -> "0.0"
             else -> "null"

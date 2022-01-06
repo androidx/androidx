@@ -30,7 +30,7 @@ public class AppSearchDocumentConverterFactoryTest {
     @SmallTest
     public void testGetConverter_registeredConverter_returnsRegisteredConverter() {
         AppSearchDocumentConverter converter = AppSearchDocumentConverterFactory
-                .getConverter("Timer");
+                .getConverter("builtin:Timer");
 
         assertThat(converter).isNotNull();
         assertThat(converter).isInstanceOf(TimerConverter.class);

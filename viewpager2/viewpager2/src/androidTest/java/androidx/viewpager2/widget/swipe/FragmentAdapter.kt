@@ -28,7 +28,7 @@ import androidx.viewpager2.adapter.FragmentStateAdapter
 import org.hamcrest.Matchers.allOf
 import org.hamcrest.Matchers.greaterThanOrEqualTo
 import org.hamcrest.Matchers.lessThanOrEqualTo
-import org.junit.Assert.assertThat
+import org.hamcrest.MatcherAssert.assertThat
 import java.util.concurrent.atomic.AtomicInteger
 
 private const val ARG_KEY = "key"

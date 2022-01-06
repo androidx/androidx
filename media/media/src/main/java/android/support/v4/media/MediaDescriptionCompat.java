@@ -205,6 +205,7 @@ public final class MediaDescriptionCompat implements Parcelable {
         mMediaUri = mediaUri;
     }
 
+    @SuppressWarnings("deprecation")
     MediaDescriptionCompat(Parcel in) {
         mMediaId = in.readString();
         mTitle = TextUtils.CHAR_SEQUENCE_CREATOR.createFromParcel(in);

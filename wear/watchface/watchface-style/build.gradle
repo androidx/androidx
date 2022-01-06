@@ -41,7 +41,7 @@ dependencies {
     testImplementation(libs.robolectric)
     testImplementation(libs.truth)
     testImplementation(libs.kotlinTest)
-    testImplementation("junit:junit:4.13")
+    testImplementation(libs.junit)
 
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)

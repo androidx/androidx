@@ -15,6 +15,7 @@
  */
 
 import androidx.build.LibraryGroups
+import androidx.build.LibraryType
 
 plugins {
     id("AndroidXPlugin")
@@ -40,5 +41,6 @@ dependencies {
 
 androidx {
     name = "AndroidX Library Screenshot Test"
+    type = LibraryType.INTERNAL_TEST_LIBRARY
     mavenGroup = LibraryGroups.TESTSCREENSHOT
 }

@@ -29,7 +29,7 @@ import androidx.glance.Button
 import androidx.glance.GlanceModifier
 import androidx.glance.Image
 import androidx.glance.ImageProvider
-import androidx.glance.action.actionLaunchActivity
+import androidx.glance.action.actionStartActivity
 import androidx.glance.action.clickable
 import androidx.glance.background
 import androidx.glance.layout.Alignment
@@ -47,6 +47,7 @@ import androidx.glance.layout.width
 import androidx.glance.text.FontStyle
 import androidx.glance.text.FontWeight
 import androidx.glance.text.Text
+import androidx.glance.text.TextAlign
 import androidx.glance.text.TextDecoration
 import androidx.glance.text.TextStyle
 import androidx.glance.unit.ColorProvider
@@ -344,7 +345,8 @@ class WearCompositionTranslatorTest {
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Bold,
                 fontStyle = FontStyle.Italic,
-                textDecoration = TextDecoration.Underline
+                textDecoration = TextDecoration.Underline,
+                textAlign = TextAlign.End
             )
             Text("Hello World", modifier = GlanceModifier.padding(1.dp), style = style)
         }.layout
@@ -358,12 +360,17 @@ class WearCompositionTranslatorTest {
         assertThat(innerText.fontStyle!!.italic!!.value).isTrue()
         assertThat(innerText.fontStyle!!.weight!!.value).isEqualTo(FONT_WEIGHT_BOLD)
         assertThat(innerText.fontStyle!!.underline!!.value).isTrue()
+        assertThat(innerText.multilineAlignment!!.value)
+            .isEqualTo(LayoutElementBuilders.TEXT_ALIGN_END)
     }
 
     @Test
     fun textWithSizeInflatesInBox() = fakeCoroutineScope.runBlockingTest {
         val content = runAndTranslate {
-            Text("Hello World", modifier = GlanceModifier.size(100.dp).padding(10.dp))
+            Text(
+                "Hello World",
+                modifier = GlanceModifier.size(100.dp).padding(10.dp),
+                style = TextStyle(textAlign = TextAlign.End))
         }.layout
 
         val innerBox = (content as LayoutElementBuilders.Box).contents[0] as
@@ -374,12 +381,16 @@ class WearCompositionTranslatorTest {
         assertThat((innerBox.width as DimensionBuilders.DpProp).value).isEqualTo(100f)
         assertThat(innerBox.height is DimensionBuilders.DpProp)
         assertThat((innerBox.height as DimensionBuilders.DpProp).value).isEqualTo(100f)
+        assertThat(innerBox.horizontalAlignment!!.value)
+            .isEqualTo(LayoutElementBuilders.HORIZONTAL_ALIGN_END)
 
         // Modifiers should apply to the Box
         assertThat(innerBox.modifiers!!.padding).isNotNull()
 
         // ... and not to the Text
         assertThat(innerText.modifiers?.padding).isNull()
+        assertThat(innerText.multilineAlignment!!.value)
+            .isEqualTo(LayoutElementBuilders.TEXT_ALIGN_END)
     }
 
     @Test
@@ -489,7 +500,7 @@ class WearCompositionTranslatorTest {
     fun canInflateLaunchAction() = fakeCoroutineScope.runBlockingTest {
         val content = runAndTranslate {
             Text(
-                modifier = GlanceModifier.clickable(actionLaunchActivity(TestActivity::class.java)),
+                modifier = GlanceModifier.clickable(actionStartActivity(TestActivity::class.java)),
                 text = "Hello World"
             )
         }.layout
@@ -522,7 +533,7 @@ class WearCompositionTranslatorTest {
             )
             Button(
                 "Hello World",
-                onClick = actionLaunchActivity(TestActivity::class.java),
+                onClick = actionStartActivity(TestActivity::class.java),
                 modifier = GlanceModifier.padding(1.dp),
                 style = style
             )

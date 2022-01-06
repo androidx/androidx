@@ -43,9 +43,9 @@ import androidx.glance.LocalGlanceId
 import androidx.glance.LocalSize
 import androidx.glance.LocalState
 import androidx.glance.appwidget.state.getAppWidgetState
-import kotlinx.coroutines.CancellationException
 import androidx.glance.state.GlanceState
 import androidx.glance.state.GlanceStateDefinition
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
@@ -89,7 +89,7 @@ public abstract class GlanceAppWidget(
      *
      * When the method returns, the state associated with the [glanceId] will be deleted.
      */
-    public open suspend fun onDelete(glanceId: GlanceId) { }
+    public open suspend fun onDelete(context: Context, glanceId: GlanceId) {}
 
     /**
      * Triggers the composition of [Content] and sends the result to the [AppWidgetManager].
@@ -109,7 +109,7 @@ public abstract class GlanceAppWidget(
     internal suspend fun deleted(context: Context, appWidgetId: Int) {
         val glanceId = AppWidgetId(appWidgetId)
         try {
-            onDelete(glanceId)
+            onDelete(context, glanceId)
         } catch (cancelled: CancellationException) {
             // Nothing to do here
         } catch (t: Throwable) {
@@ -464,9 +464,14 @@ internal fun createUniqueRemoteUiName(appWidgetId: Int) = "appWidget-$appWidgetI
 internal data class AppWidgetId(val appWidgetId: Int) : GlanceId
 
 // Extract the sizes from the bundle
-internal fun Bundle.extractAllSizes(minSize: () -> DpSize): List<DpSize> =
-    getParcelableArrayList<SizeF>(AppWidgetManager.OPTION_APPWIDGET_SIZES)
-        ?.map { DpSize(it.width.dp, it.height.dp) } ?: estimateSizes(minSize)
+internal fun Bundle.extractAllSizes(minSize: () -> DpSize): List<DpSize> {
+    val sizes = getParcelableArrayList<SizeF>(AppWidgetManager.OPTION_APPWIDGET_SIZES)
+    return if (sizes.isNullOrEmpty()) {
+        estimateSizes(minSize)
+    } else {
+        sizes.map { DpSize(it.width.dp, it.height.dp) }
+    }
+}
 
 // If the list of sizes is not available, estimate it from the min/max width and height.
 // We can assume that the min width and max height correspond to the portrait mode and the max

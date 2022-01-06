@@ -27,10 +27,8 @@ dependencies {
     annotationProcessor(libs.nullaway)
 
     implementation("androidx.annotation:annotation:1.2.0")
-    implementation("androidx.annotation:annotation-experimental:1.1.0")
-    implementation libs.kotlinStdlib // Due to :annotation-experimental
 
-    testImplementation("junit:junit:4.13")
+    testImplementation(libs.junit)
     testImplementation(libs.testCore)
     testImplementation(libs.testRunner)
     testImplementation(libs.junit)

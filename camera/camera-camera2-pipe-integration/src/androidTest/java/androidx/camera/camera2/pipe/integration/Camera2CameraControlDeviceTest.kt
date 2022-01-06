@@ -21,18 +21,29 @@ import android.graphics.Rect
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraManager
 import android.hardware.camera2.CameraMetadata
-import android.hardware.camera2.CaptureFailure
-import android.hardware.camera2.CaptureRequest
+import android.hardware.camera2.CaptureRequest.COLOR_CORRECTION_MODE
+import android.hardware.camera2.CaptureRequest.COLOR_CORRECTION_MODE_FAST
+import android.hardware.camera2.CaptureRequest.CONTROL_AE_MODE
+import android.hardware.camera2.CaptureRequest.CONTROL_AE_MODE_OFF
+import android.hardware.camera2.CaptureRequest.CONTROL_AE_REGIONS
+import android.hardware.camera2.CaptureRequest.CONTROL_AF_MODE
+import android.hardware.camera2.CaptureRequest.CONTROL_AF_MODE_OFF
+import android.hardware.camera2.CaptureRequest.CONTROL_AF_REGIONS
+import android.hardware.camera2.CaptureRequest.CONTROL_AWB_MODE
+import android.hardware.camera2.CaptureRequest.CONTROL_AWB_MODE_OFF
+import android.hardware.camera2.CaptureRequest.CONTROL_AWB_REGIONS
+import android.hardware.camera2.CaptureRequest.CONTROL_CAPTURE_INTENT
+import android.hardware.camera2.CaptureRequest.CONTROL_CAPTURE_INTENT_MANUAL
+import android.hardware.camera2.CaptureRequest.Key
+import android.hardware.camera2.CaptureRequest.SCALER_CROP_REGION
 import android.hardware.camera2.params.MeteringRectangle
-import androidx.camera.camera2.pipe.FrameInfo
-import androidx.camera.camera2.pipe.FrameNumber
-import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.RequestMetadata
 import androidx.camera.camera2.pipe.integration.adapter.CameraControlAdapter
 import androidx.camera.camera2.pipe.integration.impl.ComboRequestListener
 import androidx.camera.camera2.pipe.integration.interop.Camera2CameraControl
 import androidx.camera.camera2.pipe.integration.interop.CaptureRequestOptions
 import androidx.camera.camera2.pipe.integration.interop.ExperimentalCamera2Interop
+import androidx.camera.camera2.pipe.testing.VerifyResultListener
 import androidx.camera.core.CameraControl
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageAnalysis
@@ -40,6 +51,7 @@ import androidx.camera.core.impl.CameraInfoInternal
 import androidx.camera.core.internal.CameraUseCaseAdapter
 import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.CameraXUtil
+import androidx.camera.testing.LabTestRule
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
@@ -50,7 +62,6 @@ import com.google.common.util.concurrent.ListenableFuture
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.asExecutor
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.withTimeout
 import org.junit.After
 import org.junit.Assert
 import org.junit.Assume
@@ -58,7 +69,6 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import java.util.concurrent.CountDownLatch
 import java.util.concurrent.ExecutionException
 import java.util.concurrent.TimeUnit
 
@@ -76,6 +86,10 @@ class Camera2CameraControlDeviceTest {
 
     @get:Rule
     val useCamera = CameraUtil.grantCameraPermissionAndPreTest()
+
+    // TODO(b/187015621): Remove the rule after the surface can be safely closed.
+    @get:Rule
+    val labTest: LabTestRule = LabTestRule()
 
     @Before
     fun setUp() {
@@ -105,6 +119,7 @@ class Camera2CameraControlDeviceTest {
     }
 
     @Test
+    @LabTestRule.LabTestOnly
     fun canGetInteropApi() {
         Truth.assertThat(
             Camera2CameraControl.from(cameraControl)
@@ -112,17 +127,18 @@ class Camera2CameraControlDeviceTest {
     }
 
     @Test
+    @LabTestRule.LabTestOnly
     fun canSetAndRetrieveCaptureRequestOptions() {
         // Arrange.
         bindUseCase()
         val builder: CaptureRequestOptions.Builder =
             CaptureRequestOptions.Builder()
                 .setCaptureRequestOption<Int>(
-                    CaptureRequest.CONTROL_CAPTURE_INTENT,
-                    CaptureRequest.CONTROL_CAPTURE_INTENT_MANUAL
+                    CONTROL_CAPTURE_INTENT,
+                    CONTROL_CAPTURE_INTENT_MANUAL
                 )
                 .setCaptureRequestOption<Int>(
-                    CaptureRequest.COLOR_CORRECTION_MODE,
+                    COLOR_CORRECTION_MODE,
                     CameraMetadata.COLOR_CORRECTION_MODE_FAST
                 )
         // Act.
@@ -131,14 +147,14 @@ class Camera2CameraControlDeviceTest {
         // Assert.
         Truth.assertThat(
             camera2CameraControl.getCaptureRequestOptions().getCaptureRequestOption(
-                CaptureRequest.CONTROL_CAPTURE_INTENT, null
+                CONTROL_CAPTURE_INTENT, null
             )
         ).isEqualTo(
-            CaptureRequest.CONTROL_CAPTURE_INTENT_MANUAL
+            CONTROL_CAPTURE_INTENT_MANUAL
         )
         Truth.assertThat(
             camera2CameraControl.getCaptureRequestOptions().getCaptureRequestOption(
-                CaptureRequest.COLOR_CORRECTION_MODE, null
+                COLOR_CORRECTION_MODE, null
             )
         ).isEqualTo(
             CameraMetadata.COLOR_CORRECTION_MODE_FAST
@@ -146,128 +162,140 @@ class Camera2CameraControlDeviceTest {
     }
 
     @Test
+    @LabTestRule.LabTestOnly
     fun canSubmitCaptureRequestOptions_beforeBinding() = runBlocking {
         val future = updateCamera2Option<Int>(
-            CaptureRequest.CONTROL_CAPTURE_INTENT,
-            CaptureRequest.CONTROL_CAPTURE_INTENT_MANUAL
+            CONTROL_CAPTURE_INTENT,
+            CONTROL_CAPTURE_INTENT_MANUAL
         )
         bindUseCase()
         assertFutureCompletes(future)
 
         // Assert.
-        registerListener().verifyCaptureRequestParameter(
-            CaptureRequest.CONTROL_CAPTURE_INTENT,
-            CaptureRequest.CONTROL_CAPTURE_INTENT_MANUAL
+        registerListener().verify(
+            { requestMetadata: RequestMetadata, _ ->
+                requestMetadata.request[CONTROL_CAPTURE_INTENT] == CONTROL_CAPTURE_INTENT_MANUAL
+            },
         )
     }
 
     @Test
+    @LabTestRule.LabTestOnly
     fun canSubmitCaptureRequestOptions_afterBinding() = runBlocking {
         // Arrange.
         bindUseCase()
 
         // Act.
         val future = updateCamera2Option(
-            CaptureRequest.CONTROL_CAPTURE_INTENT,
-            CaptureRequest.CONTROL_CAPTURE_INTENT_MANUAL
+            CONTROL_CAPTURE_INTENT,
+            CONTROL_CAPTURE_INTENT_MANUAL
         )
         assertFutureCompletes(future)
 
         // Assert.
-        registerListener().verifyCaptureRequestParameter(
-            CaptureRequest.CONTROL_CAPTURE_INTENT,
-            CaptureRequest.CONTROL_CAPTURE_INTENT_MANUAL
+        registerListener().verify(
+            { requestMetadata: RequestMetadata, _ ->
+                requestMetadata.request[CONTROL_CAPTURE_INTENT] == CONTROL_CAPTURE_INTENT_MANUAL
+            },
         )
     }
 
     @Test
+    @LabTestRule.LabTestOnly
     fun canClearCaptureRequestOptions() = runBlocking {
         // Arrange.
         bindUseCase()
         val builder: CaptureRequestOptions.Builder =
             CaptureRequestOptions.Builder()
                 .setCaptureRequestOption<Int>(
-                    CaptureRequest.CONTROL_CAPTURE_INTENT,
-                    CaptureRequest.CONTROL_CAPTURE_INTENT_MANUAL
+                    CONTROL_CAPTURE_INTENT,
+                    CONTROL_CAPTURE_INTENT_MANUAL
                 )
                 .setCaptureRequestOption<Int>(
-                    CaptureRequest.COLOR_CORRECTION_MODE,
+                    COLOR_CORRECTION_MODE,
                     CameraMetadata.COLOR_CORRECTION_MODE_FAST
                 )
         assertFutureCompletes(camera2CameraControl.setCaptureRequestOptions(builder.build()))
 
         // Act.
-        builder.clearCaptureRequestOption<Int>(CaptureRequest.COLOR_CORRECTION_MODE)
+        builder.clearCaptureRequestOption<Int>(COLOR_CORRECTION_MODE)
         assertFutureCompletes(camera2CameraControl.setCaptureRequestOptions(builder.build()))
 
         // Assert.
         Truth.assertThat(
             camera2CameraControl.getCaptureRequestOptions().getCaptureRequestOption(
-                CaptureRequest.CONTROL_CAPTURE_INTENT, null
+                CONTROL_CAPTURE_INTENT, null
             )
         ).isEqualTo(
-            CaptureRequest.CONTROL_CAPTURE_INTENT_MANUAL
+            CONTROL_CAPTURE_INTENT_MANUAL
         )
         Truth.assertThat(
             camera2CameraControl.getCaptureRequestOptions().getCaptureRequestOption(
-                CaptureRequest.COLOR_CORRECTION_MODE, null
+                COLOR_CORRECTION_MODE, null
             )
         ).isEqualTo(null)
 
-        registerListener().verify({
-            Truth.assertThat(it.last().request[CaptureRequest.CONTROL_CAPTURE_INTENT])
-                .isEqualTo(CaptureRequest.CONTROL_CAPTURE_INTENT_MANUAL)
-            Truth.assertThat(it.last().request[CaptureRequest.COLOR_CORRECTION_MODE])
-                .isNotEqualTo(CaptureRequest.COLOR_CORRECTION_MODE_FAST)
-        })
+        registerListener().verify(
+            { requestMetadata: RequestMetadata, _ ->
+                requestMetadata.request[CONTROL_CAPTURE_INTENT] == CONTROL_CAPTURE_INTENT_MANUAL &&
+                    requestMetadata.request[COLOR_CORRECTION_MODE] != COLOR_CORRECTION_MODE_FAST
+            },
+        )
     }
 
     @Test
+    @LabTestRule.LabTestOnly
     fun canOverrideAfMode() = runBlocking {
         updateCamera2Option(
-            CaptureRequest.CONTROL_AF_MODE,
-            CaptureRequest.CONTROL_AF_MODE_OFF
+            CONTROL_AF_MODE,
+            CONTROL_AF_MODE_OFF
         )
         bindUseCase()
 
         // Assert.
-        registerListener().verifyCaptureRequestParameter(
-            CaptureRequest.CONTROL_AF_MODE,
-            CaptureRequest.CONTROL_AF_MODE_OFF
+        registerListener().verify(
+            { requestMetadata: RequestMetadata, _ ->
+                requestMetadata.request[CONTROL_AF_MODE] == CONTROL_AF_MODE_OFF
+            },
         )
     }
 
     @Test
+    @LabTestRule.LabTestOnly
     fun canOverrideAeMode() = runBlocking {
         updateCamera2Option(
-            CaptureRequest.CONTROL_AE_MODE,
-            CaptureRequest.CONTROL_AE_MODE_OFF
+            CONTROL_AE_MODE,
+            CONTROL_AE_MODE_OFF
         )
         bindUseCase()
 
         // Assert.
-        registerListener().verifyCaptureRequestParameter(
-            CaptureRequest.CONTROL_AE_MODE,
-            CaptureRequest.CONTROL_AE_MODE_OFF
+        registerListener().verify(
+            { requestMetadata: RequestMetadata, _ ->
+                requestMetadata.request[CONTROL_AE_MODE] == CONTROL_AE_MODE_OFF
+            },
         )
     }
 
     @Test
+    @LabTestRule.LabTestOnly
     fun canOverrideAwbMode() = runBlocking {
         updateCamera2Option(
-            CaptureRequest.CONTROL_AWB_MODE,
-            CaptureRequest.CONTROL_AWB_MODE_OFF
+            CONTROL_AWB_MODE,
+            CONTROL_AWB_MODE_OFF
         )
         bindUseCase()
 
         // Assert.
-        registerListener().verifyCaptureRequestParameter(
-            CaptureRequest.CONTROL_AWB_MODE,
-            CaptureRequest.CONTROL_AWB_MODE_OFF
+        registerListener().verify(
+            { requestMetadata: RequestMetadata, _ ->
+                requestMetadata.request[CONTROL_AWB_MODE] == CONTROL_AWB_MODE_OFF
+            },
         )
     }
 
     @Test
+    @LabTestRule.LabTestOnly
     fun canOverrideScalarCropRegion() = runBlocking {
         // scalar crop region must be larger than the region defined
         // by SCALER_AVAILABLE_MAX_DIGITAL_ZOOM otherwise it could cause a crash on some devices.
@@ -277,17 +305,19 @@ class Camera2CameraControlDeviceTest {
         val cropRegion = getZoom2XCropRegion()
 
         // Act.
-        updateCamera2Option(CaptureRequest.SCALER_CROP_REGION, cropRegion)
+        updateCamera2Option(SCALER_CROP_REGION, cropRegion)
         bindUseCase()
 
         // Assert.
-        registerListener().verifyCaptureRequestParameter(
-            CaptureRequest.SCALER_CROP_REGION,
-            cropRegion
+        registerListener().verify(
+            { requestMetadata: RequestMetadata, _ ->
+                requestMetadata.request[SCALER_CROP_REGION] == cropRegion
+            },
         )
     }
 
     @Test
+    @LabTestRule.LabTestOnly
     fun canOverrideAfRegion() = runBlocking {
         // Arrange.
         val meteringRectangles = arrayOf(
@@ -295,17 +325,19 @@ class Camera2CameraControlDeviceTest {
         )
 
         // Act.
-        updateCamera2Option(CaptureRequest.CONTROL_AF_REGIONS, meteringRectangles)
+        updateCamera2Option(CONTROL_AF_REGIONS, meteringRectangles)
         bindUseCase()
 
         // Assert.
-        registerListener().verifyCaptureRequestParameter(
-            CaptureRequest.CONTROL_AF_REGIONS,
-            meteringRectangles
+        registerListener().verify(
+            { requestMetadata: RequestMetadata, _ ->
+                requestMetadata.request[CONTROL_AF_REGIONS] == meteringRectangles
+            },
         )
     }
 
     @Test
+    @LabTestRule.LabTestOnly
     fun canOverrideAeRegion() = runBlocking {
         // Arrange.
         val meteringRectangles = arrayOf(
@@ -313,17 +345,19 @@ class Camera2CameraControlDeviceTest {
         )
 
         // Act.
-        updateCamera2Option(CaptureRequest.CONTROL_AE_REGIONS, meteringRectangles)
+        updateCamera2Option(CONTROL_AE_REGIONS, meteringRectangles)
         bindUseCase()
 
         // Assert.
-        registerListener().verifyCaptureRequestParameter(
-            CaptureRequest.CONTROL_AE_REGIONS,
-            meteringRectangles
+        registerListener().verify(
+            { requestMetadata: RequestMetadata, _ ->
+                requestMetadata.request[CONTROL_AE_REGIONS] == meteringRectangles
+            },
         )
     }
 
     @Test
+    @LabTestRule.LabTestOnly
     fun canOverrideAwbRegion() = runBlocking {
         // Arrange.
         val meteringRectangles = arrayOf(
@@ -331,22 +365,24 @@ class Camera2CameraControlDeviceTest {
         )
 
         // Act.
-        updateCamera2Option(CaptureRequest.CONTROL_AWB_REGIONS, meteringRectangles)
+        updateCamera2Option(CONTROL_AWB_REGIONS, meteringRectangles)
         bindUseCase()
 
         // Assert.
-        registerListener().verifyCaptureRequestParameter(
-            CaptureRequest.CONTROL_AWB_REGIONS,
-            meteringRectangles
+        registerListener().verify(
+            { requestMetadata: RequestMetadata, _ ->
+                requestMetadata.request[CONTROL_AWB_REGIONS] == meteringRectangles
+            },
         )
     }
 
     @Test
+    @LabTestRule.LabTestOnly
     fun cancelPendingFuture_whenInactive() {
         // Arrange.
         val future = updateCamera2Option(
-            CaptureRequest.CONTROL_CAPTURE_INTENT,
-            CaptureRequest.CONTROL_CAPTURE_INTENT_MANUAL
+            CONTROL_CAPTURE_INTENT,
+            CONTROL_CAPTURE_INTENT_MANUAL
         )
 
         // Act.
@@ -387,61 +423,12 @@ class Camera2CameraControlDeviceTest {
             }
     }
 
-    private fun registerListener(capturesCount: Int = 1): VerifyResultListener =
+    private fun registerListener(capturesCount: Int = 60): VerifyResultListener =
         VerifyResultListener(capturesCount).also {
             comboListener.addListener(it, Dispatchers.Default.asExecutor())
         }
 
-    private class VerifyResultListener(capturesCount: Int) : Request.Listener {
-        private val captureRequests = mutableListOf<RequestMetadata>()
-        private val latch = CountDownLatch(capturesCount)
-
-        override fun onAborted(request: Request) {
-            latch.countDown()
-        }
-
-        override fun onComplete(
-            requestMetadata: RequestMetadata,
-            frameNumber: FrameNumber,
-            result: FrameInfo
-        ) {
-            captureRequests.add(requestMetadata)
-            latch.countDown()
-        }
-
-        override fun onFailed(
-            requestMetadata: RequestMetadata,
-            frameNumber: FrameNumber,
-            captureFailure: CaptureFailure
-        ) {
-            latch.countDown()
-        }
-
-        suspend fun <T> verifyCaptureRequestParameter(
-            key: CaptureRequest.Key<T>,
-            value: T,
-            timeout: Long = 5_000.toLong(), //  5 seconds
-        ) {
-            verify(
-                {
-                    Truth.assertThat(it.last().request[key]).isEqualTo(value)
-                },
-                timeout
-            )
-        }
-
-        suspend fun verify(
-            verifyBlock: (captureRequests: List<RequestMetadata>) -> Unit,
-            timeout: Long = 5_000.toLong(), //  5 second
-        ) {
-            withTimeout(timeout) {
-                latch.await()
-                verifyBlock(captureRequests)
-            }
-        }
-    }
-
-    private fun <T> updateCamera2Option(key: CaptureRequest.Key<T>, value: T) =
+    private fun <T> updateCamera2Option(key: Key<T>, value: T) =
         camera2CameraControl.setCaptureRequestOptions(
             CaptureRequestOptions.Builder().setCaptureRequestOption(key, value).build()
         )

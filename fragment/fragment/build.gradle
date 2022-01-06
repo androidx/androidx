@@ -29,10 +29,10 @@ dependencies {
     api("androidx.collection:collection:1.1.0")
     api("androidx.viewpager:viewpager:1.0.0")
     api("androidx.loader:loader:1.0.0")
-    api("androidx.activity:activity:1.2.4")
-    api("androidx.lifecycle:lifecycle-livedata-core:2.3.1")
-    api("androidx.lifecycle:lifecycle-viewmodel:2.3.1")
-    api("androidx.lifecycle:lifecycle-viewmodel-savedstate:2.3.1")
+    api(projectOrArtifact(":activity:activity"))
+    api(projectOrArtifact(":lifecycle:lifecycle-livedata-core"))
+    api(projectOrArtifact(":lifecycle:lifecycle-viewmodel"))
+    api(projectOrArtifact(":lifecycle:lifecycle-viewmodel-savedstate"))
     api(projectOrArtifact(":savedstate:savedstate"))
     api("androidx.annotation:annotation-experimental:1.0.0")
     api(libs.kotlinStdlib)
@@ -76,12 +76,10 @@ androidx {
 
 // needed only while https://youtrack.jetbrains.com/issue/KT-47000 isn't resolved which is
 // targeted to 1.6
-if (project.hasProperty("androidx.useMaxDepVersions")){
-    tasks.withType(KotlinCompile).configureEach {
-        kotlinOptions {
-            freeCompilerArgs += [
-                    "-Xjvm-default=enable",
-            ]
-        }
+tasks.withType(KotlinCompile).configureEach {
+    kotlinOptions {
+        freeCompilerArgs += [
+                "-Xjvm-default=enable",
+        ]
     }
 }

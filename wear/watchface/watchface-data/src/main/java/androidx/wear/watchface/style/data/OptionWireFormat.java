@@ -61,6 +61,7 @@ public class OptionWireFormat implements VersionedParcelable, Parcelable {
 
     public static final Creator<OptionWireFormat> CREATOR =
             new Creator<OptionWireFormat>() {
+                @SuppressWarnings("deprecation")
                 @Override
                 public OptionWireFormat createFromParcel(Parcel source) {
                     return ParcelUtils.fromParcelable(

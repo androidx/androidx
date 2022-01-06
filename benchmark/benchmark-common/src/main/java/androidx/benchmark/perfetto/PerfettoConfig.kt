@@ -57,6 +57,7 @@ private fun ftraceDataSource(
             ),
             atrace_categories = listOf(
                 AtraceTag.ActivityManager,
+                AtraceTag.Audio,
                 AtraceTag.BinderDriver,
                 AtraceTag.Camera,
                 AtraceTag.Dalvik,

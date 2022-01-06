@@ -50,6 +50,10 @@
             android:name="androidx.activity.EmptyContentActivity"
             android:exported="true" />
         <activity
+            android:name="androidx.activity.SingleTopActivity"
+            android:launchMode="singleTop"
+            android:exported="true" />
+        <activity
             android:name="androidx.activity.AutoRestarterActivity"
             android:exported="true" />
         <activity

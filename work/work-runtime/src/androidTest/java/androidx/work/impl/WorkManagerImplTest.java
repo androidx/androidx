@@ -165,7 +165,7 @@ public class WorkManagerImplTest {
                 spy(new GreedyScheduler(
                         mContext,
                         mWorkManagerImpl.getConfiguration(),
-                        mWorkManagerImpl.getWorkTaskExecutor(),
+                        mWorkManagerImpl.getTrackers(),
                         mWorkManagerImpl));
         // Don't return any scheduler. We don't need to actually execute work for most of our tests.
         when(mWorkManagerImpl.getSchedulers()).thenReturn(Collections.<Scheduler>emptyList());
@@ -1614,7 +1614,8 @@ public class WorkManagerImplTest {
     public void testGenerateCleanupCallback_deletesOldFinishedWork() {
         OneTimeWorkRequest work1 = new OneTimeWorkRequest.Builder(TestWorker.class)
                 .setInitialState(SUCCEEDED)
-                .setPeriodStartTime(WorkDatabase.getPruneDate() - 1L, TimeUnit.MILLISECONDS)
+                .setPeriodStartTime(CleanupCallback.INSTANCE.getPruneDate() - 1L,
+                        TimeUnit.MILLISECONDS)
                 .build();
         OneTimeWorkRequest work2 = new OneTimeWorkRequest.Builder(TestWorker.class)
                 .setPeriodStartTime(Long.MAX_VALUE, TimeUnit.MILLISECONDS)
@@ -1625,7 +1626,7 @@ public class WorkManagerImplTest {
 
         SupportSQLiteOpenHelper openHelper = mDatabase.getOpenHelper();
         SupportSQLiteDatabase db = openHelper.getWritableDatabase();
-        WorkDatabase.generateCleanupCallback().onOpen(db);
+        CleanupCallback.INSTANCE.onOpen(db);
 
         WorkSpecDao workSpecDao = mDatabase.workSpecDao();
         assertThat(workSpecDao.getWorkSpec(work1.getStringId()), is(nullValue()));
@@ -1637,15 +1638,18 @@ public class WorkManagerImplTest {
     public void testGenerateCleanupCallback_doesNotDeleteOldFinishedWorkWithActiveDependents() {
         OneTimeWorkRequest work0 = new OneTimeWorkRequest.Builder(TestWorker.class)
                 .setInitialState(SUCCEEDED)
-                .setPeriodStartTime(WorkDatabase.getPruneDate() - 1L, TimeUnit.MILLISECONDS)
+                .setPeriodStartTime(CleanupCallback.INSTANCE.getPruneDate() - 1L,
+                        TimeUnit.MILLISECONDS)
                 .build();
         OneTimeWorkRequest work1 = new OneTimeWorkRequest.Builder(TestWorker.class)
                 .setInitialState(SUCCEEDED)
-                .setPeriodStartTime(WorkDatabase.getPruneDate() - 1L, TimeUnit.MILLISECONDS)
+                .setPeriodStartTime(CleanupCallback.INSTANCE.getPruneDate() - 1L,
+                        TimeUnit.MILLISECONDS)
                 .build();
         OneTimeWorkRequest work2 = new OneTimeWorkRequest.Builder(TestWorker.class)
                 .setInitialState(ENQUEUED)
-                .setPeriodStartTime(WorkDatabase.getPruneDate() - 1L, TimeUnit.MILLISECONDS)
+                .setPeriodStartTime(CleanupCallback.INSTANCE.getPruneDate() - 1L,
+                        TimeUnit.MILLISECONDS)
                 .build();
 
         insertWorkSpecAndTags(work0);
@@ -1658,7 +1662,7 @@ public class WorkManagerImplTest {
 
         SupportSQLiteOpenHelper openHelper = mDatabase.getOpenHelper();
         SupportSQLiteDatabase db = openHelper.getWritableDatabase();
-        WorkDatabase.generateCleanupCallback().onOpen(db);
+        CleanupCallback.INSTANCE.onOpen(db);
 
         WorkSpecDao workSpecDao = mDatabase.workSpecDao();
         assertThat(workSpecDao.getWorkSpec(work0.getStringId()), is(nullValue()));
@@ -1689,7 +1693,7 @@ public class WorkManagerImplTest {
                 new GreedyScheduler(
                         mContext,
                         mWorkManagerImpl.getConfiguration(),
-                        mWorkManagerImpl.getWorkTaskExecutor(),
+                        mWorkManagerImpl.getTrackers(),
                         mWorkManagerImpl);
         // Return GreedyScheduler alone, because real jobs gets scheduled which slow down tests.
         when(mWorkManagerImpl.getSchedulers()).thenReturn(Collections.singletonList(scheduler));

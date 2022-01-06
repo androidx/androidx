@@ -33,7 +33,7 @@ private fun XNullability.toSignature() = when (this) {
 }
 
 fun XType.toSignature() =
-    "$typeName${nullability.toSignature()}".substringAfter("java.lang.")
+    "$typeName${nullability.toSignature()}".substringAfterLast(".")
 
 fun TypeConverter.toSignature(): String {
     return when (this) {

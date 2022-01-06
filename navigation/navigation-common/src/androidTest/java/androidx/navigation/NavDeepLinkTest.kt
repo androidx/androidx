@@ -376,6 +376,27 @@ class NavDeepLinkTest {
             .isFalse()
     }
 
+    // Ensure case when matching the exact argument query (i.e. param names in braces) is handled
+    @Test
+    fun deepLinkQueryParamArgumentMatchParamsInBracesSameName() {
+        val deepLinkArgument = "$DEEP_LINK_EXACT_HTTPS/users?myarg={myarg}"
+        val deepLink = NavDeepLink(deepLinkArgument)
+
+        val matchArgs = deepLink.getMatchingArguments(
+            Uri.parse(deepLinkArgument.replace("{myarg}", "myarg")),
+            mapOf("myarg" to NavArgument.Builder()
+                .setType(NavType.StringType)
+                .setIsNullable(true)
+                .build())
+        )
+        assertWithMessage("Args should not be null")
+            .that(matchArgs)
+            .isNotNull()
+        assertWithMessage("Args should contain the argument and it should be null")
+            .that(matchArgs?.getString("myarg"))
+            .isEqualTo("myarg")
+    }
+
     @Test
     fun deepLinkQueryParamMultipleArgumentMatchOptionalDefault() {
         val deepLinkArgument = "$DEEP_LINK_EXACT_HTTPS/users?id={id}&optional={optional}"

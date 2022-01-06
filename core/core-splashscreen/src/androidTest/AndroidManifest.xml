@@ -30,13 +30,25 @@
         <activity
             android:name=".SplashScreenAppCompatTestActivity"
             android:exported="true"
-            android:theme="@style/Theme.Test.Starting.AppCompat">
+            android:theme="@style/Theme.Test.AppCompat.Starting">
         </activity>
 
         <activity
             android:name=".SplashScreenWithIconBgTestActivity"
             android:exported="true"
             android:theme="@style/Theme.Test.Starting.IconBackground">
+        </activity>
+
+        <activity
+            android:name=".SplashScreenStability1"
+            android:exported="true"
+            android:theme="@style/Theme.Test.Stability1.Starting">
+        </activity>
+
+        <activity
+            android:name=".SplashScreenStability2"
+            android:exported="true"
+            android:theme="@style/Theme.Test.Stability2.Starting">
         </activity>
 
     </application>

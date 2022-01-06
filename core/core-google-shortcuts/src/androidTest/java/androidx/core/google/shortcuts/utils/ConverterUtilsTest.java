@@ -55,6 +55,7 @@ public class ConverterUtilsTest {
                 .put(IndexableKeys.TTL_MILLIS, 0)
                 .put(IndexableKeys.CREATION_TIMESTAMP_MILLIS, 1);
         assertThat(ConverterUtils.buildBaseIndexableFromGenericDocument(
-                mContext, genericDocument).build()).isEqualTo(expectedIndexableBuilder.build());
+                mContext, "schema", genericDocument).build())
+                .isEqualTo(expectedIndexableBuilder.build());
     }
 }

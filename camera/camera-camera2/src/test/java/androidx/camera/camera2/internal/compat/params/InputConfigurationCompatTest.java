@@ -20,6 +20,7 @@ import static com.google.common.truth.Truth.assertThat;
 
 import android.graphics.ImageFormat;
 import android.hardware.camera2.params.InputConfiguration;
+import android.hardware.camera2.params.MultiResolutionStreamInfo;
 import android.os.Build;
 
 import org.junit.Test;
@@ -27,6 +28,9 @@ import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 import org.robolectric.annotation.internal.DoNotInstrument;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
@@ -36,6 +40,7 @@ public final class InputConfigurationCompatTest {
     private static final int WIDTH = 1024;
     private static final int HEIGHT = 768;
     private static final int FORMAT = ImageFormat.YUV_420_888;
+    private static final String CAMERA_ID = "0";
 
     @Test
     public void canCreateInputConfigurationCompat() {
@@ -75,7 +80,7 @@ public final class InputConfigurationCompatTest {
     }
 
     @Test
-    @Config(minSdk = Build.VERSION_CODES.M)
+    @Config(minSdk = Build.VERSION_CODES.M, maxSdk = Build.VERSION_CODES.R)
     public void baseImplHashCodeMatchesFramework() {
         InputConfigurationCompat.InputConfigurationCompatBaseImpl baseImpl =
                 new InputConfigurationCompat.InputConfigurationCompatBaseImpl(WIDTH, HEIGHT,
@@ -87,7 +92,7 @@ public final class InputConfigurationCompatTest {
     }
 
     @Test
-    @Config(minSdk = Build.VERSION_CODES.M)
+    @Config(minSdk = Build.VERSION_CODES.M, maxSdk = Build.VERSION_CODES.R)
     public void baseImplToStringMatchesFramework() {
         InputConfigurationCompat.InputConfigurationCompatBaseImpl baseImpl =
                 new InputConfigurationCompat.InputConfigurationCompatBaseImpl(WIDTH, HEIGHT,
@@ -96,5 +101,18 @@ public final class InputConfigurationCompatTest {
         InputConfiguration config = new InputConfiguration(WIDTH, HEIGHT, FORMAT);
 
         assertThat(baseImpl.toString()).isEqualTo(config.toString());
+    }
+
+    @Test
+    @Config(minSdk = Build.VERSION_CODES.S)
+    public void isMultiResolutionMatchesFramework() {
+        List<MultiResolutionStreamInfo> multiResolutionInputs = new ArrayList<>();
+        multiResolutionInputs.add(new MultiResolutionStreamInfo(WIDTH, HEIGHT, CAMERA_ID));
+
+        InputConfiguration inputConfig = new InputConfiguration(multiResolutionInputs, FORMAT);
+        InputConfigurationCompat compat = InputConfigurationCompat.wrap(inputConfig);
+
+        assertThat(compat).isNotNull();
+        assertThat(compat.isMultiResolution()).isEqualTo(inputConfig.isMultiResolution());
     }
 }

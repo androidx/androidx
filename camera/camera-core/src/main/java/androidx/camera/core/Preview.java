@@ -883,7 +883,9 @@ public final class Preview extends UseCase {
          * output stream under 1080p.
          *
          * <p>If not set, the default selected resolution will be the best size match to the
-         * device's screen resolution, or to 1080p (1920x1080), whichever is smaller.
+         * device's screen resolution, or to 1080p (1920x1080), whichever is smaller. Note that
+         * due to compatibility reasons, CameraX may select a resolution that is larger than the
+         * default screen resolution on certain devices.
          *
          * <p>When using the <code>camera-camera2</code> CameraX implementation, which resolution
          * will be finally selected will depend on the camera device's hardware level and the

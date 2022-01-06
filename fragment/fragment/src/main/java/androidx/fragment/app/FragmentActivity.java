@@ -50,6 +50,9 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.SharedElementCallback;
+import androidx.core.content.OnConfigurationChangedProvider;
+import androidx.core.content.OnTrimMemoryProvider;
+import androidx.core.util.Consumer;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.LifecycleRegistry;
@@ -125,6 +128,12 @@ public class FragmentActivity extends ComponentActivity implements
             mFragmentLifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_STOP);
             return new Bundle();
         });
+        // Ensure that the first OnConfigurationChangedListener
+        // marks the FragmentManager's state as not saved
+        addOnConfigurationChangedListener(newConfig -> mFragments.noteStateNotSaved());
+        // Ensure that the first OnNewIntentListener
+        // marks the FragmentManager's state as not saved
+        addOnNewIntentListener(newConfig -> mFragments.noteStateNotSaved());
         addOnContextAvailableListener(context -> mFragments.attachHost(null /*parent*/));
     }
 
@@ -230,18 +239,6 @@ public class FragmentActivity extends ComponentActivity implements
     /**
      * {@inheritDoc}
      *
-     * Dispatch configuration change to all fragments.
-     */
-    @Override
-    public void onConfigurationChanged(@NonNull Configuration newConfig) {
-        mFragments.noteStateNotSaved();
-        super.onConfigurationChanged(newConfig);
-        mFragments.dispatchConfigurationChanged(newConfig);
-    }
-
-    /**
-     * {@inheritDoc}
-     *
      * Perform initialization of all fragments.
      */
     @Override
@@ -310,17 +307,6 @@ public class FragmentActivity extends ComponentActivity implements
     /**
      * {@inheritDoc}
      *
-     * Dispatch onLowMemory() to all fragments.
-     */
-    @Override
-    public void onLowMemory() {
-        super.onLowMemory();
-        mFragments.dispatchLowMemory();
-    }
-
-    /**
-     * {@inheritDoc}
-     *
      * Dispatch context and options menu to fragments.
      */
     @Override
@@ -365,25 +351,6 @@ public class FragmentActivity extends ComponentActivity implements
         mResumed = false;
         mFragments.dispatchPause();
         mFragmentLifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_PAUSE);
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * Handle onNewIntent() to inform the fragment manager that the
-     * state is not saved.  If you are handling new intents and may be
-     * making changes to the fragment state, you want to be sure to call
-     * through to the super-class here first.  Otherwise, if your state
-     * is saved but the activity is not stopped, you could get an
-     * onNewIntent() call which happens before onResume() and trying to
-     * perform fragment operations at that point will throw IllegalStateException
-     * because the fragment manager thinks the state is still saved.
-     */
-    @Override
-    @CallSuper
-    protected void onNewIntent(@SuppressLint("UnknownNullness") Intent intent) {
-        mFragments.noteStateNotSaved();
-        super.onNewIntent(intent);
     }
 
     /**
@@ -693,6 +660,8 @@ public class FragmentActivity extends ComponentActivity implements
     }
 
     class HostCallbacks extends FragmentHostCallback<FragmentActivity> implements
+            OnConfigurationChangedProvider,
+            OnTrimMemoryProvider,
             ViewModelStoreOwner,
             OnBackPressedDispatcherOwner,
             ActivityResultRegistryOwner,
@@ -797,6 +766,30 @@ public class FragmentActivity extends ComponentActivity implements
         @Override
         public SavedStateRegistry getSavedStateRegistry() {
             return FragmentActivity.this.getSavedStateRegistry();
+        }
+
+        @Override
+        public void addOnConfigurationChangedListener(
+                @NonNull Consumer<Configuration> listener
+        ) {
+            FragmentActivity.this.addOnConfigurationChangedListener(listener);
+        }
+
+        @Override
+        public void removeOnConfigurationChangedListener(
+                @NonNull Consumer<Configuration> listener
+        ) {
+            FragmentActivity.this.removeOnConfigurationChangedListener(listener);
+        }
+
+        @Override
+        public void addOnTrimMemoryListener(@NonNull Consumer<Integer> listener) {
+            FragmentActivity.this.addOnTrimMemoryListener(listener);
+        }
+
+        @Override
+        public void removeOnTrimMemoryListener(@NonNull Consumer<Integer> listener) {
+            FragmentActivity.this.removeOnTrimMemoryListener(listener);
         }
     }
 

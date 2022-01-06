@@ -403,6 +403,7 @@ public final class ViewPager2 extends ViewGroup {
             super(superState);
         }
 
+        @SuppressWarnings("deprecation")
         private void readValues(Parcel source, ClassLoader loader) {
             mRecyclerViewId = source.readInt();
             mCurrentItem = source.readInt();

@@ -35,6 +35,7 @@ dependencies {
     androidTestImplementation(libs.testRules)
     androidTestImplementation(libs.truth)
     androidTestImplementation(libs.multidex)
+    androidTestImplementation(libs.junit)
 }
 
 androidx {

@@ -24,8 +24,6 @@ plugins {
     id("AndroidXComposePlugin")
 }
 
-apply(from: "../../camera-view/dependencies.gradle")
-
 android {
     defaultConfig {
         applicationId "androidx.camera.integration.view"
@@ -58,8 +56,8 @@ android {
 
 dependencies {
     // Internal library
-    implementation("androidx.camera:camera-camera2:${VIEW_ATOMIC_GROUP_PINNED_VER}")
-    implementation("androidx.camera:camera-lifecycle:${VIEW_ATOMIC_GROUP_PINNED_VER}")
+    implementation(project(":camera:camera-camera2"))
+    implementation(project(":camera:camera-lifecycle"))
     implementation("androidx.lifecycle:lifecycle-runtime:2.3.1")
     implementation(project(":camera:camera-view"))
     implementation(libs.guavaAndroid)
@@ -99,9 +97,5 @@ dependencies {
     debugImplementation(libs.testCore)
     debugImplementation("androidx.fragment:fragment-testing:1.2.3")
     // camera-testing added as 'implementation' dependency to include camera-testing activity in APK
-    debugImplementation(project(":camera:camera-testing")) {
-        // Ensure camera-testing does not pull in camera-core project dependency which will
-        // override pinned dependency.
-        exclude(group:"androidx.camera", module:"camera-core")
-    }
+    debugImplementation(project(":camera:camera-testing"))
 }

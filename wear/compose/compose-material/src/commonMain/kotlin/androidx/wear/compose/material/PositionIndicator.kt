@@ -421,20 +421,23 @@ internal class ScalingLazyColumnStateAdapter(
     private fun decimalLastItemIndex(): Float {
         if (state.layoutInfo.visibleItemsInfo.isEmpty()) return 0f
         val lastItem = state.layoutInfo.visibleItemsInfo.last()
-        val lastItemVisibleSize = state.layoutInfo.viewportEndOffset - lastItem.offset
-        val decimalLastItemIndex = lastItem.index.toFloat() +
-            lastItemVisibleSize.toFloat() / lastItem.size.toFloat()
+        val lastItemConvertedOffset: Float = lastItem.offset - (lastItem.size / 2f) +
+            state.viewportHeightPx.value?.div(2f)!! + state.layoutInfo.viewportStartOffset
+        val lastItemVisibleSize = state.layoutInfo.viewportEndOffset - lastItemConvertedOffset
+        val decimalLastItemIndex = lastItem.index.toFloat() + lastItemVisibleSize /
+            lastItem.size.toFloat()
         return decimalLastItemIndex
     }
 
     private fun decimalFirstItemIndex(): Float {
         if (state.layoutInfo.visibleItemsInfo.isEmpty()) return 0f
         val firstItem = state.layoutInfo.visibleItemsInfo.first()
-        val firstItemOffset = firstItem.offset - state.layoutInfo.viewportStartOffset
+        val firstItemConvertedOffset: Float = firstItem.offset - (firstItem.size / 2f) +
+            state.viewportHeightPx.value?.div(2f)!! + state.layoutInfo.viewportStartOffset
         val decimalFirstItemIndex =
-            if (firstItemOffset < 0)
+            if (firstItemConvertedOffset < 0)
                 firstItem.index.toFloat() +
-                    abs(firstItemOffset.toFloat()) / firstItem.size.toFloat()
+                    abs(firstItemConvertedOffset) / firstItem.size.toFloat()
             else firstItem.index.toFloat()
         return decimalFirstItemIndex
     }

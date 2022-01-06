@@ -31,6 +31,7 @@ import androidx.room.RoomDatabase
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
+import androidx.testutils.generateAllEnumerations
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Before
@@ -103,19 +104,15 @@ class InvalidationTrackerBenchmark(private val sampleSize: Int, private val mode
     companion object {
         @JvmStatic
         @Parameterized.Parameters(name = "sampleSize={0}, mode={1}")
-        fun data(): List<Array<Any>> {
-            return mutableListOf<Array<Any>>().apply {
-                arrayOf(
+        fun data(): List<Array<Any>> =
+            generateAllEnumerations(
+                listOf(100, 1000, 5000, 10000),
+                listOf(
                     Mode.MEASURE_INSERT,
                     Mode.MEASURE_DELETE,
                     Mode.MEASURE_INSERT_AND_DELETE
-                ).forEach { mode ->
-                    arrayOf(100, 1000, 5000, 10000).forEach { sampleSize ->
-                        add(arrayOf(sampleSize, mode))
-                    }
-                }
-            }
-        }
+                )
+            )
 
         private const val DB_NAME = "invalidation-benchmark-test"
     }

@@ -29,11 +29,11 @@ import androidx.annotation.WorkerThread;
 import androidx.work.Logger;
 import androidx.work.impl.ExecutionListener;
 import androidx.work.impl.constraints.WorkConstraintsCallback;
-import androidx.work.impl.constraints.WorkConstraintsTracker;
+import androidx.work.impl.constraints.WorkConstraintsTrackerImpl;
+import androidx.work.impl.constraints.trackers.Trackers;
 import androidx.work.impl.model.WorkSpec;
 import androidx.work.impl.utils.WakeLocks;
 import androidx.work.impl.utils.WorkTimer;
-import androidx.work.impl.utils.taskexecutor.TaskExecutor;
 
 import java.util.Collections;
 import java.util.List;
@@ -86,7 +86,7 @@ public class DelayMetCommandHandler implements
     private final int mStartId;
     private final String mWorkSpecId;
     private final SystemAlarmDispatcher mDispatcher;
-    private final WorkConstraintsTracker mWorkConstraintsTracker;
+    private final WorkConstraintsTrackerImpl mWorkConstraintsTracker;
     private final Object mLock;
     private int mCurrentState;
 
@@ -103,8 +103,8 @@ public class DelayMetCommandHandler implements
         mStartId = startId;
         mDispatcher = dispatcher;
         mWorkSpecId = workSpecId;
-        TaskExecutor taskExecutor = dispatcher.getTaskExecutor();
-        mWorkConstraintsTracker = new WorkConstraintsTracker(mContext, taskExecutor, this);
+        Trackers trackers = dispatcher.getWorkManager().getTrackers();
+        mWorkConstraintsTracker = new WorkConstraintsTrackerImpl(trackers, this);
         mHasConstraints = false;
         mCurrentState = STATE_INITIAL;
         mLock = new Object();

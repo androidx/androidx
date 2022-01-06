@@ -29,7 +29,9 @@ import androidx.compose.ui.unit.min
 import androidx.core.view.children
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.platform.app.InstrumentationRegistry
+import com.google.common.truth.Truth.assertThat
 import java.io.FileInputStream
+import java.util.concurrent.atomic.AtomicReference
 import kotlin.test.assertIs
 
 inline fun <reified T : View> View.findChild(noinline pred: (T) -> Boolean) =
@@ -105,4 +107,39 @@ inline fun <reified T : View> View.getTargetView(): T {
             else -> throw IllegalStateException("Unknown complex layout with more than 2 elements.")
         }
     )
+}
+
+// Get the parent view, even if the current view is in a complex layout.
+inline fun <reified T : View> View.getParentView(): T {
+    val parent = assertIs<ViewGroup>(this.parent)
+    if ((parent.tag as? String) != "glanceComplexLayout") {
+        return assertIs(parent)
+    }
+    return assertIs(parent.parent)
+}
+
+// Perform a click on the root layout of a compound button. In our tests we often identify a
+// compound button by its TextView, but we should perform the click on the root view of a compound
+// button layout (parent of the TextView). On both S+ (standard compound button views) and R-
+// (backported views) we tag the root view with "glanceCompoundButton", so we can use that to find
+// the right view to click on.
+fun View.performCompoundButtonClick() {
+    if (tag == "glanceCompoundButton") {
+        this
+    } else {
+        assertIs<View>(this.parent).also {
+            assertThat(it.tag).isEqualTo("glanceCompoundButton")
+        }
+    }.performClick()
+}
+
+// Update the value of the AtomicReference using the given updater function. Will throw an error
+// if unable to successfully set the value.
+fun <T> AtomicReference<T>.update(updater: (T) -> T) {
+    repeat(100) {
+        get().let {
+            if (compareAndSet(it, updater(it))) return
+        }
+    }
+    error("Could not update the AtomicReference")
 }

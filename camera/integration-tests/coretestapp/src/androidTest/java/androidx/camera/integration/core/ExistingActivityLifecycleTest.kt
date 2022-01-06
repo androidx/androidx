@@ -18,6 +18,7 @@ package androidx.camera.integration.core
 import android.Manifest
 import android.app.Instrumentation
 import android.content.Context
+import android.os.Build
 import androidx.camera.core.CameraSelector
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.testing.CameraUtil
@@ -79,6 +80,10 @@ class ExistingActivityLifecycleTest {
 
     @Before
     fun setup() {
+        Assume.assumeFalse(
+            "Ignore Cuttlefish",
+            Build.MODEL.contains("Cuttlefish")
+        )
         Assume.assumeTrue(CameraUtil.deviceHasCamera())
         CoreAppTestUtil.assumeCompatibleDevice()
         // Clear the device UI and check if there is no dialog or lock screen on the top of the

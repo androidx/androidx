@@ -112,6 +112,7 @@ public final class CarAppServiceTest {
 
         AppInfo appInfo = new AppInfo(CarAppApiLevels.getOldest(), CarAppApiLevels.getLatest(),
                 "blah");
+        mCarAppService.onCreate();
         mCarAppService.setAppInfo(appInfo);
 
         // Sets default handshake and host info. OnAppCreate depends on these being non-null.

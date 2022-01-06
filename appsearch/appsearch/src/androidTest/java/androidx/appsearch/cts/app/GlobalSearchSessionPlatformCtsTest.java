@@ -16,17 +16,23 @@
 // @exportToFramework:skipFile()
 package androidx.appsearch.cts.app;
 
+import static com.google.common.truth.Truth.assertThat;
+
 import android.content.Context;
 import android.os.Build;
 
 import androidx.annotation.NonNull;
 import androidx.appsearch.app.AppSearchSession;
+import androidx.appsearch.app.Features;
 import androidx.appsearch.app.GlobalSearchSession;
 import androidx.appsearch.platformstorage.PlatformStorage;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.filters.SdkSuppress;
 
 import com.google.common.util.concurrent.ListenableFuture;
+
+import org.junit.Ignore;
+import org.junit.Test;
 
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.S)
 public class GlobalSearchSessionPlatformCtsTest extends GlobalSearchSessionCtsTestBase {
@@ -42,5 +48,16 @@ public class GlobalSearchSessionPlatformCtsTest extends GlobalSearchSessionCtsTe
         Context context = ApplicationProvider.getApplicationContext();
         return PlatformStorage.createGlobalSearchSession(
                 new PlatformStorage.GlobalSearchContext.Builder(context).build());
+    }
+
+    @Ignore("Unignore this test once these features are implemented in the platform backend.")
+    @Test
+    public void testFeaturesSupported() {
+        assertThat(mDb1.getFeatures().isFeatureSupported(
+                Features.SEARCH_RESULT_MATCH_INFO_SUBMATCH))
+                .isEqualTo(Build.VERSION.SDK_INT >= Build.VERSION_CODES.S);
+        assertThat(mDb1.getFeatures().isFeatureSupported(
+                Features.GLOBAL_SEARCH_SESSION_ADD_REMOVE_OBSERVER))
+                .isEqualTo(Build.VERSION.SDK_INT >= Build.VERSION_CODES.S);
     }
 }

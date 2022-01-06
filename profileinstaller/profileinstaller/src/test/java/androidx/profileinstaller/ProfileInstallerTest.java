@@ -38,6 +38,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 @RequiresApi(api = Build.VERSION_CODES.O)
@@ -59,7 +60,9 @@ public class ProfileInstallerTest extends TestCase {
     @After
     public void rmTmpDir() {
         try {
-            Files.delete(mTmpDir);
+            Files.walk(mTmpDir)
+                    .sorted(Comparator.reverseOrder())
+                    .map(Path::toFile).forEach(File::delete);
         } catch (IOException e) {
             e.printStackTrace();
         }

@@ -40,7 +40,7 @@ import androidx.viewpager2.widget.swipe.PageSwiperManual
 import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.CoreMatchers.notNullValue
 import org.hamcrest.Matchers.greaterThan
-import org.junit.Assert.assertThat
+import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Assume.assumeThat
 import org.junit.Test
 import org.junit.runner.RunWith

@@ -20,11 +20,15 @@ import static androidx.work.impl.background.systemjob.SystemJobInfoConverter.EXT
 
 import android.app.Application;
 import android.app.job.JobParameters;
+import android.app.job.JobScheduler;
 import android.app.job.JobService;
+import android.net.Network;
+import android.net.Uri;
 import android.os.Build;
 import android.os.PersistableBundle;
 import android.text.TextUtils;
 
+import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -39,7 +43,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Service invoked by {@link android.app.job.JobScheduler} to run work tasks.
+ * Service invoked by {@link JobScheduler} to run work tasks.
  *
  * @hide
  */
@@ -121,16 +125,16 @@ public class SystemJobService extends JobService implements ExecutionListener {
         WorkerParameters.RuntimeExtras runtimeExtras = null;
         if (Build.VERSION.SDK_INT >= 24) {
             runtimeExtras = new WorkerParameters.RuntimeExtras();
-            if (params.getTriggeredContentUris() != null) {
+            if (Api24Impl.getTriggeredContentUris(params) != null) {
                 runtimeExtras.triggeredContentUris =
-                        Arrays.asList(params.getTriggeredContentUris());
+                        Arrays.asList(Api24Impl.getTriggeredContentUris(params));
             }
-            if (params.getTriggeredContentAuthorities() != null) {
+            if (Api24Impl.getTriggeredContentAuthorities(params) != null) {
                 runtimeExtras.triggeredContentAuthorities =
-                        Arrays.asList(params.getTriggeredContentAuthorities());
+                        Arrays.asList(Api24Impl.getTriggeredContentAuthorities(params));
             }
             if (Build.VERSION.SDK_INT >= 28) {
-                runtimeExtras.network = params.getNetwork();
+                runtimeExtras.network = Api28Impl.getNetwork(params);
             }
         }
 
@@ -191,5 +195,34 @@ public class SystemJobService extends JobService implements ExecutionListener {
             // b/138441699: BaseBundle.getString sometimes throws an NPE.  Ignore and return null.
         }
         return null;
+    }
+
+    @RequiresApi(24)
+    static class Api24Impl {
+        private Api24Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static Uri[] getTriggeredContentUris(JobParameters jobParameters) {
+            return jobParameters.getTriggeredContentUris();
+        }
+
+        @DoNotInline
+        static String[] getTriggeredContentAuthorities(JobParameters jobParameters) {
+            return jobParameters.getTriggeredContentAuthorities();
+        }
+    }
+
+    @RequiresApi(28)
+    static class Api28Impl {
+        private Api28Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static Network getNetwork(JobParameters jobParameters) {
+            return jobParameters.getNetwork();
+        }
     }
 }
