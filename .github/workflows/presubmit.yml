@@ -20,6 +20,7 @@ jobs:
             -Dorg.gradle.internal.repository.max.retries=20                 \
             -Dorg.gradle.internal.repository.initial.backoff=500            \
             -Dorg.gradle.jvmargs=-XX:MaxMetaspaceSize=512m                  \
+            -Dorg.gradle.jvmargs=-Xmx8g                                     \
             --stacktrace"
           echo "::set-output name=gradlew_flags::$GRADLEW_FLAGS"
       - name: "Compute actions/checkout arguments"
@@ -234,3 +235,10 @@ jobs:
         with:
           name: artifacts_${{ env.artifact-id }}
           path: ~/dist
+      - name: "Upload daemon logs"
+        continue-on-error: true
+        if: failure()
+        uses: actions/upload-artifact@v2
+        with:
+          name: gradle-daemon-logs_${{ env.artifact-id }}
+          path: ~/.gradle/daemon

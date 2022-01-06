@@ -16,14 +16,10 @@
 
 package androidx.room.processor
 
-import androidx.room.ext.GuavaUtilConcurrentTypeNames
-import androidx.room.ext.LifecyclesTypeNames
-import androidx.room.ext.RxJava2TypeNames
-import androidx.room.ext.RxJava3TypeNames
 import androidx.room.compiler.processing.XMethodElement
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.XTypeElement
-import androidx.room.ext.KotlinTypeNames
+import androidx.room.ext.DEFERRED_TYPES
 import androidx.room.vo.TransactionMethod
 
 class TransactionMethodProcessor(
@@ -49,7 +45,7 @@ class TransactionMethodProcessor(
 
         DEFERRED_TYPES.firstOrNull { className ->
             context.processingEnv.findType(className)?.let {
-                rawReturnType.isAssignableFrom(it)
+                it.rawType.isAssignableFrom(rawReturnType)
             } ?: false
         }?.let { returnTypeName ->
             context.logger.e(
@@ -79,24 +75,6 @@ class TransactionMethodProcessor(
             parameterNames = delegate.extractParams().map { it.name },
             callType = callType,
             methodBinder = delegate.findTransactionMethodBinder(callType)
-        )
-    }
-
-    companion object {
-        val DEFERRED_TYPES = listOf(
-            LifecyclesTypeNames.LIVE_DATA,
-            RxJava2TypeNames.FLOWABLE,
-            RxJava2TypeNames.OBSERVABLE,
-            RxJava2TypeNames.MAYBE,
-            RxJava2TypeNames.SINGLE,
-            RxJava2TypeNames.COMPLETABLE,
-            RxJava3TypeNames.FLOWABLE,
-            RxJava3TypeNames.OBSERVABLE,
-            RxJava3TypeNames.MAYBE,
-            RxJava3TypeNames.SINGLE,
-            RxJava3TypeNames.COMPLETABLE,
-            GuavaUtilConcurrentTypeNames.LISTENABLE_FUTURE,
-            KotlinTypeNames.FLOW
         )
     }
 }

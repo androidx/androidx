@@ -18,11 +18,11 @@ package androidx.core.view;
 
 import static android.os.Build.VERSION.SDK_INT;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.hasItem;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertThat;
 
 import android.graphics.Rect;
 

@@ -55,6 +55,7 @@ import androidx.wear.watchface.complications.data.EmptyComplicationData
 import androidx.wear.watchface.complications.data.NoDataComplicationData
 import androidx.wear.watchface.complications.data.PlainComplicationText
 import androidx.wear.watchface.complications.data.ShortTextComplicationData
+import androidx.wear.watchface.complications.data.toApiComplicationData
 import androidx.wear.watchface.complications.rendering.CanvasComplicationDrawable
 import androidx.wear.watchface.complications.rendering.ComplicationDrawable
 import androidx.wear.watchface.control.IInteractiveWatchFace
@@ -1324,6 +1325,26 @@ public class WatchFaceServiceTest {
     }
 
     @Test
+    public fun computeDelayTillNextFrame_60000ms_update_atTopOfMinute() {
+        initEngine(
+            WatchFaceType.ANALOG,
+            listOf(leftComplication, rightComplication),
+            UserStyleSchema(emptyList())
+        )
+
+        renderer.interactiveDrawModeUpdateDelayMillis = 60000
+
+        // Simulate rendering 2s into a minute, after which we should delay till the next minute.
+        watchFaceImpl.nextDrawTimeMillis = 60000 + (120)
+        assertThat(
+            watchFaceImpl.computeDelayTillNextFrame(
+                startTimeMillis = watchFaceImpl.nextDrawTimeMillis,
+                currentTimeMillis = watchFaceImpl.nextDrawTimeMillis
+            )
+        ).isEqualTo(59880) // NB 59880 + 120 == 60000
+    }
+
+    @Test
     public fun getComplicationSlotIdAt_returnsCorrectComplications() {
         initEngine(
             WatchFaceType.ANALOG,
@@ -1634,6 +1655,24 @@ public class WatchFaceServiceTest {
         assertThat(argument[0].bounds).isEqualTo(Rect(25, 25, 75, 75)) // Clock element.
         assertThat(argument[1].bounds).isEqualTo(Rect(20, 40, 40, 60)) // Left complication.
         assertThat(argument[2].bounds).isEqualTo(Rect(60, 40, 80, 60)) // Right complication.
+    }
+
+    @Test
+    public fun onCreate_calls_setContentDescriptionLabels_withCorrectArgs_noComplications() {
+        initEngine(
+            WatchFaceType.ANALOG,
+            emptyList(),
+            UserStyleSchema(emptyList())
+        )
+
+        runPostedTasksFor(0)
+
+        val arguments = ArgumentCaptor.forClass(Array<ContentDescriptionLabel>::class.java)
+        verify(iWatchFaceService).setContentDescriptionLabels(arguments.capture())
+
+        val argument = arguments.value
+        assertThat(argument.size).isEqualTo(1)
+        assertThat(argument[0].bounds).isEqualTo(Rect(25, 25, 75, 75)) // Clock element.
     }
 
     @Test
@@ -2451,13 +2490,19 @@ public class WatchFaceServiceTest {
         assertThat(complicationSlotsManager[RIGHT_COMPLICATION_ID]!!.complicationData.value.type)
             .isEqualTo(ComplicationType.NO_DATA)
 
-        // Set some ComplicationData.
+        // Set some ComplicationData. The TapAction can't be serialized.
         interactiveWatchFaceInstance.updateComplicationData(
             listOf(
                 IdAndComplicationDataWireFormat(
                     LEFT_COMPLICATION_ID,
                     ComplicationData.Builder(ComplicationData.TYPE_LONG_TEXT)
-                        .setLongText(ComplicationText.plainText("TYPE_LONG_TEXT")).build()
+                        .setLongText(ComplicationText.plainText("TYPE_LONG_TEXT"))
+                        .setTapAction(
+                            PendingIntent.getActivity(context, 0, Intent("LongText"),
+                                PendingIntent.FLAG_IMMUTABLE
+                            )
+                        )
+                        .build()
                 ),
                 IdAndComplicationDataWireFormat(
                     RIGHT_COMPLICATION_ID,
@@ -2537,9 +2582,136 @@ public class WatchFaceServiceTest {
             assertThat(leftComplicationData.type).isEqualTo(ComplicationData.TYPE_LONG_TEXT)
             assertThat(leftComplicationData.longText?.getTextAt(context.resources, 0))
                 .isEqualTo("TYPE_LONG_TEXT")
+            assertThat(leftComplicationData.tapActionLostDueToSerialization).isTrue()
             assertThat(rightComplicationData.type).isEqualTo(ComplicationData.TYPE_SHORT_TEXT)
             assertThat(rightComplicationData.shortText?.getTextAt(context.resources, 0))
                 .isEqualTo("TYPE_SHORT_TEXT")
+            assertThat(rightComplicationData.tapActionLostDueToSerialization).isFalse()
+        }
+
+        engineWrapper2.onDestroy()
+    }
+
+    @Test
+    public fun complicationCache_timeline() {
+        val complicationCache = HashMap<String, ByteArray>()
+        val instanceParams = WallpaperInteractiveWatchFaceInstanceParams(
+            "interactiveInstanceId",
+            DeviceConfig(false, false, 0, 0),
+            WatchUiState(false, 0),
+            UserStyle(emptyMap()).toWireFormat(),
+            null
+        )
+        initWallpaperInteractiveWatchFaceInstance(
+            WatchFaceType.ANALOG,
+            listOf(leftComplication),
+            UserStyleSchema(emptyList()),
+            instanceParams,
+            complicationCache = complicationCache
+        )
+
+        assertThat(complicationCache).isEmpty()
+        assertThat(complicationSlotsManager[LEFT_COMPLICATION_ID]!!.complicationData.value.type)
+            .isEqualTo(ComplicationType.NO_DATA)
+
+        val a = ComplicationData.Builder(ComplicationData.TYPE_SHORT_TEXT)
+            .setShortText(ComplicationText.plainText("A"))
+            .build()
+        val b = ComplicationData.Builder(ComplicationData.TYPE_SHORT_TEXT)
+            .setShortText(ComplicationText.plainText("B"))
+            .build()
+        b.timelineStartEpochSecond = 1000
+        b.timelineEndEpochSecond = Long.MAX_VALUE
+        a.setTimelineEntryCollection(listOf(b))
+
+        // Set the ComplicationData.
+        interactiveWatchFaceInstance.updateComplicationData(
+            listOf(IdAndComplicationDataWireFormat(LEFT_COMPLICATION_ID, a))
+        )
+
+        // Complication cache writes are deferred for 1s to try and batch up multiple updates.
+        runPostedTasksFor(1000)
+        assertThat(complicationCache.size).isEqualTo(1)
+        assertThat(complicationCache).containsKey("interactiveInstanceId")
+
+        engineWrapper.onDestroy()
+
+        val service2 = TestWatchFaceService(
+            WatchFaceType.ANALOG,
+            listOf(leftComplication),
+            { _, currentUserStyleRepository, watchState ->
+                TestRenderer(
+                    surfaceHolder,
+                    currentUserStyleRepository,
+                    watchState,
+                    INTERACTIVE_UPDATE_RATE_MS
+                )
+            },
+            UserStyleSchema(emptyList()),
+            watchState,
+            handler,
+            null,
+            null,
+            true,
+            null,
+            choreographer,
+            complicationCache = complicationCache
+        )
+
+        InteractiveInstanceManager
+            .getExistingInstanceOrSetPendingWallpaperInteractiveWatchFaceInstance(
+                InteractiveInstanceManager.PendingWallpaperInteractiveWatchFaceInstance(
+                    instanceParams,
+                    object : IPendingInteractiveWatchFace.Stub() {
+                        override fun getApiVersion() =
+                            IPendingInteractiveWatchFace.API_VERSION
+
+                        override fun onInteractiveWatchFaceCreated(
+                            iInteractiveWatchFace: IInteractiveWatchFace
+                        ) {}
+
+                        override fun onInteractiveWatchFaceCrashed(exception: CrashInfoParcel?) {
+                            fail("WatchFace crashed: $exception")
+                        }
+                    }
+                )
+            )
+
+        val engineWrapper2 = service2.onCreateEngine() as WatchFaceService.EngineWrapper
+        engineWrapper2.onCreate(surfaceHolder)
+        engineWrapper2.onSurfaceChanged(surfaceHolder, 0, 100, 100)
+
+        // [WatchFaceService.createWatchFace] Will have run by now because we're using an immediate
+        // coroutine dispatcher.
+        runBlocking {
+            val watchFaceImpl2 = engineWrapper2.deferredWatchFaceImpl.await()
+
+            watchFaceImpl2.complicationSlotsManager.selectComplicationDataForInstant(
+                Instant.ofEpochSecond(999)
+            )
+
+            // Check the ComplicationData was cached.
+            var leftComplicationData =
+                watchFaceImpl2.complicationSlotsManager[
+                    LEFT_COMPLICATION_ID
+                ]!!.complicationData.value.asWireComplicationData()
+
+            assertThat(leftComplicationData.type).isEqualTo(ComplicationData.TYPE_SHORT_TEXT)
+            assertThat(leftComplicationData.shortText?.getTextAt(context.resources, 0))
+                .isEqualTo("A")
+
+            // Advance time and check again, the complication should change.
+            watchFaceImpl2.complicationSlotsManager.selectComplicationDataForInstant(
+                Instant.ofEpochSecond(1000)
+            )
+            leftComplicationData =
+                watchFaceImpl2.complicationSlotsManager[
+                    LEFT_COMPLICATION_ID
+                ]!!.complicationData.value.asWireComplicationData()
+
+            assertThat(leftComplicationData.type).isEqualTo(ComplicationData.TYPE_SHORT_TEXT)
+            assertThat(leftComplicationData.shortText?.getTextAt(context.resources, 0))
+                .isEqualTo("B")
         }
 
         engineWrapper2.onDestroy()
@@ -3374,6 +3546,10 @@ public class WatchFaceServiceTest {
 
     @Test
     public fun additionalContentDescriptionLabelsSetBeforeWatchFaceInitComplete() {
+        val pendingIntent = PendingIntent.getActivity(context, 0, Intent("Example"),
+            PendingIntent.FLAG_IMMUTABLE
+        )
+
         testWatchFaceService = TestWatchFaceService(
             WatchFaceType.ANALOG,
             emptyList(),
@@ -3392,7 +3568,7 @@ public class WatchFaceServiceTest {
                         ContentDescriptionLabel(
                             PlainComplicationText.Builder("Example").build(),
                             Rect(10, 10, 20, 20),
-                            null
+                            pendingIntent
                         )
                     )
                 )
@@ -3452,6 +3628,8 @@ public class WatchFaceServiceTest {
                 0
             )
         ).isEqualTo("Example")
+
+        assertThat(engineWrapper.contentDescriptionLabels[1].tapAction).isEqualTo(pendingIntent)
     }
 
     @Test
@@ -3988,6 +4166,121 @@ public class WatchFaceServiceTest {
             )
         )
         assertThat(watchState.watchFaceInstanceId.value).isEqualTo("Headless-instance")
+    }
+
+    @Test
+    public fun selectComplicationDataForInstant_overlapping() {
+        val a = ComplicationData.Builder(ComplicationData.TYPE_SHORT_TEXT)
+            .setShortText(ComplicationText.plainText("A"))
+            .build()
+        val b = ComplicationData.Builder(ComplicationData.TYPE_SHORT_TEXT)
+            .setShortText(ComplicationText.plainText("B"))
+            .build()
+        b.timelineStartEpochSecond = 1000
+        b.timelineEndEpochSecond = 4000
+
+        val c = ComplicationData.Builder(ComplicationData.TYPE_SHORT_TEXT)
+            .setShortText(ComplicationText.plainText("C"))
+            .build()
+        c.timelineStartEpochSecond = 2000
+        c.timelineEndEpochSecond = 3000
+
+        a.setTimelineEntryCollection(listOf(b, c))
+
+        initEngine(
+            WatchFaceType.ANALOG,
+            listOf(leftComplication),
+            UserStyleSchema(emptyList())
+        )
+
+        watchFaceImpl.onComplicationSlotDataUpdate(LEFT_COMPLICATION_ID, a.toApiComplicationData())
+
+        complicationSlotsManager.selectComplicationDataForInstant(Instant.ofEpochSecond(999))
+        assertThat(getLeftShortTextComplicationDataText()).isEqualTo("A")
+
+        complicationSlotsManager.selectComplicationDataForInstant(Instant.ofEpochSecond(1000))
+        assertThat(getLeftShortTextComplicationDataText()).isEqualTo("B")
+
+        complicationSlotsManager.selectComplicationDataForInstant(Instant.ofEpochSecond(1999))
+        assertThat(getLeftShortTextComplicationDataText()).isEqualTo("B")
+
+        complicationSlotsManager.selectComplicationDataForInstant(Instant.ofEpochSecond(2000))
+        assertThat(getLeftShortTextComplicationDataText()).isEqualTo("C")
+
+        complicationSlotsManager.selectComplicationDataForInstant(Instant.ofEpochSecond(2999))
+        assertThat(getLeftShortTextComplicationDataText()).isEqualTo("C")
+
+        complicationSlotsManager.selectComplicationDataForInstant(Instant.ofEpochSecond(3000))
+        assertThat(getLeftShortTextComplicationDataText()).isEqualTo("B")
+
+        complicationSlotsManager.selectComplicationDataForInstant(Instant.ofEpochSecond(3999))
+        assertThat(getLeftShortTextComplicationDataText()).isEqualTo("B")
+
+        complicationSlotsManager.selectComplicationDataForInstant(Instant.ofEpochSecond(4000))
+        assertThat(getLeftShortTextComplicationDataText()).isEqualTo("A")
+    }
+
+    @Test
+    public fun selectComplicationDataForInstant_disjoint() {
+        val a = ComplicationData.Builder(ComplicationData.TYPE_SHORT_TEXT)
+            .setShortText(ComplicationText.plainText("A"))
+            .build()
+        val b = ComplicationData.Builder(ComplicationData.TYPE_SHORT_TEXT)
+            .setShortText(ComplicationText.plainText("B"))
+            .build()
+        b.timelineStartEpochSecond = 1000
+        b.timelineEndEpochSecond = 2000
+
+        val c = ComplicationData.Builder(ComplicationData.TYPE_SHORT_TEXT)
+            .setShortText(ComplicationText.plainText("C"))
+            .build()
+        c.timelineStartEpochSecond = 3000
+        c.timelineEndEpochSecond = 4000
+
+        a.setTimelineEntryCollection(listOf(b, c))
+
+        initEngine(
+            WatchFaceType.ANALOG,
+            listOf(leftComplication),
+            UserStyleSchema(emptyList())
+        )
+
+        watchFaceImpl.onComplicationSlotDataUpdate(LEFT_COMPLICATION_ID, a.toApiComplicationData())
+
+        complicationSlotsManager.selectComplicationDataForInstant(Instant.ofEpochSecond(999))
+        assertThat(getLeftShortTextComplicationDataText()).isEqualTo("A")
+
+        complicationSlotsManager.selectComplicationDataForInstant(Instant.ofEpochSecond(1000))
+        assertThat(getLeftShortTextComplicationDataText()).isEqualTo("B")
+
+        complicationSlotsManager.selectComplicationDataForInstant(Instant.ofEpochSecond(1999))
+        assertThat(getLeftShortTextComplicationDataText()).isEqualTo("B")
+
+        complicationSlotsManager.selectComplicationDataForInstant(Instant.ofEpochSecond(2000))
+        assertThat(getLeftShortTextComplicationDataText()).isEqualTo("A")
+
+        complicationSlotsManager.selectComplicationDataForInstant(Instant.ofEpochSecond(2999))
+        assertThat(getLeftShortTextComplicationDataText()).isEqualTo("A")
+
+        complicationSlotsManager.selectComplicationDataForInstant(Instant.ofEpochSecond(3000))
+        assertThat(getLeftShortTextComplicationDataText()).isEqualTo("C")
+
+        complicationSlotsManager.selectComplicationDataForInstant(Instant.ofEpochSecond(3999))
+        assertThat(getLeftShortTextComplicationDataText()).isEqualTo("C")
+
+        complicationSlotsManager.selectComplicationDataForInstant(Instant.ofEpochSecond(4000))
+        assertThat(getLeftShortTextComplicationDataText()).isEqualTo("A")
+    }
+
+    private fun getLeftShortTextComplicationDataText(): CharSequence {
+        val complication = complicationSlotsManager[
+            LEFT_COMPLICATION_ID
+        ]!!.complicationData.value as ShortTextComplicationData
+
+        return complication.text.getTextAt(
+            ApplicationProvider.getApplicationContext<Context>().resources,
+            Instant.EPOCH
+        )
     }
 
     @SuppressLint("NewApi")

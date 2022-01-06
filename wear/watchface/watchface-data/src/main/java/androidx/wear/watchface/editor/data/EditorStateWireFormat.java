@@ -115,6 +115,7 @@ public final class EditorStateWireFormat implements VersionedParcelable, Parcela
 
     public static final Parcelable.Creator<EditorStateWireFormat> CREATOR =
             new Parcelable.Creator<EditorStateWireFormat>() {
+                @SuppressWarnings("deprecation")
                 @Override
                 public EditorStateWireFormat createFromParcel(Parcel source) {
                     return ParcelUtils.fromParcelable(

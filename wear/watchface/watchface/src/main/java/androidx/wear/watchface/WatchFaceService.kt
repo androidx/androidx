@@ -1656,7 +1656,7 @@ public abstract class WatchFaceService : WallpaperService() {
             // applied.
             pendingInitialComplications = params.idAndComplicationDataWireFormats
 
-            if (pendingInitialComplications == null) {
+            if (pendingInitialComplications == null || pendingInitialComplications!!.isEmpty()) {
                 pendingInitialComplications = readComplicationDataCache(_context, params.instanceId)
             }
 
@@ -1796,7 +1796,8 @@ public abstract class WatchFaceService : WallpaperService() {
                 for (idAndData in it) {
                     complicationSlotsManager.onComplicationDataUpdate(
                         idAndData.id,
-                        idAndData.complicationData.toApiComplicationData()
+                        idAndData.complicationData.toApiComplicationData(),
+                        Instant.EPOCH // The value here doesn't matter, will be corrected when drawn
                     )
                 }
             }

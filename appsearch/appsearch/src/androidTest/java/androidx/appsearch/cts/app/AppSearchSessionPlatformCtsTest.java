@@ -23,6 +23,7 @@ import android.os.Build;
 
 import androidx.annotation.NonNull;
 import androidx.appsearch.app.AppSearchSession;
+import androidx.appsearch.app.Features;
 import androidx.appsearch.platformstorage.PlatformStorage;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.filters.SdkSuppress;
@@ -59,6 +60,7 @@ public class AppSearchSessionPlatformCtsTest extends AppSearchSessionCtsTestBase
 
         // TODO(b/201316758) Update to reflect support in Android T+ once this feature is synced
         // over into service-appsearch.
-        assertThat(db2.getCapabilities().isSubmatchSupported()).isFalse();
+        assertThat(db2.getFeatures().isFeatureSupported(
+                Features.SEARCH_RESULT_MATCH_INFO_SUBMATCH)).isFalse();
     }
 }

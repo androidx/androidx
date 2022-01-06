@@ -60,6 +60,7 @@ import org.mockito.MockitoAnnotations;
 import org.robolectric.annotation.internal.DoNotInstrument;
 
 import java.time.Instant;
+import java.util.ArrayList;
 
 /** Tests for {@link ComplicationRenderer}. */
 @RunWith(ComplicationsTestRunner.class)
@@ -406,6 +407,73 @@ public class ComplicationRendererTest {
                 .isEqualTo(radius - smallPadding);
         assertThat(mComplicationRenderer.getImageBorderRadius(style, verticalPadding))
                 .isEqualTo(radius - smallPadding);
+    }
+
+    private class RangedArcsTestData {
+        public int min;
+        public int max;
+        public int value;
+        public float progress;
+        public float remaining;
+        public float gap;
+
+        RangedArcsTestData(int min, int max, int value, float progress, float remaining,
+                float gap) {
+            this.min = min;
+            this.max = max;
+            this.value = value;
+            this.progress = progress;
+            this.remaining = remaining;
+            this.gap = gap;
+        }
+    }
+
+    @Test
+    public void rangedValueArcsAreDrawnCorrectly() {
+        float gap = ComplicationRenderer.STROKE_GAP_IN_DEGREES;
+
+        ArrayList<RangedArcsTestData> testDataSet = new ArrayList<RangedArcsTestData>();
+        testDataSet.add(new RangedArcsTestData(0, 100, 50, 180.0f - gap, 180.0f - gap, gap));
+        testDataSet.add(new RangedArcsTestData(0, 100, 0, 0.0f, 360.0f, 0.0f));
+        testDataSet.add(new RangedArcsTestData(0, 100, 100, 360.0f, 0.0f, 0.0f));
+        testDataSet.add(new RangedArcsTestData(0, 100, 25, 90.0f - gap, 270.0f - gap, gap));
+        testDataSet.add(new RangedArcsTestData(0, 100, 99, 356.4f - gap, 0.0f, gap));
+        testDataSet.add(new RangedArcsTestData(0, 100, 1, 0.0f, 356.4f - gap, gap));
+        testDataSet.add(new RangedArcsTestData(50, 100, 0, 0.0f, 360.0f, 0.0f));
+        testDataSet.add(new RangedArcsTestData(0, 50, 100, 360.0f, 0.0f, 0.0f));
+        testDataSet.add(new RangedArcsTestData(100, 200, 125, 90.0f - gap, 270.0f - gap, gap));
+
+        for (RangedArcsTestData data : testDataSet) {
+            setUp();
+
+            mComplicationRenderer.setComplicationData(
+                    new ComplicationData.Builder(ComplicationData.TYPE_RANGED_VALUE)
+                            .setRangedValue(data.value)
+                            .setRangedMinValue(data.min)
+                            .setRangedMaxValue(data.max)
+                            .build(),
+                    true);
+
+            mComplicationRenderer.draw(mMockCanvas, REFERENCE_TIME, false, false, false, false);
+
+            float start = ComplicationRenderer.RANGED_VALUE_START_ANGLE;
+
+            verify(mMockCanvas)
+                    .drawArc(
+                            any(),
+                            eq(start + data.gap / 2.0f),
+                            eq(data.progress),
+                            eq(false),
+                            any());
+
+            verify(mMockCanvas)
+                    .drawArc(
+                            any(),
+                            eq(start + data.gap / 2.0f + data.progress + data.gap),
+                            eq(data.remaining),
+                            eq(false),
+                            any());
+        }
     }
 
     @Test

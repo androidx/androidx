@@ -60,6 +60,7 @@ public class ParcelImplListSlice implements Parcelable {
         mList = list;
     }
 
+    @SuppressWarnings("deprecation")
     ParcelImplListSlice(Parcel p) {
         final int itemCount = p.readInt();
         mList = new ArrayList<>(itemCount);

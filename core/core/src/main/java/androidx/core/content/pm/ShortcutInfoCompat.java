@@ -68,7 +68,7 @@ public class ShortcutInfoCompat {
 
     /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-    @IntDef({SURFACE_LAUNCHER})
+    @IntDef(flag = true, value = {SURFACE_LAUNCHER})
     @Retention(RetentionPolicy.SOURCE)
     public @interface Surface {}
 
@@ -508,10 +508,10 @@ public class ShortcutInfoCompat {
     }
 
     /**
-     * Return true if the shortcut is excluded from specified surface.
+     * Return true if the shortcut is included in specified surface.
      */
-    public boolean isExcludedFrom(@Surface final int surface) {
-        return (mExcludedSurfaces & surface) > 0;
+    public boolean isIncludedIn(@Surface final int surface) {
+        return (mExcludedSurfaces & surface) == 0;
     }
 
     /**

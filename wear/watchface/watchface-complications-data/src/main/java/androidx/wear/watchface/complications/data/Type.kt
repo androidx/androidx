@@ -57,7 +57,7 @@ public enum class ComplicationType(private val wireType: Int) {
          *
          * @hide
          */
-        @RestrictTo(RestrictTo.Scope.LIBRARY)
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @JvmStatic
         public fun fromWireType(wireType: Int): ComplicationType =
             when (wireType) {

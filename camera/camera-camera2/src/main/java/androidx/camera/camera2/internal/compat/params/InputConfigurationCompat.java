@@ -50,7 +50,9 @@ public final class InputConfigurationCompat {
      * @see android.hardware.camera2.CameraCharacteristics#SCALER_STREAM_CONFIGURATION_MAP
      */
     public InputConfigurationCompat(int width, int height, int format) {
-        if (Build.VERSION.SDK_INT >= 23) {
+        if (Build.VERSION.SDK_INT >= 31) {
+            mImpl = new InputConfigurationCompatApi31Impl(width, height, format);
+        } else if (Build.VERSION.SDK_INT >= 23) {
             mImpl = new InputConfigurationCompatApi23Impl(width, height, format);
         } else {
             mImpl = new InputConfigurationCompatBaseImpl(width, height, format);
@@ -79,6 +81,10 @@ public final class InputConfigurationCompat {
         }
         if (Build.VERSION.SDK_INT < 23) {
             return null;
+        }
+        if (Build.VERSION.SDK_INT >= 31) {
+            return new InputConfigurationCompat(
+                    new InputConfigurationCompatApi31Impl(inputConfiguration));
         }
         return new InputConfigurationCompat(
                 new InputConfigurationCompatApi23Impl(inputConfiguration));
@@ -109,6 +115,18 @@ public final class InputConfigurationCompat {
      */
     public int getFormat() {
         return mImpl.getFormat();
+    }
+
+    /**
+     * Whether this input configuration is of multi-resolution.
+     *
+     * <p>An multi-resolution InputConfiguration means that the reprocessing session created from it
+     * allows input images of different sizes.</p>
+     *
+     * @return  this input configuration is multi-resolution or not.
+     */
+    public boolean isMultiResolution() {
+        return mImpl.isMultiResolution();
     }
 
     /**
@@ -145,6 +163,7 @@ public final class InputConfigurationCompat {
      *
      * @return string representation of {@link InputConfigurationCompat}
      */
+    @NonNull
     @Override
     public String toString() {
         return mImpl.toString();
@@ -170,6 +189,8 @@ public final class InputConfigurationCompat {
         int getHeight();
 
         int getFormat();
+
+        boolean isMultiResolution();
 
         @Nullable
         Object getInputConfiguration();
@@ -205,6 +226,11 @@ public final class InputConfigurationCompat {
         }
 
         @Override
+        public boolean isMultiResolution() {
+            return false;
+        }
+
+        @Override
         public Object getInputConfiguration() {
             return null;
         }
@@ -234,6 +260,7 @@ public final class InputConfigurationCompat {
             return h;
         }
 
+        @NonNull
         @SuppressLint("DefaultLocale") // Implementation matches framework
         @Override
         public String toString() {
@@ -243,7 +270,7 @@ public final class InputConfigurationCompat {
     }
 
     @RequiresApi(23)
-    private static final class InputConfigurationCompatApi23Impl implements
+    private static class InputConfigurationCompatApi23Impl implements
             InputConfigurationCompatImpl {
 
         private final InputConfiguration mObject;
@@ -271,6 +298,11 @@ public final class InputConfigurationCompat {
             return mObject.getFormat();
         }
 
+        @Override
+        public boolean isMultiResolution() {
+            return false;
+        }
+
         @Nullable
         @Override
         public Object getInputConfiguration() {
@@ -291,9 +323,28 @@ public final class InputConfigurationCompat {
             return mObject.hashCode();
         }
 
+        @NonNull
         @Override
         public String toString() {
             return mObject.toString();
+        }
+    }
+
+    @RequiresApi(31)
+    private static final class InputConfigurationCompatApi31Impl extends
+            InputConfigurationCompatApi23Impl {
+
+        InputConfigurationCompatApi31Impl(@NonNull Object inputConfiguration) {
+            super(inputConfiguration);
+        }
+
+        InputConfigurationCompatApi31Impl(int width, int height, int format) {
+            super(width, height, format);
+        }
+
+        @Override
+        public boolean isMultiResolution() {
+            return ((InputConfiguration) getInputConfiguration()).isMultiResolution();
         }
     }
 

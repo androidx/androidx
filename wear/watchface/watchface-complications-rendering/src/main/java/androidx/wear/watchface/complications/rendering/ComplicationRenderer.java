@@ -347,7 +347,8 @@ class ComplicationRenderer {
         }
         // Choose the correct paint set to use
         PaintSet currentPaintSet = inAmbientMode ? mAmbientPaintSet : mActivePaintSet;
-        currentPaintSet.setAlpha(mComplicationData.getIsCached() ? 128 : 255);
+        currentPaintSet.setAlpha(
+                mComplicationData.getTapActionLostDueToSerialization() ? 128 : 255);
         // Update complication texts
         updateComplicationTexts(currentTime.toEpochMilli());
         canvas.save();
@@ -481,20 +482,26 @@ class ComplicationRenderer {
         if (DEBUG_MODE) {
             canvas.drawRect(mRangedValueBoundsF, mDebugPaint);
         }
+
+        float value = Math.min(mComplicationData.getRangedMaxValue(),
+                Math.max(mComplicationData.getRangedMinValue(),
+                        mComplicationData.getRangedValue()))
+                - mComplicationData.getRangedMinValue();
         float interval =
                 (mComplicationData.getRangedMaxValue() - mComplicationData.getRangedMinValue());
-        float progress = interval > 0 ? mComplicationData.getRangedValue() / interval : 0;
+        float progress = interval > 0 ? value / interval : 0;
 
-        float total = 360 - 2 * STROKE_GAP_IN_DEGREES;
-        float inProgressAngle = total * progress;
-        float remainderAngle = total - inProgressAngle;
+        // do not need to draw gap in the cases of full circle
+        float gap = (progress > 0.0f && progress < 1.0f) ? STROKE_GAP_IN_DEGREES : 0.0f;
+        float inProgressAngle = Math.max(0, 360.0f * progress - gap);
+        float remainderAngle = Math.max(0, 360.0f * (1.0f - progress) - gap);
 
         int insetAmount = (int) Math.ceil(paintSet.mInProgressPaint.getStrokeWidth());
         mRangedValueBoundsF.inset(insetAmount, insetAmount);
         // Draw the progress arc.
         canvas.drawArc(
                 mRangedValueBoundsF,
-                RANGED_VALUE_START_ANGLE + STROKE_GAP_IN_DEGREES / 2,
+                RANGED_VALUE_START_ANGLE + gap / 2,
                 inProgressAngle,
                 false,
                 paintSet.mInProgressPaint);
@@ -503,9 +510,9 @@ class ComplicationRenderer {
         canvas.drawArc(
                 mRangedValueBoundsF,
                 RANGED_VALUE_START_ANGLE
-                        + STROKE_GAP_IN_DEGREES / 2.0f
+                        + gap / 2.0f
                         + inProgressAngle
-                        + STROKE_GAP_IN_DEGREES,
+                        + gap,
                 remainderAngle,
                 false,
                 paintSet.mRemainingPaint);

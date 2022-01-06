@@ -86,9 +86,6 @@ public class ParcelableWorkContinuationImplTest {
                         it.run()
                     }
                     val serialExecutor = SerialExecutor(executor)
-                    override fun postToMainThread(runnable: Runnable) {
-                        serialExecutor.execute(runnable)
-                    }
 
                     override fun getMainThreadExecutor(): Executor {
                         return serialExecutor

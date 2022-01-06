@@ -76,6 +76,7 @@ internal fun RemoteViews.translateEmittableCheckBox(
         textViewId,
         element.text,
         element.style,
+        maxLines = element.maxLines,
         verticalTextGravity = Gravity.CENTER_VERTICAL,
     )
     applyModifiers(translationContext, this, element.modifier, viewDef)

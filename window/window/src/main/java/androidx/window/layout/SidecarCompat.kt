@@ -326,6 +326,11 @@ internal class SidecarCompat @VisibleForTesting constructor(
         override fun onViewDetachedFromWindow(view: View) {}
     }
 
+    /**
+     * A callback to translate from Sidecar classes to local classes.
+     *
+     * If you change the name of this class, you must update the proguard file.
+     */
     internal inner class TranslatingCallback : SidecarCallback {
         @SuppressLint("SyntheticAccessor")
         override fun onDeviceStateChanged(newDeviceState: SidecarDeviceState) {
@@ -397,6 +402,8 @@ internal class SidecarCompat @VisibleForTesting constructor(
      * A class to record the last calculated values from [SidecarInterface] and filter out
      * duplicates. This class uses [SidecarAdapter] to compute equality since the methods
      * [Object.equals] and [Object.hashCode] may not have been overridden.
+     *
+     * If you change the name of this class, you must update the proguard file.
      */
     private class DistinctSidecarElementCallback(
         private val sidecarAdapter: SidecarAdapter,

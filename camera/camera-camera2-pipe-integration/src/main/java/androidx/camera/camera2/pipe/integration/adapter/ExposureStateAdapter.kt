@@ -27,7 +27,7 @@ import androidx.camera.camera2.pipe.CameraMetadata
 import androidx.camera.camera2.pipe.integration.impl.CameraProperties
 import androidx.camera.core.ExposureState
 
-internal val EMPTY_RANGE = Range(0, 0)
+internal val EMPTY_RANGE: Range<Int> = Range(0, 0)
 
 /** Adapt [ExposureState] to a [CameraMetadata] instance. */
 @SuppressLint("UnsafeOptInUsageError")

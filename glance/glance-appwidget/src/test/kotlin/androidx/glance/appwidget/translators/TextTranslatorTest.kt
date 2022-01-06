@@ -360,6 +360,17 @@ class TextTranslatorTest {
         assertThat(view).hasTextColor(android.graphics.Color.MAGENTA)
     }
 
+    @Test
+    fun canTranslateText_withMaxLines() = fakeCoroutineScope.runBlockingTest {
+        val rv = context.runAndTranslate {
+            Text("Max line is set", maxLines = 5)
+        }
+        val view = context.applyRemoteViews(rv)
+
+        assertIs<TextView>(view)
+        assertThat(view.maxLines).isEqualTo(5)
+    }
+
     // Check there is a single span, that it's of the correct type and passes the [check].
     private inline fun <reified T> SpannedString.checkSingleSpan(check: (T) -> Unit) {
         val spans = getSpans(0, length, Any::class.java)

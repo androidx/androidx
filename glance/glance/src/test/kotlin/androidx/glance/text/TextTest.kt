@@ -90,6 +90,17 @@ class TextTest {
     }
 
     @Test
+    fun createComposableTextWithMaxLines() = fakeCoroutineScope.runBlockingTest {
+        val root = runTestingComposition {
+          Text("text", maxLines = 3)
+        }
+
+        assertThat(root.children).hasSize(1)
+        val text = assertIs<EmittableText>(root.children[0])
+        assertThat(text.maxLines).isEqualTo(3)
+    }
+
+    @Test
     fun textDecoration_plus() {
         val combined = TextDecoration.LineThrough + TextDecoration.Underline
         assertThat(TextDecoration.LineThrough in combined).isTrue()

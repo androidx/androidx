@@ -16,7 +16,6 @@
 package androidx.navigation.ui
 
 import android.graphics.drawable.Drawable
-import androidx.annotation.RestrictTo
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
 
@@ -24,9 +23,7 @@ import androidx.appcompat.app.AppCompatActivity
  * The OnDestinationChangedListener specifically for keeping the ActionBar updated.
  * This handles both updating the title and updating the Up Indicator, transitioning between
  * the drawer icon and up arrow as needed.
- * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 internal class ActionBarOnDestinationChangedListener(
     private val activity: AppCompatActivity,
     configuration: AppBarConfiguration

@@ -17,10 +17,14 @@
 package androidx.appsearch.app;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresFeature;
+import androidx.appsearch.observer.AppSearchObserverCallback;
+import androidx.appsearch.observer.ObserverSpec;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
 import java.io.Closeable;
+import java.util.concurrent.Executor;
 
 /**
  * Provides a connection to all AppSearch databases the querying application has been
@@ -78,10 +82,70 @@ public interface GlobalSearchSession extends Closeable {
     ListenableFuture<Void> reportSystemUsage(@NonNull ReportSystemUsageRequest request);
 
     /**
-     * Returns the {@link Capabilities} to check for the availability of certain features
+     * Returns the {@link Features} to check for the availability of certain features
      * for this session.
      */
-    @NonNull Capabilities getCapabilities();
+    @NonNull
+    Features getFeatures();
+
+    /**
+     * Adds an {@link AppSearchObserverCallback} to monitor changes within the
+     * databases owned by {@code observedPackage} if they match the given
+     * {@link androidx.appsearch.observer.ObserverSpec}.
+     *
+     * <p>If the data owned by {@code observedPackage} is not visible to you, the registration call
+     * will succeed but no notifications will be dispatched. Notifications could start flowing later
+     * if {@code observedPackage} changes its schema visibility settings.
+     *
+     * <p>If no package matching {@code observedPackage} exists on the system, the registration call
+     * will succeed but no notifications will be dispatched. Notifications could start flowing later
+     * if {@code observedPackage} is installed and starts indexing data.
+     *
+     * <p>This feature may not be available in all implementations. Check
+     * {@link Features#GLOBAL_SEARCH_SESSION_ADD_REMOVE_OBSERVER} before calling this method.
+     *
+     * @param observedPackage Package whose changes to monitor
+     * @param spec            Specification of what types of changes to listen for
+     * @param executor        Executor on which to call the {@code observer} callback methods.
+     * @param observer        Callback to trigger when a schema or document changes
+     * @throws UnsupportedOperationException if this feature is not available on this
+     *                                       AppSearch implementation.
+     */
+    // @exportToFramework:startStrip()
+    @RequiresFeature(
+            enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
+            name = Features.GLOBAL_SEARCH_SESSION_ADD_REMOVE_OBSERVER)
+    // @exportToFramework:endStrip()
+    void addObserver(
+            @NonNull String observedPackage,
+            @NonNull ObserverSpec spec,
+            @NonNull Executor executor,
+            @NonNull AppSearchObserverCallback observer);
+
+    /**
+     * Removes previously registered {@link AppSearchObserverCallback} instances from the system.
+     *
+     * <p>All instances of {@link AppSearchObserverCallback} which are equal to the provided
+     * callback using {@link AppSearchObserverCallback#equals} will be removed.
+     *
+     * <p>If no matching observers have been registered, this method has no effect. If multiple
+     * matching observers have been registered, all will be removed.
+     *
+     * <p>This feature may not be available in all implementations. Check
+     * {@link Features#GLOBAL_SEARCH_SESSION_ADD_REMOVE_OBSERVER} before calling this method.
+     *
+     * @param observedPackage Package in which the observers to be removed are registered
+     * @param observer        Callback to unregister
+     * @throws UnsupportedOperationException if this feature is not available on this
+     *                                       AppSearch implementation.
+     */
+    // @exportToFramework:startStrip()
+    @RequiresFeature(
+            enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
+            name = Features.GLOBAL_SEARCH_SESSION_ADD_REMOVE_OBSERVER)
+    // @exportToFramework:endStrip()
+    void removeObserver(
+            @NonNull String observedPackage, @NonNull AppSearchObserverCallback observer);
 
     /** Closes the {@link GlobalSearchSession}. */
     @Override

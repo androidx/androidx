@@ -559,7 +559,8 @@ class ActivityResultContracts private constructor() {
 
     /**
      * An [ActivityResultContract] to prompt the user to select a path for creating a new
-     * document, returning the `content:` [Uri] of the item that was created.
+     * document of the given [mimeType], returning the `content:` [Uri] of the item that was
+     * created.
      *
      * The input is the suggested name for the new file.
      *
@@ -567,11 +568,23 @@ class ActivityResultContracts private constructor() {
      * extras to the Intent created by `super.createIntent()`.
      */
     @RequiresApi(19)
-    open class CreateDocument : ActivityResultContract<String, Uri?>() {
+    open class CreateDocument(
+        private val mimeType: String
+    ) : ActivityResultContract<String, Uri?>() {
+
+        @Deprecated(
+            "Using a wildcard mime type with CreateDocument is not recommended as it breaks " +
+                "the automatic handling of file extensions. Instead, specify the mime type by " +
+                "using the constructor that takes an concrete mime type (e.g.., " +
+                "CreateDocument(\"image/png\")).",
+            ReplaceWith("CreateDocument(\"todo/todo\")")
+        )
+        constructor() : this("*/*")
+
         @CallSuper
         override fun createIntent(context: Context, input: String): Intent {
             return Intent(Intent.ACTION_CREATE_DOCUMENT)
-                .setType("*/*")
+                .setType(mimeType)
                 .putExtra(Intent.EXTRA_TITLE, input)
         }
 

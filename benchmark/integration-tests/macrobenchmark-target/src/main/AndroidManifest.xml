@@ -62,6 +62,15 @@
             </intent-filter>
         </activity>
 
+        <activity
+            android:name=".AudioActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="androidx.benchmark.integration.macrobenchmark.target.AUDIO_ACTIVITY" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
         <!--
         Activities need to be exported so the macrobenchmark can discover them
          -->

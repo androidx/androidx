@@ -28,6 +28,7 @@ import androidx.annotation.Nullable;
 import androidx.car.app.CarContext;
 import androidx.car.app.CarToast;
 import androidx.car.app.Screen;
+import androidx.car.app.constraints.ConstraintManager;
 import androidx.car.app.model.Action;
 import androidx.car.app.model.ActionStrip;
 import androidx.car.app.model.CarColor;
@@ -71,27 +72,43 @@ public final class PaneTemplateDemoScreen extends Screen implements DefaultLifec
         mCommuteIcon = IconCompat.createWithResource(getCarContext(), R.drawable.ic_commute_24px);
     }
 
-    @NonNull
-    @Override
-    public Template onGetTemplate() {
-        Pane.Builder paneBuilder = new Pane.Builder();
-
-        // Add a row with a large image.
-        paneBuilder.addRow(
-                new Row.Builder()
-                        .setTitle("Row with a large image")
+    private Row createRow(int index) {
+        switch (index) {
+            case 0:
+                // Row with a large image.
+                return new Row.Builder()
+                        .setTitle("Row with a large image and long text long text long text long "
+                                + "text long text")
                         .addText("Text text text")
                         .addText("Text text text")
                         .setImage(new CarIcon.Builder(mRowLargeIcon).build())
-                        .build());
-
-        // Add a non-clickable rows.
-        paneBuilder.addRow(
-                new Row.Builder()
-                        .setTitle("Row title")
+                        .build();
+            default:
+                return new Row.Builder()
+                        .setTitle("Row title " + (index + 1))
                         .addText("Row text 1")
                         .addText("Row text 2")
-                        .build());
+                        .build();
+
+        }
+    }
+
+    @NonNull
+    @Override
+    public Template onGetTemplate() {
+        int listLimit = 4;
+
+        // Adjust the item limit according to the car constrains.
+        if (getCarContext().getCarAppApiLevel() > CarAppApiLevels.LEVEL_1) {
+            listLimit =
+                    getCarContext().getCarService(ConstraintManager.class).getContentLimit(
+                            ConstraintManager.CONTENT_LIMIT_TYPE_PANE);
+        }
+
+        Pane.Builder paneBuilder = new Pane.Builder();
+        for (int i = 0; i < listLimit; i++) {
+            paneBuilder.addRow(createRow(i));
+        }
 
         // Also set a large image outside of the rows.
         paneBuilder.setImage(new CarIcon.Builder(mPaneImage).build());

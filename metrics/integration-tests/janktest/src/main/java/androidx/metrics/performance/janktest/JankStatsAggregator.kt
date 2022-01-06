@@ -16,21 +16,28 @@
 
 package androidx.metrics.performance.janktest
 
-import android.view.View
-import androidx.annotation.UiThread
+import android.view.Window
 import androidx.metrics.performance.FrameData
 import androidx.metrics.performance.JankStats
 import java.util.concurrent.Executor
-import kotlin.jvm.Throws
 
 /**
  * This utility class can be used to provide a simple data aggregation mechanism for JankStats.
  * Instead of receiving a callback on every frame and caching that data, JankStats users can
  * create JankStats indirectly through this Aggregator class, which will compile the data
  * and issue it upon request.
- */
-class JankStatsAggregator private constructor(
-    view: View,
+ *
+ * @param window The Window for which stats will be tracked. A JankStatsAggregator
+ * instance is specific to each window in an application, since the timing metrics are
+ * tracked on a per-window basis internally.
+ * @param executor The executor that will be used to call the frameListener.
+ * @param onJankReportListener This listener will be called whenever there is a call to
+ * [issueJankReport].
+ * @throws IllegalStateException This function will throw an exception if `window` has
+ * a null DecorView.
+*/
+class JankStatsAggregator(
+    window: Window,
     private val executor: Executor,
     private val onJankReportListener: OnJankReportListener
 ) {
@@ -47,7 +54,7 @@ class JankStatsAggregator private constructor(
         }
     }
 
-    val jankStats = JankStats.create(view, executor, listener)
+    val jankStats = JankStats.createAndTrack(window, executor, listener)
 
     private var jankReport = ArrayList<FrameData>()
 
@@ -93,32 +100,6 @@ class JankStatsAggregator private constructor(
     }
 
     companion object {
-        /**
-         * Creates and returns a JankStatsAggregator object, which internally creates a JankStats
-         * object that will issue metrics reports to the frameListener provided.
-         *
-         * @param view Any view in the hierarchy which this object will track. A JankStatsAggregator
-         * instance is specific to each window in an application, since the timing metrics are
-         * tracked on a per-window basis internally, and the view hierarchy can be used as a proxy
-         * for that window.
-         * @param executor The executor that will be used to call the frameListener.
-         * @param frameListener This listener will be called whenever there is a call to
-         * [issueJankReport].
-         * @return A new JankStatus object for the given View's hierarchy.
-         * @throws IllegalStateException This function will throw an exception if there is already
-         * an existing JankStats object for this view hierarchy.
-         */
-        @JvmStatic
-        @UiThread
-        @Throws(RuntimeException::class)
-        fun create(
-            view: View,
-            executor: Executor,
-            frameListener: OnJankReportListener
-        ): JankStatsAggregator {
-            return JankStatsAggregator(view, executor, frameListener)
-        }
-
         /**
          * The number of frames for which data can be accumulated is limited to avoid
          * memory problems. When the limit is reached, a report is automatically issued

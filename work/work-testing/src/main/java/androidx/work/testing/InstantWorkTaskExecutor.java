@@ -37,11 +37,6 @@ class InstantWorkTaskExecutor implements TaskExecutor {
     }
 
     @Override
-    public void postToMainThread(Runnable runnable) {
-        runnable.run();
-    }
-
-    @Override
     public Executor getMainThreadExecutor() {
         return mSynchronousExecutor;
     }

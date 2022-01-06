@@ -18,6 +18,7 @@ package androidx.glance.wear.tiles
 
 import android.content.Intent
 import android.os.IBinder
+import android.util.Log
 import androidx.compose.runtime.BroadcastFrameClock
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Composition
@@ -38,6 +39,7 @@ import androidx.wear.tiles.TileService
 import androidx.wear.tiles.TimelineBuilders
 import com.google.common.util.concurrent.Futures
 import com.google.common.util.concurrent.ListenableFuture
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.currentCoroutineContext
@@ -63,9 +65,14 @@ import java.util.Arrays
  * discover them. Your service must include an intent filter for the action
  * `androidx.wear.tiles.action.BIND_TILE_PROVIDER`, and require the permission
  * `com.google.android.wearable.permission.BIND_TILE_PROVIDER`.
+ *
+ * @param errorUiLayout If not null and an error occurs within this glance wear tile, the tile is
+ * updated with an error UI using the provided layout.
  */
 
-public abstract class GlanceTileService : TileService() {
+public abstract class GlanceTileService(
+    private val errorUiLayout: LayoutElementBuilders.LayoutElement? = errorUiLayout()
+) : TileService() {
     private val lifecycleOwner = object : LifecycleOwner {
         val localLifecycle = LifecycleRegistry(this)
         override fun getLifecycle(): Lifecycle = localLifecycle
@@ -127,7 +134,17 @@ public abstract class GlanceTileService : TileService() {
 
             normalizeCompositionTree(this@GlanceTileService, root)
 
-            translateTopLevelComposition(this@GlanceTileService, root)
+            try {
+                translateTopLevelComposition(this@GlanceTileService, root)
+            } catch (ex: CancellationException) {
+                throw ex
+            } catch (throwable: Throwable) {
+                if (errorUiLayout == null) {
+                    throw throwable
+                }
+                Log.e(GlanceWearTileTag, throwable.toString())
+                CompositionResult(errorUiLayout, ResourceBuilders.Resources.Builder())
+            }
         }
 
     internal class GlanceTile(

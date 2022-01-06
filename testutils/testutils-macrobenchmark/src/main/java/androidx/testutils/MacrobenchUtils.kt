@@ -19,6 +19,7 @@ package androidx.testutils
 import android.content.Intent
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.benchmark.macro.BaselineProfileMode
 import androidx.benchmark.macro.CompilationMode
 import androidx.benchmark.macro.StartupMode
 import androidx.benchmark.macro.StartupTimingLegacyMetric
@@ -34,12 +35,16 @@ import androidx.benchmark.macro.junit4.MacrobenchmarkRule
  */
 val BASIC_COMPILATION_MODES = if (Build.VERSION.SDK_INT < 24) {
     // other modes aren't supported
-    listOf(CompilationMode.None)
+    listOf(CompilationMode.Full())
 } else {
     listOf(
-        CompilationMode.None,
+        CompilationMode.None(),
         CompilationMode.Interpreted,
-        CompilationMode.SpeedProfile()
+        CompilationMode.Partial(
+            baselineProfileMode = BaselineProfileMode.Disable,
+            warmupIterations = 3
+        ),
+        CompilationMode.Full()
     )
 }
 
@@ -49,8 +54,9 @@ val BASIC_COMPILATION_MODES = if (Build.VERSION.SDK_INT < 24) {
  * Baseline profiles are only supported from Nougat (API 24),
  * currently through Android 11 (API 30)
  */
-val COMPILATION_MODES = if (Build.VERSION.SDK_INT in 24..30) {
-    listOf(CompilationMode.BaselineProfile)
+@Suppress("ConvertTwoComparisonsToRangeCheck") // lint doesn't understand range checks
+val COMPILATION_MODES = if (Build.VERSION.SDK_INT >= 24 && Build.VERSION.SDK_INT <= 30) {
+    listOf(CompilationMode.Partial())
 } else {
     emptyList()
 } + BASIC_COMPILATION_MODES

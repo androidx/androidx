@@ -361,7 +361,7 @@ class KspTypeTest {
             // types.
             assertThat(getDefaultValue("intProp")).isEqualTo("0")
             assertThat(getDefaultValue("nullableIntProp")).isEqualTo("null")
-            assertThat(getDefaultValue("longProp")).isEqualTo("0")
+            assertThat(getDefaultValue("longProp")).isEqualTo("0L")
             assertThat(getDefaultValue("nullableLongProp")).isEqualTo("null")
             assertThat(getDefaultValue("floatProp")).isEqualTo("0f")
             assertThat(getDefaultValue("byteProp")).isEqualTo("0")

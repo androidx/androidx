@@ -28,8 +28,10 @@ import android.content.pm.ApplicationInfo;
 import android.os.Process;
 import android.text.TextUtils;
 
+import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.work.Configuration;
 import androidx.work.Logger;
@@ -73,7 +75,7 @@ public class ProcessUtils {
     @SuppressLint({"PrivateApi", "DiscouragedPrivateApi"})
     public static String getProcessName(@NonNull Context context) {
         if (SDK_INT >= 28) {
-            return Application.getProcessName();
+            return Api28Impl.getProcessName();
         }
 
         // Try using ActivityThread to determine the current process name.
@@ -119,5 +121,17 @@ public class ProcessUtils {
         }
 
         return null;
+    }
+
+    @RequiresApi(28)
+    static class Api28Impl {
+        private Api28Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static String getProcessName() {
+            return Application.getProcessName();
+        }
     }
 }

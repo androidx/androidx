@@ -29,13 +29,19 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Stable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.layout
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.Constraints
@@ -161,6 +167,47 @@ public inline fun <T> ScalingLazyListScope.itemsIndexed(
     itemContent(it, items[it])
 }
 
+@Suppress("INLINE_CLASS_DEPRECATED")
+@Immutable
+public inline class ScalingLazyListAnchorType internal constructor(internal val type: Int) {
+
+    companion object {
+        /**
+         * Place the center of the item on (or as close to) the center line of the viewport
+         */
+        val ItemCenter = ScalingLazyListAnchorType(0)
+
+        /**
+         * Place the start (edge) of the item on, or as close to as possible, the center line of the
+         * viewport. For normal layout this will be the top edge of the item, for reverseLayout it
+         * will be the bottom edge.
+         */
+        val ItemStart = ScalingLazyListAnchorType(1)
+    }
+
+    override fun toString(): String {
+        return when (this) {
+            ItemStart -> "ScalingLazyListAnchorType.ItemStart"
+            else -> "ScalingLazyListAnchorType.ItemCenter"
+        }
+    }
+}
+
+internal fun convertToCenterOffset(
+    anchorType: ScalingLazyListAnchorType,
+    itemScrollOffset: Int,
+    viewPortSizeInPx: Int,
+    beforeContentPaddingInPx: Int,
+    itemSizeInPx: Int
+): Int {
+    if (anchorType == ScalingLazyListAnchorType.ItemStart) {
+        return itemScrollOffset - (viewPortSizeInPx / 2) + beforeContentPaddingInPx
+    } else {
+        return itemScrollOffset + (itemSizeInPx / 2) -
+            (viewPortSizeInPx / 2) + beforeContentPaddingInPx
+    }
+}
+
 /**
  * A scrolling scaling/fisheye list component that forms a key part of the Wear Material Design
  * language. Provides scaling and transparency effects to the content items.
@@ -189,6 +236,7 @@ public inline fun <T> ScalingLazyListScope.itemsIndexed(
  * of them to fill the whole minimum size
  * @param horizontalAlignment the horizontal alignment applied to the items
  * @param contentPadding The padding to apply around the contents
+ * @param anchorType How to anchor list items to the center-line of the viewport
  * @param state The state of the component
  */
 @Composable
@@ -204,24 +252,19 @@ public fun ScalingLazyColumn(
     horizontalAlignment: Alignment.Horizontal = Alignment.Start,
     contentPadding: PaddingValues = PaddingValues(horizontal = 8.dp),
     state: ScalingLazyListState = rememberScalingLazyListState(),
+    anchorType: ScalingLazyListAnchorType = ScalingLazyListAnchorType.ItemCenter,
     content: ScalingLazyListScope.() -> Unit
 ) {
-    require(scalingParams.minElementHeight <= scalingParams.maxElementHeight) {
-        "minElementHeight must be less than or equal to maxElementHeight"
-    }
-    require(scalingParams.minTransitionArea <= scalingParams.maxTransitionArea) {
-        "minTransitionArea must be less than or equal to maxTransitionArea"
-    }
-    require(scalingParams.minElementHeight != scalingParams.maxElementHeight ||
-        scalingParams.minTransitionArea == scalingParams.maxTransitionArea) {
-        "when minElementHeight and maxElementHeight are equal, " +
-            "so should be minTransitionArea and maxTransitionArea"
-    }
+    var initialized by remember { mutableStateOf(false) }
     BoxWithConstraints(modifier = modifier) {
         val density = LocalDensity.current
         val layoutDirection = LocalLayoutDirection.current
         val extraPaddingInPixels = scalingParams.resolveViewportVerticalOffset(constraints)
         val extraPadding = with(density) { extraPaddingInPixels.toDp() }
+        val beforeContentPaddingInPx = with(density) {
+            if (reverseLayout) contentPadding.calculateBottomPadding().roundToPx()
+            else contentPadding.calculateTopPadding().roundToPx()
+        }
         val itemScope = with(density) {
             ScalingLazyListItemScopeImpl(
                 density = density,
@@ -239,11 +282,13 @@ public fun ScalingLazyColumn(
         }
         // Set up transient state
         state.scalingParams.value = scalingParams
-        state.extraPaddingInPixels.value = extraPaddingInPixels
+        state.extraPaddingPx.value = extraPaddingInPixels
+        state.beforeContentPaddingPx.value = beforeContentPaddingInPx
         state.viewportHeightPx.value = constraints.maxHeight
         state.gapBetweenItemsPx.value = with(density) {
             verticalArrangement.spacing.roundToPx()
         }
+        state.anchorType.value = anchorType
         state.reverseLayout.value = reverseLayout
 
         val combinedPaddingValues = CombinedPaddingValues(
@@ -251,10 +296,13 @@ public fun ScalingLazyColumn(
             extraPadding = extraPadding
         )
         LazyColumn(
-            Modifier
+            modifier = Modifier
                 .fillMaxSize()
                 .clipToBounds()
-                .verticalNegativePadding(extraPadding),
+                .verticalNegativePadding(extraPadding)
+                .onGloballyPositioned {
+                    initialized = true
+                },
             horizontalAlignment = horizontalAlignment,
             contentPadding = combinedPaddingValues,
             reverseLayout = reverseLayout,
@@ -267,6 +315,11 @@ public fun ScalingLazyColumn(
                 itemScope = itemScope
             )
             scope.content()
+        }
+        if (initialized) {
+            LaunchedEffect(state) {
+                state.scrollToInitialItem()
+            }
         }
     }
 }
@@ -449,15 +502,15 @@ private fun ScalingLazyColumnItemWrapper(
 ) {
     Box(
         modifier = Modifier.graphicsLayer {
-            val items = state.layoutInfo.visibleItemsInfo
             val reverseLayout = state.reverseLayout.value!!
+            val items = state.layoutInfo.visibleItemsInfo
             val currentItem = items.find { it.index == index }
             if (currentItem != null) {
                 alpha = currentItem.alpha
                 scaleX = currentItem.scale
                 scaleY = currentItem.scale
                 val offsetAdjust = (currentItem.offset - currentItem.unadjustedOffset).toFloat()
-                translationY = if (reverseLayout) - offsetAdjust else offsetAdjust
+                translationY = if (reverseLayout) -offsetAdjust else offsetAdjust
                 transformOrigin = TransformOrigin(
                     pivotFractionX = 0.5f,
                     pivotFractionY = if (reverseLayout) 1.0f else 0.0f

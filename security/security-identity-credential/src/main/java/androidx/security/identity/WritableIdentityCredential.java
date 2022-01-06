@@ -25,8 +25,11 @@ import java.util.Collection;
 /**
  * Class used to personalize a new identity credential.
  *
- * <p>Credentials cannot be updated or modified after creation; any changes require deletion and
- * re-creation.
+ * <p>Note that the credential is not persisted until calling
+ * {@link #personalize(PersonalizationData)}.
+ *
+ * <p>Once persisted, the PII in a credential can be updated using
+ * {@link IdentityCredential#update(PersonalizationData)}.
  *
  * Use {@link IdentityCredentialStore#createCredential(String, String)} to create a new credential.
  */
@@ -62,6 +65,9 @@ public abstract class WritableIdentityCredential {
      * authority doesn't care about the nature of the security hardware. If called, however, this
      * method must be called before {@link #personalize(PersonalizationData)}.
      *
+     * <p>Note that the credential is not persisted until calling
+     * {@link #personalize(PersonalizationData)}.
+     *
      * @param challenge is a non-empty byte array whose contents should be unique, fresh and
      *                  provided by the issuing authority. The value provided is embedded in the
      *                  attestation extension and enables the issuing authority to verify that the
@@ -73,6 +79,8 @@ public abstract class WritableIdentityCredential {
 
     /**
      * Stores all of the data in the credential, with the specified access control profiles.
+     *
+     * <p>The credential is persisted only after this method returns successfully.
      *
      * <p>This method returns a COSE_Sign1 data structure signed by the CredentialKey with payload
      * set to {@code ProofOfProvisioning} as defined below.

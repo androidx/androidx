@@ -18,6 +18,7 @@ package androidx.wear.watchface.complications.data
 
 import android.app.PendingIntent
 import android.graphics.drawable.Icon
+import android.os.Build
 import androidx.annotation.RestrictTo
 import java.time.Instant
 
@@ -28,7 +29,15 @@ internal typealias WireComplicationData = android.support.wearable.complications
 internal typealias WireComplicationDataBuilder =
     android.support.wearable.complications.ComplicationData.Builder
 
-/** Base type for all different types of [ComplicationData] types. */
+/**
+ * Base type for all different types of [ComplicationData] types.
+ *
+ * Please note to aid unit testing of ComplicationDataSourceServices, [equals], [hashCode] and
+ * [toString] have been overridden for all the types of ComplicationData, however due to the
+ * embedded [Icon] class we have to fall back to reference equality and hashing below API 28 and
+ * also for the [Icon]s that don't use either a resource or a uri (these should be rare but they
+ * can exist).
+ */
 public sealed class ComplicationData constructor(
     public val type: ComplicationType,
     public val tapAction: PendingIntent?,
@@ -42,12 +51,15 @@ public sealed class ComplicationData constructor(
     public val validTimeRange: TimeRange = TimeRange.ALWAYS
 ) {
     /**
-     * Whether or not the complication was cached. A cached complication can't be tapped since
-     * [tapAction] is not serializable. The watch face should render it differently (e.g.
-     * semi-transparent or grayed out) until an updated complication (with a tapAction where
-     * applicable) is delivered by the system.
+     * [tapAction] which is a [PendingIntent] unfortunately can't be serialized. This property is
+     * 'true' if tapAction has been lost due to serialization (typically because it has been cached
+     * locally). When 'true' the watch face should render the complication differently (e.g. as
+     * semi-transparent or grayed out) to signal to the user it can't be tapped. The system will
+     * subsequently deliver an updated complication, with a tapAction where applicable.
      */
-    public var isCached: Boolean = cachedWireComplicationData?.isCached ?: false
+    @get:JvmName("isTapActionLostDueToSerialization")
+    public var tapActionLostDueToSerialization: Boolean =
+        cachedWireComplicationData?.tapActionLostDueToSerialization ?: false
 
     /**
      * Converts this value to [WireComplicationData] object used for serialization.
@@ -75,6 +87,20 @@ public class NoDataComplicationData : ComplicationData(TYPE, null, null) {
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     override fun asWireComplicationData(): WireComplicationData = asPlainWireComplicationData(type)
 
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+        return true
+    }
+
+    override fun hashCode(): Int {
+        return javaClass.hashCode()
+    }
+
+    override fun toString(): String {
+        return "NoDataComplicationData()"
+    }
+
     /** @hide */
     public companion object {
         /** The [ComplicationType] corresponding to objects of this type. */
@@ -92,6 +118,20 @@ public class EmptyComplicationData : ComplicationData(TYPE, null, null) {
     /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     override fun asWireComplicationData(): WireComplicationData = asPlainWireComplicationData(type)
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+        return true
+    }
+
+    override fun hashCode(): Int {
+        return javaClass.hashCode()
+    }
+
+    override fun toString(): String {
+        return "EmptyComplicationData()"
+    }
 
     /** @hide */
     public companion object {
@@ -111,6 +151,20 @@ public class NotConfiguredComplicationData : ComplicationData(TYPE, null, null) 
     /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     override fun asWireComplicationData(): WireComplicationData = asPlainWireComplicationData(type)
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+        return true
+    }
+
+    override fun hashCode(): Int {
+        return javaClass.hashCode()
+    }
+
+    override fun toString(): String {
+        return "NotConfiguredComplicationData()"
+    }
 
     /** @hide */
     public companion object {
@@ -199,8 +253,11 @@ public class ShortTextComplicationData internal constructor(
 
     /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    override fun asWireComplicationData(): WireComplicationData =
-        createWireComplicationDataBuilder().apply {
+    override fun asWireComplicationData(): WireComplicationData {
+        cachedWireComplicationData?.let {
+            return it
+        }
+        return createWireComplicationDataBuilder().apply {
             setShortText(text.toWireComplicationText())
             setShortTitle(title?.toWireComplicationText())
             setContentDescription(
@@ -212,8 +269,44 @@ public class ShortTextComplicationData internal constructor(
             monochromaticImage?.addToWireComplicationData(this)
             setTapAction(tapAction)
             setValidTimeRange(validTimeRange, this)
-            setIsCached(isCached)
+            setTapActionLostDueToSerialization(tapActionLostDueToSerialization)
         }.build().also { cachedWireComplicationData = it }
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as ShortTextComplicationData
+
+        if (text != other.text) return false
+        if (title != other.title) return false
+        if (monochromaticImage != other.monochromaticImage) return false
+        if (contentDescription != other.contentDescription) return false
+        if (tapActionLostDueToSerialization != other.tapActionLostDueToSerialization) return false
+        if (tapAction != other.tapAction) return false
+        if (validTimeRange != other.validTimeRange) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = text.hashCode()
+        result = 31 * result + (title?.hashCode() ?: 0)
+        result = 31 * result + (monochromaticImage?.hashCode() ?: 0)
+        result = 31 * result + (contentDescription?.hashCode() ?: 0)
+        result = 31 * result + tapActionLostDueToSerialization.hashCode()
+        result = 31 * result + (tapAction?.hashCode() ?: 0)
+        result = 31 * result + validTimeRange.hashCode()
+        return result
+    }
+
+    override fun toString(): String {
+        return "ShortTextComplicationData(text=$text, title=$title, " +
+            "monochromaticImage=$monochromaticImage, contentDescription=$contentDescription, " +
+            "tapActionLostDueToSerialization=$tapActionLostDueToSerialization, " +
+            "tapAction=$tapAction, validTimeRange=$validTimeRange)"
+    }
 
     /** @hide */
     public companion object {
@@ -317,8 +410,11 @@ public class LongTextComplicationData internal constructor(
 
     /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    override fun asWireComplicationData(): WireComplicationData =
-        createWireComplicationDataBuilder().apply {
+    override fun asWireComplicationData(): WireComplicationData {
+        cachedWireComplicationData?.let {
+            return it
+        }
+        return createWireComplicationDataBuilder().apply {
             setLongText(text.toWireComplicationText())
             setLongTitle(title?.toWireComplicationText())
             monochromaticImage?.addToWireComplicationData(this)
@@ -331,8 +427,47 @@ public class LongTextComplicationData internal constructor(
                 }
             )
             setValidTimeRange(validTimeRange, this)
-            setIsCached(isCached)
+            setTapActionLostDueToSerialization(tapActionLostDueToSerialization)
         }.build().also { cachedWireComplicationData = it }
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as LongTextComplicationData
+
+        if (text != other.text) return false
+        if (title != other.title) return false
+        if (monochromaticImage != other.monochromaticImage) return false
+        if (smallImage != other.smallImage) return false
+        if (contentDescription != other.contentDescription) return false
+        if (tapActionLostDueToSerialization != other.tapActionLostDueToSerialization) return false
+        if (tapAction != other.tapAction) return false
+        if (validTimeRange != other.validTimeRange) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = text.hashCode()
+        result = 31 * result + (title?.hashCode() ?: 0)
+        result = 31 * result + (monochromaticImage?.hashCode() ?: 0)
+        result = 31 * result + (smallImage?.hashCode() ?: 0)
+        result = 31 * result + (contentDescription?.hashCode() ?: 0)
+        result = 31 * result + tapActionLostDueToSerialization.hashCode()
+        result = 31 * result + (tapAction?.hashCode() ?: 0)
+        result = 31 * result + validTimeRange.hashCode()
+        return result
+    }
+
+    override fun toString(): String {
+        return "LongTextComplicationData(text=$text, title=$title, " +
+            "monochromaticImage=$monochromaticImage, smallImage=$smallImage, " +
+            "contentDescription=$contentDescription), " +
+            "tapActionLostDueToSerialization=$tapActionLostDueToSerialization, " +
+            "tapAction=$tapAction, validTimeRange=$validTimeRange)"
+    }
 
     /** @hide */
     public companion object {
@@ -440,8 +575,11 @@ public class RangedValueComplicationData internal constructor(
 
     /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public override fun asWireComplicationData(): WireComplicationData =
-        createWireComplicationDataBuilder().apply {
+    public override fun asWireComplicationData(): WireComplicationData {
+        cachedWireComplicationData?.let {
+            return it
+        }
+        return createWireComplicationDataBuilder().apply {
             setRangedValue(value)
             setRangedMinValue(min)
             setRangedMaxValue(max)
@@ -456,8 +594,51 @@ public class RangedValueComplicationData internal constructor(
                 }
             )
             setValidTimeRange(validTimeRange, this)
-            setIsCached(isCached)
+            setTapActionLostDueToSerialization(tapActionLostDueToSerialization)
         }.build().also { cachedWireComplicationData = it }
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as RangedValueComplicationData
+
+        if (value != other.value) return false
+        if (min != other.min) return false
+        if (max != other.max) return false
+        if (monochromaticImage != other.monochromaticImage) return false
+        if (title != other.title) return false
+        if (text != other.text) return false
+        if (contentDescription != other.contentDescription) return false
+        if (tapActionLostDueToSerialization != other.tapActionLostDueToSerialization) return false
+        if (tapAction != other.tapAction) return false
+        if (validTimeRange != other.validTimeRange) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = value.hashCode()
+        result = 31 * result + min.hashCode()
+        result = 31 * result + max.hashCode()
+        result = 31 * result + (monochromaticImage?.hashCode() ?: 0)
+        result = 31 * result + (title?.hashCode() ?: 0)
+        result = 31 * result + (text?.hashCode() ?: 0)
+        result = 31 * result + (contentDescription?.hashCode() ?: 0)
+        result = 31 * result + tapActionLostDueToSerialization.hashCode()
+        result = 31 * result + (tapAction?.hashCode() ?: 0)
+        result = 31 * result + validTimeRange.hashCode()
+        return result
+    }
+
+    override fun toString(): String {
+        return "RangedValueComplicationData(value=$value, min=$min, max=$max, " +
+            "monochromaticImage=$monochromaticImage, title=$title, text=$text, " +
+            "contentDescription=$contentDescription), " +
+            "tapActionLostDueToSerialization=$tapActionLostDueToSerialization, " +
+            "tapAction=$tapAction, validTimeRange=$validTimeRange)"
+    }
 
     /** @hide */
     public companion object {
@@ -532,8 +713,11 @@ public class MonochromaticImageComplicationData internal constructor(
 
     /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    override fun asWireComplicationData(): WireComplicationData =
-        createWireComplicationDataBuilder().apply {
+    override fun asWireComplicationData(): WireComplicationData {
+        cachedWireComplicationData?.let {
+            return it
+        }
+        return createWireComplicationDataBuilder().apply {
             monochromaticImage.addToWireComplicationData(this)
             setContentDescription(
                 when (contentDescription) {
@@ -543,8 +727,40 @@ public class MonochromaticImageComplicationData internal constructor(
             )
             setTapAction(tapAction)
             setValidTimeRange(validTimeRange, this)
-            setIsCached(isCached)
+            setTapActionLostDueToSerialization(tapActionLostDueToSerialization)
         }.build().also { cachedWireComplicationData = it }
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as MonochromaticImageComplicationData
+
+        if (monochromaticImage != other.monochromaticImage) return false
+        if (contentDescription != other.contentDescription) return false
+        if (tapActionLostDueToSerialization != other.tapActionLostDueToSerialization) return false
+        if (tapAction != other.tapAction) return false
+        if (validTimeRange != other.validTimeRange) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = monochromaticImage.hashCode()
+        result = 31 * result + (contentDescription?.hashCode() ?: 0)
+        result = 31 * result + tapActionLostDueToSerialization.hashCode()
+        result = 31 * result + (tapAction?.hashCode() ?: 0)
+        result = 31 * result + validTimeRange.hashCode()
+        return result
+    }
+
+    override fun toString(): String {
+        return "MonochromaticImageComplicationData(monochromaticImage=$monochromaticImage, " +
+            "contentDescription=$contentDescription), " +
+            "tapActionLostDueToSerialization=$tapActionLostDueToSerialization, " +
+            "tapAction=$tapAction, validTimeRange=$validTimeRange)"
+    }
 
     /** @hide */
     public companion object {
@@ -619,8 +835,11 @@ public class SmallImageComplicationData internal constructor(
 
     /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    override fun asWireComplicationData(): WireComplicationData =
-        createWireComplicationDataBuilder().apply {
+    override fun asWireComplicationData(): WireComplicationData {
+        cachedWireComplicationData?.let {
+            return it
+        }
+        return createWireComplicationDataBuilder().apply {
             smallImage.addToWireComplicationData(this)
             setContentDescription(
                 when (contentDescription) {
@@ -630,8 +849,40 @@ public class SmallImageComplicationData internal constructor(
             )
             setTapAction(tapAction)
             setValidTimeRange(validTimeRange, this)
-            setIsCached(isCached)
+            setTapActionLostDueToSerialization(tapActionLostDueToSerialization)
         }.build().also { cachedWireComplicationData = it }
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as SmallImageComplicationData
+
+        if (smallImage != other.smallImage) return false
+        if (contentDescription != other.contentDescription) return false
+        if (tapActionLostDueToSerialization != other.tapActionLostDueToSerialization) return false
+        if (tapAction != other.tapAction) return false
+        if (validTimeRange != other.validTimeRange) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = smallImage.hashCode()
+        result = 31 * result + (contentDescription?.hashCode() ?: 0)
+        result = 31 * result + tapActionLostDueToSerialization.hashCode()
+        result = 31 * result + (tapAction?.hashCode() ?: 0)
+        result = 31 * result + validTimeRange.hashCode()
+        return result
+    }
+
+    override fun toString(): String {
+        return "SmallImageComplicationData(smallImage=$smallImage, " +
+            "contentDescription=$contentDescription), " +
+            "tapActionLostDueToSerialization=$tapActionLostDueToSerialization, " +
+            "tapAction=$tapAction, validTimeRange=$validTimeRange)"
+    }
 
     /** @hide */
     public companion object {
@@ -711,8 +962,11 @@ public class PhotoImageComplicationData internal constructor(
 
     /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    override fun asWireComplicationData(): WireComplicationData =
-        createWireComplicationDataBuilder().apply {
+    override fun asWireComplicationData(): WireComplicationData {
+        cachedWireComplicationData?.let {
+            return it
+        }
+        return createWireComplicationDataBuilder().apply {
             setLargeImage(photoImage)
             setContentDescription(
                 when (contentDescription) {
@@ -722,6 +976,53 @@ public class PhotoImageComplicationData internal constructor(
             )
             setValidTimeRange(validTimeRange, this)
         }.build().also { cachedWireComplicationData = it }
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as PhotoImageComplicationData
+
+        if (!if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                IconHelperP.equals(photoImage, other.photoImage)
+            } else {
+                IconHelperBeforeP.equals(photoImage, other.photoImage)
+            }
+        ) return false
+
+        if (contentDescription != other.contentDescription) return false
+        if (tapActionLostDueToSerialization != other.tapActionLostDueToSerialization) return false
+        if (tapAction != other.tapAction) return false
+        if (validTimeRange != other.validTimeRange) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            var result = IconHelperP.hashCode(photoImage)
+            result = 31 * result + (contentDescription?.hashCode() ?: 0)
+            result = 31 * result + tapActionLostDueToSerialization.hashCode()
+            result = 31 * result + (tapAction?.hashCode() ?: 0)
+            result = 31 * result + validTimeRange.hashCode()
+            result
+        } else {
+            var result = IconHelperBeforeP.hashCode(photoImage)
+            result = 31 * result + (contentDescription?.hashCode() ?: 0)
+            result = 31 * result + tapActionLostDueToSerialization.hashCode()
+            result = 31 * result + (tapAction?.hashCode() ?: 0)
+            result = 31 * result + validTimeRange.hashCode()
+            result
+        }
+    }
+
+    override fun toString(): String {
+        return "PhotoImageComplicationData(photoImage=$photoImage, " +
+            "contentDescription=$contentDescription), " +
+            "tapActionLostDueToSerialization=$tapActionLostDueToSerialization, " +
+            "tapAction=$tapAction, validTimeRange=$validTimeRange)"
+    }
 
     /** @hide */
     public companion object {
@@ -791,12 +1092,49 @@ public class NoPermissionComplicationData internal constructor(
 
     /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    override fun asWireComplicationData(): WireComplicationData =
-        createWireComplicationDataBuilder().apply {
+    override fun asWireComplicationData(): WireComplicationData {
+        cachedWireComplicationData?.let {
+            return it
+        }
+        return createWireComplicationDataBuilder().apply {
             setShortText(text?.toWireComplicationText())
             setShortTitle(title?.toWireComplicationText())
             monochromaticImage?.addToWireComplicationData(this)
         }.build().also { cachedWireComplicationData = it }
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as NoPermissionComplicationData
+
+        if (text != other.text) return false
+        if (title != other.title) return false
+        if (monochromaticImage != other.monochromaticImage) return false
+        if (tapActionLostDueToSerialization != other.tapActionLostDueToSerialization) return false
+        if (tapAction != other.tapAction) return false
+        if (validTimeRange != other.validTimeRange) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = text?.hashCode() ?: 0
+        result = 31 * result + (title?.hashCode() ?: 0)
+        result = 31 * result + (monochromaticImage?.hashCode() ?: 0)
+        result = 31 * result + tapActionLostDueToSerialization.hashCode()
+        result = 31 * result + (tapAction?.hashCode() ?: 0)
+        result = 31 * result + validTimeRange.hashCode()
+        return result
+    }
+
+    override fun toString(): String {
+        return "NoPermissionComplicationData(text=$text, title=$title, " +
+            "monochromaticImage=$monochromaticImage, tapActionLostDueToSerialization=" +
+            "$tapActionLostDueToSerialization, tapAction=$tapAction, " +
+            "validTimeRange=$validTimeRange)"
+    }
 
     /** @hide */
     public companion object {

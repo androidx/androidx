@@ -22,10 +22,8 @@ import static androidx.versionedparcelable.ParcelUtils.toOutputStream;
 import static androidx.versionedparcelable.ParcelUtils.toParcelable;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
 
 import android.os.Parcel;
-import android.os.Parcelable;
 
 import androidx.test.filters.SmallTest;
 
@@ -52,6 +50,7 @@ public class VersionedParcelInheritanceTest {
         mUseStream = useStream;
     }
 
+    @SuppressWarnings("deprecation")
     private VersionedParcelable parcelCopy(VersionedParcelable obj) {
         if (mUseStream) {
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();

@@ -320,6 +320,19 @@ public final class CameraUseCaseAdapter implements Camera {
         }
     }
 
+
+    /**
+     * When in active resuming mode, it will actively retry opening the camera periodically to
+     * resume regardless of the camera availability if the camera is interrupted in
+     * OPEN/OPENING/PENDING_OPEN state.
+     *
+     * When not in actively resuming mode, it will retry opening camera only when camera
+     * becomes available.
+     */
+    public void setActiveResumingMode(boolean enabled) {
+        mCameraInternal.setActiveResumingMode(enabled);
+    }
+
     /**
      * Detach the UseCases from the {@link CameraInternal} so that the UseCases stop receiving data.
      *

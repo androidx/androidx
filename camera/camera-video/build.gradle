@@ -37,7 +37,7 @@ dependencies {
 
     // TODO(leohuang): We need this for assertThrows. Point back to the AndroidX shared version if
     //  it is ever upgraded.
-    testImplementation("junit:junit:4.13")
+    testImplementation(libs.junit)
     testImplementation(libs.kotlinStdlib)
     testImplementation(libs.testCore)
     testImplementation(libs.testRunner)

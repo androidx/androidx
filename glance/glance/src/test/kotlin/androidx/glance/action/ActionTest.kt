@@ -45,19 +45,19 @@ class ActionTest {
     }
 
     @Test
-    fun testLaunchActivity() {
-        val modifiers = GlanceModifier.clickable(actionLaunchActivity(TestActivity::class.java))
+    fun testStartActivity() {
+        val modifiers = GlanceModifier.clickable(actionStartActivity(TestActivity::class.java))
         val modifier = checkNotNull(modifiers.findModifier<ActionModifier>())
-        assertIs<LaunchActivityClassAction>(modifier.action)
+        assertIs<StartActivityClassAction>(modifier.action)
     }
 
     @Test
     fun testLaunchFromComponent() = fakeCoroutineScope.runBlockingTest {
         val c = ComponentName("androidx.glance.action", "androidx.glance.action.TestActivity")
 
-        val modifiers = GlanceModifier.clickable(actionLaunchActivity(c))
+        val modifiers = GlanceModifier.clickable(actionStartActivity(c))
         val modifier = checkNotNull(modifiers.findModifier<ActionModifier>())
-        val action = assertIs<LaunchActivityComponentAction>(modifier.action)
+        val action = assertIs<StartActivityComponentAction>(modifier.action)
         val component = assertNotNull(action.componentName)
 
         assertThat(component).isEqualTo(c)
@@ -67,9 +67,9 @@ class ActionTest {
     fun testLaunchFromComponentWithContext() = fakeCoroutineScope.runBlockingTest {
         val c = ComponentName(context, "androidx.glance.action.TestActivity")
 
-        val modifiers = GlanceModifier.clickable(actionLaunchActivity(c))
+        val modifiers = GlanceModifier.clickable(actionStartActivity(c))
         val modifier = checkNotNull(modifiers.findModifier<ActionModifier>())
-        val action = assertIs<LaunchActivityComponentAction>(modifier.action)
+        val action = assertIs<StartActivityComponentAction>(modifier.action)
         val component = assertNotNull(action.componentName)
 
         assertThat(component).isEqualTo(c)

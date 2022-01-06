@@ -40,6 +40,8 @@ import androidx.lifecycle.DefaultLifecycleObserver;
  * full-screen list.
  */
 public final class ListTemplateDemoScreen extends Screen implements DefaultLifecycleObserver {
+    private static final int MAX_LIST_ITEMS = 100;
+
     public ListTemplateDemoScreen(@NonNull CarContext carContext) {
         super(carContext);
         getLifecycle().addObserver(this);
@@ -61,8 +63,9 @@ public final class ListTemplateDemoScreen extends Screen implements DefaultLifec
         // Some hosts may allow more items in the list than others, so create more.
         if (getCarContext().getCarAppApiLevel() > CarAppApiLevels.LEVEL_1) {
             int listLimit =
-                    getCarContext().getCarService(ConstraintManager.class).getContentLimit(
-                            ConstraintManager.CONTENT_LIMIT_TYPE_LIST);
+                    Math.min(MAX_LIST_ITEMS,
+                            getCarContext().getCarService(ConstraintManager.class).getContentLimit(
+                                    ConstraintManager.CONTENT_LIMIT_TYPE_LIST));
 
             for (int i = 2; i <= listLimit; ++i) {
                 // For row text, set text variants that fit best in different screen sizes.

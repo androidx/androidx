@@ -42,6 +42,7 @@ import androidx.wear.watchface.WatchFace
 import androidx.wear.watchface.WatchFaceService
 import androidx.wear.watchface.WatchFaceType
 import androidx.wear.watchface.WatchState
+import androidx.wear.watchface.complications.data.RangedValueComplicationData
 import androidx.wear.watchface.control.IHeadlessWatchFace
 import androidx.wear.watchface.control.IWatchFaceControlService
 import androidx.wear.watchface.control.WatchFaceControlService
@@ -164,6 +165,50 @@ public class WatchFaceControlServiceTest {
                 null
             )
         )
+    }
+
+    @Test
+    public fun createWatchFaceInstanceWithRangedValueComplications() {
+        val instance = createInstance(400, 400)
+        val bitmap = SharedMemoryImage.ashmemReadImageBundle(
+            instance.renderWatchFaceToBitmap(
+                WatchFaceRenderParams(
+                    RenderParameters(
+                        DrawMode.INTERACTIVE,
+                        WatchFaceLayer.ALL_WATCH_FACE_LAYERS,
+                        null
+                    ).toWireFormat(),
+                    1234567890,
+                    null,
+                    listOf(
+                        IdAndComplicationDataWireFormat(
+                            EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID,
+                            RangedValueComplicationData.Builder(
+                                100.0f, 0.0f, 100.0f,
+                                ComplicationText.EMPTY
+                            )
+                                .setText(PlainComplicationText.Builder("100%").build())
+                                .build()
+                                .asWireComplicationData()
+                        ),
+                        IdAndComplicationDataWireFormat(
+                            EXAMPLE_CANVAS_WATCHFACE_RIGHT_COMPLICATION_ID,
+                            RangedValueComplicationData.Builder(
+                                75.0f, 0.0f, 100.0f,
+                                ComplicationText.EMPTY
+                            )
+                                .setText(PlainComplicationText.Builder("75%").build())
+                                .build()
+                                .asWireComplicationData()
+                        )
+                    )
+                )
+            )
+        )
+
+        bitmap.assertAgainstGolden(screenshotRule, "ranged_value_complications")
+
+        instance.release()
     }
 
     @Test

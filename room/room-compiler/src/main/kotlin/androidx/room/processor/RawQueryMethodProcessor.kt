@@ -50,6 +50,13 @@ class RawQueryMethodProcessor(
             returnTypeName, executableElement,
             ProcessorErrors.CANNOT_USE_UNBOUND_GENERICS_IN_QUERY_METHODS
         )
+
+        context.checker.check(
+            !delegate.isSuspendAndReturnsDeferredType(),
+            executableElement,
+            ProcessorErrors.suspendReturnsDeferredType(returnType.rawType.typeName.toString())
+        )
+
         val observedTableNames = processObservedTables()
         val query = SqlParser.rawQueryForTables(observedTableNames)
         // build the query but don't calculate result info since we just guessed it.

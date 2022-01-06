@@ -19,14 +19,19 @@ package androidx.wear.compose.material.benchmark
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.testutils.ComposeTestCase
 import androidx.compose.testutils.LayeredComposeTestCase
+import androidx.compose.testutils.assertNoPendingChanges
 import androidx.compose.testutils.benchmark.ComposeBenchmarkRule
 import androidx.compose.testutils.benchmark.benchmarkDrawPerf
 import androidx.compose.testutils.benchmark.benchmarkFirstCompose
-import androidx.compose.testutils.benchmark.benchmarkFirstDraw
-import androidx.compose.testutils.benchmark.benchmarkFirstLayout
 import androidx.compose.testutils.benchmark.benchmarkFirstMeasure
 import androidx.compose.testutils.benchmark.benchmarkLayoutPerf
+import androidx.compose.testutils.benchmark.recomposeUntilNoChangesPending
+import androidx.compose.testutils.doFramesUntilNoChangesPending
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -37,6 +42,7 @@ import androidx.wear.compose.material.MaterialTheme
 import androidx.wear.compose.material.ScalingLazyColumn
 import androidx.wear.compose.material.Text
 import androidx.wear.compose.material.rememberScalingLazyListState
+import org.junit.Assert
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -65,12 +71,12 @@ class ScalingLazyColumnBenchmark {
 
     @Test
     fun first_layout() {
-        benchmarkRule.benchmarkFirstLayout(scalingLazyColumnCaseFactory)
+        benchmarkRule.benchmarkFirstScalingLazyColumnLayout(scalingLazyColumnCaseFactory)
     }
 
     @Test
     fun first_draw() {
-        benchmarkRule.benchmarkFirstDraw(scalingLazyColumnCaseFactory)
+        benchmarkRule.benchmarkFirstScalingLazyColumnDraw(scalingLazyColumnCaseFactory)
     }
 
     @Test
@@ -110,5 +116,89 @@ internal class ScalingLazyColumnTestCase : LayeredComposeTestCase() {
         MaterialTheme {
             content()
         }
+    }
+}
+
+// TODO (b/210654937): Should be able to get rid of this workaround in the future once able to call
+// LaunchedEffect directly on underlying LazyColumn rather than via a 2-stage initialization via
+// onGloballyPositioned().
+fun ComposeBenchmarkRule.benchmarkFirstScalingLazyColumnLayout(
+    caseFactory: () -> LayeredComposeTestCase
+) {
+    runBenchmarkFor(LayeredCaseAdapter.of(caseFactory)) {
+        measureRepeated {
+            runWithTimingDisabled {
+                doFramesUntilNoChangesPending()
+                // Add the content to benchmark
+                getTestCase().addMeasuredContent()
+                recomposeUntilNoChangesPending()
+                requestLayout()
+                measure()
+            }
+
+            layout()
+            recomposeUntilNoChangesPending()
+
+            runWithTimingDisabled {
+                assertNoPendingChanges()
+                disposeContent()
+            }
+        }
+    }
+}
+
+// TODO (b/210654937): Should be able to get rid of this workaround in the future once able to call
+// LaunchedEffect directly on underlying LazyColumn rather than via a 2-stage initialization via
+// onGloballyPositioned().
+fun ComposeBenchmarkRule.benchmarkFirstScalingLazyColumnDraw(
+    caseFactory: () -> LayeredComposeTestCase
+) {
+    runBenchmarkFor(LayeredCaseAdapter.of(caseFactory)) {
+        measureRepeated {
+            runWithTimingDisabled {
+                doFramesUntilNoChangesPending()
+                // Add the content to benchmark
+                getTestCase().addMeasuredContent()
+                recomposeUntilNoChangesPending()
+                requestLayout()
+                measure()
+                layout()
+                drawPrepare()
+            }
+
+            draw()
+            drawFinish()
+            recomposeUntilNoChangesPending()
+
+            runWithTimingDisabled {
+                assertNoPendingChanges()
+                disposeContent()
+            }
+        }
+    }
+}
+
+private class LayeredCaseAdapter(private val innerCase: LayeredComposeTestCase) : ComposeTestCase {
+
+    companion object {
+        fun of(caseFactory: () -> LayeredComposeTestCase): () -> LayeredCaseAdapter = {
+            LayeredCaseAdapter(caseFactory())
+        }
+    }
+
+    var isComposed by mutableStateOf(false)
+
+    @Composable
+    override fun Content() {
+        innerCase.ContentWrappers {
+            if (isComposed) {
+                innerCase.MeasuredContent()
+            }
+        }
+    }
+
+    fun addMeasuredContent() {
+        Assert.assertTrue(!isComposed)
+        isComposed = true
     }
 }

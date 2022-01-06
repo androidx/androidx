@@ -105,7 +105,7 @@ private fun macrobenchmark(
     testName: String,
     packageName: String,
     metrics: List<Metric>,
-    compilationMode: CompilationMode = CompilationMode.SpeedProfile(),
+    compilationMode: CompilationMode,
     iterations: Int,
     launchWithClearTask: Boolean,
     startupModeMetricHint: StartupMode?,
@@ -118,6 +118,7 @@ private fun macrobenchmark(
     require(metrics.isNotEmpty()) {
         "Empty list of metrics passed to metrics param, must pass at least one Metric"
     }
+
     // skip benchmark if not supported by vm settings
     compilationMode.assumeSupportedWithVmSettings()
 
@@ -134,7 +135,7 @@ private fun macrobenchmark(
     scope.killProcess()
 
     userspaceTrace("compile $packageName") {
-        compilationMode.compile(packageName) {
+        compilationMode.resetAndCompile(packageName) {
             setupBlock(scope)
             measureBlock(scope)
         }
@@ -257,10 +258,10 @@ private fun macrobenchmark(
             }
         }
 
-        val warmupIterations = if (compilationMode is CompilationMode.SpeedProfile) {
-            compilationMode.warmupIterations
-        } else {
-            0
+        val warmupIterations = @Suppress("DEPRECATION") when (compilationMode) {
+            is CompilationMode.SpeedProfile -> compilationMode.warmupIterations
+            is CompilationMode.Partial -> compilationMode.warmupIterations
+            else -> 0
         }
 
         ResultWriter.appendReport(
@@ -285,13 +286,13 @@ private fun macrobenchmark(
  * @suppress
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public fun macrobenchmarkWithStartupMode(
+fun macrobenchmarkWithStartupMode(
     uniqueName: String,
     className: String,
     testName: String,
     packageName: String,
     metrics: List<Metric>,
-    compilationMode: CompilationMode = CompilationMode.SpeedProfile(),
+    compilationMode: CompilationMode,
     iterations: Int,
     startupMode: StartupMode?,
     setupBlock: MacrobenchmarkScope.() -> Unit,
@@ -325,8 +326,8 @@ public fun macrobenchmarkWithStartupMode(
                 // Empirically, this is also the  scenario most significantly affected by this
                 // JIT persistence, so we optimize  specifically for measurement correctness in
                 // this scenario.
-                if (compilationMode == CompilationMode.None) {
-                    compilationMode.compile(packageName) {
+                if (compilationMode is CompilationMode.None) {
+                    compilationMode.resetAndCompile(packageName = packageName) {
                         // This is only compiling for Compilation.None
                         throw IllegalStateException("block never used for CompilationMode.None")
                     }

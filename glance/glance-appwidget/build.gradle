@@ -94,6 +94,10 @@ android {
             pseudoLocalesEnabled true
         }
     }
+
+    buildTypes.all {
+        consumerProguardFiles "proguard-rules.pro"
+    }
 }
 
 androidx {

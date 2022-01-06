@@ -84,4 +84,12 @@
     <!-- Menu option within the complications configuration widget that lets us select only the
     right complication for rendering. [CHAR LIMIT=20] -->
     <string name="watchface_complications_setting_right">Right</string>
+
+    <!-- Menu option to select a widget that lets us configure the frequency of hours labeling
+    [CHAR LIMIT=20] -->
+    <string name="watchface_draw_hours_freq_setting">Hours labeling</string>
+
+    <!-- Sub title for the menu option to select a widget that lets us configure the frequency of
+    hours labeling [CHAR LIMIT=20] -->
+    <string name="watchface_draw_hours_freq_setting_description">Labeling frequency</string>
 </resources>

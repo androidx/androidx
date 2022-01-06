@@ -52,7 +52,6 @@ import androidx.camera.core.Logger;
 import androidx.camera.core.SurfaceRequest;
 import androidx.camera.core.ViewPort;
 import androidx.camera.view.internal.compat.quirk.DeviceQuirks;
-import androidx.camera.view.internal.compat.quirk.PreviewOneThirdWiderQuirk;
 import androidx.camera.view.internal.compat.quirk.TextureViewRotationQuirk;
 import androidx.core.util.Preconditions;
 
@@ -103,12 +102,9 @@ final class PreviewTransformation {
 
     // SurfaceRequest.getResolution().
     private Size mResolution;
-    // This represents the area of the Surface that should be visible to end users. The value
-    // is based on TransformationInfo.getCropRect() with possible corrections due to device quirks.
+    // This represents the area of the Surface that should be visible to end users. The area is
+    // defined by the Viewport class.
     private Rect mSurfaceCropRect;
-    // This rect represents the size of the viewport in preview. It's always the same as
-    // TransformationInfo.getCropRect().
-    private Rect mViewportRect;
     // TransformationInfo.getRotationDegrees().
     private int mPreviewRotationDegrees;
     // TransformationInfo.getTargetRotation.
@@ -132,8 +128,7 @@ final class PreviewTransformation {
             Size resolution, boolean isFrontCamera) {
         Logger.d(TAG, "Transformation info set: " + transformationInfo + " " + resolution + " "
                 + isFrontCamera);
-        mSurfaceCropRect = getCorrectedCropRect(transformationInfo.getCropRect());
-        mViewportRect = transformationInfo.getCropRect();
+        mSurfaceCropRect = transformationInfo.getCropRect();
         mPreviewRotationDegrees = transformationInfo.getRotationDegrees();
         mTargetRotation = transformationInfo.getTargetRotation();
         mResolution = resolution;
@@ -279,28 +274,6 @@ final class PreviewTransformation {
     }
 
     /**
-     * Gets the vertices of the crop rect in Surface.
-     */
-    private Rect getCorrectedCropRect(Rect surfaceCropRect) {
-        PreviewOneThirdWiderQuirk quirk = DeviceQuirks.get(PreviewOneThirdWiderQuirk.class);
-        if (quirk != null) {
-            // Correct crop rect if the device has a quirk.
-            RectF cropRectF = new RectF(surfaceCropRect);
-            Matrix correction = new Matrix();
-            correction.setScale(
-                    quirk.getCropRectScaleX(),
-                    1f,
-                    surfaceCropRect.centerX(),
-                    surfaceCropRect.centerY());
-            correction.mapRect(cropRectF);
-            Rect correctRect = new Rect();
-            cropRectF.round(correctRect);
-            return correctRect;
-        }
-        return surfaceCropRect;
-    }
-
-    /**
      * Gets the viewport rect in {@link PreviewView} coordinates for the case where viewport's
      * aspect ratio doesn't match {@link PreviewView}'s aspect ratio.
      *
@@ -380,9 +353,9 @@ final class PreviewTransformation {
      */
     private Size getRotatedViewportSize() {
         if (is90or270(mPreviewRotationDegrees)) {
-            return new Size(mViewportRect.height(), mViewportRect.width());
+            return new Size(mSurfaceCropRect.height(), mSurfaceCropRect.width());
         }
-        return new Size(mViewportRect.width(), mViewportRect.height());
+        return new Size(mSurfaceCropRect.width(), mSurfaceCropRect.height());
     }
 
     /**

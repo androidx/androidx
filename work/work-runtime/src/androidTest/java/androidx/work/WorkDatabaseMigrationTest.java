@@ -19,24 +19,18 @@ package androidx.work;
 import static android.content.Context.MODE_PRIVATE;
 import static android.database.sqlite.SQLiteDatabase.CONFLICT_FAIL;
 
-import static androidx.work.impl.WorkDatabaseMigrations.MIGRATION_11_12;
-import static androidx.work.impl.WorkDatabaseMigrations.MIGRATION_3_4;
-import static androidx.work.impl.WorkDatabaseMigrations.MIGRATION_4_5;
-import static androidx.work.impl.WorkDatabaseMigrations.MIGRATION_6_7;
-import static androidx.work.impl.WorkDatabaseMigrations.MIGRATION_7_8;
-import static androidx.work.impl.WorkDatabaseMigrations.MIGRATION_8_9;
-import static androidx.work.impl.WorkDatabaseMigrations.VERSION_1;
-import static androidx.work.impl.WorkDatabaseMigrations.VERSION_10;
-import static androidx.work.impl.WorkDatabaseMigrations.VERSION_11;
-import static androidx.work.impl.WorkDatabaseMigrations.VERSION_12;
-import static androidx.work.impl.WorkDatabaseMigrations.VERSION_2;
-import static androidx.work.impl.WorkDatabaseMigrations.VERSION_3;
-import static androidx.work.impl.WorkDatabaseMigrations.VERSION_4;
-import static androidx.work.impl.WorkDatabaseMigrations.VERSION_5;
-import static androidx.work.impl.WorkDatabaseMigrations.VERSION_6;
-import static androidx.work.impl.WorkDatabaseMigrations.VERSION_7;
-import static androidx.work.impl.WorkDatabaseMigrations.VERSION_8;
-import static androidx.work.impl.WorkDatabaseMigrations.VERSION_9;
+import static androidx.work.impl.WorkDatabaseVersions.VERSION_1;
+import static androidx.work.impl.WorkDatabaseVersions.VERSION_10;
+import static androidx.work.impl.WorkDatabaseVersions.VERSION_11;
+import static androidx.work.impl.WorkDatabaseVersions.VERSION_12;
+import static androidx.work.impl.WorkDatabaseVersions.VERSION_2;
+import static androidx.work.impl.WorkDatabaseVersions.VERSION_3;
+import static androidx.work.impl.WorkDatabaseVersions.VERSION_4;
+import static androidx.work.impl.WorkDatabaseVersions.VERSION_5;
+import static androidx.work.impl.WorkDatabaseVersions.VERSION_6;
+import static androidx.work.impl.WorkDatabaseVersions.VERSION_7;
+import static androidx.work.impl.WorkDatabaseVersions.VERSION_8;
+import static androidx.work.impl.WorkDatabaseVersions.VERSION_9;
 import static androidx.work.impl.utils.IdGenerator.NEXT_ALARM_MANAGER_ID_KEY;
 import static androidx.work.impl.utils.IdGenerator.NEXT_JOB_SCHEDULER_ID_KEY;
 import static androidx.work.impl.utils.IdGenerator.PREFERENCE_FILE_KEY;
@@ -62,9 +56,17 @@ import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
 import androidx.test.platform.app.InstrumentationRegistry;
+import androidx.work.impl.Migration_11_12;
+import androidx.work.impl.Migration_1_2;
+import androidx.work.impl.Migration_3_4;
+import androidx.work.impl.Migration_4_5;
+import androidx.work.impl.Migration_6_7;
+import androidx.work.impl.Migration_7_8;
+import androidx.work.impl.Migration_8_9;
+import androidx.work.impl.RescheduleMigration;
 import androidx.work.impl.WorkDatabase;
-import androidx.work.impl.WorkDatabaseMigrations;
 import androidx.work.impl.WorkManagerImpl;
+import androidx.work.impl.WorkMigration9To10;
 import androidx.work.impl.model.WorkSpec;
 import androidx.work.impl.model.WorkTypeConverters;
 import androidx.work.worker.TestWorker;
@@ -76,6 +78,7 @@ import org.junit.runner.RunWith;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.UUID;
 
 @RunWith(AndroidJUnit4.class)
@@ -117,7 +120,8 @@ public class WorkDatabaseMigrationTest {
     @Rule
     public MigrationTestHelper mMigrationTestHelper = new MigrationTestHelper(
             InstrumentationRegistry.getInstrumentation(),
-            WorkDatabase.class.getCanonicalName(),
+            WorkDatabase.class,
+            new ArrayList<>(),
             new FrameworkSQLiteOpenHelperFactory());
 
     @Before
@@ -165,7 +169,7 @@ public class WorkDatabaseMigrationTest {
                 TEST_DATABASE,
                 VERSION_2,
                 VALIDATE_DROPPED_TABLES,
-                WorkDatabaseMigrations.MIGRATION_1_2);
+                Migration_1_2.INSTANCE);
 
         Cursor tagCursor = database.query("SELECT * FROM worktag");
         assertThat(tagCursor.getCount(), is(prepopulatedWorkSpecIds.length));
@@ -209,8 +213,8 @@ public class WorkDatabaseMigrationTest {
     public void testMigrationVersion2To3() throws IOException {
         SupportSQLiteDatabase database =
                 mMigrationTestHelper.createDatabase(TEST_DATABASE, VERSION_2);
-        WorkDatabaseMigrations.RescheduleMigration migration2To3 =
-                new WorkDatabaseMigrations.RescheduleMigration(mContext, VERSION_2, VERSION_3);
+        RescheduleMigration migration2To3 =
+                new RescheduleMigration(mContext, VERSION_2, VERSION_3);
 
         database = mMigrationTestHelper.runMigrationsAndValidate(
                 TEST_DATABASE,
@@ -246,7 +250,7 @@ public class WorkDatabaseMigrationTest {
                 TEST_DATABASE,
                 VERSION_4,
                 VALIDATE_DROPPED_TABLES,
-                MIGRATION_3_4);
+                Migration_3_4.INSTANCE);
 
         Cursor cursor = database.query("SELECT * from workspec");
         assertThat(cursor.getCount(), is(2));
@@ -277,7 +281,7 @@ public class WorkDatabaseMigrationTest {
                 TEST_DATABASE,
                 VERSION_5,
                 VALIDATE_DROPPED_TABLES,
-                MIGRATION_4_5);
+                Migration_4_5.INSTANCE);
         assertThat(checkExists(database, TABLE_WORKSPEC), is(true));
         assertThat(
                 checkColumnExists(database, TABLE_WORKSPEC, TRIGGER_CONTENT_UPDATE_DELAY),
@@ -293,8 +297,7 @@ public class WorkDatabaseMigrationTest {
     public void testMigrationVersion5To6() throws IOException {
         SupportSQLiteDatabase database =
                 mMigrationTestHelper.createDatabase(TEST_DATABASE, VERSION_5);
-        WorkDatabaseMigrations.RescheduleMigration migration5To6 =
-                new WorkDatabaseMigrations.RescheduleMigration(mContext, VERSION_5, VERSION_6);
+        RescheduleMigration migration5To6 = new RescheduleMigration(mContext, VERSION_5, VERSION_6);
 
         database = mMigrationTestHelper.runMigrationsAndValidate(
                 TEST_DATABASE,
@@ -317,7 +320,7 @@ public class WorkDatabaseMigrationTest {
                 TEST_DATABASE,
                 VERSION_7,
                 VALIDATE_DROPPED_TABLES,
-                MIGRATION_6_7);
+                Migration_6_7.INSTANCE);
         assertThat(checkExists(database, TABLE_WORKPROGRESS), is(true));
         database.close();
     }
@@ -331,7 +334,7 @@ public class WorkDatabaseMigrationTest {
                 TEST_DATABASE,
                 VERSION_8,
                 VALIDATE_DROPPED_TABLES,
-                MIGRATION_7_8);
+                Migration_7_8.INSTANCE);
 
         assertThat(checkIndexExists(database, INDEX_PERIOD_START_TIME, TABLE_WORKSPEC), is(true));
         database.close();
@@ -346,7 +349,7 @@ public class WorkDatabaseMigrationTest {
                 TEST_DATABASE,
                 VERSION_9,
                 VALIDATE_DROPPED_TABLES,
-                MIGRATION_8_9);
+                Migration_8_9.INSTANCE);
 
         assertThat(checkColumnExists(database, TABLE_WORKSPEC, COLUMN_RUN_IN_FOREGROUND),
                 is(true));
@@ -378,7 +381,7 @@ public class WorkDatabaseMigrationTest {
                 TEST_DATABASE,
                 VERSION_10,
                 VALIDATE_DROPPED_TABLES,
-                new WorkDatabaseMigrations.WorkMigration9To10(mContext));
+                new WorkMigration9To10(mContext));
 
         assertThat(checkExists(database, TABLE_PREFERENCE), is(true));
         String query = "SELECT * FROM `Preference` where `key`=@key";
@@ -411,8 +414,8 @@ public class WorkDatabaseMigrationTest {
     public void testMigrationVersion10To11() throws IOException {
         SupportSQLiteDatabase database =
                 mMigrationTestHelper.createDatabase(TEST_DATABASE, VERSION_10);
-        WorkDatabaseMigrations.RescheduleMigration migration10To11 =
-                new WorkDatabaseMigrations.RescheduleMigration(mContext, VERSION_10, VERSION_11);
+        RescheduleMigration migration10To11 =
+                new RescheduleMigration(mContext, VERSION_10, VERSION_11);
         database = mMigrationTestHelper.runMigrationsAndValidate(
                 TEST_DATABASE,
                 VERSION_11,
@@ -448,7 +451,7 @@ public class WorkDatabaseMigrationTest {
                 TEST_DATABASE,
                 VERSION_12,
                 VALIDATE_DROPPED_TABLES,
-                MIGRATION_11_12);
+                Migration_11_12.INSTANCE);
 
         assertThat(checkColumnExists(database, TABLE_WORKSPEC, COLUMN_OUT_OF_QUOTA_POLICY),
                 is(true));

@@ -22,7 +22,6 @@ import android.os.Bundle
 import android.os.Parcel
 import android.os.ResultReceiver
 import androidx.annotation.IntDef
-import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
 import androidx.concurrent.futures.CallbackToFutureAdapter
 import androidx.wear.remote.interactions.RemoteInteractionsUtil.isCurrentDeviceAWatch
@@ -283,13 +282,10 @@ public class RemoteActivityHelper(
 
     /**
      * Result code passed to [ResultReceiver.send] for the status of remote intent.
-     *
-     * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
     @IntDef(RESULT_OK, RESULT_FAILED)
     @Retention(AnnotationRetention.SOURCE)
-    public annotation class SendResult
+    internal annotation class SendResult
 
     public class RemoteIntentException(message: String) : Exception(message)
 

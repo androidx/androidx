@@ -25,7 +25,7 @@ import com.android.tools.lint.detector.api.JavaContext
 import com.android.tools.lint.detector.api.SourceCodeScanner
 import com.android.tools.lint.checks.ApiLookup
 import com.android.tools.lint.checks.ApiLookup.equivalentName
-import com.android.tools.lint.checks.ApiLookup.startsWithEquivalentPrefix
+import com.android.tools.lint.checks.DesugaredMethodLookup
 import com.android.tools.lint.checks.VersionChecks.Companion.codeNameToApi
 import com.android.tools.lint.detector.api.Category
 import com.android.tools.lint.detector.api.Context
@@ -415,48 +415,19 @@ class ClassVerificationFailureDetector : Detector(), SourceCodeScanner {
                         return
                     }
                 }
-
-                // If it's a method we have source for, obviously it shouldn't be a
-                // violation. (This happens for example when compiling the support library.)
-                if (method !is PsiCompiledElement) {
-                    return
-                }
             }
 
-            // Desugar rewrites compare calls (see b/36390874)
-            if (name == "compare" &&
-                api == 19 &&
-                startsWithEquivalentPrefix(owner, "java/lang/") &&
-                desc.length == 4 &&
-                (
-                    desc == "(JJ)" ||
-                        desc == "(ZZ)" ||
-                        desc == "(BB)" ||
-                        desc == "(CC)" ||
-                        desc == "(II)" ||
-                        desc == "(SS)"
-                    )
-            ) {
-                if (context.project.isDesugaring(Desugaring.LONG_COMPARE)) {
-                    return
-                }
+            // Builtin R8 desugaring, such as rewriting compare calls (see b/36390874)
+            if (owner.startsWith("java.") &&
+                DesugaredMethodLookup.isDesugared(owner, name, desc)) {
+                return
             }
 
-            // Desugar rewrites Objects.requireNonNull calls (see b/32446315)
-            if (name == "requireNonNull" &&
-                api == 19 &&
-                owner == "java.util.Objects" &&
-                desc == "(Ljava.lang.Object;)"
-            ) {
-                if (context.project.isDesugaring(Desugaring.OBJECTS_REQUIRE_NON_NULL)) {
-                    return
-                }
-            }
-
-            if (name == "addSuppressed" &&
-                api == 19 &&
-                owner == "java.lang.Throwable" &&
-                desc == "(Ljava.lang.Throwable;)"
+            // These methods are not included in the R8 backported list so handle them manually
+            // the way R8 seems to
+            if (api == 19 && owner == "java.lang.Throwable" &&
+                (name == "addSuppressed" && desc == "(Ljava.lang.Throwable;)" ||
+                    name == "getSuppressed" && desc == "()")
             ) {
                 if (context.project.isDesugaring(Desugaring.TRY_WITH_RESOURCES)) {
                     return
