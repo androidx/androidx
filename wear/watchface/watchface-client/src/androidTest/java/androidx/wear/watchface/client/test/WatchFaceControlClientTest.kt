@@ -122,6 +122,9 @@ private const val CONNECT_TIMEOUT_MILLIS = 500L
 private const val DESTROY_TIMEOUT_MILLIS = 500L
 private const val UPDATE_TIMEOUT_MILLIS = 500L
 
+const val CONFIGURABLE_DATA_SOURCE_PKG = "androidx.wear.watchface.complications.datasource.samples"
+const val CONFIGURABLE_DATA_SOURCE = "$CONFIGURABLE_DATA_SOURCE_PKG.ConfigurableDataSourceService"
+
 @RunWith(AndroidJUnit4::class)
 @MediumTest
 class WatchFaceControlClientTest {
@@ -1124,6 +1127,10 @@ class WatchFaceControlClientTest {
                 EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID to
                     androidx.wear.watchface.client.DefaultComplicationDataSourcePolicyAndType(
                         DefaultComplicationDataSourcePolicy(
+                            ComponentName(
+                                androidx.wear.watchface.samples.CONFIGURABLE_DATA_SOURCE_PKG,
+                                androidx.wear.watchface.samples.CONFIGURABLE_DATA_SOURCE
+                            ),
                             SystemDataSources.DATA_SOURCE_DAY_OF_WEEK
                         ),
                         ComplicationType.SHORT_TEXT
@@ -1150,6 +1157,10 @@ class WatchFaceControlClientTest {
                 EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID to
                     androidx.wear.watchface.client.DefaultComplicationDataSourcePolicyAndType(
                         DefaultComplicationDataSourcePolicy(
+                            ComponentName(
+                                androidx.wear.watchface.samples.CONFIGURABLE_DATA_SOURCE_PKG,
+                                androidx.wear.watchface.samples.CONFIGURABLE_DATA_SOURCE
+                            ),
                             SystemDataSources.DATA_SOURCE_DAY_OF_WEEK
                         ),
                         ComplicationType.SHORT_TEXT
