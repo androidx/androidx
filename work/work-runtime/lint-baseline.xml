@@ -201,39 +201,6 @@
 
     <issue
         id="KotlinPropertyAccess"
-        message="This method should be called `getRequiresDeviceIdle` such that `requiresDeviceIdle` can be accessed as a property from Kotlin; see https://android.github.io/kotlin-guides/interop.html#property-prefixes"
-        errorLine1="    public boolean requiresDeviceIdle() {"
-        errorLine2="                   ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/Constraints.java"
-            line="137"
-            column="20"/>
-    </issue>
-
-    <issue
-        id="KotlinPropertyAccess"
-        message="This method should be called `getRequiresBatteryNotLow` such that `requiresBatteryNotLow` can be accessed as a property from Kotlin; see https://android.github.io/kotlin-guides/interop.html#property-prefixes"
-        errorLine1="    public boolean requiresBatteryNotLow() {"
-        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/Constraints.java"
-            line="154"
-            column="20"/>
-    </issue>
-
-    <issue
-        id="KotlinPropertyAccess"
-        message="This method should be called `getRequiresStorageNotLow` such that `requiresStorageNotLow` can be accessed as a property from Kotlin; see https://android.github.io/kotlin-guides/interop.html#property-prefixes"
-        errorLine1="    public boolean requiresStorageNotLow() {"
-        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/Constraints.java"
-            line="170"
-            column="20"/>
-    </issue>
-
-    <issue
-        id="KotlinPropertyAccess"
         message="The getter return type (`LiveData&lt;State>`) and setter parameter type (`State`) getter and setter methods for property `state` should have exactly the same type to allow be accessed as a property from Kotlin; see https://android.github.io/kotlin-guides/interop.html#property-prefixes"
         errorLine1="    public @NonNull LiveData&lt;State> getState() {"
         errorLine2="                                    ~~~~~~~~">

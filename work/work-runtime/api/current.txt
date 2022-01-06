@@ -42,28 +42,33 @@ package androidx.work {
   }
 
   public final class Constraints {
-    ctor public Constraints(androidx.work.Constraints);
+    ctor public Constraints(androidx.work.Constraints other);
     method public androidx.work.NetworkType getRequiredNetworkType();
     method public boolean requiresBatteryNotLow();
     method public boolean requiresCharging();
     method @RequiresApi(23) public boolean requiresDeviceIdle();
     method public boolean requiresStorageNotLow();
+    property public final androidx.work.NetworkType requiredNetworkType;
+    field public static final androidx.work.Constraints.Companion Companion;
     field public static final androidx.work.Constraints NONE;
   }
 
   public static final class Constraints.Builder {
     ctor public Constraints.Builder();
-    method @RequiresApi(24) public androidx.work.Constraints.Builder addContentUriTrigger(android.net.Uri, boolean);
+    method @RequiresApi(24) public androidx.work.Constraints.Builder addContentUriTrigger(android.net.Uri uri, boolean triggerForDescendants);
     method public androidx.work.Constraints build();
-    method public androidx.work.Constraints.Builder setRequiredNetworkType(androidx.work.NetworkType);
-    method public androidx.work.Constraints.Builder setRequiresBatteryNotLow(boolean);
-    method public androidx.work.Constraints.Builder setRequiresCharging(boolean);
-    method @RequiresApi(23) public androidx.work.Constraints.Builder setRequiresDeviceIdle(boolean);
-    method public androidx.work.Constraints.Builder setRequiresStorageNotLow(boolean);
-    method @RequiresApi(24) public androidx.work.Constraints.Builder setTriggerContentMaxDelay(long, java.util.concurrent.TimeUnit);
-    method @RequiresApi(26) public androidx.work.Constraints.Builder setTriggerContentMaxDelay(java.time.Duration!);
-    method @RequiresApi(24) public androidx.work.Constraints.Builder setTriggerContentUpdateDelay(long, java.util.concurrent.TimeUnit);
-    method @RequiresApi(26) public androidx.work.Constraints.Builder setTriggerContentUpdateDelay(java.time.Duration!);
+    method public androidx.work.Constraints.Builder setRequiredNetworkType(androidx.work.NetworkType networkType);
+    method public androidx.work.Constraints.Builder setRequiresBatteryNotLow(boolean requiresBatteryNotLow);
+    method public androidx.work.Constraints.Builder setRequiresCharging(boolean requiresCharging);
+    method @RequiresApi(23) public androidx.work.Constraints.Builder setRequiresDeviceIdle(boolean requiresDeviceIdle);
+    method public androidx.work.Constraints.Builder setRequiresStorageNotLow(boolean requiresStorageNotLow);
+    method @RequiresApi(24) public androidx.work.Constraints.Builder setTriggerContentMaxDelay(long duration, java.util.concurrent.TimeUnit timeUnit);
+    method @RequiresApi(26) public androidx.work.Constraints.Builder setTriggerContentMaxDelay(java.time.Duration duration);
+    method @RequiresApi(24) public androidx.work.Constraints.Builder setTriggerContentUpdateDelay(long duration, java.util.concurrent.TimeUnit timeUnit);
+    method @RequiresApi(26) public androidx.work.Constraints.Builder setTriggerContentUpdateDelay(java.time.Duration duration);
+  }
+
+  public static final class Constraints.Companion {
   }
 
   public final class Data {
