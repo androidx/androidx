@@ -73,13 +73,6 @@ class CompilationModeTest {
             assertEquals("Full", CompilationMode.Full().toString())
         }
         assertEquals("Interpreted", CompilationMode.Interpreted.toString())
-
-        // deprecated
-        assertEquals(
-            "SpeedProfile(iterations=123)",
-            CompilationMode.SpeedProfile(123).toString()
-        )
-        assertEquals("Speed", CompilationMode.Speed.toString())
     }
 
     @Test
@@ -92,10 +85,6 @@ class CompilationModeTest {
             assertTrue(CompilationMode.Full().isSupportedWithVmSettings())
         }
         assertFalse(CompilationMode.Interpreted.isSupportedWithVmSettings())
-
-        // deprecated
-        assertTrue(CompilationMode.SpeedProfile().isSupportedWithVmSettings())
-        assertTrue(CompilationMode.Speed.isSupportedWithVmSettings())
     }
 
     @Test
@@ -108,9 +97,5 @@ class CompilationModeTest {
             assertFalse(CompilationMode.Full().isSupportedWithVmSettings())
         }
         assertTrue(CompilationMode.Interpreted.isSupportedWithVmSettings())
-
-        // deprecated
-        assertFalse(CompilationMode.SpeedProfile().isSupportedWithVmSettings())
-        assertFalse(CompilationMode.Speed.isSupportedWithVmSettings())
     }
 }
