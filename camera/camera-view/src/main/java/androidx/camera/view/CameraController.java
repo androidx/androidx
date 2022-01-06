@@ -1070,6 +1070,7 @@ public abstract class CameraController {
      * @param executor          The executor in which the callback methods will be run.
      * @param callback          Callback which will receive success or failure.
      */
+    @SuppressLint("MissingPermission")
     @ExperimentalVideo
     @MainThread
     public void startRecording(@NonNull OutputFileOptions outputFileOptions,
