@@ -27,9 +27,7 @@ import androidx.appsearch.app.GenericDocument;
 import androidx.appsearch.app.GetByDocumentIdRequest;
 import androidx.appsearch.app.SearchResult;
 import androidx.appsearch.app.SearchResults;
-import androidx.appsearch.app.VisibilityDocument;
-import androidx.appsearch.exceptions.AppSearchException;
-import androidx.appsearch.localstorage.visibilitystore.VisibilityStore;
+import androidx.appsearch.localstorage.visibilitystore.VisibilityChecker;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -117,34 +115,14 @@ public class AppSearchTestUtils {
     }
 
     /**
-     * Creates a mock {@link VisibilityStore}.
+     * Creates a mock {@link VisibilityChecker}.
      * @param visiblePrefixedSchemas Schema types that are accessible to any caller.
      * @return
      */
     @NonNull
-    public static VisibilityStore createMockVisibilityStore(
+    public static VisibilityChecker createMockVisibilityChecker(
             @NonNull Set<String> visiblePrefixedSchemas) {
-        return new VisibilityStore() {
-            @Override
-            public void setVisibility(
-                    @NonNull List<VisibilityDocument> prefixedVisibilityDocuments)
-                    throws AppSearchException {
-
-            }
-
-            @Override
-            public boolean isSchemaSearchableByCaller(@NonNull String packageName,
-                    @NonNull String prefixedSchema, int callerUid,
-                    boolean callerHasSystemAccess) {
-                // filter out all schema.
-                return visiblePrefixedSchemas.contains(prefixedSchema);
-            }
-
-            @Override
-            public void removeVisibility(@NonNull Set<String> prefixedSchemaTypes)
-                    throws AppSearchException {
-
-            }
-        };
+        return (packageName, prefixedSchema, callerUid, callerHasSystemAccess, visibilityStore) ->
+                visiblePrefixedSchemas.contains(prefixedSchema);
     }
 }

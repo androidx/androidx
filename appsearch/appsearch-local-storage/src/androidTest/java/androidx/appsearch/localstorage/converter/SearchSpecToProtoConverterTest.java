@@ -438,11 +438,12 @@ public class SearchSpecToProtoConverterTest {
 
         converter.removeInaccessibleSchemaFilter(
                 /*callerPackageName=*/"otherPackageName",
-                AppSearchTestUtils.createMockVisibilityStore(
-                        /*visiblePrefixedSchemas=*/ ImmutableSet.of(
-                                prefix + "schema1", prefix + "schema3")),
                 /*callerUid=*/-1,
-                /*callerHasSystemAccess=*/true);
+                /*callerHasSystemAccess=*/true,
+                /*visibilityStore=*/ null,  // VS doesn't mater in this test
+                AppSearchTestUtils.createMockVisibilityChecker(
+                        /*visiblePrefixedSchemas=*/ ImmutableSet.of(
+                                prefix + "schema1", prefix + "schema3")));
 
         SearchSpecProto searchSpecProto =
                 converter.toSearchSpecProto(/*queryExpression=*/"");
@@ -488,10 +489,11 @@ public class SearchSpecToProtoConverterTest {
         // remove all target schema filter, and the query becomes nothing to search.
         nonEmptyConverter.removeInaccessibleSchemaFilter(
                 /*callerPackageName=*/"otherPackageName",
-                AppSearchTestUtils.createMockVisibilityStore(
-                        /*visiblePrefixedSchemas=*/ImmutableSet.of()),
                 /*callerUid=*/-1,
-                /*callerHasSystemAccess=*/true);
+                /*callerHasSystemAccess=*/true,
+                /*visibilityStore=*/ null, // VS doesn't mater in this test
+                AppSearchTestUtils.createMockVisibilityChecker(
+                        /*visiblePrefixedSchemas=*/ImmutableSet.of()));
         assertThat(nonEmptyConverter.isNothingToSearch()).isTrue();
     }
 }

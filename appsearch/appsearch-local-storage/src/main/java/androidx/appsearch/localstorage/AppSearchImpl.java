@@ -59,6 +59,7 @@ import androidx.appsearch.localstorage.stats.RemoveStats;
 import androidx.appsearch.localstorage.stats.SearchStats;
 import androidx.appsearch.localstorage.stats.SetSchemaStats;
 import androidx.appsearch.localstorage.util.PrefixUtil;
+import androidx.appsearch.localstorage.visibilitystore.VisibilityChecker;
 import androidx.appsearch.localstorage.visibilitystore.VisibilityStore;
 import androidx.appsearch.observer.AppSearchObserverCallback;
 import androidx.appsearch.observer.ObserverSpec;
@@ -212,6 +213,17 @@ public final class AppSearchImpl implements Closeable {
     private final ObserverManager mObserverManager = new ObserverManager();
 
     /**
+     * VisibilityStore will be used in {@link #setSchema} and {@link #getSchema} to store and query
+     * visibility information. But to create a {@link VisibilityStore}, it will call
+     * {@link #setSchema} and {@link #getSchema} to get the visibility schema. Make it nullable to
+     * avoid call it before we actually create it.
+     */
+    @Nullable
+    private final VisibilityStore mVisibilityStore;
+    @Nullable
+    private final VisibilityChecker mVisibilityChecker;
+
+    /**
      * The counter to check when to call {@link #checkForOptimize}. The
      * interval is
      * {@link #CHECK_OPTIMIZE_INTERVAL}.
@@ -235,15 +247,20 @@ public final class AppSearchImpl implements Closeable {
      * and putDocument.
      *
      * @param initStatsBuilder collects stats for initialization if provided.
+     * @param visibilityChecker The {@link VisibilityChecker} that check whether the caller has
+     *                          access to aa specific schema. Pass null will lost that ability and
+     *                          global querier could only get their own data.
      */
     @NonNull
     public static AppSearchImpl create(
             @NonNull File icingDir,
             @NonNull LimitConfig limitConfig,
             @Nullable InitializeStats.Builder initStatsBuilder,
-            @NonNull OptimizeStrategy optimizeStrategy)
+            @NonNull OptimizeStrategy optimizeStrategy,
+            @Nullable VisibilityChecker visibilityChecker)
             throws AppSearchException {
-        return new AppSearchImpl(icingDir, limitConfig, initStatsBuilder, optimizeStrategy);
+        return new AppSearchImpl(icingDir, limitConfig, initStatsBuilder, optimizeStrategy,
+                visibilityChecker);
     }
 
     /**
@@ -253,11 +270,13 @@ public final class AppSearchImpl implements Closeable {
             @NonNull File icingDir,
             @NonNull LimitConfig limitConfig,
             @Nullable InitializeStats.Builder initStatsBuilder,
-            @NonNull OptimizeStrategy optimizeStrategy)
+            @NonNull OptimizeStrategy optimizeStrategy,
+            @Nullable VisibilityChecker visibilityChecker)
             throws AppSearchException {
         Preconditions.checkNotNull(icingDir);
         mLimitConfig = Preconditions.checkNotNull(limitConfig);
         mOptimizeStrategy = Preconditions.checkNotNull(optimizeStrategy);
+        mVisibilityChecker = visibilityChecker;
 
         mReadWriteLock.writeLock().lock();
         try {
@@ -356,6 +375,14 @@ public final class AppSearchImpl implements Closeable {
                 resetLocked(initStatsBuilder);
             }
 
+            long prepareVisibilityStoreLatencyStartMillis = SystemClock.elapsedRealtime();
+            mVisibilityStore = new VisibilityStore(this);
+            long prepareVisibilityStoreLatencyEndMillis = SystemClock.elapsedRealtime();
+            if (initStatsBuilder != null) {
+                initStatsBuilder.setPrepareVisibilityStoreLatencyMillis((int)
+                        (prepareVisibilityStoreLatencyEndMillis
+                                - prepareVisibilityStoreLatencyStartMillis));
+            }
         } finally {
             mReadWriteLock.writeLock().unlock();
         }
@@ -401,9 +428,6 @@ public final class AppSearchImpl implements Closeable {
      * @param packageName                 The package name that owns the schemas.
      * @param databaseName                The name of the database where this schema lives.
      * @param schemas                     Schemas to set for this app.
-     * @param visibilityStore             If set, {@code schemasNotDisplayedBySystem} and {@code
-     *                                    schemasVisibleToPackages} will be saved here if the
-     *                                    schema is successfully applied.
      * @param visibilityDocuments         {@link VisibilityDocument}s that contain all
      *                                    visibility setting information for those schemas
      *                                    has user custom settings. Other schemas in the list
@@ -427,7 +451,6 @@ public final class AppSearchImpl implements Closeable {
             @NonNull String packageName,
             @NonNull String databaseName,
             @NonNull List<AppSearchSchema> schemas,
-            @Nullable VisibilityStore visibilityStore,
             @NonNull List<VisibilityDocument> visibilityDocuments,
             boolean forceOverride,
             int version,
@@ -495,8 +518,9 @@ public final class AppSearchImpl implements Closeable {
             for (String schemaType : rewrittenSchemaResults.mDeletedPrefixedTypes) {
                 removeFromMap(mSchemaMapLocked, prefix, schemaType);
             }
-
-            if (visibilityStore != null) {
+            // Since the constructor of VisibilityStore will set schema. Avoid call visibility
+            // store before we have already created it.
+            if (mVisibilityStore != null) {
                 // Add prefix to all visibility documents.
                 List<VisibilityDocument> prefixedVisibilityDocuments =
                         new ArrayList<>(visibilityDocuments.size());
@@ -523,10 +547,9 @@ public final class AppSearchImpl implements Closeable {
                 // all-default visibility settings, add deleted schemas. That's all we need to
                 // remove.
                 deprecatedVisibilityDocuments.addAll(rewrittenSchemaResults.mDeletedPrefixedTypes);
-                visibilityStore.removeVisibility(deprecatedVisibilityDocuments);
-                visibilityStore.setVisibility(prefixedVisibilityDocuments);
+                mVisibilityStore.removeVisibility(deprecatedVisibilityDocuments);
+                mVisibilityStore.setVisibility(prefixedVisibilityDocuments);
             }
-
             return SetSchemaResponseToProtoConverter
                     .toSetSchemaResponse(setSchemaResultProto, prefix);
         } finally {
@@ -990,8 +1013,6 @@ public final class AppSearchImpl implements Closeable {
      * @param searchSpec            Spec for setting filters, raw query etc.
      * @param callerPackageName     Package name of the caller, should belong to the {@code
      *                              callerUserHandle}.
-     * @param visibilityStore       Optional visibility store to obtain system and package
-     *                              visibility settings from
      * @param callerUid             UID of the client making the globalQuery call.
      * @param callerHasSystemAccess Whether the caller has been positively identified as having
      *                              access to schemas marked system surfaceable.
@@ -1005,7 +1026,6 @@ public final class AppSearchImpl implements Closeable {
             @NonNull String queryExpression,
             @NonNull SearchSpec searchSpec,
             @NonNull String callerPackageName,
-            @Nullable VisibilityStore visibilityStore,
             int callerUid,
             boolean callerHasSystemAccess,
             @Nullable AppSearchLogger logger) throws AppSearchException {
@@ -1044,7 +1064,7 @@ public final class AppSearchImpl implements Closeable {
                             mSchemaMapLocked);
             // Remove those inaccessible schemas.
             searchSpecToProtoConverter.removeInaccessibleSchemaFilter(callerPackageName,
-                    visibilityStore, callerUid, callerHasSystemAccess);
+                    callerUid, callerHasSystemAccess, mVisibilityStore, mVisibilityChecker);
             if (searchSpecToProtoConverter.isNothingToSearch()) {
                 // there is nothing to search over given their search filters, so we can return an
                 // empty SearchResult and skip sending request to Icing.
@@ -2268,6 +2288,25 @@ public final class AppSearchImpl implements Closeable {
         GetOptimizeInfoResultProto result = mIcingSearchEngineLocked.getOptimizeInfo();
         mLogUtil.piiTrace("getOptimizeInfo, response", result.getStatus(), result);
         return result;
+    }
+
+    /**
+     * Returns all prefixed schema types saved in AppSearch.
+     *
+     * <p>This method is inefficient to call repeatedly.
+     */
+    @NonNull
+    public List<String> getAllPrefixedSchemaTypes() {
+        mReadWriteLock.readLock().lock();
+        try {
+            List<String> cachedSchemaTypes = new ArrayList<>();
+            for (Map<String, SchemaTypeConfigProto> value : mSchemaMapLocked.values()) {
+                cachedSchemaTypes.addAll(value.keySet());
+            }
+            return cachedSchemaTypes;
+        } finally {
+            mReadWriteLock.readLock().unlock();
+        }
     }
 
     /**

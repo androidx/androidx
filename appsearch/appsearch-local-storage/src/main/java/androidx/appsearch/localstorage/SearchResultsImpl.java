@@ -102,7 +102,6 @@ class SearchResultsImpl implements SearchResults {
                             mQueryExpression,
                             mSearchSpec,
                             mPackageName,
-                            /*visibilityStore=*/ null,
                             Process.myUid(),
                             /*callerHasSystemAccess=*/ false,
                             mLogger);

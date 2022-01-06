@@ -51,7 +51,8 @@ public class SearchResultsImplTest {
         mAppSearchImpl = AppSearchImpl.create(
                 mTemporaryFolder.newFolder(),
                 new UnlimitedLimitConfig(),
-                /*initStatsBuilder=*/ null, ALWAYS_OPTIMIZE);
+                /*initStatsBuilder=*/ null, ALWAYS_OPTIMIZE,
+                /*visibilityChecker=*/null);
     }
 
     @After
@@ -68,7 +69,6 @@ public class SearchResultsImplTest {
                 "package1",
                 "database1",
                 schema1,
-                /*visibilityStore=*/ null,
                 /*visibilityDocuments=*/ Collections.emptyList(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
@@ -112,7 +112,6 @@ public class SearchResultsImplTest {
                 "package1",
                 "database1",
                 schema1,
-                /*visibilityStore=*/ null,
                 /*visibilityDocuments=*/ Collections.emptyList(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
