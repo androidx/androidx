@@ -26,6 +26,7 @@ import androidx.appsearch.app.AppSearchSession;
 import androidx.appsearch.app.Features;
 import androidx.appsearch.app.GlobalSearchSession;
 import androidx.appsearch.platformstorage.PlatformStorage;
+import androidx.core.os.BuildCompat;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.filters.SdkSuppress;
 
@@ -50,14 +51,20 @@ public class GlobalSearchSessionPlatformCtsTest extends GlobalSearchSessionCtsTe
                 new PlatformStorage.GlobalSearchContext.Builder(context).build());
     }
 
-    @Ignore("Unignore this test once these features are implemented in the platform backend.")
     @Test
     public void testFeaturesSupported() {
-        assertThat(mDb1.getFeatures().isFeatureSupported(
-                Features.SEARCH_RESULT_MATCH_INFO_SUBMATCH))
-                .isEqualTo(Build.VERSION.SDK_INT >= Build.VERSION_CODES.S);
+        // TODO(b/201316758): Support submatch and uncomment this check
+        //assertThat(mDb1.getFeatures().isFeatureSupported(
+        //        Features.SEARCH_RESULT_MATCH_INFO_SUBMATCH))
+        //        .isEqualTo(BuildCompat.isAtLeastT());
         assertThat(mDb1.getFeatures().isFeatureSupported(
                 Features.GLOBAL_SEARCH_SESSION_ADD_REMOVE_OBSERVER))
-                .isEqualTo(Build.VERSION.SDK_INT >= Build.VERSION_CODES.S);
+                .isEqualTo(BuildCompat.isAtLeastT());
+    }
+
+    @Ignore("b/193494000")
+    @Override
+    public void testRemoveObserver() {
+        // TODO(b/193494000): Implement removeObserver in platform and enable this test
     }
 }

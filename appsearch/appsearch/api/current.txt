@@ -278,7 +278,7 @@ package androidx.appsearch.app {
   }
 
   public interface GlobalSearchSession extends java.io.Closeable {
-    method @RequiresFeature(enforcement="androidx.appsearch.app.Features#isFeatureSupported", name=androidx.appsearch.app.Features.GLOBAL_SEARCH_SESSION_ADD_REMOVE_OBSERVER) public void addObserver(String, androidx.appsearch.observer.ObserverSpec, java.util.concurrent.Executor, androidx.appsearch.observer.AppSearchObserverCallback);
+    method @RequiresFeature(enforcement="androidx.appsearch.app.Features#isFeatureSupported", name=androidx.appsearch.app.Features.GLOBAL_SEARCH_SESSION_ADD_REMOVE_OBSERVER) public void addObserver(String, androidx.appsearch.observer.ObserverSpec, java.util.concurrent.Executor, androidx.appsearch.observer.AppSearchObserverCallback) throws androidx.appsearch.exceptions.AppSearchException;
     method public void close();
     method public androidx.appsearch.app.Features getFeatures();
     method @RequiresFeature(enforcement="androidx.appsearch.app.Features#isFeatureSupported", name=androidx.appsearch.app.Features.GLOBAL_SEARCH_SESSION_ADD_REMOVE_OBSERVER) public void removeObserver(String, androidx.appsearch.observer.AppSearchObserverCallback);
