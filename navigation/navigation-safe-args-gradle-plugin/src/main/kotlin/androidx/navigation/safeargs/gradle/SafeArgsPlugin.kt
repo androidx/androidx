@@ -16,13 +16,11 @@
 
 package androidx.navigation.safeargs.gradle
 
-import com.android.build.api.extension.AndroidComponentsExtension
+import com.android.build.api.variant.AndroidComponentsExtension
 import com.android.build.api.variant.DynamicFeatureVariant
 import com.android.build.gradle.AppExtension
 import com.android.build.gradle.BaseExtension
 import com.android.build.gradle.LibraryExtension
-import com.android.build.gradle.api.ApplicationVariant
-import com.android.build.gradle.api.BaseVariant
 import groovy.xml.XmlSlurper
 import org.gradle.api.GradleException
 import org.gradle.api.Plugin
@@ -45,7 +43,11 @@ abstract class SafeArgsPlugin protected constructor(
 
     abstract val generateKotlin: Boolean
 
-    private fun forEachVariant(extension: BaseExtension, action: (BaseVariant) -> Unit) {
+    @Suppress("DEPRECATION") // For BaseVariant should be replaced in later studio versions
+    private fun forEachVariant(
+        extension: BaseExtension,
+        action: (com.android.build.gradle.api.BaseVariant) -> Unit
+    ) {
         when {
             extension is AppExtension -> extension.applicationVariants.all(action)
             extension is LibraryExtension -> {
@@ -73,18 +75,15 @@ abstract class SafeArgsPlugin protected constructor(
             project.extensions.findByType(AndroidComponentsExtension::class.java)
                 ?: throw GradleException("safeargs plugin must be used with android plugin")
         variantExtension.onVariants { variant ->
+            @Suppress("DEPRECATION") // For ApplicationVariant
             when (variant) {
-                is ApplicationVariant, is DynamicFeatureVariant ->
-                    // Using reflection for AGP 7.0+ cause it can't resolve that
-                    // DynamicFeatureVariant implements GeneratesApk so the `applicationId`
-                    // property is actually available. Once we upgrade to 7.0 we will use
-                    // getNamespace().
-                    variant::class.java.getDeclaredMethod("getApplicationId").let { method ->
-                        method.trySetAccessible()
-                        applicationIds.getOrPut(variant.name) {
-                            @kotlin.Suppress("UNCHECKED_CAST")
-                            method.invoke(variant) as Provider<String>
-                        }
+                is com.android.build.gradle.api.ApplicationVariant ->
+                    applicationIds.getOrPut(variant.name) {
+                        variant.namespace
+                    }
+                is DynamicFeatureVariant ->
+                    applicationIds.getOrPut(variant.name) {
+                        variant.applicationId
                     }
             }
         }
@@ -119,11 +118,13 @@ abstract class SafeArgsPlugin protected constructor(
                 )
                 task.generateKotlin.set(generateKotlin)
             }
+            @Suppress("DEPRECATION") // For BaseVariant should be replaced in later studio versions
             variant.registerJavaGeneratingTask(task, task.outputDir.asFile.get())
         }
     }
 
-    private fun BaseVariant.rFilePackage() = providerFactory.provider {
+    @Suppress("DEPRECATION") // For BaseVariant should be replaced in later studio versions
+    private fun com.android.build.gradle.api.BaseVariant.rFilePackage() = providerFactory.provider {
         val mainSourceSet = sourceSets.find { it.name == "main" }
         val sourceSet = mainSourceSet ?: sourceSets[0]
         val manifest = sourceSet.manifestFile
@@ -131,8 +132,9 @@ abstract class SafeArgsPlugin protected constructor(
         parsed.getProperty("@package").toString()
     }
 
+    @Suppress("DEPRECATION") // For BaseVariant should be replaced in later studio versions
     private fun navigationFiles(
-        variant: BaseVariant,
+        variant: com.android.build.gradle.api.BaseVariant,
         project: Project
     ): ConfigurableFileCollection {
         val fileProvider = providerFactory.provider {
