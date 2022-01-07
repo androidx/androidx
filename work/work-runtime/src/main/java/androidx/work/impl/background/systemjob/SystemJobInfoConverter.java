@@ -112,8 +112,8 @@ class SystemJobInfoConverter {
             for (Constraints.ContentUriTrigger trigger : constraints.getContentUriTriggers()) {
                 builder.addTriggerContentUri(convertContentUriTrigger(trigger));
             }
-            builder.setTriggerContentUpdateDelay(constraints.getTriggerContentUpdateDelay());
-            builder.setTriggerContentMaxDelay(constraints.getTriggerMaxContentDelay());
+            builder.setTriggerContentUpdateDelay(constraints.getContentTriggerUpdateDelayMillis());
+            builder.setTriggerContentMaxDelay(constraints.getContentTriggerMaxDelayMillis());
         }
 
         // We don't want to persist these jobs because we reschedule these jobs on BOOT_COMPLETED.
@@ -136,7 +136,7 @@ class SystemJobInfoConverter {
     @RequiresApi(24)
     private static JobInfo.TriggerContentUri convertContentUriTrigger(
             Constraints.ContentUriTrigger trigger) {
-        int flag = trigger.getTriggerForDescendants()
+        int flag = trigger.isTriggeredForDescendants()
                 ? JobInfo.TriggerContentUri.FLAG_NOTIFY_FOR_DESCENDANTS : 0;
         return new JobInfo.TriggerContentUri(trigger.getUri(), flag);
     }
