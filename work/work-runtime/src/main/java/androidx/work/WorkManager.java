@@ -211,6 +211,23 @@ public abstract class WorkManager {
     }
 
     /**
+     * Provides a way to check if {@link WorkManager} is initialized in this process.
+     *
+     * @return {@code true} if {@link WorkManager} has been initialized in this process.
+     */
+    public static boolean isInitialized() {
+        return WorkManagerImpl.isInitialized();
+    }
+
+    /**
+     * Provides the {@link Configuration} instance that {@link WorkManager} was initialized with.
+     *
+     * @return The {@link Configuration} instance that {@link WorkManager} was initialized with.
+     */
+    @NonNull
+    public abstract Configuration getConfiguration();
+
+    /**
      * Enqueues one item for background processing.
      *
      * @param workRequest The {@link WorkRequest} to enqueue
