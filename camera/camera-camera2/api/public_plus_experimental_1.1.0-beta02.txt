@@ -36,7 +36,6 @@ package androidx.camera.camera2.interop {
   }
 
   @RequiresApi(21) @androidx.camera.camera2.interop.ExperimentalCamera2Interop public class CaptureRequestOptions {
-    ctor public CaptureRequestOptions(androidx.camera.core.impl.Config);
     method public <ValueT> ValueT? getCaptureRequestOption(android.hardware.camera2.CaptureRequest.Key<ValueT!>);
   }
 
