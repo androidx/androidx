@@ -20,6 +20,7 @@ import androidx.room.compiler.processing.XElement
 import androidx.room.compiler.processing.XMessager
 import androidx.room.compiler.processing.XNullability
 import androidx.room.compiler.processing.XProcessingEnv
+import androidx.room.compiler.processing.XProcessingEnvConfig
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.XTypeElement
 import androidx.room.compiler.processing.javac.kotlin.KmType
@@ -39,7 +40,8 @@ import javax.lang.model.util.Elements
 import javax.lang.model.util.Types
 
 internal class JavacProcessingEnv(
-    val delegate: ProcessingEnvironment
+    val delegate: ProcessingEnvironment,
+    override val config: XProcessingEnvConfig,
 ) : XProcessingEnv {
     override val backend: XProcessingEnv.Backend = XProcessingEnv.Backend.JAVAC
 
