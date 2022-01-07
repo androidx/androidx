@@ -51,7 +51,6 @@ dependencies {
     testImplementation(project(":camera:camera-camera2"))
     testImplementation(project(":camera:camera-testing"))
 
-    androidTestImplementation(project(":camera:camera-testing"))
     androidTestImplementation(libs.multidex)
     androidTestImplementation(libs.mockitoCore)
     androidTestImplementation(libs.espressoCore)
