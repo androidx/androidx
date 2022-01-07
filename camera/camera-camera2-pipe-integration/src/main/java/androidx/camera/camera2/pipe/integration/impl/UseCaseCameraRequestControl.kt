@@ -36,13 +36,13 @@ import androidx.camera.camera2.pipe.integration.adapter.CaptureConfigAdapter
 import androidx.camera.camera2.pipe.integration.config.UseCaseCameraScope
 import androidx.camera.camera2.pipe.integration.config.UseCaseGraphConfig
 import androidx.camera.core.impl.CaptureConfig
+import androidx.camera.core.impl.CaptureConfig.TEMPLATE_TYPE_NONE
 import androidx.camera.core.impl.Config
 import androidx.camera.core.impl.MutableTagBundle
 import androidx.camera.core.impl.SessionConfig
 import androidx.camera.core.impl.TagBundle
 import dagger.Binds
 import dagger.Module
-import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.async
 import javax.inject.Inject
@@ -155,16 +155,18 @@ interface UseCaseCameraRequestControl {
     ): Deferred<Result3A>
 
     // Capture
-    fun issueSingleCaptureAsync(
+    suspend fun issueSingleCaptureAsync(
         captureSequence: List<CaptureConfig>,
         captureMode: Int,
         flashType: Int,
+        flashMode: Int,
     ): List<Deferred<Void?>>
 }
 
 @UseCaseCameraScope
 class UseCaseCameraRequestControlImpl @Inject constructor(
     private val configAdapter: CaptureConfigAdapter,
+    private val capturePipeline: CapturePipeline,
     private val state: UseCaseCameraState,
     private val threads: UseCaseThreads,
     private val useCaseGraphConfig: UseCaseGraphConfig,
@@ -228,6 +230,7 @@ class UseCaseCameraRequestControlImpl @Inject constructor(
     )
 
     override fun setSessionConfigAsync(sessionConfig: SessionConfig): Deferred<Unit> {
+        val templateType = sessionConfig.repeatingCaptureConfig.templateType
         val repeatingStreamIds = mutableSetOf<StreamId>()
         val repeatingListeners = CameraCallbackMap()
 
@@ -244,12 +247,15 @@ class UseCaseCameraRequestControlImpl @Inject constructor(
             )
         }
 
+        capturePipeline.template =
+            if (templateType != TEMPLATE_TYPE_NONE) templateType else DEFAULT_REQUEST_TEMPLATE
+
         return setConfigAsync(
             type = UseCaseCameraRequestControl.Type.SESSION_CONFIG,
             config = sessionConfig.implementationOptions,
             tags = sessionConfig.repeatingCaptureConfig.tagBundle.toMap(),
             listeners = setOf(repeatingListeners),
-            template = RequestTemplate(sessionConfig.repeatingCaptureConfig.templateType),
+            template = RequestTemplate(templateType),
             streams = repeatingStreamIds,
         )
     }
@@ -277,25 +283,28 @@ class UseCaseCameraRequestControlImpl @Inject constructor(
         )
     }
 
-    override fun issueSingleCaptureAsync(
+    override suspend fun issueSingleCaptureAsync(
         captureSequence: List<CaptureConfig>,
         captureMode: Int,
         flashType: Int,
+        flashMode: Int,
     ): List<Deferred<Void?>> {
-        val infoBundle = synchronized(lock) {
+        return synchronized(lock) {
             infoBundleMap.merge()
-        }
-
-        state.capture(captureSequence.map {
-            configAdapter.mapToRequest(
-                captureConfig = it,
-                requestTemplate = infoBundle.template!!,
-                sessionConfigOptions = infoBundle.options.build()
+        }.let { infoBundle ->
+            capturePipeline.submitStillCaptures(
+                requests = captureSequence.map {
+                    configAdapter.mapToRequest(
+                        captureConfig = it,
+                        requestTemplate = infoBundle.template!!,
+                        sessionConfigOptions = infoBundle.options.build()
+                    )
+                },
+                captureMode = captureMode,
+                flashType = flashType,
+                flashMode = flashMode,
             )
-        })
-
-        // TODO(b/199813515): Complete the CompletableDeferred when the capture is completed.
-        return listOf(CompletableDeferred(null))
+        }
     }
 
     /**
