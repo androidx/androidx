@@ -42,6 +42,7 @@ dependencies {
         implementation(project(":lifecycle:lifecycle-viewmodel-savedstate"))
     }
 
+    androidTestImplementation("androidx.core:core-ktx:1.2.0")
     androidTestImplementation(libs.truth)
     androidTestImplementation(libs.kotlinStdlib)
     androidTestImplementation(libs.junit)

@@ -139,9 +139,14 @@ public class ViewModelProviderTest {
             @Override
             public <T extends ViewModel> T create(@NonNull Class<T> modelClass,
                     @NonNull CreationExtras extras) {
-                String key = extras.get(VIEW_MODEL_KEY);
+                Key<String> mutableKey = new Key<String>() { };
+                String mutableValue = "value";
+                MutableCreationExtras mutableExtras = new MutableCreationExtras(extras);
+                mutableExtras.set(mutableKey, mutableValue);
+                String key = mutableExtras.get(VIEW_MODEL_KEY);
                 assertThat(key, is("customkey"));
-                assertThat(extras.get(TEST_KEY), is(TEST_VALUE));
+                assertThat(mutableExtras.get(TEST_KEY), is(TEST_VALUE));
+                assertThat(mutableExtras.get(mutableKey), is(mutableValue));
                 wasCalled[0] = true;
                 return (T) new ViewModel1();
             }
