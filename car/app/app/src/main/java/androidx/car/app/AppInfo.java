@@ -129,6 +129,7 @@ public final class AppInfo {
     @RestrictTo(Scope.LIBRARY)
     @VisibleForTesting
     @CarAppApiLevel
+    @SuppressWarnings("deprecation")
     public static int retrieveMinCarAppApiLevel(@NonNull Context context) {
         try {
             ApplicationInfo applicationInfo = context.getPackageManager().getApplicationInfo(

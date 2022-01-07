@@ -329,6 +329,7 @@ final class LegacyTextClassifier extends TextClassifier {
         }
 
         @Nullable
+        @SuppressWarnings("deprecation")
         private RemoteActionCompat createRemoteAction(
                 Intent intent, String title, String description, int requestCode) {
             final ResolveInfo resolveInfo = mPackageManager.resolveActivity(intent, 0);
@@ -364,6 +365,7 @@ final class LegacyTextClassifier extends TextClassifier {
         }
 
         @Nullable
+        @SuppressWarnings("deprecation")
         private PendingIntent createPendingIntent(Intent intent, int requestCode) {
             final ResolveInfo resolveInfo = mPackageManager.resolveActivity(intent, 0);
             final int flags = PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE;

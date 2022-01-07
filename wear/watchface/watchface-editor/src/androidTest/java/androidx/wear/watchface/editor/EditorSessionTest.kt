@@ -2273,6 +2273,7 @@ public class EditorSessionTest {
     }
 
     @Test
+    @Suppress("DEPRECATION")
     public fun watchfaceSupportsHeadlessEditing() {
         val mockPackageManager = Mockito.mock(PackageManager::class.java)
 
@@ -2295,6 +2296,7 @@ public class EditorSessionTest {
     }
 
     @Test
+    @Suppress("DEPRECATION")
     public fun watchfaceSupportsHeadlessEditing_oldApi() {
         val mockPackageManager = Mockito.mock(PackageManager::class.java)
 

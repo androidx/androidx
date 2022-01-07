@@ -384,6 +384,7 @@ public class WebViewCompat {
      * if WebView was to be loaded right now.
      */
     @SuppressLint("PrivateApi")
+    @SuppressWarnings("deprecation")
     private static PackageInfo getNotYetLoadedWebViewPackageInfo(Context context) {
         String webviewPackageName;
         try {

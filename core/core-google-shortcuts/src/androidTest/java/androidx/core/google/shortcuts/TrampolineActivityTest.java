@@ -126,6 +126,7 @@ public class TrampolineActivityTest {
 
     @Test
     @SmallTest
+    @SuppressWarnings("deprecation")
     public void testManifest_canDiscoverMetadata() {
         PackageManager packageManager = mContext.getPackageManager();
         Intent activityIntent = new Intent(SHORTCUT_LISTENER_INTENT_FILTER_ACTION);

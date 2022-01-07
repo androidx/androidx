@@ -353,6 +353,7 @@ public final class SessionToken implements VersionedParcelable {
         }
     }
 
+    @SuppressWarnings("deprecation")
     private static boolean isInterfaceDeclared(PackageManager manager, String serviceInterface,
             ComponentName serviceComponent) {
         Intent serviceIntent = new Intent(serviceInterface);
@@ -378,6 +379,7 @@ public final class SessionToken implements VersionedParcelable {
         return false;
     }
 
+    @SuppressWarnings("deprecation")
     private static int getUid(PackageManager manager, String packageName) {
         try {
             return manager.getApplicationInfo(packageName, 0).uid;

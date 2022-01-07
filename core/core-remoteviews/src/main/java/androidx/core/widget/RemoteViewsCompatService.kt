@@ -222,6 +222,7 @@ public class RemoteViewsCompatService : RemoteViewsService() {
                 }
             }
 
+            @Suppress("DEPRECATION")
             internal fun getVersionCode(context: Context): Long? {
                 val packageManager = context.packageManager
                 val packageInfo = try {

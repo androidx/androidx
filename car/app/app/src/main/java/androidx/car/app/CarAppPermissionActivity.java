@@ -55,6 +55,7 @@ public class CarAppPermissionActivity extends ComponentActivity {
         processInternal(getIntent());
     }
 
+    @SuppressWarnings("deprecation")
     private void maybeSetCustomBackground() {
         @StyleRes int themeId = Resources.ID_NULL;
         ApplicationInfo applicationInfo;

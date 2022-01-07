@@ -384,6 +384,7 @@ public abstract class SliceProvider extends ContentProvider implements
      * Get string describing permission request.
      */
     @RequiresApi(19)
+    @SuppressWarnings("deprecation")
     private static CharSequence getPermissionString(Context context, String callingPackage) {
         PackageManager pm = context.getPackageManager();
         try {

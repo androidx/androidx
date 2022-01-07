@@ -732,6 +732,7 @@ public class IconCompat extends CustomVersionedParcelable {
         return null;
     }
 
+    @SuppressWarnings("deprecation")
     private static Resources getResources(Context context, String resPackage) {
         if ("android".equals(resPackage)) {
             return Resources.getSystem();

@@ -52,6 +52,7 @@ public class SupportTransitionDemos extends android.app.ListActivity {
         getListView().setTextFilterEnabled(true);
     }
 
+    @SuppressWarnings("deprecation")
     protected List<Map<String, Object>> getData(String prefix) {
         List<Map<String, Object>> myData = new ArrayList<>();
 

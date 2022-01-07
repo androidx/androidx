@@ -59,6 +59,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.content.res.AppCompatResources;
 import androidx.appcompat.view.ContextThemeWrapper;
 import androidx.appcompat.view.menu.ShowableListMenu;
+import androidx.core.util.ObjectsCompat;
 import androidx.core.view.TintableBackgroundView;
 import androidx.core.view.ViewCompat;
 import androidx.resourceinspection.annotation.AppCompatShadowedAttributes;
@@ -1129,7 +1130,7 @@ public class AppCompatSpinner extends Spinner implements TintableBackgroundView 
                 @NonNull android.widget.ThemedSpinnerAdapter themedSpinnerAdapter,
                 @Nullable Resources.Theme theme
         ) {
-            if (themedSpinnerAdapter.getDropDownViewTheme() != theme) {
+            if (!ObjectsCompat.equals(themedSpinnerAdapter.getDropDownViewTheme(), theme)) {
                 themedSpinnerAdapter.setDropDownViewTheme(theme);
             }
         }

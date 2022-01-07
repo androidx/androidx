@@ -303,6 +303,7 @@ public final class DefaultEmojiCompatConfig {
             extends DefaultEmojiCompatConfigHelper {
         @NonNull
         @Override
+        @SuppressWarnings("deprecation")
         public List<ResolveInfo> queryIntentContentProviders(@NonNull PackageManager packageManager,
                 @NonNull Intent intent, int flags) {
             return packageManager.queryIntentContentProviders(intent, flags);

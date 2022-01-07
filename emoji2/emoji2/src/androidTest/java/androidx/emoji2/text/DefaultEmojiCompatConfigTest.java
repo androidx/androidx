@@ -71,6 +71,7 @@ public class DefaultEmojiCompatConfigTest {
         }
     }
 
+    @SuppressWarnings("deprecation")
     private boolean providerOnSystem() {
         if (Build.VERSION.SDK_INT < 19) {
             return false;

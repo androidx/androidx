@@ -185,6 +185,7 @@ public class ServiceConnectionManager {
      * Initializes the renderer service with given properties if already bound to the renderer
      * service.
      */
+    @SuppressWarnings("deprecation")
     void bind(@NonNull Intent intent, @NonNull ICarAppActivity iCarAppActivity, int displayId) {
         mIntent = requireNonNull(intent);
         mICarAppActivity = requireNonNull(iCarAppActivity);

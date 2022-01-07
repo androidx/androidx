@@ -123,7 +123,7 @@ public interface ThemedSpinnerAdapter extends SpinnerAdapter {
         public void setDropDownViewTheme(@Nullable Resources.Theme theme) {
             if (theme == null) {
                 mDropDownInflater = null;
-            } else if (theme == mContext.getTheme()) {
+            } else if (theme.equals(mContext.getTheme())) {
                 mDropDownInflater = mInflater;
             } else {
                 final Context context = new ContextThemeWrapper(mContext, theme);

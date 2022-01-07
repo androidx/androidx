@@ -74,6 +74,7 @@ public final class MatchMakerImplTest {
     private String mSms;
 
     @Before
+    @SuppressWarnings("deprecation")
     public void setUp() {
         mContext = ApplicationProvider.getApplicationContext();
         mPackageManager = mock(PackageManager.class);
@@ -134,6 +135,7 @@ public final class MatchMakerImplTest {
     }
 
     @Test
+    @SuppressWarnings("deprecation")
     public void noMatchingApp() throws Exception {
         final PackageManager packageManager = mock(PackageManager.class);
         when(packageManager.resolveActivity(any(Intent.class), anyInt())).thenReturn(null);
@@ -147,6 +149,7 @@ public final class MatchMakerImplTest {
     }
 
     @Test
+    @SuppressWarnings("deprecation")
     public void noMatchingActivity() throws Exception {
         final PackageManager packageManager = mock(PackageManager.class);
         when(packageManager.resolveActivity(any(Intent.class), anyInt()))
