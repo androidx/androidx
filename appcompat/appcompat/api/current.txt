@@ -810,6 +810,7 @@ package androidx.appcompat.widget {
     method public boolean isSubmitButtonEnabled();
     method public void onActionViewCollapsed();
     method public void onActionViewExpanded();
+    method protected void onQueryRefine(CharSequence?);
     method public void setIconified(boolean);
     method public void setIconifiedByDefault(boolean);
     method public void setImeOptions(int);

@@ -978,9 +978,14 @@ public class SearchView extends LinearLayoutCompat implements CollapsibleActionV
     }
 
     /**
-     * Called by the SuggestionsAdapter
+     * Called when a query refinement has been proposed, e.g. when the user clicks on a suggestion
+     * provided by a {@link SuggestionsAdapter}.
+     * <p>
+     * By default, this method sets the text in the query box without updating the suggestions.
+     *
+     * @param queryText the proposed query refinement
      */
-    void onQueryRefine(CharSequence queryText) {
+    protected void onQueryRefine(@Nullable CharSequence queryText) {
         setQuery(queryText);
     }
 
