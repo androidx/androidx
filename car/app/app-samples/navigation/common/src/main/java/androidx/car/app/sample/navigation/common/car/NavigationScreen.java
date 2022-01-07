@@ -67,6 +67,8 @@ public final class NavigationScreen extends Screen {
     private final Action mSettingsAction;
     @NonNull
     private final SurfaceRenderer mSurfaceRenderer;
+    @NonNull
+    private final MicrophoneRecorder mMicrophoneRecorder;
 
     private boolean mIsNavigating;
     private boolean mIsRerouting;
@@ -100,6 +102,7 @@ public final class NavigationScreen extends Screen {
         mListener = listener;
         mSettingsAction = settingsAction;
         mSurfaceRenderer = surfaceRenderer;
+        mMicrophoneRecorder = new MicrophoneRecorder(carContext);
     }
 
     /** Updates the navigation screen with the next instruction. */
@@ -139,6 +142,10 @@ public final class NavigationScreen extends Screen {
         // Set the action strip.
         ActionStrip.Builder actionStripBuilder = new ActionStrip.Builder();
         actionStripBuilder.addAction(mSettingsAction);
+        actionStripBuilder.addAction(new Action.Builder().setIcon(new CarIcon.Builder(
+                IconCompat.createWithResource(getCarContext(),
+                        R.drawable.ic_mic)).build()).setOnClickListener(
+                mMicrophoneRecorder::record).build());
         if (mIsNavigating) {
             actionStripBuilder.addAction(
                     new Action.Builder()

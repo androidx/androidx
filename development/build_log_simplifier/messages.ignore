@@ -293,6 +293,8 @@ See the complete report at file://\$SUPPORT/build/reports/configuration\-cache/[
 See the complete report at file://\$OUT_DIR/androidx/build/reports/configuration\-cache/[^ ]*/[^ ]*/configuration\-cache\-report\.html
 # > Task :annotation:annotation-experimental-lint:test
 WARNING: An illegal reflective access operation has occurred
+WARNING: Illegal reflective access by org\.robolectric\.interceptors\.AndroidInterceptors\$FileDescriptorInterceptor to field java\.io\.FileDescriptor\.fd
+WARNING: Please consider reporting this to the maintainers of org\.robolectric\.interceptors\.AndroidInterceptors\$FileDescriptorInterceptor
 WARNING: Illegal reflective access by org\.robolectric\.util\.ReflectionHelpers\$[0-9]+ \(file:\$CHECKOUT/prebuilts/androidx/external/org/robolectric/shadowapi/[0-9]+\.[0-9]+\.[0-9]+/shadowapi\-[0-9]+\.[0-9]+\.[0-9]+\.jar\) to field java\.io\.FileDescriptor\.fd
 WARNING: Please consider reporting this to the maintainers of org\.robolectric\.util\.ReflectionHelpers\$[0-9]+
 WARNING: Please consider reporting this to the maintainers of org\.jetbrains\.kotlin\.kapt[0-9]+\.base\.javac\.KaptJavaFileManager

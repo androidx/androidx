@@ -16,6 +16,8 @@
 
 package androidx.car.app.testing;
 
+import static androidx.car.app.media.CarAudioRecord.AUDIO_CONTENT_BUFFER_SIZE;
+
 import static java.util.Objects.requireNonNull;
 
 import android.app.PendingIntent;
@@ -24,21 +26,30 @@ import android.content.Intent;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.os.ParcelFileDescriptor;
 import android.os.RemoteException;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RestrictTo;
 import androidx.car.app.AppManager;
 import androidx.car.app.CarContext;
 import androidx.car.app.IAppHost;
 import androidx.car.app.ICarHost;
 import androidx.car.app.ISurfaceCallback;
 import androidx.car.app.Screen;
+import androidx.car.app.annotations.ExperimentalCarApi;
+import androidx.car.app.media.OpenMicrophoneResponse;
 import androidx.car.app.navigation.INavigationHost;
 import androidx.car.app.notification.CarAppNotificationBroadcastReceiver;
 import androidx.car.app.serialization.Bundleable;
+import androidx.car.app.serialization.BundlerException;
 
 import org.robolectric.Shadows;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 
 /**
  * A fake that simulates the behavior of the host of a car app.
@@ -54,6 +65,11 @@ public class FakeHost {
     final IAppHost mAppHost = new TestAppHost();
     final INavigationHost mNavigationHost = new TestNavigationHost();
     final TestCarContext mTestCarContext;
+
+    final OpenMicrophoneResponse.Builder mOpenMicrophoneResponseBuilder =
+            new OpenMicrophoneResponse.Builder(() -> mHasToldHostToStop = true);
+
+    boolean mHasToldHostToStop = false;
 
     /**
      * Sends the given pending intent as if the user clicked on a notification action.
@@ -78,6 +94,39 @@ public class FakeHost {
         Intent broadcastedIntent = Shadows.shadowOf(mTestCarContext).getBroadcastIntents().get(0);
 
         new CarAppNotificationBroadcastReceiver().onReceive(mTestCarContext, broadcastedIntent);
+    }
+
+    /**
+     * Sets an {@link InputStream} to use as the source for microphone data input.
+     */
+    @ExperimentalCarApi
+    public void setMicrophoneInputData(@NonNull InputStream inputStream) {
+        try {
+            ParcelFileDescriptor[] pfd = ParcelFileDescriptor.createPipe();
+            ParcelFileDescriptor read = pfd[0];
+            OutputStream write = new ParcelFileDescriptor.AutoCloseOutputStream(pfd[1]);
+
+            byte[] buf = new byte[AUDIO_CONTENT_BUFFER_SIZE];
+            int len = 0;
+            while ((len = inputStream.read(buf, 0, AUDIO_CONTENT_BUFFER_SIZE)) > 0) {
+                write.write(buf, 0, len);
+            }
+            write.flush();
+            write.close();
+            mOpenMicrophoneResponseBuilder.setCarMicrophoneDescriptor(read);
+        } catch (IOException e) {
+            throw new IllegalStateException(e);
+        }
+    }
+
+    /**
+     * Returns whether library has told host to stop recording.
+     *
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public boolean hasToldHostToStopRecording() {
+        return mHasToldHostToStop;
     }
 
     FakeHost(TestCarContext testCarContext) {
@@ -152,6 +201,16 @@ public class FakeHost {
         public void dismissAlert(int alertId) throws RemoteException {
             // No-op.
         }
+
+        @Override
+        public Bundleable openMicrophone(Bundleable openMicrophoneRequest) {
+            try {
+                return Bundleable.create(mOpenMicrophoneResponseBuilder.build());
+            } catch (BundlerException e) {
+                throw new IllegalStateException(e);
+            }
+        }
+
     }
 
     /** Testing version of the navigation host. */

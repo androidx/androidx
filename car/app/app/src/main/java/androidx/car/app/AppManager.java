@@ -20,6 +20,7 @@ import static android.Manifest.permission.ACCESS_COARSE_LOCATION;
 import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.car.app.utils.LogTags.TAG;
 
 import static java.util.Objects.requireNonNull;
 
@@ -28,6 +29,8 @@ import android.content.pm.PackageManager;
 import android.location.LocationManager;
 import android.os.HandlerThread;
 import android.os.Looper;
+import android.os.RemoteException;
+import android.util.Log;
 import android.view.Surface;
 
 import androidx.annotation.NonNull;
@@ -36,6 +39,8 @@ import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.managers.Manager;
+import androidx.car.app.media.OpenMicrophoneRequest;
+import androidx.car.app.media.OpenMicrophoneResponse;
 import androidx.car.app.model.Alert;
 import androidx.car.app.serialization.Bundleable;
 import androidx.car.app.serialization.BundlerException;
@@ -185,6 +190,31 @@ public class AppManager implements Manager {
                     return null;
                 }
         );
+    }
+
+    /** @hide */
+    @Nullable
+    @RestrictTo(LIBRARY_GROUP)
+    public OpenMicrophoneResponse openMicrophone(@NonNull OpenMicrophoneRequest request) {
+        try {
+            return mHostDispatcher.dispatchForResult(
+                    CarContext.APP_SERVICE,
+                    "openMicrophone",
+                    (IAppHost host) -> {
+                        try {
+                            Bundleable bundleable = host.openMicrophone(Bundleable.create(request));
+                            return bundleable == null ? null :
+                                    (OpenMicrophoneResponse) bundleable.get();
+                        } catch (BundlerException e) {
+                            Log.e(TAG, "Cannot open microphone", e);
+                            return null;
+                        }
+                    }
+            );
+        } catch (RemoteException e) {
+            Log.e(TAG, "Error getting microphone bytes from host", e);
+            return null;
+        }
     }
 
     /** Returns the {@code IAppManager.Stub} binder. */

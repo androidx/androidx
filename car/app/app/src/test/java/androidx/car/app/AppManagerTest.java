@@ -130,6 +130,12 @@ public final class AppManagerTest {
                     public void dismissAlert(int alertId) throws RemoteException {
                         mMockAppHost.dismissAlert(alertId);
                     }
+
+                    @Override
+                    public Bundleable openMicrophone(Bundleable openMicrophoneRequest)
+                            throws RemoteException {
+                        return mMockAppHost.openMicrophone(openMicrophoneRequest);
+                    }
                 };
         when(mMockCarHost.getHost(any())).thenReturn(appHost.asBinder());
 
