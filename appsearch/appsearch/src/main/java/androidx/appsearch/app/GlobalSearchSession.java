@@ -18,6 +18,7 @@ package androidx.appsearch.app;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresFeature;
+import androidx.appsearch.exceptions.AppSearchException;
 import androidx.appsearch.observer.AppSearchObserverCallback;
 import androidx.appsearch.observer.ObserverSpec;
 
@@ -108,6 +109,7 @@ public interface GlobalSearchSession extends Closeable {
      * @param spec            Specification of what types of changes to listen for
      * @param executor        Executor on which to call the {@code observer} callback methods.
      * @param observer        Callback to trigger when a schema or document changes
+     * @throws AppSearchException            if an error occurs trying to register the observer
      * @throws UnsupportedOperationException if this feature is not available on this
      *                                       AppSearch implementation.
      */
@@ -120,7 +122,7 @@ public interface GlobalSearchSession extends Closeable {
             @NonNull String observedPackage,
             @NonNull ObserverSpec spec,
             @NonNull Executor executor,
-            @NonNull AppSearchObserverCallback observer);
+            @NonNull AppSearchObserverCallback observer) throws AppSearchException;
 
     /**
      * Removes previously registered {@link AppSearchObserverCallback} instances from the system.

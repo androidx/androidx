@@ -15,6 +15,7 @@
  */
 package androidx.appsearch.platformstorage;
 
+import android.annotation.SuppressLint;
 import android.os.Build;
 
 import androidx.annotation.NonNull;
@@ -25,12 +26,17 @@ import androidx.appsearch.app.GlobalSearchSession;
 import androidx.appsearch.app.ReportSystemUsageRequest;
 import androidx.appsearch.app.SearchResults;
 import androidx.appsearch.app.SearchSpec;
+import androidx.appsearch.exceptions.AppSearchException;
 import androidx.appsearch.observer.AppSearchObserverCallback;
+import androidx.appsearch.observer.DocumentChangeInfo;
 import androidx.appsearch.observer.ObserverSpec;
+import androidx.appsearch.observer.SchemaChangeInfo;
 import androidx.appsearch.platformstorage.converter.AppSearchResultToPlatformConverter;
+import androidx.appsearch.platformstorage.converter.ObserverSpecToPlatformConverter;
 import androidx.appsearch.platformstorage.converter.RequestToPlatformConverter;
 import androidx.appsearch.platformstorage.converter.SearchSpecToPlatformConverter;
 import androidx.concurrent.futures.ResolvableFuture;
+import androidx.core.os.BuildCompat;
 import androidx.core.util.Preconditions;
 
 import com.google.common.util.concurrent.ListenableFuture;
@@ -91,19 +97,55 @@ class GlobalSearchSessionImpl implements GlobalSearchSession {
         return mFeatures;
     }
 
+    // TODO(b/193494000): Remove these two lines once BuildCompat.isAtLeastT() is removed.
+    @SuppressLint("NewApi")
+    @BuildCompat.PrereleaseSdkCheck
     @Override
     public void addObserver(
             @NonNull String observedPackage,
             @NonNull ObserverSpec spec,
             @NonNull Executor executor,
-            @NonNull AppSearchObserverCallback observer) {
+            @NonNull AppSearchObserverCallback observer) throws AppSearchException {
         Preconditions.checkNotNull(observedPackage);
         Preconditions.checkNotNull(spec);
         Preconditions.checkNotNull(executor);
         Preconditions.checkNotNull(observer);
-        // TODO(b/193494000): Support change notifications in the platform backend once the
-        //  feature is exposed in the Android SDK.
-        throw new UnsupportedOperationException("addObserver not supported for platform yet");
+        // Superclass is annotated with @RequiresFeature, so we shouldn't get here on an
+        // unsupported build.
+        if (!BuildCompat.isAtLeastT()) {
+            throw new UnsupportedOperationException(
+                    Features.GLOBAL_SEARCH_SESSION_ADD_REMOVE_OBSERVER
+                            + " is not supported on this AppSearch implementation");
+        }
+        try {
+            mPlatformSession.addObserver(
+                    observedPackage,
+                    ObserverSpecToPlatformConverter.toPlatformObserverSpec(spec),
+                    executor,
+                    new android.app.appsearch.observer.AppSearchObserverCallback() {
+                        @Override
+                        public void onSchemaChanged(
+                                @NonNull android.app.appsearch.observer.SchemaChangeInfo
+                                        platformSchemaChangeInfo) {
+                            SchemaChangeInfo jetpackSchemaChangeInfo =
+                                    ObserverSpecToPlatformConverter.toJetpackSchemaChangeInfo(
+                                            platformSchemaChangeInfo);
+                            observer.onSchemaChanged(jetpackSchemaChangeInfo);
+                        }
+
+                        @Override
+                        public void onDocumentChanged(
+                                @NonNull android.app.appsearch.observer.DocumentChangeInfo
+                                        platformDocumentChangeInfo) {
+                            DocumentChangeInfo jetpackDocumentChangeInfo =
+                                    ObserverSpecToPlatformConverter.toJetpackDocumentChangeInfo(
+                                            platformDocumentChangeInfo);
+                            observer.onDocumentChanged(jetpackDocumentChangeInfo);
+                        }
+                    });
+        } catch (android.app.appsearch.exceptions.AppSearchException e) {
+            throw new AppSearchException((int) e.getResultCode(), e.getMessage(), e.getCause());
+        }
     }
 
     @Override
