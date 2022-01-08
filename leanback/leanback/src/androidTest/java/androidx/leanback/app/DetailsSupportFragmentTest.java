@@ -57,6 +57,7 @@ import androidx.leanback.widget.ParallaxTarget;
 import androidx.leanback.widget.RecyclerViewParallax;
 import androidx.leanback.widget.VerticalGridView;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.FlakyTest;
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.platform.app.InstrumentationRegistry;
@@ -71,6 +72,7 @@ import org.junit.runner.RunWith;
  */
 @RunWith(AndroidJUnit4.class)
 @LargeTest
+@FlakyTest(bugId = 207674174)
 public class DetailsSupportFragmentTest extends SingleSupportFragmentTestBase {
 
     static final int PARALLAX_VERTICAL_OFFSET = -300;

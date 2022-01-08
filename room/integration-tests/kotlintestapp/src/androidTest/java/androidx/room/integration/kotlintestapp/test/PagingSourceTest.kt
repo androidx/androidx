@@ -42,6 +42,7 @@ import androidx.sqlite.db.SupportSQLiteQuery
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.base.MainThread
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.FlakyTest
 import androidx.test.filters.MediumTest
 import androidx.testutils.FilteringExecutor
 import androidx.testutils.withTestTimeout
@@ -204,6 +205,7 @@ class PagingSourceTest {
     }
 
     @Test
+    @FlakyTest(bugId = 213635127)
     fun loadEverything_inReverse() {
         // open db
         val items = createItems(startId = 0, count = 100)

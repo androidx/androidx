@@ -6948,6 +6948,7 @@ public class GridWidgetTest {
     }
 
     @Test
+    @FlakyTest(bugId = 213630586)
     public void testConcat() throws Throwable {
 
         Intent intent = new Intent();
