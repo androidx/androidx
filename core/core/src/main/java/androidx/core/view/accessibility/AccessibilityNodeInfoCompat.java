@@ -21,6 +21,7 @@ import static android.view.View.NO_ID;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.annotation.SuppressLint;
+import android.content.ClipData;
 import android.graphics.Rect;
 import android.graphics.Region;
 import android.os.Build;
@@ -589,6 +590,54 @@ public class AccessibilityNodeInfoCompat {
                 new AccessibilityActionCompat(Build.VERSION.SDK_INT >= 30
                         ? AccessibilityNodeInfo.AccessibilityAction.ACTION_IME_ENTER : null,
                         android.R.id.accessibilityActionImeEnter, null, null, null);
+
+        /**
+         * Action to start a drag.
+         * <p>
+         * This action initiates a drag & drop within the system. The source's dragged content is
+         * prepared before the drag begins. In View, this action should prepare the arguments to
+         * {@link View#startDragAndDrop(ClipData, View.DragShadowBuilder, Object, int)}} and then
+         * call the method. The equivalent should be performed for other UI toolkits.
+         * </p>
+         *
+         * @see AccessibilityEventCompat#CONTENT_CHANGE_TYPE_DRAG_STARTED
+         */
+        @NonNull
+        public static final AccessibilityActionCompat ACTION_DRAG_START =
+                new AccessibilityActionCompat(Build.VERSION.SDK_INT >= 32
+                        ?  AccessibilityNodeInfo.AccessibilityAction.ACTION_DRAG_START : null,
+                        android.R.id.accessibilityActionDragStart, null, null, null);
+
+        /**
+         * Action to trigger a drop of the content being dragged.
+         * <p>
+         * This action is added to potential drop targets if the source started a drag with
+         * {@link #ACTION_DRAG_START}. In View, these targets are Views that accepted
+         * {@link android.view.DragEvent#ACTION_DRAG_STARTED} and have an
+         * {@link View.OnDragListener}.
+         * </p>
+         *
+         * @see AccessibilityEventCompat#CONTENT_CHANGE_TYPE_DRAG_DROPPED
+         */
+        @NonNull
+        public static final AccessibilityActionCompat ACTION_DRAG_DROP =
+                new AccessibilityActionCompat(Build.VERSION.SDK_INT >= 32
+                        ?  AccessibilityNodeInfo.AccessibilityAction.ACTION_DRAG_DROP : null,
+                        android.R.id.accessibilityActionDragDrop, null, null, null);
+
+        /**
+         * Action to cancel a drag.
+         * <p>
+         * This action is added to the source that started a drag with {@link #ACTION_DRAG_START}.
+         * </p>
+         *
+         * @see AccessibilityEventCompat#CONTENT_CHANGE_TYPE_DRAG_CANCELLED
+         */
+        @NonNull
+        public static final AccessibilityActionCompat ACTION_DRAG_CANCEL =
+                new AccessibilityActionCompat(Build.VERSION.SDK_INT >= 32
+                        ?  AccessibilityNodeInfo.AccessibilityAction.ACTION_DRAG_CANCEL : null,
+                        android.R.id.accessibilityActionDragCancel, null, null, null);
 
         final Object mAction;
         private final int mId;
@@ -4301,8 +4350,14 @@ public class AccessibilityNodeInfoCompat {
                 return "ACTION_PRESS_AND_HOLD";
             case android.R.id.accessibilityActionImeEnter:
                 return "ACTION_IME_ENTER";
+            case android.R.id.accessibilityActionDragStart:
+                return "ACTION_DRAG_START";
+            case android.R.id.accessibilityActionDragDrop:
+                return "ACTION_DRAG_DROP";
+            case android.R.id.accessibilityActionDragCancel:
+                return "ACTION_DRAG_CANCEL";
             default:
-                return"ACTION_UNKNOWN";
+                return "ACTION_UNKNOWN";
         }
     }
 }
