@@ -16,7 +16,9 @@
 
 package androidx.camera.view;
 
+import static androidx.camera.core.impl.utils.Threads.checkMainThread;
 import static androidx.camera.view.TransformUtils.getNormalizedToBuffer;
+import static androidx.core.content.ContextCompat.getMainExecutor;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -42,8 +44,10 @@ import android.widget.FrameLayout;
 
 import androidx.annotation.AnyThread;
 import androidx.annotation.ColorRes;
+import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.OptIn;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.UiThread;
 import androidx.annotation.VisibleForTesting;
@@ -164,14 +168,14 @@ public final class PreviewView extends FrameLayout {
         public void onSurfaceRequested(@NonNull SurfaceRequest surfaceRequest) {
             if (!Threads.isMainThread()) {
                 // Post on main thread to ensure thread safety.
-                ContextCompat.getMainExecutor(getContext()).execute(
+                getMainExecutor(getContext()).execute(
                         () -> mSurfaceProvider.onSurfaceRequested(surfaceRequest));
                 return;
             }
             Logger.d(TAG, "Surface requested by Preview.");
             CameraInternal camera = surfaceRequest.getCamera();
             surfaceRequest.setTransformationInfoListener(
-                    ContextCompat.getMainExecutor(getContext()),
+                    getMainExecutor(getContext()),
                     transformationInfo -> {
                         Logger.d(TAG,
                                 "Preview transformation info updated. " + transformationInfo);
@@ -195,7 +199,7 @@ public final class PreviewView extends FrameLayout {
             mActiveStreamStateObserver.set(streamStateObserver);
 
             camera.getCameraState().addObserver(
-                    ContextCompat.getMainExecutor(getContext()), streamStateObserver);
+                    getMainExecutor(getContext()), streamStateObserver);
             mImplementation.onSurfaceRequested(surfaceRequest, () -> {
                 // We've no longer needed this observer, if there is no new StreamStateObserver
                 // (another SurfaceRequest), reset the streamState to IDLE.
@@ -229,7 +233,7 @@ public final class PreviewView extends FrameLayout {
     public PreviewView(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr,
             int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
-        Threads.checkMainThread();
+        checkMainThread();
         final TypedArray attributes = context.getTheme().obtainStyledAttributes(attrs,
                 R.styleable.PreviewView, defStyleAttr, defStyleRes);
         ViewCompat.saveAttributeDataForStyleable(this, context, R.styleable.PreviewView, attrs,
@@ -330,7 +334,7 @@ public final class PreviewView extends FrameLayout {
      */
     @UiThread
     public void setImplementationMode(@NonNull final ImplementationMode implementationMode) {
-        Threads.checkMainThread();
+        checkMainThread();
         mImplementationMode = implementationMode;
     }
 
@@ -345,7 +349,7 @@ public final class PreviewView extends FrameLayout {
     @UiThread
     @NonNull
     public ImplementationMode getImplementationMode() {
-        Threads.checkMainThread();
+        checkMainThread();
         return mImplementationMode;
     }
 
@@ -365,7 +369,7 @@ public final class PreviewView extends FrameLayout {
     @UiThread
     @NonNull
     public Preview.SurfaceProvider getSurfaceProvider() {
-        Threads.checkMainThread();
+        checkMainThread();
         return mSurfaceProvider;
     }
 
@@ -387,7 +391,7 @@ public final class PreviewView extends FrameLayout {
      */
     @UiThread
     public void setScaleType(@NonNull final ScaleType scaleType) {
-        Threads.checkMainThread();
+        checkMainThread();
         mPreviewTransform.setScaleType(scaleType);
         redrawPreview();
         // Notify controller to re-calculate the crop rect.
@@ -404,7 +408,7 @@ public final class PreviewView extends FrameLayout {
     @UiThread
     @NonNull
     public ScaleType getScaleType() {
-        Threads.checkMainThread();
+        checkMainThread();
         return mPreviewTransform.getScaleType();
     }
 
@@ -430,7 +434,7 @@ public final class PreviewView extends FrameLayout {
     @UiThread
     @NonNull
     public MeteringPointFactory getMeteringPointFactory() {
-        Threads.checkMainThread();
+        checkMainThread();
         return mPreviewViewMeteringPointFactory;
     }
 
@@ -480,7 +484,7 @@ public final class PreviewView extends FrameLayout {
     @UiThread
     @Nullable
     public Bitmap getBitmap() {
-        Threads.checkMainThread();
+        checkMainThread();
         return mImplementation == null ? null : mImplementation.getBitmap();
     }
 
@@ -499,7 +503,7 @@ public final class PreviewView extends FrameLayout {
     @UiThread
     @Nullable
     public ViewPort getViewPort() {
-        Threads.checkMainThread();
+        checkMainThread();
         if (getDisplay() == null) {
             // Returns null if the layout is not ready.
             return null;
@@ -550,7 +554,7 @@ public final class PreviewView extends FrameLayout {
     @SuppressLint({"WrongConstant", "UnsafeOptInUsageError"})
     @Nullable
     public ViewPort getViewPort(@ImageOutputConfig.RotationValue int targetRotation) {
-        Threads.checkMainThread();
+        checkMainThread();
         if (getWidth() == 0 || getHeight() == 0) {
             return null;
         }
@@ -584,18 +588,25 @@ public final class PreviewView extends FrameLayout {
 
     // Synthetic access
     @SuppressWarnings("WeakerAccess")
+    @MainThread
+    @OptIn(markerClass = TransformExperimental.class)
     void redrawPreview() {
+        checkMainThread();
         if (mImplementation != null) {
             mImplementation.redrawPreview();
         }
         mPreviewViewMeteringPointFactory.recalculate(new Size(getWidth(), getHeight()),
                 getLayoutDirection());
+        if (mCameraController != null) {
+            mCameraController.updatePreviewViewTransform(getOutputTransform());
+        }
     }
 
     // Synthetic access
     @SuppressWarnings("WeakerAccess")
     static boolean shouldUseTextureView(@NonNull SurfaceRequest surfaceRequest,
             @NonNull final ImplementationMode implementationMode) {
+
         // TODO(b/159127402): use TextureView if target rotation is not display rotation.
         boolean isLegacyDevice = surfaceRequest.getCamera().getCameraInfoInternal()
                 .getImplementationType().equals(CameraInfo.IMPLEMENTATION_TYPE_CAMERA2_LEGACY);
@@ -818,7 +829,7 @@ public final class PreviewView extends FrameLayout {
      */
     @UiThread
     public void setController(@Nullable CameraController cameraController) {
-        Threads.checkMainThread();
+        checkMainThread();
         if (mCameraController != null && mCameraController != cameraController) {
             // If already bound to a different controller, ask the old controller to stop
             // using this PreviewView.
@@ -834,7 +845,7 @@ public final class PreviewView extends FrameLayout {
     @Nullable
     @UiThread
     public CameraController getController() {
-        Threads.checkMainThread();
+        checkMainThread();
         return mCameraController;
     }
 
@@ -857,7 +868,7 @@ public final class PreviewView extends FrameLayout {
     @TransformExperimental
     @Nullable
     public OutputTransform getOutputTransform() {
-        Threads.checkMainThread();
+        checkMainThread();
         Matrix matrix = null;
         try {
             matrix = mPreviewTransform.getSurfaceToPreviewViewMatrix(
@@ -886,7 +897,9 @@ public final class PreviewView extends FrameLayout {
                 surfaceCropRect.height()));
     }
 
+    @MainThread
     private void attachToControllerIfReady(boolean shouldFailSilently) {
+        checkMainThread();
         Display display = getDisplay();
         ViewPort viewPort = getViewPort();
         if (mCameraController != null && viewPort != null && isAttachedToWindow()
@@ -897,7 +910,7 @@ public final class PreviewView extends FrameLayout {
                 if (shouldFailSilently) {
                     // Swallow the exception and fail silently if the method is invoked by View
                     // events.
-                    Logger.e(TAG, ex.getMessage(), ex);
+                    Logger.e(TAG, ex.toString(), ex);
                 } else {
                     throw ex;
                 }
