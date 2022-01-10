@@ -362,7 +362,8 @@ class ExampleAnalogWatchCanvasRenderer(
     currentUserStyleRepository,
     watchState,
     CanvasType.HARDWARE,
-    FRAME_PERIOD_MS
+    FRAME_PERIOD_MS,
+    clearWithBackgroundTintBeforeRenderingHighlightLayer = true
 ) {
     private val clockHandPaint = Paint().apply {
         isAntiAlias = true
@@ -446,8 +447,6 @@ class ExampleAnalogWatchCanvasRenderer(
     }
 
     override fun renderHighlightLayer(canvas: Canvas, bounds: Rect, zonedDateTime: ZonedDateTime) {
-        canvas.drawColor(renderParameters.highlightLayer!!.backgroundTint)
-
         for ((_, complication) in complicationSlotsManager.complicationSlots) {
             if (complication.enabled) {
                 complication.renderHighlightLayer(canvas, zonedDateTime, renderParameters)
