@@ -73,7 +73,12 @@ class ImageCaptureTest(
     @Throws(Exception::class)
     fun setUp() {
         assumeTrue(CameraUtil.deviceHasCamera())
-        assumeTrue(ExtensionsTestUtil.isTargetDeviceAvailableForExtensions(lensFacing))
+        assumeTrue(
+            ExtensionsTestUtil.isTargetDeviceAvailableForExtensions(
+                lensFacing,
+                extensionMode
+            )
+        )
 
         cameraProvider = ProcessCameraProvider.getInstance(context)[10000, TimeUnit.MILLISECONDS]
         baseCameraSelector = CameraSelector.Builder().requireLensFacing(lensFacing).build()

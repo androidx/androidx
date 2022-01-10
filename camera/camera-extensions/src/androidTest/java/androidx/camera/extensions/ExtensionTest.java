@@ -101,7 +101,7 @@ public class ExtensionTest {
                 TimeUnit.MILLISECONDS);
         mExtensionsManager = ExtensionsManager.getInstanceAsync(mContext,
                 mProcessCameraProvider).get(10000, TimeUnit.MILLISECONDS);
-        assumeTrue(isTargetDeviceAvailableForExtensions(mLensFacing));
+        assumeTrue(isTargetDeviceAvailableForExtensions(mLensFacing, mExtensionMode));
         mBaseCameraSelector = new CameraSelector.Builder().requireLensFacing(mLensFacing).build();
         assumeTrue(mExtensionsManager.isExtensionAvailable(mBaseCameraSelector, mExtensionMode));
 
