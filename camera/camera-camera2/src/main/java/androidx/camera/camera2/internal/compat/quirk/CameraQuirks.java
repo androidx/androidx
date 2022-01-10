@@ -73,6 +73,9 @@ public class CameraQuirks {
         if (FlashTooSlowQuirk.load(cameraCharacteristicsCompat)) {
             quirks.add(new FlashTooSlowQuirk());
         }
+        if (AfRegionFlipHorizontallyQuirk.load(cameraCharacteristicsCompat)) {
+            quirks.add(new AfRegionFlipHorizontallyQuirk());
+        }
 
         return new Quirks(quirks);
     }
