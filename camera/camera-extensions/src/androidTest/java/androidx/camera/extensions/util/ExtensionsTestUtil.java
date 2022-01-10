@@ -149,11 +149,12 @@ public class ExtensionsTestUtil {
 
 
     /**
-     * Returns whether the target camera device can support the test cases.
+     * Returns whether the target camera device can support the test for a specific extension mode.
      */
     public static boolean isTargetDeviceAvailableForExtensions(
-            @CameraSelector.LensFacing int lensFacing) {
-        return isLimitedAboveDevice(lensFacing) && !isSpecificSkippedDevice();
+            @CameraSelector.LensFacing int lensFacing, @ExtensionMode.Mode int mode) {
+        return isLimitedAboveDevice(lensFacing) && !isSpecificSkippedDevice()
+                && !isSpecificSkippedDeviceWithExtensionMode(mode);
     }
 
     /**
@@ -193,5 +194,13 @@ public class ExtensionsTestUtil {
     private static boolean isSpecificSkippedDevice() {
         return Build.BRAND.equalsIgnoreCase("SONY") && (Build.MODEL.equalsIgnoreCase("G8142")
                 || Build.MODEL.equalsIgnoreCase("G8342"));
+    }
+
+    /**
+     * Returns that whether the device with specific extension mode should be skipped for the test.
+     */
+    private static boolean isSpecificSkippedDeviceWithExtensionMode(@ExtensionMode.Mode int mode) {
+        return "tecno".equalsIgnoreCase(Build.BRAND) && "tecno-ke5".equalsIgnoreCase(Build.DEVICE)
+                && (mode == ExtensionMode.HDR || mode == ExtensionMode.NIGHT);
     }
 }
