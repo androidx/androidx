@@ -33,13 +33,31 @@ interface ScalingLazyListItemInfo {
 
     /**
      * The main axis offset of the item before adjustment for scaling of the items in the viewport.
-     * It is relative to the start of the lazy list container.
+     *
+     * The offset is relative to the center-line of the viewport of the lazy list container and
+     * takes the [ScalingLazyListAnchorType] into account.
+     *
+     * For [ScalingLazyListAnchorType.ItemCenter] the offset is from the center of the list item to
+     * the center-line of the viewport.
+     *
+     * For [ScalingLazyListAnchorType.ItemStart] if is the offset
+     * between the start (edge) of the item and the center-line of the viewport, for normal layout
+     * this will be the top edge of the item, for reverseLayout it will be the bottom edge.
      */
     val unadjustedOffset: Int
 
     /**
      * The main axis offset of the item after adjustment for scaling of the items in the viewport.
-     * It is relative to the start of the lazy list container.
+     *
+     * The offset is relative to the center-line of the viewport of the lazy list container and
+     * takes the [ScalingLazyListAnchorType] into account.
+     *
+     * For [ScalingLazyListAnchorType.ItemCenter] the offset is from the center of the list item to
+     * the center-line of the viewport.
+     *
+     * For [ScalingLazyListAnchorType.ItemStart] if is the offset
+     * between the start (edge) of the item and the center-line of the viewport, for normal layout
+     * this will be the top edge of the item, for reverseLayout it will be the bottom edge.
      */
     val offset: Int
 
