@@ -16,6 +16,8 @@
 
 package androidx.camera.view;
 
+import static androidx.camera.core.impl.utils.Threads.checkMainThread;
+import static androidx.camera.core.impl.utils.executor.CameraXExecutors.mainThreadExecutor;
 import static androidx.camera.view.CameraController.OutputSize.UNASSIGNED_ASPECT_RATIO;
 
 import android.annotation.SuppressLint;
@@ -62,11 +64,11 @@ import androidx.camera.core.VideoCapture;
 import androidx.camera.core.ViewPort;
 import androidx.camera.core.ZoomState;
 import androidx.camera.core.impl.ImageOutputConfig;
-import androidx.camera.core.impl.utils.Threads;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.impl.utils.futures.FutureCallback;
 import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.camera.lifecycle.ProcessCameraProvider;
+import androidx.camera.view.transform.OutputTransform;
 import androidx.camera.view.video.ExperimentalVideo;
 import androidx.camera.view.video.OnVideoSavedCallback;
 import androidx.camera.view.video.OutputFileOptions;
@@ -309,7 +311,7 @@ public abstract class CameraController {
                     mCameraProvider = provider;
                     startCameraAndTrackStates();
                     return null;
-                }, CameraXExecutors.mainThreadExecutor());
+                }, mainThreadExecutor());
 
         // Listen for display rotation changes and set Preview rotation. Preview does not
         // need rotation in fixed landscape/portrait mode.
@@ -428,7 +430,7 @@ public abstract class CameraController {
     @MainThread
     @OptIn(markerClass = ExperimentalVideo.class)
     public void setEnabledUseCases(@UseCases int enabledUseCases) {
-        Threads.checkMainThread();
+        checkMainThread();
         if (enabledUseCases == mEnabledUseCases) {
             return;
         }
@@ -491,7 +493,7 @@ public abstract class CameraController {
     @MainThread
     void attachPreviewSurface(@NonNull Preview.SurfaceProvider surfaceProvider,
             @NonNull ViewPort viewPort, @NonNull Display display) {
-        Threads.checkMainThread();
+        checkMainThread();
         if (mSurfaceProvider != surfaceProvider) {
             mSurfaceProvider = surfaceProvider;
             mPreview.setSurfaceProvider(surfaceProvider);
@@ -507,7 +509,7 @@ public abstract class CameraController {
      */
     @MainThread
     void clearPreviewSurface() {
-        Threads.checkMainThread();
+        checkMainThread();
         if (mCameraProvider != null) {
             // Preview is required. Unbind everything if Preview is down.
             mCameraProvider.unbind(mPreview, mImageCapture, mImageAnalysis, mVideoCapture);
@@ -523,7 +525,7 @@ public abstract class CameraController {
     private void startListeningToRotationEvents() {
         getDisplayManager().registerDisplayListener(mDisplayRotationListener,
                 new Handler(Looper.getMainLooper()));
-        mRotationProvider.addListener(CameraXExecutors.mainThreadExecutor(),
+        mRotationProvider.addListener(mainThreadExecutor(),
                 mDeviceRotationListener);
     }
 
@@ -553,7 +555,7 @@ public abstract class CameraController {
      */
     @MainThread
     public void setPreviewTargetSize(@Nullable OutputSize targetSize) {
-        Threads.checkMainThread();
+        checkMainThread();
         if (isOutputSizeEqual(mPreviewTargetSize, targetSize)) {
             return;
         }
@@ -569,7 +571,7 @@ public abstract class CameraController {
     @MainThread
     @Nullable
     public OutputSize getPreviewTargetSize() {
-        Threads.checkMainThread();
+        checkMainThread();
         return mPreviewTargetSize;
     }
 
@@ -599,7 +601,7 @@ public abstract class CameraController {
      */
     @MainThread
     public boolean isImageCaptureEnabled() {
-        Threads.checkMainThread();
+        checkMainThread();
         return isUseCaseEnabled(IMAGE_CAPTURE);
     }
 
@@ -613,7 +615,7 @@ public abstract class CameraController {
     @MainThread
     @ImageCapture.FlashMode
     public int getImageCaptureFlashMode() {
-        Threads.checkMainThread();
+        checkMainThread();
         return mImageCapture.getFlashMode();
     }
 
@@ -626,7 +628,7 @@ public abstract class CameraController {
      */
     @MainThread
     public void setImageCaptureFlashMode(@ImageCapture.FlashMode int flashMode) {
-        Threads.checkMainThread();
+        checkMainThread();
         mImageCapture.setFlashMode(flashMode);
     }
 
@@ -651,7 +653,7 @@ public abstract class CameraController {
             @NonNull ImageCapture.OutputFileOptions outputFileOptions,
             @NonNull Executor executor,
             @NonNull ImageCapture.OnImageSavedCallback imageSavedCallback) {
-        Threads.checkMainThread();
+        checkMainThread();
         Preconditions.checkState(isCameraInitialized(), CAMERA_NOT_INITIALIZED);
         Preconditions.checkState(isImageCaptureEnabled(), IMAGE_CAPTURE_DISABLED);
 
@@ -691,7 +693,7 @@ public abstract class CameraController {
     public void takePicture(
             @NonNull Executor executor,
             @NonNull ImageCapture.OnImageCapturedCallback callback) {
-        Threads.checkMainThread();
+        checkMainThread();
         Preconditions.checkState(isCameraInitialized(), CAMERA_NOT_INITIALIZED);
         Preconditions.checkState(isImageCaptureEnabled(), IMAGE_CAPTURE_DISABLED);
 
@@ -713,7 +715,7 @@ public abstract class CameraController {
      */
     @MainThread
     public void setImageCaptureMode(@ImageCapture.CaptureMode int captureMode) {
-        Threads.checkMainThread();
+        checkMainThread();
         if (mImageCapture.getCaptureMode() == captureMode) {
             return;
         }
@@ -728,7 +730,7 @@ public abstract class CameraController {
      */
     @MainThread
     public int getImageCaptureMode() {
-        Threads.checkMainThread();
+        checkMainThread();
         return mImageCapture.getCaptureMode();
     }
 
@@ -748,7 +750,7 @@ public abstract class CameraController {
      */
     @MainThread
     public void setImageCaptureTargetSize(@Nullable OutputSize targetSize) {
-        Threads.checkMainThread();
+        checkMainThread();
         if (isOutputSizeEqual(mImageCaptureTargetSize, targetSize)) {
             return;
         }
@@ -764,7 +766,7 @@ public abstract class CameraController {
     @MainThread
     @Nullable
     public OutputSize getImageCaptureTargetSize() {
-        Threads.checkMainThread();
+        checkMainThread();
         return mImageCaptureTargetSize;
     }
 
@@ -783,7 +785,7 @@ public abstract class CameraController {
      */
     @MainThread
     public void setImageCaptureIoExecutor(@Nullable Executor executor) {
-        Threads.checkMainThread();
+        checkMainThread();
         if (mImageCaptureIoExecutor == executor) {
             return;
         }
@@ -798,7 +800,7 @@ public abstract class CameraController {
     @MainThread
     @Nullable
     public Executor getImageCaptureIoExecutor() {
-        Threads.checkMainThread();
+        checkMainThread();
         return mImageCaptureIoExecutor;
     }
 
@@ -828,7 +830,7 @@ public abstract class CameraController {
      */
     @MainThread
     public boolean isImageAnalysisEnabled() {
-        Threads.checkMainThread();
+        checkMainThread();
         return isUseCaseEnabled(IMAGE_ANALYSIS);
     }
 
@@ -850,7 +852,7 @@ public abstract class CameraController {
     @MainThread
     public void setImageAnalysisAnalyzer(@NonNull Executor executor,
             @NonNull ImageAnalysis.Analyzer analyzer) {
-        Threads.checkMainThread();
+        checkMainThread();
         if (mAnalysisAnalyzer == analyzer && mAnalysisExecutor == executor) {
             return;
         }
@@ -868,7 +870,7 @@ public abstract class CameraController {
      */
     @MainThread
     public void clearImageAnalysisAnalyzer() {
-        Threads.checkMainThread();
+        checkMainThread();
         mAnalysisExecutor = null;
         mAnalysisAnalyzer = null;
         mImageAnalysis.clearAnalyzer();
@@ -885,7 +887,7 @@ public abstract class CameraController {
     @MainThread
     @ImageAnalysis.BackpressureStrategy
     public int getImageAnalysisBackpressureStrategy() {
-        Threads.checkMainThread();
+        checkMainThread();
         return mImageAnalysis.getBackpressureStrategy();
     }
 
@@ -906,7 +908,7 @@ public abstract class CameraController {
     @MainThread
     public void setImageAnalysisBackpressureStrategy(
             @ImageAnalysis.BackpressureStrategy int strategy) {
-        Threads.checkMainThread();
+        checkMainThread();
         if (mImageAnalysis.getBackpressureStrategy() == strategy) {
             return;
         }
@@ -930,7 +932,7 @@ public abstract class CameraController {
      */
     @MainThread
     public void setImageAnalysisImageQueueDepth(int depth) {
-        Threads.checkMainThread();
+        checkMainThread();
         if (mImageAnalysis.getImageQueueDepth() == depth) {
             return;
         }
@@ -945,7 +947,7 @@ public abstract class CameraController {
      */
     @MainThread
     public int getImageAnalysisImageQueueDepth() {
-        Threads.checkMainThread();
+        checkMainThread();
         return mImageAnalysis.getImageQueueDepth();
     }
 
@@ -968,7 +970,7 @@ public abstract class CameraController {
      */
     @MainThread
     public void setImageAnalysisTargetSize(@Nullable OutputSize targetSize) {
-        Threads.checkMainThread();
+        checkMainThread();
         if (isOutputSizeEqual(mImageAnalysisTargetSize, targetSize)) {
             return;
         }
@@ -986,7 +988,7 @@ public abstract class CameraController {
     @MainThread
     @Nullable
     public OutputSize getImageAnalysisTargetSize() {
-        Threads.checkMainThread();
+        checkMainThread();
         return mImageAnalysisTargetSize;
     }
 
@@ -1004,7 +1006,7 @@ public abstract class CameraController {
      */
     @MainThread
     public void setImageAnalysisBackgroundExecutor(@Nullable Executor executor) {
-        Threads.checkMainThread();
+        checkMainThread();
         if (mAnalysisBackgroundExecutor == executor) {
             return;
         }
@@ -1022,14 +1024,16 @@ public abstract class CameraController {
     @MainThread
     @Nullable
     public Executor getImageAnalysisBackgroundExecutor() {
-        Threads.checkMainThread();
+        checkMainThread();
         return mAnalysisBackgroundExecutor;
     }
 
     /**
      * Unbinds {@link ImageAnalysis} and recreates with the latest parameters.
      */
+    @MainThread
     private void unbindImageAnalysisAndRecreate(int strategy, int imageQueueDepth) {
+        checkMainThread();
         if (isCameraInitialized()) {
             mCameraProvider.unbind(mImageAnalysis);
         }
@@ -1046,6 +1050,14 @@ public abstract class CameraController {
         }
     }
 
+    @OptIn(markerClass = TransformExperimental.class)
+    @MainThread
+    void updatePreviewViewTransform(@Nullable OutputTransform outputTransform) {
+        checkMainThread();
+        // TODO(b/198984186): use the value to provide transformed coordinates for MLKit
+        // integration.
+    }
+
     // -----------------
     // Video capture
     // -----------------
@@ -1059,7 +1071,7 @@ public abstract class CameraController {
     @ExperimentalVideo
     @MainThread
     public boolean isVideoCaptureEnabled() {
-        Threads.checkMainThread();
+        checkMainThread();
         return isUseCaseEnabled(VIDEO_CAPTURE);
     }
 
@@ -1075,7 +1087,7 @@ public abstract class CameraController {
     @MainThread
     public void startRecording(@NonNull OutputFileOptions outputFileOptions,
             @NonNull Executor executor, final @NonNull OnVideoSavedCallback callback) {
-        Threads.checkMainThread();
+        checkMainThread();
         Preconditions.checkState(isCameraInitialized(), CAMERA_NOT_INITIALIZED);
         Preconditions.checkState(isVideoCaptureEnabled(), VIDEO_CAPTURE_DISABLED);
 
@@ -1105,7 +1117,7 @@ public abstract class CameraController {
     @ExperimentalVideo
     @MainThread
     public void stopRecording() {
-        Threads.checkMainThread();
+        checkMainThread();
         if (mVideoIsRecording.get()) {
             mVideoCapture.stopRecording();
         }
@@ -1117,7 +1129,7 @@ public abstract class CameraController {
     @ExperimentalVideo
     @MainThread
     public boolean isRecording() {
-        Threads.checkMainThread();
+        checkMainThread();
         return mVideoIsRecording.get();
     }
 
@@ -1137,7 +1149,7 @@ public abstract class CameraController {
     @ExperimentalVideo
     @MainThread
     public void setVideoCaptureTargetSize(@Nullable OutputSize targetSize) {
-        Threads.checkMainThread();
+        checkMainThread();
         if (isOutputSizeEqual(mVideoCaptureOutputSize, targetSize)) {
             return;
         }
@@ -1154,7 +1166,7 @@ public abstract class CameraController {
     @MainThread
     @Nullable
     public OutputSize getVideoCaptureTargetSize() {
-        Threads.checkMainThread();
+        checkMainThread();
         return mVideoCaptureOutputSize;
     }
 
@@ -1190,7 +1202,7 @@ public abstract class CameraController {
      */
     @MainThread
     public void setCameraSelector(@NonNull CameraSelector cameraSelector) {
-        Threads.checkMainThread();
+        checkMainThread();
         if (mCameraSelector == cameraSelector) {
             return;
         }
@@ -1231,7 +1243,7 @@ public abstract class CameraController {
      */
     @MainThread
     public boolean hasCamera(@NonNull CameraSelector cameraSelector) {
-        Threads.checkMainThread();
+        checkMainThread();
         Preconditions.checkNotNull(cameraSelector);
 
         if (mCameraProvider == null) {
@@ -1257,7 +1269,7 @@ public abstract class CameraController {
     @NonNull
     @MainThread
     public CameraSelector getCameraSelector() {
-        Threads.checkMainThread();
+        checkMainThread();
         return mCameraSelector;
     }
 
@@ -1270,7 +1282,7 @@ public abstract class CameraController {
      */
     @MainThread
     public boolean isPinchToZoomEnabled() {
-        Threads.checkMainThread();
+        checkMainThread();
         return mPinchToZoomEnabled;
     }
 
@@ -1284,7 +1296,7 @@ public abstract class CameraController {
      */
     @MainThread
     public void setPinchToZoomEnabled(boolean enabled) {
-        Threads.checkMainThread();
+        checkMainThread();
         mPinchToZoomEnabled = enabled;
     }
 
@@ -1377,7 +1389,7 @@ public abstract class CameraController {
      */
     @MainThread
     public boolean isTapToFocusEnabled() {
-        Threads.checkMainThread();
+        checkMainThread();
         return mTapToFocusEnabled;
     }
 
@@ -1390,7 +1402,7 @@ public abstract class CameraController {
      */
     @MainThread
     public void setTapToFocusEnabled(boolean enabled) {
-        Threads.checkMainThread();
+        checkMainThread();
         mTapToFocusEnabled = enabled;
     }
 
@@ -1450,7 +1462,7 @@ public abstract class CameraController {
     @MainThread
     @NonNull
     public LiveData<Integer> getTapToFocusState() {
-        Threads.checkMainThread();
+        checkMainThread();
         return mTapToFocusState;
     }
 
@@ -1467,7 +1479,7 @@ public abstract class CameraController {
     @NonNull
     @MainThread
     public LiveData<ZoomState> getZoomState() {
-        Threads.checkMainThread();
+        checkMainThread();
         return mZoomState;
     }
 
@@ -1486,7 +1498,7 @@ public abstract class CameraController {
     @Nullable
     @MainThread
     public CameraInfo getCameraInfo() {
-        Threads.checkMainThread();
+        checkMainThread();
         return mCamera == null ? null : mCamera.getCameraInfo();
     }
 
@@ -1505,7 +1517,7 @@ public abstract class CameraController {
     @Nullable
     @MainThread
     public CameraControl getCameraControl() {
-        Threads.checkMainThread();
+        checkMainThread();
         return mCamera == null ? null : mCamera.getCameraControl();
     }
 
@@ -1529,7 +1541,7 @@ public abstract class CameraController {
     @NonNull
     @MainThread
     public ListenableFuture<Void> setZoomRatio(float zoomRatio) {
-        Threads.checkMainThread();
+        checkMainThread();
         if (!isCameraAttached()) {
             Logger.w(TAG, CAMERA_NOT_ATTACHED);
             return Futures.immediateFuture(null);
@@ -1557,7 +1569,7 @@ public abstract class CameraController {
     @NonNull
     @MainThread
     public ListenableFuture<Void> setLinearZoom(@FloatRange(from = 0f, to = 1f) float linearZoom) {
-        Threads.checkMainThread();
+        checkMainThread();
         if (!isCameraAttached()) {
             Logger.w(TAG, CAMERA_NOT_ATTACHED);
             return Futures.immediateFuture(null);
@@ -1577,7 +1589,7 @@ public abstract class CameraController {
     @NonNull
     @MainThread
     public LiveData<Integer> getTorchState() {
-        Threads.checkMainThread();
+        checkMainThread();
         return mTorchState;
     }
 
@@ -1596,7 +1608,7 @@ public abstract class CameraController {
     @NonNull
     @MainThread
     public ListenableFuture<Void> enableTorch(boolean torchEnabled) {
-        Threads.checkMainThread();
+        checkMainThread();
         if (!isCameraAttached()) {
             Logger.w(TAG, CAMERA_NOT_ATTACHED);
             return Futures.immediateFuture(null);
