@@ -315,6 +315,9 @@
         <activity
             android:name="androidx.appcompat.widget.ButtonBarLayoutActivity"/>
 
+        <activity
+            android:name="androidx.appcompat.widget.TooltipCompatTestActivity" />
+
     </application>
 
 </manifest>
