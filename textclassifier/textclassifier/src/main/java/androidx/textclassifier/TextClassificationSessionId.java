@@ -27,7 +27,9 @@ import java.util.UUID;
 
 /**
  * This class represents the id of a text classification session.
+ * @deprecated Use {@link android.view.textclassifier.TextClassificationSessionId} instead.
  */
+@Deprecated
 public final class TextClassificationSessionId {
     private static final String EXTRA_VALUE = "value";
 

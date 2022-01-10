@@ -60,11 +60,15 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+import java.util.function.Function;
 
 /**
  * A collection of links, representing subsequences of text and the entity types (phone number,
  * address, url, etc) they may be.
+ *
+ * @deprecated Use {@link android.view.textclassifier.TextLinks} instead.
  */
+@Deprecated
 public final class TextLinks {
 
     private static final String LOG_TAG = "TextLinks";
@@ -213,7 +217,10 @@ public final class TextLinks {
 
     /**
      * A link, identifying a substring of text and possible entity types for it.
+     *
+     * @deprecated Use {@link android.view.textclassifier.TextLinks.TextLink} instead.
      */
+    @Deprecated
     public static final class TextLink {
 
         private static final String EXTRA_ENTITY_SCORES = "scores";
@@ -327,7 +334,10 @@ public final class TextLinks {
 
     /**
      * A request object for generating TextLinks.
+     *
+     * @deprecated Use {@link android.view.textclassifier.TextLinks.Request} instead.
      */
+    @Deprecated
     public static final class Request {
 
         private static final String EXTRA_TEXT = "text";
@@ -407,7 +417,10 @@ public final class TextLinks {
 
         /**
          * A builder for building TextLinks requests.
+         *
+         * @deprecated Use {@link android.view.textclassifier.TextLinks.Builder} instead.
          */
+        @Deprecated
         public static final class Builder {
 
             private final CharSequence mText;
@@ -541,7 +554,11 @@ public final class TextLinks {
 
     /**
      * A factory to create spans from TextLinks.
+     *
+     * @deprecated Use {@link android.view.textclassifier.TextLinks#apply(Spannable, int, Function)}
+     * instead.
      */
+    @Deprecated
     public interface SpanFactory {
 
         /** Creates a span from a text link. */
@@ -550,7 +567,10 @@ public final class TextLinks {
 
     /**
      * Contains necessary data for {@link TextLinkSpan}.
+     * @deprecated Access the data from
+     * {@link android.view.textclassifier.TextLinks.TextLinkSpan} directly instead.
      */
+    @Deprecated
     public static class TextLinkSpanData {
         @NonNull
         private final TextLink mTextLink;
@@ -601,7 +621,10 @@ public final class TextLinks {
      * <p>
      * You can implement the {@link #onClick(View)} function to specify the on click behavior of
      * the span.
+     *
+     * @deprecated Use {@link android.view.textclassifier.TextLinks.TextLinkSpan} instead.
      */
+    @Deprecated
     public abstract static class TextLinkSpan extends ClickableSpan {
         private TextLinkSpanData mTextLinkSpanData;
 
@@ -625,7 +648,11 @@ public final class TextLinks {
      * suggest possible actions. The suggested actions will be presented to users eventually.
      * You can change the way how the suggested actions are presented to user by overriding
      * {@link #onTextClassificationResult(TextView, TextClassification)}.
+     *
+     * @deprecated You may create your own custom span by calling
+     * {@link android.view.textclassifier.TextLinks#apply(Spannable, int, Function)}.
      */
+    @Deprecated
     public static class DefaultTextLinkSpan extends TextLinkSpan {
 
         /**
@@ -762,7 +789,10 @@ public final class TextLinks {
 
     /**
      * A builder to construct a TextLinks instance.
+     *
+     * @deprecated Use {@link android.view.textclassifier.TextLinks.Builder} instead.
      */
+    @Deprecated
     public static final class Builder {
         private final CharSequence mFullText;
         private final ArrayList<TextLink> mLinks;

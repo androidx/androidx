@@ -28,10 +28,15 @@ import androidx.textclassifier.TextLinks.SpanFactory;
 import androidx.textclassifier.TextLinks.TextLink;
 import androidx.textclassifier.TextLinks.TextLinkSpan;
 
+import java.util.function.Function;
+
 /**
  * Used to specify how to apply links when using
  * {@link TextLinks#apply(Spannable, TextClassifier, TextLinksParams)} APIs.
+ * @deprecated Use {@link android.view.textclassifier.TextLinks#apply(Spannable, int, Function)}
+ * instead.
  */
+@Deprecated
 public final class TextLinksParams {
 
     /**
@@ -167,7 +172,10 @@ public final class TextLinksParams {
 
     /**
      * A builder for building TextLinksParams.
+     *
+     * @deprecated Use {@link android.view.textclassifier.TextLinks#apply(Spannable, int, Function)}
      */
+    @Deprecated
     public static final class Builder {
 
         @TextLinks.ApplyStrategy
