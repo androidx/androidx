@@ -17,6 +17,8 @@
 package androidx.wear.watchface.control
 
 import android.os.Build
+import android.os.Bundle
+import android.support.wearable.watchface.accessibility.ContentDescriptionLabel
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.wear.watchface.utility.TraceEvent
@@ -25,8 +27,10 @@ import androidx.wear.watchface.WatchFaceImpl
 import androidx.wear.watchface.WatchFaceService
 import androidx.wear.watchface.control.data.WatchFaceRenderParams
 import androidx.wear.watchface.data.IdAndComplicationDataWireFormat
+import androidx.wear.watchface.data.IdAndComplicationStateWireFormat
 import androidx.wear.watchface.data.WatchUiState
 import androidx.wear.watchface.runBlockingWithTracing
+import androidx.wear.watchface.style.data.UserStyleSchemaWireFormat
 import androidx.wear.watchface.style.data.UserStyleWireFormat
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -49,13 +53,17 @@ internal class InteractiveWatchFaceImpl(
     private fun <R> awaitDeferredWatchFaceImplThenRunOnUiThreadBlocking(
         traceName: String,
         task: (watchFaceImpl: WatchFaceImpl) -> R
-    ): R = TraceEvent(traceName).use {
+    ): R? = TraceEvent(traceName).use {
         runBlocking {
             try {
                 val engineCopy = engine
-                require(engineCopy != null) { "Task $traceName posted after close()" }
-                val watchFaceImpl = engineCopy.deferredWatchFaceImpl.await()
-                withContext(uiThreadCoroutineScope.coroutineContext) { task(watchFaceImpl) }
+                if (engineCopy != null) {
+                    val watchFaceImpl = engineCopy.deferredWatchFaceImpl.await()
+                    withContext(uiThreadCoroutineScope.coroutineContext) { task(watchFaceImpl) }
+                } else {
+                    Log.w(TAG, "Task $traceName posted after close(), ignoring.")
+                    null
+                }
             } catch (e: Exception) {
                 Log.e(TAG, "Operation failed", e)
                 throw e
@@ -63,7 +71,7 @@ internal class InteractiveWatchFaceImpl(
         }
     }
 
-    override fun sendTouchEvent(xPos: Int, yPos: Int, tapType: Int) =
+    override fun sendTouchEvent(xPos: Int, yPos: Int, tapType: Int) {
         awaitDeferredWatchFaceImplThenRunOnUiThreadBlocking(
             "InteractiveWatchFaceImpl.sendTouchEvent"
         ) { watchFaceImpl ->
@@ -78,6 +86,7 @@ internal class InteractiveWatchFaceImpl(
                 )
             )
         }
+    }
 
     override fun getPendingIntentForTouchEvent(xPos: Int, yPos: Int, tapType: Int) =
         awaitDeferredWatchFaceImplThenRunOnUiThreadBlocking(
@@ -95,26 +104,30 @@ internal class InteractiveWatchFaceImpl(
             )
         }
 
-    override fun getContentDescriptionLabels() =
-        awaitDeferredWatchFaceImplThenRunOnUiThreadBlocking(
+    override fun getContentDescriptionLabels(): Array<ContentDescriptionLabel>? {
+        return awaitDeferredWatchFaceImplThenRunOnUiThreadBlocking(
             "InteractiveWatchFaceImpl.getContentDescriptionLabels"
         ) { engine!!.contentDescriptionLabels }
+    }
 
     @RequiresApi(Build.VERSION_CODES.O_MR1)
-    override fun renderWatchFaceToBitmap(params: WatchFaceRenderParams) =
-        awaitDeferredWatchFaceImplThenRunOnUiThreadBlocking(
+    override fun renderWatchFaceToBitmap(params: WatchFaceRenderParams): Bundle? {
+        return awaitDeferredWatchFaceImplThenRunOnUiThreadBlocking(
             "InteractiveWatchFaceImpl.renderWatchFaceToBitmap"
         ) { watchFaceImpl -> watchFaceImpl.renderWatchFaceToBitmap(params) }
+    }
 
-    override fun getPreviewReferenceTimeMillis() =
-        awaitDeferredWatchFaceImplThenRunOnUiThreadBlocking(
+    override fun getPreviewReferenceTimeMillis(): Long {
+        return awaitDeferredWatchFaceImplThenRunOnUiThreadBlocking(
             "InteractiveWatchFaceImpl.getPreviewReferenceTimeMillis"
-        ) { watchFaceImpl -> watchFaceImpl.previewReferenceInstant.toEpochMilli() }
+        ) { watchFaceImpl -> watchFaceImpl.previewReferenceInstant.toEpochMilli() } ?: 0
+    }
 
-    override fun setWatchUiState(watchUiState: WatchUiState): Unit =
+    override fun setWatchUiState(watchUiState: WatchUiState) {
         awaitDeferredWatchFaceImplThenRunOnUiThreadBlocking(
             "InteractiveWatchFaceImpl.setWatchUiState"
         ) { engine?.setWatchUiState(watchUiState) }
+    }
 
     override fun getInstanceId(): String = instanceId
 
@@ -164,15 +177,17 @@ internal class InteractiveWatchFaceImpl(
         }
     }
 
-    override fun getComplicationDetails() =
-        awaitDeferredWatchFaceImplThenRunOnUiThreadBlocking(
+    override fun getComplicationDetails(): List<IdAndComplicationStateWireFormat>? {
+        return awaitDeferredWatchFaceImplThenRunOnUiThreadBlocking(
             "InteractiveWatchFaceImpl.getComplicationDetails"
         ) { watchFaceImpl -> watchFaceImpl.getComplicationState() }
+    }
 
-    override fun getUserStyleSchema() =
-        awaitDeferredWatchFaceImplThenRunOnUiThreadBlocking(
+    override fun getUserStyleSchema(): UserStyleSchemaWireFormat? {
+        return awaitDeferredWatchFaceImplThenRunOnUiThreadBlocking(
             "InteractiveWatchFaceImpl.getUserStyleSchema"
         ) { watchFaceImpl -> watchFaceImpl.currentUserStyleRepository.schema.toWireFormat() }
+    }
 
     override fun bringAttentionToComplication(id: Int) {
         // Unsupported.
