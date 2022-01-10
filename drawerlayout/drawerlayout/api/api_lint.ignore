@@ -45,18 +45,10 @@ MissingNullability: androidx.drawerlayout.widget.DrawerLayout#onSaveInstanceStat
     Missing nullability on method `onSaveInstanceState` return
 MissingNullability: androidx.drawerlayout.widget.DrawerLayout#onTouchEvent(android.view.MotionEvent) parameter #0:
     Missing nullability on parameter `ev` in method `onTouchEvent`
-MissingNullability: androidx.drawerlayout.widget.DrawerLayout#setDrawerShadow(android.graphics.drawable.Drawable, int) parameter #0:
-    Missing nullability on parameter `shadowDrawable` in method `setDrawerShadow`
 MissingNullability: androidx.drawerlayout.widget.DrawerLayout.SavedState#CREATOR:
     Missing nullability on field `CREATOR` in class `class androidx.drawerlayout.widget.DrawerLayout.SavedState`
 MissingNullability: androidx.drawerlayout.widget.DrawerLayout.SavedState#writeToParcel(android.os.Parcel, int) parameter #0:
     Missing nullability on parameter `dest` in method `writeToParcel`
-MissingNullability: androidx.drawerlayout.widget.DrawerLayout.SimpleDrawerListener#onDrawerClosed(android.view.View) parameter #0:
-    Missing nullability on parameter `drawerView` in method `onDrawerClosed`
-MissingNullability: androidx.drawerlayout.widget.DrawerLayout.SimpleDrawerListener#onDrawerOpened(android.view.View) parameter #0:
-    Missing nullability on parameter `drawerView` in method `onDrawerOpened`
-MissingNullability: androidx.drawerlayout.widget.DrawerLayout.SimpleDrawerListener#onDrawerSlide(android.view.View, float) parameter #0:
-    Missing nullability on parameter `drawerView` in method `onDrawerSlide`
 
 
 ParcelCreator: androidx.drawerlayout.widget.DrawerLayout.SavedState:

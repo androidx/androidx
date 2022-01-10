@@ -129,12 +129,6 @@ MissingGetterMatchingBuilder: androidx.work.WorkRequest.Builder#setInputData(and
     W does not declare a `getInputData()` method matching method androidx.work.WorkRequest.Builder.setInputData(androidx.work.Data)
 
 
-MissingNullability: androidx.work.Constraints.Builder#setTriggerContentMaxDelay(java.time.Duration) parameter #0:
-    Missing nullability on parameter `duration` in method `setTriggerContentMaxDelay`
-MissingNullability: androidx.work.Constraints.Builder#setTriggerContentUpdateDelay(java.time.Duration) parameter #0:
-    Missing nullability on parameter `duration` in method `setTriggerContentUpdateDelay`
-
-
 NoByteOrShort: androidx.work.Data#getByte(String, byte):
     Should avoid odd sized primitives; use `int` instead of `byte` in method androidx.work.Data.getByte(String,byte)
 NoByteOrShort: androidx.work.Data#getByte(String, byte) parameter #1:

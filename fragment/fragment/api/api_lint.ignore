@@ -27,8 +27,6 @@ MissingNullability: androidx.fragment.app.Fragment#startActivity(android.content
     Missing nullability on parameter `intent` in method `startActivity`
 MissingNullability: androidx.fragment.app.Fragment#startActivity(android.content.Intent, android.os.Bundle) parameter #0:
     Missing nullability on parameter `intent` in method `startActivity`
-MissingNullability: androidx.fragment.app.FragmentActivity#onNewIntent(android.content.Intent) parameter #0:
-    Missing nullability on parameter `intent` in method `onNewIntent`
 MissingNullability: androidx.fragment.app.FragmentActivity#startActivityFromFragment(androidx.fragment.app.Fragment, android.content.Intent, int) parameter #1:
     Missing nullability on parameter `intent` in method `startActivityFromFragment`
 MissingNullability: androidx.fragment.app.FragmentActivity#startActivityFromFragment(androidx.fragment.app.Fragment, android.content.Intent, int, android.os.Bundle) parameter #1:
