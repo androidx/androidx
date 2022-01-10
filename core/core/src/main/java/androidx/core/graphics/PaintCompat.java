@@ -19,14 +19,17 @@ package androidx.core.graphics;
 import static androidx.core.graphics.BlendModeUtils.obtainBlendModeFromCompat;
 import static androidx.core.graphics.BlendModeUtils.obtainPorterDuffFromCompat;
 
+import android.graphics.BlendMode;
 import android.graphics.Paint;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
 import android.os.Build;
 
+import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.core.util.Pair;
 
 /**
@@ -49,7 +52,7 @@ public final class PaintCompat {
      */
     public static boolean hasGlyph(@NonNull Paint paint, @NonNull String string) {
         if (Build.VERSION.SDK_INT >= 23) {
-            return paint.hasGlyph(string);
+            return Api23Impl.hasGlyph(paint, string);
         }
         final int length = string.length();
 
@@ -124,7 +127,8 @@ public final class PaintCompat {
      */
     public static boolean setBlendMode(@NonNull Paint paint, @Nullable BlendModeCompat blendMode) {
         if (Build.VERSION.SDK_INT >= 29) {
-            paint.setBlendMode(blendMode != null ? obtainBlendModeFromCompat(blendMode) : null);
+            Api29Impl.setBlendMode(paint,
+                    blendMode != null ? obtainBlendModeFromCompat(blendMode) : null);
             // All blend modes supported in Q
             return true;
         } else if (blendMode != null) {
@@ -153,5 +157,30 @@ public final class PaintCompat {
         return rects;
     }
 
-    private PaintCompat() {}
+    private PaintCompat() {
+    }
+
+    @RequiresApi(23)
+    static class Api23Impl {
+        private Api23Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static boolean hasGlyph(Paint paint, String string) {
+            return paint.hasGlyph(string);
+        }
+    }
+
+    @RequiresApi(29)
+    static class Api29Impl {
+        private Api29Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static void setBlendMode(Paint paint, BlendMode blendmode) {
+            paint.setBlendMode(blendmode);
+        }
+    }
 }
