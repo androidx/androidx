@@ -27,15 +27,16 @@ curl https://storage.googleapis.com/git-repo-downloads/repo \
     > ~/bin/repo && chmod 700 ~/bin/repo
 ```
 
-Then, modify `~/.bash_profile` (if using `bash`) to ensure you can find local
-binaries from the command line.
+Then, modify `~/.zshrc` (or `~/.bash_profile` if using `bash`) to ensure you can
+find local binaries from the command line. We assume you're using zsh, but the
+following should work with `bash` as well.
 
 ```shell
 export PATH=~/bin:$PATH
 ```
 
-You will need to either start a new terminal session or run `source
-~/.bash_profile` to pick up the new path.
+You will need to either start a new terminal session or run `source ~/.zshrc`
+(or `source ~/.bash_profile` if using bash) to pick up the new path.
 
 If you encounter an SSL `CERTIFICATE_VERIFY_FAILED` error or warning about
 Python 2 being no longer supported, you will need to install Python 3 and alias
@@ -56,8 +57,8 @@ Please read the "Important Information" displayed during installation for
 information about SSL/TLS certificate validation and the running the "Install
 Certificates.command".
 
-Next, open your `~/.bash_profile` and add the following lines to wrap the `repo`
-command:
+Next, open your `~/.zshrc` (or `~/.bash_profile` if using bash) and add the
+following lines to wrap the `repo` command:
 
 ```shell
 # Force repo to run with Python3
