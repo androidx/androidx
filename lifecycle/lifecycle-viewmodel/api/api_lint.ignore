@@ -1,7 +1,3 @@
 // Baseline format: 1.0
 MissingJvmstatic: androidx.lifecycle.ViewModelProvider.NewInstanceFactory#instance:
     Companion object constants like instance should be using @JvmField, not @JvmStatic; see https://developer.android.com/kotlin/interop#companion_constants
-
-
-SingletonConstructor: androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory#AndroidViewModelFactory(android.app.Application):
-    Singleton classes should use `getInstance()` methods: `AndroidViewModelFactory`
