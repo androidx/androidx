@@ -18,6 +18,8 @@ package androidx.wear.compose.material
 
 import androidx.compose.animation.core.CubicBezierEasing
 import androidx.compose.animation.core.Easing
+import androidx.compose.foundation.gestures.FlingBehavior
+import androidx.compose.foundation.gestures.ScrollableDefaults
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -237,6 +239,7 @@ internal fun convertToCenterOffset(
  * @param horizontalAlignment the horizontal alignment applied to the items
  * @param contentPadding The padding to apply around the contents
  * @param anchorType How to anchor list items to the center-line of the viewport
+ * @param flingBehavior Logic describing fling behavior
  * @param state The state of the component
  */
 @Composable
@@ -253,6 +256,7 @@ public fun ScalingLazyColumn(
     contentPadding: PaddingValues = PaddingValues(horizontal = 8.dp),
     state: ScalingLazyListState = rememberScalingLazyListState(),
     anchorType: ScalingLazyListAnchorType = ScalingLazyListAnchorType.ItemCenter,
+    flingBehavior: FlingBehavior = ScrollableDefaults.flingBehavior(),
     content: ScalingLazyListScope.() -> Unit
 ) {
     var initialized by remember { mutableStateOf(false) }
@@ -307,7 +311,8 @@ public fun ScalingLazyColumn(
             contentPadding = combinedPaddingValues,
             reverseLayout = reverseLayout,
             verticalArrangement = verticalArrangement,
-            state = state.lazyListState
+            state = state.lazyListState,
+            flingBehavior = flingBehavior,
         ) {
             val scope = ScalingLazyListScopeImpl(
                 state = state,
