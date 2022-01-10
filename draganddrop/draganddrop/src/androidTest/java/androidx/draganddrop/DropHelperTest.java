@@ -51,6 +51,7 @@ import androidx.core.view.OnReceiveContentListener;
 import androidx.draganddrop.test.R;
 import androidx.test.annotation.UiThreadTest;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.MediumTest;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -69,6 +70,7 @@ public class DropHelperTest {
 
     private Activity mActivity;
     private EditText mDropTarget;
+    private TextView mNonEditTextDropTarget;
     private AppCompatEditText mAppCompatEditText;
     private View mOuterNestedDropTarget;
     private EditText mInnerNestedEditText;
@@ -89,6 +91,7 @@ public class DropHelperTest {
     public void setUp() {
         mActivity = mActivityRule.getActivity();
         mDropTarget = mActivity.findViewById(R.id.drop_target);
+        mNonEditTextDropTarget = mActivity.findViewById(R.id.drop_target_non_editable);
         mAppCompatEditText = mActivity.findViewById(R.id.app_compat_edit_text_drop_target);
         mOuterNestedDropTarget = mActivity.findViewById(R.id.outer_drop_target);
         mInnerNestedEditText = mActivity.findViewById(R.id.inner_edit_text);
@@ -334,6 +337,37 @@ public class DropHelperTest {
         assertTrue(mListenerCalled.get());
     }
 
+    // Note this test will exercise the S+ and R- paths by running on both S+ and R- devices.
+    @Test
+    public void testDropHelper_nonEditText_drop_callsListener() throws Exception {
+        DropHelper.configureView(
+                mActivity,
+                mNonEditTextDropTarget,
+                new String[]{"text/*"},
+                new DropHelper.Options.Builder().setHighlightColor(COLOR_FULL_OPACITY).build(),
+                mListener);
+
+        sendEventAndWaitForHighlightColor(
+                mNonEditTextDropTarget,
+                makeTextDragEvent(ACTION_DRAG_STARTED),
+                mNonEditTextDropTarget,
+                COLOR_INACTIVE_OPACITY);
+
+        sendEventAndWaitForHighlightColor(
+                mNonEditTextDropTarget,
+                makeTextDragEvent(ACTION_DRAG_ENTERED),
+                mNonEditTextDropTarget,
+                COLOR_ACTIVE_OPACITY);
+
+        sendEvent(mNonEditTextDropTarget, makeTextDragEvent(ACTION_DROP));
+        sendEventAndWaitForNoHighlight(
+                mNonEditTextDropTarget,
+                makeTextDragEvent(ACTION_DRAG_ENDED),
+                mNonEditTextDropTarget);
+
+        assertTrue(mListenerCalled.get());
+    }
+
     @Test
     public void testDropHelper_drop_editText_insertsText() throws Exception {
         assertFalse(mDropTarget instanceof AppCompatEditText);
@@ -429,6 +463,7 @@ public class DropHelperTest {
     }
 
     @Test
+    @MediumTest
     public void testDropHelper_drop_appCompatEditText_handlesUri() throws Exception {
         DropHelper.configureView(
                 mActivity,

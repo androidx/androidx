@@ -178,9 +178,9 @@ public final class DropHelper {
             OnReceiveContentListener onReceiveContentListener,
             Activity activity) {
         ViewCompat.setOnReceiveContentListener(view, mimeTypes, onReceiveContentListener);
-        if (view instanceof AppCompatEditText) {
-            // In AppCompatEditText, the OnReceiveContentListener will handle the drop. We just
-            // need to add highlighting.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S || view instanceof AppCompatEditText) {
+            // In AppCompatEditText, or in S+, the OnReceiveContentListener will handle the drop.
+            // We just need to add highlighting.
             view.setOnDragListener(highlighter::onDrag);
         } else {
             // Otherwise, trigger the OnReceiveContentListener from an OnDragListener.
