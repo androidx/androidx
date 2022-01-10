@@ -154,6 +154,7 @@ public abstract class BaseKeyEventsTestCase<A extends BaseTestActivity> {
 
     @Test
     @MediumTest
+    @FlakyTest(bugId = 213627790)
     public void testBackPressWithMenuInvokesOnPanelClosed() throws InterruptedException {
         mInstrumentation.sendKeyDownUpSync(KeyEvent.KEYCODE_MENU);
         mInstrumentation.waitForIdleSync();
