@@ -29,7 +29,10 @@ import java.util.Locale;
 
 /**
  * A representation of the context in which text classification would be performed.
+ *
+ * @deprecated Use {@link android.view.textclassifier.TextClassificationContext} instead.
  */
+@Deprecated
 public final class TextClassificationContext {
     private static final String EXTRA_PACKAGE_NAME = "package_name";
     private static final String EXTRA_WIGET_TYPE = "widget_type";
@@ -84,7 +87,11 @@ public final class TextClassificationContext {
 
     /**
      * A builder for building a TextClassification context.
+     *
+     * @deprecated Use {@link android.view.textclassifier.TextClassificationContext.Builder}
+     * instead.
      */
+    @Deprecated
     public static final class Builder {
 
         private final String mPackageName;

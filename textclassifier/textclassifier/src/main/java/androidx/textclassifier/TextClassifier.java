@@ -46,7 +46,10 @@ import java.util.Set;
  *
  * <p>Unless otherwise stated, methods of this interface are blocking operations.
  * Avoid calling them on the UI thread.
+ *
+ * @deprecated Use {@link android.view.textclassifier.TextClassifier} instead.
  */
+@Deprecated
 public abstract class TextClassifier {
 
     // TODO: describe in the class documentation how a TC implementation in chosen/located.
@@ -248,7 +251,10 @@ public abstract class TextClassifier {
      * Configuration object for specifying what entities to identify.
      *
      * Configs are initially based on a predefined preset, and can be modified from there.
+     *
+     * @deprecated Use {@link android.view.textclassifier.TextClassifier.EntityConfig} instead.
      */
+    @Deprecated
     public static final class EntityConfig {
 
         private static final String EXTRA_HINTS = "hints";
@@ -426,7 +432,11 @@ public abstract class TextClassifier {
 
         /**
          * Builder class to construct the {@link EntityConfig} object.
+         *
+         * @deprecated Use {@link android.view.textclassifier.TextClassifier.EntityConfig.Builder}
+         * instead.
          */
+        @Deprecated
         public static final class Builder {
             @Nullable
             private Collection<String> mHints;
