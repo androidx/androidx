@@ -1448,11 +1448,9 @@ public final class LayoutElementBuilders {
 
         /**
          * Gets filtering parameters for this image. If not specified, defaults to no filtering.
-         * Intended for testing purposes only.
          */
-        @TilesExperimental
         @Nullable
-        public ColorFilter getFilter() {
+        public ColorFilter getColorFilter() {
             if (mImpl.hasFilter()) {
                 return ColorFilter.fromProto(mImpl.getFilter());
             } else {
@@ -1555,9 +1553,8 @@ public final class LayoutElementBuilders {
             /**
              * Sets filtering parameters for this image. If not specified, defaults to no filtering.
              */
-            @TilesExperimental
             @NonNull
-            public Builder setFilter(@NonNull ColorFilter filter) {
+            public Builder setColorFilter(@NonNull ColorFilter filter) {
                 mImpl.setFilter(filter.toProto());
                 return this;
             }
