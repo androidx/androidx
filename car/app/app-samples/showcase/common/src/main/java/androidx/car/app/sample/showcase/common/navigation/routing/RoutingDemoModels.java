@@ -147,7 +147,7 @@ public abstract class RoutingDemoModels {
                         new Action.Builder()
                                 .setTitle("Stop")
                                 .setOnClickListener(onStopNavigation)
-                                .build())
+                                .build(), /* alwaysShow= */ true)
                 .build();
     }
 
