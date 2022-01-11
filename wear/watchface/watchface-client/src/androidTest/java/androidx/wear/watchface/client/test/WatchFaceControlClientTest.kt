@@ -623,6 +623,11 @@ class WatchFaceControlClientTest {
         assertThat(leftComplicationDetails.currentType).isEqualTo(
             ComplicationType.SHORT_TEXT
         )
+        assertThat(leftComplicationDetails.nameResourceId)
+            .isEqualTo(androidx.wear.watchface.samples.R.string.left_complication_screen_name)
+        assertThat(leftComplicationDetails.screenReaderNameResourceId).isEqualTo(
+            androidx.wear.watchface.samples.R.string.left_complication_screen_reader_name
+        )
 
         val rightComplicationDetails = interactiveInstance.complicationSlotsState[
             EXAMPLE_CANVAS_WATCHFACE_RIGHT_COMPLICATION_ID
@@ -646,6 +651,11 @@ class WatchFaceControlClientTest {
         assertTrue(rightComplicationDetails.isEnabled)
         assertThat(rightComplicationDetails.currentType).isEqualTo(
             ComplicationType.SHORT_TEXT
+        )
+        assertThat(rightComplicationDetails.nameResourceId)
+            .isEqualTo(androidx.wear.watchface.samples.R.string.right_complication_screen_name)
+        assertThat(rightComplicationDetails.screenReaderNameResourceId).isEqualTo(
+            androidx.wear.watchface.samples.R.string.right_complication_screen_reader_name
         )
 
         interactiveInstance.close()
@@ -926,10 +936,12 @@ class WatchFaceControlClientTest {
         interactiveInstance.complicationSlotsState
 
         // Add some additional ContentDescriptionLabels
-        val pendingIntent1 = PendingIntent.getActivity(context, 0, Intent("One"),
+        val pendingIntent1 = PendingIntent.getActivity(
+            context, 0, Intent("One"),
             PendingIntent.FLAG_IMMUTABLE
         )
-        val pendingIntent2 = PendingIntent.getActivity(context, 0, Intent("Two"),
+        val pendingIntent2 = PendingIntent.getActivity(
+            context, 0, Intent("Two"),
             PendingIntent.FLAG_IMMUTABLE
         )
         wallpaperService.watchFace.renderer.additionalContentDescriptionLabels = listOf(

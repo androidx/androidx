@@ -73,6 +73,20 @@ public class ComplicationSlotState {
     public val complicationConfigExtras: Bundle
 
     /**
+     * The ID of a string resource (or `null` if absent) to identify the complication slot visually
+     * in an editor. This is supposed to be short and without the word complication in it.
+     */
+    @get:Suppress("AutoBoxing")
+    public val nameResourceId: Int?
+
+    /**
+     * The ID of a string resource (or `null` if absent) to identify the complication slot in a
+     * screen reader. This is supposed to be a complete sentence.
+     */
+    @get:Suppress("AutoBoxing")
+    public val screenReaderNameResourceId: Int?
+
+    /**
      * @param bounds Screen space bounds of the [ComplicationSlot] in pixels.
      * @param boundsType The type of the complication's bounds.
      * @param supportedTypes The [ComplicationType]s supported by this complication.
@@ -88,6 +102,10 @@ public class ComplicationSlotState {
      * the user can't configure it).
      * @param complicationConfigExtras Extras to be merged into the Intent sent when invoking the
      * complication data source chooser activity.
+     * @param nameResourceId The ID of a string resource (or `null` if absent) to visually identify
+     * the complication slot in an editor.
+     * @param screenReaderNameResourceId The ID of a string resource (or `null` if absent) to
+     * identify the complication slot in a screen reader.
      */
     public constructor(
         bounds: Rect,
@@ -98,7 +116,11 @@ public class ComplicationSlotState {
         isInitiallyEnabled: Boolean,
         currentType: ComplicationType,
         fixedComplicationDataSource: Boolean,
-        complicationConfigExtras: Bundle
+        complicationConfigExtras: Bundle,
+        @Suppress("AutoBoxing")
+        nameResourceId: Int?,
+        @Suppress("AutoBoxing")
+        screenReaderNameResourceId: Int?
     ) {
         this.bounds = bounds
         this.boundsType = boundsType
@@ -109,6 +131,8 @@ public class ComplicationSlotState {
         this.currentType = currentType
         this.fixedComplicationDataSource = fixedComplicationDataSource
         this.complicationConfigExtras = complicationConfigExtras
+        this.nameResourceId = nameResourceId
+        this.screenReaderNameResourceId = screenReaderNameResourceId
     }
 
     /**
@@ -183,6 +207,8 @@ public class ComplicationSlotState {
         this.currentType = currentType
         this.fixedComplicationDataSource = fixedComplicationDataSource
         this.complicationConfigExtras = complicationConfigExtras
+        this.nameResourceId = null
+        this.screenReaderNameResourceId = null
     }
 
     /** @hide */
@@ -208,6 +234,8 @@ public class ComplicationSlotState {
         complicationStateWireFormat.isInitiallyEnabled,
         ComplicationType.fromWireType(complicationStateWireFormat.currentType),
         complicationStateWireFormat.isFixedComplicationProvider,
-        complicationStateWireFormat.complicationConfigExtras
+        complicationStateWireFormat.complicationConfigExtras,
+        complicationStateWireFormat.nameResourceId,
+        complicationStateWireFormat.screenReaderNameResourceId
     )
 }

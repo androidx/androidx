@@ -112,5 +112,13 @@
         by the user).  This is useful for watch faces built around specific complications. Defaults
         to false. -->
         <attr name="fixedComplicationDataSource" format="boolean" />
+
+        <!-- Optional. A reference to a string resource containing the name of the ComplicationSlot,
+        to be used visually by editors. -->
+        <attr name="name" format="reference" />
+
+        <!-- Optional. A reference to a string resource containing the name of the ComplicationSlot,
+        to be used by a screen reader. -->
+        <attr name="screenReaderName" format="reference" />
     </declare-styleable>
 </resources>

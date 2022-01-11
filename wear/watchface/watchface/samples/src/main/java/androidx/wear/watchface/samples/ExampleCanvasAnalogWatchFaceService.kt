@@ -284,7 +284,8 @@ open class ExampleCanvasAnalogWatchFaceService : WatchFaceService() {
                 ComplicationType.SHORT_TEXT
             ),
             ComplicationSlotBounds(RectF(0.2f, 0.4f, 0.4f, 0.6f))
-        ).build()
+        ).setNameResourceId(R.string.left_complication_screen_name)
+            .setScreenReaderNameResourceId(R.string.left_complication_screen_reader_name).build()
 
         val rightComplication = ComplicationSlot.createRoundRectComplicationSlotBuilder(
             EXAMPLE_CANVAS_WATCHFACE_RIGHT_COMPLICATION_ID,
@@ -301,7 +302,9 @@ open class ExampleCanvasAnalogWatchFaceService : WatchFaceService() {
                 ComplicationType.SHORT_TEXT
             ),
             ComplicationSlotBounds(RectF(0.6f, 0.4f, 0.8f, 0.6f))
-        ).build()
+        ).setNameResourceId(R.string.right_complication_screen_name)
+            .setScreenReaderNameResourceId(R.string.right_complication_screen_reader_name).build()
+
         return ComplicationSlotsManager(
             listOf(leftComplication, rightComplication),
             currentUserStyleRepository

@@ -31,6 +31,8 @@
     </UserStyleSchema>
     <ComplicationSlot
         app:slotId="10"
+        app:name="@string/complication_name_one"
+        app:screenReaderName="@string/complication_screen_reader_name_one"
         app:boundsType="ROUND_RECT"
         app:supportedTypes="SHORT_TEXT|RANGED_VALUE|SMALL_IMAGE"
         app:systemDataSourceFallback="DATA_SOURCE_WATCH_BATTERY"
@@ -39,6 +41,8 @@
     </ComplicationSlot>
     <ComplicationSlot
         app:slotId="20"
+        app:name="@string/complication_name_two"
+        app:screenReaderName="@string/complication_screen_reader_name_two"
         app:boundsType="BACKGROUND"
         app:supportedTypes="LONG_TEXT|SHORT_TEXT"
         app:primaryDataSource="com.package/com.app"

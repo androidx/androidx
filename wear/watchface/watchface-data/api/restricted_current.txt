@@ -120,7 +120,7 @@ package androidx.wear.watchface.data {
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @androidx.versionedparcelable.VersionedParcelize public final class ComplicationStateWireFormat implements android.os.Parcelable androidx.versionedparcelable.VersionedParcelable {
-    ctor public ComplicationStateWireFormat(android.graphics.Rect, int, @android.support.wearable.complications.ComplicationData.ComplicationType int[], java.util.List<android.content.ComponentName!>?, int, @android.support.wearable.complications.ComplicationData.ComplicationType int, @android.support.wearable.complications.ComplicationData.ComplicationType int, @android.support.wearable.complications.ComplicationData.ComplicationType int, boolean, boolean, @android.support.wearable.complications.ComplicationData.ComplicationType int, boolean, android.os.Bundle);
+    ctor public ComplicationStateWireFormat(android.graphics.Rect, int, @android.support.wearable.complications.ComplicationData.ComplicationType int[], java.util.List<android.content.ComponentName!>?, int, @android.support.wearable.complications.ComplicationData.ComplicationType int, @android.support.wearable.complications.ComplicationData.ComplicationType int, @android.support.wearable.complications.ComplicationData.ComplicationType int, boolean, boolean, @android.support.wearable.complications.ComplicationData.ComplicationType int, boolean, android.os.Bundle, Integer?, Integer?);
     ctor @Deprecated public ComplicationStateWireFormat(android.graphics.Rect, int, @android.support.wearable.complications.ComplicationData.ComplicationType int[], java.util.List<android.content.ComponentName!>?, int, @android.support.wearable.complications.ComplicationData.ComplicationType int, boolean, boolean, @android.support.wearable.complications.ComplicationData.ComplicationType int, boolean, android.os.Bundle);
     method public int describeContents();
     method public android.graphics.Rect getBounds();
@@ -132,7 +132,9 @@ package androidx.wear.watchface.data {
     method @Deprecated @android.support.wearable.complications.ComplicationData.ComplicationType public int getDefaultProviderType();
     method @Deprecated public java.util.List<android.content.ComponentName!>? getDefaultProvidersToTry();
     method public int getFallbackSystemProvider();
+    method public Integer? getNameResourceId();
     method @android.support.wearable.complications.ComplicationData.ComplicationType public int getPrimaryDataSourceDefaultType();
+    method public Integer? getScreenReaderNameResourceId();
     method @android.support.wearable.complications.ComplicationData.ComplicationType public int getSecondaryDataSourceDefaultType();
     method @android.support.wearable.complications.ComplicationData.ComplicationType public int[] getSupportedTypes();
     method public boolean isEnabled();
