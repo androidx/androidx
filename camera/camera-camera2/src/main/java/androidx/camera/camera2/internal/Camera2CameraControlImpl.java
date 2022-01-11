@@ -190,7 +190,8 @@ public class Camera2CameraControlImpl implements CameraControlInternal {
         mSessionConfigBuilder.addRepeatingCameraCaptureCallback(mCameraCaptureCallbackSet);
 
         mExposureControl = new ExposureControl(this, mCameraCharacteristics, mExecutor);
-        mFocusMeteringControl = new FocusMeteringControl(this, scheduler, mExecutor);
+        mFocusMeteringControl = new FocusMeteringControl(
+                this, scheduler, mExecutor, cameraQuirks);
         mZoomControl = new ZoomControl(this, mCameraCharacteristics, mExecutor);
         mTorchControl = new TorchControl(this, mCameraCharacteristics, mExecutor);
 
