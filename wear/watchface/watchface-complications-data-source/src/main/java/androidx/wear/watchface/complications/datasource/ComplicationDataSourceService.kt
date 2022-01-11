@@ -129,6 +129,11 @@ public class ComplicationRequest(
  * [Activity.RESULT_CANCELED] before it is finished, to tell the system whether or not the
  * complication data source should be set on the given complication.
  *
+ * It is possible to provide additional 'meta-data' tag
+ * androidx.watchface.complications.datasource.DEFAULT_CONFIGURATION_SUPPORTED in the service
+ * set to "true" to let the system know that the data source is able to provide complication data
+ * before it is configured.
+ *
  * - The manifest entry for the service should also include an android:icon attribute. The icon
  * provided there should be a single-color white icon that represents the complication data source.
  * This icon will be shown in the complication data source chooser interface, and may also be
@@ -607,6 +612,15 @@ public abstract class ComplicationDataSourceService : Service() {
         @SuppressLint("IntentName")
         public const val METADATA_KEY_DATA_SOURCE_CONFIG_ACTION: String =
             "android.support.wearable.complications.PROVIDER_CONFIG_ACTION"
+
+        /**
+         * Metadata key. Setting to "true" indicates to the system that this complication data
+         * source with a PROVIDER_CONFIG_ACTION metadata tag is able to provide complication data
+         * before it is configured.
+         * See [METADATA_KEY_DATA_SOURCE_CONFIG_ACTION].
+         */
+        public const val METADATA_KEY_DATA_SOURCE_DEFAULT_CONFIGURATION_SUPPORTED: String =
+            "androidx.watchface.complications.datasource.DEFAULT_CONFIGURATION_SUPPORTED"
 
         /**
          * Category for complication data source config activities. The configuration activity for a
