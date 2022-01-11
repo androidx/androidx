@@ -1739,9 +1739,7 @@ public abstract class WatchFaceService : WallpaperService() {
                         )
                     )
 
-                    if (watchFace.renderer is Renderer.GlesRenderer) {
-                        watchFace.renderer.initBackgroundThreadOpenGlContext()
-                    }
+                    watchFace.renderer.backgroundThreadInitInternal()
 
                     // For Gles watch faces this will trigger UIThread context creation and must be
                     // done after initBackgroundThreadOpenGlContext.

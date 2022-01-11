@@ -216,6 +216,10 @@ public annotation class ComplicationSlotBoundsType {
  * complications.
  * @param tapFilter The [ComplicationTapFilter] used to determine whether or not a tap hit the
  * complication slot.
+ * @param nameResourceId The ID of a string resource (or `null` if absent) to identify the
+ * complication slot on screen in an editor.
+ * @param screenReaderNameResourceId The ID of a string resource (or `null` if absent) to identify
+ * the complication slot in a screen reader.
  */
 public class ComplicationSlot internal constructor(
     public val id: Int,
@@ -231,7 +235,11 @@ public class ComplicationSlot internal constructor(
     configExtras: Bundle,
     @get:JvmName("isFixedComplicationDataSource")
     public val fixedComplicationDataSource: Boolean,
-    public val tapFilter: ComplicationTapFilter
+    public val tapFilter: ComplicationTapFilter,
+    @get:Suppress("AutoBoxing")
+    public val nameResourceId: Int?,
+    @get:Suppress("AutoBoxing")
+    public val screenReaderNameResourceId: Int?
 ) {
     /**
      * The [ComplicationSlotsManager] this is attached to. Only set after the
@@ -418,6 +426,8 @@ public class ComplicationSlot internal constructor(
         private var initiallyEnabled = true
         private var configExtras: Bundle = Bundle.EMPTY
         private var fixedComplicationDataSource = false
+        private var nameResourceId: Int? = null
+        private var screenReaderNameResourceId: Int? = null
 
         init {
             require(id >= 0) { "id must be >= 0" }
@@ -503,6 +513,30 @@ public class ComplicationSlot internal constructor(
             return this
         }
 
+        /**
+         * If non-null sets the ID of a string resource containing the name of this complication
+         * slot, for use visually in an editor. This resource should be short and should not contain
+         * the word "Complication".  E.g. "Left" for the left complication.
+         */
+        public fun setNameResourceId(
+            @Suppress("AutoBoxing") nameResourceId: Int?
+        ): Builder {
+            this.nameResourceId = nameResourceId
+            return this
+        }
+
+        /**
+         * If non-null sets the ID of a string resource containing the name of this complication
+         * slot, for use by a screen reader. This resource should be a short sentence. E.g.
+         * "Left complication" for the left complication.
+         */
+        public fun setScreenReaderNameResourceId(
+            @Suppress("AutoBoxing") screenReaderNameResourceId: Int?
+        ): Builder {
+            this.screenReaderNameResourceId = screenReaderNameResourceId
+            return this
+        }
+
         /** Constructs the [ComplicationSlot]. */
         public fun build(): ComplicationSlot = ComplicationSlot(
             id,
@@ -516,7 +550,9 @@ public class ComplicationSlot internal constructor(
             initiallyEnabled,
             configExtras,
             fixedComplicationDataSource,
-            complicationTapFilter
+            complicationTapFilter,
+            nameResourceId,
+            screenReaderNameResourceId
         )
     }
 

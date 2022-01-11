@@ -529,7 +529,8 @@ class ExampleCanvasDigitalWatchFaceService : WatchFaceService() {
                 CIRCLE_COMPLICATION_DIAMETER_FRACTION
             )
         )
-    ).build()
+    ).setNameResourceId(R.string.left_complication_screen_name)
+        .setScreenReaderNameResourceId(R.string.left_complication_screen_reader_name).build()
 
     private val rightComplication = ComplicationSlot.createRoundRectComplicationSlotBuilder(
         ComplicationID.RIGHT.ordinal,
@@ -550,7 +551,8 @@ class ExampleCanvasDigitalWatchFaceService : WatchFaceService() {
                 CIRCLE_COMPLICATION_DIAMETER_FRACTION
             )
         )
-    ).build()
+    ).setNameResourceId(R.string.right_complication_screen_name)
+        .setScreenReaderNameResourceId(R.string.right_complication_screen_reader_name).build()
 
     private val upperAndLowerComplicationTypes = listOf(
         ComplicationType.LONG_TEXT,
@@ -583,7 +585,8 @@ class ExampleCanvasDigitalWatchFaceService : WatchFaceService() {
                 }
             }
         )
-    ).build()
+    ).setNameResourceId(R.string.upper_complication_screen_name)
+        .setScreenReaderNameResourceId(R.string.upper_complication_screen_reader_name).build()
 
     private val lowerComplication = ComplicationSlot.createRoundRectComplicationSlotBuilder(
         ComplicationID.LOWER.ordinal,
@@ -608,14 +611,16 @@ class ExampleCanvasDigitalWatchFaceService : WatchFaceService() {
                 }
             }
         )
-    ).build()
+    ).setNameResourceId(R.string.lower_complication_screen_name)
+        .setScreenReaderNameResourceId(R.string.lower_complication_screen_reader_name).build()
 
     private val backgroundComplication = ComplicationSlot.createBackgroundComplicationSlotBuilder(
         ComplicationID.BACKGROUND.ordinal,
         canvasComplicationFactory,
         listOf(ComplicationType.PHOTO_IMAGE),
         DefaultComplicationDataSourcePolicy()
-    ).build()
+    ).setNameResourceId(R.string.background_complication_screen_name)
+        .setScreenReaderNameResourceId(R.string.background_complication_screen_reader_name).build()
 
     override fun createUserStyleSchema() = UserStyleSchema(listOf(colorStyleSetting))
 

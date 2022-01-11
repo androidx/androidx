@@ -881,7 +881,7 @@ public class WatchFaceImpl @UiThread constructor(
 
     internal fun onDestroy() {
         pendingUpdateTime.cancel()
-        renderer.onDestroy()
+        renderer.onDestroyInternal()
         if (!watchState.isHeadless) {
             WatchFace.unregisterEditorDelegate(componentName)
         }
@@ -1157,7 +1157,9 @@ public class WatchFaceImpl @UiThread constructor(
                 it.value.initiallyEnabled,
                 it.value.renderer.getData().type.toWireComplicationType(),
                 it.value.fixedComplicationDataSource,
-                it.value.configExtras
+                it.value.configExtras,
+                it.value.nameResourceId,
+                it.value.screenReaderNameResourceId
             )
         )
     }

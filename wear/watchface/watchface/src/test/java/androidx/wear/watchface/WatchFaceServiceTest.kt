@@ -3837,6 +3837,113 @@ public class WatchFaceServiceTest {
     }
 
     @Test
+    @RequiresApi(Build.VERSION_CODES.O_MR1)
+    public fun assetLifeCycle() {
+        val eventLog = ArrayList<String>()
+
+        testWatchFaceService = TestWatchFaceService(
+            WatchFaceType.DIGITAL,
+            emptyList(),
+            { _, currentUserStyleRepository, watchState ->
+                renderer = object : TestRenderer(
+                    surfaceHolder,
+                    currentUserStyleRepository,
+                    watchState,
+                    INTERACTIVE_UPDATE_RATE_MS
+                ) {
+                    init {
+                        eventLog.add("TestRenderer created")
+                    }
+
+                    override suspend fun createSharedAssets(): SharedAssets? {
+                        eventLog.add("createAssets")
+                        return object : SharedAssets {
+                            override fun onDestroy() {
+                                eventLog.add("SharedAssets onDestroy")
+                            }
+                        }
+                    }
+
+                    override fun onDestroy() {
+                        super.onDestroy()
+                        eventLog.add("TestRenderer onDestroy")
+                    }
+                }
+                renderer
+            },
+            UserStyleSchema(emptyList()),
+            watchState,
+            handler,
+            null,
+            null,
+            false,
+            null,
+            choreographer
+        )
+
+        InteractiveInstanceManager
+            .getExistingInstanceOrSetPendingWallpaperInteractiveWatchFaceInstance(
+                InteractiveInstanceManager.PendingWallpaperInteractiveWatchFaceInstance(
+                    WallpaperInteractiveWatchFaceInstanceParams(
+                        "TestID",
+                        DeviceConfig(
+                            false,
+                            false,
+                            0,
+                            0
+                        ),
+                        WatchUiState(false, 0),
+                        UserStyle(emptyMap()).toWireFormat(),
+                        emptyList()
+                    ),
+                    object : IPendingInteractiveWatchFace.Stub() {
+                        override fun getApiVersion() =
+                            IPendingInteractiveWatchFace.API_VERSION
+
+                        override fun onInteractiveWatchFaceCreated(
+                            iInteractiveWatchFace: IInteractiveWatchFace
+                        ) {
+                            interactiveWatchFaceInstance = iInteractiveWatchFace
+                        }
+
+                        override fun onInteractiveWatchFaceCrashed(exception: CrashInfoParcel?) {
+                            fail("WatchFace crashed: $exception")
+                        }
+                    }
+                )
+            )
+
+        engineWrapper = testWatchFaceService.onCreateEngine() as WatchFaceService.EngineWrapper
+        engineWrapper.onCreate(surfaceHolder)
+        engineWrapper.onSurfaceChanged(surfaceHolder, 0, 100, 100)
+
+        val headlessEngineWrapper =
+            testWatchFaceService.createHeadlessEngine() as WatchFaceService.EngineWrapper
+
+        headlessEngineWrapper.createHeadlessInstance(
+            HeadlessWatchFaceInstanceParams(
+                ComponentName("test.watchface.app", "test.watchface.class"),
+                DeviceConfig(false, false, 100, 200),
+                100,
+                100,
+                null
+            )
+        )
+
+        headlessEngineWrapper.onDestroy()
+        engineWrapper.onDestroy()
+
+        assertThat(eventLog).containsExactly(
+            "TestRenderer created",
+            "createAssets",
+            "TestRenderer created",
+            "TestRenderer onDestroy",
+            "TestRenderer onDestroy",
+            "SharedAssets onDestroy"
+        )
+    }
+
+    @Test
     public fun renderer_onDestroy_called_even_if_init_not_complete() {
         val initDeferred = CompletableDeferred<Unit>()
         var onDestroyCalled = false

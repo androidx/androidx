@@ -128,6 +128,71 @@ public sealed class Renderer @WorkerThread constructor(
 ) {
     internal var watchFaceHostApi: WatchFaceHostApi? = null
 
+    internal companion object {
+        internal class SharedAssetsHolder {
+            var sharedAssets: SharedAssets? = null
+            var refCount: Int = 0
+
+            // To avoid undefined behavior with SharedAssets we also need to share the contexts
+            // between instances.
+            lateinit var eglDisplay: EGLDisplay
+            lateinit var eglConfig: EGLConfig
+            lateinit var eglBackgroundThreadContext: EGLContext
+            lateinit var eglUiThreadContext: EGLContext
+
+            fun eglDisplayInitialized() = this::eglDisplay.isInitialized
+
+            fun eglBackgroundThreadContextInitialized() =
+                this::eglBackgroundThreadContext.isInitialized
+
+            fun eglUiThreadContextInitialized() = this::eglUiThreadContext.isInitialized
+
+            fun onDestroy() {
+                if (this::eglUiThreadContext.isInitialized) {
+                    if (!EGL14.eglDestroyContext(eglDisplay, eglUiThreadContext)) {
+                        Log.w(GlesRenderer.TAG, "eglDestroyContext failed")
+                    }
+                    if (!EGL14.eglDestroyContext(eglDisplay, eglBackgroundThreadContext)) {
+                        Log.w(GlesRenderer.TAG, "eglDestroyContext failed")
+                    }
+                    if (!EGL14.eglTerminate(eglDisplay)) {
+                        Log.w(GlesRenderer.TAG, "eglTerminate failed")
+                    }
+                }
+            }
+        }
+
+        private val sharedAssetsCache = HashMap<String, SharedAssetsHolder>()
+        private val sharedAssetsCacheLock = Mutex()
+
+        internal fun getOrCreateSharedAssetsHolder(
+            renderer: Renderer
+        ): SharedAssetsHolder {
+            val key = renderer::class.java.name
+            synchronized(sharedAssetsCacheLock) {
+                sharedAssetsCache.computeIfAbsent(key) {
+                    SharedAssetsHolder()
+                }
+                val holder = sharedAssetsCache[key]!!
+                holder.refCount++
+                return holder
+            }
+        }
+
+        internal fun releaseSharedAssets(renderer: Renderer) {
+            val key = renderer::class.java.name
+            synchronized(sharedAssetsCacheLock) {
+                sharedAssetsCache[key]?.let {
+                    if (--it.refCount == 0) {
+                        it.sharedAssets?.onDestroy()
+                        it.onDestroy()
+                        sharedAssetsCache.remove(key)
+                    }
+                }
+            }
+        }
+    }
+
     init {
         surfaceHolder.addCallback(
             object : SurfaceHolder.Callback {
@@ -180,6 +245,15 @@ public sealed class Renderer @WorkerThread constructor(
             }
         }
 
+    internal var sharedAssetsHolder = getOrCreateSharedAssetsHolder(this)
+
+    /**
+     * The Renderer's [SharedAssets] returned by [createSharedAssets]. Note the default
+     * implementation of createAssets returns `null`.
+     */
+    public val sharedAssets: SharedAssets?
+        get() = sharedAssetsHolder.sharedAssets
+
     /**
      * Accessibility [ContentDescriptionLabel] for any rendered watch face elements other than the
      * time and [ComplicationSlot]s which are generated automatically.
@@ -191,16 +265,24 @@ public sealed class Renderer @WorkerThread constructor(
      */
     public var additionalContentDescriptionLabels:
         Collection<Pair<Int, ContentDescriptionLabel>> = emptyList()
-            set(value) {
-                field = value
-                for (pair in value) {
-                    require(pair.first >= 0) {
-                        "Each accessibility label index in additionalContentDescriptionLabels " +
-                            "must be >= 0"
-                    }
+        set(value) {
+            field = value
+            for (pair in value) {
+                require(pair.first >= 0) {
+                    "Each accessibility label index in additionalContentDescriptionLabels " +
+                        "must be >= 0"
                 }
-                watchFaceHostApi?.updateContentDescriptionLabels()
             }
+            watchFaceHostApi?.updateContentDescriptionLabels()
+        }
+
+    internal fun onDestroyInternal() {
+        try {
+            onDestroy()
+        } finally {
+            runBlocking { releaseSharedAssets(this@Renderer) }
+        }
+    }
 
     /** Called when the Renderer is destroyed. */
     @UiThread
@@ -308,7 +390,51 @@ public sealed class Renderer @WorkerThread constructor(
      * any subsequent calls to [renderInternal] or [takeScreenshot].
      */
     @UiThread
-    internal open suspend fun uiThreadInitInternal(uiThreadCoroutineScope: CoroutineScope) {}
+    internal abstract suspend fun uiThreadInitInternal(uiThreadCoroutineScope: CoroutineScope)
+
+    @WorkerThread
+    internal abstract suspend fun backgroundThreadInitInternal()
+
+    /**
+     * When editing multiple [WatchFaceService] instances and hence Renderers can exist concurrently
+     * (e.g. a headless instance and an interactive instance) and using [SharedAssets] allows memory
+     * to be saved by sharing immutable data (e.g. Bitmaps, shaders, etc...) between them.
+     *
+     * To take advantage of SharedAssets, override this method. The constructed SharedAssets are
+     * available to each instance of the renderer via [sharedAssets] (NB you'll have to cast this to
+     * your type). For OpenGL watch faces a context will have been created by the time this method
+     * is called.
+     *
+     * When all instances using SharedAssets have been closed, [SharedAssets.onDestroy] will be
+     * called.
+     *
+     * Note that while SharedAssets are constructed on a background thread, they'll typically be
+     * used on the main thread and subsequently destroyed there. The watch face library constructs
+     * shared GLES contexts to allow resource sharing between threads.
+     */
+    @WorkerThread
+    protected open suspend fun createSharedAssets(): SharedAssets? = null
+
+    /**
+     * Multiple [WatchFaceService] instances and hence Renderers can exist concurrently (e.g. a
+     * headless instance and an interactive instance) and using SharedAssets allows memory to be
+     * saved by sharing immutable data (e.g. Bitmaps and shaders) between them.
+     *
+     * Note SharedAssets will be constructed on a background thread, but (typically) used and
+     * released on the ui thread.
+     */
+    public interface SharedAssets {
+        /**
+         * Notification that any resources owned by SharedAssets should be released, called when no
+         * renderer instances are left.
+         */
+        @UiThread
+        public fun onDestroy()
+    }
+
+    public interface SharedAssetsFactory {
+        public fun create(): SharedAssets
+    }
 
     /**
      * Watch faces that require [Canvas] rendering should extend their [Renderer] from this class.
@@ -419,7 +545,14 @@ public sealed class Renderer @WorkerThread constructor(
          * consider using [androidx.wear.watchface.ListenableCanvasRenderer] instead.
          */
         @UiThread
-        public open suspend fun init() {}
+        public open suspend fun init() {
+        }
+
+        internal override suspend fun backgroundThreadInitInternal() {
+            if (sharedAssetsHolder.sharedAssets == null) {
+                sharedAssetsHolder.sharedAssets = createSharedAssets()
+            }
+        }
 
         /**
          * Sub-classes should override this to implement their watch face rendering logic which
@@ -495,8 +628,14 @@ public sealed class Renderer @WorkerThread constructor(
      * required.
      *
      * Two linked [EGLContext]s are created [eglBackgroundThreadContext] and [eglUiThreadContext]
-     * which are associated with background and UiThread respectively. OpenGL objects created on
-     * (e.g. shaders and textures) can be used on the other.
+     * which are associated with background and UiThread respectively and are shared by all
+     * instances of the renderer. OpenGL objects created on (e.g. shaders and textures) can be used
+     * on the other.
+     *
+     * Because there can be more than once instance when editing, to save memory its recommended to
+     * override [createSharedAssets] and load all static data (e.g. models, textures, shaders,
+     * etc...).  OpenGL objects created inside createSharedAssets will be available to all instances
+     * of the watch face on both threads.
      *
      * If you need to make any OpenGl calls outside of [render],
      * [onBackgroundThreadGlContextCreated] or [onUiThreadGlSurfaceCreated] then you must use either
@@ -544,8 +683,8 @@ public sealed class Renderer @WorkerThread constructor(
         interactiveDrawModeUpdateDelayMillis
     ) {
         /** @hide */
-        private companion object {
-            private const val TAG = "Gles2WatchFace"
+        internal companion object {
+            internal const val TAG = "Gles2WatchFace"
 
             private val glContextLock = Mutex()
         }
@@ -553,32 +692,59 @@ public sealed class Renderer @WorkerThread constructor(
         /** Exception thrown if a GL call fails */
         public class GlesException(message: String) : Exception(message)
 
-        /** The GlesRenderer's [EGLDisplay]. */
-        public var eglDisplay: EGLDisplay = EGL14.eglGetDisplay(EGL14.EGL_DEFAULT_DISPLAY).apply {
-            if (this == EGL14.EGL_NO_DISPLAY) {
-                throw GlesException("eglGetDisplay returned EGL_NO_DISPLAY")
-            }
-            // Initialize the display. The major and minor version numbers are passed back.
-            val version = IntArray(2)
-            if (!EGL14.eglInitialize(this, version, 0, version, 1)) {
-                throw GlesException("eglInitialize failed")
+        init {
+            if (!sharedAssetsHolder.eglDisplayInitialized()) {
+                sharedAssetsHolder.eglDisplay =
+                    EGL14.eglGetDisplay(EGL14.EGL_DEFAULT_DISPLAY).apply {
+                        if (this == EGL14.EGL_NO_DISPLAY) {
+                            throw GlesException("eglGetDisplay returned EGL_NO_DISPLAY")
+                        }
+                        // Initialize the display. The major and minor version numbers are passed
+                        // back.
+                        val version = IntArray(2)
+                        if (!EGL14.eglInitialize(this, version, 0, version, 1)) {
+                            throw GlesException("eglInitialize failed")
+                        }
+                    }
+
+                sharedAssetsHolder.eglConfig = chooseEglConfig(eglDisplay)
             }
         }
 
-        /** The GlesRenderer's [EGLConfig]. */
-        public var eglConfig: EGLConfig = chooseEglConfig(eglDisplay)
+        /**
+         * The GlesRenderer's [EGLDisplay].
+         * @throws UnsupportedOperationException setEglDisplay is unsupported.
+         */
+        public var eglDisplay: EGLDisplay
+            get() = sharedAssetsHolder.eglDisplay
+
+            @Deprecated("It's not intended for eglDisplay to be set")
+            set(@Suppress("UNUSED_PARAMETER") eglDisplay) {
+                throw UnsupportedOperationException()
+            }
+
+        /**
+         * The GlesRenderer's [EGLConfig].
+         * @throws UnsupportedOperationException setEglConfig is unsupported.
+         */
+        public var eglConfig: EGLConfig
+            get() = sharedAssetsHolder.eglConfig
+
+            @Deprecated("It's not intended for eglConfig to be set")
+            set(@Suppress("UNUSED_PARAMETER") eglConfig) {
+                throw UnsupportedOperationException()
+            }
 
         /** The GlesRenderer's background Thread [EGLContext]. */
-        @SuppressWarnings("SyntheticAccessor")
-        public lateinit var eglBackgroundThreadContext: EGLContext
-            private set
+        public val eglBackgroundThreadContext: EGLContext
+            get() = sharedAssetsHolder.eglBackgroundThreadContext
 
         /**
          * The GlesRenderer's UiThread [EGLContext]. Note this not available until after
          * [WatchFaceService.createWatchFace] has completed.
          */
-        public lateinit var eglUiThreadContext: EGLContext
-            private set
+        public val eglUiThreadContext: EGLContext
+            get() = sharedAssetsHolder.eglUiThreadContext
 
         // A 1x1 surface which is needed by EGL14.eglMakeCurrent.
         private val fakeBackgroundThreadSurface = EGL14.eglCreatePbufferSurface(
@@ -651,6 +817,7 @@ public sealed class Renderer @WorkerThread constructor(
                     0
                 )
             } else {
+                require(surfaceHolder.surface.isValid) { "A valid surfaceHolder is required. " }
                 EGL14.eglCreateWindowSurface(
                     eglDisplay,
                     eglConfig,
@@ -664,7 +831,6 @@ public sealed class Renderer @WorkerThread constructor(
             }
 
             runUiThreadGlCommands {
-                GLES20.glViewport(0, 0, width, height)
                 if (!calledOnGlContextCreated) {
                     calledOnGlContextCreated = true
                 }
@@ -678,17 +844,8 @@ public sealed class Renderer @WorkerThread constructor(
         override fun onDestroy() {
             if (this::eglSurface.isInitialized) {
                 if (!EGL14.eglDestroySurface(eglDisplay, eglSurface)) {
-                    Log.w(TAG, "eglDestroySurface failed")
+                    Log.w(GlesRenderer.TAG, "eglDestroySurface failed")
                 }
-            }
-            if (!EGL14.eglDestroyContext(eglDisplay, eglUiThreadContext)) {
-                Log.w(TAG, "eglDestroyContext failed")
-            }
-            if (!EGL14.eglDestroyContext(eglDisplay, eglBackgroundThreadContext)) {
-                Log.w(TAG, "eglDestroyContext failed")
-            }
-            if (!EGL14.eglTerminate(eglDisplay)) {
-                Log.w(TAG, "eglTerminate failed")
             }
         }
 
@@ -733,6 +890,12 @@ public sealed class Renderer @WorkerThread constructor(
                 }
 
                 try {
+                    GLES20.glViewport(
+                        0,
+                        0,
+                        surfaceHolder.surfaceFrame.width(),
+                        surfaceHolder.surfaceFrame.height()
+                    )
                     commands()
                 } finally {
                     EGL14.eglMakeCurrent(
@@ -751,24 +914,27 @@ public sealed class Renderer @WorkerThread constructor(
          *
          * @throws [GlesException] If any GL calls fail.
          */
-        @UiThread
+        @WorkerThread
         @Throws(GlesException::class)
-        internal suspend fun initBackgroundThreadOpenGlContext() =
+        internal override suspend fun backgroundThreadInitInternal() =
             TraceEvent("GlesRenderer.initBackgroundThreadOpenGlContext").use {
-                eglBackgroundThreadContext = EGL14.eglCreateContext(
-                    eglDisplay,
-                    eglConfig,
-                    EGL14.EGL_NO_CONTEXT,
-                    EGL_CONTEXT_ATTRIB_LIST,
-                    0
-                )
-                if (eglBackgroundThreadContext == EGL14.EGL_NO_CONTEXT) {
-                    throw RuntimeException("eglCreateContext failed")
-                }
+                if (!sharedAssetsHolder.eglBackgroundThreadContextInitialized()) {
+                    sharedAssetsHolder.eglBackgroundThreadContext = EGL14.eglCreateContext(
+                        eglDisplay,
+                        eglConfig,
+                        EGL14.EGL_NO_CONTEXT,
+                        EGL_CONTEXT_ATTRIB_LIST,
+                        0
+                    )
+                    if (sharedAssetsHolder.eglBackgroundThreadContext == EGL14.EGL_NO_CONTEXT) {
+                        throw RuntimeException("eglCreateContext failed")
+                    }
 
-                runBackgroundThreadGlCommands {
                     TraceEvent("GlesRenderer.onGlContextCreated").use {
-                        onBackgroundThreadGlContextCreated()
+                        runBackgroundThreadGlCommands {
+                            sharedAssetsHolder.sharedAssets = createSharedAssets()
+                            this@GlesRenderer.onBackgroundThreadGlContextCreated()
+                        }
                     }
                 }
             }
@@ -788,7 +954,7 @@ public sealed class Renderer @WorkerThread constructor(
          *
          * @throws [IllegalStateException] if the calls to [EGL14.eglMakeCurrent] fails
          */
-        public suspend fun runUiThreadGlCommands(commands: suspend() -> Unit) {
+        public suspend fun runUiThreadGlCommands(commands: suspend () -> Unit) {
             require(watchFaceHostApi!!.getUiThreadHandler().looper.isCurrentThread) {
                 "runUiThreadGlCommands must be called from the UiThread"
             }
@@ -808,6 +974,12 @@ public sealed class Renderer @WorkerThread constructor(
                 }
 
                 try {
+                    GLES20.glViewport(
+                        0,
+                        0,
+                        surfaceHolder.surfaceFrame.width(),
+                        surfaceHolder.surfaceFrame.height()
+                    )
                     commands()
                 } finally {
                     EGL14.eglMakeCurrent(
@@ -830,17 +1002,19 @@ public sealed class Renderer @WorkerThread constructor(
         @Throws(GlesException::class)
         internal override suspend fun uiThreadInitInternal(uiThreadCoroutineScope: CoroutineScope) =
             TraceEvent("GlesRenderer.initUiThreadOpenGlContext").use {
-                eglUiThreadContext = EGL14.eglCreateContext(
-                    eglDisplay,
-                    eglConfig,
-                    eglBackgroundThreadContext,
-                    intArrayOf(
-                        EGL14.EGL_CONTEXT_CLIENT_VERSION,
-                        2,
-                        EGL14.EGL_NONE
-                    ),
-                    0
-                )
+                if (!sharedAssetsHolder.eglUiThreadContextInitialized()) {
+                    sharedAssetsHolder.eglUiThreadContext = EGL14.eglCreateContext(
+                        eglDisplay,
+                        eglConfig,
+                        eglBackgroundThreadContext,
+                        intArrayOf(
+                            EGL14.EGL_CONTEXT_CLIENT_VERSION,
+                            2,
+                            EGL14.EGL_NONE
+                        ),
+                        0
+                    )
+                }
 
                 surfaceHolder.addCallback(object : SurfaceHolder.Callback {
                     @SuppressLint("SyntheticAccessor")
@@ -902,7 +1076,10 @@ public sealed class Renderer @WorkerThread constructor(
          * @param height height of surface in pixels
          */
         @UiThread
-        public open suspend fun onUiThreadGlSurfaceCreated(@Px width: Int, @Px height: Int) {
+        public open suspend fun onUiThreadGlSurfaceCreated(
+            @Px width: Int,
+            @Px height: Int
+        ) {
         }
 
         internal override fun renderInternal(
@@ -942,8 +1119,8 @@ public sealed class Renderer @WorkerThread constructor(
                         GLES20.GL_UNSIGNED_BYTE,
                         pixelBuf
                     )
-                    // The image is flipped when using read pixels because the first pixel in the OpenGL
-                    // buffer is in bottom left.
+                    // The image is flipped when using read pixels because the first pixel in the
+                    // OpenGL buffer is in bottom left.
                     verticalFlip(pixelBuf, width, height)
                     bitmap.copyPixelsFromBuffer(pixelBuf)
                 }
