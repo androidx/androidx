@@ -31,6 +31,9 @@
     <!-- Name of watchface style [CHAR LIMIT=20] -->
     <string name="green_style_name">Green Style</string>
 
+    <!-- Name of watchface style [CHAR LIMIT=20] -->
+    <string name="yellow_style_name">Yellow Style</string>
+
     <!-- Name of watchface style category for selecting the color theme [CHAR LIMIT=20] -->
     <string name="colors_style_setting">Colors</string>
 
@@ -45,6 +48,9 @@
 
     <!-- An option within the watch face color style theme settings [CHAR LIMIT=20] -->
     <string name="colors_style_blue">Blue</string>
+
+    <!-- An option within the watch face color style theme settings [CHAR LIMIT=20] -->
+    <string name="colors_style_yellow">Yellow</string>
 
     <!-- An option within the analog watch face to draw pips to mark each hour [CHAR LIMIT=20] -->
     <string name="watchface_pips_setting">Hour Pips</string>
