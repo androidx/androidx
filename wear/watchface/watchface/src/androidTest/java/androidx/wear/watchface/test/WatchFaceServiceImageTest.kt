@@ -404,7 +404,7 @@ public class WatchFaceServiceImageTest {
     }
 
     private fun setPendingWallpaperInteractiveWatchFaceInstance() {
-        InteractiveInstanceManager
+        val existingInstance = InteractiveInstanceManager
             .getExistingInstanceOrSetPendingWallpaperInteractiveWatchFaceInstance(
                 InteractiveInstanceManager.PendingWallpaperInteractiveWatchFaceInstance(
                     WallpaperInteractiveWatchFaceInstanceParams(
@@ -436,6 +436,7 @@ public class WatchFaceServiceImageTest {
                     }
                 )
             )
+        assertThat(existingInstance).isNull()
     }
 
     private fun sendComplications() {
@@ -902,5 +903,6 @@ public class WatchFaceServiceImageTest {
         )
 
         assertThat(ComplicationTapActivity.awaitIntent()).isNotNull()
+        interactiveWatchFaceInstance.release()
     }
 }
