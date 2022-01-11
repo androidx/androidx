@@ -200,6 +200,7 @@ package androidx.appsearch.app {
 
   public interface Features {
     method public boolean isFeatureSupported(String);
+    field public static final String GET_SCHEMA_RESPONSE_VISIBILITY = "GET_SCHEMA_RESPONSE_VISIBILITY";
     field public static final String GLOBAL_SEARCH_SESSION_ADD_REMOVE_OBSERVER = "GLOBAL_SEARCH_SESSION_ADD_REMOVE_OBSERVER";
     field public static final String GLOBAL_SEARCH_SESSION_GET_SCHEMA = "GLOBAL_SEARCH_SESSION_GET_SCHEMA";
     field public static final String SEARCH_RESULT_MATCH_INFO_SUBMATCH = "SEARCH_RESULT_MATCH_INFO_SUBMATCH";
@@ -267,6 +268,8 @@ package androidx.appsearch.app {
   }
 
   public final class GetSchemaResponse {
+    method @RequiresFeature(enforcement="androidx.appsearch.app.Features#isFeatureSupported", name=androidx.appsearch.app.Features.GET_SCHEMA_RESPONSE_VISIBILITY) public java.util.Set<java.lang.String!> getSchemaTypesNotDisplayedBySystem();
+    method @RequiresFeature(enforcement="androidx.appsearch.app.Features#isFeatureSupported", name=androidx.appsearch.app.Features.GET_SCHEMA_RESPONSE_VISIBILITY) public java.util.Map<java.lang.String!,java.util.Set<androidx.appsearch.app.PackageIdentifier!>!> getSchemaTypesVisibleToPackages();
     method public java.util.Set<androidx.appsearch.app.AppSearchSchema!> getSchemas();
     method @IntRange(from=0) public int getVersion();
   }
@@ -274,7 +277,9 @@ package androidx.appsearch.app {
   public static final class GetSchemaResponse.Builder {
     ctor public GetSchemaResponse.Builder();
     method public androidx.appsearch.app.GetSchemaResponse.Builder addSchema(androidx.appsearch.app.AppSearchSchema);
+    method public androidx.appsearch.app.GetSchemaResponse.Builder addSchemaTypeNotDisplayedBySystem(String);
     method public androidx.appsearch.app.GetSchemaResponse build();
+    method public androidx.appsearch.app.GetSchemaResponse.Builder setSchemaTypeVisibleToPackages(String, java.util.Set<androidx.appsearch.app.PackageIdentifier!>);
     method public androidx.appsearch.app.GetSchemaResponse.Builder setVersion(@IntRange(from=0) int);
   }
 

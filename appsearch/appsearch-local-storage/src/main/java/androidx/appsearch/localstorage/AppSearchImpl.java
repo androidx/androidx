@@ -16,6 +16,7 @@
 
 package androidx.appsearch.localstorage;
 
+import static androidx.appsearch.app.AppSearchResult.RESULT_INTERNAL_ERROR;
 import static androidx.appsearch.app.AppSearchResult.RESULT_SECURITY_ERROR;
 import static androidx.appsearch.localstorage.util.PrefixUtil.addPrefixToDocument;
 import static androidx.appsearch.localstorage.util.PrefixUtil.createPrefix;
@@ -39,6 +40,7 @@ import androidx.appsearch.app.AppSearchSchema;
 import androidx.appsearch.app.GenericDocument;
 import androidx.appsearch.app.GetByDocumentIdRequest;
 import androidx.appsearch.app.GetSchemaResponse;
+import androidx.appsearch.app.PackageIdentifier;
 import androidx.appsearch.app.SearchResultPage;
 import androidx.appsearch.app.SearchSpec;
 import androidx.appsearch.app.SetSchemaResponse;
@@ -219,9 +221,13 @@ public final class AppSearchImpl implements Closeable {
      * avoid call it before we actually create it.
      */
     @Nullable
-    private final VisibilityStore mVisibilityStore;
+    @VisibleForTesting
+    @GuardedBy("mReadWriteLock")
+    final VisibilityStore mVisibilityStoreLocked;
+
     @Nullable
-    private final VisibilityChecker mVisibilityChecker;
+    @GuardedBy("mReadWriteLock")
+    private final VisibilityChecker mVisibilityCheckerLocked;
 
     /**
      * The counter to check when to call {@link #checkForOptimize}. The
@@ -276,7 +282,7 @@ public final class AppSearchImpl implements Closeable {
         Preconditions.checkNotNull(icingDir);
         mLimitConfig = Preconditions.checkNotNull(limitConfig);
         mOptimizeStrategy = Preconditions.checkNotNull(optimizeStrategy);
-        mVisibilityChecker = visibilityChecker;
+        mVisibilityCheckerLocked = visibilityChecker;
 
         mReadWriteLock.writeLock().lock();
         try {
@@ -376,7 +382,7 @@ public final class AppSearchImpl implements Closeable {
             }
 
             long prepareVisibilityStoreLatencyStartMillis = SystemClock.elapsedRealtime();
-            mVisibilityStore = new VisibilityStore(this);
+            mVisibilityStoreLocked = new VisibilityStore(this);
             long prepareVisibilityStoreLatencyEndMillis = SystemClock.elapsedRealtime();
             if (initStatsBuilder != null) {
                 initStatsBuilder.setPrepareVisibilityStoreLatencyMillis((int)
@@ -520,7 +526,7 @@ public final class AppSearchImpl implements Closeable {
             }
             // Since the constructor of VisibilityStore will set schema. Avoid call visibility
             // store before we have already created it.
-            if (mVisibilityStore != null) {
+            if (mVisibilityStoreLocked != null) {
                 // Add prefix to all visibility documents.
                 List<VisibilityDocument> prefixedVisibilityDocuments =
                         new ArrayList<>(visibilityDocuments.size());
@@ -540,15 +546,15 @@ public final class AppSearchImpl implements Closeable {
                             unPrefixedDocument.toBuilder()
                                     .setId(prefixedSchemaType)
                                     .build()));
-                    // This schema is not all-default settings. We should keep it.
+                    // This schema has visibility settings. We should keep it from the removal list.
                     deprecatedVisibilityDocuments.remove(prefixedSchemaType);
                 }
                 // Now deprecatedVisibilityDocuments contains those existing schemas that has
                 // all-default visibility settings, add deleted schemas. That's all we need to
                 // remove.
                 deprecatedVisibilityDocuments.addAll(rewrittenSchemaResults.mDeletedPrefixedTypes);
-                mVisibilityStore.removeVisibility(deprecatedVisibilityDocuments);
-                mVisibilityStore.setVisibility(prefixedVisibilityDocuments);
+                mVisibilityStoreLocked.removeVisibility(deprecatedVisibilityDocuments);
+                mVisibilityStoreLocked.setVisibility(prefixedVisibilityDocuments);
             }
             return SetSchemaResponseToProtoConverter
                     .toSetSchemaResponse(setSchemaResultProto, prefix);
@@ -575,15 +581,16 @@ public final class AppSearchImpl implements Closeable {
             throwIfClosedLocked();
 
             SchemaProto fullSchema = getSchemaProtoLocked();
-
             String prefix = createPrefix(packageName, databaseName);
             GetSchemaResponse.Builder responseBuilder = new GetSchemaResponse.Builder();
             for (int i = 0; i < fullSchema.getTypesCount(); i++) {
                 // Check that this type belongs to the requested app and that the caller has
                 // access to it.
                 SchemaTypeConfigProto typeConfig = fullSchema.getTypes(i);
-                String typePrefix = getPrefix(typeConfig.getSchemaType());
+                String prefixedSchemaType = typeConfig.getSchemaType();
+                String typePrefix = getPrefix(prefixedSchemaType);
                 String typeName = typeConfig.getSchemaType().substring(typePrefix.length());
+                // TODO(b/215624105) use VisibilityChecker to check the access.
                 if (!prefix.equals(typePrefix) || !hasAccessToType(callerPackageName, packageName,
                         databaseName, typeName)) {
                     continue;
@@ -599,8 +606,37 @@ public final class AppSearchImpl implements Closeable {
                 // than read from a schema.
                 responseBuilder.setVersion(typeConfig.getVersion());
                 responseBuilder.addSchema(schema);
+
+                // Populate visibility info. Since the constructor of VisibilityStore will get
+                // schema. Avoid call visibility store before we have already created it.
+                if (mVisibilityStoreLocked != null) {
+                    VisibilityDocument visibilityDocument =
+                            mVisibilityStoreLocked.getVisibility(prefixedSchemaType);
+                    if (visibilityDocument != null) {
+                        if (visibilityDocument.isNotDisplayedBySystem()) {
+                            responseBuilder
+                                    .addSchemaTypeNotDisplayedBySystem(typeName);
+                        }
+                        String[] packageNames = visibilityDocument.getPackageNames();
+                        byte[][] sha256Certs = visibilityDocument.getSha256Certs();
+                        if (packageNames.length != sha256Certs.length) {
+                            throw new AppSearchException(RESULT_INTERNAL_ERROR,
+                                    "The length of package names and sha256Crets are different!");
+                        }
+                        if (packageNames.length != 0) {
+                            Set<PackageIdentifier> packageIdentifier = new ArraySet<>();
+                            for (int j = 0; j < packageNames.length; j++) {
+                                packageIdentifier.add(new PackageIdentifier(
+                                        packageNames[j], sha256Certs[j]));
+                            }
+                            responseBuilder.setSchemaTypeVisibleToPackages(typeName,
+                                    packageIdentifier);
+                        }
+                    }
+                }
             }
             return responseBuilder.build();
+
         } finally {
             mReadWriteLock.readLock().unlock();
         }
@@ -796,7 +832,6 @@ public final class AppSearchImpl implements Closeable {
      * @param id                The ID of the document to get.
      * @param typePropertyPaths A map of schema type to a list of property paths to return in the
      *                          result.
-     * @param visibilityStore   An object that determines if an application may access a schema
      * @param callerUid         The ID of the caller application
      * @param callerHasSystemAccess
      *                          A boolean signifying if the caller has system access
@@ -809,7 +844,6 @@ public final class AppSearchImpl implements Closeable {
             @NonNull String namespace,
             @NonNull String id,
             @NonNull Map<String, List<String>> typePropertyPaths,
-            @NonNull VisibilityStore visibilityStore,
             int callerUid,
             boolean callerHasSystemAccess) throws AppSearchException {
         mReadWriteLock.readLock().lock();
@@ -822,8 +856,10 @@ public final class AppSearchImpl implements Closeable {
                 documentProto = getDocumentProtoByIdLocked(packageName, databaseName,
                         namespace, id, typePropertyPaths);
 
-                if (!visibilityStore.isSchemaSearchableByCaller(packageName, databaseName,
-                        documentProto.getSchema(), callerUid, callerHasSystemAccess)) {
+                if (mVisibilityCheckerLocked == null
+                        || !mVisibilityCheckerLocked.isSchemaSearchableByCaller(packageName,
+                        documentProto.getSchema(), callerUid, callerHasSystemAccess,
+                        mVisibilityStoreLocked)) {
                     throw new AppSearchException(AppSearchResult.RESULT_NOT_FOUND);
                 }
             } catch (AppSearchException e) {
@@ -1064,7 +1100,8 @@ public final class AppSearchImpl implements Closeable {
                             mSchemaMapLocked);
             // Remove those inaccessible schemas.
             searchSpecToProtoConverter.removeInaccessibleSchemaFilter(callerPackageName,
-                    callerUid, callerHasSystemAccess, mVisibilityStore, mVisibilityChecker);
+                    callerUid, callerHasSystemAccess, mVisibilityStoreLocked,
+                    mVisibilityCheckerLocked);
             if (searchSpecToProtoConverter.isNothingToSearch()) {
                 // there is nothing to search over given their search filters, so we can return an
                 // empty SearchResult and skip sending request to Icing.
@@ -2299,11 +2336,11 @@ public final class AppSearchImpl implements Closeable {
     public List<String> getAllPrefixedSchemaTypes() {
         mReadWriteLock.readLock().lock();
         try {
-            List<String> cachedSchemaTypes = new ArrayList<>();
+            List<String> cachedPrefixedSchemaTypes = new ArrayList<>();
             for (Map<String, SchemaTypeConfigProto> value : mSchemaMapLocked.values()) {
-                cachedSchemaTypes.addAll(value.keySet());
+                cachedPrefixedSchemaTypes.addAll(value.keySet());
             }
-            return cachedSchemaTypes;
+            return cachedPrefixedSchemaTypes;
         } finally {
             mReadWriteLock.readLock().unlock();
         }

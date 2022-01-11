@@ -20,6 +20,7 @@ import static androidx.appsearch.app.AppSearchResult.RESULT_NOT_FOUND;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.appsearch.app.AppSearchResult;
 import androidx.appsearch.app.AppSearchSchema;
@@ -60,7 +61,7 @@ public class VisibilityStore {
      * These cannot have any of the special characters used by AppSearchImpl (e.g. {@code
      * AppSearchImpl#PACKAGE_DELIMITER} or {@code AppSearchImpl#DATABASE_DELIMITER}.
      */
-    static final String VISIBILITY_PACKAGE_NAME = "VS#Pkg";
+    public static final String VISIBILITY_PACKAGE_NAME = "VS#Pkg";
 
     static final String VISIBILITY_DATABASE_NAME = "VS#Db";
 
@@ -76,7 +77,7 @@ public class VisibilityStore {
             throws AppSearchException {
         mAppSearchImpl = Preconditions.checkNotNull(appSearchImpl);
 
-        GetSchemaResponse getSchemaResponse = mAppSearchImpl.getSchema(
+        GetSchemaResponse getSchemaResponse = mAppSearchImpl.getSchema(VISIBILITY_PACKAGE_NAME,
                 VISIBILITY_PACKAGE_NAME, VISIBILITY_DATABASE_NAME);
         switch (getSchemaResponse.getVersion()) {
             case VisibilityDocument.SCHEMA_VERSION_DOC_PER_PACKAGE:
@@ -146,6 +147,12 @@ public class VisibilityStore {
                 }
             }
         }
+    }
+
+    /** Gets the {@link VisibilityDocument} for the given prefixed schema type.     */
+    @Nullable
+    public VisibilityDocument getVisibility(@NonNull String prefixedSchemaType) {
+        return mVisibilityDocumentMap.get(prefixedSchemaType);
     }
 
     /**
