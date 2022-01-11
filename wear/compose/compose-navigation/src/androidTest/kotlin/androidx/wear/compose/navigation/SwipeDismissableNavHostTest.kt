@@ -21,6 +21,7 @@ import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
 import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -40,6 +41,7 @@ import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeRight
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.testing.TestLifecycleOwner
+import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
 import androidx.wear.compose.material.Button
 import androidx.wear.compose.material.CompactChip
@@ -256,6 +258,24 @@ class SwipeDismissableNavHostTest {
         rule.runOnIdle {
             assertThat(navController.currentBackStackEntry?.lifecycle?.currentState)
                 .isEqualTo(Lifecycle.State.RESUMED)
+        }
+    }
+
+    @Test
+    fun provides_access_to_current_backstack_entry_state() {
+        lateinit var navController: NavHostController
+        lateinit var backStackEntry: State<NavBackStackEntry?>
+        rule.setContentWithTheme {
+            navController = rememberSwipeDismissableNavController()
+            backStackEntry = navController.currentBackStackEntryAsState()
+            SwipeDismissWithNavigation(navController)
+        }
+
+        rule.onNodeWithText(START).performClick()
+
+        rule.runOnIdle {
+            assertThat(backStackEntry.value?.destination?.route)
+                .isEqualTo(NEXT)
         }
     }
 
