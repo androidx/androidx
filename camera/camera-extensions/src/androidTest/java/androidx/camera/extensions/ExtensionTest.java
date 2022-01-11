@@ -94,8 +94,8 @@ public class ExtensionTest {
 
     @Before
     public void setUp() throws Exception {
-        assumeTrue(CameraUtil.deviceHasCamera());
-        assumeTrue(CameraUtil.hasCameraWithLensFacing(mLensFacing));
+        assumeTrue(ExtensionsTestUtil.isTargetDeviceAvailableForExtensions(mLensFacing,
+                mExtensionMode));
 
         mProcessCameraProvider = ProcessCameraProvider.getInstance(mContext).get(10000,
                 TimeUnit.MILLISECONDS);

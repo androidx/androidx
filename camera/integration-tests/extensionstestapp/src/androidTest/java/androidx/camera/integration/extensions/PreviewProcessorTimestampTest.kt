@@ -143,10 +143,8 @@ class PreviewProcessorTimestampTest(
 
     @Before
     fun setUp(): Unit = runBlocking {
-        assumeFalse(
-            Build.BRAND.equals("Samsung", ignoreCase = true) ||
-                Build.MODEL.contains("Cuttlefish")
-        )
+        assumeTrue(ExtensionsTestUtil.isTargetDeviceAvailableForExtensions())
+        assumeFalse(Build.BRAND.equals("Samsung", ignoreCase = true))
         cameraProvider = ProcessCameraProvider.getInstance(context)[10000, TimeUnit.MILLISECONDS]
         extensionsManager = ExtensionsManager.getInstanceAsync(
             context,
