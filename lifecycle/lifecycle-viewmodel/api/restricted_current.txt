@@ -84,11 +84,11 @@ package androidx.lifecycle {
 
 package androidx.lifecycle.viewmodel {
 
-  public interface CreationExtras {
-    method public operator <T> T? get(androidx.lifecycle.viewmodel.CreationExtras.Key<T> key);
+  public abstract sealed class CreationExtras {
+    method public abstract operator <T> T? get(androidx.lifecycle.viewmodel.CreationExtras.Key<T> key);
   }
 
-  public static final class CreationExtras.Empty implements androidx.lifecycle.viewmodel.CreationExtras {
+  public static final class CreationExtras.Empty extends androidx.lifecycle.viewmodel.CreationExtras {
     method public <T> T? get(androidx.lifecycle.viewmodel.CreationExtras.Key<T> key);
     field public static final androidx.lifecycle.viewmodel.CreationExtras.Empty INSTANCE;
   }
@@ -96,8 +96,8 @@ package androidx.lifecycle.viewmodel {
   public static interface CreationExtras.Key<T> {
   }
 
-  public final class MutableCreationExtras implements androidx.lifecycle.viewmodel.CreationExtras {
-    ctor public MutableCreationExtras();
+  public final class MutableCreationExtras extends androidx.lifecycle.viewmodel.CreationExtras {
+    ctor public MutableCreationExtras(optional androidx.lifecycle.viewmodel.CreationExtras initialExtras);
     method public <T> T? get(androidx.lifecycle.viewmodel.CreationExtras.Key<T> key);
     method public operator <T> void set(androidx.lifecycle.viewmodel.CreationExtras.Key<T> key, T? t);
   }

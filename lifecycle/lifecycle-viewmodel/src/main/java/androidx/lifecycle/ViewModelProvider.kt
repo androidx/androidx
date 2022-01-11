@@ -22,7 +22,6 @@ import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.DE
 import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.defaultFactory
 import androidx.lifecycle.viewmodel.CreationExtras.Key
 import androidx.lifecycle.ViewModelProvider.NewInstanceFactory.Companion.VIEW_MODEL_KEY
-import androidx.lifecycle.viewmodel.CombinedCreationExtras
 import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.MutableCreationExtras
 import java.lang.IllegalArgumentException
@@ -164,11 +163,11 @@ constructor(
                 // TODO: log a warning.
             }
         }
-        val extras = MutableCreationExtras()
+        val extras = MutableCreationExtras(defaultCreationExtras)
         extras[VIEW_MODEL_KEY] = key
         return factory.create(
             modelClass,
-            CombinedCreationExtras(extras, defaultCreationExtras)
+            extras
         ).also { store.put(key, it) }
     }
 
