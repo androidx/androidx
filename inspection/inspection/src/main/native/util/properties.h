@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 The Android Open Source Project
+ * Copyright (C) 2022 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,23 +14,16 @@
  * limitations under the License.
  */
 
-package androidx.inspection
+#ifndef PROPERTIES_H_
+#define PROPERTIES_H_
+#include <string>
 
-import com.google.common.truth.Truth.assertThat
-import org.junit.Test
-import org.junit.runner.RunWith
-import org.junit.runners.JUnit4
+using std::string;
 
-@RunWith(JUnit4::class)
-class InspectorTest {
+namespace androidx_inspection {
 
-    @Test
-    fun dummyTest() {
-        val connection = object : Connection() {}
-        val value = object : Inspector(connection) {
-            override fun onReceiveCommand(data: ByteArray, callback: CommandCallback) {
-            }
-        }
-        assertThat(value).isNotNull()
-    }
-}
+extern string GetProperty(const string &key, const string &default_value);
+
+}  // namespace androidx_inspection
+
+#endif  // PROPERTIES_H_
