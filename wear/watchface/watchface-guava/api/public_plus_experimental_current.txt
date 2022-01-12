@@ -2,6 +2,7 @@
 package androidx.wear.watchface {
 
   public abstract class ListenableCanvasRenderer extends androidx.wear.watchface.Renderer.CanvasRenderer {
+    ctor public ListenableCanvasRenderer(android.view.SurfaceHolder surfaceHolder, androidx.wear.watchface.style.CurrentUserStyleRepository currentUserStyleRepository, androidx.wear.watchface.WatchState watchState, @androidx.wear.watchface.CanvasType int canvasType, @IntRange(from=0, to=60000) long interactiveDrawModeUpdateDelayMillis, optional boolean clearWithBackgroundTintBeforeRenderingHighlightLayer);
     ctor public ListenableCanvasRenderer(android.view.SurfaceHolder surfaceHolder, androidx.wear.watchface.style.CurrentUserStyleRepository currentUserStyleRepository, androidx.wear.watchface.WatchState watchState, @androidx.wear.watchface.CanvasType int canvasType, @IntRange(from=0, to=60000) long interactiveDrawModeUpdateDelayMillis);
     method public suspend Object? init(kotlin.coroutines.Continuation<? super kotlin.Unit> p);
     method @UiThread public com.google.common.util.concurrent.ListenableFuture<kotlin.Unit> initFuture();

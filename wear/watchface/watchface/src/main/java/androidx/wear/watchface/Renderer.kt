@@ -459,14 +459,18 @@ public sealed class Renderer @WorkerThread constructor(
      * possible for better battery life. Variable frame rates can also help preserve battery life,
      * e.g. if a watch face has a short animation once per second it can adjust the framerate
      * inorder to sleep when not animating.
+     * @param clearWithBackgroundTintBeforeRenderingHighlightLayer Whether the [Canvas] is cleared
+     * with [RenderParameters.HighlightLayer.backgroundTint] before [renderHighlightLayer] is
+     * called. Defaults to `false`.
      */
-    public abstract class CanvasRenderer @WorkerThread constructor(
+    public abstract class CanvasRenderer @WorkerThread @JvmOverloads constructor(
         surfaceHolder: SurfaceHolder,
         currentUserStyleRepository: CurrentUserStyleRepository,
         watchState: WatchState,
         @CanvasType private val canvasType: Int,
         @IntRange(from = 0, to = 60000)
-        interactiveDrawModeUpdateDelayMillis: Long
+        interactiveDrawModeUpdateDelayMillis: Long,
+        val clearWithBackgroundTintBeforeRenderingHighlightLayer: Boolean = false
     ) : Renderer(
         surfaceHolder,
         currentUserStyleRepository,
@@ -516,20 +520,29 @@ public sealed class Renderer @WorkerThread constructor(
                 render(canvas, screenBounds, zonedDateTime)
 
                 // Render and composite the HighlightLayer
-                if (renderParameters.highlightLayer != null) {
-                    val highlightLayer = Bitmap.createBitmap(
+                val highlightLayer = renderParameters.highlightLayer
+                if (highlightLayer != null) {
+                    val highlightLayerBitmap = Bitmap.createBitmap(
                         screenBounds.width(),
                         screenBounds.height(),
                         Bitmap.Config.ARGB_8888
                     )
-                    renderHighlightLayer(Canvas(highlightLayer), screenBounds, zonedDateTime)
-                    canvas.drawBitmap(highlightLayer, 0f, 0f, HIGHLIGHT_LAYER_COMPOSITE_PAINT)
-                    highlightLayer.recycle()
+                    val highlightCanvas = Canvas(highlightLayerBitmap)
+                    if (clearWithBackgroundTintBeforeRenderingHighlightLayer) {
+                        highlightCanvas.drawColor(highlightLayer.backgroundTint)
+                    }
+                    renderHighlightLayer(highlightCanvas, screenBounds, zonedDateTime)
+                    canvas.drawBitmap(highlightLayerBitmap, 0f, 0f, HIGHLIGHT_LAYER_COMPOSITE_PAINT)
+                    highlightLayerBitmap.recycle()
                 }
             } else {
-                require(renderParameters.highlightLayer != null) {
+                val highlightLayer = renderParameters.highlightLayer
+                require(highlightLayer != null) {
                     "We don't support empty renderParameters.watchFaceWatchFaceLayers without a " +
                         "non-null renderParameters.highlightLayer"
+                }
+                if (clearWithBackgroundTintBeforeRenderingHighlightLayer) {
+                    canvas.drawColor(highlightLayer.backgroundTint)
                 }
                 renderHighlightLayer(canvas, screenBounds, zonedDateTime)
             }
@@ -588,6 +601,11 @@ public sealed class Renderer @WorkerThread constructor(
          * will be composited as needed on top of the results of [render]. For correct behavior this
          * function must use the supplied [ZonedDateTime] in favor of any other ways of getting the
          * time.
+         *
+         * Note if [clearWithBackgroundTintBeforeRenderingHighlightLayer] is `true` then [canvas]
+         * will cleared with [RenderParameters.HighlightLayer.backgroundTint] before
+         * renderHighlightLayer is called. Otherwise it is up to the overridden function to clear
+         * the Canvas if necessary.
          *
          * @param canvas The [Canvas] to render into. Don't assume this is always the canvas from
          * the [SurfaceHolder] backing the display

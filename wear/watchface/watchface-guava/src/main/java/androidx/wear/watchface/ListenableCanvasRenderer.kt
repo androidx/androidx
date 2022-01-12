@@ -29,19 +29,21 @@ import kotlin.coroutines.resume
  * [ListenableFuture]-based compatibility wrapper around [Renderer.CanvasRenderer]'s suspending
  * methods.
  */
-public abstract class ListenableCanvasRenderer(
+public abstract class ListenableCanvasRenderer @JvmOverloads constructor(
     surfaceHolder: SurfaceHolder,
     currentUserStyleRepository: CurrentUserStyleRepository,
     watchState: WatchState,
     @CanvasType private val canvasType: Int,
     @IntRange(from = 0, to = 60000)
-    interactiveDrawModeUpdateDelayMillis: Long
+    interactiveDrawModeUpdateDelayMillis: Long,
+    clearWithBackgroundTintBeforeRenderingHighlightLayer: Boolean = false
 ) : Renderer.CanvasRenderer(
     surfaceHolder,
     currentUserStyleRepository,
     watchState,
     canvasType,
-    interactiveDrawModeUpdateDelayMillis
+    interactiveDrawModeUpdateDelayMillis,
+    clearWithBackgroundTintBeforeRenderingHighlightLayer
 ) {
     /**
      * Perform UiThread specific initialization.  Will be called once during initialization
