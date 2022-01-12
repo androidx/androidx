@@ -50,7 +50,6 @@ import org.junit.After
 import org.junit.Assume.assumeFalse
 import org.junit.Assume.assumeTrue
 import org.junit.Before
-import org.junit.ClassRule
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
@@ -68,12 +67,11 @@ import java.util.concurrent.TimeUnit
 @SdkSuppress(minSdkVersion = 21)
 class VideoCaptureTest {
     companion object {
-        @ClassRule
-        @JvmField
-        val useRecordingResource: TestRule = CameraUtil.checkVideoRecordingResource()
-
         private const val TAG = "VideoCaptureTest"
     }
+
+    @get:Rule
+    val useRecordingResource = CameraUtil.checkVideoRecordingResource()
 
     @get:Rule
     val useCamera: TestRule = CameraUtil.grantCameraPermissionAndPreTest()
