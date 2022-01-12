@@ -55,12 +55,10 @@ package androidx.wear.watchface.complications.data {
 
   public final class EmptyComplicationData extends androidx.wear.watchface.complications.data.ComplicationData {
     ctor public EmptyComplicationData();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public android.support.wearable.complications.ComplicationData asWireComplicationData();
     field public static final androidx.wear.watchface.complications.data.ComplicationType TYPE;
   }
 
   public final class LongTextComplicationData extends androidx.wear.watchface.complications.data.ComplicationData {
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public android.support.wearable.complications.ComplicationData asWireComplicationData();
     method public androidx.wear.watchface.complications.data.ComplicationText? getContentDescription();
     method public androidx.wear.watchface.complications.data.MonochromaticImage? getMonochromaticImage();
     method public androidx.wear.watchface.complications.data.SmallImage? getSmallImage();
@@ -98,7 +96,6 @@ package androidx.wear.watchface.complications.data {
   }
 
   public final class MonochromaticImageComplicationData extends androidx.wear.watchface.complications.data.ComplicationData {
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public android.support.wearable.complications.ComplicationData asWireComplicationData();
     method public androidx.wear.watchface.complications.data.ComplicationText? getContentDescription();
     method public androidx.wear.watchface.complications.data.MonochromaticImage getMonochromaticImage();
     property public final androidx.wear.watchface.complications.data.ComplicationText? contentDescription;
@@ -115,12 +112,10 @@ package androidx.wear.watchface.complications.data {
 
   public final class NoDataComplicationData extends androidx.wear.watchface.complications.data.ComplicationData {
     ctor public NoDataComplicationData();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public android.support.wearable.complications.ComplicationData asWireComplicationData();
     field public static final androidx.wear.watchface.complications.data.ComplicationType TYPE;
   }
 
   public final class NoPermissionComplicationData extends androidx.wear.watchface.complications.data.ComplicationData {
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public android.support.wearable.complications.ComplicationData asWireComplicationData();
     method public androidx.wear.watchface.complications.data.MonochromaticImage? getMonochromaticImage();
     method public androidx.wear.watchface.complications.data.ComplicationText? getText();
     method public androidx.wear.watchface.complications.data.ComplicationText? getTitle();
@@ -140,12 +135,10 @@ package androidx.wear.watchface.complications.data {
 
   public final class NotConfiguredComplicationData extends androidx.wear.watchface.complications.data.ComplicationData {
     ctor public NotConfiguredComplicationData();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public android.support.wearable.complications.ComplicationData asWireComplicationData();
     field public static final androidx.wear.watchface.complications.data.ComplicationType TYPE;
   }
 
   public final class PhotoImageComplicationData extends androidx.wear.watchface.complications.data.ComplicationData {
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public android.support.wearable.complications.ComplicationData asWireComplicationData();
     method public androidx.wear.watchface.complications.data.ComplicationText? getContentDescription();
     method public android.graphics.drawable.Icon getPhotoImage();
     property public final androidx.wear.watchface.complications.data.ComplicationText? contentDescription;
@@ -166,7 +159,6 @@ package androidx.wear.watchface.complications.data {
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.SUBCLASSES) public android.support.wearable.complications.TimeDependentText getTimeDependentText();
     method public boolean isAlwaysEmpty();
     method public boolean returnsSameText(java.time.Instant firstInstant, java.time.Instant secondInstant);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public android.support.wearable.complications.ComplicationText toWireComplicationText();
   }
 
   public static final class PlainComplicationText.Builder {
@@ -175,7 +167,6 @@ package androidx.wear.watchface.complications.data {
   }
 
   public final class RangedValueComplicationData extends androidx.wear.watchface.complications.data.ComplicationData {
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public android.support.wearable.complications.ComplicationData asWireComplicationData();
     method public androidx.wear.watchface.complications.data.ComplicationText? getContentDescription();
     method public float getMax();
     method public float getMin();
@@ -204,7 +195,6 @@ package androidx.wear.watchface.complications.data {
   }
 
   public final class ShortTextComplicationData extends androidx.wear.watchface.complications.data.ComplicationData {
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public android.support.wearable.complications.ComplicationData asWireComplicationData();
     method public androidx.wear.watchface.complications.data.ComplicationText? getContentDescription();
     method public androidx.wear.watchface.complications.data.MonochromaticImage? getMonochromaticImage();
     method public androidx.wear.watchface.complications.data.ComplicationText getText();
@@ -242,7 +232,6 @@ package androidx.wear.watchface.complications.data {
   }
 
   public final class SmallImageComplicationData extends androidx.wear.watchface.complications.data.ComplicationData {
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public android.support.wearable.complications.ComplicationData asWireComplicationData();
     method public androidx.wear.watchface.complications.data.ComplicationText? getContentDescription();
     method public androidx.wear.watchface.complications.data.SmallImage getSmallImage();
     property public final androidx.wear.watchface.complications.data.ComplicationText? contentDescription;
@@ -272,7 +261,6 @@ package androidx.wear.watchface.complications.data {
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.SUBCLASSES) public android.support.wearable.complications.TimeDependentText getTimeDependentText();
     method public boolean isAlwaysEmpty();
     method public boolean returnsSameText(java.time.Instant firstInstant, java.time.Instant secondInstant);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public android.support.wearable.complications.ComplicationText toWireComplicationText();
   }
 
   public static final class TimeDifferenceComplicationText.Builder {
@@ -298,7 +286,6 @@ package androidx.wear.watchface.complications.data {
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.SUBCLASSES) public android.support.wearable.complications.TimeDependentText getTimeDependentText();
     method public boolean isAlwaysEmpty();
     method public boolean returnsSameText(java.time.Instant firstInstant, java.time.Instant secondInstant);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public android.support.wearable.complications.ComplicationText toWireComplicationText();
   }
 
   public static final class TimeFormatComplicationText.Builder {
