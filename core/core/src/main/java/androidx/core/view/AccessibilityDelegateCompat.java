@@ -355,7 +355,7 @@ public class AccessibilityDelegateCompat {
      *      View#performAccessibilityAction(int, Bundle)
      */
     public boolean performAccessibilityAction(@NonNull View host, int action,
-            @NonNull Bundle args) {
+            @Nullable Bundle args) {
         boolean success = false;
         List<AccessibilityActionCompat> actions = getActionList(host);
         for (int i = 0; i < actions.size(); i++) {
@@ -368,7 +368,7 @@ public class AccessibilityDelegateCompat {
         if (!success && Build.VERSION.SDK_INT >= 16) {
             success = Api16Impl.performAccessibilityAction(mOriginalDelegate, host, action, args);
         }
-        if (!success && action == R.id.accessibility_action_clickable_span) {
+        if (!success && action == R.id.accessibility_action_clickable_span && args != null) {
             success = performClickableSpanAction(
                     args.getInt(AccessibilityClickableSpanCompat.SPAN_ID, -1), host);
         }
