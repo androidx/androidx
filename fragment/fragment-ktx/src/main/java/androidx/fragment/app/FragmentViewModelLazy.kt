@@ -17,6 +17,7 @@
 package androidx.fragment.app
 
 import androidx.annotation.MainThread
+import androidx.lifecycle.HasDefaultViewModelProviderFactory
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelLazy
 import androidx.lifecycle.ViewModelProvider
@@ -55,7 +56,13 @@ import kotlin.reflect.KClass
 public inline fun <reified VM : ViewModel> Fragment.viewModels(
     noinline ownerProducer: () -> ViewModelStoreOwner = { this },
     noinline factoryProducer: (() -> Factory)? = null
-): Lazy<VM> = createViewModelLazy(VM::class, { ownerProducer().viewModelStore }, factoryProducer)
+): Lazy<VM> = createViewModelLazy(
+    VM::class, { ownerProducer().viewModelStore },
+    factoryProducer ?: {
+        (ownerProducer() as? HasDefaultViewModelProviderFactory)?.defaultViewModelProviderFactory
+            ?: defaultViewModelProviderFactory
+    }
+)
 
 /**
  * Returns a property delegate to access parent activity's [ViewModel],
