@@ -68,6 +68,7 @@ class PreviewExtenderValidationTest(
 
     @Before
     fun setUp(): Unit = runBlocking {
+        assumeTrue(ExtensionsTestUtil.isTargetDeviceAvailableForExtensions())
         cameraProvider = ProcessCameraProvider.getInstance(context)[10000, TimeUnit.MILLISECONDS]
         extensionsManager = ExtensionsManager.getInstanceAsync(
             context,
