@@ -44,5 +44,10 @@ public inline fun <reified VM : ViewModel> ComponentActivity.viewModels(
         defaultViewModelProviderFactory
     }
 
-    return ViewModelLazy(VM::class, { viewModelStore }, factoryPromise)
+    return ViewModelLazy(
+        VM::class,
+        { viewModelStore },
+        factoryPromise,
+        { this.defaultViewModelCreationExtras }
+    )
 }

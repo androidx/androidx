@@ -19,16 +19,21 @@ package androidx.fragment.app
 import android.os.Bundle
 import androidx.activity.viewModels
 import androidx.core.os.bundleOf
+import androidx.lifecycle.DEFAULT_ARGS_KEY
+import androidx.lifecycle.SAVED_STATE_REGISTRY_OWNER_KEY
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.SavedStateViewModelFactory
+import androidx.lifecycle.VIEW_MODEL_STORE_OWNER_KEY
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.enableSavedStateHandles
+import androidx.lifecycle.viewmodel.CreationExtras
+import androidx.lifecycle.viewmodel.MutableCreationExtras
 import androidx.test.annotation.UiThreadTest
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test
-import java.lang.IllegalArgumentException
 
 @MediumTest
 class FragmentViewModelLazyTest {
@@ -67,12 +72,22 @@ class FragmentViewModelLazyTest {
         val vm: TestActivityViewModel by viewModels()
         val vm2: TestActivityViewModel2 by viewModels()
 
+        override fun onCreate(savedInstanceState: Bundle?) {
+            super.onCreate(savedInstanceState)
+            enableSavedStateHandles()
+        }
+
         override fun getDefaultViewModelProviderFactory(): ViewModelProvider.Factory {
-            return SavedStateViewModelFactory(
-                application,
-                this,
-                bundleOf("test" to "value")
-            )
+            return SavedStateViewModelFactory()
+        }
+
+        override fun getDefaultViewModelCreationExtras(): CreationExtras {
+            val extras = MutableCreationExtras()
+            extras[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY] = application
+            extras[SAVED_STATE_REGISTRY_OWNER_KEY] = this
+            extras[VIEW_MODEL_STORE_OWNER_KEY] = this
+            extras[DEFAULT_ARGS_KEY] = bundleOf("test" to "value")
+            return extras
         }
     }
 
