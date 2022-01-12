@@ -42,6 +42,8 @@ import androidx.glance.appwidget.CheckBox
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.GlanceAppWidgetReceiver
 import androidx.glance.appwidget.SizeMode
+import androidx.glance.appwidget.LinearProgressIndicator
+import androidx.glance.appwidget.CircularProgressIndicator
 import androidx.glance.appwidget.action.ActionCallback
 import androidx.glance.appwidget.action.ToggleableStateKey
 import androidx.glance.appwidget.action.actionRunCallback
@@ -92,6 +94,9 @@ class ScrollableAppWidget : GlanceAppWidget() {
         Column(
             modifier = GlanceModifier.fillMaxSize().background(R.color.default_widget_background)
         ) {
+            LinearProgressIndicator()
+            LinearProgressIndicator(0.5f)
+            CircularProgressIndicator()
             Text(
                 text = "Fix header",
                 modifier = GlanceModifier
