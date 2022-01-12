@@ -72,7 +72,6 @@ class ImageCaptureTest(
     @Before
     @Throws(Exception::class)
     fun setUp() {
-        assumeTrue(CameraUtil.deviceHasCamera())
         assumeTrue(
             ExtensionsTestUtil.isTargetDeviceAvailableForExtensions(
                 lensFacing,

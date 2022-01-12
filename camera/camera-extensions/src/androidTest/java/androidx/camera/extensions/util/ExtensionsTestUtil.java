@@ -153,8 +153,8 @@ public class ExtensionsTestUtil {
      */
     public static boolean isTargetDeviceAvailableForExtensions(
             @CameraSelector.LensFacing int lensFacing, @ExtensionMode.Mode int mode) {
-        return isLimitedAboveDevice(lensFacing) && !isSpecificSkippedDevice()
-                && !isSpecificSkippedDeviceWithExtensionMode(mode);
+        return CameraUtil.hasCameraWithLensFacing(lensFacing) && isLimitedAboveDevice(lensFacing)
+                && !isSpecificSkippedDevice() && !isSpecificSkippedDeviceWithExtensionMode(mode);
     }
 
     /**
@@ -192,8 +192,8 @@ public class ExtensionsTestUtil {
      * Returns that whether the device should be skipped for the test.
      */
     private static boolean isSpecificSkippedDevice() {
-        return Build.BRAND.equalsIgnoreCase("SONY") && (Build.MODEL.equalsIgnoreCase("G8142")
-                || Build.MODEL.equalsIgnoreCase("G8342"));
+        return (Build.BRAND.equalsIgnoreCase("SONY") && (Build.MODEL.equalsIgnoreCase("G8142")
+                || Build.MODEL.equalsIgnoreCase("G8342"))) || Build.MODEL.contains("Cuttlefish");
     }
 
     /**
