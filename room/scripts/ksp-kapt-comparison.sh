@@ -54,9 +54,10 @@ function runBuild {
     fi
     local cmd="./gradlew --init-script \
         $SCRIPT_DIR/rerun-requested-task-init-script.gradle \
+        --no-configuration-cache
         --profile $task"
     log "Executing $cmd"
-    local profileFile=`$cmd|grep -v "buildSrc"|awk '/profiling report at:/ {print $6}'`
+    local profileFile=`$cmd|grep "room"|awk '/profiling report at:/ {print $6}'`
     log "result: $profileFile"
     parseTimes $profileFile $type
 }

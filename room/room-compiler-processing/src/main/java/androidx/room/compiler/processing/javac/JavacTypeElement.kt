@@ -21,6 +21,7 @@ import androidx.room.compiler.processing.XEnumTypeElement
 import androidx.room.compiler.processing.XFieldElement
 import androidx.room.compiler.processing.XHasModifiers
 import androidx.room.compiler.processing.XTypeElement
+import androidx.room.compiler.processing.filterMethodsByConfig
 import androidx.room.compiler.processing.javac.kotlin.KotlinMetadataElement
 import com.google.auto.common.MoreElements
 import com.google.auto.common.MoreTypes
@@ -111,7 +112,7 @@ internal sealed class JavacTypeElement(
                 containing = this,
                 element = it
             )
-        }
+        }.filterMethodsByConfig(env)
     }
 
     override fun getDeclaredMethods(): List<JavacMethodElement> {

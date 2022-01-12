@@ -156,7 +156,14 @@ function openFileInChrome {
         # wait until file is written
         sleep 2
         if test -f "$1"; then
-            google-chrome $1
+            case "`uname`" in
+                Darwin* )
+                    open $1
+                    ;;
+                Linux* )
+                    google-chrome $1
+                    ;;
+            esac
             return 0
         fi
     done
