@@ -687,7 +687,10 @@ ln -s /Users/$(whoami)/Library/Android/sdk/system-images \
 ### Benchmarking {#testing-benchmarking}
 
 Libraries are encouraged to write and monitor performance benchmarks. See the
-[Benchmarking](benchmarking.md) page for more details.
+[Benchmarking](benchmarking.md) and [Macrobenchmarking](macrobenchmarking.md)
+pages for more details, and the
+[Benchmarking section of d.android.com](http://d.android.com/benchmark) for more
+info on these tools.
 
 ## Library snapshots {#snapshots}
 
