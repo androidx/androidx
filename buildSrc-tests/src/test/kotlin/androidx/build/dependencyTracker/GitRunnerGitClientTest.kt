@@ -18,9 +18,9 @@ package androidx.build.dependencyTracker
 
 import androidx.build.gitclient.Commit
 import androidx.build.gitclient.GitClient
-import androidx.build.gitclient.GitClientImpl
-import androidx.build.gitclient.GitClientImpl.Companion.CHANGED_FILES_CMD_PREFIX
-import androidx.build.gitclient.GitClientImpl.Companion.PREVIOUS_SUBMITTED_CMD
+import androidx.build.gitclient.GitRunnerGitClient
+import androidx.build.gitclient.GitRunnerGitClient.Companion.CHANGED_FILES_CMD_PREFIX
+import androidx.build.gitclient.GitRunnerGitClient.Companion.PREVIOUS_SUBMITTED_CMD
 import androidx.build.gitclient.GitCommitRange
 import junit.framework.TestCase.assertEquals
 import junit.framework.TestCase.assertNull
@@ -31,18 +31,18 @@ import org.junit.runners.JUnit4
 import java.io.File
 
 @RunWith(JUnit4::class)
-class GitClientImplTest {
+class GitRunnerGitClientTest {
     @Rule
     @JvmField
     val attachLogsRule = AttachLogsTestRule()
     private val logger = attachLogsRule.logger
     private val commandRunner = MockCommandRunner(logger)
-    /** The [GitClientImpl.workingDir] uses `System.getProperty("user.dir")` because the working
-     * directory passed to the [GitClientImpl] constructor needs to contain the a .git
-     * directory somewhere in the parent directory tree.  @see [GitClientImpl]
+    /** The [GitRunnerGitClient.workingDir] uses `System.getProperty("user.dir")` because the working
+     * directory passed to the [GitRunnerGitClient] constructor needs to contain the a .git
+     * directory somewhere in the parent directory tree.  @see [GitRunnerGitClient]
      */
     private val workingDir = File(System.getProperty("user.dir")).parentFile
-    private val client = GitClientImpl(
+    private val client = GitRunnerGitClient(
         workingDir = workingDir,
         logger = logger,
         commandRunner = commandRunner
@@ -107,7 +107,7 @@ class GitClientImplTest {
         /* Do not use the MockCommandRunner because it's a better test to check the validity of
          * the git command against the actual git in the repo
          */
-        val commitList: List<Commit> = GitClientImpl(workingDir, logger)
+        val commitList: List<Commit> = GitRunnerGitClient(workingDir, logger)
             .getGitLog(
                 GitCommitRange(
                     fromExclusive = "",
