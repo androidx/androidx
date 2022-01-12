@@ -44,4 +44,13 @@ class SurfaceControlCompatTest {
             fail()
         }
     }
+
+    @Test
+    fun testSurfaceTransactionCreate() {
+        try {
+            SurfaceControlCompat.Transaction()
+        } catch (e: java.lang.IllegalArgumentException) {
+            fail()
+        }
+    }
 }
