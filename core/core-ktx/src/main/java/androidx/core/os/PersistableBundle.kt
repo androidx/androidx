@@ -39,6 +39,14 @@ fun persistableBundleOf(vararg pairs: Pair<String, Any?>): PersistableBundle {
 }
 
 /**
+ * Returns a new empty [PersistableBundle].
+ */
+@RequiresApi(21)
+fun persistableBundleOf(): PersistableBundle {
+    return PersistableBundleApi21ImplKt.createPersistableBundle(0)
+}
+
+/**
  * Covert this map to a [PersistableBundle] with the key/value pairs as elements.
  *
  * Supported value types are [Int], [Long], [Double], and [String] and arrays of these types. On
