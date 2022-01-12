@@ -29,6 +29,7 @@ dependencies {
     testImplementation(libs.junit)
     implementation(project.files(new File(BuildServerConfigurationKt.getRootOutDirectory(project), "buildSrc/private/build/libs/private.jar")))
     implementation(project.files(new File(BuildServerConfigurationKt.getRootOutDirectory(project), "buildSrc/public/build/libs/public.jar")))
+    implementation("com.googlecode.json-simple:json-simple:1.1")
 }
 
 // Also do style checking of the buildSrc project from within this project
