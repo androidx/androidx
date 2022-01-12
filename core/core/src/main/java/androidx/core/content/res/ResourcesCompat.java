@@ -103,7 +103,7 @@ public final class ResourcesCompat {
             Iterator<ColorStateListCacheKey> keys = sColorStateCaches.keySet().iterator();
             while (keys.hasNext()) {
                 ColorStateListCacheKey key = keys.next();
-                if (key != null && theme == key.mTheme) {
+                if (key != null && theme.equals(key.mTheme)) {
                     keys.remove();
                 }
             }
