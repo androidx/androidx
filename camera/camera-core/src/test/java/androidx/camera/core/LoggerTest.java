@@ -135,7 +135,7 @@ public class LoggerTest {
                 .hasNoMoreMessages(TAG);
     }
 
-    @Config(maxSdk = 23)
+    @Config(maxSdk = 25)
     @Test
     public void log_truncateLongTag() {
         Logger.setMinLogLevel(mLevel);
@@ -148,7 +148,7 @@ public class LoggerTest {
                 .hasNoMoreMessages(LONG_TAG);
     }
 
-    @Config(minSdk = 24)
+    @Config(minSdk = 26)
     @Test
     public void log_doNotTruncateLongTag() {
         Logger.setMinLogLevel(mLevel);

@@ -234,11 +234,11 @@ public final class Logger {
     /**
      * Truncates the tag so it can be used to log.
      * <p>
-     * On API 24, the tag length limit of 23 characters was removed.
+     * On API 26, the tag length limit of 23 characters was removed.
      */
     @NonNull
     private static String truncateTag(@NonNull String tag) {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N && MAX_TAG_LENGTH < tag.length()) {
+        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.N_MR1 && MAX_TAG_LENGTH < tag.length()) {
             return tag.substring(0, MAX_TAG_LENGTH);
         }
         return tag;
