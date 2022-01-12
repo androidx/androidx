@@ -41,6 +41,14 @@ class SplitPlaceholderRule(
      */
     val isSticky: Boolean,
 
+    /**
+     * Determines what happens with the primary container when all activities are finished in the
+     * associated placeholder container.
+     * @see SplitRule.SplitFinishBehavior
+     */
+    @SplitFinishBehavior
+    val finishPrimaryWithSecondary: Int = FINISH_ALWAYS,
+
     minWidth: Int = 0,
     minSmallestWidth: Int = 0,
     splitRatio: Float = 0.5f,
@@ -68,6 +76,7 @@ class SplitPlaceholderRule(
             newSet.toSet(),
             placeholderIntent,
             isSticky,
+            finishPrimaryWithSecondary,
             minWidth,
             minSmallestWidth,
             splitRatio,
@@ -82,6 +91,7 @@ class SplitPlaceholderRule(
 
         if (placeholderIntent != other.placeholderIntent) return false
         if (isSticky != other.isSticky) return false
+        if (finishPrimaryWithSecondary != other.finishPrimaryWithSecondary) return false
         if (filters != other.filters) return false
 
         return true
@@ -91,6 +101,7 @@ class SplitPlaceholderRule(
         var result = super.hashCode()
         result = 31 * result + placeholderIntent.hashCode()
         result = 31 * result + isSticky.hashCode()
+        result = 31 * result + finishPrimaryWithSecondary.hashCode()
         result = 31 * result + filters.hashCode()
         return result
     }

@@ -38,13 +38,16 @@ public class SplitPairRule extends SplitRule {
     private final Predicate<Pair<Activity, Activity>> mActivityPairPredicate;
     @NonNull
     private final Predicate<Pair<Activity, Intent>> mActivityIntentPredicate;
-    private final boolean mFinishPrimaryWithSecondary;
-    private final boolean mFinishSecondaryWithPrimary;
+    @SplitFinishBehavior
+    private final int mFinishPrimaryWithSecondary;
+    @SplitFinishBehavior
+    private final int mFinishSecondaryWithPrimary;
     private final boolean mClearTop;
 
     SplitPairRule(float splitRatio, @LayoutDir int layoutDirection,
-            boolean finishPrimaryWithSecondary, boolean finishSecondaryWithPrimary,
-            boolean clearTop, @NonNull Predicate<Pair<Activity, Activity>> activityPairPredicate,
+            @SplitFinishBehavior int finishPrimaryWithSecondary,
+            @SplitFinishBehavior int finishSecondaryWithPrimary, boolean clearTop,
+            @NonNull Predicate<Pair<Activity, Activity>> activityPairPredicate,
             @NonNull Predicate<Pair<Activity, Intent>> activityIntentPredicate,
             @NonNull Predicate<WindowMetrics> parentWindowMetricsPredicate) {
         super(parentWindowMetricsPredicate, splitRatio, layoutDirection);
@@ -77,18 +80,20 @@ public class SplitPairRule extends SplitRule {
     }
 
     /**
-     * When all activities are finished in the secondary container, the activity in the primary
-     * container that created the split should also be finished.
+     * Determines what happens with the primary container when all activities are finished in the
+     * associated secondary container.
      */
-    public boolean shouldFinishPrimaryWithSecondary() {
+    @SplitFinishBehavior
+    public int getFinishPrimaryWithSecondary() {
         return mFinishPrimaryWithSecondary;
     }
 
     /**
-     * When all activities are finished in the primary container, the activities in the secondary
-     * container in the split should also be finished.
+     * Determines what happens with the secondary container when all activities are finished in the
+     * associated primary container.
      */
-    public boolean shouldFinishSecondaryWithPrimary() {
+    @SplitFinishBehavior
+    public int getFinishSecondaryWithPrimary() {
         return mFinishSecondaryWithPrimary;
     }
 
@@ -114,9 +119,11 @@ public class SplitPairRule extends SplitRule {
         private float mSplitRatio;
         @LayoutDir
         private int mLayoutDirection;
-        private boolean mFinishPrimaryWithSecondary;
-        private boolean mFinishSecondaryWithPrimary;
         private boolean mClearTop;
+        @SplitFinishBehavior
+        private int mFinishPrimaryWithSecondary;
+        @SplitFinishBehavior
+        private int mFinishSecondaryWithPrimary;
 
         public Builder(@NonNull Predicate<Pair<Activity, Activity>> activityPairPredicate,
                 @NonNull Predicate<Pair<Activity, Intent>> activityIntentPredicate,
@@ -140,18 +147,32 @@ public class SplitPairRule extends SplitRule {
             return this;
         }
 
-        /** @see SplitPairRule#shouldFinishPrimaryWithSecondary() */
+        /** @deprecated To be removed with next developer preview. */
+        @Deprecated
         @NonNull
         public Builder setShouldFinishPrimaryWithSecondary(
                 boolean finishPrimaryWithSecondary) {
-            mFinishPrimaryWithSecondary = finishPrimaryWithSecondary;
             return this;
         }
 
-        /** @see SplitPairRule#shouldFinishSecondaryWithPrimary() */
+        /** @deprecated To be removed with next developer preview. */
+        @Deprecated
         @NonNull
         public Builder setShouldFinishSecondaryWithPrimary(boolean finishSecondaryWithPrimary) {
-            mFinishSecondaryWithPrimary = finishSecondaryWithPrimary;
+            return this;
+        }
+
+        /** @see SplitPairRule#getFinishPrimaryWithSecondary() */
+        @NonNull
+        public Builder setFinishPrimaryWithSecondary(@SplitFinishBehavior int finishBehavior) {
+            mFinishPrimaryWithSecondary = finishBehavior;
+            return this;
+        }
+
+        /** @see SplitPairRule#getFinishSecondaryWithPrimary() */
+        @NonNull
+        public Builder setFinishSecondaryWithPrimary(@SplitFinishBehavior int finishBehavior) {
+            mFinishSecondaryWithPrimary = finishBehavior;
             return this;
         }
 
@@ -190,8 +211,8 @@ public class SplitPairRule extends SplitRule {
         int result = super.hashCode();
         result = 31 * result + mActivityPairPredicate.hashCode();
         result = 31 * result + mActivityIntentPredicate.hashCode();
-        result = 31 * result + (mFinishPrimaryWithSecondary ? 1 : 0);
-        result = 31 * result + (mFinishSecondaryWithPrimary ? 1 : 0);
+        result = 31 * result + mFinishPrimaryWithSecondary;
+        result = 31 * result + mFinishSecondaryWithPrimary;
         result = 31 * result + (mClearTop ? 1 : 0);
         return result;
     }
