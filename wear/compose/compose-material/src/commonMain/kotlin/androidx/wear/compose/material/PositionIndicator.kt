@@ -373,6 +373,9 @@ internal class ScrollStateAdapter(private val scrollState: ScrollState) : Positi
  * An implementation of [PositionIndicatorState] to display the amount and position of a
  * [ScalingLazyColumn] component via its [ScalingLazyListState].
  *
+ * Note that size and position calculations ignore spacing between list items both for determining
+ * the number and the number of visible items.
+
  * @param state the [ScalingLazyListState] to adapt.
  *
  * @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
@@ -418,28 +421,53 @@ internal class ScalingLazyColumnStateAdapter(
         return (other as? ScalingLazyColumnStateAdapter)?.state == state
     }
 
+    /**
+     * Provide a float value that represents the index of the last visible list item in a scaling
+     * lazy column. The value should be in the range from [n,n+1] for a given index n, where n is
+     * the index of the last visible item and a value of n represents that only the very start|top
+     * of the item is visible, and n+1 means that whole of the item is visible in the viewport.
+     *
+     * Note that decimal index calculations ignore spacing between list items both for determining
+     * the number and the number of visible items.
+     */
     private fun decimalLastItemIndex(): Float {
         if (state.layoutInfo.visibleItemsInfo.isEmpty()) return 0f
         val lastItem = state.layoutInfo.visibleItemsInfo.last()
-        val lastItemConvertedOffset: Float = lastItem.offset - (lastItem.size / 2f) +
-            state.viewportHeightPx.value?.div(2f)!! + state.layoutInfo.viewportStartOffset
-        val lastItemVisibleSize = state.layoutInfo.viewportEndOffset - lastItemConvertedOffset
-        val decimalLastItemIndex = lastItem.index.toFloat() + lastItemVisibleSize /
-            lastItem.size.toFloat()
-        return decimalLastItemIndex
+        // This is the offset of the last item w.r.t. the ScalingLazyColumn coordinate system where
+        // 0 in the center of the visible viewport and +/-(state.viewportHeightPx / 2f) are the
+        // start and end of the viewport.
+        //
+        // Note that [ScalingLazyListAnchorType] determines how the list items are anchored to the
+        // center of the viewport, it does not change viewport coordinates. As a result this
+        // calculation needs to take the anchorType into account to calculate the correct end
+        // of list item offset.
+        val lastItemEndOffset = lastItem.startOffset(state.anchorType.value!!) + lastItem.size
+        val viewportEndOffset = state.viewportHeightPx.value!! / 2f
+        val lastItemVisibleFraction =
+            (1f - ((lastItemEndOffset - viewportEndOffset) / lastItem.size)).coerceAtMost(1f)
+
+        return lastItem.index.toFloat() + lastItemVisibleFraction
     }
 
+    /**
+     * Provide a float value that represents the index of first visible list item in a scaling lazy
+     * column. The value should be in the range from [n,n+1] for a given index n, where n is the
+     * index of the first visible item and a value of n represents that all of the item is visible
+     * in the viewport and a value of n+1 means that only the very end|bottom of the list item is
+     * visible at the start|top of the viewport.
+     *
+     * Note that decimal index calculations ignore spacing between list items both for determining
+     * the number and the number of visible items.
+     */
     private fun decimalFirstItemIndex(): Float {
         if (state.layoutInfo.visibleItemsInfo.isEmpty()) return 0f
         val firstItem = state.layoutInfo.visibleItemsInfo.first()
-        val firstItemConvertedOffset: Float = firstItem.offset - (firstItem.size / 2f) +
-            state.viewportHeightPx.value?.div(2f)!! + state.layoutInfo.viewportStartOffset
-        val decimalFirstItemIndex =
-            if (firstItemConvertedOffset < 0)
-                firstItem.index.toFloat() +
-                    abs(firstItemConvertedOffset) / firstItem.size.toFloat()
-            else firstItem.index.toFloat()
-        return decimalFirstItemIndex
+        val firstItemStartOffset = firstItem.startOffset(state.anchorType.value!!)
+        val viewportStartOffset = - (state.viewportHeightPx.value!! / 2f)
+        val firstItemInvisibleFraction =
+            ((viewportStartOffset - firstItemStartOffset) / firstItem.size).coerceAtLeast(0f)
+
+        return firstItem.index.toFloat() + firstItemInvisibleFraction
     }
 }
 
@@ -461,6 +489,7 @@ internal class LazyColumnStateAdapter(
             } else {
                 val decimalFirstItemIndex = decimalFirstItemIndex()
                 val decimalLastItemIndex = decimalLastItemIndex()
+
                 val decimalLastItemIndexDistanceFromEnd = state.layoutInfo.totalItemsCount -
                     decimalLastItemIndex
 

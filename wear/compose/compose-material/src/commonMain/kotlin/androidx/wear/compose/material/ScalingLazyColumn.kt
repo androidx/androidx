@@ -508,13 +508,20 @@ private fun ScalingLazyColumnItemWrapper(
     Box(
         modifier = Modifier.graphicsLayer {
             val reverseLayout = state.reverseLayout.value!!
+            val anchorType = state.anchorType.value!!
             val items = state.layoutInfo.visibleItemsInfo
             val currentItem = items.find { it.index == index }
             if (currentItem != null) {
                 alpha = currentItem.alpha
                 scaleX = currentItem.scale
                 scaleY = currentItem.scale
-                val offsetAdjust = (currentItem.offset - currentItem.unadjustedOffset).toFloat()
+                // Calculate how much to adjust/translate the position of the list item by
+                // determining the different between the unadjusted start position based on the
+                // underlying LazyList layout and the start position adjusted to take into account
+                // scaling of the list items. Items further from the middle of the visible viewport
+                // will be subject to more adjustment.
+                val offsetAdjust = currentItem.startOffset(anchorType) -
+                    currentItem.unadjustedStartOffset(anchorType)
                 translationY = if (reverseLayout) -offsetAdjust else offsetAdjust
                 transformOrigin = TransformOrigin(
                     pivotFractionX = 0.5f,
