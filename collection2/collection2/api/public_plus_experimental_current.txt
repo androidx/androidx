@@ -26,6 +26,7 @@ package androidx.collection {
     ctor public ArraySet();
     ctor public ArraySet(androidx.collection.ArraySet<? extends E>? set);
     ctor public ArraySet(java.util.Collection<? extends E>? set);
+    ctor public ArraySet(E![]? set);
     method public boolean add(E? element);
     method public boolean addAll(java.util.Collection<? extends E> elements);
     method public void addAll(androidx.collection.ArraySet<E> elements);
