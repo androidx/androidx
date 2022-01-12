@@ -55,6 +55,9 @@
     <declare-styleable name="SplitPlaceholderRule">
         <!-- Component name of the placeholder activity in the split. Must be non-empty. -->
         <attr name="placeholderActivityName" format="string" />
+        <!-- Determines whether the placeholder will show on top in a smaller window size after
+        it first appeared in a split with sufficient minimum width. -->
+        <attr name="stickyPlaceholder" format="boolean" />
         <attr name="splitRatio"/>
         <attr name="splitMinWidth"/>
         <attr name="splitMinSmallestWidth"/>

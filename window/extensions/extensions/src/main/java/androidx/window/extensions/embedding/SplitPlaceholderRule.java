@@ -40,13 +40,15 @@ public class SplitPlaceholderRule extends SplitRule {
     private final Predicate<Intent> mIntentPredicate;
     @NonNull
     private final Intent mPlaceholderIntent;
+    private final boolean mIsSticky;
 
     SplitPlaceholderRule(@NonNull Intent placeholderIntent,
-            float splitRatio, @LayoutDir int layoutDirection,
+            float splitRatio, @LayoutDir int layoutDirection, boolean isSticky,
             @NonNull Predicate<Activity> activityPredicate,
             @NonNull Predicate<Intent> intentPredicate,
             @NonNull Predicate<WindowMetrics> parentWindowMetricsPredicate) {
         super(parentWindowMetricsPredicate, splitRatio, layoutDirection);
+        mIsSticky = isSticky;
         mActivityPredicate = activityPredicate;
         mIntentPredicate = intentPredicate;
         mPlaceholderIntent = placeholderIntent;
@@ -79,6 +81,14 @@ public class SplitPlaceholderRule extends SplitRule {
     }
 
     /**
+     * Determines whether the placeholder will show on top in a smaller window size after it first
+     * appeared in a split with sufficient minimum width.
+     */
+    public boolean isSticky() {
+        return mIsSticky;
+    }
+
+    /**
      * Builder for {@link SplitPlaceholderRule}.
      */
     public static final class Builder {
@@ -93,6 +103,7 @@ public class SplitPlaceholderRule extends SplitRule {
         private float mSplitRatio;
         @LayoutDir
         private int mLayoutDirection;
+        private boolean mIsSticky = false;
 
         public Builder(@NonNull Intent placeholderIntent,
                 @NonNull Predicate<Activity> activityPredicate,
@@ -118,11 +129,18 @@ public class SplitPlaceholderRule extends SplitRule {
             return this;
         }
 
+        /** @see SplitPlaceholderRule#isSticky() */
+        @NonNull
+        public Builder setSticky(boolean sticky) {
+            mIsSticky = sticky;
+            return this;
+        }
+
         /** Builds a new instance of {@link SplitPlaceholderRule}. */
         @NonNull
         public SplitPlaceholderRule build() {
             return new SplitPlaceholderRule(mPlaceholderIntent, mSplitRatio,
-                    mLayoutDirection, mActivityPredicate, mIntentPredicate,
+                    mLayoutDirection, mIsSticky, mActivityPredicate, mIntentPredicate,
                     mParentWindowMetricsPredicate);
         }
     }
@@ -131,11 +149,14 @@ public class SplitPlaceholderRule extends SplitRule {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof SplitPlaceholderRule)) return false;
+        if (!super.equals(o)) return false;
+
         SplitPlaceholderRule that = (SplitPlaceholderRule) o;
-        return super.equals(o)
-                && mActivityPredicate.equals(that.mActivityPredicate)
-                && mIntentPredicate.equals(that.mIntentPredicate)
-                && mPlaceholderIntent.equals(that.mPlaceholderIntent);
+
+        if (mIsSticky != that.mIsSticky) return false;
+        if (!mActivityPredicate.equals(that.mActivityPredicate)) return false;
+        if (!mIntentPredicate.equals(that.mIntentPredicate)) return false;
+        return mPlaceholderIntent.equals(that.mPlaceholderIntent);
     }
 
     @Override
@@ -144,12 +165,16 @@ public class SplitPlaceholderRule extends SplitRule {
         result = 31 * result + mActivityPredicate.hashCode();
         result = 31 * result + mIntentPredicate.hashCode();
         result = 31 * result + mPlaceholderIntent.hashCode();
+        result = 31 * result + (mIsSticky ? 1 : 0);
         return result;
     }
 
     @NonNull
     @Override
     public String toString() {
-        return "SplitPlaceholderRule{" + "mPlaceholderIntent=" + mPlaceholderIntent + '}';
+        return "SplitPlaceholderRule{"
+                + "mActivityPredicate=" + mActivityPredicate
+                + ", mIsSticky=" + mIsSticky
+                + '}';
     }
 }

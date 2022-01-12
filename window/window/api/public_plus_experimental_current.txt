@@ -88,10 +88,12 @@ package androidx.window.embedding {
   }
 
   @androidx.window.core.ExperimentalWindowApi public final class SplitPlaceholderRule extends androidx.window.embedding.SplitRule {
-    ctor public SplitPlaceholderRule(java.util.Set<androidx.window.embedding.ActivityFilter> filters, android.content.Intent placeholderIntent, optional int minWidth, optional int minSmallestWidth, optional float splitRatio, optional int layoutDirection);
+    ctor public SplitPlaceholderRule(java.util.Set<androidx.window.embedding.ActivityFilter> filters, android.content.Intent placeholderIntent, boolean isSticky, optional int minWidth, optional int minSmallestWidth, optional float splitRatio, optional int layoutDirection);
     method public java.util.Set<androidx.window.embedding.ActivityFilter> getFilters();
     method public android.content.Intent getPlaceholderIntent();
+    method public boolean isSticky();
     property public final java.util.Set<androidx.window.embedding.ActivityFilter> filters;
+    property public final boolean isSticky;
     property public final android.content.Intent placeholderIntent;
   }
 

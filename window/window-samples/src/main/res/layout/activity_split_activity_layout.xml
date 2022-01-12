@@ -49,6 +49,12 @@
         android:layout_height="wrap_content"
         android:text="Use a placeholder for B" />
 
+    <CheckBox
+        android:id="@+id/useStickyPlaceholderCheckBox"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Placeholder is sticky" />
+
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
