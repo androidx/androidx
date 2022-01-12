@@ -1894,6 +1894,7 @@ package androidx.appcompat.widget {
     method public boolean isSubmitButtonEnabled();
     method public void onActionViewCollapsed();
     method public void onActionViewExpanded();
+    method protected void onQueryRefine(CharSequence?);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void setAppSearchData(android.os.Bundle!);
     method public void setIconified(boolean);
     method public void setIconifiedByDefault(boolean);
