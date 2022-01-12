@@ -126,6 +126,7 @@ import android.print.PrintManager;
 import android.telecom.TelecomManager;
 import android.telephony.SubscriptionManager;
 import android.telephony.TelephonyManager;
+import android.text.TextUtils;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
@@ -141,9 +142,12 @@ import androidx.annotation.DoNotInline;
 import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.OptIn;
 import androidx.annotation.RequiresApi;
 import androidx.core.app.ActivityOptionsCompat;
+import androidx.core.app.NotificationManagerCompat;
 import androidx.core.content.res.ResourcesCompat;
+import androidx.core.os.BuildCompat;
 import androidx.core.os.EnvironmentCompat;
 import androidx.core.os.ExecutorCompat;
 import androidx.core.util.ObjectsCompat;
@@ -550,8 +554,15 @@ public class ContextCompat {
      * permission, or {@link PackageManager#PERMISSION_DENIED} if not.
      * @see PackageManager#checkPermission(String, String)
      */
+    @OptIn(markerClass = BuildCompat.PrereleaseSdkCheck.class)
     public static int checkSelfPermission(@NonNull Context context, @NonNull String permission) {
         ObjectsCompat.requireNonNull(permission, "permission must be non-null");
+        if (!BuildCompat.isAtLeastT()
+                && TextUtils.equals(android.Manifest.permission.POST_NOTIFICATIONS, permission)) {
+            return NotificationManagerCompat.from(context).areNotificationsEnabled()
+                    ? PackageManager.PERMISSION_GRANTED
+                    : PackageManager.PERMISSION_DENIED;
+        }
         return context.checkPermission(permission, Process.myPid(), Process.myUid());
     }
 

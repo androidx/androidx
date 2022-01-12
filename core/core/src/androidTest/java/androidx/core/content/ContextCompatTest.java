@@ -72,6 +72,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import android.Manifest;
 import android.accounts.AccountManager;
 import android.app.ActivityManager;
 import android.app.AlarmManager;
@@ -134,6 +135,9 @@ import android.view.accessibility.CaptioningManager;
 import android.view.inputmethod.InputMethodManager;
 import android.view.textservice.TextServicesManager;
 
+import androidx.annotation.OptIn;
+import androidx.core.app.NotificationManagerCompat;
+import androidx.core.os.BuildCompat;
 import androidx.core.test.R;
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.SdkSuppress;
@@ -473,5 +477,24 @@ public class ContextCompatTest extends BaseInstrumentationTestCase<ThemedYellowA
         assertEquals("Delete packages permission denied", PackageManager.PERMISSION_DENIED,
                 ContextCompat.checkSelfPermission(mContext,
                         android.Manifest.permission.DELETE_PACKAGES));
+    }
+
+    @Test
+    @OptIn(markerClass = BuildCompat.PrereleaseSdkCheck.class)
+    public void testCheckSelfPermissionNotificationPermission() {
+        if (BuildCompat.isAtLeastT()) {
+            // The notification permissions is expected to be denied since it's not declared in our
+            // manifest and wasn't requested
+            assertEquals("Post notification permission denied",
+                    PackageManager.PERMISSION_DENIED,
+                    ContextCompat.checkSelfPermission(mContext,
+                            Manifest.permission.POST_NOTIFICATIONS));
+        } else {
+            assertEquals("Notification permission allowed by default on devices <= SDK 32",
+                    NotificationManagerCompat.from(mContext).areNotificationsEnabled()
+                            ? PackageManager.PERMISSION_GRANTED : PackageManager.PERMISSION_DENIED,
+                    ContextCompat.checkSelfPermission(mContext,
+                            Manifest.permission.POST_NOTIFICATIONS));
+        }
     }
 }
