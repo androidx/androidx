@@ -14,8 +14,11 @@
  * limitations under the License.
  */
 
+@file:RestrictTo(RestrictTo.Scope.LIBRARY)
+
 package androidx.paging
 
+import androidx.annotation.RestrictTo
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel

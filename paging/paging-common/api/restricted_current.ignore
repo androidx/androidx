@@ -1,0 +1,11 @@
+// Baseline format: 1.0
+RemovedClass: androidx.paging.CancelableChannelFlowKt:
+    Removed class androidx.paging.CancelableChannelFlowKt
+RemovedClass: androidx.paging.FlowExtKt:
+    Removed class androidx.paging.FlowExtKt
+RemovedClass: androidx.paging.HintHandlerKt:
+    Removed class androidx.paging.HintHandlerKt
+RemovedClass: androidx.paging.PageFetcherSnapshotKt:
+    Removed class androidx.paging.PageFetcherSnapshotKt
+RemovedClass: androidx.paging.SimpleChannelFlowKt:
+    Removed class androidx.paging.SimpleChannelFlowKt

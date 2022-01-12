@@ -5,9 +5,6 @@ package androidx.paging {
     method @CheckResult public static <T> kotlinx.coroutines.flow.Flow<androidx.paging.PagingData<T>> cachedIn(kotlinx.coroutines.flow.Flow<androidx.paging.PagingData<T>>, kotlinx.coroutines.CoroutineScope scope);
   }
 
-  public final class CancelableChannelFlowKt {
-  }
-
   public final class CombinedLoadStates {
     ctor public CombinedLoadStates(androidx.paging.LoadState refresh, androidx.paging.LoadState prepend, androidx.paging.LoadState append, androidx.paging.LoadStates source, optional androidx.paging.LoadStates? mediator);
     method public androidx.paging.LoadState getAppend();
@@ -50,12 +47,6 @@ package androidx.paging {
   }
 
   @kotlin.RequiresOptIn public @interface ExperimentalPagingApi {
-  }
-
-  public final class FlowExtKt {
-  }
-
-  public final class HintHandlerKt {
   }
 
   public final class InvalidatingPagingSourceFactory<Key, Value> implements kotlin.jvm.functions.Function0<androidx.paging.PagingSource<Key,Value>> {
@@ -149,9 +140,6 @@ package androidx.paging {
     enum_constant public static final androidx.paging.LoadType APPEND;
     enum_constant public static final androidx.paging.LoadType PREPEND;
     enum_constant public static final androidx.paging.LoadType REFRESH;
-  }
-
-  public final class PageFetcherSnapshotKt {
   }
 
   @Deprecated public abstract class PageKeyedDataSource<Key, Value> extends androidx.paging.DataSource<Key,Value> {
@@ -506,19 +494,9 @@ package androidx.paging {
   public final class SeparatorsKt {
   }
 
-  public final class SimpleChannelFlowKt {
-  }
-
   public enum TerminalSeparatorType {
     enum_constant public static final androidx.paging.TerminalSeparatorType FULLY_COMPLETE;
     enum_constant public static final androidx.paging.TerminalSeparatorType SOURCE_COMPLETE;
-  }
-
-}
-
-package androidx.paging.internal {
-
-  public final class ConstantsKt {
   }
 
 }
