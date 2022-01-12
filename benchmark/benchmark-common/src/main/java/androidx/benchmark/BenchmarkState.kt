@@ -595,7 +595,7 @@ public class BenchmarkState {
         private var firstBenchmark = true
 
         @Suppress("DEPRECATION")
-        @Experimental
+        @RequiresOptIn
         @Retention(AnnotationRetention.BINARY)
         @Target(AnnotationTarget.FUNCTION)
         public annotation class ExperimentalExternalReport

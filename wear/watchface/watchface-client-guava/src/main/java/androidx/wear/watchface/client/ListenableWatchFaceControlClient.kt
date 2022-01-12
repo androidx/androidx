@@ -199,6 +199,7 @@ public open class ListenableWatchFaceControlClient(
     override fun getEditorServiceClient(): EditorServiceClient =
         watchFaceControlClient.getEditorServiceClient()
 
+    @Deprecated("Use the WatchFaceMetadataClient instead.")
     @Suppress("DEPRECATION")
     override fun getDefaultComplicationDataSourcePoliciesAndType(
         watchFaceName: ComponentName

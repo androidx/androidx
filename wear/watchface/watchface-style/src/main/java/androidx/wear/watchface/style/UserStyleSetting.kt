@@ -416,7 +416,7 @@ public sealed class UserStyleSetting private constructor(
      */
     public abstract class Option internal constructor(
         public val id: Id,
-        @Suppress("EXPERIMENTAL_ANNOTATION_ON_WRONG_TARGET")
+        @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
         @get:ExperimentalHierarchicalStyle
         public val childSettings: Collection<UserStyleSetting>
     ) {

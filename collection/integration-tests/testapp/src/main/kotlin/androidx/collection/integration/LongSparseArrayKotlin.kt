@@ -43,6 +43,7 @@ class LongSparseArrayKotlin(initialCapacity: Int) : LongSparseArray<Int>(initial
     }
 
     @Suppress("DEPRECATION")
+    @Deprecated("Alias for `remove(key)`.", ReplaceWith("remove(key)"))
     override fun delete(key: Long) {
         super.delete(key)
     }

@@ -80,7 +80,7 @@ class SettingsFragment() : PreferenceFragmentCompat() {
         preferenceScreen = preferences
     }
 
-    @Suppress("EXPERIMENTAL_ANNOTATION_ON_OVERRIDE")
+    @Suppress("OPT_IN_MARKER_ON_OVERRIDE_WARNING")
     @SuppressLint("SyntheticAccessor")
     @ExperimentalCoroutinesApi
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

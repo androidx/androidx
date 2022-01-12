@@ -1690,6 +1690,9 @@ public abstract class WatchFaceService : WallpaperService() {
             val fakeSurfaceHolder = object : SurfaceHolder {
                 val callbacks = HashSet<SurfaceHolder.Callback>()
 
+                @Deprecated(
+                    message = "this is ignored, this value is set automatically when needed."
+                )
                 override fun setType(type: Int) {
                     throw NotImplementedError()
                 }

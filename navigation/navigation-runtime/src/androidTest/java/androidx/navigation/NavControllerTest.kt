@@ -2847,8 +2847,8 @@ class SaveStateTestNavigator : TestNavigator() {
 data class CustomTestParcelable(val name: String?) : Parcelable {
     constructor(parcel: Parcel) : this(parcel.readString())
 
-    override fun writeToParcel(dest: Parcel?, flags: Int) {
-        dest?.writeString(name)
+    override fun writeToParcel(dest: Parcel, flags: Int) {
+        dest.writeString(name)
     }
 
     override fun describeContents() = 0

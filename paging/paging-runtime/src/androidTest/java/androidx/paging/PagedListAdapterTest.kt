@@ -53,6 +53,10 @@ class PagedListAdapterTest {
         override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) =
             throw IllegalStateException("not supported")
 
+        @Deprecated(
+            "Use the two argument variant instead.",
+            replaceWith = ReplaceWith("onCurrentListChanged(previousList, currentList)")
+        )
         @Suppress("OverridingDeprecatedMember")
         override fun onCurrentListChanged(currentList: PagedList<String>?) {
             onChangedLegacy?.onCurrentListChanged(null, currentList)

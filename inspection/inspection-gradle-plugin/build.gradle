@@ -54,7 +54,7 @@ gradlePlugin {
 
 tasks.withType(KotlinCompile).configureEach {
     kotlinOptions {
-        freeCompilerArgs += [ "-Xopt-in=kotlin.Experimental" ]
+        freeCompilerArgs += [ "-opt-in=kotlin.Experimental" ]
     }
 }
 

@@ -32,8 +32,8 @@ dependencies {
 tasks.withType(KotlinCompile).configureEach {
     kotlinOptions {
         freeCompilerArgs += [
-                "-Xopt-in=kotlin.Experimental",
-                "-Xopt-in=kotlin.RequiresOptIn",
+                "-opt-in=kotlin.Experimental",
+                "-opt-in=kotlin.RequiresOptIn",
         ]
     }
 }
