@@ -41,6 +41,9 @@ class DaoPrimitiveTest {
     @Entity(tableName = "stringFoo")
     data class StringFoo(@PrimaryKey val id: String, val description: String)
 
+    @Entity(tableName = "byteArrayFoo")
+    data class ByteArrayFoo(@PrimaryKey val id: ByteArray, val description: String)
+
     /* Interface with generics only */
     interface BaseDao<Key, Value> {
 
@@ -71,6 +74,11 @@ class DaoPrimitiveTest {
 
         @Query("select id from stringFoo limit 1")
         fun getFirstItemId(): String
+    }
+
+    interface ByteArrayBaseDao<ByteArray, Value> {
+        @Query("select id from byteArrayFoo limit 1")
+        fun getByteArray(): Array<ByteArray>
     }
 
     // Foo interfaces that are using the base
@@ -107,17 +115,29 @@ class DaoPrimitiveTest {
         override fun getFirstItemId(): String
     }
 
+    @Dao
+    interface ByteArrayFooDao : ByteArrayBaseDao<ByteArray, String> {
+
+        @Insert
+        fun insert(item: ByteArrayFoo)
+
+        @Query("select id from byteArrayFoo limit 1")
+        override fun getByteArray(): Array<ByteArray>
+    }
+
     @Database(
         version = 1,
         entities = [
             LongFoo::class,
-            StringFoo::class
+            StringFoo::class,
+            ByteArrayFoo::class
         ],
         exportSchema = false
     )
     abstract class TestDatabase : RoomDatabase() {
         abstract fun longFooDao(): LongFooDao
         abstract fun stringFooDao(): StringFooDao
+        abstract fun byteArrayFooDao(): ByteArrayFooDao
     }
 
     @Test
@@ -150,5 +170,17 @@ class DaoPrimitiveTest {
         assertThat(db.stringFooDao().getItem("Key")).isEqualTo(foo)
         db.stringFooDao().delete("Key")
         assertThat(db.stringFooDao().getItem("Key")).isNull()
+    }
+
+    @Test
+    fun testByteArrayFooDao() {
+        val db = Room.inMemoryDatabaseBuilder(
+            InstrumentationRegistry.getInstrumentation()
+                .getTargetContext(),
+            TestDatabase::class.java
+        ).build()
+        val foo = ByteArrayFoo(ByteArray(16), "Elif")
+        db.byteArrayFooDao().insert(foo)
+        assertThat(db.byteArrayFooDao().getByteArray()).isEqualTo(arrayOf(ByteArray(16)))
     }
 }
