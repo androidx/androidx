@@ -20,9 +20,13 @@ import androidx.room.compiler.processing.XEnumEntry
 import androidx.room.compiler.processing.XEnumTypeElement
 import androidx.room.compiler.processing.XFieldElement
 import androidx.room.compiler.processing.XHasModifiers
+import androidx.room.compiler.processing.XMethodElement
 import androidx.room.compiler.processing.XTypeElement
+import androidx.room.compiler.processing.collectAllMethods
+import androidx.room.compiler.processing.collectFieldsIncludingPrivateSupers
 import androidx.room.compiler.processing.filterMethodsByConfig
 import androidx.room.compiler.processing.javac.kotlin.KotlinMetadataElement
+import androidx.room.compiler.processing.util.MemoizedSequence
 import com.google.auto.common.MoreElements
 import com.google.auto.common.MoreTypes
 import com.squareup.javapoet.ClassName
@@ -69,6 +73,18 @@ internal sealed class JavacTypeElement(
                 )
             }
     }
+
+    private val allMethods = MemoizedSequence {
+        collectAllMethods(this)
+    }
+
+    private val allFieldsIncludingPrivateSupers = MemoizedSequence {
+        collectFieldsIncludingPrivateSupers(this)
+    }
+
+    override fun getAllMethods(): Sequence<XMethodElement> = allMethods
+
+    override fun getAllFieldsIncludingPrivateSupers() = allFieldsIncludingPrivateSupers
 
     override fun getDeclaredFields(): List<XFieldElement> {
         return _declaredFields
