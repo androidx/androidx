@@ -38,6 +38,34 @@ jobs:
           fi
           echo "::set-output name=repository::$REPOSITORY"
 
+  matrix_prep:
+    # Using a separate job and agent so as to be able to use tools like 'sed' and 'jq'
+    runs-on: ubuntu-latest
+    needs: [setup]
+    # Defining outputs of a job allows for easier consumption and use
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+    steps:
+    # Checking out code as the set-matrix step utilizes a file named matrix_includes.json
+    - name: "Checkout androidx repo"
+      uses: actions/checkout@v2
+      with:
+          ref: ${{ needs.setup.outputs.checkout_ref }}
+          repository: ${{ needs.setup.outputs.checkout_repo }}
+          fetch-depth: 1
+    # This step is explained more in a following section
+    - id: set-matrix
+      run: |
+        if [[ '${{ github.ref }}' = *compose-compiler* ]]
+        then
+          export branchName='compose-compiler'
+        else
+          export branchName='main'
+        fi
+        echo "there is something \"$branchName\" for me"
+        matrix=$(jq --arg branchName "$branchName" "map(. | select(.runOn[] | contains (\"$branchName\") ) )" $GITHUB_WORKSPACE/.github/workflows/matrix_includes.json)
+        echo ::set-output name=matrix::{\"include\":$(echo $matrix)}\"
+
   lint:
     runs-on: ubuntu-latest
     needs: [setup]
@@ -126,19 +154,12 @@ jobs:
   build-modules:
     strategy:
       fail-fast: false
-      matrix:
-        os: [ubuntu-latest]
-        project: ["activity", "biometric", "compose-runtime", "datastore", "fragment", "lifecycle", "navigation", "paging", "room", "work"]
-        include:
-          - project: "compose-runtime"
-            project-root: "compose/runtime"
-          - project: "navigation"
-            custom-os: "macos-latest" # run one of them on a mac to ensure mac setup works
-    runs-on: ${{ matrix.custom-os || matrix.os }}
-    needs: [setup, lint]
+      matrix: ${{fromJson(needs.matrix_prep.outputs.matrix)}}
+    runs-on: ${{ matrix.runs_on }}
+    needs: [setup, lint, matrix_prep]
     env:
       artifact-id: ${{matrix.project}}
-      project-root: ${{matrix.project-root || matrix.project}}
+      project-root: ${{matrix.project-root}}
       GRADLE_BUILD_CACHE_PASSWORD: ${{ secrets.GRADLE_BUILD_CACHE_PASSWORD }}
       GRADLE_ENTERPRISE_ACCESS_KEY: ${{ secrets.GRADLE_ENTERPRISE_ACCESS_KEY }}
     steps:
