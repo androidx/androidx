@@ -161,16 +161,22 @@ public interface WatchFaceMetadataClient : AutoCloseable {
     public class ServiceStartFailureException(message: String = "") : Exception(message)
 
     /**
+     * The watch face threw an exception while trying to service the request. This is usually due to
+     * a bug in the watch face.
+     */
+    public class WatchFaceException(e: Exception) : Exception(e)
+
+    /**
      * Returns the watch face's [UserStyleSchema].
      */
-    @Throws(RemoteException::class)
+    @Throws(WatchFaceException::class)
     public fun getUserStyleSchema(): UserStyleSchema
 
     /**
      * Returns a map of [androidx.wear.watchface.ComplicationSlot] ID to [ComplicationSlotMetadata]
      * for each slot in the watch face's [androidx.wear.watchface.ComplicationSlotsManager].
      */
-    @Throws(RemoteException::class)
+    @Throws(WatchFaceException::class)
     public fun getComplicationSlotMetadataMap(): Map<Int, ComplicationSlotMetadata>
 }
 
@@ -248,61 +254,69 @@ internal class WatchFaceMetadataClientImpl internal constructor(
     }
 
     override fun getUserStyleSchema(): UserStyleSchema {
-        return if (service.apiVersion >= 3) {
-            UserStyleSchema(service.getUserStyleSchema(GetUserStyleSchemaParams(watchFaceName)))
-        } else {
-            headlessClient.userStyleSchema
+        return try {
+            if (service.apiVersion >= 3) {
+                UserStyleSchema(service.getUserStyleSchema(GetUserStyleSchemaParams(watchFaceName)))
+            } else {
+                headlessClient.userStyleSchema
+            }
+        } catch (e: RemoteException) {
+            throw WatchFaceMetadataClient.WatchFaceException(e)
         }
     }
 
     override fun getComplicationSlotMetadataMap(): Map<Int, ComplicationSlotMetadata> {
         requireNotClosed()
-        return if (service.apiVersion >= 3) {
-            val wireFormat = service.getComplicationSlotMetadata(
-                GetComplicationSlotMetadataParams(watchFaceName)
-            )
-            wireFormat.associateBy(
-                { it.id },
-                {
-                    val perSlotBounds = HashMap<ComplicationType, RectF>()
-                    for (i in it.complicationBoundsType.indices) {
-                        perSlotBounds[
-                            ComplicationType.fromWireType(it.complicationBoundsType[i])
-                        ] = it.complicationBounds[i]
+        return try {
+             if (service.apiVersion >= 3) {
+                val wireFormat = service.getComplicationSlotMetadata(
+                    GetComplicationSlotMetadataParams(watchFaceName)
+                )
+                wireFormat.associateBy(
+                    { it.id },
+                    {
+                        val perSlotBounds = HashMap<ComplicationType, RectF>()
+                        for (i in it.complicationBoundsType.indices) {
+                            perSlotBounds[
+                                ComplicationType.fromWireType(it.complicationBoundsType[i])
+                            ] = it.complicationBounds[i]
+                        }
+                        ComplicationSlotMetadata(
+                            ComplicationSlotBounds(perSlotBounds),
+                            it.boundsType,
+                            it.supportedTypes.map { ComplicationType.fromWireType(it) },
+                            DefaultComplicationDataSourcePolicy(
+                                it.defaultDataSourcesToTry ?: emptyList(),
+                                it.fallbackSystemDataSource,
+                                ComplicationType.fromWireType(
+                                    it.primaryDataSourceDefaultType
+                                ),
+                                ComplicationType.fromWireType(
+                                    it.secondaryDataSourceDefaultType
+                                ),
+                                ComplicationType.fromWireType(it.defaultDataSourceType)
+                            ),
+                            it.isInitiallyEnabled,
+                            it.isFixedComplicationDataSource,
+                            it.complicationConfigExtras
+                        )
                     }
+                )
+            } else {
+                headlessClient.complicationSlotsState.mapValues {
                     ComplicationSlotMetadata(
-                        ComplicationSlotBounds(perSlotBounds),
-                        it.boundsType,
-                        it.supportedTypes.map { ComplicationType.fromWireType(it) },
-                        DefaultComplicationDataSourcePolicy(
-                            it.defaultDataSourcesToTry ?: emptyList(),
-                            it.fallbackSystemDataSource,
-                            ComplicationType.fromWireType(
-                                it.primaryDataSourceDefaultType
-                            ),
-                            ComplicationType.fromWireType(
-                                it.secondaryDataSourceDefaultType
-                            ),
-                            ComplicationType.fromWireType(it.defaultDataSourceType)
-                        ),
-                        it.isInitiallyEnabled,
-                        it.isFixedComplicationDataSource,
-                        it.complicationConfigExtras
+                        null,
+                        it.value.boundsType,
+                        it.value.supportedTypes,
+                        it.value.defaultDataSourcePolicy,
+                        it.value.isInitiallyEnabled,
+                        it.value.fixedComplicationDataSource,
+                        it.value.complicationConfigExtras
                     )
                 }
-            )
-        } else {
-            headlessClient.complicationSlotsState.mapValues {
-                ComplicationSlotMetadata(
-                    null,
-                    it.value.boundsType,
-                    it.value.supportedTypes,
-                    it.value.defaultDataSourcePolicy,
-                    it.value.isInitiallyEnabled,
-                    it.value.fixedComplicationDataSource,
-                    it.value.complicationConfigExtras
-                )
             }
+        } catch (e: RemoteException) {
+            throw WatchFaceMetadataClient.WatchFaceException(e)
         }
     }
 
