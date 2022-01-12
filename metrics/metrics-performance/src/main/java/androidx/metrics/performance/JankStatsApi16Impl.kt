@@ -34,8 +34,7 @@ import java.lang.reflect.Field
 internal open class JankStatsApi16Impl(
     jankStats: JankStats,
     view: View
-) :
-    JankStatsBaseImpl(jankStats) {
+) : JankStatsBaseImpl(jankStats) {
 
     // TODO: decorView may change in Window, think about how to handle that
     // e.g., should we cache Window instead?

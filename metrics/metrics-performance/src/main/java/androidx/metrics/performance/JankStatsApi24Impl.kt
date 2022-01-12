@@ -35,12 +35,13 @@ internal open class JankStatsApi24Impl(
     private val window: Window
 ) : JankStatsApi22Impl(jankStats, view) {
 
-    var frameMetricsHandler: Handler? = null
-
     // Workaround for situation like b/206956036, where platform would sometimes send completely
     // duplicate events through FrameMetrics. When that occurs, simply ignore the latest event
     // that has the exact same start time.
     var prevStart = 0L
+
+    // Used to avoid problems with data gathered before things are set up
+    var listenerAddedTime: Long = 0
 
     private val frameMetricsAvailableListener: Window.OnFrameMetricsAvailableListener =
         Window.OnFrameMetricsAvailableListener { _, frameMetrics, _ ->
@@ -70,25 +71,30 @@ internal open class JankStatsApi24Impl(
         return getExpectedFrameDuration(decorViewRef.get())
     }
 
-    var listenerAddedTime: Long = 0
-
     override fun setupFrameTimer(enable: Boolean) {
         window.let {
             if (enable) {
-                if (frameMetricsHandler == null) {
-                    val thread = HandlerThread("FrameMetricsAggregator")
-                    thread.start()
-                    frameMetricsHandler = Handler(thread.looper)
+                if (listenerAddedTime == 0L) {
+                    if (frameMetricsHandler == null) {
+                        val thread = HandlerThread("FrameMetricsAggregator")
+                        thread.start()
+                        frameMetricsHandler = Handler(thread.looper)
+                    }
+                    // Already added, no need to do it again
+                    window.addOnFrameMetricsAvailableListener(
+                        frameMetricsAvailableListener,
+                        frameMetricsHandler
+                    )
+                    listenerAddedTime = System.nanoTime()
                 }
-                window.addOnFrameMetricsAvailableListener(
-                    frameMetricsAvailableListener,
-                    frameMetricsHandler
-                )
-                listenerAddedTime = System.nanoTime()
             } else {
                 window.removeOnFrameMetricsAvailableListener(frameMetricsAvailableListener)
                 listenerAddedTime = 0
             }
         }
+    }
+
+    companion object {
+        private var frameMetricsHandler: Handler? = null
     }
 }
