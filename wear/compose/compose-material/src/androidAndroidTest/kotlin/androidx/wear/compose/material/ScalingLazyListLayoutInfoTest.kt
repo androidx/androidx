@@ -783,7 +783,8 @@ public class ScalingLazyListLayoutInfoTest {
         count: Int,
         startIndex: Int = 0,
         unscaledSize: Int = itemSizePx,
-        spacing: Int = defaultItemSpacingPx
+        spacing: Int = defaultItemSpacingPx,
+        anchorType: ScalingLazyListAnchorType = ScalingLazyListAnchorType.ItemCenter
     ) {
         assertThat(visibleItemsInfo.size).isEqualTo(count)
         var currentIndex = startIndex
@@ -792,10 +793,11 @@ public class ScalingLazyListLayoutInfoTest {
             assertThat(it.index).isEqualTo(currentIndex)
             assertThat(it.size).isEqualTo((unscaledSize * it.scale).roundToInt())
             currentIndex++
+            val startOffset = it.startOffset(anchorType).roundToInt()
             if (previousEndOffset != -1) {
-                assertThat(spacing).isEqualTo(it.offset - previousEndOffset)
+                assertThat(spacing).isEqualTo(startOffset - previousEndOffset)
             }
-            previousEndOffset = it.offset + it.size
+            previousEndOffset = startOffset + it.size
         }
     }
 }

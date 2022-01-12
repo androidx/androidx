@@ -350,7 +350,7 @@ internal fun calculateItemInfo(
     beforeContentPaddingPx: Int,
     anchorType: ScalingLazyListAnchorType,
     initialized: Boolean
-): ItemInfoAndOffsetDelta {
+): ScalingLazyListItemInfo {
     val adjustedItemStart = itemStart - verticalAdjustment
     val adjustedItemEnd = itemStart + item.size - verticalAdjustment
 
@@ -372,9 +372,8 @@ internal fun calculateItemInfo(
         itemScrollOffset = scaledItemTop,
         viewPortSizeInPx = viewportHeightPx,
         beforeContentPaddingInPx = beforeContentPaddingPx,
-        itemSizeInPx = item.size
+        itemSizeInPx = scaledHeight
     )
-    val offsetDelta = scaledItemTop - offset
     val unadjustedOffset = convertToCenterOffset(
         anchorType = anchorType,
         itemScrollOffset = item.offset,
@@ -382,17 +381,14 @@ internal fun calculateItemInfo(
         beforeContentPaddingInPx = beforeContentPaddingPx,
         itemSizeInPx = item.size
     )
-    return ItemInfoAndOffsetDelta(
-        offsetDelta,
-        DefaultScalingLazyListItemInfo(
-            index = item.index,
-            key = item.key,
-            unadjustedOffset = unadjustedOffset,
-            offset = offset,
-            size = scaledHeight,
-            scale = scaleAndAlpha.scale,
-            alpha = if (initialized) scaleAndAlpha.alpha else 0f
-        )
+    return DefaultScalingLazyListItemInfo(
+        index = item.index,
+        key = item.key,
+        unadjustedOffset = unadjustedOffset,
+        offset = offset,
+        size = scaledHeight,
+        scale = scaleAndAlpha.scale,
+        alpha = if (initialized) scaleAndAlpha.alpha else 0f,
     )
 }
 
@@ -412,7 +408,7 @@ internal class DefaultScalingLazyListItemInfo(
     override val offset: Int,
     override val size: Int,
     override val scale: Float,
-    override val alpha: Float
+    override val alpha: Float,
 ) : ScalingLazyListItemInfo {
     override fun toString(): String {
         return "DefaultScalingLazyListItemInfo(index=$index, key=$key, " +
@@ -432,12 +428,30 @@ internal data class ScaleAndAlpha(
     }
 }
 
-@Immutable
-internal data class ItemInfoAndOffsetDelta(
-    val offsetDelta: Int,
-    val itemInfo: ScalingLazyListItemInfo
-) {
-    fun offsetAdjusted(): Int {
-        return itemInfo.offset + offsetDelta
-    }
+/**
+ * Find the unadjusted/unscaled size of the list item.
+ */
+internal fun ScalingLazyListItemInfo.unadjustedSize(): Int {
+    return (size / scale).roundToInt()
 }
+
+/**
+ * Find the start offset of the list item w.r.t. the
+ */
+internal fun ScalingLazyListItemInfo.startOffset(anchorType: ScalingLazyListAnchorType) =
+    offset - if (anchorType == ScalingLazyListAnchorType.ItemCenter) {
+        (size / 2f)
+    } else {
+        0f
+    }
+
+/**
+ * Find the start position of the list item from its unadjusted offset w.r.t. the ScalingLazyColumn
+ * center of viewport offset = 0 coordinate model.
+ */
+internal fun ScalingLazyListItemInfo.unadjustedStartOffset(anchorType: ScalingLazyListAnchorType) =
+    unadjustedOffset - if (anchorType == ScalingLazyListAnchorType.ItemCenter) {
+        (unadjustedSize() / 2f)
+    } else {
+        0f
+    }
