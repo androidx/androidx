@@ -18,6 +18,9 @@ package androidx.fragment.app
 
 import android.os.Bundle
 import androidx.activity.viewModels
+import androidx.core.os.bundleOf
+import androidx.lifecycle.SavedStateHandle
+import androidx.lifecycle.SavedStateViewModelFactory
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.test.annotation.UiThreadTest
@@ -43,6 +46,7 @@ class FragmentViewModelLazyTest {
         assertThat(fragment.daggerPoorCopyVM.prop).isEqualTo("dagger")
         assertThat(fragment.activityVM).isEqualTo(activityRule.activity.vm)
         assertThat(fragment.activityVM2).isEqualTo(activityRule.activity.vm2)
+        assertThat(fragment.savedStateViewModel.defaultValue).isEqualTo("value")
     }
 
     class TestVMFragment : Fragment() {
@@ -52,6 +56,7 @@ class FragmentViewModelLazyTest {
         val daggerPoorCopyVM: TestDaggerViewModel by viewModels { injectedFactory }
         val activityVM: TestActivityViewModel by activityViewModels()
         val activityVM2: TestActivityViewModel2 by viewModels({ requireActivity() })
+        val savedStateViewModel: TestSavedStateViewModel by viewModels({ requireActivity() })
         override fun onCreate(savedInstanceState: Bundle?) {
             injectedFactory = VMFactory("dagger")
             super.onCreate(savedInstanceState)
@@ -61,6 +66,14 @@ class FragmentViewModelLazyTest {
     class TestActivity : FragmentActivity() {
         val vm: TestActivityViewModel by viewModels()
         val vm2: TestActivityViewModel2 by viewModels()
+
+        override fun getDefaultViewModelProviderFactory(): ViewModelProvider.Factory {
+            return SavedStateViewModelFactory(
+                application,
+                this,
+                bundleOf("test" to "value")
+            )
+        }
     }
 
     class TestViewModel : ViewModel()
@@ -68,6 +81,9 @@ class FragmentViewModelLazyTest {
     class TestActivityViewModel2 : ViewModel()
     class TestFactorizedViewModel(val prop: String) : ViewModel()
     class TestDaggerViewModel(val prop: String) : ViewModel()
+    class TestSavedStateViewModel(handle: SavedStateHandle) : ViewModel() {
+        val defaultValue = handle.get<String>("test")
+    }
 
     private class VMFactory(val prop: String) : ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")
