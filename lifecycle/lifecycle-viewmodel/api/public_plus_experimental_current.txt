@@ -17,6 +17,7 @@ package androidx.lifecycle {
   }
 
   public final class ViewModelLazy<VM extends androidx.lifecycle.ViewModel> implements kotlin.Lazy<VM> {
+    ctor public ViewModelLazy(kotlin.reflect.KClass<VM> viewModelClass, kotlin.jvm.functions.Function0<? extends androidx.lifecycle.ViewModelStore> storeProducer, kotlin.jvm.functions.Function0<? extends androidx.lifecycle.ViewModelProvider.Factory> factoryProducer, optional kotlin.jvm.functions.Function0<? extends androidx.lifecycle.viewmodel.CreationExtras> extrasProducer);
     ctor public ViewModelLazy(kotlin.reflect.KClass<VM> viewModelClass, kotlin.jvm.functions.Function0<? extends androidx.lifecycle.ViewModelStore> storeProducer, kotlin.jvm.functions.Function0<? extends androidx.lifecycle.ViewModelProvider.Factory> factoryProducer);
     method public VM getValue();
     method public boolean isInitialized();

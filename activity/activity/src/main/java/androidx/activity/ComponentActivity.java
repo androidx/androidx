@@ -28,6 +28,7 @@ import static androidx.activity.result.contract.ActivityResultContracts.StartInt
 import static androidx.activity.result.contract.ActivityResultContracts.StartIntentSenderForResult.ACTION_INTENT_SENDER_REQUEST;
 import static androidx.activity.result.contract.ActivityResultContracts.StartIntentSenderForResult.EXTRA_INTENT_SENDER_REQUEST;
 import static androidx.activity.result.contract.ActivityResultContracts.StartIntentSenderForResult.EXTRA_SEND_INTENT_EXCEPTION;
+import static androidx.lifecycle.SavedStateHandleSupport.enableSavedStateHandles;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
@@ -81,12 +82,15 @@ import androidx.lifecycle.LifecycleEventObserver;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.LifecycleRegistry;
 import androidx.lifecycle.ReportFragment;
+import androidx.lifecycle.SavedStateHandleSupport;
 import androidx.lifecycle.SavedStateViewModelFactory;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelStore;
 import androidx.lifecycle.ViewModelStoreOwner;
 import androidx.lifecycle.ViewTreeLifecycleOwner;
 import androidx.lifecycle.ViewTreeViewModelStoreOwner;
+import androidx.lifecycle.viewmodel.CreationExtras;
+import androidx.lifecycle.viewmodel.MutableCreationExtras;
 import androidx.savedstate.SavedStateRegistry;
 import androidx.savedstate.SavedStateRegistryController;
 import androidx.savedstate.SavedStateRegistryOwner;
@@ -331,6 +335,7 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
      */
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
+        enableSavedStateHandles(this);
         // Restore the Saved State first so that it is available to
         // OnContextAvailableListener instances
         mSavedStateRegistryController.performRestore(savedInstanceState);
@@ -573,27 +578,36 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
         }
     }
 
+    @NonNull
+    @Override
+    public ViewModelProvider.Factory getDefaultViewModelProviderFactory() {
+        if (mDefaultFactory == null) {
+            mDefaultFactory = new SavedStateViewModelFactory();
+        }
+        return mDefaultFactory;
+    }
+
     /**
      * {@inheritDoc}
      *
      * <p>The extras of {@link #getIntent()} when this is first called will be used as
      * the defaults to any {@link androidx.lifecycle.SavedStateHandle} passed to a view model
-     * created using this factory.</p>
+     * created using this extra.</p>
      */
     @NonNull
     @Override
-    public ViewModelProvider.Factory getDefaultViewModelProviderFactory() {
-        if (getApplication() == null) {
-            throw new IllegalStateException("Your activity is not yet attached to the "
-                    + "Application instance. You can't request ViewModel before onCreate call.");
+    @CallSuper
+    public CreationExtras getDefaultViewModelCreationExtras() {
+        MutableCreationExtras extras = new MutableCreationExtras();
+        if (getApplication() != null) {
+            extras.set(ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY, getApplication());
         }
-        if (mDefaultFactory == null) {
-            mDefaultFactory = new SavedStateViewModelFactory(
-                    getApplication(),
-                    this,
-                    getIntent() != null ? getIntent().getExtras() : null);
+        extras.set(SavedStateHandleSupport.SAVED_STATE_REGISTRY_OWNER_KEY, this);
+        extras.set(SavedStateHandleSupport.VIEW_MODEL_STORE_OWNER_KEY, this);
+        if (getIntent() != null && getIntent().getExtras() != null) {
+            extras.set(SavedStateHandleSupport.DEFAULT_ARGS_KEY, getIntent().getExtras());
         }
-        return mDefaultFactory;
+        return extras;
     }
 
     /**
