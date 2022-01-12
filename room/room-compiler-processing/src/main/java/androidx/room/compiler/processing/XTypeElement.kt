@@ -127,9 +127,7 @@ interface XTypeElement : XHasModifiers, XElement, XMemberContainer {
      * All fields, including private supers.
      * Room only ever reads fields this way.
      */
-    fun getAllFieldsIncludingPrivateSupers(): Sequence<XFieldElement> {
-        return collectFieldsIncludingPrivateSupers(this)
-    }
+    fun getAllFieldsIncludingPrivateSupers(): Sequence<XFieldElement>
 
     /**
      * Returns the primary constructor for the type, if it exists.
@@ -156,9 +154,7 @@ interface XTypeElement : XHasModifiers, XElement, XMemberContainer {
      *   2. All super class methods appear before all sub class methods,
      *   3. Within a given class/interface methods appear in the order they're declared in source.
      */
-    fun getAllMethods(): Sequence<XMethodElement> {
-        return collectAllMethods(this)
-    }
+    fun getAllMethods(): Sequence<XMethodElement>
 
     /**
      * Instance methods declared in this and supers

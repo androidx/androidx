@@ -25,10 +25,13 @@ import androidx.room.compiler.processing.XHasModifiers
 import androidx.room.compiler.processing.XMethodElement
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.XTypeElement
+import androidx.room.compiler.processing.collectAllMethods
+import androidx.room.compiler.processing.collectFieldsIncludingPrivateSupers
 import androidx.room.compiler.processing.filterMethodsByConfig
 import androidx.room.compiler.processing.ksp.KspAnnotated.UseSiteFilter.Companion.NO_USE_SITE
 import androidx.room.compiler.processing.ksp.synthetic.KspSyntheticPropertyMethodElement
 import androidx.room.compiler.processing.tryBox
+import androidx.room.compiler.processing.util.MemoizedSequence
 import com.google.devtools.ksp.getConstructors
 import com.google.devtools.ksp.getDeclaredFunctions
 import com.google.devtools.ksp.getDeclaredProperties
@@ -113,6 +116,18 @@ internal sealed class KspTypeElement(
             }
         } as ClassName
     }
+
+    private val allMethods = MemoizedSequence {
+        collectAllMethods(this)
+    }
+
+    private val allFieldsIncludingPrivateSupers = MemoizedSequence {
+        collectFieldsIncludingPrivateSupers(this)
+    }
+
+    override fun getAllMethods(): Sequence<XMethodElement> = allMethods
+
+    override fun getAllFieldsIncludingPrivateSupers() = allFieldsIncludingPrivateSupers
 
     /**
      * This list includes fields for all properties in this class and its static companion
