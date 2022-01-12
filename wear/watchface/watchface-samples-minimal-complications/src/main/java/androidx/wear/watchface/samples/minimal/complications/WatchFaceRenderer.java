@@ -72,7 +72,8 @@ class WatchFaceRenderer extends Renderer.CanvasRenderer {
                 userStyleRepository,
                 watchState,
                 CanvasType.HARDWARE,
-                UPDATE_DELAY_MILLIS);
+                UPDATE_DELAY_MILLIS,
+                /* clearWithBackgroundTintBeforeRenderingHighlightLayer= */ true);
         mComplicationSlotsManager = complicationSlotsManager;
         mPaint = new Paint();
         mPaint.setTextAlign(Align.CENTER);
@@ -148,7 +149,6 @@ class WatchFaceRenderer extends Renderer.CanvasRenderer {
         float centerX = COMPLICATION_BOUNDS.centerX() * rect.width();
         float centerY = COMPLICATION_BOUNDS.centerY() * rect.height();
 
-        canvas.drawColor(params.getBackgroundTint());
         canvas.drawCircle(centerX, centerY, highlightRadius, mHighlightFocusPaint);
         canvas.drawCircle(centerX, centerY, highlightRadius, mHighlightPaint);
     }

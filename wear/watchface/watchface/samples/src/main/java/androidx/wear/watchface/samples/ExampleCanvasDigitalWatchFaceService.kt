@@ -695,7 +695,8 @@ class ExampleDigitalWatchCanvasRenderer(
     currentUserStyleRepository,
     watchState,
     CanvasType.HARDWARE,
-    INTERACTIVE_UPDATE_RATE_MS
+    INTERACTIVE_UPDATE_RATE_MS,
+    clearWithBackgroundTintBeforeRenderingHighlightLayer = true
 ) {
     internal var oldBounds = Rect(0, 0, 0, 0)
 
@@ -1027,8 +1028,6 @@ class ExampleDigitalWatchCanvasRenderer(
     }
 
     override fun renderHighlightLayer(canvas: Canvas, bounds: Rect, zonedDateTime: ZonedDateTime) {
-        canvas.drawColor(renderParameters.highlightLayer!!.backgroundTint)
-
         drawComplicationHighlights(canvas, zonedDateTime)
     }
 
