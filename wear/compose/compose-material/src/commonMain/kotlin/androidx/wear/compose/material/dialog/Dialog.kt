@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 The Android Open Source Project
+ * Copyright 2022 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.wear.compose.material
+package androidx.wear.compose.material.dialog
 
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
@@ -39,16 +39,31 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.wear.compose.material.Button
+import androidx.wear.compose.material.Chip
+import androidx.wear.compose.material.ToggleChip
+import androidx.wear.compose.material.contentColorFor
+import androidx.wear.compose.material.Icon
+import androidx.wear.compose.material.isRoundDevice
+import androidx.wear.compose.material.LocalContentColor
+import androidx.wear.compose.material.LocalTextStyle
+import androidx.wear.compose.material.MaterialTheme
+import androidx.wear.compose.material.PositionIndicator
+import androidx.wear.compose.material.Scaffold
 import kotlinx.coroutines.delay
 
 /**
- * [AlertDialog] is an opinionated, full screen dialog. This overload offers 5 slots for title,
- * negative button, positive button, optional icon and optional content.
- * The buttons are shown side-by-side below the icon, text and content.
- * [AlertDialog] is scrollable by default if the content is taller than the viewport.
+ * [Alert] lays out the content for an opinionated, alert screen.
+ * This overload offers 5 slots for title, negative button, positive button, optional icon and
+ * optional content. The buttons are shown side-by-side below the icon, text and content.
+ * [Alert] is scrollable by default if the content is taller than the viewport.
  *
- * Example of an [AlertDialog] with an icon, title, body text and buttons:
- * @sample androidx.wear.compose.material.samples.AlertDialogWithButtons
+ * [Alert] can be used as a destination in a navigation graph
+ * e.g. using SwipeDismissableNavHost. However, for a conventional fullscreen dialog,
+ * displayed on top of other content, use [Dialog].
+ *
+ * Example of an [Alert] with an icon, title, body text and buttons:
+ * @sample androidx.wear.compose.material.samples.AlertWithButtons
  *
  * @param title A slot for displaying the title of the dialog,
  * expected to be one or two lines of text.
@@ -69,8 +84,8 @@ import kotlinx.coroutines.delay
  * @param content A slot for additional content, expected to be 2-3 lines of text.
  */
 @Composable
-public fun AlertDialog(
-    title: @Composable () -> Unit,
+public fun Alert(
+    title: @Composable ColumnScope.() -> Unit,
     negativeButton: @Composable () -> Unit,
     positiveButton: @Composable () -> Unit,
     modifier: Modifier = Modifier,
@@ -81,7 +96,7 @@ public fun AlertDialog(
     titleColor: Color = contentColor,
     iconTintColor: Color = contentColor,
     contentPadding: PaddingValues = DialogDefaults.ButtonsContentPadding,
-    content: @Composable (() -> Unit)? = null
+    content: @Composable (ColumnScope.() -> Unit)? = null
 ) {
     DialogImpl(
         modifier = modifier,
@@ -119,13 +134,17 @@ public fun AlertDialog(
 }
 
 /**
- * [AlertDialog] is an opinionated, full screen dialog.
+ * [Alert] lays out the content for an opinionated, alert screen.
  * This overload offers 4 slots for title, optional icon, optional message text and
  * a content slot expected to be one or more vertically stacked [Chip]s or [ToggleChip]s.
- * [AlertDialog] is scrollable by default if the content is taller than the viewport.
+ * [Alert] is scrollable by default if the content is taller than the viewport.
  *
- * Example of an [AlertDialog] with an icon, title, message text and chips:
- * @sample androidx.wear.compose.material.samples.AlertDialogWithChips
+ * [Alert] can be used as a destination in a navigation graph
+ * e.g. using SwipeDismissableNavHost. However, for a conventional fullscreen dialog,
+ * displayed on top of other content, use [Dialog].
+ *
+ * Example of an [Alert] with an icon, title, message text and chips:
+ * @sample androidx.wear.compose.material.samples.AlertWithChips
  *
  * @param title A slot for displaying the title of the dialog,
  * expected to be one or two lines of text.
@@ -144,11 +163,11 @@ public fun AlertDialog(
  * @param content A slot for one or more spaced [Chip]s, stacked vertically.
  */
 @Composable
-public fun AlertDialog(
-    title: @Composable () -> Unit,
+public fun Alert(
+    title: @Composable ColumnScope.() -> Unit,
     modifier: Modifier = Modifier,
     icon: @Composable (() -> Unit)? = null,
-    message: @Composable (() -> Unit)? = null,
+    message: @Composable (ColumnScope.() -> Unit)? = null,
     scrollState: ScrollState = rememberScrollState(),
     backgroundColor: Color = MaterialTheme.colors.background,
     contentColor: Color = contentColorFor(backgroundColor),
@@ -189,17 +208,18 @@ public fun AlertDialog(
 }
 
 /**
- * [ConfirmationDialog] is an opinionated dialog that displays a message to the user
- * for [durationMillis]. It has a slot for an icon or image (which could be animated).
+ * [Confirmation] lays out the content for an opinionated confirmation screen that
+ * displays a message to the user for [durationMillis]. It has a slot for an icon or image
+ * (which could be animated).
  *
- * [ConfirmationDialog] can also be acknowledged via swipe-to-dismiss if the dialog is
- * displayed as a destination in a navigation graph e.g. using SwipeDismissableNavHost.
+ * [Confirmation] can be used as a destination in a navigation graph
+ * e.g. using SwipeDismissableNavHost. However, for a conventional fullscreen dialog,
+ * displayed on top of other content, use [Dialog].
  *
- * Example of a [ConfirmationDialog] with animation:
- * @sample androidx.wear.compose.material.samples.ConfirmationDialogWithAnimation
+ * Example of a [Confirmation] with animation:
+ * @sample androidx.wear.compose.material.samples.ConfirmationWithAnimation
  *
  * @param onTimeout Event invoked when the dialog has been shown for [durationMillis].
- * Must remove the [ConfirmationDialog] from the composition.
  * @param modifier Modifier to be applied to the dialog.
  * @param icon An optional slot for displaying an icon or image.
  * @param scrollState The scroll state for the dialog so that the scroll position can be displayed
@@ -215,7 +235,7 @@ public fun AlertDialog(
  * @param content A slot for the dialog title, expected to be one line of text.
  */
 @Composable
-public fun ConfirmationDialog(
+public fun Confirmation(
     onTimeout: () -> Unit,
     modifier: Modifier = Modifier,
     icon: @Composable (() -> Unit)? = null,
@@ -225,7 +245,7 @@ public fun ConfirmationDialog(
     contentColor: Color = contentColorFor(backgroundColor),
     iconTintColor: Color = contentColor,
     contentPadding: PaddingValues = DialogDefaults.ConfirmationContentPadding,
-    content: @Composable () -> Unit
+    content: @Composable ColumnScope.() -> Unit
 ) {
     require(durationMillis > 0) { "Duration must be a positive integer" }
 
@@ -262,11 +282,11 @@ public fun ConfirmationDialog(
 }
 
 /**
- * Contains the default values used by [AlertDialog] and [ConfirmationDialog].
+ * Contains the default values used by [Alert] and [Confirmation].
  */
 public object DialogDefaults {
     /**
-     * Creates the recommended contentPadding for [AlertDialog] with chips, used to define
+     * Creates the recommended contentPadding for [Alert] with chips, used to define
      * the spacing around content that may contain several chips.
      */
     public val ChipsContentPadding
@@ -277,7 +297,7 @@ public object DialogDefaults {
                 PaddingValues(start = 5.dp, end = 5.dp, top = 20.dp, bottom = 64.dp)
 
     /**
-     * Creates the recommended contentPadding for [AlertDialog] with buttons, used to define
+     * Creates the recommended contentPadding for [Alert] with buttons, used to define
      * the spacing around content for a dialog with icon, title, optional message text
      * and two buttons.
      */
@@ -289,7 +309,7 @@ public object DialogDefaults {
                 PaddingValues(start = 5.dp, end = 5.dp, top = 20.dp, bottom = 38.dp)
 
     /**
-     * Creates the recommended contentPadding for [ConfirmationDialog],
+     * Creates the recommended contentPadding for [Confirmation],
      * used to define the spacing around content for a dialog with optional icon and title.
      */
     public val ConfirmationContentPadding
@@ -300,19 +320,19 @@ public object DialogDefaults {
                 PaddingValues(start = 12.dp, end = 12.dp, top = 20.dp, bottom = 20.dp)
 
     /**
-     * Short duration for showing [ConfirmationDialog].
+     * Short duration for showing [Confirmation].
      */
-    val ShortDurationMillis = 4000L
+    public val ShortDurationMillis = 4000L
 
     /**
-     * Long duration for showing [ConfirmationDialog].
+     * Long duration for showing [Confirmation].
      */
-    val LongDurationMillis = 10000L
+    public val LongDurationMillis = 10000L
 
     /**
-     * Show [ConfirmationDialog] indefinitely (supports swipe-to-dismiss).
+     * Show [Confirmation] indefinitely (supports swipe-to-dismiss).
      */
-    val IndefiniteDurationMillis = Long.MAX_VALUE
+    public val IndefiniteDurationMillis = Long.MAX_VALUE
 
     /**
      * Spacing between [Button]s.
@@ -408,15 +428,16 @@ private fun DialogIconHeader(
 private fun DialogTitle(
     titleColor: Color,
     padding: PaddingValues,
-    content: @Composable () -> Unit
+    content: @Composable ColumnScope.() -> Unit
 ) {
     CompositionLocalProvider(
         LocalContentColor provides titleColor,
         LocalTextStyle provides MaterialTheme.typography.title3
     ) {
-        Column(modifier = Modifier.padding(padding)) {
-            content()
-        }
+        Column(
+            modifier = Modifier.padding(padding),
+            content = content,
+        )
     }
 }
 
@@ -426,14 +447,15 @@ private fun DialogTitle(
 @Composable
 private fun DialogBody(
     bodyColor: Color,
-    content: @Composable () -> Unit
+    content: @Composable ColumnScope.() -> Unit
 ) {
     CompositionLocalProvider(
         LocalContentColor provides bodyColor,
         LocalTextStyle provides MaterialTheme.typography.body2
     ) {
-        Column(modifier = Modifier.padding(DialogDefaults.BodyPadding)) {
-            content()
-        }
+        Column(
+            modifier = Modifier.padding(DialogDefaults.BodyPadding),
+            content = content
+        )
     }
 }

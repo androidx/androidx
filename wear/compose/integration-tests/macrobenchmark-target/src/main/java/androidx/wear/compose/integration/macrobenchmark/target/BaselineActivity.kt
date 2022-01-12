@@ -45,7 +45,6 @@ import androidx.navigation.NavHostController
 import androidx.wear.compose.foundation.ArcPaddingValues
 import androidx.wear.compose.foundation.BasicCurvedText
 import androidx.wear.compose.foundation.CurvedTextStyle
-import androidx.wear.compose.material.AlertDialog
 import androidx.wear.compose.material.AppCard
 import androidx.wear.compose.material.Button
 import androidx.wear.compose.material.Card
@@ -53,7 +52,6 @@ import androidx.wear.compose.material.Chip
 import androidx.wear.compose.material.ChipDefaults
 import androidx.wear.compose.material.CompactButton
 import androidx.wear.compose.material.CompactChip
-import androidx.wear.compose.material.ConfirmationDialog
 import androidx.wear.compose.material.CurvedText
 import androidx.wear.compose.material.ExperimentalWearMaterialApi
 import androidx.wear.compose.material.InlineSlider
@@ -72,6 +70,8 @@ import androidx.wear.compose.material.ToggleChip
 import androidx.wear.compose.material.Vignette
 import androidx.wear.compose.material.VignettePosition
 import androidx.wear.compose.material.rememberPickerState
+import androidx.wear.compose.material.dialog.Alert
+import androidx.wear.compose.material.dialog.Confirmation
 import androidx.wear.compose.navigation.SwipeDismissableNavHost
 import androidx.wear.compose.navigation.composable
 import androidx.wear.compose.navigation.rememberSwipeDismissableNavController
@@ -129,14 +129,14 @@ class BaselineActivity : ComponentActivity() {
                             }
                         }
                         composable(ALERT_DIALOG) {
-                            AlertDialog(
+                            Alert(
                                 title = { Text("Alert") },
                                 negativeButton = {},
                                 positiveButton = {},
                             )
                         }
                         composable(CONFIRMATION_DIALOG) {
-                            ConfirmationDialog(
+                            Confirmation(
                                 onTimeout = { navController.popBackStack() },
                                 content = { Text("Confirmation") },
                             )
