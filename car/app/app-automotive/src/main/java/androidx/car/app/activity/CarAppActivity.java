@@ -74,8 +74,8 @@ import java.util.List;
  * <h4>Activity Declaration</h4>
  *
  * <p>The app must declare and export this {@link CarAppActivity} in their manifest. In order for
- * it to show up in the car's app launcher, it must include a {@link Intent#CATEGORY_LAUNCHER}
- * intent filter.
+ * it to show up in the car's app launcher. It must declare the {@code launchMode} to be
+ * {@code singleTask}, and it must include a {@link Intent#CATEGORY_LAUNCHER} intent filter.
  *
  * For example:
  *
@@ -83,6 +83,7 @@ import java.util.List;
  * <activity
  *   android:name="androidx.car.app.activity.CarAppActivity"
  *   android:exported="true"
+ *   android:launchMode="singleTask"
  *   android:label="@string/your_app_label">
  *
  *   <intent-filter>
