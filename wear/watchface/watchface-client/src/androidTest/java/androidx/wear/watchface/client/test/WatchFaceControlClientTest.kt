@@ -37,7 +37,6 @@ import android.view.SurfaceHolder
 import androidx.annotation.RequiresApi
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.filters.FlakyTest
 import androidx.test.filters.MediumTest
 import androidx.test.screenshot.AndroidXScreenshotTestRule
 import androidx.test.screenshot.assertAgainstGolden
@@ -434,7 +433,7 @@ class WatchFaceControlClientTest {
                 complications
             )
         }
-        // Create the engine which triggers the crashing watchface.
+        // Create the engine which triggers construction of the interactive instance.
         handler.post {
             engine = wallpaperService.onCreateEngine() as WatchFaceService.EngineWrapper
         }
@@ -480,7 +479,7 @@ class WatchFaceControlClientTest {
                 complications
             )
         }
-        // Create the engine which triggers the crashing watchface.
+        // Create the engine which triggers construction of the interactive instance.
         handler.post {
             engine = wallpaperService.onCreateEngine() as WatchFaceService.EngineWrapper
         }
@@ -812,7 +811,6 @@ class WatchFaceControlClientTest {
         assertThat(awaitWithTimeout(deferredInteractiveInstance2).instanceId).isEqualTo("testId")
     }
 
-    @FlakyTest(bugId = 206646906)
     @SuppressLint("NewApi") // renderWatchFaceToBitmap
     @Test
     fun getOrCreateInteractiveWatchFaceClient_existingOpenInstance_styleChange() {
@@ -1150,7 +1148,7 @@ class WatchFaceControlClientTest {
         val wallpaperService = TestCrashingWatchFaceServiceWithBaseContext(surfaceHolder)
         val client = handlerCoroutineScope.async {
             service.getOrCreateInteractiveWatchFaceClient(
-                "testId",
+                "testCrashingId",
                 deviceConfig,
                 systemState,
                 null,
@@ -1283,7 +1281,7 @@ class WatchFaceControlClientTest {
         val canvas = Canvas(bitmap)
         Mockito.`when`(surfaceHolder.lockHardwareCanvas()).thenReturn(canvas)
 
-        // Create the engine which triggers the crashing watchface.
+        // Create the engine which triggers creation of the interactive instance.
         handler.post {
             engine = wallpaperService.onCreateEngine() as WatchFaceService.EngineWrapper
         }
@@ -1335,7 +1333,7 @@ class WatchFaceControlClientTest {
             renderLatch.countDown()
         }
 
-        // Create the engine which triggers the crashing watchface.
+        // Create the engine which triggers creation of the interactive instance.
         handler.post {
             engine = wallpaperService.onCreateEngine() as WatchFaceService.EngineWrapper
         }
@@ -1389,7 +1387,7 @@ class WatchFaceControlClientTest {
                 complications
             )
         }
-        // Create the engine which triggers the crashing watchface.
+        // Create the engine which triggers creation of the interactive instance.
         handler.post {
             engine = wallpaperService.onCreateEngine() as WatchFaceService.EngineWrapper
         }
@@ -1501,7 +1499,7 @@ class WatchFaceControlClientTest {
         val canvas = Canvas(bitmap)
         Mockito.`when`(surfaceHolder.lockHardwareCanvas()).thenReturn(canvas)
 
-        // Create the engine which triggers the crashing watchface.
+        // Create the engine which triggers creation of the interactive instance.
         handler.post {
             engine = wallpaperService.onCreateEngine() as WatchFaceService.EngineWrapper
         }
