@@ -16,6 +16,7 @@
 
 package androidx.window.embedding
 
+import android.app.Activity
 import android.util.Log
 import androidx.window.core.ConsumerAdapter
 import androidx.window.core.ExperimentalWindowApi
@@ -50,6 +51,10 @@ internal class EmbeddingCompat constructor(
             val splitInfoList = values.filterIsInstance<OEMSplitInfo>()
             embeddingCallback.onSplitInfoChanged(adapter.translate(splitInfoList))
         }
+    }
+
+    override fun isActivityEmbedded(activity: Activity): Boolean {
+        return embeddingExtension.isActivityEmbedded(activity)
     }
 
     companion object {
