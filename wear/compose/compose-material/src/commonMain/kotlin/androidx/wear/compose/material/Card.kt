@@ -100,7 +100,7 @@ public fun Card(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     backgroundPainter: Painter = CardDefaults.cardBackgroundPainter(),
-    contentColor: Color = MaterialTheme.colors.onSurfaceVariant2,
+    contentColor: Color = MaterialTheme.colors.onSurfaceVariant,
     enabled: Boolean = true,
     contentPadding: PaddingValues = CardDefaults.ContentPadding,
     shape: Shape = MaterialTheme.shapes.large,
@@ -211,7 +211,7 @@ public fun AppCard(
     appColor: Color = MaterialTheme.colors.onSurfaceVariant,
     timeColor: Color = MaterialTheme.colors.onSurfaceVariant,
     titleColor: Color = MaterialTheme.colors.onSurface,
-    contentColor: Color = MaterialTheme.colors.onSurfaceVariant2,
+    contentColor: Color = MaterialTheme.colors.onSurfaceVariant,
     content: @Composable () -> Unit,
 ) {
     Card(
@@ -316,7 +316,7 @@ public fun TitleCard(
     backgroundPainter: Painter = CardDefaults.cardBackgroundPainter(),
     titleColor: Color = MaterialTheme.colors.onSurface,
     timeColor: Color = MaterialTheme.colors.onSurfaceVariant,
-    contentColor: Color = MaterialTheme.colors.onSurfaceVariant2,
+    contentColor: Color = MaterialTheme.colors.onSurfaceVariant,
     content: @Composable () -> Unit,
 ) {
     Card(
@@ -380,7 +380,7 @@ public object CardDefaults {
             MaterialTheme.colors.onSurfaceVariant.copy(alpha = 0.20f)
                 .compositeOver(MaterialTheme.colors.background),
         endBackgroundColor: Color =
-            MaterialTheme.colors.onSurfaceVariant2.copy(alpha = 0.13f)
+            MaterialTheme.colors.onSurfaceVariant.copy(alpha = 0.10f)
                 .compositeOver(MaterialTheme.colors.background),
         gradientDirection: LayoutDirection = LocalLayoutDirection.current
     ): Painter {

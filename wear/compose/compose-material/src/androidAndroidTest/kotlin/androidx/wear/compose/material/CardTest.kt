@@ -217,13 +217,13 @@ public class CardColorTest {
     public fun gives_enabled_default_colors(): Unit =
         verifyColors(
             CardStatus.Enabled,
-        ) { MaterialTheme.colors.onSurfaceVariant2 }
+        ) { MaterialTheme.colors.onSurfaceVariant }
 
     @Test
     public fun gives_disabled_default_colors(): Unit =
         verifyColors(
             CardStatus.Disabled,
-        ) { MaterialTheme.colors.onSurfaceVariant2 }
+        ) { MaterialTheme.colors.onSurfaceVariant }
 
     @Test
     public fun app_card_gives_default_colors() {
@@ -241,7 +241,7 @@ public class CardColorTest {
             expectedAppColor = MaterialTheme.colors.onSurfaceVariant
             expectedTimeColor = MaterialTheme.colors.onSurfaceVariant
             expectedTitleColor = MaterialTheme.colors.onSurface
-            expectedContentColor = MaterialTheme.colors.onSurfaceVariant2
+            expectedContentColor = MaterialTheme.colors.onSurfaceVariant
             Box(
                 modifier = Modifier
                     .fillMaxSize()
@@ -278,7 +278,7 @@ public class CardColorTest {
         rule.setContentWithTheme {
             expectedTimeColor = MaterialTheme.colors.onSurfaceVariant
             expectedTitleColor = MaterialTheme.colors.onSurface
-            expectedContentColor = MaterialTheme.colors.onSurfaceVariant2
+            expectedContentColor = MaterialTheme.colors.onSurfaceVariant
             Box(
                 modifier = Modifier
                     .fillMaxSize()
