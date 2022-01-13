@@ -245,8 +245,9 @@ def update_versions_in_library_versions_kt(group_id, artifact_id, old_version):
     artifact_id_variable_name = artifact_id.replace("androidx.","").replace("-","_").upper()
     new_version = increment_version(old_version)
     # Special case Compose because it uses the same version variable.
-    if group_id_variable_name.startswith("COMPOSE"):
-        group_id_variable_name = "COMPOSE"
+    if (group_id_variable_name.startswith("COMPOSE") and
+        group_id_variable_name != "COMPOSE_MATERIAL3"):
+            group_id_variable_name = "COMPOSE"
 
     # Open file for reading and get all lines
     with open(LIBRARY_VERSIONS_FP, 'r') as f:
@@ -266,6 +267,10 @@ def update_versions_in_library_versions_kt(group_id, artifact_id, old_version):
             # Found the correct variable to modify
             if version_variable_name == "COMPOSE":
                 new_version_line = ("    val COMPOSE = Version("
+                                    "System.getenv(\"COMPOSE_CUSTOM_VERSION\") "
+                                    "?: \"" + new_version + "\")\n")
+            elif version_variable_name == "COMPOSE_MATERIAL3":
+                new_version_line = ("    val COMPOSE_MATERIAL3 = Version("
                                     "System.getenv(\"COMPOSE_CUSTOM_VERSION\") "
                                     "?: \"" + new_version + "\")\n")
             else:
@@ -288,6 +293,10 @@ def update_versions_in_library_versions_kt(group_id, artifact_id, old_version):
                 # Found the correct variable to modify
                 if version_variable_name == "COMPOSE":
                     new_version_line = ("    val COMPOSE = Version("
+                                        "System.getenv(\"COMPOSE_CUSTOM_VERSION\") "
+                                        "?: \"" + new_version + "\")\n")
+                elif version_variable_name == "COMPOSE_MATERIAL3":
+                    new_version_line = ("    val COMPOSE_MATERIAL3 = Version("
                                         "System.getenv(\"COMPOSE_CUSTOM_VERSION\") "
                                         "?: \"" + new_version + "\")\n")
                 else:

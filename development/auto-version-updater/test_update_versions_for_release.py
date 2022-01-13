@@ -96,6 +96,7 @@ class TestVersionUpdates(unittest.TestCase):
     def test_should_update_version_in_library_versions_kt(self):
         generic_line = "    val CONTENTPAGER = Version(\"1.1.0-alpha01\")"
         compose_line = "    val COMPOSE = Version(System.getenv(\"COMPOSE_CUSTOM_VERSION\") ?: \"1.0.0-beta04\")"
+        compose_material3_line = "    val COMPOSE_MATERIAL3 = Version(System.getenv(\"COMPOSE_CUSTOM_VERSION\") ?: \"1.0.0-beta04\")"
         self.assertTrue(should_update_version_in_library_versions_kt(generic_line, "1.1.0-alpha02"))
         self.assertTrue(should_update_version_in_library_versions_kt(generic_line, "1.3.0-alpha01"))
         self.assertFalse(should_update_version_in_library_versions_kt(generic_line, "1.0.0-alpha01"))
@@ -103,6 +104,10 @@ class TestVersionUpdates(unittest.TestCase):
         self.assertTrue(should_update_version_in_library_versions_kt(compose_line, "1.1.0-alpha02"))
         self.assertTrue(should_update_version_in_library_versions_kt(compose_line, "1.3.0-alpha01"))
         self.assertFalse(should_update_version_in_library_versions_kt(compose_line, "1.0.0-alpha01"))
+
+        self.assertTrue(should_update_version_in_library_versions_kt(compose_material3_line, "1.1.0-alpha02"))
+        self.assertTrue(should_update_version_in_library_versions_kt(compose_material3_line, "1.3.0-alpha01"))
+        self.assertFalse(should_update_version_in_library_versions_kt(compose_material3_line, "1.0.0-alpha01"))
 
 
 class TestFileParsing(unittest.TestCase):
