@@ -1,4 +1,4 @@
-Perfetto amalgamated sources.
+Perfetto SDK (source code): a complete snapshot of Perfetto SDK.
 
 # Updating
 

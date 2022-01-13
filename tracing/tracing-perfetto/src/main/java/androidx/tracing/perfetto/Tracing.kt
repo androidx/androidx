@@ -15,7 +15,7 @@
  */
 package androidx.tracing.perfetto
 
-import androidx.tracing.perfetto.jni.NativeCalls
+import androidx.tracing.perfetto.jni.PerfettoNative
 import java.util.concurrent.atomic.AtomicBoolean
 
 object Tracing {
@@ -30,8 +30,8 @@ object Tracing {
     // TODO: replace with a Broadcast
     fun enable() {
         if (!isEnabled.getAndSet(true)) {
-            NativeCalls.loadLib()
-            NativeCalls.nativeRegisterWithPerfetto()
+            PerfettoNative.loadLib()
+            PerfettoNative.nativeRegisterWithPerfetto()
         }
     }
 
@@ -39,11 +39,11 @@ object Tracing {
     fun setTraceInProgress(newState: Boolean) {
         val oldState = _isTraceInProgress
         _isTraceInProgress = newState
-        if (newState != oldState && !newState) NativeCalls.nativeFlushEvents()
+        if (newState != oldState && !newState) PerfettoNative.nativeFlushEvents()
     }
 
     fun traceEventStart(key: Int, traceInfo: String) =
-        NativeCalls.nativeTraceEventBegin(key, traceInfo)
+        PerfettoNative.nativeTraceEventBegin(key, traceInfo)
 
-    fun traceEventEnd() = NativeCalls.nativeTraceEventEnd()
+    fun traceEventEnd() = PerfettoNative.nativeTraceEventEnd()
 }

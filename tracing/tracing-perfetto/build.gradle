@@ -30,7 +30,7 @@ dependencies {
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.truth)
-    androidTestImplementation(project(":tracing:tracing-perfetto-native"))
+    androidTestImplementation(project(":tracing:tracing-perfetto-binary"))
 }
 
 androidx {

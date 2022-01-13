@@ -687,7 +687,7 @@ includeProject(":textclassifier:textclassifier", "textclassifier/textclassifier"
 includeProject(":tracing:tracing", "tracing/tracing")
 includeProject(":tracing:tracing-ktx", "tracing/tracing-ktx")
 includeProject(":tracing:tracing-perfetto", "tracing/tracing-perfetto", [BuildType.MAIN])
-includeProject(":tracing:tracing-perfetto-native", "tracing/tracing-perfetto-native", [BuildType.MAIN])
+includeProject(":tracing:tracing-perfetto-binary", "tracing/tracing-perfetto-binary", [BuildType.MAIN])
 includeProject(":transition:transition", "transition/transition", [BuildType.MAIN, BuildType.FLAN])
 includeProject(":transition:transition-ktx", "transition/transition-ktx", [BuildType.MAIN, BuildType.FLAN])
 includeProject(":tvprovider:tvprovider", "tvprovider/tvprovider", [BuildType.MAIN])

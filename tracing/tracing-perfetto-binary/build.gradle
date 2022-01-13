@@ -28,7 +28,7 @@ android {
     externalNativeBuild {
         cmake {
             path "src/main/cpp/CMakeLists.txt"
-            version "3.18.1"
+            version "3.22.1"
         }
     }
 }
@@ -40,10 +40,11 @@ dependencies {
 }
 
 androidx {
-    name = "AndroidX Tracing: Perfetto SDK (Native Dependencies)"
+    name = "AndroidX Tracing: Perfetto SDK Native Dependencies"
     publish = Publish.SNAPSHOT_ONLY
     mavenVersion = LibraryVersions.TRACING_PERFETTO
     mavenGroup = LibraryGroups.TRACING
     inceptionYear = "2022"
-    description = "AndroidX Tracing: Perfetto SDK (Native Dependencies)"
+    description = "Provides native binaries required by AndroidX Tracing: Perfetto SDK " +
+        "and is not intended to be used outside of that context."
 }

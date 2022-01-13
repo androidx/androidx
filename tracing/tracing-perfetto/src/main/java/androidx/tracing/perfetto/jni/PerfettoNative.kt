@@ -15,8 +15,8 @@
  */
 package androidx.tracing.perfetto.jni
 
-internal object NativeCalls {
-    fun loadLib() = System.loadLibrary("tracing_perfetto_native")
+internal object PerfettoNative {
+    fun loadLib() = System.loadLibrary("tracing_perfetto")
 
     external fun nativeRegisterWithPerfetto()
     external fun nativeTraceEventBegin(key: Int, traceInfo: String)

@@ -14,18 +14,18 @@
 # the License.
 #
 
-cmake_minimum_required(VERSION 3.13)
+cmake_minimum_required(VERSION 3.22)
 
-project(tracing_perfetto_native)
+project(tracing_perfetto)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Werror")
 
 find_package(Threads)
 
 add_library(perfetto STATIC perfetto/perfetto.cc)
-add_library(tracing_perfetto_native SHARED tracing_perfetto_native.cc trace_categories.cc)
+add_library(tracing_perfetto SHARED tracing_perfetto.cc trace_categories.cc jni/androidx_tracing_perfetto_jni_PerfettoNative.cc)
 
 find_library(android-lib android)
 find_library(log-lib log)
 
-target_link_libraries(tracing_perfetto_native ${android-lib} ${log-lib} perfetto ${CMAKE_THREAD_LIBS_INIT})
+target_link_libraries(tracing_perfetto ${android-lib} ${log-lib} perfetto ${CMAKE_THREAD_LIBS_INIT})

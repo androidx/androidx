@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 The Android Open Source Project
+ * Copyright (C) 2022 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,18 +14,16 @@
  * limitations under the License.
  */
 
-package androidx.tracing.perfetto.jni.test
+#ifndef TRACING_PERFETTO_H
+#define TRACING_PERFETTO_H
 
-import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.filters.SmallTest
-import org.junit.Test
-import org.junit.runner.RunWith
+#include "trace_categories.h"
 
-@SmallTest
-@RunWith(AndroidJUnit4::class)
-class TracingNativeTest {
-    @Test
-    fun test_loadLibrary() {
-        System.loadLibrary("tracing_perfetto_native")
-    }
+namespace tracing_perfetto {
+    void RegisterWithPerfetto();
+    void TraceEventBegin(int key, const char *traceInfo);
+    void TraceEventEnd();
+    void Flush();
 }
+
+#endif // TRACING_PERFETTO_H

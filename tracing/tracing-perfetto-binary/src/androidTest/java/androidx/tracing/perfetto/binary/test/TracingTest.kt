@@ -14,35 +14,18 @@
  * limitations under the License.
  */
 
-package androidx.tracing.perfetto.jni.test
+package androidx.tracing.perfetto.binary.test
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
-import androidx.tracing.perfetto.jni.NativeCalls
 import org.junit.Test
 import org.junit.runner.RunWith
 
 @SmallTest
 @RunWith(AndroidJUnit4::class)
-class NativeCallsTest {
-
-    companion object {
-        init {
-            NativeCalls.loadLib()
-        }
-    }
-
+class TracingTest {
     @Test
-    fun testEvents() {
-        NativeCalls.nativeRegisterWithPerfetto()
-
-        NativeCalls.nativeTraceEventBegin(123, "foo")
-        NativeCalls.nativeTraceEventBegin(321, "bar")
-        NativeCalls.nativeTraceEventEnd()
-        NativeCalls.nativeTraceEventEnd()
-
-        NativeCalls.nativeFlushEvents()
-
-        // TODO: verify the content by getting it back from Perfetto
+    fun test_loadLibrary() {
+        System.loadLibrary("tracing_perfetto")
     }
 }
