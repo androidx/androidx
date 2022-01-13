@@ -40,7 +40,6 @@ public class Colors(
     onBackground: Color = Color.White,
     onSurface: Color = Color.White,
     onSurfaceVariant: Color = Color(0xFFDADCE0),
-    onSurfaceVariant2: Color = Color(0xFFBDC1C6),
     onError: Color = Color(0xFF202124)
 ) {
     public var primary: Color by mutableStateOf(primary, structuralEqualityPolicy())
@@ -73,11 +72,6 @@ public class Colors(
         structuralEqualityPolicy()
     )
         internal set
-    public var onSurfaceVariant2: Color by mutableStateOf(
-        onSurfaceVariant2,
-        structuralEqualityPolicy()
-    )
-        internal set
     public var onError: Color by mutableStateOf(onError, structuralEqualityPolicy())
         internal set
 
@@ -97,7 +91,6 @@ public class Colors(
         onBackground: Color = this.onBackground,
         onSurface: Color = this.onSurface,
         onSurfaceVariant: Color = this.onSurfaceVariant,
-        onSurfaceVariant2: Color = this.onSurfaceVariant2,
         onError: Color = this.onError
     ): Colors = Colors(
         primary = primary,
@@ -112,7 +105,6 @@ public class Colors(
         onBackground = onBackground,
         onSurface = onSurface,
         onSurfaceVariant = onSurfaceVariant,
-        onSurfaceVariant2 = onSurfaceVariant2,
         onError = onError
     )
 
@@ -130,7 +122,6 @@ public class Colors(
             "onBackground=$onBackground, " +
             "onSurface=$onSurface, " +
             "onSurfaceVariant=$onSurfaceVariant, " +
-            "onSurfaceVariant2=$onSurfaceVariant2, " +
             "onError=$onError" +
             ")"
     }
@@ -214,7 +205,6 @@ internal fun Colors.updateColorsFrom(other: Colors) {
     onBackground = other.onBackground
     onSurface = other.onSurface
     onSurfaceVariant = other.onSurfaceVariant
-    onSurfaceVariant2 = other.onSurfaceVariant2
     onError = other.onError
 }
 

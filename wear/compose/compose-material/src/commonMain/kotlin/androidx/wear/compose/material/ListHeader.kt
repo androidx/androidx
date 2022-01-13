@@ -44,7 +44,7 @@ import androidx.compose.ui.unit.dp
 @Composable
 public fun ListHeader(
     modifier: Modifier = Modifier,
-    contentColor: Color = MaterialTheme.colors.onSurfaceVariant2,
+    contentColor: Color = MaterialTheme.colors.onSurfaceVariant,
     backgroundColor: Color = Color.Transparent,
     content: @Composable () -> Unit
 ) {

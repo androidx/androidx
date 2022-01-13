@@ -77,8 +77,8 @@ package androidx.wear.compose.material {
   }
 
   @androidx.compose.runtime.Stable public final class Colors {
-    ctor public Colors(optional long primary, optional long primaryVariant, optional long secondary, optional long secondaryVariant, optional long background, optional long surface, optional long error, optional long onPrimary, optional long onSecondary, optional long onBackground, optional long onSurface, optional long onSurfaceVariant, optional long onSurfaceVariant2, optional long onError);
-    method public androidx.wear.compose.material.Colors copy(optional long primary, optional long primaryVariant, optional long secondary, optional long secondaryVariant, optional long background, optional long surface, optional long error, optional long onPrimary, optional long onSecondary, optional long onBackground, optional long onSurface, optional long onSurfaceVariant, optional long onSurfaceVariant2, optional long onError);
+    ctor public Colors(optional long primary, optional long primaryVariant, optional long secondary, optional long secondaryVariant, optional long background, optional long surface, optional long error, optional long onPrimary, optional long onSecondary, optional long onBackground, optional long onSurface, optional long onSurfaceVariant, optional long onError);
+    method public androidx.wear.compose.material.Colors copy(optional long primary, optional long primaryVariant, optional long secondary, optional long secondaryVariant, optional long background, optional long surface, optional long error, optional long onPrimary, optional long onSecondary, optional long onBackground, optional long onSurface, optional long onSurfaceVariant, optional long onError);
     method public long getBackground();
     method public long getError();
     method public long getOnBackground();
@@ -87,7 +87,6 @@ package androidx.wear.compose.material {
     method public long getOnSecondary();
     method public long getOnSurface();
     method public long getOnSurfaceVariant();
-    method public long getOnSurfaceVariant2();
     method public long getPrimary();
     method public long getPrimaryVariant();
     method public long getSecondary();
@@ -101,7 +100,6 @@ package androidx.wear.compose.material {
     property public final long onSecondary;
     property public final long onSurface;
     property public final long onSurfaceVariant;
-    property public final long onSurfaceVariant2;
     property public final long primary;
     property public final long primaryVariant;
     property public final long secondary;
