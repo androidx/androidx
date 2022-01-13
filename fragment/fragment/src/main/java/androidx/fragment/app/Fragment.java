@@ -17,6 +17,7 @@
 package androidx.fragment.app;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
+import static androidx.lifecycle.SavedStateHandleSupport.enableSavedStateHandles;
 
 import android.animation.Animator;
 import android.annotation.SuppressLint;
@@ -82,12 +83,15 @@ import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.LifecycleRegistry;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.SavedStateHandleSupport;
 import androidx.lifecycle.SavedStateViewModelFactory;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelStore;
 import androidx.lifecycle.ViewModelStoreOwner;
 import androidx.lifecycle.ViewTreeLifecycleOwner;
 import androidx.lifecycle.ViewTreeViewModelStoreOwner;
+import androidx.lifecycle.viewmodel.CreationExtras;
+import androidx.lifecycle.viewmodel.MutableCreationExtras;
 import androidx.loader.app.LoaderManager;
 import androidx.savedstate.SavedStateRegistry;
 import androidx.savedstate.SavedStateRegistryController;
@@ -422,13 +426,6 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
         return Math.min(mMaxState.ordinal(), mParentFragment.getMinimumMaxLifecycleState());
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The {@link #getArguments() Fragment's arguments} when this is first called will be used
-     * as the defaults to any {@link androidx.lifecycle.SavedStateHandle} passed to a view model
-     * created using this factory.</p>
-     */
     @NonNull
     @Override
     public ViewModelProvider.Factory getDefaultViewModelProviderFactory() {
@@ -436,27 +433,47 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
             throw new IllegalStateException("Can't access ViewModels from detached fragment");
         }
         if (mDefaultFactory == null) {
-            Application application = null;
-            Context appContext = requireContext().getApplicationContext();
-            while (appContext instanceof ContextWrapper) {
-                if (appContext instanceof Application) {
-                    application = (Application) appContext;
-                    break;
-                }
-                appContext = ((ContextWrapper) appContext).getBaseContext();
-            }
-            if (application == null && FragmentManager.isLoggingEnabled(Log.DEBUG)) {
-                Log.d(FragmentManager.TAG, "Could not find Application instance from "
-                        + "Context " + requireContext().getApplicationContext() + ", you will "
-                        + "not be able to use AndroidViewModel with the default "
-                        + "ViewModelProvider.Factory");
-            }
-            mDefaultFactory = new SavedStateViewModelFactory(
-                    application,
-                    this,
-                    getArguments());
+            mDefaultFactory = new SavedStateViewModelFactory();
         }
         return mDefaultFactory;
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * <p>The {@link #getArguments() Fragment's arguments} when this is first called will be used
+     * as the defaults to any {@link androidx.lifecycle.SavedStateHandle} passed to a view model
+     * created using this extra.</p>
+     */
+    @NonNull
+    @Override
+    @CallSuper
+    public CreationExtras getDefaultViewModelCreationExtras() {
+        Application application = null;
+        Context appContext = requireContext().getApplicationContext();
+        while (appContext instanceof ContextWrapper) {
+            if (appContext instanceof Application) {
+                application = (Application) appContext;
+                break;
+            }
+            appContext = ((ContextWrapper) appContext).getBaseContext();
+        }
+        if (application == null && FragmentManager.isLoggingEnabled(Log.DEBUG)) {
+            Log.d(FragmentManager.TAG, "Could not find Application instance from "
+                    + "Context " + requireContext().getApplicationContext() + ", you will "
+                    + "not be able to use AndroidViewModel with the default "
+                    + "ViewModelProvider.Factory");
+        }
+        MutableCreationExtras extras = new MutableCreationExtras();
+        if (application != null) {
+            extras.set(ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY, application);
+        }
+        extras.set(SavedStateHandleSupport.SAVED_STATE_REGISTRY_OWNER_KEY, this);
+        extras.set(SavedStateHandleSupport.VIEW_MODEL_STORE_OWNER_KEY, this);
+        if (getArguments() != null) {
+            extras.set(SavedStateHandleSupport.DEFAULT_ARGS_KEY, getArguments());
+        }
+        return extras;
     }
 
     @NonNull
@@ -2987,6 +3004,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
                 }
             });
         }
+        enableSavedStateHandles(this);
         mSavedStateRegistryController.performRestore(savedInstanceState);
         onCreate(savedInstanceState);
         mIsCreated = true;
