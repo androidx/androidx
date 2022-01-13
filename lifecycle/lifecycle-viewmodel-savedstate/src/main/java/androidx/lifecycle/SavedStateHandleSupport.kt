@@ -109,7 +109,7 @@ public fun CreationExtras.createSavedStateHandle(): SavedStateHandle {
 internal object ThrowingFactory : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         throw IllegalStateException(
-            "installSavedStateHandleSupport() wasn't called " +
+            "enableSavedStateHandles() wasn't called " +
                 "prior to createSavedStateHandle() call"
         )
     }
