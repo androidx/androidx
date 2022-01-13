@@ -26,16 +26,19 @@ import javax.tools.Diagnostic
  * [androidx.room.compiler.processing.ksp.KspBasicAnnotationProcessor].
  *
  * The XProcessing Javac and KSP implementations of this interface will automatically validate and
- * defer annotated elements for the steps. If no valid annotated element is found for a
- * [XProcessingStep] then its [XProcessingStep.process] function will not be invoked, except for
- * the last round in which [XProcessingStep.processOver] is invoked regardless if the annotated
- * elements are valid or not. If there were invalid annotated elements until the last round, then
- * the XProcessing implementations will report an error for each invalid element.
+ * defer annotated elements for the steps, unless disabled via
+ * [XProcessingEnvConfig.disableAnnotatedElementValidation]. If validation is enable and no valid
+ * annotated element is found for a [XProcessingStep] then its [XProcessingStep.process] function
+ * will not be invoked, except for the last round in which [XProcessingStep.processOver] is invoked
+ * regardless if the annotated elements are valid or not. If there were invalid annotated elements
+ * until the last round, then the XProcessing implementations will report an error for each invalid
+ * element. If validation is disabled, no error is reported if there are invalid elements found in
+ * the ast round.
  *
  * Be aware that even though the similarity in name, the Javac implementation of this interface
- * is not 1:1 with [com.google.auto.common.BasicAnnotationProcessor]. Specifically, validation is
- * done for each annotated element as opposed to the enclosing type element of the annotated
- * elements for the [XProcessingStep].
+ * is not 1:1 with [com.google.auto.common.BasicAnnotationProcessor]. Specifically, when validation
+ * is enabled it is done for each annotated element as opposed to the enclosing type element of the
+ * annotated elements for the [XProcessingStep].
  */
 interface XBasicAnnotationProcessor {
 
@@ -95,7 +98,12 @@ internal class CommonProcessorDelegate(
                 // Split between valid and invalid elements. Unlike auto-common, validation is only
                 // done in the annotated element from the round and not in the closest enclosing
                 // type element.
-                val (validElements, invalidElements) = annotatedElements.partition { it.validate() }
+                val (validElements, invalidElements) =
+                    if (env.config.disableAnnotatedElementValidation) {
+                        annotatedElements to emptySet<XElement>()
+                    } else {
+                        annotatedElements.partition { it.validate() }
+                    }
                 deferredElements.addAll(invalidElements)
                 (validElements + stepDeferredElementsByAnnotation.getValue(annotation)).let {
                     if (it.isNotEmpty()) {
