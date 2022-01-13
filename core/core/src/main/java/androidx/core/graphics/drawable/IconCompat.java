@@ -49,6 +49,7 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import androidx.annotation.ColorInt;
+import androidx.annotation.DoNotInline;
 import androidx.annotation.DrawableRes;
 import androidx.annotation.IdRes;
 import androidx.annotation.IntDef;
@@ -59,6 +60,7 @@ import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.res.ResourcesCompat;
+import androidx.core.util.ObjectsCompat;
 import androidx.core.util.Preconditions;
 import androidx.versionedparcelable.CustomVersionedParcelable;
 import androidx.versionedparcelable.NonParcelField;
@@ -171,12 +173,14 @@ public class IconCompat extends CustomVersionedParcelable {
     /**
      * @hide
      */
+    @Nullable
     @RestrictTo(LIBRARY)
     @ParcelField(value = 2, defaultValue = "null")
     public byte[]          mData = null;
     /**
      * @hide
      */
+    @Nullable
     @RestrictTo(LIBRARY)
     @ParcelField(value = 3, defaultValue = "null")
     public Parcelable      mParcelable = null;
@@ -201,6 +205,7 @@ public class IconCompat extends CustomVersionedParcelable {
     /**
      * @hide
      */
+    @Nullable
     @RestrictTo(LIBRARY)
     @ParcelField(value = 6, defaultValue = "null")
     public ColorStateList  mTintList = null;
@@ -211,6 +216,7 @@ public class IconCompat extends CustomVersionedParcelable {
     /**
      * @hide
      */
+    @Nullable
     @RestrictTo(LIBRARY)
     @ParcelField(value = 7, defaultValue = "null")
     public String mTintModeStr = null;
@@ -218,6 +224,7 @@ public class IconCompat extends CustomVersionedParcelable {
     /**
      * @hide
      */
+    @Nullable
     @RestrictTo(LIBRARY)
     @ParcelField(value = 8, defaultValue = "null")
     public String mString1;
@@ -229,21 +236,20 @@ public class IconCompat extends CustomVersionedParcelable {
      * @param resId ID of the drawable resource
      * @see android.graphics.drawable.Icon#createWithResource(Context, int)
      */
-    public static IconCompat createWithResource(Context context, @DrawableRes int resId) {
-        if (context == null) {
-            throw new IllegalArgumentException("Context must not be null.");
-        }
+    @NonNull
+    public static IconCompat createWithResource(@NonNull Context context, @DrawableRes int resId) {
+        ObjectsCompat.requireNonNull(context);
         return createWithResource(context.getResources(), context.getPackageName(), resId);
     }
 
     /**
      * @hide
      */
+    @NonNull
     @RestrictTo(LIBRARY_GROUP_PREFIX)
-    public static IconCompat createWithResource(Resources r, String pkg, @DrawableRes int resId) {
-        if (pkg == null) {
-            throw new IllegalArgumentException("Package must not be null.");
-        }
+    public static IconCompat createWithResource(@Nullable Resources r, @NonNull String pkg,
+            @DrawableRes int resId) {
+        ObjectsCompat.requireNonNull(pkg);
         if (resId == 0) {
             throw new IllegalArgumentException("Drawable resource ID must not be 0");
         }
@@ -267,10 +273,9 @@ public class IconCompat extends CustomVersionedParcelable {
      * @param bits A valid {@link android.graphics.Bitmap} object
      * @see android.graphics.drawable.Icon#createWithBitmap(Bitmap)
      */
-    public static IconCompat createWithBitmap(Bitmap bits) {
-        if (bits == null) {
-            throw new IllegalArgumentException("Bitmap must not be null.");
-        }
+    @NonNull
+    public static IconCompat createWithBitmap(@NonNull Bitmap bits) {
+        ObjectsCompat.requireNonNull(bits);
         final IconCompat rep = new IconCompat(TYPE_BITMAP);
         rep.mObj1 = bits;
         return rep;
@@ -282,10 +287,9 @@ public class IconCompat extends CustomVersionedParcelable {
      * @param bits A valid {@link android.graphics.Bitmap} object
      * @see android.graphics.drawable.Icon#createWithAdaptiveBitmap(Bitmap)
      */
-    public static IconCompat createWithAdaptiveBitmap(Bitmap bits) {
-        if (bits == null) {
-            throw new IllegalArgumentException("Bitmap must not be null.");
-        }
+    @NonNull
+    public static IconCompat createWithAdaptiveBitmap(@NonNull Bitmap bits) {
+        ObjectsCompat.requireNonNull(bits);
         final IconCompat rep = new IconCompat(TYPE_ADAPTIVE_BITMAP);
         rep.mObj1 = bits;
         return rep;
@@ -300,10 +304,9 @@ public class IconCompat extends CustomVersionedParcelable {
      * @param length Length of the bitmap data
      * @see android.graphics.drawable.Icon#createWithData(byte[], int, int)
      */
-    public static IconCompat createWithData(byte[] data, int offset, int length) {
-        if (data == null) {
-            throw new IllegalArgumentException("Data must not be null.");
-        }
+    @NonNull
+    public static IconCompat createWithData(@NonNull byte[] data, int offset, int length) {
+        ObjectsCompat.requireNonNull(data);
         final IconCompat rep = new IconCompat(TYPE_DATA);
         rep.mObj1 = data;
         rep.mInt1 = offset;
@@ -317,10 +320,9 @@ public class IconCompat extends CustomVersionedParcelable {
      * @param uri A uri referring to local content:// or file:// image data.
      * @see android.graphics.drawable.Icon#createWithContentUri(String)
      */
-    public static IconCompat createWithContentUri(String uri) {
-        if (uri == null) {
-            throw new IllegalArgumentException("Uri must not be null.");
-        }
+    @NonNull
+    public static IconCompat createWithContentUri(@NonNull String uri) {
+        ObjectsCompat.requireNonNull(uri);
         final IconCompat rep = new IconCompat(TYPE_URI);
         rep.mObj1 = uri;
         return rep;
@@ -332,10 +334,9 @@ public class IconCompat extends CustomVersionedParcelable {
      * @param uri A uri referring to local content:// or file:// image data.
      * @see android.graphics.drawable.Icon#createWithContentUri(String)
      */
-    public static IconCompat createWithContentUri(Uri uri) {
-        if (uri == null) {
-            throw new IllegalArgumentException("Uri must not be null.");
-        }
+    @NonNull
+    public static IconCompat createWithContentUri(@NonNull Uri uri) {
+        ObjectsCompat.requireNonNull(uri);
         return createWithContentUri(uri.toString());
     }
 
@@ -348,9 +349,7 @@ public class IconCompat extends CustomVersionedParcelable {
      */
     @NonNull
     public static IconCompat createWithAdaptiveBitmapContentUri(@NonNull String uri) {
-        if (uri == null) {
-            throw new IllegalArgumentException("Uri must not be null.");
-        }
+        ObjectsCompat.requireNonNull(uri);
         final IconCompat rep = new IconCompat(TYPE_URI_ADAPTIVE_BITMAP);
         rep.mObj1 = uri;
         return rep;
@@ -365,9 +364,7 @@ public class IconCompat extends CustomVersionedParcelable {
      */
     @NonNull
     public static IconCompat createWithAdaptiveBitmapContentUri(@NonNull Uri uri) {
-        if (uri == null) {
-            throw new IllegalArgumentException("Uri must not be null.");
-        }
+        ObjectsCompat.requireNonNull(uri);
         return createWithAdaptiveBitmapContentUri(uri.toString());
     }
 
@@ -416,12 +413,13 @@ public class IconCompat extends CustomVersionedParcelable {
         // Before aosp/1307777, we don't put the package name to mString1. Try to get the
         // package name from the full resource name string. Note that this is not always the same
         // as "the package used to create this icon" and this was what aosp/1307777 tried to fix.
-        if (TextUtils.isEmpty(mString1)) {
+        if (mString1 == null || TextUtils.isEmpty(mString1)) {
             return ((String) mObj1).split(":", -1)[0];
+        } else {
+            // The name of the getResPackage() API is a bit confusing. It actually returns
+            // the app package name rather than the package name in the resource table.
+            return mString1;
         }
-        // The name of the getResPackage() API is a bit confusing. It actually returns
-        // the app package name rather than the package name in the resource table.
-        return mString1;
     }
 
     /**
@@ -493,6 +491,7 @@ public class IconCompat extends CustomVersionedParcelable {
      * @param tint a color, as in {@link Drawable#setTint(int)}
      * @return this same object, for use in chained construction
      */
+    @NonNull
     public IconCompat setTint(@ColorInt int tint) {
         return setTintList(ColorStateList.valueOf(tint));
     }
@@ -503,7 +502,8 @@ public class IconCompat extends CustomVersionedParcelable {
      * @param tintList as in {@link Drawable#setTintList(ColorStateList)}, null to remove tint
      * @return this same object, for use in chained construction
      */
-    public IconCompat setTintList(ColorStateList tintList) {
+    @NonNull
+    public IconCompat setTintList(@Nullable ColorStateList tintList) {
         mTintList = tintList;
         return this;
     }
@@ -514,7 +514,8 @@ public class IconCompat extends CustomVersionedParcelable {
      * @param mode a blending mode, as in {@link Drawable#setTintMode(PorterDuff.Mode)}, may be null
      * @return this same object, for use in chained construction
      */
-    public IconCompat setTintMode(PorterDuff.Mode mode) {
+    @NonNull
+    public IconCompat setTintMode(@Nullable PorterDuff.Mode mode) {
         mTintMode = mode;
         return this;
     }
@@ -537,62 +538,7 @@ public class IconCompat extends CustomVersionedParcelable {
     @RequiresApi(23)
     @NonNull
     public Icon toIcon(@Nullable Context context) {
-        Icon icon;
-        switch (mType) {
-            case TYPE_UNKNOWN:
-                // When type is unknown we are just wrapping an icon.
-                return (Icon) mObj1;
-            case TYPE_BITMAP:
-                icon = Icon.createWithBitmap((Bitmap) mObj1);
-                break;
-            case TYPE_ADAPTIVE_BITMAP:
-                if (Build.VERSION.SDK_INT >= 26) {
-                    icon = Icon.createWithAdaptiveBitmap((Bitmap) mObj1);
-                } else {
-                    icon = Icon.createWithBitmap(
-                            createLegacyIconFromAdaptiveIcon((Bitmap) mObj1, false));
-                }
-                break;
-            case TYPE_RESOURCE:
-                icon = Icon.createWithResource(getResPackage(), mInt1);
-                break;
-            case TYPE_DATA:
-                icon = Icon.createWithData((byte[]) mObj1, mInt1, mInt2);
-                break;
-            case TYPE_URI:
-                icon = Icon.createWithContentUri((String) mObj1);
-                break;
-            case TYPE_URI_ADAPTIVE_BITMAP:
-                if (Build.VERSION.SDK_INT >= 30) {
-                    icon = Icon.createWithAdaptiveBitmapContentUri(getUri());
-                    break;
-                }
-                if (context == null) {
-                    throw new IllegalArgumentException(
-                            "Context is required to resolve the file uri of the icon: " + getUri());
-                }
-                InputStream is = getUriInputStream(context);
-                if (is == null) {
-                    throw new IllegalStateException(
-                            "Cannot load adaptive icon from uri: " + getUri());
-                }
-                if (Build.VERSION.SDK_INT >= 26) {
-                    icon = Icon.createWithAdaptiveBitmap(BitmapFactory.decodeStream(is));
-                } else {
-                    icon = Icon.createWithBitmap(createLegacyIconFromAdaptiveIcon(
-                                BitmapFactory.decodeStream(is), false));
-                }
-                break;
-            default:
-                throw new IllegalArgumentException("Unknown type");
-        }
-        if (mTintList != null) {
-            icon.setTintList(mTintList);
-        }
-        if (mTintMode != DEFAULT_TINT_MODE) {
-            icon.setTintMode(mTintMode);
-        }
-        return icon;
+        return Api23Impl.toIcon(this, context);
     }
 
     /**
@@ -638,7 +584,7 @@ public class IconCompat extends CustomVersionedParcelable {
     public Drawable loadDrawable(@NonNull Context context) {
         checkResource(context);
         if (Build.VERSION.SDK_INT >= 23) {
-            return toIcon(context).loadDrawable(context);
+            return Api23Impl.loadDrawable(toIcon(context), context);
         }
         final Drawable result = loadDrawableInner(context);
         if (result != null && (mTintList != null || mTintMode != DEFAULT_TINT_MODE)) {
@@ -691,7 +637,7 @@ public class IconCompat extends CustomVersionedParcelable {
                 is = getUriInputStream(context);
                 if (is != null) {
                     if (Build.VERSION.SDK_INT >= 26) {
-                        return new AdaptiveIconDrawable(null,
+                        return Api26Impl.createAdaptiveIconDrawable(null,
                                 new BitmapDrawable(context.getResources(),
                                         BitmapFactory.decodeStream(is)));
                     } else {
@@ -1099,19 +1045,20 @@ public class IconCompat extends CustomVersionedParcelable {
     @RequiresApi(23)
     private static int getType(@NonNull Icon icon) {
         if (Build.VERSION.SDK_INT >= 28) {
-            return icon.getType();
-        }
-        try {
-            return (int) icon.getClass().getMethod("getType").invoke(icon);
-        } catch (IllegalAccessException e) {
-            Log.e(TAG, "Unable to get icon type " + icon, e);
-            return TYPE_UNKNOWN;
-        } catch (InvocationTargetException e) {
-            Log.e(TAG, "Unable to get icon type " + icon, e);
-            return TYPE_UNKNOWN;
-        } catch (NoSuchMethodException e) {
-            Log.e(TAG, "Unable to get icon type " + icon, e);
-            return TYPE_UNKNOWN;
+            return Api28Impl.getType(icon);
+        } else {
+            try {
+                return (int) icon.getClass().getMethod("getType").invoke(icon);
+            } catch (IllegalAccessException e) {
+                Log.e(TAG, "Unable to get icon type " + icon, e);
+                return TYPE_UNKNOWN;
+            } catch (InvocationTargetException e) {
+                Log.e(TAG, "Unable to get icon type " + icon, e);
+                return TYPE_UNKNOWN;
+            } catch (NoSuchMethodException e) {
+                Log.e(TAG, "Unable to get icon type " + icon, e);
+                return TYPE_UNKNOWN;
+            }
         }
     }
 
@@ -1127,19 +1074,20 @@ public class IconCompat extends CustomVersionedParcelable {
     @RequiresApi(23)
     private static String getResPackage(@NonNull Icon icon) {
         if (Build.VERSION.SDK_INT >= 28) {
-            return icon.getResPackage();
-        }
-        try {
-            return (String) icon.getClass().getMethod("getResPackage").invoke(icon);
-        } catch (IllegalAccessException e) {
-            Log.e(TAG, "Unable to get icon package", e);
-            return null;
-        } catch (InvocationTargetException e) {
-            Log.e(TAG, "Unable to get icon package", e);
-            return null;
-        } catch (NoSuchMethodException e) {
-            Log.e(TAG, "Unable to get icon package", e);
-            return null;
+            return Api28Impl.getResPackage(icon);
+        } else {
+            try {
+                return (String) icon.getClass().getMethod("getResPackage").invoke(icon);
+            } catch (IllegalAccessException e) {
+                Log.e(TAG, "Unable to get icon package", e);
+                return null;
+            } catch (InvocationTargetException e) {
+                Log.e(TAG, "Unable to get icon package", e);
+                return null;
+            } catch (NoSuchMethodException e) {
+                Log.e(TAG, "Unable to get icon package", e);
+                return null;
+            }
         }
     }
 
@@ -1156,19 +1104,20 @@ public class IconCompat extends CustomVersionedParcelable {
     @DrawableRes
     private static int getResId(@NonNull Icon icon) {
         if (Build.VERSION.SDK_INT >= 28) {
-            return icon.getResId();
-        }
-        try {
-            return (int) icon.getClass().getMethod("getResId").invoke(icon);
-        } catch (IllegalAccessException e) {
-            Log.e(TAG, "Unable to get icon resource", e);
-            return 0;
-        } catch (InvocationTargetException e) {
-            Log.e(TAG, "Unable to get icon resource", e);
-            return 0;
-        } catch (NoSuchMethodException e) {
-            Log.e(TAG, "Unable to get icon resource", e);
-            return 0;
+            return Api28Impl.getResId(icon);
+        } else {
+            try {
+                return (int) icon.getClass().getMethod("getResId").invoke(icon);
+            } catch (IllegalAccessException e) {
+                Log.e(TAG, "Unable to get icon resource", e);
+                return 0;
+            } catch (InvocationTargetException e) {
+                Log.e(TAG, "Unable to get icon resource", e);
+                return 0;
+            } catch (NoSuchMethodException e) {
+                Log.e(TAG, "Unable to get icon resource", e);
+                return 0;
+            }
         }
     }
 
@@ -1184,19 +1133,20 @@ public class IconCompat extends CustomVersionedParcelable {
     @RequiresApi(23)
     private static Uri getUri(@NonNull Icon icon) {
         if (Build.VERSION.SDK_INT >= 28) {
-            return icon.getUri();
-        }
-        try {
-            return (Uri) icon.getClass().getMethod("getUri").invoke(icon);
-        } catch (IllegalAccessException e) {
-            Log.e(TAG, "Unable to get icon uri", e);
-            return null;
-        } catch (InvocationTargetException e) {
-            Log.e(TAG, "Unable to get icon uri", e);
-            return null;
-        } catch (NoSuchMethodException e) {
-            Log.e(TAG, "Unable to get icon uri", e);
-            return null;
+            return Api28Impl.getUri(icon);
+        } else {
+            try {
+                return (Uri) icon.getClass().getMethod("getUri").invoke(icon);
+            } catch (IllegalAccessException e) {
+                Log.e(TAG, "Unable to get icon uri", e);
+                return null;
+            } catch (InvocationTargetException e) {
+                Log.e(TAG, "Unable to get icon uri", e);
+                return null;
+            } catch (NoSuchMethodException e) {
+                Log.e(TAG, "Unable to get icon uri", e);
+                return null;
+            }
         }
     }
 
@@ -1237,13 +1187,144 @@ public class IconCompat extends CustomVersionedParcelable {
         BitmapShader shader = new BitmapShader(adaptiveIconBitmap, Shader.TileMode.CLAMP,
                 Shader.TileMode.CLAMP);
         Matrix shift = new Matrix();
-        shift.setTranslate(-(adaptiveIconBitmap.getWidth() - size) / 2,
-                -(adaptiveIconBitmap.getHeight() - size) / 2);
+        shift.setTranslate(-(adaptiveIconBitmap.getWidth() - size) / 2.0f,
+                -(adaptiveIconBitmap.getHeight() - size) / 2.0f);
         shader.setLocalMatrix(shift);
         paint.setShader(shader);
         canvas.drawCircle(center, center, radius, paint);
 
         canvas.setBitmap(null);
         return icon;
+    }
+
+    @RequiresApi(28)
+    static class Api28Impl {
+        private Api28Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static String getResPackage(Icon icon) {
+            return icon.getResPackage();
+        }
+
+        @DoNotInline
+        static int getType(Icon icon) {
+            return icon.getType();
+        }
+
+        @DoNotInline
+        static int getResId(Icon icon) {
+            return icon.getResId();
+        }
+
+        @DoNotInline
+        static Uri getUri(Icon icon) {
+            return icon.getUri();
+        }
+    }
+
+    @RequiresApi(26)
+    static class Api26Impl {
+        private Api26Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static AdaptiveIconDrawable createAdaptiveIconDrawable(Drawable backgroundDrawable,
+                Drawable foregroundDrawable) {
+            return new AdaptiveIconDrawable(backgroundDrawable, foregroundDrawable);
+        }
+
+        @DoNotInline
+        static Icon createWithAdaptiveBitmap(Bitmap bits) {
+            return Icon.createWithAdaptiveBitmap(bits);
+        }
+    }
+
+    @RequiresApi(30)
+    static class Api30Impl {
+        private Api30Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static Icon createWithAdaptiveBitmapContentUri(Uri uri) {
+            return Icon.createWithAdaptiveBitmapContentUri(uri);
+        }
+
+    }
+
+    @RequiresApi(23)
+    static class Api23Impl {
+        private Api23Impl() {
+            // This class is not instantiable.
+        }
+
+        static Icon toIcon(IconCompat iconCompat, Context context) {
+            Icon icon;
+            switch (iconCompat.mType) {
+                case TYPE_UNKNOWN:
+                    // When type is unknown we are just wrapping an icon.
+                    return (Icon) iconCompat.mObj1;
+                case TYPE_BITMAP:
+                    icon = Icon.createWithBitmap((Bitmap) iconCompat.mObj1);
+                    break;
+                case TYPE_ADAPTIVE_BITMAP:
+                    if (Build.VERSION.SDK_INT >= 26) {
+                        icon = Api26Impl.createWithAdaptiveBitmap((Bitmap) iconCompat.mObj1);
+                    } else {
+                        icon = Icon.createWithBitmap(
+                                createLegacyIconFromAdaptiveIcon((Bitmap) iconCompat.mObj1, false));
+                    }
+                    break;
+                case TYPE_RESOURCE:
+                    icon = Icon.createWithResource(iconCompat.getResPackage(), iconCompat.mInt1);
+                    break;
+                case TYPE_DATA:
+                    icon = Icon.createWithData((byte[]) iconCompat.mObj1, iconCompat.mInt1,
+                            iconCompat.mInt2);
+                    break;
+                case TYPE_URI:
+                    icon = Icon.createWithContentUri((String) iconCompat.mObj1);
+                    break;
+                case TYPE_URI_ADAPTIVE_BITMAP:
+                    if (Build.VERSION.SDK_INT >= 30) {
+                        icon = Api30Impl.createWithAdaptiveBitmapContentUri(iconCompat.getUri());
+                        break;
+                    }
+                    if (context == null) {
+                        throw new IllegalArgumentException(
+                                "Context is required to resolve the file uri of the icon: "
+                                        + iconCompat.getUri());
+                    }
+                    InputStream is = iconCompat.getUriInputStream(context);
+                    if (is == null) {
+                        throw new IllegalStateException(
+                                "Cannot load adaptive icon from uri: " + iconCompat.getUri());
+                    }
+                    if (Build.VERSION.SDK_INT >= 26) {
+                        icon = Api26Impl.createWithAdaptiveBitmap(BitmapFactory.decodeStream(is));
+                    } else {
+                        icon = Icon.createWithBitmap(createLegacyIconFromAdaptiveIcon(
+                                BitmapFactory.decodeStream(is), false));
+                    }
+                    break;
+                default:
+                    throw new IllegalArgumentException("Unknown type");
+            }
+            if (iconCompat.mTintList != null) {
+                icon.setTintList(iconCompat.mTintList);
+            }
+            if (iconCompat.mTintMode != DEFAULT_TINT_MODE) {
+                icon.setTintMode(iconCompat.mTintMode);
+            }
+            return icon;
+        }
+
+        @DoNotInline
+        static Drawable loadDrawable(Icon icon, Context context) {
+            return icon.loadDrawable(context);
+        }
     }
 }
