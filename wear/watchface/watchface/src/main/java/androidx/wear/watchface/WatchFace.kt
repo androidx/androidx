@@ -25,6 +25,7 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.Canvas
+import android.graphics.Color
 import android.graphics.Rect
 import android.os.Build
 import android.os.Bundle
@@ -270,7 +271,7 @@ public class WatchFace(
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public interface ComplicationSlotConfigExtrasChangeCallback {
-      public fun onComplicationSlotConfigExtrasChanged()
+        public fun onComplicationSlotConfigExtrasChanged()
     }
 
     /**
@@ -413,19 +414,106 @@ public class WatchFace(
         }
     }
 
-    /**
-     * The [Instant] to use for preview rendering, or `null` if not set in which case the system
-     * chooses the Instant to use.
-     */
-    public var overridePreviewReferenceInstant: Instant? = null
-        private set
-
     /** The legacy [LegacyWatchFaceOverlayStyle] which only affects Wear 2.0 devices. */
     public var legacyWatchFaceStyle: LegacyWatchFaceOverlayStyle = LegacyWatchFaceOverlayStyle(
         0,
         0,
         true
     )
+        private set
+
+    /**
+     * Sets the legacy [LegacyWatchFaceOverlayStyle] which only affects Wear 2.0 devices.
+     */
+    public fun setLegacyWatchFaceStyle(
+        legacyWatchFaceStyle: LegacyWatchFaceOverlayStyle
+    ): WatchFace = apply {
+        this.legacyWatchFaceStyle = legacyWatchFaceStyle
+    }
+
+    /**
+     * This class allows the watch face to configure the status overlay which is rendered by the
+     * system on top of the watch face. These settings are applicable from Wear 3.0 and will be
+     * ignored on earlier devices.
+     */
+    public class OverlayStyle(
+        /**
+         * The background color of the status indicator tray. This can be any color, including
+         * [Color.TRANSPARENT]. If this is `null` then the system default will be used.
+         */
+        val backgroundColor: Color?,
+
+        /**
+         * The background color of items rendered in the status indicator tray. If not `null` then
+         * this must be either [Color.BLACK] or [Color.WHITE]. If this is `null` then the system
+         * default will be used.
+         */
+        val foregroundColor: Color?
+    ) {
+
+        public constructor() : this(null, null)
+
+        init {
+            require(
+                foregroundColor == null ||
+                    foregroundColor.toArgb() == Color.BLACK ||
+                    foregroundColor.toArgb() == Color.WHITE
+            ) {
+                "foregroundColor must be one of null, Color.BLACK or Color.WHITE"
+            }
+        }
+
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (javaClass != other?.javaClass) return false
+
+            other as OverlayStyle
+
+            if (backgroundColor != other.backgroundColor) return false
+            if (foregroundColor != other.foregroundColor) return false
+
+            return true
+        }
+
+        override fun hashCode(): Int {
+            var result = backgroundColor?.hashCode() ?: 0
+            result = 31 * result + (foregroundColor?.hashCode() ?: 0)
+            return result
+        }
+
+        override fun toString(): String {
+            return "OverlayStyle(backgroundColor=$backgroundColor, " +
+                "foregroundColor=$foregroundColor)"
+        }
+
+        @UiThread
+        internal fun dump(writer: IndentingPrintWriter) {
+            writer.println("OverlayStyle:")
+            writer.increaseIndent()
+            writer.println("backgroundColor=$backgroundColor")
+            writer.println("foregroundColor=$foregroundColor")
+            writer.decreaseIndent()
+        }
+    }
+
+    /** The [OverlayStyle] which affects Wear 3.0 devices and beyond. */
+    public var overlayStyle: OverlayStyle = OverlayStyle()
+        private set
+
+    /**
+     * Sets the [OverlayStyle] which affects Wear 3.0 devices and beyond.
+     */
+    public fun setOverlayStyle(
+        watchFaceOverlayStyle: OverlayStyle
+    ): WatchFace = apply {
+        this.overlayStyle = watchFaceOverlayStyle
+    }
+
+    /**
+     * The [Instant] to use for preview rendering, or `null` if not set in which case the system
+     * chooses the Instant to use.
+     */
+    public var overridePreviewReferenceInstant: Instant? = null
         private set
 
     internal var systemTimeProvider: SystemTimeProvider = object : SystemTimeProvider {
@@ -441,15 +529,6 @@ public class WatchFace(
      */
     public fun setOverridePreviewReferenceInstant(previewReferenceTimeMillis: Instant): WatchFace =
         apply { overridePreviewReferenceInstant = previewReferenceTimeMillis }
-
-    /**
-     * Sets the legacy [LegacyWatchFaceOverlayStyle] which only affects Wear 2.0 devices.
-     */
-    public fun setLegacyWatchFaceStyle(
-        legacyWatchFaceStyle: LegacyWatchFaceOverlayStyle
-    ): WatchFace = apply {
-        this.legacyWatchFaceStyle = legacyWatchFaceStyle
-    }
 
     /**
      * Sets an optional [TapListener] which if not `null` gets called on the ui thread whenever the
@@ -619,6 +698,7 @@ public class WatchFaceImpl @UiThread constructor(
         watchface.complicationDeniedDialogIntent
     internal var complicationRationaleDialogIntent =
         watchface.complicationRationaleDialogIntent
+    internal var overlayStyle = watchface.overlayStyle
 
     private var mockTime = MockTime(1.0, 0, Long.MAX_VALUE)
 
@@ -800,7 +880,9 @@ public class WatchFaceImpl @UiThread constructor(
 
         override var userStyle: UserStyle
             get() = currentUserStyleRepository.userStyle.value
-            set(value) { currentUserStyleRepository.updateUserStyle(value) }
+            set(value) {
+                currentUserStyleRepository.updateUserStyle(value)
+            }
 
         override val complicationSlotsManager
             get() = this@WatchFaceImpl.complicationSlotsManager
@@ -1287,6 +1369,7 @@ public class WatchFaceImpl @UiThread constructor(
             "currentUserStyleRepository.userStyle=${currentUserStyleRepository.userStyle.value}"
         )
         writer.println("currentUserStyleRepository.schema=${currentUserStyleRepository.schema}")
+        overlayStyle.dump(writer)
         watchState.dump(writer)
         complicationSlotsManager.dump(writer)
         renderer.dumpInternal(writer)

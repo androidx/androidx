@@ -952,6 +952,9 @@ class WatchFaceControlClientTest {
             contentDescriptionLabels[2].getTextAt(context.resources, Instant.EPOCH)
         ).isEqualTo("ID Right")
 
+        assertThat(sysUiInterface.overlayStyle.backgroundColor).isNull()
+        assertThat(sysUiInterface.overlayStyle.foregroundColor).isNull()
+
         sysUiInterface.close()
     }
 
@@ -1600,6 +1603,39 @@ class WatchFaceControlClientTest {
         val client = InteractiveWatchFaceClientImpl(iInteractiveWatchFace)
         assertTrue(client.supportsPendingIntentForTouchEvent())
     }
+
+    @Test
+    fun watchfaceOverlayStyle() {
+        val wallpaperService = TestWatchfaceOverlayStyleWatchFaceService(
+            context,
+            surfaceHolder,
+            WatchFace.OverlayStyle(Color.valueOf(Color.RED), Color.valueOf(Color.BLACK))
+        )
+        val deferredInteractiveInstance = handlerCoroutineScope.async {
+            service.getOrCreateInteractiveWatchFaceClient(
+                "testId",
+                deviceConfig,
+                systemState,
+                null,
+                complications
+            )
+        }
+
+        // Create the engine which triggers creation of the interactive instance.
+        handler.post {
+            engine = wallpaperService.onCreateEngine() as WatchFaceService.EngineWrapper
+        }
+
+        // Wait for the instance to be created.
+        val interactiveInstance = awaitWithTimeout(deferredInteractiveInstance)
+
+        assertThat(interactiveInstance.overlayStyle.backgroundColor)
+            .isEqualTo(Color.valueOf(Color.RED))
+        assertThat(interactiveInstance.overlayStyle.foregroundColor)
+            .isEqualTo(Color.valueOf(Color.BLACK))
+
+        interactiveInstance.close()
+    }
 }
 
 internal class TestExampleCanvasAnalogWatchFaceService(
@@ -1758,6 +1794,47 @@ internal class TestCrashingWatchFaceServiceWithBaseContext(
     }
 
     override fun getWallpaperSurfaceHolderOverride() = surfaceHolderOverride
+}
+
+internal class TestWatchfaceOverlayStyleWatchFaceService(
+    testContext: Context,
+    private var surfaceHolderOverride: SurfaceHolder,
+    private var watchFaceOverlayStyle: WatchFace.OverlayStyle
+) : WatchFaceService() {
+
+    init {
+        attachBaseContext(testContext)
+    }
+
+    override fun getWallpaperSurfaceHolderOverride() = surfaceHolderOverride
+
+    override suspend fun createWatchFace(
+        surfaceHolder: SurfaceHolder,
+        watchState: WatchState,
+        complicationSlotsManager: ComplicationSlotsManager,
+        currentUserStyleRepository: CurrentUserStyleRepository
+    ) = WatchFace(
+        WatchFaceType.DIGITAL,
+        object : Renderer.CanvasRenderer(
+            surfaceHolder,
+            currentUserStyleRepository,
+            watchState,
+            CanvasType.HARDWARE,
+            16
+        ) {
+            override fun render(canvas: Canvas, bounds: Rect, zonedDateTime: ZonedDateTime) {
+                // Actually rendering something isn't required.
+            }
+
+            override fun renderHighlightLayer(
+                canvas: Canvas,
+                bounds: Rect,
+                zonedDateTime: ZonedDateTime
+            ) {
+                // Actually rendering something isn't required.
+            }
+        }
+    ).setOverlayStyle(watchFaceOverlayStyle)
 }
 
 internal class TestAsyncCanvasRenderInitWatchFaceService(
