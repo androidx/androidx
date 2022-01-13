@@ -17,6 +17,7 @@
 package androidx.metrics.performance
 
 import android.os.Message
+import android.view.Choreographer
 import android.view.View
 import androidx.annotation.RequiresApi
 
@@ -28,6 +29,22 @@ internal open class JankStatsApi22Impl(
     jankStats: JankStats,
     view: View
 ) : JankStatsApi16Impl(jankStats, view) {
+
+    override fun createDelegatingOnDrawListener(
+        view: View,
+        choreographer: Choreographer,
+        delegates: MutableList<OnFrameListenerDelegate>
+    ): DelegatingOnPreDrawListener {
+        return DelegatingOnPreDrawListener22(view, choreographer, delegates)
+    }
+}
+
+@RequiresApi(22)
+internal class DelegatingOnPreDrawListener22(
+    decorView: View,
+    choreographer: Choreographer,
+    delegates: MutableList<OnFrameListenerDelegate>
+) : DelegatingOnPreDrawListener(decorView, choreographer, delegates) {
 
     override fun setMessageAsynchronicity(message: Message) {
         message.isAsynchronous = true
