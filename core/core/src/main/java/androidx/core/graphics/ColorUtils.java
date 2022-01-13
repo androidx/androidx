@@ -20,7 +20,6 @@ import android.annotation.SuppressLint;
 import android.graphics.Color;
 
 import androidx.annotation.ColorInt;
-import androidx.annotation.DoNotInline;
 import androidx.annotation.FloatRange;
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
@@ -90,54 +89,42 @@ public final class ColorUtils {
     @RequiresApi(26)
     @NonNull
     public static Color compositeColors(@NonNull Color foreground, @NonNull Color background) {
-        return Api26Impl.compositeColors(foreground, background);
-    }
-
-    @RequiresApi(26)
-    static class Api26Impl {
-        private Api26Impl() {
-            // This class is not instantiable.
+        if (!Objects.equals(foreground.getModel(), background.getModel())) {
+            throw new IllegalArgumentException(
+                    "Color models must match (" + foreground.getModel() + " vs. "
+                            + background.getModel() + ")");
         }
 
-        @DoNotInline
-        static Color compositeColors(Color foreground, Color background) {
-            if (!Objects.equals(foreground.getModel(), background.getModel())) {
-                throw new IllegalArgumentException(
-                        "Color models must match (" + foreground.getModel() + " vs. "
-                                + background.getModel() + ")");
-            }
+        Color s = Objects.equals(background.getColorSpace(), foreground.getColorSpace())
+                ? foreground
+                : foreground.convert(background.getColorSpace());
 
-            Color s = Objects.equals(background.getColorSpace(), foreground.getColorSpace())
-                    ? foreground
-                    : foreground.convert(background.getColorSpace());
+        float[] src = s.getComponents();
+        float[] dst = background.getComponents();
 
-            float[] src = s.getComponents();
-            float[] dst = background.getComponents();
+        float sa = s.alpha();
+        // Destination alpha pre-composited
+        float da = background.alpha() * (1.0f - sa);
 
-            float sa = s.alpha();
-            // Destination alpha pre-composited
-            float da = background.alpha() * (1.0f - sa);
+        // Index of the alpha component
+        @SuppressLint("Range") // TODO Remove after upgrading Android Gradle Plugin to 3.1 or newer.
+        int ai = background.getComponentCount() - 1;
 
-            // Index of the alpha component
-            @SuppressLint("Range") // TODO Remove after upgrading AGP to 3.1 or newer.
-            int ai = background.getComponentCount() - 1;
+        // Final alpha: src_alpha + dst_alpha * (1 - src_alpha)
+        dst[ai] = sa + da;
 
-            // Final alpha: src_alpha + dst_alpha * (1 - src_alpha)
-            dst[ai] = sa + da;
-
-            // Divide by final alpha to return non pre-multiplied color
-            if (dst[ai] > 0) {
-                sa /= dst[ai];
-                da /= dst[ai];
-            }
-
-            // Composite non-alpha components
-            for (int i = 0; i < ai; i++) {
-                dst[i] = src[i] * sa + dst[i] * da;
-            }
-
-            return Color.valueOf(dst, background.getColorSpace());
+        // Divide by final alpha to return non pre-multiplied color
+        if (dst[ai] > 0) {
+            sa /= dst[ai];
+            da /= dst[ai];
         }
+
+        // Composite non-alpha components
+        for (int i = 0; i < ai; i++) {
+            dst[i] = src[i] * sa + dst[i] * da;
+        }
+
+        return Color.valueOf(dst, background.getColorSpace());
     }
 
     private static int compositeAlpha(int foregroundAlpha, int backgroundAlpha) {
@@ -588,21 +575,18 @@ public final class ColorUtils {
     /**
      * Returns the euclidean distance between two LAB colors.
      */
-    @SuppressWarnings("unused")
     public static double distanceEuclidean(@NonNull double[] labX, @NonNull double[] labY) {
         return Math.sqrt(Math.pow(labX[0] - labY[0], 2)
                 + Math.pow(labX[1] - labY[1], 2)
                 + Math.pow(labX[2] - labY[2], 2));
     }
 
-    @SuppressWarnings("SameParameterValue")
     private static float constrain(float amount, float low, float high) {
-        return amount < low ? low : Math.min(amount, high);
+        return amount < low ? low : (amount > high ? high : amount);
     }
 
-    @SuppressWarnings("SameParameterValue")
     private static int constrain(int amount, int low, int high) {
-        return amount < low ? low : Math.min(amount, high);
+        return amount < low ? low : (amount > high ? high : amount);
     }
 
     private static double pivotXyzComponent(double component) {
@@ -621,7 +605,6 @@ public final class ColorUtils {
      * @param color2 the second ARGB color
      * @param ratio  the blend ratio of {@code color1} to {@code color2}
      */
-    @SuppressWarnings("unused")
     @ColorInt
     public static int blendARGB(@ColorInt int color1, @ColorInt int color2,
             @FloatRange(from = 0.0, to = 1.0) float ratio) {
@@ -645,7 +628,6 @@ public final class ColorUtils {
      * @param ratio     the blend ratio of {@code hsl1} to {@code hsl2}
      * @param outResult 3-element array which holds the resulting HSL components
      */
-    @SuppressWarnings("unused")
     public static void blendHSL(@NonNull float[] hsl1, @NonNull float[] hsl2,
             @FloatRange(from = 0.0, to = 1.0) float ratio, @NonNull float[] outResult) {
         if (outResult.length != 3) {
@@ -669,7 +651,6 @@ public final class ColorUtils {
      * @param ratio     the blend ratio of {@code lab1} to {@code lab2}
      * @param outResult 3-element array which holds the resulting LAB components
      */
-    @SuppressWarnings("unused")
     public static void blendLAB(@NonNull double[] lab1, @NonNull double[] lab2,
             @FloatRange(from = 0.0, to = 1.0) double ratio, @NonNull double[] outResult) {
         if (outResult.length != 3) {
