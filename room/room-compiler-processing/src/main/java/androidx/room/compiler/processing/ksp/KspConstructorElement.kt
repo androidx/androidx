@@ -41,7 +41,7 @@ internal class KspConstructorElement(
         declaration.parameters.mapIndexed { index, param ->
             KspExecutableParameterElement(
                 env = env,
-                enclosingMethodElement = this,
+                enclosingElement = this,
                 parameter = param,
                 parameterIndex = index
             )

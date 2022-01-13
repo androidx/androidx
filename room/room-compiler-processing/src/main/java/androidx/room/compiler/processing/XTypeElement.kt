@@ -61,6 +61,11 @@ interface XTypeElement : XHasModifiers, XElement, XMemberContainer {
      */
     val enclosingTypeElement: XTypeElement?
 
+    override val enclosingElement: XMemberContainer?
+
+    override val closestMemberContainer: XTypeElement
+        get() = this
+
     override val fallbackLocationText: String
         get() = qualifiedName
 

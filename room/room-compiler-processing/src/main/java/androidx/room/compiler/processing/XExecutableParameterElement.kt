@@ -24,7 +24,7 @@ interface XExecutableParameterElement : XVariableElement {
     /**
      * The enclosing [XExecutableElement] this parameter belongs to.
      */
-    val enclosingMethodElement: XExecutableElement
+    override val enclosingElement: XExecutableElement
 
     /**
      * `true` if the parameter has a default value, `false` otherwise.

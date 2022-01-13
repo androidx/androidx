@@ -33,7 +33,8 @@ interface XExecutableElement : XHasModifiers, XElement {
      *   [XTypeElement]. If you need the generated synthetic java class name, you can use
      *   [XMemberContainer.className] property.
      */
-    val enclosingElement: XMemberContainer
+    override val enclosingElement: XMemberContainer
+
     /**
      * The list of parameters that should be passed into this method.
      *

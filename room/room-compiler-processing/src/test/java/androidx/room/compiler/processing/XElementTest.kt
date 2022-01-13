@@ -16,15 +16,27 @@
 
 package androidx.room.compiler.processing
 
+import androidx.room.compiler.processing.javac.JavacTypeElement
+import androidx.room.compiler.processing.ksp.KspExecutableElement
+import androidx.room.compiler.processing.ksp.KspFieldElement
+import androidx.room.compiler.processing.ksp.KspFileMemberContainer
+import androidx.room.compiler.processing.ksp.synthetic.KspSyntheticFileMemberContainer
 import androidx.room.compiler.processing.testcode.OtherAnnotation
 import androidx.room.compiler.processing.util.Source
+import androidx.room.compiler.processing.util.XTestInvocation
 import androidx.room.compiler.processing.util.className
+import androidx.room.compiler.processing.util.compileFiles
 import androidx.room.compiler.processing.util.getField
 import androidx.room.compiler.processing.util.getMethodByJvmName
 import androidx.room.compiler.processing.util.getParameter
+import androidx.room.compiler.processing.util.kspProcessingEnv
+import androidx.room.compiler.processing.util.kspResolver
 import androidx.room.compiler.processing.util.runProcessorTestWithoutKsp
 import androidx.room.compiler.processing.util.runProcessorTest
 import com.google.common.truth.Truth.assertThat
+import com.google.devtools.ksp.KspExperimental
+import com.google.devtools.ksp.symbol.KSFunctionDeclaration
+import com.google.devtools.ksp.symbol.KSPropertyDeclaration
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.TypeName
 import com.squareup.javapoet.TypeVariableName
@@ -606,5 +618,387 @@ class XElementTest {
                 invocation.processingEnv.requireTypeElement("KotlinSubject").docComment?.trim()
             ).isEqualTo("kdocs")
         }
+    }
+
+    @Test
+    fun enclosingElement() {
+        runProcessorTestHelper(listOf(enclosingElementJavaSource, enclosingElementKotlinSource)) {
+                invocation, _ ->
+            invocation.processingEnv.getTypeElementsFromPackage("foo.bar").forEach {
+                    typeElement ->
+                assertThat(typeElement.enclosingElement).isNull()
+
+                typeElement.getEnclosedTypeElements().forEach { elem ->
+                    elem.getEnclosedElements().forEach { nestedElem ->
+                        assertThat(nestedElem.enclosingElement).isEqualTo(elem)
+                    }
+
+                    assertThat(elem.enclosingElement).isEqualTo(typeElement)
+                }
+                if (typeElement is XEnumTypeElement) {
+                    typeElement.entries.forEach { entry ->
+                        assertThat(entry.enclosingElement).isEqualTo(typeElement)
+                    }
+                }
+                typeElement.getDeclaredFields().forEach { field ->
+                    assertThat(field.enclosingElement).isEqualTo(typeElement)
+                }
+                typeElement.getDeclaredMethods().forEach { method ->
+                    assertThat(method.enclosingElement).isEqualTo(typeElement)
+                    method.parameters.forEach { p ->
+                        assertThat(p.enclosingElement).isEqualTo(method)
+                    }
+                }
+                typeElement.getConstructors().forEach { ctor ->
+                    assertThat(ctor.enclosingElement).isEqualTo(typeElement)
+                    ctor.parameters.forEach { p ->
+                        assertThat(p.enclosingElement).isEqualTo(ctor)
+                    }
+                }
+            }
+        }
+    }
+
+    // TODO(b/218310483): make structure consistent between KSP and Javac, as well as source and
+    //  classpath.
+    @Test
+    fun enclosingElementKotlinCompanion() {
+        runProcessorTestHelper(listOf(enclosingElementKotlinSourceCompanion)) {
+                invocation, precompiled ->
+            val enclosingElement =
+                invocation.processingEnv.requireTypeElement("foo.bar.KotlinClass")
+            val companionObj = enclosingElement.getEnclosedTypeElements().first {
+                it.isCompanionObject()
+            }
+
+            enclosingElement.getDeclaredFields().let { fields ->
+                if (invocation.isKsp) {
+                    assertThat(fields.map { it.name }).containsExactly(
+                        "property",
+                        "companionObjectProperty",
+                        "companionObjectPropertyJvmStatic"
+                    )
+                    fields.forEach {
+                        if (it.name.startsWith("companion")) {
+                            assertThat(it.enclosingElement).isEqualTo(companionObj)
+                        } else {
+                            assertThat(it.enclosingElement).isEqualTo(enclosingElement)
+                        }
+                    }
+                } else {
+                    assertThat(fields.map { it.name }).containsExactly(
+                        "Companion",
+                        "property",
+                        "companionObjectProperty",
+                        "companionObjectPropertyJvmStatic"
+                    )
+                    fields.forEach {
+                        assertThat(it.enclosingElement).isEqualTo(enclosingElement)
+                    }
+                }
+            }
+
+            enclosingElement.getDeclaredMethods().let { methods ->
+                assertThat(methods.map { it.name }).containsExactly(
+                    "getProperty",
+                    "getCompanionObjectPropertyJvmStatic",
+                    "companionObjectFunctionJvmStatic"
+                )
+                methods.forEach {
+                    if (invocation.isKsp && it.name.lowercase().contains("companion")) {
+                        assertThat(it.enclosingElement).isEqualTo(companionObj)
+                    } else {
+                        assertThat(it.enclosingElement).isEqualTo(enclosingElement)
+                    }
+                }
+            }
+
+            companionObj.getDeclaredFields().let { fields ->
+                if (invocation.isKsp) {
+                    assertThat(fields.map { it.name }).containsExactly(
+                        "companionObjectProperty",
+                        "companionObjectPropertyJvmStatic"
+                    )
+                    fields.forEach {
+                        assertThat(it.enclosingElement).isEqualTo(companionObj)
+                    }
+                } else {
+                    assertThat(companionObj.getDeclaredFields()).isEmpty()
+                }
+            }
+
+            companionObj.getDeclaredMethods().let { methods ->
+                methods.forEach {
+                    assertThat(it.enclosingElement).isEqualTo(companionObj)
+                }
+
+                if (invocation.isKsp) {
+                    assertThat(methods.map { it.name }).containsExactly(
+                        "companionObjectFunction",
+                        "companionObjectFunctionJvmStatic",
+                        "getCompanionObjectPropertyJvmStatic"
+                    )
+                } else {
+                    if (precompiled) {
+                        assertThat(methods.map { it.name }).containsExactly(
+                            "getCompanionObjectProperty",
+                            "getCompanionObjectPropertyJvmStatic",
+                            "companionObjectFunction",
+                            "companionObjectFunctionJvmStatic"
+                        )
+                    } else {
+                        assertThat(methods.map { it.name }).containsExactly(
+                            "getCompanionObjectProperty",
+                            "getCompanionObjectPropertyJvmStatic",
+                            "getCompanionObjectPropertyJvmStatic\$annotations",
+                            "companionObjectFunction",
+                            "companionObjectFunctionJvmStatic"
+                        )
+                    }
+                }
+            }
+        }
+    }
+
+    @OptIn(KspExperimental::class)
+    @Test
+    fun enclosingElementKotlinTopLevel() {
+        runProcessorTestHelper(listOf(enclosingElementKotlinSourceTopLevel)) { inv, precompiled ->
+            if (inv.isKsp) {
+                getTopLevelFunctionOrPropertyElements(inv, "foo.bar").forEach {
+                        elem ->
+                    assertThat(elem.enclosingElement).isInstanceOf(
+                        getFileContainerClass(precompiled))
+                }
+            } else {
+                inv.processingEnv.getTypeElementsFromPackage("foo.bar").forEach {
+                        typeElement ->
+                    assertThat(typeElement).isInstanceOf(JavacTypeElement::class.java)
+                    assertThat(typeElement.enclosingElement).isNull()
+
+                    typeElement.getEnclosedElements().forEach { elem ->
+                        assertThat(elem.enclosingElement).isEqualTo(typeElement)
+                        if (elem is XExecutableElement) {
+                            elem.parameters.forEach { p ->
+                                assertThat(p.enclosingElement).isEqualTo(elem)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    @Test
+    fun enclosingTypeElement() {
+        runProcessorTestHelper(listOf(enclosingElementJavaSource, enclosingElementKotlinSource)) {
+                invocation, _ ->
+            invocation.processingEnv.getTypeElementsFromPackage("foo.bar").forEach {
+                    typeElement ->
+                assertThat(typeElement.enclosingTypeElement).isNull()
+
+                typeElement.getEnclosedTypeElements().forEach { elem ->
+                    assertThat(elem.enclosingTypeElement).isNotEqualTo(elem)
+                    assertThat(elem.enclosingTypeElement).isEqualTo(typeElement)
+                }
+            }
+        }
+    }
+
+    @Test
+    fun closestMemberContainer() {
+        runProcessorTestHelper(listOf(enclosingElementJavaSource, enclosingElementKotlinSource)) {
+                invocation, _ ->
+            invocation.processingEnv.getTypeElementsFromPackage("foo.bar").forEach {
+                    typeElement ->
+                assertThat(typeElement.closestMemberContainer).isEqualTo(typeElement)
+
+                val companionObj = typeElement.getEnclosedTypeElements().firstOrNull {
+                    it.isCompanionObject()
+                }
+
+                typeElement.getEnclosedElements().forEach { elem ->
+                    if (elem is XTypeElement) {
+                        elem.getEnclosedElements().forEach { nestedElem ->
+                            assertThat(nestedElem.closestMemberContainer).isEqualTo(elem)
+                        }
+                    } else {
+                        if (elem.enclosingElement == companionObj) {
+                            assertThat(elem.closestMemberContainer).isEqualTo(companionObj)
+                        } else {
+                            assertThat(elem.closestMemberContainer).isEqualTo(typeElement)
+                        }
+
+                        if (elem is XExecutableElement) {
+                            elem.parameters.forEach { p ->
+                                assertThat(p.closestMemberContainer).isEqualTo(typeElement)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    @Test
+    fun closestMemberContainerTopLevel() {
+        runProcessorTestHelper(
+            listOf(enclosingElementKotlinSourceTopLevel)
+        ) { invocation, precompiled ->
+            if (invocation.isKsp) {
+                getTopLevelFunctionOrPropertyElements(invocation, "foo.bar").forEach { elem ->
+                    assertThat(elem.closestMemberContainer).isInstanceOf(
+                        getFileContainerClass(precompiled))
+                    if (elem is XExecutableElement) {
+                        elem.parameters.forEach { p ->
+                            assertThat(p.closestMemberContainer).isInstanceOf(
+                                getFileContainerClass(precompiled))
+                        }
+                    }
+                }
+            } else {
+                invocation.processingEnv.getTypeElementsFromPackage("foo.bar").forEach {
+                        typeElement ->
+                    typeElement.getDeclaredMethods().forEach { method ->
+                        assertThat(method.closestMemberContainer).isEqualTo(typeElement)
+
+                        method.parameters.forEach { p ->
+                            assertThat(p.closestMemberContainer).isEqualTo(typeElement)
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private val enclosingElementJavaSource = Source.java(
+        "foo.bar.Test",
+        """
+        package foo.bar;
+        enum JavaEnum {
+            A(3), B(5), C(7);
+            JavaEnum(int i) { javaEnumField = i; }
+            private int javaEnumField;
+            int javaEnumMethod() {
+               return javaEnumField;
+            }
+            static void javaStaticEnumMethod() {}
+        }
+        interface JavaInterface {
+            void baseMethod(String i);
+        }
+        class JavaBase implements JavaInterface {
+            String baseField;
+            static String staticField;
+            JavaBase(String s) {}
+            @Override public void baseMethod(String s) {}
+            static public void staticMethod(String s) {}
+            static class JavaNestedStatic {
+                String nestedStaticClassField;
+                public void nestedStaticClassMethod(String s) {}
+            }
+            class JavaNestedNonStatic {
+                String nestedClassField;
+                public void nestedClassMethod(String s) {}
+            }
+        }
+        class JavaDerived extends JavaBase {
+            String derivedField;
+            JavaDerived(String t) {
+                super(t);
+            }
+            void derivedMethod(String t) {}
+            @Override
+            public void baseMethod(String t) {}
+        }
+        """.trimIndent()
+    )
+
+    private val enclosingElementKotlinSource = Source.kotlin(
+        "Test.kt",
+        """
+        package foo.bar
+        enum class KotlinEnum(val enumProperty: Int) {
+            A(3), B(5), C(7);
+            fun enumFunction() = enumProperty + 1
+        }
+        open class KotlinBaseClass(val baseProperty: String) {
+            object NestedObject {
+                val nestedObjectProperty: String = "hello"
+                fun nestedObjectFunction(nestedObjectFunctionParam: String) {}
+            }
+            class KotlinNestedClass(val nestedProperty: String) {
+                val nestedClassProperty: String = "hello"
+                fun nestedClassFunction(nestedClassFunctionParam: String) {}
+            }
+            fun baseFunction(baseFunctionParam: String) {}
+        }
+        class KotlinDerivedClass(val derivedProperty: String):
+                KotlinBaseClass(derivedProperty) {
+            fun derivedFunction(derivedFunctionParam: String) {}
+        }
+        data class KotlinDataClass(val property: String)
+        object KotlinObject {
+            val objectProperty: String = "hello"
+            fun objectFunction(objectFunctionParam: String) {}
+        }
+        """.trimIndent()
+    )
+
+    private val enclosingElementKotlinSourceCompanion = Source.kotlin(
+        "Test.kt",
+        """
+        package foo.bar
+        class KotlinClass(val property: String) {
+            companion object {
+                val companionObjectProperty: String = "hello"
+                @JvmStatic
+                val companionObjectPropertyJvmStatic: String = "hello"
+                fun companionObjectFunction(companionFunctionParam: String) {}
+                @JvmStatic
+                fun companionObjectFunctionJvmStatic(companionFunctionParam: String) {}
+            }
+        }
+        """.trimIndent()
+    )
+
+    private val enclosingElementKotlinSourceTopLevel = Source.kotlin(
+        "Test.kt",
+        """
+        package foo.bar
+        val topLevelProperty: String = "hello"
+        fun topLevelFunction(p: String) {}
+        """.trimIndent()
+    )
+
+    @OptIn(KspExperimental::class)
+    private fun getTopLevelFunctionOrPropertyElements(
+        inv: XTestInvocation,
+        pkg: String
+    ): Sequence<XElement> =
+        inv.kspResolver.getDeclarationsFromPackage(pkg).map { declaration ->
+            when (declaration) {
+                is KSFunctionDeclaration ->
+                    KspExecutableElement.create(inv.kspProcessingEnv, declaration)
+                is KSPropertyDeclaration ->
+                    KspFieldElement.create(inv.kspProcessingEnv, declaration)
+                else -> null
+            }
+        }
+        .filterNotNull()
+
+    private fun getFileContainerClass(precompiled: Boolean) =
+        if (precompiled) {
+            KspSyntheticFileMemberContainer::class.java
+        } else {
+            KspFileMemberContainer::class.java
+        }
+
+    private fun runProcessorTestHelper(
+        sources: List<Source>,
+        handler: (XTestInvocation, Boolean) -> Unit
+    ) {
+        runProcessorTest(sources = sources) { handler(it, false) }
+        runProcessorTest(classpath = compileFiles(sources)) { handler(it, true) }
     }
 }

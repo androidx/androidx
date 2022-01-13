@@ -38,9 +38,12 @@ internal class JavacFieldElement(
     override val kotlinType: KmType?
         get() = kotlinMetadata?.type
 
-    override val enclosingElement: XTypeElement by lazy {
+    override val enclosingElement: JavacTypeElement by lazy {
         element.requireEnclosingType(env)
     }
+
+    override val closestMemberContainer: JavacTypeElement
+        get() = enclosingElement
 
     override fun copyTo(newContainer: XTypeElement): JavacFieldElement {
         check(newContainer is JavacTypeElement) {
