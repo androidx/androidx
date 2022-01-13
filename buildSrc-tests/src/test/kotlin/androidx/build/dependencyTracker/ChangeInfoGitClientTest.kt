@@ -237,40 +237,4 @@ class ChangeInfoGitClientTest {
     fun getChangedFiles(config: String): List<String> {
         return ChangeInfoGitClient(config).findChangedFilesSince("", "", false)
     }
-
-    @Test
-    fun findPreviousSubmittedChange_oneChange() {
-        checkPreviousSubmittedChange(
-            """
-            {
-              "changes": [
-                {
-                  "project": "platform/frameworks/support",
-                  "revisions": [
-                    {
-                      "commit": {
-                        "parents": [
-                          {
-                            "commitId": "54ae3ff4690087fd1690086ecf3e2f805fdd2c03",
-                          }
-                        ]
-                      }
-                    }
-                  ]
-                }
-              ]
-            }
-            """,
-            "54ae3ff4690087fd1690086ecf3e2f805fdd2c03"
-        )
-    }
-
-    fun checkPreviousSubmittedChange(config: String, expected: String) {
-        assertEquals(getPreviousSubmittedChange(config), expected)
-    }
-
-    fun getPreviousSubmittedChange(config: String): String {
-        return ChangeInfoGitClient(config).findPreviousSubmittedChange() ?: ""
-    }
-
 }
