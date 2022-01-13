@@ -43,6 +43,9 @@ import androidx.camera.extensions.impl.ImageCaptureExtenderImpl;
 import androidx.camera.extensions.impl.NightImageCaptureExtenderImpl;
 import androidx.camera.extensions.impl.NightPreviewExtenderImpl;
 import androidx.camera.extensions.impl.PreviewExtenderImpl;
+import androidx.camera.extensions.internal.ExtensionVersion;
+import androidx.camera.extensions.internal.Version;
+import androidx.camera.extensions.internal.compat.workaround.ExtensionDisabledValidator;
 import androidx.camera.testing.CameraUtil;
 
 import java.util.Arrays;
@@ -147,7 +150,6 @@ public class ExtensionsTestUtil {
         return impl;
     }
 
-
     /**
      * Returns whether the target camera device can support the test for a specific extension mode.
      */
@@ -202,5 +204,18 @@ public class ExtensionsTestUtil {
     private static boolean isSpecificSkippedDeviceWithExtensionMode(@ExtensionMode.Mode int mode) {
         return "tecno".equalsIgnoreCase(Build.BRAND) && "tecno-ke5".equalsIgnoreCase(Build.DEVICE)
                 && (mode == ExtensionMode.HDR || mode == ExtensionMode.NIGHT);
+    }
+
+    /**
+     * Returns whether extensions is disabled by quirk.
+     */
+    public static boolean extensionsDisabledByQuirk() {
+        boolean isAdvancedExtenderSupported = false;
+
+        if (ExtensionVersion.getRuntimeVersion().compareTo(Version.VERSION_1_2) >= 0) {
+            isAdvancedExtenderSupported = ExtensionVersion.isAdvancedExtenderSupported();
+        }
+
+        return new ExtensionDisabledValidator().shouldDisableExtension(isAdvancedExtenderSupported);
     }
 }
