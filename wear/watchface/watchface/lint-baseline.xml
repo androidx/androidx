@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.1.0-beta02" type="baseline" client="gradle" dependencies="false" name="AGP (7.1.0-beta02)" variant="all" version="7.1.0-beta02">
+<issues format="6" by="lint 7.2.0-alpha07" type="baseline" client="gradle" dependencies="false" name="AGP (7.2.0-alpha07)" variant="all" version="7.2.0-alpha07">
 
     <issue
         id="MissingClass"
@@ -63,7 +63,7 @@
         errorLine2="                              ~~~~">
         <location
             file="src/main/java/androidx/wear/watchface/WatchFaceService.kt"
-            line="1926"
+            line="2243"
             column="31"/>
     </issue>
 
@@ -74,8 +74,96 @@
         errorLine2="        ^">
         <location
             file="src/test/java/androidx/wear/watchface/TestCommon.kt"
-            line="92"
+            line="100"
             column="9"/>
+    </issue>
+
+    <issue
+        id="VisibleForTests"
+        message="This method should only be accessed from tests or within private scope"
+        errorLine1="            complicationSlotsManager.watchState,"
+        errorLine2="                                     ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/watchface/ComplicationSlot.kt"
+            line="267"
+            column="38"/>
+    </issue>
+
+    <issue
+        id="VisibleForTests"
+        message="This method should only be accessed from tests or within private scope"
+        errorLine1="                val watchFaceImpl = engineCopy.deferredWatchFaceImpl.await()"
+        errorLine2="                                               ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/watchface/control/HeadlessWatchFaceImpl.kt"
+            line="84"
+            column="48"/>
+    </issue>
+
+    <issue
+        id="VisibleForTests"
+        message="This method should only be accessed from tests or within private scope"
+        errorLine1="                            if (engine.deferredWatchFaceImpl.isCompleted) {"
+        errorLine2="                                       ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/watchface/control/InteractiveInstanceManager.kt"
+            line="125"
+            column="40"/>
+    </issue>
+
+    <issue
+        id="VisibleForTests"
+        message="This method should only be accessed from tests or within private scope"
+        errorLine1="                    val watchFaceImpl = engineCopy.deferredWatchFaceImpl.await()"
+        errorLine2="                                                   ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/watchface/control/InteractiveWatchFaceImpl.kt"
+            line="61"
+            column="52"/>
+    </issue>
+
+    <issue
+        id="VisibleForTests"
+        message="This method should only be accessed from tests or within private scope"
+        errorLine1="                    it.deferredWatchFaceImpl.await()"
+        errorLine2="                       ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/watchface/control/InteractiveWatchFaceImpl.kt"
+            line="144"
+            column="24"/>
+    </issue>
+
+    <issue
+        id="VisibleForTests"
+        message="This method should only be accessed from tests or within private scope"
+        errorLine1="                return engine.deferredWatchFaceImpl.await().WFEditorDelegate()"
+        errorLine2="                              ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/watchface/WatchFace.kt"
+            line="213"
+            column="31"/>
+    </issue>
+
+    <issue
+        id="VisibleForTests"
+        message="This method should only be accessed from tests or within private scope"
+        errorLine1="                return engine.deferredWatchFaceImpl.await().WFEditorDelegate()"
+        errorLine2="                              ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/watchface/WatchFace.kt"
+            line="213"
+            column="31"/>
+    </issue>
+
+    <issue
+        id="VisibleForTests"
+        message="This method should only be accessed from tests or within private scope"
+        errorLine1="                complicationSlotsManager.watchState = watchState"
+        errorLine2="                                         ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/watchface/WatchFaceService.kt"
+            line="1706"
+            column="42"/>
     </issue>
 
 </issues>
