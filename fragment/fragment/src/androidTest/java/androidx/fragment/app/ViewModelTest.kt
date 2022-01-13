@@ -158,6 +158,26 @@ class ViewModelTest {
     }
 
     @Test
+    fun testCreateFragmentViewModelViaExtras() {
+        with(ActivityScenario.launch(ViewModelActivity::class.java)) {
+            val fragment = withActivity { getFragment(ViewModelActivity.FRAGMENT_TAG_1) }
+
+            val creationViewModel = ViewModelProvider(
+                fragment.viewModelStore,
+                fragment.defaultViewModelProviderFactory,
+                fragment.defaultViewModelCreationExtras
+            )["test", TestViewModel::class.java]
+
+            recreate()
+
+            val recreatedFragment = withActivity { getFragment(ViewModelActivity.FRAGMENT_TAG_1) }
+
+            assertThat(ViewModelProvider(recreatedFragment)["test", TestViewModel::class.java])
+                .isSameInstanceAs(creationViewModel)
+        }
+    }
+
+    @Test
     fun testFragmentOnClearedWhenFinished() {
         with(ActivityScenario.launch(ViewModelActivity::class.java)) {
             val fragmentModel = withActivity {
