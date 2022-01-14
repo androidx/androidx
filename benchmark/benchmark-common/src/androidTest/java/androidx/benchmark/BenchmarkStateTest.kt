@@ -299,17 +299,17 @@ public class BenchmarkStateTest {
             // count iters with profiler enabled vs disabled
             var profilerDisabledIterations = 0
             var profilerEnabledIterations = 0
+            var profilerAllocationIterations = 0
             while (benchmarkState.keepRunning()) {
                 if (StackSamplingLegacy.isRunning) {
                     profilerEnabledIterations++
                 } else {
                     profilerDisabledIterations++
 
-                    // after profiler has been enabled, no further disabled expected
-                    assertTrue(
-                        profilerEnabledIterations == 0,
-                        "Profiler should not be reenabled after being disabled"
-                    )
+                    if (profilerEnabledIterations != 0) {
+                        // profiler will only be disabled after running during allocation phase
+                        profilerAllocationIterations++
+                    }
                 }
             }
 
@@ -317,10 +317,12 @@ public class BenchmarkStateTest {
                 // profiler should be always disabled
                 assertNotEquals(0, profilerDisabledIterations)
                 assertEquals(0, profilerEnabledIterations)
+                assertEquals(0, profilerAllocationIterations)
             } else {
                 // first, profiler disabled, then enabled until end
                 assertNotEquals(0, profilerDisabledIterations)
                 assertNotEquals(0, profilerEnabledIterations)
+                assertNotEquals(0, profilerAllocationIterations)
             }
         } finally {
             profilerOverride = null
