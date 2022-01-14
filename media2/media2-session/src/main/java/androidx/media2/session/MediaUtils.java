@@ -995,10 +995,9 @@ public class MediaUtils {
             parcel.writeBundle(bundle);
             parcel.setDataPosition(0);
             Bundle out = parcel.readBundle(null);
-
-            if (out != null) {
-                // Calling Bundle#isEmpty() will trigger Bundle#unparcel().
-                out.isEmpty();
+            for (String key : out.keySet()) {
+                // Attempt to retrieve all Bundle values with the framework class loader.
+                out.get(key);
             }
             return false;
         } catch (BadParcelableException e) {
