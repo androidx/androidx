@@ -3,5 +3,6 @@
 #### Using the script
 
 ```bash
-./import_maven_artifacts.py --name=android.arch.work:work-runtime-ktx:1.0.0-alpha07
+./import_maven_artifacts.py --name=androidx.work:work-runtime:1.0.0
+./import_maven_artifacts.py --name=androidx.work:work-runtime:1.0.0,junit:junit:4.12
 ```
