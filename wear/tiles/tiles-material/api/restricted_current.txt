@@ -7,7 +7,6 @@ package androidx.wear.tiles.material {
     method public androidx.wear.tiles.LayoutElementBuilders.LayoutElement getContent();
     method public String getContentDescription();
     method public androidx.wear.tiles.DimensionBuilders.ContainerDimension getSize();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.wear.tiles.proto.LayoutElementProto.LayoutElement toLayoutElementProto();
   }
 
   public static final class Button.Builder implements androidx.wear.tiles.LayoutElementBuilders.LayoutElement.Builder {

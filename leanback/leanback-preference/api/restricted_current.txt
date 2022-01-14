@@ -3,6 +3,7 @@ package androidx.leanback.preference {
 
   @Deprecated public abstract class BaseLeanbackPreferenceFragment extends androidx.preference.PreferenceFragment {
     ctor @Deprecated public BaseLeanbackPreferenceFragment();
+    method @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public android.app.Fragment! getCallbackFragment();
     method @Deprecated public androidx.recyclerview.widget.RecyclerView! onCreateRecyclerView(android.view.LayoutInflater!, android.view.ViewGroup!, android.os.Bundle!);
   }
 
