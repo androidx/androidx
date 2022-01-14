@@ -22,6 +22,7 @@ import androidx.annotation.GuardedBy
 import androidx.annotation.VisibleForTesting
 import androidx.core.util.Consumer
 import androidx.window.core.ExperimentalWindowApi
+import androidx.window.core.PredicateAdapter
 import androidx.window.embedding.EmbeddingInterfaceCompat.EmbeddingCallbackInterface
 import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.CopyOnWriteArraySet
@@ -74,7 +75,12 @@ internal class ExtensionEmbeddingBackend @VisibleForTesting constructor(
                 if (isExtensionVersionSupported(EmbeddingCompat.getExtensionApiLevel()) &&
                     EmbeddingCompat.isEmbeddingAvailable()
                 ) {
-                    impl = EmbeddingCompat()
+                    impl = EmbeddingBackend::class.java.classLoader?.let { loader ->
+                        EmbeddingCompat(
+                            EmbeddingCompat.embeddingComponent(),
+                            EmbeddingAdapter(PredicateAdapter(loader))
+                        )
+                    }
                     // TODO(b/190433400): Check API conformance
                 }
             } catch (t: Throwable) {
