@@ -7,19 +7,19 @@ STUDIO_LINK=`curl -s $STUDIO_IFRAME_LINK | grep -C30 "$STUDIO_VERSION_STRING" | 
 STUDIO_VERSION=`echo $STUDIO_LINK | sed "s/.*ide-zips\/\(.*\)\/android-studio-.*/\1/g"`
 
 # Update AGP
-./development/importMaven/import_maven_artifacts.py -n com.android.tools.build:gradle:$AGP_VERSION
-./development/importMaven/import_maven_artifacts.py -n androidx.databinding:viewbinding:$AGP_VERSION
+ARTIFACTS_TO_DOWNLOAD="com.android.tools.build:gradle:$AGP_VERSION,"
+ARTIFACTS_TO_DOWNLOAD+="androidx.databinding:viewbinding:$AGP_VERSION,"
 AAPT2_VERSIONS=`curl "https://dl.google.com/dl/android/maven2/com/android/tools/build/group-index.xml" | grep aapt2-proto | sed 's/.*versions="\(.*\)"\/>/\1/g'`
 AAPT2_VERSION=`echo $AAPT2_VERSIONS | sed "s/.*\($AGP_VERSION-[0-9]*\).*/\1/g"`
-./development/importMaven/import_maven_artifacts.py -n com.android.tools.build:aapt2:$AAPT2_VERSION:linux
-./development/importMaven/import_maven_artifacts.py -n com.android.tools.build:aapt2:$AAPT2_VERSION:osx
-./development/importMaven/import_maven_artifacts.py -n com.android.tools.build:aapt2:$AAPT2_VERSION
+ARTIFACTS_TO_DOWNLOAD+="com.android.tools.build:aapt2:$AAPT2_VERSION:linux,"
+ARTIFACTS_TO_DOWNLOAD+="com.android.tools.build:aapt2:$AAPT2_VERSION:osx,"
+ARTIFACTS_TO_DOWNLOAD+="com.android.tools.build:aapt2:$AAPT2_VERSION,"
 LINT_VERSIONS=`curl "https://dl.google.com/dl/android/maven2/com/android/tools/lint/group-index.xml" | grep lint | sed 's/.*versions="\(.*\)"\/>/\1/g'`
 LINT_MINOR_VERSION=`echo $AGP_VERSION | sed 's/[0-9]\+\.\(.*\)/\1/g'`
 LINT_VERSION=`echo $LINT_VERSIONS | sed "s/.*[,| ]\([0-9]\+\.$LINT_MINOR_VERSION\).*/\1/g"`
-./development/importMaven/import_maven_artifacts.py -n com.android.tools.lint:lint:$LINT_VERSION
-./development/importMaven/import_maven_artifacts.py -n com.android.tools.lint:lint-tests:$LINT_VERSION
-./development/importMaven/import_maven_artifacts.py -n com.android.tools.lint:lint-gradle:$LINT_VERSION
+ARTIFACTS_TO_DOWNLOAD+="com.android.tools.lint:lint:$LINT_VERSION,"
+ARTIFACTS_TO_DOWNLOAD+="com.android.tools.lint:lint-tests:$LINT_VERSION,"
+ARTIFACTS_TO_DOWNLOAD+="com.android.tools.lint:lint-gradle:$LINT_VERSION,"
 
 # Update studio_versions.properties
 sed -i "s/androidGradlePlugin = .*/androidGradlePlugin = \"$AGP_VERSION\"/g" gradle/libs.versions.toml
@@ -34,12 +34,15 @@ curl -sL "https://dl.google.com/android/maven2/com/android/tools/utp/group-index
   | while read line
     do
     ARTIFACT=`echo $line | sed 's/<\([[:lower:]-]\+\).*/\1/g'`
-    ./development/importMaven/import_maven_artifacts.py -n "com.android.tools.utp:$ARTIFACT:$ADT_VERSION"
+    ARTIFACTS_TO_DOWNLOAD+="com.android.tools.utp:$ARTIFACT:$ADT_VERSION,"
   done
 
 ATP_VERSION=${4:-0.0.8-alpha07}
-./development/importMaven/import_maven_artifacts.py -n "com.google.testing.platform:android-test-plugin:$ATP_VERSION"
-./development/importMaven/import_maven_artifacts.py -n "com.google.testing.platform:launcher:$ATP_VERSION"
-./development/importMaven/import_maven_artifacts.py -n "com.google.testing.platform:android-driver-instrumentation:$ATP_VERSION"
-./development/importMaven/import_maven_artifacts.py -n "com.google.testing.platform:core:$ATP_VERSION"
+ARTIFACTS_TO_DOWNLOAD+="com.google.testing.platform:android-test-plugin:$ATP_VERSION,"
+ARTIFACTS_TO_DOWNLOAD+="com.google.testing.platform:launcher:$ATP_VERSION,"
+ARTIFACTS_TO_DOWNLOAD+="com.google.testing.platform:android-driver-instrumentation:$ATP_VERSION,"
+ARTIFACTS_TO_DOWNLOAD+="com.google.testing.platform:core:$ATP_VERSION"
 
+# Download all the artifacts
+echo $ARTIFACTS_TO_DOWNLOAD
+./development/importMaven/import_maven_artifacts.py -n $ARTIFACTS_TO_DOWNLOAD
