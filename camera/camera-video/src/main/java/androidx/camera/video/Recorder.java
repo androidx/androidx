@@ -2381,7 +2381,12 @@ public final class Recorder implements VideoOutput {
                 case MediaRecorder.OutputFormat.WEBM:
                     return MediaMuxer.OutputFormat.MUXER_OUTPUT_WEBM;
                 case MediaRecorder.OutputFormat.THREE_GPP:
-                    return MediaMuxer.OutputFormat.MUXER_OUTPUT_3GPP;
+                    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
+                        // MediaMuxer does not support 3GPP on pre-Android O(API 26) devices.
+                        return MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4;
+                    } else {
+                        return MediaMuxer.OutputFormat.MUXER_OUTPUT_3GPP;
+                    }
                 default:
                     break;
             }
