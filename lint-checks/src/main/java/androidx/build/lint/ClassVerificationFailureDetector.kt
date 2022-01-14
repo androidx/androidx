@@ -768,6 +768,7 @@ class ClassVerificationFailureDetector : Detector(), SourceCodeScanner {
             return null
         }
 
+        @Suppress("DEPRECATION") // usage of getAllAnnotations b/214311882
         private fun getRequiresApiFromAnnotations(modifierListOwner: PsiModifierListOwner): Int {
             for (annotation in context.evaluator.getAllAnnotations(modifierListOwner, false)) {
                 val qualifiedName = annotation.qualifiedName
