@@ -1160,6 +1160,24 @@ class NavDeepLinkTest {
     }
 
     @Test
+    fun ensureValueIsDecodedProperly() {
+        val deepLinkString = "$DEEP_LINK_EXACT_HTTPS/users?myarg={myarg}"
+        val deepLink = NavDeepLink(deepLinkString)
+
+        val value = "%555"
+        val matchArgs = deepLink.getMatchingArguments(
+            Uri.parse(deepLinkString.replace("{myarg}", Uri.encode(value))),
+            mapOf("myarg" to nullableStringArgument())
+        )
+        assertWithMessage("Args should not be null")
+            .that(matchArgs)
+            .isNotNull()
+        assertWithMessage("Args should contain the value without additional decoding")
+            .that(matchArgs?.getString("myarg"))
+            .isEqualTo(value)
+    }
+
+    @Test
     fun deepLinkMissingRequiredArgument() {
         val deepLinkString = "$DEEP_LINK_EXACT_HTTPS/greeting?title={title}&text={text}"
         val deepLink = NavDeepLink(deepLinkString)
