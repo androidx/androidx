@@ -18,7 +18,6 @@
 
 package androidx.annotation.experimental.lint
 
-import com.android.tools.lint.client.api.AnnotationLookup
 import com.android.tools.lint.client.api.JavaEvaluator
 import com.android.tools.lint.detector.api.AnnotationUsageType
 import com.android.tools.lint.detector.api.AnnotationUsageType.FIELD_REFERENCE
@@ -64,12 +63,12 @@ import org.jetbrains.uast.UMethod
 import org.jetbrains.uast.UReferenceExpression
 import org.jetbrains.uast.USimpleNameReferenceExpression
 import org.jetbrains.uast.UVariable
+import org.jetbrains.uast.UastFacade
 import org.jetbrains.uast.getContainingUClass
 import org.jetbrains.uast.getContainingUMethod
 import org.jetbrains.uast.java.JavaUAnnotation
 import org.jetbrains.uast.toUElement
 import org.jetbrains.uast.tryResolve
-import java.util.ArrayList
 
 class ExperimentalDetector : Detector(), SourceCodeScanner {
     private val visitedUsages: MutableMap<UElement, MutableSet<String>> = mutableMapOf()
@@ -128,15 +127,13 @@ class ExperimentalDetector : Detector(), SourceCodeScanner {
     ) {
         val evaluator = context.evaluator
         val allAnnotations = evaluator.getAllAnnotations(superMethod, inHierarchy = true)
-        val methodAnnotations = filterRelevantAnnotations(
-            evaluator, allAnnotations, usage,
-        )
+        val methodAnnotations = filterRelevantAnnotations(evaluator, allAnnotations)
 
         // Look for annotations on the class as well: these trickle
         // down to all the methods in the class
         val containingClass: PsiClass? = superMethod.containingClass
         val (classAnnotations, pkgAnnotations) = getClassAndPkgAnnotations(
-            containingClass, evaluator, usage
+            containingClass, evaluator
         )
 
         doCheckMethodOverride(
@@ -320,7 +317,6 @@ class ExperimentalDetector : Detector(), SourceCodeScanner {
     private fun getClassAndPkgAnnotations(
         containingClass: PsiClass?,
         evaluator: JavaEvaluator,
-        context: UElement,
     ): Pair<List<UAnnotation>, List<UAnnotation>> {
 
         // Yes, returning a pair is ugly. But we are initializing two lists, and splitting this
@@ -332,7 +328,7 @@ class ExperimentalDetector : Detector(), SourceCodeScanner {
 
         if (containingClass != null) {
             val annotations = evaluator.getAllAnnotations(containingClass, inHierarchy = true)
-            classAnnotations = filterRelevantAnnotations(evaluator, annotations, context)
+            classAnnotations = filterRelevantAnnotations(evaluator, annotations)
 
             val pkg = evaluator.getPackage(containingClass)
             pkgAnnotations = if (pkg != null) {
@@ -355,7 +351,6 @@ class ExperimentalDetector : Detector(), SourceCodeScanner {
     private fun filterRelevantAnnotations(
         evaluator: JavaEvaluator,
         annotations: Array<PsiAnnotation>,
-        context: UElement? = null
     ): List<UAnnotation> {
         var result: MutableList<UAnnotation>? = null
         val length = annotations.size
@@ -412,7 +407,11 @@ class ExperimentalDetector : Detector(), SourceCodeScanner {
                     if (result == null) {
                         result = ArrayList(2)
                     }
-                    val innerU = annotationLookup.findRealAnnotation(inner, cls, context)
+                    val innerU = UastFacade.convertElement(
+                        inner,
+                        null,
+                        UAnnotation::class.java
+                    ) as UAnnotation
                     result.add(innerU)
                 }
             }
@@ -424,8 +423,6 @@ class ExperimentalDetector : Detector(), SourceCodeScanner {
     // Used for drop-in compatibility with code from Lint's `AnnotationHandler`.
     private val relevantAnnotations: List<String>
         get() = applicableAnnotations()
-
-    private val annotationLookup = AnnotationLookup()
 
     override fun visitAnnotationUsage(
         context: JavaContext,
