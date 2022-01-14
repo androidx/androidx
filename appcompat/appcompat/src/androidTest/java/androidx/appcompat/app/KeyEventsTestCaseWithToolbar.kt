@@ -15,11 +15,15 @@
  */
 package androidx.appcompat.app
 
-import android.view.KeyEvent
 import android.view.Window
+import androidx.test.core.app.ActivityScenario
+import androidx.test.espresso.Espresso.onView
+import androidx.test.espresso.action.ViewActions.pressMenuKey
+import androidx.test.espresso.matcher.ViewMatchers.isRoot
 import androidx.test.filters.MediumTest
-import androidx.test.platform.app.InstrumentationRegistry
-import org.junit.Assert
+import androidx.testutils.PollingCheck
+import androidx.testutils.withActivity
+import org.junit.Assert.assertFalse
 import org.junit.Test
 
 @MediumTest
@@ -27,38 +31,44 @@ class KeyEventsTestCaseWithToolbar : BaseKeyEventsTestCase<ToolbarAppCompatActiv
     ToolbarAppCompatActivity::class.java
 ) {
     @Test
-    @Throws(InterruptedException::class)
     override fun testMenuKeyEventReachesActivity() {
         // With Toolbar, MENU key gets sent-to (and consumed by) Toolbar rather than Activity
     }
 
+    /**
+     * The base test only checks that *a* menu is opened. Here, we check that the *toolbar's* menu
+     * is opened.
+     */
     @Test
     fun testMenuKeyOpensToolbarMenu() {
-        // Base test only checks that *a* menu is opened, we check here that the toolbar's menu
-        // specifically is opened.
-        val toolbar = mActivityTestRule.activity!!.toolbar
-        Assert.assertFalse(toolbar.isOverflowMenuShowing)
-        InstrumentationRegistry.getInstrumentation().sendKeyDownUpSync(KeyEvent.KEYCODE_MENU)
-        InstrumentationRegistry.getInstrumentation().waitForIdleSync()
-        Assert.assertTrue(toolbar.isOverflowMenuShowing)
-        InstrumentationRegistry.getInstrumentation().sendKeyDownUpSync(KeyEvent.KEYCODE_MENU)
-        InstrumentationRegistry.getInstrumentation().waitForIdleSync()
-        Assert.assertFalse(toolbar.isOverflowMenuShowing)
+        with(ActivityScenario.launch(ToolbarAppCompatActivity::class.java)) {
+            val toolbar = withActivity { toolbar }
+            assertFalse(toolbar.isOverflowMenuShowing)
+
+            onView(isRoot()).perform(pressMenuKey())
+            PollingCheck.waitFor { toolbar.isOverflowMenuShowing }
+
+            onView(isRoot()).perform(pressMenuKey())
+            PollingCheck.waitFor { !toolbar.isOverflowMenuShowing }
+        }
     }
 
     @Test
-    @Throws(Throwable::class)
     fun testOpenMenuOpensToolbarMenu() {
-        if (!mActivityTestRule.activity!!.window.hasFeature(Window.FEATURE_OPTIONS_PANEL)) {
-            return
+        with(ActivityScenario.launch(ToolbarAppCompatActivity::class.java)) {
+            val hasOptionsPanel = withActivity { window.hasFeature(Window.FEATURE_OPTIONS_PANEL) }
+            if (!hasOptionsPanel) {
+                return
+            }
+
+            val toolbar = withActivity { toolbar }
+            assertFalse(toolbar.isOverflowMenuShowing)
+
+            withActivity { openOptionsMenu() }
+            PollingCheck.waitFor { toolbar.isOverflowMenuShowing }
+
+            withActivity { closeOptionsMenu() }
+            PollingCheck.waitFor { !toolbar.isOverflowMenuShowing }
         }
-        val toolbar = mActivityTestRule.activity!!.toolbar
-        Assert.assertFalse(toolbar.isOverflowMenuShowing)
-        mActivityTestRule.runOnUiThread { mActivityTestRule.activity!!.openOptionsMenu() }
-        InstrumentationRegistry.getInstrumentation().waitForIdleSync()
-        Assert.assertTrue(toolbar.isOverflowMenuShowing)
-        mActivityTestRule.runOnUiThread { mActivityTestRule.activity!!.closeOptionsMenu() }
-        InstrumentationRegistry.getInstrumentation().waitForIdleSync()
-        Assert.assertFalse(toolbar.isOverflowMenuShowing)
     }
 }

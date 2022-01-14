@@ -13,129 +13,138 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:Suppress("UNCHECKED_CAST")
+
 package androidx.appcompat.app
 
 import android.app.Instrumentation
 import android.view.KeyEvent
 import android.view.Menu
 import android.view.MenuItem
-import androidx.test.espresso.Espresso
-import androidx.test.espresso.matcher.ViewMatchers
-import androidx.test.espresso.action.ViewActions
 import androidx.appcompat.test.R
 import androidx.appcompat.testutils.BaseTestActivity
 import androidx.appcompat.view.ActionMode
 import androidx.core.view.MenuItemCompat
+import androidx.lifecycle.Lifecycle
+import androidx.test.core.app.ActivityScenario
+import androidx.test.espresso.Espresso.onView
+import androidx.test.espresso.Espresso.pressBack
+import androidx.test.espresso.Espresso.pressBackUnconditionally
+import androidx.test.espresso.action.ViewActions.click
+import androidx.test.espresso.action.ViewActions.pressKey
+import androidx.test.espresso.action.ViewActions.pressMenuKey
 import androidx.test.espresso.assertion.ViewAssertions
+import androidx.test.espresso.assertion.ViewAssertions.matches
+import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
+import androidx.test.espresso.matcher.ViewMatchers.isRoot
+import androidx.test.espresso.matcher.ViewMatchers.withClassName
+import androidx.test.espresso.matcher.ViewMatchers.withContentDescription
+import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.FlakyTest
 import androidx.test.filters.LargeTest
 import androidx.test.filters.MediumTest
 import androidx.test.platform.app.InstrumentationRegistry
-import androidx.test.rule.ActivityTestRule
 import androidx.testutils.PollingCheck
+import androidx.testutils.withActivity
 import java.util.concurrent.atomic.AtomicBoolean
-import org.hamcrest.Matchers
+import org.hamcrest.Matchers.`is`
 import org.junit.Assert
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotNull
 import org.junit.Before
-import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
-abstract class BaseKeyEventsTestCase<A : BaseTestActivity?> protected constructor(activityClass: Class<A>?) {
-    @JvmField
-    @Rule
-    val mActivityTestRule: ActivityTestRule<A>
+abstract class BaseKeyEventsTestCase<A : BaseTestActivity>(private val activityClass: Class<A>) {
     private var mInstrumentation: Instrumentation? = null
-    private var mActivity: A? = null
 
     @Before
     fun setup() {
         mInstrumentation = InstrumentationRegistry.getInstrumentation()
-        mActivity = mActivityTestRule.activity
-
-        // Wait for activity to have window focus.
-        PollingCheck.waitFor(2000) { mActivity!!.hasWindowFocus() }
     }
 
     @Test
     @MediumTest
     fun testBackDismissesActionMode() {
-        val destroyed = AtomicBoolean()
-        mActivity!!.runOnUiThread {
-            mActivity!!.startSupportActionMode(object : ActionMode.Callback {
-                override fun onCreateActionMode(mode: ActionMode, menu: Menu): Boolean {
-                    mode.menuInflater.inflate(R.menu.sample_actions, menu)
-                    return true
-                }
+        with(ActivityScenario.launch(activityClass)) {
+            val destroyed = AtomicBoolean()
 
-                override fun onPrepareActionMode(mode: ActionMode, menu: Menu): Boolean {
-                    return false
-                }
+            (this as ActivityScenario<BaseTestActivity>).withActivity {
+                startSupportActionMode(object : ActionMode.Callback {
+                    override fun onCreateActionMode(mode: ActionMode, menu: Menu): Boolean {
+                        mode.menuInflater.inflate(R.menu.sample_actions, menu)
+                        return true
+                    }
 
-                override fun onActionItemClicked(mode: ActionMode, item: MenuItem): Boolean {
-                    return false
-                }
+                    override fun onPrepareActionMode(mode: ActionMode, menu: Menu): Boolean {
+                        return false
+                    }
 
-                override fun onDestroyActionMode(mode: ActionMode) {
-                    destroyed.set(true)
-                }
-            })
+                    override fun onActionItemClicked(mode: ActionMode, item: MenuItem): Boolean {
+                        return false
+                    }
+
+                    override fun onDestroyActionMode(mode: ActionMode) {
+                        destroyed.set(true)
+                    }
+                })!!
+            }
+
+            pressBack()
+            PollingCheck.waitFor { destroyed.get() }
         }
-        mInstrumentation!!.waitForIdleSync()
-        mInstrumentation!!.sendKeyDownUpSync(KeyEvent.KEYCODE_BACK)
-        mInstrumentation!!.waitForIdleSync()
-        Assert.assertFalse("Activity was not finished", mActivity!!.isFinishing)
-        Assert.assertTrue("ActionMode was destroyed", destroyed.get())
     }
 
     @Test
     @LargeTest
     @Throws(InterruptedException::class)
     fun testBackCollapsesActionView() {
-        // Click on the Search menu item
-        Espresso.onView(ViewMatchers.withId(R.id.action_search)).perform(ViewActions.click())
-        // Check that the action view is displayed (expanded)
-        Espresso.onView(
-            ViewMatchers.withClassName(
-                Matchers.`is`(
-                    CustomCollapsibleView::class.java.name
-                )
-            )
-        )
-            .check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
+        with(ActivityScenario.launch(activityClass)) {
+            // Click on the Search menu item
+            onView(withId(R.id.action_search)).perform(click())
 
-        // Let things settle
-        mInstrumentation!!.waitForIdleSync()
-        // Now send a back event to collapse the custom action view
-        mInstrumentation!!.sendKeyDownUpSync(KeyEvent.KEYCODE_BACK)
-        mInstrumentation!!.waitForIdleSync()
+            // Check that the action view is displayed (expanded)
+            onView(withClassName(`is`(CustomCollapsibleView::class.java.name)))
+                .check(matches(isDisplayed()))
 
-        // Check that the Activity is still running
-        Assert.assertFalse(mActivity!!.isFinishing)
-        Assert.assertFalse(mActivity!!.isDestroyed)
-        // ... and that our action view is not attached
-        Espresso.onView(
-            ViewMatchers.withClassName(
-                Matchers.`is`(
-                    CustomCollapsibleView::class.java.name
-                )
+            // Press the back button
+            pressBack()
+            mInstrumentation!!.waitForIdleSync()
+
+            // Check that the Activity is still running
+            Assert.assertFalse(
+                (this as ActivityScenario<BaseTestActivity>).withActivity { isFinishing }
             )
-        )
-            .check(ViewAssertions.doesNotExist())
+            Assert.assertFalse(
+                (this as ActivityScenario<BaseTestActivity>).withActivity { isDestroyed }
+            )
+
+            // ...and that our action view is not attached
+            onView(withClassName(`is`(CustomCollapsibleView::class.java.name)))
+                .check(ViewAssertions.doesNotExist())
+        }
     }
 
     @Test
     @MediumTest
     @Throws(InterruptedException::class)
     fun testMenuPressInvokesPanelCallbacks() {
-        mInstrumentation!!.sendKeyDownUpSync(KeyEvent.KEYCODE_MENU)
-        mInstrumentation!!.waitForIdleSync()
-        Assert.assertTrue("onMenuOpened called", mActivity!!.wasOnMenuOpenedCalled())
-        mInstrumentation!!.sendKeyDownUpSync(KeyEvent.KEYCODE_MENU)
-        mInstrumentation!!.waitForIdleSync()
-        Assert.assertTrue("onPanelClosed called", mActivity!!.wasOnPanelClosedCalled())
+        with(ActivityScenario.launch(activityClass)) {
+            onView(isRoot()).perform(pressMenuKey())
+            Assert.assertTrue("onMenuOpened called",
+                (this as ActivityScenario<BaseTestActivity>).withActivity {
+                    wasOnMenuOpenedCalled()
+                }
+            )
+            onView(isRoot()).perform(pressMenuKey())
+            Assert.assertTrue("onPanelClosed called",
+                (this as ActivityScenario<BaseTestActivity>).withActivity {
+                    wasOnPanelClosedCalled()
+                }
+            )
+        }
     }
 
     @Test
@@ -145,11 +154,15 @@ abstract class BaseKeyEventsTestCase<A : BaseTestActivity?> protected constructo
         InterruptedException::class
     )
     fun testBackPressWithMenuInvokesOnPanelClosed() {
-        mInstrumentation!!.sendKeyDownUpSync(KeyEvent.KEYCODE_MENU)
-        mInstrumentation!!.waitForIdleSync()
-        mInstrumentation!!.sendKeyDownUpSync(KeyEvent.KEYCODE_BACK)
-        mInstrumentation!!.waitForIdleSync()
-        Assert.assertTrue("onPanelClosed called", mActivity!!.wasOnPanelClosedCalled())
+        with(ActivityScenario.launch(activityClass)) {
+            onView(isRoot()).perform(pressKey(KeyEvent.KEYCODE_MENU))
+            pressBack()
+            Assert.assertTrue("onPanelClosed called",
+                (this as ActivityScenario<BaseTestActivity>).withActivity {
+                    wasOnPanelClosedCalled()
+                }
+            )
+        }
     }
 
     @Test
@@ -159,101 +172,114 @@ abstract class BaseKeyEventsTestCase<A : BaseTestActivity?> protected constructo
         InterruptedException::class
     )
     fun testBackPressWithEmptyMenuHandledByActivity() {
-        repopulateWithEmptyMenu()
-        mInstrumentation!!.sendKeyDownUpSync(KeyEvent.KEYCODE_MENU)
-        mInstrumentation!!.waitForIdleSync()
-        mInstrumentation!!.sendKeyDownUpSync(KeyEvent.KEYCODE_BACK)
-        mInstrumentation!!.waitForIdleSync()
-        Assert.assertTrue("onBackPressed called", mActivity!!.wasOnBackPressedCalled())
+        with(ActivityScenario.launch(activityClass)) {
+            val activity = (this as ActivityScenario<BaseTestActivity>).withActivity { this }
+            (this as ActivityScenario<BaseTestActivity>).repopulateWithEmptyMenu()
+            onView(isRoot()).perform(pressKey(KeyEvent.KEYCODE_MENU))
+            pressBackUnconditionally()
+            PollingCheck.waitFor { state == Lifecycle.State.DESTROYED }
+            Assert.assertTrue("onBackPressed called", activity.wasOnBackPressedCalled())
+        }
     }
 
     @Test
     @MediumTest
     fun testDelKeyEventReachesActivity() {
-        // First send the event
-        mInstrumentation!!.sendKeyDownUpSync(KeyEvent.KEYCODE_DEL)
-        mInstrumentation!!.waitForIdleSync()
-        val downEvent = mActivity!!.invokedKeyDownEvent
-        Assert.assertNotNull("onKeyDown called", downEvent)
-        Assert.assertEquals(
-            "onKeyDown event matches",
-            KeyEvent.KEYCODE_DEL.toLong(),
-            downEvent.keyCode.toLong()
-        )
-        val upEvent = mActivity!!.invokedKeyUpEvent
-        Assert.assertNotNull("onKeyUp called", upEvent)
-        Assert.assertEquals(
-            "onKeyUp event matches",
-            KeyEvent.KEYCODE_DEL.toLong(),
-            upEvent.keyCode.toLong()
-        )
+        with(ActivityScenario.launch(activityClass)) {
+            // First send the event
+            onView(isRoot()).perform(pressKey(KeyEvent.KEYCODE_DEL))
+            val downEvent = (this as ActivityScenario<BaseTestActivity>).withActivity {
+                invokedKeyDownEvent
+            }
+            assertNotNull("onKeyDown called", downEvent)
+            assertEquals(
+                "onKeyDown event matches",
+                KeyEvent.KEYCODE_DEL.toLong(),
+                downEvent.keyCode.toLong()
+            )
+            val upEvent = (this as ActivityScenario<BaseTestActivity>).withActivity {
+                invokedKeyUpEvent
+            }
+            assertNotNull("onKeyUp called", upEvent)
+            assertEquals(
+                "onKeyUp event matches",
+                KeyEvent.KEYCODE_DEL.toLong(),
+                upEvent.keyCode.toLong()
+            )
+        }
     }
 
     @Test
     @MediumTest
     @Throws(InterruptedException::class)
     open fun testMenuKeyEventReachesActivity() {
-        mInstrumentation!!.sendKeyDownUpSync(KeyEvent.KEYCODE_MENU)
-        mInstrumentation!!.waitForIdleSync()
-        val downEvent = mActivity!!.invokedKeyDownEvent
-        Assert.assertNotNull("onKeyDown called", downEvent)
-        Assert.assertEquals(
-            "onKeyDown event matches",
-            KeyEvent.KEYCODE_MENU.toLong(),
-            downEvent.keyCode.toLong()
-        )
-        val upEvent = mActivity!!.invokedKeyUpEvent
-        Assert.assertNotNull("onKeyUp called", upEvent)
-        Assert.assertEquals(
-            "onKeyDown event matches",
-            KeyEvent.KEYCODE_MENU.toLong(),
-            upEvent.keyCode.toLong()
-        )
+        with(ActivityScenario.launch(activityClass)) {
+            onView(isRoot()).perform(pressKey(KeyEvent.KEYCODE_MENU))
+            val downEvent = (this as ActivityScenario<BaseTestActivity>).withActivity {
+                invokedKeyDownEvent
+            }
+            assertNotNull("onKeyDown called", downEvent)
+            assertEquals(
+                "onKeyDown event matches",
+                KeyEvent.KEYCODE_MENU.toLong(),
+                downEvent.keyCode.toLong()
+            )
+            val upEvent = (this as ActivityScenario<BaseTestActivity>).withActivity {
+                invokedKeyUpEvent
+            }
+            assertNotNull("onKeyUp called", upEvent)
+            assertEquals(
+                "onKeyDown event matches",
+                KeyEvent.KEYCODE_MENU.toLong(),
+                upEvent.keyCode.toLong()
+            )
+        }
     }
 
     @Test
     @MediumTest
     @Throws(Throwable::class)
     fun testActionMenuContent() {
-        Espresso.onView(ViewMatchers.withId(R.id.action_search))
-            .check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
-            .check(ViewAssertions.matches(ViewMatchers.withContentDescription(R.string.search_menu_description)))
-        Espresso.onView(ViewMatchers.withId(R.id.action_alpha_shortcut))
-            .check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
-            .check(ViewAssertions.matches(ViewMatchers.withContentDescription(null as String?)))
-        val menu = mActivity!!.menu
-        val alphaItem = menu.findItem(R.id.action_alpha_shortcut)
-        Assert.assertNotNull(alphaItem)
-        mActivityTestRule.runOnUiThread {
-            MenuItemCompat.setContentDescription(
-                alphaItem,
-                mActivity!!.getString(R.string.alpha_menu_description)
-            )
-            MenuItemCompat.setTooltipText(
-                alphaItem,
-                mActivity!!.getString(R.string.alpha_menu_tooltip)
-            )
+        with(ActivityScenario.launch(activityClass)) {
+            onView(withId(R.id.action_search))
+                .check(matches(isDisplayed()))
+                .check(matches(withContentDescription(R.string.search_menu_description)))
+            onView(withId(R.id.action_alpha_shortcut))
+                .check(matches(isDisplayed()))
+                .check(matches(withContentDescription(null as String?)))
+            val menu = (this as ActivityScenario<BaseTestActivity>).withActivity { menu }
+            val alphaItem = menu.findItem(R.id.action_alpha_shortcut)
+            assertNotNull(alphaItem)
+            (this as ActivityScenario<BaseTestActivity>).withActivity {
+                MenuItemCompat.setContentDescription(
+                    alphaItem,
+                    getString(R.string.alpha_menu_description)
+                )
+                MenuItemCompat.setTooltipText(
+                    alphaItem,
+                    getString(R.string.alpha_menu_tooltip)
+                )
+            }
+            onView(withId(R.id.action_alpha_shortcut))
+                .check(matches(isDisplayed()))
+                .check(matches(withContentDescription(R.string.alpha_menu_description)))
         }
-        Espresso.onView(ViewMatchers.withId(R.id.action_alpha_shortcut))
-            .check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
-            .check(ViewAssertions.matches(ViewMatchers.withContentDescription(R.string.alpha_menu_description)))
     }
 
     @Throws(InterruptedException::class)
-    private fun repopulateWithEmptyMenu() {
+    private inline fun <reified A : BaseTestActivity>
+        ActivityScenario<A>.repopulateWithEmptyMenu() {
         var count = 0
-        mActivity!!.setShouldPopulateOptionsMenu(false)
+        withActivity {
+            setShouldPopulateOptionsMenu(false)
+        }
         while (count++ < 10) {
-            val menu = mActivity!!.menu
+            val menu = withActivity { menu }
             if (menu == null || menu.size() != 0) {
                 Thread.sleep(100)
             } else {
                 return
             }
         }
-    }
-
-    init {
-        mActivityTestRule = ActivityTestRule(activityClass)
     }
 }

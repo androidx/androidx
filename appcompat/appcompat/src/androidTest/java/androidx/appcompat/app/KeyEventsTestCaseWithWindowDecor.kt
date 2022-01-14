@@ -21,9 +21,15 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.test.R
 import androidx.core.view.ViewCompat
+import androidx.test.core.app.ActivityScenario
+import androidx.test.espresso.Espresso.onView
+import androidx.test.espresso.action.ViewActions.pressKey
+import androidx.test.espresso.matcher.ViewMatchers.isRoot
 import androidx.test.filters.LargeTest
-import androidx.test.platform.app.InstrumentationRegistry
-import org.junit.Assert
+import androidx.testutils.PollingCheck
+import androidx.testutils.withActivity
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class KeyEventsTestCaseWithWindowDecor : BaseKeyEventsTestCase<WindowDecorAppCompatActivity>(
@@ -33,73 +39,74 @@ class KeyEventsTestCaseWithWindowDecor : BaseKeyEventsTestCase<WindowDecorAppCom
     @LargeTest
     @Throws(Throwable::class)
     fun testUnhandledKeys() {
-        val container = mActivityTestRule.activity!!.findViewById<ViewGroup>(R.id.test_content)
-        val listener = MockUnhandledKeyListener()
-        val mockView1: View = HandlerView(mActivityTestRule.activity)
-        val mockView2 = HandlerView(mActivityTestRule.activity)
-        val instrumentation = InstrumentationRegistry.getInstrumentation()
+        with(ActivityScenario.launch(WindowDecorAppCompatActivity::class.java)) {
+            val listener = MockUnhandledKeyListener()
+            val mockView1: View = withActivity { HandlerView(this) }
+            val mockView2 = withActivity { HandlerView(this) }
 
-        // Validity check: should work before any unhandled stuff is used. This just needs to run
-        // without causing a crash
-        mActivityTestRule.runOnUiThread {
-            container.addView(mockView2)
-            mockView2.isFocusableInTouchMode = true
-            mockView2.requestFocus()
+            // Validity check: should work before any unhandled stuff is used. This just needs to run
+            // without causing a crash
+            withActivity {
+                val container = findViewById<ViewGroup>(R.id.test_content)
+                container.addView(mockView2)
+                mockView2.isFocusableInTouchMode = true
+                mockView2.requestFocus()
+            }
+
+            PollingCheck.waitFor { mockView2.hasFocus() }
+
+            onView(isRoot()).perform(pressKey(KeyEvent.KEYCODE_B))
+            // check that we're fine if a view consumes a down but not an up.
+            mockView2.respondToDown = true
+            onView(isRoot()).perform(pressKey(KeyEvent.KEYCODE_B))
+            assertTrue(mockView2.gotDown)
+            mockView2.reset()
+
+            ViewCompat.addOnUnhandledKeyEventListener(mockView1, listener)
+
+            // Before the view is attached, it shouldn't respond to anything
+            onView(isRoot()).perform(pressKey(KeyEvent.KEYCODE_B))
+            assertFalse(listener.fired())
+
+            // Once attached, it should start receiving fallback events
+            withActivity {
+                val container = findViewById<ViewGroup>(R.id.test_content)
+                container.addView(mockView1)
+            }
+            onView(isRoot()).perform(pressKey(KeyEvent.KEYCODE_B))
+            assertTrue(listener.fired())
+            listener.reset()
+
+            // Views should still take precedence
+            mockView2.respondToDown = true
+            mockView2.respondToUp = true
+            withActivity { mockView2.requestFocus() }
+            assertTrue(mockView2.isFocused)
+            onView(isRoot()).perform(pressKey(KeyEvent.KEYCODE_B))
+            assertTrue(mockView2.gotDown)
+            assertFalse(listener.fired())
+
+            // Still receives fallback with focused view
+            mockView2.reset()
+            onView(isRoot()).perform(pressKey(KeyEvent.KEYCODE_B))
+            assertTrue(listener.fired())
+            listener.reset()
+
+            // Receives events before Window.Callback (eg BACK)
+            listener.mReturnVal = true
+            onView(isRoot()).perform(pressKey(KeyEvent.KEYCODE_BACK))
+            assertTrue(listener.fired())
+            assertFalse(withActivity { wasOnBackPressedCalled() })
+            listener.mReturnVal = false
+            listener.reset()
+
+            // If removed, it should not receive fallbacks anymore
+            withActivity {
+                ViewCompat.removeOnUnhandledKeyEventListener(mockView1, listener)
+            }
+            onView(isRoot()).perform(pressKey(KeyEvent.KEYCODE_B))
+            assertFalse(listener.fired())
         }
-        instrumentation.waitForIdleSync()
-        instrumentation.sendKeyDownUpSync(KeyEvent.KEYCODE_B)
-        // check that we're fine if a view consumes a down but not an up.
-        mockView2.respondToDown = true
-        instrumentation.sendKeyDownUpSync(KeyEvent.KEYCODE_B)
-        Assert.assertTrue(mockView2.gotDown)
-        mockView2.reset()
-        ViewCompat.addOnUnhandledKeyEventListener(mockView1, listener)
-
-        // Before the view is attached, it shouldn't respond to anything
-        instrumentation.sendKeyDownUpSync(KeyEvent.KEYCODE_B)
-        Assert.assertFalse(listener.fired())
-
-        // Once attached, it should start receiving fallback events
-        mActivityTestRule.runOnUiThread { container.addView(mockView1) }
-        instrumentation.waitForIdleSync()
-        instrumentation.sendKeyDownUpSync(KeyEvent.KEYCODE_B)
-        Assert.assertTrue(listener.fired())
-        listener.reset()
-
-        // Views should still take precedence
-        mockView2.respondToDown = true
-        mockView2.respondToUp = true
-        mActivityTestRule.runOnUiThread { mockView2.requestFocus() }
-        instrumentation.waitForIdleSync()
-        Assert.assertTrue(mockView2.isFocused)
-        instrumentation.sendKeyDownUpSync(KeyEvent.KEYCODE_B)
-        Assert.assertTrue(mockView2.gotDown)
-        Assert.assertFalse(listener.fired())
-
-        // Still receives fallback with focused view
-        mockView2.reset()
-        instrumentation.sendKeyDownUpSync(KeyEvent.KEYCODE_B)
-        Assert.assertTrue(listener.fired())
-        listener.reset()
-
-        // Receives events before Window.Callback (eg BACK)
-        listener.mReturnVal = true
-        instrumentation.sendKeyDownUpSync(KeyEvent.KEYCODE_BACK)
-        Assert.assertTrue(listener.fired())
-        Assert.assertFalse(mActivityTestRule.activity!!.wasOnBackPressedCalled())
-        listener.mReturnVal = false
-        listener.reset()
-
-        // If removed, it should not receive fallbacks anymore
-        mActivityTestRule.runOnUiThread {
-            ViewCompat.removeOnUnhandledKeyEventListener(
-                mockView1,
-                listener
-            )
-        }
-        instrumentation.waitForIdleSync()
-        instrumentation.sendKeyDownUpSync(KeyEvent.KEYCODE_B)
-        Assert.assertFalse(listener.fired())
     }
 
     private class MockUnhandledKeyListener : ViewCompat.OnUnhandledKeyEventListenerCompat {
