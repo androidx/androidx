@@ -17,25 +17,25 @@
 package androidx.core.location;
 
 import static android.os.Build.VERSION;
-import static android.os.Build.VERSION_CODES;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
 import android.location.GnssStatus;
 
+import androidx.annotation.DoNotInline;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.core.util.Preconditions;
 
 /** @hide */
 @RestrictTo(LIBRARY)
-@RequiresApi(VERSION_CODES.N)
+@RequiresApi(24)
 class GnssStatusWrapper extends GnssStatusCompat {
 
     private final GnssStatus mWrapped;
 
-    GnssStatusWrapper(GnssStatus gnssStatus) {
-        mWrapped = Preconditions.checkNotNull(gnssStatus);
+    GnssStatusWrapper(Object gnssStatus) {
+        mWrapped = Preconditions.checkNotNull((GnssStatus) gnssStatus);
     }
 
     @Override
@@ -85,8 +85,8 @@ class GnssStatusWrapper extends GnssStatusCompat {
 
     @Override
     public boolean hasCarrierFrequencyHz(int satelliteIndex) {
-        if (VERSION.SDK_INT >= VERSION_CODES.O) {
-            return mWrapped.hasCarrierFrequencyHz(satelliteIndex);
+        if (VERSION.SDK_INT >= 26) {
+            return Api26Impl.hasCarrierFrequencyHz(mWrapped, satelliteIndex);
         } else {
             return false;
         }
@@ -94,8 +94,8 @@ class GnssStatusWrapper extends GnssStatusCompat {
 
     @Override
     public float getCarrierFrequencyHz(int satelliteIndex) {
-        if (VERSION.SDK_INT >= VERSION_CODES.O) {
-            return mWrapped.getCarrierFrequencyHz(satelliteIndex);
+        if (VERSION.SDK_INT >= 26) {
+            return Api26Impl.getCarrierFrequencyHz(mWrapped, satelliteIndex);
         } else {
             throw new UnsupportedOperationException();
         }
@@ -103,8 +103,8 @@ class GnssStatusWrapper extends GnssStatusCompat {
 
     @Override
     public boolean hasBasebandCn0DbHz(int satelliteIndex) {
-        if (VERSION.SDK_INT >= VERSION_CODES.R) {
-            return mWrapped.hasBasebandCn0DbHz(satelliteIndex);
+        if (VERSION.SDK_INT >= 30) {
+            return Api30Impl.hasBasebandCn0DbHz(mWrapped, satelliteIndex);
         } else {
             return false;
         }
@@ -112,8 +112,8 @@ class GnssStatusWrapper extends GnssStatusCompat {
 
     @Override
     public float getBasebandCn0DbHz(int satelliteIndex) {
-        if (VERSION.SDK_INT >= VERSION_CODES.R) {
-            return mWrapped.getBasebandCn0DbHz(satelliteIndex);
+        if (VERSION.SDK_INT >= 30) {
+            return Api30Impl.getBasebandCn0DbHz(mWrapped, satelliteIndex);
         } else {
             throw new UnsupportedOperationException();
         }
@@ -134,5 +134,39 @@ class GnssStatusWrapper extends GnssStatusCompat {
     @Override
     public int hashCode() {
         return mWrapped.hashCode();
+    }
+
+    @RequiresApi(26)
+    static class Api26Impl {
+        private Api26Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static float getCarrierFrequencyHz(GnssStatus gnssStatus, int satelliteIndex) {
+            return gnssStatus.getCarrierFrequencyHz(satelliteIndex);
+        }
+
+        @DoNotInline
+        static boolean hasCarrierFrequencyHz(GnssStatus gnssStatus, int satelliteIndex) {
+            return gnssStatus.hasCarrierFrequencyHz(satelliteIndex);
+        }
+    }
+
+    @RequiresApi(30)
+    static class Api30Impl {
+        private Api30Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static boolean hasBasebandCn0DbHz(GnssStatus gnssStatus, int satelliteIndex) {
+            return gnssStatus.hasBasebandCn0DbHz(satelliteIndex);
+        }
+
+        @DoNotInline
+        static float getBasebandCn0DbHz(GnssStatus gnssStatus, int satelliteIndex) {
+            return gnssStatus.getBasebandCn0DbHz(satelliteIndex);
+        }
     }
 }
