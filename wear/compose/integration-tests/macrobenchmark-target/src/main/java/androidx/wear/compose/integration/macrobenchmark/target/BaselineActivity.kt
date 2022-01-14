@@ -227,8 +227,7 @@ fun Pickers() {
     ListHeader { Text("Pickers") }
     val items = listOf("One", "Two", "Three", "Four", "Five")
     Picker(
-        items.size,
-        state = rememberPickerState(),
+        state = rememberPickerState(items.size),
         option = { Text(items[it]) },
         modifier = Modifier.size(100.dp, 100.dp),
     )

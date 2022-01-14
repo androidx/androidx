@@ -21,16 +21,11 @@ import androidx.compose.animation.core.Easing
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.Stable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.Constraints
@@ -39,16 +34,14 @@ import androidx.compose.ui.unit.dp
 
 /**
  * A scrollable list of items to pick from. By default, items will be repeated
- * "infinitely" in both directions, unless [repeatItems] is specified as false.
+ * "infinitely" in both directions, unless [PickerState#repeatItems] is specified as false.
  *
  * @sample androidx.wear.compose.material.samples.SimplePicker
  *
- * @param numberOfOptions the number of options
  * @param state The state of the component
  * @param modifier Modifier to be applied to the Picker
  * @param scalingParams the parameters to configure the scaling and transparency effects for the
  * component. See [ScalingParams]
- * @param repeatItems if true (the default), the contents of the component will be repeated
  * "infinitely" in both directions. If false, the elements will appear only once.
  * @param separation the amount of separation in [Dp] between items. Can be negative, which can be
  * useful for Text if it has plenty of whitespace.
@@ -57,39 +50,20 @@ import androidx.compose.ui.unit.dp
  */
 @Composable
 fun Picker(
-    numberOfOptions: Int,
     state: PickerState,
     modifier: Modifier = Modifier,
     scalingParams: ScalingParams = PickerDefaults.scalingParams(),
-    repeatItems: Boolean = true,
     separation: Dp = 0.dp,
     option: @Composable PickerScope.(optionIndex: Int) -> Unit
 ) {
-    require(numberOfOptions > 0) { "The picker should have at least one item." }
-
-    SideEffect {
-        state.itemCount = numberOfOptions
-    }
-
-    val repeatTarget = if (repeatItems) 100_000_000 / numberOfOptions else 1
-    // TODO: Remove this and pass into the initial position when creating the LazyListState.
-    if (repeatItems && state.scalingLazyListState.initialized.value) {
-        LaunchedEffect(state, numberOfOptions) {
-            // Scroll to the middle block.
-            state.scalingLazyListState.scrollToItem(
-                numberOfOptions * (repeatTarget / 2),
-                0
-            )
-        }
-    }
     val pickerScope = remember(state) { PickerScopeImpl(state) }
     ScalingLazyColumn(
         modifier = modifier,
         state = state.scalingLazyListState,
         content = {
-            items(numberOfOptions * repeatTarget) { ix ->
+            items(state.numberOfOptions * state.repeatTarget) { ix ->
                 with(pickerScope) {
-                    option(ix % numberOfOptions)
+                    option(ix % state.numberOfOptions)
                 }
             }
         },
@@ -104,63 +78,87 @@ fun Picker(
 
 /**
  * Creates a [PickerState] that is remembered across compositions.
+ *
+ * @param numberOfOptions the number of options
+ * @param initiallySelectedOption the option to show in the center at the start
+ * @param repeatItems if true (the default), the contents of the component will be repeated
  */
 @Composable
-public fun rememberPickerState() = rememberSaveable(saver = PickerState.Saver) {
-    PickerState(ScalingLazyListState())
-}
+public fun rememberPickerState(
+    numberOfOptions: Int,
+    initiallySelectedOption: Int = 0,
+    repeatItems: Boolean = true
+): PickerState = rememberSaveable(saver = PickerState.Saver) {
+       PickerState(numberOfOptions, initiallySelectedOption, repeatItems)
+    }
 
 /**
  * A state object that can be hoisted to observe item selection.
  *
  * In most cases, this will be created via [rememberPickerState].
+ *
+ * @param numberOfOptions the number of options
+ * @param initiallySelectedOption the option to show in the center at the start
+ * @param repeatItems if true (the default), the contents of the component will be repeated
  */
 @Stable
-class PickerState internal constructor(internal val scalingLazyListState: ScalingLazyListState) {
+class PickerState constructor(
+    val numberOfOptions: Int,
+    initiallySelectedOption: Int = 0,
+    val repeatItems: Boolean = true
+) {
+    init {
+        require(numberOfOptions > 0) { "The picker should have at least one item." }
+    }
+
+    internal val repeatTarget = if (repeatItems) 100_000_000 / numberOfOptions else 1
+    private val centerOffset = numberOfOptions * (repeatTarget / 2)
+    internal val scalingLazyListState = ScalingLazyListState(
+        centerOffset + initiallySelectedOption,
+        0
+    )
+
     /**
      * Index of the item selected (i.e., at the center)
      */
     val selectedOption: Int
-        get() = if (itemCount == 0) {
-            0
-        } else {
-            scalingLazyListState.centerItemIndex % itemCount
-        }
+        get() = scalingLazyListState.centerItemIndex % numberOfOptions
 
     /**
-     * Amount of items in the picker
+     * Instantly scroll to an item.
+     * Note that for this to work properly, all options need to have the same height, and this can
+     * only be called after the Picker has been laid out.
+     *
+     * @sample androidx.wear.compose.material.samples.OptionChangePicker
+     *
+     * @param index The index of the option to scroll to.
      */
-    internal var itemCount by mutableStateOf(0)
-        internal set
+    suspend fun scrollToOption(index: Int) {
+        scalingLazyListState.scrollToItem(index + centerOffset, 0)
+    }
 
     companion object {
         /**
          * The default [Saver] implementation for [PickerState].
          */
-        val Saver = listSaver<PickerState, Any>(
+        val Saver = listSaver<PickerState, Any?>(
             save = {
-                val scalingLazyListStateSaveable = with(ScalingLazyListState.Saver) {
-                    save(it.scalingLazyListState)
-                }
                 listOf(
-                    scalingLazyListStateSaveable!!,
-                    it.itemCount
+                    it.numberOfOptions,
+                    it.selectedOption,
+                    it.repeatItems
                 )
             },
             restore = { saved ->
                 @Suppress("UNCHECKED_CAST")
-                (saved[0] as? List<Any>)
-                    ?.let { ScalingLazyListState.Saver.restore(it) }
-                    ?.let {
-                        PickerState(it).apply {
-                            itemCount = saved[1] as Int
-                        }
-                    }
+                PickerState(
+                    numberOfOptions = saved[0] as Int,
+                    initiallySelectedOption = saved[1] as Int,
+                    repeatItems = saved[2] as Boolean
+                )
             }
         )
     }
-
-    // TODO(): provide a way to make an item selected, once we get support from the ScalingLazyColumn
 }
 
 /**
