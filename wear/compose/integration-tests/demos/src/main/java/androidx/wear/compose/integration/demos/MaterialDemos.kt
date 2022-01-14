@@ -31,6 +31,7 @@ import androidx.wear.compose.material.samples.ConfirmationDialogWithAnimation
 import androidx.wear.compose.material.samples.CurvedTextDemo
 import androidx.wear.compose.material.samples.InlineSliderSample
 import androidx.wear.compose.material.samples.InlineSliderSegmentedSample
+import androidx.wear.compose.material.samples.OptionChangePicker
 import androidx.wear.compose.material.samples.ScalingLazyColumnWithHeaders
 import androidx.wear.compose.material.samples.ScalingLazyColumnWithHeadersReversed
 import androidx.wear.compose.material.samples.SimplePicker
@@ -303,6 +304,9 @@ val WearMaterialDemos = DemoCategory(
             listOf(
                 ComposableDemo("Simple Picker") {
                     SimplePicker()
+                },
+                ComposableDemo("Change Selected Option Picker") {
+                    OptionChangePicker()
                 },
                 ComposableDemo("Time Picker") {
                     PickerTimeDemo()
