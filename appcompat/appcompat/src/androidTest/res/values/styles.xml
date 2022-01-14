@@ -133,4 +133,8 @@
         <item name="colorControlNormal">@color/color_state_theme_coloraccent</item>
     </style>
 
+    <style name="Theme.ColorForegroundCsl" parent="@style/Theme.AppCompat.Dialog.Alert">
+        <item name="android:colorForeground">@color/color_state_list_lilac</item>
+    </style>
+
 </resources>
