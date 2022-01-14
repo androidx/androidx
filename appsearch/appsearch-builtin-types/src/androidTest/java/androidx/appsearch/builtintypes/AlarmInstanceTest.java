@@ -22,49 +22,35 @@ import androidx.appsearch.app.GenericDocument;
 
 import org.junit.Test;
 
-import java.util.Calendar;
-
 public class AlarmInstanceTest {
     @Test
     public void testBuilder() {
-        AlarmInstance alarmInstance = new AlarmInstance.Builder("namespace", "id")
-                .setScore(1)
-                .setTtlMillis(20000)
+        AlarmInstance alarmInstance = new AlarmInstance.Builder(
+                "namespace", "id", "2022-12-01T07:30:00")
+                .setDocumentScore(1)
+                .setDocumentTtlMillis(20000)
                 .setCreationTimestampMillis(100)
-                .setYear(2022)
-                .setMonth(Calendar.DECEMBER)
-                .setDay(1)
-                .setHour(7)
-                .setMinute(30)
                 .setStatus(AlarmInstance.STATUS_SCHEDULED)
                 .setSnoozeDurationMillis(10000)
                 .build();
 
         assertThat(alarmInstance.getNamespace()).isEqualTo("namespace");
         assertThat(alarmInstance.getId()).isEqualTo("id");
-        assertThat(alarmInstance.getScore()).isEqualTo(1);
-        assertThat(alarmInstance.getTtlMillis()).isEqualTo(20000);
+        assertThat(alarmInstance.getDocumentScore()).isEqualTo(1);
+        assertThat(alarmInstance.getDocumentTtlMillis()).isEqualTo(20000);
         assertThat(alarmInstance.getCreationTimestampMillis()).isEqualTo(100);
-        assertThat(alarmInstance.getYear()).isEqualTo(2022);
-        assertThat(alarmInstance.getMonth()).isEqualTo(Calendar.DECEMBER);
-        assertThat(alarmInstance.getDay()).isEqualTo(1);
-        assertThat(alarmInstance.getHour()).isEqualTo(7);
-        assertThat(alarmInstance.getMinute()).isEqualTo(30);
+        assertThat(alarmInstance.getScheduledTime()).isEqualTo("2022-12-01T07:30:00");
         assertThat(alarmInstance.getStatus()).isEqualTo(1);
         assertThat(alarmInstance.getSnoozeDurationMillis()).isEqualTo(10000);
     }
 
     @Test
     public void testBuilderCopy_returnsAlarmInstanceWithAllFieldsCopied() {
-        AlarmInstance alarmInstance1 = new AlarmInstance.Builder("namespace", "id")
-                .setScore(1)
-                .setTtlMillis(20000)
+        AlarmInstance alarmInstance1 = new AlarmInstance.Builder(
+                "namespace", "id", "2022-12-01T07:30:00")
+                .setDocumentScore(1)
+                .setDocumentTtlMillis(20000)
                 .setCreationTimestampMillis(100)
-                .setYear(2022)
-                .setMonth(Calendar.DECEMBER)
-                .setDay(1)
-                .setHour(7)
-                .setMinute(30)
                 .setStatus(AlarmInstance.STATUS_SCHEDULED)
                 .setSnoozeDurationMillis(10000)
                 .build();
@@ -72,15 +58,12 @@ public class AlarmInstanceTest {
         AlarmInstance alarmInstance2 = new AlarmInstance.Builder(alarmInstance1).build();
         assertThat(alarmInstance1.getNamespace()).isEqualTo(alarmInstance2.getNamespace());
         assertThat(alarmInstance1.getId()).isEqualTo(alarmInstance2.getId());
-        assertThat(alarmInstance1.getScore()).isEqualTo(alarmInstance2.getScore());
-        assertThat(alarmInstance1.getTtlMillis()).isEqualTo(alarmInstance2.getTtlMillis());
+        assertThat(alarmInstance1.getDocumentScore()).isEqualTo(alarmInstance2.getDocumentScore());
+        assertThat(alarmInstance1.getDocumentTtlMillis())
+                .isEqualTo(alarmInstance2.getDocumentTtlMillis());
         assertThat(alarmInstance1.getCreationTimestampMillis())
                 .isEqualTo(alarmInstance2.getCreationTimestampMillis());
-        assertThat(alarmInstance1.getYear()).isEqualTo(alarmInstance2.getYear());
-        assertThat(alarmInstance1.getMonth()).isEqualTo(alarmInstance2.getMonth());
-        assertThat(alarmInstance1.getDay()).isEqualTo(alarmInstance2.getDay());
-        assertThat(alarmInstance1.getHour()).isEqualTo(alarmInstance2.getHour());
-        assertThat(alarmInstance1.getMinute()).isEqualTo(alarmInstance2.getMinute());
+        assertThat(alarmInstance1.getScheduledTime()).isEqualTo(alarmInstance2.getScheduledTime());
         assertThat(alarmInstance1.getStatus()).isEqualTo(alarmInstance2.getStatus());
         assertThat(alarmInstance1.getSnoozeDurationMillis())
                 .isEqualTo(alarmInstance2.getSnoozeDurationMillis());
@@ -88,15 +71,11 @@ public class AlarmInstanceTest {
 
     @Test
     public void testToGenericDocument() throws Exception {
-        AlarmInstance alarmInstance = new AlarmInstance.Builder("namespace", "id")
-                .setScore(1)
-                .setTtlMillis(20000)
+        AlarmInstance alarmInstance = new AlarmInstance.Builder(
+                "namespace", "id", "2022-12-01T07:30:00")
+                .setDocumentScore(1)
+                .setDocumentTtlMillis(20000)
                 .setCreationTimestampMillis(100)
-                .setYear(2022)
-                .setMonth(Calendar.DECEMBER)
-                .setDay(1)
-                .setHour(7)
-                .setMinute(30)
                 .setStatus(AlarmInstance.STATUS_SCHEDULED)
                 .setSnoozeDurationMillis(10000)
                 .build();
@@ -108,12 +87,7 @@ public class AlarmInstanceTest {
         assertThat(genericDocument.getScore()).isEqualTo(1);
         assertThat(genericDocument.getTtlMillis()).isEqualTo(20000);
         assertThat(genericDocument.getCreationTimestampMillis()).isEqualTo(100);
-        assertThat(genericDocument.getPropertyLong("year")).isEqualTo(2022);
-        assertThat(genericDocument.getPropertyLong("month")).isEqualTo(Calendar.DECEMBER);
-        assertThat(genericDocument.getPropertyLong("day")).isEqualTo(1);
-        assertThat(genericDocument.getPropertyLong("hour")).isEqualTo(7);
-        assertThat(genericDocument.getPropertyLong("minute")).isEqualTo(30);
-        assertThat(genericDocument.getPropertyLong("status")).isEqualTo(1);
-        assertThat(genericDocument.getPropertyLong("snoozeDurationMillis")).isEqualTo(10000);
+        assertThat(genericDocument.getPropertyString("scheduledTime"))
+                .isEqualTo("2022-12-01T07:30:00");
     }
 }
