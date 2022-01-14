@@ -7,7 +7,7 @@ plugins {
 dependencies {
     implementation(project(":core:core"))
     implementation(project(":cursoradapter:cursoradapter"))
-    implementation(project(":localbroadcastmanager:localbroadcastmanager"))
+    implementation("androidx.localbroadcastmanager:localbroadcastmanager:1.0.0")
     implementation(project(":slidingpanelayout:slidingpanelayout"))
     implementation(project(":swiperefreshlayout:swiperefreshlayout"))
     implementation(project(":fragment:fragment-ktx"))
