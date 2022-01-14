@@ -48,9 +48,10 @@ val internalFolder = "internal"
 val externalFolder = "external"
 /**
  * The coordinates of the desired artifact to be fetched with all of its dependencies, specified
- * to the script via -PartifactName="foo:bar:1.0"
+ * to the script via -PartifactNames="foo:bar:1.0" or -PartifactNames="foo:bar:1.0,foz:baz:1.0"
  */
-val artifactName = project.findProperty("artifactName")
+var artifactNames = project.findProperty("artifactNames")?.toString()?.split(",")
+    ?: throw GradleException("You are required to specify -PartifactNames property")
 val mediaType = "application/json; charset=utf-8".toMediaType()
 val licenseEndpoint = "https://fetch-licenses.appspot.com/convert/licenses"
 
@@ -69,7 +70,7 @@ val forceExternal = setOf(
 )
 
 // Apply java plugin so we have a base project set up with runtime configuration and ability to
-// add our requested dependency passed it through the gradle property -PartifactName="foo:bar:1.0"
+// add our requested dependency passed it through the gradle property -PartifactNames="foo:bar:1.0"
 plugins {
     java
 }
@@ -154,22 +155,22 @@ val javaApiConfiguration: Configuration by configurations.creating {
     extendsFrom(configurations.runtimeClasspath.get())
 }
 
-if (artifactName != null) {
-    dependencies {
-        // We reuse the runtimeClasspath configuration provided by the java gradle plugin by
-        // extending it in our directDependencyConfiguration and allDependenciesConfiguration,
-        // so we can look up transitive closure of all the dependencies.
+dependencies {
+    // We reuse the runtimeClasspath configuration provided by the java gradle plugin by
+    // extending it in our directDependencyConfiguration and allDependenciesConfiguration,
+    // so we can look up transitive closure of all the dependencies.
+    for (artifactName in artifactNames) {
         implementation(artifactName)
-
-        // Specify to use our custom variant rule that sets up to fetch exactly the files
-        // we care about
-        components {
-            all<DirectMetadataAccessVariantRule>()
-        }
-        // Specify that both AARs and Jars are compatible
-        attributesSchema.attribute(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE)
-            .compatibilityRules.add(JarAndAarAreCompatible::class.java)
     }
+
+    // Specify to use our custom variant rule that sets up to fetch exactly the files
+    // we care about
+    components {
+        all<DirectMetadataAccessVariantRule>()
+    }
+    // Specify that both AARs and Jars are compatible
+    attributesSchema.attribute(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE)
+        .compatibilityRules.add(JarAndAarAreCompatible::class.java)
 }
 
 /**
@@ -497,7 +498,7 @@ tasks.register("fetchArtifacts") {
             numArtifactsFound++
         }
         if (numArtifactsFound < 1) {
-            var message = "Artifact $artifactName not found!"
+            var message = "Artifact(s) ${artifactNames.joinToString { it }} not found!"
             if (metalavaBuildId != null) {
                 message += "\nMake sure that ab/$metalavaBuildId contains the `metalava` "
                 message += "target and that it has finished building, or see "
@@ -505,7 +506,7 @@ tasks.register("fetchArtifacts") {
             }
             throw GradleException(message)
         }
-        println("\r\nResolved $numArtifactsFound artifacts for $artifactName.")
+        println("\r\nResolved $numArtifactsFound artifacts for ${artifactNames.joinToString { it }}.")
     }
 }
 
