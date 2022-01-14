@@ -32,7 +32,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.glance.Button
 import androidx.glance.GlanceId
@@ -61,15 +60,12 @@ import androidx.glance.layout.Row
 import androidx.glance.layout.fillMaxSize
 import androidx.glance.layout.fillMaxWidth
 import androidx.glance.layout.padding
-import androidx.glance.state.PreferencesGlanceStateDefinition
 import androidx.glance.text.FontWeight
 import androidx.glance.text.Text
 import androidx.glance.text.TextDecoration
 import androidx.glance.text.TextStyle
 
 class ActionAppWidget : GlanceAppWidget() {
-
-    override val stateDefinition = PreferencesGlanceStateDefinition
 
     @Composable
     override fun Content() {
@@ -85,7 +81,7 @@ class ActionAppWidget : GlanceAppWidget() {
                 SelectableActionItem(label = "Broadcasts", index = 2)
             }
 
-            when (currentState<Preferences>()[selectedItemKey] ?: 0) {
+            when (currentState(selectedItemKey) ?: 0) {
                 0 -> StartActivityActions()
                 1 -> StartServiceActions()
                 2 -> SendBroadcastActions()
@@ -100,7 +96,7 @@ private val startMessageKey = ActionParameters.Key<String>("launchMessageKey")
 
 @Composable
 private fun SelectableActionItem(label: String, index: Int) {
-    val style = if (index == currentState<Preferences>()[selectedItemKey] ?: 0) {
+    val style = if (index == (currentState(selectedItemKey) ?: 0)) {
         TextStyle(
             fontSize = 16.sp,
             fontWeight = FontWeight.Bold,
@@ -224,13 +220,10 @@ private fun SendBroadcastActions() {
  */
 class UpdateAction : ActionCallback {
     override suspend fun onRun(context: Context, glanceId: GlanceId, parameters: ActionParameters) {
-        val actionAppWidget = ActionAppWidget()
-        actionAppWidget.updateAppWidgetState<Preferences>(context, glanceId) { prefs ->
-            prefs.toMutablePreferences().apply {
-                this[selectedItemKey] = parameters[selectedItemKey.toParametersKey()] ?: 0
-            }
+        updateAppWidgetState(context, glanceId) { state ->
+            state[selectedItemKey] = parameters[selectedItemKey.toParametersKey()] ?: 0
         }
-        actionAppWidget.update(context, glanceId)
+        ActionAppWidget().update(context, glanceId)
     }
 }
 

@@ -83,16 +83,16 @@ import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
-import kotlinx.coroutines.runBlocking
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicReference
 import kotlin.test.assertIs
 import kotlin.test.assertNotNull
+import kotlinx.coroutines.runBlocking
+import org.junit.Before
+import org.junit.Rule
+import org.junit.Test
 
 @SdkSuppress(minSdkVersion = 29)
 @MediumTest
@@ -486,7 +486,6 @@ class GlanceAppWidgetReceiverTest {
 
     @Test
     fun removeAppWidget() {
-        TestGlanceAppWidget.stateDefinition = PreferencesGlanceStateDefinition
         TestGlanceAppWidget.uiDefinition = {
             Text("something")
         }
@@ -499,10 +498,8 @@ class GlanceAppWidgetReceiverTest {
         }
 
         runBlocking {
-            TestGlanceAppWidget.updateAppWidgetState<Preferences>(context, glanceId) { prefs ->
-                prefs.toMutablePreferences().apply {
-                    this[testKey] = 3
-                }
+            updateAppWidgetState(context, glanceId) {
+                it[testKey] = 3
             }
         }
 
@@ -550,8 +547,6 @@ class GlanceAppWidgetReceiverTest {
 
     @Test
     fun updateIf() {
-        TestGlanceAppWidget.stateDefinition = PreferencesGlanceStateDefinition
-
         TestGlanceAppWidget.uiDefinition = {
             Text("before")
         }
@@ -562,14 +557,8 @@ class GlanceAppWidgetReceiverTest {
         runBlocking {
             appWidgetManager.getGlanceIds(TestGlanceAppWidget::class.java)
                 .forEach { glanceId ->
-                    updateAppWidgetState(
-                        context,
-                        PreferencesGlanceStateDefinition,
-                        glanceId
-                    ) { prefs ->
-                        prefs.toMutablePreferences().apply {
-                            this[testKey] = 2
-                        }
+                    updateAppWidgetState(context, glanceId) {
+                        it[testKey] = 2
                     }
                 }
         }
@@ -601,8 +590,6 @@ class GlanceAppWidgetReceiverTest {
 
     @Test
     fun viewState() {
-        TestGlanceAppWidget.stateDefinition = PreferencesGlanceStateDefinition
-
         TestGlanceAppWidget.uiDefinition = {
             val value = currentState<Preferences>()[testKey] ?: -1
             Text("Value = $value")
@@ -616,13 +603,8 @@ class GlanceAppWidgetReceiverTest {
         }
 
         runBlocking {
-            TestGlanceAppWidget.updateAppWidgetState<Preferences>(
-                context,
-                appWidgetId.get()
-            ) { prefs ->
-                prefs.toMutablePreferences().apply {
-                    this[testKey] = 2
-                }
+            updateAppWidgetState(context, appWidgetId.get()) {
+                it[testKey] = 2
             }
 
             val prefs =

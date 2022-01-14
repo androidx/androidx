@@ -68,7 +68,7 @@ class GlanceAppWidgetTest {
         val rv = composer.composeForSize(
             context,
             1,
-            state = null,
+            composer.stateDefinition,
             Bundle(),
             DpSize(40.dp, 50.dp),
             LayoutConfiguration.create(context, 1),
@@ -89,7 +89,7 @@ class GlanceAppWidgetTest {
         val rv = composer.composeForSize(
             context,
             1,
-            state = null,
+            composer.stateDefinition,
             Bundle(),
             DpSize(40.dp, 50.dp),
             LayoutConfiguration.create(context, 1),
@@ -113,7 +113,7 @@ class GlanceAppWidgetTest {
         val rv = composer.composeForSize(
             context,
             1,
-            state = null,
+            composer.stateDefinition,
             bundle,
             DpSize(40.dp, 50.dp),
             LayoutConfiguration.create(context, 1),
@@ -136,7 +136,7 @@ class GlanceAppWidgetTest {
         val rv = composer.composeForSize(
             context,
             1,
-            state = null,
+            composer.stateDefinition,
             bundle,
             DpSize(40.dp, 50.dp),
             LayoutConfiguration.create(context, 1),
@@ -169,7 +169,7 @@ class GlanceAppWidgetTest {
             context,
             appWidgetManager,
             appWidgetId = 1,
-            state = null,
+            composer.stateDefinition,
             options = Bundle(),
             LayoutConfiguration.create(context, 2),
         )
@@ -194,7 +194,7 @@ class GlanceAppWidgetTest {
             context,
             appWidgetManager,
             appWidgetId = 1,
-            state = null,
+            composer.stateDefinition,
             options = options,
             LayoutConfiguration.create(context, 1),
         )
@@ -230,7 +230,7 @@ class GlanceAppWidgetTest {
             context,
             appWidgetManager,
             appWidgetId = 1,
-            state = null,
+            composer.stateDefinition,
             options = options,
             LayoutConfiguration.create(context, 1),
         )
@@ -266,7 +266,7 @@ class GlanceAppWidgetTest {
                 context,
                 appWidgetManager,
                 appWidgetId = 1,
-                state = null,
+                composer.stateDefinition,
                 options = Bundle(),
                 LayoutConfiguration.create(context, 1),
             )
@@ -300,7 +300,7 @@ class GlanceAppWidgetTest {
             context,
             appWidgetManager,
             appWidgetId = 1,
-            state = null,
+            composer.stateDefinition,
             options = Bundle(),
             LayoutConfiguration.create(context, 1),
         )

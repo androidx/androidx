@@ -20,15 +20,9 @@ import android.content.Context
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.ui.Modifier
-import androidx.datastore.preferences.core.Preferences
-import androidx.glance.ImageProvider
-import androidx.glance.appwidget.GlanceAppWidget
-import androidx.glance.appwidget.GlanceAppWidgetReceiver
-import androidx.glance.appwidget.action.actionRunCallback
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.material.Button
@@ -41,13 +35,19 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.glance.GlanceId
+import androidx.glance.ImageProvider
 import androidx.glance.action.ActionParameters
+import androidx.glance.appwidget.GlanceAppWidget
+import androidx.glance.appwidget.GlanceAppWidgetReceiver
 import androidx.glance.appwidget.action.ActionCallback
+import androidx.glance.appwidget.action.actionRunCallback
 import androidx.glance.appwidget.state.updateAppWidgetState
 import androidx.glance.state.GlanceState
 import androidx.glance.state.GlanceStateDefinition
@@ -156,7 +156,7 @@ class TemplateButtonAction : ActionCallback {
         template = getTemplate(Templates.values()[templateIndex])
         val widget = SingleEntityTemplateWidget()
         if (background != null) {
-            widget.updateAppWidgetState<Preferences>(context, glanceId) { prefs ->
+            updateAppWidgetState(context, glanceId) { prefs ->
                 prefs.toMutablePreferences().apply {
                     this[BackgroundKey] = background
                 }

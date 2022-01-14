@@ -22,6 +22,7 @@ package androidx.glance {
 
   public final class CompositionLocalsKt {
     method @androidx.compose.runtime.Composable public static inline <reified T> T! currentState();
+    method @androidx.compose.runtime.Composable public static inline <reified T> T! currentState(androidx.datastore.preferences.core.Preferences.Key<T> key);
     method public static androidx.compose.runtime.ProvidableCompositionLocal<android.content.Context> getLocalContext();
     method public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.glance.GlanceId> getLocalGlanceId();
     method public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.unit.DpSize> getLocalSize();

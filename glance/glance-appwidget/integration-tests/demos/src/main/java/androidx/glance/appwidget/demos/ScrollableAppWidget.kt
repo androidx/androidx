@@ -16,6 +16,7 @@
 
 package androidx.glance.appwidget.demos
 
+import androidx.compose.material.Text as ComposeText
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
@@ -28,7 +29,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.glance.Button
 import androidx.glance.GlanceId
@@ -39,11 +39,11 @@ import androidx.glance.action.ActionParameters
 import androidx.glance.action.actionParametersOf
 import androidx.glance.action.clickable
 import androidx.glance.appwidget.CheckBox
+import androidx.glance.appwidget.CircularProgressIndicator
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.GlanceAppWidgetReceiver
-import androidx.glance.appwidget.SizeMode
 import androidx.glance.appwidget.LinearProgressIndicator
-import androidx.glance.appwidget.CircularProgressIndicator
+import androidx.glance.appwidget.SizeMode
 import androidx.glance.appwidget.action.ActionCallback
 import androidx.glance.appwidget.action.ToggleableStateKey
 import androidx.glance.appwidget.action.actionRunCallback
@@ -61,14 +61,11 @@ import androidx.glance.layout.fillMaxHeight
 import androidx.glance.layout.fillMaxSize
 import androidx.glance.layout.fillMaxWidth
 import androidx.glance.layout.padding
-import androidx.glance.state.GlanceStateDefinition
-import androidx.glance.state.PreferencesGlanceStateDefinition
 import androidx.glance.text.FontWeight
 import androidx.glance.text.Text
 import androidx.glance.text.TextAlign
 import androidx.glance.text.TextDecoration
 import androidx.glance.text.TextStyle
-import androidx.compose.material.Text as ComposeText
 
 /**
  * Sample AppWidget that showcase scrollable layouts using the LazyColumn
@@ -82,8 +79,6 @@ class ScrollableAppWidget : GlanceAppWidget() {
 
         val checkboxKey = booleanPreferencesKey("checkbox")
     }
-
-    override var stateDefinition: GlanceStateDefinition<*> = PreferencesGlanceStateDefinition
 
     override val sizeMode: SizeMode = SizeMode.Responsive(
         setOf(singleColumn, doubleColumn, tripleColumn)
@@ -123,7 +118,6 @@ class ScrollableAppWidget : GlanceAppWidget() {
 
 @Composable
 private fun ScrollColumn(modifier: GlanceModifier) {
-    val prefs = currentState<Preferences>()
     LazyColumn(modifier) {
         item {
             SectionHeading(
@@ -188,7 +182,7 @@ private fun ScrollColumn(modifier: GlanceModifier) {
         }
         item {
             CheckBox(
-                checked = prefs[checkboxKey] ?: false,
+                checked = currentState(checkboxKey) ?: false,
                 onCheckedChange = actionRunCallback<ListToggleAction>(),
                 text = "Checkbox"
             )
@@ -242,15 +236,10 @@ class LogItemClickAction : ActionCallback {
 
 class ListToggleAction : ActionCallback {
     override suspend fun onRun(context: Context, glanceId: GlanceId, parameters: ActionParameters) {
-        ScrollableAppWidget().run {
-            updateAppWidgetState<Preferences>(context, glanceId) { prefs ->
-                prefs.toMutablePreferences().apply {
-                    val checked = parameters[ToggleableStateKey] ?: false
-                    set(checkboxKey, checked)
-                }
-            }
-            update(context, glanceId)
+        updateAppWidgetState(context, glanceId) { state ->
+            state[checkboxKey] = parameters[ToggleableStateKey] ?: false
         }
+        ScrollableAppWidget().update(context, glanceId)
     }
 }
 
