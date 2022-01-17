@@ -51,6 +51,7 @@ public final class Camera2InteropTest {
             CameraCaptureSessionStateCallbacks.createNoOpCallback();
     private static final CameraDevice.StateCallback DEVICE_STATE_CALLBACK =
             CameraDeviceStateCallbacks.createNoOpCallback();
+    private static final String PHYSICAL_CAMERA_ID = "0";
 
     @Test
     public void canExtendWithTemplateType() {
@@ -170,5 +171,16 @@ public final class Camera2InteropTest {
                             .isEqualTo(Config.OptionPriority.ALWAYS_OVERRIDE);
                     return true;
                 });
+    }
+
+    @Test
+    public void canExtendWithPhysicalCameraId() {
+        FakeConfig.Builder builder = new FakeConfig.Builder();
+
+        new Camera2Interop.Extender<>(builder).setPhysicalCameraId(PHYSICAL_CAMERA_ID);
+
+        Camera2ImplConfig config = new Camera2ImplConfig(builder.build());
+
+        assertThat(config.getPhysicalCameraId(null)).isEqualTo(PHYSICAL_CAMERA_ID);
     }
 }
