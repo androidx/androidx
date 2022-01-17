@@ -81,6 +81,7 @@ public class ScalingLazyColumnTest {
                     modifier = Modifier.testTag(TEST_TAG).requiredSize(
                         itemSizeDp * 3.5f + defaultItemSpacingDp * 2.5f
                     ),
+                    autoCentering = false
                 ) {
                     items(5) {
                         Box(Modifier.requiredSize(itemSizeDp))
@@ -98,6 +99,36 @@ public class ScalingLazyColumnTest {
     }
 
     @Test
+    fun visibleItemsAreCorrectAfterScrollingWithAutoCentering() {
+        lateinit var state: ScalingLazyListState
+        rule.setContent {
+            WithTouchSlop(0f) {
+                ScalingLazyColumn(
+                    state = rememberScalingLazyListState().also { state = it },
+                    modifier = Modifier.testTag(TEST_TAG).requiredSize(
+                        itemSizeDp * 3.5f + defaultItemSpacingDp * 2.5f
+                    ),
+                    autoCentering = true
+                ) {
+                    items(5) {
+                        Box(Modifier.requiredSize(itemSizeDp))
+                    }
+                }
+            }
+        }
+        rule.waitForIdle()
+        state.layoutInfo.assertVisibleItems(count = 3, startIndex = 0)
+
+        rule.waitForIdle()
+        rule.onNodeWithTag(TEST_TAG).performTouchInput {
+            swipeUp(endY = bottom - (itemSizePx.toFloat() + defaultItemSpacingPx.toFloat()))
+        }
+
+        rule.waitForIdle()
+        state.layoutInfo.assertVisibleItems(count = 4, startIndex = 0)
+    }
+
+    @Test
     fun visibleItemsAreCorrectAfterScrollingReverseLayout() {
         lateinit var state: ScalingLazyListState
         rule.setContent {
@@ -108,6 +139,7 @@ public class ScalingLazyColumnTest {
                         itemSizeDp * 3.5f + defaultItemSpacingDp * 2.5f
                     ),
                     reverseLayout = true,
+                    autoCentering = false
                 ) {
                     items(5) {
                         Box(Modifier.requiredSize(itemSizeDp))
@@ -211,7 +243,8 @@ public class ScalingLazyColumnTest {
                     state = rememberScalingLazyListState().also { state = it },
                     modifier = Modifier
                         .testTag(TEST_TAG)
-                        .requiredSize(itemSizeDp * 3.5f + defaultItemSpacingDp * 2.5f)
+                        .requiredSize(itemSizeDp * 3.5f + defaultItemSpacingDp * 2.5f),
+                    autoCentering = false
                 ) {
                     items(6) {
                         Box(Modifier.requiredSize(itemSizeDp))
