@@ -35,7 +35,7 @@ dependencies {
     api("androidx.compose.runtime:runtime:1.1.0-beta01")
     api("androidx.compose.ui:ui-graphics:1.1.0-beta01")
     api("androidx.compose.ui:ui-unit:1.1.0-beta01")
-    api("androidx.wear.tiles:tiles:1.0.0-alpha12")
+    api("androidx.wear.tiles:tiles:1.0.0")
 
     implementation(libs.kotlinStdlib)
     implementation(libs.kotlinCoroutinesGuava)
@@ -43,7 +43,6 @@ dependencies {
     implementation "androidx.lifecycle:lifecycle-runtime-ktx:2.3.1"
     implementation "androidx.lifecycle:lifecycle-service:2.3.1"
 
-    testImplementation(project(":core:core-ktx"))
     testImplementation(libs.testCore)
     testImplementation(libs.testRules)
     testImplementation(libs.testRunner)
@@ -55,14 +54,13 @@ dependencies {
     testImplementation(libs.kotlinReflect)
     testImplementation(libs.mockitoCore)
     testImplementation(libs.mockitoKotlin)
-    // TODO(b/197638718): Remove when tiles-testing dependencies are fixed.
-    testImplementation("androidx.wear.tiles:tiles-renderer:1.0.0-alpha12")
-    testImplementation("androidx.wear.tiles:tiles-testing:1.0.0-alpha12")
+    testImplementation("androidx.core:core-ktx:1.7.0")
+    testImplementation("androidx.wear.tiles:tiles-testing:1.0.0")
 
-    androidTestImplementation(project(":core:core-ktx"))
     androidTestImplementation("androidx.core:core:1.7.0")
+    androidTestImplementation("androidx.core:core-ktx:1.7.0")
     androidTestImplementation(project(":test:screenshot:screenshot"))
-    androidTestImplementation("androidx.wear.tiles:tiles-renderer:1.0.0-alpha12")
+    androidTestImplementation("androidx.wear.tiles:tiles-renderer:1.0.0")
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testRunner)
@@ -92,7 +90,6 @@ android {
 androidx {
     name = "Glance for Wear Tiles"
     type = LibraryType.PUBLISHED_LIBRARY
-    publish = Publish.SNAPSHOT_ONLY
     mavenGroup = LibraryGroups.GLANCE
     inceptionYear = "2021"
     description = "Glance allows developers to build layouts for Wear Tiles using a Jetpack " +
