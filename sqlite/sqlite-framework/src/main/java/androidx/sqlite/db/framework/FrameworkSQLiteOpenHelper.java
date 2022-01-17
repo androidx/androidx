@@ -26,8 +26,10 @@ import androidx.annotation.RequiresApi;
 import androidx.sqlite.db.SupportSQLiteCompat;
 import androidx.sqlite.db.SupportSQLiteDatabase;
 import androidx.sqlite.db.SupportSQLiteOpenHelper;
+import androidx.sqlite.util.ProcessLock;
 
 import java.io.File;
+import java.util.UUID;
 
 class FrameworkSQLiteOpenHelper implements SupportSQLiteOpenHelper {
 
@@ -132,6 +134,9 @@ class FrameworkSQLiteOpenHelper implements SupportSQLiteOpenHelper {
         final Callback mCallback;
         // see b/78359448
         private boolean mMigrated;
+        // see b/193182592
+        private final ProcessLock mLock;
+        private boolean mOpened;
 
         OpenHelper(Context context, String name, final FrameworkSQLiteDatabase[] dbRef,
                 final Callback callback) {
@@ -144,28 +149,40 @@ class FrameworkSQLiteOpenHelper implements SupportSQLiteOpenHelper {
                     });
             mCallback = callback;
             mDbRef = dbRef;
+            mLock = new ProcessLock(name == null ? UUID.randomUUID().toString() : name,
+                    context.getCacheDir(), false);
         }
 
-        synchronized SupportSQLiteDatabase getWritableSupportDatabase() {
-            mMigrated = false;
-            SQLiteDatabase db = super.getWritableDatabase();
-            if (mMigrated) {
-                // there might be a connection w/ stale structure, we should re-open.
-                close();
-                return getWritableSupportDatabase();
+        SupportSQLiteDatabase getWritableSupportDatabase() {
+            try {
+                mLock.lock(!mOpened && getDatabaseName() != null);
+                mMigrated = false;
+                SQLiteDatabase db = super.getWritableDatabase();
+                if (mMigrated) {
+                    // there might be a connection w/ stale structure, we should re-open.
+                    close();
+                    return getWritableSupportDatabase();
+                }
+                return getWrappedDb(db);
+            } finally {
+                mLock.unlock();
             }
-            return getWrappedDb(db);
         }
 
-        synchronized SupportSQLiteDatabase getReadableSupportDatabase() {
-            mMigrated = false;
-            SQLiteDatabase db = super.getReadableDatabase();
-            if (mMigrated) {
-                // there might be a connection w/ stale structure, we should re-open.
-                close();
-                return getReadableSupportDatabase();
+        SupportSQLiteDatabase getReadableSupportDatabase() {
+            try {
+                mLock.lock(!mOpened && getDatabaseName() != null);
+                mMigrated = false;
+                SQLiteDatabase db = super.getReadableDatabase();
+                if (mMigrated) {
+                    // there might be a connection w/ stale structure, we should re-open.
+                    close();
+                    return getReadableSupportDatabase();
+                }
+                return getWrappedDb(db);
+            } finally {
+                mLock.unlock();
             }
-            return getWrappedDb(db);
         }
 
         FrameworkSQLiteDatabase getWrappedDb(SQLiteDatabase sqLiteDatabase) {
@@ -200,12 +217,20 @@ class FrameworkSQLiteOpenHelper implements SupportSQLiteOpenHelper {
                 // if we've migrated, we'll re-open the db so we should not call the callback.
                 mCallback.onOpen(getWrappedDb(db));
             }
+            mOpened = true;
         }
 
         @Override
-        public synchronized void close() {
-            super.close();
-            mDbRef[0] = null;
+        @SuppressWarnings("UnsynchronizedOverridesSynchronized") // No need sync due to locks.
+        public void close() {
+            try {
+                mLock.lock();
+                super.close();
+                mDbRef[0] = null;
+                mOpened = false;
+            } finally {
+                mLock.unlock();
+            }
         }
 
         static FrameworkSQLiteDatabase getWrappedDb(FrameworkSQLiteDatabase[] refHolder,
