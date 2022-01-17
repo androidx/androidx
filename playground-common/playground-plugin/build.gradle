@@ -24,8 +24,8 @@ repositories {
 }
 
 dependencies {
-    implementation "com.gradle:gradle-enterprise-gradle-plugin:3.7.1"
-    implementation "com.gradle:common-custom-user-data-gradle-plugin:1.5"
+    implementation "com.gradle:gradle-enterprise-gradle-plugin:3.8.1"
+    implementation "com.gradle:common-custom-user-data-gradle-plugin:1.6.2"
 }
 
 gradlePlugin {
