@@ -14,10 +14,9 @@
  * limitations under the License.
  */
 
-package androidx.room.util;
+package androidx.sqlite.util;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RestrictTo;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -29,8 +28,8 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
- * Utility class for in-process and multi-process key-based lock mechanism for safely copying
- * database files.
+ * Utility class for in-process and multi-process key-based lock mechanism for safely doing
+ * synchronized operations.
  * <p>
  * Acquiring the lock will be quick if no other thread or process has a lock with the same key.
  * But if the lock is already held then acquiring it will block, until the other thread or process
@@ -45,16 +44,13 @@ import java.util.concurrent.locks.ReentrantLock;
  *   <li>
  *     Multi-process locking is done via a lock file whose name contains the key and FileLock
  *     objects.
- *
- * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-public class CopyLock {
+public final class ProcessLock {
 
     // in-process lock map
     private static final Map<String, Lock> sThreadLocks = new HashMap<>();
 
-    private final File mCopyLockFile;
+    private final File mLockFile;
     private final Lock mThreadLock;
     private final boolean mFileLevelLock;
     private FileChannel mLockChannel;
@@ -64,11 +60,13 @@ public class CopyLock {
      * lock files.
      * @param name the name of this lock.
      * @param lockDir the directory where the lock files will be located.
-     * @param processLock whether to use file for process level locking or not.
+     * @param processLock whether to use file for process level locking or not by default. The
+     *                    behaviour can be overridden via the {@link #lock(boolean)}} method.
      */
-    public CopyLock(@NonNull String name, @NonNull File lockDir, boolean processLock) {
-        mCopyLockFile = new File(lockDir, name + ".lck");
-        mThreadLock = getThreadLock(mCopyLockFile.getAbsolutePath());
+    @SuppressWarnings("StreamFiles") // Overloads with FileDescriptor or Stream are invalid.
+    public ProcessLock(@NonNull String name, @NonNull File lockDir, boolean processLock) {
+        mLockFile = new File(lockDir, name + ".lck");
+        mThreadLock = getThreadLock(mLockFile.getAbsolutePath());
         mFileLevelLock = processLock;
     }
 
@@ -76,13 +74,27 @@ public class CopyLock {
      * Attempts to grab the lock, blocking if already held by another thread or process.
      */
     public void lock() {
+        lock(mFileLevelLock);
+    }
+
+    /**
+     * Attempts to grab the lock, blocking if already held by another thread or process.
+     *
+     * @param processLock whether to use file for process level locking or not.
+     */
+    public void lock(boolean processLock) {
         mThreadLock.lock();
-        if (mFileLevelLock) {
+        if (processLock) {
             try {
-                mLockChannel = new FileOutputStream(mCopyLockFile).getChannel();
+                // Verify parent dir
+                File parentDir = mLockFile.getParentFile();
+                if (parentDir != null) {
+                    parentDir.mkdirs();
+                }
+                mLockChannel = new FileOutputStream(mLockFile).getChannel();
                 mLockChannel.lock();
             } catch (IOException e) {
-                throw new IllegalStateException("Unable to grab copy lock.", e);
+                throw new IllegalStateException("Unable to grab file lock.", e);
             }
         }
     }
