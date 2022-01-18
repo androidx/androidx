@@ -48,10 +48,6 @@ public class DeviceQuirksLoader {
             quirks.add(new SurfaceViewNotCroppedByParentQuirk());
         }
 
-        if (TextureViewRotationQuirk.load()) {
-            quirks.add(new TextureViewRotationQuirk());
-        }
-
         return quirks;
     }
 }
