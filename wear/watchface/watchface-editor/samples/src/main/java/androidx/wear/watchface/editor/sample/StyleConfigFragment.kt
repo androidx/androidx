@@ -29,7 +29,7 @@ import android.widget.ToggleButton
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.RecyclerView
 import androidx.versionedparcelable.ParcelUtils
-import androidx.wear.watchface.R
+import androidx.wear.watchface.editor.samples.R
 import androidx.wear.watchface.style.UserStyle
 import androidx.wear.watchface.style.UserStyleData
 import androidx.wear.watchface.style.UserStyleSchema
