@@ -15,6 +15,7 @@
  */
 package androidx.appcompat.app
 
+import android.os.Build.VERSION.SDK_INT
 import android.view.Window
 import androidx.test.core.app.ActivityScenario
 import androidx.test.espresso.Espresso.onView
@@ -45,11 +46,15 @@ class KeyEventsTestCaseWithToolbar : BaseKeyEventsTestCase<ToolbarAppCompatActiv
             val toolbar = withActivity { toolbar }
             assertFalse(toolbar.isOverflowMenuShowing)
 
+            // Pressing the menu key opens the overflow menu.
             onView(isRoot()).perform(pressMenuKey())
             PollingCheck.waitFor { toolbar.isOverflowMenuShowing }
 
-            onView(isRoot()).perform(pressMenuKey())
-            PollingCheck.waitFor { !toolbar.isOverflowMenuShowing }
+            if (SDK_INT < 28) {
+                // Prior to SDK 28, pressing the menu key a second time closes the overflow menu.
+                onView(isRoot()).perform(pressMenuKey())
+                PollingCheck.waitFor { !toolbar.isOverflowMenuShowing }
+            }
         }
     }
 

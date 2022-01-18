@@ -18,6 +18,7 @@
 package androidx.appcompat.app
 
 import android.app.Instrumentation
+import android.os.Build
 import android.view.KeyEvent
 import android.view.Menu
 import android.view.MenuItem
@@ -25,14 +26,12 @@ import androidx.appcompat.test.R
 import androidx.appcompat.testutils.BaseTestActivity
 import androidx.appcompat.view.ActionMode
 import androidx.core.view.MenuItemCompat
-import androidx.lifecycle.Lifecycle
 import androidx.test.core.app.ActivityScenario
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.Espresso.pressBack
 import androidx.test.espresso.Espresso.pressBackUnconditionally
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.action.ViewActions.pressKey
-import androidx.test.espresso.action.ViewActions.pressMenuKey
 import androidx.test.espresso.assertion.ViewAssertions
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
@@ -41,7 +40,6 @@ import androidx.test.espresso.matcher.ViewMatchers.withClassName
 import androidx.test.espresso.matcher.ViewMatchers.withContentDescription
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.filters.FlakyTest
 import androidx.test.filters.LargeTest
 import androidx.test.filters.MediumTest
 import androidx.test.platform.app.InstrumentationRegistry
@@ -51,6 +49,7 @@ import java.util.concurrent.atomic.AtomicBoolean
 import org.hamcrest.Matchers.`is`
 import org.junit.Assert
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
 import org.junit.Before
 import org.junit.Test
@@ -70,8 +69,9 @@ abstract class BaseKeyEventsTestCase<A : BaseTestActivity>(private val activityC
     fun testBackDismissesActionMode() {
         with(ActivityScenario.launch(activityClass)) {
             val destroyed = AtomicBoolean()
+            val scenario = (this as? ActivityScenario<BaseTestActivity>)!!
 
-            (this as ActivityScenario<BaseTestActivity>).withActivity {
+            scenario.withActivity {
                 startSupportActionMode(object : ActionMode.Callback {
                     override fun onCreateActionMode(mode: ActionMode, menu: Menu): Boolean {
                         mode.menuInflater.inflate(R.menu.sample_actions, menu)
@@ -114,12 +114,9 @@ abstract class BaseKeyEventsTestCase<A : BaseTestActivity>(private val activityC
             mInstrumentation!!.waitForIdleSync()
 
             // Check that the Activity is still running
-            Assert.assertFalse(
-                (this as ActivityScenario<BaseTestActivity>).withActivity { isFinishing }
-            )
-            Assert.assertFalse(
-                (this as ActivityScenario<BaseTestActivity>).withActivity { isDestroyed }
-            )
+            val scenario = (this as? ActivityScenario<BaseTestActivity>)!!
+            assertFalse(scenario.withActivity { isFinishing })
+            assertFalse(scenario.withActivity { isDestroyed })
 
             // ...and that our action view is not attached
             onView(withClassName(`is`(CustomCollapsibleView::class.java.name)))
@@ -132,52 +129,47 @@ abstract class BaseKeyEventsTestCase<A : BaseTestActivity>(private val activityC
     @Throws(InterruptedException::class)
     fun testMenuPressInvokesPanelCallbacks() {
         with(ActivityScenario.launch(activityClass)) {
-            onView(isRoot()).perform(pressMenuKey())
-            Assert.assertTrue("onMenuOpened called",
-                (this as ActivityScenario<BaseTestActivity>).withActivity {
-                    wasOnMenuOpenedCalled()
-                }
-            )
-            onView(isRoot()).perform(pressMenuKey())
-            Assert.assertTrue("onPanelClosed called",
-                (this as ActivityScenario<BaseTestActivity>).withActivity {
-                    wasOnPanelClosedCalled()
-                }
-            )
+            // Pressing the menu key opens the menu.
+            val scenario = (this as? ActivityScenario<BaseTestActivity>)!!
+            scenario.pressMenuKeyAndWaitFor { wasOnMenuOpenedCalled() }
+
+            if (Build.VERSION.SDK_INT < 28) {
+                // Prior to SDK 28, pressing the menu key a second time closes the overflow menu.
+                scenario.pressMenuKeyAndWaitFor { wasOnPanelClosedCalled() }
+            }
         }
     }
 
     @Test
     @MediumTest
-    @FlakyTest(bugId = 213627790)
     @Throws(
         InterruptedException::class
     )
     fun testBackPressWithMenuInvokesOnPanelClosed() {
         with(ActivityScenario.launch(activityClass)) {
-            onView(isRoot()).perform(pressKey(KeyEvent.KEYCODE_MENU))
+            // Pressing the menu key opens the menu.
+            val scenario = (this as? ActivityScenario<BaseTestActivity>)!!
+            scenario.pressMenuKeyAndWaitFor { wasOnMenuOpenedCalled() }
+
+            // Press back and wait the menu panel to close.
             pressBack()
-            Assert.assertTrue("onPanelClosed called",
-                (this as ActivityScenario<BaseTestActivity>).withActivity {
-                    wasOnPanelClosedCalled()
-                }
-            )
+            PollingCheck.waitFor { scenario.withActivity { wasOnPanelClosedCalled() } }
         }
     }
 
     @Test
     @MediumTest
-    @FlakyTest
-    @Throws(
-        InterruptedException::class
-    )
     fun testBackPressWithEmptyMenuHandledByActivity() {
         with(ActivityScenario.launch(activityClass)) {
-            val activity = (this as ActivityScenario<BaseTestActivity>).withActivity { this }
-            (this as ActivityScenario<BaseTestActivity>).repopulateWithEmptyMenu()
-            onView(isRoot()).perform(pressKey(KeyEvent.KEYCODE_MENU))
+            // Pressing the menu key with an empty menu does nothing.
+            val scenario = (this as? ActivityScenario<BaseTestActivity>)!!
+            scenario.repopulateWithEmptyMenu()
+            scenario.pressMenuKeyAndWaitFor { true /* sync with activity thread */ }
+
+            // Press back and wait for the activity to be destroyed via back press.
+            val activity = scenario.withActivity { this }
             pressBackUnconditionally()
-            PollingCheck.waitFor { state == Lifecycle.State.DESTROYED }
+            PollingCheck.waitFor { activity.isDestroyed }
             Assert.assertTrue("onBackPressed called", activity.wasOnBackPressedCalled())
         }
     }
@@ -186,20 +178,18 @@ abstract class BaseKeyEventsTestCase<A : BaseTestActivity>(private val activityC
     @MediumTest
     fun testDelKeyEventReachesActivity() {
         with(ActivityScenario.launch(activityClass)) {
+            val scenario = (this as? ActivityScenario<BaseTestActivity>)!!
+
             // First send the event
             onView(isRoot()).perform(pressKey(KeyEvent.KEYCODE_DEL))
-            val downEvent = (this as ActivityScenario<BaseTestActivity>).withActivity {
-                invokedKeyDownEvent
-            }
+            val downEvent = scenario.withActivity { invokedKeyDownEvent }
             assertNotNull("onKeyDown called", downEvent)
             assertEquals(
                 "onKeyDown event matches",
                 KeyEvent.KEYCODE_DEL.toLong(),
                 downEvent.keyCode.toLong()
             )
-            val upEvent = (this as ActivityScenario<BaseTestActivity>).withActivity {
-                invokedKeyUpEvent
-            }
+            val upEvent = scenario.withActivity { invokedKeyUpEvent }
             assertNotNull("onKeyUp called", upEvent)
             assertEquals(
                 "onKeyUp event matches",
@@ -214,19 +204,18 @@ abstract class BaseKeyEventsTestCase<A : BaseTestActivity>(private val activityC
     @Throws(InterruptedException::class)
     open fun testMenuKeyEventReachesActivity() {
         with(ActivityScenario.launch(activityClass)) {
-            onView(isRoot()).perform(pressKey(KeyEvent.KEYCODE_MENU))
-            val downEvent = (this as ActivityScenario<BaseTestActivity>).withActivity {
-                invokedKeyDownEvent
-            }
+            val scenario = (this as? ActivityScenario<BaseTestActivity>)!!
+            scenario.pressMenuKeyAndWaitFor { wasOnMenuOpenedCalled() }
+
+            val downEvent = scenario.withActivity { invokedKeyDownEvent }
             assertNotNull("onKeyDown called", downEvent)
             assertEquals(
                 "onKeyDown event matches",
                 KeyEvent.KEYCODE_MENU.toLong(),
                 downEvent.keyCode.toLong()
             )
-            val upEvent = (this as ActivityScenario<BaseTestActivity>).withActivity {
-                invokedKeyUpEvent
-            }
+
+            val upEvent = scenario.withActivity { invokedKeyUpEvent }
             assertNotNull("onKeyUp called", upEvent)
             assertEquals(
                 "onKeyDown event matches",
@@ -241,16 +230,18 @@ abstract class BaseKeyEventsTestCase<A : BaseTestActivity>(private val activityC
     @Throws(Throwable::class)
     fun testActionMenuContent() {
         with(ActivityScenario.launch(activityClass)) {
+            val scenario = (this as? ActivityScenario<BaseTestActivity>)!!
             onView(withId(R.id.action_search))
                 .check(matches(isDisplayed()))
                 .check(matches(withContentDescription(R.string.search_menu_description)))
             onView(withId(R.id.action_alpha_shortcut))
                 .check(matches(isDisplayed()))
                 .check(matches(withContentDescription(null as String?)))
-            val menu = (this as ActivityScenario<BaseTestActivity>).withActivity { menu }
+
+            val menu = scenario.withActivity { menu }
             val alphaItem = menu.findItem(R.id.action_alpha_shortcut)
             assertNotNull(alphaItem)
-            (this as ActivityScenario<BaseTestActivity>).withActivity {
+            scenario.withActivity {
                 MenuItemCompat.setContentDescription(
                     alphaItem,
                     getString(R.string.alpha_menu_description)
@@ -266,20 +257,15 @@ abstract class BaseKeyEventsTestCase<A : BaseTestActivity>(private val activityC
         }
     }
 
-    @Throws(InterruptedException::class)
-    private inline fun <reified A : BaseTestActivity>
-        ActivityScenario<A>.repopulateWithEmptyMenu() {
-        var count = 0
-        withActivity {
-            setShouldPopulateOptionsMenu(false)
-        }
-        while (count++ < 10) {
-            val menu = withActivity { menu }
-            if (menu == null || menu.size() != 0) {
-                Thread.sleep(100)
-            } else {
-                return
-            }
-        }
+    private fun ActivityScenario<BaseTestActivity>.repopulateWithEmptyMenu() {
+        withActivity { setShouldPopulateOptionsMenu(false) }
+        PollingCheck.waitFor { withActivity { menu.size() == 0 } }
+    }
+
+    private inline fun ActivityScenario<BaseTestActivity>.pressMenuKeyAndWaitFor(
+        crossinline block: BaseTestActivity.() -> Boolean
+    ) {
+        onView(isRoot()).perform(pressKey(KeyEvent.KEYCODE_MENU))
+        PollingCheck.waitFor { withActivity(block) }
     }
 }
