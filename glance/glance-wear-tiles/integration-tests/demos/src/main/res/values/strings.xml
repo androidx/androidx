@@ -1,3 +1,7 @@
 <resources>
-    <string name="app_name">demos</string>
+    <string name="app_name">Glance Wear Tiles Demo</string>
+    <string name="hello_tile_name">Hello Tile</string>
+    <string name="calendar_tile_name">Calendar Tile</string>
+    <string name="tiles_preview_name">Tiles Preview</string>
+    <string name="calendar_activity_name">Calendar Activity</string>
 </resources>

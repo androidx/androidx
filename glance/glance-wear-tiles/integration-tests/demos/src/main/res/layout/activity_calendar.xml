@@ -14,11 +14,18 @@
   limitations under the License.
   -->
 
-<androidx.viewpager2.widget.ViewPager2
+<androidx.wear.widget.SwipeDismissFrameLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/black"
-    android:id="@+id/carousel"
-    android:translationZ="-1px"
-/>
+    android:id="@+id/frame"
+    android:gravity="center"
+>
+    <TextView
+        android:id="@+id/calendar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@color/black"
+        android:layout_gravity="center"
+        android:text="Calendar Activity"/>
+</androidx.wear.widget.SwipeDismissFrameLayout>
