@@ -673,6 +673,66 @@ class CurrentUserStyleRepositoryTest {
         assertThat(userStyleB).isNotEqualTo(userStyleC)
         assertThat(userStyleB).isNotEqualTo(userStyleD)
     }
+
+    @OptIn(ExperimentalHierarchicalStyle::class)
+    @Test
+    fun hierarchicalStyle() {
+        val twelveHourClockOption =
+            ListUserStyleSetting.ListOption(Option.Id("12_style"), "12", icon = null)
+
+        val twentyFourHourClockOption =
+            ListUserStyleSetting.ListOption(Option.Id("24_style"), "24", icon = null)
+
+        val digitalClockStyleSetting = ListUserStyleSetting(
+            UserStyleSetting.Id("digital_clock_style"),
+            "Clock style",
+            "Clock style setting",
+            null,
+            listOf(twelveHourClockOption, twentyFourHourClockOption),
+            WatchFaceLayer.ALL_WATCH_FACE_LAYERS
+        )
+
+        val digitalWatchFaceType = ListUserStyleSetting.ListOption(
+            Option.Id("digital"),
+           "Digital",
+            icon = null,
+            childSettings = listOf(digitalClockStyleSetting, colorStyleSetting)
+        )
+
+        val analogWatchFaceType = ListUserStyleSetting.ListOption(
+            Option.Id("analog"),
+            "Analog",
+            icon = null,
+            childSettings = listOf(watchHandLengthStyleSetting, watchHandStyleSetting)
+        )
+
+        val watchFaceType = ListUserStyleSetting(
+            UserStyleSetting.Id("clock_type"),
+            "Watch face type",
+            "Analog or digital",
+            icon = null,
+            options = listOf(digitalWatchFaceType, analogWatchFaceType),
+            WatchFaceLayer.ALL_WATCH_FACE_LAYERS
+        )
+
+        val schema = UserStyleSchema(
+            listOf(
+                watchFaceType,
+                digitalClockStyleSetting,
+                colorStyleSetting,
+                watchHandLengthStyleSetting,
+                watchHandStyleSetting
+            )
+        )
+
+        assertThat(schema.rootUserStyleSettings).containsExactly(watchFaceType)
+
+        assertThat(watchFaceType.hasParent).isFalse()
+        assertThat(digitalClockStyleSetting.hasParent).isTrue()
+        assertThat(colorStyleSetting.hasParent).isTrue()
+        assertThat(watchHandLengthStyleSetting.hasParent).isTrue()
+        assertThat(watchHandStyleSetting.hasParent).isTrue()
+    }
 }
 
 @RunWith(StyleTestRunner::class)

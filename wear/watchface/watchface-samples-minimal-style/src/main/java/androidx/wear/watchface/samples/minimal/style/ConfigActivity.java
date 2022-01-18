@@ -100,7 +100,8 @@ public class ConfigActivity extends ComponentActivity {
         MutableUserStyle userStyle = mEditorSession.getUserStyle().getValue().toMutableUserStyle();
         ListOption currentOption = (ListOption) userStyle.get(mTimeStyleId);
         ListUserStyleSetting listUserStyleSetting =
-                (ListUserStyleSetting) mEditorSession.getUserStyleSchema().getUserStyleSettings()
+                (ListUserStyleSetting) mEditorSession.getUserStyleSchema()
+                        .getRootUserStyleSettings()
                         .get(0);
 
         // Choose the first option in the list of options that isn't currentOption. We only expect

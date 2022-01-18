@@ -80,7 +80,7 @@ private const val MINUTE_HAND_THICKNESS_FRACTION = 0.0163f
 private const val SECOND_HAND_LENGTH_FRACTION = 0.37383f
 private const val SECOND_HAND_THICKNESS_FRACTION = 0.00934f
 
-private const val NUMBER_RADIUS_FRACTION = 0.45f
+const val NUMBER_RADIUS_FRACTION = 0.45f
 
 const val COLOR_STYLE_SETTING = "color_style_setting"
 const val RED_STYLE = "red_style"
@@ -110,6 +110,7 @@ const val CONFIGURABLE_DATA_SOURCE = "$CONFIGURABLE_DATA_SOURCE_PKG.Configurable
 
 /** A simple example canvas based analog watch face. NB this is open for testing. */
 open class ExampleCanvasAnalogWatchFaceService : WatchFaceService() {
+
     // Lazy because the context isn't initialized til later.
     private val watchFaceStyle by lazy { WatchFaceColorStyle.create(this, RED_STYLE) }
 

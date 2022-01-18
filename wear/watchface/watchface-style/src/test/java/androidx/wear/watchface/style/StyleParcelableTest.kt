@@ -125,6 +125,7 @@ public class StyleParcelableTest {
     }
 
     @Test
+    @Suppress("Deprecation") // userStyleSettings
     public fun parcelAndUnparcelUserStyleSchema() {
         val settingIcon1 = Icon.createWithContentUri("settingIcon1")
         val settingIcon2 = Icon.createWithContentUri("settingIcon2")
@@ -230,6 +231,131 @@ public class StyleParcelableTest {
         assertThat(schema.userStyleSettings[3].affectedWatchFaceLayers.first()).isEqualTo(
             WatchFaceLayer.BASE
         )
+    }
+
+    @OptIn(ExperimentalHierarchicalStyle::class)
+    @Test
+    @Suppress("Deprecation") // userStyleSettings
+    public fun parcelAndUnparcelHierarchicalSchema() {
+        val twelveHourClockOption =
+            ListOption(Option.Id("12_style"), "12", icon = null)
+
+        val twentyFourHourClockOption =
+            ListOption(Option.Id("24_style"), "24", icon = null)
+
+        val digitalClockStyleSetting = ListUserStyleSetting(
+            UserStyleSetting.Id("digital_clock_style"),
+            "Clock style",
+            "Clock style setting",
+            null,
+            listOf(twelveHourClockOption, twentyFourHourClockOption),
+            WatchFaceLayer.ALL_WATCH_FACE_LAYERS
+        )
+
+        val digitalWatchFaceType = ListOption(
+            Option.Id("digital"),
+            "Digital",
+            icon = null,
+            childSettings = listOf(digitalClockStyleSetting)
+        )
+
+        val settingIcon1 = Icon.createWithContentUri("settingIcon1")
+        val settingIcon2 = Icon.createWithContentUri("settingIcon2")
+
+        val styleSetting1 = ListUserStyleSetting(
+            UserStyleSetting.Id("id1"),
+            "displayName1",
+            "description1",
+            settingIcon1,
+            listOf(option1, option2),
+            listOf(WatchFaceLayer.BASE)
+        )
+
+        val styleSetting2 = ListUserStyleSetting(
+            UserStyleSetting.Id("id2"),
+            "displayName2",
+            "description2",
+            settingIcon2,
+            listOf(option3, option4),
+            listOf(WatchFaceLayer.COMPLICATIONS_OVERLAY)
+        )
+
+        val analogWatchFaceType = ListOption(
+            Option.Id("analog"),
+            "Analog",
+            icon = null,
+            childSettings = listOf(styleSetting1, styleSetting2)
+        )
+
+        val watchFaceType = ListUserStyleSetting(
+            UserStyleSetting.Id("clock_type"),
+            "Watch face type",
+            "Analog or digital",
+            icon = null,
+            options = listOf(digitalWatchFaceType, analogWatchFaceType),
+            WatchFaceLayer.ALL_WATCH_FACE_LAYERS
+        )
+
+        val srcSchema = UserStyleSchema(
+            listOf(
+                watchFaceType,
+                digitalClockStyleSetting,
+                styleSetting1,
+                styleSetting2
+            )
+        )
+
+        val parcel = Parcel.obtain()
+        srcSchema.toWireFormat().writeToParcel(parcel, 0)
+
+        parcel.setDataPosition(0)
+
+        val schema =
+            UserStyleSchema(UserStyleSchemaWireFormat.CREATOR.createFromParcel(parcel))
+        parcel.recycle()
+
+        assertThat(schema.userStyleSettings.size).isEqualTo(4)
+
+        val deserializedWatchFaceType = schema.userStyleSettings[0] as ListUserStyleSetting
+        assertThat(deserializedWatchFaceType.id)
+            .isEqualTo(UserStyleSetting.Id("clock_type"))
+        assertThat(deserializedWatchFaceType.hasParent).isFalse()
+
+        val deserializedDigitalClockStyleSetting =
+            schema.userStyleSettings[1] as ListUserStyleSetting
+        assertThat(deserializedDigitalClockStyleSetting.id)
+            .isEqualTo(UserStyleSetting.Id("digital_clock_style"))
+        assertThat(deserializedDigitalClockStyleSetting.hasParent).isTrue()
+
+        val deserializedStyleSetting1 =
+            schema.userStyleSettings[2] as ListUserStyleSetting
+        assertThat(deserializedStyleSetting1.id)
+            .isEqualTo(UserStyleSetting.Id("id1"))
+        assertThat(deserializedStyleSetting1.hasParent).isTrue()
+
+        val deserializedStyleSetting2 =
+            schema.userStyleSettings[3] as ListUserStyleSetting
+        assertThat(deserializedStyleSetting2.id)
+            .isEqualTo(UserStyleSetting.Id("id2"))
+        assertThat(deserializedStyleSetting2.hasParent).isTrue()
+
+        assertThat(deserializedWatchFaceType.options[0].childSettings).containsExactly(
+            deserializedDigitalClockStyleSetting
+        )
+
+        assertThat(deserializedWatchFaceType.options[1].childSettings).containsExactly(
+            deserializedStyleSetting1,
+            deserializedStyleSetting2
+        )
+
+        assertThat(deserializedDigitalClockStyleSetting.options[0].childSettings).isEmpty()
+        assertThat(deserializedDigitalClockStyleSetting.options[1].childSettings).isEmpty()
+
+        assertThat(deserializedStyleSetting1.options[0].childSettings).isEmpty()
+        assertThat(deserializedStyleSetting1.options[1].childSettings).isEmpty()
+
+        assertThat(deserializedStyleSetting2.options[0].childSettings).isEmpty()
+        assertThat(deserializedStyleSetting2.options[1].childSettings).isEmpty()
     }
 
     @Test

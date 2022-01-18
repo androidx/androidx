@@ -113,6 +113,13 @@ public sealed class UserStyleSetting private constructor(
         get() = descriptionInternal.toCharSequence()
 
     /**
+     * For hierarchical style schemas, whether this UserStyleSetting has a parent [Option]. Editors
+     * should respect the hierarchy for the best user experience.
+     */
+    internal var hasParent: Boolean = false
+        internal set
+
+    /**
      * Estimates the wire size of the UserStyleSetting in bytes. This does not account for the
      * overhead of the serialization method. Where possible the exact wire size for any referenced
      * [Icon]s is used but this isn't possible in all cases and as a fallback width x height x 4
@@ -202,7 +209,7 @@ public sealed class UserStyleSetting private constructor(
             is LongRangeUserStyleSettingWireFormat -> LongRangeUserStyleSetting(wireFormat)
 
             else -> throw IllegalArgumentException(
-                "Unknown StyleCategoryWireFormat " + wireFormat::javaClass.name
+                "Unknown UserStyleSettingWireFormat " + wireFormat::javaClass.name
             )
         }
 
@@ -306,8 +313,28 @@ public sealed class UserStyleSetting private constructor(
      * @property id Machine readable [Id] for the style setting. Identifier for the option (or the
      * option itself for [CustomValueUserStyleSetting.CustomValueOption]), must be unique within
      * the UserStyleSetting. Short ids are encouraged.
+     * @property childSettings The list of child [UserStyleSetting]s, if any. These must be in
+     * [UserStyleSchema.userStyleSettings].
      */
-    public abstract class Option(public val id: Id) {
+    public abstract class Option internal constructor(
+        public val id: Id,
+        @Suppress("EXPERIMENTAL_ANNOTATION_ON_WRONG_TARGET")
+        @get:ExperimentalHierarchicalStyle
+        public val childSettings: Collection<UserStyleSetting>
+    ) {
+        /**
+         * This constructor is unused (the parent class is sealed), but is required to make tooling
+         * happy.
+         */
+        constructor(id: Id) : this(id, emptyList())
+
+        init {
+            @OptIn(ExperimentalHierarchicalStyle::class)
+            for (child in childSettings) {
+                child.hasParent = true
+            }
+        }
+
         /**
          * Computes a lower bound estimate of the wire size of the Option in bytes. This does not
          * account for the overhead of the serialization method.
@@ -392,7 +419,7 @@ public sealed class UserStyleSetting private constructor(
                         LongRangeUserStyleSetting.LongRangeOption(wireFormat)
 
                     else -> throw IllegalArgumentException(
-                        "Unknown StyleCategoryWireFormat.OptionWireFormat " +
+                        "Unknown UserStyleSettingWireFormat.OptionWireFormat " +
                             wireFormat::javaClass.name
                     )
                 }
@@ -492,7 +519,7 @@ public sealed class UserStyleSetting private constructor(
          * face rendering layers this style affects.
          * @param defaultValue The default value for this BooleanUserStyleSetting.
          */
-        public constructor (
+        public constructor(
             id: Id,
             resources: Resources,
             @StringRes displayNameResourceId: Int,
@@ -610,7 +637,8 @@ public sealed class UserStyleSetting private constructor(
         public class BooleanOption private constructor(
             public val value: Boolean
         ) : Option(
-            Id(ByteArray(1).apply { this[0] = if (value) 1 else 0 })
+            Id(ByteArray(1).apply { this[0] = if (value) 1 else 0 }),
+            emptyList()
         ) {
             /** @hide */
             @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
@@ -721,8 +749,8 @@ public sealed class UserStyleSetting private constructor(
                  */
                 public fun setAccessibilityTraversalIndex(accessibilityTraversalIndex: Int):
                     Builder = apply {
-                        this.accessibilityTraversalIndex = accessibilityTraversalIndex
-                    }
+                    this.accessibilityTraversalIndex = accessibilityTraversalIndex
+                }
 
                 public fun build(): ComplicationSlotOverlay =
                     ComplicationSlotOverlay(
@@ -1066,7 +1094,7 @@ public sealed class UserStyleSetting private constructor(
                 displayName: CharSequence,
                 icon: Icon?,
                 complicationSlotOverlays: Collection<ComplicationSlotOverlay>
-            ) : super(id) {
+            ) : super(id, emptyList()) {
                 this.complicationSlotOverlays = complicationSlotOverlays
                 this.displayNameInternal = DisplayText.CharSequenceDisplayText(displayName)
                 this.icon = icon
@@ -1092,7 +1120,7 @@ public sealed class UserStyleSetting private constructor(
                 @StringRes displayNameResourceId: Int,
                 icon: Icon?,
                 complicationSlotOverlays: Collection<ComplicationSlotOverlay>
-            ) : super(id) {
+            ) : super(id, emptyList()) {
                 this.complicationSlotOverlays = complicationSlotOverlays
                 this.displayNameInternal =
                     DisplayText.ResourceDisplayText(resources, displayNameResourceId)
@@ -1104,7 +1132,7 @@ public sealed class UserStyleSetting private constructor(
                 displayName: DisplayText,
                 icon: Icon?,
                 complicationSlotOverlays: Collection<ComplicationSlotOverlay>
-            ) : super(id) {
+            ) : super(id, emptyList()) {
                 this.complicationSlotOverlays = complicationSlotOverlays
                 this.displayNameInternal = displayName
                 this.icon = icon
@@ -1112,7 +1140,7 @@ public sealed class UserStyleSetting private constructor(
 
             internal constructor(
                 wireFormat: ComplicationsOptionWireFormat
-            ) : super(Id(wireFormat.mId)) {
+            ) : super(Id(wireFormat.mId), emptyList()) {
                 complicationSlotOverlays =
                     wireFormat.mComplicationOverlays.map { ComplicationSlotOverlay(it) }
                 displayNameInternal = DisplayText.CharSequenceDisplayText(wireFormat.mDisplayName)
@@ -1437,14 +1465,15 @@ public sealed class UserStyleSetting private constructor(
              * @param value The value of this DoubleRangeOption
              */
             public constructor(value: Double) : super(
-                Id(ByteArray(8).apply { ByteBuffer.wrap(this).putDouble(value) })
+                Id(ByteArray(8).apply { ByteBuffer.wrap(this).putDouble(value) }),
+                emptyList()
             ) {
                 this.value = value
             }
 
             internal constructor(
                 wireFormat: DoubleRangeOptionWireFormat
-            ) : super(Id(wireFormat.mId)) {
+            ) : super(Id(wireFormat.mId), emptyList()) {
                 value = ByteBuffer.wrap(wireFormat.mId).double
             }
 
@@ -1491,7 +1520,7 @@ public sealed class UserStyleSetting private constructor(
         }
     }
 
-    /** A ListStyleCategory represents a setting with options selected from a List. */
+    /** A ListUserStyleSetting represents a setting with options selected from a List. */
     public open class ListUserStyleSetting : UserStyleSetting {
 
         /**
@@ -1511,7 +1540,7 @@ public sealed class UserStyleSetting private constructor(
          */
         @JvmOverloads
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        public constructor (
+        public constructor(
             id: Id,
             displayName: CharSequence,
             description: CharSequence,
@@ -1549,6 +1578,7 @@ public sealed class UserStyleSetting private constructor(
          * face rendering layers this style affects.
          * @param defaultOption The default option, used when data isn't persisted.
          */
+        @JvmOverloads
         public constructor (
             id: Id,
             resources: Resources,
@@ -1609,7 +1639,11 @@ public sealed class UserStyleSetting private constructor(
 
         internal companion object {
             @SuppressLint("ResourceType")
-            fun inflate(resources: Resources, parser: XmlResourceParser): ListUserStyleSetting {
+            fun inflate(
+                resources: Resources,
+                parser: XmlResourceParser,
+                idToSetting: Map<String, UserStyleSetting>
+            ): ListUserStyleSetting {
                 val attributes =
                     resources.obtainAttributes(parser, R.styleable.ListUserStyleSetting)
                 val id = attributes.getString(R.styleable.ListUserStyleSetting_id)
@@ -1644,7 +1678,8 @@ public sealed class UserStyleSetting private constructor(
                 do {
                     if (type == XmlPullParser.START_TAG) {
                         when (parser.name) {
-                            "ListOption" -> options.add(ListOption.inflate(resources, parser))
+                            "ListOption" ->
+                                options.add(ListOption.inflate(resources, parser, idToSetting))
                             else -> throw IllegalArgumentException(
                                 "Unexpected node ${parser.name} at line ${parser.lineNumber}"
                             )
@@ -1668,6 +1703,9 @@ public sealed class UserStyleSetting private constructor(
 
         /**
          * Represents choice within a [ListUserStyleSetting], these must be enumerated up front.
+         *
+         * If [childSettings] is not empty, then an editor needs to treat this as a node in a
+         * hierarchy of editor widgets.
          */
         public class ListOption : Option {
             /** Backing field for [displayName]. */
@@ -1692,7 +1730,12 @@ public sealed class UserStyleSetting private constructor(
              * @hide
              */
             @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-            public constructor(id: Id, displayName: CharSequence, icon: Icon?) : super(id) {
+            constructor(
+                id: Id,
+                displayName: CharSequence,
+                icon: Icon?,
+                childSettings: Collection<UserStyleSetting> = emptyList()
+            ) : super(id, childSettings) {
                 displayNameInternal = DisplayText.CharSequenceDisplayText(displayName)
                 this.icon = icon
             }
@@ -1707,13 +1750,41 @@ public sealed class UserStyleSetting private constructor(
              * setting, used in the style selection UI.
              * @param icon [Icon] for use in the style selection UI. This gets sent to the
              * companion over bluetooth and should be small (ideally a few kb in size).
+             * These must be in
              */
-            public constructor(
+            constructor(
                 id: Id,
                 resources: Resources,
                 @StringRes displayNameResourceId: Int,
                 icon: Icon?
-            ) : super(id) {
+            ) : super(id, emptyList()) {
+                displayNameInternal =
+                    DisplayText.ResourceDisplayText(resources, displayNameResourceId)
+                this.icon = icon
+            }
+
+            /**
+             * Constructs a ListOption.
+             *
+             * @param id The [Id] of this ListOption, must be unique within the
+             * [ListUserStyleSetting].
+             * @param resources The [Resources] used to load [displayNameResourceId].
+             * @param displayNameResourceId String resource id for a human readable name for the
+             * setting, used in the style selection UI.
+             * @param icon [Icon] for use in the style selection UI. This gets sent to the
+             * companion over bluetooth and should be small (ideally a few kb in size).
+             * These must be in
+             * @param childSettings The list of child [UserStyleSetting]s, which may be empty. Any
+             * child settings must be listed in [UserStyleSchema.userStyleSettings].
+             */
+            @ExperimentalHierarchicalStyle
+            constructor(
+                id: Id,
+                resources: Resources,
+                @StringRes displayNameResourceId: Int,
+                icon: Icon?,
+                childSettings: Collection<UserStyleSetting> = emptyList()
+            ) : super(id, childSettings) {
                 displayNameInternal =
                     DisplayText.ResourceDisplayText(resources, displayNameResourceId)
                 this.icon = icon
@@ -1722,15 +1793,16 @@ public sealed class UserStyleSetting private constructor(
             internal constructor(
                 id: Id,
                 displayName: DisplayText,
-                icon: Icon?
-            ) : super(id) {
+                icon: Icon?,
+                childSettings: Collection<UserStyleSetting> = emptyList()
+            ) : super(id, childSettings) {
                 displayNameInternal = displayName
                 this.icon = icon
             }
 
             internal constructor(
                 wireFormat: ListOptionWireFormat
-            ) : super(Id(wireFormat.mId)) {
+            ) : super(Id(wireFormat.mId), ArrayList()) {
                 displayNameInternal = DisplayText.CharSequenceDisplayText(wireFormat.mDisplayName)
                 icon = wireFormat.mIcon
             }
@@ -1771,7 +1843,11 @@ public sealed class UserStyleSetting private constructor(
 
             internal companion object {
                 @SuppressLint("ResourceType")
-                fun inflate(resources: Resources, parser: XmlResourceParser): ListOption {
+                fun inflate(
+                    resources: Resources,
+                    parser: XmlResourceParser,
+                    idToSetting: Map<String, UserStyleSetting>
+                ): ListOption {
                     val attributes = resources.obtainAttributes(parser, R.styleable.ListOption)
                     val id = attributes.getString(R.styleable.ListOption_id)
                     require(id != null) { "ListOption must have an id" }
@@ -1785,8 +1861,44 @@ public sealed class UserStyleSetting private constructor(
                         attributes,
                         R.styleable.ListOption_android_icon
                     )
+
+                    val childSettings = ArrayList<UserStyleSetting>()
+                    var type = 0
+                    val outerDepth = parser.depth
+                    do {
+                        if (type == XmlPullParser.START_TAG) {
+                            when (parser.name) {
+                                "ChildSetting" -> {
+                                    val childAttributes =
+                                        resources.obtainAttributes(parser, R.styleable.ChildSetting)
+                                    val childId =
+                                        childAttributes.getString(R.styleable.ChildSetting_id)
+                                    require(childId != null) {
+                                        "ChildSetting must have an id"
+                                    }
+                                    val setting = idToSetting[childId]
+                                    require(setting != null) {
+                                        "Unknown ChildSetting id $childId, note only backward " +
+                                            "references are supported."
+                                    }
+                                    childSettings.add(setting)
+                                }
+
+                                else -> throw IllegalArgumentException(
+                                    "Unexpected node ${parser.name} at line ${parser.lineNumber}"
+                                )
+                            }
+                        }
+                        type = parser.next()
+                    } while (type != XmlPullParser.END_DOCUMENT && parser.depth > outerDepth)
                     attributes.recycle()
-                    return ListOption(Id(id), displayName, icon)
+
+                    return ListOption(
+                        Id(id),
+                        displayName,
+                        icon,
+                        childSettings
+                    )
                 }
             }
         }
@@ -2019,14 +2131,15 @@ public sealed class UserStyleSetting private constructor(
              * @param value The value of this LongRangeOption
              */
             public constructor(value: Long) : super(
-                Id(ByteArray(8).apply { ByteBuffer.wrap(this).putLong(value) })
+                Id(ByteArray(8).apply { ByteBuffer.wrap(this).putLong(value) }),
+                emptyList()
             ) {
                 this.value = value
             }
 
             internal constructor(
                 wireFormat: LongRangeOptionWireFormat
-            ) : super(Id(wireFormat.mId)) {
+            ) : super(Id(wireFormat.mId), emptyList()) {
                 value = ByteBuffer.wrap(wireFormat.mId).long
             }
 
@@ -2134,11 +2247,11 @@ public sealed class UserStyleSetting private constructor(
              * @param customValue The [ByteArray] [id] and value of this CustomValueOption. This
              * may not exceed [Id.MAX_LENGTH].
              */
-            public constructor(customValue: ByteArray) : super(Id(customValue))
+            public constructor(customValue: ByteArray) : super(Id(customValue), emptyList())
 
             internal constructor(
                 wireFormat: CustomValueOptionWireFormat
-            ) : super(Id(wireFormat.mId))
+            ) : super(Id(wireFormat.mId), emptyList())
 
             internal override fun getUserStyleSettingClass(): Class<out UserStyleSetting> =
                 CustomValueUserStyleSetting::class.java
