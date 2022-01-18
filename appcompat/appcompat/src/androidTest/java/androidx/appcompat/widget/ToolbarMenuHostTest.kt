@@ -28,9 +28,9 @@ import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.filters.FlakyTest
 import androidx.test.filters.LargeTest
 import androidx.test.platform.app.InstrumentationRegistry
+import androidx.testutils.PollingCheck
 import androidx.testutils.withActivity
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
@@ -62,7 +62,6 @@ class ToolbarMenuHostTest {
 
     // Ensure original functionality still works
     @Test
-    @FlakyTest(bugId = 213628278)
     fun manuallyInflatedMenuItemSelected() {
         with(ActivityScenario.launch(ToolbarTestActivity::class.java)) {
             var itemSelectedId: Int? = null
@@ -84,13 +83,13 @@ class ToolbarMenuHostTest {
             }
 
             toolbar.showOverflowMenu()
+            PollingCheck.waitFor { toolbar.isOverflowMenuShowing }
             onView(withText("Item1")).perform(click())
             assertThat(itemSelectedId).isEqualTo(R.id.item1)
         }
     }
 
     @Test
-    @FlakyTest(bugId = 213628278)
     fun providedMenuItemSelected() {
         with(ActivityScenario.launch(ToolbarTestActivity::class.java)) {
             var itemSelectedId: Int? = null
@@ -117,6 +116,7 @@ class ToolbarMenuHostTest {
             }
 
             toolbar.showOverflowMenu()
+            PollingCheck.waitFor { toolbar.isOverflowMenuShowing }
             onView(withText("Item1")).perform(click())
             assertThat(itemSelectedId).isEqualTo(R.id.item1)
 
@@ -139,6 +139,7 @@ class ToolbarMenuHostTest {
             }
 
             toolbar.showOverflowMenu()
+            PollingCheck.waitFor { toolbar.isOverflowMenuShowing }
             onView(withText("Item3")).perform(click())
             assertThat(itemSelectedId).isEqualTo(R.id.item3)
         }
