@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package androidx.camera.previewview.surface;
+package androidx.camera.previewview.internal.surface;
 
 import android.view.Surface;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
-import androidx.annotation.RestrictTo;
+import androidx.camera.previewview.PreviewSurfaceRequest;
 
 /**
  * A interface implemented by the application to provide a {@link Surface} for preview.
@@ -28,11 +28,8 @@ import androidx.annotation.RestrictTo;
  * <p> This interface is implemented by the application to provide a {@link Surface}. This
  * will be called by application when it needs a Surface for Preview. It also signals when the
  * Surface is no longer in use.
- *
- * @hide
  */
-@RequiresApi(21)
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public interface PreviewSurfaceProvider {
     /**
      * Called when a new {@link Surface} has been requested by the camera.

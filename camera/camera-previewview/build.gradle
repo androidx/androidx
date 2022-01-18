@@ -32,11 +32,33 @@ dependencies {
     implementation("androidx.concurrent:concurrent-futures:1.0.0")
     implementation(libs.autoValueAnnotations)
     implementation("androidx.appcompat:appcompat:1.1.0")
+    implementation("androidx.test.espresso:espresso-idling-resource:3.1.0")
+
     // Added for annotation-experimental
     compileOnly(libs.kotlinStdlib)
 
-    annotationProcessor(libs.nullaway)
     annotationProcessor(libs.autoValue)
+
+    testImplementation(libs.testRunner)
+    testImplementation(libs.mockitoCore)
+    testImplementation(libs.robolectric)
+    testImplementation(libs.kotlinStdlib)
+    testImplementation(libs.truth)
+    testImplementation(libs.testRules)
+    testImplementation(libs.testCore)
+
+    androidTestImplementation(libs.multidex)
+    androidTestImplementation(libs.mockitoCore)
+    androidTestImplementation(libs.espressoCore)
+    androidTestImplementation(libs.testExtJunit)
+    androidTestImplementation(libs.testCore)
+    androidTestImplementation(libs.testRunner)
+    androidTestImplementation(libs.testRules)
+    androidTestImplementation(libs.testUiautomator)
+    androidTestImplementation(libs.kotlinStdlib)
+    androidTestImplementation(libs.truth)
+    androidTestImplementation(libs.mockitoCore, excludes.bytebuddy) // DexMaker has it's own MockMaker
+    androidTestImplementation(libs.dexmakerMockito, excludes.bytebuddy) // DexMaker has it's own MockMaker
 }
 
 android {
