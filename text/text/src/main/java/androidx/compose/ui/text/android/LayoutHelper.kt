@@ -153,8 +153,17 @@ class LayoutHelper(val layout: Layout) {
      * @param offset a character offset in the text
      * @return the paragraph number
      */
-    fun getParagraphForOffset(@IntRange(from = 0) offset: Int): Int =
-        paragraphEnds.binarySearch(offset).let { if (it < 0) - (it + 1) else it + 1 }
+    fun getParagraphForOffset(@IntRange(from = 0) offset: Int, upstream: Boolean = false): Int {
+        val paragraphIndex = paragraphEnds.binarySearch(offset).let {
+            if (it < 0) -(it + 1) else it + 1
+        }
+
+        if (upstream && paragraphIndex > 0 && offset == paragraphEnds[paragraphIndex - 1]) {
+            return paragraphIndex - 1
+        }
+
+        return paragraphIndex
+    }
 
     /**
      * Returns the inclusive paragraph starting offset of the given paragraph index.
@@ -212,6 +221,11 @@ class LayoutHelper(val layout: Layout) {
      * @return the horizontal offset from the drawing origin.
      */
     fun getHorizontalPosition(offset: Int, usePrimaryDirection: Boolean, upstream: Boolean): Float {
+        // Android already calculates downstream
+        if (!upstream) {
+            return getDownstreamHorizontal(offset, usePrimaryDirection)
+        }
+
         val lineNo = layout.getLineForOffset(offset, upstream)
         val lineStart = layout.getLineStart(lineNo)
         val lineEnd = layout.getLineEnd(lineNo)
@@ -228,12 +242,16 @@ class LayoutHelper(val layout: Layout) {
             return getDownstreamHorizontal(offset, usePrimaryDirection)
         }
 
-        val paraNo = getParagraphForOffset(offset)
+        val paraNo = getParagraphForOffset(offset, upstream)
         val isParaRtl = isRtlParagraph(paraNo)
 
         // Use line visible end for creating bidi object since invisible whitespaces should not be
         // considered for location retrieval.
-        val lineBidi = analyzeBidi(paraNo)?.createLineBidi(lineStart, lineEndToVisibleEnd(lineEnd))
+        val lineVisibleEnd = lineEndToVisibleEnd(lineEnd)
+        val paragraphStart = getParagraphStart(paraNo)
+        val bidiStart = lineStart - paragraphStart
+        val bidiEnd = lineVisibleEnd - paragraphStart
+        val lineBidi = analyzeBidi(paraNo)?.createLineBidi(bidiStart, bidiEnd)
         if (lineBidi == null || lineBidi.runCount == 1) { // easy case. All directions are the same
             val runDirection = layout.isRtlCharAt(lineStart)
             val isStartLeft = if (usePrimaryDirection || isParaRtl == runDirection) {
