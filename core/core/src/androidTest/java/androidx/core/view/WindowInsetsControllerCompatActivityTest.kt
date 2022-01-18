@@ -16,11 +16,13 @@
 
 package androidx.core.view
 
+import android.app.Dialog
 import android.os.Build
 import android.view.View
 import android.view.WindowInsetsController
 import android.view.WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS
 import android.widget.EditText
+import android.widget.TextView
 import androidx.annotation.RequiresApi
 import androidx.core.graphics.Insets
 import androidx.core.test.R
@@ -135,12 +137,71 @@ public class WindowInsetsControllerCompatActivityTest {
             editText.requestFocus()
         }
         assertThat(editText.isFocused, `is`(true))
-        if (Build.VERSION.SDK_INT == 30) {
+        if (Build.VERSION.SDK_INT >= 30) {
             // Dirty hack until we figure out why the IME is not showing if we don't wait before
             Thread.sleep(100)
         }
         controller.show(type)
         container.assertInsetsVisibility(type, true)
+    }
+
+    /**
+     * IME visibility is only reliable on API 23+, where we have access to the root WindowInsets
+     */
+    @SdkSuppress(minSdkVersion = 23)
+    @Test
+    public fun do_not_show_IME_if_TextView_in_dialog_not_focused() {
+        val dialog = scenario.withActivity {
+            object : Dialog(this) {
+                override fun onAttachedToWindow() {
+                    super.onAttachedToWindow()
+                    WindowCompat.setDecorFitsSystemWindows(window!!, false)
+                }
+            }.apply {
+                setContentView(R.layout.insets_compat_activity)
+            }
+        }
+
+        val editText = dialog.findViewById<TextView>(R.id.edittext)
+
+        // We hide the edit text to ensure it won't be automatically focused
+        scenario.onActivity {
+            dialog.show()
+            editText.visibility = View.GONE
+            assertThat(editText.isFocused, `is`(false))
+        }
+
+        val type = WindowInsetsCompat.Type.ime()
+        scenario.onActivity { ViewCompat.getWindowInsetsController(editText)!!.show(type) }
+        container.assertInsetsVisibility(type, false)
+    }
+
+    /**
+     * IME visibility is only reliable on API 23+, where we have access to the root WindowInsets
+     */
+    @SdkSuppress(minSdkVersion = 23)
+    @Test
+    fun show_IME_fromEditText_in_dialog() {
+        val dialog = scenario.withActivity {
+            object : Dialog(this) {
+                override fun onAttachedToWindow() {
+                    super.onAttachedToWindow()
+                    WindowCompat.setDecorFitsSystemWindows(window!!, false)
+                }
+            }.apply {
+                setContentView(R.layout.insets_compat_activity)
+            }
+        }
+
+        val type = WindowInsetsCompat.Type.ime()
+        val editText = dialog.findViewById<TextView>(R.id.edittext)
+
+        scenario.onActivity { dialog.show() }
+
+        val controller = ViewCompat.getWindowInsetsController(editText)!!
+
+        scenario.onActivity { controller.show(type) }
+        editText.assertInsetsVisibility(type, true)
     }
 
     /**
@@ -200,20 +261,46 @@ public class WindowInsetsControllerCompatActivityTest {
 
     /**
      * Tests that after calling setAppearanceLightStatusBars in API 30
-     * isAppearanceLightStatusBars is true and SYSTEM_UI_FLAG_LIGHT_STATUS_BAR flag is unset.
-     *
-     * Currently this works only with Impl30(Window window, WindowInsetsControllerCompat
-     * compatController) constructor (b/180881870).
+     * isAppearanceLightStatusBars is true and SYSTEM_UI_FLAG_LIGHT_STATUS_BAR flag is unset
+     * when using the `ViewCompat` getter.
      */
     @SdkSuppress(minSdkVersion = 30, maxSdkVersion = 30)
     @Test
-    public fun systemBar_light_theme() {
+    public fun systemBar_light_view_compat_getter() {
         val decorView = scenario.withActivity { window.decorView }
 
         scenario.onActivity { activity ->
-            windowInsetsController = WindowInsetsControllerCompat(
-                activity.window, activity.findViewById(R.id.container)
-            )
+            windowInsetsController = ViewCompat.getWindowInsetsController(
+                activity.findViewById(R.id.container)
+            )!!
+
+            decorView.systemUiVisibility = decorView.systemUiVisibility or
+                View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
+            windowInsetsController.setAppearanceLightStatusBars(true)
+        }
+
+        assertThat(
+            decorView.systemUiVisibility and View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR,
+            equalTo(0)
+        )
+        assertThat(windowInsetsController.isAppearanceLightStatusBars(), `is`(true))
+    }
+
+    /**
+     * Tests that after calling setAppearanceLightStatusBars in API 30
+     * isAppearanceLightStatusBars is true and SYSTEM_UI_FLAG_LIGHT_STATUS_BAR flag is unset
+     * when using the deprecated `Window` and `View` `WindowCompat` getter.
+     */
+    @SdkSuppress(minSdkVersion = 30, maxSdkVersion = 30)
+    @Test
+    public fun systemBar_light_window_compat_window_view_getter() {
+        val decorView = scenario.withActivity { window.decorView }
+
+        scenario.onActivity { activity ->
+            windowInsetsController = WindowCompat.getInsetsController(
+                activity.window,
+                activity.findViewById(R.id.container)
+            )!!
 
             decorView.systemUiVisibility = decorView.systemUiVisibility or
                 View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
