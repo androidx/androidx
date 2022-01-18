@@ -24,13 +24,13 @@
     <application
         android:allowBackup="false"
         android:icon="@mipmap/ic_launcher"
-        android:label="Glance Wear Tiles Demos"
+        android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true">
 
         <activity
             android:name="androidx.glance.wear.tiles.demos.TilePreviewActivity"
-            android:label="Tile preview"
+            android:label="@string/tiles_preview_name"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -38,16 +38,31 @@
             </intent-filter>
         </activity>
 
+        <activity
+            android:name="androidx.glance.wear.tiles.demos.CalendarActivity"
+            android:exported="true"
+            android:label="@string/calendar_activity_name" />
+
         <service
             android:name="androidx.glance.wear.tiles.demos.HelloTileService"
-            android:description="@string/app_name"
+            android:description="@string/hello_tile_name"
             android:exported="true"
-            android:label="@string/app_name"
-            android:permission="com.android.wearable.permission.BIND_TILE_PROVIDER">
+            android:label="@string/hello_tile_name"
+            android:permission="com.google.android.wearable.permission.BIND_TILE_PROVIDER">
             <intent-filter>
                 <action android:name="androidx.wear.tiles.action.BIND_TILE_PROVIDER" />
             </intent-filter>
+        </service>
 
+        <service
+            android:name="androidx.glance.wear.tiles.demos.CalendarTileService"
+            android:description="@string/calendar_tile_name"
+            android:exported="true"
+            android:label="@string/calendar_tile_name"
+            android:permission="com.google.android.wearable.permission.BIND_TILE_PROVIDER">
+            <intent-filter>
+                <action android:name="androidx.wear.tiles.action.BIND_TILE_PROVIDER" />
+            </intent-filter>
         </service>
     </application>
 </manifest>
