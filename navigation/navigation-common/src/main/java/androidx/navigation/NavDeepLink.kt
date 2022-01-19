@@ -190,7 +190,7 @@ public class NavDeepLink internal constructor(
                 for (index in 0 until storedParam!!.size()) {
                     var value: String? = null
                     if (argMatcher != null) {
-                        value = Uri.decode(argMatcher.group(index + 1))
+                        value = argMatcher.group(index + 1)
                     }
                     val argName = storedParam.getArgumentName(index)
                     val argument = arguments[argName]

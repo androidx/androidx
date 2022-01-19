@@ -22,6 +22,7 @@ import androidx.build.gitclient.GitClient
 import androidx.build.gitclient.GitCommitRange
 import junit.framework.TestCase.assertEquals
 import junit.framework.TestCase.assertNull
+import org.gradle.api.GradleException
 import org.json.simple.parser.ParseException
 import org.junit.Rule
 import org.junit.Test
@@ -235,6 +236,41 @@ class ChangeInfoGitClientTest {
     }
 
     fun getChangedFiles(config: String): List<String> {
-        return ChangeInfoGitClient(config).findChangedFilesSince("", "", false)
+        return ChangeInfoGitClient(config, "").findChangedFilesSince("", "", false)
+    }
+
+
+    @Test
+    fun getGitLog_hasVersion() {
+        checkVersion("""
+            <project path="prebuilts/internal" revision="prebuiltsVersion1"/>
+            <project path="frameworks/support" revision="supportVersion1"/>
+            <project path="tools/external/gradle" revision="gradleVersion1"/>
+            """,
+            "supportVersion1"
+        )
+    }
+
+    @Test
+    fun getGitLog_noVersion() {
+        var threw = false
+        try {
+            checkVersion("""
+                """,
+                null
+            )
+        } catch (e: GradleException) {
+            threw = true
+        }
+        assertEquals("Did not detect malformed manifest", threw, true)
+    }
+
+    fun checkVersion(config: String, expectedVersion: String?) {
+        assertEquals(expectedVersion, getVersion(config))
+    }
+    fun getVersion(config: String): String? {
+        return ChangeInfoGitClient("{}", config)
+            .getGitLog(GitCommitRange(n = 1), keepMerges = true, fullProjectDir = File("."))
+            .getOrNull(0)?.gitCommit
     }
 }

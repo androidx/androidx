@@ -39,6 +39,7 @@ import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.collection.SimpleArrayMap;
 import androidx.core.graphics.Insets;
+import androidx.core.util.Preconditions;
 import androidx.core.view.WindowInsetsCompat.Type.InsetsType;
 
 import java.lang.annotation.Retention;
@@ -85,27 +86,38 @@ public final class WindowInsetsControllerCompat {
 
     private final Impl mImpl;
 
+    /**
+     * This version fails to workaround
+     * <a href="https://issuetracker.google.com/issues/180881870">
+     *     https://issuetracker.google.com/issues/180881870
+     * </a>, but is present for backwards compatibility.
+     */
     @RequiresApi(30)
+    @Deprecated
     private WindowInsetsControllerCompat(@NonNull WindowInsetsController insetsController) {
+        mImpl = new Impl30(insetsController, this);
+    }
+
+    WindowInsetsControllerCompat(@NonNull View view) {
         if (SDK_INT >= 30) {
-            mImpl = new Impl30(insetsController, this);
+            mImpl = new Impl30(view, this);
+        } else if (SDK_INT >= 26) {
+            mImpl = new Impl26(view);
+        } else if (SDK_INT >= 23) {
+            mImpl = new Impl23(view);
+        } else if (SDK_INT >= 20) {
+            mImpl = new Impl20(view);
         } else {
             mImpl = new Impl();
         }
     }
 
+    /**
+     * @deprecated Use {@link ViewCompat#getWindowInsetsController(View)} instead
+     */
+    @Deprecated
     public WindowInsetsControllerCompat(@NonNull Window window, @NonNull View view) {
-        if (SDK_INT >= 30) {
-            mImpl = new Impl30(window, this);
-        } else if (SDK_INT >= 26) {
-            mImpl = new Impl26(window, view);
-        } else if (SDK_INT >= 23) {
-            mImpl = new Impl23(window, view);
-        } else if (SDK_INT >= 20) {
-            mImpl = new Impl20(window, view);
-        } else {
-            mImpl = new Impl();
-        }
+        this(view);
     }
 
     /**
@@ -113,11 +125,13 @@ public final class WindowInsetsControllerCompat {
      * compatibility purpose.
      *
      * @param insetsController The {@link WindowInsetsController} to wrap.
-     * @return The provided {@link WindowInsetsControllerCompat} wrapped into a
+     * @return The provided {@link WindowInsetsController} wrapped into a
      * {@link WindowInsetsControllerCompat}
+     * @deprecated Use {@link ViewCompat#getWindowInsetsController(View)} instead
      */
     @NonNull
     @RequiresApi(30)
+    @Deprecated
     public static WindowInsetsControllerCompat toWindowInsetsControllerCompat(
             @NonNull WindowInsetsController insetsController) {
         return new WindowInsetsControllerCompat(insetsController);
@@ -390,13 +404,9 @@ public final class WindowInsetsControllerCompat {
     private static class Impl20 extends Impl {
 
         @NonNull
-        protected final Window mWindow;
+        protected final View mView;
 
-        @Nullable
-        private final View mView;
-
-        Impl20(@NonNull Window window, @Nullable View view) {
-            mWindow = window;
+        Impl20(@NonNull View view) {
             mView = view;
         }
 
@@ -425,18 +435,13 @@ public final class WindowInsetsControllerCompat {
                     View view = mView;
 
 
-                    if (view != null && (view.isInEditMode() || view.onCheckIsTextEditor())) {
+                    if (view.isInEditMode() || view.onCheckIsTextEditor()) {
                         // The IME needs a text view to be focused to be shown
                         // The view given to retrieve this controller is a textView so we can assume
                         // that we can focus it in order to show the IME
                         view.requestFocus();
                     } else {
-                        view = mWindow.getCurrentFocus();
-                    }
-
-                    // Fallback on the container view
-                    if (view == null) {
-                        view = mWindow.findViewById(android.R.id.content);
+                        view = mView.getRootView().findFocus();
                     }
 
                     if (view != null && view.hasWindowFocus()) {
@@ -472,33 +477,39 @@ public final class WindowInsetsControllerCompat {
                     setSystemUiFlag(View.SYSTEM_UI_FLAG_HIDE_NAVIGATION);
                     return;
                 case WindowInsetsCompat.Type.IME:
-                    ((InputMethodManager) mWindow.getContext()
+                    ((InputMethodManager) mView.getContext()
                             .getSystemService(Context.INPUT_METHOD_SERVICE))
-                            .hideSoftInputFromWindow(mWindow.getDecorView().getWindowToken(),
+                            .hideSoftInputFromWindow(mView.getRootView().getWindowToken(),
                                     0);
             }
         }
 
         protected void setSystemUiFlag(int systemUiFlag) {
-            View decorView = mWindow.getDecorView();
+            View decorView = mView.getRootView();
             decorView.setSystemUiVisibility(
                     decorView.getSystemUiVisibility()
                             | systemUiFlag);
         }
 
         protected void unsetSystemUiFlag(int systemUiFlag) {
-            View decorView = mWindow.getDecorView();
+            View decorView = mView.getRootView();
             decorView.setSystemUiVisibility(
                     decorView.getSystemUiVisibility()
                             & ~systemUiFlag);
         }
 
         protected void setWindowFlag(int windowFlag) {
-            mWindow.addFlags(windowFlag);
+            WindowManager.LayoutParams layoutParams =
+                    (WindowManager.LayoutParams) mView.getRootView().getLayoutParams();
+            layoutParams.flags |= windowFlag;
+            mView.getRootView().setLayoutParams(layoutParams);
         }
 
         protected void unsetWindowFlag(int windowFlag) {
-            mWindow.clearFlags(windowFlag);
+            WindowManager.LayoutParams layoutParams =
+                    (WindowManager.LayoutParams) mView.getRootView().getLayoutParams();
+            layoutParams.flags &= ~windowFlag;
+            mView.getRootView().setLayoutParams(layoutParams);
         }
 
         @Override
@@ -545,13 +556,13 @@ public final class WindowInsetsControllerCompat {
     @RequiresApi(23)
     private static class Impl23 extends Impl20 {
 
-        Impl23(@NonNull Window window, @Nullable View view) {
-            super(window, view);
+        Impl23(@NonNull View view) {
+            super(view);
         }
 
         @Override
         public boolean isAppearanceLightStatusBars() {
-            return (mWindow.getDecorView().getSystemUiVisibility()
+            return (mView.getRootView().getSystemUiVisibility()
                     & View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR) != 0;
         }
 
@@ -570,13 +581,13 @@ public final class WindowInsetsControllerCompat {
     @RequiresApi(26)
     private static class Impl26 extends Impl23 {
 
-        Impl26(@NonNull Window window, @Nullable View view) {
-            super(window, view);
+        Impl26(@NonNull View view) {
+            super(view);
         }
 
         @Override
         public boolean isAppearanceLightNavigationBars() {
-            return (mWindow.getDecorView().getSystemUiVisibility()
+            return (mView.getRootView().getSystemUiVisibility()
                     & View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR) != 0;
         }
 
@@ -602,13 +613,26 @@ public final class WindowInsetsControllerCompat {
                 WindowInsetsController.OnControllableInsetsChangedListener>
                 mListeners = new SimpleArrayMap<>();
 
-        protected Window mWindow;
+        protected View mView;
 
-        Impl30(@NonNull Window window, @NonNull WindowInsetsControllerCompat compatController) {
-            this(window.getInsetsController(), compatController);
-            mWindow = window;
+        Impl30(@NonNull View view, @NonNull WindowInsetsControllerCompat compatController) {
+            this(
+                    Preconditions.checkNotNull(view.getWindowInsetsController(),
+                    "The insets controller is null. "
+                            + "The root view might have been detached from its window"),
+                    compatController);
+            mView = view;
         }
 
+        /**
+         * This version fails to workaround
+         * <a href="https://issuetracker.google.com/issues/180881870">
+         *     https://issuetracker.google.com/issues/180881870
+         * </a>, but is present for backwards compatibility.
+         *
+         * @deprecated Use {@link #Impl30(View, WindowInsetsControllerCompat) } instead
+         */
+        @Deprecated
         Impl30(@NonNull WindowInsetsController insetsController,
                 @NonNull WindowInsetsControllerCompat compatController) {
             mInsetsController = insetsController;
@@ -634,7 +658,7 @@ public final class WindowInsetsControllerCompat {
         @Override
         public void setAppearanceLightStatusBars(boolean isLight) {
             if (isLight) {
-                if (mWindow != null) {
+                if (mView != null) {
                     unsetSystemUiFlag(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
                 }
 
@@ -762,7 +786,7 @@ public final class WindowInsetsControllerCompat {
         }
 
         protected void unsetSystemUiFlag(int systemUiFlag) {
-            View decorView = mWindow.getDecorView();
+            View decorView = mView.getRootView();
             decorView.setSystemUiVisibility(
                     decorView.getSystemUiVisibility()
                             & ~systemUiFlag);

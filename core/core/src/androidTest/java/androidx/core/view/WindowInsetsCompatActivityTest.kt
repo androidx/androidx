@@ -300,11 +300,7 @@ public class WindowInsetsCompatActivityTest(
             WindowCompat.setDecorFitsSystemWindows(activity.window, false)
         }
         val container: View = scenario.withActivity { findViewById(R.id.container) }
-        scenario.onActivity { activity ->
-            WindowCompat.getInsetsController(activity.window, container)!!.show(
-                Type.systemBars()
-            )
-        }
+        ViewCompat.getWindowInsetsController(container)!!.show(Type.systemBars())
 
         // Get the current insets and check that the system bars insets are not empty
         val navigationBar = ViewCompat.getRootWindowInsets(container)

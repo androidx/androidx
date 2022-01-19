@@ -17,30 +17,71 @@
 package androidx.glance.wear.tiles.demos
 
 import android.content.ComponentName
+import android.content.Context
 import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import android.widget.FrameLayout
-import androidx.activity.ComponentActivity
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentActivity
 import androidx.wear.tiles.manager.TileUiClient
+import androidx.viewpager2.widget.ViewPager2
+import androidx.viewpager2.adapter.FragmentStateAdapter
 
-class TilePreviewActivity : ComponentActivity() {
+private const val NUM_PAGES = 2
+private val TILE_PROVIDERS_NAME = arrayOf(
+    HelloTileService::class.java,
+    CalendarTileService::class.java
+)
+
+class TilePageFragment(
+    private val activityContext: Context,
+    private val position: Int
+) : Fragment() {
     lateinit var tileUiClient: TileUiClient
 
-    override fun onCreate(savedInstanceBunde: Bundle?) {
-        super.onCreate(savedInstanceBunde)
-        setContentView(R.layout.activity_main)
-        val rootLayout = findViewById<FrameLayout>(R.id.tile_container)
+    override fun onCreateView(
+        inflator: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceBundle: Bundle?
+    ): View = inflator.inflate(R.layout.fragment_page, container, false)
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        val rootLayout = requireView().findViewById<FrameLayout>(R.id.tile_container)
 
         tileUiClient = TileUiClient(
-            context = this,
-            component = ComponentName(this, HelloTileService::class.java),
+            context = activityContext,
+            component = ComponentName(activityContext, TILE_PROVIDERS_NAME[position]),
             parentView = rootLayout
         )
-
         tileUiClient.connect()
     }
 
     override fun onDestroy() {
         super.onDestroy()
         tileUiClient.close()
+    }
+}
+
+class TilePreviewActivity : FragmentActivity() {
+
+    private lateinit var viewPager: ViewPager2
+
+    override fun onCreate(savedInstanceBundle: Bundle?) {
+        super.onCreate(savedInstanceBundle)
+        setContentView(R.layout.activity_main)
+        viewPager = findViewById(R.id.carousel)
+
+        val pagerAdapter = TilePagerAdaptor(this)
+        viewPager.adapter = pagerAdapter
+    }
+
+    private inner class TilePagerAdaptor(
+        private val fa: FragmentActivity
+    ) : FragmentStateAdapter(fa) {
+        override fun getItemCount(): Int = NUM_PAGES
+        override fun createFragment(position: Int): Fragment = TilePageFragment(fa, position)
     }
 }

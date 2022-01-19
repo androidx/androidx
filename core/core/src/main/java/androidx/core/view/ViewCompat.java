@@ -20,11 +20,9 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.content.ClipData;
 import android.content.ClipDescription;
 import android.content.Context;
-import android.content.ContextWrapper;
 import android.content.res.ColorStateList;
 import android.content.res.TypedArray;
 import android.graphics.Matrix;
@@ -49,7 +47,6 @@ import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.view.ViewParent;
 import android.view.ViewTreeObserver;
-import android.view.Window;
 import android.view.WindowInsets;
 import android.view.WindowInsetsController;
 import android.view.WindowManager;
@@ -2669,22 +2666,15 @@ public class ViewCompat {
      *
      * @return A {@link WindowInsetsControllerCompat} or {@code null} if the view is neither
      * attached to a window nor a view tree with a decor.
-     * @see WindowCompat#getInsetsController(Window, View)
      */
     @Nullable
     public static WindowInsetsControllerCompat getWindowInsetsController(@NonNull View view) {
-        if (Build.VERSION.SDK_INT >= 30) {
-            return Api30Impl.getWindowInsetsController(view);
-        } else {
-            Context context = view.getContext();
-            while (context instanceof ContextWrapper) {
-                if (context instanceof Activity) {
-                    Window window = ((Activity) context).getWindow();
-                    return window != null ? WindowCompat.getInsetsController(window, view) : null;
-                }
-                context = ((ContextWrapper) context).getBaseContext();
-            }
+        // Pre-API 30 implementations depend on the root view's WindowManager.LayoutParams
+        // to set and unset window flags.
+        if (!(view.getRootView().getLayoutParams() instanceof WindowManager.LayoutParams)) {
             return null;
+        } else {
+            return new WindowInsetsControllerCompat(view);
         }
     }
 
@@ -5071,14 +5061,6 @@ public class ViewCompat {
     private static class Api30Impl {
         private Api30Impl() {
             // This class is not instantiable.
-        }
-
-        @Nullable
-        public static WindowInsetsControllerCompat getWindowInsetsController(@NonNull View view) {
-            WindowInsetsController windowInsetsController = view.getWindowInsetsController();
-            return windowInsetsController != null
-                    ? WindowInsetsControllerCompat.toWindowInsetsControllerCompat(
-                    windowInsetsController) : null;
         }
 
         @DoNotInline

@@ -504,7 +504,7 @@ class WindowInsetsControllerPlayground : Activity() {
                     id: Long
                 ) {
                     if (parent != null && view != null) {
-                        WindowCompat.getInsetsController(window, view)!!
+                        ViewCompat.getWindowInsetsController(view)!!
                             .systemBarsBehavior = types[selectedItem]!!
                     }
                 }

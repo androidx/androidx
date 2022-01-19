@@ -36,7 +36,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.recyclerview.widget.RecyclerView
 import androidx.wear.watchface.complications.ComplicationDataSourceInfoRetriever
-import androidx.wear.watchface.R
+import androidx.wear.watchface.editor.samples.R
 import androidx.wear.widget.SwipeDismissFrameLayout
 import androidx.wear.widget.WearableLinearLayoutManager
 import androidx.wear.widget.WearableRecyclerView

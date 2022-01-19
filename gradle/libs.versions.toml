@@ -75,6 +75,7 @@ espressoIntents = { module = "androidx.test.espresso:espresso-intents", version.
 espressoWeb = { module = "androidx.test.espresso:espresso-web", version.ref = "espresso" }
 findbugs = { module = "com.google.code.findbugs:jsr305", version = "3.0.2" }
 firebaseAppindexing = { module = "com.google.firebase:firebase-appindexing", version = "19.2.0" }
+googletest = { module = "com.android.ndk.thirdparty:googletest", version = "1.11.0-beta-1" }
 hiltAndroid = { module = "com.google.dagger:hilt-android", version.ref = "hilt" }
 hiltAndroidTesting = { module = "com.google.dagger:hilt-android-testing", version.ref = "hilt" }
 hiltAndroidGradlePluginz = { module = "com.google.dagger:hilt-android-gradle-plugin", version.ref = "hilt" }

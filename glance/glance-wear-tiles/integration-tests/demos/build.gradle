@@ -29,6 +29,8 @@ dependencies {
     implementation(project(":glance:glance-wear-tiles"))
     implementation("androidx.activity:activity:1.4.0")
     implementation("androidx.wear.tiles:tiles-renderer:1.0.0")
+    implementation("androidx.viewpager2:viewpager2:1.0.0")
+    implementation("androidx.wear:wear:1.2.0")
 }
 
 android {

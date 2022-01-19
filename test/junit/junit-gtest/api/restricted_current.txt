@@ -1,0 +1,17 @@
+// Signature format: 4.0
+package androidx.test.junitgtest {
+
+  public final class GtestRunner extends org.junit.runner.Runner implements org.junit.runner.manipulation.Filterable {
+    ctor public GtestRunner(Class<?> testClass);
+    method @kotlin.jvm.Throws(exceptionClasses=NoTestsRemainException::class) public void filter(org.junit.runner.manipulation.Filter filter) throws org.junit.runner.manipulation.NoTestsRemainException;
+    method public org.junit.runner.Description getDescription();
+    method public void run(org.junit.runner.notification.RunNotifier notifier);
+  }
+
+  @java.lang.annotation.Inherited @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.RUNTIME) @kotlin.annotation.Target(allowedTargets=kotlin.annotation.AnnotationTarget.CLASS) public @interface TargetLibrary {
+    method public abstract String libraryName();
+    property public abstract String libraryName;
+  }
+
+}
+
