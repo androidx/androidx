@@ -36,10 +36,14 @@ import androidx.room.vo.CallType
 import androidx.room.vo.Constructor
 import androidx.room.vo.EmbeddedField
 import androidx.room.vo.Field
+import androidx.room.vo.FieldGetter
+import androidx.room.vo.FieldSetter
 import androidx.room.vo.Pojo
 import androidx.room.vo.RelationCollector
+import com.google.common.truth.Truth
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.TypeName
+import java.io.File
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.CoreMatchers.instanceOf
 import org.hamcrest.CoreMatchers.not
@@ -52,7 +56,6 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import org.mockito.Mockito.doReturn
 import org.mockito.Mockito.mock
-import java.io.File
 
 /**
  * Some of the functionality is tested via TableEntityProcessor.
@@ -2081,6 +2084,73 @@ class PojoProcessorTest {
                 bindingScope = FieldProcessor.BindingScope.READ_FROM_CURSOR,
                 parent = null
             ).process()
+        }
+    }
+
+    @Test
+    fun setterStartsWithIs() {
+        runProcessorTest(
+            listOf(
+                Source.kotlin(
+                    "Book.kt",
+                    """
+                    package foo.bar;
+                    data class Book(
+                        var isbn: String
+                    ) {
+                        var isbn2: String? = null
+                    }
+                    """
+                )
+            )
+        ) { invocation ->
+            val result = PojoProcessor.createFor(
+                context = invocation.context,
+                element = invocation.processingEnv.requireTypeElement("foo.bar.Book"),
+                bindingScope = FieldProcessor.BindingScope.READ_FROM_CURSOR,
+                parent = null
+            ).process()
+            val fields = result.fields.associateBy {
+                it.name
+            }
+            val stringType = invocation.context.COMMON_TYPES.STRING
+            Truth.assertThat(
+                fields["isbn"]?.getter
+            ).isEqualTo(
+                FieldGetter(
+                    jvmName = "getIsbn",
+                    type = stringType,
+                    callType = CallType.METHOD
+                )
+            )
+            Truth.assertThat(
+                fields["isbn"]?.setter
+            ).isEqualTo(
+                FieldSetter(
+                    jvmName = "isbn",
+                    type = stringType,
+                    callType = CallType.CONSTRUCTOR
+                )
+            )
+
+            Truth.assertThat(
+                fields["isbn2"]?.getter
+            ).isEqualTo(
+                FieldGetter(
+                    jvmName = "getIsbn2",
+                    type = stringType.makeNullable(),
+                    callType = CallType.METHOD
+                )
+            )
+            Truth.assertThat(
+                fields["isbn2"]?.setter
+            ).isEqualTo(
+                FieldSetter(
+                    jvmName = "setIsbn2",
+                    type = stringType.makeNullable(),
+                    callType = CallType.METHOD
+                )
+            )
         }
     }
 
