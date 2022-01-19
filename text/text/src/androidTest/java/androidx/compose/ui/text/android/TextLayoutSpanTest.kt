@@ -66,13 +66,14 @@ class TextLayoutSpanTest {
         text.setSpan(spanOutter, 1, 3, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
         text.setSpan(spanInner, 2, 3, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
 
+        val ascent = 0.8f; // The test font has 0.8em ascent
         // first baselineShiftSpan is applied
-        var expectShift = (-fontSize * spanOutterMult).toInt()
+        var expectShift = (-fontSize * ascent * spanOutterMult).toInt()
         doAnswer(updatePaintAnswer(baselineShift = expectShift))
             .`when`(spanOutter).updateMeasureState(any())
 
         // second baselineShiftSpan is applied
-        expectShift = (-fontSize * (spanOutterMult + spanInnerMult)).toInt()
+        expectShift = (-fontSize * ascent * (spanOutterMult + spanInnerMult)).toInt()
         doAnswer(updatePaintAnswer(baselineShift = expectShift))
             .`when`(spanInner).updateMeasureState(any())
 
@@ -97,13 +98,14 @@ class TextLayoutSpanTest {
         text.setSpan(spanOutter, 1, 3, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
         text.setSpan(spanInner, 2, 3, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
 
+        val ascent = 0.8f; // The test font has 0.8em ascent
         // first baselineShiftSpan is applied
-        var expectShift = (-fontSize * spanOutterMult).toInt()
+        var expectShift = (-fontSize * ascent * spanOutterMult).toInt()
         doAnswer(updatePaintAnswer(baselineShift = expectShift))
             .`when`(spanOutter).updateDrawState(any())
 
         // second baselineShiftSpan is applied
-        expectShift = (-fontSize * (spanOutterMult + spanInnerMult)).toInt()
+        expectShift = (-fontSize * ascent * (spanOutterMult + spanInnerMult)).toInt()
         doAnswer(updatePaintAnswer(baselineShift = expectShift))
             .`when`(spanInner).updateDrawState(any())
 
