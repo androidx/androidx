@@ -1856,54 +1856,62 @@ public final class Recorder implements VideoOutput {
                 mPendingFirstVideoData.close();
                 mPendingFirstVideoData = null;
             }
+            ListenableFuture<Void> sourceNonStreamingFuture;
+            CallbackToFutureAdapter.Completer<Void> sourceNonStreamingCompleter;
             synchronized (mLock) {
-                ListenableFuture<Void> sourceNonStreamingFuture;
-                if (DeviceQuirks.get(DeactivateEncoderSurfaceBeforeStopEncoderQuirk.class) != null
-                        && mSourceState == SourceState.ACTIVE_STREAMING) {
+                if (mSourceState == SourceState.ACTIVE_STREAMING) {
                     // As b/197047288, if the source is still active, wait for the source to
-                    // become inactive before stopping the encoder.
+                    // become inactive before notifying the encoder the source has stopped.
+                    AtomicReference<CallbackToFutureAdapter.Completer<Void>> completerAtomicRef =
+                            new AtomicReference<>();
                     sourceNonStreamingFuture =
-                            CallbackToFutureAdapter.getFuture(sourceNonStreamingCompleter -> {
+                            CallbackToFutureAdapter.getFuture(completer -> {
                                 synchronized (mLock) {
-                                    mSourceNonStreamingCompleter = sourceNonStreamingCompleter;
+                                    completerAtomicRef.set(completer);
+                                    mSourceNonStreamingCompleter = completer;
                                 }
                                 return "sourceInactive";
                             });
+                    sourceNonStreamingCompleter =
+                            Preconditions.checkNotNull(completerAtomicRef.get());
                 } else {
                     sourceNonStreamingFuture = Futures.immediateFuture(null);
+                    sourceNonStreamingCompleter = null;
+                }
+            }
+
+            if (sourceNonStreamingCompleter != null) {
+                ScheduledFuture<?> timeoutFuture = CameraXExecutors.mainThreadExecutor().schedule(
+                        () -> mSequentialExecutor.execute(
+                                () -> sourceNonStreamingCompleter.setException(new TimeoutException(
+                                        "The source didn't become non-streaming."))),
+                        SOURCE_NON_STREAMING_TIMEOUT, TimeUnit.MILLISECONDS);
+                sourceNonStreamingFuture.addListener(() -> timeoutFuture.cancel(true),
+                        mSequentialExecutor);
+            }
+
+            // Stop the encoder. This will tell the encoder to stop encoding new data. We'll notify
+            // the encoder when the source has actually stopped in the FutureCallback.
+            mVideoEncoder.stop();
+
+            Futures.addCallback(sourceNonStreamingFuture, new FutureCallback<Void>() {
+                @Override
+                public void onSuccess(@Nullable Void result) {
+                    mVideoEncoder.signalSourceStopped();
                 }
 
-                ScheduledFuture<?> timeoutFuture =
-                        CameraXExecutors.mainThreadExecutor().schedule(() -> {
-                            mSequentialExecutor.execute(() -> {
-                                if (!sourceNonStreamingFuture.isDone()) {
-                                    synchronized (mLock) {
-                                        if (mSourceNonStreamingCompleter != null) {
-                                            mSourceNonStreamingCompleter.setException(
-                                                    new TimeoutException(
-                                                            "The source didn't become "
-                                                                    + "non-streaming."));
-                                        }
-                                    }
-                                }
-                            });
-                        }, SOURCE_NON_STREAMING_TIMEOUT, TimeUnit.MILLISECONDS);
-
-                Futures.addCallback(sourceNonStreamingFuture, new FutureCallback<Void>() {
-                    @Override
-                    public void onSuccess(@Nullable Void result) {
-                        mVideoEncoder.stop();
-                        timeoutFuture.cancel(true);
+                @Override
+                public void onFailure(Throwable t) {
+                    Logger.d(TAG, "The source didn't become non-streaming with error.", t);
+                    if (DeviceQuirks.get(DeactivateEncoderSurfaceBeforeStopEncoderQuirk.class)
+                            != null) {
+                        // Even in the case of error, we tell the encoder the source has stopped
+                        // because devices with this quirk require that the codec produce a new
+                        // surface.
+                        mVideoEncoder.signalSourceStopped();
                     }
-
-                    @Override
-                    public void onFailure(Throwable t) {
-                        Logger.d(TAG, "The source didn't become non-streaming with error.", t);
-                        mVideoEncoder.stop();
-                        timeoutFuture.cancel(true);
-                    }
-                }, mSequentialExecutor);
-            }
+                }
+            }, mSequentialExecutor);
         }
     }
 
