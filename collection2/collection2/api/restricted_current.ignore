@@ -29,6 +29,8 @@ AddedFinal: androidx.collection.SparseArrayCompat#remove(int, Object):
     Method androidx.collection.SparseArrayCompat.remove has added 'final' qualifier
 AddedFinal: androidx.collection.SparseArrayCompat#removeAt(int):
     Method androidx.collection.SparseArrayCompat.removeAt has added 'final' qualifier
+AddedFinal: androidx.collection.SparseArrayCompat#removeAtRange(int, int):
+    Method androidx.collection.SparseArrayCompat.removeAtRange has added 'final' qualifier
 AddedFinal: androidx.collection.SparseArrayCompat#replace(int, E):
     Method androidx.collection.SparseArrayCompat.replace has added 'final' qualifier
 AddedFinal: androidx.collection.SparseArrayCompat#replace(int, E, E):
@@ -51,8 +53,6 @@ ChangedType: androidx.collection.SparseArrayCompat#clone():
 
 RemovedMethod: androidx.collection.ArrayMap#ArrayMap(androidx.collection.SimpleArrayMap):
     Removed constructor androidx.collection.ArrayMap(androidx.collection.SimpleArrayMap)
-RemovedMethod: androidx.collection.ArraySet#ArraySet(E[]):
-    Removed constructor androidx.collection.ArraySet(E[])
 RemovedMethod: androidx.collection.ArraySet#ArraySet(androidx.collection.ArraySet<E>):
     Removed constructor androidx.collection.ArraySet(androidx.collection.ArraySet<E>)
 RemovedMethod: androidx.collection.ArraySet#ArraySet(java.util.Collection<E>):
