@@ -20,16 +20,22 @@ import android.content.Context
 import android.os.Bundle
 import androidx.annotation.RestrictTo
 import androidx.lifecycle.AbstractSavedStateViewModelFactory
+import androidx.lifecycle.DEFAULT_ARGS_KEY
 import androidx.lifecycle.HasDefaultViewModelProviderFactory
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LifecycleRegistry
+import androidx.lifecycle.SAVED_STATE_REGISTRY_OWNER_KEY
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.SavedStateViewModelFactory
+import androidx.lifecycle.VIEW_MODEL_STORE_OWNER_KEY
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelStore
 import androidx.lifecycle.ViewModelStoreOwner
+import androidx.lifecycle.enableSavedStateHandles
+import androidx.lifecycle.viewmodel.CreationExtras
+import androidx.lifecycle.viewmodel.MutableCreationExtras
 import androidx.savedstate.SavedStateRegistry
 import androidx.savedstate.SavedStateRegistryController
 import androidx.savedstate.SavedStateRegistryOwner
@@ -107,7 +113,7 @@ public class NavBackStackEntry private constructor(
 
     private var lifecycle = LifecycleRegistry(this)
     private val savedStateRegistryController = SavedStateRegistryController.create(this)
-    private var savedStateRegistryRestored = false
+    private var savedStateRegistryAttached = false
     private val defaultFactory by lazy {
         SavedStateViewModelFactory((context?.applicationContext as? Application), this, arguments)
     }
@@ -116,7 +122,7 @@ public class NavBackStackEntry private constructor(
      * The [SavedStateHandle] for this entry.
      */
     public val savedStateHandle: SavedStateHandle by lazy {
-        check(savedStateRegistryRestored) {
+        check(savedStateRegistryAttached) {
             "You cannot access the NavBackStackEntry's SavedStateHandle until it is added to " +
                 "the NavController's back stack (i.e., the Lifecycle of the NavBackStackEntry " +
                 "reaches the CREATED state)."
@@ -163,11 +169,20 @@ public class NavBackStackEntry private constructor(
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun updateState() {
-        if (!savedStateRegistryRestored) {
+        if (!savedStateRegistryAttached) {
+            savedStateRegistryController.performAttach()
+            savedStateRegistryAttached = true
+            // This is where we want to make this call, but because enableSavedStateHandles()
+            // currently requires access the ViewModels (b/215406268), we need to only make it
+            // if the ViewModelStore has been set. This means that the NavController needs to call
+            // setViewModelStore() before setting the graph to ensure that SavedStateHandles will
+            // be available from this entry.
+            if (viewModelStoreProvider != null) {
+                enableSavedStateHandles()
+            }
             // Perform the restore just once, the first time updateState() is called
             // and specifically *before* we move up the Lifecycle
             savedStateRegistryController.performRestore(savedState)
-            savedStateRegistryRestored = true
         }
         if (hostLifecycleState.ordinal < maxLifecycle.ordinal) {
             lifecycle.currentState = hostLifecycleState
@@ -184,7 +199,7 @@ public class NavBackStackEntry private constructor(
      * [androidx.navigation.NavHostController.setViewModelStore].
      */
     public override fun getViewModelStore(): ViewModelStore {
-        check(savedStateRegistryRestored) {
+        check(savedStateRegistryAttached) {
             "You cannot access the NavBackStackEntry's ViewModels until it is added to " +
                 "the NavController's back stack (i.e., the Lifecycle of the NavBackStackEntry " +
                 "reaches the CREATED state)."
@@ -202,6 +217,19 @@ public class NavBackStackEntry private constructor(
 
     public override fun getDefaultViewModelProviderFactory(): ViewModelProvider.Factory {
         return defaultFactory
+    }
+
+    override fun getDefaultViewModelCreationExtras(): CreationExtras {
+        val extras = MutableCreationExtras()
+        (context?.applicationContext as? Application)?.let { application ->
+            extras[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY] = application
+        }
+        extras[SAVED_STATE_REGISTRY_OWNER_KEY] = this
+        extras[VIEW_MODEL_STORE_OWNER_KEY] = this
+        arguments?.let { args ->
+            extras[DEFAULT_ARGS_KEY] = args
+        }
+        return extras
     }
 
     public override fun getSavedStateRegistry(): SavedStateRegistry {
