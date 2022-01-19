@@ -51,8 +51,6 @@ import androidx.annotation.VisibleForTesting;
 import androidx.camera.core.Logger;
 import androidx.camera.core.SurfaceRequest;
 import androidx.camera.core.ViewPort;
-import androidx.camera.view.internal.compat.quirk.DeviceQuirks;
-import androidx.camera.view.internal.compat.quirk.TextureViewRotationQuirk;
 import androidx.core.util.Preconditions;
 
 /**
@@ -151,12 +149,6 @@ final class PreviewTransformation {
         Preconditions.checkState(isTransformationInfoReady());
         RectF surfaceRect = new RectF(0, 0, mResolution.getWidth(), mResolution.getHeight());
         int rotationDegrees = -surfaceRotationToRotationDegrees(mTargetRotation);
-
-        TextureViewRotationQuirk textureViewRotationQuirk =
-                DeviceQuirks.get(TextureViewRotationQuirk.class);
-        if (textureViewRotationQuirk != null) {
-            rotationDegrees += textureViewRotationQuirk.getCorrectionRotation(mIsFrontCamera);
-        }
         return getRectToRect(surfaceRect, surfaceRect, rotationDegrees);
     }
 
