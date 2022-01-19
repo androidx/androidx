@@ -92,6 +92,27 @@ package androidx.wear.tiles.material {
     field public static final androidx.wear.tiles.DimensionBuilders.DpProp VERTICAL_PADDING;
   }
 
+  public class CircularProgressIndicator implements androidx.wear.tiles.LayoutElementBuilders.LayoutElement {
+    method public androidx.wear.tiles.material.ProgressIndicatorColors getCircularProgressIndicatorColors();
+    method public String getContentDescription();
+    method public androidx.wear.tiles.DimensionBuilders.DegreesProp getEndAngle();
+    method public androidx.wear.tiles.DimensionBuilders.DegreesProp getProgress();
+    method public androidx.wear.tiles.DimensionBuilders.DegreesProp getStartAngle();
+    method public androidx.wear.tiles.DimensionBuilders.DpProp getStrokeWidth();
+  }
+
+  public static final class CircularProgressIndicator.Builder implements androidx.wear.tiles.LayoutElementBuilders.LayoutElement.Builder {
+    ctor public CircularProgressIndicator.Builder();
+    method public androidx.wear.tiles.material.CircularProgressIndicator build();
+    method public androidx.wear.tiles.material.CircularProgressIndicator.Builder setCircularProgressIndicatorColors(androidx.wear.tiles.material.ProgressIndicatorColors);
+    method public androidx.wear.tiles.material.CircularProgressIndicator.Builder setContentDescription(String);
+    method public androidx.wear.tiles.material.CircularProgressIndicator.Builder setEndAngle(float);
+    method public androidx.wear.tiles.material.CircularProgressIndicator.Builder setProgress(@FloatRange(from=0, to=1) float);
+    method public androidx.wear.tiles.material.CircularProgressIndicator.Builder setStartAngle(float);
+    method public androidx.wear.tiles.material.CircularProgressIndicator.Builder setStrokeWidth(androidx.wear.tiles.DimensionBuilders.DpProp);
+    method public androidx.wear.tiles.material.CircularProgressIndicator.Builder setStrokeWidth(@Dimension(unit=androidx.annotation.Dimension.DP) float);
+  }
+
   public class Colors {
     field @ColorInt public static final int ON_PRIMARY = -14671580; // 0xff202124
     field @ColorInt public static final int ON_SURFACE = -1; // 0xffffffff
@@ -112,6 +133,21 @@ package androidx.wear.tiles.material {
     ctor public CompactChip.Builder(String, androidx.wear.tiles.ActionBuilders.Action, String, androidx.wear.tiles.DeviceParametersBuilders.DeviceParameters);
     method public androidx.wear.tiles.material.CompactChip build();
     method public androidx.wear.tiles.material.CompactChip.Builder setChipColors(androidx.wear.tiles.material.ChipColors);
+  }
+
+  public class ProgressIndicatorColors {
+    ctor public ProgressIndicatorColors(androidx.wear.tiles.ColorBuilders.ColorProp, androidx.wear.tiles.ColorBuilders.ColorProp);
+    ctor public ProgressIndicatorColors(@ColorInt int, @ColorInt int);
+    method public androidx.wear.tiles.ColorBuilders.ColorProp getIndicatorColor();
+    method public androidx.wear.tiles.ColorBuilders.ColorProp getTrackColor();
+  }
+
+  public class ProgressIndicatorDefaults {
+    field public static final androidx.wear.tiles.material.ProgressIndicatorColors DEFAULT_COLOR;
+    field public static final androidx.wear.tiles.DimensionBuilders.DpProp DEFAULT_PADDING;
+    field public static final androidx.wear.tiles.DimensionBuilders.DpProp DEFAULT_STROKE_WIDTH;
+    field public static final float GAP_END_ANGLE = 156.1f;
+    field public static final float GAP_START_ANGLE = -156.1f;
   }
 
   public class TitleChip implements androidx.wear.tiles.LayoutElementBuilders.LayoutElement {
