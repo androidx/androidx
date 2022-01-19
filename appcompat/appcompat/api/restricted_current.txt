@@ -365,6 +365,12 @@ package androidx.appcompat.app {
     method protected android.view.View? createView(android.content.Context!, String!, android.util.AttributeSet!);
   }
 
+  public final class AppLocalesMetadataHolderService extends android.app.Service {
+    ctor public AppLocalesMetadataHolderService();
+    method public static android.content.pm.ServiceInfo getServiceInfo(android.content.Context) throws android.content.pm.PackageManager.NameNotFoundException;
+    method public android.os.IBinder onBind(android.content.Intent);
+  }
+
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class WindowDecorActionBar extends androidx.appcompat.app.ActionBar implements androidx.appcompat.widget.ActionBarOverlayLayout.ActionBarVisibilityCallback {
     ctor public WindowDecorActionBar(android.app.Activity!, boolean);
     ctor public WindowDecorActionBar(android.app.Dialog!);

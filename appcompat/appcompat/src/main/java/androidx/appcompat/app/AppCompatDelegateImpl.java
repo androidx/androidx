@@ -362,6 +362,14 @@ class AppCompatDelegateImpl extends AppCompatDelegate
         //    configuration overrides (as distinct from the entire configuration).
 
         final int modeToApply = mapNightMode(baseContext, calculateNightMode());
+
+        if (isAutoStorageOptedIn(baseContext)) {
+            // If the developer has opted in to auto store the locales, then we use
+            // syncRequestedAndStoredLocales() to load the saved locales from storage. This is
+            // performed only during cold app start-ups because in other cases the locales can be
+            // found in the static storage.
+            syncRequestedAndStoredLocales(baseContext);
+        }
         final LocaleListCompat localesToApply = calculateApplicationLocales(baseContext);
 
         // If the base context is a ContextThemeWrapper (thus not an Application context)
@@ -2381,7 +2389,16 @@ class AppCompatDelegateImpl extends AppCompatDelegate
     }
 
     @Override
-    public boolean applyAppLocales() {
+    boolean applyAppLocales() {
+        // This method is only reached when there is an explicit call to setApplicationLocales().
+        if (isAutoStorageOptedIn(mContext)
+                && getRequestedAppLocales() != null
+                && !getRequestedAppLocales().equals(getStoredAppLocales())) {
+            // If the developer has opted in to autoStore the locales, we need to store the locales
+            // for the application here. This is done using the syncRequestedAndStoredLocales,
+            // called asynchronously on a worker thread.
+            asyncExecuteSyncRequestedAndStoredLocales(mContext);
+        }
         return applyApplicationSpecificConfig(true);
     }
 
