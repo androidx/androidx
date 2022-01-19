@@ -222,7 +222,7 @@ package androidx.collection {
     method public final void remove(int key);
     method public final boolean remove(int key, Object? value);
     method public final void removeAt(int index);
-    method @Deprecated public void removeAtRange(int index, int count);
+    method public final void removeAtRange(int index, int size);
     method public final E? replace(int key, E? value);
     method public final boolean replace(int key, E? oldValue, E? newValue);
     method public final void setValueAt(int index, E? value);

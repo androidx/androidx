@@ -104,9 +104,14 @@ actual open class SparseArray<E>
     @Deprecated("Use remove(key)", level = HIDDEN) // For Java binary compatibility.
     fun delete(key: Int): Unit = remove(key)
 
-    @Deprecated("Use a loop and removeAt()", level = HIDDEN) // For Java binary compatibility.
-    fun removeAtRange(index: Int, count: Int) {
-        val end = minOf(_size, index + count)
+    /**
+     * Remove a range of mappings as a batch.
+     *
+     * @param index Index to begin at
+     * @param size Number of mappings to remove
+     */
+    fun removeAtRange(index: Int, size: Int) {
+        val end = minOf(_size, index + size)
         for (i in index until end) {
             removeAt(i)
         }
