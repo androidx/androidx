@@ -271,7 +271,7 @@ class NavBackStackEntryTest {
 
     @UiThreadTest
     @Test
-    fun testGetSavedStateHandleInitializedLifecycle() {
+    fun testGetSavedStateHandleBeforeUpdateState() {
         val entry = NavBackStackEntry.create(
             ApplicationProvider.getApplicationContext(),
             NavDestination(TestNavigator()), viewModelStoreProvider = NavControllerViewModel()
@@ -289,6 +289,44 @@ class NavBackStackEntryTest {
                     "You cannot access the NavBackStackEntry's SavedStateHandle until it is " +
                         "added to the NavController's back stack (i.e., the Lifecycle of the " +
                         "NavBackStackEntry reaches the CREATED state)."
+                )
+        }
+    }
+
+    @UiThreadTest
+    @Test
+    fun testGetSavedStateHandleInitializedLifecycle() {
+        val entry = NavBackStackEntry.create(
+            ApplicationProvider.getApplicationContext(),
+            NavDestination(TestNavigator()), viewModelStoreProvider = NavControllerViewModel()
+        )
+        entry.updateState()
+
+        assertThat(entry.savedStateHandle).isNotNull()
+    }
+
+    @UiThreadTest
+    @Test
+    fun testGetSavedStateHandleDestroyedLifecycle() {
+        val entry = NavBackStackEntry.create(
+            ApplicationProvider.getApplicationContext(),
+            NavDestination(TestNavigator()), viewModelStoreProvider = NavControllerViewModel()
+        )
+        entry.maxLifecycle = Lifecycle.State.CREATED
+        // Immediately destroy the NavBackStackEntry
+        entry.maxLifecycle = Lifecycle.State.DESTROYED
+
+        try {
+            entry.savedStateHandle
+            fail(
+                "Attempting to get SavedStateHandle for back stack entry after " +
+                    "moving the Lifecycle to DESTROYED set should throw IllegalStateException"
+            )
+        } catch (e: IllegalStateException) {
+            assertThat(e)
+                .hasMessageThat().contains(
+                    "You cannot access the NavBackStackEntry's SavedStateHandle after the " +
+                        "NavBackStackEntry is destroyed."
                 )
         }
     }
