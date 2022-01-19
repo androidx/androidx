@@ -29,5 +29,6 @@ val WearFoundationDemos = DemoCategory(
         ComposableDemo("Curved and Normal Text") { CurvedAndNormalText() },
         ComposableDemo("Scrollable Column") { ScrollableColumnDemo() },
         ComposableDemo("Scrollable Row") { ScrollableRowDemo() },
+        DemoCategory("Rotary Input", RotaryInputDemos),
     ),
 )
