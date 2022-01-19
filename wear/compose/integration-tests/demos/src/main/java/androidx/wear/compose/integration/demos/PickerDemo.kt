@@ -53,7 +53,7 @@ fun PickerTimeDemo() {
             Picker(
                 state = hourState,
                 modifier = Modifier
-                    .size(40.dp, 65.dp)
+                    .size(50.dp, 80.dp)
                     .background(color = Color.Black),
                 separation = (-10).dp
             ) {
@@ -67,7 +67,7 @@ fun PickerTimeDemo() {
             Picker(
                 state = minuteState,
                 modifier = Modifier
-                    .size(50.dp, 65.dp)
+                    .size(50.dp, 80.dp)
                     .background(color = Color.Black),
                 separation = (-10).dp
             ) {
