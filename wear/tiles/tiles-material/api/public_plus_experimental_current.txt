@@ -47,6 +47,7 @@ package androidx.wear.tiles.material {
     method public androidx.wear.tiles.LayoutElementBuilders.LayoutElement getContent();
     method public String getContentDescription();
     method public androidx.wear.tiles.DimensionBuilders.ContainerDimension getHeight();
+    method public int getHorizontalAlignment();
     method public androidx.wear.tiles.DimensionBuilders.ContainerDimension getWidth();
   }
 
@@ -56,7 +57,7 @@ package androidx.wear.tiles.material {
     method public androidx.wear.tiles.material.Chip.Builder setChipColors(androidx.wear.tiles.material.ChipColors);
     method public androidx.wear.tiles.material.Chip.Builder setContent(androidx.wear.tiles.LayoutElementBuilders.LayoutElement);
     method public androidx.wear.tiles.material.Chip.Builder setContentDescription(String);
-    method public androidx.wear.tiles.material.Chip.Builder setLeftAlign(boolean);
+    method public androidx.wear.tiles.material.Chip.Builder setHorizontalAlignment(int);
     method public androidx.wear.tiles.material.Chip.Builder setPrimaryTextContent(String);
     method public androidx.wear.tiles.material.Chip.Builder setPrimaryTextIconContent(String, String);
     method public androidx.wear.tiles.material.Chip.Builder setPrimaryTextLabelContent(String, String);
@@ -120,6 +121,7 @@ package androidx.wear.tiles.material {
     method public androidx.wear.tiles.LayoutElementBuilders.LayoutElement getContent();
     method public String getContentDescription();
     method public androidx.wear.tiles.DimensionBuilders.ContainerDimension getHeight();
+    method public int getHorizontalAlignment();
     method public androidx.wear.tiles.DimensionBuilders.ContainerDimension getWidth();
   }
 
@@ -127,9 +129,9 @@ package androidx.wear.tiles.material {
     ctor public TitleChip.Builder(String, androidx.wear.tiles.ActionBuilders.Action, String, androidx.wear.tiles.DeviceParametersBuilders.DeviceParameters);
     method public androidx.wear.tiles.material.TitleChip build();
     method public androidx.wear.tiles.material.TitleChip.Builder setChipColors(androidx.wear.tiles.material.ChipColors);
-    method public androidx.wear.tiles.material.TitleChip.Builder setLeftAlign(boolean);
+    method public androidx.wear.tiles.material.TitleChip.Builder setHorizontalAlignment(int);
     method public androidx.wear.tiles.material.TitleChip.Builder setWidth(androidx.wear.tiles.DimensionBuilders.DpProp);
-    method public androidx.wear.tiles.material.TitleChip.Builder setWidth(@Dimension(unit=androidx.annotation.Dimension.DP) int);
+    method public androidx.wear.tiles.material.TitleChip.Builder setWidth(@Dimension(unit=androidx.annotation.Dimension.DP) float);
   }
 
 }

@@ -18,6 +18,7 @@ package androidx.wear.tiles.material;
 
 import static androidx.annotation.Dimension.DP;
 import static androidx.wear.tiles.DimensionBuilders.dp;
+import static androidx.wear.tiles.LayoutElementBuilders.HORIZONTAL_ALIGN_CENTER;
 import static androidx.wear.tiles.material.ChipDefaults.LARGE_HEIGHT;
 import static androidx.wear.tiles.material.ChipDefaults.LARGE_HORIZONTAL_PADDING;
 import static androidx.wear.tiles.material.ChipDefaults.LARGE_PRIMARY;
@@ -31,7 +32,9 @@ import androidx.wear.tiles.ActionBuilders.Action;
 import androidx.wear.tiles.DeviceParametersBuilders.DeviceParameters;
 import androidx.wear.tiles.DimensionBuilders.ContainerDimension;
 import androidx.wear.tiles.DimensionBuilders.DpProp;
+import androidx.wear.tiles.LayoutElementBuilders;
 import androidx.wear.tiles.LayoutElementBuilders.FontStyles;
+import androidx.wear.tiles.LayoutElementBuilders.HorizontalAlignment;
 import androidx.wear.tiles.LayoutElementBuilders.LayoutElement;
 import androidx.wear.tiles.proto.LayoutElementProto;
 
@@ -60,7 +63,7 @@ public class TitleChip implements LayoutElement {
         @NonNull private final String mClickableId;
         @NonNull private final DeviceParameters mDeviceParameters;
         @NonNull private ChipColors mChipColors = LARGE_PRIMARY;
-        private boolean mIsLeftAligned = false;
+        private @HorizontalAlignment int mHorizontalAlignment = HORIZONTAL_ALIGN_CENTER;
 
         // Indicates that the width isn't set, so it will be automatically set by Chip.Builder
         // constructor.
@@ -101,15 +104,10 @@ public class TitleChip implements LayoutElement {
             return this;
         }
 
-        // TODO(b/210847875): Add isLeftAligned()
-        /**
-         * Sets content to be left-aligned in the chip. If {@code false} is passed as parameter,
-         * text will be center-aligned.
-         */
+        /** Sets the horizontal alignment in the chip. If not set, content will be centered. */
         @NonNull
-        @SuppressWarnings("MissingGetterMatchingBuilder")
-        public Builder setLeftAlign(boolean isLeftAlign) {
-            mIsLeftAligned = isLeftAlign;
+        public Builder setHorizontalAlignment(@HorizontalAlignment int horizontalAlignment) {
+            mHorizontalAlignment = horizontalAlignment;
             return this;
         }
 
@@ -128,7 +126,7 @@ public class TitleChip implements LayoutElement {
          * decreased by {@link ChipDefaults#DEFAULT_MARGIN_PERCENT}.
          */
         @NonNull
-        public Builder setWidth(@Dimension(unit = DP) int width) {
+        public Builder setWidth(@Dimension(unit = DP) float width) {
             mWidth = dp(width);
             return this;
         }
@@ -141,7 +139,7 @@ public class TitleChip implements LayoutElement {
                     new Chip.Builder(mAction, mClickableId, mDeviceParameters)
                             .setChipColors(mChipColors)
                             .setContentDescription(mText)
-                            .setLeftAlign(mIsLeftAligned)
+                            .setHorizontalAlignment(mHorizontalAlignment)
                             .setHeight(LARGE_HEIGHT)
                             .setMaxLines(1)
                             .setHorizontalPadding(LARGE_HORIZONTAL_PADDING)
@@ -156,40 +154,45 @@ public class TitleChip implements LayoutElement {
         }
     }
 
-    /** Returns height of this Chip. Intended for testing purposes only. */
+    /** Returns height of this Chip. */
     @NonNull
     public ContainerDimension getHeight() {
         return mElement.getHeight();
     }
 
-    /** Returns width of this Chip. Intended for testing purposes only. */
+    /** Returns width of this Chip. */
     @NonNull
     public ContainerDimension getWidth() {
         return mElement.getWidth();
     }
 
-    /** Returns click event action associated with this Chip. Intended for testing purposes only. */
+    /** Returns click event action associated with this Chip. */
     @NonNull
     public Action getAction() {
         return mElement.getAction();
     }
 
-    /** Returns chip color of this Chip. Intended for testing purposes only. */
+    /** Returns chip color of this Chip. */
     @NonNull
     public ChipColors getChipColors() {
         return mElement.getChipColors();
     }
 
-    /** Returns content description of this Chip. Intended for testing purposes only. */
+    /** Returns content description of this Chip. */
     @NonNull
     public String getContentDescription() {
         return mElement.getContentDescription();
     }
 
-    /** Returns content of this Chip. Intended for testing purposes only. */
+    /** Returns content of this Chip. */
     @NonNull
     public LayoutElement getContent() {
         return mElement.getContent();
+    }
+
+    /** Returns the horizontal alignment of the content in this Chip. */
+    public @LayoutElementBuilders.HorizontalAlignment int getHorizontalAlignment() {
+        return mElement.getHorizontalAlignment();
     }
 
     /** @hide */
