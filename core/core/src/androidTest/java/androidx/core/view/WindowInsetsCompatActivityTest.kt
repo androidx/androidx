@@ -37,7 +37,6 @@ import androidx.test.espresso.matcher.ViewMatchers.assertThat
 import androidx.test.espresso.matcher.ViewMatchers.hasFocus
 import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import androidx.test.espresso.matcher.ViewMatchers.withId
-import androidx.test.filters.FlakyTest
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import androidx.testutils.withActivity
@@ -293,7 +292,7 @@ public class WindowInsetsCompatActivityTest(
     }
 
     @Test
-    @FlakyTest
+    @Ignore("IME tests are inherently flaky, but still useful for local testing.")
     @SdkSuppress(minSdkVersion = 21)
     public fun rootInsets_no_ime() {
         scenario.onActivity { activity ->
