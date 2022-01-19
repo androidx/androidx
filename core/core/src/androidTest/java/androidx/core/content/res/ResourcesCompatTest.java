@@ -36,7 +36,9 @@ import android.support.v4.testutils.TestUtils;
 import android.util.DisplayMetrics;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.OptIn;
 import androidx.core.graphics.TypefaceCompat;
+import androidx.core.os.BuildCompat;
 import androidx.core.provider.FontsContractCompat;
 import androidx.core.provider.MockFontProvider;
 import androidx.core.test.R;
@@ -500,6 +502,7 @@ public class ResourcesCompatTest {
         assertTrue(mutated instanceof TransitionDrawable);
     }
 
+    @OptIn(markerClass = BuildCompat.PrereleaseSdkCheck.class)
     @Test
     public void testClearCachesForTheme() {
         Resources.Theme theme = mResources.newTheme();
@@ -511,11 +514,11 @@ public class ResourcesCompatTest {
         ColorStateList csl2 = ResourcesCompat.getColorStateList(
                 mResources, R.color.color_state_list, theme);
 
-        if (SDK_INT <= 32) {
+        if (!BuildCompat.isAtLeastT()) {
             // Validate the failure case that's being worked around.
             assertEquals(csl, csl2);
         } else {
-            // Theme.hashCode() was implemented in API 33, so the workaround is not needed.
+            // Theme.hashCode() was implemented in T, so the workaround is not needed.
             assertNotEquals(csl, csl2);
         }
 
