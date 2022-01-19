@@ -25,8 +25,7 @@ import androidx.room.compiler.processing.XMethodElement
 import androidx.room.compiler.processing.XMethodType
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.XTypeElement
-import androidx.room.compiler.processing.javac.kotlin.computeGetterName
-import androidx.room.compiler.processing.javac.kotlin.computeSetterName
+import androidx.room.compiler.processing.javac.kotlin.JvmAbi
 import androidx.room.compiler.processing.ksp.KspAnnotated
 import androidx.room.compiler.processing.ksp.KspAnnotated.UseSiteFilter.Companion.NO_USE_SITE_OR_GETTER
 import androidx.room.compiler.processing.ksp.KspAnnotated.UseSiteFilter.Companion.NO_USE_SITE_OR_SETTER
@@ -157,7 +156,7 @@ internal sealed class KspSyntheticPropertyMethodElement(
         ) {
 
         override val name: String by lazy {
-            computeGetterName(field.declaration.simpleName.asString())
+            JvmAbi.computeGetterName(field.declaration.simpleName.asString())
         }
         override val returnType: XType by lazy {
             field.type
@@ -187,7 +186,7 @@ internal sealed class KspSyntheticPropertyMethodElement(
         ) {
 
         override val name by lazy {
-            computeSetterName(field.declaration.simpleName.asString())
+            JvmAbi.computeSetterName(field.declaration.simpleName.asString())
         }
         override val returnType: XType by lazy {
             env.voidType
