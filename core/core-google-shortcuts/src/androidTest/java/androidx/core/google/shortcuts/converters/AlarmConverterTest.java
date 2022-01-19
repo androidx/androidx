@@ -45,33 +45,29 @@ public class AlarmConverterTest {
     public void testConvert_returnsIndexable() throws Exception {
         TimeZone.setDefault(TimeZone.getTimeZone("GMT"));
 
-        AlarmInstance previousInstance = new AlarmInstance.Builder("namespace", "instance1")
+        AlarmInstance previousInstance = new AlarmInstance.Builder(
+                "namespace", "instance1", "2020-01-01T00:00:00")
                 .setCreationTimestampMillis(1000)
                 .setStatus(AlarmInstance.STATUS_DISMISSED)
-                .setYear(2020)
-                .setMonth(Calendar.JANUARY)
-                .setDay(1)
                 .build();
-        AlarmInstance nextInstance = new AlarmInstance.Builder("namespace", "instance2")
+        AlarmInstance nextInstance = new AlarmInstance.Builder(
+                "namespace", "instance2", "2020-01-02T00:00:00")
                 .setCreationTimestampMillis(1000)
                 .setStatus(AlarmInstance.STATUS_SCHEDULED)
-                .setYear(2020)
-                .setMonth(Calendar.JANUARY)
-                .setDay(2)
                 .build();
         Alarm alarm = new Alarm.Builder("namespace", "id")
                 .setCreationTimestampMillis(1000)
-                .setTtlMillis(2000)
-                .setScore(1)
+                .setDocumentTtlMillis(2000)
+                .setDocumentScore(1)
                 .setName("alarm")
                 .setEnabled(true)
                 .setDaysOfWeek(Calendar.MONDAY, Calendar.TUESDAY)
                 .setHour(7)
                 .setMinute(30)
-                .setBlackoutStartTimeMillis(100)
-                .setBlackoutEndTimeMillis(200)
+                .setBlackoutPeriodStartDate("2020-02-01")
+                .setBlackoutPeriodEndDate("2020-03-01")
                 .setRingtone("clock://ringtone/1")
-                .setVibrate(true)
+                .setShouldVibrate(true)
                 .setPreviousInstance(previousInstance)
                 .setNextInstance(nextInstance)
                 .build();
@@ -123,8 +119,8 @@ public class AlarmConverterTest {
                 .put("vibrate", true)
                 .put("enabled", true)
                 .put("identifier", "id")
-                .put("blackoutStartTimeMillis", 100)
-                .put("blackoutEndTimeMillis", 200)
+                .put("blackoutPeriodStartDate", "2020-02-01")
+                .put("blackoutPeriodEndDate", "2020-03-01")
                 .put("dayOfWeek", "Monday", "Tuesday")
                 .put("alarmInstances", expectedInstance1, expectedInstance2)
                 .build();
@@ -156,8 +152,6 @@ public class AlarmConverterTest {
                 .put("vibrate", false)
                 .put("enabled", false)
                 .put("identifier", "id")
-                .put("blackoutStartTimeMillis", 0)
-                .put("blackoutEndTimeMillis", 0)
                 .build();
         assertThat(result).isEqualTo(expectedResult);
     }

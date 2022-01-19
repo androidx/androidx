@@ -30,7 +30,11 @@ import androidx.core.util.Preconditions;
 
 import com.google.firebase.appindexing.Indexable;
 
-import java.util.Calendar;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 
 /**
  * Convert for the {@link AlarmInstance} built-in type.
@@ -42,11 +46,6 @@ public class AlarmInstanceConverter implements AppSearchDocumentConverter{
     private static final String TAG = "AlarmInstanceConverter";
 
     // Keys from the AppSearch document
-    private static final String YEAR_KEY = "year";
-    private static final String MONTH_KEY = "month";
-    private static final String DAY_KEY = "day";
-    private static final String HOUR_KEY = "hour";
-    private static final String MINUTE_KEY = "minute";
     private static final String STATUS_KEY = "status";
     private static final String SNOOZE_DURATION_MILLIS_KEY = "snoozeDurationMillis";
 
@@ -64,6 +63,7 @@ public class AlarmInstanceConverter implements AppSearchDocumentConverter{
     private static final String UNKNOWN = "Unknown";
 
     private static final String ALARM_INSTANCE_INDEXABLE_TYPE = "AlarmInstance";
+    private static final String SCHEDULED_TIME_FORMAT = "yyyy-MM-dd'T'HH:mm:ss";
 
     @NonNull
     @Override
@@ -76,17 +76,19 @@ public class AlarmInstanceConverter implements AppSearchDocumentConverter{
                 ConverterUtils.buildBaseIndexableFromGenericDocument(context,
                         ALARM_INSTANCE_INDEXABLE_TYPE, alarmInstance);
 
-        int year = (int) alarmInstance.getPropertyLong(YEAR_KEY);
-        int month = (int) alarmInstance.getPropertyLong(MONTH_KEY);
-        int day = (int) alarmInstance.getPropertyLong(DAY_KEY);
-        int hour = (int) alarmInstance.getPropertyLong(HOUR_KEY);
-        int minute = (int) alarmInstance.getPropertyLong(MINUTE_KEY);
-        Calendar calendar = Calendar.getInstance();
-        calendar.set(year, month, day, hour, minute, 0);
-        calendar.set(Calendar.MILLISECOND, 0);
-
-        indexableBuilder.put(SCHEDULED_TIME_KEY, ConverterUtils.convertTimestampToISO8601Format(
-                calendar.getTimeInMillis(), calendar.getTimeZone()));
+        // Convert the scheduled time into a timezone dependent format
+        String scheduledTimeString = alarmInstance.getPropertyString(SCHEDULED_TIME_KEY);
+        if (scheduledTimeString != null) {
+            DateFormat format = new SimpleDateFormat(SCHEDULED_TIME_FORMAT, Locale.US);
+            try {
+                Date scheduledTime = format.parse(scheduledTimeString);
+                indexableBuilder.put(SCHEDULED_TIME_KEY,
+                        ConverterUtils.convertTimestampToISO8601Format(scheduledTime.getTime(),
+                                null));
+            } catch (ParseException e) {
+                Log.w(TAG, "Failed to parse scheduledTime: " + scheduledTimeString);
+            }
+        }
 
         int status = (int) alarmInstance.getPropertyLong(STATUS_KEY);
         switch (status) {
