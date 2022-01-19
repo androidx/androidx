@@ -83,7 +83,7 @@ class SegmentBreakerBreakSegmentTest {
 
     // sample_font.ttf has ascent=1000 and descent=-200, hence the line height is 1.2em.
     private val TEXT_SIZE = 10f
-    private val LINE_HEIGHT = (1.2f * TEXT_SIZE).toInt()
+    private val LINE_HEIGHT = TEXT_SIZE.toInt()
 
     private fun getLayout(
         text: String,
