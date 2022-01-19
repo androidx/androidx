@@ -153,7 +153,6 @@ public class Button implements LayoutElement {
         }
 
         // TODO(b/203078514): Add getting color from the current Theme (from XML).
-        // TODO(b/210846270): Add getButtonColors.
         /**
          * Sets the colors for the {@link Button}. If set, {@link ButtonColors#getBackgroundColor()}
          * will be used for the background of the button. If not set, {@link
