@@ -35,6 +35,7 @@ import androidx.camera.core.UseCaseGroup
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.testing.CameraUtil
+import androidx.camera.testing.LabTestRule
 import androidx.camera.testing.SurfaceTextureProvider
 import androidx.camera.testing.fakes.FakeLifecycleOwner
 import androidx.concurrent.futures.await
@@ -84,6 +85,17 @@ class VideoRecordingFrameDropTest(
     @get:Rule
     var cameraRule: TestRule = CameraUtil.grantCameraPermissionAndPreTest()
 
+    // Due to the flaky nature of this test, it should only be run in the lab
+    @get:Rule
+    val labTestRule = LabTestRule()
+
+    @get:Rule
+    val permissionRule: GrantPermissionRule =
+        GrantPermissionRule.grant(
+            Manifest.permission.WRITE_EXTERNAL_STORAGE,
+            Manifest.permission.RECORD_AUDIO
+        )
+
     data class PerSelectorTestData(
         var hasResult: Boolean = false,
         var routineError: Exception? = null,
@@ -104,13 +116,6 @@ class VideoRecordingFrameDropTest(
             )
         }
     }
-
-    @get:Rule
-    val permissionRule: GrantPermissionRule =
-        GrantPermissionRule.grant(
-            Manifest.permission.WRITE_EXTERNAL_STORAGE,
-            Manifest.permission.RECORD_AUDIO
-        )
 
     private val context: Context = ApplicationProvider.getApplicationContext()
 
@@ -147,16 +152,19 @@ class VideoRecordingFrameDropTest(
         }
     }
 
+    @LabTestRule.LabTestOnly
     @Test
     fun droppedNoFrames() {
         assertThat(perSelectorTestData.numDroppedFrames).isEqualTo(0)
     }
 
+    @LabTestRule.LabTestOnly
     @Test
     fun droppedLessThanFiveFrames() {
         assertThat(perSelectorTestData.numDroppedFrames).isLessThan(5)
     }
 
+    @LabTestRule.LabTestOnly
     @Test
     fun droppedLessThanTenFrames() {
         assertThat(perSelectorTestData.numDroppedFrames).isLessThan(10)
