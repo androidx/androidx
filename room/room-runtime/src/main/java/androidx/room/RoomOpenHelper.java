@@ -153,7 +153,8 @@ public class RoomOpenHelper extends SupportSQLiteOpenHelper.Callback {
             if (!mIdentityHash.equals(identityHash) && !mLegacyHash.equals(identityHash)) {
                 throw new IllegalStateException("Room cannot verify the data integrity. Looks like"
                         + " you've changed schema but forgot to update the version number. You can"
-                        + " simply fix this by increasing the version number.");
+                        + " simply fix this by increasing the version number. Expected identity"
+                        + " hash: " + identityHash + ", found: " + mIdentityHash);
             }
         } else {
             // No room_master_table, this might an a pre-populated DB, we must validate to see if
