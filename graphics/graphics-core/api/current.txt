@@ -175,6 +175,9 @@ package androidx.graphics.surface {
     method public void close();
     method public void commit();
     method public void finalize();
+    method public androidx.graphics.surface.SurfaceControlCompat.Transaction setBuffer(androidx.graphics.surface.SurfaceControlCompat surfaceControl, android.hardware.HardwareBuffer hardwareBuffer, optional androidx.hardware.SyncFenceCompat syncFence);
+    method public androidx.graphics.surface.SurfaceControlCompat.Transaction setBuffer(androidx.graphics.surface.SurfaceControlCompat surfaceControl, android.hardware.HardwareBuffer hardwareBuffer);
+    method public androidx.graphics.surface.SurfaceControlCompat.Transaction setVisibility(androidx.graphics.surface.SurfaceControlCompat surfaceControl, boolean visibility);
   }
 
   public static interface SurfaceControlCompat.TransactionCommittedListener {

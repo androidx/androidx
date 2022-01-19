@@ -32,6 +32,11 @@ add_library(
             SHARED
             sync_fence.cpp)
 
+add_library(
+        sc-compat-test
+        SHARED
+        sc_test_utils.cpp)
+
 # Searches for a specified prebuilt library and stores the path as a
 # variable. Because CMake includes system libraries in the search path by
 # default, you only need to specify the name of the public NDK library
@@ -63,3 +68,8 @@ target_link_libraries(
                     sync-fence
                     ${log-lib}
                     android)
+
+target_link_libraries(
+        sc-compat-test
+        ${log-lib}
+        android)

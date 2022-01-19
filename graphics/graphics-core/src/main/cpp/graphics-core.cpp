@@ -24,7 +24,9 @@
 #include <android/native_activity.h>
 #include <android/surface_control.h>
 #include <android/api-level.h>
+#include <android/log.h>
 #include <android/native_window_jni.h>
+#include <android/hardware_buffer_jni.h>
 #include <android/log.h>
 #include <android/sync.h>
 
@@ -40,7 +42,6 @@ Java_androidx_graphics_surface_JniBindings_00024Companion_nCreate(JNIEnv *env, j
         auto debugName = env->GetStringUTFChars(debug_name, nullptr);
         return reinterpret_cast<jlong>(ASurfaceControl_create(aSurfaceControl,
                                                               debugName));
-
     } else {
         return 0;
     }
@@ -57,7 +58,6 @@ Java_androidx_graphics_surface_JniBindings_00024Companion_nCreateFromSurface(JNI
         auto debugName = env->GetStringUTFChars(debug_name, nullptr);
         auto surfaceControl = reinterpret_cast<jlong>(ASurfaceControl_createFromWindow(AWindow,
                                                                                        debugName));
-
         ANativeWindow_release(AWindow);
         return surfaceControl;
     } else {
@@ -67,7 +67,8 @@ Java_androidx_graphics_surface_JniBindings_00024Companion_nCreateFromSurface(JNI
 
 extern "C"
 JNIEXPORT void JNICALL
-Java_androidx_graphics_surface_JniBindings_00024Companion_nRelease(JNIEnv *env, jobject thiz,
+Java_androidx_graphics_surface_JniBindings_00024Companion_nRelease(JNIEnv *env,
+                                                                   jobject thiz,
                                                                    jlong surfaceControl) {
     if (android_get_device_api_level() >= 29) {
         ASurfaceControl_release(reinterpret_cast<ASurfaceControl *>(surfaceControl));
@@ -267,5 +268,50 @@ Java_androidx_graphics_surface_JniBindings_00024Companion_nTransactionSetOnCommi
                 reinterpret_cast<ASurfaceTransaction *>(surfaceTransaction),
                 reinterpret_cast<void *>(context),
                 CallbackWrapper::transactionCallbackThunk);
+    }
+}
+
+int extract_fence_fd(JNIEnv *env, jobject syncFence) {
+    jclass sfClass = env->GetObjectClass(syncFence);
+    jfieldID fid = env->GetFieldID(sfClass, "fd", "I");
+    return env->GetIntField(syncFence, fid);
+}
+
+/* Helper method to extract the SyncFenceCompat file descriptor
+ */
+extern "C"
+JNIEXPORT jint JNICALL
+Java_androidx_graphics_surface_JniBindings_00024Companion_nExtractFenceFd(JNIEnv *env,
+                                                                         jobject thiz,
+                                                                         jobject syncFence) {
+    return extract_fence_fd(env, syncFence);
+}
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_androidx_graphics_surface_JniBindings_00024Companion_nSetBuffer(JNIEnv *env,
+                                                                     jobject thiz,
+                                                                     jlong surfaceTransaction,
+                                                                     jlong surfaceControl,
+                                                                     jobject hBuffer,
+                                                                     jobject syncFence) {
+    if (android_get_device_api_level() >= 29) {
+        auto transaction = reinterpret_cast<ASurfaceTransaction *>(surfaceTransaction);
+        auto sc = reinterpret_cast<ASurfaceControl *>(surfaceControl);
+        auto hardwareBuffer = AHardwareBuffer_fromHardwareBuffer(env, hBuffer);
+        auto fence_fd = extract_fence_fd(env, syncFence);
+        ASurfaceTransaction_setBuffer(transaction, sc, hardwareBuffer, fence_fd);
+    }
+}
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_androidx_graphics_surface_JniBindings_00024Companion_nSetVisibility(
+        JNIEnv *env, jobject thiz,
+        jlong surfaceTransaction, jlong surfaceControl, jbyte jVisibility) {
+    if (android_get_device_api_level() >= 29) {
+        auto st = reinterpret_cast<ASurfaceTransaction *>(surfaceTransaction);
+        auto sc = reinterpret_cast<ASurfaceControl *>(surfaceControl);
+        ASurfaceTransaction_setVisibility(st, sc, jVisibility);
     }
 }

@@ -16,21 +16,28 @@
 
 package androidx.graphics.surface
 
+import android.app.Instrumentation
+import android.graphics.Bitmap
+import android.graphics.Color
+import android.hardware.HardwareBuffer
 import android.os.Build
 import android.os.SystemClock
 import android.view.Surface
 import android.view.SurfaceControl
-import androidx.annotation.RequiresApi
+import android.view.SurfaceHolder
+import androidx.hardware.SyncFenceCompat
 import androidx.lifecycle.Lifecycle
 import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
+import androidx.test.platform.app.InstrumentationRegistry
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Executor
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
 import org.junit.Before
@@ -39,7 +46,6 @@ import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 @SmallTest
-@RequiresApi(Build.VERSION_CODES.Q)
 @SdkSuppress(minSdkVersion = 29)
 class SurfaceControlCompatTest {
     var executor: Executor? = null
@@ -47,6 +53,14 @@ class SurfaceControlCompatTest {
     @Before
     fun setup() {
         executor = Executors.newSingleThreadExecutor(Executors.defaultThreadFactory())
+    }
+
+    private abstract class SurfaceHolderCallback : SurfaceHolder.Callback {
+        override fun surfaceChanged(p0: SurfaceHolder, p1: Int, p2: Int, p3: Int) {
+        }
+
+        override fun surfaceDestroyed(p0: SurfaceHolder) {
+        }
     }
 
     @Test
@@ -246,6 +260,121 @@ class SurfaceControlCompatTest {
         } finally {
             // ensure activity is destroyed after any failures
             scenario.moveToState(Lifecycle.State.DESTROYED)
+        }
+    }
+
+    @Test
+    fun testExtractSyncFenceFd() {
+        val fileDescriptor = 7
+        val syncFence = SyncFenceCompat(7)
+        assertEquals(fileDescriptor, JniBindings.nExtractFenceFd(syncFence))
+    }
+
+    @Test
+    fun testTransactionSetVisibility_show() {
+        val listener = TransactionOnCompleteListener()
+        val scenario = ActivityScenario.launch(SurfaceControlCompatTestActivity::class.java)
+            .moveToState(
+                Lifecycle.State.CREATED
+            ).onActivity {
+                val callback = object : SurfaceHolderCallback() {
+                    override fun surfaceCreated(sh: SurfaceHolder) {
+                        val scCompat = SurfaceControlCompat
+                            .Builder(it.getSurfaceView().holder.surface)
+                            .setDebugName("SurfaceControlCompatTest")
+                            .build()
+
+                        // Buffer colorspace is RGBA, so Color.BLUE will be visually Red
+                        val buffer =
+                            getSolidBuffer(
+                                it.DEFAULT_WIDTH,
+                                it.DEFAULT_HEIGHT,
+                                Color.BLUE
+                            )
+                        assertNotNull(buffer)
+
+                        SurfaceControlCompat.Transaction()
+                            .addTransactionCompletedListener(executor!!, listener)
+                            .setBuffer(scCompat, buffer)
+                            .setVisibility(
+                                scCompat,
+                                true
+                            ).commit()
+                    }
+                }
+
+                it.addSurface(it.mSurfaceView, callback)
+            }
+
+        scenario.moveToState(Lifecycle.State.RESUMED).onActivity {
+            assertTrue(listener.mLatch.await(3000, TimeUnit.MILLISECONDS))
+            val bitmap = getScreenshot(InstrumentationRegistry.getInstrumentation())
+            val coord = intArrayOf(0, 0)
+            it.mSurfaceView.getLocationOnScreen(coord)
+            assertEquals(Color.RED, bitmap.getPixel(coord[0], coord[1]))
+        }
+    }
+
+    @Test
+    fun testTransactionSetVisibility_hide() {
+        val listener = TransactionOnCompleteListener()
+        val scenario = ActivityScenario.launch(SurfaceControlCompatTestActivity::class.java)
+            .moveToState(
+                Lifecycle.State.CREATED
+            ).onActivity {
+                val callback = object : SurfaceHolderCallback() {
+                    override fun surfaceCreated(sh: SurfaceHolder) {
+                        val scCompat = SurfaceControlCompat
+                            .Builder(it.getSurfaceView().holder.surface)
+                            .setDebugName("SurfaceControlCompatTest")
+                            .build()
+
+                        // Buffer colorspace is RGBA, so Color.BLUE will be visually Red
+                        val buffer =
+                            getSolidBuffer(
+                                it.DEFAULT_WIDTH,
+                                it.DEFAULT_HEIGHT,
+                                Color.BLUE
+                            )
+                        assertNotNull(buffer)
+
+                        SurfaceControlCompat.Transaction()
+                            .addTransactionCompletedListener(executor!!, listener)
+                            .setBuffer(scCompat, buffer)
+                            .setVisibility(
+                                scCompat,
+                                false
+                            ).commit()
+                    }
+                }
+
+                it.addSurface(it.mSurfaceView, callback)
+            }
+
+        scenario.moveToState(Lifecycle.State.RESUMED).onActivity {
+            assertTrue(listener.mLatch.await(3000, TimeUnit.MILLISECONDS))
+            val bitmap = getScreenshot(InstrumentationRegistry.getInstrumentation())
+            val coord = intArrayOf(0, 0)
+            it.mSurfaceView.getLocationOnScreen(coord)
+            assertEquals(Color.BLACK, bitmap.getPixel(coord[0], coord[1]))
+        }
+    }
+
+    private fun getSolidBuffer(width: Int, height: Int, color: Int): HardwareBuffer {
+        return nGetSolidBuffer(width, height, color)
+    }
+
+    private fun getScreenshot(instrumentation: Instrumentation): Bitmap {
+        val uiAutomation = instrumentation.uiAutomation
+        val screenshot = uiAutomation.takeScreenshot()
+        return screenshot
+    }
+
+    companion object {
+        private external fun nGetSolidBuffer(width: Int, height: Int, color: Int): HardwareBuffer
+
+        init {
+            System.loadLibrary("sc-compat-test")
         }
     }
 }

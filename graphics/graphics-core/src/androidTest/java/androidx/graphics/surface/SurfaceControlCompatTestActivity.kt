@@ -17,5 +17,41 @@
 package androidx.graphics.surface
 
 import android.app.Activity
+import android.os.Bundle
+import android.view.Gravity
+import android.view.SurfaceHolder
+import android.view.SurfaceView
+import android.widget.FrameLayout
 
-class SurfaceControlCompatTestActivity : Activity()
+class SurfaceControlCompatTestActivity : Activity() {
+    lateinit var mSurfaceView: SurfaceView
+    lateinit var mFrameLayout: FrameLayout
+    lateinit var mLayoutParams: FrameLayout.LayoutParams
+    var DEFAULT_WIDTH = 100
+    var DEFAULT_HEIGHT = 100
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        mLayoutParams = FrameLayout.LayoutParams(
+            DEFAULT_WIDTH, DEFAULT_HEIGHT,
+            Gravity.LEFT or Gravity.TOP
+        )
+        mLayoutParams.topMargin = 100
+        mLayoutParams.leftMargin = 100
+
+        mFrameLayout = FrameLayout(this)
+        mSurfaceView = SurfaceView(this)
+        mSurfaceView.holder.setFixedSize(DEFAULT_WIDTH, DEFAULT_HEIGHT)
+        setContentView(mFrameLayout)
+    }
+
+    fun addSurface(surfaceView: SurfaceView, callback: SurfaceHolder.Callback) {
+        surfaceView.holder.addCallback(callback)
+        mFrameLayout.addView(surfaceView, mLayoutParams)
+    }
+
+    fun getSurfaceView(): SurfaceView {
+        return mSurfaceView
+    }
+}
