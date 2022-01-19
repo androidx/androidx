@@ -45,6 +45,7 @@ import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.rule.GrantPermissionRule
 import com.google.common.truth.Truth.assertThat
+import java.io.File
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.cancelAndJoin
@@ -68,7 +69,6 @@ import org.junit.Test
 import org.junit.rules.TestRule
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
-import java.io.File
 
 // Frame drops sometimes happen for reasons beyond our control. This test will always be flaky.
 // The main purpose is to catch cases where frame drops happen consistently.
@@ -165,8 +165,6 @@ class VideoRecordingFrameDropTest(
     private suspend fun runRecordingRoutineAndReturnNumDroppedFrames(): Int = coroutineScope {
         cameraProvider = ProcessCameraProvider.getInstance(context).await()
         needsShutdown = true
-        val lifecycleOwner = FakeLifecycleOwner()
-        lifecycleOwner.startAndResume()
 
         val droppedFrameFlow = MutableSharedFlow<Long>(replay = Channel.UNLIMITED)
         val captureCallback = object : CameraCaptureSession.CaptureCallback() {
@@ -218,26 +216,36 @@ class VideoRecordingFrameDropTest(
             }.build()
 
         withContext(Dispatchers.Main) {
+            val lifecycleOwner = FakeLifecycleOwner()
             // Sets surface provider to preview
             preview.setSurfaceProvider(
-                SurfaceTextureProvider.createAutoDrainingSurfaceTextureProvider())
+                SurfaceTextureProvider.createAutoDrainingSurfaceTextureProvider()
+            )
             cameraProvider.bindToLifecycle(lifecycleOwner, cameraSelector, useCaseGroup)
+
+            val files = mutableListOf<File>()
+            lifecycleOwner.startAndResume()
+            try {
+                // Record for at least 5 seconds
+                files.add(doTempRecording(videoCapture, 5000L))
+
+                // Wait 5 seconds after recording has stopped to see if any frame drops occur
+                delay(5000)
+
+                // Record again for at least 5 seconds
+                files.add(doTempRecording(videoCapture, 5000L))
+
+                // Wait 5 seconds more to see if any frame drops occur while VideoCapture
+                // is still bound.
+                delay(5000)
+            } finally {
+                lifecycleOwner.pauseAndStop()
+                lifecycleOwner.destroy()
+                withContext(Dispatchers.IO) {
+                    files.forEach { it.delete() }
+                }
+            }
         }
-
-        // Record for at least 5 seconds
-        val file1 = doTempRecording(videoCapture, 5000L)
-
-        // Wait 5 seconds after recording has stopped to see if any frame drops occur
-        delay(5000)
-
-        // Record again for at least 5 seconds
-        val file2 = doTempRecording(videoCapture, 5000L)
-
-        // Wait 5 seconds more to see if any frame drops occur while VideoCapture is still bound
-        delay(5000)
-
-        file1.delete()
-        file2.delete()
 
         droppedFrameJob.cancelAndJoin()
 
