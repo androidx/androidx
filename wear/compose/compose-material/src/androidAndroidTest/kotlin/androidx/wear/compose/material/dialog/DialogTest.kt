@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 The Android Open Source Project
+ * Copyright 2022 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,13 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.wear.compose.material
+package androidx.wear.compose.material.dialog
 
 import android.os.Build
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
@@ -27,15 +34,31 @@ import androidx.compose.ui.test.assertLeftPositionInRootIsEqualTo
 import androidx.compose.ui.test.assertTopPositionInRootIsEqualTo
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
+import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.test.swipeRight
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.height
 import androidx.compose.ui.unit.max
 import androidx.compose.ui.unit.width
 import androidx.test.filters.SdkSuppress
+import androidx.wear.compose.material.Button
+import androidx.wear.compose.material.Chip
+import androidx.wear.compose.material.LocalContentColor
+import androidx.wear.compose.material.LocalTextStyle
+import androidx.wear.compose.material.MaterialTheme
+import androidx.wear.compose.material.TEST_TAG
+import androidx.wear.compose.material.TestImage
+import androidx.wear.compose.material.Text
+import androidx.wear.compose.material.assertContainsColor
+import androidx.wear.compose.material.setContentWithTheme
+import androidx.wear.compose.material.setContentWithThemeForSizeAssertions
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
@@ -51,9 +74,9 @@ class DialogBehaviourTest {
     val rule = createComposeRule()
 
     @Test
-    fun supports_testtag_on_alertdialog_with_buttons() {
+    fun supports_testtag_on_alert_with_buttons() {
         rule.setContentWithTheme {
-            AlertDialog(
+            Alert(
                 title = {},
                 negativeButton = {},
                 positiveButton = {},
@@ -65,9 +88,9 @@ class DialogBehaviourTest {
     }
 
     @Test
-    fun supports_testtag_on_alertdialog_with_chips() {
+    fun supports_testtag_on_alert_with_chips() {
         rule.setContentWithTheme {
-            AlertDialog(
+            Alert(
                 title = {},
                 message = {},
                 content = {},
@@ -79,9 +102,9 @@ class DialogBehaviourTest {
     }
 
     @Test
-    fun supports_testtag_on_confirmationdialog() {
+    fun supports_testtag_on_confirmation() {
         rule.setContentWithTheme {
-            ConfirmationDialog(
+            Confirmation(
                 onTimeout = {},
                 icon = {},
                 content = {},
@@ -93,9 +116,9 @@ class DialogBehaviourTest {
     }
 
     @Test
-    fun displays_icon_on_alertdialog_with_buttons() {
+    fun displays_icon_on_alert_with_buttons() {
         rule.setContentWithTheme {
-            AlertDialog(
+            Alert(
                 icon = { TestImage(TEST_TAG) },
                 title = {},
                 negativeButton = {},
@@ -107,9 +130,9 @@ class DialogBehaviourTest {
     }
 
     @Test
-    fun displays_icon_on_alertdialog_with_chips() {
+    fun displays_icon_on_alert_with_chips() {
         rule.setContentWithTheme {
-            AlertDialog(
+            Alert(
                 icon = { TestImage(TEST_TAG) },
                 title = {},
                 message = {},
@@ -121,9 +144,9 @@ class DialogBehaviourTest {
     }
 
     @Test
-    fun displays_icon_on_confirmationdialog() {
+    fun displays_icon_on_confirmation() {
         rule.setContentWithTheme {
-            ConfirmationDialog(
+            Confirmation(
                 onTimeout = {},
                 icon = { TestImage(TEST_TAG) },
                 content = {},
@@ -134,9 +157,9 @@ class DialogBehaviourTest {
     }
 
     @Test
-    fun displays_title_on_alertdialog_with_buttons() {
+    fun displays_title_on_alert_with_buttons() {
         rule.setContentWithTheme {
-            AlertDialog(
+            Alert(
                 title = { Text("Text", modifier = Modifier.testTag(TEST_TAG)) },
                 negativeButton = {},
                 positiveButton = {},
@@ -147,9 +170,9 @@ class DialogBehaviourTest {
     }
 
     @Test
-    fun displays_title_on_alertdialog_with_chips() {
+    fun displays_title_on_alert_with_chips() {
         rule.setContentWithTheme {
-            AlertDialog(
+            Alert(
                 icon = {},
                 title = { Text("Text", modifier = Modifier.testTag(TEST_TAG)) },
                 message = {},
@@ -161,9 +184,9 @@ class DialogBehaviourTest {
     }
 
     @Test
-    fun displays_title_on_confirmationdialog() {
+    fun displays_title_on_confirmation() {
         rule.setContentWithTheme {
-            ConfirmationDialog(
+            Confirmation(
                 onTimeout = {},
                 icon = {},
                 content = { Text("Text", modifier = Modifier.testTag(TEST_TAG)) },
@@ -174,9 +197,9 @@ class DialogBehaviourTest {
     }
 
     @Test
-    fun displays_bodymessage_on_alertdialog_with_buttons() {
+    fun displays_bodymessage_on_alert_with_buttons() {
         rule.setContentWithTheme {
-            AlertDialog(
+            Alert(
                 title = {},
                 negativeButton = {},
                 positiveButton = {},
@@ -188,9 +211,9 @@ class DialogBehaviourTest {
     }
 
     @Test
-    fun displays_bodymessage_on_alertdialog_with_chips() {
+    fun displays_bodymessage_on_alert_with_chips() {
         rule.setContentWithTheme {
-            AlertDialog(
+            Alert(
                 icon = {},
                 title = {},
                 message = { Text("Text", modifier = Modifier.testTag(TEST_TAG)) },
@@ -202,12 +225,12 @@ class DialogBehaviourTest {
     }
 
     @Test
-    fun displays_buttons_on_alertdialog_with_buttons() {
+    fun displays_buttons_on_alert_with_buttons() {
         val buttonTag1 = "Button1"
         val buttonTag2 = "Button2"
 
         rule.setContentWithTheme {
-            AlertDialog(
+            Alert(
                 title = {},
                 negativeButton = {
                     Button(onClick = {}, modifier = Modifier.testTag(buttonTag1), content = {})
@@ -222,14 +245,175 @@ class DialogBehaviourTest {
         rule.onNodeWithTag(buttonTag1).assertExists()
         rule.onNodeWithTag(buttonTag2).assertExists()
     }
+
+    @Test
+    fun supports_swipetodismiss_on_wrapped_alertdialog_with_buttons() {
+        rule.setContentWithTheme {
+            Box {
+                var showDialog by remember { mutableStateOf(true) }
+                Column(
+                    modifier = Modifier.fillMaxSize(),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text("Start Screen")
+                }
+                if (showDialog) {
+                    Dialog(
+                        onDismissRequest = { showDialog = false },
+                    ) {
+                        Alert(
+                            title = {},
+                            negativeButton = {
+                                Button(onClick = {}, content = {})
+                            },
+                            positiveButton = {
+                                Button(onClick = {}, content = {})
+                            },
+                            content = { Text("Dialog", modifier = Modifier.testTag(TEST_TAG)) },
+                        )
+                    }
+                }
+            }
+        }
+
+        rule.onNodeWithTag(TEST_TAG).performTouchInput({ swipeRight() })
+        rule.onNodeWithTag(TEST_TAG).assertDoesNotExist()
+    }
+
+    @Test
+    fun supports_swipetodismiss_on_wrapped_alertdialog_with_chips() {
+        rule.setContentWithTheme {
+            Box {
+                var showDialog by remember { mutableStateOf(true) }
+                Column(
+                    modifier = Modifier.fillMaxSize(),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text("Label")
+                }
+                if (showDialog) {
+                    Dialog(
+                        onDismissRequest = { showDialog = false },
+                    ) {
+                        Alert(
+                            icon = {},
+                            title = {},
+                            message = { Text("Text", modifier = Modifier.testTag(TEST_TAG)) },
+                            content = {},
+                        )
+                    }
+                }
+            }
+        }
+
+        rule.onNodeWithTag(TEST_TAG).performTouchInput({ swipeRight() })
+        rule.onNodeWithTag(TEST_TAG).assertDoesNotExist()
+    }
+
+    @Test
+    fun supports_swipetodismiss_on_wrapped_confirmationdialog() {
+        rule.setContentWithTheme {
+            Box {
+                var showDialog by remember { mutableStateOf(true) }
+                Column(
+                    modifier = Modifier.fillMaxSize(),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text("Label")
+                }
+                if (showDialog) {
+                    Dialog(
+                        onDismissRequest = { showDialog = false },
+                    ) {
+                        Confirmation(
+                            onTimeout = { showDialog = false },
+                            icon = {},
+                            content = { Text("Dialog", modifier = Modifier.testTag(TEST_TAG)) },
+                        )
+                    }
+                }
+            }
+        }
+
+        rule.onNodeWithTag(TEST_TAG).performTouchInput({ swipeRight() })
+        rule.onNodeWithTag(TEST_TAG).assertDoesNotExist()
+    }
+
+    @Test
+    fun shows_dialog_when_showdialog_equals_true() {
+        rule.setContentWithTheme {
+            Box {
+                var showDialog by remember { mutableStateOf(false) }
+                Column(
+                    modifier = Modifier.fillMaxSize(),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Chip(onClick = { showDialog = true }, label = { Text("Show") })
+                }
+                if (showDialog) {
+                    Dialog(
+                        onDismissRequest = { showDialog = false },
+                    ) {
+                        Alert(
+                            icon = {},
+                            title = {},
+                            message = { Text("Text", modifier = Modifier.testTag(TEST_TAG)) },
+                            content = {},
+                        )
+                    }
+                }
+            }
+        }
+
+        rule.onNode(hasClickAction()).performClick()
+        rule.onNodeWithTag(TEST_TAG).assertExists()
+    }
+
+    @Test
+    fun calls_ondismissrequest_when_dialog_is_swiped() {
+        val dismissedText = "Dismissed"
+        rule.setContentWithTheme {
+            Box {
+                var dismissed by remember { mutableStateOf(false) }
+                Column(
+                    modifier = Modifier.fillMaxSize(),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(if (dismissed) dismissedText else "Label")
+                }
+                if (!dismissed) {
+                    Dialog(
+                        onDismissRequest = {
+                            dismissed = true
+                        },
+                    ) {
+                        Alert(
+                            icon = {},
+                            title = {},
+                            message = { Text("Text", modifier = Modifier.testTag(TEST_TAG)) },
+                            content = {},
+                        )
+                    }
+                }
+            }
+        }
+
+        rule.onNodeWithTag(TEST_TAG).performTouchInput({ swipeRight() })
+        rule.onNodeWithText(dismissedText).assertExists()
+    }
 }
 
-class DialogSizeAndPositionTest {
+class DialogContentSizeAndPositionTest {
     @get:Rule
     val rule = createComposeRule()
 
     @Test
-    fun centers_icon_correctly_on_alertdialog_with_buttons() {
+    fun centers_icon_correctly_on_alert_with_buttons() {
         var bottomPadding = 0.dp
         var topPadding = 0.dp
         var titleSpacing = 0.dp
@@ -239,7 +423,7 @@ class DialogSizeAndPositionTest {
                 topPadding = DialogDefaults.ButtonsContentPadding.calculateTopPadding()
                 titleSpacing = DialogDefaults.TitlePadding.calculateBottomPadding()
                 bottomPadding = DialogDefaults.ButtonsContentPadding.calculateBottomPadding()
-                AlertDialog(
+                Alert(
                     icon = { TestImage(ICON_TAG) },
                     title = { Text("Title", modifier = Modifier.testTag(TITLE_TAG)) },
                     negativeButton = {
@@ -262,7 +446,7 @@ class DialogSizeAndPositionTest {
     }
 
     @Test
-    fun centers_icon_correctly_on_alertdialog_with_chips() {
+    fun centers_icon_correctly_on_alert_with_chips() {
         var bottomPadding = 0.dp
         var topPadding = 0.dp
         var titleSpacing = 0.dp
@@ -272,7 +456,7 @@ class DialogSizeAndPositionTest {
                 topPadding = DialogDefaults.ChipsContentPadding.calculateTopPadding()
                 titleSpacing = DialogDefaults.TitlePadding.calculateBottomPadding()
                 bottomPadding = DialogDefaults.ChipsContentPadding.calculateBottomPadding()
-                AlertDialog(
+                Alert(
                     icon = { TestImage(ICON_TAG) },
                     title = { Text("Title", modifier = Modifier.testTag(TITLE_TAG)) },
                     content = {
@@ -298,7 +482,7 @@ class DialogSizeAndPositionTest {
     }
 
     @Test
-    fun centers_icon_correctly_on_confirmationdialog() {
+    fun centers_icon_correctly_on_confirmation() {
         var bottomPadding = 0.dp
         var topPadding = 0.dp
         var titleSpacing = 0.dp
@@ -308,7 +492,7 @@ class DialogSizeAndPositionTest {
                 topPadding = DialogDefaults.ConfirmationContentPadding.calculateTopPadding()
                 titleSpacing = DialogDefaults.TitleBottomPadding.calculateBottomPadding()
                 bottomPadding = DialogDefaults.ConfirmationContentPadding.calculateBottomPadding()
-                ConfirmationDialog(
+                Confirmation(
                     onTimeout = {},
                     icon = { TestImage(ICON_TAG) },
                     content = { Text("Title", modifier = Modifier.testTag(TITLE_TAG)) },
@@ -327,7 +511,7 @@ class DialogSizeAndPositionTest {
     }
 
     @Test
-    fun centers_title_correctly_on_alertdialog_with_buttons() {
+    fun centers_title_correctly_on_alert_with_buttons() {
         var bottomPadding = 0.dp
         var topPadding = 0.dp
         var titleSpacing = 0.dp
@@ -337,7 +521,7 @@ class DialogSizeAndPositionTest {
                 bottomPadding = DialogDefaults.ButtonsContentPadding.calculateBottomPadding()
                 topPadding = DialogDefaults.ButtonsContentPadding.calculateTopPadding()
                 titleSpacing = DialogDefaults.TitlePadding.calculateBottomPadding()
-                AlertDialog(
+                Alert(
                     title = { Text("Title", modifier = Modifier.testTag(TITLE_TAG)) },
                     negativeButton = {
                         Button(onClick = {}, modifier = Modifier.testTag(BUTTON_TAG)) {}
@@ -358,7 +542,7 @@ class DialogSizeAndPositionTest {
     }
 
     @Test
-    fun centers_title_correctly_on_alertdialog_with_chips() {
+    fun centers_title_correctly_on_alert_with_chips() {
         var bottomPadding = 0.dp
         var topPadding = 0.dp
         var titleSpacing = 0.dp
@@ -368,7 +552,7 @@ class DialogSizeAndPositionTest {
                 bottomPadding = DialogDefaults.ChipsContentPadding.calculateBottomPadding()
                 topPadding = DialogDefaults.ChipsContentPadding.calculateTopPadding()
                 titleSpacing = DialogDefaults.TitlePadding.calculateBottomPadding()
-                AlertDialog(
+                Alert(
                     icon = { TestImage(ICON_TAG) },
                     title = { Text("Title", modifier = Modifier.testTag(TITLE_TAG)) },
                     content = {
@@ -395,7 +579,7 @@ class DialogSizeAndPositionTest {
     }
 
     @Test
-    fun centers_title_correctly_on_confirmationdialog() {
+    fun centers_title_correctly_on_confirmation() {
         var bottomPadding = 0.dp
         var topPadding = 0.dp
         var titleSpacing = 0.dp
@@ -405,7 +589,7 @@ class DialogSizeAndPositionTest {
                 topPadding = DialogDefaults.ConfirmationContentPadding.calculateTopPadding()
                 titleSpacing = DialogDefaults.TitleBottomPadding.calculateBottomPadding()
                 bottomPadding = DialogDefaults.ConfirmationContentPadding.calculateBottomPadding()
-                ConfirmationDialog(
+                Confirmation(
                     onTimeout = {},
                     icon = { TestImage(ICON_TAG) },
                     content = { Text("Title", modifier = Modifier.testTag(TITLE_TAG)) },
@@ -425,7 +609,7 @@ class DialogSizeAndPositionTest {
     }
 
     @Test
-    fun centers_bodymessage_correctly_on_alertdialog_with_buttons() {
+    fun centers_bodymessage_correctly_on_alert_with_buttons() {
         var bottomPadding = 0.dp
         var topPadding = 0.dp
         var titleSpacing = 0.dp
@@ -439,7 +623,7 @@ class DialogSizeAndPositionTest {
                     DialogDefaults.TitlePadding.calculateBottomPadding() +
                     DialogDefaults.BodyPadding.calculateTopPadding()
                 bodySpacing = DialogDefaults.BodyPadding.calculateBottomPadding()
-                AlertDialog(
+                Alert(
                     title = { Text("Title", modifier = Modifier.testTag(TITLE_TAG)) },
                     negativeButton = {
                         Button(onClick = {}, modifier = Modifier.testTag(BUTTON_TAG)) {}
@@ -462,7 +646,7 @@ class DialogSizeAndPositionTest {
     }
 
     @Test
-    fun centers_bodymessage_correctly_on_alertdialog_with_chips() {
+    fun centers_bodymessage_correctly_on_alert_with_chips() {
         var bottomPadding = 0.dp
         var topPadding = 0.dp
         var titleSpacing = 0.dp
@@ -476,7 +660,7 @@ class DialogSizeAndPositionTest {
                     DialogDefaults.TitlePadding.calculateBottomPadding() +
                         DialogDefaults.BodyPadding.calculateTopPadding()
                 bodySpacing = DialogDefaults.BodyPadding.calculateBottomPadding()
-                AlertDialog(
+                Alert(
                     icon = { TestImage(ICON_TAG) },
                     title = { Text("Title", modifier = Modifier.testTag(TITLE_TAG)) },
                     message = { Text("Message", modifier = Modifier.testTag(BODY_TAG)) },
@@ -508,14 +692,14 @@ class DialogSizeAndPositionTest {
     }
 
     @Test
-    fun positions_buttons_correctly_on_alertdialog_with_buttons() {
+    fun positions_buttons_correctly_on_alert_with_buttons() {
         val buttonTag1 = "Button1"
         val buttonTag2 = "Button2"
         var bottomPadding = 0.dp
         rule
             .setContentWithThemeForSizeAssertions(useUnmergedTree = true) {
                 bottomPadding = DialogDefaults.ButtonsContentPadding.calculateBottomPadding()
-                AlertDialog(
+                Alert(
                     icon = {},
                     title = {},
                     negativeButton = {
@@ -544,7 +728,7 @@ class DialogSizeAndPositionTest {
     }
 
     @Test
-    fun positions_chip_correctly_on_alertdialog_with_chips() {
+    fun positions_chip_correctly_on_alert_with_chips() {
         var bottomPadding = 0.dp
         var topPadding = 0.dp
         var titleSpacing = 0.dp
@@ -558,7 +742,7 @@ class DialogSizeAndPositionTest {
                     DialogDefaults.TitlePadding.calculateBottomPadding() +
                         DialogDefaults.BodyPadding.calculateTopPadding()
                 bodySpacing = DialogDefaults.BodyPadding.calculateBottomPadding()
-                AlertDialog(
+                Alert(
                     icon = { TestImage(ICON_TAG) },
                     title = { Text("Title", modifier = Modifier.testTag(TITLE_TAG)) },
                     message = { Text("Message", modifier = Modifier.testTag(BODY_TAG)) },
@@ -593,18 +777,18 @@ class DialogSizeAndPositionTest {
     }
 }
 
-class DialogColorTest {
+class DialogContentColorTest {
     @get:Rule
     val rule = createComposeRule()
 
     @Test
-    fun gives_icon_onbackground_on_alertdialog_for_buttons() {
+    fun gives_icon_onbackground_on_alert_for_buttons() {
         var expectedColor = Color.Transparent
         var actualColor = Color.Transparent
 
         rule.setContentWithTheme {
             expectedColor = MaterialTheme.colors.onBackground
-            AlertDialog(
+            Alert(
                 icon = { actualColor = LocalContentColor.current },
                 title = {},
                 negativeButton = {},
@@ -617,13 +801,13 @@ class DialogColorTest {
     }
 
     @Test
-    fun gives_icon_onbackground_on_alertdialog_for_chips() {
+    fun gives_icon_onbackground_on_alert_for_chips() {
         var expectedColor = Color.Transparent
         var actualColor = Color.Transparent
 
         rule.setContentWithTheme {
             expectedColor = MaterialTheme.colors.onBackground
-            AlertDialog(
+            Alert(
                 icon = { actualColor = LocalContentColor.current },
                 title = {},
                 message = {},
@@ -635,13 +819,13 @@ class DialogColorTest {
     }
 
     @Test
-    fun gives_icon_onbackground_on_confirmationdialog() {
+    fun gives_icon_onbackground_on_confirmation() {
         var expectedColor = Color.Transparent
         var actualColor = Color.Transparent
 
         rule.setContentWithTheme {
             expectedColor = MaterialTheme.colors.onBackground
-            ConfirmationDialog(
+            Confirmation(
                 onTimeout = {},
                 icon = { actualColor = LocalContentColor.current },
                 content = {},
@@ -652,12 +836,12 @@ class DialogColorTest {
     }
 
     @Test
-    fun gives_custom_icon_on_alertdialog_for_buttons() {
+    fun gives_custom_icon_on_alert_for_buttons() {
         val overrideColor = Color.Yellow
         var actualColor = Color.Transparent
 
         rule.setContentWithTheme {
-            AlertDialog(
+            Alert(
                 iconTintColor = overrideColor,
                 icon = { actualColor = LocalContentColor.current },
                 title = {},
@@ -671,12 +855,12 @@ class DialogColorTest {
     }
 
     @Test
-    fun gives_custom_icon_on_alertdialog_for_chips() {
+    fun gives_custom_icon_on_alert_for_chips() {
         val overrideColor = Color.Yellow
         var actualColor = Color.Transparent
 
         rule.setContentWithTheme {
-            AlertDialog(
+            Alert(
                 iconTintColor = overrideColor,
                 icon = { actualColor = LocalContentColor.current },
                 title = {},
@@ -689,12 +873,12 @@ class DialogColorTest {
     }
 
     @Test
-    fun gives_custom_icon_on_confirmationdialog() {
+    fun gives_custom_icon_on_confirmation() {
         val overrideColor = Color.Yellow
         var actualColor = Color.Transparent
 
         rule.setContentWithTheme {
-            ConfirmationDialog(
+            Confirmation(
                 onTimeout = {},
                 iconTintColor = overrideColor,
                 icon = { actualColor = LocalContentColor.current },
@@ -706,13 +890,13 @@ class DialogColorTest {
     }
 
     @Test
-    fun gives_title_onbackground_on_alertdialog_for_buttons() {
+    fun gives_title_onbackground_on_alert_for_buttons() {
         var expectedColor = Color.Transparent
         var actualColor = Color.Transparent
 
         rule.setContentWithTheme {
             expectedColor = MaterialTheme.colors.onBackground
-            AlertDialog(
+            Alert(
                 title = { actualColor = LocalContentColor.current },
                 negativeButton = {},
                 positiveButton = {},
@@ -724,13 +908,13 @@ class DialogColorTest {
     }
 
     @Test
-    fun gives_title_onbackground_on_alertdialog_for_chips() {
+    fun gives_title_onbackground_on_alert_for_chips() {
         var expectedColor = Color.Transparent
         var actualColor = Color.Transparent
 
         rule.setContentWithTheme {
             expectedColor = MaterialTheme.colors.onBackground
-            AlertDialog(
+            Alert(
                 title = { actualColor = LocalContentColor.current },
                 message = {},
                 content = {},
@@ -741,13 +925,13 @@ class DialogColorTest {
     }
 
     @Test
-    fun gives_title_onbackground_on_confirmationdialog() {
+    fun gives_title_onbackground_on_confirmation() {
         var expectedColor = Color.Transparent
         var actualColor = Color.Transparent
 
         rule.setContentWithTheme {
             expectedColor = MaterialTheme.colors.onBackground
-            ConfirmationDialog(
+            Confirmation(
                 onTimeout = {},
                 content = { actualColor = LocalContentColor.current },
             )
@@ -757,12 +941,12 @@ class DialogColorTest {
     }
 
     @Test
-    fun gives_custom_title_on_alertdialog_for_buttons() {
+    fun gives_custom_title_on_alert_for_buttons() {
         val overrideColor = Color.Yellow
         var actualColor = Color.Transparent
 
         rule.setContentWithTheme {
-            AlertDialog(
+            Alert(
                 titleColor = overrideColor,
                 title = { actualColor = LocalContentColor.current },
                 negativeButton = {},
@@ -775,12 +959,12 @@ class DialogColorTest {
     }
 
     @Test
-    fun gives_custom_title_on_alertdialog_for_chips() {
+    fun gives_custom_title_on_alert_for_chips() {
         val overrideColor = Color.Yellow
         var actualColor = Color.Transparent
 
         rule.setContentWithTheme {
-            AlertDialog(
+            Alert(
                 titleColor = overrideColor,
                 title = { actualColor = LocalContentColor.current },
                 message = {},
@@ -792,12 +976,12 @@ class DialogColorTest {
     }
 
     @Test
-    fun gives_custom_title_on_confirmationdialog() {
+    fun gives_custom_title_on_confirmation() {
         val overrideColor = Color.Yellow
         var actualColor = Color.Transparent
 
         rule.setContentWithTheme {
-            ConfirmationDialog(
+            Confirmation(
                 onTimeout = {},
                 contentColor = overrideColor,
                 content = { actualColor = LocalContentColor.current },
@@ -808,13 +992,13 @@ class DialogColorTest {
     }
 
     @Test
-    fun gives_bodymessage_onbackground_on_alertdialog_for_buttons() {
+    fun gives_bodymessage_onbackground_on_alert_for_buttons() {
         var expectedContentColor = Color.Transparent
         var actualContentColor = Color.Transparent
 
         rule.setContentWithTheme {
             expectedContentColor = MaterialTheme.colors.onBackground
-            AlertDialog(
+            Alert(
                 title = {},
                 negativeButton = {},
                 positiveButton = {},
@@ -826,13 +1010,13 @@ class DialogColorTest {
     }
 
     @Test
-    fun gives_bodymessage_onbackground_on_alertdialog_for_chips() {
+    fun gives_bodymessage_onbackground_on_alert_for_chips() {
         var expectedContentColor = Color.Transparent
         var actualContentColor = Color.Transparent
 
         rule.setContentWithTheme {
             expectedContentColor = MaterialTheme.colors.onBackground
-            AlertDialog(
+            Alert(
                 title = {},
                 message = { actualContentColor = LocalContentColor.current },
                 content = {},
@@ -843,12 +1027,12 @@ class DialogColorTest {
     }
 
     @Test
-    fun gives_custom_bodymessage_on_alertdialog_for_buttons() {
+    fun gives_custom_bodymessage_on_alert_for_buttons() {
         val overrideColor = Color.Yellow
         var actualColor = Color.Transparent
 
         rule.setContentWithTheme {
-            AlertDialog(
+            Alert(
                 title = {},
                 negativeButton = {},
                 positiveButton = {},
@@ -861,12 +1045,12 @@ class DialogColorTest {
     }
 
     @Test
-    fun gives_custom_bodymessage_on_alertdialog_for_chips() {
+    fun gives_custom_bodymessage_on_alert_for_chips() {
         val overrideColor = Color.Yellow
         var actualColor = Color.Transparent
 
         rule.setContentWithTheme {
-            AlertDialog(
+            Alert(
                 title = {},
                 messageColor = overrideColor,
                 message = { actualColor = LocalContentColor.current },
@@ -878,9 +1062,9 @@ class DialogColorTest {
     }
 
     @Test
-    fun gives_correct_background_color_on_alertdialog_for_buttons() {
+    fun gives_correct_background_color_on_alert_for_buttons() {
         verifyBackgroundColor(expected = { MaterialTheme.colors.background }) {
-            AlertDialog(
+            Alert(
                 title = {},
                 negativeButton = {},
                 positiveButton = {},
@@ -891,9 +1075,9 @@ class DialogColorTest {
     }
 
     @Test
-    fun gives_correct_background_color_on_alertdialog_for_chips() {
+    fun gives_correct_background_color_on_alert_for_chips() {
         verifyBackgroundColor(expected = { MaterialTheme.colors.background }) {
-            AlertDialog(
+            Alert(
                 title = {},
                 message = {},
                 content = {},
@@ -903,9 +1087,9 @@ class DialogColorTest {
     }
 
     @Test
-    fun gives_correct_background_color_on_confirmationdialog() {
+    fun gives_correct_background_color_on_confirmation() {
         verifyBackgroundColor(expected = { MaterialTheme.colors.background }) {
-            ConfirmationDialog(
+            Confirmation(
                 onTimeout = {},
                 content = {},
                 modifier = Modifier.testTag(TEST_TAG),
@@ -915,11 +1099,11 @@ class DialogColorTest {
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
-    fun gives_custom_background_color_on_alertdialog_for_buttons() {
+    fun gives_custom_background_color_on_alert_for_buttons() {
         val overrideColor = Color.Yellow
 
         rule.setContentWithTheme {
-            AlertDialog(
+            Alert(
                 title = {},
                 negativeButton = {},
                 positiveButton = {},
@@ -936,11 +1120,11 @@ class DialogColorTest {
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
-    fun gives_custom_background_color_on_alertdialog_for_chips() {
+    fun gives_custom_background_color_on_alert_for_chips() {
         val overrideColor = Color.Yellow
 
         rule.setContentWithTheme {
-            AlertDialog(
+            Alert(
                 title = {},
                 message = {},
                 content = {},
@@ -956,11 +1140,11 @@ class DialogColorTest {
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
-    fun gives_custom_background_color_on_confirmationDialog() {
+    fun gives_custom_background_color_on_confirmation() {
         val overrideColor = Color.Yellow
 
         rule.setContentWithTheme {
-            ConfirmationDialog(
+            Confirmation(
                 onTimeout = {},
                 content = {},
                 backgroundColor = overrideColor,
@@ -999,13 +1183,13 @@ class DialogTextStyleTest {
     val rule = createComposeRule()
 
     @Test
-    fun gives_title_correct_textstyle_on_alertdialog_for_buttons() {
+    fun gives_title_correct_textstyle_on_alert_for_buttons() {
         var actualTextStyle = TextStyle.Default
         var expectedTextStyle = TextStyle.Default
 
         rule.setContentWithTheme {
             expectedTextStyle = MaterialTheme.typography.title3
-            AlertDialog(
+            Alert(
                 title = { actualTextStyle = LocalTextStyle.current },
                 negativeButton = {},
                 positiveButton = {},
@@ -1016,13 +1200,13 @@ class DialogTextStyleTest {
     }
 
     @Test
-    fun gives_title_correct_textstyle_on_alertdialog_for_chips() {
+    fun gives_title_correct_textstyle_on_alert_for_chips() {
         var actualTextStyle = TextStyle.Default
         var expectedTextStyle = TextStyle.Default
 
         rule.setContentWithTheme {
             expectedTextStyle = MaterialTheme.typography.title3
-            AlertDialog(
+            Alert(
                 title = { actualTextStyle = LocalTextStyle.current },
                 message = {},
                 content = {},
@@ -1033,13 +1217,13 @@ class DialogTextStyleTest {
     }
 
     @Test
-    fun gives_body_correct_textstyle_on_alertdialog_for_buttons() {
+    fun gives_body_correct_textstyle_on_alert_for_buttons() {
         var actualTextStyle = TextStyle.Default
         var expectedTextStyle = TextStyle.Default
 
         rule.setContentWithTheme {
             expectedTextStyle = MaterialTheme.typography.body2
-            AlertDialog(
+            Alert(
                 title = { Text("Title") },
                 negativeButton = {},
                 positiveButton = {},
@@ -1051,13 +1235,13 @@ class DialogTextStyleTest {
     }
 
     @Test
-    fun gives_body_correct_textstyle_on_alertdialog_for_chips() {
+    fun gives_body_correct_textstyle_on_alert_for_chips() {
         var actualTextStyle = TextStyle.Default
         var expectedTextStyle = TextStyle.Default
 
         rule.setContentWithTheme {
             expectedTextStyle = MaterialTheme.typography.body2
-            AlertDialog(
+            Alert(
                 title = { Text("Title") },
                 message = { actualTextStyle = LocalTextStyle.current },
                 content = {},
@@ -1068,13 +1252,13 @@ class DialogTextStyleTest {
     }
 
     @Test
-    fun gives_title_correct_textstyle_on_confirmationdialog() {
+    fun gives_title_correct_textstyle_on_confirmation() {
         var actualTextStyle = TextStyle.Default
         var expectedTextStyle = TextStyle.Default
 
         rule.setContentWithTheme {
             expectedTextStyle = MaterialTheme.typography.title3
-            ConfirmationDialog(
+            Confirmation(
                 onTimeout = {},
                 content = { actualTextStyle = LocalTextStyle.current },
             )
