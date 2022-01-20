@@ -115,7 +115,8 @@ public class PositionIndicatorTest {
                 verticalArrangement = Arrangement.spacedBy(itemSpacingDp),
                 modifier = Modifier
                     .onSizeChanged { viewPortHeight = it.height }
-                    .requiredSize(itemSizeDp * 3.5f + itemSpacingDp * 2.5f)
+                    .requiredSize(itemSizeDp * 3.5f + itemSpacingDp * 2.5f),
+                autoCentering = false
             ) {
                 items(3) {
                     Box(Modifier.requiredSize(itemSizeDp))
@@ -212,9 +213,9 @@ public class PositionIndicatorTest {
         }
 
         rule.runOnIdle {
-            // Scroll forwards
+            // Scroll forwards so that item with index 2 is in the center of the viewport
             runBlocking {
-                state.scrollBy(itemSizePx.toFloat() + itemSpacingPx.toFloat())
+                state.scrollBy((itemSizePx.toFloat() + itemSpacingPx.toFloat()) * 2f)
             }
 
             state.layoutInfo.assertWhollyVisibleItems(
@@ -287,6 +288,7 @@ public class PositionIndicatorTest {
                     .fillMaxWidth()
                     .requiredSize(itemSizeDp * 3.5f + itemSpacingDp * 2.5f)
                     .background(Color.DarkGray),
+                autoCentering = false
             ) {
                 items(3) {
                     Box(Modifier.requiredSize(itemSizeDp))
@@ -330,6 +332,7 @@ public class PositionIndicatorTest {
                     )
                     .background(Color.DarkGray),
                 scalingParams = ScalingLazyColumnDefaults.scalingParams(edgeScale = 1.0f),
+                autoCentering = false
             ) {
                 items(5) {
                     Box(Modifier.requiredSize(itemSizeDp))

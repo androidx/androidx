@@ -76,6 +76,7 @@ class ScalingLazyListState constructor(
     internal val viewportHeightPx = mutableStateOf<Int?>(null)
     internal val reverseLayout = mutableStateOf<Boolean?>(null)
     internal val anchorType = mutableStateOf<ScalingLazyListAnchorType?>(null)
+    internal val autoCentering = mutableStateOf<Boolean?>(null)
     internal val initialized = mutableStateOf<Boolean>(false)
 
     /**
@@ -92,6 +93,49 @@ class ScalingLazyListState constructor(
     public val centerItemScrollOffset: Int
         get() = (layoutInfo as? DefaultScalingLazyListLayoutInfo)?.centerItemScrollOffset ?: 0
 
+    internal val topAutoCenteringPaddingPx: Int by derivedStateOf {
+        if (extraPaddingPx.value == null || scalingParams.value == null ||
+            gapBetweenItemsPx.value == null || viewportHeightPx.value == null ||
+            anchorType.value == null || reverseLayout.value == null ||
+            beforeContentPaddingPx.value == null || autoCentering.value == null ||
+            layoutInfo.visibleItemsInfo.isEmpty()
+        ) {
+            0
+        } else {
+            if (autoCentering.value!! && layoutInfo.visibleItemsInfo.first().index == 0) {
+                if (anchorType.value == ScalingLazyListAnchorType.ItemStart) {
+                    viewportHeightPx.value!! / 2f
+                } else {
+                    viewportHeightPx.value!! / 2f - layoutInfo.visibleItemsInfo.first().size / 2f
+                }.roundToInt() - gapBetweenItemsPx.value!!
+            } else {
+                0
+            }
+        }
+    }
+
+    internal val bottomAutoCenteringPaddingPx: Int by derivedStateOf {
+        if (extraPaddingPx.value == null || scalingParams.value == null ||
+            gapBetweenItemsPx.value == null || viewportHeightPx.value == null ||
+            anchorType.value == null || reverseLayout.value == null ||
+            beforeContentPaddingPx.value == null || autoCentering.value == null ||
+            layoutInfo.visibleItemsInfo.isEmpty()
+        ) {
+            0
+        } else {
+            if (autoCentering.value!! &&
+                layoutInfo.visibleItemsInfo.last().index == layoutInfo.totalItemsCount - 1) {
+                if (anchorType.value == ScalingLazyListAnchorType.ItemStart) {
+                    viewportHeightPx.value!! / 2f - layoutInfo.visibleItemsInfo.last().size
+                } else {
+                    viewportHeightPx.value!! / 2f - layoutInfo.visibleItemsInfo.last().size / 2f
+                }.roundToInt() - gapBetweenItemsPx.value!!
+            } else {
+                0
+            }
+        }
+    }
+
     /**
      * The object of [ScalingLazyListLayoutInfo] calculated during the last layout pass. For
      * example, you can use it to calculate what items are currently visible.
@@ -100,7 +144,7 @@ class ScalingLazyListState constructor(
         if (extraPaddingPx.value == null || scalingParams.value == null ||
             gapBetweenItemsPx.value == null || viewportHeightPx.value == null ||
             anchorType.value == null || reverseLayout.value == null ||
-            beforeContentPaddingPx.value == null
+            beforeContentPaddingPx.value == null || autoCentering.value == null
         ) {
             EmptyScalingLazyListLayoutInfo
         } else {
@@ -109,7 +153,11 @@ class ScalingLazyListState constructor(
             var newCenterItemScrollOffset = 0
             val viewportHeightPx = viewportHeightPx.value!!
 
-            if (lazyListState.layoutInfo.visibleItemsInfo.isNotEmpty()) {
+            // The underlying LazyList will have extra Spacers before and after the ScalingLazyList
+            // contents if autoCentering == true
+            val expectedItemCount = if (autoCentering.value!!) { 2 } else { 0 }
+
+            if (lazyListState.layoutInfo.visibleItemsInfo.size > expectedItemCount) {
                 // The verticalAdjustment is used to allow for the extraPadding that the
                 // ScalingLazyColumn employs to ensure that there are sufficient list items composed
                 // by the underlying LazyList even when there is extreme scaling being applied that
@@ -134,14 +182,15 @@ class ScalingLazyListState constructor(
                     scalingParams.value!!,
                     beforeContentPaddingPx.value!!,
                     anchorType.value!!,
+                    autoCentering.value!!,
                     initialized.value
                 )
                 visibleItemsInfo.add(
                     centerItemInfo
                 )
 
-                newCenterItemIndex = centralItem.index
-                newCenterItemScrollOffset = -centerItemInfo.offset
+                newCenterItemIndex = centerItemInfo.index
+                newCenterItemScrollOffset = - centerItemInfo.offset
 
                 // Go Up
                 // nextItemBottomNoPadding uses the coordinate system of the underlying LazyList. It
@@ -155,23 +204,27 @@ class ScalingLazyListState constructor(
                 // centralItem.offset is a startOffset in the coordinate system of the
                 // underlying lazy list.
                 var nextItemBottomNoPadding = centralItem.offset - gapBetweenItemsPx.value!!
+
                 (centralItemArrayIndex - 1 downTo 0).forEach { ix ->
                     if (nextItemBottomNoPadding >= verticalAdjustment) {
                         val currentItem =
                             lazyListState.layoutInfo.visibleItemsInfo[ix]
-                        val itemInfo = calculateItemInfo(
-                            nextItemBottomNoPadding - currentItem.size,
-                            currentItem,
-                            verticalAdjustment,
-                            viewportHeightPx,
-                            scalingParams.value!!,
-                            beforeContentPaddingPx.value!!,
-                            anchorType.value!!,
-                            initialized.value
-                        )
-                        visibleItemsInfo.add(0, itemInfo)
-                        nextItemBottomNoPadding =
-                            nextItemBottomNoPadding - itemInfo.size - gapBetweenItemsPx.value!!
+                        if (!discardAutoCenteringListItem(currentItem)) {
+                            val itemInfo = calculateItemInfo(
+                                nextItemBottomNoPadding - currentItem.size,
+                                currentItem,
+                                verticalAdjustment,
+                                viewportHeightPx,
+                                scalingParams.value!!,
+                                beforeContentPaddingPx.value!!,
+                                anchorType.value!!,
+                                autoCentering.value!!,
+                                initialized.value
+                            )
+                            visibleItemsInfo.add(0, itemInfo)
+                            nextItemBottomNoPadding =
+                                nextItemBottomNoPadding - itemInfo.size - gapBetweenItemsPx.value!!
+                        }
                     } else {
                         return@forEach
                     }
@@ -183,32 +236,44 @@ class ScalingLazyListState constructor(
                 // drawn in the viewport as we walk down the list items from the center.
                 var nextItemTopNoPadding =
                     centralItem.offset + centerItemInfo.size + gapBetweenItemsPx.value!!
+
                 (((centralItemArrayIndex + 1) until
                     originalVisibleItemsInfo.size)).forEach { ix ->
                     if ((nextItemTopNoPadding - viewportHeightPx) <= verticalAdjustment) {
                         val currentItem =
                             lazyListState.layoutInfo.visibleItemsInfo[ix]
-                        val itemInfo = calculateItemInfo(
-                            nextItemTopNoPadding,
-                            currentItem,
-                            verticalAdjustment,
-                            viewportHeightPx,
-                            scalingParams.value!!,
-                            beforeContentPaddingPx.value!!,
-                            anchorType.value!!,
-                            initialized.value
-                        )
+                        if (!discardAutoCenteringListItem(currentItem)) {
+                            val itemInfo = calculateItemInfo(
+                                nextItemTopNoPadding,
+                                currentItem,
+                                verticalAdjustment,
+                                viewportHeightPx,
+                                scalingParams.value!!,
+                                beforeContentPaddingPx.value!!,
+                                anchorType.value!!,
+                                autoCentering.value!!,
+                                initialized.value
+                            )
 
-                        visibleItemsInfo.add(itemInfo)
-                        nextItemTopNoPadding += itemInfo.size + gapBetweenItemsPx.value!!
+                            visibleItemsInfo.add(itemInfo)
+                            nextItemTopNoPadding += itemInfo.size + gapBetweenItemsPx.value!!
+                        }
                     } else {
                         return@forEach
                     }
                 }
             }
+
+            val totalItemsCount =
+                if (autoCentering.value!!) {
+                    (lazyListState.layoutInfo.totalItemsCount - 2).coerceAtLeast(0)
+                } else {
+                    lazyListState.layoutInfo.totalItemsCount
+                }
+
             DefaultScalingLazyListLayoutInfo(
                 visibleItemsInfo = visibleItemsInfo,
-                totalItemsCount = lazyListState.layoutInfo.totalItemsCount,
+                totalItemsCount = totalItemsCount,
                 viewportStartOffset = lazyListState.layoutInfo.viewportStartOffset +
                     extraPaddingPx.value!!,
                 viewportEndOffset = lazyListState.layoutInfo.viewportEndOffset -
@@ -228,11 +293,13 @@ class ScalingLazyListState constructor(
         // Find the item in the middle of the viewport
         for (i in lazyListState.layoutInfo.visibleItemsInfo.indices) {
             val item = lazyListState.layoutInfo.visibleItemsInfo[i]
-            val rawItemStart = item.offset - verticalAdjustment
-            val rawItemEnd = rawItemStart + item.size
-            result = i
-            if (rawItemEnd > centerLine) {
-                break
+            if (! discardAutoCenteringListItem(item)) {
+                val rawItemStart = item.offset - verticalAdjustment
+                val rawItemEnd = rawItemStart + item.size
+                result = i
+                if (rawItemEnd > centerLine) {
+                    break
+                }
             }
         }
         return result
@@ -287,31 +354,34 @@ class ScalingLazyListState constructor(
         /*@IntRange(from = 0)*/
         scrollOffset: Int = 0
     ) {
+        // Convert the index to take into account the Spacer added to the underlying LazyList before
+        // the first ScalingLazyColumn list item
         if (!initialized.value) {
             // We can't scroll yet, save to do it when we can (on the first composition).
             initialCenterItemIndex = index
             initialCenterItemScrollOffset = scrollOffset
             return
         }
+        val lazyListStateIndex = if (autoCentering.value!!) index + 1 else index
         val offsetToCenterOfViewport =
             beforeContentPaddingPx.value!! - (viewportHeightPx.value!! / 2)
         if (anchorType.value == ScalingLazyListAnchorType.ItemStart) {
             val offset = offsetToCenterOfViewport + scrollOffset
-            return lazyListState.scrollToItem(index, offset)
+            return lazyListState.scrollToItem(lazyListStateIndex, offset)
         } else {
-            var item = lazyListState.layoutInfo.findItemInfoWithIndex(index)
+            var item = lazyListState.layoutInfo.findItemInfoWithIndex(lazyListStateIndex)
             if (item == null) {
                 // Scroll the item into the middle of the viewport so that we know it is visible
                 lazyListState.scrollToItem(
-                    index,
+                    lazyListStateIndex,
                     offsetToCenterOfViewport
                 )
                 // Now we know that the item is visible find it and fine tune our position
-                item = lazyListState.layoutInfo.findItemInfoWithIndex(index)
+                item = lazyListState.layoutInfo.findItemInfoWithIndex(lazyListStateIndex)
             }
             if (item != null) {
                 val offset = offsetToCenterOfViewport + (item.size / 2) + scrollOffset
-                return lazyListState.scrollToItem(index, offset)
+                return lazyListState.scrollToItem(lazyListStateIndex, offset)
             }
         }
         return
@@ -341,33 +411,40 @@ class ScalingLazyListState constructor(
         /*@IntRange(from = 0)*/
         scrollOffset: Int = 0
     ) {
+        // Convert the index to take into account the Spacer added to the underlying LazyList before
+        // the first ScalingLazyColumn list item
+        val lazyListStateIndex = if (autoCentering.value!!) index + 1 else index
         val offsetToCenterOfViewport =
             beforeContentPaddingPx.value!! - (viewportHeightPx.value!! / 2)
         if (anchorType.value == ScalingLazyListAnchorType.ItemStart) {
             val offset = offsetToCenterOfViewport + scrollOffset
-            return lazyListState.animateScrollToItem(index, offset)
+            return lazyListState.animateScrollToItem(lazyListStateIndex, offset)
         } else {
-            var item = lazyListState.layoutInfo.findItemInfoWithIndex(index)
+            var item = lazyListState.layoutInfo.findItemInfoWithIndex(lazyListStateIndex)
             var sizeEstimate = 0
             if (item == null) {
                 // Guess the size of the item so that we can try and position it correctly
                 sizeEstimate = lazyListState.layoutInfo.averageItemSize()
                 // Scroll the item towards the middle of the viewport so that we know it is visible
                 lazyListState.animateScrollToItem(
-                    index,
+                    lazyListStateIndex,
                     offsetToCenterOfViewport + (sizeEstimate / 2) + scrollOffset
                 )
                 // Now we know that the item is visible find it and fine tune our position
-                item = lazyListState.layoutInfo.findItemInfoWithIndex(index)
+                item = lazyListState.layoutInfo.findItemInfoWithIndex(lazyListStateIndex)
             }
             // Determine if a second adjustment is needed
             if (item != null && item.size != sizeEstimate) {
                 val offset = offsetToCenterOfViewport + (item.size / 2) + scrollOffset
-                return lazyListState.animateScrollToItem(index, offset)
+                return lazyListState.animateScrollToItem(lazyListStateIndex, offset)
             }
         }
         return
     }
+
+    private fun discardAutoCenteringListItem(item: LazyListItemInfo): Boolean =
+        autoCentering.value!! &&
+            (item.index == 0 || item.index == lazyListState.layoutInfo.totalItemsCount - 1)
 }
 
 private fun LazyListLayoutInfo.findItemInfoWithIndex(index: Int): LazyListItemInfo? {
