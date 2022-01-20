@@ -61,7 +61,9 @@ abstract class JavacBasicAnnotationProcessor @JvmOverloads constructor(
         if (roundEnv.processingOver()) {
             val missingElements = commonDelegate.processLastRound()
             postRound(xEnv, xRoundEnv)
-            if (!roundEnv.errorRaised()) {
+            if (!xProcessingEnv.config.disableAnnotatedElementValidation &&
+                !roundEnv.errorRaised()
+            ) {
                 // Report missing elements if no error was raised to avoid being noisy.
                 commonDelegate.reportMissingElements(missingElements)
             }
