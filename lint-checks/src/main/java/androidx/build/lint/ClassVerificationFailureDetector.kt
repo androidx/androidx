@@ -20,23 +20,23 @@ package androidx.build.lint
 
 import com.android.SdkConstants.ATTR_VALUE
 import com.android.tools.lint.checks.ApiDetector.Companion.REQUIRES_API_ANNOTATION
-import com.android.tools.lint.client.api.UElementHandler
-import com.android.tools.lint.detector.api.JavaContext
-import com.android.tools.lint.detector.api.SourceCodeScanner
 import com.android.tools.lint.checks.ApiLookup
 import com.android.tools.lint.checks.ApiLookup.equivalentName
 import com.android.tools.lint.checks.DesugaredMethodLookup
 import com.android.tools.lint.checks.VersionChecks.Companion.codeNameToApi
+import com.android.tools.lint.client.api.UElementHandler
 import com.android.tools.lint.detector.api.Category
 import com.android.tools.lint.detector.api.Context
 import com.android.tools.lint.detector.api.Desugaring
 import com.android.tools.lint.detector.api.Detector
 import com.android.tools.lint.detector.api.Implementation
 import com.android.tools.lint.detector.api.Issue
+import com.android.tools.lint.detector.api.JavaContext
 import com.android.tools.lint.detector.api.LintFix
 import com.android.tools.lint.detector.api.Location
 import com.android.tools.lint.detector.api.Scope
 import com.android.tools.lint.detector.api.Severity
+import com.android.tools.lint.detector.api.SourceCodeScanner
 import com.android.tools.lint.detector.api.UastLintUtils.Companion.getLongAttribute
 import com.android.tools.lint.detector.api.getInternalMethodName
 import com.android.tools.lint.detector.api.isKotlin
@@ -49,6 +49,7 @@ import com.intellij.psi.PsiModifierListOwner
 import com.intellij.psi.PsiSuperExpression
 import com.intellij.psi.PsiType
 import com.intellij.psi.util.PsiTreeUtil
+import kotlin.math.min
 import org.jetbrains.uast.UCallExpression
 import org.jetbrains.uast.UClass
 import org.jetbrains.uast.UElement
@@ -59,12 +60,10 @@ import org.jetbrains.uast.USuperExpression
 import org.jetbrains.uast.UThisExpression
 import org.jetbrains.uast.getContainingUClass
 import org.jetbrains.uast.getContainingUMethod
-import org.jetbrains.uast.java.JavaUAnnotation
 import org.jetbrains.uast.java.JavaUQualifiedReferenceExpression
 import org.jetbrains.uast.java.JavaUSimpleNameReferenceExpression
 import org.jetbrains.uast.util.isConstructorCall
 import org.jetbrains.uast.util.isMethodCall
-import kotlin.math.min
 
 /**
  * This check detects references to platform APIs that are likely to cause class verification
@@ -768,30 +767,29 @@ class ClassVerificationFailureDetector : Detector(), SourceCodeScanner {
             return null
         }
 
-        @Suppress("DEPRECATION") // usage of getAllAnnotations b/214311882
         private fun getRequiresApiFromAnnotations(modifierListOwner: PsiModifierListOwner): Int {
-            for (annotation in context.evaluator.getAllAnnotations(modifierListOwner, false)) {
+            for (annotation in context.evaluator.getAnnotations(modifierListOwner)) {
                 val qualifiedName = annotation.qualifiedName
                 if (REQUIRES_API_ANNOTATION.isEquals(qualifiedName)) {
-                    val wrapped = JavaUAnnotation.wrap(annotation)
                     var api = getLongAttribute(
-                        context, wrapped,
+                        context, annotation,
                         ATTR_VALUE, NO_API_REQUIREMENT.toLong()
                     ).toInt()
                     if (api <= 1) {
                         // @RequiresApi has two aliasing attributes: api and value
-                        api = getLongAttribute(context, wrapped, "api", NO_API_REQUIREMENT.toLong())
-                            .toInt()
+                        api = getLongAttribute(
+                            context, annotation, "api", NO_API_REQUIREMENT.toLong()).toInt()
                     }
                     return api
                 } else if (qualifiedName == null) {
                     // Work around UAST type resolution problems
                     // Work around bugs in UAST type resolution for file annotations:
                     // parse the source string instead.
-                    if (annotation is PsiCompiledElement) {
+                    val psiAnnotation = annotation.javaPsi
+                    if (psiAnnotation == null || psiAnnotation is PsiCompiledElement) {
                         continue
                     }
-                    val text = annotation.text
+                    val text = psiAnnotation.text
                     if (text.contains("RequiresApi(")) {
                         val start = text.indexOf('(')
                         val end = text.indexOf(')', start + 1)
