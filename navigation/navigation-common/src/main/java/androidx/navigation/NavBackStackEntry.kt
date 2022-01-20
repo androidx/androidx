@@ -107,6 +107,7 @@ public class NavBackStackEntry private constructor(
 
     private var lifecycle = LifecycleRegistry(this)
     private val savedStateRegistryController = SavedStateRegistryController.create(this)
+    private var savedStateRegistryRestored = false
     private val defaultFactory by lazy {
         SavedStateViewModelFactory((context?.applicationContext as? Application), this, arguments)
     }
@@ -115,10 +116,14 @@ public class NavBackStackEntry private constructor(
      * The [SavedStateHandle] for this entry.
      */
     public val savedStateHandle: SavedStateHandle by lazy {
-        check(lifecycle.currentState.isAtLeast(Lifecycle.State.CREATED)) {
+        check(savedStateRegistryRestored) {
             "You cannot access the NavBackStackEntry's SavedStateHandle until it is added to " +
                 "the NavController's back stack (i.e., the Lifecycle of the NavBackStackEntry " +
                 "reaches the CREATED state)."
+        }
+        check(lifecycle.currentState != Lifecycle.State.DESTROYED) {
+            "You cannot access the NavBackStackEntry's SavedStateHandle after the " +
+                "NavBackStackEntry is destroyed."
         }
         ViewModelProvider(
             this, NavResultSavedStateFactory(this, null)
@@ -141,10 +146,6 @@ public class NavBackStackEntry private constructor(
     @set:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public var maxLifecycle: Lifecycle.State = Lifecycle.State.INITIALIZED
         set(maxState) {
-            if (field == Lifecycle.State.INITIALIZED) {
-                // Perform the restore just when moving from the INITIALIZED state
-                savedStateRegistryController.performRestore(savedState)
-            }
             field = maxState
             updateState()
         }
@@ -162,6 +163,12 @@ public class NavBackStackEntry private constructor(
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun updateState() {
+        if (!savedStateRegistryRestored) {
+            // Perform the restore just once, the first time updateState() is called
+            // and specifically *before* we move up the Lifecycle
+            savedStateRegistryController.performRestore(savedState)
+            savedStateRegistryRestored = true
+        }
         if (hostLifecycleState.ordinal < maxLifecycle.ordinal) {
             lifecycle.currentState = hostLifecycleState
         } else {
@@ -177,10 +184,14 @@ public class NavBackStackEntry private constructor(
      * [androidx.navigation.NavHostController.setViewModelStore].
      */
     public override fun getViewModelStore(): ViewModelStore {
-        check(lifecycle.currentState.isAtLeast(Lifecycle.State.CREATED)) {
+        check(savedStateRegistryRestored) {
             "You cannot access the NavBackStackEntry's ViewModels until it is added to " +
                 "the NavController's back stack (i.e., the Lifecycle of the NavBackStackEntry " +
                 "reaches the CREATED state)."
+        }
+        check(lifecycle.currentState != Lifecycle.State.DESTROYED) {
+            "You cannot access the NavBackStackEntry's ViewModels after the " +
+                "NavBackStackEntry is destroyed."
         }
         checkNotNull(viewModelStoreProvider) {
             "You must call setViewModelStore() on your NavHostController before accessing the " +
