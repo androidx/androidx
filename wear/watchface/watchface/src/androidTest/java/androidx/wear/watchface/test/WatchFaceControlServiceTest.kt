@@ -170,156 +170,164 @@ public class WatchFaceControlServiceTest {
     @Test
     public fun createWatchFaceInstanceWithRangedValueComplications() {
         val instance = createInstance(400, 400)
-        val bitmap = SharedMemoryImage.ashmemReadImageBundle(
-            instance.renderWatchFaceToBitmap(
-                WatchFaceRenderParams(
-                    RenderParameters(
-                        DrawMode.INTERACTIVE,
-                        WatchFaceLayer.ALL_WATCH_FACE_LAYERS,
-                        null
-                    ).toWireFormat(),
-                    1234567890,
-                    null,
-                    listOf(
-                        IdAndComplicationDataWireFormat(
-                            EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID,
-                            RangedValueComplicationData.Builder(
-                                100.0f, 0.0f, 100.0f,
-                                ComplicationText.EMPTY
+        try {
+            val bitmap = SharedMemoryImage.ashmemReadImageBundle(
+                instance.renderWatchFaceToBitmap(
+                    WatchFaceRenderParams(
+                        RenderParameters(
+                            DrawMode.INTERACTIVE,
+                            WatchFaceLayer.ALL_WATCH_FACE_LAYERS,
+                            null
+                        ).toWireFormat(),
+                        1234567890,
+                        null,
+                        listOf(
+                            IdAndComplicationDataWireFormat(
+                                EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID,
+                                RangedValueComplicationData.Builder(
+                                    100.0f, 0.0f, 100.0f,
+                                    ComplicationText.EMPTY
+                                )
+                                    .setText(PlainComplicationText.Builder("100%").build())
+                                    .build()
+                                    .asWireComplicationData()
+                            ),
+                            IdAndComplicationDataWireFormat(
+                                EXAMPLE_CANVAS_WATCHFACE_RIGHT_COMPLICATION_ID,
+                                RangedValueComplicationData.Builder(
+                                    75.0f, 0.0f, 100.0f,
+                                    ComplicationText.EMPTY
+                                )
+                                    .setText(PlainComplicationText.Builder("75%").build())
+                                    .build()
+                                    .asWireComplicationData()
                             )
-                                .setText(PlainComplicationText.Builder("100%").build())
-                                .build()
-                                .asWireComplicationData()
-                        ),
-                        IdAndComplicationDataWireFormat(
-                            EXAMPLE_CANVAS_WATCHFACE_RIGHT_COMPLICATION_ID,
-                            RangedValueComplicationData.Builder(
-                                75.0f, 0.0f, 100.0f,
-                                ComplicationText.EMPTY
-                            )
-                                .setText(PlainComplicationText.Builder("75%").build())
-                                .build()
-                                .asWireComplicationData()
                         )
                     )
                 )
             )
-        )
 
-        bitmap.assertAgainstGolden(screenshotRule, "ranged_value_complications")
-
-        instance.release()
+            bitmap.assertAgainstGolden(screenshotRule, "ranged_value_complications")
+        } finally {
+            instance.release()
+        }
     }
 
     @Test
     public fun createHeadlessWatchFaceInstance() {
         val instance = createInstance(100, 100)
-        val bitmap = SharedMemoryImage.ashmemReadImageBundle(
-            instance.renderWatchFaceToBitmap(
-                WatchFaceRenderParams(
-                    RenderParameters(
-                        DrawMode.INTERACTIVE,
-                        WatchFaceLayer.ALL_WATCH_FACE_LAYERS,
-                        null
-                    ).toWireFormat(),
-                    1234567890,
-                    null,
-                    listOf(
-                        IdAndComplicationDataWireFormat(
-                            EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID,
-                            ShortTextComplicationData.Builder(
-                                PlainComplicationText.Builder("Mon").build(),
-                                ComplicationText.EMPTY
+        try {
+            val bitmap = SharedMemoryImage.ashmemReadImageBundle(
+                instance.renderWatchFaceToBitmap(
+                    WatchFaceRenderParams(
+                        RenderParameters(
+                            DrawMode.INTERACTIVE,
+                            WatchFaceLayer.ALL_WATCH_FACE_LAYERS,
+                            null
+                        ).toWireFormat(),
+                        1234567890,
+                        null,
+                        listOf(
+                            IdAndComplicationDataWireFormat(
+                                EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID,
+                                ShortTextComplicationData.Builder(
+                                    PlainComplicationText.Builder("Mon").build(),
+                                    ComplicationText.EMPTY
+                                )
+                                    .setTitle(PlainComplicationText.Builder("23rd").build())
+                                    .build()
+                                    .asWireComplicationData()
+                            ),
+                            IdAndComplicationDataWireFormat(
+                                EXAMPLE_CANVAS_WATCHFACE_RIGHT_COMPLICATION_ID,
+                                ShortTextComplicationData.Builder(
+                                    PlainComplicationText.Builder("100").build(),
+                                    ComplicationText.EMPTY
+                                )
+                                    .setTitle(PlainComplicationText.Builder("Steps").build())
+                                    .build()
+                                    .asWireComplicationData()
                             )
-                                .setTitle(PlainComplicationText.Builder("23rd").build())
-                                .build()
-                                .asWireComplicationData()
-                        ),
-                        IdAndComplicationDataWireFormat(
-                            EXAMPLE_CANVAS_WATCHFACE_RIGHT_COMPLICATION_ID,
-                            ShortTextComplicationData.Builder(
-                                PlainComplicationText.Builder("100").build(),
-                                ComplicationText.EMPTY
-                            )
-                                .setTitle(PlainComplicationText.Builder("Steps").build())
-                                .build()
-                                .asWireComplicationData()
                         )
                     )
                 )
             )
-        )
 
-        bitmap.assertAgainstGolden(screenshotRule, "service_interactive")
-
-        instance.release()
+            bitmap.assertAgainstGolden(screenshotRule, "service_interactive")
+        } finally {
+            instance.release()
+        }
     }
 
     @Test
     public fun createHeadlessOpenglWatchFaceInstance() {
         val instance = createOpenGlInstance(400, 400)
-        val bitmap = SharedMemoryImage.ashmemReadImageBundle(
-            instance.renderWatchFaceToBitmap(
-                WatchFaceRenderParams(
-                    RenderParameters(
-                        DrawMode.INTERACTIVE,
-                        WatchFaceLayer.ALL_WATCH_FACE_LAYERS,
-                        null
-                    ).toWireFormat(),
-                    1234567890,
-                    null,
-                    listOf(
-                        IdAndComplicationDataWireFormat(
-                            EXAMPLE_OPENGL_COMPLICATION_ID,
-                            ShortTextComplicationData.Builder(
-                                PlainComplicationText.Builder("Mon").build(),
-                                ComplicationText.EMPTY
+        try {
+            val bitmap = SharedMemoryImage.ashmemReadImageBundle(
+                instance.renderWatchFaceToBitmap(
+                    WatchFaceRenderParams(
+                        RenderParameters(
+                            DrawMode.INTERACTIVE,
+                            WatchFaceLayer.ALL_WATCH_FACE_LAYERS,
+                            null
+                        ).toWireFormat(),
+                        1234567890,
+                        null,
+                        listOf(
+                            IdAndComplicationDataWireFormat(
+                                EXAMPLE_OPENGL_COMPLICATION_ID,
+                                ShortTextComplicationData.Builder(
+                                    PlainComplicationText.Builder("Mon").build(),
+                                    ComplicationText.EMPTY
+                                )
+                                    .setTitle(PlainComplicationText.Builder("23rd").build())
+                                    .build()
+                                    .asWireComplicationData()
                             )
-                                .setTitle(PlainComplicationText.Builder("23rd").build())
-                                .build()
-                                .asWireComplicationData()
                         )
                     )
                 )
             )
-        )
 
-        bitmap.assertAgainstGolden(screenshotRule, "opengl_headless")
-
-        instance.release()
+            bitmap.assertAgainstGolden(screenshotRule, "opengl_headless")
+        } finally {
+            instance.release()
+        }
     }
 
     @Test
     public fun testCommandTakeComplicationScreenShot() {
         val instance = createInstance(400, 400)
-        val bitmap = SharedMemoryImage.ashmemReadImageBundle(
-            instance.renderComplicationToBitmap(
-                ComplicationRenderParams(
-                    EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID,
-                    RenderParameters(
-                        DrawMode.INTERACTIVE,
-                        WatchFaceLayer.ALL_WATCH_FACE_LAYERS,
-                        null,
-                    ).toWireFormat(),
-                    123456789,
-                    ShortTextComplicationData.Builder(
-                        PlainComplicationText.Builder("Mon").build(),
-                        ComplicationText.EMPTY
+        try {
+            val bitmap = SharedMemoryImage.ashmemReadImageBundle(
+                instance.renderComplicationToBitmap(
+                    ComplicationRenderParams(
+                        EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID,
+                        RenderParameters(
+                            DrawMode.INTERACTIVE,
+                            WatchFaceLayer.ALL_WATCH_FACE_LAYERS,
+                            null,
+                        ).toWireFormat(),
+                        123456789,
+                        ShortTextComplicationData.Builder(
+                            PlainComplicationText.Builder("Mon").build(),
+                            ComplicationText.EMPTY
+                        )
+                            .setTitle(PlainComplicationText.Builder("23rd").build())
+                            .build()
+                            .asWireComplicationData(),
+                        null
                     )
-                        .setTitle(PlainComplicationText.Builder("23rd").build())
-                        .build()
-                        .asWireComplicationData(),
-                    null
                 )
             )
-        )
 
-        bitmap.assertAgainstGolden(
-            screenshotRule,
-            "leftComplication"
-        )
-
-        instance.release()
+            bitmap.assertAgainstGolden(
+                screenshotRule,
+                "leftComplication"
+            )
+        } finally {
+            instance.release()
+        }
     }
 
     @Test
@@ -349,7 +357,10 @@ public class WatchFaceControlServiceTest {
                 null
             )
         )
-
-        assertThat(headlessInstance.userStyleSchema.mSchema).isEmpty()
+        try {
+            assertThat(headlessInstance.userStyleSchema.mSchema).isEmpty()
+        } finally {
+            headlessInstance.release()
+        }
     }
 }

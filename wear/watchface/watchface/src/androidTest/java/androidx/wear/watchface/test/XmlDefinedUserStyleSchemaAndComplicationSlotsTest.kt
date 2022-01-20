@@ -66,6 +66,7 @@ import org.mockito.MockitoAnnotations
 import java.time.ZonedDateTime
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
+import org.junit.After
 
 private const val BITMAP_WIDTH = 400
 private const val BITMAP_HEIGHT = 400
@@ -167,8 +168,15 @@ public class XmlDefinedUserStyleSchemaAndComplicationSlotsTest {
         MockitoAnnotations.initMocks(this)
     }
 
+    @After
+    public fun tearDown() {
+        if (this::interactiveWatchFaceInstance.isInitialized) {
+            interactiveWatchFaceInstance.release()
+        }
+    }
+
     private fun setPendingWallpaperInteractiveWatchFaceInstance() {
-        InteractiveInstanceManager
+        val existingInstance = InteractiveInstanceManager
             .getExistingInstanceOrSetPendingWallpaperInteractiveWatchFaceInstance(
                 InteractiveInstanceManager.PendingWallpaperInteractiveWatchFaceInstance(
                     WallpaperInteractiveWatchFaceInstanceParams(
@@ -200,6 +208,7 @@ public class XmlDefinedUserStyleSchemaAndComplicationSlotsTest {
                     }
                 )
             )
+        assertThat(existingInstance).isNull()
     }
 
     @Test
@@ -288,7 +297,5 @@ public class XmlDefinedUserStyleSchemaAndComplicationSlotsTest {
             assertThat(slotB.screenReaderNameResourceId)
                 .isEqualTo(R.string.complication_screen_reader_name_two)
         }
-
-        interactiveWatchFaceInstance.release()
     }
 }
