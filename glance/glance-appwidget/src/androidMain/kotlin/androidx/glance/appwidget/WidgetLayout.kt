@@ -317,6 +317,8 @@ private fun Emittable.getLayoutType(): LayoutProto.LayoutType =
         is EmittableSpacer -> LayoutProto.LayoutType.SPACER
         is EmittableSwitch -> LayoutProto.LayoutType.SWITCH
         is EmittableImage -> LayoutProto.LayoutType.IMAGE
+        is EmittableLinearProgressIndicator -> LayoutProto.LayoutType.LINEAR_PROGRESS_INDICATOR
+        is EmittableCircularProgressIndicator -> LayoutProto.LayoutType.CIRCULAR_PROGRESS_INDICATOR
         is RemoteViewsRoot -> LayoutProto.LayoutType.REMOTE_VIEWS_ROOT
         else ->
             throw IllegalArgumentException("Unknown element type ${this.javaClass.canonicalName}")
