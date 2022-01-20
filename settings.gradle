@@ -60,18 +60,18 @@ dependencyResolutionManagement {
             if (os.contains("mac os x") ||  os.contains("darwin") || os.contains("osx")) {
                 def arch = System.getProperty("os.arch")
                 if (arch == "aarch64") {
-                    currentOsArtifact = "skiko-jvm-runtime-macos-arm64"
+                    currentOsArtifact = "skiko-awt-runtime-macos-arm64"
                 } else {
-                    currentOsArtifact = "skiko-jvm-runtime-macos-x64"
+                    currentOsArtifact = "skiko-awt-runtime-macos-x64"
                 }
             } else if (os.startsWith("win")) {
-                currentOsArtifact = "skiko-jvm-runtime-windows-x64"
+                currentOsArtifact = "skiko-awt-runtime-windows-x64"
             } else if (os.startsWith("linux") ) {
                 def arch = System.getProperty("os.arch")
                 if (arch == "aarch64") {
-                    currentOsArtifact = "skiko-jvm-runtime-linux-arm64"
+                    currentOsArtifact = "skiko-awt-runtime-linux-arm64"
                 } else {
-                    currentOsArtifact = "skiko-jvm-runtime-linux-x64"
+                    currentOsArtifact = "skiko-awt-runtime-linux-x64"
                 }
             } else {
                 throw GradleException("Unsupported operating system $os")
