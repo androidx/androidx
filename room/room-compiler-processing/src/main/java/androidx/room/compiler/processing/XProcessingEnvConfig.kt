@@ -32,9 +32,28 @@ package androidx.room.compiler.processing
 @Suppress("SyntheticAccessor", "DataClassPrivateConstructor")
 data class XProcessingEnvConfig private constructor(
     /**
-     * @see [Builder.excludeMethodsWithInvalidJvmSourceNames] for docs.
+     * When set to `true`, XProcessingEnv will hide all methods that have invalid source names
+     * in Java (i.e. cannot be called from generated Java sources).
+     *
+     * Doing this resolution is expensive (requires type resolution) hence it is set to `false`
+     * by default.
+     *
+     * Note that, due to KAPT stubs, this is not 100% consistent between KAPT and KSP when set
+     * to `false`. Since KAPT generates stubs, it automatically removes methods that have
+     * invalid JVM names.
      */
-    val excludeMethodsWithInvalidJvmSourceNames: Boolean = false
+    val excludeMethodsWithInvalidJvmSourceNames: Boolean = false,
+
+    /**
+     * When set to `true`, [XBasicAnnotationProcessor] will not validate annotated elements
+     * in the round before passing them to the various [XProcessingStep]s. Enabling this
+     * options essentially disabled the built-in element deferring mechanism offered by
+     * XProcessing.
+     *
+     * This option can be useful for processor with a custom and more precise validation as
+     * the built-in validation can be too broad.
+     */
+    val disableAnnotatedElementValidation: Boolean = false,
 ) {
     fun toBuilder() = Builder(this)
 
@@ -44,19 +63,20 @@ data class XProcessingEnvConfig private constructor(
         private var instance = baseline
 
         /**
-         * When set to `true`, XProcessingEnv will hide all methods that have invalid source names
-         * in Java (i.e. cannot be called from generated Java sources).
-         *
-         * Doing this resolution is expensive (requires type resolution) hence it is set to `false`
-         * by default.
-         *
-         * Note that, due to KAPT stubs, this is not 100% consistent between KAPT and KSP when set
-         * to `false`. Since KAPT generates stubs, it automatically removes methods that have
-         * invalid JVM names.
+         * @see XProcessingEnvConfig.excludeMethodsWithInvalidJvmSourceNames for docs.
          */
         fun excludeMethodsWithInvalidJvmSourceNames(value: Boolean) = apply {
             instance = instance.copy(
                 excludeMethodsWithInvalidJvmSourceNames = value
+            )
+        }
+
+        /**
+         * @see XProcessingEnvConfig.disableAnnotatedElementValidation for docs.
+         */
+        fun disableAnnotatedElementValidation(value: Boolean) = apply {
+            instance = instance.copy(
+                disableAnnotatedElementValidation = value
             )
         }
 

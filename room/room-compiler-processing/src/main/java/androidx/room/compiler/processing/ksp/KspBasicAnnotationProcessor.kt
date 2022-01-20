@@ -75,7 +75,7 @@ abstract class KspBasicAnnotationProcessor @JvmOverloads constructor(
         val xRoundEnv = KspRoundEnv(xEnv, true)
         val missingElements = commonDelegate.processLastRound()
         postRound(xEnv, xRoundEnv)
-        if (!logger.hasError) {
+        if (!xProcessingEnv.config.disableAnnotatedElementValidation && !logger.hasError) {
             // Report missing elements if no error was raised to avoid being noisy.
             commonDelegate.reportMissingElements(missingElements)
         }
