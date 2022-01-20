@@ -197,8 +197,6 @@ package androidx.collection {
     method @Deprecated public static <E> int size(androidx.collection.LongSparseArray<E>);
     method @Deprecated public static <K, V> int size(androidx.collection.LruCache<K,V>);
     method @Deprecated public static <K, V> int size(androidx.collection.SimpleArrayMap<K,V>);
-    method @Deprecated public static <E> int size(androidx.collection.SparseArray<E>);
-    method @Deprecated public static <E> int size(androidx.collection.SparseArrayCompat<E>);
   }
 
   public class SparseArray<E> implements java.lang.Cloneable {
@@ -212,6 +210,7 @@ package androidx.collection {
     method @Deprecated public void delete(int key);
     method public operator E? get(int key);
     method public E! get(int key, E? default);
+    method public int getSize();
     method public int indexOfKey(int key);
     method public int indexOfValue(E? value);
     method public boolean isEmpty();
@@ -226,7 +225,6 @@ package androidx.collection {
     method public E? replace(int key, E? value);
     method public boolean replace(int key, E? oldValue, E? newValue);
     method public void setValueAt(int index, E? value);
-    method public int size();
     method public E! valueAt(int index);
     property public int size;
   }
@@ -237,6 +235,7 @@ package androidx.collection {
     ctor @Deprecated public SparseArrayCompat(androidx.collection.SparseArray<E> array);
     method @Deprecated public androidx.collection.SparseArrayCompat<E> clone();
     method @Deprecated public void putAll(androidx.collection.SparseArrayCompat<? extends E> other);
+    method @Deprecated public int size();
   }
 
   public final class SparseArray_Ext {
