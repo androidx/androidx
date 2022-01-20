@@ -129,9 +129,9 @@ Downloading file\:\$SUPPORT\/gradle\/wrapper\/.*
 [.]+10%[.]+20%[.]+30%[.]+40%[.]+50%[.]+60%[.]+70%[.]+80%[.]+90%[.]+100%
 Welcome to Gradle .*
 Here are the highlights of this release:
-\- Easily declare new test suites in Java projects
-\- Support for Java 17
-\- Support for Scala 3
+\- Aggregated test and JaCoCo reports
+\- Marking additional test source directories as tests in IntelliJ
+\- Support for Adoptium JDKs in Java toolchains
 For more details see .*
 Daemon will be stopped at the end of the build
 # > Configure project :appsearch:appsearch\-local\-backend
@@ -587,6 +587,7 @@ To honour the JVM settings for this build a single\-use Daemon process will be f
 \$SUPPORT/work/work\-benchmark/src/androidTest/AndroidManifest\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
 [0-9]+ problems were found storing the configuration cache\.
 [0-9]+ problems were found storing the configuration cache, [0-9]+ of which seems unique\.
+Calculating task graph as configuration cache cannot be reused because the set of Gradle properties has changed.
 # > Task :car:app:app:generateProtocolApi
 \- Task `:car:app:app:generateProtocolApi` of type `GenerateProtocolApiTask`: invocation of 'Task\.project' at execution time is unsupported\.
 # > Tasks configureCMakeRelWithDebInfo or configureCMakeDebug
