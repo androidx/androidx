@@ -24,9 +24,11 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.runtime.Composable
@@ -240,6 +242,9 @@ internal fun convertToCenterOffset(
  * @param contentPadding The padding to apply around the contents
  * @param anchorType How to anchor list items to the center-line of the viewport
  * @param flingBehavior Logic describing fling behavior
+ * @param autoCentering Flag to determine whether all items should be centerable in the viewport.
+ * If true then sufficient space will be made available before the first and after the last
+ * list item to ensure that they can be scrolled to the center of the viewport.
  * @param state The state of the component
  */
 @Composable
@@ -257,6 +262,7 @@ public fun ScalingLazyColumn(
     state: ScalingLazyListState = rememberScalingLazyListState(),
     anchorType: ScalingLazyListAnchorType = ScalingLazyListAnchorType.ItemCenter,
     flingBehavior: FlingBehavior = ScrollableDefaults.flingBehavior(),
+    autoCentering: Boolean = true,
     content: ScalingLazyListScope.() -> Unit
 ) {
     var initialized by remember { mutableStateOf(false) }
@@ -264,66 +270,86 @@ public fun ScalingLazyColumn(
         val density = LocalDensity.current
         val layoutDirection = LocalLayoutDirection.current
         val extraPaddingInPixels = scalingParams.resolveViewportVerticalOffset(constraints)
-        val extraPadding = with(density) { extraPaddingInPixels.toDp() }
-        val beforeContentPaddingInPx = with(density) {
-            if (reverseLayout) contentPadding.calculateBottomPadding().roundToPx()
-            else contentPadding.calculateTopPadding().roundToPx()
-        }
-        val itemScope = with(density) {
-            ScalingLazyListItemScopeImpl(
-                density = density,
-                constraints = constraints.offset(
-                    horizontal = -(
-                        contentPadding.calculateStartPadding(layoutDirection) +
-                            contentPadding.calculateEndPadding(layoutDirection)
-                        ).toPx().toInt(),
-                    vertical = -(
-                        contentPadding.calculateTopPadding() +
-                            contentPadding.calculateBottomPadding()
-                        ).roundToPx()
-                )
-            )
-        }
-        // Set up transient state
-        state.scalingParams.value = scalingParams
-        state.extraPaddingPx.value = extraPaddingInPixels
-        state.beforeContentPaddingPx.value = beforeContentPaddingInPx
-        state.viewportHeightPx.value = constraints.maxHeight
-        state.gapBetweenItemsPx.value = with(density) {
-            verticalArrangement.spacing.roundToPx()
-        }
-        state.anchorType.value = anchorType
-        state.reverseLayout.value = reverseLayout
 
-        val combinedPaddingValues = CombinedPaddingValues(
-            contentPadding = contentPadding,
-            extraPadding = extraPadding
-        )
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .clipToBounds()
-                .verticalNegativePadding(extraPadding)
-                .onGloballyPositioned {
-                    initialized = true
-                },
-            horizontalAlignment = horizontalAlignment,
-            contentPadding = combinedPaddingValues,
-            reverseLayout = reverseLayout,
-            verticalArrangement = verticalArrangement,
-            state = state.lazyListState,
-            flingBehavior = flingBehavior,
-        ) {
-            val scope = ScalingLazyListScopeImpl(
-                state = state,
-                scope = this,
-                itemScope = itemScope,
+        with(density) {
+            val extraPadding = extraPaddingInPixels.toDp()
+            val combinedPaddingValues = CombinedPaddingValues(
+                contentPadding = contentPadding,
+                extraPadding = extraPadding
             )
-            scope.content()
-        }
-        if (initialized) {
-            LaunchedEffect(state) {
-                state.scrollToInitialItem()
+
+            val beforeContentPaddingInPx =
+                if (reverseLayout) contentPadding.calculateBottomPadding().roundToPx()
+                else contentPadding.calculateTopPadding().roundToPx()
+
+            val itemScope =
+                ScalingLazyListItemScopeImpl(
+                    density = density,
+                    constraints = constraints.offset(
+                        horizontal = -(
+                            contentPadding.calculateStartPadding(layoutDirection) +
+                                contentPadding.calculateEndPadding(layoutDirection)
+                            ).toPx().toInt(),
+                        vertical = -(
+                            contentPadding.calculateTopPadding() +
+                                contentPadding.calculateBottomPadding()
+                            ).roundToPx()
+                    )
+                )
+
+            // Set up transient state
+            state.scalingParams.value = scalingParams
+            state.extraPaddingPx.value = extraPaddingInPixels
+            state.beforeContentPaddingPx.value = beforeContentPaddingInPx
+            state.viewportHeightPx.value = constraints.maxHeight
+            state.gapBetweenItemsPx.value =
+                verticalArrangement.spacing.roundToPx()
+            state.anchorType.value = anchorType
+            state.autoCentering.value = autoCentering
+            state.reverseLayout.value = reverseLayout
+
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .clipToBounds()
+                    .verticalNegativePadding(extraPadding)
+                    .onGloballyPositioned {
+                        initialized = true
+                    },
+                horizontalAlignment = horizontalAlignment,
+                contentPadding = combinedPaddingValues,
+                reverseLayout = reverseLayout,
+                verticalArrangement = verticalArrangement,
+                state = state.lazyListState,
+                flingBehavior = flingBehavior,
+            ) {
+                val scope = ScalingLazyListScopeImpl(
+                    state = state,
+                    scope = this,
+                    itemScope = itemScope
+                )
+                // Only add spacers if autoCentering == true as we have to consider the impact of
+                // vertical spacing between items.
+                if (autoCentering) {
+                    item {
+                        Spacer(
+                            modifier = Modifier.height(state.topAutoCenteringPaddingPx.toDp())
+                        )
+                    }
+                }
+                scope.content()
+                if (autoCentering) {
+                    item {
+                        Spacer(
+                            modifier = Modifier.height(state.bottomAutoCenteringPaddingPx.toDp())
+                        )
+                    }
+                }
+            }
+            if (initialized) {
+                LaunchedEffect(state) {
+                    state.scrollToInitialItem()
+                }
             }
         }
     }
@@ -552,7 +578,6 @@ private class CombinedPaddingValues(
 
     override fun calculateBottomPadding(): Dp =
         contentPadding.calculateBottomPadding() + extraPadding
-
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other == null) return false

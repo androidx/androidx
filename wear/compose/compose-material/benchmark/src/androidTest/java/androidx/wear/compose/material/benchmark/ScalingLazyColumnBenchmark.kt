@@ -28,7 +28,6 @@ import androidx.compose.testutils.assertNoPendingChanges
 import androidx.compose.testutils.benchmark.ComposeBenchmarkRule
 import androidx.compose.testutils.benchmark.benchmarkDrawPerf
 import androidx.compose.testutils.benchmark.benchmarkFirstCompose
-import androidx.compose.testutils.benchmark.benchmarkFirstMeasure
 import androidx.compose.testutils.benchmark.benchmarkLayoutPerf
 import androidx.compose.testutils.benchmark.recomposeUntilNoChangesPending
 import androidx.compose.testutils.doFramesUntilNoChangesPending
@@ -66,7 +65,7 @@ class ScalingLazyColumnBenchmark {
 
     @Test
     fun first_measure() {
-        benchmarkRule.benchmarkFirstMeasure(scalingLazyColumnCaseFactory)
+        benchmarkRule.benchmarkFirstScalingLazyColumnMeasure(scalingLazyColumnCaseFactory)
     }
 
     @Test
@@ -115,6 +114,33 @@ internal class ScalingLazyColumnTestCase : LayeredComposeTestCase() {
     override fun ContentWrappers(content: @Composable () -> Unit) {
         MaterialTheme {
             content()
+        }
+    }
+}
+
+// TODO (b/210654937): Should be able to get rid of this workaround in the future once able to call
+// LaunchedEffect directly on underlying LazyColumn rather than via a 2-stage initialization via
+// onGloballyPositioned().
+fun ComposeBenchmarkRule.benchmarkFirstScalingLazyColumnMeasure(
+    caseFactory: () -> LayeredComposeTestCase
+) {
+    runBenchmarkFor(LayeredCaseAdapter.of(caseFactory)) {
+        measureRepeated {
+            runWithTimingDisabled {
+                doFramesUntilNoChangesPending()
+                // Add the content to benchmark
+                getTestCase().addMeasuredContent()
+                recomposeUntilNoChangesPending()
+                requestLayout()
+            }
+
+            measure()
+            recomposeUntilNoChangesPending()
+
+            runWithTimingDisabled {
+                assertNoPendingChanges()
+                disposeContent()
+            }
         }
     }
 }

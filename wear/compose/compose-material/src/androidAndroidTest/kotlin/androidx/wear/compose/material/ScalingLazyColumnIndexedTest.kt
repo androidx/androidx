@@ -16,6 +16,7 @@
 
 package androidx.wear.compose.material
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.requiredHeight
@@ -78,7 +79,7 @@ class ScalingLazyColumnIndexedTest {
         val items = (0..1).map { it.toString() }
 
         rule.setContent {
-            ScalingLazyColumn(Modifier.height(200.dp)) {
+            ScalingLazyColumn(Modifier.height(200.dp), autoCentering = false) {
                 itemsIndexed(items) { index, item ->
                     BasicText(
                         "${index}x$item", Modifier.requiredHeight(100.dp)
@@ -92,5 +93,35 @@ class ScalingLazyColumnIndexedTest {
 
         rule.onNodeWithText("1x1")
             .assertTopPositionInRootIsEqualTo(104.dp)
+    }
+
+    @Test
+    fun columnWithIndexesComposedWithCorrectIndexAndItemWithAutoCentering() {
+        val items = (0..1).map { it.toString() }
+        val viewPortHeight = 200.dp
+        val itemHeight = 100.dp
+        val gapBetweenItems = 4.dp
+        rule.setContent {
+            ScalingLazyColumn(
+                modifier = Modifier.height(viewPortHeight),
+                autoCentering = true,
+                verticalArrangement = Arrangement.spacedBy(gapBetweenItems)
+            ) {
+                itemsIndexed(items) { index, item ->
+                    BasicText(
+                        "${index}x$item", Modifier.requiredHeight(itemHeight)
+                    )
+                }
+            }
+        }
+
+        // Check that first item is in the center of the viewport
+        val firstItemStart = viewPortHeight / 2f - itemHeight / 2f
+        rule.onNodeWithText("0x0")
+            .assertTopPositionInRootIsEqualTo(firstItemStart)
+
+        // And that the second item is item height + gap between items below it
+        rule.onNodeWithText("1x1")
+            .assertTopPositionInRootIsEqualTo(firstItemStart + itemHeight + gapBetweenItems)
     }
 }
