@@ -50,7 +50,7 @@ fun collectBaselineProfile(
     val startTime = System.nanoTime()
     val scope = MacrobenchmarkScope(packageName, launchWithClearTask = true)
 
-    // Ignore because we're *creating* a baseline profile, not using it yet
+    // Disable because we're *creating* a baseline profile, not using it yet
     val compilationMode = CompilationMode.Partial(
         baselineProfileMode = BaselineProfileMode.Disable,
         warmupIterations = 3
@@ -85,8 +85,15 @@ fun collectBaselineProfile(
             val absolutePath = Outputs.writeFile(fileName, "baseline-profile") {
                 it.writeText(profile)
             }
+            // Write a file with a timestamp to be able to disambiguate between runs with the same
+            // unique name.
+            val tsFileName = "$uniqueName-baseline-prof-${Outputs.dateToFileName()}.txt"
+            val tsAbsolutePath = Outputs.writeFile(tsFileName, "baseline-profile-ts") {
+                Log.d(TAG, "Pull Baseline Profile with: `adb pull \"${it.absolutePath}\" .`")
+                it.writeText(profile)
+            }
             val totalRunTime = System.nanoTime() - startTime
-            val summary = summaryRecord(totalRunTime, absolutePath)
+            val summary = summaryRecord(totalRunTime, absolutePath, tsAbsolutePath)
             ideSummaryRecord(summaryV1 = summary, summaryV2 = summary)
             Log.d(TAG, "Total Run Time Ns: $totalRunTime")
         }
@@ -111,14 +118,20 @@ private fun profile(apkPath: String, pathOptions: List<String>): String {
     throw IllegalStateException("The profile is empty.")
 }
 
-private fun summaryRecord(totalRunTime: Long, absolutePath: String): String {
+private fun summaryRecord(
+    totalRunTime: Long,
+    absolutePath: String,
+    tsAbsolutePath: String
+): String {
     val relativePath = Outputs.relativePathFor(absolutePath)
         .replace("(", "\\(")
         .replace(")", "\\)")
 
     return """
         Total run time Ns: $totalRunTime.
-
         Baseline profile [results](file://$relativePath)
+
+        To copy the profile use:
+        `adb pull "$tsAbsolutePath" .`
     """.trimIndent()
 }
