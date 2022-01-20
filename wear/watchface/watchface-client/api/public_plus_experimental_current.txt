@@ -130,6 +130,7 @@ package androidx.wear.watchface.client {
     method @kotlin.jvm.Throws(exceptionClasses=RemoteException::class) public java.util.Map<java.lang.Integer,androidx.wear.watchface.client.ComplicationSlotState> getComplicationSlotsState();
     method @kotlin.jvm.Throws(exceptionClasses=RemoteException::class) public java.util.List<androidx.wear.watchface.ContentDescriptionLabel> getContentDescriptionLabels();
     method @kotlin.jvm.Throws(exceptionClasses=RemoteException::class) public String getInstanceId();
+    method @kotlin.jvm.Throws(exceptionClasses=RemoteException::class) public default androidx.wear.watchface.client.OverlayStyle getOverlayStyle();
     method @kotlin.jvm.Throws(exceptionClasses=RemoteException::class) public default android.app.PendingIntent? getPendingIntentForTouchEvent(@Px int xPosition, @Px int yPosition, @androidx.wear.watchface.TapType int tapType) throws android.os.RemoteException;
     method @kotlin.jvm.Throws(exceptionClasses=RemoteException::class) public java.time.Instant getPreviewReferenceInstant();
     method @kotlin.jvm.Throws(exceptionClasses=RemoteException::class) public androidx.wear.watchface.style.UserStyleSchema getUserStyleSchema();
@@ -147,6 +148,7 @@ package androidx.wear.watchface.client {
     property @kotlin.jvm.Throws(exceptionClasses=RemoteException::class) public abstract java.util.Map<java.lang.Integer,androidx.wear.watchface.client.ComplicationSlotState> complicationSlotsState;
     property @kotlin.jvm.Throws(exceptionClasses=RemoteException::class) public abstract java.util.List<androidx.wear.watchface.ContentDescriptionLabel> contentDescriptionLabels;
     property @kotlin.jvm.Throws(exceptionClasses=RemoteException::class) public abstract String instanceId;
+    property @kotlin.jvm.Throws(exceptionClasses=RemoteException::class) public default androidx.wear.watchface.client.OverlayStyle overlayStyle;
     property @kotlin.jvm.Throws(exceptionClasses=RemoteException::class) public abstract java.time.Instant previewReferenceInstant;
     property @kotlin.jvm.Throws(exceptionClasses=RemoteException::class) public abstract androidx.wear.watchface.style.UserStyleSchema userStyleSchema;
     field public static final androidx.wear.watchface.client.InteractiveWatchFaceClient.Companion Companion;
@@ -167,6 +169,15 @@ package androidx.wear.watchface.client {
 
   public static fun interface InteractiveWatchFaceClient.OnWatchFaceReadyListener {
     method public void onWatchFaceReady();
+  }
+
+  public final class OverlayStyle {
+    ctor public OverlayStyle(android.graphics.Color? backgroundColor, android.graphics.Color? foregroundColor);
+    ctor public OverlayStyle();
+    method public android.graphics.Color? getBackgroundColor();
+    method public android.graphics.Color? getForegroundColor();
+    property public final android.graphics.Color? backgroundColor;
+    property public final android.graphics.Color? foregroundColor;
   }
 
   @kotlin.RequiresOptIn(message="This is an experimental API that may change or be removed without warning.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface WatchFaceClientExperimental {

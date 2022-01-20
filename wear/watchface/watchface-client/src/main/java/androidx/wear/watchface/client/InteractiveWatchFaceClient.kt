@@ -89,6 +89,16 @@ public interface InteractiveWatchFaceClient : AutoCloseable {
     public val previewReferenceInstant: Instant
 
     /**
+     * The watchface's [OverlayStyle] which configures the system status overlay on
+     * Wear 3.0 and beyond. Note for older watch faces which don't support this, the default value
+     * will be returned.
+     */
+    @get:Throws(RemoteException::class)
+    public val overlayStyle: OverlayStyle
+        // Default implementation, overridden below.
+        get() = OverlayStyle()
+
+    /**
      * Renames this instance to [newInstanceId] (must be unique, usually this would be different
      * from the old ID but that's not a requirement). Sets the current [UserStyle] and clears
      * any complication data. Setting the new UserStyle may have a side effect of enabling or
@@ -347,6 +357,19 @@ internal class InteractiveWatchFaceClientImpl internal constructor(
 
     override val previewReferenceInstant: Instant
         get() = Instant.ofEpochMilli(iInteractiveWatchFace.previewReferenceTimeMillis)
+
+    override val overlayStyle: OverlayStyle
+        get() {
+            return if (iInteractiveWatchFace.apiVersion >= 4) {
+                val wireFormat = iInteractiveWatchFace.watchFaceOverlayStyle
+                OverlayStyle(
+                    wireFormat.backgroundColor,
+                    wireFormat.foregroundColor
+                )
+            } else {
+                OverlayStyle(null, null)
+            }
+        }
 
     override fun updateWatchFaceInstance(newInstanceId: String, userStyle: UserStyle) = TraceEvent(
         "InteractiveWatchFaceClientImpl.updateInstance"
