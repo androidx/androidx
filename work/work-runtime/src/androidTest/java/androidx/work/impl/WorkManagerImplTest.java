@@ -88,6 +88,7 @@ import androidx.work.OneTimeWorkRequest;
 import androidx.work.PeriodicWorkRequest;
 import androidx.work.WorkContinuation;
 import androidx.work.WorkInfo;
+import androidx.work.WorkManager;
 import androidx.work.WorkRequest;
 import androidx.work.impl.background.greedy.GreedyScheduler;
 import androidx.work.impl.background.systemalarm.RescheduleReceiver;
@@ -179,6 +180,18 @@ public class WorkManagerImplTest {
     public void tearDown() {
         WorkManagerImpl.setDelegate(null);
         ArchTaskExecutor.getInstance().setDelegate(null);
+    }
+
+    @Test
+    @SmallTest
+    public void testIsInitialized() {
+        assertThat(WorkManager.isInitialized(), is(true));
+    }
+
+    @Test
+    @SmallTest
+    public void testGetConfiguration() {
+        assertThat(mWorkManagerImpl.getConfiguration(), is(mConfiguration));
     }
 
     @Test
