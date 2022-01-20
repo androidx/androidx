@@ -53,9 +53,6 @@ actual open class SparseArray<E>
         gc()
     }
 
-    // Suppression necessary, see KT-43542.
-    @Suppress("INAPPLICABLE_JVM_NAME")
-    @get:JvmName("size") // Binary compatibility with Java.
     actual open val size: Int get() = commonSize()
 
     actual open fun isEmpty(): Boolean = commonIsEmpty()
@@ -120,7 +117,10 @@ actual open class SparseArray<E>
 
 // typealias can't be used for JVM interop, so we have to resort to this.
 // TODO(KT-21489): Follow up.
-@Deprecated("Use SparseArray")
+@Deprecated(
+    message = "Use androidx.collection.SparseArray",
+    replaceWith = ReplaceWith("SparseArray", "androidx.collection.SparseArray"),
+)
 open class SparseArrayCompat<E> : SparseArray<E> {
     @Deprecated("Use SparseArray", ReplaceWith("SparseArray<E>()"))
     constructor() : super()
@@ -138,4 +138,11 @@ open class SparseArrayCompat<E> : SparseArray<E> {
     open fun putAll(other: SparseArrayCompat<out E>) {
         super.putAll(other)
     }
+
+    /**
+     * Returns the number of key-value mappings that this SparseArray
+     * currently stores.
+     */
+    @Deprecated("Replaced with property", ReplaceWith("size"), DeprecationLevel.WARNING)
+    open fun size(): Int = commonSize()
 }
