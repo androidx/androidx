@@ -722,6 +722,40 @@ class RemoteViewsTranslatorKtTest {
     }
 
     @Test
+    fun canTranslateCircularProgressIndicator() = fakeCoroutineScope.runBlockingTest {
+        val rv = context.runAndTranslate {
+            CircularProgressIndicator()
+        }
+
+        val progressIndicator = assertIs<android.widget.ProgressBar>(context.applyRemoteViews(rv))
+        assertThat(progressIndicator.isIndeterminate()).isTrue()
+    }
+
+    @Test
+    fun canTranslateLinearProgressIndicator_determinate() = fakeCoroutineScope.runBlockingTest {
+        val rv = context.runAndTranslate {
+            LinearProgressIndicator(
+                progress = 0.5f,
+            )
+        }
+
+        val progressIndicator = assertIs<android.widget.ProgressBar>(context.applyRemoteViews(rv))
+        assertThat(progressIndicator.isIndeterminate()).isFalse()
+        assertThat(progressIndicator.getMax()).isEqualTo(100)
+        assertThat(progressIndicator.getProgress()).isEqualTo(50)
+    }
+
+    @Test
+    fun canTranslateLinearProgressIndicator_indeterminate() = fakeCoroutineScope.runBlockingTest {
+        val rv = context.runAndTranslate {
+            LinearProgressIndicator()
+        }
+
+        val progressIndicator = assertIs<android.widget.ProgressBar>(context.applyRemoteViews(rv))
+        assertThat(progressIndicator.isIndeterminate()).isTrue()
+    }
+
+    @Test
     fun canTranslateBackground_red() = fakeCoroutineScope.runBlockingTest {
         val rv = context.runAndTranslate {
             Box(modifier = GlanceModifier.background(Color.Red)) {}

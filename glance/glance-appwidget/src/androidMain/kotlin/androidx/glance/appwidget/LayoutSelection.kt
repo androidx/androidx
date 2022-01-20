@@ -87,6 +87,8 @@ internal enum class LayoutType {
     CheckBoxBackport,
     Button,
     Frame,
+    LinearProgressIndicator,
+    CircularProgressIndicator,
 
     // Note: Java keywords, such as 'switch', can't be used for layout ids.
     Swtch,
@@ -109,6 +111,8 @@ private val LayoutMap = mapOf(
     LayoutType.ImageCrop to R.layout.image_crop,
     LayoutType.ImageFit to R.layout.image_fit,
     LayoutType.ImageFillBounds to R.layout.image_fill_bounds,
+    LayoutType.LinearProgressIndicator to R.layout.linear_progress_indicator,
+    LayoutType.CircularProgressIndicator to R.layout.circular_progress_indicator,
 )
 
 internal data class SizeSelector(
