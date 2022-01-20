@@ -282,6 +282,7 @@ package androidx.wear.watchface {
   public final class WatchFace {
     ctor public WatchFace(int watchFaceType, androidx.wear.watchface.Renderer renderer);
     method public androidx.wear.watchface.WatchFace.LegacyWatchFaceOverlayStyle getLegacyWatchFaceStyle();
+    method public androidx.wear.watchface.WatchFace.OverlayStyle getOverlayStyle();
     method public java.time.Instant? getOverridePreviewReferenceInstant();
     method public androidx.wear.watchface.Renderer getRenderer();
     method public int getWatchFaceType();
@@ -289,11 +290,13 @@ package androidx.wear.watchface {
     method public androidx.wear.watchface.WatchFace setComplicationDeniedDialogIntent(android.content.Intent? complicationDeniedDialogIntent);
     method public androidx.wear.watchface.WatchFace setComplicationRationaleDialogIntent(android.content.Intent? complicationRationaleDialogIntent);
     method public androidx.wear.watchface.WatchFace setLegacyWatchFaceStyle(androidx.wear.watchface.WatchFace.LegacyWatchFaceOverlayStyle legacyWatchFaceStyle);
+    method public androidx.wear.watchface.WatchFace setOverlayStyle(androidx.wear.watchface.WatchFace.OverlayStyle watchFaceOverlayStyle);
     method public androidx.wear.watchface.WatchFace setOverridePreviewReferenceInstant(java.time.Instant previewReferenceTimeMillis);
     method public androidx.wear.watchface.WatchFace setPendingIntentTapListener(androidx.wear.watchface.WatchFace.PendingIntentTapListener? pendingIntentTapListener);
     method public androidx.wear.watchface.WatchFace setTapListener(androidx.wear.watchface.WatchFace.TapListener? tapListener);
     method public void setWatchFaceType(int watchFaceType);
     property public final androidx.wear.watchface.WatchFace.LegacyWatchFaceOverlayStyle legacyWatchFaceStyle;
+    property public final androidx.wear.watchface.WatchFace.OverlayStyle overlayStyle;
     property public final java.time.Instant? overridePreviewReferenceInstant;
     property public final androidx.wear.watchface.Renderer renderer;
     property public final int watchFaceType;
@@ -315,6 +318,15 @@ package androidx.wear.watchface {
     property public final int statusBarGravity;
     property public final boolean tapEventsAccepted;
     property public final int viewProtectionMode;
+  }
+
+  public static final class WatchFace.OverlayStyle {
+    ctor public WatchFace.OverlayStyle(android.graphics.Color? backgroundColor, android.graphics.Color? foregroundColor);
+    ctor public WatchFace.OverlayStyle();
+    method public android.graphics.Color? getBackgroundColor();
+    method public android.graphics.Color? getForegroundColor();
+    property public final android.graphics.Color? backgroundColor;
+    property public final android.graphics.Color? foregroundColor;
   }
 
   public static interface WatchFace.PendingIntentTapListener {

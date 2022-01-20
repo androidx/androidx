@@ -28,6 +28,7 @@ import androidx.wear.watchface.WatchFaceService
 import androidx.wear.watchface.control.data.WatchFaceRenderParams
 import androidx.wear.watchface.data.IdAndComplicationDataWireFormat
 import androidx.wear.watchface.data.IdAndComplicationStateWireFormat
+import androidx.wear.watchface.data.WatchFaceOverlayStyleWireFormat
 import androidx.wear.watchface.data.WatchUiState
 import androidx.wear.watchface.runBlockingWithTracing
 import androidx.wear.watchface.style.data.UserStyleSchemaWireFormat
@@ -103,6 +104,16 @@ internal class InteractiveWatchFaceImpl(
                 )
             )
         }
+
+    override fun getWatchFaceOverlayStyle() =
+        awaitDeferredWatchFaceImplThenRunOnUiThreadBlocking(
+            "InteractiveWatchFaceImpl.getWatchFaceOverlayStyle"
+        ) {
+        watchFaceImpl -> WatchFaceOverlayStyleWireFormat(
+            watchFaceImpl.overlayStyle.backgroundColor,
+            watchFaceImpl.overlayStyle.foregroundColor
+        )
+    }
 
     override fun getContentDescriptionLabels(): Array<ContentDescriptionLabel>? {
         return awaitDeferredWatchFaceImplThenRunOnUiThreadBlocking(
