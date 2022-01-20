@@ -20,6 +20,10 @@ buildscript {
         maven {
             url = new File(buildscript.sourceFile.parent + "/../../prebuilts/androidx/external").getCanonicalFile()
         }
+        if (System.getenv("ALLOW_PUBLIC_REPOS") != null) {
+            mavenCentral()
+            gradlePluginPortal()
+        }
     }
 
     dependencies {
