@@ -29,6 +29,7 @@ import android.os.Process;
 import android.os.StrictMode;
 import android.util.Log;
 
+import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -38,6 +39,7 @@ import androidx.core.provider.FontsContractCompat;
 import java.io.Closeable;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -65,7 +67,7 @@ public class TypefaceCompatUtil {
      * Returns null if failed to create temp file.
      */
     @Nullable
-    public static File getTempFile(Context context) {
+    public static File getTempFile(@NonNull Context context) {
         File cacheDir = context.getCacheDir();
         if (cacheDir == null) {
             return null;
@@ -105,9 +107,11 @@ public class TypefaceCompatUtil {
      */
     @Nullable
     @RequiresApi(19)
-    public static ByteBuffer mmap(Context context, CancellationSignal cancellationSignal, Uri uri) {
+    public static ByteBuffer mmap(@NonNull Context context,
+            @Nullable CancellationSignal cancellationSignal, @NonNull Uri uri) {
         final ContentResolver resolver = context.getContentResolver();
-        try (ParcelFileDescriptor pfd = resolver.openFileDescriptor(uri, "r", cancellationSignal)) {
+        try (ParcelFileDescriptor pfd = Api19Impl.openFileDescriptor(resolver, uri, "r",
+                cancellationSignal)) {
             if (pfd == null) {
                 return null;
             }
@@ -124,9 +128,11 @@ public class TypefaceCompatUtil {
     /**
      * Copy the resource contents to the direct byte buffer.
      */
+    @SuppressWarnings("ResultOfMethodCallIgnored")
     @Nullable
     @RequiresApi(19)
-    public static ByteBuffer copyToDirectBuffer(Context context, Resources res, int id) {
+    public static ByteBuffer copyToDirectBuffer(@NonNull Context context, @NonNull Resources res,
+            int id) {
         File tmpFile = getTempFile(context);
         if (tmpFile == null) {
             return null;
@@ -144,7 +150,7 @@ public class TypefaceCompatUtil {
     /**
      * Copy the input stream contents to file.
      */
-    public static boolean copyToFile(File file, InputStream is) {
+    public static boolean copyToFile(@NonNull File file, @NonNull InputStream is) {
         FileOutputStream os = null;
         StrictMode.ThreadPolicy old = StrictMode.allowThreadDiskWrites();
         try {
@@ -167,7 +173,8 @@ public class TypefaceCompatUtil {
     /**
      * Copy the resource contents to file.
      */
-    public static boolean copyToFile(File file, Resources res, int id) {
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
+    public static boolean copyToFile(@NonNull File file, @NonNull Resources res, int id) {
         InputStream is = null;
         try {
             is = res.openRawResource(id);
@@ -177,11 +184,17 @@ public class TypefaceCompatUtil {
         }
     }
 
-    public static void closeQuietly(Closeable c) {
+    /**
+     * Attempts to close a Closeable, swallowing any resulting IOException.
+     *
+     * @param c the closeable to close
+     */
+    public static void closeQuietly(@Nullable Closeable c) {
         if (c != null) {
             try {
                 c.close();
             } catch (IOException e) {
+                // Quietly!
             }
         }
     }
@@ -221,5 +234,19 @@ public class TypefaceCompatUtil {
             out.put(uri, buffer);
         }
         return Collections.unmodifiableMap(out);
+    }
+
+    @RequiresApi(19)
+    static class Api19Impl {
+        private Api19Impl() {
+            // This class is not instantiable.
+        }
+
+        @SuppressWarnings("SameParameterValue")
+        @DoNotInline
+        static ParcelFileDescriptor openFileDescriptor(ContentResolver contentResolver, Uri uri,
+                String mode, CancellationSignal cancellationSignal) throws FileNotFoundException {
+            return contentResolver.openFileDescriptor(uri, mode, cancellationSignal);
+        }
     }
 }
