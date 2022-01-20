@@ -17,11 +17,13 @@
 package androidx.window.embedding
 
 import android.util.Log
+import androidx.window.core.ConsumerAdapter
 import androidx.window.core.ExperimentalWindowApi
 import androidx.window.embedding.EmbeddingInterfaceCompat.EmbeddingCallbackInterface
 import androidx.window.extensions.WindowExtensionsProvider
 import androidx.window.extensions.embedding.ActivityEmbeddingComponent
 import java.lang.reflect.Proxy
+import androidx.window.extensions.embedding.SplitInfo as OEMSplitInfo
 
 /**
  * Adapter implementation for different historical versions of activity embedding OEM interface in
@@ -30,7 +32,8 @@ import java.lang.reflect.Proxy
 @ExperimentalWindowApi
 internal class EmbeddingCompat constructor(
     private val embeddingExtension: ActivityEmbeddingComponent,
-    private val adapter: EmbeddingAdapter
+    private val adapter: EmbeddingAdapter,
+    private val consumerAdapter: ConsumerAdapter
 ) : EmbeddingInterfaceCompat {
 
     override fun setSplitRules(rules: Set<EmbeddingRule>) {
@@ -39,14 +42,13 @@ internal class EmbeddingCompat constructor(
     }
 
     override fun setEmbeddingCallback(embeddingCallback: EmbeddingCallbackInterface) {
-        try {
-            embeddingExtension.setSplitInfoCallback { splitInfoList ->
-                embeddingCallback.onSplitInfoChanged(
-                    adapter.translate(splitInfoList)
-                )
-            }
-        } catch (e: NoSuchMethodError) {
-            // TODO(b/203472665): Remove the try-catch wrapper after the issue is resolved
+        consumerAdapter.addConsumer(
+            embeddingExtension,
+            List::class,
+            "setSplitInfoCallback"
+        ) { values ->
+            val splitInfoList = values.filterIsInstance<OEMSplitInfo>()
+            embeddingCallback.onSplitInfoChanged(adapter.translate(splitInfoList))
         }
     }
 

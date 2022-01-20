@@ -16,17 +16,16 @@
 
 package androidx.window.layout
 
-import android.annotation.SuppressLint
 import android.app.Activity
 import androidx.annotation.GuardedBy
 import androidx.core.util.Consumer
+import androidx.window.core.ConsumerAdapter
 import androidx.window.extensions.layout.WindowLayoutComponent
 import androidx.window.layout.ExtensionsWindowLayoutInfoAdapter.translate
 import java.util.concurrent.Executor
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
 import androidx.window.extensions.layout.WindowLayoutInfo as OEMWindowLayoutInfo
-import java.util.function.Consumer as JavaConsumer
 
 /**
  * A wrapper around [WindowLayoutComponent] that ensures
@@ -34,7 +33,8 @@ import java.util.function.Consumer as JavaConsumer
  * there are active listeners.
  */
 internal class ExtensionWindowLayoutInfoBackend(
-    private val component: WindowLayoutComponent
+    private val component: WindowLayoutComponent,
+    private val consumerAdapter: ConsumerAdapter
 ) : WindowBackend {
 
     private val extensionWindowBackendLock = ReentrantLock()
@@ -42,6 +42,8 @@ internal class ExtensionWindowLayoutInfoBackend(
     private val activityToListeners = mutableMapOf<Activity, MulticastConsumer>()
     @GuardedBy("lock")
     private val listenerToActivity = mutableMapOf<Consumer<WindowLayoutInfo>, Activity>()
+    @GuardedBy("lock")
+    private val consumerToToken = mutableMapOf<MulticastConsumer, ConsumerAdapter.Subscription>()
 
     /**
      * Registers a listener to consume new values of [WindowLayoutInfo]. If there was a listener
@@ -65,7 +67,16 @@ internal class ExtensionWindowLayoutInfoBackend(
                 activityToListeners[activity] = consumer
                 listenerToActivity[callback] = activity
                 consumer.addListener(callback)
-                component.addWindowLayoutInfoListener(activity, consumer)
+                val disposableToken = consumerAdapter.createSubscription(
+                    component,
+                    OEMWindowLayoutInfo::class,
+                    "addWindowLayoutInfoListener",
+                    "removeWindowLayoutInfoListener",
+                    activity
+                ) { value ->
+                    consumer.accept(value)
+                }
+                consumerToToken[consumer] = disposableToken
             }
         }
     }
@@ -81,20 +92,19 @@ internal class ExtensionWindowLayoutInfoBackend(
             val multicastListener = activityToListeners[activity] ?: return
             multicastListener.removeListener(callback)
             if (multicastListener.isEmpty()) {
-                component.removeWindowLayoutInfoListener(multicastListener)
+                consumerToToken.remove(multicastListener)?.dispose()
             }
         }
     }
 
     /**
-     * A class that implements [JavaConsumer] by aggregating multiple instances of [JavaConsumer]
+     * A class that implements [Consumer] by aggregating multiple instances of [Consumer]
      * and multicasting each value that is consumed. [MulticastConsumer] also replays the last known
      * value whenever a new consumer registers.
      */
-    @SuppressLint("NewApi") // TODO(b/205656281) window-extensions is only available in R+
     private class MulticastConsumer(
         private val activity: Activity
-    ) : JavaConsumer<OEMWindowLayoutInfo> {
+    ) : Consumer<OEMWindowLayoutInfo> {
         private val multicastConsumerLock = ReentrantLock()
         @GuardedBy("lock")
         private var lastKnownValue: WindowLayoutInfo? = null

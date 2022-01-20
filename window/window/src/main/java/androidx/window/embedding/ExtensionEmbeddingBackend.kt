@@ -21,6 +21,7 @@ import android.util.Log
 import androidx.annotation.GuardedBy
 import androidx.annotation.VisibleForTesting
 import androidx.core.util.Consumer
+import androidx.window.core.ConsumerAdapter
 import androidx.window.core.ExperimentalWindowApi
 import androidx.window.core.PredicateAdapter
 import androidx.window.embedding.EmbeddingInterfaceCompat.EmbeddingCallbackInterface
@@ -78,7 +79,8 @@ internal class ExtensionEmbeddingBackend @VisibleForTesting constructor(
                     impl = EmbeddingBackend::class.java.classLoader?.let { loader ->
                         EmbeddingCompat(
                             EmbeddingCompat.embeddingComponent(),
-                            EmbeddingAdapter(PredicateAdapter(loader))
+                            EmbeddingAdapter(PredicateAdapter(loader)),
+                            ConsumerAdapter(loader)
                         )
                     }
                     // TODO(b/190433400): Check API conformance
