@@ -34,6 +34,7 @@ import android.provider.Settings
 import android.support.wearable.watchface.SharedMemoryImage
 import android.support.wearable.watchface.WatchFaceStyle
 import android.view.Gravity
+import android.view.Surface
 import android.view.Surface.FRAME_RATE_COMPATIBILITY_DEFAULT
 import androidx.annotation.ColorInt
 import androidx.annotation.IntDef
@@ -799,17 +800,18 @@ public class WatchFaceImpl @UiThread constructor(
 
     // Only installed if Build.VERSION.SDK_INT >= Build.VERSION_CODES.R
     @SuppressLint("NewApi")
+    @RequiresApi(Build.VERSION_CODES.R)
     private fun batteryLowAndNotCharging(it: Boolean) {
         // To save power we request a lower hardware display frame rate when the battery is low
         // and not charging.
         if (renderer.surfaceHolder.surface.isValid) {
-            renderer.surfaceHolder.surface.setFrameRate(
+            SetFrameRateHelper.setFrameRate(
+                renderer.surfaceHolder.surface,
                 if (it) {
                     1000f / MAX_LOW_POWER_INTERACTIVE_UPDATE_RATE_MS.toFloat()
                 } else {
                     SYSTEM_DECIDES_FRAME_RATE
-                },
-                FRAME_RATE_COMPATIBILITY_DEFAULT
+                }
             )
         }
     }
@@ -1374,6 +1376,15 @@ public class WatchFaceImpl @UiThread constructor(
         complicationSlotsManager.dump(writer)
         renderer.dumpInternal(writer)
         writer.decreaseIndent()
+    }
+}
+
+internal class SetFrameRateHelper {
+    @RequiresApi(Build.VERSION_CODES.R)
+    companion object {
+        fun setFrameRate(surface: Surface, frameRate: Float) {
+            surface.setFrameRate(frameRate, FRAME_RATE_COMPATIBILITY_DEFAULT)
+        }
     }
 }
 
