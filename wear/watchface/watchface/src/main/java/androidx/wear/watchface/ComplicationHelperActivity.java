@@ -17,7 +17,6 @@
 package androidx.wear.watchface;
 
 import android.app.Activity;
-import android.app.PendingIntent;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -33,7 +32,6 @@ import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.FragmentActivity;
-import androidx.wear.watchface.complications.ComplicationDataSourceUpdateRequesterConstants;
 import androidx.wear.watchface.complications.data.ComplicationType;
 
 import java.util.Collection;
@@ -101,9 +99,6 @@ public final class ComplicationHelperActivity extends FragmentActivity
     public static final String ACTION_PERMISSION_REQUEST_ONLY =
             "android.support.wearable.complications.ACTION_PERMISSION_REQUEST_ONLY";
 
-    /** The package of the service that accepts complication data source requests. */
-    private static final String UPDATE_REQUEST_RECEIVER_PACKAGE = "com.google.android.wearable.app";
-
     static final int PERMISSION_REQUEST_CODE_PROVIDER_CHOOSER = 1;
     static final int PERMISSION_REQUEST_CODE_PROVIDER_CHOOSER_NO_DENIED_INTENT = 2;
     static final int PERMISSION_REQUEST_CODE_REQUEST_ONLY = 3;
@@ -142,9 +137,6 @@ public final class ComplicationHelperActivity extends FragmentActivity
         void launchComplicationDeniedActivity();
 
         void startComplicationDataSourceChooser();
-
-        /** Requests that the system update all active complications on the watch face. */
-        void requestUpdateAll();
     }
 
     private static class DelegateImpl implements Delegate {
@@ -225,19 +217,6 @@ public final class ComplicationHelperActivity extends FragmentActivity
             }
             mActivity.startActivityForResult(intent, START_REQUEST_CODE_PROVIDER_CHOOSER);
         }
-
-        @Override
-        public void requestUpdateAll() {
-            Intent intent = new Intent(ACTION_REQUEST_UPDATE_ALL_ACTIVE);
-            intent.setPackage(UPDATE_REQUEST_RECEIVER_PACKAGE);
-            intent.putExtra(EXTRA_WATCH_FACE_COMPONENT, mActivity.mWatchFace);
-            // Add a placeholder PendingIntent to allow the UID to be checked.
-            intent.putExtra(
-                    ComplicationDataSourceUpdateRequesterConstants.EXTRA_PENDING_INTENT,
-                    PendingIntent.getActivity(
-                            mActivity, 0, new Intent(""), PendingIntent.FLAG_IMMUTABLE));
-            mActivity.sendBroadcast(intent);
-        }
     }
 
     @Override
@@ -309,7 +288,6 @@ public final class ComplicationHelperActivity extends FragmentActivity
             } else {
                 finish();
             }
-            mDelegate.requestUpdateAll();
         } else {
             if (requestCode == PERMISSION_REQUEST_CODE_PROVIDER_CHOOSER
                     || requestCode == PERMISSION_REQUEST_CODE_REQUEST_ONLY) {
