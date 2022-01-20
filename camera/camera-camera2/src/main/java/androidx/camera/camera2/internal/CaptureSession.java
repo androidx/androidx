@@ -311,6 +311,8 @@ final class CaptureSession implements CaptureSessionInterface {
                         OutputConfigurationCompat outputConfiguration =
                                 new OutputConfigurationCompat(surface);
                         // Set the desired physical camera ID, or null to use the logical stream.
+                        // TODO(b/219414502): Configure different streams with different physical
+                        //  camera IDs.
                         outputConfiguration.setPhysicalCameraId(
                                 camera2Config.getPhysicalCameraId(null));
                         outputConfigList.add(outputConfiguration);
