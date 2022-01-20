@@ -71,6 +71,7 @@ package androidx.window.extensions.embedding {
 
   @androidx.window.extensions.ExperimentalWindowExtensionsApi public class SplitPlaceholderRule extends androidx.window.extensions.embedding.SplitRule {
     method public android.content.Intent getPlaceholderIntent();
+    method public boolean isSticky();
     method @RequiresApi(api=android.os.Build.VERSION_CODES.N) public boolean matchesActivity(android.app.Activity);
     method @RequiresApi(api=android.os.Build.VERSION_CODES.N) public boolean matchesIntent(android.content.Intent);
   }
@@ -80,6 +81,7 @@ package androidx.window.extensions.embedding {
     method public androidx.window.extensions.embedding.SplitPlaceholderRule build();
     method public androidx.window.extensions.embedding.SplitPlaceholderRule.Builder setLayoutDirection(int);
     method public androidx.window.extensions.embedding.SplitPlaceholderRule.Builder setSplitRatio(float);
+    method public androidx.window.extensions.embedding.SplitPlaceholderRule.Builder setSticky(boolean);
   }
 
   @androidx.window.extensions.ExperimentalWindowExtensionsApi public abstract class SplitRule extends androidx.window.extensions.embedding.EmbeddingRule {

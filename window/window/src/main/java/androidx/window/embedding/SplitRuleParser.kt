@@ -168,6 +168,7 @@ internal class SplitRuleParser {
         parser: XmlResourceParser
     ): SplitPlaceholderRule {
         val placeholderActivityIntentName: String?
+        val stickyPlaceholder: Boolean
         val ratio: Float
         val minWidth: Int
         val minSmallestWidth: Int
@@ -181,6 +182,8 @@ internal class SplitRuleParser {
             placeholderActivityIntentName = getString(
                 R.styleable.SplitPlaceholderRule_placeholderActivityName
             )
+            stickyPlaceholder = getBoolean(R.styleable.SplitPlaceholderRule_stickyPlaceholder,
+                false)
             ratio = getFloat(R.styleable.SplitPlaceholderRule_splitRatio, 0.0f)
             minWidth = getDimension(R.styleable.SplitPlaceholderRule_splitMinWidth, 0.0f).toInt()
             minSmallestWidth = getDimension(
@@ -201,6 +204,7 @@ internal class SplitRuleParser {
         return SplitPlaceholderRule(
             emptySet(),
             Intent().setComponent(placeholderActivityClassName),
+            stickyPlaceholder,
             minWidth,
             minSmallestWidth,
             ratio,

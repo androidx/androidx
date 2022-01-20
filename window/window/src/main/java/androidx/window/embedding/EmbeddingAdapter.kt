@@ -114,6 +114,26 @@ internal class EmbeddingAdapter {
         }
     }
 
+    private fun translateSplitPlaceholderRule(
+        rule: SplitPlaceholderRule
+    ): androidx.window.extensions.embedding.SplitPlaceholderRule {
+        val builder = SplitPlaceholderRuleBuilder(
+            rule.placeholderIntent,
+            translateActivityPredicates(rule.filters),
+            translateIntentPredicates(rule.filters),
+            translateParentMetricsPredicate(rule)
+        )
+            .setSplitRatio(rule.splitRatio)
+            .setLayoutDirection(rule.layoutDirection)
+
+        try {
+            builder.setSticky(rule.isSticky)
+        } catch (error: NoSuchMethodError) {
+            // TODO(b/205181250): Old extension interface, to be dropped with next developer preview
+        }
+        return builder.build()
+    }
+
     fun translate(
         rules: Set<EmbeddingRule>
     ): Set<androidx.window.extensions.embedding.EmbeddingRule> {
@@ -133,15 +153,7 @@ internal class EmbeddingAdapter {
                         .setShouldClearTop(rule.clearTop)
                         .build()
                 is SplitPlaceholderRule ->
-                    SplitPlaceholderRuleBuilder(
-                        rule.placeholderIntent,
-                        translateActivityPredicates(rule.filters),
-                        translateIntentPredicates(rule.filters),
-                        translateParentMetricsPredicate(rule)
-                    )
-                        .setSplitRatio(rule.splitRatio)
-                        .setLayoutDirection(rule.layoutDirection)
-                        .build()
+                    translateSplitPlaceholderRule(rule)
                 is ActivityRule ->
                     ActivityRuleBuilder(
                         translateActivityPredicates(rule.filters),

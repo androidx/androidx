@@ -105,6 +105,7 @@ public class SplitActivityBase extends AppCompatActivity
         // activities.
         mViewBinding.splitMainCheckBox.setOnCheckedChangeListener(this);
         mViewBinding.usePlaceholderCheckBox.setOnCheckedChangeListener(this);
+        mViewBinding.useStickyPlaceholderCheckBox.setOnCheckedChangeListener(this);
         mViewBinding.splitBCCheckBox.setOnCheckedChangeListener(this);
         mViewBinding.finishBCCheckBox.setOnCheckedChangeListener(this);
         mViewBinding.fullscreenECheckBox.setOnCheckedChangeListener(this);
@@ -146,6 +147,13 @@ public class SplitActivityBase extends AppCompatActivity
                 mViewBinding.finishBCCheckBox.setEnabled(false);
                 mViewBinding.finishBCCheckBox.setChecked(false);
             }
+        } else if (c.getId() == mViewBinding.usePlaceholderCheckBox.getId()) {
+            if (isChecked) {
+                mViewBinding.useStickyPlaceholderCheckBox.setEnabled(true);
+            } else {
+                mViewBinding.useStickyPlaceholderCheckBox.setEnabled(false);
+                mViewBinding.useStickyPlaceholderCheckBox.setChecked(false);
+            }
         }
         updateRulesFromCheckboxes();
     }
@@ -158,6 +166,9 @@ public class SplitActivityBase extends AppCompatActivity
 
         SplitPlaceholderRule placeholderForBConfig = getPlaceholderRule(SplitActivityB.class);
         mViewBinding.usePlaceholderCheckBox.setChecked(placeholderForBConfig != null);
+        mViewBinding.useStickyPlaceholderCheckBox.setEnabled(placeholderForBConfig != null);
+        mViewBinding.useStickyPlaceholderCheckBox.setChecked(placeholderForBConfig != null
+                && placeholderForBConfig.isSticky());
 
         SplitPairRule bAndCPairConfig = getRuleFor(SplitActivityB.class,
                 SplitActivityC.class);
@@ -189,10 +200,12 @@ public class SplitActivityBase extends AppCompatActivity
     SplitPlaceholderRule getPlaceholderRule(Class<? extends Activity> a) {
         Set<EmbeddingRule> currentRules = mSplitController.getSplitRules();
         for (EmbeddingRule rule : currentRules) {
-            if (rule instanceof SplitPlaceholderRule
-                    && ((SplitPlaceholderRule) rule).getPlaceholderIntent().getComponent()
-                    .getClassName().equals(a.getName())) {
-                return (SplitPlaceholderRule) rule;
+            if (rule instanceof SplitPlaceholderRule) {
+                for (ActivityFilter filter : ((SplitPlaceholderRule) rule).getFilters()) {
+                    if (filter.getComponentName().getClassName().equals(a.getName())) {
+                        return (SplitPlaceholderRule) rule;
+                    }
+                }
             }
         }
         return null;
@@ -258,7 +271,8 @@ public class SplitActivityBase extends AppCompatActivity
         intent.setComponent(
                 componentName("androidx.window.sample.embedding.SplitActivityPlaceholder"));
         SplitPlaceholderRule placeholderRule = new SplitPlaceholderRule(activityFilters, intent,
-                minSplitWidth, minSplitWidth, SPLIT_RATIO, LayoutDirection.LOCALE);
+                mViewBinding.useStickyPlaceholderCheckBox.isChecked(), minSplitWidth, minSplitWidth,
+                SPLIT_RATIO, LayoutDirection.LOCALE);
         if (mViewBinding.usePlaceholderCheckBox.isChecked()) {
             mSplitController.registerRule(placeholderRule);
         }
