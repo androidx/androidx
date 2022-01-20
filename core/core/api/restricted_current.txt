@@ -1532,7 +1532,7 @@ package androidx.core.graphics {
     method public static androidx.core.graphics.Insets of(android.graphics.Rect);
     method public static androidx.core.graphics.Insets subtract(androidx.core.graphics.Insets, androidx.core.graphics.Insets);
     method @RequiresApi(api=29) public static androidx.core.graphics.Insets toCompatInsets(android.graphics.Insets);
-    method @RequiresApi(api=29) public android.graphics.Insets toPlatformInsets();
+    method @RequiresApi(29) public android.graphics.Insets toPlatformInsets();
     method @Deprecated @RequiresApi(api=29) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static androidx.core.graphics.Insets wrap(android.graphics.Insets);
     field public static final androidx.core.graphics.Insets NONE;
     field public final int bottom;
@@ -1604,12 +1604,12 @@ package androidx.core.graphics {
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class TypefaceCompatUtil {
-    method public static void closeQuietly(java.io.Closeable!);
-    method @RequiresApi(19) public static java.nio.ByteBuffer? copyToDirectBuffer(android.content.Context!, android.content.res.Resources!, int);
-    method public static boolean copyToFile(java.io.File!, java.io.InputStream!);
-    method public static boolean copyToFile(java.io.File!, android.content.res.Resources!, int);
-    method public static java.io.File? getTempFile(android.content.Context!);
-    method @RequiresApi(19) public static java.nio.ByteBuffer? mmap(android.content.Context!, android.os.CancellationSignal!, android.net.Uri!);
+    method public static void closeQuietly(java.io.Closeable?);
+    method @RequiresApi(19) public static java.nio.ByteBuffer? copyToDirectBuffer(android.content.Context, android.content.res.Resources, int);
+    method public static boolean copyToFile(java.io.File, java.io.InputStream);
+    method public static boolean copyToFile(java.io.File, android.content.res.Resources, int);
+    method public static java.io.File? getTempFile(android.content.Context);
+    method @RequiresApi(19) public static java.nio.ByteBuffer? mmap(android.content.Context, android.os.CancellationSignal?, android.net.Uri);
   }
 
 }
@@ -1621,7 +1621,7 @@ package androidx.core.graphics.drawable {
     method public static boolean canApplyTheme(android.graphics.drawable.Drawable);
     method public static void clearColorFilter(android.graphics.drawable.Drawable);
     method public static int getAlpha(android.graphics.drawable.Drawable);
-    method public static android.graphics.ColorFilter! getColorFilter(android.graphics.drawable.Drawable);
+    method public static android.graphics.ColorFilter? getColorFilter(android.graphics.drawable.Drawable);
     method public static int getLayoutDirection(android.graphics.drawable.Drawable);
     method public static void inflate(android.graphics.drawable.Drawable, android.content.res.Resources, org.xmlpull.v1.XmlPullParser, android.util.AttributeSet, android.content.res.Resources.Theme?) throws java.io.IOException, org.xmlpull.v1.XmlPullParserException;
     method public static boolean isAutoMirrored(android.graphics.drawable.Drawable);
@@ -1634,7 +1634,7 @@ package androidx.core.graphics.drawable {
     method public static void setTintList(android.graphics.drawable.Drawable, android.content.res.ColorStateList?);
     method public static void setTintMode(android.graphics.drawable.Drawable, android.graphics.PorterDuff.Mode);
     method public static <T extends android.graphics.drawable.Drawable> T! unwrap(android.graphics.drawable.Drawable);
-    method public static android.graphics.drawable.Drawable! wrap(android.graphics.drawable.Drawable);
+    method public static android.graphics.drawable.Drawable wrap(android.graphics.drawable.Drawable);
   }
 
   @androidx.versionedparcelable.VersionedParcelize(allowSerialization=true, ignoreParcelables=true, isCustom=true, jetifyAs="android.support.v4.graphics.drawable.IconCompat") public class IconCompat extends androidx.versionedparcelable.CustomVersionedParcelable {
@@ -1644,15 +1644,15 @@ package androidx.core.graphics.drawable {
     method @RequiresApi(23) public static androidx.core.graphics.drawable.IconCompat? createFromIcon(android.content.Context, android.graphics.drawable.Icon);
     method @RequiresApi(23) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static androidx.core.graphics.drawable.IconCompat? createFromIcon(android.graphics.drawable.Icon);
     method @RequiresApi(23) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static androidx.core.graphics.drawable.IconCompat? createFromIconOrNullIfZeroResId(android.graphics.drawable.Icon);
-    method public static androidx.core.graphics.drawable.IconCompat! createWithAdaptiveBitmap(android.graphics.Bitmap!);
+    method public static androidx.core.graphics.drawable.IconCompat createWithAdaptiveBitmap(android.graphics.Bitmap);
     method public static androidx.core.graphics.drawable.IconCompat createWithAdaptiveBitmapContentUri(String);
     method public static androidx.core.graphics.drawable.IconCompat createWithAdaptiveBitmapContentUri(android.net.Uri);
-    method public static androidx.core.graphics.drawable.IconCompat! createWithBitmap(android.graphics.Bitmap!);
-    method public static androidx.core.graphics.drawable.IconCompat! createWithContentUri(String!);
-    method public static androidx.core.graphics.drawable.IconCompat! createWithContentUri(android.net.Uri!);
-    method public static androidx.core.graphics.drawable.IconCompat! createWithData(byte[]!, int, int);
-    method public static androidx.core.graphics.drawable.IconCompat! createWithResource(android.content.Context!, @DrawableRes int);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static androidx.core.graphics.drawable.IconCompat! createWithResource(android.content.res.Resources!, String!, @DrawableRes int);
+    method public static androidx.core.graphics.drawable.IconCompat createWithBitmap(android.graphics.Bitmap);
+    method public static androidx.core.graphics.drawable.IconCompat createWithContentUri(String);
+    method public static androidx.core.graphics.drawable.IconCompat createWithContentUri(android.net.Uri);
+    method public static androidx.core.graphics.drawable.IconCompat createWithData(byte[], int, int);
+    method public static androidx.core.graphics.drawable.IconCompat createWithResource(android.content.Context, @DrawableRes int);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static androidx.core.graphics.drawable.IconCompat createWithResource(android.content.res.Resources?, String, @DrawableRes int);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public android.graphics.Bitmap? getBitmap();
     method @IdRes public int getResId();
     method public String getResPackage();
@@ -1660,9 +1660,9 @@ package androidx.core.graphics.drawable {
     method public android.net.Uri getUri();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public java.io.InputStream? getUriInputStream(android.content.Context);
     method public android.graphics.drawable.Drawable? loadDrawable(android.content.Context);
-    method public androidx.core.graphics.drawable.IconCompat! setTint(@ColorInt int);
-    method public androidx.core.graphics.drawable.IconCompat! setTintList(android.content.res.ColorStateList!);
-    method public androidx.core.graphics.drawable.IconCompat! setTintMode(android.graphics.PorterDuff.Mode!);
+    method public androidx.core.graphics.drawable.IconCompat setTint(@ColorInt int);
+    method public androidx.core.graphics.drawable.IconCompat setTintList(android.content.res.ColorStateList?);
+    method public androidx.core.graphics.drawable.IconCompat setTintMode(android.graphics.PorterDuff.Mode?);
     method public android.os.Bundle toBundle();
     method @Deprecated @RequiresApi(23) public android.graphics.drawable.Icon toIcon();
     method @RequiresApi(23) public android.graphics.drawable.Icon toIcon(android.content.Context?);
