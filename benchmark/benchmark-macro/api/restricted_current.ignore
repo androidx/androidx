@@ -1,0 +1,3 @@
+// Baseline format: 1.0
+RemovedMethod: androidx.benchmark.macro.BaselineProfilesKt#collectBaselineProfile(String, String, kotlin.jvm.functions.Function1<? super androidx.benchmark.macro.MacrobenchmarkScope,kotlin.Unit>, kotlin.jvm.functions.Function1<? super androidx.benchmark.macro.MacrobenchmarkScope,kotlin.Unit>):
+    Removed method androidx.benchmark.macro.BaselineProfilesKt.collectBaselineProfile(String,String,kotlin.jvm.functions.Function1<? super androidx.benchmark.macro.MacrobenchmarkScope,kotlin.Unit>,kotlin.jvm.functions.Function1<? super androidx.benchmark.macro.MacrobenchmarkScope,kotlin.Unit>)

@@ -63,10 +63,8 @@ class GithubBrowserBaselineProfile {
     fun githubBrowserProfiles() {
         baselineRule.collectBaselineProfile(
             packageName = PACKAGE_NAME,
-            setupBlock = {
-                startActivityAndWait()
-            },
             profileBlock = {
+                startActivityAndWait()
                 val searchText = device.findObject(By.res(PACKAGE_NAME, REPO_SEARCH_ID))
                 searchText?.text = "Test"
                 val search = device.findObject(By.res(PACKAGE_NAME, SEARCH_ID))

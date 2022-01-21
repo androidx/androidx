@@ -78,12 +78,10 @@ class BaselineProfile {
     fun profile() {
         baselineRule.collectBaselineProfile(
             packageName = PACKAGE_NAME,
-            setupBlock = {
+            profileBlock = {
                 val intent = Intent()
                 intent.action = ACTION
                 startActivityAndWait(intent)
-            },
-            profileBlock = {
                 testDestination(ALERT_DIALOG)
                 testDestination(CONFIRMATION_DIALOG)
                 testDestination(STEPPER)
