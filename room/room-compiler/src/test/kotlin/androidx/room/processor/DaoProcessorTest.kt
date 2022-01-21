@@ -410,6 +410,35 @@ class DaoProcessorTest(private val enableVerification: Boolean) {
         }
     }
 
+    @Test
+    fun jvmNameOnDao() {
+        val source = Source.kotlin("MyDao.kt", """
+            import androidx.room.*;
+            @Dao
+            interface MyDao {
+                @Suppress("INAPPLICABLE_JVM_NAME")
+                @JvmName("jvmMethodName")
+                @Query("SELECT 1")
+                fun method(): Int
+            }
+        """.trimIndent())
+        runProcessorTest(sources = listOf(source)) { invocation ->
+            val dao = invocation.processingEnv.requireTypeElement("MyDao")
+            val dbType = invocation.context.processingEnv.requireType(RoomTypeNames.ROOM_DB)
+            DaoProcessor(
+                baseContext = invocation.context,
+                element = dao,
+                dbType = dbType,
+                dbVerifier = null
+            ).process()
+            invocation.assertCompilationResult {
+                hasWarningContaining(
+                    ProcessorErrors.JVM_NAME_ON_OVERRIDDEN_METHOD
+                )
+            }
+        }
+    }
+
     private fun singleDao(
         vararg inputs: String,
         classpathFiles: List<File> = emptyList(),
