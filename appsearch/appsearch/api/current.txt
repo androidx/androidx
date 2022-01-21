@@ -269,6 +269,7 @@ package androidx.appsearch.app {
 
   public final class GetSchemaResponse {
     method @RequiresFeature(enforcement="androidx.appsearch.app.Features#isFeatureSupported", name=androidx.appsearch.app.Features.ROLE_AND_PERMISSION_WITH_GET_VISIBILITY) public java.util.Map<java.lang.String!,java.util.Set<java.lang.String!>!> getAllowedRolesForSchemaTypeVisibility();
+    method @RequiresFeature(enforcement="androidx.appsearch.app.Features#isFeatureSupported", name=androidx.appsearch.app.Features.ROLE_AND_PERMISSION_WITH_GET_VISIBILITY) public java.util.Map<java.lang.String!,java.util.Set<java.lang.String!>!> getRequiredPermissionsForSchemaTypeVisibility();
     method @RequiresFeature(enforcement="androidx.appsearch.app.Features#isFeatureSupported", name=androidx.appsearch.app.Features.ROLE_AND_PERMISSION_WITH_GET_VISIBILITY) public java.util.Set<java.lang.String!> getSchemaTypesNotDisplayedBySystem();
     method @RequiresFeature(enforcement="androidx.appsearch.app.Features#isFeatureSupported", name=androidx.appsearch.app.Features.ROLE_AND_PERMISSION_WITH_GET_VISIBILITY) public java.util.Map<java.lang.String!,java.util.Set<androidx.appsearch.app.PackageIdentifier!>!> getSchemaTypesVisibleToPackages();
     method public java.util.Set<androidx.appsearch.app.AppSearchSchema!> getSchemas();
@@ -281,6 +282,7 @@ package androidx.appsearch.app {
     method public androidx.appsearch.app.GetSchemaResponse.Builder addSchemaTypeNotDisplayedBySystem(String);
     method public androidx.appsearch.app.GetSchemaResponse build();
     method public androidx.appsearch.app.GetSchemaResponse.Builder setAllowedRolesForSchemaTypeVisibility(String, java.util.Set<java.lang.String!>);
+    method public androidx.appsearch.app.GetSchemaResponse.Builder setRequiredPermissionsForSchemaTypeVisibility(String, java.util.Set<java.lang.String!>);
     method public androidx.appsearch.app.GetSchemaResponse.Builder setSchemaTypeVisibleToPackages(String, java.util.Set<androidx.appsearch.app.PackageIdentifier!>);
     method public androidx.appsearch.app.GetSchemaResponse.Builder setVersion(@IntRange(from=0) int);
   }
@@ -463,6 +465,7 @@ package androidx.appsearch.app {
   public final class SetSchemaRequest {
     method public java.util.Map<java.lang.String!,java.util.Set<java.lang.String!>!> getAllowedRolesForSchemaTypeVisibility();
     method public java.util.Map<java.lang.String!,androidx.appsearch.app.Migrator!> getMigrators();
+    method public java.util.Map<java.lang.String!,java.util.Set<java.lang.String!>!> getRequiredPermissionsForSchemaTypeVisibility();
     method public java.util.Set<androidx.appsearch.app.AppSearchSchema!> getSchemas();
     method public java.util.Set<java.lang.String!> getSchemasNotDisplayedBySystem();
     method public java.util.Map<java.lang.String!,java.util.Set<androidx.appsearch.app.PackageIdentifier!>!> getSchemasVisibleToPackages();
@@ -486,6 +489,8 @@ package androidx.appsearch.app {
     method public androidx.appsearch.app.SetSchemaRequest.Builder setForceOverride(boolean);
     method public androidx.appsearch.app.SetSchemaRequest.Builder setMigrator(String, androidx.appsearch.app.Migrator);
     method public androidx.appsearch.app.SetSchemaRequest.Builder setMigrators(java.util.Map<java.lang.String!,androidx.appsearch.app.Migrator!>);
+    method @RequiresFeature(enforcement="androidx.appsearch.app.Features#isFeatureSupported", name=androidx.appsearch.app.Features.ROLE_AND_PERMISSION_WITH_GET_VISIBILITY) public androidx.appsearch.app.SetSchemaRequest.Builder setRequiredPermissionsForDocumentClassVisibility(Class<?>, java.util.Set<java.lang.String!>) throws androidx.appsearch.exceptions.AppSearchException;
+    method @RequiresFeature(enforcement="androidx.appsearch.app.Features#isFeatureSupported", name=androidx.appsearch.app.Features.ROLE_AND_PERMISSION_WITH_GET_VISIBILITY) public androidx.appsearch.app.SetSchemaRequest.Builder setRequiredPermissionsForSchemaTypeVisibility(String, java.util.Set<java.lang.String!>);
     method public androidx.appsearch.app.SetSchemaRequest.Builder setSchemaTypeDisplayedBySystem(String, boolean);
     method public androidx.appsearch.app.SetSchemaRequest.Builder setSchemaTypeVisibilityForPackage(String, boolean, androidx.appsearch.app.PackageIdentifier);
     method public androidx.appsearch.app.SetSchemaRequest.Builder setVersion(@IntRange(from=1) int);

@@ -85,6 +85,7 @@ public final class SetSchemaRequest {
     private final Set<String> mSchemasNotDisplayedBySystem;
     private final Map<String, Set<PackageIdentifier>> mSchemasVisibleToPackages;
     private final Map<String, Set<String>> mSchemasVisibleToRoles;
+    private final Map<String, Set<String>> mSchemasVisibleToPermissions;
     private final Map<String, Migrator> mMigrators;
     private final boolean mForceOverride;
     private final int mVersion;
@@ -93,6 +94,7 @@ public final class SetSchemaRequest {
             @NonNull Set<String> schemasNotDisplayedBySystem,
             @NonNull Map<String, Set<PackageIdentifier>> schemasVisibleToPackages,
             @NonNull Map<String, Set<String>> schemasVisibleToRoles,
+            @NonNull Map<String, Set<String>> schemasVisibleToPermissions,
             @NonNull Map<String, Migrator> migrators,
             boolean forceOverride,
             int version) {
@@ -100,6 +102,7 @@ public final class SetSchemaRequest {
         mSchemasNotDisplayedBySystem = Preconditions.checkNotNull(schemasNotDisplayedBySystem);
         mSchemasVisibleToPackages = Preconditions.checkNotNull(schemasVisibleToPackages);
         mSchemasVisibleToRoles = Preconditions.checkNotNull(schemasVisibleToRoles);
+        mSchemasVisibleToPermissions = Preconditions.checkNotNull(schemasVisibleToPermissions);
         mMigrators = Preconditions.checkNotNull(migrators);
         mForceOverride = forceOverride;
         mVersion = version;
@@ -153,6 +156,24 @@ public final class SetSchemaRequest {
     }
 
     /**
+     * Returns the map of schema types to the set of {@link android.Manifest.permission} that
+     * querier must hold to have access to that schema type.
+     *
+     * <p> To get {@link GenericDocument} of a schema type, the call must hold ALL of the
+     * required permissions for that schema type.
+     *
+     * <p>It’s inefficient to call this method repeatedly.
+     */
+    @NonNull
+    public Map<String, Set<String>> getRequiredPermissionsForSchemaTypeVisibility() {
+        Map<String, Set<String>> copy = new ArrayMap<>();
+        for (Map.Entry<String, Set<String>> entry : mSchemasVisibleToPermissions.entrySet()) {
+            copy.put(entry.getKey(), new ArraySet<>(entry.getValue()));
+        }
+        return copy;
+    }
+
+    /**
      * Returns the map of {@link Migrator}, the key will be the schema type of the
      * {@link Migrator} associated with.
      */
@@ -196,6 +217,7 @@ public final class SetSchemaRequest {
         private ArrayMap<String, Set<PackageIdentifier>> mSchemasVisibleToPackages =
                 new ArrayMap<>();
         private ArrayMap<String, Set<String>> mSchemasVisibleToRoles = new ArrayMap<>();
+        private ArrayMap<String, Set<String>> mSchemasVisibleToPermissions = new ArrayMap<>();
         private ArrayMap<String, Migrator> mMigrators = new ArrayMap<>();
         private boolean mForceOverride = false;
         private int mVersion = DEFAULT_VERSION;
@@ -354,6 +376,36 @@ public final class SetSchemaRequest {
             Preconditions.checkNotNull(schemaType);
             resetIfBuilt();
             mSchemasVisibleToRoles.remove(schemaType);
+            return this;
+        }
+
+        /**
+         * Sets a set of required Android {@link java.security.Permission} to the given schema type.
+         *
+         * <p> To get {@link GenericDocument} of the given schema type, the call must hold ALL of
+         * the required permissions.
+         *
+         * @param schemaType       The schema type to set visibility on.
+         * @param permissions      A set of required Android permissions the caller need to hold
+         *                         to access {@link GenericDocument} objects that under the given
+         *                         schema.
+         * @return
+         */
+        // Merged list available from getRequiredPermissionsForSchemaTypeVisibility
+        @SuppressLint("MissingGetterMatchingBuilder")
+        // @exportToFramework:startStrip()
+        @RequiresFeature(
+                enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
+                name = Features.ROLE_AND_PERMISSION_WITH_GET_VISIBILITY)
+        // @exportToFramework:endStrip()
+        @NonNull
+        public Builder setRequiredPermissionsForSchemaTypeVisibility(@NonNull String schemaType,
+                @NonNull Set<String> permissions) {
+            Preconditions.checkNotNull(schemaType);
+            Preconditions.checkNotNull(permissions);
+            resetIfBuilt();
+            //TODO(b/181908338) check input permissions in our allow list
+            mSchemasVisibleToPermissions.put(schemaType, permissions);
             return this;
         }
 
@@ -594,6 +646,36 @@ public final class SetSchemaRequest {
             DocumentClassFactory<?> factory = registry.getOrCreateFactory(documentClass);
             return clearAllowedRolesForSchemaTypeVisibility(factory.getSchemaName());
         }
+
+        /**
+         * Sets a set of required {@link android.Manifest.permission} to the given schema type.
+         *
+         * <p> To get {@link GenericDocument} of the given schema type, the call must hold ALL of
+         * the required permissions.
+         *
+         * @param documentClass    The {@link androidx.appsearch.annotation.Document} class to set
+         *                         visibility on.
+         * @param permissions      A set of required Android permissions the caller need to hold
+         *                         to access {@link GenericDocument} objects that under the given
+         *                         schema.
+         * @return
+         */
+        // Merged map available from getRequiredPermissionsForSchemaTypeVisibility
+        @SuppressLint("MissingGetterMatchingBuilder")
+        @RequiresFeature(
+                enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
+                name = Features.ROLE_AND_PERMISSION_WITH_GET_VISIBILITY)
+        @NonNull
+        public Builder setRequiredPermissionsForDocumentClassVisibility(
+                @NonNull Class<?> documentClass,
+                @NonNull Set<String> permissions) throws AppSearchException {
+            Preconditions.checkNotNull(documentClass);
+            resetIfBuilt();
+            DocumentClassFactoryRegistry registry = DocumentClassFactoryRegistry.getInstance();
+            DocumentClassFactory<?> factory = registry.getOrCreateFactory(documentClass);
+            return setRequiredPermissionsForSchemaTypeVisibility(
+                    factory.getSchemaName(), permissions);
+        }
 // @exportToFramework:endStrip()
 
         /**
@@ -665,6 +747,7 @@ public final class SetSchemaRequest {
             Set<String> referencedSchemas = new ArraySet<>(mSchemasNotDisplayedBySystem);
             referencedSchemas.addAll(mSchemasVisibleToPackages.keySet());
             referencedSchemas.addAll(mSchemasVisibleToRoles.keySet());
+            referencedSchemas.addAll(mSchemasVisibleToPermissions.keySet());
 
             for (AppSearchSchema schema : mSchemas) {
                 referencedSchemas.remove(schema.getSchemaType());
@@ -685,6 +768,7 @@ public final class SetSchemaRequest {
                     mSchemasNotDisplayedBySystem,
                     mSchemasVisibleToPackages,
                     mSchemasVisibleToRoles,
+                    mSchemasVisibleToPermissions,
                     mMigrators,
                     mForceOverride,
                     mVersion);
@@ -706,6 +790,15 @@ public final class SetSchemaRequest {
                     schemasVisibleToRoles.put(entry.getKey(), new ArraySet<>(entry.getValue()));
                 }
                 mSchemasVisibleToRoles = schemasVisibleToRoles;
+
+                ArrayMap<String, Set<String>> schemasVisibleToPermissions =
+                        new ArrayMap<>(mSchemasVisibleToPermissions.size());
+                for (Map.Entry<String, Set<String>> entry :
+                        mSchemasVisibleToPermissions.entrySet()) {
+                    schemasVisibleToPermissions.put(entry.getKey(),
+                            new ArraySet<>(entry.getValue()));
+                }
+                mSchemasVisibleToPermissions = schemasVisibleToPermissions;
 
                 mSchemas = new ArraySet<>(mSchemas);
                 mSchemasNotDisplayedBySystem = new ArraySet<>(mSchemasNotDisplayedBySystem);

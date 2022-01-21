@@ -16,6 +16,9 @@
 
 package androidx.appsearch.cts.app;
 
+import static android.Manifest.permission.READ_CALENDAR;
+import static android.Manifest.permission.READ_SMS;
+
 import static androidx.appsearch.app.AppSearchSchema.StringPropertyConfig.INDEXING_TYPE_PREFIXES;
 import static androidx.appsearch.app.AppSearchSchema.StringPropertyConfig.TOKENIZER_TYPE_PLAIN;
 
@@ -247,6 +250,26 @@ public class SetSchemaRequestCtsTest {
     }
 
     @Test
+    public void testSetSchemaTypeVisibleForPermissions() {
+        AppSearchSchema schema = new AppSearchSchema.Builder("Schema").build();
+
+        // By default, the schema is displayed.
+        SetSchemaRequest request =
+                new SetSchemaRequest.Builder().addSchemas(schema).build();
+        assertThat(request.getRequiredPermissionsForSchemaTypeVisibility()).isEmpty();
+
+        SetSchemaRequest.Builder setSchemaRequestBuilder = new SetSchemaRequest.Builder()
+                .addSchemas(schema)
+                .setRequiredPermissionsForSchemaTypeVisibility(
+                        "Schema", ImmutableSet.of(READ_SMS, READ_CALENDAR));
+
+        request = setSchemaRequestBuilder.build();
+
+        assertThat(request.getRequiredPermissionsForSchemaTypeVisibility())
+                .containsExactly("Schema", ImmutableSet.of(READ_SMS, READ_CALENDAR));
+    }
+
+    @Test
     public void testSchemaTypeVisibilityForPackage_visible() {
         AppSearchSchema schema = new AppSearchSchema.Builder("Schema").build();
 
@@ -428,6 +451,23 @@ public class SetSchemaRequestCtsTest {
     }
 
     @Test
+    public void testSetDocumentClassVisibleForPermission() throws Exception {
+        // By default, the schema is displayed.
+        SetSchemaRequest request =
+                new SetSchemaRequest.Builder().addDocumentClasses(Card.class).build();
+        assertThat(request.getRequiredPermissionsForSchemaTypeVisibility()).isEmpty();
+
+        SetSchemaRequest.Builder setSchemaRequestBuilder = new SetSchemaRequest.Builder()
+                .addDocumentClasses(Card.class)
+                .setRequiredPermissionsForDocumentClassVisibility(Card.class,
+                        ImmutableSet.of(READ_SMS, READ_CALENDAR));
+        request = setSchemaRequestBuilder.build();
+
+        assertThat(request.getRequiredPermissionsForSchemaTypeVisibility())
+                .containsExactly("Card", ImmutableSet.of(READ_SMS, READ_CALENDAR));
+    }
+
+    @Test
     public void testSetDocumentClassVisibilityForPackage_visible() throws Exception {
         // By default, the schema is not visible.
         SetSchemaRequest request =
@@ -578,7 +618,9 @@ public class SetSchemaRequestCtsTest {
                 .setSchemaTypeDisplayedBySystem("Email1", /*displayed=*/false)
                 .setSchemaTypeVisibilityForPackage(
                         "Email1", /*visible=*/true, packageIdentifier1)
-                .addAllowedRoleForSchemaTypeVisibility("Email1", "Home");
+                .addAllowedRoleForSchemaTypeVisibility("Email1", "Home")
+                .setRequiredPermissionsForSchemaTypeVisibility("Email1",
+                        ImmutableSet.of(READ_SMS));
 
         SetSchemaRequest original = builder.build();
         SetSchemaRequest rebuild = builder.addSchemas(schema2)
@@ -587,6 +629,8 @@ public class SetSchemaRequestCtsTest {
                 .setSchemaTypeVisibilityForPackage(
                         "Email2", /*visible=*/true, packageIdentifier2)
                 .addAllowedRoleForSchemaTypeVisibility("Email2", "Assistant")
+                .setRequiredPermissionsForSchemaTypeVisibility("Email2",
+                        ImmutableSet.of(READ_CALENDAR))
                 .build();
 
         assertThat(original.getSchemas()).containsExactly(schema1);
@@ -596,6 +640,8 @@ public class SetSchemaRequestCtsTest {
                 "Email1", ImmutableSet.of(packageIdentifier1));
         assertThat(original.getAllowedRolesForSchemaTypeVisibility()).containsExactly(
                 "Email1", ImmutableSet.of("Home"));
+        assertThat(original.getRequiredPermissionsForSchemaTypeVisibility())
+                .containsExactly("Email1", ImmutableSet.of(READ_SMS));
 
         assertThat(rebuild.getSchemas()).containsExactly(schema1, schema2);
         assertThat(rebuild.getVersion()).isEqualTo(42);
@@ -606,6 +652,9 @@ public class SetSchemaRequestCtsTest {
         assertThat(rebuild.getAllowedRolesForSchemaTypeVisibility()).containsExactly(
                 "Email1", ImmutableSet.of("Home"),
                 "Email2", ImmutableSet.of("Assistant"));
+        assertThat(rebuild.getRequiredPermissionsForSchemaTypeVisibility()).containsExactly(
+                "Email1", ImmutableSet.of(READ_SMS),
+                "Email2", ImmutableSet.of(READ_CALENDAR));
     }
 
     @Test
@@ -632,6 +681,8 @@ public class SetSchemaRequestCtsTest {
                 .setSchemaTypeVisibilityForPackage(
                         "Email1", /*visible=*/true, packageIdentifier1)
                 .addAllowedRoleForSchemaTypeVisibility("Email1", "Home")
+                .setRequiredPermissionsForSchemaTypeVisibility("Email1",
+                        ImmutableSet.of(READ_SMS))
                 .build();
 
         // get the visibility setting and modify the output object.
@@ -639,11 +690,15 @@ public class SetSchemaRequestCtsTest {
         request.getSchemasVisibleToPackages().put("Email2", ImmutableSet.of(packageIdentifier2));
         request.getAllowedRolesForSchemaTypeVisibility().put("Email2",
                 ImmutableSet.of("Assistant"));
+        request.getRequiredPermissionsForSchemaTypeVisibility().put("Email2",
+                ImmutableSet.of(READ_CALENDAR));
 
         // verify we still get the original object.
         assertThat(request.getSchemasVisibleToPackages()).containsExactly("Email1",
                 ImmutableSet.of(packageIdentifier1));
         assertThat(request.getAllowedRolesForSchemaTypeVisibility()).containsExactly("Email1",
                 ImmutableSet.of("Home"));
+        request.getRequiredPermissionsForSchemaTypeVisibility().put("Email1",
+                ImmutableSet.of(READ_SMS));
     }
 }

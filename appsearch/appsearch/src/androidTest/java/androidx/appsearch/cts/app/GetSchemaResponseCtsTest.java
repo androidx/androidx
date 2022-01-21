@@ -16,6 +16,9 @@
 
 package androidx.appsearch.cts.app;
 
+import static android.Manifest.permission.READ_CALENDAR;
+import static android.Manifest.permission.READ_SMS;
+
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.assertThrows;
@@ -62,7 +65,9 @@ public class GetSchemaResponseCtsTest {
                         .setSchemaTypeVisibleToPackages("Email1",
                                 ImmutableSet.of(packageIdentifier1))
                         .setAllowedRolesForSchemaTypeVisibility("Email1",
-                                ImmutableSet.of("Home", "Assistant"));
+                                ImmutableSet.of("Home", "Assistant"))
+                        .setRequiredPermissionsForSchemaTypeVisibility("Email1",
+                                ImmutableSet.of(READ_SMS, READ_CALENDAR));
 
         GetSchemaResponse original = builder.build();
         GetSchemaResponse rebuild = builder.setVersion(37).addSchema(schema2)
@@ -70,6 +75,7 @@ public class GetSchemaResponseCtsTest {
                 .setSchemaTypeVisibleToPackages("Email2",
                         ImmutableSet.of(packageIdentifier2))
                 .setAllowedRolesForSchemaTypeVisibility("Email2", ImmutableSet.of("Home"))
+                .setRequiredPermissionsForSchemaTypeVisibility("Email2", ImmutableSet.of(READ_SMS))
                 .build();
 
         // rebuild won't effect the original object
@@ -83,6 +89,9 @@ public class GetSchemaResponseCtsTest {
         assertThat(original.getAllowedRolesForSchemaTypeVisibility()).hasSize(1);
         assertThat(original.getAllowedRolesForSchemaTypeVisibility().get("Email1"))
                 .containsExactly("Home", "Assistant");
+        assertThat(original.getRequiredPermissionsForSchemaTypeVisibility()).hasSize(1);
+        assertThat(original.getRequiredPermissionsForSchemaTypeVisibility().get("Email1"))
+                .containsExactly(READ_SMS, READ_CALENDAR);
 
         assertThat(rebuild.getVersion()).isEqualTo(37);
         assertThat(rebuild.getSchemas()).containsExactly(schema1, schema2);
@@ -98,6 +107,11 @@ public class GetSchemaResponseCtsTest {
                 .containsExactly("Home", "Assistant");
         assertThat(rebuild.getAllowedRolesForSchemaTypeVisibility().get("Email2"))
                 .containsExactly("Home");
+        assertThat(rebuild.getRequiredPermissionsForSchemaTypeVisibility()).hasSize(2);
+        assertThat(rebuild.getRequiredPermissionsForSchemaTypeVisibility().get("Email1"))
+                .containsExactly(READ_SMS, READ_CALENDAR);
+        assertThat(rebuild.getRequiredPermissionsForSchemaTypeVisibility().get("Email2"))
+                .containsExactly(READ_SMS);
     }
 
     @Test
@@ -125,6 +139,9 @@ public class GetSchemaResponseCtsTest {
         assertThrows(
                 UnsupportedOperationException.class,
                 () -> original.getAllowedRolesForSchemaTypeVisibility());
+        assertThrows(
+                UnsupportedOperationException.class,
+                () -> original.getRequiredPermissionsForSchemaTypeVisibility());
 
         // rebuild will throw same exception
         GetSchemaResponse rebuild = builder.setVersion(42).build();
@@ -137,6 +154,9 @@ public class GetSchemaResponseCtsTest {
         assertThrows(
                 UnsupportedOperationException.class,
                 () -> original.getAllowedRolesForSchemaTypeVisibility());
+        assertThrows(
+                UnsupportedOperationException.class,
+                () -> original.getRequiredPermissionsForSchemaTypeVisibility());
     }
 
     @Test
@@ -156,6 +176,8 @@ public class GetSchemaResponseCtsTest {
                                 ImmutableSet.of(packageIdentifier1, packageIdentifier2))
                         .setAllowedRolesForSchemaTypeVisibility("Email",
                                 ImmutableSet.of("Home", "Assistant"))
+                        .setRequiredPermissionsForSchemaTypeVisibility("Email",
+                                ImmutableSet.of(READ_SMS, READ_CALENDAR))
                         .build();
 
         assertThat(getSchemaResponse.getSchemaTypesNotDisplayedBySystem())
@@ -165,5 +187,7 @@ public class GetSchemaResponseCtsTest {
                 .containsExactly(packageIdentifier1, packageIdentifier2);
         assertThat(getSchemaResponse.getAllowedRolesForSchemaTypeVisibility().get("Email"))
                 .containsExactly("Home", "Assistant");
+        assertThat(getSchemaResponse.getRequiredPermissionsForSchemaTypeVisibility().get("Email"))
+                .containsExactly(READ_SMS, READ_CALENDAR);
     }
 }

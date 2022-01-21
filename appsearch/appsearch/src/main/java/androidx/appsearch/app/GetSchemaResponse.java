@@ -42,6 +42,8 @@ public final class GetSchemaResponse {
             "schemasNotDisplayedBySystem";
     private static final String SCHEMAS_VISIBLE_TO_PACKAGES_FIELD = "schemasVisibleToPackages";
     private static final String SCHEMAS_VISIBLE_TO_ROLES_FIELD = "schemasVisibleToRoles";
+    private static final String SCHEMAS_VISIBLE_TO_PERMISSION_FIELD =
+            "schemasVisibleToPermissions";
     /**
      * This Set contains all schemas that are not displayed by the system. All values in the set are
      * prefixed with the package-database prefix. We do lazy fetch, the object will be created
@@ -64,6 +66,16 @@ public final class GetSchemaResponse {
      */
     @Nullable
     private Map<String, Set<String>> mSchemasVisibleToRoles;
+
+    /**
+     * This map contains all schemas and Android Permissions that are required to access the
+     * schema. All keys in the map are prefixed with the package-database prefix. We do lazy
+     * fetch, the object will be created when the user first time fetch it.
+     * The querier must have ALL required permissions to read {@link GenericDocument} objects under
+     * the {@code schemaType}.
+     */
+    @Nullable
+    private Map<String, Set<String>> mSchemasVisibleToPermissions;
 
     private final Bundle mBundle;
 
@@ -185,6 +197,34 @@ public final class GetSchemaResponse {
         return mSchemasVisibleToRoles;
     }
 
+    /**
+     * Returns a mapping of schema types to the set of {@link android.Manifest.permission} that
+     * querier must hold to access that schema type.
+     *
+     * <p> To get {@link GenericDocument} of a schema type, the call must hold ALL of the
+     * required permissions for that schema type.
+     */
+    // @exportToFramework:startStrip()
+    @RequiresFeature(
+            enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
+            name = Features.ROLE_AND_PERMISSION_WITH_GET_VISIBILITY)
+    // @exportToFramework:endStrip()
+    @NonNull
+    public Map<String, Set<String>> getRequiredPermissionsForSchemaTypeVisibility() {
+        checkGetVisibilitySettingSupported();
+        if (mSchemasVisibleToPermissions == null) {
+            Bundle schemaVisibleToPermissionBundle =
+                    mBundle.getBundle(SCHEMAS_VISIBLE_TO_PERMISSION_FIELD);
+            Map<String, Set<String>> copy = new ArrayMap<>();
+            for (String key : schemaVisibleToPermissionBundle.keySet()) {
+                copy.put(key,  new ArraySet<>(schemaVisibleToPermissionBundle
+                        .getStringArrayList(key)));
+            }
+            mSchemasVisibleToPermissions = Collections.unmodifiableMap(copy);
+        }
+        return mSchemasVisibleToPermissions;
+    }
+
     private void checkGetVisibilitySettingSupported() {
         if (!mBundle.containsKey(SCHEMAS_VISIBLE_TO_PACKAGES_FIELD)) {
             throw new UnsupportedOperationException("Get visibility setting is not supported with"
@@ -204,6 +244,7 @@ public final class GetSchemaResponse {
         private ArrayList<String> mSchemasNotDisplayedBySystem;
         private Bundle mSchemasVisibleToPackages;
         private Bundle mSchemasVisibleToRoles;
+        private Bundle mSchemasVisibleToPermissions;
         private boolean mBuilt = false;
 
         /** Create a {@link Builder} object} */
@@ -227,6 +268,7 @@ public final class GetSchemaResponse {
                 mSchemasNotDisplayedBySystem = new ArrayList<>();
                 mSchemasVisibleToPackages = new Bundle();
                 mSchemasVisibleToRoles = new Bundle();
+                mSchemasVisibleToPermissions = new Bundle();
             }
         }
 
@@ -329,6 +371,30 @@ public final class GetSchemaResponse {
             return this;
         }
 
+        /**
+         * Sets a set of required {@link android.Manifest.permission} to the given schema type.
+         *
+         * <p> To get {@link GenericDocument} of the given schema type, the call must hold ALL of
+         * the required permissions.
+         *
+         * @param schemaType             The schema type to set visibility on.
+         * @param visibleToPermissions   The Android permissions that will be required to access
+         *                               the given schema.
+         */
+        // Getter getRequiredPermissionsForSchemaTypeVisibility returns a map for all schemaTypes.
+        @SuppressLint("MissingGetterMatchingBuilder")
+        @NonNull
+        public Builder setRequiredPermissionsForSchemaTypeVisibility(
+                @NonNull String schemaType,
+                @NonNull Set<String> visibleToPermissions) {
+            Preconditions.checkNotNull(schemaType);
+            Preconditions.checkNotNull(visibleToPermissions);
+            resetIfBuilt();
+            mSchemasVisibleToPermissions.putStringArrayList(schemaType,
+                    new ArrayList<>(visibleToPermissions));
+            return this;
+        }
+
         /** Builds a {@link GetSchemaResponse} object. */
         @NonNull
         public GetSchemaResponse build() {
@@ -341,6 +407,7 @@ public final class GetSchemaResponse {
                         mSchemasNotDisplayedBySystem);
                 bundle.putBundle(SCHEMAS_VISIBLE_TO_PACKAGES_FIELD, mSchemasVisibleToPackages);
                 bundle.putBundle(SCHEMAS_VISIBLE_TO_ROLES_FIELD, mSchemasVisibleToRoles);
+                bundle.putBundle(SCHEMAS_VISIBLE_TO_PERMISSION_FIELD, mSchemasVisibleToPermissions);
             }
             mBuilt = true;
             return new GetSchemaResponse(bundle);
@@ -358,6 +425,9 @@ public final class GetSchemaResponse {
                     Bundle copyVisibleToRoles = new Bundle();
                     copyVisibleToRoles.putAll(mSchemasVisibleToRoles);
                     mSchemasVisibleToRoles = copyVisibleToRoles;
+                    Bundle copyVisibleToPermissions = new Bundle();
+                    copyVisibleToPermissions.putAll(mSchemasVisibleToPermissions);
+                    mSchemasVisibleToPermissions = copyVisibleToPermissions;
                 }
                 mBuilt = false;
             }

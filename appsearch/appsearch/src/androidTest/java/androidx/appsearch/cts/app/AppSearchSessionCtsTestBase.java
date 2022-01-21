@@ -16,6 +16,9 @@
 
 package androidx.appsearch.cts.app;
 
+import static android.Manifest.permission.READ_CALENDAR;
+import static android.Manifest.permission.READ_SMS;
+
 import static androidx.appsearch.app.AppSearchResult.RESULT_INVALID_SCHEMA;
 import static androidx.appsearch.app.AppSearchResult.RESULT_NOT_FOUND;
 import static androidx.appsearch.testutil.AppSearchTestUtils.checkIsBatchResultSuccess;
@@ -389,6 +392,8 @@ public abstract class AppSearchSessionCtsTestBase {
                         packageIdentifier2)
                 .addAllowedRoleForSchemaTypeVisibility("Email1", "Home")
                 .addAllowedRoleForSchemaTypeVisibility("Email1", "Assistant")
+                .setRequiredPermissionsForSchemaTypeVisibility("Email1",
+                        ImmutableSet.of(READ_SMS, READ_CALENDAR))
                 .build();
 
         mDb1.setSchema(request).get();
@@ -404,6 +409,8 @@ public abstract class AppSearchSessionCtsTestBase {
                         packageIdentifier1, packageIdentifier2));
         assertThat(getSchemaResponse.getAllowedRolesForSchemaTypeVisibility())
                 .containsExactly("Email1", ImmutableSet.of("Home", "Assistant"));
+        assertThat(getSchemaResponse.getRequiredPermissionsForSchemaTypeVisibility())
+                .containsExactly("Email1", ImmutableSet.of(READ_SMS, READ_CALENDAR));
     }
 
     @Test
@@ -455,6 +462,9 @@ public abstract class AppSearchSessionCtsTestBase {
         assertThrows(
                 UnsupportedOperationException.class,
                 () -> getSchemaResponse.getAllowedRolesForSchemaTypeVisibility());
+        assertThrows(
+                UnsupportedOperationException.class,
+                () -> getSchemaResponse.getRequiredPermissionsForSchemaTypeVisibility());
     }
 
     @Test
@@ -467,6 +477,21 @@ public abstract class AppSearchSessionCtsTestBase {
                 .addSchemas(emailSchema)
                 .setSchemaTypeDisplayedBySystem("Email1", /*displayed=*/false)
                 .addAllowedRoleForSchemaTypeVisibility("Email1", "Home")
+                .build();
+
+        assertThrows(UnsupportedOperationException.class, () ->  mDb1.setSchema(request).get());
+    }
+
+    @Test
+    public void testSetSchema_visibilitySettingPermission_notSupported() {
+        assumeFalse(mDb1.getFeatures()
+                .isFeatureSupported(Features.ROLE_AND_PERMISSION_WITH_GET_VISIBILITY));
+        AppSearchSchema emailSchema = new AppSearchSchema.Builder("Email1").build();
+
+        SetSchemaRequest request = new SetSchemaRequest.Builder()
+                .addSchemas(emailSchema)
+                .setSchemaTypeDisplayedBySystem("Email1", /*displayed=*/false)
+                .setRequiredPermissionsForSchemaTypeVisibility("Email1", ImmutableSet.of(READ_SMS))
                 .build();
 
         assertThrows(UnsupportedOperationException.class, () ->  mDb1.setSchema(request).get());
