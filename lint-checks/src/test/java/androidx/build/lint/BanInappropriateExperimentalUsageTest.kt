@@ -19,10 +19,13 @@
 package androidx.build.lint
 
 import com.android.tools.lint.checks.infrastructure.ProjectDescription
+import com.android.tools.lint.checks.infrastructure.TestFile
+import com.android.tools.lint.checks.infrastructure.TestFiles
 import com.android.tools.lint.checks.infrastructure.TestMode
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
+import java.io.FileNotFoundException
 
 @RunWith(JUnit4::class)
 class BanInappropriateExperimentalUsageTest : AbstractLintDetectorTest(
@@ -30,6 +33,27 @@ class BanInappropriateExperimentalUsageTest : AbstractLintDetectorTest(
     useIssues = listOf(BanInappropriateExperimentalUsage.ISSUE),
     stubs = arrayOf(Stubs.OptIn),
 ) {
+    // This must match the setting in buildSrc/lint.xml
+    private val validLintConfig: TestFile = TestFiles.xml(
+        "lint.xml",
+        """
+<lint>
+    <issue id="IllegalExperimentalApiUsage">
+        <option name="atomicLibraryGroupFilename" value="atomic-library-groups.txt"/>
+    </issue>
+</lint>
+            """.trimIndent()
+    )
+
+    private val libraryGroups = TestFiles.source(
+        "atomic-library-groups.txt",
+        """
+androidx.a
+androidx.b
+            """.trimIndent()
+    )
+
+    private val UNUSED_PLACEHOLDER = "unused"
 
     @Test
     fun `Test within-module Experimental usage via Gradle model`() {
@@ -44,6 +68,8 @@ class BanInappropriateExperimentalUsageTest : AbstractLintDetectorTest(
                     group=sample.annotation.provider
                     """
                 ).indented(),
+                validLintConfig,
+                libraryGroups,
             )
 
         /* ktlint-disable max-line-length */
@@ -85,6 +111,8 @@ No warnings.
                     group=androidx.sample.consumer
                     """
                 ).indented(),
+                validLintConfig,
+                libraryGroups,
             )
 
         /* ktlint-disable max-line-length */
@@ -101,5 +129,129 @@ No warnings.
 
         // TODO: Using TestMode.DEFAULT due to b/188814760; remove testModes once bug is resolved
         check(provider, consumer, testModes = listOf(TestMode.DEFAULT)).expect(expected)
+    }
+
+    @Test(expected = RuntimeException::class)
+    fun `Missing atomicLibraryGroupFilename property should throw an exception`() {
+        val invalidLintConfig: TestFile = TestFiles.xml(
+            "lint.xml",
+            """
+<lint>
+    <issue id="IllegalExperimentalApiUsage">
+        <option name="foo" value="bar"/>
+    </issue>
+</lint>
+            """.trimIndent()
+        )
+        val provider = project()
+            .name("provider")
+            .type(ProjectDescription.Type.LIBRARY)
+            .report(false)
+            .files(
+                ktSample("sample.annotation.provider.ExperimentalSampleAnnotation"),
+                javaSample("sample.annotation.provider.ExperimentalSampleAnnotationJava"),
+                javaSample("sample.annotation.provider.RequiresOptInSampleAnnotationJava"),
+                gradle(
+                    """
+                    apply plugin: 'com.android.library'
+                    group=sample.annotation.provider
+                    """
+                ).indented(),
+            )
+
+        val consumer = project()
+            .name("consumer")
+            .type(ProjectDescription.Type.LIBRARY)
+            .dependsOn(provider)
+            .files(
+                ktSample("androidx.sample.consumer.OutsideGroupExperimentalAnnotatedClass"),
+                gradle(
+                    """
+                    apply plugin: 'com.android.library'
+                    group=androidx.sample.consumer
+                    """
+                ).indented(),
+                invalidLintConfig,
+            )
+
+        // TODO: Using TestMode.DEFAULT due to b/188814760; remove testModes once bug is resolved
+        check(provider, consumer, testModes = listOf(TestMode.DEFAULT)).expect(UNUSED_PLACEHOLDER)
+    }
+
+    @Test(expected = FileNotFoundException::class)
+    fun `Missing atomic library group file should throw an exception`() {
+        val provider = project()
+            .name("provider")
+            .type(ProjectDescription.Type.LIBRARY)
+            .report(false)
+            .files(
+                ktSample("sample.annotation.provider.ExperimentalSampleAnnotation"),
+                javaSample("sample.annotation.provider.ExperimentalSampleAnnotationJava"),
+                javaSample("sample.annotation.provider.RequiresOptInSampleAnnotationJava"),
+                gradle(
+                    """
+                    apply plugin: 'com.android.library'
+                    group=sample.annotation.provider
+                    """
+                ).indented(),
+            )
+
+        val consumer = project()
+            .name("consumer")
+            .type(ProjectDescription.Type.LIBRARY)
+            .dependsOn(provider)
+            .files(
+                ktSample("androidx.sample.consumer.OutsideGroupExperimentalAnnotatedClass"),
+                gradle(
+                    """
+                    apply plugin: 'com.android.library'
+                    group=androidx.sample.consumer
+                    """
+                ).indented(),
+                validLintConfig,
+            )
+
+        // TODO: Using TestMode.DEFAULT due to b/188814760; remove testModes once bug is resolved
+        check(provider, consumer, testModes = listOf(TestMode.DEFAULT)).expect(UNUSED_PLACEHOLDER)
+    }
+
+    @Test(expected = RuntimeException::class)
+    fun `Empty atomic library group file should throw an exception`() {
+        val emptyLibraryGroups = TestFiles.source("atomic-library-groups.txt", "")
+
+        val provider = project()
+            .name("provider")
+            .type(ProjectDescription.Type.LIBRARY)
+            .report(false)
+            .files(
+                ktSample("sample.annotation.provider.ExperimentalSampleAnnotation"),
+                javaSample("sample.annotation.provider.ExperimentalSampleAnnotationJava"),
+                javaSample("sample.annotation.provider.RequiresOptInSampleAnnotationJava"),
+                gradle(
+                    """
+                    apply plugin: 'com.android.library'
+                    group=sample.annotation.provider
+                    """
+                ).indented(),
+            )
+
+        val consumer = project()
+            .name("consumer")
+            .type(ProjectDescription.Type.LIBRARY)
+            .dependsOn(provider)
+            .files(
+                ktSample("androidx.sample.consumer.OutsideGroupExperimentalAnnotatedClass"),
+                gradle(
+                    """
+                    apply plugin: 'com.android.library'
+                    group=androidx.sample.consumer
+                    """
+                ).indented(),
+                validLintConfig,
+                emptyLibraryGroups,
+            )
+
+        // TODO: Using TestMode.DEFAULT due to b/188814760; remove testModes once bug is resolved
+        check(provider, consumer, testModes = listOf(TestMode.DEFAULT)).expect(UNUSED_PLACEHOLDER)
     }
 }
