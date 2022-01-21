@@ -1437,6 +1437,39 @@ class DatabaseProcessorTest {
         ).isTrue()
     }
 
+    @Test
+    fun jvmNameOnDaoMethod() {
+        val jvmNameInDaoGetter = Source.kotlin(
+            "MyDb.kt",
+            """
+                package foo.bar;
+                import androidx.room.*;
+                @Dao
+                interface MyDao
+                @Entity
+                data class MyEntity(@PrimaryKey val id:Int)
+                @Database(version = 1, entities = [MyEntity::class])
+                abstract class MyDb: RoomDatabase() {
+                    @Suppress("INAPPLICABLE_JVM_NAME")
+                    @get:JvmName("jvmDao")
+                    abstract val dao: MyDao
+                }
+                """
+        )
+        runProcessorTest(sources = listOf(jvmNameInDaoGetter)) { invocation ->
+            val element = invocation.processingEnv.requireTypeElement("foo.bar.MyDb")
+            DatabaseProcessor(
+                baseContext = invocation.context,
+                element = element
+            ).process()
+            invocation.assertCompilationResult {
+                hasWarningContaining(
+                    ProcessorErrors.JVM_NAME_ON_OVERRIDDEN_METHOD
+                )
+            }
+        }
+    }
+
     private fun resolveDatabaseViews(
         views: Map<String, Set<String>>,
         body: (List<DatabaseView>, XTestInvocation) -> Unit

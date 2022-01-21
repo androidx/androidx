@@ -28,7 +28,25 @@ class GetMethodsScenarioTest {
     val profileRule = ProfileRule()
 
     @Test
-    fun keepInline_declaredMethods() {
+    fun allMethods_keepInline() {
+        profileAllMethods(
+            XProcessingEnvConfig.DEFAULT.copy(
+                excludeMethodsWithInvalidJvmSourceNames = false
+            )
+        )
+    }
+
+    @Test
+    fun allMethods_filterOutInline() {
+        profileAllMethods(
+            XProcessingEnvConfig.DEFAULT.copy(
+                excludeMethodsWithInvalidJvmSourceNames = true
+            )
+        )
+    }
+
+    @Test
+    fun declaredMethods_keepInline() {
         profileDeclaredMethods(
             XProcessingEnvConfig.DEFAULT.copy(
                 excludeMethodsWithInvalidJvmSourceNames = false
@@ -37,7 +55,7 @@ class GetMethodsScenarioTest {
     }
 
     @Test
-    fun filterOutInline_declaredMethods() {
+    fun declaredMethods_filterOutInline() {
         profileDeclaredMethods(
             XProcessingEnvConfig.DEFAULT.copy(
                 excludeMethodsWithInvalidJvmSourceNames = true
@@ -46,7 +64,7 @@ class GetMethodsScenarioTest {
     }
 
     @Test
-    fun keepInline_enclosedElements() {
+    fun enclosedElements_keepInline() {
         profileEnclosedElements(
             XProcessingEnvConfig.DEFAULT.copy(
                 excludeMethodsWithInvalidJvmSourceNames = false
@@ -55,12 +73,18 @@ class GetMethodsScenarioTest {
     }
 
     @Test
-    fun filterOutInline_enclosedElements() {
+    fun enclosedElements_filterOutInline() {
         profileEnclosedElements(
             XProcessingEnvConfig.DEFAULT.copy(
                 excludeMethodsWithInvalidJvmSourceNames = true
             )
         )
+    }
+
+    private fun profileAllMethods(processingConfig: XProcessingEnvConfig) {
+        profile(processingConfig) {
+            getAllMethods().toList()
+        }
     }
 
     private fun profileDeclaredMethods(processingConfig: XProcessingEnvConfig) {

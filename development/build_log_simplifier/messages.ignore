@@ -221,6 +221,9 @@ w: \$SUPPORT/compose/ui/ui/src/commonMain/kotlin/androidx/compose/ui/node/DepthS
 w: \$SUPPORT/compose/ui/ui/src/commonMain/kotlin/androidx/compose/ui/node/DepthSortedSet\.kt: \([0-9]+, [0-9]+\): The corresponding parameter in the supertype 'Comparator' is named 'b'\. This may cause problems when calling this function with named arguments\.
 # > Task :benchmark:benchmark-common:runErrorProne
 \^
+public abstract void jvmDelete\(T t\);
+public abstract void jvmInsert\(@org\.jetbrains\.annotations\.NotNull\(\)
+public abstract java\.util\.List<androidx\.room\.androidx\.room\.integration\.kotlintestapp\.test\.JvmNameInDaoTest\.JvmNameEntity> jvmQuery\(\);
 symbol\:   static FLAG_MUTABLE
 location\: class PendingIntent
 \$OUT_DIR\/androidx\/docs\-public\/build\/srcs\/androidx\/work\/impl\/utils\/ForceStopRunnable\.java\:[0-9]+\: error\: cannot find symbol
@@ -613,3 +616,9 @@ warning: unknown enum constant AnnotationTarget.PROPERTY_GETTER
 warning: unknown enum constant AnnotationTarget.PROPERTY_SETTER
 warning: unknown enum constant AnnotationTarget.FILE
 warning: unknown enum constant AnnotationTarget.TYPEALIAS
+# > Task :room:integration-tests:room-testapp-kotlin:kspWithKspDebugAndroidTestKotlin
+w: \[ksp\] Using @JvmName annotation on a function or accessor that will be overridden by Room is not supported\. If this is important for your use case, please file a bug at https://issuetracker\.google\.com/issues/new\?component=[0-9]+ with details\. \- androidx\.room\.androidx\.room\.integration\.kotlintestapp\.test\.JvmNameInDaoTest\.JvmNameDb\.jvmDao\(\)
+w: \[ksp\] \$SUPPORT/room/integration\-tests/kotlintestapp/src/androidTest/java/androidx/room/integration/kotlintestapp/test/JvmNameInDaoTest\.kt:[0-9]+: Using @JvmName annotation on a function or accessor that will be overridden by Room is not supported\. If this is important for your use case, please file a bug at https://issuetracker\.google\.com/issues/new\?component=[0-9]+ with details\.
+# > Task :room:integration-tests:room-testapp-kotlin:kaptWithKaptDebugAndroidTestKotlin
+\$OUT_DIR/androidx/room/integration\-tests/room\-testapp\-kotlin/build/tmp/kapt[0-9]+/stubs/withKaptDebugAndroidTest/androidx/room/androidx/room/integration/kotlintestapp/test/JvmNameInDaoTest\.java:[0-9]+: warning: Using @JvmName annotation on a function or accessor that will be overridden by Room is not supported\. If this is important for your use case, please file a bug at https://issuetracker\.google\.com/issues/new\?component=[0-9]+ with details\.
+public abstract androidx\.room\.androidx\.room\.integration\.kotlintestapp\.test\.JvmNameInDaoTest\.JvmNameDao jvmDao\(\);
