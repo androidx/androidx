@@ -31,6 +31,31 @@ class SurfaceControlCompat(surface: Surface, debugName: String) {
         }
     }
 
+    open class Transaction() {
+        private var mNativeSurfaceTransaction: Long
+
+        init {
+            mNativeSurfaceTransaction = nTransactionCreate()
+            if (mNativeSurfaceTransaction == 0L) {
+                throw java.lang.IllegalArgumentException()
+            }
+        }
+
+        fun delete() {
+            if (mNativeSurfaceTransaction != 0L) {
+                nTransactionDelete(mNativeSurfaceTransaction)
+            }
+            mNativeSurfaceTransaction = 0L
+        }
+
+        fun finalize() {
+            delete()
+        }
+
+        private external fun nTransactionCreate(): Long
+        private external fun nTransactionDelete(surfaceTransaction: Long)
+    }
+
     override fun equals(other: Any?): Boolean {
         if (other == this) {
             return true

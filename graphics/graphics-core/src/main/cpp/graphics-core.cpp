@@ -48,3 +48,24 @@ Java_androidx_graphics_surface_SurfaceControlCompat_nRelease(JNIEnv *env, jobjec
         return;
     }
 }
+
+extern "C"
+JNIEXPORT jlong JNICALL
+Java_androidx_graphics_surface_SurfaceControlCompat_00024Transaction_nTransactionCreate(
+        JNIEnv *env, jobject thiz) {
+    if (android_get_device_api_level() >= 29) {
+        return reinterpret_cast<jlong>(ASurfaceTransaction_create());
+    } else {
+        return 0;
+    }
+}
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_androidx_graphics_surface_SurfaceControlCompat_00024Transaction_nTransactionDelete(
+        JNIEnv *env, jobject thiz,
+        jlong surfaceTransaction) {
+    if (android_get_device_api_level() >= 29) {
+        ASurfaceTransaction_delete(reinterpret_cast<ASurfaceTransaction *>(surfaceTransaction));
+    }
+}
