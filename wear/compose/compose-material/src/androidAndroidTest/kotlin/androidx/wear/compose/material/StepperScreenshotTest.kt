@@ -46,18 +46,18 @@ import org.junit.runner.RunWith
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
-class StepperScreenshotTest {
+public class StepperScreenshotTest {
     @get:Rule
-    val rule = createComposeRule()
+    public val rule = createComposeRule()
 
     @get:Rule
-    val screenshotRule = AndroidXScreenshotTestRule(SCREENSHOT_GOLDEN_PATH)
+    public val screenshotRule = AndroidXScreenshotTestRule(SCREENSHOT_GOLDEN_PATH)
 
     @get:Rule
-    val testName = TestName()
+    public val testName = TestName()
 
     @Test
-    fun stepper_no_content() {
+    public fun stepper_no_content() {
         rule.setContentWithThemeAndBackground {
             Stepper(
                 modifier = Modifier.testTag(TEST_TAG),
@@ -73,7 +73,7 @@ class StepperScreenshotTest {
     }
 
     @Test
-    fun stepper_custom_icons() {
+    public fun stepper_custom_icons() {
         rule.setContentWithThemeAndBackground {
             Stepper(
                 modifier = Modifier.testTag(TEST_TAG),
@@ -101,7 +101,7 @@ class StepperScreenshotTest {
     }
 
     @Test
-    fun stepper_with_content() {
+    public fun stepper_with_content() {
         rule.setContentWithThemeAndBackground {
             Stepper(
                 modifier = Modifier.testTag(TEST_TAG),
@@ -124,7 +124,7 @@ class StepperScreenshotTest {
     }
 
     @Test
-    fun stepper_with_custom_colors() {
+    public fun stepper_with_custom_colors() {
         rule.setContentWithThemeAndBackground {
             Stepper(
                 modifier = Modifier.testTag(TEST_TAG),

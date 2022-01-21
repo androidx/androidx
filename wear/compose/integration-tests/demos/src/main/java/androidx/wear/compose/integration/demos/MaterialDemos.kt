@@ -33,6 +33,7 @@ import androidx.wear.compose.material.samples.ConfirmationDialogSample
 import androidx.wear.compose.material.samples.CurvedTextDemo
 import androidx.wear.compose.material.samples.InlineSliderSample
 import androidx.wear.compose.material.samples.InlineSliderSegmentedSample
+import androidx.wear.compose.material.samples.InlineSliderWithIntegerSample
 import androidx.wear.compose.material.samples.OptionChangePicker
 import androidx.wear.compose.material.samples.ScalingLazyColumnWithHeaders
 import androidx.wear.compose.material.samples.ScalingLazyColumnWithHeadersReversed
@@ -44,6 +45,7 @@ import androidx.wear.compose.material.samples.SimpleSwipeToDismissBox
 import androidx.wear.compose.material.samples.SplitToggleChipWithCheckbox
 import androidx.wear.compose.material.samples.StatefulSwipeToDismissBox
 import androidx.wear.compose.material.samples.StepperSample
+import androidx.wear.compose.material.samples.StepperWithIntegerSample
 import androidx.wear.compose.material.samples.TimeTextWithCustomSeparator
 import androidx.wear.compose.material.samples.TimeTextWithFullDateAndTimeFormat
 import androidx.wear.compose.material.samples.TitleCardStandard
@@ -96,6 +98,9 @@ val WearMaterialDemos = DemoCategory(
                         ComposableDemo("Segmented inline slider") {
                             Centralize { InlineSliderSegmentedSample() }
                         },
+                        ComposableDemo("Integer inline slider") {
+                            Centralize { InlineSliderWithIntegerSample() }
+                        },
                     )
                 ),
                 DemoCategory(
@@ -103,7 +108,11 @@ val WearMaterialDemos = DemoCategory(
                     listOf(
                         ComposableDemo("Inline slider") { InlineSliderDemo() },
                         ComposableDemo("RTL Inline slider") { InlineSliderRTLDemo() },
+                        ComposableDemo("With custom colors") { InlineSliderCustomColorsDemo() },
                         ComposableDemo("Inline slider segmented") { InlineSliderSegmented() },
+                        ComposableDemo("Inline slider with integers") {
+                            InlineSliderWithIntegersDemo()
+                        },
                     )
                 )
             )
@@ -117,12 +126,16 @@ val WearMaterialDemos = DemoCategory(
                         ComposableDemo("Stepper") {
                             Centralize({ StepperSample() })
                         },
+                        ComposableDemo("Integer Stepper") {
+                            Centralize({ StepperWithIntegerSample() })
+                        },
                     )
                 ),
                 DemoCategory(
                     "Demos",
                     listOf(
                         ComposableDemo("Simple stepper") { StepperDemo() },
+                        ComposableDemo("Stepper with integer") { StepperWithIntegerDemo() },
                         ComposableDemo("With scrollbar") {
                             StepperWithScrollBarDemo()
                         },

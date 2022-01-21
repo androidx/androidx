@@ -17,6 +17,7 @@
 package androidx.wear.compose.integration.demos
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
@@ -28,10 +29,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.wear.compose.material.InlineSlider
+import androidx.wear.compose.material.InlineSliderDefaults
 import androidx.wear.compose.material.ScalingLazyColumn
 import androidx.wear.compose.material.Text
 import androidx.wear.compose.material.ToggleChip
@@ -84,9 +87,70 @@ fun InlineSliderDemo() {
 }
 
 @Composable
+fun InlineSliderWithIntegersDemo() {
+    var valueWithoutSegments by remember { mutableStateOf(5) }
+    var valueWithSegments by remember { mutableStateOf(2) }
+
+    ScalingLazyColumn(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(
+            space = 4.dp,
+            alignment = Alignment.CenterVertically
+        ),
+        contentPadding = PaddingValues(horizontal = 8.dp, vertical = 30.dp),
+        modifier = Modifier.fillMaxSize()
+    ) {
+        item { Text("No segments, value = $valueWithoutSegments") }
+        item {
+            InlineSlider(
+                value = valueWithoutSegments,
+                valueProgression = IntProgression.fromClosedRange(0, 15, 3),
+                segmented = false,
+                onValueChange = { valueWithoutSegments = it })
+        }
+        item { Text("With segments, value = $valueWithSegments") }
+        item {
+            InlineSlider(
+                value = valueWithSegments,
+                onValueChange = { valueWithSegments = it },
+                valueProgression = IntProgression.fromClosedRange(110, 220, 5),
+                segmented = true
+            )
+        }
+    }
+}
+
+@Composable
 fun InlineSliderRTLDemo() {
     CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
         InlineSliderDemo()
+    }
+}
+
+@Composable
+fun InlineSliderCustomColorsDemo() {
+    var value by remember { mutableStateOf(4.5f) }
+    Box(
+        contentAlignment = Alignment.Center,
+        modifier = Modifier.fillMaxSize()
+    ) {
+        InlineSlider(
+            value = value,
+            onValueChange = { value = it },
+            valueRange = 3f..6f,
+            steps = 5,
+            segmented = false,
+            colors = InlineSliderDefaults.colors(
+                backgroundColor = Color.Green,
+                spacerColor = Color.Yellow,
+                selectedBarColor = Color.Magenta,
+                unselectedBarColor = Color.White,
+                disabledBackgroundColor = Color.DarkGray,
+                disabledSpacerColor = Color.LightGray,
+                disabledSelectedBarColor = Color.Red,
+                disabledUnselectedBarColor = Color.Blue
+            )
+        )
     }
 }
 
