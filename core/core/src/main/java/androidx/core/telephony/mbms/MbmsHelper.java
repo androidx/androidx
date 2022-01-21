@@ -16,8 +16,6 @@
 
 package androidx.core.telephony.mbms;
 
-import android.annotation.SuppressLint;
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.os.Build;
 import android.os.LocaleList;
@@ -25,15 +23,18 @@ import android.telephony.mbms.ServiceInfo;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 
 import java.util.Locale;
+import java.util.Set;
 
 /**
  * Helper methods for working with the {@link android.telephony.mbms} cell-broadcast APIs.
  */
 public final class MbmsHelper {
-    // Do not instantiate
-    private MbmsHelper() {}
+    private MbmsHelper() {
+        // This class is not instantiable.
+    }
 
     /**
      * Finds the best name for an eMBMS streaming or file-download service, given a
@@ -48,30 +49,37 @@ public final class MbmsHelper {
      * @return The best name to display to the user for the service, or {@code null} if nothing
      * matches.
      */
-    // Remove BanTargetApiAnnotation suppression once b/120625123 is addressed.
-    @TargetApi(Build.VERSION_CODES.P)
-    @SuppressLint("BanTargetApiAnnotation")
     @Nullable
     public static CharSequence getBestNameForService(@NonNull Context context,
             @NonNull ServiceInfo serviceInfo) {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P) {
-            return null;
+        if (Build.VERSION.SDK_INT >= 28) {
+            return Api28Impl.getBestNameForService(context, serviceInfo);
         }
-        LocaleList localeList = context.getResources().getConfiguration().getLocales();
+        return null;
+    }
 
-        int numLanguagesSupportedByService = serviceInfo.getNamedContentLocales().size();
-        if (numLanguagesSupportedByService == 0) {
-            return null;
-        }
-        String[] supportedLanguages = new String[numLanguagesSupportedByService];
-
-        int i = 0;
-        for (Locale l : serviceInfo.getNamedContentLocales()) {
-            supportedLanguages[i] = l.toLanguageTag();
-            i++;
+    @RequiresApi(28)
+    static class Api28Impl {
+        private Api28Impl() {
+            // This class is not instantiable.
         }
 
-        Locale bestLocale = localeList.getFirstMatch(supportedLanguages);
-        return bestLocale == null ? null : serviceInfo.getNameForLocale(bestLocale);
+        static CharSequence getBestNameForService(Context context, ServiceInfo serviceInfo) {
+            Set<Locale> namedContentLocales = serviceInfo.getNamedContentLocales();
+            if (namedContentLocales.isEmpty()) {
+                return null;
+            }
+
+            String[] supportedLanguages = new String[namedContentLocales.size()];
+            int i = 0;
+            for (Locale l : serviceInfo.getNamedContentLocales()) {
+                supportedLanguages[i] = l.toLanguageTag();
+                i++;
+            }
+
+            LocaleList localeList = context.getResources().getConfiguration().getLocales();
+            Locale bestLocale = localeList.getFirstMatch(supportedLanguages);
+            return bestLocale == null ? null : serviceInfo.getNameForLocale(bestLocale);
+        }
     }
 }
