@@ -135,8 +135,9 @@ class SearchSessionImpl implements AppSearchSession {
 
             // Migration process
             // 1. Validate and retrieve all active migrators.
-            GetSchemaResponse getSchemaResponse =
-                    mAppSearchImpl.getSchema(mPackageName, mDatabaseName);
+            GetSchemaResponse getSchemaResponse = mAppSearchImpl.getSchema(
+                    /*callerPackageName=*/mPackageName, /*packageName=*/mPackageName,
+                    /*databaseName=*/mDatabaseName);
             int currentVersion = getSchemaResponse.getVersion();
             int finalVersion = request.getVersion();
             Map<String, Migrator> activeMigrators = SchemaMigrationUtil.getActiveMigrators(
@@ -253,7 +254,8 @@ class SearchSessionImpl implements AppSearchSession {
     @NonNull
     public ListenableFuture<GetSchemaResponse> getSchema() {
         Preconditions.checkState(!mIsClosed, "AppSearchSession has already been closed");
-        return execute(() -> mAppSearchImpl.getSchema(mPackageName, mDatabaseName));
+        return execute(() -> mAppSearchImpl.getSchema(/*callerPackageName=*/mPackageName,
+        /*packageName=*/mPackageName, /*databaseName=*/mDatabaseName));
     }
 
     @NonNull

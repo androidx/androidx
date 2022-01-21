@@ -201,6 +201,7 @@ package androidx.appsearch.app {
   public interface Features {
     method public boolean isFeatureSupported(String);
     field public static final String GLOBAL_SEARCH_SESSION_ADD_REMOVE_OBSERVER = "GLOBAL_SEARCH_SESSION_ADD_REMOVE_OBSERVER";
+    field public static final String GLOBAL_SEARCH_SESSION_GET_SCHEMA = "GLOBAL_SEARCH_SESSION_GET_SCHEMA";
     field public static final String SEARCH_RESULT_MATCH_INFO_SUBMATCH = "SEARCH_RESULT_MATCH_INFO_SUBMATCH";
   }
 
@@ -281,6 +282,7 @@ package androidx.appsearch.app {
     method @RequiresFeature(enforcement="androidx.appsearch.app.Features#isFeatureSupported", name=androidx.appsearch.app.Features.GLOBAL_SEARCH_SESSION_ADD_REMOVE_OBSERVER) public void addObserver(String, androidx.appsearch.observer.ObserverSpec, java.util.concurrent.Executor, androidx.appsearch.observer.AppSearchObserverCallback) throws androidx.appsearch.exceptions.AppSearchException;
     method public void close();
     method public androidx.appsearch.app.Features getFeatures();
+    method @RequiresFeature(enforcement="androidx.appsearch.app.Features#isFeatureSupported", name=androidx.appsearch.app.Features.GLOBAL_SEARCH_SESSION_GET_SCHEMA) public com.google.common.util.concurrent.ListenableFuture<androidx.appsearch.app.GetSchemaResponse!> getSchema(String, String);
     method @RequiresFeature(enforcement="androidx.appsearch.app.Features#isFeatureSupported", name=androidx.appsearch.app.Features.GLOBAL_SEARCH_SESSION_ADD_REMOVE_OBSERVER) public void removeObserver(String, androidx.appsearch.observer.AppSearchObserverCallback);
     method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void!> reportSystemUsage(androidx.appsearch.app.ReportSystemUsageRequest);
     method public androidx.appsearch.app.SearchResults search(String, androidx.appsearch.app.SearchSpec);

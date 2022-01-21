@@ -37,6 +37,11 @@ final class FeaturesImpl implements Features {
         if (Features.GLOBAL_SEARCH_SESSION_ADD_REMOVE_OBSERVER.equals(feature)) {
             return BuildCompat.isAtLeastT();
         }
+        if (Features.GLOBAL_SEARCH_SESSION_GET_SCHEMA.equals(feature)) {
+            // TODO(b/215624105) : Update to reflect support in Android T+ once this feature is
+            // synced over into service-appsearch.
+            return false;
+        }
         return false;
     }
 }

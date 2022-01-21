@@ -485,7 +485,9 @@ public class AppSearchImplTest {
         assertThat(initStats.getResetStatusCode()).isEqualTo(AppSearchResult.RESULT_OK);
 
         // Make sure all our data is gone
-        assertThat(mAppSearchImpl.getSchema(context.getPackageName(), "database1").getSchemas())
+        assertThat(mAppSearchImpl.getSchema(/*callerPackageName=*/context.getPackageName(),
+                /*packageName=*/context.getPackageName(), /*databaseName=*/
+                "database1").getSchemas())
                 .isEmpty();
         results = mAppSearchImpl.globalQuery(
                 /*queryExpression=*/ "",
@@ -1856,7 +1858,8 @@ public class AppSearchImplTest {
                 /* setSchemaStatsBuilder= */ null));
 
         assertThrows(IllegalStateException.class, () -> mAppSearchImpl.getSchema(
-                "package", "database"));
+                /*callerPackageName=*/"package", /*packageName=*/"package", /*databaseName=*/
+                "database"));
 
         assertThrows(IllegalStateException.class, () -> mAppSearchImpl.putDocument(
                 "package",

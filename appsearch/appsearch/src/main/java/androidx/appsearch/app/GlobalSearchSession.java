@@ -16,6 +16,8 @@
 // @exportToFramework:skipFile()
 package androidx.appsearch.app;
 
+import android.annotation.SuppressLint;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresFeature;
 import androidx.appsearch.exceptions.AppSearchException;
@@ -81,6 +83,32 @@ public interface GlobalSearchSession extends Closeable {
      */
     @NonNull
     ListenableFuture<Void> reportSystemUsage(@NonNull ReportSystemUsageRequest request);
+
+    /**
+     * Retrieves the collection of schemas most recently successfully provided to
+     * {@link AppSearchSession#setSchema} for any types belonging to the requested package and
+     * database that the caller has been granted access to.
+     *
+     * <p> If the requested package/database combination does not exist or the caller has not been
+     * granted access to it, then an empty GetSchemaResponse will be returned.
+     *
+     *
+     * @param packageName the package that owns the requested {@link AppSearchSchema} instances.
+     * @param databaseName the database that owns the requested {@link AppSearchSchema} instances.
+     * @return The pending {@link GetSchemaResponse} containing the schemas that the caller has
+     * access to or an empty GetSchemaResponse if the request package and database does not
+     * exist, has not set a schema or contains no schemas that are accessible to the caller.
+     */
+    // This call hits disk; async API prevents us from treating these calls as properties.
+    @SuppressLint("KotlinPropertyAccess")
+    @NonNull
+    // @exportToFramework:startStrip()
+    @RequiresFeature(
+            enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
+            name = Features.GLOBAL_SEARCH_SESSION_GET_SCHEMA)
+    // @exportToFramework:endStrip()
+    ListenableFuture<GetSchemaResponse> getSchema(@NonNull String packageName,
+            @NonNull String databaseName);
 
     /**
      * Returns the {@link Features} to check for the availability of certain features

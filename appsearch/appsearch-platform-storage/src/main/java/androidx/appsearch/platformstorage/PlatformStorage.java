@@ -222,7 +222,7 @@ public final class PlatformStorage {
                     if (result.isSuccess()) {
                         future.set(
                                 new SearchSessionImpl(result.getResultValue(), context.mExecutor,
-                                new FeaturesImpl()));
+                                        new FeaturesImpl()));
                     } else {
                         future.setException(
                                 new AppSearchException(
