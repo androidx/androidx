@@ -69,6 +69,7 @@ import java.util.WeakHashMap;
 /**
  * Helper for accessing features in {@link Resources}.
  */
+@SuppressWarnings("unused")
 public final class ResourcesCompat {
     private static final String TAG = "ResourcesCompat";
     private static final ThreadLocal<TypedValue> sTempTypedValue = new ThreadLocal<>();
@@ -274,7 +275,8 @@ public final class ResourcesCompat {
                 final ColorStateListCacheEntry entry = entries.get(resId);
                 if (entry != null) {
                     if (entry.mConfiguration.equals(key.mResources.getConfiguration())
-                            && entry.mThemeHash == key.mTheme.hashCode()) {
+                            && ((key.mTheme == null && entry.mThemeHash == 0)
+                            || (key.mTheme != null && entry.mThemeHash == key.mTheme.hashCode()))) {
                         // If the current configuration matches the entry's, we can use it
                         return entry.mValue;
                     } else {
