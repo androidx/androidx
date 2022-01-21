@@ -36,3 +36,14 @@ fun StepperSample() {
         steps = 7
     ) { Text("Value: $value") }
 }
+
+@Sampled
+@Composable
+fun StepperWithIntegerSample() {
+    var value by remember { mutableStateOf(2) }
+    Stepper(
+        value = value,
+        onValueChange = { value = it },
+        valueProgression = 1..10
+    ) { Text("Value: $value") }
+}

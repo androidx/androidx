@@ -43,12 +43,12 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.wear.compose.material.RangeDefaults.calculateCurrentStepValue
 import androidx.wear.compose.material.RangeDefaults.snapValueToStep
+import kotlin.math.roundToInt
 
 /**
  * [InlineSlider] allows users to make a selection from a range of values. The range of selections
@@ -73,8 +73,8 @@ import androidx.wear.compose.material.RangeDefaults.snapValueToStep
  * @param value Current value of the Slider. If outside of [valueRange] provided, value will be
  * coerced to this range.
  * @param onValueChange Lambda in which value should be updated
- * @param steps Specifies the number of discrete values, evenly distributed
- * between across the whole value range. Must not be negative. If 0, slider will have only
+ * @param steps Specifies the number of discrete values, excluding min and max values, evenly
+ * distributed across the whole value range. Must not be negative. If 0, slider will have only
  * min and max values and no steps in between
  * @param modifier Modifiers for the Slider layout
  * @param enabled Controls the enabled state of the slider.
@@ -90,7 +90,7 @@ import androidx.wear.compose.material.RangeDefaults.snapValueToStep
  * color for this slider in different states
  */
 @Composable
-fun InlineSlider(
+public fun InlineSlider(
     value: Float,
     onValueChange: (Float) -> Unit,
     steps: Int,
@@ -98,18 +98,8 @@ fun InlineSlider(
     enabled: Boolean = true,
     valueRange: ClosedFloatingPointRange<Float> = 0f..(steps + 1).toFloat(),
     segmented: Boolean = steps <= 8,
-    decreaseIcon: @Composable () -> Unit = {
-        Icon(
-            imageVector = InlineSliderDefaults.DecreaseIcon,
-            contentDescription = "Decrease" // TODO(b/204187777) i18n
-        )
-    },
-    increaseIcon: @Composable () -> Unit = {
-        Icon(
-            imageVector = InlineSliderDefaults.IncreaseIcon,
-            contentDescription = "Increase" // TODO(b/204187777) i18n
-        )
-    },
+    decreaseIcon: @Composable () -> Unit = { InlineSliderDefaults.DecreaseIcon() },
+    increaseIcon: @Composable () -> Unit = { InlineSliderDefaults.IncreaseIcon() },
     colors: InlineSliderColors = InlineSliderDefaults.colors(),
 ) {
     require(steps >= 0) { "steps should be >= 0" }
@@ -195,6 +185,74 @@ fun InlineSlider(
 }
 
 /**
+ * [InlineSlider] allows users to make a selection from a range of values. The range of selections
+ * is shown as a bar between the minimum and maximum values of the range,
+ * from which users may select a single value.
+ * InlineSlider is ideal for adjusting settings such as volume or brightness.
+ *
+ * Value can be increased and decreased by clicking on the increase and decrease buttons, located
+ * accordingly to the start and end of the control. Buttons can have custom icons -
+ * [decreaseIcon] and [increaseIcon].
+ *
+ * The bar in the middle of control can have separators if [segmented] flag is set to true.
+ * A number of steps is calculated as the difference between max and min values of
+ * [valueProgression] divided by [valueProgression].step - 1.
+ * For example, with a range of 100..120 and a step 5,
+ * number of steps will be (120-100)/ 5 - 1 = 3. Steps are 100(first), 105, 110, 115, 120(last)
+ *
+ * If [valueProgression] range is not equally divisible by [valueProgression].step,
+ * then [valueProgression].last will be adjusted to the closest divisible value in the range.
+ * For example, 1..13 range and a step = 5, steps will be 1(first) , 6 , 11(last)
+ *
+ * A continuous non-segmented slider sample:
+ * @sample androidx.wear.compose.material.samples.InlineSliderWithIntegerSample
+ *
+ * A segmented slider sample:
+ * @sample androidx.wear.compose.material.samples.InlineSliderSegmentedSample
+ *
+ * @param value Current value of the Slider. If outside of [valueProgression] provided, value will be
+ * coerced to this range.
+ * @param onValueChange Lambda in which value should be updated
+ * @param modifier Modifiers for the Slider layout
+ * @param enabled Controls the enabled state of the slider.
+ * When `false`, this slider will not be clickable
+ * @param valueProgression Progression of values that Slider value can take. Consists of
+ * rangeStart, rangeEnd and step. Range will be equally divided by step size
+ * @param segmented A boolean value which specifies whether a bar will be split into
+ * segments or not. Recommendation is while using this flag do not have more than 8 steps
+ * as it might affect user experience. By default true if number of steps is <=8.
+ * @param decreaseIcon A slot for an icon which is placed on the decrease (start) button
+ * @param increaseIcon A slot for an icon which is placed on the increase (end) button
+ * @param colors [InlineSliderColors] that will be used to resolve the background and content
+ * color for this slider in different states
+ */
+@Composable
+public fun InlineSlider(
+    value: Int,
+    onValueChange: (Int) -> Unit,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    valueProgression: IntProgression,
+    segmented: Boolean = valueProgression.stepsNumber() <= 8,
+    decreaseIcon: @Composable () -> Unit = { InlineSliderDefaults.DecreaseIcon() },
+    increaseIcon: @Composable () -> Unit = { InlineSliderDefaults.IncreaseIcon() },
+    colors: InlineSliderColors = InlineSliderDefaults.colors(),
+) {
+    InlineSlider(
+        value = value.toFloat(),
+        onValueChange = { onValueChange(it.roundToInt()) },
+        steps = valueProgression.stepsNumber(),
+        modifier = modifier,
+        enabled = enabled,
+        valueRange = valueProgression.first.toFloat()..valueProgression.last.toFloat(),
+        segmented = segmented,
+        decreaseIcon = decreaseIcon,
+        increaseIcon = increaseIcon,
+        colors = colors
+    )
+}
+
+/**
  * Represents the background and content colors used in [InlineSlider] in different states.
  */
 @Stable
@@ -229,7 +287,7 @@ public interface InlineSliderColors {
 /**
  * Defaults used by slider
  */
-object InlineSliderDefaults {
+public object InlineSliderDefaults {
 
     /**
      * The default height applied for the [InlineSlider].
@@ -264,7 +322,7 @@ object InlineSliderDefaults {
      * @param disabledUnselectedBarColor The background color of the progress bar when disabled
      */
     @Composable
-    fun colors(
+    public fun colors(
         backgroundColor: Color = MaterialTheme.colors.surface,
         spacerColor: Color = MaterialTheme.colors.background,
         selectedBarColor: Color = MaterialTheme.colors.secondary,
@@ -284,17 +342,21 @@ object InlineSliderDefaults {
         disabledUnselectedBarColor = disabledUnselectedBarColor
     )
 
-    /**
-     * A decrease [Icon].
-     */
-    val DecreaseIcon: ImageVector
-        get() = RangeIcons.MinusIcon
+    @Composable
+    internal fun DecreaseIcon() {
+        Icon(
+            imageVector = RangeIcons.Minus,
+            contentDescription = "Decrease" // TODO(b/204187777) i18n
+        )
+    }
 
-    /**
-     * An increase [Icon].
-     */
-    val IncreaseIcon: ImageVector
-        get() = Icons.Filled.Add
+    @Composable
+    internal fun IncreaseIcon() {
+        Icon(
+            imageVector = Icons.Filled.Add,
+            contentDescription = "Increase" // TODO(b/204187777) i18n
+        )
+    }
 }
 
 @Immutable
