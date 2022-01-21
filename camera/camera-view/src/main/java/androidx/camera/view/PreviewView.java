@@ -99,6 +99,11 @@ import java.util.concurrent.atomic.AtomicReference;
  * {@link android.view.ViewParent#requestTransparentRegion(View)} right after making the
  * {@link View} visible, or initially hiding the {@link View} by setting its
  * {@linkplain View#setAlpha(float) opacity} to 0, then setting it to 1.0F to show it.
+ *
+ * There are some limitations of transition animations to {@link SurfaceView} and
+ * {@link TextureView}, which applies to {@link PreviewView} as well.
+ *
+ * @see <a href="https://developer.android.com/training/transitions#Limitations</a>
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class PreviewView extends FrameLayout {
