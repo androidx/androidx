@@ -35,7 +35,6 @@ import androidx.benchmark.userspaceTrace
 fun collectBaselineProfile(
     uniqueName: String,
     packageName: String,
-    setupBlock: MacrobenchmarkScope.() -> Unit,
     profileBlock: MacrobenchmarkScope.() -> Unit
 ) {
     require(Build.VERSION.SDK_INT >= 28) {
@@ -63,7 +62,6 @@ fun collectBaselineProfile(
             compilationMode.resetAndCompile(
                 packageName = packageName
             ) {
-                setupBlock(scope)
                 profileBlock(scope)
             }
         }

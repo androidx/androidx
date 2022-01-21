@@ -54,20 +54,15 @@ class BaselineProfileRule : TestRule {
     /**
      * Collects baseline profiles for a critical user journey.
      * @param packageName Package name of the app for which profiles are to be generated.
-     * @param setupBlock The block performing app actions prior to the critical user journey.
-     * For example navigating to an Activity where scrolling will be measured.
      * @param [profileBlock] defines the critical user journey.
      */
-    @JvmOverloads
     public fun collectBaselineProfile(
         packageName: String,
-        setupBlock: MacrobenchmarkScope.() -> Unit = {},
         profileBlock: MacrobenchmarkScope.() -> Unit
     ) {
         collectBaselineProfile(
             currentDescription.toUniqueName(),
             packageName = packageName,
-            setupBlock = setupBlock,
             profileBlock = profileBlock
         )
     }
