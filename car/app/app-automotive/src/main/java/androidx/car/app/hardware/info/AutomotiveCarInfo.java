@@ -78,7 +78,7 @@ public class AutomotiveCarInfo implements CarInfo {
     static final List<Integer> ENERGY_LEVEL_REQUEST =
             Arrays.asList(EV_BATTERY_LEVEL, FUEL_LEVEL,
                     FUEL_LEVEL_LOW, RANGE_REMAINING,
-                    DISTANCE_DISPLAY_UNITS);
+                    DISTANCE_DISPLAY_UNITS, FUEL_VOLUME_DISPLAY_UNITS);
     @VisibleForTesting
     static final float DEFAULT_SAMPLE_RATE = 5f;
 
