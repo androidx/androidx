@@ -311,19 +311,25 @@ public final class CarAppActivity extends FragmentActivity {
     /** Takes a snapshot of the surface view and puts it in the surfaceSnapshotView if succeeded. */
     private void takeSurfaceSnapshot() {
         // Nothing to do if the surface is not ready yet.
-        if (mSurfaceView.getHolder().getSurface() == null) {
+        if (mSurfaceView.getHolder().getSurface() == null
+                || mSurfaceView.getWidth() == 0 || mSurfaceView.getHeight() == 0) {
             return;
         }
-        Bitmap bitmap = Bitmap.createBitmap(mSurfaceView.getWidth(), mSurfaceView.getHeight(),
-                Bitmap.Config.ARGB_8888);
-        PixelCopy.request(mSurfaceView, bitmap, status -> {
-            if (status == PixelCopy.SUCCESS) {
-                mSurfaceSnapshotView.setImageBitmap(bitmap);
-            } else {
-                Log.w(LogTags.TAG, "Failed to take snapshot of the surface view");
-                mSurfaceSnapshotView.setImageBitmap(null);
-            }
-        }, mSnapshotHandler);
+        try {
+            Bitmap bitmap = Bitmap.createBitmap(mSurfaceView.getWidth(), mSurfaceView.getHeight(),
+                    Bitmap.Config.ARGB_8888);
+            PixelCopy.request(mSurfaceView, bitmap, status -> {
+                if (status == PixelCopy.SUCCESS) {
+                    mSurfaceSnapshotView.setImageBitmap(bitmap);
+                } else {
+                    Log.w(LogTags.TAG, "Failed to take snapshot of the surface view");
+                    mSurfaceSnapshotView.setImageBitmap(null);
+                }
+            }, mSnapshotHandler);
+        } catch (Exception e) {
+            Log.e(LogTags.TAG, "Failed to take snapshot of the surface view", e);
+            mSurfaceSnapshotView.setImageBitmap(null);
+        }
     }
 
     @Override
