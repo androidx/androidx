@@ -632,16 +632,16 @@ public final class AppSearchImpl implements Closeable {
                             responseBuilder.setSchemaTypeVisibleToPackages(typeName,
                                     packageIdentifier);
                         }
-                        String[] visibleToRoles = visibilityDocument.getVisibleToRoles();
+                        Set<Integer> visibleToRoles = visibilityDocument.getVisibleToRoles();
                         if (visibleToRoles != null) {
-                            responseBuilder.setAllowedRolesForSchemaTypeVisibility(
-                                    typeName, new ArraySet<>(visibleToRoles));
+                            responseBuilder.setAllowedRolesForSchemaTypeVisibility(typeName,
+                                    visibleToRoles);
                         }
-                        String[] visibleToPermissions = visibilityDocument
-                                .getVisibleToPermissions();
+                        Set<Integer> visibleToPermissions =
+                                visibilityDocument.getVisibleToPermissions();
                         if (visibleToPermissions != null) {
                             responseBuilder.setRequiredPermissionsForSchemaTypeVisibility(
-                                    typeName, new ArraySet<>(visibleToPermissions));
+                                    typeName,  visibleToPermissions);
                         }
                     }
                 }

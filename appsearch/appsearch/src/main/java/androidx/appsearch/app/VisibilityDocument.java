@@ -84,10 +84,10 @@ public class VisibilityDocument extends GenericDocument {
             .addProperty(new AppSearchSchema.BytesPropertyConfig.Builder(SHA_256_CERT_PROPERTY)
                     .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_REPEATED)
                     .build())
-            .addProperty(new AppSearchSchema.StringPropertyConfig.Builder(ROLE_PROPERTY)
+            .addProperty(new AppSearchSchema.LongPropertyConfig.Builder(ROLE_PROPERTY)
                     .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_REPEATED)
                     .build())
-            .addProperty(new AppSearchSchema.StringPropertyConfig.Builder(PERMISSION_PROPERTY)
+            .addProperty(new AppSearchSchema.LongPropertyConfig.Builder(PERMISSION_PROPERTY)
                     .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_REPEATED)
                     .build())
             .build();
@@ -130,8 +130,8 @@ public class VisibilityDocument extends GenericDocument {
      * {@link VisibilityDocument} represents.
      */
     @Nullable
-    public String[] getVisibleToRoles() {
-        return getPropertyStringArray(ROLE_PROPERTY);
+    public Set<Integer> getVisibleToRoles() {
+        return toInts(getPropertyLongArray(ROLE_PROPERTY));
     }
 
     /**
@@ -139,8 +139,8 @@ public class VisibilityDocument extends GenericDocument {
      * this {@link VisibilityDocument} represents.
      */
     @Nullable
-    public String[] getVisibleToPermissions() {
-        return getPropertyStringArray(PERMISSION_PROPERTY);
+    public Set<Integer> getVisibleToPermissions() {
+        return toInts(getPropertyLongArray(PERMISSION_PROPERTY));
     }
 
     /** Builder for {@link VisibilityDocument}. */
@@ -185,18 +185,18 @@ public class VisibilityDocument extends GenericDocument {
         /** Add a set of Android role that has access to the schema this
          * {@link VisibilityDocument} represents. */
         @NonNull
-        public Builder setVisibleToRoles(@NonNull String... visibleToRoles) {
+        public Builder setVisibleToRoles(@NonNull Set<Integer> visibleToRoles) {
             Preconditions.checkNotNull(visibleToRoles);
-            setPropertyString(ROLE_PROPERTY, visibleToRoles);
+            setPropertyLong(ROLE_PROPERTY, toLongs(visibleToRoles));
             return this;
         }
 
         /** Add a set of Android role that has access to the schema this
          * {@link VisibilityDocument} represents. */
         @NonNull
-        public Builder setVisibleToPermissions(@NonNull String... visibleToPermissions) {
+        public Builder setVisibleToPermissions(@NonNull Set<Integer> visibleToPermissions) {
             Preconditions.checkNotNull(visibleToPermissions);
-            setPropertyString(PERMISSION_PROPERTY, visibleToPermissions);
+            setPropertyLong(PERMISSION_PROPERTY, toLongs(visibleToPermissions));
             return this;
         }
 
@@ -227,9 +227,9 @@ public class VisibilityDocument extends GenericDocument {
         Set<String> schemasNotDisplayedBySystem = setSchemaRequest.getSchemasNotDisplayedBySystem();
         Map<String, Set<PackageIdentifier>> schemasVisibleToPackages =
                 setSchemaRequest.getSchemasVisibleToPackages();
-        Map<String, Set<String>> schemasVisibleToRoles =
+        Map<String, Set<Integer>> schemasVisibleToRoles =
                 setSchemaRequest.getAllowedRolesForSchemaTypeVisibility();
-        Map<String, Set<String>> schemasVisibleToPermissions =
+        Map<String, Set<Integer>> schemasVisibleToPermissions =
                 setSchemaRequest.getRequiredPermissionsForSchemaTypeVisibility();
 
         List<VisibilityDocument> visibilityDocuments = new ArrayList<>(searchSchemas.size());
@@ -246,16 +246,37 @@ public class VisibilityDocument extends GenericDocument {
             }
 
             if (schemasVisibleToRoles.containsKey(schemaType)) {
-                documentBuilder.setVisibleToRoles(
-                        schemasVisibleToRoles.get(schemaType).toArray(new String[0]));
+                documentBuilder.setVisibleToRoles(schemasVisibleToRoles.get(schemaType));
             }
 
             if (schemasVisibleToPermissions.containsKey(schemaType)) {
                 documentBuilder.setVisibleToPermissions(
-                        schemasVisibleToPermissions.get(schemaType).toArray(new String[0]));
+                        schemasVisibleToPermissions.get(schemaType));
             }
             visibilityDocuments.add(documentBuilder.build());
         }
         return visibilityDocuments;
+    }
+
+    @NonNull
+    static long[] toLongs(@NonNull Set<Integer> properties) {
+        long[] outputs = new long[properties.size()];
+        int i = 0;
+        for (int property : properties) {
+            outputs[i++] = property;
+        }
+        return outputs;
+    }
+
+    @Nullable
+    private static Set<Integer> toInts(@Nullable long[] properties) {
+        if (properties == null) {
+            return null;
+        }
+        Set<Integer> outputs = new ArraySet<>(properties.length);
+        for (long property : properties) {
+            outputs.add((int) property);
+        }
+        return outputs;
     }
 }
