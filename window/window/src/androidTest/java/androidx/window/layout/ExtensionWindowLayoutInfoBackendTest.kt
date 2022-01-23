@@ -24,6 +24,7 @@ import androidx.core.util.Consumer
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.window.TestActivity
 import androidx.window.TestConsumer
+import androidx.window.core.ConsumerAdapter
 import androidx.window.extensions.layout.FoldingFeature.STATE_FLAT
 import androidx.window.extensions.layout.FoldingFeature.TYPE_HINGE
 import androidx.window.extensions.layout.WindowLayoutComponent
@@ -50,6 +51,10 @@ class ExtensionWindowLayoutInfoBackendTest {
     public val activityScenario: ActivityScenarioRule<TestActivity> =
         ActivityScenarioRule(TestActivity::class.java)
 
+    private val consumerAdapter = ConsumerAdapter(
+        ExtensionWindowLayoutInfoBackendTest::class.java.classLoader!!
+    )
+
     @Before
     fun setUp() {
         assumeTrue("Must be at least API 24", Build.VERSION_CODES.N <= Build.VERSION.SDK_INT)
@@ -57,15 +62,15 @@ class ExtensionWindowLayoutInfoBackendTest {
 
     @Test
     public fun testExtensionWindowBackend_delegatesToWindowLayoutComponent() {
-        val component = mock<WindowLayoutComponent>()
+        val component = RequestTrackingWindowComponent()
 
-        val backend = ExtensionWindowLayoutInfoBackend(component)
+        val backend = ExtensionWindowLayoutInfoBackend(component, consumerAdapter)
 
         activityScenario.scenario.onActivity { activity ->
             val consumer = TestConsumer<WindowLayoutInfo>()
             backend.registerLayoutChangeCallback(activity, Runnable::run, consumer)
 
-            verify(component).addWindowLayoutInfoListener(eq(activity), any())
+            assertTrue("Expected call with Activity: $activity", component.hasAddCall(activity))
         }
     }
 
@@ -73,7 +78,7 @@ class ExtensionWindowLayoutInfoBackendTest {
     public fun testExtensionWindowBackend_registerAtMostOnce() {
         val component = mock<WindowLayoutComponent>()
 
-        val backend = ExtensionWindowLayoutInfoBackend(component)
+        val backend = ExtensionWindowLayoutInfoBackend(component, consumerAdapter)
 
         activityScenario.scenario.onActivity { activity ->
             val consumer = TestConsumer<WindowLayoutInfo>()
@@ -95,7 +100,7 @@ class ExtensionWindowLayoutInfoBackendTest {
                 val consumer = invocation.getArgument(1) as JavaConsumer<OEMWindowLayoutInfo>
                 consumer.accept(OEMWindowLayoutInfo(emptyList()))
             }
-        val backend = ExtensionWindowLayoutInfoBackend(component)
+        val backend = ExtensionWindowLayoutInfoBackend(component, consumerAdapter)
 
         activityScenario.scenario.onActivity { activity ->
             val consumer = TestConsumer<WindowLayoutInfo>()
@@ -116,7 +121,7 @@ class ExtensionWindowLayoutInfoBackendTest {
                 val consumer = invocation.getArgument(1) as JavaConsumer<OEMWindowLayoutInfo>
                 consumer.accept(OEMWindowLayoutInfo(emptyList()))
             }
-        val backend = ExtensionWindowLayoutInfoBackend(component)
+        val backend = ExtensionWindowLayoutInfoBackend(component, consumerAdapter)
 
         activityScenario.scenario.onActivity { activity ->
             val consumer = TestConsumer<WindowLayoutInfo>()
@@ -131,7 +136,7 @@ class ExtensionWindowLayoutInfoBackendTest {
     public fun testExtensionWindowBackend_removeMatchingCallback() {
         val component = mock<WindowLayoutComponent>()
 
-        val backend = ExtensionWindowLayoutInfoBackend(component)
+        val backend = ExtensionWindowLayoutInfoBackend(component, consumerAdapter)
 
         activityScenario.scenario.onActivity { activity ->
             val consumer = TestConsumer<WindowLayoutInfo>()
@@ -148,7 +153,7 @@ class ExtensionWindowLayoutInfoBackendTest {
     public fun testRegisterLayoutChangeCallback_clearListeners() {
         activityScenario.scenario.onActivity { activity ->
             val component = FakeWindowComponent()
-            val backend = ExtensionWindowLayoutInfoBackend(component)
+            val backend = ExtensionWindowLayoutInfoBackend(component, consumerAdapter)
 
             // Check registering the layout change callback
             val firstConsumer = mock<Consumer<WindowLayoutInfo>>()
@@ -177,7 +182,7 @@ class ExtensionWindowLayoutInfoBackendTest {
     public fun testLayoutChangeCallback_emitNewValue() {
         activityScenario.scenario.onActivity { activity ->
             val component = FakeWindowComponent()
-            val backend = ExtensionWindowLayoutInfoBackend(component)
+            val backend = ExtensionWindowLayoutInfoBackend(component, consumerAdapter)
 
             // Check that callbacks from the extension are propagated correctly
             val consumer = mock<Consumer<WindowLayoutInfo>>()
@@ -194,7 +199,7 @@ class ExtensionWindowLayoutInfoBackendTest {
     public fun testWindowLayoutInfo_updatesOnSubsequentRegistration() {
         activityScenario.scenario.onActivity { activity ->
             val component = FakeWindowComponent()
-            val backend = ExtensionWindowLayoutInfoBackend(component)
+            val backend = ExtensionWindowLayoutInfoBackend(component, consumerAdapter)
             val consumer = TestConsumer<WindowLayoutInfo>()
             val oemWindowLayoutInfo = newTestOEMWindowLayoutInfo(activity)
             val expected = listOf(
@@ -220,6 +225,27 @@ class ExtensionWindowLayoutInfoBackendTest {
             val feature = OEMFoldingFeature(featureBounds, TYPE_HINGE, STATE_FLAT)
             val displayFeatures = listOf(feature)
             return OEMWindowLayoutInfo(displayFeatures)
+        }
+    }
+
+    private class RequestTrackingWindowComponent : WindowLayoutComponent {
+
+        val records = mutableListOf<AddCall>()
+
+        override fun addWindowLayoutInfoListener(
+            activity: Activity,
+            consumer: JavaConsumer<OEMWindowLayoutInfo>
+        ) {
+            records.add(AddCall(activity))
+        }
+
+        override fun removeWindowLayoutInfoListener(consumer: JavaConsumer<OEMWindowLayoutInfo>) {
+        }
+
+        class AddCall(val activity: Activity)
+
+        fun hasAddCall(activity: Activity): Boolean {
+            return records.any { addRecord -> addRecord.activity == activity }
         }
     }
 
