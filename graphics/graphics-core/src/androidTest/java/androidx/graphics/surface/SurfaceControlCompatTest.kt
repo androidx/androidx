@@ -24,6 +24,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import org.junit.Assert.fail
+import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -45,6 +46,7 @@ class SurfaceControlCompatTest {
         }
     }
 
+    @Ignore("broken: b/216102328")
     @Test
     fun testSurfaceTransactionCreate() {
         try {
