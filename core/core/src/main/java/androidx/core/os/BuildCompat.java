@@ -56,7 +56,9 @@ public class BuildCompat {
 
         // Otherwise lexically compare them.  Return true if the build codename is equal to or
         // greater than the requested codename.
-        return buildCodename.toUpperCase(Locale.ROOT).compareTo(codename) >= 0;
+        final String buildCodenameUpper = buildCodename.toUpperCase(Locale.ROOT);
+        final String codenameUpper = codename.toUpperCase(Locale.ROOT);
+        return buildCodenameUpper.compareTo(codenameUpper) >= 0;
     }
 
     /**
