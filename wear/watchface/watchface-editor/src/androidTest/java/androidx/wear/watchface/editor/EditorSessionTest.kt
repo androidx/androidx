@@ -110,7 +110,6 @@ import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
-import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.ArgumentMatchers.any
@@ -1937,7 +1936,6 @@ public class EditorSessionTest {
     }
 
     @Test
-    @Ignore // TODO(b/200917204): This test is flaking on the bots.
     public fun forceCloseEditorSessionDuring_fetchComplicationsData() {
         val getProviderInfosLatch = CountDownLatch(1)
         val complicationDataSourceInfoRetrieverProvider =
