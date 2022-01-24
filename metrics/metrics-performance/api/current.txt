@@ -1,17 +1,28 @@
 // Signature format: 4.0
 package androidx.metrics.performance {
 
-  public final class FrameData {
-    ctor public FrameData(long frameStartNanos, long frameDurationNanos, boolean isJank, java.util.List<androidx.metrics.performance.StateInfo> states);
-    ctor public FrameData(androidx.metrics.performance.FrameData frameData);
-    method public long getFrameDurationNanos();
-    method public long getFrameStartNanos();
-    method public java.util.List<androidx.metrics.performance.StateInfo> getStates();
-    method public boolean isJank();
-    property public final long frameDurationNanos;
+  public class FrameData {
+    ctor public FrameData(long frameStartNanos, long frameDurationUiNanos, boolean isJank, java.util.List<androidx.metrics.performance.StateInfo> states);
+    method public final long getFrameDurationUiNanos();
+    method public final long getFrameStartNanos();
+    method public final java.util.List<androidx.metrics.performance.StateInfo> getStates();
+    method public final boolean isJank();
+    property public final long frameDurationUiNanos;
     property public final long frameStartNanos;
     property public final boolean isJank;
     property public final java.util.List<androidx.metrics.performance.StateInfo> states;
+  }
+
+  public class FrameDataApi24 extends androidx.metrics.performance.FrameData {
+    ctor public FrameDataApi24(long frameStartNanos, long frameDurationUiNanos, long frameDurationCpuNanos, boolean isJank, java.util.List<androidx.metrics.performance.StateInfo> states);
+    method public final long getFrameDurationCpuNanos();
+    property public final long frameDurationCpuNanos;
+  }
+
+  public final class FrameDataApi31 extends androidx.metrics.performance.FrameDataApi24 {
+    ctor public FrameDataApi31(long frameStartNanos, long frameDurationUiNanos, long frameDurationCpuNanos, long frameOverrunNanos, boolean isJank, java.util.List<androidx.metrics.performance.StateInfo> states);
+    method public long getFrameOverrunNanos();
+    property public final long frameOverrunNanos;
   }
 
   public final class JankStats {

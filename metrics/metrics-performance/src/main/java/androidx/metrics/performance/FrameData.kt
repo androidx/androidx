@@ -18,16 +18,19 @@ package androidx.metrics.performance
 /**
  * This class stores duration data for a single frame.
  */
-class FrameData(
+open class FrameData(
     /**
      * The time at which this frame began (in nanoseconds)
      */
     val frameStartNanos: Long,
 
     /**
-     * The duration of this frame (in nanoseconds)
+     * The time spent in the UI portion of this frame (in nanoseconds).
+     *
+     * This is essentially the time spent on the UI thread to draw this frame, but does
+     * not include any time spent on the RenderThread.
      */
-    val frameDurationNanos: Long,
+    val frameDurationUiNanos: Long,
 
     /**
      * Whether this frame was determined to be janky, meaning that its
@@ -37,22 +40,15 @@ class FrameData(
     val isJank: Boolean,
 
     /**
-     * The UI/app state during this frame. This is the information set by the app, or by
-     * other library code, that can be used later, during analysis, to determine what
-     * UI state was current when jank occurred.
+     * The UI/app state during this frame.
+     *
+     * This is the information set by the app, or by other library code, that can be analyzed
+     * later to determine the UI state that was current when jank occurred.
      *
      * @see PerformanceMetricsState.addState
      */
     val states: List<StateInfo>
-
 ) {
-
-    constructor(frameData: FrameData) : this(
-        frameData.frameStartNanos,
-        frameData.frameDurationNanos,
-        frameData.isJank,
-        frameData.states
-    )
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -61,7 +57,7 @@ class FrameData(
         other as FrameData
 
         if (frameStartNanos != other.frameStartNanos) return false
-        if (frameDurationNanos != other.frameDurationNanos) return false
+        if (frameDurationUiNanos != other.frameDurationUiNanos) return false
         if (isJank != other.isJank) return false
         if (states != other.states) return false
 
@@ -70,7 +66,7 @@ class FrameData(
 
     override fun hashCode(): Int {
         var result = frameStartNanos.hashCode()
-        result = 31 * result + frameDurationNanos.hashCode()
+        result = 31 * result + frameDurationUiNanos.hashCode()
         result = 31 * result + isJank.hashCode()
         result = 31 * result + states.hashCode()
         return result
@@ -78,12 +74,15 @@ class FrameData(
 
     override fun toString(): String {
         return "FrameData(frameStartNanos=$frameStartNanos, " +
-            "frameDurationNanos=$frameDurationNanos, isJank=$isJank, states=$states)"
+            "frameDurationUiNanos=$frameDurationUiNanos, " +
+            "isJank=$isJank, " +
+            "states=$states)"
     }
 }
 
 /**
  * This class contains information about application state.
+ *
  * @property stateName An arbitrary name used for this state, used as a key for storing
  * the state value.
  * @property state The value of this state.
@@ -106,5 +105,9 @@ class StateInfo(val stateName: String, val state: String) {
         var result = stateName.hashCode()
         result = 31 * result + state.hashCode()
         return result
+    }
+
+    override fun toString(): String {
+        return "$stateName: $state"
     }
 }

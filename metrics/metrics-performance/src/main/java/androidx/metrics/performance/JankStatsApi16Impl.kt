@@ -44,6 +44,9 @@ internal open class JankStatsApi16Impl(
     // frame timing values
     val choreographer: Choreographer = Choreographer.getInstance()
 
+    // Cache for use during reporting, to supply the FrameData states
+    val metricsStateHolder = PerformanceMetricsState.getForHierarchy(view)
+
     /**
      * Each JankStats instance has its own listener for per-frame metric data.
      * But we use a single listener (using OnPreDraw events prior to API 24) to gather
@@ -52,12 +55,9 @@ internal open class JankStatsApi16Impl(
      * which forwards it to the JankStats instances.
      */
     private val onFrameListenerDelegate = object : OnFrameListenerDelegate() {
-        override fun onFrame(startTime: Long, actualDuration: Long, expectedDuration: Long) {
-            jankStats.logFrameData(
-                startTime,
-                actualDuration,
-                (expectedDuration * jankStats.jankHeuristicMultiplier).toLong()
-            )
+        override fun onFrame(startTime: Long, uiDuration: Long, expectedDuration: Long) {
+            jankStats.logFrameData(getFrameData(startTime, uiDuration,
+                (expectedDuration * jankStats.jankHeuristicMultiplier).toLong()))
         }
     }
 
@@ -71,6 +71,18 @@ internal open class JankStatsApi16Impl(
                 decorView.removeOnPreDrawListenerDelegate(onFrameListenerDelegate)
             }
         }
+    }
+
+    internal open fun getFrameData(
+        startTime: Long,
+        uiDuration: Long,
+        expectedDuration: Long
+    ): FrameData {
+        val frameStates =
+            metricsStateHolder.state?.getIntervalStates(startTime, startTime + uiDuration)
+                ?: emptyList()
+        val isJank = uiDuration > expectedDuration
+        return FrameData(startTime, uiDuration, isJank, frameStates)
     }
 
     private fun View.removeOnPreDrawListenerDelegate(delegate: OnFrameListenerDelegate) {
@@ -90,7 +102,6 @@ internal open class JankStatsApi16Impl(
      * If no such list exists, it will create it and add a root listener that
      * delegates to that list.
      */
-    @RequiresApi(16)
     private fun View.getOrCreateOnPreDrawListenerDelegates():
         MutableList<OnFrameListenerDelegate> {
         var delegator = getTag(R.id.metricsDelegator) as DelegatingOnPreDrawListener?
@@ -126,7 +137,7 @@ internal open class JankStatsApi16Impl(
  * and calls all delegate listeners with that data.
  */
 internal abstract class OnFrameListenerDelegate {
-    abstract fun onFrame(startTime: Long, actualDuration: Long, expectedDuration: Long)
+    abstract fun onFrame(startTime: Long, uiDuration: Long, expectedDuration: Long)
 }
 
 /**
