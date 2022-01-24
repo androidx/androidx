@@ -52,4 +52,26 @@ public class WatchUiState(
 
     @InterruptionFilter
     public val interruptionFilter: Int
-)
+) {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as WatchUiState
+
+        if (inAmbientMode != other.inAmbientMode) return false
+        if (interruptionFilter != other.interruptionFilter) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = inAmbientMode.hashCode()
+        result = 31 * result + interruptionFilter
+        return result
+    }
+
+    override fun toString(): String {
+        return "WatchUiState(inAmbientMode=$inAmbientMode, interruptionFilter=$interruptionFilter)"
+    }
+}

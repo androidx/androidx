@@ -50,6 +50,10 @@ public class WatchFaceId(public val id: String) {
     override fun hashCode(): Int {
         return id.hashCode()
     }
+
+    override fun toString(): String {
+        return "WatchFaceId(id='$id')"
+    }
 }
 
 /**
@@ -85,6 +89,30 @@ public class EditorState internal constructor(
             ", previewComplicationsData: [" +
             previewComplicationsData.map { "${it.key} -> ${it.value}" }.joinToString() +
             "], shouldCommitChanges: $shouldCommitChanges, previewImage: ${previewImage != null}"
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as EditorState
+
+        if (watchFaceId != other.watchFaceId) return false
+        if (userStyle != other.userStyle) return false
+        if (previewComplicationsData != other.previewComplicationsData) return false
+        if (shouldCommitChanges != other.shouldCommitChanges) return false
+        if (previewImage != other.previewImage) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = watchFaceId.hashCode()
+        result = 31 * result + userStyle.hashCode()
+        result = 31 * result + previewComplicationsData.hashCode()
+        result = 31 * result + shouldCommitChanges.hashCode()
+        result = 31 * result + (previewImage?.hashCode() ?: 0)
+        return result
+    }
 }
 
 /** @hide */
