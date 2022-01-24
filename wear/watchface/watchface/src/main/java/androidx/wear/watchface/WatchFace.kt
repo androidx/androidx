@@ -793,6 +793,10 @@ public class WatchFaceImpl @UiThread constructor(
                 }
                 scheduleDraw()
             } else {
+                // We want to avoid a glimpse of a stale time when transitioning from hidden to
+                // visible, so we render two black frames to clear the buffers.
+                renderer.renderBlackFrame()
+                renderer.renderBlackFrame()
                 unregisterReceivers()
             }
         }
