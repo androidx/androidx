@@ -175,7 +175,6 @@ dependencies {
     docs(project(":lifecycle:lifecycle-viewmodel-savedstate"))
     docs(project(":loader:loader"))
     docs(project(":loader:loader-ktx"))
-    docs(project(":localbroadcastmanager:localbroadcastmanager"))
     docs(project(":media2:media2-common"))
     docs(project(":media2:media2-exoplayer"))
     docs(project(":media2:media2-player"))
