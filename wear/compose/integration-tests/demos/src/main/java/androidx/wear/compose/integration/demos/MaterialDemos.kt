@@ -29,9 +29,12 @@ import androidx.wear.compose.material.samples.CompactButtonWithIcon
 import androidx.wear.compose.material.samples.CompactChipWithIconAndLabel
 import androidx.wear.compose.material.samples.ConfirmationDialogWithAnimation
 import androidx.wear.compose.material.samples.CurvedTextDemo
+import androidx.wear.compose.material.samples.IndeterminateCircularProgressIndicator
 import androidx.wear.compose.material.samples.InlineSliderSample
 import androidx.wear.compose.material.samples.InlineSliderSegmentedSample
 import androidx.wear.compose.material.samples.OptionChangePicker
+import androidx.wear.compose.material.samples.CircularProgressIndicatorFullscreenWithGap
+import androidx.wear.compose.material.samples.CircularProgressIndicatorWithAnimation
 import androidx.wear.compose.material.samples.ScalingLazyColumnWithHeaders
 import androidx.wear.compose.material.samples.ScalingLazyColumnWithHeadersReversed
 import androidx.wear.compose.material.samples.SimplePicker
@@ -268,14 +271,56 @@ val WearMaterialDemos = DemoCategory(
                 DemoCategory(
                     "Samples",
                     listOf(
-                        ComposableDemo("AppCard") { Centralize({ AppCardWithIcon() }) },
-                        ComposableDemo("TitleCard") { Centralize({ TitleCardStandard() }) },
+                        ComposableDemo("AppCard") { Centralize { AppCardWithIcon() } },
+                        ComposableDemo("TitleCard") { Centralize { TitleCardStandard() } },
                         ComposableDemo("TitleCardWithImage") {
                             Centralize({ TitleCardWithImage() })
                         },
                     )
                 ),
                 ComposableDemo("Demos") { CardDemo() },
+            )
+        ),
+        DemoCategory(
+            "ProgressIndicator",
+            listOf(
+                DemoCategory(
+                    "Samples",
+                    listOf(
+                        ComposableDemo("Indeterminate") {
+                            Centralize { IndeterminateCircularProgressIndicator() }
+                        },
+                        ComposableDemo("Animation") {
+                            Centralize { CircularProgressIndicatorWithAnimation() }
+                        },
+                        ComposableDemo("Fullscreen with a gap") {
+                            Centralize { CircularProgressIndicatorFullscreenWithGap() }
+                        }
+                    )
+                ),
+                DemoCategory(
+                    "Demos",
+                    listOf(
+                        ComposableDemo("Full screen indeterminate progress") {
+                            Centralize { FullscreenIndeterminateProgress() }
+                        },
+                        ComposableDemo("Small indeterminate progress") {
+                            Centralize { SmallIndeterminateProgress() }
+                        },
+                        ComposableDemo("Custom angles") {
+                            Centralize { ProgressWithCustomAngles() }
+                        },
+                        ComposableDemo("Media controls") {
+                            Centralize { ProgressWithMedia() }
+                        },
+                        ComposableDemo("Multiple progress indicators") {
+                            Centralize { MultipleProgressIndicators() }
+                        },
+                        ComposableDemo("Transforming progress indicator") {
+                            Centralize { TransformingCustomProgressIndicator() }
+                        },
+                    )
+                )
             )
         ),
         SwipeToDismissDemos,

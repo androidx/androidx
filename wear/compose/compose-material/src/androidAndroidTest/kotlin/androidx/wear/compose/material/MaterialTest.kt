@@ -50,12 +50,12 @@ import androidx.compose.ui.unit.height
 import androidx.compose.ui.unit.isUnspecified
 import androidx.compose.ui.unit.toSize
 import androidx.test.platform.app.InstrumentationRegistry
-import org.junit.Assert
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
 import kotlin.math.abs
 import kotlin.math.round
+import org.junit.Assert
 
 /**
  * Constant to emulate very big but finite constraints
@@ -155,6 +155,38 @@ fun ImageBitmap.assertContainsColor(expectedColor: Color, minPercent: Float = 50
         throw AssertionError(
             "Expected color $expectedColor found $actualPercent%, below threshold $minPercent%"
         )
+    }
+}
+
+/**
+ * Checks that [expectedColor]  is in the percentage [range] of an [ImageBitmap] color histogram
+ */
+fun ImageBitmap.assertColorInPercentageRange(
+    expectedColor: Color,
+    range: ClosedFloatingPointRange<Float> = 50.0f..100.0f
+) {
+    val histogram = histogram()
+    if (!histogram.containsKey(expectedColor)) {
+        throw AssertionError("Expected color $expectedColor was not found in the bitmap.")
+    }
+
+    round((histogram[expectedColor]!! * 100f) / (width * height)).let { actualPercent ->
+        if (actualPercent !in range) {
+            throw AssertionError(
+                "Expected color $expectedColor found " +
+                    "$actualPercent%, not in the percentage range $range"
+            )
+        }
+    }
+}
+
+/**
+ * Checks whether [expectedColor] does not exist in current [ImageBitmap]
+ */
+fun ImageBitmap.assertDoesNotContainColor(expectedColor: Color) {
+    val histogram = histogram()
+    if (histogram.containsKey(expectedColor)) {
+        throw AssertionError("Expected color $expectedColor exists in current bitmap")
     }
 }
 

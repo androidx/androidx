@@ -264,6 +264,19 @@ package androidx.wear.compose.material {
     property public abstract float positionFraction;
   }
 
+  public final class ProgressIndicatorDefaults {
+    method public androidx.compose.animation.core.SpringSpec<java.lang.Float> getProgressAnimationSpec();
+    method public float getStrokeWidth();
+    property public final androidx.compose.animation.core.SpringSpec<java.lang.Float> ProgressAnimationSpec;
+    property public final float StrokeWidth;
+    field public static final androidx.wear.compose.material.ProgressIndicatorDefaults INSTANCE;
+  }
+
+  public final class ProgressIndicatorKt {
+    method @androidx.compose.runtime.Composable public static void CircularProgressIndicator(float progress, optional androidx.compose.ui.Modifier modifier, optional float startAngle, optional float endAngle, optional long indicatorColor, optional long trackColor, optional float strokeWidth);
+    method @androidx.compose.runtime.Composable public static void CircularProgressIndicator(optional androidx.compose.ui.Modifier modifier, optional float startAngle, optional long indicatorColor, optional long trackColor, optional float strokeWidth);
+  }
+
   public final class RangeDefaultsKt {
   }
 
