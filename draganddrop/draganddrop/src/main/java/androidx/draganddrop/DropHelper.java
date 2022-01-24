@@ -43,29 +43,30 @@ import java.util.List;
  * operation. Includes support for content insertion using an
  * {@link OnReceiveContentListener OnReceiveContentListener}. Adds highlighting during the drag
  * interaction to indicate to the user where the drop action can successfully take place.
- * <p>
- * To ensure that drop target highlighting and text data handling work correctly, all
+ *
+ * <p>To ensure that drop target highlighting and text data handling work correctly, all
  * {@link EditText} elements in the drop target view's descendant tree (that is, any
  * {@code EditText} elements contained within the drop target) must be provided as arguments to a
  * call to {@link DropHelper.Options.Builder#addInnerEditTexts(EditText...)}. Otherwise, an
  * {@code EditText} within the target will steal the focus during the drag and drop operation,
  * possibly causing undesired highlighting behavior.
- * <p>
- * Also, if the user is dragging text data and URI data in the drag and drop {@link ClipData}, one
- * of the {@code EditText} elements in the drop target is automatically chosen to handle the text
- * data. See {@link DropHelper.Options.Builder#addInnerEditTexts(EditText...)} for the order of
+ *
+ * <p>Also, if the user is dragging text data and URI data in the drag and drop {@link ClipData},
+ * one of the {@code EditText} elements in the drop target is automatically chosen to handle the
+ * text data. See {@link DropHelper.Options.Builder#addInnerEditTexts(EditText...)} for the order of
  * precedence in selecting the {@code EditText} that handles the text data.
- * <p>
- * This helper attaches an {@link OnReceiveContentListener OnReceiveContentListener}
- * to drop targets (see {@link #configureView configureView}) and configures drop targets to listen
- * for drag and drop events. Do not attach an {@link OnDragListener OnDragListener} or additional
- * {@code OnReceiveContentLister} to drop targets when using {@link DropHelper}.
- * <p>
- * <b>Note:</b> This class requires Android API level 24 or higher.
+ *
+ * <p>This helper attaches an {@link OnReceiveContentListener OnReceiveContentListener} to drop
+ * targets and configures drop targets to listen for drag and drop events (see
+ * {@link #configureView(Activity, View, String[], OnReceiveContentListener) configureView}). Do not
+ * attach an {@link OnDragListener OnDragListener} or additional {@code OnReceiveContentLister} to
+ * drop targets when using {@link DropHelper}.
+ *
+ * <p><b>Note:</b> This class requires Android API level 24 or higher.
  *
  * @see <a href="https://developer.android.com/guide/topics/ui/drag-drop">Drag and drop</a>
  * @see <a href="https://developer.android.com/guide/topics/large-screens/multi-window-support#dnd">
- *   Multi-window support</a>
+ *     Multi-window support</a>
  */
 @RequiresApi(Build.VERSION_CODES.N)
 public final class DropHelper {
