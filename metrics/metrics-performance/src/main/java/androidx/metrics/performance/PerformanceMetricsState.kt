@@ -66,10 +66,7 @@ class PerformanceMetricsState private constructor() {
             // also, if state end time < vsync, delete it
             val item = activeStates[i]
             if (item.timeRemoved > 0 && item.timeRemoved < frameStartTime) {
-                /*
-                Note that we are silently removing states that have already
-                been marked for removal.
-                 */
+                // remove states that have already been marked for removal
                 activeStates.removeAt(i)
             } else if (item.timeAdded < frameEndTime) {
                 // Only add unique state. There may be several states added in
@@ -77,10 +74,6 @@ class PerformanceMetricsState private constructor() {
                 // only necessary/helpful to log one of those items
                 if (item.state !in frameStates) {
                     frameStates.add(item.state)
-                }
-                // Single-frame states should only be reported once
-                if (activeStates == singleFrameStates) {
-                    activeStates.removeAt(i)
                 }
             }
         }
@@ -237,12 +230,15 @@ class PerformanceMetricsState private constructor() {
             )
             addFrameState(startTime, endTime, frameStates, states)
             addFrameState(startTime, endTime, frameStates, singleFrameStates)
-            // Remove any states intended for just one frame
-            for (state in singleFrameStates) {
-                markSingleFrameStateForRemoval(state.state.stateName)
-            }
         }
         return frameStates
+    }
+
+    internal fun cleanupSingleFrameStates() {
+        synchronized(singleFrameStates) {
+            // Remove all states intended for just one frame
+            singleFrameStates.clear()
+        }
     }
 
     companion object {
