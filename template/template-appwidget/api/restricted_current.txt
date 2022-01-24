@@ -1,0 +1,13 @@
+// Signature format: 4.0
+package androidx.template.appwidget {
+
+  public abstract class GlanceTemplateAppWidget extends androidx.glance.appwidget.GlanceAppWidget {
+    ctor public GlanceTemplateAppWidget(androidx.template.template.GlanceTemplate<?> template);
+    method @androidx.compose.runtime.Composable public final void Content();
+    method public androidx.glance.appwidget.SizeMode.Exact getSizeMode();
+    property public androidx.glance.appwidget.SizeMode.Exact sizeMode;
+    property public androidx.glance.state.GlanceStateDefinition<?>? stateDefinition;
+  }
+
+}
+

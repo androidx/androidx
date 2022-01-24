@@ -683,6 +683,8 @@ includeProject(":startup:integration-tests:test-app", "startup/integration-tests
 includeProject(":startup:startup-runtime", "startup/startup-runtime", [BuildType.MAIN])
 includeProject(":startup:startup-runtime-lint", "startup/startup-runtime-lint", [BuildType.MAIN])
 includeProject(":swiperefreshlayout:swiperefreshlayout", "swiperefreshlayout/swiperefreshlayout", [BuildType.MAIN])
+includeProject(":template:template", "template/template", [BuildType.MAIN])
+includeProject(":template:template-appwidget", "template/template-appwidget", [BuildType.MAIN])
 includeProject(":test:junit:junit-gtest", "test/junit/junit-gtest", [BuildType.MAIN])
 includeProject(":test:screenshot:screenshot", "test/screenshot/screenshot")
 includeProject(":test:screenshot:screenshot-proto", "test/screenshot/screenshot/proto", [BuildType.MAIN])

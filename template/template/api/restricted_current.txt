@@ -1,0 +1,44 @@
+// Signature format: 4.0
+package androidx.template.template {
+
+  public abstract class GlanceTemplate<T> {
+    ctor public GlanceTemplate();
+    method @androidx.compose.runtime.Composable public abstract void WidgetLayoutCollapsed();
+    method @androidx.compose.runtime.Composable public abstract void WidgetLayoutHorizontal();
+    method @androidx.compose.runtime.Composable public abstract void WidgetLayoutVertical();
+    method public abstract T! getData(Object? state);
+  }
+
+  public abstract class SingleItemTemplate extends androidx.template.template.GlanceTemplate<androidx.template.template.SingleItemTemplate.Data> {
+    ctor public SingleItemTemplate();
+    method @androidx.compose.runtime.Composable public void WidgetLayoutCollapsed();
+    method @androidx.compose.runtime.Composable public void WidgetLayoutHorizontal();
+    method @androidx.compose.runtime.Composable public void WidgetLayoutVertical();
+  }
+
+  public static class SingleItemTemplate.Data {
+    ctor public SingleItemTemplate.Data(String title, String buttonText, androidx.glance.action.Action buttonAction, androidx.glance.ImageProvider image, int backgroundColor);
+    method public final int getBackgroundColor();
+    method public final androidx.glance.action.Action getButtonAction();
+    method public final String getButtonText();
+    method public final androidx.glance.ImageProvider getImage();
+    method public final String getTitle();
+    method public final void setBackgroundColor(int backgroundColor);
+    method public final void setButtonAction(androidx.glance.action.Action buttonAction);
+    method public final void setButtonText(String buttonText);
+    method public final void setImage(androidx.glance.ImageProvider image);
+    method public final void setTitle(String title);
+    property public final int backgroundColor;
+    property public final androidx.glance.action.Action buttonAction;
+    property public final String buttonText;
+    property public final androidx.glance.ImageProvider image;
+    property public final String title;
+  }
+
+  public final class TemplateTranslator {
+    ctor public TemplateTranslator();
+    method @androidx.compose.runtime.Composable public void TemplateContent(androidx.template.template.GlanceTemplate<?> template);
+  }
+
+}
+

@@ -26,8 +26,7 @@ dependencies {
     kotlinPlugin(project(":compose:compiler:compiler"))
 
     implementation(libs.kotlinStdlib)
-    implementation(project(":glance:glance"))
-    implementation(project(":glance:glance-appwidget"))
+    implementation(project(":template:template-appwidget"))
     implementation("androidx.activity:activity:1.4.0")
     implementation("androidx.activity:activity-compose:1.4.0")
     implementation("androidx.compose.material:material:1.1.0-beta02")
