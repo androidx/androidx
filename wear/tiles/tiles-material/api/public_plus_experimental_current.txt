@@ -62,7 +62,7 @@ package androidx.wear.tiles.material {
     method public androidx.wear.tiles.material.Chip.Builder setPrimaryTextLabelContent(String, String);
     method public androidx.wear.tiles.material.Chip.Builder setPrimaryTextLabelIconContent(String, String, String);
     method public androidx.wear.tiles.material.Chip.Builder setWidth(androidx.wear.tiles.DimensionBuilders.DpProp);
-    method public androidx.wear.tiles.material.Chip.Builder setWidth(@Dimension(unit=androidx.annotation.Dimension.DP) int);
+    method public androidx.wear.tiles.material.Chip.Builder setWidth(@Dimension(unit=androidx.annotation.Dimension.DP) float);
   }
 
   public class ChipColors {

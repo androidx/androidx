@@ -157,7 +157,7 @@ public class Chip implements LayoutElement {
          * by {@link ChipDefaults#DEFAULT_MARGIN_PERCENT}.
          */
         @NonNull
-        public Builder setWidth(@Dimension(unit = DP) int width) {
+        public Builder setWidth(@Dimension(unit = DP) float width) {
             mWidth = dp(width);
             return this;
         }
@@ -188,7 +188,7 @@ public class Chip implements LayoutElement {
          * content will be overridden. Primary text can be on 1 or 2 lines, depending on the length.
          */
         @NonNull
-        @SuppressWarnings("MissingGetterMatchingBuilder")
+        @SuppressWarnings("MissingGetterMatchingBuilder")   // There's getContent() method.
         public Builder setPrimaryTextContent(@NonNull String primaryText) {
             this.mPrimaryText = primaryText;
             this.mLabelText = null;
@@ -204,7 +204,6 @@ public class Chip implements LayoutElement {
          * length.
          */
         @NonNull
-        @SuppressWarnings("MissingGetterMatchingBuilder")
         Builder setPrimaryTextFontStyle(@NonNull FontStyle fontStyle) {
             this.mPrimaryTextFont = fontStyle;
             return this;
@@ -216,7 +215,7 @@ public class Chip implements LayoutElement {
          * only. This content will be left aligned inside the chip.
          */
         @NonNull
-        @SuppressWarnings("MissingGetterMatchingBuilder")
+        @SuppressWarnings("MissingGetterMatchingBuilder")   // There's getContent() method.
         public Builder setPrimaryTextLabelContent(
                 @NonNull String primaryText, @NonNull String label) {
             this.mPrimaryText = primaryText;
@@ -251,7 +250,7 @@ public class Chip implements LayoutElement {
          * will be left-aligned inside the chip.
          */
         @NonNull
-        @SuppressWarnings("MissingGetterMatchingBuilder")
+        @SuppressWarnings("MissingGetterMatchingBuilder")   // There's getContent() method.
         public Builder setPrimaryTextLabelIconContent(
                 @NonNull String primaryText, @NonNull String label, @NonNull String resourceId) {
             this.mPrimaryText = primaryText;
@@ -261,7 +260,6 @@ public class Chip implements LayoutElement {
             return this;
         }
 
-        // TODO(b/210846270): Add getChipColors.
         /**
          * Sets the colors for the {@link Chip}. If set, {@link ChipColors#getBackgroundColor()}
          * will be used for the background of the button, {@link ChipColors#getContentColor()} for
@@ -270,7 +268,6 @@ public class Chip implements LayoutElement {
          * set, {@link ChipDefaults#PRIMARY} will be used.
          */
         @NonNull
-        @SuppressWarnings("MissingGetterMatchingBuilder")
         public Builder setChipColors(@NonNull ChipColors chipColors) {
             mChipColors = chipColors;
             return this;

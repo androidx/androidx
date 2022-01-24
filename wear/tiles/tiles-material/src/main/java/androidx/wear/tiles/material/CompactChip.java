@@ -86,7 +86,6 @@ public class CompactChip implements LayoutElement {
          * ChipDefaults#COMPACT_PRIMARY} will be used.
          */
         @NonNull
-        @SuppressWarnings("MissingGetterMatchingBuilder")
         public Builder setChipColors(@NonNull ChipColors chipColors) {
             mChipColors = chipColors;
             return this;
