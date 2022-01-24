@@ -271,6 +271,6 @@ class ChangeInfoGitClientTest {
     fun getVersion(config: String): String? {
         return ChangeInfoGitClient("{}", config)
             .getGitLog(GitCommitRange(n = 1), keepMerges = true, fullProjectDir = File("."))
-            .getOrNull(0)?.gitCommit
+            .getOrNull(0)?.sha
     }
 }
