@@ -155,13 +155,13 @@ class JankStats private constructor(
      * listener with all of that information.
      */
     internal fun logFrameData(startTime: Long, actualDuration: Long, expectedDuration: Long) {
-        var frameStates =
+        val frameStates =
             metricsStateHolder.state?.getIntervalStates(startTime, startTime + actualDuration)
             ?: emptyList()
         val isJank = actualDuration > expectedDuration
-        executor.execute(Runnable {
+        executor.execute {
             frameListener.onFrame(FrameData(startTime, actualDuration, isJank, frameStates))
-        })
+        }
     }
 
     companion object {
