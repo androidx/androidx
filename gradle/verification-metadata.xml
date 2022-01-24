@@ -269,6 +269,7 @@
             <trusting group="org.apache.commons"/>
          </trusted-key>
          <trusted-key id="cf9f3090ce4cb752" group="org.abego.treelayout"/>
+         <trusted-key id="cfae163b64ac9189" group="org.jetbrains.skiko"/>
          <trusted-key id="d196a5e3e70732eeb2e5007f1861c322c56014b2" group="commons-lang"/>
          <trusted-key id="d4c89ea4aaf455fd88b22087efe8086f9e93774e" group="junit"/>
          <trusted-key id="d4da5eab3cd7e958" group="com.google.devtools.ksp"/>
