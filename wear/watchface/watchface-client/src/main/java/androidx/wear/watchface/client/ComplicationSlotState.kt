@@ -238,4 +238,56 @@ public class ComplicationSlotState {
         complicationStateWireFormat.nameResourceId,
         complicationStateWireFormat.screenReaderNameResourceId
     )
+
+    @Suppress("Deprecation")
+    override fun toString(): String {
+        return "ComplicationSlotState(bounds=$bounds, boundsType=$boundsType, " +
+            "supportedTypes=$supportedTypes, defaultDataSourcePolicy=$defaultDataSourcePolicy, " +
+            "defaultDataSourceType=$defaultDataSourceType, isEnabled=$isEnabled, " +
+            "isInitiallyEnabled=$isInitiallyEnabled, currentType=$currentType, " +
+            "fixedComplicationDataSource=$fixedComplicationDataSource, " +
+            "complicationConfigExtras=$complicationConfigExtras, " +
+            "nameResourceId=$nameResourceId, " +
+            "screenReaderNameResourceId=$screenReaderNameResourceId)"
+    }
+
+    @Suppress("Deprecation")
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as ComplicationSlotState
+
+        if (bounds != other.bounds) return false
+        if (boundsType != other.boundsType) return false
+        if (supportedTypes != other.supportedTypes) return false
+        if (defaultDataSourcePolicy != other.defaultDataSourcePolicy) return false
+        if (defaultDataSourceType != other.defaultDataSourceType) return false
+        if (isEnabled != other.isEnabled) return false
+        if (isInitiallyEnabled != other.isInitiallyEnabled) return false
+        if (currentType != other.currentType) return false
+        if (fixedComplicationDataSource != other.fixedComplicationDataSource) return false
+        if (complicationConfigExtras != other.complicationConfigExtras) return false
+        if (nameResourceId != other.nameResourceId) return false
+        if (screenReaderNameResourceId != other.screenReaderNameResourceId) return false
+
+        return true
+    }
+
+    @Suppress("Deprecation")
+    override fun hashCode(): Int {
+        var result = bounds.hashCode()
+        result = 31 * result + boundsType
+        result = 31 * result + supportedTypes.hashCode()
+        result = 31 * result + defaultDataSourcePolicy.hashCode()
+        result = 31 * result + defaultDataSourceType.hashCode()
+        result = 31 * result + isEnabled.hashCode()
+        result = 31 * result + isInitiallyEnabled.hashCode()
+        result = 31 * result + currentType.hashCode()
+        result = 31 * result + fixedComplicationDataSource.hashCode()
+        result = 31 * result + complicationConfigExtras.hashCode()
+        result = 31 * result + (nameResourceId ?: 0)
+        result = 31 * result + (screenReaderNameResourceId ?: 0)
+        return result
+    }
 }
