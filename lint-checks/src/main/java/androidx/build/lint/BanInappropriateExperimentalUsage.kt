@@ -117,7 +117,6 @@ class BanInappropriateExperimentalUsage : Detector(), Detector.UastScanner {
         }
     }
 
-    @Suppress("UNUSED_PARAMETER") // TODO: write logic + tests in future CL that uses groupList
     fun verifyUsageOfElementIsWithinSameGroup(
         context: JavaContext,
         usage: UElement,
@@ -128,8 +127,13 @@ class BanInappropriateExperimentalUsage : Detector(), Detector.UastScanner {
         val evaluator = context.evaluator
         val usageCoordinates = evaluator.getLibrary(usage) ?: context.project.mavenCoordinate
         val usageGroupId = usageCoordinates?.groupId
-        val annotationGroupId = evaluator.getLibrary(annotation)?.groupId
-        if (annotationGroupId != usageGroupId && annotationGroupId != null) {
+        val annotationGroup = evaluator.getLibrary(annotation) ?: return
+        val annotationGroupId = annotationGroup.groupId
+
+        val isUsedInSameGroup = annotationGroupId == usageGroupId
+        val isUsedInDifferentArtifact = usageCoordinates.artifactId != annotationGroup.artifactId
+        val isAtomic = atomicGroupList.contains(usageGroupId)
+        if (!isUsedInSameGroup || (isUsedInSameGroup && isUsedInDifferentArtifact && !isAtomic)) {
             if (DEBUG) {
                 println(
                     "${context.driver.mode}: report usage of $annotationGroupId in $usageGroupId"
