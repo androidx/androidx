@@ -215,6 +215,8 @@ class TextLayout constructor(
             }
     }
 
+    private val layoutHelper by lazy(LazyThreadSafetyMode.NONE) { LayoutHelper(layout) }
+
     val text: CharSequence
         get() = layout.text
 
@@ -270,9 +272,11 @@ class TextLayout constructor(
     fun getOffsetForHorizontal(line: Int, horizontal: Float): Int =
         layout.getOffsetForHorizontal(line, horizontal)
 
-    fun getPrimaryHorizontal(offset: Int): Float = layout.getPrimaryHorizontal(offset)
+    fun getPrimaryHorizontal(offset: Int, upstream: Boolean = false): Float =
+        layoutHelper.getHorizontalPosition(offset, usePrimaryDirection = true, upstream = upstream)
 
-    fun getSecondaryHorizontal(offset: Int): Float = layout.getSecondaryHorizontal(offset)
+    fun getSecondaryHorizontal(offset: Int, upstream: Boolean = false): Float =
+        layoutHelper.getHorizontalPosition(offset, usePrimaryDirection = false, upstream = upstream)
 
     fun getLineForOffset(offset: Int): Int = layout.getLineForOffset(offset)
 
