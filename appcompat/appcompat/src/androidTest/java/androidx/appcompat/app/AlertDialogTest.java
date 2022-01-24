@@ -48,12 +48,15 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Typeface;
 import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.os.Message;
 import android.text.TextUtils;
@@ -73,10 +76,12 @@ import androidx.annotation.ColorInt;
 import androidx.annotation.StringRes;
 import androidx.appcompat.test.R;
 import androidx.appcompat.testutils.TestUtilsMatchers;
+import androidx.appcompat.widget.AppCompatImageView;
 import androidx.test.annotation.UiThreadTest;
 import androidx.test.espresso.Espresso;
 import androidx.test.espresso.ViewInteraction;
 import androidx.test.filters.LargeTest;
+import androidx.test.filters.SdkSuppress;
 import androidx.test.rule.ActivityTestRule;
 
 import org.hamcrest.Description;
@@ -1372,6 +1377,41 @@ public class AlertDialogTest {
 
         // And assert that the background is maintained
         assertSame(background, decorView.getBackground());
+    }
+
+    /**
+     * Regression test for b/213604870. Verifies that the AppCompat alert dialog can be inflated
+     * successfully when the foreground color is a CSL and that the color is used for the scroll
+     * indicator tint.
+     */
+    @Test
+    @UiThreadTest
+    @SdkSuppress(maxSdkVersion = 22)
+    public void testCslColorForegroundPre23() {
+        Activity activity = mActivityTestRule.getActivity();
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(activity,
+                android.R.layout.simple_list_item_1, R.array.numbers_array);
+        AlertDialog dialog = new AlertDialog.Builder(
+                activity, R.style.Theme_ColorForegroundCsl)
+                .setTitle(R.string.alert_dialog_title)
+                .setAdapter(adapter, (dialogInterface, i) -> {
+                    // Do nothing when clicked.
+                })
+                .create();
+        dialog.show();
+
+        // Verify scroll indicators are working as expected.
+        AppCompatImageView scrollIndicatorUp =
+                dialog.findViewById(androidx.appcompat.R.id.scrollIndicatorUp);
+        assertNotNull(scrollIndicatorUp);
+        Drawable background = scrollIndicatorUp.getBackground();
+        assertTrue(background instanceof ColorDrawable);
+
+        // Verify this is the CSL specified in @style/Theme.ColorForegroundCsl.
+        ColorStateList backgroundTint = scrollIndicatorUp.getSupportBackgroundTintList();
+        int lilac = activity.getResources().getColor(R.color.lilac_default);
+        int defaultColor = backgroundTint.getDefaultColor();
+        assertEquals(lilac, defaultColor);
     }
 
     private static class TestDrawable extends ColorDrawable {

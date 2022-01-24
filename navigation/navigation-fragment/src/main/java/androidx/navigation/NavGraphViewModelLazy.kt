@@ -60,10 +60,8 @@ public inline fun <reified VM : ViewModel> Fragment.navGraphViewModels(
     }
     return createViewModelLazy(
         VM::class, storeProducer,
-        {
-            factoryProducer?.invoke() ?: backStackEntry.defaultViewModelProviderFactory
-        }
-    )
+        factoryProducer ?: { backStackEntry.defaultViewModelProviderFactory }
+    ) { backStackEntry.defaultViewModelCreationExtras }
 }
 
 /**
@@ -103,8 +101,6 @@ public inline fun <reified VM : ViewModel> Fragment.navGraphViewModels(
     }
     return createViewModelLazy(
         VM::class, storeProducer,
-        {
-            factoryProducer?.invoke() ?: backStackEntry.defaultViewModelProviderFactory
-        }
-    )
+        factoryProducer ?: { backStackEntry.defaultViewModelProviderFactory }
+    ) { backStackEntry.defaultViewModelCreationExtras }
 }

@@ -146,8 +146,10 @@ abstract class AffectedModuleDetector(
             if (baseCommitOverride != null) {
                 logger.info("using base commit override $baseCommitOverride")
             }
+            @Suppress("DEPRECATION") // TODO: remove when studio upgrades to Gradle 7.4-rc-1
             val changeInfoPath = GitClient.getChangeInfoPath(rootProject)
                 .forUseAtConfigurationTime()
+            @Suppress("DEPRECATION") // TODO: remove when studio upgrades to Gradle 7.4-rc-1
             val manifestPath = GitClient.getManifestPath(rootProject)
                 .forUseAtConfigurationTime()
             gradle.taskGraph.whenReady {
@@ -287,7 +289,12 @@ abstract class AffectedModuleDetectorLoader :
             )
             val changedFilesProvider: ChangedFilesProvider = {
                 val baseSha = baseCommitOverride ?: gitClient.findPreviousSubmittedChange()
-                baseSha?.let(gitClient::findChangedFilesSince)
+                check(baseSha != null) {
+                    "gitClient returned null from findPreviousSubmittedChange"
+                }
+                val changedFiles = gitClient.findChangedFilesSince(baseSha)
+                logger.info("changed files: $changedFiles")
+                changedFiles
             }
 
             AffectedModuleDetectorImpl(

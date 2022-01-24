@@ -243,7 +243,7 @@ object WorkTypeConverters {
                 objectOutputStream.writeInt(triggers.size)
                 for (trigger in triggers) {
                     objectOutputStream.writeUTF(trigger.uri.toString())
-                    objectOutputStream.writeBoolean(trigger.triggerForDescendants)
+                    objectOutputStream.writeBoolean(trigger.isTriggeredForDescendants)
                 }
             }
         }

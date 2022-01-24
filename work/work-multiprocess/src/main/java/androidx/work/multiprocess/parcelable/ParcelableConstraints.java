@@ -79,7 +79,7 @@ public class ParcelableConstraints implements Parcelable {
                         in.createByteArray());
                 for (ContentUriTrigger trigger : contentUriTriggers) {
                     builder.addContentUriTrigger(trigger.getUri(),
-                            trigger.getTriggerForDescendants());
+                            trigger.isTriggeredForDescendants());
                 }
             }
             // triggerMaxContentDelay
@@ -135,9 +135,9 @@ public class ParcelableConstraints implements Parcelable {
                 parcel.writeByteArray(serializedTriggers);
             }
             // triggerMaxContentDelay
-            parcel.writeLong(mConstraints.getTriggerMaxContentDelay());
+            parcel.writeLong(mConstraints.getContentTriggerMaxDelayMillis());
             // triggerContentUpdateDelay
-            parcel.writeLong(mConstraints.getTriggerContentUpdateDelay());
+            parcel.writeLong(mConstraints.getContentTriggerUpdateDelayMillis());
         }
     }
 

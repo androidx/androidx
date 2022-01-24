@@ -140,6 +140,16 @@ public class WorkManagerImpl extends WorkManager {
     }
 
     /**
+     * @hide
+     */
+    @SuppressWarnings("deprecation")
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public static boolean isInitialized() {
+        WorkManagerImpl instance = getInstance();
+        return instance != null;
+    }
+
+    /**
      * Retrieves the singleton instance of {@link WorkManagerImpl}.
      *
      * @param context A context for on-demand initialization.
@@ -326,10 +336,9 @@ public class WorkManagerImpl extends WorkManager {
 
     /**
      * @return The {@link Configuration} instance associated with this WorkManager.
-     * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @NonNull
+    @Override
     public Configuration getConfiguration() {
         return mConfiguration;
     }

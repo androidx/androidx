@@ -40,6 +40,8 @@ import androidx.glance.appwidget.translators.translateEmittableLazyColumn
 import androidx.glance.appwidget.translators.translateEmittableLazyListItem
 import androidx.glance.appwidget.translators.translateEmittableSwitch
 import androidx.glance.appwidget.translators.translateEmittableText
+import androidx.glance.appwidget.translators.translateEmittableLinearProgressIndicator
+import androidx.glance.appwidget.translators.translateEmittableCircularProgressIndicator
 import androidx.glance.layout.Alignment
 import androidx.glance.layout.EmittableBox
 import androidx.glance.layout.EmittableColumn
@@ -146,6 +148,12 @@ internal fun RemoteViews.translateChild(
         is EmittableSpacer -> translateEmittableSpacer(translationContext, element)
         is EmittableSwitch -> translateEmittableSwitch(translationContext, element)
         is EmittableImage -> translateEmittableImage(translationContext, element)
+        is EmittableLinearProgressIndicator -> {
+            translateEmittableLinearProgressIndicator(translationContext, element)
+        }
+        is EmittableCircularProgressIndicator -> {
+            translateEmittableCircularProgressIndicator(translationContext, element)
+        }
         else -> {
             throw IllegalArgumentException(
                 "Unknown element type ${element.javaClass.canonicalName}"

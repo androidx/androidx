@@ -53,41 +53,38 @@ actual open class SparseArray<E>
         gc()
     }
 
-    // Suppression necessary, see KT-43542.
-    @Suppress("INAPPLICABLE_JVM_NAME")
-    @get:JvmName("size") // Binary compatibility with Java.
     actual open val size: Int get() = commonSize()
 
-    actual fun isEmpty(): Boolean = commonIsEmpty()
+    actual open fun isEmpty(): Boolean = commonIsEmpty()
 
-    actual operator fun get(key: Int): E? = commonGet(key, null)
+    actual open operator fun get(key: Int): E? = commonGet(key, null)
     @Suppress("KotlinOperator")
-    actual fun get(key: Int, default: E): E = commonGet(key, default)
+    actual open fun get(key: Int, default: E): E = commonGet(key, default)
 
-    actual fun put(key: Int, value: E): Unit = commonPut(key, value)
-    actual fun putAll(other: SparseArray<out E>): Unit = commonPutAll(other)
-    actual fun putIfAbsent(key: Int, value: E): E? = commonPutIfAbsent(key, value)
-    actual fun append(key: Int, value: E): Unit = commonAppend(key, value)
+    actual open fun put(key: Int, value: E): Unit = commonPut(key, value)
+    actual open fun putAll(other: SparseArray<out E>): Unit = commonPutAll(other)
+    actual open fun putIfAbsent(key: Int, value: E): E? = commonPutIfAbsent(key, value)
+    actual open fun append(key: Int, value: E): Unit = commonAppend(key, value)
 
-    actual fun keyAt(index: Int): Int = commonKeyAt(index)
+    actual open fun keyAt(index: Int): Int = commonKeyAt(index)
 
-    actual fun valueAt(index: Int): E = commonValueAt(index)
-    actual fun setValueAt(index: Int, value: E): Unit = commonSetValueAt(index, value)
+    actual open fun valueAt(index: Int): E = commonValueAt(index)
+    actual open fun setValueAt(index: Int, value: E): Unit = commonSetValueAt(index, value)
 
-    actual fun indexOfKey(key: Int): Int = commonIndexOfKey(key)
-    actual fun indexOfValue(value: E): Int = commonIndexOfValue(value)
+    actual open fun indexOfKey(key: Int): Int = commonIndexOfKey(key)
+    actual open fun indexOfValue(value: E): Int = commonIndexOfValue(value)
 
-    actual fun containsKey(key: Int): Boolean = commonContainsKey(key)
-    actual fun containsValue(value: E): Boolean = commonContainsValue(value)
+    actual open fun containsKey(key: Int): Boolean = commonContainsKey(key)
+    actual open fun containsValue(value: E): Boolean = commonContainsValue(value)
 
-    actual fun clear(): Unit = commonClear()
+    actual open fun clear(): Unit = commonClear()
 
-    actual fun remove(key: Int): Unit = commonRemove(key)
-    actual fun remove(key: Int, value: Any?): Boolean = commonRemove(key, value)
-    actual fun removeAt(index: Int): Unit = commonRemoveAt(index)
+    actual open fun remove(key: Int): Unit = commonRemove(key)
+    actual open fun remove(key: Int, value: Any?): Boolean = commonRemove(key, value)
+    actual open fun removeAt(index: Int): Unit = commonRemoveAt(index)
 
-    actual fun replace(key: Int, value: E): E? = commonReplace(key, value)
-    actual fun replace(key: Int, oldValue: E?, newValue: E): Boolean =
+    actual open fun replace(key: Int, value: E): E? = commonReplace(key, value)
+    actual open fun replace(key: Int, oldValue: E?, newValue: E): Boolean =
         commonReplace(key, oldValue, newValue)
 
     @Suppress("NoClone") // To suppress Metalava prohibition on cloning.
@@ -104,9 +101,14 @@ actual open class SparseArray<E>
     @Deprecated("Use remove(key)", level = HIDDEN) // For Java binary compatibility.
     fun delete(key: Int): Unit = remove(key)
 
-    @Deprecated("Use a loop and removeAt()", level = HIDDEN) // For Java binary compatibility.
-    fun removeAtRange(index: Int, count: Int) {
-        val end = minOf(_size, index + count)
+    /**
+     * Remove a range of mappings as a batch.
+     *
+     * @param index Index to begin at
+     * @param size Number of mappings to remove
+     */
+    open fun removeAtRange(index: Int, size: Int) {
+        val end = minOf(_size, index + size)
         for (i in index until end) {
             removeAt(i)
         }
@@ -115,7 +117,10 @@ actual open class SparseArray<E>
 
 // typealias can't be used for JVM interop, so we have to resort to this.
 // TODO(KT-21489): Follow up.
-@Deprecated("Use SparseArray")
+@Deprecated(
+    message = "Use androidx.collection.SparseArray",
+    replaceWith = ReplaceWith("SparseArray", "androidx.collection.SparseArray"),
+)
 open class SparseArrayCompat<E> : SparseArray<E> {
     @Deprecated("Use SparseArray", ReplaceWith("SparseArray<E>()"))
     constructor() : super()
@@ -133,4 +138,11 @@ open class SparseArrayCompat<E> : SparseArray<E> {
     open fun putAll(other: SparseArrayCompat<out E>) {
         super.putAll(other)
     }
+
+    /**
+     * Returns the number of key-value mappings that this SparseArray
+     * currently stores.
+     */
+    @Deprecated("Replaced with property", ReplaceWith("size"), DeprecationLevel.WARNING)
+    open fun size(): Int = commonSize()
 }

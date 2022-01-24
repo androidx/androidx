@@ -35,6 +35,20 @@ class SplitPlaceholderRule(
      */
     val placeholderIntent: Intent,
 
+    /**
+     * Determines whether the placeholder will show on top in a smaller window size after it first
+     * appeared in a split with sufficient minimum width.
+     */
+    val isSticky: Boolean,
+
+    /**
+     * Determines what happens with the primary container when all activities are finished in the
+     * associated placeholder container.
+     * @see SplitRule.SplitFinishBehavior
+     */
+    @SplitFinishBehavior
+    val finishPrimaryWithSecondary: Int = FINISH_ALWAYS,
+
     minWidth: Int = 0,
     minSmallestWidth: Int = 0,
     splitRatio: Float = 0.5f,
@@ -61,6 +75,8 @@ class SplitPlaceholderRule(
         return SplitPlaceholderRule(
             newSet.toSet(),
             placeholderIntent,
+            isSticky,
+            finishPrimaryWithSecondary,
             minWidth,
             minSmallestWidth,
             splitRatio,
@@ -73,17 +89,20 @@ class SplitPlaceholderRule(
         if (other !is SplitPlaceholderRule) return false
         if (!super.equals(other)) return false
 
-        if (!super.equals(other)) return false
-        if (filters != other.filters) return false
         if (placeholderIntent != other.placeholderIntent) return false
+        if (isSticky != other.isSticky) return false
+        if (finishPrimaryWithSecondary != other.finishPrimaryWithSecondary) return false
+        if (filters != other.filters) return false
 
         return true
     }
 
     override fun hashCode(): Int {
         var result = super.hashCode()
-        result = 31 * result + filters.hashCode()
         result = 31 * result + placeholderIntent.hashCode()
+        result = 31 * result + isSticky.hashCode()
+        result = 31 * result + finishPrimaryWithSecondary.hashCode()
+        result = 31 * result + filters.hashCode()
         return result
     }
 }

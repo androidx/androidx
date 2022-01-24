@@ -17,6 +17,7 @@
 package androidx.wear.watchface.editor
 
 import android.os.IBinder
+import android.util.Log
 import androidx.annotation.RestrictTo
 import androidx.wear.watchface.IndentingPrintWriter
 import androidx.wear.watchface.editor.data.EditorStateWireFormat
@@ -37,6 +38,8 @@ public class EditorService : IEditorService.Stub() {
     public companion object {
         /** [EditorService] singleton. */
         public val globalEditorService: EditorService by lazy { EditorService() }
+
+        internal const val TAG = "EditorService"
     }
 
     public override fun getApiVersion(): Int = API_VERSION
@@ -55,7 +58,12 @@ public class EditorService : IEditorService.Stub() {
     override fun unregisterObserver(observerId: Int) {
         synchronized(lock) {
             deathObservers[observerId]?.let {
-                observers[observerId]?.asBinder()?.unlinkToDeath(it, 0)
+                try {
+                    observers[observerId]?.asBinder()?.unlinkToDeath(it, 0)
+                } catch (e: NoSuchElementException) {
+                    // This really shouldn't happen.
+                    Log.w(TAG, "unregisterObserver encountered", e)
+                }
             }
             observers.remove(observerId)
             deathObservers.remove(observerId)

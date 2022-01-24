@@ -42,12 +42,19 @@ package androidx.work {
   }
 
   public final class Constraints {
+    ctor public Constraints(optional @androidx.room.ColumnInfo(name="required_network_type") androidx.work.NetworkType requiredNetworkType, optional @androidx.room.ColumnInfo(name="requires_charging") boolean requiresCharging, optional @androidx.room.ColumnInfo(name="requires_device_idle") boolean requiresDeviceIdle, optional @androidx.room.ColumnInfo(name="requires_battery_not_low") boolean requiresBatteryNotLow, optional @androidx.room.ColumnInfo(name="requires_storage_not_low") boolean requiresStorageNotLow, optional @androidx.room.ColumnInfo(name="trigger_content_update_delay") long contentTriggerUpdateDelayMillis, optional @androidx.room.ColumnInfo(name="trigger_max_content_delay") long contentTriggerMaxDelayMillis, optional @androidx.room.ColumnInfo(name="content_uri_triggers") java.util.Set<androidx.work.Constraints.ContentUriTrigger> contentUriTriggers);
     ctor public Constraints(androidx.work.Constraints other);
+    method public long getContentTriggerMaxDelayMillis();
+    method public long getContentTriggerUpdateDelayMillis();
+    method public java.util.Set<androidx.work.Constraints.ContentUriTrigger> getContentUriTriggers();
     method public androidx.work.NetworkType getRequiredNetworkType();
     method public boolean requiresBatteryNotLow();
     method public boolean requiresCharging();
     method @RequiresApi(23) public boolean requiresDeviceIdle();
     method public boolean requiresStorageNotLow();
+    property public final long contentTriggerMaxDelayMillis;
+    property public final long contentTriggerUpdateDelayMillis;
+    property public final java.util.Set<androidx.work.Constraints.ContentUriTrigger> contentUriTriggers;
     property public final androidx.work.NetworkType requiredNetworkType;
     field public static final androidx.work.Constraints.Companion Companion;
     field public static final androidx.work.Constraints NONE;
@@ -69,6 +76,14 @@ package androidx.work {
   }
 
   public static final class Constraints.Companion {
+  }
+
+  public static final class Constraints.ContentUriTrigger {
+    ctor public Constraints.ContentUriTrigger(android.net.Uri uri, boolean isTriggeredForDescendants);
+    method public android.net.Uri getUri();
+    method public boolean isTriggeredForDescendants();
+    property public final boolean isTriggeredForDescendants;
+    property public final android.net.Uri uri;
   }
 
   public final class Data {
@@ -296,6 +311,7 @@ package androidx.work {
     method public abstract androidx.work.Operation enqueueUniquePeriodicWork(String, androidx.work.ExistingPeriodicWorkPolicy, androidx.work.PeriodicWorkRequest);
     method public androidx.work.Operation enqueueUniqueWork(String, androidx.work.ExistingWorkPolicy, androidx.work.OneTimeWorkRequest);
     method public abstract androidx.work.Operation enqueueUniqueWork(String, androidx.work.ExistingWorkPolicy, java.util.List<androidx.work.OneTimeWorkRequest!>);
+    method public abstract androidx.work.Configuration getConfiguration();
     method @Deprecated public static androidx.work.WorkManager getInstance();
     method public static androidx.work.WorkManager getInstance(android.content.Context);
     method public abstract com.google.common.util.concurrent.ListenableFuture<java.lang.Long!> getLastCancelAllTimeMillis();
@@ -309,6 +325,7 @@ package androidx.work {
     method public abstract androidx.lifecycle.LiveData<java.util.List<androidx.work.WorkInfo!>!> getWorkInfosForUniqueWorkLiveData(String);
     method public abstract androidx.lifecycle.LiveData<java.util.List<androidx.work.WorkInfo!>!> getWorkInfosLiveData(androidx.work.WorkQuery);
     method public static void initialize(android.content.Context, androidx.work.Configuration);
+    method public static boolean isInitialized();
     method public abstract androidx.work.Operation pruneWork();
   }
 

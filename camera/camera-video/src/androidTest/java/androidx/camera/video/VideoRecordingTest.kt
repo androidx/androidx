@@ -16,6 +16,7 @@
 
 package androidx.camera.video
 
+import android.Manifest
 import android.content.Context
 import android.graphics.SurfaceTexture
 import android.media.MediaMetadataRetriever
@@ -44,6 +45,7 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
+import androidx.test.rule.GrantPermissionRule
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import org.junit.After
@@ -74,6 +76,10 @@ class VideoRecordingTest(
 
     @get:Rule
     val cameraRule = CameraUtil.grantCameraPermissionAndPreTest()
+
+    @get:Rule
+    val permissionRule: GrantPermissionRule =
+        GrantPermissionRule.grant(Manifest.permission.RECORD_AUDIO)
 
     companion object {
         private const val VIDEO_TIMEOUT_SEC = 10L

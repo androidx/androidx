@@ -49,3 +49,15 @@ fun InlineSliderSegmentedSample() {
         segmented = true
     )
 }
+
+@Sampled
+@Composable
+fun InlineSliderWithIntegerSample() {
+    var value by remember { mutableStateOf(4) }
+    InlineSlider(
+        value = value,
+        onValueChange = { value = it },
+        valueProgression = 0..10,
+        segmented = false
+    )
+}

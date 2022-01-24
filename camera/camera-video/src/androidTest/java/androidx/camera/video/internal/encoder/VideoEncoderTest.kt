@@ -411,6 +411,7 @@ class VideoEncoderTest {
         if (deactivateSurfaceBeforeStop) {
             instrumentation.runOnMainSync { previewForVideoEncoder.setSurfaceProvider(null) }
             verify(videoEncoderCallback, noInvocation(2000L, 6000L)).onEncodedData(any())
+            signalSourceStopped()
         }
 
         stop()

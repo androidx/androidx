@@ -257,6 +257,50 @@ class NavBackStackEntryTest {
             .that(restoredResult).isEqualTo(result)
     }
 
+    @Suppress("DEPRECATION")
+    @UiThreadTest
+    @Test
+    fun testCreateViewModelViaExtras() {
+        val hostStore = ViewModelStore()
+        val navController = createNavController()
+        navController.setViewModelStore(hostStore)
+        val navGraph = navController.navigatorProvider.navigation(
+            id = 1,
+            startDestination = R.id.start_test
+        ) {
+            test(R.id.start_test)
+        }
+        navController.setGraph(navGraph, null)
+
+        val entry = navController.currentBackStackEntry!!
+
+        val creationViewModel = ViewModelProvider(
+            entry.viewModelStore,
+            entry.defaultViewModelProviderFactory,
+            entry.defaultViewModelCreationExtras)["test", TestSavedStateViewModel::class.java]
+
+        val key = "key"
+        val value = "value"
+
+        creationViewModel.savedStateHandle.set(key, value)
+
+        val savedState = navController.saveState()
+        val restoredNavController = createNavController()
+        restoredNavController.setViewModelStore(hostStore)
+        restoredNavController.restoreState(savedState)
+        restoredNavController.graph = navGraph
+
+        val restoredEntry = restoredNavController.currentBackStackEntry!!
+
+        val actualValue =
+            ViewModelProvider(restoredEntry)["test", TestSavedStateViewModel::class.java]
+                .savedStateHandle.get<String>(key)
+
+        assertWithMessage("Restored back stack entry should have same ViewModel instance")
+            .that(actualValue)
+            .isEqualTo(value)
+    }
+
     @UiThreadTest
     @Test
     fun testGetSavedStateHandle() {
@@ -271,7 +315,7 @@ class NavBackStackEntryTest {
 
     @UiThreadTest
     @Test
-    fun testGetSavedStateHandleInitializedLifecycle() {
+    fun testGetSavedStateHandleBeforeUpdateState() {
         val entry = NavBackStackEntry.create(
             ApplicationProvider.getApplicationContext(),
             NavDestination(TestNavigator()), viewModelStoreProvider = NavControllerViewModel()
@@ -289,6 +333,44 @@ class NavBackStackEntryTest {
                     "You cannot access the NavBackStackEntry's SavedStateHandle until it is " +
                         "added to the NavController's back stack (i.e., the Lifecycle of the " +
                         "NavBackStackEntry reaches the CREATED state)."
+                )
+        }
+    }
+
+    @UiThreadTest
+    @Test
+    fun testGetSavedStateHandleInitializedLifecycle() {
+        val entry = NavBackStackEntry.create(
+            ApplicationProvider.getApplicationContext(),
+            NavDestination(TestNavigator()), viewModelStoreProvider = NavControllerViewModel()
+        )
+        entry.updateState()
+
+        assertThat(entry.savedStateHandle).isNotNull()
+    }
+
+    @UiThreadTest
+    @Test
+    fun testGetSavedStateHandleDestroyedLifecycle() {
+        val entry = NavBackStackEntry.create(
+            ApplicationProvider.getApplicationContext(),
+            NavDestination(TestNavigator()), viewModelStoreProvider = NavControllerViewModel()
+        )
+        entry.maxLifecycle = Lifecycle.State.CREATED
+        // Immediately destroy the NavBackStackEntry
+        entry.maxLifecycle = Lifecycle.State.DESTROYED
+
+        try {
+            entry.savedStateHandle
+            fail(
+                "Attempting to get SavedStateHandle for back stack entry after " +
+                    "moving the Lifecycle to DESTROYED set should throw IllegalStateException"
+            )
+        } catch (e: IllegalStateException) {
+            assertThat(e)
+                .hasMessageThat().contains(
+                    "You cannot access the NavBackStackEntry's SavedStateHandle after the " +
+                        "NavBackStackEntry is destroyed."
                 )
         }
     }

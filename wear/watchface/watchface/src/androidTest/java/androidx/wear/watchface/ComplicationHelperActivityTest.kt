@@ -204,7 +204,6 @@ public class ComplicationHelperActivityTest {
             )
 
             verify(helper.mDelegate).startComplicationDataSourceChooser()
-            verify(helper.mDelegate).requestUpdateAll()
         }
     }
 
@@ -222,7 +221,6 @@ public class ComplicationHelperActivityTest {
             )
 
             verify(helper.mDelegate, never()).startComplicationDataSourceChooser()
-            verify(helper.mDelegate).requestUpdateAll()
         }
     }
 

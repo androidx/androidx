@@ -48,12 +48,10 @@ class TrivialListScrollBaselineProfile {
     fun baselineProfiles() {
         baselineRule.collectBaselineProfile(
             packageName = "androidx.benchmark.integration.macrobenchmark.target",
-            setupBlock = {
+            profileBlock = {
                 val intent = Intent()
                 intent.action = ACTION
                 startActivityAndWait(intent)
-            },
-            profileBlock = {
                 val recycler = device.findObject(
                     By.res(
                         PACKAGE_NAME,

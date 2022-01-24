@@ -29,10 +29,32 @@ import java.util.concurrent.TimeUnit
  * default, WorkRequests do not have any requirements and can run immediately.  By adding
  * requirements, you can make sure that work only runs in certain situations - for example, when you
  * have an unmetered network and are charging.
+ *
+ * @property requiredNetworkType The type of network required for the work to run.
+ * The default value is [NetworkType.NOT_REQUIRED].
+ * @param requiresCharging whether device should be charging for the [WorkRequest] to run. The
+ * default value is `false`.
+ * @param requiresDeviceIdle whether device should be idle for the [WorkRequest] to run. The
+ * default value is `false`.
+ * @param requiresBatteryNotLow whether device battery should be at an acceptable level for the
+ * [WorkRequest] to run. The default value is `false`.
+ * @param requiresStorageNotLow whether the device's available storage should be at an acceptable
+ * level for the [WorkRequest] to run. The default value is `false`.
+ * @property contentTriggerUpdateDelayMillis the delay in milliseconds that is allowed from the
+ * time a `content:` [Uri] change is detected to the time when the [WorkRequest] is scheduled.
+ * If there are more changes during this time, the delay will be reset to the start of the most
+ * recent change. This functionality is identical to the one found in `JobScheduler` and
+ * is described in [android.app.job.JobInfo.Builder.setTriggerContentUpdateDelay]
+ * @property contentTriggerMaxDelayMillis the maximum delay in milliseconds that is allowed
+ * from the first time a `content:` [Uri] change is detected to the time when the [WorkRequest]
+ * is scheduled. This functionality is identical to the one found in `JobScheduler` and is described
+ * in [android.app.job.JobInfo.Builder.setTriggerContentMaxDelay].
+ * @property contentUriTriggers set of [ContentUriTrigger]. [WorkRequest] will run when a local
+ * `content:` [Uri] of one of the triggers in the set is updated.
+ * This functionality is identical to the one found in `JobScheduler` and is described in
+ * [android.app.job.JobInfo.Builder.addTriggerContentUri].
  */
-class Constraints
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-constructor(
+class Constraints(
     @ColumnInfo(name = "required_network_type")
     val requiredNetworkType: NetworkType = NetworkType.NOT_REQUIRED,
     @ColumnInfo(name = "requires_charging")
@@ -42,22 +64,11 @@ constructor(
     @ColumnInfo(name = "requires_battery_not_low")
     private val requiresBatteryNotLow: Boolean = false,
     @ColumnInfo(name = "requires_storage_not_low")
-    private val requiresStorageNotLow: Boolean,
-    /**
-     * Needed by Room.
-     * @hide
-     */
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    private val requiresStorageNotLow: Boolean = false,
     @ColumnInfo(name = "trigger_content_update_delay")
-    val triggerContentUpdateDelay: Long = -1,
-    /**
-     * Needed by Room.
-     * @hide
-     */
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    val contentTriggerUpdateDelayMillis: Long = -1,
     @ColumnInfo(name = "trigger_max_content_delay")
-    val triggerMaxContentDelay: Long = -1,
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    val contentTriggerMaxDelayMillis: Long = -1,
     @ColumnInfo(name = "content_uri_triggers")
     val contentUriTriggers: Set<ContentUriTrigger> = setOf(),
 ) {
@@ -68,8 +79,8 @@ constructor(
         requiresBatteryNotLow = other.requiresBatteryNotLow,
         requiresStorageNotLow = other.requiresStorageNotLow,
         contentUriTriggers = other.contentUriTriggers,
-        triggerContentUpdateDelay = other.triggerContentUpdateDelay,
-        triggerMaxContentDelay = other.triggerMaxContentDelay,
+        contentTriggerUpdateDelayMillis = other.contentTriggerUpdateDelayMillis,
+        contentTriggerMaxDelayMillis = other.contentTriggerMaxDelayMillis,
     )
 
     /**
@@ -78,6 +89,7 @@ constructor(
     fun requiresCharging(): Boolean {
         return requiresCharging
     }
+
     /**
      * @return `true` if the work should only execute while the device is idle
      */
@@ -117,8 +129,8 @@ constructor(
         if (requiresDeviceIdle != that.requiresDeviceIdle) return false
         if (requiresBatteryNotLow != that.requiresBatteryNotLow) return false
         if (requiresStorageNotLow != that.requiresStorageNotLow) return false
-        if (triggerContentUpdateDelay != that.triggerContentUpdateDelay) return false
-        if (triggerMaxContentDelay != that.triggerMaxContentDelay) return false
+        if (contentTriggerUpdateDelayMillis != that.contentTriggerUpdateDelayMillis) return false
+        if (contentTriggerMaxDelayMillis != that.contentTriggerMaxDelayMillis) return false
         return if (requiredNetworkType != that.requiredNetworkType) false
         else contentUriTriggers == that.contentUriTriggers
     }
@@ -129,9 +141,10 @@ constructor(
         result = 31 * result + if (requiresDeviceIdle) 1 else 0
         result = 31 * result + if (requiresBatteryNotLow) 1 else 0
         result = 31 * result + if (requiresStorageNotLow) 1 else 0
-        result = 31 * result + (triggerContentUpdateDelay xor (triggerContentUpdateDelay
-            ushr 32)).toInt()
-        result = 31 * result + (triggerMaxContentDelay xor (triggerMaxContentDelay ushr 32)).toInt()
+        result = 31 * result +
+            (contentTriggerUpdateDelayMillis xor (contentTriggerUpdateDelayMillis ushr 32)).toInt()
+        result = 31 * result +
+            (contentTriggerMaxDelayMillis xor (contentTriggerMaxDelayMillis ushr 32)).toInt()
         result = 31 * result + contentUriTriggers.hashCode()
         return result
     }
@@ -165,8 +178,8 @@ constructor(
             requiresBatteryNotLow = constraints.requiresBatteryNotLow()
             requiresStorageNotLow = constraints.requiresStorageNotLow()
             if (Build.VERSION.SDK_INT >= 24) {
-                triggerContentUpdateDelay = constraints.triggerContentUpdateDelay
-                triggerContentMaxDelay = constraints.triggerMaxContentDelay
+                triggerContentUpdateDelay = constraints.contentTriggerUpdateDelayMillis
+                triggerContentMaxDelay = constraints.contentTriggerMaxDelayMillis
                 contentUriTriggers = constraints.contentUriTriggers.toMutableSet()
             }
         }
@@ -340,8 +353,8 @@ constructor(
                 requiredNetworkType = requiredNetworkType,
                 requiresBatteryNotLow = requiresBatteryNotLow,
                 requiresStorageNotLow = requiresStorageNotLow,
-                triggerMaxContentDelay = triggerMaxContentDelay,
-                triggerContentUpdateDelay = triggerContentUpdateDelay,
+                contentTriggerMaxDelayMillis = triggerMaxContentDelay,
+                contentTriggerUpdateDelayMillis = triggerContentUpdateDelay,
                 contentUriTriggers = contentUriTriggers,
             )
         }
@@ -354,10 +367,9 @@ constructor(
      * `JobInfo.Builder#addTriggerContentUri(android.app.job.JobInfo.TriggerContentUri)`.
      *
      * @property uri The local `content:` Uri to observe
-     * @property triggerForDescendants `true` if trigger also applies to descendants of the [Uri]
+     * @property isTriggeredForDescendants `true` if trigger also applies to descendants of the [Uri]
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    class ContentUriTrigger(val uri: Uri, val triggerForDescendants: Boolean) {
+    class ContentUriTrigger(val uri: Uri, val isTriggeredForDescendants: Boolean) {
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
             if (javaClass != other?.javaClass) return false
@@ -365,14 +377,14 @@ constructor(
             other as ContentUriTrigger
 
             if (uri != other.uri) return false
-            if (triggerForDescendants != other.triggerForDescendants) return false
+            if (isTriggeredForDescendants != other.isTriggeredForDescendants) return false
 
             return true
         }
 
         override fun hashCode(): Int {
             var result = uri.hashCode()
-            result = 31 * result + triggerForDescendants.hashCode()
+            result = 31 * result + isTriggeredForDescendants.hashCode()
             return result
         }
     }
@@ -382,6 +394,6 @@ constructor(
          * Represents a Constraints object with no requirements.
          */
         @JvmField
-        val NONE = Builder().build()
+        val NONE = Constraints()
     }
 }

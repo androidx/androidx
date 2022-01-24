@@ -1,0 +1,3 @@
+// Baseline format: 1.0
+AddedAbstractMethod: androidx.work.WorkManager#getConfiguration():
+    Added method androidx.work.WorkManager.getConfiguration()

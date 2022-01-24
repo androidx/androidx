@@ -52,25 +52,29 @@ package androidx.window.extensions.embedding {
   }
 
   @androidx.window.extensions.ExperimentalWindowExtensionsApi public class SplitPairRule extends androidx.window.extensions.embedding.SplitRule {
+    method public int getFinishPrimaryWithSecondary();
+    method public int getFinishSecondaryWithPrimary();
     method @RequiresApi(api=android.os.Build.VERSION_CODES.N) public boolean matchesActivityIntentPair(android.app.Activity, android.content.Intent);
     method @RequiresApi(api=android.os.Build.VERSION_CODES.N) public boolean matchesActivityPair(android.app.Activity, android.app.Activity);
     method public boolean shouldClearTop();
-    method public boolean shouldFinishPrimaryWithSecondary();
-    method public boolean shouldFinishSecondaryWithPrimary();
   }
 
   public static final class SplitPairRule.Builder {
     ctor public SplitPairRule.Builder(java.util.function.Predicate<android.util.Pair<android.app.Activity!,android.app.Activity!>!>, java.util.function.Predicate<android.util.Pair<android.app.Activity!,android.content.Intent!>!>, java.util.function.Predicate<android.view.WindowMetrics!>);
     method public androidx.window.extensions.embedding.SplitPairRule build();
+    method public androidx.window.extensions.embedding.SplitPairRule.Builder setFinishPrimaryWithSecondary(int);
+    method public androidx.window.extensions.embedding.SplitPairRule.Builder setFinishSecondaryWithPrimary(int);
     method public androidx.window.extensions.embedding.SplitPairRule.Builder setLayoutDirection(int);
     method public androidx.window.extensions.embedding.SplitPairRule.Builder setShouldClearTop(boolean);
-    method public androidx.window.extensions.embedding.SplitPairRule.Builder setShouldFinishPrimaryWithSecondary(boolean);
-    method public androidx.window.extensions.embedding.SplitPairRule.Builder setShouldFinishSecondaryWithPrimary(boolean);
+    method @Deprecated public androidx.window.extensions.embedding.SplitPairRule.Builder setShouldFinishPrimaryWithSecondary(boolean);
+    method @Deprecated public androidx.window.extensions.embedding.SplitPairRule.Builder setShouldFinishSecondaryWithPrimary(boolean);
     method public androidx.window.extensions.embedding.SplitPairRule.Builder setSplitRatio(float);
   }
 
   @androidx.window.extensions.ExperimentalWindowExtensionsApi public class SplitPlaceholderRule extends androidx.window.extensions.embedding.SplitRule {
+    method public int getFinishPrimaryWithSecondary();
     method public android.content.Intent getPlaceholderIntent();
+    method public boolean isSticky();
     method @RequiresApi(api=android.os.Build.VERSION_CODES.N) public boolean matchesActivity(android.app.Activity);
     method @RequiresApi(api=android.os.Build.VERSION_CODES.N) public boolean matchesIntent(android.content.Intent);
   }
@@ -78,14 +82,19 @@ package androidx.window.extensions.embedding {
   public static final class SplitPlaceholderRule.Builder {
     ctor public SplitPlaceholderRule.Builder(android.content.Intent, java.util.function.Predicate<android.app.Activity!>, java.util.function.Predicate<android.content.Intent!>, java.util.function.Predicate<android.view.WindowMetrics!>);
     method public androidx.window.extensions.embedding.SplitPlaceholderRule build();
+    method public androidx.window.extensions.embedding.SplitPlaceholderRule.Builder setFinishPrimaryWithSecondary(int);
     method public androidx.window.extensions.embedding.SplitPlaceholderRule.Builder setLayoutDirection(int);
     method public androidx.window.extensions.embedding.SplitPlaceholderRule.Builder setSplitRatio(float);
+    method public androidx.window.extensions.embedding.SplitPlaceholderRule.Builder setSticky(boolean);
   }
 
   @androidx.window.extensions.ExperimentalWindowExtensionsApi public abstract class SplitRule extends androidx.window.extensions.embedding.EmbeddingRule {
     method @RequiresApi(api=android.os.Build.VERSION_CODES.N) public boolean checkParentMetrics(android.view.WindowMetrics);
     method public int getLayoutDirection();
     method public float getSplitRatio();
+    field public static final int FINISH_ADJACENT = 2; // 0x2
+    field public static final int FINISH_ALWAYS = 1; // 0x1
+    field public static final int FINISH_NEVER = 0; // 0x0
   }
 
 }

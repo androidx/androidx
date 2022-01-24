@@ -166,15 +166,4 @@
             column="42"/>
     </issue>
 
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 30; however, the containing class androidx.wear.watchface.WatchFaceImpl is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            renderer.surfaceHolder.surface.setFrameRate("
-        errorLine2="                                           ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/wear/watchface/WatchFace.kt"
-            line="593"
-            column="44"/>
-    </issue>
-
 </issues>

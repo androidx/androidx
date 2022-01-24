@@ -139,28 +139,6 @@ package androidx.wear.compose.material {
   public final class DefaultTimeSourceKt {
   }
 
-  public final class DialogDefaults {
-    method @androidx.compose.runtime.Composable public androidx.compose.foundation.layout.PaddingValues getButtonsContentPadding();
-    method @androidx.compose.runtime.Composable public androidx.compose.foundation.layout.PaddingValues getChipsContentPadding();
-    method @androidx.compose.runtime.Composable public androidx.compose.foundation.layout.PaddingValues getConfirmationContentPadding();
-    method public long getIndefiniteDurationMillis();
-    method public long getLongDurationMillis();
-    method public long getShortDurationMillis();
-    property @androidx.compose.runtime.Composable public final androidx.compose.foundation.layout.PaddingValues ButtonsContentPadding;
-    property @androidx.compose.runtime.Composable public final androidx.compose.foundation.layout.PaddingValues ChipsContentPadding;
-    property @androidx.compose.runtime.Composable public final androidx.compose.foundation.layout.PaddingValues ConfirmationContentPadding;
-    property public final long IndefiniteDurationMillis;
-    property public final long LongDurationMillis;
-    property public final long ShortDurationMillis;
-    field public static final androidx.wear.compose.material.DialogDefaults INSTANCE;
-  }
-
-  public final class DialogKt {
-    method @androidx.compose.runtime.Composable public static void AlertDialog(kotlin.jvm.functions.Function0<kotlin.Unit> title, kotlin.jvm.functions.Function0<kotlin.Unit> negativeButton, kotlin.jvm.functions.Function0<kotlin.Unit> positiveButton, optional androidx.compose.ui.Modifier modifier, optional kotlin.jvm.functions.Function0<kotlin.Unit>? icon, optional androidx.compose.foundation.ScrollState scrollState, optional long backgroundColor, optional long contentColor, optional long titleColor, optional long iconTintColor, optional androidx.compose.foundation.layout.PaddingValues contentPadding, optional kotlin.jvm.functions.Function0<kotlin.Unit>? content);
-    method @androidx.compose.runtime.Composable public static void AlertDialog(kotlin.jvm.functions.Function0<kotlin.Unit> title, optional androidx.compose.ui.Modifier modifier, optional kotlin.jvm.functions.Function0<kotlin.Unit>? icon, optional kotlin.jvm.functions.Function0<kotlin.Unit>? message, optional androidx.compose.foundation.ScrollState scrollState, optional long backgroundColor, optional long contentColor, optional long titleColor, optional long messageColor, optional long iconTintColor, optional androidx.compose.foundation.layout.PaddingValues contentPadding, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.ColumnScope,kotlin.Unit> content);
-    method @androidx.compose.runtime.Composable public static void ConfirmationDialog(kotlin.jvm.functions.Function0<kotlin.Unit> onTimeout, optional androidx.compose.ui.Modifier modifier, optional kotlin.jvm.functions.Function0<kotlin.Unit>? icon, optional androidx.compose.foundation.ScrollState scrollState, optional long durationMillis, optional long backgroundColor, optional long contentColor, optional long iconTintColor, optional androidx.compose.foundation.layout.PaddingValues contentPadding, kotlin.jvm.functions.Function0<kotlin.Unit> content);
-  }
-
   @kotlin.RequiresOptIn(message="This Wear Material API is experimental and is likely to change or to be removed in" + " the future.") public @interface ExperimentalWearMaterialApi {
   }
 
@@ -190,10 +168,6 @@ package androidx.wear.compose.material {
 
   public final class InlineSliderDefaults {
     method @androidx.compose.runtime.Composable public androidx.wear.compose.material.InlineSliderColors colors(optional long backgroundColor, optional long spacerColor, optional long selectedBarColor, optional long unselectedBarColor, optional long disabledBackgroundColor, optional long disabledSpacerColor, optional long disabledSelectedBarColor, optional long disabledUnselectedBarColor);
-    method public androidx.compose.ui.graphics.vector.ImageVector getDecreaseIcon();
-    method public androidx.compose.ui.graphics.vector.ImageVector getIncreaseIcon();
-    property public final androidx.compose.ui.graphics.vector.ImageVector DecreaseIcon;
-    property public final androidx.compose.ui.graphics.vector.ImageVector IncreaseIcon;
     field public static final androidx.wear.compose.material.InlineSliderDefaults INSTANCE;
   }
 
@@ -291,7 +265,7 @@ package androidx.wear.compose.material {
   }
 
   public final class ScalingLazyColumnKt {
-    method @androidx.compose.runtime.Composable public static void ScalingLazyColumn(optional androidx.compose.ui.Modifier modifier, optional androidx.wear.compose.material.ScalingParams scalingParams, optional boolean reverseLayout, optional androidx.compose.foundation.layout.Arrangement.Vertical verticalArrangement, optional androidx.compose.ui.Alignment.Horizontal horizontalAlignment, optional androidx.compose.foundation.layout.PaddingValues contentPadding, optional androidx.wear.compose.material.ScalingLazyListState state, optional int anchorType, optional androidx.compose.foundation.gestures.FlingBehavior flingBehavior, kotlin.jvm.functions.Function1<? super androidx.wear.compose.material.ScalingLazyListScope,kotlin.Unit> content);
+    method @androidx.compose.runtime.Composable public static void ScalingLazyColumn(optional androidx.compose.ui.Modifier modifier, optional androidx.wear.compose.material.ScalingParams scalingParams, optional boolean reverseLayout, optional androidx.compose.foundation.layout.Arrangement.Vertical verticalArrangement, optional androidx.compose.ui.Alignment.Horizontal horizontalAlignment, optional androidx.compose.foundation.layout.PaddingValues contentPadding, optional androidx.wear.compose.material.ScalingLazyListState state, optional int anchorType, optional androidx.compose.foundation.gestures.FlingBehavior flingBehavior, optional boolean autoCentering, kotlin.jvm.functions.Function1<? super androidx.wear.compose.material.ScalingLazyListScope,kotlin.Unit> content);
     method public static inline <T> void items(androidx.wear.compose.material.ScalingLazyListScope, java.util.List<? extends T> items, optional kotlin.jvm.functions.Function1<? super T,?>? key, kotlin.jvm.functions.Function2<? super androidx.wear.compose.material.ScalingLazyListItemScope,? super T,kotlin.Unit> itemContent);
     method public static inline <T> void items(androidx.wear.compose.material.ScalingLazyListScope, T![] items, optional kotlin.jvm.functions.Function1<? super T,?>? key, kotlin.jvm.functions.Function2<? super androidx.wear.compose.material.ScalingLazyListItemScope,? super T,kotlin.Unit> itemContent);
     method public static inline <T> void itemsIndexed(androidx.wear.compose.material.ScalingLazyListScope, java.util.List<? extends T> items, optional kotlin.jvm.functions.Function2<? super java.lang.Integer,? super T,?>? key, kotlin.jvm.functions.Function3<? super androidx.wear.compose.material.ScalingLazyListItemScope,? super java.lang.Integer,? super T,kotlin.Unit> itemContent);
@@ -414,18 +388,12 @@ package androidx.wear.compose.material {
 
   public final class SliderKt {
     method @androidx.compose.runtime.Composable public static void InlineSlider(float value, kotlin.jvm.functions.Function1<? super java.lang.Float,kotlin.Unit> onValueChange, int steps, optional androidx.compose.ui.Modifier modifier, optional boolean enabled, optional kotlin.ranges.ClosedFloatingPointRange<java.lang.Float> valueRange, optional boolean segmented, optional kotlin.jvm.functions.Function0<kotlin.Unit> decreaseIcon, optional kotlin.jvm.functions.Function0<kotlin.Unit> increaseIcon, optional androidx.wear.compose.material.InlineSliderColors colors);
-  }
-
-  public final class StepperDefaults {
-    method public androidx.compose.ui.graphics.vector.ImageVector getDecreaseIcon();
-    method public androidx.compose.ui.graphics.vector.ImageVector getIncreaseIcon();
-    property public final androidx.compose.ui.graphics.vector.ImageVector DecreaseIcon;
-    property public final androidx.compose.ui.graphics.vector.ImageVector IncreaseIcon;
-    field public static final androidx.wear.compose.material.StepperDefaults INSTANCE;
+    method @androidx.compose.runtime.Composable public static void InlineSlider(int value, kotlin.jvm.functions.Function1<? super java.lang.Integer,kotlin.Unit> onValueChange, optional androidx.compose.ui.Modifier modifier, optional boolean enabled, kotlin.ranges.IntProgression valueProgression, optional boolean segmented, optional kotlin.jvm.functions.Function0<kotlin.Unit> decreaseIcon, optional kotlin.jvm.functions.Function0<kotlin.Unit> increaseIcon, optional androidx.wear.compose.material.InlineSliderColors colors);
   }
 
   public final class StepperKt {
     method @androidx.compose.runtime.Composable public static void Stepper(float value, kotlin.jvm.functions.Function1<? super java.lang.Float,kotlin.Unit> onValueChange, int steps, optional androidx.compose.ui.Modifier modifier, optional kotlin.ranges.ClosedFloatingPointRange<java.lang.Float> valueRange, optional kotlin.jvm.functions.Function0<kotlin.Unit> decreaseIcon, optional kotlin.jvm.functions.Function0<kotlin.Unit> increaseIcon, optional long backgroundColor, optional long contentColor, optional long iconTintColor, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.BoxScope,kotlin.Unit> content);
+    method @androidx.compose.runtime.Composable public static void Stepper(int value, kotlin.jvm.functions.Function1<? super java.lang.Integer,kotlin.Unit> onValueChange, optional androidx.compose.ui.Modifier modifier, kotlin.ranges.IntProgression valueProgression, optional kotlin.jvm.functions.Function0<kotlin.Unit> decreaseIcon, optional kotlin.jvm.functions.Function0<kotlin.Unit> increaseIcon, optional long backgroundColor, optional long contentColor, optional long iconTintColor, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.BoxScope,kotlin.Unit> content);
   }
 
   @androidx.wear.compose.material.ExperimentalWearMaterialApi public enum SwipeDismissTarget {
@@ -638,6 +606,36 @@ package androidx.wear.compose.material {
     property public final int Bottom;
     property public final int Top;
     property public final int TopAndBottom;
+  }
+
+}
+
+package androidx.wear.compose.material.dialog {
+
+  public final class DialogDefaults {
+    method @androidx.compose.runtime.Composable public androidx.compose.foundation.layout.PaddingValues getButtonsContentPadding();
+    method @androidx.compose.runtime.Composable public androidx.compose.foundation.layout.PaddingValues getChipsContentPadding();
+    method @androidx.compose.runtime.Composable public androidx.compose.foundation.layout.PaddingValues getConfirmationContentPadding();
+    method public long getIndefiniteDurationMillis();
+    method public long getLongDurationMillis();
+    method public long getShortDurationMillis();
+    property @androidx.compose.runtime.Composable public final androidx.compose.foundation.layout.PaddingValues ButtonsContentPadding;
+    property @androidx.compose.runtime.Composable public final androidx.compose.foundation.layout.PaddingValues ChipsContentPadding;
+    property @androidx.compose.runtime.Composable public final androidx.compose.foundation.layout.PaddingValues ConfirmationContentPadding;
+    property public final long IndefiniteDurationMillis;
+    property public final long LongDurationMillis;
+    property public final long ShortDurationMillis;
+    field public static final androidx.wear.compose.material.dialog.DialogDefaults INSTANCE;
+  }
+
+  public final class DialogKt {
+    method @androidx.compose.runtime.Composable public static void Alert(kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.ColumnScope,kotlin.Unit> title, kotlin.jvm.functions.Function0<kotlin.Unit> negativeButton, kotlin.jvm.functions.Function0<kotlin.Unit> positiveButton, optional androidx.compose.ui.Modifier modifier, optional kotlin.jvm.functions.Function0<kotlin.Unit>? icon, optional androidx.compose.foundation.ScrollState scrollState, optional long backgroundColor, optional long contentColor, optional long titleColor, optional long iconTintColor, optional androidx.compose.foundation.layout.PaddingValues contentPadding, optional kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.ColumnScope,kotlin.Unit>? content);
+    method @androidx.compose.runtime.Composable public static void Alert(kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.ColumnScope,kotlin.Unit> title, optional androidx.compose.ui.Modifier modifier, optional kotlin.jvm.functions.Function0<kotlin.Unit>? icon, optional kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.ColumnScope,kotlin.Unit>? message, optional androidx.compose.foundation.ScrollState scrollState, optional long backgroundColor, optional long contentColor, optional long titleColor, optional long messageColor, optional long iconTintColor, optional androidx.compose.foundation.layout.PaddingValues contentPadding, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.ColumnScope,kotlin.Unit> content);
+    method @androidx.compose.runtime.Composable public static void Confirmation(kotlin.jvm.functions.Function0<kotlin.Unit> onTimeout, optional androidx.compose.ui.Modifier modifier, optional kotlin.jvm.functions.Function0<kotlin.Unit>? icon, optional androidx.compose.foundation.ScrollState scrollState, optional long durationMillis, optional long backgroundColor, optional long contentColor, optional long iconTintColor, optional androidx.compose.foundation.layout.PaddingValues contentPadding, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.ColumnScope,kotlin.Unit> content);
+  }
+
+  public final class Dialog_androidKt {
+    method @androidx.compose.runtime.Composable public static void Dialog(kotlin.jvm.functions.Function0<kotlin.Unit> onDismissRequest, optional androidx.compose.ui.window.DialogProperties properties, kotlin.jvm.functions.Function0<kotlin.Unit> content);
   }
 
 }

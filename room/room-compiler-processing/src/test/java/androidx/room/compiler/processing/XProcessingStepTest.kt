@@ -1192,6 +1192,110 @@ class XProcessingStepTest {
     }
 
     @Test
+    fun javacDisableValidatingAnnotatedElements() {
+        val processingStep = object : XProcessingStep {
+            var round = 0
+            override fun process(
+                env: XProcessingEnv,
+                elementsByAnnotation: Map<String, Set<XElement>>
+            ): Set<XElement> {
+                if (round++ == 0) {
+                    val className = ClassName.get("foo.bar", "ToBeGenerated")
+                    val spec = TypeSpec.classBuilder(className).build()
+                    JavaFile.builder(className.packageName(), spec)
+                        .build()
+                        .writeTo(env.filer)
+                }
+                return elementsByAnnotation.values.flatten().toSet()
+            }
+            override fun annotations(): Set<String> {
+                return setOf(OtherAnnotation::class.qualifiedName!!)
+            }
+        }
+        val main = Source.java(
+            "foo.bar.Other",
+            """
+            package foo.bar;
+            import androidx.room.compiler.processing.testcode.*;
+            @OtherAnnotation("y")
+            class Other extends ToBeGenerated {
+            }
+            """.trimIndent()
+        )
+        assertAbout(
+            JavaSourcesSubjectFactory.javaSources()
+        ).that(
+            listOf(main.toJFO())
+        ).processedWith(
+            object : JavacBasicAnnotationProcessor(
+                configureEnv = {
+                    XProcessingEnvConfig.DEFAULT.copy(disableAnnotatedElementValidation = true)
+                }
+            ) {
+                override fun processingSteps() = listOf(processingStep)
+            }
+        ).compilesWithoutError()
+    }
+
+    @Test
+    fun kspDisableValidatingAnnotatedElements() {
+        CompilationTestCapabilities.assumeKspIsEnabled()
+        val processingStep = object : XProcessingStep {
+            var round = 0
+            override fun process(
+                env: XProcessingEnv,
+                elementsByAnnotation: Map<String, Set<XElement>>
+            ): Set<XElement> {
+                if (round++ == 0) {
+                    val className = ClassName.get("foo.bar", "ToBeGenerated")
+                    val spec = TypeSpec.classBuilder(className).build()
+                    JavaFile.builder(className.packageName(), spec)
+                        .build()
+                        .writeTo(env.filer)
+                }
+                return elementsByAnnotation.values.flatten().toSet()
+            }
+
+            override fun annotations(): Set<String> {
+                return setOf(OtherAnnotation::class.qualifiedName!!)
+            }
+        }
+        val processorProvider = SymbolProcessorProvider { environment ->
+            object : KspBasicAnnotationProcessor(
+                symbolProcessorEnvironment = environment,
+                config = XProcessingEnvConfig.DEFAULT.copy(
+                    disableAnnotatedElementValidation = true
+                )
+            ) {
+                override fun processingSteps() = listOf(processingStep)
+            }
+        }
+        val main = Source.kotlin(
+            "Other.kt",
+            """
+            package foo.bar
+            import androidx.room.compiler.processing.testcode.*
+            @OtherAnnotation("y")
+            internal class Other : ToBeGenerated() {
+            }
+            """.trimIndent()
+        )
+
+        val result = compile(
+            workingDir = temporaryFolder.root,
+            arguments = TestCompilationArguments(
+                sources = listOf(main),
+                symbolProcessorProviders = listOf(processorProvider)
+            )
+        )
+        assertThat(result.success).isTrue()
+        // no error due to invalid elements in last round because validation is skipped
+        assertThat(
+            result.diagnostics[Diagnostic.Kind.ERROR]?.map { it.msg } ?: emptyList<String>()
+        ).isEmpty()
+    }
+
+    @Test
     fun javacVariousDeferredElements() {
         val main = Source.java(
             "foo.bar.Main",

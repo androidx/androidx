@@ -212,6 +212,15 @@ package androidx.wear.watchface.data {
     field public static int ELEMENT_TYPE_USER_STYLE;
   }
 
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @androidx.versionedparcelable.VersionedParcelize public class WatchFaceOverlayStyleWireFormat implements android.os.Parcelable androidx.versionedparcelable.VersionedParcelable {
+    ctor public WatchFaceOverlayStyleWireFormat(android.graphics.Color?, android.graphics.Color?);
+    method public int describeContents();
+    method public android.graphics.Color? getBackgroundColor();
+    method public android.graphics.Color? getForegroundColor();
+    method public void writeToParcel(android.os.Parcel, int);
+    field public static final android.os.Parcelable.Creator<androidx.wear.watchface.data.WatchFaceOverlayStyleWireFormat!>! CREATOR;
+  }
+
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @androidx.versionedparcelable.VersionedParcelize(allowSerialization=true) public final class WatchUiState implements android.os.Parcelable androidx.versionedparcelable.VersionedParcelable {
     ctor public WatchUiState(boolean, int);
     method public int describeContents();

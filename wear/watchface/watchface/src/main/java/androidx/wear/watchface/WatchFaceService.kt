@@ -994,7 +994,7 @@ public abstract class WatchFaceService : WallpaperService() {
 
                 /**
                  * It's possible we went ambient by the time our callback occurred in which case
-                 * there's no point drawing. Note if watchFaceImpl is null we call [drawBlack].
+                 * there's no point drawing.
                  */
                 if (watchFaceImpl?.renderer?.shouldAnimate() != false) {
                     draw()
@@ -2035,7 +2035,7 @@ public abstract class WatchFaceService : WallpaperService() {
                 }
 
                 val watchFaceImpl: WatchFaceImpl? = getWatchFaceImplOrNull()
-                watchFaceImpl?.onDraw() ?: drawBlack()
+                watchFaceImpl?.onDraw()
             } finally {
                 if (TRACE_DRAW) {
                     Trace.endSection()
@@ -2060,12 +2060,6 @@ public abstract class WatchFaceService : WallpaperService() {
                     "to the companion over bluetooth and should be as small as possible for this " +
                     "to be performant."
             }
-        }
-
-        private fun drawBlack() {
-            // TODO(b/189452267): We don't know if the watchface will use hardware or software
-            // canvas and mixing the two leads to skia crashes. For now we do nothing rather than
-            // drawing a blank frame.
         }
 
         internal fun watchFaceCreated() = deferredWatchFaceImpl.isCompleted

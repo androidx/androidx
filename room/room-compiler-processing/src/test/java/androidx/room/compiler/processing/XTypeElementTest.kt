@@ -174,8 +174,9 @@ class XTypeElementTest {
         runProcessorTest(sources = listOf(src)) { invocation ->
             invocation.processingEnv.requireTypeElement("foo.bar.Baz").let {
                 assertThat(it.superInterfaces).hasSize(1)
-                val superInterface = it.superInterfaces.first {
-                        type -> type.rawType.toString() == "foo.bar.MyInterface" }
+                val superInterface = it.superInterfaces.first { type ->
+                    type.rawType.toString() == "foo.bar.MyInterface"
+                }
                 assertThat(superInterface.typeArguments).hasSize(1)
                 assertThat(superInterface.typeArguments[0].typeName)
                     .isEqualTo(ClassName.get("java.lang", "String"))
@@ -909,6 +910,70 @@ class XTypeElementTest {
                 "baseMethod", "overriddenMethod", "baseCompanionMethod",
                 "interfaceMethod", "subMethod", "privateSubMethod", "subCompanionMethod"
             )
+        }
+    }
+
+    /**
+     * When JvmNames is used along with a suppression over the error, the behavior becomes
+     * complicated. Normally, JvmName annotation is not allowed in overrides and open methods, yet
+     * developers can still use it by putting a suppression over it. The compiler will generate a
+     * delegating method in these cases in the .class file, yet in KSP, we don't really see that
+     * method (also shouldn't ideally).
+     *
+     * This test is here to acknowledge that the behavior is inconsistent yet working as intended
+     * from XProcessing's perspective.
+     *
+     * Also see: https://youtrack.jetbrains.com/issue/KT-50782 as a sign why this suppression is
+     * not worth supporting :).
+     */
+    @Test
+    fun allMethods_withJvmNames() {
+        fun buildSource(pkg: String) = listOf(
+            Source.kotlin(
+                "Foo.kt",
+                """
+                package $pkg
+                interface Interface {
+                    fun f1()
+                    @JvmName("notF2")
+                    @Suppress("INAPPLICABLE_JVM_NAME")
+                    fun f2()
+                }
+                abstract class Subject : Interface {
+                    @JvmName("notF1")
+                    @Suppress("INAPPLICABLE_JVM_NAME")
+                    override fun f1() {
+                    }
+                }
+            """.trimIndent()
+            )
+        )
+
+        runProcessorTest(
+            sources = buildSource("app"),
+            classpath = compileFiles(buildSource("lib"))
+        ) { invocation ->
+            listOf("app", "lib").forEach {
+                val appSubject = invocation.processingEnv.requireTypeElement("$it.Subject")
+                val methodNames = appSubject.getAllMethods().map { it.name }.toList()
+                val methodJvmNames = appSubject.getAllMethods().map { it.jvmName }.toList()
+                val objectMethodNames = invocation.objectMethodNames()
+                if (invocation.isKsp) {
+                    assertThat(methodNames - objectMethodNames).containsExactly(
+                        "f1", "f2"
+                    )
+                    assertThat(methodJvmNames - objectMethodNames).containsExactly(
+                        "notF1", "notF2"
+                    )
+                } else {
+                    assertThat(methodNames - objectMethodNames).containsExactly(
+                        "f1", "f1", "f2"
+                    )
+                    assertThat(methodJvmNames - objectMethodNames).containsExactly(
+                        "f1", "notF1", "notF2"
+                    )
+                }
+            }
         }
     }
 

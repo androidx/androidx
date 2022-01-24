@@ -216,7 +216,7 @@ public class ComplicationDataSourceInfoRetriever : AutoCloseable {
 
             // Not a huge deal but we might as well unlink the deathObserver.
             continuation.invokeOnCancellation {
-                service.asBinder().unlinkToDeath(deathObserver, 0)
+                safeUnlinkToDeath(service, deathObserver)
             }
 
             if (!service.requestPreviewComplicationData(
@@ -226,15 +226,27 @@ public class ComplicationDataSourceInfoRetriever : AutoCloseable {
                         override fun updateComplicationData(
                             data: android.support.wearable.complications.ComplicationData?
                         ) {
-                            service.asBinder().unlinkToDeath(deathObserver, 0)
+                            safeUnlinkToDeath(service, deathObserver)
                             continuation.resume(data?.toApiComplicationData())
                         }
                     }
                 )
             ) {
-                service.asBinder().unlinkToDeath(deathObserver, 0)
+                safeUnlinkToDeath(service, deathObserver)
                 continuation.resume(null)
             }
+        }
+    }
+
+    internal fun safeUnlinkToDeath(
+        service: IProviderInfoService,
+        deathObserver: IBinder.DeathRecipient
+    ) {
+        try {
+            service.asBinder().unlinkToDeath(deathObserver, 0)
+        } catch (e: NoSuchElementException) {
+            // This really shouldn't happen.
+            Log.w(TAG, "retrievePreviewComplicationData encountered", e)
         }
     }
 
