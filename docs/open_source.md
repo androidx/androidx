@@ -4,7 +4,7 @@ go/androidx/open_source
 
 <!--*
 # Document freshness: For more information, see go/fresh-source.
-freshness: { owner: 'alanv' reviewed: '2021-07-15' }
+freshness: { owner: 'alanv' reviewed: '2022-01-14' }
 *-->
 
 [TOC]
