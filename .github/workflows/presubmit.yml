@@ -62,6 +62,7 @@ jobs:
         run: |
           set -x
           echo "DIST_DIR=$HOME/dist" >> $GITHUB_ENV
+          echo "OUT_DIR=$HOME/out" >> $GITHUB_ENV
 
       - name: "Checkout androidx repo"
         uses: actions/checkout@v2
@@ -170,6 +171,7 @@ jobs:
         run: |
           set -x
           echo "DIST_DIR=$HOME/dist" >> $GITHUB_ENV
+          echo "OUT_DIR=$HOME/out" >> $GITHUB_ENV
       # gradle action loads the dependencies cache only on the first run based on arguments.
       # to control it, we explicitly invoke it once which makes it load the dependencies cache with the parameters
       # we control
