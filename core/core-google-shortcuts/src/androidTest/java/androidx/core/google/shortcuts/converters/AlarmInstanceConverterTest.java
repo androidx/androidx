@@ -31,7 +31,6 @@ import com.google.firebase.appindexing.Indexable;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.util.Calendar;
 import java.util.TimeZone;
 
 @RunWith(AndroidJUnit4.class)
@@ -44,15 +43,11 @@ public class AlarmInstanceConverterTest {
     public void testConvert_returnsIndexable() throws Exception {
         TimeZone.setDefault(TimeZone.getTimeZone("GMT"));
 
-        AlarmInstance alarmInstance = new AlarmInstance.Builder("namespace", "id")
+        AlarmInstance alarmInstance = new AlarmInstance.Builder(
+                "namespace", "id", "2020-01-02T07:30:00")
                 .setCreationTimestampMillis(1000)
-                .setTtlMillis(2000)
-                .setScore(1)
-                .setYear(2020)
-                .setMonth(Calendar.JANUARY)
-                .setDay(2)
-                .setHour(7)
-                .setMinute(30)
+                .setDocumentTtlMillis(2000)
+                .setDocumentScore(1)
                 .setStatus(AlarmInstance.STATUS_SCHEDULED)
                 .setSnoozeDurationMillis(3000)
                 .build();
@@ -79,13 +74,9 @@ public class AlarmInstanceConverterTest {
     @Test
     @SmallTest
     public void testConvert_differentTimeZone_returnsIndexableWithSameLocalTime() throws Exception {
-        AlarmInstance alarmInstance = new AlarmInstance.Builder("namespace", "id")
+        AlarmInstance alarmInstance = new AlarmInstance.Builder(
+                "namespace", "id", "2020-01-02T07:30:00")
                 .setCreationTimestampMillis(1000)
-                .setYear(2020)
-                .setMonth(Calendar.JANUARY)
-                .setDay(2)
-                .setHour(7)
-                .setMinute(30)
                 .setStatus(AlarmInstance.STATUS_SCHEDULED)
                 .build();
         Indexable.Builder expectedResultTemplate = new Indexable.Builder("AlarmInstance")
@@ -119,7 +110,8 @@ public class AlarmInstanceConverterTest {
     public void testConvert_withoutOptionalFields_returnsIndexable() throws Exception {
         TimeZone.setDefault(TimeZone.getTimeZone("GMT"));
 
-        AlarmInstance alarmInstance = new AlarmInstance.Builder("namespace", "id")
+        AlarmInstance alarmInstance = new AlarmInstance.Builder(
+                "namespace", "id", "2020-01-02T07:30:00")
                 // CurrentTime will be used if not set.
                 .setCreationTimestampMillis(1000)
                 .build();
@@ -136,9 +128,9 @@ public class AlarmInstanceConverterTest {
                 .put(IndexableKeys.NAMESPACE, "namespace")
                 .put(IndexableKeys.TTL_MILLIS, 0)
                 .put(IndexableKeys.CREATION_TIMESTAMP_MILLIS, 1000)
-                .put("scheduledTime", "0002-12-31T00:00:00+0000")
                 .put("alarmStatus", "Unknown")
                 .put("snoozeLength", -1)
+                .put("scheduledTime", "2020-01-02T07:30:00+0000")
                 .build();
         assertThat(result).isEqualTo(expectedResult);
     }

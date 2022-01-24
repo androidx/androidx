@@ -29,13 +29,15 @@ import java.util.Calendar;
 public class AlarmTest {
     @Test
     public void testBuilder() {
-        AlarmInstance alarmInstance1 = new AlarmInstance.Builder("namespace", "instanceId1")
+        AlarmInstance alarmInstance1 = new AlarmInstance.Builder(
+                "namespace", "instanceId1", "2022-01-01T00:00:00")
                 .build();
-        AlarmInstance alarmInstance2 = new AlarmInstance.Builder("namespace", "instanceId2")
+        AlarmInstance alarmInstance2 = new AlarmInstance.Builder(
+                "namespace", "instanceId2", "2022-01-02T00:00:00")
                 .build();
         Alarm alarm = new Alarm.Builder("namespace", "id")
-                .setScore(1)
-                .setTtlMillis(20000)
+                .setDocumentScore(1)
+                .setDocumentTtlMillis(20000)
                 .setCreationTimestampMillis(100)
                 .setName("my alarm")
                 .setEnabled(true)
@@ -43,18 +45,18 @@ public class AlarmTest {
                         Calendar.THURSDAY, Calendar.FRIDAY)
                 .setHour(12)
                 .setMinute(0)
-                .setBlackoutStartTimeMillis(1000)
-                .setBlackoutEndTimeMillis(2000)
+                .setBlackoutPeriodStartDate("2022-01-14")
+                .setBlackoutPeriodEndDate("2022-02-14")
                 .setRingtone("clock://ringtone/1")
-                .setVibrate(true)
+                .setShouldVibrate(true)
                 .setPreviousInstance(alarmInstance1)
                 .setNextInstance(alarmInstance2)
                 .build();
 
         assertThat(alarm.getNamespace()).isEqualTo("namespace");
         assertThat(alarm.getId()).isEqualTo("id");
-        assertThat(alarm.getScore()).isEqualTo(1);
-        assertThat(alarm.getTtlMillis()).isEqualTo(20000);
+        assertThat(alarm.getDocumentScore()).isEqualTo(1);
+        assertThat(alarm.getDocumentTtlMillis()).isEqualTo(20000);
         assertThat(alarm.getCreationTimestampMillis()).isEqualTo(100);
         assertThat(alarm.getName()).isEqualTo("my alarm");
         assertThat(alarm.isEnabled()).isTrue();
@@ -62,23 +64,25 @@ public class AlarmTest {
                 Calendar.TUESDAY, Calendar.WEDNESDAY, Calendar.THURSDAY, Calendar.FRIDAY);
         assertThat(alarm.getHour()).isEqualTo(12);
         assertThat(alarm.getMinute()).isEqualTo(0);
-        assertThat(alarm.getBlackoutStartTimeMillis()).isEqualTo(1000);
-        assertThat(alarm.getBlackoutEndTimeMillis()).isEqualTo(2000);
+        assertThat(alarm.getBlackoutPeriodStartDate()).isEqualTo("2022-01-14");
+        assertThat(alarm.getBlackoutPeriodEndDate()).isEqualTo("2022-02-14");
         assertThat(alarm.getRingtone()).isEqualTo("clock://ringtone/1");
-        assertThat(alarm.isVibrate()).isTrue();
+        assertThat(alarm.shouldVibrate()).isTrue();
         assertThat(alarm.getPreviousInstance()).isEqualTo(alarmInstance1);
         assertThat(alarm.getNextInstance()).isEqualTo(alarmInstance2);
     }
 
     @Test
     public void testBuilderCopy_returnsAlarmWithAllFieldsCopied() {
-        AlarmInstance alarmInstance1 = new AlarmInstance.Builder("namespace", "instanceId1")
+        AlarmInstance alarmInstance1 = new AlarmInstance.Builder(
+                "namespace", "instanceId1", "2022-01-01T00:00:00")
                 .build();
-        AlarmInstance alarmInstance2 = new AlarmInstance.Builder("namespace", "instanceId2")
+        AlarmInstance alarmInstance2 = new AlarmInstance.Builder(
+                "namespace", "instanceId2", "2022-01-02T00:00:00")
                 .build();
         Alarm alarm1 = new Alarm.Builder("namespace", "id")
-                .setScore(1)
-                .setTtlMillis(20000)
+                .setDocumentScore(1)
+                .setDocumentTtlMillis(20000)
                 .setCreationTimestampMillis(100)
                 .setName("my alarm")
                 .setEnabled(true)
@@ -86,10 +90,10 @@ public class AlarmTest {
                         Calendar.THURSDAY, Calendar.FRIDAY)
                 .setHour(12)
                 .setMinute(0)
-                .setBlackoutStartTimeMillis(1000)
-                .setBlackoutEndTimeMillis(2000)
+                .setBlackoutPeriodStartDate("2022-01-14")
+                .setBlackoutPeriodEndDate("2022-02-14")
                 .setRingtone("clock://ringtone/1")
-                .setVibrate(true)
+                .setShouldVibrate(true)
                 .setPreviousInstance(alarmInstance1)
                 .setNextInstance(alarmInstance2)
                 .build();
@@ -97,8 +101,8 @@ public class AlarmTest {
         Alarm alarm2 = new Alarm.Builder(alarm1).build();
         assertThat(alarm1.getNamespace()).isEqualTo(alarm2.getNamespace());
         assertThat(alarm1.getId()).isEqualTo(alarm2.getId());
-        assertThat(alarm1.getScore()).isEqualTo(alarm2.getScore());
-        assertThat(alarm1.getTtlMillis()).isEqualTo(alarm2.getTtlMillis());
+        assertThat(alarm1.getDocumentScore()).isEqualTo(alarm2.getDocumentScore());
+        assertThat(alarm1.getDocumentTtlMillis()).isEqualTo(alarm2.getDocumentTtlMillis());
         assertThat(alarm1.getCreationTimestampMillis())
                 .isEqualTo(alarm2.getCreationTimestampMillis());
         assertThat(alarm1.getName()).isEqualTo(alarm2.getName());
@@ -106,26 +110,29 @@ public class AlarmTest {
         assertThat(alarm1.getDaysOfWeek()).isEqualTo(alarm2.getDaysOfWeek());
         assertThat(alarm1.getHour()).isEqualTo(alarm2.getHour());
         assertThat(alarm1.getMinute()).isEqualTo(alarm2.getMinute());
-        assertThat(alarm1.getBlackoutStartTimeMillis())
-                .isEqualTo(alarm2.getBlackoutStartTimeMillis());
-        assertThat(alarm1.getBlackoutEndTimeMillis()).isEqualTo(alarm2.getBlackoutEndTimeMillis());
+        assertThat(alarm1.getBlackoutPeriodStartDate())
+                .isEqualTo(alarm2.getBlackoutPeriodStartDate());
+        assertThat(alarm1.getBlackoutPeriodEndDate())
+                .isEqualTo(alarm2.getBlackoutPeriodEndDate());
         assertThat(alarm1.getRingtone()).isEqualTo(alarm2.getRingtone());
-        assertThat(alarm1.isVibrate()).isEqualTo(alarm2.isVibrate());
+        assertThat(alarm1.shouldVibrate()).isEqualTo(alarm2.shouldVibrate());
         assertThat(alarm1.getPreviousInstance()).isEqualTo(alarm2.getPreviousInstance());
         assertThat(alarm1.getNextInstance()).isEqualTo(alarm2.getNextInstance());
     }
 
     @Test
     public void testToGenericDocument() throws Exception {
-        AlarmInstance alarmInstance1 = new AlarmInstance.Builder("namespace", "instanceId1")
+        AlarmInstance alarmInstance1 = new AlarmInstance.Builder(
+                "namespace", "instanceId1", "2022-01-01T00:00:00")
                 .setCreationTimestampMillis(100)
                 .build();
-        AlarmInstance alarmInstance2 = new AlarmInstance.Builder("namespace", "instanceId2")
+        AlarmInstance alarmInstance2 = new AlarmInstance.Builder(
+                "namespace", "instanceId2", "2022-01-02T00:00:00")
                 .setCreationTimestampMillis(100)
                 .build();
         Alarm alarm = new Alarm.Builder("namespace", "id")
-                .setScore(1)
-                .setTtlMillis(20000)
+                .setDocumentScore(1)
+                .setDocumentTtlMillis(20000)
                 .setCreationTimestampMillis(100)
                 .setName("my alarm")
                 .setEnabled(true)
@@ -133,10 +140,10 @@ public class AlarmTest {
                         Calendar.THURSDAY, Calendar.FRIDAY)
                 .setHour(12)
                 .setMinute(0)
-                .setBlackoutStartTimeMillis(1000)
-                .setBlackoutEndTimeMillis(2000)
+                .setBlackoutPeriodStartDate("2022-01-14")
+                .setBlackoutPeriodEndDate("2022-02-14")
                 .setRingtone("clock://ringtone/1")
-                .setVibrate(true)
+                .setShouldVibrate(true)
                 .setPreviousInstance(alarmInstance1)
                 .setNextInstance(alarmInstance2)
                 .build();
@@ -146,18 +153,20 @@ public class AlarmTest {
         assertThat(genericDocument.getNamespace()).isEqualTo("namespace");
         assertThat(genericDocument.getId()).isEqualTo("id");
         assertThat(genericDocument.getScore()).isEqualTo(1);
-        assertThat(genericDocument.getTtlMillis()).isEqualTo(20000);
         assertThat(genericDocument.getCreationTimestampMillis()).isEqualTo(100);
+        assertThat(genericDocument.getTtlMillis()).isEqualTo(20000);
         assertThat(genericDocument.getPropertyString("name")).isEqualTo("my alarm");
         assertThat(genericDocument.getPropertyBoolean("enabled")).isTrue();
         assertThat(genericDocument.getPropertyLongArray("daysOfWeek")).asList()
                 .containsExactly(2L, 3L, 4L, 5L, 6L);
         assertThat(genericDocument.getPropertyLong("hour")).isEqualTo(12);
         assertThat(genericDocument.getPropertyLong("minute")).isEqualTo(0);
-        assertThat(genericDocument.getPropertyLong("blackoutStartTimeMillis")).isEqualTo(1000);
-        assertThat(genericDocument.getPropertyLong("blackoutEndTimeMillis")).isEqualTo(2000);
+        assertThat(genericDocument.getPropertyString("blackoutPeriodStartDate"))
+                .isEqualTo("2022-01-14");
+        assertThat(genericDocument.getPropertyString("blackoutPeriodEndDate"))
+                .isEqualTo("2022-02-14");
         assertThat(genericDocument.getPropertyString("ringtone")).isEqualTo("clock://ringtone/1");
-        assertThat(genericDocument.getPropertyBoolean("vibrate")).isTrue();
+        assertThat(genericDocument.getPropertyBoolean("shouldVibrate")).isTrue();
         assertThat(genericDocument.getPropertyDocument("previousInstance"))
                 .isEqualTo(GenericDocument.fromDocumentClass(alarmInstance1));
         assertThat(genericDocument.getPropertyDocument("nextInstance"))

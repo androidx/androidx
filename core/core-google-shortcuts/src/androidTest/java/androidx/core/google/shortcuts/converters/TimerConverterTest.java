@@ -62,17 +62,20 @@ public class TimerConverterTest {
         when(mTimeModelMock.getSystemClockElapsedRealtime()).thenReturn(10000L);
 
         Timer timer = new Timer.Builder("namespace", "id")
-                .setScore(10)
-                .setTtlMillis(60000)
+                .setDocumentScore(10)
+                .setDocumentTtlMillis(60000)
                 .setCreationTimestampMillis(1)
                 .setName("my timer")
                 .setDurationMillis(1000)
-                .setRemainingTimeMillis(10000)
+                .setRemainingTimeMillisSinceUpdate(10000)
                 .setRingtone(AlarmClock.VALUE_RINGTONE_SILENT)
                 .setStatus(Timer.STATUS_STARTED)
-                .setVibrate(true)
-                .setStartTimeMillis(3000)
-                .setStartTimeMillisInElapsedRealtime(5000)
+                .setShouldVibrate(true)
+                .setStartTimeMillis(
+                        /*startTimeMillis=*/3000,
+                        /*startTimeMillisInElapsedRealtime=*/5000,
+                        /*bootCount=*/1)
+                .setOriginalDurationMillis(800)
                 .build();
 
         Indexable result = mTimerConverter.convertGenericDocument(
@@ -99,6 +102,8 @@ public class TimerConverterTest {
                 .put("remainingTime", 10000)
                 .put("ringtone", "silent")
                 .put("vibrate", true)
+                .put("bootCount", 1)
+                .put("originalDurationMillis", 800)
                 .build();
         assertThat(result).isEqualTo(expectedResult);
     }
@@ -115,17 +120,20 @@ public class TimerConverterTest {
         when(mTimeModelMock.getSystemClockElapsedRealtime()).thenReturn(10000L);
 
         Timer timer = new Timer.Builder("namespace", "id")
-                .setScore(10)
-                .setTtlMillis(60000)
+                .setDocumentScore(10)
+                .setDocumentTtlMillis(60000)
                 .setCreationTimestampMillis(1)
                 .setName("my timer")
                 .setDurationMillis(1000)
-                .setRemainingTimeMillis(10000)
+                .setRemainingTimeMillisSinceUpdate(10000)
                 .setRingtone(AlarmClock.VALUE_RINGTONE_SILENT)
                 .setStatus(Timer.STATUS_STARTED)
-                .setVibrate(true)
-                .setStartTimeMillis(3000)
-                .setStartTimeMillisInElapsedRealtime(5000)
+                .setShouldVibrate(true)
+                .setStartTimeMillis(
+                        /*startTimeMillis=*/3000,
+                        /*startTimeMillisInElapsedRealtime=*/5000,
+                        /*bootCount=*/1)
+                .setOriginalDurationMillis(800)
                 .build();
 
         Indexable result = mTimerConverter.convertGenericDocument(
@@ -153,6 +161,8 @@ public class TimerConverterTest {
                 .put("remainingTime", 10000)
                 .put("ringtone", "silent")
                 .put("vibrate", true)
+                .put("bootCount", 1)
+                .put("originalDurationMillis", 800)
                 .build();
         assertThat(result).isEqualTo(expectedResult);
     }
@@ -182,6 +192,8 @@ public class TimerConverterTest {
                 .put("timerStatus", "Unknown")
                 .put("remainingTime", 0)
                 .put("vibrate", false)
+                .put("bootCount", 0)
+                .put("originalDurationMillis", 0)
                 .build();
         assertThat(result).isEqualTo(expectedResult);
     }

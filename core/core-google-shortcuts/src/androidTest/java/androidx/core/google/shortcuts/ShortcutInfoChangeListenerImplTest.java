@@ -242,6 +242,8 @@ public class ShortcutInfoChangeListenerImplTest {
                 .put("remainingTime", 0)
                 .put("timerStatus", "Unknown")
                 .put("vibrate", false)
+                .put("bootCount", 0)
+                .put("originalDurationMillis", 0)
                 .build();
         assertThat(allValues).containsExactly(expected);
     }
