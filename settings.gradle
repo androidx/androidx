@@ -571,7 +571,6 @@ includeProject(":lint-checks:integration-tests", "lint-checks/integration-tests"
 includeProject(":lint-demos:lint-demo-appcompat", "lint-demos/lint-demo-appcompat", [BuildType.MAIN])
 includeProject(":loader:loader", "loader/loader", [BuildType.MAIN])
 includeProject(":loader:loader-ktx", "loader/loader-ktx", [BuildType.MAIN])
-includeProject(":localbroadcastmanager:localbroadcastmanager", "localbroadcastmanager/localbroadcastmanager", [BuildType.MAIN])
 includeProject(":media2:integration-tests:testapp", "media2/integration-tests/testapp", [BuildType.MAIN, BuildType.MEDIA])
 includeProject(":media2:media2-common", "media2/media2-common", [BuildType.MAIN, BuildType.MEDIA])
 includeProject(":media2:media2-exoplayer", "media2/media2-exoplayer", [BuildType.MAIN, BuildType.MEDIA])
