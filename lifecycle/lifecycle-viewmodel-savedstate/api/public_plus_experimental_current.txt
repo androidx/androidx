@@ -10,17 +10,21 @@ package androidx.lifecycle {
   }
 
   public final class SavedStateHandle {
-    ctor public SavedStateHandle(java.util.Map<java.lang.String!,java.lang.Object!>);
+    ctor public SavedStateHandle(java.util.Map<java.lang.String,?> initialState);
     ctor public SavedStateHandle();
-    method @MainThread public void clearSavedStateProvider(String);
-    method @MainThread public boolean contains(String);
-    method @MainThread public <T> T? get(String);
-    method @MainThread public <T> androidx.lifecycle.MutableLiveData<T!> getLiveData(String);
-    method @MainThread public <T> androidx.lifecycle.MutableLiveData<T!> getLiveData(String, T!);
-    method @MainThread public java.util.Set<java.lang.String!> keys();
-    method @MainThread public <T> T? remove(String);
-    method @MainThread public <T> void set(String, T?);
-    method @MainThread public void setSavedStateProvider(String, androidx.savedstate.SavedStateRegistry.SavedStateProvider);
+    method @MainThread public void clearSavedStateProvider(String key);
+    method @MainThread public operator boolean contains(String key);
+    method @MainThread public operator <T> T? get(String key);
+    method @MainThread public <T> androidx.lifecycle.MutableLiveData<T> getLiveData(String key);
+    method @MainThread public <T> androidx.lifecycle.MutableLiveData<T> getLiveData(String key, T? initialValue);
+    method @MainThread public java.util.Set<java.lang.String> keys();
+    method @MainThread public <T> T? remove(String key);
+    method @MainThread public operator <T> void set(String key, T? value);
+    method @MainThread public void setSavedStateProvider(String key, androidx.savedstate.SavedStateRegistry.SavedStateProvider provider);
+    field public static final androidx.lifecycle.SavedStateHandle.Companion Companion;
+  }
+
+  public static final class SavedStateHandle.Companion {
   }
 
   public final class SavedStateHandleSupport {
