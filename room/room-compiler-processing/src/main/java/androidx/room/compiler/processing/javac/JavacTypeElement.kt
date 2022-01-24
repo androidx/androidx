@@ -90,7 +90,8 @@ internal sealed class JavacTypeElement(
         return _declaredFields
     }
 
-    override fun isKotlinObject() = kotlinMetadata?.isObject() == true
+    override fun isKotlinObject() = kotlinMetadata?.isObject() == true ||
+            kotlinMetadata?.isCompanionObject() == true
     override fun isCompanionObject() = kotlinMetadata?.isCompanionObject() == true
     override fun isDataClass() = kotlinMetadata?.isDataClass() == true
     override fun isValueClass() = kotlinMetadata?.isValueClass() == true

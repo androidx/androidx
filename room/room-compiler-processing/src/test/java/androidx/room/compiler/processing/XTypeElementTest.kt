@@ -1440,6 +1440,30 @@ class XTypeElementTest {
         }
     }
 
+    @Test
+    fun kotlinObjects() {
+        val kotlinSrc = Source.kotlin(
+            "Test.kt",
+            """
+            package foo.bar
+            class KotlinClass {
+                companion object
+                object NestedObject
+            }
+            """.trimIndent()
+        )
+        runProcessorTest(listOf(kotlinSrc)) { invocation ->
+            val kotlinClass = invocation.processingEnv.requireTypeElement(
+                "foo.bar.KotlinClass")
+            val companionObjects = kotlinClass.getEnclosedTypeElements().filter {
+                it.isCompanionObject()
+            }
+            assertThat(companionObjects.size).isEqualTo(1)
+            val companionObj = companionObjects.first()
+            assertThat(companionObj.isKotlinObject()).isTrue()
+        }
+    }
+
     /**
      * it is good to exclude methods coming from Object when testing as they differ between KSP
      * and KAPT but irrelevant for Room.
