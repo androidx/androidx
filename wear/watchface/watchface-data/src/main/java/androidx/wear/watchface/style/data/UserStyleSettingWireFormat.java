@@ -18,6 +18,7 @@ package androidx.wear.watchface.style.data;
 
 import android.annotation.SuppressLint;
 import android.graphics.drawable.Icon;
+import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -95,8 +96,25 @@ public class UserStyleSettingWireFormat implements VersionedParcelable, Parcelab
     @ParcelField(101)
     public List<Integer> mOptionChildIndices = null;
 
+    /**
+     * Contains OnWatchFaceData.
+     */
+    @Nullable
+    @ParcelField(102)
+    public Bundle mOnWatchFaceEditorBundle = null;
+
+    /**
+     * Per option OnWatchFaceData. Ideally this would be in OptionWireFormat, but
+     * VersionedParcellable doesn't support us adding that in a backwards compatible way.
+     */
+    @Nullable
+    @ParcelField(103)
+    public List<Bundle> mPerOptionOnWatchFaceEditorBundles = new ArrayList<>();
+
     UserStyleSettingWireFormat() {}
 
+    /** @deprecated use a constructor with List<Bundle> perOptionOnWatchFaceEditorBundles. */
+    @Deprecated
     public UserStyleSettingWireFormat(
             @NonNull String id,
             @NonNull CharSequence displayName,
@@ -112,6 +130,27 @@ public class UserStyleSettingWireFormat implements VersionedParcelable, Parcelab
         mOptions = options;
         mDefaultOptionIndex = defaultOptionIndex;
         mAffectsLayers = affectsLayers;
+    }
+
+    public UserStyleSettingWireFormat(
+            @NonNull String id,
+            @NonNull CharSequence displayName,
+            @NonNull CharSequence description,
+            @Nullable Icon icon,
+            @NonNull List<OptionWireFormat> options,
+            int defaultOptionIndex,
+            @NonNull List<Integer> affectsLayers,
+            @Nullable Bundle onWatchFaceEditorBundle,
+            @Nullable List<Bundle> perOptionOnWatchFaceEditorBundles) {
+        mId = id;
+        mDisplayName = displayName;
+        mDescription = description;
+        mIcon = icon;
+        mOptions = options;
+        mDefaultOptionIndex = defaultOptionIndex;
+        mAffectsLayers = affectsLayers;
+        mOnWatchFaceEditorBundle = onWatchFaceEditorBundle;
+        mPerOptionOnWatchFaceEditorBundles = perOptionOnWatchFaceEditorBundles;
     }
 
     /** Serializes this UserStyleCategoryWireFormat to the specified {@link Parcel}. */
