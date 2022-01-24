@@ -21,11 +21,10 @@ import static androidx.core.graphics.BlendModeColorFilterCompat.createBlendModeC
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import android.graphics.BlendMode;
+import android.graphics.BlendModeColorFilter;
 import android.graphics.Color;
 import android.graphics.ColorFilter;
-import android.graphics.PorterDuff;
-import android.graphics.PorterDuffColorFilter;
-import android.os.Build;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SdkSuppress;
@@ -35,20 +34,17 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 @RunWith(AndroidJUnit4.class)
-@SdkSuppress(maxSdkVersion = 28)
+@SdkSuppress(minSdkVersion = 29)
 @SmallTest
-public class BlendModeColorFilterCompatTest {
+public class BlendModeColorFilterCompatTestApi29 {
 
     @Test
-    public void testNullBlendModeRemovesPorterDuffColorFilter() {
+    public void testNullBlendModeRemovesBlendModeColorFilter() {
         ColorFilter filter = createBlendModeColorFilterCompat(Color.RED, BlendModeCompat.CLEAR);
-        assertTrue(filter instanceof PorterDuffColorFilter);
+        assertTrue(filter instanceof BlendModeColorFilter);
 
-        // PorterDuffColorFilter did not have an equals and hashcode implementation until L
-        // So only do the comparison of parameters when running on L+ to avoid test failures that
-        // are done using reference equality
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            assertEquals(new PorterDuffColorFilter(Color.RED, PorterDuff.Mode.CLEAR), filter);
-        }
+        BlendModeColorFilter blendModeFilter = (BlendModeColorFilter) filter;
+        assertEquals(Color.RED, blendModeFilter.getColor());
+        assertEquals(BlendMode.CLEAR, blendModeFilter.getMode());
     }
 }
