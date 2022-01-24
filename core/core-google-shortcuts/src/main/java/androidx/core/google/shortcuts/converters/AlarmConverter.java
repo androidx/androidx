@@ -50,14 +50,15 @@ public class AlarmConverter implements AppSearchDocumentConverter {
     private static final String HOUR_KEY = "hour";
     private static final String MINUTE_KEY = "minute";
     private static final String RINGTONE_KEY = "ringtone";
-    private static final String VIBRATE_KEY = "vibrate";
-    private static final String BLACKOUT_START_TIME_MILLIS_KEY = "blackoutStartTimeMillis";
-    private static final String BLACKOUT_END_TIME_MILLIS_KEY = "blackoutEndTimeMillis";
+    private static final String SHOULD_VIBRATE_KEY = "shouldVibrate";
+    private static final String BLACKOUT_PERIOD_START_DATE_KEY = "blackoutPeriodStartDate";
+    private static final String BLACKOUT_PERIOD_END_DATE_KEY = "blackoutPeriodEndDate";
     private static final String PREVIOUS_INSTANCE_KEY = "previousInstance";
     private static final String NEXT_INSTANCE_KEY = "nextInstance";
 
     // Keys for Indexables
     private static final String IDENTIFIER_KEY = "identifier";
+    private static final String VIBRATE_KEY = "vibrate";
     private static final String MESSAGE_KEY = "message";
     private static final String DAY_OF_WEEK_KEY = "dayOfWeek";
     private static final String ALARM_INSTANCES_KEY = "alarmInstances";
@@ -95,13 +96,13 @@ public class AlarmConverter implements AppSearchDocumentConverter {
                 .put(HOUR_KEY, alarm.getPropertyLong(HOUR_KEY))
                 .put(MINUTE_KEY, alarm.getPropertyLong(MINUTE_KEY))
                 .put(RINGTONE_KEY, alarm.getPropertyString(RINGTONE_KEY))
-                .put(VIBRATE_KEY, alarm.getPropertyBoolean(VIBRATE_KEY))
+                .put(VIBRATE_KEY, alarm.getPropertyBoolean(SHOULD_VIBRATE_KEY))
                 .put(ENABLED_KEY, alarm.getPropertyBoolean(ENABLED_KEY))
                 .put(IDENTIFIER_KEY, alarm.getId())
-                .put(BLACKOUT_START_TIME_MILLIS_KEY,
-                        alarm.getPropertyLong(BLACKOUT_START_TIME_MILLIS_KEY))
-                .put(BLACKOUT_END_TIME_MILLIS_KEY,
-                        alarm.getPropertyLong(BLACKOUT_END_TIME_MILLIS_KEY));
+                .put(BLACKOUT_PERIOD_START_DATE_KEY,
+                        alarm.getPropertyString(BLACKOUT_PERIOD_START_DATE_KEY))
+                .put(BLACKOUT_PERIOD_END_DATE_KEY,
+                        alarm.getPropertyString(BLACKOUT_PERIOD_END_DATE_KEY));
 
         long[] daysOfWeek = alarm.getPropertyLongArray(DAYS_OF_WEEK_KEY);
         if (daysOfWeek != null) {

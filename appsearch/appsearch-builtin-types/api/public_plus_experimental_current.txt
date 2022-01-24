@@ -12,11 +12,13 @@ package androidx.appsearch.app {
 
 package androidx.appsearch.builtintypes {
 
-  @androidx.appsearch.annotation.Document(name="builtin:Alarm") public class Alarm {
-    method public long getBlackoutEndTimeMillis();
-    method public long getBlackoutStartTimeMillis();
+  @androidx.appsearch.annotation.Document(name="builtin:Alarm") public final class Alarm {
+    method public String? getBlackoutPeriodEndDate();
+    method public String? getBlackoutPeriodStartDate();
     method public long getCreationTimestampMillis();
     method public int[]? getDaysOfWeek();
+    method public int getDocumentScore();
+    method public long getDocumentTtlMillis();
     method @IntRange(from=0, to=23) public int getHour();
     method public String getId();
     method @IntRange(from=0, to=59) public int getMinute();
@@ -25,20 +27,20 @@ package androidx.appsearch.builtintypes {
     method public androidx.appsearch.builtintypes.AlarmInstance? getNextInstance();
     method public androidx.appsearch.builtintypes.AlarmInstance? getPreviousInstance();
     method public String? getRingtone();
-    method public int getScore();
-    method public long getTtlMillis();
     method public boolean isEnabled();
-    method public boolean isVibrate();
+    method public boolean shouldVibrate();
   }
 
   public static final class Alarm.Builder {
     ctor public Alarm.Builder(String, String);
     ctor public Alarm.Builder(androidx.appsearch.builtintypes.Alarm);
     method public androidx.appsearch.builtintypes.Alarm build();
-    method public androidx.appsearch.builtintypes.Alarm.Builder setBlackoutEndTimeMillis(long);
-    method public androidx.appsearch.builtintypes.Alarm.Builder setBlackoutStartTimeMillis(long);
+    method public androidx.appsearch.builtintypes.Alarm.Builder setBlackoutPeriodEndDate(String?);
+    method public androidx.appsearch.builtintypes.Alarm.Builder setBlackoutPeriodStartDate(String?);
     method public androidx.appsearch.builtintypes.Alarm.Builder setCreationTimestampMillis(long);
     method public androidx.appsearch.builtintypes.Alarm.Builder setDaysOfWeek(@IntRange(from=java.util.Calendar.SUNDAY, to=java.util.Calendar.SATURDAY) int...);
+    method public androidx.appsearch.builtintypes.Alarm.Builder setDocumentScore(int);
+    method public androidx.appsearch.builtintypes.Alarm.Builder setDocumentTtlMillis(long);
     method public androidx.appsearch.builtintypes.Alarm.Builder setEnabled(boolean);
     method public androidx.appsearch.builtintypes.Alarm.Builder setHour(@IntRange(from=0, to=23) int);
     method public androidx.appsearch.builtintypes.Alarm.Builder setMinute(@IntRange(from=0, to=59) int);
@@ -46,24 +48,18 @@ package androidx.appsearch.builtintypes {
     method public androidx.appsearch.builtintypes.Alarm.Builder setNextInstance(androidx.appsearch.builtintypes.AlarmInstance?);
     method public androidx.appsearch.builtintypes.Alarm.Builder setPreviousInstance(androidx.appsearch.builtintypes.AlarmInstance?);
     method public androidx.appsearch.builtintypes.Alarm.Builder setRingtone(String?);
-    method public androidx.appsearch.builtintypes.Alarm.Builder setScore(int);
-    method public androidx.appsearch.builtintypes.Alarm.Builder setTtlMillis(long);
-    method public androidx.appsearch.builtintypes.Alarm.Builder setVibrate(boolean);
+    method public androidx.appsearch.builtintypes.Alarm.Builder setShouldVibrate(boolean);
   }
 
-  @androidx.appsearch.annotation.Document(name="builtin:AlarmInstance") public class AlarmInstance {
+  @androidx.appsearch.annotation.Document(name="builtin:AlarmInstance") public final class AlarmInstance {
     method public long getCreationTimestampMillis();
-    method @IntRange(from=1, to=31) public int getDay();
-    method @IntRange(from=0, to=23) public int getHour();
+    method public int getDocumentScore();
+    method public long getDocumentTtlMillis();
     method public String getId();
-    method @IntRange(from=0, to=59) public int getMinute();
-    method @IntRange(from=java.util.Calendar.JANUARY, to=java.util.Calendar.DECEMBER) public int getMonth();
     method public String getNamespace();
-    method public int getScore();
+    method public String getScheduledTime();
     method public long getSnoozeDurationMillis();
     method public int getStatus();
-    method public long getTtlMillis();
-    method public int getYear();
     field public static final int STATUS_DISMISSED = 3; // 0x3
     field public static final int STATUS_FIRING = 2; // 0x2
     field public static final int STATUS_MISSED = 5; // 0x5
@@ -73,35 +69,34 @@ package androidx.appsearch.builtintypes {
   }
 
   public static final class AlarmInstance.Builder {
-    ctor public AlarmInstance.Builder(String, String);
+    ctor public AlarmInstance.Builder(String, String, String);
     ctor public AlarmInstance.Builder(androidx.appsearch.builtintypes.AlarmInstance);
     method public androidx.appsearch.builtintypes.AlarmInstance build();
     method public androidx.appsearch.builtintypes.AlarmInstance.Builder setCreationTimestampMillis(long);
-    method public androidx.appsearch.builtintypes.AlarmInstance.Builder setDay(@IntRange(from=1, to=31) int);
-    method public androidx.appsearch.builtintypes.AlarmInstance.Builder setHour(@IntRange(from=0, to=23) int);
-    method public androidx.appsearch.builtintypes.AlarmInstance.Builder setMinute(@IntRange(from=0, to=59) int);
-    method public androidx.appsearch.builtintypes.AlarmInstance.Builder setMonth(@IntRange(from=java.util.Calendar.JANUARY, to=java.util.Calendar.DECEMBER) int);
-    method public androidx.appsearch.builtintypes.AlarmInstance.Builder setScore(int);
+    method public androidx.appsearch.builtintypes.AlarmInstance.Builder setDocumentScore(int);
+    method public androidx.appsearch.builtintypes.AlarmInstance.Builder setDocumentTtlMillis(long);
     method public androidx.appsearch.builtintypes.AlarmInstance.Builder setSnoozeDurationMillis(long);
     method public androidx.appsearch.builtintypes.AlarmInstance.Builder setStatus(int);
-    method public androidx.appsearch.builtintypes.AlarmInstance.Builder setTtlMillis(long);
-    method public androidx.appsearch.builtintypes.AlarmInstance.Builder setYear(int);
   }
 
-  @androidx.appsearch.annotation.Document(name="builtin:Timer") public class Timer {
+  @androidx.appsearch.annotation.Document(name="builtin:Timer") public final class Timer {
+    method public int getBootCount();
     method public long getCreationTimestampMillis();
+    method public long getCurrentRemainingTime(android.content.Context);
+    method public int getDocumentScore();
+    method public long getDocumentTtlMillis();
     method public long getDurationMillis();
+    method public long getExpirationTimeMillis(android.content.Context);
     method public String getId();
     method public String? getName();
     method public String getNamespace();
-    method public long getRemainingTimeMillis();
+    method public long getOriginalDurationMillis();
+    method public long getRemainingTimeMillisSinceUpdate();
     method public String? getRingtone();
-    method public int getScore();
     method public long getStartTimeMillis();
     method public long getStartTimeMillisInElapsedRealtime();
     method public int getStatus();
-    method public long getTtlMillis();
-    method public boolean isVibrate();
+    method public boolean shouldVibrate();
     field public static final int STATUS_EXPIRED = 3; // 0x3
     field public static final int STATUS_MISSED = 4; // 0x4
     field public static final int STATUS_PAUSED = 2; // 0x2
@@ -115,16 +110,17 @@ package androidx.appsearch.builtintypes {
     ctor public Timer.Builder(androidx.appsearch.builtintypes.Timer);
     method public androidx.appsearch.builtintypes.Timer build();
     method public androidx.appsearch.builtintypes.Timer.Builder setCreationTimestampMillis(long);
+    method public androidx.appsearch.builtintypes.Timer.Builder setDocumentScore(int);
+    method public androidx.appsearch.builtintypes.Timer.Builder setDocumentTtlMillis(long);
     method public androidx.appsearch.builtintypes.Timer.Builder setDurationMillis(long);
     method public androidx.appsearch.builtintypes.Timer.Builder setName(String?);
-    method public androidx.appsearch.builtintypes.Timer.Builder setRemainingTimeMillis(long);
+    method public androidx.appsearch.builtintypes.Timer.Builder setOriginalDurationMillis(long);
+    method public androidx.appsearch.builtintypes.Timer.Builder setRemainingTimeMillisSinceUpdate(long);
     method public androidx.appsearch.builtintypes.Timer.Builder setRingtone(String?);
-    method public androidx.appsearch.builtintypes.Timer.Builder setScore(int);
-    method public androidx.appsearch.builtintypes.Timer.Builder setStartTimeMillis(long);
-    method public androidx.appsearch.builtintypes.Timer.Builder setStartTimeMillisInElapsedRealtime(long);
+    method public androidx.appsearch.builtintypes.Timer.Builder setShouldVibrate(boolean);
+    method public androidx.appsearch.builtintypes.Timer.Builder setStartTimeMillis(long, long, int);
+    method @RequiresApi(api=android.os.Build.VERSION_CODES.JELLY_BEAN_MR1) public androidx.appsearch.builtintypes.Timer.Builder setStartTimeMillis(android.content.Context, long, long);
     method public androidx.appsearch.builtintypes.Timer.Builder setStatus(int);
-    method public androidx.appsearch.builtintypes.Timer.Builder setTtlMillis(long);
-    method public androidx.appsearch.builtintypes.Timer.Builder setVibrate(boolean);
   }
 
 }
