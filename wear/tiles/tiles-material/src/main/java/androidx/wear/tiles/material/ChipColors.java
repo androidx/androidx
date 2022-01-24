@@ -112,7 +112,7 @@ public class ChipColors {
         return mBackgroundColor;
     }
 
-    /** The tint color to be used on a chip Tiles components. */
+    /** The icon tint color to be used on a chip Tiles components. */
     @NonNull
     public ColorProp getIconTintColor() {
         return mIconTintColor;

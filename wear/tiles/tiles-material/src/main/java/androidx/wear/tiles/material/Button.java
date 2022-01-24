@@ -159,7 +159,6 @@ public class Button implements LayoutElement {
          * ButtonDefaults#PRIMARY_BUTTON_COLORS} will be used.
          */
         @NonNull
-        @SuppressWarnings("MissingGetterMatchingBuilder")
         public Builder setButtonColors(@NonNull ButtonColors buttonColors) {
             mButtonColors = buttonColors;
             return this;
@@ -183,7 +182,7 @@ public class Button implements LayoutElement {
          * channel and not an actual image.
          */
         @NonNull
-        @SuppressWarnings("MissingGetterMatchingBuilder")
+        @SuppressWarnings("MissingGetterMatchingBuilder")   // There's getContent() method.
         public Builder setIconContent(@NonNull String resourceId, @NonNull DpProp size) {
             resetContent();
             this.mIcon = resourceId;
@@ -200,7 +199,7 @@ public class Button implements LayoutElement {
          * should be image with chosen alpha channel and not an actual image.
          */
         @NonNull
-        @SuppressWarnings("MissingGetterMatchingBuilder")
+        @SuppressWarnings("MissingGetterMatchingBuilder")   // There's getContent() method.
         public Builder setIconContent(@NonNull String resourceId) {
             resetContent();
             this.mIcon = resourceId;
@@ -218,7 +217,7 @@ public class Button implements LayoutElement {
          * more than 3 characters, otherwise it will overflow from the edges.
          */
         @NonNull
-        @SuppressWarnings("MissingGetterMatchingBuilder")
+        @SuppressWarnings("MissingGetterMatchingBuilder")   // There's getContent() method.
         public Builder setTextContent(
                 @NonNull String text, @NonNull DeviceParameters deviceParameters) {
             resetContent();
@@ -230,12 +229,14 @@ public class Button implements LayoutElement {
         }
 
         /**
-         * Sets the content of this Button to be the given text with the given font. You should add
-         * chosen color to your font. Any previously added content will be overridden. Text should
-         * contain no more than 3 characters, otherwise it will overflow from the edges.
+         * Sets the content of this Button to be the given text with the given font. You shouldn't
+         * add color to your font as it will be overridden by the {@link
+         * ButtonColors#getContentColor}. Only {@link #setButtonColors} should be used for
+         * customizing the colors of the button. Any previously added content will be overridden.
+         * Text should contain no more than 3 characters, otherwise it will overflow from the edges.
          */
         @NonNull
-        @SuppressWarnings("MissingGetterMatchingBuilder")
+        @SuppressWarnings("MissingGetterMatchingBuilder")   // There's getContent() method.
         public Builder setTextContent(@NonNull String text, @NonNull FontStyle font) {
             resetContent();
             this.mText = text;
@@ -252,7 +253,7 @@ public class Button implements LayoutElement {
          * image with chosen alpha channel and not an actual image.
          */
         @NonNull
-        @SuppressWarnings("MissingGetterMatchingBuilder")
+        @SuppressWarnings("MissingGetterMatchingBuilder")   // There's getContent() method.
         public Builder setImageContent(@NonNull String resourceId) {
             resetContent();
             this.mImage = resourceId;
@@ -316,7 +317,8 @@ public class Button implements LayoutElement {
                 case ICON:
                 {
                     DpProp iconSize =
-                            mDefaultSize ? ButtonDefaults.recommendedIconSize(mSize)
+                            mDefaultSize
+                                    ? ButtonDefaults.recommendedIconSize(mSize)
                                     : checkNotNull(mIconSize);
                     mContent =
                             new Image.Builder()
@@ -338,7 +340,10 @@ public class Button implements LayoutElement {
                         fontStyle =
                                 FontStyle.fromProto(
                                         mFontStyle.toProto().toBuilder()
-                                                .setColor(mButtonColors.getContentColor().toProto())
+                                                .setColor(
+                                                        mButtonColors
+                                                                .getContentColor()
+                                                                .toProto())
                                                 .build());
                     } else {
                         fontStyle =
@@ -347,10 +352,11 @@ public class Button implements LayoutElement {
                                         .build();
                     }
 
-                    mContent = new Text.Builder()
-                            .setText(checkNotNull(mText))
-                            .setMaxLines(1)
-                            .setFontStyle(fontStyle);
+                    mContent =
+                            new Text.Builder()
+                                .setText(checkNotNull(mText))
+                                .setMaxLines(1)
+                                .setFontStyle(fontStyle);
 
                     return mContent.build();
                 }
@@ -457,8 +463,7 @@ public class Button implements LayoutElement {
             case Builder.ICON:
                 contentColor =
                         checkNotNull(
-                                checkNotNull(((Image) mainElement).getColorFilter()).getTint()
-                        );
+                                checkNotNull(((Image) mainElement).getColorFilter()).getTint());
                 break;
             case Builder.TEXT:
                 contentColor =
