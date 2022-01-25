@@ -1,7 +1,9 @@
 ---
-version: 2
+version: 3
+uiAccess:
+  type: "open"
 cache:
+  accessControl:
+    anonymousLevel: "readwrite"
   targetSize: 150000
   maxArtifactSize: 2500
-  credentials:
-    anonymousLevel: "READWRITE"
