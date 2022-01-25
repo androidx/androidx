@@ -16,6 +16,7 @@
 
 package androidx.appsearch.localstorage;
 
+import static androidx.appsearch.app.AppSearchResult.RESULT_SECURITY_ERROR;
 import static androidx.appsearch.localstorage.util.PrefixUtil.addPrefixToDocument;
 import static androidx.appsearch.localstorage.util.PrefixUtil.createPrefix;
 import static androidx.appsearch.localstorage.util.PrefixUtil.getDatabaseName;
@@ -758,6 +759,67 @@ public final class AppSearchImpl implements Closeable {
     }
 
     /**
+     * Retrieves a document from the AppSearch index by namespace and document ID from any
+     * application the caller is allowed to view
+     *
+     * <p>This method will handle both Icing engine errors as well as permission errors by
+     * throwing an obfuscated RESULT_NOT_FOUND exception. This is done so the caller doesn't
+     * receive information on whether or not a file they are not allowed to access exists or not.
+     * This is different from the behavior of {@link #getDocument}.
+     *
+     * @param packageName       The package that owns this document.
+     * @param databaseName      The databaseName this document resides in.
+     * @param namespace         The namespace this document resides in.
+     * @param id                The ID of the document to get.
+     * @param typePropertyPaths A map of schema type to a list of property paths to return in the
+     *                          result.
+     * @param visibilityStore   An object that determines if an application may access a schema
+     * @param callerUid         The ID of the caller application
+     * @param callerHasSystemAccess
+     *                          A boolean signifying if the caller has system access
+     * @return  The Document contents
+     * @throws AppSearchException on IcingSearchEngine error or invalid permissions
+     */
+    @Nullable
+    public GenericDocument globalGetDocument(
+            @NonNull String packageName, @NonNull String databaseName,
+            @NonNull String namespace,
+            @NonNull String id,
+            @NonNull Map<String, List<String>> typePropertyPaths,
+            @NonNull VisibilityStore visibilityStore,
+            int callerUid,
+            boolean callerHasSystemAccess) throws AppSearchException {
+        mReadWriteLock.readLock().lock();
+        try {
+            throwIfClosedLocked();
+            // We retrieve the document before checking for access, as we do not know which
+            // schema the document is under. Schema is required for checking access
+            DocumentProto documentProto;
+            try {
+                documentProto = getDocumentProtoByIdLocked(packageName, databaseName,
+                        namespace, id, typePropertyPaths);
+
+                if (!visibilityStore.isSchemaSearchableByCaller(packageName, databaseName,
+                        documentProto.getSchema(), callerUid, callerHasSystemAccess)) {
+                    throw new AppSearchException(AppSearchResult.RESULT_NOT_FOUND);
+                }
+            } catch (AppSearchException e) {
+                throw new AppSearchException(AppSearchResult.RESULT_NOT_FOUND,
+                        "Document (" + namespace + ", " + id + ") not found.");
+            }
+
+            DocumentProto.Builder documentBuilder = documentProto.toBuilder();
+            removePrefixesFromDocument(documentBuilder);
+            String prefix = createPrefix(packageName, databaseName);
+            Map<String, SchemaTypeConfigProto> schemaTypeMap = mSchemaMapLocked.get(prefix);
+            return GenericDocumentToProtoConverter.toGenericDocument(documentBuilder.build(),
+                    prefix, schemaTypeMap);
+        } finally {
+            mReadWriteLock.readLock().unlock();
+        }
+    }
+
+    /**
      * Retrieves a document from the AppSearch index by namespace and document ID.
      *
      * <p>This method belongs to query group.
@@ -777,48 +839,75 @@ public final class AppSearchImpl implements Closeable {
             @NonNull String namespace,
             @NonNull String id,
             @NonNull Map<String, List<String>> typePropertyPaths) throws AppSearchException {
+
         mReadWriteLock.readLock().lock();
         try {
             throwIfClosedLocked();
+            DocumentProto documentProto = getDocumentProtoByIdLocked(packageName, databaseName,
+                    namespace, id, typePropertyPaths);
+            DocumentProto.Builder documentBuilder = documentProto.toBuilder();
+            removePrefixesFromDocument(documentBuilder);
+
             String prefix = createPrefix(packageName, databaseName);
-            List<TypePropertyMask.Builder> nonPrefixedPropertyMaskBuilders =
-                    TypePropertyPathToProtoConverter
-                            .toTypePropertyMaskBuilderList(typePropertyPaths);
-            List<TypePropertyMask> prefixedPropertyMasks =
-                    new ArrayList<>(nonPrefixedPropertyMaskBuilders.size());
-            for (int i = 0; i < nonPrefixedPropertyMaskBuilders.size(); ++i) {
-                String nonPrefixedType = nonPrefixedPropertyMaskBuilders.get(i).getSchemaType();
-                String prefixedType = nonPrefixedType.equals(
-                        GetByDocumentIdRequest.PROJECTION_SCHEMA_TYPE_WILDCARD)
-                        ? nonPrefixedType : prefix + nonPrefixedType;
-                prefixedPropertyMasks.add(
-                        nonPrefixedPropertyMaskBuilders.get(i).setSchemaType(prefixedType).build());
-            }
-            GetResultSpecProto getResultSpec =
-                    GetResultSpecProto.newBuilder().addAllTypePropertyMasks(prefixedPropertyMasks)
-                            .build();
-
-            String finalNamespace = createPrefix(packageName, databaseName) + namespace;
-            if (mLogUtil.isPiiTraceEnabled()) {
-                mLogUtil.piiTrace(
-                        "getDocument, request", finalNamespace + ", " + id + "," + getResultSpec);
-            }
-            GetResultProto getResultProto =
-                    mIcingSearchEngineLocked.get(finalNamespace, id, getResultSpec);
-            mLogUtil.piiTrace("getDocument, response", getResultProto.getStatus(), getResultProto);
-            checkSuccess(getResultProto.getStatus());
-
             // The schema type map cannot be null at this point. It could only be null if no
             // schema had ever been set for that prefix. Given we have retrieved a document from
             // the index, we know a schema had to have been set.
             Map<String, SchemaTypeConfigProto> schemaTypeMap = mSchemaMapLocked.get(prefix);
-            DocumentProto.Builder documentBuilder = getResultProto.getDocument().toBuilder();
-            removePrefixesFromDocument(documentBuilder);
             return GenericDocumentToProtoConverter.toGenericDocument(documentBuilder.build(),
                     prefix, schemaTypeMap);
         } finally {
             mReadWriteLock.readLock().unlock();
         }
+    }
+
+    /**
+     * Returns a DocumentProto from Icing.
+     *
+     * @param packageName       The package that owns this document.
+     * @param databaseName      The databaseName this document resides in.
+     * @param namespace         The namespace this document resides in.
+     * @param id                The ID of the document to get.
+     * @param typePropertyPaths A map of schema type to a list of property paths to return in the
+     *                          result.
+     * @return the DocumentProto object
+     * @throws AppSearchException on IcingSearchEngine error
+     */
+    @NonNull
+    @GuardedBy("mReadWriteLock")
+    private DocumentProto getDocumentProtoByIdLocked(
+            @NonNull String packageName, @NonNull String databaseName,
+            @NonNull String namespace,
+            @NonNull String id,
+            @NonNull Map<String, List<String>> typePropertyPaths) throws AppSearchException {
+        String prefix = createPrefix(packageName, databaseName);
+        List<TypePropertyMask.Builder> nonPrefixedPropertyMaskBuilders =
+                TypePropertyPathToProtoConverter
+                        .toTypePropertyMaskBuilderList(typePropertyPaths);
+        List<TypePropertyMask> prefixedPropertyMasks =
+                new ArrayList<>(nonPrefixedPropertyMaskBuilders.size());
+        for (int i = 0; i < nonPrefixedPropertyMaskBuilders.size(); ++i) {
+            String nonPrefixedType = nonPrefixedPropertyMaskBuilders.get(i).getSchemaType();
+            String prefixedType = nonPrefixedType.equals(
+                    GetByDocumentIdRequest.PROJECTION_SCHEMA_TYPE_WILDCARD)
+                    ? nonPrefixedType : prefix + nonPrefixedType;
+            prefixedPropertyMasks.add(
+                    nonPrefixedPropertyMaskBuilders.get(i).setSchemaType(prefixedType).build());
+        }
+        GetResultSpecProto getResultSpec =
+                GetResultSpecProto.newBuilder().addAllTypePropertyMasks(prefixedPropertyMasks)
+                        .build();
+
+        String finalNamespace = createPrefix(packageName, databaseName) + namespace;
+        if (mLogUtil.isPiiTraceEnabled()) {
+            mLogUtil.piiTrace(
+                    "getDocument, request", finalNamespace + ", " + id + "," + getResultSpec);
+        }
+        GetResultProto getResultProto =
+                mIcingSearchEngineLocked.get(finalNamespace, id, getResultSpec);
+        mLogUtil.piiTrace("getDocument, response", getResultProto.getStatus(), getResultProto);
+        checkSuccess(getResultProto.getStatus());
+
+        return getResultProto.getDocument();
     }
 
     /**
@@ -1951,7 +2040,7 @@ public final class AppSearchImpl implements Closeable {
         synchronized (mNextPageTokensLocked) {
             Set<Long> nextPageTokens = mNextPageTokensLocked.get(packageName);
             if (nextPageTokens == null || !nextPageTokens.contains(nextPageToken)) {
-                throw new AppSearchException(AppSearchResult.RESULT_SECURITY_ERROR,
+                throw new AppSearchException(RESULT_SECURITY_ERROR,
                         "Package \"" + packageName + "\" cannot use nextPageToken: "
                                 + nextPageToken);
             }

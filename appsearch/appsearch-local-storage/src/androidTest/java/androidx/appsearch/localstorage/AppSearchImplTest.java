@@ -27,9 +27,11 @@ import static org.junit.Assert.assertThrows;
 import android.content.Context;
 import android.os.Process;
 
+import androidx.annotation.NonNull;
 import androidx.appsearch.app.AppSearchResult;
 import androidx.appsearch.app.AppSearchSchema;
 import androidx.appsearch.app.GenericDocument;
+import androidx.appsearch.app.PackageIdentifier;
 import androidx.appsearch.app.SearchResult;
 import androidx.appsearch.app.SearchResultPage;
 import androidx.appsearch.app.SearchSpec;
@@ -39,6 +41,7 @@ import androidx.appsearch.exceptions.AppSearchException;
 import androidx.appsearch.localstorage.stats.InitializeStats;
 import androidx.appsearch.localstorage.stats.OptimizeStats;
 import androidx.appsearch.localstorage.util.PrefixUtil;
+import androidx.appsearch.localstorage.visibilitystore.VisibilityStore;
 import androidx.collection.ArrayMap;
 import androidx.collection.ArraySet;
 import androidx.test.core.app.ApplicationProvider;
@@ -2753,5 +2756,213 @@ public class AppSearchImplTest {
         assertThat(e.getResultCode()).isEqualTo(AppSearchResult.RESULT_OUT_OF_SPACE);
         assertThat(e).hasMessageThat().contains(
                 "Package \"package\" exceeded limit of 2 documents");
+    }
+
+    @Test
+    public void testGetGlobalDocumentThrowsExceptionWhenNotVisible() throws Exception {
+        List<AppSearchSchema> schemas =
+                Collections.singletonList(new AppSearchSchema.Builder("type").build());
+        mAppSearchImpl.setSchema(
+                "package",
+                "database",
+                schemas,
+                /*visibilityStore=*/ null,
+                /*schemasNotDisplayedBySystem=*/ Collections.emptyList(),
+                /*schemasVisibleToPackages=*/ Collections.emptyMap(),
+                /*forceOverride=*/ false,
+                /*version=*/ 0,
+                /* setSchemaStatsBuilder= */ null);
+
+        // Add a document and persist it.
+        GenericDocument document =
+                new GenericDocument.Builder<>("namespace1", "id1", "type").build();
+        mAppSearchImpl.putDocument("package", "database", document, /*logger=*/null);
+        mAppSearchImpl.persistToDisk(PersistType.Code.LITE);
+
+        VisibilityStore mockVisibilityStore = new VisibilityStore() {
+            @Override
+            public void setVisibility(@NonNull String packageName, @NonNull String databaseName,
+                    @NonNull Set<String> schemasNotDisplayedBySystem,
+                    @NonNull Map<String, List<PackageIdentifier>> schemasVisibleToPackages)
+                    throws AppSearchException {
+            }
+
+            @Override
+            public boolean isSchemaSearchableByCaller(@NonNull String packageName,
+                    @NonNull String databaseName, @NonNull String prefixedSchema, int callerUid,
+                    boolean callerHasSystemAccess) {
+                return false;
+            }
+        };
+
+        AppSearchException e = assertThrows(AppSearchException.class, () ->
+                mAppSearchImpl.globalGetDocument("package", "database",
+                "namespace1",
+                "id1",
+                /*typePropertyPaths=*/Collections.emptyMap(),
+                mockVisibilityStore,
+                /*callerUid=*/1,
+                /*callerHasSystemAccess=*/false)
+        );
+        assertThat(e.getResultCode()).isEqualTo(AppSearchResult.RESULT_NOT_FOUND);
+        assertThat(e.getMessage()).isEqualTo("Document (namespace1, id1) not found.");
+    }
+
+    @Test
+    public void testGetGlobalDocument() throws Exception {
+        List<AppSearchSchema> schemas =
+                Collections.singletonList(new AppSearchSchema.Builder("type").build());
+        mAppSearchImpl.setSchema(
+                "package",
+                "database",
+                schemas,
+                /*visibilityStore=*/ null,
+                /*schemasNotDisplayedBySystem=*/ Collections.emptyList(),
+                /*schemasVisibleToPackages=*/ Collections.emptyMap(),
+                /*forceOverride=*/ false,
+                /*version=*/ 0,
+                /* setSchemaStatsBuilder= */ null);
+
+        // Add a document and persist it.
+        GenericDocument document =
+                new GenericDocument.Builder<>("namespace1", "id1", "type").build();
+        mAppSearchImpl.putDocument("package", "database", document, /*logger=*/null);
+        mAppSearchImpl.persistToDisk(PersistType.Code.LITE);
+
+        VisibilityStore mockVisibilityStore = new VisibilityStore() {
+            @Override
+            public void setVisibility(@NonNull String packageName, @NonNull String databaseName,
+                    @NonNull Set<String> schemasNotDisplayedBySystem,
+                    @NonNull Map<String, List<PackageIdentifier>> schemasVisibleToPackages)
+                    throws AppSearchException {
+            }
+
+            @Override
+            public boolean isSchemaSearchableByCaller(@NonNull String packageName,
+                    @NonNull String databaseName, @NonNull String prefixedSchema, int callerUid,
+                    boolean callerHasSystemAccess) {
+                return true;
+            }
+        };
+
+        GenericDocument getResult = mAppSearchImpl.globalGetDocument("package", "database",
+                "namespace1",
+                "id1",
+                /*typePropertyPaths=*/Collections.emptyMap(),
+                mockVisibilityStore,
+                /*callerUid=*/1,
+                /*callerHasSystemAccess=*/false);
+        assertThat(getResult).isEqualTo(document);
+    }
+
+    @Test
+    public void getGlobalDocumentTest_notFound() throws Exception {
+        List<AppSearchSchema> schemas =
+                Collections.singletonList(new AppSearchSchema.Builder("type").build());
+        mAppSearchImpl.setSchema(
+                "package",
+                "database",
+                schemas,
+                /*visibilityStore=*/ null,
+                /*schemasNotDisplayedBySystem=*/ Collections.emptyList(),
+                /*schemasVisibleToPackages=*/ Collections.emptyMap(),
+                /*forceOverride=*/ false,
+                /*version=*/ 0,
+                /* setSchemaStatsBuilder= */ null);
+
+        // Add a document and persist it.
+        GenericDocument document =
+                new GenericDocument.Builder<>("namespace1", "id1", "type").build();
+        mAppSearchImpl.putDocument("package", "database", document, /*logger=*/null);
+        mAppSearchImpl.persistToDisk(PersistType.Code.LITE);
+
+        VisibilityStore mockVisibilityStore = new VisibilityStore() {
+            @Override
+            public void setVisibility(@NonNull String packageName, @NonNull String databaseName,
+                    @NonNull Set<String> schemasNotDisplayedBySystem,
+                    @NonNull Map<String, List<PackageIdentifier>> schemasVisibleToPackages)
+                    throws AppSearchException {
+            }
+
+            @Override
+            public boolean isSchemaSearchableByCaller(@NonNull String packageName,
+                    @NonNull String databaseName, @NonNull String prefixedSchema, int callerUid,
+                    boolean callerHasSystemAccess) {
+                return true;
+            }
+        };
+
+        AppSearchException e = assertThrows(AppSearchException.class, () ->
+                mAppSearchImpl.globalGetDocument("package", "database",
+                        "namespace1",
+                        "id2",
+                        /*typePropertyPaths=*/Collections.emptyMap(),
+                        mockVisibilityStore,
+                        /*callerUid=*/1,
+                        /*callerHasSystemAccess=*/false)
+        );
+        assertThat(e.getResultCode()).isEqualTo(AppSearchResult.RESULT_NOT_FOUND);
+        assertThat(e.getMessage()).isEqualTo("Document (namespace1, id2) not found.");
+    }
+
+    @Test
+    public void getGlobalDocumentNoAccessNoFileHasSameException() throws Exception {
+        List<AppSearchSchema> schemas =
+                Collections.singletonList(new AppSearchSchema.Builder("type").build());
+        mAppSearchImpl.setSchema(
+                "package",
+                "database",
+                schemas,
+                /*visibilityStore=*/ null,
+                /*schemasNotDisplayedBySystem=*/ Collections.emptyList(),
+                /*schemasVisibleToPackages=*/ Collections.emptyMap(),
+                /*forceOverride=*/ false,
+                /*version=*/ 0,
+                /* setSchemaStatsBuilder= */ null);
+
+        // Add a document and persist it.
+        GenericDocument document =
+                new GenericDocument.Builder<>("namespace1", "id1", "type").build();
+        mAppSearchImpl.putDocument("package", "database", document, /*logger=*/null);
+        mAppSearchImpl.persistToDisk(PersistType.Code.LITE);
+
+        VisibilityStore mockSecureVisibilityStore = new VisibilityStore() {
+            @Override
+            public void setVisibility(@NonNull String packageName, @NonNull String databaseName,
+                    @NonNull Set<String> schemasNotDisplayedBySystem,
+                    @NonNull Map<String, List<PackageIdentifier>> schemasVisibleToPackages)
+                    throws AppSearchException {
+            }
+
+            @Override
+            public boolean isSchemaSearchableByCaller(@NonNull String packageName,
+                    @NonNull String databaseName, @NonNull String prefixedSchema, int callerUid,
+                    boolean callerHasSystemAccess) {
+                return callerUid == 1;
+            }
+        };
+
+        AppSearchException noDocException = assertThrows(AppSearchException.class, () ->
+                mAppSearchImpl.globalGetDocument("package", "database",
+                        "namespace1",
+                        "id2",
+                        /*typePropertyPaths=*/Collections.emptyMap(),
+                        mockSecureVisibilityStore,
+                        /*callerUid=*/1,
+                        /*callerHasSystemAccess=*/false)
+        );
+
+        AppSearchException unauthorizedException = assertThrows(AppSearchException.class, () ->
+                mAppSearchImpl.globalGetDocument("package", "database",
+                        "namespace1",
+                        "id1",
+                        /*typePropertyPaths=*/Collections.emptyMap(),
+                        mockSecureVisibilityStore,
+                        /*callerUid=*/2,
+                        /*callerHasSystemAccess=*/false)
+        );
+
+        assertThat(noDocException.getResultCode()).isEqualTo(unauthorizedException.getResultCode());
+        assertThat(noDocException.getMessage()).isEqualTo(unauthorizedException.getMessage());
     }
 }
