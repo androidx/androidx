@@ -604,12 +604,107 @@ The Lint system processes files in a predefined order:
 It is often necessary to process the sources more than once. This can be done by
 using `context.driver.requestRepeat(detector, scope)`.
 
-## Useful classes/packages
+## Helpful tips {#tips}
 
-### [`SdkConstants`](https://cs.android.com/android-studio/platform/tools/base/+/mirror-goog-studio-master-dev:common/src/main/java/com/android/SdkConstants.java)
+### Useful classes/packages
 
-Contains most of the canonical names for Android core library classes, as well
+[`SdkConstants`](https://cs.android.com/android-studio/platform/tools/base/+/mirror-goog-studio-master-dev:common/src/main/java/com/android/SdkConstants.java) -
+contains most of the canonical names for Android core library classes, as well
 as XML tag names.
+
+### Updating bytecode and checksum in tests
+
+When updating a file that is used in a lint test, the following error may appear
+when running tests:
+
+```
+The checksum does not match for java/androidx/sample/deprecated/DeprecatedKotlinClass.kt;
+expected 0x1af1856 but was 0x6692f601.
+Has the source file been changed without updating the binaries?
+Don't just update the checksum -- delete the binary file arguments and re-run the test first!
+java.lang.AssertionError: The checksum does not match for java/androidx/sample/deprecated/DeprecatedKotlinClass.kt;
+expected 0x1af1856 but was 0x6692f601.
+Has the source file been changed without updating the binaries?
+Don't just update the checksum -- delete the binary file arguments and re-run the test first!
+    at org.junit.Assert.fail(Assert.java:89)
+  ...
+```
+
+Here are the steps to fix this:
+
+1.  Remove the arguments in `compiled()`:
+
+    ```
+    // Before
+    compiled(
+      "libs/ktlib.jar",
+      ktSample("androidx.sample.deprecated.DeprecatedKotlinClass"),
+      0x6692f601,
+      """
+      META-INF/main.kotlin_module:
+      H4sIAAAAAAAAAGNgYGBmYGBgBGJWKM2gxKDFAABNj30wGAAAAA==
+      """,
+      """
+      androidx/sample/deprecated/DeprecatedKotlinClass.class:
+      H4sIAAAAAAAAAJVSy27TQBQ9YydxcQNNH5SUZyivlkWSpuxAiFIEighBCiit
+        // rest of bytecode
+      """
+    )
+
+    // After
+    compiled(
+      "libs/ktlib.jar",
+      ktSample("androidx.sample.deprecated.DeprecatedKotlinClass"),
+    )
+    ```
+
+2.  Set `$LINT_TEST_KOTLINC` to the location of `kotlinc` if you haven't
+    already, and add it to the test run configuration's environment variables.
+
+    Note: The location of `kotlinc` can vary; use your system's file finder to
+    determine the exact location. For gLinux, search under
+    `~/.local/share/JetBrains`. For Mac, search under `<your androidx checkout
+    root>/frameworks/support/studio`
+
+    If it's not set (or set incorrectly), this error message appears when
+    running tests:
+
+    ```
+    Couldn't find kotlinc to update test file java/androidx/sample/deprecated/DeprecatedKotlinClass.kt with.
+    Point to it with $LINT_TEST_KOTLINC
+    ```
+
+3.  Run the test, which will output the new bytecode and checksum:
+
+    ```
+    Update the test source declaration for java/androidx/sample/deprecated/DeprecatedKotlinClass.kt with this list of encodings:
+
+    Kotlin:
+                  compiled(
+                      "libs/ktlib.jar",
+                      kotlin(
+                          """
+                          package java.androidx.sample.deprecated
+
+                          @Deprecated(
+                              // (rest of inlined sample file)
+                          """
+                      ).indented(),
+                      0x5ba03e2d,
+                  """
+                  META-INF/main.kotlin_module:
+                  H4sIAAAAAAAAAGNgYGBmYGBgBGJWKM2gxKDFAABNj30wGAAAAA==
+                    // rest of bytecode
+                  """,
+                  """
+                  java/androidx/sample/deprecated/DeprecatedKotlinClass.class:
+                  """
+                  )
+    ```
+
+Note: the generated replacement code will inline the specified sample file (in
+our case, `ktSample("androidx.sample.deprecated.DeprecatedKotlinClass")`).
+Replace the inlined code with the sample declaration.
 
 ## Helpful links
 

@@ -137,9 +137,9 @@ creating a `<project>/src/test/resources/robolectric.properties` file with the
 following contents:
 
 ```
-# Robolectric currently doesn't support API 32, so we have to explicitly specify 30 as the target
+# Robolectric currently doesn't support API 31, so we have to explicitly specify 30 as the target
 # sdk for now. Remove when no longer necessary.
-sdk=31
+sdk=30
 ```
 
 ## Using the emulator {#emulator}
