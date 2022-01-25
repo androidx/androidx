@@ -14,23 +14,18 @@
  * limitations under the License.
  */
 
-package androidx.camera.previewview.transform;
+package androidx.camera.previewview.internal.transform;
 
 import android.graphics.Rect;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RestrictTo;
-import androidx.annotation.RestrictTo.Scope;
 
 import com.google.auto.value.AutoValue;
 
 /**
  * Transformation associated the preview output.
- *
- * @hide
  */
 @AutoValue
-@RestrictTo(Scope.LIBRARY_GROUP)
 public abstract class TransformationInfo {
 
     /**

@@ -14,25 +14,20 @@
  * limitations under the License.
  */
 
-package androidx.camera.previewview.transform;
+package androidx.camera.previewview.internal.transform;
 
 import android.view.Surface;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.RequiresApi;
-import androidx.annotation.RestrictTo;
-import androidx.annotation.RestrictTo.Scope;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
 /**
  * Configuration containing options for configuring the output image data of a pipeline.
- *
- * @hide
  */
-@RequiresApi(21)
-@RestrictTo(Scope.LIBRARY_GROUP)
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public interface Rotation {
     /**
      * Valid integer rotation values.

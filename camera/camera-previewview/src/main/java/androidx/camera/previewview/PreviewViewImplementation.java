@@ -16,6 +16,7 @@
 
 package androidx.camera.previewview;
 
+import android.util.Size;
 import android.view.View;
 import android.widget.FrameLayout;
 
@@ -28,18 +29,16 @@ import androidx.annotation.RequiresApi;
  * done using either a {@link android.view.TextureView} (see {@link TextureViewImplementation})
  * or a {@link android.view.SurfaceView} (see {@link SurfaceViewImplementation}).
  */
-@RequiresApi(21)
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 abstract class PreviewViewImplementation {
 
-    @NonNull
-    FrameLayout mParent;
+    @NonNull protected final FrameLayout mParent;
 
-    @SuppressWarnings("unused")
-    @NonNull
-    private final PreviewTransformation mPreviewTransform;
+    @Nullable protected Size mResolution;
 
-    @Nullable
-    abstract View getPreview();
+    @NonNull private final PreviewTransformation mPreviewTransform;
+
+    private boolean mWasSurfaceProvided = false;
 
     PreviewViewImplementation(@NonNull FrameLayout parent,
             @NonNull PreviewTransformation previewTransform) {
@@ -47,13 +46,39 @@ abstract class PreviewViewImplementation {
         mPreviewTransform = previewTransform;
     }
 
+    abstract void initializePreview();
+
+    @Nullable
+    abstract View getPreview();
+
+    abstract void onSurfaceRequested(@NonNull PreviewSurfaceRequest surfaceRequest);
+
+    abstract void onAttachedToWindow();
+
+    abstract void onDetachedFromWindow();
+
+    void onSurfaceProvided() {
+        mWasSurfaceProvided = true;
+        redrawPreview();
+    }
+
     /**
      * Invoked when the preview needs to be adjusted, either because the layout bounds of the
-     * preview's container {@link CameraPreviewView} have changed, or the
-     * {@link CameraPreviewView.ScaleType} has changed.
+     * preview's container {@link CameraViewFinder} have changed, or the
+     * {@link CameraViewFinder.ScaleType} has changed.
      * <p>
-     * Corrects and adjusts the preview using the latest {@link CameraPreviewView.ScaleType} and
+     * Corrects and adjusts the preview using the latest {@link CameraViewFinder.ScaleType} and
      * display properties such as the display orientation and size.
      */
-    void redrawPreview() {}
+    void redrawPreview() {
+        View preview = getPreview();
+        // Only calls setScaleX/Y and setTranslationX/Y after the surface has been provided.
+        // Otherwise, it might cause some preview stretched issue when using PERFORMANCE mode
+        // together with Compose UI. For more details, please see b/183864890.
+        if (preview == null || !mWasSurfaceProvided) {
+            return;
+        }
+        mPreviewTransform.transformView(new Size(mParent.getWidth(),
+                mParent.getHeight()), mParent.getLayoutDirection(), preview);
+    }
 }

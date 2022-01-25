@@ -16,6 +16,29 @@
   -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="androidx.camera.previewview.test">
+    package="androidx.camera.previewview">
     <uses-sdk tools:overrideLibrary="android_libs.ub_uiautomator" />
+
+    <application>
+        <activity
+            android:name="androidx.camera.previewview.utils.ForegroundTestActivity"
+            android:exported="true"
+            android:configChanges="orientation|screenSize"
+            android:label="ForegroundTestActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="androidx.camera.previewview.utils.FakeActivity"
+            android:exported="true"
+            android:label="Fake Activity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+    </application>
+
 </manifest>
