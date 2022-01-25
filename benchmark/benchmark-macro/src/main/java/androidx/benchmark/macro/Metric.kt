@@ -226,9 +226,13 @@ public class FrameTimingMetric : Metric() {
             captureApiLevel = Build.VERSION.SDK_INT,
             packageName = captureInfo.targetPackageName
         )
-            .filterKeys { it == SubMetric.FrameCpuTime || it == SubMetric.FrameOverrunTime }
+            .filterKeys { it == SubMetric.FrameDurationCpuNs || it == SubMetric.FrameOverrunNs }
             .mapKeys {
-                if (it.key == SubMetric.FrameCpuTime) "frameCpuTimeMs" else "frameOverrunMs"
+                if (it.key == SubMetric.FrameDurationCpuNs) {
+                    "frameDurationCpuMs"
+                } else {
+                    "frameOverrunMs"
+                }
             }
             .mapValues { entry ->
                 entry.value.map { timeNs -> timeNs.nsToDoubleMs() }
