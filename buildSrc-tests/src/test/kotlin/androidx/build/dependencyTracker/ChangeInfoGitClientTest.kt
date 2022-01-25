@@ -235,7 +235,6 @@ class ChangeInfoGitClientTest {
         return ChangeInfoGitClient(config, "").findChangedFilesSince("", "", false)
     }
 
-
     @Test
     fun getGitLog_hasVersion() {
         checkVersion("""
