@@ -28,10 +28,10 @@ import androidx.glance.appwidget.action.ActionCallback
 import androidx.glance.appwidget.action.actionRunCallback
 import androidx.glance.appwidget.state.updateAppWidgetState
 import androidx.template.appwidget.GlanceTemplateAppWidget
-import androidx.template.template.SingleItemTemplate
+import androidx.template.template.SingleEntityTemplate
 
-/** A [SingleItemTemplate] implementation that sets the title given widget state */
-class MyWidgetTemplate : SingleItemTemplate() {
+/** A [SingleEntityTemplate] implementation that sets the title given widget state */
+class MyWidgetTemplate : SingleEntityTemplate() {
     override fun getData(state: Any?): Data {
         require(state is Preferences)
         return createData(getTitle(state[PressedKey] == true))
@@ -43,7 +43,7 @@ private val PressedKey = booleanPreferencesKey("pressedKey")
 class ButtonAction : ActionCallback {
     override suspend fun onRun(context: Context, glanceId: GlanceId, parameters: ActionParameters) {
         // Toggle the "pressed" state
-        val widget = SingleItemWidget()
+        val widget = SingleEntityWidget()
         widget.updateAppWidgetState<Preferences>(context, glanceId) { prefs ->
             prefs.toMutablePreferences().apply { this[PressedKey] = this[PressedKey] != true }
         }
@@ -51,13 +51,13 @@ class ButtonAction : ActionCallback {
     }
 }
 
-class SingleItemWidget : GlanceTemplateAppWidget(MyWidgetTemplate())
+class SingleEntityWidget : GlanceTemplateAppWidget(MyWidgetTemplate())
 
-class SingleItemWidgetReceiver : GlanceAppWidgetReceiver() {
-    override val glanceAppWidget: GlanceAppWidget = SingleItemWidget()
+class SingleEntityWidgetReceiver : GlanceAppWidgetReceiver() {
+    override val glanceAppWidget: GlanceAppWidget = SingleEntityWidget()
 }
 
-private fun createData(title: String) = SingleItemTemplate.Data(
+private fun createData(title: String) = SingleEntityTemplate.Data(
     title,
     "button",
     actionRunCallback<ButtonAction>(),

@@ -9,15 +9,15 @@ package androidx.template.template {
     method public abstract T! getData(Object? state);
   }
 
-  public abstract class SingleItemTemplate extends androidx.template.template.GlanceTemplate<androidx.template.template.SingleItemTemplate.Data> {
-    ctor public SingleItemTemplate();
+  public abstract class SingleEntityTemplate extends androidx.template.template.GlanceTemplate<androidx.template.template.SingleEntityTemplate.Data> {
+    ctor public SingleEntityTemplate();
     method @androidx.compose.runtime.Composable public void WidgetLayoutCollapsed();
     method @androidx.compose.runtime.Composable public void WidgetLayoutHorizontal();
     method @androidx.compose.runtime.Composable public void WidgetLayoutVertical();
   }
 
-  public static class SingleItemTemplate.Data {
-    ctor public SingleItemTemplate.Data(String title, String buttonText, androidx.glance.action.Action buttonAction, androidx.glance.ImageProvider image, int backgroundColor);
+  public static class SingleEntityTemplate.Data {
+    ctor public SingleEntityTemplate.Data(String title, String buttonText, androidx.glance.action.Action buttonAction, androidx.glance.ImageProvider image, int backgroundColor);
     method public final int getBackgroundColor();
     method public final androidx.glance.action.Action getButtonAction();
     method public final String getButtonText();
