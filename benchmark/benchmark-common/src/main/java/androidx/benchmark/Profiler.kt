@@ -22,6 +22,7 @@ import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.benchmark.BenchmarkState.Companion.TAG
+import androidx.benchmark.Outputs.dateToFileName
 import androidx.benchmark.simpleperf.ProfileSession
 import androidx.benchmark.simpleperf.RecordOptions
 
@@ -95,6 +96,10 @@ internal sealed class Profiler {
             "ConnectedSampled" to ConnectedSampling
         )
             .mapKeys { it.key.lowercase() }[name.lowercase()]
+
+        fun traceName(traceUniqueName: String, traceTypeLabel: String): String {
+            return "$traceUniqueName-$traceTypeLabel-${dateToFileName()}.trace"
+        }
     }
 }
 
@@ -127,13 +132,13 @@ internal fun stopRuntimeMethodTracing() {
 }
 
 internal object StackSamplingLegacy : Profiler() {
-    @RestrictTo(RestrictTo.Scope.TESTS)
+    @get:RestrictTo(RestrictTo.Scope.TESTS)
     var isRunning = false
 
     override fun start(traceUniqueName: String): ResultFile {
         isRunning = true
         return startRuntimeMethodTracing(
-            traceFileName = "$traceUniqueName-stackSamplingLegacy.trace",
+            traceFileName = traceName(traceUniqueName, "stackSamplingLegacy"),
             sampled = true
         )
     }
@@ -149,7 +154,7 @@ internal object StackSamplingLegacy : Profiler() {
 internal object MethodTracing : Profiler() {
     override fun start(traceUniqueName: String): ResultFile {
         return startRuntimeMethodTracing(
-            traceFileName = "$traceUniqueName-methodTracing.trace",
+            traceFileName = traceName(traceUniqueName, "methodTracing"),
             sampled = false
         )
     }
@@ -219,7 +224,7 @@ internal object StackSamplingSimpleperf : Profiler() {
         Shell.executeCommand("setprop debug.perf_cpu_time_max_percent 25")
         Shell.executeCommand("setprop debug.perf_event_mlock_kb 32800")
 
-        outputRelativePath = "$traceUniqueName-stackSampling.trace"
+        outputRelativePath = traceName(traceUniqueName, "stackSampling")
         session = ProfileSession().also {
             // prepare simpleperf must be done as shell user, so do this here with other shell setup
             // NOTE: this is sticky across reboots, so missing this will cause tests or profiling to
