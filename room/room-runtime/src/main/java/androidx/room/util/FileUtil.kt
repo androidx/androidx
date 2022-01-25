@@ -13,59 +13,46 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:JvmName("FileUtil")
+@file:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 
-package androidx.room.util;
+package androidx.room.util
 
-import android.annotation.SuppressLint;
-import android.os.Build;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.RestrictTo;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.nio.channels.Channels;
-import java.nio.channels.FileChannel;
-import java.nio.channels.ReadableByteChannel;
+import android.annotation.SuppressLint
+import android.os.Build
+import androidx.annotation.RestrictTo
+import java.io.IOException
+import java.nio.channels.Channels
+import java.nio.channels.FileChannel
+import java.nio.channels.ReadableByteChannel
 
 /**
- * File utilities for Room
+ * Copies data from the input channel to the output file channel.
  *
- * @hide
+ * @param input  the input channel to copy.
+ * @param output the output channel to copy.
+ * @throws IOException if there is an I/O error.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-public class FileUtil {
+@SuppressLint("LambdaLast")
+@Throws(IOException::class)
+fun copy(input: ReadableByteChannel, output: FileChannel) {
+    try {
+        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.M) {
+            output.transferFrom(input, 0, Long.MAX_VALUE)
+        } else {
+            val inputStream = Channels.newInputStream(input)
+            val outputStream = Channels.newOutputStream(output)
+            var length: Int
+            val buffer = ByteArray(1024 * 4)
 
-    /**
-     * Copies data from the input channel to the output file channel.
-     *
-     * @param input  the input channel to copy.
-     * @param output the output channel to copy.
-     * @throws IOException if there is an I/O error.
-     */
-    @SuppressLint("LambdaLast")
-    public static void copy(@NonNull ReadableByteChannel input, @NonNull FileChannel output)
-            throws IOException {
-        try {
-            if (Build.VERSION.SDK_INT > Build.VERSION_CODES.M) {
-                output.transferFrom(input, 0, Long.MAX_VALUE);
-            } else {
-                InputStream inputStream = Channels.newInputStream(input);
-                OutputStream outputStream = Channels.newOutputStream(output);
-                int length;
-                byte[] buffer = new byte[1024 * 4];
-                while ((length = inputStream.read(buffer)) > 0) {
-                    outputStream.write(buffer, 0, length);
-                }
+            // TODO: Use Kotlin stdlib IO APIs
+            while (inputStream.read(buffer).also { length = it } > 0) {
+                outputStream.write(buffer, 0, length)
             }
-            output.force(false);
-        } finally {
-            input.close();
-            output.close();
         }
-    }
-
-    private FileUtil() {
+        output.force(false)
+    } finally {
+        input.close()
+        output.close()
     }
 }

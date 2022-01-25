@@ -13,85 +13,71 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package androidx.room.util
 
-package androidx.room.util;
-
-import android.database.Cursor;
-
-import androidx.annotation.RestrictTo;
-import androidx.sqlite.db.SupportSQLiteDatabase;
+import androidx.annotation.RestrictTo
+import androidx.sqlite.db.SupportSQLiteDatabase
 
 /**
  * A data class that holds the information about a view.
- * <p>
+ *
+ *
  * This derives information from sqlite_master.
- * <p>
+ *
+ *
  * Even though SQLite column names are case insensitive, this class uses case sensitive matching.
  *
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-public final class ViewInfo {
-
+class ViewInfo(
     /**
      * The view name
      */
-    public final String name;
-
+    @JvmField
+    val name: String,
     /**
      * The SQL of CREATE VIEW.
      */
-    public final String sql;
-
-    public ViewInfo(String name, String sql) {
-        this.name = name;
-        this.sql = sql;
+    @JvmField
+    val sql: String?
+) {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is ViewInfo) return false
+        return ((name == other.name) && if (sql != null) sql == other.sql else other.sql == null)
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof ViewInfo)) return false;
-        ViewInfo viewInfo = (ViewInfo) o;
-        return (name != null ? name.equals(viewInfo.name) : viewInfo.name == null)
-                && (sql != null ? sql.equals(viewInfo.sql) : viewInfo.sql == null);
+    override fun hashCode(): Int {
+        var result = name.hashCode()
+        result = 31 * result + (sql?.hashCode() ?: 0)
+        return result
     }
 
-    @Override
-    public int hashCode() {
-        int result = name != null ? name.hashCode() : 0;
-        result = 31 * result + (sql != null ? sql.hashCode() : 0);
-        return result;
+    override fun toString(): String {
+        return ("ViewInfo{" + "name='" + name + '\'' + ", sql='" + sql + '\'' + '}')
     }
 
-    @Override
-    public String toString() {
-        return "ViewInfo{"
-                + "name='" + name + '\''
-                + ", sql='" + sql + '\''
-                + '}';
-    }
-
-    /**
-     * Reads the view information from the given database.
-     *
-     * @param database The database to read the information from.
-     * @param viewName The view name.
-     * @return A ViewInfo containing the schema information for the provided view name.
-     */
-    @SuppressWarnings("SameParameterValue")
-    public static ViewInfo read(SupportSQLiteDatabase database, String viewName) {
-        Cursor cursor = database.query("SELECT name, sql FROM sqlite_master "
-                + "WHERE type = 'view' AND name = '" + viewName + "'");
-        //noinspection TryFinallyCanBeTryWithResources
-        try {
-            if (cursor.moveToFirst()) {
-                return new ViewInfo(cursor.getString(0), cursor.getString(1));
-            } else {
-                return new ViewInfo(viewName, null);
+    companion object {
+        /**
+         * Reads the view information from the given database.
+         *
+         * @param database The database to read the information from.
+         * @param viewName The view name.
+         * @return A ViewInfo containing the schema information for the provided view name.
+         */
+        @JvmStatic
+        fun read(database: SupportSQLiteDatabase, viewName: String): ViewInfo {
+            return database.query(
+                "SELECT name, sql FROM sqlite_master " +
+                    "WHERE type = 'view' AND name = '$viewName'"
+            ).use { cursor ->
+                if (cursor.moveToFirst()) {
+                    ViewInfo(cursor.getString(0), cursor.getString(1))
+                } else {
+                    ViewInfo(viewName, null)
+                }
             }
-        } finally {
-            cursor.close();
         }
     }
 }

@@ -13,52 +13,44 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:JvmName("UUIDUtil")
+@file:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 
-package androidx.room.util;
+package androidx.room.util
 
-import androidx.annotation.NonNull;
-import androidx.annotation.RestrictTo;
-
-import java.nio.ByteBuffer;
-import java.util.UUID;
+import androidx.annotation.RestrictTo
+import java.nio.ByteBuffer
+import java.util.UUID
 
 /**
  * UUID / byte[] two-way conversion utility for Room
  *
  * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-public final class UUIDUtil {
 
-    // private constructor to prevent instantiation
-    private UUIDUtil() {}
+/**
+ * Converts a 16-bytes array BLOB into a UUID pojo
+ *
+ * @param bytes byte array stored in database as BLOB
+ * @return a UUID object created based on the provided byte array
+ */
+fun convertByteToUUID(bytes: ByteArray): UUID {
+    val buffer = ByteBuffer.wrap(bytes)
+    val firstLong = buffer.long
+    val secondLong = buffer.long
+    return UUID(firstLong, secondLong)
+}
 
-    /**
-     * Converts a 16-bytes array BLOB into a UUID pojo
-     *
-     * @param bytes byte array stored in database as BLOB
-     * @return a UUID object created based on the provided byte array
-     */
-    @NonNull
-    public static UUID convertByteToUUID(@NonNull byte[] bytes) {
-        ByteBuffer buffer = ByteBuffer.wrap(bytes);
-        long firstLong = buffer.getLong();
-        long secondLong = buffer.getLong();
-        return new UUID(firstLong, secondLong);
-    }
-
-    /**
-     * Converts a UUID pojo into a 16-bytes array to store into database as BLOB
-     *
-     * @param uuid the UUID pojo
-     * @return a byte array to store into database
-     */
-    @NonNull
-    public static byte[] convertUUIDToByte(@NonNull UUID uuid) {
-        byte[] bytes = new byte[16];
-        ByteBuffer buffer = ByteBuffer.wrap(bytes);
-        buffer.putLong(uuid.getMostSignificantBits());
-        buffer.putLong(uuid.getLeastSignificantBits());
-        return buffer.array();
-    }
+/**
+ * Converts a UUID pojo into a 16-bytes array to store into database as BLOB
+ *
+ * @param uuid the UUID pojo
+ * @return a byte array to store into database
+ */
+fun convertUUIDToByte(uuid: UUID): ByteArray {
+    val bytes = ByteArray(16)
+    val buffer = ByteBuffer.wrap(bytes)
+    buffer.putLong(uuid.mostSignificantBits)
+    buffer.putLong(uuid.leastSignificantBits)
+    return buffer.array()
 }

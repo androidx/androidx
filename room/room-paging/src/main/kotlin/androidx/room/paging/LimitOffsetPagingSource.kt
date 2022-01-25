@@ -25,7 +25,6 @@ import androidx.room.InvalidationTracker
 import androidx.room.RoomDatabase
 import androidx.room.RoomSQLiteQuery
 import androidx.room.getQueryDispatcher
-import androidx.room.util.CursorUtil
 import androidx.room.withTransaction
 import androidx.sqlite.db.SupportSQLiteQuery
 import kotlinx.coroutines.withContext

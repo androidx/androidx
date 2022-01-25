@@ -13,404 +13,174 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package androidx.room.util
 
-package androidx.room.util;
-
-import android.database.Cursor;
-import android.os.Build;
-
-import androidx.annotation.IntDef;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.annotation.RestrictTo;
-import androidx.room.ColumnInfo;
-import androidx.sqlite.db.SupportSQLiteDatabase;
-
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeMap;
+import android.annotation.SuppressLint
+import android.database.Cursor
+import android.os.Build
+import androidx.annotation.IntDef
+import androidx.annotation.RestrictTo
+import androidx.annotation.VisibleForTesting
+import androidx.room.ColumnInfo
+import androidx.room.ColumnInfo.SQLiteTypeAffinity
+import androidx.sqlite.db.SupportSQLiteDatabase
+import java.util.Locale
+import java.util.TreeMap
 
 /**
  * A data class that holds the information about a table.
- * <p>
- * It directly maps to the result of {@code PRAGMA table_info(<table_name>)}. Check the
- * <a href="http://www.sqlite.org/pragma.html#pragma_table_info">PRAGMA table_info</a>
+ *
+ * It directly maps to the result of `PRAGMA table_info(<table_name>)`. Check the
+ * [PRAGMA table_info](http://www.sqlite.org/pragma.html#pragma_table_info)
  * documentation for more details.
- * <p>
+ *
  * Even though SQLite column names are case insensitive, this class uses case sensitive matching.
  *
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-@SuppressWarnings({"WeakerAccess", "unused", "TryFinallyCanBeTryWithResources",
-        "SimplifiableIfStatement"})
 // if you change this class, you must change TableInfoValidationWriter.kt
-public final class TableInfo {
-
-    /**
-     * Identifies from where the info object was created.
-     */
-    @Retention(RetentionPolicy.SOURCE)
-    @IntDef(value = {CREATED_FROM_UNKNOWN, CREATED_FROM_ENTITY, CREATED_FROM_DATABASE})
-    @interface CreatedFrom {
-    }
-
-    /**
-     * Identifier for when the info is created from an unknown source.
-     */
-    public static final int CREATED_FROM_UNKNOWN = 0;
-
-    /**
-     * Identifier for when the info is created from an entity definition, such as generated code
-     * by the compiler or at runtime from a schema bundle, parsed from a schema JSON file.
-     */
-    public static final int CREATED_FROM_ENTITY = 1;
-
-    /**
-     * Identifier for when the info is created from the database itself, reading information from a
-     * PRAGMA, such as table_info.
-     */
-    public static final int CREATED_FROM_DATABASE = 2;
-
+class TableInfo(
     /**
      * The table name.
      */
-    public final String name;
+    @JvmField
+    val name: String,
+    @JvmField
+    val columns: Map<String, Column>,
+    @JvmField
+    val foreignKeys: Set<ForeignKey>,
+    @JvmField
+    val indices: Set<Index>? = null
+) {
     /**
-     * Unmodifiable map of columns keyed by column name.
+     * Identifies from where the info object was created.
      */
-    public final Map<String, Column> columns;
-
-    public final Set<ForeignKey> foreignKeys;
-
-    /**
-     * Sometimes, Index information is not available (older versions). If so, we skip their
-     * verification.
-     */
-    @Nullable
-    public final Set<Index> indices;
-
-    @SuppressWarnings("unused")
-    public TableInfo(String name, Map<String, Column> columns, Set<ForeignKey> foreignKeys,
-            Set<Index> indices) {
-        this.name = name;
-        this.columns = Collections.unmodifiableMap(columns);
-        this.foreignKeys = Collections.unmodifiableSet(foreignKeys);
-        this.indices = indices == null ? null : Collections.unmodifiableSet(indices);
-    }
+    @Retention(AnnotationRetention.SOURCE)
+    @IntDef(value = [CREATED_FROM_UNKNOWN, CREATED_FROM_ENTITY, CREATED_FROM_DATABASE])
+    internal annotation class CreatedFrom()
 
     /**
      * For backward compatibility with dbs created with older versions.
      */
     @SuppressWarnings("unused")
-    public TableInfo(String name, Map<String, Column> columns, Set<ForeignKey> foreignKeys) {
-        this(name, columns, foreignKeys, Collections.<Index>emptySet());
-    }
+    constructor(
+        name: String,
+        columns: Map<String, Column>,
+        foreignKeys: Set<ForeignKey>
+    ) : this(name, columns, foreignKeys, emptySet<Index>())
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof TableInfo)) return false;
-
-        TableInfo tableInfo = (TableInfo) o;
-
-        if (name != null ? !name.equals(tableInfo.name) : tableInfo.name != null) return false;
-        if (columns != null ? !columns.equals(tableInfo.columns) : tableInfo.columns != null) {
-            return false;
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is TableInfo) return false
+        if (name != other.name) return false
+        if (columns != other.columns) {
+            return false
         }
-        if (foreignKeys != null ? !foreignKeys.equals(tableInfo.foreignKeys)
-                : tableInfo.foreignKeys != null) {
-            return false;
+        if (foreignKeys != other.foreignKeys) {
+            return false
         }
-        if (indices == null || tableInfo.indices == null) {
+        return if (indices == null || other.indices == null) {
             // if one us is missing index information, seems like we couldn't acquire the
             // information so we better skip.
-            return true;
-        }
-        return indices.equals(tableInfo.indices);
+            true
+        } else indices == other.indices
     }
 
-    @Override
-    public int hashCode() {
-        int result = name != null ? name.hashCode() : 0;
-        result = 31 * result + (columns != null ? columns.hashCode() : 0);
-        result = 31 * result + (foreignKeys != null ? foreignKeys.hashCode() : 0);
+    override fun hashCode(): Int {
+        var result = name.hashCode()
+        result = 31 * result + columns.hashCode()
+        result = 31 * result + foreignKeys.hashCode()
         // skip index, it is not reliable for comparison.
-        return result;
+        return result
     }
 
-    @Override
-    public String toString() {
-        return "TableInfo{"
-                + "name='" + name + '\''
-                + ", columns=" + columns
-                + ", foreignKeys=" + foreignKeys
-                + ", indices=" + indices
-                + '}';
+    override fun toString(): String {
+        return ("TableInfo{name='$name', columns=$columns, foreignKeys=$foreignKeys, " +
+            "indices=$indices}")
     }
 
-    /**
-     * Reads the table information from the given database.
-     *
-     * @param database  The database to read the information from.
-     * @param tableName The table name.
-     * @return A TableInfo containing the schema information for the provided table name.
-     */
-    @SuppressWarnings("SameParameterValue")
-    public static TableInfo read(SupportSQLiteDatabase database, String tableName) {
-        Map<String, Column> columns = readColumns(database, tableName);
-        Set<ForeignKey> foreignKeys = readForeignKeys(database, tableName);
-        Set<Index> indices = readIndices(database, tableName);
-        return new TableInfo(tableName, columns, foreignKeys, indices);
-    }
+    companion object {
+        /**
+         * Identifier for when the info is created from an unknown source.
+         */
+        const val CREATED_FROM_UNKNOWN = 0
 
-    private static Set<ForeignKey> readForeignKeys(SupportSQLiteDatabase database,
-            String tableName) {
-        Set<ForeignKey> foreignKeys = new HashSet<>();
-        // this seems to return everything in order but it is not documented so better be safe
-        Cursor cursor = database.query("PRAGMA foreign_key_list(`" + tableName + "`)");
-        try {
-            final int idColumnIndex = cursor.getColumnIndex("id");
-            final int seqColumnIndex = cursor.getColumnIndex("seq");
-            final int tableColumnIndex = cursor.getColumnIndex("table");
-            final int onDeleteColumnIndex = cursor.getColumnIndex("on_delete");
-            final int onUpdateColumnIndex = cursor.getColumnIndex("on_update");
+        /**
+         * Identifier for when the info is created from an entity definition, such as generated code
+         * by the compiler or at runtime from a schema bundle, parsed from a schema JSON file.
+         */
+        const val CREATED_FROM_ENTITY = 1
 
-            final List<ForeignKeyWithSequence> ordered = readForeignKeyFieldMappings(cursor);
-            final int count = cursor.getCount();
-            for (int position = 0; position < count; position++) {
-                cursor.moveToPosition(position);
-                final int seq = cursor.getInt(seqColumnIndex);
-                if (seq != 0) {
-                    continue;
-                }
-                final int id = cursor.getInt(idColumnIndex);
-                List<String> myColumns = new ArrayList<>();
-                List<String> refColumns = new ArrayList<>();
-                for (ForeignKeyWithSequence key : ordered) {
-                    if (key.mId == id) {
-                        myColumns.add(key.mFrom);
-                        refColumns.add(key.mTo);
-                    }
-                }
-                foreignKeys.add(new ForeignKey(
-                        cursor.getString(tableColumnIndex),
-                        cursor.getString(onDeleteColumnIndex),
-                        cursor.getString(onUpdateColumnIndex),
-                        myColumns,
-                        refColumns
-                ));
-            }
-        } finally {
-            cursor.close();
-        }
-        return foreignKeys;
-    }
+        /**
+         * Identifier for when the info is created from the database itself, reading information
+         * from a PRAGMA, such as table_info.
+         */
+        const val CREATED_FROM_DATABASE = 2
 
-    private static List<ForeignKeyWithSequence> readForeignKeyFieldMappings(Cursor cursor) {
-        final int idColumnIndex = cursor.getColumnIndex("id");
-        final int seqColumnIndex = cursor.getColumnIndex("seq");
-        final int fromColumnIndex = cursor.getColumnIndex("from");
-        final int toColumnIndex = cursor.getColumnIndex("to");
-        final int count = cursor.getCount();
-        List<ForeignKeyWithSequence> result = new ArrayList<>();
-        for (int i = 0; i < count; i++) {
-            cursor.moveToPosition(i);
-            result.add(new ForeignKeyWithSequence(
-                    cursor.getInt(idColumnIndex),
-                    cursor.getInt(seqColumnIndex),
-                    cursor.getString(fromColumnIndex),
-                    cursor.getString(toColumnIndex)
-            ));
-        }
-        Collections.sort(result);
-        return result;
-    }
-
-    private static Map<String, Column> readColumns(SupportSQLiteDatabase database,
-            String tableName) {
-
-        Cursor cursor = database
-                .query("PRAGMA table_info(`" + tableName + "`)");
-        //noinspection TryFinallyCanBeTryWithResources
-        Map<String, Column> columns = new HashMap<>();
-        try {
-            if (cursor.getColumnCount() > 0) {
-                int nameIndex = cursor.getColumnIndex("name");
-                int typeIndex = cursor.getColumnIndex("type");
-                int notNullIndex = cursor.getColumnIndex("notnull");
-                int pkIndex = cursor.getColumnIndex("pk");
-                int defaultValueIndex = cursor.getColumnIndex("dflt_value");
-
-                while (cursor.moveToNext()) {
-                    final String name = cursor.getString(nameIndex);
-                    final String type = cursor.getString(typeIndex);
-                    final boolean notNull = 0 != cursor.getInt(notNullIndex);
-                    final int primaryKeyPosition = cursor.getInt(pkIndex);
-                    final String defaultValue = cursor.getString(defaultValueIndex);
-                    columns.put(name,
-                            new Column(name, type, notNull, primaryKeyPosition, defaultValue,
-                                    CREATED_FROM_DATABASE));
-                }
-            }
-        } finally {
-            cursor.close();
-        }
-        return columns;
-    }
-
-    /**
-     * @return null if we cannot read the indices due to older sqlite implementations.
-     */
-    @Nullable
-    private static Set<Index> readIndices(SupportSQLiteDatabase database, String tableName) {
-        Cursor cursor = database.query("PRAGMA index_list(`" + tableName + "`)");
-        try {
-            final int nameColumnIndex = cursor.getColumnIndex("name");
-            final int originColumnIndex = cursor.getColumnIndex("origin");
-            final int uniqueIndex = cursor.getColumnIndex("unique");
-            if (nameColumnIndex == -1 || originColumnIndex == -1 || uniqueIndex == -1) {
-                // we cannot read them so better not validate any index.
-                return null;
-            }
-            HashSet<Index> indices = new HashSet<>();
-            while (cursor.moveToNext()) {
-                String origin = cursor.getString(originColumnIndex);
-                if (!"c".equals(origin)) {
-                    // Ignore auto-created indices
-                    continue;
-                }
-                String name = cursor.getString(nameColumnIndex);
-                boolean unique = cursor.getInt(uniqueIndex) == 1;
-                Index index = readIndex(database, name, unique);
-                if (index == null) {
-                    // we cannot read it properly so better not read it
-                    return null;
-                }
-                indices.add(index);
-            }
-            return indices;
-        } finally {
-            cursor.close();
-        }
-    }
-
-    /**
-     * @return null if we cannot read the index due to older sqlite implementations.
-     */
-    @Nullable
-    private static Index readIndex(SupportSQLiteDatabase database, String name, boolean unique) {
-        Cursor cursor = database.query("PRAGMA index_xinfo(`" + name + "`)");
-        try {
-            final int seqnoColumnIndex = cursor.getColumnIndex("seqno");
-            final int cidColumnIndex = cursor.getColumnIndex("cid");
-            final int nameColumnIndex = cursor.getColumnIndex("name");
-            final int descColumnIndex = cursor.getColumnIndex("desc");
-            if (seqnoColumnIndex == -1 || cidColumnIndex == -1
-                    || nameColumnIndex == -1 || descColumnIndex == -1) {
-                // we cannot read them so better not validate any index.
-                return null;
-            }
-            final TreeMap<Integer, String> columnsMap = new TreeMap<>();
-            final TreeMap<Integer, String> ordersMap = new TreeMap<>();
-
-            while (cursor.moveToNext()) {
-                int cid = cursor.getInt(cidColumnIndex);
-                if (cid < 0) {
-                    // Ignore SQLite row ID
-                    continue;
-                }
-                int seq = cursor.getInt(seqnoColumnIndex);
-                String columnName = cursor.getString(nameColumnIndex);
-                String order = cursor.getInt(descColumnIndex) > 0 ? "DESC" : "ASC";
-
-                columnsMap.put(seq, columnName);
-                ordersMap.put(seq, order);
-            }
-            final List<String> columns = new ArrayList<>(columnsMap.size());
-            columns.addAll(columnsMap.values());
-            final List<String> orders = new ArrayList<>(ordersMap.size());
-            orders.addAll(ordersMap.values());
-            return new Index(name, unique, columns, orders);
-        } finally {
-            cursor.close();
+        /**
+         * Reads the table information from the given database.
+         *
+         * @param database  The database to read the information from.
+         * @param tableName The table name.
+         * @return A TableInfo containing the schema information for the provided table name.
+         */
+        @JvmStatic
+        fun read(database: SupportSQLiteDatabase, tableName: String): TableInfo {
+            return readTableInfo(
+                database = database,
+                tableName = tableName
+            )
         }
     }
 
     /**
      * Holds the information about a database column.
      */
-    @SuppressWarnings("WeakerAccess")
-    public static final class Column {
+    class Column(
         /**
          * The column name.
          */
-        public final String name;
+        @JvmField
+        val name: String,
         /**
          * The column type affinity.
          */
-        public final String type;
-        /**
-         * The column type after it is normalized to one of the basic types according to
-         * https://www.sqlite.org/datatype3.html Section 3.1.
-         * <p>
-         * This is the value Room uses for equality check.
-         */
-        @ColumnInfo.SQLiteTypeAffinity
-        public final int affinity;
+        @JvmField
+        val type: String,
         /**
          * Whether or not the column can be NULL.
          */
-        public final boolean notNull;
-        /**
-         * The position of the column in the list of primary keys, 0 if the column is not part
-         * of the primary key.
-         * <p>
-         * This information is only available in API 20+.
-         * <a href="https://www.sqlite.org/releaselog/3_7_16_2.html">(SQLite version 3.7.16.2)</a>
-         * On older platforms, it will be 1 if the column is part of the primary key and 0
-         * otherwise.
-         * <p>
-         * The {@link #equals(Object)} implementation handles this inconsistency based on
-         * API levels os if you are using a custom SQLite deployment, it may return false
-         * positives.
-         */
-        public final int primaryKeyPosition;
-        /**
-         * The default value of this column.
-         */
-        public final String defaultValue;
-
+        @JvmField
+        val notNull: Boolean,
+        @JvmField
+        val primaryKeyPosition: Int,
+        @JvmField
+        val defaultValue: String?,
         @CreatedFrom
-        private final int mCreatedFrom;
-
+        @JvmField
+        val createdFrom: Int
+    ) {
         /**
-         * @deprecated Use {@link Column#Column(String, String, boolean, int, String, int)} instead.
+         * The column type after it is normalized to one of the basic types according to
+         * https://www.sqlite.org/datatype3.html Section 3.1.
+         *
+         *
+         * This is the value Room uses for equality check.
          */
-        @Deprecated
-        public Column(String name, String type, boolean notNull, int primaryKeyPosition) {
-            this(name, type, notNull, primaryKeyPosition, null, CREATED_FROM_UNKNOWN);
-        }
+        @SQLiteTypeAffinity
+        @JvmField
+        val affinity: Int = findAffinity(type)
 
-        // if you change this constructor, you must change TableInfoWriter.kt
-        public Column(String name, String type, boolean notNull, int primaryKeyPosition,
-                String defaultValue, @CreatedFrom int createdFrom) {
-            this.name = name;
-            this.type = type;
-            this.notNull = notNull;
-            this.primaryKeyPosition = primaryKeyPosition;
-            this.affinity = findAffinity(type);
-            this.defaultValue = defaultValue;
-            this.mCreatedFrom = createdFrom;
-        }
+        @Deprecated("Use {@link Column#Column(String, String, boolean, int, String, int)} instead.")
+        constructor(name: String, type: String, notNull: Boolean, primaryKeyPosition: Int) : this(
+            name,
+            type,
+            notNull,
+            primaryKeyPosition,
+            null,
+            CREATED_FROM_UNKNOWN
+        )
 
         /**
          * Implements https://www.sqlite.org/datatype3.html section 3.1
@@ -418,120 +188,121 @@ public final class TableInfo {
          * @param type The type that was given to the sqlite
          * @return The normalized type which is one of the 5 known affinities
          */
-        @ColumnInfo.SQLiteTypeAffinity
-        private static int findAffinity(@Nullable String type) {
+        @SQLiteTypeAffinity
+        private fun findAffinity(type: String?): Int {
             if (type == null) {
-                return ColumnInfo.BLOB;
+                return ColumnInfo.BLOB
             }
-            String uppercaseType = type.toUpperCase(Locale.US);
+            val uppercaseType = type.uppercase(Locale.US)
             if (uppercaseType.contains("INT")) {
-                return ColumnInfo.INTEGER;
+                return ColumnInfo.INTEGER
             }
-            if (uppercaseType.contains("CHAR")
-                    || uppercaseType.contains("CLOB")
-                    || uppercaseType.contains("TEXT")) {
-                return ColumnInfo.TEXT;
+            if (uppercaseType.contains("CHAR") ||
+                uppercaseType.contains("CLOB") ||
+                uppercaseType.contains("TEXT")
+            ) {
+                return ColumnInfo.TEXT
             }
             if (uppercaseType.contains("BLOB")) {
-                return ColumnInfo.BLOB;
+                return ColumnInfo.BLOB
             }
-            if (uppercaseType.contains("REAL")
-                    || uppercaseType.contains("FLOA")
-                    || uppercaseType.contains("DOUB")) {
-                return ColumnInfo.REAL;
+            if (uppercaseType.contains("REAL") ||
+                uppercaseType.contains("FLOA") ||
+                uppercaseType.contains("DOUB")
+            ) {
+                return ColumnInfo.REAL
             }
             // sqlite returns NUMERIC here but it is like a catch all. We already
             // have UNDEFINED so it is better to use UNDEFINED for consistency.
-            return ColumnInfo.UNDEFINED;
+            return ColumnInfo.UNDEFINED
         }
 
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (!(o instanceof Column)) return false;
-
-            Column column = (Column) o;
-            if (Build.VERSION.SDK_INT >= 20) {
-                if (primaryKeyPosition != column.primaryKeyPosition) return false;
-            } else {
-                if (isPrimaryKey() != column.isPrimaryKey()) return false;
-            }
-
-            if (!name.equals(column.name)) return false;
-            //noinspection SimplifiableIfStatement
-            if (notNull != column.notNull) return false;
-
-            // Only validate default value if it was defined in an entity, i.e. if the info
-            // from the compiler itself has it. b/136019383
-            if (mCreatedFrom == CREATED_FROM_ENTITY
-                    && column.mCreatedFrom == CREATED_FROM_DATABASE
-                    && (defaultValue != null && !defaultValueEquals(defaultValue,
-                    column.defaultValue))) {
-                return false;
-            } else if (mCreatedFrom == CREATED_FROM_DATABASE
-                    && column.mCreatedFrom == CREATED_FROM_ENTITY
-                    && (column.defaultValue != null && !defaultValueEquals(
-                    column.defaultValue, defaultValue))) {
-                return false;
-            } else if (mCreatedFrom != CREATED_FROM_UNKNOWN
-                    && mCreatedFrom == column.mCreatedFrom
-                    && (defaultValue != null ? !defaultValueEquals(defaultValue,
-                    column.defaultValue)
-                    : column.defaultValue != null)) {
-                return false;
-            }
-
-            return affinity == column.affinity;
-        }
-
-        /**
-         * Checks if the default values provided match. Handles the special case in which the
-         * default value is surrounded by parenthesis (e.g. encountered in b/182284899).
-         *
-         * Surrounding parenthesis are removed by SQLite when reading from the database, hence
-         * this function will check if they are present in the actual value, if so, it will
-         * compare the two values by ignoring the surrounding parenthesis.
-         *
-         */
-        public static boolean defaultValueEquals(@NonNull String actual, @Nullable String other) {
-            if (other == null) {
-                return false;
-            }
-
-            if (actual.equals(other)) {
-                return true;
-            } else if (containsSurroundingParenthesis(actual)) {
-                return actual.substring(1, actual.length() - 1).trim().equals(other);
-            }
-            return false;
-        }
-
-        /**
-         * Checks for potential surrounding parenthesis, if found, removes them and checks if
-         * remaining paranthesis are balanced. If so, the surrounding parenthesis are redundant,
-         * and returns true.
-         */
-        private static boolean containsSurroundingParenthesis(@NonNull String actual) {
-            if (actual.length() == 0) {
-                return false;
-            }
-            int surroundingParenthesis = 0;
-            for (int i = 0; i < actual.length(); i++) {
-                char c = actual.charAt(i);
-                if (i == 0 && c != '(') {
-                    return false;
+        companion object {
+            /**
+             * Checks if the default values provided match. Handles the special case in which the
+             * default value is surrounded by parenthesis (e.g. encountered in b/182284899).
+             *
+             * Surrounding parenthesis are removed by SQLite when reading from the database, hence
+             * this function will check if they are present in the actual value, if so, it will
+             * compare the two values by ignoring the surrounding parenthesis.
+             *
+             */
+            @SuppressLint("SyntheticAccessor")
+            @VisibleForTesting
+            @JvmStatic
+            fun defaultValueEquals(current: String, other: String?): Boolean {
+                if (current == other) {
+                    return true
+                } else if (containsSurroundingParenthesis(current)) {
+                    return current.substring(1, current.length - 1).trim() == other
                 }
+                return false
+            }
 
-                if (c == '(') {
-                    surroundingParenthesis++;
-                } else if (c == ')') {
-                    surroundingParenthesis--;
-                    if (surroundingParenthesis == 0 && i != actual.length() - 1) {
-                        return false;
+            /**
+             * Checks for potential surrounding parenthesis, if found, removes them and checks if
+             * remaining paranthesis are balanced. If so, the surrounding parenthesis are redundant,
+             * and returns true.
+             */
+            private fun containsSurroundingParenthesis(current: String): Boolean {
+                if (current.isEmpty()) {
+                    return false
+                }
+                var surroundingParenthesis = 0
+                current.forEachIndexed { i, c ->
+                    if (i == 0 && c != '(') {
+                        return false
+                    }
+                    if (c == '(') {
+                        surroundingParenthesis++
+                    } else if (c == ')') {
+                        surroundingParenthesis--
+                        if (surroundingParenthesis == 0 && i != current.length - 1) {
+                            return false
+                        }
                     }
                 }
+                return surroundingParenthesis == 0
             }
-            return surroundingParenthesis == 0;
+        }
+
+        // TODO: problem probably here
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (other !is Column) return false
+            if (Build.VERSION.SDK_INT >= 20) {
+                if (primaryKeyPosition != other.primaryKeyPosition) return false
+            } else {
+                if (isPrimaryKey != other.isPrimaryKey) return false
+            }
+            if (name != other.name) return false
+            if (notNull != other.notNull) return false
+            // Only validate default value if it was defined in an entity, i.e. if the info
+            // from the compiler itself has it. b/136019383
+            if (
+                createdFrom == CREATED_FROM_ENTITY &&
+                    other.createdFrom == CREATED_FROM_DATABASE &&
+                    defaultValue != null &&
+                    !defaultValueEquals(defaultValue, other.defaultValue)
+            ) {
+                return false
+            } else if (
+                createdFrom == CREATED_FROM_DATABASE &&
+                other.createdFrom == CREATED_FROM_ENTITY &&
+                other.defaultValue != null &&
+                !defaultValueEquals(other.defaultValue, defaultValue)
+            ) {
+                return false
+            } else if (
+                createdFrom != CREATED_FROM_UNKNOWN &&
+                createdFrom == other.createdFrom &&
+                (if (defaultValue != null)
+                    !defaultValueEquals(defaultValue, other.defaultValue)
+                else other.defaultValue != null)
+            ) {
+                return false
+            }
+            return affinity == other.affinity
         }
 
         /**
@@ -539,32 +310,24 @@ public final class TableInfo {
          *
          * @return True if this column is part of the primary key, false otherwise.
          */
-        public boolean isPrimaryKey() {
-            return primaryKeyPosition > 0;
-        }
+        val isPrimaryKey: Boolean
+            get() = primaryKeyPosition > 0
 
-        @Override
-        public int hashCode() {
-            int result = name.hashCode();
-            result = 31 * result + affinity;
-            result = 31 * result + (notNull ? 1231 : 1237);
-            result = 31 * result + primaryKeyPosition;
+        override fun hashCode(): Int {
+            var result = name.hashCode()
+            result = 31 * result + affinity
+            result = 31 * result + if (notNull) 1231 else 1237
+            result = 31 * result + primaryKeyPosition
             // Default value is not part of the hashcode since we conditionally check it for
             // equality which would break the equals + hashcode contract.
             // result = 31 * result + (defaultValue != null ? defaultValue.hashCode() : 0);
-            return result;
+            return result
         }
 
-        @Override
-        public String toString() {
-            return "Column{"
-                    + "name='" + name + '\''
-                    + ", type='" + type + '\''
-                    + ", affinity='" + affinity + '\''
-                    + ", notNull=" + notNull
-                    + ", primaryKeyPosition=" + primaryKeyPosition
-                    + ", defaultValue='" + defaultValue + '\''
-                    + '}';
+        override fun toString(): String {
+            return ("Column{name='$name', type='$type', affinity='$affinity', " +
+                "notNull=notNull, primaryKeyPosition=$primaryKeyPosition, " +
+                "defaultValue='$defaultValue'}")
         }
     }
 
@@ -574,92 +337,60 @@ public final class TableInfo {
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-    public static final class ForeignKey {
-        @NonNull
-        public final String referenceTable;
-        @NonNull
-        public final String onDelete;
-        @NonNull
-        public final String onUpdate;
-        @NonNull
-        public final List<String> columnNames;
-        @NonNull
-        public final List<String> referenceColumnNames;
-
-        public ForeignKey(@NonNull String referenceTable, @NonNull String onDelete,
-                @NonNull String onUpdate,
-                @NonNull List<String> columnNames, @NonNull List<String> referenceColumnNames) {
-            this.referenceTable = referenceTable;
-            this.onDelete = onDelete;
-            this.onUpdate = onUpdate;
-            this.columnNames = Collections.unmodifiableList(columnNames);
-            this.referenceColumnNames = Collections.unmodifiableList(referenceColumnNames);
+    class ForeignKey(
+        @JvmField
+        val referenceTable: String,
+        @JvmField
+        val onDelete: String,
+        @JvmField
+        val onUpdate: String,
+        @JvmField
+        val columnNames: List<String>,
+        @JvmField
+        val referenceColumnNames: List<String>
+    ) {
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (other !is ForeignKey) return false
+            if (referenceTable != other.referenceTable) return false
+            if (onDelete != other.onDelete) return false
+            if (onUpdate != other.onUpdate) return false
+            return if (columnNames != other.columnNames) false else referenceColumnNames ==
+                other.referenceColumnNames
         }
 
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (!(o instanceof ForeignKey)) return false;
-
-            ForeignKey that = (ForeignKey) o;
-
-            if (!referenceTable.equals(that.referenceTable)) return false;
-            if (!onDelete.equals(that.onDelete)) return false;
-            if (!onUpdate.equals(that.onUpdate)) return false;
-            //noinspection SimplifiableIfStatement
-            if (!columnNames.equals(that.columnNames)) return false;
-            return referenceColumnNames.equals(that.referenceColumnNames);
+        override fun hashCode(): Int {
+            var result = referenceTable.hashCode()
+            result = 31 * result + onDelete.hashCode()
+            result = 31 * result + onUpdate.hashCode()
+            result = 31 * result + columnNames.hashCode()
+            result = 31 * result + referenceColumnNames.hashCode()
+            return result
         }
 
-        @Override
-        public int hashCode() {
-            int result = referenceTable.hashCode();
-            result = 31 * result + onDelete.hashCode();
-            result = 31 * result + onUpdate.hashCode();
-            result = 31 * result + columnNames.hashCode();
-            result = 31 * result + referenceColumnNames.hashCode();
-            return result;
-        }
-
-        @Override
-        public String toString() {
-            return "ForeignKey{"
-                    + "referenceTable='" + referenceTable + '\''
-                    + ", onDelete='" + onDelete + '\''
-                    + ", onUpdate='" + onUpdate + '\''
-                    + ", columnNames=" + columnNames
-                    + ", referenceColumnNames=" + referenceColumnNames
-                    + '}';
+        override fun toString(): String {
+            return ("ForeignKey{referenceTable='$referenceTable', onDelete='$onDelete +', " +
+                "onUpdate='$onUpdate', columnNames=$columnNames, " +
+                "referenceColumnNames=$referenceColumnNames}")
         }
     }
 
     /**
      * Temporary data holder for a foreign key row in the pragma result. We need this to ensure
      * sorting in the generated foreign key object.
-     *
-     * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-    static class ForeignKeyWithSequence implements Comparable<ForeignKeyWithSequence> {
-        final int mId;
-        final int mSequence;
-        final String mFrom;
-        final String mTo;
-
-        ForeignKeyWithSequence(int id, int sequence, String from, String to) {
-            mId = id;
-            mSequence = sequence;
-            mFrom = from;
-            mTo = to;
-        }
-
-        @Override
-        public int compareTo(@NonNull ForeignKeyWithSequence o) {
-            final int idCmp = mId - o.mId;
-            if (idCmp == 0) {
-                return mSequence - o.mSequence;
+    internal class ForeignKeyWithSequence(
+        val id: Int,
+        val sequence: Int,
+        val from: String,
+        val to: String
+    ) : Comparable<ForeignKeyWithSequence> {
+        override fun compareTo(other: ForeignKeyWithSequence): Int {
+            val idCmp = id - other.id
+            return if (idCmp == 0) {
+                sequence - other.sequence
             } else {
-                return idCmp;
+                idCmp
             }
         }
     }
@@ -670,74 +401,250 @@ public final class TableInfo {
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-    public static final class Index {
-        // should match the value in Index.kt
-        public static final String DEFAULT_PREFIX = "index_";
-        public final String name;
-        public final boolean unique;
-        public final List<String> columns;
-        public final List<String> orders;
-
-        /**
-         * @deprecated Use {@link #Index(String, boolean, List, List)}
-         */
-        public Index(String name, boolean unique, List<String> columns) {
-            this(name, unique, columns, null);
+    class Index(
+        @JvmField
+        val name: String,
+        @JvmField
+        val unique: Boolean,
+        @JvmField
+        val columns: List<String>,
+        @JvmField
+        var orders: List<String>
+    ) {
+        init {
+            orders = orders.ifEmpty {
+                List(columns.size) { androidx.room.Index.Order.ASC.name }
+            }
         }
 
-        public Index(String name, boolean unique, List<String> columns, List<String> orders) {
-            this.name = name;
-            this.unique = unique;
-            this.columns = columns;
-            this.orders = orders == null || orders.size() == 0
-                    ? Collections.nCopies(columns.size(), androidx.room.Index.Order.ASC.name())
-                    : orders;
+        companion object {
+            // should match the value in Index.kt
+            const val DEFAULT_PREFIX = "index_"
         }
 
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (!(o instanceof Index)) return false;
+        @Deprecated("Use {@link #Index(String, boolean, List, List)}")
+        constructor(name: String, unique: Boolean, columns: List<String>) : this(
+            name,
+            unique,
+            columns,
+            List<String>(columns.size) { androidx.room.Index.Order.ASC.name }
+        )
 
-            Index index = (Index) o;
-            if (unique != index.unique) {
-                return false;
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (other !is Index) return false
+            if (unique != other.unique) {
+                return false
             }
-            if (!columns.equals(index.columns)) {
-                return false;
+            if (columns != other.columns) {
+                return false
             }
-            if (!orders.equals(index.orders)) {
-                return false;
+            if (orders != other.orders) {
+                return false
             }
-            if (name.startsWith(Index.DEFAULT_PREFIX)) {
-                return index.name.startsWith(Index.DEFAULT_PREFIX);
+            return if (name.startsWith(DEFAULT_PREFIX)) {
+                other.name.startsWith(DEFAULT_PREFIX)
             } else {
-                return name.equals(index.name);
+                name == other.name
             }
         }
 
-        @Override
-        public int hashCode() {
-            int result;
-            if (name.startsWith(DEFAULT_PREFIX)) {
-                result = DEFAULT_PREFIX.hashCode();
+        override fun hashCode(): Int {
+            var result = if (name.startsWith(DEFAULT_PREFIX)) {
+                DEFAULT_PREFIX.hashCode()
             } else {
-                result = name.hashCode();
+                name.hashCode()
             }
-            result = 31 * result + (unique ? 1 : 0);
-            result = 31 * result + columns.hashCode();
-            result = 31 * result + orders.hashCode();
-            return result;
+            result = 31 * result + if (unique) 1 else 0
+            result = 31 * result + columns.hashCode()
+            result = 31 * result + orders.hashCode()
+            return result
         }
 
-        @Override
-        public String toString() {
-            return "Index{"
-                    + "name='" + name + '\''
-                    + ", unique=" + unique
-                    + ", columns=" + columns
-                    + ", orders=" + orders
-                    + '}';
+        override fun toString(): String {
+            return ("Index{name='$name', unique=$unique, columns=$columns, orders=$orders'}")
         }
+    }
+}
+
+internal fun readTableInfo(database: SupportSQLiteDatabase, tableName: String): TableInfo {
+    val columns = readColumns(database, tableName)
+    val foreignKeys = readForeignKeys(database, tableName)
+    val indices = readIndices(database, tableName)
+    return TableInfo(tableName, columns, foreignKeys, indices)
+}
+
+private fun readForeignKeys(
+    database: SupportSQLiteDatabase,
+    tableName: String
+): Set<TableInfo.ForeignKey> {
+    // this seems to return everything in order but it is not documented so better be safe
+    database.query("PRAGMA foreign_key_list(`$tableName`)").use { cursor ->
+        val idColumnIndex = cursor.getColumnIndex("id")
+        val seqColumnIndex = cursor.getColumnIndex("seq")
+        val tableColumnIndex = cursor.getColumnIndex("table")
+        val onDeleteColumnIndex = cursor.getColumnIndex("on_delete")
+        val onUpdateColumnIndex = cursor.getColumnIndex("on_update")
+        val ordered = readForeignKeyFieldMappings(cursor)
+
+        // Reset cursor as readForeignKeyFieldMappings has moved it
+        cursor.moveToPosition(-1)
+        return buildSet {
+            while (cursor.moveToNext()) {
+                val seq = cursor.getInt(seqColumnIndex)
+                if (seq != 0) {
+                    continue
+                }
+                val id = cursor.getInt(idColumnIndex)
+                val myColumns = mutableListOf<String>()
+                val refColumns = mutableListOf<String>()
+
+                ordered.filter {
+                    it.id == id
+                }.forEach { key ->
+                    myColumns.add(key.from)
+                    refColumns.add(key.to)
+                }
+
+                add(
+                    TableInfo.ForeignKey(
+                        referenceTable = cursor.getString(tableColumnIndex),
+                        onDelete = cursor.getString(onDeleteColumnIndex),
+                        onUpdate = cursor.getString(onUpdateColumnIndex),
+                        columnNames = myColumns,
+                        referenceColumnNames = refColumns
+                    )
+                )
+            }
+        }
+    }
+}
+
+private fun readForeignKeyFieldMappings(cursor: Cursor): List<TableInfo.ForeignKeyWithSequence> {
+    val idColumnIndex = cursor.getColumnIndex("id")
+    val seqColumnIndex = cursor.getColumnIndex("seq")
+    val fromColumnIndex = cursor.getColumnIndex("from")
+    val toColumnIndex = cursor.getColumnIndex("to")
+
+    return buildList {
+        while (cursor.moveToNext()) {
+            add(
+                TableInfo.ForeignKeyWithSequence(
+                    id = cursor.getInt(idColumnIndex),
+                    sequence = cursor.getInt(seqColumnIndex),
+                    from = cursor.getString(fromColumnIndex),
+                    to = cursor.getString(toColumnIndex)
+                )
+            )
+        }
+    }.sorted()
+}
+
+private fun readColumns(
+    database: SupportSQLiteDatabase,
+    tableName: String
+): Map<String, TableInfo.Column> {
+    database.query("PRAGMA table_info(`$tableName`)").use { cursor ->
+        if (cursor.columnCount <= 0) {
+            return emptyMap()
+        }
+
+        val nameIndex = cursor.getColumnIndex("name")
+        val typeIndex = cursor.getColumnIndex("type")
+        val notNullIndex = cursor.getColumnIndex("notnull")
+        val pkIndex = cursor.getColumnIndex("pk")
+        val defaultValueIndex = cursor.getColumnIndex("dflt_value")
+
+        return buildMap {
+            while (cursor.moveToNext()) {
+                val name = cursor.getString(nameIndex)
+                val type = cursor.getString(typeIndex)
+                val notNull = 0 != cursor.getInt(notNullIndex)
+                val primaryKeyPosition = cursor.getInt(pkIndex)
+                val defaultValue = cursor.getString(defaultValueIndex)
+                put(
+                    key = name,
+                    value = TableInfo.Column(
+                        name = name,
+                        type = type,
+                        notNull = notNull,
+                        primaryKeyPosition = primaryKeyPosition,
+                        defaultValue = defaultValue,
+                        createdFrom = TableInfo.CREATED_FROM_DATABASE
+                    )
+                )
+            }
+        }
+    }
+}
+
+/**
+ * @return null if we cannot read the indices due to older sqlite implementations.
+ */
+private fun readIndices(database: SupportSQLiteDatabase, tableName: String): Set<TableInfo.Index>? {
+    database.query("PRAGMA index_list(`$tableName`)").use { cursor ->
+        val nameColumnIndex = cursor.getColumnIndex("name")
+        val originColumnIndex = cursor.getColumnIndex("origin")
+        val uniqueIndex = cursor.getColumnIndex("unique")
+        if (nameColumnIndex == -1 || originColumnIndex == -1 || uniqueIndex == -1) {
+            // we cannot read them so better not validate any index.
+            return null
+        }
+        return buildSet {
+            while (cursor.moveToNext()) {
+                val origin = cursor.getString(originColumnIndex)
+                if ("c" != origin) {
+                    // Ignore auto-created indices
+                    continue
+                }
+                val name = cursor.getString(nameColumnIndex)
+                val unique = cursor.getInt(uniqueIndex) == 1
+                // Read index but if we cannot read it properly so better not read it
+                val index = readIndex(database, name, unique) ?: return null
+                add(index)
+            }
+        }
+    }
+}
+
+/**
+ * @return null if we cannot read the index due to older sqlite implementations.
+ */
+private fun readIndex(
+    database: SupportSQLiteDatabase,
+    name: String,
+    unique: Boolean
+): TableInfo.Index? {
+    return database.query("PRAGMA index_xinfo(`$name`)").use { cursor ->
+        val seqnoColumnIndex = cursor.getColumnIndex("seqno")
+        val cidColumnIndex = cursor.getColumnIndex("cid")
+        val nameColumnIndex = cursor.getColumnIndex("name")
+        val descColumnIndex = cursor.getColumnIndex("desc")
+        if (
+            seqnoColumnIndex == -1 ||
+            cidColumnIndex == -1 ||
+            nameColumnIndex == -1 ||
+            descColumnIndex == -1
+        ) {
+            // we cannot read them so better not validate any index.
+            return null
+        }
+        val columnsMap = TreeMap<Int, String>()
+        val ordersMap = TreeMap<Int, String>()
+        while (cursor.moveToNext()) {
+            val cid = cursor.getInt(cidColumnIndex)
+            if (cid < 0) {
+                // Ignore SQLite row ID
+                continue
+            }
+            val seq = cursor.getInt(seqnoColumnIndex)
+            val columnName = cursor.getString(nameColumnIndex)
+            val order = if (cursor.getInt(descColumnIndex) > 0) "DESC" else "ASC"
+            columnsMap[seq] = columnName
+            ordersMap[seq] = order
+        }
+        val columns = columnsMap.values.toList()
+        val orders = ordersMap.values.toList()
+        TableInfo.Index(name, unique, columns, orders)
     }
 }
