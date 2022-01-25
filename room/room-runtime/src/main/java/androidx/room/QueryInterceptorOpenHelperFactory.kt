@@ -14,37 +14,27 @@
  * limitations under the License.
  */
 
-package androidx.room;
+package androidx.room
 
-import androidx.annotation.NonNull;
-import androidx.sqlite.db.SupportSQLiteOpenHelper;
+import androidx.sqlite.db.SupportSQLiteOpenHelper
 
-import java.util.concurrent.Executor;
+import java.util.concurrent.Executor
 
 /**
- * Implements {@link SupportSQLiteOpenHelper.Factory} to wrap QueryInterceptorOpenHelper.
+ * Implements [SupportSQLiteOpenHelper.Factory] to wrap [QueryInterceptorOpenHelper].
  */
-@SuppressWarnings("AcronymName")
-final class QueryInterceptorOpenHelperFactory implements SupportSQLiteOpenHelper.Factory {
-
-    private final SupportSQLiteOpenHelper.Factory mDelegate;
-    private final RoomDatabase.QueryCallback mQueryCallback;
-    private final Executor mQueryCallbackExecutor;
-
-    @SuppressWarnings("LambdaLast")
-    QueryInterceptorOpenHelperFactory(@NonNull SupportSQLiteOpenHelper.Factory factory,
-            @NonNull RoomDatabase.QueryCallback queryCallback,
-            @NonNull Executor queryCallbackExecutor) {
-        mDelegate = factory;
-        mQueryCallback = queryCallback;
-        mQueryCallbackExecutor = queryCallbackExecutor;
-    }
-
-    @NonNull
-    @Override
-    public SupportSQLiteOpenHelper create(
-            @NonNull SupportSQLiteOpenHelper.Configuration configuration) {
-        return new QueryInterceptorOpenHelper(mDelegate.create(configuration), mQueryCallback,
-                mQueryCallbackExecutor);
+internal class QueryInterceptorOpenHelperFactory(
+    private val delegate: SupportSQLiteOpenHelper.Factory,
+    private val queryCallbackExecutor: Executor,
+    private val queryCallback: RoomDatabase.QueryCallback,
+) : SupportSQLiteOpenHelper.Factory by delegate {
+    override fun create(
+        configuration: SupportSQLiteOpenHelper.Configuration
+    ): SupportSQLiteOpenHelper {
+        return QueryInterceptorOpenHelper(
+            delegate.create(configuration),
+            queryCallbackExecutor,
+            queryCallback
+        )
     }
 }

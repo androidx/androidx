@@ -14,65 +14,35 @@
  * limitations under the License.
  */
 
-package androidx.room;
+package androidx.room
 
-import android.os.Build;
+import androidx.sqlite.db.SupportSQLiteDatabase
+import androidx.sqlite.db.SupportSQLiteOpenHelper
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
-import androidx.sqlite.db.SupportSQLiteDatabase;
-import androidx.sqlite.db.SupportSQLiteOpenHelper;
+import java.util.concurrent.Executor
 
-import java.util.concurrent.Executor;
-
-final class QueryInterceptorOpenHelper implements SupportSQLiteOpenHelper, DelegatingOpenHelper {
-
-    private final SupportSQLiteOpenHelper mDelegate;
-    private final RoomDatabase.QueryCallback mQueryCallback;
-    private final Executor mQueryCallbackExecutor;
-
-    QueryInterceptorOpenHelper(@NonNull SupportSQLiteOpenHelper supportSQLiteOpenHelper,
-            @NonNull RoomDatabase.QueryCallback queryCallback, @NonNull Executor
-            queryCallbackExecutor) {
-        mDelegate = supportSQLiteOpenHelper;
-        mQueryCallback = queryCallback;
-        mQueryCallbackExecutor = queryCallbackExecutor;
+internal class QueryInterceptorOpenHelper(
+    private val delegate: SupportSQLiteOpenHelper,
+    private val queryCallbackExecutor: Executor,
+    private val queryCallback: RoomDatabase.QueryCallback
+) : SupportSQLiteOpenHelper by delegate, DelegatingOpenHelper {
+    override fun getWritableDatabase(): SupportSQLiteDatabase {
+        return QueryInterceptorDatabase(
+            delegate.writableDatabase,
+            queryCallbackExecutor,
+            queryCallback
+        )
     }
 
-    @Nullable
-    @Override
-    public String getDatabaseName() {
-        return mDelegate.getDatabaseName();
+    override fun getReadableDatabase(): SupportSQLiteDatabase {
+        return QueryInterceptorDatabase(
+            delegate.readableDatabase,
+            queryCallbackExecutor,
+            queryCallback
+        )
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
-    @Override
-    public void setWriteAheadLoggingEnabled(boolean enabled) {
-        mDelegate.setWriteAheadLoggingEnabled(enabled);
+   override fun getDelegate(): SupportSQLiteOpenHelper {
+        return delegate
     }
-
-    @Override
-    public SupportSQLiteDatabase getWritableDatabase() {
-        return new QueryInterceptorDatabase(mDelegate.getWritableDatabase(), mQueryCallback,
-                mQueryCallbackExecutor);
-    }
-
-    @Override
-    public SupportSQLiteDatabase getReadableDatabase() {
-        return new QueryInterceptorDatabase(mDelegate.getReadableDatabase(), mQueryCallback,
-                mQueryCallbackExecutor);
-    }
-
-    @Override
-    public void close() {
-        mDelegate.close();
-    }
-
-    @Override
-    @NonNull
-    public SupportSQLiteOpenHelper getDelegate() {
-        return mDelegate;
-    }
-
 }

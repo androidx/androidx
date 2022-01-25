@@ -14,115 +14,97 @@
  * limitations under the License.
  */
 
-package androidx.room;
+package androidx.room
 
-import androidx.annotation.NonNull;
-import androidx.sqlite.db.SupportSQLiteStatement;
+import androidx.sqlite.db.SupportSQLiteStatement
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.Executor;
+import java.util.concurrent.Executor
 
 /**
- * Implements an instance of {@link SupportSQLiteStatement} for SQLite queries.
+ * Implements an instance of [SupportSQLiteStatement] for SQLite queries.
  */
-final class QueryInterceptorStatement implements SupportSQLiteStatement {
+internal class QueryInterceptorStatement(
+    private val delegate: SupportSQLiteStatement,
+    private val sqlStatement: String,
+    private val queryCallbackExecutor: Executor,
+    private val queryCallback: RoomDatabase.QueryCallback,
+) : SupportSQLiteStatement by delegate {
 
-    private final SupportSQLiteStatement mDelegate;
-    private final RoomDatabase.QueryCallback mQueryCallback;
-    private final String mSqlStatement;
-    private final List<Object> mBindArgsCache = new ArrayList<>();
-    private final Executor mQueryCallbackExecutor;
+    private val bindArgsCache = mutableListOf<Any?>()
 
-    QueryInterceptorStatement(@NonNull SupportSQLiteStatement compileStatement,
-            @NonNull RoomDatabase.QueryCallback queryCallback, String sqlStatement,
-            @NonNull Executor queryCallbackExecutor) {
-        mDelegate = compileStatement;
-        mQueryCallback = queryCallback;
-        mSqlStatement = sqlStatement;
-        mQueryCallbackExecutor = queryCallbackExecutor;
+    override fun execute() {
+        queryCallbackExecutor.execute {
+            queryCallback.onQuery(sqlStatement, bindArgsCache)
+        }
+        delegate.execute()
     }
 
-    @Override
-    public void execute() {
-        mQueryCallbackExecutor.execute(() -> mQueryCallback.onQuery(mSqlStatement, mBindArgsCache));
-        mDelegate.execute();
+    override fun executeUpdateDelete(): Int {
+        queryCallbackExecutor.execute {
+            queryCallback.onQuery(sqlStatement, bindArgsCache)
+        }
+        return delegate.executeUpdateDelete()
     }
 
-    @Override
-    public int executeUpdateDelete() {
-        mQueryCallbackExecutor.execute(() -> mQueryCallback.onQuery(mSqlStatement, mBindArgsCache));
-        return mDelegate.executeUpdateDelete();
+   override fun executeInsert(): Long {
+        queryCallbackExecutor.execute {
+            queryCallback.onQuery(sqlStatement, bindArgsCache)
+        }
+        return delegate.executeInsert()
     }
 
-    @Override
-    public long executeInsert() {
-        mQueryCallbackExecutor.execute(() -> mQueryCallback.onQuery(mSqlStatement, mBindArgsCache));
-        return mDelegate.executeInsert();
+    override fun simpleQueryForLong(): Long {
+        queryCallbackExecutor.execute {
+            queryCallback.onQuery(sqlStatement, bindArgsCache)
+        }
+        return delegate.simpleQueryForLong()
     }
 
-    @Override
-    public long simpleQueryForLong() {
-        mQueryCallbackExecutor.execute(() -> mQueryCallback.onQuery(mSqlStatement, mBindArgsCache));
-        return mDelegate.simpleQueryForLong();
+    override fun simpleQueryForString(): String {
+        queryCallbackExecutor.execute {
+            queryCallback.onQuery(sqlStatement, bindArgsCache)
+        }
+        return delegate.simpleQueryForString()
     }
 
-    @Override
-    public String simpleQueryForString() {
-        mQueryCallbackExecutor.execute(() -> mQueryCallback.onQuery(mSqlStatement, mBindArgsCache));
-        return mDelegate.simpleQueryForString();
+    override fun bindNull(index: Int) {
+        saveArgsToCache(index, arrayOf(*bindArgsCache.toTypedArray()))
+        delegate.bindNull(index)
     }
 
-    @Override
-    public void bindNull(int index) {
-        saveArgsToCache(index, mBindArgsCache.toArray());
-        mDelegate.bindNull(index);
+    override fun bindLong(index: Int, value: Long) {
+        saveArgsToCache(index, value)
+        delegate.bindLong(index, value)
     }
 
-    @Override
-    public void bindLong(int index, long value) {
-        saveArgsToCache(index, value);
-        mDelegate.bindLong(index, value);
+    override fun bindDouble(index: Int, value: Double) {
+        saveArgsToCache(index, value)
+        delegate.bindDouble(index, value)
     }
 
-    @Override
-    public void bindDouble(int index, double value) {
-        saveArgsToCache(index, value);
-        mDelegate.bindDouble(index, value);
+    override fun bindString(index: Int, value: String?) {
+        saveArgsToCache(index, value)
+        delegate.bindString(index, value)
     }
 
-    @Override
-    public void bindString(int index, String value) {
-        saveArgsToCache(index, value);
-        mDelegate.bindString(index, value);
+    override fun bindBlob(index: Int, value: ByteArray?) {
+        saveArgsToCache(index, value)
+        delegate.bindBlob(index, value)
     }
 
-    @Override
-    public void bindBlob(int index, byte[] value) {
-        saveArgsToCache(index, value);
-        mDelegate.bindBlob(index, value);
+    override fun clearBindings() {
+        bindArgsCache.clear()
+        delegate.clearBindings()
     }
 
-    @Override
-    public void clearBindings() {
-        mBindArgsCache.clear();
-        mDelegate.clearBindings();
-    }
-
-    @Override
-    public void close() throws IOException {
-        mDelegate.close();
-    }
-
-    private void saveArgsToCache(int bindIndex, Object value) {
-        int index = bindIndex - 1;
-        if (index >= mBindArgsCache.size()) {
+    private fun saveArgsToCache(bindIndex: Int, value: Any?) {
+        val index = bindIndex - 1
+        if (index >= bindArgsCache.size) {
             // Add null entries to the list until we have the desired # of indices
-            for (int i = mBindArgsCache.size(); i <= index; i++) {
-                mBindArgsCache.add(null);
+            repeat(index - bindArgsCache.size + 1) {
+                bindArgsCache.add(null)
             }
         }
-        mBindArgsCache.set(index, value);
+        bindArgsCache[index] = value
     }
 }

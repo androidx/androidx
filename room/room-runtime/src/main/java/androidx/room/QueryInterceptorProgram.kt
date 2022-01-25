@@ -14,69 +14,50 @@
  * limitations under the License.
  */
 
-package androidx.room;
+package androidx.room
 
-import androidx.sqlite.db.SupportSQLiteProgram;
-
-import java.util.ArrayList;
-import java.util.List;
+import androidx.sqlite.db.SupportSQLiteProgram
 
 /**
- * A program implementing an {@link SupportSQLiteProgram} API to record bind arguments.
+ * A program implementing an [SupportSQLiteProgram] API to record bind arguments.
  */
-final class QueryInterceptorProgram implements SupportSQLiteProgram {
-    private List<Object> mBindArgsCache = new ArrayList<>();
+internal class QueryInterceptorProgram : SupportSQLiteProgram {
+    internal val bindArgsCache = mutableListOf<Any?>()
 
-    @Override
-    public void bindNull(int index) {
-        saveArgsToCache(index, null);
+    override fun bindNull(index: Int) {
+        saveArgsToCache(index, null)
     }
 
-    @Override
-    public void bindLong(int index, long value) {
-        saveArgsToCache(index, value);
+    override fun bindLong(index: Int, value: Long) {
+        saveArgsToCache(index, value)
     }
 
-    @Override
-    public void bindDouble(int index, double value) {
-        saveArgsToCache(index, value);
+    override fun bindDouble(index: Int, value: Double) {
+        saveArgsToCache(index, value)
     }
 
-    @Override
-    public void bindString(int index, String value) {
-        saveArgsToCache(index, value);
+    override fun bindString(index: Int, value: String?) {
+        saveArgsToCache(index, value)
     }
 
-    @Override
-    public void bindBlob(int index, byte[] value) {
-        saveArgsToCache(index, value);
+    override fun bindBlob(index: Int, value: ByteArray?) {
+        saveArgsToCache(index, value)
     }
 
-    @Override
-    public void clearBindings() {
-        mBindArgsCache.clear();
+    override fun clearBindings() {
+        bindArgsCache.clear()
     }
 
-    @Override
-    public void close() { }
+    override fun close() {}
 
-    private void saveArgsToCache(int bindIndex, Object value) {
+    private fun saveArgsToCache(bindIndex: Int, value: Any?) {
         // The index into bind methods are 1...n
-        int index = bindIndex - 1;
-        if (index >= mBindArgsCache.size()) {
-            for (int i = mBindArgsCache.size(); i <= index; i++) {
-                mBindArgsCache.add(null);
+        val index = bindIndex - 1
+        if (index >= bindArgsCache.size) {
+            for (i in bindArgsCache.size..index) {
+                bindArgsCache.add(null)
             }
         }
-        mBindArgsCache.set(index, value);
-    }
-
-    /**
-     * Returns the list of arguments associated with the query.
-     *
-     * @return argument list.
-     */
-    List<Object> getBindArgs() {
-        return mBindArgsCache;
+        bindArgsCache[index] = value
     }
 }
