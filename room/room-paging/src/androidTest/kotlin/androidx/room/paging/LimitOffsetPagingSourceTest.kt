@@ -801,20 +801,20 @@ class LimitOffsetPagingSourceTestWithFilteringExecutor {
             ApplicationProvider.getApplicationContext(),
             LimitOffsetTestDb::class.java
         ).setQueryCallback(
-            { sqlQuery, _ ->
-                if (Thread.currentThread() === mainThread) {
-                    mainThreadQueries.add(
-                        sqlQuery to Throwable().stackTraceToString()
-                    )
+            object : RoomDatabase.QueryCallback {
+                override fun onQuery(sqlQuery: String, bindArgs: List<Any?>) {
+                    if (Thread.currentThread() === mainThread) {
+                        mainThreadQueries.add(
+                            sqlQuery to Throwable().stackTraceToString()
+                        )
+                    }
                 }
-            },
-            {
-                // instantly execute the log callback so that we can check the thread.
-                it.run()
             }
-        ).setQueryExecutor(queryExecutor)
+        ) {
+            // instantly execute the log callback so that we can check the thread.
+            it.run()
+        }.setQueryExecutor(queryExecutor)
             .build()
-
         dao = db.dao
     }
 

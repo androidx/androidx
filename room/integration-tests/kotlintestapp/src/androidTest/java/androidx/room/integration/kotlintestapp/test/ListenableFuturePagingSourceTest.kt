@@ -35,6 +35,7 @@ import androidx.paging.ListenableFuturePagingSource
 import androidx.paging.Pager
 import androidx.paging.PagingState
 import androidx.room.Room
+import androidx.room.RoomDatabase
 import androidx.room.androidx.room.integration.kotlintestapp.testutil.ItemStore
 import androidx.room.androidx.room.integration.kotlintestapp.testutil.PagingDb
 import androidx.room.androidx.room.integration.kotlintestapp.testutil.PagingEntity
@@ -85,18 +86,19 @@ class ListenableFuturePagingSourceTest {
             ApplicationProvider.getApplicationContext(),
             PagingDb::class.java
         ).setQueryCallback(
-            { sqlQuery, _ ->
-                if (Thread.currentThread() === mainThread) {
-                    mainThreadQueries.add(
-                        sqlQuery to Throwable().stackTraceToString()
-                    )
+            object : RoomDatabase.QueryCallback {
+                override fun onQuery(sqlQuery: String, bindArgs: List<Any?>) {
+                    if (Thread.currentThread() === mainThread) {
+                        mainThreadQueries.add(
+                            sqlQuery to Throwable().stackTraceToString()
+                        )
+                    }
                 }
-            },
-            {
-                // instantly execute the log callback so that we can check the thread.
-                it.run()
             }
-        ).setQueryExecutor(queryExecutor)
+        ) {
+            // instantly execute the log callback so that we can check the thread.
+            it.run()
+        }.setQueryExecutor(queryExecutor)
             .build()
     }
 

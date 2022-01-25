@@ -643,5 +643,28 @@ package=".*" found in source AndroidManifest\.xml: .*/AndroidManifest\.xml\.
 Setting the namespace via a source AndroidManifest\.xml's package attribute is deprecated\.
 Please instead set the namespace \(or testNamespace\) in the module's build\.gradle file, as described here: https://developer\.android\.com/studio/build/configure\-app\-module\#set\-namespace
 This migration can be done automatically using the AGP Upgrade Assistant, please refer to https://developer\.android\.com/studio/build/agp\-upgrade\-assistant for more information\.
+# Room unresolved type error messages
+Found an unresolved type in androidx\.room\.RoomDatabase\.Builder\$createFromAsset\(kotlin\.String\) \(RoomDatabase\.kt:[0-9]+\)
+Found an unresolved type in androidx\.room\.RoomDatabase\.Builder\$createFromAsset\(kotlin\.String\,\ androidx\.room\.RoomDatabase\.PrepackagedDatabaseCallback\) \(RoomDatabase\.kt:[0-9]+\)
+Found an unresolved type in androidx\.room\.RoomDatabase\.Builder\$createFromFile\(java\.io\.File\) \(RoomDatabase\.kt:[0-9]+\)
+Found an unresolved type in androidx\.room\.RoomDatabase\.Builder\$createFromFile\(java\.io\.File\,\ androidx\.room\.RoomDatabase\.PrepackagedDatabaseCallback\) \(RoomDatabase\.kt:[0-9]+\)
+Found an unresolved type in androidx\.room\.RoomDatabase\.Builder\$createFromInputStream\(java\.util\.concurrent\.Callable\(\(java\.io\.InputStream\)\)\) \(RoomDatabase\.kt:[0-9]+\)
+Found an unresolved type in androidx\.room\.RoomDatabase\.Builder\$createFromInputStream\(java\.util\.concurrent\.Callable\(\(java\.io\.InputStream\)\), androidx\.room\.RoomDatabase\.PrepackagedDatabaseCallback\) \(RoomDatabase\.kt:[0-9]+\)
+Found an unresolved type in androidx\.room\.RoomDatabase\.Builder\$openHelperFactory\(androidx\.sqlite\.db\.SupportSQLiteOpenHelper\.Factory\) \(RoomDatabase\.kt:[0-9]+\)
+Found an unresolved type in androidx\.room\.RoomDatabase\.Builder\$addMigrations\(kotlin\.Array\(\(androidx\.room\.migration\.Migration\)\)\) \(RoomDatabase\.kt:[0-9]+\)
+Found an unresolved type in androidx\.room\.RoomDatabase\.Builder\$addAutoMigrationSpec\(androidx\.room\.migration\.AutoMigrationSpec\) \(RoomDatabase\.kt:[0-9]+\)
+Found an unresolved type in androidx\.room\.RoomDatabase\.Builder\$allowMainThreadQueries\(\) \(RoomDatabase\.kt:[0-9]+\)
+Found an unresolved type in androidx\.room\.RoomDatabase\.Builder\$setJournalMode\(androidx\.room\.RoomDatabase\.JournalMode\) \(RoomDatabase\.kt:[0-9]+\)
+Found an unresolved type in androidx\.room\.RoomDatabase\.Builder\$setQueryExecutor\(java\.util\.concurrent\.Executor\) \(RoomDatabase\.kt:[0-9]+\)
+Found an unresolved type in androidx\.room\.RoomDatabase\.Builder\$setTransactionExecutor\(java\.util\.concurrent\.Executor\) \(RoomDatabase\.kt:[0-9]+\)
+Found an unresolved type in androidx\.room\.RoomDatabase\.Builder\$enableMultiInstanceInvalidation\(\) \(RoomDatabase\.kt:[0-9]+\)
+Found an unresolved type in androidx\.room\.RoomDatabase\.Builder\$setMultiInstanceInvalidationServiceIntent\(android\.content\.Intent\) \(RoomDatabase\.kt:[0-9]+\)
+Found an unresolved type in androidx\.room\.RoomDatabase\.Builder\$fallbackToDestructiveMigration\(\) \(RoomDatabase\.kt:[0-9]+\)
+Found an unresolved type in androidx\.room\.RoomDatabase\.Builder\$fallbackToDestructiveMigrationFrom\(kotlin\.IntArray\) \(RoomDatabase\.kt:[0-9]+\)
+Found an unresolved type in androidx\.room\.RoomDatabase\.Builder\$fallbackToDestructiveMigrationOnDowngrade\(\) \(RoomDatabase\.kt:[0-9]+\)
+Found an unresolved type in androidx\.room\.RoomDatabase\.Builder\$addCallback\(androidx\.room\.RoomDatabase\.Callback\) \(RoomDatabase\.kt:[0-9]+\)
+Found an unresolved type in androidx\.room\.RoomDatabase\.Builder\$setQueryCallback\(androidx\.room\.RoomDatabase\.QueryCallback, java\.util\.concurrent\.Executor\) \(RoomDatabase\.kt:[0-9]+\)
+Found an unresolved type in androidx\.room\.RoomDatabase\.Builder\$addTypeConverter\(kotlin\.Any\) \(RoomDatabase\.kt:[0-9]+\)
+Found an unresolved type in androidx\.room\.RoomDatabase\.Builder\$setAutoCloseTimeout\(kotlin\.Long, java\.util\.concurrent\.TimeUnit\) \(RoomDatabase\.kt:[0-9]+\)
 # > Task :room:integration-tests:room-testapp:mergeDexWithExpandProjectionDebugAndroidTest b/233674378
 WARNING:D8: Application does not contain `androidx\.tracing\.Trace` as referenced in main-dex-list\.

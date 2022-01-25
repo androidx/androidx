@@ -13,94 +13,92 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package androidx.room
 
-package androidx.room;
-
-import android.annotation.SuppressLint;
-import android.app.ActivityManager;
-import android.content.Context;
-import android.content.Intent;
-import android.database.Cursor;
-import android.os.Build;
-import android.os.CancellationSignal;
-import android.os.Looper;
-import android.util.Log;
-
-import androidx.annotation.CallSuper;
-import androidx.annotation.IntRange;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
-import androidx.annotation.RestrictTo;
-import androidx.annotation.WorkerThread;
-import androidx.arch.core.executor.ArchTaskExecutor;
-import androidx.room.migration.AutoMigrationSpec;
-import androidx.room.migration.Migration;
-import androidx.room.util.SneakyThrow;
-import androidx.sqlite.db.SimpleSQLiteQuery;
-import androidx.sqlite.db.SupportSQLiteCompat;
-import androidx.sqlite.db.SupportSQLiteDatabase;
-import androidx.sqlite.db.SupportSQLiteOpenHelper;
-import androidx.sqlite.db.SupportSQLiteQuery;
-import androidx.sqlite.db.SupportSQLiteStatement;
-import androidx.sqlite.db.framework.FrameworkSQLiteOpenHelperFactory;
-
-import java.io.File;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.BitSet;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeMap;
-import java.util.concurrent.Callable;
-import java.util.concurrent.Executor;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
+import android.annotation.SuppressLint
+import android.app.ActivityManager
+import android.content.Context
+import android.content.Intent
+import android.database.Cursor
+import android.os.Build
+import android.os.CancellationSignal
+import android.os.Looper
+import android.util.Log
+import androidx.annotation.CallSuper
+import androidx.annotation.IntRange
+import androidx.annotation.RestrictTo
+import androidx.annotation.VisibleForTesting
+import androidx.annotation.WorkerThread
+import androidx.arch.core.executor.ArchTaskExecutor
+import androidx.room.migration.AutoMigrationSpec
+import androidx.room.migration.Migration
+import androidx.sqlite.db.SimpleSQLiteQuery
+import androidx.sqlite.db.SupportSQLiteCompat
+import androidx.sqlite.db.SupportSQLiteDatabase
+import androidx.sqlite.db.SupportSQLiteOpenHelper
+import androidx.sqlite.db.SupportSQLiteQuery
+import androidx.sqlite.db.SupportSQLiteStatement
+import androidx.sqlite.db.framework.FrameworkSQLiteOpenHelperFactory
+import java.io.File
+import java.io.InputStream
+import java.util.BitSet
+import java.util.Collections
+import java.util.TreeMap
+import java.util.concurrent.Callable
+import java.util.concurrent.Executor
+import java.util.concurrent.TimeUnit
+import java.util.concurrent.locks.Lock
+import java.util.concurrent.locks.ReentrantReadWriteLock
 
 /**
- * Base class for all Room databases. All classes that are annotated with {@link Database} must
+ * Base class for all Room databases. All classes that are annotated with [Database] must
  * extend this class.
- * <p>
+ *
  * RoomDatabase provides direct access to the underlying database implementation but you should
- * prefer using {@link Dao} classes.
+ * prefer using [Dao] classes.
+ *
+ * @constructor You cannot create an instance of a database, instead, you should acquire it via
+ * [#Room.databaseBuilder] or
+ * [#Room.inMemoryDatabaseBuilder].
  *
  * @see Database
  */
-public abstract class RoomDatabase {
-    private static final String DB_IMPL_SUFFIX = "_Impl";
-    /**
-     * Unfortunately, we cannot read this value so we are only setting it to the SQLite default.
-     *
-     * @hide
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-    public static final int MAX_BIND_PARAMETER_CNT = 999;
+abstract class RoomDatabase {
     /**
      * Set by the generated open helper.
      *
-     * @deprecated Will be hidden in the next release.
      */
-    @Deprecated
-    protected volatile SupportSQLiteDatabase mDatabase;
-    private Executor mQueryExecutor;
-    private Executor mTransactionExecutor;
-    private SupportSQLiteOpenHelper mOpenHelper;
-    private final InvalidationTracker mInvalidationTracker;
-    private boolean mAllowMainThreadQueries;
-    boolean mWriteAheadLoggingEnabled;
+    @Volatile
+    @Deprecated("Will be hidden in the next release.")
+    @JvmField
+    protected var mDatabase: SupportSQLiteDatabase? = null
+
+    private lateinit var queryExecutor: Executor
+
+    private lateinit var transactionExecutor: Executor
+
+    @VisibleForTesting
+    internal lateinit var openHelper: SupportSQLiteOpenHelper
+
+    /**
+     * The invalidation tracker for this database.
+     *
+     * You can use the invalidation tracker to get notified when certain tables in the database
+     * are modified.
+     *
+     * @return The invalidation tracker for the database.
+     */
+    open val invalidationTracker: InvalidationTracker = createInvalidationTracker()
+    private var allowMainThreadQueries = false
+    private var writeAheadLoggingEnabled = false
 
     /**
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-    @Nullable
-    @Deprecated
-    protected List<Callback> mCallbacks;
+    @Deprecated("Will be hidden in a future release.")
+    @JvmField
+    protected var mCallbacks: List<Callback>? = null
 
     /**
      * A map of auto migration spec classes to their provided instance.
@@ -108,221 +106,188 @@ public abstract class RoomDatabase {
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    @NonNull
-    protected Map<Class<? extends AutoMigrationSpec>, AutoMigrationSpec> mAutoMigrationSpecs;
-
-    private final ReentrantReadWriteLock mCloseLock = new ReentrantReadWriteLock();
-
-    @Nullable
-    private AutoCloser mAutoCloser;
+    protected var autoMigrationSpecs: MutableMap<Class<out AutoMigrationSpec>, AutoMigrationSpec> =
+        mutableMapOf()
+    private val readWriteLock = ReentrantReadWriteLock()
+    private var autoCloser: AutoCloser? = null
 
     /**
-     * {@link InvalidationTracker} uses this lock to prevent the database from closing while it is
+     * [InvalidationTracker] uses this lock to prevent the database from closing while it is
      * querying database updates.
-     * <p>
+     *
      * The returned lock is reentrant and will allow multiple threads to acquire the lock
-     * simultaneously until {@link #close()} is invoked in which the lock becomes exclusive as
+     * simultaneously until [close] is invoked in which the lock becomes exclusive as
      * a way to let the InvalidationTracker finish its work before closing the database.
      *
-     * @return The lock for {@link #close()}.
+     * @return The lock for [close].
      */
-    Lock getCloseLock() {
-        return mCloseLock.readLock();
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    open fun getCloseLock(): Lock {
+        return readWriteLock.readLock()
     }
 
     /**
+     * Suspending transaction id of the current thread.
+     *
      * This id is only set on threads that are used to dispatch coroutines within a suspending
      * database transaction.
      */
-    private final ThreadLocal<Integer> mSuspendingTransactionId = new ThreadLocal<>();
-
-    /**
-     * Gets the suspending transaction id of the current thread.
-     *
-     * @hide
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    ThreadLocal<Integer> getSuspendingTransactionId() {
-        return mSuspendingTransactionId;
-    }
-
-    private final Map<String, Object> mBackingFieldMap =
-            Collections.synchronizedMap(new HashMap<>());
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    val suspendingTransactionId = ThreadLocal<Int>()
 
     /**
      * Gets the map for storing extension properties of Kotlin type.
      *
      * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    Map<String, Object> getBackingFieldMap() {
-        return mBackingFieldMap;
-    }
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    val backingFieldMap: MutableMap<String, Any> = Collections.synchronizedMap(mutableMapOf())
 
-    // Updated later to an unmodifiable map when init is called.
-    private final Map<Class<?>, Object> mTypeConverters;
+    private val typeConverters: MutableMap<Class<*>, Any> = mutableMapOf()
 
     /**
      * Gets the instance of the given Type Converter.
      *
      * @param klass The Type Converter class.
-     * @param <T> The type of the expected Type Converter subclass.
+     * @param T The type of the expected Type Converter subclass.
      * @return An instance of T if it is provided in the builder.
      */
-    @SuppressWarnings("unchecked")
-    @Nullable
-    public <T> T getTypeConverter(@NonNull Class<T> klass) {
-        return (T) mTypeConverters.get(klass);
+    @Suppress("UNCHECKED_CAST")
+    open fun <T> getTypeConverter(klass: Class<T>): T? {
+        return typeConverters[klass] as T?
     }
 
     /**
-     * Creates a RoomDatabase.
-     * <p>
-     * You cannot create an instance of a database, instead, you should acquire it via
-     * {@link Room#databaseBuilder(Context, Class, String)} or
-     * {@link Room#inMemoryDatabaseBuilder(Context, Class)}.
-     */
-    public RoomDatabase() {
-        mInvalidationTracker = createInvalidationTracker();
-        mTypeConverters = new HashMap<>();
-        mAutoMigrationSpecs = new HashMap<>();
-    }
-
-    /**
-     * Called by {@link Room} when it is initialized.
+     * Called by [Room] when it is initialized.
+     *
+     * @throws IllegalArgumentException if initialization fails.
      *
      * @param configuration The database configuration.
      */
     @CallSuper
-    public void init(@NonNull DatabaseConfiguration configuration) {
-        mOpenHelper = createOpenHelper(configuration);
-        Set<Class<? extends AutoMigrationSpec>> requiredAutoMigrationSpecs =
-                getRequiredAutoMigrationSpecs();
-        BitSet usedSpecs = new BitSet();
-        for (Class<? extends AutoMigrationSpec> spec : requiredAutoMigrationSpecs) {
-            int foundIndex = -1;
-            for (int providedIndex = configuration.autoMigrationSpecs.size() - 1;
-                    providedIndex >= 0; providedIndex--
-            ) {
-                Object provided = configuration.autoMigrationSpecs.get(providedIndex);
-                if (spec.isAssignableFrom(provided.getClass())) {
-                    foundIndex = providedIndex;
-                    usedSpecs.set(foundIndex);
-                    break;
+    @Suppress("DEPRECATION")
+    open fun init(configuration: DatabaseConfiguration) {
+        openHelper = createOpenHelper(configuration)
+        val requiredAutoMigrationSpecs = getRequiredAutoMigrationSpecs()
+        val usedSpecs = BitSet()
+        for (spec in requiredAutoMigrationSpecs) {
+            var foundIndex = -1
+            for (providedIndex in configuration.autoMigrationSpecs.indices.reversed()) {
+                val provided: Any = configuration.autoMigrationSpecs[providedIndex]
+                if (spec.isAssignableFrom(provided.javaClass)) {
+                    foundIndex = providedIndex
+                    usedSpecs.set(foundIndex)
+                    break
                 }
             }
-            if (foundIndex < 0) {
-                throw new IllegalArgumentException(
-                        "A required auto migration spec (" + spec.getCanonicalName()
-                                + ") is missing in the database configuration.");
+            require(foundIndex >= 0) {
+                "A required auto migration spec (${spec.canonicalName}) is missing in the " +
+                    "database configuration."
             }
-            mAutoMigrationSpecs.put(spec, configuration.autoMigrationSpecs.get(foundIndex));
+            autoMigrationSpecs[spec] = configuration.autoMigrationSpecs[foundIndex]
         }
-
-        for (int providedIndex = configuration.autoMigrationSpecs.size() - 1;
-                providedIndex >= 0; providedIndex--) {
-            if (!usedSpecs.get(providedIndex)) {
-                throw new IllegalArgumentException("Unexpected auto migration specs found. "
-                        + "Annotate AutoMigrationSpec implementation with "
-                        + "@ProvidedAutoMigrationSpec annotation or remove this spec from the "
-                        + "builder.");
+        for (providedIndex in configuration.autoMigrationSpecs.indices.reversed()) {
+            require(usedSpecs[providedIndex]) {
+                "Unexpected auto migration specs found. " +
+                    "Annotate AutoMigrationSpec implementation with " +
+                    "@ProvidedAutoMigrationSpec annotation or remove this spec from the " +
+                    "builder."
             }
         }
-
-        List<Migration> autoMigrations = getAutoMigrations(mAutoMigrationSpecs);
-        for (Migration autoMigration : autoMigrations) {
-            boolean migrationExists = configuration.migrationContainer.getMigrations()
-                            .containsKey(autoMigration.startVersion);
+        val autoMigrations = getAutoMigrations(autoMigrationSpecs)
+        for (autoMigration in autoMigrations) {
+            val migrationExists = configuration.migrationContainer.getMigrations()
+                .containsKey(autoMigration.startVersion)
             if (!migrationExists) {
-                configuration.migrationContainer.addMigrations(autoMigration);
+                configuration.migrationContainer.addMigrations(autoMigration)
             }
         }
 
         // Configure SqliteCopyOpenHelper if it is available:
-        SQLiteCopyOpenHelper copyOpenHelper = unwrapOpenHelper(SQLiteCopyOpenHelper.class,
-                mOpenHelper);
-        if (copyOpenHelper != null) {
-            copyOpenHelper.setDatabaseConfiguration(configuration);
+        unwrapOpenHelper(
+                clazz = SQLiteCopyOpenHelper::class.java,
+                openHelper = openHelper
+            )?.setDatabaseConfiguration(configuration)
+
+        unwrapOpenHelper(
+            clazz = AutoClosingRoomOpenHelper::class.java,
+            openHelper = openHelper
+        )?.let {
+            autoCloser = it.autoCloser
+            invalidationTracker.setAutoCloser(it.autoCloser)
         }
 
-        AutoClosingRoomOpenHelper autoClosingRoomOpenHelper =
-                unwrapOpenHelper(AutoClosingRoomOpenHelper.class, mOpenHelper);
-
-        if (autoClosingRoomOpenHelper != null) {
-            mAutoCloser = autoClosingRoomOpenHelper.autoCloser;
-            mInvalidationTracker.setAutoCloser(mAutoCloser);
+        val wal = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+            val enabled = configuration.journalMode == JournalMode.WRITE_AHEAD_LOGGING
+            openHelper.setWriteAheadLoggingEnabled(enabled)
+            enabled
+        } else {
+            false
         }
-
-
-        boolean wal = false;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-            wal = configuration.journalMode == JournalMode.WRITE_AHEAD_LOGGING;
-            mOpenHelper.setWriteAheadLoggingEnabled(wal);
-        }
-        mCallbacks = configuration.callbacks;
-        mQueryExecutor = configuration.queryExecutor;
-        mTransactionExecutor = new TransactionExecutor(configuration.transactionExecutor);
-        mAllowMainThreadQueries = configuration.allowMainThreadQueries;
-        mWriteAheadLoggingEnabled = wal;
+        mCallbacks = configuration.callbacks
+        queryExecutor = configuration.queryExecutor
+        transactionExecutor = TransactionExecutor(configuration.transactionExecutor)
+        allowMainThreadQueries = configuration.allowMainThreadQueries
+        writeAheadLoggingEnabled = wal
         if (configuration.multiInstanceInvalidationServiceIntent != null) {
-            mInvalidationTracker.startMultiInstanceInvalidation(configuration.context,
-                    configuration.name, configuration.multiInstanceInvalidationServiceIntent);
+            requireNotNull(configuration.name)
+            invalidationTracker.startMultiInstanceInvalidation(
+                configuration.context,
+                configuration.name,
+                configuration.multiInstanceInvalidationServiceIntent
+            )
         }
-
-        Map<Class<?>, List<Class<?>>> requiredFactories = getRequiredTypeConverters();
+        val requiredFactories = getRequiredTypeConverters()
         // indices for each converter on whether it is used or not so that we can throw an exception
         // if developer provides an unused converter. It is not necessarily an error but likely
         // to be because why would developer add a converter if it won't be used?
-        BitSet used = new BitSet();
-        for (Map.Entry<Class<?>, List<Class<?>>> entry : requiredFactories.entrySet()) {
-            Class<?> daoName = entry.getKey();
-            for (Class<?> converter : entry.getValue()) {
-                int foundIndex = -1;
+        val used = BitSet()
+        requiredFactories.forEach { (daoName, converters) ->
+            for (converter in converters) {
+                var foundIndex = -1
                 // traverse provided converters in reverse so that newer one overrides
-                for (int providedIndex = configuration.typeConverters.size() - 1;
-                        providedIndex >= 0; providedIndex--) {
-                    Object provided = configuration.typeConverters.get(providedIndex);
-                    if (converter.isAssignableFrom(provided.getClass())) {
-                        foundIndex = providedIndex;
-                        used.set(foundIndex);
-                        break;
+                for (providedIndex in configuration.typeConverters.indices.reversed()) {
+                    val provided = configuration.typeConverters[providedIndex]
+                    if (converter.isAssignableFrom(provided.javaClass)) {
+                        foundIndex = providedIndex
+                        used.set(foundIndex)
+                        break
                     }
                 }
-                if (foundIndex < 0) {
-                    throw new IllegalArgumentException(
-                            "A required type converter (" + converter + ") for"
-                                    + " " + daoName.getCanonicalName()
-                                    + " is missing in the database configuration.");
+                require(foundIndex >= 0) {
+                    "A required type converter ($converter) for" +
+                        " ${daoName.canonicalName} is missing in the database configuration."
                 }
-                mTypeConverters.put(converter, configuration.typeConverters.get(foundIndex));
+                typeConverters[converter] = configuration.typeConverters[foundIndex]
             }
         }
         // now, make sure all provided factories are used
-        for (int providedIndex = configuration.typeConverters.size() - 1;
-                providedIndex >= 0; providedIndex--) {
-            if (!used.get(providedIndex)) {
-                Object converter = configuration.typeConverters.get(providedIndex);
-                throw new IllegalArgumentException("Unexpected type converter " + converter + ". "
-                        + "Annotate TypeConverter class with @ProvidedTypeConverter annotation "
-                        + "or remove this converter from the builder.");
+        for (providedIndex in configuration.typeConverters.indices.reversed()) {
+            if (!used[providedIndex]) {
+                val converter = configuration.typeConverters[providedIndex]
+                throw IllegalArgumentException(
+                    "Unexpected type converter $converter. " +
+                        "Annotate TypeConverter class with @ProvidedTypeConverter annotation " +
+                        "or remove this converter from the builder."
+                )
             }
         }
     }
 
     /**
-     * Returns a list of {@link Migration} of a database that have been automatically generated.
+     * Returns a list of [Migration] of a database that have been automatically generated.
      *
      * @return A list of migration instances each of which is a generated autoMigration
      * @param autoMigrationSpecs
      *
      * @hide
      */
-    @NonNull
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public List<Migration> getAutoMigrations(
-            @NonNull Map<Class<? extends AutoMigrationSpec>, AutoMigrationSpec> autoMigrationSpecs
-    ) {
-        return Collections.emptyList();
+    @JvmSuppressWildcards // Suppress wildcards due to generated Java code
+    open fun getAutoMigrations(
+        autoMigrationSpecs: Map<Class<out AutoMigrationSpec>, AutoMigrationSpec>
+    ): List<Migration> {
+        return emptyList()
     }
 
     /**
@@ -330,29 +295,20 @@ public abstract class RoomDatabase {
      *
      * @param clazz the open helper type to search for
      * @param openHelper the open helper to search through
-     * @param <T> the type of clazz
+     * @param T the type of clazz
      * @return the instance of clazz, otherwise null
      */
-    @Nullable
-    @SuppressWarnings("unchecked")
-    private <T> T unwrapOpenHelper(Class<T> clazz, SupportSQLiteOpenHelper openHelper) {
+    @Suppress("UNCHECKED_CAST")
+    private fun <T> unwrapOpenHelper(clazz: Class<T>, openHelper: SupportSQLiteOpenHelper): T? {
         if (clazz.isInstance(openHelper)) {
-            return (T) openHelper;
+            return openHelper as T
         }
-        if (openHelper instanceof DelegatingOpenHelper) {
-            return unwrapOpenHelper(clazz, ((DelegatingOpenHelper) openHelper).getDelegate());
-        }
-        return null;
-    }
-
-    /**
-     * Returns the SQLite open helper used by this database.
-     *
-     * @return The SQLite open helper used by this database.
-     */
-    @NonNull
-    public SupportSQLiteOpenHelper getOpenHelper() {
-        return mOpenHelper;
+        return if (openHelper is DelegatingOpenHelper) {
+            unwrapOpenHelper(
+                clazz = clazz,
+                openHelper = openHelper.delegate
+            )
+        } else null
     }
 
     /**
@@ -363,111 +319,104 @@ public abstract class RoomDatabase {
      * @param config The configuration of the Room database.
      * @return A new SupportSQLiteOpenHelper to be used while connecting to the database.
      */
-    @NonNull
-    protected abstract SupportSQLiteOpenHelper createOpenHelper(DatabaseConfiguration config);
+    protected abstract fun createOpenHelper(config: DatabaseConfiguration): SupportSQLiteOpenHelper
 
     /**
      * Called when the RoomDatabase is created.
-     * <p>
+     *
      * This is already implemented by the generated code.
      *
      * @return Creates a new InvalidationTracker.
      */
-    @NonNull
-    protected abstract InvalidationTracker createInvalidationTracker();
+    protected abstract fun createInvalidationTracker(): InvalidationTracker
 
     /**
      * Returns a Map of String -> List&lt;Class&gt; where each entry has the `key` as the DAO name
      * and `value` as the list of type converter classes that are necessary for the database to
      * function.
-     * <p>
+     *
      * This is implemented by the generated code.
      *
      * @return Creates a map that will include all required type converters for this database.
      */
-    @NonNull
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    protected Map<Class<?>, List<Class<?>>> getRequiredTypeConverters() {
-        return Collections.emptyMap();
+    protected open fun getRequiredTypeConverters(): Map<Class<*>, List<Class<*>>> {
+        return emptyMap()
     }
 
     /**
      * Returns a Set of required AutoMigrationSpec classes.
-     * <p>
+     *
      * This is implemented by the generated code.
      *
      * @return Creates a set that will include all required auto migration specs for this database.
      *
      * @hide
      */
-    @NonNull
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public Set<Class<? extends AutoMigrationSpec>> getRequiredAutoMigrationSpecs() {
-        return Collections.emptySet();
+    open fun getRequiredAutoMigrationSpecs(): Set<Class<out AutoMigrationSpec>> {
+        return emptySet()
     }
 
     /**
      * Deletes all rows from all the tables that are registered to this database as
-     * {@link Database#entities()}.
-     * <p>
-     * This does NOT reset the auto-increment value generated by {@link PrimaryKey#autoGenerate()}.
-     * <p>
+     * [Database.entities].
+     *
+     * This does NOT reset the auto-increment value generated by [PrimaryKey.autoGenerate].
+     *
      * After deleting the rows, Room will set a WAL checkpoint and run VACUUM. This means that the
      * data is completely erased. The space will be reclaimed by the system if the amount surpasses
      * the threshold of database file size.
      *
-     * @see <a href="https://www.sqlite.org/fileformat.html">Database File Format</a>
+     * See SQLite documentation for details. [FileFormat](https://www.sqlite.org/fileformat.html)
      */
     @WorkerThread
-    public abstract void clearAllTables();
+    abstract fun clearAllTables()
 
     /**
-     * Returns true if database connection is open and initialized.
+     * True if database connection is open and initialized.
      *
      * @return true if the database connection is open, false otherwise.
      */
-    public boolean isOpen() {
-        // We need to special case for the auto closing database because mDatabase is the
-        // underlying database and not the wrapped database.
-        if (mAutoCloser != null) {
-            return mAutoCloser.isActive();
+    @Suppress("Deprecation")
+    open val isOpen: Boolean
+        get() {
+            return (autoCloser?.isActive ?: mDatabase?.isOpen) == true
         }
-
-        final SupportSQLiteDatabase db = mDatabase;
-        return db != null && db.isOpen();
-    }
 
     /**
      * Closes the database if it is already open.
      */
-    public void close() {
-        if (isOpen()) {
-            final Lock closeLock = mCloseLock.writeLock();
-            closeLock.lock();
+    open fun close() {
+        if (isOpen) {
+            val closeLock: Lock = readWriteLock.writeLock()
+            closeLock.lock()
             try {
-                mInvalidationTracker.stopMultiInstanceInvalidation();
-                mOpenHelper.close();
+                invalidationTracker.stopMultiInstanceInvalidation()
+                openHelper.close()
             } finally {
-                closeLock.unlock();
+                closeLock.unlock()
             }
         }
     }
+
+    /** True if the calling thread is the main thread.  */
+    internal val isMainThread: Boolean
+        get() = Looper.getMainLooper().thread === Thread.currentThread()
 
     /**
      * Asserts that we are not on the main thread.
      *
      * @hide
      */
-    @SuppressWarnings("WeakerAccess")
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-    // used in generated code
-    public void assertNotMainThread() {
-        if (mAllowMainThreadQueries) {
-            return;
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) // used in generated code
+    open fun assertNotMainThread() {
+        if (allowMainThreadQueries) {
+            return
         }
-        if (isMainThread()) {
-            throw new IllegalStateException("Cannot access database on the main thread since"
-                    + " it may potentially lock the UI for a long period of time.");
+        check(!isMainThread) {
+            "Cannot access database on the main thread since" +
+                " it may potentially lock the UI for a long period of time."
         }
     }
 
@@ -476,20 +425,16 @@ public abstract class RoomDatabase {
      *
      * @hide
      */
-    @SuppressWarnings("WeakerAccess")
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    // used in generated code
-    public void assertNotSuspendingTransaction() {
-        if (!inTransaction() && mSuspendingTransactionId.get() != null) {
-            throw new IllegalStateException("Cannot access database on a different coroutine"
-                    + " context inherited from a suspending transaction.");
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // used in generated code
+    open fun assertNotSuspendingTransaction() {
+        check(inTransaction() || suspendingTransactionId.get() == null) {
+            "Cannot access database on a different coroutine" +
+                " context inherited from a suspending transaction."
         }
     }
-
     // Below, there are wrapper methods for SupportSQLiteDatabase. This helps us track which
     // methods we are using and also helps unit tests to mock this class without mocking
     // all SQLite database methods.
-
     /**
      * Convenience method to query the database with arguments.
      *
@@ -497,228 +442,210 @@ public abstract class RoomDatabase {
      * @param args  The bind arguments for the placeholders in the query
      * @return A Cursor obtained by running the given query in the Room database.
      */
-    @NonNull
-    public Cursor query(@NonNull String query, @Nullable Object[] args) {
-        return mOpenHelper.getWritableDatabase().query(new SimpleSQLiteQuery(query, args));
+    open fun query(query: String, args: Array<Any?>?): Cursor {
+        return openHelper.writableDatabase.query(SimpleSQLiteQuery(query, args))
     }
 
     /**
-     * Wrapper for {@link SupportSQLiteDatabase#query(SupportSQLiteQuery)}.
-     *
-     * @param query The Query which includes the SQL and a bind callback for bind arguments.
-     * @return Result of the query.
-     */
-    @NonNull
-    public Cursor query(@NonNull SupportSQLiteQuery query) {
-        return query(query, null);
-    }
-
-    /**
-     * Wrapper for {@link SupportSQLiteDatabase#query(SupportSQLiteQuery)}.
+     * Wrapper for [SupportSQLiteDatabase.query].
      *
      * @param query The Query which includes the SQL and a bind callback for bind arguments.
      * @param signal The cancellation signal to be attached to the query.
      * @return Result of the query.
      */
-    @NonNull
-    public Cursor query(@NonNull SupportSQLiteQuery query, @Nullable CancellationSignal signal) {
-        assertNotMainThread();
-        assertNotSuspendingTransaction();
-        if (signal != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-            return mOpenHelper.getWritableDatabase().query(query, signal);
+    @JvmOverloads
+    open fun query(query: SupportSQLiteQuery, signal: CancellationSignal? = null): Cursor {
+        assertNotMainThread()
+        assertNotSuspendingTransaction()
+        return if (signal != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+            openHelper.writableDatabase.query(query, signal)
         } else {
-            return mOpenHelper.getWritableDatabase().query(query);
+            openHelper.writableDatabase.query(query)
         }
     }
 
     /**
-     * Wrapper for {@link SupportSQLiteDatabase#compileStatement(String)}.
+     * Wrapper for [SupportSQLiteDatabase.compileStatement].
      *
      * @param sql The query to compile.
      * @return The compiled query.
      */
-    public SupportSQLiteStatement compileStatement(@NonNull String sql) {
-        assertNotMainThread();
-        assertNotSuspendingTransaction();
-        return mOpenHelper.getWritableDatabase().compileStatement(sql);
+    open fun compileStatement(sql: String): SupportSQLiteStatement {
+        assertNotMainThread()
+        assertNotSuspendingTransaction()
+        return openHelper.writableDatabase.compileStatement(sql)
     }
 
     /**
-     * Wrapper for {@link SupportSQLiteDatabase#beginTransaction()}.
-     *
-     * @deprecated Use {@link #runInTransaction(Runnable)}
+     * Wrapper for [SupportSQLiteDatabase.beginTransaction].
      */
-    @Deprecated
-    public void beginTransaction() {
-        assertNotMainThread();
-        if (mAutoCloser == null) {
-            internalBeginTransaction();
+    @Deprecated(
+        "beginTransaction() is deprecated",
+        ReplaceWith("runInTransaction(Runnable)")
+    )
+    open fun beginTransaction() {
+        assertNotMainThread()
+        val autoCloser = autoCloser
+        if (autoCloser == null) {
+            internalBeginTransaction()
         } else {
-            mAutoCloser.executeRefCountingFunction(db -> {
-                internalBeginTransaction();
-                return null;
-            });
+            autoCloser.executeRefCountingFunction<Any?> {
+                internalBeginTransaction()
+                null
+            }
         }
     }
 
-    private void internalBeginTransaction() {
-        assertNotMainThread();
-        SupportSQLiteDatabase database = mOpenHelper.getWritableDatabase();
-        mInvalidationTracker.syncTriggers(database);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN
-                && database.isWriteAheadLoggingEnabled()) {
-            database.beginTransactionNonExclusive();
+    private fun internalBeginTransaction() {
+        assertNotMainThread()
+        val database = openHelper.writableDatabase
+        invalidationTracker.syncTriggers(database)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN &&
+            database.isWriteAheadLoggingEnabled
+        ) {
+            database.beginTransactionNonExclusive()
         } else {
-            database.beginTransaction();
+            database.beginTransaction()
         }
     }
 
     /**
-     * Wrapper for {@link SupportSQLiteDatabase#endTransaction()}.
-     *
-     * @deprecated Use {@link #runInTransaction(Runnable)}
+     * Wrapper for [SupportSQLiteDatabase.endTransaction].
      */
-    @Deprecated
-    public void endTransaction() {
-        if (mAutoCloser == null) {
-            internalEndTransaction();
+    @Deprecated(
+        "endTransaction() is deprecated",
+        ReplaceWith("runInTransaction(Runnable)")
+    )
+    open fun endTransaction() {
+        val autoCloser = autoCloser
+        if (autoCloser == null) {
+            internalEndTransaction()
         } else {
-            mAutoCloser.executeRefCountingFunction(db -> {
-                internalEndTransaction();
-                return null;
-            });
+            autoCloser.executeRefCountingFunction<Any?> {
+                internalEndTransaction()
+                null
+            }
         }
     }
 
-    private void internalEndTransaction() {
-        mOpenHelper.getWritableDatabase().endTransaction();
+    private fun internalEndTransaction() {
+        openHelper.writableDatabase.endTransaction()
         if (!inTransaction()) {
             // enqueue refresh only if we are NOT in a transaction. Otherwise, wait for the last
             // endTransaction call to do it.
-            mInvalidationTracker.refreshVersionsAsync();
+            invalidationTracker.refreshVersionsAsync()
         }
+    }
+
+    /**
+     * Returns the SQLite open helper used by this database.
+     *
+     * @return The SQLite open helper used by this database.
+     */
+    open fun getOpenHelper(): SupportSQLiteOpenHelper {
+        return openHelper
     }
 
     /**
      * @return The Executor in use by this database for async queries.
      */
-    @NonNull
-    public Executor getQueryExecutor() {
-        return mQueryExecutor;
+    open fun getQueryExecutor(): Executor {
+        return queryExecutor
     }
 
     /**
      * @return The Executor in use by this database for async transactions.
      */
-    @NonNull
-    public Executor getTransactionExecutor() {
-        return mTransactionExecutor;
+    open fun getTransactionExecutor(): Executor {
+        return transactionExecutor
     }
 
     /**
-     * Wrapper for {@link SupportSQLiteDatabase#setTransactionSuccessful()}.
+     * Wrapper for [SupportSQLiteDatabase.setTransactionSuccessful].
      *
-     * @deprecated Use {@link #runInTransaction(Runnable)}
      */
-    @Deprecated
-    public void setTransactionSuccessful() {
-        mOpenHelper.getWritableDatabase().setTransactionSuccessful();
+    @Deprecated(
+        "setTransactionSuccessful() is deprecated",
+        ReplaceWith("runInTransaction(Runnable)")
+    )
+    open fun setTransactionSuccessful() {
+        openHelper.writableDatabase.setTransactionSuccessful()
     }
 
     /**
-     * Executes the specified {@link Runnable} in a database transaction. The transaction will be
-     * marked as successful unless an exception is thrown in the {@link Runnable}.
-     * <p>
+     * Executes the specified [Runnable] in a database transaction. The transaction will be
+     * marked as successful unless an exception is thrown in the [Runnable].
+     *
      * Room will only perform at most one transaction at a time.
      *
      * @param body The piece of code to execute.
      */
-    @SuppressWarnings("deprecation")
-    public void runInTransaction(@NonNull Runnable body) {
-        beginTransaction();
+    @Suppress("DEPRECATION")
+    open fun runInTransaction(body: Runnable) {
+        beginTransaction()
         try {
-            body.run();
-            setTransactionSuccessful();
+            body.run()
+            setTransactionSuccessful()
         } finally {
-            endTransaction();
+            endTransaction()
         }
     }
 
     /**
-     * Executes the specified {@link Callable} in a database transaction. The transaction will be
-     * marked as successful unless an exception is thrown in the {@link Callable}.
-     * <p>
+     * Executes the specified [Callable] in a database transaction. The transaction will be
+     * marked as successful unless an exception is thrown in the [Callable].
+     *
      * Room will only perform at most one transaction at a time.
      *
      * @param body The piece of code to execute.
-     * @param <V>  The type of the return value.
-     * @return The value returned from the {@link Callable}.
+     * @param V  The type of the return value.
+     * @return The value returned from the [Callable].
      */
-    @SuppressWarnings("deprecation")
-    public <V> V runInTransaction(@NonNull Callable<V> body) {
-        beginTransaction();
-        try {
-            V result = body.call();
-            setTransactionSuccessful();
-            return result;
-        } catch (RuntimeException e) {
-            throw e;
-        } catch (Exception e) {
-            SneakyThrow.reThrow(e);
-            return null; // Unreachable code, but compiler doesn't know it.
+    @Suppress("DEPRECATION")
+    open fun <V> runInTransaction(body: Callable<V>): V {
+        beginTransaction()
+        return try {
+            val result = body.call()
+            setTransactionSuccessful()
+            result
         } finally {
-            endTransaction();
+            endTransaction()
         }
     }
 
     /**
      * Called by the generated code when database is open.
-     * <p>
+     *
      * You should never call this method manually.
      *
      * @param db The database instance.
      */
-    protected void internalInitInvalidationTracker(@NonNull SupportSQLiteDatabase db) {
-        mInvalidationTracker.internalInit(db);
-    }
-
-    /**
-     * Returns the invalidation tracker for this database.
-     * <p>
-     * You can use the invalidation tracker to get notified when certain tables in the database
-     * are modified.
-     *
-     * @return The invalidation tracker for the database.
-     */
-    @NonNull
-    public InvalidationTracker getInvalidationTracker() {
-        return mInvalidationTracker;
+    protected open fun internalInitInvalidationTracker(db: SupportSQLiteDatabase) {
+        invalidationTracker.internalInit(db)
     }
 
     /**
      * Returns true if current thread is in a transaction.
      *
      * @return True if there is an active transaction in current thread, false otherwise.
-     * @see SupportSQLiteDatabase#inTransaction()
+     * @see SupportSQLiteDatabase.inTransaction
      */
-    @SuppressWarnings("WeakerAccess")
-    public boolean inTransaction() {
-        return mOpenHelper.getWritableDatabase().inTransaction();
+    open fun inTransaction(): Boolean {
+        return openHelper.writableDatabase.inTransaction()
     }
 
     /**
      * Journal modes for SQLite database.
      *
-     * @see Builder#setJournalMode(JournalMode)
+     * @see Builder.setJournalMode
      */
-    public enum JournalMode {
-
+    enum class JournalMode {
         /**
          * Let Room choose the journal mode. This is the default value when no explicit value is
          * specified.
-         * <p>
-         * The actual value will be {@link #TRUNCATE} when the device runs API Level lower than 16
-         * or it is a low-RAM device. Otherwise, {@link #WRITE_AHEAD_LOGGING} will be used.
+         *
+         * The actual value will be [TRUNCATE] when the device runs API Level lower than 16
+         * or it is a low-RAM device. Otherwise, [WRITE_AHEAD_LOGGING] will be used.
          */
         AUTOMATIC,
 
@@ -730,769 +657,702 @@ public abstract class RoomDatabase {
         /**
          * Write-Ahead Logging mode.
          */
-        @RequiresApi(Build.VERSION_CODES.JELLY_BEAN)
         WRITE_AHEAD_LOGGING;
 
         /**
-         * Resolves {@link #AUTOMATIC} to either {@link #TRUNCATE} or
-         * {@link #WRITE_AHEAD_LOGGING}.
+         * Resolves [AUTOMATIC] to either [TRUNCATE] or [WRITE_AHEAD_LOGGING].
          */
-        JournalMode resolve(Context context) {
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        open fun resolve(context: Context): JournalMode {
             if (this != AUTOMATIC) {
-                return this;
+                return this
             }
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-                ActivityManager manager = (ActivityManager)
-                        context.getSystemService(Context.ACTIVITY_SERVICE);
-                if (manager != null && !isLowRamDevice(manager)) {
-                    return WRITE_AHEAD_LOGGING;
+                val manager = context.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
+                if (!isLowRamDevice(manager)) {
+                    return WRITE_AHEAD_LOGGING
                 }
             }
-            return TRUNCATE;
+            return TRUNCATE
         }
 
-        private static boolean isLowRamDevice(@NonNull ActivityManager activityManager) {
+        private fun isLowRamDevice(activityManager: ActivityManager) =
             if (Build.VERSION.SDK_INT >= 19) {
-                return SupportSQLiteCompat.Api19Impl.isLowRamDevice(activityManager);
+                SupportSQLiteCompat.Api19Impl.isLowRamDevice(activityManager)
+            } else {
+                false
             }
-            return false;
-        }
     }
 
     /**
      * Builder for RoomDatabase.
      *
-     * @param <T> The type of the abstract database class.
+     * @param T The type of the abstract database class.
      */
-    public static class Builder<T extends RoomDatabase> {
-        private final Class<T> mDatabaseClass;
-        private final String mName;
-        private final Context mContext;
-        private ArrayList<Callback> mCallbacks;
-        private PrepackagedDatabaseCallback mPrepackagedDatabaseCallback;
-        private QueryCallback mQueryCallback;
-        private Executor mQueryCallbackExecutor;
-        private List<Object> mTypeConverters;
-        private List<AutoMigrationSpec> mAutoMigrationSpecs;
+    @Suppress("GetterOnBuilder") // To keep ABI compatibility from Java
+    open class Builder<T : RoomDatabase> internal constructor(
+        private val context: Context,
+        private val klass: Class<T>,
+        private val name: String?
+    ) {
+        private val callbacks: MutableList<Callback> = mutableListOf()
+        private var prepackagedDatabaseCallback: PrepackagedDatabaseCallback? = null
+        private var queryCallback: QueryCallback? = null
+        private var queryCallbackExecutor: Executor? = null
+        private val typeConverters: MutableList<Any> = mutableListOf()
+        private var autoMigrationSpecs: MutableList<AutoMigrationSpec> = mutableListOf()
 
-        /** The Executor used to run database queries. This should be background-threaded. */
-        private Executor mQueryExecutor;
-        /** The Executor used to run database transactions. This should be background-threaded. */
-        private Executor mTransactionExecutor;
-        private SupportSQLiteOpenHelper.Factory mFactory;
-        private boolean mAllowMainThreadQueries;
-        private JournalMode mJournalMode;
-        private Intent mMultiInstanceInvalidationIntent;
-        private boolean mRequireMigration;
-        private boolean mAllowDestructiveMigrationOnDowngrade;
+        private var queryExecutor: Executor? = null
 
-        private long mAutoCloseTimeout = -1L;
-        private TimeUnit mAutoCloseTimeUnit;
+        private var transactionExecutor: Executor? = null
+        private var factory: SupportSQLiteOpenHelper.Factory? = null
+        private var allowMainThreadQueries = false
+        private var journalMode: JournalMode = JournalMode.AUTOMATIC
+        private var multiInstanceInvalidationIntent: Intent? = null
+        private var requireMigration: Boolean = true
+        private var allowDestructiveMigrationOnDowngrade = false
+        private var autoCloseTimeout = -1L
+        private var autoCloseTimeUnit: TimeUnit? = null
 
         /**
          * Migrations, mapped by from-to pairs.
          */
-        private final MigrationContainer mMigrationContainer;
-        private Set<Integer> mMigrationsNotRequiredFrom;
+        private val migrationContainer: MigrationContainer = MigrationContainer()
+        private var migrationsNotRequiredFrom: MutableSet<Int> = mutableSetOf()
+
         /**
-         * Keeps track of {@link Migration#startVersion}s and {@link Migration#endVersion}s added in
-         * {@link #addMigrations(Migration...)} for later validation that makes those versions don't
-         * match any versions passed to {@link #fallbackToDestructiveMigrationFrom(int...)}.
+         * Keeps track of [Migration.startVersion]s and [Migration.endVersion]s added in
+         * [addMigrations] for later validation that makes those versions don't
+         * match any versions passed to [fallbackToDestructiveMigrationFrom].
          */
-        private Set<Integer> mMigrationStartAndEndVersions;
+        private var migrationStartAndEndVersions: MutableSet<Int>? = null
+        private var copyFromAssetPath: String? = null
+        private var copyFromFile: File? = null
+        private var copyFromInputStream: Callable<InputStream>? = null
 
-        private String mCopyFromAssetPath;
-        private File mCopyFromFile;
-        private Callable<InputStream> mCopyFromInputStream;
-
-        Builder(@NonNull Context context, @NonNull Class<T> klass, @Nullable String name) {
-            mContext = context;
-            mDatabaseClass = klass;
-            mName = name;
-            mJournalMode = JournalMode.AUTOMATIC;
-            mRequireMigration = true;
-            mMigrationContainer = new MigrationContainer();
-            // TODO:(b/218894771) Initialize these as empty lists here for now, will be updated once
-            //  RoomDatabase is in Kotlin
-            mTypeConverters = new ArrayList<>();
-            mAutoMigrationSpecs = new ArrayList<>();
+        /**
+         * Configures Room to create and open the database using a pre-packaged database located in
+         * the application 'assets/' folder.
+         *
+         * Room does not open the pre-packaged database, instead it copies it into the internal
+         * app database folder and then opens it. The pre-packaged database file must be located in
+         * the "assets/" folder of your application. For example, the path for a file located in
+         * "assets/databases/products.db" would be "databases/products.db".
+         *
+         * The pre-packaged database schema will be validated. It might be best to create your
+         * pre-packaged database schema utilizing the exported schema files generated when
+         * [Database.exportSchema] is enabled.
+         *
+         * This method is not supported for an in memory database [Builder].
+         *
+         * @param databaseFilePath The file path within the 'assets/' directory of where the
+         * database file is located.
+         *
+         * @return This builder instance.
+         */
+        open fun createFromAsset(databaseFilePath: String) = apply {
+            this.copyFromAssetPath = databaseFilePath
         }
 
         /**
          * Configures Room to create and open the database using a pre-packaged database located in
          * the application 'assets/' folder.
-         * <p>
+         *
          * Room does not open the pre-packaged database, instead it copies it into the internal
          * app database folder and then opens it. The pre-packaged database file must be located in
          * the "assets/" folder of your application. For example, the path for a file located in
          * "assets/databases/products.db" would be "databases/products.db".
-         * <p>
+         *
          * The pre-packaged database schema will be validated. It might be best to create your
          * pre-packaged database schema utilizing the exported schema files generated when
-         * {@link Database#exportSchema()} is enabled.
-         * <p>
-         * This method is not supported for an in memory database {@link Builder}.
+         * [Database.exportSchema] is enabled.
+         *
+         * This method is not supported for an in memory database [Builder].
          *
          * @param databaseFilePath The file path within the 'assets/' directory of where the
-         *                         database file is located.
-         *
-         * @return This {@link Builder} instance.
-         */
-        @NonNull
-        public Builder<T> createFromAsset(@NonNull String databaseFilePath) {
-            mCopyFromAssetPath = databaseFilePath;
-            return this;
-        }
-
-        /**
-         * Configures Room to create and open the database using a pre-packaged database located in
-         * the application 'assets/' folder.
-         * <p>
-         * Room does not open the pre-packaged database, instead it copies it into the internal
-         * app database folder and then opens it. The pre-packaged database file must be located in
-         * the "assets/" folder of your application. For example, the path for a file located in
-         * "assets/databases/products.db" would be "databases/products.db".
-         * <p>
-         * The pre-packaged database schema will be validated. It might be best to create your
-         * pre-packaged database schema utilizing the exported schema files generated when
-         * {@link Database#exportSchema()} is enabled.
-         * <p>
-         * This method is not supported for an in memory database {@link Builder}.
-         *
-         * @param databaseFilePath The file path within the 'assets/' directory of where the
-         *                         database file is located.
+         * database file is located.
          * @param callback The pre-packaged callback.
          *
-         * @return This {@link Builder} instance.
+         * @return This builder instance.
          */
-        @NonNull
         @SuppressLint("BuilderSetStyle") // To keep naming consistency.
-        public Builder<T> createFromAsset(
-                @NonNull String databaseFilePath,
-                @NonNull PrepackagedDatabaseCallback callback) {
-            mPrepackagedDatabaseCallback = callback;
-            mCopyFromAssetPath = databaseFilePath;
-            return this;
+        open fun createFromAsset(
+            databaseFilePath: String,
+            callback: PrepackagedDatabaseCallback
+        ) = apply {
+            this.prepackagedDatabaseCallback = callback
+            this.copyFromAssetPath = databaseFilePath
         }
 
         /**
          * Configures Room to create and open the database using a pre-packaged database file.
-         * <p>
+         *
          * Room does not open the pre-packaged database, instead it copies it into the internal
          * app database folder and then opens it. The given file must be accessible and the right
          * permissions must be granted for Room to copy the file.
-         * <p>
+         *
          * The pre-packaged database schema will be validated. It might be best to create your
          * pre-packaged database schema utilizing the exported schema files generated when
-         * {@link Database#exportSchema()} is enabled.
-         * <p>
-         * The {@link Callback#onOpen(SupportSQLiteDatabase)} method can be used as an indicator
+         * [Database.exportSchema] is enabled.
+         *
+         * The [Callback.onOpen] method can be used as an indicator
          * that the pre-packaged database was successfully opened by Room and can be cleaned up.
-         * <p>
-         * This method is not supported for an in memory database {@link Builder}.
+         *
+         * This method is not supported for an in memory database [Builder].
          *
          * @param databaseFile The database file.
          *
-         * @return This {@link Builder} instance.
+         * @return This builder instance.
          */
-        @NonNull
-        public Builder<T> createFromFile(@NonNull File databaseFile) {
-            mCopyFromFile = databaseFile;
-            return this;
+        open fun createFromFile(databaseFile: File) = apply {
+            this.copyFromFile = databaseFile
         }
 
         /**
          * Configures Room to create and open the database using a pre-packaged database file.
-         * <p>
+         *
          * Room does not open the pre-packaged database, instead it copies it into the internal
          * app database folder and then opens it. The given file must be accessible and the right
          * permissions must be granted for Room to copy the file.
-         * <p>
+         *
          * The pre-packaged database schema will be validated. It might be best to create your
          * pre-packaged database schema utilizing the exported schema files generated when
-         * {@link Database#exportSchema()} is enabled.
-         * <p>
-         * The {@link Callback#onOpen(SupportSQLiteDatabase)} method can be used as an indicator
+         * [Database.exportSchema] is enabled.
+         *
+         * The [Callback.onOpen] method can be used as an indicator
          * that the pre-packaged database was successfully opened by Room and can be cleaned up.
-         * <p>
-         * This method is not supported for an in memory database {@link Builder}.
+         *
+         * This method is not supported for an in memory database [Builder].
          *
          * @param databaseFile The database file.
          * @param callback The pre-packaged callback.
          *
-         * @return This {@link Builder} instance.
+         * @return This builder instance.
          */
-        @NonNull
-        @SuppressLint({"BuilderSetStyle", "StreamFiles"}) // To keep naming consistency.
-        public Builder<T> createFromFile(
-                @NonNull File databaseFile,
-                @NonNull PrepackagedDatabaseCallback callback) {
-            mPrepackagedDatabaseCallback = callback;
-            mCopyFromFile = databaseFile;
-            return this;
+        @SuppressLint("BuilderSetStyle", "StreamFiles") // To keep naming consistency.
+        open fun createFromFile(
+            databaseFile: File,
+            callback: PrepackagedDatabaseCallback
+        ) = apply {
+            this.prepackagedDatabaseCallback = callback
+            this.copyFromFile = databaseFile
         }
 
         /**
          * Configures Room to create and open the database using a pre-packaged database via an
-         * {@link InputStream}.
-         * <p>
+         * [InputStream].
+         *
          * This is useful for processing compressed database files. Room does not open the
          * pre-packaged database, instead it copies it into the internal app database folder, and
-         * then open it. The {@link InputStream} will be closed once Room is done consuming it.
-         * <p>
+         * then open it. The [InputStream] will be closed once Room is done consuming it.
+         *
          * The pre-packaged database schema will be validated. It might be best to create your
          * pre-packaged database schema utilizing the exported schema files generated when
-         * {@link Database#exportSchema()} is enabled.
-         * <p>
-         * The {@link Callback#onOpen(SupportSQLiteDatabase)} method can be used as an indicator
+         * [Database.exportSchema] is enabled.
+         *
+         * The [Callback.onOpen] method can be used as an indicator
          * that the pre-packaged database was successfully opened by Room and can be cleaned up.
-         * <p>
-         * This method is not supported for an in memory database {@link Builder}.
+         *
+         * This method is not supported for an in memory database [Builder].
          *
          * @param inputStreamCallable A callable that returns an InputStream from which to copy
-         *                            the database. The callable will be invoked in a thread from
-         *                            the Executor set via {@link #setQueryExecutor(Executor)}. The
-         *                            callable is only invoked if Room needs to create and open the
-         *                            database from the pre-package database, usually the first time
-         *                            it is created or during a destructive migration.
+         * the database. The callable will be invoked in a thread from
+         * the Executor set via [setQueryExecutor]. The
+         * callable is only invoked if Room needs to create and open the
+         * database from the pre-package database, usually the first time
+         * it is created or during a destructive migration.
          *
-         * @return This {@link Builder} instance.
+         * @return This builder instance.
          */
-        @NonNull
         @SuppressLint("BuilderSetStyle") // To keep naming consistency.
-        public Builder<T> createFromInputStream(
-                @NonNull Callable<InputStream> inputStreamCallable) {
-            mCopyFromInputStream = inputStreamCallable;
-            return this;
+        open fun createFromInputStream(
+            inputStreamCallable: Callable<InputStream>
+        ) = apply {
+            this.copyFromInputStream = inputStreamCallable
         }
 
         /**
          * Configures Room to create and open the database using a pre-packaged database via an
-         * {@link InputStream}.
-         * <p>
+         * [InputStream].
+         *
          * This is useful for processing compressed database files. Room does not open the
          * pre-packaged database, instead it copies it into the internal app database folder, and
-         * then open it. The {@link InputStream} will be closed once Room is done consuming it.
-         * <p>
+         * then open it. The [InputStream] will be closed once Room is done consuming it.
+         *
          * The pre-packaged database schema will be validated. It might be best to create your
          * pre-packaged database schema utilizing the exported schema files generated when
-         * {@link Database#exportSchema()} is enabled.
-         * <p>
-         * The {@link Callback#onOpen(SupportSQLiteDatabase)} method can be used as an indicator
+         * [Database.exportSchema] is enabled.
+         *
+         * The [Callback.onOpen] method can be used as an indicator
          * that the pre-packaged database was successfully opened by Room and can be cleaned up.
-         * <p>
-         * This method is not supported for an in memory database {@link Builder}.
+         *
+         * This method is not supported for an in memory database [Builder].
          *
          * @param inputStreamCallable A callable that returns an InputStream from which to copy
-         *                            the database. The callable will be invoked in a thread from
-         *                            the Executor set via {@link #setQueryExecutor(Executor)}. The
-         *                            callable is only invoked if Room needs to create and open the
-         *                            database from the pre-package database, usually the first time
-         *                            it is created or during a destructive migration.
+         * the database. The callable will be invoked in a thread from
+         * the Executor set via [setQueryExecutor]. The
+         * callable is only invoked if Room needs to create and open the
+         * database from the pre-package database, usually the first time
+         * it is created or during a destructive migration.
          * @param callback The pre-packaged callback.
          *
-         * @return This {@link Builder} instance.
+         * @return This builder instance.
          */
-        @NonNull
-        @SuppressLint({"BuilderSetStyle", "LambdaLast"}) // To keep naming consistency.
-        public Builder<T> createFromInputStream(
-                @NonNull Callable<InputStream> inputStreamCallable,
-                @NonNull PrepackagedDatabaseCallback callback) {
-            mPrepackagedDatabaseCallback = callback;
-            mCopyFromInputStream = inputStreamCallable;
-            return this;
+        @SuppressLint("BuilderSetStyle", "LambdaLast") // To keep naming consistency.
+        open fun createFromInputStream(
+            inputStreamCallable: Callable<InputStream>,
+            callback: PrepackagedDatabaseCallback
+        ) = apply {
+            this.prepackagedDatabaseCallback = callback
+            this.copyFromInputStream = inputStreamCallable
         }
 
         /**
          * Sets the database factory. If not set, it defaults to
-         * {@link FrameworkSQLiteOpenHelperFactory}.
+         * [FrameworkSQLiteOpenHelperFactory].
          *
          * @param factory The factory to use to access the database.
-         * @return This {@link Builder} instance.
+         * @return This builder instance.
          */
-        @NonNull
-        public Builder<T> openHelperFactory(@Nullable SupportSQLiteOpenHelper.Factory factory) {
-            mFactory = factory;
-            return this;
+        open fun openHelperFactory(factory: SupportSQLiteOpenHelper.Factory?) = apply {
+            this.factory = factory
         }
 
         /**
          * Adds a migration to the builder.
-         * <p>
+         *
          * Each Migration has a start and end versions and Room runs these migrations to bring the
          * database to the latest version.
-         * <p>
+         *
          * If a migration item is missing between current version and the latest version, Room
          * will clear the database and recreate so even if you have no changes between 2 versions,
          * you should still provide a Migration object to the builder.
-         * <p>
+         *
          * A migration can handle more than 1 version (e.g. if you have a faster path to choose when
          * going version 3 to 5 without going to version 4). If Room opens a database at version
          * 3 and latest version is &gt;= 5, Room will use the migration object that can migrate from
          * 3 to 5 instead of 3 to 4 and 4 to 5.
          *
          * @param migrations The migration object that can modify the database and to the necessary
-         *                   changes.
-         * @return This {@link Builder} instance.
+         * changes.
+         * @return This builder instance.
          */
-        @NonNull
-        public Builder<T> addMigrations(@NonNull Migration... migrations) {
-            if (mMigrationStartAndEndVersions == null) {
-                mMigrationStartAndEndVersions = new HashSet<>();
+        open fun addMigrations(vararg migrations: Migration) = apply {
+            if (migrationStartAndEndVersions == null) {
+                migrationStartAndEndVersions = HashSet()
             }
-            for (Migration migration : migrations) {
-                mMigrationStartAndEndVersions.add(migration.startVersion);
-                mMigrationStartAndEndVersions.add(migration.endVersion);
+            for (migration in migrations) {
+                migrationStartAndEndVersions!!.add(migration.startVersion)
+                migrationStartAndEndVersions!!.add(migration.endVersion)
             }
-
-            mMigrationContainer.addMigrations(migrations);
-            return this;
+            migrationContainer.addMigrations(*migrations)
         }
 
         /**
          * Adds an auto migration spec to the builder.
          *
          * @param autoMigrationSpec The auto migration object that is annotated with
-         * {@link AutoMigrationSpec} and is declared in an {@link AutoMigration} annotation.
-         * @return This {@link Builder} instance.
+         * [AutoMigrationSpec] and is declared in an [AutoMigration] annotation.
+         * @return This builder instance.
          */
-        @NonNull
-        @SuppressWarnings("MissingGetterMatchingBuilder")
-        public Builder<T> addAutoMigrationSpec(@NonNull AutoMigrationSpec autoMigrationSpec) {
-            if (mAutoMigrationSpecs == null) {
-                mAutoMigrationSpecs = new ArrayList<>();
-            }
-            mAutoMigrationSpecs.add(autoMigrationSpec);
-            return this;
+        @Suppress("MissingGetterMatchingBuilder")
+        open fun addAutoMigrationSpec(autoMigrationSpec: AutoMigrationSpec) = apply {
+            this.autoMigrationSpecs.add(autoMigrationSpec)
         }
 
         /**
          * Disables the main thread query check for Room.
-         * <p>
+         *
          * Room ensures that Database is never accessed on the main thread because it may lock the
          * main thread and trigger an ANR. If you need to access the database from the main thread,
          * you should always use async alternatives or manually move the call to a background
          * thread.
-         * <p>
+         *
          * You may want to turn this check off for testing.
          *
-         * @return This {@link Builder} instance.
+         * @return This builder instance.
          */
-        @NonNull
-        public Builder<T> allowMainThreadQueries() {
-            mAllowMainThreadQueries = true;
-            return this;
+        open fun allowMainThreadQueries() = apply {
+            this.allowMainThreadQueries = true
         }
 
         /**
          * Sets the journal mode for this database.
          *
-         * <p>
          * This value is ignored if the builder is initialized with
-         * {@link Room#inMemoryDatabaseBuilder(Context, Class)}.
-         * <p>
+         * [Room.inMemoryDatabaseBuilder].
+         *
          * The journal mode should be consistent across multiple instances of
-         * {@link RoomDatabase} for a single SQLite database file.
-         * <p>
-         * The default value is {@link JournalMode#AUTOMATIC}.
+         * [RoomDatabase] for a single SQLite database file.
+         *
+         * The default value is [JournalMode.AUTOMATIC].
          *
          * @param journalMode The journal mode.
-         * @return This {@link Builder} instance.
+         * @return This builder instance.
          */
-        @NonNull
-        public Builder<T> setJournalMode(@NonNull JournalMode journalMode) {
-            mJournalMode = journalMode;
-            return this;
+        open fun setJournalMode(journalMode: JournalMode) = apply {
+            this.journalMode = journalMode
         }
 
         /**
-         * Sets the {@link Executor} that will be used to execute all non-blocking asynchronous
-         * queries and tasks, including {@code LiveData} invalidation, {@code Flowable} scheduling
-         * and {@code ListenableFuture} tasks.
-         * <p>
-         * When both the query executor and transaction executor are unset, then a default
-         * {@code Executor} will be used. The default {@code Executor} allocates and shares threads
-         * amongst Architecture Components libraries. If the query executor is unset but a
-         * transaction executor was set, then the same {@code Executor} will be used for queries.
-         * <p>
-         * For best performance the given {@code Executor} should be bounded (max number of threads
-         * is limited).
-         * <p>
-         * The input {@code Executor} cannot run tasks on the UI thread.
-         **
-         * @return This {@link Builder} instance.
+         * Sets the [Executor] that will be used to execute all non-blocking asynchronous
+         * queries and tasks, including `LiveData` invalidation, `Flowable` scheduling
+         * and `ListenableFuture` tasks.
          *
-         * @see #setTransactionExecutor(Executor)
+         * When both the query executor and transaction executor are unset, then a default
+         * `Executor` will be used. The default `Executor` allocates and shares threads
+         * amongst Architecture Components libraries. If the query executor is unset but a
+         * transaction executor was set [setTransactionExecutor], then the same `Executor` will be
+         * used for queries.
+         *
+         * For best performance the given `Executor` should be bounded (max number of threads
+         * is limited).
+         *
+         * The input `Executor` cannot run tasks on the UI thread.
+         *
+         * @return This builder instance.
          */
-        @NonNull
-        public Builder<T> setQueryExecutor(@NonNull Executor executor) {
-            mQueryExecutor = executor;
-            return this;
+        open fun setQueryExecutor(executor: Executor) = apply {
+            this.queryExecutor = executor
         }
 
         /**
-         * Sets the {@link Executor} that will be used to execute all non-blocking asynchronous
-         * transaction queries and tasks, including {@code LiveData} invalidation, {@code Flowable}
-         * scheduling and {@code ListenableFuture} tasks.
-         * <p>
+         * Sets the [Executor] that will be used to execute all non-blocking asynchronous
+         * transaction queries and tasks, including `LiveData` invalidation, `Flowable`
+         * scheduling and `ListenableFuture` tasks.
+         *
          * When both the transaction executor and query executor are unset, then a default
-         * {@code Executor} will be used. The default {@code Executor} allocates and shares threads
+         * `Executor` will be used. The default `Executor` allocates and shares threads
          * amongst Architecture Components libraries. If the transaction executor is unset but a
-         * query executor was set, then the same {@code Executor} will be used for transactions.
-         * <p>
-         * If the given {@code Executor} is shared then it should be unbounded to avoid the
+         * query executor was set using [setQueryExecutor], then the same `Executor` will be used
+         * for transactions.
+         *
+         * If the given `Executor` is shared then it should be unbounded to avoid the
          * possibility of a deadlock. Room will not use more than one thread at a time from this
          * executor since only one transaction at a time can be executed, other transactions will
          * be queued on a first come, first serve order.
-         * <p>
-         * The input {@code Executor} cannot run tasks on the UI thread.
          *
-         * @return This {@link Builder} instance.
+         * The input `Executor` cannot run tasks on the UI thread.
          *
-         * @see #setQueryExecutor(Executor)
+         * @return This builder instance.
          */
-        @NonNull
-        public Builder<T> setTransactionExecutor(@NonNull Executor executor) {
-            mTransactionExecutor = executor;
-            return this;
+        open fun setTransactionExecutor(executor: Executor) = apply {
+            this.transactionExecutor = executor
         }
 
         /**
-         * Sets whether table invalidation in this instance of {@link RoomDatabase} should be
-         * broadcast and synchronized with other instances of the same {@link RoomDatabase},
+         * Sets whether table invalidation in this instance of [RoomDatabase] should be
+         * broadcast and synchronized with other instances of the same [RoomDatabase],
          * including those in a separate process. In order to enable multi-instance invalidation,
          * this has to be turned on both ends.
-         * <p>
+         *
          * This is not enabled by default.
-         * <p>
+         *
          * This does not work for in-memory databases. This does not work between database instances
          * targeting different database files.
          *
-         * @return This {@link Builder} instance.
+         * @return This builder instance.
          */
-        @NonNull
-        public Builder<T> enableMultiInstanceInvalidation() {
-            mMultiInstanceInvalidationIntent = mName != null ? new Intent(mContext,
-                    MultiInstanceInvalidationService.class) : null;
-            return this;
+        @Suppress("UnsafeOptInUsageError")
+        open fun enableMultiInstanceInvalidation() = apply {
+            this.multiInstanceInvalidationIntent = if (name != null) {
+                Intent(context, MultiInstanceInvalidationService::class.java)
+            } else {
+                null
+            }
         }
 
         /**
-         * Sets whether table invalidation in this instance of {@link RoomDatabase} should be
-         * broadcast and synchronized with other instances of the same {@link RoomDatabase},
+         * Sets whether table invalidation in this instance of [RoomDatabase] should be
+         * broadcast and synchronized with other instances of the same [RoomDatabase],
          * including those in a separate process. In order to enable multi-instance invalidation,
          * this has to be turned on both ends and need to point to the same
-         * {@link MultiInstanceInvalidationService}.
-         * <p>
+         * [MultiInstanceInvalidationService].
+         *
          * This is not enabled by default.
-         * <p>
+         *
          * This does not work for in-memory databases. This does not work between database instances
          * targeting different database files.
          *
-         * @return This {@link Builder} instance.
          * @param invalidationServiceIntent Intent to bind to the
-         * {@link MultiInstanceInvalidationService}.
+         * [MultiInstanceInvalidationService].
+         * @return This builder instance.
          */
-        @SuppressWarnings("MissingGetterMatchingBuilder")
-        @NonNull
         @ExperimentalRoomApi
-        public Builder<T> setMultiInstanceInvalidationServiceIntent(
-                @NonNull Intent invalidationServiceIntent) {
-            mMultiInstanceInvalidationIntent = mName != null ? invalidationServiceIntent : null;
-            return this;
+        @Suppress("MissingGetterMatchingBuilder")
+        open fun setMultiInstanceInvalidationServiceIntent(
+            invalidationServiceIntent: Intent
+        ) = apply {
+            this.multiInstanceInvalidationIntent =
+                if (name != null) invalidationServiceIntent else null
         }
 
         /**
-         * Allows Room to destructively recreate database tables if {@link Migration}s that would
+         * Allows Room to destructively recreate database tables if [Migration]s that would
          * migrate old database schemas to the latest schema version are not found.
-         * <p>
+         *
          * When the database version on the device does not match the latest schema version, Room
-         * runs necessary {@link Migration}s on the database.
-         * <p>
-         * If it cannot find the set of {@link Migration}s that will bring the database to the
-         * current version, it will throw an {@link IllegalStateException}.
-         * <p>
+         * runs necessary [Migration]s on the database.
+         *
+         * If it cannot find the set of [Migration]s that will bring the database to the
+         * current version, it will throw an [IllegalStateException].
+         *
          * You can call this method to change this behavior to re-create the database instead of
          * crashing.
-         * <p>
+         *
          * If the database was create from an asset or a file then Room will try to use the same
          * file to re-create the database, otherwise this will delete all of the data in the
          * database tables managed by Room.
-         * <p>
+         *
          * To let Room fallback to destructive migration only during a schema downgrade then use
-         * {@link #fallbackToDestructiveMigrationOnDowngrade()}.
+         * [fallbackToDestructiveMigrationOnDowngrade].
          *
-         * @return This {@link Builder} instance.
-         *
-         * @see #fallbackToDestructiveMigrationOnDowngrade()
+         * @return This builder instance.
          */
-        @NonNull
-        public Builder<T> fallbackToDestructiveMigration() {
-            mRequireMigration = false;
-            mAllowDestructiveMigrationOnDowngrade = true;
-            return this;
+        open fun fallbackToDestructiveMigration() = apply {
+            this.requireMigration = false
+            this.allowDestructiveMigrationOnDowngrade = true
         }
 
         /**
-         * Allows Room to destructively recreate database tables if {@link Migration}s are not
+         * Allows Room to destructively recreate database tables if [Migration]s are not
          * available when downgrading to old schema versions.
          *
-         * @return This {@link Builder} instance.
+         * For details, see [Builder.fallbackToDestructiveMigration].
          *
-         * @see Builder#fallbackToDestructiveMigration()
+         * @return This builder instance.
          */
-        @NonNull
-        public Builder<T> fallbackToDestructiveMigrationOnDowngrade() {
-            mRequireMigration = true;
-            mAllowDestructiveMigrationOnDowngrade = true;
-            return this;
+        open fun fallbackToDestructiveMigrationOnDowngrade() = apply {
+            this.requireMigration = true
+            this.allowDestructiveMigrationOnDowngrade = true
         }
 
         /**
          * Informs Room that it is allowed to destructively recreate database tables from specific
          * starting schema versions.
-         * <p>
+         *
          * This functionality is the same as that provided by
-         * {@link #fallbackToDestructiveMigration()}, except that this method allows the
+         * [fallbackToDestructiveMigration], except that this method allows the
          * specification of a set of schema versions for which destructive recreation is allowed.
-         * <p>
-         * Using this method is preferable to {@link #fallbackToDestructiveMigration()} if you want
+         *
+         * Using this method is preferable to [fallbackToDestructiveMigration] if you want
          * to allow destructive migrations from some schema versions while still taking advantage
          * of exceptions being thrown due to unintentionally missing migrations.
-         * <p>
+         *
          * Note: No versions passed to this method may also exist as either starting or ending
-         * versions in the {@link Migration}s provided to {@link #addMigrations(Migration...)}. If a
+         * versions in the [Migration]s provided to [addMigrations]. If a
          * version passed to this method is found as a starting or ending version in a Migration, an
          * exception will be thrown.
          *
          * @param startVersions The set of schema versions from which Room should use a destructive
-         *                      migration.
-         * @return This {@link Builder} instance.
+         * migration.
+         * @return This builder instance.
          */
-        @NonNull
-        public Builder<T> fallbackToDestructiveMigrationFrom(int... startVersions) {
-            if (mMigrationsNotRequiredFrom == null) {
-                mMigrationsNotRequiredFrom = new HashSet<>(startVersions.length);
+        open fun fallbackToDestructiveMigrationFrom(vararg startVersions: Int) = apply {
+            for (startVersion in startVersions) {
+                this.migrationsNotRequiredFrom.add(startVersion)
             }
-            for (int startVersion : startVersions) {
-                mMigrationsNotRequiredFrom.add(startVersion);
-            }
-            return this;
         }
 
         /**
-         * Adds a {@link Callback} to this database.
+         * Adds a [Callback] to this database.
          *
          * @param callback The callback.
-         * @return This {@link Builder} instance.
+         * @return This builder instance.
          */
-        @NonNull
-        public Builder<T> addCallback(@NonNull Callback callback) {
-            if (mCallbacks == null) {
-                mCallbacks = new ArrayList<>();
-            }
-            mCallbacks.add(callback);
-            return this;
+        open fun addCallback(callback: Callback) = apply {
+            this.callbacks.add(callback)
         }
 
         /**
-         * Sets a {@link QueryCallback} to be invoked when queries are executed.
-         * <p>
+         * Sets a [QueryCallback] to be invoked when queries are executed.
+         *
          * The callback is invoked whenever a query is executed, note that adding this callback
          * has a small cost and should be avoided in production builds unless needed.
-         * <p>
+         *
          * A use case for providing a callback is to allow logging executed queries. When the
          * callback implementation logs then it is recommended to use an immediate executor.
          *
          * @param queryCallback The query callback.
          * @param executor The executor on which the query callback will be invoked.
+         * @return This builder instance.
          */
-        @SuppressWarnings("MissingGetterMatchingBuilder")
-        @NonNull
-        public Builder<T> setQueryCallback(@NonNull QueryCallback queryCallback,
-                @NonNull Executor executor) {
-            mQueryCallback = queryCallback;
-            mQueryCallbackExecutor = executor;
-            return this;
+        @Suppress("MissingGetterMatchingBuilder")
+        open fun setQueryCallback(
+            queryCallback: QueryCallback,
+            executor: Executor
+        ) = apply {
+            this.queryCallback = queryCallback
+            this.queryCallbackExecutor = executor
         }
 
         /**
          * Adds a type converter instance to this database.
          *
          * @param typeConverter The converter. It must be an instance of a class annotated with
-         * {@link ProvidedTypeConverter} otherwise Room will throw an exception.
-         * @return This {@link Builder} instance.
+         * [ProvidedTypeConverter] otherwise Room will throw an exception.
+         * @return This builder instance.
          */
-        @NonNull
-        public Builder<T> addTypeConverter(@NonNull Object typeConverter) {
-            if (mTypeConverters == null) {
-                mTypeConverters = new ArrayList<>();
-            }
-            mTypeConverters.add(typeConverter);
-            return this;
+        open fun addTypeConverter(typeConverter: Any) = apply {
+            this.typeConverters.add(typeConverter)
         }
 
         /**
          * Enables auto-closing for the database to free up unused resources. The underlying
-         * database will be closed after it's last use after the specified {@code
-         * autoCloseTimeout} has elapsed since its last usage. The database will be automatically
+         * database will be closed after it's last use after the specified `autoCloseTimeout` has
+         * elapsed since its last usage. The database will be automatically
          * re-opened the next time it is accessed.
-         * <p>
+         *
          * Auto-closing is not compatible with in-memory databases since the data will be lost
          * when the database is auto-closed.
-         * <p>
+         *
          * Also, temp tables and temp triggers will be cleared each time the database is
          * auto-closed. If you need to use them, please include them in your
-         * {@link RoomDatabase.Callback#onOpen callback}.
-         * <p>
-         * All configuration should happen in your {@link RoomDatabase.Callback#onOpen}
+         * callback [RoomDatabase.Callback.onOpen].
+         *
+         * All configuration should happen in your [RoomDatabase.Callback.onOpen]
          * callback so it is re-applied every time the database is re-opened. Note that the
-         * {@link RoomDatabase.Callback#onOpen} will be called every time the database is re-opened.
-         * <p>
+         * [RoomDatabase.Callback.onOpen] will be called every time the database is re-opened.
+         *
          * The auto-closing database operation runs on the query executor.
-         * <p>
+         *
          * The database will not be reopened if the RoomDatabase or the
          * SupportSqliteOpenHelper is closed manually (by calling
-         * {@link RoomDatabase#close()} or {@link SupportSQLiteOpenHelper#close()}. If the
+         * [RoomDatabase.close] or [SupportSQLiteOpenHelper.close]. If the
          * database is closed manually, you must create a new database using
-         * {@link RoomDatabase.Builder#build()}.
+         * [RoomDatabase.Builder.build].
          *
-         * @param autoCloseTimeout  the amount of time after the last usage before closing the
-         *                          database. Must greater or equal to zero.
+         * @param autoCloseTimeout the amount of time after the last usage before closing the
+         * database. Must greater or equal to zero.
          * @param autoCloseTimeUnit the timeunit for autoCloseTimeout.
-         * @return This {@link Builder} instance
+         * @return This builder instance.
          */
-        @NonNull
-        @SuppressWarnings("MissingGetterMatchingBuilder")
         @ExperimentalRoomApi // When experimental is removed, add these parameters to
         // DatabaseConfiguration
-        public Builder<T> setAutoCloseTimeout(
-                @IntRange(from = 0) long autoCloseTimeout, @NonNull TimeUnit autoCloseTimeUnit) {
-            if (autoCloseTimeout < 0) {
-                throw new IllegalArgumentException("autoCloseTimeout must be >= 0");
-            }
-            mAutoCloseTimeout = autoCloseTimeout;
-            mAutoCloseTimeUnit = autoCloseTimeUnit;
-            return this;
+        @Suppress("MissingGetterMatchingBuilder")
+        open fun setAutoCloseTimeout(
+            @IntRange(from = 0) autoCloseTimeout: Long,
+            autoCloseTimeUnit: TimeUnit
+        ) = apply {
+            require(autoCloseTimeout >= 0) { "autoCloseTimeout must be >= 0" }
+            this.autoCloseTimeout = autoCloseTimeout
+            this.autoCloseTimeUnit = autoCloseTimeUnit
         }
 
         /**
          * Creates the databases and initializes it.
-         * <p>
+         *
          * By default, all RoomDatabases use in memory storage for TEMP tables and enables recursive
          * triggers.
          *
          * @return A new database instance.
          */
-        @SuppressLint("RestrictedApi")
-        @NonNull
-        public T build() {
-            //noinspection ConstantConditions
-            if (mContext == null) {
-                throw new IllegalArgumentException("Cannot provide null context for the database.");
+        open fun build(): T {
+            if (queryExecutor == null && transactionExecutor == null) {
+                transactionExecutor = ArchTaskExecutor.getIOThreadExecutor()
+                queryExecutor = transactionExecutor
+            } else if (queryExecutor != null && transactionExecutor == null) {
+                transactionExecutor = queryExecutor
+            } else if (queryExecutor == null) {
+                queryExecutor = transactionExecutor
             }
-            //noinspection ConstantConditions
-            if (mDatabaseClass == null) {
-                throw new IllegalArgumentException("Must provide an abstract class that"
-                        + " extends RoomDatabase");
-            }
-            if (mQueryExecutor == null && mTransactionExecutor == null) {
-                mQueryExecutor = mTransactionExecutor = ArchTaskExecutor.getIOThreadExecutor();
-            } else if (mQueryExecutor != null && mTransactionExecutor == null) {
-                mTransactionExecutor = mQueryExecutor;
-            } else if (mQueryExecutor == null && mTransactionExecutor != null) {
-                mQueryExecutor = mTransactionExecutor;
-            }
-
-            if (mMigrationStartAndEndVersions != null && mMigrationsNotRequiredFrom != null) {
-                for (Integer version : mMigrationStartAndEndVersions) {
-                    if (mMigrationsNotRequiredFrom.contains(version)) {
-                        throw new IllegalArgumentException(
-                                "Inconsistency detected. A Migration was supplied to "
-                                        + "addMigration(Migration... migrations) that has a start "
-                                        + "or end version equal to a start version supplied to "
-                                        + "fallbackToDestructiveMigrationFrom(int... "
-                                        + "startVersions). Start version: "
-                                        + version);
+            if (migrationStartAndEndVersions != null) {
+                for (version in migrationStartAndEndVersions!!) {
+                    require(!migrationsNotRequiredFrom.contains(version)) {
+                        "Inconsistency detected. A Migration was supplied to " +
+                            "addMigration(Migration... migrations) that has a start " +
+                            "or end version equal to a start version supplied to " +
+                            "fallbackToDestructiveMigrationFrom(int... " +
+                            "startVersions). Start version: $version"
                     }
                 }
             }
 
-            SupportSQLiteOpenHelper.Factory factory;
-
-            AutoCloser autoCloser = null;
-
-            if (mFactory == null) {
-                factory = new FrameworkSQLiteOpenHelperFactory();
+            val factory: SupportSQLiteOpenHelper.Factory = if (factory == null) {
+                FrameworkSQLiteOpenHelperFactory()
             } else {
-                factory = mFactory;
-            }
-
-            if (mAutoCloseTimeout > 0) {
-                if (mName == null) {
-                    throw new IllegalArgumentException("Cannot create auto-closing database for "
-                            + "an in-memory database.");
+                factory
+            }?.let {
+                if (autoCloseTimeout > 0) {
+                    requireNotNull(name) {
+                        "Cannot create auto-closing database for an in-memory database."
+                    }
+                    val autoCloser = AutoCloser(
+                        autoCloseTimeout,
+                        requireNotNull(autoCloseTimeUnit),
+                        requireNotNull(queryExecutor)
+                    )
+                    AutoClosingRoomOpenHelperFactory(it, autoCloser)
+                } else {
+                    it
                 }
+            }?.let {
+                if (
+                    copyFromAssetPath != null ||
+                    copyFromFile != null ||
+                    copyFromInputStream != null
+                ) {
+                    requireNotNull(name) {
+                        "Cannot create from asset or file for an in-memory database."
+                    }
 
-                autoCloser = new AutoCloser(mAutoCloseTimeout, mAutoCloseTimeUnit,
-                        mTransactionExecutor);
+                    val copyFromAssetPathConfig = if (copyFromAssetPath == null) 0 else 1
+                    val copyFromFileConfig = if (copyFromFile == null) 0 else 1
+                    val copyFromInputStreamConfig = if (copyFromInputStream == null) 0 else 1
+                    val copyConfigurations = copyFromAssetPathConfig + copyFromFileConfig +
+                        copyFromInputStreamConfig
 
-                factory = new AutoClosingRoomOpenHelperFactory(factory, autoCloser);
-            }
-
-            if (mCopyFromAssetPath != null
-                    || mCopyFromFile != null
-                    || mCopyFromInputStream != null) {
-                if (mName == null) {
-                    throw new IllegalArgumentException("Cannot create from asset or file for an "
-                            + "in-memory database.");
+                    require(copyConfigurations == 1) {
+                        "More than one of createFromAsset(), " +
+                            "createFromInputStream(), and createFromFile() were called on this " +
+                            "Builder, but the database can only be created using one of the " +
+                            "three configurations."
+                    }
+                    SQLiteCopyOpenHelperFactory(
+                        copyFromAssetPath,
+                        copyFromFile,
+                        copyFromInputStream,
+                        it
+                    )
+                } else {
+                    it
                 }
-
-                final int copyConfigurations = (mCopyFromAssetPath == null ? 0 : 1) +
-                        (mCopyFromFile == null ? 0 : 1) +
-                        (mCopyFromInputStream == null ? 0 : 1);
-                if (copyConfigurations != 1) {
-                    throw new IllegalArgumentException("More than one of createFromAsset(), "
-                            + "createFromInputStream(), and createFromFile() were called on this "
-                            + "Builder, but the database can only be created using one of the "
-                            + "three configurations.");
+            }.let {
+                requireNotNull(it)
+                if (queryCallback != null) {
+                    QueryInterceptorOpenHelperFactory(
+                        it,
+                        requireNotNull(queryCallbackExecutor),
+                        requireNotNull(queryCallback)
+                    )
+                } else {
+                    it
                 }
-                factory = new SQLiteCopyOpenHelperFactory(mCopyFromAssetPath, mCopyFromFile,
-                        mCopyFromInputStream, factory);
             }
-
-            if (mQueryCallback != null) {
-                factory = new QueryInterceptorOpenHelperFactory(
-                        factory,
-                        mQueryCallbackExecutor,
-                        mQueryCallback
-                );
-            }
-
-            DatabaseConfiguration configuration =
-                    new DatabaseConfiguration(
-                            mContext,
-                            mName,
-                            factory,
-                            mMigrationContainer,
-                            mCallbacks,
-                            mAllowMainThreadQueries,
-                            mJournalMode.resolve(mContext),
-                            mQueryExecutor,
-                            mTransactionExecutor,
-                            mMultiInstanceInvalidationIntent,
-                            mRequireMigration,
-                            mAllowDestructiveMigrationOnDowngrade,
-                            mMigrationsNotRequiredFrom,
-                            mCopyFromAssetPath,
-                            mCopyFromFile,
-                            mCopyFromInputStream,
-                            mPrepackagedDatabaseCallback,
-                            mTypeConverters,
-                            mAutoMigrationSpecs);
-            T db = Room.getGeneratedImplementation(mDatabaseClass, DB_IMPL_SUFFIX);
-            db.init(configuration);
-            return db;
+            val configuration = DatabaseConfiguration(
+                context,
+                name,
+                factory,
+                migrationContainer,
+                callbacks,
+                allowMainThreadQueries,
+                journalMode.resolve(context),
+                requireNotNull(queryExecutor),
+                requireNotNull(transactionExecutor),
+                multiInstanceInvalidationIntent,
+                requireMigration,
+                allowDestructiveMigrationOnDowngrade,
+                migrationsNotRequiredFrom,
+                copyFromAssetPath,
+                copyFromFile,
+                copyFromInputStream,
+                prepackagedDatabaseCallback,
+                typeConverters,
+                autoMigrationSpecs
+            )
+            val db = Room.getGeneratedImplementation<T, T>(klass, "_Impl")
+            db.init(configuration)
+            return db
         }
     }
 
@@ -1500,8 +1360,8 @@ public abstract class RoomDatabase {
      * A container to hold migrations. It also allows querying its contents to find migrations
      * between two versions.
      */
-    public static class MigrationContainer {
-        private HashMap<Integer, TreeMap<Integer, Migration>> mMigrations = new HashMap<>();
+    open class MigrationContainer {
+        private val migrations = mutableMapOf<Int, TreeMap<Int, Migration>>()
 
         /**
          * Adds the given migrations to the list of available migrations. If 2 migrations have the
@@ -1509,10 +1369,8 @@ public abstract class RoomDatabase {
          *
          * @param migrations List of available migrations.
          */
-        public void addMigrations(@NonNull Migration... migrations) {
-            for (Migration migration : migrations) {
-                addMigration(migration);
-            }
+        open fun addMigrations(vararg migrations: Migration) {
+            migrations.forEach(::addMigration)
         }
 
         /**
@@ -1521,25 +1379,19 @@ public abstract class RoomDatabase {
          *
          * @param migrations List of available migrations.
          */
-        public void addMigrations(@NonNull List<Migration> migrations) {
-            for (Migration migration : migrations) {
-                addMigration(migration);
-            }
+        open fun addMigrations(migrations: List<Migration>) {
+            migrations.forEach(::addMigration)
         }
 
-        private void addMigration(Migration migration) {
-            final int start = migration.startVersion;
-            final int end = migration.endVersion;
-            TreeMap<Integer, Migration> targetMap = mMigrations.get(start);
-            if (targetMap == null) {
-                targetMap = new TreeMap<>();
-                mMigrations.put(start, targetMap);
+        private fun addMigration(migration: Migration) {
+            val start = migration.startVersion
+            val end = migration.endVersion
+            val targetMap = migrations.getOrPut(start) { TreeMap<Int, Migration>() }
+
+            if (targetMap.contains(end)) {
+                Log.w(Room.LOG_TAG, "Overriding migration ${targetMap[end]} with $migration")
             }
-            Migration existing = targetMap.get(end);
-            if (existing != null) {
-                Log.w(Room.LOG_TAG, "Overriding migration " + existing + " with " + migration);
-            }
-            targetMap.put(end, migration);
+            targetMap[end] = migration
         }
 
         /**
@@ -1548,138 +1400,134 @@ public abstract class RoomDatabase {
          *
          * @return Map of migrations keyed by the start version
          */
-        @NonNull
-        public Map<Integer, Map<Integer, Migration>> getMigrations() {
-            return Collections.unmodifiableMap(mMigrations);
+        open fun getMigrations(): Map<Int, Map<Int, Migration>> {
+            return migrations
         }
 
         /**
-         * Finds the list of migrations that should be run to move from {@code start} version to
-         * {@code end} version.
+         * Finds the list of migrations that should be run to move from `start` version to
+         * `end` version.
          *
          * @param start The current database version
          * @param end   The target database version
-         * @return An ordered list of {@link Migration} objects that should be run to migrate
-         * between the given versions. If a migration path cannot be found, returns {@code null}.
+         * @return An ordered list of [Migration] objects that should be run to migrate
+         * between the given versions. If a migration path cannot be found, returns `null`.
          */
-        @SuppressWarnings("WeakerAccess")
-        @Nullable
-        public List<Migration> findMigrationPath(int start, int end) {
+        open fun findMigrationPath(start: Int, end: Int): List<Migration>? {
             if (start == end) {
-                return Collections.emptyList();
+                return emptyList()
             }
-            boolean migrateUp = end > start;
-            List<Migration> result = new ArrayList<>();
-            return findUpMigrationPath(result, migrateUp, start, end);
+            val migrateUp = end > start
+            val result = mutableListOf<Migration>()
+            return findUpMigrationPath(result, migrateUp, start, end)
         }
 
-        private List<Migration> findUpMigrationPath(List<Migration> result, boolean upgrade,
-                int start, int end) {
-            while (upgrade ? start < end : start > end) {
-                TreeMap<Integer, Migration> targetNodes = mMigrations.get(start);
-                if (targetNodes == null) {
-                    return null;
-                }
+        private fun findUpMigrationPath(
+            result: MutableList<Migration>,
+            upgrade: Boolean,
+            start: Int,
+            end: Int
+        ): List<Migration>? {
+            var migrationStart = start
+            while (if (upgrade) migrationStart < end else migrationStart > end) {
+                val targetNodes = migrations[migrationStart] ?: return null
                 // keys are ordered so we can start searching from one end of them.
-                Set<Integer> keySet;
-                if (upgrade) {
-                    keySet = targetNodes.descendingKeySet();
+                val keySet = if (upgrade) {
+                    targetNodes.descendingKeySet()
                 } else {
-                    keySet = targetNodes.keySet();
+                    targetNodes.keys
                 }
-                boolean found = false;
-                for (int targetVersion : keySet) {
-                    final boolean shouldAddToPath;
-                    if (upgrade) {
-                        shouldAddToPath = targetVersion <= end && targetVersion > start;
+                var found = false
+                for (targetVersion in keySet) {
+                    val shouldAddToPath = if (upgrade) {
+                        targetVersion in (migrationStart + 1)..end
                     } else {
-                        shouldAddToPath = targetVersion >= end && targetVersion < start;
+                        targetVersion in end until migrationStart
                     }
                     if (shouldAddToPath) {
-                        result.add(targetNodes.get(targetVersion));
-                        start = targetVersion;
-                        found = true;
-                        break;
+                        // We are iterating over the key set of targetNodes, so we can assume it
+                        // won't return a null value.
+                        result.add(targetNodes[targetVersion]!!)
+                        migrationStart = targetVersion
+                        found = true
+                        break
                     }
                 }
                 if (!found) {
-                    return null;
+                    return null
                 }
             }
-            return result;
+            return result
         }
     }
 
-    /** Returns true if the calling thread is the main thread. */
-    private static boolean isMainThread() {
-        return Looper.getMainLooper().getThread() == Thread.currentThread();
-    }
-
     /**
-     * Callback for {@link RoomDatabase}.
+     * Callback for [RoomDatabase].
      */
-    public abstract static class Callback {
-
+    abstract class Callback {
         /**
          * Called when the database is created for the first time. This is called after all the
          * tables are created.
          *
          * @param db The database.
          */
-        public void onCreate(@NonNull SupportSQLiteDatabase db) {
-        }
+        open fun onCreate(db: SupportSQLiteDatabase) {}
 
         /**
          * Called when the database has been opened.
          *
          * @param db The database.
          */
-        public void onOpen(@NonNull SupportSQLiteDatabase db) {
-        }
+        open fun onOpen(db: SupportSQLiteDatabase) {}
 
         /**
          * Called after the database was destructively migrated
          *
          * @param db The database.
          */
-        public void onDestructiveMigration(@NonNull SupportSQLiteDatabase db){
-        }
+        open fun onDestructiveMigration(db: SupportSQLiteDatabase) {}
     }
 
     /**
-     * Callback for {@link Builder#createFromAsset(String)}, {@link Builder#createFromFile(File)}
-     * and {@link Builder#createFromInputStream(Callable)}
-     * <p>
+     * Callback for [Builder.createFromAsset], [Builder.createFromFile]
+     * and [Builder.createFromInputStream]
+     *
      * This callback will be invoked after the pre-package DB is copied but before Room had
-     * a chance to open it and therefore before the {@link RoomDatabase.Callback} methods are
+     * a chance to open it and therefore before the [RoomDatabase.Callback] methods are
      * invoked. This callback can be useful for updating the pre-package DB schema to satisfy
      * Room's schema validation.
      */
-    public abstract static class PrepackagedDatabaseCallback {
-
+    abstract class PrepackagedDatabaseCallback {
         /**
          * Called when the pre-packaged database has been copied.
          *
          * @param db The database.
          */
-        public void onOpenPrepackagedDatabase(@NonNull SupportSQLiteDatabase db) {
-        }
+        open fun onOpenPrepackagedDatabase(db: SupportSQLiteDatabase) {}
     }
 
     /**
      * Callback interface for when SQLite queries are executed.
      *
-     * @see RoomDatabase.Builder#setQueryCallback
+     * Can be set using [RoomDatabase.Builder.setQueryCallback].
      */
-    public interface QueryCallback {
-
+    interface QueryCallback {
         /**
          * Called when a SQL query is executed.
          *
          * @param sqlQuery The SQLite query statement.
          * @param bindArgs Arguments of the query if available, empty list otherwise.
          */
-        void onQuery(@NonNull String sqlQuery, @NonNull List<Object>
-                bindArgs);
+        fun onQuery(sqlQuery: String, bindArgs: List<Any?>)
+    }
+
+    companion object {
+        /**
+         * Unfortunately, we cannot read this value so we are only setting it to the SQLite default.
+         *
+         * @hide
+         */
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+        const val MAX_BIND_PARAMETER_CNT = 999
     }
 }
