@@ -26,6 +26,7 @@ import androidx.annotation.Nullable;
 import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.model.Action.ActionType;
 import androidx.car.app.model.constraints.CarTextConstraints;
+import androidx.car.app.utils.CollectionUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -47,11 +48,7 @@ import java.util.Set;
 @CarProtocol
 public final class ActionStrip {
     @Keep
-    @Deprecated
     private final List<Action> mActions;
-
-    @Keep
-    private final List<ActionStripAction> mActionStripActions;
 
     /**
      * Returns the list of {@link Action}s in the strip.
@@ -60,32 +57,7 @@ public final class ActionStrip {
      */
     @NonNull
     public List<Action> getActions() {
-        if (mActions != null && !mActions.isEmpty()) {
-            return mActions;
-        }
-
-        final List<Action> actions = new ArrayList<>();
-        for (ActionStripAction action : mActionStripActions) {
-            if (action.getAction() != null) {
-                actions.add(action.getAction());
-            }
-        }
-        return actions;
-    }
-
-    /**
-     * Returns {@code true} if {@link Action} always shows in the strip.
-     *
-     * @see Builder#addAction(Action, boolean)
-     */
-    public boolean isActionPersistent(@NonNull Action action) {
-        for (int i = 0; i < mActionStripActions.size(); i++) {
-            if (action.equals(mActionStripActions.get(i).getAction())) {
-                return mActionStripActions.get(i).isPersistent();
-            }
-        }
-
-        return false;
+        return CollectionUtils.emptyIfNull(mActions);
     }
 
     /**
@@ -94,9 +66,12 @@ public final class ActionStrip {
      */
     @Nullable
     public Action getFirstActionOfType(@ActionType int actionType) {
-        for (Action action : mActions) {
-            if (action.getType() == actionType) {
-                return action;
+        for (Object object : mActions) {
+            if (object instanceof Action) {
+                Action action = (Action) object;
+                if (action.getType() == actionType) {
+                    return action;
+                }
             }
         }
 
@@ -111,7 +86,7 @@ public final class ActionStrip {
 
     @Override
     public int hashCode() {
-        return Objects.hash(mActions, mActionStripActions);
+        return Objects.hashCode(mActions);
     }
 
     @Override
@@ -124,40 +99,25 @@ public final class ActionStrip {
         }
         ActionStrip otherActionStrip = (ActionStrip) other;
 
-        return Objects.equals(mActions, otherActionStrip.mActions)
-                && Objects.equals(mActionStripActions, otherActionStrip.mActionStripActions);
+        return Objects.equals(mActions, otherActionStrip.mActions);
     }
 
     ActionStrip(Builder builder) {
-        mActionStripActions = builder.mActions;
-        mActions = getActions();
+        mActions = CollectionUtils.unmodifiableCopy(builder.mActions);
     }
 
     /** Constructs an empty instance, used by serialization code. */
     private ActionStrip() {
-        mActionStripActions = Collections.emptyList();
         mActions = Collections.emptyList();
     }
 
     /** A builder of {@link ActionStrip}. */
     public static final class Builder {
-        final List<ActionStripAction> mActions = new ArrayList<>();
+        final List<Action> mActions = new ArrayList<>();
         final Set<Integer> mAddedActionTypes = new HashSet<>();
 
         /**
-         * Adds an {@link Action} to the list which will not always show inside the
-         * {@link ActionStrip}.
-         *
-         * @see #addAction(Action, boolean)
-         */
-        @NonNull
-        public Builder addAction(@NonNull Action action) {
-            return addAction(action, /* alwaysShow= */false);
-        }
-
-        /**
-         * Adds an {@link Action} to the list with a flag that signifies whether the action will
-         * always show inside the {@link ActionStrip}.
+         * Adds an {@link Action} to the list.
          *
          * <p>Background colors are not supported on an action inside an {@link ActionStrip}.
          *
@@ -165,9 +125,6 @@ public final class ActionStrip {
          *
          * <p>Spans are not supported in the title of the action and will be ignored.
          *
-         * @param action                    the {@link Action} to be added to {@link ActionStrip}
-         * @param alwaysShow                {@code true} if action is to ignore fade in/out
-         *                                  animation in {@link ActionStrip}
          * @throws IllegalArgumentException if the background color of the action is specified,
          *                                  or if {@code action} is a standard action and an
          *                                  action of the same type has already been added, of if
@@ -175,7 +132,7 @@ public final class ActionStrip {
          * @throws NullPointerException     if {@code action} is {@code null}
          */
         @NonNull
-        public Builder addAction(@NonNull Action action, boolean alwaysShow) {
+        public Builder addAction(@NonNull Action action) {
             Action actionObj = requireNonNull(action);
             int actionType = actionObj.getType();
             if (actionType != Action.TYPE_CUSTOM && mAddedActionTypes.contains(actionType)) {
@@ -196,7 +153,7 @@ public final class ActionStrip {
             }
 
             mAddedActionTypes.add(actionType);
-            mActions.add(new ActionStripAction(action, alwaysShow));
+            mActions.add(action);
             return this;
         }
 
@@ -215,58 +172,6 @@ public final class ActionStrip {
 
         /** Creates an empty {@link Builder} instance. */
         public Builder() {
-        }
-    }
-
-    /** An {@link Action} wrapper which also holds the always show value for the action. */
-    private static final class ActionStripAction {
-        @Keep
-        @Nullable
-        private final Action mAction;
-        @Keep
-        private final boolean mIsPersistent;
-
-        ActionStripAction() {
-            this.mAction = null;
-            this.mIsPersistent = false;
-        }
-
-        ActionStripAction(@Nullable Action action) {
-            this.mAction = action;
-            this.mIsPersistent = false;
-        }
-
-        ActionStripAction(@Nullable Action action, boolean isPersistent) {
-            this.mAction = action;
-            this.mIsPersistent = isPersistent;
-        }
-
-        @Override
-        public boolean equals(@Nullable Object other) {
-            if (this == other) {
-                return true;
-            }
-            if (!(other instanceof ActionStripAction)) {
-                return false;
-            }
-            ActionStripAction otherAction = (ActionStripAction) other;
-
-            return Objects.equals(otherAction.getAction(), getAction())
-                    && otherAction.isPersistent() == isPersistent();
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(mAction, mIsPersistent);
-        }
-
-        @Nullable
-        Action getAction() {
-            return mAction;
-        }
-
-        boolean isPersistent() {
-            return mIsPersistent;
         }
     }
 }

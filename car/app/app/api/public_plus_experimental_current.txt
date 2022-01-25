@@ -461,13 +461,11 @@ package androidx.car.app.model {
   @androidx.car.app.annotations.CarProtocol public final class ActionStrip {
     method public java.util.List<androidx.car.app.model.Action!> getActions();
     method public androidx.car.app.model.Action? getFirstActionOfType(int);
-    method public boolean isActionPersistent(androidx.car.app.model.Action);
   }
 
   public static final class ActionStrip.Builder {
     ctor public ActionStrip.Builder();
     method public androidx.car.app.model.ActionStrip.Builder addAction(androidx.car.app.model.Action);
-    method public androidx.car.app.model.ActionStrip.Builder addAction(androidx.car.app.model.Action, boolean);
     method public androidx.car.app.model.ActionStrip build();
   }
 

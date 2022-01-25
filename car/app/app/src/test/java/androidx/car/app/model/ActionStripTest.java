@@ -107,22 +107,6 @@ public class ActionStripTest {
     }
 
     @Test
-    public void createActionsWithPersistence() {
-        Action action1 = Action.BACK;
-        Action action2 = new Action.Builder()
-                .setTitle("Test")
-                .setOnClickListener(() -> {})
-                .build();
-        ActionStrip strip = new ActionStrip.Builder()
-                .addAction(action1, /* alwaysShows= */ true)
-                .addAction(action2)
-                .build();
-
-        assertThat(strip.isActionPersistent(action1)).isTrue();
-        assertThat(strip.isActionPersistent(action2)).isFalse();
-    }
-
-    @Test
     public void getFirstActionOfType() {
         Action action1 = Action.BACK;
         Action action2 = new Action.Builder().setTitle("Test").setOnClickListener(() -> {
@@ -151,56 +135,5 @@ public class ActionStripTest {
         ActionStrip list2 = new ActionStrip.Builder().addAction(action2).build();
 
         assertThat(list).isNotEqualTo(list2);
-    }
-
-    @Test
-    public void notEquals_differentPersistenceValues() {
-        Action action1 = Action.BACK;
-        Action action2 = Action.APP_ICON;
-        ActionStrip list = new ActionStrip.Builder().addAction(action1).addAction(action2).build();
-        ActionStrip list2 = new ActionStrip.Builder()
-                .addAction(action1, /* alwaysShows= */ true)
-                .addAction(action2)
-                .build();
-
-        assertThat(list).isNotEqualTo(list2);
-    }
-
-    @Test
-    public void hashCode_same() {
-        Action action1 = Action.BACK;
-        Action action2 = new Action.Builder()
-                .setTitle("Test")
-                .setOnClickListener(() -> {})
-                .build();
-        ActionStrip strip1 = new ActionStrip.Builder()
-                .addAction(action1, /* alwaysShows= */ true)
-                .addAction(action2)
-                .build();
-        ActionStrip strip2 = new ActionStrip.Builder()
-                .addAction(action1, /* alwaysShows= */ true)
-                .addAction(action2)
-                .build();
-
-        assertThat(strip1.hashCode()).isEqualTo(strip2.hashCode());
-    }
-
-    @Test
-    public void hashCode_different() {
-        Action action1 = Action.BACK;
-        Action action2 = new Action.Builder()
-                .setTitle("Test")
-                .setOnClickListener(() -> {})
-                .build();
-        ActionStrip strip1 = new ActionStrip.Builder()
-                .addAction(action1, /* alwaysShows= */ true)
-                .addAction(action2)
-                .build();
-        ActionStrip strip2 = new ActionStrip.Builder()
-                .addAction(action1)
-                .addAction(action2)
-                .build();
-
-        assertThat(strip1.hashCode()).isNotEqualTo(strip2.hashCode());
     }
 }
