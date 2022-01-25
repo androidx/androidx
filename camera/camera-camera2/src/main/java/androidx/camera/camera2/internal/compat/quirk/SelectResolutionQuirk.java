@@ -43,6 +43,7 @@ public class SelectResolutionQuirk implements Quirk {
             "SM-J710MN", // Samsung Galaxy J7 (2016)
             "SM-A320FL", // Samsung Galaxy A3 (2017)
             "SM-G570M", // Samsung Galaxy J5 Prime
+            "SM-G610F", // Samsung Galaxy J7 Prime
             "SM-G610M"); // Samsung Galaxy J7 Prime
 
     static boolean load() {
