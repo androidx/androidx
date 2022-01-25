@@ -3,6 +3,9 @@ on:
   push:
   pull_request:
 
+env:
+  GRADLE_BUILD_ACTION_CACHE_DEBUG_ENABLED: true
+
 jobs:
   setup:
     runs-on: ubuntu-latest
@@ -19,6 +22,7 @@ jobs:
             -Dorg.gradle.internal.http.socketTimeout=60000                  \
             -Dorg.gradle.internal.repository.max.retries=20                 \
             -Dorg.gradle.internal.repository.initial.backoff=500            \
+            --no-configuration-cache                                        \
             --stacktrace"
           echo "::set-output name=gradlew_flags::$GRADLEW_FLAGS"
       - name: "Compute actions/checkout arguments"
@@ -37,6 +41,8 @@ jobs:
             REPOSITORY=${{ github.repository }}
           fi
           echo "::set-output name=repository::$REPOSITORY"
+      - name: Publish build scans link
+        run: echo "::notice title=All build scans for workflow::https://ge.androidx.dev/scans?search.names=CI%20run&search.values=$GITHUB_RUN_ID"
 
   lint:
     runs-on: ubuntu-latest
@@ -44,6 +50,9 @@ jobs:
     outputs:
       status: ${{ steps.output-status.outputs.status }}
       affectedFileArgs: ${{ steps.affected-file-args.outputs.files }}
+    env:
+      GRADLE_BUILD_CACHE_PASSWORD: ${{ secrets.GRADLE_BUILD_CACHE_PASSWORD }}
+      GRADLE_ENTERPRISE_ACCESS_KEY: ${{ secrets.GRADLE_ENTERPRISE_ACCESS_KEY }}
     steps:
       - name: Pull request format
         uses: 'androidx/check-pr-format-action@main'
@@ -95,35 +104,23 @@ jobs:
           set -x
           AFFECTED_FILES=`echo "${{ steps.changed-files.outputs.files_including_removals }}" | sed 's|\([^ ]\+\)|--changedFilePath=\1|g'`
           echo "::set-output name=files::$AFFECTED_FILES"
-      - name: "warm up gradle"
-        id: warm-up-gradle-cache
-        uses: gradle/gradle-command-action@v1
-        env:
-          JAVA_HOME: ${{ steps.setup-java.outputs.path }}
-          JAVA_TOOLS_JAR: ${{ steps.setup-tools-jar.outputs.toolsJar }}
+
+      - name: "Setup Gradle"
+        uses: gradle/gradle-build-action@v2
         with:
-          arguments: tasks -PandroidXUnusedParameter=activity # add project name to cache key
-          build-root-directory: activity
-          configuration-cache-enabled: false
-          dependencies-cache-enabled: true
-          dependencies-cache-key: |
-            **/libs.versions.toml
-          dependencies-cache-exact: false
-          gradle-executable: activity/gradlew
-          wrapper-directory: activity/gradle/wrapper
-          distributions-cache-enabled: true
+          # Don't share cache entries with other jobs          
+          gradle-home-cache-strict-match: true
+          # Limit the size of the cache entry
+          gradle-home-cache-excludes: | 
+            caches/jars-9
+            caches/transforms-3
+
       - name: "ktlint"
-        uses: gradle/gradle-command-action@v1
         env:
           JAVA_HOME: ${{ steps.setup-java.outputs.path }}
-        with:
-          arguments: -q :ktlintCheckFile ${{ steps.ktlint-file-args.outputs.ktlint-file-args }} ${{ needs.setup.outputs.gradlew_flags }}
-          build-root-directory: activity
-          configuration-cache-enabled: false
-          dependencies-cache-enabled: false
-          gradle-executable: activity/gradlew
-          wrapper-directory: activity/gradle/wrapper
-          distributions-cache-enabled: false
+        working-directory: activity
+        run: ./gradlew -q :ktlintCheckFile ${{ steps.ktlint-file-args.outputs.ktlint-file-args }} ${{ needs.setup.outputs.gradlew_flags }}
+
   build-modules:
     strategy:
       fail-fast: false
@@ -171,42 +168,26 @@ jobs:
         run: |
           set -x
           echo "DIST_DIR=$HOME/dist" >> $GITHUB_ENV
+          
           # use latest NDK because the default NDK on github is older.
           # TODO b/216535050: Implement task to install the exact AndroidX ndk version.
           echo "ANDROID_NDK_ROOT=$ANDROID_NDK_LATEST_HOME" >> $GITHUB_ENV
-      # gradle action loads the dependencies cache only on the first run based on arguments.
-      # to control it, we explicitly invoke it once which makes it load the dependencies cache with the parameters
-      # we control
-      - name: "warm up gradle"
-        id: warm-up-gradle-cache
-        uses: gradle/gradle-command-action@v1
+      - name: "Setup Gradle"
+        uses: gradle/gradle-build-action@v2
+        with:
+          # Don't share cache entries with other jobs          
+          gradle-home-cache-strict-match: true
+          # Limit the size of the cache entry
+          gradle-home-cache-excludes: | 
+            caches/jars-9
+            caches/transforms-3
+
+      - name: "gradle buildOnServer zipTestConfigsWithApks test"
         env:
           JAVA_HOME: ${{ steps.setup-java.outputs.path }}
           JAVA_TOOLS_JAR: ${{ steps.setup-tools-jar.outputs.toolsJar }}
-        with:
-          arguments: projects -PandroidXUnusedParameter=${{ env.project-root }} # add project name to cache key
-          build-root-directory: ${{ env.project-root }}
-          configuration-cache-enabled: false
-          dependencies-cache-enabled: true
-          dependencies-cache-key: |
-            **/libs.versions.toml
-          dependencies-cache-exact: false
-          gradle-executable: ${{ env.project-root }}/gradlew
-          wrapper-directory: ${{ env.project-root }}/gradle/wrapper
-          distributions-cache-enabled: true
-      - name: "./gradlew buildOnServer zipTestConfigsWithApks test"
-        uses: gradle/gradle-command-action@v1
-        env:
-          JAVA_HOME: ${{ steps.setup-java.outputs.path }}
-          JAVA_TOOLS_JAR: ${{ steps.setup-tools-jar.outputs.toolsJar }}
-        with:
-          arguments: buildOnServer zipTestConfigsWithApks test ${{ needs.setup.outputs.gradlew_flags }}
-          build-root-directory: ${{ env.project-root }}
-          configuration-cache-enabled: false
-          dependencies-cache-enabled: false
-          distributions-cache-enabled: false
-          gradle-executable: ${{ env.project-root }}/gradlew
-          wrapper-directory: ${{ env.project-root }}/gradle/wrapper
+        working-directory: ${{ env.project-root }}
+        run: ./gradlew buildOnServer zipTestConfigsWithApks test ${{ needs.setup.outputs.gradlew_flags }}
 
       - name: "Upload build artifacts"
         continue-on-error: true
