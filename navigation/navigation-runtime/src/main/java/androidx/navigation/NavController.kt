@@ -1280,7 +1280,7 @@ public open class NavController(
                             exit = 0
                         }
                         val changingGraphs = node is NavGraph &&
-                            currentDestination?.hierarchy?.none { it == node } == true
+                            node.hierarchy.none { it == currentDestination?.parent }
                         if (changingGraphs && deepLinkSaveState) {
                             // If we are navigating to a 'sibling' graph (one that isn't part
                             // of the current destination's hierarchy), then we need to saveState
