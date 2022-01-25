@@ -22,6 +22,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.appsearch.app.Features;
+import androidx.appsearch.app.GetSchemaResponse;
 import androidx.appsearch.app.GlobalSearchSession;
 import androidx.appsearch.app.ReportSystemUsageRequest;
 import androidx.appsearch.app.SearchResults;
@@ -46,6 +47,7 @@ import java.util.concurrent.Executor;
 /**
  * An implementation of {@link androidx.appsearch.app.GlobalSearchSession} which proxies to a
  * platform {@link android.app.appsearch.GlobalSearchSession}.
+ *
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -89,6 +91,25 @@ class GlobalSearchSessionImpl implements GlobalSearchSession {
                 result -> AppSearchResultToPlatformConverter.platformAppSearchResultToFuture(
                         result, future));
         return future;
+    }
+
+    @BuildCompat.PrereleaseSdkCheck
+    @NonNull
+    @Override
+    public ListenableFuture<GetSchemaResponse> getSchema(@NonNull String packageName,
+            @NonNull String databaseName) {
+        // Superclass is annotated with @RequiresFeature, so we shouldn't get here on an
+        // unsupported build.
+        if (!BuildCompat.isAtLeastT()) {
+            throw new UnsupportedOperationException(
+                    Features.GLOBAL_SEARCH_SESSION_GET_SCHEMA
+                            + " is not supported on this AppSearch implementation.");
+        }
+        // TODO(b/215624105) Update this to call mPlatformSession.getSchema() once changes have
+        // been synced into the platform.
+        throw new UnsupportedOperationException(
+                Features.GLOBAL_SEARCH_SESSION_GET_SCHEMA
+                        + " has not been synced over to Android T master.");
     }
 
     @NonNull

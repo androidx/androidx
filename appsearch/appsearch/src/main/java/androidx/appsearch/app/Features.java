@@ -44,6 +44,12 @@ public interface Features {
     String GLOBAL_SEARCH_SESSION_ADD_REMOVE_OBSERVER = "GLOBAL_SEARCH_SESSION_ADD_REMOVE_OBSERVER";
 
     /**
+     * Feature for {@link #isFeatureSupported(String)}. This feature covers
+     * {@link GlobalSearchSession#getSchema}.
+     */
+    String GLOBAL_SEARCH_SESSION_GET_SCHEMA = "GLOBAL_SEARCH_SESSION_GET_SCHEMA";
+
+    /**
      * Returns whether a feature is supported at run-time. Feature support depends on the
      * feature in question, the AppSearch backend being used and the Android version of the
      * device.

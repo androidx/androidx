@@ -16,12 +16,14 @@
 // @exportToFramework:skipFile()
 package androidx.appsearch.localstorage;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appsearch.app.AppSearchResult;
 import androidx.appsearch.app.Features;
+import androidx.appsearch.app.GetSchemaResponse;
 import androidx.appsearch.app.GlobalSearchSession;
 import androidx.appsearch.app.ReportSystemUsageRequest;
 import androidx.appsearch.app.SearchResults;
@@ -100,6 +102,19 @@ class GlobalSearchSessionImpl implements GlobalSearchSession {
                     AppSearchResult.RESULT_SECURITY_ERROR,
                     mContext.getPackageName() + " does not have access to report system usage");
         });
+    }
+
+    @SuppressLint("KotlinPropertyAccess")
+    @NonNull
+    @Override
+    public ListenableFuture<GetSchemaResponse> getSchema(@NonNull String packageName,
+            @NonNull String databaseName) {
+        Preconditions.checkNotNull(packageName);
+        Preconditions.checkNotNull(databaseName);
+        Preconditions.checkState(!mIsClosed, "GlobalSearchSession has already been closed");
+        return FutureUtil.execute(mExecutor,
+                () -> mAppSearchImpl.getSchema(
+                        mContext.getPackageName(), packageName, databaseName));
     }
 
     @NonNull
