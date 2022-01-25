@@ -974,6 +974,7 @@ public class PhotoImageComplicationData internal constructor(
                     else -> contentDescription?.toWireComplicationText()
                 }
             )
+            setTapAction(tapAction)
             setValidTimeRange(validTimeRange, this)
         }.build().also { cachedWireComplicationData = it }
     }
@@ -1223,6 +1224,7 @@ public fun WireComplicationData.toApiComplicationData(): ComplicationData {
                 largeImage!!,
                 contentDescription?.toApiComplicationText() ?: ComplicationText.EMPTY
             ).apply {
+                setTapAction(tapAction)
                 setValidTimeRange(parseTimeRange())
                 setCachedWireComplicationData(wireComplicationData)
             }.build()
