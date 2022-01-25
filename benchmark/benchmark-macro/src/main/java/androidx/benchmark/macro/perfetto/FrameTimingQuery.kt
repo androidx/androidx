@@ -55,12 +55,12 @@ internal object FrameTimingQuery {
     """.trimIndent()
 
     enum class SubMetric {
-        FrameCpuTime,
-        FrameUiTime,
-        FrameOverrunTime;
+        FrameDurationCpuNs,
+        FrameDurationUiNs,
+        FrameOverrunNs;
 
         fun supportedOnApiLevel(apiLevel: Int): Boolean {
-            return apiLevel >= 31 || this != FrameOverrunTime
+            return apiLevel >= 31 || this != FrameOverrunNs
         }
     }
 
@@ -84,9 +84,9 @@ internal object FrameTimingQuery {
     ) {
         fun get(subMetric: SubMetric): Long {
             return when (subMetric) {
-                SubMetric.FrameCpuTime -> rtSlice.endTs - uiSlice.ts
-                SubMetric.FrameUiTime -> uiSlice.dur
-                SubMetric.FrameOverrunTime -> actualSlice!!.endTs - expectedSlice!!.endTs
+                SubMetric.FrameDurationCpuNs -> rtSlice.endTs - uiSlice.ts
+                SubMetric.FrameDurationUiNs -> uiSlice.dur
+                SubMetric.FrameOverrunNs -> actualSlice!!.endTs - expectedSlice!!.endTs
             }
         }
         companion object {
