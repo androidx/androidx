@@ -26,9 +26,12 @@ plugins {
 
 dependencies {
     api("androidx.annotation:annotation:1.1.0")
-    testImplementation(libs.truth)
-    testImplementation(libs.kotlinStdlib)
-    testImplementation(libs.junit)
+    androidTestImplementation(libs.kotlinStdlib)
+    androidTestImplementation(libs.testCore)
+    androidTestImplementation(libs.testRunner)
+    androidTestImplementation(libs.testExtJunit)
+    androidTestImplementation(libs.truth)
+    androidTestImplementation(libs.junit)
 }
 
 androidx {
@@ -46,5 +49,12 @@ android {
     defaultConfig {
         // studio pipeline works only starting with Android O
         minSdkVersion 26
+    }
+
+    externalNativeBuild {
+        cmake {
+            path "src/main/native/CMakeLists.txt"
+            version "3.22.1"
+        }
     }
 }
