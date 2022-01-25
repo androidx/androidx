@@ -58,6 +58,9 @@ public class MainActivity extends AppCompatActivity {
     public static final String INTENT_EXTRA_CAMERA_DIRECTION = "camera_direction";
     public static final String CAMERA_DIRECTION_BACK = "back";
     public static final String CAMERA_DIRECTION_FRONT = "front";
+    // Possible values for this intent key: "preview_test_case" or "default_test_case".
+    public static final String INTENT_EXTRA_E2E_TEST_CASE = "e2e_test_case";
+    public static final String PREVIEW_TEST_CASE = "preview_test_case";
 
     private boolean mCheckedPermissions = false;
     private FragmentType mFragmentType = FragmentType.CAMERA_CONTROLLER;
@@ -74,6 +77,13 @@ public class MainActivity extends AppCompatActivity {
                 mFragmentType = FragmentType.PREVIEW_VIEW;
             } else if (COMPOSE_UI_FRAGMENT.equalsIgnoreCase(viewTypeString)) {
                 mFragmentType = FragmentType.COMPOSE_UI;
+            }
+            // Update the app UI according to the e2e test case.
+            String testItem = bundle.getString(INTENT_EXTRA_E2E_TEST_CASE);
+            if (testItem != null) {
+                if (getSupportActionBar() != null) {
+                    getSupportActionBar().hide();
+                }
             }
         }
         // TODO(b/173019455): make this penaltyDeath after we fix the IO in test apps.
