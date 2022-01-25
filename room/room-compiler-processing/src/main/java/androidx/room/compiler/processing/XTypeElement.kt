@@ -108,7 +108,7 @@ interface XTypeElement : XHasModifiers, XElement, XMemberContainer {
     fun isAnnotationClass(): Boolean
 
     /**
-     * Returns `true` if this [XTypeElement] is a non-companion `object` in Kotlin
+     * Returns `true` if this [XTypeElement] is an `object` or `companion object` in Kotlin
      */
     fun isKotlinObject(): Boolean
 
