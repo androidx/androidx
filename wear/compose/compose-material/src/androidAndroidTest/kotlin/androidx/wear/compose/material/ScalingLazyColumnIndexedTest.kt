@@ -41,10 +41,12 @@ class ScalingLazyColumnIndexedTest {
 
     @Test
     fun scalingLazyColumnShowsIndexedItems() {
+        lateinit var state: ScalingLazyListState
         val items = (1..4).map { it.toString() }
 
         rule.setContent {
             ScalingLazyColumn(
+                state = rememberScalingLazyListState().also { state = it },
                 modifier = Modifier.height(200.dp),
                 scalingParams = ScalingLazyColumnDefaults.scalingParams(edgeScale = 1.0f)
             ) {
@@ -57,6 +59,8 @@ class ScalingLazyColumnIndexedTest {
             }
         }
 
+        // TODO(b/210654937): Remove the waitUntil once we no longer need 2 stage initialization
+        rule.waitUntil { state.initialized.value }
         // Fully visible
         rule.onNodeWithTag("0-1")
             .assertIsDisplayed()
@@ -76,10 +80,15 @@ class ScalingLazyColumnIndexedTest {
 
     @Test
     fun columnWithIndexesComposedWithCorrectIndexAndItem() {
+        lateinit var state: ScalingLazyListState
         val items = (0..1).map { it.toString() }
 
         rule.setContent {
-            ScalingLazyColumn(Modifier.height(200.dp), autoCentering = false) {
+            ScalingLazyColumn(
+                state = rememberScalingLazyListState().also { state = it },
+                modifier = Modifier.height(200.dp),
+                autoCentering = false
+            ) {
                 itemsIndexed(items) { index, item ->
                     BasicText(
                         "${index}x$item", Modifier.requiredHeight(100.dp)
@@ -88,6 +97,8 @@ class ScalingLazyColumnIndexedTest {
             }
         }
 
+        // TODO(b/210654937): Remove the waitUntil once we no longer need 2 stage initialization
+        rule.waitUntil { state.initialized.value }
         rule.onNodeWithText("0x0")
             .assertTopPositionInRootIsEqualTo(0.dp)
 
@@ -97,12 +108,14 @@ class ScalingLazyColumnIndexedTest {
 
     @Test
     fun columnWithIndexesComposedWithCorrectIndexAndItemWithAutoCentering() {
+        lateinit var state: ScalingLazyListState
         val items = (0..1).map { it.toString() }
         val viewPortHeight = 200.dp
         val itemHeight = 100.dp
         val gapBetweenItems = 4.dp
         rule.setContent {
             ScalingLazyColumn(
+                state = rememberScalingLazyListState().also { state = it },
                 modifier = Modifier.height(viewPortHeight),
                 autoCentering = true,
                 verticalArrangement = Arrangement.spacedBy(gapBetweenItems)
@@ -115,6 +128,8 @@ class ScalingLazyColumnIndexedTest {
             }
         }
 
+        // TODO(b/210654937): Remove the waitUntil once we no longer need 2 stage initialization
+        rule.waitUntil { state.initialized.value }
         // Check that first item is in the center of the viewport
         val firstItemStart = viewPortHeight / 2f - itemHeight / 2f
         rule.onNodeWithText("0x0")

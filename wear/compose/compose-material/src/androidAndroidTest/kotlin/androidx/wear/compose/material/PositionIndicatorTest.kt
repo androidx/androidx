@@ -92,6 +92,8 @@ public class PositionIndicatorTest {
             )
         }
 
+        // TODO(b/210654937): Remove the waitUntil once we no longer need 2 stage initialization
+        rule.waitUntil { state.initialized.value }
         rule.runOnIdle {
             assertThat(
                 positionIndicatorState.positionFraction
@@ -130,6 +132,8 @@ public class PositionIndicatorTest {
             )
         }
 
+        // TODO(b/210654937): Remove the waitUntil once we no longer need 2 stage initialization
+        rule.waitUntil { state.initialized.value }
         rule.runOnIdle {
             assertThat(
                 positionIndicatorState.positionFraction
@@ -171,6 +175,8 @@ public class PositionIndicatorTest {
             )
         }
 
+        // TODO(b/210654937): Remove the waitUntil once we no longer need 2 stage initialization
+        rule.waitUntil { state.initialized.value }
         rule.runOnIdle {
             assertThat(
                 positionIndicatorState.positionFraction
@@ -212,6 +218,8 @@ public class PositionIndicatorTest {
             )
         }
 
+        // TODO(b/210654937): Remove the waitUntil once we no longer need 2 stage initialization
+        rule.waitUntil { state.initialized.value }
         rule.runOnIdle {
             // Scroll forwards so that item with index 2 is in the center of the viewport
             runBlocking {
@@ -258,6 +266,8 @@ public class PositionIndicatorTest {
             )
         }
 
+        // TODO(b/210654937): Remove the waitUntil once we no longer need 2 stage initialization
+        rule.waitUntil { state.initialized.value }
         rule.runOnIdle {
             assertThat(
                 positionIndicatorState.positionFraction
@@ -302,6 +312,8 @@ public class PositionIndicatorTest {
             )
         }
 
+        // TODO(b/210654937): Remove the waitUntil once we no longer need 2 stage initialization
+        rule.waitUntil { state.initialized.value }
         rule.runOnIdle {
             assertThat(
                 positionIndicatorState.positionFraction
@@ -346,6 +358,8 @@ public class PositionIndicatorTest {
             )
         }
 
+        // TODO(b/210654937): Remove the waitUntil once we no longer need 2 stage initialization
+        rule.waitUntil { state.initialized.value }
         rule.runOnIdle {
             runBlocking {
                 state.scrollBy(itemSizePx.toFloat() + itemSpacingPx.toFloat())
