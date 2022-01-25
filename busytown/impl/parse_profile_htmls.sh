@@ -18,5 +18,5 @@ METRICS_DIR="$DIST_DIR/librarymetrics/build"
 # If a profile file exists, parse it. If not, do nothing
 PROFILE_FILES="$OUT_DIR/androidx/build/reports/profile/*.html"
 if ls $PROFILE_FILES >/dev/null 2>&1 ; then
-  ./parse_profile_html.py --input-profile "$(ls $PROFILE_FILES | sort | tail -n 2 | head -n 1)" --output-summary $METRICS_DIR/build_androidx.json
+  ./parse_profile_html.py --input-profile "$(ls $PROFILE_FILES | sort | tail -n 1)" --output-summary $METRICS_DIR/build_androidx.json
 fi
