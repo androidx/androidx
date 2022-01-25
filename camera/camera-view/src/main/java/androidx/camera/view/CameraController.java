@@ -113,7 +113,8 @@ public abstract class CameraController {
 
     // Externally visible error messages.
     private static final String CAMERA_NOT_INITIALIZED = "Camera not initialized.";
-    private static final String PREVIEW_VIEW_NOT_ATTACHED = "PreviewView not attached.";
+    private static final String PREVIEW_VIEW_NOT_ATTACHED =
+            "PreviewView not attached to CameraController.";
     private static final String CAMERA_NOT_ATTACHED = "Use cases not attached to camera.";
     private static final String IMAGE_CAPTURE_DISABLED = "ImageCapture disabled.";
     private static final String VIDEO_CAPTURE_DISABLED = "VideoCapture disabled.";
