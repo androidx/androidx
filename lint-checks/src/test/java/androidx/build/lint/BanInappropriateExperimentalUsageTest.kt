@@ -22,10 +22,10 @@ import com.android.tools.lint.checks.infrastructure.ProjectDescription
 import com.android.tools.lint.checks.infrastructure.TestFile
 import com.android.tools.lint.checks.infrastructure.TestFiles
 import com.android.tools.lint.checks.infrastructure.TestMode
-import java.io.FileNotFoundException
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
+import java.io.FileNotFoundException
 
 @RunWith(JUnit4::class)
 class BanInappropriateExperimentalUsageTest : AbstractLintDetectorTest(
@@ -50,14 +50,13 @@ class BanInappropriateExperimentalUsageTest : AbstractLintDetectorTest(
         """
 androidx.a
 androidx.b
-sample.annotation.provider
             """.trimIndent()
     )
 
     private val UNUSED_PLACEHOLDER = "unused"
 
     @Test
-    fun `Test same atomic module Experimental usage via Gradle model`() {
+    fun `Test within-module Experimental usage via Gradle model`() {
         val provider = project()
             .name("provider")
             .files(
@@ -80,43 +79,6 @@ No warnings.
         /* ktlint-enable max-line-length */
 
         check(provider).expect(expected)
-    }
-
-    @Test
-    fun `Test same non-atomic module Experimental usage via Gradle model`() {
-
-        // This is the same as libraryGroups, only with `sample.annotation.provider` removed
-        val nonatomicLibraryGroups = TestFiles.source(
-            "atomic-library-groups.txt",
-            """
-androidx.a
-androidx.b
-            """.trimIndent()
-        )
-
-        val provider = project()
-            .name("provider")
-            .files(
-                ktSample("sample.annotation.provider.WithinGroupExperimentalAnnotatedClass"),
-                ktSample("sample.annotation.provider.ExperimentalSampleAnnotation"),
-                gradle(
-                    """
-                    apply plugin: 'com.android.library'
-                    group=sample.annotation.provider
-                    """
-                ).indented(),
-                validLintConfig,
-                nonatomicLibraryGroups,
-            )
-
-        /* ktlint-disable max-line-length */
-        val expected = """
-No warnings.
-        """.trimIndent()
-        /* ktlint-enable max-line-length */
-
-        // TODO: Using TestMode.DEFAULT due to b/188814760; remove testModes once bug is resolved
-        check(provider, testModes = listOf(TestMode.DEFAULT)).expect(expected)
     }
 
     @Test
