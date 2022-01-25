@@ -2942,16 +2942,6 @@ public class AppSearchImplTest {
             }
         };
 
-        AppSearchException noDocException = assertThrows(AppSearchException.class, () ->
-                mAppSearchImpl.globalGetDocument("package", "database",
-                        "namespace1",
-                        "id2",
-                        /*typePropertyPaths=*/Collections.emptyMap(),
-                        mockSecureVisibilityStore,
-                        /*callerUid=*/1,
-                        /*callerHasSystemAccess=*/false)
-        );
-
         AppSearchException unauthorizedException = assertThrows(AppSearchException.class, () ->
                 mAppSearchImpl.globalGetDocument("package", "database",
                         "namespace1",
@@ -2959,6 +2949,19 @@ public class AppSearchImplTest {
                         /*typePropertyPaths=*/Collections.emptyMap(),
                         mockSecureVisibilityStore,
                         /*callerUid=*/2,
+                        /*callerHasSystemAccess=*/false)
+        );
+
+        mAppSearchImpl.remove("package", "database", "namespace1", "id1",
+                /*removeStatsBuilder=*/null);
+
+        AppSearchException noDocException = assertThrows(AppSearchException.class, () ->
+                mAppSearchImpl.globalGetDocument("package", "database",
+                        "namespace1",
+                        "id1",
+                        /*typePropertyPaths=*/Collections.emptyMap(),
+                        mockSecureVisibilityStore,
+                        /*callerUid=*/1,
                         /*callerHasSystemAccess=*/false)
         );
 
