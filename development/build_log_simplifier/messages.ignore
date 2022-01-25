@@ -143,6 +143,7 @@ Calculating task graph as no configuration cache is available for tasks:.*
 Reusing configuration cache\.
 Calculating task graph as configuration cache cannot be reused because an input to task '[^ ]*' has changed\.
 Type\-safe dependency accessors is an incubating feature\.
+The build is running offline\. A build scan will not be published at this time, but it can be published if you run the buildScanPublishPrevious task in the next build\.
 # > Configure project :
 updated local\.properties
 # > Configure project :compose:test\-utils
