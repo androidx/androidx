@@ -73,8 +73,38 @@ public class GlobalSearchSessionPlatformCtsTest extends GlobalSearchSessionCtsTe
 
     @Ignore("b/193494000")
     @Override
+    public void testAddObserver() {
+        // TODO(b/193494000): Propagate document ids in platform and enable this test
+    }
+
+    @Ignore("b/193494000")
+    @Override
     public void testRemoveObserver() {
         // TODO(b/193494000): Implement removeObserver in platform and enable this test
+    }
+
+    @Ignore("b/193494000")
+    @Override
+    public void testRegisterObserver_removeByQuery() {
+        // TODO(b/193494000): Propagate document ids in platform and enable this test
+    }
+
+    @Ignore("b/193494000")
+    @Override
+    public void testRegisterObserver_removeById() {
+        // TODO(b/193494000): Propagate document ids in platform and enable this test
+    }
+
+    @Ignore("b/193494000")
+    @Override
+    public void testRegisterObserver_sameCallback_differentSpecs() {
+        // TODO(b/193494000): Propagate document ids in platform and enable this test
+    }
+
+    @Ignore("b/193494000")
+    @Override
+    public void testRegisterObserver_MultiType() {
+        // TODO(b/193494000): Propagate document ids in platform and enable this test
     }
 
     @Override

@@ -749,7 +749,11 @@ public final class AppSearchImpl implements Closeable {
 
             // Prepare notifications
             mObserverManager.onDocumentChange(
-                    packageName, databaseName, document.getNamespace(), document.getSchemaType());
+                    packageName,
+                    databaseName,
+                    document.getNamespace(),
+                    document.getSchemaType(),
+                    document.getId());
         } finally {
             mReadWriteLock.writeLock().unlock();
 
@@ -1412,7 +1416,8 @@ public final class AppSearchImpl implements Closeable {
 
             // Prepare notifications
             if (schemaType != null) {
-                mObserverManager.onDocumentChange(packageName, databaseName, namespace, schemaType);
+                mObserverManager.onDocumentChange(
+                        packageName, databaseName, namespace, schemaType, documentId);
             }
         } finally {
             mReadWriteLock.writeLock().unlock();
@@ -1573,7 +1578,8 @@ public final class AppSearchImpl implements Closeable {
                             packageName,
                             /*databaseName=*/ PrefixUtil.getDatabaseName(document.getNamespace()),
                             /*namespace=*/ PrefixUtil.removePrefix(document.getNamespace()),
-                            /*schemaType=*/ PrefixUtil.removePrefix(document.getSchema()));
+                            /*schemaType=*/ PrefixUtil.removePrefix(document.getSchema()),
+                            document.getUri());
                 }
             }
 

@@ -548,7 +548,8 @@ package androidx.appsearch.observer {
   }
 
   public final class DocumentChangeInfo {
-    ctor public DocumentChangeInfo(String, String, String, String);
+    ctor public DocumentChangeInfo(String, String, String, String, java.util.Set<java.lang.String!>);
+    method public java.util.Set<java.lang.String!> getChangedDocumentIds();
     method public String getDatabaseName();
     method public String getNamespace();
     method public String getPackageName();
@@ -569,7 +570,8 @@ package androidx.appsearch.observer {
   }
 
   public final class SchemaChangeInfo {
-    ctor public SchemaChangeInfo(String, String);
+    ctor public SchemaChangeInfo(String, String, java.util.Set<java.lang.String!>);
+    method public java.util.Set<java.lang.String!> getChangedSchemaNames();
     method public String getDatabaseName();
     method public String getPackageName();
   }

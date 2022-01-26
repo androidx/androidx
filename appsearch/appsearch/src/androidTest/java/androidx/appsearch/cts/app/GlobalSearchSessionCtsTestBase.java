@@ -51,6 +51,7 @@ import androidx.appsearch.testutil.TestObserverCallback;
 import androidx.test.core.app.ApplicationProvider;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.util.concurrent.ListenableFuture;
 
 import org.junit.After;
@@ -802,7 +803,9 @@ public abstract class GlobalSearchSessionCtsTestBase {
                         mContext.getPackageName(),
                         DB_NAME_1,
                         "namespace",
-                        AppSearchEmail.SCHEMA_TYPE));
+                        AppSearchEmail.SCHEMA_TYPE,
+                        /*changedDocumentIds=*/ImmutableSet.of("id1"))
+        );
     }
 
     @Test
@@ -865,27 +868,32 @@ public abstract class GlobalSearchSessionCtsTestBase {
                         mContext.getPackageName(),
                         DB_NAME_1,
                         "namespace",
-                        AppSearchEmail.SCHEMA_TYPE),
+                        AppSearchEmail.SCHEMA_TYPE,
+                        /*changedDocumentIds=*/ImmutableSet.of("id1")),
                 new DocumentChangeInfo(
                         mContext.getPackageName(),
                         DB_NAME_1,
                         "namespace",
-                        AppSearchEmail.SCHEMA_TYPE),
+                        AppSearchEmail.SCHEMA_TYPE,
+                        /*changedDocumentIds=*/ImmutableSet.of("id1")),
                 new DocumentChangeInfo(
                         mContext.getPackageName(),
                         DB_NAME_1,
                         "namespace2",
-                        "Gift"),
+                        "Gift",
+                        /*changedDocumentIds=*/ImmutableSet.of("id2")),
                 new DocumentChangeInfo(
                         mContext.getPackageName(),
                         DB_NAME_2,
                         "namespace",
-                        AppSearchEmail.SCHEMA_TYPE),
+                        AppSearchEmail.SCHEMA_TYPE,
+                        /*changedDocumentIds=*/ImmutableSet.of("id1")),
                 new DocumentChangeInfo(
                         mContext.getPackageName(),
                         DB_NAME_1,
                         "namespace2",
-                        "Gift")
+                        "Gift",
+                        /*changedDocumentIds=*/ImmutableSet.of("id2"))
         );
 
         // Check the filtered observer
@@ -895,17 +903,20 @@ public abstract class GlobalSearchSessionCtsTestBase {
                         mContext.getPackageName(),
                         DB_NAME_1,
                         "namespace",
-                        AppSearchEmail.SCHEMA_TYPE),
+                        AppSearchEmail.SCHEMA_TYPE,
+                        /*changedDocumentIds=*/ImmutableSet.of("id1")),
                 new DocumentChangeInfo(
                         mContext.getPackageName(),
                         DB_NAME_1,
                         "namespace",
-                        AppSearchEmail.SCHEMA_TYPE),
+                        AppSearchEmail.SCHEMA_TYPE,
+                        /*changedDocumentIds=*/ImmutableSet.of("id1")),
                 new DocumentChangeInfo(
                         mContext.getPackageName(),
                         DB_NAME_2,
                         "namespace",
-                        AppSearchEmail.SCHEMA_TYPE)
+                        AppSearchEmail.SCHEMA_TYPE,
+                        /*changedDocumentIds=*/ImmutableSet.of("id1"))
         );
     }
 
@@ -982,22 +993,26 @@ public abstract class GlobalSearchSessionCtsTestBase {
                         mContext.getPackageName(),
                         DB_NAME_1,
                         "namespace",
-                        AppSearchEmail.SCHEMA_TYPE),
+                        AppSearchEmail.SCHEMA_TYPE,
+                        /*changedDocumentIds=*/ImmutableSet.of("id1")),
                 new DocumentChangeInfo(
                         mContext.getPackageName(),
                         DB_NAME_1,
                         "namespace",
-                        AppSearchEmail.SCHEMA_TYPE),
+                        AppSearchEmail.SCHEMA_TYPE,
+                        /*changedDocumentIds=*/ImmutableSet.of("id1")),
                 new DocumentChangeInfo(
                         mContext.getPackageName(),
                         DB_NAME_2,
                         "namespace",
-                        AppSearchEmail.SCHEMA_TYPE),
+                        AppSearchEmail.SCHEMA_TYPE,
+                        /*changedDocumentIds=*/ImmutableSet.of("id1")),
                 new DocumentChangeInfo(
                         mContext.getPackageName(),
                         DB_NAME_1,
                         "namespace",
-                        AppSearchEmail.SCHEMA_TYPE)
+                        AppSearchEmail.SCHEMA_TYPE,
+                        /*changedDocumentIds=*/ImmutableSet.of("id1"))
         );
 
         // Check unfilteredObserver
@@ -1007,12 +1022,14 @@ public abstract class GlobalSearchSessionCtsTestBase {
                         mContext.getPackageName(),
                         DB_NAME_1,
                         "namespace",
-                        AppSearchEmail.SCHEMA_TYPE),
+                        AppSearchEmail.SCHEMA_TYPE,
+                        /*changedDocumentIds=*/ImmutableSet.of("id1")),
                 new DocumentChangeInfo(
                         mContext.getPackageName(),
                         DB_NAME_2,
                         "namespace2",
-                        "Gift")
+                        "Gift",
+                        /*changedDocumentIds=*/ImmutableSet.of("id2"))
         );
     }
 
@@ -1076,10 +1093,6 @@ public abstract class GlobalSearchSessionCtsTestBase {
         //   -db1:id2, -db2:id1, -db2:id2, -db2:id3
         // emailObserver should have seen:
         //   -db1:id2, -db2:id1, -db2:id2
-        // TODO(b/193494000): Notifications are currently grouped by
-        //  (package, database, namespace, schema). This causes -db2:id1 and -db2:id2 to be combined
-        //  into one notification. Once notifications have IDs, we need to check to make sure all
-        //  the individual IDs are reported in the combined notification.
         unfilteredObserver.waitForNotificationCount(3);
         emailObserver.waitForNotificationCount(2);
 
@@ -1089,17 +1102,20 @@ public abstract class GlobalSearchSessionCtsTestBase {
                         mContext.getPackageName(),
                         DB_NAME_1,
                         "namespace",
-                        AppSearchEmail.SCHEMA_TYPE),
+                        AppSearchEmail.SCHEMA_TYPE,
+                        /*changedDocumentIds=*/ImmutableSet.of("id2")),
                 new DocumentChangeInfo(
                         mContext.getPackageName(),
                         DB_NAME_2,
                         "namespace",
-                        AppSearchEmail.SCHEMA_TYPE),
+                        AppSearchEmail.SCHEMA_TYPE,
+                        /*changedDocumentIds=*/ImmutableSet.of("id1", "id2")),
                 new DocumentChangeInfo(
                         mContext.getPackageName(),
                         DB_NAME_2,
                         "namespace2",
-                        "Gift")
+                        "Gift",
+                        /*changedDocumentIds=*/ImmutableSet.of("id3"))
         );
 
         // Check emailObserver
@@ -1109,12 +1125,14 @@ public abstract class GlobalSearchSessionCtsTestBase {
                         mContext.getPackageName(),
                         DB_NAME_1,
                         "namespace",
-                        AppSearchEmail.SCHEMA_TYPE),
+                        AppSearchEmail.SCHEMA_TYPE,
+                        /*changedDocumentIds=*/ImmutableSet.of("id2")),
                 new DocumentChangeInfo(
                         mContext.getPackageName(),
                         DB_NAME_2,
                         "namespace",
-                        AppSearchEmail.SCHEMA_TYPE)
+                        AppSearchEmail.SCHEMA_TYPE,
+                        /*changedDocumentIds=*/ImmutableSet.of("id1", "id2"))
         );
     }
 
@@ -1161,12 +1179,14 @@ public abstract class GlobalSearchSessionCtsTestBase {
                         mContext.getPackageName(),
                         DB_NAME_1,
                         "namespace",
-                        AppSearchEmail.SCHEMA_TYPE),
+                        AppSearchEmail.SCHEMA_TYPE,
+                        /*changedDocumentIds=*/ImmutableSet.of("id1")),
                 new DocumentChangeInfo(
                         mContext.getPackageName(),
                         DB_NAME_1,
                         "namespace2",
-                        "Gift")
+                        "Gift",
+                        /*changedDocumentIds=*/ImmutableSet.of("id3"))
         );
     }
 
@@ -1233,12 +1253,14 @@ public abstract class GlobalSearchSessionCtsTestBase {
                         mContext.getPackageName(),
                         DB_NAME_1,
                         "namespace",
-                        AppSearchEmail.SCHEMA_TYPE),
+                        AppSearchEmail.SCHEMA_TYPE,
+                        /*changedDocumentIds=*/ImmutableSet.of("id1")),
                 new DocumentChangeInfo(
                         mContext.getPackageName(),
                         DB_NAME_1,
                         "namespace2",
-                        "Gift"));
+                        "Gift",
+                        /*changedDocumentIds=*/ImmutableSet.of("id3")));
         assertThat(temporaryObserver.getSchemaChanges()).isEmpty();
         assertThat(temporaryObserver.getDocumentChanges())
                 .containsExactlyElementsIn(expectedChangesOrig);
@@ -1264,22 +1286,26 @@ public abstract class GlobalSearchSessionCtsTestBase {
                         mContext.getPackageName(),
                         DB_NAME_1,
                         "namespace",
-                        AppSearchEmail.SCHEMA_TYPE),
+                        AppSearchEmail.SCHEMA_TYPE,
+                        /*changedDocumentIds=*/ImmutableSet.of("id1")),
                 new DocumentChangeInfo(
                         mContext.getPackageName(),
                         DB_NAME_1,
                         "namespace2",
-                        "Gift"),
+                        "Gift",
+                        /*changedDocumentIds=*/ImmutableSet.of("id3")),
                 new DocumentChangeInfo(
                         mContext.getPackageName(),
                         DB_NAME_1,
                         "namespace",
-                        AppSearchEmail.SCHEMA_TYPE),
+                        AppSearchEmail.SCHEMA_TYPE,
+                        /*changedDocumentIds=*/ImmutableSet.of("id2")),
                 new DocumentChangeInfo(
                         mContext.getPackageName(),
                         DB_NAME_1,
                         "namespace3",
-                        "Gift")
+                        "Gift",
+                        /*changedDocumentIds=*/ImmutableSet.of("id4"))
         );
         assertThat(temporaryObserver.getSchemaChanges()).isEmpty();
         assertThat(temporaryObserver.getDocumentChanges())

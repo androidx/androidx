@@ -2785,7 +2785,11 @@ public class AppSearchImplTest {
         assertThat(observer.getSchemaChanges()).isEmpty();
         assertThat(observer.getDocumentChanges()).containsExactly(
                 new DocumentChangeInfo(
-                        mContext.getPackageName(), "database1", "namespace1", "Type1"));
+                        mContext.getPackageName(),
+                        "database1",
+                        "namespace1",
+                        "Type1",
+                        /*changedDocumentIds=*/ImmutableSet.of("id2")));
     }
 
     @Test
