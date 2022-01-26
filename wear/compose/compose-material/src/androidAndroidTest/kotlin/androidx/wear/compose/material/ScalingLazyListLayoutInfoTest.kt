@@ -36,6 +36,7 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.FlakyTest
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.CoroutineScope
@@ -116,6 +117,7 @@ public class ScalingLazyListLayoutInfoTest {
         }
     }
 
+    @FlakyTest(bugId = 216138159)
     @Test
     fun visibleItemsAreCorrectForReverseLayoutWithAutoCentering() {
         lateinit var state: ScalingLazyListState
