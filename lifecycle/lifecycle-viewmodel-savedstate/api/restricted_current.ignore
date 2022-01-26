@@ -5,5 +5,15 @@ ChangedSuperclass: androidx.lifecycle.SavedStateViewModelFactory:
     Class androidx.lifecycle.SavedStateViewModelFactory superclass changed from androidx.lifecycle.ViewModelProvider.KeyedFactory to androidx.lifecycle.ViewModelProvider.OnRequeryFactory
 
 
+ChangedType: androidx.lifecycle.SavedStateHandle#getLiveData(String):
+    Method androidx.lifecycle.SavedStateHandle.getLiveData has changed return type from androidx.lifecycle.MutableLiveData<T!> to androidx.lifecycle.MutableLiveData<T>
+ChangedType: androidx.lifecycle.SavedStateHandle#getLiveData(String, T):
+    Method androidx.lifecycle.SavedStateHandle.getLiveData has changed return type from androidx.lifecycle.MutableLiveData<T!> to androidx.lifecycle.MutableLiveData<T>
+ChangedType: androidx.lifecycle.SavedStateHandle#keys():
+    Method androidx.lifecycle.SavedStateHandle.keys has changed return type from java.util.Set<java.lang.String!> to java.util.Set<java.lang.String>
+
+
 RemovedMethod: androidx.lifecycle.AbstractSavedStateViewModelFactory#create(String, Class<T>):
     Removed method androidx.lifecycle.AbstractSavedStateViewModelFactory.create(String,Class<T>)
+RemovedMethod: androidx.lifecycle.SavedStateHandle#SavedStateHandle(java.util.Map<java.lang.String,java.lang.Object>):
+    Removed constructor androidx.lifecycle.SavedStateHandle(java.util.Map<java.lang.String,java.lang.Object>)
