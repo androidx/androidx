@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 The Android Open Source Project
+ * Copyright 2022 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,53 +15,55 @@
  */
 
 package androidx.glance.appwidget.lazy
-
 import androidx.compose.runtime.Composable
-import androidx.glance.EmittableWithChildren
 import androidx.glance.GlanceModifier
 import androidx.glance.GlanceNode
 import androidx.glance.layout.Alignment
+import androidx.glance.EmittableWithChildren
 import androidx.glance.layout.fillMaxWidth
 import androidx.glance.layout.wrapContentHeight
 
 /**
- * A vertical scrolling list that only lays out the currently visible items. The [content] block
- * defines a DSL which allows you to emit different list items.
+ * The DSL implementation of a lazy grid layout. It composes only visible rows of the grid.
  *
+ * @param gridCells the number of columns in the grid.
  * @param modifier the modifier to apply to this layout
  * @param horizontalAlignment the horizontal alignment applied to the items.
  * @param content a block which describes the content. Inside this block you can use methods like
- * [LazyListScope.item] to add a single item or [LazyListScope.items] to add a list of items.
+ * [LazyVerticalGridScope.item] to add a single item or
+ * [LazyVerticalGridScope.items] to add a list of items.
  */
-// TODO(b/198618359): interaction handling
 @Composable
-public fun LazyColumn(
+public fun LazyVerticalGrid(
+    gridCells: GridCells,
     modifier: GlanceModifier = GlanceModifier,
     horizontalAlignment: Alignment.Horizontal = Alignment.Start,
-    content: LazyListScope.() -> Unit
+    content: LazyVerticalGridScope.() -> Unit
 ) {
     GlanceNode(
-        factory = ::EmittableLazyColumn,
+        factory = ::EmittableLazyVerticalGrid,
         update = {
+            this.set(gridCells) { this.gridCells = it }
             this.set(modifier) { this.modifier = it }
             this.set(horizontalAlignment) { this.horizontalAlignment = it }
         },
-        content = applyListScope(
+        content = applyVerticalGridScope(
             Alignment(horizontalAlignment, Alignment.Vertical.CenterVertically),
             content
         )
     )
 }
 
-private fun applyListScope(
+internal fun applyVerticalGridScope(
     alignment: Alignment,
-    content: LazyListScope.() -> Unit
+    content: LazyVerticalGridScope.() -> Unit
 ): @Composable () -> Unit {
     var nextImplicitItemId = ReservedItemIdRangeEnd
     val itemList = mutableListOf<Pair<Long?, @Composable LazyItemScope.() -> Unit>>()
-    val listScopeImpl = object : LazyListScope {
+    val listScopeImpl = object : LazyVerticalGridScope {
         override fun item(itemId: Long, content: @Composable LazyItemScope.() -> Unit) {
-            require(itemId == LazyListScope.UnspecifiedItemId || itemId > ReservedItemIdRangeEnd) {
+            require(itemId == LazyVerticalGridScope.UnspecifiedItemId ||
+                    itemId > ReservedItemIdRangeEnd) {
                 """
                     You may not specify item ids less than $ReservedItemIdRangeEnd in a Glance
                     widget. These are reserved.
@@ -83,9 +85,12 @@ private fun applyListScope(
     listScopeImpl.apply(content)
     return {
         itemList.forEach { (itemId, composable) ->
-            val id = itemId.takeIf { it != LazyListScope.UnspecifiedItemId } ?: nextImplicitItemId--
-            check(id != LazyListScope.UnspecifiedItemId) { "Implicit list item ids exhausted." }
-            LazyListItem(id, alignment) {
+            val id = itemId.takeIf {
+              it != LazyVerticalGridScope.UnspecifiedItemId } ?: nextImplicitItemId--
+            check(id != LazyVerticalGridScope.UnspecifiedItemId) {
+                "Implicit list item ids exhausted."
+            }
+            LazyVerticalGridItem(id, alignment) {
                 object : LazyItemScope { }.apply { composable() }
             }
         }
@@ -93,13 +98,13 @@ private fun applyListScope(
 }
 
 @Composable
-private fun LazyListItem(
+private fun LazyVerticalGridItem(
     itemId: Long,
     alignment: Alignment,
     content: @Composable () -> Unit
 ) {
     GlanceNode(
-        factory = ::EmittableLazyListItem,
+        factory = ::EmittableLazyVerticalGridListItem,
         update = {
             this.set(itemId) { this.itemId = it }
             this.set(alignment) { this.alignment = it }
@@ -109,25 +114,10 @@ private fun LazyListItem(
 }
 
 /**
- * Values between -2^63 and -2^62 are reserved for list items whose id has not been explicitly
- * defined.
- */
-internal const val ReservedItemIdRangeEnd = -0x4_000_000_000_000_000L
-
-@DslMarker
-annotation class LazyScopeMarker
-
-/**
- * Receiver scope being used by the item content parameter of [LazyColumn].
- */
-@LazyScopeMarker
-interface LazyItemScope
-
-/**
  * Receiver scope which is used by [LazyColumn].
  */
 @LazyScopeMarker
-interface LazyListScope {
+interface LazyVerticalGridScope {
     /**
      * Adds a single item.
      *
@@ -170,9 +160,9 @@ interface LazyListScope {
  * S and higher devices.
  * @param itemContent the content displayed by a single item
  */
-inline fun <T> LazyListScope.items(
+inline fun <T> LazyVerticalGridScope.items(
     items: List<T>,
-    crossinline itemId: ((item: T) -> Long) = { LazyListScope.UnspecifiedItemId },
+    crossinline itemId: ((item: T) -> Long) = { LazyVerticalGridScope.UnspecifiedItemId },
     crossinline itemContent: @Composable LazyItemScope.(item: T) -> Unit
 ) = items(items.size, { index: Int -> itemId(items[index]) }) {
     itemContent(items[it])
@@ -188,10 +178,10 @@ inline fun <T> LazyListScope.items(
  * S and higher devices.
  * @param itemContent the content displayed by a single item
  */
-inline fun <T> LazyListScope.itemsIndexed(
+inline fun <T> LazyVerticalGridScope.itemsIndexed(
     items: List<T>,
     crossinline itemId: ((index: Int, item: T) -> Long) =
-        { _, _ -> LazyListScope.UnspecifiedItemId },
+        { _, _ -> LazyVerticalGridScope.UnspecifiedItemId },
     crossinline itemContent: @Composable LazyItemScope.(index: Int, item: T) -> Unit
 ) = items(items.size, { index: Int -> itemId(index, items[index]) }) {
     itemContent(it, items[it])
@@ -207,9 +197,9 @@ inline fun <T> LazyListScope.itemsIndexed(
  * item the item with the given itemId will be kept as the first visible one.
  * @param itemContent the content displayed by a single item
  */
-inline fun <T> LazyListScope.items(
+inline fun <T> LazyVerticalGridScope.items(
     items: Array<T>,
-    noinline itemId: ((item: T) -> Long) = { LazyListScope.UnspecifiedItemId },
+    noinline itemId: ((item: T) -> Long) = { LazyVerticalGridScope.UnspecifiedItemId },
     crossinline itemContent: @Composable LazyItemScope.(item: T) -> Unit
 ) = items(items.size, { index: Int -> itemId(items[index]) }) {
     itemContent(items[it])
@@ -225,36 +215,71 @@ inline fun <T> LazyListScope.items(
  * item the item with the given itemId will be kept as the first visible one.
  * @param itemContent the content displayed by a single item
  */
-inline fun <T> LazyListScope.itemsIndexed(
+inline fun <T> LazyVerticalGridScope.itemsIndexed(
     items: Array<T>,
-    noinline itemId: ((index: Int, item: T) -> Long) = { _, _ -> LazyListScope.UnspecifiedItemId },
+    noinline itemId: ((index: Int, item: T) -> Long) = {
+      _, _ -> LazyVerticalGridScope.UnspecifiedItemId
+    },
     crossinline itemContent: @Composable LazyItemScope.(index: Int, item: T) -> Unit
 ) = items(items.size, { index: Int -> itemId(index, items[index]) }) {
     itemContent(it, items[it])
 }
 
-internal abstract class EmittableLazyList : EmittableWithChildren(resetsDepthForChildren = true) {
-    override var modifier: GlanceModifier = GlanceModifier
-    public var horizontalAlignment: Alignment.Horizontal = Alignment.Start
+internal abstract class EmittableLazyVerticalGridList : EmittableWithChildren(
+  resetsDepthForChildren = true
+  ) {
+  override var modifier: GlanceModifier = GlanceModifier
+  public var horizontalAlignment: Alignment.Horizontal = Alignment.Start
+  public var gridCells: GridCells = GridCells.Adaptive
 
-    override fun toString() =
-        "EmittableLazyList(modifier=$modifier, horizontalAlignment=$horizontalAlignment, " +
-            "children=[\n${childrenToString()}\n])"
+  override fun toString() =
+      "EmittableLazyVerticalGridList(modifier=$modifier, " +
+      "horizontalAlignment=$horizontalAlignment, " +
+      "numColumn=$gridCells, " +
+      "children=[\n${childrenToString()}\n])"
 }
 
-internal class EmittableLazyListItem : EmittableWithChildren() {
-    override var modifier: GlanceModifier
-        get() = children.singleOrNull()?.modifier
-            ?: GlanceModifier.wrapContentHeight().fillMaxWidth()
-        set(_) {
-            throw IllegalAccessError("You cannot set the modifier of an EmittableLazyListItem")
-        }
-    var itemId: Long = 0
-    var alignment: Alignment = Alignment.CenterStart
+internal class EmittableLazyVerticalGridListItem : EmittableWithChildren() {
+  override var modifier: GlanceModifier
+      get() = children.singleOrNull()?.modifier
+          ?: GlanceModifier.wrapContentHeight().fillMaxWidth()
+      set(_) {
+          throw IllegalAccessError(
+            "You cannot set the modifier of an EmittableLazyVerticalGridListItem"
+          )
+      }
+  var itemId: Long = 0
+  var alignment: Alignment = Alignment.CenterStart
 
-    override fun toString() =
-        "EmittableLazyListItem(modifier=$modifier, alignment=$alignment, " +
-            "children=[\n${childrenToString()}\n])"
+  override fun toString() =
+      "EmittableLazyVerticalGridListItem(" +
+      "modifier=$modifier, " +
+      "alignment=$alignment, " +
+      "children=[\n${childrenToString()}\n])"
 }
 
-internal class EmittableLazyColumn : EmittableLazyList()
+internal class EmittableLazyVerticalGrid : EmittableLazyVerticalGridList()
+
+/**
+ * Defines the number of columns of the GridView.
+ */
+@Suppress("INLINE_CLASS_DEPRECATED")
+public inline class GridCells internal constructor(private val value: Int) {
+  override fun toString(): String {
+      return when (value) {
+          0 -> "GridCells.Adaptive"
+          else -> "GridCells.Fixed($value)"
+      }
+  }
+
+  companion object {
+      fun Fixed(count: Int): GridCells {
+          require(count in 1..5) {
+              "Only counts from 1 to 5 are supported."
+          }
+          return GridCells(count)
+      }
+
+      val Adaptive = GridCells(0)
+  }
+}

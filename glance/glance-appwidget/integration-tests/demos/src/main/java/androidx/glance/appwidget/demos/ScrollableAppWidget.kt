@@ -111,7 +111,6 @@ class ScrollableAppWidget : GlanceAppWidget() {
                 Row {
                     val modifier = GlanceModifier.fillMaxHeight().defaultWeight()
                     ScrollColumn(modifier)
-                    ScrollColumn(modifier)
                     if (width >= tripleColumn.width) {
                         ScrollColumn(modifier)
                     }

@@ -33,6 +33,7 @@
     <style name="Glance.AppWidget.LinearProgressIndicator"
            parent="@android:style/Widget.ProgressBar.Horizontal"/>
     <style name="Glance.AppWidget.CircularProgressIndicator" parent=""/>
+    <style name="Glance.AppWidget.VerticalGrid" parent=""/>
 
     <style name="Base.Glance.AppWidget.Background" parent="">
         <item name="android:id">@android:id/background</item>

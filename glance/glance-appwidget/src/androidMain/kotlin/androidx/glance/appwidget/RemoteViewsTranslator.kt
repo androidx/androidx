@@ -33,6 +33,8 @@ import androidx.glance.EmittableButton
 import androidx.glance.EmittableImage
 import androidx.glance.appwidget.lazy.EmittableLazyColumn
 import androidx.glance.appwidget.lazy.EmittableLazyListItem
+import androidx.glance.appwidget.lazy.EmittableLazyVerticalGrid
+import androidx.glance.appwidget.lazy.EmittableLazyVerticalGridListItem
 import androidx.glance.appwidget.translators.setText
 import androidx.glance.appwidget.translators.translateEmittableCheckBox
 import androidx.glance.appwidget.translators.translateEmittableImage
@@ -42,6 +44,8 @@ import androidx.glance.appwidget.translators.translateEmittableSwitch
 import androidx.glance.appwidget.translators.translateEmittableText
 import androidx.glance.appwidget.translators.translateEmittableLinearProgressIndicator
 import androidx.glance.appwidget.translators.translateEmittableCircularProgressIndicator
+import androidx.glance.appwidget.translators.translateEmittableLazyVerticalGrid
+import androidx.glance.appwidget.translators.translateEmittableLazyVerticalGridListItem
 import androidx.glance.layout.Alignment
 import androidx.glance.layout.EmittableBox
 import androidx.glance.layout.EmittableColumn
@@ -151,6 +155,12 @@ internal fun RemoteViews.translateChild(
         is EmittableCircularProgressIndicator -> {
             translateEmittableCircularProgressIndicator(translationContext, element)
         }
+        is EmittableLazyVerticalGrid -> {
+            translateEmittableLazyVerticalGrid(translationContext, element)
+        }
+        is EmittableLazyVerticalGridListItem -> {
+          translateEmittableLazyVerticalGridListItem(translationContext, element)
+      }
         else -> {
             throw IllegalArgumentException(
                 "Unknown element type ${element.javaClass.canonicalName}"
