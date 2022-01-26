@@ -26,9 +26,6 @@ import static androidx.appsearch.localstorage.visibilitystore.VisibilityStoreMig
 
 import static com.google.common.truth.Truth.assertThat;
 
-import android.content.pm.PackageManager;
-import android.os.UserHandle;
-
 import androidx.appsearch.app.AppSearchSchema;
 import androidx.appsearch.app.GenericDocument;
 import androidx.appsearch.app.PackageIdentifier;
@@ -37,7 +34,6 @@ import androidx.appsearch.localstorage.AppSearchImpl;
 import androidx.appsearch.localstorage.OptimizeStrategy;
 import androidx.appsearch.localstorage.UnlimitedLimitConfig;
 import androidx.appsearch.localstorage.util.PrefixUtil;
-import androidx.collection.ArrayMap;
 
 import com.google.common.collect.ImmutableList;
 
@@ -48,7 +44,6 @@ import org.junit.rules.TemporaryFolder;
 
 import java.io.File;
 import java.util.Collections;
-import java.util.Map;
 
 public class VisibilityStoreMigrationHelperFromV0Test {
 
@@ -59,7 +54,6 @@ public class VisibilityStoreMigrationHelperFromV0Test {
 
     @Rule
     public TemporaryFolder mTemporaryFolder = new TemporaryFolder();
-    private final Map<UserHandle, PackageManager> mMockPackageManagers = new ArrayMap<>();
     private File mFile;
 
     @Before
