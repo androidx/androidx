@@ -111,6 +111,16 @@ public class TestObserverCallback implements AppSearchObserverCallback {
         return mDocumentChanges;
     }
 
+    /** Removes all notifications captured by this callback and resets the count to 0. */
+    public void clear() {
+        synchronized (mLock) {
+            mSchemaChanges.clear();
+            mDocumentChanges.clear();
+            mNotificationCountLocked = 0;
+            mLock.notifyAll();
+        }
+    }
+
     private void incrementNotificationCountLocked() {
         synchronized (mLock) {
             mNotificationCountLocked++;
