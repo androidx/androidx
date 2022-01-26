@@ -17,6 +17,8 @@ package androidx.car.app.hardware.info;
 
 import static android.car.VehiclePropertyIds.DISTANCE_DISPLAY_UNITS;
 import static android.car.VehiclePropertyIds.EV_BATTERY_LEVEL;
+import static android.car.VehiclePropertyIds.EV_CHARGE_PORT_CONNECTED;
+import static android.car.VehiclePropertyIds.EV_CHARGE_PORT_OPEN;
 import static android.car.VehiclePropertyIds.FUEL_LEVEL;
 import static android.car.VehiclePropertyIds.FUEL_LEVEL_LOW;
 import static android.car.VehiclePropertyIds.FUEL_VOLUME_DISPLAY_UNITS;
@@ -99,6 +101,8 @@ public class AutomotiveCarInfo implements CarInfo {
     private static final List<Integer> SPEED_REQUEST =
             Arrays.asList(VehiclePropertyIds.PERF_VEHICLE_SPEED,
                     VehiclePropertyIds.PERF_VEHICLE_SPEED_DISPLAY, SPEED_DISPLAY_UNIT_ID);
+    private static final List<Integer> EV_STATUS_REQUEST = Arrays.asList(EV_CHARGE_PORT_OPEN,
+            EV_CHARGE_PORT_CONNECTED);
     private final Map<OnCarDataAvailableListener<?>, OnCarPropertyResponseListener> mListenerMap =
             new HashMap<>();
     private final PropertyManager mPropertyManager;
@@ -202,6 +206,24 @@ public class AutomotiveCarInfo implements CarInfo {
 
     @Override
     public void removeMileageListener(@NonNull OnCarDataAvailableListener<Mileage> listener) {
+        removeListenerImpl(listener);
+    }
+
+    // TODO(b/216177515): Remove this annotation once EvStatus is ready.
+    @OptIn(markerClass = ExperimentalCarApi.class)
+    @Override
+    public void addEvStatusListener(@NonNull Executor executor,
+            @NonNull OnCarDataAvailableListener<EvStatus> listener) {
+        EvStatusListener evStatusListener = new EvStatusListener(listener, executor);
+        mPropertyManager.submitRegisterListenerRequest(EV_STATUS_REQUEST, DEFAULT_SAMPLE_RATE,
+                evStatusListener, executor);
+        mListenerMap.put(listener, evStatusListener);
+    }
+
+    // TODO(b/216177515): Remove this annotation once EvStatus is ready.
+    @OptIn(markerClass = ExperimentalCarApi.class)
+    @Override
+    public void removeEvStatusListener(@NonNull OnCarDataAvailableListener<EvStatus> listener) {
         removeListenerImpl(listener);
     }
 
@@ -337,7 +359,7 @@ public class AutomotiveCarInfo implements CarInfo {
                     }
                 }
                 EnergyProfile energyProfile = new EnergyProfile.Builder().setEvConnectorTypes(
-                        evConnector)
+                                evConnector)
                         .setFuelTypes(fuel)
                         .build();
                 listener.onCarDataAvailable(energyProfile);
@@ -454,8 +476,65 @@ public class AutomotiveCarInfo implements CarInfo {
     }
 
     /**
-     * Mileage listener to get distance display unit and odometer updates by
-     * {@link CarPropertyResponse}.
+     * EvStatus listener to get EV port status updates by {@link CarPropertyResponse}.
+     */
+    @VisibleForTesting
+    static class EvStatusListener implements OnCarPropertyResponseListener {
+        private final OnCarDataAvailableListener<EvStatus> mEvStatusOnCarDataAvailableListener;
+        private final Executor mExecutor;
+
+        EvStatusListener(OnCarDataAvailableListener<EvStatus> listener, Executor executor) {
+            mEvStatusOnCarDataAvailableListener = listener;
+            mExecutor = executor;
+        }
+
+        @Override
+        // TODO(b/216177515): Remove this annotation once EvStatus is ready.
+        @OptIn(markerClass = ExperimentalCarApi.class)
+        public void onCarPropertyResponses(
+                @NonNull List<CarPropertyResponse<?>> carPropertyResponses) {
+            if (carPropertyResponses.size() == 2) {
+                mExecutor.execute(() -> {
+                    CarValue<Boolean> evChargePortOpenValue = CarValue.UNIMPLEMENTED_BOOLEAN;
+                    CarValue<Boolean> evChargePortConnectedValue = CarValue.UNIMPLEMENTED_BOOLEAN;
+                    for (CarPropertyResponse<?> response : carPropertyResponses) {
+                        if (response.getValue() == null) {
+                            Log.w(LogTags.TAG_CAR_HARDWARE,
+                                    "Failed to retrieve CarPropertyResponse value for property id "
+                                            + response.getPropertyId());
+                            continue;
+                        }
+                        switch (response.getPropertyId()) {
+                            case EV_CHARGE_PORT_OPEN:
+                                evChargePortOpenValue = new CarValue<>(
+                                        (Boolean) response.getValue(),
+                                        response.getTimestampMillis(), response.getStatus());
+                                break;
+                            case EV_CHARGE_PORT_CONNECTED:
+                                evChargePortConnectedValue = new CarValue<>(
+                                        (Boolean) response.getValue(),
+                                        response.getTimestampMillis(),
+                                        response.getStatus());
+                                break;
+                            default:
+                                Log.e(LogTags.TAG_CAR_HARDWARE,
+                                        "Invalid response callback in EvStatusListener");
+                        }
+                    }
+                    EvStatus evStatus = new EvStatus.Builder().setEvChargePortOpen(
+                            evChargePortOpenValue).setEvChargePortConnected(
+                            evChargePortConnectedValue).build();
+                    mEvStatusOnCarDataAvailableListener.onCarDataAvailable(evStatus);
+                });
+            } else {
+                Log.e(LogTags.TAG_CAR_HARDWARE, "Invalid response callback in EvStatusListener.");
+            }
+        }
+    }
+
+    /**
+     * Mileage listener to get distance display unit and odometer updates by {@link
+     * CarPropertyResponse}.
      */
     @VisibleForTesting
     static class MileageListener implements OnCarPropertyResponseListener {

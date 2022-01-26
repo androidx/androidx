@@ -269,12 +269,14 @@ package androidx.car.app.hardware.info {
 
   @MainThread @androidx.car.app.annotations.RequiresCarApi(3) public interface CarInfo {
     method public void addEnergyLevelListener(java.util.concurrent.Executor, androidx.car.app.hardware.common.OnCarDataAvailableListener<androidx.car.app.hardware.info.EnergyLevel!>);
+    method @androidx.car.app.annotations.ExperimentalCarApi public void addEvStatusListener(java.util.concurrent.Executor, androidx.car.app.hardware.common.OnCarDataAvailableListener<androidx.car.app.hardware.info.EvStatus!>);
     method public void addMileageListener(java.util.concurrent.Executor, androidx.car.app.hardware.common.OnCarDataAvailableListener<androidx.car.app.hardware.info.Mileage!>);
     method public void addSpeedListener(java.util.concurrent.Executor, androidx.car.app.hardware.common.OnCarDataAvailableListener<androidx.car.app.hardware.info.Speed!>);
     method public void addTollListener(java.util.concurrent.Executor, androidx.car.app.hardware.common.OnCarDataAvailableListener<androidx.car.app.hardware.info.TollCard!>);
     method public void fetchEnergyProfile(java.util.concurrent.Executor, androidx.car.app.hardware.common.OnCarDataAvailableListener<androidx.car.app.hardware.info.EnergyProfile!>);
     method public void fetchModel(java.util.concurrent.Executor, androidx.car.app.hardware.common.OnCarDataAvailableListener<androidx.car.app.hardware.info.Model!>);
     method public void removeEnergyLevelListener(androidx.car.app.hardware.common.OnCarDataAvailableListener<androidx.car.app.hardware.info.EnergyLevel!>);
+    method @androidx.car.app.annotations.ExperimentalCarApi public void removeEvStatusListener(androidx.car.app.hardware.common.OnCarDataAvailableListener<androidx.car.app.hardware.info.EvStatus!>);
     method public void removeMileageListener(androidx.car.app.hardware.common.OnCarDataAvailableListener<androidx.car.app.hardware.info.Mileage!>);
     method public void removeSpeedListener(androidx.car.app.hardware.common.OnCarDataAvailableListener<androidx.car.app.hardware.info.Speed!>);
     method public void removeTollListener(androidx.car.app.hardware.common.OnCarDataAvailableListener<androidx.car.app.hardware.info.TollCard!>);
@@ -355,6 +357,18 @@ package androidx.car.app.hardware.info {
     method public androidx.car.app.hardware.info.EnergyProfile build();
     method public androidx.car.app.hardware.info.EnergyProfile.Builder setEvConnectorTypes(androidx.car.app.hardware.common.CarValue<java.util.List<java.lang.Integer!>!>);
     method public androidx.car.app.hardware.info.EnergyProfile.Builder setFuelTypes(androidx.car.app.hardware.common.CarValue<java.util.List<java.lang.Integer!>!>);
+  }
+
+  @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.ExperimentalCarApi public class EvStatus {
+    method public androidx.car.app.hardware.common.CarValue<java.lang.Boolean!> getEvChargePortConnected();
+    method public androidx.car.app.hardware.common.CarValue<java.lang.Boolean!> getEvChargePortOpen();
+  }
+
+  public static final class EvStatus.Builder {
+    ctor public EvStatus.Builder();
+    method public androidx.car.app.hardware.info.EvStatus build();
+    method public androidx.car.app.hardware.info.EvStatus.Builder setEvChargePortConnected(androidx.car.app.hardware.common.CarValue<java.lang.Boolean!>);
+    method public androidx.car.app.hardware.info.EvStatus.Builder setEvChargePortOpen(androidx.car.app.hardware.common.CarValue<java.lang.Boolean!>);
   }
 
   @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.RequiresCarApi(3) public final class Gyroscope {

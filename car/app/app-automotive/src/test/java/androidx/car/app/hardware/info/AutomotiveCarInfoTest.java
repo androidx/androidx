@@ -17,6 +17,8 @@ package androidx.car.app.hardware.info;
 
 import static android.car.VehiclePropertyIds.DISTANCE_DISPLAY_UNITS;
 import static android.car.VehiclePropertyIds.EV_BATTERY_LEVEL;
+import static android.car.VehiclePropertyIds.EV_CHARGE_PORT_CONNECTED;
+import static android.car.VehiclePropertyIds.EV_CHARGE_PORT_OPEN;
 import static android.car.VehiclePropertyIds.FUEL_LEVEL;
 import static android.car.VehiclePropertyIds.FUEL_LEVEL_LOW;
 import static android.car.VehiclePropertyIds.FUEL_VOLUME_DISPLAY_UNITS;
@@ -196,6 +198,62 @@ public class AutomotiveCarInfoTest {
         Mileage mileage = loadedResult.get();
         assertThat(mileage.getOdometerMeters().getValue()).isEqualTo(1f);
         assertThat(mileage.getDistanceDisplayUnit().getValue()).isEqualTo(2);
+    }
+
+    @Test
+    public void getEvStatus_verifyResponse() throws InterruptedException {
+        AtomicReference<EvStatus> loadedResult = new AtomicReference<>();
+        OnCarDataAvailableListener<EvStatus> listener = (data) -> {
+            loadedResult.set(data);
+            mCountDownLatch.countDown();
+        };
+
+        mAutomotiveCarInfo.addEvStatusListener(mExecutor, listener);
+
+        ArgumentCaptor<OnCarPropertyResponseListener> captor = ArgumentCaptor.forClass(
+                OnCarPropertyResponseListener.class);
+        verify(mPropertyManager).submitRegisterListenerRequest(any(), eq(DEFAULT_SAMPLE_RATE),
+                captor.capture(), any());
+
+        mResponse.add(CarPropertyResponse.create(EV_CHARGE_PORT_OPEN, STATUS_SUCCESS, 1, true));
+        mResponse.add(
+                CarPropertyResponse.create(EV_CHARGE_PORT_CONNECTED, STATUS_SUCCESS, 2, false));
+
+        captor.getValue().onCarPropertyResponses(mResponse);
+        mCountDownLatch.await();
+
+        EvStatus evStatus = loadedResult.get();
+        assertThat(evStatus.getEvChargePortOpen().getValue()).isEqualTo(true);
+        assertThat(evStatus.getEvChargePortConnected().getValue()).isEqualTo(false);
+    }
+
+    @Test
+    public void getEvStatus_withInvalidResponse_verifyResponse() throws InterruptedException {
+        AtomicReference<EvStatus> loadedResult = new AtomicReference<>();
+        OnCarDataAvailableListener<EvStatus> listener = (data) -> {
+            loadedResult.set(data);
+            mCountDownLatch.countDown();
+        };
+
+        mAutomotiveCarInfo.addEvStatusListener(mExecutor, listener);
+
+        ArgumentCaptor<OnCarPropertyResponseListener> captor = ArgumentCaptor.forClass(
+                OnCarPropertyResponseListener.class);
+        verify(mPropertyManager).submitRegisterListenerRequest(any(), eq(DEFAULT_SAMPLE_RATE),
+                captor.capture(), any());
+
+        mResponse.add(CarPropertyResponse.create(EV_CHARGE_PORT_OPEN, STATUS_SUCCESS, 1, true));
+        mResponse.add(
+                CarPropertyResponse.create(EV_CHARGE_PORT_CONNECTED, CarValue.STATUS_UNKNOWN, 1,
+                        null));
+
+        captor.getValue().onCarPropertyResponses(mResponse);
+        mCountDownLatch.await();
+
+        EvStatus evStatus = loadedResult.get();
+        assertThat(evStatus.getEvChargePortOpen().getValue()).isEqualTo(true);
+        assertThat(evStatus.getEvChargePortConnected().getStatus()).isEqualTo(
+                CarValue.STATUS_UNIMPLEMENTED);
     }
 
     @Config(minSdk = 31)
