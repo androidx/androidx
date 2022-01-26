@@ -80,7 +80,7 @@ public class VisibilityStoreMigrationHelperFromV0 {
     static final String DEPRECATED_SHA_256_CERT_PROPERTY = "sha256Cert";
 
 //    The visibility schema of version 0.
-//--------------------------------------------------------------------------------------------------
+//---------------------------------------------------------------------------------------------
 //    Schema of DEPRECATED_VISIBILITY_SCHEMA_TYPE:
 //    new AppSearchSchema.Builder(
 //            DEPRECATED_VISIBILITY_SCHEMA_TYPE)
@@ -109,7 +109,7 @@ public class VisibilityStoreMigrationHelperFromV0 {
 //                .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
 //                .build())
 //        .build();
-//--------------------------------------------------------------------------------------------------
+//---------------------------------------------------------------------------------------------
 
     /** Returns whether the given schema type is deprecated.     */
     static boolean isDeprecatedType(@NonNull String schemaType) {
