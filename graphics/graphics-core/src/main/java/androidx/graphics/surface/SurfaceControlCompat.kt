@@ -54,6 +54,12 @@ class SurfaceControlCompat(surface: Surface, debugName: String) {
 
         private external fun nTransactionCreate(): Long
         private external fun nTransactionDelete(surfaceTransaction: Long)
+
+        companion object {
+            init {
+                System.loadLibrary("graphics-core")
+            }
+        }
     }
 
     override fun equals(other: Any?): Boolean {

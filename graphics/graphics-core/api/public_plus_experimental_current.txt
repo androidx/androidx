@@ -143,6 +143,10 @@ package androidx.graphics.surface {
     ctor public SurfaceControlCompat.Transaction();
     method public final void delete();
     method public final void finalize();
+    field public static final androidx.graphics.surface.SurfaceControlCompat.Transaction.Companion Companion;
+  }
+
+  public static final class SurfaceControlCompat.Transaction.Companion {
   }
 
 }
