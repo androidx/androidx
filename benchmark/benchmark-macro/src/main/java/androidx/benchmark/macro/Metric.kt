@@ -57,23 +57,24 @@ public sealed class Metric {
 private fun Long.nsToDoubleMs(): Double = this / 1_000_000.0
 
 /**
- * Metric which captures information about playing audio.
+ * Metric which captures information about underruns while playing audio.
  *
  * Each time an instance of [android.media.AudioTrack] is started, the systems repeatedly
  * logs the number of audio frames available for output. This doesn't work when audio offload is
- * enabled. No logs are generated while there is no active track.
+ * enabled. No logs are generated while there is no active track. See
+ * [android.media.AudioTrack.Builder.setOffloadedPlayback] for more details.
  *
  * Test fails in case of multiple active tracks during a single iteration.
  *
  * This outputs the following measurements:
  *
- * * `totalMs` - Total duration of played audio captured during the iteration.
+ * * `audioTotalMs` - Total duration of played audio captured during the iteration.
  * The test fails if no counters are detected.
  *
- * * `zeroMs` - Duration of played audio when zero audio frames were available for output. Each
- * counter with zero frames indicates a gap in audio playing.
+ * * `audioUnderrunMs` - Duration of played audio when zero audio frames were available for output.
+ * Each single log of zero frames available for output indicates a gap in audio playing.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@ExperimentalMetricApi
 @Suppress("CanSealedSubClassBeObject")
 @RequiresApi(23)
 public class AudioUnderrunMetric : Metric() {
@@ -91,8 +92,8 @@ public class AudioUnderrunMetric : Metric() {
 
         return IterationResult(
             singleMetrics = mapOf(
-                "totalMs" to subMetrics.totalMs.toDouble(),
-                "zeroMs" to subMetrics.zeroMs.toDouble()
+                "audioTotalMs" to subMetrics.totalMs.toDouble(),
+                "audioUnderrunMs" to subMetrics.zeroMs.toDouble()
             ),
             sampledMetrics = emptyMap(),
             timelineRangeNs = null
