@@ -18,6 +18,9 @@ package androidx.appsearch.cts.app;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.junit.Assert.assertThrows;
+import static org.junit.Assume.assumeFalse;
+
 import android.content.Context;
 import android.os.Build;
 
@@ -25,7 +28,9 @@ import androidx.annotation.NonNull;
 import androidx.appsearch.app.AppSearchSession;
 import androidx.appsearch.app.Features;
 import androidx.appsearch.app.GlobalSearchSession;
+import androidx.appsearch.app.SetSchemaRequest;
 import androidx.appsearch.platformstorage.PlatformStorage;
+import androidx.appsearch.testutil.AppSearchEmail;
 import androidx.core.os.BuildCompat;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.filters.SdkSuppress;
@@ -66,5 +71,25 @@ public class GlobalSearchSessionPlatformCtsTest extends GlobalSearchSessionCtsTe
     @Override
     public void testRemoveObserver() {
         // TODO(b/193494000): Implement removeObserver in platform and enable this test
+    }
+
+    @Override
+    public void testGlobalGetSchema_notSupported() throws Exception {
+        assumeFalse(mGlobalSearchSession.getFeatures()
+                .isFeatureSupported(Features.GLOBAL_SEARCH_SESSION_GET_SCHEMA));
+        // TODO(b/215624105): Implement GlobalSearchSession#getSchema in platform and remove this
+        //  line.
+        assumeFalse(BuildCompat.isAtLeastT());
+
+        // One schema should be set with global access and the other should be set with local
+        // access.
+        mDb1.setSchema(
+                new SetSchemaRequest.Builder().addSchemas(AppSearchEmail.SCHEMA).build()).get();
+
+        Context context = ApplicationProvider.getApplicationContext();
+        UnsupportedOperationException e = assertThrows(UnsupportedOperationException.class,
+                () -> mGlobalSearchSession.getSchema(context.getPackageName(), DB_NAME_1));
+        assertThat(e).hasMessageThat().isEqualTo(Features.GLOBAL_SEARCH_SESSION_GET_SCHEMA
+                + " is not supported on this AppSearch implementation.");
     }
 }
