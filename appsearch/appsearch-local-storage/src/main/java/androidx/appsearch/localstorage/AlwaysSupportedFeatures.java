@@ -39,7 +39,7 @@ public class AlwaysSupportedFeatures implements Features {
         if (Features.GLOBAL_SEARCH_SESSION_GET_SCHEMA.equals(feature)) {
             return true;
         }
-        if (Features.GET_SCHEMA_RESPONSE_VISIBILITY.equals(feature)) {
+        if (Features.ROLE_AND_PERMISSION_WITH_GET_VISIBILITY.equals(feature)) {
             return true;
         }
         return false;
