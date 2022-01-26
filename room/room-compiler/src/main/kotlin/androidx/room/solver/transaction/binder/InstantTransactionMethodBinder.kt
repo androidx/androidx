@@ -49,7 +49,7 @@ class InstantTransactionMethodBinder(
                 }
 
                 val adapterScope = scope.fork()
-                adapter.createDelegateToSuperStatement(
+                adapter.createDelegateToSuperCode(
                     returnType = returnType,
                     parameterNames = parameterNames,
                     daoName = daoName,
@@ -57,7 +57,7 @@ class InstantTransactionMethodBinder(
                     resultVar = resultVar,
                     scope = adapterScope
                 )
-                add(adapterScope.generate())
+                addStatement(adapterScope.generate())
 
                 addStatement("$N.setTransactionSuccessful()", dbField)
                 if (returnsValue) {

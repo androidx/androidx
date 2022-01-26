@@ -55,6 +55,14 @@ interface XProcessingEnv {
     val config: XProcessingEnvConfig
 
     /**
+     * Java language version of the processing environment.
+     *
+     * Value is the common JDK version representation even for the older JVM Specs named using the
+     * 1.x notation. i.e. for '1.8' this return 8, for '11' this returns 11, etc.
+     */
+    val jvmVersion: Int
+
+    /**
      * Looks for the [XTypeElement] with the given qualified name and returns `null` if it does not
      * exist.
      */

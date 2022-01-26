@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017 The Android Open Source Project
+ * Copyright 2022 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,22 +14,15 @@
  * limitations under the License.
  */
 
-package androidx.room.integration.kotlintestapp.dao
+package androidx.room;
 
-import androidx.room.Dao
-import androidx.room.Query
-import androidx.room.Transaction
-import androidx.room.integration.kotlintestapp.vo.Author
+import kotlin.coroutines.Continuation;
+import kotlin.jvm.functions.Function1;
 
-@Dao
-interface DerivedDao : BaseDao<Author> {
-
-    @Query("SELECT * FROM author WHERE authorId = :authorId")
-    fun getAuthor(authorId: String): Author
-
-    @Transaction
-    suspend fun insertAndDelete(author: Author) {
-        suspendInsert(author)
-        suspendDelete(author)
+public class RoomDatabaseKt {
+    public static final <R> Object withTransaction(RoomDatabase db,
+            Function1<? super Continuation<? super R>, ? extends Object> block,
+            Continuation<? super R> cont) {
+        return null;
     }
 }
