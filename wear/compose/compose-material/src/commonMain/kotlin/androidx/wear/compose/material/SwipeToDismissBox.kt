@@ -29,6 +29,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Stable
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
@@ -82,7 +83,7 @@ import kotlin.math.sin
  */
 @Composable
 @ExperimentalWearMaterialApi
-fun SwipeToDismissBox(
+public fun SwipeToDismissBox(
     state: SwipeToDismissBoxState,
     modifier: Modifier = Modifier,
     backgroundScrimColor: Color = MaterialTheme.colors.background,
@@ -107,7 +108,6 @@ fun SwipeToDismissBox(
                 orientation = Orientation.Horizontal
             )
     ) {
-        val offsetPx = state.offset.value.roundToInt()
         val dismissAnimatable = remember { Animatable(0f) }
 
         LaunchedEffect(state.isAnimationRunning) {
@@ -120,55 +120,60 @@ fun SwipeToDismissBox(
             }
         }
 
-        val squeezeMotion = SqueezeMotion(offsetPx, maxWidth)
+        // Use remember { derivedStateOf{ ... } } idiom to re-use modifiers where possible.
+        val isRound = isRoundDevice()
+        val modifiers by remember(isRound, backgroundScrimColor) {
+            derivedStateOf {
+                val squeezeMotion = SqueezeMotion(state.offset.value.roundToInt(), maxWidth)
 
-        val contentForegroundModifier =
-            Modifier.offset { IntOffset(squeezeMotion.contentOffset, 0) }
-                .fillMaxSize()
-                .scale(squeezeMotion.scale(dismissAnimatable.value))
-                .then(
-                    if (isRoundDevice() && squeezeMotion.contentOffset > 0) {
-                        Modifier.clip(CircleShape)
-                    } else {
-                        Modifier
-                    }
+                Modifiers(
+                    contentForeground =
+                        Modifier.offset { IntOffset(squeezeMotion.contentOffset, 0) }
+                            .fillMaxSize()
+                            .scale(squeezeMotion.scale(dismissAnimatable.value))
+                            .then(
+                                if (isRound && squeezeMotion.contentOffset > 0) {
+                                    Modifier.clip(CircleShape)
+                                } else {
+                                    Modifier
+                                }
+                            )
+                            .alpha(1 - dismissAnimatable.value)
+                            .background(backgroundScrimColor),
+                    scrimForeground =
+                        Modifier.background(
+                            contentScrimColor.copy(alpha = squeezeMotion.contentScrimAlpha)
+                        ).fillMaxSize(),
+                    scrimBackground =
+                        Modifier.matchParentSize()
+                            .background(
+                                backgroundScrimColor
+                                    .copy(
+                                        alpha = squeezeMotion.backgroundScrimAlpha(
+                                            dismissAnimatable.value
+                                        )
+                                    )
+                            )
                 )
-                .alpha(1 - dismissAnimatable.value)
-                .background(backgroundScrimColor)
-
-        val contentBackgroundModifier = Modifier.fillMaxSize()
-
-        val scrimForegroundModifier = Modifier.background(
-            contentScrimColor.copy(alpha = squeezeMotion.contentScrimAlpha)
-        ).fillMaxSize()
-
-        val scrimBackgroundModifier = Modifier.matchParentSize()
-            .background(
-                backgroundScrimColor
-                    .copy(
-                        alpha = squeezeMotion.backgroundScrimAlpha(
-                            dismissAnimatable.value
-                        )
-                    )
-            )
+            }
+        }
 
         repeat(2) {
             val isBackground = it == 0
-
             val contentModifier = if (isBackground) {
-                contentBackgroundModifier
+                Modifier.fillMaxSize()
             } else {
-                contentForegroundModifier
+                modifiers.contentForeground
             }
 
             val scrimModifier = if (isBackground) {
-                scrimBackgroundModifier
+                modifiers.scrimBackground
             } else {
-                scrimForegroundModifier
+                modifiers.scrimForeground
             }
 
             key(if (isBackground) backgroundKey else contentKey) {
-                if (!isBackground || (hasBackground && offsetPx > 0)) {
+                if (!isBackground || (hasBackground && state.offset.value.roundToInt() > 0)) {
                     Box(contentModifier) {
                         // We use the repeat loop above and call content at this location
                         // for both background and foreground so that any persistence
@@ -181,6 +186,110 @@ fun SwipeToDismissBox(
             }
         }
     }
+}
+
+@Stable
+/**
+ * State for [SwipeToDismissBox].
+ *
+ * TODO(b/194492134): extend API to include shortcuts for status and actions like dismissing
+ * the screen.
+ *
+ * @param animationSpec The default animation that will be used to animate to a new state.
+ * @param confirmStateChange Optional callback invoked to confirm or veto a pending state change.
+ */
+@ExperimentalWearMaterialApi
+public class SwipeToDismissBoxState(
+    animationSpec: AnimationSpec<Float> = SwipeToDismissBoxDefaults.AnimationSpec,
+    confirmStateChange: (SwipeDismissTarget) -> Boolean = { true },
+) : SwipeableState<SwipeDismissTarget>(
+    initialValue = SwipeDismissTarget.Original,
+    animationSpec = animationSpec,
+    confirmStateChange = confirmStateChange,
+) {
+    companion object {
+        /**
+         * The default [Saver] implementation for [SwipeToDismissBox].
+         */
+        fun Saver(
+            animationSpec: AnimationSpec<Float>,
+            confirmStateChange: (SwipeDismissTarget) -> Boolean
+        ): Saver<SwipeToDismissBoxState, *> = Saver(
+            save = { it.currentValue },
+            restore = {
+                SwipeToDismissBoxState(
+                    animationSpec = animationSpec,
+                    confirmStateChange = confirmStateChange
+                )
+            }
+        )
+    }
+}
+
+/**
+ * Create a [SwipeToDismissBoxState] and remember it.
+ *
+ * @param animationSpec The default animation used to animate to a new state.
+ * @param confirmStateChange Optional callback to confirm or veto a pending state change.
+ */
+@Composable
+@ExperimentalWearMaterialApi
+public fun rememberSwipeToDismissBoxState(
+    animationSpec: AnimationSpec<Float> = SwipeToDismissBoxDefaults.AnimationSpec,
+    confirmStateChange: (SwipeDismissTarget) -> Boolean = { true },
+): SwipeToDismissBoxState {
+    return rememberSaveable(
+        saver = SwipeToDismissBoxState.Saver(
+            animationSpec = animationSpec,
+            confirmStateChange = confirmStateChange,
+        )
+    ) {
+        SwipeToDismissBoxState(
+            animationSpec = animationSpec,
+            confirmStateChange = confirmStateChange,
+        )
+    }
+}
+
+/**
+ * Contains defaults for [SwipeToDismissBox].
+ */
+@ExperimentalWearMaterialApi
+public object SwipeToDismissBoxDefaults {
+    /**
+     * The default animation that will be used to animate to a new state after the swipe gesture.
+     */
+    public val AnimationSpec = SwipeableDefaults.AnimationSpec
+
+    /**
+     * The default background key to identify the content displayed by the content block
+     * when isBackground == true. Specifying a background key instead of using the default
+     * allows remembered state to be correctly moved between background and foreground.
+     */
+    public val BackgroundKey: Any = "background"
+
+    /**
+     * The default content key to identify the content displayed by the content block
+     * when isBackground == false. Specifying a background key instead of using the default
+     * allows remembered state to be correctly moved between background and foreground.
+     */
+    public val ContentKey: Any = "content"
+}
+
+/**
+ * States used as targets for the anchor points for swipe-to-dismiss.
+ */
+@ExperimentalWearMaterialApi
+public enum class SwipeDismissTarget {
+    /**
+     * The state of the SwipeToDismissBox before the swipe started.
+     */
+    Original,
+
+    /**
+     * The state of the SwipeToDismissBox after the swipe passes the swipe-to-dismiss threshold.
+     */
+    Dismissal
 }
 
 /**
@@ -247,109 +356,14 @@ private class SqueezeMotion(
     else 0f
 }
 
-@Stable
 /**
- * State for [SwipeToDismissBox].
- *
- * TODO(b/194492134): extend API to include shortcuts for status and actions like dismissing
- * the screen.
- *
- * @param animationSpec The default animation that will be used to animate to a new state.
- * @param confirmStateChange Optional callback invoked to confirm or veto a pending state change.
+ * Class to enable calculating group of modifiers in a single, memoised block.
  */
-@ExperimentalWearMaterialApi
-class SwipeToDismissBoxState(
-    animationSpec: AnimationSpec<Float> = SwipeToDismissBoxDefaults.AnimationSpec,
-    confirmStateChange: (SwipeDismissTarget) -> Boolean = { true },
-) : SwipeableState<SwipeDismissTarget>(
-    initialValue = SwipeDismissTarget.Original,
-    animationSpec = animationSpec,
-    confirmStateChange = confirmStateChange,
-) {
-    companion object {
-        /**
-         * The default [Saver] implementation for [SwipeToDismissBox].
-         */
-        fun Saver(
-            animationSpec: AnimationSpec<Float>,
-            confirmStateChange: (SwipeDismissTarget) -> Boolean
-        ): Saver<SwipeToDismissBoxState, *> = Saver(
-            save = { it.currentValue },
-            restore = {
-                SwipeToDismissBoxState(
-                    animationSpec = animationSpec,
-                    confirmStateChange = confirmStateChange
-                )
-            }
-        )
-    }
-}
-
-/**
- * Create a [SwipeToDismissBoxState] and remember it.
- *
- * @param animationSpec The default animation used to animate to a new state.
- * @param confirmStateChange Optional callback to confirm or veto a pending state change.
- */
-@Composable
-@ExperimentalWearMaterialApi
-fun rememberSwipeToDismissBoxState(
-    animationSpec: AnimationSpec<Float> = SwipeToDismissBoxDefaults.AnimationSpec,
-    confirmStateChange: (SwipeDismissTarget) -> Boolean = { true },
-): SwipeToDismissBoxState {
-    return rememberSaveable(
-        saver = SwipeToDismissBoxState.Saver(
-            animationSpec = animationSpec,
-            confirmStateChange = confirmStateChange,
-        )
-    ) {
-        SwipeToDismissBoxState(
-            animationSpec = animationSpec,
-            confirmStateChange = confirmStateChange,
-        )
-    }
-}
-
-/**
- * Contains defaults for [SwipeToDismissBox].
- */
-@ExperimentalWearMaterialApi
-public object SwipeToDismissBoxDefaults {
-    /**
-     * The default animation that will be used to animate to a new state after the swipe gesture.
-     */
-    public val AnimationSpec = SwipeableDefaults.AnimationSpec
-
-    /**
-     * The default background key to identify the content displayed by the content block
-     * when isBackground == true. Specifying a background key instead of using the default
-     * allows remembered state to be correctly moved between background and foreground.
-     */
-    public val BackgroundKey: Any = "background"
-
-    /**
-     * The default content key to identify the content displayed by the content block
-     * when isBackground == false. Specifying a background key instead of using the default
-     * allows remembered state to be correctly moved between background and foreground.
-     */
-    public val ContentKey: Any = "content"
-}
-
-/**
- * States used as targets for the anchor points for swipe-to-dismiss.
- */
-@ExperimentalWearMaterialApi
-public enum class SwipeDismissTarget {
-    /**
-     * The state of the SwipeToDismissBox before the swipe started.
-     */
-    Original,
-
-    /**
-     * The state of the SwipeToDismissBox after the swipe passes the swipe-to-dismiss threshold.
-     */
-    Dismissal
-}
+private data class Modifiers(
+    val contentForeground: Modifier,
+    val scrimForeground: Modifier,
+    val scrimBackground: Modifier,
+)
 
 // Map pixel position to states - initially, don't know the width in pixels so omit upper bound.
 @ExperimentalWearMaterialApi
@@ -359,8 +373,4 @@ private fun anchors(maxWidth: Float): Map<Float, SwipeDismissTarget> =
         maxWidth to SwipeDismissTarget.Dismissal
     )
 
-private val SwipeStartedBackgroundAlpha = 0.5f
-private val SwipeConfirmedBackgroundAlpha = 0.0f
-private val SwipeStartedContentAlpha = 0.0f
-private val SwipeConfirmedContentAlpha = 0.5f
 private val SwipeThreshold = 0.5f
