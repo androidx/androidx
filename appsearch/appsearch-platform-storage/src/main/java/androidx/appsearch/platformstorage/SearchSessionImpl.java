@@ -105,14 +105,23 @@ class SearchSessionImpl implements AppSearchSession {
                     if (result.isSuccess()) {
                         android.app.appsearch.GetSchemaResponse platformGetResponse =
                                 result.getResultValue();
-                        GetSchemaResponse.Builder jetpackResponseBuilder =
-                                new GetSchemaResponse.Builder();
+                        GetSchemaResponse.Builder jetpackResponseBuilder;
+                        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.S_V2) {
+                            // Android API level in S-v2 and lower won't have any supported feature.
+                            jetpackResponseBuilder = new GetSchemaResponse.Builder(
+                                    /*getVisibilitySettingSupported=*/false);
+                        } else {
+                            // The regular builder has all supported fueatures.
+                            jetpackResponseBuilder = new GetSchemaResponse.Builder();
+                        }
                         for (android.app.appsearch.AppSearchSchema platformSchema :
                                 platformGetResponse.getSchemas()) {
                             jetpackResponseBuilder.addSchema(
                                     SchemaToPlatformConverter.toJetpackSchema(platformSchema));
                         }
                         jetpackResponseBuilder.setVersion(platformGetResponse.getVersion());
+                        // TODO(b/205749173) add visibility setting when they are supported in
+                        //  framework.
                         future.set(jetpackResponseBuilder.build());
                     } else {
                         handleFailedPlatformResult(result, future);

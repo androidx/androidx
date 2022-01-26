@@ -50,6 +50,13 @@ public interface Features {
     String GLOBAL_SEARCH_SESSION_GET_SCHEMA = "GLOBAL_SEARCH_SESSION_GET_SCHEMA";
 
     /**
+     * Feature for {@link #isFeatureSupported(String)}. This feature covers
+     * {@link GetSchemaResponse#getSchemaTypesNotDisplayedBySystem()} and
+     * {@link GetSchemaResponse#getSchemaTypesVisibleToPackages()}.
+     */
+    String GET_SCHEMA_RESPONSE_VISIBILITY = "GET_SCHEMA_RESPONSE_VISIBILITY";
+
+    /**
      * Returns whether a feature is supported at run-time. Feature support depends on the
      * feature in question, the AppSearch backend being used and the Android version of the
      * device.

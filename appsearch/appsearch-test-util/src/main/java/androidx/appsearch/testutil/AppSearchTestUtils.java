@@ -27,6 +27,7 @@ import androidx.appsearch.app.GenericDocument;
 import androidx.appsearch.app.GetByDocumentIdRequest;
 import androidx.appsearch.app.SearchResult;
 import androidx.appsearch.app.SearchResults;
+import androidx.appsearch.localstorage.visibilitystore.VisibilityChecker;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -111,5 +112,17 @@ public class AppSearchTestUtils {
             page = searchResults.getNextPage().get();
         }
         return results;
+    }
+
+    /**
+     * Creates a mock {@link VisibilityChecker}.
+     * @param visiblePrefixedSchemas Schema types that are accessible to any caller.
+     * @return
+     */
+    @NonNull
+    public static VisibilityChecker createMockVisibilityChecker(
+            @NonNull Set<String> visiblePrefixedSchemas) {
+        return (packageName, prefixedSchema, callerUid, callerHasSystemAccess, visibilityStore) ->
+                visiblePrefixedSchemas.contains(prefixedSchema);
     }
 }

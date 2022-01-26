@@ -17,7 +17,6 @@
 package androidx.appsearch.localstorage.converter;
 
 import static androidx.appsearch.localstorage.util.PrefixUtil.createPrefix;
-import static androidx.appsearch.localstorage.util.PrefixUtil.getDatabaseName;
 import static androidx.appsearch.localstorage.util.PrefixUtil.getPackageName;
 import static androidx.appsearch.localstorage.util.PrefixUtil.removePrefix;
 
@@ -28,6 +27,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.appsearch.app.SearchSpec;
 import androidx.appsearch.exceptions.AppSearchException;
+import androidx.appsearch.localstorage.visibilitystore.VisibilityChecker;
 import androidx.appsearch.localstorage.visibilitystore.VisibilityStore;
 import androidx.collection.ArrayMap;
 import androidx.collection.ArraySet;
@@ -153,16 +153,20 @@ public final class SearchSpecToProtoConverter {
      * remove this schemas if it is not allowed for caller to query.
      *
      * @param callerPackageName            The package name of caller
-     * @param visibilityStore              The visibility store which holds all visibility settings.
-     *                                     If you pass null, all schemas that don't belong to the
-     *                                     caller package will be removed.
      * @param callerUid                    The uid of the caller.
      * @param callerHasSystemAccess        Whether the caller has system access.
+     * @param visibilityStore              The {@link VisibilityStore} that store all visibility
+     *                                     information.
+     * @param visibilityChecker            Optional visibility checker to check whether the caller
+     *                                     could access target schemas. Pass {@code null} will
+     *                                     reject access for all documents which doesn't belong
+     *                                     to the calling package.
      */
     public void removeInaccessibleSchemaFilter(@NonNull String callerPackageName,
-            @Nullable VisibilityStore visibilityStore,
             int callerUid,
-            boolean callerHasSystemAccess) {
+            boolean callerHasSystemAccess,
+            @NonNull VisibilityStore visibilityStore,
+            @Nullable VisibilityChecker visibilityChecker) {
         Iterator<String> targetPrefixedSchemaFilterIterator =
                 mTargetPrefixedSchemaFilters.iterator();
         while (targetPrefixedSchemaFilterIterator.hasNext()) {
@@ -173,13 +177,15 @@ public final class SearchSpecToProtoConverter {
             if (packageName.equals(callerPackageName)) {
                 // Callers can always retrieve their own data
                 allow = true;
-            } else if (visibilityStore == null) {
-                // If there's no visibility store, there's no extra access
+            } else if (visibilityChecker == null) {
+                // If there's no visibility checker, there's no extra access
                 allow = false;
             } else {
-                String databaseName = getDatabaseName(targetPrefixedSchemaFilter);
-                allow = visibilityStore.isSchemaSearchableByCaller(packageName, databaseName,
-                        targetPrefixedSchemaFilter, callerUid, callerHasSystemAccess);
+                allow = visibilityChecker.isSchemaSearchableByCaller(packageName,
+                        targetPrefixedSchemaFilter,
+                        callerUid,
+                        callerHasSystemAccess,
+                        visibilityStore);
             }
             if (!allow) {
                 targetPrefixedSchemaFilterIterator.remove();

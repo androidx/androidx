@@ -18,14 +18,27 @@ package androidx.appsearch.cts.app;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.junit.Assert.assertThrows;
+
 import androidx.appsearch.app.AppSearchSchema;
 import androidx.appsearch.app.GetSchemaResponse;
+import androidx.appsearch.app.PackageIdentifier;
+
+import com.google.common.collect.ImmutableSet;
 
 import org.junit.Test;
+
+import java.util.Arrays;
 
 public class GetSchemaResponseCtsTest {
     @Test
     public void testRebuild() {
+        byte[] sha256cert1 = new byte[32];
+        byte[] sha256cert2 = new byte[32];
+        Arrays.fill(sha256cert1, (byte) 1);
+        Arrays.fill(sha256cert2, (byte) 2);
+        PackageIdentifier packageIdentifier1 = new PackageIdentifier("Email", sha256cert1);
+        PackageIdentifier packageIdentifier2 = new PackageIdentifier("Email", sha256cert2);
         AppSearchSchema schema1 = new AppSearchSchema.Builder("Email1")
                 .addProperty(new AppSearchSchema.StringPropertyConfig.Builder("subject")
                         .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
@@ -44,16 +57,92 @@ public class GetSchemaResponseCtsTest {
                 ).build();
 
         GetSchemaResponse.Builder builder =
-                new GetSchemaResponse.Builder().setVersion(42).addSchema(schema1);
+                new GetSchemaResponse.Builder().setVersion(42).addSchema(schema1)
+                        .addSchemaTypeNotDisplayedBySystem("Email1")
+                        .setSchemaTypeVisibleToPackages("Email1",
+                                ImmutableSet.of(packageIdentifier1));
 
         GetSchemaResponse original = builder.build();
-        GetSchemaResponse rebuild = builder.setVersion(37).addSchema(schema2).build();
+        GetSchemaResponse rebuild = builder.setVersion(37).addSchema(schema2)
+                .addSchemaTypeNotDisplayedBySystem("Email2")
+                .setSchemaTypeVisibleToPackages("Email2",
+                        ImmutableSet.of(packageIdentifier2))
+                .build();
 
         // rebuild won't effect the original object
         assertThat(original.getVersion()).isEqualTo(42);
         assertThat(original.getSchemas()).containsExactly(schema1);
+        assertThat(original.getSchemaTypesNotDisplayedBySystem())
+                .containsExactly("Email1");
+        assertThat(original.getSchemaTypesVisibleToPackages()).hasSize(1);
+        assertThat(original.getSchemaTypesVisibleToPackages().get("Email1"))
+                .containsExactly(packageIdentifier1);
 
         assertThat(rebuild.getVersion()).isEqualTo(37);
         assertThat(rebuild.getSchemas()).containsExactly(schema1, schema2);
+        assertThat(rebuild.getSchemaTypesNotDisplayedBySystem())
+                .containsExactly("Email1", "Email2");
+        assertThat(rebuild.getSchemaTypesVisibleToPackages()).hasSize(2);
+        assertThat(rebuild.getSchemaTypesVisibleToPackages().get("Email1"))
+                .containsExactly(packageIdentifier1);
+        assertThat(rebuild.getSchemaTypesVisibleToPackages().get("Email2"))
+                .containsExactly(packageIdentifier2);
+    }
+
+    @Test
+    public void testRebuild_noSupportedException() {
+        AppSearchSchema schema1 = new AppSearchSchema.Builder("Email1")
+                .addProperty(new AppSearchSchema.StringPropertyConfig.Builder("subject")
+                        .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
+                        .setIndexingType(
+                                AppSearchSchema.StringPropertyConfig.INDEXING_TYPE_PREFIXES)
+                        .setTokenizerType(AppSearchSchema.StringPropertyConfig.TOKENIZER_TYPE_PLAIN)
+                        .build()
+                ).build();
+
+        GetSchemaResponse.Builder builder =
+                new GetSchemaResponse.Builder(/*getVisibilitySettingSupported=*/false)
+                        .setVersion(42).addSchema(schema1);
+
+        GetSchemaResponse original = builder.build();
+        assertThrows(
+                UnsupportedOperationException.class,
+                () -> original.getSchemaTypesNotDisplayedBySystem());
+        assertThrows(
+                UnsupportedOperationException.class,
+                () -> original.getSchemaTypesVisibleToPackages());
+
+        // rebuild will throw same exception
+        GetSchemaResponse rebuild = builder.setVersion(42).build();
+        assertThrows(
+                UnsupportedOperationException.class,
+                () -> rebuild.getSchemaTypesNotDisplayedBySystem());
+        assertThrows(
+                UnsupportedOperationException.class,
+                () -> rebuild.getSchemaTypesVisibleToPackages());
+    }
+
+    @Test
+    public void setVisibility() {
+        byte[] sha256cert1 = new byte[32];
+        byte[] sha256cert2 = new byte[32];
+        Arrays.fill(sha256cert1, (byte) 1);
+        Arrays.fill(sha256cert2, (byte) 2);
+        PackageIdentifier packageIdentifier1 = new PackageIdentifier("Email", sha256cert1);
+        PackageIdentifier packageIdentifier2 = new PackageIdentifier("Email", sha256cert2);
+
+        GetSchemaResponse getSchemaResponse =
+                new GetSchemaResponse.Builder().setVersion(42)
+                        .addSchemaTypeNotDisplayedBySystem("Email")
+                        .addSchemaTypeNotDisplayedBySystem("Text")
+                        .setSchemaTypeVisibleToPackages("Email",
+                                ImmutableSet.of(packageIdentifier1, packageIdentifier2))
+                        .build();
+
+        assertThat(getSchemaResponse.getSchemaTypesNotDisplayedBySystem())
+                .containsExactly("Email", "Text");
+        assertThat(getSchemaResponse.getSchemaTypesVisibleToPackages()).hasSize(1);
+        assertThat(getSchemaResponse.getSchemaTypesVisibleToPackages().get("Email"))
+                .containsExactly(packageIdentifier1, packageIdentifier2);
     }
 }

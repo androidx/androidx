@@ -23,12 +23,9 @@ import static androidx.appsearch.localstorage.util.PrefixUtil.createPrefix;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import androidx.annotation.NonNull;
-import androidx.appsearch.app.PackageIdentifier;
 import androidx.appsearch.app.SearchSpec;
-import androidx.appsearch.exceptions.AppSearchException;
 import androidx.appsearch.localstorage.util.PrefixUtil;
-import androidx.appsearch.localstorage.visibilitystore.VisibilityStore;
+import androidx.appsearch.testutil.AppSearchTestUtils;
 
 import com.google.android.icing.proto.ResultSpecProto;
 import com.google.android.icing.proto.SchemaTypeConfigProto;
@@ -39,7 +36,6 @@ import com.google.common.collect.ImmutableSet;
 
 import org.junit.Test;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -442,26 +438,12 @@ public class SearchSpecToProtoConverterTest {
 
         converter.removeInaccessibleSchemaFilter(
                 /*callerPackageName=*/"otherPackageName",
-                new VisibilityStore() {
-                    @Override
-                    public void setVisibility(@NonNull String packageName,
-                            @NonNull String databaseName,
-                            @NonNull Set<String> schemasNotDisplayedBySystem,
-                            @NonNull Map<String, List<PackageIdentifier>> schemasVisibleToPackages)
-                            throws AppSearchException {
-
-                    }
-
-                    @Override
-                    public boolean isSchemaSearchableByCaller(@NonNull String packageName,
-                            @NonNull String databaseName, @NonNull String prefixedSchema,
-                            int callerUid, boolean callerHasSystemAccess) {
-                        // filter out schema 2 which is not searchable for user.
-                        return !prefixedSchema.equals(prefix + "schema2");
-                    }
-                },
                 /*callerUid=*/-1,
-                /*callerHasSystemAccess=*/true);
+                /*callerHasSystemAccess=*/true,
+                /*visibilityStore=*/ null,  // VS doesn't mater in this test
+                AppSearchTestUtils.createMockVisibilityChecker(
+                        /*visiblePrefixedSchemas=*/ ImmutableSet.of(
+                                prefix + "schema1", prefix + "schema3")));
 
         SearchSpecProto searchSpecProto =
                 converter.toSearchSpecProto(/*queryExpression=*/"");
@@ -507,26 +489,11 @@ public class SearchSpecToProtoConverterTest {
         // remove all target schema filter, and the query becomes nothing to search.
         nonEmptyConverter.removeInaccessibleSchemaFilter(
                 /*callerPackageName=*/"otherPackageName",
-                new VisibilityStore() {
-                    @Override
-                    public void setVisibility(@NonNull String packageName,
-                            @NonNull String databaseName,
-                            @NonNull Set<String> schemasNotDisplayedBySystem,
-                            @NonNull Map<String, List<PackageIdentifier>> schemasVisibleToPackages)
-                            throws AppSearchException {
-
-                    }
-
-                    @Override
-                    public boolean isSchemaSearchableByCaller(@NonNull String packageName,
-                            @NonNull String databaseName, @NonNull String prefixedSchema,
-                            int callerUid, boolean callerHasSystemAccess) {
-                        // filter out all schema.
-                        return false;
-                    }
-                },
                 /*callerUid=*/-1,
-                /*callerHasSystemAccess=*/true);
+                /*callerHasSystemAccess=*/true,
+                /*visibilityStore=*/ null, // VS doesn't mater in this test
+                AppSearchTestUtils.createMockVisibilityChecker(
+                        /*visiblePrefixedSchemas=*/ImmutableSet.of()));
         assertThat(nonEmptyConverter.isNothingToSearch()).isTrue();
     }
 }

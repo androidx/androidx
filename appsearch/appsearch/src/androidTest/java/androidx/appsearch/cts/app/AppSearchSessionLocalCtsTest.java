@@ -498,5 +498,8 @@ public class AppSearchSessionLocalCtsTest extends AppSearchSessionCtsTestBase {
 
         assertThat(db2.getFeatures().isFeatureSupported(
                 Features.SEARCH_RESULT_MATCH_INFO_SUBMATCH)).isTrue();
+
+        assertThat(db2.getFeatures().isFeatureSupported(
+                Features.GET_SCHEMA_RESPONSE_VISIBILITY)).isTrue();
     }
 }

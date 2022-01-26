@@ -31,7 +31,6 @@ import androidx.appsearch.app.GenericDocument;
 import androidx.appsearch.app.GetByDocumentIdRequest;
 import androidx.appsearch.app.GetSchemaResponse;
 import androidx.appsearch.app.Migrator;
-import androidx.appsearch.app.PackageIdentifier;
 import androidx.appsearch.app.PutDocumentsRequest;
 import androidx.appsearch.app.RemoveByDocumentIdRequest;
 import androidx.appsearch.app.ReportUsageRequest;
@@ -40,6 +39,7 @@ import androidx.appsearch.app.SearchSpec;
 import androidx.appsearch.app.SetSchemaRequest;
 import androidx.appsearch.app.SetSchemaResponse;
 import androidx.appsearch.app.StorageInfo;
+import androidx.appsearch.app.VisibilityDocument;
 import androidx.appsearch.exceptions.AppSearchException;
 import androidx.appsearch.localstorage.stats.OptimizeStats;
 import androidx.appsearch.localstorage.stats.RemoveStats;
@@ -47,7 +47,6 @@ import androidx.appsearch.localstorage.stats.SchemaMigrationStats;
 import androidx.appsearch.localstorage.stats.SetSchemaStats;
 import androidx.appsearch.localstorage.util.FutureUtil;
 import androidx.appsearch.util.SchemaMigrationUtil;
-import androidx.collection.ArrayMap;
 import androidx.collection.ArraySet;
 import androidx.core.util.Preconditions;
 
@@ -103,16 +102,9 @@ class SearchSessionImpl implements AppSearchSession {
 
         ListenableFuture<SetSchemaResponse> future = execute(() -> {
             long startMillis = SystemClock.elapsedRealtime();
-
-            // Convert the inner set into a List since Binder can't handle Set.
-            Map<String, Set<PackageIdentifier>> schemasVisibleToPackages =
-                    request.getSchemasVisibleToPackagesInternal();
-            Map<String, List<PackageIdentifier>> copySchemasVisibleToPackages = new ArrayMap<>();
-            for (Map.Entry<String, Set<PackageIdentifier>> entry :
-                    schemasVisibleToPackages.entrySet()) {
-                copySchemasVisibleToPackages.put(entry.getKey(),
-                        new ArrayList<>(entry.getValue()));
-            }
+            // Extract a Map<schema, VisibilityDocument> from the request.
+            List<VisibilityDocument> visibilityDocuments = VisibilityDocument
+                    .toVisibilityDocuments(request);
 
             SetSchemaStats.Builder setSchemaStatsBuilder = null;
             if (mLogger != null) {
@@ -123,8 +115,7 @@ class SearchSessionImpl implements AppSearchSession {
             // No need to trigger migration if user never set migrator.
             if (migrators.size() == 0) {
                 SetSchemaResponse setSchemaResponse =
-                        setSchemaNoMigrations(request, copySchemasVisibleToPackages,
-                                setSchemaStatsBuilder);
+                        setSchemaNoMigrations(request, visibilityDocuments, setSchemaStatsBuilder);
                 if (setSchemaStatsBuilder != null) {
                     setSchemaStatsBuilder.setTotalLatencyMillis(
                             (int) (SystemClock.elapsedRealtime() - startMillis));
@@ -145,8 +136,7 @@ class SearchSessionImpl implements AppSearchSession {
             // No need to trigger migration if no migrator is active.
             if (activeMigrators.size() == 0) {
                 SetSchemaResponse setSchemaResponse =
-                        setSchemaNoMigrations(request, copySchemasVisibleToPackages,
-                                setSchemaStatsBuilder);
+                        setSchemaNoMigrations(request, visibilityDocuments, setSchemaStatsBuilder);
                 if (setSchemaStatsBuilder != null) {
                     setSchemaStatsBuilder.setTotalLatencyMillis(
                             (int) (SystemClock.elapsedRealtime() - startMillis));
@@ -162,9 +152,7 @@ class SearchSessionImpl implements AppSearchSession {
                     mPackageName,
                     mDatabaseName,
                     new ArrayList<>(request.getSchemas()),
-                    /*visibilityStore=*/ null,
-                    new ArrayList<>(request.getSchemasNotDisplayedBySystem()),
-                    copySchemasVisibleToPackages,
+                    visibilityDocuments,
                     /*forceOverride=*/false,
                     request.getVersion(),
                     setSchemaStatsBuilder);
@@ -198,9 +186,7 @@ class SearchSessionImpl implements AppSearchSession {
                             mPackageName,
                             mDatabaseName,
                             new ArrayList<>(request.getSchemas()),
-                            /*visibilityStore=*/ null,
-                            new ArrayList<>(request.getSchemasNotDisplayedBySystem()),
-                            copySchemasVisibleToPackages,
+                            visibilityDocuments,
                             /*forceOverride=*/ true,
                             request.getVersion(),
                             setSchemaStatsBuilder);
@@ -478,16 +464,14 @@ class SearchSessionImpl implements AppSearchSession {
      * forceoverride in the request.
      */
     private SetSchemaResponse setSchemaNoMigrations(@NonNull SetSchemaRequest request,
-            @NonNull Map<String, List<PackageIdentifier>> copySchemasVisibleToPackages,
+            @NonNull List<VisibilityDocument> visibilityDocuments,
             SetSchemaStats.Builder setSchemaStatsBuilder)
             throws AppSearchException {
         SetSchemaResponse setSchemaResponse = mAppSearchImpl.setSchema(
                 mPackageName,
                 mDatabaseName,
                 new ArrayList<>(request.getSchemas()),
-                /*visibilityStore=*/ null,
-                new ArrayList<>(request.getSchemasNotDisplayedBySystem()),
-                copySchemasVisibleToPackages,
+                visibilityDocuments,
                 request.isForceOverride(),
                 request.getVersion(),
                 setSchemaStatsBuilder);

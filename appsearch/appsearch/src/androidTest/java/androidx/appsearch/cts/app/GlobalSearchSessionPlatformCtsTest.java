@@ -65,6 +65,10 @@ public class GlobalSearchSessionPlatformCtsTest extends GlobalSearchSessionCtsTe
         assertThat(mDb1.getFeatures().isFeatureSupported(
                 Features.GLOBAL_SEARCH_SESSION_ADD_REMOVE_OBSERVER))
                 .isEqualTo(BuildCompat.isAtLeastT());
+        // TODO(b/205749173): Support get schema in framework and uncomment this check
+//        assertThat(mDb1.getFeatures().isFeatureSupported(
+//                Features.GET_SCHEMA_RESPONSE_VISIBILITY))
+//                .isEqualTo(BuildCompat.isAtLeastT());
     }
 
     @Ignore("b/193494000")
