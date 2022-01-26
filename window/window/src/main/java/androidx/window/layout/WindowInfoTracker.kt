@@ -25,6 +25,7 @@ import kotlinx.coroutines.flow.Flow
 
 /**
  * An interface to provide all the relevant info about a [android.view.Window].
+ * @see WindowInfoTracker.getOrCreate to get an instance.
  */
 public interface WindowInfoTracker {
 
