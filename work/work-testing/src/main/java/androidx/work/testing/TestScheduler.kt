@@ -22,8 +22,10 @@ import androidx.annotation.RestrictTo
 import androidx.work.Worker
 import androidx.work.impl.ExecutionListener
 import androidx.work.impl.Scheduler
+import androidx.work.impl.WorkDatabase
 import androidx.work.impl.WorkManagerImpl
 import androidx.work.impl.model.WorkSpec
+import androidx.work.impl.model.WorkSpecDao
 import java.util.UUID
 
 /**
@@ -113,6 +115,7 @@ class TestScheduler(private val context: Context) : Scheduler, ExecutionListener
             state = oldState.copy(initialDelayMet = true)
             pendingWorkStates[id] = state
         }
+        rewindLastEnqueueTime(id)
         scheduleInternal(id, state)
     }
 
@@ -129,29 +132,19 @@ class TestScheduler(private val context: Context) : Scheduler, ExecutionListener
         synchronized(lock) {
             val oldState = pendingWorkStates[id]
                 ?: throw IllegalArgumentException("Work with id $workSpecId is not enqueued!")
+            if (!oldState.isPeriodic)
+                throw IllegalArgumentException("Work with id $workSpecId is not periodic!")
+
             state = oldState.copy(periodDelayMet = true)
             pendingWorkStates[id] = state
         }
+        rewindLastEnqueueTime(id)
         scheduleInternal(id, state)
     }
 
     override fun onExecuted(workSpecId: String, needsReschedule: Boolean) {
-        val internalWorkState: InternalWorkState
         synchronized(lock) {
-            internalWorkState = pendingWorkStates[workSpecId] ?: return
-        }
-        // first update db, only when update internal state
-        // doing database update outside of the lock, because we don't want run any
-        // callbacks holding lock, because `setPeriodStartTime` will trigger db observers.
-        if (internalWorkState.isPeriodic) {
-            // Reset the startTime to simulate the first run of PeriodicWork.
-            // Otherwise WorkerWrapper de-dupes runs of PeriodicWork to 1 execution per interval
-            val workManager = WorkManagerImpl.getInstance(context)
-            val workDatabase = workManager.workDatabase
-            workDatabase.workSpecDao().setPeriodStartTime(workSpecId, 0)
-        }
-
-        synchronized(lock) {
+            val internalWorkState = pendingWorkStates[workSpecId] ?: return
             if (internalWorkState.isPeriodic) {
                 pendingWorkStates[workSpecId] = internalWorkState.copy(
                     periodDelayMet = !internalWorkState.isPeriodic,
@@ -166,6 +159,25 @@ class TestScheduler(private val context: Context) : Scheduler, ExecutionListener
 
     private fun scheduleInternal(workId: String, state: InternalWorkState) {
         if (state.isRunnable) WorkManagerImpl.getInstance(context).startWork(workId)
+    }
+
+    private fun rewindLastEnqueueTime(id: String) {
+        // We need to pass check that mWorkSpec.calculateNextRunTime() < now
+        // so we reset "rewind" enqueue time to pass the check
+        // we don't reuse available internalWorkState.mWorkSpec, because it
+        // is not update with period_count and last_enqueue_time
+        // More proper solution would be to abstract away time instead of just using
+        // System.currentTimeMillis() in WM
+        val workManager = WorkManagerImpl.getInstance(context)
+        val workDatabase: WorkDatabase = workManager.workDatabase
+        val dao: WorkSpecDao = workDatabase.workSpecDao()
+        val workSpec: WorkSpec = dao.getWorkSpec(id)
+            ?: throw IllegalStateException("WorkSpec is already deleted from WM's db")
+        val now = System.currentTimeMillis()
+        val timeOffset = workSpec.calculateNextRunTime() - now
+        if (timeOffset > 0) {
+            dao.setLastEnqueuedTime(id, workSpec.lastEnqueueTime - timeOffset)
+        }
     }
 }
 

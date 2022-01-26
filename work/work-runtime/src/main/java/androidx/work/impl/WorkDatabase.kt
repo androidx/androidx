@@ -61,8 +61,11 @@ import java.util.concurrent.TimeUnit
 @Database(
     entities = [Dependency::class, WorkSpec::class, WorkTag::class, SystemIdInfo::class,
         WorkName::class, WorkProgress::class, Preference::class],
-    autoMigrations = [AutoMigration(from = 13, to = 14)],
-    version = 14
+    autoMigrations = [
+        AutoMigration(from = 13, to = 14),
+        AutoMigration(from = 14, to = 15, spec = AutoMigration_14_15::class)
+    ],
+    version = 15
 )
 @TypeConverters(value = [Data::class, WorkTypeConverters::class])
 abstract class WorkDatabase : RoomDatabase() {
@@ -161,7 +164,7 @@ private const val PRUNE_SQL_FORMAT_PREFIX =
     // are completed...
     "DELETE FROM workspec WHERE state IN $COMPLETED_STATES AND " +
         // and the minimum retention time has expired...
-        "(period_start_time + minimum_retention_duration) < "
+        "(last_enqueue_time + minimum_retention_duration) < "
 
 // and all dependents are completed.
 private const val PRUNE_SQL_FORMAT_SUFFIX = " AND " +

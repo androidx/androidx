@@ -375,10 +375,11 @@ public abstract class WorkRequest {
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @VisibleForTesting
-        public final @NonNull B setPeriodStartTime(
+        @NonNull
+        public final B setLastEnqueueTime(
                 long periodStartTime,
                 @NonNull TimeUnit timeUnit) {
-            mWorkSpec.periodStartTime = timeUnit.toMillis(periodStartTime);
+            mWorkSpec.lastEnqueueTime = timeUnit.toMillis(periodStartTime);
             return getThis();
         }
 
