@@ -62,15 +62,19 @@ import org.junit.AssumptionViolatedException
  */
 sealed class CompilationMode {
     internal fun resetAndCompile(packageName: String, warmupBlock: () -> Unit) {
-        Log.d(TAG, "Clearing profiles for $packageName")
-        Shell.executeCommand("cmd package compile --reset $packageName")
-        compileImpl(packageName, warmupBlock)
+        if (Build.VERSION.SDK_INT >= 24) {
+            Log.d(TAG, "Clearing profiles for $packageName")
+            Shell.executeCommand("cmd package compile --reset $packageName")
+            compileImpl(packageName, warmupBlock)
+        }
     }
 
+    @RequiresApi(24)
     internal fun cmdPackageCompile(packageName: String, compileArgument: String) {
         Shell.executeCommand("cmd package compile -f -m $compileArgument $packageName")
     }
 
+    @RequiresApi(24)
     internal abstract fun compileImpl(packageName: String, warmupBlock: () -> Unit)
 
     /**
