@@ -37,9 +37,9 @@ package androidx.lifecycle {
 
   public final class SavedStateViewModelFactory implements androidx.lifecycle.ViewModelProvider.Factory {
     ctor public SavedStateViewModelFactory();
-    ctor public SavedStateViewModelFactory(android.app.Application?, androidx.savedstate.SavedStateRegistryOwner);
-    ctor public SavedStateViewModelFactory(android.app.Application?, androidx.savedstate.SavedStateRegistryOwner, android.os.Bundle?);
-    method public <T extends androidx.lifecycle.ViewModel> T create(String, Class<T!>);
+    ctor public SavedStateViewModelFactory(android.app.Application? application, androidx.savedstate.SavedStateRegistryOwner owner);
+    ctor public SavedStateViewModelFactory(android.app.Application? application, androidx.savedstate.SavedStateRegistryOwner owner, android.os.Bundle? defaultArgs);
+    method public <T extends androidx.lifecycle.ViewModel> T create(String key, Class<T> modelClass);
   }
 
 }
