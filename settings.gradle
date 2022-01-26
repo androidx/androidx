@@ -27,7 +27,7 @@ buildscript {
     }
 
     dependencies {
-        classpath("com.gradle:gradle-enterprise-gradle-plugin:3.7.2")
+        classpath("com.gradle:gradle-enterprise-gradle-plugin:3.8.1")
     }
 }
 
