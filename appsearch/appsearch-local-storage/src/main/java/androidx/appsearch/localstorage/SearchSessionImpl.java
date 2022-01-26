@@ -18,6 +18,7 @@ package androidx.appsearch.localstorage;
 
 import static androidx.appsearch.app.AppSearchResult.throwableToFailedResult;
 
+import android.os.Process;
 import android.os.SystemClock;
 import android.util.Log;
 
@@ -127,8 +128,11 @@ class SearchSessionImpl implements AppSearchSession {
             // Migration process
             // 1. Validate and retrieve all active migrators.
             GetSchemaResponse getSchemaResponse = mAppSearchImpl.getSchema(
-                    /*callerPackageName=*/mPackageName, /*packageName=*/mPackageName,
-                    /*databaseName=*/mDatabaseName);
+                    /*packageName=*/mPackageName,
+                    /*databaseName=*/mDatabaseName,
+                    /*callerPackageName=*/mPackageName,
+                    /*callerUid=*/Process.myUid(),
+                    /*callerHasSystemAccess=*/false);
             int currentVersion = getSchemaResponse.getVersion();
             int finalVersion = request.getVersion();
             Map<String, Migrator> activeMigrators = SchemaMigrationUtil.getActiveMigrators(
@@ -240,8 +244,12 @@ class SearchSessionImpl implements AppSearchSession {
     @NonNull
     public ListenableFuture<GetSchemaResponse> getSchema() {
         Preconditions.checkState(!mIsClosed, "AppSearchSession has already been closed");
-        return execute(() -> mAppSearchImpl.getSchema(/*callerPackageName=*/mPackageName,
-        /*packageName=*/mPackageName, /*databaseName=*/mDatabaseName));
+        return execute(() -> mAppSearchImpl.getSchema(
+                /*packageName=*/mPackageName,
+                /*databaseName=*/mDatabaseName,
+                /*callerPackageName=*/mPackageName,
+                /*callerUid=*/Process.myUid(),
+                /*callerHasSystemAccess=*/false));
     }
 
     @NonNull

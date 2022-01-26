@@ -30,6 +30,7 @@ import android.os.Process;
 import androidx.appsearch.app.AppSearchResult;
 import androidx.appsearch.app.AppSearchSchema;
 import androidx.appsearch.app.GenericDocument;
+import androidx.appsearch.app.GetSchemaResponse;
 import androidx.appsearch.app.PackageIdentifier;
 import androidx.appsearch.app.SearchResult;
 import androidx.appsearch.app.SearchResultPage;
@@ -491,16 +492,20 @@ public class AppSearchImplTest {
         assertThat(initStats.getResetStatusCode()).isEqualTo(AppSearchResult.RESULT_OK);
 
         // Make sure all our data is gone
-        assertThat(mAppSearchImpl.getSchema(/*callerPackageName=*/mContext.getPackageName(),
-                /*packageName=*/mContext.getPackageName(), /*databaseName=*/
-                "database1").getSchemas())
+        assertThat(mAppSearchImpl.getSchema(
+                /*packageName=*/mContext.getPackageName(),
+                /*databaseName=*/"database1",
+                /*callerPackageName=*/mContext.getPackageName(),
+                /*callerUid=*/Process.myUid(),
+                /*callerHasSystemAccess=*/false)
+                .getSchemas())
                 .isEmpty();
         results = mAppSearchImpl.globalQuery(
                 /*queryExpression=*/ "",
                 new SearchSpec.Builder().addFilterSchemas("Type1").build(),
                 mContext.getPackageName(),
                 Process.INVALID_UID,
-                /*callerHasSystemAccess=*/ false,
+                /*callerHasSystemAccess=*/false,
                 /*logger=*/ null);
         assertThat(results.getResults()).isEmpty();
 
@@ -1839,8 +1844,11 @@ public class AppSearchImplTest {
                 /* setSchemaStatsBuilder= */ null));
 
         assertThrows(IllegalStateException.class, () -> mAppSearchImpl.getSchema(
-                /*callerPackageName=*/"package", /*packageName=*/"package", /*databaseName=*/
-                "database"));
+                /*packageName=*/"package",
+                /*databaseName=*/"database",
+                /*callerPackageName=*/mContext.getPackageName(),
+                /*callerUid=*/Process.myUid(),
+                /*callerHasSystemAccess=*/false));
 
         assertThrows(IllegalStateException.class, () -> mAppSearchImpl.putDocument(
                 "package",
@@ -2826,13 +2834,15 @@ public class AppSearchImplTest {
         mAppSearchImpl.persistToDisk(PersistType.Code.LITE);
 
         AppSearchException e = assertThrows(AppSearchException.class, () ->
-                mAppSearchImpl.globalGetDocument("package", "database",
-                "namespace1",
-                "id1",
-                /*typePropertyPaths=*/Collections.emptyMap(),
-                /*callerUid=*/1,
-                /*callerHasSystemAccess=*/false)
-        );
+                mAppSearchImpl.globalGetDocument(
+                        "package",
+                        "database",
+                        "namespace1",
+                        "id1",
+                        /*typePropertyPaths=*/Collections.emptyMap(),
+                        /*callerPackageName=*/mContext.getPackageName(),
+                        /*callerUid=*/Process.myUid(),
+                        /*callerHasSystemAccess=*/false));
         assertThat(e.getResultCode()).isEqualTo(AppSearchResult.RESULT_NOT_FOUND);
         assertThat(e.getMessage()).isEqualTo("Document (namespace1, id1) not found.");
     }
@@ -2870,11 +2880,14 @@ public class AppSearchImplTest {
         mAppSearchImpl.putDocument("package", "database", document, /*logger=*/null);
         mAppSearchImpl.persistToDisk(PersistType.Code.LITE);
 
-        GenericDocument getResult = mAppSearchImpl.globalGetDocument("package", "database",
+        GenericDocument getResult = mAppSearchImpl.globalGetDocument(
+                "package",
+                "database",
                 "namespace1",
                 "id1",
                 /*typePropertyPaths=*/Collections.emptyMap(),
-                /*callerUid=*/1,
+                /*callerPackageName=*/mContext.getPackageName(),
+                /*callerUid=*/Process.myUid(),
                 /*callerHasSystemAccess=*/false);
         assertThat(getResult).isEqualTo(document);
     }
@@ -2913,13 +2926,15 @@ public class AppSearchImplTest {
         mAppSearchImpl.persistToDisk(PersistType.Code.LITE);
 
         AppSearchException e = assertThrows(AppSearchException.class, () ->
-                mAppSearchImpl.globalGetDocument("package", "database",
+                mAppSearchImpl.globalGetDocument(
+                        "package",
+                        "database",
                         "namespace1",
                         "id2",
                         /*typePropertyPaths=*/Collections.emptyMap(),
-                        /*callerUid=*/1,
-                        /*callerHasSystemAccess=*/false)
-        );
+                        /*callerPackageName=*/mContext.getPackageName(),
+                        /*callerUid=*/Process.myUid(),
+                        /*callerHasSystemAccess=*/false));
         assertThat(e.getResultCode()).isEqualTo(AppSearchResult.RESULT_NOT_FOUND);
         assertThat(e.getMessage()).isEqualTo("Document (namespace1, id2) not found.");
     }
@@ -2957,24 +2972,29 @@ public class AppSearchImplTest {
         mAppSearchImpl.persistToDisk(PersistType.Code.LITE);
 
         AppSearchException unauthorizedException = assertThrows(AppSearchException.class, () ->
-                mAppSearchImpl.globalGetDocument("package", "database",
+                mAppSearchImpl.globalGetDocument(
+                        "package",
+                        "database",
                         "namespace1",
                         "id1",
                         /*typePropertyPaths=*/Collections.emptyMap(),
-                        /*callerUid=*/2,
-                        /*callerHasSystemAccess=*/false)
-        );
+                        /*callerPackageName=*/mContext.getPackageName(),
+                        /*callerUid=*/Process.myUid(),
+                        /*callerHasSystemAccess=*/false));
 
         mAppSearchImpl.remove("package", "database", "namespace1", "id1",
                 /*removeStatsBuilder=*/null);
 
         AppSearchException noDocException = assertThrows(AppSearchException.class, () ->
-                mAppSearchImpl.globalGetDocument("package", "database",
+                mAppSearchImpl.globalGetDocument(
+                        "package",
+                        "database",
                         "namespace1",
                         "id1",
                         /*typePropertyPaths=*/Collections.emptyMap(),
-                        /*callerUid=*/1,
-                        /*callerHasSystemAccess=*/false)
+                        /*callerPackageName=*/"package",
+                        /*callerUid=*/Process.myUid(),
+                        /*callerHasSystemAccess=*/true)
         );
 
         assertThat(noDocException.getResultCode()).isEqualTo(unauthorizedException.getResultCode());
@@ -3179,5 +3199,146 @@ public class AppSearchImplTest {
                 /*visibilityChecker=*/null);
 
         assertThat(mAppSearchImpl.mVisibilityStoreLocked.getVisibility(prefix + "Email")).isNull();
+    }
+
+    @Test
+    public void testGetSchema_global() throws Exception {
+        List<AppSearchSchema> schemas =
+                Collections.singletonList(new AppSearchSchema.Builder("Type").build());
+
+        // Create a new mAppSearchImpl with a mock Visibility Checker
+        mAppSearchImpl.close();
+        File tempFolder = mTemporaryFolder.newFolder();
+        VisibilityChecker mockVisibilityChecker =
+                (packageName, prefixedSchema, callerUid, callerHasSystemAccess, visibilityStore)
+                        -> true;
+        mAppSearchImpl = AppSearchImpl.create(
+                tempFolder,
+                new UnlimitedLimitConfig(),
+                /*initStatsBuilder=*/ null,
+                ALWAYS_OPTIMIZE,
+                mockVisibilityChecker);
+
+        mAppSearchImpl.setSchema(
+                "package",
+                "database",
+                schemas,
+                /*visibilityDocuments=*/ImmutableList.of(
+                        new VisibilityDocument.Builder("Type")
+                                .setNotDisplayedBySystem(true).build()),
+                /*forceOverride=*/false,
+                /*version=*/0,
+                /*setSchemaStatsBuilder=*/null);
+
+        // Get this schema as another package
+        GetSchemaResponse getResponse = mAppSearchImpl.getSchema(
+                "package",
+                "database",
+                /*callerPackageName=*/"com.android.appsearch.fake.package",
+                /*callerUid=*/1,
+                /*callerHasSystemAccess=*/false);
+        assertThat(getResponse.getSchemas()).containsExactlyElementsIn(schemas);
+        assertThat(getResponse.getSchemaTypesNotDisplayedBySystem()).containsExactly("Type");
+    }
+
+    @Test
+    public void testGetSchema_nonExistentApp() throws Exception {
+        // Add a schema. The test loses meaning if the schema is completely empty.
+        mAppSearchImpl.setSchema(
+                "package",
+                "database",
+                Collections.singletonList(new AppSearchSchema.Builder("Type").build()),
+                /*visibilityDocuments=*/ImmutableList.of(),
+                /*forceOverride=*/false,
+                /*version=*/0,
+                /*setSchemaStatsBuilder=*/null);
+
+        // Try to get the schema of a nonexistent package.
+        GetSchemaResponse getResponse = mAppSearchImpl.getSchema(
+                "com.android.appsearch.fake.package",
+                "database",
+                /*callerPackageName=*/"package",
+                /*callerUid=*/1,
+                /*callerHasSystemAccess=*/false);
+        assertThat(getResponse.getSchemas()).isEmpty();
+        assertThat(getResponse.getSchemaTypesNotDisplayedBySystem()).isEmpty();
+    }
+
+    @Test
+    public void testGetSchema_noAccess() throws Exception {
+        List<AppSearchSchema> schemas =
+                Collections.singletonList(new AppSearchSchema.Builder("Type").build());
+        mAppSearchImpl.setSchema(
+                "package",
+                "database",
+                schemas,
+                /*visibilityDocuments=*/ImmutableList.of(),
+                /*forceOverride=*/false,
+                /*version=*/1,
+                /*setSchemaStatsBuilder=*/null);
+        GetSchemaResponse getResponse = mAppSearchImpl.getSchema(
+                "package",
+                "database",
+                /*callerPackageName=*/"com.android.fake.package",
+                /*callerUid=*/1,
+                /*callerHasSystemAccess=*/false);
+        assertThat(getResponse.getSchemas()).isEmpty();
+        assertThat(getResponse.getSchemaTypesNotDisplayedBySystem()).isEmpty();
+        assertThat(getResponse.getVersion()).isEqualTo(0);
+
+        // Make sure the test is hooked up right by calling getSchema with the same parameters but
+        // from the same package
+        getResponse = mAppSearchImpl.getSchema(
+                "package",
+                "database",
+                /*callerPackageName=*/"package",
+                /*callerUid=*/1,
+                /*callerHasSystemAccess=*/false);
+        assertThat(getResponse.getSchemas()).containsExactlyElementsIn(schemas);
+    }
+
+    @Test
+    public void testGetSchema_global_partialAccess() throws Exception {
+        List<AppSearchSchema> schemas = ImmutableList.of(
+                new AppSearchSchema.Builder("VisibleType").build(),
+                new AppSearchSchema.Builder("PrivateType").build());
+
+        // Create a new mAppSearchImpl with a mock Visibility Checker
+        mAppSearchImpl.close();
+        File tempFolder = mTemporaryFolder.newFolder();
+        VisibilityChecker mockVisibilityChecker =
+                (packageName, prefixedSchema, callerUid, callerHasSystemAccess, visibilityStore)
+                        -> prefixedSchema.endsWith("VisibleType");
+        mAppSearchImpl = AppSearchImpl.create(
+                tempFolder,
+                new UnlimitedLimitConfig(),
+                /*initStatsBuilder=*/ null,
+                ALWAYS_OPTIMIZE,
+                mockVisibilityChecker);
+
+        mAppSearchImpl.setSchema(
+                "package",
+                "database",
+                schemas,
+                /*visibilityDocuments=*/ImmutableList.of(
+                        new VisibilityDocument.Builder("VisibleType")
+                                .setNotDisplayedBySystem(true)
+                                .build(),
+                        new VisibilityDocument.Builder("PrivateType")
+                                .setNotDisplayedBySystem(true)
+                                .build()),
+                /*forceOverride=*/false,
+                /*version=*/1,
+                /*setSchemaStatsBuilder=*/null);
+
+        GetSchemaResponse getResponse = mAppSearchImpl.getSchema(
+                "package",
+                "database",
+                /*callerPackageName=*/"com.android.appsearch.fake.package",
+                /*callerUid=*/1,
+                /*callerHasSystemAccess=*/false);
+        assertThat(getResponse.getSchemas()).containsExactly(schemas.get(0));
+        assertThat(getResponse.getSchemaTypesNotDisplayedBySystem()).containsExactly("VisibleType");
+        assertThat(getResponse.getVersion()).isEqualTo(1);
     }
 }

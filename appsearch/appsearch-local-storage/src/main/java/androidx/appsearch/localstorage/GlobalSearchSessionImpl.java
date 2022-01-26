@@ -18,6 +18,7 @@ package androidx.appsearch.localstorage;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.os.Process;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -114,7 +115,11 @@ class GlobalSearchSessionImpl implements GlobalSearchSession {
         Preconditions.checkState(!mIsClosed, "GlobalSearchSession has already been closed");
         return FutureUtil.execute(mExecutor,
                 () -> mAppSearchImpl.getSchema(
-                        mContext.getPackageName(), packageName, databaseName));
+                        packageName,
+                        databaseName,
+                        /*callerPackageName=*/mContext.getPackageName(),
+                        /*callerUid=*/Process.myUid(),
+                        /*callerHasSystemAccess=*/false));
     }
 
     @NonNull

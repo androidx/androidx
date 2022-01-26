@@ -63,6 +63,7 @@ import androidx.appsearch.localstorage.stats.SetSchemaStats;
 import androidx.appsearch.localstorage.util.PrefixUtil;
 import androidx.appsearch.localstorage.visibilitystore.VisibilityChecker;
 import androidx.appsearch.localstorage.visibilitystore.VisibilityStore;
+import androidx.appsearch.localstorage.visibilitystore.VisibilityUtil;
 import androidx.appsearch.observer.AppSearchObserverCallback;
 import androidx.appsearch.observer.ObserverSpec;
 import androidx.appsearch.util.LogUtil;
@@ -573,9 +574,16 @@ public final class AppSearchImpl implements Closeable {
      * @param databaseName      Database that owns the requested {@link AppSearchSchema} instances.
      * @throws AppSearchException on IcingSearchEngine error.
      */
+    // TODO(b/215624105): The combination of (callerPackageName, callerUid, callerHasSystemAccess)
+    //  occurs together in many places related to visibility. Should these be combined into a struct
+    //  called something like CallerAccess?
     @NonNull
-    public GetSchemaResponse getSchema(@NonNull String callerPackageName,
-            @NonNull String packageName, @NonNull String databaseName) throws AppSearchException {
+    public GetSchemaResponse getSchema(
+            @NonNull String packageName,
+            @NonNull String databaseName,
+            @NonNull String callerPackageName,
+            int callerUid,
+            boolean callerHasSystemAccess) throws AppSearchException {
         mReadWriteLock.readLock().lock();
         try {
             throwIfClosedLocked();
@@ -589,10 +597,19 @@ public final class AppSearchImpl implements Closeable {
                 SchemaTypeConfigProto typeConfig = fullSchema.getTypes(i);
                 String prefixedSchemaType = typeConfig.getSchemaType();
                 String typePrefix = getPrefix(prefixedSchemaType);
-                String typeName = typeConfig.getSchemaType().substring(typePrefix.length());
-                // TODO(b/215624105) use VisibilityChecker to check the access.
-                if (!prefix.equals(typePrefix) || !hasAccessToType(callerPackageName, packageName,
-                        databaseName, typeName)) {
+                if (!prefix.equals(typePrefix)) {
+                    // This schema type doesn't belong to the database we're querying for.
+                    continue;
+                }
+                if (!VisibilityUtil.isSchemaSearchableByCaller(
+                        callerPackageName,
+                        callerUid,
+                        callerHasSystemAccess,
+                        packageName,
+                        prefixedSchemaType,
+                        mVisibilityStoreLocked,
+                        mVisibilityCheckerLocked)) {
+                    // Caller doesn't have access to this type.
                     continue;
                 }
 
@@ -610,6 +627,7 @@ public final class AppSearchImpl implements Closeable {
                 // Populate visibility info. Since the constructor of VisibilityStore will get
                 // schema. Avoid call visibility store before we have already created it.
                 if (mVisibilityStoreLocked != null) {
+                    String typeName = typeConfig.getSchemaType().substring(typePrefix.length());
                     VisibilityDocument visibilityDocument =
                             mVisibilityStoreLocked.getVisibility(prefixedSchemaType);
                     if (visibilityDocument != null) {
@@ -836,6 +854,7 @@ public final class AppSearchImpl implements Closeable {
      * @param id                The ID of the document to get.
      * @param typePropertyPaths A map of schema type to a list of property paths to return in the
      *                          result.
+     * @param callerPackageName The package name of the caller application
      * @param callerUid         The ID of the caller application
      * @param callerHasSystemAccess
      *                          A boolean signifying if the caller has system access
@@ -844,10 +863,12 @@ public final class AppSearchImpl implements Closeable {
      */
     @Nullable
     public GenericDocument globalGetDocument(
-            @NonNull String packageName, @NonNull String databaseName,
+            @NonNull String packageName,
+            @NonNull String databaseName,
             @NonNull String namespace,
             @NonNull String id,
             @NonNull Map<String, List<String>> typePropertyPaths,
+            @NonNull String callerPackageName,
             int callerUid,
             boolean callerHasSystemAccess) throws AppSearchException {
         mReadWriteLock.readLock().lock();
@@ -860,10 +881,14 @@ public final class AppSearchImpl implements Closeable {
                 documentProto = getDocumentProtoByIdLocked(packageName, databaseName,
                         namespace, id, typePropertyPaths);
 
-                if (mVisibilityCheckerLocked == null
-                        || !mVisibilityCheckerLocked.isSchemaSearchableByCaller(packageName,
-                        documentProto.getSchema(), callerUid, callerHasSystemAccess,
-                        mVisibilityStoreLocked)) {
+                if (!VisibilityUtil.isSchemaSearchableByCaller(
+                        callerPackageName,
+                        callerUid,
+                        callerHasSystemAccess,
+                        packageName,
+                        documentProto.getSchema(),
+                        mVisibilityStoreLocked,
+                        mVisibilityCheckerLocked)) {
                     throw new AppSearchException(AppSearchResult.RESULT_NOT_FOUND);
                 }
             } catch (AppSearchException e) {
@@ -2194,22 +2219,6 @@ public final class AppSearchImpl implements Closeable {
         if (schemaTypeMap != null) {
             schemaTypeMap.remove(schemaType);
         }
-    }
-
-    /**
-     * Checks whether the caller package has been granted access to the typeName type created by
-     * packageName package for the databaseName database.
-     *
-     * @param unusedCallerPackageName the package name of the caller
-     * @param unusedPackageName       the name of the package that owns the database
-     * @param unusedDatabaseName      the name of the database that owns the type
-     * @param unusedTypeName          the (non-prefixed) type
-     */
-    private boolean hasAccessToType(String unusedCallerPackageName, String unusedPackageName,
-            String unusedDatabaseName, String unusedTypeName) {
-        // TODO(b/215624105): Update this after permission's refactoring is complete to allow
-        //  access beyond the callerPackage.
-        return true;
     }
 
     /**
