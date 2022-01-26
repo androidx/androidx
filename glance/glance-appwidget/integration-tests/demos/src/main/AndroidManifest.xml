@@ -94,7 +94,7 @@
         </receiver>
 
         <receiver
-            android:name="androidx.glance.appwidget.demos.SingleItemWidgetReceiver"
+            android:name="androidx.glance.appwidget.demos.SingleEntityWidgetReceiver"
             android:enabled="@bool/glance_appwidget_available"
             android:exported="false"
             android:label="@string/single_item_widget_name">

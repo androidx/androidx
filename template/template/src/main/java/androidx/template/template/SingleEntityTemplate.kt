@@ -34,7 +34,7 @@ import androidx.glance.text.Text
 /**
  * A basic [GlanceTemplate] implementation based around a single item, using [Data].
  */
-abstract class SingleItemTemplate : GlanceTemplate<SingleItemTemplate.Data>() {
+abstract class SingleEntityTemplate : GlanceTemplate<SingleEntityTemplate.Data>() {
 
     @Composable
     override fun WidgetLayoutCollapsed() {
