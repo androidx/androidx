@@ -123,11 +123,11 @@ class GlobalSearchSessionImpl implements GlobalSearchSession {
     @BuildCompat.PrereleaseSdkCheck
     @Override
     public void addObserver(
-            @NonNull String observedPackage,
+            @NonNull String targetPackageName,
             @NonNull ObserverSpec spec,
             @NonNull Executor executor,
             @NonNull AppSearchObserverCallback observer) throws AppSearchException {
-        Preconditions.checkNotNull(observedPackage);
+        Preconditions.checkNotNull(targetPackageName);
         Preconditions.checkNotNull(spec);
         Preconditions.checkNotNull(executor);
         Preconditions.checkNotNull(observer);
@@ -140,7 +140,7 @@ class GlobalSearchSessionImpl implements GlobalSearchSession {
         }
         try {
             mPlatformSession.addObserver(
-                    observedPackage,
+                    targetPackageName,
                     ObserverSpecToPlatformConverter.toPlatformObserverSpec(spec),
                     executor,
                     new android.app.appsearch.observer.AppSearchObserverCallback() {
@@ -171,8 +171,8 @@ class GlobalSearchSessionImpl implements GlobalSearchSession {
 
     @Override
     public void removeObserver(
-            @NonNull String observedPackage, @NonNull AppSearchObserverCallback observer) {
-        Preconditions.checkNotNull(observedPackage);
+            @NonNull String targetPackageName, @NonNull AppSearchObserverCallback observer) {
+        Preconditions.checkNotNull(targetPackageName);
         Preconditions.checkNotNull(observer);
         // TODO(b/193494000): Implement removeObserver
         throw new UnsupportedOperationException("removeObserver not supported for platform yet");
