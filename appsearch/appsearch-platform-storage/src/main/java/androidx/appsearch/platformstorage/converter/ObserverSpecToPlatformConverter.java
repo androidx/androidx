@@ -26,6 +26,8 @@ import androidx.appsearch.observer.ObserverSpec;
 import androidx.appsearch.observer.SchemaChangeInfo;
 import androidx.core.util.Preconditions;
 
+import java.util.Collections;
+
 /**
  * Translates between Platform and Jetpack versions of {@link ObserverSpec}.
  * @hide
@@ -56,7 +58,11 @@ public final class ObserverSpecToPlatformConverter {
     public static SchemaChangeInfo toJetpackSchemaChangeInfo(
             @NonNull android.app.appsearch.observer.SchemaChangeInfo platformInfo) {
         Preconditions.checkNotNull(platformInfo);
-        return new SchemaChangeInfo(platformInfo.getPackageName(), platformInfo.getDatabaseName());
+        // TODO(b/193494000): Translate the changed schema names
+        return new SchemaChangeInfo(
+                platformInfo.getPackageName(),
+                platformInfo.getDatabaseName(),
+                /*changedSchemaNames=*/Collections.emptySet());
     }
 
     /**
@@ -67,10 +73,12 @@ public final class ObserverSpecToPlatformConverter {
     public static DocumentChangeInfo toJetpackDocumentChangeInfo(
             @NonNull android.app.appsearch.observer.DocumentChangeInfo platformInfo) {
         Preconditions.checkNotNull(platformInfo);
+        // TODO(b/193494000): Translate the changed document IDs
         return new DocumentChangeInfo(
                 platformInfo.getPackageName(),
                 platformInfo.getDatabaseName(),
                 platformInfo.getNamespace(),
-                platformInfo.getSchemaName());
+                platformInfo.getSchemaName(),
+                /*changedDocumentIds=*/Collections.emptySet());
     }
 }

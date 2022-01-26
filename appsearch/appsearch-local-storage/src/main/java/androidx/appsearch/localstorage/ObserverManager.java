@@ -87,7 +87,8 @@ public class ObserverManager {
         final ObserverSpec mObserverSpec;
         final Executor mExecutor;
         final AppSearchObserverCallback mObserver;
-        volatile Set<DocumentChangeGroupKey> mDocumentChanges = new ArraySet<>();
+        // Values is a set of document IDs
+        volatile Map<DocumentChangeGroupKey, Set<String>> mDocumentChanges = new ArrayMap<>();
 
         ObserverInfo(
                 @NonNull ObserverSpec observerSpec,
@@ -167,7 +168,8 @@ public class ObserverManager {
             @NonNull String packageName,
             @NonNull String databaseName,
             @NonNull String namespace,
-            @NonNull String schemaType) {
+            @NonNull String schemaType,
+            @NonNull String documentId) {
         synchronized (mLock) {
             List<ObserverInfo> allObserverInfosForPackage = mObserversLocked.get(packageName);
             if (allObserverInfosForPackage == null || allObserverInfosForPackage.isEmpty()) {
@@ -182,7 +184,12 @@ public class ObserverManager {
                         key = new DocumentChangeGroupKey(
                                 packageName, databaseName, namespace, schemaType);
                     }
-                    observerInfo.mDocumentChanges.add(key);
+                    Set<String> changedDocumentIds = observerInfo.mDocumentChanges.get(key);
+                    if (changedDocumentIds == null) {
+                        changedDocumentIds = new ArraySet<>();
+                        observerInfo.mDocumentChanges.put(key, changedDocumentIds);
+                    }
+                    changedDocumentIds.add(documentId);
                 }
             }
             mHasNotifications = true;
@@ -243,22 +250,22 @@ public class ObserverManager {
     @GuardedBy("mLock")
     private void dispatchAndClearPendingNotificationsLocked(@NonNull ObserverInfo observerInfo) {
         // Get and clear the pending changes
-        Set<DocumentChangeGroupKey> documentChanges = observerInfo.mDocumentChanges;
+        Map<DocumentChangeGroupKey, Set<String>> documentChanges = observerInfo.mDocumentChanges;
         if (documentChanges.isEmpty()) {
             return;
         }
-        observerInfo.mDocumentChanges = new ArraySet<>();
+        observerInfo.mDocumentChanges = new ArrayMap<>();
 
         // Dispatch the pending changes
         observerInfo.mExecutor.execute(() -> {
-            for (DocumentChangeGroupKey entry : documentChanges) {
-                // TODO(b/193494000): Buffer document URIs as the values of mDocumentChanges
-                // and include them in the final ChangeInfo
+            for (Map.Entry<DocumentChangeGroupKey, Set<String>> entry
+                    : documentChanges.entrySet()) {
                 DocumentChangeInfo documentChangeInfo = new DocumentChangeInfo(
-                        entry.mPackageName,
-                        entry.mDatabaseName,
-                        entry.mNamespace,
-                        entry.mSchemaName);
+                        entry.getKey().mPackageName,
+                        entry.getKey().mDatabaseName,
+                        entry.getKey().mNamespace,
+                        entry.getKey().mSchemaName,
+                        entry.getValue());
 
                 try {
                     // TODO(b/193494000): Add code to dispatch SchemaChangeInfo too.
