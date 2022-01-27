@@ -112,3 +112,18 @@ androidx {
         url = "https://chromium.googlesource.com/libyuv/libyuv/+/refs/heads/main/README.chromium"
     }
 }
+
+// Added in hopes of ensuring prefab artifacts are available by the time CMake runs and preventing
+// flakes like b/209000511 and b/206464070
+afterEvaluate {
+    def architectures = ["arm64-v8a", "armeabi-v7a", "x86", "x86_64"]
+    architectures.each {
+        tasks.named("configureCMakeDebug[$it]").configure {
+            dependsOn(":external:libyuv:prefabDebugPackage")
+        }
+
+        tasks.named("configureCMakeRelWithDebInfo[$it]").configure {
+            dependsOn(":external:libyuv:prefabReleasePackage")
+        }
+    }
+}
