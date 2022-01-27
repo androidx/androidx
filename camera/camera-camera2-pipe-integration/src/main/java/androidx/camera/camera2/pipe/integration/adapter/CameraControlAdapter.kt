@@ -49,6 +49,8 @@ import androidx.camera.core.impl.utils.futures.Futures
 import com.google.common.util.concurrent.ListenableFuture
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.guava.asListenableFuture
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -161,13 +163,20 @@ class CameraControlAdapter @Inject constructor(
         val camera = useCaseManager.camera
         checkNotNull(camera) { "Attempted to issue capture requests while the camera isn't ready." }
 
-        // TODO(b/199813515) : implement the preCapture
-        return Futures.allAsList(
-            camera.requestControl.issueSingleCaptureAsync(
-                captureConfigs, captureMode, flashType
-            ).map {
-                it.asListenableFuture()
-            }
+        val flashMode = flashMode
+        // Prior to submitStillCaptures, wait until the pending flash mode session change is
+        // completed. On some devices, AE preCapture triggered in submitStillCaptures may not
+        // work properly if the repeating request to change the flash mode is not completed.
+        return Futures.nonCancellationPropagating(
+            threads.sequentialScope.async {
+                flashControl.updateSignal.join()
+                camera.requestControl.issueSingleCaptureAsync(
+                    captureConfigs,
+                    captureMode,
+                    flashType,
+                    flashMode,
+                ).awaitAll()
+            }.asListenableFuture()
         )
     }
 
