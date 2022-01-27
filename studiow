@@ -1,14 +1,20 @@
 #!/usr/bin/env bash
 
 function usage() {
-  echo "Usage: studiow [--clean] [--reinstall] [--profile] <project subset>"
+  echo "Usage: studiow [--clear-caches] [--clean] [--reinstall] [--profile] <project subset>"
   echo
   echo "OPTIONS"
+  echo
+  echo " --clear-caches"
+  echo "   Clear generated caches (but not user settings) before launching"
+  echo
   echo " --clean"
   echo "   Clear (with backup) generated files (settings, caches, etc) before launching"
+  echo "   Also implies --clear-caches"
   echo
   echo " --reinstall"
   echo "   Remove and re-download Studio itself. Also implies --clean"
+  echo
   echo " --profile"
   echo "   Enables profiling of Studio"
   echo
@@ -37,7 +43,8 @@ function usage() {
 cd "$(dirname $0)"
 
 subsetArg=""
-clean=false
+clearCaches=false
+cleanSettings=false
 reinstall=false
 projectSubset=""
 profile=false
@@ -45,12 +52,18 @@ while [ "$1" != "" ]; do
   arg="$1"
   shift
   # parse options
+  if [ "$arg" == "--clear-caches" ]; then
+    clearCaches=true
+    continue
+  fi
   if [ "$arg" == "--clean" ]; then
-    clean=true
+    clearCaches=true
+    cleanSettings=true
     continue
   fi
   if [ "$arg" == "--reinstall" ]; then
-    clean=true
+    clearCaches=true
+    cleanSettings=true
     reinstall=true
     continue
   fi
@@ -127,13 +140,15 @@ if [ "$profile" == "true" ]; then
   export _JAVA_OPTIONS="$_JAVA_OPTIONS -javaagent:${tracerJar}=${traceConfig}"
 fi
 
-if [ "$clean" == "true" ]; then
-  # remove studio-specific caches
-
+# remove studio-specific caches
+if [ "$cleanSettings" == "true" ]; then
   # make backups of files that users might have customized
   remove ~/.AndroidStudioAndroidX
   remove ~/.AndroidStudioAndroidXPlayground
   remove ~/.android
+fi
+
+if [ "$clearCaches" == "true" ]; then
   # delete (without backup) files that users won't have customized
   git clean -fdX .idea/
 
