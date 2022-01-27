@@ -16,8 +16,11 @@
 package androidx.core.app;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
+import android.os.Build;
 import android.support.v4.BaseInstrumentationTestCase;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -55,10 +58,54 @@ public class ComponentActivityTest extends BaseInstrumentationTestCase<TestCompo
         assertEquals(mTestExtraData, mComponentActivity.getExtraData(TestExtraData.class));
     }
 
+    @Test
+    public void testShouldDumpInternalState_nullArgs() {
+        assertTrue(mComponentActivity.shouldDumpInternalState(null));
+    }
+
+    @Test
+    public void testShouldDumpInternalState_emptyArgs() {
+        assertTrue(mComponentActivity.shouldDumpInternalState(new String[0]));
+    }
+
+    @Test
+    public void testShouldDumpInternalState_nonSpecialArg() {
+        String[] args = { "--I-cant-believe-Actitivy-cares-about-this-arg" };
+
+        assertTrue(mComponentActivity.shouldDumpInternalState(args));
+    }
+
+    @Test
+    public void testShouldDumpInternalState_autofill() {
+        shouldNotDumpSpecialArgOnVersion("--autofill", Build.VERSION_CODES.O);
+    }
+
+    @Test
+    public void testShouldDumpInternalState_contentCapture() {
+        shouldNotDumpSpecialArgOnVersion("--contentcapture", Build.VERSION_CODES.Q);
+    }
+
+    @Test
+    public void testShouldDumpInternalState_translation() {
+        shouldNotDumpSpecialArgOnVersion("--translation", Build.VERSION_CODES.S);
+    }
+
+    private void shouldNotDumpSpecialArgOnVersion(String specialArg, int minApiVersion) {
+        String[] args = { specialArg };
+        int actualApiVersion = Build.VERSION.SDK_INT;
+
+        if (actualApiVersion >= minApiVersion) {
+            assertFalse(specialArg + " should be skipped on API " + actualApiVersion,
+                    mComponentActivity.shouldDumpInternalState(args));
+        } else {
+            assertTrue(specialArg + " should be ignored on API " + actualApiVersion,
+                    mComponentActivity.shouldDumpInternalState(args));
+        }
+    }
+
     private class NeverAddedExtraData extends ComponentActivity.ExtraData {
     }
 
     private class TestExtraData extends ComponentActivity.ExtraData {
     }
 }
-
