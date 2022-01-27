@@ -17,18 +17,18 @@ package androidx.template.template {
   }
 
   public static class SingleEntityTemplate.Data {
-    ctor public SingleEntityTemplate.Data(String title, String buttonText, androidx.glance.action.Action buttonAction, androidx.glance.ImageProvider image, int backgroundColor);
-    method public final int getBackgroundColor();
+    ctor public SingleEntityTemplate.Data(String title, String buttonText, androidx.glance.action.Action buttonAction, androidx.glance.ImageProvider image, androidx.glance.unit.ColorProvider backgroundColor);
+    method public final androidx.glance.unit.ColorProvider getBackgroundColor();
     method public final androidx.glance.action.Action getButtonAction();
     method public final String getButtonText();
     method public final androidx.glance.ImageProvider getImage();
     method public final String getTitle();
-    method public final void setBackgroundColor(int backgroundColor);
+    method public final void setBackgroundColor(androidx.glance.unit.ColorProvider backgroundColor);
     method public final void setButtonAction(androidx.glance.action.Action buttonAction);
     method public final void setButtonText(String buttonText);
     method public final void setImage(androidx.glance.ImageProvider image);
     method public final void setTitle(String title);
-    property public final int backgroundColor;
+    property public final androidx.glance.unit.ColorProvider backgroundColor;
     property public final androidx.glance.action.Action buttonAction;
     property public final String buttonText;
     property public final androidx.glance.ImageProvider image;
