@@ -393,7 +393,6 @@ public abstract class GlanceAppWidget(
         translateComposition(
             context,
             appWidgetId,
-            this@GlanceAppWidget.javaClass,
             root,
             layoutConfig,
             layoutConfig.addLayout(root),

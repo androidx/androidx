@@ -54,7 +54,6 @@ import java.util.concurrent.atomic.AtomicInteger
 internal fun translateComposition(
     context: Context,
     appWidgetId: Int,
-    appWidgetClass: Class<out GlanceAppWidget>,
     element: RemoteViewsRoot,
     layoutConfiguration: LayoutConfiguration,
     rootViewIndex: Int,
@@ -64,7 +63,6 @@ internal fun translateComposition(
         TranslationContext(
             context,
             appWidgetId,
-            appWidgetClass,
             context.isRtl,
             layoutConfiguration,
             itemPosition = -1,
@@ -100,7 +98,6 @@ internal fun translateComposition(
 internal data class TranslationContext(
     val context: Context,
     val appWidgetId: Int,
-    val appWidgetClass: Class<out GlanceAppWidget>,
     val isRtl: Boolean,
     val layoutConfiguration: LayoutConfiguration,
     val itemPosition: Int,
