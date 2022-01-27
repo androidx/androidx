@@ -17,6 +17,7 @@
 package androidx.viewpager2.widget
 
 import android.widget.TextView
+import androidx.test.filters.FlakyTest
 import androidx.test.filters.LargeTest
 import androidx.testutils.PollingCheck
 import androidx.viewpager2.adapter.StatefulAdapter
@@ -45,6 +46,7 @@ private const val RANDOM_TESTS_PER_CONFIG = 0 // increase to have random tests g
 @LargeTest
 class MutableCollectionsTest(private val testConfig: TestConfig) : BaseTest() {
 
+    @FlakyTest(bugId = 210157798)
     @Test
     fun test() {
         testConfig.apply {
