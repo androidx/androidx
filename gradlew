@@ -404,7 +404,7 @@ if [[ " ${@} " =~ " -Pandroidx.verifyUpToDate " ]]; then
   # Re-run Gradle, and find all tasks that are unexpectly out of date
   if ! runGradle "$@" -PdisallowExecution --continue; then
     echo >&2
-    echo "TaskUpToDateValidator's second build failed, -PdisallowExecution specified" >&2
+    echo "TaskUpToDateValidator's second build failed. To reproduce, try running './gradlew -Pandroidx.verifyUpToDate <failing tasks>'" >&2
     exit 1
   fi
 fi
