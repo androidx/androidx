@@ -181,12 +181,7 @@ public class WorkerWrapper implements Runnable {
 
             if (mWorkSpec.isPeriodic() || mWorkSpec.isBackedOff()) {
                 long now = System.currentTimeMillis();
-                // Allow first run of a PeriodicWorkRequest
-                // to go through. This is because when periodStartTime=0;
-                // calculateNextRunTime() always > now.
-                // For more information refer to b/124274584
-                boolean isFirstRun = mWorkSpec.periodStartTime == 0;
-                if (!isFirstRun && now < mWorkSpec.calculateNextRunTime()) {
+                if (now < mWorkSpec.calculateNextRunTime()) {
                     Logger.get().debug(TAG,
                             String.format(
                                     "Delaying execution for %s because it is being executed "
@@ -457,6 +452,8 @@ public class WorkerWrapper implements Runnable {
             if (needsReschedule) {
                 // Set state to ENQUEUED again.
                 // Reset scheduled state so its picked up by background schedulers again.
+                // We want to preserve time when work was enqueued so just explicitly set enqueued
+                // instead using markEnqueuedState
                 mWorkSpecDao.setState(ENQUEUED, mWorkSpecId);
                 mWorkSpecDao.markWorkSpecScheduled(mWorkSpecId, SCHEDULE_NOT_REQUESTED_YET);
             }
@@ -552,7 +549,7 @@ public class WorkerWrapper implements Runnable {
         mWorkDatabase.beginTransaction();
         try {
             mWorkSpecDao.setState(ENQUEUED, mWorkSpecId);
-            mWorkSpecDao.setPeriodStartTime(mWorkSpecId, System.currentTimeMillis());
+            mWorkSpecDao.setLastEnqueuedTime(mWorkSpecId, System.currentTimeMillis());
             mWorkSpecDao.markWorkSpecScheduled(mWorkSpecId, SCHEDULE_NOT_REQUESTED_YET);
             mWorkDatabase.setTransactionSuccessful();
         } finally {
@@ -568,9 +565,10 @@ public class WorkerWrapper implements Runnable {
             // Therefore we always use the current time to determine the next run time of a Worker.
             // This way, the Schedulers will correctly schedule the next instance of the
             // PeriodicWork in the future. This happens in calculateNextRunTime() in WorkSpec.
-            mWorkSpecDao.setPeriodStartTime(mWorkSpecId, System.currentTimeMillis());
+            mWorkSpecDao.setLastEnqueuedTime(mWorkSpecId, System.currentTimeMillis());
             mWorkSpecDao.setState(ENQUEUED, mWorkSpecId);
             mWorkSpecDao.resetWorkSpecRunAttemptCount(mWorkSpecId);
+            mWorkSpecDao.incrementPeriodCount(mWorkSpecId);
             mWorkSpecDao.markWorkSpecScheduled(mWorkSpecId, SCHEDULE_NOT_REQUESTED_YET);
             mWorkDatabase.setTransactionSuccessful();
         } finally {
@@ -597,7 +595,7 @@ public class WorkerWrapper implements Runnable {
                     Logger.get().info(TAG,
                             "Setting status to enqueued for " + dependentWorkId);
                     mWorkSpecDao.setState(ENQUEUED, dependentWorkId);
-                    mWorkSpecDao.setPeriodStartTime(dependentWorkId, currentTimeMillis);
+                    mWorkSpecDao.setLastEnqueuedTime(dependentWorkId, currentTimeMillis);
                 }
             }
 

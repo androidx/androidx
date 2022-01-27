@@ -83,11 +83,17 @@ interface WorkSpecDao {
      * Updates the state of at least one [WorkSpec] by ID.
      *
      * @param state The new state
-     * @param ids The IDs for the [WorkSpec]s to update
+     * @param id The IDs for the [WorkSpec]s to update
      * @return The number of rows that were updated
      */
-    @Query("UPDATE workspec SET state=:state WHERE id IN (:ids)")
-    fun setState(state: WorkInfo.State, vararg ids: String): Int
+    @Query("UPDATE workspec SET state=:state WHERE id=:id")
+    fun setState(state: WorkInfo.State, id: String): Int
+
+    /**
+     * Increment periodic counter.
+     */
+    @Query("UPDATE workspec SET period_count=period_count+1 WHERE id=:id")
+    fun incrementPeriodCount(id: String)
 
     /**
      * Updates the output of a [WorkSpec].
@@ -102,10 +108,10 @@ interface WorkSpecDao {
      * Updates the period start time of a [WorkSpec].
      *
      * @param id The [WorkSpec] identifier to update
-     * @param periodStartTime The time when the period started.
+     * @param enqueueTime The time when the period started.
      */
-    @Query("UPDATE workspec SET period_start_time=:periodStartTime WHERE id=:id")
-    fun setPeriodStartTime(id: String, periodStartTime: Long)
+    @Query("UPDATE workspec SET last_enqueue_time=:enqueueTime WHERE id=:id")
+    fun setLastEnqueuedTime(id: String, enqueueTime: Long)
 
     /**
      * Increment run attempt count of a [WorkSpec].
@@ -306,7 +312,7 @@ interface WorkSpecDao {
             // We only want WorkSpecs which have not been previously scheduled.
             " AND schedule_requested_at=" + WorkSpec.SCHEDULE_NOT_REQUESTED_YET +
             // Order by period start time so we execute scheduled WorkSpecs in FIFO order
-            " ORDER BY period_start_time" +
+            " ORDER BY last_enqueue_time" +
             " LIMIT " +
             "(SELECT MAX(:schedulerLimit" + "-COUNT(*), 0) FROM workspec WHERE" +
             " schedule_requested_at<>" + WorkSpec.SCHEDULE_NOT_REQUESTED_YET +
@@ -323,7 +329,7 @@ interface WorkSpecDao {
         "SELECT * FROM workspec WHERE " +
             "state=$ENQUEUED" +
             // Order by period start time so we execute scheduled WorkSpecs in FIFO order
-            " ORDER BY period_start_time" +
+            " ORDER BY last_enqueue_time" +
             " LIMIT :maxLimit"
     )
     fun getAllEligibleWorkSpecsForScheduling(maxLimit: Int): List<WorkSpec> // Unfinished work
@@ -352,9 +358,9 @@ interface WorkSpecDao {
      */
     @Query(
         "SELECT * FROM workspec WHERE " +
-            "period_start_time >= :startingAt" +
+            "last_enqueue_time >= :startingAt" +
             " AND state IN " + COMPLETED_STATES +
-            " ORDER BY period_start_time DESC"
+            " ORDER BY last_enqueue_time DESC"
     )
     fun getRecentlyCompletedWork(startingAt: Long): List<WorkSpec>
 
