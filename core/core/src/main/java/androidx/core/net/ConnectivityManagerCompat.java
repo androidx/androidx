@@ -28,15 +28,18 @@ import static android.net.ConnectivityManager.TYPE_WIMAX;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Build;
 
+import androidx.annotation.DoNotInline;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RequiresPermission;
 import androidx.annotation.RestrictTo;
 
@@ -46,6 +49,7 @@ import java.lang.annotation.RetentionPolicy;
 /**
  * Helper for accessing features in {@link ConnectivityManager}.
  */
+@SuppressWarnings("unused")
 public final class ConnectivityManagerCompat {
     /** @hide */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
@@ -95,10 +99,10 @@ public final class ConnectivityManagerCompat {
      *        {@code false}.
      */
     @SuppressWarnings("deprecation")
-    @RequiresPermission(android.Manifest.permission.ACCESS_NETWORK_STATE)
+    @RequiresPermission(Manifest.permission.ACCESS_NETWORK_STATE)
     public static boolean isActiveNetworkMetered(@NonNull ConnectivityManager cm) {
         if (Build.VERSION.SDK_INT >= 16) {
-            return cm.isActiveNetworkMetered();
+            return Api16Impl.isActiveNetworkMetered(cm);
         } else {
             final NetworkInfo info = cm.getActiveNetworkInfo();
             if (info == null) {
@@ -135,7 +139,7 @@ public final class ConnectivityManagerCompat {
      */
     @SuppressLint("ReferencesDeprecated")
     @Nullable
-    @RequiresPermission(android.Manifest.permission.ACCESS_NETWORK_STATE)
+    @RequiresPermission(Manifest.permission.ACCESS_NETWORK_STATE)
     public static NetworkInfo getNetworkInfoFromBroadcast(@NonNull ConnectivityManager cm,
             @NonNull Intent intent) {
         final NetworkInfo info = intent.getParcelableExtra(ConnectivityManager.EXTRA_NETWORK_INFO);
@@ -157,11 +161,36 @@ public final class ConnectivityManagerCompat {
     @RestrictBackgroundStatus
     public static int getRestrictBackgroundStatus(@NonNull ConnectivityManager cm) {
         if (Build.VERSION.SDK_INT >= 24) {
-            return cm.getRestrictBackgroundStatus();
+            return Api24Impl.getRestrictBackgroundStatus(cm);
         } else {
             return RESTRICT_BACKGROUND_STATUS_ENABLED;
         }
     }
 
     private ConnectivityManagerCompat() {}
+
+    @RequiresApi(16)
+    static class Api16Impl {
+        private Api16Impl() {
+            // This class is not instantiable.
+        }
+
+        @RequiresPermission(Manifest.permission.ACCESS_NETWORK_STATE)
+        @DoNotInline
+        static boolean isActiveNetworkMetered(ConnectivityManager connectivityManager) {
+            return connectivityManager.isActiveNetworkMetered();
+        }
+    }
+
+    @RequiresApi(24)
+    static class Api24Impl {
+        private Api24Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static int getRestrictBackgroundStatus(ConnectivityManager connectivityManager) {
+            return connectivityManager.getRestrictBackgroundStatus();
+        }
+    }
 }
