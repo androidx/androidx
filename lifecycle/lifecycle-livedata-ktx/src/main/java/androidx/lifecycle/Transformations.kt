@@ -16,6 +16,8 @@
 
 package androidx.lifecycle
 
+import androidx.annotation.CheckResult
+
 /**
  * Returns a [LiveData] mapped from `this` LiveData by applying [transform] to each value set on
  * `this` LiveData.
@@ -32,6 +34,7 @@ package androidx.lifecycle
  * val userFullNameLD: LiveData<String> = userLD.map { user -> user.firstName + user.lastName }
  * ```
  */
+@CheckResult
 public inline fun <X, Y> LiveData<X>.map(crossinline transform: (X) -> Y): LiveData<Y> =
     Transformations.map(this) { transform(it) }
 
@@ -74,6 +77,7 @@ public inline fun <X, Y> LiveData<X>.map(crossinline transform: (X) -> Y): LiveD
  * }
  * ```
  */
+@CheckResult
 public inline fun <X, Y> LiveData<X>.switchMap(
     crossinline transform: (X) -> LiveData<Y>
 ): LiveData<Y> = Transformations.switchMap(this) { transform(it) }
@@ -82,6 +86,7 @@ public inline fun <X, Y> LiveData<X>.switchMap(
  * Creates a new [LiveData] object does not emit a value until the source `this` LiveData value
  * has been changed.  The value is considered changed if `equals()` yields `false`.
  */
+@CheckResult
 @Suppress("NOTHING_TO_INLINE")
 public inline fun <X> LiveData<X>.distinctUntilChanged(): LiveData<X> =
     Transformations.distinctUntilChanged(this)
