@@ -13,229 +13,184 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package androidx.lifecycle
 
-package androidx.lifecycle;
+import androidx.lifecycle.viewmodel.CreationExtras
+import androidx.lifecycle.viewmodel.MutableCreationExtras
+import com.google.common.truth.Truth.assertThat
+import org.junit.Assert.fail
+import org.junit.Before
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.junit.runners.JUnit4
 
-import static androidx.lifecycle.ViewModelProvider.NewInstanceFactory.VIEW_MODEL_KEY;
-import static androidx.lifecycle.ViewModelProviderTest.ViewModelStoreOwnerWithCreationExtras.TEST_KEY;
-import static androidx.lifecycle.ViewModelProviderTest.ViewModelStoreOwnerWithCreationExtras.TEST_VALUE;
-
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.hamcrest.MatcherAssert.assertThat;
-
-import androidx.annotation.NonNull;
-import androidx.lifecycle.ViewModelProvider.NewInstanceFactory;
-import androidx.lifecycle.viewmodel.CreationExtras;
-import androidx.lifecycle.viewmodel.CreationExtras.Key;
-import androidx.lifecycle.viewmodel.MutableCreationExtras;
-
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
-
-@RunWith(JUnit4.class)
-public class ViewModelProviderTest {
-
-    private ViewModelProvider mViewModelProvider;
-
+@RunWith(JUnit4::class)
+class ViewModelProviderTest {
+    private lateinit var viewModelProvider: ViewModelProvider
     @Before
-    public void setup() {
-        mViewModelProvider = new ViewModelProvider(new ViewModelStore(), new NewInstanceFactory());
+    fun setup() {
+        viewModelProvider =
+            ViewModelProvider(ViewModelStore(), ViewModelProvider.NewInstanceFactory())
     }
 
     @Test
-    public void twoViewModelsWithSameKey() {
-        String key = "the_key";
-        ViewModel1 vm1 = mViewModelProvider.get(key, ViewModel1.class);
-        assertThat(vm1.mCleared, is(false));
-        ViewModel2 vw2 = mViewModelProvider.get(key, ViewModel2.class);
-        assertThat(vw2, notNullValue());
-        assertThat(vm1.mCleared, is(true));
+    fun twoViewModelsWithSameKey() {
+        val key = "the_key"
+        val vm1 = viewModelProvider[key, ViewModel1::class.java]
+        assertThat(vm1.cleared).isFalse()
+        val vw2 = viewModelProvider[key, ViewModel2::class.java]
+        assertThat(vw2).isNotNull()
+        assertThat(vm1.cleared).isTrue()
     }
 
-
     @Test
-    public void localViewModel() {
-        class VM extends ViewModel1 {
-        }
+    fun localViewModel() {
+        class VM : ViewModel1()
         try {
-            mViewModelProvider.get(VM.class);
-            Assert.fail();
-        } catch (IllegalArgumentException ignored) {
-        }
+            viewModelProvider[VM::class.java]
+            fail("Local viewModel should be created from the ViewModelProvider")
+        } catch (ignored: IllegalArgumentException) { }
     }
 
     @Test
-    public void twoViewModels() {
-        ViewModel1 model1 = mViewModelProvider.get(ViewModel1.class);
-        ViewModel2 model2 = mViewModelProvider.get(ViewModel2.class);
-        assertThat(mViewModelProvider.get(ViewModel1.class), is(model1));
-        assertThat(mViewModelProvider.get(ViewModel2.class), is(model2));
+    fun twoViewModels() {
+        val model1 = viewModelProvider[ViewModel1::class.java]
+        val model2 = viewModelProvider[ViewModel2::class.java]
+        assertThat(viewModelProvider[ViewModel1::class.java]).isSameInstanceAs(model1)
+        assertThat(viewModelProvider[ViewModel2::class.java]).isSameInstanceAs(model2)
     }
 
     @Test
-    public void testOwnedBy() {
-        final ViewModelStore store = new ViewModelStore();
-        ViewModelStoreOwner owner = () -> store;
-        ViewModelProvider provider = new ViewModelProvider(owner, new NewInstanceFactory());
-        ViewModel1 viewModel = provider.get(ViewModel1.class);
-        assertThat(viewModel, is(provider.get(ViewModel1.class)));
+    fun testOwnedBy() {
+        val store = ViewModelStore()
+        val owner = ViewModelStoreOwner { store }
+        val provider = ViewModelProvider(owner, ViewModelProvider.NewInstanceFactory())
+        val viewModel = provider[ViewModel1::class.java]
+        assertThat(viewModel).isSameInstanceAs(provider[ViewModel1::class.java])
     }
 
     @Test
-    public void testCustomDefaultFactory() {
-        final ViewModelStore store = new ViewModelStore();
-        final CountingFactory factory = new CountingFactory();
-        ViewModelStoreOwnerWithFactory owner = new ViewModelStoreOwnerWithFactory(store, factory);
-        ViewModelProvider provider = new ViewModelProvider(owner);
-        ViewModel1 viewModel = provider.get(ViewModel1.class);
-        assertThat(viewModel, is(provider.get(ViewModel1.class)));
-        assertThat(factory.mCalled, is(1));
+    fun testCustomDefaultFactory() {
+        val store = ViewModelStore()
+        val factory = CountingFactory()
+        val owner = ViewModelStoreOwnerWithFactory(store, factory)
+        val provider = ViewModelProvider(owner)
+        val viewModel = provider[ViewModel1::class.java]
+        assertThat(viewModel).isSameInstanceAs(provider[ViewModel1::class.java])
+        assertThat(factory.called).isEqualTo(1)
     }
 
     @Test
-    public void testKeyedFactory() {
-        final ViewModelStore store = new ViewModelStore();
-        ViewModelStoreOwner owner = () -> store;
-        ViewModelProvider.Factory explicitlyKeyed = new ViewModelProvider.Factory() {
-            @SuppressWarnings("unchecked")
-            @NonNull
-            @Override
-            public <T extends ViewModel> T create(@NonNull Class<T> modelClass,
-                    @NonNull CreationExtras extras) {
-                String key = extras.get(VIEW_MODEL_KEY);
-                assertThat(key, is("customkey"));
-                return (T) new ViewModel1();
+    fun testKeyedFactory() {
+        val store = ViewModelStore()
+        val owner = ViewModelStoreOwner { store }
+        val explicitlyKeyed: ViewModelProvider.Factory = object : ViewModelProvider.Factory {
+            override fun <T : ViewModel> create(
+                modelClass: Class<T>,
+                extras: CreationExtras
+            ): T {
+                val key = extras[ViewModelProvider.NewInstanceFactory.VIEW_MODEL_KEY]
+                assertThat(key).isEqualTo("customKey")
+                @Suppress("UNCHECKED_CAST")
+                return ViewModel1() as T
             }
-        };
-
-        ViewModelProvider provider = new ViewModelProvider(owner, explicitlyKeyed);
-        provider.get("customkey", ViewModel1.class);
-
-        ViewModelProvider.Factory implicitlyKeyed = new ViewModelProvider.Factory() {
-            @SuppressWarnings("unchecked")
-            @NonNull
-            @Override
-            public <T extends ViewModel> T create(@NonNull Class<T> modelClass,
-                    @NonNull CreationExtras extras) {
-                String key = extras.get(VIEW_MODEL_KEY);
-                assertThat(key, is(notNullValue()));
-                return (T) new ViewModel1();
+        }
+        val provider = ViewModelProvider(owner, explicitlyKeyed)
+        provider["customKey", ViewModel1::class.java]
+        val implicitlyKeyed: ViewModelProvider.Factory = object : ViewModelProvider.Factory {
+            override fun <T : ViewModel> create(
+                modelClass: Class<T>,
+                extras: CreationExtras
+            ): T {
+                val key = extras[ViewModelProvider.NewInstanceFactory.VIEW_MODEL_KEY]
+                assertThat(key).isNotNull()
+                @Suppress("UNCHECKED_CAST")
+                return ViewModel1() as T
             }
-        };
-        new ViewModelProvider(owner, implicitlyKeyed).get("customkey", ViewModel1.class);
+        }
+        ViewModelProvider(owner, implicitlyKeyed)["customKey", ViewModel1::class.java]
     }
 
     @Test
-    public void testDefaultCreationExtras() {
-        ViewModelStoreOwnerWithCreationExtras owner = new ViewModelStoreOwnerWithCreationExtras();
-        boolean[] wasCalled = new boolean[1];
-        ViewModelProvider.Factory testFactory = new ViewModelProvider.Factory() {
-            @SuppressWarnings("unchecked")
-            @NonNull
-            @Override
-            public <T extends ViewModel> T create(@NonNull Class<T> modelClass,
-                    @NonNull CreationExtras extras) {
-                Key<String> mutableKey = new Key<String>() { };
-                String mutableValue = "value";
-                MutableCreationExtras mutableExtras = new MutableCreationExtras(extras);
-                mutableExtras.set(mutableKey, mutableValue);
-                String key = mutableExtras.get(VIEW_MODEL_KEY);
-                assertThat(key, is("customkey"));
-                assertThat(mutableExtras.get(TEST_KEY), is(TEST_VALUE));
-                assertThat(mutableExtras.get(mutableKey), is(mutableValue));
-                wasCalled[0] = true;
-                return (T) new ViewModel1();
+    fun testDefaultCreationExtras() {
+        val owner = ViewModelStoreOwnerWithCreationExtras()
+        val wasCalled = BooleanArray(1)
+        val testFactory: ViewModelProvider.Factory = object : ViewModelProvider.Factory {
+            override fun <T : ViewModel> create(
+                modelClass: Class<T>,
+                extras: CreationExtras
+            ): T {
+                val mutableKey = object : CreationExtras.Key<String> {}
+                val mutableValue = "value"
+                val mutableExtras = MutableCreationExtras(extras)
+                mutableExtras[mutableKey] = mutableValue
+                val key = mutableExtras[ViewModelProvider.NewInstanceFactory.VIEW_MODEL_KEY]
+                assertThat(key).isEqualTo("customKey")
+                assertThat(mutableExtras[TEST_KEY]).isEqualTo(TEST_VALUE)
+                assertThat(mutableExtras[mutableKey]).isEqualTo(mutableValue)
+                wasCalled[0] = true
+                @Suppress("UNCHECKED_CAST")
+                return ViewModel1() as T
             }
-        };
-        new ViewModelProvider(owner, testFactory).get("customkey", ViewModel1.class);
-        assertThat(wasCalled[0], is(true));
-        wasCalled[0] = false;
-        new ViewModelProvider(new ViewModelStoreOwnerWithCreationExtras() {
-            @NonNull
-            @Override
-            public ViewModelProvider.Factory getDefaultViewModelProviderFactory() {
-                return testFactory;
+        }
+        ViewModelProvider(owner, testFactory)["customKey", ViewModel1::class.java]
+        assertThat(wasCalled[0]).isTrue()
+        wasCalled[0] = false
+        ViewModelProvider(object : ViewModelStoreOwnerWithCreationExtras() {
+            override fun getDefaultViewModelProviderFactory(): ViewModelProvider.Factory {
+                return testFactory
             }
-        }).get("customkey", ViewModel1.class);
-        assertThat(wasCalled[0], is(true));
+        })["customKey", ViewModel1::class.java]
+        assertThat(wasCalled[0]).isTrue()
     }
 
-    public static class ViewModelStoreOwnerWithFactory implements
-            ViewModelStoreOwner, HasDefaultViewModelProviderFactory {
-        private final ViewModelStore mStore;
-        private final ViewModelProvider.Factory mFactory;
-
-        ViewModelStoreOwnerWithFactory(@NonNull ViewModelStore store,
-                @NonNull ViewModelProvider.Factory factory) {
-            mStore = store;
-            mFactory = factory;
+    class ViewModelStoreOwnerWithFactory internal constructor(
+        private val mStore: ViewModelStore,
+        private val mFactory: ViewModelProvider.Factory
+    ) : ViewModelStoreOwner, HasDefaultViewModelProviderFactory {
+        override fun getViewModelStore(): ViewModelStore {
+            return mStore
         }
 
-        @NonNull
-        @Override
-        public ViewModelStore getViewModelStore() {
-            return mStore;
-        }
-
-        @NonNull
-        @Override
-        public ViewModelProvider.Factory getDefaultViewModelProviderFactory() {
-            return mFactory;
+        override fun getDefaultViewModelProviderFactory(): ViewModelProvider.Factory {
+            return mFactory
         }
     }
 
-    public static class ViewModel1 extends ViewModel {
-        boolean mCleared;
-
-        @Override
-        protected void onCleared() {
-            mCleared = true;
+    open class ViewModel1 : ViewModel() {
+        var cleared = false
+        override fun onCleared() {
+            cleared = true
         }
     }
 
-    public static class ViewModel2 extends ViewModel {
-    }
-
-    public static class CountingFactory extends NewInstanceFactory {
-        int mCalled = 0;
-
-        @Override
-        @NonNull
-        public <T extends ViewModel> T create(@NonNull Class<T> modelClass) {
-            mCalled++;
-            return super.create(modelClass);
+    class ViewModel2 : ViewModel()
+    class CountingFactory : ViewModelProvider.NewInstanceFactory() {
+        var called = 0
+        override fun <T : ViewModel> create(modelClass: Class<T>): T {
+            called++
+            return super.create(modelClass)
         }
     }
 
-    static class ViewModelStoreOwnerWithCreationExtras implements
-            ViewModelStoreOwner, HasDefaultViewModelProviderFactory {
-        private final ViewModelStore mViewModelStore = new ViewModelStore();
-        static final Key<String> TEST_KEY = new Key<String>() {
-        };
-        static final String TEST_VALUE = "test_value";
-
-        @NonNull
-        @Override
-        public ViewModelProvider.Factory getDefaultViewModelProviderFactory() {
-            throw new UnsupportedOperationException();
+    internal open class ViewModelStoreOwnerWithCreationExtras : ViewModelStoreOwner,
+        HasDefaultViewModelProviderFactory {
+        private val viewModelStore = ViewModelStore()
+        override fun getDefaultViewModelProviderFactory(): ViewModelProvider.Factory {
+            throw UnsupportedOperationException()
         }
 
-        @NonNull
-        @Override
-        public CreationExtras getDefaultViewModelCreationExtras() {
-            MutableCreationExtras extras = new MutableCreationExtras();
-            extras.set(TEST_KEY, TEST_VALUE);
-            return extras;
+        override fun getDefaultViewModelCreationExtras(): CreationExtras {
+            val extras = MutableCreationExtras()
+            extras[TEST_KEY] = TEST_VALUE
+            return extras
         }
 
-        @NonNull
-        @Override
-        public ViewModelStore getViewModelStore() {
-            return mViewModelStore;
+        override fun getViewModelStore(): ViewModelStore {
+            return viewModelStore
         }
     }
 }
+
+private val TEST_KEY = object : CreationExtras.Key<String> {}
+private const val TEST_VALUE = "test_value"
