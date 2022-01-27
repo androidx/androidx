@@ -22,6 +22,10 @@ import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+import androidx.appsearch.localstorage.util.PrefixUtil;
+import androidx.appsearch.localstorage.visibilitystore.VisibilityChecker;
+import androidx.appsearch.localstorage.visibilitystore.VisibilityStore;
+import androidx.appsearch.localstorage.visibilitystore.VisibilityUtil;
 import androidx.appsearch.observer.AppSearchObserverCallback;
 import androidx.appsearch.observer.DocumentChangeInfo;
 import androidx.appsearch.observer.ObserverSpec;
@@ -84,6 +88,10 @@ public class ObserverManager {
     }
 
     private static final class ObserverInfo {
+        /** The package which registered the observer. */
+        final String mListeningPackageName;
+        final int mListeningUid;
+        final boolean mListeningPackageHasSystemAccess;
         final ObserverSpec mObserverSpec;
         final Executor mExecutor;
         final AppSearchObserverCallback mObserver;
@@ -91,9 +99,15 @@ public class ObserverManager {
         volatile Map<DocumentChangeGroupKey, Set<String>> mDocumentChanges = new ArrayMap<>();
 
         ObserverInfo(
+                @NonNull String listeningPackageName,
+                int listeningUid,
+                boolean listeningPackageHasSystemAccess,
                 @NonNull ObserverSpec observerSpec,
                 @NonNull Executor executor,
                 @NonNull AppSearchObserverCallback observer) {
+            mListeningPackageName = Preconditions.checkNotNull(listeningPackageName);
+            mListeningUid = listeningUid;
+            mListeningPackageHasSystemAccess = listeningPackageHasSystemAccess;
             mObserverSpec = Preconditions.checkNotNull(observerSpec);
             mExecutor = Preconditions.checkNotNull(executor);
             mObserver = Preconditions.checkNotNull(observer);
@@ -110,42 +124,69 @@ public class ObserverManager {
 
     /**
      * Adds an {@link AppSearchObserverCallback} to monitor changes within the
-     * databases owned by {@code observedPackage} if they match the given
+     * databases owned by {@code targetPackageName} if they match the given
      * {@link androidx.appsearch.observer.ObserverSpec}.
      *
-     * <p>If the data owned by {@code observedPackage} is not visible to you, the registration call
-     * will succeed but no notifications will be dispatched. Notifications could start flowing later
-     * if {@code observedPackage} changes its schema visibility settings.
+     * <p>If the data owned by {@code targetPackageName} is not visible to you, the registration
+     * call will succeed but no notifications will be dispatched. Notifications could start flowing
+     * later if {@code targetPackageName} changes its schema visibility settings.
      *
-     * <p>If no package matching {@code observedPackage} exists on the system, the registration call
-     * will succeed but no notifications will be dispatched. Notifications could start flowing later
-     * if {@code observedPackage} is installed and starts indexing data.
+     * <p>If no package matching {@code targetPackageName} exists on the system, the registration
+     * call will succeed but no notifications will be dispatched. Notifications could start flowing
+     * later if {@code targetPackageName} is installed and starts indexing data.
+     *
+     * <p>Note that this method does not take the standard read/write lock that guards I/O, so it
+     * will not queue behind I/O. Therefore it is safe to call from any thread including UI or
+     * binder threads.
+     *
+     * @param listeningPackageName            The package name of the app that wants to receive
+     *                                        notifications.
+     * @param listeningUid                    The uid of the app that wants to receive
+     *                                        notifications.
+     * @param listeningPackageHasSystemAccess Whether the app that wants to receive notifications
+     *                                        has access to schema types marked 'visible to system'.
+     * @param targetPackageName               The package that owns the data the observer wants
+     *                                        to be notified for.
+     * @param spec                            Describes the kind of data changes the observer
+     *                                        should trigger for.
+     * @param executor                        The executor on which to trigger the observer callback
+     *                                        to deliver notifications.
+     * @param observer                        The callback to trigger on notifications.
      */
     public void addObserver(
-            @NonNull String observedPackage,
+            @NonNull String listeningPackageName,
+            int listeningUid,
+            boolean listeningPackageHasSystemAccess,
+            @NonNull String targetPackageName,
             @NonNull ObserverSpec spec,
             @NonNull Executor executor,
             @NonNull AppSearchObserverCallback observer) {
         synchronized (mLock) {
-            List<ObserverInfo> infos = mObserversLocked.get(observedPackage);
+            List<ObserverInfo> infos = mObserversLocked.get(targetPackageName);
             if (infos == null) {
                 infos = new ArrayList<>();
-                mObserversLocked.put(observedPackage, infos);
+                mObserversLocked.put(targetPackageName, infos);
             }
-            infos.add(new ObserverInfo(spec, executor, observer));
+            infos.add(new ObserverInfo(
+                    listeningPackageName,
+                    listeningUid,
+                    listeningPackageHasSystemAccess,
+                    spec,
+                    executor,
+                    observer));
         }
     }
 
     /**
      * Removes all observers that match via {@link AppSearchObserverCallback#equals} to the given
-     * observer from watching the observedPackage.
+     * observer from watching the targetPackageName.
      *
      * <p>Pending notifications queued for this observer, if any, are discarded.
      */
     public void removeObserver(
-            @NonNull String observedPackage, @NonNull AppSearchObserverCallback observer) {
+            @NonNull String targetPackageName, @NonNull AppSearchObserverCallback observer) {
         synchronized (mLock) {
-            List<ObserverInfo> infos = mObserversLocked.get(observedPackage);
+            List<ObserverInfo> infos = mObserversLocked.get(targetPackageName);
             if (infos == null) {
                 return;
             }
@@ -163,13 +204,20 @@ public class ObserverManager {
      *
      * <p>The notification will be queued in memory for later dispatch. You must call
      * {@link #dispatchAndClearPendingNotifications} to dispatch all such pending notifications.
+     *
+     * @param visibilityStore   Store for visibility information. If not provided, only access to
+     *                          own data will be allowed.
+     * @param visibilityChecker Checker for visibility access. If not provided, only access to own
+     *                          data will be allowed.
      */
     public void onDocumentChange(
             @NonNull String packageName,
             @NonNull String databaseName,
             @NonNull String namespace,
             @NonNull String schemaType,
-            @NonNull String documentId) {
+            @NonNull String documentId,
+            @Nullable VisibilityStore visibilityStore,
+            @Nullable VisibilityChecker visibilityChecker) {
         synchronized (mLock) {
             List<ObserverInfo> allObserverInfosForPackage = mObserversLocked.get(packageName);
             if (allObserverInfosForPackage == null || allObserverInfosForPackage.isEmpty()) {
@@ -179,18 +227,32 @@ public class ObserverManager {
             DocumentChangeGroupKey key = null;
             for (int i = 0; i < allObserverInfosForPackage.size(); i++) {
                 ObserverInfo observerInfo = allObserverInfosForPackage.get(i);
-                if (matchesSpec(schemaType, observerInfo.mObserverSpec)) {
-                    if (key == null) {
-                        key = new DocumentChangeGroupKey(
-                                packageName, databaseName, namespace, schemaType);
-                    }
-                    Set<String> changedDocumentIds = observerInfo.mDocumentChanges.get(key);
-                    if (changedDocumentIds == null) {
-                        changedDocumentIds = new ArraySet<>();
-                        observerInfo.mDocumentChanges.put(key, changedDocumentIds);
-                    }
-                    changedDocumentIds.add(documentId);
+                if (!matchesSpec(schemaType, observerInfo.mObserverSpec)) {
+                    continue;  // Observer doesn't want this notification
                 }
+                String prefixedSchema =
+                        PrefixUtil.createPrefix(packageName, databaseName)
+                                + schemaType;
+                if (!VisibilityUtil.isSchemaSearchableByCaller(
+                        /*callerPackageName=*/observerInfo.mListeningPackageName,
+                        observerInfo.mListeningUid,
+                        observerInfo.mListeningPackageHasSystemAccess,
+                        /*targetPackageName=*/packageName,
+                        /*prefixedSchema=*/prefixedSchema,
+                        visibilityStore,
+                        visibilityChecker)) {
+                    continue;  // Observer can't have this notification.
+                }
+                if (key == null) {
+                    key = new DocumentChangeGroupKey(
+                            packageName, databaseName, namespace, schemaType);
+                }
+                Set<String> changedDocumentIds = observerInfo.mDocumentChanges.get(key);
+                if (changedDocumentIds == null) {
+                    changedDocumentIds = new ArraySet<>();
+                    observerInfo.mDocumentChanges.put(key, changedDocumentIds);
+                }
+                changedDocumentIds.add(documentId);
             }
             mHasNotifications = true;
         }
@@ -287,12 +349,6 @@ public class ObserverManager {
     private static boolean matchesSpec(
             @NonNull String schemaType, @NonNull ObserverSpec observerSpec) {
         Set<String> schemaFilters = observerSpec.getFilterSchemas();
-        if (!schemaFilters.isEmpty() && !schemaFilters.contains(schemaType)) {
-            return false;
-        }
-        // TODO(b/193494000): We also need to check VisibilityStore to see if the observer is
-        //  allowed to access this type before granting access. Note if fixing this TODO makes the
-        //  method non-static we need to handle locking.
-        return true;
+        return schemaFilters.isEmpty() || schemaFilters.contains(schemaType);
     }
 }

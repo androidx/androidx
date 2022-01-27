@@ -2751,12 +2751,18 @@ public class AppSearchImplTest {
         // Register an observer twice, on different packages.
         TestObserverCallback observer = new TestObserverCallback();
         mAppSearchImpl.addObserver(
-                /*observedPackage=*/mContext.getPackageName(),
+                /*listeningPackageName=*/mContext.getPackageName(),
+                /*listeningUid=*/Process.myUid(),
+                /*listeningPackageHasSystemAccess=*/false,
+                /*targetPackageName=*/mContext.getPackageName(),
                 new ObserverSpec.Builder().build(),
                 MoreExecutors.directExecutor(),
                 observer);
         mAppSearchImpl.addObserver(
-                /*observedPackage=*/fakePackage,
+                /*listeningPackageName=*/mContext.getPackageName(),
+                /*listeningUid=*/Process.myUid(),
+                /*listeningPackageHasSystemAccess=*/false,
+                /*targetPackageName=*/fakePackage,
                 new ObserverSpec.Builder().build(),
                 MoreExecutors.directExecutor(),
                 observer);
@@ -3340,5 +3346,260 @@ public class AppSearchImplTest {
         assertThat(getResponse.getSchemas()).containsExactly(schemas.get(0));
         assertThat(getResponse.getSchemaTypesNotDisplayedBySystem()).containsExactly("VisibleType");
         assertThat(getResponse.getVersion()).isEqualTo(1);
+    }
+
+    @Test
+    public void testDispatchObserver_samePackage_noVisStore_accept() throws Exception {
+        mAppSearchImpl.setSchema(
+                mContext.getPackageName(),
+                "database1",
+                ImmutableList.of(new AppSearchSchema.Builder("Type1").build()),
+                /*visibilityDocuments=*/ Collections.emptyList(),
+                /*forceOverride=*/ false,
+                /*version=*/ 0,
+                /*setSchemaStatsBuilder=*/ null);
+
+        // Register an observer
+        TestObserverCallback observer = new TestObserverCallback();
+        mAppSearchImpl.addObserver(
+                /*listeningPackageName=*/mContext.getPackageName(),
+                Process.myUid(),
+                /*listeningPackageHasSystemAccess=*/false,
+                /*targetPackageName=*/mContext.getPackageName(),
+                new ObserverSpec.Builder().build(),
+                MoreExecutors.directExecutor(),
+                observer);
+
+        // Insert a valid doc
+        assertThat(observer.getSchemaChanges()).isEmpty();
+        assertThat(observer.getDocumentChanges()).isEmpty();
+        mAppSearchImpl.putDocument(
+                mContext.getPackageName(),
+                "database1",
+                new GenericDocument.Builder<>("namespace1", "id1", "Type1").build(),
+                /*logger=*/null);
+        assertThat(observer.getSchemaChanges()).isEmpty();
+        assertThat(observer.getDocumentChanges()).isEmpty();
+
+        // Dispatch notifications
+        mAppSearchImpl.dispatchAndClearChangeNotifications();
+        assertThat(observer.getSchemaChanges()).isEmpty();
+        assertThat(observer.getDocumentChanges()).containsExactly(
+                new DocumentChangeInfo(
+                        mContext.getPackageName(),
+                        "database1",
+                        "namespace1",
+                        "Type1",
+                        ImmutableSet.of("id1")));
+    }
+
+    @Test
+    public void testDispatchObserver_samePackage_withVisStore_accept() throws Exception {
+        // Make a visibility checker that rejects everything
+        final VisibilityChecker rejectChecker =
+                (packageName, prefixedSchema, callerUid, callerHasSystemAccess, visibilityStore)
+                        -> false;
+        mAppSearchImpl.close();
+        mAppSearchImpl = AppSearchImpl.create(
+                mAppSearchDir,
+                new UnlimitedLimitConfig(),
+                /*initStatsBuilder=*/null,
+                ALWAYS_OPTIMIZE,
+                rejectChecker);
+
+        mAppSearchImpl.setSchema(
+                mContext.getPackageName(),
+                "database1",
+                ImmutableList.of(new AppSearchSchema.Builder("Type1").build()),
+                /*visibilityDocuments=*/ Collections.emptyList(),
+                /*forceOverride=*/ false,
+                /*version=*/ 0,
+                /*setSchemaStatsBuilder=*/ null);
+
+        // Register an observer
+        TestObserverCallback observer = new TestObserverCallback();
+        mAppSearchImpl.addObserver(
+                /*listeningPackageName=*/mContext.getPackageName(),
+                Process.myUid(),
+                /*listeningPackageHasSystemAccess=*/false,
+                /*targetPackageName=*/mContext.getPackageName(),
+                new ObserverSpec.Builder().build(),
+                MoreExecutors.directExecutor(),
+                observer);
+
+        // Insert a valid doc
+        assertThat(observer.getSchemaChanges()).isEmpty();
+        assertThat(observer.getDocumentChanges()).isEmpty();
+        mAppSearchImpl.putDocument(
+                mContext.getPackageName(),
+                "database1",
+                new GenericDocument.Builder<>("namespace1", "id1", "Type1").build(),
+                /*logger=*/null);
+        assertThat(observer.getSchemaChanges()).isEmpty();
+        assertThat(observer.getDocumentChanges()).isEmpty();
+
+        // Dispatch notifications
+        mAppSearchImpl.dispatchAndClearChangeNotifications();
+        assertThat(observer.getSchemaChanges()).isEmpty();
+        assertThat(observer.getDocumentChanges()).containsExactly(
+                new DocumentChangeInfo(
+                        mContext.getPackageName(),
+                        "database1",
+                        "namespace1",
+                        "Type1",
+                        ImmutableSet.of("id1")));
+    }
+
+    @Test
+    public void testDispatchObserver_differentPackage_noVisStore_reject() throws Exception {
+        mAppSearchImpl.setSchema(
+                mContext.getPackageName(),
+                "database1",
+                ImmutableList.of(new AppSearchSchema.Builder("Type1").build()),
+                /*visibilityDocuments=*/ Collections.emptyList(),
+                /*forceOverride=*/ false,
+                /*version=*/ 0,
+                /*setSchemaStatsBuilder=*/ null);
+
+        // Register an observer from a simulated different package
+        TestObserverCallback observer = new TestObserverCallback();
+        mAppSearchImpl.addObserver(
+                /*listeningPackageName=*/"com.fake.Listening.package",
+                Process.myUid(),
+                /*listeningPackageHasSystemAccess=*/false,
+                /*targetPackageName=*/mContext.getPackageName(),
+                new ObserverSpec.Builder().build(),
+                MoreExecutors.directExecutor(),
+                observer);
+
+        // Insert a valid doc
+        assertThat(observer.getSchemaChanges()).isEmpty();
+        assertThat(observer.getDocumentChanges()).isEmpty();
+        mAppSearchImpl.putDocument(
+                mContext.getPackageName(),
+                "database1",
+                new GenericDocument.Builder<>("namespace1", "id1", "Type1").build(),
+                /*logger=*/null);
+        assertThat(observer.getSchemaChanges()).isEmpty();
+        assertThat(observer.getDocumentChanges()).isEmpty();
+
+        // Dispatch notifications
+        mAppSearchImpl.dispatchAndClearChangeNotifications();
+        assertThat(observer.getSchemaChanges()).isEmpty();
+        assertThat(observer.getDocumentChanges()).isEmpty();
+    }
+
+    @Test
+    public void testDispatchObserver_differentPackage_withVisStore_accept() throws Exception {
+        final String fakeListeningPackage = "com.fake.listening.package";
+        final int fakeListeningUid = 42;
+
+        // Make a visibility checker that allows only fakeListeningPackage.
+        final VisibilityChecker visibilityChecker =
+                (packageName, prefixedSchema, callerUid, callerHasSystemAccess, visibilityStore)
+                        -> callerUid == fakeListeningUid;
+        mAppSearchImpl.close();
+        mAppSearchImpl = AppSearchImpl.create(
+                mAppSearchDir,
+                new UnlimitedLimitConfig(),
+                /*initStatsBuilder=*/null,
+                ALWAYS_OPTIMIZE,
+                visibilityChecker);
+
+        mAppSearchImpl.setSchema(
+                mContext.getPackageName(),
+                "database1",
+                ImmutableList.of(new AppSearchSchema.Builder("Type1").build()),
+                /*visibilityDocuments=*/ Collections.emptyList(),
+                /*forceOverride=*/ false,
+                /*version=*/ 0,
+                /*setSchemaStatsBuilder=*/ null);
+
+        // Register an observer
+        TestObserverCallback observer = new TestObserverCallback();
+        mAppSearchImpl.addObserver(
+                fakeListeningPackage,
+                fakeListeningUid,
+                /*listeningPackageHasSystemAccess=*/false,
+                /*targetPackageName=*/mContext.getPackageName(),
+                new ObserverSpec.Builder().build(),
+                MoreExecutors.directExecutor(),
+                observer);
+
+        // Insert a valid doc
+        assertThat(observer.getSchemaChanges()).isEmpty();
+        assertThat(observer.getDocumentChanges()).isEmpty();
+        mAppSearchImpl.putDocument(
+                mContext.getPackageName(),
+                "database1",
+                new GenericDocument.Builder<>("namespace1", "id1", "Type1").build(),
+                /*logger=*/null);
+        assertThat(observer.getSchemaChanges()).isEmpty();
+        assertThat(observer.getDocumentChanges()).isEmpty();
+
+        // Dispatch notifications
+        mAppSearchImpl.dispatchAndClearChangeNotifications();
+        assertThat(observer.getSchemaChanges()).isEmpty();
+        assertThat(observer.getDocumentChanges()).containsExactly(
+                new DocumentChangeInfo(
+                        mContext.getPackageName(),
+                        "database1",
+                        "namespace1",
+                        "Type1",
+                        ImmutableSet.of("id1")));
+    }
+
+    @Test
+    public void testDispatchObserver_differentPackage_withVisStore_reject() throws Exception {
+        final String fakeListeningPackage = "com.fake.Listening.package";
+        final int fakeListeningUid = 42;
+
+        // Make a visibility checker that rejects everything.
+        final VisibilityChecker rejectChecker =
+                (packageName, prefixedSchema, callerUid, callerHasSystemAccess, visibilityStore)
+                        -> false;
+        mAppSearchImpl.close();
+        mAppSearchImpl = AppSearchImpl.create(
+                mAppSearchDir,
+                new UnlimitedLimitConfig(),
+                /*initStatsBuilder=*/null,
+                ALWAYS_OPTIMIZE,
+                rejectChecker);
+
+        mAppSearchImpl.setSchema(
+                mContext.getPackageName(),
+                "database1",
+                ImmutableList.of(new AppSearchSchema.Builder("Type1").build()),
+                /*visibilityDocuments=*/ Collections.emptyList(),
+                /*forceOverride=*/ false,
+                /*version=*/ 0,
+                /*setSchemaStatsBuilder=*/ null);
+
+        // Register an observer
+        TestObserverCallback observer = new TestObserverCallback();
+        mAppSearchImpl.addObserver(
+                fakeListeningPackage,
+                fakeListeningUid,
+                /*listeningPackageHasSystemAccess=*/false,
+                /*targetPackageName=*/mContext.getPackageName(),
+                new ObserverSpec.Builder().build(),
+                MoreExecutors.directExecutor(),
+                observer);
+
+        // Insert a doc
+        assertThat(observer.getSchemaChanges()).isEmpty();
+        assertThat(observer.getDocumentChanges()).isEmpty();
+        mAppSearchImpl.putDocument(
+                mContext.getPackageName(),
+                "database1",
+                new GenericDocument.Builder<>("namespace1", "id1", "Type1").build(),
+                /*logger=*/null);
+        assertThat(observer.getSchemaChanges()).isEmpty();
+        assertThat(observer.getDocumentChanges()).isEmpty();
+
+        // Dispatch notifications
+        mAppSearchImpl.dispatchAndClearChangeNotifications();
+        assertThat(observer.getSchemaChanges()).isEmpty();
+        assertThat(observer.getDocumentChanges()).isEmpty();
     }
 }

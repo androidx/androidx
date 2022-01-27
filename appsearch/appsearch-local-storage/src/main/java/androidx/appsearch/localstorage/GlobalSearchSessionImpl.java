@@ -130,35 +130,42 @@ class GlobalSearchSessionImpl implements GlobalSearchSession {
 
     @Override
     public void addObserver(
-            @NonNull String observedPackage,
+            @NonNull String targetPackageName,
             @NonNull ObserverSpec spec,
             @NonNull Executor executor,
             @NonNull AppSearchObserverCallback observer) {
-        Preconditions.checkNotNull(observedPackage);
+        Preconditions.checkNotNull(targetPackageName);
         Preconditions.checkNotNull(spec);
         Preconditions.checkNotNull(executor);
         Preconditions.checkNotNull(observer);
         // LocalStorage does not support observing data from other packages.
-        if (!observedPackage.equals(mContext.getPackageName())) {
+        if (!targetPackageName.equals(mContext.getPackageName())) {
             throw new UnsupportedOperationException(
                     "Local storage implementation does not support receiving change notifications "
                             + "from other packages.");
         }
-        mAppSearchImpl.addObserver(observedPackage, spec, executor, observer);
+        mAppSearchImpl.addObserver(
+                /*listeningPackageName=*/mContext.getPackageName(),
+                /*listeningUid=*/Process.myUid(),
+                /*listeningPackageHasSystemAccess=*/false,
+                /*targetPackageName=*/targetPackageName,
+                spec,
+                executor,
+                observer);
     }
 
     @Override
     public void removeObserver(
-            @NonNull String observedPackage, @NonNull AppSearchObserverCallback observer) {
-        Preconditions.checkNotNull(observedPackage);
+            @NonNull String targetPackageName, @NonNull AppSearchObserverCallback observer) {
+        Preconditions.checkNotNull(targetPackageName);
         Preconditions.checkNotNull(observer);
         // LocalStorage does not support observing data from other packages.
-        if (!observedPackage.equals(mContext.getPackageName())) {
+        if (!targetPackageName.equals(mContext.getPackageName())) {
             throw new UnsupportedOperationException(
                     "Local storage implementation does not support receiving change notifications "
                             + "from other packages.");
         }
-        mAppSearchImpl.removeObserver(observedPackage, observer);
+        mAppSearchImpl.removeObserver(targetPackageName, observer);
     }
 
     @Override

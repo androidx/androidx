@@ -782,7 +782,9 @@ public final class AppSearchImpl implements Closeable {
                     databaseName,
                     document.getNamespace(),
                     document.getSchemaType(),
-                    document.getId());
+                    document.getId(),
+                    mVisibilityStoreLocked,
+                    mVisibilityCheckerLocked);
         } finally {
             mReadWriteLock.writeLock().unlock();
 
@@ -1453,7 +1455,13 @@ public final class AppSearchImpl implements Closeable {
             // Prepare notifications
             if (schemaType != null) {
                 mObserverManager.onDocumentChange(
-                        packageName, databaseName, namespace, schemaType, documentId);
+                        packageName,
+                        databaseName,
+                        namespace,
+                        schemaType,
+                        documentId,
+                        mVisibilityStoreLocked,
+                        mVisibilityCheckerLocked);
             }
         } finally {
             mReadWriteLock.writeLock().unlock();
@@ -1615,7 +1623,9 @@ public final class AppSearchImpl implements Closeable {
                             /*databaseName=*/ PrefixUtil.getDatabaseName(document.getNamespace()),
                             /*namespace=*/ PrefixUtil.removePrefix(document.getNamespace()),
                             /*schemaType=*/ PrefixUtil.removePrefix(document.getSchema()),
-                            document.getUri());
+                            document.getUri(),
+                            mVisibilityStoreLocked,
+                            mVisibilityCheckerLocked);
                 }
             }
 
@@ -2148,23 +2158,40 @@ public final class AppSearchImpl implements Closeable {
 
     /**
      * Adds an {@link AppSearchObserverCallback} to monitor changes within the
-     * databases owned by {@code observedPackage} if they match the given
+     * databases owned by {@code targetPackageName} if they match the given
      * {@link androidx.appsearch.observer.ObserverSpec}.
      *
-     * <p>If the data owned by {@code observedPackage} is not visible to you, the registration call
-     * will succeed but no notifications will be dispatched. Notifications could start flowing later
-     * if {@code observedPackage} changes its schema visibility settings.
+     * <p>If the data owned by {@code targetPackageName} is not visible to you, the registration
+     * call will succeed but no notifications will be dispatched. Notifications could start flowing
+     * later if {@code targetPackageName} changes its schema visibility settings.
      *
-     * <p>If no package matching {@code observedPackage} exists on the system, the registration call
-     * will succeed but no notifications will be dispatched. Notifications could start flowing later
-     * if {@code observedPackage} is installed and starts indexing data.
+     * <p>If no package matching {@code targetPackageName} exists on the system, the registration
+     * call will succeed but no notifications will be dispatched. Notifications could start flowing
+     * later if {@code targetPackageName} is installed and starts indexing data.
      *
      * <p>Note that this method does not take the standard read/write lock that guards I/O, so it
      * will not queue behind I/O. Therefore it is safe to call from any thread including UI or
      * binder threads.
+     *
+     * @param listeningPackageName            The package name of the app that wants to receive
+     *                                        notifications.
+     * @param listeningUid                    The uid of the app that wants to receive
+     *                                        notifications.
+     * @param listeningPackageHasSystemAccess Whether the app that wants to receive notifications
+     *                                        has access to schema types marked 'visible to system'.
+     * @param targetPackageName               The package that owns the data the observer wants
+     *                                        to be notified for.
+     * @param spec                            Describes the kind of data changes the observer
+     *                                        should trigger for.
+     * @param executor                        The executor on which to trigger the observer callback
+     *                                        to deliver notifications.
+     * @param observer                        The callback to trigger on notifications.
      */
     public void addObserver(
-            @NonNull String observedPackage,
+            @NonNull String listeningPackageName,
+            int listeningUid,
+            boolean listeningPackageHasSystemAccess,
+            @NonNull String targetPackageName,
             @NonNull ObserverSpec spec,
             @NonNull Executor executor,
             @NonNull AppSearchObserverCallback observer) {
@@ -2172,12 +2199,19 @@ public final class AppSearchImpl implements Closeable {
         // observers for types that don't exist. This is intentional because we notify for types
         // being created or removed. If we only registered observer for existing types, it would
         // be impossible to ever dispatch a notification of a type being added.
-        mObserverManager.addObserver(observedPackage, spec, executor, observer);
+        mObserverManager.addObserver(
+                listeningPackageName,
+                listeningUid,
+                listeningPackageHasSystemAccess,
+                targetPackageName,
+                spec,
+                executor,
+                observer);
     }
 
     /**
      * Removes an {@link AppSearchObserverCallback} from watching the databases owned by
-     * {@code observedPackage}.
+     * {@code targetPackageName}.
      *
      * <p>All observers which compare equal to the given observer via
      * {@link AppSearchObserverCallback#equals} are removed. This may be 0, 1, or many observers.
@@ -2187,8 +2221,8 @@ public final class AppSearchImpl implements Closeable {
      * binder threads.
      */
     public void removeObserver(
-            @NonNull String observedPackage, @NonNull AppSearchObserverCallback observer) {
-        mObserverManager.removeObserver(observedPackage, observer);
+            @NonNull String targetPackageName, @NonNull AppSearchObserverCallback observer) {
+        mObserverManager.removeObserver(targetPackageName, observer);
     }
 
     /**
