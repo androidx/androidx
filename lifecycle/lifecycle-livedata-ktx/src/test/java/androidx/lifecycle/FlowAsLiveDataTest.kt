@@ -18,7 +18,11 @@
 
 package androidx.lifecycle
 
+import androidx.annotation.RequiresApi
 import com.google.common.truth.Truth.assertThat
+import java.time.Duration
+import java.util.concurrent.atomic.AtomicBoolean
+import kotlin.coroutines.coroutineContext
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.cancel
@@ -33,9 +37,6 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
-import java.time.Duration
-import java.util.concurrent.atomic.AtomicBoolean
-import kotlin.coroutines.coroutineContext
 
 @RunWith(JUnit4::class)
 class FlowAsLiveDataTest {
@@ -136,6 +137,7 @@ class FlowAsLiveDataTest {
         }
     }
 
+    @RequiresApi(26)
     @Test
     fun timeoutViaDuration() {
         val running = CompletableDeferred<Unit>()
