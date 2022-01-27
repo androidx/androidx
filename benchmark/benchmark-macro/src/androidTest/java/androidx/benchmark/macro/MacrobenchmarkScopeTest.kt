@@ -18,8 +18,6 @@ package androidx.benchmark.macro
 
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.benchmark.Shell
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
@@ -27,15 +25,15 @@ import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.By
 import androidx.test.uiautomator.UiDevice
+import kotlin.test.assertFailsWith
+import kotlin.test.assertNotNull
+import kotlin.test.assertTrue
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.fail
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import kotlin.test.assertFailsWith
-import kotlin.test.assertNotNull
-import kotlin.test.assertTrue
 
 @RunWith(AndroidJUnit4::class)
 @LargeTest
@@ -102,10 +100,8 @@ class MacrobenchmarkScopeTest {
         intent.setPackage(Packages.TARGET)
         intent.action = "${Packages.TARGET}.NOT_EXPORTED_ACTIVITY"
 
-        if (Shell.isSessionRooted() || Build.VERSION.SDK_INT <= 23) {
+        if (Shell.isSessionRooted()) {
             // while device and adb session are both rooted, doesn't throw
-            // TODO: verify whether pre-23 behavior requires userdebug device, only tested with
-            //  emulator so far
             scope.startActivityAndWait(intent)
             val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
             assertTrue(device.hasObject(By.text("NOT EXPORTED ACTIVITY")))
@@ -122,7 +118,9 @@ class MacrobenchmarkScopeTest {
         }
     }
 
-    @RequiresApi(24) // Test flakes locally on API 23, appears to be UiAutomation issue
+    // Note: Test flakes locally on API 23, appears to be UI automation issue. In API 23 CI running
+    // MRA58K crashes, but haven't repro'd locally, so just skip on API 23.
+    @SdkSuppress(minSdkVersion = 24)
     @Test
     fun startActivityAndWait_invalidActivity() {
         val scope = MacrobenchmarkScope(Packages.TARGET, launchWithClearTask = true)
