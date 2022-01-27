@@ -28,10 +28,10 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInWindow
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.test.TouchInjectionScope
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performTouchInput
-import androidx.compose.ui.test.swipeUp
 import androidx.compose.ui.test.swipeWithVelocity
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -181,11 +181,11 @@ class PickerTest {
         val itemsToScroll = 4
 
         rule.onNodeWithTag(TEST_TAG).performTouchInput {
-            swipeUp(
-                startY = bottom,
-                endY = bottom -
-                (itemSizePx + separationPx * separationSign) * itemsToScroll,
-                durationMillis = 1000L
+            swipeWithVelocity(
+                start = Offset(centerX, bottom),
+                end = Offset(centerX, bottom -
+                    (itemSizePx + separationPx * separationSign) * itemsToScroll),
+                endVelocity = 1f, // Ensure it's not a fling.
             )
         }
 
@@ -272,6 +272,90 @@ class PickerTest {
         rule.waitForIdle()
 
         assertThat(state.selectedOption).isEqualTo(targetIndex)
+    }
+
+    @Test
+    fun small_scroll_down_snaps() = scroll_snaps {
+        swipeWithVelocity(
+            start = Offset(centerX, top),
+            end = Offset(centerX, top + itemSizePx / 2),
+            endVelocity = 1f, // Ensure it's not a fling.
+        )
+    }
+
+    @Test
+    fun small_scroll_up_snaps() = scroll_snaps {
+        swipeWithVelocity(
+            start = Offset(centerX, bottom),
+            end = Offset(centerX, bottom - itemSizePx / 2),
+            endVelocity = 1f, // Ensure it's not a fling.
+        )
+    }
+
+    @Test
+    fun small_scroll_snaps_with_separation() = scroll_snaps(separationSign = 1) {
+        swipeWithVelocity(
+            start = Offset(centerX, top),
+            end = Offset(centerX, top + itemSizePx / 2),
+            endVelocity = 1f, // Ensure it's not a fling.
+        )
+    }
+
+    @Test
+    fun fast_scroll_snaps() = scroll_snaps {
+        swipeWithVelocity(
+            start = Offset(centerX, top),
+            end = Offset(centerX, top + 300),
+            endVelocity = 10000f, // Ensure it IS a fling.
+        )
+    }
+
+    @Test
+    fun fast_scroll_with_separation_snaps() = scroll_snaps(separationSign = -1) {
+        swipeWithVelocity(
+            start = Offset(centerX, bottom),
+            end = Offset(centerX, bottom - 300),
+            endVelocity = 10000f, // Ensure it IS a fling.
+        )
+    }
+
+    private fun scroll_snaps(separationSign: Int = 0, touch: (TouchInjectionScope).() -> Unit) {
+        lateinit var state: PickerState
+        lateinit var pickerLayoutCoordinates: LayoutCoordinates
+        val numberOfItems = 20
+        val optionLayoutCoordinates = Array<LayoutCoordinates?>(numberOfItems) { null }
+        var pickerHeightPx = 0f
+        val itemsToShow = 11
+        rule.setContent {
+            val pickerHeightDp = itemSizeDp * itemsToShow +
+                separationDp * (itemsToShow - 1) * separationSign
+            pickerHeightPx = with(LocalDensity.current) { pickerHeightDp.toPx() }
+            WithTouchSlop(0f) {
+                Picker(
+                    state = rememberPickerState(numberOfItems).also { state = it },
+                    modifier = Modifier.testTag(TEST_TAG).requiredSize(pickerHeightDp)
+                        .onGloballyPositioned { pickerLayoutCoordinates = it },
+                    separation = separationDp * separationSign
+                ) { optionIndex ->
+                    Box(Modifier.requiredSize(itemSizeDp).onGloballyPositioned {
+                        // Save the layout coordinates
+                        optionLayoutCoordinates[optionIndex] = it
+                    })
+                }
+            }
+        }
+
+        rule.waitForIdle()
+
+        rule.onNodeWithTag(TEST_TAG).performTouchInput { touch() }
+
+        rule.waitForIdle()
+
+        // Ensure that the option that ended up in the middle after the fling/scroll is centered
+        assertThat(optionLayoutCoordinates[state.selectedOption]!!.positionInWindow().y -
+            pickerLayoutCoordinates.positionInWindow().y)
+            .isWithin(0.1f)
+            .of(pickerHeightPx / 2f - itemSizePx / 2f)
     }
 
     /* TODO(199476914): Add tests for non-wraparound pickers to ensure they have the correct range
