@@ -22,17 +22,20 @@ import android.os.Build;
 import android.view.Display;
 import android.view.WindowManager;
 
+import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 
 import java.util.WeakHashMap;
 
 /**
  * Helper for accessing features in {@link android.hardware.display.DisplayManager}.
  */
+@SuppressWarnings("unused")
 public final class DisplayManagerCompat {
     private static final WeakHashMap<Context, DisplayManagerCompat> sInstances =
-            new WeakHashMap<Context, DisplayManagerCompat>();
+            new WeakHashMap<>();
 
     /**
      * Display category: Presentation displays.
@@ -79,11 +82,11 @@ public final class DisplayManagerCompat {
      * @return The display object, or null if there is no valid display with the given id.
      */
     @Nullable
-    @SuppressWarnings("deprecation") /* getDefaultDisplay */
+    @SuppressWarnings("deprecation")
     public Display getDisplay(int displayId) {
         if (Build.VERSION.SDK_INT >= 17) {
-            return ((DisplayManager) mContext.getSystemService(Context.DISPLAY_SERVICE))
-                    .getDisplay(displayId);
+            return Api17Impl.getDisplay(
+                    (DisplayManager) mContext.getSystemService(Context.DISPLAY_SERVICE), displayId);
         }
 
         Display display = ((WindowManager) mContext.getSystemService(Context.WINDOW_SERVICE))
@@ -99,11 +102,12 @@ public final class DisplayManagerCompat {
      *
      * @return An array containing all displays.
      */
+    @SuppressWarnings("deprecation")
     @NonNull
     public Display[] getDisplays() {
         if (Build.VERSION.SDK_INT >= 17) {
-            return ((DisplayManager) mContext.getSystemService(Context.DISPLAY_SERVICE))
-                    .getDisplays();
+            return Api17Impl.getDisplays(
+                    (DisplayManager) mContext.getSystemService(Context.DISPLAY_SERVICE));
         }
 
         Display display = ((WindowManager) mContext.getSystemService(Context.WINDOW_SERVICE))
@@ -128,11 +132,11 @@ public final class DisplayManagerCompat {
      * @see #DISPLAY_CATEGORY_PRESENTATION
      */
     @NonNull
-    @SuppressWarnings("deprecation") /* getDefaultDisplay */
+    @SuppressWarnings("deprecation")
     public Display[] getDisplays(@Nullable String category) {
         if (Build.VERSION.SDK_INT >= 17) {
-            return ((DisplayManager) mContext.getSystemService(Context.DISPLAY_SERVICE))
-                    .getDisplays(category);
+            return Api17Impl.getDisplays(
+                    (DisplayManager) mContext.getSystemService(Context.DISPLAY_SERVICE));
         }
         if (category == null) {
             return new Display[0];
@@ -140,6 +144,23 @@ public final class DisplayManagerCompat {
 
         Display display = ((WindowManager) mContext.getSystemService(Context.WINDOW_SERVICE))
                 .getDefaultDisplay();
-        return new Display[] { display };
+        return new Display[]{display};
+    }
+
+    @RequiresApi(17)
+    static class Api17Impl {
+        private Api17Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static Display getDisplay(DisplayManager displayManager, int displayId) {
+            return displayManager.getDisplay(displayId);
+        }
+
+        @DoNotInline
+        static Display[] getDisplays(DisplayManager displayManager) {
+            return displayManager.getDisplays();
+        }
     }
 }
