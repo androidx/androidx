@@ -19,6 +19,8 @@ package androidx.camera.integration.view;
 import static androidx.camera.integration.view.MainActivity.CAMERA_DIRECTION_BACK;
 import static androidx.camera.integration.view.MainActivity.CAMERA_DIRECTION_FRONT;
 import static androidx.camera.integration.view.MainActivity.INTENT_EXTRA_CAMERA_DIRECTION;
+import static androidx.camera.integration.view.MainActivity.INTENT_EXTRA_E2E_TEST_CASE;
+import static androidx.camera.integration.view.MainActivity.PREVIEW_TEST_CASE;
 import static androidx.camera.view.PreviewView.StreamState.IDLE;
 import static androidx.camera.view.PreviewView.StreamState.STREAMING;
 
@@ -105,6 +107,17 @@ public class PreviewViewFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        Bundle bundle = requireActivity().getIntent().getExtras();
+        if (bundle != null) {
+            // Update the app UI according to the e2e test case.
+            String testCase = bundle.getString(INTENT_EXTRA_E2E_TEST_CASE);
+            if (PREVIEW_TEST_CASE.equals(testCase)) {
+                View controller = view.findViewById(R.id.controller);
+                if (controller != null) {
+                    controller.setVisibility(View.GONE);
+                }
+            }
+        }
         mPreviewView = view.findViewById(R.id.preview_view);
         mPreviewView.setImplementationMode(PreviewView.ImplementationMode.COMPATIBLE);
         mPreviewView.addOnLayoutChangeListener(

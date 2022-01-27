@@ -141,6 +141,9 @@ public class CameraXActivity extends AppCompatActivity {
             };
     // Possible values for this intent key: "backward" or "forward".
     private static final String INTENT_EXTRA_CAMERA_DIRECTION = "camera_direction";
+    // Possible values for this intent key: "switch_test_case", "preview_test_case" or
+    // "default_test_case".
+    private static final String INTENT_EXTRA_E2E_TEST_CASE = "e2e_test_case";
     public static final String INTENT_EXTRA_CAMERA_IMPLEMENTATION = "camera_implementation";
     static final CameraSelector BACK_SELECTOR =
             new CameraSelector.Builder().requireLensFacing(CameraSelector.LENS_FACING_BACK).build();
@@ -152,6 +155,8 @@ public class CameraXActivity extends AppCompatActivity {
     private final AtomicLong mPreviewFrameCount = new AtomicLong(0);
     private final MutableLiveData<String> mImageAnalysisResult = new MutableLiveData<>();
     private static final String BACKWARD = "BACKWARD";
+    private static final String SWITCH_TEST_CASE = "switch_test_case";
+    private static final String PREVIEW_TEST_CASE = "preview_test_case";
     private static final Quality QUALITY_AUTO = null;
 
     private Recording mActiveRecording;
@@ -668,6 +673,34 @@ public class CameraXActivity extends AppCompatActivity {
         mEvToast.show();
     }
 
+    private void updateAppUIForE2ETest(@NonNull String testCase) {
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().hide();
+        }
+        mCaptureQualityToggle.setVisibility(View.GONE);
+        mPlusEV.setVisibility(View.GONE);
+        mDecEV.setVisibility(View.GONE);
+        mZoomSeekBar.setVisibility(View.GONE);
+        mZoomRatioLabel.setVisibility(View.GONE);
+        mTextView.setVisibility(View.GONE);
+
+        if (testCase.equals(PREVIEW_TEST_CASE) || testCase.equals(SWITCH_TEST_CASE)) {
+            mTorchButton.setVisibility(View.GONE);
+            mFlashButton.setVisibility(View.GONE);
+            mTakePicture.setVisibility(View.GONE);
+            mZoomIn2XToggle.setVisibility(View.GONE);
+            mZoomResetToggle.setVisibility(View.GONE);
+            mVideoToggle.setVisibility(View.GONE);
+            mPhotoToggle.setVisibility(View.GONE);
+            mPreviewToggle.setVisibility(View.GONE);
+            mAnalysisToggle.setVisibility(View.GONE);
+            mRecordUi.hideUi();
+            if (!testCase.equals(SWITCH_TEST_CASE)) {
+                mCameraDirectionButton.setVisibility(View.GONE);
+            }
+        }
+    }
+
     private void updateButtonsUi() {
         mRecordUi.setEnabled(mVideoToggle.isChecked());
         mTakePicture.setEnabled(mPhotoToggle.isChecked());
@@ -808,6 +841,12 @@ public class CameraXActivity extends AppCompatActivity {
             String cameraImplementation = bundle.getString(INTENT_EXTRA_CAMERA_IMPLEMENTATION);
             if (cameraImplementation != null) {
                 CameraXViewModel.configureCameraProvider(cameraImplementation);
+            }
+
+            // Update the app UI according to the e2e test case.
+            String testCase = bundle.getString(INTENT_EXTRA_E2E_TEST_CASE);
+            if (testCase != null) {
+                updateAppUIForE2ETest(testCase);
             }
         }
 
@@ -1303,6 +1342,12 @@ public class CameraXActivity extends AppCompatActivity {
         @NonNull
         State getState() {
             return mState;
+        }
+
+        void hideUi() {
+            mButtonRecord.setVisibility(View.GONE);
+            mButtonPause.setVisibility(View.GONE);
+            mTextStats.setVisibility(View.GONE);
         }
 
         private void updateUi() {
