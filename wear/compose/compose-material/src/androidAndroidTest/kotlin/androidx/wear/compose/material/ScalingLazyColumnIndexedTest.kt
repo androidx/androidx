@@ -118,7 +118,9 @@ class ScalingLazyColumnIndexedTest {
                 state = rememberScalingLazyListState().also { state = it },
                 modifier = Modifier.height(viewPortHeight),
                 autoCentering = true,
-                verticalArrangement = Arrangement.spacedBy(gapBetweenItems)
+                verticalArrangement = Arrangement.spacedBy(gapBetweenItems),
+                // No scaling as we are doing maths with expected item sizes
+                scalingParams = ScalingLazyColumnDefaults.scalingParams(edgeScale = 1.0f)
             ) {
                 itemsIndexed(items) { index, item ->
                     BasicText(

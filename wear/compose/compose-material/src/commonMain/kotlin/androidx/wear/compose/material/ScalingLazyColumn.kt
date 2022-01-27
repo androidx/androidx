@@ -546,13 +546,15 @@ private fun ScalingLazyColumnItemWrapper(
                 // underlying LazyList layout and the start position adjusted to take into account
                 // scaling of the list items. Items further from the middle of the visible viewport
                 // will be subject to more adjustment.
-                val offsetAdjust = currentItem.startOffset(anchorType) -
-                    currentItem.unadjustedStartOffset(anchorType)
-                translationY = if (reverseLayout) -offsetAdjust else offsetAdjust
-                transformOrigin = TransformOrigin(
-                    pivotFractionX = 0.5f,
-                    pivotFractionY = if (reverseLayout) 1.0f else 0.0f
-                )
+                if (currentItem.scale > 0f) {
+                    val offsetAdjust = currentItem.startOffset(anchorType) -
+                        currentItem.unadjustedStartOffset(anchorType)
+                    translationY = if (reverseLayout) -offsetAdjust else offsetAdjust
+                    transformOrigin = TransformOrigin(
+                        pivotFractionX = 0.5f,
+                        pivotFractionY = if (reverseLayout) 1.0f else 0.0f
+                    )
+                }
             }
         }
     ) {

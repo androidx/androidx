@@ -173,7 +173,7 @@ public class ScalingLazyListLayoutInfoTest {
     }
 
     @Test
-    fun itemLargerThanViewPortDoesNotGetScaled() {
+    fun largeItemLargerThanViewPortDoesNotGetScaled() {
         lateinit var state: ScalingLazyListState
         rule.setContent {
             ScalingLazyColumn(
@@ -203,7 +203,7 @@ public class ScalingLazyListLayoutInfoTest {
     }
 
     @Test
-    fun itemStraddlingCenterLineDoesNotGetScaled() {
+    fun itemInsideScalingLinesDoesNotGetScaled() {
         lateinit var state: ScalingLazyListState
         val centerItemIndex = 2
         rule.setContent {
@@ -229,6 +229,35 @@ public class ScalingLazyListLayoutInfoTest {
             assertThat(centerScreenItem!!.offset).isEqualTo(0)
             // And that it is not scaled
             assertThat(centerScreenItem.scale).isEqualTo(1.0f)
+        }
+    }
+
+    @Test
+    fun itemOutsideScalingLinesDoesGetScaled() {
+        lateinit var state: ScalingLazyListState
+        val centerItemIndex = 2
+        rule.setContent {
+            ScalingLazyColumn(
+                state = rememberScalingLazyListState(centerItemIndex).also { state = it },
+                modifier = Modifier.requiredSize(
+                    itemSizeDp * 4
+                ),
+            ) {
+                items(6) {
+                    Box(Modifier.requiredSize(itemSizeDp))
+                }
+            }
+        }
+
+        // TODO(b/210654937): Remove the waitUntil once we no longer need 2 stage initialization
+        rule.waitUntil { state.initialized.value }
+        rule.runOnIdle {
+            // Get the middle item on the screen
+            val edgeScreenItem =
+                state.layoutInfo.visibleItemsInfo.find { it.index == 0 }
+
+            // And that it is it scaled
+            assertThat(edgeScreenItem!!.scale).isLessThan(1.0f)
         }
     }
 
