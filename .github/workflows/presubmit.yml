@@ -173,16 +173,35 @@ jobs:
         uses: actions/setup-java@v1
         with:
           java-version: "11"
+      # Required for CMake when building workmanager.
+      - name: "Install Ninja"
+        run: |
+          set -x
+          if [ "$RUNNER_OS" == "Linux" ]; then
+            # Should use version 1.10.2 but it is not available on apt yet.
+            sudo apt-get install ninja-build=1.10.0-1build1
+          elif [ "$RUNNER_OS" == "macOS" ]; then
+            # Should use version 1.10.2, but it is not well supported by Homebrew.
+            brew install ninja
+          elif [ "$RUNNER_OS" == "Windows" ]; then
+            choco install ninja --version=1.10.2
+          else
+            echo "Failed to install ninja due to unsupport OS: $RUNNER_OS"
+            exit 1
+          fi
+          # See b/206099937. Hack needed to make ninja visible to cmake during NDK builds
+          if [ ! -e "/usr/local/bin/ninja" ]; then
+            ln -s "/usr/bin/ninja" "/usr/local/bin/ninja"
+          fi
 
       - name: "Set environment variables"
         shell: bash
         run: |
           set -x
           echo "DIST_DIR=$HOME/dist" >> $GITHUB_ENV
-          
-          # use latest NDK because the default NDK on github is older.
-          # TODO b/216535050: Implement task to install the exact AndroidX ndk version.
-          echo "ANDROID_NDK_ROOT=$ANDROID_NDK_LATEST_HOME" >> $GITHUB_ENV
+          # TODO b/216535050: Implement task to install the exact AndroidX ndk
+          # version in case it is not available.
+          echo "ANDROID_NDK_ROOT=$ANDROID_SDK_ROOT/ndk/23.1.7779620" >> $GITHUB_ENV
 
       - name: "Setup Gradle"
         uses: gradle/gradle-build-action@v2
