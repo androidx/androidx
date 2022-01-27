@@ -20,6 +20,7 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.KeyEvent;
 import android.view.View;
@@ -139,6 +140,46 @@ public class ComponentActivity extends Activity implements
             return true;
         }
         return KeyEventDispatcher.dispatchKeyEvent(this, decor, this, event);
+    }
+
+    /**
+     * Checks if the internal state should be dump, as some special args are handled by
+     * {@link Activity} itself.
+     *
+     * <p>Subclasses implementing
+     * {@link Activity#dump(String, java.io.FileDescriptor, java.io.PrintWriter, String[])} should
+     * typically start with:
+     *
+     * <pre>
+     * {@literal @}Override
+     * public void dump({@literal @}NonNull String prefix, {@literal @}Nullable FileDescriptor fd,
+     *        {@literal @}NonNull PrintWriter writer, {@literal @}Nullable String[] args) {
+     *    super.dump(prefix, fd, writer, args);
+     *
+     *    if (!shouldDumpInternalState(args)) {
+     *        return;
+     *    }
+     *    // dump internal starte
+     * }
+     * </pre>
+     */
+    protected final boolean shouldDumpInternalState(@Nullable String[] args) {
+        return !shouldSkipDump(args);
+    }
+
+    private static boolean shouldSkipDump(@Nullable String[] args) {
+        if (args != null && args.length > 0) {
+            // NOTE: values below are hardcoded on framework's Activity (like dumpInner())
+            switch (args[0]) {
+                case "--autofill":
+                    return Build.VERSION.SDK_INT >= Build.VERSION_CODES.O;
+                case "--contentcapture":
+                    return Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q;
+                case "--translation":
+                    return Build.VERSION.SDK_INT >= Build.VERSION_CODES.S;
+            }
+        }
+        return false;
     }
 
     /**

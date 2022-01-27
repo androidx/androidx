@@ -503,6 +503,11 @@ public class FragmentActivity extends ComponentActivity implements
     public void dump(@NonNull String prefix, @Nullable FileDescriptor fd,
             @NonNull PrintWriter writer, @Nullable String[] args) {
         super.dump(prefix, fd, writer, args);
+
+        if (!shouldDumpInternalState(args)) {
+            return;
+        }
+
         writer.print(prefix); writer.print("Local FragmentActivity ");
                 writer.print(Integer.toHexString(System.identityHashCode(this)));
                 writer.println(" State:");
