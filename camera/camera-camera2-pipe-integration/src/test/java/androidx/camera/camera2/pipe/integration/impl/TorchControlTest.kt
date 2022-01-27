@@ -127,10 +127,11 @@ class TorchControlTest {
             return CompletableDeferred(Result3A(status = Result3A.Status.OK))
         }
 
-        override fun issueSingleCaptureAsync(
+        override suspend fun issueSingleCaptureAsync(
             captureSequence: List<CaptureConfig>,
             captureMode: Int,
             flashType: Int,
+            flashMode: Int,
         ): List<Deferred<Void?>> {
             return listOf(CompletableDeferred(null))
         }
