@@ -48,6 +48,12 @@ package androidx.lifecycle {
   public static interface ViewModelProvider.Factory {
     method public default <T extends androidx.lifecycle.ViewModel> T create(Class<T> modelClass);
     method public default <T extends androidx.lifecycle.ViewModel> T create(Class<T> modelClass, androidx.lifecycle.viewmodel.CreationExtras extras);
+    method public default static androidx.lifecycle.ViewModelProvider.Factory from(androidx.lifecycle.viewmodel.ViewModelInitializer<?>... initializers);
+    field public static final androidx.lifecycle.ViewModelProvider.Factory.Companion Companion;
+  }
+
+  public static final class ViewModelProvider.Factory.Companion {
+    method public androidx.lifecycle.ViewModelProvider.Factory from(androidx.lifecycle.viewmodel.ViewModelInitializer<?>... initializers);
   }
 
   public static class ViewModelProvider.NewInstanceFactory implements androidx.lifecycle.ViewModelProvider.Factory {
@@ -97,10 +103,28 @@ package androidx.lifecycle.viewmodel {
   public static interface CreationExtras.Key<T> {
   }
 
+  @androidx.lifecycle.viewmodel.ViewModelFactoryDsl public final class InitializerViewModelFactoryBuilder {
+    ctor public InitializerViewModelFactoryBuilder();
+    method public <T extends androidx.lifecycle.ViewModel> void addInitializer(kotlin.reflect.KClass<T> clazz, kotlin.jvm.functions.Function1<? super androidx.lifecycle.viewmodel.CreationExtras,? extends T> initializer);
+    method public androidx.lifecycle.ViewModelProvider.Factory build();
+  }
+
+  public final class InitializerViewModelFactoryKt {
+    method public static inline <reified VM extends androidx.lifecycle.ViewModel> void initializer(androidx.lifecycle.viewmodel.InitializerViewModelFactoryBuilder, kotlin.jvm.functions.Function1<? super androidx.lifecycle.viewmodel.CreationExtras,? extends VM> initializer);
+    method public static inline androidx.lifecycle.ViewModelProvider.Factory viewModelFactory(kotlin.jvm.functions.Function1<? super androidx.lifecycle.viewmodel.InitializerViewModelFactoryBuilder,kotlin.Unit> builder);
+  }
+
   public final class MutableCreationExtras extends androidx.lifecycle.viewmodel.CreationExtras {
     ctor public MutableCreationExtras(optional androidx.lifecycle.viewmodel.CreationExtras initialExtras);
     method public <T> T? get(androidx.lifecycle.viewmodel.CreationExtras.Key<T> key);
     method public operator <T> void set(androidx.lifecycle.viewmodel.CreationExtras.Key<T> key, T? t);
+  }
+
+  @kotlin.DslMarker public @interface ViewModelFactoryDsl {
+  }
+
+  public final class ViewModelInitializer<T extends androidx.lifecycle.ViewModel> {
+    ctor public ViewModelInitializer(Class<T> clazz, kotlin.jvm.functions.Function1<? super androidx.lifecycle.viewmodel.CreationExtras,? extends T> initializer);
   }
 
 }
