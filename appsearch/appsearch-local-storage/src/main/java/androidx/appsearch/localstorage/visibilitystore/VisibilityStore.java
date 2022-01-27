@@ -89,9 +89,26 @@ public class VisibilityStore {
                 maybeMigrateToLatest(getSchemaResponse);
                 break;
             case VisibilityDocument.SCHEMA_VERSION_LATEST:
-                // The latest Visibility schema is in AppSearch, we must find our schema type.
-                // Extract all stored Visibility Document into mVisibilityDocumentMap.
-                loadVisibilityDocumentMap();
+                if (getSchemaResponse.getSchemas().contains(VisibilityDocument.SCHEMA)) {
+                    // The latest Visibility schema is in AppSearch, we must find our schema type.
+                    // Extract all stored Visibility Document into mVisibilityDocumentMap.
+                    loadVisibilityDocumentMap();
+                } else {
+                    // We must have a broken schema. Reset it to the latest version.
+                    // Do NOT set forceOverride to be true here. If you hit problem here it means
+                    // you made a incompatible change in Visibility Schema without update the
+                    // version number. You should bump the version number and create a
+                    // VisibilityStoreMigrationHelper which can analyse the different between the
+                    // old version and the new version to migration user's visibility settings.
+                    mAppSearchImpl.setSchema(
+                            VISIBILITY_PACKAGE_NAME,
+                            VISIBILITY_DATABASE_NAME,
+                            Collections.singletonList(VisibilityDocument.SCHEMA),
+                            /*visibilityDocuments=*/ Collections.emptyList(),
+                            /*forceOverride=*/ false,
+                            /*version=*/ VisibilityDocument.SCHEMA_VERSION_LATEST,
+                            /*setSchemaStatsBuilder=*/ null);
+                }
                 break;
             default:
                 // We must did something wrong.
