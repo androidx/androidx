@@ -97,9 +97,11 @@ public final class SetSchemaRequest {
             ROLE_ASSISTANT,
     })
     @Retention(RetentionPolicy.SOURCE)
+    // @exportToFramework:startStrip()
     @RequiresFeature(
             enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
             name = Features.ROLE_AND_PERMISSION_WITH_GET_VISIBILITY)
+    // @exportToFramework:endStrip()
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public @interface AppSearchSupportedRole {}
 
@@ -107,18 +109,22 @@ public final class SetSchemaRequest {
      * The {@link android.app.role.RoleManager#ROLE_HOME} AppSearch supported in
      * {@link SetSchemaRequest.Builder#addAllowedRoleForSchemaTypeVisibility}
      */
+    // @exportToFramework:startStrip()
     @RequiresFeature(
             enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
             name = Features.ROLE_AND_PERMISSION_WITH_GET_VISIBILITY)
+    // @exportToFramework:endStrip()
     public static final int ROLE_HOME = 1;
 
     /**
      * The {@link android.app.role.RoleManager#ROLE_ASSISTANT} AppSearch supported in
      * {@link SetSchemaRequest.Builder#addAllowedRoleForSchemaTypeVisibility}
      */
+    // @exportToFramework:startStrip()
     @RequiresFeature(
             enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
             name = Features.ROLE_AND_PERMISSION_WITH_GET_VISIBILITY)
+    // @exportToFramework:endStrip()
     public static final int ROLE_ASSISTANT = 2;
 
     /**
@@ -135,9 +141,11 @@ public final class SetSchemaRequest {
             READ_EXTERNAL_STORAGE,
     })
     @Retention(RetentionPolicy.SOURCE)
+    // @exportToFramework:startStrip()
     @RequiresFeature(
             enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
             name = Features.ROLE_AND_PERMISSION_WITH_GET_VISIBILITY)
+    // @exportToFramework:endStrip()
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public @interface AppSearchSupportedPermission {}
 
@@ -145,36 +153,44 @@ public final class SetSchemaRequest {
      * The {@link android.Manifest.permission#READ_SMS} AppSearch supported in
      * {@link SetSchemaRequest.Builder#setRequiredPermissionsForSchemaTypeVisibility}
      */
+    // @exportToFramework:startStrip()
     @RequiresFeature(
             enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
             name = Features.ROLE_AND_PERMISSION_WITH_GET_VISIBILITY)
+    // @exportToFramework:endStrip()
     public static final int READ_SMS = 1;
 
     /**
      * The {@link android.Manifest.permission#READ_CALENDAR} AppSearch supported in
      * {@link SetSchemaRequest.Builder#setRequiredPermissionsForSchemaTypeVisibility}
      */
+    // @exportToFramework:startStrip()
     @RequiresFeature(
             enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
             name = Features.ROLE_AND_PERMISSION_WITH_GET_VISIBILITY)
+    // @exportToFramework:endStrip()
     public static final int READ_CALENDAR = 2;
 
     /**
      * The {@link android.Manifest.permission#READ_CONTACTS} AppSearch supported in
      * {@link SetSchemaRequest.Builder#setRequiredPermissionsForSchemaTypeVisibility}
      */
+    // @exportToFramework:startStrip()
     @RequiresFeature(
             enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
             name = Features.ROLE_AND_PERMISSION_WITH_GET_VISIBILITY)
+    // @exportToFramework:endStrip()
     public static final int READ_CONTACTS = 3;
 
     /**
      * The {@link android.Manifest.permission#READ_EXTERNAL_STORAGE} AppSearch supported in
      * {@link SetSchemaRequest.Builder#setRequiredPermissionsForSchemaTypeVisibility}
      */
+    // @exportToFramework:startStrip()
     @RequiresFeature(
             enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
             name = Features.ROLE_AND_PERMISSION_WITH_GET_VISIBILITY)
+    // @exportToFramework:endStrip()
     public static final int READ_EXTERNAL_STORAGE = 4;
 
     private final Set<AppSearchSchema> mSchemas;
