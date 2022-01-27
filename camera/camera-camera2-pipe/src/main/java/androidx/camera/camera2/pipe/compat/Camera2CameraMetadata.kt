@@ -162,6 +162,8 @@ internal class Camera2CameraMetadata constructor(
                     }
                 } catch (ignored: AssertionError) {
                     emptySet()
+                } catch (ignored: NullPointerException) {
+                    emptySet()
                 }
             }
         }

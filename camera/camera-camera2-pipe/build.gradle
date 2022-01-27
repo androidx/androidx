@@ -43,7 +43,7 @@ dependencies {
     testImplementation(libs.testRunner)
     testImplementation(libs.junit)
     testImplementation(libs.truth)
-    testImplementation("org.robolectric:robolectric:4.6.1") // TODO(b/209062465): fix tests to work with SDK 31 and robolectric 4.7
+    testImplementation(libs.robolectric)
     testImplementation(libs.kotlinCoroutinesTest)
     testImplementation(project(":camera:camera-camera2-pipe-testing"))
     testImplementation(project(":internal-testutils-truth"))
