@@ -34,6 +34,7 @@ class ActivityComposeIssueRegistry : IssueRegistry() {
     )
     override val vendor = Vendor(
         vendorName = "Jetpack Activity Compose",
-        identifier = "androidx.activity.compose"
+        identifier = "androidx.activity.compose",
+        feedbackUrl = "https://issuetracker.google.com/issues/new?component=612128"
     )
 }

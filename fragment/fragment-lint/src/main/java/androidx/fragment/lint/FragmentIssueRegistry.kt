@@ -17,11 +17,13 @@
 package androidx.fragment.lint
 
 import com.android.tools.lint.client.api.IssueRegistry
+import com.android.tools.lint.client.api.Vendor
 import com.android.tools.lint.detector.api.CURRENT_API
 
 /**
  * Issue Registry containing Fragment specific lint Issues.
  */
+@Suppress("UnstableApiUsage")
 class FragmentIssueRegistry : IssueRegistry() {
     // tests are run with this version. We ensure that with ApiLintVersionsTest
     override val api = 11
@@ -36,5 +38,10 @@ class FragmentIssueRegistry : IssueRegistry() {
         OnCreateDialogIncorrectCallbackDetector.ISSUE,
         UnsafeRepeatOnLifecycleDetector.ISSUE,
         AttachAndDetachInSameTransactionDetector.DETACH_ATTACH_OPERATIONS_ISSUE
+    )
+    override val vendor = Vendor(
+        feedbackUrl = "https://issuetracker.google.com/issues/new?component=460964",
+        identifier = "androidx.fragment",
+        vendorName = "Android Open Source Project",
     )
 }
