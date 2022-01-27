@@ -24,6 +24,7 @@ import static androidx.work.impl.WorkDatabaseVersions.VERSION_10;
 import static androidx.work.impl.WorkDatabaseVersions.VERSION_11;
 import static androidx.work.impl.WorkDatabaseVersions.VERSION_12;
 import static androidx.work.impl.WorkDatabaseVersions.VERSION_14;
+import static androidx.work.impl.WorkDatabaseVersions.VERSION_15;
 import static androidx.work.impl.WorkDatabaseVersions.VERSION_2;
 import static androidx.work.impl.WorkDatabaseVersions.VERSION_3;
 import static androidx.work.impl.WorkDatabaseVersions.VERSION_4;
@@ -74,6 +75,7 @@ import androidx.work.impl.model.WorkSpec;
 import androidx.work.impl.model.WorkTypeConverters;
 import androidx.work.worker.TestWorker;
 
+import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -81,6 +83,7 @@ import org.junit.runner.RunWith;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
@@ -466,11 +469,11 @@ public class WorkDatabaseMigrationTest {
         SupportSQLiteDatabase database =
                 mMigrationTestHelper.createDatabase(TEST_DATABASE, VERSION_12);
         String nullNetworkTypeRequestId = UUID.randomUUID().toString();
-        ContentValues nullRequiredNetworkTypeRequest = contentValues(nullNetworkTypeRequestId);
+        ContentValues nullRequiredNetworkTypeRequest = contentValuesPre15(nullNetworkTypeRequestId);
         nullRequiredNetworkTypeRequest.put(REQUIRED_NETWORK_TYPE, (String) null);
 
         String connectedRequestId = UUID.randomUUID().toString();
-        ContentValues connectedRequest = contentValues(connectedRequestId);
+        ContentValues connectedRequest = contentValuesPre15(connectedRequestId);
         connectedRequest.put(REQUIRED_NETWORK_TYPE, 1);
 
         database.insert("workspec", CONFLICT_FAIL, nullRequiredNetworkTypeRequest);
@@ -484,20 +487,19 @@ public class WorkDatabaseMigrationTest {
         database.close();
     }
 
-
     @Test
     @MediumTest
     public void testMigrationVersion12To14NetworkContentUris() throws IOException {
         SupportSQLiteDatabase database =
                 mMigrationTestHelper.createDatabase(TEST_DATABASE, VERSION_12);
         String nullContentUrisId = UUID.randomUUID().toString();
-        ContentValues nullContentUris = contentValues(nullContentUrisId);
+        ContentValues nullContentUris = contentValuesPre15(nullContentUrisId);
         nullContentUris.put(CONTENT_URI_TRIGGERS, (String) null);
 
         String contentUrisId = UUID.randomUUID().toString();
         Set<ContentUriTrigger> triggers = new HashSet<>();
         triggers.add(new ContentUriTrigger(Uri.parse("http://cs.android.com"), false));
-        ContentValues contentUrisRequest = contentValues(contentUrisId);
+        ContentValues contentUrisRequest = contentValuesPre15(contentUrisId);
         contentUrisRequest.put(CONTENT_URI_TRIGGERS,
                 WorkTypeConverters.setOfTriggersToByteArray(triggers));
 
@@ -509,6 +511,55 @@ public class WorkDatabaseMigrationTest {
 
         assertThat(queryContentUris(database, nullContentUrisId).size(), is(0));
         assertThat(queryContentUris(database, contentUrisId), is(triggers));
+        database.close();
+    }
+
+    @Test
+    @MediumTest
+    public void testMigrationVersion14To15EnqueueTime() throws IOException {
+        SupportSQLiteDatabase database =
+                mMigrationTestHelper.createDatabase(TEST_DATABASE, VERSION_14);
+
+        String firstPeriodId = UUID.randomUUID().toString();
+        ContentValues firstPeriod = contentValuesPre15(firstPeriodId);
+        firstPeriod.put("period_start_time", 0L);
+        firstPeriod.put("interval_duration", 1000L);
+        database.insert("workspec", CONFLICT_FAIL, firstPeriod);
+
+        String secondPeriodId = UUID.randomUUID().toString();
+        ContentValues secondPeriod = contentValuesPre15(secondPeriodId);
+        secondPeriod.put("period_start_time", 1000L);
+        secondPeriod.put("interval_duration", 1000L);
+        database.insert("workspec", CONFLICT_FAIL, secondPeriod);
+
+        String oneTimeId = UUID.randomUUID().toString();
+        ContentValues oneTime = contentValuesPre15(oneTimeId);
+        // could be the case if work is blocked by another one
+        oneTime.put("period_start_time", 0L);
+        oneTime.put("interval_duration", 0L);
+        database.insert("workspec", CONFLICT_FAIL, oneTime);
+        long beforeMigration = System.currentTimeMillis();
+        mMigrationTestHelper.runMigrationsAndValidate(TEST_DATABASE, VERSION_15, true);
+        HashMap<String, Long> enqueueTimes = new HashMap<>();
+        HashMap<String, Integer> periodCounts = new HashMap<>();
+        try (Cursor cursor = database.query(
+                "SELECT id, last_enqueue_time, period_count FROM workspec")) {
+            int idColumn = cursor.getColumnIndex("id");
+            int lastEnqueueTimeColumn = cursor.getColumnIndex("last_enqueue_time");
+            int periodCount = cursor.getColumnIndex("period_count");
+            while (cursor.moveToNext()) {
+                String id = cursor.getString(idColumn);
+                enqueueTimes.put(id, cursor.getLong(lastEnqueueTimeColumn));
+                periodCounts.put(id, cursor.getInt(periodCount));
+            }
+        }
+        assertThat(enqueueTimes.get(oneTimeId), is(0L));
+        assertThat(enqueueTimes.get(firstPeriodId), Matchers.greaterThan(beforeMigration));
+        assertThat(enqueueTimes.get(secondPeriodId), is(1000L));
+
+        assertThat(periodCounts.get(oneTimeId), is(0));
+        assertThat(periodCounts.get(firstPeriodId),  is(0));
+        assertThat(periodCounts.get(secondPeriodId), is(1));
         database.close();
     }
 
@@ -535,13 +586,14 @@ public class WorkDatabaseMigrationTest {
         contentValues.put("backoff_policy",
                 WorkTypeConverters.backoffPolicyToInt(BackoffPolicy.EXPONENTIAL));
         contentValues.put("backoff_delay_duration", WorkRequest.DEFAULT_BACKOFF_DELAY_MILLIS);
+        // pre 14 last_enqueue_time was called period_start_time
         contentValues.put("period_start_time", 0L);
         contentValues.put("minimum_retention_duration", 0L);
         contentValues.put("schedule_requested_at", WorkSpec.SCHEDULE_NOT_REQUESTED_YET);
         return contentValues;
     }
 
-    private ContentValues contentValues(String workSpecId) {
+    private ContentValues contentValuesPre15(String workSpecId) {
         ContentValues contentValues = contentValuesPre8(workSpecId);
         contentValues.put(REQUIRED_NETWORK_TYPE, 0);
         contentValues.put(COLUMN_RUN_IN_FOREGROUND, false);

@@ -116,7 +116,7 @@ public class GreedySchedulerTest extends WorkManagerTest {
     @SmallTest
     public void testGreedyScheduler_startsBackedOffWork() {
         OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class)
-                .setPeriodStartTime(System.currentTimeMillis(), TimeUnit.MILLISECONDS)
+                .setLastEnqueueTime(System.currentTimeMillis(), TimeUnit.MILLISECONDS)
                 .setInitialRunAttemptCount(5)
                 .build();
         mGreedyScheduler.schedule(work.getWorkSpec());

@@ -155,7 +155,7 @@ public class TestSchedulerTest {
 
     @Test
     public void testWorker_withPeriodDelay_shouldRun() {
-        PeriodicWorkRequest request = createWorkRequestWithPeriodDelay();
+        PeriodicWorkRequest request = createPeriodicWorkRequest();
         WorkManager workManager = WorkManager.getInstance(mContext);
         workManager.enqueue(request);
         assertThat(CountingTestWorker.COUNT.get(), is(1));
@@ -164,8 +164,7 @@ public class TestSchedulerTest {
     @Test
     public void testWorker_withPeriod_cancelAndResume_shouldRun()
             throws InterruptedException, ExecutionException {
-
-        PeriodicWorkRequest request = createWorkRequestWithPeriodDelay();
+        PeriodicWorkRequest request = createPeriodicWorkRequest();
         WorkManager workManager = WorkManager.getInstance(mContext);
         workManager.enqueue(request);
         workManager.cancelWorkById(request.getId());
@@ -177,8 +176,7 @@ public class TestSchedulerTest {
     @Test
     public void testWorker_withPeriodDelay_shouldRunAfterEachSetPeriodDelay()
             throws InterruptedException, ExecutionException {
-
-        PeriodicWorkRequest request = createWorkRequestWithPeriodDelay();
+        PeriodicWorkRequest request = createPeriodicWorkRequest();
         WorkManager workManager = WorkManager.getInstance(mContext);
         workManager.enqueue(request);
         assertThat(CountingTestWorker.COUNT.get(), is(1));
@@ -188,6 +186,16 @@ public class TestSchedulerTest {
             WorkInfo requestStatus = workManager.getWorkInfoById(request.getId()).get();
             assertThat(requestStatus.getState().isFinished(), is(false));
         }
+    }
+
+    @Test
+    public void testWorker_withPeriodicWorkerWithInitialDelay_shouldRun() {
+        PeriodicWorkRequest request = createPeriodicWorkRequestWithInitialDelay();
+        WorkManager workManager = WorkManager.getInstance(mContext);
+        workManager.enqueue(request);
+        assertThat(CountingTestWorker.COUNT.get(), is(0));
+        mTestDriver.setInitialDelayMet(request.getId());
+        assertThat(CountingTestWorker.COUNT.get(), is(1));
     }
 
     @Test
@@ -332,8 +340,14 @@ public class TestSchedulerTest {
                 .build();
     }
 
-    private static PeriodicWorkRequest createWorkRequestWithPeriodDelay() {
+    private static PeriodicWorkRequest createPeriodicWorkRequest() {
         return new PeriodicWorkRequest.Builder(CountingTestWorker.class, 10L, TimeUnit.DAYS)
+                .build();
+    }
+
+    private static PeriodicWorkRequest createPeriodicWorkRequestWithInitialDelay() {
+        return new PeriodicWorkRequest.Builder(CountingTestWorker.class, 10L, TimeUnit.DAYS)
+                .setInitialDelay(10L, TimeUnit.DAYS)
                 .build();
     }
 }

@@ -19,7 +19,6 @@ package androidx.work;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.greaterThan;
-import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
@@ -46,7 +45,7 @@ public class WorkSpecTest extends WorkManagerTest {
     public void testCalculateNextRunTime_firstRunAttempt_oneOff() {
         OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(InfiniteTestWorker.class)
                 .setInitialDelay(DEFAULT_INITIAL_DELAY_TIME_MS, TimeUnit.MILLISECONDS)
-                .setPeriodStartTime(DEFAULT_PERIOD_START_TIME, TimeUnit.MILLISECONDS)
+                .setLastEnqueueTime(DEFAULT_PERIOD_START_TIME, TimeUnit.MILLISECONDS)
                 .build();
         long actualDelay = work.getWorkSpec().calculateNextRunTime();
         assertThat(actualDelay, is(DEFAULT_PERIOD_START_TIME + DEFAULT_INITIAL_DELAY_TIME_MS));
@@ -61,12 +60,13 @@ public class WorkSpecTest extends WorkManagerTest {
                 TimeUnit.MILLISECONDS,
                 DEFAULT_FLEX_TIME_MS,
                 TimeUnit.MILLISECONDS)
+                .setLastEnqueueTime(DEFAULT_PERIOD_START_TIME, TimeUnit.MILLISECONDS)
                 .build();
 
-        long now = System.currentTimeMillis();
         WorkSpec workSpec = periodicWork.getWorkSpec();
         long nextRunTime = workSpec.calculateNextRunTime();
-        assertThat(nextRunTime, greaterThan(now));
+        assertThat(nextRunTime, is(DEFAULT_PERIOD_START_TIME
+                + DEFAULT_INTERVAL_TIME_MS - DEFAULT_FLEX_TIME_MS));
     }
 
     @Test
@@ -78,12 +78,13 @@ public class WorkSpecTest extends WorkManagerTest {
                 TimeUnit.MILLISECONDS,
                 DEFAULT_INTERVAL_TIME_MS,
                 TimeUnit.MILLISECONDS)
+                .setLastEnqueueTime(DEFAULT_PERIOD_START_TIME, TimeUnit.MILLISECONDS)
                 .build();
 
-        long now = System.currentTimeMillis();
         WorkSpec workSpec = periodicWork.getWorkSpec();
         long nextRunTime = workSpec.calculateNextRunTime();
-        assertCloseValues(nextRunTime, now);
+        assertThat(nextRunTime,
+                is(DEFAULT_PERIOD_START_TIME));
     }
 
     @Test
@@ -93,10 +94,11 @@ public class WorkSpecTest extends WorkManagerTest {
                 InfiniteTestWorker.class,
                 DEFAULT_INTERVAL_TIME_MS, TimeUnit.MILLISECONDS,
                 DEFAULT_FLEX_TIME_MS, TimeUnit.MILLISECONDS)
-                .setPeriodStartTime(DEFAULT_PERIOD_START_TIME, TimeUnit.MILLISECONDS)
+                .setLastEnqueueTime(DEFAULT_PERIOD_START_TIME, TimeUnit.MILLISECONDS)
                 .build();
 
         WorkSpec workSpec = periodicWork.getWorkSpec();
+        workSpec.setPeriodCount(1);
         long nextRunTime = workSpec.calculateNextRunTime();
         assertThat(nextRunTime,
                 is(DEFAULT_PERIOD_START_TIME + DEFAULT_INTERVAL_TIME_MS));
@@ -111,10 +113,11 @@ public class WorkSpecTest extends WorkManagerTest {
                 TimeUnit.MILLISECONDS,
                 DEFAULT_INTERVAL_TIME_MS,
                 TimeUnit.MILLISECONDS)
-                .setPeriodStartTime(DEFAULT_PERIOD_START_TIME, TimeUnit.MILLISECONDS)
+                .setLastEnqueueTime(DEFAULT_PERIOD_START_TIME, TimeUnit.MILLISECONDS)
                 .build();
 
         WorkSpec workSpec = periodicWork.getWorkSpec();
+        workSpec.setPeriodCount(1);
         long nextRunTime = workSpec.calculateNextRunTime();
         assertThat(nextRunTime, is(DEFAULT_PERIOD_START_TIME + DEFAULT_INTERVAL_TIME_MS));
     }
@@ -128,13 +131,12 @@ public class WorkSpecTest extends WorkManagerTest {
                 DEFAULT_INTERVAL_TIME_MS, TimeUnit.MILLISECONDS,
                 DEFAULT_INTERVAL_TIME_MS, TimeUnit.MILLISECONDS)
                 .setInitialDelay(delay, TimeUnit.MILLISECONDS)
+                .setLastEnqueueTime(DEFAULT_PERIOD_START_TIME, TimeUnit.MILLISECONDS)
                 .build();
 
         WorkSpec workSpec = periodicWork.getWorkSpec();
-        long now = System.currentTimeMillis();
         long nextRunTime = workSpec.calculateNextRunTime();
-        long delta = nextRunTime - now;
-        assertCloseValues(delta, delay);
+        assertThat(nextRunTime, is(DEFAULT_PERIOD_START_TIME + delay));
     }
 
     @Test
@@ -146,13 +148,13 @@ public class WorkSpecTest extends WorkManagerTest {
                 DEFAULT_INTERVAL_TIME_MS, TimeUnit.MILLISECONDS,
                 DEFAULT_FLEX_TIME_MS, TimeUnit.MILLISECONDS)
                 .setInitialDelay(delay, TimeUnit.MILLISECONDS)
+                .setLastEnqueueTime(DEFAULT_PERIOD_START_TIME, TimeUnit.MILLISECONDS)
                 .build();
 
         WorkSpec workSpec = periodicWork.getWorkSpec();
-        long now = System.currentTimeMillis();
         long nextRunTime = workSpec.calculateNextRunTime();
-        long delta = nextRunTime - now;
-        assertCloseValues(delta, delay + DEFAULT_INTERVAL_TIME_MS - DEFAULT_FLEX_TIME_MS);
+        assertThat(nextRunTime, is(DEFAULT_PERIOD_START_TIME
+                + delay + DEFAULT_INTERVAL_TIME_MS - DEFAULT_FLEX_TIME_MS));
     }
 
     @Test
@@ -164,7 +166,7 @@ public class WorkSpecTest extends WorkManagerTest {
                         DEFAULT_BACKOFF_DELAY_TIME_MS,
                         TimeUnit.MILLISECONDS)
                 .setInitialRunAttemptCount(1)
-                .setPeriodStartTime(DEFAULT_PERIOD_START_TIME, TimeUnit.MILLISECONDS)
+                .setLastEnqueueTime(DEFAULT_PERIOD_START_TIME, TimeUnit.MILLISECONDS)
                 .build();
         OneTimeWorkRequest work2 = new OneTimeWorkRequest.Builder(InfiniteTestWorker.class)
                 .setBackoffCriteria(
@@ -172,7 +174,7 @@ public class WorkSpecTest extends WorkManagerTest {
                         DEFAULT_BACKOFF_DELAY_TIME_MS,
                         TimeUnit.MILLISECONDS)
                 .setInitialRunAttemptCount(2)
-                .setPeriodStartTime(DEFAULT_PERIOD_START_TIME, TimeUnit.MILLISECONDS)
+                .setLastEnqueueTime(DEFAULT_PERIOD_START_TIME, TimeUnit.MILLISECONDS)
                 .build();
         OneTimeWorkRequest work3 = new OneTimeWorkRequest.Builder(InfiniteTestWorker.class)
                 .setBackoffCriteria(
@@ -180,7 +182,7 @@ public class WorkSpecTest extends WorkManagerTest {
                         DEFAULT_BACKOFF_DELAY_TIME_MS,
                         TimeUnit.MILLISECONDS)
                 .setInitialRunAttemptCount(3)
-                .setPeriodStartTime(DEFAULT_PERIOD_START_TIME, TimeUnit.MILLISECONDS)
+                .setLastEnqueueTime(DEFAULT_PERIOD_START_TIME, TimeUnit.MILLISECONDS)
                 .build();
 
         long nextRunTime1 = work1.getWorkSpec().calculateNextRunTime();
@@ -203,7 +205,7 @@ public class WorkSpecTest extends WorkManagerTest {
                         DEFAULT_BACKOFF_DELAY_TIME_MS,
                         TimeUnit.MILLISECONDS)
                 .setInitialRunAttemptCount(1)
-                .setPeriodStartTime(DEFAULT_PERIOD_START_TIME, TimeUnit.MILLISECONDS)
+                .setLastEnqueueTime(DEFAULT_PERIOD_START_TIME, TimeUnit.MILLISECONDS)
                 .build();
         OneTimeWorkRequest work2 = new OneTimeWorkRequest.Builder(InfiniteTestWorker.class)
                 .setBackoffCriteria(
@@ -211,7 +213,7 @@ public class WorkSpecTest extends WorkManagerTest {
                         DEFAULT_BACKOFF_DELAY_TIME_MS,
                         TimeUnit.MILLISECONDS)
                 .setInitialRunAttemptCount(2)
-                .setPeriodStartTime(DEFAULT_PERIOD_START_TIME, TimeUnit.MILLISECONDS)
+                .setLastEnqueueTime(DEFAULT_PERIOD_START_TIME, TimeUnit.MILLISECONDS)
                 .build();
         OneTimeWorkRequest work3 = new OneTimeWorkRequest.Builder(InfiniteTestWorker.class)
                 .setBackoffCriteria(
@@ -219,7 +221,7 @@ public class WorkSpecTest extends WorkManagerTest {
                         DEFAULT_BACKOFF_DELAY_TIME_MS,
                         TimeUnit.MILLISECONDS)
                 .setInitialRunAttemptCount(3)
-                .setPeriodStartTime(DEFAULT_PERIOD_START_TIME, TimeUnit.MILLISECONDS)
+                .setLastEnqueueTime(DEFAULT_PERIOD_START_TIME, TimeUnit.MILLISECONDS)
                 .build();
 
         long nextRunTime1 = work1.getWorkSpec().calculateNextRunTime();
@@ -241,7 +243,7 @@ public class WorkSpecTest extends WorkManagerTest {
                         WorkRequest.MAX_BACKOFF_MILLIS + 1,
                         TimeUnit.MILLISECONDS)
                 .setInitialRunAttemptCount(1)
-                .setPeriodStartTime(DEFAULT_PERIOD_START_TIME, TimeUnit.MILLISECONDS)
+                .setLastEnqueueTime(DEFAULT_PERIOD_START_TIME, TimeUnit.MILLISECONDS)
                 .build();
         assertThat(work.getWorkSpec().calculateNextRunTime(),
                 is(DEFAULT_PERIOD_START_TIME + WorkRequest.MAX_BACKOFF_MILLIS));
@@ -256,17 +258,10 @@ public class WorkSpecTest extends WorkManagerTest {
                         WorkRequest.MAX_BACKOFF_MILLIS + 1,
                         TimeUnit.MILLISECONDS)
                 .setInitialRunAttemptCount(1)
-                .setPeriodStartTime(DEFAULT_PERIOD_START_TIME, TimeUnit.MILLISECONDS)
+                .setLastEnqueueTime(DEFAULT_PERIOD_START_TIME, TimeUnit.MILLISECONDS)
                 .build();
 
         assertThat(work.getWorkSpec().calculateNextRunTime(),
                 is(DEFAULT_PERIOD_START_TIME + WorkRequest.MAX_BACKOFF_MILLIS));
-    }
-
-    private void assertCloseValues(long value, long target) {
-        double min = Math.min(value, target);
-        double max = Math.max(value, target);
-        double ratio = min / max;
-        assertThat(ratio, greaterThanOrEqualTo(0.999d));
     }
 }

@@ -15,8 +15,12 @@
  */
 package androidx.work.impl
 
+import android.content.ContentValues
 import android.content.Context
 import android.os.Build
+import androidx.room.OnConflictStrategy
+import androidx.room.RenameColumn
+import androidx.room.migration.AutoMigrationSpec
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import androidx.work.impl.WorkDatabaseVersions.VERSION_1
@@ -55,7 +59,13 @@ internal object WorkDatabaseVersions {
     const val VERSION_11 = 11
     const val VERSION_12 = 12
     const val VERSION_13 = 13
+
+    // (as well as version_13): 2.8.0-alpha01, making required_network_type, content_uri_triggers
+    // non null
     const val VERSION_14 = 14
+
+    // renaming period_start_time to last_enqueue_time and adding period_count
+    const val VERSION_15 = 15
 }
 
 private const val CREATE_SYSTEM_ID_INFO =
@@ -71,10 +81,10 @@ private const val MIGRATE_ALARM_INFO_TO_SYSTEM_ID_INFO =
     """
 private const val PERIODIC_WORK_SET_SCHEDULE_REQUESTED_AT =
     """
-    UPDATE workspec SET schedule_requested_at=0
+    UPDATE workspec SET schedule_requested_at = 0
     WHERE state NOT IN $COMPLETED_STATES
-        AND schedule_requested_at=${WorkSpec.SCHEDULE_NOT_REQUESTED_YET}
-        AND interval_duration<>0
+        AND schedule_requested_at = ${WorkSpec.SCHEDULE_NOT_REQUESTED_YET}
+        AND interval_duration <> 0
     """
 private const val REMOVE_ALARM_INFO = "DROP TABLE IF EXISTS alarmInfo"
 private const val WORKSPEC_ADD_TRIGGER_UPDATE_DELAY =
@@ -101,6 +111,9 @@ private const val SET_DEFAULT_NETWORK_TYPE =
 
 private const val SET_DEFAULT_CONTENT_URI_TRIGGERS =
     "UPDATE workspec SET content_uri_triggers = x'' WHERE content_uri_triggers is NULL"
+
+private const val INITIALIZE_PERIOD_COUNTER =
+    "UPDATE workspec SET period_count = 1 WHERE last_enqueue_time <> 0 AND interval_duration <> 0"
 
 /**
  * Removes the `alarmInfo` table and substitutes it for a more general
@@ -186,6 +199,22 @@ object Migration_12_13 : Migration(VERSION_12, VERSION_13) {
     }
 }
 
+@RenameColumn(
+    tableName = "WorkSpec",
+    fromColumnName = "period_start_time",
+    toColumnName = "last_enqueue_time"
+)
+class AutoMigration_14_15 : AutoMigrationSpec {
+    override fun onPostMigrate(db: SupportSQLiteDatabase) {
+        db.execSQL(INITIALIZE_PERIOD_COUNTER)
+        val values = ContentValues(1)
+        values.put("last_enqueue_time", System.currentTimeMillis())
+        db.update(
+            "WorkSpec", OnConflictStrategy.ABORT, values,
+            "last_enqueue_time = 0 AND interval_duration <> 0 ", emptyArray()
+        )
+    }
+}
 /**
  * A [WorkDatabase] migration that reschedules all eligible Workers.
  */

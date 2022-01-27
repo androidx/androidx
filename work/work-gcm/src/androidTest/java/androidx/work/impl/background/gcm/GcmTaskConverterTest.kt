@@ -233,7 +233,7 @@ class GcmTaskConverterTest {
             15L, TimeUnit.MINUTES, 5, TimeUnit.MINUTES
         ).build()
 
-        request.workSpec.periodStartTime = now
+        request.workSpec.lastEnqueueTime = now
         val expected = TimeUnit.MINUTES.toSeconds(15L)
 
         val task = mTaskConverter.convert(request.workSpec)

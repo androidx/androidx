@@ -42,7 +42,7 @@ import java.util.UUID
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-@Entity(indices = [Index(value = ["schedule_requested_at"]), Index(value = ["period_start_time"])])
+@Entity(indices = [Index(value = ["schedule_requested_at"]), Index(value = ["last_enqueue_time"])])
 data class WorkSpec(
     @JvmField
     @ColumnInfo(name = "id")
@@ -99,12 +99,11 @@ data class WorkSpec(
     var backoffDelayDuration: Long = WorkRequest.DEFAULT_BACKOFF_DELAY_MILLIS,
 
     /**
-     * For one-off work, this is the time that the work was unblocked by prerequisites.
-     * For periodic work, this is the time that the period started.
+     * Time in millis when work was marked as ENQUEUED in database.
      */
     @JvmField
-    @ColumnInfo(name = "period_start_time")
-    var periodStartTime: Long = 0,
+    @ColumnInfo(name = "last_enqueue_time")
+    var lastEnqueueTime: Long = 0,
 
     @JvmField
     @ColumnInfo(name = "minimum_retention_duration")
@@ -136,7 +135,14 @@ data class WorkSpec(
      */
     @JvmField
     @ColumnInfo(name = "out_of_quota_policy")
-    var outOfQuotaPolicy: OutOfQuotaPolicy = OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST
+    var outOfQuotaPolicy: OutOfQuotaPolicy = OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST,
+
+    /**
+     * A number of periods that this worker has already run.
+     * This has no real implication for OneTimeWork.
+     */
+    @ColumnInfo(name = "period_count", defaultValue = "0")
+    var periodCount: Int = 0,
 ) {
     constructor(
         id: String,
@@ -157,11 +163,12 @@ data class WorkSpec(
         runAttemptCount = other.runAttemptCount,
         backoffPolicy = other.backoffPolicy,
         backoffDelayDuration = other.backoffDelayDuration,
-        periodStartTime = other.periodStartTime,
+        lastEnqueueTime = other.lastEnqueueTime,
         minimumRetentionDuration = other.minimumRetentionDuration,
         scheduleRequestedAt = other.scheduleRequestedAt,
         expedited = other.expedited,
         outOfQuotaPolicy = other.outOfQuotaPolicy,
+        periodCount = other.periodCount,
     )
 
     /**
@@ -269,10 +276,9 @@ data class WorkSpec(
                 runAttemptCount - 1
             )
                 .toLong()
-            periodStartTime + delay.coerceAtMost(WorkRequest.MAX_BACKOFF_MILLIS)
+            lastEnqueueTime + delay.coerceAtMost(WorkRequest.MAX_BACKOFF_MILLIS)
         } else if (isPeriodic) {
-            val now = System.currentTimeMillis()
-            val start = if (periodStartTime == 0L) now + initialDelay else periodStartTime
+            val start = if (periodCount == 0) lastEnqueueTime + initialDelay else lastEnqueueTime
             val isFlexApplicable = flexDuration != intervalDuration
             if (isFlexApplicable) {
                 // To correctly emulate flex, we need to set it
@@ -284,7 +290,7 @@ data class WorkSpec(
                 // 1 => now + (interval - flex) + initialDelay = firstRunTime
                 // 2 => firstRunTime + 2 * interval - flex
                 // 3 => firstRunTime + 3 * interval - flex
-                val offset = if (periodStartTime == 0L) -1 * flexDuration else 0
+                val offset = if (periodCount == 0) -1 * flexDuration else 0
                 start + intervalDuration + offset
             } else {
                 // Don't use flexDuration for determining next run time for PeriodicWork
@@ -292,13 +298,13 @@ data class WorkSpec(
 
                 // The first run of a periodic work request is immediate in JobScheduler, and we
                 // need to emulate this behavior.
-                val offset = if (periodStartTime == 0L) 0 else intervalDuration
+                val offset = if (periodCount == 0) 0 else intervalDuration
                 start + offset
             }
         } else {
             // We are checking for (periodStartTime == 0) to support our testing use case.
             // For newly created WorkSpecs periodStartTime will always be 0.
-            val start = if (periodStartTime == 0L) System.currentTimeMillis() else periodStartTime
+            val start = if (lastEnqueueTime == 0L) System.currentTimeMillis() else lastEnqueueTime
             start + initialDelay
         }
     }

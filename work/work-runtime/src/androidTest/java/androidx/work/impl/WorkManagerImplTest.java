@@ -508,35 +508,36 @@ public class WorkManagerImplTest {
             throws ExecutionException, InterruptedException {
 
         OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class).build();
-        assertThat(work.getWorkSpec().periodStartTime, is(0L));
+        assertThat(work.getWorkSpec().lastEnqueueTime, is(0L));
 
         long beforeEnqueueTime = System.currentTimeMillis();
 
         mWorkManagerImpl.beginWith(work).enqueue().getResult().get();
         WorkSpec workSpec = mDatabase.workSpecDao().getWorkSpec(work.getStringId());
-        assertThat(workSpec.periodStartTime, is(greaterThanOrEqualTo(beforeEnqueueTime)));
+        assertThat(workSpec.lastEnqueueTime, is(greaterThanOrEqualTo(beforeEnqueueTime)));
     }
 
     @Test
     @MediumTest
     public void testEnqueued_periodicWork_setsPeriodStartTime()
             throws ExecutionException, InterruptedException {
-
         PeriodicWorkRequest periodicWork = new PeriodicWorkRequest.Builder(
                 TestWorker.class,
                 PeriodicWorkRequest.MIN_PERIODIC_INTERVAL_MILLIS,
                 TimeUnit.MILLISECONDS)
                 .build();
-        assertThat(periodicWork.getWorkSpec().periodStartTime, is(0L));
+        assertThat(periodicWork.getWorkSpec().lastEnqueueTime, is(0L));
         // Disable the greedy scheduler in this test. This is because sometimes the Worker
         // finishes instantly after enqueue(), and the periodStartTime gets updated.
         doNothing().when(mScheduler).schedule(any(WorkSpec.class));
+        long beforeEnqueueTime = System.currentTimeMillis();
+
         mWorkManagerImpl.enqueue(Collections.singletonList(periodicWork))
                 .getResult()
                 .get();
 
         WorkSpec workSpec = mDatabase.workSpecDao().getWorkSpec(periodicWork.getStringId());
-        assertThat(workSpec.periodStartTime, is(0L));
+        assertThat(workSpec.lastEnqueueTime, is(greaterThanOrEqualTo(beforeEnqueueTime)));
     }
 
     @Test
@@ -1629,11 +1630,11 @@ public class WorkManagerImplTest {
     public void testGenerateCleanupCallback_deletesOldFinishedWork() {
         OneTimeWorkRequest work1 = new OneTimeWorkRequest.Builder(TestWorker.class)
                 .setInitialState(SUCCEEDED)
-                .setPeriodStartTime(CleanupCallback.INSTANCE.getPruneDate() - 1L,
+                .setLastEnqueueTime(CleanupCallback.INSTANCE.getPruneDate() - 1L,
                         TimeUnit.MILLISECONDS)
                 .build();
         OneTimeWorkRequest work2 = new OneTimeWorkRequest.Builder(TestWorker.class)
-                .setPeriodStartTime(Long.MAX_VALUE, TimeUnit.MILLISECONDS)
+                .setLastEnqueueTime(Long.MAX_VALUE, TimeUnit.MILLISECONDS)
                 .build();
 
         insertWorkSpecAndTags(work1);
@@ -1653,17 +1654,17 @@ public class WorkManagerImplTest {
     public void testGenerateCleanupCallback_doesNotDeleteOldFinishedWorkWithActiveDependents() {
         OneTimeWorkRequest work0 = new OneTimeWorkRequest.Builder(TestWorker.class)
                 .setInitialState(SUCCEEDED)
-                .setPeriodStartTime(CleanupCallback.INSTANCE.getPruneDate() - 1L,
+                .setLastEnqueueTime(CleanupCallback.INSTANCE.getPruneDate() - 1L,
                         TimeUnit.MILLISECONDS)
                 .build();
         OneTimeWorkRequest work1 = new OneTimeWorkRequest.Builder(TestWorker.class)
                 .setInitialState(SUCCEEDED)
-                .setPeriodStartTime(CleanupCallback.INSTANCE.getPruneDate() - 1L,
+                .setLastEnqueueTime(CleanupCallback.INSTANCE.getPruneDate() - 1L,
                         TimeUnit.MILLISECONDS)
                 .build();
         OneTimeWorkRequest work2 = new OneTimeWorkRequest.Builder(TestWorker.class)
                 .setInitialState(ENQUEUED)
-                .setPeriodStartTime(CleanupCallback.INSTANCE.getPruneDate() - 1L,
+                .setLastEnqueueTime(CleanupCallback.INSTANCE.getPruneDate() - 1L,
                         TimeUnit.MILLISECONDS)
                 .build();
 
