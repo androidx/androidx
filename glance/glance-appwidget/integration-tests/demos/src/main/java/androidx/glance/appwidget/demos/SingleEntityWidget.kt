@@ -27,6 +27,7 @@ import androidx.glance.appwidget.GlanceAppWidgetReceiver
 import androidx.glance.appwidget.action.ActionCallback
 import androidx.glance.appwidget.action.actionRunCallback
 import androidx.glance.appwidget.state.updateAppWidgetState
+import androidx.glance.unit.ColorProvider
 import androidx.template.appwidget.GlanceTemplateAppWidget
 import androidx.template.template.SingleEntityTemplate
 
@@ -62,7 +63,7 @@ private fun createData(title: String) = SingleEntityTemplate.Data(
     "button",
     actionRunCallback<ButtonAction>(),
     ImageProvider(R.drawable.compose),
-    R.color.default_widget_background
+    ColorProvider(R.color.default_widget_background)
 )
 
 private fun getTitle(pressed: Boolean) = if (pressed) "title2" else "title1"

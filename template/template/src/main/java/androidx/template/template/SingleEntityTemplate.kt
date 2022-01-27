@@ -30,6 +30,7 @@ import androidx.glance.layout.Row
 import androidx.glance.layout.fillMaxSize
 import androidx.glance.layout.padding
 import androidx.glance.text.Text
+import androidx.glance.unit.ColorProvider
 
 /**
  * A basic [GlanceTemplate] implementation based around a single item, using [Data].
@@ -81,6 +82,6 @@ abstract class SingleEntityTemplate : GlanceTemplate<SingleEntityTemplate.Data>(
         var buttonText: String,
         var buttonAction: Action,
         var image: ImageProvider,
-        var backgroundColor: Int
+        var backgroundColor: ColorProvider
     )
 }
