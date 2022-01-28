@@ -222,7 +222,8 @@ class SearchSessionImpl implements AppSearchSession {
         Preconditions.checkNotNull(searchSpec);
         ResolvableFuture<Void> future = ResolvableFuture.create();
 
-        if (Build.VERSION.SDK_INT == Build.VERSION_CODES.S
+        if ((Build.VERSION.SDK_INT == Build.VERSION_CODES.S
+                || Build.VERSION.SDK_INT == Build.VERSION_CODES.S_V2)
                 && !searchSpec.getFilterNamespaces().isEmpty()) {
             // This is a patch for b/197361770, framework-appsearch in Android S will
             // disable the given namespace filter if it is not empty and none of given namespaces

@@ -65,16 +65,20 @@ class SearchResultsImpl implements SearchResults {
                 List<android.app.appsearch.SearchResult> frameworkResults = result.getResultValue();
                 List<SearchResult> jetpackResults = new ArrayList<>(frameworkResults.size());
                 for (int i = 0; i < frameworkResults.size(); i++) {
-                    if (Build.VERSION.SDK_INT == Build.VERSION_CODES.S) {
+                    if (Build.VERSION.SDK_INT == Build.VERSION_CODES.S
+                            || Build.VERSION.SDK_INT == Build.VERSION_CODES.S_V2) {
                         // This is a patch for b/197361770, framework-appsearch in Android S will
                         // disable the whole namespace filter if none of given namespaces exist.
-                        // And that will result in Icing return all documents this query is able
-                        // to access.
+                        // And that will result in Icing returns all documents that this query is
+                        // able to access.
                         if (i == 0 && !mSearchSpec.getFilterNamespaces().isEmpty()
                                 && !mSearchSpec.getFilterNamespaces().contains(
                                 frameworkResults.get(i).getGenericDocument().getNamespace())) {
-                            // And in the meantime, since none of the namespace and document that
-                            // use query for exists, we should just return an empty result.
+                            // We should never return a document with a namespace that is not
+                            // required in the request. And also since the bug will only happen
+                            // when the required namespace doesn't exist, we should just return
+                            // an empty result when we found the result contains unexpected
+                            // namespace.
                             future.set(Collections.emptyList());
                             return;
                         }
