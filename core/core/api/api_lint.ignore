@@ -493,44 +493,6 @@ MissingNullability: androidx.core.content.pm.ShortcutInfoCompat#toShortcutInfo()
     Missing nullability on method `toShortcutInfo` return
 MissingNullability: androidx.core.content.pm.ShortcutInfoCompat.Builder#setIcon(androidx.core.graphics.drawable.IconCompat) parameter #0:
     Missing nullability on parameter `icon` in method `setIcon`
-MissingNullability: androidx.core.graphics.drawable.DrawableCompat#getColorFilter(android.graphics.drawable.Drawable):
-    Missing nullability on method `getColorFilter` return
-MissingNullability: androidx.core.graphics.drawable.DrawableCompat#wrap(android.graphics.drawable.Drawable):
-    Missing nullability on method `wrap` return
-MissingNullability: androidx.core.graphics.drawable.IconCompat#createWithAdaptiveBitmap(android.graphics.Bitmap):
-    Missing nullability on method `createWithAdaptiveBitmap` return
-MissingNullability: androidx.core.graphics.drawable.IconCompat#createWithAdaptiveBitmap(android.graphics.Bitmap) parameter #0:
-    Missing nullability on parameter `bits` in method `createWithAdaptiveBitmap`
-MissingNullability: androidx.core.graphics.drawable.IconCompat#createWithBitmap(android.graphics.Bitmap):
-    Missing nullability on method `createWithBitmap` return
-MissingNullability: androidx.core.graphics.drawable.IconCompat#createWithBitmap(android.graphics.Bitmap) parameter #0:
-    Missing nullability on parameter `bits` in method `createWithBitmap`
-MissingNullability: androidx.core.graphics.drawable.IconCompat#createWithContentUri(String):
-    Missing nullability on method `createWithContentUri` return
-MissingNullability: androidx.core.graphics.drawable.IconCompat#createWithContentUri(String) parameter #0:
-    Missing nullability on parameter `uri` in method `createWithContentUri`
-MissingNullability: androidx.core.graphics.drawable.IconCompat#createWithContentUri(android.net.Uri):
-    Missing nullability on method `createWithContentUri` return
-MissingNullability: androidx.core.graphics.drawable.IconCompat#createWithContentUri(android.net.Uri) parameter #0:
-    Missing nullability on parameter `uri` in method `createWithContentUri`
-MissingNullability: androidx.core.graphics.drawable.IconCompat#createWithData(byte[], int, int):
-    Missing nullability on method `createWithData` return
-MissingNullability: androidx.core.graphics.drawable.IconCompat#createWithData(byte[], int, int) parameter #0:
-    Missing nullability on parameter `data` in method `createWithData`
-MissingNullability: androidx.core.graphics.drawable.IconCompat#createWithResource(android.content.Context, int):
-    Missing nullability on method `createWithResource` return
-MissingNullability: androidx.core.graphics.drawable.IconCompat#createWithResource(android.content.Context, int) parameter #0:
-    Missing nullability on parameter `context` in method `createWithResource`
-MissingNullability: androidx.core.graphics.drawable.IconCompat#setTint(int):
-    Missing nullability on method `setTint` return
-MissingNullability: androidx.core.graphics.drawable.IconCompat#setTintList(android.content.res.ColorStateList):
-    Missing nullability on method `setTintList` return
-MissingNullability: androidx.core.graphics.drawable.IconCompat#setTintList(android.content.res.ColorStateList) parameter #0:
-    Missing nullability on parameter `tintList` in method `setTintList`
-MissingNullability: androidx.core.graphics.drawable.IconCompat#setTintMode(android.graphics.PorterDuff.Mode):
-    Missing nullability on method `setTintMode` return
-MissingNullability: androidx.core.graphics.drawable.IconCompat#setTintMode(android.graphics.PorterDuff.Mode) parameter #0:
-    Missing nullability on parameter `mode` in method `setTintMode`
 MissingNullability: androidx.core.graphics.drawable.RoundedBitmapDrawable#getColorFilter():
     Missing nullability on method `getColorFilter` return
 MissingNullability: androidx.core.graphics.drawable.RoundedBitmapDrawable#onBoundsChange(android.graphics.Rect) parameter #0:
