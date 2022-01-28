@@ -144,13 +144,21 @@ private fun includeMetaInfServices(library: LibraryExtension) {
  * Use this function in [libraryProject] to include inspector that will be compiled into
  * inspector.jar and packaged in the library's aar.
  *
- * @param libraryProject project that is inspected and which aar will host inspector.jar . E.g
- * work-runtime
- * @param inspectorProject project of inspector, that will be compiled into inspector.jar. E.g
- * work-inspection
+ * @param libraryProject project that is inspected and which aar will host inspector.jar .
+ * E.g. work-runtime
+ * @param inspectorProjectPath project path of the inspector, that will be compiled into the
+ * inspector.jar. E.g. :work:work-inspection
  */
 @ExperimentalStdlibApi
-fun packageInspector(libraryProject: Project, inspectorProject: Project) {
+fun packageInspector(libraryProject: Project, inspectorProjectPath: String) {
+    val inspectorProject = libraryProject.rootProject.findProject(inspectorProjectPath)
+    if (inspectorProject == null) {
+        check(libraryProject.property("androidx.studio.type") == "playground") {
+            "Cannot find $inspectorProjectPath. This is optional only for playground builds."
+        }
+        // skip setting up inspector project
+        return
+    }
     val consumeInspector = libraryProject.createConsumeInspectionConfiguration()
 
     libraryProject.dependencies {

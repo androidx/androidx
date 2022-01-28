@@ -62,6 +62,7 @@ jobs:
         run: |
           set -x
           echo "DIST_DIR=$HOME/dist" >> $GITHUB_ENV
+          echo "ANDROID_NDK_ROOT=$ANDROID_NDK_LATEST_HOME" >> $GITHUB_ENV
 
       - name: "Checkout androidx repo"
         uses: actions/checkout@v2
@@ -170,6 +171,9 @@ jobs:
         run: |
           set -x
           echo "DIST_DIR=$HOME/dist" >> $GITHUB_ENV
+          # use latest NDK because the default NDK on github is older.
+          # TODO b/216535050: Implement task to install the exact AndroidX ndk version.
+          echo "ANDROID_NDK_ROOT=$ANDROID_NDK_LATEST_HOME" >> $GITHUB_ENV
       # gradle action loads the dependencies cache only on the first run based on arguments.
       # to control it, we explicitly invoke it once which makes it load the dependencies cache with the parameters
       # we control
@@ -180,7 +184,7 @@ jobs:
           JAVA_HOME: ${{ steps.setup-java.outputs.path }}
           JAVA_TOOLS_JAR: ${{ steps.setup-tools-jar.outputs.toolsJar }}
         with:
-          arguments: tasks -PandroidXUnusedParameter=${{ env.project-root }} # add project name to cache key
+          arguments: projects -PandroidXUnusedParameter=${{ env.project-root }} # add project name to cache key
           build-root-directory: ${{ env.project-root }}
           configuration-cache-enabled: false
           dependencies-cache-enabled: true

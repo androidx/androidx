@@ -79,7 +79,7 @@ dependencies {
     lintPublish(project(":work:work-runtime-lint"))
 }
 
-packageInspector(project, project(":work:work-inspection"))
+packageInspector(project, ":work:work-inspection")
 
 // KSP does not support argument per flavor so we set it to global instead.
 ksp {
