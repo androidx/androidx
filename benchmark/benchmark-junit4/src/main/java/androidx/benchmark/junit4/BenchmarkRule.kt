@@ -46,11 +46,9 @@ import java.io.File
  *
  * @Test
  * fun myBenchmark() {
- *     ...
  *     benchmarkRule.measureRepeated {
  *         doSomeWork()
  *     }
- *     ...
  * }
  * ```
  *
@@ -62,12 +60,10 @@ import java.io.File
  *
  * @Test
  * public void myBenchmark() {
- *     ...
  *     BenchmarkState state = benchmarkRule.getState();
  *     while (state.keepRunning()) {
  *         doSomeWork();
  *     }
- *     ...
  * }
  * ```
  *
@@ -75,9 +71,11 @@ import java.io.File
  * - Summary in AndroidStudio in the test log
  * - In JSON format, on the host
  * - In simple form in Logcat with the tag "Benchmark"
- * - To the instrumentation status result Bundle on the gradle command line
  *
  * Every test in the Class using this @Rule must contain a single benchmark.
+ *
+ * See the [Benchmark Guide](https://developer.android.com/studio/profile/benchmark)
+ * for more information on writing Benchmarks.
  */
 public class BenchmarkRule internal constructor(
     /**
