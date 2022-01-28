@@ -9,8 +9,10 @@ package androidx.lifecycle.viewmodel.compose {
   }
 
   public final class ViewModelKt {
-    method @androidx.compose.runtime.Composable public static <VM extends androidx.lifecycle.ViewModel> VM viewModel(Class<VM> modelClass, optional androidx.lifecycle.ViewModelStoreOwner viewModelStoreOwner, optional String? key, optional androidx.lifecycle.ViewModelProvider.Factory? factory);
-    method @androidx.compose.runtime.Composable public static inline <reified VM extends androidx.lifecycle.ViewModel> VM! viewModel(optional androidx.lifecycle.ViewModelStoreOwner viewModelStoreOwner, optional String key, optional androidx.lifecycle.ViewModelProvider.Factory? factory);
+    method @androidx.compose.runtime.Composable public static <VM extends androidx.lifecycle.ViewModel> VM viewModel(Class<VM> modelClass, optional androidx.lifecycle.ViewModelStoreOwner viewModelStoreOwner, optional String? key, optional androidx.lifecycle.ViewModelProvider.Factory? factory, optional androidx.lifecycle.viewmodel.CreationExtras extras);
+    method @Deprecated @androidx.compose.runtime.Composable public static inline <reified VM extends androidx.lifecycle.ViewModel> VM! viewModel(optional androidx.lifecycle.ViewModelStoreOwner viewModelStoreOwner, optional String key, optional androidx.lifecycle.ViewModelProvider.Factory? factory);
+    method @androidx.compose.runtime.Composable public static inline <reified VM extends androidx.lifecycle.ViewModel> VM! viewModel(optional androidx.lifecycle.ViewModelStoreOwner viewModelStoreOwner, optional String key, optional androidx.lifecycle.ViewModelProvider.Factory? factory, optional androidx.lifecycle.viewmodel.CreationExtras extras);
+    method @Deprecated @androidx.compose.runtime.Composable public static <VM extends androidx.lifecycle.ViewModel> VM! viewModel(Class<VM> modelClass, optional androidx.lifecycle.ViewModelStoreOwner viewModelStoreOwner, optional String key, optional androidx.lifecycle.ViewModelProvider.Factory? factory);
   }
 
 }

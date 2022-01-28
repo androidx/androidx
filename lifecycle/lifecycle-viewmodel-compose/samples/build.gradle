@@ -15,6 +15,7 @@
  */
 
 import androidx.build.LibraryType
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("AndroidXPlugin")
@@ -25,8 +26,11 @@ plugins {
 
 dependencies {
     kotlinPlugin(projectOrArtifact(":compose:compiler:compiler"))
+    compileOnly(projectOrArtifact(":annotation:annotation-sampled"))
     implementation(libs.kotlinStdlib)
+    implementation projectOrArtifact(":lifecycle:lifecycle-common-java8")
     implementation projectOrArtifact(":lifecycle:lifecycle-viewmodel-compose")
+    implementation projectOrArtifact(":lifecycle:lifecycle-viewmodel-savedstate")
 }
 
 androidx {
@@ -35,4 +39,14 @@ androidx {
     mavenGroup = LibraryGroups.LIFECYCLE
     inceptionYear = "2021"
     description = "Samples for Compose integration with Lifecycle ViewModel"
+}
+
+// needed only while https://youtrack.jetbrains.com/issue/KT-47000 isn't resolved which is
+// targeted to 1.6
+tasks.withType(KotlinCompile).configureEach {
+    kotlinOptions {
+        freeCompilerArgs += [
+                "-Xjvm-default=enable",
+        ]
+    }
 }
