@@ -33,7 +33,7 @@ import androidx.glance.text.Text
 import androidx.glance.unit.ColorProvider
 
 /**
- * A basic [GlanceTemplate] implementation based around a single item, using [Data].
+ * A basic [GlanceTemplate] implementation based around a single entity, using [Data].
  */
 abstract class SingleEntityTemplate : GlanceTemplate<SingleEntityTemplate.Data>() {
 
