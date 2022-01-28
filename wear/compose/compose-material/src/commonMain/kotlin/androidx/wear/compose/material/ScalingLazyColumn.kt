@@ -27,7 +27,6 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
@@ -310,7 +309,6 @@ public fun ScalingLazyColumn(
 
             LazyColumn(
                 modifier = Modifier
-                    .fillMaxSize()
                     .clipToBounds()
                     .verticalNegativePadding(extraPadding)
                     .onGloballyPositioned {
