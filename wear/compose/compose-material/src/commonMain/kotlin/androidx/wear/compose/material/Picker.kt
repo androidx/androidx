@@ -112,7 +112,7 @@ internal fun scalingLazyListSnapping(
             val viewPortHeight = state.viewportHeightPx.value!!
 
             // Estimate the item closest to the target, and adjust our aim.
-            var totalSize = visibleItemsInfo.last().unadjustedOffset -
+            val totalSize = visibleItemsInfo.last().unadjustedOffset -
                 visibleItemsInfo.first().unadjustedOffset
             val estimatedItemDistance = totalSize.toFloat() / (visibleItemsInfo.size - 1)
             val centerOffset = state.centerItemScrollOffset
@@ -278,8 +278,8 @@ public object PickerDefaults {
         edgeAlpha: Float = 1.0f,
         minElementHeight: Float = 0.0f,
         maxElementHeight: Float = 0.0f,
-        minTransitionArea: Float = 0.9f,
-        maxTransitionArea: Float = 0.9f,
+        minTransitionArea: Float = 0.45f,
+        maxTransitionArea: Float = 0.45f,
         scaleInterpolator: Easing = CubicBezierEasing(0.25f, 0.00f, 0.75f, 1.00f),
         viewportVerticalOffsetResolver: (Constraints) -> Int = { (it.maxHeight / 5f).toInt() }
     ): ScalingParams = DefaultScalingParams(
