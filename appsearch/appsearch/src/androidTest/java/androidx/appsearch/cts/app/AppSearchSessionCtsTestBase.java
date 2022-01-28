@@ -597,7 +597,10 @@ public abstract class AppSearchSessionCtsTestBase {
 
     @Test
     public void testPutDocuments_emptyProperties() throws Exception {
-        // Schema registration
+        // Schema registration. Due to b/204677124 is fixed in Android T. We have different
+        // behaviour when set empty array to bytes and documents between local and platform storage.
+        // This test only test String, long, boolean and double, for byte array and Document will be
+        // test in backend's specific test.
         AppSearchSchema schema = new AppSearchSchema.Builder("testSchema")
                 .addProperty(new StringPropertyConfig.Builder("string")
                         .setCardinality(PropertyConfig.CARDINALITY_REPEATED)
@@ -613,14 +616,6 @@ public abstract class AppSearchSessionCtsTestBase {
                 .addProperty(new AppSearchSchema.BooleanPropertyConfig.Builder("boolean")
                         .setCardinality(PropertyConfig.CARDINALITY_REPEATED)
                         .build())
-                .addProperty(new AppSearchSchema.BytesPropertyConfig.Builder("bytes")
-                        .setCardinality(PropertyConfig.CARDINALITY_REPEATED)
-                        .build())
-                .addProperty(new AppSearchSchema.DocumentPropertyConfig.Builder(
-                        "document", AppSearchEmail.SCHEMA_TYPE)
-                        .setCardinality(PropertyConfig.CARDINALITY_REPEATED)
-                        .setShouldIndexNestedProperties(true)
-                        .build())
                 .build();
         mDb1.setSchema(new SetSchemaRequest.Builder()
                 .addSchemas(schema, AppSearchEmail.SCHEMA).build()).get();
@@ -629,9 +624,7 @@ public abstract class AppSearchSessionCtsTestBase {
         GenericDocument document = new GenericDocument.Builder<>("namespace", "id1", "testSchema")
                 .setPropertyBoolean("boolean")
                 .setPropertyString("string")
-                .setPropertyBytes("bytes")
                 .setPropertyDouble("double")
-                .setPropertyDocument("document")
                 .setPropertyLong("long")
                 .build();
 
@@ -648,9 +641,7 @@ public abstract class AppSearchSessionCtsTestBase {
         GenericDocument outDocument = outDocuments.get(0);
         assertThat(outDocument.getPropertyBooleanArray("boolean")).isEmpty();
         assertThat(outDocument.getPropertyStringArray("string")).isEmpty();
-        assertThat(outDocument.getPropertyBytesArray("bytes")).isEmpty();
         assertThat(outDocument.getPropertyDoubleArray("double")).isEmpty();
-        assertThat(outDocument.getPropertyDocumentArray("document")).isEmpty();
         assertThat(outDocument.getPropertyLongArray("long")).isEmpty();
     }
 
