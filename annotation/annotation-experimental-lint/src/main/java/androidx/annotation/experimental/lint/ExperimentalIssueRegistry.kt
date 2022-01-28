@@ -19,6 +19,7 @@ package androidx.annotation.experimental.lint
 import com.android.tools.lint.client.api.IssueRegistry
 import com.android.tools.lint.detector.api.CURRENT_API
 
+@Suppress("UnstableApiUsage")
 class ExperimentalIssueRegistry : IssueRegistry() {
     override val minApi = CURRENT_API
     override val api = 11
