@@ -417,8 +417,13 @@ public class ArcLayout extends ViewGroup {
 
     @Override
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
+        final boolean isLayoutRtl = getLayoutDirection() == LAYOUT_DIRECTION_RTL;
+
+        // != is equivalent to xor, we want to invert clockwise when the layout is rtl
+        final float multiplier = mClockwise != isLayoutRtl ? 1f : -1f;
+
          // Layout the children in the arc, computing the center angle where they should be drawn.
-        float currentCumulativeAngle = calculateInitialRotation();
+        float currentCumulativeAngle = calculateInitialRotation(multiplier);
         for (int i = 0; i < getChildCount(); i++) {
             View child = getChildAt(i);
 
@@ -429,7 +434,6 @@ public class ArcLayout extends ViewGroup {
             calculateArcAngle(child, mChildArcAngles);
             float preRotation = mChildArcAngles.leftMarginAsAngle
                     + mChildArcAngles.actualChildAngle / 2f;
-            float multiplier = mClockwise ? 1f : -1f;
 
             float middleAngle = multiplier * (currentCumulativeAngle + preRotation);
             LayoutParams childLayoutParams = (LayoutParams) child.getLayoutParams();
@@ -597,8 +601,7 @@ public class ArcLayout extends ViewGroup {
         return wasInvalidateIssued;
     }
 
-    private float calculateInitialRotation() {
-        float multiplier = mClockwise ? 1f : -1f;
+    private float calculateInitialRotation(float multiplier) {
         if (mAnchorType == ANCHOR_START) {
             return multiplier * mAnchorAngleDegrees;
         }
