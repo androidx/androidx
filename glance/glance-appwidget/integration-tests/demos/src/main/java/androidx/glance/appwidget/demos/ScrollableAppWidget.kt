@@ -48,7 +48,7 @@ import androidx.glance.appwidget.action.ActionCallback
 import androidx.glance.appwidget.action.ToggleableStateKey
 import androidx.glance.appwidget.action.actionRunCallback
 import androidx.glance.appwidget.action.actionStartActivity
-import androidx.glance.appwidget.demos.ScrollableAppWidget.Companion.checkboxKey
+import androidx.glance.appwidget.demos.ScrollableAppWidget.Companion.CheckboxKey
 import androidx.glance.appwidget.lazy.LazyColumn
 import androidx.glance.appwidget.lazy.itemsIndexed
 import androidx.glance.appwidget.state.updateAppWidgetState
@@ -77,7 +77,7 @@ class ScrollableAppWidget : GlanceAppWidget() {
         private val doubleColumn = DpSize(200.dp, 48.dp)
         private val tripleColumn = DpSize(300.dp, 48.dp)
 
-        val checkboxKey = booleanPreferencesKey("checkbox")
+        val CheckboxKey = booleanPreferencesKey("checkbox")
     }
 
     override val sizeMode: SizeMode = SizeMode.Responsive(
@@ -181,7 +181,7 @@ private fun ScrollColumn(modifier: GlanceModifier) {
         }
         item {
             CheckBox(
-                checked = currentState(checkboxKey) ?: false,
+                checked = currentState(CheckboxKey) ?: false,
                 onCheckedChange = actionRunCallback<ListToggleAction>(),
                 text = "Checkbox"
             )
@@ -236,7 +236,7 @@ class LogItemClickAction : ActionCallback {
 class ListToggleAction : ActionCallback {
     override suspend fun onRun(context: Context, glanceId: GlanceId, parameters: ActionParameters) {
         updateAppWidgetState(context, glanceId) { state ->
-            state[checkboxKey] = parameters[ToggleableStateKey] ?: false
+            state[CheckboxKey] = parameters[ToggleableStateKey] ?: false
         }
         ScrollableAppWidget().update(context, glanceId)
     }
