@@ -45,6 +45,8 @@ jobs:
           fi
           echo "::set-output name=repository::$REPOSITORY"
       - name: Publish build scans link
+        # No scans are produced for PRs from forked repos, so omit this notice for forked PRs.
+        if: ${{ !(github.event.pull_request && github.event.pull_request.head.repo.fork) }}
         run: echo "::notice title=All build scans for workflow::https://ge.androidx.dev/scans?search.names=CI%20run&search.values=$GITHUB_RUN_ID"
 
   lint:
