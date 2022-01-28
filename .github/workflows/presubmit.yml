@@ -4,6 +4,8 @@ on:
   pull_request:
 
 env:
+  # Allow precise monitoring of the save/restore of Gradle User Home by `gradle-build-action`
+  # See https://github.com/marketplace/actions/gradle-build-action?version=v2.1.1#cache-debugging-and-analysis
   GRADLE_BUILD_ACTION_CACHE_DEBUG_ENABLED: true
 
 jobs:
@@ -16,6 +18,7 @@ jobs:
     steps:
       - name: "Setup global constants"
         id: global-constants
+        # The configuration-cache cannot be used due to state excluded when caching Gradle User Home
         run: |
           set -x
           GRADLEW_FLAGS="-Dorg.gradle.internal.http.connectionTimeout=60000 \
@@ -111,9 +114,12 @@ jobs:
           # Only save Gradle User Home state for builds on the 'androidx-main' branch.
           # Builds on other branches will only read existing entries from the cache.
           cache-read-only: ${{ github.ref != 'refs/heads/androidx-main' }}
-          # Don't share cache entries with other jobs
+
+          # Don't reuse cache entries from any other Job.
           gradle-home-cache-strict-match: true
-          # Limit the size of the cache entry
+
+          # Limit the size of the cache entry.
+          # These directories contain instrumented/transformed dependency jars which can be reconstructed relatively quickly.
           gradle-home-cache-excludes: | 
             caches/jars-9
             caches/transforms-3
@@ -175,15 +181,19 @@ jobs:
           # use latest NDK because the default NDK on github is older.
           # TODO b/216535050: Implement task to install the exact AndroidX ndk version.
           echo "ANDROID_NDK_ROOT=$ANDROID_NDK_LATEST_HOME" >> $GITHUB_ENV
+
       - name: "Setup Gradle"
         uses: gradle/gradle-build-action@v2
         with:
           # Only save Gradle User Home state for builds on the 'androidx-main' branch.
           # Builds on other branches will only read existing entries from the cache.
           cache-read-only: ${{ github.ref != 'refs/heads/androidx-main' }}
-          # Don't share cache entries with other jobs
+
+          # Don't reuse cache entries from any other Job.
           gradle-home-cache-strict-match: true
-          # Limit the size of the cache entry
+
+          # Limit the size of the cache entry.
+          # These directories contain instrumented/transformed dependency jars which can be reconstructed relatively quickly.
           gradle-home-cache-excludes: | 
             caches/jars-9
             caches/transforms-3
