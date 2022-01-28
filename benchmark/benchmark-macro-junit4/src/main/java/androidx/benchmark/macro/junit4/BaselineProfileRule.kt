@@ -31,6 +31,29 @@ import org.junit.runners.model.Statement
  * A [TestRule] that collects Baseline Profiles to be embedded in your APK.
  *
  * These rules are used at install time to partially pre-compile your application code.
+ *
+ * ```
+ * @ExperimentalBaselineProfilesApi
+ * @RunWith(AndroidJUnit4::class)
+ * class BaselineProfileGenerator {
+ *     @get:Rule
+ *     val baselineProfileRule = BaselineProfileRule()
+ *
+ *     @Test
+ *     fun startup() = baselineProfileRule.collectBaselineProfile(
+ *         packageName = "com.example.app"
+ *     ) {
+ *         pressHome()
+ *         // This block defines the app's critical user journey. Here we are
+ *         // interested in optimizing for app startup, but you can also navigate
+ *         // and scroll through your most important UI.
+ *         startActivityAndWait()
+ *     }
+ * }
+ * ```
+ *
+ * See the [Baseline Profile Guide](https://developer.android.com/studio/profile/baselineprofiles)
+ * for more information on creating Baseline Profiles.
  */
 @RequiresApi(28)
 @ExperimentalBaselineProfilesApi
