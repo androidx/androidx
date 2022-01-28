@@ -139,6 +139,28 @@ contains a history of the matching exact commits of each git repository over
 time, and it can be
 [checked out directly via git](https://stackoverflow.com/questions/3796927/how-to-git-clone-including-submodules)
 
+### Troubleshooting
+
+> NOTE: If the repo manifest changes -- for example when we update the version
+> of `platform-tools` by pointing it to a different git project -- you may see
+> the following error during`repo sync`:
+>
+> ```shell
+> error.GitError: Cannot fetch --force-sync not enabled; cannot overwrite a local work tree.
+> ...
+> error: Unable to fully sync the tree.
+> error: Downloading network changes failed.
+> ```
+>
+> This indicates that Studio or some other process has made changes in the git
+> project that has been replaced or removed. You can force `repo sync` to
+> discard these changes and check out the correct git project by adding the
+> `--force-sync` argument:
+>
+> ```shell
+> repo sync -j32 --force-sync
+> ```
+
 ## Explore source code from a browser {#code-search}
 
 `androidx-main` has a publicly-accessible
