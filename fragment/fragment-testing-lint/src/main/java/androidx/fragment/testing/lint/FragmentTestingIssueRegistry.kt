@@ -19,6 +19,7 @@ package androidx.fragment.testing.lint
 import com.android.tools.lint.client.api.IssueRegistry
 import com.android.tools.lint.detector.api.CURRENT_API
 
+@Suppress("UnstableApiUsage")
 class FragmentTestingIssueRegistry : IssueRegistry() {
     override val api = 11
     override val minApi = CURRENT_API
