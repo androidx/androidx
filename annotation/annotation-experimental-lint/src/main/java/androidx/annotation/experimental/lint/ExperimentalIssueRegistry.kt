@@ -17,6 +17,7 @@
 package androidx.annotation.experimental.lint
 
 import com.android.tools.lint.client.api.IssueRegistry
+import com.android.tools.lint.client.api.Vendor
 import com.android.tools.lint.detector.api.CURRENT_API
 
 @Suppress("UnstableApiUsage")
@@ -24,4 +25,9 @@ class ExperimentalIssueRegistry : IssueRegistry() {
     override val minApi = CURRENT_API
     override val api = 11
     override val issues get() = ExperimentalDetector.ISSUES + AnnotationRetentionDetector.ISSUE
+    override val vendor = Vendor(
+        feedbackUrl = "https://issuetracker.google.com/issues/new?component=459778",
+        identifier = "androidx.annotation.experimental",
+        vendorName = "Android Open Source Project",
+    )
 }
