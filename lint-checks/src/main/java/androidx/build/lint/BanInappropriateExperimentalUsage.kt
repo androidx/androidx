@@ -27,6 +27,7 @@ import com.android.tools.lint.detector.api.Issue
 import com.android.tools.lint.detector.api.JavaContext
 import com.android.tools.lint.detector.api.Scope
 import com.android.tools.lint.detector.api.Severity
+import java.io.FileNotFoundException
 import org.jetbrains.uast.UAnnotated
 import org.jetbrains.uast.UAnnotation
 import org.jetbrains.uast.UClass
@@ -45,6 +46,8 @@ class BanInappropriateExperimentalUsage : Detector(), Detector.UastScanner {
     }
 
     private inner class AnnotationChecker(val context: JavaContext) : UElementHandler() {
+        val atomicGroupList: List<String> by lazy { loadAtomicLibraryGroupList() }
+
         override fun visitAnnotation(node: UAnnotation) {
             if (DEBUG) {
                 if (APPLICABLE_ANNOTATIONS.contains(node.qualifiedName) && node.sourcePsi != null) {
@@ -68,9 +71,30 @@ class BanInappropriateExperimentalUsage : Detector(), Detector.UastScanner {
                                 "${context.project}"
                         )
                     }
-                    verifyUsageOfElementIsWithinSameGroup(context, node, annotation, ISSUE)
+                    verifyUsageOfElementIsWithinSameGroup(
+                        context,
+                        node,
+                        annotation,
+                        ISSUE,
+                        atomicGroupList
+                    )
                 }
             }
+        }
+
+        private fun loadAtomicLibraryGroupList(): List<String> {
+            val fileStream = this::class.java.classLoader
+                .getResourceAsStream(ATOMIC_LIBRARY_GROUPS_FILENAME)
+                ?: throw FileNotFoundException(
+                    "Couldn't find atomic library group file $ATOMIC_LIBRARY_GROUPS_FILENAME" +
+                        " within lint-checks.jar")
+
+            val atomicLibraryGroupsString = fileStream.bufferedReader().use { it.readText() }
+            if (atomicLibraryGroupsString.isEmpty()) {
+                throw RuntimeException("Atomic library group file should not be empty")
+            }
+
+            return atomicLibraryGroupsString.split("\n")
         }
     }
 
@@ -79,12 +103,18 @@ class BanInappropriateExperimentalUsage : Detector(), Detector.UastScanner {
         usage: UElement,
         annotation: UElement,
         issue: Issue,
+        atomicGroupList: List<String>,
     ) {
         val evaluator = context.evaluator
         val usageCoordinates = evaluator.getLibrary(usage) ?: context.project.mavenCoordinate
         val usageGroupId = usageCoordinates?.groupId
-        val annotationGroupId = evaluator.getLibrary(annotation)?.groupId
-        if (annotationGroupId != usageGroupId && annotationGroupId != null) {
+        val annotationGroup = evaluator.getLibrary(annotation) ?: return
+        val annotationGroupId = annotationGroup.groupId
+
+        val isUsedInSameGroup = annotationGroupId == usageGroupId
+        val isUsedInDifferentArtifact = usageCoordinates.artifactId != annotationGroup.artifactId
+        val isAtomic = atomicGroupList.contains(usageGroupId)
+        if (!isUsedInSameGroup || (isUsedInSameGroup && isUsedInDifferentArtifact && !isAtomic)) {
             if (DEBUG) {
                 println(
                     "${context.driver.mode}: report usage of $annotationGroupId in $usageGroupId"
@@ -122,6 +152,9 @@ class BanInappropriateExperimentalUsage : Detector(), Detector.UastScanner {
             JAVA_REQUIRES_OPT_IN_ANNOTATION,
             KOTLIN_REQUIRES_OPT_IN_ANNOTATION,
         )
+
+        // This must match the definition in ExportAtomicLibraryGroupsToTextTask
+        const val ATOMIC_LIBRARY_GROUPS_FILENAME = "atomic-library-groups.txt"
 
         val ISSUE = Issue.create(
             id = "IllegalExperimentalApiUsage",

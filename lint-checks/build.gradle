@@ -14,7 +14,9 @@
  * limitations under the License.
  */
 
+import androidx.build.ExportAtomicLibraryGroupsToTextTask
 import androidx.build.LibraryType
+import androidx.build.SdkHelperKt
 
 plugins {
     id("AndroidXPlugin")
@@ -46,3 +48,19 @@ androidx {
     inceptionYear = "2018"
     description = "Internal lint checks"
 }
+
+def exportTaskProvider = tasks.register(
+        "exportAtomicLibraryGroupsToText",
+        ExportAtomicLibraryGroupsToTextTask
+) { task ->
+    def repoDir = SdkHelperKt.getSupportRootFolder(project)
+    task.libraryGroupFile = project.file("${repoDir.absolutePath}" +
+            "/buildSrc/public/src/main/kotlin/androidx/build/LibraryGroups.kt")
+
+    def generatedDirectory = new File(project.buildDir, "generated/resources")
+    task.outputDir.set(generatedDirectory)
+}
+
+def extension = project.extensions.getByType(JavaPluginExtension.class)
+def mainSources = extension.sourceSets.getByName("main")
+mainSources.getOutput().dir(exportTaskProvider.flatMap { it.outputDir })
