@@ -279,7 +279,7 @@ class JankStatsTest {
                 if (frameData.isJank) {
                     this.numJankFrames++
                 }
-                this.jankData.add(FrameData(frameData))
+                this.jankData.add(frameData)
                 latch!!.countDown()
             }
         }
