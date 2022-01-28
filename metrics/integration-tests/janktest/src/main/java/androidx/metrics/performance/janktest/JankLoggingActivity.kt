@@ -61,15 +61,8 @@ class JankLoggingActivity : AppCompatActivity() {
     }
 
     object jankFrameListener : JankStats.OnFrameListener {
-
         override fun onFrame(frameData: FrameData) {
-            println(
-                "*** Jank frame start, duration, jank = ${frameData.frameStartNanos}, " +
-                    "${frameData.frameDurationNanos}, ${frameData.isJank}"
-            )
-            for (state in frameData.states) {
-                println("    ${state.stateName}: ${state.state}")
-            }
+            println("JankStats.OnFrameListener: $frameData")
         }
     }
 

@@ -28,15 +28,6 @@ internal open class JankStatsApi26Impl(
     window: Window
 ) : JankStatsApi24Impl(jankStats, view, window) {
 
-    override fun getFrameDuration(frameMetrics: FrameMetrics): Long {
-        // TOTAL_DURATION is measured from intended start of frame, but
-        // JankStats uses VSYNC_TIMESTAMP as start of frame, so subtract
-        // that difference to use consistent metrics
-        val total = frameMetrics.getMetric(FrameMetrics.TOTAL_DURATION)
-        val intended = frameMetrics.getMetric(FrameMetrics.INTENDED_VSYNC_TIMESTAMP)
-        val vsync = frameMetrics.getMetric(FrameMetrics.VSYNC_TIMESTAMP)
-        return total - (vsync - intended)
-    }
     override fun getFrameStartTime(frameMetrics: FrameMetrics): Long {
         return frameMetrics.getMetric(FrameMetrics.VSYNC_TIMESTAMP)
     }

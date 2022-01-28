@@ -150,17 +150,11 @@ class JankStats private constructor(
         }
 
     /**
-     * Called internally (by Impl classes) with the frame duration data. This function combines
-     * the timing data with the states associated with that frame and calls the client's
-     * listener with all of that information.
+     * Called internally (by Impl classes) with the frame data, which is passed onto the client.
      */
-    internal fun logFrameData(startTime: Long, actualDuration: Long, expectedDuration: Long) {
-        val frameStates =
-            metricsStateHolder.state?.getIntervalStates(startTime, startTime + actualDuration)
-            ?: emptyList()
-        val isJank = actualDuration > expectedDuration
+    internal fun logFrameData(frameData: FrameData) {
         executor.execute {
-            frameListener.onFrame(FrameData(startTime, actualDuration, isJank, frameStates))
+            frameListener.onFrame(frameData)
         }
     }
 
