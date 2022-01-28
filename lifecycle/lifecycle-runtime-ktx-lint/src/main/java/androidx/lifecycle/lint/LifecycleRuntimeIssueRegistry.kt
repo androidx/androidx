@@ -19,6 +19,7 @@ package androidx.lifecycle.lint
 import com.android.tools.lint.client.api.IssueRegistry
 import com.android.tools.lint.detector.api.CURRENT_API
 
+@Suppress("UnstableApiUsage")
 class LifecycleRuntimeIssueRegistry : IssueRegistry() {
     // tests are run with this version. We ensure that with ApiLintVersionsTest
     override val api = 11
