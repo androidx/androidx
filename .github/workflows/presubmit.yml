@@ -108,7 +108,10 @@ jobs:
       - name: "Setup Gradle"
         uses: gradle/gradle-build-action@v2
         with:
-          # Don't share cache entries with other jobs          
+          # Only save Gradle User Home state for builds on the 'androidx-main' branch.
+          # Builds on other branches will only read existing entries from the cache.
+          cache-read-only: ${{ github.ref != 'refs/heads/androidx-main' }}
+          # Don't share cache entries with other jobs
           gradle-home-cache-strict-match: true
           # Limit the size of the cache entry
           gradle-home-cache-excludes: | 
@@ -175,7 +178,10 @@ jobs:
       - name: "Setup Gradle"
         uses: gradle/gradle-build-action@v2
         with:
-          # Don't share cache entries with other jobs          
+          # Only save Gradle User Home state for builds on the 'androidx-main' branch.
+          # Builds on other branches will only read existing entries from the cache.
+          cache-read-only: ${{ github.ref != 'refs/heads/androidx-main' }}
+          # Don't share cache entries with other jobs
           gradle-home-cache-strict-match: true
           # Limit the size of the cache entry
           gradle-home-cache-excludes: | 
