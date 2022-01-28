@@ -17,7 +17,9 @@
 package androidx.navigation
 
 import android.app.Application
+import androidx.core.os.bundleOf
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.DEFAULT_ARGS_KEY
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
@@ -25,6 +27,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelStore
 import androidx.lifecycle.get
 import androidx.lifecycle.testing.TestLifecycleOwner
+import androidx.lifecycle.viewmodel.MutableCreationExtras
 import androidx.navigation.test.R
 import androidx.test.annotation.UiThreadTest
 import androidx.test.core.app.ActivityScenario
@@ -121,7 +124,11 @@ class NavBackStackEntryTest {
     @Test
     fun testGetViewModelStoreOwnerSavedStateViewModel() {
         val hostStore = ViewModelStore()
-        val navController = createNavController()
+        val lifecycleOwner = TestLifecycleOwner(Lifecycle.State.RESUMED)
+        val navController = NavHostController(ApplicationProvider.getApplicationContext()).apply {
+            setLifecycleOwner(lifecycleOwner)
+            navigatorProvider.addNavigator(TestNavigator())
+        }
         navController.setViewModelStore(hostStore)
         val navGraph = navController.navigatorProvider.navigation(
             id = 1,
@@ -139,12 +146,17 @@ class NavBackStackEntryTest {
         viewModel.savedStateHandle.set("test", "test")
 
         val savedState = navController.saveState()
+
+        // Need to move the old navController state to DESTROYED to detach
+        // SavedStateHandleController
+        lifecycleOwner.lifecycle.currentState = Lifecycle.State.DESTROYED
+
         val restoredNavController = createNavController()
         restoredNavController.setViewModelStore(hostStore)
         restoredNavController.restoreState(savedState)
         restoredNavController.graph = navGraph
 
-        val restoredOwner = navController.getViewModelStoreOwner(navGraph.id)
+        val restoredOwner = restoredNavController.getViewModelStoreOwner(navGraph.id)
         val restoredViewModel = ViewModelProvider(
             restoredOwner
         )[TestSavedStateViewModel::class.java]
@@ -262,7 +274,11 @@ class NavBackStackEntryTest {
     @Test
     fun testCreateViewModelViaExtras() {
         val hostStore = ViewModelStore()
-        val navController = createNavController()
+        val lifecycleOwner = TestLifecycleOwner(Lifecycle.State.RESUMED)
+        val navController = NavHostController(ApplicationProvider.getApplicationContext()).apply {
+            setLifecycleOwner(lifecycleOwner)
+            navigatorProvider.addNavigator(TestNavigator())
+        }
         navController.setViewModelStore(hostStore)
         val navGraph = navController.navigatorProvider.navigation(
             id = 1,
@@ -274,31 +290,19 @@ class NavBackStackEntryTest {
 
         val entry = navController.currentBackStackEntry!!
 
-        val creationViewModel = ViewModelProvider(
-            entry.viewModelStore,
-            entry.defaultViewModelProviderFactory,
-            entry.defaultViewModelCreationExtras)["test", TestSavedStateViewModel::class.java]
-
-        val key = "key"
-        val value = "value"
-
-        creationViewModel.savedStateHandle.set(key, value)
-
-        val savedState = navController.saveState()
-        val restoredNavController = createNavController()
-        restoredNavController.setViewModelStore(hostStore)
-        restoredNavController.restoreState(savedState)
-        restoredNavController.graph = navGraph
-
-        val restoredEntry = restoredNavController.currentBackStackEntry!!
+        val extras = MutableCreationExtras(entry.defaultViewModelCreationExtras).apply {
+            this[DEFAULT_ARGS_KEY] = bundleOf("test" to "value")
+        }
 
         val actualValue =
-            ViewModelProvider(restoredEntry)["test", TestSavedStateViewModel::class.java]
-                .savedStateHandle.get<String>(key)
+            ViewModelProvider(
+                entry.viewModelStore,
+                entry.defaultViewModelProviderFactory,
+                extras)["test", TestSavedStateViewModel::class.java].defaultValue
 
-        assertWithMessage("Restored back stack entry should have same ViewModel instance")
+        assertWithMessage("ViewModel from back stack entry should have args from CreationExtras")
             .that(actualValue)
-            .isEqualTo(value)
+            .isEqualTo("value")
     }
 
     @UiThreadTest
@@ -645,4 +649,6 @@ internal class TestAndroidViewModel(application: Application) : AndroidViewModel
     }
 }
 
-class TestSavedStateViewModel(val savedStateHandle: SavedStateHandle) : ViewModel()
+class TestSavedStateViewModel(val savedStateHandle: SavedStateHandle) : ViewModel() {
+    val defaultValue = savedStateHandle.get<String>("test")
+}
