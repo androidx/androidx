@@ -97,7 +97,7 @@
             android:name="androidx.glance.appwidget.demos.SingleEntityWidgetReceiver"
             android:enabled="@bool/glance_appwidget_available"
             android:exported="false"
-            android:label="@string/single_item_widget_name">
+            android:label="@string/single_entity_widget_name">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
                 <action android:name="android.intent.action.LOCALE_CHANGED" />
