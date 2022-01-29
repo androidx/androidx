@@ -31,7 +31,7 @@ import java.util.Properties
 class ProjectSetupRule : ExternalResource() {
     val testProjectDir = TemporaryFolder()
 
-    lateinit var props: ProjectProps
+    val props: ProjectProps by lazy { ProjectProps.load() }
 
     val rootDir: File
         get() = testProjectDir.root
@@ -47,7 +47,7 @@ class ProjectSetupRule : ExternalResource() {
      * Local build repo is the first in line to ensure it is prioritized.
      */
     val allRepositoryPaths: List<String> by lazy {
-        listOf(props.localSupportRepo) + props.repositoryUrls
+        listOf(props.tipOfTreeMavenRepoPath) + props.repositoryUrls
     }
 
     private val repositories: String
@@ -96,7 +96,6 @@ class ProjectSetupRule : ExternalResource() {
     }
 
     override fun before() {
-        props = ProjectProps.load()
         buildFile.createNewFile()
         copyLocalProperties()
         writeGradleProperties()
@@ -161,7 +160,6 @@ class ProjectSetupRule : ExternalResource() {
 }
 
 data class ProjectProps(
-    val prebuiltsRoot: String,
     val compileSdkVersion: String,
     val buildToolsVersion: String,
     val minSdkVersion: String,
@@ -171,29 +169,40 @@ data class ProjectProps(
     val kotlinVersion: String,
     val kspVersion: String,
     val rootProjectPath: String,
-    val localSupportRepo: String,
+    val tipOfTreeMavenRepoPath: String,
     val agpDependency: String,
     val repositoryUrls: List<String>
 ) {
     companion object {
+        private fun Properties.getCanonicalPath(key: String): String {
+            return File(getProperty(key)).canonicalPath
+        }
         fun load(): ProjectProps {
             val stream = ProjectSetupRule::class.java.classLoader.getResourceAsStream("sdk.prop")
             val properties = Properties()
             properties.load(stream)
             return ProjectProps(
-                prebuiltsRoot = properties.getProperty("prebuiltsRoot"),
+                debugKeystore = properties.getCanonicalPath("debugKeystoreRelativePath"),
+                rootProjectPath = properties.getCanonicalPath("rootProjectRelativePath"),
+                tipOfTreeMavenRepoPath = properties.getCanonicalPath(
+                    "tipOfTreeMavenRepoRelativePath"
+                ),
+                repositoryUrls = properties.getProperty("repositoryUrls").split(",").map {
+                    if (it.startsWith("http")) {
+                        it
+                    } else {
+                        // Convert relative paths back to canonical paths
+                        File(it).canonicalPath
+                    }
+                },
                 compileSdkVersion = properties.getProperty("compileSdkVersion"),
                 buildToolsVersion = properties.getProperty("buildToolsVersion"),
                 minSdkVersion = properties.getProperty("minSdkVersion"),
-                debugKeystore = properties.getProperty("debugKeystore"),
                 navigationRuntime = properties.getProperty("navigationRuntime"),
                 kotlinStblib = properties.getProperty("kotlinStdlib"),
                 kotlinVersion = properties.getProperty("kotlinVersion"),
                 kspVersion = properties.getProperty("kspVersion"),
-                rootProjectPath = properties.getProperty("rootProjectPath"),
-                localSupportRepo = properties.getProperty("localSupportRepo"),
                 agpDependency = properties.getProperty("agpDependency"),
-                repositoryUrls = properties.getProperty("repositoryUrls").split(",")
             )
         }
     }
