@@ -47,7 +47,7 @@ class CollectionTest {
         projectSetup.buildFile.writeText(
             """
             repositories {
-                maven { url "${projectSetup.props.localSupportRepo}" }
+                maven { url "${projectSetup.props.tipOfTreeMavenRepoPath}" }
                 ${projectSetup.defaultRepoLines}
             }
 
@@ -93,7 +93,7 @@ class CollectionTest {
         .mapNotNull { Regex(".*<latest>(.*?)</latest>.*").find(it)?.groups?.get(1)?.value }.first()
 
     private fun getPublishedFile(name: String) =
-        File(projectSetup.props.localSupportRepo).resolve(name).check { it.exists() }
+        File(projectSetup.props.tipOfTreeMavenRepoPath).resolve(name).check { it.exists() }
 
     private fun <T> T.check(eval: (T) -> Boolean): T {
         if (!eval(this)) {
