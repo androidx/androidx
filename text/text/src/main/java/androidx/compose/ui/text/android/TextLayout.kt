@@ -52,6 +52,7 @@ import androidx.compose.ui.text.android.LayoutCompat.TextDirection
 import androidx.compose.ui.text.android.LayoutCompat.TextLayoutAlignment
 import androidx.compose.ui.text.android.style.BaselineShiftSpan
 import kotlin.math.ceil
+import kotlin.math.max
 import kotlin.math.min
 
 /**
@@ -291,6 +292,99 @@ class TextLayout constructor(
      * @return true if the given line is ellipsized, else false.
      */
     fun isEllipsisApplied(lineIndex: Int): Boolean = layout.getEllipsisCount(lineIndex) > 0
+
+    /**
+     * Fills the bounding boxes for characters within the [startOffset] (inclusive) and [endOffset]
+     * (exclusive). The array is filled starting from [arrayStart] (inclusive). The coordinates are
+     * in local text layout coordinates.
+     *
+     * The returned information consists of left/right of a character; line top and bottom for the
+     * same character.
+     *
+     * For the grapheme consists of multiple code points, e.g. ligatures, combining marks, the first
+     * character has the total width and the remaining are returned as zero-width.
+     *
+     * The array divided into segments of four where each index in that segment represents left,
+     * top, right, bottom of the character.
+     *
+     * The size of the provided [array] should be greater or equal than fours times the range
+     * provided with [startOffset] and [endOffset].
+     *
+     * The final order of characters in the [array] is from [startOffset] to [endOffset].
+     *
+     * @param startOffset inclusive startOffset, must be smaller than [endOffset]
+     * @param endOffset exclusive end offset, must be greater than [startOffset]
+     * @param array the array to fill in the values. The array divided into segments of four where
+     * each index in that segment represents left, top, right, bottom of the character.
+     * @param arrayStart the inclusive start index in the array where the function will start
+     * filling in the values from
+     */
+    fun fillBoundingBoxes(
+        startOffset: Int,
+        endOffset: Int,
+        array: FloatArray,
+        arrayStart: Int
+    ) {
+        val textLength = text.length
+        require(startOffset >= 0) { "startOffset must be > 0" }
+        require(startOffset < textLength) { "startOffset must be less than text length" }
+        require(endOffset > startOffset) { "endOffset must be greater than startOffset" }
+        require(endOffset <= textLength) { "endOffset must be smaller or equal to text length" }
+
+        val range = endOffset - startOffset
+        val minArraySize = range * 4
+
+        require((array.size - arrayStart) >= minArraySize) {
+            "array.size - arrayStart must be greater or equal than (endOffset - startOffset) * 4"
+        }
+
+        val firstLine = getLineForOffset(startOffset)
+        val lastLine = getLineForOffset(endOffset - 1)
+
+        var arrayOffset = arrayStart
+        for (line in firstLine..lastLine) {
+            val lineStartOffset = getLineStart(line)
+            val lineEndOffset = getLineEnd(line)
+            val actualStartOffset = max(startOffset, lineStartOffset)
+            val actualEndOffset = min(endOffset, lineEndOffset)
+
+            val lineTop = getLineTop(line)
+            val lineBottom = getLineBottom(line)
+
+            val isLtrLine = getParagraphDirection(line) == Layout.DIR_LEFT_TO_RIGHT
+            val isRtlLine = !isLtrLine
+
+            for (offset in actualStartOffset until actualEndOffset) {
+                val isRtlChar = isRtlCharAt(offset)
+
+                val left: Float
+                val right: Float
+                when {
+                    isLtrLine && !isRtlChar -> {
+                        left = getPrimaryHorizontal(offset)
+                        right = getPrimaryHorizontal(offset + 1, upstream = true)
+                    }
+                    isLtrLine && isRtlChar -> {
+                        right = getSecondaryHorizontal(offset)
+                        left = getSecondaryHorizontal(offset + 1, upstream = true)
+                    }
+                    isRtlLine && isRtlChar -> {
+                        right = getPrimaryHorizontal(offset)
+                        left = getPrimaryHorizontal(offset + 1, upstream = true)
+                    }
+                    else -> {
+                        left = getSecondaryHorizontal(offset)
+                        right = getSecondaryHorizontal(offset + 1, upstream = true)
+                    }
+                }
+                array[arrayOffset] = left
+                array[arrayOffset + 1] = lineTop
+                array[arrayOffset + 2] = right
+                array[arrayOffset + 3] = lineBottom
+                arrayOffset += 4
+            }
+        }
+    }
 
     fun paint(canvas: Canvas) {
         layout.draw(canvas)
