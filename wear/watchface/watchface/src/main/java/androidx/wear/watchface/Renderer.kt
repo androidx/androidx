@@ -809,7 +809,6 @@ public sealed class Renderer @WorkerThread constructor(
          * Chooses the EGLConfig to use.
          * @throws [GlesException] if [EGL14.eglChooseConfig] fails
          */
-        @Throws(GlesException::class)
         private fun chooseEglConfig(eglDisplay: EGLDisplay): EGLConfig {
             val numEglConfigs = IntArray(1)
             val eglConfigs = arrayOfNulls<EGLConfig>(1)
@@ -832,7 +831,6 @@ public sealed class Renderer @WorkerThread constructor(
             return eglConfigs[0]!!
         }
 
-        @Throws(GlesException::class)
         private suspend fun createWindowSurface(width: Int, height: Int) = TraceEvent(
             "GlesRenderer.createWindowSurface"
         ).use {
@@ -948,7 +946,6 @@ public sealed class Renderer @WorkerThread constructor(
          * @throws [GlesException] If any GL calls fail.
          */
         @WorkerThread
-        @Throws(GlesException::class)
         internal override suspend fun backgroundThreadInitInternal() =
             TraceEvent("GlesRenderer.initBackgroundThreadOpenGlContext").use {
                 if (!sharedAssetsHolder.eglBackgroundThreadContextInitialized()) {
@@ -1032,7 +1029,6 @@ public sealed class Renderer @WorkerThread constructor(
          * @throws [GlesException] If any GL calls fail.
          */
         @UiThread
-        @Throws(GlesException::class)
         internal override suspend fun uiThreadInitInternal(uiThreadCoroutineScope: CoroutineScope) =
             TraceEvent("GlesRenderer.initUiThreadOpenGlContext").use {
                 if (!sharedAssetsHolder.eglUiThreadContextInitialized()) {
