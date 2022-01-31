@@ -341,6 +341,8 @@ class TextLayout constructor(
         val firstLine = getLineForOffset(startOffset)
         val lastLine = getLineForOffset(endOffset - 1)
 
+        val cache = HorizontalPositionCache(this)
+
         var arrayOffset = arrayStart
         for (line in firstLine..lastLine) {
             val lineStartOffset = getLineStart(line)
@@ -361,20 +363,20 @@ class TextLayout constructor(
                 val right: Float
                 when {
                     isLtrLine && !isRtlChar -> {
-                        left = getPrimaryHorizontal(offset)
-                        right = getPrimaryHorizontal(offset + 1, upstream = true)
+                        left = cache.getPrimaryDownstream(offset)
+                        right = cache.getPrimaryUpstream(offset + 1)
                     }
                     isLtrLine && isRtlChar -> {
-                        right = getSecondaryHorizontal(offset)
-                        left = getSecondaryHorizontal(offset + 1, upstream = true)
+                        right = cache.getSecondaryDownstream(offset)
+                        left = cache.getSecondaryUpstream(offset + 1)
                     }
                     isRtlLine && isRtlChar -> {
-                        right = getPrimaryHorizontal(offset)
-                        left = getPrimaryHorizontal(offset + 1, upstream = true)
+                        right = cache.getPrimaryDownstream(offset)
+                        left = cache.getPrimaryUpstream(offset + 1)
                     }
                     else -> {
-                        left = getSecondaryHorizontal(offset)
-                        right = getSecondaryHorizontal(offset + 1, upstream = true)
+                        left = cache.getSecondaryDownstream(offset)
+                        right = cache.getSecondaryUpstream(offset + 1)
                     }
                 }
                 array[arrayOffset] = left
@@ -388,6 +390,96 @@ class TextLayout constructor(
 
     fun paint(canvas: Canvas) {
         layout.draw(canvas)
+    }
+}
+
+/**
+ * This class is intended to be used *only* by [TextLayout.fillBoundingBoxes]. It is tightly coupled
+ * to the code in callee. Do not use.
+ *
+ * Assumes that downstream calls always called with offset followed by offset+1 in upstream
+ * case. Therefore it does not add the downstream calls to the result to the cache but check if
+ * it already exists in the cache for early return.
+ *
+ * On the other hand upstream calls will be cached, since the same offset+1 might be needed on the
+ * next character.
+ */
+@OptIn(InternalPlatformTextApi::class)
+private class HorizontalPositionCache(val layout: TextLayout) {
+    private var cachedKey: Int = -1
+    private var cachedValue: Float = 0f
+
+    fun getPrimaryDownstream(offset: Int): Float {
+        // downstream results are not cached
+        return get(offset, primary = true, upstream = false, cache = false)
+    }
+
+    fun getPrimaryUpstream(offset: Int): Float {
+        // upstream results are cached
+        return get(offset, primary = true, upstream = true, cache = true)
+    }
+
+    fun getSecondaryDownstream(offset: Int): Float {
+        // downstream results are not cached
+        return get(offset, primary = false, upstream = false, cache = false)
+    }
+
+    fun getSecondaryUpstream(offset: Int): Float {
+        // upstream results are cached
+        return get(offset, primary = false, upstream = true, cache = true)
+    }
+
+    /**
+     * Returns the primary/secondary horizontal position for upstream or downstream.
+     * Very tightly coupled to how get is called from the [TextLayout.fillBoundingBoxes] function.
+     *
+     * Everytime that function calls either with offset or offset+1. While calling offset, it will
+     * set the cache param to false, while calling with offset+1 it will set the cache param to
+     * true.
+     *
+     * For the noncached version, the cache is checked to see if the value exists and returned if
+     * so.
+     *
+     * For the cached version, the cache is populated if the value has not been calculated.
+     */
+    private fun get(
+        offset: Int,
+        upstream: Boolean,
+        cache: Boolean,
+        primary: Boolean
+    ): Float {
+        // even if upstream is requested, if the character is not on a line start/end upstream
+        // and downstream results will be the same
+        val upstreamFinal = if (upstream) {
+            val lineNo = layout.layout.getLineForOffset(offset, upstream)
+            val lineStart = layout.getLineStart(lineNo)
+            val lineEnd = layout.getLineEnd(lineNo)
+            offset == lineStart || offset == lineEnd
+        } else {
+            false
+        }
+
+        // key for the current request
+        val tmpKey = (offset) * 4 + if (primary) {
+            if (upstreamFinal) 0 else 1
+        } else {
+            if (upstreamFinal) 2 else 3
+        }
+
+        if (cachedKey == tmpKey) return cachedValue
+
+        val result = if (primary) {
+            layout.getPrimaryHorizontal(offset, upstream = upstream)
+        } else {
+            layout.getSecondaryHorizontal(offset, upstream = upstream)
+        }
+
+        if (cache) {
+            cachedKey = tmpKey
+            cachedValue = result
+        }
+
+        return result
     }
 }
 
