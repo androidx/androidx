@@ -1,0 +1,21 @@
+{
+    "__comment": [
+        "Compose and Main are two configurations we have in CI.",
+        "Each can have include and exclude filters where these filters run a",
+        "  'contains' match on the project name. e.g. if the project name is compose-runtime",
+        "  adding an include filter with value 'compose' is enough to run it. Similarly, you",
+        "  can disable all compose projects from main build by adding a 'compose' exclude key.",
+        "If the project matches both exclude and include filters, exclude is prioritized."
+    ],
+    "compose" : {
+        "include" : [
+            "compose"
+        ],
+        "default": false
+    },
+    "main" : {
+        "exclude" : [
+        ],
+        "default": true
+    }
+}
