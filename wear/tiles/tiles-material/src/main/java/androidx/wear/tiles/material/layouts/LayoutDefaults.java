@@ -62,4 +62,22 @@ public class LayoutDefaults {
 
     /** The default spacer height for primary chip in the {@link PrimaryLayout}. */
     static final DpProp PRIMARY_LAYOUT_SPACER_HEIGHT = dp(12);
+
+    /** The default horizontal margin in the {@link ProgressIndicatorLayout}. */
+    static final float PROGRESS_INDICATOR_LAYOUT_MARGIN_HORIZONTAL_ROUND_DP = 14;
+
+    /** The default horizontal margin in the {@link ProgressIndicatorLayout}. */
+    static final float PROGRESS_INDICATOR_LAYOUT_MARGIN_HORIZONTAL_SQUARE_DP = 16;
+
+    /**
+     * The recommended padding that should be above the main content (text) in the {@link
+     * ProgressIndicatorLayout}.
+     */
+    public static final float PROGRESS_INDICATOR_LAYOUT_PADDING_ABOVE_MAIN_CONTENT_DP = 6;
+
+    /**
+     * The recommended padding that should be below the main content (text) in the {@link
+     * ProgressIndicatorLayout}.
+     */
+    public static final float PROGRESS_INDICATOR_LAYOUT_PADDING_BELOW_MAIN_CONTENT_DP = 8;
 }

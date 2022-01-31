@@ -177,6 +177,8 @@ package androidx.wear.tiles.material {
 package androidx.wear.tiles.material.layouts {
 
   public class LayoutDefaults {
+    field public static final float PROGRESS_INDICATOR_LAYOUT_PADDING_ABOVE_MAIN_CONTENT_DP = 6.0f;
+    field public static final float PROGRESS_INDICATOR_LAYOUT_PADDING_BELOW_MAIN_CONTENT_DP = 8.0f;
   }
 
   public class PrimaryLayout implements androidx.wear.tiles.LayoutElementBuilders.LayoutElement {
@@ -194,6 +196,23 @@ package androidx.wear.tiles.material.layouts {
     method public androidx.wear.tiles.material.layouts.PrimaryLayout build();
     method public androidx.wear.tiles.material.layouts.PrimaryLayout.Builder setCompactChipContent(androidx.wear.tiles.LayoutElementBuilders.LayoutElement);
     method public androidx.wear.tiles.material.layouts.PrimaryLayout.Builder setContent(androidx.wear.tiles.LayoutElementBuilders.LayoutElement);
+  }
+
+  public class ProgressIndicatorLayout implements androidx.wear.tiles.LayoutElementBuilders.LayoutElement {
+    method public androidx.wear.tiles.LayoutElementBuilders.LayoutElement getContent();
+    method public androidx.wear.tiles.LayoutElementBuilders.Layout toLayout();
+    method public androidx.wear.tiles.LayoutElementBuilders.Layout.Builder toLayoutBuilder();
+    method public androidx.wear.tiles.TimelineBuilders.Timeline toTimeline();
+    method public androidx.wear.tiles.TimelineBuilders.Timeline.Builder toTimelineBuilder();
+    method public androidx.wear.tiles.TimelineBuilders.TimelineEntry toTimelineEntry();
+    method public androidx.wear.tiles.TimelineBuilders.TimelineEntry.Builder toTimelineEntryBuilder();
+  }
+
+  public static final class ProgressIndicatorLayout.Builder implements androidx.wear.tiles.LayoutElementBuilders.LayoutElement.Builder {
+    ctor public ProgressIndicatorLayout.Builder(androidx.wear.tiles.DeviceParametersBuilders.DeviceParameters);
+    method public androidx.wear.tiles.material.layouts.ProgressIndicatorLayout build();
+    method public androidx.wear.tiles.material.layouts.ProgressIndicatorLayout.Builder setContent(androidx.wear.tiles.LayoutElementBuilders.LayoutElement);
+    method public androidx.wear.tiles.material.layouts.ProgressIndicatorLayout.Builder setProgressIndicatorContent(androidx.wear.tiles.LayoutElementBuilders.LayoutElement);
   }
 
 }
