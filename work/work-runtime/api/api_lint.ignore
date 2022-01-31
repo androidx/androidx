@@ -95,8 +95,6 @@ MissingGetterMatchingBuilder: androidx.work.Configuration.Builder#setMaxSchedule
     androidx.work.Configuration does not declare a `getMaxSchedulerLimit()` method matching method androidx.work.Configuration.Builder.setMaxSchedulerLimit(int)
 MissingGetterMatchingBuilder: androidx.work.Configuration.Builder#setMinimumLoggingLevel(int):
     androidx.work.Configuration does not declare a `getMinimumLoggingLevel()` method matching method androidx.work.Configuration.Builder.setMinimumLoggingLevel(int)
-MissingGetterMatchingBuilder: androidx.work.Constraints.Builder#addContentUriTrigger(android.net.Uri, boolean):
-    androidx.work.Constraints does not declare a `getContentUriTriggers()` method matching method androidx.work.Constraints.Builder.addContentUriTrigger(android.net.Uri,boolean)
 MissingGetterMatchingBuilder: androidx.work.Constraints.Builder#setRequiresBatteryNotLow(boolean):
     androidx.work.Constraints does not declare a `isRequiresBatteryNotLow()` method matching method androidx.work.Constraints.Builder.setRequiresBatteryNotLow(boolean)
 MissingGetterMatchingBuilder: androidx.work.Constraints.Builder#setRequiresCharging(boolean):
