@@ -1,0 +1,3 @@
+// Baseline format: 1.0
+ChangedThrows: androidx.wear.watchface.ListenableGlesRenderer#ListenableGlesRenderer(android.view.SurfaceHolder, androidx.wear.watchface.style.CurrentUserStyleRepository, androidx.wear.watchface.WatchState, long, int[], int[]):
+    Constructor androidx.wear.watchface.ListenableGlesRenderer added thrown exception androidx.wear.watchface.Renderer.GlesRenderer.GlesException

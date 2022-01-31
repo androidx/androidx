@@ -50,7 +50,8 @@ internal val EGL_SURFACE_ATTRIB_LIST = intArrayOf(EGL14.EGL_NONE)
  * [ListenableFuture]-based compatibility wrapper around [Renderer.GlesRenderer]'s suspending
  * methods.
  */
-public abstract class ListenableGlesRenderer @JvmOverloads constructor(
+public abstract class ListenableGlesRenderer
+@Throws(GlesException::class) @JvmOverloads constructor(
     surfaceHolder: SurfaceHolder,
     currentUserStyleRepository: CurrentUserStyleRepository,
     watchState: WatchState,
