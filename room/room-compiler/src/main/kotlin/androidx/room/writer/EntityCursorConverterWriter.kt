@@ -19,6 +19,7 @@ package androidx.room.writer
 import androidx.room.ext.AndroidTypeNames
 import androidx.room.ext.L
 import androidx.room.ext.N
+import androidx.room.ext.RoomTypeNames
 import androidx.room.ext.S
 import androidx.room.ext.T
 import androidx.room.ext.capitalize
@@ -61,8 +62,8 @@ class EntityCursorConverterWriter(val entity: Entity) : ClassWriter.SharedMethod
                     "_cursorIndexOf${it.name.stripNonJava().capitalize(Locale.US)}"
                 )
                 scope.builder().addStatement(
-                    "final $T $L = $N.getColumnIndex($S)",
-                    TypeName.INT, indexVar, cursorParam, it.columnName
+                    "final $T $L = $T.getColumnIndex($N, $S)",
+                    TypeName.INT, indexVar, RoomTypeNames.CURSOR_UTIL, cursorParam, it.columnName
                 )
                 FieldWithIndex(
                     field = it,
