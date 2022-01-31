@@ -80,4 +80,10 @@ public class LayoutDefaults {
      * ProgressIndicatorLayout}.
      */
     public static final float PROGRESS_INDICATOR_LAYOUT_PADDING_BELOW_MAIN_CONTENT_DP = 8;
+
+    /** The default spacer width for slots in the {@link MultiSlotLayout}. */
+    public static final DpProp MULTI_SLOT_LAYOUT_HORIZONTAL_SPACER_WIDTH = dp(8);
+
+    /** The recommended space between slots in the {@link MultiSlotLayout} and additional labels. */
+    public static final DpProp MULTI_SLOT_LAYOUT_VERTICAL_SPACER_HEIGHT = dp(8);
 }
