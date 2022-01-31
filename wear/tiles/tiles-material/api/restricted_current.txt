@@ -174,3 +174,27 @@ package androidx.wear.tiles.material {
 
 }
 
+package androidx.wear.tiles.material.layouts {
+
+  public class LayoutDefaults {
+  }
+
+  public class PrimaryLayout implements androidx.wear.tiles.LayoutElementBuilders.LayoutElement {
+    method public androidx.wear.tiles.LayoutElementBuilders.LayoutElement getContent();
+    method public androidx.wear.tiles.LayoutElementBuilders.Layout toLayout();
+    method public androidx.wear.tiles.LayoutElementBuilders.Layout.Builder toLayoutBuilder();
+    method public androidx.wear.tiles.TimelineBuilders.Timeline toTimeline();
+    method public androidx.wear.tiles.TimelineBuilders.Timeline.Builder toTimelineBuilder();
+    method public androidx.wear.tiles.TimelineBuilders.TimelineEntry toTimelineEntry();
+    method public androidx.wear.tiles.TimelineBuilders.TimelineEntry.Builder toTimelineEntryBuilder();
+  }
+
+  public static final class PrimaryLayout.Builder implements androidx.wear.tiles.LayoutElementBuilders.LayoutElement.Builder {
+    ctor public PrimaryLayout.Builder(androidx.wear.tiles.DeviceParametersBuilders.DeviceParameters);
+    method public androidx.wear.tiles.material.layouts.PrimaryLayout build();
+    method public androidx.wear.tiles.material.layouts.PrimaryLayout.Builder setCompactChipContent(androidx.wear.tiles.LayoutElementBuilders.LayoutElement);
+    method public androidx.wear.tiles.material.layouts.PrimaryLayout.Builder setContent(androidx.wear.tiles.LayoutElementBuilders.LayoutElement);
+  }
+
+}
+
