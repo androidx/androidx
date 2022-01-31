@@ -45,6 +45,12 @@ internal class KspProcessingEnv(
     override val config: XProcessingEnvConfig,
 ) : XProcessingEnv {
     override val backend: XProcessingEnv.Backend = XProcessingEnv.Backend.KSP
+
+    // No API to get this but Kotlin's default is 8, so go with it for now.
+    // TODO: https://github.com/google/ksp/issues/810
+    override val jvmVersion: Int
+        get() = 8
+
     private val ksFileMemberContainers = mutableMapOf<KSFile, KspFileMemberContainer>()
 
     /**

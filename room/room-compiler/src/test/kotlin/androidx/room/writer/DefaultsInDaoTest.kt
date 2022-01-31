@@ -96,6 +96,38 @@ class DefaultsInDaoTest {
         }
     }
 
+    @Test
+    fun interfaceDao_suspend() {
+        val source = Source.kotlin(
+            "Foo.kt",
+            """
+            import androidx.room.*
+            class User
+            interface BaseDao<T> {
+                @Transaction
+                suspend fun upsert(obj: T) {
+                    TODO("")
+                }
+            }
+
+            @Dao
+            interface SubjectDao : BaseDao<User>
+            """.trimIndent()
+        )
+        compileInEachDefaultsMode(source) { mode, generated ->
+            generated.contains("public Object upsert(final User obj, " +
+                "final Continuation<? super Unit> continuation)")
+            if (mode == JvmDefaultMode.ALL_INCOMPATIBLE) {
+                generated.contains("SubjectDao.super.upsert(")
+            } else {
+                generated.contains("SubjectDao.DefaultImpls.upsert(SubjectDao_Impl.this")
+            }
+
+            generated.doesNotContain("SubjectDao_Impl.super.upsert")
+            generated.doesNotContain("this.upsert")
+        }
+    }
+
     private fun compileInEachDefaultsMode(
         source: Source,
         handler: (JvmDefaultMode, StringSubject) -> Unit
@@ -107,7 +139,7 @@ class DefaultsInDaoTest {
         ).forEach { jvmDefaultMode ->
             // TODO should run these with KSP as well. https://github.com/google/ksp/issues/627
             runKaptTest(
-                sources = listOf(source),
+                sources = listOf(source, COMMON.COROUTINES_ROOM, COMMON.ROOM_DATABASE_KTX),
                 kotlincArguments = listOf("-Xjvm-default=${jvmDefaultMode.description}")
             ) { invocation ->
                 invocation.roundEnv
