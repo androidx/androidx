@@ -17,15 +17,18 @@
 package androidx.glance.wear.tiles.demos
 
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.glance.GlanceModifier
 import androidx.glance.Image
 import androidx.glance.ImageProvider
+import androidx.glance.background
 import androidx.glance.layout.Alignment
 import androidx.glance.layout.Column
 import androidx.glance.layout.ContentScale
 import androidx.glance.layout.Spacer
+import androidx.glance.layout.fillMaxSize
 import androidx.glance.layout.height
 import androidx.glance.layout.size
 import androidx.glance.text.FontWeight
@@ -38,7 +41,9 @@ class HelloTileService : GlanceTileService() {
     @Composable
     override fun Content() {
         Column(
-            horizontalAlignment = Alignment.CenterHorizontally
+            modifier = GlanceModifier.fillMaxSize().background(Color.DarkGray),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalAlignment = Alignment.CenterVertically
         ) {
             Image(
                 provider = ImageProvider(R.mipmap.ic_launcher),

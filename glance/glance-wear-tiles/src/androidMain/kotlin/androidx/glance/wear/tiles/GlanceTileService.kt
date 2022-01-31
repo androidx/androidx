@@ -28,8 +28,10 @@ import androidx.compose.runtime.Composition
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Recomposer
 import androidx.glance.Applier
+import androidx.glance.GlanceModifier
 import androidx.glance.layout.EmittableBox
 import androidx.glance.LocalState
+import androidx.glance.layout.fillMaxSize
 import androidx.glance.state.GlanceState
 import androidx.glance.state.GlanceStateDefinition
 import androidx.lifecycle.Lifecycle
@@ -153,6 +155,7 @@ public abstract class GlanceTileService(
     ): CompositionResult =
         coroutineScope {
             val root = EmittableBox()
+            root.modifier = GlanceModifier.fillMaxSize()
             val applier = Applier(root)
             val recomposer = Recomposer(currentCoroutineContext())
             val composition = Composition(applier, recomposer)
