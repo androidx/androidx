@@ -220,23 +220,29 @@ internal fun <T : ViewModel?> newInstance(
     }
 }
 
-private val ANDROID_VIEWMODEL_SIGNATURE = arrayOf(
+private val ANDROID_VIEWMODEL_SIGNATURE = listOf<Class<*>>(
     Application::class.java,
     SavedStateHandle::class.java
 )
-private val VIEWMODEL_SIGNATURE = arrayOf<Class<*>>(SavedStateHandle::class.java)
+private val VIEWMODEL_SIGNATURE = listOf<Class<*>>(SavedStateHandle::class.java)
 
 // it is done instead of getConstructor(), because getConstructor() throws an exception
 // if there is no such constructor, which is expensive
 internal fun <T> findMatchingConstructor(
     modelClass: Class<T>,
-    signature: Array<Class<*>>
+    signature: List<Class<*>>
 ): Constructor<T>? {
     for (constructor in modelClass.constructors) {
-        val parameterTypes = constructor.parameterTypes
-        if (signature.contentEquals(parameterTypes)) {
+        val parameterTypes = constructor.parameterTypes.toList()
+        if (signature == parameterTypes) {
             @Suppress("UNCHECKED_CAST")
             return constructor as Constructor<T>
+        }
+        if (signature.size == parameterTypes.size && parameterTypes.containsAll(signature)) {
+            throw UnsupportedOperationException(
+                "Class ${modelClass.simpleName} must have parameters in the proper " +
+                    "order: $signature"
+            )
         }
     }
     return null
