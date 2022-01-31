@@ -27,10 +27,12 @@ import androidx.room.ext.KotlinTypeNames
 import androidx.room.ext.LifecyclesTypeNames
 import androidx.room.ext.PagingTypeNames
 import androidx.room.ext.ReactiveStreamsTypeNames
+import androidx.room.ext.RoomCoroutinesTypeNames
 import androidx.room.ext.RoomGuavaTypeNames
 import androidx.room.ext.RoomPagingTypeNames
 import androidx.room.ext.RoomRxJava2TypeNames
 import androidx.room.ext.RoomRxJava3TypeNames
+import androidx.room.ext.RoomTypeNames
 import androidx.room.ext.RxJava2TypeNames
 import androidx.room.ext.RxJava3TypeNames
 import androidx.room.processor.DatabaseViewProcessor
@@ -230,6 +232,13 @@ object COMMON {
         )
     }
 
+    val COROUTINES_ROOM by lazy {
+        loadJavaCode(
+            "common/input/CoroutinesRoom.java",
+            RoomCoroutinesTypeNames.COROUTINES_ROOM.toString()
+        )
+    }
+
     val CHANNEL by lazy {
         loadJavaCode(
             "common/input/coroutines/Channel.java",
@@ -248,6 +257,13 @@ object COMMON {
         loadJavaCode(
             "common/input/coroutines/ReceiveChannel.java",
             KotlinTypeNames.RECEIVE_CHANNEL.toString()
+        )
+    }
+
+    val ROOM_DATABASE_KTX by lazy {
+        loadJavaCode(
+            "common/input/RoomDatabaseKt.java",
+            RoomTypeNames.ROOM_DB_KT.toString()
         )
     }
 }

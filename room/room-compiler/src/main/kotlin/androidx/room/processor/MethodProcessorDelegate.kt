@@ -273,6 +273,7 @@ class SuspendMethodProcessorDelegate(
     override fun findTransactionMethodBinder(callType: TransactionMethod.CallType) =
         CoroutineTransactionMethodBinder(
             adapter = TransactionMethodAdapter(executableElement.jvmName, callType),
-            continuationParamName = continuationParam.name
+            continuationParamName = continuationParam.name,
+            useLambdaSyntax = context.processingEnv.jvmVersion >= 8
         )
 }

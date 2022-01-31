@@ -71,6 +71,12 @@ internal class JavacProcessingEnv(
     override val options: Map<String, String>
         get() = delegate.options
 
+    // SourceVersion enum constants are named 'RELEASE_x' and since they are public APIs, its safe
+    // to assume they won't change and we can extract the version from them.
+    override val jvmVersion =
+        delegate.sourceVersion.name.substringAfter("RELEASE_").toIntOrNull()
+            ?: error("Invalid source version: ${delegate.sourceVersion}")
+
     override fun findTypeElement(qName: String): JavacTypeElement? {
         return typeElementStore[qName]
     }

@@ -258,6 +258,30 @@ class XProcessingEnvTest {
         }
     }
 
+    @Test
+    fun jvmVersion() {
+        runProcessorTest(
+            sources = listOf(
+                Source.java(
+                    "foo.bar.Baz",
+                    """
+                package foo.bar;
+                public class Baz {
+                }
+                    """.trimIndent()
+                )
+            ),
+            kotlincArguments = listOf("-Xjvm-target 11")
+        ) {
+            if (it.processingEnv.backend == XProcessingEnv.Backend.KSP) {
+                // KSP is hardcoded to 8 for now...
+                assertThat(it.processingEnv.jvmVersion).isEqualTo(8)
+            } else {
+                assertThat(it.processingEnv.jvmVersion).isEqualTo(11)
+            }
+        }
+    }
+
     companion object {
         val PRIMITIVE_TYPES = listOf(
             TypeName.BOOLEAN,
