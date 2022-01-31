@@ -30,7 +30,7 @@ import java.time.ZonedDateTime
  * data rather than the time.
  */
 class SynchronousDataSourceService : ComplicationDataSourceService() {
-    override fun onSynchronousComplicationRequest(request: ComplicationRequest): ComplicationData? {
+    override fun onImmediateComplicationRequest(request: ComplicationRequest): ComplicationData? {
         val time = ZonedDateTime.now()
         return when (request.complicationType) {
             ComplicationType.SHORT_TEXT ->
