@@ -57,6 +57,7 @@ import org.junit.After
 import org.junit.AfterClass
 import org.junit.Assert
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mockito.mock
@@ -68,6 +69,7 @@ import java.util.concurrent.ScheduledFuture
 import java.util.concurrent.Semaphore
 import java.util.concurrent.TimeUnit
 
+@Ignore // b/216788724
 @RunWith(RobolectricCameraPipeTestRunner::class)
 @DoNotInstrument
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
