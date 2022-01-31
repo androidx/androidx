@@ -173,7 +173,6 @@ package androidx.fragment.app {
     method public androidx.fragment.app.FragmentManager getSupportFragmentManager();
     method @Deprecated public androidx.loader.app.LoaderManager getSupportLoaderManager();
     method @Deprecated @MainThread public void onAttachFragment(androidx.fragment.app.Fragment);
-    method @CallSuper public void onMultiWindowModeChanged(boolean);
     method @CallSuper public void onPictureInPictureModeChanged(boolean);
     method @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) protected boolean onPrepareOptionsPanel(android.view.View?, android.view.Menu);
     method protected void onResumeFragments();
@@ -215,7 +214,7 @@ package androidx.fragment.app {
     method public void dispatchDestroy();
     method public void dispatchDestroyView();
     method @Deprecated public void dispatchLowMemory();
-    method public void dispatchMultiWindowModeChanged(boolean);
+    method @Deprecated public void dispatchMultiWindowModeChanged(boolean);
     method public boolean dispatchOptionsItemSelected(android.view.MenuItem);
     method public void dispatchOptionsMenuClosed(android.view.Menu);
     method public void dispatchPause();

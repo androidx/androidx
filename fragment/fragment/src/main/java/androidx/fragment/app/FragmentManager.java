@@ -60,6 +60,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.StringRes;
+import androidx.core.app.MultiWindowModeChangedInfo;
+import androidx.core.app.OnMultiWindowModeChangedProvider;
 import androidx.core.content.OnConfigurationChangedProvider;
 import androidx.core.content.OnTrimMemoryProvider;
 import androidx.core.util.Consumer;
@@ -444,6 +446,8 @@ public abstract class FragmentManager implements FragmentResultOwner {
             dispatchLowMemory();
         }
     };
+    private final Consumer<MultiWindowModeChangedInfo> mOnMultiWindowModeChangedListener =
+            info -> dispatchMultiWindowModeChanged(info.isInMultiWindowMode());
 
     int mCurState = Fragment.INITIALIZING;
     private FragmentHostCallback<?> mHost;
@@ -2706,6 +2710,13 @@ public abstract class FragmentManager implements FragmentResultOwner {
             OnTrimMemoryProvider onTrimMemoryProvider = (OnTrimMemoryProvider) mHost;
             onTrimMemoryProvider.addOnTrimMemoryListener(mOnTrimMemoryListener);
         }
+
+        if (mHost instanceof OnMultiWindowModeChangedProvider) {
+            OnMultiWindowModeChangedProvider onMultiWindowModeChangedProvider =
+                    (OnMultiWindowModeChangedProvider) mHost;
+            onMultiWindowModeChangedProvider.addOnMultiWindowModeChangedListener(
+                    mOnMultiWindowModeChangedListener);
+        }
     }
 
     void noteStateNotSaved() {
@@ -2852,6 +2863,12 @@ public abstract class FragmentManager implements FragmentResultOwner {
                     (OnConfigurationChangedProvider) mHost;
             onConfigurationChangedProvider.removeOnConfigurationChangedListener(
                     mOnConfigurationChangedListener);
+        }
+        if (mHost instanceof OnMultiWindowModeChangedProvider) {
+            OnMultiWindowModeChangedProvider onMultiWindowModeChangedProvider =
+                    (OnMultiWindowModeChangedProvider) mHost;
+            onMultiWindowModeChangedProvider.removeOnMultiWindowModeChangedListener(
+                    mOnMultiWindowModeChangedListener);
         }
         mHost = null;
         mContainer = null;

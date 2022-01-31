@@ -351,7 +351,11 @@ public class FragmentController {
      * <p>Call when the multi-window mode of the activity changed.
      *
      * @see Fragment#onMultiWindowModeChanged
+     * @deprecated Have your {@link FragmentHostCallback} implement
+     * {@link androidx.core.app.OnMultiWindowModeChangedProvider}
+     * to automatically dispatch multi-window mode changes to fragments.
      */
+    @Deprecated
     public void dispatchMultiWindowModeChanged(boolean isInMultiWindowMode) {
         mHost.mFragmentManager.dispatchMultiWindowModeChanged(isInMultiWindowMode);
     }
