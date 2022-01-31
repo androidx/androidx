@@ -366,7 +366,11 @@ public class FragmentController {
      * <p>Call when the picture-in-picture mode of the activity changed.
      *
      * @see Fragment#onPictureInPictureModeChanged
+     * @deprecated Have your {@link FragmentHostCallback} implement
+     * {@link androidx.core.app.OnPictureInPictureModeChangedProvider}
+     * to automatically dispatch picture-in-picture mode changes to fragments.
      */
+    @Deprecated
     public void dispatchPictureInPictureModeChanged(boolean isInPictureInPictureMode) {
         mHost.mFragmentManager.dispatchPictureInPictureModeChanged(isInPictureInPictureMode);
     }

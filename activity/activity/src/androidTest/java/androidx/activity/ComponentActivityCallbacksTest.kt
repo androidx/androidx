@@ -20,6 +20,7 @@ import android.content.ComponentCallbacks2
 import android.content.Intent
 import android.content.res.Configuration
 import androidx.core.app.MultiWindowModeChangedInfo
+import androidx.core.app.PictureInPictureModeChangedInfo
 import androidx.core.util.Consumer
 import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -371,6 +372,98 @@ class ComponentActivityCallbacksTest {
 
             // Only the first multi-window mode change should be received
             assertThat(receivedInfo.isInMultiWindowMode).isTrue()
+        }
+    }
+
+    @Suppress("DEPRECATION")
+    @Test
+    fun onPictureInPictureModeChanged() {
+        with(ActivityScenario.launch(ComponentActivity::class.java)) {
+            lateinit var receivedInfo: PictureInPictureModeChangedInfo
+
+            val listener = Consumer<PictureInPictureModeChangedInfo> { info ->
+                receivedInfo = info
+            }
+            withActivity {
+                addOnPictureInPictureModeChangedListener(listener)
+                onPictureInPictureModeChanged(true)
+            }
+
+            assertThat(receivedInfo.isInPictureInPictureMode).isTrue()
+        }
+    }
+
+    @SdkSuppress(minSdkVersion = 26)
+    @Test
+    fun onPictureInPictureModeChangedWithConfig() {
+        with(ActivityScenario.launch(ComponentActivity::class.java)) {
+            lateinit var receivedInfo: PictureInPictureModeChangedInfo
+
+            val listener = Consumer<PictureInPictureModeChangedInfo> { info ->
+                receivedInfo = info
+            }
+            lateinit var newConfig: Configuration
+            withActivity {
+                addOnPictureInPictureModeChangedListener(listener)
+                newConfig = Configuration(resources.configuration)
+                onPictureInPictureModeChanged(true, newConfig)
+            }
+
+            assertThat(receivedInfo.isInPictureInPictureMode).isTrue()
+            assertThat(receivedInfo.newConfig).isSameInstanceAs(newConfig)
+        }
+    }
+
+    @Suppress("DEPRECATION")
+    @Test
+    fun onPictureInPictureModeChangedRemove() {
+        with(ActivityScenario.launch(ComponentActivity::class.java)) {
+            lateinit var receivedInfo: PictureInPictureModeChangedInfo
+
+            val listener = Consumer<PictureInPictureModeChangedInfo> { info ->
+                receivedInfo = info
+            }
+            withActivity {
+                addOnPictureInPictureModeChangedListener(listener)
+                onPictureInPictureModeChanged(true)
+            }
+
+            assertThat(receivedInfo.isInPictureInPictureMode).isTrue()
+
+            withActivity {
+                removeOnPictureInPictureModeChangedListener(listener)
+                onPictureInPictureModeChanged(false)
+            }
+
+            // Should still be true and not false
+            assertThat(receivedInfo.isInPictureInPictureMode).isTrue()
+        }
+    }
+
+    @Suppress("DEPRECATION")
+    @Test
+    fun onPictureInPictureModeChangedRemoveReentrant() {
+        with(ActivityScenario.launch(ComponentActivity::class.java)) {
+            val activity = withActivity { this }
+            lateinit var receivedInfo: PictureInPictureModeChangedInfo
+
+            val listener = object : Consumer<PictureInPictureModeChangedInfo> {
+                override fun accept(info: PictureInPictureModeChangedInfo) {
+                    receivedInfo = info
+                    activity.removeOnPictureInPictureModeChangedListener(this)
+                }
+            }
+            withActivity {
+                addOnPictureInPictureModeChangedListener(listener)
+                // Add a second listener to force a ConcurrentModificationException
+                // if not properly handled by ComponentActivity
+                addOnPictureInPictureModeChangedListener { }
+                onPictureInPictureModeChanged(true)
+                onPictureInPictureModeChanged(false)
+            }
+
+            // Only the first picture-in-picture mode change should be received
+            assertThat(receivedInfo.isInPictureInPictureMode).isTrue()
         }
     }
 }

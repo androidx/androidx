@@ -51,6 +51,8 @@ import androidx.annotation.RestrictTo;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.MultiWindowModeChangedInfo;
 import androidx.core.app.OnMultiWindowModeChangedProvider;
+import androidx.core.app.OnPictureInPictureModeChangedProvider;
+import androidx.core.app.PictureInPictureModeChangedInfo;
 import androidx.core.app.SharedElementCallback;
 import androidx.core.content.OnConfigurationChangedProvider;
 import androidx.core.content.OnTrimMemoryProvider;
@@ -204,22 +206,6 @@ public class FragmentActivity extends ComponentActivity implements
      */
     public void supportStartPostponedEnterTransition() {
         ActivityCompat.startPostponedEnterTransition(this);
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * <p><strong>Note:</strong> If you override this method you must call
-     * <code>super.onPictureInPictureModeChanged</code> to correctly dispatch the event
-     * to support fragments attached to this activity.</p>
-     *
-     * @param isInPictureInPictureMode True if the activity is in picture-in-picture mode.
-     */
-    @SuppressWarnings("deprecation")
-    @Override
-    @CallSuper
-    public void onPictureInPictureModeChanged(boolean isInPictureInPictureMode) {
-        mFragments.dispatchPictureInPictureModeChanged(isInPictureInPictureMode);
     }
 
     /**
@@ -654,6 +640,7 @@ public class FragmentActivity extends ComponentActivity implements
             OnConfigurationChangedProvider,
             OnTrimMemoryProvider,
             OnMultiWindowModeChangedProvider,
+            OnPictureInPictureModeChangedProvider,
             ViewModelStoreOwner,
             OnBackPressedDispatcherOwner,
             ActivityResultRegistryOwner,
@@ -794,6 +781,18 @@ public class FragmentActivity extends ComponentActivity implements
         public void removeOnMultiWindowModeChangedListener(
                 @NonNull Consumer<MultiWindowModeChangedInfo> listener) {
             FragmentActivity.this.removeOnMultiWindowModeChangedListener(listener);
+        }
+
+        @Override
+        public void addOnPictureInPictureModeChangedListener(
+                @NonNull Consumer<PictureInPictureModeChangedInfo> listener) {
+            FragmentActivity.this.addOnPictureInPictureModeChangedListener(listener);
+        }
+
+        @Override
+        public void removeOnPictureInPictureModeChangedListener(
+                @NonNull Consumer<PictureInPictureModeChangedInfo> listener) {
+            FragmentActivity.this.removeOnPictureInPictureModeChangedListener(listener);
         }
     }
 
