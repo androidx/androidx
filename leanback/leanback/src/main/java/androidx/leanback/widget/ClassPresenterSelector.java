@@ -51,9 +51,10 @@ public final class ClassPresenterSelector extends PresenterSelector {
             PresenterSelector presenterSelector) {
         mClassMap.put(cls, presenterSelector);
         Presenter[] innerPresenters = presenterSelector.getPresenters();
-        for (int i = 0; i < innerPresenters.length; i++)
-        if (!mPresenters.contains(innerPresenters[i])) {
-            mPresenters.add(innerPresenters[i]);
+        for (int i = 0; i < innerPresenters.length; i++) {
+            if (!mPresenters.contains(innerPresenters[i])) {
+                mPresenters.add(innerPresenters[i]);
+            }
         }
         return this;
     }

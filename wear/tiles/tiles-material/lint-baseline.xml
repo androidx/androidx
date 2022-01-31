@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 7.3.0-alpha01" type="baseline" client="gradle" dependencies="false" name="AGP (7.3.0-alpha01)" variant="all" version="7.3.0-alpha01">
+
+    <issue
+        id="ResourceType"
+        message="Mismatched @Dimension units here; expected a pixel integer but received density-independent (dp) integer"
+        errorLine1="            mSize = dp(size);"
+        errorLine2="                       ~~~~">
+        <location
+            file="src/main/java/androidx/wear/tiles/material/Button.java"
+            line="151"
+            column="24"/>
+    </issue>
+
+    <issue
+        id="ResourceType"
+        message="Mismatched @Dimension units here; expected density-independent (dp) integer but received a pixel integer"
+        errorLine1="        return recommendedIconSize(buttonSize.getValue());"
+        errorLine2="                                   ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/tiles/material/ButtonDefaults.java"
+            line="46"
+            column="36"/>
+    </issue>
+
+    <issue
+        id="ResourceType"
+        message="Mismatched @Dimension units here; expected a pixel integer but received density-independent (dp) integer"
+        errorLine1="            mWidth = dp(width);"
+        errorLine2="                        ~~~~~">
+        <location
+            file="src/main/java/androidx/wear/tiles/material/Chip.java"
+            line="160"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="ResourceType"
+        message="Mismatched @Dimension units here; expected a pixel integer but received density-independent (dp) integer"
+        errorLine1="            this.mStrokeWidth = dp(strokeWidth);"
+        errorLine2="                                   ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/tiles/material/CircularProgressIndicator.java"
+            line="162"
+            column="36"/>
+    </issue>
+
+    <issue
+        id="ResourceType"
+        message="Mismatched @Dimension units here; expected a pixel integer but received density-independent (dp) integer"
+        errorLine1="            this.mHorizontalSpacerWidth = dp(width);"
+        errorLine2="                                             ~~~~~">
+        <location
+            file="src/main/java/androidx/wear/tiles/material/layouts/MultiSlotLayout.java"
+            line="142"
+            column="46"/>
+    </issue>
+
+    <issue
+        id="ResourceType"
+        message="Mismatched @Dimension units here; expected a pixel integer but received density-independent (dp) integer"
+        errorLine1="            this.mVerticalSpacerHeight = dp(height);"
+        errorLine2="                                            ~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/tiles/material/layouts/MultiSlotLayout.java"
+            line="157"
+            column="45"/>
+    </issue>
+
+    <issue
+        id="ResourceType"
+        message="Mismatched @Dimension units here; expected a pixel integer but received density-independent (dp) integer"
+        errorLine1="            mWidth = dp(width);"
+        errorLine2="                        ~~~~~">
+        <location
+            file="src/main/java/androidx/wear/tiles/material/TitleChip.java"
+            line="129"
+            column="25"/>
+    </issue>
+
+</issues>

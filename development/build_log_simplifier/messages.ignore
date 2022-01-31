@@ -320,7 +320,7 @@ WARNING: Please consider reporting this to the maintainers of androidx\.room\.co
 \$CHECKOUT/prebuilts/androidx/external/org/jetbrains/kotlin/kotlin\-stdlib\-jdk[0-9]+/[0-9]+\.[0-9]+\.[0-9]+-?[\-A-Z0-9]*/kotlin\-stdlib\-jdk[0-9]+\-[0-9]+\.[0-9]+\.[0-9]+-?[\-A-Z0-9]*\.jar \(version [0-9]+\.[0-9]+-?[\-A-Z0-9]*\)
 # > Task :compose:ui:ui:processDebugAndroidTestManifest
 \$OUT_DIR/androidx/compose/ui/ui/build/intermediates/tmp/manifest/androidTest/debug/tempFile[0-9]+ProcessTestManifest[0-9]+\.xml Warning:
-Package name 'androidx\.compose\.ui\.test' used in: tempFile[0-9]+ProcessTestManifest[0-9]+\.xml, :compose:ui:ui\-test\.
+Namespace 'androidx\.compose\.ui\.test' used in: tempFile[0-9]+ProcessTestManifest[0-9]+\.xml, :compose:ui:ui\-test\.
 # > Task :buildSrc:build UP-TO-DATE
 See the profiling report at\: file\:\/\/\$OUT_DIR\/buildSrc\/build\/reports\/profile\/profile\-[0-9]+\-[0-9]+\-[0-9]+\-[0-9]+\-[0-9]+\-[0-9]+\.html
 A fine\-grained performance profile is available\: use the \-\-scan option\.
@@ -595,9 +595,9 @@ Calculating task graph as configuration cache cannot be reused because the set o
 # > Task :car:app:app:generateProtocolApi
 \- Task `:car:app:app:generateProtocolApi` of type `GenerateProtocolApiTask`: invocation of 'Task\.project' at execution time is unsupported\.
 # > Tasks configureCMakeRelWithDebInfo or configureCMakeDebug
-C/C\+\+: (debug|release)\|(x86_64|x86|arm64\-v8a|armeabi\-v7a) :Building ver\.\: [0-9]+\.[0-9]+\.[0-9]+
-C/C\+\+: (debug|release)\|(x86_64|x86|arm64\-v8a|armeabi\-v7a) :Packaging for\: (amd\-[0-9]+|armhf\-[0-9]+|x86\-[0-9]+)
-C/C\+\+: (debug|release)\|(x86_64|x86|arm64\-v8a|armeabi\-v7a) :Compiling for ARM
+C/C\+\+: Building ver\.\: [0-9]+\.[0-9]+\.[0-9]+
+C/C\+\+: Packaging for\: (amd\-[0-9]+|armhf\-[0-9]+|x86\-[0-9]+)
+C/C\+\+: Compiling for ARM
 # > Task :glance:glance:reportLibraryMetrics
 Info: Stripped invalid locals information from [0-9]+ method\.
 Info: Methods with invalid locals information:

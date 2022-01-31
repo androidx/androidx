@@ -30,6 +30,7 @@ dependencies {
     api(projectOrArtifact(":lifecycle:lifecycle-runtime-ktx"))
     api(projectOrArtifact(":lifecycle:lifecycle-viewmodel-ktx"))
     api("androidx.annotation:annotation-experimental:1.1.0")
+    implementation('androidx.collection:collection:1.0.0')
 
     api(libs.kotlinStdlib)
     androidTestImplementation(projectOrArtifact(":lifecycle:lifecycle-runtime-testing"))
