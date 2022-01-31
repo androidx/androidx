@@ -35,6 +35,7 @@ package androidx.car.app {
     field public static final String CATEGORY_CHARGING_APP = "androidx.car.app.category.CHARGING";
     field public static final String CATEGORY_NAVIGATION_APP = "androidx.car.app.category.NAVIGATION";
     field public static final String CATEGORY_PARKING_APP = "androidx.car.app.category.PARKING";
+    field @androidx.car.app.annotations.ExperimentalCarApi public static final String CATEGORY_SETTINGS_APP = "androidx.car.app.category.SETTINGS";
     field public static final String SERVICE_INTERFACE = "androidx.car.app.CarAppService";
   }
 

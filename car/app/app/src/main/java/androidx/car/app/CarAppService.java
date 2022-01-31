@@ -34,6 +34,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 import androidx.car.app.CarContext.CarServiceType;
+import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.navigation.NavigationManager;
 import androidx.car.app.serialization.Bundleable;
 import androidx.car.app.serialization.BundlerException;
@@ -114,6 +115,14 @@ public abstract class CarAppService extends Service {
      * Used to declare that this app is a charging app in the manifest.
      */
     public static final String CATEGORY_CHARGING_APP = "androidx.car.app.category.CHARGING";
+
+    /**
+     * Used to declare that this app is a settings app in the manifest. This app can be used to
+     * provide screens corresponding to the settings page and/or any error resolution screens e.g.
+     * sign-in screen.
+     */
+    @ExperimentalCarApi
+    public static final String CATEGORY_SETTINGS_APP = "androidx.car.app.category.SETTINGS";
 
     private static final String AUTO_DRIVE = "AUTO_DRIVE";
 
