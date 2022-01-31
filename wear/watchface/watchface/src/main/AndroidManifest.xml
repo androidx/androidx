@@ -51,9 +51,10 @@
       android.content.ActivityNotFoundException.
     -->
     <activity
-	android:name="androidx.wear.watchface.ComplicationHelperActivity"
-	android:exported="false"
-    android:theme="@android:style/Theme.Translucent.NoTitleBar"/>
+	    android:name="androidx.wear.watchface.ComplicationHelperActivity"
+	    android:exported="false"
+        android:excludeFromRecents="true"
+        android:theme="@android:style/Theme.Translucent.NoTitleBar"/>
 
   </application>
 </manifest>
