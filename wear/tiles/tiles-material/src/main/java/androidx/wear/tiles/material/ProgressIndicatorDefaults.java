@@ -1,0 +1,54 @@
+/*
+ * Copyright 2021 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package androidx.wear.tiles.material;
+
+import static androidx.wear.tiles.DimensionBuilders.dp;
+import static androidx.wear.tiles.material.Colors.PRIMARY;
+import static androidx.wear.tiles.material.Colors.SURFACE;
+
+import androidx.annotation.NonNull;
+import androidx.wear.tiles.DimensionBuilders.DpProp;
+
+/** Contains the default values used by {@link CircularProgressIndicator} Tiles components. */
+public class ProgressIndicatorDefaults {
+    private ProgressIndicatorDefaults() {}
+
+    /** The default stroke width for {@link CircularProgressIndicator} */
+    @NonNull public static final DpProp DEFAULT_STROKE_WIDTH = dp(8);
+
+    /** The default padding for {@link CircularProgressIndicator} */
+    @NonNull public static final DpProp DEFAULT_PADDING = dp(6);
+
+    /** The recommended colors for {@link CircularProgressIndicator}. */
+    @NonNull
+    public static final ProgressIndicatorColors DEFAULT_COLOR =
+            new ProgressIndicatorColors(PRIMARY, SURFACE);
+
+    static final float DEFAULT_GAP_LENGTH = 47.8f;
+
+    /** The recommended start angle for {@link CircularProgressIndicator} if there's a gap. */
+    public static final float GAP_START_ANGLE = 180 + DEFAULT_GAP_LENGTH / 2 - 360;
+
+    /** The recommended end angle for {@link CircularProgressIndicator} if there's a gap. */
+    public static final float GAP_END_ANGLE = 180 - DEFAULT_GAP_LENGTH / 2;
+
+    /** Start angle for full length {@link CircularProgressIndicator}. */
+    static final float DEFAULT_START_ANGLE = 0;
+
+    /** End angle for full length {@link CircularProgressIndicator}. */
+    static final float DEFAULT_END_ANGLE = 360;
+}
