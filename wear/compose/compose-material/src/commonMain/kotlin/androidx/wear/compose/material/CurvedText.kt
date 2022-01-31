@@ -16,8 +16,6 @@
 
 package androidx.wear.compose.material
 
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.takeOrElse
 import androidx.compose.ui.text.TextStyle
@@ -25,9 +23,9 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.wear.compose.foundation.ArcPaddingValues
-import androidx.wear.compose.foundation.BasicCurvedText
+import androidx.wear.compose.foundation.basicCurvedText
+import androidx.wear.compose.foundation.CurvedScope
 import androidx.wear.compose.foundation.CurvedTextStyle
-import androidx.wear.compose.foundation.CurvedRowScope
 
 /**
  * CurvedText is a component allowing developers to easily write curved text following
@@ -36,7 +34,7 @@ import androidx.wear.compose.foundation.CurvedRowScope
  * able to specify to positioning.
  *
  * The default [style] uses the [LocalTextStyle] provided by the [MaterialTheme] / components,
- * converting it to a [CurvedTextStyle]. Note that not all parameters are used by [CurvedText].
+ * converting it to a [CurvedTextStyle]. Note that not all parameters are used by [curvedText].
  *
  * If you are setting your own style, you may want to consider first retrieving [LocalTextStyle],
  * and using [TextStyle.copy] to keep any theme defined attributes, only modifying the specific
@@ -51,7 +49,7 @@ import androidx.wear.compose.foundation.CurvedRowScope
  *
  * Additionally, for [color], if [color] is not set, and [style] does not have a color, then
  * [LocalContentColor] will be used with an alpha of [LocalContentAlpha]- this allows this
- * [CurvedText] or element containing this [CurvedText] to adapt to different background colors and
+ * [curvedText] or element containing this [curvedText] to adapt to different background colors and
  * still maintain contrast and accessibility.
  *
  * @sample androidx.wear.compose.material.samples.CurvedTextDemo
@@ -71,34 +69,26 @@ import androidx.wear.compose.foundation.CurvedRowScope
  * @param contentArcPadding Allows to specify additional space along each "edge" of the content in
  * [Dp] see [ArcPaddingValues]
  */
-@Composable
-fun CurvedRowScope.CurvedText(
+public fun CurvedScope.curvedText(
     text: String,
-    modifier: Modifier = Modifier,
     color: Color = Color.Unspecified,
     background: Color = Color.Unspecified,
     fontSize: TextUnit = TextUnit.Unspecified,
-    style: CurvedTextStyle = CurvedTextStyle(LocalTextStyle.current),
+    style: CurvedTextStyle? = null,
     clockwise: Boolean = true,
     contentArcPadding: ArcPaddingValues = ArcPaddingValues(0.dp),
-) {
+) = basicCurvedText(text, clockwise, contentArcPadding) {
+    val baseStyle = style ?: CurvedTextStyle(LocalTextStyle.current)
     val textColor = color.takeOrElse {
-        style.color.takeOrElse {
+        baseStyle.color.takeOrElse {
             LocalContentColor.current.copy(alpha = LocalContentAlpha.current)
         }
     }
-    val mergedStyle = style.merge(
+    baseStyle.merge(
         CurvedTextStyle(
             color = textColor,
             fontSize = fontSize,
             background = background
         )
-    )
-    BasicCurvedText(
-        text = text,
-        style = mergedStyle,
-        modifier = modifier,
-        clockwise = clockwise,
-        contentArcPadding = contentArcPadding
     )
 }

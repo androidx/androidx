@@ -18,8 +18,13 @@ package androidx.wear.compose.foundation
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.ui.layout.Layout
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.layout.Measurable
+import androidx.compose.ui.layout.MeasureScope
+import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.unit.dp
 import org.junit.Assert.assertEquals
 import androidx.compose.ui.unit.sp
 import org.junit.Rule
@@ -34,8 +39,9 @@ class BasicCurvedTextTest {
         val counters = Counters()
         val text = mutableStateOf("Initial")
         rule.setContent {
-            SpyCurvedRow(counters) {
-                BasicCurvedText(
+            CurvedLayout {
+                wrappedBasicCurvedText(
+                    counters = counters,
                     text = text.value,
                     style = CurvedTextStyle(fontSize = 14.sp)
                 )
@@ -48,45 +54,75 @@ class BasicCurvedTextTest {
         }
 
         rule.runOnIdle {
-            assertEquals(1, counters.layoutsCount)
-            assertEquals(1, counters.measuresCount)
+            // TODO(b/219885899): Investigate why we need the extra passes.
+            assertEquals(Counters(2, 2, 3), counters)
         }
     }
 }
 
 internal data class Counters(
     var measuresCount: Int = 0,
-    var layoutsCount: Int = 0
+    var layoutsCount: Int = 0,
+    var drawCount: Int = 0,
 ) {
     fun reset() {
         measuresCount = 0
         layoutsCount = 0
+        drawCount = 0
     }
 }
 
-@Composable
-internal fun SpyCurvedRow(
+// TODO: Implement using a CurvedModifier
+internal fun CurvedScope.wrappedBasicCurvedText(
     counters: Counters,
-    content: @Composable CurvedRowScope.() -> Unit
-) {
-    Layout(
-        content = {
-            CurvedRowScopeInstance.content()
-        }
-    ) { measurables, constraints ->
-        counters.measuresCount++
-        // Ensure we ask BasicCurvedText for it's intrinsic measures, as CurvedRow does,
-        // so we subscribe to get notified of changes
-        measurables.sumOf {
-            it.maxIntrinsicWidth(constraints.maxHeight)
-        }
+    text: String,
+    style: CurvedTextStyle,
+    clockwise: Boolean = true,
+    contentArcPadding: ArcPaddingValues = ArcPaddingValues(0.dp)
+) = add(CurvedChildWrapper(CurvedTextChild(text, clockwise, contentArcPadding) { style }, counters))
 
-        val placeables = measurables.map { it.measure(constraints) }
-        layout(constraints.maxWidth, constraints.maxHeight) {
-            counters.layoutsCount++
-            placeables.forEach {
-                it.placeRelative(0, 0)
-            }
-        }
+internal class CurvedChildWrapper(
+    val wrapped: CurvedChild,
+    val counters: Counters
+) : CurvedChild() {
+    @Composable
+    override fun SubComposition() { wrapped.SubComposition() }
+
+    override fun MeasureScope.initializeMeasure(
+        measurables: List<Measurable>,
+        index: Int
+    ): Int = with(wrapped) {
+        counters.measuresCount++
+        initializeMeasure(measurables, index)
+    }
+
+    override fun doEstimateThickness(maxRadius: Float) = wrapped.estimateThickness(maxRadius)
+
+    override fun doRadialPosition(
+        parentOuterRadius: Float,
+        parentThickness: Float,
+    ) = wrapped.radialPosition(
+        parentOuterRadius,
+        parentThickness,
+    )
+
+    override fun doAngularPosition(
+        parentStartAngleRadians: Float,
+        parentSweepRadians: Float,
+        centerOffset: Offset
+    ) = wrapped.angularPosition(
+        parentStartAngleRadians,
+        parentSweepRadians,
+        centerOffset
+    )
+
+    override fun (Placeable.PlacementScope).placeIfNeeded() = with(wrapped) {
+        counters.layoutsCount++
+        placeIfNeeded()
+    }
+
+    override fun DrawScope.draw() = with(wrapped) {
+        counters.drawCount++
+        draw()
     }
 }

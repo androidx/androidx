@@ -18,8 +18,8 @@ package androidx.wear.compose.integration.demos
 
 import android.text.format.DateFormat
 import androidx.compose.runtime.Composable
-import androidx.wear.compose.foundation.BasicCurvedText
 import androidx.wear.compose.foundation.CurvedTextStyle
+import androidx.wear.compose.foundation.basicCurvedText
 import androidx.wear.compose.material.ExperimentalWearMaterialApi
 import androidx.wear.compose.material.Text
 import androidx.wear.compose.material.TimeText
@@ -44,7 +44,7 @@ fun TimeTextWithLeadingText() {
             )
         },
         leadingCurvedContent = {
-            BasicCurvedText(
+            basicCurvedText(
                 text = "ETA 12:48",
                 style = CurvedTextStyle(textStyle)
             )

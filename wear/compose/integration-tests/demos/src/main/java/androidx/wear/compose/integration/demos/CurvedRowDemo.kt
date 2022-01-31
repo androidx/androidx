@@ -31,128 +31,159 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.wear.compose.foundation.AnchorType
 import androidx.wear.compose.foundation.ArcPaddingValues
-import androidx.wear.compose.foundation.BasicCurvedText
-import androidx.wear.compose.foundation.CurvedRow
-import androidx.wear.compose.foundation.CurvedRowScope
+import androidx.wear.compose.foundation.CurvedAlignment
+import androidx.wear.compose.foundation.basicCurvedText
+import androidx.wear.compose.foundation.curvedComposable
+import androidx.wear.compose.foundation.CurvedLayout
+import androidx.wear.compose.foundation.CurvedScope
 import androidx.wear.compose.foundation.CurvedTextStyle
-import androidx.wear.compose.foundation.RadialAlignment
 import androidx.wear.compose.material.Text
 
 @Composable
-fun CurvedRowDemo() {
-    CurvedRow(modifier = Modifier.fillMaxSize()) {
-        Box(
-            modifier = Modifier
-                .size(20.dp)
-                .background(Color.Red)
-        )
-        Column(
-            modifier = Modifier
-                .background(Color.Gray)
-                .padding(3.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Text(
-                text = "A", color = Color.Black,
-                fontSize = 16.sp,
-                modifier = Modifier.background(Color.Blue)
+fun CurvedWorldDemo() {
+    CurvedLayout(modifier = Modifier.fillMaxSize()) {
+        curvedComposable {
+            Box(
+                modifier = Modifier
+                    .size(20.dp)
+                    .background(Color.Red)
             )
-            Row {
+        }
+        curvedComposable {
+            Column(
+                modifier = Modifier
+                    .background(Color.Gray)
+                    .padding(3.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
                 Text(
-                    text = "B",
-                    color = Color.Black,
+                    text = "A", color = Color.Black,
                     fontSize = 16.sp,
-                    modifier = Modifier.background(Color.Green).padding(2.dp)
+                    modifier = Modifier.background(Color.Blue)
                 )
-                Text(
-                    text = "C",
-                    color = Color.Black,
-                    fontSize = 16.sp,
-                    modifier = Modifier.background(Color.Red)
-                )
+                Row {
+                    Text(
+                        text = "B",
+                        color = Color.Black,
+                        fontSize = 16.sp,
+                        modifier = Modifier.background(Color.Green).padding(2.dp)
+                    )
+                    Text(
+                        text = "C",
+                        color = Color.Black,
+                        fontSize = 16.sp,
+                        modifier = Modifier.background(Color.Red)
+                    )
+                }
             }
         }
-        Box(
-            modifier = Modifier
-                .size(20.dp)
-                .background(Color.Red)
-        )
+        curvedComposable {
+            Box(
+                modifier = Modifier
+                    .size(20.dp)
+                    .background(Color.Red)
+            )
+        }
     }
-    CurvedRow(
+    CurvedLayout(
         anchor = 90F,
         anchorType = AnchorType.Start,
         clockwise = false
     ) {
-        Text(
-            text = "Start",
-            color = Color.Black,
-            fontSize = 30.sp,
-            modifier = Modifier.background(Color.White).padding(horizontal = 10.dp)
-        )
+        curvedComposable {
+            Text(
+                text = "Start",
+                color = Color.Black,
+                fontSize = 30.sp,
+                modifier = Modifier.background(Color.White).padding(horizontal = 10.dp)
+            )
+        }
     }
-    CurvedRow(
+    CurvedLayout(
         anchor = 90F,
         anchorType = AnchorType.End,
         clockwise = false
     ) {
-        Text(
-            text = "End",
-            color = Color.Black,
-            fontSize = 30.sp,
-            modifier = Modifier.background(Color.White).padding(horizontal = 10.dp)
+        curvedComposable {
+            Text(
+                text = "End",
+                color = Color.Black,
+                fontSize = 30.sp,
+                modifier = Modifier.background(Color.White).padding(horizontal = 10.dp)
+            )
+        }
+    }
+    CurvedLayout(
+        modifier = Modifier.padding(50.dp),
+        anchor = 90f,
+        anchorType = AnchorType.Center,
+        clockwise = false
+    ) {
+        listOf("A", "B", "C").forEach {
+            curvedComposable {
+                Text(
+                    text = "$it",
+                    color = Color.Black,
+                    fontSize = 30.sp,
+                    modifier = Modifier.background(Color.White).padding(horizontal = 10.dp)
+                )
+            }
+        }
+    }
+}
+
+private fun CurvedScope.SeparatorBlock() {
+    curvedComposable(radialAlignment = CurvedAlignment.Radial.Outer) {
+        Box(
+            modifier = Modifier
+                .size(10.dp, 40.dp)
+                .background(Color.Gray)
+        )
+    }
+}
+
+private fun CurvedScope.RgbBlocks() {
+    curvedComposable(radialAlignment = CurvedAlignment.Radial.Outer) {
+        Box(
+            modifier = Modifier
+                .size(20.dp)
+                .background(Color.Red)
+        )
+    }
+    curvedComposable(radialAlignment = CurvedAlignment.Radial.Center) {
+        Box(
+            modifier = Modifier
+                .size(20.dp)
+                .background(Color.Green)
+        )
+    }
+    curvedComposable(radialAlignment = CurvedAlignment.Radial.Inner) {
+        Box(
+            modifier = Modifier
+                .size(20.dp)
+                .background(Color.Blue)
         )
     }
 }
 
 @Composable
-private fun CurvedRowScope.SeparatorBlock() {
-    Box(
-        modifier = Modifier
-            .size(10.dp, 40.dp)
-            .background(Color.Gray)
-            .radialAlignment(RadialAlignment.Outer)
-    )
-}
-
-@Composable
-private fun CurvedRowScope.RgbBlocks() {
-    Box(
-        modifier = Modifier
-            .size(20.dp)
-            .background(Color.Red)
-            .radialAlignment(RadialAlignment.Outer)
-    )
-    Box(
-        modifier = Modifier
-            .size(20.dp)
-            .background(Color.Green)
-            .radialAlignment(RadialAlignment.Center)
-    )
-    Box(
-        modifier = Modifier
-            .size(20.dp)
-            .background(Color.Blue)
-            .radialAlignment(RadialAlignment.Inner)
-    )
-}
-
-@Composable
 fun CurvedRowAlignmentDemo() {
-    CurvedRow(modifier = Modifier.fillMaxSize()) {
+    CurvedLayout(modifier = Modifier.fillMaxSize()) {
         SeparatorBlock()
         RgbBlocks()
         SeparatorBlock()
         (0..10).forEach {
-            Box(
-                modifier = Modifier
-                    .size(10.dp)
-                    .background(Color.White)
-                    .radialAlignment(RadialAlignment.Custom(it / 10.0f))
-            )
+            curvedComposable(radialAlignment = CurvedAlignment.Radial.Custom(it / 10.0f)) {
+                Box(
+                    modifier = Modifier
+                        .size(10.dp)
+                        .background(Color.White)
+                )
+            }
         }
         SeparatorBlock()
     }
-    CurvedRow(
+    CurvedLayout(
         anchor = 90f,
         clockwise = false
     ) {
@@ -164,24 +195,26 @@ fun CurvedRowAlignmentDemo() {
 
 @Composable
 fun BasicCurvedTextDemo() {
-    CurvedRow(modifier = Modifier.fillMaxSize()) {
+    CurvedLayout(modifier = Modifier.fillMaxSize().background(Color.White)) {
         SeparatorBlock()
-        BasicCurvedText(
+        basicCurvedText(
             "Curved Text",
             CurvedTextStyle(
                 fontSize = 18.sp
             ),
-            modifier = Modifier.radialAlignment(RadialAlignment.Outer)
+            // TODO: Re-add when we implement modifiers.
+            // modifier = Modifier.radialAlignment(RadialAlignment.Outer)
         )
         SeparatorBlock()
-        BasicCurvedText(
+        basicCurvedText(
             "And More",
             CurvedTextStyle(
                 fontSize = 24.sp
             ),
             clockwise = false,
             contentArcPadding = ArcPaddingValues(angular = 5.dp),
-            modifier = Modifier.radialAlignment(RadialAlignment.Inner)
+            // TODO: Re-add when we implement modifiers.
+            // modifier = Modifier.radialAlignment(RadialAlignment.Inner)
         )
         SeparatorBlock()
     }

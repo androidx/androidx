@@ -18,32 +18,12 @@ package androidx.wear.compose.foundation
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
-import androidx.compose.runtime.remember
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.drawBehind
-import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
-import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.layout.FirstBaseline
-import androidx.compose.ui.layout.IntrinsicMeasurable
-import androidx.compose.ui.layout.IntrinsicMeasureScope
-import androidx.compose.ui.layout.Layout
+import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.layout.Measurable
-import androidx.compose.ui.layout.MeasurePolicy
-import androidx.compose.ui.layout.MeasureResult
 import androidx.compose.ui.layout.MeasureScope
-import androidx.compose.ui.layout.ParentDataModifier
-import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.semantics.text
-import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.unit.Constraints
-import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import kotlin.math.ceil
 
 /**
  * Apply additional space along each edge of the content in [Dp].
@@ -51,14 +31,14 @@ import kotlin.math.ceil
  * build [ArcPaddingValues].
  */
 @Stable
-interface ArcPaddingValues {
+public interface ArcPaddingValues {
     /**
-     * Padding in the outward direction from the center of the [CurvedRow]
+     * Padding in the outward direction from the center of the [CurvedLayout]
      */
     fun calculateOuterPadding(): Dp
 
     /**
-     * Padding in the inwards direction towards the center of the [CurvedRow]
+     * Padding in the inwards direction towards the center of the [CurvedLayout]
      */
     fun calculateInnerPadding(): Dp
 
@@ -78,12 +58,12 @@ interface ArcPaddingValues {
  * edges will be determined by the direction (clockwise or counterclockwise)
  *
  * @param outer Padding in the outward direction from the center of the
- * [CurvedRow]
- * @param inner Padding in the inwards direction towards the center of the [CurvedRow]
+ * [CurvedLayout]
+ * @param inner Padding in the inwards direction towards the center of the [CurvedLayout]
  * @param start Padding added at the start of the component.
  * @param end Padding added at the end of the component.
  */
-fun ArcPaddingValues(
+public fun ArcPaddingValues(
     outer: Dp = 0.dp,
     inner: Dp = 0.dp,
     start: Dp = 0.dp,
@@ -94,13 +74,13 @@ fun ArcPaddingValues(
 /**
  * Apply [all] dp of additional space along each edge of the content.
  */
-fun ArcPaddingValues(all: Dp): ArcPaddingValues = ArcPaddingValuesImpl(all, all, all, all)
+public fun ArcPaddingValues(all: Dp): ArcPaddingValues = ArcPaddingValuesImpl(all, all, all, all)
 
 /**
  * Apply [radial] dp of additional space on the edges towards and away from the center, and
  * [angular] dp before and after the component.
  */
-fun ArcPaddingValues(radial: Dp = 0.dp, angular: Dp = 0.dp): ArcPaddingValues =
+public fun ArcPaddingValues(radial: Dp = 0.dp, angular: Dp = 0.dp): ArcPaddingValues =
     ArcPaddingValuesImpl(radial, radial, angular, angular)
 
 @Stable
@@ -128,114 +108,100 @@ internal class ArcPaddingValuesImpl(val outer: Dp, val inner: Dp, val start: Dp,
 }
 
 /**
- * CurvedText is a component allowing developers to easily write curved text following
+ * [basicCurvedText] is a component allowing developers to easily write curved text following
  * the curvature a circle (usually at the edge of a circular screen).
- * CurvedText can be only created within the CurvedRow to ensure the best experience, like being
- * able to specify to positioning.
+ * [basicCurvedText] can be only created within the [CurvedLayout] since it's not a not a
+ * composable.
  *
  * @sample androidx.wear.compose.foundation.samples.CurvedAndNormalText
  *
  * @param text The text to display
- * @param style Specified the style to use.
+ * @param clockwise The direction the text follows (default is true). Usually text at the top of the
+ * screen goes clockwise, and text at the bottom goes counterclockwise.
+ * @param contentArcPadding Allows to specify additional space along each "edge" of the content in
+ * [Dp] see [ArcPaddingValues]
+ * @param style A @Composable factory to provide the style to use. This composable SHOULDN'T
+ * generate any compose nodes.
+ */
+public fun CurvedScope.basicCurvedText(
+    text: String,
+    clockwise: Boolean = true,
+    contentArcPadding: ArcPaddingValues = ArcPaddingValues(0.dp),
+    style: @Composable () -> CurvedTextStyle = { CurvedTextStyle() }
+) = add(CurvedTextChild(text, clockwise, contentArcPadding, style))
+
+/**
+ * [basicCurvedText] is a component allowing developers to easily write curved text following
+ * the curvature a circle (usually at the edge of a circular screen).
+ * [basicCurvedText] can be only created within the [CurvedLayout] since it's not a not a
+ * composable.
+ *
+ * @sample androidx.wear.compose.foundation.samples.CurvedAndNormalText
+ *
+ * @param text The text to display
+ * @param style A style to use.
  * @param clockwise The direction the text follows (default is true). Usually text at the top of the
  * screen goes clockwise, and text at the bottom goes counterclockwise.
  * @param contentArcPadding Allows to specify additional space along each "edge" of the content in
  * [Dp] see [ArcPaddingValues]
  */
-@Composable
-fun CurvedRowScope.BasicCurvedText(
+public fun CurvedScope.basicCurvedText(
     text: String,
     style: CurvedTextStyle,
-    modifier: Modifier = Modifier,
     clockwise: Boolean = true,
-    contentArcPadding: ArcPaddingValues = ArcPaddingValues(0.dp),
-) {
-    // Apply defaults when fields are not specified
-    val actualStyle = DefaultCurvedTextStyles + style
+    // TODO: reimplement as modifiers
+    contentArcPadding: ArcPaddingValues = ArcPaddingValues(0.dp)
+) = basicCurvedText(text, clockwise, contentArcPadding) { style }
 
-    val delegate = remember { CurvedTextDelegate() }
-    val fontSizePx = with(LocalDensity.current) {
-        actualStyle.fontSize.toPx()
+internal class CurvedTextChild(
+    val text: String,
+    val clockwise: Boolean = true,
+    val contentArcPadding: ArcPaddingValues = ArcPaddingValues(0.dp),
+    val style: @Composable () -> CurvedTextStyle = { CurvedTextStyle() }
+) : CurvedChild() {
+    private val delegate: CurvedTextDelegate = CurvedTextDelegate()
+    private lateinit var actualStyle: CurvedTextStyle
+
+    override fun MeasureScope.initializeMeasure(
+        measurables: List<Measurable>,
+        index: Int
+    ): Int {
+        // TODO: move padding into a CurvedModifier
+        val arcPaddingPx = ArcPaddingPx(
+            contentArcPadding.calculateOuterPadding().toPx(),
+            contentArcPadding.calculateInnerPadding().toPx(),
+            contentArcPadding.calculateStartPadding().toPx(),
+            contentArcPadding.calculateEndPadding().toPx()
+        )
+        delegate.updateIfNeeded(text, clockwise, actualStyle.fontSize.toPx(), arcPaddingPx)
+        return index // No measurables where mapped.
     }
-    val arcPaddingPx = with(LocalDensity.current) {
-        remember(contentArcPadding) {
-            ArcPaddingPx(
-                contentArcPadding.calculateOuterPadding().toPx(),
-                contentArcPadding.calculateInnerPadding().toPx(),
-                contentArcPadding.calculateStartPadding().toPx(),
-                contentArcPadding.calculateEndPadding().toPx()
-            )
+
+    @Composable
+    override fun SubComposition() {
+        actualStyle = DefaultCurvedTextStyles + style()
+    }
+
+    override fun doEstimateThickness(maxRadius: Float): Float = delegate.textHeight
+
+    override fun doRadialPosition(
+        parentOuterRadius: Float,
+        parentThickness: Float
+    ): PartialLayoutInfo {
+        val measureRadius = parentOuterRadius - delegate.baseLinePosition
+        return PartialLayoutInfo(
+            delegate.textWidth / measureRadius,
+            parentOuterRadius,
+            delegate.textHeight,
+            measureRadius
+        )
+    }
+
+    override fun DrawScope.draw() {
+        with(delegate) {
+            doDraw(layoutInfo!!, actualStyle.color, actualStyle.background)
         }
     }
-    delegate.updateIfNeeded(text, clockwise, fontSizePx, arcPaddingPx)
-
-    Layout(
-        modifier = modifier
-            .semantics { this.text = AnnotatedString(text) }
-            .then(CurvedTextModifier())
-            .graphicsLayer()
-            .drawBehind {
-                drawIntoCanvas { canvas ->
-                    delegate.doDraw(canvas, size, actualStyle.color, actualStyle.background)
-                }
-            },
-        content = {},
-        // We need to report our real size to the CurvedRow, (we use intrinsic size),
-        // But for compose layout we need to take the whole view.
-        measurePolicy = remember {
-            object : MeasurePolicy {
-                override fun MeasureScope.measure(
-                    measurables: List<Measurable>,
-                    constraints: Constraints
-                ): MeasureResult {
-                    return layout(
-                        constraints.maxWidth,
-                        constraints.maxHeight,
-                        alignmentLines = mapOf(
-                            FirstBaseline to delegate.baseLinePosition.toInt()
-                        )
-                    ) {}
-                }
-
-                override fun IntrinsicMeasureScope.minIntrinsicWidth(
-                    measurables: List<IntrinsicMeasurable>,
-                    height: Int
-                ) = ceil(delegate.textWidth).toInt()
-
-                override fun IntrinsicMeasureScope.minIntrinsicHeight(
-                    measurables: List<IntrinsicMeasurable>,
-                    width: Int
-                ) = ceil(delegate.textHeight).toInt()
-
-                override fun IntrinsicMeasureScope.maxIntrinsicWidth(
-                    measurables: List<IntrinsicMeasurable>,
-                    height: Int
-                ) = ceil(delegate.textWidth).toInt()
-
-                override fun IntrinsicMeasureScope.maxIntrinsicHeight(
-                    measurables: List<IntrinsicMeasurable>,
-                    width: Int
-                ) = ceil(delegate.textHeight).toInt()
-            }
-        }
-    )
-}
-
-private class CurvedTextModifier() : ParentDataModifier {
-    override fun Density.modifyParentData(parentData: Any?): Any {
-        return (parentData as? CurvedRowParentData ?: CurvedRowParentData()).also {
-            it.isCurvedComponent = true
-        }
-    }
-
-    override fun hashCode(): Int = 1
-
-    override fun equals(other: Any?): Boolean {
-        return other is CurvedTextModifier
-    }
-
-    override fun toString(): String =
-        "CurvedTextModifier()"
 }
 
 internal data class ArcPaddingPx(
@@ -257,5 +223,5 @@ internal expect class CurvedTextDelegate() {
         arcPaddingPx: ArcPaddingPx
     )
 
-    fun doDraw(canvas: Canvas, size: Size, color: Color, background: Color)
+    fun DrawScope.doDraw(layoutInfo: CurvedLayoutInfo, color: Color, background: Color)
 }
