@@ -16,6 +16,7 @@
 
 package androidx.wear.tiles.material;
 
+import static androidx.wear.tiles.LayoutElementBuilders.HORIZONTAL_ALIGN_CENTER;
 import static androidx.wear.tiles.material.ChipDefaults.COMPACT_HEIGHT;
 import static androidx.wear.tiles.material.ChipDefaults.COMPACT_HORIZONTAL_PADDING;
 import static androidx.wear.tiles.material.ChipDefaults.COMPACT_PRIMARY;
@@ -99,7 +100,7 @@ public class CompactChip implements LayoutElement {
                     new Chip.Builder(mAction, mClickableId, mDeviceParameters)
                             .setChipColors(mChipColors)
                             .setContentDescription(mText)
-                            .setLeftAlign(false) // centered
+                            .setHorizontalAlignment(HORIZONTAL_ALIGN_CENTER)
                             .setWidth(new WrappedDimensionProp.Builder().build())
                             .setHeight(COMPACT_HEIGHT)
                             .setHorizontalPadding(COMPACT_HORIZONTAL_PADDING)
@@ -111,37 +112,37 @@ public class CompactChip implements LayoutElement {
         }
     }
 
-    /** Returns height of this Chip. Intended for testing purposes only. */
+    /** Returns height of this Chip. */
     @NonNull
     public ContainerDimension getHeight() {
         return mElement.getHeight();
     }
 
-    /** Returns width of this Chip. Intended for testing purposes only. */
+    /** Returns width of this Chip. */
     @NonNull
     public ContainerDimension getWidth() {
         return mElement.getWidth();
     }
 
-    /** Returns click event action associated with this Chip. Intended for testing purposes only. */
+    /** Returns click event action associated with this Chip. */
     @NonNull
     public Action getAction() {
         return mElement.getAction();
     }
 
-    /** Returns chip color of this Chip. Intended for testing purposes only. */
+    /** Returns chip color of this Chip. */
     @NonNull
     public ChipColors getChipColors() {
         return mElement.getChipColors();
     }
 
-    /** Returns content description of this Chip. Intended for testing purposes only. */
+    /** Returns content description of this Chip. */
     @NonNull
     public String getContentDescription() {
         return mElement.getContentDescription();
     }
 
-    /** Returns content of this Chip. Intended for testing purposes only. */
+    /** Returns content of this Chip. */
     @NonNull
     public LayoutElement getContent() {
         return mElement.getContent();

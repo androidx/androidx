@@ -18,8 +18,7 @@ package androidx.wear.tiles.material;
 
 import static androidx.annotation.Dimension.DP;
 import static androidx.wear.tiles.DimensionBuilders.dp;
-import static androidx.wear.tiles.LayoutElementBuilders.HORIZONTAL_ALIGN_CENTER;
-import static androidx.wear.tiles.LayoutElementBuilders.HORIZONTAL_ALIGN_LEFT;
+import static androidx.wear.tiles.LayoutElementBuilders.HORIZONTAL_ALIGN_START;
 import static androidx.wear.tiles.material.ChipDefaults.DEFAULT_HEIGHT;
 import static androidx.wear.tiles.material.ChipDefaults.DEFAULT_MARGIN_PERCENT;
 import static androidx.wear.tiles.material.ChipDefaults.HORIZONTAL_PADDING;
@@ -112,7 +111,7 @@ public class Chip implements LayoutElement {
         @NonNull private DpProp mHeight = DEFAULT_HEIGHT;
         @NonNull private ChipColors mChipColors = PRIMARY;
         private @ChipType int mType = NOT_SET;
-        private boolean mIsLeftAligned = false;
+        private @HorizontalAlignment int mHorizontalAlign = HORIZONTAL_ALIGN_START;
         @NonNull private FontStyle mPrimaryTextFont;
         @NonNull private DpProp mHorizontalPadding = HORIZONTAL_PADDING;
         @NonNull private DpProp mVerticalPadding = VERTICAL_PADDING;
@@ -212,7 +211,7 @@ public class Chip implements LayoutElement {
         /**
          * Sets the content of the {@link Chip} to be the given primary text and secondary label.
          * Any previously added content will be overridden. Primary text can be shown on 1 line
-         * only. This content will be left aligned inside the chip.
+         * only.
          */
         @NonNull
         @SuppressWarnings("MissingGetterMatchingBuilder")   // There's getContent() method.
@@ -228,8 +227,7 @@ public class Chip implements LayoutElement {
          * Sets the content of the {@link Chip} to be the given primary text with an icon and
          * secondary label. Any previously added content will be overridden. Provided icon will be
          * tinted to the given content color from {@link ChipColors}. This icon should be image with
-         * chosen alpha channel and not an actual image. This content will be left-aligned inside
-         * the chip.
+         * chosen alpha channel and not an actual image.
          */
         @NonNull
         @SuppressWarnings("MissingGetterMatchingBuilder")
@@ -246,8 +244,7 @@ public class Chip implements LayoutElement {
          * Sets the content of the {@link Chip} to be the given primary text with an icon. Any
          * previously added content will be overridden. Provided icon will be tinted to the given
          * content color from {@link ChipColors}. This icon should be image with chosen alpha
-         * channel and not an actual image. Primary text can be shown on 1 line only. This content
-         * will be left-aligned inside the chip.
+         * channel and not an actual image. Primary text can be shown on 1 line only.
          */
         @NonNull
         @SuppressWarnings("MissingGetterMatchingBuilder")   // There's getContent() method.
@@ -274,18 +271,14 @@ public class Chip implements LayoutElement {
         }
 
         // TODO(b/207350548): In RTL mode, should icon still be on the left.
-        // TODO(b/210847875): Add isLeftAligned()
         /**
-         * Sets content to be left-aligned in the chip in cases where the custom content is set or
-         * in case where there is only primary text without label or an icon. If label or icon is
-         * added, left align will be automatically applied. If {@code false} is passed as parameter,
-         * custom content or primary text (in case when there's no icon or label) will be
-         * center-aligned.
+         * Sets the horizontal alignment in the chip. It is strongly recommended that the content of
+         * the chip is start-aligned if there is more than primary text in it. If not set,
+         * {@link HorizontalAlignment#HORIZONTAL_ALIGN_START} will be used.
          */
         @NonNull
-        @SuppressWarnings("MissingGetterMatchingBuilder")
-        public Builder setLeftAlign(boolean isLeftAlign) {
-            mIsLeftAligned = isLeftAlign;
+        public Builder setHorizontalAlignment(@HorizontalAlignment int horizontalAlignment) {
+            mHorizontalAlign = horizontalAlignment;
             return this;
         }
 
@@ -322,16 +315,6 @@ public class Chip implements LayoutElement {
         Builder setMaxLines(int maxLines) {
             this.mMaxLines = maxLines;
             return this;
-        }
-
-        private @HorizontalAlignment int getCorrectAlignment() {
-            if (mType == CUSTOM_CONTENT) {
-                return mIsLeftAligned ? HORIZONTAL_ALIGN_LEFT : HORIZONTAL_ALIGN_CENTER;
-            }
-            if (!mIsLeftAligned && mLabelText == null && mType == TEXT) {
-                return HORIZONTAL_ALIGN_CENTER;
-            }
-            return HORIZONTAL_ALIGN_LEFT;
         }
 
         /** Constructs and returns {@link Chip} with the provided content and look. */
@@ -371,7 +354,7 @@ public class Chip implements LayoutElement {
                     new Box.Builder()
                             .setWidth(mWidth)
                             .setHeight(mHeight)
-                            .setHorizontalAlignment(getCorrectAlignment())
+                            .setHorizontalAlignment(mHorizontalAlign)
                             .addContent(getCorrectContent())
                             .setModifiers(modifiers.build());
 
@@ -400,7 +383,7 @@ public class Chip implements LayoutElement {
             // Placeholder for text.
             Column.Builder column =
                     new Column.Builder()
-                            .setHorizontalAlignment(HORIZONTAL_ALIGN_LEFT)
+                            .setHorizontalAlignment(HORIZONTAL_ALIGN_START)
                             .addContent(mainTextElement);
             if (mLabelText != null) {
                 Text labelTextElement =
@@ -457,33 +440,33 @@ public class Chip implements LayoutElement {
         }
     }
 
-    /** Returns height of this Chip. Intended for testing purposes only. */
+    /** Returns height of this Chip. */
     @NonNull
     public ContainerDimension getHeight() {
         return checkNotNull(mElement.getHeight());
     }
 
-    /** Returns width of this Chip. Intended for testing purposes only. */
+    /** Returns width of this Chip. */
     @NonNull
     public ContainerDimension getWidth() {
         return checkNotNull(mElement.getWidth());
     }
 
-    /** Returns click event action associated with this Chip. Intended for testing purposes only. */
+    /** Returns click event action associated with this Chip. */
     @NonNull
     public Action getAction() {
         return checkNotNull(
                 checkNotNull(checkNotNull(mElement.getModifiers()).getClickable()).getOnClick());
     }
 
-    /** Returns background color of this Chip. Intended for testing purposes only. */
+    /** Returns background color of this Chip. */
     @NonNull
     private ColorProp getBackgroundColor() {
         return checkNotNull(
                 checkNotNull(checkNotNull(mElement.getModifiers()).getBackground()).getColor());
     }
 
-    /** Returns chip colors of this Chip. Intended for testing purposes only. */
+    /** Returns chip colors of this Chip. */
     @NonNull
     public ChipColors getChipColors() {
         ColorProp backgroundColor = getBackgroundColor();
@@ -557,7 +540,7 @@ public class Chip implements LayoutElement {
         return color;
     }
 
-    /** Returns content description of this Chip. Intended for testing purposes only. */
+    /** Returns content description of this Chip. */
     @NonNull
     public String getContentDescription() {
         return checkNotNull(
@@ -565,10 +548,15 @@ public class Chip implements LayoutElement {
                         .getContentDescription());
     }
 
-    /** Returns content of this Chip. Intended for testing purposes only. */
+    /** Returns content of this Chip. */
     @NonNull
     public LayoutElement getContent() {
         return checkNotNull(checkNotNull(mElement.getContents()).get(0));
+    }
+
+    /** Returns the horizontal alignment of the content in this Chip. */
+    public @HorizontalAlignment int getHorizontalAlignment() {
+        return checkNotNull(mElement.getHorizontalAlignment()).getValue();
     }
 
     /** @hide */
