@@ -27,6 +27,7 @@ import androidx.appcompat.widget.SwitchUsageXmlDetector
 import androidx.appcompat.widget.TextViewCompoundDrawablesApiDetector
 import androidx.appcompat.widget.TextViewCompoundDrawablesXmlDetector
 import com.android.tools.lint.client.api.IssueRegistry
+import com.android.tools.lint.client.api.Vendor
 
 @Suppress("UnstableApiUsage")
 class AppCompatIssueRegistry : IssueRegistry() {
@@ -43,5 +44,10 @@ class AppCompatIssueRegistry : IssueRegistry() {
         TextViewCompoundDrawablesApiDetector.NOT_USING_COMPAT_TEXT_VIEW_DRAWABLE_APIS,
         TextViewCompoundDrawablesXmlDetector.NOT_USING_COMPAT_TEXT_VIEW_DRAWABLE_ATTRS,
         OnClickXmlDetector.USING_ON_CLICK_IN_XML
+    )
+    override val vendor = Vendor(
+        feedbackUrl = "https://issuetracker.google.com/issues/new?component=460343",
+        identifier = "androidx.appcompat",
+        vendorName = "Android Open Source Project",
     )
 }
