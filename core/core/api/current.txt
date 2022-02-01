@@ -789,6 +789,11 @@ package androidx.core.app {
     method public void removeOnNewIntentListener(androidx.core.util.Consumer<android.content.Intent!>);
   }
 
+  public interface OnPictureInPictureModeChangedProvider {
+    method public void addOnPictureInPictureModeChangedListener(androidx.core.util.Consumer<androidx.core.app.PictureInPictureModeChangedInfo!>);
+    method public void removeOnPictureInPictureModeChangedListener(androidx.core.util.Consumer<androidx.core.app.PictureInPictureModeChangedInfo!>);
+  }
+
   public class Person {
     method public static androidx.core.app.Person fromBundle(android.os.Bundle);
     method public androidx.core.graphics.drawable.IconCompat? getIcon();
@@ -810,6 +815,13 @@ package androidx.core.app {
     method public androidx.core.app.Person.Builder setKey(String?);
     method public androidx.core.app.Person.Builder setName(CharSequence?);
     method public androidx.core.app.Person.Builder setUri(String?);
+  }
+
+  public final class PictureInPictureModeChangedInfo {
+    ctor public PictureInPictureModeChangedInfo(boolean);
+    ctor @RequiresApi(26) public PictureInPictureModeChangedInfo(boolean, android.content.res.Configuration);
+    method @RequiresApi(26) public android.content.res.Configuration getNewConfig();
+    method public boolean isInPictureInPictureMode();
   }
 
   public final class RemoteActionCompat implements androidx.versionedparcelable.VersionedParcelable {

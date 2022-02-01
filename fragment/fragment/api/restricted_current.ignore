@@ -1,3 +1,5 @@
 // Baseline format: 1.0
 RemovedMethod: androidx.fragment.app.FragmentActivity#onMultiWindowModeChanged(boolean):
     Removed method androidx.fragment.app.FragmentActivity.onMultiWindowModeChanged(boolean)
+RemovedMethod: androidx.fragment.app.FragmentActivity#onPictureInPictureModeChanged(boolean):
+    Removed method androidx.fragment.app.FragmentActivity.onPictureInPictureModeChanged(boolean)

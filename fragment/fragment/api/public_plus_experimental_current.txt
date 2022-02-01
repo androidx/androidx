@@ -169,7 +169,6 @@ package androidx.fragment.app {
     method public androidx.fragment.app.FragmentManager getSupportFragmentManager();
     method @Deprecated public androidx.loader.app.LoaderManager getSupportLoaderManager();
     method @Deprecated @MainThread public void onAttachFragment(androidx.fragment.app.Fragment);
-    method @CallSuper public void onPictureInPictureModeChanged(boolean);
     method protected void onResumeFragments();
     method public void onStateNotSaved();
     method public void setEnterSharedElementCallback(androidx.core.app.SharedElementCallback?);
@@ -213,7 +212,7 @@ package androidx.fragment.app {
     method public boolean dispatchOptionsItemSelected(android.view.MenuItem);
     method public void dispatchOptionsMenuClosed(android.view.Menu);
     method public void dispatchPause();
-    method public void dispatchPictureInPictureModeChanged(boolean);
+    method @Deprecated public void dispatchPictureInPictureModeChanged(boolean);
     method public boolean dispatchPrepareOptionsMenu(android.view.Menu);
     method @Deprecated public void dispatchReallyStop();
     method public void dispatchResume();
