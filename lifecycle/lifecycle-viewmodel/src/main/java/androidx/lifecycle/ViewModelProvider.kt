@@ -258,10 +258,18 @@ constructor(
             return if (application != null) {
                 create(modelClass, application)
             } else {
-                val application = extras[APPLICATION_KEY] ?: throw IllegalArgumentException(
-                    "CreationExtras mush have an application by `APPLICATION_KEY`"
-                )
-                create(modelClass, application)
+                val application = extras[APPLICATION_KEY]
+                if (application != null) {
+                    create(modelClass, application)
+                } else {
+                    // For AndroidViewModels, CreationExtras must have an application set
+                    if (AndroidViewModel::class.java.isAssignableFrom(modelClass)) {
+                        throw IllegalArgumentException(
+                            "CreationExtras must have an application by `APPLICATION_KEY`"
+                        )
+                    }
+                    super.create(modelClass)
+                }
             }
         }
 
