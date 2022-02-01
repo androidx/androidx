@@ -46,7 +46,8 @@ class ScalingLazyColumnIndexedTest {
 
         rule.setContent {
             ScalingLazyColumn(
-                state = rememberScalingLazyListState().also { state = it },
+                state = rememberScalingLazyListState(initialCenterItemIndex = 0)
+                    .also { state = it },
                 modifier = Modifier.height(200.dp),
                 scalingParams = ScalingLazyColumnDefaults.scalingParams(
                     edgeScale = 1.0f,
@@ -89,7 +90,8 @@ class ScalingLazyColumnIndexedTest {
 
         rule.setContent {
             ScalingLazyColumn(
-                state = rememberScalingLazyListState().also { state = it },
+                state = rememberScalingLazyListState(initialCenterItemIndex = 0)
+                    .also { state = it },
                 modifier = Modifier.height(200.dp),
                 autoCentering = false
             ) {
@@ -119,7 +121,8 @@ class ScalingLazyColumnIndexedTest {
         val gapBetweenItems = 4.dp
         rule.setContent {
             ScalingLazyColumn(
-                state = rememberScalingLazyListState().also { state = it },
+                state = rememberScalingLazyListState(initialCenterItemIndex = 0)
+                    .also { state = it },
                 modifier = Modifier.height(viewPortHeight),
                 autoCentering = true,
                 verticalArrangement = Arrangement.spacedBy(gapBetweenItems),
