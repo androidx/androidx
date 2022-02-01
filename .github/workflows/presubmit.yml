@@ -13,8 +13,6 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       gradlew_flags: ${{ steps.global-constants.outputs.gradlew_flags }}
-      checkout_ref: ${{ steps.checkout-args.outputs.ref }}
-      checkout_repo: ${{ steps.checkout-args.outputs.repository }}
     steps:
       - name: "Setup global constants"
         id: global-constants
@@ -28,22 +26,6 @@ jobs:
             --no-configuration-cache                                        \
             --stacktrace"
           echo "::set-output name=gradlew_flags::$GRADLEW_FLAGS"
-      - name: "Compute actions/checkout arguments"
-        id: checkout-args
-        run: |
-          set -x
-
-          REF=${{ github.event.pull_request.head.ref }}
-          if [ -z "$REF" ]; then
-            REF=${{ github.event.ref }}
-          fi
-          echo "::set-output name=ref::$REF"
-
-          REPOSITORY=${{ github.event.pull_request.head.repo.full_name }}
-          if [ -z "$REPOSITORY" ]; then
-            REPOSITORY=${{ github.repository }}
-          fi
-          echo "::set-output name=repository::$REPOSITORY"
       - name: Publish build scans link
         # No scans are produced for PRs from forked repos, so omit this notice for forked PRs.
         if: ${{ !(github.event.pull_request && github.event.pull_request.head.repo.fork) }}
@@ -80,10 +62,6 @@ jobs:
 
       - name: "Checkout androidx repo"
         uses: actions/checkout@v2
-        with:
-          ref: ${{ needs.setup.outputs.checkout_ref }}
-          repository: ${{ needs.setup.outputs.checkout_repo }}
-          fetch-depth: 1
 
       - name: "Get changed files in push or pull_request"
         id: changed-files
@@ -153,10 +131,6 @@ jobs:
     steps:
       - name: "Checkout androidx repo"
         uses: actions/checkout@v2
-        with:
-          ref: ${{ needs.setup.outputs.checkout_ref }}
-          repository: ${{ needs.setup.outputs.checkout_repo }}
-          fetch-depth: 1
       - name: "Setup JDK 8 for tools.jar"
         id: setup-java8
         uses: actions/setup-java@v1
