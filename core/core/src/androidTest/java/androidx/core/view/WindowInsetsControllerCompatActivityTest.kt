@@ -240,12 +240,12 @@ public class WindowInsetsControllerCompatActivityTest {
 
     @SdkSuppress(minSdkVersion = 23)
     @Test
-    public fun systemBar_light() {
+    public fun statusBar_light() {
         scenario.onActivity {
             windowInsetsController.setAppearanceLightStatusBars(true)
         }
-        if (Build.VERSION.SDK_INT < 30) {
-            // The view's systemUiVisibility flags are not changed on API 30+
+        if (Build.VERSION.SDK_INT < 31) {
+            // The view's systemUiVisibility flags are not changed on API 31+
             val systemUiVisibility = scenario.withActivity { window.decorView }.systemUiVisibility
             assertThat(
                 systemUiVisibility and View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR,
@@ -255,59 +255,27 @@ public class WindowInsetsControllerCompatActivityTest {
         assertThat(windowInsetsController.isAppearanceLightStatusBars(), `is`(true))
     }
 
-    /**
-     * Tests that after calling setAppearanceLightStatusBars in API 30
-     * isAppearanceLightStatusBars is true and SYSTEM_UI_FLAG_LIGHT_STATUS_BAR flag is unset
-     * when using the `ViewCompat` getter.
-     */
-    @SdkSuppress(minSdkVersion = 30, maxSdkVersion = 30)
+    @SdkSuppress(minSdkVersion = 23)
     @Test
-    public fun systemBar_light_view_compat_getter() {
+    public fun statusBar_dark() {
         val decorView = scenario.withActivity { window.decorView }
-
-        scenario.onActivity { activity ->
-            windowInsetsController = ViewCompat.getWindowInsetsController(
-                activity.findViewById(R.id.container)
-            )!!
-
+        scenario.onActivity {
+            // start off with light status bars (as if set in the theme)
             decorView.systemUiVisibility = decorView.systemUiVisibility or
                 View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
-            windowInsetsController.setAppearanceLightStatusBars(true)
+
+            windowInsetsController.setAppearanceLightStatusBars(false)
         }
 
-        assertThat(
-            decorView.systemUiVisibility and View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR,
-            equalTo(0)
-        )
-        assertThat(windowInsetsController.isAppearanceLightStatusBars(), `is`(true))
-    }
-
-    /**
-     * Tests that after calling setAppearanceLightStatusBars in API 30
-     * isAppearanceLightStatusBars is true and SYSTEM_UI_FLAG_LIGHT_STATUS_BAR flag is unset
-     * when using the deprecated `Window` and `View` `WindowCompat` getter.
-     */
-    @SdkSuppress(minSdkVersion = 30, maxSdkVersion = 30)
-    @Test
-    public fun systemBar_light_window_compat_window_view_getter() {
-        val decorView = scenario.withActivity { window.decorView }
-
-        scenario.onActivity { activity ->
-            windowInsetsController = WindowCompat.getInsetsController(
-                activity.window,
-                activity.findViewById(R.id.container)
-            )!!
-
-            decorView.systemUiVisibility = decorView.systemUiVisibility or
-                View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
-            windowInsetsController.setAppearanceLightStatusBars(true)
+        if (Build.VERSION.SDK_INT < 31) {
+            // The view's systemUiVisibility flags are not changed on API 31+
+            val systemUiVisibility = scenario.withActivity { window.decorView }.systemUiVisibility
+            assertThat(
+                systemUiVisibility and View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR,
+                equalTo(0)
+            )
         }
-
-        assertThat(
-            decorView.systemUiVisibility and View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR,
-            equalTo(0)
-        )
-        assertThat(windowInsetsController.isAppearanceLightStatusBars(), `is`(true))
+        assertThat(windowInsetsController.isAppearanceLightStatusBars(), `is`(false))
     }
 
     @SdkSuppress(minSdkVersion = 26)
@@ -317,8 +285,8 @@ public class WindowInsetsControllerCompatActivityTest {
             windowInsetsController.setAppearanceLightNavigationBars(true)
         }
         val systemUiVisibility = scenario.withActivity { window.decorView }.systemUiVisibility
-        if (Build.VERSION.SDK_INT < 30) {
-            // The view's systemUiVisibility flags are not changed on API 30+
+        if (Build.VERSION.SDK_INT < 31) {
+            // The view's systemUiVisibility flags are not changed on API 31+
             assertThat(
                 systemUiVisibility and View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR,
                 equalTo(View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR)
@@ -326,6 +294,30 @@ public class WindowInsetsControllerCompatActivityTest {
         }
         assertThat(
             windowInsetsController.isAppearanceLightNavigationBars(), `is`(true)
+        )
+    }
+
+    @SdkSuppress(minSdkVersion = 26)
+    @Test
+    public fun navigationBar_dark() {
+        val decorView = scenario.withActivity { window.decorView }
+        scenario.onActivity {
+            // start off with light navigation bars (as if set in the theme)
+            decorView.systemUiVisibility = decorView.systemUiVisibility or
+                View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
+
+            windowInsetsController.setAppearanceLightNavigationBars(false)
+        }
+        val systemUiVisibility = scenario.withActivity { window.decorView }.systemUiVisibility
+        if (Build.VERSION.SDK_INT < 31) {
+            // The view's systemUiVisibility flags are not changed on API 31+
+            assertThat(
+                systemUiVisibility and View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR,
+                equalTo(0)
+            )
+        }
+        assertThat(
+            windowInsetsController.isAppearanceLightNavigationBars(), `is`(false)
         )
     }
 
