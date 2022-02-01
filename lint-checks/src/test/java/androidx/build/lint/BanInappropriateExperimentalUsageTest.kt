@@ -19,6 +19,7 @@
 package androidx.build.lint
 
 import com.android.tools.lint.checks.infrastructure.ProjectDescription
+import com.android.tools.lint.checks.infrastructure.TestMode
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -86,7 +87,8 @@ No warnings.
         """.trimIndent()
         /* ktlint-enable max-line-length */
 
-        check(provider).expect(expected)
+        // TODO: Using TestMode.DEFAULT due to b/188814760; remove testModes once bug is resolved
+        check(provider, testModes = listOf(TestMode.DEFAULT)).expect(expected)
     }
 
     @Test
@@ -133,6 +135,7 @@ No warnings.
         """.trimIndent()
         /* ktlint-enable max-line-length */
 
-        check(provider, consumer).expect(expected)
+        // TODO: Using TestMode.DEFAULT due to b/188814760; remove testModes once bug is resolved
+        check(provider, consumer, testModes = listOf(TestMode.DEFAULT)).expect(expected)
     }
 }
