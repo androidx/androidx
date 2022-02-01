@@ -29,7 +29,15 @@
     <!-- A UserStyleSchema has 0 or more StyleSetting child nodes. -->
     <declare-styleable name="UserStyleSchema" />
 
-    <!-- A BooleanUserStyleSetting should not have any child nodes. -->
+    <!-- An OnWatchEditorData node should not have any child nodes. -->
+    <declare-styleable name="OnWatchEditorData">
+        <!-- A link to an icon for use by an on watch face editor in preference to a companion
+        icon. -->
+        <attr name="android:icon" />
+    </declare-styleable>
+
+    <!-- A BooleanUserStyleSetting node may only contain an optional OnWatchEditorData child
+    node. -->
     <declare-styleable name="BooleanUserStyleSetting">
         <!-- An id is required, this must be unique within the schema's settings. -->
         <attr name="id" />
@@ -38,7 +46,7 @@
         <attr name="displayName" />
         <!-- A description is required. Consider referencing a string resource for localization. -->
         <attr name="description" />
-        <!-- A link to an icon is optional but encouraged. -->
+        <!-- A link to a companion editor icon is optional but encouraged. -->
         <attr name="android:icon" />
         <!-- A combination of one or more layers. If not specified then defaults to all layers. -->
         <attr name="affectedWatchFaceLayers" />
@@ -46,7 +54,8 @@
         <attr name="defaultBoolean" format="boolean" />
     </declare-styleable>
 
-    <!-- A ListUserStyleSetting should contain 1 or more child ComplicationSlotsOption nodes. -->
+    <!-- A ListUserStyleSetting node should contain 1 or more child ComplicationSlotsOption nodes.
+    It may also contain an OnWatchEditorData node.-->
     <declare-styleable name="ComplicationSlotsUserStyleSetting">
         <!-- An id is required, this must be unique within the schema's settings. -->
         <attr name="id" />
@@ -55,7 +64,7 @@
         <attr name="displayName" />
         <!-- A description is required. Consider referencing a string resource for localization. -->
         <attr name="description" />
-        <!-- A link to an icon is optional but encouraged. -->
+        <!-- A link to a companion editor icon is optional but encouraged. -->
         <attr name="android:icon" />
         <!-- A combination of one or more layers. If not specified then defaults to all layers. -->
         <attr name="affectedWatchFaceLayers" />
@@ -64,7 +73,8 @@
         <attr name="defaultOptionIndex" />
     </declare-styleable>
 
-    <!-- A DoubleRangeUserStyleSetting should not have any child nodes. -->
+    <!-- A DoubleRangeUserStyleSetting node may only contain an optional OnWatchEditorData child
+    node. -->
     <declare-styleable name="DoubleRangeUserStyleSetting">
         <!-- An id is required, this must be unique within the schema's settings. -->
         <attr name="id" />
@@ -73,7 +83,7 @@
         <attr name="displayName" />
         <!-- A description is required. Consider referencing a string resource for localization. -->
         <attr name="description" />
-        <!-- A link to an icon is optional but encouraged. -->
+        <!-- A link to a companion editor icon is optional but encouraged. -->
         <attr name="android:icon" />
         <!-- A combination of one or more layers. If not specified then defaults to all layers. -->
         <attr name="affectedWatchFaceLayers" />
@@ -85,7 +95,8 @@
         <attr name="maxDouble" format="string" />
     </declare-styleable>
 
-    <!-- A ListUserStyleSetting should contain 1 or more child ComplicationSlotsOption nodes. -->
+    <!-- A ListUserStyleSetting node should contain 1 or more child ComplicationSlotsOption nodes
+    and optionally a single OnWatchEditorData node. -->
     <declare-styleable name="ListUserStyleSetting">
         <!-- An id is required, this must be unique within the schema's settings. -->
         <attr name="id" />
@@ -94,7 +105,7 @@
         <attr name="displayName" />
         <!-- A description is required. Consider referencing a string resource for localization. -->
         <attr name="description" />
-        <!-- A link to an icon is optional but encouraged. -->
+        <!-- A link to a companion editor icon is optional but encouraged. -->
         <attr name="android:icon" />
         <!-- A combination of one or more layers. If not specified then defaults to all layers. -->
         <attr name="affectedWatchFaceLayers" />
@@ -102,7 +113,8 @@
         <attr name="defaultOptionIndex" />
     </declare-styleable>
 
-    <!-- A LongRangeUserStyleSetting should not have any child nodes. -->
+    <!-- A LongRangeUserStyleSetting node may only contain an optional OnWatchEditorData child
+    node.-->
     <declare-styleable name="LongRangeUserStyleSetting">
         <!-- An id is required, this must be unique within the schema's settings. -->
         <attr name="id" />
@@ -111,7 +123,7 @@
         <attr name="displayName" />
         <!-- A description is required. Consider referencing a string resource for localization. -->
         <attr name="description" />
-        <!-- A link to an icon is optional but encouraged. -->
+        <!-- A link to a companion editor icon is optional but encouraged. -->
         <attr name="android:icon" />
         <!-- A combination of one or more layers. If not specified then defaults to all layers. -->
         <attr name="affectedWatchFaceLayers" />
@@ -123,8 +135,8 @@
         <attr name="maxLong" format="string" />
     </declare-styleable>
 
-    <!-- A ComplicationSlotOverlay may have a single ComplicationSlotBounds child node without a
-    complicationType attribute, or one ComplicationSlotBounds per complicationType. -->
+    <!-- A ComplicationSlotOverlay node may have a single ComplicationSlotBounds child node without
+    a complicationType attribute, or one ComplicationSlotBounds per complicationType. -->
     <declare-styleable name="ComplicationSlotOverlay">
         <attr name="complicationSlotId" format="integer" />
         <!-- Optional, specifies whether in this ComplicationSlotsOption the specified complication
@@ -135,24 +147,26 @@
         <attr name="accessibilityTraversalIndex" />
     </declare-styleable>
 
-    <!-- A ComplicationSlotsOption should contain 1 or more child ComplicationSlotOverlay nodes. -->
+    <!-- A ComplicationSlotsOption node should contain 1 or more child ComplicationSlotOverlay nodes
+    and optionally a single OnWatchEditorData node. -->
     <declare-styleable name="ComplicationSlotsOption">
         <!-- An id is required, this must be unique within the ComplicationSlotsUserStyleSetting's
-         options. -->
+        options. -->
         <attr name="id" />
         <!-- A displayName is required. Consider referencing a string resource for localization. -->
         <attr name="displayName" />
-        <!-- A link to an icon is optional but encouraged. -->
+        <!-- A link to a companion editor icon is optional but encouraged. -->
         <attr name="android:icon" />
     </declare-styleable>
 
-    <!-- A LongRangeUserStyleSetting should not have any child nodes. -->
+    <!-- A LongRangeUserStyleSetting node may only contain an optional OnWatchEditorData child
+    node. -->
     <declare-styleable name="ListOption">
         <!-- An id is required, this must be unique within the ListUserStyleSetting's options. -->
         <attr name="id" />
         <!-- A displayName is required. Consider referencing a string resource for localization. -->
         <attr name="displayName" />
-        <!-- A link to an icon is optional but encouraged. -->
+        <!-- A link to a companion editor icon is optional but encouraged. -->
         <attr name="android:icon" />
     </declare-styleable>
 

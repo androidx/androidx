@@ -17,6 +17,7 @@
 package androidx.wear.watchface.style.data;
 
 import android.graphics.drawable.Icon;
+import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -36,6 +37,8 @@ public class ListUserStyleSettingWireFormat extends UserStyleSettingWireFormat {
 
     ListUserStyleSettingWireFormat() {}
 
+    /** @deprecated use a constructor with List<Bundle> perOptionOnWatchFaceEditorBundles. */
+    @Deprecated
     public ListUserStyleSettingWireFormat(
             @NonNull String id,
             @NonNull CharSequence displayName,
@@ -45,5 +48,19 @@ public class ListUserStyleSettingWireFormat extends UserStyleSettingWireFormat {
             int defaultOptionIndex,
             @NonNull List<Integer> affectsLayers) {
         super(id, displayName, description, icon, options, defaultOptionIndex, affectsLayers);
+    }
+
+    public ListUserStyleSettingWireFormat(
+            @NonNull String id,
+            @NonNull CharSequence displayName,
+            @NonNull CharSequence description,
+            @Nullable Icon icon,
+            @NonNull List<OptionWireFormat> options,
+            int defaultOptionIndex,
+            @NonNull List<Integer> affectsLayers,
+            @Nullable Bundle onWatchFaceEditorBundle,
+            @Nullable List<Bundle> perOptionOnWatchFaceEditorBundles) {
+        super(id, displayName, description, icon, options, defaultOptionIndex, affectsLayers,
+                onWatchFaceEditorBundle, perOptionOnWatchFaceEditorBundles);
     }
 }

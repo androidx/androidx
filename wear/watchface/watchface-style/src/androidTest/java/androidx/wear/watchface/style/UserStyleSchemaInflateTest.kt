@@ -63,17 +63,21 @@ class UserStyleSchemaInflateTest {
             WatchFaceLayer.COMPLICATIONS_OVERLAY
         )
         assertThat(setting0.icon!!.resId).isEqualTo(R.drawable.color_style_icon)
+        assertThat(setting0.onWatchEditorData!!.icon!!.resId)
+            .isEqualTo(R.drawable.color_style_icon_wf)
         assertThat(setting0.options.size).isEqualTo(2)
         val option00 = (setting0.options[0] as ListOption)
         assertThat(option00.id).isEqualTo(UserStyleSetting.Option.Id("red"))
         assertThat(option00.displayName).isEqualTo("Red Style")
         assertThat(option00.icon!!.resId).isEqualTo(R.drawable.red_icon)
         assertThat(option00.childSettings).isEmpty()
+        assertThat(option00.onWatchEditorData!!.icon!!.resId).isEqualTo(R.drawable.red_icon_wf)
         val option01 = (setting0.options[1] as ListOption)
         assertThat(option01.id).isEqualTo(UserStyleSetting.Option.Id("green"))
         assertThat(option01.displayName).isEqualTo("Green Style")
         assertThat(option01.icon!!.resId).isEqualTo(R.drawable.green_icon)
         assertThat(option01.childSettings).isEmpty()
+        assertThat(option01.onWatchEditorData!!.icon!!.resId).isEqualTo(R.drawable.green_icon_wf)
 
         val setting1 = schema.userStyleSettings[1] as UserStyleSetting.ListUserStyleSetting
         assertThat(setting1.id.value).isEqualTo("Thing2")
@@ -84,17 +88,20 @@ class UserStyleSchemaInflateTest {
             WatchFaceLayer.COMPLICATIONS_OVERLAY
         )
         assertThat(setting1.icon).isNull()
+        assertThat(setting1.onWatchEditorData).isNull()
         assertThat(setting1.options.size).isEqualTo(2)
         val option10 = (setting1.options[0] as ListOption)
         assertThat(option10.id).isEqualTo(UserStyleSetting.Option.Id("foo"))
         assertThat(option10.displayName).isEqualTo("Foo")
         assertThat(option10.icon).isNull()
         assertThat(option10.childSettings).isEmpty()
+        assertThat(option10.onWatchEditorData).isNull()
         val option11 = (setting1.options[1] as ListOption)
         assertThat(option11.id).isEqualTo(UserStyleSetting.Option.Id("bar"))
         assertThat(option11.displayName).isEqualTo("Bar")
         assertThat(option11.icon).isNull()
         assertThat(option11.childSettings).isEmpty()
+        assertThat(option11.onWatchEditorData).isNull()
 
         val setting2 = schema.userStyleSettings[2] as UserStyleSetting.ListUserStyleSetting
         assertThat(setting2.id.value).isEqualTo("TopLevel")

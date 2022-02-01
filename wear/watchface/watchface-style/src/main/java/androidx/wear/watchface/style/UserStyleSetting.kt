@@ -25,6 +25,7 @@ import android.content.res.XmlResourceParser
 import android.graphics.BitmapFactory
 import android.graphics.drawable.Icon
 import android.os.Build
+import android.os.Bundle
 import android.util.TypedValue
 import androidx.annotation.Px
 import androidx.annotation.RestrictTo
@@ -82,17 +83,19 @@ internal sealed class DisplayText {
  * Styling data gets shared with the companion phone to support editors (typically over bluetooth),
  * as a result the size of serialized UserStyleSettings could become an issue if large.
  *
- * @param id Identifier for the element, must be unique. Styling data gets shared with the companion
- * (typically via bluetooth) so size is a consideration and short ids are encouraged. There is a
- * maximum length see [UserStyleSetting.Id.MAX_LENGTH].
- * @param icon Icon for use in the style selection UI.
- * @param options List of options for this UserStyleSetting. Depending on the type of
- * UserStyleSetting this may be an exhaustive list, or just examples to populate a ListView
- * in case the UserStyleSetting isn't supported by the UI (e.g. a new WatchFace with an old
- * Companion).
- * @param defaultOptionIndex The default option index, used if nothing has been selected
- * within the [options] list.
- * @param affectedWatchFaceLayers Used by the style configuration UI. Describes which rendering
+ * @property id Identifier for the element, must be unique. Styling data gets shared with the
+ * companion (typically via bluetooth) so size is a consideration and short ids are encouraged.
+ * There is a maximum length see [UserStyleSetting.Id.MAX_LENGTH].
+ * @property icon [Icon] for use in the companion editor style selection UI.
+ * @property onWatchEditorData Optional data for an on watch face editor, this will not be sent to
+ * the companion and its contents may be used in preference to other fields by an on watch face
+ * editor.
+ * @property options List of options for this UserStyleSetting. Depending on the type of
+ * UserStyleSetting this may be an exhaustive list, or just examples to populate a ListView in case
+ * the UserStyleSetting isn't supported by the UI (e.g. a new WatchFace with an old companion).
+ * @property defaultOptionIndex The default option index, used if nothing has been selected within
+ * the [options] list.
+ * @property affectedWatchFaceLayers Used by the style configuration UI. Describes which rendering
  * layers this style affects.
  */
 public sealed class UserStyleSetting private constructor(
@@ -100,10 +103,68 @@ public sealed class UserStyleSetting private constructor(
     private val displayNameInternal: DisplayText,
     private val descriptionInternal: DisplayText,
     public val icon: Icon?,
+    public val onWatchEditorData: OnWatchEditorData?,
     public val options: List<Option>,
     public val defaultOptionIndex: Int,
     public val affectedWatchFaceLayers: Collection<WatchFaceLayer>
 ) {
+    /**
+     * Optional data for an on watch face editor.
+     *
+     * @property icon The icon to use on the watch face editor in preference to
+     * [UserStyleSetting.icon], [ListUserStyleSetting.ListOption.icon] and
+     * [ComplicationSlotsOption.icon]. This Icon should be smaller than the one used by the
+     * companion due to the watches smaller screen size.
+     */
+    public class OnWatchEditorData(public val icon: Icon?) {
+        internal constructor(wireFormat: Bundle) : this(wireFormat.getParcelable(ICON_KEY))
+
+        internal fun toWireFormat() = Bundle().apply {
+            icon?.let { putParcelable(ICON_KEY, it) }
+        }
+
+        internal companion object {
+            const val ICON_KEY = "ICON"
+
+            @SuppressLint("ResourceType")
+            fun inflate(resources: Resources, parser: XmlResourceParser): OnWatchEditorData {
+                val attributes = resources.obtainAttributes(
+                    parser,
+                    R.styleable.OnWatchEditorData
+                )
+                val icon = createIcon(
+                    resources,
+                    attributes,
+                    R.styleable.OnWatchEditorData_android_icon
+                )
+                return OnWatchEditorData(icon)
+            }
+
+            fun inflateSingleOnWatchEditorData(
+                resources: Resources,
+                parser: XmlResourceParser
+            ): OnWatchEditorData? {
+                var onWatchEditorData: OnWatchEditorData? = null
+                var type = 0
+                val outerDepth = parser.depth
+                do {
+                    if (type == XmlPullParser.START_TAG) {
+                        if (onWatchEditorData == null && parser.name == "OnWatchEditorData") {
+                            onWatchEditorData = inflate(resources, parser)
+                        } else {
+                            throw IllegalArgumentException(
+                                "Unexpected node ${parser.name} at line ${parser.lineNumber}"
+                            )
+                        }
+                    }
+                    type = parser.next()
+                } while (type != XmlPullParser.END_DOCUMENT && parser.depth > outerDepth)
+
+                return onWatchEditorData
+            }
+        }
+    }
+
     /** Localized human readable name for the element, used in the userStyle selection UI. */
     public val displayName: CharSequence
         get() = displayNameInternal.toCharSequence()
@@ -272,6 +333,7 @@ public sealed class UserStyleSetting private constructor(
         DisplayText.CharSequenceDisplayText(wireFormat.mDisplayName),
         DisplayText.CharSequenceDisplayText(wireFormat.mDescription),
         wireFormat.mIcon,
+        wireFormat.mOnWatchFaceEditorBundle?.let { OnWatchEditorData(it) },
         wireFormat.mOptions.map { Option.createFromWireFormat(it) },
         wireFormat.mDefaultOptionIndex,
         wireFormat.mAffectsLayers.map { WatchFaceLayer.values()[it] }
@@ -474,26 +536,32 @@ public sealed class UserStyleSetting private constructor(
          * @param displayName Localized human readable name for the element, used in the userStyle
          * selection UI.
          * @param description Localized description string displayed under the displayName.
-         * @param icon [Icon] for use in the userStyle selection UI. This gets sent to the
+         * @param icon [Icon] for use in the companion userStyle selection UI. This gets sent to the
          * companion over bluetooth and should be small (ideally a few kb in size).
          * @param affectsWatchFaceLayers Used by the style configuration UI. Describes which watch
          * face rendering layers this style affects.
          * @param defaultValue The default value for this BooleanUserStyleSetting.
+         * @param onWatchEditorData Optional data for an on watch face editor, this will not be sent
+         * to the companion and its contents may be used in preference to other fields by an on
+         * watch face editor.
          * @hide
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        @JvmOverloads
         public constructor (
             id: Id,
             displayName: CharSequence,
             description: CharSequence,
             icon: Icon?,
             affectsWatchFaceLayers: Collection<WatchFaceLayer>,
-            defaultValue: Boolean
+            defaultValue: Boolean,
+            onWatchEditorData: OnWatchEditorData? = null
         ) : super(
             id,
             DisplayText.CharSequenceDisplayText(displayName),
             DisplayText.CharSequenceDisplayText(description),
             icon,
+            onWatchEditorData,
             listOf(BooleanOption.TRUE, BooleanOption.FALSE),
             when (defaultValue) {
                 true -> 0
@@ -513,12 +581,16 @@ public sealed class UserStyleSetting private constructor(
          * used in the userStyle selection UI.
          * @param descriptionResourceId String resource id for a human readable description string
          * displayed under the displayName.
-         * @param icon [Icon] for use in the userStyle selection UI. This gets sent to the
+         * @param icon [Icon] for use in the companion userStyle selection UI. This gets sent to the
          * companion over bluetooth and should be small (ideally a few kb in size).
          * @param affectsWatchFaceLayers Used by the style configuration UI. Describes which watch
          * face rendering layers this style affects.
          * @param defaultValue The default value for this BooleanUserStyleSetting.
+         * @param onWatchEditorData Optional data for an on watch face editor, this will not be sent
+         * to the companion and its contents may be used in preference to other fields by an on
+         * watch face editor.
          */
+        @JvmOverloads
         public constructor(
             id: Id,
             resources: Resources,
@@ -526,12 +598,14 @@ public sealed class UserStyleSetting private constructor(
             @StringRes descriptionResourceId: Int,
             icon: Icon?,
             affectsWatchFaceLayers: Collection<WatchFaceLayer>,
-            defaultValue: Boolean
+            defaultValue: Boolean,
+            onWatchEditorData: OnWatchEditorData? = null
         ) : super(
             id,
             DisplayText.ResourceDisplayText(resources, displayNameResourceId),
             DisplayText.ResourceDisplayText(resources, descriptionResourceId),
             icon,
+            onWatchEditorData,
             listOf(BooleanOption.TRUE, BooleanOption.FALSE),
             when (defaultValue) {
                 true -> 0
@@ -545,6 +619,7 @@ public sealed class UserStyleSetting private constructor(
             displayName: DisplayText,
             description: DisplayText,
             icon: Icon?,
+            onWatchEditorData: OnWatchEditorData?,
             affectsWatchFaceLayers: Collection<WatchFaceLayer>,
             defaultValue: Boolean
         ) : super(
@@ -552,6 +627,7 @@ public sealed class UserStyleSetting private constructor(
             displayName,
             description,
             icon,
+            onWatchEditorData,
             listOf(BooleanOption.TRUE, BooleanOption.FALSE),
             when (defaultValue) {
                 true -> 0
@@ -572,7 +648,9 @@ public sealed class UserStyleSetting private constructor(
                 icon,
                 getWireFormatOptionsList(),
                 defaultOptionIndex,
-                affectedWatchFaceLayers.map { it.ordinal }
+                affectedWatchFaceLayers.map { it.ordinal },
+                onWatchEditorData?.toWireFormat(),
+                /* optionsOnWatchFaceEditorIcons = */ null
             )
 
         /** Returns the default value. */
@@ -617,6 +695,9 @@ public sealed class UserStyleSetting private constructor(
                         0b111 // first 3 bits set
                     )
                 )
+
+                val onWatchEditorData =
+                    OnWatchEditorData.inflateSingleOnWatchEditorData(resources, parser)
                 attributes.recycle()
 
                 return BooleanUserStyleSetting(
@@ -624,6 +705,7 @@ public sealed class UserStyleSetting private constructor(
                     displayName,
                     description,
                     icon,
+                    onWatchEditorData,
                     affectsWatchFaceLayers,
                     defaultValue
                 )
@@ -863,7 +945,7 @@ public sealed class UserStyleSetting private constructor(
          * @param displayName Localized human readable name for the element, used in the userStyle
          * selection UI.
          * @param description Localized description string displayed under the displayName.
-         * @param icon [Icon] for use in the userStyle selection UI. This gets sent to the
+         * @param icon [Icon] for use in the companion userStyle selection UI. This gets sent to the
          * companion over bluetooth and should be small (ideally a few kb in size).
          * @param complicationConfig The configuration for affected complications.
          * @param affectsWatchFaceLayers Used by the style configuration UI. Describes which watch
@@ -871,6 +953,9 @@ public sealed class UserStyleSetting private constructor(
          * [WatchFaceLayer.COMPLICATIONS].
          * @param defaultOption The default option, used when data isn't persisted. Optional
          * parameter which defaults to the first element of [complicationConfig].
+         * @param onWatchEditorData Optional data for an on watch face editor, this will not be sent
+         * to the companion and its contents may be used in preference to other fields by an on
+         * watch face editor.
          * @hide
          */
         @JvmOverloads
@@ -882,12 +967,14 @@ public sealed class UserStyleSetting private constructor(
             icon: Icon?,
             complicationConfig: List<ComplicationSlotsOption>,
             affectsWatchFaceLayers: Collection<WatchFaceLayer>,
-            defaultOption: ComplicationSlotsOption = complicationConfig.first()
+            defaultOption: ComplicationSlotsOption = complicationConfig.first(),
+            onWatchEditorData: OnWatchEditorData? = null
         ) : super(
             id,
             DisplayText.CharSequenceDisplayText(displayName),
             DisplayText.CharSequenceDisplayText(description),
             icon,
+            onWatchEditorData,
             complicationConfig,
             complicationConfig.indexOf(defaultOption),
             affectsWatchFaceLayers
@@ -910,7 +997,7 @@ public sealed class UserStyleSetting private constructor(
          * used in the userStyle selection UI.
          * @param descriptionResourceId String resource id for a human readable description string
          * displayed under the displayName.
-         * @param icon [Icon] for use in the userStyle selection UI. This gets sent to the
+         * @param icon [Icon] for use in the companion userStyle selection UI. This gets sent to the
          * companion over bluetooth and should be small (ideally a few kb in size).
          * @param complicationConfig The configuration for affected complications.
          * @param affectsWatchFaceLayers Used by the style configuration UI. Describes which watch
@@ -918,7 +1005,11 @@ public sealed class UserStyleSetting private constructor(
          * [WatchFaceLayer.COMPLICATIONS].
          * @param defaultOption The default option, used when data isn't persisted. Optional
          * parameter which defaults to the first element of [complicationConfig].
+         * @param onWatchEditorData Optional data for an on watch face editor, this will not be sent
+         * to the companion and its contents may be used in preference to other fields by an on
+         * watch face editor.
          */
+        @JvmOverloads
         public constructor (
             id: Id,
             resources: Resources,
@@ -927,12 +1018,14 @@ public sealed class UserStyleSetting private constructor(
             icon: Icon?,
             complicationConfig: List<ComplicationSlotsOption>,
             affectsWatchFaceLayers: Collection<WatchFaceLayer>,
-            defaultOption: ComplicationSlotsOption = complicationConfig.first()
+            defaultOption: ComplicationSlotsOption = complicationConfig.first(),
+            onWatchEditorData: OnWatchEditorData? = null
         ) : super(
             id,
             DisplayText.ResourceDisplayText(resources, displayNameResourceId),
             DisplayText.ResourceDisplayText(resources, descriptionResourceId),
             icon,
+            onWatchEditorData,
             complicationConfig,
             complicationConfig.indexOf(defaultOption),
             affectsWatchFaceLayers
@@ -948,6 +1041,7 @@ public sealed class UserStyleSetting private constructor(
             displayName: DisplayText,
             description: DisplayText,
             icon: Icon?,
+            onWatchEditorData: OnWatchEditorData? = null,
             options: List<ComplicationSlotsOption>,
             affectsWatchFaceLayers: Collection<WatchFaceLayer>,
             defaultOptionIndex: Int
@@ -956,6 +1050,7 @@ public sealed class UserStyleSetting private constructor(
             displayName,
             description,
             icon,
+            onWatchEditorData,
             options,
             defaultOptionIndex,
             affectsWatchFaceLayers
@@ -971,7 +1066,17 @@ public sealed class UserStyleSetting private constructor(
 
         internal constructor(
             wireFormat: ComplicationsUserStyleSettingWireFormat
-        ) : super(wireFormat)
+        ) : super(wireFormat) {
+            wireFormat.mPerOptionOnWatchFaceEditorBundles?.let { optionsOnWatchFaceEditorIcons ->
+                val optionsIterator = options.iterator()
+                for (bundle in optionsOnWatchFaceEditorIcons) {
+                    val option = optionsIterator.next() as ComplicationSlotsOption
+                    bundle?.let {
+                        option.onWatchEditorData = OnWatchEditorData(it)
+                    }
+                }
+            }
+        }
 
         /** @hide */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
@@ -983,7 +1088,11 @@ public sealed class UserStyleSetting private constructor(
                 icon,
                 getWireFormatOptionsList(),
                 defaultOptionIndex,
-                affectedWatchFaceLayers.map { it.ordinal }
+                affectedWatchFaceLayers.map { it.ordinal },
+                onWatchEditorData?.toWireFormat(),
+                options.map {
+                    (it as ComplicationSlotsOption).onWatchEditorData?.toWireFormat() ?: Bundle()
+                }
             )
 
         internal companion object {
@@ -1024,6 +1133,7 @@ public sealed class UserStyleSetting private constructor(
                     )
                 )
 
+                var onWatchEditorData: OnWatchEditorData? = null
                 val options = ArrayList<ComplicationSlotsOption>()
                 var type = 0
                 val outerDepth = parser.depth
@@ -1033,6 +1143,18 @@ public sealed class UserStyleSetting private constructor(
                             "ComplicationSlotsOption" -> options.add(
                                 ComplicationSlotsOption.inflate(resources, parser)
                             )
+
+                            "OnWatchEditorData" -> {
+                                if (onWatchEditorData == null) {
+                                    onWatchEditorData = OnWatchEditorData.inflate(resources, parser)
+                                } else {
+                                    throw IllegalArgumentException(
+                                        "Unexpected node OnWatchEditorData at line " +
+                                            parser.lineNumber
+                                    )
+                                }
+                            }
+
                             else -> throw IllegalArgumentException(
                                 "Unexpected node ${parser.name} at line ${parser.lineNumber}"
                             )
@@ -1047,6 +1169,7 @@ public sealed class UserStyleSetting private constructor(
                     displayName,
                     description,
                     icon,
+                    onWatchEditorData,
                     options,
                     affectsWatchFaceLayers,
                     defaultOptionIndex
@@ -1072,8 +1195,16 @@ public sealed class UserStyleSetting private constructor(
             public val displayName: CharSequence
                 get() = displayNameInternal.toCharSequence()
 
-            /** Icon for use in the style selection UI. */
+            /** Icon for use in the companion style selection UI. */
             public val icon: Icon?
+
+            /**
+             * Optional data for an on watch face editor, this will not be sent to the companion
+             * and its contents may be used in preference to other fields by an on watch face
+             * editor.
+             */
+            public var onWatchEditorData: OnWatchEditorData?
+                internal set
 
             /**
              * Constructs a ComplicationSlotsUserStyleSetting.
@@ -1081,23 +1212,29 @@ public sealed class UserStyleSetting private constructor(
              * @param id [Id] for the element, must be unique.
              * @param displayName Localized human readable name for the element, used in the
              * userStyle selection UI.
-             * @param icon [Icon] for use in the style selection UI. This gets sent to the
+             * @param icon [Icon] for use in the companion style selection UI. This gets sent to the
              * companion over bluetooth and should be small (ideally a few kb in size).
              * @param complicationSlotOverlays Overlays to be applied when this
              * ComplicationSlotsOption is selected. If this is empty then the net result is the
              * initial complication configuration.
+             * @param onWatchEditorData Optional data for an on watch face editor, this will not be
+             * sent to the companion and its contents may be used in preference to other fields by
+             * an on watch face editor.
              * @hide
              */
             @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+            @JvmOverloads
             public constructor(
                 id: Id,
                 displayName: CharSequence,
                 icon: Icon?,
-                complicationSlotOverlays: Collection<ComplicationSlotOverlay>
+                complicationSlotOverlays: Collection<ComplicationSlotOverlay>,
+                onWatchEditorData: OnWatchEditorData? = null
             ) : super(id, emptyList()) {
                 this.complicationSlotOverlays = complicationSlotOverlays
                 this.displayNameInternal = DisplayText.CharSequenceDisplayText(displayName)
                 this.icon = icon
+                this.onWatchEditorData = onWatchEditorData
             }
 
             /**
@@ -1108,34 +1245,42 @@ public sealed class UserStyleSetting private constructor(
              * @param resources The [Resources] from which [displayNameResourceId] is load.
              * @param displayNameResourceId String resource id for a human readable name for the
              * element, used in the userStyle selection UI.
-             * @param icon [Icon] for use in the style selection UI. This gets sent to the
+             * @param icon [Icon] for use in the companion style selection UI. This gets sent to the
              * companion over bluetooth and should be small (ideally a few kb in size).
              * @param complicationSlotOverlays Overlays to be applied when this
              * ComplicationSlotsOption is selected. If this is empty then the net result is the
              * initial complication configuration.
+             * @param onWatchEditorData Optional data for an on watch face editor, this will not be sent
+             * to the companion and its contents may be used in preference to other fields by an on
+             * watch face editor.
              */
+            @JvmOverloads
             public constructor(
                 id: Id,
                 resources: Resources,
                 @StringRes displayNameResourceId: Int,
                 icon: Icon?,
-                complicationSlotOverlays: Collection<ComplicationSlotOverlay>
+                complicationSlotOverlays: Collection<ComplicationSlotOverlay>,
+                onWatchEditorData: OnWatchEditorData? = null
             ) : super(id, emptyList()) {
                 this.complicationSlotOverlays = complicationSlotOverlays
                 this.displayNameInternal =
                     DisplayText.ResourceDisplayText(resources, displayNameResourceId)
                 this.icon = icon
+                this.onWatchEditorData = onWatchEditorData
             }
 
             internal constructor(
                 id: Id,
                 displayName: DisplayText,
                 icon: Icon?,
+                onWatchEditorData: OnWatchEditorData?,
                 complicationSlotOverlays: Collection<ComplicationSlotOverlay>
             ) : super(id, emptyList()) {
                 this.complicationSlotOverlays = complicationSlotOverlays
                 this.displayNameInternal = displayName
                 this.icon = icon
+                this.onWatchEditorData = onWatchEditorData
             }
 
             internal constructor(
@@ -1145,6 +1290,7 @@ public sealed class UserStyleSetting private constructor(
                     wireFormat.mComplicationOverlays.map { ComplicationSlotOverlay(it) }
                 displayNameInternal = DisplayText.CharSequenceDisplayText(wireFormat.mDisplayName)
                 icon = wireFormat.mIcon
+                onWatchEditorData = null // This will get overwritten.
             }
 
             internal override fun getUserStyleSettingClass(): Class<out UserStyleSetting> =
@@ -1209,6 +1355,7 @@ public sealed class UserStyleSetting private constructor(
                         R.styleable.ComplicationSlotsOption_android_icon
                     )
 
+                    var onWatchEditorData: OnWatchEditorData? = null
                     val complicationSlotOverlays = ArrayList<ComplicationSlotOverlay>()
                     var type = 0
                     val outerDepth = parser.depth
@@ -1218,6 +1365,19 @@ public sealed class UserStyleSetting private constructor(
                                 "ComplicationSlotOverlay" -> complicationSlotOverlays.add(
                                     ComplicationSlotOverlay.inflate(resources, parser)
                                 )
+
+                                "OnWatchEditorData" -> {
+                                    if (onWatchEditorData == null) {
+                                        onWatchEditorData =
+                                            OnWatchEditorData.inflate(resources, parser)
+                                    } else {
+                                        throw IllegalArgumentException(
+                                            "Unexpected node OnWatchEditorData at line " +
+                                                parser.lineNumber
+                                        )
+                                    }
+                                }
+
                                 else -> throw IllegalArgumentException(
                                     "Unexpected node ${parser.name} at line ${parser.lineNumber}"
                                 )
@@ -1231,6 +1391,7 @@ public sealed class UserStyleSetting private constructor(
                         Id(id),
                         displayName,
                         icon,
+                        onWatchEditorData,
                         complicationSlotOverlays
                     )
                 }
@@ -1317,6 +1478,8 @@ public sealed class UserStyleSetting private constructor(
                         0b111 // first 3 bits set
                     )
                 )
+                val onWatchEditorData =
+                    OnWatchEditorData.inflateSingleOnWatchEditorData(resources, parser)
                 attributes.recycle()
 
                 return DoubleRangeUserStyleSetting(
@@ -1324,6 +1487,7 @@ public sealed class UserStyleSetting private constructor(
                     displayName,
                     description,
                     icon,
+                    onWatchEditorData,
                     minDouble.toDouble(),
                     maxDouble.toDouble(),
                     affectsWatchFaceLayers,
@@ -1339,16 +1503,20 @@ public sealed class UserStyleSetting private constructor(
          * @param displayName Localized human readable name for the element, used in the user style
          * selection UI.
          * @param description Localized description string displayed under the displayName.
-         * @param icon [Icon] for use in the style selection UI. This gets sent to the
+         * @param icon [Icon] for use in the companion style selection UI. This gets sent to the
          * companion over bluetooth and should be small (ideally a few kb in size).
          * @param minimumValue Minimum value (inclusive).
          * @param maximumValue Maximum value (inclusive).
          * @param affectsWatchFaceLayers Used by the style configuration UI. Describes which watch
          * face rendering layers this style affects.
          * @param defaultValue The default value for this DoubleRangeUserStyleSetting.
+         * @param onWatchEditorData Optional data for an on watch face editor, this will not be sent
+         * to the companion and its contents may be used in preference to other fields by an on
+         * watch face editor.
          * @hide
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        @JvmOverloads
         public constructor (
             id: Id,
             displayName: CharSequence,
@@ -1357,12 +1525,14 @@ public sealed class UserStyleSetting private constructor(
             minimumValue: Double,
             maximumValue: Double,
             affectsWatchFaceLayers: Collection<WatchFaceLayer>,
-            defaultValue: Double
+            defaultValue: Double,
+            onWatchEditorData: OnWatchEditorData? = null
         ) : super(
             id,
             DisplayText.CharSequenceDisplayText(displayName),
             DisplayText.CharSequenceDisplayText(description),
             icon,
+            onWatchEditorData,
             createOptionsList(minimumValue, maximumValue, defaultValue),
             // The index of defaultValue can only ever be 0 or 1.
             when (defaultValue) {
@@ -1384,14 +1554,18 @@ public sealed class UserStyleSetting private constructor(
          * used in the userStyle selection UI.
          * @param descriptionResourceId String resource id for a human readable description string
          * displayed under the displayName.
-         * @param icon [Icon] for use in the userStyle selection UI. This gets sent to the
+         * @param icon [Icon] for use in the companion userStyle selection UI. This gets sent to the
          * companion over bluetooth and should be small (ideally a few kb in size).
          * @param minimumValue Minimum value (inclusive).
          * @param maximumValue Maximum value (inclusive).
          * @param affectsWatchFaceLayers Used by the style configuration UI. Describes which watch
          * face rendering layers this style affects.
          * @param defaultValue The default value for this DoubleRangeUserStyleSetting.
+         * @param onWatchEditorData Optional data for an on watch face editor, this will not be sent
+         * to the companion and its contents may be used in preference to other fields by an on
+         * watch face editor.
          */
+        @JvmOverloads
         public constructor (
             id: Id,
             resources: Resources,
@@ -1401,12 +1575,14 @@ public sealed class UserStyleSetting private constructor(
             minimumValue: Double,
             maximumValue: Double,
             affectsWatchFaceLayers: Collection<WatchFaceLayer>,
-            defaultValue: Double
+            defaultValue: Double,
+            onWatchEditorData: OnWatchEditorData? = null
         ) : super(
             id,
             DisplayText.ResourceDisplayText(resources, displayNameResourceId),
             DisplayText.ResourceDisplayText(resources, descriptionResourceId),
             icon,
+            onWatchEditorData,
             createOptionsList(minimumValue, maximumValue, defaultValue),
             // The index of defaultValue can only ever be 0 or 1.
             when (defaultValue) {
@@ -1421,6 +1597,7 @@ public sealed class UserStyleSetting private constructor(
             displayName: DisplayText,
             description: DisplayText,
             icon: Icon?,
+            onWatchEditorData: OnWatchEditorData?,
             minimumValue: Double,
             maximumValue: Double,
             affectsWatchFaceLayers: Collection<WatchFaceLayer>,
@@ -1430,6 +1607,7 @@ public sealed class UserStyleSetting private constructor(
             displayName,
             description,
             icon,
+            onWatchEditorData,
             createOptionsList(minimumValue, maximumValue, defaultValue),
             // The index of defaultValue can only ever be 0 or 1.
             when (defaultValue) {
@@ -1451,7 +1629,9 @@ public sealed class UserStyleSetting private constructor(
                 icon,
                 getWireFormatOptionsList(),
                 defaultOptionIndex,
-                affectedWatchFaceLayers.map { it.ordinal }
+                affectedWatchFaceLayers.map { it.ordinal },
+                onWatchEditorData?.toWireFormat(),
+                /* optionsOnWatchFaceEditorIcons = */null
             )
 
         /** Represents an option as a [Double] in the range [minimumValue .. maximumValue]. */
@@ -1530,12 +1710,15 @@ public sealed class UserStyleSetting private constructor(
          * @param displayName Localized human readable name for the element, used in the userStyle
          * selection UI.
          * @param description Localized description string displayed under the displayName.
-         * @param icon [Icon] for use in the userStyle selection UI. This gets sent to the
+         * @param icon [Icon] for use in the companion userStyle selection UI. This gets sent to the
          * companion over bluetooth and should be small (ideally a few kb in size).
          * @param options List of all options for this ListUserStyleSetting.
          * @param affectsWatchFaceLayers Used by the style configuration UI. Describes which watch
          * face rendering layers this style affects.
          * @param defaultOption The default option, used when data isn't persisted.
+         * @param onWatchEditorData Optional data for an on watch face editor, this will not be sent
+         * to the companion and its contents may be used in preference to other fields by an on
+         * watch face editor.
          * @hide
          */
         @JvmOverloads
@@ -1547,12 +1730,14 @@ public sealed class UserStyleSetting private constructor(
             icon: Icon?,
             options: List<ListOption>,
             affectsWatchFaceLayers: Collection<WatchFaceLayer>,
-            defaultOption: ListOption = options.first()
+            defaultOption: ListOption = options.first(),
+            onWatchEditorData: OnWatchEditorData? = null
         ) : super(
             id,
             DisplayText.CharSequenceDisplayText(displayName),
             DisplayText.CharSequenceDisplayText(description),
             icon,
+            onWatchEditorData,
             options,
             options.indexOf(defaultOption),
             affectsWatchFaceLayers
@@ -1571,12 +1756,15 @@ public sealed class UserStyleSetting private constructor(
          * used in the userStyle selection UI.
          * @param descriptionResourceId String resource id for a human readable description string
          * displayed under the displayName.
-         * @param icon [Icon] for use in the userStyle selection UI. This gets sent to the
+         * @param icon [Icon] for use in the companion userStyle selection UI. This gets sent to the
          * companion over bluetooth and should be small (ideally a few kb in size).
          * @param options List of all options for this ListUserStyleSetting.
          * @param affectsWatchFaceLayers Used by the style configuration UI. Describes which watch
          * face rendering layers this style affects.
          * @param defaultOption The default option, used when data isn't persisted.
+         * @param onWatchEditorData Optional data for an on watch face editor, this will not be sent
+         * to the companion and its contents may be used in preference to other fields by an on
+         * watch face editor.
          */
         @JvmOverloads
         public constructor (
@@ -1587,12 +1775,14 @@ public sealed class UserStyleSetting private constructor(
             icon: Icon?,
             options: List<ListOption>,
             affectsWatchFaceLayers: Collection<WatchFaceLayer>,
-            defaultOption: ListOption = options.first()
+            defaultOption: ListOption = options.first(),
+            onWatchEditorData: OnWatchEditorData? = null
         ) : super(
             id,
             DisplayText.ResourceDisplayText(resources, displayNameResourceId),
             DisplayText.ResourceDisplayText(resources, descriptionResourceId),
             icon,
+            onWatchEditorData,
             options,
             options.indexOf(defaultOption),
             affectsWatchFaceLayers
@@ -1605,6 +1795,7 @@ public sealed class UserStyleSetting private constructor(
             displayName: DisplayText,
             description: DisplayText,
             icon: Icon?,
+            onWatchEditorData: OnWatchEditorData?,
             options: List<ListOption>,
             affectsWatchFaceLayers: Collection<WatchFaceLayer>,
             defaultOptionIndex: Int
@@ -1613,6 +1804,7 @@ public sealed class UserStyleSetting private constructor(
             displayName,
             description,
             icon,
+            onWatchEditorData,
             options,
             defaultOptionIndex,
             affectsWatchFaceLayers
@@ -1622,7 +1814,17 @@ public sealed class UserStyleSetting private constructor(
             }
         }
 
-        internal constructor(wireFormat: ListUserStyleSettingWireFormat) : super(wireFormat)
+        internal constructor(wireFormat: ListUserStyleSettingWireFormat) : super(wireFormat) {
+            wireFormat.mPerOptionOnWatchFaceEditorBundles?.let { optionsOnWatchFaceEditorIcons ->
+                val optionsIterator = options.iterator()
+                for (bundle in optionsOnWatchFaceEditorIcons) {
+                    val option = optionsIterator.next() as ListOption
+                    bundle?.let {
+                        option.onWatchEditorData = OnWatchEditorData(it)
+                    }
+                }
+            }
+        }
 
         /** @hide */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
@@ -1634,7 +1836,9 @@ public sealed class UserStyleSetting private constructor(
                 icon,
                 getWireFormatOptionsList(),
                 defaultOptionIndex,
-                affectedWatchFaceLayers.map { it.ordinal }
+                affectedWatchFaceLayers.map { it.ordinal },
+                onWatchEditorData?.toWireFormat(),
+                options.map { (it as ListOption).onWatchEditorData?.toWireFormat() ?: Bundle() }
             )
 
         internal companion object {
@@ -1672,6 +1876,7 @@ public sealed class UserStyleSetting private constructor(
                     )
                 )
 
+                var onWatchEditorData: OnWatchEditorData? = null
                 val options = ArrayList<ListOption>()
                 var type = 0
                 val outerDepth = parser.depth
@@ -1680,6 +1885,18 @@ public sealed class UserStyleSetting private constructor(
                         when (parser.name) {
                             "ListOption" ->
                                 options.add(ListOption.inflate(resources, parser, idToSetting))
+
+                            "OnWatchEditorData" -> {
+                                if (onWatchEditorData == null) {
+                                    onWatchEditorData = OnWatchEditorData.inflate(resources, parser)
+                                } else {
+                                    throw IllegalArgumentException(
+                                        "Unexpected node OnWatchEditorData at line " +
+                                            parser.lineNumber
+                                    )
+                                }
+                            }
+
                             else -> throw IllegalArgumentException(
                                 "Unexpected node ${parser.name} at line ${parser.lineNumber}"
                             )
@@ -1694,6 +1911,7 @@ public sealed class UserStyleSetting private constructor(
                     displayName,
                     description,
                     icon,
+                    onWatchEditorData,
                     options,
                     affectsWatchFaceLayers,
                     defaultOptionIndex
@@ -1715,8 +1933,16 @@ public sealed class UserStyleSetting private constructor(
             public val displayName: CharSequence
                 get() = displayNameInternal.toCharSequence()
 
-            /** Icon for use in the style selection UI. */
+            /** Icon for use in the companion style selection UI. */
             public val icon: Icon?
+
+            /**
+             * Optional data for an on watch face editor, this will not be sent to the companion
+             * and its contents may be used in preference to other fields by an on watch face
+             * editor.
+             */
+            public var onWatchEditorData: OnWatchEditorData?
+                internal set
 
             /**
              * Constructs a ListOption.
@@ -1725,8 +1951,11 @@ public sealed class UserStyleSetting private constructor(
              * [ListUserStyleSetting].
              * @param displayName Localized human readable name for the setting, used in the style
              * selection UI.
-             * @param icon [Icon] for use in the style selection UI. This gets sent to the
+             * @param icon [Icon] for use in the companion style selection UI. This gets sent to the
              * companion over bluetooth and should be small (ideally a few kb in size).
+             * @param onWatchEditorData Optional data for an on watch face editor, this will not be
+             * sent to the companion and its contents may be used in preference to other fields by
+             * an on watch face editor.
              * @hide
              */
             @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -1734,10 +1963,12 @@ public sealed class UserStyleSetting private constructor(
                 id: Id,
                 displayName: CharSequence,
                 icon: Icon?,
-                childSettings: Collection<UserStyleSetting> = emptyList()
+                childSettings: Collection<UserStyleSetting> = emptyList(),
+                onWatchEditorData: OnWatchEditorData? = null
             ) : super(id, childSettings) {
                 displayNameInternal = DisplayText.CharSequenceDisplayText(displayName)
                 this.icon = icon
+                this.onWatchEditorData = onWatchEditorData
             }
 
             /**
@@ -1748,19 +1979,24 @@ public sealed class UserStyleSetting private constructor(
              * @param resources The [Resources] used to load [displayNameResourceId].
              * @param displayNameResourceId String resource id for a human readable name for the
              * setting, used in the style selection UI.
-             * @param icon [Icon] for use in the style selection UI. This gets sent to the
-             * companion over bluetooth and should be small (ideally a few kb in size).
-             * These must be in
+             * @param icon [Icon] for use in the companion style selection UI. This gets sent to the
+             * companion over bluetooth and should be small (ideally a few kb in size)
+             * @param onWatchEditorData Optional data for an on watch face editor, this will not be
+             * sent to the companion and its contents may be used in preference to other fields by
+             * an on watch face editor.
              */
+            @JvmOverloads
             constructor(
                 id: Id,
                 resources: Resources,
                 @StringRes displayNameResourceId: Int,
-                icon: Icon?
+                icon: Icon?,
+                onWatchEditorData: OnWatchEditorData? = null
             ) : super(id, emptyList()) {
                 displayNameInternal =
                     DisplayText.ResourceDisplayText(resources, displayNameResourceId)
                 this.icon = icon
+                this.onWatchEditorData = onWatchEditorData
             }
 
             /**
@@ -1776,6 +2012,9 @@ public sealed class UserStyleSetting private constructor(
              * These must be in
              * @param childSettings The list of child [UserStyleSetting]s, which may be empty. Any
              * child settings must be listed in [UserStyleSchema.userStyleSettings].
+             * @param onWatchEditorData Optional data for an on watch face editor, this will not be
+             * sent to the companion and its contents may be used in preference to other fields by
+             * an on watch face editor.
              */
             @ExperimentalHierarchicalStyle
             constructor(
@@ -1783,21 +2022,25 @@ public sealed class UserStyleSetting private constructor(
                 resources: Resources,
                 @StringRes displayNameResourceId: Int,
                 icon: Icon?,
-                childSettings: Collection<UserStyleSetting> = emptyList()
+                childSettings: Collection<UserStyleSetting> = emptyList(),
+                onWatchEditorData: OnWatchEditorData? = null
             ) : super(id, childSettings) {
                 displayNameInternal =
                     DisplayText.ResourceDisplayText(resources, displayNameResourceId)
                 this.icon = icon
+                this.onWatchEditorData = onWatchEditorData
             }
 
             internal constructor(
                 id: Id,
                 displayName: DisplayText,
                 icon: Icon?,
+                onWatchEditorData: OnWatchEditorData?,
                 childSettings: Collection<UserStyleSetting> = emptyList()
             ) : super(id, childSettings) {
                 displayNameInternal = displayName
                 this.icon = icon
+                this.onWatchEditorData = onWatchEditorData
             }
 
             internal constructor(
@@ -1805,6 +2048,7 @@ public sealed class UserStyleSetting private constructor(
             ) : super(Id(wireFormat.mId), ArrayList()) {
                 displayNameInternal = DisplayText.CharSequenceDisplayText(wireFormat.mDisplayName)
                 icon = wireFormat.mIcon
+                onWatchEditorData = null // This gets overwritten.
             }
 
             internal override fun getUserStyleSettingClass(): Class<out UserStyleSetting> =
@@ -1862,6 +2106,7 @@ public sealed class UserStyleSetting private constructor(
                         R.styleable.ListOption_android_icon
                     )
 
+                    var onWatchEditorData: OnWatchEditorData? = null
                     val childSettings = ArrayList<UserStyleSetting>()
                     var type = 0
                     val outerDepth = parser.depth
@@ -1884,6 +2129,18 @@ public sealed class UserStyleSetting private constructor(
                                     childSettings.add(setting)
                                 }
 
+                                "OnWatchEditorData" -> {
+                                        if (onWatchEditorData == null) {
+                                        onWatchEditorData =
+                                            OnWatchEditorData.inflate(resources, parser)
+                                    } else {
+                                        throw IllegalArgumentException(
+                                            "Unexpected node OnWatchEditorData at line " +
+                                                parser.lineNumber
+                                        )
+                                    }
+                                }
+
                                 else -> throw IllegalArgumentException(
                                     "Unexpected node ${parser.name} at line ${parser.lineNumber}"
                                 )
@@ -1897,6 +2154,7 @@ public sealed class UserStyleSetting private constructor(
                         Id(id),
                         displayName,
                         icon,
+                        onWatchEditorData,
                         childSettings
                     )
                 }
@@ -1982,6 +2240,8 @@ public sealed class UserStyleSetting private constructor(
                         0b111 // first 3 bits set
                     )
                 )
+                val onWatchEditorData =
+                    OnWatchEditorData.inflateSingleOnWatchEditorData(resources, parser)
                 attributes.recycle()
 
                 return LongRangeUserStyleSetting(
@@ -1989,10 +2249,11 @@ public sealed class UserStyleSetting private constructor(
                     displayName,
                     description,
                     icon,
-                    minInteger.toLong(),
-                    maxInteger.toLong(),
+                    onWatchEditorData,
+                    minInteger,
+                    maxInteger,
                     affectsWatchFaceLayers,
-                    defaultInteger.toLong()
+                    defaultInteger
                 )
             }
         }
@@ -2004,16 +2265,20 @@ public sealed class UserStyleSetting private constructor(
          * @param displayName Localized human readable name for the element, used in the userStyle
          * selection UI.
          * @param description Localized description string displayed under the displayName.
-         * @param icon [Icon] for use in the userStyle selection UI. This gets sent to the
+         * @param icon [Icon] for use in the companion userStyle selection UI. This gets sent to the
          * companion over bluetooth and should be small (ideally a few kb in size).
          * @param minimumValue Minimum value (inclusive).
          * @param maximumValue Maximum value (inclusive).
          * @param affectsWatchFaceLayers Used by the style configuration UI. Describes which watch
          * face rendering layers this style affects.
          * @param defaultValue The default value for this LongRangeUserStyleSetting.
+         * @param onWatchEditorData Optional data for an on watch face editor, this will not be sent
+         * to the companion and its contents may be used in preference to other fields by an on
+         * watch face editor.
          * @hide
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        @JvmOverloads
         public constructor (
             id: Id,
             displayName: CharSequence,
@@ -2022,12 +2287,14 @@ public sealed class UserStyleSetting private constructor(
             minimumValue: Long,
             maximumValue: Long,
             affectsWatchFaceLayers: Collection<WatchFaceLayer>,
-            defaultValue: Long
+            defaultValue: Long,
+            onWatchEditorData: OnWatchEditorData? = null
         ) : super(
             id,
             DisplayText.CharSequenceDisplayText(displayName),
             DisplayText.CharSequenceDisplayText(description),
             icon,
+            onWatchEditorData,
             createOptionsList(minimumValue, maximumValue, defaultValue),
             // The index of defaultValue can only ever be 0 or 1.
             when (defaultValue) {
@@ -2048,14 +2315,18 @@ public sealed class UserStyleSetting private constructor(
          * used in the userStyle selection UI.
          * @param descriptionResourceId String resource id for a human readable description string
          * displayed under the displayName.
-         * @param icon [Icon] for use in the userStyle selection UI. This gets sent to the
+         * @param icon [Icon] for use in the companion userStyle selection UI. This gets sent to the
          * companion over bluetooth and should be small (ideally a few kb in size).
          * @param minimumValue Minimum value (inclusive).
          * @param maximumValue Maximum value (inclusive).
          * @param affectsWatchFaceLayers Used by the style configuration UI. Describes which watch
          * face rendering layers this style affects.
          * @param defaultValue The default value for this LongRangeUserStyleSetting.
+         * @param onWatchEditorData Optional data for an on watch face editor, this will not be sent
+         * to the companion and its contents may be used in preference to other fields by an on
+         * watch face editor.
          */
+        @JvmOverloads
         public constructor (
             id: Id,
             resources: Resources,
@@ -2065,12 +2336,14 @@ public sealed class UserStyleSetting private constructor(
             minimumValue: Long,
             maximumValue: Long,
             affectsWatchFaceLayers: Collection<WatchFaceLayer>,
-            defaultValue: Long
+            defaultValue: Long,
+            onWatchEditorData: OnWatchEditorData? = null
         ) : super(
             id,
             DisplayText.ResourceDisplayText(resources, displayNameResourceId),
             DisplayText.ResourceDisplayText(resources, descriptionResourceId),
             icon,
+            onWatchEditorData,
             createOptionsList(minimumValue, maximumValue, defaultValue),
             // The index of defaultValue can only ever be 0 or 1.
             when (defaultValue) {
@@ -2085,6 +2358,7 @@ public sealed class UserStyleSetting private constructor(
             displayName: DisplayText,
             description: DisplayText,
             icon: Icon?,
+            onWatchEditorData: OnWatchEditorData?,
             minimumValue: Long,
             maximumValue: Long,
             affectsWatchFaceLayers: Collection<WatchFaceLayer>,
@@ -2094,6 +2368,7 @@ public sealed class UserStyleSetting private constructor(
             displayName,
             description,
             icon,
+            onWatchEditorData,
             createOptionsList(minimumValue, maximumValue, defaultValue),
             // The index of defaultValue can only ever be 0 or 1.
             when (defaultValue) {
@@ -2115,7 +2390,9 @@ public sealed class UserStyleSetting private constructor(
                 icon,
                 getWireFormatOptionsList(),
                 defaultOptionIndex,
-                affectedWatchFaceLayers.map { it.ordinal }
+                affectedWatchFaceLayers.map { it.ordinal },
+                onWatchEditorData?.toWireFormat(),
+                /* optionsOnWatchFaceEditorIcons = */null
             )
 
         /**
@@ -2213,6 +2490,7 @@ public sealed class UserStyleSetting private constructor(
             DisplayText.CharSequenceDisplayText(""),
             DisplayText.CharSequenceDisplayText(""),
             null,
+            null,
             listOf(CustomValueOption(defaultValue)),
             0,
             affectsWatchFaceLayers
@@ -2229,7 +2507,9 @@ public sealed class UserStyleSetting private constructor(
                 description,
                 icon,
                 getWireFormatOptionsList(),
-                affectedWatchFaceLayers.map { it.ordinal }
+                affectedWatchFaceLayers.map { it.ordinal },
+                onWatchEditorData?.toWireFormat(),
+                /* optionsOnWatchFaceEditorIcons = */null
             )
 
         /**
