@@ -119,6 +119,7 @@ fun TimeText(
             }
             Text(
                 text = timeText,
+                maxLines = 1,
                 style = timeTextStyle,
             )
             trailingLinearContent?.let {
