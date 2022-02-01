@@ -68,6 +68,8 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.ActivityOptionsCompat;
+import androidx.core.app.MultiWindowModeChangedInfo;
+import androidx.core.app.OnMultiWindowModeChangedProvider;
 import androidx.core.app.OnNewIntentProvider;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.OnConfigurationChangedProvider;
@@ -119,6 +121,7 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
         OnConfigurationChangedProvider,
         OnTrimMemoryProvider,
         OnNewIntentProvider,
+        OnMultiWindowModeChangedProvider,
         MenuHost {
 
     static final class NonConfigurationInstances {
@@ -239,6 +242,8 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
             new CopyOnWriteArrayList<>();
     private final CopyOnWriteArrayList<Consumer<Intent>> mOnNewIntentListeners =
             new CopyOnWriteArrayList<>();
+    private final CopyOnWriteArrayList<Consumer<MultiWindowModeChangedInfo>>
+            mOnMultiWindowModeChangedListeners = new CopyOnWriteArrayList<>();
 
     /**
      * Default constructor for ComponentActivity. All Activities must have a default constructor
@@ -886,6 +891,57 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
             @NonNull Consumer<Intent> listener
     ) {
         mOnNewIntentListeners.remove(listener);
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * Dispatches this call to all listeners added via
+     * {@link #addOnMultiWindowModeChangedListener(Consumer)}.
+     */
+    @CallSuper
+    @Override
+    @SuppressWarnings("deprecation")
+    public void onMultiWindowModeChanged(boolean isInMultiWindowMode) {
+        // We specifically do not call super.onMultiWindowModeChanged() to avoid
+        // crashing when this method is manually called prior to API 24 (which is
+        // when this method was added to the framework)
+        for (Consumer<MultiWindowModeChangedInfo> listener : mOnMultiWindowModeChangedListeners) {
+            listener.accept(new MultiWindowModeChangedInfo(isInMultiWindowMode));
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * Dispatches this call to all listeners added via
+     * {@link #addOnMultiWindowModeChangedListener(Consumer)}.
+     */
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    @CallSuper
+    @Override
+    public void onMultiWindowModeChanged(boolean isInMultiWindowMode,
+            @NonNull Configuration newConfig) {
+        // We specifically do not call super.onMultiWindowModeChanged() to avoid
+        // triggering the call to onMultiWindowModeChanged(boolean) which would
+        // send a second callback to listeners without the newConfig
+        for (Consumer<MultiWindowModeChangedInfo> listener : mOnMultiWindowModeChangedListeners) {
+            listener.accept(new MultiWindowModeChangedInfo(isInMultiWindowMode, newConfig));
+        }
+    }
+
+    @Override
+    public final void addOnMultiWindowModeChangedListener(
+            @NonNull Consumer<MultiWindowModeChangedInfo> listener
+    ) {
+        mOnMultiWindowModeChangedListeners.add(listener);
+    }
+
+    @Override
+    public final void removeOnMultiWindowModeChangedListener(
+            @NonNull Consumer<MultiWindowModeChangedInfo> listener
+    ) {
+        mOnMultiWindowModeChangedListeners.remove(listener);
     }
 
     @Override

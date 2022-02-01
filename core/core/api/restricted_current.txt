@@ -209,6 +209,13 @@ package androidx.core.app {
     method @Deprecated public void setInterruptIfStopped(boolean);
   }
 
+  public final class MultiWindowModeChangedInfo {
+    ctor public MultiWindowModeChangedInfo(boolean);
+    ctor @RequiresApi(26) public MultiWindowModeChangedInfo(boolean, android.content.res.Configuration);
+    method @RequiresApi(26) public android.content.res.Configuration getNewConfig();
+    method public boolean isInMultiWindowMode();
+  }
+
   public final class NavUtils {
     method public static android.content.Intent? getParentActivityIntent(android.app.Activity);
     method public static android.content.Intent? getParentActivityIntent(android.content.Context, Class<?>) throws android.content.pm.PackageManager.NameNotFoundException;
@@ -857,6 +864,11 @@ package androidx.core.app {
     field public static final int IMPORTANCE_MIN = 1; // 0x1
     field public static final int IMPORTANCE_NONE = 0; // 0x0
     field public static final int IMPORTANCE_UNSPECIFIED = -1000; // 0xfffffc18
+  }
+
+  public interface OnMultiWindowModeChangedProvider {
+    method public void addOnMultiWindowModeChangedListener(androidx.core.util.Consumer<androidx.core.app.MultiWindowModeChangedInfo!>);
+    method public void removeOnMultiWindowModeChangedListener(androidx.core.util.Consumer<androidx.core.app.MultiWindowModeChangedInfo!>);
   }
 
   public interface OnNewIntentProvider {

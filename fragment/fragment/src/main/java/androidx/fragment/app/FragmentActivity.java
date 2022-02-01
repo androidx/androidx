@@ -49,6 +49,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.core.app.ActivityCompat;
+import androidx.core.app.MultiWindowModeChangedInfo;
+import androidx.core.app.OnMultiWindowModeChangedProvider;
 import androidx.core.app.SharedElementCallback;
 import androidx.core.content.OnConfigurationChangedProvider;
 import androidx.core.content.OnTrimMemoryProvider;
@@ -202,22 +204,6 @@ public class FragmentActivity extends ComponentActivity implements
      */
     public void supportStartPostponedEnterTransition() {
         ActivityCompat.startPostponedEnterTransition(this);
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * <p><strong>Note:</strong> If you override this method you must call
-     * <code>super.onMultiWindowModeChanged</code> to correctly dispatch the event
-     * to support fragments attached to this activity.</p>
-     *
-     * @param isInMultiWindowMode True if the activity is in multi-window mode.
-     */
-    @SuppressWarnings("deprecation")
-    @Override
-    @CallSuper
-    public void onMultiWindowModeChanged(boolean isInMultiWindowMode) {
-        mFragments.dispatchMultiWindowModeChanged(isInMultiWindowMode);
     }
 
     /**
@@ -667,6 +653,7 @@ public class FragmentActivity extends ComponentActivity implements
     class HostCallbacks extends FragmentHostCallback<FragmentActivity> implements
             OnConfigurationChangedProvider,
             OnTrimMemoryProvider,
+            OnMultiWindowModeChangedProvider,
             ViewModelStoreOwner,
             OnBackPressedDispatcherOwner,
             ActivityResultRegistryOwner,
@@ -795,6 +782,18 @@ public class FragmentActivity extends ComponentActivity implements
         @Override
         public void removeOnTrimMemoryListener(@NonNull Consumer<Integer> listener) {
             FragmentActivity.this.removeOnTrimMemoryListener(listener);
+        }
+
+        @Override
+        public void addOnMultiWindowModeChangedListener(
+                @NonNull Consumer<MultiWindowModeChangedInfo> listener) {
+            FragmentActivity.this.addOnMultiWindowModeChangedListener(listener);
+        }
+
+        @Override
+        public void removeOnMultiWindowModeChangedListener(
+                @NonNull Consumer<MultiWindowModeChangedInfo> listener) {
+            FragmentActivity.this.removeOnMultiWindowModeChangedListener(listener);
         }
     }
 
