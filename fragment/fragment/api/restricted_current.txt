@@ -510,6 +510,7 @@ package androidx.fragment.app.strictmode {
   public static final class FragmentStrictMode.Policy.Builder {
     ctor public FragmentStrictMode.Policy.Builder();
     method public androidx.fragment.app.strictmode.FragmentStrictMode.Policy.Builder allowViolation(Class<? extends androidx.fragment.app.Fragment> fragmentClass, Class<? extends androidx.fragment.app.strictmode.Violation> violationClass);
+    method public androidx.fragment.app.strictmode.FragmentStrictMode.Policy.Builder allowViolation(String fragmentClass, Class<? extends androidx.fragment.app.strictmode.Violation> violationClass);
     method public androidx.fragment.app.strictmode.FragmentStrictMode.Policy build();
     method public androidx.fragment.app.strictmode.FragmentStrictMode.Policy.Builder detectFragmentReuse();
     method public androidx.fragment.app.strictmode.FragmentStrictMode.Policy.Builder detectFragmentTagUsage();
