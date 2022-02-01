@@ -35,13 +35,15 @@ import kotlin.math.roundToInt
 /**
  * Creates a [ScalingLazyListState] that is remembered across compositions.
  *
- * @param initialCenterItemIndex the initial value for [ScalingLazyListState.centerItemIndex]
+ * @param initialCenterItemIndex the initial value for [ScalingLazyListState.centerItemIndex],
+ * defaults to 1. This will place the 2nd list item (index == 1) in the center of the viewport and
+ * the first item (index == 0) before it.
  * @param initialCenterItemScrollOffset the initial value for
  * [ScalingLazyListState.centerItemScrollOffset] in pixels
  */
 @Composable
 public fun rememberScalingLazyListState(
-    initialCenterItemIndex: Int = 0,
+    initialCenterItemIndex: Int = 1,
     initialCenterItemScrollOffset: Int = 0
 ): ScalingLazyListState {
     return rememberSaveable(saver = ScalingLazyListState.Saver) {
@@ -57,14 +59,16 @@ public fun rememberScalingLazyListState(
  *
  * In most cases, this will be created via [rememberScalingLazyListState].
  *
- * @param initialCenterItemIndex the initial value for [ScalingLazyListState.centerItemIndex]
+ * @param initialCenterItemIndex the initial value for [ScalingLazyListState.centerItemIndex],
+ * defaults to 1. This will place the 2nd list item (index == 1) in the center of the viewport and
+ * the first item (index == 0) before it.
  * @param initialCenterItemScrollOffset the initial value for
  * [ScalingLazyListState.centerItemScrollOffset]
  */
 // TODO (b/193792848): Add snap support.
 @Stable
 class ScalingLazyListState constructor(
-    private var initialCenterItemIndex: Int = 0,
+    private var initialCenterItemIndex: Int = 1,
     private var initialCenterItemScrollOffset: Int = 0
 ) : ScrollableState {
 
