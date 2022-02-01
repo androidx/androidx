@@ -36,9 +36,11 @@ dependencies {
 androidx {
     name = "AndroidX JUnit GTest"
     type = LibraryType.PUBLISHED_LIBRARY
-    mavenGroup = LibraryGroups.TESTJUNIT
+    mavenGroup = LibraryGroups.TESTEXT
     inceptionYear = "2022"
     description = "Run GTest tests on Android devices"
+    // Bypassed to better match existing androidx.test libraries
+    bypassCoordinateValidation = true
 }
 
 android {
@@ -76,7 +78,7 @@ void fixModuleJson(Task task) {
     def moduleJson = task.outputs.files.asFileTree.find { it.name == "module.json" }
     def newText = moduleJson.text.replace(
             "\"export_libraries\": []",
-            "\"export_libraries\": [\"-uJava_androidx_test_junitgtest_GtestRunner_initialize\", \"-uJava_androidx_test_junitgtest_GtestRunner_run\",  \"-uJava_androidx_test_junitgtest_GtestRunner_addTest\"]",
+            "\"export_libraries\": [\"-uJava_androidx_test_ext_junitgtest_GtestRunner_initialize\", \"-uJava_androidx_test_ext_junitgtest_GtestRunner_run\",  \"-uJava_androidx_test_ext_junitgtest_GtestRunner_addTest\"]",
     )
     moduleJson.write(newText)
 }

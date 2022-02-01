@@ -101,7 +101,7 @@ SQLITE = "2.3.0-alpha01"
 SQLITE_INSPECTOR = "2.1.0-alpha01"
 STARTUP = "1.2.0-alpha02"
 SWIPEREFRESHLAYOUT = "1.2.0-alpha01"
-TESTJUNIT = "1.0.0-alpha01"
+TESTEXT = "1.0.0-alpha01"
 TESTSCREENSHOT = "1.0.0-alpha01"
 TEXT = "1.0.0-alpha01"
 TEXTCLASSIFIER = "1.0.0-alpha03"
@@ -211,7 +211,7 @@ SLIDINGPANELAYOUT = { group = "androidx.slidingpanelayout", atomicGroupVersion =
 SQLITE = { group = "androidx.sqlite", atomicGroupVersion = "versions.SQLITE" }
 STARTUP = { group = "androidx.startup", atomicGroupVersion = "versions.STARTUP" }
 SWIPEREFRESHLAYOUT = { group = "androidx.swiperefreshlayout", atomicGroupVersion = "versions.SWIPEREFRESHLAYOUT" }
-TESTJUNIT = { group = "androidx.test.junit", atomicGroupVersion = "versions.TESTJUNIT" }
+TESTEXT = { group = "androidx.test.ext", atomicGroupVersion = "versions.TESTEXT" }
 TESTSCREENSHOT = { group = "androidx.test.screenshot", atomicGroupVersion = "versions.TESTSCREENSHOT" }
 TEXT = { group = "androidx.text", atomicGroupVersion = "versions.TEXT" }
 TEXTCLASSIFIER = { group = "androidx.textclassifier", atomicGroupVersion = "versions.TEXTCLASSIFIER" }

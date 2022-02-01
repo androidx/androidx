@@ -166,7 +166,7 @@ namespace {
 
 extern "C"
 JNIEXPORT void JNICALL
-Java_androidx_test_junitgtest_GtestRunner_initialize(JNIEnv *env, jclass, jstring className, jobject suite) {
+Java_androidx_test_ext_junitgtest_GtestRunner_initialize(JNIEnv *env, jclass, jstring className, jobject suite) {
   RegisterJavaVm(env);
 
   // Initialize gtest, removing the default result printer
@@ -219,7 +219,7 @@ Java_androidx_test_junitgtest_GtestRunner_initialize(JNIEnv *env, jclass, jstrin
 
 extern "C"
 JNIEXPORT void JNICALL
-Java_androidx_test_junitgtest_GtestRunner_addTest(JNIEnv *env, jclass, jstring testName) {
+Java_androidx_test_ext_junitgtest_GtestRunner_addTest(JNIEnv *env, jclass, jstring testName) {
   const char* testNameChars = env->GetStringUTFChars(testName, JNI_FALSE);
   auto found = gNativeTestNames.find(testNameChars);
   if (found != gNativeTestNames.end()) {
@@ -230,7 +230,7 @@ Java_androidx_test_junitgtest_GtestRunner_addTest(JNIEnv *env, jclass, jstring t
 
 extern "C"
 JNIEXPORT jboolean JNICALL
-Java_androidx_test_junitgtest_GtestRunner_run(JNIEnv *env, jclass, jstring className, jobject notifier) {
+Java_androidx_test_ext_junitgtest_GtestRunner_run(JNIEnv *env, jclass, jstring className, jobject notifier) {
   // Apply the test filter computed in Java-land. The filter is just a list of test names.
   std::ostringstream filterStream;
   std::vector<std::string> mangledNamesOfDisabledTests;
