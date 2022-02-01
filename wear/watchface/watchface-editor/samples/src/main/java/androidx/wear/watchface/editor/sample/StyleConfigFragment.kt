@@ -298,7 +298,8 @@ internal class ListStyleSettingViewAdapter(
         textView.setBackgroundColor(
             if (styleOption == currentSelection) Color.rgb(20, 40, 60) else Color.BLACK
         )
-        styleOption.icon?.loadDrawableAsync(
+        val icon = styleOption.onWatchEditorData?.icon ?: styleOption.icon
+        icon?.loadDrawableAsync(
             context,
             { drawable ->
                 textView.setCompoundDrawablesRelativeWithIntrinsicBounds(
@@ -340,7 +341,8 @@ internal class ComplicationsStyleSettingViewAdapter(
         holder.userStyleOption = styleOption
         val textView = holder.itemView as TextView
         textView.text = styleOption.displayName
-        styleOption.icon?.loadDrawableAsync(
+        val icon = styleOption.onWatchEditorData?.icon ?: styleOption.icon
+        icon?.loadDrawableAsync(
             context,
             { drawable ->
                 textView.setCompoundDrawablesRelativeWithIntrinsicBounds(
