@@ -4,4 +4,5 @@
     <string name="calendar_tile_name">Calendar Tile</string>
     <string name="tiles_preview_name">Tiles Preview</string>
     <string name="calendar_activity_name">Calendar Activity</string>
+    <string name="hello_tile_greeting">Hello Tile</string>
 </resources>
