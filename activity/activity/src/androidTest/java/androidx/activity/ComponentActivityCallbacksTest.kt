@@ -19,10 +19,12 @@ package androidx.activity
 import android.content.ComponentCallbacks2
 import android.content.Intent
 import android.content.res.Configuration
+import androidx.core.app.MultiWindowModeChangedInfo
 import androidx.core.util.Consumer
 import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
+import androidx.test.filters.SdkSuppress
 import androidx.testutils.withActivity
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
@@ -277,6 +279,98 @@ class ComponentActivityCallbacksTest {
             val receivedIntent = receivedIntents.first()
             assertThat(receivedIntent.getIntExtra("newExtra", -1))
                 .isEqualTo(5)
+        }
+    }
+
+    @Suppress("DEPRECATION")
+    @Test
+    fun onMultiWindowModeChanged() {
+        with(ActivityScenario.launch(ComponentActivity::class.java)) {
+            lateinit var receivedInfo: MultiWindowModeChangedInfo
+
+            val listener = Consumer<MultiWindowModeChangedInfo> { info ->
+                receivedInfo = info
+            }
+            withActivity {
+                addOnMultiWindowModeChangedListener(listener)
+                onMultiWindowModeChanged(true)
+            }
+
+            assertThat(receivedInfo.isInMultiWindowMode).isTrue()
+        }
+    }
+
+    @SdkSuppress(minSdkVersion = 26)
+    @Test
+    fun onMultiWindowModeChangedWithConfig() {
+        with(ActivityScenario.launch(ComponentActivity::class.java)) {
+            lateinit var receivedInfo: MultiWindowModeChangedInfo
+
+            val listener = Consumer<MultiWindowModeChangedInfo> { info ->
+                receivedInfo = info
+            }
+            lateinit var newConfig: Configuration
+            withActivity {
+                addOnMultiWindowModeChangedListener(listener)
+                newConfig = Configuration(resources.configuration)
+                onMultiWindowModeChanged(true, newConfig)
+            }
+
+            assertThat(receivedInfo.isInMultiWindowMode).isTrue()
+            assertThat(receivedInfo.newConfig).isSameInstanceAs(newConfig)
+        }
+    }
+
+    @Suppress("DEPRECATION")
+    @Test
+    fun onMultiWindowModeChangedRemove() {
+        with(ActivityScenario.launch(ComponentActivity::class.java)) {
+            lateinit var receivedInfo: MultiWindowModeChangedInfo
+
+            val listener = Consumer<MultiWindowModeChangedInfo> { info ->
+                receivedInfo = info
+            }
+            withActivity {
+                addOnMultiWindowModeChangedListener(listener)
+                onMultiWindowModeChanged(true)
+            }
+
+            assertThat(receivedInfo.isInMultiWindowMode).isTrue()
+
+            withActivity {
+                removeOnMultiWindowModeChangedListener(listener)
+                onMultiWindowModeChanged(false)
+            }
+
+            // Should still be true and not false
+            assertThat(receivedInfo.isInMultiWindowMode).isTrue()
+        }
+    }
+
+    @Suppress("DEPRECATION")
+    @Test
+    fun onMultiWindowModeChangedRemoveReentrant() {
+        with(ActivityScenario.launch(ComponentActivity::class.java)) {
+            val activity = withActivity { this }
+            lateinit var receivedInfo: MultiWindowModeChangedInfo
+
+            val listener = object : Consumer<MultiWindowModeChangedInfo> {
+                override fun accept(info: MultiWindowModeChangedInfo) {
+                    receivedInfo = info
+                    activity.removeOnMultiWindowModeChangedListener(this)
+                }
+            }
+            withActivity {
+                addOnMultiWindowModeChangedListener(listener)
+                // Add a second listener to force a ConcurrentModificationException
+                // if not properly handled by ComponentActivity
+                addOnMultiWindowModeChangedListener { }
+                onMultiWindowModeChanged(true)
+                onMultiWindowModeChanged(false)
+            }
+
+            // Only the first multi-window mode change should be received
+            assertThat(receivedInfo.isInMultiWindowMode).isTrue()
         }
     }
 }

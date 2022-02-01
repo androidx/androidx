@@ -1,7 +1,7 @@
 // Signature format: 4.0
 package androidx.activity {
 
-  public class ComponentActivity extends androidx.core.app.ComponentActivity implements androidx.activity.result.ActivityResultCaller androidx.activity.result.ActivityResultRegistryOwner androidx.activity.contextaware.ContextAware androidx.lifecycle.HasDefaultViewModelProviderFactory androidx.lifecycle.LifecycleOwner androidx.core.view.MenuHost androidx.activity.OnBackPressedDispatcherOwner androidx.core.content.OnConfigurationChangedProvider androidx.core.app.OnNewIntentProvider androidx.core.content.OnTrimMemoryProvider androidx.savedstate.SavedStateRegistryOwner androidx.lifecycle.ViewModelStoreOwner {
+  public class ComponentActivity extends androidx.core.app.ComponentActivity implements androidx.activity.result.ActivityResultCaller androidx.activity.result.ActivityResultRegistryOwner androidx.activity.contextaware.ContextAware androidx.lifecycle.HasDefaultViewModelProviderFactory androidx.lifecycle.LifecycleOwner androidx.core.view.MenuHost androidx.activity.OnBackPressedDispatcherOwner androidx.core.content.OnConfigurationChangedProvider androidx.core.app.OnMultiWindowModeChangedProvider androidx.core.app.OnNewIntentProvider androidx.core.content.OnTrimMemoryProvider androidx.savedstate.SavedStateRegistryOwner androidx.lifecycle.ViewModelStoreOwner {
     ctor public ComponentActivity();
     ctor @ContentView public ComponentActivity(@LayoutRes int);
     method public void addMenuProvider(androidx.core.view.MenuProvider);
@@ -9,6 +9,7 @@ package androidx.activity {
     method public void addMenuProvider(androidx.core.view.MenuProvider, androidx.lifecycle.LifecycleOwner, androidx.lifecycle.Lifecycle.State);
     method public final void addOnConfigurationChangedListener(androidx.core.util.Consumer<android.content.res.Configuration!>);
     method public final void addOnContextAvailableListener(androidx.activity.contextaware.OnContextAvailableListener);
+    method public final void addOnMultiWindowModeChangedListener(androidx.core.util.Consumer<androidx.core.app.MultiWindowModeChangedInfo!>);
     method public final void addOnNewIntentListener(androidx.core.util.Consumer<android.content.Intent!>);
     method public final void addOnTrimMemoryListener(androidx.core.util.Consumer<java.lang.Integer!>);
     method public final androidx.activity.result.ActivityResultRegistry getActivityResultRegistry();
@@ -19,6 +20,7 @@ package androidx.activity {
     method public androidx.lifecycle.ViewModelStore getViewModelStore();
     method public void invalidateMenu();
     method @Deprecated @CallSuper protected void onActivityResult(int, int, android.content.Intent?);
+    method @CallSuper public void onMultiWindowModeChanged(boolean);
     method @Deprecated @CallSuper public void onRequestPermissionsResult(int, String![], int[]);
     method @Deprecated public Object? onRetainCustomNonConfigurationInstance();
     method public final Object? onRetainNonConfigurationInstance();
@@ -28,6 +30,7 @@ package androidx.activity {
     method public void removeMenuProvider(androidx.core.view.MenuProvider);
     method public final void removeOnConfigurationChangedListener(androidx.core.util.Consumer<android.content.res.Configuration!>);
     method public final void removeOnContextAvailableListener(androidx.activity.contextaware.OnContextAvailableListener);
+    method public final void removeOnMultiWindowModeChangedListener(androidx.core.util.Consumer<androidx.core.app.MultiWindowModeChangedInfo!>);
     method public final void removeOnNewIntentListener(androidx.core.util.Consumer<android.content.Intent!>);
     method public final void removeOnTrimMemoryListener(androidx.core.util.Consumer<java.lang.Integer!>);
     method @Deprecated public void startActivityForResult(android.content.Intent!, int);
