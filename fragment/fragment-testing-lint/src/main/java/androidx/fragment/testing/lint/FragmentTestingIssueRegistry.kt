@@ -17,6 +17,7 @@
 package androidx.fragment.testing.lint
 
 import com.android.tools.lint.client.api.IssueRegistry
+import com.android.tools.lint.client.api.Vendor
 import com.android.tools.lint.detector.api.CURRENT_API
 
 @Suppress("UnstableApiUsage")
@@ -24,4 +25,9 @@ class FragmentTestingIssueRegistry : IssueRegistry() {
     override val api = 11
     override val minApi = CURRENT_API
     override val issues get() = listOf(GradleConfigurationDetector.ISSUE)
+    override val vendor = Vendor(
+        feedbackUrl = "https://issuetracker.google.com/issues/new?component=460964",
+        identifier = "androidx.fragment.testing",
+        vendorName = "Android Open Source Project",
+    )
 }

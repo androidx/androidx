@@ -23,6 +23,7 @@ plugins {
 }
 
 dependencies {
+    compileOnly(libs.androidBuilderModelMin)
     compileOnly(libs.androidLintMinApi)
     compileOnly(libs.kotlinStdlib)
 
