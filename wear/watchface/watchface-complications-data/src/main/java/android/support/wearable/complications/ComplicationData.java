@@ -364,6 +364,7 @@ public final class ComplicationData implements Parcelable, Serializable {
     ComplicationData(int type, Bundle fields) {
         mType = type;
         mFields = fields;
+        mFields.setClassLoader(getClass().getClassLoader());
     }
 
     private ComplicationData(@NonNull Parcel in) {
