@@ -35,7 +35,7 @@ dependencies {
 
     implementation(libs.kotlinStdlib)
     implementation("androidx.navigation:navigation-compose:2.4.0")
-    implementation(project(":profileinstaller:profileinstaller"))
+    implementation("androidx.profileinstaller:profileinstaller:1.2.0-alpha02")
 
     androidTestImplementation(project(":compose:test-utils"))
     androidTestImplementation(project(":compose:ui:ui-test-junit4"))
