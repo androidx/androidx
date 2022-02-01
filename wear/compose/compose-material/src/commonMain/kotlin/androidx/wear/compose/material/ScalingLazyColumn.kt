@@ -458,7 +458,7 @@ public object ScalingLazyColumnDefaults {
      * viewport, however there is a performance cost associated with materializing items that are
      * subsequently not drawn. The higher/more extreme the scaling parameters that are applied to
      * the [ScalingLazyColumn] the more padding may be needed to ensure there are always enough
-     * content items available to be rendered. By default will be 10% of the maxHeight of the
+     * content items available to be rendered. By default will be 5% of the maxHeight of the
      * viewport above and below the content.
      */
     fun scalingParams(
@@ -469,7 +469,7 @@ public object ScalingLazyColumnDefaults {
         minTransitionArea: Float = 0.2f,
         maxTransitionArea: Float = 0.6f,
         scaleInterpolator: Easing = CubicBezierEasing(0.25f, 0.00f, 0.75f, 1.00f),
-        viewportVerticalOffsetResolver: (Constraints) -> Int = { (it.maxHeight / 10f).toInt() }
+        viewportVerticalOffsetResolver: (Constraints) -> Int = { (it.maxHeight / 20f).toInt() }
     ): ScalingParams = DefaultScalingParams(
         edgeScale = edgeScale,
         edgeAlpha = edgeAlpha,
