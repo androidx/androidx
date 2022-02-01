@@ -673,13 +673,17 @@ public final class WindowInsetsControllerCompat {
         public void setAppearanceLightStatusBars(boolean isLight) {
             if (isLight) {
                 if (mView != null) {
-                    unsetSystemUiFlag(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
+                    setSystemUiFlag(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
                 }
 
                 mInsetsController.setSystemBarsAppearance(
                         WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS,
                         WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS);
             } else {
+                if (mView != null) {
+                    unsetSystemUiFlag(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
+                }
+
                 mInsetsController.setSystemBarsAppearance(
                         0,
                         WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS);
@@ -695,10 +699,18 @@ public final class WindowInsetsControllerCompat {
         @Override
         public void setAppearanceLightNavigationBars(boolean isLight) {
             if (isLight) {
+                if (mView != null) {
+                    setSystemUiFlag(View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR);
+                }
+
                 mInsetsController.setSystemBarsAppearance(
                         WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS,
                         WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS);
             } else {
+                if (mView != null) {
+                    unsetSystemUiFlag(View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR);
+                }
+
                 mInsetsController.setSystemBarsAppearance(
                         0,
                         WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS);
@@ -804,6 +816,13 @@ public final class WindowInsetsControllerCompat {
             decorView.setSystemUiVisibility(
                     decorView.getSystemUiVisibility()
                             & ~systemUiFlag);
+        }
+
+        protected void setSystemUiFlag(int systemUiFlag) {
+            View decorView = mView.getRootView();
+            decorView.setSystemUiVisibility(
+                    decorView.getSystemUiVisibility()
+                            | systemUiFlag);
         }
     }
 }
