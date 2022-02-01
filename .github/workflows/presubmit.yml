@@ -116,6 +116,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest]
+        # if you would like to remove some projects temporarily, use ci-config.json instead.
         project: ["activity", "biometric", "compose-runtime", "datastore", "fragment", "lifecycle", "navigation", "paging", "room", "work"]
         include:
           - project: "compose-runtime"
