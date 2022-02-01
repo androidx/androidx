@@ -79,13 +79,21 @@ public class UserStyleSettingWireFormat implements VersionedParcelable, Parcelab
      * may be an exhaustive list, or just examples to populate a ListView in case the
      * UserStyleCategory isn't supported by the UI (e.g. a new WatchFace with an old Companion).
      *
-     * This list needs to go last because VersionedParcelable has a design flaw, if the format
-     * changes the reader can't determine the correct size of the list and data afterwards would get
-     * corrupted. We try to avoid this by putting the list last.
+     * OptionWireFormat can't change because VersionedParcelable has a design flaw, if the format
+     * changes the reader can't determine the correct size of the list and data afterwards
+     * (including elements of this list) will get corrupted.
      */
     @ParcelField(100)
     @NonNull
     public List<OptionWireFormat> mOptions = new ArrayList<>();
+
+    /**
+     * Flattened list of child settings for each option. Note this ID must always be a list of
+     * Integers.
+     */
+    @Nullable
+    @ParcelField(101)
+    public List<Integer> mOptionChildIndices = null;
 
     UserStyleSettingWireFormat() {}
 

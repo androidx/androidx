@@ -155,4 +155,10 @@
         <!-- A link to an icon is optional but encouraged. -->
         <attr name="android:icon" />
     </declare-styleable>
+
+    <!-- A ChildSetting node may not have children of its own. -->
+    <declare-styleable name="ChildSetting">
+        <!-- An id is required, this must correspond to a previously declared StyleSetting. -->
+        <attr name="id" />
+    </declare-styleable>
 </resources>

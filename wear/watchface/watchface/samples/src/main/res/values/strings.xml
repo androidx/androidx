@@ -24,6 +24,8 @@
     <string name="gl_watch_face_name" translatable="false">Example OpenGL Watchface</string>
     <string name="gl_background_init_watch_face_name"
         translatable="false">Background Init Watchface</string>
+    <string name="hierarchical_watch_face_name"
+        translatable="false">Example Hierarchical Watchface</string>
 
     <!-- Name of watchface style [CHAR LIMIT=20] -->
     <string name="red_style_name">Red Style</string>
@@ -135,4 +137,29 @@
     <!-- Name of the optional background complication which is drawn behind the watchface, for use
     by the companion editor screen reader. -->
     <string name="background_complication_screen_reader_name">Background complication.</string>
+
+    <!-- Name of a style that controls the appearance of a digital clock [CHAR LIMIT=20] -->
+    <string name="digital_clock_style_name">Clock style</string>
+
+    <!-- Sub title for the menu option to select a widget that lets us configure the style of a
+    digital watch [CHAR LIMIT=20] -->
+    <string name="digital_clock_style_description">Clock style setting</string>
+
+    <!-- Menu option for a 12 hour digital clock display. [CHAR LIMIT=20] -->
+    <string name="digital_clock_style_12">12</string>
+
+    <!-- Menu option for a 24 hour digital clock display. [CHAR LIMIT=20] -->
+    <string name="digital_clock_style_24">24</string>
+
+    <!-- Menu option for selecting a digital clock [CHAR LIMIT=20] -->
+    <string name="style_digital_watch">Digital</string>
+
+    <!-- Menu option for selecting an analog clock [CHAR LIMIT=20] -->
+    <string name="style_analog_watch">Analog</string>
+
+    <!-- Title for the menu option to select an analog or digital clock [CHAR LIMIT=20] -->
+    <string name="clock_type">Clock type</string>
+
+    <!-- Sub title for the menu option to select an analog or digital clock [CHAR LIMIT=20] -->
+    <string name="clock_type_description">Select analog or digital</string>
 </resources>

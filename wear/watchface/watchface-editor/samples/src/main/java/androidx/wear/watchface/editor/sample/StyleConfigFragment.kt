@@ -17,6 +17,7 @@
 package androidx.wear.watchface.editor.sample
 
 import android.content.Context
+import android.graphics.Color
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -30,6 +31,7 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.RecyclerView
 import androidx.versionedparcelable.ParcelUtils
 import androidx.wear.watchface.editor.samples.R
+import androidx.wear.watchface.style.ExperimentalHierarchicalStyle
 import androidx.wear.watchface.style.UserStyle
 import androidx.wear.watchface.style.UserStyleData
 import androidx.wear.watchface.style.UserStyleSchema
@@ -111,7 +113,8 @@ internal class StyleConfigFragment : Fragment(), ClickListener {
                     ListStyleSettingViewAdapter(
                         requireContext(),
                         styleSetting.options.filterIsInstance<ListUserStyleSetting.ListOption>(),
-                        this@StyleConfigFragment
+                        this@StyleConfigFragment,
+                        currentSelection = userStyleOption
                     )
                 styleOptionsList.isEdgeItemsCenteringEnabled = true
                 styleOptionsList.layoutManager = WearableLinearLayoutManager(context)
@@ -204,20 +207,52 @@ internal class StyleConfigFragment : Fragment(), ClickListener {
             styleSchema
         )
 
-        styleSetting = styleSchema.userStyleSettings.first { it.id.value == settingId }
+        styleSetting = styleSchema[UserStyleSetting.Id(settingId)]!!
     }
 
     internal fun setUserStyleOption(userStyleOption: UserStyleSetting.Option) {
         val watchFaceConfigActivity = (activity as WatchFaceConfigActivity)
         val editorSession = watchFaceConfigActivity.editorSession
-        editorSession.userStyle.value = userStyle.toMutableUserStyle().apply {
+        editorSession.userStyle.value = editorSession.userStyle.value.toMutableUserStyle().apply {
             this[styleSetting] = userStyleOption
         }.toUserStyle()
     }
 
+    @OptIn(ExperimentalHierarchicalStyle::class)
     override fun onItemClick(userStyleOption: UserStyleSetting.Option) {
         setUserStyleOption(userStyleOption)
-        parentFragmentManager.popBackStackImmediate()
+        if (userStyleOption.childSettings.isEmpty()) {
+            parentFragmentManager.popBackStackImmediate()
+        } else {
+            // There's one or more child settings, so launch a new fragment.
+            if (userStyleOption.childSettings.size == 1) {
+                showFragment(
+                    newInstance(
+                        userStyleOption.childSettings.first().id.value,
+                        styleSchema,
+                        userStyle
+                    )
+                )
+            } else {
+                showFragment(
+                    ConfigFragment.newInstance(
+                        ArrayList(userStyleOption.childSettings.map { it.id.value })
+                    )
+                )
+            }
+        }
+    }
+
+    private fun showFragment(fragment: Fragment) {
+        val curFragment = parentFragmentManager.findFragmentById(android.R.id.content)
+        curFragment?.view?.importantForAccessibility =
+            View.IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS
+        // The new fragment will have its importance set by OnBackStackChangedListener.
+        parentFragmentManager
+            .beginTransaction()
+            .add(android.R.id.content, fragment)
+            .addToBackStack(null)
+            .commit()
     }
 }
 
@@ -231,14 +266,15 @@ internal interface ClickListener {
 }
 
 /**
- * An adapter for [ListUserStyleSetting].
+ * An adapter for [ListUserStyleSetting]. The option corresponding to [currentSelection] will be
+ * rendered with a dark blue background.
  */
 internal class ListStyleSettingViewAdapter(
     private val context: Context,
     private val styleOptions: List<ListUserStyleSetting.ListOption>,
-    private val clickListener: ClickListener
-) :
-    RecyclerView.Adapter<StyleSettingViewHolder>() {
+    private val clickListener: ClickListener,
+    private var currentSelection: UserStyleSetting.Option
+) : RecyclerView.Adapter<StyleSettingViewHolder>() {
 
     private val handler = Handler(Looper.getMainLooper())
 
@@ -247,7 +283,11 @@ internal class ListStyleSettingViewAdapter(
             R.layout.stylelist_item_layout, parent, false
         )
     ).apply {
-        itemView.setOnClickListener { clickListener.onItemClick(userStyleOption!!) }
+        itemView.setOnClickListener {
+            currentSelection = userStyleOption!!
+            this@ListStyleSettingViewAdapter.notifyDataSetChanged()
+            clickListener.onItemClick(userStyleOption!!)
+        }
     }
 
     override fun onBindViewHolder(holder: StyleSettingViewHolder, position: Int) {
@@ -255,6 +295,9 @@ internal class ListStyleSettingViewAdapter(
         holder.userStyleOption = styleOption
         val textView = holder.itemView as TextView
         textView.text = styleOption.displayName
+        textView.setBackgroundColor(
+            if (styleOption == currentSelection) Color.rgb(20, 40, 60) else Color.BLACK
+        )
         styleOption.icon?.loadDrawableAsync(
             context,
             { drawable ->
@@ -277,7 +320,7 @@ internal class ListStyleSettingViewAdapter(
  */
 internal class ComplicationsStyleSettingViewAdapter(
     private val context: Context,
-    private val styleOptions: List<ComplicationSlotsUserStyleSetting.ComplicationSlotsOption>,
+    private val styleOptions: List<ComplicationSlotsOption>,
     private val clickListener: ClickListener
 ) :
     RecyclerView.Adapter<StyleSettingViewHolder>() {

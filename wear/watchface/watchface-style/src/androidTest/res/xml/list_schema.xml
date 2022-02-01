@@ -45,4 +45,20 @@
             app:displayName="Bar"
             app:id="bar" />
     </ListUserStyleSetting>
+    <ListUserStyleSetting
+        app:description="Choose one"
+        app:displayName="A or B"
+        app:affectedWatchFaceLayers="BASE|COMPLICATIONS|COMPLICATIONS_OVERLAY"
+        app:id="TopLevel">
+        <ListOption
+            app:displayName="A"
+            app:id="a">
+            <ChildSetting app:id="ColorStyle" />
+        </ListOption>
+        <ListOption
+            app:displayName="B"
+            app:id="b">
+            <ChildSetting app:id="Thing2" />
+        </ListOption>
+    </ListUserStyleSetting>
 </UserStyleSchema>

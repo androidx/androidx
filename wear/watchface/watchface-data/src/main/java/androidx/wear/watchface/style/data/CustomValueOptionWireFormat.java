@@ -32,6 +32,8 @@ public class CustomValueOptionWireFormat extends OptionWireFormat {
     CustomValueOptionWireFormat() {
     }
 
+    // WARNING: This class is held in a list and can't change due to flaws in VersionedParcelable.
+
     public CustomValueOptionWireFormat(@NonNull byte[] id) {
         super(id);
     }

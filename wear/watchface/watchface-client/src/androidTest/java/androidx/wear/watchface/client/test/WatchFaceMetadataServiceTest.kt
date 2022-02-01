@@ -68,6 +68,7 @@ public class WatchFaceMetadataServiceTest {
     }
 
     @Test
+    @Suppress("Deprecation") // userStyleSettings
     public fun getSchema() {
         val schema = service.getUserStyleSchema()
 
@@ -90,6 +91,7 @@ public class WatchFaceMetadataServiceTest {
     }
 
     @Test
+    @Suppress("Deprecation") // userStyleSettings
     public fun getSchema_oldApi() {
         WatchFaceControlTestService.apiVersionOverride = 1
         val schema = service.getUserStyleSchema()
@@ -184,7 +186,10 @@ public class WatchFaceMetadataServiceTest {
             )
             val schema = client.getUserStyleSchema()
 
-            Truth.assertThat(schema.userStyleSettings.toString()).isEqualTo(
+            Truth.assertThat(
+                @Suppress("Deprecation")
+                schema.userStyleSettings.toString()
+            ).isEqualTo(
                 "[{TimeStyle : minimal, seconds}]"
             )
         }

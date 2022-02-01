@@ -17,6 +17,7 @@
 package androidx.wear.watchface.editor.sample
 
 import android.content.Context
+import android.graphics.Color
 import android.graphics.Typeface
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.Icon
@@ -37,22 +38,40 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.recyclerview.widget.RecyclerView
 import androidx.wear.watchface.complications.ComplicationDataSourceInfoRetriever
 import androidx.wear.watchface.editor.samples.R
+import androidx.wear.watchface.style.UserStyleSetting
 import androidx.wear.widget.SwipeDismissFrameLayout
 import androidx.wear.widget.WearableLinearLayoutManager
 import androidx.wear.widget.WearableRecyclerView
 import kotlinx.coroutines.launch
 
 /**
- * Top level configuration fragment. Lets the user select whether they want to select a complication
- * to configure, configure a background complication or select an option from a user style setting.
- * Should only be used if theres's at least two items from that list.
+ * Lets the user select whether they want to select a complication to configure, configure a
+ * background complication or select an option from a user style setting. Should only be used if
+ * theres's at least two items from that list.
+ *
+ * Note hierarchical UserStyleSchemas are supported.
  */
 internal class ConfigFragment : Fragment() {
 
     private val watchFaceConfigActivity: WatchFaceConfigActivity
         get() = activity as WatchFaceConfigActivity
+
+    /** Ids for the [androidx.wear.watchface.style.UserStyleSetting]s to select from. */
+    private lateinit var settingIds: java.util.ArrayList<String>
     private lateinit var view: SwipeDismissFrameLayout
     private lateinit var configViewAdapter: ConfigViewAdapter
+
+    companion object {
+        const val SETTINGS_ID = "SETTINGS_ID"
+
+        fun newInstance(
+            settingIds: ArrayList<String>
+        ) = ConfigFragment().apply {
+            arguments = Bundle().apply {
+                this.putStringArrayList(SETTINGS_ID, settingIds)
+            }
+        }
+    }
 
     private var lifecycleObserver = LifecycleEventObserver { _, event ->
         if (event == Lifecycle.Event.ON_START) {
@@ -70,6 +89,8 @@ internal class ConfigFragment : Fragment() {
         container: ViewGroup?,
         savedState: Bundle?
     ): View {
+        settingIds = requireArguments().getStringArrayList(SETTINGS_ID)!!
+
         view = inflater.inflate(R.layout.config_layout, container, false) as
             SwipeDismissFrameLayout
 
@@ -99,7 +120,8 @@ internal class ConfigFragment : Fragment() {
                         R.drawable.ic_elements_settings_complications
                     ),
                     title = resources.getString(R.string.settings_complications),
-                    summary = ""
+                    summary = "",
+                    highlight = false
                 )
             )
         }
@@ -108,13 +130,16 @@ internal class ConfigFragment : Fragment() {
             configOptions.add(createBackgroundConfigOption())
         }
 
-        for (styleCategory in editingSession.userStyleSchema.userStyleSettings) {
+        for (settingId in settingIds) {
+            @Suppress("Deprecation") // userStyleSettings
+            val styleCategory = editingSession.userStyleSchema[UserStyleSetting.Id(settingId)]!!
             configOptions.add(
                 ConfigOption(
                     id = styleCategory.id.value,
                     icon = styleCategory.icon,
                     title = styleCategory.displayName.toString(),
-                    summary = styleCategory.description.toString()
+                    summary = styleCategory.description.toString(),
+                    highlight = false
                 )
             )
         }
@@ -142,7 +167,8 @@ internal class ConfigFragment : Fragment() {
                 R.drawable.ic_elements_comps_bg
             ),
             title = getResources().getString(R.string.settings_background_image),
-            summary = resources.getString(R.string.none_background_image_provider)
+            summary = resources.getString(R.string.none_background_image_provider),
+            highlight = false
         )
 
         // Update the summary with the actual background complication data source name, if there is
@@ -169,9 +195,9 @@ internal class ConfigFragment : Fragment() {
         super.onDestroy()
     }
 
-    private fun onItemClick(configKey: String) {
+    private fun onItemClick(configOption: ConfigOption) {
         val editingSession = watchFaceConfigActivity.editorSession
-        when (configKey) {
+        when (configOption.id) {
             Constants.KEY_COMPLICATIONS_SETTINGS ->
                 watchFaceConfigActivity.fragmentController.showComplicationConfigSelectionFragment()
 
@@ -185,7 +211,7 @@ internal class ConfigFragment : Fragment() {
 
             else -> {
                 watchFaceConfigActivity.fragmentController.showStyleConfigFragment(
-                    configKey,
+                    configOption.id,
                     editingSession.userStyleSchema,
                     editingSession.userStyle.value
                 )
@@ -198,7 +224,8 @@ internal data class ConfigOption(
     val id: String,
     val icon: Icon?,
     val title: String,
-    var summary: String
+    var summary: String,
+    var highlight: Boolean
 )
 
 internal class ConfigViewHolder(view: View) : RecyclerView.ViewHolder(view) {
@@ -235,11 +262,16 @@ internal class Helper {
 internal class ConfigViewAdapter(
     private val context: Context,
     private val configOptions: List<ConfigOption>,
-    val clickListener: (String) -> Unit
-) :
-    RecyclerView.Adapter<ConfigViewHolder>() {
+    val clickListener: (ConfigOption) -> Unit
+) : RecyclerView.Adapter<ConfigViewHolder>() {
 
     private val handler = Handler(Looper.getMainLooper())
+
+    fun clearAllHighlights() {
+        for (configOption in configOptions) {
+            configOption.highlight = false
+        }
+    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) = ConfigViewHolder(
         LayoutInflater.from(parent.context).inflate(
@@ -248,13 +280,19 @@ internal class ConfigViewAdapter(
             false
         )
     ).apply {
-        itemView.setOnClickListener { clickListener(configOption!!.id) }
+        itemView.setOnClickListener { clickListener(configOption!!) }
     }
 
     override fun onBindViewHolder(holder: ConfigViewHolder, position: Int) {
         val configOption = configOptions[position]
         holder.configOption = configOption
         val textView = holder.itemView as TextView
+
+        textView.setBackgroundColor(
+            if (configOption.highlight) Color.rgb(20, 40, 60) else Color.BLACK
+        )
+
+        textView.textSize = 16f
 
         val builder = SpannableStringBuilder()
         builder.append(configOption.title)

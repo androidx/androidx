@@ -38,7 +38,9 @@ import org.xmlpull.v1.XmlPullParser
 class UserStyleSchemaInflateTest {
     private val context = ApplicationProvider.getApplicationContext<Context>()
 
+    @OptIn(ExperimentalHierarchicalStyle::class)
     @Test
+    @Suppress("Deprecation") // userStyleSettings
     public fun test_inflate_list_schema() {
         val parser = context.resources.getXml(R.xml.list_schema)
 
@@ -49,7 +51,7 @@ class UserStyleSchemaInflateTest {
 
         val schema = UserStyleSchema.inflate(context.resources, parser)
 
-        assertThat(schema.userStyleSettings.size).isEqualTo(2)
+        assertThat(schema.userStyleSettings.size).isEqualTo(3)
         val setting0 = schema.userStyleSettings[0] as UserStyleSetting.ListUserStyleSetting
         assertThat(setting0.id.value).isEqualTo("ColorStyle")
         assertThat(setting0.displayName).isEqualTo("Colors")
@@ -66,10 +68,12 @@ class UserStyleSchemaInflateTest {
         assertThat(option00.id).isEqualTo(UserStyleSetting.Option.Id("red"))
         assertThat(option00.displayName).isEqualTo("Red Style")
         assertThat(option00.icon!!.resId).isEqualTo(R.drawable.red_icon)
+        assertThat(option00.childSettings).isEmpty()
         val option01 = (setting0.options[1] as ListOption)
         assertThat(option01.id).isEqualTo(UserStyleSetting.Option.Id("green"))
         assertThat(option01.displayName).isEqualTo("Green Style")
         assertThat(option01.icon!!.resId).isEqualTo(R.drawable.green_icon)
+        assertThat(option01.childSettings).isEmpty()
 
         val setting1 = schema.userStyleSettings[1] as UserStyleSetting.ListUserStyleSetting
         assertThat(setting1.id.value).isEqualTo("Thing2")
@@ -85,15 +89,40 @@ class UserStyleSchemaInflateTest {
         assertThat(option10.id).isEqualTo(UserStyleSetting.Option.Id("foo"))
         assertThat(option10.displayName).isEqualTo("Foo")
         assertThat(option10.icon).isNull()
+        assertThat(option10.childSettings).isEmpty()
         val option11 = (setting1.options[1] as ListOption)
         assertThat(option11.id).isEqualTo(UserStyleSetting.Option.Id("bar"))
         assertThat(option11.displayName).isEqualTo("Bar")
         assertThat(option11.icon).isNull()
+        assertThat(option11.childSettings).isEmpty()
 
+        val setting2 = schema.userStyleSettings[2] as UserStyleSetting.ListUserStyleSetting
+        assertThat(setting2.id.value).isEqualTo("TopLevel")
+        assertThat(setting2.displayName).isEqualTo("A or B")
+        assertThat(setting2.description).isEqualTo("Choose one")
+        assertThat(setting2.defaultOptionIndex).isEqualTo(0)
+        assertThat(setting2.affectedWatchFaceLayers).containsExactly(
+            WatchFaceLayer.BASE,
+            WatchFaceLayer.COMPLICATIONS,
+            WatchFaceLayer.COMPLICATIONS_OVERLAY
+        )
+        assertThat(setting1.icon).isNull()
+        assertThat(setting1.options.size).isEqualTo(2)
+        val option20 = (setting2.options[0] as ListOption)
+        assertThat(option20.id).isEqualTo(UserStyleSetting.Option.Id("a"))
+        assertThat(option20.displayName).isEqualTo("A")
+        assertThat(option20.icon).isNull()
+        assertThat(option20.childSettings).containsExactly(setting0)
+        val option21 = (setting2.options[1] as ListOption)
+        assertThat(option21.id).isEqualTo(UserStyleSetting.Option.Id("b"))
+        assertThat(option21.displayName).isEqualTo("B")
+        assertThat(option21.icon).isNull()
+        assertThat(option21.childSettings).containsExactly(setting1)
         parser.close()
     }
 
     @Test
+    @Suppress("Deprecation") // userStyleSettings
     public fun test_inflate_mixed_schema() {
         val parser = context.resources.getXml(R.xml.mixed_schema)
 
