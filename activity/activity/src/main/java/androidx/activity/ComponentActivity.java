@@ -71,6 +71,8 @@ import androidx.core.app.ActivityOptionsCompat;
 import androidx.core.app.MultiWindowModeChangedInfo;
 import androidx.core.app.OnMultiWindowModeChangedProvider;
 import androidx.core.app.OnNewIntentProvider;
+import androidx.core.app.OnPictureInPictureModeChangedProvider;
+import androidx.core.app.PictureInPictureModeChangedInfo;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.OnConfigurationChangedProvider;
 import androidx.core.content.OnTrimMemoryProvider;
@@ -122,6 +124,7 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
         OnTrimMemoryProvider,
         OnNewIntentProvider,
         OnMultiWindowModeChangedProvider,
+        OnPictureInPictureModeChangedProvider,
         MenuHost {
 
     static final class NonConfigurationInstances {
@@ -244,6 +247,8 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
             new CopyOnWriteArrayList<>();
     private final CopyOnWriteArrayList<Consumer<MultiWindowModeChangedInfo>>
             mOnMultiWindowModeChangedListeners = new CopyOnWriteArrayList<>();
+    private final CopyOnWriteArrayList<Consumer<PictureInPictureModeChangedInfo>>
+            mOnPictureInPictureModeChangedListeners = new CopyOnWriteArrayList<>();
 
     /**
      * Default constructor for ComponentActivity. All Activities must have a default constructor
@@ -942,6 +947,60 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
             @NonNull Consumer<MultiWindowModeChangedInfo> listener
     ) {
         mOnMultiWindowModeChangedListeners.remove(listener);
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * Dispatches this call to all listeners added via
+     * {@link #addOnPictureInPictureModeChangedListener(Consumer)}.
+     */
+    @CallSuper
+    @Override
+    @SuppressWarnings("deprecation")
+    public void onPictureInPictureModeChanged(boolean isInPictureInPictureMode) {
+        // We specifically do not call super.onPictureInPictureModeChanged() to avoid
+        // crashing when this method is manually called prior to API 24 (which is
+        // when this method was added to the framework)
+        for (Consumer<PictureInPictureModeChangedInfo> listener :
+                mOnPictureInPictureModeChangedListeners) {
+            listener.accept(new PictureInPictureModeChangedInfo(isInPictureInPictureMode));
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * Dispatches this call to all listeners added via
+     * {@link #addOnPictureInPictureModeChangedListener(Consumer)}.
+     */
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    @CallSuper
+    @Override
+    public void onPictureInPictureModeChanged(boolean isInPictureInPictureMode,
+            @NonNull Configuration newConfig) {
+        // We specifically do not call super.onPictureInPictureModeChanged() to avoid
+        // triggering the call to onPictureInPictureModeChanged(boolean) which would
+        // send a second callback to listeners without the newConfig
+        for (Consumer<PictureInPictureModeChangedInfo> listener :
+                mOnPictureInPictureModeChangedListeners) {
+            listener.accept(new PictureInPictureModeChangedInfo(
+                    isInPictureInPictureMode, newConfig));
+        }
+    }
+
+    @Override
+    public final void addOnPictureInPictureModeChangedListener(
+            @NonNull Consumer<PictureInPictureModeChangedInfo> listener
+    ) {
+        mOnPictureInPictureModeChangedListeners.add(listener);
+    }
+
+    @Override
+    public final void removeOnPictureInPictureModeChangedListener(
+            @NonNull Consumer<PictureInPictureModeChangedInfo> listener
+    ) {
+        mOnPictureInPictureModeChangedListeners.remove(listener);
     }
 
     @Override

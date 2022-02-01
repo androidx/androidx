@@ -62,6 +62,8 @@ import androidx.annotation.RestrictTo;
 import androidx.annotation.StringRes;
 import androidx.core.app.MultiWindowModeChangedInfo;
 import androidx.core.app.OnMultiWindowModeChangedProvider;
+import androidx.core.app.OnPictureInPictureModeChangedProvider;
+import androidx.core.app.PictureInPictureModeChangedInfo;
 import androidx.core.content.OnConfigurationChangedProvider;
 import androidx.core.content.OnTrimMemoryProvider;
 import androidx.core.util.Consumer;
@@ -448,6 +450,9 @@ public abstract class FragmentManager implements FragmentResultOwner {
     };
     private final Consumer<MultiWindowModeChangedInfo> mOnMultiWindowModeChangedListener =
             info -> dispatchMultiWindowModeChanged(info.isInMultiWindowMode());
+    private final Consumer<PictureInPictureModeChangedInfo>
+            mOnPictureInPictureModeChangedListener = info -> dispatchPictureInPictureModeChanged(
+                    info.isInPictureInPictureMode());
 
     int mCurState = Fragment.INITIALIZING;
     private FragmentHostCallback<?> mHost;
@@ -2717,6 +2722,13 @@ public abstract class FragmentManager implements FragmentResultOwner {
             onMultiWindowModeChangedProvider.addOnMultiWindowModeChangedListener(
                     mOnMultiWindowModeChangedListener);
         }
+
+        if (mHost instanceof OnPictureInPictureModeChangedProvider) {
+            OnPictureInPictureModeChangedProvider onPictureInPictureModeChangedProvider =
+                    (OnPictureInPictureModeChangedProvider) mHost;
+            onPictureInPictureModeChangedProvider.addOnPictureInPictureModeChangedListener(
+                    mOnPictureInPictureModeChangedListener);
+        }
     }
 
     void noteStateNotSaved() {
@@ -2869,6 +2881,12 @@ public abstract class FragmentManager implements FragmentResultOwner {
                     (OnMultiWindowModeChangedProvider) mHost;
             onMultiWindowModeChangedProvider.removeOnMultiWindowModeChangedListener(
                     mOnMultiWindowModeChangedListener);
+        }
+        if (mHost instanceof OnPictureInPictureModeChangedProvider) {
+            OnPictureInPictureModeChangedProvider onPictureInPictureModeChangedProvider =
+                    (OnPictureInPictureModeChangedProvider) mHost;
+            onPictureInPictureModeChangedProvider.removeOnPictureInPictureModeChangedListener(
+                    mOnPictureInPictureModeChangedListener);
         }
         mHost = null;
         mContainer = null;
