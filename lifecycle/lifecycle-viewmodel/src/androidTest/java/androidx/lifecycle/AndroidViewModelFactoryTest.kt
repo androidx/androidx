@@ -42,13 +42,20 @@ class AndroidViewModelFactoryTest {
     }
 
     @Test
-    fun testEmptyConstructorAndEmptyExtras() {
+    fun testEmptyConstructorAndEmptyExtrasAndroidViewModel() {
         val factory = AndroidViewModelFactory()
         try {
             factory.create(VM::class.java, CreationExtras.Empty)
             Assert.fail()
         } catch (e: IllegalArgumentException) {
         }
+    }
+
+    @Test
+    fun testEmptyConstructorAndEmptyExtrasSimpleViewModel() {
+        val factory = AndroidViewModelFactory()
+        val vm = factory.create(TestVM::class.java, CreationExtras.Empty)
+        assertThat(vm).isNotNull()
     }
 
     @Test
@@ -77,6 +84,8 @@ class AndroidViewModelFactoryTest {
 }
 
 class VM(application: Application) : AndroidViewModel(application)
+
+class TestVM() : ViewModel()
 
 private fun queryApplication(): Application {
     val context = InstrumentationRegistry.getInstrumentation().context.applicationContext
