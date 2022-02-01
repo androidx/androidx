@@ -48,7 +48,11 @@ class ScalingLazyColumnIndexedTest {
             ScalingLazyColumn(
                 state = rememberScalingLazyListState().also { state = it },
                 modifier = Modifier.height(200.dp),
-                scalingParams = ScalingLazyColumnDefaults.scalingParams(edgeScale = 1.0f)
+                scalingParams = ScalingLazyColumnDefaults.scalingParams(
+                    edgeScale = 1.0f,
+                    // Create some extra composables to check that extraPadding works.
+                    viewportVerticalOffsetResolver = { (it.maxHeight / 10f).toInt() }
+                )
             ) {
                 itemsIndexed(items) { index, item ->
                     Spacer(
