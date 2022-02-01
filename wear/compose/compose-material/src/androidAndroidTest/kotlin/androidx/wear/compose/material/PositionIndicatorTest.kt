@@ -193,7 +193,7 @@ public class PositionIndicatorTest {
         lateinit var positionIndicatorState: PositionIndicatorState
         var viewPortHeight = 0
         rule.setContent {
-            state = rememberScalingLazyListState()
+            state = rememberScalingLazyListState(initialCenterItemIndex = 0)
             positionIndicatorState = ScalingLazyColumnStateAdapter(state)
             ScalingLazyColumn(
                 state = state,

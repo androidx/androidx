@@ -106,7 +106,8 @@ public class ScalingLazyColumnTest {
         rule.setContent {
             WithTouchSlop(0f) {
                 ScalingLazyColumn(
-                    state = rememberScalingLazyListState().also { state = it },
+                    state = rememberScalingLazyListState(initialCenterItemIndex = 0)
+                        .also { state = it },
                     modifier = Modifier.testTag(TEST_TAG).requiredSize(
                         itemSizeDp * 3.5f + defaultItemSpacingDp * 2.5f
                     ),
@@ -170,7 +171,8 @@ public class ScalingLazyColumnTest {
         rule.setContent {
             WithTouchSlop(0f) {
                 ScalingLazyColumn(
-                    state = rememberScalingLazyListState().also { state = it },
+                    state = rememberScalingLazyListState(initialCenterItemIndex = 0)
+                        .also { state = it },
                     modifier = Modifier.testTag(TEST_TAG).requiredSize(
                         itemSizeDp * 3.5f + defaultItemSpacingDp * 2.5f
                     ),
