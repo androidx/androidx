@@ -827,11 +827,12 @@ internal class OnWatchFaceEditorSessionImpl(
         }
     } as MutableStateFlow<UserStyle>
 
+    @Suppress("Deprecation")
     internal fun validateAndUpdateUserStyle(userStyle: UserStyle) {
         for (userStyleSetting in userStyle.keys) {
             require(userStyleSchema.userStyleSettings.contains(userStyleSetting)) {
-                "A userStyleSetting (userStyleSetting) in userStyle does not match references in " +
-                    "EditorSession's userStyleSchema."
+                "A userStyleSetting ($userStyleSetting) in userStyle does not match " +
+                    "references in EditorSession's userStyleSchema."
             }
         }
 

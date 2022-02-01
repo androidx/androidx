@@ -345,6 +345,7 @@ package androidx.wear.watchface.style.data {
     field @androidx.versionedparcelable.ParcelField(2) public CharSequence mDisplayName;
     field @androidx.versionedparcelable.ParcelField(4) public android.graphics.drawable.Icon? mIcon;
     field @androidx.versionedparcelable.ParcelField(1) public String mId;
+    field @androidx.versionedparcelable.ParcelField(101) public java.util.List<java.lang.Integer!>? mOptionChildIndices;
     field @androidx.versionedparcelable.ParcelField(100) public java.util.List<androidx.wear.watchface.style.data.OptionWireFormat!> mOptions;
   }
 

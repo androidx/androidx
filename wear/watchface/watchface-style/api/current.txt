@@ -50,9 +50,10 @@ package androidx.wear.watchface.style {
   }
 
   public final class UserStyleSchema {
-    ctor public UserStyleSchema(java.util.List<? extends androidx.wear.watchface.style.UserStyleSetting> userStyleSettings);
-    method public java.util.List<androidx.wear.watchface.style.UserStyleSetting> getUserStyleSettings();
-    property public final java.util.List<androidx.wear.watchface.style.UserStyleSetting> userStyleSettings;
+    ctor public UserStyleSchema(@Deprecated java.util.List<? extends androidx.wear.watchface.style.UserStyleSetting> userStyleSettings);
+    method public operator androidx.wear.watchface.style.UserStyleSetting? get(androidx.wear.watchface.style.UserStyleSetting.Id settingId);
+    method @Deprecated public java.util.List<androidx.wear.watchface.style.UserStyleSetting> getUserStyleSettings();
+    property @Deprecated public final java.util.List<androidx.wear.watchface.style.UserStyleSetting> userStyleSettings;
   }
 
   public abstract sealed class UserStyleSetting {
@@ -170,6 +171,7 @@ package androidx.wear.watchface.style {
 
   public static class UserStyleSetting.ListUserStyleSetting extends androidx.wear.watchface.style.UserStyleSetting {
     ctor public UserStyleSetting.ListUserStyleSetting(androidx.wear.watchface.style.UserStyleSetting.Id id, android.content.res.Resources resources, @StringRes int displayNameResourceId, @StringRes int descriptionResourceId, android.graphics.drawable.Icon? icon, java.util.List<androidx.wear.watchface.style.UserStyleSetting.ListUserStyleSetting.ListOption> options, java.util.Collection<? extends androidx.wear.watchface.style.WatchFaceLayer> affectsWatchFaceLayers, optional androidx.wear.watchface.style.UserStyleSetting.ListUserStyleSetting.ListOption defaultOption);
+    ctor public UserStyleSetting.ListUserStyleSetting(androidx.wear.watchface.style.UserStyleSetting.Id id, android.content.res.Resources resources, @StringRes int displayNameResourceId, @StringRes int descriptionResourceId, android.graphics.drawable.Icon? icon, java.util.List<androidx.wear.watchface.style.UserStyleSetting.ListUserStyleSetting.ListOption> options, java.util.Collection<? extends androidx.wear.watchface.style.WatchFaceLayer> affectsWatchFaceLayers);
   }
 
   public static final class UserStyleSetting.ListUserStyleSetting.ListOption extends androidx.wear.watchface.style.UserStyleSetting.Option {
