@@ -23,6 +23,8 @@ import androidx.compose.ui.unit.sp
 import androidx.glance.GlanceModifier
 import androidx.glance.Image
 import androidx.glance.ImageProvider
+import androidx.glance.LocalContext
+import androidx.glance.LocalSize
 import androidx.glance.background
 import androidx.glance.layout.Alignment
 import androidx.glance.layout.Column
@@ -40,6 +42,8 @@ class HelloTileService : GlanceTileService() {
 
     @Composable
     override fun Content() {
+        val context = LocalContext.current
+        val imageSize = LocalSize.current.times(0.33f)
         Column(
             modifier = GlanceModifier.fillMaxSize().background(Color.DarkGray),
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -47,13 +51,13 @@ class HelloTileService : GlanceTileService() {
         ) {
             Image(
                 provider = ImageProvider(R.mipmap.ic_launcher),
-                modifier = GlanceModifier.size(50.dp),
+                modifier = GlanceModifier.size(imageSize.width, imageSize.height),
                 contentScale = ContentScale.FillBounds,
                 contentDescription = "Hello tile icon"
             )
             Spacer(GlanceModifier.height(10.dp))
             Text(
-                text = "Hello Tile",
+                text = context.getString(R.string.hello_tile_greeting),
                 style = TextStyle(
                     fontWeight = FontWeight.Bold,
                     fontSize = 20.sp

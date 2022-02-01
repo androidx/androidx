@@ -27,9 +27,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Composition
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Recomposer
+import androidx.compose.ui.unit.DpSize
+import androidx.compose.ui.unit.dp
 import androidx.glance.Applier
 import androidx.glance.GlanceModifier
 import androidx.glance.layout.EmittableBox
+import androidx.glance.LocalContext
+import androidx.glance.LocalSize
 import androidx.glance.LocalState
 import androidx.glance.layout.fillMaxSize
 import androidx.glance.state.GlanceState
@@ -150,6 +154,7 @@ public abstract class GlanceTileService(
      * When the timeline mode is singleEntry, pass in null argument
      */
     private suspend fun runComposition(
+        screenSize: DpSize,
         state: Any?,
         timeInterval: TimeInterval? = null
     ): CompositionResult =
@@ -162,6 +167,8 @@ public abstract class GlanceTileService(
 
             composition.setContent {
                 CompositionLocalProvider(
+                    LocalContext provides this@GlanceTileService,
+                    LocalSize provides screenSize,
                     LocalState provides state,
                     LocalTimeInterval provides timeInterval
                 ) { Content() }
@@ -195,13 +202,16 @@ public abstract class GlanceTileService(
     /**
      * Run the composition to build the resources, and, if required, tile as well
      */
-    private suspend fun runComposition(resourcesOnly: Boolean): GlanceTile = coroutineScope {
+    private suspend fun runComposition(
+        screenSize: DpSize,
+        resourcesOnly: Boolean
+    ): GlanceTile = coroutineScope {
         val timelineBuilders = if (resourcesOnly) null else TimelineBuilders.Timeline.Builder()
         var resourcesBuilder: ResourceBuilders.Resources.Builder
 
         val state = if (stateDefinition != null) getTileState<Any>() else null
         if (timelineMode === TimelineMode.SingleEntry) {
-            val content = runComposition(state)
+            val content = runComposition(screenSize, state)
 
             timelineBuilders?.let {
                 timelineBuilders.addTimelineEntry(
@@ -220,7 +230,7 @@ public abstract class GlanceTileService(
             resourcesBuilder = ResourceBuilders.Resources.Builder()
 
             timeIntervals.forEach { interval ->
-                val content = runComposition(state, interval)
+                val content = runComposition(screenSize, state, interval)
                 timelineBuilders?.let {
                     timelineBuilders
                         .addTimelineEntry(
@@ -285,7 +295,14 @@ public abstract class GlanceTileService(
     final override fun onTileRequest(
         requestParams: RequestBuilders.TileRequest
     ): ListenableFuture<TileBuilders.Tile> = coroutineScope.future {
-        runComposition(false).tile!!
+        runComposition(
+            if (requestParams.deviceParameters != null)
+                DpSize(
+                    requestParams.deviceParameters!!.screenWidthDp.dp,
+                    requestParams.deviceParameters!!.screenHeightDp.dp
+                ) else DpSize(0.dp, 0.dp),
+            false
+        ).tile!!
     }
 
     /**
@@ -310,16 +327,24 @@ public abstract class GlanceTileService(
             return Futures.immediateFuture(resources)
         }
         return coroutineScope.future {
-            runComposition(true).resources!!
+            runComposition(
+                if (requestParams.deviceParameters != null)
+                    DpSize(
+                        requestParams.deviceParameters!!.screenWidthDp.dp,
+                        requestParams.deviceParameters!!.screenHeightDp.dp
+                    )
+                else DpSize(0.dp, 0.dp),
+                true
+            ).resources!!
         }
     }
 
     @CallSuper
     override fun onTileRemoveEvent(requestParams: TileRemoveEvent) {
-          coroutineScope.launch {
-             stateDefinition?.let {
-                 GlanceState.deleteStore(this as Context, it, getStateIdentifier())
-             }
-         }
-     }
+        coroutineScope.launch {
+            stateDefinition?.let {
+                GlanceState.deleteStore(this as Context, it, getStateIdentifier())
+            }
+        }
+    }
 }
