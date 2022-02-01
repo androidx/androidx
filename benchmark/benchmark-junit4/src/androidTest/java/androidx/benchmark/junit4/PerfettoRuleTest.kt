@@ -23,6 +23,7 @@ import androidx.test.filters.SmallTest
 import androidx.testutils.verifyWithPolling
 import androidx.tracing.Trace
 import androidx.tracing.trace
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -33,6 +34,7 @@ class PerfettoRuleTest {
     @get:Rule
     val perfettoRule = PerfettoRule()
 
+    @Ignore("b/217256936")
     @Test
     fun tracingEnabled() {
         trace("PerfettoCaptureTest") {
