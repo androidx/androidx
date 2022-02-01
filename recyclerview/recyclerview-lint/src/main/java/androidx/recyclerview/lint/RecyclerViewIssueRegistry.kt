@@ -19,6 +19,7 @@
 package androidx.recyclerview.lint
 
 import com.android.tools.lint.client.api.IssueRegistry
+import com.android.tools.lint.client.api.Vendor
 import com.android.tools.lint.detector.api.CURRENT_API
 import com.android.tools.lint.detector.api.Issue
 
@@ -29,4 +30,9 @@ class RecyclerViewIssueRegistry : IssueRegistry() {
         get() = listOf(
             InvalidSetHasFixedSizeDetector.ISSUE
         )
+    override val vendor = Vendor(
+        feedbackUrl = "https://issuetracker.google.com/issues/new?component=460887",
+        identifier = "androidx.recyclerview",
+        vendorName = "Android Open Source Project",
+    )
 }

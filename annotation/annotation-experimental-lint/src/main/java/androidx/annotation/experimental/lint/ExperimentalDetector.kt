@@ -629,7 +629,7 @@ class ExperimentalDetector : Detector(), SourceCodeScanner {
         context: JavaContext,
         element: UDeclaration,
         annotation: String,
-    ): LintFix? {
+    ): LintFix {
         val elementLabel = when (element) {
             is UMethod -> "'${element.name}'"
             is UClass -> "containing class '${element.name}'"
