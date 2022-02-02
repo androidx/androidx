@@ -38,6 +38,7 @@ import androidx.wear.compose.material.samples.InlineSliderWithIntegerSample
 import androidx.wear.compose.material.samples.OptionChangePicker
 import androidx.wear.compose.material.samples.CircularProgressIndicatorFullscreenWithGap
 import androidx.wear.compose.material.samples.CircularProgressIndicatorWithAnimation
+import androidx.wear.compose.material.samples.ScalingLazyColumnEdgeAnchoredAndAnimatedScrollTo
 import androidx.wear.compose.material.samples.ScalingLazyColumnWithHeaders
 import androidx.wear.compose.material.samples.ScalingLazyColumnWithHeadersReversed
 import androidx.wear.compose.material.samples.SimplePicker
@@ -354,7 +355,10 @@ val WearMaterialDemos = DemoCategory(
         DemoCategory(
             "List",
             listOf(
-                ComposableDemo("Scaling Lazy Column") { SimpleScalingLazyColumn() },
+                ComposableDemo("Scaling Lazy Column [SLC]") { SimpleScalingLazyColumn() },
+                ComposableDemo("SLC with Edge Anchoring and Animated Scroll") {
+                    ScalingLazyColumnEdgeAnchoredAndAnimatedScrollTo()
+                },
                 ComposableDemo("SLC with Content Padding") {
                     SimpleScalingLazyColumnWithContentPadding()
                 },
