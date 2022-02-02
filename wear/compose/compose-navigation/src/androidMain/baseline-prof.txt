@@ -1,4 +1,5 @@
-SPLandroidx/wear/compose/navigation/NavGraphBuilderKt**->**(**)**
+Landroidx/wear/compose/navigation/ComposableSingletons;
+HSPLandroidx/wear/compose/navigation/NavGraphBuilderKt**->**(**)**
 SPLandroidx/wear/compose/navigation/SwipeDismissableNavHostControllerKt**->**(**)**
 HSPLandroidx/wear/compose/navigation/SwipeDismissableNavHostKt**->**(**)**
 HSPLandroidx/wear/compose/navigation/WearNavigator;->**(**)**
