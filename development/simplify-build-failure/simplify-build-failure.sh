@@ -72,7 +72,7 @@ testCommand=""
 resume=false
 subfilePath=""
 limitToPath=""
-numJobs="1"
+numJobs="auto"
 clean="false"
 
 export ALLOW_MISSING_PROJECTS=true # so that if we delete entire projects then the AndroidX build doesn't think we made a spelling mistake
