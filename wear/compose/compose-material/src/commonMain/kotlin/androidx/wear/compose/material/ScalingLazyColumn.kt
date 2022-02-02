@@ -222,8 +222,18 @@ internal fun convertToCenterOffset(
  * instead to avoid any overhead of measuring and calculating scaling and transparency effects for
  * the content items.
  *
- * Example usage:
+ * Example of a [ScalingLazyColumn] with default parameters:
  * @sample androidx.wear.compose.material.samples.SimpleScalingLazyColumn
+ *
+ * Example of a [ScalingLazyColumn] using [ScalingLazyListAnchorType.ItemStart] anchoring, in this
+ * configuration the edge of list items is aligned to the center of the screen. Also this example
+ * shows scrolling to a clicked list item with [ScalingLazyListState.animateScrollToItem]:
+ * @sample androidx.wear.compose.material.samples.ScalingLazyColumnEdgeAnchoredAndAnimatedScrollTo
+ *
+ * Example of a [ScalingLazyColumn] where [autoCentering] has been disabled and explicit
+ * [contentPadding] provided to ensure there is space above the first and below the last list item
+ * to allow them to be scrolled into view on circular screens:
+ * @sample androidx.wear.compose.material.samples.SimpleScalingLazyColumnWithContentPadding
  *
  * For more information, see the
  * [Lists](https://developer.android.com/training/wearables/components/lists)

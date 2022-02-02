@@ -17,17 +17,20 @@
 package androidx.wear.compose.material.samples
 
 import androidx.annotation.Sampled
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import androidx.wear.compose.material.Chip
 import androidx.wear.compose.material.ChipDefaults
 import androidx.wear.compose.material.ListHeader
 import androidx.wear.compose.material.ScalingLazyColumn
+import androidx.wear.compose.material.ScalingLazyListAnchorType
 import androidx.wear.compose.material.Text
+import androidx.wear.compose.material.rememberScalingLazyListState
+import kotlinx.coroutines.launch
 
 @Sampled
 @Composable
@@ -43,9 +46,46 @@ fun SimpleScalingLazyColumn() {
     }
 }
 
+@Sampled
+@Composable
+fun ScalingLazyColumnEdgeAnchoredAndAnimatedScrollTo() {
+    val coroutineScope = rememberCoroutineScope()
+    val itemSpacing = 6.dp
+    // Line up the gap between the items on the center-line
+    val scrollOffset = with(LocalDensity.current) {
+        -(itemSpacing / 2).roundToPx()
+    }
+    val state = rememberScalingLazyListState(
+        initialCenterItemIndex = 1,
+        initialCenterItemScrollOffset = scrollOffset
+    )
+
+    ScalingLazyColumn(
+        anchorType = ScalingLazyListAnchorType.ItemStart,
+        verticalArrangement = Arrangement.spacedBy(itemSpacing),
+        state = state
+    ) {
+        items(20) {
+            Chip(
+                onClick = {
+                    coroutineScope.launch {
+                        state.animateScrollToItem(it, scrollOffset)
+                    }
+                },
+                label = { Text("List item $it") },
+                colors = ChipDefaults.secondaryChipColors()
+            )
+        }
+    }
+}
+
+@Sampled
 @Composable
 fun SimpleScalingLazyColumnWithContentPadding() {
-    ScalingLazyColumn(contentPadding = PaddingValues(top = 100.dp, bottom = 100.dp)) {
+    ScalingLazyColumn(
+        contentPadding = PaddingValues(top = 20.dp, bottom = 20.dp),
+        autoCentering = false
+    ) {
         items(20) {
             Chip(
                 onClick = { },
@@ -60,7 +100,6 @@ fun SimpleScalingLazyColumnWithContentPadding() {
 @Composable
 fun ScalingLazyColumnWithHeaders() {
     ScalingLazyColumn {
-        item { Spacer(modifier = Modifier.size(20.dp)) }
         item { ListHeader { Text("Header1") } }
         items(5) {
             Chip(
@@ -83,7 +122,6 @@ fun ScalingLazyColumnWithHeaders() {
 @Composable
 fun ScalingLazyColumnWithHeadersReversed() {
     ScalingLazyColumn(reverseLayout = true) {
-        item { Spacer(modifier = Modifier.size(20.dp)) }
         item { ListHeader { Text("Header1") } }
         items(5) {
             Chip(
