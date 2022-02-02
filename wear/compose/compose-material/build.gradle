@@ -42,7 +42,7 @@ dependencies {
         implementation(project(":compose:material:material-ripple"))
         implementation(project(":compose:ui:ui-util"))
         implementation(project(":wear:compose:compose-foundation"))
-        implementation(project(":profileinstaller:profileinstaller"))
+        implementation("androidx.profileinstaller:profileinstaller:1.2.0-alpha02")
 
         androidTestImplementation(project(":compose:ui:ui-test"))
         androidTestImplementation(project(":compose:ui:ui-test-junit4"))

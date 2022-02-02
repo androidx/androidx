@@ -38,7 +38,7 @@ dependencies {
 
         implementation(libs.kotlinStdlib)
         implementation(project(":compose:foundation:foundation-layout"))
-        implementation(project(":profileinstaller:profileinstaller"))
+        implementation("androidx.profileinstaller:profileinstaller:1.2.0-alpha02")
 
         testImplementation(libs.testRules)
         testImplementation(libs.testRunner)
