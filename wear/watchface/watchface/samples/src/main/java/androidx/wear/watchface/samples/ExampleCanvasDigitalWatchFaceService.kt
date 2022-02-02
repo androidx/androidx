@@ -572,7 +572,7 @@ class ExampleCanvasDigitalWatchFaceService : WatchFaceService() {
         ),
         ComplicationSlotBounds(
             ComplicationType.values().associateWith {
-                if (it == ComplicationType.LONG_TEXT) {
+                if (it == ComplicationType.LONG_TEXT || it == ComplicationType.NO_DATA) {
                     createBoundsRect(
                         UPPER_ROUND_RECT_COMPLICATION_CENTER_FRACTION,
                         ROUND_RECT_COMPLICATION_SIZE_FRACTION
@@ -598,7 +598,7 @@ class ExampleCanvasDigitalWatchFaceService : WatchFaceService() {
         ),
         ComplicationSlotBounds(
             ComplicationType.values().associateWith {
-                if (it == ComplicationType.LONG_TEXT) {
+                if (it == ComplicationType.LONG_TEXT || it == ComplicationType.NO_DATA) {
                     createBoundsRect(
                         LOWER_ROUND_RECT_COMPLICATION_CENTER_FRACTION,
                         ROUND_RECT_COMPLICATION_SIZE_FRACTION

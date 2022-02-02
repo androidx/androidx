@@ -77,7 +77,11 @@ public class TimelineEntryTest {
     public void timeEntryToString() {
         assertThat(TIMELINE_ENTRY_A.toString()).isEqualTo(
                 "TimelineEntry(validity=TimeInterval(start=1970-01-02T03:46:40Z, "
-                        + "end=1970-01-03T07:33:20Z), complicationData=NoDataComplicationData())"
+                        + "end=1970-01-03T07:33:20Z), complicationData=NoDataComplicationData("
+                        + "placeholder=null, contentDescription=null, "
+                        + "tapActionLostDueToSerialization=false, tapAction=null, "
+                        + "validTimeRange=TimeRange(startDateTimeMillis=-1000000000-01-01T00:00"
+                        + ":00Z, endDateTimeMillis=+1000000000-12-31T23:59:59.999999999Z)))"
         );
     }
 }

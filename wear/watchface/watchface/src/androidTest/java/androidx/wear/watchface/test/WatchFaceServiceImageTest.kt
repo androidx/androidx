@@ -24,12 +24,12 @@ import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
-import android.graphics.Paint
 import android.graphics.Rect
 import android.graphics.SurfaceTexture
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
+import android.os.HandlerThread
 import android.os.Looper
 import android.support.wearable.watchface.SharedMemoryImage
 import android.view.Surface
@@ -44,18 +44,21 @@ import androidx.wear.watchface.complications.SystemDataSources
 import androidx.wear.watchface.complications.data.ComplicationText
 import androidx.wear.watchface.complications.data.PlainComplicationText
 import androidx.wear.watchface.complications.data.ShortTextComplicationData
-import androidx.wear.watchface.CanvasType
 import androidx.wear.watchface.ComplicationSlotsManager
 import androidx.wear.watchface.DrawMode
 import androidx.wear.watchface.MutableWatchState
 import androidx.wear.watchface.RenderParameters
-import androidx.wear.watchface.Renderer
 import androidx.wear.watchface.SYSTEM_SUPPORTS_CONSISTENT_IDS_PREFIX
 import androidx.wear.watchface.TapEvent
 import androidx.wear.watchface.TapType
 import androidx.wear.watchface.WatchFace
 import androidx.wear.watchface.WatchFaceService
 import androidx.wear.watchface.WatchState
+import androidx.wear.watchface.complications.data.LongTextComplicationData
+import androidx.wear.watchface.complications.data.MonochromaticImage
+import androidx.wear.watchface.complications.data.NoDataComplicationData
+import androidx.wear.watchface.complications.data.RangedValueComplicationData
+import androidx.wear.watchface.complications.data.SmallImage
 import androidx.wear.watchface.control.IInteractiveWatchFace
 import androidx.wear.watchface.control.IPendingInteractiveWatchFace
 import androidx.wear.watchface.control.InteractiveInstanceManager
@@ -74,7 +77,6 @@ import androidx.wear.watchface.style.UserStyleSchema
 import androidx.wear.watchface.style.WatchFaceLayer
 import androidx.wear.watchface.style.data.UserStyleWireFormat
 import com.google.common.truth.Truth.assertThat
-import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.runBlocking
 import org.junit.After
@@ -89,7 +91,6 @@ import org.mockito.Mockito
 import org.mockito.MockitoAnnotations
 import java.time.Instant
 import java.time.ZoneId
-import java.time.ZonedDateTime
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 
@@ -127,49 +128,6 @@ public class ComplicationTapActivity : Activity() {
         countDown!!.countDown()
         finish()
     }
-}
-
-internal class SimpleDigitalWatchFaceRenderer(
-    surfaceHolder: SurfaceHolder,
-    watchState: WatchState
-) : Renderer.CanvasRenderer(
-    surfaceHolder,
-    CurrentUserStyleRepository(UserStyleSchema(emptyList())),
-    watchState,
-    CanvasType.HARDWARE,
-    UPDATE_DELAY_MILLIS
-) {
-    internal companion object {
-        val UPDATE_DELAY_MILLIS = TimeUnit.SECONDS.toMillis(1)
-        const val TEST_TIME = "08:00"
-    }
-
-    var mWatchState: WatchState? = watchState
-    var mPaint: Paint = Paint().apply {
-        textAlign = Paint.Align.CENTER
-        textSize = 64f
-    }
-    val mTimeText = TEST_TIME
-
-    override fun render(canvas: Canvas, bounds: Rect, zonedDateTime: ZonedDateTime) {
-        mPaint.color = Color.BLACK
-        canvas.drawRect(bounds, mPaint)
-        mPaint.color = Color.WHITE
-        canvas.drawText(
-            mTimeText,
-            0,
-            5,
-            bounds.centerX().toFloat(),
-            (bounds.centerY() - mWatchState!!.chinHeight).toFloat(),
-            mPaint
-        )
-    }
-
-    override fun renderHighlightLayer(canvas: Canvas, bounds: Rect, zonedDateTime: ZonedDateTime) {
-        renderParameters.highlightLayer?.backgroundTint?.let { canvas.drawColor(it) }
-    }
-
-    override fun shouldAnimate(): Boolean = true
 }
 
 internal class TestControllableWatchFaceService(
@@ -253,6 +211,13 @@ public class WatchFaceServiceImageTest {
 
     private val handler = Handler(Looper.getMainLooper())
 
+    // Calls using IInteractiveWatchFace come via a binder thread in production and we use a thread
+    // here to avoid a deadlock that can occasionally happen if
+    // InteractiveWatchFaceImpl.awaitDeferredWatchFaceImplThenRunOnUiThreadBlocking runs before the
+    // main thread has finished watch face init.
+    private val pretendBinderThread = HandlerThread("PretendBinderThread")
+    private lateinit var pretendBinderHandler: Handler
+
     private val complicationDataSources = mapOf(
         SystemDataSources.DATA_SOURCE_DAY_OF_WEEK to
             ShortTextComplicationData.Builder(
@@ -296,8 +261,6 @@ public class WatchFaceServiceImageTest {
     private val surfaceTexture = SurfaceTexture(false)
 
     private lateinit var canvasAnalogWatchFaceService: TestCanvasAnalogWatchFaceService
-    private lateinit var testControllableWatchFaceService: TestControllableWatchFaceService
-    private lateinit var completableWatchFace: CompletableDeferred<WatchFace>
     private lateinit var glesWatchFaceService: TestGlesWatchFaceService
     private lateinit var engineWrapper: WatchFaceService.EngineWrapper
     private lateinit var interactiveWatchFaceInstance: IInteractiveWatchFace
@@ -306,6 +269,9 @@ public class WatchFaceServiceImageTest {
     public fun setUp() {
         Assume.assumeTrue("This test suite assumes API 27", Build.VERSION.SDK_INT >= 27)
         MockitoAnnotations.initMocks(this)
+
+        pretendBinderThread.start()
+        pretendBinderHandler = Handler(pretendBinderThread.looper)
     }
 
     @After
@@ -318,6 +284,7 @@ public class WatchFaceServiceImageTest {
             latch.countDown()
         }
         assertThat(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS)).isTrue()
+        pretendBinderThread.quitSafely()
     }
 
     private fun initCanvasWatchFace() {
@@ -344,39 +311,6 @@ public class WatchFaceServiceImageTest {
 
         engineWrapper =
             canvasAnalogWatchFaceService.onCreateEngine() as WatchFaceService.EngineWrapper
-    }
-
-    private fun initControllableWatchFace() {
-        completableWatchFace = CompletableDeferred<WatchFace>()
-        testControllableWatchFaceService = TestControllableWatchFaceService(
-            handler,
-            surfaceHolder,
-            object : TestControllableWatchFaceService.TestWatchFaceFactory() {
-                override fun createWatchFaceAsync(
-                    surfaceHolder: SurfaceHolder,
-                    watchState: WatchState,
-                    complicationSlotsManager: ComplicationSlotsManager,
-                    currentUserStyleRepository: CurrentUserStyleRepository
-                ): Deferred<WatchFace> = completableWatchFace
-            },
-            MutableWatchState(),
-            null
-        )
-
-        Mockito.`when`(surfaceHolder.surfaceFrame)
-            .thenReturn(Rect(0, 0, BITMAP_WIDTH, BITMAP_HEIGHT))
-        Mockito.`when`(surfaceHolder.lockCanvas()).thenReturn(canvas)
-        Mockito.`when`(surfaceHolder.lockHardwareCanvas()).thenReturn(canvas)
-        Mockito.`when`(surfaceHolder.unlockCanvasAndPost(canvas)).then {
-            renderDoneLatch.countDown()
-        }
-        Mockito.`when`(surfaceHolder.surface).thenReturn(surface)
-        Mockito.`when`(surface.isValid).thenReturn(false)
-
-        setPendingWallpaperInteractiveWatchFaceInstance()
-
-        engineWrapper =
-            testControllableWatchFaceService.onCreateEngine() as WatchFaceService.EngineWrapper
     }
 
     private fun initGles2WatchFace() {
@@ -504,7 +438,7 @@ public class WatchFaceServiceImageTest {
         sendComplications()
 
         var bitmap: Bitmap? = null
-        handler.post {
+        pretendBinderHandler.post {
             bitmap = SharedMemoryImage.ashmemReadImageBundle(
                 interactiveWatchFaceInstance.renderWatchFaceToBitmap(
                     WatchFaceRenderParams(
@@ -539,7 +473,7 @@ public class WatchFaceServiceImageTest {
         sendComplications()
 
         var bitmap: Bitmap? = null
-        handler.post {
+        pretendBinderHandler.post {
             bitmap = SharedMemoryImage.ashmemReadImageBundle(
                 interactiveWatchFaceInstance.renderWatchFaceToBitmap(
                     WatchFaceRenderParams(
@@ -611,6 +545,70 @@ public class WatchFaceServiceImageTest {
 
     @SuppressLint("NewApi")
     @Test
+    public fun testPlaceholderComplications() {
+        val latch = CountDownLatch(1)
+        handler.post(this::initCanvasWatchFace)
+        assertThat(initLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS)).isTrue()
+
+        interactiveWatchFaceInstance.updateComplicationData(
+            listOf(
+                IdAndComplicationDataWireFormat(
+                    EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID,
+                    NoDataComplicationData(
+                        LongTextComplicationData.Builder(
+                            ComplicationText.PLACEHOLDER,
+                            ComplicationText.EMPTY
+                        )
+                            .setTitle(ComplicationText.PLACEHOLDER)
+                            .setSmallImage(SmallImage.PLACEHOLDER)
+                            .build(),
+                    ).asWireComplicationData()
+                ),
+                IdAndComplicationDataWireFormat(
+                    EXAMPLE_CANVAS_WATCHFACE_RIGHT_COMPLICATION_ID,
+                    NoDataComplicationData(
+                        RangedValueComplicationData.Builder(
+                            RangedValueComplicationData.PLACEHOLDER,
+                            0f,
+                            100f,
+                            ComplicationText.EMPTY
+                        )
+                            .setText(ComplicationText.PLACEHOLDER)
+                            .setMonochromaticImage(MonochromaticImage.PLACEHOLDER)
+                            .build()
+                    ).asWireComplicationData()
+                )
+            )
+        )
+
+        var bitmap: Bitmap? = null
+        pretendBinderHandler.post {
+            bitmap = SharedMemoryImage.ashmemReadImageBundle(
+                interactiveWatchFaceInstance.renderWatchFaceToBitmap(
+                    WatchFaceRenderParams(
+                        RenderParameters(
+                            DrawMode.AMBIENT,
+                            WatchFaceLayer.ALL_WATCH_FACE_LAYERS,
+                            null
+                        ).toWireFormat(),
+                        123456789,
+                        null,
+                        null
+                    )
+                )
+            )
+            latch.countDown()
+        }
+
+        assertThat(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS)).isTrue()
+        bitmap!!.assertAgainstGolden(
+            screenshotRule,
+            "placeholderComplications"
+        )
+    }
+
+    @SuppressLint("NewApi")
+    @Test
     public fun testHighlightAllComplicationsInScreenshot() {
         val latch = CountDownLatch(1)
 
@@ -619,7 +617,7 @@ public class WatchFaceServiceImageTest {
         sendComplications()
 
         var bitmap: Bitmap? = null
-        handler.post {
+        pretendBinderHandler.post {
             bitmap = SharedMemoryImage.ashmemReadImageBundle(
                 interactiveWatchFaceInstance.renderWatchFaceToBitmap(
                     WatchFaceRenderParams(
@@ -658,7 +656,7 @@ public class WatchFaceServiceImageTest {
         sendComplications()
 
         var bitmap: Bitmap? = null
-        handler.post {
+        pretendBinderHandler.post {
             bitmap = SharedMemoryImage.ashmemReadImageBundle(
                 interactiveWatchFaceInstance.renderWatchFaceToBitmap(
                     WatchFaceRenderParams(
@@ -697,7 +695,7 @@ public class WatchFaceServiceImageTest {
         sendComplications()
 
         var bitmap: Bitmap? = null
-        handler.post {
+        pretendBinderHandler.post {
             bitmap = SharedMemoryImage.ashmemReadImageBundle(
                 interactiveWatchFaceInstance.renderWatchFaceToBitmap(
                     WatchFaceRenderParams(
@@ -760,7 +758,7 @@ public class WatchFaceServiceImageTest {
         sendComplications()
 
         var bitmap: Bitmap? = null
-        handler.post {
+        pretendBinderHandler.post {
             bitmap = SharedMemoryImage.ashmemReadImageBundle(
                 interactiveWatchFaceInstance.renderWatchFaceToBitmap(
                     WatchFaceRenderParams(

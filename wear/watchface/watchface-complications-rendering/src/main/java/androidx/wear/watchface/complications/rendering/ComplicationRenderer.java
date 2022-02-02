@@ -44,6 +44,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
+import androidx.wear.watchface.complications.data.ImageKt;
+import androidx.wear.watchface.complications.data.RangedValueComplicationData;
 import androidx.wear.watchface.complications.rendering.utils.IconLayoutHelper;
 import androidx.wear.watchface.complications.rendering.utils.LargeImageLayoutHelper;
 import androidx.wear.watchface.complications.rendering.utils.LayoutHelper;
@@ -104,6 +106,25 @@ class ComplicationRenderer {
     /** Used to apply padding to the beginning of the text when it's left aligned. */
     private static final float TEXT_PADDING_HEIGHT_FRACTION = 0.1f;
 
+    private static final Paint PLACEHOLDER_PAINT = createPlaceHolderPaint();
+
+    private static Paint createPlaceHolderPaint() {
+        Paint paint = new Paint();
+        paint.setColor(Color.LTGRAY);
+        paint.setAntiAlias(true);
+        return paint;
+    }
+
+    private static final Paint PLACEHOLDER_PROGRESS_PAINT = createPlaceHolderProgressPaint();
+
+    private static Paint createPlaceHolderProgressPaint() {
+        Paint paint = new Paint();
+        paint.setColor(Color.LTGRAY);
+        paint.setStyle(Paint.Style.STROKE);
+        paint.setAntiAlias(true);
+        return paint;
+    }
+
     /** Context is required for localization. */
     private final Context mContext;
 
@@ -128,6 +149,19 @@ class ComplicationRenderer {
     Drawable mBurnInProtectionSmallImage;
     @Nullable
     Drawable mLargeImage;
+
+    @VisibleForTesting
+    boolean mIsPlaceholderIcon;
+    @VisibleForTesting
+    boolean mIsPlaceholderSmallImage;
+    @VisibleForTesting
+    boolean mIsPlaceholderLargeImage;
+    @VisibleForTesting
+    boolean mIsPlaceholderRangedValue;
+    @VisibleForTesting
+    boolean mIsPlaceholderTitle;
+    @VisibleForTesting
+    boolean mIsPlaceholderText;
 
     // Drawables for rendering rounded images
     private RoundedDrawable mRoundedBackgroundDrawable = null;
@@ -209,9 +243,10 @@ class ComplicationRenderer {
     /**
      * Sets the complication data to be rendered.
      *
-     * @param data ComplicationSlot data to be rendered. If this is null, nothing is drawn.
+     * @param data               ComplicationSlot data to be rendered. If this is null, nothing
+     *                           is drawn.
      * @param loadDrawablesAsync If true any drawables will be loaded asynchronously, otherwise
-     *     they will be loaded synchronously.
+     *                           they will be loaded synchronously.
      */
     public void setComplicationData(@Nullable ComplicationData data, boolean loadDrawablesAsync) {
         if (Objects.equals(mComplicationData, data)) {
@@ -225,17 +260,50 @@ class ComplicationRenderer {
             mRoundedSmallImage = null;
             return;
         }
+
+        mIsPlaceholderIcon = false;
+        mIsPlaceholderSmallImage = false;
+        mIsPlaceholderLargeImage = false;
+        mIsPlaceholderRangedValue = false;
+        mIsPlaceholderTitle = false;
+        mIsPlaceholderText = false;
+
         if (data.getType() == ComplicationData.TYPE_NO_DATA) {
-            if (!mHasNoData) {
-                // Render TYPE_NO_DATA as a short text complication with a predefined string
-                mHasNoData = true;
-                mComplicationData =
-                        new ComplicationData.Builder(ComplicationData.TYPE_SHORT_TEXT)
-                                .setShortText(ComplicationText.plainText(mNoDataText))
-                                .build();
+            if (data.hasPlaceholderType()) {
+                mIsPlaceholderIcon = data.hasIcon() && ImageKt.isPlaceholder(data.getIcon());
+                mIsPlaceholderSmallImage =
+                        data.hasSmallImage() && ImageKt.isPlaceholder(data.getSmallImage());
+                mIsPlaceholderLargeImage =
+                        data.hasLargeImage() && ImageKt.isPlaceholder(data.getLargeImage());
+                mIsPlaceholderRangedValue = data.hasRangedValue()
+                        && data.getRangedValue()
+                        == RangedValueComplicationData.PLACEHOLDER;
+                if (data.getPlaceholderType() == ComplicationData.TYPE_LONG_TEXT) {
+                    mIsPlaceholderTitle =
+                            data.hasLongTitle() && data.getLongTitle().isPlaceholder();
+                    mIsPlaceholderText =
+                            data.hasLongText() && data.getLongText().isPlaceholder();
+                } else {
+                    mIsPlaceholderTitle =
+                            data.hasShortTitle() && data.getShortTitle().isPlaceholder();
+                    mIsPlaceholderText =
+                            data.hasShortText() && data.getShortText().isPlaceholder();
+                }
+                mComplicationData = data;
+                mHasNoData = false;
             } else {
-                // This return prevents recalculating bounds if renderer already has TYPE_NO_DATA
-                return;
+                if (!mHasNoData) {
+                    // Render TYPE_NO_DATA as a short text complication with a predefined string
+                    mHasNoData = true;
+                    mComplicationData =
+                            new ComplicationData.Builder(ComplicationData.TYPE_SHORT_TEXT)
+                                    .setShortText(ComplicationText.plainText(mNoDataText))
+                                    .build();
+                } else {
+                    // This return prevents recalculating bounds if renderer already has
+                    // TYPE_NO_DATA
+                    return;
+                }
             }
         } else {
             mComplicationData = data;
@@ -314,14 +382,14 @@ class ComplicationRenderer {
      * Renders complication data on a canvas. Does nothing if the current data is null, has type
      * 'empty' or 'not configured', or is not active.
      *
-     * @param canvas            canvas to be drawn on.
-     * @param currentTime       current time as an {@link Instant}
-     * @param inAmbientMode     true if the device is in ambient mode.
-     * @param lowBitAmbient     true if the screen supports fewer bits for each color in ambient
-     *                          mode.
-     * @param burnInProtection  true if burn-in protection is required.
-     * @param showTapHighlight  true if the complication should be drawn with a highlighted effect,
-     *                          to provide visual feedback after a tap.
+     * @param canvas           canvas to be drawn on.
+     * @param currentTime      current time as an {@link Instant}
+     * @param inAmbientMode    true if the device is in ambient mode.
+     * @param lowBitAmbient    true if the screen supports fewer bits for each color in ambient
+     *                         mode.
+     * @param burnInProtection true if burn-in protection is required.
+     * @param showTapHighlight true if the complication should be drawn with a highlighted effect,
+     *                         to provide visual feedback after a tap.
      */
     public void draw(
             @NonNull Canvas canvas,
@@ -356,12 +424,12 @@ class ComplicationRenderer {
         // Draw background first
         drawBackground(canvas, currentPaintSet);
         // Draw content
-        drawIcon(canvas, currentPaintSet);
-        drawSmallImage(canvas, currentPaintSet);
-        drawLargeImage(canvas, currentPaintSet);
-        drawRangedValue(canvas, currentPaintSet);
-        drawMainText(canvas, currentPaintSet);
-        drawSubText(canvas, currentPaintSet);
+        drawIcon(canvas, currentPaintSet, mIsPlaceholderIcon);
+        drawSmallImage(canvas, currentPaintSet, mIsPlaceholderSmallImage);
+        drawLargeImage(canvas, currentPaintSet, mIsPlaceholderLargeImage);
+        drawRangedValue(canvas, currentPaintSet, mIsPlaceholderRangedValue);
+        drawMainText(canvas, currentPaintSet, mIsPlaceholderTitle);
+        drawSubText(canvas, currentPaintSet, mIsPlaceholderText);
         // Draw highlight if highlighted
         if (showTapHighlight) {
             drawHighlight(canvas, currentPaintSet);
@@ -445,7 +513,7 @@ class ComplicationRenderer {
         }
     }
 
-    private void drawMainText(Canvas canvas, PaintSet paintSet) {
+    private void drawMainText(Canvas canvas, PaintSet paintSet, boolean isPlaceholder) {
         if (mMainTextBounds.isEmpty()) {
             return;
         }
@@ -457,10 +525,29 @@ class ComplicationRenderer {
             mMainTextRenderer.setPaint(mMainTextPaint);
             mMainTextRenderer.setInAmbientMode(paintSet.mIsAmbientStyle);
         }
-        mMainTextRenderer.draw(canvas, mMainTextBounds);
+        if (isPlaceholder) {
+            float width;
+            float height;
+            if (mComplicationData.getPlaceholderType() == ComplicationData.TYPE_SHORT_TEXT
+                    || mComplicationData.getPlaceholderType() == ComplicationData.TYPE_LONG_TEXT) {
+                width = mMainTextBounds.width() * 0.4f;
+                height = mMainTextBounds.height() * 0.9f;
+            } else {
+                width = mMainTextBounds.width();
+                height = mMainTextBounds.height() * 0.75f;
+            }
+            canvas.drawRoundRect(mMainTextBounds.left,
+                    mMainTextBounds.top + height * 0.1f,
+                    mMainTextBounds.left + width,
+                    mMainTextBounds.top + height,
+                    mMainTextBounds.width() * 0.05f,
+                    mMainTextBounds.height() * 0.1f, PLACEHOLDER_PAINT);
+        } else {
+            mMainTextRenderer.draw(canvas, mMainTextBounds);
+        }
     }
 
-    private void drawSubText(Canvas canvas, PaintSet paintSet) {
+    private void drawSubText(Canvas canvas, PaintSet paintSet, boolean isPlaceholder) {
         if (mSubTextBounds.isEmpty()) {
             return;
         }
@@ -472,10 +559,18 @@ class ComplicationRenderer {
             mSubTextRenderer.setPaint(mSubTextPaint);
             mSubTextRenderer.setInAmbientMode(paintSet.mIsAmbientStyle);
         }
-        mSubTextRenderer.draw(canvas, mSubTextBounds);
+
+        if (isPlaceholder) {
+            canvas.drawRoundRect(mSubTextBounds.left,
+                    mSubTextBounds.bottom - mSubTextBounds.height() * 0.9f,
+                    mSubTextBounds.right, mSubTextBounds.bottom, mSubTextBounds.width() * 0.05f,
+                    mSubTextBounds.height() * 0.1f, PLACEHOLDER_PAINT);
+        } else {
+            mSubTextRenderer.draw(canvas, mSubTextBounds);
+        }
     }
 
-    private void drawRangedValue(Canvas canvas, PaintSet paintSet) {
+    private void drawRangedValue(Canvas canvas, PaintSet paintSet, boolean isPlaceholder) {
         if (mRangedValueBoundsF.isEmpty()) {
             return;
         }
@@ -483,12 +578,19 @@ class ComplicationRenderer {
             canvas.drawRect(mRangedValueBoundsF, mDebugPaint);
         }
 
-        float value = Math.min(mComplicationData.getRangedMaxValue(),
-                Math.max(mComplicationData.getRangedMinValue(),
-                        mComplicationData.getRangedValue()))
-                - mComplicationData.getRangedMinValue();
-        float interval =
-                (mComplicationData.getRangedMaxValue() - mComplicationData.getRangedMinValue());
+        float rangedMinValue = mComplicationData.getRangedMinValue();
+        float rangedMaxValue = mComplicationData.getRangedMaxValue();
+        float rangedValue = mComplicationData.getRangedValue();
+
+        if (isPlaceholder) {
+            rangedMinValue = 0.0f;
+            rangedMaxValue = 100.0f;
+            rangedValue = 75.0f;
+        }
+
+        float value =
+                Math.min(rangedMaxValue, Math.max(rangedMinValue, rangedValue)) - rangedMinValue;
+        float interval = rangedMaxValue - rangedMinValue;
         float progress = interval > 0 ? value / interval : 0;
 
         // do not need to draw gap in the cases of full circle
@@ -498,28 +600,35 @@ class ComplicationRenderer {
 
         int insetAmount = (int) Math.ceil(paintSet.mInProgressPaint.getStrokeWidth());
         mRangedValueBoundsF.inset(insetAmount, insetAmount);
+
+        if (isPlaceholder) {
+            PLACEHOLDER_PROGRESS_PAINT.setStrokeWidth(paintSet.mInProgressPaint.getStrokeWidth());
+        }
+
         // Draw the progress arc.
         canvas.drawArc(
                 mRangedValueBoundsF,
                 RANGED_VALUE_START_ANGLE + gap / 2,
                 inProgressAngle,
                 false,
-                paintSet.mInProgressPaint);
+                isPlaceholder ? PLACEHOLDER_PROGRESS_PAINT : paintSet.mInProgressPaint);
 
         // Draw the remain arc.
-        canvas.drawArc(
-                mRangedValueBoundsF,
-                RANGED_VALUE_START_ANGLE
-                        + gap / 2.0f
-                        + inProgressAngle
-                        + gap,
-                remainderAngle,
-                false,
-                paintSet.mRemainingPaint);
+        if (!isPlaceholder) {
+            canvas.drawArc(
+                    mRangedValueBoundsF,
+                    RANGED_VALUE_START_ANGLE
+                            + gap / 2.0f
+                            + inProgressAngle
+                            + gap,
+                    remainderAngle,
+                    false,
+                    paintSet.mRemainingPaint);
+        }
         mRangedValueBoundsF.inset(-insetAmount, -insetAmount);
     }
 
-    private void drawIcon(Canvas canvas, PaintSet paintSet) {
+    private void drawIcon(Canvas canvas, PaintSet paintSet, boolean isPlaceholder) {
         if (mIconBounds.isEmpty()) {
             return;
         }
@@ -533,10 +642,12 @@ class ComplicationRenderer {
             }
             icon.setColorFilter(paintSet.mIconColorFilter);
             drawIconOnCanvas(canvas, mIconBounds, icon, paintSet.getAlpha());
+        } else if (isPlaceholder) {
+            canvas.drawRect(mIconBounds, PLACEHOLDER_PAINT);
         }
     }
 
-    private void drawSmallImage(Canvas canvas, PaintSet paintSet) {
+    private void drawSmallImage(Canvas canvas, PaintSet paintSet, boolean isPlaceholder) {
         if (mSmallImageBounds.isEmpty()) {
             return;
         }
@@ -549,6 +660,9 @@ class ComplicationRenderer {
         if (!paintSet.isInBurnInProtectionMode()) {
             mRoundedSmallImage.setDrawable(mSmallImage);
             if (mSmallImage == null) {
+                if (isPlaceholder) {
+                    canvas.drawRect(mSmallImageBounds, PLACEHOLDER_PAINT);
+                }
                 return;
             }
         } else {
@@ -569,7 +683,7 @@ class ComplicationRenderer {
         mRoundedSmallImage.draw(canvas);
     }
 
-    private void drawLargeImage(Canvas canvas, PaintSet paintSet) {
+    private void drawLargeImage(Canvas canvas, PaintSet paintSet, boolean isPlaceholder) {
         if (mLargeImageBounds.isEmpty()) {
             return;
         }
@@ -587,6 +701,8 @@ class ComplicationRenderer {
             mRoundedLargeImage.setBounds(mLargeImageBounds);
             mRoundedLargeImage.setColorFilter(paintSet.mStyle.getImageColorFilter());
             mRoundedLargeImage.draw(canvas);
+        } else if (isPlaceholder) {
+            canvas.drawRect(mLargeImageBounds, PLACEHOLDER_PAINT);
         }
     }
 
@@ -632,7 +748,11 @@ class ComplicationRenderer {
         mBackgroundBounds.set(0, 0, mBounds.width(), mBounds.height());
         mBackgroundBoundsF.set(0, 0, mBounds.width(), mBounds.height());
         LayoutHelper currentLayoutHelper;
-        switch (mComplicationData.getType()) {
+        int type = mComplicationData.getType();
+        if (type == ComplicationData.TYPE_NO_DATA && mComplicationData.hasPlaceholderType()) {
+            type = mComplicationData.getPlaceholderType();
+        }
+        switch (type) {
             case ComplicationData.TYPE_ICON:
                 currentLayoutHelper = new IconLayoutHelper();
                 break;
@@ -674,7 +794,7 @@ class ComplicationRenderer {
         currentLayoutHelper.getSmallImageBounds(mSmallImageBounds);
         currentLayoutHelper.getLargeImageBounds(mLargeImageBounds);
         Layout.Alignment alignment;
-        if (mComplicationData.getType() == ComplicationData.TYPE_LONG_TEXT) {
+        if (type == ComplicationData.TYPE_LONG_TEXT) {
             alignment = currentLayoutHelper.getLongTextAlignment();
             currentLayoutHelper.getLongTextBounds(mMainTextBounds);
             mMainTextRenderer.setAlignment(alignment);
