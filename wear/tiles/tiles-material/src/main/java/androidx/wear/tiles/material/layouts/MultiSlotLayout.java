@@ -56,7 +56,7 @@ import java.util.List;
  * same value, with the {@link LayoutDefaults#MULTI_SLOT_LAYOUT_HORIZONTAL_SPACER_WIDTH} space
  * between.
  */
-// TODO(b/215323986)
+// TODO(b/215323986): Link visuals.
 public class MultiSlotLayout implements LayoutElement {
     @NonNull private final PrimaryLayout mElement;
 
