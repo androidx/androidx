@@ -159,6 +159,7 @@ class SavedStateHandle {
             @Suppress("UNCHECKED_CAST")
             SavingStateLiveData(this, key, regular[key] as T)
         } else if (hasInitialValue) {
+            regular[key] = initialValue
             SavingStateLiveData(this, key, initialValue)
         } else {
             SavingStateLiveData(this, key)
