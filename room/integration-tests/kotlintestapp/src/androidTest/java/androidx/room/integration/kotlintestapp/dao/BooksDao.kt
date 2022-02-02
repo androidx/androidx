@@ -449,4 +449,7 @@ interface BooksDao {
 
     // This is a private method to validate b/194706278
     private fun getNullAuthor(): Author? = null
+
+    @Query("SELECT * FROM Publisher JOIN Book ON (Publisher.publisherId == Book.bookPublisherId)")
+    fun getBooksByPublisher(): Map<Publisher, List<Book>>
 }
