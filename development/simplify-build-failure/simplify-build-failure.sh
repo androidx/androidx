@@ -281,12 +281,18 @@ if [ "$gradleCommand" != "" ]; then
     rm -rf "$allTasksWork"
     cp -r "$referenceFailingDir" "$allTasksWork"
     # list tasks required for running this
-    bash -c "cd $allTasksWork && OUT_DIR=out ./gradlew --no-daemon --dry-run $gradleTasks >log 2>&1"
+    if bash -c "cd $allTasksWork && OUT_DIR=out ./gradlew --no-daemon --dry-run $gradleTasks >log 2>&1"; then
+      echo "Expanded full list of tasks to run"
+    else
+      echo "Failed to expand full list of tasks to run; using given list of taks"
+    fi
     # process output and split into files
+    mkdir -p "$allTasks"
     taskListFile="$allTasksWork/tasklist"
     cat "$allTasksWork/log" | grep '^:' | sed 's/ .*//' > "$taskListFile"
-    mkdir -p "$allTasks"
     bash -c "cd $allTasks && split -l 1 '$taskListFile'"
+    # also include the original tasks in case either we failed to compute the list of tasks (due to the build failing during project configuration) or there are too many tasks to fit in one command line invocation
+    bash -c "cd $allTasks && echo '$gradleTasks' > givenTasks"
   fi
 
   # build command for passing to diff-filterer
