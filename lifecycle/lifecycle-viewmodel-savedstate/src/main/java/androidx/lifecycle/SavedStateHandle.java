@@ -105,28 +105,31 @@ public final class SavedStateHandle {
         mRegular = new HashMap<>();
     }
 
+    @NonNull
     static SavedStateHandle createHandle(@Nullable Bundle restoredState,
             @Nullable Bundle defaultState) {
-        if (restoredState == null && defaultState == null) {
-            return new SavedStateHandle();
-        }
-
-        Map<String, Object> state = new HashMap<>();
-        if (defaultState != null) {
-            for (String key : defaultState.keySet()) {
-                state.put(key, defaultState.get(key));
+        if (restoredState == null) {
+            if (defaultState == null) {
+                // No restored state and no default state -> empty SavedStateHandle
+                return new SavedStateHandle();
+            } else {
+                Map<String, Object> state = new HashMap<>();
+                for (String key : defaultState.keySet()) {
+                    state.put(key, defaultState.get(key));
+                }
+                return new SavedStateHandle(state);
             }
         }
 
-        if (restoredState == null) {
-            return new SavedStateHandle(state);
-        }
-
+        // When restoring state, we use the restored state as the source of truth
+        // and ignore any default state, thus ensuring we are exactly the same
+        // state that was saved.
         ArrayList keys = restoredState.getParcelableArrayList(KEYS);
         ArrayList values = restoredState.getParcelableArrayList(VALUES);
         if (keys == null || values == null || keys.size() != values.size()) {
             throw new IllegalStateException("Invalid bundle passed as restored state");
         }
+        Map<String, Object> state = new HashMap<>();
         for (int i = 0; i < keys.size(); i++) {
             state.put((String) keys.get(i), values.get(i));
         }
