@@ -84,7 +84,9 @@ internal class KspSyntheticContinuationParameterElement(
         }
         val returnTypeAsTypeArgument = env.resolver.getTypeArgument(
             returnTypeRef.swapResolvedType(asMember),
-            Variance.CONTRAVARIANT
+            // even though this will be CONTRAVARIANT when resolved to the JVM type, in Kotlin, it
+            // is still INVARIANT. (see [KSTypeVarianceResolver]
+            Variance.INVARIANT
         )
         val contType = continuation.asType(
             listOf(
@@ -114,7 +116,9 @@ internal class KspSyntheticContinuationParameterElement(
         }
         val returnTypeAsTypeArgument = env.resolver.getTypeArgument(
             returnTypeRef.swapResolvedType(asMember),
-            Variance.CONTRAVARIANT
+            // even though this will be CONTRAVARIANT when resolved to the JVM type, in Kotlin, it
+            // is still INVARIANT. (see [KSTypeVarianceResolver]
+            Variance.INVARIANT
         )
         val contType = continuation.asType(listOf(returnTypeAsTypeArgument))
         return env.wrap(

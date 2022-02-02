@@ -46,6 +46,18 @@ import com.google.devtools.ksp.symbol.Variance
 internal class KSTypeVarianceResolver(
     private val resolver: Resolver
 ) {
+    /**
+     * @param ksType The Kotlin type on which the variance will be applied
+     * @param wildcardMode `wildcardMode` defines the default behavior of whether to inherit
+     *        variance or not. This depends on the existence of `SuppressWildcard` annotations or
+     *        the type's location (e.g. whether it is a method parameter or return type)
+     * @param declarationType If a type is resolved via inheritance where it is not explicitly
+     *        declared in its container, this value should have its original type from the
+     *        declaration site. e.g. if you have `val BaseClass.x : T`, and the ksType is the
+     *        type of `x` from `SubClass: BaseClass<String>`, `declarationType` would be `T` whereas
+     *        the `ksType` is `String`. If the `ksType` is from the original declaration, this value
+     *        should be `null`.
+     */
     fun applyTypeVariance(
         ksType: KSType,
         wildcardMode: WildcardMode,
@@ -134,6 +146,9 @@ internal class KSTypeVarianceResolver(
             hasSuppressWildcardsAnnotationInHierarchy() -> false
             else -> {
                 if (declarationType != null) {
+                    // if there is a declaration type, that means we are being resolved for an
+                    // inherited method/property; hence we should use the variance in the
+                    // declaration
                     true
                 } else {
                     param.variance == Variance.CONTRAVARIANT ||
@@ -149,7 +164,8 @@ internal class KSTypeVarianceResolver(
         }
         val newVariance = if (declarationType?.variance == Variance.STAR) {
             Variance.COVARIANT
-        } else if (declarationType?.variance == Variance.INVARIANT) {
+        } else if (declarationType?.type?.resolve() is KSTypeParameter) {
+            // fallback to the parameter variance if we are swapping a type parameter type
             param.variance
         } else {
             declarationType?.variance

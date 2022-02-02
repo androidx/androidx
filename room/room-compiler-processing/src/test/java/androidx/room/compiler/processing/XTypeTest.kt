@@ -353,12 +353,22 @@ class XTypeTest {
         runProcessorTest(sources = listOf(kotlinSubject)) { invocation ->
             invocation.processingEnv.requireTypeElement("KotlinSubject").let {
                 val continuationParam = it.getMethodByJvmName("unitSuspend").parameters.last()
-                val typeArg = continuationParam.type.typeArguments.first()
+                val typeArg = continuationParam.type.typeArguments.first().let {
+                    // KAPT will include the bounds directly whereas in KSP, we use bounds only
+                    // when resolving the jvm wildcard type.
+                    if (invocation.isKsp) {
+                        it
+                    } else {
+                        checkNotNull(it.extendsBound()) {
+                            "In KAPT, continuation should've had an extends bound"
+                        }
+                    }
+                }
                 assertThat(
-                    typeArg.extendsBound()?.isKotlinUnit()
+                    typeArg.isKotlinUnit()
                 ).isTrue()
                 assertThat(
-                    typeArg.extendsBound()?.extendsBound()
+                    typeArg.extendsBound()
                 ).isNull()
             }
         }
