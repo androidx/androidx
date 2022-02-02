@@ -26,9 +26,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
+import androidx.wear.compose.material.Chip
 import androidx.wear.compose.material.ChipDefaults
-import androidx.wear.compose.material.CompactChip
 import androidx.wear.compose.material.ExperimentalWearMaterialApi
+import androidx.wear.compose.material.ListHeader
 import androidx.wear.compose.material.MaterialTheme
 import androidx.wear.compose.material.ScalingLazyColumn
 import androidx.wear.compose.material.SwipeDismissTarget
@@ -108,15 +109,17 @@ internal fun DisplayDemoList(
                 modifier = Modifier.fillMaxWidth().testTag(DemoListTag),
             ) {
                 item {
-                    Text(
-                        text = category.title,
-                        style = MaterialTheme.typography.caption1,
-                        color = Color.White
-                    )
+                    ListHeader {
+                        Text(
+                            text = category.title,
+                            style = MaterialTheme.typography.caption1,
+                            color = Color.White
+                        )
+                    }
                 }
                 category.demos.forEach { demo ->
                     item {
-                        CompactChip(
+                        Chip(
                             onClick = { onNavigateTo(demo) },
                             colors = ChipDefaults.secondaryChipColors(),
                             label = {
