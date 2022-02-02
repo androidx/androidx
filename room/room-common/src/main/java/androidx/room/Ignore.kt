@@ -14,26 +14,14 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryGroups
-import androidx.build.Publish
+package androidx.room
 
-plugins {
-    id("AndroidXPlugin")
-    id("kotlin")
-}
-
-dependencies {
-    api("androidx.annotation:annotation:1.1.0")
-    api(libs.kotlinStdlibJdk8)
-    testImplementation(libs.junit)
-    testImplementation(libs.mockitoCore)
-    testImplementation(libs.guava)
-}
-
-androidx {
-    name = "Android Room-Common"
-    publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenGroup = LibraryGroups.ROOM
-    inceptionYear = "2017"
-    description = "Android Room-Common"
-}
+/**
+ * Ignores the marked element from Room's processing logic.
+ *
+ * This annotation can be used in multiple places where Room processor runs. For instance, you can
+ * add it to a field of an [Entity] and Room will not persist that field.
+ */
+@Target(AnnotationTarget.FUNCTION, AnnotationTarget.FIELD, AnnotationTarget.CONSTRUCTOR)
+@Retention(AnnotationRetention.BINARY)
+public annotation class Ignore
