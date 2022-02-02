@@ -1,15 +1,20 @@
 // Signature format: 4.0
 package androidx.room {
 
-  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target(java.lang.annotation.ElementType.TYPE) public @interface AutoMigration {
+  @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets=kotlin.annotation.AnnotationTarget.CLASS) public @interface AutoMigration {
     method public abstract int from();
-    method public abstract Class<?> spec() default java.lang.Object.class;
+    method public abstract kotlin.reflect.KClass<?> spec() default java.lang.Object;
     method public abstract int to();
+    property public abstract int from;
+    property public abstract kotlin.reflect.KClass<?> spec;
+    property public abstract int to;
   }
 
-  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target({}) public @interface BuiltInTypeConverters {
+  @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={}) public @interface BuiltInTypeConverters {
     method public abstract androidx.room.BuiltInTypeConverters.State enums() default androidx.room.BuiltInTypeConverters.State.INHERITED;
     method public abstract androidx.room.BuiltInTypeConverters.State uuid() default androidx.room.BuiltInTypeConverters.State.INHERITED;
+    property public abstract androidx.room.BuiltInTypeConverters.State enums;
+    property public abstract androidx.room.BuiltInTypeConverters.State uuid;
   }
 
   public enum BuiltInTypeConverters.State {
@@ -18,12 +23,37 @@ package androidx.room {
     enum_constant public static final androidx.room.BuiltInTypeConverters.State INHERITED;
   }
 
-  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target({java.lang.annotation.ElementType.FIELD, java.lang.annotation.ElementType.METHOD}) public @interface ColumnInfo {
-    method @androidx.room.ColumnInfo.Collate public abstract int collate() default androidx.room.ColumnInfo.UNSPECIFIED;
+  @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.FIELD, kotlin.annotation.AnnotationTarget.FUNCTION}) public @interface ColumnInfo {
+    method public abstract int collate() default androidx.room.ColumnInfo.UNSPECIFIED;
     method public abstract String defaultValue() default androidx.room.ColumnInfo.VALUE_UNSPECIFIED;
     method public abstract boolean index() default false;
     method public abstract String name() default androidx.room.ColumnInfo.INHERIT_FIELD_NAME;
-    method @androidx.room.ColumnInfo.SQLiteTypeAffinity public abstract int typeAffinity() default androidx.room.ColumnInfo.UNDEFINED;
+    method public abstract int typeAffinity() default androidx.room.ColumnInfo.UNDEFINED;
+    property public abstract int collate;
+    property public abstract String defaultValue;
+    property public abstract boolean index;
+    property public abstract String name;
+    property public abstract int typeAffinity;
+    field public static final int BINARY = 2; // 0x2
+    field public static final int BLOB = 5; // 0x5
+    field public static final androidx.room.ColumnInfo.Companion Companion;
+    field public static final String INHERIT_FIELD_NAME = "[field-name]";
+    field public static final int INTEGER = 3; // 0x3
+    field @RequiresApi(21) public static final int LOCALIZED = 5; // 0x5
+    field public static final int NOCASE = 3; // 0x3
+    field public static final int REAL = 4; // 0x4
+    field public static final int RTRIM = 4; // 0x4
+    field public static final int TEXT = 2; // 0x2
+    field public static final int UNDEFINED = 1; // 0x1
+    field @RequiresApi(21) public static final int UNICODE = 6; // 0x6
+    field public static final int UNSPECIFIED = 1; // 0x1
+    field public static final String VALUE_UNSPECIFIED = "[value-unspecified]";
+  }
+
+  @IntDef({androidx.room.ColumnInfo.UNSPECIFIED, androidx.room.ColumnInfo.BINARY, androidx.room.ColumnInfo.NOCASE, androidx.room.ColumnInfo.RTRIM, androidx.room.ColumnInfo.LOCALIZED, androidx.room.ColumnInfo.UNICODE}) @RequiresApi(21) @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public static @interface ColumnInfo.Collate {
+  }
+
+  public static final class ColumnInfo.Companion {
     field public static final int BINARY = 2; // 0x2
     field public static final int BLOB = 5; // 0x5
     field public static final String INHERIT_FIELD_NAME = "[field-name]";
@@ -39,69 +69,104 @@ package androidx.room {
     field public static final String VALUE_UNSPECIFIED = "[value-unspecified]";
   }
 
-  @IntDef({androidx.room.ColumnInfo.UNSPECIFIED, androidx.room.ColumnInfo.BINARY, androidx.room.ColumnInfo.NOCASE, androidx.room.ColumnInfo.RTRIM, androidx.room.ColumnInfo.LOCALIZED, androidx.room.ColumnInfo.UNICODE}) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) public static @interface ColumnInfo.Collate {
+  @IntDef({androidx.room.ColumnInfo.UNDEFINED, androidx.room.ColumnInfo.TEXT, androidx.room.ColumnInfo.INTEGER, androidx.room.ColumnInfo.REAL, androidx.room.ColumnInfo.BLOB}) @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public static @interface ColumnInfo.SQLiteTypeAffinity {
   }
 
-  @IntDef({androidx.room.ColumnInfo.UNDEFINED, androidx.room.ColumnInfo.TEXT, androidx.room.ColumnInfo.INTEGER, androidx.room.ColumnInfo.REAL, androidx.room.ColumnInfo.BLOB}) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) public static @interface ColumnInfo.SQLiteTypeAffinity {
+  @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets=kotlin.annotation.AnnotationTarget.CLASS) public @interface Dao {
   }
 
-  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target(java.lang.annotation.ElementType.TYPE) public @interface Dao {
-  }
-
-  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target(java.lang.annotation.ElementType.TYPE) public @interface Database {
-    method public abstract androidx.room.AutoMigration[] autoMigrations() default {};
-    method public abstract Class<?>[] entities();
+  @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets=kotlin.annotation.AnnotationTarget.CLASS) public @interface Database {
+    method public abstract androidx.room.AutoMigration[] autoMigrations();
+    method public abstract kotlin.reflect.KClass<?>[] entities();
     method public abstract boolean exportSchema() default true;
     method public abstract int version();
-    method public abstract Class<?>[] views() default {};
+    method public abstract kotlin.reflect.KClass<?>[] views();
+    property public abstract androidx.room.AutoMigration![] autoMigrations;
+    property public abstract kotlin.reflect.KClass<?>![] entities;
+    property public abstract boolean exportSchema;
+    property public abstract int version;
+    property public abstract kotlin.reflect.KClass<?>![] views;
   }
 
-  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target(java.lang.annotation.ElementType.TYPE) public @interface DatabaseView {
+  @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets=kotlin.annotation.AnnotationTarget.CLASS) public @interface DatabaseView {
     method public abstract String value() default "";
     method public abstract String viewName() default "";
+    property public abstract String value;
+    property public abstract String viewName;
   }
 
-  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target(java.lang.annotation.ElementType.METHOD) public @interface Delete {
-    method public abstract Class<?> entity() default java.lang.Object.class;
+  @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets=kotlin.annotation.AnnotationTarget.FUNCTION) public @interface Delete {
+    method public abstract kotlin.reflect.KClass<?> entity() default java.lang.Object;
+    property public abstract kotlin.reflect.KClass<?> entity;
   }
 
-  @java.lang.annotation.Repeatable(DeleteColumn.Entries.class) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target(java.lang.annotation.ElementType.TYPE) public @interface DeleteColumn {
+  @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets=kotlin.annotation.AnnotationTarget.CLASS) public @interface DeleteColumn {
     method public abstract String columnName();
     method public abstract String tableName();
+    property public abstract String columnName;
+    property public abstract String tableName;
   }
 
-  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target(java.lang.annotation.ElementType.TYPE) public static @interface DeleteColumn.Entries {
+  @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets=kotlin.annotation.AnnotationTarget.CLASS) public static @interface DeleteColumn.Entries {
     method public abstract androidx.room.DeleteColumn[] value();
+    property public abstract androidx.room.DeleteColumn![] value;
   }
 
-  @java.lang.annotation.Repeatable(DeleteTable.Entries.class) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target(java.lang.annotation.ElementType.TYPE) public @interface DeleteTable {
+  @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets=kotlin.annotation.AnnotationTarget.CLASS) public @interface DeleteTable {
     method public abstract String tableName();
+    property public abstract String tableName;
   }
 
-  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target(java.lang.annotation.ElementType.TYPE) public static @interface DeleteTable.Entries {
+  @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets=kotlin.annotation.AnnotationTarget.CLASS) public static @interface DeleteTable.Entries {
     method public abstract androidx.room.DeleteTable[] value();
+    property public abstract androidx.room.DeleteTable![] value;
   }
 
-  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target({java.lang.annotation.ElementType.FIELD, java.lang.annotation.ElementType.METHOD}) public @interface Embedded {
+  @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.FIELD, kotlin.annotation.AnnotationTarget.FUNCTION}) public @interface Embedded {
     method public abstract String prefix() default "";
+    property public abstract String prefix;
   }
 
-  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target(java.lang.annotation.ElementType.TYPE) public @interface Entity {
-    method public abstract androidx.room.ForeignKey[] foreignKeys() default {};
-    method public abstract String[] ignoredColumns() default {};
-    method public abstract androidx.room.Index[] indices() default {};
+  @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets=kotlin.annotation.AnnotationTarget.CLASS) public @interface Entity {
+    method public abstract androidx.room.ForeignKey[] foreignKeys();
+    method public abstract String[] ignoredColumns();
+    method public abstract androidx.room.Index[] indices();
     method public abstract boolean inheritSuperIndices() default false;
-    method public abstract String[] primaryKeys() default {};
+    method public abstract String[] primaryKeys();
     method public abstract String tableName() default "";
+    property public abstract androidx.room.ForeignKey![] foreignKeys;
+    property public abstract String![] ignoredColumns;
+    property public abstract androidx.room.Index![] indices;
+    property public abstract boolean inheritSuperIndices;
+    property public abstract String![] primaryKeys;
+    property public abstract String tableName;
   }
 
-  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target({}) public @interface ForeignKey {
+  @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={}) public @interface ForeignKey {
     method public abstract String[] childColumns();
     method public abstract boolean deferred() default false;
-    method public abstract Class<?> entity();
-    method @androidx.room.ForeignKey.Action public abstract int onDelete() default androidx.room.ForeignKey.NO_ACTION;
-    method @androidx.room.ForeignKey.Action public abstract int onUpdate() default androidx.room.ForeignKey.NO_ACTION;
+    method public abstract kotlin.reflect.KClass<?> entity();
+    method public abstract int onDelete() default androidx.room.ForeignKey.NO_ACTION;
+    method public abstract int onUpdate() default androidx.room.ForeignKey.NO_ACTION;
     method public abstract String[] parentColumns();
+    property public abstract String![] childColumns;
+    property public abstract boolean deferred;
+    property public abstract kotlin.reflect.KClass<?> entity;
+    property public abstract int onDelete;
+    property public abstract int onUpdate;
+    property public abstract String![] parentColumns;
+    field public static final int CASCADE = 5; // 0x5
+    field public static final androidx.room.ForeignKey.Companion Companion;
+    field public static final int NO_ACTION = 1; // 0x1
+    field public static final int RESTRICT = 2; // 0x2
+    field public static final int SET_DEFAULT = 4; // 0x4
+    field public static final int SET_NULL = 3; // 0x3
+  }
+
+  @IntDef({androidx.room.ForeignKey.NO_ACTION, androidx.room.ForeignKey.RESTRICT, androidx.room.ForeignKey.SET_NULL, androidx.room.ForeignKey.SET_DEFAULT, androidx.room.ForeignKey.CASCADE}) @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public static @interface ForeignKey.Action {
+  }
+
+  public static final class ForeignKey.Companion {
     field public static final int CASCADE = 5; // 0x5
     field public static final int NO_ACTION = 1; // 0x1
     field public static final int RESTRICT = 2; // 0x2
@@ -109,26 +174,34 @@ package androidx.room {
     field public static final int SET_NULL = 3; // 0x3
   }
 
-  @IntDef({androidx.room.ForeignKey.NO_ACTION, androidx.room.ForeignKey.RESTRICT, androidx.room.ForeignKey.SET_NULL, androidx.room.ForeignKey.SET_DEFAULT, androidx.room.ForeignKey.CASCADE}) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) public static @interface ForeignKey.Action {
-  }
-
-  @RequiresApi(16) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target(java.lang.annotation.ElementType.TYPE) public @interface Fts3 {
+  @RequiresApi(16) @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets=kotlin.annotation.AnnotationTarget.CLASS) public @interface Fts3 {
     method public abstract String tokenizer() default androidx.room.FtsOptions.TOKENIZER_SIMPLE;
-    method public abstract String[] tokenizerArgs() default {};
+    method public abstract String[] tokenizerArgs();
+    property public abstract String tokenizer;
+    property public abstract String![] tokenizerArgs;
   }
 
-  @RequiresApi(16) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target(java.lang.annotation.ElementType.TYPE) public @interface Fts4 {
-    method public abstract Class<?> contentEntity() default java.lang.Object.class;
+  @RequiresApi(16) @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets=kotlin.annotation.AnnotationTarget.CLASS) public @interface Fts4 {
+    method public abstract kotlin.reflect.KClass<?> contentEntity() default java.lang.Object;
     method public abstract String languageId() default "";
     method public abstract androidx.room.FtsOptions.MatchInfo matchInfo() default androidx.room.FtsOptions.MatchInfo.FTS4;
-    method public abstract String[] notIndexed() default {};
+    method public abstract String[] notIndexed();
     method public abstract androidx.room.FtsOptions.Order order() default androidx.room.FtsOptions.Order.ASC;
-    method public abstract int[] prefix() default {};
+    method public abstract int[] prefix();
     method public abstract String tokenizer() default androidx.room.FtsOptions.TOKENIZER_SIMPLE;
-    method public abstract String[] tokenizerArgs() default {};
+    method public abstract String[] tokenizerArgs();
+    property public abstract kotlin.reflect.KClass<?> contentEntity;
+    property public abstract String languageId;
+    property public abstract androidx.room.FtsOptions.MatchInfo matchInfo;
+    property public abstract String![] notIndexed;
+    property public abstract androidx.room.FtsOptions.Order order;
+    property public abstract int[] prefix;
+    property public abstract String tokenizer;
+    property public abstract String![] tokenizerArgs;
   }
 
-  public class FtsOptions {
+  public final class FtsOptions {
+    field public static final androidx.room.FtsOptions INSTANCE;
     field public static final String TOKENIZER_ICU = "icu";
     field public static final String TOKENIZER_PORTER = "porter";
     field public static final String TOKENIZER_SIMPLE = "simple";
@@ -145,14 +218,18 @@ package androidx.room {
     enum_constant public static final androidx.room.FtsOptions.Order DESC;
   }
 
-  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target({java.lang.annotation.ElementType.METHOD, java.lang.annotation.ElementType.FIELD, java.lang.annotation.ElementType.CONSTRUCTOR}) public @interface Ignore {
+  @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.FUNCTION, kotlin.annotation.AnnotationTarget.FIELD, kotlin.annotation.AnnotationTarget.CONSTRUCTOR}) public @interface Ignore {
   }
 
-  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target({}) public @interface Index {
+  @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={}) public @interface Index {
     method public abstract String name() default "";
-    method public abstract androidx.room.Index.Order[] orders() default {};
+    method public abstract androidx.room.Index.Order[] orders();
     method public abstract boolean unique() default false;
     method public abstract String[] value();
+    property public abstract String name;
+    property public abstract androidx.room.Index.Order![] orders;
+    property public abstract boolean unique;
+    property public abstract String![] value;
   }
 
   public enum Index.Order {
@@ -160,23 +237,39 @@ package androidx.room {
     enum_constant public static final androidx.room.Index.Order DESC;
   }
 
-  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target({java.lang.annotation.ElementType.METHOD}) public @interface Insert {
-    method public abstract Class<?> entity() default java.lang.Object.class;
-    method @androidx.room.OnConflictStrategy public abstract int onConflict() default androidx.room.OnConflictStrategy.ABORT;
+  @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets=kotlin.annotation.AnnotationTarget.FUNCTION) public @interface Insert {
+    method public abstract kotlin.reflect.KClass<?> entity() default java.lang.Object;
+    method public abstract int onConflict() default androidx.room.OnConflictStrategy.ABORT;
+    property public abstract kotlin.reflect.KClass<?> entity;
+    property public abstract int onConflict;
   }
 
-  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target({}) public @interface Junction {
+  @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={}) public @interface Junction {
     method public abstract String entityColumn() default "";
     method public abstract String parentColumn() default "";
-    method public abstract Class<?> value();
+    method public abstract kotlin.reflect.KClass<?> value();
+    property public abstract String entityColumn;
+    property public abstract String parentColumn;
+    property public abstract kotlin.reflect.KClass<?> value;
   }
 
-  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target(java.lang.annotation.ElementType.METHOD) public @interface MapInfo {
+  @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets=kotlin.annotation.AnnotationTarget.FUNCTION) public @interface MapInfo {
     method public abstract String keyColumn() default "";
     method public abstract String valueColumn() default "";
+    property public abstract String keyColumn;
+    property public abstract String valueColumn;
   }
 
-  @IntDef({androidx.room.OnConflictStrategy.REPLACE, androidx.room.OnConflictStrategy.ROLLBACK, androidx.room.OnConflictStrategy.ABORT, androidx.room.OnConflictStrategy.FAIL, androidx.room.OnConflictStrategy.IGNORE}) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) public @interface OnConflictStrategy {
+  @IntDef({androidx.room.OnConflictStrategy.REPLACE, androidx.room.OnConflictStrategy.ROLLBACK, androidx.room.OnConflictStrategy.ABORT, androidx.room.OnConflictStrategy.FAIL, androidx.room.OnConflictStrategy.IGNORE}) @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface OnConflictStrategy {
+    field public static final int ABORT = 3; // 0x3
+    field public static final androidx.room.OnConflictStrategy.Companion Companion;
+    field @Deprecated public static final int FAIL = 4; // 0x4
+    field public static final int IGNORE = 5; // 0x5
+    field public static final int REPLACE = 1; // 0x1
+    field @Deprecated public static final int ROLLBACK = 2; // 0x2
+  }
+
+  public static final class OnConflictStrategy.Companion {
     field public static final int ABORT = 3; // 0x3
     field @Deprecated public static final int FAIL = 4; // 0x4
     field public static final int IGNORE = 5; // 0x5
@@ -184,58 +277,74 @@ package androidx.room {
     field @Deprecated public static final int ROLLBACK = 2; // 0x2
   }
 
-  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target({java.lang.annotation.ElementType.FIELD, java.lang.annotation.ElementType.METHOD}) public @interface PrimaryKey {
+  @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.FIELD, kotlin.annotation.AnnotationTarget.FUNCTION}) public @interface PrimaryKey {
     method public abstract boolean autoGenerate() default false;
+    property public abstract boolean autoGenerate;
   }
 
-  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target(java.lang.annotation.ElementType.TYPE) public @interface ProvidedAutoMigrationSpec {
+  @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets=kotlin.annotation.AnnotationTarget.CLASS) public @interface ProvidedAutoMigrationSpec {
   }
 
-  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target(java.lang.annotation.ElementType.TYPE) public @interface ProvidedTypeConverter {
+  @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets=kotlin.annotation.AnnotationTarget.CLASS) public @interface ProvidedTypeConverter {
   }
 
-  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target(java.lang.annotation.ElementType.METHOD) public @interface Query {
+  @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets=kotlin.annotation.AnnotationTarget.FUNCTION) public @interface Query {
     method public abstract String value();
+    property public abstract String value;
   }
 
-  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target(java.lang.annotation.ElementType.METHOD) public @interface RawQuery {
-    method public abstract Class<?>[] observedEntities() default {};
+  @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets=kotlin.annotation.AnnotationTarget.FUNCTION) public @interface RawQuery {
+    method public abstract kotlin.reflect.KClass<?>[] observedEntities();
+    property public abstract kotlin.reflect.KClass<?>![] observedEntities;
   }
 
-  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target({java.lang.annotation.ElementType.FIELD, java.lang.annotation.ElementType.METHOD}) public @interface Relation {
-    method public abstract androidx.room.Junction associateBy() default @androidx.room.Junction;
-    method public abstract Class<?> entity() default java.lang.Object.class;
+  @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.FIELD, kotlin.annotation.AnnotationTarget.FUNCTION}) public @interface Relation {
+    method public abstract androidx.room.Junction associateBy() default androidx.room.Junction(java.lang.Object);
+    method public abstract kotlin.reflect.KClass<?> entity() default java.lang.Object;
     method public abstract String entityColumn();
     method public abstract String parentColumn();
-    method public abstract String[] projection() default {};
+    method public abstract String[] projection();
+    property public abstract androidx.room.Junction associateBy;
+    property public abstract kotlin.reflect.KClass<?> entity;
+    property public abstract String entityColumn;
+    property public abstract String parentColumn;
+    property public abstract String![] projection;
   }
 
-  @java.lang.annotation.Repeatable(RenameColumn.Entries.class) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target(java.lang.annotation.ElementType.TYPE) public @interface RenameColumn {
+  @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets=kotlin.annotation.AnnotationTarget.CLASS) public @interface RenameColumn {
     method public abstract String fromColumnName();
     method public abstract String tableName();
     method public abstract String toColumnName();
+    property public abstract String fromColumnName;
+    property public abstract String tableName;
+    property public abstract String toColumnName;
   }
 
-  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target(java.lang.annotation.ElementType.TYPE) public static @interface RenameColumn.Entries {
+  @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets=kotlin.annotation.AnnotationTarget.CLASS) public static @interface RenameColumn.Entries {
     method public abstract androidx.room.RenameColumn[] value();
+    property public abstract androidx.room.RenameColumn![] value;
   }
 
-  @java.lang.annotation.Repeatable(RenameTable.Entries.class) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target(java.lang.annotation.ElementType.TYPE) public @interface RenameTable {
+  @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets=kotlin.annotation.AnnotationTarget.CLASS) public @interface RenameTable {
     method public abstract String fromTableName();
     method public abstract String toTableName();
+    property public abstract String fromTableName;
+    property public abstract String toTableName;
   }
 
-  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target(java.lang.annotation.ElementType.TYPE) public static @interface RenameTable.Entries {
+  @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets=kotlin.annotation.AnnotationTarget.CLASS) public static @interface RenameTable.Entries {
     method public abstract androidx.room.RenameTable[] value();
+    property public abstract androidx.room.RenameTable![] value;
   }
 
-  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target({java.lang.annotation.ElementType.METHOD, java.lang.annotation.ElementType.TYPE}) public @interface RewriteQueriesToDropUnusedColumns {
+  @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.FUNCTION, kotlin.annotation.AnnotationTarget.CLASS}) public @interface RewriteQueriesToDropUnusedColumns {
   }
 
   public class RoomWarnings {
     ctor @Deprecated public RoomWarnings();
     field public static final String CANNOT_CREATE_VERIFICATION_DATABASE = "ROOM_CANNOT_CREATE_VERIFICATION_DATABASE";
     field public static final String CURSOR_MISMATCH = "ROOM_CURSOR_MISMATCH";
+    field public static final androidx.room.RoomWarnings.Companion Companion;
     field public static final String DEFAULT_CONSTRUCTOR = "ROOM_DEFAULT_CONSTRUCTOR";
     field public static final String DOES_NOT_IMPLEMENT_EQUALS_HASHCODE = "ROOM_TYPE_DOES_NOT_IMPLEMENT_EQUALS_HASHCODE";
     field public static final String INDEX_FROM_EMBEDDED_ENTITY_IS_DROPPED = "ROOM_EMBEDDED_ENTITY_INDEX_IS_DROPPED";
@@ -253,23 +362,30 @@ package androidx.room {
     field public static final String RELATION_TYPE_MISMATCH = "ROOM_RELATION_TYPE_MISMATCH";
   }
 
-  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target({java.lang.annotation.ElementType.METHOD, java.lang.annotation.ElementType.TYPE}) public @interface SkipQueryVerification {
+  public static final class RoomWarnings.Companion {
   }
 
-  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target({java.lang.annotation.ElementType.METHOD}) public @interface Transaction {
+  @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.FUNCTION, kotlin.annotation.AnnotationTarget.CLASS}) public @interface SkipQueryVerification {
   }
 
-  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target({java.lang.annotation.ElementType.METHOD}) public @interface TypeConverter {
+  @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets=kotlin.annotation.AnnotationTarget.FUNCTION) public @interface Transaction {
   }
 
-  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target({java.lang.annotation.ElementType.METHOD, java.lang.annotation.ElementType.PARAMETER, java.lang.annotation.ElementType.TYPE, java.lang.annotation.ElementType.FIELD}) public @interface TypeConverters {
-    method public abstract androidx.room.BuiltInTypeConverters builtInTypeConverters() default @androidx.room.BuiltInTypeConverters;
-    method public abstract Class<?>[] value() default {};
+  @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets=kotlin.annotation.AnnotationTarget.FUNCTION) public @interface TypeConverter {
   }
 
-  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) public @interface Update {
-    method public abstract Class<?> entity() default java.lang.Object.class;
-    method @androidx.room.OnConflictStrategy public abstract int onConflict() default androidx.room.OnConflictStrategy.ABORT;
+  @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.FUNCTION, kotlin.annotation.AnnotationTarget.VALUE_PARAMETER, kotlin.annotation.AnnotationTarget.FIELD, kotlin.annotation.AnnotationTarget.CLASS}) public @interface TypeConverters {
+    method public abstract androidx.room.BuiltInTypeConverters builtInTypeConverters() default androidx.room.BuiltInTypeConverters();
+    method public abstract kotlin.reflect.KClass<?>[] value();
+    property public abstract androidx.room.BuiltInTypeConverters builtInTypeConverters;
+    property public abstract kotlin.reflect.KClass<?>![] value;
+  }
+
+  @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets=kotlin.annotation.AnnotationTarget.FUNCTION) public @interface Update {
+    method public abstract kotlin.reflect.KClass<?> entity() default java.lang.Object;
+    method public abstract int onConflict() default androidx.room.OnConflictStrategy.ABORT;
+    property public abstract kotlin.reflect.KClass<?> entity;
+    property public abstract int onConflict;
   }
 
 }
