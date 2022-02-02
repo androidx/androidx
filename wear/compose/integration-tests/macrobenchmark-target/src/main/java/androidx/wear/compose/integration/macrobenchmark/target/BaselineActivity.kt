@@ -50,6 +50,7 @@ import androidx.wear.compose.material.Button
 import androidx.wear.compose.material.Card
 import androidx.wear.compose.material.Chip
 import androidx.wear.compose.material.ChipDefaults
+import androidx.wear.compose.material.CircularProgressIndicator
 import androidx.wear.compose.material.CompactButton
 import androidx.wear.compose.material.CompactChip
 import androidx.wear.compose.material.CurvedText
@@ -80,6 +81,8 @@ private val ALERT_DIALOG = "alert-dialog"
 private val CONFIRMATION_DIALOG = "confirmation-dialog"
 private val STEPPER = "stepper"
 private val SWIPE_DISMISS = "swipe-dismiss"
+private val PROGRESS_INDICATOR = "progress-indicator"
+private val PROGRESS_INDICATOR_INDETERMINATE = "progress-indicator-indeterminate"
 
 class BaselineActivity : ComponentActivity() {
 
@@ -120,6 +123,7 @@ class BaselineActivity : ComponentActivity() {
                                 ) {
                                     Dialogs(navController)
                                     Steppers(navController)
+                                    ProgressIndicators(navController)
                                     Buttons()
                                     Cards()
                                     Chips()
@@ -149,6 +153,23 @@ class BaselineActivity : ComponentActivity() {
                                 valueRange = 1f..4f,
                                 steps = 7
                             ) { Text("Value: $value") }
+                        }
+                        composable(PROGRESS_INDICATOR) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.fillMaxSize(),
+                                startAngle = 300f,
+                                endAngle = 240f,
+                                progress = 0.3f
+                            )
+                        }
+                        composable(PROGRESS_INDICATOR_INDETERMINATE) {
+                            Column(
+                                modifier = Modifier.fillMaxSize(),
+                                verticalArrangement = Arrangement.Center,
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                CircularProgressIndicator()
+                            }
                         }
                     }
                 }
@@ -230,6 +251,24 @@ fun Pickers() {
         state = rememberPickerState(items.size),
         option = { Text(items[it]) },
         modifier = Modifier.size(100.dp, 100.dp),
+    )
+}
+
+@Composable
+fun ProgressIndicators(navController: NavHostController) {
+    ListHeader { Text("Progress Indicators") }
+    // Test both circular progress indicator with gap and spinning indicator.
+    CompactChip(
+        onClick = { navController.navigate(PROGRESS_INDICATOR) },
+        colors = ChipDefaults.primaryChipColors(),
+        label = { Text(PROGRESS_INDICATOR) },
+        modifier = Modifier.semantics { contentDescription = PROGRESS_INDICATOR },
+    )
+    CompactChip(
+        onClick = { navController.navigate(PROGRESS_INDICATOR_INDETERMINATE) },
+        colors = ChipDefaults.primaryChipColors(),
+        label = { Text(PROGRESS_INDICATOR_INDETERMINATE) },
+        modifier = Modifier.semantics { contentDescription = PROGRESS_INDICATOR_INDETERMINATE },
     )
 }
 

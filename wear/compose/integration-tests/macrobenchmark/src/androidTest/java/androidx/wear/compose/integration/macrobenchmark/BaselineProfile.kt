@@ -67,6 +67,8 @@ class BaselineProfile {
     private val ALERT_DIALOG = "alert-dialog"
     private val CONFIRMATION_DIALOG = "confirmation-dialog"
     private val STEPPER = "stepper"
+    private val PROGRESS_INDICATOR = "progress-indicator"
+    private val PROGRESS_INDICATOR_INDETERMINATE = "progress-indicator-indeterminate"
 
     @Before
     fun setUp() {
@@ -83,16 +85,17 @@ class BaselineProfile {
                 intent.action = ACTION
                 startActivityAndWait(intent)
                 testDestination(ALERT_DIALOG)
+                scrollDown()
                 testDestination(CONFIRMATION_DIALOG)
+                scrollDown()
                 testDestination(STEPPER)
+                scrollDown()
+                testDestination(PROGRESS_INDICATOR)
+                scrollDown()
+                testDestination(PROGRESS_INDICATOR_INDETERMINATE)
 
-                // Scroll down to view remaining UI elements
-                // Setting a gesture margin is important otherwise gesture nav is triggered.
-                val list = device.findObject(By.desc(CONTENT_DESCRIPTION))
-                list.setGestureMargin(device.displayWidth / 5)
-                repeat(25) {
-                    list.drag(Point(list.visibleCenter.x, list.visibleCenter.y / 3))
-                    device.waitForIdle()
+                repeat(30) {
+                    scrollDown()
                 }
             }
         )
@@ -102,6 +105,15 @@ class BaselineProfile {
         device.findObject(By.desc(name)).click()
         device.waitForIdle()
         device.pressBack()
+        device.waitForIdle()
+    }
+
+    private fun scrollDown() {
+        // Scroll down to view remaining UI elements
+        // Setting a gesture margin is important otherwise gesture nav is triggered.
+        val list = device.findObject(By.desc(CONTENT_DESCRIPTION))
+        list.setGestureMargin(device.displayWidth / 5)
+        list.drag(Point(list.visibleCenter.x, list.visibleCenter.y / 3))
         device.waitForIdle()
     }
 

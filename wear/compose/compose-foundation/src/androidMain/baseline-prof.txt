@@ -3,13 +3,13 @@ HSPLandroidx/wear/compose/foundation/ArcPaddingPx;->**(**)**
 Landroidx/wear/compose/foundation/ArcPaddingValues;
 SPLandroidx/wear/compose/foundation/ArcPaddingValuesImpl;->**(**)**
 HSPLandroidx/wear/compose/foundation/BasicCurvedTextKt**->**(**)**
-SPLandroidx/wear/compose/foundation/CurvedMeasuredChild;->**(**)**
+HSPLandroidx/wear/compose/foundation/CurvedMeasuredChild;->**(**)**
 HSPLandroidx/wear/compose/foundation/CurvedRowKt**->**(**)**
 SPLandroidx/wear/compose/foundation/CurvedRowParentData;->**(**)**
 Landroidx/wear/compose/foundation/CurvedRowScope;
 SPLandroidx/wear/compose/foundation/CurvedRowScopeInstance;->**(**)**
 HSPLandroidx/wear/compose/foundation/CurvedTextDelegate;->**(**)**
-SPLandroidx/wear/compose/foundation/CurvedTextModifier;->**(**)**
+HSPLandroidx/wear/compose/foundation/CurvedTextModifier;->**(**)**
 HSPLandroidx/wear/compose/foundation/CurvedTextStyle;->**(**)**
 SPLandroidx/wear/compose/foundation/CurvedTextStyleKt**->**(**)**
 HSPLandroidx/wear/compose/foundation/MeasuredChild;->**(**)**
