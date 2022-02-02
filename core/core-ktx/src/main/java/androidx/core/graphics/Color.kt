@@ -18,6 +18,7 @@
 
 package androidx.core.graphics
 
+import android.annotation.SuppressLint
 import android.graphics.Color
 import android.graphics.ColorSpace
 import androidx.annotation.ColorInt
@@ -36,6 +37,7 @@ import androidx.annotation.RequiresApi
  * ```
  */
 @RequiresApi(26)
+@SuppressLint("ClassVerificationFailure")
 public inline operator fun Color.component1(): Float = getComponent(0)
 
 /**
@@ -50,6 +52,7 @@ public inline operator fun Color.component1(): Float = getComponent(0)
  * ```
  */
 @RequiresApi(26)
+@SuppressLint("ClassVerificationFailure")
 public inline operator fun Color.component2(): Float = getComponent(1)
 
 /**
@@ -64,6 +67,7 @@ public inline operator fun Color.component2(): Float = getComponent(1)
  * ```
  */
 @RequiresApi(26)
+@SuppressLint("ClassVerificationFailure")
 public inline operator fun Color.component3(): Float = getComponent(2)
 
 /**
@@ -78,6 +82,7 @@ public inline operator fun Color.component3(): Float = getComponent(2)
  * ```
  */
 @RequiresApi(26)
+@SuppressLint("ClassVerificationFailure")
 public inline operator fun Color.component4(): Float = getComponent(3)
 
 /**
@@ -100,6 +105,7 @@ public inline operator fun Color.component4(): Float = getComponent(3)
  *                                  of the colors do not match
  */
 @RequiresApi(26)
+@SuppressLint("ClassVerificationFailure")
 public operator fun Color.plus(c: Color): Color = ColorUtils.compositeColors(c, this)
 
 /**
@@ -196,6 +202,7 @@ public inline operator fun @receiver:ColorInt Int.component4(): Int = this and 0
  * W3C Recommendation 11 December 2008.
  */
 @get:RequiresApi(26)
+@get:SuppressLint("ClassVerificationFailure")
 public inline val @receiver:ColorInt Int.luminance: Float
     get() = Color.luminance(this)
 
@@ -204,6 +211,7 @@ public inline val @receiver:ColorInt Int.luminance: Float
  * is in the [sRGB][android.graphics.ColorSpace.Named.SRGB] color space.
  */
 @RequiresApi(26)
+@SuppressLint("ClassVerificationFailure")
 public inline fun @receiver:ColorInt Int.toColor(): Color = Color.valueOf(this)
 
 /**
@@ -211,6 +219,7 @@ public inline fun @receiver:ColorInt Int.toColor(): Color = Color.valueOf(this)
  * in the [sRGB][android.graphics.ColorSpace.Named.SRGB] color space.
  */
 @RequiresApi(26)
+@SuppressLint("ClassVerificationFailure")
 @ColorLong
 public inline fun @receiver:ColorInt Int.toColorLong(): Long = Color.pack(this)
 
@@ -226,6 +235,7 @@ public inline fun @receiver:ColorInt Int.toColorLong(): Long = Color.pack(this)
  * ```
  */
 @RequiresApi(26)
+@SuppressLint("ClassVerificationFailure")
 public inline operator fun @receiver:ColorLong Long.component1(): Float = Color.red(this)
 
 /**
@@ -240,6 +250,7 @@ public inline operator fun @receiver:ColorLong Long.component1(): Float = Color.
  * ```
  */
 @RequiresApi(26)
+@SuppressLint("ClassVerificationFailure")
 public inline operator fun @receiver:ColorLong Long.component2(): Float = Color.green(this)
 
 /**
@@ -254,6 +265,7 @@ public inline operator fun @receiver:ColorLong Long.component2(): Float = Color.
  * ```
  */
 @RequiresApi(26)
+@SuppressLint("ClassVerificationFailure")
 public inline operator fun @receiver:ColorLong Long.component3(): Float = Color.blue(this)
 
 /**
@@ -268,6 +280,7 @@ public inline operator fun @receiver:ColorLong Long.component3(): Float = Color.
  * ```
  */
 @RequiresApi(26)
+@SuppressLint("ClassVerificationFailure")
 public inline operator fun @receiver:ColorLong Long.component4(): Float = Color.alpha(this)
 
 /**
@@ -277,6 +290,7 @@ public inline operator fun @receiver:ColorLong Long.component4(): Float = Color.
  * ```
  */
 @get:RequiresApi(26)
+@get:SuppressLint("ClassVerificationFailure")
 public inline val @receiver:ColorLong Long.alpha: Float
     get() = Color.alpha(this)
 
@@ -287,6 +301,7 @@ public inline val @receiver:ColorLong Long.alpha: Float
  * ```
  */
 @get:RequiresApi(26)
+@get:SuppressLint("ClassVerificationFailure")
 public inline val @receiver:ColorLong Long.red: Float
     get() = Color.red(this)
 
@@ -297,6 +312,7 @@ public inline val @receiver:ColorLong Long.red: Float
  * ```
  */
 @get:RequiresApi(26)
+@get:SuppressLint("ClassVerificationFailure")
 public inline val @receiver:ColorLong Long.green: Float
     get() = Color.green(this)
 
@@ -307,6 +323,7 @@ public inline val @receiver:ColorLong Long.green: Float
  * ```
  */
 @get:RequiresApi(26)
+@get:SuppressLint("ClassVerificationFailure")
 public inline val @receiver:ColorLong Long.blue: Float
     get() = Color.blue(this)
 
@@ -315,6 +332,7 @@ public inline val @receiver:ColorLong Long.blue: Float
  * relative luminance defined in WCAG 2.0, W3C Recommendation 11 December 2008.
  */
 @get:RequiresApi(26)
+@get:SuppressLint("ClassVerificationFailure")
 public inline val @receiver:ColorLong Long.luminance: Float
     get() = Color.luminance(this)
 
@@ -322,12 +340,14 @@ public inline val @receiver:ColorLong Long.luminance: Float
  * Creates a new [Color] instance from a [color long][Color].
  */
 @RequiresApi(26)
+@SuppressLint("ClassVerificationFailure")
 public inline fun @receiver:ColorLong Long.toColor(): Color = Color.valueOf(this)
 
 /**
  * Converts the specified [color long][Color] to an ARGB [color int][Color].
  */
 @RequiresApi(26)
+@SuppressLint("ClassVerificationFailure")
 @ColorInt
 public inline fun @receiver:ColorLong Long.toColorInt(): Int = Color.toArgb(this)
 
@@ -336,6 +356,7 @@ public inline fun @receiver:ColorLong Long.toColorInt(): Int = Color.toArgb(this
  * color space.
  */
 @get:RequiresApi(26)
+@get:SuppressLint("ClassVerificationFailure")
 public inline val @receiver:ColorLong Long.isSrgb: Boolean
     get() = Color.isSrgb(this)
 
@@ -343,6 +364,7 @@ public inline val @receiver:ColorLong Long.isSrgb: Boolean
  * Indicates whether the color is in a [wide-gamut][android.graphics.ColorSpace] color space.
  */
 @get:RequiresApi(26)
+@get:SuppressLint("ClassVerificationFailure")
 public inline val @receiver:ColorLong Long.isWideGamut: Boolean
     get() = Color.isWideGamut(this)
 
@@ -350,6 +372,7 @@ public inline val @receiver:ColorLong Long.isWideGamut: Boolean
  * Returns the color space encoded in the specified color long.
  */
 @get:RequiresApi(26)
+@get:SuppressLint("ClassVerificationFailure")
 public inline val @receiver:ColorLong Long.colorSpace: ColorSpace get() = Color.colorSpace(this)
 
 /**
@@ -360,6 +383,7 @@ public inline val @receiver:ColorLong Long.colorSpace: ColorSpace get() = Color.
  * ```
  */
 @RequiresApi(26)
+@SuppressLint("ClassVerificationFailure")
 @ColorLong
 public inline infix fun @receiver:ColorInt Int.convertTo(colorSpace: ColorSpace.Named): Long =
     Color.convert(this, ColorSpace.get(colorSpace))
@@ -372,6 +396,7 @@ public inline infix fun @receiver:ColorInt Int.convertTo(colorSpace: ColorSpace.
  * ```
  */
 @RequiresApi(26)
+@SuppressLint("ClassVerificationFailure")
 @ColorLong
 public inline infix fun @receiver:ColorInt Int.convertTo(colorSpace: ColorSpace): Long =
     Color.convert(this, colorSpace)
@@ -384,6 +409,7 @@ public inline infix fun @receiver:ColorInt Int.convertTo(colorSpace: ColorSpace)
  * ```
  */
 @RequiresApi(26)
+@SuppressLint("ClassVerificationFailure")
 @ColorLong
 public inline infix fun @receiver:ColorLong Long.convertTo(colorSpace: ColorSpace.Named): Long =
     Color.convert(this, ColorSpace.get(colorSpace))
@@ -396,6 +422,7 @@ public inline infix fun @receiver:ColorLong Long.convertTo(colorSpace: ColorSpac
  * ```
  */
 @RequiresApi(26)
+@SuppressLint("ClassVerificationFailure")
 @ColorLong
 public inline infix fun @receiver:ColorLong Long.convertTo(colorSpace: ColorSpace): Long =
     Color.convert(this, colorSpace)
@@ -408,6 +435,7 @@ public inline infix fun @receiver:ColorLong Long.convertTo(colorSpace: ColorSpac
  * ```
  */
 @RequiresApi(26)
+@SuppressLint("ClassVerificationFailure")
 public inline infix fun Color.convertTo(colorSpace: ColorSpace.Named): Color =
     convert(ColorSpace.get(colorSpace))
 
@@ -419,6 +447,7 @@ public inline infix fun Color.convertTo(colorSpace: ColorSpace.Named): Color =
  * ```
  */
 @RequiresApi(26)
+@SuppressLint("ClassVerificationFailure")
 public inline infix fun Color.convertTo(colorSpace: ColorSpace): Color = convert(colorSpace)
 
 /**
