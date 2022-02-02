@@ -20,13 +20,26 @@ import static androidx.wear.tiles.DimensionBuilders.dp;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RestrictTo;
+import androidx.annotation.RestrictTo.Scope;
+import androidx.wear.tiles.DeviceParametersBuilders;
+import androidx.wear.tiles.DeviceParametersBuilders.DeviceParameters;
 import androidx.wear.tiles.DimensionBuilders.DpProp;
 
-class Helper {
+/**
+ * Helper class used for Tiles Material.
+ *
+ * @hide
+ */
+@RestrictTo(Scope.LIBRARY_GROUP)
+public class Helper {
     private Helper() {}
 
-    /** Returns given value if not null or throws {@code NullPointerException} otherwise. */
-    static @NonNull <T> T checkNotNull(@Nullable T value) {
+    /**
+     * Returns given value if not null or throws {@code NullPointerException} otherwise.
+     */
+    @NonNull
+    public static <T> T checkNotNull(@Nullable T value) {
         if (value == null) {
             throw new NullPointerException();
         }
@@ -36,5 +49,12 @@ class Helper {
     /** Returns radius in {@link DpProp} of the given diameter. */
     static DpProp radiusOf(DpProp diameter) {
         return dp(diameter.getValue() / 2);
+    }
+
+    /**
+     * Returns true if the given DeviceParameters belong to the round screen device.
+     */
+    public static boolean isRoundDevice(@NonNull DeviceParameters deviceParameters) {
+        return deviceParameters.getScreenShape() == DeviceParametersBuilders.SCREEN_SHAPE_ROUND;
     }
 }
