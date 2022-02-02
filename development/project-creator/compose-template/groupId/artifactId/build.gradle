@@ -98,7 +98,7 @@ androidx {
     name = "<NAME>"
     type = LibraryType.<LIBRARY_TYPE>
     mavenVersion = LibraryVersions.<GROUPID>
-    mavenGroup = LibraryGroups.Compose.<GROUPID>
+    mavenGroup = LibraryGroups.COMPOSE_<GROUPID>
     inceptionYear = "<YEAR>"
     description = "<DESCRIPTION>"
 }
