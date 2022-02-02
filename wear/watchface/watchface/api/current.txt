@@ -144,8 +144,10 @@ package androidx.wear.watchface {
     method public androidx.wear.watchface.RenderParameters.HighlightLayer? getHighlightLayer();
     method public java.util.Map<java.lang.Integer,androidx.wear.watchface.TapEvent> getLastComplicationTapDownEvents();
     method public java.util.Set<androidx.wear.watchface.style.WatchFaceLayer> getWatchFaceLayers();
+    method public boolean isForScreenshot();
     property public final androidx.wear.watchface.DrawMode drawMode;
     property public final androidx.wear.watchface.RenderParameters.HighlightLayer? highlightLayer;
+    property public final boolean isForScreenshot;
     property public final java.util.Map<java.lang.Integer,androidx.wear.watchface.TapEvent> lastComplicationTapDownEvents;
     property public final java.util.Set<androidx.wear.watchface.style.WatchFaceLayer> watchFaceLayers;
     field public static final androidx.wear.watchface.RenderParameters.Companion Companion;

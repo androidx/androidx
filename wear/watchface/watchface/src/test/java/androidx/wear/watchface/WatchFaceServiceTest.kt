@@ -112,6 +112,8 @@ import org.robolectric.shadow.api.Shadow
 import org.robolectric.shadows.ShadowPendingIntent
 import java.io.StringWriter
 import java.time.Instant
+import java.time.ZoneId
+import java.time.ZonedDateTime
 import java.util.ArrayDeque
 import java.util.PriorityQueue
 import kotlin.test.assertFailsWith
@@ -4377,6 +4379,36 @@ public class WatchFaceServiceTest {
 
         complicationSlotsManager.selectComplicationDataForInstant(Instant.ofEpochSecond(4000))
         assertThat(getLeftShortTextComplicationDataText()).isEqualTo("A")
+    }
+
+    @Test
+    public fun renderParameters_isScreenshot() {
+        initWallpaperInteractiveWatchFaceInstance(
+            WatchFaceType.ANALOG,
+            emptyList(),
+            UserStyleSchema(emptyList()),
+            WallpaperInteractiveWatchFaceInstanceParams(
+                "interactiveInstanceId",
+                DeviceConfig(
+                    false,
+                    false,
+                    0,
+                    0
+                ),
+                WatchUiState(false, 0),
+                UserStyle(emptyMap()).toWireFormat(),
+                null
+            )
+        )
+
+        renderer.takeScreenshot(
+            ZonedDateTime.ofInstant(Instant.EPOCH, ZoneId.of("GMT")),
+            RenderParameters(DrawMode.INTERACTIVE, WatchFaceLayer.ALL_WATCH_FACE_LAYERS, null)
+        )
+        assertThat(renderer.lastRenderWasForScreenshot).isTrue()
+
+        renderer.renderInternal(ZonedDateTime.ofInstant(Instant.EPOCH, ZoneId.of("GMT")))
+        assertThat(renderer.lastRenderWasForScreenshot).isFalse()
     }
 
     private fun getLeftShortTextComplicationDataText(): CharSequence {

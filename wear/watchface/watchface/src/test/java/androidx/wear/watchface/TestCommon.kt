@@ -241,7 +241,7 @@ public open class TestRenderer(
     interactiveFrameRateMs
 ) {
     public var lastOnDrawZonedDateTime: ZonedDateTime? = null
-    public var lastRenderParameters: RenderParameters = RenderParameters.DEFAULT_INTERACTIVE
+    public var lastRenderWasForScreenshot: Boolean? = null
 
     override fun render(
         canvas: Canvas,
@@ -249,7 +249,7 @@ public open class TestRenderer(
         zonedDateTime: ZonedDateTime
     ) {
         lastOnDrawZonedDateTime = zonedDateTime
-        lastRenderParameters = renderParameters
+        lastRenderWasForScreenshot = renderParameters.isForScreenshot
     }
 
     override fun renderHighlightLayer(canvas: Canvas, bounds: Rect, zonedDateTime: ZonedDateTime) {
