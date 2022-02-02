@@ -186,8 +186,10 @@ public class Chip implements LayoutElement {
          * Sets the content of the {@link Chip} to be the given primary text. Any previously added
          * content will be overridden. Primary text can be on 1 or 2 lines, depending on the length.
          */
+        // There are multiple methods to set different type of content, but there is general getter
+        // getContent that will return LayoutElement set by any of it. b/217197259
         @NonNull
-        @SuppressWarnings("MissingGetterMatchingBuilder")   // There's getContent() method.
+        @SuppressWarnings("MissingGetterMatchingBuilder") // There's getContent() method.
         public Builder setPrimaryTextContent(@NonNull String primaryText) {
             this.mPrimaryText = primaryText;
             this.mLabelText = null;
@@ -196,11 +198,9 @@ public class Chip implements LayoutElement {
         }
 
         /**
-         * Used for creating CompactChip and LargeChip.
+         * Used for creating CompactChip and TitleChip.
          *
-         * <p>Sets the content of the {@link Chip} to be the given primary text. Any previously
-         * added content will be overridden. Primary text can be on 1 or 2 lines, depending on the
-         * length.
+         * <p>Sets the font for the primary text and should only be used internally.
          */
         @NonNull
         Builder setPrimaryTextFontStyle(@NonNull FontStyle fontStyle) {
@@ -214,7 +214,7 @@ public class Chip implements LayoutElement {
          * only.
          */
         @NonNull
-        @SuppressWarnings("MissingGetterMatchingBuilder")   // There's getContent() method.
+        @SuppressWarnings("MissingGetterMatchingBuilder") // There's getContent() method.
         public Builder setPrimaryTextLabelContent(
                 @NonNull String primaryText, @NonNull String label) {
             this.mPrimaryText = primaryText;
@@ -230,7 +230,7 @@ public class Chip implements LayoutElement {
          * chosen alpha channel and not an actual image.
          */
         @NonNull
-        @SuppressWarnings("MissingGetterMatchingBuilder")
+        @SuppressWarnings("MissingGetterMatchingBuilder") // There's getContent() method.
         public Builder setPrimaryTextIconContent(
                 @NonNull String primaryText, @NonNull String resourceId) {
             this.mPrimaryText = primaryText;
@@ -247,7 +247,7 @@ public class Chip implements LayoutElement {
          * channel and not an actual image. Primary text can be shown on 1 line only.
          */
         @NonNull
-        @SuppressWarnings("MissingGetterMatchingBuilder")   // There's getContent() method.
+        @SuppressWarnings("MissingGetterMatchingBuilder") // There's getContent() method.
         public Builder setPrimaryTextLabelIconContent(
                 @NonNull String primaryText, @NonNull String label, @NonNull String resourceId) {
             this.mPrimaryText = primaryText;
@@ -273,8 +273,8 @@ public class Chip implements LayoutElement {
         // TODO(b/207350548): In RTL mode, should icon still be on the left.
         /**
          * Sets the horizontal alignment in the chip. It is strongly recommended that the content of
-         * the chip is start-aligned if there is more than primary text in it. If not set,
-         * {@link HorizontalAlignment#HORIZONTAL_ALIGN_START} will be used.
+         * the chip is start-aligned if there is more than primary text in it. If not set, {@link
+         * HorizontalAlignment#HORIZONTAL_ALIGN_START} will be used.
          */
         @NonNull
         public Builder setHorizontalAlignment(@HorizontalAlignment int horizontalAlignment) {
@@ -282,35 +282,35 @@ public class Chip implements LayoutElement {
             return this;
         }
 
-        /** Used for creating CompactChip and LargeChip. */
+        /** Used for creating CompactChip and TitleChip. */
         @NonNull
         Builder setHorizontalPadding(@NonNull DpProp horizontalPadding) {
             this.mHorizontalPadding = horizontalPadding;
             return this;
         }
 
-        /** Used for creating CompactChip and LargeChip. */
+        /** Used for creating CompactChip and TitleChip. */
         @NonNull
         Builder setVerticalPadding(@NonNull DpProp verticalPadding) {
             this.mVerticalPadding = verticalPadding;
             return this;
         }
 
-        /** Used for creating CompactChip and LargeChip. */
+        /** Used for creating CompactChip and TitleChip. */
         @NonNull
         Builder setHeight(@NonNull DpProp height) {
             this.mHeight = height;
             return this;
         }
 
-        /** Used for creating CompactChip and LargeChip. */
+        /** Used for creating CompactChip and TitleChip. */
         @NonNull
         Builder setWidth(@NonNull ContainerDimension width) {
             this.mWidth = width;
             return this;
         }
 
-        /** Used for creating CompactChip and LargeChip. */
+        /** Used for creating CompactChip and TitleChip. */
         @NonNull
         Builder setMaxLines(int maxLines) {
             this.mMaxLines = maxLines;
@@ -366,7 +366,7 @@ public class Chip implements LayoutElement {
             if (mType == NOT_SET) {
                 throw new IllegalStateException(
                         "No content set. Use setPrimaryTextContent or similar method to add"
-                            + " content");
+                                + " content");
             }
             if (mType == CUSTOM_CONTENT) {
                 return checkNotNull(mCustomContent);

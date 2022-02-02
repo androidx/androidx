@@ -19,9 +19,9 @@ package androidx.wear.tiles.material;
 import static androidx.annotation.Dimension.DP;
 import static androidx.wear.tiles.DimensionBuilders.dp;
 import static androidx.wear.tiles.LayoutElementBuilders.HORIZONTAL_ALIGN_CENTER;
-import static androidx.wear.tiles.material.ChipDefaults.LARGE_HEIGHT;
-import static androidx.wear.tiles.material.ChipDefaults.LARGE_HORIZONTAL_PADDING;
-import static androidx.wear.tiles.material.ChipDefaults.LARGE_PRIMARY;
+import static androidx.wear.tiles.material.ChipDefaults.TITLE_HEIGHT;
+import static androidx.wear.tiles.material.ChipDefaults.TITLE_HORIZONTAL_PADDING;
+import static androidx.wear.tiles.material.ChipDefaults.TITLE_PRIMARY;
 
 import androidx.annotation.Dimension;
 import androidx.annotation.NonNull;
@@ -32,7 +32,6 @@ import androidx.wear.tiles.ActionBuilders.Action;
 import androidx.wear.tiles.DeviceParametersBuilders.DeviceParameters;
 import androidx.wear.tiles.DimensionBuilders.ContainerDimension;
 import androidx.wear.tiles.DimensionBuilders.DpProp;
-import androidx.wear.tiles.LayoutElementBuilders;
 import androidx.wear.tiles.LayoutElementBuilders.FontStyles;
 import androidx.wear.tiles.LayoutElementBuilders.HorizontalAlignment;
 import androidx.wear.tiles.LayoutElementBuilders.LayoutElement;
@@ -41,11 +40,11 @@ import androidx.wear.tiles.proto.LayoutElementProto;
 /**
  * Tiles component {@link TitleChip} that represents clickable object with the text.
  *
- * <p>The Large Chip is Stadium shaped object with a larger height then standard Chip and it will
+ * <p>The Title Chip is Stadium shaped object with a larger height then standard Chip and it will
  * take one line of text of {@link FontStyles#title2} style.
  *
  * <p>The recommended set of {@link ChipColors} styles can be obtained from {@link ChipDefaults},
- * e.g. {@link ChipDefaults#LARGE_PRIMARY} to get a color scheme for a primary {@link TitleChip}
+ * e.g. {@link ChipDefaults#TITLE_PRIMARY} to get a color scheme for a primary {@link TitleChip}
  * which by default will have a solid background of {@link Colors#PRIMARY} and text color of {@link
  * Colors#ON_PRIMARY}.
  */
@@ -62,8 +61,8 @@ public class TitleChip implements LayoutElement {
         @NonNull private final Action mAction;
         @NonNull private final String mClickableId;
         @NonNull private final DeviceParameters mDeviceParameters;
-        @NonNull private ChipColors mChipColors = LARGE_PRIMARY;
-        private @HorizontalAlignment int mHorizontalAlignment = HORIZONTAL_ALIGN_CENTER;
+        @NonNull private ChipColors mChipColors = TITLE_PRIMARY;
+        private @HorizontalAlignment int mHorizontalAlign = HORIZONTAL_ALIGN_CENTER;
 
         // Indicates that the width isn't set, so it will be automatically set by Chip.Builder
         // constructor.
@@ -72,9 +71,9 @@ public class TitleChip implements LayoutElement {
         /**
          * Creates a builder for the {@link TitleChip} with associated action and the given text
          *
-         * @param text The text to be displayed in this large chip. Text will be displayed in 1 line
+         * @param text The text to be displayed in this title chip. Text will be displayed in 1 line
          *     and truncated if it doesn't fit.
-         * @param action Associated Actions for click events. When the LargeChip is clicked it will
+         * @param action Associated Actions for click events. When the TitleChip is clicked it will
          *     fire the associated action.
          * @param clickableId The ID associated with the given action's clickable.
          * @param deviceParameters The device parameters used for styling text.
@@ -96,7 +95,7 @@ public class TitleChip implements LayoutElement {
          * Sets the colors for the {@link TitleChip}. If set, {@link
          * ChipColors#getBackgroundColor()} will be used for the background of the button and {@link
          * ChipColors#getContentColor()} for the text. If not set, {@link
-         * ChipDefaults#LARGE_PRIMARY} will be used.
+         * ChipDefaults#TITLE_PRIMARY} will be used.
          */
         @NonNull
         public Builder setChipColors(@NonNull ChipColors chipColors) {
@@ -107,7 +106,7 @@ public class TitleChip implements LayoutElement {
         /** Sets the horizontal alignment in the chip. If not set, content will be centered. */
         @NonNull
         public Builder setHorizontalAlignment(@HorizontalAlignment int horizontalAlignment) {
-            mHorizontalAlignment = horizontalAlignment;
+            mHorizontalAlign = horizontalAlignment;
             return this;
         }
 
@@ -139,10 +138,10 @@ public class TitleChip implements LayoutElement {
                     new Chip.Builder(mAction, mClickableId, mDeviceParameters)
                             .setChipColors(mChipColors)
                             .setContentDescription(mText)
-                            .setHorizontalAlignment(mHorizontalAlignment)
-                            .setHeight(LARGE_HEIGHT)
+                            .setHorizontalAlignment(mHorizontalAlign)
+                            .setHeight(TITLE_HEIGHT)
                             .setMaxLines(1)
-                            .setHorizontalPadding(LARGE_HORIZONTAL_PADDING)
+                            .setHorizontalPadding(TITLE_HORIZONTAL_PADDING)
                             .setPrimaryTextContent(mText)
                             .setPrimaryTextFontStyle(FontStyles.title2(mDeviceParameters).build());
 
@@ -191,7 +190,7 @@ public class TitleChip implements LayoutElement {
     }
 
     /** Returns the horizontal alignment of the content in this Chip. */
-    public @LayoutElementBuilders.HorizontalAlignment int getHorizontalAlignment() {
+    public @HorizontalAlignment int getHorizontalAlignment() {
         return mElement.getHorizontalAlignment();
     }
 
