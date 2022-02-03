@@ -7,14 +7,12 @@
     ],
     "compose" : {
         "include" : [
-            "compose-compiler"
+            "compose-runtime"
         ],
         "default": false
     },
     "main" : {
         "exclude" : [
-            "room",
-            "biometrics"
         ],
         "default": true
     }
