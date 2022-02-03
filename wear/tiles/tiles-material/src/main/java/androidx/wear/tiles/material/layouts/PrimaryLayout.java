@@ -53,7 +53,7 @@ import androidx.wear.tiles.proto.LayoutElementProto;
  * (compact) chip at the bottom with the given content in a center and the recommended margin and
  * padding applied.
  */
-// TODO(b/215323986)
+// TODO(b/215323986): Link visuals.
 public class PrimaryLayout implements LayoutElement {
     @NonNull private final LayoutElement mElement;
 

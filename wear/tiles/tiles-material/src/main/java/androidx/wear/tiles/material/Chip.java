@@ -187,9 +187,9 @@ public class Chip implements LayoutElement {
          * content will be overridden. Primary text can be on 1 or 2 lines, depending on the length.
          */
         // There are multiple methods to set different type of content, but there is general getter
-        // getContent that will return LayoutElement set by any of it. b/217197259
+        // getContent that will return LayoutElement set by any of them. b/217197259
         @NonNull
-        @SuppressWarnings("MissingGetterMatchingBuilder") // There's getContent() method.
+        @SuppressWarnings("MissingGetterMatchingBuilder")
         public Builder setPrimaryTextContent(@NonNull String primaryText) {
             this.mPrimaryText = primaryText;
             this.mLabelText = null;
@@ -213,8 +213,10 @@ public class Chip implements LayoutElement {
          * Any previously added content will be overridden. Primary text can be shown on 1 line
          * only.
          */
+        // There are multiple methods to set different type of content, but there is general getter
+        // getContent that will return LayoutElement set by any of them. b/217197259
         @NonNull
-        @SuppressWarnings("MissingGetterMatchingBuilder") // There's getContent() method.
+        @SuppressWarnings("MissingGetterMatchingBuilder")
         public Builder setPrimaryTextLabelContent(
                 @NonNull String primaryText, @NonNull String label) {
             this.mPrimaryText = primaryText;
@@ -229,8 +231,10 @@ public class Chip implements LayoutElement {
          * tinted to the given content color from {@link ChipColors}. This icon should be image with
          * chosen alpha channel and not an actual image.
          */
+        // There are multiple methods to set different type of content, but there is general getter
+        // getContent that will return LayoutElement set by any of them. b/217197259
         @NonNull
-        @SuppressWarnings("MissingGetterMatchingBuilder") // There's getContent() method.
+        @SuppressWarnings("MissingGetterMatchingBuilder")
         public Builder setPrimaryTextIconContent(
                 @NonNull String primaryText, @NonNull String resourceId) {
             this.mPrimaryText = primaryText;
@@ -246,8 +250,10 @@ public class Chip implements LayoutElement {
          * content color from {@link ChipColors}. This icon should be image with chosen alpha
          * channel and not an actual image. Primary text can be shown on 1 line only.
          */
+        // There are multiple methods to set different type of content, but there is general getter
+        // getContent that will return LayoutElement set by any of them. b/217197259
         @NonNull
-        @SuppressWarnings("MissingGetterMatchingBuilder") // There's getContent() method.
+        @SuppressWarnings("MissingGetterMatchingBuilder")
         public Builder setPrimaryTextLabelIconContent(
                 @NonNull String primaryText, @NonNull String label, @NonNull String resourceId) {
             this.mPrimaryText = primaryText;
