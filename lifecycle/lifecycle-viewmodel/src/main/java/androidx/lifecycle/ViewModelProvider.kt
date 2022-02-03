@@ -23,7 +23,9 @@ import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.de
 import androidx.lifecycle.viewmodel.CreationExtras.Key
 import androidx.lifecycle.ViewModelProvider.NewInstanceFactory.Companion.VIEW_MODEL_KEY
 import androidx.lifecycle.viewmodel.CreationExtras
+import androidx.lifecycle.viewmodel.InitializerViewModelFactory
 import androidx.lifecycle.viewmodel.MutableCreationExtras
+import androidx.lifecycle.viewmodel.ViewModelInitializer
 import java.lang.IllegalArgumentException
 import java.lang.RuntimeException
 import java.lang.reflect.InvocationTargetException
@@ -77,6 +79,18 @@ constructor(
          */
         public fun <T : ViewModel> create(modelClass: Class<T>, extras: CreationExtras): T =
             create(modelClass)
+
+        companion object {
+            /**
+             * Creates an [InitializerViewModelFactory] using the given initializers.
+             *
+             * @param initializers the class initializer pairs used for the factory to create
+             * simple view models
+             */
+            @JvmStatic
+            fun from(vararg initializers: ViewModelInitializer<*>): Factory =
+                InitializerViewModelFactory(*initializers)
+        }
     }
 
     /**
