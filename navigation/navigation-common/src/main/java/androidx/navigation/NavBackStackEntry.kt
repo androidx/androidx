@@ -114,9 +114,7 @@ public class NavBackStackEntry private constructor(
     private var lifecycle = LifecycleRegistry(this)
     private val savedStateRegistryController = SavedStateRegistryController.create(this)
     private var savedStateRegistryAttached = false
-    private val defaultFactory by lazy {
-        SavedStateViewModelFactory((context?.applicationContext as? Application), this, arguments)
-    }
+    private val defaultFactory by lazy { SavedStateViewModelFactory() }
 
     /**
      * The [SavedStateHandle] for this entry.
@@ -132,7 +130,7 @@ public class NavBackStackEntry private constructor(
                 "NavBackStackEntry is destroyed."
         }
         ViewModelProvider(
-            this, NavResultSavedStateFactory(this, null)
+            this, NavResultSavedStateFactory(this)
         ).get(SavedStateViewModel::class.java).handle
     }
 
@@ -268,9 +266,8 @@ public class NavBackStackEntry private constructor(
      * Used to create the {SavedStateViewModel}
      */
     private class NavResultSavedStateFactory(
-        owner: SavedStateRegistryOwner,
-        defaultArgs: Bundle?
-    ) : AbstractSavedStateViewModelFactory(owner, defaultArgs) {
+        owner: SavedStateRegistryOwner
+    ) : AbstractSavedStateViewModelFactory(owner, null) {
         @Suppress("UNCHECKED_CAST")
         override fun <T : ViewModel> create(
             key: String,
