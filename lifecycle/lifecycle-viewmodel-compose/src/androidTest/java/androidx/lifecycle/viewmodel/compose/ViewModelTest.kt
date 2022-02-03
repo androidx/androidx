@@ -135,6 +135,31 @@ public class ViewModelTest {
     }
 
     @Test
+    public fun viewModelCreatedCreationExtrasInitializer() {
+        val owner = FakeViewModelStoreOwner()
+        var createdInComposition: Any? = null
+        val extrasKey = object : CreationExtras.Key<String> { }
+        rule.setContent {
+            CompositionLocalProvider(LocalViewModelStoreOwner provides owner) {
+                createdInComposition = viewModel(
+                    key = "test",
+                    initializer = {
+                        TestViewModel(MutableCreationExtras(this).apply {
+                            set(extrasKey, "value")
+                        })
+                    }
+                )
+            }
+        }
+
+        assertThat(owner.factory.createCalled).isFalse()
+        val createdManually =
+            ViewModelProvider(owner)["test", TestViewModel::class.java]
+        assertThat(createdInComposition).isEqualTo(createdManually)
+        assertThat(createdManually.extras[extrasKey]).isEqualTo("value")
+    }
+
+    @Test
     public fun viewModelCreatedViaDefaultFactoryWithCustomOwner() {
         val customOwner = FakeViewModelStoreOwner()
         val owner = FakeViewModelStoreOwner()
@@ -223,7 +248,7 @@ public class ViewModelTest {
     }
 }
 
-private class TestViewModel : ViewModel()
+private class TestViewModel(val extras: CreationExtras = CreationExtras.Empty) : ViewModel()
 
 private class FakeViewModelProviderFactory : ViewModelProvider.Factory {
     var createCalled = false
