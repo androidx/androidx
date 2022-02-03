@@ -21,7 +21,7 @@ jobs:
       - id: run_tests
         uses: androidX/androidx-ci-action@dist-latest
         with:
-          run-id: ${{ github.event.workflow_run.id }}
+          target-run-id: ${{ github.event.workflow_run.id }}
           gcp-token: ${{ secrets.GCP_SA_KEY }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
           output-folder: ${{ steps.dirs.outputs.output-dir }}
