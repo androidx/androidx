@@ -8,7 +8,7 @@ import os
 def usage(exitCode):
     print("""
         Usage:
-        ./should_run_project.sh --project <project-name> --branch <current branch name>\n\
+        ./should_run_project.py --project <project-name> --branch <current branch name>\n\
         project-name: the name of the project from the workflow file\n\
         branch: the target branch on the build\n\
         Branches whose name starts with 'compose' use the compose configuration whereas\n\
