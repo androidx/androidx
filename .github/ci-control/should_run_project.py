@@ -4,6 +4,7 @@ import getopt
 import json
 import os
 
+
 def usage(exitCode):
     print("""
         Usage:
@@ -16,8 +17,9 @@ def usage(exitCode):
         """)
     sys.exit(exitCode)
 
-
 # finds the configuration we should use based on the branch
+
+
 def getCurrentConfig(branch: str):
     configFilePath = os.path.join(os.path.dirname(
         os.path.realpath(__file__)), "ci-config.json")
@@ -50,13 +52,14 @@ def main(argv):
             usage(2)
 
     currentConfig = getCurrentConfig(branch)
-    result=currentConfig["default"]
+    result = currentConfig["default"]
     if "include" in currentConfig:
         result = projectName in currentConfig["include"]
     # run exclude after include to give it priority
     if "exclude" in currentConfig:
         result = not (projectName in currentConfig["exclude"])
     print(str(result).lower())
+
 
 if __name__ == "__main__":
     main(sys.argv[1:])
