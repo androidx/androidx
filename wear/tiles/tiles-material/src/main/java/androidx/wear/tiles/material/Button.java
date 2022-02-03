@@ -181,8 +181,10 @@ public class Button implements LayoutElement {
          * ButtonColors} and with the given size. This icon should be image with chosen alpha
          * channel and not an actual image.
          */
+        // There are multiple methods to set different type of content, but there is general getter
+        // getContent that will return LayoutElement set by any of them. b/217197259
         @NonNull
-        @SuppressWarnings("MissingGetterMatchingBuilder")   // There's getContent() method.
+        @SuppressWarnings("MissingGetterMatchingBuilder")
         public Builder setIconContent(@NonNull String resourceId, @NonNull DpProp size) {
             resetContent();
             this.mIcon = resourceId;
@@ -198,8 +200,10 @@ public class Button implements LayoutElement {
          * icon will be tinted to the given content color from {@link ButtonColors}. This icon
          * should be image with chosen alpha channel and not an actual image.
          */
+        // There are multiple methods to set different type of content, but there is general getter
+        // getContent that will return LayoutElement set by any of them. b/217197259
         @NonNull
-        @SuppressWarnings("MissingGetterMatchingBuilder")   // There's getContent() method.
+        @SuppressWarnings("MissingGetterMatchingBuilder")
         public Builder setIconContent(@NonNull String resourceId) {
             resetContent();
             this.mIcon = resourceId;
@@ -216,8 +220,10 @@ public class Button implements LayoutElement {
          * respectively). Any previously added content will be overridden. Text should contain no
          * more than 3 characters, otherwise it will overflow from the edges.
          */
+        // There are multiple methods to set different type of content, but there is general getter
+        // getContent that will return LayoutElement set by any of them. b/217197259
         @NonNull
-        @SuppressWarnings("MissingGetterMatchingBuilder")   // There's getContent() method.
+        @SuppressWarnings("MissingGetterMatchingBuilder")
         public Builder setTextContent(
                 @NonNull String text, @NonNull DeviceParameters deviceParameters) {
             resetContent();
@@ -235,8 +241,10 @@ public class Button implements LayoutElement {
          * customizing the colors of the button. Any previously added content will be overridden.
          * Text should contain no more than 3 characters, otherwise it will overflow from the edges.
          */
+        // There are multiple methods to set different type of content, but there is general getter
+        // getContent that will return LayoutElement set by any of them. b/217197259
         @NonNull
-        @SuppressWarnings("MissingGetterMatchingBuilder")   // There's getContent() method.
+        @SuppressWarnings("MissingGetterMatchingBuilder")
         public Builder setTextContent(@NonNull String text, @NonNull FontStyle font) {
             resetContent();
             this.mText = text;
@@ -252,8 +260,10 @@ public class Button implements LayoutElement {
          * will be tinted to the given content color from {@link ButtonColors}. This icon should be
          * image with chosen alpha channel and not an actual image.
          */
+        // There are multiple methods to set different type of content, but there is general getter
+        // getContent that will return LayoutElement set by any of them. b/217197259
         @NonNull
-        @SuppressWarnings("MissingGetterMatchingBuilder")   // There's getContent() method.
+        @SuppressWarnings("MissingGetterMatchingBuilder")
         public Builder setImageContent(@NonNull String resourceId) {
             resetContent();
             this.mImage = resourceId;

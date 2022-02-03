@@ -46,7 +46,7 @@ import androidx.wear.tiles.proto.LayoutElementProto;
  * indicator around the edges of the screen and the given content inside of it and the recommended
  * margin and padding applied.
  */
-// TODO(b/215323986)
+// TODO(b/215323986): Link visuals.
 public class ProgressIndicatorLayout implements LayoutElement {
     @NonNull private final LayoutElement mElement;
 
