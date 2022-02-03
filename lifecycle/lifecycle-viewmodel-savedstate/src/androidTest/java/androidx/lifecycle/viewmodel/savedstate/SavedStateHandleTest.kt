@@ -140,6 +140,15 @@ class SavedStateHandleTest {
 
     @Test
     @UiThreadTest
+    fun newliveData_withInitialGet() {
+        val handle = SavedStateHandle()
+        val ld: LiveData<String?> = handle.getLiveData("aa", "xx")
+        ld.assertValue("xx")
+        assertThat(handle.get<String?>("aa")).isEqualTo("xx")
+    }
+
+    @Test
+    @UiThreadTest
     fun newLiveData_existingValue_withInitial() {
         val handle = SavedStateHandle()
         handle["aa"] = "existing"
