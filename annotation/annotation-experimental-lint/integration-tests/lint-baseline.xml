@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.1.0-beta02" type="baseline" client="gradle" dependencies="false" name="AGP (7.1.0-beta02)" variant="all" version="7.1.0-beta02">
+<issues format="6" by="lint 7.3.0-alpha01" type="baseline" client="gradle" dependencies="false" name="AGP (7.3.0-alpha01)" variant="all" version="7.3.0-alpha01">
 
     <issue
         id="ExperimentalAnnotationRetention"
@@ -510,6 +510,50 @@
     <issue
         id="UnsafeOptInUsageError"
         message="This declaration is opt-in and its usage should be marked with `@sample.experimental.foo.ExperimentalPackage` or `@OptIn(markerClass = sample.experimental.foo.ExperimentalPackage.class)`"
+        errorLine1="        Bar bar = new Bar();"
+        errorLine2="                  ~~~~~~~~~">
+        <location
+            file="src/main/java/sample/experimental/UseJavaPackageFromJava.java"
+            line="28"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="UnsafeOptInUsageError"
+        message="This declaration is opt-in and its usage should be marked with `@sample.experimental.foo.ExperimentalPackage` or `@OptIn(markerClass = sample.experimental.foo.ExperimentalPackage.class)`"
+        errorLine1="        bar.baz();"
+        errorLine2="            ~~~">
+        <location
+            file="src/main/java/sample/experimental/UseJavaPackageFromJava.java"
+            line="29"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnsafeOptInUsageError"
+        message="This declaration is opt-in and its usage should be marked with `@sample.optin.ExperimentalJavaAnnotation` or `@OptIn(markerClass = sample.optin.ExperimentalJavaAnnotation.class)`"
+        errorLine1="        AnnotatedJavaPackage experimentalObject = new AnnotatedJavaPackage();"
+        errorLine2="                                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/sample/optin/UseJavaPackageFromJava.java"
+            line="33"
+            column="51"/>
+    </issue>
+
+    <issue
+        id="UnsafeOptInUsageError"
+        message="This declaration is opt-in and its usage should be marked with `@sample.optin.ExperimentalJavaAnnotation` or `@OptIn(markerClass = sample.optin.ExperimentalJavaAnnotation.class)`"
+        errorLine1="        experimentalObject.method();"
+        errorLine2="                           ~~~~~~">
+        <location
+            file="src/main/java/sample/optin/UseJavaPackageFromJava.java"
+            line="34"
+            column="28"/>
+    </issue>
+
+    <issue
+        id="UnsafeOptInUsageError"
+        message="This declaration is opt-in and its usage should be marked with `@sample.experimental.foo.ExperimentalPackage` or `@OptIn(markerClass = sample.experimental.foo.ExperimentalPackage.class)`"
         errorLine1="        callPackageExperimental();"
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -527,6 +571,50 @@
             file="src/main/java/sample/optin/UseJavaPackageFromJava.java"
             line="67"
             column="9"/>
+    </issue>
+
+    <issue
+        id="UnsafeOptInUsageError"
+        message="This declaration is opt-in and its usage should be marked with `@sample.optin.ExperimentalJavaAnnotation` or `@OptIn(markerClass = sample.optin.ExperimentalJavaAnnotation.class)`"
+        errorLine1="        val experimentalObject = AnnotatedJavaPackage()"
+        errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/sample/optin/UseJavaPackageFromKt.kt"
+            line="30"
+            column="34"/>
+    </issue>
+
+    <issue
+        id="UnsafeOptInUsageError"
+        message="This declaration is opt-in and its usage should be marked with `@sample.optin.ExperimentalJavaAnnotation` or `@OptIn(markerClass = sample.optin.ExperimentalJavaAnnotation.class)`"
+        errorLine1="        experimentalObject.method()"
+        errorLine2="                           ~~~~~~">
+        <location
+            file="src/main/java/sample/optin/UseJavaPackageFromKt.kt"
+            line="31"
+            column="28"/>
+    </issue>
+
+    <issue
+        id="UnsafeOptInUsageError"
+        message="This declaration is opt-in and its usage should be marked with `@sample.experimental.foo.ExperimentalPackage` or `@OptIn(markerClass = sample.experimental.foo.ExperimentalPackage.class)`"
+        errorLine1="        val bar = Bar()"
+        errorLine2="                  ~~~">
+        <location
+            file="src/main/java/sample/experimental/UseJavaPackageFromKt.kt"
+            line="32"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="UnsafeOptInUsageError"
+        message="This declaration is opt-in and its usage should be marked with `@sample.experimental.foo.ExperimentalPackage` or `@OptIn(markerClass = sample.experimental.foo.ExperimentalPackage.class)`"
+        errorLine1="        bar.baz()"
+        errorLine2="            ~~~">
+        <location
+            file="src/main/java/sample/experimental/UseJavaPackageFromKt.kt"
+            line="33"
+            column="13"/>
     </issue>
 
     <issue

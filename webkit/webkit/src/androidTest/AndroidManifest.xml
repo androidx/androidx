@@ -15,7 +15,7 @@
   ~ limitations under the License.
   -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="androidx.webkit">
+          package="androidx.webkit.test">
     <!-- Note: we must provide INTERNET permission for
          ServiceWorkerWebSettingsCompatTest#testBlockNetworkLoads -->
     <uses-permission android:name="android.permission.INTERNET" />
@@ -26,6 +26,6 @@
                  android:hardwareAccelerated="true"
                  android:usesCleartextTraffic="true">
 
-        <activity android:name=".WebViewTestActivity"/>
+        <activity android:name="androidx.webkit.WebViewTestActivity"/>
     </application>
 </manifest>

@@ -38,6 +38,7 @@ dependencies {
     implementation project(":annotation:annotation")
     implementation(project(":core:core-splashscreen"))
     implementation(project(":core:core-ktx"))
+    implementation(project(":interpolator:interpolator"))
     compileOnly(project(":annotation:annotation-sampled"))
 }
 
