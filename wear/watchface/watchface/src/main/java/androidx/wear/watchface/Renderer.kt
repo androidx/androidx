@@ -511,7 +511,9 @@ public sealed class Renderer @WorkerThread constructor(
             )
             val prevRenderParameters = this.renderParameters
             this.renderParameters = renderParameters
+            this.renderParameters.isForScreenshot = true
             renderAndComposite(Canvas(bitmap), zonedDateTime)
+            this.renderParameters.isForScreenshot = false
             this.renderParameters = prevRenderParameters
             return bitmap
         }
@@ -1136,7 +1138,9 @@ public sealed class Renderer @WorkerThread constructor(
                 runUiThreadGlCommands {
                     val prevRenderParameters = this@GlesRenderer.renderParameters
                     this@GlesRenderer.renderParameters = renderParameters
+                    renderParameters.isForScreenshot = true
                     renderAndComposite(zonedDateTime)
+                    renderParameters.isForScreenshot = false
                     this@GlesRenderer.renderParameters = prevRenderParameters
                     GLES20.glFinish()
                     GLES20.glReadPixels(
