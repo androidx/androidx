@@ -38,6 +38,7 @@ import androidx.room.testing.MigrationTestHelper;
 import androidx.room.util.TableInfo;
 import androidx.room.util.ViewInfo;
 import androidx.sqlite.db.SupportSQLiteDatabase;
+import androidx.sqlite.db.SupportSQLiteOpenHelper;
 import androidx.sqlite.db.framework.FrameworkSQLiteOpenHelperFactory;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -559,6 +560,37 @@ public class MigrationTest {
             Truth.assertThat(ex).hasMessageThat().contains(
                     "Migration didn't properly handle"
             );
+        }
+    }
+
+    // Verifies that even with allowDataLossOnRecovery, bad migrations are propagated and the DB
+    // is not silently deleted.
+    @Test
+    public void badMigration_allowDataLossOnRecovery() throws IOException {
+        // Create DB at version 1
+        helper.createDatabase(TEST_DB, 1).close();
+
+        // Create DB at latest version, but no migrations and with allowDataLossOnRecovery, it
+        // should fail to open.
+        Context targetContext = ApplicationProvider.getApplicationContext();
+        MigrationDb db = Room.databaseBuilder(targetContext, MigrationDb.class, TEST_DB)
+                .openHelperFactory(configuration -> {
+                    SupportSQLiteOpenHelper.Configuration config =
+                            SupportSQLiteOpenHelper.Configuration.builder(targetContext)
+                                    .name(configuration.name)
+                                    .callback(configuration.callback)
+                                    .allowDataLossOnRecovery(true)
+                                    .build();
+                    return new FrameworkSQLiteOpenHelperFactory().create(config);
+                })
+                .build();
+        try {
+            db.getOpenHelper().getWritableDatabase();
+            Assert.fail("Expected a missing migration exception");
+        } catch (IllegalStateException ex) {
+            // Verifies exception is not wrapped
+            Truth.assertThat(ex).hasMessageThat()
+                    .containsMatch("A migration from \\d+ to \\d+ was required but not found.");
         }
     }
 
