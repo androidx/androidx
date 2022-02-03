@@ -483,6 +483,6 @@ else
   cd "${smallestFilesOutput}"
   "${scriptPath}/impl/join.sh" "${splitsPath}" "${smallestFilesSandbox}"
 
-  echo "Done. See simplest discovered reproduction test case at ${smallestFilesOutput}"
+  echo "Done. See simplest discovered reproduction test case at ${smallestFilesOutput}/${smallestFilesWork}"
 fi
 notify succeeded
