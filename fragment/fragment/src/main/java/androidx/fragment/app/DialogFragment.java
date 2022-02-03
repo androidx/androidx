@@ -34,6 +34,7 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 
+import androidx.activity.ComponentDialog;
 import androidx.annotation.IntDef;
 import androidx.annotation.LayoutRes;
 import androidx.annotation.MainThread;
@@ -615,7 +616,7 @@ public class DialogFragment extends Fragment
         if (FragmentManager.isLoggingEnabled(Log.DEBUG)) {
             Log.d(TAG, "onCreateDialog called for DialogFragment " + this);
         }
-        return new Dialog(requireContext(), getTheme());
+        return new ComponentDialog(requireContext(), getTheme());
     }
 
     @Override
