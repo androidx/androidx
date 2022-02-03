@@ -260,6 +260,7 @@ dependencies {
     docs("androidx.wear.compose:compose-navigation:1.0.0-alpha15")
     samples("androidx.wear.compose:compose-navigation-samples:1.0.0-alpha15")
     docs("androidx.wear.tiles:tiles:1.1.0-alpha01")
+    docs("androidx.wear.tiles:tiles-material:1.1.0-alpha01")
     docs("androidx.wear.tiles:tiles-proto:1.1.0-alpha01")
     docs("androidx.wear.tiles:tiles-renderer:1.1.0-alpha01")
     docs("androidx.wear.tiles:tiles-testing:1.1.0-alpha01")
