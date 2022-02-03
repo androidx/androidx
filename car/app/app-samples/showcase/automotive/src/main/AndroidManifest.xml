@@ -108,10 +108,14 @@
         android:exported="true"
         android:launchMode="singleTask"
         android:label="Showcase">
-
       <intent-filter>
         <action android:name="android.intent.action.MAIN" />
         <category android:name="android.intent.category.LAUNCHER" />
+      </intent-filter>
+      <intent-filter>
+        <action android:name="androidx.car.app.action.NAVIGATE" />
+        <category android:name="android.intent.category.DEFAULT"/>
+        <data android:scheme="geo" />
       </intent-filter>
       <meta-data android:name="distractionOptimized" android:value="true"/>
     </activity>
@@ -122,16 +126,9 @@
         android:exported="true"
         android:launchMode="singleTask"
         android:label="Showcase - Debug">
-
       <intent-filter>
         <action android:name="android.intent.action.MAIN" />
         <category android:name="android.intent.category.LAUNCHER" />
-      </intent-filter>
-
-      <intent-filter>
-        <action android:name="androidx.car.app.action.NAVIGATE" />
-        <category android:name="android.intent.category.DEFAULT"/>
-        <data android:scheme="geo" />
       </intent-filter>
     </activity>
 
