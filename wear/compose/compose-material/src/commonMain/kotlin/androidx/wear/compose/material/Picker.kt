@@ -28,6 +28,10 @@ import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -40,25 +44,48 @@ import androidx.compose.ui.unit.dp
  *
  * @param state The state of the component
  * @param modifier Modifier to be applied to the Picker
- * @param scalingParams the parameters to configure the scaling and transparency effects for the
+ * @param scalingParams The parameters to configure the scaling and transparency effects for the
  * component. See [ScalingParams]
- * "infinitely" in both directions. If false, the elements will appear only once.
- * @param separation the amount of separation in [Dp] between items. Can be negative, which can be
+ * @param separation The amount of separation in [Dp] between items. Can be negative, which can be
  * useful for Text if it has plenty of whitespace.
- * @param option a block which describes the content. Inside this block you can reference
+ * @param gradientRatio The size relative to the Picker height that the top and bottom gradients
+ * take. These gradients blur the picker content on the top and bottom. The default is 0.33,
+ * so the top 1/3 and the bottom 1/3 of the picker are taken by gradients. Should be between 0.0 and
+ * 0.5. Use 0.0 to disable the gradient.
+ * @param gradientColor Should be the color outside of the Picker, so there is continuity.
+ * @param option A block which describes the content. Inside this block you can reference
  * [PickerScope.selectedOption] and other properties in [PickerScope]
  */
 @Composable
-fun Picker(
+public fun Picker(
     state: PickerState,
     modifier: Modifier = Modifier,
     scalingParams: ScalingParams = PickerDefaults.scalingParams(),
     separation: Dp = 0.dp,
+    /* @FloatRange(from = 0.0, to = 0.5) */
+    gradientRatio: Float = PickerDefaults.DefaultGradientRatio,
+    gradientColor: Color = MaterialTheme.colors.background,
     option: @Composable PickerScope.(optionIndex: Int) -> Unit
 ) {
+    require(gradientRatio in 0f..0.5f) { "gradientRatio should be between 0.0 and 0.5" }
     val pickerScope = remember(state) { PickerScopeImpl(state) }
     ScalingLazyColumn(
-        modifier = modifier,
+        modifier = modifier.drawWithContent {
+            drawContent()
+            if (gradientRatio > 0.0f) {
+                // Apply a fade-out gradient on the top and bottom.
+                drawRect(Brush.linearGradient(
+                    colors = listOf(gradientColor, Color.Transparent),
+                    start = Offset(size.width / 2, 0f),
+                    end = Offset(size.width / 2, size.height * gradientRatio)
+                ))
+                drawRect(Brush.linearGradient(
+                    colors = listOf(Color.Transparent, gradientColor),
+                    start = Offset(size.width / 2, size.height * (1 - gradientRatio)),
+                    end = Offset(size.width / 2, size.height)
+                ))
+            }
+        },
         state = state.scalingLazyListState,
         content = {
             items(state.numberOfOptions * state.repeatTarget) { ix ->
@@ -103,7 +130,7 @@ public fun rememberPickerState(
  * @param repeatItems if true (the default), the contents of the component will be repeated
  */
 @Stable
-class PickerState constructor(
+public class PickerState constructor(
     val numberOfOptions: Int,
     initiallySelectedOption: Int = 0,
     val repeatItems: Boolean = true
@@ -189,6 +216,8 @@ public object PickerDefaults {
         scaleInterpolator = scaleInterpolator,
         viewportVerticalOffsetResolver = viewportVerticalOffsetResolver
     )
+
+    val DefaultGradientRatio = 0.33f
 }
 
 /**
