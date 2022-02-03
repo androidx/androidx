@@ -32,9 +32,11 @@ import androidx.annotation.IntDef;
 import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.OptIn;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.CarContext;
 import androidx.car.app.annotations.CarProtocol;
+import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.model.constraints.CarIconConstraints;
 import androidx.lifecycle.LifecycleOwner;
@@ -86,10 +88,12 @@ public final class Action {
      * @hide
      */
     @RestrictTo(LIBRARY)
+    @OptIn(markerClass = ExperimentalCarApi.class)
     @IntDef(
             flag = true,
             value = {
                     FLAG_PRIMARY,
+                    FLAG_IS_PERSISTENT,
             })
     @Retention(RetentionPolicy.SOURCE)
     public @interface ActionFlag {
@@ -131,6 +135,13 @@ public final class Action {
      */
     @RequiresCarApi(4)
     public static final int FLAG_PRIMARY = 1 << 0;
+
+    /**
+     * Indicates that this action will not fade in/out inside an {@link ActionStrip}.
+     */
+    @RequiresCarApi(5)
+    @ExperimentalCarApi
+    public static final int FLAG_IS_PERSISTENT = 1 << 1;
 
     /**
      * A standard action to show the app's icon.
