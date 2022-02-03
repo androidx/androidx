@@ -93,6 +93,7 @@ public class ScalingLazyListLayoutInfoTest {
         }
     }
 
+    @FlakyTest(bugId = 217762274)
     @Test
     fun visibleItemsAreCorrectSetExplicitInitialItemIndex() {
         lateinit var state: ScalingLazyListState
