@@ -15,14 +15,21 @@
  */
 rootProject.name = "playground-plugin"
 
-// Build cache configuration is duplicated here, so that when building the `playground-plugin` 
-// included build the remote build cache will be used.
+// Build cache configuration is duplicated here from the GradleEnterpriseConventionsPlugin, 
+// so that when building the `playground-plugin` included build the same build cache settings will be used.
 // Without this, Gradle Enterprise erroneously reports a problem with 'buildSrc' build cache configuration.
+def isCI = System.getenv("CI") == "true"
 buildCache {
+    local {
+        // Aggressively clean up stale build cache entries on CI
+        if (isCI) {
+            removeUnusedEntriesAfterDays = 1
+        }
+    }
     remote(HttpBuildCache) {
         url = "https://ge.androidx.dev/cache/"
         var buildCachePassword = System.getenv("GRADLE_BUILD_CACHE_PASSWORD")
-        if (buildCachePassword != null && !buildCachePassword.empty) {
+        if (isCI && buildCachePassword != null && !buildCachePassword.empty) {
             push = true
             credentials {
                 username = "ci"
