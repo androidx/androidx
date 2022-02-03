@@ -116,7 +116,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest]
-        # if you would like to remove some projects temporarily, use ci-config.json instead.
+        # if you would like to remove some projects temporarily, use .github/ci-control/ci-config.json instead.
         project: ["activity", "biometric", "compose-runtime", "datastore", "fragment", "lifecycle", "navigation", "paging", "room", "work"]
         include:
           - project: "compose-runtime"
@@ -137,7 +137,7 @@ jobs:
         id: check-ci-config
         run: |
           set -x
-          RESULT=`.github/ci-control/should_run_project.sh --project ${{ matrix.project }} --branch ${{ github.head_ref || github.ref }}`
+          RESULT=`.github/ci-control/should_run_project.py --project ${{ matrix.project }} --branch ${{ github.head_ref || github.ref }}`
           echo "::set-output name=enabled::$RESULT"
       - name: "Run build"
         uses: ./.github/actions/build-single-project
