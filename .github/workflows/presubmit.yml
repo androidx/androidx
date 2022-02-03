@@ -17,14 +17,12 @@ jobs:
       - name: "Setup global constants"
         id: global-constants
         # The configuration-cache cannot be used due to state excluded when caching Gradle User Home
-        # Agressively remove old build-cache entries to avoid uncontrolled growth of the Gradle User Home
         run: |
           set -x
           GRADLEW_FLAGS="-Dorg.gradle.internal.http.connectionTimeout=60000 \
             -Dorg.gradle.internal.http.socketTimeout=60000                  \
             -Dorg.gradle.internal.repository.max.retries=20                 \
             -Dorg.gradle.internal.repository.initial.backoff=500            \
-            -Dgradle.cache.local.removeUnusedEntriesAfterDays=P1D           \
             --no-configuration-cache                                        \
             --stacktrace"
           echo "::set-output name=gradlew_flags::$GRADLEW_FLAGS"
