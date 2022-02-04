@@ -444,10 +444,9 @@ public class AppSearchSessionLocalCtsTest extends AppSearchSessionCtsTestBase {
         assertThat(schemaMigrationStats.getSavedDocumentCount()).isEqualTo(1);
     }
 
-    // TODO(b/185441119) Following test can be moved to CtsTestBase if we fix the binder
-    //  transaction limit in framework.
+    // Framework has max Document size which is 512KiB, this test should only exists in Jetpack.
     @Test
-    public void testPutLargeDocument() throws Exception {
+    public void testPutLargeDocumentToIcing() throws Exception {
         Context context = ApplicationProvider.getApplicationContext();
         AppSearchSession db2 = LocalStorage.createSearchSessionAsync(
                 new LocalStorage.SearchContext.Builder(context, DB_NAME_2).build()).get();
@@ -480,10 +479,9 @@ public class AppSearchSessionLocalCtsTest extends AppSearchSessionCtsTestBase {
         assertThat(outEmail).isEqualTo(email);
     }
 
-    // TODO(b/185441119) Following test can be moved to CtsTestBase if we fix the binder
-    //  transaction limit in framework.
+    // Framework has max Document size which is 512KiB, this test should only exists in Jetpack.
     @Test
-    public void testPutLargeDocument_exceedLimit() throws Exception {
+    public void testPutLargeDocumentToIcing_exceedLimit() throws Exception {
         Context context = ApplicationProvider.getApplicationContext();
         AppSearchSession db2 = LocalStorage.createSearchSessionAsync(
                 new LocalStorage.SearchContext.Builder(context, DB_NAME_2).build()).get();

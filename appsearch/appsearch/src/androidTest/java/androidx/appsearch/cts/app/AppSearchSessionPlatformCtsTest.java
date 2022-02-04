@@ -21,6 +21,8 @@ import static androidx.appsearch.testutil.AppSearchTestUtils.doGet;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.junit.Assume.assumeTrue;
+
 import android.content.Context;
 import android.os.Build;
 
@@ -132,5 +134,13 @@ public class AppSearchSessionPlatformCtsTest extends AppSearchSessionCtsTestBase
             assertThat(outDocument.getPropertyBytesArray("bytes")).isEmpty();
             assertThat(outDocument.getPropertyDocumentArray("document")).isEmpty();
         }
+    }
+
+    @Override
+    @Test
+    public void testPutLargeDocumentBatch() throws Exception {
+        // b/185441119 was fixed in Android T, this test will fail on S_V2 devices and below.
+        assumeTrue(BuildCompat.isAtLeastT());
+        super.testPutLargeDocumentBatch();
     }
 }
