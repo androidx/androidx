@@ -22,8 +22,11 @@ import androidx.room.compiler.processing.XHasModifiers
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.XTypeElement
 import androidx.room.compiler.processing.ksp.KspAnnotated.UseSiteFilter.Companion.NO_USE_SITE_OR_FIELD
+import androidx.room.compiler.processing.ksp.synthetic.KspSyntheticPropertyMethodElement
 import com.google.devtools.ksp.closestClassDeclaration
+import com.google.devtools.ksp.isPrivate
 import com.google.devtools.ksp.symbol.KSPropertyDeclaration
+import com.google.devtools.ksp.symbol.Modifier
 
 internal class KspFieldElement(
     env: KspProcessingEnv,
@@ -54,10 +57,12 @@ internal class KspFieldElement(
     }
 
     /**
-     * The type of the field where it is declared. Note that this properly is null if this field
-     * is the original declaration (e.g. not inherited).
+     * The original field from the declaration. For instance, if you have `val x:String` declared
+     * in `BaseClass` and inherited in `SubClass`, if `this` is the instance in `SubClass`,
+     * [declarationField] will be the instance in `BaseClass`. If `this` is the instance in
+     * `BaseClass`, [declarationField] will be `null`.
      */
-    val declarationType: KspType? by lazy {
+    val declarationField: KspFieldElement? by lazy {
         val declaredIn = declaration.closestClassDeclaration()
         if (declaredIn == null || declaredIn == containing.declaration) {
             null
@@ -66,9 +71,52 @@ internal class KspFieldElement(
                 env = env,
                 declaration = declaration,
                 containing = env.wrapClassDeclaration(declaredIn)
-            ).type
+            )
         }
     }
+
+    val syntheticAccessors: List<KspSyntheticPropertyMethodElement> by lazy {
+        when {
+            declaration.hasJvmFieldAnnotation() -> {
+                // jvm fields cannot have accessors but KSP generates synthetic accessors for
+                // them. We check for JVM field first before checking the getter
+                emptyList()
+            }
+            declaration.isPrivate() -> emptyList()
+
+            else -> {
+                sequenceOf(declaration.getter, declaration.setter)
+                    .filterNotNull()
+                    .filterNot {
+                        // KAPT does not generate methods for privates, KSP does so we filter
+                        // them out.
+                        it.modifiers.contains(Modifier.PRIVATE)
+                    }
+                    .filter {
+                        if (isStatic()) {
+                            // static fields are the properties that are coming from the
+                            // companion. Whether we'll generate method for it or not depends on
+                            // the JVMStatic annotation
+                            it.hasJvmStaticAnnotation() || declaration.hasJvmStaticAnnotation()
+                        } else {
+                            true
+                        }
+                    }
+                    .map { accessor ->
+                        KspSyntheticPropertyMethodElement.create(
+                            env = env,
+                            field = this,
+                            accessor = accessor
+                        )
+                    }.toList()
+            }
+        }
+    }
+
+    val syntheticSetter
+        get() = syntheticAccessors.firstOrNull {
+            it.parameters.size == 1
+        }
 
     override fun asMemberOf(other: XType): KspType {
         if (containing.type?.isSameType(other) != false) {
