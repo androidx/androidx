@@ -99,6 +99,7 @@ public class CryptoObjectUtilsTest {
         assertThat(unwrappedCrypto.getMac()).isEqualTo(mMac);
     }
 
+    @SuppressWarnings("deprecation")
     @Test
     @Config(minSdk = Build.VERSION_CODES.R)
     public void testUnwrapFromBiometricPrompt_WithIdentityCredentialCryptoObject() {
@@ -167,6 +168,7 @@ public class CryptoObjectUtilsTest {
         assertThat(wrappedCrypto.getMac()).isEqualTo(mMac);
     }
 
+    @SuppressWarnings("deprecation")
     @Test
     @Config(minSdk = Build.VERSION_CODES.R)
     public void testWrapForBiometricPrompt_WithIdentityCredentialCryptoObject() {

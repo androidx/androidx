@@ -278,6 +278,7 @@ public class WebSettingsCompat {
      *
      * @see #setForceDark
      */
+    @SuppressWarnings("deprecation")
     public static final int FORCE_DARK_OFF = WebSettings.FORCE_DARK_OFF;
 
     /**
@@ -297,6 +298,7 @@ public class WebSettingsCompat {
      *
      * @see #setForceDark
      */
+    @SuppressWarnings("deprecation")
     public static final int FORCE_DARK_AUTO = WebSettings.FORCE_DARK_AUTO;
 
     /**
@@ -305,6 +307,7 @@ public class WebSettingsCompat {
      *
      * @see #setForceDark
      */
+    @SuppressWarnings("deprecation")
     public static final int FORCE_DARK_ON = WebSettings.FORCE_DARK_ON;
 
     /**
@@ -335,6 +338,7 @@ public class WebSettingsCompat {
      * @param forceDarkMode the force dark mode to set.
      * @see #getForceDark
      */
+    @SuppressWarnings("deprecation")
     @RequiresFeature(name = WebViewFeature.FORCE_DARK,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     public static void setForceDark(@NonNull WebSettings settings,
@@ -363,6 +367,7 @@ public class WebSettingsCompat {
      * @return the currently set force dark mode.
      * @see #setForceDark
      */
+    @SuppressWarnings("deprecation")
     @RequiresFeature(name = WebViewFeature.FORCE_DARK,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     public static @ForceDark int getForceDark(@NonNull WebSettings settings) {
