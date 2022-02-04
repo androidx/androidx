@@ -21,11 +21,11 @@ import android.support.wearable.complications.ComplicationData;
 import android.support.wearable.complications.ComplicationText;
 import android.support.wearable.complications.ComplicationTextTemplate;
 import android.support.wearable.complications.TimeDependentText;
-import android.support.wearable.watchface.R;
 import android.text.format.DateFormat;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
+import androidx.wear.watchface.data.R;
 
 /**
  * Utilities for making watch faces and complications accessible.
