@@ -16,7 +16,6 @@
 
 import androidx.build.ExportAtomicLibraryGroupsToTextTask
 import androidx.build.LibraryType
-import androidx.build.SdkHelperKt
 
 plugins {
     id("AndroidXPlugin")
@@ -53,9 +52,7 @@ def exportTaskProvider = tasks.register(
         "exportAtomicLibraryGroupsToText",
         ExportAtomicLibraryGroupsToTextTask
 ) { task ->
-    def repoDir = SdkHelperKt.getSupportRootFolder(project)
-    task.libraryGroupFile = project.file("${repoDir.absolutePath}" +
-            "/buildSrc/public/src/main/kotlin/androidx/build/LibraryGroups.kt")
+    task.libraryGroups = androidx.LibraryGroups
 
     def generatedDirectory = new File(project.buildDir, "generated/resources")
     task.outputDir.set(generatedDirectory)
