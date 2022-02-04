@@ -27,6 +27,9 @@ import androidx.annotation.RestrictTo
 import androidx.core.os.bundleOf
 import androidx.savedstate.SavedStateRegistry
 import java.io.Serializable
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 
 /**
  * A handle to saved state passed down to [androidx.lifecycle.ViewModel]. You should use
@@ -47,6 +50,7 @@ class SavedStateHandle {
     private val regular = mutableMapOf<String, Any?>()
     private val savedStateProviders = mutableMapOf<String, SavedStateRegistry.SavedStateProvider>()
     private val liveDatas = mutableMapOf<String, SavingStateLiveData<*>>()
+    private val flows = mutableMapOf<String, MutableStateFlow<Any?>>()
     private val savedStateProvider =
         SavedStateRegistry.SavedStateProvider {
             // Get the saved state from each SavedStateProvider registered with this
@@ -169,6 +173,38 @@ class SavedStateHandle {
     }
 
     /**
+     * Returns a [StateFlow] that will emit the currently active value associated with the given
+     * key.
+     *
+     * ```
+     * val flow = savedStateHandle.getStateFlow(KEY, "defaultValue")
+     * ```
+     * Since this is a [StateFlow] there will always be a value available which, is why an initial
+     * value must be provided. The value of this flow is changed by making a call to [set], passing
+     * in the key that references this flow.
+     *
+     * If there is already a value associated with the given key, the initial value will be ignored.
+     *
+     * @param key The identifier for the flow
+     * @param initialValue If no value exists with the given `key`, a new one is created
+     * with the given `initialValue`.
+     */
+    @MainThread
+    fun <T> getStateFlow(key: String, initialValue: T): StateFlow<T> {
+        @Suppress("UNCHECKED_CAST")
+        // If a flow exists we should just return it, and since it is a StateFlow and a value must
+        // always be set, we know a value must already be available
+        return flows.getOrPut(key) {
+            // If there is not a value associated with the key, add the initial value, otherwise,
+            // use the one we already have.
+            if (!regular.containsKey(key)) {
+                regular[key] = initialValue
+            }
+            MutableStateFlow(regular[key]).apply { flows[key] = this }
+        }.asStateFlow() as StateFlow<T>
+    }
+
+    /**
      * Returns all keys contained in this [SavedStateHandle]
      *
      * Returned set contains all keys: keys used to get LiveData-s, to set SavedStateProviders and
@@ -192,6 +228,8 @@ class SavedStateHandle {
      * Associate the given value with the key. The value must have a type that could be stored in
      * [android.os.Bundle]
      *
+     * This also sets values for any active [LiveData]s or [Flow]s.
+     *
      * @param key a key used to associate with the given value.
      * @param value object of any type that can be accepted by Bundle.
      */
@@ -206,16 +244,17 @@ class SavedStateHandle {
         } else {
             regular[key] = value
         }
+        flows[key]?.value = value
     }
 
     /**
-     * Removes a value associated with the given key. If there is a [LiveData] associated
-     * with the given key, it will be removed as well.
+     * Removes a value associated with the given key. If there is a [LiveData] and/or [StateFlow]
+     * associated with the given key, they will be removed as well.
      *
-     * All changes to [androidx.lifecycle.LiveData] previously
-     * returned by [SavedStateHandle.getLiveData] won't be reflected in
-     * the saved state. Also that `LiveData` won't receive any updates about new values
-     * associated by the given key.
+     * All changes to [androidx.lifecycle.LiveData]s or [StateFlow]s previously
+     * returned by [SavedStateHandle.getLiveData] or [getStateFlow] won't be reflected in
+     * the saved state. Also that `LiveData` or `StateFlow` won't receive any updates about new
+     * values associated by the given key.
      *
      * @param key a key
      * @return a value that was previously associated with the given key.
@@ -226,6 +265,7 @@ class SavedStateHandle {
         val latestValue = regular.remove(key) as T?
         val liveData = liveDatas.remove(key)
         liveData?.detach()
+        flows.remove(key)
         return latestValue
     }
 
@@ -289,7 +329,10 @@ class SavedStateHandle {
         }
 
         override fun setValue(value: T) {
-            handle?.let { it.regular[key] = value }
+            handle?.let {
+                it.regular[key] = value
+                it.flows[key]?.value = value
+            }
             super.setValue(value)
         }
 
