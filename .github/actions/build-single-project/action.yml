@@ -89,18 +89,3 @@ runs:
       working-directory: ${{ inputs.project-root }}
       shell: bash
       run: ./gradlew buildOnServer zipTestConfigsWithApks test ${{ inputs.gradlew_flags }}
-
-    - name: "Upload build artifacts"
-      # continue-on-error: true # https://github.com/actions/runner/issues/1457
-      if: always()
-      uses: actions/upload-artifact@v2
-      with:
-        name: artifacts_${{ inputs.project-name }}
-        path: ~/dist
-    - name: "Upload daemon logs"
-      # continue-on-error: true # https://github.com/actions/runner/issues/1457
-      if: failure()
-      uses: actions/upload-artifact@v2
-      with:
-        name: gradle-daemon-logs_${{ inputs.project-name }}
-        path: ~/.gradle/daemon
