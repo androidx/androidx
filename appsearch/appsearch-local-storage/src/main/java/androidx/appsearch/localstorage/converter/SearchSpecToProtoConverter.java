@@ -27,6 +27,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.appsearch.app.SearchSpec;
 import androidx.appsearch.exceptions.AppSearchException;
+import androidx.appsearch.localstorage.visibilitystore.CallerAccess;
 import androidx.appsearch.localstorage.visibilitystore.VisibilityChecker;
 import androidx.appsearch.localstorage.visibilitystore.VisibilityStore;
 import androidx.appsearch.localstorage.visibilitystore.VisibilityUtil;
@@ -153,19 +154,16 @@ public final class SearchSpecToProtoConverter {
      * For each target schema, we will check visibility store is that accessible to the caller. And
      * remove this schemas if it is not allowed for caller to query.
      *
-     * @param callerPackageName            The package name of caller
-     * @param callerUid                    The uid of the caller.
-     * @param callerHasSystemAccess        Whether the caller has system access.
-     * @param visibilityStore              The {@link VisibilityStore} that store all visibility
-     *                                     information.
-     * @param visibilityChecker            Optional visibility checker to check whether the caller
-     *                                     could access target schemas. Pass {@code null} will
-     *                                     reject access for all documents which doesn't belong
-     *                                     to the calling package.
+     * @param callerAccess      Visibility access info of the calling app
+     * @param visibilityStore   The {@link VisibilityStore} that store all visibility
+     *                          information.
+     * @param visibilityChecker Optional visibility checker to check whether the caller
+     *                          could access target schemas. Pass {@code null} will
+     *                          reject access for all documents which doesn't belong
+     *                          to the calling package.
      */
-    public void removeInaccessibleSchemaFilter(@NonNull String callerPackageName,
-            int callerUid,
-            boolean callerHasSystemAccess,
+    public void removeInaccessibleSchemaFilter(
+            @NonNull CallerAccess callerAccess,
             @Nullable VisibilityStore visibilityStore,
             @Nullable VisibilityChecker visibilityChecker) {
         Iterator<String> targetPrefixedSchemaFilterIterator =
@@ -175,9 +173,7 @@ public final class SearchSpecToProtoConverter {
             String packageName = getPackageName(targetPrefixedSchemaFilter);
 
             if (!VisibilityUtil.isSchemaSearchableByCaller(
-                    callerPackageName,
-                    callerUid,
-                    callerHasSystemAccess,
+                    callerAccess,
                     packageName,
                     targetPrefixedSchemaFilter,
                     visibilityStore,

@@ -81,9 +81,10 @@ public class VisibilityStore {
         GetSchemaResponse getSchemaResponse = mAppSearchImpl.getSchema(
                 VISIBILITY_PACKAGE_NAME,
                 VISIBILITY_DATABASE_NAME,
-                /*callerPackageName=*/VISIBILITY_PACKAGE_NAME,
-                /*callerUid=*/Process.myUid(),
-                /*callerHasSystemAccess=*/false);
+                new CallerAccess(
+                        /*callingPackageName=*/VISIBILITY_PACKAGE_NAME,
+                        /*callingUid=*/Process.myUid(),
+                        /*callerHasSystemAccess=*/false));
         switch (getSchemaResponse.getVersion()) {
             case VisibilityDocument.SCHEMA_VERSION_DOC_PER_PACKAGE:
                 maybeMigrateToLatest(getSchemaResponse);

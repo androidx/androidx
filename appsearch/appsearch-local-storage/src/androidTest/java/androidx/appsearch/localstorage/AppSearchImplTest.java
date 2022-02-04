@@ -42,6 +42,7 @@ import androidx.appsearch.exceptions.AppSearchException;
 import androidx.appsearch.localstorage.stats.InitializeStats;
 import androidx.appsearch.localstorage.stats.OptimizeStats;
 import androidx.appsearch.localstorage.util.PrefixUtil;
+import androidx.appsearch.localstorage.visibilitystore.CallerAccess;
 import androidx.appsearch.localstorage.visibilitystore.VisibilityChecker;
 import androidx.appsearch.observer.DocumentChangeInfo;
 import androidx.appsearch.observer.ObserverSpec;
@@ -90,6 +91,17 @@ public class AppSearchImplTest {
     private File mAppSearchDir;
 
     private final Context mContext = ApplicationProvider.getApplicationContext();
+
+    // Some constants for caller access
+    private final CallerAccess mInvalidCallerAccess = new CallerAccess(
+            mContext.getPackageName(),
+            Process.INVALID_UID,
+            /*callerHasSystemAccess=*/false);
+    private final CallerAccess mSelfCallerAccess = new CallerAccess(
+            mContext.getPackageName(),
+            Process.myUid(),
+            /*callerHasSystemAccess=*/false);
+
     private AppSearchImpl mAppSearchImpl;
 
     @Before
@@ -445,9 +457,7 @@ public class AppSearchImplTest {
         SearchResultPage results = mAppSearchImpl.globalQuery(
                 /*queryExpression=*/ "",
                 new SearchSpec.Builder().addFilterSchemas("Type1").build(),
-                mContext.getPackageName(),
-                Process.INVALID_UID,
-                /*callerHasSystemAccess=*/ false,
+                mInvalidCallerAccess,
                 /*logger=*/ null);
         assertThat(results.getResults()).hasSize(1);
         assertThat(results.getResults().get(0).getGenericDocument()).isEqualTo(validDoc);
@@ -495,17 +505,13 @@ public class AppSearchImplTest {
         assertThat(mAppSearchImpl.getSchema(
                 /*packageName=*/mContext.getPackageName(),
                 /*databaseName=*/"database1",
-                /*callerPackageName=*/mContext.getPackageName(),
-                /*callerUid=*/Process.myUid(),
-                /*callerHasSystemAccess=*/false)
+                /*callerAccess=*/mSelfCallerAccess)
                 .getSchemas())
                 .isEmpty();
         results = mAppSearchImpl.globalQuery(
                 /*queryExpression=*/ "",
                 new SearchSpec.Builder().addFilterSchemas("Type1").build(),
-                mContext.getPackageName(),
-                Process.INVALID_UID,
-                /*callerHasSystemAccess=*/false,
+                mInvalidCallerAccess,
                 /*logger=*/ null);
         assertThat(results.getResults()).isEmpty();
 
@@ -530,9 +536,7 @@ public class AppSearchImplTest {
         results = mAppSearchImpl.globalQuery(
                 /*queryExpression=*/ "",
                 new SearchSpec.Builder().addFilterSchemas("Type1").build(),
-                mContext.getPackageName(),
-                Process.INVALID_UID,
-                /*callerHasSystemAccess=*/ false,
+                mInvalidCallerAccess,
                 /*logger=*/ null);
         assertThat(results.getResults()).hasSize(1);
         assertThat(results.getResults().get(0).getGenericDocument()).isEqualTo(validDoc);
@@ -661,15 +665,16 @@ public class AppSearchImplTest {
     }
 
     @Test
-    public void testGlobalQueryEmptyDatabase() throws Exception {
+    public void testGlobalQuery_emptyPackage() throws Exception {
         SearchSpec searchSpec =
                 new SearchSpec.Builder().setTermMatch(TermMatchType.Code.PREFIX_VALUE).build();
         SearchResultPage searchResultPage = mAppSearchImpl.globalQuery(
-                "",
+                /*queryExpression=*/"",
                 searchSpec,
-                /*callerPackageName=*/ "",
-                Process.INVALID_UID,
-                /*callerHasSystemAccess=*/ false,
+                new CallerAccess(
+                        /*callingPackageName=*/"",
+                        /*callingUid=*/Process.INVALID_UID,
+                        /*callerHasSystemAccess=*/false),
                 /*logger=*/ null);
         assertThat(searchResultPage.getResults()).isEmpty();
     }
@@ -798,9 +803,7 @@ public class AppSearchImplTest {
         SearchResultPage searchResultPage = mAppSearchImpl.globalQuery(
                 /*queryExpression=*/ "",
                 searchSpec,
-                "package1",
-                Process.myUid(),
-                /*callerHasSystemAccess=*/ false,
+                new CallerAccess("package1", Process.myUid(), /*callerHasSystemAccess=*/ false),
                 /*logger=*/ null);
 
         // Document2 will come first because it was inserted last and default return order is
@@ -845,9 +848,7 @@ public class AppSearchImplTest {
         SearchResultPage searchResultPage = mAppSearchImpl.globalQuery(
                 /*queryExpression=*/ "",
                 searchSpec,
-                "package1",
-                Process.myUid(),
-                /*callerHasSystemAccess=*/ false,
+                new CallerAccess("package1", Process.myUid(), /*callerHasSystemAccess=*/ false),
                 /*logger=*/ null);
 
         // Document2 will come first because it was inserted last and default return order is
@@ -1041,9 +1042,7 @@ public class AppSearchImplTest {
         SearchResultPage searchResultPage = mAppSearchImpl.globalQuery(
                 /*queryExpression=*/ "",
                 searchSpec,
-                "package1",
-                Process.myUid(),
-                /*callerHasSystemAccess=*/ false,
+                new CallerAccess("package1", Process.myUid(), /*callerHasSystemAccess=*/ false),
                 /*logger=*/ null);
 
         // Document2 will come first because it was inserted last and default return order is
@@ -1095,9 +1094,7 @@ public class AppSearchImplTest {
         SearchResultPage searchResultPage = mAppSearchImpl.globalQuery(
                 /*queryExpression=*/ "",
                 searchSpec,
-                "package1",
-                Process.myUid(),
-                /*callerHasSystemAccess=*/ false,
+                new CallerAccess("package1", Process.myUid(), /*callerHasSystemAccess=*/ false),
                 /*logger=*/ null);
 
         // Document2 will come first because it was inserted last and default return order is
@@ -1846,9 +1843,7 @@ public class AppSearchImplTest {
         assertThrows(IllegalStateException.class, () -> mAppSearchImpl.getSchema(
                 /*packageName=*/"package",
                 /*databaseName=*/"database",
-                /*callerPackageName=*/mContext.getPackageName(),
-                /*callerUid=*/Process.myUid(),
-                /*callerHasSystemAccess=*/false));
+                /*callerAccess=*/mSelfCallerAccess));
 
         assertThrows(IllegalStateException.class, () -> mAppSearchImpl.putDocument(
                 "package",
@@ -1869,9 +1864,7 @@ public class AppSearchImplTest {
         assertThrows(IllegalStateException.class, () -> mAppSearchImpl.globalQuery(
                 "query",
                 new SearchSpec.Builder().build(),
-                "package",
-                Process.INVALID_UID,
-                /*callerHasSystemAccess=*/ false,
+                mInvalidCallerAccess,
                 /*logger=*/ null));
 
         assertThrows(IllegalStateException.class, () -> mAppSearchImpl.getNextPage("package",
@@ -2751,17 +2744,13 @@ public class AppSearchImplTest {
         // Register an observer twice, on different packages.
         TestObserverCallback observer = new TestObserverCallback();
         mAppSearchImpl.addObserver(
-                /*listeningPackageName=*/mContext.getPackageName(),
-                /*listeningUid=*/Process.myUid(),
-                /*listeningPackageHasSystemAccess=*/false,
+                /*listeningPackageAccess=*/mSelfCallerAccess,
                 /*targetPackageName=*/mContext.getPackageName(),
                 new ObserverSpec.Builder().build(),
                 MoreExecutors.directExecutor(),
                 observer);
         mAppSearchImpl.addObserver(
-                /*listeningPackageName=*/mContext.getPackageName(),
-                /*listeningUid=*/Process.myUid(),
-                /*listeningPackageHasSystemAccess=*/false,
+                /*listeningPackageAccess=*/mSelfCallerAccess,
                 /*targetPackageName=*/fakePackage,
                 new ObserverSpec.Builder().build(),
                 MoreExecutors.directExecutor(),
@@ -2846,9 +2835,7 @@ public class AppSearchImplTest {
                         "namespace1",
                         "id1",
                         /*typePropertyPaths=*/Collections.emptyMap(),
-                        /*callerPackageName=*/mContext.getPackageName(),
-                        /*callerUid=*/Process.myUid(),
-                        /*callerHasSystemAccess=*/false));
+                        /*callerAccess=*/mSelfCallerAccess));
         assertThat(e.getResultCode()).isEqualTo(AppSearchResult.RESULT_NOT_FOUND);
         assertThat(e.getMessage()).isEqualTo("Document (namespace1, id1) not found.");
     }
@@ -2892,9 +2879,7 @@ public class AppSearchImplTest {
                 "namespace1",
                 "id1",
                 /*typePropertyPaths=*/Collections.emptyMap(),
-                /*callerPackageName=*/mContext.getPackageName(),
-                /*callerUid=*/Process.myUid(),
-                /*callerHasSystemAccess=*/false);
+                /*callerAccess=*/mSelfCallerAccess);
         assertThat(getResult).isEqualTo(document);
     }
 
@@ -2938,9 +2923,7 @@ public class AppSearchImplTest {
                         "namespace1",
                         "id2",
                         /*typePropertyPaths=*/Collections.emptyMap(),
-                        /*callerPackageName=*/mContext.getPackageName(),
-                        /*callerUid=*/Process.myUid(),
-                        /*callerHasSystemAccess=*/false));
+                        /*callerAccess=*/mSelfCallerAccess));
         assertThat(e.getResultCode()).isEqualTo(AppSearchResult.RESULT_NOT_FOUND);
         assertThat(e.getMessage()).isEqualTo("Document (namespace1, id2) not found.");
     }
@@ -2984,9 +2967,7 @@ public class AppSearchImplTest {
                         "namespace1",
                         "id1",
                         /*typePropertyPaths=*/Collections.emptyMap(),
-                        /*callerPackageName=*/mContext.getPackageName(),
-                        /*callerUid=*/Process.myUid(),
-                        /*callerHasSystemAccess=*/false));
+                        /*callerAccess=*/mSelfCallerAccess));
 
         mAppSearchImpl.remove("package", "database", "namespace1", "id1",
                 /*removeStatsBuilder=*/null);
@@ -2998,9 +2979,8 @@ public class AppSearchImplTest {
                         "namespace1",
                         "id1",
                         /*typePropertyPaths=*/Collections.emptyMap(),
-                        /*callerPackageName=*/"package",
-                        /*callerUid=*/Process.myUid(),
-                        /*callerHasSystemAccess=*/true)
+                        new CallerAccess(
+                                "package", Process.myUid(), /*callerHasSystemAccess=*/true))
         );
 
         assertThat(noDocException.getResultCode()).isEqualTo(unauthorizedException.getResultCode());
@@ -3240,9 +3220,10 @@ public class AppSearchImplTest {
         GetSchemaResponse getResponse = mAppSearchImpl.getSchema(
                 "package",
                 "database",
-                /*callerPackageName=*/"com.android.appsearch.fake.package",
-                /*callerUid=*/1,
-                /*callerHasSystemAccess=*/false);
+                new CallerAccess(
+                        "com.android.appsearch.fake.package",
+                        /*callerUid=*/1,
+                        /*callerHasSystemAccess=*/false));
         assertThat(getResponse.getSchemas()).containsExactlyElementsIn(schemas);
         assertThat(getResponse.getSchemaTypesNotDisplayedBySystem()).containsExactly("Type");
     }
@@ -3263,9 +3244,10 @@ public class AppSearchImplTest {
         GetSchemaResponse getResponse = mAppSearchImpl.getSchema(
                 "com.android.appsearch.fake.package",
                 "database",
-                /*callerPackageName=*/"package",
-                /*callerUid=*/1,
-                /*callerHasSystemAccess=*/false);
+                new CallerAccess(
+                        "package",
+                        /*callerUid=*/1,
+                        /*callerHasSystemAccess=*/false));
         assertThat(getResponse.getSchemas()).isEmpty();
         assertThat(getResponse.getSchemaTypesNotDisplayedBySystem()).isEmpty();
     }
@@ -3285,9 +3267,10 @@ public class AppSearchImplTest {
         GetSchemaResponse getResponse = mAppSearchImpl.getSchema(
                 "package",
                 "database",
-                /*callerPackageName=*/"com.android.fake.package",
-                /*callerUid=*/1,
-                /*callerHasSystemAccess=*/false);
+                new CallerAccess(
+                        "com.android.appsearch.fake.package",
+                        /*callerUid=*/1,
+                        /*callerHasSystemAccess=*/false));
         assertThat(getResponse.getSchemas()).isEmpty();
         assertThat(getResponse.getSchemaTypesNotDisplayedBySystem()).isEmpty();
         assertThat(getResponse.getVersion()).isEqualTo(0);
@@ -3297,9 +3280,10 @@ public class AppSearchImplTest {
         getResponse = mAppSearchImpl.getSchema(
                 "package",
                 "database",
-                /*callerPackageName=*/"package",
-                /*callerUid=*/1,
-                /*callerHasSystemAccess=*/false);
+                new CallerAccess(
+                        "package",
+                        /*callerUid=*/1,
+                        /*callerHasSystemAccess=*/false));
         assertThat(getResponse.getSchemas()).containsExactlyElementsIn(schemas);
     }
 
@@ -3340,9 +3324,10 @@ public class AppSearchImplTest {
         GetSchemaResponse getResponse = mAppSearchImpl.getSchema(
                 "package",
                 "database",
-                /*callerPackageName=*/"com.android.appsearch.fake.package",
-                /*callerUid=*/1,
-                /*callerHasSystemAccess=*/false);
+                new CallerAccess(
+                        "com.android.appsearch.fake.package",
+                        /*callerUid=*/1,
+                        /*callerHasSystemAccess=*/false));
         assertThat(getResponse.getSchemas()).containsExactly(schemas.get(0));
         assertThat(getResponse.getSchemaTypesNotDisplayedBySystem()).containsExactly("VisibleType");
         assertThat(getResponse.getVersion()).isEqualTo(1);
@@ -3362,9 +3347,7 @@ public class AppSearchImplTest {
         // Register an observer
         TestObserverCallback observer = new TestObserverCallback();
         mAppSearchImpl.addObserver(
-                /*listeningPackageName=*/mContext.getPackageName(),
-                Process.myUid(),
-                /*listeningPackageHasSystemAccess=*/false,
+                /*listeningPackageAccess=*/mSelfCallerAccess,
                 /*targetPackageName=*/mContext.getPackageName(),
                 new ObserverSpec.Builder().build(),
                 MoreExecutors.directExecutor(),
@@ -3419,9 +3402,7 @@ public class AppSearchImplTest {
         // Register an observer
         TestObserverCallback observer = new TestObserverCallback();
         mAppSearchImpl.addObserver(
-                /*listeningPackageName=*/mContext.getPackageName(),
-                Process.myUid(),
-                /*listeningPackageHasSystemAccess=*/false,
+                /*listeningPackageAccess=*/mSelfCallerAccess,
                 /*targetPackageName=*/mContext.getPackageName(),
                 new ObserverSpec.Builder().build(),
                 MoreExecutors.directExecutor(),
@@ -3464,9 +3445,8 @@ public class AppSearchImplTest {
         // Register an observer from a simulated different package
         TestObserverCallback observer = new TestObserverCallback();
         mAppSearchImpl.addObserver(
-                /*listeningPackageName=*/"com.fake.Listening.package",
-                Process.myUid(),
-                /*listeningPackageHasSystemAccess=*/false,
+                new CallerAccess(
+                    "com.fake.Listening.package", Process.myUid(), /*callerHasSystemAccess=*/false),
                 /*targetPackageName=*/mContext.getPackageName(),
                 new ObserverSpec.Builder().build(),
                 MoreExecutors.directExecutor(),
@@ -3518,9 +3498,8 @@ public class AppSearchImplTest {
         // Register an observer
         TestObserverCallback observer = new TestObserverCallback();
         mAppSearchImpl.addObserver(
-                fakeListeningPackage,
-                fakeListeningUid,
-                /*listeningPackageHasSystemAccess=*/false,
+                new CallerAccess(
+                        fakeListeningPackage, fakeListeningUid, /*callerHasSystemAccess=*/false),
                 /*targetPackageName=*/mContext.getPackageName(),
                 new ObserverSpec.Builder().build(),
                 MoreExecutors.directExecutor(),
@@ -3578,9 +3557,8 @@ public class AppSearchImplTest {
         // Register an observer
         TestObserverCallback observer = new TestObserverCallback();
         mAppSearchImpl.addObserver(
-                fakeListeningPackage,
-                fakeListeningUid,
-                /*listeningPackageHasSystemAccess=*/false,
+                new CallerAccess(
+                        fakeListeningPackage, fakeListeningUid, /*callerHasSystemAccess=*/false),
                 /*targetPackageName=*/mContext.getPackageName(),
                 new ObserverSpec.Builder().build(),
                 MoreExecutors.directExecutor(),

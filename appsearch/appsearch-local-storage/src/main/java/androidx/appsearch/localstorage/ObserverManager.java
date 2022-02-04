@@ -23,6 +23,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.appsearch.localstorage.util.PrefixUtil;
+import androidx.appsearch.localstorage.visibilitystore.CallerAccess;
 import androidx.appsearch.localstorage.visibilitystore.VisibilityChecker;
 import androidx.appsearch.localstorage.visibilitystore.VisibilityStore;
 import androidx.appsearch.localstorage.visibilitystore.VisibilityUtil;
@@ -89,9 +90,7 @@ public class ObserverManager {
 
     private static final class ObserverInfo {
         /** The package which registered the observer. */
-        final String mListeningPackageName;
-        final int mListeningUid;
-        final boolean mListeningPackageHasSystemAccess;
+        final CallerAccess mListeningPackageAccess;
         final ObserverSpec mObserverSpec;
         final Executor mExecutor;
         final AppSearchObserverCallback mObserver;
@@ -99,15 +98,11 @@ public class ObserverManager {
         volatile Map<DocumentChangeGroupKey, Set<String>> mDocumentChanges = new ArrayMap<>();
 
         ObserverInfo(
-                @NonNull String listeningPackageName,
-                int listeningUid,
-                boolean listeningPackageHasSystemAccess,
+                @NonNull CallerAccess listeningPackageAccess,
                 @NonNull ObserverSpec observerSpec,
                 @NonNull Executor executor,
                 @NonNull AppSearchObserverCallback observer) {
-            mListeningPackageName = Preconditions.checkNotNull(listeningPackageName);
-            mListeningUid = listeningUid;
-            mListeningPackageHasSystemAccess = listeningPackageHasSystemAccess;
+            mListeningPackageAccess = Preconditions.checkNotNull(listeningPackageAccess);
             mObserverSpec = Preconditions.checkNotNull(observerSpec);
             mExecutor = Preconditions.checkNotNull(executor);
             mObserver = Preconditions.checkNotNull(observer);
@@ -139,24 +134,18 @@ public class ObserverManager {
      * will not queue behind I/O. Therefore it is safe to call from any thread including UI or
      * binder threads.
      *
-     * @param listeningPackageName            The package name of the app that wants to receive
-     *                                        notifications.
-     * @param listeningUid                    The uid of the app that wants to receive
-     *                                        notifications.
-     * @param listeningPackageHasSystemAccess Whether the app that wants to receive notifications
-     *                                        has access to schema types marked 'visible to system'.
-     * @param targetPackageName               The package that owns the data the observer wants
-     *                                        to be notified for.
-     * @param spec                            Describes the kind of data changes the observer
-     *                                        should trigger for.
-     * @param executor                        The executor on which to trigger the observer callback
-     *                                        to deliver notifications.
-     * @param observer                        The callback to trigger on notifications.
+     * @param listeningPackageAccess Visibility information about the app that wants to receive
+     *                               notifications.
+     * @param targetPackageName      The package that owns the data the observer wants to be
+     *                               notified for.
+     * @param spec                   Describes the kind of data changes the observer should trigger
+     *                               for.
+     * @param executor               The executor on which to trigger the observer callback to
+     *                               deliver notifications.
+     * @param observer               The callback to trigger on notifications.
      */
     public void addObserver(
-            @NonNull String listeningPackageName,
-            int listeningUid,
-            boolean listeningPackageHasSystemAccess,
+            @NonNull CallerAccess listeningPackageAccess,
             @NonNull String targetPackageName,
             @NonNull ObserverSpec spec,
             @NonNull Executor executor,
@@ -167,13 +156,7 @@ public class ObserverManager {
                 infos = new ArrayList<>();
                 mObserversLocked.put(targetPackageName, infos);
             }
-            infos.add(new ObserverInfo(
-                    listeningPackageName,
-                    listeningUid,
-                    listeningPackageHasSystemAccess,
-                    spec,
-                    executor,
-                    observer));
+            infos.add(new ObserverInfo(listeningPackageAccess, spec, executor, observer));
         }
     }
 
@@ -234,9 +217,7 @@ public class ObserverManager {
                         PrefixUtil.createPrefix(packageName, databaseName)
                                 + schemaType;
                 if (!VisibilityUtil.isSchemaSearchableByCaller(
-                        /*callerPackageName=*/observerInfo.mListeningPackageName,
-                        observerInfo.mListeningUid,
-                        observerInfo.mListeningPackageHasSystemAccess,
+                        /*callerAccess=*/observerInfo.mListeningPackageAccess,
                         /*targetPackageName=*/packageName,
                         /*prefixedSchema=*/prefixedSchema,
                         visibilityStore,
