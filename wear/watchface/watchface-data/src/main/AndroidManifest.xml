@@ -16,5 +16,5 @@
   -->
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="android.support.wearable.watchface">
+    package="androidx.wear.watchface.data">
 </manifest>
