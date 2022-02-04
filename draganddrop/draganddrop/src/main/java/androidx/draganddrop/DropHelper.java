@@ -154,6 +154,8 @@ public final class DropHelper {
         if (options.hasHighlightCornerRadiusPx()) {
             highlighterBuilder.setHighlightCornerRadiusPx(options.getHighlightCornerRadiusPx());
         }
+        highlighterBuilder.shouldAcceptDragsWithLocalState(
+                options.shouldAcceptDragsWithLocalState());
         DropAffordanceHighlighter highlighter = highlighterBuilder.build();
         List<EditText> innerEditTexts = options.getInnerEditTexts();
         if (!innerEditTexts.isEmpty()) {
@@ -274,6 +276,7 @@ public final class DropHelper {
         private final boolean mHighlightColorHasBeenSupplied;
         private final int mHighlightCornerRadiusPx;
         private final boolean mHighlightCornerRadiusPxHasBeenSupplied;
+        private final boolean mAcceptDragsWithLocalState;
         private final @NonNull List<EditText> mInnerEditTexts;
 
         Options(
@@ -281,11 +284,13 @@ public final class DropHelper {
                 boolean highlightColorHasBeenSupplied,
                 int highlightCornerRadiusPx,
                 boolean highlightCornerRadiusPxHasBeenSupplied,
+                boolean acceptDragsWithLocalState,
                 @Nullable List<EditText> innerEditTexts) {
             this.mHighlightColor = highlightColor;
             this.mHighlightColorHasBeenSupplied = highlightColorHasBeenSupplied;
             this.mHighlightCornerRadiusPx = highlightCornerRadiusPx;
             this.mHighlightCornerRadiusPxHasBeenSupplied = highlightCornerRadiusPxHasBeenSupplied;
+            this.mAcceptDragsWithLocalState = acceptDragsWithLocalState;
             this.mInnerEditTexts =
                     innerEditTexts != null ? new ArrayList<>(innerEditTexts) : new ArrayList<>();
         }
@@ -331,6 +336,17 @@ public final class DropHelper {
         }
 
         /**
+         * Indicates whether or not we should respond to drag events when the drag operation
+         * contains a {@link DragEvent#getLocalState() localState}. Setting localState is only
+         * possible when the drag operation originated from this Activity.
+         *
+         * @return True if drag events will be accepted when the localState is non-null.
+         */
+        public boolean shouldAcceptDragsWithLocalState() {
+            return mAcceptDragsWithLocalState;
+        }
+
+        /**
          * Returns a list of the {@link EditText} elements contained in the drop target view
          * hierarchy. A list of {@code EditText} elements is supplied when building this
          * {@link DropHelper.Options} instance (see
@@ -351,6 +367,7 @@ public final class DropHelper {
             private boolean mHighlightColorHasBeenSupplied = false;
             private int mHighlightCornerRadiusPx;
             private boolean mHighlightCornerRadiusPxHasBeenSupplied = false;
+            private boolean mAcceptDragsWithLocalState = false;
             private @Nullable List<EditText> mInnerEditTexts;
 
             /**
@@ -364,6 +381,7 @@ public final class DropHelper {
                         mHighlightColorHasBeenSupplied,
                         mHighlightCornerRadiusPx,
                         mHighlightCornerRadiusPxHasBeenSupplied,
+                        mAcceptDragsWithLocalState,
                         mInnerEditTexts);
             }
 
@@ -440,6 +458,31 @@ public final class DropHelper {
                     int highlightCornerRadiusPx) {
                 this.mHighlightCornerRadiusPx = highlightCornerRadiusPx;
                 this.mHighlightCornerRadiusPxHasBeenSupplied = true;
+                return this;
+            }
+
+            /**
+             * Sets whether or not we should respond to drag events when the drag operation contains
+             * a {@link DragEvent#getLocalState() localState}. Setting localState is only possible
+             * when the drag operation originated from this Activity.
+             *
+             * <p>
+             * By default, this is false.
+             *
+             * <p>
+             * Note that to elicit the default behavior of ignoring drags from the same Activity as
+             * the drop target, the localState supplied when starting the drag (via
+             * {@link View#startDragAndDrop(ClipData, View.DragShadowBuilder, Object, int)} or using
+             * <a href="https://developer.android.com/reference/androidx/core/view/DragStartHelper">DragStartHelper</a>
+             * must be set to non-null.
+             *
+             * @param acceptDragsWithLocalState Whether or not to accept drag events with non-null
+             *                                  localState.
+             * @return This {@link DropHelper.Options.Builder} instance.
+             */
+            public @NonNull Options.Builder setAcceptDragsWithLocalState(
+                    boolean acceptDragsWithLocalState) {
+                this.mAcceptDragsWithLocalState = acceptDragsWithLocalState;
                 return this;
             }
         }

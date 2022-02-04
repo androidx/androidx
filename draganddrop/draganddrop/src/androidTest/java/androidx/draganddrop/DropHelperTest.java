@@ -23,6 +23,7 @@ import static android.view.DragEvent.ACTION_DRAG_STARTED;
 import static android.view.DragEvent.ACTION_DROP;
 
 import static androidx.draganddrop.DragAndDropTestUtils.makeImageDragEvent;
+import static androidx.draganddrop.DragAndDropTestUtils.makeImageDragEventWithLocalState;
 import static androidx.draganddrop.DragAndDropTestUtils.makeTextDragEvent;
 
 import static org.junit.Assert.assertEquals;
@@ -149,6 +150,60 @@ public class DropHelperTest {
                 mDropTarget,
                 makeTextDragEvent(ACTION_DRAG_ENDED),
                 mDropTarget);
+    }
+
+    @Test
+    public void testDropHelper_acceptDragsWithLocalState_default_hasNoHighlight() throws Exception {
+        DropHelper.configureView(
+                mActivity,
+                mDropTarget,
+                new String[]{"image/*"},
+                new DropHelper.Options.Builder()
+                        .setHighlightColor(COLOR_FULL_OPACITY)
+                        .build(),
+                mListener);
+
+        sendEventAndWaitForNoHighlight(
+                mDropTarget,
+                makeImageDragEventWithLocalState(ACTION_DRAG_STARTED, new Object()),
+                mDropTarget);
+    }
+
+    @Test
+    public void testDropHelper_acceptDragsWithLocalState_false_hasNoHighlight() throws Exception {
+        DropHelper.configureView(
+                mActivity,
+                mDropTarget,
+                new String[]{"image/*"},
+                new DropHelper.Options.Builder()
+                        .setHighlightColor(COLOR_FULL_OPACITY)
+                        .setAcceptDragsWithLocalState(false)
+                        .build(),
+                mListener);
+
+        sendEventAndWaitForNoHighlight(
+                mDropTarget,
+                makeImageDragEventWithLocalState(ACTION_DRAG_STARTED, new Object()),
+                mDropTarget);
+    }
+
+    @Test
+    public void testDropHelper_acceptDragsWithLocalState_true_hasHighlight() throws Exception {
+        DropHelper.configureView(
+                mActivity,
+                mDropTarget,
+                new String[]{"image/*"},
+                new DropHelper.Options.Builder()
+                        .setHighlightColor(COLOR_FULL_OPACITY)
+                        .setAcceptDragsWithLocalState(true)
+                        .build(),
+                mListener);
+
+        sendEventAndWaitForHighlightColor(
+                mDropTarget,
+                makeImageDragEventWithLocalState(ACTION_DRAG_STARTED, new Object()),
+                mDropTarget,
+                COLOR_INACTIVE_OPACITY);
     }
 
     @Test
@@ -369,6 +424,7 @@ public class DropHelperTest {
     }
 
     @Test
+    @MediumTest
     public void testDropHelper_drop_editText_insertsText() throws Exception {
         assertFalse(mDropTarget instanceof AppCompatEditText);
         DropHelper.configureView(
@@ -401,6 +457,7 @@ public class DropHelperTest {
     }
 
     @Test
+    @MediumTest
     public void testDropHelper_drop_editText_handlesUri() throws Exception {
         assertFalse(mDropTarget instanceof AppCompatEditText);
         DropHelper.configureView(
@@ -432,6 +489,7 @@ public class DropHelperTest {
     }
 
     @Test
+    @MediumTest
     public void testDropHelper_drop_appCompatEditText_insertsText() throws Exception {
         DropHelper.configureView(
                 mActivity,
