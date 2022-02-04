@@ -107,6 +107,30 @@ public class GlobalSearchSessionPlatformCtsTest extends GlobalSearchSessionCtsTe
         // TODO(b/193494000): Propagate document ids in platform and enable this test
     }
 
+    @Ignore("b/193494000")
+    @Override
+    public void testAddObserver_schemaChange_added() {
+        // TODO(b/193494000): Support schema changes in platform and enable this test.
+    }
+
+    @Ignore("b/193494000")
+    @Override
+    public void testAddObserver_schemaChange_removed() {
+        // TODO(b/193494000): Support schema changes in platform and enable this test.
+    }
+
+    @Ignore("b/193494000")
+    @Override
+    public void testAddObserver_schemaChange_contents() {
+        // TODO(b/193494000): Support schema changes in platform and enable this test.
+    }
+
+    @Ignore("b/193494000")
+    @Override
+    public void testAddObserver_schemaChange_contents_skipBySpec() {
+        // TODO(b/193494000): Support schema changes in platform and enable this test.
+    }
+
     @Override
     public void testGlobalGetSchema_notSupported() throws Exception {
         assumeFalse(mGlobalSearchSession.getFeatures()

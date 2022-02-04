@@ -130,11 +130,17 @@ class SearchSessionImpl implements AppSearchSession {
             if (migrators.size() == 0) {
                 SetSchemaResponse setSchemaResponse =
                         setSchemaNoMigrations(request, visibilityDocuments, setSchemaStatsBuilder);
+
+                // Schedule a task to dispatch change notifications. See requirements for where the
+                // method is called documented in the method description.
+                dispatchChangeNotifications();
+
                 if (setSchemaStatsBuilder != null) {
                     setSchemaStatsBuilder.setTotalLatencyMillis(
                             (int) (SystemClock.elapsedRealtime() - startMillis));
                     mLogger.logStats(setSchemaStatsBuilder.build());
                 }
+
                 return setSchemaResponse;
             }
 
@@ -213,6 +219,10 @@ class SearchSessionImpl implements AppSearchSession {
                 SetSchemaResponse finalSetSchemaResponse =
                         migrationHelper.readAndPutDocuments(responseBuilder,
                                 schemaMigrationStatsBuilder);
+
+                // Schedule a task to dispatch change notifications. See requirements for where the
+                // method is called documented in the method description.
+                dispatchChangeNotifications();
 
                 if (schemaMigrationStatsBuilder != null) {
                     long endMillis = SystemClock.elapsedRealtime();
