@@ -76,7 +76,7 @@ runs:
 
         # Limit the size of the cache entry.
         # These directories contain instrumented/transformed dependency jars which can be reconstructed relatively quickly.
-        gradle-home-cache-excludes: | 
+        gradle-home-cache-excludes: |
           caches/jars-9
           caches/transforms-3
 

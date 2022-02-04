@@ -1,5 +1,5 @@
 # AndroidX CI Control
-This folder includes script(s) and configuration files to control the behavior of the Github CI.
+This folder includes script(s) and configuration files to control the behavior of the GitHub CI.
 
 [ci-config.json](ci-config.json) file has configurations for each branch group about which projects they
 should build. Each configuration group can have `exclude` and `include` filters that will filter
