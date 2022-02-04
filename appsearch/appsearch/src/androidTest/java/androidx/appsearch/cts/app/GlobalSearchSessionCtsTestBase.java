@@ -46,6 +46,7 @@ import androidx.appsearch.app.SetSchemaRequest;
 import androidx.appsearch.exceptions.AppSearchException;
 import androidx.appsearch.observer.DocumentChangeInfo;
 import androidx.appsearch.observer.ObserverSpec;
+import androidx.appsearch.observer.SchemaChangeInfo;
 import androidx.appsearch.testutil.AppSearchEmail;
 import androidx.appsearch.testutil.TestObserverCallback;
 import androidx.test.core.app.ApplicationProvider;
@@ -796,8 +797,12 @@ public abstract class GlobalSearchSessionCtsTestBase {
                 mDb1.put(new PutDocumentsRequest.Builder().addGenericDocuments(email1).build()));
 
         // Make sure the notification was received.
-        observer.waitForNotificationCount(1);
-        assertThat(observer.getSchemaChanges()).isEmpty();
+        observer.waitForNotificationCount(2);
+        assertThat(observer.getSchemaChanges()).containsExactly(
+                new SchemaChangeInfo(
+                        mContext.getPackageName(),
+                        DB_NAME_1,
+                        /*changedSchemaNames=*/ImmutableSet.of(AppSearchEmail.SCHEMA_TYPE)));
         assertThat(observer.getDocumentChanges()).containsExactly(
                 new DocumentChangeInfo(
                         mContext.getPackageName(),
@@ -1353,4 +1358,216 @@ public abstract class GlobalSearchSessionCtsTestBase {
         assertThat(e).hasMessageThat().isEqualTo(Features.GLOBAL_SEARCH_SESSION_GET_SCHEMA
                 + " is not supported on this AppSearch implementation.");
     }
+
+    @Test
+    public void testAddObserver_schemaChange_added() throws Exception {
+        // Register an observer
+        TestObserverCallback observer = new TestObserverCallback();
+        mGlobalSearchSession.addObserver(
+                /*targetPackageName=*/mContext.getPackageName(),
+                new ObserverSpec.Builder().build(),
+                EXECUTOR,
+                observer);
+
+        // Add a schema type
+        assertThat(observer.getSchemaChanges()).isEmpty();
+        assertThat(observer.getDocumentChanges()).isEmpty();
+        mDb1.setSchema(
+                        new SetSchemaRequest.Builder()
+                                .addSchemas(new AppSearchSchema.Builder("Type1").build())
+                                .build())
+                .get();
+
+        observer.waitForNotificationCount(1);
+        assertThat(observer.getSchemaChanges()).containsExactly(
+                new SchemaChangeInfo(
+                        mContext.getPackageName(),
+                        DB_NAME_1,
+                        ImmutableSet.of("Type1")));
+        assertThat(observer.getDocumentChanges()).isEmpty();
+
+        // Add two more schema types without touching the existing one
+        observer.clear();
+        mDb1.setSchema(
+                        new SetSchemaRequest.Builder()
+                                .addSchemas(
+                                        new AppSearchSchema.Builder("Type1").build(),
+                                        new AppSearchSchema.Builder("Type2").build(),
+                                        new AppSearchSchema.Builder("Type3").build())
+                                .build())
+                .get();
+
+        observer.waitForNotificationCount(1);
+        assertThat(observer.getSchemaChanges()).containsExactly(
+                new SchemaChangeInfo(
+                        mContext.getPackageName(), DB_NAME_1, ImmutableSet.of("Type2", "Type3")));
+        assertThat(observer.getDocumentChanges()).isEmpty();
+    }
+
+    @Test
+    public void testAddObserver_schemaChange_removed() throws Exception {
+        // Add a schema type
+        mDb1.setSchema(
+                        new SetSchemaRequest.Builder()
+                                .addSchemas(
+                                        new AppSearchSchema.Builder("Type1").build(),
+                                        new AppSearchSchema.Builder("Type2").build())
+                                .build())
+                .get();
+
+        // Register an observer
+        TestObserverCallback observer = new TestObserverCallback();
+        mGlobalSearchSession.addObserver(
+                /*targetPackageName=*/mContext.getPackageName(),
+                new ObserverSpec.Builder().build(),
+                EXECUTOR,
+                observer);
+
+        // Remove Type2
+        mDb1.setSchema(
+                        new SetSchemaRequest.Builder()
+                                .addSchemas(new AppSearchSchema.Builder("Type1").build())
+                                .setForceOverride(true)
+                                .build())
+                .get();
+
+        observer.waitForNotificationCount(1);
+        assertThat(observer.getSchemaChanges()).containsExactly(
+                new SchemaChangeInfo(
+                        mContext.getPackageName(), DB_NAME_1, ImmutableSet.of("Type2")));
+        assertThat(observer.getDocumentChanges()).isEmpty();
+    }
+
+    @Test
+    public void testAddObserver_schemaChange_contents() throws Exception {
+        // Add a schema
+        mDb1.setSchema(
+            new SetSchemaRequest.Builder()
+                    .addSchemas(
+                            new AppSearchSchema.Builder("Type1").build(),
+                            new AppSearchSchema.Builder("Type2")
+                                    .addProperty(
+                                            new AppSearchSchema.BooleanPropertyConfig.Builder(
+                                                    "booleanProp")
+                                                    .setCardinality(
+                                                            PropertyConfig.CARDINALITY_REQUIRED)
+                                                    .build())
+                                    .build())
+                    .build())
+            .get();
+
+        // Register an observer
+        TestObserverCallback observer = new TestObserverCallback();
+        mGlobalSearchSession.addObserver(
+                /*targetPackageName=*/mContext.getPackageName(),
+                new ObserverSpec.Builder().build(),
+                EXECUTOR,
+                observer);
+
+        // Update the schema, but don't make any actual changes
+        mDb1.setSchema(
+            new SetSchemaRequest.Builder()
+                    .addSchemas(
+                            new AppSearchSchema.Builder("Type1").build(),
+                            new AppSearchSchema.Builder("Type2")
+                                    .addProperty(
+                                            new AppSearchSchema.BooleanPropertyConfig.Builder(
+                                                    "booleanProp")
+                                                    .setCardinality(
+                                                            PropertyConfig.CARDINALITY_REQUIRED)
+                                                    .build())
+                                    .build())
+                    .build())
+            .get();
+
+        // Now update the schema again, but this time actually make a change (cardinality of the
+        // property)
+        mDb1.setSchema(
+            new SetSchemaRequest.Builder()
+                    .addSchemas(
+                            new AppSearchSchema.Builder("Type1").build(),
+                            new AppSearchSchema.Builder("Type2")
+                                    .addProperty(
+                                            new AppSearchSchema.BooleanPropertyConfig.Builder(
+                                                    "booleanProp")
+                                                    .setCardinality(
+                                                            PropertyConfig.CARDINALITY_OPTIONAL)
+                                                    .build())
+                                    .build())
+                    .build())
+            .get();
+
+        // Dispatch notifications
+        observer.waitForNotificationCount(1);
+        assertThat(observer.getSchemaChanges()).containsExactly(
+                new SchemaChangeInfo(
+                        mContext.getPackageName(), DB_NAME_1, ImmutableSet.of("Type2")));
+        assertThat(observer.getDocumentChanges()).isEmpty();
+    }
+
+    @Test
+    public void testAddObserver_schemaChange_contents_skipBySpec() throws Exception {
+        // Add a schema
+        mDb1.setSchema(
+                new SetSchemaRequest.Builder()
+                        .addSchemas(
+                                new AppSearchSchema.Builder("Type1")
+                                        .addProperty(
+                                                new AppSearchSchema.BooleanPropertyConfig.Builder(
+                                                        "booleanProp")
+                                                        .setCardinality(
+                                                                PropertyConfig.CARDINALITY_REQUIRED)
+                                                        .build())
+                                        .build(),
+                                new AppSearchSchema.Builder("Type2")
+                                        .addProperty(
+                                                new AppSearchSchema.BooleanPropertyConfig.Builder(
+                                                        "booleanProp")
+                                                        .setCardinality(
+                                                                PropertyConfig.CARDINALITY_REQUIRED)
+                                                        .build())
+                                        .build())
+                        .build())
+                .get();
+
+        // Register an observer that only listens for Type2
+        TestObserverCallback observer = new TestObserverCallback();
+        mGlobalSearchSession.addObserver(
+                /*targetPackageName=*/mContext.getPackageName(),
+                new ObserverSpec.Builder().addFilterSchemas("Type2").build(),
+                EXECUTOR,
+                observer);
+
+        // Update both types of the schema (changed cardinalities)
+        mDb1.setSchema(
+                new SetSchemaRequest.Builder()
+                        .addSchemas(
+                                new AppSearchSchema.Builder("Type1")
+                                        .addProperty(
+                                                new AppSearchSchema.BooleanPropertyConfig.Builder(
+                                                        "booleanProp")
+                                                        .setCardinality(
+                                                                PropertyConfig.CARDINALITY_OPTIONAL)
+                                                        .build())
+                                        .build(),
+                                new AppSearchSchema.Builder("Type2")
+                                        .addProperty(
+                                                new AppSearchSchema.BooleanPropertyConfig.Builder(
+                                                        "booleanProp")
+                                                        .setCardinality(
+                                                                PropertyConfig.CARDINALITY_OPTIONAL)
+                                                        .build())
+                                        .build())
+                        .build())
+                .get();
+
+        observer.waitForNotificationCount(1);
+        assertThat(observer.getSchemaChanges()).containsExactly(
+                new SchemaChangeInfo(
+                        mContext.getPackageName(), DB_NAME_1, ImmutableSet.of("Type2")));
+        assertThat(observer.getDocumentChanges()).isEmpty();
+    }
+
+    // TODO(b/193494000): Properly handle change notification during schema migration, and add tests
+    // for it.
 }

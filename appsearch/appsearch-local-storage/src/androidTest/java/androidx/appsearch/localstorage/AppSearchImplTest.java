@@ -46,6 +46,7 @@ import androidx.appsearch.localstorage.visibilitystore.CallerAccess;
 import androidx.appsearch.localstorage.visibilitystore.VisibilityChecker;
 import androidx.appsearch.observer.DocumentChangeInfo;
 import androidx.appsearch.observer.ObserverSpec;
+import androidx.appsearch.observer.SchemaChangeInfo;
 import androidx.appsearch.testutil.TestObserverCallback;
 import androidx.collection.ArrayMap;
 import androidx.collection.ArraySet;
@@ -3579,5 +3580,689 @@ public class AppSearchImplTest {
         mAppSearchImpl.dispatchAndClearChangeNotifications();
         assertThat(observer.getSchemaChanges()).isEmpty();
         assertThat(observer.getDocumentChanges()).isEmpty();
+    }
+
+    @Test
+    public void testAddObserver_schemaChange_added() throws Exception {
+        // Register an observer
+        TestObserverCallback observer = new TestObserverCallback();
+        mAppSearchImpl.addObserver(
+                /*listeningPackageAccess=*/mSelfCallerAccess,
+                /*targetPackageName=*/mContext.getPackageName(),
+                new ObserverSpec.Builder().build(),
+                MoreExecutors.directExecutor(),
+                observer);
+
+        // Add a schema type
+        assertThat(observer.getSchemaChanges()).isEmpty();
+        assertThat(observer.getDocumentChanges()).isEmpty();
+        mAppSearchImpl.setSchema(
+                mContext.getPackageName(),
+                "database1",
+                ImmutableList.of(new AppSearchSchema.Builder("Type1").build()),
+                /*visibilityDocuments=*/ Collections.emptyList(),
+                /*forceOverride=*/ false,
+                /*version=*/ 0,
+                /*setSchemaStatsBuilder=*/ null);
+        assertThat(observer.getSchemaChanges()).isEmpty();
+        assertThat(observer.getDocumentChanges()).isEmpty();
+
+        // Dispatch notifications
+        mAppSearchImpl.dispatchAndClearChangeNotifications();
+        assertThat(observer.getSchemaChanges()).containsExactly(
+                new SchemaChangeInfo(
+                        mContext.getPackageName(),
+                        "database1",
+                        ImmutableSet.of("Type1")));
+        assertThat(observer.getDocumentChanges()).isEmpty();
+
+        // Add two more schema types without touching the existing one
+        observer.clear();
+        mAppSearchImpl.setSchema(
+                mContext.getPackageName(),
+                "database1",
+                ImmutableList.of(
+                        new AppSearchSchema.Builder("Type1").build(),
+                        new AppSearchSchema.Builder("Type2").build(),
+                        new AppSearchSchema.Builder("Type3").build()),
+                /*visibilityDocuments=*/ Collections.emptyList(),
+                /*forceOverride=*/ false,
+                /*version=*/ 0,
+                /*setSchemaStatsBuilder=*/ null);
+        assertThat(observer.getSchemaChanges()).isEmpty();
+        assertThat(observer.getDocumentChanges()).isEmpty();
+
+        // Dispatch notifications
+        mAppSearchImpl.dispatchAndClearChangeNotifications();
+        assertThat(observer.getSchemaChanges()).containsExactly(
+                new SchemaChangeInfo(
+                        mContext.getPackageName(), "database1", ImmutableSet.of("Type2", "Type3")));
+        assertThat(observer.getDocumentChanges()).isEmpty();
+    }
+
+    @Test
+    public void testAddObserver_schemaChange_removed() throws Exception {
+        // Add a schema type
+        mAppSearchImpl.setSchema(
+                mContext.getPackageName(),
+                "database1",
+                ImmutableList.of(
+                        new AppSearchSchema.Builder("Type1").build(),
+                        new AppSearchSchema.Builder("Type2").build()),
+                /*visibilityDocuments=*/ Collections.emptyList(),
+                /*forceOverride=*/ false,
+                /*version=*/ 0,
+                /*setSchemaStatsBuilder=*/ null);
+
+        // Register an observer
+        TestObserverCallback observer = new TestObserverCallback();
+        mAppSearchImpl.addObserver(
+                /*listeningPackageAccess=*/mSelfCallerAccess,
+                /*targetPackageName=*/mContext.getPackageName(),
+                new ObserverSpec.Builder().build(),
+                MoreExecutors.directExecutor(),
+                observer);
+
+        // Remove Type2
+        mAppSearchImpl.setSchema(
+                mContext.getPackageName(),
+                "database1",
+                ImmutableList.of(new AppSearchSchema.Builder("Type1").build()),
+                /*visibilityDocuments=*/ Collections.emptyList(),
+                /*forceOverride=*/ false,
+                /*version=*/ 0,
+                /*setSchemaStatsBuilder=*/ null);
+
+        // Dispatch notifications
+        assertThat(observer.getSchemaChanges()).isEmpty();
+        assertThat(observer.getDocumentChanges()).isEmpty();
+        mAppSearchImpl.dispatchAndClearChangeNotifications();
+        assertThat(observer.getSchemaChanges()).containsExactly(
+                new SchemaChangeInfo(
+                        mContext.getPackageName(),
+                        "database1",
+                        ImmutableSet.of("Type2")));
+        assertThat(observer.getDocumentChanges()).isEmpty();
+    }
+
+    @Test
+    public void testAddObserver_schemaChange_contents() throws Exception {
+        // Add a schema
+        mAppSearchImpl.setSchema(
+                mContext.getPackageName(),
+                "database1",
+                ImmutableList.of(
+                        new AppSearchSchema.Builder("Type1").build(),
+                        new AppSearchSchema.Builder("Type2")
+                                .addProperty(new AppSearchSchema.BooleanPropertyConfig.Builder(
+                                        "booleanProp")
+                                        .setCardinality(
+                                                AppSearchSchema.PropertyConfig.CARDINALITY_REQUIRED)
+                                        .build())
+                                .build()),
+                /*visibilityDocuments=*/ Collections.emptyList(),
+                /*forceOverride=*/ false,
+                /*version=*/ 0,
+                /*setSchemaStatsBuilder=*/ null);
+
+        // Register an observer
+        TestObserverCallback observer = new TestObserverCallback();
+        mAppSearchImpl.addObserver(
+                /*listeningPackageAccess=*/mSelfCallerAccess,
+                /*targetPackageName=*/mContext.getPackageName(),
+                new ObserverSpec.Builder().build(),
+                MoreExecutors.directExecutor(),
+                observer);
+
+        // Update the schema, but don't make any actual changes
+        mAppSearchImpl.setSchema(
+                mContext.getPackageName(),
+                "database1",
+                ImmutableList.of(
+                        new AppSearchSchema.Builder("Type1").build(),
+                        new AppSearchSchema.Builder("Type2")
+                                .addProperty(new AppSearchSchema.BooleanPropertyConfig.Builder(
+                                        "booleanProp")
+                                        .setCardinality(
+                                                AppSearchSchema.PropertyConfig.CARDINALITY_REQUIRED)
+                                        .build())
+                                .build()),
+                /*visibilityDocuments=*/ Collections.emptyList(),
+                /*forceOverride=*/ false,
+                /*version=*/ 1,
+                /*setSchemaStatsBuilder=*/ null);
+
+        // Dispatch notifications
+        assertThat(observer.getSchemaChanges()).isEmpty();
+        assertThat(observer.getDocumentChanges()).isEmpty();
+        mAppSearchImpl.dispatchAndClearChangeNotifications();
+        assertThat(observer.getSchemaChanges()).isEmpty();
+        assertThat(observer.getDocumentChanges()).isEmpty();
+
+        // Now update the schema again, but this time actually make a change (cardinality of the
+        // property)
+        mAppSearchImpl.setSchema(
+                mContext.getPackageName(),
+                "database1",
+                ImmutableList.of(
+                        new AppSearchSchema.Builder("Type1").build(),
+                        new AppSearchSchema.Builder("Type2")
+                                .addProperty(new AppSearchSchema.BooleanPropertyConfig.Builder(
+                                        "booleanProp")
+                                        .setCardinality(
+                                                AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
+                                        .build())
+                                .build()),
+                /*visibilityDocuments=*/ Collections.emptyList(),
+                /*forceOverride=*/ false,
+                /*version=*/ 2,
+                /*setSchemaStatsBuilder=*/ null);
+
+        // Dispatch notifications
+        assertThat(observer.getSchemaChanges()).isEmpty();
+        assertThat(observer.getDocumentChanges()).isEmpty();
+        mAppSearchImpl.dispatchAndClearChangeNotifications();
+        assertThat(observer.getSchemaChanges()).containsExactly(
+                new SchemaChangeInfo(
+                        mContext.getPackageName(), "database1", ImmutableSet.of("Type2")));
+        assertThat(observer.getDocumentChanges()).isEmpty();
+    }
+
+    @Test
+    public void testAddObserver_schemaChange_contents_skipBySpec() throws Exception {
+        // Add a schema
+        mAppSearchImpl.setSchema(
+                mContext.getPackageName(),
+                "database1",
+                ImmutableList.of(
+                        new AppSearchSchema.Builder("Type1")
+                                .addProperty(new AppSearchSchema.BooleanPropertyConfig.Builder(
+                                        "booleanProp")
+                                        .setCardinality(
+                                                AppSearchSchema.PropertyConfig.CARDINALITY_REQUIRED)
+                                        .build())
+                                .build(),
+                        new AppSearchSchema.Builder("Type2")
+                                .addProperty(new AppSearchSchema.BooleanPropertyConfig.Builder(
+                                        "booleanProp")
+                                        .setCardinality(
+                                                AppSearchSchema.PropertyConfig.CARDINALITY_REQUIRED)
+                                        .build())
+                                .build()),
+                /*visibilityDocuments=*/ Collections.emptyList(),
+                /*forceOverride=*/ false,
+                /*version=*/ 0,
+                /*setSchemaStatsBuilder=*/ null);
+
+        // Register an observer that only listens for Type2
+        TestObserverCallback observer = new TestObserverCallback();
+        mAppSearchImpl.addObserver(
+                /*listeningPackageAccess=*/mSelfCallerAccess,
+                /*targetPackageName=*/mContext.getPackageName(),
+                new ObserverSpec.Builder().addFilterSchemas("Type2").build(),
+                MoreExecutors.directExecutor(),
+                observer);
+
+        // Update both types of the schema (changed cardinalities)
+        mAppSearchImpl.setSchema(
+                mContext.getPackageName(),
+                "database1",
+                ImmutableList.of(
+                        new AppSearchSchema.Builder("Type1")
+                                .addProperty(new AppSearchSchema.BooleanPropertyConfig.Builder(
+                                        "booleanProp")
+                                        .setCardinality(
+                                                AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
+                                        .build())
+                                .build(),
+                        new AppSearchSchema.Builder("Type2")
+                                .addProperty(new AppSearchSchema.BooleanPropertyConfig.Builder(
+                                        "booleanProp")
+                                        .setCardinality(
+                                                AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
+                                        .build())
+                                .build()),
+                /*visibilityDocuments=*/ Collections.emptyList(),
+                /*forceOverride=*/ false,
+                /*version=*/ 0,
+                /*setSchemaStatsBuilder=*/ null);
+
+        // Dispatch notifications
+        assertThat(observer.getSchemaChanges()).isEmpty();
+        assertThat(observer.getDocumentChanges()).isEmpty();
+        mAppSearchImpl.dispatchAndClearChangeNotifications();
+        assertThat(observer.getSchemaChanges()).containsExactly(
+                new SchemaChangeInfo(
+                        mContext.getPackageName(), "database1", ImmutableSet.of("Type2")));
+        assertThat(observer.getDocumentChanges()).isEmpty();
+    }
+
+    @Test
+    public void testAddObserver_schemaChange_visibilityOnly() throws Exception {
+        final String fakeListeningPackage = "com.fake.listening.package";
+        final int fakeListeningUid = 42;
+
+        // Make a fake visibility checker that actually looks at visibility store
+        final VisibilityChecker visibilityChecker =
+                (packageName, prefixedSchema, callerUid, callerHasSystemAccess, visibilityStore)
+                        -> {
+                    if (callerUid != fakeListeningUid) {
+                        return false;
+                    }
+                    Set<String> allowedPackages = new ArraySet<>(
+                            visibilityStore.getVisibility(prefixedSchema).getPackageNames());
+                    return allowedPackages.contains(fakeListeningPackage);
+                };
+        mAppSearchImpl.close();
+        mAppSearchImpl = AppSearchImpl.create(
+                mAppSearchDir,
+                new UnlimitedLimitConfig(),
+                /*initStatsBuilder=*/null,
+                ALWAYS_OPTIMIZE,
+                visibilityChecker);
+
+        // Register an observer
+        TestObserverCallback observer = new TestObserverCallback();
+        mAppSearchImpl.addObserver(
+                new CallerAccess(
+                        fakeListeningPackage, fakeListeningUid, /*callerHasSystemAccess=*/false),
+                /*targetPackageName=*/mContext.getPackageName(),
+                new ObserverSpec.Builder().build(),
+                MoreExecutors.directExecutor(),
+                observer);
+
+        // Add a schema where both types are visible to the fake package.
+        List<AppSearchSchema> schemas = ImmutableList.of(
+                new AppSearchSchema.Builder("Type1").build(),
+                new AppSearchSchema.Builder("Type2").build());
+        mAppSearchImpl.setSchema(
+                mContext.getPackageName(),
+                "database1",
+                schemas,
+                /*visibilityDocuments=*/ ImmutableList.of(
+                        new VisibilityDocument.Builder("Type1")
+                                .addVisibleToPackage(
+                                        new PackageIdentifier(fakeListeningPackage, new byte[0]))
+                                .build(),
+                        new VisibilityDocument.Builder("Type2")
+                                .addVisibleToPackage(
+                                        new PackageIdentifier(fakeListeningPackage, new byte[0]))
+                                .build()
+                ),
+                /*forceOverride=*/ false,
+                /*version=*/ 0,
+                /*setSchemaStatsBuilder=*/ null);
+
+        // Notifications of addition should now be dispatched
+        assertThat(observer.getSchemaChanges()).isEmpty();
+        assertThat(observer.getDocumentChanges()).isEmpty();
+        mAppSearchImpl.dispatchAndClearChangeNotifications();
+        assertThat(observer.getSchemaChanges()).containsExactly(
+                new SchemaChangeInfo(
+                        mContext.getPackageName(), "database1", ImmutableSet.of("Type1", "Type2")));
+        assertThat(observer.getDocumentChanges()).isEmpty();
+        observer.clear();
+
+        // Update schema, keeping the types identical but denying visibility to type2
+        mAppSearchImpl.setSchema(
+                mContext.getPackageName(),
+                "database1",
+                schemas,
+                /*visibilityDocuments=*/ ImmutableList.of(
+                        new VisibilityDocument.Builder("Type1")
+                                .addVisibleToPackage(
+                                        new PackageIdentifier(fakeListeningPackage, new byte[0]))
+                                .build(),
+                        new VisibilityDocument.Builder("Type2").build()
+                ),
+                /*forceOverride=*/ false,
+                /*version=*/ 0,
+                /*setSchemaStatsBuilder=*/ null);
+
+        // Dispatch notifications. This should look like a deletion of Type2.
+        assertThat(observer.getSchemaChanges()).isEmpty();
+        assertThat(observer.getDocumentChanges()).isEmpty();
+        mAppSearchImpl.dispatchAndClearChangeNotifications();
+        assertThat(observer.getSchemaChanges()).containsExactly(
+                new SchemaChangeInfo(
+                        mContext.getPackageName(), "database1", ImmutableSet.of("Type2")));
+        assertThat(observer.getDocumentChanges()).isEmpty();
+        observer.clear();
+
+        // Now update Type2 and make sure no further notification is received.
+        mAppSearchImpl.setSchema(
+                mContext.getPackageName(),
+                "database1",
+                ImmutableList.of(
+                        new AppSearchSchema.Builder("Type1").build(),
+                        new AppSearchSchema.Builder("Type2")
+                                .addProperty(new AppSearchSchema.BooleanPropertyConfig.Builder(
+                                        "booleanProp")
+                                        .setCardinality(
+                                                AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
+                                        .build())
+                                .build()),
+                /*visibilityDocuments=*/ ImmutableList.of(
+                        new VisibilityDocument.Builder("Type1")
+                                .addVisibleToPackage(
+                                        new PackageIdentifier(fakeListeningPackage, new byte[0]))
+                                .build(),
+                        new VisibilityDocument.Builder("Type2").build()
+                ),
+                /*forceOverride=*/ false,
+                /*version=*/ 0,
+                /*setSchemaStatsBuilder=*/ null);
+
+        assertThat(observer.getSchemaChanges()).isEmpty();
+        assertThat(observer.getDocumentChanges()).isEmpty();
+        mAppSearchImpl.dispatchAndClearChangeNotifications();
+        assertThat(observer.getSchemaChanges()).isEmpty();
+        assertThat(observer.getDocumentChanges()).isEmpty();
+
+        // Grant visibility to Type2 again and make sure it appears
+        mAppSearchImpl.setSchema(
+                mContext.getPackageName(),
+                "database1",
+                ImmutableList.of(
+                        new AppSearchSchema.Builder("Type1").build(),
+                        new AppSearchSchema.Builder("Type2")
+                                .addProperty(new AppSearchSchema.BooleanPropertyConfig.Builder(
+                                        "booleanProp")
+                                        .setCardinality(
+                                                AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
+                                        .build())
+                                .build()),
+                /*visibilityDocuments=*/ImmutableList.of(
+                        new VisibilityDocument.Builder("Type1")
+                                .addVisibleToPackage(
+                                        new PackageIdentifier(fakeListeningPackage, new byte[0]))
+                                .build(),
+                        new VisibilityDocument.Builder("Type2")
+                                .addVisibleToPackage(
+                                        new PackageIdentifier(fakeListeningPackage, new byte[0]))
+                                .build()
+                ),
+                /*forceOverride=*/ false,
+                /*version=*/ 0,
+                /*setSchemaStatsBuilder=*/ null);
+
+        // Dispatch notifications. This should look like a creation of Type2.
+        assertThat(observer.getSchemaChanges()).isEmpty();
+        assertThat(observer.getDocumentChanges()).isEmpty();
+        mAppSearchImpl.dispatchAndClearChangeNotifications();
+        assertThat(observer.getSchemaChanges()).containsExactly(
+                new SchemaChangeInfo(
+                        mContext.getPackageName(), "database1", ImmutableSet.of("Type2")));
+        assertThat(observer.getDocumentChanges()).isEmpty();
+    }
+
+    @Test
+    public void testAddObserver_schemaChange_visibilityAndContents() throws Exception {
+        final String fakeListeningPackage = "com.fake.listening.package";
+        final int fakeListeningUid = 42;
+
+        // Make a visibility checker that allows fakeListeningPackage access only to Type2.
+        final VisibilityChecker visibilityChecker =
+                (packageName, prefixedSchema, callerUid, callerHasSystemAccess, visibilityStore)
+                        -> callerUid == fakeListeningUid && prefixedSchema.endsWith("Type2");
+        mAppSearchImpl.close();
+        mAppSearchImpl = AppSearchImpl.create(
+                mAppSearchDir,
+                new UnlimitedLimitConfig(),
+                /*initStatsBuilder=*/null,
+                ALWAYS_OPTIMIZE,
+                visibilityChecker);
+
+        // Add a schema.
+        mAppSearchImpl.setSchema(
+                mContext.getPackageName(),
+                "database1",
+                ImmutableList.of(
+                        new AppSearchSchema.Builder("Type1")
+                                .addProperty(new AppSearchSchema.BooleanPropertyConfig.Builder(
+                                        "booleanProp")
+                                        .setCardinality(
+                                                AppSearchSchema.PropertyConfig.CARDINALITY_REQUIRED)
+                                        .build())
+                                .build(),
+                        new AppSearchSchema.Builder("Type2")
+                                .addProperty(new AppSearchSchema.BooleanPropertyConfig.Builder(
+                                        "booleanProp")
+                                        .setCardinality(
+                                                AppSearchSchema.PropertyConfig.CARDINALITY_REQUIRED)
+                                        .build())
+                                .build()),
+                /*visibilityDocuments=*/ Collections.emptyList(),
+                /*forceOverride=*/ false,
+                /*version=*/ 0,
+                /*setSchemaStatsBuilder=*/ null);
+
+        // Register an observer
+        TestObserverCallback observer = new TestObserverCallback();
+        mAppSearchImpl.addObserver(
+                new CallerAccess(
+                        fakeListeningPackage, fakeListeningUid, /*callerHasSystemAccess=*/false),
+                /*targetPackageName=*/mContext.getPackageName(),
+                new ObserverSpec.Builder().build(),
+                MoreExecutors.directExecutor(),
+                observer);
+
+        // Update both types of the schema (changed cardinalities)
+        mAppSearchImpl.setSchema(
+                mContext.getPackageName(),
+                "database1",
+                ImmutableList.of(
+                        new AppSearchSchema.Builder("Type1")
+                                .addProperty(new AppSearchSchema.BooleanPropertyConfig.Builder(
+                                        "booleanProp")
+                                        .setCardinality(
+                                                AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
+                                        .build())
+                                .build(),
+                        new AppSearchSchema.Builder("Type2")
+                                .addProperty(new AppSearchSchema.BooleanPropertyConfig.Builder(
+                                        "booleanProp")
+                                        .setCardinality(
+                                                AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
+                                        .build())
+                                .build()),
+                /*visibilityDocuments=*/ Collections.emptyList(),
+                /*forceOverride=*/ false,
+                /*version=*/ 0,
+                /*setSchemaStatsBuilder=*/ null);
+
+        // Dispatch notifications
+        assertThat(observer.getSchemaChanges()).isEmpty();
+        assertThat(observer.getDocumentChanges()).isEmpty();
+        mAppSearchImpl.dispatchAndClearChangeNotifications();
+        assertThat(observer.getSchemaChanges()).containsExactly(
+                new SchemaChangeInfo(
+                        mContext.getPackageName(), "database1", ImmutableSet.of("Type2")));
+        assertThat(observer.getDocumentChanges()).isEmpty();
+    }
+
+    @Test
+    public void testAddObserver_schemaChange_partialVisibility_removed() throws Exception {
+        final String fakeListeningPackage = "com.fake.listening.package";
+        final int fakeListeningUid = 42;
+
+        // Make a visibility checker that allows fakeListeningPackage access only to Type2.
+        final VisibilityChecker visibilityChecker =
+                (packageName, prefixedSchema, callerUid, callerHasSystemAccess, visibilityStore)
+                        -> callerUid == fakeListeningUid && prefixedSchema.endsWith("Type2");
+        mAppSearchImpl.close();
+        mAppSearchImpl = AppSearchImpl.create(
+                mAppSearchDir,
+                new UnlimitedLimitConfig(),
+                /*initStatsBuilder=*/null,
+                ALWAYS_OPTIMIZE,
+                visibilityChecker);
+
+        // Add a schema.
+        mAppSearchImpl.setSchema(
+                mContext.getPackageName(),
+                "database1",
+                ImmutableList.of(
+                        new AppSearchSchema.Builder("Type1").build(),
+                        new AppSearchSchema.Builder("Type2").build()),
+                /*visibilityDocuments=*/ Collections.emptyList(),
+                /*forceOverride=*/ false,
+                /*version=*/ 0,
+                /*setSchemaStatsBuilder=*/ null);
+
+        // Register an observer
+        TestObserverCallback observer = new TestObserverCallback();
+        mAppSearchImpl.addObserver(
+                new CallerAccess(
+                        fakeListeningPackage, fakeListeningUid, /*callerHasSystemAccess=*/false),
+                /*targetPackageName=*/mContext.getPackageName(),
+                new ObserverSpec.Builder().build(),
+                MoreExecutors.directExecutor(),
+                observer);
+
+        // Remove Type1
+        mAppSearchImpl.setSchema(
+                mContext.getPackageName(),
+                "database1",
+                ImmutableList.of(new AppSearchSchema.Builder("Type2").build()),
+                /*visibilityDocuments=*/ Collections.emptyList(),
+                /*forceOverride=*/ false,
+                /*version=*/ 0,
+                /*setSchemaStatsBuilder=*/ null);
+
+        // Dispatch notifications. Nothing should appear since Type1 is not visible to us.
+        assertThat(observer.getSchemaChanges()).isEmpty();
+        assertThat(observer.getDocumentChanges()).isEmpty();
+        mAppSearchImpl.dispatchAndClearChangeNotifications();
+        assertThat(observer.getSchemaChanges()).isEmpty();
+        assertThat(observer.getDocumentChanges()).isEmpty();
+
+        // Now remove Type2. This should cause a notification.
+        mAppSearchImpl.setSchema(
+                mContext.getPackageName(),
+                "database1",
+                ImmutableList.of(),
+                /*visibilityDocuments=*/ Collections.emptyList(),
+                /*forceOverride=*/ false,
+                /*version=*/ 0,
+                /*setSchemaStatsBuilder=*/ null);
+        assertThat(observer.getSchemaChanges()).isEmpty();
+        assertThat(observer.getDocumentChanges()).isEmpty();
+        mAppSearchImpl.dispatchAndClearChangeNotifications();
+        assertThat(observer.getSchemaChanges()).containsExactly(
+                new SchemaChangeInfo(
+                        mContext.getPackageName(), "database1", ImmutableSet.of("Type2")));
+        assertThat(observer.getDocumentChanges()).isEmpty();
+    }
+
+    @Test
+    public void testAddObserver_schemaChange_multipleObservers() throws Exception {
+        // Create two fake packages. One can access Type1, one can access Type2, they both can
+        // access Type3, and no one can access Type4.
+        final String fakePackage1 = "com.fake.listening.package1";
+        final int fakePackage1Uid = 42;
+
+        final String fakePackage2 = "com.fake.listening.package2";
+        final int fakePackage2Uid = 43;
+
+        final VisibilityChecker visibilityChecker =
+                (packageName, prefixedSchema, callerUid, callerHasSystemAccess, visibilityStore)
+                        -> {
+                    if (prefixedSchema.endsWith("Type1")) {
+                        return callerUid == fakePackage1Uid;
+                    } else if (prefixedSchema.endsWith("Type2")) {
+                        return callerUid == fakePackage2Uid;
+                    } else if (prefixedSchema.endsWith("Type3")) {
+                        return false;
+                    } else if (prefixedSchema.endsWith("Type4")) {
+                        return true;
+                    } else {
+                        throw new IllegalArgumentException(prefixedSchema);
+                    }
+                };
+        mAppSearchImpl.close();
+        mAppSearchImpl = AppSearchImpl.create(
+                mAppSearchDir,
+                new UnlimitedLimitConfig(),
+                /*initStatsBuilder=*/null,
+                ALWAYS_OPTIMIZE,
+                visibilityChecker);
+
+        // Add a schema.
+        mAppSearchImpl.setSchema(
+                mContext.getPackageName(),
+                "database1",
+                ImmutableList.of(
+                        new AppSearchSchema.Builder("Type1").build(),
+                        new AppSearchSchema.Builder("Type2").build(),
+                        new AppSearchSchema.Builder("Type3").build(),
+                        new AppSearchSchema.Builder("Type4").build()
+                ),
+                /*visibilityDocuments=*/ Collections.emptyList(),
+                /*forceOverride=*/ false,
+                /*version=*/ 0,
+                /*setSchemaStatsBuilder=*/ null);
+
+        // Register three observers: one in each package, and another in package1 with a filter.
+        TestObserverCallback observerPkg1NoFilter = new TestObserverCallback();
+        mAppSearchImpl.addObserver(
+                new CallerAccess(
+                        fakePackage1, fakePackage1Uid, /*callerHasSystemAccess=*/false),
+                /*targetPackageName=*/mContext.getPackageName(),
+                new ObserverSpec.Builder().build(),
+                MoreExecutors.directExecutor(),
+                observerPkg1NoFilter);
+
+        TestObserverCallback observerPkg2NoFilter = new TestObserverCallback();
+        mAppSearchImpl.addObserver(
+                new CallerAccess(
+                        fakePackage2, fakePackage2Uid, /*callerHasSystemAccess=*/false),
+                /*targetPackageName=*/mContext.getPackageName(),
+                new ObserverSpec.Builder().build(),
+                MoreExecutors.directExecutor(),
+                observerPkg2NoFilter);
+
+        TestObserverCallback observerPkg1FilterType4 = new TestObserverCallback();
+        mAppSearchImpl.addObserver(
+                new CallerAccess(
+                        fakePackage1, fakePackage1Uid, /*callerHasSystemAccess=*/false),
+                /*targetPackageName=*/mContext.getPackageName(),
+                new ObserverSpec.Builder().addFilterSchemas("Type4").build(),
+                MoreExecutors.directExecutor(),
+                observerPkg1FilterType4);
+
+        // Remove everything
+        mAppSearchImpl.setSchema(
+                mContext.getPackageName(),
+                "database1",
+                ImmutableList.of(),
+                /*visibilityDocuments=*/ Collections.emptyList(),
+                /*forceOverride=*/ false,
+                /*version=*/ 0,
+                /*setSchemaStatsBuilder=*/ null);
+
+        // Dispatch notifications.
+        mAppSearchImpl.dispatchAndClearChangeNotifications();
+
+        // observerPkg1NoFilter should see Type1 and Type4 vanish.
+        // observerPkg2NoFilter should see Type2 and Type4 vanish.
+        // observerPkg2WithFilter should see Type4 vanish.
+        assertThat(observerPkg1NoFilter.getSchemaChanges()).containsExactly(
+                new SchemaChangeInfo(
+                        mContext.getPackageName(), "database1", ImmutableSet.of("Type1", "Type4"))
+        );
+        assertThat(observerPkg1NoFilter.getDocumentChanges()).isEmpty();
+
+        assertThat(observerPkg2NoFilter.getSchemaChanges()).containsExactly(
+                new SchemaChangeInfo(
+                        mContext.getPackageName(), "database1", ImmutableSet.of("Type2", "Type4"))
+        );
+        assertThat(observerPkg2NoFilter.getDocumentChanges()).isEmpty();
+
+        assertThat(observerPkg1FilterType4.getSchemaChanges()).containsExactly(
+                new SchemaChangeInfo(
+                        mContext.getPackageName(), "database1", ImmutableSet.of("Type4"))
+        );
+        assertThat(observerPkg1FilterType4.getDocumentChanges()).isEmpty();
     }
 }
