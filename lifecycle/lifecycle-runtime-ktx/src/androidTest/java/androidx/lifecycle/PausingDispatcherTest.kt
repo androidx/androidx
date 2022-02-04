@@ -270,7 +270,6 @@ class PausingDispatcherTest {
     fun throwException_thenRunAnother() {
         runBlocking(testingScope.coroutineContext) {
             try {
-                @Suppress("IMPLICIT_NOTHING_AS_TYPE_PARAMETER")
                 owner.whenResumed {
                     assertThread()
                     expectations.expect(1)
@@ -295,7 +294,6 @@ class PausingDispatcherTest {
                     owner.whenResumed {
                         try {
                             expectations.expect(1)
-                            @Suppress("IMPLICIT_NOTHING_AS_TYPE_PARAMETER")
                             withContext(testingScope.coroutineContext) {
                                 throw IllegalStateException("i fail")
                             }
@@ -483,7 +481,6 @@ class PausingDispatcherTest {
     @Test
     fun innerJobCancelsParent() {
         try {
-            @Suppress("IMPLICIT_NOTHING_AS_TYPE_PARAMETER")
             runBlocking(testingScope.coroutineContext) {
                 owner.whenResumed {
                     throw IllegalStateException("i fail")
@@ -523,7 +520,6 @@ class PausingDispatcherTest {
                             assertThread()
                             expectations.expect(2)
                             try {
-                                @Suppress("IMPLICIT_NOTHING_AS_TYPE_PARAMETER")
                                 withContext(testingScope.coroutineContext) {
                                     throw IllegalStateException("i fail")
                                 }
