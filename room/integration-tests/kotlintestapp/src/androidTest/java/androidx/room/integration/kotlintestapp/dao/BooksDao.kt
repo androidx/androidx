@@ -452,4 +452,7 @@ interface BooksDao {
 
     @Query("SELECT * FROM Publisher JOIN Book ON (Publisher.publisherId == Book.bookPublisherId)")
     fun getBooksByPublisher(): Map<Publisher, List<Book>>
+
+    @get:Query("SELECT * FROM Book")
+    val allBooks: List<Book>
 }

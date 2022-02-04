@@ -130,7 +130,7 @@ package androidx.room
  * the POJO, and as long as there is at least 1 field match, Room prints a
  * [RoomWarnings.CURSOR_MISMATCH] warning and sets as many fields as it can.
  */
-@Target(AnnotationTarget.FUNCTION)
+@Target(AnnotationTarget.FUNCTION, AnnotationTarget.PROPERTY_GETTER)
 @Retention(AnnotationRetention.BINARY)
 public annotation class Query(
     /**
