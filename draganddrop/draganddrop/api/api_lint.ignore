@@ -1,3 +1,7 @@
 // Baseline format: 1.0
 ExecutorRegistration: androidx.draganddrop.DropHelper#configureView(android.app.Activity, android.view.View, String[], androidx.draganddrop.DropHelper.Options, androidx.core.view.OnReceiveContentListener):
     Registration methods should have overload that accepts delivery Executor: `configureView`
+
+
+MissingGetterMatchingBuilder: androidx.draganddrop.DropHelper.Options.Builder#setAcceptDragsWithLocalState(boolean):
+    androidx.draganddrop.DropHelper.Options does not declare a `isAcceptDragsWithLocalState()` method matching method androidx.draganddrop.DropHelper.Options.Builder.setAcceptDragsWithLocalState(boolean)
