@@ -17,7 +17,9 @@
 package androidx.wear.compose.material
 
 import androidx.compose.animation.core.CubicBezierEasing
+import androidx.compose.animation.core.DecayAnimationSpec
 import androidx.compose.animation.core.Easing
+import androidx.compose.animation.core.exponentialDecay
 import androidx.compose.foundation.gestures.FlingBehavior
 import androidx.compose.foundation.gestures.ScrollableDefaults
 import androidx.compose.foundation.layout.Arrangement
@@ -240,26 +242,28 @@ internal fun convertToCenterOffset(
  * guide.
  *
  * @param modifier The modifier to be applied to the component
- * @param scalingParams The parameters to configure the scaling and transparency effects for the
- * component
+ * @param state The state of the component
+ * @param contentPadding The padding to apply around the contents
  * @param reverseLayout reverse the direction of scrolling and layout, when `true` items will be
  * composed from the bottom to the top
  * @param verticalArrangement The vertical arrangement of the layout's children. This allows us
  * to add spacing between items and specify the arrangement of the items when we have not enough
  * of them to fill the whole minimum size
  * @param horizontalAlignment the horizontal alignment applied to the items
- * @param contentPadding The padding to apply around the contents
+ * @param flingBehavior Logic describing fling behavior. If snapping is required use
+ * [ScalingLazyColumnDefaults.snapFlingBehavior].
+ * @param scalingParams The parameters to configure the scaling and transparency effects for the
+ * component
  * @param anchorType How to anchor list items to the center-line of the viewport
- * @param flingBehavior Logic describing fling behavior
  * @param autoCentering Flag to determine whether all items should be centerable in the viewport.
  * If true then sufficient space will be made available before the first and after the last
  * list item to ensure that they can be scrolled to the center of the viewport.
- * @param state The state of the component
  */
 @Composable
 public fun ScalingLazyColumn(
     modifier: Modifier = Modifier,
-    scalingParams: ScalingParams = ScalingLazyColumnDefaults.scalingParams(),
+    state: ScalingLazyListState = rememberScalingLazyListState(),
+    contentPadding: PaddingValues = PaddingValues(horizontal = 8.dp),
     reverseLayout: Boolean = false,
     verticalArrangement: Arrangement.Vertical =
         Arrangement.spacedBy(
@@ -267,10 +271,9 @@ public fun ScalingLazyColumn(
             alignment = if (!reverseLayout) Alignment.Top else Alignment.Bottom
         ),
     horizontalAlignment: Alignment.Horizontal = Alignment.Start,
-    contentPadding: PaddingValues = PaddingValues(horizontal = 8.dp),
-    state: ScalingLazyListState = rememberScalingLazyListState(),
-    anchorType: ScalingLazyListAnchorType = ScalingLazyListAnchorType.ItemCenter,
     flingBehavior: FlingBehavior = ScrollableDefaults.flingBehavior(),
+    scalingParams: ScalingParams = ScalingLazyColumnDefaults.scalingParams(),
+    anchorType: ScalingLazyListAnchorType = ScalingLazyListAnchorType.ItemCenter,
     autoCentering: Boolean = true,
     content: ScalingLazyListScope.() -> Unit
 ) {
@@ -490,6 +493,31 @@ public object ScalingLazyColumnDefaults {
         scaleInterpolator = scaleInterpolator,
         viewportVerticalOffsetResolver = viewportVerticalOffsetResolver
     )
+
+    /**
+     * Create and remember a [FlingBehavior] that will represent natural fling curve with snap to
+     * central item as the fling decays.
+     *
+     * @param state the state of the [ScalingLazyColumn]
+     * @param snapOffset an optional offset to be applied when snapping the item. After the snap the
+     * snapped items offset will be [snapOffset].
+     * @param decay the decay to use
+     */
+    @Composable
+    public fun snapFlingBehavior(
+        state: ScalingLazyListState,
+        snapOffset: Dp = 0.dp,
+        decay: DecayAnimationSpec<Float> = exponentialDecay()
+    ): FlingBehavior {
+        val snapOffsetPx = with(LocalDensity.current) { snapOffset.roundToPx() }
+        return remember(state, snapOffset, decay) {
+            ScalingLazyColumnSnapFlingBehavior(
+                state = state,
+                snapOffset = snapOffsetPx,
+                decay = decay
+            )
+        }
+    }
 }
 
 private class ScalingLazyListScopeImpl(
@@ -618,12 +646,11 @@ private fun Modifier.verticalNegativePadding(
 ) = layout { measurable, constraints ->
     require(constraints.hasBoundedWidth)
     require(constraints.hasBoundedHeight)
+    val topAndBottomPadding = (extraPadding * 2).roundToPx()
     val placeable = measurable.measure(
         constraints.copy(
-            maxHeight = constraints.maxHeight +
-                (extraPadding * 2).roundToPx(),
-            minHeight = constraints.minHeight +
-                (extraPadding * 2).roundToPx(),
+            minHeight = constraints.minHeight + topAndBottomPadding,
+            maxHeight = constraints.maxHeight + topAndBottomPadding
         )
     )
 
