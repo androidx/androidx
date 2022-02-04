@@ -224,6 +224,7 @@ package androidx.appcompat.app {
     method public androidx.appcompat.app.ActionBar? getSupportActionBar();
     method public android.content.Intent? getSupportParentActivityIntent();
     method public void onCreateSupportNavigateUpTaskStack(androidx.core.app.TaskStackBuilder);
+    method protected void onLocalesChanged(androidx.core.os.LocaleListCompat);
     method public final boolean onMenuItemSelected(int, android.view.MenuItem);
     method protected void onNightModeChanged(int);
     method public void onPrepareSupportNavigateUpTaskStack(androidx.core.app.TaskStackBuilder);
@@ -280,6 +281,7 @@ package androidx.appcompat.app {
     method public abstract void onStart();
     method public abstract void onStop();
     method public abstract boolean requestWindowFeature(int);
+    method public static void setApplicationLocales(androidx.core.os.LocaleListCompat);
     method public static void setCompatVectorFromResourcesEnabled(boolean);
     method public abstract void setContentView(android.view.View!);
     method public abstract void setContentView(@LayoutRes int);
