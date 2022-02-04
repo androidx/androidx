@@ -29,6 +29,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.testutils.WithTouchSlop
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.assertHeightIsEqualTo
 import androidx.compose.ui.test.assertWidthIsEqualTo
@@ -38,6 +40,7 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeDown
 import androidx.compose.ui.test.swipeUp
+import androidx.compose.ui.test.swipeWithVelocity
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -133,6 +136,95 @@ public class ScalingLazyColumnTest {
 
         rule.waitForIdle()
         state.layoutInfo.assertVisibleItems(count = 4, startIndex = 0)
+    }
+
+    @Test
+    fun visibleItemsAreCorrectAfterScrollingWithSnap() {
+        lateinit var state: ScalingLazyListState
+        rule.setContent {
+            WithTouchSlop(0f) {
+                ScalingLazyColumn(
+                    state = rememberScalingLazyListState(initialCenterItemIndex = 0)
+                        .also { state = it },
+                    modifier = Modifier.testTag(TEST_TAG).requiredSize(
+                        itemSizeDp * 3.5f + defaultItemSpacingDp * 2.5f
+                    ),
+                    autoCentering = true,
+                    flingBehavior = ScalingLazyColumnDefaults.snapFlingBehavior(state)
+                ) {
+                    items(5) {
+                        Box(Modifier.requiredSize(itemSizeDp))
+                    }
+                }
+            }
+        }
+        // TODO(b/210654937): Remove the waitUntil once we no longer need 2 stage initialization
+        rule.waitUntil { state.initialized.value }
+        rule.waitForIdle()
+        state.layoutInfo.assertVisibleItems(count = 3, startIndex = 0)
+
+        rule.waitForIdle()
+        rule.onNodeWithTag(TEST_TAG).performTouchInput {
+            // Swipe by an amount that is not a whole item + gap
+            swipeWithVelocity(
+                start = Offset(centerX, bottom),
+                end = Offset(centerX, bottom - (itemSizePx.toFloat())),
+                endVelocity = 1f, // Ensure it's not a fling.
+            )
+        }
+
+        rule.waitForIdle()
+        state.layoutInfo.assertVisibleItems(count = 4, startIndex = 0)
+        assertThat(state.centerItemIndex).isEqualTo(1)
+        assertThat(state.centerItemScrollOffset).isEqualTo(0)
+    }
+
+    @Test
+    fun visibleItemsAreCorrectAfterScrollingWithSnapAndOffset() {
+        lateinit var state: ScalingLazyListState
+        val snapOffset = 5.dp
+        var snapOffsetPx = 0
+        rule.setContent {
+            WithTouchSlop(0f) {
+                snapOffsetPx = with(LocalDensity.current) { snapOffset.roundToPx() }
+
+                ScalingLazyColumn(
+                    state = rememberScalingLazyListState(initialCenterItemIndex = 0)
+                        .also { state = it },
+                    modifier = Modifier.testTag(TEST_TAG).requiredSize(
+                        itemSizeDp * 3.5f + defaultItemSpacingDp * 2.5f
+                    ),
+                    autoCentering = true,
+                    flingBehavior = ScalingLazyColumnDefaults.snapFlingBehavior(
+                        state = state,
+                        snapOffset = snapOffset
+                    )
+                ) {
+                    items(5) {
+                        Box(Modifier.requiredSize(itemSizeDp))
+                    }
+                }
+            }
+        }
+        // TODO(b/210654937): Remove the waitUntil once we no longer need 2 stage initialization
+        rule.waitUntil { state.initialized.value }
+        rule.waitForIdle()
+        state.layoutInfo.assertVisibleItems(count = 3, startIndex = 0)
+
+        rule.waitForIdle()
+        rule.onNodeWithTag(TEST_TAG).performTouchInput {
+            // Swipe by an amount that is not a whole item + gap
+            swipeWithVelocity(
+                start = Offset(centerX, bottom),
+                end = Offset(centerX, bottom - (itemSizePx.toFloat())),
+                endVelocity = 1f, // Ensure it's not a fling.
+            )
+        }
+
+        rule.waitForIdle()
+        state.layoutInfo.assertVisibleItems(count = 4, startIndex = 0)
+        assertThat(state.centerItemIndex).isEqualTo(1)
+        assertThat(state.centerItemScrollOffset).isEqualTo(snapOffsetPx)
     }
 
     @Test
