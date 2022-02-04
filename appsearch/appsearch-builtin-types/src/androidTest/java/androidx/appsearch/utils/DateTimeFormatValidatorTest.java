@@ -44,6 +44,12 @@ public class DateTimeFormatValidatorTest {
     }
 
     @Test
+    public void testValidateISO8601DateTime_validDateWithoutSeconds_returnsTrue() {
+        assertThat(DateTimeFormatValidator.validateISO8601DateTime("2022-01-01T00:00"))
+                .isTrue();
+    }
+
+    @Test
     public void testValidateISO8601DateTime_invalidDate_returnsFalse() {
         assertThat(DateTimeFormatValidator.validateISO8601DateTime("2022:01:01T00-00-00"))
                 .isFalse();
