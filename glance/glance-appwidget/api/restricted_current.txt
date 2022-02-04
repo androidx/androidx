@@ -20,12 +20,6 @@ package androidx.glance.appwidget {
   public abstract sealed class CheckBoxColors {
   }
 
-  public final class CheckBoxDefaults {
-    method public androidx.glance.appwidget.CheckBoxColors getColors();
-    property public final androidx.glance.appwidget.CheckBoxColors colors;
-    field public static final androidx.glance.appwidget.CheckBoxDefaults INSTANCE;
-  }
-
   public final class CheckBoxKt {
     method @androidx.compose.runtime.Composable public static void CheckBox(boolean checked, androidx.glance.action.Action? onCheckedChange, optional androidx.glance.GlanceModifier modifier, optional String text, optional androidx.glance.text.TextStyle? style, optional androidx.glance.appwidget.CheckBoxColors colors, optional int maxLines);
     method public static androidx.glance.appwidget.CheckBoxColors CheckBoxColors(long checkedColor, long uncheckedColor);
@@ -110,6 +104,17 @@ package androidx.glance.appwidget {
     property public final long Color;
     property public final androidx.glance.unit.ColorProvider IndicatorColorProvider;
     field public static final androidx.glance.appwidget.ProgressIndicatorDefaults INSTANCE;
+  }
+
+  public final class RadioButtonColors {
+  }
+
+  public final class RadioButtonKt {
+    method @androidx.compose.runtime.Composable public static void RadioButton(boolean checked, androidx.glance.action.Action? onClick, optional androidx.glance.GlanceModifier modifier, optional boolean enabled, optional String text, optional androidx.glance.text.TextStyle? style, optional androidx.glance.appwidget.RadioButtonColors colors, optional int maxLines);
+    method public static androidx.glance.appwidget.RadioButtonColors RadioButtonColors(androidx.glance.unit.ColorProvider? checkedColor, androidx.glance.unit.ColorProvider? uncheckedColor);
+    method public static androidx.glance.appwidget.RadioButtonColors RadioButtonColors(optional @ColorRes int color);
+    method public static androidx.glance.appwidget.RadioButtonColors RadioButtonColors(long checkedColor, long uncheckedColor);
+    method public static androidx.glance.GlanceModifier selectableGroup(androidx.glance.GlanceModifier);
   }
 
   public final class RemoteViewsTranslatorKt {
@@ -293,6 +298,9 @@ package androidx.glance.appwidget.translators {
   }
 
   public final class LinearProgressIndicatorTranslatorKt {
+  }
+
+  public final class RadioButtonTranslatorKt {
   }
 
   public final class SwitchTranslatorKt {

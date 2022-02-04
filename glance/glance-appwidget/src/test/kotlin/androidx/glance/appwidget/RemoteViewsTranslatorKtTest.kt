@@ -31,6 +31,7 @@ import android.widget.GridView
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.ListView
+import android.widget.RadioGroup
 import android.widget.RemoteViews
 import android.widget.TextView
 import androidx.compose.ui.graphics.Color
@@ -927,6 +928,75 @@ class RemoteViewsTranslatorKtTest {
             "More than one clickable defined on the same GlanceModifier, " +
                 "only the last one will be used."
         )
+    }
+
+    @Test
+    @Config(minSdk = 31)
+    fun canTranslateRowSelectableGroupToHorizontalRadioGroup() = fakeCoroutineScope.runTest {
+        val rv = context.runAndTranslate {
+            Row(modifier = GlanceModifier.selectableGroup()) {}
+        }
+
+        val view = context.applyRemoteViews(rv)
+        val group = assertIs<RadioGroup>(view)
+        assertThat(group.orientation).isEqualTo(LinearLayout.HORIZONTAL)
+    }
+
+    @Test
+    @Config(minSdk = 31)
+    fun canTranslateColumnSelectableGroupToVerticalRadioGroup() = fakeCoroutineScope.runTest {
+        val rv = context.runAndTranslate {
+            Column(modifier = GlanceModifier.selectableGroup()) {}
+        }
+
+        val view = context.applyRemoteViews(rv)
+        val group = assertIs<RadioGroup>(view)
+        assertThat(group.orientation).isEqualTo(LinearLayout.VERTICAL)
+    }
+
+    @Test
+    @Config(maxSdk = 30)
+    fun canTranslateRowSelectableGroupToLinearLayout() = fakeCoroutineScope.runTest {
+        val rv = context.runAndTranslate {
+            Row(modifier = GlanceModifier.selectableGroup()) {}
+        }
+
+        val view = context.applyRemoteViews(rv)
+        val group = assertIs<LinearLayout>(view)
+        assertThat(group.orientation).isEqualTo(LinearLayout.HORIZONTAL)
+    }
+
+    @Test
+    @Config(maxSdk = 30)
+    fun canTranslateColumnSelectableGroupToLinearLayout() = fakeCoroutineScope.runTest {
+        val rv = context.runAndTranslate {
+            Column(modifier = GlanceModifier.selectableGroup()) {}
+        }
+
+        val view = context.applyRemoteViews(rv)
+        val group = assertIs<LinearLayout>(view)
+        assertThat(group.orientation).isEqualTo(LinearLayout.VERTICAL)
+    }
+
+    @Test
+    fun cannotTranslateSelectableGroupThatIsNotRowOrColumn() = fakeCoroutineScope.runTest {
+        assertFailsWith<Exception> {
+            context.runAndTranslate {
+                Box(modifier = GlanceModifier.selectableGroup()) {}
+            }
+        }
+    }
+
+    @Test
+    fun cannotTranslateSelectableGroupWithMultipleCheckedButtons() = fakeCoroutineScope.runTest {
+        assertFailsWith<IllegalStateException> {
+            context.runAndTranslate {
+                Column(modifier = GlanceModifier.selectableGroup()) {
+                    RadioButton(onClick = null, checked = true)
+                    RadioButton(onClick = null, checked = true)
+                }
+            }
+        }
     }
 
     private fun expectGlanceLog(type: Int, message: String) {

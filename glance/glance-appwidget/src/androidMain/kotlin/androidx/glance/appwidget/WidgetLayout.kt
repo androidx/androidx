@@ -309,8 +309,20 @@ private fun Emittable.getLayoutType(): LayoutProto.LayoutType =
     when (this) {
         is EmittableBox -> LayoutProto.LayoutType.BOX
         is EmittableButton -> LayoutProto.LayoutType.BUTTON
-        is EmittableRow -> LayoutProto.LayoutType.ROW
-        is EmittableColumn -> LayoutProto.LayoutType.COLUMN
+        is EmittableRow -> {
+            if (modifier.isSelectableGroup) {
+                LayoutProto.LayoutType.RADIO_ROW
+            } else {
+                LayoutProto.LayoutType.ROW
+            }
+        }
+        is EmittableColumn -> {
+            if (modifier.isSelectableGroup) {
+                LayoutProto.LayoutType.RADIO_COLUMN
+            } else {
+                LayoutProto.LayoutType.COLUMN
+            }
+        }
         is EmittableText -> LayoutProto.LayoutType.TEXT
         is EmittableLazyListItem -> LayoutProto.LayoutType.LIST_ITEM
         is EmittableLazyColumn -> LayoutProto.LayoutType.LAZY_COLUMN
@@ -324,6 +336,7 @@ private fun Emittable.getLayoutType(): LayoutProto.LayoutType =
         is EmittableLazyVerticalGrid -> LayoutProto.LayoutType.LAZY_VERTICAL_GRID
         is EmittableLazyVerticalGridListItem -> LayoutProto.LayoutType.LIST_ITEM
         is RemoteViewsRoot -> LayoutProto.LayoutType.REMOTE_VIEWS_ROOT
+        is EmittableRadioButton -> LayoutProto.LayoutType.RADIO_BUTTON
         else ->
             throw IllegalArgumentException("Unknown element type ${this.javaClass.canonicalName}")
     }

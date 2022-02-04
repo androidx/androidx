@@ -744,6 +744,30 @@ class GlanceAppWidgetReceiverTest {
         )
     }
 
+    @Test
+    fun radioActionCallback() {
+        TestGlanceAppWidget.uiDefinition = {
+            RadioButton(
+                checked = true,
+                onClick = actionRunCallback<CallbackTest>(
+                    actionParametersOf(CallbackTest.key to 2)
+                ),
+                text = "text1"
+            )
+        }
+
+        mHostRule.startHost()
+
+        CallbackTest.received.set(emptyList())
+        CallbackTest.latch = CountDownLatch(1)
+        mHostRule.onHostView { root ->
+            checkNotNull(root.findChild<TextView> { it.text == "text1" })
+                .performCompoundButtonClick()
+        }
+        assertThat(CallbackTest.latch.await(5, TimeUnit.SECONDS)).isTrue()
+        assertThat(CallbackTest.received.get()).containsExactly(2)
+    }
+
     // Check there is a single span of the given type and that it passes the [check].
     private inline
     fun <reified T> SpannedString.checkHasSingleTypedSpan(check: (T) -> Unit) {
