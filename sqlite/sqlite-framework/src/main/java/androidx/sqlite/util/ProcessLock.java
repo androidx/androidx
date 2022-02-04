@@ -16,6 +16,8 @@
 
 package androidx.sqlite.util;
 
+import android.util.Log;
+
 import androidx.annotation.NonNull;
 
 import java.io.File;
@@ -46,6 +48,8 @@ import java.util.concurrent.locks.ReentrantLock;
  *     objects.
  */
 public final class ProcessLock {
+
+    private static final String TAG = "SupportSQLiteLock";
 
     // in-process lock map
     private static final Map<String, Lock> sThreadLocks = new HashMap<>();
@@ -94,7 +98,8 @@ public final class ProcessLock {
                 mLockChannel = new FileOutputStream(mLockFile).getChannel();
                 mLockChannel.lock();
             } catch (IOException e) {
-                throw new IllegalStateException("Unable to grab file lock.", e);
+                mLockChannel = null;
+                Log.w(TAG, "Unable to grab file lock.", e);
             }
         }
     }
