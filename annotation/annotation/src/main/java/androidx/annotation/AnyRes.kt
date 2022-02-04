@@ -13,26 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.annotation;
-
-import static java.lang.annotation.ElementType.FIELD;
-import static java.lang.annotation.ElementType.LOCAL_VARIABLE;
-import static java.lang.annotation.ElementType.METHOD;
-import static java.lang.annotation.ElementType.PARAMETER;
-import static java.lang.annotation.RetentionPolicy.CLASS;
-
-import java.lang.annotation.Documented;
-import java.lang.annotation.Retention;
-import java.lang.annotation.Target;
+package androidx.annotation
 
 /**
  * Denotes that an integer parameter, field or method return value is expected
  * to be a resource reference of any type. If the specific type is known, use
- * one of the more specific annotations instead, such as {@link StringRes} or
- * {@link DrawableRes}.
+ * one of the more specific annotations instead, such as [StringRes] or
+ * [DrawableRes].
  */
-@Documented
-@Retention(CLASS)
-@Target({METHOD, PARAMETER, FIELD, LOCAL_VARIABLE})
-public @interface AnyRes {
-}
+@MustBeDocumented
+@kotlin.annotation.Retention(AnnotationRetention.BINARY)
+@Target(
+    AnnotationTarget.FUNCTION,
+    AnnotationTarget.PROPERTY_GETTER,
+    AnnotationTarget.PROPERTY_SETTER,
+    AnnotationTarget.VALUE_PARAMETER,
+    AnnotationTarget.FIELD,
+    AnnotationTarget.LOCAL_VARIABLE
+)
+public annotation class AnyRes
