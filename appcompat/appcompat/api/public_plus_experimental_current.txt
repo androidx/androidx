@@ -341,6 +341,12 @@ package androidx.appcompat.app {
     method protected android.view.View? createView(android.content.Context!, String!, android.util.AttributeSet!);
   }
 
+  public final class AppLocalesMetadataHolderService extends android.app.Service {
+    ctor public AppLocalesMetadataHolderService();
+    method public static android.content.pm.ServiceInfo getServiceInfo(android.content.Context) throws android.content.pm.PackageManager.NameNotFoundException;
+    method public android.os.IBinder onBind(android.content.Intent);
+  }
+
 }
 
 package androidx.appcompat.graphics.drawable {
