@@ -14,9 +14,7 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryGroups
 import androidx.build.LibraryType
-import androidx.build.LibraryVersions
 import androidx.build.Release
 import androidx.build.checkapi.LibraryApiTaskConfig
 import androidx.build.metalava.MetalavaRunnerKt
@@ -89,7 +87,7 @@ android {
         multiDexEnabled = true
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
-        resValue "string", "car_app_library_version", LibraryVersions.CAR_APP.toString()
+        resValue "string", "car_app_library_version", androidx.LibraryVersions.CAR_APP.toString()
         consumerProguardFiles "proguard-rules.pro"
     }
     lintOptions {
