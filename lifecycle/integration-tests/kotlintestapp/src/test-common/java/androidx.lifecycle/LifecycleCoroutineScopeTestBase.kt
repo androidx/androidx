@@ -59,7 +59,8 @@ abstract class LifecycleCoroutineScopeTestBase {
 
     @Test
     fun launchAfterDestroy() {
-        val owner = TestLifecycleOwner(Lifecycle.State.DESTROYED, TestCoroutineDispatcher())
+        val owner = TestLifecycleOwner(Lifecycle.State.CREATED, TestCoroutineDispatcher())
+        owner.lifecycle.currentState = Lifecycle.State.DESTROYED
         runBlocking {
             owner.lifecycleScope.launch {
                 // do nothing

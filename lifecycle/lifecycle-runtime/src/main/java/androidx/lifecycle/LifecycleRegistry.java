@@ -138,6 +138,9 @@ public class LifecycleRegistry extends Lifecycle {
         if (mState == next) {
             return;
         }
+        if (mState == INITIALIZED && next == DESTROYED) {
+            throw new IllegalStateException("no event down from " + mState);
+        }
         mState = next;
         if (mHandlingEvent || mAddingObserverCounter != 0) {
             mNewEventOccurred = true;
