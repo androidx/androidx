@@ -275,7 +275,7 @@ public fun ScalingLazyColumn(
     content: ScalingLazyListScope.() -> Unit
 ) {
     var initialized by remember { mutableStateOf(false) }
-    BoxWithConstraints(modifier = modifier) {
+    BoxWithConstraints(modifier = modifier, propagateMinConstraints = true) {
         val density = LocalDensity.current
         val layoutDirection = LocalLayoutDirection.current
         val extraPaddingInPixels = scalingParams.resolveViewportVerticalOffset(constraints)
@@ -614,18 +614,20 @@ private class CombinedPaddingValues(
 }
 
 private fun Modifier.verticalNegativePadding(
-    extraPadding: Dp
+    extraPadding: Dp,
 ) = layout { measurable, constraints ->
     require(constraints.hasBoundedWidth)
     require(constraints.hasBoundedHeight)
     val placeable = measurable.measure(
-        Constraints.fixed(
-            width = constraints.maxWidth,
-            height = constraints.maxHeight +
-                (extraPadding * 2).roundToPx()
+        constraints.copy(
+            maxHeight = constraints.maxHeight +
+                (extraPadding * 2).roundToPx(),
+            minHeight = constraints.minHeight +
+                (extraPadding * 2).roundToPx(),
         )
     )
-    layout(constraints.maxWidth, constraints.maxHeight) {
+
+    layout(placeable.measuredWidth, constraints.maxHeight) {
         placeable.place(0, -extraPadding.roundToPx())
     }
 }
