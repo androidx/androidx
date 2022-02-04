@@ -61,6 +61,7 @@ import androidx.appsearch.localstorage.stats.RemoveStats;
 import androidx.appsearch.localstorage.stats.SearchStats;
 import androidx.appsearch.localstorage.stats.SetSchemaStats;
 import androidx.appsearch.localstorage.util.PrefixUtil;
+import androidx.appsearch.localstorage.visibilitystore.CallerAccess;
 import androidx.appsearch.localstorage.visibilitystore.VisibilityChecker;
 import androidx.appsearch.localstorage.visibilitystore.VisibilityStore;
 import androidx.appsearch.localstorage.visibilitystore.VisibilityUtil;
@@ -569,21 +570,17 @@ public final class AppSearchImpl implements Closeable {
      *
      * <p>This method belongs to query group.
      *
-     * @param callerPackageName Package name of the calling app
-     * @param packageName       Package that owns the requested {@link AppSearchSchema} instances.
-     * @param databaseName      Database that owns the requested {@link AppSearchSchema} instances.
+     * @param packageName  Package that owns the requested {@link AppSearchSchema} instances.
+     * @param databaseName Database that owns the requested {@link AppSearchSchema} instances.
+     * @param callerAccess Visibility access info of the calling app
      * @throws AppSearchException on IcingSearchEngine error.
      */
-    // TODO(b/215624105): The combination of (callerPackageName, callerUid, callerHasSystemAccess)
-    //  occurs together in many places related to visibility. Should these be combined into a struct
-    //  called something like CallerAccess?
     @NonNull
     public GetSchemaResponse getSchema(
             @NonNull String packageName,
             @NonNull String databaseName,
-            @NonNull String callerPackageName,
-            int callerUid,
-            boolean callerHasSystemAccess) throws AppSearchException {
+            @NonNull CallerAccess callerAccess)
+            throws AppSearchException {
         mReadWriteLock.readLock().lock();
         try {
             throwIfClosedLocked();
@@ -602,9 +599,7 @@ public final class AppSearchImpl implements Closeable {
                     continue;
                 }
                 if (!VisibilityUtil.isSchemaSearchableByCaller(
-                        callerPackageName,
-                        callerUid,
-                        callerHasSystemAccess,
+                        callerAccess,
                         packageName,
                         prefixedSchemaType,
                         mVisibilityStoreLocked,
@@ -867,23 +862,18 @@ public final class AppSearchImpl implements Closeable {
      * @param id                The ID of the document to get.
      * @param typePropertyPaths A map of schema type to a list of property paths to return in the
      *                          result.
-     * @param callerPackageName The package name of the caller application
-     * @param callerUid         The ID of the caller application
-     * @param callerHasSystemAccess
-     *                          A boolean signifying if the caller has system access
-     * @return  The Document contents
+     * @param callerAccess      Visibility access info of the calling app
+     * @return The Document contents
      * @throws AppSearchException on IcingSearchEngine error or invalid permissions
      */
-    @Nullable
+    @NonNull
     public GenericDocument globalGetDocument(
             @NonNull String packageName,
             @NonNull String databaseName,
             @NonNull String namespace,
             @NonNull String id,
             @NonNull Map<String, List<String>> typePropertyPaths,
-            @NonNull String callerPackageName,
-            int callerUid,
-            boolean callerHasSystemAccess) throws AppSearchException {
+            @NonNull CallerAccess callerAccess) throws AppSearchException {
         mReadWriteLock.readLock().lock();
         try {
             throwIfClosedLocked();
@@ -895,9 +885,7 @@ public final class AppSearchImpl implements Closeable {
                         namespace, id, typePropertyPaths);
 
                 if (!VisibilityUtil.isSchemaSearchableByCaller(
-                        callerPackageName,
-                        callerUid,
-                        callerHasSystemAccess,
+                        callerAccess,
                         packageName,
                         documentProto.getSchema(),
                         mVisibilityStoreLocked,
@@ -936,11 +924,11 @@ public final class AppSearchImpl implements Closeable {
      */
     @NonNull
     public GenericDocument getDocument(
-            @NonNull String packageName, @NonNull String databaseName,
+            @NonNull String packageName,
+            @NonNull String databaseName,
             @NonNull String namespace,
             @NonNull String id,
             @NonNull Map<String, List<String>> typePropertyPaths) throws AppSearchException {
-
         mReadWriteLock.readLock().lock();
         try {
             throwIfClosedLocked();
@@ -976,10 +964,12 @@ public final class AppSearchImpl implements Closeable {
     @NonNull
     @GuardedBy("mReadWriteLock")
     private DocumentProto getDocumentProtoByIdLocked(
-            @NonNull String packageName, @NonNull String databaseName,
+            @NonNull String packageName,
+            @NonNull String databaseName,
             @NonNull String namespace,
             @NonNull String id,
-            @NonNull Map<String, List<String>> typePropertyPaths) throws AppSearchException {
+            @NonNull Map<String, List<String>> typePropertyPaths)
+            throws AppSearchException {
         String prefix = createPrefix(packageName, databaseName);
         List<TypePropertyMask.Builder> nonPrefixedPropertyMaskBuilders =
                 TypePropertyPathToProtoConverter
@@ -1087,14 +1077,10 @@ public final class AppSearchImpl implements Closeable {
      *
      * <p>This method belongs to query group.
      *
-     * @param queryExpression       Query String to search.
-     * @param searchSpec            Spec for setting filters, raw query etc.
-     * @param callerPackageName     Package name of the caller, should belong to the {@code
-     *                              callerUserHandle}.
-     * @param callerUid             UID of the client making the globalQuery call.
-     * @param callerHasSystemAccess Whether the caller has been positively identified as having
-     *                              access to schemas marked system surfaceable.
-     * @param logger                logger to collect globalQuery stats
+     * @param queryExpression Query String to search.
+     * @param searchSpec      Spec for setting filters, raw query etc.
+     * @param callerAccess    Visibility access info of the calling app
+     * @param logger          logger to collect globalQuery stats
      * @return The results of performing this search. It may contain an empty list of results if
      * no documents matched the query.
      * @throws AppSearchException on IcingSearchEngine error.
@@ -1103,9 +1089,7 @@ public final class AppSearchImpl implements Closeable {
     public SearchResultPage globalQuery(
             @NonNull String queryExpression,
             @NonNull SearchSpec searchSpec,
-            @NonNull String callerPackageName,
-            int callerUid,
-            boolean callerHasSystemAccess,
+            @NonNull CallerAccess callerAccess,
             @Nullable AppSearchLogger logger) throws AppSearchException {
         long totalLatencyStartMillis = SystemClock.elapsedRealtime();
         SearchStats.Builder sStatsBuilder = null;
@@ -1113,7 +1097,7 @@ public final class AppSearchImpl implements Closeable {
             sStatsBuilder =
                     new SearchStats.Builder(
                             SearchStats.VISIBILITY_SCOPE_GLOBAL,
-                            callerPackageName);
+                            callerAccess.getCallingPackageName());
         }
 
         mReadWriteLock.readLock().lock();
@@ -1141,9 +1125,8 @@ public final class AppSearchImpl implements Closeable {
                     new SearchSpecToProtoConverter(searchSpec, prefixFilters, mNamespaceMapLocked,
                             mSchemaMapLocked);
             // Remove those inaccessible schemas.
-            searchSpecToProtoConverter.removeInaccessibleSchemaFilter(callerPackageName,
-                    callerUid, callerHasSystemAccess, mVisibilityStoreLocked,
-                    mVisibilityCheckerLocked);
+            searchSpecToProtoConverter.removeInaccessibleSchemaFilter(
+                    callerAccess, mVisibilityStoreLocked, mVisibilityCheckerLocked);
             if (searchSpecToProtoConverter.isNothingToSearch()) {
                 // there is nothing to search over given their search filters, so we can return an
                 // empty SearchResult and skip sending request to Icing.
@@ -1154,7 +1137,8 @@ public final class AppSearchImpl implements Closeable {
                             queryExpression,
                             searchSpecToProtoConverter,
                             sStatsBuilder);
-            addNextPageToken(callerPackageName, searchResultPage.getNextPageToken());
+            addNextPageToken(
+                    callerAccess.getCallingPackageName(), searchResultPage.getNextPageToken());
             return searchResultPage;
         } finally {
             mReadWriteLock.readLock().unlock();
@@ -2173,24 +2157,18 @@ public final class AppSearchImpl implements Closeable {
      * will not queue behind I/O. Therefore it is safe to call from any thread including UI or
      * binder threads.
      *
-     * @param listeningPackageName            The package name of the app that wants to receive
-     *                                        notifications.
-     * @param listeningUid                    The uid of the app that wants to receive
-     *                                        notifications.
-     * @param listeningPackageHasSystemAccess Whether the app that wants to receive notifications
-     *                                        has access to schema types marked 'visible to system'.
-     * @param targetPackageName               The package that owns the data the observer wants
-     *                                        to be notified for.
-     * @param spec                            Describes the kind of data changes the observer
-     *                                        should trigger for.
-     * @param executor                        The executor on which to trigger the observer callback
-     *                                        to deliver notifications.
-     * @param observer                        The callback to trigger on notifications.
+     * @param listeningPackageAccess Visibility information about the app that wants to receive
+     *                               notifications.
+     * @param targetPackageName      The package that owns the data the observer wants to be
+     *                               notified for.
+     * @param spec                   Describes the kind of data changes the observer should trigger
+     *                               for.
+     * @param executor               The executor on which to trigger the observer callback to
+     *                               deliver notifications.
+     * @param observer               The callback to trigger on notifications.
      */
     public void addObserver(
-            @NonNull String listeningPackageName,
-            int listeningUid,
-            boolean listeningPackageHasSystemAccess,
+            @NonNull CallerAccess listeningPackageAccess,
             @NonNull String targetPackageName,
             @NonNull ObserverSpec spec,
             @NonNull Executor executor,
@@ -2200,13 +2178,7 @@ public final class AppSearchImpl implements Closeable {
         // being created or removed. If we only registered observer for existing types, it would
         // be impossible to ever dispatch a notification of a type being added.
         mObserverManager.addObserver(
-                listeningPackageName,
-                listeningUid,
-                listeningPackageHasSystemAccess,
-                targetPackageName,
-                spec,
-                executor,
-                observer);
+                listeningPackageAccess, targetPackageName, spec, executor, observer);
     }
 
     /**

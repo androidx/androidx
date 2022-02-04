@@ -31,6 +31,7 @@ import androidx.appsearch.app.SearchResults;
 import androidx.appsearch.app.SearchSpec;
 import androidx.appsearch.exceptions.AppSearchException;
 import androidx.appsearch.localstorage.util.FutureUtil;
+import androidx.appsearch.localstorage.visibilitystore.CallerAccess;
 import androidx.appsearch.observer.AppSearchObserverCallback;
 import androidx.appsearch.observer.ObserverSpec;
 import androidx.core.util.Preconditions;
@@ -51,11 +52,11 @@ class GlobalSearchSessionImpl implements GlobalSearchSession {
     private final Executor mExecutor;
     private final Features mFeatures;
     private final Context mContext;
+    @Nullable private final AppSearchLogger mLogger;
+
+    private final CallerAccess mSelfCallerAccess;
 
     private boolean mIsClosed = false;
-
-    @Nullable
-    private final AppSearchLogger mLogger;
 
     GlobalSearchSessionImpl(
             @NonNull AppSearchImpl appSearchImpl,
@@ -68,6 +69,11 @@ class GlobalSearchSessionImpl implements GlobalSearchSession {
         mFeatures = Preconditions.checkNotNull(features);
         mContext = Preconditions.checkNotNull(context);
         mLogger = logger;
+
+        mSelfCallerAccess = new CallerAccess(
+                /*callingPackageName=*/mContext.getPackageName(),
+                /*callingUid=*/Process.myUid(),
+                /*callerHasSystemAccess=*/false);
     }
 
     @NonNull
@@ -108,18 +114,13 @@ class GlobalSearchSessionImpl implements GlobalSearchSession {
     @SuppressLint("KotlinPropertyAccess")
     @NonNull
     @Override
-    public ListenableFuture<GetSchemaResponse> getSchema(@NonNull String packageName,
-            @NonNull String databaseName) {
+    public ListenableFuture<GetSchemaResponse> getSchema(
+            @NonNull String packageName, @NonNull String databaseName) {
         Preconditions.checkNotNull(packageName);
         Preconditions.checkNotNull(databaseName);
         Preconditions.checkState(!mIsClosed, "GlobalSearchSession has already been closed");
         return FutureUtil.execute(mExecutor,
-                () -> mAppSearchImpl.getSchema(
-                        packageName,
-                        databaseName,
-                        /*callerPackageName=*/mContext.getPackageName(),
-                        /*callerUid=*/Process.myUid(),
-                        /*callerHasSystemAccess=*/false));
+                () -> mAppSearchImpl.getSchema(packageName, databaseName, mSelfCallerAccess));
     }
 
     @NonNull
@@ -145,9 +146,7 @@ class GlobalSearchSessionImpl implements GlobalSearchSession {
                             + "from other packages.");
         }
         mAppSearchImpl.addObserver(
-                /*listeningPackageName=*/mContext.getPackageName(),
-                /*listeningUid=*/Process.myUid(),
-                /*listeningPackageHasSystemAccess=*/false,
+                /*listeningPackageAccess=*/mSelfCallerAccess,
                 /*targetPackageName=*/targetPackageName,
                 spec,
                 executor,

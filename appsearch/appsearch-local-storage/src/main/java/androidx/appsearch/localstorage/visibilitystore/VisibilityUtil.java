@@ -35,30 +35,26 @@ public class VisibilityUtil {
      * <p>Correctly handles access to own data and the situation that visibilityStore and
      * visibilityChecker are not configured.
      *
-     * @param callerPackageName     The package name of the app that wants to access the data.
-     * @param callerUid             The uid of  app that wants to access the data.
-     * @param callerHasSystemAccess Whether the app that wants to access the data has access to
-     *                              schema types marked visible to the system.
-     * @param targetPackageName     The package name of the app that owns the data.
-     * @param prefixedSchema        The prefixed schema type the caller wants to access.
-     * @param visibilityStore       Store for visibility information. If not provided, only
-     *                              access to own data will be allowed.
-     * @param visibilityChecker     Checker for visibility access. If not provided, only access to
-     *                              own data will be allowed.
+     * @param callerAccess      Visibility access info of the calling app
+     * @param targetPackageName The package name of the app that owns the data.
+     * @param prefixedSchema    The prefixed schema type the caller wants to access.
+     * @param visibilityStore   Store for visibility information. If not provided, only
+     *                          access to own data will be allowed.
+     * @param visibilityChecker Checker for visibility access. If not provided, only access to
+     *                          own data will be allowed.
      * @return Whether access by the caller to this prefixed schema should be allowed.
      */
     public static boolean isSchemaSearchableByCaller(
-            @NonNull String callerPackageName,
-            int callerUid,
-            boolean callerHasSystemAccess,
+            @NonNull CallerAccess callerAccess,
             @NonNull String targetPackageName,
             @NonNull String prefixedSchema,
             @Nullable VisibilityStore visibilityStore,
             @Nullable VisibilityChecker visibilityChecker) {
-        Preconditions.checkNotNull(callerPackageName);
+        Preconditions.checkNotNull(callerAccess);
         Preconditions.checkNotNull(targetPackageName);
         Preconditions.checkNotNull(prefixedSchema);
-        if (callerPackageName.equals(targetPackageName)) {
+
+        if (callerAccess.getCallingPackageName().equals(targetPackageName)) {
             return true;  // Everyone is always allowed to retrieve their own data.
         }
         if (visibilityStore == null || visibilityChecker == null) {
@@ -67,8 +63,8 @@ public class VisibilityUtil {
         return visibilityChecker.isSchemaSearchableByCaller(
                 targetPackageName,
                 prefixedSchema,
-                callerUid,
-                callerHasSystemAccess,
+                callerAccess.getCallingUid(),
+                callerAccess.doesCallerHaveSystemAccess(),
                 visibilityStore);
     }
 }

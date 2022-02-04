@@ -18,6 +18,7 @@ package androidx.appsearch.localstorage;
 
 import static androidx.appsearch.app.AppSearchResult.throwableToFailedResult;
 
+import android.content.Context;
 import android.os.Process;
 import android.os.SystemClock;
 import android.util.Log;
@@ -47,6 +48,7 @@ import androidx.appsearch.localstorage.stats.RemoveStats;
 import androidx.appsearch.localstorage.stats.SchemaMigrationStats;
 import androidx.appsearch.localstorage.stats.SetSchemaStats;
 import androidx.appsearch.localstorage.util.FutureUtil;
+import androidx.appsearch.localstorage.visibilitystore.CallerAccess;
 import androidx.appsearch.util.SchemaMigrationUtil;
 import androidx.collection.ArraySet;
 import androidx.core.util.Preconditions;
@@ -70,28 +72,39 @@ import java.util.concurrent.Executor;
  */
 class SearchSessionImpl implements AppSearchSession {
     private static final String TAG = "AppSearchSessionImpl";
+
     private final AppSearchImpl mAppSearchImpl;
     private final Executor mExecutor;
     private final Features mFeatures;
-    private final String mPackageName;
+    private final Context mContext;
     private final String mDatabaseName;
+    @Nullable private final AppSearchLogger mLogger;
+
+    private final String mPackageName;
+    private final CallerAccess mSelfCallerAccess;
+
     private volatile boolean mIsMutated = false;
     private volatile boolean mIsClosed = false;
-    @Nullable private final AppSearchLogger mLogger;
 
     SearchSessionImpl(
             @NonNull AppSearchImpl appSearchImpl,
             @NonNull Executor executor,
             @NonNull Features features,
-            @NonNull String packageName,
+            @NonNull Context context,
             @NonNull String databaseName,
             @Nullable AppSearchLogger logger) {
         mAppSearchImpl = Preconditions.checkNotNull(appSearchImpl);
         mExecutor = Preconditions.checkNotNull(executor);
         mFeatures = Preconditions.checkNotNull(features);
-        mPackageName = packageName;
+        mContext = Preconditions.checkNotNull(context);
         mDatabaseName = Preconditions.checkNotNull(databaseName);
         mLogger = logger;
+
+        mPackageName = mContext.getPackageName();
+        mSelfCallerAccess = new CallerAccess(
+                /*callingPackageName=*/mPackageName,
+                /*callingUid=*/Process.myUid(),
+                /*callerHasSystemAccess=*/false);
     }
 
     @Override
@@ -128,11 +141,7 @@ class SearchSessionImpl implements AppSearchSession {
             // Migration process
             // 1. Validate and retrieve all active migrators.
             GetSchemaResponse getSchemaResponse = mAppSearchImpl.getSchema(
-                    /*packageName=*/mPackageName,
-                    /*databaseName=*/mDatabaseName,
-                    /*callerPackageName=*/mPackageName,
-                    /*callerUid=*/Process.myUid(),
-                    /*callerHasSystemAccess=*/false);
+                    mPackageName, mDatabaseName, mSelfCallerAccess);
             int currentVersion = getSchemaResponse.getVersion();
             int finalVersion = request.getVersion();
             Map<String, Migrator> activeMigrators = SchemaMigrationUtil.getActiveMigrators(
@@ -244,12 +253,8 @@ class SearchSessionImpl implements AppSearchSession {
     @NonNull
     public ListenableFuture<GetSchemaResponse> getSchema() {
         Preconditions.checkState(!mIsClosed, "AppSearchSession has already been closed");
-        return execute(() -> mAppSearchImpl.getSchema(
-                /*packageName=*/mPackageName,
-                /*databaseName=*/mDatabaseName,
-                /*callerPackageName=*/mPackageName,
-                /*callerUid=*/Process.myUid(),
-                /*callerHasSystemAccess=*/false));
+        return execute(
+                () -> mAppSearchImpl.getSchema(mPackageName, mDatabaseName, mSelfCallerAccess));
     }
 
     @NonNull

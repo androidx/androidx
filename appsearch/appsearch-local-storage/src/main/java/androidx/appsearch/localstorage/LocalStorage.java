@@ -383,7 +383,7 @@ public class LocalStorage {
                 mAppSearchImpl,
                 context.mExecutor,
                 new AlwaysSupportedFeatures(),
-                context.mContext.getPackageName(),
+                context.mContext,
                 context.mDatabaseName,
                 context.mLogger);
     }

@@ -28,6 +28,7 @@ import androidx.appsearch.localstorage.AppSearchImpl;
 import androidx.appsearch.localstorage.OptimizeStrategy;
 import androidx.appsearch.localstorage.UnlimitedLimitConfig;
 import androidx.appsearch.localstorage.util.PrefixUtil;
+import androidx.appsearch.localstorage.visibilitystore.CallerAccess;
 import androidx.appsearch.localstorage.visibilitystore.VisibilityStore;
 import androidx.appsearch.testutil.AppSearchTestUtils;
 
@@ -454,10 +455,9 @@ public class SearchSpecToProtoConverterTest {
                                 "package$database/schema3", schemaTypeConfigProto)));
 
         converter.removeInaccessibleSchemaFilter(
-                /*callerPackageName=*/"otherPackageName",
-                /*callerUid=*/-1,
-                /*callerHasSystemAccess=*/true,
-                /*visibilityStore=*/ visibilityStore,
+                new CallerAccess(
+                        "otherPackageName", /*callingUid=*/-1, /*callerHasSystemAccess=*/true),
+                visibilityStore,
                 AppSearchTestUtils.createMockVisibilityChecker(
                         /*visiblePrefixedSchemas=*/ ImmutableSet.of(
                                 prefix + "schema1", prefix + "schema3")));
@@ -505,9 +505,8 @@ public class SearchSpecToProtoConverterTest {
 
         // remove all target schema filter, and the query becomes nothing to search.
         nonEmptyConverter.removeInaccessibleSchemaFilter(
-                /*callerPackageName=*/"otherPackageName",
-                /*callerUid=*/-1,
-                /*callerHasSystemAccess=*/true,
+                new CallerAccess(
+                        "otherPackageName", /*callingUid=*/-1, /*callerHasSystemAccess=*/true),
                 /*visibilityStore=*/null,
                 /*visibilityChecker=*/null);
         assertThat(nonEmptyConverter.isNothingToSearch()).isTrue();
