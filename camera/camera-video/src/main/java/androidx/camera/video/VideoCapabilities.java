@@ -29,6 +29,7 @@ import androidx.camera.core.impl.CamcorderProfileProvider;
 import androidx.camera.core.impl.CamcorderProfileProxy;
 import androidx.camera.core.impl.CameraInfoInternal;
 import androidx.camera.core.impl.utils.CompareSizesByArea;
+import androidx.camera.video.internal.compat.quirk.CamcorderProfileResolutionNotSupportedByEncoderQuirk;
 import androidx.camera.video.internal.compat.quirk.DeviceQuirks;
 import androidx.camera.video.internal.compat.quirk.VideoQualityNotSupportQuirk;
 import androidx.core.util.Preconditions;
@@ -199,7 +200,14 @@ public final class VideoCapabilities {
 
     private boolean isDeviceValidQuality(@NonNull Quality quality) {
         VideoQualityNotSupportQuirk quirk = DeviceQuirks.get(VideoQualityNotSupportQuirk.class);
-        return quirk == null || !quirk.isProblematicVideoQuality(quality);
+        boolean validQuality = quirk == null || !quirk.isProblematicVideoQuality(quality);
+
+        CamcorderProfileResolutionNotSupportedByEncoderQuirk quirk1 = DeviceQuirks.get(
+                CamcorderProfileResolutionNotSupportedByEncoderQuirk.class);
+        boolean validQualityForEncoder =
+                quirk1 == null || !quirk1.isProblematicVideoQuality(quality);
+
+        return validQuality && validQualityForEncoder;
     }
 
 }
