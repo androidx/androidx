@@ -16,18 +16,8 @@
 
 package androidx.wear.compose.material
 
-import androidx.compose.animation.core.AnimationScope
-import androidx.compose.animation.core.AnimationState
-import androidx.compose.animation.core.AnimationVector
 import androidx.compose.animation.core.CubicBezierEasing
-import androidx.compose.animation.core.DecayAnimationSpec
 import androidx.compose.animation.core.Easing
-import androidx.compose.animation.core.animateDecay
-import androidx.compose.animation.core.animateTo
-import androidx.compose.animation.core.calculateTargetValue
-import androidx.compose.animation.core.exponentialDecay
-import androidx.compose.foundation.gestures.FlingBehavior
-import androidx.compose.foundation.gestures.ScrollScope
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.runtime.Composable
@@ -41,8 +31,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import kotlin.math.abs
-import kotlin.math.roundToInt
 
 /**
  * A scrollable list of items to pick from. By default, items will be repeated
@@ -57,8 +45,6 @@ import kotlin.math.roundToInt
  * "infinitely" in both directions. If false, the elements will appear only once.
  * @param separation the amount of separation in [Dp] between items. Can be negative, which can be
  * useful for Text if it has plenty of whitespace.
- * @param flingBehavior Logic describing fling behavior, by default, it'll snap to the closest
- * option to the fling target.
  * @param option a block which describes the content. Inside this block you can reference
  * [PickerScope.selectedOption] and other properties in [PickerScope]
  */
@@ -68,7 +54,6 @@ fun Picker(
     modifier: Modifier = Modifier,
     scalingParams: ScalingParams = PickerDefaults.scalingParams(),
     separation: Dp = 0.dp,
-    flingBehavior: FlingBehavior = scalingLazyListSnapping(state.scalingLazyListState),
     option: @Composable PickerScope.(optionIndex: Int) -> Unit
 ) {
     val pickerScope = remember(state) { PickerScopeImpl(state) }
@@ -88,96 +73,8 @@ fun Picker(
         verticalArrangement = Arrangement.spacedBy(
             space = separation
         ),
-        flingBehavior = flingBehavior
+        flingBehavior = ScalingLazyColumnDefaults.snapFlingBehavior(state.scalingLazyListState)
     )
-}
-
-// TODO(b/216089745): Find the right place to put this and make available so it can be used outside
-// of Pickers.
-internal fun scalingLazyListSnapping(
-    state: ScalingLazyListState,
-    decay: DecayAnimationSpec<Float> = exponentialDecay()
-) = object : FlingBehavior {
-    override suspend fun ScrollScope.performFling(initialVelocity: Float): Float {
-        val animationState = AnimationState(
-            initialValue = 0f,
-            initialVelocity = initialVelocity,
-        )
-
-        // Is it actually a fling?
-        val visibleItemsInfo = state.layoutInfo.visibleItemsInfo
-        if (abs(initialVelocity) > 1f && visibleItemsInfo.size > 1) {
-            // Target we will land on given initialVelocity & decay
-            val unmodifiedTarget = decay.calculateTargetValue(0f, initialVelocity)
-            val viewPortHeight = state.viewportHeightPx.value!!
-
-            // Estimate the item closest to the target, and adjust our aim.
-            val totalSize = visibleItemsInfo.last().unadjustedOffset -
-                visibleItemsInfo.first().unadjustedOffset
-            val estimatedItemDistance = totalSize.toFloat() / (visibleItemsInfo.size - 1)
-            val centerOffset = state.centerItemScrollOffset
-            val itemsToTarget = (unmodifiedTarget + centerOffset) / estimatedItemDistance
-
-            val estimatedTarget = itemsToTarget.roundToInt() * estimatedItemDistance -
-                centerOffset
-
-            animationState.animateDecayTo(estimatedTarget, decay) { delta ->
-                val consumed = scrollBy(delta)
-
-                // Check if the target entered the screen
-                if (abs(value - estimatedTarget) < viewPortHeight / 2) {
-                    this.cancelAnimation()
-                }
-
-                consumed
-            }
-
-            // Now that the target position is visible, adjust the animation to land on the
-            // closest item.
-            val finalTarget = state.layoutInfo.visibleItemsInfo
-                .map { animationState.value + it.unadjustedOffset }
-                .minByOrNull { abs(it - estimatedTarget) } ?: estimatedTarget
-
-            animationState.animateDecayTo(
-                finalTarget,
-                decay,
-                sequentialAnimation = true
-            ) { delta -> scrollBy(delta) }
-        } else {
-            // The fling was too slow (or not even a fling), just animate a snap to the item already
-            // in the center.
-            var lastValue = 0f
-            animationState.animateTo(
-                targetValue = -state.centerItemScrollOffset.toFloat(),
-                sequentialAnimation = true
-            ) {
-                scrollBy(value - lastValue)
-                lastValue = value
-            }
-        }
-
-        return animationState.velocity
-    }
-}
-
-internal suspend fun <V : AnimationVector> AnimationState<Float, V>.animateDecayTo(
-    targetValue: Float,
-    decay: DecayAnimationSpec<Float>,
-    // Indicates whether the animation should start from last frame
-    sequentialAnimation: Boolean = false,
-    block: AnimationScope<Float, V>.(delta: Float) -> Float
-) {
-    var lastValue = value
-    val target = decay.calculateTargetValue(initialValue = value, initialVelocity = velocity)
-    val velocityAdjustment = (targetValue - value) / (target - value)
-    animateDecay(decay, sequentialAnimation = sequentialAnimation) {
-        val delta = (value - lastValue) * velocityAdjustment
-        val consumed = block(delta)
-        lastValue = value
-
-        // avoid rounding errors and stop if anything is unconsumed
-        if (abs(delta - consumed) > 0.5f) this.cancelAnimation()
-    }
 }
 
 /**
