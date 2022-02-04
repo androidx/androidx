@@ -22,6 +22,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.requiredHeight
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.requiredWidth
+import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -53,6 +54,7 @@ import kotlin.math.roundToInt
 // These tests are in addition to ScalingLazyListLayoutInfoTest which handles scroll events at an
 // absolute level and is designed to exercise scrolling through the UI directly.
 public class ScalingLazyColumnTest {
+    private val scalingLazyColumnTag = "scalingLazyColumnTag"
     private val firstItemTag = "firstItemTag"
 
     @get:Rule
@@ -475,6 +477,43 @@ public class ScalingLazyColumnTest {
         rule.onNodeWithTag(firstItemTag)
             .assertWidthIsEqualTo(150.dp)
             .assertHeightIsEqualTo(150.dp)
+    }
+
+    @Test
+    fun listSizeFitsContentsIfNotSet() {
+        lateinit var state: ScalingLazyListState
+        var itemSize by mutableStateOf(100.dp)
+        rule.setContentWithTestViewConfiguration {
+            ScalingLazyColumn(
+                state = rememberScalingLazyListState(8).also { state = it },
+                modifier = Modifier.testTag(scalingLazyColumnTag),
+                contentPadding = PaddingValues(horizontal = 0.dp),
+            ) {
+                items(listOf(0)) {
+                    Spacer(Modifier.size(itemSize).testTag(firstItemTag))
+                }
+            }
+        }
+
+        // TODO(b/210654937): Remove the waitUntil once we no longer need 2 stage initialization
+        rule.waitUntil { state.initialized.value }
+
+        rule.onNodeWithTag(scalingLazyColumnTag)
+            .assertWidthIsEqualTo(itemSize)
+
+        rule.runOnIdle {
+            itemSize = 150.dp
+        }
+
+        rule.onNodeWithTag(scalingLazyColumnTag)
+            .assertWidthIsEqualTo(itemSize)
+
+        rule.runOnIdle {
+            itemSize = 50.dp
+        }
+
+        rule.onNodeWithTag(scalingLazyColumnTag)
+            .assertWidthIsEqualTo(itemSize)
     }
 }
 
