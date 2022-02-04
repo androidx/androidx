@@ -215,7 +215,7 @@ internal sealed class KspSyntheticPropertyMethodElement(
                 filter = NO_USE_SITE_OR_SET_PARAM
             ) {
 
-            private val jvmTypeResolutionScope = KspJvmTypeResolutionScope.PropertyAccessor(
+            private val jvmTypeResolutionScope = KspJvmTypeResolutionScope.PropertySetterParameter(
                 declaration = enclosingMethodElement
             )
 

@@ -406,6 +406,8 @@ class KspTypeNamesGoldenTest {
                 var tListProp: List<T>
                 var definedProp: Number
                 var definedPropList: List<Number>
+                var definedPropFinal: String
+                var definedPropListFinal: List<String>
                 fun receiveReturnT(t: T): T
                 suspend fun suspendReceiveReturnT(t:T):T
                 fun receiveReturnTList(t:List<T>): List<T>
@@ -414,6 +416,11 @@ class KspTypeNamesGoldenTest {
                 suspend fun suspendReceiveReturnTOverridden(t:T):T
                 fun receiveReturnTListOverridden(t:List<T>): List<T>
                 suspend fun suspendReceiveReturnTListOverridden(t:List<T>): List<T>
+                // b/217210973
+                suspend fun suspendDefinedTypesFinal(objList: List<Long>): List<Long>
+                suspend fun suspendDefinedTypesOpen(objList: List<Number>): List<Number>
+                suspend fun suspendDefinedTypesFinal2(objList: List<List<Long>>): List<List<Long>>
+                suspend fun suspendDefinedTypesOpen2(objList: List<List<Number>>): List<List<Number>>
             }
         """.trimIndent()
 
