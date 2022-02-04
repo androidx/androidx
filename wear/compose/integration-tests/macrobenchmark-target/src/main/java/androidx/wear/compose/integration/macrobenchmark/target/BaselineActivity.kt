@@ -164,7 +164,6 @@ class BaselineActivity : ComponentActivity() {
                         }
                         composable(PROGRESS_INDICATOR_INDETERMINATE) {
                             Column(
-                                modifier = Modifier.fillMaxSize(),
                                 verticalArrangement = Arrangement.Center,
                                 horizontalAlignment = Alignment.CenterHorizontally
                             ) {
