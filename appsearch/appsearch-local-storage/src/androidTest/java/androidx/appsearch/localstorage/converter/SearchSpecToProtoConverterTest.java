@@ -455,8 +455,7 @@ public class SearchSpecToProtoConverterTest {
                                 "package$database/schema3", schemaTypeConfigProto)));
 
         converter.removeInaccessibleSchemaFilter(
-                new CallerAccess(
-                        "otherPackageName", /*callingUid=*/-1, /*callerHasSystemAccess=*/true),
+                new CallerAccess(/*callingPackageName=*/"otherPackageName"),
                 visibilityStore,
                 AppSearchTestUtils.createMockVisibilityChecker(
                         /*visiblePrefixedSchemas=*/ ImmutableSet.of(
@@ -505,8 +504,7 @@ public class SearchSpecToProtoConverterTest {
 
         // remove all target schema filter, and the query becomes nothing to search.
         nonEmptyConverter.removeInaccessibleSchemaFilter(
-                new CallerAccess(
-                        "otherPackageName", /*callingUid=*/-1, /*callerHasSystemAccess=*/true),
+                new CallerAccess(/*callingPackageName=*/"otherPackageName"),
                 /*visibilityStore=*/null,
                 /*visibilityChecker=*/null);
         assertThat(nonEmptyConverter.isNothingToSearch()).isTrue();

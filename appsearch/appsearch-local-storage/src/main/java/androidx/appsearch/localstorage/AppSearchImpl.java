@@ -26,7 +26,6 @@ import static androidx.appsearch.localstorage.util.PrefixUtil.getPrefix;
 import static androidx.appsearch.localstorage.util.PrefixUtil.removePrefixesFromDocument;
 
 import android.os.Bundle;
-import android.os.Process;
 import android.os.SystemClock;
 import android.util.Log;
 
@@ -515,11 +514,7 @@ public final class AppSearchImpl implements Closeable {
                 packageName,
                 databaseName,
                 // A CallerAccess object for internal use that has local access to this database.
-                new CallerAccess(
-                        /*callingPackageName=*/packageName,
-                        // The below two settings don't matter since callingPackageName matches
-                        /*callingUid=*/Process.INVALID_UID,
-                        /*callerHasSystemAccess=*/false));
+                new CallerAccess(/*callingPackageName=*/packageName));
 
         // Cache some lookup tables to help us work with the old schema
         Set<AppSearchSchema> oldSchemaTypes = oldSchema.getSchemas();

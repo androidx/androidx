@@ -19,7 +19,6 @@ package androidx.appsearch.localstorage;
 import static androidx.appsearch.app.AppSearchResult.throwableToFailedResult;
 
 import android.content.Context;
-import android.os.Process;
 import android.os.SystemClock;
 import android.util.Log;
 
@@ -101,10 +100,7 @@ class SearchSessionImpl implements AppSearchSession {
         mLogger = logger;
 
         mPackageName = mContext.getPackageName();
-        mSelfCallerAccess = new CallerAccess(
-                /*callingPackageName=*/mPackageName,
-                /*callingUid=*/Process.myUid(),
-                /*callerHasSystemAccess=*/false);
+        mSelfCallerAccess = new CallerAccess(/*callingPackageName=*/mPackageName);
     }
 
     @Override

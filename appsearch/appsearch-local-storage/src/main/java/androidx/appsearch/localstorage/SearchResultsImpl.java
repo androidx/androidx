@@ -16,8 +16,6 @@
 // @exportToFramework:skipFile()
 package androidx.appsearch.localstorage;
 
-import android.os.Process;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appsearch.app.SearchResult;
@@ -78,10 +76,7 @@ class SearchResultsImpl implements SearchResults {
         mAppSearchImpl = Preconditions.checkNotNull(appSearchImpl);
         mExecutor = Preconditions.checkNotNull(executor);
         mPackageName = Preconditions.checkNotNull(packageName);
-        mSelfCallerAccess = new CallerAccess(
-                /*callingPackageName=*/mPackageName,
-                /*callingUid=*/Process.myUid(),
-                /*callerHasSystemAccess=*/false);
+        mSelfCallerAccess = new CallerAccess(/*callingPackageName=*/mPackageName);
         mDatabaseName = databaseName;
         mQueryExpression = Preconditions.checkNotNull(queryExpression);
         mSearchSpec = Preconditions.checkNotNull(searchSpec);

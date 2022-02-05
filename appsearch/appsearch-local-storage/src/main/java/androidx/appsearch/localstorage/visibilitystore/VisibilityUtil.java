@@ -61,10 +61,9 @@ public class VisibilityUtil {
             return false;  // No visibility is configured at this time; no other access possible.
         }
         return visibilityChecker.isSchemaSearchableByCaller(
+                callerAccess,
                 targetPackageName,
                 prefixedSchema,
-                callerAccess.getCallingUid(),
-                callerAccess.doesCallerHaveSystemAccess(),
                 visibilityStore);
     }
 }

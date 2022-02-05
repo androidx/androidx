@@ -17,7 +17,6 @@ package androidx.appsearch.localstorage.visibilitystore;
 
 import static androidx.appsearch.app.AppSearchResult.RESULT_NOT_FOUND;
 
-import android.os.Process;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -81,10 +80,7 @@ public class VisibilityStore {
         GetSchemaResponse getSchemaResponse = mAppSearchImpl.getSchema(
                 VISIBILITY_PACKAGE_NAME,
                 VISIBILITY_DATABASE_NAME,
-                new CallerAccess(
-                        /*callingPackageName=*/VISIBILITY_PACKAGE_NAME,
-                        /*callingUid=*/Process.myUid(),
-                        /*callerHasSystemAccess=*/false));
+                new CallerAccess(/*callingPackageName=*/VISIBILITY_PACKAGE_NAME));
         switch (getSchemaResponse.getVersion()) {
             case VisibilityDocument.SCHEMA_VERSION_DOC_PER_PACKAGE:
                 maybeMigrateToLatest(getSchemaResponse);
