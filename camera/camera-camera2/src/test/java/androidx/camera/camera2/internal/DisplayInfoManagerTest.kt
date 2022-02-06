@@ -21,6 +21,7 @@ import android.graphics.Point
 import android.hardware.display.DisplayManager
 import android.os.Build
 import android.util.Size
+import android.view.Display
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
 import org.junit.After
@@ -32,16 +33,24 @@ import org.mockito.Mockito.verify
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.internal.DoNotInstrument
+import org.robolectric.shadow.api.Shadow
 import org.robolectric.shadows.ShadowDisplayManager
+import org.robolectric.shadows.ShadowDisplay
 
 @RunWith(RobolectricTestRunner::class)
 @DoNotInstrument
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
 @Suppress("DEPRECATION") // getRealSize
 class DisplayInfoManagerTest {
-    private fun addDisplay(width: Int, height: Int) {
+
+    private fun addDisplay(width: Int, height: Int, state: Int = Display.STATE_ON) {
         val displayStr = String.format("w%ddp-h%ddp", width, height)
-        ShadowDisplayManager.addDisplay(displayStr)
+        val displayId = ShadowDisplayManager.addDisplay(displayStr)
+        if (state != Display.STATE_ON) {
+            val displayManager = (ApplicationProvider.getApplicationContext() as Context)
+                .getSystemService(Context.DISPLAY_SERVICE) as DisplayManager
+            (Shadow.extract(displayManager.getDisplay(displayId)) as ShadowDisplay).setState(state)
+        }
     }
 
     @After
@@ -81,6 +90,23 @@ class DisplayInfoManagerTest {
 
         // Assert
         assertThat(size).isEqualTo(Point(2000, 3000))
+    }
+
+    @Test
+    fun canReturnMaxSizeDisplay_offState() {
+        // Arrange
+        addDisplay(2000, 3000, Display.STATE_OFF)
+        addDisplay(480, 640)
+        addDisplay(200, 300, Display.STATE_OFF)
+
+        // Act
+        val displayInfoManager = DisplayInfoManager
+            .getInstance(ApplicationProvider.getApplicationContext())
+        val size = Point()
+        displayInfoManager.maxSizeDisplay.getRealSize(size)
+
+        // Assert
+        assertThat(size).isEqualTo(Point(480, 640))
     }
 
     @Test
