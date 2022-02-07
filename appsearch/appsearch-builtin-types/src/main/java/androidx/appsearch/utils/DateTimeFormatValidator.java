@@ -46,7 +46,8 @@ public final class DateTimeFormatValidator {
      * Returns true if the date string matches yyyy-MM-ddTHH:mm:ss
      */
     public static boolean validateISO8601DateTime(@NonNull String dateString) {
-        return validateDateFormat("yyyy-MM-dd'T'HH:mm:ss", dateString);
+        return validateDateFormat("yyyy-MM-dd'T'HH:mm", dateString)
+                || validateDateFormat("yyyy-MM-dd'T'HH:mm:ss", dateString);
     }
 
     /**
