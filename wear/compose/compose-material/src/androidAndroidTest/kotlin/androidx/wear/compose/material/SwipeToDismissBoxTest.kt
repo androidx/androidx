@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+package androidx.wear.compose.material
+
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -40,16 +42,6 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeLeft
 import androidx.compose.ui.test.swipeRight
-import androidx.wear.compose.material.Button
-import androidx.wear.compose.material.ExperimentalWearMaterialApi
-import androidx.wear.compose.material.MaterialTheme
-import androidx.wear.compose.material.SwipeDismissTarget
-import androidx.wear.compose.material.SwipeToDismissBox
-import androidx.wear.compose.material.TEST_TAG
-import androidx.wear.compose.material.Text
-import androidx.wear.compose.material.ToggleButton
-import androidx.wear.compose.material.rememberSwipeToDismissBoxState
-import androidx.wear.compose.material.setContentWithTheme
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
@@ -317,10 +309,10 @@ class SwipeToDismissBoxTest {
     }
 }
 
-internal const val BACKGROUND_MESSAGE = "The Background"
-internal const val CONTENT_MESSAGE = "The Content"
-internal const val LONG_SWIPE = 1000L
-internal const val TOGGLE_SCREEN = "Toggle"
-internal const val COUNTER_SCREEN = "Counter"
-internal const val TOGGLE_ON = "On"
-internal const val TOGGLE_OFF = "Off"
+private const val BACKGROUND_MESSAGE = "The Background"
+private const val CONTENT_MESSAGE = "The Content"
+private const val LONG_SWIPE = 1000L
+private const val TOGGLE_SCREEN = "Toggle"
+private const val COUNTER_SCREEN = "Counter"
+private const val TOGGLE_ON = "On"
+private const val TOGGLE_OFF = "Off"
