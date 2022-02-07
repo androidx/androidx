@@ -53,6 +53,7 @@ import androidx.lifecycle.Lifecycle.State;
 import androidx.test.core.app.ApplicationProvider;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -362,6 +363,7 @@ public class CarContextTest {
         }
     }
 
+    @Ignore("b/218342974")
     @Test
     public void getOnBackPressedDispatcher_noListeners_popsAScreen() {
         mCarContext.getCarService(ScreenManager.class).push(mScreen1);
@@ -390,6 +392,7 @@ public class CarContextTest {
         verify(mMockScreen2, never()).dispatchLifecycleEvent(Event.ON_DESTROY);
     }
 
+    @Ignore("b/218342974")
     @Test
     public void getOnBackPressedDispatcher_withAListenerThatIsNotStarted_popsAScreen() {
         mCarContext.getCarService(ScreenManager.class).push(mScreen1);
@@ -407,6 +410,7 @@ public class CarContextTest {
         verify(mMockScreen2).dispatchLifecycleEvent(Event.ON_DESTROY);
     }
 
+    @Ignore("b/218342974")
     @Test
     public void getOnBackPressedDispatcher_callsDefaultListenerWheneverTheAddedOneIsNotSTARTED() {
         mCarContext.getCarService(ScreenManager.class).push(mScreen1);

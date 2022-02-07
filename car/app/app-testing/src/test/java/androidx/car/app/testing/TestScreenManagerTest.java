@@ -25,6 +25,7 @@ import androidx.car.app.model.Template;
 import androidx.test.core.app.ApplicationProvider;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
@@ -64,6 +65,7 @@ public class TestScreenManagerTest {
                 .containsExactly(screen1, screen2);
     }
 
+    @Ignore("b/218342974")
     @Test
     public void pop_getScreensRemoved() {
         Screen screen1 = new TestScreen();
@@ -81,6 +83,7 @@ public class TestScreenManagerTest {
                 .containsExactly(screen4);
     }
 
+    @Ignore("b/218342974")
     @Test
     public void remove_getScreensRemoved() {
         Screen screen1 = new TestScreen();
@@ -98,6 +101,7 @@ public class TestScreenManagerTest {
                 .containsExactly(screen2);
     }
 
+    @Ignore("b/218342974")
     @Test
     public void popTo_getScreensRemoved() {
         Screen screen1 = new TestScreen();
@@ -118,6 +122,7 @@ public class TestScreenManagerTest {
                 .containsExactly(screen4, screen3);
     }
 
+    @Ignore("b/218342974")
     @Test
     public void popToRoot_getScreensRemoved() {
         Screen screen1 = new TestScreen();
