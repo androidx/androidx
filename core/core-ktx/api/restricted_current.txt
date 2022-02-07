@@ -274,6 +274,7 @@ package androidx.core.graphics.drawable {
 
   public final class DrawableKt {
     method public static android.graphics.Bitmap toBitmap(android.graphics.drawable.Drawable, optional @Px int width, optional @Px int height, optional android.graphics.Bitmap.Config? config);
+    method public static android.graphics.Bitmap? toBitmapOrNull(android.graphics.drawable.Drawable, optional @Px int width, optional @Px int height, optional android.graphics.Bitmap.Config? config);
     method public static void updateBounds(android.graphics.drawable.Drawable, optional @Px int left, optional @Px int top, optional @Px int right, optional @Px int bottom);
   }
 
