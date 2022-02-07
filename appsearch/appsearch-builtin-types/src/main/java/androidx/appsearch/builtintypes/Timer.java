@@ -247,8 +247,8 @@ public final class Timer {
     }
 
     /**
-     * Returns the amount of time remaining in milliseconds for the {@link Timer} since it was
-     * started, paused or reset.
+     * Returns the amount of time remaining in milliseconds for the {@link Timer} since its state
+     * last changed.
      *
      * <p>If it is in the {@link #STATUS_STARTED} state, then the current remaining time will be
      * different from this value. To get the current remaining time, use
@@ -472,8 +472,8 @@ public final class Timer {
         }
 
         /**
-         * Sets the amount of time remaining in milliseconds for the {@link Timer} since it was
-         * started, paused or reset.
+         * Sets the amount of time remaining in milliseconds for the {@link Timer} since its
+         * state last changed.
          */
         @NonNull
         public Builder setRemainingTimeMillisSinceUpdate(long remainingTimeMillisSinceUpdate) {
