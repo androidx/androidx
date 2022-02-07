@@ -19,9 +19,7 @@ package androidx.appsearch.builtintypes;
 import android.content.Context;
 import android.os.Build;
 import android.os.SystemClock;
-import android.provider.Settings;
 
-import androidx.annotation.DoNotInline;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -29,6 +27,7 @@ import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.appsearch.annotation.Document;
 import androidx.appsearch.app.AppSearchSchema.StringPropertyConfig;
+import androidx.appsearch.utils.BootCountUtil;
 import androidx.core.util.Preconditions;
 
 import java.lang.annotation.Retention;
@@ -300,10 +299,7 @@ public final class Timer {
             return Long.MAX_VALUE;
         }
 
-        int currentBootCount = -1;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
-            currentBootCount = Api17Impl.getCurrentBootCount(context);
-        }
+        int currentBootCount = BootCountUtil.getCurrentBootCount(context);
 
         if (currentBootCount == -1 || currentBootCount != mBootCount) {
             // Boot count doesn't exist or doesn't match current device boot count. Use wall
@@ -331,10 +327,7 @@ public final class Timer {
             return mRemainingTimeMillisSinceUpdate;
         }
 
-        int currentBootCount = -1;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
-            currentBootCount = Api17Impl.getCurrentBootCount(context);
-        }
+        int currentBootCount = BootCountUtil.getCurrentBootCount(context);
 
         long elapsedTime;
         if (currentBootCount == -1 || currentBootCount != mBootCount) {
@@ -347,17 +340,6 @@ public final class Timer {
             elapsedTime = SystemClock.elapsedRealtime() - mStartTimeMillisInElapsedRealtime;
         }
         return mRemainingTimeMillisSinceUpdate - elapsedTime;
-    }
-
-    @RequiresApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
-    private static final class Api17Impl {
-        @DoNotInline
-        static int getCurrentBootCount(@NonNull Context context) {
-            return Settings.Global.getInt(context.getContentResolver(),
-                    Settings.Global.BOOT_COUNT, -1);
-        }
-
-        private Api17Impl() {}
     }
 
     /** Builder for {@link Timer}. */
@@ -467,7 +449,7 @@ public final class Timer {
         @NonNull
         public Builder setStartTimeMillis(@NonNull Context context, long startTimeMillis,
                 long startTimeMillisInElapsedRealtime) {
-            int bootCount = Api17Impl.getCurrentBootCount(context);
+            int bootCount = BootCountUtil.getCurrentBootCount(context);
             return setStartTimeMillis(startTimeMillis, startTimeMillisInElapsedRealtime, bootCount);
         }
 
