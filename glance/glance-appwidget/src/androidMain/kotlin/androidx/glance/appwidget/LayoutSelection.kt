@@ -89,6 +89,12 @@ internal enum class LayoutType {
     Frame,
     LinearProgressIndicator,
     CircularProgressIndicator,
+    VerticalGridOneColumn,
+    VerticalGridTwoColumns,
+    VerticalGridThreeColumns,
+    VerticalGridFourColumns,
+    VerticalGridFiveColumns,
+    VerticalGridAutoFit,
 
     // Note: Java keywords, such as 'switch', can't be used for layout ids.
     Swtch,
@@ -113,6 +119,12 @@ private val LayoutMap = mapOf(
     LayoutType.ImageFillBounds to R.layout.image_fill_bounds,
     LayoutType.LinearProgressIndicator to R.layout.linear_progress_indicator,
     LayoutType.CircularProgressIndicator to R.layout.circular_progress_indicator,
+    LayoutType.VerticalGridOneColumn to R.layout.vertical_grid_one_column,
+    LayoutType.VerticalGridTwoColumns to R.layout.vertical_grid_two_columns,
+    LayoutType.VerticalGridThreeColumns to R.layout.vertical_grid_three_columns,
+    LayoutType.VerticalGridFourColumns to R.layout.vertical_grid_four_columns,
+    LayoutType.VerticalGridFiveColumns to R.layout.vertical_grid_five_columns,
+    LayoutType.VerticalGridAutoFit to R.layout.vertical_grid_auto_fit,
 )
 
 internal data class SizeSelector(
