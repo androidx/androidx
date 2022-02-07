@@ -233,6 +233,7 @@ public class LiveDataTest {
     @Test
     public void testInactiveRegistry() {
         Observer<String> observer = (Observer<String>) mock(Observer.class);
+        mOwner.handleLifecycleEvent(ON_CREATE);
         mOwner.handleLifecycleEvent(ON_DESTROY);
         mLiveData.observe(mOwner, observer);
         assertThat(mLiveData.hasObservers(), is(false));

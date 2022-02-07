@@ -202,6 +202,7 @@ class RepeatOnLifecycleTest {
 
     @Test
     fun testBlockDoesNotStartIfLifecycleIsDestroyed() = runBlocking(Dispatchers.Main) {
+        owner.setState(Lifecycle.State.CREATED)
         owner.setState(Lifecycle.State.DESTROYED)
         expectations.expect(1)
 
