@@ -107,6 +107,7 @@ dependencies {
     docs(project(":core:core-remoteviews"))
     docs(project(":core:core-splashscreen"))
     docs(project(":core:core-role"))
+    docs(project(":core:uwb:uwb"))
     docs(project(":cursoradapter:cursoradapter"))
     docs(project(":customview:customview"))
     docs(project(":datastore:datastore"))
