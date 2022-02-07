@@ -245,6 +245,7 @@ See the profiling report at\: file\:\/\/\$OUT_DIR\/gradle\/external\/doclava\/bu
 # > Task :lifecycle:lifecycle-common:compileJava
 Note: \$[^ ]+ uses or overrides a deprecated API\.
 Note: Recompile with \-Xlint\:deprecation for details\.
+Note: \$SUPPORT/samples/Support7Demos/src/main/java/com/example/android/supportv[0-9]+/util/DiffUtilActivity\.java uses unchecked or unsafe operations\.
 # > Task :publicDocsTask
 [0-9]+ warnings
 # > Task :startup:integration-tests:first-library:processDebugManifest
