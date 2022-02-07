@@ -681,8 +681,6 @@ public abstract class AppCompatDelegate {
      */
     @OptIn(markerClass = androidx.core.os.BuildCompat.PrereleaseSdkCheck.class)
     public static void setApplicationLocales(@NonNull LocaleListCompat locales) {
-        // TODO(b/200245468): Integrate LocaleManager#SetApplicationLocales &
-        // #getApplicationLocales in AppCompatDelegate
         requireNonNull(locales);
         if (BuildCompat.isAtLeastT()) {
             // If the API version is 33 (version for T) or above we want to redirect the call to
@@ -844,8 +842,9 @@ public abstract class AppCompatDelegate {
      * storedAppLocales is updated accordingly.</li>
      * </ul>
      */
+    @OptIn(markerClass = androidx.core.os.BuildCompat.PrereleaseSdkCheck.class)
     static void syncRequestedAndStoredLocales(Context context) {
-        if (!isAutoStorageOptedIn(context)) {
+        if (BuildCompat.isAtLeastT() || !isAutoStorageOptedIn(context)) {
             return;
         }
         synchronized (sAppLocalesStorageSyncLock) {
