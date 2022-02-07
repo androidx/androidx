@@ -29,4 +29,5 @@
     <string name="error_widget_name">Error UI Widget</string>
     <string name="scrollable_widget_name">Scrollable Widget</string>
     <string name="image_widget_name">Image Widget</string>
+    <string name="grid_widget_name">Vertical Grid Widget</string>
 </resources>
