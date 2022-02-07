@@ -84,11 +84,13 @@ class DisplayInfoManager {
         Display maxDisplay = null;
         int maxDisplaySize = -1;
         for (Display display : displays) {
-            Point displaySize = new Point();
-            display.getRealSize(displaySize);
-            if (displaySize.x * displaySize.y > maxDisplaySize) {
-                maxDisplaySize = displaySize.x * displaySize.y;
-                maxDisplay = display;
+            if (display.getState() != Display.STATE_OFF) {
+                Point displaySize = new Point();
+                display.getRealSize(displaySize);
+                if (displaySize.x * displaySize.y > maxDisplaySize) {
+                    maxDisplaySize = displaySize.x * displaySize.y;
+                    maxDisplay = display;
+                }
             }
         }
 
