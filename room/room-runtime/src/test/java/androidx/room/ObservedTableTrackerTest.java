@@ -64,17 +64,6 @@ public class ObservedTableTrackerTest {
     }
 
     @Test
-    public void returnNullUntilSync() {
-        initState(1, 3);
-        mTracker.onAdded(4);
-        assertThat(mTracker.getTablesToSync(), is(createResponse(4, ADD)));
-        mTracker.onAdded(0);
-        assertThat(mTracker.getTablesToSync(), is(nullValue()));
-        mTracker.onSyncCompleted();
-        assertThat(mTracker.getTablesToSync(), is(createResponse(0, ADD)));
-    }
-
-    @Test
     public void multipleAdditionsDeletions() {
         initState(2, 4);
         mTracker.onAdded(2);
@@ -94,7 +83,6 @@ public class ObservedTableTrackerTest {
     private void initState(int... tableIds) {
         mTracker.onAdded(tableIds);
         mTracker.getTablesToSync();
-        mTracker.onSyncCompleted();
     }
 
     private static int[] createResponse(int... tuples) {
