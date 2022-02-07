@@ -147,6 +147,9 @@ public class LifecycleRegistry extends Lifecycle {
         mHandlingEvent = true;
         sync();
         mHandlingEvent = false;
+        if (mState == DESTROYED) {
+            mObserverMap = new FastSafeIterableMap<>();
+        }
     }
 
     private boolean isSynced() {
