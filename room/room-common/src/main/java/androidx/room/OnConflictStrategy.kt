@@ -16,18 +16,19 @@
 package androidx.room
 
 import androidx.annotation.IntDef
-import androidx.room.OnConflictStrategy.Companion.ABORT
-import androidx.room.OnConflictStrategy.Companion.FAIL
-import androidx.room.OnConflictStrategy.Companion.IGNORE
-import androidx.room.OnConflictStrategy.Companion.REPLACE
-import androidx.room.OnConflictStrategy.Companion.ROLLBACK
 
 /**
  * Set of conflict handling strategies for various {@link Dao} methods.
  */
 @Retention(AnnotationRetention.BINARY)
 @Suppress("DEPRECATION")
-@IntDef(REPLACE, ROLLBACK, ABORT, FAIL, IGNORE)
+@IntDef(
+    OnConflictStrategy.REPLACE,
+    OnConflictStrategy.ROLLBACK,
+    OnConflictStrategy.ABORT,
+    OnConflictStrategy.FAIL,
+    OnConflictStrategy.IGNORE
+)
 public annotation class OnConflictStrategy {
     public companion object {
         /**

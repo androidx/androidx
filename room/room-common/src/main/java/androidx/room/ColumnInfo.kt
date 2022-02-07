@@ -46,7 +46,7 @@ public annotation class ColumnInfo(
      * [INTEGER], [REAL], or [BLOB].
      */
     @SuppressWarnings("unused")
-    @SQLiteTypeAffinity
+    @get:SQLiteTypeAffinity
     val typeAffinity: Int = UNDEFINED,
 
     /**
@@ -67,7 +67,7 @@ public annotation class ColumnInfo(
      * @return The collation sequence of the column. This is either [UNSPECIFIED],
      * [BINARY], [NOCASE], [RTRIM], [LOCALIZED] or [UNICODE].
      */
-    @Collate
+    @get:Collate
     val collate: Int = UNSPECIFIED,
 
     /**

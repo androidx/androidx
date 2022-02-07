@@ -80,7 +80,7 @@ public annotation class ForeignKey(
      *
      * @return The action to take when the referenced entity is deleted from the database.
      */
-    @Action
+    @get:Action
     val onDelete: Int = NO_ACTION,
 
     /**
@@ -90,7 +90,7 @@ public annotation class ForeignKey(
      *
      * @return The action to take when the referenced entity is updated in the database.
      */
-    @Action
+    @get:Action
     val onUpdate: Int = NO_ACTION,
 
     /**
