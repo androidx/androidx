@@ -75,10 +75,6 @@ public class PreviewSurfaceRequest {
 
     @NonNull private TransformationInfo mTransformationInfo;
 
-    @SuppressWarnings("WeakerAccess") /*synthetic accessor */
-    @Nullable
-    Callback mCallback;
-
     @Nullable private Executor mTransformationInfoExecutor;
     @Nullable private TransformationInfoListener mTransformationInfoListener;
 
@@ -195,9 +191,6 @@ public class PreviewSurfaceRequest {
                 // is safe to release the Surface and associated resources.
 
                 Futures.propagate(terminationFuture, sessionStatusCompleter);
-                if (mCallback != null) {
-                    mCallback.onSuccess(surface);
-                }
             }
 
             @Override
@@ -213,9 +206,6 @@ public class PreviewSurfaceRequest {
                                     surfaceRequestString + " cancelled.", t)));
                 } else {
                     sessionStatusCompleter.set(null);
-                }
-                if (mCallback != null) {
-                    mCallback.onFailure(t);
                 }
             }
         }, CameraExecutors.directExecutor());
@@ -263,23 +253,6 @@ public class PreviewSurfaceRequest {
      */
     public boolean isLegacyDevice() {
         return mIsLegacyDevice;
-    }
-
-    /**
-     * Set surface request callback.
-     *
-     * @param callback {@link Callback}.
-     */
-    @SuppressLint("ExecutorRegistration")
-    public void setCallback(@NonNull Callback callback) {
-        mCallback = callback;
-    }
-
-    /**
-     * Clear surface request callback.
-     */
-    public void clearCallback() {
-        mCallback = null;
     }
 
     /**
