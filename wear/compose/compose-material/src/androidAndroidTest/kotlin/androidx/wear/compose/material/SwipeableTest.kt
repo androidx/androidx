@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+package androidx.wear.compose.material
+
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.Orientation.Horizontal
 import androidx.compose.foundation.gestures.Orientation.Vertical
@@ -38,12 +40,9 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.unit.dp
-import androidx.wear.compose.material.ExperimentalWearMaterialApi
-import androidx.wear.compose.material.SwipeableState
-import androidx.wear.compose.material.swipeable
+import kotlin.math.absoluteValue
 import org.junit.Rule
 import org.junit.Test
-import kotlin.math.absoluteValue
 
 // TODO(b/201009199) Some of these tests may need specific values adjusted when swipeable
 //  supports property nested scrolling, but the tests should all still be valid.
@@ -228,5 +227,3 @@ class SwipeableTest {
         } ?: false
     }
 }
-
-private const val TEST_TAG = "swipeable"
