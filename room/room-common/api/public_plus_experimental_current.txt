@@ -24,16 +24,16 @@ package androidx.room {
   }
 
   @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.FIELD, kotlin.annotation.AnnotationTarget.FUNCTION}) public @interface ColumnInfo {
-    method public abstract int collate() default androidx.room.ColumnInfo.UNSPECIFIED;
+    method @androidx.room.ColumnInfo.Collate public abstract int collate() default androidx.room.ColumnInfo.UNSPECIFIED;
     method public abstract String defaultValue() default androidx.room.ColumnInfo.VALUE_UNSPECIFIED;
     method public abstract boolean index() default false;
     method public abstract String name() default androidx.room.ColumnInfo.INHERIT_FIELD_NAME;
-    method public abstract int typeAffinity() default androidx.room.ColumnInfo.UNDEFINED;
-    property public abstract int collate;
+    method @androidx.room.ColumnInfo.SQLiteTypeAffinity public abstract int typeAffinity() default androidx.room.ColumnInfo.UNDEFINED;
+    property @androidx.room.ColumnInfo.Collate public abstract int collate;
     property public abstract String defaultValue;
     property public abstract boolean index;
     property public abstract String name;
-    property public abstract int typeAffinity;
+    property @androidx.room.ColumnInfo.SQLiteTypeAffinity public abstract int typeAffinity;
     field public static final int BINARY = 2; // 0x2
     field public static final int BLOB = 5; // 0x5
     field public static final androidx.room.ColumnInfo.Companion Companion;
@@ -146,14 +146,14 @@ package androidx.room {
     method public abstract String[] childColumns();
     method public abstract boolean deferred() default false;
     method public abstract kotlin.reflect.KClass<?> entity();
-    method public abstract int onDelete() default androidx.room.ForeignKey.NO_ACTION;
-    method public abstract int onUpdate() default androidx.room.ForeignKey.NO_ACTION;
+    method @androidx.room.ForeignKey.Action public abstract int onDelete() default androidx.room.ForeignKey.NO_ACTION;
+    method @androidx.room.ForeignKey.Action public abstract int onUpdate() default androidx.room.ForeignKey.NO_ACTION;
     method public abstract String[] parentColumns();
     property public abstract String![] childColumns;
     property public abstract boolean deferred;
     property public abstract kotlin.reflect.KClass<?> entity;
-    property public abstract int onDelete;
-    property public abstract int onUpdate;
+    property @androidx.room.ForeignKey.Action public abstract int onDelete;
+    property @androidx.room.ForeignKey.Action public abstract int onUpdate;
     property public abstract String![] parentColumns;
     field public static final int CASCADE = 5; // 0x5
     field public static final androidx.room.ForeignKey.Companion Companion;
@@ -239,9 +239,9 @@ package androidx.room {
 
   @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets=kotlin.annotation.AnnotationTarget.FUNCTION) public @interface Insert {
     method public abstract kotlin.reflect.KClass<?> entity() default java.lang.Object;
-    method public abstract int onConflict() default androidx.room.OnConflictStrategy.ABORT;
+    method @androidx.room.OnConflictStrategy public abstract int onConflict() default androidx.room.OnConflictStrategy.ABORT;
     property public abstract kotlin.reflect.KClass<?> entity;
-    property public abstract int onConflict;
+    property @androidx.room.OnConflictStrategy public abstract int onConflict;
   }
 
   @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={}) public @interface Junction {
@@ -260,7 +260,7 @@ package androidx.room {
     property public abstract String valueColumn;
   }
 
-  @IntDef({androidx.room.OnConflictStrategy.REPLACE, androidx.room.OnConflictStrategy.ROLLBACK, androidx.room.OnConflictStrategy.ABORT, androidx.room.OnConflictStrategy.FAIL, androidx.room.OnConflictStrategy.IGNORE}) @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface OnConflictStrategy {
+  @IntDef({androidx.room.OnConflictStrategy.Companion.REPLACE, androidx.room.OnConflictStrategy.Companion.ROLLBACK, androidx.room.OnConflictStrategy.Companion.ABORT, androidx.room.OnConflictStrategy.Companion.FAIL, androidx.room.OnConflictStrategy.Companion.IGNORE}) @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface OnConflictStrategy {
     field public static final int ABORT = 3; // 0x3
     field public static final androidx.room.OnConflictStrategy.Companion Companion;
     field @Deprecated public static final int FAIL = 4; // 0x4
@@ -383,9 +383,9 @@ package androidx.room {
 
   @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets=kotlin.annotation.AnnotationTarget.FUNCTION) public @interface Update {
     method public abstract kotlin.reflect.KClass<?> entity() default java.lang.Object;
-    method public abstract int onConflict() default androidx.room.OnConflictStrategy.ABORT;
+    method @androidx.room.OnConflictStrategy public abstract int onConflict() default androidx.room.OnConflictStrategy.ABORT;
     property public abstract kotlin.reflect.KClass<?> entity;
-    property public abstract int onConflict;
+    property @androidx.room.OnConflictStrategy public abstract int onConflict;
   }
 
 }

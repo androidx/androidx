@@ -109,6 +109,6 @@ public annotation class Insert(
      *
      * @return How to handle conflicts. Defaults to [OnConflictStrategy.ABORT].
      */
-    @OnConflictStrategy
+    @get:OnConflictStrategy
     val onConflict: Int = OnConflictStrategy.ABORT
 )
