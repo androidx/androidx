@@ -45,6 +45,7 @@ import androidx.glance.LocalState
 import androidx.glance.appwidget.state.getAppWidgetState
 import androidx.glance.state.GlanceState
 import androidx.glance.state.GlanceStateDefinition
+import androidx.glance.state.PreferencesGlanceStateDefinition
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -82,7 +83,7 @@ public abstract class GlanceAppWidget(
     /**
      * Data store for widget data specific to the view.
      */
-    public open val stateDefinition: GlanceStateDefinition<*>? = null
+    public open val stateDefinition: GlanceStateDefinition<*>? = PreferencesGlanceStateDefinition
 
     /**
      * Method called by the framework when an App Widget has been removed from its host.

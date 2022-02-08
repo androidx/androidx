@@ -20,8 +20,8 @@ import android.content.Context
 import androidx.compose.runtime.Composable
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.emptyPreferences
-import androidx.datastore.preferences.core.preferencesOf
 import androidx.datastore.preferences.core.intPreferencesKey
+import androidx.datastore.preferences.core.preferencesOf
 import androidx.glance.appwidget.AppWidgetId
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.createUniqueRemoteUiName
@@ -30,13 +30,13 @@ import androidx.glance.state.GlanceStateDefinition
 import androidx.glance.state.PreferencesGlanceStateDefinition
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
+import kotlin.test.assertFailsWith
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.runBlocking
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
-import kotlin.test.assertFailsWith
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(RobolectricTestRunner::class)
@@ -80,8 +80,8 @@ class GlanceAppWidgetStateTest {
         val key = intPreferencesKey("int_key")
         val appWidget = GlanceAppWidgetProviderPreferencesState()
         val storedPrefs = runBlocking {
-            appWidget.updateAppWidgetState<Preferences>(context, appWidgetId) { prefs ->
-                prefs.toMutablePreferences().apply { this[key] = 1 }.toPreferences()
+            updateAppWidgetState(context, appWidgetId) {
+                it[key] = 1
             }
             appWidget.getAppWidgetState<Preferences>(context, appWidgetId)
         }
@@ -89,14 +89,14 @@ class GlanceAppWidgetStateTest {
     }
 
     class GlanceAppWidgetProviderWithoutState : GlanceAppWidget() {
+        override val stateDefinition: GlanceStateDefinition<*>? = null
+
         @Composable
         override fun Content() {
         }
     }
 
     class GlanceAppWidgetProviderPreferencesState : GlanceAppWidget() {
-        override val stateDefinition: GlanceStateDefinition<*>? = PreferencesGlanceStateDefinition
-
         @Composable
         override fun Content() {
         }
