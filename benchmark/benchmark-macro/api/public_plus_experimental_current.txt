@@ -115,5 +115,8 @@ package androidx.benchmark.macro.perfetto {
   public final class ForceTracingKt {
   }
 
+  public final class StringHelperKt {
+  }
+
 }
 

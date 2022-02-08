@@ -47,6 +47,15 @@ package androidx.benchmark.macro {
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static boolean isSupportedWithVmSettings(androidx.benchmark.macro.CompilationMode);
   }
 
+  @RequiresApi(29) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class EnergyMetric extends androidx.benchmark.macro.Metric {
+    ctor public EnergyMetric();
+    field public static final androidx.benchmark.macro.EnergyMetric.Companion Companion;
+    field public static final String SECTION_NAME = "measureBlock";
+  }
+
+  public static final class EnergyMetric.Companion {
+  }
+
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class FrameTimingGfxInfoMetric extends androidx.benchmark.macro.Metric {
     ctor public FrameTimingGfxInfoMetric();
   }
@@ -90,6 +99,15 @@ package androidx.benchmark.macro {
   public final class MetricResultExtensionsKt {
   }
 
+  @RequiresApi(29) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class PowerMetric extends androidx.benchmark.macro.Metric {
+    ctor public PowerMetric();
+    field public static final androidx.benchmark.macro.PowerMetric.Companion Companion;
+    field public static final String SECTION_NAME = "measureBlock";
+  }
+
+  public static final class PowerMetric.Companion {
+  }
+
   public enum StartupMode {
     enum_constant public static final androidx.benchmark.macro.StartupMode COLD;
     enum_constant public static final androidx.benchmark.macro.StartupMode HOT;
@@ -112,6 +130,9 @@ package androidx.benchmark.macro {
 package androidx.benchmark.macro.perfetto {
 
   public final class ForceTracingKt {
+  }
+
+  public final class StringHelperKt {
   }
 
 }
