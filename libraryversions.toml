@@ -33,6 +33,7 @@ CORE_ROLE = "1.2.0-alpha01"
 CORE_SPLASHSCREEN = "1.0.0-beta02"
 CURSORADAPTER = "1.1.0-alpha01"
 CUSTOMVIEW = "1.2.0-alpha01"
+CUSTOMVIEW_POOLINGCONTAINER = "1.0.0-alpha01"
 DATASTORE = "1.1.0-alpha01"
 DOCUMENTFILE = "1.1.0-alpha02"
 DRAGANDDROP = "1.0.0-alpha04"
@@ -162,7 +163,7 @@ CONTENTPAGER = { group = "androidx.contentpager", atomicGroupVersion = "versions
 COORDINATORLAYOUT = { group = "androidx.coordinatorlayout", atomicGroupVersion = "versions.COORDINATORLAYOUT" }
 CORE = { group = "androidx.core" }
 CURSORADAPTER = { group = "androidx.cursoradapter", atomicGroupVersion = "versions.CURSORADAPTER" }
-CUSTOMVIEW = { group = "androidx.customview", atomicGroupVersion = "versions.CUSTOMVIEW" }
+CUSTOMVIEW = { group = "androidx.customview" }
 DATASTORE = { group = "androidx.datastore", atomicGroupVersion = "versions.DATASTORE" }
 DOCUMENTFILE = { group = "androidx.documentfile", atomicGroupVersion = "versions.DOCUMENTFILE" }
 DRAGANDDROP = { group = "androidx.draganddrop", atomicGroupVersion = "versions.DRAGANDDROP" }
