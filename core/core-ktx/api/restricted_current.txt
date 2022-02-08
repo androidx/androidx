@@ -317,6 +317,10 @@ package androidx.core.os {
     method public static inline Runnable postDelayed(android.os.Handler, long delayInMillis, optional Object? token, kotlin.jvm.functions.Function0<kotlin.Unit> action);
   }
 
+  @RequiresApi(31) public final class OutcomeReceiverKt {
+    method @RequiresApi(31) public static <R, E extends java.lang.Throwable> android.os.OutcomeReceiver<R,E> asOutcomeReceiver(kotlin.coroutines.Continuation<? super R>);
+  }
+
   public final class PersistableBundleKt {
     method @RequiresApi(21) public static android.os.PersistableBundle persistableBundleOf(kotlin.Pair<java.lang.String,?>... pairs);
     method @RequiresApi(21) public static android.os.PersistableBundle persistableBundleOf();
@@ -393,12 +397,20 @@ package androidx.core.transition {
 
 package androidx.core.util {
 
+  public final class AndroidXConsumerKt {
+    method public static <T> androidx.core.util.Consumer<T> asAndroidXConsumer(kotlin.coroutines.Continuation<? super T>);
+  }
+
   public final class AtomicFileKt {
     method @RequiresApi(17) public static inline byte[] readBytes(android.util.AtomicFile);
     method @RequiresApi(17) public static String readText(android.util.AtomicFile, optional java.nio.charset.Charset charset);
     method @RequiresApi(17) public static inline void tryWrite(android.util.AtomicFile, kotlin.jvm.functions.Function1<? super java.io.FileOutputStream,kotlin.Unit> block);
     method @RequiresApi(17) public static void writeBytes(android.util.AtomicFile, byte[] array);
     method @RequiresApi(17) public static void writeText(android.util.AtomicFile, String text, optional java.nio.charset.Charset charset);
+  }
+
+  @RequiresApi(24) public final class ConsumerKt {
+    method @RequiresApi(24) public static <T> java.util.function.Consumer<T> asConsumer(kotlin.coroutines.Continuation<? super T>);
   }
 
   public final class HalfKt {
@@ -448,6 +460,10 @@ package androidx.core.util {
     method @RequiresApi(21) public static inline infix <T extends java.lang.Comparable<? super T>> android.util.Range<T> rangeTo(T, T that);
     method @RequiresApi(21) public static <T extends java.lang.Comparable<? super T>> kotlin.ranges.ClosedRange<T> toClosedRange(android.util.Range<T>);
     method @RequiresApi(21) public static <T extends java.lang.Comparable<? super T>> android.util.Range<T> toRange(kotlin.ranges.ClosedRange<T>);
+  }
+
+  public final class RunnableKt {
+    method public static Runnable asRunnable(kotlin.coroutines.Continuation<? super kotlin.Unit>);
   }
 
   public final class SizeKt {
