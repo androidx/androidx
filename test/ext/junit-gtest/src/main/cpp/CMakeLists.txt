@@ -23,9 +23,9 @@ target_link_libraries(junit-gtest
         googletest::gtest
         nativehelper
         PUBLIC
-        -uJava_androidx_test_junitgtest_GtestRunner_initialize
-        -uJava_androidx_test_junitgtest_GtestRunner_run
-        -uJava_androidx_test_junitgtest_GtestRunner_addTest
+        -uJava_androidx_test_ext_junitgtest_GtestRunner_initialize
+        -uJava_androidx_test_ext_junitgtest_GtestRunner_run
+        -uJava_androidx_test_ext_junitgtest_GtestRunner_addTest
         )
 
 add_library(adder

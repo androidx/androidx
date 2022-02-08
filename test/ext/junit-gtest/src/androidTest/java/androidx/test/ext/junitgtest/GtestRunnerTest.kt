@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.test.junitgtest
+package androidx.test.ext.junitgtest
 
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
@@ -51,8 +51,8 @@ class GtestRunnerTest {
         runner.run(runNotifier)
         assertThat(runListener.descriptions.map { it.displayName }).isEqualTo(
             listOf(
-                "adder_pass(androidx.test.junitgtest.GtestRunnerTest\$NativeTests)",
-                "foo_fail(androidx.test.junitgtest.GtestRunnerTest\$NativeTests)")
+                "adder_pass(androidx.test.ext.junitgtest.GtestRunnerTest\$NativeTests)",
+                "foo_fail(androidx.test.ext.junitgtest.GtestRunnerTest\$NativeTests)")
 
         )
     }

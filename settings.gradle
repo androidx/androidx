@@ -692,7 +692,7 @@ includeProject(":template:template", "template/template", [BuildType.MAIN])
 includeProject(":template:template-appwidget", "template/template-appwidget", [BuildType.MAIN])
 includeProject(":template:template-appwidget:integration-tests:demos", "template/template-appwidget/integration-tests/demos", [BuildType.MAIN])
 
-includeProject(":test:junit:junit-gtest", "test/junit/junit-gtest", [BuildType.MAIN])
+includeProject(":test:ext:junit-gtest", "test/ext/junit-gtest", [BuildType.MAIN])
 includeProject(":test:screenshot:screenshot", "test/screenshot/screenshot")
 includeProject(":test:screenshot:screenshot-proto", "test/screenshot/screenshot/proto", [BuildType.MAIN])
 includeProject(":text:text", "text/text", [BuildType.COMPOSE])

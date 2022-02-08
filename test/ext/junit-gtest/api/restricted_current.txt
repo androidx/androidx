@@ -1,5 +1,5 @@
 // Signature format: 4.0
-package androidx.test.junitgtest {
+package androidx.test.ext.junitgtest {
 
   public final class GtestRunner extends org.junit.runner.Runner implements org.junit.runner.manipulation.Filterable {
     ctor public GtestRunner(Class<?> testClass);
