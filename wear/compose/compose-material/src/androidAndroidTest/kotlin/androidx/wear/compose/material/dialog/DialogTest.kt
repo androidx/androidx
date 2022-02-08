@@ -16,6 +16,7 @@
 package androidx.wear.compose.material.dialog
 
 import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -26,17 +27,15 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.testutils.assertIsEqualTo
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.test.assertLeftPositionInRootIsEqualTo
-import androidx.compose.ui.test.assertTopPositionInRootIsEqualTo
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.junit4.createComposeRule
-import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -44,9 +43,6 @@ import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeRight
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.height
-import androidx.compose.ui.unit.max
-import androidx.compose.ui.unit.width
 import androidx.test.filters.SdkSuppress
 import androidx.wear.compose.material.Button
 import androidx.wear.compose.material.Chip
@@ -413,16 +409,9 @@ class DialogContentSizeAndPositionTest {
     val rule = createComposeRule()
 
     @Test
-    fun centers_icon_correctly_on_alert_with_buttons() {
-        var bottomPadding = 0.dp
-        var topPadding = 0.dp
-        var titleSpacing = 0.dp
-
+    fun spaces_icon_and_title_correctly_on_alert_with_buttons() {
         rule
             .setContentWithThemeForSizeAssertions(useUnmergedTree = true) {
-                topPadding = DialogDefaults.ButtonsContentPadding.calculateTopPadding()
-                titleSpacing = DialogDefaults.TitlePadding.calculateBottomPadding()
-                bottomPadding = DialogDefaults.ButtonsContentPadding.calculateBottomPadding()
                 Alert(
                     icon = { TestImage(ICON_TAG) },
                     title = { Text("Title", modifier = Modifier.testTag(TITLE_TAG)) },
@@ -430,199 +419,120 @@ class DialogContentSizeAndPositionTest {
                         Button(onClick = {}, modifier = Modifier.testTag(BUTTON_TAG)) {}
                     },
                     positiveButton = { Button(onClick = {}) {} },
+                    verticalArrangement = Arrangement.spacedBy(0.dp, Alignment.CenterVertically),
                     modifier = Modifier.testTag(TEST_TAG),
                 )
             }
 
-        val dialogHeight = rule.onNodeWithTag(TEST_TAG).getUnclippedBoundsInRoot().height
-        val buttonHeight = rule.onNodeWithTag(BUTTON_TAG).getUnclippedBoundsInRoot().height
-        val titleHeight = rule.onNodeWithTag(TITLE_TAG).getUnclippedBoundsInRoot().height
-        val iconHeight = rule.onNodeWithTag(ICON_TAG).getUnclippedBoundsInRoot().height
-        val centering =
-            (dialogHeight - bottomPadding - buttonHeight - topPadding - titleSpacing -
-                titleHeight - DialogDefaults.IconSpacing - iconHeight) / 2
-        rule.onNodeWithTag(ICON_TAG)
-            .assertTopPositionInRootIsEqualTo(topPadding + centering)
+        val iconBottom = rule.onNodeWithTag(ICON_TAG).getUnclippedBoundsInRoot().bottom
+        val titleTop = rule.onNodeWithTag(TITLE_TAG).getUnclippedBoundsInRoot().top
+        titleTop.assertIsEqualTo(iconBottom + DialogDefaults.IconSpacing)
     }
 
     @Test
-    fun centers_icon_correctly_on_alert_with_chips() {
-        var bottomPadding = 0.dp
-        var topPadding = 0.dp
-        var titleSpacing = 0.dp
+    fun spaces_title_and_buttons_correctly_on_alert_with_buttons() {
+        var titlePadding = 0.dp
 
         rule
             .setContentWithThemeForSizeAssertions(useUnmergedTree = true) {
-                topPadding = DialogDefaults.ChipsContentPadding.calculateTopPadding()
-                titleSpacing = DialogDefaults.TitlePadding.calculateBottomPadding()
-                bottomPadding = DialogDefaults.ChipsContentPadding.calculateBottomPadding()
+                titlePadding = DialogDefaults.TitlePadding.calculateBottomPadding()
                 Alert(
                     icon = { TestImage(ICON_TAG) },
-                    title = { Text("Title", modifier = Modifier.testTag(TITLE_TAG)) },
-                    content = {
-                        Chip(
-                            label = { Text("Chip") },
-                            onClick = {},
-                            modifier = Modifier.testTag(CHIP_TAG)
-                        )
-                    },
-                    modifier = Modifier.testTag(TEST_TAG),
-                )
-            }
-        val dialogHeight = rule.onNodeWithTag(TEST_TAG).getUnclippedBoundsInRoot().height
-        val chipHeight = rule.onNodeWithTag(CHIP_TAG).getUnclippedBoundsInRoot().height
-        val titleHeight = rule.onNodeWithTag(TITLE_TAG).getUnclippedBoundsInRoot().height
-        val iconHeight = rule.onNodeWithTag(ICON_TAG).getUnclippedBoundsInRoot().height
-        val centering =
-            (dialogHeight - bottomPadding - chipHeight - topPadding - titleSpacing -
-                titleHeight - DialogDefaults.IconSpacing - iconHeight) / 2
-
-        rule.onNodeWithContentDescription(ICON_TAG, useUnmergedTree = true)
-            .assertTopPositionInRootIsEqualTo(topPadding + centering)
-    }
-
-    @Test
-    fun centers_icon_correctly_on_confirmation() {
-        var bottomPadding = 0.dp
-        var topPadding = 0.dp
-        var titleSpacing = 0.dp
-
-        rule
-            .setContentWithThemeForSizeAssertions(useUnmergedTree = true) {
-                topPadding = DialogDefaults.ConfirmationContentPadding.calculateTopPadding()
-                titleSpacing = DialogDefaults.TitleBottomPadding.calculateBottomPadding()
-                bottomPadding = DialogDefaults.ConfirmationContentPadding.calculateBottomPadding()
-                Confirmation(
-                    onTimeout = {},
-                    icon = { TestImage(ICON_TAG) },
-                    content = { Text("Title", modifier = Modifier.testTag(TITLE_TAG)) },
-                    modifier = Modifier.testTag(TEST_TAG),
-                )
-            }
-
-        val dialogHeight = rule.onNodeWithTag(TEST_TAG).getUnclippedBoundsInRoot().height
-        val titleHeight = rule.onNodeWithTag(TITLE_TAG).getUnclippedBoundsInRoot().height
-        val iconHeight = rule.onNodeWithTag(ICON_TAG).getUnclippedBoundsInRoot().height
-        val centering =
-            (dialogHeight - bottomPadding - topPadding - titleSpacing -
-                titleHeight - DialogDefaults.IconSpacing - iconHeight) / 2
-        rule.onNodeWithTag(ICON_TAG)
-            .assertTopPositionInRootIsEqualTo(topPadding + centering)
-    }
-
-    @Test
-    fun centers_title_correctly_on_alert_with_buttons() {
-        var bottomPadding = 0.dp
-        var topPadding = 0.dp
-        var titleSpacing = 0.dp
-
-        rule
-            .setContentWithThemeForSizeAssertions(useUnmergedTree = true) {
-                bottomPadding = DialogDefaults.ButtonsContentPadding.calculateBottomPadding()
-                topPadding = DialogDefaults.ButtonsContentPadding.calculateTopPadding()
-                titleSpacing = DialogDefaults.TitlePadding.calculateBottomPadding()
-                Alert(
                     title = { Text("Title", modifier = Modifier.testTag(TITLE_TAG)) },
                     negativeButton = {
                         Button(onClick = {}, modifier = Modifier.testTag(BUTTON_TAG)) {}
                     },
                     positiveButton = { Button(onClick = {}) {} },
+                    verticalArrangement = Arrangement.spacedBy(0.dp, Alignment.CenterVertically),
                     modifier = Modifier.testTag(TEST_TAG),
                 )
             }
-        val dialogHeight = rule.onNodeWithTag(TEST_TAG).getUnclippedBoundsInRoot().height
-        val buttonHeight = rule.onNodeWithTag(BUTTON_TAG).getUnclippedBoundsInRoot().height
-        val titleHeight = rule.onNodeWithTag(TITLE_TAG).getUnclippedBoundsInRoot().height
-        val centering =
-            (dialogHeight - bottomPadding - buttonHeight - topPadding - titleSpacing -
-                titleHeight) / 2
 
-        rule.onNodeWithTag(TITLE_TAG)
-            .assertTopPositionInRootIsEqualTo(topPadding + centering)
+        val titleBottom = rule.onNodeWithTag(TITLE_TAG).getUnclippedBoundsInRoot().bottom
+        val buttonTop = rule.onNodeWithTag(BUTTON_TAG).getUnclippedBoundsInRoot().top
+        buttonTop.assertIsEqualTo(titleBottom + titlePadding)
     }
 
     @Test
-    fun centers_title_correctly_on_alert_with_chips() {
-        var bottomPadding = 0.dp
-        var topPadding = 0.dp
-        var titleSpacing = 0.dp
-
+    fun spaces_icon_and_title_correctly_on_alert_with_chips() {
         rule
             .setContentWithThemeForSizeAssertions(useUnmergedTree = true) {
-                bottomPadding = DialogDefaults.ChipsContentPadding.calculateBottomPadding()
-                topPadding = DialogDefaults.ChipsContentPadding.calculateTopPadding()
-                titleSpacing = DialogDefaults.TitlePadding.calculateBottomPadding()
                 Alert(
                     icon = { TestImage(ICON_TAG) },
                     title = { Text("Title", modifier = Modifier.testTag(TITLE_TAG)) },
                     content = {
-                        Chip(
-                            label = { Text("Chip") },
-                            onClick = {},
-                            modifier = Modifier.testTag(CHIP_TAG)
-                        )
+                        item {
+                            Chip(
+                                label = { Text("Chip") },
+                                onClick = {},
+                                modifier = Modifier.testTag(CHIP_TAG)
+                            )
+                        }
                     },
+                    verticalArrangement = Arrangement.spacedBy(0.dp, Alignment.CenterVertically),
                     modifier = Modifier.testTag(TEST_TAG),
                 )
             }
-        val iconHeight = rule.onNodeWithTag(ICON_TAG).getUnclippedBoundsInRoot().height
-        val dialogHeight = rule.onNodeWithTag(TEST_TAG).getUnclippedBoundsInRoot().height
-        val chipHeight = rule.onNodeWithTag(CHIP_TAG).getUnclippedBoundsInRoot().height
-        val titleHeight = rule.onNodeWithTag(TITLE_TAG).getUnclippedBoundsInRoot().height
-        val centering = max(
-            0.dp,
-            (dialogHeight - topPadding - iconHeight - DialogDefaults.IconSpacing -
-                titleHeight - titleSpacing - chipHeight - bottomPadding) / 2)
-        rule.onNodeWithTag(TITLE_TAG)
-            .assertTopPositionInRootIsEqualTo(
-                topPadding + iconHeight + DialogDefaults.IconSpacing + centering)
+
+        val iconBottom = rule.onNodeWithTag(ICON_TAG).getUnclippedBoundsInRoot().bottom
+        val titleTop = rule.onNodeWithTag(TITLE_TAG).getUnclippedBoundsInRoot().top
+        titleTop.assertIsEqualTo(iconBottom + DialogDefaults.IconSpacing)
     }
 
     @Test
-    fun centers_title_correctly_on_confirmation() {
-        var bottomPadding = 0.dp
-        var topPadding = 0.dp
-        var titleSpacing = 0.dp
+    fun spaces_title_and_chips_correctly_on_alert_with_chips() {
+        var titlePadding = 0.dp
 
         rule
             .setContentWithThemeForSizeAssertions(useUnmergedTree = true) {
-                topPadding = DialogDefaults.ConfirmationContentPadding.calculateTopPadding()
-                titleSpacing = DialogDefaults.TitleBottomPadding.calculateBottomPadding()
-                bottomPadding = DialogDefaults.ConfirmationContentPadding.calculateBottomPadding()
+                titlePadding = DialogDefaults.TitlePadding.calculateBottomPadding()
+                Alert(
+                    icon = { TestImage(ICON_TAG) },
+                    title = { Text("Title", modifier = Modifier.testTag(TITLE_TAG)) },
+                    content = {
+                        item {
+                            Chip(
+                                label = { Text("Chip") },
+                                onClick = {},
+                                modifier = Modifier.testTag(CHIP_TAG)
+                            )
+                        }
+                    },
+                    verticalArrangement = Arrangement.spacedBy(0.dp, Alignment.CenterVertically),
+                    modifier = Modifier.testTag(TEST_TAG),
+                )
+            }
+
+        val titleBottom = rule.onNodeWithTag(TITLE_TAG).getUnclippedBoundsInRoot().bottom
+        val chipTop = rule.onNodeWithTag(CHIP_TAG).getUnclippedBoundsInRoot().top
+        chipTop.assertIsEqualTo(titleBottom + titlePadding)
+    }
+
+    @Test
+    fun spaces_icon_and_title_correctly_on_confirmation() {
+        rule
+            .setContentWithThemeForSizeAssertions(useUnmergedTree = true) {
                 Confirmation(
                     onTimeout = {},
                     icon = { TestImage(ICON_TAG) },
                     content = { Text("Title", modifier = Modifier.testTag(TITLE_TAG)) },
+                    verticalArrangement = Arrangement.spacedBy(0.dp, Alignment.CenterVertically),
                     modifier = Modifier.testTag(TEST_TAG),
                 )
             }
 
-        val dialogHeight = rule.onNodeWithTag(TEST_TAG).getUnclippedBoundsInRoot().height
-        val titleHeight = rule.onNodeWithTag(TITLE_TAG).getUnclippedBoundsInRoot().height
-        val iconHeight = rule.onNodeWithTag(ICON_TAG).getUnclippedBoundsInRoot().height
-        val centering =
-            (dialogHeight - bottomPadding - topPadding - titleSpacing -
-                titleHeight - DialogDefaults.IconSpacing - iconHeight) / 2
-        rule.onNodeWithTag(TITLE_TAG)
-            .assertTopPositionInRootIsEqualTo(
-                topPadding + centering + iconHeight + DialogDefaults.IconSpacing)
+        val iconBottom = rule.onNodeWithTag(ICON_TAG).getUnclippedBoundsInRoot().bottom
+        val titleTop = rule.onNodeWithTag(TITLE_TAG).getUnclippedBoundsInRoot().top
+        titleTop.assertIsEqualTo(iconBottom + DialogDefaults.IconSpacing)
     }
 
     @Test
-    fun centers_bodymessage_correctly_on_alert_with_buttons() {
-        var bottomPadding = 0.dp
-        var topPadding = 0.dp
+    fun spaces_title_and_body_correctly_on_alert_with_buttons() {
         var titleSpacing = 0.dp
-        var bodySpacing = 0.dp
 
         rule
             .setContentWithThemeForSizeAssertions(useUnmergedTree = true) {
-                bottomPadding = DialogDefaults.ButtonsContentPadding.calculateBottomPadding()
-                topPadding = DialogDefaults.ButtonsContentPadding.calculateTopPadding()
-                titleSpacing =
-                    DialogDefaults.TitlePadding.calculateBottomPadding() +
-                    DialogDefaults.BodyPadding.calculateTopPadding()
-                bodySpacing = DialogDefaults.BodyPadding.calculateBottomPadding()
+                titleSpacing = DialogDefaults.TitlePadding.calculateBottomPadding()
                 Alert(
                     title = { Text("Title", modifier = Modifier.testTag(TITLE_TAG)) },
                     negativeButton = {
@@ -630,150 +540,101 @@ class DialogContentSizeAndPositionTest {
                     },
                     positiveButton = { Button(onClick = {}) {} },
                     content = { Text("Body", modifier = Modifier.testTag(BODY_TAG)) },
+                    verticalArrangement = Arrangement.spacedBy(0.dp, Alignment.CenterVertically),
                     modifier = Modifier.testTag(TEST_TAG),
                 )
             }
-        val dialogHeight = rule.onNodeWithTag(TEST_TAG).getUnclippedBoundsInRoot().height
-        val buttonHeight = rule.onNodeWithTag(BUTTON_TAG).getUnclippedBoundsInRoot().height
-        val titleHeight = rule.onNodeWithTag(TITLE_TAG).getUnclippedBoundsInRoot().height
-        val bodyHeight = rule.onNodeWithTag(BODY_TAG).getUnclippedBoundsInRoot().height
-        val centering =
-            (dialogHeight - bottomPadding - buttonHeight - topPadding - titleSpacing -
-                titleHeight - bodySpacing - bodyHeight) / 2
 
-        rule.onNodeWithTag(BODY_TAG)
-            .assertTopPositionInRootIsEqualTo(topPadding + titleHeight + titleSpacing + centering)
+        val titleBottom = rule.onNodeWithTag(TITLE_TAG).getUnclippedBoundsInRoot().bottom
+        val bodyTop = rule.onNodeWithTag(BODY_TAG).getUnclippedBoundsInRoot().top
+        bodyTop.assertIsEqualTo(titleBottom + titleSpacing)
     }
 
     @Test
-    fun centers_bodymessage_correctly_on_alert_with_chips() {
-        var bottomPadding = 0.dp
-        var topPadding = 0.dp
+    fun spaces_title_and_body_correctly_on_alert_with_chips() {
         var titleSpacing = 0.dp
-        var bodySpacing = 0.dp
 
         rule
             .setContentWithThemeForSizeAssertions(useUnmergedTree = true) {
-                bottomPadding = DialogDefaults.ChipsContentPadding.calculateBottomPadding()
-                topPadding = DialogDefaults.ChipsContentPadding.calculateTopPadding()
-                titleSpacing =
-                    DialogDefaults.TitlePadding.calculateBottomPadding() +
-                        DialogDefaults.BodyPadding.calculateTopPadding()
-                bodySpacing = DialogDefaults.BodyPadding.calculateBottomPadding()
+                titleSpacing = DialogDefaults.TitlePadding.calculateBottomPadding()
                 Alert(
                     icon = { TestImage(ICON_TAG) },
                     title = { Text("Title", modifier = Modifier.testTag(TITLE_TAG)) },
                     message = { Text("Message", modifier = Modifier.testTag(BODY_TAG)) },
                     content = {
-                        Chip(
-                            label = { Text("Chip") },
-                            onClick = {},
-                            modifier = Modifier.testTag(CHIP_TAG)
-                        )
+                        item {
+                            Chip(
+                                label = { Text("Chip") },
+                                onClick = {},
+                                modifier = Modifier.testTag(CHIP_TAG)
+                            )
+                        }
                     },
+                    verticalArrangement = Arrangement.spacedBy(0.dp, Alignment.CenterVertically),
                     modifier = Modifier.testTag(TEST_TAG),
                 )
             }
-        val iconHeight = rule.onNodeWithTag(ICON_TAG).getUnclippedBoundsInRoot().height
-        val dialogHeight = rule.onNodeWithTag(TEST_TAG).getUnclippedBoundsInRoot().height
-        val chipHeight = rule.onNodeWithTag(CHIP_TAG).getUnclippedBoundsInRoot().height
-        val titleHeight = rule.onNodeWithTag(TITLE_TAG).getUnclippedBoundsInRoot().height
-        val bodyHeight = rule.onNodeWithTag(BODY_TAG).getUnclippedBoundsInRoot().height
-        val centering = max(
-            0.dp,
-            (dialogHeight - bottomPadding - chipHeight - topPadding - iconHeight -
-                DialogDefaults.IconSpacing - titleHeight - titleSpacing - bodySpacing -
-                bodyHeight) / 2
-        )
 
-        rule.onNodeWithTag(BODY_TAG)
-            .assertTopPositionInRootIsEqualTo(topPadding + centering + iconHeight +
-                DialogDefaults.IconSpacing + titleHeight + titleSpacing)
+        val titleBottom = rule.onNodeWithTag(TITLE_TAG).getUnclippedBoundsInRoot().bottom
+        val bodyTop = rule.onNodeWithTag(BODY_TAG).getUnclippedBoundsInRoot().top
+        bodyTop.assertIsEqualTo(titleBottom + titleSpacing)
     }
 
     @Test
-    fun positions_buttons_correctly_on_alert_with_buttons() {
-        val buttonTag1 = "Button1"
-        val buttonTag2 = "Button2"
-        var bottomPadding = 0.dp
+    fun spaces_body_and_buttons_correctly_on_alert_with_buttons() {
+        var bodyPadding = 0.dp
+
         rule
             .setContentWithThemeForSizeAssertions(useUnmergedTree = true) {
-                bottomPadding = DialogDefaults.ButtonsContentPadding.calculateBottomPadding()
+                bodyPadding = DialogDefaults.BodyPadding.calculateBottomPadding()
                 Alert(
                     icon = {},
                     title = {},
                     negativeButton = {
-                        Button(onClick = {}, modifier = Modifier.testTag(buttonTag1)) {}
+                        Button(onClick = {}, modifier = Modifier.testTag(BUTTON_TAG)) {}
                     },
                     positiveButton = {
-                        Button(onClick = {}, modifier = Modifier.testTag(buttonTag2)) {}
+                        Button(onClick = {}) {}
                     },
-                    content = {},
+                    content = { Text("Body", modifier = Modifier.testTag(BODY_TAG)) },
+                    verticalArrangement = Arrangement.spacedBy(0.dp, Alignment.CenterVertically),
                     modifier = Modifier.testTag(TEST_TAG),
                 )
             }
-        val dialogBounds = rule.onNodeWithTag(TEST_TAG).getUnclippedBoundsInRoot()
-        val button1 = rule.onNodeWithTag(buttonTag1).getUnclippedBoundsInRoot()
-        val button2 = rule.onNodeWithTag(buttonTag2).getUnclippedBoundsInRoot()
-        rule.onNodeWithTag(buttonTag1, useUnmergedTree = true)
-            .assertTopPositionInRootIsEqualTo(dialogBounds.height - button1.height - bottomPadding)
-        rule.onNodeWithTag(buttonTag2, useUnmergedTree = true)
-            .assertTopPositionInRootIsEqualTo(dialogBounds.height - button2.height - bottomPadding)
-        rule.onNodeWithTag(buttonTag1, useUnmergedTree = true)
-            .assertLeftPositionInRootIsEqualTo(
-                (dialogBounds.width - DialogDefaults.ButtonSpacing) / 2 - button1.width)
-        rule.onNodeWithTag(buttonTag2, useUnmergedTree = true)
-            .assertLeftPositionInRootIsEqualTo(
-                (dialogBounds.width + DialogDefaults.ButtonSpacing) / 2)
+
+        val bodyBottom = rule.onNodeWithTag(BODY_TAG).getUnclippedBoundsInRoot().bottom
+        val buttonTop = rule.onNodeWithTag(BUTTON_TAG).getUnclippedBoundsInRoot().top
+        buttonTop.assertIsEqualTo(bodyBottom + bodyPadding)
     }
 
     @Test
-    fun positions_chip_correctly_on_alert_with_chips() {
-        var bottomPadding = 0.dp
-        var topPadding = 0.dp
-        var titleSpacing = 0.dp
-        var bodySpacing = 0.dp
+    fun spaces_body_and_chips_correctly_on_alert_with_chips() {
+        var bodyPadding = 0.dp
 
         rule
             .setContentWithThemeForSizeAssertions(useUnmergedTree = true) {
-                bottomPadding = DialogDefaults.ChipsContentPadding.calculateBottomPadding()
-                topPadding = DialogDefaults.ChipsContentPadding.calculateTopPadding()
-                titleSpacing =
-                    DialogDefaults.TitlePadding.calculateBottomPadding() +
-                        DialogDefaults.BodyPadding.calculateTopPadding()
-                bodySpacing = DialogDefaults.BodyPadding.calculateBottomPadding()
+                bodyPadding = DialogDefaults.BodyPadding.calculateBottomPadding()
                 Alert(
                     icon = { TestImage(ICON_TAG) },
                     title = { Text("Title", modifier = Modifier.testTag(TITLE_TAG)) },
                     message = { Text("Message", modifier = Modifier.testTag(BODY_TAG)) },
                     content = {
-                        Chip(
-                            label = { Text("Chip") },
-                            onClick = {},
-                            modifier = Modifier.testTag(CHIP_TAG)
-                        )
+                        item {
+                            Chip(
+                                label = { Text("Chip") },
+                                onClick = {},
+                                modifier = Modifier.testTag(CHIP_TAG)
+                            )
+                        }
                     },
+                    verticalArrangement = Arrangement.spacedBy(0.dp, Alignment.CenterVertically),
                     modifier = Modifier.testTag(TEST_TAG),
                 )
             }
-        val iconHeight = rule.onNodeWithTag(ICON_TAG).getUnclippedBoundsInRoot().height
-        val dialogHeight = rule.onNodeWithTag(TEST_TAG).getUnclippedBoundsInRoot().height
-        val chipHeight = rule.onNodeWithTag(CHIP_TAG).getUnclippedBoundsInRoot().height
-        val titleHeight = rule.onNodeWithTag(TITLE_TAG).getUnclippedBoundsInRoot().height
-        val bodyHeight = rule.onNodeWithTag(BODY_TAG).getUnclippedBoundsInRoot().height
-        val centering = max(
-            0.dp,
-            (dialogHeight - bottomPadding - chipHeight - topPadding - iconHeight -
-                DialogDefaults.IconSpacing - titleHeight - titleSpacing - bodySpacing -
-                bodyHeight) / 2
-        )
-        val chipTop = max(
-            dialogHeight - bottomPadding - chipHeight,
-            topPadding + centering + iconHeight + DialogDefaults.IconSpacing + titleHeight +
-                titleSpacing + bodyHeight + bodySpacing + centering
-        )
 
-        rule.onNodeWithTag(CHIP_TAG).assertTopPositionInRootIsEqualTo(chipTop)
+        val bodyBottom = rule.onNodeWithTag(BODY_TAG).getUnclippedBoundsInRoot().bottom
+        val chipTop = rule.onNodeWithTag(CHIP_TAG).getUnclippedBoundsInRoot().top
+        chipTop.assertIsEqualTo(bodyBottom + bodyPadding)
     }
 }
 
@@ -1061,6 +922,7 @@ class DialogContentColorTest {
         assertEquals(overrideColor, actualColor)
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     @Test
     fun gives_correct_background_color_on_alert_for_buttons() {
         verifyBackgroundColor(expected = { MaterialTheme.colors.background }) {
@@ -1074,6 +936,7 @@ class DialogContentColorTest {
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     @Test
     fun gives_correct_background_color_on_alert_for_chips() {
         verifyBackgroundColor(expected = { MaterialTheme.colors.background }) {
@@ -1086,6 +949,7 @@ class DialogContentColorTest {
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     @Test
     fun gives_correct_background_color_on_confirmation() {
         verifyBackgroundColor(expected = { MaterialTheme.colors.background }) {
