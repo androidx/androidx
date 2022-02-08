@@ -104,8 +104,11 @@ class PreviewConfigProviderTest {
     }
 
     @After
-    fun cleanUp() {
+    fun cleanUp(): Unit = runBlocking {
         if (::cameraProvider.isInitialized) {
+            withContext(Dispatchers.Main) {
+                cameraProvider.unbindAll()
+            }
             cameraProvider.shutdown()[10000, TimeUnit.MILLISECONDS]
         }
     }
