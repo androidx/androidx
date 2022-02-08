@@ -2,7 +2,7 @@
 
 JUnit Gtest
 
-# Package androidx.test.junitgtest
+# Package androidx.test.ext.junitgtest
 
 A JUnit runner for running Gtest suites on connected devices. Can be used by creating a Java/Kotlin class for the Gtest suite we want to run and annotating it with the `TargetLibrary` annotation. For example, given a gtest suite in a file `mytest.cpp`, we can create the following Kotlin class inside our `androidTest` directory.
 
@@ -12,7 +12,7 @@ A JUnit runner for running Gtest suites on connected devices. Can be used by cre
 class MyTest
 ```
 
-And the the `junitgtest` library must be linked to your test library like the example `CMakeLists.txt`
+And the `junit-gtest` library must be linked to your test library like the example `CMakeLists.txt`
 
 ```
 project("example")
