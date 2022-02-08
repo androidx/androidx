@@ -41,6 +41,7 @@ package androidx.window.embedding {
     method public static androidx.window.embedding.SplitController getInstance();
     method public java.util.Set<androidx.window.embedding.EmbeddingRule> getSplitRules();
     method public static void initialize(android.content.Context context, int staticRuleResourceId);
+    method public boolean isActivityEmbedded(android.app.Activity activity);
     method public boolean isSplitSupported();
     method public void registerRule(androidx.window.embedding.EmbeddingRule rule);
     method public void removeSplitListener(androidx.core.util.Consumer<java.util.List<androidx.window.embedding.SplitInfo>> consumer);

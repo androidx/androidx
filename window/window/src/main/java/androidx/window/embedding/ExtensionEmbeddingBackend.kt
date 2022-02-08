@@ -216,4 +216,8 @@ internal class ExtensionEmbeddingBackend @VisibleForTesting constructor(
     override fun isSplitSupported(): Boolean {
         return embeddingExtension != null
     }
+
+    override fun isActivityEmbedded(activity: Activity): Boolean {
+        return embeddingExtension?.isActivityEmbedded(activity) ?: false
+    }
 }

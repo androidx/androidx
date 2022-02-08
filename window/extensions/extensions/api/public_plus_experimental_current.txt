@@ -19,6 +19,7 @@ package androidx.window.extensions {
 package androidx.window.extensions.embedding {
 
   @androidx.window.extensions.ExperimentalWindowExtensionsApi public interface ActivityEmbeddingComponent {
+    method public boolean isActivityEmbedded(android.app.Activity);
     method public void setEmbeddingRules(java.util.Set<androidx.window.extensions.embedding.EmbeddingRule!>);
     method public void setSplitInfoCallback(java.util.function.Consumer<java.util.List<androidx.window.extensions.embedding.SplitInfo!>!>);
   }

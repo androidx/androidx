@@ -22,6 +22,7 @@ import android.app.Activity;
 import android.app.PendingIntent;
 import android.content.ComponentName;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.util.LayoutDirection;
@@ -120,6 +121,7 @@ public class SplitActivityBase extends AppCompatActivity
         super.onStart();
         mCallback = new SplitInfoCallback();
         mSplitController.addSplitListener(this, Runnable::run, mCallback);
+        updateEmbeddedStatus();
     }
 
     @Override
@@ -127,6 +129,12 @@ public class SplitActivityBase extends AppCompatActivity
         super.onStop();
         mSplitController.removeSplitListener(mCallback);
         mCallback = null;
+    }
+
+    @Override
+    public void onConfigurationChanged(@NonNull Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        updateEmbeddedStatus();
     }
 
     class SplitInfoCallback implements Consumer<List<SplitInfo>> {
@@ -321,5 +329,14 @@ public class SplitActivityBase extends AppCompatActivity
     int minSplitWidth() {
         DisplayMetrics dm = getResources().getDisplayMetrics();
         return (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, MIN_SPLIT_WIDTH_DP, dm);
+    }
+
+    /** Updates the status label that says when an activity is embedded. */
+    private void updateEmbeddedStatus() {
+        if (mSplitController.isActivityEmbedded(this)) {
+            mViewBinding.activityEmbeddedStatusTextView.setVisibility(View.VISIBLE);
+        } else {
+            mViewBinding.activityEmbeddedStatusTextView.setVisibility(View.GONE);
+        }
     }
 }
