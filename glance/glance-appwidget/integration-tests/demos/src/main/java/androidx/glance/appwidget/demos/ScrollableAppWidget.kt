@@ -39,16 +39,15 @@ import androidx.glance.action.ActionParameters
 import androidx.glance.action.actionParametersOf
 import androidx.glance.action.clickable
 import androidx.glance.appwidget.CheckBox
-import androidx.glance.appwidget.CircularProgressIndicator
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.GlanceAppWidgetReceiver
-import androidx.glance.appwidget.LinearProgressIndicator
 import androidx.glance.appwidget.SizeMode
 import androidx.glance.appwidget.action.ActionCallback
 import androidx.glance.appwidget.action.ToggleableStateKey
 import androidx.glance.appwidget.action.actionRunCallback
 import androidx.glance.appwidget.action.actionStartActivity
 import androidx.glance.appwidget.demos.ScrollableAppWidget.Companion.CheckboxKey
+import androidx.glance.appwidget.lazy.GridCells
 import androidx.glance.appwidget.lazy.LazyColumn
 import androidx.glance.appwidget.lazy.itemsIndexed
 import androidx.glance.appwidget.state.updateAppWidgetState
@@ -89,9 +88,6 @@ class ScrollableAppWidget : GlanceAppWidget() {
         Column(
             modifier = GlanceModifier.fillMaxSize().background(R.color.default_widget_background)
         ) {
-            LinearProgressIndicator()
-            LinearProgressIndicator(0.5f)
-            CircularProgressIndicator()
             Text(
                 text = "Fix header",
                 modifier = GlanceModifier
@@ -100,16 +96,14 @@ class ScrollableAppWidget : GlanceAppWidget() {
                     .background(Color(0x0a000000))
             )
             val width = LocalSize.current.width
-            if (width <= singleColumn.width) {
-                ScrollColumn(GlanceModifier.fillMaxSize())
-            } else {
-                Row {
+            when {
+                width <= singleColumn.width -> ScrollColumn(GlanceModifier.fillMaxSize())
+                width <= doubleColumn.width -> Row {
                     val modifier = GlanceModifier.fillMaxHeight().defaultWeight()
                     ScrollColumn(modifier)
-                    if (width >= tripleColumn.width) {
-                        ScrollColumn(modifier)
-                    }
+                    ScrollColumn(modifier)
                 }
+                else -> SampleGrid(cells = GridCells.Fixed(3))
             }
         }
     }
