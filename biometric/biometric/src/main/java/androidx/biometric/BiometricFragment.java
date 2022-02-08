@@ -38,6 +38,7 @@ import androidx.biometric.BiometricManager.Authenticators;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
+import androidx.lifecycle.ViewModelStoreOwner;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -214,7 +215,7 @@ public class BiometricFragment extends Fragment {
          * @return The {@link BiometricViewModel} tied to the host lifecycle.
          */
         @Nullable
-        BiometricViewModel getViewModel(@Nullable Context hostContext);
+        BiometricViewModel getViewModel(@Nullable ViewModelStoreOwner owner);
 
         /**
          * Checks if the current device has hardware sensor support for fingerprint authentication.
@@ -256,8 +257,8 @@ public class BiometricFragment extends Fragment {
 
         @Override
         @Nullable
-        public BiometricViewModel getViewModel(@Nullable Context hostContext) {
-            return BiometricPrompt.getViewModel(hostContext);
+        public BiometricViewModel getViewModel(@Nullable ViewModelStoreOwner owner) {
+            return BiometricPrompt.getViewModel(owner);
         }
 
         @Override
@@ -360,7 +361,7 @@ public class BiometricFragment extends Fragment {
     @Nullable
     private BiometricViewModel getViewModel() {
         if (mViewModel == null) {
-            mViewModel = mInjector.getViewModel(BiometricPrompt.getHostActivityOrContext(this));
+            mViewModel = mInjector.getViewModel(this);
         }
         return mViewModel;
     }
@@ -440,13 +441,6 @@ public class BiometricFragment extends Fragment {
     void authenticate(
             @NonNull BiometricPrompt.PromptInfo info,
             @Nullable BiometricPrompt.CryptoObject crypto) {
-
-        final Context host = BiometricPrompt.getHostActivityOrContext(this);
-        if (host == null) {
-            Log.e(TAG, "Not launching prompt. Client context was null.");
-            return;
-        }
-
         final BiometricViewModel viewModel = getViewModel();
         if (viewModel == null) {
             Log.e(TAG, "Not launching prompt. View model was null.");
@@ -916,7 +910,7 @@ public class BiometricFragment extends Fragment {
      */
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     private void launchConfirmCredentialActivity() {
-        final Context host = BiometricPrompt.getHostActivityOrContext(this);
+        final Context host = getContext();
         if (host == null) {
             Log.e(TAG, "Failed to check device credential. Client context not found.");
             return;
@@ -1182,7 +1176,7 @@ public class BiometricFragment extends Fragment {
      * @see DeviceUtils#shouldUseFingerprintForCrypto(Context, String, String)
      */
     private boolean isFingerprintDialogNeededForCrypto() {
-        final Context host = BiometricPrompt.getHostActivityOrContext(this);
+        final Context host = getContext();
         final BiometricViewModel viewModel = getViewModel();
         return host != null
                 && viewModel != null
