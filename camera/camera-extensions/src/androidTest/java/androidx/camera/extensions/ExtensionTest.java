@@ -115,6 +115,7 @@ public class ExtensionTest {
     @After
     public void cleanUp() throws InterruptedException, ExecutionException, TimeoutException {
         if (mProcessCameraProvider != null) {
+            mInstrumentation.runOnMainSync(() -> mProcessCameraProvider.unbindAll());
             mProcessCameraProvider.shutdown().get(10000, TimeUnit.MILLISECONDS);
             mExtensionsManager.shutdown().get(10000, TimeUnit.MILLISECONDS);
         }
