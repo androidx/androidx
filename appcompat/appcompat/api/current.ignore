@@ -1,0 +1,3 @@
+// Baseline format: 1.0
+ChangedSuperclass: androidx.appcompat.app.AppCompatDialog:
+    Class androidx.appcompat.app.AppCompatDialog superclass changed from android.app.Dialog to androidx.activity.ComponentDialog
