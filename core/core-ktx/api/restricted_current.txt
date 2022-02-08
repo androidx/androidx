@@ -310,6 +310,7 @@ package androidx.core.os {
 
   public final class BundleKt {
     method public static android.os.Bundle bundleOf(kotlin.Pair<java.lang.String,?>... pairs);
+    method public static android.os.Bundle bundleOf();
   }
 
   public final class HandlerKt {
