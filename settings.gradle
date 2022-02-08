@@ -461,6 +461,7 @@ includeProject(":core:core-remoteviews:integration-tests:demos", "core/core-remo
 includeProject(":core:core-splashscreen", "core/core-splashscreen", [BuildType.MAIN])
 includeProject(":core:core-splashscreen:core-splashscreen-samples", "core/core-splashscreen/samples", [BuildType.MAIN])
 includeProject(":core:core-role", "core/core-role", [BuildType.MAIN])
+includeProject(":core:uwb:uwb", "core/uwb/uwb", [BuildType.MAIN])
 includeProject(":cursoradapter:cursoradapter", "cursoradapter/cursoradapter", [BuildType.MAIN])
 includeProject(":customview:customview", "customview/customview", [BuildType.MAIN])
 includeProject(":customview:customview-poolingcontainer", "customview/customview-poolingcontainer", [BuildType.MAIN, BuildType.COMPOSE])
