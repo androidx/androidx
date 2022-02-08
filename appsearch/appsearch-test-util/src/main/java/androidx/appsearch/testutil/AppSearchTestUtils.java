@@ -122,7 +122,7 @@ public class AppSearchTestUtils {
     @NonNull
     public static VisibilityChecker createMockVisibilityChecker(
             @NonNull Set<String> visiblePrefixedSchemas) {
-        return (packageName, prefixedSchema, callerUid, callerHasSystemAccess, visibilityStore) ->
+        return (callerAccess, packageName, prefixedSchema, visibilityStore) ->
                 visiblePrefixedSchemas.contains(prefixedSchema);
     }
 }

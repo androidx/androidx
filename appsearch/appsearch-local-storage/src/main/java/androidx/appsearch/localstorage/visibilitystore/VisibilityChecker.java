@@ -28,16 +28,14 @@ public interface VisibilityChecker {
     /**
      * Checks whether the given caller has access to the given prefixed schemas.
      *
+     * @param callerAccess      Visibility access info of the calling app
      * @param packageName Package of app that owns the schemas.
      * @param prefixedSchema The prefixed schema type that the caller want to access.
-     * @param callerUid UID of the app that wants to see the data.
-     * @param callerHasSystemAccess whether the caller has system access.
      * @param visibilityStore The {@link VisibilityStore} that store all visibility information.
      */
     boolean isSchemaSearchableByCaller(
+            @NonNull CallerAccess callerAccess,
             @NonNull String packageName,
             @NonNull String prefixedSchema,
-            int callerUid,
-            boolean callerHasSystemAccess,
             @NonNull VisibilityStore visibilityStore);
 }

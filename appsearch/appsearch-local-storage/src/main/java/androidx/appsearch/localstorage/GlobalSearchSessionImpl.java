@@ -18,7 +18,6 @@ package androidx.appsearch.localstorage;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.os.Process;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -70,10 +69,7 @@ class GlobalSearchSessionImpl implements GlobalSearchSession {
         mContext = Preconditions.checkNotNull(context);
         mLogger = logger;
 
-        mSelfCallerAccess = new CallerAccess(
-                /*callingPackageName=*/mContext.getPackageName(),
-                /*callingUid=*/Process.myUid(),
-                /*callerHasSystemAccess=*/false);
+        mSelfCallerAccess = new CallerAccess(/*callingPackageName=*/mContext.getPackageName());
     }
 
     @NonNull
