@@ -13,103 +13,110 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package androidx.room
 
-package androidx.room;
-
-import android.content.Context;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.RestrictTo;
+import android.content.Context
+import androidx.annotation.RestrictTo
 
 /**
- * Utility class for Room.
+ * Utility functions for Room.
  */
-@SuppressWarnings("unused")
-public class Room {
-    static final String LOG_TAG = "ROOM";
-    /**
-     * The master table where room keeps its metadata information.
-     */
-    public static final String MASTER_TABLE_NAME = RoomMasterTable.TABLE_NAME;
-    private static final String CURSOR_CONV_SUFFIX = "_CursorConverter";
-
-    /**
-     * Creates a RoomDatabase.Builder for a persistent database. Once a database is built, you
-     * should keep a reference to it and re-use it.
-     *
-     * @param context The context for the database. This is usually the Application context.
-     * @param klass   The abstract class which is annotated with {@link Database} and extends
-     *                {@link RoomDatabase}.
-     * @param name    The name of the database file.
-     * @param <T>     The type of the database class.
-     * @return A {@code RoomDatabaseBuilder<T>} which you can use to create the database.
-     */
-    @SuppressWarnings("WeakerAccess")
-    @NonNull
-    public static <T extends RoomDatabase> RoomDatabase.Builder<T> databaseBuilder(
-            @NonNull Context context, @NonNull Class<T> klass, @NonNull String name) {
-        //noinspection ConstantConditions
-        if (name == null || name.trim().length() == 0) {
-            throw new IllegalArgumentException("Cannot build a database with null or empty name."
-                    + " If you are trying to create an in memory database, use Room"
-                    + ".inMemoryDatabaseBuilder");
-        }
-        return new RoomDatabase.Builder<>(context, klass, name);
-    }
-
-    /**
-     * Creates a RoomDatabase.Builder for an in memory database. Information stored in an in memory
-     * database disappears when the process is killed.
-     * Once a database is built, you should keep a reference to it and re-use it.
-     *
-     * @param context The context for the database. This is usually the Application context.
-     * @param klass   The abstract class which is annotated with {@link Database} and extends
-     *                {@link RoomDatabase}.
-     * @param <T>     The type of the database class.
-     * @return A {@code RoomDatabaseBuilder<T>} which you can use to create the database.
-     */
-    @NonNull
-    public static <T extends RoomDatabase> RoomDatabase.Builder<T> inMemoryDatabaseBuilder(
-            @NonNull Context context, @NonNull Class<T> klass) {
-        return new RoomDatabase.Builder<>(context, klass, null);
-    }
-
-    @SuppressWarnings({"TypeParameterUnusedInFormals", "ClassNewInstance"})
-    @NonNull
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public static <T, C> T getGeneratedImplementation(@NonNull Class<C> klass,
-            @NonNull String suffix) {
-        final String fullPackage = klass.getPackage().getName();
-        String name = klass.getCanonicalName();
-        final String postPackageName = fullPackage.isEmpty()
-                ? name
-                : name.substring(fullPackage.length() + 1);
-        final String implName = postPackageName.replace('.', '_') + suffix;
-        //noinspection TryWithIdenticalCatches
-        try {
-
-            final String fullClassName = fullPackage.isEmpty()
-                    ? implName
-                    : fullPackage + "." + implName;
-            @SuppressWarnings("unchecked")
-            final Class<T> aClass = (Class<T>) Class.forName(
-                    fullClassName, true, klass.getClassLoader());
-            return aClass.newInstance();
-        } catch (ClassNotFoundException e) {
-            throw new RuntimeException("cannot find implementation for "
-                    + klass.getCanonicalName() + ". " + implName + " does not exist");
-        } catch (IllegalAccessException e) {
-            throw new RuntimeException("Cannot access the constructor"
-                    + klass.getCanonicalName());
-        } catch (InstantiationException e) {
-            throw new RuntimeException("Failed to create an instance of "
-                    + klass.getCanonicalName());
-        }
-    }
-
-    /** @deprecated This type should not be instantiated as it contains only static methods. */
-    @Deprecated
+// TODO (b/225972678) remove class and make top-level functions in Room 3.0.
+open class Room {
+    /** This type should not be instantiated as it contains only static methods. */
+    @Deprecated("This type should not be instantiated as it contains only static methods. ")
     @SuppressWarnings("PrivateConstructorForUtilityClass")
-    public Room() {
+    constructor()
+
+    companion object {
+        internal const val LOG_TAG = "ROOM"
+
+        /**
+         * The master table where room keeps its metadata information.
+         */
+        const val MASTER_TABLE_NAME = RoomMasterTable.TABLE_NAME
+        private const val CURSOR_CONV_SUFFIX = "_CursorConverter"
+
+        @Suppress("UNCHECKED_CAST")
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        @JvmStatic
+        fun <T, C> getGeneratedImplementation(
+            klass: Class<C>,
+            suffix: String
+        ): T {
+            val fullPackage = klass.getPackage()!!.name
+            val name: String = klass.canonicalName!!
+            val postPackageName =
+                if (fullPackage.isEmpty()) name else name.substring(fullPackage.length + 1)
+            val implName = postPackageName.replace('.', '_') + suffix
+            return try {
+                val fullClassName = if (fullPackage.isEmpty()) {
+                    implName
+                } else {
+                    "$fullPackage.$implName"
+                }
+                val aClass = Class.forName(
+                    fullClassName, true, klass.classLoader
+                ) as Class<T>
+                aClass.newInstance()
+            } catch (e: ClassNotFoundException) {
+                throw RuntimeException(
+                    "Cannot find implementation for ${klass.canonicalName}. $implName does not " +
+                        "exist"
+                )
+            } catch (e: IllegalAccessException) {
+                throw RuntimeException(
+                    "Cannot access the constructor $klass.canonicalName"
+                )
+            } catch (e: InstantiationException) {
+                throw RuntimeException(
+                    "Failed to create an instance of $klass.canonicalName"
+                )
+            }
+        }
+
+        /**
+         * Creates a RoomDatabase.Builder for an in memory database. Information stored in an in memory
+         * database disappears when the process is killed.
+         * Once a database is built, you should keep a reference to it and re-use it.
+         *
+         * @param context The context for the database. This is usually the Application context.
+         * @param klass   The abstract class which is annotated with [Database] and extends
+         * [RoomDatabase].
+         * @param T     The type of the database class.
+         * @return A `RoomDatabaseBuilder<T>` which you can use to create the database.
+         */
+        @JvmStatic
+        fun <T : RoomDatabase> inMemoryDatabaseBuilder(
+            context: Context,
+            klass: Class<T>
+        ): RoomDatabase.Builder<T> {
+            return RoomDatabase.Builder(context, klass, null)
+        }
+
+        /**
+         * Creates a RoomDatabase.Builder for a persistent database. Once a database is built, you
+         * should keep a reference to it and re-use it.
+         *
+         * @param context The context for the database. This is usually the Application context.
+         * @param klass   The abstract class which is annotated with [Database] and extends
+         * [RoomDatabase].
+         * @param name    The name of the database file.
+         * @param T     The type of the database class.
+         * @return A `RoomDatabaseBuilder<T>` which you can use to create the database.
+         */
+        @JvmStatic
+        fun <T : RoomDatabase> databaseBuilder(
+            context: Context,
+            klass: Class<T>,
+            name: String?
+        ): RoomDatabase.Builder<T> {
+            require(!name.isNullOrBlank()) {
+                "Cannot build a database with null or empty name." +
+                    " If you are trying to create an in memory database, use Room" +
+                    ".inMemoryDatabaseBuilder"
+            }
+            return RoomDatabase.Builder(context, klass, name)
+        }
     }
 }

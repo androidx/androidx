@@ -13,184 +13,117 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package androidx.room
 
-package androidx.room;
-
-import android.content.ComponentName;
-import android.content.Context;
-import android.content.Intent;
-import android.content.ServiceConnection;
-import android.os.IBinder;
-import android.os.RemoteException;
-import android.util.Log;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-
-import java.util.Set;
-import java.util.concurrent.Executor;
-import java.util.concurrent.atomic.AtomicBoolean;
+import android.content.Intent
+import android.content.ServiceConnection
+import android.content.ComponentName
+import android.content.Context
+import android.os.IBinder
+import android.os.RemoteException
+import android.util.Log
+import androidx.room.Room.Companion.LOG_TAG
+import java.util.concurrent.Executor
+import java.util.concurrent.atomic.AtomicBoolean
 
 /**
- * Handles all the communication from {@link RoomDatabase} and {@link InvalidationTracker} to
- * {@link MultiInstanceInvalidationService}.
+ * Handles all the communication from [RoomDatabase] and [InvalidationTracker] to
+ * [MultiInstanceInvalidationService].
+ *
+ * @param context             The Context to be used for binding
+ * [IMultiInstanceInvalidationService].
+ * @param name                The name of the database file.
+ * @param serviceIntent       The [Intent] used for binding
+ * [IMultiInstanceInvalidationService].
+ * @param invalidationTracker The [InvalidationTracker]
+ * @param executor            The background executor.
  */
-class MultiInstanceInvalidationClient {
+internal class MultiInstanceInvalidationClient(
+    context: Context,
+    val name: String,
+    serviceIntent: Intent,
+    val invalidationTracker: InvalidationTracker,
+    val executor: Executor
+) {
+    private val appContext = context.applicationContext
 
     /**
-     * The application context.
+     * The client ID assigned by [MultiInstanceInvalidationService].
      */
-    // synthetic access
-    @SuppressWarnings("WeakerAccess")
-    final Context mAppContext;
+    var clientId = 0
+    lateinit var observer: InvalidationTracker.Observer
+    var service: IMultiInstanceInvalidationService? = null
 
-    /**
-     * The name of the database file.
-     */
-    // synthetic access
-    @SuppressWarnings("WeakerAccess")
-    final String mName;
-
-    /**
-     * The client ID assigned by {@link MultiInstanceInvalidationService}.
-     */
-    // synthetic access
-    @SuppressWarnings("WeakerAccess")
-    int mClientId;
-
-    // synthetic access
-    @SuppressWarnings("WeakerAccess")
-    final InvalidationTracker mInvalidationTracker;
-
-    // synthetic access
-    @SuppressWarnings("WeakerAccess")
-    final InvalidationTracker.Observer mObserver;
-
-    // synthetic access
-    @SuppressWarnings("WeakerAccess")
-    @Nullable
-    IMultiInstanceInvalidationService mService;
-
-    // synthetic access
-    @SuppressWarnings("WeakerAccess")
-    final Executor mExecutor;
-
-    // synthetic access
-    @SuppressWarnings("WeakerAccess")
-    final IMultiInstanceInvalidationCallback mCallback =
-            new IMultiInstanceInvalidationCallback.Stub() {
-                @Override
-                public void onInvalidation(final String[] tables) {
-                    mExecutor.execute(new Runnable() {
-                        @Override
-                        public void run() {
-                            mInvalidationTracker.notifyObserversByTableNames(tables);
-                        }
-                    });
-                }
-            };
-
-    // synthetic access
-    @SuppressWarnings("WeakerAccess")
-    final AtomicBoolean mStopped = new AtomicBoolean(false);
-
-    // synthetic access
-    @SuppressWarnings("WeakerAccess")
-    final ServiceConnection mServiceConnection = new ServiceConnection() {
-
-        @Override
-        public void onServiceConnected(ComponentName name, IBinder service) {
-            mService = IMultiInstanceInvalidationService.Stub.asInterface(service);
-            mExecutor.execute(mSetUpRunnable);
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName name) {
-            mExecutor.execute(mRemoveObserverRunnable);
-            mService = null;
-        }
-
-    };
-
-    // synthetic access
-    @SuppressWarnings("WeakerAccess")
-    final Runnable mSetUpRunnable = new Runnable() {
-        @Override
-        public void run() {
-            try {
-                final IMultiInstanceInvalidationService service = mService;
-                if (service != null) {
-                    mClientId = service.registerCallback(mCallback, mName);
-                    mInvalidationTracker.addObserver(mObserver);
-                }
-            } catch (RemoteException e) {
-                Log.w(Room.LOG_TAG, "Cannot register multi-instance invalidation callback", e);
+    val callback: IMultiInstanceInvalidationCallback =
+        object : IMultiInstanceInvalidationCallback.Stub() {
+            override fun onInvalidation(tables: Array<String>) {
+                executor.execute { invalidationTracker.notifyObserversByTableNames(*tables) }
             }
         }
-    };
 
-    // synthetic access
-    @SuppressWarnings("WeakerAccess")
-    final Runnable mRemoveObserverRunnable = new Runnable() {
-        @Override
-        public void run() {
-            mInvalidationTracker.removeObserver(mObserver);
+    val stopped = AtomicBoolean(false)
+
+    val serviceConnection: ServiceConnection = object : ServiceConnection {
+        override fun onServiceConnected(name: ComponentName, service: IBinder) {
+            this@MultiInstanceInvalidationClient.service =
+                IMultiInstanceInvalidationService.Stub.asInterface(service)
+            executor.execute(setUpRunnable)
         }
-    };
 
-    /**
-     * @param context             The Context to be used for binding
-     *                            {@link IMultiInstanceInvalidationService}.
-     * @param name                The name of the database file.
-     * @param serviceIntent       The {@link Intent} used for binding
-     *                            {@link IMultiInstanceInvalidationService}.
-     * @param invalidationTracker The {@link InvalidationTracker}
-     * @param executor            The background executor.
-     */
-    MultiInstanceInvalidationClient(Context context, String name, Intent serviceIntent,
-            InvalidationTracker invalidationTracker, Executor executor) {
-        mAppContext = context.getApplicationContext();
-        mName = name;
-        mInvalidationTracker = invalidationTracker;
-        mExecutor = executor;
-        // Use all tables names for observer.
-        final Set<String> tableNames = invalidationTracker.mTableIdLookup.keySet();
-        mObserver = new InvalidationTracker.Observer(tableNames.toArray(new String[0])) {
-            @Override
-            public void onInvalidated(@NonNull Set<String> tables) {
-                if (mStopped.get()) {
-                    return;
-                }
-                try {
-                    final IMultiInstanceInvalidationService service = mService;
-                    if (service != null) {
-                        service.broadcastInvalidation(mClientId, tables.toArray(new String[0]));
-                    }
-                } catch (RemoteException e) {
-                    Log.w(Room.LOG_TAG, "Cannot broadcast invalidation", e);
-                }
-            }
-
-            @Override
-            boolean isRemote() {
-                return true;
-            }
-        };
-        mAppContext.bindService(serviceIntent, mServiceConnection, Context.BIND_AUTO_CREATE);
+        override fun onServiceDisconnected(name: ComponentName) {
+            executor.execute(removeObserverRunnable)
+            service = null
+        }
     }
 
-    void stop() {
-        if (mStopped.compareAndSet(false, true)) {
-            mInvalidationTracker.removeObserver(mObserver);
-            try {
-                final IMultiInstanceInvalidationService service = mService;
-                if (service != null) {
-                    service.unregisterCallback(mCallback, mClientId);
-                }
-            } catch (RemoteException e) {
-                Log.w(Room.LOG_TAG, "Cannot unregister multi-instance invalidation callback", e);
+    val setUpRunnable = Runnable {
+        try {
+            service?.let {
+                clientId = it.registerCallback(callback, name)
+                invalidationTracker.addObserver(observer)
             }
-            mAppContext.unbindService(mServiceConnection);
+        } catch (e: RemoteException) {
+            Log.w(LOG_TAG, "Cannot register multi-instance invalidation callback", e)
+        }
+    }
+
+    val removeObserverRunnable = Runnable { invalidationTracker.removeObserver(observer) }
+
+    init {
+        // Use all tables names for observer.
+        val tableNames: Set<String> = invalidationTracker.tableIdLookup.keys
+        observer = object : InvalidationTracker.Observer(tableNames.toTypedArray()) {
+            override fun onInvalidated(tables: Set<String>) {
+                if (stopped.get()) {
+                    return
+                }
+
+                try {
+                    service?.broadcastInvalidation(clientId, tables.toTypedArray())
+                } catch (e: RemoteException) {
+                    Log.w(LOG_TAG, "Cannot broadcast invalidation", e)
+                }
+            }
+
+            override val isRemote: Boolean
+                get() = true
+        }
+        appContext.bindService(
+            serviceIntent,
+            serviceConnection,
+            Context.BIND_AUTO_CREATE
+        )
+    }
+
+    fun stop() {
+        if (stopped.compareAndSet(false, true)) {
+            invalidationTracker.removeObserver(observer)
+            try {
+                service?.unregisterCallback(callback, clientId)
+            } catch (e: RemoteException) {
+                Log.w(LOG_TAG, "Cannot unregister multi-instance invalidation callback", e)
+            }
+            appContext.unbindService(serviceConnection)
         }
     }
 }

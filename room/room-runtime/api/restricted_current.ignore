@@ -1,4 +1,12 @@
 // Baseline format: 1.0
+ChangedType: androidx.room.InvalidationTracker#createLiveData(String[], boolean, java.util.concurrent.Callable<T>):
+    Method androidx.room.InvalidationTracker.createLiveData has changed return type from androidx.lifecycle.LiveData<T!> to androidx.lifecycle.LiveData<T>
+ChangedType: androidx.room.InvalidationTracker#createLiveData(String[], java.util.concurrent.Callable<T>):
+    Method androidx.room.InvalidationTracker.createLiveData has changed return type from androidx.lifecycle.LiveData<T!> to androidx.lifecycle.LiveData<T>
+ChangedType: androidx.room.Room#databaseBuilder(android.content.Context, Class<T>, String):
+    Method androidx.room.Room.databaseBuilder has changed return type from androidx.room.RoomDatabase.Builder<T!> to androidx.room.RoomDatabase.Builder<T>
+ChangedType: androidx.room.Room#inMemoryDatabaseBuilder(android.content.Context, Class<T>):
+    Method androidx.room.Room.inMemoryDatabaseBuilder has changed return type from androidx.room.RoomDatabase.Builder<T!> to androidx.room.RoomDatabase.Builder<T>
 ChangedType: androidx.room.util.FtsTableInfo#columns:
     Field androidx.room.util.FtsTableInfo.columns has changed type from java.util.Set<java.lang.String!> to java.util.Set<java.lang.String>
 ChangedType: androidx.room.util.FtsTableInfo#options:

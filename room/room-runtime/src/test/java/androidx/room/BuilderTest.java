@@ -48,18 +48,6 @@ import java.util.concurrent.Executor;
 @RunWith(JUnit4.class)
 public class BuilderTest {
     @Test(expected = IllegalArgumentException.class)
-    public void nullContext() {
-        //noinspection ConstantConditions
-        Room.databaseBuilder(null, RoomDatabase.class, "bla").build();
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void nullContext2() {
-        //noinspection ConstantConditions
-        Room.inMemoryDatabaseBuilder(null, RoomDatabase.class).build();
-    }
-
-    @Test(expected = IllegalArgumentException.class)
     public void nullName() {
         //noinspection ConstantConditions
         Room.databaseBuilder(mock(Context.class), RoomDatabase.class, null).build();

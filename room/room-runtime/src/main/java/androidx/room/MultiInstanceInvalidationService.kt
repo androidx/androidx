@@ -13,125 +13,110 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package androidx.room
 
-package androidx.room;
-
-import android.app.Service;
-import android.content.Intent;
-import android.os.IBinder;
-import android.os.RemoteCallbackList;
-import android.os.RemoteException;
-import android.util.Log;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-
-import java.util.HashMap;
+import android.app.Service
+import android.os.RemoteCallbackList
+import android.content.Intent
+import android.os.IBinder
+import android.os.RemoteException
+import android.util.Log
+import androidx.room.Room.Companion.LOG_TAG
 
 /**
- * A {@link Service} for remote invalidation among multiple {@link InvalidationTracker} instances.
- * This service runs in the main app process. All the instances of {@link InvalidationTracker}
+ * A [Service] for remote invalidation among multiple [InvalidationTracker] instances.
+ * This service runs in the main app process. All the instances of [InvalidationTracker]
  * (potentially in other processes) has to connect to this service.
  *
- * <p>The intent to launch it can be specified by
- * {@link RoomDatabase.Builder#setMultiInstanceInvalidationServiceIntent}, although the service is
+ * The intent to launch it can be specified by
+ * [RoomDatabase.Builder.setMultiInstanceInvalidationServiceIntent], although the service is
  * defined in the manifest by default so there should be no need to override it in a normal
  * situation.
  */
 @ExperimentalRoomApi
-public class MultiInstanceInvalidationService extends Service {
+class MultiInstanceInvalidationService : Service() {
+    internal var maxClientId = 0
+    internal val clientNames = mutableMapOf<Int, String>()
 
-    // synthetic access
-    @SuppressWarnings("WeakerAccess")
-    int mMaxClientId = 0;
+    internal val callbackList: RemoteCallbackList<IMultiInstanceInvalidationCallback> =
+        object : RemoteCallbackList<IMultiInstanceInvalidationCallback>() {
+            override fun onCallbackDied(
+                callback: IMultiInstanceInvalidationCallback,
+                cookie: Any
+            ) {
+                clientNames.remove(cookie as Int)
+            }
+        }
 
-    // synthetic access
-    @SuppressWarnings("WeakerAccess")
-    final HashMap<Integer, String> mClientNames = new HashMap<>();
-
-    // synthetic access
-    @SuppressWarnings("WeakerAccess")
-    final RemoteCallbackList<IMultiInstanceInvalidationCallback> mCallbackList =
-            new RemoteCallbackList<IMultiInstanceInvalidationCallback>() {
-                @Override
-                public void onCallbackDied(IMultiInstanceInvalidationCallback callback,
-                        Object cookie) {
-                    mClientNames.remove((int) cookie);
+    private val binder: IMultiInstanceInvalidationService.Stub =
+        object : IMultiInstanceInvalidationService.Stub() {
+            // Assigns a client ID to the client.
+            override fun registerCallback(
+                callback: IMultiInstanceInvalidationCallback,
+                name: String?
+            ): Int {
+                if (name == null) {
+                    return 0
                 }
-            };
+                synchronized(callbackList) {
+                    val clientId = ++maxClientId
+                    // Use the client ID as the RemoteCallbackList cookie.
+                    return if (callbackList.register(callback, clientId)) {
+                        clientNames[clientId] = name
+                        clientId
+                    } else {
+                        --maxClientId
+                        0
+                    }
+                }
+            }
 
-    private final IMultiInstanceInvalidationService.Stub mBinder =
-            new IMultiInstanceInvalidationService.Stub() {
+            // Explicitly removes the client.
+            // The client can die without calling this. In that case, callbackList
+            // .onCallbackDied() can take care of removal.
+            override fun unregisterCallback(
+                callback: IMultiInstanceInvalidationCallback,
+                clientId: Int
+            ) {
+                synchronized(callbackList) {
+                    callbackList.unregister(callback)
+                    clientNames.remove(clientId)
+                }
+            }
 
-                // Assigns a client ID to the client.
-                @Override
-                public int registerCallback(IMultiInstanceInvalidationCallback callback,
-                        String name) {
+            // Broadcasts table invalidation to other instances of the same database file.
+            // The broadcast is not sent to the caller itself.
+            override fun broadcastInvalidation(clientId: Int, tables: Array<String>) {
+                synchronized(callbackList) {
+                    val name = clientNames[clientId]
                     if (name == null) {
-                        return 0;
+                        Log.w(LOG_TAG, "Remote invalidation client ID not registered")
+                        return
                     }
-                    synchronized (mCallbackList) {
-                        int clientId = ++mMaxClientId;
-                        // Use the client ID as the RemoteCallbackList cookie.
-                        if (mCallbackList.register(callback, clientId)) {
-                            mClientNames.put(clientId, name);
-                            return clientId;
-                        } else {
-                            --mMaxClientId;
-                            return 0;
-                        }
-                    }
-                }
-
-                // Explicitly removes the client.
-                // The client can die without calling this. In that case, mCallbackList
-                // .onCallbackDied() can take care of removal.
-                @Override
-                public void unregisterCallback(IMultiInstanceInvalidationCallback callback,
-                        int clientId) {
-                    synchronized (mCallbackList) {
-                        mCallbackList.unregister(callback);
-                        mClientNames.remove(clientId);
-                    }
-                }
-
-                // Broadcasts table invalidation to other instances of the same database file.
-                // The broadcast is not sent to the caller itself.
-                @Override
-                public void broadcastInvalidation(int clientId, String[] tables) {
-                    synchronized (mCallbackList) {
-                        String name = mClientNames.get(clientId);
-                        if (name == null) {
-                            Log.w(Room.LOG_TAG, "Remote invalidation client ID not registered");
-                            return;
-                        }
-                        int count = mCallbackList.beginBroadcast();
-                        try {
-                            for (int i = 0; i < count; i++) {
-                                int targetClientId = (int) mCallbackList.getBroadcastCookie(i);
-                                String targetName = mClientNames.get(targetClientId);
-                                if (clientId == targetClientId // This is the caller itself.
-                                        || !name.equals(targetName)) { // Not the same file.
-                                    continue;
-                                }
-                                try {
-                                    IMultiInstanceInvalidationCallback callback =
-                                            mCallbackList.getBroadcastItem(i);
-                                    callback.onInvalidation(tables);
-                                } catch (RemoteException e) {
-                                    Log.w(Room.LOG_TAG, "Error invoking a remote callback", e);
-                                }
+                    val count = callbackList.beginBroadcast()
+                    try {
+                        for (i in 0 until count) {
+                            val targetClientId = callbackList.getBroadcastCookie(i) as Int
+                            val targetName = clientNames[targetClientId]
+                            if (clientId == targetClientId || name != targetName) {
+                                // Skip if this is the caller itself or broadcast is for another
+                                // database.
+                                continue
                             }
-                        } finally {
-                            mCallbackList.finishBroadcast();
+                            try {
+                                callbackList.getBroadcastItem(i).onInvalidation(tables)
+                            } catch (e: RemoteException) {
+                                Log.w(LOG_TAG, "Error invoking a remote callback", e)
+                            }
                         }
+                    } finally {
+                        callbackList.finishBroadcast()
                     }
                 }
-            };
+            }
+        }
 
-    @Nullable
-    @Override
-    public IBinder onBind(@NonNull Intent intent) {
-        return mBinder;
+    override fun onBind(intent: Intent): IBinder {
+        return binder
     }
 }

@@ -18,6 +18,8 @@ package androidx.room;
 
 import androidx.sqlite.db.SupportSQLiteOpenHelper;
 
+import org.mockito.Mockito;
+
 public class BuilderTest_TestDatabase_Impl extends BuilderTest.TestDatabase {
     DatabaseConfiguration mConfig;
     @Override
@@ -28,12 +30,12 @@ public class BuilderTest_TestDatabase_Impl extends BuilderTest.TestDatabase {
 
     @Override
     protected SupportSQLiteOpenHelper createOpenHelper(DatabaseConfiguration config) {
-        return null;
+        return Mockito.mock(SupportSQLiteOpenHelper.class);
     }
 
     @Override
     protected InvalidationTracker createInvalidationTracker() {
-        return null;
+        return Mockito.mock(InvalidationTracker.class);
     }
 
     @Override

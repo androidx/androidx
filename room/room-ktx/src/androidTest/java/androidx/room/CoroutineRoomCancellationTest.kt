@@ -179,7 +179,7 @@ class CoroutineRoomCancellationTest {
         }
     }
 
-    private class TestInvalidationTracker(db: RoomDatabase) : InvalidationTracker(db) {
+    private class TestInvalidationTracker(db: RoomDatabase) : InvalidationTracker(db, "") {
         val observers = mutableListOf<Observer>()
 
         override fun addObserver(observer: Observer) {

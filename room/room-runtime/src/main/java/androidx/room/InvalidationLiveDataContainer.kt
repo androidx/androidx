@@ -14,46 +14,42 @@
  * limitations under the License.
  */
 
-package androidx.room;
+package androidx.room
 
-import androidx.annotation.VisibleForTesting;
-import androidx.lifecycle.LiveData;
-
-import java.util.Collections;
-import java.util.IdentityHashMap;
-import java.util.Set;
-import java.util.concurrent.Callable;
+import androidx.lifecycle.LiveData
+import java.util.Collections
+import java.util.IdentityHashMap
+import java.util.concurrent.Callable
 
 /**
- * A helper class that maintains {@link RoomTrackingLiveData} instances for an
- * {@link InvalidationTracker}.
- * <p>
+ * A helper class that maintains [RoomTrackingLiveData] instances for an
+ * [InvalidationTracker].
+ *
  * We keep a strong reference to active LiveData instances to avoid garbage collection in case
  * developer does not hold onto the returned LiveData.
  */
-class InvalidationLiveDataContainer {
-    @SuppressWarnings("WeakerAccess")
-    @VisibleForTesting
-    final Set<LiveData> mLiveDataSet = Collections.newSetFromMap(
-            new IdentityHashMap<LiveData, Boolean>()
-    );
-    private final RoomDatabase mDatabase;
+internal class InvalidationLiveDataContainer(private val database: RoomDatabase) {
+    internal val liveDataSet: MutableSet<LiveData<*>> = Collections.newSetFromMap(IdentityHashMap())
 
-    InvalidationLiveDataContainer(RoomDatabase database) {
-        mDatabase = database;
+    fun <T> create(
+        tableNames: Array<String>,
+        inTransaction: Boolean,
+        computeFunction: Callable<T>
+    ): LiveData<T> {
+        return RoomTrackingLiveData(
+            database,
+            this,
+            inTransaction,
+            computeFunction,
+            tableNames
+        )
     }
 
-    <T> LiveData<T> create(String[] tableNames, boolean inTransaction,
-            Callable<T> computeFunction) {
-        return new RoomTrackingLiveData<>(mDatabase, this, inTransaction, computeFunction,
-                tableNames);
+    fun onActive(liveData: LiveData<*>) {
+        liveDataSet.add(liveData)
     }
 
-    void onActive(LiveData liveData) {
-        mLiveDataSet.add(liveData);
-    }
-
-    void onInactive(LiveData liveData) {
-        mLiveDataSet.remove(liveData);
+    fun onInactive(liveData: LiveData<*>) {
+        liveDataSet.remove(liveData)
     }
 }
